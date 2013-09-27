@@ -9,9 +9,7 @@
 
 <body>
 
-<div id="banner">
-
-</div>
+<div id="banner">ManagerManager plugin fo MODx Evolution</div>
 
 
 <div id="main">
@@ -29,8 +27,53 @@
         </ul>   
     </div>
     
-  <div id="content">
+  <div class="content">
     <h1>Changelog    </h1>
+	<h3>0.3.11 (2012.02.15) by <a href="http://www.DivanDesign.biz">DivanDesign</a></h3>
+	<ul>
+		<li>Bugfix: ManagerManager plugin settings last tab (functions/tabs.inc.php: line 132)</li>
+		<li>New: mm_ddAutoFolders widget - Automatically move documents (OnBeforeDocFormSave event) based on their date (publication date; any date in tv) into folders of year and month (like 2012/02/).</li>
+		<li>mm_ddSetFieldValue update to 1.0.2
+			<ul>
+				<li>Bugfix: Date format (widgets/ddsetfieldvalue/ddsetfieldvalue.php: line 34, 37)</li>
+			</ul>
+		</li>
+		<li>mm_ddGMap update to 1.0.2
+			<ul>
+				<li>New: Multilingual map (widgets/ddgmap/ddgmap.php: line 14, 103)</li>
+			</ul>
+		</li>
+		<li>Added documentation for new widgets: mm_ddGMap, mm_ddYMap, mm_ddSetFieldValue, mm_ddMaxLength, mm_ddAutoFolders (<a href="widgets.htm">docs/widgets.htm</a>)</li>
+		<li>Change style of documentation (docs/css/mm.css & minor changes of all html files in docs/) like you see =)</li>
+	</ul>
+	<h3>0.3.10 (2012.01.16) by <a href="http://www.DivanDesign.biz">DivanDesign</a></h3>
+	<ul>
+		<li>Bugfix: Fix jQ selector for rules mm_moveFieldsToTab (functions/fields.inc.php: line 274)</li>
+		<li>New: mm_default now support all fields (for TV like tv99, where 12 - id of TV) (functions/fieldvalues.inc.php: line 170)</li>
+		<li>New: ManagerManager now support OnBeforeDocFormSave event:
+			<ul>
+				<li>Initialization on mm.inc.php: line 450-452</li>
+				<li>Added validating event on functions/fields.inc.php: line 17, 81, 161, 213, 318</li>
+				<li>Added validating event on functions/fieldvalues.inc.php: line 25, 199, 298</li>
+				<li>Added validating event on functions/sections.inc.php: line 16</li>
+				<li>Added validating event on functions/tabs.inc.php: line 15, 65, 132</li>
+				<li>Added validating event on functions/templates.inc.php: line 17</li>
+				<li>Added validating event on widgets/!template/!template.php: line 12. Moved the output to the browser into if on widgets/!template.php: line 59</li>
+				<li>Added validating event on widgets/accessdenied/accessdenied.php: line 16. Moved the output to the browser into if on widgets/!template.php: line 34</li>
+				<li>Added validating event on widgets/colors/colors.php: line 12</li>
+				<li>Added validating event on widgets/showimagetvs/showimagetvs.php: line 15</li>
+				<li>Added validating event on widgets/tags/tags.php: line 12. Moved the output to the browser into if on widgets/tags/tags.php: line 98</li>
+			</ul>
+		</li>
+		<li>New: mm_ddGMap widget - integrate the Google Maps</li>
+		<li>New: mm_ddYMap widget - integrate the Yandex Maps</li>
+		<li>New: mm_ddSetFieldValue widget - sets a value for a field (always!)</li>
+		<li>New: mm_ddMaxLength widget - limit the number of characters in the TV (like the Twitter)</li>
+		<li>jQuery update to 1.7.1 (plugin.txt: line 33, 34)</li>
+		<li>New event (OnBeforeDocFormSave) in installation instuctions (docs/install.htm)</li>
+		<li>Credits in docs/index.htm =)</li>
+	</ul>
+	
     <h3>0.3.9</h3>
 	<ul>
 			<li><a href="http://modxcms.com/forums/index.php/topic,47796.0.html">Bugfix</a>: PHP error with versions &lt; 5.2.3 (thanks mamalovesyou)</li>

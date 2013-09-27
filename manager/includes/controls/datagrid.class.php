@@ -13,7 +13,7 @@ $__DataGridCnt=0;
 class DataGrid {
 
 	var $ds; // datasource
-
+    var $id;
 	var $pageSize;			// pager settings
 	var $pageNumber;
 	var $pager;
@@ -46,6 +46,8 @@ class DataGrid {
 	var $rowAlign;			// vertical alignment: top, middle, bottom
 	var $rowIdField;
 	
+        var $pagerStyle;
+        var $pagerClass;
 	var $noRecordMsg = "No records found.";
 
 	function DataGrid($id,$ds,$pageSize=20,$pageNumber=-1) {		
@@ -75,11 +77,11 @@ class DataGrid {
 		for($c=0;$c<$this->_colcount;$c++){
 			$colStyle = $Style;
 			$fld=trim($this->_fieldnames[$c]);
-			$width=$this->_colwidths[$c];
-			$align=$this->_colaligns[$c];
-			$color=$this->_colcolors[$c];
-			$type=$this->_coltypes[$c];
-			$nowrap=$this->_colwraps[$c];
+                        $width=isset($this->_colwidths[$c]) ? $this->_colwidths[$c] : null;
+                        $align=isset($this->_colaligns[$c]) ? $this->_colaligns[$c] : null;
+                        $color=isset($this->_colcolors[$c]) ? $this->_colcolors[$c] : null;
+                        $type= isset($this->_coltypes[$c]) ? $this->_coltypes[$c] : null;
+                        $nowrap=isset($this->_colwraps[$c]) ? $this->_colwraps[$c] : null;
 			$value = $row[($this->_isDataset && $fld ? $fld:$c)];
 			if($color && $Style) $colStyle = substr($colStyle,0,-1).";background-color:$color;'";
 			$value = $this->formatColumnValue($row,$value,$type,$align);
@@ -141,7 +143,7 @@ class DataGrid {
 	}
 
 	function render(){
-
+		global $modx;
 		$columnHeaderStyle	= ($this->columnHeaderStyle)? "style='".$this->columnHeaderStyle."'":'';
 		$columnHeaderClass	= ($this->columnHeaderClass)? "class='".$this->columnHeaderClass."'":"";
 		$cssStyle			= ($this->cssStyle)? "style='".$this->cssStyle."'":'';
@@ -166,9 +168,9 @@ class DataGrid {
 		if(!$this->_altItemStyle && !$this->_altItemClass) $this->_altItemStyle = "style='color:black;background-color:#eeeeee'";
 
 		if($this->_isDataset && !$this->columns) {
-			$cols = mysql_num_fields($this->ds);
+			$cols = $modx->db->numFields($this->ds);
 			for($i=0;$i<$cols;$i++) 
-				$this->columns.= ($i ? ",":"").mysql_field_name($this->ds,$i);
+				$this->columns.= ($i ? ",":"").$modx->db->fieldName($this->ds,$i);
 		}
 		
 		// start grid
@@ -196,14 +198,14 @@ class DataGrid {
 		$tblColHdr.="</tr></thead>\n";
 
 		// build rows 
-		$rowcount = $this->_isDataset ? mysql_num_rows($this->ds):count($this->ds);
+		$rowcount = $this->_isDataset ? $modx->db->getRecordCount($this->ds):count($this->ds);
 		$this->_fieldnames = explode(",",$this->fields);
 		if($rowcount==0) $tblRows.= "<tr><td ".$this->_itemStyle." ".$this->_itemClass." colspan='".$this->_colcount."'>".$this->noRecordMsg."</td></tr>\n";
 		else {
 			// render grid items
 			if($this->pageSize<=0) {
 				for($r=0;$r<$rowcount;$r++){ 
-					$row = $this->_isDataset ? mysql_fetch_assoc($this->ds):$this->ds[$r];
+					$row = $this->_isDataset ? $modx->db->getRow($this->ds):$this->ds[$r];
 					$tblRows.= $this->RenderRowFnc($r+1,$row);
 				}
 			}

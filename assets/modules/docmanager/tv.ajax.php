@@ -3,9 +3,11 @@
  * This file includes slightly modified code from the MODx core distribution.
  */
 
-require_once '../../../manager/includes/protect.inc.php'; 
-include_once ('../../../manager/includes/config.inc.php');
-include_once (MODX_BASE_PATH.'manager/includes/document.parser.class.inc.php');
+include_once("../../cache/siteManager.php");
+
+require_once '../../../'.MGR_DIR.'/includes/protect.inc.php';
+include_once ('../../../'.MGR_DIR.'/includes/config.inc.php');
+include_once (MODX_MANAGER_PATH.'includes/document.parser.class.inc.php');
 include_once (MODX_BASE_PATH.'assets/modules/docmanager/classes/docmanager.class.php');
 $modx = new DocumentParser;
 $modx->getSettings();
@@ -22,7 +24,7 @@ $dm->getTheme();
  	$limit = $modx->db->getRecordCount($rs);
  	
  	if ($limit > 0) {
-		require (MODX_BASE_PATH.'/manager/includes/tmplvars.commands.inc.php');
+		require (MODX_MANAGER_PATH.'includes/tmplvars.commands.inc.php');
 		$output.= "<table style='position:relative' border='0' cellspacing='0' cellpadding='3' width='96%'>";
 
 		for ($i=0; $i<$limit; $i++) {
@@ -180,14 +182,14 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
 							lastImageCtrl = ctrl;
 							var w = screen.width * 0.7;
 							var h = screen.height * 0.7;
-							OpenServerBrowser('".$base_url."manager/media/browser/mcpuk/browser.html?Type=images&Connector=".$base_url."manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath=".$base_url."', w, h);
+							OpenServerBrowser('media/browser/mcpuk/browser.php?Type=images', w, h);
 						}
 						
 						function BrowseFileServer(ctrl) {
 							lastFileCtrl = ctrl;
 							var w = screen.width * 0.7;
 							var h = screen.height * 0.7;
-							OpenServerBrowser('".$base_url."manager/media/browser/mcpuk/browser.html?Type=files&Connector=".$base_url."manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath=".$base_url."', w, h);
+							OpenServerBrowser('media/browser/mcpuk/browser.php?Type=files', w, h);
 						}
 						
 						function SetUrl(url, width, height, alt){
@@ -235,14 +237,14 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
 							lastImageCtrl = ctrl;
 							var w = screen.width * 0.7;
 							var h = screen.height * 0.7;
-							OpenServerBrowser('".$base_url."manager/media/browser/mcpuk/browser.html?Type=images&Connector=".$base_url."manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath=".$base_url."', w, h);
+							OpenServerBrowser('media/browser/mcpuk/browser.php?Type=images', w, h);
 						}
 									
 						function BrowseFileServer(ctrl) {
 							lastFileCtrl = ctrl;
 							var w = screen.width * 0.7;
 							var h = screen.height * 0.7;
-							OpenServerBrowser('".$base_url."manager/media/browser/mcpuk/browser.html?Type=files&Connector=".$base_url."manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath=".$base_url."', w, h);
+							OpenServerBrowser('media/browser/mcpuk/browser.php?Type=files', w, h);
 						}
 						
 						function SetUrl(url, width, height, alt){
@@ -272,10 +274,11 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
 
 
 function ParseIntputOptions($v) {
+        global $modx;
 	$a = array();
 	if(is_array($v)) return $v;
 	else if(is_resource($v)) {
-		while ($cols = mysql_fetch_row($v)) $a[] = $cols;
+		while ($cols = $modx->db->getRow($v)) $a[] = $cols;
 	}
 	else $a = explode("||", $v);
 	return $a;

@@ -11,13 +11,14 @@ $modx_textdir = 'rtl';
 $modx_lang_attribute = 'fa'; // Manager HTML and XML Language Attribute
 $modx_manager_charset = 'UTF-8';
 
-$_lang["about_msg"] = 'مادایکس یک <a href="http://modxcms.com/what-is-modx.html" target="_blank">سیستم مدیریت محتوای ساختار یافته و پیشرفته  توسط PHP میباشد</a> که  تحت لیسانس <a href="../assets/docs/license.txt">GNU-GPL</a> منتشر شده است';
+$_lang["about_msg"] = 'مادایکس یک <a href="http://modx.com/" target="_blank">سیستم مدیریت محتوای ساختار یافته و پیشرفته  توسط PHP میباشد</a> که  تحت لیسانس <a href="../assets/docs/license.txt">GNU-GPL</a> منتشر شده است';
 $_lang["about_title"] = 'درباره مادایکس';
 $_lang["access_permission_denied"] = 'شما دسترسی لازم را برای این پرونده ندارید.';
 $_lang["access_permission_parent_denied"] = 'شما اجازه یا دسترسی ایجاد یا انتقال پرونده ای جدید در این مکان را ندارید!. لطفا مکان دیگری را انتخاب کنید.';
 $_lang["access_permissions"] = 'سطوح دسترسی';
 $_lang["access_permissions_add_resource_group"] = 'ایجاد یک گروه جدید برای پرونده ها';
 $_lang["access_permissions_add_user_group"] = 'ایجاد یک گروه کاربری جدید';
+$_lang["access_permissions_docs_collision"] = 'Because the Web User Groups and Manager User Groups conflict for your Role, this Resource will be public. Contact a site administrator for further help.';
 $_lang["access_permissions_docs_message"] = 'در اینجا شما میتوانید انتخاب کنید که این پرونده جزو کدام گروه از پرونده هاست';
 $_lang["access_permissions_group_link"] = 'ایجاد وب لینک گروهی';
 $_lang["access_permissions_introtext"] = 'در اینجا شما میتوانید گروههای کاربری و گروههای پرونده ها را که برای اعمال در سطوح دسترسی کاربرد دارند را مدیریت کنید. برای افزودن کاربر به یک گروه کاربری , کاربر مورد نظر را ویرایش کرده و گروههایی را که این کاربر بایستی در آنها عضو باشد را انتخاب کنید. برای افزودن پرونده ای به یک گروه کاربری, پرونده را ویرایش کرده و گروههایی را که به متعلق به آنهاست را انتخاب کنید.';
@@ -51,6 +52,7 @@ $_lang["add_template"] = 'اضافه کردن پوسته یا قالب';
 $_lang["add_tv"] = 'اضافه کردن متغیر های قالب';
 $_lang["add_weblink"] = 'لینک جدید';
 $_lang["administrator_role_message"] = 'این نقش قابل حذف یا ویرایش نیست.';
+$_lang["administrators"] = 'Administrators';
 $_lang["after_saving"] = 'پس از ذخیره ';
 $_lang["alert_delete_self"] = 'شما قابلیت حذف خود را ندارید!';
 $_lang["alias"] = 'Alias';
@@ -73,10 +75,16 @@ $_lang["cancel"] = 'از نو';
 $_lang["captcha_code"] = 'گزاره ی حفاظتی';
 $_lang["captcha_message"] = 'این قابلیت حفاظتی را فعال کنید تا از کاربران درخواست شود گزاره هایی را وارد کنند که توسط ماشینها یا اسکریپتهای خرابکار قابل مشاهده و تشخیص نمی باشند.';
 $_lang["captcha_title"] = 'استفاده از گزاره های حفاظتی:';
+$_lang["captcha_words_default"] = 'MODX,Access,Better,BitCode,Chunk,Cache,Desc,Design,Excell,Enjoy,URLs,TechView,Gerald,Griff,Humphrey,Holiday,Intel,Integration,Joystick,Join(),Oscope,Genetic,Light,Likeness,Marit,Maaike,Niche,Netherlands,Ordinance,Oscillo,Parser,Phusion,Query,Question,Regalia,Righteous,Snippet,Sentinel,Template,Thespian,Unity,Enterprise,Verily,Tattoo,Veri,Website,WideWeb,Yap,Yellow,Zebra,Zygote';
 $_lang["captcha_words_message"] = 'در اینجا شما میتوانید فهرستی مرتب از گزاره های حفاظتی را برای استفاده از آنها در صورتیکه این امکان فعال شده باشد وارد کنید. گزاره ها را با کاما از هم جدا کنید. این قسمت سقف محدود بلندا تا میزان 255 گزاره را دارد.';
 $_lang["captcha_words_title"] = 'کلمات حفاظتی';
 $_lang["category_heading"] = 'شاخه یا کتگوری';
 $_lang["category_msg"] = 'در اینجا شما میتوانید کلیه ی منابع جمعبندی شده بوسیله ی شاخه یا کتگوری را مرور کنید.';
+$_lang["cfg_base_path"] = 'MODX_BASE_PATH';
+$_lang["cfg_base_url"] = 'MODX_BASE_URL';
+$_lang["cfg_manager_path"] = 'MODX_MANAGER_PATH';
+$_lang["cfg_manager_url"] = 'MODX_MANAGER_URL';
+$_lang["cfg_site_url"] = 'MODX_SITE_URL';
 $_lang["change_name"] = 'تغییر نام';
 $_lang["change_password"] = 'تغییر کلمه ی عبور';
 $_lang["change_password_confirm"] = 'دوباره نگاری کلمه ی عبور';
@@ -86,24 +94,30 @@ $_lang["charset_message"] = 'لطفا مشخص بفرمایید تا تمایل 
 $_lang["charset_title"] = 'کاراکترست متون';
 $_lang["chunk"] = 'چانک';
 $_lang["chunk_code"] = 'کد چانک (HTML)';
+$_lang["chunk_multiple_id"] = 'Error: Multiple Chunks share the same unique ID.';
+$_lang["chunk_no_exist"] = 'Chunk does not exist.';
 $_lang["cleaningup"] = 'در حال تمیز کردن';
+$_lang["clean_uploaded_filename"] = 'Use Transliteration for File Uploads';
+$_lang["clean_uploaded_filename_message"] = 'Use the default or transalias settings for the file name to clean special characters from uploaded file names, preserving dot-characters (periods)';
 $_lang["clear_log"] = 'پاک کردن آمار';
 $_lang["click_to_context"] = 'برای دسترسی به منو یا فهرست مرتبط اینجا کلیک کنید';
 $_lang["click_to_edit_title"] = 'برای ویرایش این رکورد اینجا کلیک کنید';
 $_lang["click_to_view_details"] = 'برای مرور جزییات اینجا کلیک کنید';
 $_lang["close"] = 'ببند و خارج شو ';
+$_lang["code"] = 'Code';
 $_lang["collapse_tree"] = 'جمع کردن درختی';
 $_lang["comment"] = 'یادداشت ';
 $_lang["configcheck_admin"] = 'لطفا با پشتیبانی سیستم تماس بگیرید و این پیغام را به آنها گزارش دهید';
 $_lang["configcheck_cache"] = 'پوشه یا دایره ی دخیره یا کش قابل نگارش نیست';
 $_lang["configcheck_cache_msg"] = 'سیستم امکان ایجاد نگارشی جدید در دایره ذخیره یا کش را ندارد. سیستم به فعالیت خود همچون گذشته ادامه میدهد, اما ذخیره ای صورت نمیگیرد. برای رفع این موضوع, لطفا پوشه ی  /_cache/ را قابل نگارش نمایید.';
 $_lang["configcheck_configinc"] = 'فایل کانفیگ همچنان قابل نگارش است';
-$_lang["configcheck_configinc_msg"] = 'انسانهای بی وجدان ممکن است از طریق این مسئله به وبگاه یا فایلهای مشترک با آن آسیب برسانند. <strong>حتما</strong> فایل کانفیگ خود را (/manager/includes/config.inc.php) تنها قابل بازخوانی کنید و از این حالت با قابلیت نگارش خارج کنید.';
+$_lang["configcheck_configinc_msg"] = 'انسانهای بی وجدان ممکن است از طریق این مسئله به وبگاه یا فایلهای مشترک با آن آسیب برسانند. <strong>حتما</strong> فایل کانفیگ خود را (/[+MGR_DIR+]/includes/config.inc.php) تنها قابل بازخوانی کنید و از این حالت با قابلیت نگارش خارج کنید.';
 $_lang["configcheck_default_msg"] = 'به مشکلی برخوردید که توضیحی برای آن نداریم.';
 $_lang["configcheck_errorpage_unavailable"] = 'صفحه ی ارور وبگاه شما در دسترس یا حاضر نیست.';
 $_lang["configcheck_errorpage_unavailable_msg"] = 'به این معنی که صفحه ی ارور شما برای بازدیدکنندگان وبگاه شما قابل دسترس یا موجود نیست. این مسئله منجر به ارورهای دیگر و مشکلات عدیده ی دیگر در وبگاه شما خواهد شد. لطفا از این موضوع اطمینان حاصل کنید که هیچ گروه کاربری به این فایل دسترسی ندارد.';
 $_lang["configcheck_errorpage_unpublished"] = 'صفحه ی ارور وبگاه شما همچنان منتشر نشده یا وجود ندارد.';
 $_lang["configcheck_errorpage_unpublished_msg"] = 'این یعنی صفحه ی ارور شما قابل دسترسی برای عموم نیست. صفحه را منتشر کنید و یا از این موضوع اطمینان حاصل کنید این به پرونده ای موجود در وبگاه شما تعیین شده است با مراجعه به بخش ابزار و تنظیمات.';
+$_lang["configcheck_hide_warning"] = '<a href="javascript:hideConfigCheckWarning(\'%s\');"><em>Don\'t show this again.</em></a>';
 $_lang["configcheck_images"] = 'پرونده ی تصاویر قابل نگارش نمی باشد.';
 $_lang["configcheck_images_msg"] = 'پوشه ی تصاویر قابل نگارش نمی باشد, و یا وجود ندارد. این یعنی قابلیتهای مدیریتی تصاویر در ویرایشگر فعال نخواهد بود.';
 $_lang["configcheck_installer"] = 'نصّاب همچنان حضور دارد.';
@@ -112,13 +126,21 @@ $_lang["configcheck_lang_difference"] = 'فایل زان مخدوش شده اس�
 $_lang["configcheck_lang_difference_msg"] = 'فایل زبان منتخب فعلی تعداد متفاوتی از ورودیها و خروجیها را تعریف کرده که در فایل زبان پیشفرض موجود نمیباشد. اما مشکل خاصی نیست, این بدین معناست که فایل زبان شما نیاز به بروزرسانی دارد.';
 $_lang["configcheck_notok"] = 'یک یا چند مورد از تنظیمات برای نصب کامل هنوز انجام نشده است: ';
 $_lang["configcheck_ok"] = 'آزمایش موفقیت آمیز بود - هیچ خطایی برای گزارش یافت نشد.';
+$_lang["configcheck_php_gdzip"] = 'GD and/or Zip PHP extensions not found';
+$_lang["configcheck_php_gdzip_msg"] = 'MODX needs the GD and Zip extension enabled for PHP. While MODX will work without them, you will not be able to take full advantage of the built-in File Manager, Image Editor or Captcha for logins.';
 $_lang["configcheck_register_globals"] = 'رجیستر_گلوبال در تنظیمات فایل اصلی PHP سرور میزبان روشن می باشد';
 $_lang["configcheck_register_globals_msg"] = ' این تنظیمات وبگاه شما را در مقابل حملات کراس سایت اسکریپتها آسیب پذیر میکند. شما بایستی برای رفع این مورد با پشتیبانی سرور میزبان خود تماس بگیرید.';
 $_lang["configcheck_title"] = 'آزمایش و تنظیمات ضروری پس از نصب';
+$_lang["configcheck_templateswitcher_present"] = 'TemplateSwitcher Plugin detected';
+$_lang["configcheck_templateswitcher_present_delete"] = '<a href="javascript:deleteTemplateSwitcher();">Delete TemplateSwitcher</a>';
+$_lang["configcheck_templateswitcher_present_disable"] = '<a href="javascript:disableTemplateSwitcher();">Disable TemplateSwitcher</a>';
+$_lang["configcheck_templateswitcher_present_msg"] = 'The TemplateSwitcher plugin has been found to cause caching and performance problems, and should be used only the functionality is required in your site.';
 $_lang["configcheck_unauthorizedpage_unavailable"] = 'صفحه ی خارج از دسترس وبگاه شما منتشر نشده و یا وجود ندارد.';
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'ایند به این معناست که صفحه ی خارج از دسترس شما قابل دسترسی برای بازدیدکنندگان عادی نمی باشد و یا و جود ندارد. این امکان دارد باعث ایجاد خطالهای پی در پی در وبگاه شود. از این موضوع اطمینان حاصل کنید که هیچ گروه از کاربر وب برای این صفحه تعیین نشده باشد.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'صفحه ی خارج از دسترس تعیین شده در تنظیمات مربوط به وبگاه همچنان منتشر نشده است.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'این بدان معناست که صفحه ی خارج از دسترسی قابل دسترس عمومی نمی باشد. صفحه را منتشر کنید و یا مطمئن شوید که چنین صفحه منتهی به پرونده ای می شود که در درختی وبگاه در قسمت فهرست یا منوی ابزار و تنظیمات وجود دارد.';
+$_lang["configcheck_validate_referer"] = 'Security Warning: HTTP Header Validation';
+$_lang["configcheck_validate_referer_msg"] = 'The configuration setting <strong>Validate HTTP_REFERER headers?</strong> is Off. We recommend turning it On. <a href="index.php?a=17">Go to Configuration options</a>';
 $_lang["configcheck_warning"] = 'خطای تنظیمات:';
 $_lang["configcheck_what"] = 'معنای این چیست؟';
 $_lang["confirm_block"] = 'آیا از ممنوعیت و تعلیق این کاربر اطمینان دارید؟';
@@ -143,6 +165,7 @@ $_lang["confirm_name_change"] = 'تغییر نام کاربری امکان ای�
 $_lang["confirm_publish"] = '\n\nانتشار این پرونده باعث عدم کارایی و حذف هرگونه زمانبندی برای عدم انتشار یا تعلیق آن خواهد شد. اگر شما تمایل دارید که زمانبدی انتشار یا تعلیق آنرا حفظ یا تنظیم کنید, لطفا پرونده را برای \'ویرایش\' انتخاب کنید.\n\nعملیات انجام و دستور اجرا شود؟';
 $_lang["confirm_remove_locks"] = 'کاربران برخی مواقع مرورگر وب خود را به هنگام ویرایش پرونده ها می بندند, قالبها یا پوسته ها, اسنیپتها یا کدها, امکان دارد که ترک ویرایش آنها منجر به قفل شدن آنها شود. از طریق فشردن دکمه ی قبول شما میتوانید کلیه ی قفلهای ایجاد شده در این مکان را باز کنید.\n\nانجام دستور و اجرای عملیات؟';
 $_lang["confirm_resource_duplicate"] = 'آیا از مشابه سازی این پرونده اطمینان دارید؟ همه ی گزینه هایی که در بر دارد نیز مشابه سازی خواهد شد.';
+$_lang["confirm_setting_language_change"] = 'You have modified the default value and will lose the changes. Proceed?';
 $_lang["confirm_unblock"] = 'آیا شما از خارج کردن این کاربر از حالت تعلیق یا ممنوعیت اطمینان دارید؟';
 $_lang["confirm_undelete"] = '\n\nدر صورت خروج این پرونده از حالت حذف هر پرونده ی زیر بخش این پرونده که همزمان حذف شده بوده نیز از حالت حذف خارج خواهد شد, اما پرونده های زیر بخش این پرونده اگر قبلا حذف شده باشند همچنان در حذفی ها خواهند ماند.';
 $_lang["confirm_unpublish"] = '\n\nخارج کردن این پرونده از حالت تعلیق یا عدم انتشار باعث هرگونه زمانبندی تعیین شده برای خروج از عدم انتشار آن می شود. اگر شما تمایل به حفظ زمانبدی انتشار یا تعلیق آن دارید, لطفا گزینه ی \'ویرایش\' پرونده را انتخاب کنید.\n\nاعمال دستور و انجام عملیات؟';
@@ -150,6 +173,7 @@ $_lang["confirm_unzip_file"] = 'آیا اط خارج کردن فایل از حا
 $_lang["could_not_find_user"] = 'قادر به یافتن کاربر نمی باشد.';
 $_lang["create_folder_here"] = 'ایجاد پوشه در اینجا';
 $_lang["create_resource_here"] = 'ایجاد پرونده در اینجا';
+$_lang["create_resource_title"] = 'Create Resource';
 $_lang["create_weblink_here"] = 'ایجاد وب لینک در اینجا';
 $_lang["createdon"] = 'تاریخ ایجاد';
 $_lang["credits"] = 'امکانات و قابلیتهای استفاده شده';
@@ -176,6 +200,11 @@ $_lang["database_tables"] = 'جدولهای دیتابیس';
 $_lang["database_version"] = 'نسخه دیتابیس:';
 $_lang["date"] = 'تاریخ';
 $_lang["datechanged"] = 'اطلاعات یا داده ها تغییر داده شد';
+$_lang["datepicker_offset"] = 'Datepicker offset';
+$_lang["datepicker_offset_message"] = 'The number of years to show in the past on the datepicker.';
+$_lang["datetime_format"] = 'Date format';
+$_lang["datetime_format_message"] = 'The format for dates in the Manager.';
+$_lang["default"] = 'Default:';
 $_lang["defaultcache_message"] = 'گزینه ی \'بلی\' را انتخاب کنید تا کلیه ی پرونده های جدید قابلیت ذخیره یا کش را به طور پیشفرض دارا باشند.';
 $_lang["defaultcache_title"] = 'پیشفرض قابلیت ذخیره سازی یا کش';
 $_lang["defaultmenuindex_message"] = 'گزینه ی  \'بلی\' را برای فعالسازی خودکار افزودن موارد به فهرست در حالت پیشفرض را انتخاب کنید.';
@@ -186,6 +215,11 @@ $_lang["defaultsearch_message"] = 'گزینه ی  \'بلی \' را برای اف
 $_lang["defaultsearch_title"] = 'حالت پیشفرض جستجو';
 $_lang["defaulttemplate_message"] = 'پوسته یا قالبی را که تمایل دارید در حالت پیشفرض برای کلیه ی پرونده ها استفاده شود را انتخاب کنید. همچنان شما این قابلیت را خواهید داشت که در ویرایشگر پرونده ها پوسته یا قالبی متفاوت را انتخاب کنید, این تنظیم تنها کاری که میکند این است که یک قالب را بعنوان پیشفرض برای شما انتخاب میکند.';
 $_lang["defaulttemplate_title"] = 'پوسته یا قالب پیشفرض';
+$_lang["defaulttemplate_logic_title"] = 'Automatic Template Assignment';
+$_lang["defaulttemplate_logic_general_message"] = 'New Resources will have the following templates, falling back to higher levels if not found:';
+$_lang["defaulttemplate_logic_system_message"] = '<strong>System</strong>: the System Default Template.';
+$_lang["defaulttemplate_logic_parent_message"] = '<strong>Parent</strong>: the same Template as the parent container.';
+$_lang["defaulttemplate_logic_sibling_message"] = '<strong>Sibling</strong>: the same Template as other Resources in the same container.';
 $_lang["delete"] = 'حذف';
 $_lang["delete_resource"] = 'حذف پرونده';
 $_lang["delete_tags"] = 'حذف تگها';
@@ -199,6 +233,8 @@ $_lang["duplicate"] = 'المثنی';
 $_lang["duplicate_alias_found"] = 'پرونده ی  \'%s\' همکنون در حال استفاده از آلایس \'%s\' است. لطفا یک آلایس مخصوص وارد کنید.';
 $_lang["duplicate_alias_message"] = 'در اینجا شما میتوانید \'بلی\' را انتخاب کنید تا آلایس های مشابه حفظ شوند. <b>تذکر: این حالت بایستی به همراه \'مسیر دوستانه ی آلایس\' استفاده شود که آن هم روی \'بلی\' تنظیم شده باشد برای اینکه درذ زمان ارجاع به پرونده ها مشکلی ایجاد نشود.</b>';
 $_lang["duplicate_alias_title"] = 'آلای های مشابه مجاز باشد:';
+$_lang["duplicate_name_found_general"] = 'There is already a %s named \'%s\'. Please enter a unique name.';
+$_lang["duplicate_name_found_module"] = 'There is already a Module named \'%s\'. Please enter a unique name.';
 $_lang["edit"] = 'ویرایش';
 $_lang["edit_resource"] = 'ویرایش پرونده';
 $_lang["edit_resource_title"] = 'ایجاد / ویرایش پرونده';
@@ -218,6 +254,7 @@ $_lang["email"] = 'پست الکترونیک';
 $_lang["email_sent"] = 'پیغام ارسال شد';
 $_lang["emailsender_message"] = 'در اینجا شما میتوانید آدرس پست الکترونیکی را مشخص کنید که هنگام ارسال نام کاربری و کلمه ی عبور به کاربران از آن استفاده می شود';
 $_lang["emailsender_title"] = 'آدرس پست الکترونیک :';
+$_lang["emailsubject_default"] = 'Your login details';
 $_lang["emailsubject_message"] = 'در اینجا شما میتوانید عنوان پیغام ارسالی برای کاربران را مشخص کنید';
 $_lang["emailsubject_title"] = 'عنوان پیغام :';
 $_lang["empty_folder"] = 'این پرونده یا فولدر خالی است';
@@ -235,12 +272,16 @@ $_lang["event_id"] = 'شناسه';
 $_lang["eventlog"] = 'آمار فعالیت';
 $_lang["eventlog_msg"] = 'ثبت آمار فعالیت سیستم برای ثبت اطلاعات بکار میرود. پیغامهای اخطار و خطا که توسط سیستم نمایش داده شده را ثبت میکند. ستون  \'منبع یا عامل \' بخشی را که خطا در آن ثبت شده را نمایش میدهد';
 $_lang["eventlog_viewer"] = 'آمار فعالیت سیستم';
+$_lang["everybody"] = 'Everybody';
 $_lang["existing_category"] = 'بخش یا مجموعه ی حاضر یا فعلی';
 $_lang["expand_tree"] = 'باز کردن درختی';
 $_lang["export_site"] = 'تخلیه و دریافت خروجی بصورت HTML';
 $_lang["export_site_cacheable"] = 'فایلهای ذخیره نشدنی یا غیر قابل کش را هم شامل شود';
 $_lang["export_site_exporting_document"] = 'در حال تخلیه و تهیه ی خروجی <b>%s</b> از <b>%s</b><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small><i>%s</i>, ردیف %s</small><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
 $_lang["export_site_failed"] = 'عملیات خروجی ناموق بود';
+$_lang["export_site_failed_no_open"] = 'Cannot open file: ';
+$_lang["export_site_failed_no_retrieve"] = 'Cannot retrieve document.';
+$_lang["export_site_failed_no_write"] = 'Cannot write file.';
 $_lang["export_site_html"] = 'تخلیه و دریافت خروجی سایت به HTML';
 $_lang["export_site_maxtime"] = 'نهایت زمان برای تخلیه و دریافت خروجی';
 $_lang["export_site_maxtime_message"] = 'در اینجا شما میتوانید تعداد ثانیه ها یی را که سیستم میتواند برای تهیه ی خروجی و تخلیه وبگاه مصرف کند را مشخص کنید (فارغ از تنظیمات PHP). صفر 0 را برای انتخاب بازه ی زمانی نامحدود وارد کنید. توجه کنید که , انتخاب صفر 0 یا اعداد بیسار بزرگ پیشنهاد نمی شود چرا که ممکن است سرور یا میزبان شما را به قدری مشغول کند که وبگاه را به حالت تعلیق درآورد.';
@@ -249,6 +290,8 @@ $_lang["export_site_numberdocs"] = '<p><b>تعداد %s پرونده برای ت
 $_lang["export_site_prefix"] = 'پیشفرض فایل :';
 $_lang["export_site_start"] = 'عملیات تهیه ی خروجی را آغاز شود.';
 $_lang["export_site_success"] = 'عملیات تهیه ی خروجی  و تخلیه موفق آمیز بود';
+$_lang["export_site_success_skip_dir"] = 'Skip this directory.';
+$_lang["export_site_success_skip_doc"] = 'Skip this document.';
 $_lang["export_site_suffix"] = 'پسوند فایل:';
 $_lang["export_site_target_unwritable"] = 'پوشه ی مقصد قابلیت نگارش را ندارد. لطفا از قابلیت نگارش پوشه ی مقصد اطمینان حاصل کرده, و مجددا امتحان کنید.';
 $_lang["export_site_time"] = 'عملیات تهیه ی خروجی به اتمام رسید. کل زمان تهیه ی خروجی %s ثانیه برای تکمیل عملیات بوده است.';
@@ -298,6 +341,7 @@ $_lang["files_upload_error4"] = 'شما بایستی فایلی را برای آ
 $_lang["files_upload_error5"] = 'مشکلی در عملیات آپلود فایل شما ایجاد شده است.';
 $_lang["files_upload_inhibited_msg"] = '<b>قابلیت آپلود سلب شده است</b> - از این موضوع اطمینان حاصل کنید که قابلیت آپلود فراهم است و دایره یا دایرکتوری آن قابل نگارش است.<br />';
 $_lang["files_upload_ok"] = 'آپلود فایل موفقیت آمیز بود!';
+$_lang["files_upload_permissions_error"] = 'Possible permission problems - the directory you want to upload to needs to be writable by your webserver.';
 $_lang["files_uploadfile"] = 'آپلود فایل';
 $_lang["files_uploadfile_msg"] = 'انتخاب فایل برای آپلود :';
 $_lang["files_uploading"] = 'در حال آپلود <b>%s</b> به <b>%s/</b><br />';
@@ -323,7 +367,7 @@ $_lang["go"] = 'برو';
 $_lang["group_access_permissions"] = 'سطح دسترسی گروه کاربری';
 $_lang["guid"] = 'شناسه ی خاص';
 $_lang["help"] = 'راهنمای استفاده';
-$_lang["help_msg"] = '<p>شما میتوانید بصورت رایگان  عضو <a href="http://modxcms.com/forums" target="_blank">انجمنهای رفع اشکال و راهنمایی مادایکس</a> شوید و به کمک سایر دوستان باتجربه در این زمینه پاسخ سوالات خود را در مورد مادایکس بیابید.<br />ضمنا میتوانید حجم بزرگی از <a href="http://modxcms.com/documentation" target="_blank">راهنمایی ها و نحوه استفاده و پشتیبانی مادایکس </a> را در بخش راهنمایی و پشتیبانی استفاده از مادایکس بیابید</p><p>شما با پرداخت هزینه میتوانید از پشتیبانی و راهنمای اختصاصی و حرفه ای برای وبگاه (سایت) خود بهرهمند شوید برای این منظور لطفا از طریق پست الکترونیک با آدرس زیر تماس حاصل کنید<br />support@vertexworks.com';
+$_lang["help_msg"] = '<p>شما میتوانید بصورت رایگان  عضو <a href="http://forums.modx.com" target="_blank">انجمنهای رفع اشکال و راهنمایی مادایکس</a> شوید و به کمک سایر دوستان باتجربه در این زمینه پاسخ سوالات خود را در مورد مادایکس بیابید.<br />ضمنا میتوانید حجم بزرگی از <a href="http://modx.com/documentation" target="_blank">راهنمایی ها و نحوه استفاده و پشتیبانی مادایکس </a> را در بخش راهنمایی و پشتیبانی استفاده از مادایکس بیابید</p><p>شما با پرداخت هزینه میتوانید از پشتیبانی و راهنمای اختصاصی و حرفه ای برای وبگاه (سایت) خود بهرهمند شوید برای این منظور لطفا از طریق پست الکترونیک با آدرس زیر تماس حاصل کنید<br />support@vertexworks.com';
 $_lang["help_title"] = ' راهنما و توضیحات';
 $_lang["hide_tree"] = 'مخفی کردن درختی';
 $_lang["home"] = 'منزل';
@@ -342,6 +386,9 @@ $_lang["import_params_msg"] = 'شما میتوانید پارامترها و ی�
 $_lang["import_parent_resource"] = 'پرونده ی سرگروه: ';
 $_lang["import_site"] = 'وارد کردن HTML';
 $_lang["import_site_failed"] = 'ناموفق!';
+$_lang["import_site_failed_db_error"] = 'A database error occured while trying to clone Resource: ';
+$_lang["import_site_failed_no_open_dir"] = 'Could not open directory: ';
+$_lang["import_site_failed_no_retrieve_file"] = 'Could not retrieve file: ';
 $_lang["import_site_html"] = 'وارد کردن صفحات HTML به وبگاه';
 $_lang["import_site_importing_document"] = 'در حال وارد کردن فایل <b>%s</b> ';
 $_lang["import_site_maxtime"] = 'نهایت زمان برای آپلود: ';
@@ -356,6 +403,21 @@ $_lang["info"] = 'مشخصات';
 $_lang["information"] = 'اطلاعات';
 $_lang["inline"] = 'این لاین یا داخل صفحه';
 $_lang["insert"] = 'وارد شود';
+$_lang["maxImageWidth"] = 'Maximum image width';
+$_lang["maxImageHeight"] = 'Maximum image height';
+$_lang["thumbWidth"] = 'Maximum thumbnail width';
+$_lang["thumbHeight"] = 'Maximum thumbnail height';
+$_lang["thumbsDir"] = 'Thumbnails directory location';
+$_lang["jpegQuality"] = 'JPEG compression';
+$_lang["denyZipDownload"] = 'Disable zip-archives downloading';
+$_lang["denyExtensionRename"] = 'Disable renaming of file extensions';
+$_lang["maxImageWidth_message"] = 'If uploaded image resolution exceeds this setting it will be automatically resized. Set 0 to avoid.';
+$_lang["maxImageHeight_message"] = 'If uploaded image resolution exceeds this setting it will be automatically resized. Set 0 to avoid.';
+$_lang["thumbWidth_message"] = 'Maximum thumbnail width.';
+$_lang["thumbHeight_message"] = 'Maximum thumbnail height.';
+$_lang["thumbsDir_message"] = 'The name of previews folder.';
+$_lang["jpegQuality_message"] = 'JPEG compression quality of thumbnails and resized images';
+$_lang["showHiddenFiles"] = 'Show hidden files in file browser';
 $_lang["keyword"] = 'کلمات کلیدی';
 $_lang["keywords"] = 'کلمات کلیدی';
 $_lang["keywords_intro"] = 'برای ویرایش کلمات کلیدی, کافیست فقط کلمه ی کلیدی جدید را داخل فیلد متنی مقابل کلمه ی کلیدی که تمایل به تغییر ان دارید وارد کنید. برای حذف کلمه ی کلیدی, چک مارک \'حذف\' را برای آن کلمه انتخاب کنید. اگر شما مورد حذف را علامت زده باشید, و همچنین تغییر نام آنرا, آن حذف خواهد شد, و تغییر نام کلمه ی کلیدی عملی نمی شود';
@@ -481,6 +543,10 @@ $_lang["module_resource_title"] = 'متعلقات ماژول';
 $_lang["module_title"] = 'ایجاد / ویرایش ماژول';
 $_lang["module_viewdepend_msg"] = 'در اینجا شما میتوانید منابعی که این ماژول به آنها وابسته است را مشاهده کنید. برای تنظیم ماژول روی دکمه ی \'متعلقات ماژول\' کلیک کنید';
 $_lang["modules"] = 'ماژولها';
+$_lang["modx_news"] = 'MODX News Notices';
+$_lang["modx_news_tab"] = 'MODX News';
+$_lang["modx_news_title"] = 'MODX News';
+$_lang["modx_security_notices"] = 'MODX Security Notices';
 $_lang["modx_version"] = 'نسخه مادایکس شما';
 $_lang["monday"] = 'دوشنبه';
 $_lang["move"] = 'انتقال';
@@ -506,11 +572,13 @@ $_lang["new_tmplvars"] = 'متغیر جدید پوسته یا قالب';
 $_lang["new_user"] = 'کاربر جدید';
 $_lang["new_web_user"] = 'کاربر وب جدید';
 $_lang["no"] = 'خیر';
+$_lang["no_active_users_found"] = 'No active users found.';
 $_lang["no_activity_message"] = 'شما تاکنون هیچ پرونده ای ایجاد و یا ویرایش نکرده اید.';
 $_lang["no_category"] = 'دسته بندی نشده';
 $_lang["no_docs_pending_publishing"] = 'هیچ پرونده ای در زمانبندی انتشار نیست.';
 $_lang["no_docs_pending_pubunpub"] = 'هیچ مناسبتی یافت نشد';
 $_lang["no_docs_pending_unpublishing"] = 'هیچ پرونده ای در زمانبندی تعلیق انتشار نیست.';
+$_lang["no_edits_creates"] = 'No edits or creates found.';
 $_lang["no_groups_found"] = 'هیچ گروهی یافت نشد';
 $_lang["no_keywords_found"] = 'درحال حاضر کلمه کلیدی وارد نشده';
 $_lang["no_records_found"] = 'هیچ داده ای یافت نشد..';
@@ -596,6 +664,8 @@ $_lang["plugin_management_msg"] = 'دراینجا میتوانید نوع پلا
 $_lang["plugin_msg"] = 'در اینجا شما میتوانید پلاگینها را ایجاد / ویرایش کنید. پلاگینها در واقع کدهای خام و خالص PHP هستند که از فراخوانی دستوری مربوط به آن وظیفه ای مشخص در سیستم اعمال میشود';
 $_lang["plugin_name"] = 'نام پلاگین ';
 $_lang["plugin_priority"] = 'ویرایش ترتیب و نحوه اجرای پلاگینها به ترتیب وظیفه و دستور';
+$_lang["plugin_priority_instructions"] = 'Drag to reorder the Plugins under each Event header. The first plugin to execute should go at the top.';
+$_lang["plugin_priority_title"] = 'Plugin Execution Order';
 $_lang["plugin_title"] = 'ایجاد / ویرایش پلاگین';
 $_lang["preview"] = 'نمایش وبگاه';
 $_lang["preview_msg"] = 'این پیش نمایش آخرین تغییرات ذخیره شده ی شماست. برای ذخیره نهایی و بازخوانی تغییرات جدید<a href="#" onclick="saveRefreshPreview();">اینجا کلیک کنید</a>';
@@ -614,12 +684,17 @@ $_lang["rb_title"] = 'فعالسازی جستجو و انتخاب منبع:';
 $_lang["rb_webuser_message"] = 'آیا مایلید که کاربر وب را قادر به استفاده از مرورگر منابع کنید <b>اخطار:</b> ایجاد این امکان دسترسی ایشان را به منابعی که کاربران مدیریت دارند فراهم می کند، تنها به کاربران قابل اعتماد این قابلیت را اعطا کنید.';
 $_lang["rb_webuser_title"] = 'کاربران وب؟';
 $_lang["recent_docs"] = 'پرونده های جدید';
+$_lang["recommend_setting_change_title"] = 'Recommended Setting Change';
+$_lang["recommend_setting_change_description"] = 'Your site is not configured to validate the HTTP_REFERER of incoming requests to the Manager. We strongly recommend enabling this setting to reduce the risk of a CSRF (Cross Site Request Forgery) attack.';
 $_lang["refresh_cache"] = 'ذخیره یا کش: تعداد<b>%s</b> فایل در دایره ی ذخایر یا  کش یافت و تعداد <b>%d</b> فایل ذخیره یا کش  حذف شده<p> فایل ذخیره یا کش مجددا زمانی ایجاد خواهد شد که پرونده ها مرور شوند ';
 $_lang["refresh_published"] = '<b>%s</b> پرونده منتشر شد';
 $_lang["refresh_site"] = 'بازخوانی ذخایر';
 $_lang["refresh_title"] = 'بازخوانی وبگاه';
 $_lang["refresh_tree"] = 'بازخوانی درختی';
 $_lang["refresh_unpublished"] = '<b>%s</b> پرونده که انتشار آن تعلیق شده';
+$_lang["release_date"] = 'Release date';
+$_lang["remember_last_tab"] = 'Remember tabs';
+$_lang["remember_last_tab_message"] = 'Tabbed Manager pages load with the last tab viewed instead of defaulting to the first tab';
 $_lang["remember_username"] = 'به خاطر سپردن';
 $_lang["remove"] = 'حذف';
 $_lang["remove_date"] = 'حذف تاریخ';
@@ -628,6 +703,7 @@ $_lang["rename"] = 'تغییرنام';
 $_lang["reports"] = 'گزارشات';
 $_lang["require_tagname"] = 'نام شاخص لازم است';
 $_lang["require_tagvalue"] = 'مقدار شاخص لازم است';
+$_lang["reserved_name_warning"] = 'You have used a reserved name.';
 $_lang["reset"] = 'از نو';
 $_lang["reset_failedlogins"] = 'صفر یا از نو';
 $_lang["resource"] = 'پرونده';
@@ -659,12 +735,17 @@ $_lang["resource_opt_trackvisit_help"] = 'دفعات بازدید هر یک از
 $_lang["resource_overview"] = 'بازخوانی پرونده';
 $_lang["resource_parent"] = 'سرگروه پرونده';
 $_lang["resource_parent_help"] = 'برای انتخاب یا مشخص کردن سرگروه این پرونده روی نماد یا آیکون بالا کلیک کنید سپس از طریق درختی روی پرونده کلیک کنید تا سرگروه جدید آنرا تعیین کنید';
+$_lang["resource_permissions_error"] = 'Assign this Resource to at least one Resource Group to which you have access.';
 $_lang["resource_setting"] = 'تنظیمات پرونده';
 $_lang["resource_summary"] = 'خلاصه یا مقدمه ی کوتاه مطلب';
 $_lang["resource_summary_help"] = 'خلاصه ای مختصر از پرونده را در اینجا ذکر کنید.';
 $_lang["resource_title"] = 'عنوان';
 $_lang["resource_title_help"] = 'اسم / عنوان پرونده را اینجا وارد کنید. لطفا از بک اسلش در انتخاب نامها استفاده نکنید!';
 $_lang["resource_to_be_moved"] = 'پرونده ی مورد نظر برای انتقال';
+$_lang["resource_type"] = 'Resource Type';
+$_lang["resource_type_message"] = 'Weblinks reference Resources on the Internet including another MODX Resource, an external page, or an image or other file on the Internet. Weblinks should have a text/html Internet Media Type and Inline Content-Disposition.';
+$_lang["resource_type_weblink"] = 'Weblink';
+$_lang["resource_type_webpage"] = 'Web page';
 $_lang["resource_weblink_help"] = 'آدرس شیء مورد نظر خود را که تمایل دارید این وب لینک به آن اشاره کند را در اینجا وارد کنید.';
 $_lang["resources_in_container"] = 'پرونده های موجود در این پرونده ی حاوی';
 $_lang["resources_in_container_no"] = 'این پرونده ی حاوی, هیچ زیر پرونده ای ندارد.';
@@ -727,6 +808,7 @@ $_lang["role_new_user"] = 'ایجاد کاربر جدید';
 $_lang["role_new_web_user"] = 'ایجاد کاربر وب جدید';
 $_lang["role_plugin_management"] = 'مدیریت پلاگینها';
 $_lang["role_publish_doc"] = 'انتشار پرونده ها';
+$_lang["role_remove_locks"] = 'Remove Locks';
 $_lang["role_role_management"] = 'نقش ها';
 $_lang["role_run_module"] = 'بکارگیری ماژول';
 $_lang["role_save_chunk"] = 'ذخیره ی چانکها';
@@ -750,8 +832,10 @@ $_lang["role_view_logs"] = 'مرور ثبت یا لاگ سیستم';
 $_lang["role_view_unpublished"] = 'مرور پرونده های منتشر نشده';
 $_lang["role_web_access_persmissions"] = 'سطوح دسترسی وب';
 $_lang["role_web_user_management"] = 'مدیریت کاربر وب';
+$_lang["rss_url_news_default"] = 'http://feeds.feedburner.com/modx-announce';
 $_lang["rss_url_news_message"] = 'URL منبع آخرین اخبار مادایکس.';
 $_lang["rss_url_news_title"] = 'RSS اخبار';
+$_lang["rss_url_security_default"] = 'http://feeds.feedburner.com/modxsecurity';
 $_lang["rss_url_security_message"] = 'URL منبع اخبار امنیتی.';
 $_lang["rss_url_security_title"] = 'RSS امنیتی';
 $_lang["run_module"] = 'اجرای ماژول';
@@ -779,6 +863,8 @@ $_lang["search_results_returned_msg"] = 'حاصل جستجوی مورد نظر �
 $_lang["search_results_returned_title"] = 'عنوان';
 $_lang["search_view_docdata"] = 'مشاهده و مرور این مورد';
 $_lang["security"] = 'حراست';
+$_lang["security_notices_tab"] = 'Security Notices';
+$_lang["security_notices_title"] = 'Security Notices';
 $_lang["select_date"] = 'انتخاب تاریخ';
 $_lang["send"] = 'ارسال';
 $_lang["server_protocol_http"] = 'http';
@@ -796,6 +882,7 @@ $_lang["settings_events"] = 'فعالیت های  سیستم';
 $_lang["settings_furls"] = 'آدرس قابل درک و فهم';
 $_lang["settings_general"] = 'کلیات';
 $_lang["settings_misc"] = 'مدیریت فایل';
+$_lang["settings_KC"] = 'File Browser';
 $_lang["settings_page_settings"] = 'تنظیمات در صفحه';
 $_lang["settings_photo"] = 'عکس';
 $_lang["settings_properties"] = 'تنظیمات';
@@ -806,6 +893,8 @@ $_lang["settings_templvars"] = 'متغیرهای قالب یا پوسته';
 $_lang["settings_title"] = 'تنظیمات سیستم';
 $_lang["settings_ui"] = 'ظاهر و امکانات';
 $_lang["settings_users"] = 'کاربر';
+$_lang["show_meta"] = 'Show META Keywords tab';
+$_lang["show_meta_message"] = 'Show the deprecated META Keywords tab when editing Resources in the Manager.';
 $_lang["show_tree"] = 'نمایش درختی';
 $_lang["showing"] = 'در حال نمایش';
 $_lang["signupemail_message"] = 'در اینجا شما میتوانید پیغامی را که پس از ایجاد حساب کاربری قصد ارسال به کاربر را دارید وارد کنید و اجازه دهید سسیتم مادایکس آنرا بهمراه نام کاربری و کلمه ی عبور حساب کاربری آنها ارسال کند. <br /><b>تذکر:</b> متغیرهایی زیر در محتویا پیغام با اطلاعات لازم و ضروری از طرف سیستم تکمیل و ارسال می شود: <br /><br />[+sname+] - اسم وبگاه شما, <br />[+saddr+] - پست الکترونیک وبگاه شما, <br />[+surl+] - آدرس وبگاه شما, <br />[+uid+] - شناسه یا نام کاربری کاربران, <br />[+pwd+] - کلمه ی عبور کاربران, <br />[+ufn+] - نام کامل کاربر. <br /><br /><bمتغیرهای [+uid+] و [+pwd+] را حتما در پیغام داشته باشید, در غیر اینصورت نام کاربری و کامه ی عبور حساب کاربران ارسال نمی شود و آنها از اطلاعات حساب کاربری خود مطلع نمیشوند!</b>';
@@ -819,6 +908,7 @@ $_lang["sitestart_title"] = 'آغازگه وبگاه:';
 $_lang["sitestatus_message"] = 'گزینه ی \'آنلاین\' را انتخاب کنید تا وبگاه شما در وب منتشر شود. اگر گزینهی \'تعلیق\' را انتخاب کنید, بازدیدکنندگان وبگاه شما پیام ضروری شما در بخش وبگاه تعلیقی را مشاهده خواهند کرد, و طبیعتا قادر به مرور صفحات یا مطالب وبگاه شما نخواهند بود.';
 $_lang["sitestatus_title"] = 'وضعیت وبگاه:';
 $_lang["siteunavailable_message"] = 'پیامی که در زمان تعلیق و یا بروز اشکال در ویگاه قصد نمایش به بازدیدکنندگان را دارید. <b>تذکر: این پیغام تنها زمانی نمایش داده خواهد شد که تنظیمات مربوط به تعلیق ویگاه فعال شده باشد و حالت وبگاه در حالت تعلیق تنظیم شده باشد.</b>';
+$_lang["siteunavailable_message_default"] = 'The site is currently unavailable.';
 $_lang["siteunavailable_page_message"] = 'شناسه ی پرونده ای را که قصد استفاده از آن را بعنوان صفحه ی تعلیق وبگاه استفاده کنید را در اینجا وارد کنید. <b>تذکر: از این اطمینان حاصل کنید که شناسه ای که وارد کرده اید موجود می باشد, و پرونده ی مورد نظر منتشر شده باشد!</b>';
 $_lang["siteunavailable_page_title"] = 'صفحه ی وبگاه تعطیل موقت یا در حال تعمیر';
 $_lang["siteunavailable_title"] = 'پیغام وبگاه در حالت تعلیق یا تعطیلی : ';
@@ -842,9 +932,42 @@ $_lang["sunday"] = 'یکشنبه';
 $_lang["sys_alert"] = 'اخطار سیستم';
 $_lang["sysinfo_activity_message"] = 'این فهرست نمایانگر پرونده هایی است که اخیرا توسط کاربران شما ویرایش شده است';
 $_lang["sysinfo_userid"] = 'کاربر';
-$_lang["system_email_signup"] = "با سلام [+uid+] \n\nجزییات حساب کاربر شما در [+sname+] :\n\nنام کاربری: [+uid+]\nکلمه ی عبور: [+pwd+]\n\nپس از یک بار ورود حساب کاربری خود در وبگاه ([+surl+]), شما قادر به تغییر کلمه ی عبور خود خواهید بود.\n\nبا احترام,\nمدیریت وبگاه";
-$_lang["system_email_webreminder"] = "با سلام [+uid+]\n\nبرای فعالسازی کلمه ی عبور جدید خود روی لینک زیر کلیک کنید:\n\n[+surl+]\n\nدر صورتیکه این کار موفقیت آمیز بود شما میتوانید از کلمه عبور جدیدی که در زیر آمده استفاده کنید:\n\nکلمه ی عبور:[+pwd+]\n\nاگر شما ارسال این ایمیل را درخواست نکرده اید کافیست به آن توجهی نکنید.\n\nبا اترام,\nمدیریت وبگاه";
-$_lang["system_email_websignup"] = "با سلام [+uid+] \n\nاطلاعات حساب کاربری شما در وبگاه [+sname+]:\n\nنام کاربری: [+uid+]\nکلمه ی عبور: [+pwd+]\n\nپس از ورود به حساب کاربری خود در وبگاه [+sname+] ([+surl+]), شما قادر به تغییر کلمه ی عبور خود خواهید بود.\n\nبا احترام,\nمدیریت وبگاه";
+$_lang["system_email_signup"] = 'با سلام [+uid+] 
+
+جزییات حساب کاربر شما در [+sname+] :
+
+نام کاربری: [+uid+]
+کلمه ی عبور: [+pwd+]
+
+پس از یک بار ورود حساب کاربری خود در وبگاه ([+surl+]), شما قادر به تغییر کلمه ی عبور خود خواهید بود.
+
+با احترام,
+مدیریت وبگاه';
+$_lang["system_email_webreminder"] = 'با سلام [+uid+]
+
+برای فعالسازی کلمه ی عبور جدید خود روی لینک زیر کلیک کنید:
+
+[+surl+]
+
+در صورتیکه این کار موفقیت آمیز بود شما میتوانید از کلمه عبور جدیدی که در زیر آمده استفاده کنید:
+
+کلمه ی عبور:[+pwd+]
+
+اگر شما ارسال این ایمیل را درخواست نکرده اید کافیست به آن توجهی نکنید.
+
+با اترام,
+مدیریت وبگاه';
+$_lang["system_email_websignup"] = 'با سلام [+uid+] 
+
+اطلاعات حساب کاربری شما در وبگاه [+sname+]:
+
+نام کاربری: [+uid+]
+کلمه ی عبور: [+pwd+]
+
+پس از ورود به حساب کاربری خود در وبگاه [+sname+] ([+surl+]), شما قادر به تغییر کلمه ی عبور خود خواهید بود.
+
+با احترام,
+مدیریت وبگاه';
 $_lang["table_hoverinfo"] = 'برای مشاهده ی توضیح مختصری از قابلیت هر جدول نشانگر موس را روی اسم جدول هدایت کنید (همه ی جدول ها <i>توضیح و تشریح</i> ندارند).';
 $_lang["table_prefix"] = 'پیشفرض جدول';
 $_lang["tag"] = 'تگ یا بر چسب';
@@ -861,6 +984,8 @@ $_lang["template_reset_all"] = 'همه ی صفحات از پوسته و قالب
 $_lang["template_reset_specific"] = 'صفر یا از نو کردن \'%s\' صفحه';
 $_lang["template_title"] = 'ایجاد / ویرایش پوسته یا قالب';
 $_lang["template_tv_edit"] = 'ترتیب قرارگیری متغیرهای قالب یا پوسته را ویرایش کنید';
+$_lang["template_tv_edit_message"] = 'Drag to reorder the Template Variables for this template.';
+$_lang["template_tv_edit_title"] = 'Template Variable Sort Order';
 $_lang["template_tv_msg"] = 'فهرست متغیرهای قالبی که برای این پوسته یا قالب بکاربرده شده اند.';
 $_lang["thursday"] = 'پنجشنبه';
 $_lang["tmplvar_access_msg"] = 'گروه پرونده هایی را که مجاز به ایجاد تغییر در محتوا یا مقدار این متغییر هستند را انتخاب کنید';
@@ -874,12 +999,14 @@ $_lang["tmplvars_caption"] = 'توضیح';
 $_lang["tmplvars_default"] = 'مقدار پیشفرض';
 $_lang["tmplvars_description"] = 'توضیحات';
 $_lang["tmplvars_elements"] = 'تنظیم مقدار ورودی';
+$_lang["tmplvars_inherited"] = 'Value inherited';
 $_lang["tmplvars_management_msg"] = 'فیلدهای اضافی محتوای مخصوص خود (متغیرهای قالب) برای پرونده های خود را مدیریت کنید.';
 $_lang["tmplvars_msg"] = 'متغیرهای پوسته یا قالب را اینجا اضافه یا ویرایش کنید. متغیرهای قالب بایستی در پوسته یا قالب قرار گیرند تا از طریق پرونده ها یا اسنیپتها بتوان به آنها دسترسی یافت.';
 $_lang["tmplvars_name"] = 'نام متغیر';
 $_lang["tmplvars_novars"] = 'هیچ متغیر قالبی یافت نشد';
 $_lang["tmplvars_rank"] = 'تنظیم به ترتیب';
 $_lang["tmplvars_reset_params"] = 'صفر یا از نو کردن پارامترها';
+$_lang["tmplvars_title"] = 'Create/edit Template Variable';
 $_lang["tmplvars_type"] = 'نوع ورودی';
 $_lang["tmplvars_widget"] = 'ابزار';
 $_lang["tmplvars_widget_prop"] = 'مشخصات ویدگت';
@@ -890,6 +1017,8 @@ $_lang["top_howmany_title"] = 'چه میزان بالاتر';
 $_lang["total"] = 'مجموع';
 $_lang["track_visitors_message"] = 'این حالت هیچ کاربردی نخواهد داشت تا زمانیکه شما ابزار آماری یا ثبت آمار بازدید در وبگاه خود فراهم داشته باشید که این حالت را پشتیبانی کند. ثبت آمار بازدید وبگاه به شما قابلیت درک بهتر از نحوه و میزان استفاده بازدید کنندگان وبگاه به شما میدهد';
 $_lang["track_visitors_title"] = 'ثبت بازدیدها - آمار';
+$_lang["tree_page_click"] = 'Page Click Behavior';
+$_lang["tree_page_click_message"] = 'The default behavior when clicking on a page in the site tree.';
 $_lang["tree_show_protected"] = 'نمایش صفحات محافظت شده';
 $_lang["tree_show_protected_message"] = 'زمانیکه روی "خیر" تنظیم شده باشد, صفحات محافظت شده (و همه ی پرونده های زیر دستی آن) در فهرست درختی ظاهر نخواهد شد. گزینه ی "خیر" از تنظیمات پیشفرض مادایکس است.';
 $_lang["truncate_table"] = 'برای کوتاه کردن این جدول اینجا کلیک کنید';
@@ -912,6 +1041,7 @@ $_lang["unpublish_resource"] = 'تعلیق انتشار پرونده';
 $_lang["untitled_resource"] = 'پرونده بدون عنوان';
 $_lang["untitled_weblink"] = 'لینک بدون عنوان';
 $_lang["update_params"] = 'نمایش گزینه ی بروز رسانی شده';
+$_lang["update_settings_from_language"] = 'Replace current with:';
 $_lang["upload_maxsize_message"] = 'نهایت اندازه مجاز فایل برای آپلود بوسیله ی بخش فایلها را به بایت در اینجا وارد کنید. <b>تذکر : فایلهای بزرگ زمان بیشتری را برای آپلود میطلبد!</b>';
 $_lang["upload_maxsize_title"] = 'نهایت اندازه برای آپلود :';
 $_lang["uploadable_files_message"] = 'در اینجا شما میتوانید فهرستی از فایلهایی که اجازه ی آپلود به این بخش \'assets/files/\' از طریق مدیریت منابع را مشخص میکنید.لطفا پسوند نوع فایلها را مشخص کنید,پسوند ها را بوسیله ی کاما از هم جدا کنید';
@@ -962,7 +1092,6 @@ $_lang["users"] = 'حراست';
 $_lang["validate_referer_message"] = 'انجام ارزیابی HTTP_REFERER باعث کاهش خطر احتمال بروز رفتارهای ناخواسته ویراستارهای شما از بخش مدیریت به عنوان قربانیان حمله CSRF (Cross Site Request Forgery - جعل درخواست) شوید. اگر سرور HTTP_REFERER را ارسال نکند ممکن است برخی از تنظیمات قادر به استفاده از این حالت نباشد.';
 $_lang["validate_referer_title"] = 'ارزیابی HTTP_REFERER انجام شود؟';
 $_lang["value"] = 'Value';
-$_lang["version_codename"] = 'مشخصه و کد نسخه';
 $_lang["view"] = 'View';
 $_lang["view_child_resources_in_container"] = 'مرور پرونده ی زیر دست';
 $_lang["view_log"] = 'مرور آمار ثبتی';
@@ -970,6 +1099,8 @@ $_lang["view_logging"] = 'کاربری مدیر';
 $_lang["view_sysinfo"] = 'اطلاعات سیستم';
 $_lang["warning"] = 'هشدار!';
 $_lang["warning_not_saved"] = 'تغییراتی که انجام گرفته همچنان ذخیره نشده است.شما میتوانید همچنان در همین صفحه بمانید بمنظور ذخیره ی تغییرات (\'از نو\'), و یا میتوانید این صفحه را ترک کنید, و کلیه ی تغییرات انجام شده اعمال نشود (\'قبول\')';
+$_lang["warning_visibility"] = 'Configuration Warnings visible to';
+$_lang["warning_visibility_message"] = 'Control the visibility of the configuration warnings shown on the Manager welcome page';
 $_lang["web_access_permissions"] = 'سطوح دسترسی وب';
 $_lang["web_access_permissions_user_groups"] = 'گروههای کاربری وب';
 $_lang["web_permissions"] = 'سطوح دسترسی وب';
@@ -999,4 +1130,61 @@ $_lang["yourinfo_role"] = 'نقش کاربری :';
 $_lang["yourinfo_title"] = 'اطلاعات شما';
 $_lang["yourinfo_total_logins"] = 'مجموع دفعات ورود شما :';
 $_lang["yourinfo_username"] = 'شناسه ای که با آن وارد شده اید :';
-?>
+$_lang["a17_error_reporting_title"] = 'Detection level of the PHP error';
+$_lang["a17_error_reporting_msg"] = 'Set the detection level of the PHP error.';
+$_lang["a17_error_reporting_opt0"] = 'Ignore all';
+$_lang["a17_error_reporting_opt1"] = 'Ignore the warning of a slight notice level(<a href="https://www.google.com/search?q=E_DEPRECATED+E_STRICT" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT</a>)';
+$_lang["a17_error_reporting_opt2"] = 'Detect all errors except E_NOTICE';
+$_lang["a17_error_reporting_opt99"] = 'Detect all';
+$_lang["pwd_hash_algo_title"] = 'Hash algorithm';
+$_lang["pwd_hash_algo_message"] = 'Password hash algorithm.';
+$_lang["enable_bindings_title"] = 'Enable @Bindings commands';
+$_lang["enable_bindings_message"] = 'Prevents the execution of PHP functions through TV @Bindings. Useful if you have Manager users who should not be able to create PHP code but need to be able to create or edit TVs. The output of any TV with an @Binding will be "@Bindings disabled".';
+$_lang["bkmgr_alert_mkdir"] = 'A file cannot be created in a directory.  Please check the permission of [+snapshot_path+]';
+$_lang["bkmgr_restore_msg"] = '<p>A site can be restore using an SQL file. </p>';
+$_lang["bkmgr_restore_title"] = 'Restore';
+$_lang["bkmgr_import_ok"] = 'SQL recovery was performed normally.';
+$_lang["bkmgr_snapshot_ok"] = 'The snapshot was saved normally.';
+$_lang["bkmgr_run_sql_file_label"] = 'Execute by sql file';
+$_lang["bkmgr_run_sql_direct_label"] = 'Direct execute SQL command strings';
+$_lang["bkmgr_run_sql_submit"] = 'Execute restore';
+$_lang["bkmgr_run_sql_result"] = 'Result';
+$_lang["bkmgr_snapshot_title"] = 'Snapshot save and recovery';
+$_lang["bkmgr_snapshot_msg"] = '<p>The contents of the database are saved and restored to a server.<br />Preservation place : [+snapshot_path+] ($modx->config[\'snapshot_path\'])</p>';
+$_lang["bkmgr_snapshot_submit"] = 'Add snapshot';
+$_lang["bkmgr_snapshot_list_title"] = 'List of snapshot';
+$_lang["bkmgr_restore_submit"] = 'Revert this data';
+$_lang["bkmgr_snapshot_nothing"] = 'No snapshot';
+$_lang["files.dynamic.php1"] = 'create text file';
+$_lang["files.dynamic.php2"] = 'This directory cannot be displayed.';
+$_lang["files.dynamic.php3"] = 'There is a problem in a file name.';
+$_lang["files.dynamic.php4"] = 'The text file was created.';
+$_lang["not_readable_dir"] = 'Can not read this directory.';
+$_lang["confirm_delete_dir"] = 'Are you sure you want to delete the directory?';
+$_lang["confirm_delete_dir_recursive"] = 'Are you sure you want to delete the directory?\n\nAny children files will also be deleted.';
+$_lang["make_folders_title"] = 'Make end slash URL at the container';
+$_lang["make_folders_message"] = 'The slash to append to Resources set as containers when using FURLs.';
+$_lang["check_files_onlogin_title"] = 'Check core files on login';
+$_lang["check_files_onlogin_message"] = 'By enabling this option, important system files will be checked for modification typical of scripted website attacks. While not a foolproof guarantee, it may alert you to a compromised MODX system file and website.';
+$_lang["configcheck_sysfiles_mod"] = 'Important System Files have been modified.';
+$_lang["configcheck_sysfiles_mod_msg"] = 'You have enabled the setting to check important system files to detect possible website script attacks. This doesn\'t necessarily mean that your site has been compromised, however, you should review the changed files.(index.php, .htaccess, [+MGR_DIR+]/index.php, [+MGR_DIR+]/includes/config.inc.php)';
+$_lang["email_method_title"] = 'Sendmail method';
+$_lang["email_method_mail"] = 'mail() PHP function';
+$_lang["email_method_smtp"] = 'SMTP Server';
+$_lang["smtp_auth_title"] = 'SMTP－AUTH';
+$_lang["smtp_host_title"] = 'SMTP host';
+$_lang["smtp_username_title"] = 'SMTP user name';
+$_lang["smtp_password_title"] = 'SMTP password';
+$_lang["smtp_port_title"] = 'SMTP port';
+$_lang["setting_resource_tree_node_name"] = 'The node name of a resource tree';
+$_lang["setting_resource_tree_node_name_desc"] = 'Specify the Resource field to use when rendering the nodes in the Resource Tree. Defaults to pagetitle, although any Resource field can be used, such as menutitle, alias.';
+$_lang["cache_type_title"] = 'Document caching type';
+$_lang["cache_type_1"] = 'Cache is based only on document id (standard)';
+$_lang["cache_type_2"] = 'Cache is based on document id and $_GET parameters';
+$_lang["seostrict_title"] = 'Use SEO Strict URLs';
+$_lang["seostrict_message"] = 'Enforces the use of strict URLs to prevent duplicate content if needed';
+$_lang["settings_friendlyurls_alert"] = 'It is necessary to rename the ht.access file of a MODX installation directory at .htaccess to use the Friendly URL function.';
+$_lang["settings_friendlyurls_alert2"] = 'Since it has installed in a subdirectory, it is necessary to change the contents of .htaccess.';
+$_lang["user_street"] = 'Street';
+$_lang["user_city"] = 'City';
+$_lang["user_other"] = 'Other';

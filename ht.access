@@ -4,10 +4,10 @@
 # and especially for the first three commented out rules
 
 #php_flag register_globals Off
-#AddDefaultCharset utf-8
+AddDefaultCharset utf-8
 #php_value date.timezone Europe/Moscow
 
-Options +FollowSymlinks
+#Options +FollowSymlinks
 RewriteEngine On
 RewriteBase /
 
@@ -20,8 +20,18 @@ RewriteRule .* - [F,L]
 #RewriteCond %{HTTP_HOST} !^www\.example\.com [NC]
 #RewriteRule (.*) http://www.example.com/$1 [R=301,L]
 
+# without www
+#RewriteCond %{HTTP_HOST} .
+#RewriteCond %{HTTP_HOST} !^example\.com [NC]
+#RewriteRule (.*) http://example.com/$1 [R=301,L]
+
+# without www  all domian
+#RewriteCond %{HTTP_HOST} .
+#RewriteCond %{HTTP_HOST} ^www.(.*)$ [NC]
+#RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
+
 # Exclude /assets and /manager directories and images from rewrite rules
-RewriteRule ^(manager|assets)/*$ - [L]
+RewriteRule ^(manager|assets|js|css|images|img)/.*$ - [L]
 RewriteRule \.(jpg|jpeg|png|gif|ico)$ - [L]
 
 # For Friendly URLs

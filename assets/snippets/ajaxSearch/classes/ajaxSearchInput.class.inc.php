@@ -4,9 +4,9 @@
 * -----------------------------------------------------------------------------
 * @package  AjaxSearchInput
 *
-* @author       Coroico - www.modx.wangba.fr
-* @version      1.9.2
-* @date         05/12/2010
+* @author       Coroico - www.evo.wangba.fr
+* @version      1.9.3
+* @date         26/09/2012
 *
 * Purpose:
 *    The AjaxSearchInput class contains all functions and data used to manage Input form
@@ -129,6 +129,7 @@ class AjaxSearchInput {
                 }
                 else {  // check the empty input field => error message (At least 3 characters)
                     $searchString = '';
+                    if ($asfSubmitted) $checkString = false; // no check if a filter is submitted
                 }
             }
             else if (($searchString == '') && ($this->asCfg->cfg['init'] == 'all')) {

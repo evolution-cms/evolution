@@ -1,5 +1,5 @@
 <?php
-if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 
 if(!$modx->hasPermission('delete_document')) {
 	$e->setError(3);
@@ -9,6 +9,19 @@ if(!$modx->hasPermission('delete_document')) {
 <?php
 // check the document doesn't have any children
 $id=intval($_GET['id']);
+
+/*******ищем родителя чтобы к нему вернуться********/
+$pid=$modx->db->getValue($modx->db->query("SELECT parent FROM ".$modx->getFullTableName('site_content')." WHERE id=".$id." LIMIT 0,1"));
+$pid=($pid==0?$id:$pid);
+
+/************ а заодно и путь возврата (сам путь внизу файла) **********/
+$sd=isset($_REQUEST['dir'])?'&dir='.$_REQUEST['dir']:'&dir=DESC';
+$sb=isset($_REQUEST['sort'])?'&sort='.$_REQUEST['sort']:'&sort=createdon';
+$pg=isset($_REQUEST['page'])?'&page='.(int)$_REQUEST['page']:'';
+$add_path=$sd.$sb.$pg;
+
+/*****************************/
+
 $deltime = time();
 $children = array();
 
@@ -31,7 +44,7 @@ if(!$udperms->checkPermissions()) {
 
 function getChildren($parent) {
 
-	global $dbase;
+	global $modx,$dbase;
 	global $table_prefix;
 	global $children;
 	global $site_start;
@@ -40,12 +53,12 @@ function getChildren($parent) {
 	//$db->debug = true;
 
 	$sql = "SELECT id FROM $dbase.`".$table_prefix."site_content` WHERE $dbase.`".$table_prefix."site_content`.parent=".$parent." AND deleted=0;";
-	$rs = mysql_query($sql);
-	$limit = mysql_num_rows($rs);
+	$rs = $modx->db->query($sql);
+	$limit = $modx->db->getRecordCount($rs);
 	if($limit>0) {
 		// the document has children documents, we'll need to delete those too
 		for($i=0;$i<$limit;$i++) {
-		$row=mysql_fetch_assoc($rs);
+		$row=$modx->db->getRow($rs);
 			if($row['id']==$site_start) {
 				echo "The document you are trying to delete is a folder containing document ".$row['id'].". This document is registered as the 'Site start' document, and cannot be deleted. Please assign another document as your 'Site start' document and try again.";
 				exit;
@@ -73,7 +86,7 @@ $modx->invokeEvent("OnBeforeDocFormDelete",
 if(count($children)>0) {
 	$docs_to_delete = implode(" ,", $children);
 	$sql = "UPDATE $dbase.`".$table_prefix."site_content` SET deleted=1, deletedby=".$modx->getLoginUserID().", deletedon=$deltime WHERE id IN($docs_to_delete);";
-	$rs = @mysql_query($sql);
+	$rs = $modx->db->query($sql);
 	if(!$rs) {
 		echo "Something went wrong while trying to set the document's children to deleted status...";
 		exit;
@@ -92,7 +105,7 @@ if($site_unavailable_page==$id){
 
 //ok, 'delete' the document.
 $sql = "UPDATE $dbase.`".$table_prefix."site_content` SET deleted=1, deletedby=".$modx->getLoginUserID().", deletedon=$deltime WHERE id=$id;";
-$rs = mysql_query($sql);
+$rs = $modx->db->query($sql);
 if(!$rs) {
 	echo "Something went wrong while trying to set the document to deleted status...";
 	exit;
@@ -111,7 +124,12 @@ if(!$rs) {
 	$sync->setReport(false);
 	$sync->emptyCache(); // first empty the cache
 	// finished emptying cache - redirect
-	$header="Location: index.php?r=1&a=7";
+//	$header="Location: index.php?r=1&a=7&id=$id&dv=1";
+
+	//новый путь
+	$header="Location: index.php?r=1&a=7&id=$pid&dv=1".$add_path;
+	
+	
 	header($header);
 }
 ?>

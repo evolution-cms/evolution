@@ -23,39 +23,35 @@ if (@ ini_get('register_globals')) {
 
 // sanitize array
 if (!function_exists('modx_sanitize_gpc')) {
-	function modx_sanitize_gpc(&$target, $dummy = array(), $count = 0) {
-		$tags = array('[', ']', '{', '}');
-		$replaced = array('&#x005B;', '&#x005D;', '&#x007B;', '&#x007D;');
-
-		if (is_array($target) && !empty($target)) {
-			$keys = array_keys($target);
-			$values = array_values($target);
-
-			for ($i = 0; $i < count($values); $i++) {
-				$key = str_replace($tags, $replaced, $keys[$i]);
-				$key = preg_replace('/<script/i', 'sanitized<s cript', $key);
-				$key = preg_replace('/&#(\d{1,4});?/', 'sanitized& #$1', $key);
-				$keys[$i] = $key;
-				if (is_array($values[$i])) {
-					$count++;
-					if (10 < $count) {
-						echo '<h1>Error: array nested too deep!</h1>';
-						exit;
-					}
-					modx_sanitize_gpc($values[$i], $dummy, $count);
-				} else {
-					$value = str_replace($tags, $replaced, $values[$i]);
-					$value = preg_replace('/<script/i', 'sanitized<s cript', $value);
-					$value = preg_replace('/&#(\d{1,4});?/', 'sanitized& #$1', $value);
-					$values[$i] = $value;
-				}
-				$count = 0;
-			}
-
-			$target = array_combine($keys, $values);
-		}
-	}
+    function modx_sanitize_gpc(& $target, $count=0) {
+    	global $sanitize_seed;
+        $brackets = array('[[',']]','[!','!]','[*','*]','[(',')]','{{','}}','[+','+]','[~','~]','[^','^]');
+        foreach($brackets as $bracket) {
+            $r[] = $sanitize_seed . $bracket['0'] . $sanitize_seed . $bracket['1'] . $sanitize_seed;
+        }
+        foreach ($target as $key => $value) {
+            if (is_array($value)) {
+                $count++;
+                if(10 < $count) {
+                    echo 'too many nested array';
+                    exit;
+                }
+                modx_sanitize_gpc($value, $count);
+            }
+            else {
+                $value = str_replace($brackets,$r,$value);
+                $value = preg_replace('/<script/i', 'sanitized_by_modx<s cript', $value);
+                $value = preg_replace('/&#(\d+);/', 'sanitized_by_modx& #$1', $value);
+                $target[$key] = $value;
+            }
+            $count=0;
+        }
+        return $target;
+    }
 }
+
+global $sanitize_seed;
+$sanitize_seed = 'sanitize_seed_' . base_convert(md5(__FILE__),16,36);
 
 modx_sanitize_gpc($_GET);
 if (!defined('IN_MANAGER_MODE') || (defined('IN_MANAGER_MODE') && (!IN_MANAGER_MODE || IN_MANAGER_MODE == 'false'))) {

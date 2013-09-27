@@ -4,16 +4,16 @@
 * -----------------------------------------------------------------------------
 * @package  AjaxSearch
 *
-* @author       Coroico - www.modx.wangba.fr
-* @version      1.9.2
-* @date         05/12/2010
+* @author       Coroico - www.evo.wangba.fr
+* @version      1.9.3
+* @date         26/09/2012
 *
 * Purpose:
 *    The AjaxSearch class contains all functions and data used to manage AjaxSearch
 *
 */
 
-define('MIN_CHARS', 3); // minimum number of characters
+define('MIN_CHARS', 2); // minimum number of characters
 define('MAX_CHARS', 30); // maximum number of characters
 define('MIN_WORDS', 1); // minimum number of words
 define('MAX_WORDS', 10); // maximum number of words

@@ -12,7 +12,7 @@ function mm_renameTab($tab, $newname, $roles='', $templates='') {
 	$e = &$modx->Event;
 			
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if (useThisRule($roles, $templates)) {
+	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
 		
 		
 		$output = " // ----------- Rename tab -------------- \n";
@@ -62,7 +62,7 @@ function mm_hideTabs($tabs, $roles='', $templates='') {
 	$tabs = makeArray($tabs);
 			
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if (useThisRule($roles, $templates)) {	
+	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
 
 	$output = " // ----------- Hide tabs -------------- \n";
 	
@@ -129,7 +129,7 @@ function mm_createTab($name, $id, $roles='', $templates='', $intro='', $width='6
 	$e = &$modx->Event;
 			
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if (useThisRule($roles, $templates)) {
+	if ((($e->name == 'OnDocFormRender') || ($e->name == 'OnPluginFormRender')) && useThisRule($roles, $templates)){
 	
 		// Plugin page tabs use a differen name for the tab object
 		$js_tab_object = ($e->name == 'OnPluginFormRender') ? 'tpSnippet' : 'tpSettings';

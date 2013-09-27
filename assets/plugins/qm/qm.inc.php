@@ -2,9 +2,9 @@
 /**
  * QuickManager+
  *  
- * @author      Mikko Lammi, www.maagit.fi 
+ * @author      Mikko Lammi, www.maagit.fi, updated by Dmi3yy 
  * @license     GNU General Public License (GPL), http://www.gnu.org/copyleft/gpl.html
- * @version     1.5.5 updated 12/01/2011
+ * @version     1.5.6 updated 08/08/2013
  */
 
 if(!class_exists('Qm')) {
@@ -24,7 +24,7 @@ class Qm {
         $this->loadtb = $loadtb;
         $this->tbwidth = $tbwidth;
         $this->tbheight = $tbheight;
-        $this->usemm = $usemm;
+        $this->usemm = null;
         $this->hidefields = $hidefields;  
         $this->hidetabs = $hidetabs;  
         $this->hidesections = $hidesections;     
@@ -95,12 +95,12 @@ class Qm {
                     
                     // Normal saving document procedure stops to redirect => Before redirecting secure documents and clear cache
                     
-                    // Secure web documents - flag as private (code from: manager/processors/save_content.processor.php)
-    		        include $this->modx->config['base_path']."manager/includes/secure_web_documents.inc.php";
+                    // Secure web documents - flag as private (code from: processors/save_content.processor.php)
+    		        include $this->modx->config['site_manager_path']."includes/secure_web_documents.inc.php";
     		        secureWebDocument($key);
     
-            		// Secure manager documents - flag as private (code from: manager/processors/save_content.processor.php)
-            		include $this->modx->config['base_path']."manager/includes/secure_mgr_documents.inc.php";
+            		// Secure manager documents - flag as private (code from: processors/save_content.processor.php)
+            		include $this->modx->config['site_manager_path']."includes/secure_mgr_documents.inc.php";
             		secureMgrDocument($key);
                     
                     // Clear cache
@@ -112,7 +112,12 @@ class Qm {
                     }   
                     
                     // Redirect to clearer page which refreshes parent window and closes modal box frame
-                    $this->modx->sendRedirect($this->modx->config['base_url'].'index.php?id='.$id.'&quickmanagerclose=1', 0, 'REDIRECT_HEADER', 'HTTP/1.1 301 Moved Permanently');               
+                    if ($this->modx->config['friendly_urls'] == 1){
+                        $this->modx->sendRedirect($this->modx->makeUrl($id).'?quickmanagerclose=1', 0, 'REDIRECT_HEADER', 'HTTP/1.1 301 Moved Permanently'); 
+                    }else{
+                        $this->modx->sendRedirect($this->modx->makeUrl($id).'&quickmanagerclose=1', 0, 'REDIRECT_HEADER', 'HTTP/1.1 301 Moved Permanently');    
+                    }
+                    
                 }
                 
                 break;
@@ -157,7 +162,7 @@ class Qm {
                     $imagePreview = '';
                     
                     // Includes
-                    $manager_path = 'manager/';
+                    $manager_path = MGR_DIR.'/';
                     include_once($manager_path.'includes/tmplvars.inc.php');
                     include_once($manager_path.'includes/tmplvars.commands.inc.php');
                     include_once($manager_path.'includes/tmplvars.format.inc.php');
@@ -284,9 +289,9 @@ class Qm {
                                     </script>
                                     ';
                                 }
-                            
+                                $amp = ($this->modx->config['friendly_urls'] == 1) ? '?' : '&';
                                 $output .= ' 
-                                <form id="qm-tv-form" name="mutate" method="post" enctype="multipart/form-data" action="'.$this->modx->config['site_url'].'index.php?id='.$docID.'&amp;quickmanagertv=1&amp;tvname='.$tvName.'">
+                                <form id="qm-tv-form" name="mutate" method="post" enctype="multipart/form-data" action="'.$this->modx->makeUrl($docID).$amp.'quickmanagertv=1&amp;tvname='.$tvName.'">
                                 <input type="hidden" name="tvid" value="'.$tv['id'].'" />
                                 <input id="save" type="hidden" name="save" value="1" />
                                     
@@ -345,7 +350,7 @@ class Qm {
                         
                         $editButton = '
                         <li class="qmEdit">
-                        <a class="qmButton qmEdit colorbox" href="'.$this->modx->config['site_url'].'manager/index.php?a=27&amp;id='.$docID.'&amp;quickmanager=1"><span> '.$_lang['edit_resource'].'</span></a>
+                        <a class="qmButton qmEdit colorbox" href="'.$this->modx->config['site_manager_url'].'/index.php?a=27&amp;id='.$docID.'&amp;quickmanager=1"><span> '.$_lang['edit_resource'].'</span></a>
                         </li>
                         ';
                         
@@ -359,7 +364,7 @@ class Qm {
                             // Add button
                             $addButton = '
                             <li class="qmAdd">
-                            <a class="qmButton qmAdd colorbox" href="'.$this->modx->config['site_url'].'manager/index.php?a=4&amp;pid='.$docID.'&amp;quickmanager=1"><span>'.$_lang['create_resource_here'].'</span></a>
+                            <a class="qmButton qmAdd colorbox" href="'.$this->modx->config['site_manager_url'].'/index.php?a=4&amp;pid='.$docID.'&amp;quickmanager=1"><span>'.$_lang['create_resource_here'].'</span></a>
                             </li>
                             ';
                             
@@ -419,7 +424,7 @@ class Qm {
                                         case 'new':
                                             $customButton = '
                                             <li class="qm-custom-'.$i.' qmCustom">
-                                            <a class="qmButton qmCustom colorbox" href="'.$this->modx->config['site_url'].'manager/index.php?a=4&amp;pid='.$buttonParentId.'&amp;quickmanager=1&amp;customaddtplid='.$buttonTplId.'"><span>'.$buttonTitle.'</span></a>
+                                            <a class="qmButton qmCustom colorbox" href="'.$this->modx->config['site_manager_url'].'/index.php?a=4&amp;pid='.$buttonParentId.'&amp;quickmanager=1&amp;customaddtplid='.$buttonTplId.'"><span>'.$buttonTitle.'</span></a>
                                             </li>
                                             ';
                                         break;
@@ -449,14 +454,14 @@ class Qm {
                         if ($this->managerbutton == 'true') {
                             $managerButton  = '
                             <li class="qmManager">
-                            <a class="qmButton qmManager" title="'.$_lang['manager'].'" href="'.$this->modx->config['site_url'].'manager/" ><span>'.$_lang['manager'].'</span></a>
+                            <a class="qmButton qmManager" title="'.$_lang['manager'].'" href="'.$this->modx->config['site_manager_url'].'/" ><span>'.$_lang['manager'].'</span></a>
                             </li>
                             ';
                             $controls .= $managerButton;
                         }
                         
                         // Logout button
-                        $logout = $this->modx->config['site_url'].'manager/index.php?a=8&amp;quickmanager=logout&amp;logoutid='.$docID;     
+                        $logout = $this->modx->config['site_manager_url'].'/index.php?a=8&amp;quickmanager=logout&amp;logoutid='.$docID;
                         $logoutButton  = '
                         <li class="qmLogout">
                         <a id="qmLogout" class="qmButton qmLogout" title="'.$_lang['logout'].'" href="'.$logout.'" ><span>'.$_lang['logout'].'</span></a>
@@ -552,7 +557,7 @@ class Qm {
                                     $'.$jvar.'("html").css({"overflow":"auto"});
                                     $'.$jvar.'("#qmEditor").css({"display":"block"});
                                     // Remove manager lock by going to home page
-                                    $'.$jvar.'.ajax({ type: "GET", url: "'.$this->modx->config['site_url'].'manager/index.php?a=2" });
+                                    $'.$jvar.'.ajax({ type: "GET", url: "'.$this->modx->config['site_manager_url'].'/index.php?a=2" });
                                 });                  
                                                             						                            
                                 // Hide QM+ if cookie found
@@ -602,12 +607,12 @@ class Qm {
                         
                         // Search and create edit buttons in to the content
                         if ($this->editbuttons == 'true' && $access) {
-                            $output = preg_replace('/<!-- '.$this->editbclass.' ([0-9]+) \'([^\\"\'\(\)<>!?]+)\' -->/', '<span class="'.$this->editbclass.'"><a class="colorbox" href="'.$this->modx->config['site_url'].'manager/index.php?a=27&amp;id=$1&amp;quickmanager=1&amp;qmrefresh='.$docID.'"><span>$2</span></a></span>', $output);
+                            $output = preg_replace('/<!-- '.$this->editbclass.' ([0-9]+) \'([^\\"\'\(\)<>!?]+)\' -->/', '<span class="'.$this->editbclass.'"><a class="colorbox" href="'.$this->modx->config['site_manager_url'].'/index.php?a=27&amp;id=$1&amp;quickmanager=1&amp;qmrefresh='.$docID.'"><span>$2</span></a></span>', $output);
                         }
                         
                         // Search and create new document buttons in to the content
                         if ($this->newbuttons == 'true' && $access) {
-                            $output = preg_replace('/<!-- '.$this->newbclass.' ([0-9]+) ([0-9]+) \'([^\\"\'\(\)<>!?]+)\' -->/', '<span class="'.$this->newbclass.'"><a class="colorbox" href="'.$this->modx->config['site_url'].'manager/index.php?a=4&amp;pid=$1&amp;quickmanager=1&amp;customaddtplid=$2"><span>$3</span></a></span>', $output);
+                            $output = preg_replace('/<!-- '.$this->newbclass.' ([0-9]+) ([0-9]+) \'([^\\"\'\(\)<>!?]+)\' -->/', '<span class="'.$this->newbclass.'"><a class="colorbox" href="'.$this->modx->config['site_manager_url'].'/index.php?a=4&amp;pid=$1&amp;quickmanager=1&amp;customaddtplid=$2"><span>$3</span></a></span>', $output);
                         }
                         
                         // Search and create new document buttons in to the content
@@ -682,7 +687,9 @@ class Qm {
                                             $tv['value'] = $sibl[0]['template'];
                                         }
                                         else $tv['value'] = ''; // Added by yama
-                                    } else {
+                                    }
+                                    else
+                                    {
                                         // Get "inheritTpl" TV
                                         $tv = $this->modx->getTemplateVar('inheritTpl', '', $pid);
                                     }
@@ -712,7 +719,8 @@ class Qm {
 					else $jq_mode = '$';
 					
 					// Add action buttons
-                    $mc->addLine('var controls = "<div style=\"padding:4px 0;position:fixed;top:10px;right:-10px;z-index:1000\" id=\"qmcontrols\" class=\"actionButtons\"><ul><li><a href=\"#\" onclick=\"documentDirty=false;document.mutate.save.click();return false;\"><img src=\"media/style/'.$qm_theme.'/images/icons/save.png\" />'.$_lang['save'].'</a></li><li><a href=\"#\" onclick=\"documentDirty=false; parent.'.$jq_mode.'.fn.colorbox.close(); return false;\"><img src=\"media/style/'.$qm_theme.'/images/icons/stop.png\"/>'.$_lang['cancel'].'</a></li></ul></div>";');
+                    $url = $this->modx->makeUrl($doc_id,'','','full');
+                    $mc->addLine('var controls = "<div style=\"padding:4px 0;position:fixed;top:10px;right:-10px;z-index:1000\" id=\"qmcontrols\" class=\"actionButtons\"><ul><li><a href=\"#\" onclick=\"documentDirty=false;document.mutate.save.click();return false;\"><img src=\"media/style/'.$qm_theme.'/images/icons/save.png\" />'.$_lang['save'].'</a></li><li><a href=\"#\" onclick=\"parent.location.href=\''.$url.'\'; return false;\"><img src=\"media/style/'.$qm_theme.'/images/icons/stop.png\"/>'.$_lang['cancel'].'</a></li></ul></div>";');
                     
                     // Modify head
                     $mc->head = '<script type="text/javascript">document.body.style.display="none";</script>';
@@ -793,7 +801,7 @@ class Qm {
             // Check if current document is assigned to one or more doc groups
             $sql= "SELECT id FROM {$table} WHERE document={$docID}";
             $result= $this->modx->db->query($sql);
-            $rowCount= $this->modx->recordCount($result);
+            $rowCount= $this->modx->db->getRecordCount($result);
             
             // If document is assigned to one or more doc groups, check access
             if ($rowCount >= 1) {
@@ -806,7 +814,7 @@ class Qm {
                     // Check if user has access to current document 
                     $sql= "SELECT id FROM {$table} WHERE document = {$docID} AND document_group IN ({$docGroup})";
                     $result= $this->modx->db->query($sql);
-                    $rowCount = $this->modx->recordCount($result);
+                    $rowCount = $this->modx->db->getRecordCount($result);
                     
                     if ($rowCount >= 1) $access = TRUE;
                 }
@@ -820,7 +828,7 @@ class Qm {
         return $access;
     }
     
-    // Function from: manager/processors/cache_sync.class.processor.php 
+    // Function from: processors/cache_sync.class.processor.php 
     //_____________________________________________________
     function getParents($id, $path = '') { // modx:returns child's parent
 		global $modx;
@@ -870,7 +878,8 @@ class Qm {
 	    
 	    // Return TV button link if access
 	    if ($access && $caption != '') {
-	        return '<span class="'.$this->tvbclass.'"><a class="colorbox" href="'.$this->modx->config['site_url'].'index.php?id='.$docID.'&amp;quickmanagertv=1&amp;tvname='.$matches[1].'"><span>'.$caption.'</span></a></span>';
+            $amp = ($this->modx->config['friendly_urls'] == 1) ? '?' : '&';
+	        return '<span class="'.$this->tvbclass.'"><a class="colorbox" href="'.$this->modx->makeUrl($docID).$amp.'quickmanagertv=1&amp;tvname='.$matches[1].'"><span>'.$caption.'</span></a></span>';
         } 
     }
     
@@ -887,7 +896,7 @@ class Qm {
 	    if (!$access) {
 	        $sql = "SELECT id FROM {$table} WHERE tmplvarid = {$tvId}";
             $result = $this->modx->db->query($sql);
-            $rowCount = $this->modx->recordCount($result);
+            $rowCount = $this->modx->db->getRecordCount($result);
             // TV is not in any document group
             if ($rowCount == 0) { $access = TRUE; }    
 	    }
@@ -896,7 +905,7 @@ class Qm {
 	    if (!$access && $this->docGroup != '') {
             $sql = "SELECT id FROM {$table} WHERE tmplvarid = {$tvId} AND documentgroup IN ({$this->docGroup})";
             $result = $this->modx->db->query($sql);
-            $rowCount = $this->modx->recordCount($result);
+            $rowCount = $this->modx->db->getRecordCount($result);
             if ($rowCount >= 1) { $access = TRUE; }
         }    
         
@@ -1063,7 +1072,7 @@ class Qm {
 	//_____________________________________________________
 	function clearCache() {
         // Clear cache
-        include_once $this->modx->config['base_path']."manager/processors/cache_sync.class.processor.php";
+        include_once $this->modx->config['site_manager_path']."/processors/cache_sync.class.processor.php";
         $sync = new synccache();
         $sync->setCachepath($this->modx->config['base_path']."assets/cache/");
         $sync->setReport(false);

@@ -30,14 +30,16 @@ $limit               = 0;
 $recent              = 0;
 
 /* That's it to config! */
+include_once(dirname(__FILE__)."/../../../cache/siteManager.php");
 $tree_styles = array('|--', '&#9494;&nbsp;', '&#9658;&nbsp;', 'L&nbsp;');
 define('MODX_API_MODE', true);
 define("IN_MANAGER_MODE", "true");
 $self = 'assets/plugins/tinymce/js/tinymce.linklist.php';
 $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 $mtime = microtime();
-include_once("{$base_path}manager/includes/config.inc.php");
-include_once("{$base_path}manager/includes/document.parser.class.inc.php");
+$manage_path = '../../../../'.MGR_DIR.'/';
+include($manage_path . 'includes/config.inc.php');
+include($manage_path . 'includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
 $mtime = explode(" ",$mtime);
 $modx->tstart = $mtime[1] + $mtime[0];;

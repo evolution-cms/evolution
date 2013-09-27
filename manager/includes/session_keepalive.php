@@ -14,6 +14,7 @@ if ($rt = @ include_once('config.inc.php')) {
       $ok = true;
   }
 }
+header('Content-type: application/json');
 if($ok) {
     echo '{status:"ok"}';
 } else {

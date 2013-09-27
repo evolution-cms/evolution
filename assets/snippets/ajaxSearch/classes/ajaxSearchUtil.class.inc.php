@@ -4,9 +4,9 @@
 * -----------------------------------------------------------------------------
 * @package  AjaxSearchUtil
 *
-* @author       Coroico - www.modx.wangba.fr
-* @version      1.9.2
-* @date         05/12/2010
+* @author       Coroico - www.evo.wangba.fr
+* @version      1.9.3
+* @date         26/09/2012
 *
 * Purpose:
 *    The AjaxSearchUtil class contains some util methods
@@ -30,7 +30,7 @@ class AjaxSearchUtil {
     var $_current_pcre_backtrack;
 
     function ajaxSearchUtil($level=0, $version, $tstart, &$msgErr) {
-
+        global $modx;
         $this->level = (abs($level) > 0 && abs($level) < 4) ? $level : 0;
         $this->dbg = ($this->level > 0);
         $this->dbgRes = ($this->level > 1);
@@ -38,7 +38,7 @@ class AjaxSearchUtil {
         $this->tstart = $tstart;
 
         $msgErr = '';
-        $header = "AjaxSearch " . $version . " - Php" . phpversion() . " - MySql " . mysql_get_server_info();
+        $header = 'AjaxSearch ' . $version . ' - Php' . phpversion() . ' - MySql ' . (method_exists($modx->db, 'getVersion') ? $modx->db->getVersion() : mysql_get_server_info());
         if ($this->level > 0 && $level < 4) { // debug trace in a file
             $isWriteable = is_writeable(AS_DBGDIR);
             if ($isWriteable) {

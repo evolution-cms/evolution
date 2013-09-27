@@ -47,6 +47,8 @@ $mobilephone = $modx->db->escape($_POST['mobilephone']);
 $fax = $modx->db->escape($_POST['fax']);
 $dob = !empty ($_POST['dob']) ? ConvertDate($_POST['dob']) : 0;
 $country = $_POST['country'];
+$street = $modx->db->escape($_POST['street']);
+$city   = $modx->db->escape($_POST['city']);
 $state = $modx->db->escape($_POST['state']);
 $zip = $modx->db->escape($_POST['zip']);
 $gender = !empty ($_POST['gender']) ? $_POST['gender'] : 0;
@@ -81,9 +83,9 @@ if ($_SESSION['mgrRole'] != 1) {
 	// Verify that the user being edited wasn't an admin and the user ID got spoofed
 	$sql = "SELECT role FROM $dbase.`" . $table_prefix . "user_attributes` AS mua WHERE internalKey = $id";
 	if ($rs = $modx->db->query($sql)) {
-		if ($rsQty = mysql_num_rows($rs)) {
+		if ($rsQty = $modx->db->getRecordCount($rs)) {
 			// There should only be one if there is one
-			$row = mysql_fetch_assoc($rs);
+			$row = $modx->db->getRow($rs);
 			if ($row['role'] == 1) {
 				webAlert("You cannot alter an administrative user.");
 				exit;
@@ -100,7 +102,7 @@ switch ($_POST['mode']) {
 			webAlert("An error occurred while attempting to retrieve all users with username $newusername.");
 			exit;
 		}
-		$limit = mysql_num_rows($rs);
+		$limit = $modx->db->getRecordCount($rs);
 		if ($limit > 0) {
 			webAlert("User name is already in use!");
 			exit;
@@ -112,9 +114,9 @@ switch ($_POST['mode']) {
 			webAlert("An error occurred while attempting to retrieve all users with email $email.");
 			exit;
 		}
-		$limit = mysql_num_rows($rs);
+		$limit = $modx->db->getRecordCount($rs);
 		if ($limit > 0) {
-			$row = mysql_fetch_assoc($rs);
+			$row = $modx->db->getRow($rs);
 			if ($row['id'] != $id) {
 				webAlert("Email is already in use!");
 				exit;
@@ -157,7 +159,7 @@ switch ($_POST['mode']) {
 		$modx->db->update($field,'[+prefix+]manager_users',"id='{$internalKey}'");
 		
 		$field = array();
-		$field = compact('internalKey','fullname','role','email','phone','mobilephone','fax','zip','state','country','gender','dob','photo','comment','blocked','blockeduntil','blockedafter');
+		$field = compact('internalKey','fullname','role','email','phone','mobilephone','fax','zip','street','city','state','country','gender','dob','photo','comment','blocked','blockeduntil','blockedafter');
 		$rs = $modx->db->insert($field,'[+prefix+]user_attributes');
 		if (!$rs) {
 			webAlert("An error occurred while attempting to save the user's attributes.");
@@ -230,7 +232,7 @@ switch ($_POST['mode']) {
 				<li><a href="<?php echo $stayUrl ?>"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['close']; ?></a></li>
 			</ul>
 			</div>
-
+            <div class="section">
 			<div class="sectionHeader"><?php echo $_lang['user_title']; ?></div>
 			<div class="sectionBody">
 			<div id="disp">
@@ -239,6 +241,7 @@ switch ($_POST['mode']) {
 			</p>
 			</div>
 			</div>
+            </div>
 		<?php
 
 			include_once "footer.inc.php";
@@ -278,9 +281,9 @@ switch ($_POST['mode']) {
 			webAlert("An error occurred while attempting to retrieve all users with username $newusername.");
 			exit;
 		}
-		$limit = mysql_num_rows($rs);
+		$limit = $modx->db->getRecordCount($rs);
 		if ($limit > 0) {
-			$row = mysql_fetch_assoc($rs);
+			$row = $modx->db->getRow($rs);
 			if ($row['id'] != $id) {
 				webAlert("User name is already in use!");
 				exit;
@@ -293,9 +296,9 @@ switch ($_POST['mode']) {
 			webAlert("An error occurred while attempting to retrieve all users with email $email.");
 			exit;
 		}
-		$limit = mysql_num_rows($rs);
+		$limit = $modx->db->getRecordCount($rs);
 		if ($limit > 0) {
-			$row = mysql_fetch_assoc($rs);
+			$row = $modx->db->getRow($rs);
 			if ($row['internalKey'] != $id) {
 				webAlert("Email is already in use!");
 				exit;
@@ -323,6 +326,8 @@ switch ($_POST['mode']) {
 					mobilephone='$mobilephone',
 					fax='$fax',
 					zip='$zip' ,
+					street='$street',
+					city='$city',
 					state='$state',
 					country='$country',
 					gender='$gender',
@@ -421,7 +426,7 @@ switch ($_POST['mode']) {
 				<li><a href="<?php echo ($id == $modx->getLoginUserID()) ? 'index.php?a=8' : $stayUrl; ?>"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo ($id == $modx->getLoginUserID()) ? $_lang['logout'] : $_lang['close']; ?></a></li>
 			</ul>
 			</div>
-
+            <div class="section">
 			<div class="sectionHeader"><?php echo $_lang['user_title']; ?></div>
 			<div class="sectionBody">
 			<div id="disp">
@@ -430,6 +435,7 @@ switch ($_POST['mode']) {
 			</p>
 			</div>
 			</div>
+            </div>
 		<?php
 			
 			include_once "footer.inc.php";
@@ -462,10 +468,10 @@ function save_user_quoted_printable($string) {
 
 // Send an email to the user
 function sendMailMessage($email, $uid, $pwd, $ufn) {
-	global $signupemail_message;
+	global $modx,$_lang,$signupemail_message;
 	global $emailsubject, $emailsender;
 	global $site_name, $site_start, $site_url;
-	$manager_url = $site_url . "manager/";
+	$manager_url = MODX_MANAGER_URL;
 	$message = sprintf($signupemail_message, $uid, $pwd); // use old method
 	// replace placeholders
 	$message = str_replace("[+uid+]", $uid, $message);
@@ -476,22 +482,14 @@ function sendMailMessage($email, $uid, $pwd, $ufn) {
 	$message = str_replace("[+semail+]", $emailsender, $message);
 	$message = str_replace("[+surl+]", $manager_url, $message);
 
-	$headers = "From: " . $emailsender . "\r\n";
-	$headers .= "X-Mailer: Content Manager - PHP/" . phpversion();
-	$headers .= "\r\n";
-	$headers .= "MIME-Version: 1.0\r\n";
-	$headers .= "Content-Type: text/plain; charset=utf-8\r\n";
-	$headers .= "Content-Transfer-Encoding: quoted-printable\r\n";
-	$subject = "=?UTF-8?Q?".$emailsubject."?=";
-	$message = save_user_quoted_printable($message);
-
-	if (ini_get('safe_mode') == FALSE) {
-		if (!mail($email, $subject, $message, $headers, "-f $emailsender")) {
-			webAlert("$email - {$_lang['error_sending_email']}");
-			exit;
-		}
-	} elseif (!mail($email, $subject, $message, $headers)) {
-		webAlert("$email - {$_lang['error_sending_email']}");
+	$param = array();
+	$param['from']    = "{$site_name}<{$emailsender}>";
+	$param['subject'] = $emailsubject;
+	$param['body']    = $message;
+	$param['to']      = $email;
+	$rs = $modx->sendmail($param);
+	if (!$rs) {
+		webAlert("{$email} - {$_lang['error_sending_email']}");
 		exit;
 	}
 }
@@ -524,6 +522,8 @@ function saveUserSettings($id) {
 		'fax',
 		'dob',
 		'country',
+		'street',
+		'city',
 		'state',
 		'zip',
 		'gender',
@@ -569,7 +569,7 @@ function saveUserSettings($id) {
 
 	$usrTable = $modx->getFullTableName('user_settings');
 
-	mysql_query('DELETE FROM '.$usrTable.' WHERE user='.$id);
+	$modx->db->query('DELETE FROM '.$usrTable.' WHERE user='.$id);
 
 	$savethese = array();
 	foreach ($settings as $k => $v) {

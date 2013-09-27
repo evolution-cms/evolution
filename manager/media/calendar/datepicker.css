@@ -3,11 +3,9 @@ input.DatePicker{
 	padding: 3px 3px 3px 24px;
 	border: 1px solid #0070bf;
 	font-size: 13px;
-	background: #fff url(../media/style/MODxCarbon/icons/datenofocus.gif) no-repeat top left;
 	cursor: pointer;
 }
 input:focus.DatePicker{
-	background: #fffce9 url(../media/style/MODxCarbon/icons/datefocus.gif) no-repeat top left;
 }
 .dp_container{
 	position: relative;

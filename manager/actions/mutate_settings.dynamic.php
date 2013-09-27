@@ -1,5 +1,5 @@
 <?php
-if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 if(!$modx->hasPermission('settings')) {
 	$e->setError(3);
 	$e->dumpError();
@@ -7,11 +7,11 @@ if(!$modx->hasPermission('settings')) {
 
 // check to see the edit settings page isn't locked
 $sql = "SELECT internalKey, username FROM $dbase.`".$table_prefix."active_users` WHERE $dbase.`".$table_prefix."active_users`.action=17";
-$rs = mysql_query($sql);
-$limit = mysql_num_rows($rs);
+$rs = $modx->db->query($sql);
+$limit = $modx->db->getRecordCount($rs);
 if($limit>1) {
 	for ($i=0;$i<$limit;$i++) {
-		$lock = mysql_fetch_assoc($rs);
+        $lock = $modx->db->getRow($rs);
 		if($lock['internalKey']!=$modx->getLoginUserID()) {
 			$msg = sprintf($_lang["lock_settings_msg"],$lock['username']);
 			$e->setError(5, $msg);
@@ -25,12 +25,14 @@ if($limit>1) {
 // this will prevent user-defined settings from being saved as system setting
 $settings = array();
 $sql = "SELECT setting_name, setting_value FROM $dbase.`".$table_prefix."system_settings`";
-$rs = mysql_query($sql);
-$number_of_settings = mysql_num_rows($rs);
-while ($row = mysql_fetch_assoc($rs)) $settings[$row['setting_name']] = $row['setting_value'];
+$rs = $modx->db->query($sql);
+$number_of_settings = $modx->db->getRecordCount($rs);
+while ($row = $modx->db->getRow($rs)) $settings[$row['setting_name']] = $row['setting_value'];
+$settings['filemanager_path'] = preg_replace('@^' . MODX_BASE_PATH . '@', '[(base_path)]', $settings['filemanager_path']);
+$settings['rb_base_dir']      = preg_replace('@^' . MODX_BASE_PATH . '@', '[(base_path)]', $settings['rb_base_dir']);
 extract($settings, EXTR_OVERWRITE);
 
-$displayStyle = ( ($_SESSION['browser']=='mz') || ($_SESSION['browser']=='op') || ($_SESSION['browser']=='sf') ) ? "table-row" : "block" ;
+$displayStyle = ($_SESSION['browser']==='modern') ? 'table-row' : 'block' ;
 
 // load languages and keys
 $lang_keys = array();
@@ -205,7 +207,7 @@ function confirmLangChange(el, lkey, elupd){
         <script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabPage2" ) );</script>
         <table border="0" cellspacing="0" cellpadding="3">
             <tr>
-              <td nowrap class="warning"><b><?php echo $_lang["sitename_title"] ?></b></td>
+              <td nowrap class="warning"><b><?php echo htmlspecialchars($_lang["sitename_title"]) ?></b></td>
               <td ><input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 200px;" name="site_name" value="<?php echo isset($site_name) ? $site_name : "My MODX Site" ; ?>" /></td>
             </tr>
             <tr>
@@ -376,13 +378,13 @@ function confirmLangChange(el, lkey, elupd){
             <td>
 			<?php
 				$sql = 'SELECT t.templatename, t.id, c.category FROM '.$table_prefix.'site_templates t LEFT JOIN '.$table_prefix.'categories c ON t.category = c.id ORDER BY c.category, t.templatename ASC';
-				$rs = mysql_query($sql);
+                        $rs = $modx->db->query($sql);
 			?>
 			  <select name="default_template" class="inputBox" onchange="documentDirty=true;wrap=document.getElementById('template_reset_options_wrapper');if(this.options[this.selectedIndex].value != '<?php echo $default_template;?>'){wrap.style.display='block';}else{wrap.style.display='none';}" style="width:150px">
 				<?php
 				
 				$currentCategory = '';
-				while ($row = mysql_fetch_assoc($rs)) {
+                                while ($row = $modx->db->getRow($rs)) {
 					$thisCategory = $row['category'];
 					if($thisCategory == null) {
 						$thisCategory = $_lang["no_category"];
@@ -506,6 +508,43 @@ function confirmLangChange(el, lkey, elupd){
           </tr>
           <tr>
             <td colspan="2"><div class='split'></div></td>
+           </tr> 
+<tr>
+	<td nowrap class="warning" valign="top"><b><?php echo $_lang["docid_incrmnt_method_title"] ?></b></td>
+	<td>
+	<input onchange="documentDirty=true;" type="radio" name="docid_incrmnt_method" value="0" 
+			<?php echo ($docid_incrmnt_method=='0' || !isset($auto_menuindex)) ? 'checked="checked"' : "" ; ?> /> 
+			<?php echo $_lang["docid_incrmnt_method_0"]?><br /> 
+			
+	<input onchange="documentDirty=true;" type="radio" name="docid_incrmnt_method" value="1" 
+			<?php echo ($docid_incrmnt_method=='1') ? 'checked="checked"' : "" ; ?> /> 
+			<?php echo $_lang["docid_incrmnt_method_1"]?><br /> 
+        <input onchange="documentDirty=true;" type="radio" name="docid_incrmnt_method" value="2" 
+			<?php echo ($docid_incrmnt_method=='2') ? 'checked="checked"' : "" ; ?> /> 
+			<?php echo $_lang["docid_incrmnt_method_2"]?><br /> 
+	</td>
+</tr>
+<tr> 
+            <td colspan="2"><div class='split'></div></td> 
+          </tr>     
+           
+           <tr>
+    <td nowrap class="warning"><b><?php echo $_lang["cache_type_title"] ?></b></td>
+  <td>
+      
+  <input onchange="documentDirty=true;" type="radio" name="cache_type" value="1" 
+      <?php echo ($cache_type=='1') ? 'checked="checked"' : "" ; ?> /> 
+      <?php echo $_lang["cache_type_1"]?><br /> 
+      
+  <input onchange="documentDirty=true;" type="radio" name="cache_type" value="2" 
+      <?php echo ($cache_type=='2') ? 'checked="checked"' : "" ; ?> /> 
+      <?php echo $_lang["cache_type_2"]?><br /> 
+  </td>
+</tr>
+
+          <tr>
+            <td colspan="2"><div class='split'></div></td>
+            </tr>
             <tr>
               <td nowrap class="warning"><b><?php echo $_lang["serveroffset_title"] ?></b></td>
               <td> <select name="server_offset_time" size="1" class="inputBox">
@@ -630,18 +669,39 @@ function confirmLangChange(el, lkey, elupd){
           <tr id='furlRow6' style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
             <td colspan="2"><div class='split'></div></td>
           </tr>
-<?php if(!isset($make_folders)) $make_folders = '1';?>
+<?php if(!isset($make_folders)) $make_folders = '0';?>
 <tr id="furlRow51" class="furlRow row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
   <th><?php echo $_lang['make_folders_title'] ?></th>
   <td>
     <?php echo wrap_label($_lang["yes"],form_radio('make_folders','1', $make_folders=='1'));?><br />
     <?php echo wrap_label($_lang["no"],form_radio('make_folders','0', $make_folders=='0'));?><br />
-    <?php echo $_lang["make_folders_message"] ?></td>
+</td>
+  </tr>
+  <tr id='furlRow56' class='row1' style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
+            <td width="200">&nbsp;</td>
+            <td class='comment'><?php echo $_lang["make_folders_message"] ?></td>
 </tr> 
 <tr id='furlRow52' style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
 <td colspan="2"><div class='split'></div></td>
 </tr>
       	
+  <?php if(!isset($seostrict)) $seostrict = '0';?>
+  <tr id="furlRow53" class="furlRow row1" style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
+    <th><?php echo $_lang['seostrict_title'] ?></th>
+    <td>
+      <?php echo wrap_label($_lang["yes"],form_radio('seostrict','1', $seostrict=='1'));?><br />
+      <?php echo wrap_label($_lang["no"],form_radio('seostrict','0', $seostrict=='0'));?><br />
+     </td> 
+  </tr>
+  <tr id='furlRow54' class='row1' style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
+            <td width="200">&nbsp;</td>
+            <td class='comment'><?php echo $_lang["seostrict_message"] ?></td>
+          </tr> 
+  <tr id='furlRow55' style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
+  <td colspan="2"><div class='split'></div></td>
+  </tr>
+
+
           <tr id='furlRow7' class='row1' style="display: <?php echo $friendly_urls==1 ? $displayStyle : 'none' ; ?>">
             <td nowrap class="warning" valign="top"><b><?php echo $_lang["friendly_alias_title"] ?></b></td>
             <td> <input onchange="documentDirty=true;" type="radio" name="friendly_alias_urls" value="1" <?php echo $friendly_alias_urls=='1' ? 'checked="checked"' : "" ; ?> />
@@ -723,9 +783,13 @@ function confirmLangChange(el, lkey, elupd){
             <th><?php echo $_lang["check_files_onlogin_title"] ?></th>
             <td>
               <textarea name="check_files_onlogin"><?php echo $check_files_onlogin;?></textarea><br />
-                <?php echo $_lang["check_files_onlogin_message"] ?>
+                
         </td>
         </tr>
+        <tr  class='row1' >
+            <td width="200">&nbsp;</td>
+            <td class='comment'>  <?php echo $_lang["check_files_onlogin_message"] ?></td>
+      </tr> 
         <tr>
           <td colspan="2"><div class='split'></div></td>
         </tr>
@@ -787,8 +851,24 @@ function confirmLangChange(el, lkey, elupd){
 			<?php echo wrap_label($_lang['a17_error_reporting_opt1'], form_radio('error_reporting','1' , $error_reporting==='1'));?><br />
 			<?php echo wrap_label($_lang['a17_error_reporting_opt2'], form_radio('error_reporting','2' , $error_reporting==='2'));?><br />
 			<?php echo wrap_label($_lang['a17_error_reporting_opt99'],form_radio('error_reporting','99', $error_reporting==='99'));?><br />
-		<?php echo $_lang['a17_error_reporting_msg'];?></td>
-		</tr>
+   </td>
+    </tr>
+    <tr  class='row1' >
+            <td width="200">&nbsp;</td>
+            <td class='comment'> <?php echo $_lang['a17_error_reporting_msg'];?></td>
+    </tr>
+<tr><td colspan="2"><div class='split'></div></td></tr>
+<?php if(!isset($send_errormail)) $send_errormail='3';?>
+<tr>
+<th><?php echo $_lang['mutate_settings.dynamic.php6']; ?></th>
+<td>
+	<?php echo wrap_label($_lang['mutate_settings.dynamic.php7'],form_radio('send_errormail','0', ($send_errormail=='0' || !isset($send_errormail))));?><br />
+	<?php echo wrap_label('error',form_radio('send_errormail','3', $send_errormail=='3'));?><br />
+	<?php echo wrap_label('error + warning',form_radio('send_errormail','2', $send_errormail=='2'));?><br />
+	<?php echo wrap_label('error + warning + information',form_radio('send_errormail','1', $send_errormail=='1'));?><br />
+<?php echo parsePlaceholder($_lang['mutate_settings.dynamic.php8'],array('emailsender'=>$modx->config['emailsender']));?></td>
+</tr>
+    
             <tr>
               <td colspan="2"><div class='split'></div></td>
             </tr>
@@ -816,9 +896,13 @@ function confirmLangChange(el, lkey, elupd){
 				<?php echo wrap_label('CRYPT_SHA256 (salt &amp; stretch)'    ,form_radio('pwd_hash_algo','SHA256'    ,$phm['sel']['SHA256']    , '', $phm['e']['SHA256']));?><br />
 				<?php echo wrap_label('CRYPT_MD5 (salt &amp; stretch)'       ,form_radio('pwd_hash_algo','MD5'       ,$phm['sel']['MD5']       , '', $phm['e']['MD5']));?><br />
 				<?php echo wrap_label('UNCRYPT(32 chars salt + SHA-1 hash)'   ,form_radio('pwd_hash_algo','UNCRYPT'   ,$phm['sel']['UNCRYPT']   , '', $phm['e']['UNCRYPT']));?><br />
-				<?php echo $_lang["pwd_hash_algo_message"]?>
+       
 			</td>
 			</tr>
+      <tr  class='row1' >
+            <td width="200">&nbsp;</td>
+            <td class='comment'>  <?php echo $_lang["pwd_hash_algo_message"]?></td>
+      </tr> 
            <tr>
             <td colspan="2"><div class='split'></div></td>
           </tr>
@@ -827,9 +911,13 @@ function confirmLangChange(el, lkey, elupd){
 			<td>
 				<?php echo wrap_label($_lang["yes"],form_radio('enable_bindings','1',$enable_bindings=='1' || !isset($enable_bindings)));?><br />
 				<?php echo wrap_label($_lang["no"], form_radio('enable_bindings','0',$enable_bindings=='0'));?><br />
-				<?php echo $_lang["enable_bindings_message"] ?>
+       
 		</td>
 		</tr>
+          <tr  class='row1' >
+            <td width="200">&nbsp;</td>
+            <td class='comment'>  <?php echo $_lang["enable_bindings_message"] ?></td>
+      </tr>
            <tr>
             <td colspan="2"><div class='split'></div></td>
           </tr>
@@ -878,8 +966,60 @@ function confirmLangChange(el, lkey, elupd){
             <td width="200">&nbsp;</td>
             <td class='comment'><?php echo $_lang["emailsender_message"] ?></td>
           </tr>
+
+          <!--for smtp-->
+
           <tr>
             <td colspan="2"><div class='split'></div></td>
+          </tr>
+          <tr>
+            <td nowrap class="warning"><b><?php echo $_lang["email_method_title"] ?></b></td>
+            <td>
+                <?php echo wrap_label($_lang["email_method_mail"],form_radio('email_method','mail', ($email_method=='mail' || !isset($email_method)) ));?><br />
+                <?php echo wrap_label($_lang["email_method_smtp"],form_radio('email_method','smtp', ($email_method=='smtp') ));?><br />
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2"><div class="split"></div></td>
+          </tr>
+          <tr>
+            <td nowrap class="warning"><b><?php echo $_lang["smtp_auth_title"] ?></b></td>
+            <td>
+                <?php echo wrap_label($_lang["yes"],form_radio('smtp_auth','1', ($smtp_auth=='1' || !isset($smtp_auth)) ));?><br />
+                <?php echo wrap_label($_lang["no"],form_radio('smtp_auth','0', ($smtp_auth=='0') ));?><br />
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2"><div class="split"></div></td>
+          </tr>
+
+          <tr>
+            <td nowrap class="warning"><b><?php echo $_lang["smtp_host_title"] ?></b></td>
+            <td ><input onchange="documentDirty=true;" type="text" maxlength="255" style="width: 250px;" name="smtp_host" value="<?php echo isset($smtp_host) ? $smtp_host : "smtp.example.com" ; ?>" /></td>
+          </tr>
+          <tr>
+            <td colspan="2"><div class="split"></div></td>
+          </tr>
+          <tr>
+            <td nowrap class="warning"><b><?php echo $_lang["smtp_port_title"] ?></b></td>
+            <td ><input onchange="documentDirty=true;" type="text" maxlength="255" style="width: 250px;" name="smtp_port" value="<?php echo isset($smtp_port) ? $smtp_port : "25" ; ?>" /></td>
+          </tr>
+          <tr>
+            <td colspan="2"><div class='split'></div></td>
+          </tr>
+          <tr>
+            <td nowrap class="warning"><b><?php echo $_lang["smtp_username_title"] ?></b></td>
+            <td ><input onchange="documentDirty=true;" type="text" maxlength="255" style="width: 250px;" name="smtp_username" value="<?php echo isset($smtp_username) ? $smtp_username : $emailsender ; ?>" /></td>
+          </tr>
+           <tr>
+            <td colspan="2"><div class="split"></div></td>
+          </tr>
+          <tr>
+            <td nowrap class="warning"><b><?php echo $_lang["smtp_password_title"] ?></b></td>
+            <td ><input onchange="documentDirty=true;" type="password" maxlength="255" style="width: 250px;" name="smtppw" value="********************" autocomplete="off" /></td>
+          </tr>
+           <tr>
+            <td colspan="2"><div class="split"></div></td>
           </tr>
           <tr>
             <td nowrap class="warning"><b><?php echo $_lang["emailsubject_title"] ?></b>
@@ -1039,7 +1179,38 @@ function confirmLangChange(el, lkey, elupd){
             <tr>
               <td colspan="2"><div class='split'></div></td>
             </tr>
-             <tr>
+<?php
+    if(!isset($resource_tree_node_name)) $resource_tree_node_name = 'pagetitle';
+?>
+<tr>
+<th><?php echo $_lang["setting_resource_tree_node_name"] ?></th>
+<td>
+	<select name="resource_tree_node_name" size="1" class="inputBox">
+<?php
+	$tpl = '<option value="[+value+]" [+selected+]>[*[+value+]*]</option>' . "\n";
+	$option = array('pagetitle','menutitle','alias','createdon','editedon','publishedon');
+	$output = array();
+	foreach($option as $v)
+	{
+		$selected = ($v==$resource_tree_node_name) ? 'selected' : '';
+		$s = array('[+value+]','[+selected+]');
+		$r = array($v,$selected);
+		$output[] = str_replace($s,$r,$tpl);
+	}
+	echo join("\n",$output)
+?>
+	</select><br />
+	
+</td>
+</tr>
+        <tr  class='row1' >
+            <td width="200">&nbsp;</td>
+            <td class='comment'>  <?php echo $_lang["setting_resource_tree_node_name_desc"]?></td>
+      </tr> 
+<tr>
+  <td colspan="2"><div class='split'></div></td>
+</tr>
+            	<tr>
       		   <td nowrap class="warning"><b><?php echo $_lang["tree_show_protected"] ?></b></td>
       		   <td> <input onchange="documentDirty=true;" type="radio" name="tree_show_protected" value="1" <?php echo (!isset($tree_show_protected) || $tree_show_protected=='0') ? '' : 'checked="checked" '; ?>/>
       			 <?php echo $_lang["yes"]?><br />
@@ -1177,40 +1348,35 @@ function confirmLangChange(el, lkey, elupd){
           
           <?php if(!isset($use_browser)) $use_browser=1; ?>
           
-          <tr id='rbRow1' class="row3" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+          <tr id='rbRow1' class="" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
             <td nowrap class="warning"><b><?php echo $_lang["rb_webuser_title"]?></b></td>
             <td><input onchange="documentDirty=true;" type="radio" name="rb_webuser" value="1" <?php echo $rb_webuser=='1' ? 'checked="checked"' : "" ; ?> />
               <?php echo $_lang["yes"]?><br />
               <input onchange="documentDirty=true;" type="radio" name="rb_webuser" value="0" <?php echo ($rb_webuser=='0' || !isset($rb_webuser)) ? 'checked="checked"' : "" ; ?> />
               <?php echo $_lang["no"]?> </td>
           </tr>
-          <tr id='rbRow2' class="row3" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+          <tr id='rbRow2' class="" style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
             <td width="200">&nbsp;</td>
             <td class="comment"><?php echo $_lang["rb_webuser_message"]?></td>
           </tr>
           <tr id='rbRow3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
             <td colspan="2"><div class='split'></div></td>
           </tr>
-          <tr id='rbRow4' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+          <tr id='rbRow4' class='' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
             <td nowrap class="warning"><b><?php echo $_lang["rb_base_dir_title"]?></b></td>
-            <td><?php
-			function getResourceBaseDir() {
-				global $base_path;
-				return $base_path."assets/";
-			}
-		?>
-                <?php echo $_lang['default']; ?> <span id="default_rb_base_dir"><?php echo getResourceBaseDir()?></span><br />
-                <input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 250px;" name="rb_base_dir" id="rb_base_dir" value="<?php echo isset($rb_base_dir) ? $rb_base_dir : getResourceBaseDir() ; ?>" /> <input type="button" onclick="reset_path('rb_base_dir');" value="<?php echo $_lang["reset"]; ?>" name="reset_rb_base_dir">
+            <td>
+                <?php echo $_lang['default']; ?> <span id="default_rb_base_dir">[(base_path)]assets/</span><br />
+                <input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 250px;" name="rb_base_dir" id="rb_base_dir" value="<?php echo (isset($rb_base_dir)) ? $rb_base_dir : '[(base_path)]assets/' ; ?>" /> <input type="button" onclick="reset_path('rb_base_dir');" value="<?php echo $_lang["reset"]; ?>" name="reset_rb_base_dir">
             </td>
           </tr>
-          <tr id='rbRow5' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+          <tr id='rbRow5' class='' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
             <td width="200">&nbsp;</td>
             <td class='comment'><?php echo $_lang["rb_base_dir_message"]?></td>
           </tr>
           <tr id='rbRow6' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
             <td colspan="2"><div class='split'></div></td>
           </tr>
-          <tr id='rbRow7' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+          <tr id='rbRow7' class='' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
             <td nowrap class="warning"><b><?php echo $_lang["rb_base_url_title"]?></b></td>
             <td> <?php
 				function getResourceBaseUrl() {
@@ -1221,60 +1387,60 @@ function confirmLangChange(el, lkey, elupd){
               <input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 250px;" name="rb_base_url" value="<?php echo isset($rb_base_url) ? $rb_base_url : getResourceBaseUrl() ; ?>" />
               </td>
           </tr>
-          <tr id='rbRow8' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+          <tr id='rbRow8' class='' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
             <td width="200">&nbsp;</td>
             <td class='comment'><?php echo $_lang["rb_base_url_message"]?></td>
           </tr>
           <tr id='rbRow9' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
             <td colspan="2"><div class='split'></div></td>
           </tr>
-          <tr id='rbRow10' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+          <tr id='rbRow10' class='' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
             <td nowrap class="warning"><b><?php echo $_lang["uploadable_images_title"]?></b></td>
             <td>
               <input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 250px;" name="upload_images" value="<?php echo isset($upload_images) ? $upload_images : "jpg,gif,png,ico,bmp,psd" ; ?>" />
             </td>
           </tr>
-          <tr id='rbRow11' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+          <tr id='rbRow11' class='' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
             <td width="200">&nbsp;</td>
             <td class='comment'><?php echo $_lang["uploadable_images_message"]?></td>
           </tr>
           <tr id='rbRow12' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
           <td colspan="2"><div class='split'></div></td>
           </tr>
-          <tr id='rbRow13' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+          <tr id='rbRow13' class='' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
             <td nowrap class="warning"><b><?php echo $_lang["uploadable_media_title"]?></b></td>
             <td>
               <input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 250px;" name="upload_media" value="<?php echo isset($upload_media) ? $upload_media : "mp3,wav,au,wmv,avi,mpg,mpeg" ; ?>" />
             </td>
           </tr>
-          <tr id='rbRow14' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+          <tr id='rbRow14' class='' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
             <td width="200">&nbsp;</td>
             <td class='comment'><?php echo $_lang["uploadable_media_message"]?></td>
           </tr>
           <tr id='rbRow15' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
           <td colspan="2"><div class='split'></div></td>
           </tr>
-          <tr id='rbRow16' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+          <tr id='rbRow16' class='' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
             <td nowrap class="warning"><b><?php echo $_lang["uploadable_flash_title"]?></b></td>
             <td>
               <input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 250px;" name="upload_flash" value="<?php echo isset($upload_flash) ? $upload_flash : "swf,fla" ; ?>" />
             </td>
           </tr>
-            <tr id='rbRow17' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+            <tr id='rbRow17' class='' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
               <td width="200">&nbsp;</td>
               <td class='comment'><?php echo $_lang["uploadable_flash_message"]?></td>
             </tr>
             <tr id='rbRow171' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
               <td colspan="2"><div class='split'></div></td>
             </tr>
-          <tr id='rbRow172' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+          <tr id='rbRow172' class='' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
               <td nowrap class="warning"><b><?php echo $_lang["clean_uploaded_filename"]?></b></td>
               <td> <input onchange="documentDirty=true;" type="radio" name="clean_uploaded_filename" value="1" <?php echo $clean_uploaded_filename=='1' ? 'checked="checked"' : "" ; ?> />
                 <?php echo $_lang["yes"]?><br />
                 <input onchange="documentDirty=true;" type="radio" name="clean_uploaded_filename" value="0" <?php echo ($clean_uploaded_filename=='0' || !isset($clean_uploaded_filename)) ? 'checked="checked"' : "" ; ?> />
                 <?php echo $_lang["no"]?> </td>
           </tr>
-            <tr id='rbRow17' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+            <tr id='rbRow17' class='' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
               <td width="200">&nbsp;</td>
               <td class='comment'><?php echo $_lang["clean_uploaded_filename_message"];?></td>
             </tr>
@@ -1299,7 +1465,7 @@ function confirmLangChange(el, lkey, elupd){
           
           <?php if(!isset($use_editor)) $use_editor=1; ?>
           
-          <tr id='editorRow0' class="row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
+          <tr id='editorRow0' class="" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
             <td nowrap class="warning"><b><?php echo $_lang["which_editor_title"]?></b></td>
             <td>
 				<select name="which_editor" onchange="documentDirty=true;">
@@ -1315,36 +1481,36 @@ function confirmLangChange(el, lkey, elupd){
 				</select>
 			</td>
           </tr>
-          <tr id='editorRow1' class="row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
+          <tr id='editorRow1' class="" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
             <td width="200">&nbsp;</td>
             <td class='comment'><?php echo $_lang["which_editor_message"]?></td>
           </tr>
-          <tr id='editorRow3' class="row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
+          <tr id='editorRow3' class="" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
             <td colspan="2"><div class='split'></div></td>
           </tr>
-          <tr id='editorRow4' class="row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
+          <tr id='editorRow4' class="" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
             <td nowrap class="warning"><b><?php echo $_lang["fe_editor_lang_title"]?></b></td>
             <td> <select name="fe_editor_lang" size="1" class="inputBox" onchange="documentDirty=true;">
 <?php echo get_lang_options(null, $fe_editor_lang);?>
               </select> </td>
           </tr>
-          <tr id='editorRow5' class="row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
+          <tr id='editorRow5' class="" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
             <td width="200">&nbsp;</td>
             <td class='comment'><?php echo $_lang["fe_editor_lang_message"]?></td>
           </tr>
-          <tr id='editorRow2' class="row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
+          <tr id='editorRow2' class="" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
             <td colspan="2"><div class='split'></div></td>
           </tr>
-          <tr id='editorRow14' class="row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
+          <tr id='editorRow14' class="" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
             <td nowrap class="warning"><b><?php echo $_lang["editor_css_path_title"]?></b></td>
             <td><input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 250px;" name="editor_css_path" value="<?php echo isset($editor_css_path) ? $editor_css_path : "" ; ?>" />
 			</td>
           </tr>
-          <tr id='editorRow15' class='row3' style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
+          <tr id='editorRow15' class='' style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
             <td width="200">&nbsp;</td>
             <td class='comment'><?php echo $_lang["editor_css_path_message"]?></td>
           </tr>
-		  <tr id='editorRow16' class="row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
+		  <tr id='editorRow16' class="" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
             <td colspan="2"><div class='split'></div></td>
           </tr>
 		  <tr class='row1'>
@@ -1367,8 +1533,8 @@ function confirmLangChange(el, lkey, elupd){
           <tr>
             <td nowrap class="warning"><b><?php echo $_lang["filemanager_path_title"]?></b></td>
             <td>
-              <?php echo $_lang['default']; ?> <span id="default_filemanager_path"><?php echo $base_path; ?></span><br />
-              <input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 250px;" name="filemanager_path" id="filemanager_path" value="<?php echo isset($filemanager_path) ? $filemanager_path : $base_path; ?>" /> <input type="button" onclick="reset_path('filemanager_path');" value="<?php echo $_lang["reset"]; ?>" name="reset_filemanager_path">
+              <?php echo $_lang['default']; ?> <span id="default_filemanager_path">[(base_path)]</span><br />
+              <input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 250px;" name="filemanager_path" id="filemanager_path" value="<?php echo isset($filemanager_path) ? $filemanager_path : '[(base_path)]'; ?>" /> <input type="button" onclick="reset_path('filemanager_path');" value="<?php echo $_lang["reset"]; ?>" name="reset_filemanager_path">
             </td>
           </tr>
           <tr>
@@ -1429,6 +1595,128 @@ function confirmLangChange(el, lkey, elupd){
           </tr>
           <tr>
             <td colspan="2"><div class='split'></div></td>
+		  <tr class='row1'>
+            <td colspan="2">
+            </td>
+          </tr>
+        </table>
+      </div>
+	  
+	  	      <!-- KCFinder settings -->
+      <div class="tab-page" id="tabPage8">
+        <h2 class="tab"><?php echo $_lang["settings_KC"] ?></h2>
+        <script type="text/javascript">tpSettings.addTabPage( document.getElementById( "tabPage8" ) );</script>
+        <table border="0" cellspacing="0" cellpadding="3">
+          <tr>
+            <td nowrap class="warning"><b><?php echo $_lang["maxImageWidth"]?></b></td>
+            <td>
+              <input onchange="documentDirty=true;" type='text' maxlength='4' style="width: 50px;" name="maxImageWidth" value="<?php echo isset($maxImageWidth) ? $maxImageWidth : "1600" ; ?>" />
+            </td>
+          </tr>
+          <tr>
+            <td width="200">&nbsp;</td>
+            <td class='comment'><?php echo $_lang["maxImageWidth_message"]?></td>
+          </tr>
+          <tr>
+            <td colspan="2"><div class='split'></div></td>
+          </tr>
+          <tr>
+            <td nowrap class="warning"><b><?php echo $_lang["maxImageHeight"]?></b></td>
+            <td>
+              <input onchange="documentDirty=true;" type='text' maxlength='4' style="width: 50px;" name="maxImageHeight" value="<?php echo isset($maxImageHeight) ? $maxImageHeight : "1200" ; ?>" />
+            </td>
+          </tr>
+          <tr>
+            <td width="200">&nbsp;</td>
+            <td class='comment'><?php echo $_lang["maxImageHeight_message"]?></td>
+          </tr>
+          <tr>
+            <td colspan="2"><div class='split'></div></td>
+          </tr>
+          <tr>
+            <td nowrap class="warning"><b><?php echo $_lang["thumbWidth"]?></b></td>
+            <td>
+              <input onchange="documentDirty=true;" type='text' maxlength='4' style="width: 50px;" name="thumbWidth" value="<?php echo isset($thumbWidth) ? $thumbWidth : "150" ; ?>" />
+            </td>
+          </tr>
+          <tr>
+            <td width="200">&nbsp;</td>
+            <td class='comment'><?php echo $_lang["thumbWidth_message"]?></td>
+          </tr>
+          <tr>
+            <td colspan="2"><div class='split'></div></td>
+          </tr>
+          <tr>
+            <td nowrap class="warning"><b><?php echo $_lang["thumbHeight"]?></b></td>
+            <td>
+              <input onchange="documentDirty=true;" type='text' maxlength='4' style="width: 50px;" name="thumbHeight" value="<?php echo isset($thumbHeight) ? $thumbHeight : "150" ; ?>" />
+            </td>
+          </tr>
+          <tr>
+            <td width="200">&nbsp;</td>
+            <td class='comment'><?php echo $_lang["thumbHeight_message"]?></td>
+          </tr>
+
+          <tr>
+            <td colspan="2"><div class='split'></div></td>
+          </tr>
+          <tr>
+            <td nowrap class="warning"><b><?php echo $_lang["thumbsDir"]?></b></td>
+            <td>
+              <input onchange="documentDirty=true;" type='text' maxlength='255' style="width: 250px;" name="thumbsDir" value="<?php echo isset($thumbsDir) ? $thumbsDir : ".thumbs" ; ?>" />
+            </td>
+          </tr>
+          <tr>
+            <td width="200">&nbsp;</td>
+            <td class='comment'><?php echo $_lang["thumbsDir_message"]?></td>
+          </tr>
+		  <tr>
+            <td colspan="2"><div class='split'></div></td>
+          </tr>
+          <tr>
+            <td nowrap class="warning"><b><?php echo $_lang["jpegQuality"]?></b></td>
+            <td>
+              <input onchange="documentDirty=true;" type='text' maxlength='4' style="width: 50px;" name="jpegQuality" value="<?php echo isset($jpegQuality) ? $jpegQuality : "90" ; ?>" />
+            </td>
+          </tr>
+          <tr>
+            <td width="200">&nbsp;</td>
+            <td class='comment'><?php echo $_lang["jpegQuality_message"]?></td>
+          </tr>
+          <tr>
+            <td colspan="2"><div class='split'></div></td>
+		  </tr>
+          <tr>
+               <td nowrap class="warning"><b><?php echo $_lang["denyZipDownload"] ?></b></td>
+               <td> <input onchange="documentDirty=true;" type="radio" name="denyZipDownload" value="0" <?php echo $denyZipDownload=='0' ? 'checked="checked"' : ""; ?> />
+                 <?php echo $_lang["no"]?><br />
+                 <input onchange="documentDirty=true;" type="radio" name="denyZipDownload" value="1" <?php echo (!isset($denyZipDownload) || $denyZipDownload=='1') ? 'checked="checked"' : ""; ?> />
+                 <?php echo $_lang["yes"]?></td>
+          </tr>
+          <tr>
+            <td colspan="2"><div class='split'></div></td>
+		  </tr>
+		  <tr>
+               <td nowrap class="warning"><b><?php echo $_lang["denyExtensionRename"] ?></b></td>
+               <td> <input onchange="documentDirty=true;" type="radio" name="denyExtensionRename" value="0" <?php echo $denyExtensionRename=='0' ? 'checked="checked"' : ""; ?> />
+                 <?php echo $_lang["no"]?><br />
+                 <input onchange="documentDirty=true;" type="radio" name="denyExtensionRename" value="1" <?php echo (!isset($denyExtensionRename) || $denyExtensionRename=='1') ? 'checked="checked"' : ""; ?> />
+                 <?php echo $_lang["yes"]?></td>
+          </tr>
+          <tr>
+            <td colspan="2"><div class='split'></div></td>
+		  </tr>
+		  <tr>
+               <td nowrap class="warning"><b><?php echo $_lang["showHiddenFiles"] ?></b></td>
+               <td> <input onchange="documentDirty=true;" type="radio" name="showHiddenFiles" value="0" <?php echo $showHiddenFiles=='0' ? 'checked="checked"' : ""; ?> />
+                 <?php echo $_lang["no"]?><br />
+                 <input onchange="documentDirty=true;" type="radio" name="showHiddenFiles" value="1" <?php echo (!isset($showHiddenFiles) || $showHiddenFiles=='1') ? 'checked="checked"' : ""; ?> />
+                 <?php echo $_lang["yes"]?></td>
+          </tr>
+          <tr>
+            <td colspan="2"><div class='split'></div></td>
+		  </tr>
+		  
 		  <tr class='row1'>
             <td colspan="2">
 		        <?php
@@ -1517,4 +1805,16 @@ function form_radio($name,$value,$checked=false,$add='',$disabled=false) {
 
 function wrap_label($str='',$object) {
 	return "<label>{$object}\n{$str}</label>";
+}
+
+function parsePlaceholder($tpl='', $ph=array())
+{
+	if(empty($ph) || empty($tpl)) return $tpl;
+	
+	foreach($ph as $k=>$v)
+	{
+		$k = "[+{$k}+]";
+		$tpl = str_replace($k, $v, $tpl);
+	}
+	return $tpl;
 }

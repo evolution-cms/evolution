@@ -4,6 +4,14 @@ $host = $_POST['host'];
 $uid = $_POST['uid'];
 $pwd = $_POST['pwd'];
 
+$self = 'install/connection.servertest.php';
+$base_path = str_replace($self,'',str_replace('\\','/', __FILE__));
+if (is_file("{$base_path}assets/cache/siteManager.php")) {
+	include_once("{$base_path}assets/cache/siteManager.php");
+}
+if(!defined('MGR_DIR') && is_dir("{$base_path}manager")) {
+	define('MGR_DIR','manager');
+}
 require_once("lang.php");
 
 $output = $_lang["status_connecting"];

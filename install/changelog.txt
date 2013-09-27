@@ -1,6 +1,161 @@
 This file shows the changes in recent releases of MODx. The most current release is usually the
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
+MODx Evolution 1.0.12 (Sep 12, 2013)
+===================================
+--------------------------------------------
+Bugfixes:
+--------------------------------------------
+* [#10190] fix lang (spanish, russian, nederlands)
+
+
+MODx Evolution 1.0.11 (Sep 11, 2013)
+===================================
+--------------------------------------------
+Security:
+--------------------------------------------
+* [#9933] insideManager - security fix
+* [#10180] ForgotManagerPassword - Improvement reset url
+
+--------------------------------------------
+Bugfixes:
+--------------------------------------------
+* [#9823] IE 10 -> FCK editor is blank
+* [#9848] System Configuration screen layout issues with IE10
+* [#9865] Fix ManagerManager field rules
+* [#9870] critical--> Login won't let mgr, web users login with special characters in password
+* [#9875] Wayfinder: parametrize entity encoding title, linktext, introtext, description
+* [#9899] font-family Arial for manager
+* [#9910] superfluous " before 'new module'
+* [#9920] Quickmanager+ 1.5.5 Frontend-editing
+* [#9921] Quickmanager+ 1.5.5 inline template variable buttons not saving (furl on)
+* [#9932] load TVs only if template not _blank
+* [#9936] /assets/js/ being used?
+* [#9938] eForm: email field and ccsender/automessage
+* [#9959] SEO Strict URLs 301 redirect
+* [#9977] datapicker not work in IE9
+* [#9989] Cannot change email address for an exisiting web user
+* [#10008] eForm: allow tag attributes with '-' inside
+* [#10010] Fix - Define MGR_DIR
+* [#10028] Fix - RewriteRule
+* [#10059] error when install sampleData
+* [#10060] Template Variable Date Picker CSS Z-Index problem
+* [#10065] TinyMCE theme full not working
+* [#10066] check in install backup and .thumbs writable?
+* [#10068] tinyMCE no add images from KCfinder
+* [#10090] TinyMCE: Parameters aren't being passed through properly
+* [#10091] ManagerManager Javascript failing as jQuery is not installed
+* [#10105] Need encode plugin parameters
+* [#10109] Fix Tab pane ID
+* [#10115] Fix table structure at the new install
+* [#10117] Set "0" default template ID
+* [#10119] Fix - Table structure upgrade sql
+* [#10123] update managermanager to 0.3.11
+* [#10142] database name with "-"
+* [#10153] Can not update block user status when login
+* [#10162] Multi line @EVAL statement
+* [#10171] Ditto - TV name issue
+* [#10176] Ditto rss format - Missing link element
+* [#10181] FMP - Can not login when CAPTCHA mode
+
+--------------------------------------------
+Additional Improvements & Updates:
+--------------------------------------------
+* [#3870] Consistent email API needed
+* [#4305] Webuser/Manageruser records don't have "City"
+* [#9714] return object or array after RunSnippet
+* [#9763] Auto rotation logs
+* [#9886] add phpthumb snippet
+* [#9887] add * @internal @disabled 1 to install plugins
+* [#9888] add CodeMirror plugin
+* [#10011] New function - $modx->getIdFromAlias()
+* [#10024] new event in core (onTreePrerender, onTreeRender , and more)
+* [#10027] Auto generate .htaccess
+* [#10036] Add new events into manager menu
+* [#10045] eForm - Replace mail function to new mail API
+* [#10047] Add SMTP for send mail
+* [#10049] add new theme (MODxRE)
+* [#10051] add CodeMirror for file-manager
+* [#10054] New DBAPI function - $modx->db->optimize()
+* [#10124] Intsrement method Resource ID
+* [#10125] Add new function - $modx->sendmail()
+* [#10137] Add new event OnLoadDocumentObject
+* [#10138] Generate cache for each $_GET parameters
+* [#10160] email notifies of system error
+* [#10186] alias_visible - ignore parent in url(optional)
+
+--------------------------------------------
+Refactor:
+--------------------------------------------
+* [#3432] Use menutitle instead of Pagetitle in doc_tree
+* [#3757] Update phpmailer
+* [#3833] Default template in root when Sibling is checked
+* [#4440] change MODxCarbon/style.css to make manager look better in chrome
+* [#4449] Improve search functionality
+* [#5972] Installer should check whether $_SESSION data is being correctly saved
+* [#9706] Convert language files encoding
+* [#9707] Translate error messages
+* [#9720] Deprecated core functions
+* [#9727] invokeEvent in save_password.processor.php
+* [#9795] Remove hard coded style
+* [#9797] Fetch tags without using the regular expression
+* [#9816] Add gender option
+* [#9845] [SOLVED] Snippet Parameters cannot use Chunks?
+* [#9849] Replace to DBAPI functions
+* [#9858] Extend 'Important System Files have been modified' message
+* [#9860] Delete Etomite database functions
+* [#9861] Should be core files line feed code is "lf"
+* [#9863] Convert to utf8 all core files
+* [#9873] Abstract parser statistics to own method
+* [#9884] /manager/ to MODX_MANAGER_PATH
+* [#9891] Delete phpSniff
+* [#9911] Update AjaxSearch to 1.9.3b
+* [#9922] german.inc.php (and other lang files)
+* [#9931] getPlaceholder return null if not exist
+* [#9934] Display caption for TV on TVs tabs
+* [#9939] eForm: multiple event functions separated by comma
+* [#9940] refactor exec mergeSettingsContent
+* [#9969] appeal to the module only through GET
+* [#10025] Cache documents with $_GET (optional)
+* [#10026] SEO Strict URLs (optional)
+* [#10037] Fix - Default value ($modx->config['use_alias_path'])
+* [#10038] added sorting when viewing children documents
+* [#10039] permit duplicate aliases in different folders
+* [#10044] IE layout issue in manager tree
+* [#10046] eForm - Delete set charset
+* [#10048] Description of phpthumb snippet english translation
+* [#10050] Replace MCPUK to KCFinder
+* [#10055] Use placeholder in language files
+* [#10058] Update core language files
+* [#10062] Change MODx -> MODX
+* [#10071] fix snippets and plugins for smaller cache file
+* [#10097] htmlspecialchars in >PHP 5.4 no longer defaults to ISO-8859-1
+* [#10100] Add PHP compatible functions
+* [#10103] Add label tag on checkbox fields
+* [#10104] Add bold style on selected checkbox fields
+* [#10106] Add tab pane to template var edit
+* [#10107] Set default template at new template var
+* [#10108] TinyMCE - Separation toolbar settings from functions.php
+* [#10110] Add actionButtons class to elements list
+* [#10111] Add primary button class
+* [#10112] Add properties tab into elements edit
+* [#10113] Set custom widget default value
+* [#10114] Ajust role settings screen
+* [#10116] Add primary key to tables
+* [#10118] Add index key to site_content table
+* [#10120] 01-01-1970 01:00:00 when "0"
+* [#10126] Rewrite Export Static HTML function
+* [#10127] Rewrite Import HTML site function
+* [#10131] Update jQuery version
+* [#10132] QM - Update jQuery ColorBox plugin
+* [#10139] Show templateWarning message when only documentDirty
+* [#10144] add OnManagerNodeRender, OnManagerNodePrerender
+* [#10148] Message check time interval in manager is very short
+* [#10149] Use placeholder filemanager_path and rb_base_dir in settings value
+* [#10156] Improvement $modx->getDocuments() parameter value
+* [#10161] Remember last tab in access permissions pane
+
+
 
 MODx Evolution 1.0.10 (Apr 18, 2013)
 ===================================
@@ -116,14 +271,14 @@ Bugfixes:
 * [#5807] manager.lockout not styled properly
 * [#6119] sendMailMessage in save_web_user.processor.php
 * [#7204] eForm in eFormParseTemplate $formats and $labels are declared as string but they are used as array
-* [#7459] Deprecated function 'split' used in manager/includes/datefunctions.inc.php
+* [#7459] Deprecated function 'split' used in includes/datefunctions.inc.php
 * [#9398] eForm & php 5.3
 * [#9547] ManagerManager Tv-transfer options with multiple choice in a new tab
 * [#9548] cant modify the customTV(multiTv or other without type input) with ManagerManager
 * [#9549] page not index in yandex if use FirstChildRedirect
 * [#9550] Breadcrumbs not have crumbSeparator
 * [#9563] onManagerMainFrameHeaderHTMLBlock event issue
-* [#9580] Bug in manager/processors/delete_content.processor.php on line 40
+* [#9580] Bug in processors/delete_content.processor.php on line 40
 * [#9586] Quick Manager and system setting Automatic Template Assignment
 * [#9620] Set Manager language in Create/Edit User
 
@@ -363,7 +518,7 @@ Bugfixes:
 * [#MODX-1106] Change help icons on TV create/edit screen
 * [#MODX-1103] Element Selector, part of the letters hides in search box
 * [#MODX-1566] Fix problem with Forgot Password confirmation link in WebLogin
-* [#MODX-1659] Stay option for adding another manager/web user not working correctly
+* [#MODX-1659] Stay option for adding another manager web user not working correctly
 * [#MODX-1164] Unable to set cssStyle when using getHTMLGrid
 * [#MODX-1176] Correct the permissions check when duplicating chunks and plugins
 * [#MODX-1753] Fix help page layout in manager

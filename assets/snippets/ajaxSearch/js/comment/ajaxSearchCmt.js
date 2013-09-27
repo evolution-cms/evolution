@@ -1,6 +1,6 @@
 // ajaxSearchCmt.js
-// Version: 1.9.2 - created by Coroico
-// 30/08/2010
+// Version: 1.9.3 - created by Coroico
+// 26/09/2012
 // Description: This code is used to post a comment about ajax search results
 
 // AjaxSearch Snippet folder location

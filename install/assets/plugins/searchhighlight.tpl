@@ -11,6 +11,7 @@
  * @internal	@modx_category Search
  * @internal    @legacy_names Search Highlighting
  * @internal    @installset base, sample
+ * @internal    @disabled 1
  */
  
  /*
@@ -34,7 +35,7 @@
   Created By:  Susan Ottwell (sottwell@sottwell.com)
                Kyle Jaebker (kjaebker@muddydogpaws.com)
 
-  Refactored by Coroico (www.modx.wangba.fr) and TS
+  Refactored by Coroico (www.evo.wangba.fr) and TS
   ------------------------------------------------------------------------
   Based off the the code by Susan Ottwell (www.sottwell.com)
     http://modxcms.com/forums/index.php/topic,1237.0.html

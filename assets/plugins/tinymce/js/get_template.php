@@ -52,7 +52,7 @@ elseif(isset($_GET['chunk']) && preg_match('@^[0-9]+$@',$_GET['chunk']))
 {
 	$tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
 	$cid = $_GET['chunk'];
-	$rs = $modx->db->select('snippet', $tbl_site_htmlsnippets, "`id`='{$cid}' AND published=1");
+	$rs = $modx->db->select('snippet', $tbl_site_htmlsnippets, "`id`='{$cid}'");
 	$content = $modx->db->getValue($rs);
 	if($content) $output = $content;
 }
@@ -60,18 +60,17 @@ else
 {
 	$list = array();
 	$tpl = "['[+title+]', '[+site_url+]assets/plugins/tinymce/js/get_template.php?[+target+]', '[+description+]']";
-	$ph['site_url'] = $modx->config['site_url'];
+	$ph['site_url'] = MODX_SITE_URL;
 	
 	if(isset($ids) && !empty($ids))
 	{
 		$docs = $modx->getDocuments($ids, 1, 0, $fields= 'id,pagetitle,menutitle,description,content');
-		
 		foreach($docs as $i=>$a)
 		{
 			$ph['title']       = ($docs[$i]['menutitle']!=='') ? $docs[$i]['menutitle'] : $docs[$i]['pagetitle'];
 			$ph['target']      = 'docid=' . $docs[$i]['id'];
 			$ph['description'] = $docs[$i]['description'];
-			$list[] = $modx->parsePlaceholder($tpl,$ph);
+			$list[] = parsePlaceholder($tpl,$ph);
 		}
 	}
 	
@@ -102,7 +101,7 @@ else
 			$ph['title']       = $row['name'];
 			$ph['target']      = 'chunk=' . $row['id'];
 			$ph['description'] = $row['description'];
-			$list[] = $modx->parsePlaceholder($tpl,$ph);
+			$list[] = parsePlaceholder($tpl,$ph);
 		}
 	}
 	
@@ -115,4 +114,13 @@ if($output)
 	header('pragma: no-cache');
 	header('expires: 0');
 	echo $output;
+}
+
+function parsePlaceholder($tpl,$ph) {
+	foreach($ph as $k=>$v) {
+		$k = "[+{$k}+]";
+		if(strpos($tpl,$k)!==false)
+			$tpl = str_replace($k,$v,$tpl);
+	}
+	return $tpl;
 }

@@ -1,5 +1,5 @@
 <?php
-if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 if(!$modx->hasPermission('logs')) {
 	$e->setError(3);
 	$e->dumpError();
@@ -57,7 +57,7 @@ window.addEvent('domready', function() {
 });
 </script>
 <h1><?php echo $_lang["mgrlog_view"]?></h1>
-
+<div class="section">
 <div class="sectionHeader"><?php echo $_lang["mgrlog_query"]?></div><div class="sectionBody" id="lyr1">
 <p><?php echo $_lang["mgrlog_query_msg"]?></p>
 <form action="index.php?a=13" name="logging" method="POST">
@@ -170,8 +170,8 @@ window.addEvent('domready', function() {
   </tbody>
 </table>
 </form>
-</div>
-
+</div></div>
+<div class="section">
 <div class="sectionHeader"><?php echo $_lang["mgrlog_qresults"]; ?></div><div class="sectionBody" id="lyr2">
 <?php
 if(isset($_REQUEST['log_submit'])) {
@@ -213,7 +213,7 @@ if(isset($_REQUEST['log_submit'])) {
 		' ORDER BY timestamp DESC'.
 		' LIMIT '.$int_cur_position.', '.$int_num_result;
 
-	$rs = mysql_query($sql);
+	$rs = $modx->db->query($sql);
 	if($limit<1) {
 		echo '<p>'.$_lang["mgrlog_emptysrch"].'</p>';
 	} else {
@@ -268,7 +268,7 @@ if(isset($_REQUEST['log_submit'])) {
 		// grab the entire log file...
 		$logentries = array();
 		$i = 0;
-		while ($logentry = mysql_fetch_assoc($rs)) {
+		while ($logentry = $modx->db->getRow($rs)) {
 			?><tr class="<?php echo ($i % 2 ? 'even' : ''); ?>">
 			<td><?php echo '<a href="index.php?a=12&amp;id='.$logentry['internalKey'].'">'.$logentry['username'].'</a>'; ?></td>
 			<td><?php echo $logentry['action']; ?></td>
@@ -286,10 +286,10 @@ if(isset($_REQUEST['log_submit'])) {
 	<?php
 	}
 	?>
-	</div>
+	</div></div>
 	<?php
 	// HACK: prevent multiple "Viewing logging" entries after a search has taken place.
-	// @see manager/index.php @ 915
+	// @see index.php @ 915
 	global $action; $action = 1;
 } else {
     echo $_lang["mgrlog_noquery"];

@@ -1,5 +1,5 @@
 <?php
-if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 if(!$modx->hasPermission('delete_role')) {	
 	$e->setError(3);
 	$e->dumpError();	
@@ -16,12 +16,12 @@ if($id==1){
 
 
 $sql = "SELECT count(*) FROM $dbase.`".$table_prefix."user_attributes` WHERE $dbase.`".$table_prefix."user_attributes`.role=".$id.";";
-$rs = mysql_query($sql);
+$rs = $modx->db->query($sql);
 if(!$rs) {
 	echo "Something went wrong while trying to find users with this role...";
 	exit;
 } 
-$row=mysql_fetch_assoc($rs);
+$row=$modx->db->getRow($rs);
 if($row['count(*)']>0){
 	echo "There are users with this role. It can't be deleted.";
 	exit;
@@ -29,7 +29,7 @@ if($row['count(*)']>0){
 
 // delete the attributes
 $sql = "DELETE FROM $dbase.`".$table_prefix."user_roles` WHERE $dbase.`".$table_prefix."user_roles`.id=".$id.";";
-$rs = mysql_query($sql);
+$rs = $modx->db->query($sql);
 if(!$rs) {
 	echo "Something went wrong while trying to delete the role...";
 	exit;

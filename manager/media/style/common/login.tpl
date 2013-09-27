@@ -17,7 +17,7 @@
     /* Login Styles part*/
     html {
     float: none;
-    background: #f4f4f4;
+    background: #f7f7f7;
     }
     body {
     display: block;
@@ -42,7 +42,7 @@
     line-height: 20px;
     }
     a {
-    color: #1a32c7;
+    color: #00577d;
     text-decoration: none;
     }
     a:active, a:hover {
@@ -84,19 +84,26 @@
     ul, ol {
     margin: 0 0 20px 40px;
     }
-    input, textarea, .selector, .checker, .radio, .uploader {
+    input, textarea {
     border: 1px solid #ddd;
     border-left-color: #c3c3c3;
-    border-top-color: #7c7c7c;
-    padding: 3px 3px 2px 2px;
+    border-top-color: #acacac;
+    padding: 2px 5px !important;
+    vertical-align: baseline;
+    border-radius: 3px;
     background: #fff url("data:image/png;base64,R0lGODlhAQASAKIAAP////39/fz8/Pr6+vn5+ff39/X19ezs7CH5BAQUAP8ALAAAAAABABIAAAMIeGZE8iDKmQAAOw==") repeat-x top left;
+    outline: none;
+    }
+    input:focus, textarea:focus {
+    border: 1px solid #73829a;
+    box-shadow: none;
     }
     button, .button {
     color: #222c36;
     font-weight: bold;
     font-size: 12px;
     background: #c7ced2 url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAsCAYAAACpOaImAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAJ9JREFUeNrM0jsOwyAQBFAsJQKBgEOmyg1zGhcuqfjIDhE/c4Gh2CpIVE9T7O5s53l+GHjbGOOF8DGxQuy9F4ittR/EWivGUkqGmHPGyeu6vhC99zjpnMPJ4zjwnPu+YwwhMBrGGImYUiLirAlb7ZatroJx/idEIQROSikxKqUwaq2JaIwhorX2v5A+Cn19y6ss77lsAud82b43wluAAQAooVGvQzXRvQAAAABJRU5ErkJggg==") repeat-x top left;
-    padding: 2px 6px;
+    padding: 2px 5px !important;
     white-space: nowrap;
     vertical-align: top;
     text-decoration: none;
@@ -133,13 +140,13 @@
     #mx_loginbox {
     position: relative;
     margin: 0 -215px;
-    width: 430px;
+    width: 400px;
     top: 30%;
     left: 50%;
     }
     .sectionBody {
     float: left;
-    width: 430px;
+    width: 400px;
     height: auto;
     border: 1px solid #e3e3e3;
     border-top: 1px solid #e3e3e3;
@@ -147,6 +154,7 @@
     display: block;
     background: #fff url("data:image/png;base64,R0lGODlhCgAeAMQAAPLy8fLy8v39/P/+/v///vv7+v/+//7///z9/fPy8vLz8v38/fP08/z8+/Tz8/z9/PPz8vv7+/Pz8/z8/PX19fn5+fb29vr6+vf39/T09Pj4+P7+/v39/fHx8f///wAAACH5BAAAAAAALAAAAAAKAB4AAAVhYCeOZGmeYgAAgbqqCSRDAaTIjqTvEiNlwKCQQiwaLcikEsNsOjXQqLRCrVov2Ky2EOlGuN7JpCEuizmCh0CwQHMQnLh8vqnb74cB4WAg6A0DHoKDhIWGh4iJiouMjY6FIQA7") repeat-x left top;
     z-index: 99;
+    border-radius: 0;
     }
     .loginLicense {
     float: left;
@@ -165,12 +173,12 @@
     width: 98%;
     height: 25px;
     line-height: 25px;
-    background: #3f5165 url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAABGCAIAAABDrSOmAAAAA3NCSVQICAjb4U/gAAAACXBIWXMAAAsSAAALEgHS3X78AAAAFnRFWHRDcmVhdGlvbiBUaW1lADA3LzI5LzA5pW59oAAAACV0RVh0U29mdHdhcmUATWFjcm9tZWRpYSBGaXJld29ya3MgTVggMjAwNId2rM8AAABaSURBVHicY+SXUGIgFzCRrXPoamZhZGSkRDP5llNoM9OA2TxUA2xoOns0wIaOzaP5mY42D2CADc2oGk1hQ8bmkVj0Uubn0QAj0eYBcvYQ7SaMah7VPKqZ2poBt8EB4YwhZ0gAAAAASUVORK5CYII=") repeat-x top left;
+    background: #3f5165 url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAABGCAMAAAD7EUTDAAAAA3NCSVQICAjb4U/gAAADAFBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARGyUSHCcUHSgVHyoWICwXIi0YIy8ZJDEbJjIcJzQdKDUeKjcfKzkhLDoiLjwjLz4kMT8lMkEmM0MoNUQpNkYqN0crOUksOkstPEwvPU4wPlAxQFEyQVMzQ1U1RFg3Rlo4SF06SmA7S2M9TWU+T2hAUWtCU25DVHBFVnNGWHZIWnlKXHtLXX5NX4FOYYNQY4ZSZYlTZoxVaI9WapFYbJRabpdbb5ldcZxec59gdaJhdqVjeKdleqpmfK1ofq9pf7JrgbVsg7huhbtwhr1wh774hzJrAAAAnUlEQVQ4jW3I10IBAABA0fv/v0Qyy86WLSt7i4T8wD2Ph4AgKHgRhASvgrAgIogKYoK4ICF4E7wLkoKUIC3ICLKCnCAv+BAUBEVBSVAWVARVQU1QF3wKGoKmoCVoCzqCrqAn6Au+BAPBUDASjAUTwbdgKpgJ5oKFYClYCdaCjWAr2An2goPgKDgJfgRnwUXwK7gK/gQ3wV3wEPwLzSd3M7t9/4m/oAAAAABJRU5ErkJggg==") repeat-x top left;
     color: #919fae;
     text-shadow: 0 1px 0 #000;
     font-weight: bold;
     font-size: 24px;
-    border-bottom: 1px solid #fff;
+    border-bottom: 1px solid #8B96A0;
     }
     .sectionHeader b {
     font-size: 12px;
@@ -186,18 +194,20 @@
     position: relative;
     margin: 0;
     padding: 5px 10px;
-    width: 430px;
+    border-radius: 5px 5px 0 0;
+    width: 400px;
+    font-weight: bold;
     color: #fff;
     text-align: left;
     text-indent: 0;
     background: #657587;
-    text-shadow: 0 1px 0 #3f5165;
-    border: 1px solid #7b8c9f;
-    border-top: 1px solid #8B96A0;
+    text-shadow: 0 1px 0 #000;
+    border: 1px solid #7e8b9a;
+    border-bottom: 1px solid #657587;
     }
     .username, .password, .rememberme {
     float: left;
-    width: 200px;
+    width: 190px;
     margin: 0;
     padding: 0;
     clear: none;
@@ -205,6 +215,9 @@
     }
     .username input, .password input {
     width: 180px;
+    }
+    .username {
+    margin-right: 20px;
     }
     .rememberme {
     margin: 17px 0 0;
@@ -225,9 +238,9 @@
     float: left;
     clear: both;
     color: #aaa;
-    width: 430px;
+    width: 400px;
     margin: 10px -10px -10px;
-    background: #ebebeb url("data:image/png;base64,R0lGODlhCgAfAOYAAO/v7/Ly8u/v7/Dw8Ozs7O/v7+3t7ezs7PHx8ezs7O7u7vLy8u/v7+zs7PDw8O7u7vPz8+3t7ezs7PLy8uzs7PLy8vLy8u7u7u3t7fDw8Ovr6+vr6/Dw8PDw8PPz8/Ly8u7u7uzs7PHx8fDw8PDw8O7u7u/v7/Ly8u/v7/Ly8vLy8u/v7+zs7PHx8e3t7ezs7PHx8fHx8e7u7uzs7O7u7uzs7Ozs7Ozs7PLy8vHx8fLy8vLy8uzs7O3t7ezs7PLy8vLy8uzs7O/v7+/v7/Ly8vLy8uzs7PHx8fDw8O3t7e3t7ezs7PLy8uzs7Ozs7Ozs7O7u7vDw8O3t7fLy8u7u7vLy8vHx8fLy8uzs7PDw8Ozs7PLy8uzs7PHx8e7u7vLy8u3t7e3t7fLy8vHx8e7u7vDw8PLy8u7u7vDw8O7u7vn5+evr6/Pz88nJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJySwAAAAACgAfAAAH/4BqgoOEbIaHiImJEBBmHo4ejGZmRWYfH186lmZAWz8LKaALC2ITVxMTFhapFkQBATsBKlUqrwEnOBUnTLkVUxVjCAgiIlYiwghHLS0wMV0xMDk5DgPU1NUDAyNRGR0jGd0dWWUcHGXn5OdIaCRo7u3uAPJDKELyACgC+gIMDPz8BUyYKFBgRUGCZ85cUJgw4YU0UNJIpCJRYgkvJUDQ0CgDhIwHCh6ADKlAARkDBnoYUAIGpQsXGCJEwBBGZhIpGAgQ0KKTwBMCWIwceHFgxgsnRQ8ckECBqY8bTZneaMCjARcWQRqwaJDARpMEYEPYCJFgSY0QG2po2KBh7Zq3cAPjBgIAOw==") repeat-x top left;
+    background: #ebebeb url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAfCAIAAABRS8vCAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MzBERjhFN0JBQjg0MTFFMjgyQTA4ODFBMEI3RDkyNkUiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6MzBERjhFN0NBQjg0MTFFMjgyQTA4ODFBMEI3RDkyNkUiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDozMERGOEU3OUFCODQxMUUyODJBMDg4MUEwQjdEOTI2RSIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDozMERGOEU3QUFCODQxMUUyODJBMDg4MUEwQjdEOTI2RSIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Pp4T6SYAAABOSURBVHjaYvz58ycDbsDy69cvPNJMDHgBVPr///9wEg6AXBa4EFYVxBlOG2kWNLfQU/dAunzYemwgXU7Iach5gpGREc2lKC7H9AVAgAEA8t81/rS0y1UAAAAASUVORK5CYII=") repeat-x top left;
     padding: 5px 10px 15px;
     border-top: 1px solid #e3e3e3;
     }

@@ -37,4 +37,9 @@ if (isset($_POST['managerlanguage']) && !stristr($_POST['managerlanguage'],"..")
 if($install_language!="english" && file_exists("lang/".$install_language.".inc.php")) {
     include_once "lang/".$install_language.".inc.php";
 }
+foreach($_lang as $k=>$v)
+{
+	if(strpos($v,'[+MGR_DIR+]')!==false)
+		$_lang[$k] = str_replace('[+MGR_DIR+]', MGR_DIR, $v);
+}
 ?>

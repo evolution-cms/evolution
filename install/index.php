@@ -8,47 +8,28 @@ if (version_compare(phpversion(), "5.3") < 0) {
     @ ini_set('magic_quotes_sybase', 0);
 }
 
-// start session
-session_start();
-$_SESSION['test'] = 1;
+$self = 'install/index.php';
+$base_path = str_replace($self,'',str_replace('\\','/', __FILE__));
+require_once("{$base_path}install/functions.php");
 
 // set error reporting
 error_reporting(E_ALL & ~E_NOTICE);
 
-define("MGR_DIR", "manager");
-require_once("lang.php");
-require_once('../manager/includes/version.inc.php');
-
-// session loop-back tester
-if (!$_SESSION['test']) {
-    $installBaseUrl = (!isset ($_SERVER['HTTPS']) || strtolower($_SERVER['HTTPS']) != 'on') ? 'http://' : 'https://';
-    $installBaseUrl .= $_SERVER['HTTP_HOST'];
-    if ($_SERVER['SERVER_PORT'] != 80)
-        $installBaseUrl = str_replace(':' . $_SERVER['SERVER_PORT'], '', $installBaseUrl); // remove port from HTTP_HOST
-    $installBaseUrl .= ($_SERVER['SERVER_PORT'] == 80 || isset ($_SERVER['HTTPS']) || strtolower($_SERVER['HTTPS']) == 'on') ? '' : ':' . $_SERVER['SERVER_PORT'];
-	$retryURL = $installBaseUrl . $_SERVER['PHP_SELF'] . "?action=language";
-    echo "
-<html>
-<head>
-	<title>Install Problem</title>
-	<style type=\"text/css\">
-		*{margin:0;padding:0}
-		body{margin:50px;background:#eee;}
-		.install{padding:10px;border:5px solid #f22;background:#f99;margin:0 auto;font:120%/1em serif;text-align:center;}
-		p{ margin:20px 0; }
-		a{font-size:200%;color:#f22;text-decoration:underline;margin-top:30px;padding:5px;}
-	</style>
-</head>
-<body>
-	<div class=\"install\">
-		<p>".$_lang["session_problem"]."</p>
-		<p><a href=\"".$retryURL."\">".$_lang["session_problem_try_again"]."</a></p>
-	</div>
-</body>
-</html>";
-	    exit;
-
+if (is_file("{$base_path}assets/cache/siteManager.php")) {
+	include_once("{$base_path}assets/cache/siteManager.php");
 }
+if(!defined('MGR_DIR') && is_dir("{$base_path}manager")) {
+	define('MGR_DIR', 'manager');
+}
+
+
+require_once("lang.php");
+require_once('../'.MGR_DIR.'/includes/version.inc.php');
+
+// start session
+session_start();
+$_SESSION['test'] = 1;
+install_sessionCheck();
 
 $moduleName = "MODX";
 $moduleVersion = $modx_branch.' '.$modx_version;

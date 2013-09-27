@@ -1,5 +1,5 @@
 <?php
-if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 
 switch((int) $_REQUEST['a']) {
   case 102:
@@ -23,14 +23,15 @@ $id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 
 // check to see the plugin editor isn't locked
-$sql = "SELECT internalKey, username FROM $dbase.`".$table_prefix."active_users` WHERE $dbase.`".$table_prefix."active_users`.action=102 AND $dbase.`".$table_prefix."active_users`.id=$id";
-$rs = mysql_query($sql);
-$limit = mysql_num_rows($rs);
-if($limit>1) {
-    for ($i=0;$i<$limit;$i++) {
-        $lock = mysql_fetch_assoc($rs);
-        if($lock['internalKey']!=$modx->getLoginUserID()) {
-            $msg = sprintf($_lang["lock_msg"],$lock['username'],"plugin");
+$rs = $modx->db->select('internalKey, username','[+prefix+]active_users',"action='102' AND id='{$id}'");
+$limit = $modx->db->getRecordCount($rs);
+if($limit>1)
+{
+    while($lock = $modx->db->getRow)
+    {
+        if($lock['internalKey']!=$modx->getLoginUserID())
+        {
+            $msg = sprintf($_lang["lock_msg"],$lock['username'],$_lang['plugin']);
             $e->setError(5, $msg);
             $e->dumpError();
         }
@@ -38,26 +39,30 @@ if($limit>1) {
 }
 // end check for lock
 
-
-if(isset($_GET['id'])) {
-    $sql = "SELECT * FROM $dbase.`".$table_prefix."site_plugins` WHERE $dbase.`".$table_prefix."site_plugins`.id = $id;";
-    $rs = mysql_query($sql);
-    $limit = mysql_num_rows($rs);
-    if($limit>1) {
+if(isset($_GET['id']))
+{
+    $rs = $modx->db->select('*','[+prefix+]site_plugins',"id='{$id}'");
+    $limit = $modx->db->getRecordCount($rs);
+    if($limit>1)
+    {
         echo "Multiple plugins sharing same unique id. Not good.<p>";
         exit;
     }
-    if($limit<1) {
-        header("Location: /index.php?id=".$site_start);
+    if($limit<1)
+    {
+        header("Location: {$modx->config['site_url']}");
     }
-    $content = mysql_fetch_assoc($rs);
+    $content = $modx->db->getRow($rs);
     $_SESSION['itemname']=$content['name'];
-    if($content['locked']==1 && $_SESSION['mgrRole']!=1) {
+    if($content['locked']==1 && $modx->hasPermission('save_role')!=1)
+    {
         $e->setError(3);
         $e->dumpError();
     }
-} else {
-    $_SESSION['itemname']="New Plugin";
+}
+else
+{
+    $_SESSION['itemname']='New Plugin';
 }
 ?>
 <script language="JavaScript">
@@ -106,7 +111,7 @@ function showParameters(ctrl) {
         for(p = 0; p < dp.length; p++) {
             dp[p]=(dp[p]+'').replace(/^\s|\s$/,""); // trim
             ar = dp[p].split("=");
-            key = ar[0]		// param
+            key = ar[0];        // param
             ar = (ar[1]+'').split(";");
             desc = ar[0];	// description
             dt = ar[1];		// data type
@@ -233,7 +238,7 @@ function implodeParameters(){
         if(currentParams[p]) {
             v = currentParams[p].join(";");
             if(s && v) s+=' ';
-            if(v) s += '&'+p+'='+ v;
+            if(v) s += '&'+p+'='+ encode(v);
         }
     }
     document.forms['mutate'].properties.value = s;
@@ -255,7 +260,7 @@ function decode(s){
 
 </script>
 
-<form name="mutate" method="post" action="index.php?a=103">
+<form name="mutate" method="post" action="index.php?a=103" enctype="multipart/form-data">
 <?php
 // invoke OnPluginFormPrerender event
 $evtOut = $modx->invokeEvent("OnPluginFormPrerender",array("id" => $id));
@@ -274,9 +279,9 @@ if(is_array($evtOut)) echo implode("",$evtOut);
                 </a>
                   <span class="and"> + </span>
                 <select id="stay" name="stay">
-                  <option id="stay1" value="1" <?php echo $_REQUEST['stay']=='1' ? ' selected=""' : ''?> ><?php echo $_lang['stay_new']?></option>
+                  <option id="stay1" value="1" <?php echo $_REQUEST['stay']=='1' ? ' selected="selected"' : ''?> ><?php echo $_lang['stay_new']?></option>
                   <option id="stay2" value="2" <?php echo $_REQUEST['stay']=='2' ? ' selected="selected"' : ''?> ><?php echo $_lang['stay']?></option>
-                  <option id="stay3" value=""  <?php echo $_REQUEST['stay']=='' ? ' selected=""' : ''?>  ><?php echo $_lang['close']?></option>
+                  <option id="stay3" value=""  <?php echo $_REQUEST['stay']=='' ? ' selected="selected"' : ''?>  ><?php echo $_lang['close']?></option>
                 </select>
               </li>
               <?php
@@ -293,78 +298,82 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <div class="sectionBody">
 <p><?php echo $_lang['plugin_msg']; ?></p>
 <script type="text/javascript" src="media/script/tabpane.js"></script>
-<div class="tab-pane" id="snipetPane">
+<div class="tab-pane" id="pluginPane">
     <script type="text/javascript">
-        tpSnippet = new WebFXTabPane( document.getElementById( "snipetPane"), <?php echo $modx->config['remember_last_tab'] == 1 ? 'true' : 'false'; ?> );
+        tp = new WebFXTabPane( document.getElementById( "pluginPane"), <?php echo $modx->config['remember_last_tab'] == 1 ? 'true' : 'false'; ?> );
     </script>
 
 <!-- General -->
-<div class="tab-page" id="tabSnippet">
+<div class="tab-page" id="tabPlugin">
     <h2 class="tab"><?php echo $_lang["settings_general"] ?></h2>
-    <script type="text/javascript">tpSnippet.addTabPage( document.getElementById( "tabSnippet" ) );</script>
-        <table border="0" cellspacing="0" cellpadding="0">
-          <tr>
-            <td align="left"><?php echo $_lang['plugin_name']; ?>:</td>
-            <td align="left"><input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name']);?>" class="inputBox" style="width:150px;" onChange='documentDirty=true;'><span class="warning" id='savingMessage'>&nbsp;</span></td>
-          </tr>
-          <tr>
-            <td align="left"><?php echo $_lang['plugin_desc']; ?>:&nbsp;&nbsp;</td>
-            <td align="left"><input name="description" type="text" maxlength="255" value="<?php echo $content['description'];?>" class="inputBox" style="width:300px;" onChange='documentDirty=true;'></td>
-          </tr>
-          <tr>
-            <td align="left" valign="top" colspan="2"><input name="disabled" type="checkbox" <?php echo $content['disabled']==1 ? "checked='checked'" : "";?> value="on" class="inputBox"> <?php echo  $content['disabled']==1 ? "<span class='warning'>".$_lang['plugin_disabled']."</span>":$_lang['plugin_disabled']; ?></td>
-          </tr>
-          <tr>
-            <td align="left" valign="top" colspan="2"><input name="locked" type="checkbox" <?php echo $content['locked']==1 ? "checked='checked'" : "" ;?> value="on" class="inputBox"> <?php echo $_lang['lock_plugin']; ?> <span class="comment"><?php echo $_lang['lock_plugin_msg']; ?></span></td>
-          </tr>
-        </table>
-        <!-- PHP text editor start -->
-        <div style="width:100%;position:relative">
-            <div style="padding:1px; width:100%; height:16px;background-color:#eeeeee; border-top:1px solid #e0e0e0;margin-top:5px">
-                <span style="float:left;color:#707070;font-weight:bold; padding:3px">&nbsp;<?php echo $_lang['plugin_code']; ?></span>
-                <span style="float:right;color:#707070;"><?php echo $_lang['wrap_lines']; ?><input name="wrap" type="checkbox" <?php echo $content['wrap']== 1 ? "checked='checked'" : "" ;?> class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
+    <script type="text/javascript">tp.addTabPage( document.getElementById( "tabPlugin" ) );</script>
+    <table>
+      <tr>
+        <th><?php echo $_lang['plugin_name']; ?>:</th>
+        <td><input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name']);?>" class="inputBox" style="width:250px;" onchange="documentDirty=true;"><span class="warning" id="savingMessage">&nbsp;</span></td>
+      </tr>
+      <tr>
+        <th><?php echo $_lang['plugin_desc']; ?>:&nbsp;&nbsp;</th>
+        <td><input name="description" type="text" maxlength="255" value="<?php echo $content['description'];?>" class="inputBox" style="width:300px;" onchange="documentDirty=true;"></td>
+      </tr>
+      <tr>
+        <th><?php echo $_lang['existing_category']; ?>:&nbsp;&nbsp;</th>
+        <td><select name="categoryid" style="width:300px;" onchange="documentDirty=true;">
+            <option>&nbsp;</option>
+            <?php
+                include_once "categories.inc.php";
+                $ds = getCategories();
+                if($ds) foreach($ds as $n=>$v){
+                    echo "<option value='".$v['id']."'".($content["category"]==$v["id"]? " selected='selected'":"").">".htmlspecialchars($v["category"])."</option>";
+                }
+            ?>
+        </select>
+        </td>
+      </tr>
+      <tr>
+        <th><?php echo $_lang['new_category']; ?>:</th>
+        <td><input name="newcategory" type="text" maxlength="45" value="" class="inputBox" style="width:300px;" onchange="documentDirty=true;"></td>
+      </tr>
+<?php if($modx->hasPermission('save_role')):?>
+      <tr>
+        <td valign="top" colspan="2"><label style="display:block;"><input name="locked" type="checkbox" <?php echo $content['locked']==1 ? "checked='checked'" : "" ;?> value="on" class="inputBox"> <?php echo $_lang['lock_plugin']; ?></label> <span class="comment"><?php echo $_lang['lock_plugin_msg']; ?></span></td>
+      </tr>
+<?php endif;?>
+    </table>
+    <!-- PHP text editor start -->
+    <div class="section">
+        <div class="sectionHeader">
+            <span style="float:left;">&nbsp;<?php echo $_lang['plugin_code']; ?></span>
+            <span style="float:right;"><?php echo $_lang['wrap_lines']; ?><input name="wrap" type="checkbox" <?php echo $content['wrap']== 1 ? "checked='checked'" : "" ;?> class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
         </div>
-            <textarea dir="ltr" name="post" class="phptextarea" style="width:100%; height:370px;" wrap="<?php echo $content['wrap']== 1 ? "soft" : "off" ;?>" onchange="documentDirty=true;"><?php echo htmlspecialchars($content['plugincode']); ?></textarea>
+        <div class="sectionBody">
+        <textarea dir="ltr" name="post" class="phptextarea" style="width:100%; height:370px;" wrap="<?php echo $content['wrap']== 1 ? "soft" : "off" ;?>" onchange="documentDirty=true;"><?php echo htmlspecialchars($content['plugincode']); ?></textarea>
         </div>
-        <!-- PHP text editor end -->
-        </div>
+    </div>
+    <!-- PHP text editor end -->
+</div>
 
 <!-- Configuration/Properties -->
 <div class="tab-page" id="tabProps">
     <h2 class="tab"><?php echo $_lang["settings_config"] ?></h2>
-    <script type="text/javascript">tpSnippet.addTabPage( document.getElementById( "tabProps" ) );</script>
-        <table width="90%" border="0" cellspacing="0" cellpadding="0">
+    <script type="text/javascript">tp.addTabPage( document.getElementById( "tabProps" ) );</script>
+        <table>
+      <tr>
+        <td valign="top" colspan="2"><label><input name="disabled" type="checkbox" <?php echo $content['disabled']==1 ? "checked='checked'" : "";?> value="on" class="inputBox"> <?php echo  $content['disabled']==1 ? "<span class='warning'>".$_lang['plugin_disabled']."</span></label>":$_lang['plugin_disabled']; ?></td>
+      </tr>
           <tr>
-            <td align="left"><?php echo $_lang['existing_category']; ?>:&nbsp;&nbsp;</td>
-            <td align="left"><select name="categoryid" style="width:300px;" onChange='documentDirty=true;'>
+            <th><?php echo $_lang['import_params']; ?>:&nbsp;&nbsp;</th>
+            <td><select name="moduleguid" style="width:300px;" onchange="documentDirty=true;">
                 <option>&nbsp;</option>
                 <?php
-                    include_once "categories.inc.php";
-                    $ds = getCategories();
-                    if($ds) foreach($ds as $n=>$v){
-                        echo "<option value='".$v['id']."'".($content["category"]==$v["id"]? " selected='selected'":"").">".htmlspecialchars($v["category"])."</option>";
-                    }
-                ?>
-            </select>
-            </td>
-          </tr>
-          <tr>
-            <td align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']; ?>:</td>
-            <td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="" class="inputBox" style="width:300px;" onChange='documentDirty=true;'></td>
-          </tr>
-          <tr>
-            <td align="left"><?php echo $_lang['import_params']; ?>:&nbsp;&nbsp;</td>
-            <td align="left"><select name="moduleguid" style="width:300px;" onChange='documentDirty=true;'>
-                <option>&nbsp;</option>
-                <?php
-                    $sql =	"SELECT sm.id,sm.name,sm.guid " .
+                    $sql =    "SELECT sm.id,sm.name,sm.guid " .
                             "FROM ".$modx->getFullTableName("site_modules")." sm ".
                             "INNER JOIN ".$modx->getFullTableName("site_module_depobj")." smd ON smd.module=sm.id AND smd.type=30 ".
                             "INNER JOIN ".$modx->getFullTableName("site_plugins")." sp ON sp.id=smd.resource ".
                             "WHERE smd.resource='$id' AND sm.enable_sharedparams='1' ".
                             "ORDER BY sm.name ";
-                    $ds = $modx->dbQuery($sql);
-                    if($ds) while($row = $modx->fetchRow($ds)){
+                    $ds = $modx->db->query($sql);
+                    if($ds) while($row = $modx->db->getRow($ds)){
                         echo "<option value='".$row['guid']."'".($content["moduleguid"]==$row["guid"]? " selected='selected'":"").">".htmlspecialchars($row["name"])."</option>";
                     }
                 ?>
@@ -373,15 +382,15 @@ if(is_array($evtOut)) echo implode("",$evtOut);
           </tr>
           <tr>
             <td>&nbsp;</td>
-            <td align="left" valign="top"><span style="width:300px;" ><span class="comment"><?php echo $_lang['import_params_msg']; ?></span></span><br /><br /></td>
+            <td valign="top"><span style="width:300px;" ><span class="comment"><?php echo $_lang['import_params_msg']; ?></span></span><br /><br /></td>
           </tr>
           <tr>
-            <td align="left" valign="top"><?php echo $_lang['plugin_config']; ?>:</td>
-            <td align="left" valign="top"><textarea class="phptextarea" name="properties" onChange='showParameters(this);documentDirty=true;'><?php echo $content['properties'];?></textarea><br /><input type="button" value="<?php echo $_lang['update_params']; ?>" /></td>
+            <th valign="top"><?php echo $_lang['plugin_config']; ?>:</th>
+            <td valign="top"><textarea class="phptextarea" name="properties" onChange='showParameters(this);documentDirty=true;'><?php echo $content['properties'];?></textarea><br /><input type="button" value="<?php echo $_lang['update_params']; ?>" /></td>
           </tr>
           <tr id="displayparamrow">
-            <td valign="top" align="left">&nbsp;</td>
-            <td align="left" id="displayparams">&nbsp;</td>
+            <td valign="top">&nbsp;</td>
+            <td id="displayparams">&nbsp;</td>
           </tr>
         </table>
         </div>
@@ -389,33 +398,19 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <!-- System Events -->
 <div class="tab-page" id="tabEvents">
     <h2 class="tab"><?php echo $_lang["settings_events"] ?></h2>
-    <script type="text/javascript">tpSnippet.addTabPage( document.getElementById( "tabEvents" ) );</script>
-        <table width="90%" border="0" cellspacing="0" cellpadding="0">
-          <tr>
-            <td align="left" valign="top" colspan="2"><?php echo $_lang['plugin_event_msg']; ?><br />&nbsp;</td>
-          </tr>
-          <tr>
-            <td colspan="2">
-                <table border="0">
-                    <tr>
-                        <td valign="top">&nbsp;&nbsp;</td>
-                        <td>
-    <table width="100%" border="0">
+    <script type="text/javascript">tp.addTabPage( document.getElementById( "tabEvents" ) );</script>
+    <p><?php echo $_lang['plugin_event_msg']; ?></p>
+    <table>
 <?php
 
     // get selected events
     if(is_numeric($id) && $id > 0) {
-        $sql = "
-            SELECT evtid, pluginid
-            FROM $dbase.`".$table_prefix."site_plugin_events`
-            WHERE pluginid='$id'
-        ";
         $evts = array();
-        $rs = mysql_query($sql);
-        $limit = mysql_num_rows($rs);
+        $rs = $modx->db->select('*','[+prefix+]site_plugin_events',"pluginid='{$id}'");
+        $limit = $modx->db->getRecordCount($rs);
         for ($i=0; $i<$limit; $i++) {
-           $row = mysql_fetch_assoc($rs);
-           $evts[] = $row['evtid'];
+            $row = $modx->db->getRow($rs);
+            $evts[] = $row['evtid'];
         }
     } else {
         if(isset($content['sysevents']) && is_array($content['sysevents'])) {
@@ -435,12 +430,11 @@ if(is_array($evtOut)) echo implode("",$evtOut);
         "Template Service Events",
         "User Defined Events"
     );
-            $sql = "SELECT * FROM $dbase.`".$table_prefix."system_eventnames` ORDER BY service DESC, groupname, name";
-    $rs = mysql_query($sql);
-    $limit = mysql_num_rows($rs);
+    $rs = $modx->db->select('*','[+prefix+]system_eventnames','','service DESC, groupname, name');
+    $limit = $modx->db->getRecordCount($rs);
     if($limit==0) echo "<tr><td>&nbsp;</td></tr>";
     else for ($i=0; $i<$limit; $i++) {
-        $row = mysql_fetch_assoc($rs);
+        $row = $modx->db->getRow($rs);
         // display records
         if($srv!=$row['service']){
             $srv=$row['service'];
@@ -455,7 +449,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
                 echo "<tr><td colspan='2'><div class='split' style='margin:10px 0;'></div></td></tr>";
                 echo "<tr><td colspan='2'><b>".$row['groupname']."</b></td></tr>";
         }
-        $evtnames[] = '<input name="sysevents[]" type="checkbox"'.(in_array($row['id'],$evts) ? " checked='checked' " : "").'class="inputBox" value="'.$row['id'].'" />'.$row['name'];
+        $evtnames[] = '<input name="sysevents[]" id="' . $row['name'] . '" type="checkbox"'.(in_array($row['id'],$evts) ? " checked='checked' " : "").'class="inputBox" value="'.$row['id'].'" /><label for="'.$row['name']. '"' . bold(in_array($row[id],$evts)) . '>'.$row['name'].'</label>'."\n";
         if(count($evtnames)==2) echoEventRows($evtnames);
     }
     if(count($evtnames)>0) echoEventRows($evtnames);
@@ -466,14 +460,11 @@ if(is_array($evtOut)) echo implode("",$evtOut);
     }
 ?>
     </table>
-                        </td>
-                    </tr>
-                </table>
-                &nbsp;
             </td>
           </tr>
         </table>
 </div>
+
 </div>
 <input type="submit" name="save" style="display:none">
 </div>
@@ -486,3 +477,10 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 <script type="text/javascript">
 setTimeout('showParameters()',10);
 </script>
+<?php
+function bold($cond=false)
+{
+    if($cond!==false) return ' style="background-color:#777;color:#fff;"';
+    else return;
+}
+

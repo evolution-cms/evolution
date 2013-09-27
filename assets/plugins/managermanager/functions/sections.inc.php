@@ -13,7 +13,7 @@ function mm_renameSection($section, $newname, $roles='', $templates='') {
 	$e = &$modx->Event;
 			
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if (useThisRule($roles, $templates)) {
+	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)) {
 	
 	$output = " // ----------- Rename section -------------- \n";
 		

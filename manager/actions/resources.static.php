@@ -1,5 +1,5 @@
 <?php
-if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 
 $theme = $manager_theme ? "$manager_theme/":"";
 
@@ -10,18 +10,28 @@ function createResourceList($resourceTable,$action,$tablePre,$nameField = 'name'
     $output = '<ul>';
 	
 	$pluginsql = $resourceTable == 'site_plugins' ? $tablePre.$resourceTable.'`.disabled, ' : '';
-	$orderby = $resourceTable == 'site_plugins' ? '6,2' : '5,1';
-    $sql = 'SELECT '.$pluginsql.$tablePre.$resourceTable.'`.'.$nameField.' as name, '.$tablePre.$resourceTable.'`.id, '.$tablePre.$resourceTable.'`.description, '.$tablePre.$resourceTable.'`.locked, if(isnull('.$tablePre.'categories`.category),\''.$_lang['no_category'].'\','.$tablePre.'categories`.category) as category FROM '.$tablePre.$resourceTable.'` left join '.$tablePre.'categories` on '.$tablePre.$resourceTable.'`.category = '.$tablePre.'categories`.id ORDER BY '.$orderby;
+    $tvsql = $resourceTable == 'site_tmplvars' ? $tablePre.$resourceTable.'`.caption, ' : '';
+    
+    //$orderby = $resourceTable == 'site_plugins' ? '6,2' : '5,1';
+
+    if ($resourceTable == 'site_plugins' || $resourceTable == 'site_tmplvars') {
+        $orderby= '6,2';
+    }else{
+        $orderby= '5,1';
+    }
+
+    
+    $sql = 'SELECT '.$pluginsql.$tvsql.$tablePre.$resourceTable.'`.'.$nameField.' as name, '.$tablePre.$resourceTable.'`.id, '.$tablePre.$resourceTable.'`.description, '.$tablePre.$resourceTable.'`.locked, if(isnull('.$tablePre.'categories`.category),\''.$_lang['no_category'].'\','.$tablePre.'categories`.category) as category FROM '.$tablePre.$resourceTable.'` left join '.$tablePre.'categories` on '.$tablePre.$resourceTable.'`.category = '.$tablePre.'categories`.id ORDER BY '.$orderby;
 
 	$rs = $modx->db->query($sql);
-	$limit = mysql_num_rows($rs);
+	$limit = $modx->db->getRecordCount($rs);
 	if($limit<1){
 		echo $_lang['no_results'];
 	}
 	$preCat = '';
 	$insideUl = 0;
 	for($i=0; $i<$limit; $i++) {
-		$row = mysql_fetch_assoc($rs);
+		$row = $modx->db->getRow($rs);
 		$row['category'] = stripslashes($row['category']); //pixelchutes
 		if ($preCat !== $row['category']) {
             $output .= $insideUl? '</ul>': '';
@@ -31,7 +41,12 @@ function createResourceList($resourceTable,$action,$tablePre,$nameField = 'name'
 
 		if ($resourceTable == 'site_plugins') $class = $row['disabled'] ? ' class="disabledPlugin"' : '';
 		$output .= '<li><span'.$class.'><a href="index.php?id='.$row['id'].'&amp;a='.$action.'">'.$row['name'].' <small>(' . $row['id'] . ')</small></a>'.($modx_textdir ? '&rlm;' : '').'</span>';
+        
+        if ($resourceTable == 'site_tmplvars') {
+             $output .= !empty($row['description']) ? ' - '.$row['caption'].' &nbsp; <small>  ('.$row['description'].')</small>' : ' - '.$row['caption'];
+        }else{
         $output .= !empty($row['description']) ? ' - '.$row['description'] : '' ;
+        }
         $output .= $row['locked'] ? ' <em>('.$_lang['locked'].')</em>' : "" ;
         $output .= '</li>';
 
@@ -60,10 +75,9 @@ function createResourceList($resourceTable,$action,$tablePre,$nameField = 'name'
     	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabTemplates" ) );</script>
 		<p><?php echo $_lang['template_management_msg']; ?></p>
 
-		<ul>
+		<ul class="actionButtons">
 			<li><a href="index.php?a=19"><?php echo $_lang['new_template']; ?></a></li>
 		</ul>
-		<br />
 		<?php echo createResourceList('site_templates',16,$tablePre,'templatename'); ?>
 	</div>
 <?php } ?>
@@ -78,10 +92,9 @@ function createResourceList($resourceTable,$action,$tablePre,$nameField = 'name'
 			Added by Apodigm 09-06-2004- DocVars - web@apodigm.com
 		-->
 		<p><?php echo $_lang['tmplvars_management_msg']; ?></p>
-			<ul>
+			<ul class="actionButtons">
 				<li><a href="index.php?a=300"><?php echo $_lang['new_tmplvars']; ?></a></li>
             </ul>
-            <br />
             <?php echo createResourceList('site_tmplvars',301,$tablePre); ?>
 	</div>
 <?php } ?>
@@ -93,10 +106,9 @@ function createResourceList($resourceTable,$action,$tablePre,$nameField = 'name'
     	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabChunks" ) );</script>
 		<p><?php echo $_lang['htmlsnippet_management_msg']; ?></p>
 
-		<ul>
+		<ul class="actionButtons">
 			<li><a href="index.php?a=77"><?php echo $_lang['new_htmlsnippet']; ?></a></li>
 		</ul>
-		<br />
 		<?php echo createResourceList('site_htmlsnippets',78,$tablePre); ?>
 	</div>
 <?php } ?>
@@ -108,10 +120,9 @@ function createResourceList($resourceTable,$action,$tablePre,$nameField = 'name'
     	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabSnippets" ) );</script>
 		<p><?php echo $_lang['snippet_management_msg']; ?></p>
 
-		<ul>
+		<ul class="actionButtons">
 			<li><a href="index.php?a=23"><?php echo $_lang['new_snippet']; ?></a></li>
 		</ul>
-		<br />
 		<?php echo createResourceList('site_snippets',22,$tablePre); ?>
 	</div>
 <?php } ?>
@@ -123,11 +134,10 @@ function createResourceList($resourceTable,$action,$tablePre,$nameField = 'name'
     	<script type="text/javascript">tpResources.addTabPage( document.getElementById( "tabPlugins" ) );</script>
 		<p><?php echo $_lang['plugin_management_msg']; ?></p>
 
-		<ul>
+		<ul class="actionButtons">
 			<li><a href="index.php?a=101"><?php echo $_lang['new_plugin']; ?></a></li>
 			<?php if($modx->hasPermission('save_plugin')) { ?><li><a href="index.php?a=100"><?php echo $_lang['plugin_priority']; ?></a></li><?php } ?>
 		</ul>
-		<br />
 		<?php echo createResourceList('site_plugins',102,$tablePre); ?>
 	</div>
 <?php } ?>
@@ -183,10 +193,10 @@ function createResourceList($resourceTable,$action,$tablePre,$nameField = 'name'
                 $pluginsql = $v['table'] == 'site_plugins' ? $tablePre.$v['table'].'`.disabled, ' : '';
                 $sql = 'SELECT '.$pluginsql.$nameField.' as name, '.$tablePre.$v['table'].'`.id, description, locked, '.$tablePre.'categories`.category, '.$tablePre.'categories`.id as catid FROM '.$tablePre.$v['table'].'` left join '.$tablePre.'categories` on '.$tablePre.$v['table'].'`.category = '.$tablePre.'categories`.id ORDER BY 5,1';
                 $rs = $modx->db->query($sql);
-        		$limit = mysql_num_rows($rs);
+	        		$limit = $modx->db->getRecordCount($rs);
         		if($limit>0){
         			for($i=0; $i<$limit; $i++) {
-                        $row = mysql_fetch_assoc($rs);
+	                        $row = $modx->db->getRow($rs);
                         $row['type'] = $v['name'];
                         $row['action'] = $v['action'];
                         if (empty($row['category'])) {$row['category'] = $_lang['no_category'];}

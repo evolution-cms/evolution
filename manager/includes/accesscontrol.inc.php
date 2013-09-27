@@ -1,5 +1,5 @@
 <?php
-if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 
 if (isset($_SESSION['mgrValidated']) && $_SESSION['usertype']!='manager'){
 //		if (isset($_COOKIE[session_name()])) {
@@ -53,8 +53,6 @@ if (isset($lastInstallTime)) {
 }
 
 if(!isset($_SESSION['mgrValidated'])){
-	include_once("browsercheck.inc.php");
-
 	if(isset($manager_language)) {
 		// establish fallback to English default
 		include_once "lang/english.inc.php";
@@ -74,6 +72,7 @@ if(!isset($_SESSION['mgrValidated'])){
 	$modx->setPlaceholder('OnManagerLoginFormPrerender',$html);
 
 	$modx->setPlaceholder('site_name',$site_name);
+	$modx->setPlaceholder('manager_path',MGR_DIR);
 	$modx->setPlaceholder('logo_slogan',$_lang["logo_slogan"]);
 	$modx->setPlaceholder('login_message',$_lang["login_message"]);
 	$modx->setPlaceholder('manager_theme_url',MODX_MANAGER_URL . 'media/style/' . $modx->config['manager_theme'] . '/');
@@ -191,8 +190,8 @@ if(!isset($_SESSION['mgrValidated'])){
 			$itemid == null ? var_export(null, true) : $itemid,
 			$ip
 		);
-		if(!$rs = mysql_query($sql)) {
-			echo "error replacing into active users! SQL: ".$sql."\n".mysql_error();
+		if(!$rs=$modx->db->query($sql)) {
+			echo "error replacing into active users! SQL: ".$sql."\n".$modx->db->getLastError();
 			exit;
 		}
 	}

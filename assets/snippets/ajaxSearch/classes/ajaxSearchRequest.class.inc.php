@@ -4,9 +4,9 @@
 * ------------------------------------------------------------------------------
 * @package  AjaxSearchRequest
 *
-* @author       Coroico - www.modx.wangba.fr
-* @version      1.9.2
-* @date         05/12/2010
+* @author       Coroico - www.evo.wangba.fr
+* @version      1.9.3
+* @date         26/09/2012
 *
 * Purpose:
 *    The AjaxSearchRequest class contains all functions and data used to manage the search SQL Request
@@ -44,7 +44,7 @@ class AjaxSearchRequest {
     */
     function doSearch($searchString, $advSearch, $cfg, $bsf, $fClause) {
         global $modx;
-        $searchString = mysql_real_escape_string($searchString);
+        $searchString = $modx->db->escape($searchString);
         $this->cfg = $cfg;
         $records = NULL;
         $results = array();
@@ -66,7 +66,7 @@ class AjaxSearchRequest {
             if ($this->dbg) $this->asUtil->dbgRecord("End of select");
             $results = $this->_appendTvs($records);
         }
-        mysql_free_result($records);
+        $modx->db->freeResult($records);
         return $results;
     }
     /*
@@ -403,7 +403,7 @@ class AjaxSearchRequest {
             if ($advSearch != NOWORDS) {
                 if (isset($this->scJoined)) foreach ($this->scJoined as $joined) {
                     $jpref = $joined['tb_alias'];
-                    foreach ($joined['searchable'] as $searchable) $hvg[] = '(' . $jpref . '_' . $searchable . $like . ')';
+                    if (isset($joined['searchable'])) foreach ($joined['searchable'] as $searchable) $hvg[] = '(' . $jpref . '_' . $searchable . $like . ')';
                 }
                 if (isset($this->scTvs['tvs'])) foreach ($this->scTvs['tvs'] as $scTv) {
                     $jpref = $scTv['tb_alias'];
@@ -413,7 +413,7 @@ class AjaxSearchRequest {
 
                 if (isset($this->scJoined)) foreach ($this->scJoined as $joined) {
                     $jpref = $joined['tb_alias'];
-                    foreach ($joined['searchable'] as $searchable) {
+                    if (isset($joined['searchable'])) foreach ($joined['searchable'] as $searchable) {
                         $hvg[] = '((' . $jpref . '_' . $searchable . $like . ') OR (' . $jpref . '_' . $searchable . ' IS NULL))';
                     }
                 }
@@ -455,8 +455,13 @@ class AjaxSearchRequest {
         if (isset($this->scCateg)) $orderFields[] = 'category ASC';
         if ($this->cfg['order']) {
             $order = array_map('trim',explode(',', $this->cfg['order']));
-            foreach ($order as $ord) $orderBy[] = $ord;
-            $orderFields[] = implode(',', $orderBy);
+            foreach ($order as $ord) {
+                $ordElt = explode(' ',$ord);
+                $ordby = '`' . $ordElt[0] . '`';
+                if (isset($ordElt[1]) && ($ordElt[1] == 'ASC' || $ordElt[1] == 'DESC')) $ordby .= ' ' . $ordElt[1];
+                $orderBy[] = $ordby;
+            }
+			$orderFields[] = implode(',', $orderBy);
         }
         if (count($orderFields) > 0) $orderByClause = implode(', ', $orderFields);
         else $orderByClause = '1';
@@ -498,10 +503,16 @@ class AjaxSearchRequest {
             $whl[] = implode(' AND ', $where);
         }
 
-        if (($joined['tb_alias'] != 'tv') && ($searchString)) {
-            $whl[] = '(' . $this->_getSearchTermsWhere($joined,$searchString,$advSearch). ')';
-            $whereClause = '(' . implode(' AND ',$whl). ')';
-            $subSelect = 'SELECT DISTINCT ' . $fieldsClause . ' FROM ' . $fromClause . ' WHERE ' . $whereClause;
+        if (($joined['tb_alias'] != 'tv')) {
+            if ($searchString) {
+                $stw = $this->_getSearchTermsWhere($joined,$searchString,$advSearch);
+                if (!empty($stw)) $whl[] = '(' . $stw . ')';
+            }
+            if (count($whl)) {
+                $whereClause = '(' . implode(' AND ',$whl). ')';
+                $subSelect = 'SELECT DISTINCT ' . $fieldsClause . ' FROM ' . $fromClause . ' WHERE ' . $whereClause;
+            }
+            else $subSelect = 'SELECT DISTINCT ' . $fieldsClause . ' FROM ' . $fromClause;
         }
         else {
             $subSelect = 'SELECT DISTINCT ' . $fieldsClause . ' FROM ' . $fromClause;
@@ -544,24 +555,26 @@ class AjaxSearchRequest {
         return $where;
     }
     function _getSearchTermsWhere($joined,$searchString,$advSearch){
+		$whereClause = '';
+        if (!empty($joined['searchable'])) {
+			$like = $this->_getWhereForm($advSearch);
+			$whereOper = $this->_getWhereOper($advSearch);
+			$type = ($advSearch == 'allwords') ? 'oneword' : $advSearch;
+			$whereStringOper = $this->_getWhereStringOper($type);
 
-        $like = $this->_getWhereForm($advSearch);
-        $whereOper = $this->_getWhereOper($advSearch);
-        $type = ($advSearch == 'allwords') ? 'oneword' : $advSearch;
-        $whereStringOper = $this->_getWhereStringOper($type);
+			foreach($joined['searchable'] as $searchable) $whsc[] = '(' . $joined['tb_alias'] . '.' . $searchable . $like .')';
+			if (count($whsc)) {
+				$whereSubClause = implode($whereOper,$whsc);
 
-        if (isset($joined['searchable']))
-          foreach($joined['searchable'] as $searchable) $whsc[] = '(' . $joined['tb_alias'] . '.' . $searchable . $like .')';
-        if (count($whsc)) $whereSubClause = implode($whereOper,$whsc);
-        else $whereSubClause = '';
+				$search = array();
+				if ($advSearch == 'exactphrase') $search[] = $searchString;
+				else $search = explode(' ',$searchString);
 
-        $search = array();
-        if ($advSearch == 'exactphrase') $search[] = $searchString;
-        else $search = explode(' ',$searchString);
+				foreach($search as $searchTerm) $where[]=   preg_replace('/word/', preg_quote($searchTerm), $whereSubClause);
 
-        foreach($search as $searchTerm) $where[]=   preg_replace('/word/', preg_quote($searchTerm), $whereSubClause);
-
-        $whereClause = implode($whereStringOper,$where);
+				$whereClause = implode($whereStringOper,$where);
+			}
+		}
         return $whereClause;
     }
     function _getWhereForm($advSearch) {
@@ -606,7 +619,7 @@ class AjaxSearchRequest {
                 $selectid = "SELECT DISTINCT id, name FROM " . $this->_getShortTableName('site_tmplvars');
                 $selectid .= " WHERE name = '" . $tv . "'";
                 $rs = $modx->db->query($selectid);
-                $row = mysql_fetch_assoc($rs);
+                $row = $modx->db->getRow($rs);
 
                 $alias = $abrev . $i;
                 $nm = ($name) ? $name : $tv;
@@ -632,7 +645,7 @@ class AjaxSearchRequest {
             $selectid .= " FROM " . $this->_getShortTableName('site_tmplvars');
             $selectid .= " WHERE name in (" . $lstTvs. ")";
             $rs = $modx->db->query($selectid);
-            $row = mysql_fetch_assoc($rs);
+            $row = $modx->db->getRow($rs);
 
             $subselect = "SELECT DISTINCT " . $abrev . ".contentid , " . $abrev . ".value ";
             $subselect.= "FROM " . $this->_getShortTableName('site_tmplvar_contentvalues') . " " . $abrev . " ";

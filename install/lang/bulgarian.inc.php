@@ -1,9 +1,9 @@
 <?php
 /**
- * MODx language File
+ * MODX language File
  *
  * @author davaeron
- * @package MODx installer
+ * @package MODX installer
  * @version 1.0
  * @translation     INFORMATOR TEAM www.informator.org  23.05.2009
  * Filename:       /install/lang/bulgarian/bulgarian.inc.php
@@ -28,14 +28,14 @@ $_lang["begin"] = 'Начало';
 $_lang["btnback_value"] = 'Назад';
 $_lang["btnclose_value"] = 'Затваряне';
 $_lang["btnnext_value"] = 'Напред';
-$_lang["cant_write_config_file"] = 'MODx не успя да запише конфигурационния файл. Моля, копирайте следното във файла ';
-$_lang["cant_write_config_file_note"] = 'След като инсталацията завърши, можете да се логнете в Мениджъра на MODx, като напишете в браузера си YourSiteName.com/manager/.';
+$_lang["cant_write_config_file"] = 'MODX не успя да запише конфигурационния файл. Моля, копирайте следното във файла ';
+$_lang["cant_write_config_file_note"] = 'След като инсталацията завърши, можете да се логнете в Мениджъра на MODX, като напишете в браузера си YourSiteName.com/[+MGR_DIR+]/.';
 $_lang["checkbox_select_options"] = 'Опции:';
 $_lang["checking_if_cache_exist"] = 'Проверка дали съществува директорията <span class=\"mono\">assets/cache</span> : ';
 $_lang["checking_if_cache_file2_writable"] = 'Проверка дали може да се пише във файла <span class=\"mono\">assets/cache/sitePublishing.idx.php</span> : ';
 $_lang["checking_if_cache_file_writable"] = 'Проверка дали може да се пише във файла <span class=\"mono\">assets/cache/siteCache.idx.php</span> : ';
 $_lang["checking_if_cache_writable"] = 'Проверка дали в директорията <span class=\"mono\">assets/cache</span> може да се пише: ';
-$_lang["checking_if_config_exist_and_writable"] = 'Проверка дали <span class=\"mono\">manager/includes/config.inc.php</span> съществува и може да се пише в него: ';
+$_lang["checking_if_config_exist_and_writable"] = 'Проверка дали <span class=\"mono\">[+MGR_DIR+]/includes/config.inc.php</span> съществува и може да се пише в него: ';
 $_lang["checking_if_export_exists"] = 'Проверка дали съществува директорията <span class=\"mono\">assets/export</span> : ';
 $_lang["checking_if_export_writable"] = 'Проверка дали в директорията <span class=\"mono\">assets/export</span> може да се пише: ';
 $_lang["checking_if_images_exist"] = 'Проверка дали съществува директорията <span class=\"mono\">assets/images</span> : ';
@@ -44,11 +44,11 @@ $_lang["checking_mysql_strict_mode"] = 'Проверка дали MySQL е в st
 $_lang["checking_mysql_version"] = 'Проверка на версията на MySQL: ';
 $_lang["checking_php_version"] = 'Проверка на PHP версията: ';
 $_lang["checking_registerglobals"] = 'Проверка дали Register_Globals са изключени: ';
-$_lang["checking_registerglobals_note"] = 'Тази конфигурация прави сайта ви много по-уязвим към Cross Site Scripting (XSS) атаки. Трябва да говорите с вашия доставчик за забраняване на тази настройка, което става обикновено по един от трите начина: модифициране на основния php.ini файл, добавяне на правила в .htaccess файла в основната директория (root) на вашата MODx инсталация, или добавяне на собствен php.ini във всяка директория на вашата инсталация, за да препокрие основния файл. Въпреки, това ще можете да инсталирате MODx, но се считайте за предупредени.'; //Look at changing this to provide a solution.
+$_lang["checking_registerglobals_note"] = 'Тази конфигурация прави сайта ви много по-уязвим към Cross Site Scripting (XSS) атаки. Трябва да говорите с вашия доставчик за забраняване на тази настройка, което става обикновено по един от трите начина: модифициране на основния php.ini файл, добавяне на правила в .htaccess файла в основната директория (root) на вашата MODX инсталация, или добавяне на собствен php.ini във всяка директория на вашата инсталация, за да препокрие основния файл. Въпреки, това ще можете да инсталирате MODX, но се считайте за предупредени.'; //Look at changing this to provide a solution.
 $_lang["checking_sessions"] = 'Проверка дали сесиите са правилно конфигурирани: ';
 $_lang["checking_table_prefix"] = 'Проверка на префикса на таблицата `';
 $_lang["chunks"] = 'Чънкове';
-$_lang["config_permissions_note"] = 'За нови Linux/Unix инсталации, моля, създайте празен файл с име <span class=\"mono\">config.inc.php</span> в директорията <span class=\"mono\">manager/includes/</span> и задайте права на файла 0666.';
+$_lang["config_permissions_note"] = 'За нови Linux/Unix инсталации, моля, създайте празен файл с име <span class=\"mono\">config.inc.php</span> в директорията <span class=\"mono\">[+MGR_DIR+]/includes/</span> и задайте права на файла 0666.';
 $_lang["connection_screen_collation"] = 'Колация:';
 $_lang["connection_screen_connection_information"] = 'Информация за връзката';
 $_lang["connection_screen_connection_method"] = 'Начин на свързване - метод:';
@@ -90,7 +90,7 @@ $_lang["installation_install_new_copy"] = 'Инсталиране на ново 
 $_lang["installation_install_new_note"] = '. Моля, имайте предвид, че някоя опция може да презапише данните вътре в БД.';
 $_lang["installation_mode"] = 'Режим на Инсталация';
 $_lang["installation_new_installation"] = 'Нова Инсталация';
-$_lang["installation_note"] = '<strong>Забележка:</strong> След логване в Мениджъра, трябва да редактирате и съхраните настройките на Системата Конфигурция преди да преглеждате сайта си, като изберете <strong>Администрация</strong> -> Системна Конфигурация в Мениджъра на MODx.';
+$_lang["installation_note"] = '<strong>Забележка:</strong> След логване в Мениджъра, трябва да редактирате и съхраните настройките на Системата Конфигурция преди да преглеждате сайта си, като изберете <strong>Администрация</strong> -> Системна Конфигурация в Мениджъра на MODX.';
 $_lang["installation_successful"] = 'Инсталацията беше успешна!';
 $_lang["installation_upgrade_advanced"] = 'Обновяване за напреднали<br /><small>(редактиране на конфигурацията<br /> на БД)</small>';
 $_lang["installation_upgrade_advanced_note"] = 'За напреднали администратори на БД или при преместване на сървъри с различна колация на БД. <b>Трябва да знаете пълното име на БД, потребителското име, парола и подробности за връзката/колацията.</b>';
@@ -101,10 +101,10 @@ $_lang["installing_demo_site"] = 'Инсталиране на демо сайт:
 $_lang["language_code"] = 'bg';
 $_lang["loading"] = 'Зареждане...';
 $_lang["modules"] = 'Модули';
-$_lang["modx_footer1"] = '&copy; 2005-2011 <a href="http://www.modxcms.com/" target="_blank" style="color: green; text-decoration:underline">MODx</a> Content Management Framework (CMF) проект. Всички права запазени. MODx е лицензиран под GNU GPL.';
-$_lang["modx_footer2"] = 'MODx е свободен софтуер.  Бъдете креативни и свикнете да работите с MODx. Имайте предвид, че ако решите да правите промени и да предоставяте копие от вашия модифициран MODx, изходния код трябва да е свободен!';
-$_lang["modx_install"] = 'MODx &raquo; Инсталиране';
-$_lang["modx_requires_php"] = ', и MODx върви на PHP 4.2.0 или по-висока';
+$_lang["modx_footer1"] = '&copy; 2005-2013 <a href="http://modx.com/" target="_blank" style="color: green; text-decoration:underline">MODX</a> Content Management Framework (CMF) проект. Всички права запазени. MODX е лицензиран под GNU GPL.';
+$_lang["modx_footer2"] = 'MODX е свободен софтуер.  Бъдете креативни и свикнете да работите с MODX. Имайте предвид, че ако решите да правите промени и да предоставяте копие от вашия модифициран MODX, изходния код трябва да е свободен!';
+$_lang["modx_install"] = 'MODX &raquo; Инсталиране';
+$_lang["modx_requires_php"] = ', и MODX върви на PHP 4.2.0 или по-висока';
 $_lang["mysql_5051"] = ' MySQL версията на сървъра е 5.0.51!';
 $_lang["mysql_5051_warning"] = 'Има известни спорни въпроси с MySQL 5.0.51. Препоръчително е да обновите преди да продължите.';
 $_lang["mysql_version_is"] = ' MySQL версията ви е: ';
@@ -113,7 +113,7 @@ $_lang["not_found"] = 'не е намерен';
 $_lang["ok"] = 'ОК!';
 $_lang["optional_items"] = 'Допълнителни опции';
 $_lang["optional_items_note"] = 'Моля, изберете допълнителни опции и кликнете на Инсталиране на:';
-$_lang["php_security_notice"] = '<legend>Бележки за сигурността</legend><p>Тъй като MODx ще работи на вашата PHP версия, използването на MODx на тази версия не се препоръчва. Вашата версия на PHP е уязвима по отношение на дупки в сигурността. Моля,обновете към PHP версия 4.3.8 или по-висока. Препоръчително е да обновите версията си за сигурността на вашия сайт.</p>';
+$_lang["php_security_notice"] = '<legend>Бележки за сигурността</legend><p>Тъй като MODX ще работи на вашата PHP версия, използването на MODX на тази версия не се препоръчва. Вашата версия на PHP е уязвима по отношение на дупки в сигурността. Моля,обновете към PHP версия 4.3.8 или по-висока. Препоръчително е да обновите версията си за сигурността на вашия сайт.</p>';
 $_lang["please_correct_error"] = '. Моля, коригирайте грешката';
 $_lang["please_correct_errors"] = '. Моля, коригирайте грешките';
 $_lang["plugins"] = 'Плъгини';
@@ -125,7 +125,7 @@ $_lang["running_database_updates"] = 'Обновяване на БД: ';
 $_lang["sample_web_site"] = 'Примерен Уеб Сайт';
 $_lang["sample_web_site_note"] = 'Моля, имайте предвид, че това ще <b style=\"color:#CC0000\">презапише</b> съществуващите документи и ресурси.';
 $_lang["setup_cannot_continue"] = 'За съжаление Инсталаторът не може да продължи в момента поради ';
-$_lang["setup_couldnt_install"] = 'Инсталаторът на MODx не може да инсталира/промени някои таблици вътре в избраната БД.';
+$_lang["setup_couldnt_install"] = 'Инсталаторът на MODX не може да инсталира/промени някои таблици вътре в избраната БД.';
 $_lang["setup_database"] = 'Инсталаторът ще направи опит да конфигирира БД:<br />';
 $_lang["setup_database_create_connection"] = 'Създаване на връзка към БД: ';
 $_lang["setup_database_create_connection_failed"] = 'Връзката към БД неуспешна!';
@@ -149,14 +149,14 @@ $_lang["status_passed"] = 'Успешно - БД е избрана';
 $_lang["status_passed_database_created"] = 'Успешно - БД е създадена';
 $_lang["status_passed_server"] = 'Успешно - колациите са достъпни';
 $_lang["strict_mode"] = ' MySQL сървъра е в strict mode!';
-$_lang["strict_mode_error"] = 'MODx изисква strict mode да е disabled. Това можете да направите чрез настройките за режима на MySQL , като редактирате файла my.cnf или като се свържете със администратора на сървъра.';
+$_lang["strict_mode_error"] = 'MODX изисква strict mode да е disabled. Това можете да направите чрез настройките за режима на MySQL , като редактирате файла my.cnf или като се свържете със администратора на сървъра.';
 $_lang["summary_setup_check"] = 'Направени бяха редица проверки, за да сме сигурни, че инсталацията може да започне.';
 $_lang["table_prefix_already_inuse"] = ' - Префиксът на таблицата вече се използва в тази БД!';
 $_lang["table_prefix_already_inuse_note"] = 'Инсталаторът не може да инсталира в избраната БД, тъй като в нея вече съществуват таблици със зададения префикс. Моля, изберете нов префикс за таблицата и стартирайте Инсталатора отново.';
 $_lang["table_prefix_not_exist"] = ' - Префиксът на таблицата не съществува в тази БД!';
 $_lang["table_prefix_not_exist_note"] = 'Инсталаторът не може да инсталира в избраната БД, тъй като тя не съдържа таблици със зададения префикс, които да бъдат обновявени. Моля, изберете съществуващ префикс на таблица  и стартирайте Инсталатора отново.';
 $_lang["templates"] = 'Шаблони';
-$_lang["to_log_into_content_manager"] = 'За да се логнете в Мениджъра (manager/index.php) кликнете на бутона `Затваряне` .';
+$_lang["to_log_into_content_manager"] = 'За да се логнете в Мениджъра ([+MGR_DIR+]/index.php) кликнете на бутона `Затваряне` .';
 $_lang["toggle"] = 'Включване';
 $_lang["unable_install_chunk"] = 'Не успя да инсталира Чънк.  Файл';
 $_lang["unable_install_module"] = 'Не успя да инсталира Модул.  Файл';
@@ -165,9 +165,9 @@ $_lang["unable_install_snippet"] = 'Не успя да инсталира Сни
 $_lang["unable_install_template"] = 'Не успя да инсталира Шаблон.  Файл';
 $_lang["upgrade_note"] = '<strong>Забележка:</strong> Преди да преглеждате сайта си, трябва да се логнете в Мениджъра с администраторския акаунт, след това да прегледате и съхраните настройките на Системната Конфигурация.';
 $_lang["upgraded"] = 'Обновен';
-$_lang["visit_forum"] = ', посетете <a href="http://www.modxcms.com/forums/" target="_blank">MODx Форумите</a>.';
+$_lang["visit_forum"] = ', посетете <a href="http://forums.modx.com/" target="_blank">MODX Форумите</a>.';
 $_lang["welcome_message_text"] = 'Тази програма ще ви води през останалата част от инсталацията.';
-$_lang["welcome_message_welcome"] = 'Добре дошли в Инсталатора на MODx.';
+$_lang["welcome_message_welcome"] = 'Добре дошли в Инсталатора на MODX.';
 $_lang["writing_config_file"] = 'Записване на конфигурационния файл: ';
 $_lang["you_running_php"] = ' - PHP версията ви е ';
 ?>

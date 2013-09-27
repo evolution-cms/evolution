@@ -7,11 +7,11 @@ function newCategory($newCat) {
     global $modx;
     $useTable = $modx->getFullTableName('categories');
     $sql = 'insert into ' . $useTable . ' (category) values (\''.$modx->db->escape($newCat).'\')';
-    $catrs = $modx->dbQuery($sql);
+    $catrs = $modx->db->query($sql);
     if(!$catrs) {
         $categoryId = 0;
     } else {
-        if(!$newCatid=mysql_insert_id()) {
+        if(!$newCatid=$modx->db->getInsertId()) {
             $categoryId = 0;
 		} else {
             $categoryId = $newCatid;
@@ -24,8 +24,8 @@ function checkCategory($newCat = '') {
     global $modx;
     $useTable = $modx->getFullTableName('categories');
     $sql = 'select * from ' . $useTable . ' order by category';
-    $cats = $modx->dbQuery($sql);
-    if($cats) while($row = $modx->fetchRow($cats)) {
+    $cats = $modx->db->query($sql);
+    if($cats) while($row = $modx->db->getRow($cats)) {
         if ($row['category'] == $newCat) {
             return $row['id'];
         }
@@ -37,9 +37,9 @@ function getCategories() {
     global $modx;
     $useTable = $modx->getFullTableName('categories');
     $sql = 'select id, category from ' . $useTable . ' order by category';
-    $cats = $modx->dbQuery($sql);
+    $cats = $modx->db->query($sql);
     $resourceArray = array();
-    if($cats) while($row = $modx->fetchRow($cats)) {
+    if($cats) while($row = $modx->db->getRow($cats)) {
         array_push($resourceArray,array( 'id' => $row['id'], 'category' => stripslashes( $row['category'] ) )); // pixelchutes
     }
     return $resourceArray;
@@ -52,11 +52,11 @@ function deleteCategory($catId=0) {
         foreach ($resetTables as $n=>$v) {
             $useTable = $modx->getFullTableName($v);
             $sql = 'update ' . $useTable . ' set category=0 where category=' . $catId . '';
-            $modx->dbQuery($sql);
+            $modx->db->query($sql);
         }
         $catTable = $modx->getFullTableName('categories');
         $sql = 'delete from ' . $catTable . ' where id=' . $catId;
-        $modx->dbQuery($sql);
+        $modx->db->query($sql);
     }
 }
 

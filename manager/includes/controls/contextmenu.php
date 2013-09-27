@@ -4,18 +4,18 @@ global $ContextMenuCnt;
 $ContextMenuCnt = 0;
 
 class ContextMenu {
-
+    var $id;
 	function ContextMenu($id='',$width=120,$visible=false) {
 		global $ContextMenuCnt;
 		$ContextMenuCnt++;
 		$this->html = "";
 		$this->visible = $visible ? $visible:false;
 		$this->width = is_numeric($width) ? intval($width):120;
-		$this->id = id ? $id:"cntxMnu".$ContextMenuCnt;	// set id
+        $this->id = $id ? $id:"cntxMnu".$ContextMenuCnt;	// set id
 	}
 
 	function addItem($text,$action="",$img="",$disabled=0){
-		global $base_url, $manager_theme;
+		global $base_url, $manager_theme, $_style;
 		if(!$img) $img = $base_url.$_style['tx'];
 		if(substr($action,0,3)=="js:") $action = substr($action,3);
 		else if(substr($action,0,3)=="hl:") $action = "window.location.href='".substr($action,3)."'";
@@ -24,7 +24,7 @@ class ContextMenu {
 		if ($disabled) $action="";
 		$this->html .= "
 			<div class='".($disabled ? "cntxMnuItemDisabled":"cntxMnuItem")."' $action>
-				<img src='$img' width='16' height='16' align='absmiddle' />&nbsp;$text
+				<img src='$img' align='absmiddle' />&nbsp;$text
 			</div>
 		";
 	}

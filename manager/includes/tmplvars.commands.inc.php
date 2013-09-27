@@ -133,17 +133,18 @@ function ProcessFile($file) {
 }
 
 // ParseCommand - separate @ cmd from params
-function ParseCommand($binding_string) {
+function ParseCommand($binding_string)
+{
     global $BINDINGS;
-    $match = array ();
-    $regexp = '/@(' . implode('|', $BINDINGS) . ')\s*(.*)/im'; // Split binding on whitespace
-    if (preg_match($regexp, $binding_string, $match)) {
-        // We can't return the match array directly because the first element is the whole string
-        $binding_array = array (
-            strtoupper($match[1]),
-            $match[2]
-        ); // Make command uppercase
-        return $binding_array;
+    $binding_array = array();
+    foreach($BINDINGS as $cmd)
+    {
+        if(strpos($binding_string,'@'.$cmd)===0)
+        {
+            $code = substr($binding_string,strlen($cmd)+1);
+            $binding_array = array($cmd,$code);
+            break;
+        }
     }
+    return $binding_array;
 }
-?>

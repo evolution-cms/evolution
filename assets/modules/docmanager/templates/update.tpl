@@ -31,13 +31,15 @@
 		           <li id="Button4"><a href="#" onclick="reset();"><img src="media/style[+theme+]/images/icons/cancel.png" align="absmiddle"> [+lang.DM_cancel+]</a></li>
 		    </ul>
 	    </div>
-	   
+        
+	    <div class="section">
 	    <div class="sectionHeader">[+lang.DM_update_title+]</div> 
 	    <div class="sectionBody"> 
 	       <p>[+update.message+]</p>
 		   <form id="backform" method="post" style="display: none;">
 		      <input type="submit" name="back" value="[+lang.DM_process_back+]" />
 		   </form>
+	    </div>
 	    </div>
     </body>
 </html>

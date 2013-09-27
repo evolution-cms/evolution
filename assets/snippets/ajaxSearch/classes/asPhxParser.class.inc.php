@@ -242,16 +242,40 @@ class asPHxParser {
 
                     #####  Special functions
                     // img modifiers added by coroico
-                    case "imgwidth": list($width, $height, $type, $attr) = getimagesize($output); $output = $width; break;
-                    case "imgheight": list($width, $height, $type, $attr) = getimagesize($output); $output = $height; break;
-                    case "imgattr": list($width, $height, $type, $attr) = getimagesize($output); $output = $attr; break;
+                    case "imgwidth":
+                        if (@file_exists($output)) {
+                            list($width, $height, $type, $attr) = getimagesize($output);
+                            $output = $width;
+                        }
+                        else $output = 0;
+                        break;
+                    case "imgheight":
+                        if (@file_exists($output)) {
+                            list($width, $height, $type, $attr) = getimagesize($output);
+                            $output = $height;
+                        }
+                        else $output = 0;
+                        break;
+                    case "imgattr":
+                        if (@file_exists($output)) {
+                            list($width, $height, $type, $attr) = getimagesize($output);
+                            $output = $attr;
+                        }
+                        else $output = '';
+                        break;
                     case "imgmaxwidth":
-                        list($width, $height, $type, $attr) = getimagesize($output);
-                        $output = ($width < intval($modifier_value[$i])) ? $width : intval($modifier_value[$i]);
+                        if (@file_exists($output)) {
+                            list($width, $height, $type, $attr) = getimagesize($output);
+                            $output = ($width < intval($modifier_value[$i])) ? $width : intval($modifier_value[$i]);
+                        }
+                        else $output = intval($modifier_value[$i]);
                         break;
                     case "imgmaxheight":
-                        list($width, $height, $type, $attr) = getimagesize($output);
-                        $output = ($height < intval($modifier_value[$i])) ? $height : intval($modifier_value[$i]);
+                        if (@file_exists($output)) {
+                            list($width, $height, $type, $attr) = getimagesize($output);
+                            $output = ($height < intval($modifier_value[$i])) ? $height : intval($modifier_value[$i]);
+                        }
+                        else $output = intval($modifier_value[$i]);
                         break;
                     case "math":
                         $filter = preg_replace("~([a-zA-Z\n\r\t\s])~","",$modifier_value[$i]);
@@ -283,11 +307,11 @@ class asPHxParser {
                         if (!array_key_exists($modifier_cmd[$i], $this->cache["cm"])) {
                             $phx_snippet_name = 'phx:' . $modx->db->escape($modifier_cmd[$i]);
                             $sql = "SELECT snippet FROM " . $modx->getFullTableName("site_snippets") . " WHERE " . $modx->getFullTableName("site_snippets") . ".name='" . $phx_snippet_name . "';";
-                             $result = $modx->dbQuery($sql);
-                             if ($modx->recordCount($result) == 1) {
-                                $row = $modx->fetchRow($result);
+                             $result = $modx->db->query($sql);
+                             if ($modx->db->getRecordCount($result) == 1) {
+                                $row = $modx->db->getRow($result);
                                  $cm = $this->cache["cm"][$modifier_cmd[$i]] = $row["snippet"];
-                             } else if ($modx->recordCount($result) == 0){ // If snippet not found, look in the modifiers folder
+                             } else if ($modx->db->getRecordCount($result) == 0){ // If snippet not found, look in the modifiers folder
                                 $filename = $modx->config['rb_base_dir'] . 'plugins/phx/modifiers/'.$modifier_cmd[$i].'.phx.php';
                                 if (@file_exists($filename)) {
                                     $file_contents = @file_get_contents($filename);

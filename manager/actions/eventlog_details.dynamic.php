@@ -1,5 +1,5 @@
 <?php
-if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 if(!$modx->hasPermission('view_eventlog')) {	
 	$e->setError(3);
 	$e->dumpError();	
@@ -25,13 +25,13 @@ $sql = "SELECT el.*, IFNULL(wu.username,mu.username) as 'username' " .
 		"LEFT JOIN ".$modx->getFullTableName("manager_users")." mu ON mu.id=el.user AND el.usertype=0 ".
 		"LEFT JOIN ".$modx->getFullTableName("web_users")." wu ON wu.id=el.user AND el.usertype=1 ".
 		" WHERE el.id=$id";			
-$ds = mysql_query($sql);
+$ds = $modx->db->query($sql);
 if(!$ds) {
 	echo "Error while load event log";
 	exit;
 }
 else{
-	$content = $modx->fetchRow($ds);	
+	$content = $modx->db->getRow($ds);	
 }
 
 ?>
@@ -60,6 +60,7 @@ else{
 <input type="hidden" name="a" value="<?php echo (int) $_REQUEST['a']; ?>" />
 <input type="hidden" name="listmode" value="<?php echo $_REQUEST['listmode']; ?>" />
 <input type="hidden" name="op" value="" />
+<div class="section">
 <div class="sectionHeader"><?php echo $content['source']." - ".$_lang['eventlog_viewer']; ?></div><div class="sectionBody">
 <?php
 $date = $modx->toDateFormat($content["createdon"]);
@@ -94,5 +95,5 @@ echo <<<HTML
 	</table>
 HTML;
 ?>
-</div>
+</div></div>
 </form>

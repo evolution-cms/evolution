@@ -13,7 +13,7 @@ vertical-align:baseline;
 
 body {
 -x-system-font:none;
-font-family:Helvetica,Arial,'Liberation Sans',FreeSans,sans-serif;
+font-family:Arial,Helvetica,'Liberation Sans',FreeSans,sans-serif;
 font-size:75%;
 font-size-adjust:none;
 font-stretch:normal;
@@ -609,3 +609,6 @@ text-indent:-9999px;
 top:0;
 width:228px;
 }
+
+select {border:1px solid #dbdfe6;}
+input,select,textarea {font:inherit;}

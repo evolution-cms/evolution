@@ -1,6 +1,6 @@
 /*
- * AjaxSearch 1.9.2 - package AjaxSearch 1 - JQuery 1.4.2
- * author: Coroico - www.modx.wangba.fr - 05/12/2010
+ * AjaxSearch 1.9.3 - package AjaxSearch 1 - JQuery 1.4.2
+ * author: Coroico - www.evo.wangba.fr - 26/09/2012
  *
  * Licensed under the GPL license: http://www.gnu.org/copyleft/gpl.html
  */
@@ -14,7 +14,7 @@ var _closeAlt='close search';
 var _load=_base + 'images/indicator.white.gif'; // loading image
 var _loadAlt='loading';
 
-var _version='1.9.2';var _opacity=1.;var _liveSearch=0;var _minChars=3;var _init='none';var _pagingType=1;jQuery(function($){function activateSearch(){for(ias=0;ias<asvar.length;ias++){var asv=eval('('+asvar[ias]+')');activateAsInstance(asv);}}
+var _version='1.9.3';var _opacity=1.;var _liveSearch=0;var _minChars=3;var _init='none';var _pagingType=1;jQuery(function($){function activateSearch(){for(ias=0;ias<asvar.length;ias++){var asv=eval('('+asvar[ias]+')');activateAsInstance(asv);}}
 function activateAsInstance(asv){var as=Array();as['vsn']=asv.vsn;as['adv']=asv.adv;as['sub']=asv.sub;as['bxt']=asv.bxt;as['cfg']=asv.cfg;as['lt']=null;as['is']=false;if(as['vsn']!=_version){alert("AjaxSearch version obsolete. Empty your browser cache and check the version of AjaxSearch-jQuery.js file");return;}
 var res=as['cfg'].match(/&pagingType=`([^`]*)`/);as['pgt']=_pagingType;if(res!==null)as['pgt']=res[1];res=as['cfg'].match(/&opacity=`([^`]*)`/);as['opc']=_opacity;if(res!=null)as['opc']=parseFloat(res[1]);res=as['cfg'].match(/&init=`([^`]*)`/);as['ini']=_init;if(res!=null)as['ini']=res[1];res=as['cfg'].match(/&liveSearch=`([^`]*)`/);as['lvs']=_liveSearch;if(res!=null)as['lvs']=parseInt(res[1]);res=as['cfg'].match(/&minChars=`([^`]*)`/);as['mch']=_minChars;if(res!=null)as['mch']=parseInt(res[1]);res=as['cfg'].match(/&asId=`([^`]*)`/);as['px']='';if(res!=null)as['px']=res[1]+'_';var p=as['px'];sf=$('#'+p+'ajaxSearch_form');as['sc']=$('<img src="'+_close+'" alt="'+_closeAlt+'" id="'+p+'searchClose" />').appendTo(sf).hide();as['sl']=$('<img src="'+_load+'" alt="'+_loadAlt+'" id="'+p+'indicator" />').appendTo(sf).hide();as['sr']=$('#'+p+'ajaxSearch_output').hide().removeClass('init');as['si']=$('#'+p+'ajaxSearch_input');as['se']=$('#'+p+'ajaxSearch_select');if(!as['lvs'])as['ss']=$('#'+p+'ajaxSearch_form input:submit');as['sc'].click(function(){closeSearch(as);return false;});if(!as['lvs'])as['ss'].click(function(){doSearch(as);return false;});else as['si'].keyup(function(){doLiveSearch(as);});if(as['si'].length)as['si'].keypress(function(e){var keyCode=e.keyCode||e.which;if(keyCode==13){doSearch(as);return false;}});doSearch(as);}
 function doLiveSearch(as){if(as['lt']){window.clearTimeout(as['lt']);}

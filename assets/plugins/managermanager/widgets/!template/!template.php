@@ -9,7 +9,7 @@ function mm_widget_template($fields, $other_param='defaultValue', $roles='', $te
 	global $modx, $content, $mm_fields;
 	$e = &$modx->Event;
 	
-	if (useThisRule($roles, $templates)) {
+	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)) {
 		
 		// Your output should be stored in a string, which is outputted at the end
 		// It will be inserted as a Javascript block (with jQuery), which is executed on document ready
@@ -56,9 +56,8 @@ function mm_widget_template($fields, $other_param='defaultValue', $roles='', $te
 		}
 		
 	
+		$e->output($output . "\n");	// Send the output to the browser
 	} // end if
-	
-	$e->output($output . "\n");	// Send the output to the browser
 	
 }
 

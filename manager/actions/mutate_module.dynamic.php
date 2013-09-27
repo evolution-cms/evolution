@@ -1,5 +1,5 @@
 <?php
-if(IN_MANAGER_MODE!='true') die('<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.');
+if(IN_MANAGER_MODE!='true') die('<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.');
 
 switch ((int) $_REQUEST['a']) {
     case 107:
@@ -51,13 +51,13 @@ function createGUID(){
 
 // Check to see the editor isn't locked
 $sql = 'SELECT internalKey, username FROM '.$tbl_active_users.' WHERE action=108 AND id=\''.$id.'\'';
-$rs = mysql_query($sql);
-$limit = mysql_num_rows($rs);
+$rs = $modx->db->query($sql);
+$limit = $modx->db->getRecordCount($rs);
 if ($limit > 1) {
     for ($i = 0; $i < $limit; $i++) {
-        $lock = mysql_fetch_assoc($rs);
+        $lock = $modx->db->getRow($rs);
         if ($lock['internalKey'] != $modx->getLoginUserID()) {
-            $msg = sprintf($_lang['lock_msg'], $lock['username'], 'module');
+            $msg = sprintf($_lang['lock_msg'], $lock['username'], $_lang['module']);
             $e->setError(5, $msg);
             $e->dumpError();
         }
@@ -73,8 +73,8 @@ if (!is_numeric($id)) {
 
 if (isset($_GET['id'])) {
     $sql = 'SELECT * FROM '.$tbl_site_modules.' WHERE id=\''.$id.'\'';
-    $rs = mysql_query($sql);
-    $limit = mysql_num_rows($rs);
+    $rs = $modx->db->query($sql);
+    $limit = $modx->db->getRecordCount($rs);
     if ($limit > 1) {
         echo '<p>Multiple modules sharing same unique id. Not good.<p>';
         exit;
@@ -83,7 +83,7 @@ if (isset($_GET['id'])) {
         echo '<p>No record found for id: '.$id.'.</p>';
         exit;
     }
-    $content = mysql_fetch_assoc($rs);
+    $content = $modx->db->getRow($rs);
     $_SESSION['itemname'] = $content['name'];
     if ($content['locked'] == 1 && $_SESSION['mgrRole'] != 1) {
         $e->setError(3);
@@ -145,7 +145,7 @@ function showParameters(ctrl) {
     dp = (f.properties.value) ? f.properties.value.split("&"):"";
     if(!dp) tr.style.display='none';
     else {
-        t='<table style="margin-bottom:3px;margin-left:14px;background-color:#EEEEEE" cellpadding="2" cellspacing="1"><thead><tr><td><?php echo $_lang['parameter']?></td><td><?php echo $_lang['value']?></td></tr></thead>';
+        t='<table width="300" style="margin-bottom:3px;margin-left:14px;background-color:#EEEEEE" cellpadding="2" cellspacing="1"><thead><tr><td width="50%"><?php echo $_lang['parameter'];?></td><td width="50%"><?php echo $_lang['value'];?></td></tr></thead>';
         for(p = 0; p < dp.length; p++) {
             dp[p]=(dp[p]+'').replace(/^\s|\s$/,""); // trim
             ar = dp[p].split("=");
@@ -213,7 +213,7 @@ function showParameters(ctrl) {
                         break;
 
                 }
-                t +='<tr><td bgcolor="#FFFFFF">'+desc+'</td><td bgcolor="#FFFFFF">'+c+'</td></tr>';
+                t +='<tr><td bgcolor="#FFFFFF" width="50%">'+desc+'</td><td bgcolor="#FFFFFF" width="50%">'+c+'</td></tr>';
             };
         }
         t+='</table>';
@@ -308,7 +308,7 @@ function OpenServerBrowser(url, width, height ) {
 function BrowseServer() {
     var w = screen.width * 0.7;
     var h = screen.height * 0.7;
-    OpenServerBrowser("<?php echo $base_url?>manager/media/browser/mcpuk/browser.html?Type=images&Connector=<?php echo $base_url?>manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath=<?php echo $base_url?>", w, h);
+    OpenServerBrowser("<?php echo MODX_MANAGER_URL;?>media/browser/mcpuk/browser.php?Type=images", w, h);
 }
 
 function SetUrl(url, width, height, alt) {
@@ -338,10 +338,10 @@ function SetUrl(url, width, height, alt) {
                   <span class="and"> + </span>
                 <select id="stay" name="stay">
                   <?php if ($modx->hasPermission('new_module')) { ?>
-                  <option id="stay1" value="1" <?php echo $_REQUEST['stay']=='1' ? ' selected=""' : ''?> ><?php echo $_lang['stay_new']?></option>
+                  <option id="stay1" value="1" <?php echo $_REQUEST['stay']=='1' ? ' selected="selected"' : ''?> ><?php echo $_lang['stay_new']?></option>
                   <?php } ?>
                   <option id="stay2" value="2" <?php echo $_REQUEST['stay']=='2' ? ' selected="selected"' : ''?> ><?php echo $_lang['stay']?></option>
-                  <option id="stay3" value=""  <?php echo $_REQUEST['stay']=='' ? ' selected=""' : ''?>  ><?php echo $_lang['close']?></option>
+                  <option id="stay3" value=""  <?php echo $_REQUEST['stay']=='' ? ' selected="selected"' : ''?>  ><?php echo $_lang['close']?></option>
                 </select>
               </li>
               <?php
@@ -359,83 +359,56 @@ function SetUrl(url, width, height, alt) {
     </div>
     <!-- end #actions -->
 
-<div class="sectionHeader"><?php echo $_lang['module_title']?></div>
 <div class="sectionBody"><p><img class="icon" src="media/style/<?php echo $manager_theme?>images/icons/modules.gif" alt="." width="32" height="32" style="vertical-align:middle;text-align:left;" /> <?php echo $_lang['module_msg']?></p>
 
 <div class="tab-pane" id="modulePane">
     <script type="text/javascript">
-    tpModule = new WebFXTabPane( document.getElementById( "modulePane"), <?php echo $modx->config['remember_last_tab'] == 1 ? 'true' : 'false'; ?> );
+    tp = new WebFXTabPane( document.getElementById( "modulePane"), <?php echo $modx->config['remember_last_tab'] == 1 ? 'true' : 'false'; ?> );
     </script>
 
     <!-- General -->
     <div class="tab-page" id="tabModule">
     <h2 class="tab"><?php echo $_lang['settings_general']?></h2>
-    <script type="text/javascript">tpModule.addTabPage( document.getElementById( "tabModule" ) );</script>
+    <script type="text/javascript">tp.addTabPage( document.getElementById( "tabModule" ) );</script>
 
     <table border="0" cellspacing="0" cellpadding="1">
         <tr><td align="left"><?php echo $_lang['module_name']?>:</td>
-            <td align="left"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox" style="width:150px;" onchange="documentDirty=true;"><span style="font-family:'Courier New', Courier, mono">&nbsp;</span><span class="warning" id="savingMessage">&nbsp;</span></td></tr>
-        <tr><td align="left"><?php echo $_lang['module_desc']?>:&nbsp;&nbsp;</td>
-            <td align="left"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><input name="description" type="text" maxlength="255" value="<?php echo $content['description']?>" class="inputBox" onchange="documentDirty=true;"></td></tr>
-        <tr><td align="left"><?php echo $_lang['icon']?> <span class="comment">(32x32)</span>:&nbsp;&nbsp;</td>
-            <td align="left"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><input onchange="documentDirty=true;" type="text" maxlength="255" style="width: 235px;" name="icon" value="<?php echo $content['icon']?>" /> <input type="button" value="<?php echo $_lang['insert']?>" onclick="BrowseServer();" /></td></tr>
-        <tr><td align="left"><?php echo $_lang['existing_category']?>:&nbsp;&nbsp;</td>
-            <td align="left"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span>
-            <select name="categoryid" onchange="documentDirty=true;">
-                <option>&nbsp;</option>
-<?php
-                include_once "categories.inc.php";
-                $ds = getCategories();
-                if ($ds) {
-                    foreach($ds as $n => $v) {
-                        echo "\t\t\t".'<option value="'.$v['id'].'"'.($content['category'] == $v['id'] ? ' selected="selected"' : '').'>'.htmlspecialchars($v['category'])."</option>\n";
-                    }
-                }
-?>
-            </select></td></tr>
-        <tr><td align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']?>:</td>
-            <td align="left" valign="top" style="padding-top:5px;"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><input name="newcategory" type="text" maxlength="45" value="" class="inputBox" onchange="documentDirty=true;"></td></tr>
-        <tr><td align="left"><input name="enable_resource" title="<?php echo $_lang['enable_resource']?>" type="checkbox"<?php echo $content['enable_resource']==1 ? ' checked="checked"' : ''?> class="inputBox" onclick="documentDirty=true;" /> <span style="cursor:pointer" onclick="document.mutate.enable_resource.click();" title="<?php echo $_lang['enable_resource']?>"><?php echo $_lang["element"]?></span>:</td>
-            <td align="left"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><input name="sourcefile" type="text" maxlength="255" value="<?php echo $content['sourcefile']?>" class="inputBox" onchange="documentDirty=true;" /></td></tr>
-        <tr><td align="left" valign="top" colspan="2"><input name="disabled" type="checkbox" <?php echo $content['disabled'] == 1 ? 'checked="checked"' : ''?> value="on" class="inputBox" />
-            <span style="cursor:pointer" onclick="document.mutate.disabled.click();"><?php echo  $content['disabled'] == 1 ? '<span class="warning">'.$_lang['module_disabled'].'</span>' : $_lang['module_disabled']?></span></td></tr>
-        <tr><td align="left" valign="top" colspan="2"><input name="locked" type="checkbox"<?php echo $content['locked'] == 1 ? ' checked="checked"' : ''?> class="inputBox" />
-            <span style="cursor:pointer" onclick="document.mutate.locked.click();"><?php echo $_lang['lock_module']?></span> <span class="comment"><?php echo $_lang['lock_module_msg']?></span></td></tr>
+            <td align="left"><input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name'])?>" class="inputBox" style="width:150px;" onchange="documentDirty=true;">&nbsp;<span class="warning" id="savingMessage">&nbsp;</span></td></tr>
     </table>
 
     <!-- PHP text editor start -->
-    <div style="width:100%; position:relative">
-        <div style="padding:1px; width:100%; height:16px; background-color:#eeeeee; border-top:1px solid #e0e0e0; margin-top:5px">
-            <span style="float:left; color:#707070; font-weight:bold; padding:3px">&nbsp;<?php echo $_lang['module_code']?></span>
-            <span style="float:right; color:#707070"><?php echo $_lang['wrap_lines']?><input name="wrap" type="checkbox"<?php echo $content['wrap']== 1 ? ' checked="checked"' : ''?> class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
+        <div class="sectionHeader">
+            <span style="float:left; font-weight:bold; padding:3px">&nbsp;<?php echo $_lang['module_code']?></span>
+            <span style="float:right;><?php echo $_lang['wrap_lines']?><input name="wrap" type="checkbox"<?php echo $content['wrap']== 1 ? ' checked="checked"' : ''?> class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
         </div>
+        <div class="sectionBody">
         <textarea dir="ltr" class="phptextarea" name="post" style="width:100%; height:370px;" wrap="<?php echo $content['wrap']== 1 ? 'soft' : 'off'?>" onchange="documentDirty=true;"><?php echo htmlspecialchars($content['modulecode'])?></textarea>
-    </div>
+        </div>
     <!-- PHP text editor end -->
     </div>
 
     <!-- Configuration -->
     <div class="tab-page" id="tabConfig">
         <h2 class="tab"><?php echo $_lang['settings_config']?></h2>
-        <script type="text/javascript">tpModule.addTabPage( document.getElementById( "tabConfig" ) );</script>
+        <script type="text/javascript">tp.addTabPage( document.getElementById( "tabConfig" ) );</script>
 
         <table width="90%" border="0" cellspacing="0" cellpadding="0">
             <tr><td align="left" valign="top"><?php echo $_lang['guid']?>:</td>
-                <td align="left" valign="top"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><input name="guid" type="text" maxlength="32" value="<?php echo (int) $_REQUEST['a'] == 107 ? createGUID() : $content['guid']?>" class="inputBox" onchange="documentDirty=true;" /><br /><br /></td></tr>
+                <td align="left" valign="top"><input name="guid" type="text" maxlength="32" value="<?php echo (int) $_REQUEST['a'] == 107 ? createGUID() : $content['guid']?>" class="inputBox" onchange="documentDirty=true;" /><br /><br /></td></tr>
             <tr><td align="left" valign="top"><input name="enable_sharedparams" type="checkbox"<?php echo $content['enable_sharedparams']==1 ? ' checked="checked"' : ''?> class="inputBox" onclick="documentDirty=true;" /> <span style="cursor:pointer" onclick="document.mutate.enable_sharedparams.click();"><?php echo $_lang['enable_sharedparams']?>:</span></td>
-                <td align="left" valign="top"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><span ><span class="comment"><?php echo $_lang['enable_sharedparams_msg']?></span></span><br /><br /></td></tr>
+                <td align="left" valign="top"><span ><span class="comment"><?php echo $_lang['enable_sharedparams_msg']?></span></span><br /><br /></td></tr>
             <tr><td align="left" valign="top"><?php echo $_lang['module_config']?>:</td>
-                <td align="left" valign="top"><span style="font-family:'Courier New', Courier, mono">&nbsp;&nbsp;</span><input name="properties" type="text" maxlength="65535" value="<?php echo $content['properties']?>" class="inputBox phptextarea" style="width:280px;" onchange="showParameters(this);documentDirty=true;" /><input type="button" value="<?php echo $_lang['update_params'] ?>" style="width:16px; margin-left:2px;" title="<?php echo $_lang['update_params']?>" /></td></tr>
+                <td align="left" valign="top"><input name="properties" type="text" maxlength="65535" value="<?php echo $content['properties']?>" class="inputBox phptextarea" style="width:280px;" onchange="showParameters(this);documentDirty=true;" /><input type="button" value="<?php echo $_lang['update_params'] ?>" style="width:16px; margin-left:2px;" title="<?php echo $_lang['update_params']?>" /></td></tr>
             <tr id="displayparamrow"><td valign="top" align="left">&nbsp;</td>
                 <td align="left" id="displayparams">&nbsp;</td></tr>
         </table>
     </div>
 
-<?php if ($_REQUEST['a'] == '108') { ?>
+<?php if ($_REQUEST['a'] == '108'): ?>
     <!-- Dependencies -->
     <div class="tab-page" id="tabDepend">
     <h2 class="tab"><?php echo $_lang['settings_dependencies']?></h2>
-    <script type="text/javascript">tpModule.addTabPage( document.getElementById( "tabDepend" ) );</script>
+    <script type="text/javascript">tp.addTabPage( document.getElementById( "tabDepend" ) );</script>
 
     <table width="95%" border="0" cellspacing="0" cellpadding="0">
     <tr><td align="left" valign="top"><p><?php echo $_lang['module_viewdepend_msg']?><br /><br />
@@ -459,11 +432,11 @@ function SetUrl(url, width, height, alt) {
            'LEFT JOIN '.$tbl_site_templates.' AS st ON st.id = smd.resource AND smd.type = 50 '.
            'LEFT JOIN '.$tbl_site_tmplvars.' AS sv ON sv.id = smd.resource AND smd.type = 60 '.
            'WHERE smd.module=\''.$id.'\' ORDER BY smd.type,name';
-$ds = $modx->dbQuery($sql);
+$ds = $modx->db->query($sql);
 if (!$ds) {
     echo "An error occured while loading module dependencies.";
 } else {
-    include_once $base_path."manager/includes/controls/datagrid.class.php";
+    include_once MODX_MANAGER_PATH."includes/controls/datagrid.class.php";
     $grd = new DataGrid('', $ds, 0); // set page size to 0 t show all items
     $grd->noRecordMsg = $_lang['no_records_found'];
     $grd->cssClass = 'grid';
@@ -477,24 +450,59 @@ if (!$ds) {
         </td></tr>
     </table>
     </div>
-<?php } ?>
-</div>
+<?php endif; ?>
+
+<!-- TemplateVar Info -->
+<div class="tab-page" id="tabInfo">
+<h2 class="tab"><?php echo $_lang['settings_properties'];?></h2>
+<script type="text/javascript">tp.addTabPage( document.getElementById( "tabInfo" ) );</script>
+<div class="section">
+<table>
+        <tr><td align="left" valign="top" colspan="2"><input name="disabled" type="checkbox" <?php echo $content['disabled'] == 1 ? 'checked="checked"' : ''?> value="on" class="inputBox" />
+            <span style="cursor:pointer" onclick="document.mutate.disabled.click();"><?php echo  $content['disabled'] == 1 ? '<span class="warning">'.$_lang['module_disabled'].'</span>' : $_lang['module_disabled']?></span></td></tr>
+        <tr><td align="left"><?php echo $_lang['module_desc']?>:&nbsp;&nbsp;</td>
+            <td align="left"><input name="description" type="text" maxlength="255" value="<?php echo $content['description']?>" class="inputBox" onchange="documentDirty=true;"></td></tr>
+        <tr><td align="left"><?php echo $_lang['existing_category']?>:&nbsp;&nbsp;</td>
+            <td align="left">
+            <select name="categoryid" onchange="documentDirty=true;">
+                <option>&nbsp;</option>
+<?php
+                include_once "categories.inc.php";
+                $ds = getCategories();
+                if ($ds) {
+                    foreach($ds as $n => $v) {
+                        echo "\t\t\t".'<option value="'.$v['id'].'"'.($content['category'] == $v['id'] ? ' selected="selected"' : '').'>'.htmlspecialchars($v['category'])."</option>\n";
+                    }
+                }
+?>
+            </select></td></tr>
+        <tr><td align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']?>:</td>
+            <td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="" class="inputBox" onchange="documentDirty=true;"></td></tr>
+        <tr><td align="left"><?php echo $_lang['icon']?> <span class="comment">(32x32)</span>:&nbsp;&nbsp;</td>
+            <td align="left"><input onchange="documentDirty=true;" type="text" maxlength="255" style="width: 235px;" name="icon" value="<?php echo $content['icon']?>" /> <input type="button" value="<?php echo $_lang['insert']?>" onclick="BrowseServer();" /></td></tr>
+        <tr><td align="left"><input name="enable_resource" title="<?php echo $_lang['enable_resource']?>" type="checkbox"<?php echo $content['enable_resource']==1 ? ' checked="checked"' : ''?> class="inputBox" onclick="documentDirty=true;" /> <span style="cursor:pointer" onclick="document.mutate.enable_resource.click();" title="<?php echo $_lang['enable_resource']?>"><?php echo $_lang["element"]?></span>:</td>
+            <td align="left"><input name="resourcefile" type="text" maxlength="255" value="<?php echo $content['resourcefile']?>" class="inputBox" onchange="documentDirty=true;" /></td></tr>
+        <tr><td align="left" valign="top" colspan="2"><input name="locked" type="checkbox"<?php echo $content['locked'] == 1 ? ' checked="checked"' : ''?> class="inputBox" />
+            <span style="cursor:pointer" onclick="document.mutate.locked.click();"><?php echo $_lang['lock_module']?></span> <span class="comment"><?php echo $_lang['lock_module_msg']?></span></td></tr>
+</table>
 </div>
 
+
+<?php if ($use_udperms == 1) : ?>
 <?php
-if ($use_udperms == 1) {
     // fetch user access permissions for the module
     $groupsarray = array();
     $sql = 'SELECT * FROM '.$tbl_site_module_access.' WHERE module=\''.$id.'\'';
-    $rs = mysql_query($sql);
-    $limit = mysql_num_rows($rs);
+    $rs = $modx->db->query($sql);
+    $limit = $modx->db->getRecordCount($rs);
     for ($i = 0; $i < $limit; $i++) {
-        $currentgroup = mysql_fetch_assoc($rs);
+        $currentgroup = $modx->db->getRow($rs);
         $groupsarray[$i] = $currentgroup['usergroup'];
     }
 
     if($modx->hasPermission('access_permissions')) { ?>
 <!-- User Group Access Permissions -->
+<div class="section">
 <div class="sectionHeader"><?php echo $_lang['group_access_permissions']?></div>
 <div class="sectionBody">
     <script type="text/javascript">
@@ -522,10 +530,10 @@ if ($use_udperms == 1) {
     }
     $chk = '';
     $sql = "SELECT name, id FROM ".$tbl_membergroup_names;
-    $rs = mysql_query($sql);
-    $limit = mysql_num_rows($rs);
+    $rs = $modx->db->query($sql);
+    $limit = $modx->db->getRecordCount($rs);
     for ($i = 0; $i < $limit; $i++) {
-        $row = mysql_fetch_assoc($rs);
+        $row = $modx->db->getRow($rs);
         $groupsarray = is_numeric($id) && $id > 0 ? $groupsarray : array();
         $checked = in_array($row['id'], $groupsarray);
         if($modx->hasPermission('access_permissions')) {
@@ -541,7 +549,10 @@ if ($use_udperms == 1) {
     echo $chks;
 ?>
 </div>
-<?php } ?>
+</div>
+<?php endif; ?>
+</div>
+</div>
 
 <input type="submit" name="save" style="display:none;">
 <?php

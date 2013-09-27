@@ -4,8 +4,10 @@
 // Any PHP files in these directories can be executed by any user.
 $allowed_dirs = array('assets/snippets/ajaxSearch/');
 
+include_once(dirname(__FILE__)."/assets/cache/siteManager.php");
+
 // harden it
-require_once('./manager/includes/protect.inc.php');
+require_once('./'.MGR_DIR.'/includes/protect.inc.php');
 
 // initialize the variables prior to grabbing the config file
 $database_type = "";
@@ -19,7 +21,7 @@ $base_path = "";
 
 // get the required includes
 if($database_user=='') {
-        if (!$rt = @include_once "manager/includes/config.inc.php") {
+        if (!$rt = @include_once MGR_DIR."/includes/config.inc.php") {
            exit('Could not load MODx configuration file!');
         }
 }

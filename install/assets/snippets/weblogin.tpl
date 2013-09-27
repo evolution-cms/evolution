@@ -89,11 +89,11 @@ $cookieKey = substr(md5($site_id."Web-User"),0,15);
 
 # Start processing
 include_once $snipPath."weblogin/weblogin.common.inc.php";
-include_once ($modx->config['base_path'] . "manager/includes/crypt.class.inc.php");
+include_once ($modx->config['site_manager_path'] . "includes/crypt.class.inc.php");
 
 if ($isPWDActivate || $isPWDReminder || $isLogOut || $isPostBack) {
 	# include the logger class
-	include_once $modx->config['base_path'] . "manager/includes/log.class.inc.php";
+	include_once $modx->config['site_manager_path'] . "includes/log.class.inc.php";
 	include_once $snipPath."weblogin/weblogin.processor.inc.php";
 }
 

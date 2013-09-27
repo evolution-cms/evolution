@@ -1,5 +1,5 @@
 <?php
-if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 
 switch((int) $_REQUEST['a']) {
   case 88:
@@ -24,11 +24,11 @@ $user = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 // check to see the snippet editor isn't locked
 $sql = "SELECT internalKey, username FROM $dbase.`".$table_prefix."active_users` WHERE $dbase.`".$table_prefix."active_users`.action=88 AND $dbase.`".$table_prefix."active_users`.id=$user";
-$rs = mysql_query($sql);
-$limit = mysql_num_rows($rs);
+$rs = $modx->db->query($sql);
+$limit = $modx->db->getRecordCount($rs);
 if($limit>1) {
 	for ($i=0;$i<$limit;$i++) {
-		$lock = mysql_fetch_assoc($rs);
+		$lock = $modx->db->getRow($rs);
 		if($lock['internalKey']!=$modx->getLoginUserID()) {
 			$msg = sprintf($_lang["lock_msg"],$lock['username'],"web user");
 			$e->setError(5, $msg);
@@ -41,8 +41,8 @@ if($limit>1) {
 if($_REQUEST['a']=='88') {
 	// get user attributes
 	$sql = "SELECT * FROM $dbase.`".$table_prefix."web_user_attributes` WHERE $dbase.`".$table_prefix."web_user_attributes`.internalKey = ".$user.";";
-	$rs = mysql_query($sql);
-	$limit = mysql_num_rows($rs);
+	$rs = $modx->db->query($sql);
+	$limit = $modx->db->getRecordCount($rs);
 	if($limit>1) {
 		echo "More than one user returned!<p>";
 		exit;
@@ -51,19 +51,19 @@ if($_REQUEST['a']=='88') {
 		echo "No user returned!<p>";
 		exit;
 	}
-	$userdata = mysql_fetch_assoc($rs);
+	$userdata = $modx->db->getRow($rs);
 
 	// get user settings
 	$sql = "SELECT wus.* FROM $dbase.`".$table_prefix."web_user_settings` wus WHERE wus.webuser = ".$user.";";
-	$rs = mysql_query($sql);
+	$rs = $modx->db->query($sql);
 	$usersettings = array();
-	while($row=mysql_fetch_assoc($rs)) $usersettings[$row['setting_name']]=$row['setting_value'];
+	while($row=$modx->db->getRow($rs)) $usersettings[$row['setting_name']]=$row['setting_value'];
 	extract($usersettings, EXTR_OVERWRITE);
 
 	// get user name
 	$sql = "SELECT * FROM $dbase.`".$table_prefix."web_users` WHERE $dbase.`".$table_prefix."web_users`.id = ".$user.";";
-	$rs = mysql_query($sql);
-	$limit = mysql_num_rows($rs);
+	$rs = $modx->db->query($sql);
+	$limit = $modx->db->getRecordCount($rs);
 	if($limit>1) {
 		echo "More than one user returned while getting username!<p>";
 		exit;
@@ -72,7 +72,7 @@ if($_REQUEST['a']=='88') {
 		echo "No user returned while getting username!<p>";
 		exit;
 	}
-	$usernamedata = mysql_fetch_assoc($rs);
+	$usernamedata = $modx->db->getRow($rs);
 	$_SESSION['itemname']=$usernamedata['username'];
 } else {
 	$userdata = array();
@@ -105,7 +105,7 @@ function ConvertDate($date) {
 
 // include the country list language file
 $_country_lang = array();
-if($manager_language!="english" && file_exists($modx->config['base_path']."manager/includes/lang/country/".$manager_language."_country.inc.php")){
+if($manager_language!="english" && file_exists($modx->config['site_manager_path']."includes/lang/country/".$manager_language."_country.inc.php")){
     include_once "lang/country/".$manager_language."_country.inc.php";
 } else {
     include_once "lang/country/english_country.inc.php";
@@ -233,10 +233,10 @@ function showHide(what, onoff){
 			<li><a href="#" onclick="documentDirty=false; document.userform.save.click();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['save']; ?></a><span class="and"> + </span>
 			<select id="stay" name="stay">
 			  <?php if ($modx->hasPermission('new_web_user')) { ?>		
-			  <option id="stay1" value="1" <?php echo $_REQUEST['stay']=='1' ? ' selected=""' : ''?> ><?php echo $_lang['stay_new']?></option>
+			  <option id="stay1" value="1" <?php echo $_REQUEST['stay']=='1' ? ' selected="selected"' : ''?> ><?php echo $_lang['stay_new']?></option>
 			  <?php } ?>
 			  <option id="stay2" value="2" <?php echo $_REQUEST['stay']=='2' ? ' selected="selected"' : ''?> ><?php echo $_lang['stay']?></option>
-			  <option id="stay3" value=""  <?php echo $_REQUEST['stay']=='' ? ' selected=""' : ''?>  ><?php echo $_lang['close']?></option>
+			  <option id="stay3" value=""  <?php echo $_REQUEST['stay']=='' ? ' selected="selected"' : ''?>  ><?php echo $_lang['close']?></option>
 			</select>		
 			</li>
 			<li id="btn_del"><a href="#" onclick="deleteuser();"><img src="<?php echo $_style["icons_delete"] ?>" /> <?php echo $_lang['delete']; ?></a></li>
@@ -332,6 +332,16 @@ function showHide(what, onoff){
 			<td>&nbsp;</td>
 			<td><input type="text" name="fax" class="inputBox" value="<?php echo isset($_POST['fax']) ? $_POST['fax'] : $userdata['fax']; ?>" onchange="documentDirty=true;" /></td>
 		  </tr>
+		<tr>
+			<td><?php echo $_lang['user_street']; ?>:</td>
+			<td>&nbsp;</td>
+			<td><input type="text" name="street" class="inputBox" value="<?php echo htmlspecialchars($userdata['street']); ?>" onchange="documentDirty=true;" /></td>
+		</tr>
+		<tr>
+			<td><?php echo $_lang['user_city']; ?>:</td>
+			<td>&nbsp;</td>
+			<td><input type="text" name="city" class="inputBox" value="<?php echo htmlspecialchars($userdata['city']); ?>" onchange="documentDirty=true;" /></td>
+		</tr>
 		  <tr>
 			<td><?php echo $_lang['user_state']; ?>:</td>
 			<td>&nbsp;</td>
@@ -372,6 +382,7 @@ function showHide(what, onoff){
 				<option value=""></option>
 				<option value="1" <?php echo ($_POST['gender']=='1'||$userdata['gender']=='1')? "selected='selected'":""; ?>><?php echo $_lang['user_male']; ?></option>
 				<option value="2" <?php echo ($_POST['gender']=='2'||$userdata['gender']=='2')? "selected='selected'":""; ?>><?php echo $_lang['user_female']; ?></option>
+				<option value="3" <?php echo ($_POST['gender']=='3'||$userdata['gender']=='3')? "selected='selected'":""; ?>><?php echo $_lang['user_other']; ?></option>
 				</select>
 			</td>
 		  </tr>
@@ -492,7 +503,7 @@ function showHide(what, onoff){
 			function BrowseServer() {
 				var w = screen.width * 0.7;
 				var h = screen.height * 0.7;
-				OpenServerBrowser("<?php echo $base_url; ?>manager/media/browser/mcpuk/browser.html?Type=images&Connector=<?php echo $base_url; ?>manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath=<?php echo $base_url; ?>", w, h);
+				OpenServerBrowser("<?php echo MODX_MANAGER_URL;?>media/browser/mcpuk/browser.php?Type=images", w, h);
 			}
 			function SetUrl(url, width, height, alt){
 				document.userform.photo.value = url;
@@ -523,10 +534,10 @@ $groupsarray = array();
 
 if($_GET['a']=='88') { // only do this bit if the user is being edited
 	$sql = "SELECT * FROM $dbase.`".$table_prefix."web_groups` where webuser=".$_GET['id']."";
-	$rs = mysql_query($sql);
-	$limit = mysql_num_rows($rs);
+	$rs = $modx->db->query($sql);
+	$limit = $modx->db->getRecordCount($rs);
 	for ($i = 0; $i < $limit; $i++) {
-		$currentgroup=mysql_fetch_assoc($rs);
+		$currentgroup=$modx->db->getRow($rs);
 		$groupsarray[$i] = $currentgroup['webgroup'];
 	}
 }
@@ -542,11 +553,11 @@ if(is_array($_POST['user_groups'])) {
             ';
     echo '<p>'. $_lang['access_permissions_user_message'] . '</p>';
 	$sql = "SELECT name, id FROM $dbase.`".$table_prefix."webgroup_names` ORDER BY name";
-	$rs = mysql_query($sql);
-	$limit = mysql_num_rows($rs);
+	$rs = $modx->db->query($sql);
+	$limit = $modx->db->getRecordCount($rs);
 	for($i=0; $i<$limit; $i++) {
-		$row=mysql_fetch_assoc($rs);
-        echo '<input type="checkbox" name="user_groups[]" value="'.$row['id'].'"'.(in_array($row['id'], $groupsarray) ? ' checked="checked"' : '').' />'.$row['name'].'<br />';
+	   $row=$modx->db->getRow($rs);
+           echo '<input type="checkbox" name="user_groups[]" value="'.$row['id'].'"'.(in_array($row['id'], $groupsarray) ? ' checked="checked"' : '').' />'.$row['name'].'<br />';
 	}
     
     echo '</div>';

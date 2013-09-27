@@ -1,6 +1,5 @@
 <?php
 /**
-/**
  * MODx language File
  *
  * @author modxcms.cz
@@ -16,8 +15,8 @@
 $modx_lang_attribute = 'cs'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
 
-$_lang["about_msg"] = 'MODx je <a href="http://modxcms.com/what-is-modx.html" target="_blank">PHP Application Framework and Content Management System</a> licencovaný pod <a href="http://www.gnu.cz/article/32/">GNU GPL</a>.';
-$_lang["about_title"] = 'O MODx';
+$_lang["about_msg"] = 'MODX je <a href="http://modx.com/" target="_blank">PHP Application Framework and Content Management System</a> licencovaný pod <a href="http://www.gnu.cz/article/32/">GNU GPL</a>.';
+$_lang["about_title"] = 'O MODX';
 $_lang["access_permission_denied"] = 'Nemáte potřebná oprávnění pro tento dokument.';
 $_lang["access_permission_parent_denied"] = 'Nemáte oprávnění pro vytvoření nebo přesun dokumentu na toto místo! Vyberte jiné umístění.';
 $_lang["access_permissions"] = 'Přístupová práva';
@@ -33,7 +32,7 @@ $_lang["access_permissions_links"] = 'Propojení obou skupin';
 $_lang["access_permissions_links_tab"] = 'Tady určujete, která skupina užívatelů bude mít přístup, ke které skupině dokumentů (např. můžete měnit nebo vytvořit sdílené dokumenty - potomky). Propojit skupinu dokumentů se skupinou uživatelů uděláte výběrem skupiny z roletového menu a stlačením \'Přidat\'. Tlačítkem \'Odebrat ->\' propojení obou skupín odstraníte.';
 $_lang["access_permissions_no_resources_in_group"] = 'Žádný.';
 $_lang["access_permissions_no_users_in_group"] = 'Žádný.';
-$_lang["access_permissions_off"] = '<span class="warning">Přístupová práva nejsou aktivována.</span> To znamená, že žádné změny nebudou mít efekt, jestliže přístupová práva v nastavení MODx neaktivujete.';
+$_lang["access_permissions_off"] = '<span class="warning">Přístupová práva nejsou aktivována.</span> To znamená, že žádné změny nebudou mít efekt, jestliže přístupová práva v nastavení MODX neaktivujete.';
 $_lang["access_permissions_resource_groups"] = 'Skupiny dokumentů';
 $_lang["access_permissions_resources_in_group"] = '<b>Dokumenty ve skupině:</b> ';
 $_lang["access_permissions_resources_tab"] = 'Tady můžete vidět, které skupiny dokumentů jsou nastavené. Můžete vytvářet nové skupiny, přejmenovávat je, mazat je a procházet, které dokumenty se nacházejí, v kterých skupinách (po přesunu kurzoru myši na ID dokumentu se zobrazí jeho název). Přidat dokument do skupiny nebo ho odstranit se da jen prímou změnou v samotném dokumentu.';
@@ -42,7 +41,7 @@ $_lang["access_permissions_user_message"] = 'Tady můžete zvolit, který uživa
 $_lang["access_permissions_users_in_group"] = '<b>Uživatelé ve skupině:</b> ';
 $_lang["access_permissions_users_tab"] = 'Tady můžete vidět, které skupiny uživatelů jsou nastavené. Můžete vytvářet nové skupiny, přejmenovávat je a prohlížet, kteří uživatelé jsou ve skupinách registrováni. Jestliže chcete přidat nového uživatele do skupiny nebo ho odstranit, musíte upravit nastavení konkrétního uživatele ve "Správě uživatelů". Administrátoři (užívatelé s přiděleným ID 1) mají vždy přístup ke všem dokumentům a není potřeba je přidávat do kterékoli skupiny.';
 $_lang["account_email"] = 'Email účtu';
-$_lang["actioncomplete"] = '<b>Akce byla úspešně dokončena!</b><br /> - Počkejte prosím, MODx se čistí.';
+$_lang["actioncomplete"] = '<b>Akce byla úspešně dokončena!</b><br /> - Počkejte prosím, MODX se čistí.';
 $_lang["activity_message"] = 'Tento seznam vypisuje poslední vytvořené nebo upravené dokumenty.';
 $_lang["activity_title"] = 'Naposledy vytvořené nebo upravené dokumenty';
 $_lang["add"] = 'Přidat skupinu';
@@ -80,7 +79,7 @@ $_lang["cancel"] = 'Zrušit';
 $_lang["captcha_code"] = 'Bezpečnostní kód';
 $_lang["captcha_message"] = 'Zapnutím zvýšíte bezpečnost, protože požadujete po uživatelích opsání kódu, který je strojově nečitelný (slouží jako ochrana před roboty, scriptkiddies nebo hackerskými útoky).';
 $_lang["captcha_title"] = 'Použít generovaný obrázkový<br /> (CAPTCHA) kód:';
-$_lang["captcha_words_default"] = 'MODx,Access,Better,BitCode,Chunk,Cache,Desc,Design,Excell,Enjoy,URLs,TechView,Gerald,Griff,Humphrey,Holiday,Intel,Integration,Joystick,Join(),Oscope,Genetic,Light,Likeness,Marit,Maaike,Niche,Netherlands,Ordinance,Oscillo,Parser,Phusion,Query,Question,Regalia,Righteous,Snippet,Sentinel,Template,Thespian,Unity,Enterprise,Verily,Tattoo,Veri,Website,WideWeb,Yap,Yellow,Zebra,Zygote';
+$_lang["captcha_words_default"] = 'MODX,Access,Better,BitCode,Chunk,Cache,Desc,Design,Excell,Enjoy,URLs,TechView,Gerald,Griff,Humphrey,Holiday,Intel,Integration,Joystick,Join(),Oscope,Genetic,Light,Likeness,Marit,Maaike,Niche,Netherlands,Ordinance,Oscillo,Parser,Phusion,Query,Question,Regalia,Righteous,Snippet,Sentinel,Template,Thespian,Unity,Enterprise,Verily,Tattoo,Veri,Website,WideWeb,Yap,Yellow,Zebra,Zygote';
 $_lang["captcha_words_message"] = 'Zde můžete zadat seznam CAPTCHA slov, které se používají při povolené CAPTCHA. Oddělte slova čárkami. Toto pole je limitované max. počtem 255 znaků.';
 $_lang["captcha_words_title"] = 'CAPTCHA slova';
 $_lang["category_heading"] = 'Kategorie';
@@ -114,9 +113,9 @@ $_lang["collapse_tree"] = 'Sbalit';
 $_lang["comment"] = 'Poznámka';
 $_lang["configcheck_admin"] = 'Kontaktujte prosím administrátora systému a upozorněte ho na tuto zprávu!';
 $_lang["configcheck_cache"] = 'Adresář cache není nastavený pro zápis.';
-$_lang["configcheck_cache_msg"] = 'MODx nemůže zapisovat do adresáře cache. Systém bude fungovat správně, ale nebude dostupná funkce zásobníku. Prosím nastavte povolení pro zápis do adresáře cache.';
+$_lang["configcheck_cache_msg"] = 'MODX nemůže zapisovat do adresáře cache. Systém bude fungovat správně, ale nebude dostupná funkce zásobníku. Prosím nastavte povolení pro zápis do adresáře cache.';
 $_lang["configcheck_configinc"] = 'Do konfiguračního souboru je stále možno zapisovat.';
-$_lang["configcheck_configinc_msg"] = 'Velmi neslušní lidé mohou potenciálně způsobit pěkný nepořádek na vašich stránkách a čemkoli spojeném s nimi. <strong>Opravdu.</strong> Prosím nastavte váš konfigurační soubor (/manager/includes/config.inc.php) jen pro čtení!';
+$_lang["configcheck_configinc_msg"] = 'Velmi neslušní lidé mohou potenciálně způsobit pěkný nepořádek na vašich stránkách a čemkoli spojeném s nimi. <strong>Opravdu.</strong> Prosím nastavte váš konfigurační soubor (/[+MGR_DIR+]/includes/config.inc.php) jen pro čtení!';
 $_lang["configcheck_default_msg"] = 'Byla nalezena nespecifikovaná výstraha. Pro další postup použíjte křišťálovou kouli. :-)';
 $_lang["configcheck_errorpage_unavailable"] = 'Vaše Chybová stránka (error 404) není dostupná.';
 $_lang["configcheck_errorpage_unavailable_msg"] = 'To znamená, že vaše Chybová stránka není dostupná normálním internetovým uživatelům nebo neexistuje. To může vést k mnoha chybovým zápisům do logů. Ujistěte se zda žádná ze skupin návštěvníků nemá přístup k této stránce.';
@@ -126,13 +125,13 @@ $_lang["configcheck_hide_warning"] = '<a href="javascript:hideConfigCheckWarning
 $_lang["configcheck_images"] = 'Do adresáře pro obrázky nelze zapisovat';
 $_lang["configcheck_images_msg"] = 'Adresář pro obrázky neexistuje nebo nemá povoleno právo k zápisu. Je potřeba pro funkčnost WYSIWYG editoru.';
 $_lang["configcheck_installer"] = 'Instalátor nebyl smazán.';
-$_lang["configcheck_installer_msg"] = 'Adresář /install/ obsahuje instalátor systému MODx. Pomocí něj může nepovolaná osoba vymazat databázi. Prosím kontaktujte administrátora, aby urychleně odstránil tento problém.';
+$_lang["configcheck_installer_msg"] = 'Adresář /install/ obsahuje instalátor systému MODX. Pomocí něj může nepovolaná osoba vymazat databázi. Prosím kontaktujte administrátora, aby urychleně odstránil tento problém.';
 $_lang["configcheck_lang_difference"] = 'Nesprávný počet položek v souboru jazykové lokalizace.';
 $_lang["configcheck_lang_difference_msg"] = 'Právě vybraný jazyk má rozdílný počet položek než výchozí jazyk (angličtina). Pravděpodobně používate zastaralý nebo nekorektně upravený lokalizační soubor. I když se neobjeví problémy, bude asi potřeba udělat jeho aktualizaci.';
 $_lang["configcheck_notok"] = 'Byly nalezeny následující problémy: ';
 $_lang["configcheck_ok"] = 'Kontola proběhla úspěšně - žádná varovavání nejsou třeba.';
 $_lang["configcheck_php_gdzip"] = 'GD a/nebo Zip PHP extenze nenalezena';
-$_lang["configcheck_php_gdzip_msg"] = 'MODx potřebuje aktivní extenzi GD a Zip v PHP. Dokud bude MODx bežet bez nich, nebude možno používat všech výhod vestavěného správce souborů, editoru obrázků nebo captcha.';
+$_lang["configcheck_php_gdzip_msg"] = 'MODX potřebuje aktivní extenzi GD a Zip v PHP. Dokud bude MODX bežet bez nich, nebude možno používat všech výhod vestavěného správce souborů, editoru obrázků nebo captcha.';
 $_lang["configcheck_register_globals"] = 'register_globals je nastaven na zapnuto (ON) v konfiguračním souboru php.ini';
 $_lang["configcheck_register_globals_msg"] = 'Tato konfigurace dělá Vaše stránky více citlivé na útoky typu Cross Site Scripting (XSS). ';
 $_lang["configcheck_title"] = 'Kontrola konfigurace';
@@ -145,7 +144,7 @@ $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'To znamená, že Strá
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'Stránka o neautorizovaném přístupu definovaná v nastavení webu není publikována.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'To znamená, že vaše Stránka o neautorizovaném přístupu je nedostupná širolé veřejnosti. Publikujte stránku nebo se přesvědčte, že stránka existuje a je umístěna ve stromu dokumentů v Nástrojích &gt; Konfigurační menu.';
 $_lang["configcheck_validate_referer"] = 'Bezpečnostní upozornění: Validace HTTP hlaviček';
-$_lang["configcheck_validate_referer_msg"] = "Nastavení <strong>Ověřit hlavičky HTTP_REFERER</strong> v konfiguraci systému je vypnuté. Doporučujeme jej zapnout. <a href=\"index.php?a=17\">Přejít na konfiguraci systému</a><br /><a href=\"javascript:hideHeaderVerificationWarning();\"><em>Nezobrazovat to znovu.</em></a>";
+$_lang["configcheck_validate_referer_msg"] = 'Nastavení <strong>Ověřit hlavičky HTTP_REFERER</strong> v konfiguraci systému je vypnuté. Doporučujeme jej zapnout. <a href="index.php?a=17">Přejít na konfiguraci systému</a><br /><a href="javascript:hideHeaderVerificationWarning();"><em>Nezobrazovat to znovu.</em></a>';
 $_lang["configcheck_warning"] = 'Výstraha konfigurace:';
 $_lang["configcheck_what"] = 'Co to znamená?';
 $_lang["confirm_block"] = 'Opravdu chcete zablokovat tohoto uživatele?';
@@ -182,7 +181,7 @@ $_lang["create_resource_title"] = 'Vytvořit dokument';
 $_lang["create_weblink_here"] = 'Zde vytvořit link';
 $_lang["createdon"] = 'Vytvořeno dne:';
 $_lang["credits"] = 'Poděkování';
-$_lang["credits_shouts_msg"] = '<p>MODx je spravován a udržován na <a href="http://modxcms.com/about/" target="_blank">MODxCMS.com</a>.</p>';
+$_lang["credits_shouts_msg"] = '<p>MODX je spravován a udržován na <a href="http://modx.com/" target="_blank">modx.com</a>.</p>';
 $_lang["custom_contenttype_message"] = 'Tady můžete přidat uživatelské typy obsahu užité ve vašich dokumentech. Pro přidání nového vstupu, zadejte typ obsahu v textovém poli, potom klikněte na tlačítko \'Přidat\'.';
 $_lang["custom_contenttype_title"] = 'Uživatelské typy obsahu:';
 $_lang["database_charset"] = 'Znaková sada databáze';
@@ -289,8 +288,8 @@ $_lang["export_site_failed_no_retrieve"] = 'Nelze získat dokument.';
 $_lang["export_site_failed_no_write"] = 'Nelze zapsat soubor.';
 $_lang["export_site_html"] = 'Export do HTML';
 $_lang["export_site_maxtime"] = 'Max. čas exportu:';
-$_lang["export_site_maxtime_message"] = 'Zde můžete zadat počet sekund, po jakou dobu MODx může exportovat stránky (prvořadé PHP nastavení). Hodnota 0 je určená pro neomezený čas. Pamatujte prosím, že nastavení 0 je velmi vysoké, a proto může způsobovat problémy, proto se nedoporučuje.';
-$_lang["export_site_message"] = 'Použitím této funkce můžete exportovat všechny stránky vašeho webu do souborů HTML. Pamatujte prosím, že při exportu přídete o mnoho funkcí zabudovaných do MODx. Mimo jiné o tyto:<p /><ul><li>Načtené stránky na export nebudou ukládané.</li><li>Interaktivní snippety nebudou pracovat v exportovaných souborech.</li><li>Exportované soubory budou jen standardní dokumenty, webové odkazy exportované nebudou.</li><li>Export může selhat, když vaše dokumenty obsahují snippety, odesílající přesměrovávací příkazy v hlavičce dokumentu.</li><li>Je důležité, jak jsou napsané a uložené vaše dokumenty, styly a obrázky, protože vzhled vašich stránek může být narušený přepsáním originálního souboru exportovaným. Abyste tomu zabránili můžete uložit nebo přemístit vaše exportované soubory tam, kde je umístěný MODx index.php.</li></ul><p />Vyplňte prosím formulář a klikněte na tlačítko "Spustit export". Vytvořené soubory budou uložené na vámi určené místo. Když to bude možné, aliasy (prezívky) nebo zjednodušené názvy dokumentu budou použité jako názvy souborů. Během exportu vašich stránek je optimální mít v konfiguraci MODx nastavenou položku \'Zjednodušené aliasy\' na \'Ano\'. V závislosti na velikosti vašich stránek bude export nějakou dobu trvat.<p /><b>Existující soubory budou přepsané exportovanými soubory v případě, že budou jejich názvy stejné!</b></p>';
+$_lang["export_site_maxtime_message"] = 'Zde můžete zadat počet sekund, po jakou dobu MODX může exportovat stránky (prvořadé PHP nastavení). Hodnota 0 je určená pro neomezený čas. Pamatujte prosím, že nastavení 0 je velmi vysoké, a proto může způsobovat problémy, proto se nedoporučuje.';
+$_lang["export_site_message"] = 'Použitím této funkce můžete exportovat všechny stránky vašeho webu do souborů HTML. Pamatujte prosím, že při exportu přídete o mnoho funkcí zabudovaných do MODX. Mimo jiné o tyto:<p /><ul><li>Načtené stránky na export nebudou ukládané.</li><li>Interaktivní snippety nebudou pracovat v exportovaných souborech.</li><li>Exportované soubory budou jen standardní dokumenty, webové odkazy exportované nebudou.</li><li>Export může selhat, když vaše dokumenty obsahují snippety, odesílající přesměrovávací příkazy v hlavičce dokumentu.</li><li>Je důležité, jak jsou napsané a uložené vaše dokumenty, styly a obrázky, protože vzhled vašich stránek může být narušený přepsáním originálního souboru exportovaným. Abyste tomu zabránili můžete uložit nebo přemístit vaše exportované soubory tam, kde je umístěný MODX index.php.</li></ul><p />Vyplňte prosím formulář a klikněte na tlačítko "Spustit export". Vytvořené soubory budou uložené na vámi určené místo. Když to bude možné, aliasy (prezívky) nebo zjednodušené názvy dokumentu budou použité jako názvy souborů. Během exportu vašich stránek je optimální mít v konfiguraci MODX nastavenou položku \'Zjednodušené aliasy\' na \'Ano\'. V závislosti na velikosti vašich stránek bude export nějakou dobu trvat.<p /><b>Existující soubory budou přepsané exportovanými soubory v případě, že budou jejich názvy stejné!</b></p>';
 $_lang["export_site_numberdocs"] = '<p><b>%s nalezených dokumentů k exportu...</b></p>';
 $_lang["export_site_prefix"] = 'Předpona souboru:';
 $_lang["export_site_start"] = 'Spustit export';
@@ -309,7 +308,7 @@ $_lang["file_delete_folder"] = 'Smazat složku';
 $_lang["file_deleted"] = 'Proběhlo úspěšně!';
 $_lang["file_download_file"] = 'Stáhnout soubor';
 $_lang["file_download_unzip"] = 'Rozbalit soubor';
-$_lang["file_folder_chmod_error"] = 'Není možné změnit práva, musíte změnit práva mimo MODx.';
+$_lang["file_folder_chmod_error"] = 'Není možné změnit práva, musíte změnit práva mimo MODX.';
 $_lang["file_folder_created"] = 'Složka byla úspěšně vytvořena!';
 $_lang["file_folder_deleted"] = 'Složka byla úspěšně smazána!';
 $_lang["file_folder_not_created"] = 'Nebylo možné vytvořit složku';
@@ -319,7 +318,7 @@ $_lang["file_not_saved"] = 'Nebylo možné uložit soubor, nastavte prosím př�
 $_lang["file_saved"] = 'Soubor byl úspěšně aktualizován!';
 $_lang["file_unzip"] = 'Rozbalení bylo úspěšné!';
 $_lang["file_unzip_fail"] = 'Rozbalení selhalo!';
-$_lang["filemanager_path_message"] = 'IIS občas nedokáže správně pracovat s nastaveným koreňovým adresářem dokumentů, který používá souborový správce. Jestliže máte problémy s jeho používaním, nadefinujte tuto cestu do kořenového adresáře ve vaší instalaci MODx.';
+$_lang["filemanager_path_message"] = 'IIS občas nedokáže správně pracovat s nastaveným koreňovým adresářem dokumentů, který používá souborový správce. Jestliže máte problémy s jeho používaním, nadefinujte tuto cestu do kořenového adresáře ve vaší instalaci MODX.';
 $_lang["filemanager_path_title"] = 'Umístění souborového správce:';
 $_lang["files_access_denied"] = 'Přístup zamítnutý!';
 $_lang["files_data"] = 'Data';
@@ -358,9 +357,9 @@ $_lang["forgot_password_email_intro"] = 'Požadavek na změnu hesla k vašemu ú
 $_lang["forgot_password_email_link"] = 'Klikněte sem pro dokončení procesu.';
 $_lang["forgot_your_password"] = 'Zapomněli jste heslo?';
 $_lang["friday"] = 'Pátek';
-$_lang["friendly_alias_message"] = 'Jestliže používáte zjednodušené URL, a dokument má nadefinovaný alias, bude mít vždy přednost před zjednodušenou URL. Jestliže nastavíte volbu na `Ano`, předpona a přípona zjednodušených url budou také aplikované na aliasy. Například když Váš dokument s ID 1 má alias `uvod`, máte nastavenou předponu na `` a příponu na `.html`, a nastavíte tuto volbu na `Ano` bude generovaný dokument `uvod.html`. Jestliže alias nemáte definován, MODx bude generovat dokument `1.html` jako odkaz.';
+$_lang["friendly_alias_message"] = 'Jestliže používáte zjednodušené URL, a dokument má nadefinovaný alias, bude mít vždy přednost před zjednodušenou URL. Jestliže nastavíte volbu na `Ano`, předpona a přípona zjednodušených url budou také aplikované na aliasy. Například když Váš dokument s ID 1 má alias `uvod`, máte nastavenou předponu na `` a příponu na `.html`, a nastavíte tuto volbu na `Ano` bude generovaný dokument `uvod.html`. Jestliže alias nemáte definován, MODX bude generovat dokument `1.html` jako odkaz.';
 $_lang["friendly_alias_title"] = 'Použít zjednodušené aliasy:';
-$_lang["friendlyurls_message"] = 'Tato volba vám umožní používat jednoduché URL adresy v MODx. Pamatujte prosím, že tato funkce funguje jen v instalaci bežící na Apache serveru. Pro bezchybnou funkci ještě potřebujete mít nastavenou možnost zápisu do souboru .htaccess. Pro více informací si prohlédněte soubor .htaccess obsáhnutý ve vaší distribuci.';
+$_lang["friendlyurls_message"] = 'Tato volba vám umožní používat jednoduché URL adresy v MODX. Pamatujte prosím, že tato funkce funguje jen v instalaci bežící na Apache serveru. Pro bezchybnou funkci ještě potřebujete mít nastavenou možnost zápisu do souboru .htaccess. Pro více informací si prohlédněte soubor .htaccess obsáhnutý ve vaší distribuci.';
 $_lang["friendlyurls_title"] = 'Jednoduché URL adresy:';
 $_lang["friendlyurlsprefix_message"] = 'Zde můžete nastavit předponu pro použití jednoduchých URL adres. Například, předponu nastavte na \'stranka\', což způsobí, že URL adresa /index.php?id=2 se změní na zjednodušenou adresu /stranka2.html (za předpokladu, že přípona je nastavená na .html). Pro odkazy na vaší stránce takto můžete specifikovat, co Vaši užívatelé (a vyhledávače) uvidí.';
 $_lang["friendlyurlsprefix_title"] = 'Předpona jednoduchých URL:';
@@ -372,7 +371,7 @@ $_lang["go"] = 'Hledej';
 $_lang["group_access_permissions"] = 'Přístupová práva skupiny uživatelů';
 $_lang["guid"] = 'GUID';
 $_lang["help"] = 'Pomoc';
-$_lang["help_msg"] = 'Jestliže potřebujete pomoc při používaní systému MODx, uděláte nejlépe, když navštívíte <a href="http://www.modxcms.cz/" target="_blank">české MODx fórum</a>. Najdete tam: návody, dokumentaci používání a nastavení MODx. Jestliže pošlete svoji otázku na fórum, budeme se snažit odpovědět, co nejdříve.';
+$_lang["help_msg"] = 'Jestliže potřebujete pomoc při používaní systému MODX, uděláte nejlépe, když navštívíte <a href="http://www.modxcms.cz/" target="_blank">české MODX fórum</a>. Najdete tam: návody, dokumentaci používání a nastavení MODX. Jestliže pošlete svoji otázku na fórum, budeme se snažit odpovědět, co nejdříve.';
 $_lang["help_title"] = 'Pomoc';
 $_lang["hide_tree"] = 'Skrýt';
 $_lang["home"] = 'Domů';
@@ -408,10 +407,25 @@ $_lang["info"] = 'Informace';
 $_lang["information"] = 'Informace';
 $_lang["inline"] = 'V řadě';
 $_lang["insert"] = 'Vložit';
+$_lang["maxImageWidth"] = 'Maximum image width';
+$_lang["maxImageHeight"] = 'Maximum image height';
+$_lang["thumbWidth"] = 'Maximum thumbnail width';
+$_lang["thumbHeight"] = 'Maximum thumbnail height';
+$_lang["thumbsDir"] = 'Thumbnails directory location';
+$_lang["jpegQuality"] = 'JPEG compression';
+$_lang["denyZipDownload"] = 'Disable zip-archives downloading';
+$_lang["denyExtensionRename"] = 'Disable renaming of file extensions';
+$_lang["maxImageWidth_message"] = 'If uploaded image resolution exceeds this setting it will be automatically resized. Set 0 to avoid.';
+$_lang["maxImageHeight_message"] = 'If uploaded image resolution exceeds this setting it will be automatically resized. Set 0 to avoid.';
+$_lang["thumbWidth_message"] = 'Maximum thumbnail width.';
+$_lang["thumbHeight_message"] = 'Maximum thumbnail height.';
+$_lang["thumbsDir_message"] = 'The name of previews folder.';
+$_lang["jpegQuality_message"] = 'JPEG compression quality of thumbnails and resized images';
+$_lang["showHiddenFiles"] = 'Show hidden files in file browser';
 $_lang["keyword"] = 'Klíčové slovo';
 $_lang["keywords"] = 'Klíčová slova';
 $_lang["keywords_intro"] = 'Pro úpravu klíčového slova, jednoduše napište do textového pole vedle původního slova nové klíčové slovo. Pro smazání klíčového slova, označte \'vymazávací\' box před klíčovým slovem. Jestliže označíte vymazávací pole a také změníte jeho název, klíčové slovo bude smazáno a přejmenování klíčového slova nebude uskutečněno!';
-$_lang["language_message"] = 'Vyberte jazyk, který chcete používat v administrační části MODx.';
+$_lang["language_message"] = 'Vyberte jazyk, který chcete používat v administrační části MODX.';
 $_lang["language_title"] = 'Jazyk:';
 $_lang["launch_site"] = 'Spustit stránky';
 $_lang["link_attributes"] = 'Vlastnosti odkazu';
@@ -419,7 +433,7 @@ $_lang["link_attributes_help"] = 'Zde můžete zadat vlastnosti odkazu pro tuto 
 $_lang["list_mode"] = 'Zapnutí/vypnutí seznam režimu - používate-li seznam všech záznamů v tabulce.';
 $_lang["loading_doc_tree"] = 'Načítám strukturu...';
 $_lang["loading_menu"] = 'Načítám menu...';
-$_lang["loading_page"] = 'Čekejte prosím, než MODx načte stránku...';
+$_lang["loading_page"] = 'Čekejte prosím, než MODX načte stránku...';
 $_lang["localtime"] = 'Místní čas';
 $_lang["lock_htmlsnippet"] = 'Zamknout chunk pro úpravu';
 $_lang["lock_htmlsnippet_msg"] = 'Jen Administrátor (uživatel s ID 1) může upravovat tento chunk.';
@@ -447,7 +461,7 @@ $_lang["login_captcha_message"] = 'Prosím vložte bezpečnostní kód zobrazen�
 $_lang["login_homepage"] = 'Domovská přihlašovací stránka';
 $_lang["login_homepage_message"] = 'Zadejte ID dokumentu, který chcete uživaleti zobrazit po jeho přihlášení. <b>POZNÁMKA: Ujistěte se,že ID dokumentu, které zadáte, patří existojícímu dokumentu, a že byli publikovány a jsou přístupné tomuto uživateli!</b>';
 $_lang["login_message"] = 'Vložte prosím své přihlasovací jméno a heslo pro vstup do administrační části. Vaše jméno a heslo je citlivé na velikost písmen a na případné nepřesné zadání anebo překlepy, proto je vložte pozorně!';
-$_lang["logo_slogan"] = 'MODx Content Manager - \nCreate and do more with less';
+$_lang["logo_slogan"] = 'MODX Content Manager - \nCreate and do more with less';
 $_lang["logout"] = 'Odhlásit';
 $_lang["long_title"] = 'Dlouhý název';
 $_lang["mail_check_timeperiod_message"] = 'Jak často kontrolovat nové zprávy v poště, v sekundách.';
@@ -461,7 +475,7 @@ $_lang["manage_plugins"] = 'Pluginy';
 $_lang["manage_snippets"] = 'Snippety';
 $_lang["manage_templates"] = 'Šablony';
 $_lang["manager"] = 'Správce';
-$_lang["manager_lockout_message"] = 'Jste přihlášen do Správce obsahu. Pokud chcete opustit MODx, klikněte na tlačítko "Ohlásit".</p>Pro spuštění nebo přechod na domovskou stránku klikněte na tlačítko "Domů".';
+$_lang["manager_lockout_message"] = 'Jste přihlášen do Správce obsahu. Pokud chcete opustit MODX, klikněte na tlačítko "Ohlásit".</p>Pro spuštění nebo přechod na domovskou stránku klikněte na tlačítko "Domů".';
 $_lang["manager_permissions"] = 'Správa přístupových práv';
 $_lang["manager_theme"] = 'Vzhled správce:';
 $_lang["manager_theme_message"] = 'Zvolit vzhled Správce obsahu.';
@@ -533,11 +547,11 @@ $_lang["module_resource_title"] = 'Závislosti modulu';
 $_lang["module_title"] = 'Vytvořit/upravit modul';
 $_lang["module_viewdepend_msg"] = 'Zde si můžete prohlédnout přiřazené zdroje, které modul požaduje. Klikněte na tlačítko \'Správce závislostí\' k úpravě závislostí';
 $_lang["modules"] = 'Moduly';
-$_lang["modx_news"] ='Oznamování MODx novinek';
-$_lang["modx_news_tab"] ='MODx novinky';
-$_lang["modx_news_title"] ='MODx novinky';
-$_lang["modx_security_notices"] ='MODx bezpečnostní oznámení';
-$_lang["modx_version"] = 'MODx verze';
+$_lang["modx_news"] = 'Oznamování MODX novinek';
+$_lang["modx_news_tab"] = 'MODX novinky';
+$_lang["modx_news_title"] = 'MODX novinky';
+$_lang["modx_security_notices"] = 'MODX bezpečnostní oznámení';
+$_lang["modx_version"] = 'MODX verze';
 $_lang["monday"] = 'Pondělí';
 $_lang["move"] = 'Přesunout';
 $_lang["move_resource"] = 'Přesunout dokument';
@@ -635,7 +649,7 @@ $_lang["paging_total"] = 'celkem';
 $_lang["parameter"] = 'Parametr';
 $_lang["password"] = 'Heslo';
 $_lang["password_change_request"] = 'Požadována změna hesla';
-$_lang["password_gen_gen"] = 'Nechat MODx vygenerovat heslo.';
+$_lang["password_gen_gen"] = 'Nechat MODX vygenerovat heslo.';
 $_lang["password_gen_length"] = 'Heslo, které zadáváte musí být delší jak 6 znaků.';
 $_lang["password_gen_method"] = 'Způsob tvorby nového hesla';
 $_lang["password_gen_specify"] = 'Zde zadejte své heslo:';
@@ -643,7 +657,7 @@ $_lang["password_method"] = 'Způsob oznámení hesla';
 $_lang["password_method_email"] = 'Poslat nové heslo emailem.';
 $_lang["password_method_screen"] = 'Zobrazit nové heslo na monitoru.';
 $_lang["password_msg"] = 'Nové heslo pro <b>%s</b> je <b>%s</b>.';
-$_lang["php_version_check"] = 'MODx je kompatibilní jen s verzí PHP 5.0.0 a vyšší. Aktualizujte prosím svou PHP instalaci!';
+$_lang["php_version_check"] = 'MODX je kompatibilní jen s verzí PHP 5.0.0 a vyšší. Aktualizujte prosím svou PHP instalaci!';
 $_lang["plugin"] = 'Plugin';
 $_lang["plugin_code"] = 'Kód pluginu (php)';
 $_lang["plugin_config"] = 'Nastavení pluginu';
@@ -665,9 +679,9 @@ $_lang["public"] = 'Veřejný';
 $_lang["publish_date"] = 'Datum publikování';
 $_lang["publish_events"] = 'Události - publikování';
 $_lang["publish_resource"] = 'Publikovat dokument';
-$_lang["rb_base_dir_message"] = 'Zadejte fyzickou cestu ke zdrojovému adresáři. Toto nastavení je obvykle generováno automaticky. Jestliže používate IIS, MODx může zpracovat cestu nesprávně, což může způsobit, že prohlížeč zdrojů zobrazí chybu. V takovéto případě můžete vložit cestu k adresáři obrázků sem (cesta, kterou byste viděli ve Windows Exploreru). <b>Poznámka:</b> Zdrojový adresář musí obsahovat podsložky images, files, flash a media, aby prohlížeč zdrojů fungoval správně.';
+$_lang["rb_base_dir_message"] = 'Zadejte fyzickou cestu ke zdrojovému adresáři. Toto nastavení je obvykle generováno automaticky. Jestliže používate IIS, MODX může zpracovat cestu nesprávně, což může způsobit, že prohlížeč zdrojů zobrazí chybu. V takovéto případě můžete vložit cestu k adresáři obrázků sem (cesta, kterou byste viděli ve Windows Exploreru). <b>Poznámka:</b> Zdrojový adresář musí obsahovat podsložky images, files, flash a media, aby prohlížeč zdrojů fungoval správně.';
 $_lang["rb_base_dir_title"] = 'Cesta ke zdrojům:';
-$_lang["rb_base_url_message"] = 'Zadejte virtuální cestu ke zdrojovému adresáři. Toto nastavení je obvykle vytvořeno automaticky. Jestliže používate IIS, MODx může zpracovat URL nesprávně, což může způsobit, že prohlížeč zdrojů zobrazí chybu. V takovéto případě můžete vložit URL k adresáři obrázků sem (URL, kterou byste viděli ve Internet Exploreru).';
+$_lang["rb_base_url_message"] = 'Zadejte virtuální cestu ke zdrojovému adresáři. Toto nastavení je obvykle vytvořeno automaticky. Jestliže používate IIS, MODX může zpracovat URL nesprávně, což může způsobit, že prohlížeč zdrojů zobrazí chybu. V takovéto případě můžete vložit URL k adresáři obrázků sem (URL, kterou byste viděli ve Internet Exploreru).';
 $_lang["rb_base_url_title"] = 'URL zdrojů:';
 $_lang["rb_message"] = 'Vyberte Ano k povolení prohlížeče zdrojů. Toto nastavení povolí uživatelům prohlížet a nahrávat zdroje jako obrázky, flash a ostatní soubory na server.';
 $_lang["rb_title"] = 'Povolit prohlížeč zdrojů:';
@@ -698,7 +712,11 @@ $_lang["reset"] = 'Vymazat';
 $_lang["reset_failedlogins"] = 'reset';
 $_lang["resource"] = 'Dokument';
 $_lang["resource_alias"] = 'Zástupce dokumentu';
-$_lang["resource_alias_help"] = "Zde můžete zvolit zástupce pro tento dokument. Pro lehčí přístup k dokumentu použijte:\n\nhttp://vase_domena/zastupce\n\nZástupce bude pracovat jen při aktivování funkce zjednodušených url adres.";
+$_lang["resource_alias_help"] = 'Zde můžete zvolit zástupce pro tento dokument. Pro lehčí přístup k dokumentu použijte:
+
+http://vase_domena/zastupce
+
+Zástupce bude pracovat jen při aktivování funkce zjednodušených url adres.';
 $_lang["resource_content"] = 'Obsah';
 $_lang["resource_description"] = 'Popis';
 $_lang["resource_description_help"] = 'Sem můžete zadat podrobný popis dokumentu.';
@@ -708,7 +726,7 @@ $_lang["resource_metatag_help"] = 'Vyberte META tagy nebo klíčová slova, kter
 $_lang["resource_opt_contentdispo"] = 'Obsah uspořádání';
 $_lang["resource_opt_contentdispo_help"] = 'Použít pole \'obsah uspořádání\' k bližšímu určení, jak tento dokument bude ovládán webovým prohlížečem. Pro stažení souboru vyberte volbu Příloha.';
 $_lang["resource_opt_emptycache"] = 'Vyprázdnit zásobník?';
-$_lang["resource_opt_emptycache_help"] = 'Vyberte tuto položku, jestliže chcete, aby MODx vyprázdnil zásobník po uložení dokumentu. Vaši návštěvníci tak neuvidí starší verze tohoto dokumentu.';
+$_lang["resource_opt_emptycache_help"] = 'Vyberte tuto položku, jestliže chcete, aby MODX vyprázdnil zásobník po uložení dokumentu. Vaši návštěvníci tak neuvidí starší verze tohoto dokumentu.';
 $_lang["resource_opt_folder"] = 'Složka?';
 $_lang["resource_opt_folder_help"] = 'Určete, zda se tento vytvořený dokument bude chovat jako složka dokumentů nebo jako dokument. \'Složka\' může také mít obsah.';
 $_lang["resource_opt_menu_index"] = 'Index&nbsp;(řazení)';
@@ -733,7 +751,7 @@ $_lang["resource_title"] = 'Nadpis';
 $_lang["resource_title_help"] = 'Sem napíšte název anebo titulek dokumentu. Pokuste se vyvarovat použití zpětných lomítek v názvu!';
 $_lang["resource_to_be_moved"] = 'Dokument bude přesunut';
 $_lang["resource_type"] = 'Typ zdroje';
-$_lang["resource_type_message"] = 'Webové odkazy odkazují na internetové zdroje jako MODx stránky, externí stránky, obrázky nebo jiné soubory na internetu. Webové odkazy by měli obsahovat text/html Internet Media Type a Inline Content-Disposition.';
+$_lang["resource_type_message"] = 'Webové odkazy odkazují na internetové zdroje jako MODX stránky, externí stránky, obrázky nebo jiné soubory na internetu. Webové odkazy by měli obsahovat text/html Internet Media Type a Inline Content-Disposition.';
 $_lang["resource_type_weblink"] = 'Webový odkaz';
 $_lang["resource_type_webpage"] = 'Webová stránka';
 $_lang["resource_weblink_help"] = 'Vložte adresu objektu, na který chcete odkazovat.';
@@ -823,10 +841,10 @@ $_lang["role_view_unpublished"] = 'Zobrazit nepublikované dokumenty';
 $_lang["role_web_access_persmissions"] = 'Webová přístupová práva';
 $_lang["role_web_user_management"] = 'Správa návštěvníků';
 $_lang["rss_url_news_default"] = 'http://feeds.feedburner.com/modx-announce';
-$_lang["rss_url_news_message"] = 'Zadejte URL adresu pro načítání MODx RSS novinek.';
+$_lang["rss_url_news_message"] = 'Zadejte URL adresu pro načítání MODX RSS novinek.';
 $_lang["rss_url_news_title"] = 'RSS novinky';
 $_lang["rss_url_security_default"] = 'http://feeds.feedburner.com/modxsecurity';
-$_lang["rss_url_security_message"] = 'Zadejte URL adresu pro načítání MODx bezpečnostních zpráv.';
+$_lang["rss_url_security_message"] = 'Zadejte URL adresu pro načítání MODX bezpečnostních zpráv.';
 $_lang["rss_url_security_title"] = 'RSS bezpečnostní zprávy';
 $_lang["run_module"] = 'Spustit modul';
 $_lang["saturday"] = 'Sobota';
@@ -853,8 +871,8 @@ $_lang["search_results_returned_msg"] = 'Vaše vyhledávací kritéria vrací <b
 $_lang["search_results_returned_title"] = 'Nadpis';
 $_lang["search_view_docdata"] = 'Zobrazit tuto položku';
 $_lang["security"] = 'Zabezpečení';
-$_lang["security_notices_tab"] ='Bezpečnostní oznámení';
-$_lang["security_notices_title"] ='Bezpečnostní oznámení';
+$_lang["security_notices_tab"] = 'Bezpečnostní oznámení';
+$_lang["security_notices_title"] = 'Bezpečnostní oznámení';
 $_lang["select_date"] = 'Vybrat datum';
 $_lang["send"] = 'Poslat';
 $_lang["server_protocol_http"] = 'http';
@@ -865,18 +883,19 @@ $_lang["serveroffset"] = 'Časový posun oproti serveru';
 $_lang["serveroffset_message"] = 'Vyberte hodnotu rozdílu času mezi vaším časovým pásmem s pásmem nastaveným na serveru. Současný čas na serveru je <b>[%s]</b>, čas na serveru po použití a uložení kompenzace je <b>[%s]</b>.';
 $_lang["serveroffset_title"] = 'Časový posun oproti serveru:';
 $_lang["servertime"] = 'Čas serveru';
-$_lang["settings_after_install"] = 'Protože jde o novou instalaci, bude potřeba zkontrolovat nastavení MODx nebo ho upravit. Po kontrole nastavení kliněte na \'Uložit\' pro aktulizaci nastavení v databázi.<br /><br />';
+$_lang["settings_after_install"] = 'Protože jde o novou instalaci, bude potřeba zkontrolovat nastavení MODX nebo ho upravit. Po kontrole nastavení kliněte na \'Uložit\' pro aktulizaci nastavení v databázi.<br /><br />';
 $_lang["settings_config"] = 'Konfigurace';
 $_lang["settings_dependencies"] = 'Závislosti';
 $_lang["settings_events"] = 'Systemové události';
 $_lang["settings_furls"] = 'Zjednodušené URL';
 $_lang["settings_general"] = 'Všeobecné';
 $_lang["settings_misc"] = 'Správce souborů';
+$_lang["settings_KC"] = 'File Browser';
 $_lang["settings_page_settings"] = 'Nastavení stránky';
 $_lang["settings_photo"] = 'Foto';
 $_lang["settings_properties"] = 'Vlastnosti';
 $_lang["settings_site"] = 'Web';
-$_lang["settings_strip_image_paths_message"] = 'Jestliže nastavíte \'Ne\', MODx zapíše cestu ke zdroji (obrázek, soubor, flash atd.) jako absolutní. Relativní adresy jsou dobré, jestliže budete přesouvat vaši instalaci MODx. Jestliže si nejste jistí, co to znamená, je nejlepší nastavit volbu na \'Ano\'.';
+$_lang["settings_strip_image_paths_message"] = 'Jestliže nastavíte \'Ne\', MODX zapíše cestu ke zdroji (obrázek, soubor, flash atd.) jako absolutní. Relativní adresy jsou dobré, jestliže budete přesouvat vaši instalaci MODX. Jestliže si nejste jistí, co to znamená, je nejlepší nastavit volbu na \'Ano\'.';
 $_lang["settings_strip_image_paths_title"] = 'Přepsat cestu k obrázkům?';
 $_lang["settings_templvars"] = 'Template Variables';
 $_lang["settings_title"] = 'Konfigurace systému';
@@ -886,7 +905,7 @@ $_lang["show_meta"] = 'Zobrazit záložku META klíčových slov';
 $_lang["show_meta_message"] = 'Zobrazit zastaralou editaci META klíčových slov při editaci dokumentu v Manager.';
 $_lang["show_tree"] = 'Ukázat strom dokumentů';
 $_lang["showing"] = 'Zobrazení';
-$_lang["signupemail_message"] = 'Zde můžete nastavit zprávu odesílanou uživatelům po vytvoření účtu. MODx potom odešle email obsahujíci jejich uživatelské jméno a heslo. <b>Poznámka:</b> Následující rezervovaná místa (placeholders) budou nahrazena Správcem obsahu, když pošle zprávu: <br /><br />[+sname+] - Jméno Vaší webové stránky, <br />[+saddr+] - Emailová adresa Vašich stránek, <br />[+surl+] - URL Vašich stránek, <br />[+uid+] - Uživatelské přihlašovací jméno nebo id, <br />[+pwd+] - Uživatelské heslo, <br />[+ufn+] - Celé uživatelovo jméno. <br /><br /><b>Vynecháním [+uid+] a [+pwd+] v emailu způsobíte, že se uživatel nedozví své uživatelské jméno a heslo!</b>';
+$_lang["signupemail_message"] = 'Zde můžete nastavit zprávu odesílanou uživatelům po vytvoření účtu. MODX potom odešle email obsahujíci jejich uživatelské jméno a heslo. <b>Poznámka:</b> Následující rezervovaná místa (placeholders) budou nahrazena Správcem obsahu, když pošle zprávu: <br /><br />[+sname+] - Jméno Vaší webové stránky, <br />[+saddr+] - Emailová adresa Vašich stránek, <br />[+surl+] - URL Vašich stránek, <br />[+uid+] - Uživatelské přihlašovací jméno nebo id, <br />[+pwd+] - Uživatelské heslo, <br />[+ufn+] - Celé uživatelovo jméno. <br /><br /><b>Vynecháním [+uid+] a [+pwd+] v emailu způsobíte, že se uživatel nedozví své uživatelské jméno a heslo!</b>';
 $_lang["signupemail_title"] = 'Obsah emailu:';
 $_lang["site"] = 'Web';
 $_lang["site_schedule"] = 'Program';
@@ -921,9 +940,42 @@ $_lang["sunday"] = 'Neděle';
 $_lang["sys_alert"] = 'Výstraha systému';
 $_lang["sysinfo_activity_message"] = 'Tento výpis informuje, které dokumenty byli nedávno upravované uživateli.';
 $_lang["sysinfo_userid"] = 'Uživatel';
-$_lang["system_email_signup"] = "Dobrý den [+uid+]\n\nZde jsou podrobnosti k vašemu přihlášení pro [+sname+] do správce obsahu:\n\nUživatel: [+uid+]\nHeslo: [+pwd+]\n\nPři prvním přihlášení si můžete změnit heslo.\n\nS pozdravem,\nsprávce stránek";
-$_lang["system_email_webreminder"] = "Dobrý den [+uid+]\n\nK aktivaci nového hesla klikněte na následující odkaz:\n\n[+surl+]\n\nJestliže vše proběhlo v pořádku, můžete užívat následující heslo k přihlášení:\n\nHeslo:[+pwd+]\n\nJestliže jste si tento e-mail nevyžádali, tak ho prosím ignorujte.\n\nS pozdravem,\nsprávce stránek";
-$_lang["system_email_websignup"] = "Dobrý den [+uid+]\n\nZde jsou podrobnosti k vašemu přihlášení do [+sname+]:\n\nUživatel: [+uid+]\nHeslo: [+pwd+]\n\nPři prvním přihlášení do [+sname+] si můžete změnit heslo.\n\nS pozdravem,\nsprávce stránek";
+$_lang["system_email_signup"] = 'Dobrý den [+uid+]
+
+Zde jsou podrobnosti k vašemu přihlášení pro [+sname+] do správce obsahu:
+
+Uživatel: [+uid+]
+Heslo: [+pwd+]
+
+Při prvním přihlášení si můžete změnit heslo.
+
+S pozdravem,
+správce stránek';
+$_lang["system_email_webreminder"] = 'Dobrý den [+uid+]
+
+K aktivaci nového hesla klikněte na následující odkaz:
+
+[+surl+]
+
+Jestliže vše proběhlo v pořádku, můžete užívat následující heslo k přihlášení:
+
+Heslo:[+pwd+]
+
+Jestliže jste si tento e-mail nevyžádali, tak ho prosím ignorujte.
+
+S pozdravem,
+správce stránek';
+$_lang["system_email_websignup"] = 'Dobrý den [+uid+]
+
+Zde jsou podrobnosti k vašemu přihlášení do [+sname+]:
+
+Uživatel: [+uid+]
+Heslo: [+pwd+]
+
+Při prvním přihlášení do [+sname+] si můžete změnit heslo.
+
+S pozdravem,
+správce stránek';
 $_lang["table_hoverinfo"] = 'Zastavením kurzoru myši nad jménem tabulky zobrazí se krátký popis funkce tabulky (ne všechny tabulky mají nastaveny <i>komentáře</i>).';
 $_lang["table_prefix"] = 'Předpona tabulek';
 $_lang["tag"] = 'Značka';
@@ -955,6 +1007,7 @@ $_lang["tmplvars_caption"] = 'Hlavička';
 $_lang["tmplvars_default"] = 'Původní hodnota';
 $_lang["tmplvars_description"] = 'Popis';
 $_lang["tmplvars_elements"] = 'Volba hodnoty vstupu';
+$_lang["tmplvars_inherited"] = 'Value inherited';
 $_lang["tmplvars_management_msg"] = 'Spravovat přidaná pole uživatelského obsahu (Template Variables) vašich dokumentů.';
 $_lang["tmplvars_msg"] = 'Zde můžete přidávat a upravovat Template Variables. Každá Template Variable musí být zpřístupněna pro danou šablonu, aby mohla být přístupná, mj. z aktivních prvků a dokumentů, stejně jako jiné proměnné.';
 $_lang["tmplvars_name"] = 'Jméno proměnné';
@@ -975,7 +1028,7 @@ $_lang["track_visitors_title"] = 'Logování návštěv (statistiky)';
 $_lang["tree_page_click"] = 'Chování stránky při kliknutí';
 $_lang["tree_page_click_message"] = 'Výchozí chování při kliknutí na stránku ve stromu dokumentů.';
 $_lang["tree_show_protected"] = 'Ukázat chráněné stránky';
-$_lang["tree_show_protected_message"] = 'Pokud nastavíte "Ne", chráněné stránky (a žádní jejich potomci) se nezobrazí ve stromu dokumentů. "Ne" je výchozím nastavením MODx.';
+$_lang["tree_show_protected_message"] = 'Pokud nastavíte "Ne", chráněné stránky (a žádní jejich potomci) se nezobrazí ve stromu dokumentů. "Ne" je výchozím nastavením MODX.';
 $_lang["truncate_table"] = 'Klikněte sem pro vyprázdnění této tabulky';
 $_lang["tuesday"] = 'Úterý';
 $_lang["tv"] = 'TV';
@@ -1070,12 +1123,12 @@ $_lang["websignupemail_message"] = 'Zde můžete nastavit zprávu, která bude z
 $_lang["websignupemail_title"] = 'Nastavení emailu pro webové přihlášení:';
 $_lang["wednesday"] = 'Středa';
 $_lang["welcome_messages"] = 'Vaše schránka obsahuje <b>%d</b> zpráv(y), z toho <b>%s</b> nepřečtených.';
-$_lang["welcome_title"] = 'Vítejte v MODx správci obsahu';
-$_lang["which_editor_message"] = 'Zde můžete zvolit, který rozšířený textový editor chcete používat. Můžete si stáhnout a nainstalovat další editory ze stránek MODx.';
+$_lang["welcome_title"] = 'Vítejte v MODX správci obsahu';
+$_lang["which_editor_message"] = 'Zde můžete zvolit, který rozšířený textový editor chcete používat. Můžete si stáhnout a nainstalovat další editory ze stránek MODX.';
 $_lang["which_editor_title"] = 'Použít editor:';
 $_lang["working"] = 'Pracuji...';
 $_lang["wrap_lines"] = 'Zalomit řádky';
-$_lang["xhtml_urls_message"] = 'Nahradí znak ampersand (&amp;) v URL adresách, které jsou generovány MODx za jejich validní zápis &amp;<!-- -->amp;';
+$_lang["xhtml_urls_message"] = 'Nahradí znak ampersand (&amp;) v URL adresách, které jsou generovány MODX za jejich validní zápis &amp;<!-- -->amp;';
 $_lang["xhtml_urls_title"] = 'XHTML URL adresy';
 $_lang["yes"] = 'Ano';
 $_lang["you_got_mail"] = 'Dostali jste poštu';
@@ -1085,5 +1138,61 @@ $_lang["yourinfo_role"] = 'Vaše oprávnění je:';
 $_lang["yourinfo_title"] = 'Vaše informace';
 $_lang["yourinfo_total_logins"] = 'Celkový počet přihlášení:';
 $_lang["yourinfo_username"] = 'Jste přihlášen jako:';
-
-?>
+$_lang["a17_error_reporting_title"] = 'Detection level of the PHP error';
+$_lang["a17_error_reporting_msg"] = 'Set the detection level of the PHP error.';
+$_lang["a17_error_reporting_opt0"] = 'Ignore all';
+$_lang["a17_error_reporting_opt1"] = 'Ignore the warning of a slight notice level(<a href="https://www.google.com/search?q=E_DEPRECATED+E_STRICT" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT</a>)';
+$_lang["a17_error_reporting_opt2"] = 'Detect all errors except E_NOTICE';
+$_lang["a17_error_reporting_opt99"] = 'Detect all';
+$_lang["pwd_hash_algo_title"] = 'Hash algorithm';
+$_lang["pwd_hash_algo_message"] = 'Password hash algorithm.';
+$_lang["enable_bindings_title"] = 'Enable @Bindings commands';
+$_lang["enable_bindings_message"] = 'Prevents the execution of PHP functions through TV @Bindings. Useful if you have Manager users who should not be able to create PHP code but need to be able to create or edit TVs. The output of any TV with an @Binding will be "@Bindings disabled".';
+$_lang["bkmgr_alert_mkdir"] = 'A file cannot be created in a directory.  Please check the permission of [+snapshot_path+]';
+$_lang["bkmgr_restore_msg"] = '<p>A site can be restore using an SQL file. </p>';
+$_lang["bkmgr_restore_title"] = 'Restore';
+$_lang["bkmgr_import_ok"] = 'SQL recovery was performed normally.';
+$_lang["bkmgr_snapshot_ok"] = 'The snapshot was saved normally.';
+$_lang["bkmgr_run_sql_file_label"] = 'Execute by sql file';
+$_lang["bkmgr_run_sql_direct_label"] = 'Direct execute SQL command strings';
+$_lang["bkmgr_run_sql_submit"] = 'Execute restore';
+$_lang["bkmgr_run_sql_result"] = 'Result';
+$_lang["bkmgr_snapshot_title"] = 'Snapshot save and recovery';
+$_lang["bkmgr_snapshot_msg"] = '<p>The contents of the database are saved and restored to a server.<br />Preservation place : [+snapshot_path+] ($modx->config[\'snapshot_path\'])</p>';
+$_lang["bkmgr_snapshot_submit"] = 'Add snapshot';
+$_lang["bkmgr_snapshot_list_title"] = 'List of snapshot';
+$_lang["bkmgr_restore_submit"] = 'Revert this data';
+$_lang["bkmgr_snapshot_nothing"] = 'No snapshot';
+$_lang["files.dynamic.php1"] = 'create text file';
+$_lang["files.dynamic.php2"] = 'This directory cannot be displayed.';
+$_lang["files.dynamic.php3"] = 'There is a problem in a file name.';
+$_lang["files.dynamic.php4"] = 'The text file was created.';
+$_lang["not_readable_dir"] = 'Can not read this directory.';
+$_lang["confirm_delete_dir"] = 'Are you sure you want to delete the directory?';
+$_lang["confirm_delete_dir_recursive"] = 'Are you sure you want to delete the directory?\n\nAny children files will also be deleted.';
+$_lang["make_folders_title"] = 'Make end slash URL at the container';
+$_lang["make_folders_message"] = 'The slash to append to Resources set as containers when using FURLs.';
+$_lang["check_files_onlogin_title"] = 'Check core files on login';
+$_lang["check_files_onlogin_message"] = 'By enabling this option, important system files will be checked for modification typical of scripted website attacks. While not a foolproof guarantee, it may alert you to a compromised MODX system file and website.';
+$_lang["configcheck_sysfiles_mod"] = 'Important System Files have been modified.';
+$_lang["configcheck_sysfiles_mod_msg"] = 'You have enabled the setting to check important system files to detect possible website script attacks. This doesn\'t necessarily mean that your site has been compromised, however, you should review the changed files.(index.php, .htaccess, [+MGR_DIR+]/index.php, [+MGR_DIR+]/includes/config.inc.php)';
+$_lang["email_method_title"] = 'Sendmail method';
+$_lang["email_method_mail"] = 'mail() PHP function';
+$_lang["email_method_smtp"] = 'SMTP Server';
+$_lang["smtp_auth_title"] = 'SMTP－AUTH';
+$_lang["smtp_host_title"] = 'SMTP host';
+$_lang["smtp_username_title"] = 'SMTP user name';
+$_lang["smtp_password_title"] = 'SMTP password';
+$_lang["smtp_port_title"] = 'SMTP port';
+$_lang["setting_resource_tree_node_name"] = 'The node name of a resource tree';
+$_lang["setting_resource_tree_node_name_desc"] = 'Specify the Resource field to use when rendering the nodes in the Resource Tree. Defaults to pagetitle, although any Resource field can be used, such as menutitle, alias.';
+$_lang["cache_type_title"] = 'Document caching type';
+$_lang["cache_type_1"] = 'Cache is based only on document id (standard)';
+$_lang["cache_type_2"] = 'Cache is based on document id and $_GET parameters';
+$_lang["seostrict_title"] = 'Use SEO Strict URLs';
+$_lang["seostrict_message"] = 'Enforces the use of strict URLs to prevent duplicate content if needed';
+$_lang["settings_friendlyurls_alert"] = 'It is necessary to rename the ht.access file of a MODX installation directory at .htaccess to use the Friendly URL function.';
+$_lang["settings_friendlyurls_alert2"] = 'Since it has installed in a subdirectory, it is necessary to change the contents of .htaccess.';
+$_lang["user_street"] = 'Street';
+$_lang["user_city"] = 'City';
+$_lang["user_other"] = 'Other';

@@ -1,5 +1,5 @@
 
-AjaxSearch Readme version 1.9.2
+AjaxSearch Readme version 1.9.3b
 
 ---------------------------------------------------------------
 :: Snippet: AjaxSearch
@@ -8,7 +8,7 @@ AjaxSearch Readme version 1.9.2
         Ajax-driven & Flexible Search form
 
   Version:
-        1.9.2  - 05/12/2010
+        1.9.3b  - 20/11/2012
 
   Created by:  Coroico - (coroico@wangba.fr)
   
@@ -43,10 +43,16 @@ Many fixes/additions were contributed by mikkelwe/identity/Perrine
   Originally based on the FlexSearchForm snippet created by jaredc (jaredc@honeydewdesign.com)
 
 ----------------------------------------------------------------
-:: Changelog:  for more details see www.modx.wangba.fr
+:: Changelog:  for more details see www.evo.wangba.fr
 ----------------------------------------------------------------
+  26-september-12 (1.9.3)
+    -- Bug fixing
+	-- Removed ajaxsearch's own striptags functions and substituted the use of $modx->stripTags
+	-- minimum chars allowed to 2
+
   05-december-10 (1.9.2)
     -- Bug fixing
+
   30-august-10 (1.9.2)
     -- Bug fixing
 
@@ -457,10 +463,11 @@ The simplest snippet call is [!Ajaxsearch!] without any parameters.
         Maximum number of words for searching - Default: 5
 
 
----- &minChars [ 2 < int < 100 ] (optional)
+---- &minChars [ 1 < int < 100 ] (optional)
         Minimum number of characters to require for a word to be valid for searching.
         Length of each word with $advSearch = 'allwords', 'oneword' or 'nowords'
         Length of the search string with possible spaces with $advSearch = 'exactphrase'
+		Default is 3.
 
 
 ---- &showInputForm [1 | 0] (optional)
@@ -792,7 +799,7 @@ The simplest snippet call is [!Ajaxsearch!] without any parameters.
 
 ---- &jsMooTools
         Location of the mootools javascript library
-        by default: 'manager/media/script/mootools/mootools.js'
+        by default: MGR_DIR.'/media/script/mootools/mootools.js'
 
 
 ---- &jsMooTools2
@@ -1284,7 +1291,7 @@ means that the Php mbstring extension should be set
 === AjaxSearch error: database_connection_charset not set. Check your MODx config file
 
 === AjaxSearch error: database_connection_charset is null. Check your MODx config file
-means that your $database_connection_charset variable of your /manager/includes/config.inc.php file is an empty value 
+means that your $database_connection_charset variable of your /'.MGR_DIR.'/includes/config.inc.php file is an empty value 
 
 === AjaxSearch error: unknown database_connection_charset = xxxx  Add the appropriate Html charset mapping in the classes/ajaxSearch.php file
 is not really an error but need that you add in the classes/ajaxSearch.php file the mapping 
@@ -1681,7 +1688,7 @@ Install it as the search highlight plugin.
 
 2. Documentation : http://wiki.modxcms.com/index.php/AjaxSearch
 
-3. Demo site : http://www.modx.wangba.fr
+3. Demo site : http://www.evo.wangba.fr
 
 4. Bugs & features : http://svn.modxcms.com/jira/browse/AJAXSEARCH
    Don't hesitate to signup for an account to post an issue or a new feature

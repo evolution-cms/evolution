@@ -37,51 +37,6 @@ class udperms{
 			return false; // deny duplicate document at root if Allow Root is No
 		}
 		
-		/*// get the groups this user is a member of
-		$sql = "SELECT * FROM $dbase.`".$table_prefix."member_groups` WHERE $dbase.`".$table_prefix."member_groups`.member = $user;";
-		$rs = mysql_query($sql);
-		$limit = mysql_num_rows($rs);
-		if($limit<1) {
-			return false;
-		}
-		for($i=0; $i < $limit; $i++) {
-			$row = mysql_fetch_assoc($rs);
-			$membergroups[$i] = $row['user_group'];
-		}
-
-		$list = implode(",", $membergroups);
-
-		// get the permissions for the groups this user is a member of
-		$sql = "SELECT * FROM $dbase.`".$table_prefix."membergroup_access` WHERE $dbase.`".$table_prefix."membergroup_access`.membergroup IN($list);";
-		$rs = mysql_query($sql);
-		$limit = mysql_num_rows($rs);
-		if($limit<1) {
-			return false;
-		}
-		
-		for($i=0; $i < $limit; $i++) {
-			$row = mysql_fetch_assoc($rs);
-			$documentgroups[$i] = $row['documentgroup'];
-		}
-		
-		$list = implode(",", $documentgroups);
-
-		// get the groups this user has permissions for
-		$sql = "SELECT * FROM $dbase.`".$table_prefix."document_groups` WHERE $dbase.`".$table_prefix."document_groups`.document_group IN($list);";
-		$rs = mysql_query($sql);
-		$limit = mysql_num_rows($rs);
-		if($limit<1) {
-			return false;
-		}
-		
-		for($i=0; $i < $limit; $i++) {
-			$row = mysql_fetch_assoc($rs);
-			if($row['document']==$document) {
-				$permissionsok = true;
-			}
-		}*/
-
-
 		// get document groups for current user
 		if($_SESSION['mgrDocgroups']) {
 			$docgrp = implode(" || dg.document_group = ",$_SESSION['mgrDocgroups']);
@@ -105,8 +60,8 @@ class udperms{
 				WHERE sc.id = $document 
 				AND (". ( (!$docgrp) ? null : "dg.document_group = ".$docgrp." ||" ) . " sc.privatemgr = 0)";
 				   
-		$rs = mysql_query($sql);
-		$limit = mysql_num_rows($rs);
+		$rs = $modx->db->query($sql);
+		$limit = $modx->db->getRecordCount($rs);
 		if($limit==1) $permissionsok = true;
 		
 		return $permissionsok;

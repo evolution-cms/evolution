@@ -9,7 +9,7 @@ function mm_widget_tags($fields, $delimiter=',', $source='', $display_count=fals
 	global $modx, $content, $mm_fields;
 	$e = &$modx->Event;
 
-	if (useThisRule($roles, $templates)) {
+	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
 
 		$output = '';
 
@@ -64,7 +64,7 @@ function mm_widget_tags($fields, $delimiter=',', $source='', $display_count=fals
 				// Get the list of current values for this TV
 				$sql = "SELECT `value` FROM ".$modx->getFullTableName('site_tmplvar_contentvalues')." WHERE tmplvarid IN (".$sql_sources.")";
 
-				$result= $modx->dbQuery($sql);
+				$result= $modx->db->query($sql);
 				$all_docs = $modx->db->makeArray( $result );
 
 				$foundTags = array();
@@ -95,7 +95,7 @@ function mm_widget_tags($fields, $delimiter=',', $source='', $display_count=fals
 				$output .= 'var '.$tv_id.'_tags = new TagCompleter("'.$tv_id.'", "'.$tv_id.'_tagList", "'.$delimiter.'"); ';
 
 		}
+		$e->output($output . "\n");
 	}
-	$e->output($output . "\n");
 }
 ?>

@@ -42,18 +42,35 @@
 
 
 /**
- *  Filename: manager/index.php
+ *  Filename: index.php
  *  Function: This file is the main root file for MODx. It is
  *          only file that will be directly requested, and
  *          depending on the request, will branch different
  *          content
  */
 
-define("MGR_DIR", "manager");
-
 // get start time
 $mtime = microtime(); $mtime = explode(" ",$mtime); $mtime = $mtime[1] + $mtime[0]; $tstart = $mtime;
 $mstart = memory_get_usage();
+
+$self      = str_replace('\\','/',__FILE__);
+$self_dir  = str_replace('/index.php','',$self);
+$mgr_dir   = substr($self_dir,strrpos($self_dir,'/')+1);
+$base_path = str_replace($mgr_dir . '/index.php','',$self);
+$site_mgr_path = $base_path . 'assets/cache/siteManager.php';
+if(is_file($site_mgr_path)) include_once($site_mgr_path);
+if(!defined('MGR_DIR') || MGR_DIR!==$mgr_dir) {
+	$src = "<?php\n";
+	$src .= "define('MGR_DIR', '{$mgr_dir}');\n";
+	$rs = file_put_contents($site_mgr_path,$src);
+	if(!$rs) {
+		echo 'siteManager.php write error';
+		exit;
+	}
+	sleep(1);
+	header('Location:' . $_SERVER['REQUEST_URI']);
+	exit;
+}
 
 define("IN_MANAGER_MODE", "true");  // we use this to make sure files are accessed through
                                     // the manager instead of seperately.
@@ -123,12 +140,7 @@ $modx->tstart = $tstart;
 $modx->mstart = $mstart;
 
 // connect to the database
-if(@!$modxDBConn = mysql_connect($database_server, $database_user, $database_password)) {
-    die("<h2>Failed to create the database connection!</h2>. Please run the MODx <a href='../install'>install utility</a>");
-} else {
-    mysql_select_db(str_replace('`', '', $dbase));
-    @mysql_query("{$database_connection_method} {$database_connection_charset}");
-}
+$modx->db->connect();
 
 // start session
 startCMSSession();
@@ -149,6 +161,13 @@ $length_eng_lang = count($_lang);
 
 if($manager_language!="english" && file_exists(MODX_MANAGER_PATH."includes/lang/".$manager_language.".inc.php")) {
     include_once "lang/".$manager_language.".inc.php";
+}
+
+$s = array('[+MGR_DIR+]');
+$r = array(MGR_DIR);
+foreach($_lang as $k=>$v)
+{
+	if(strpos($v,'[+')!==false) $_lang[$k] = str_replace($s, $r, $v);
 }
 
 // send the charset header
@@ -202,7 +221,7 @@ if(isset($_GET['a']) && isset($_POST['a'])) {
     // so we dump the error, thereby stopping the script.
 
 } else {
-    $action= (int) $_REQUEST['a'];
+    $action= isset($_REQUEST['a']) ? (int) $_REQUEST['a'] : null;
 }
 
 if (isset($_POST['updateMsgCount']) && $modx->hasPermission('messages')) {

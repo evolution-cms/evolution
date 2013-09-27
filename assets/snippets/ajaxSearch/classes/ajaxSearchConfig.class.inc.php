@@ -4,9 +4,9 @@
 * -----------------------------------------------------------------------------
 * @package  AjaxSearchConfig
 *
-* @author       Coroico - www.modx.wangba.fr
-* @version      1.9.2
-* @date         05/12/2010
+* @author       Coroico - www.evo.wangba.fr
+* @version      1.9.3
+* @date         26/09/2012
 *
 * Purpose:
 *    The AjaxSearchConfig class contains all functions and data used to manage configuration context
@@ -191,7 +191,7 @@ class AjaxSearchConfig {
     */
     function readConfigFile($config) {
         global $modx;
-        $configFile = (substr($config, 0, 5) != "@FILE") ? AS_PATH . "configs/$config.config.php" : $modx->config['base_path'] . trim(trim(substr($config, 5), ':'));
+        $configFile = (substr($config, 0, 6) != "@FILE:") ? AS_PATH . "configs/$config.config.php" : $modx->config['base_path'] . trim(substr($config, 6, strlen($config)-6));
         $fh = fopen($configFile, 'r');
         $output = fread($fh, filesize($configFile));
         fclose($fh);

@@ -1,5 +1,12 @@
 <?php
-if (IN_MANAGER_MODE != 'true') die('<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.');
+if (IN_MANAGER_MODE != 'true') die('<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.');
+
+/********************/
+$sd=isset($_REQUEST['dir'])?'&dir='.$_REQUEST['dir']:'&dir=DESC';
+$sb=isset($_REQUEST['sort'])?'&sort='.$_REQUEST['sort']:'&sort=createdon';
+$pg=isset($_REQUEST['page'])?'&page='.(int)$_REQUEST['page']:'';
+$add_path=$sd.$sb.$pg;
+/*******************/
 
 // check permissions
 switch ($_REQUEST['a']) {
@@ -84,11 +91,11 @@ if ($action == 27) {
 
 // Check to see the document isn't locked
 $sql = 'SELECT internalKey, username FROM '.$tbl_active_users.' WHERE action=27 AND id=\''.$id.'\'';
-$rs = mysql_query($sql);
-$limit = mysql_num_rows($rs);
+$rs = $modx->db->query($sql);
+$limit = $modx->db->getRecordCount($rs);
 if ($limit > 1) {
     for ($i = 0; $i < $limit; $i++) {
-        $lock = mysql_fetch_assoc($rs);
+        $lock = $modx->db->getRow($rs);
         if ($lock['internalKey'] != $modx->getLoginUserID()) {
             $msg = sprintf($_lang['lock_msg'], $lock['username'], 'document');
             $e->setError(5, $msg);
@@ -109,8 +116,8 @@ if (!empty ($id)) {
            'FROM '.$tbl_site_content.' AS sc '.
            'LEFT JOIN '.$tbl_document_groups.' AS dg ON dg.document=sc.id '.
            'WHERE sc.id=\''.$id.'\' AND ('.$access.')';
-    $rs = mysql_query($sql);
-    $limit = mysql_num_rows($rs);
+    $rs = $modx->db->query($sql);
+    $limit = $modx->db->getRecordCount($rs);
     if ($limit > 1) {
         $e->setError(6);
         $e->dumpError();
@@ -119,7 +126,7 @@ if (!empty ($id)) {
         $e->setError(3);
         $e->dumpError();
     }
-    $content = mysql_fetch_assoc($rs);
+    $content = $modx->db->getRow($rs);
 } else {
     $content = array();
 }
@@ -201,13 +208,13 @@ function changestate(element) {
 
 function deletedocument() {
     if (confirm("<?php echo $_lang['confirm_delete_resource']?>")==true) {
-        document.location.href="index.php?id=" + document.mutate.id.value + "&a=6";
+        document.location.href="index.php?id=" + document.mutate.id.value + "&a=6<?php echo $add_path; ?>";
     }
 }
 
 function duplicatedocument(){
     if(confirm("<?php echo $_lang['confirm_resource_duplicate']?>")==true) {
-        document.location.href="index.php?id=<?php echo $_REQUEST['id']?>&a=94";
+        document.location.href="index.php?id=<?php echo $_REQUEST['id']?>&a=94<?php echo $add_path; ?>";
     }
 }
 
@@ -230,7 +237,7 @@ function enableLinkSelection(b) {
 
 function setLink(lId) {
     if (!allowLinkSelection) {
-        window.location.href="index.php?a=3&id="+lId;
+        window.location.href="index.php?a=3&id="+lId+"<?php echo $add_path; ?>";
         return;
     }
     else {
@@ -255,7 +262,7 @@ function enableParentSelection(b) {
 
 function setParent(pId, pName) {
     if (!allowParentSelection) {
-        window.location.href="index.php?a=3&id="+pId;
+        window.location.href="index.php?a=3&id="+pId+"<?php echo $add_path; ?>";
         return;
     }
     else {
@@ -333,13 +340,20 @@ function templateWarning() {
     }
     if (curTemplate == newTemplate) {return;}
 
-    if (confirm('<?php echo $_lang['tmplvar_change_template_msg']?>')) {
-        documentDirty=false;
+    if(documentDirty===true) {
+        if (confirm('<?php echo $_lang['tmplvar_change_template_msg']?>')) {
+            documentDirty=false;
+            document.mutate.a.value = <?php echo $action?>;
+            document.mutate.newtemplate.value = newTemplate;
+            document.mutate.submit();
+        } else {
+            dropTemplate[curTemplateIndex].selected = true;
+        }
+    }
+    else {
         document.mutate.a.value = <?php echo $action?>;
         document.mutate.newtemplate.value = newTemplate;
         document.mutate.submit();
-    } else {
-        dropTemplate[curTemplateIndex].selected = true;
     }
 }
 
@@ -507,6 +521,13 @@ $evtOut = $modx->invokeEvent('OnDocFormPrerender', array(
 ));
 if (is_array($evtOut))
     echo implode('', $evtOut);
+	
+/*************************/	
+$dir=isset($_REQUEST['dir'])?$_REQUEST['dir']:'';
+$sort=isset($_REQUEST['sort'])?$_REQUEST['sort']:'createdon';
+$page=isset($_REQUEST['page'])?(int)$_REQUEST['page']:'';
+/*************************/
+
 ?>
 <input type="hidden" name="a" value="5" />
 <input type="hidden" name="id" value="<?php echo $content['id']?>" />
@@ -515,21 +536,29 @@ if (is_array($evtOut))
 <input type="hidden" name="refresh_preview" value="0" />
 <input type="hidden" name="newtemplate" value="" />
 
+<!------------- добавляем параметры сортировки------------------>
+<input type="hidden" name="dir" value="<?php echo $dir;?>" />
+<input type="hidden" name="sort" value="<?php echo $sort;?>" />
+<input type="hidden" name="page" value="<?php echo $page;?>" />
+<!-------------- --------------->
+
+
+
 <fieldset id="create_edit">
     <h1><?php if ($_REQUEST['id']){ echo $_lang['edit_resource_title']; } else { echo $_lang['create_resource_title'];}?></h1>
 
 <div id="actions">
       <ul class="actionButtons">
           <li id="Button1">
-            <a href="#" onclick="documentDirty=false; document.mutate.save.click();">
+            <a href="#" class="primary" onclick="documentDirty=false; document.mutate.save.click();">
               <img alt="icons_save" src="<?php echo $_style["icons_save"]?>" /> <?php echo $_lang['save']?>
             </a><span class="and"> + </span>
             <select id="stay" name="stay">
               <?php if ($modx->hasPermission('new_document')) { ?>
-              <option id="stay1" value="1" <?php echo $_REQUEST['stay']=='1' ? ' selected=""' : ''?> ><?php echo $_lang['stay_new']?></option>
+              <option id="stay1" value="1" <?php echo $_REQUEST['stay']=='1' ? ' selected="selected"' : ''?> ><?php echo $_lang['stay_new']?></option>
               <?php } ?>
               <option id="stay2" value="2" <?php echo $_REQUEST['stay']=='2' ? ' selected="selected"' : ''?> ><?php echo $_lang['stay']?></option>
-              <option id="stay3" value=""  <?php echo $_REQUEST['stay']=='' ? ' selected=""' : ''?>  ><?php echo $_lang['close']?></option>
+              <option id="stay3" value=""  <?php echo $_REQUEST['stay']=='' ? ' selected="selected"' : ''?>  ><?php echo $_lang['close']?></option>
             </select>
           </li>
           <?php
@@ -539,7 +568,7 @@ if (is_array($evtOut))
           <li id="Button6"><a href="#" onclick="duplicatedocument();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" alt="icons_resource_duplicate" /> <?php echo $_lang['duplicate']?></a></li>
           <li id="Button3"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" alt="icons_delete_document" /> <?php echo $_lang['delete']?></a></li>
           <?php } ?>
-          <li id="Button4"><a href="#" onclick="documentDirty=false;<?php echo $id==0 ? "document.location.href='index.php?a=2';" : "document.location.href='index.php?a=3&amp;id=$id';"?>"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+          <li id="Button4"><a href="#" onclick="documentDirty=false;<?php echo $id==0 ? "document.location.href='index.php?a=2';" : "document.location.href='index.php?a=3&amp;id=$id".$add_path."';"?>"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
           <li id="Button5"><a href="#" onclick="window.open('<?php echo $modx->makeUrl($id); ?>','previeWin');"><img alt="icons_preview_resource" src="<?php echo $_style["icons_preview_resource"] ?>" /> <?php echo $_lang['preview']?></a></li>
       </ul>
 </div>
@@ -560,19 +589,19 @@ if (is_array($evtOut))
 
         <table width="99%" border="0" cellspacing="5" cellpadding="0">
             <tr style="height: 24px;"><td width="100" align="left"><span class="warning"><?php echo $_lang['resource_title']?></span></td>
-                <td><input name="pagetitle" type="text" maxlength="255" value="<?php echo htmlspecialchars(stripslashes($content['pagetitle']))?>" class="inputBox" onchange="documentDirty=true;" spellcheck="true" />
+                <td><input name="pagetitle" type="text" maxlength="255" value="<?php echo $modx->htmlspecialchars(stripslashes($content['pagetitle']))?>" class="inputBox" onchange="documentDirty=true;" spellcheck="true" />
                 &nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_title_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td></tr>
             <tr style="height: 24px;"><td align="left"><span class="warning"><?php echo $_lang['long_title']?></span></td>
-                <td><input name="longtitle" type="text" maxlength="255" value="<?php echo htmlspecialchars(stripslashes($content['longtitle']))?>" class="inputBox" onchange="documentDirty=true;" spellcheck="true" />
+                <td><input name="longtitle" type="text" maxlength="255" value="<?php echo $modx->htmlspecialchars(stripslashes($content['longtitle']))?>" class="inputBox" onchange="documentDirty=true;" spellcheck="true" />
                 &nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_long_title_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td></tr>
             <tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['resource_description']?></span></td>
-                <td><input name="description" type="text" maxlength="255" value="<?php echo htmlspecialchars(stripslashes($content['description']))?>" class="inputBox" onchange="documentDirty=true;" spellcheck="true" />
+                <td><input name="description" type="text" maxlength="255" value="<?php echo $modx->htmlspecialchars(stripslashes($content['description']))?>" class="inputBox" onchange="documentDirty=true;" spellcheck="true" />
                 &nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_description_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td></tr>
             <tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['resource_alias']?></span></td>
                 <td><input name="alias" type="text" maxlength="100" value="<?php echo stripslashes($content['alias'])?>" class="inputBox" onchange="documentDirty=true;" />
                 &nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_alias_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td></tr>
             <tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['link_attributes']?></span></td>
-                <td><input name="link_attributes" type="text" maxlength="255" value="<?php echo htmlspecialchars(stripslashes($content['link_attributes']))?>" class="inputBox" onchange="documentDirty=true;" />
+                <td><input name="link_attributes" type="text" maxlength="255" value="<?php echo $modx->htmlspecialchars(stripslashes($content['link_attributes']))?>" class="inputBox" onchange="documentDirty=true;" />
                 &nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['link_attributes_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td></tr>
 
 <?php if ($content['type'] == 'reference' || $_REQUEST['a'] == '72') { // Web Link specific ?>
@@ -584,17 +613,17 @@ if (is_array($evtOut))
 <?php } ?>
 
             <tr style="height: 24px;"><td valign="top" width="100" align="left"><span class="warning"><?php echo $_lang['resource_summary']?></span></td>
-                <td valign="top"><textarea name="introtext" class="inputBox" rows="3" cols="" onchange="documentDirty=true;"><?php echo htmlspecialchars(stripslashes($content['introtext']))?></textarea>
+                <td valign="top"><textarea name="introtext" class="inputBox" rows="3" cols="" onchange="documentDirty=true;"><?php echo $modx->htmlspecialchars(stripslashes($content['introtext']))?></textarea>
                 &nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_summary_help']?>" onclick="alert(this.alt);" style="cursor:help;" spellcheck="true"/></td></tr>
             <tr style="height: 24px;"><td><span class="warning"><?php echo $_lang['page_data_template']?></span></td>
                 <td><select id="template" name="template" class="inputBox" onchange="templateWarning();" style="width:308px">
                     <option value="0">(blank)</option>
 <?php
                 $sql = 'SELECT t.templatename, t.id, c.category FROM '.$tbl_site_templates.' t LEFT JOIN '.$tbl_categories.' c ON t.category = c.id ORDER BY c.category, t.templatename ASC';
-                $rs = mysql_query($sql);
+                $rs = $modx->db->query($sql);
 
                 $currentCategory = '';
-                while ($row = mysql_fetch_assoc($rs)) {
+                while ($row = $modx->db->getRow($rs)) {
                     $thisCategory = $row['category'];
                     if($thisCategory == null) {
                         $thisCategory = $_lang["no_category"];
@@ -614,28 +643,7 @@ if (is_array($evtOut))
                         if (isset ($content['template'])) {
                             $selectedtext = $row['id'] == $content['template'] ? ' selected="selected"' : '';
                         } else {
-                            switch($auto_template_logic) {
-                                case 'sibling':
-
-                                    if ($sibl = $modx->getDocumentChildren($_REQUEST['pid'], 1, 0, 'template', '', 'menuindex', 'ASC', 1)) {
-                                        $default_template = $sibl[0]['template'];
-                                        break;
-                                    } else if ($sibl = $modx->getDocumentChildren($_REQUEST['pid'], 0, 0, 'template', '', 'menuindex', 'ASC', 1)) {
-                                        $default_template = $sibl[0]['template'];
-                                        break;
-                                    }
-
-                                case 'parent':
-
-                                    if ($parent = $modx->getPageInfo($_REQUEST['pid'], 0, 'template')) {
-                                        $default_template = $parent['template'];
-                                        break;
-                                    }
-
-                                case 'system':
-                                default:
-                                    // default_template is already set
-                            }
+                            $default_template = getDefaultTemplate();
                             $selectedtext = $row['id'] == $default_template ? ' selected="selected"' : '';
                         }
                     }
@@ -648,11 +656,11 @@ if (is_array($evtOut))
 ?>
                 </select> &nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['page_data_template_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td></tr>
             <tr style="height: 24px;"><td align="left" style="width:100px;"><span class="warning"><?php echo $_lang['resource_opt_menu_title']?></span></td>
-                <td><input name="menutitle" type="text" maxlength="255" value="<?php echo htmlspecialchars(stripslashes($content['menutitle']))?>" class="inputBox" onchange="documentDirty=true;" />
+                <td><input name="menutitle" type="text" maxlength="255" value="<?php echo $modx->htmlspecialchars(stripslashes($content['menutitle']))?>" class="inputBox" onchange="documentDirty=true;" />
                 &nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_opt_menu_title_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td></tr>
             <tr style="height: 24px;"><td align="left" style="width:100px;"><span class="warning"><?php echo $_lang['resource_opt_menu_index']?></span></td>
                 <td><table border="0" cellspacing="0" cellpadding="0" style="width:333px;"><tr>
-                    <td><input name="menuindex" type="text" maxlength="3" value="<?php echo $content['menuindex']?>" class="inputBox" style="width:30px;" onchange="documentDirty=true;" /><input type="button" value="&lt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')-1;elm.value=v>0? v:0;elm.focus();documentDirty=true;" /><input type="button" value="&gt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')+1;elm.value=v>0? v:0;elm.focus();documentDirty=true;" />
+                    <td><input name="menuindex" type="text" maxlength="6" value="<?php echo $content['menuindex']?>" class="inputBox" style="width:30px;" onchange="documentDirty=true;" /><input type="button" value="&lt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')-1;elm.value=v>0? v:0;elm.focus();documentDirty=true;" /><input type="button" value="&gt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')+1;elm.value=v>0? v:0;elm.focus();documentDirty=true;" />
                     &nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_opt_menu_index_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td>
                     <td align="right" style="text-align:right;"><span class="warning"><?php echo $_lang['resource_opt_show_menu']?></span>&nbsp;<input name="hidemenucheck" type="checkbox" class="checkbox" <?php echo $content['hidemenu']!=1 ? 'checked="checked"':''?> onclick="changestate(document.mutate.hidemenu);" /><input type="hidden" name="hidemenu" class="hidden" value="<?php echo ($content['hidemenu']==1) ? 1 : 0?>" />
                     &nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_opt_show_menu_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td>
@@ -688,13 +696,13 @@ if (is_array($evtOut))
                 }
                 if($parentlookup !== false && is_numeric($parentlookup)) {
                     $sql = 'SELECT pagetitle FROM '.$tbl_site_content.' WHERE id=\''.$parentlookup.'\'';
-                    $rs = mysql_query($sql);
-                    $limit = mysql_num_rows($rs);
+                    $rs = $modx->db->query($sql);
+                    $limit = $modx->db->getRecordCount($rs);
                     if ($limit != 1) {
                         $e->setError(8);
                         $e->dumpError();
                     }
-                    $parentrs = mysql_fetch_assoc($rs);
+                    $parentrs = $modx->db->getRow($rs);
                     $parentname = $parentrs['pagetitle'];
                 }
                 ?>&nbsp;<img alt="tree_folder" name="plock" src="<?php echo $_style["tree_folder"] ?>" onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;" /> <b><span id="parentName"><?php echo isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $content['parent']?> (<?php echo $parentname?>)</span></b>
@@ -712,7 +720,7 @@ if (is_array($evtOut))
                 $htmlContent = $content['content'];
 ?>
                 <div style="width:100%">
-                    <textarea id="ta" name="ta" cols="" rows="" style="width:100%; height: 400px;" onchange="documentDirty=true;"><?php echo htmlspecialchars($htmlContent)?></textarea>
+                    <textarea id="ta" name="ta" cols="" rows="" style="width:100%; height: 400px;" onchange="documentDirty=true;"><?php echo $modx->htmlspecialchars($htmlContent)?></textarea>
                     <span class="warning"><?php echo $_lang['which_editor_title']?></span>
 
                     <select id="which_editor" name="which_editor" onchange="changeRTE();">
@@ -734,7 +742,7 @@ if (is_array($evtOut))
                     'ta',
                 );
             } else {
-                echo "\t".'<div style="width:100%"><textarea class="phptextarea" id="ta" name="ta" style="width:100%; height: 400px;" onchange="documentDirty=true;">',htmlspecialchars($content['content']),'</textarea></div>'."\n";
+                echo "\t".'<div style="width:100%"><textarea class="phptextarea" id="ta" name="ta" style="width:100%; height: 400px;" onchange="documentDirty=true;">',$modx->htmlspecialchars($content['content']),'</textarea></div>'."\n";
             }
 ?>
             </div><!-- end .sectionBody -->
@@ -761,15 +769,15 @@ if (is_array($evtOut))
                        'WHERE tvtpl.templateid=\''.$template.'\' AND (1=\''.$_SESSION['mgrRole'].'\' OR ISNULL(tva.documentgroup)'.
                        (!$docgrp ? '' : ' OR tva.documentgroup IN ('.$docgrp.')').
                        ') ORDER BY tvtpl.rank,tv.rank, tv.id';
-                $rs = mysql_query($sql);
-                $limit = mysql_num_rows($rs);
+                $rs = $modx->db->query($sql);
+                $limit = $modx->db->getRecordCount($rs);
                 if ($limit > 0) {
                     echo "\t".'<table style="position:relative;" border="0" cellspacing="0" cellpadding="3" width="96%">'."\n";
                     require_once(MODX_MANAGER_PATH.'includes/tmplvars.inc.php');
                     require_once(MODX_MANAGER_PATH.'includes/tmplvars.commands.inc.php');
                     for ($i = 0; $i < $limit; $i++) {
                         // Go through and display all Template Variables
-                        $row = mysql_fetch_assoc($rs);
+                        $row = $modx->db->getRow($rs);
                         if ($row['type'] == 'richtext' || $row['type'] == 'htmlarea') {
                             // Add richtext editor to the list
                             if (is_array($replace_richtexteditor)) {
@@ -799,10 +807,10 @@ if (is_array($evtOut))
 
 						$tvDescription = (!empty($row['description'])) ? '<br /><span class="comment">' . $row['description'] . '</br>' : '';
 						$tvInherited = (substr($tvPBV, 0, 8) == '@INHERIT') ? '<br /><span class="comment inherited">(' . $_lang['tmplvars_inherited'] . ')</br>' : '';
-                        $zindex = $row['type'] == 'date' ? '100' : '500';
+                       
                         echo "\t\t",'<tr style="height: 24px;"><td align="left" valign="top" width="150"><span class="warning">',$row['caption'],"</span>\n",
                              "\t\t\t",$tvDescription,$tvInherited,"</td>\n",
-                             "\t\t\t",'<td valign="top" style="position:relative;',($row['type'] == 'date' ? 'z-index:'. $zindex : ''),'">',"\n",
+                             "\t\t\t",'<td valign="top" style="position:relative;',($row['type'] == 'date' ? '' : ''),'">',"\n",
                              "\t\t\t",renderFormElement($row['type'], $row['id'], $row['default_text'], $row['elements'], $tvPBV, '', $row),"\n",
                              "\t\t</td></tr>\n";
                     }
@@ -920,6 +928,16 @@ if ($_SESSION['mgrRole'] == 1 || $_REQUEST['a'] != '27' || $_SESSION['mgrInterna
                 <input type="hidden" name="isfolder" value="<?php echo ($content['isfolder']==1||$_REQUEST['a']=='85') ? 1 : 0?>" onchange="documentDirty=true;" />
                 &nbsp;&nbsp;<img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_opt_folder_help']?>" onclick="alert(this.alt);" style="cursor:help;" /></td>
             </tr>
+
+<tr style="height: 24px;">
+<td><span class="warning">
+<?php echo $_lang['resource_opt_alvisibled']?>
+</span></td>
+<td>
+<input name="alias_visible_check" type="checkbox" class="checkbox" <?php echo (!isset($content['alias_visible'])|| $content['alias_visible']==1) ? "checked" : ''?> onclick="changestate(document.mutate.alias_visible);" /> 
+<input type="hidden" name="alias_visible" value="<?php echo (!isset($content['alias_visible']) || $content['alias_visible']==1) ? 1 : 0?>" />   <img src="<?php echo $_style["icons_tooltip_over"]?>" onmouseover="this.src='<?php echo $_style["icons_tooltip"]?>';" onmouseout="this.src='<?php echo $_style["icons_tooltip_over"]?>';" alt="<?php echo $_lang['resource_opt_alvisibled_help']?>" onclick="alert(this.alt);" style="cursor:help;" />
+</td></tr>
+
             <tr style="height: 24px;">
                 <td><span class="warning"><?php echo $_lang['resource_opt_richtext']?></span></td>
                 <td><input name="richtextcheck" type="checkbox" class="checkbox" <?php echo $content['richtext']==0 && $_REQUEST['a']=='27' ? '' : "checked"?> onclick="changestate(document.mutate.richtext);" />
@@ -1054,8 +1072,8 @@ if ($use_udperms == 1) {
     if ($documentId > 0) {
         // Load up, the permissions from the parent (if new document) or existing document
         $sql = 'SELECT id, document_group FROM '.$tbl_document_groups.' WHERE document=\''.$documentId.'\'';
-        $rs = mysql_query($sql);
-        while ($currentgroup = mysql_fetch_assoc($rs))
+        $rs = $modx->db->query($sql);
+        while ($currentgroup = $modx->db->getRow($rs))
             $groupsarray[] = $currentgroup['document_group'].','.$currentgroup['id'];
 
         // Load up the current permissions and names
@@ -1074,8 +1092,8 @@ if ($use_udperms == 1) {
         $groupsarray = array_merge($groupsarray, $_POST['docgroups']);
 
     // Query the permissions and names from above
-    $rs = mysql_query($sql);
-    $limit = mysql_num_rows($rs);
+    $rs = $modx->db->query($sql);
+    $limit = $modx->db->getRecordCount($rs);
 
     $isManager = $modx->hasPermission('access_permissions');
     $isWeb     = $modx->hasPermission('web_access_permissions');
@@ -1093,7 +1111,7 @@ if ($use_udperms == 1) {
 
     // Loop through the permissions list
     for ($i = 0; $i < $limit; $i++) {
-        $row = mysql_fetch_assoc($rs);
+        $row = $modx->db->getRow($rs);
 
         // Create an inputValue pair (group ID and group link (if it exists))
         $inputValue = $row['id'].','.($row['link_id'] ? $row['link_id'] : 'new');
@@ -1219,4 +1237,44 @@ if (is_array($evtOut)) echo implode('', $evtOut);
                 echo implode('', $evtOut);
         }
     }
-?>
+
+function getDefaultTemplate()
+{
+	global $modx;
+	
+	switch($modx->config['auto_template_logic'])
+	{
+		case 'sibling':
+			if(!isset($_GET['pid']) || empty($_GET['pid']))
+		    {
+		    	$site_start = $modx->config['site_start'];
+		    	$where = "sc.isfolder=0 AND sc.id!='{$site_start}'";
+		    	$sibl = $modx->getDocumentChildren($_REQUEST['pid'], 1, 0, 'template', $where, 'menuindex', 'ASC', 1);
+		    	if(isset($sibl[0]['template']) && $sibl[0]['template']!=='') $default_template = $sibl[0]['template'];
+			}
+			else
+			{
+				$sibl = $modx->getDocumentChildren($_REQUEST['pid'], 1, 0, 'template', 'isfolder=0', 'menuindex', 'ASC', 1);
+				if(isset($sibl[0]['template']) && $sibl[0]['template']!=='') $default_template = $sibl[0]['template'];
+				else
+				{
+					$sibl = $modx->getDocumentChildren($_REQUEST['pid'], 0, 0, 'template', 'isfolder=0', 'menuindex', 'ASC', 1);
+					if(isset($sibl[0]['template']) && $sibl[0]['template']!=='') $default_template = $sibl[0]['template'];
+				}
+			}
+			break;
+		case 'parent':
+			if (isset($_REQUEST['pid']) && !empty($_REQUEST['pid']))
+			{
+				$parent = $modx->getPageInfo($_REQUEST['pid'], 0, 'template');
+				if(isset($parent['template'])) $default_template = $parent['template'];
+			}
+			break;
+		case 'system':
+		default: // default_template is already set
+			$default_template = $modx->config['default_template'];
+	}
+	if(!isset($default_template)) $default_template = $modx->config['default_template']; // default_template is already set
+	
+	return $default_template;
+}

@@ -1,12 +1,17 @@
 <?php
 $installMode = intval($_POST['installmode']);
+if (file_exists(dirname(__FILE__)."/../assets/cache/siteManager.php")) {
+    include_once(dirname(__FILE__)."/../assets/cache/siteManager.php");
+}else{
+define('MGR_DIR', 'manager');
+}
 
 // Determine upgradeability
 $upgradeable= 0;
 if ($installMode > 0) {
-  if (file_exists("../manager/includes/config.inc.php")) {
+  if (file_exists("../".MGR_DIR."/includes/config.inc.php")) {
       // Include the file so we can test its validity
-      include "../manager/includes/config.inc.php";
+      include "../".MGR_DIR."/includes/config.inc.php";
       // We need to have all connection settings - but prefix may be empty so we have to ignore it
       if ($dbase) {
           if (!@ $conn = mysql_connect($database_server, $database_user, $database_password)) {
@@ -137,7 +142,7 @@ if ($upgradeable && (!isset($database_connection_method) || empty($database_conn
       <input id="cmsadmin" value="<?php echo isset($_POST['cmsadmin']) ? $_POST['cmsadmin']:"admin" ?>" name="cmsadmin" />
     </p>
     <p class="labelHolder"><label for="cmsadminemail"><?php echo $_lang['connection_screen_default_admin_email']?></label>
-      <input id="cmsadminemail" value="<?php echo isset($_POST['cmsadminemail']) ? $_POST['cmsadminemail']:"" ?>" name="cmsadminemail" />
+      <input id="cmsadminemail" value="<?php echo isset($_POST['cmsadminemail']) ? $_POST['cmsadminemail']:"" ?>" name="cmsadminemail" style="width:250px;" />
     </p>
     <p class="labelHolder"><label for="cmspassword"><?php echo $_lang['connection_screen_default_admin_password']?></label>
       <input id="cmspassword" type="password" name="cmspassword" value="<?php echo isset($_POST['cmspassword']) ? $_POST['cmspassword']:"" ?>" />
@@ -159,7 +164,7 @@ if ($upgradeable && (!isset($database_connection_method) || empty($database_conn
 	        $manager_language = $_GET['managerlanguage'];
 	}
 	$langs = array();
-	if ($handle = opendir("../manager/includes/lang")) {
+	if ($handle = opendir("../".MGR_DIR."/includes/lang")) {
 	    while (false !== ($file = readdir($handle))) {
 	        if (!strpos($file, 'inc') === false) {
 	            $langs[] = $file;
@@ -169,7 +174,7 @@ if ($upgradeable && (!isset($database_connection_method) || empty($database_conn
 	}
 	sort($langs);
 	
-	if ($install_language != "english" && file_exists("../manager/includes/lang/".$install_language.".inc.php")) {
+	if ($install_language != "english" && file_exists("../".MGR_DIR."/includes/lang/".$install_language.".inc.php")) {
 		$manager_language = $install_language;
 	} else {
 		$manager_language = "english";
@@ -198,7 +203,7 @@ if ($upgradeable && (!isset($database_connection_method) || empty($database_conn
 </form>
 
 
-<script type="text/javascript" src="../manager/media/script/mootools/mootools.js"></script>
+<script type="text/javascript" src="../<?php echo MGR_DIR;?>/media/script/mootools/mootools.js"></script>
 <script type="text/javascript" src="connection.js"></script>
 <script type="text/javascript">
 language ='<?php echo $install_language?>';

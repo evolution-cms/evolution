@@ -1,5 +1,5 @@
 <?php 
-if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 if(!$modx->hasPermission('save_template')) {
 	$e->setError(3);
 	$e->dumpError();	
@@ -58,7 +58,7 @@ switch ($_POST['mode']) {
 			$modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $name));
         }
         // disallow reserved names
-        if(in_array($name, array('id', 'type', 'contentType', 'pagetitle', 'longtitle', 'description', 'alias', 'link_attributes', 'published', 'pub_date', 'unpub_date', 'parent', 'isfolder', 'introtext', 'content', 'richtext', 'template', 'menuindex', 'searchable', 'cacheable', 'createdby', 'createdon', 'editedby', 'editedon', 'deleted', 'deletedon', 'deletedby', 'publishedon', 'publishedby', 'menutitle', 'donthit', 'haskeywords', 'hasmetatags', 'privateweb', 'privatemgr', 'content_dispo', 'hidemenu'))) {
+        if(in_array($name, array('id', 'type', 'contentType', 'pagetitle', 'longtitle', 'description', 'alias', 'link_attributes', 'published', 'pub_date', 'unpub_date', 'parent', 'isfolder', 'introtext', 'content', 'richtext', 'template', 'menuindex', 'searchable', 'cacheable', 'createdby', 'createdon', 'editedby', 'editedon', 'deleted', 'deletedon', 'deletedby', 'publishedon', 'publishedby', 'menutitle', 'donthit', 'haskeywords', 'hasmetatags', 'privateweb', 'privatemgr', 'content_dispo', 'hidemenu','alias_visible'))) {
             $nameerror = true;
             $_POST['name'] = '';
 			$modx->event->alert(sprintf($_lang['reserved_name_warning'], $_lang['tv'], $name));
@@ -88,7 +88,7 @@ switch ($_POST['mode']) {
 			echo "\$rs not set! New variable not saved!";
 		} else {	
 			// get the id
-			if(!$newid=mysql_insert_id()) {
+			if(!$newid=$modx->db->getInsertId()) {
 				echo "Couldn't get last insert key!";
 				exit;
 			}			
@@ -203,16 +203,16 @@ function saveTemplateAccess() {
     }
    
 	
-	mysql_query("DELETE FROM $tbl WHERE tmplvarid = $id");
+	$modx->db->query("DELETE FROM $tbl WHERE tmplvarid = $id");
 	for($i=0;$i<count($templates);$i++){
 	    $setRank = ($getRankArray[$templates[$i]]) ? $getRankArray[$templates[$i]] : 0;
-		mysql_query("INSERT INTO $tbl (tmplvarid,templateid,rank) VALUES($id,".$templates[$i].",$setRank);");
+		$modx->db->query("INSERT INTO $tbl (tmplvarid,templateid,rank) VALUES($id,".$templates[$i].",$setRank);");
 	}	
 }
 
 function saveDocumentAccessPermissons(){
 	global $id,$newid;
-	global $dbase,$table_prefix,$use_udperms;
+	global $modx,$dbase,$table_prefix,$use_udperms;
 
 	if($newid) $id = $newid;
 	$docgroups = $_POST['docgroups'];
@@ -221,7 +221,7 @@ function saveDocumentAccessPermissons(){
 	if($use_udperms==1) {
 		// delete old permissions on the tv
 		$sql = "DELETE FROM $dbase.`".$table_prefix."site_tmplvar_access` WHERE tmplvarid=$id;";
-		$rs = mysql_query($sql);
+		$rs = $modx->db->query($sql);
 		if(!$rs){
 			echo "An error occurred while attempting to delete previous template variable access permission entries.";
 			exit;
@@ -229,7 +229,7 @@ function saveDocumentAccessPermissons(){
 		if(is_array($docgroups)) {
 			foreach ($docgroups as $dgkey=>$value) {
 				$sql = "INSERT INTO $dbase.`".$table_prefix."site_tmplvar_access` (tmplvarid,documentgroup) values($id,".stripslashes($value).")";
-				$rs = mysql_query($sql);
+				$rs = $modx->db->query($sql);
 				if(!$rs){
 					echo "An error occured while attempting to save template variable acess permissions.";
 					exit;

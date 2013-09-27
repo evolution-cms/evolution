@@ -54,7 +54,11 @@ foreach ($_REQUEST as $name=>$value) {
 	$dID = ($dittoID == "") ? true : strpos($name, $dittoID);
 	if ((substr($name, 0, 6) == "ditto_" && $dID) && !in_array($saneName,$bad) && ($good == false || in_array($saneName,$good)) && !preg_match("/[\^`~!\/@\\#\}\$%:;\)\(\{&\*=\|'\+]/", $value)){
 		if ($stripTags) $var = $modx->stripTags($value);
-		$variables[$saneName] = trim($value);
+		if ($saneName == 'orderBy') {
+			$variables[$saneName]  = array('parsed'=>array(),'custom'=>array(),'unparsed'=>trim($value));
+		}else{
+			$variables[$saneName] = trim($value);
+	    }
 	}
 }
 /*

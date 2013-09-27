@@ -10,9 +10,7 @@
 
 <body>
 
-<div id="banner">
-
-</div>
+<div id="banner">ManagerManager plugin fo MODx Evolution</div>
 
 
 <div id="main">
@@ -30,50 +28,407 @@
         </ul>   
     </div>
     
-  <div id="content">
+<div class="content">
       <h1>Function reference: Widgets</h1>
+	
       <h2>mm_widget_tags($fields, $delimiter, $source, $display_count, $roles, $templates)</h2>
       <p><img src="images/tags.jpg" width="441" height="47" alt="Tags demo" /></p>
       <p>Changes the manager widget for this text field to tag-friendly format - e.g. it will display a clickable list of all other tags which have been used for this field.</p>
-      <p><strong>$fields: </strong>The name(s) of the template variables this should apply to. Can accept multiple field separated by a comma. [Required]<br />
-          <strong>$delimiter:</strong> Which character separates individual tags within this field [Optional - default is comma)<br />
-          <strong>$source:</strong> The names(s) of the template variables the list of tags should come from. This allows the list of tags to come from a different field that the widget. By default it uses all the TVs listed in $fields [Optional - default is same as $fields] <br />
-          <strong>$display_count:</strong> Display the number of documents using each tag (in brackets after it) [Optional - boolean - default is false] <br />
-          <strong>$roles:</strong> comma separated list of role IDs this should be applied to. Leave empty (or omit) for all roles [Optional - default is all]<br />
-          <strong>$templates: </strong>comma separated list of template IDs this should be applied to. Leave empty (or omit) for all templates [Optional - default is all]</p>
+	<table>
+		<tr>
+			<th>Parameter</th>
+			<th>Type</th>
+			<th>Desctiption</th>
+			<th>Default</th>
+		</tr>
+		<tr>
+			<td>$fields</td>
+			<td>string; comma separated string</td>
+			<td>The name(s) of the template variables this should apply to.</td>
+			<td><em>Required</em></td>
+		</tr>
+		<tr>
+			<td>$delimiter</td>
+			<td>string</td>
+			<td>Which character separates individual tags within this field</td>
+			<td>Optional: Default: ','</td>
+		</tr>
+		<tr>
+			<td>$source</td>
+			<td>string; comma separated string</td>
+			<td>The names(s) of the template variables the list of tags should come from. This allows the list of tags to come from a different field that the widget. By default it uses all the TVs listed in $fields</td>
+			<td>Optional; Default: = $fields</td>
+		</tr>
+		<tr>
+			<td>$display_count</td>
+			<td>0; 1</td>
+			<td>Display the number of documents using each tag (in brackets after it).</td>
+			<td>Optional; Default: 0</td>
+		</tr>
+		<tr>
+			<td>$roles</td>
+			<td>string; comma separated string</td>
+			<td>List of role IDs this should be applied to. Leave empty (or omit) for all roles.</td>
+			<td>Optional; Default: ''</td>
+		</tr>
+		<tr>
+			<td>$templates</td>
+			<td>string; comma separated string</td>
+			<td>List of template IDs this should be applied to. Leave empty (or omit) for all templates.</td>
+			<td>Optional; Default: ''.</td>
+		</tr>
+	</table>
+	
       <p><code>mm_widget_tags('docTags'); // Adds the tag editing widget to the docTags template variable wherever it appears</code><code>mm_widget_tags('docTags,blogTags'); // Adds the tag editing widget to the docTags and blogTags template variables wherever they appear - making all previous values from both template variables available in both tags</code><code>mm_widget_tags('docTags', ',', '', '1', '', '2'); // Adds the tag editing widget to the docTags template variables in template 2, and shows the number of times each tag has been used</code></p>
       <p>Note: TV(s) must be a text input field</p>
+      
       <h2> mm_widget_showimagetvs($fields, $w, $h, $thumbnailerUrl, $roles, $templates)</h2>
       <p><img src="images/image-preview.jpg" alt="Show Image preview" /></p>
       <p>Emulates the ShowImageTVs plugin - shows a preview of images chosen in image TVs.</p>
-      <p><strong>$fields: </strong>The name(s) of the template variables this should apply to. Can accept multiple field separated by a comma. [Optional - default is to use all image TVs]<br />
-          <strong>$w:</strong> Preferred maximum width of the preview [Optional - default is 300]<br />
-          <strong>$h:</strong> Preferred maximum height of the preview [Optional - default is 100]<br />
-          <strong>$thumbnailerUrl:</strong> If you have PHPThumb installed (for example through Maxigallery or phpthumb plugins/snippets), use this to make thumbnails rather than resizing the image previews via CSS. Particularly useful if you are using very large pictures, which would take a long time to download. [Optional - url] <br />
-          <strong>$roles:</strong> comma separated list of role IDs this should be applied to. Leave empty (or omit) for all roles [Optional - default is all]<br />
-          <strong>$templates: </strong>comma separated list of template IDs this should be applied to. Leave empty (or omit) for all templates [Optional - default is all]</p>
+	<table>
+		<tr>
+			<th>Parameter</th>
+			<th>Type</th>
+			<th>Desctiption</th>
+			<th>Default</th>
+		</tr>
+		<tr>
+			<td>$fields</td>
+			<td>string; comma separated string</td>
+			<td>The name(s) of the template variables this should apply to.</td>
+			<td>Optional; Default: '' (is to use all image TVs)</td>
+		</tr>
+		<tr>
+			<td>$w</td>
+			<td>integer</td>
+			<td>Preferred maximum width of the preview.</td>
+			<td>Optional; Default: 300</td>
+		</tr>
+		<tr>
+			<td>$h</td>
+			<td>integer</td>
+			<td>Preferred maximum height of the preview.</td>
+			<td>Optional; Default: 300</td>
+		</tr>
+		<tr>
+			<td>$thumbnailerUrl</td>
+			<td>url string</td>
+			<td>If you have PHPThumb installed (for example through Maxigallery or phpthumb plugins/snippets), use this to make thumbnails rather than resizing the image previews via CSS. Particularly useful if you are using very large pictures, which would take a long time to download.</td>
+			<td>Optional</td>
+		</tr>
+		<tr>
+			<td>$roles</td>
+			<td>string; comma separated string</td>
+			<td>List of role IDs this should be applied to. Leave empty (or omit) for all roles.</td>
+			<td>Optional; Default: ''</td>
+		</tr>
+		<tr>
+			<td>$templates</td>
+			<td>string; comma separated string</td>
+			<td>List of template IDs this should be applied to. Leave empty (or omit) for all templates.</td>
+			<td>Optional; Default: ''</td>
+		</tr>
+	</table>
+	
       <p><code>mm_widget_showimagetvs(); // Adds an image preview to every Image-type template variable</code><code>mm_widget_showimagetvs('', 150, 150); // Adds a 150x150px image preview to every Image-type template variable</code><code>mm_widget_showimagetvs('mypic', '300', '200', '/assets/snippets/phpthumb/phpThumb.php', '', '2'); // Adds an image preview to the mypic template variables in template 2, resized to 300x200px using phpthumb at the URL supplied</code></p>
       <p>Note: TV(s) must be an image input field</p>
+
       <h2>mm_widget_colors($fields, $default, $roles, $templates)</h2>
       <p><img src="images/color-picker.jpg" alt="Color picker" /></p>
       <p>Turns a text field into a color picker - storing the chosen hex value in the field.</p>
-      <p><strong>$fields: </strong>The name(s) of the template variables this should apply to. Can accept multiple field separated by a comma. [Required]<br />
-          <strong>$default:</strong> Which color should be selected by default in new documents. This is only used in situations where the TV does not have a default value specified in the TV definition [Optional - default is white)<br />
-          <strong>$roles:</strong> comma separated list of role IDs this should be applied to. Leave empty (or omit) for all roles [Optional - default is all]<br />
-          <strong>$templates: </strong>comma separated list of template IDs this should be applied to. Leave empty (or omit) for all templates [Optional - default is all]</p>
+	<table>
+		<tr>
+			<th>Parameter</th>
+			<th>Type</th>
+			<th>Desctiption</th>
+			<th>Default</th>
+		</tr>
+		<tr>
+			<td>$fields</td>
+			<td>string; comma separated string</td>
+			<td>The name(s) of the template variables this should apply to.</td>
+			<td><em>Required</em></td>
+		</tr>
+		<tr>
+			<td>$default</td>
+			<td>color string</td>
+			<td>Which color should be selected by default in new documents. This is only used in situations where the TV does not have a default value specified in the TV definition.</td>
+			<td>Optional; Default: '#ffffff'</td>
+		</tr>
+		<tr>
+			<td>$roles</td>
+			<td>string; comma separated string</td>
+			<td>List of role IDs this should be applied to. Leave empty (or omit) for all roles.</td>
+			<td>Default: ''</td>
+		</tr>
+		<tr>
+			<td>$templates</td>
+			<td>string; comma separated string</td>
+			<td>List of template IDs this should be applied to. Leave empty (or omit) for all templates.</td>
+			<td>Default: ''</td>
+		</tr>
+	</table>
+	
       <p><code>mm_widget_colors('bgcolor'); // Adds the color picker widget to the bgcolor template variable wherever it appears</code><code>mm_widget_colors('bgcolor,foreground'); // Adds the color picker widget to the bgcolor and foreground template variables wherever they appear</code><code>mm_widget_colors('bgcolor', '#000000', '1', '2'); // Adds the color picker widget to the bgcolor template variable, with a default value of black for new documents, only for role 1 and documents using template 2</code></p>
       <p>Note: TV(s) must be a text input field</p>
-      <p>&nbsp;  </p>
+
       <h2>mm_widget_accessdenied($ids, $message, $roles)      </h2>
       <p>Denies access to specific documents (by ID) without inheritance.</p>
       <p>For example, if the parent document has some Ditto call (which you do not want a user to edit) but want to allow them to create child documents.</p>
       <p class="warning">Use this plugin with caution, as while it offers a basic level of protection, it does not prevent access to documents in the same way as ModX's permissions system. It would be possible for a user with technical knowledge to override it. Think of it as a &quot;No entry&quot; sign for an unlocked door, rather than a lock.</p>
       <p>Originally contributed by Metaller</p>
-      <p><strong>$ids: </strong>comma separated list of  documents ID to prevent access. [Required]<br />
-        <strong>$message:</strong> HTML formatted message [Optional - default is &quot;Access denied - Access to current document closed for security reasons.&quot;)<br />
-        <strong>$roles:</strong> comma separated list of role IDs this should be applied to. Leave empty (or omit) for all roles [Optional - default is all]<br />
-    </p>
+	
+	<table>
+		<tr>
+			<th>Parameter</th>
+			<th>Type</th>
+			<th>Desctiption</th>
+			<th>Default</th>
+		</tr>
+     	<tr>
+			<td>$ids</td>
+			<td>string; comma separated string</td>
+			<td>List of  documents ID to prevent access.</td>
+			<td><em>Required</em></td>
+		</tr>
+     	<tr>
+			<td>$message</td>
+			<td>html string</td>
+			<td>HTML formatted message</td>
+			<td>Optional; Default: '&quot;Access denied - Access to current document closed for security reasons.&quot;'</td>
+		</tr>
+     	<tr>
+			<td>$roles</td>
+			<td>string; comma separated string</td>
+			<td>List of role IDs this should be applied to. Leave empty (or omit) for all roles.</td>
+			<td>Optional; Default: ''</td>
+		</tr>
+	</table>
+	
       <p><code>mm_widget_accessdenied('1,15'); // Prevents all users from accessing documents 1 and 15 (displaying default message)</code><code>mm_widget_accessdenied('1,15', 'Please select another document to edit' '2'); // Prevents  users with role 2 from accessing documents 1 and 15 (displaying custom message)</code></p>
+
+     <h2>mm_ddGMap($tvs, $roles, $templates, $w, $h)</h2>
+     <p>Integrate the Google Maps in MODx documents.</p>
+     <table>
+     	<tr>
+     		<th>Parameter</th>
+     		<th>Type</th>
+     		<th>Desctiption</th>
+     		<th>Default</th>
+     	</tr>
+     	<tr>
+     		<td>$tvs</td>
+     		<td>string; comma separated string</td>
+     		<td>The name(s) of the template variables this should apply to.</td>
+     		<td><em>Required</em></td>
+     	</tr>
+		<tr>
+			<td>$roles</td>
+			<td>string; comma separated string</td>
+			<td>List of role IDs this should be applied to. Leave empty (or omit) for all roles.</td>
+			<td>Optional; Default: ''</td>
+		</tr>
+		<tr>
+			<td>$templates</td>
+			<td>string; comma separated string</td>
+			<td>List of template IDs this should be applied to. Leave empty (or omit) for all templates.</td>
+			<td>Optional; Default: ''</td>
+		</tr>
+		<tr>
+			<td>$w</td>
+			<td>string; integer</td>
+			<td>Width of container map.</td>
+			<td>Optional; Default: 'auto'</td>
+		</tr>
+		<tr>
+			<td>$h</td>
+			<td>integer</td>
+			<td>Height of container map.</td>
+			<td>Optional; Default: 400</td>
+		</tr>
+	</table>
+	<p><i>Created by <a href="http://www.DivanDesign.biz">DivanDesign</a>.</i></p>
+     
+	<h2>mm_ddYMap($tvs, $roles, $templates, $key, $w, $h)</h2>
+	<p>Integrate the Yandex Maps in MODx documents.</p>
+	<table>
+		<tr>
+			<th>Parameter</th>
+			<th>Type</th>
+			<th>Desctiption</th>
+			<th>Default</th>
+		</tr>
+		<tr>
+			<td>$tvs</td>
+			<td>string; comma separated string</td>
+			<td>The name(s) of the template variables this should apply to.</td>
+			<td><em>Required</em></td>
+		</tr>
+		<tr>
+			<td>$roles</td>
+			<td>string; comma separated string</td>
+			<td>List of role IDs this should be applied to. Leave empty (or omit) for all roles.</td>
+			<td>Optional; Default: ''</td>
+		</tr>
+		<tr>
+			<td>$templates</td>
+			<td>string; comma separated string</td>
+			<td>List of template IDs this should be applied to. Leave empty (or omit) for all templates.</td>
+			<td>Optional; Default: ''</td>
+		</tr>
+		<tr>
+			<td>$key</td>
+			<td>string</td>
+			<td>Yandex-map key for your domain.</td>
+			<td><em>Required</em></td>
+		</tr>
+		<tr>
+			<td>$w</td>
+			<td>string; integer</td>
+			<td>Width of container map.</td>
+			<td>Optional; Default: 'auto'</td>
+		</tr>
+		<tr>
+			<td>$h</td>
+			<td>integer</td>
+			<td>Height of container map.</td>
+			<td>Optional; Default: 400</td>
+		</tr>
+	</table>
+	<p><i>Created by <a href="http://www.DivanDesign.biz">DivanDesign</a>.</i></p>
+	
+	<h2>mm_ddSetFieldValue($field, $value, $roles, $templates)</h2>
+	<p>Sets a value for a field (always!).</p>
+	<table>
+		<tr>
+			<th>Parameter</th>
+			<th>Type</th>
+			<th>Desctiption</th>
+			<th>Default</th>
+		</tr>
+		<tr>
+			<td>$field</td>
+			<td>string</td>
+			<td>The name of the document field or template varible this should apply to.</td>
+			<td><em>Required</em></td>
+		</tr>
+		<tr>
+			<td>$value</td>
+			<td>string</td>
+			<td>The value for the field specified.</td>
+			<td>Optional; Default: ''</td>
+		</tr>
+		<tr>
+			<td>$roles</td>
+			<td>comma separated string</td>
+			<td>List of role IDs this should be applied to. Leave empty (or omit) for all roles.</td>
+			<td>Optional; Default: ''</td>
+		</tr>
+		<tr>
+			<td>$templates</td>
+			<td>comma separated string</td>
+			<td>List of template IDs this should be applied to. Leave empty (or omit) for all templates.</td>
+			<td>Optional; Default: ''</td>
+		</tr>
+	</table>
+	<p><i>Created by <a href="http://www.DivanDesign.biz">DivanDesign</a>.</i></p>
+	
+	<h2>mm_ddMaxLength($tvs, $roles, $templates, $length)</h2>
+	<p>Limit the number of characters in the TV (like the Twitter).</p>
+	<table>
+		<tr>
+			<th>Parameter</th>
+			<th>Type</th>
+			<th>Desctiption</th>
+			<th>Default</th>
+		</tr>
+		<tr>
+			<td>$tvs</td>
+			<td>comma separated string</td>
+			<td>The name(s) of the template variables this should apply to.</td>
+			<td><em>Required</em></td>
+		</tr>
+		<tr>
+			<td>$roles</td>
+			<td>comma separated string</td>
+			<td>List of role IDs this should be applied to. Leave empty (or omit) for all roles.</td>
+			<td>Optional; Default: ''</td>
+		</tr>
+		<tr>
+			<td>$templates</td>
+			<td>comma separated string</td>
+			<td>List of template IDs this should be applied to. Leave empty (or omit) for all templates.</td>
+			<td>Optional; Default: ''</td>
+		</tr>
+		<tr>
+			<td>$length</td>
+			<td>integer</td>
+			<td>Count of characters to limit.</td>
+			<td>Optional; Default: 150</td>
+		</tr>
+	</table>
+	<p><i>Created by <a href="http://www.DivanDesign.biz">DivanDesign</a>.</i></p>
+	
+	<h2>mm_ddAutoFolders($ddRoles, $ddTemplates, $ddParent, $ddDateSource, $ddYearTpl, $ddMonthTpl, $ddYearPub, $ddMonthPub)</h2>
+	<p>Automatically move documents (OnBeforeDocFormSave event) based on their date (publication date; any date in tv) into folders of year and month (like 2012/02/).</p>
+	<p>If folders (documents) of year and month doesn`t exist they are created automatically OnBeforeDocFormSave event.</p>
+	<table>
+		<tr>
+			<th>Parameter</th>
+			<th>Type</th>
+			<th>Desctiption</th>
+			<th>Default</th>
+		</tr>
+		<tr>
+			<td>$ddRoles</td>
+			<td>comma separated string</td>
+			<td>List of role IDs this should be applied to. Leave empty (or omit) for all roles.</td>
+			<td>Optional; Default: ''</td>
+		</tr>
+		<tr>
+			<td>$ddTemplates</td>
+			<td>comma separated string</td>
+			<td>List of template IDs this should be applied to. Leave empty (or omit) for all templates.</td>
+			<td>Optional; Default: ''</td>
+		</tr>
+		<tr>
+			<td>$ddParent</td>
+			<td>integer</td>
+			<td>Ultimate parent ID (parent of the years).</td>
+			<td><em>Required</em></td>
+		</tr>
+		<tr>
+			<td>$ddDateSource</td>
+			<td>string</td>
+			<td>Name of template variable which contains the date.</td>
+			<td>Optional; Default: 'pub_date'</td>
+		</tr>
+		<tr>
+			<td>$ddYearTpl</td>
+			<td>integer</td>
+			<td>Template ID for documents of year.</td>
+			<td>Optional; Default: 0</td>
+		</tr>
+		<tr>
+			<td>$ddMonthTpl</td>
+			<td>integer</td>
+			<td>Template ID for documents of month.</td>
+			<td>Optional; Default: 0</td>
+		</tr>
+		<tr>
+			<td>$ddYearPub</td>
+			<td>0; 1</td>
+			<td>Would the documents of year published?</td>
+			<td>Optional; Default: 0</td>
+		</tr>
+		<tr>
+			<td>$ddMonthPub</td>
+			<td>0; 1</td>
+			<td>Would the documents of month published?</td>
+			<td>Optional; Default: 0</td>
+		</tr>
+	</table>
+	<p><i>Created by <a href="http://www.DivanDesign.biz">DivanDesign</a>.</i></p>
   </div>
 </div>
 </body>

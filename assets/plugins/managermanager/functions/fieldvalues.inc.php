@@ -22,7 +22,7 @@ function mm_default($field, $value='', $roles='', $templates='', $eval=false) {
 		return;
 	} 
 	
-	if (useThisRule($roles, $templates)) {
+	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)) {
 		
 		// What's the new value, and does it include PHP?
 		$new_value = ($eval) ? eval($value) : $value;
@@ -167,7 +167,7 @@ function mm_default($field, $value='', $roles='', $templates='', $eval=false) {
 			
 			
 			default:
-				return;
+				$output .= '$j("*[name='.$field.']").val("'.$new_value.'");' . "\n"; //return;
 			break;
 		}	
 		$e->output($output . "\n");	
@@ -196,7 +196,7 @@ function mm_inherit($fields, $roles='', $templates='') {
 	} 
 	
 	// Are we using this rule?
-	if (useThisRule($roles, $templates)) {
+	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)) {
 		
 		// Get the parent info
 		if (isset($_REQUEST['pid'])){
@@ -296,7 +296,7 @@ function mm_synch_fields($fields, $roles='', $templates='') {
 	}
 		
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if (useThisRule($roles, $templates)) {
+	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)) {
 	
 	$output = " // ----------- Synch fields -------------- \n";
 	

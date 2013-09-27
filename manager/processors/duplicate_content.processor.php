@@ -1,5 +1,5 @@
 <?php
-if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 if(!$modx->hasPermission('new_document') || !$modx->hasPermission('save_document')) {
 	$e->setError(3);
 	$e->dumpError();
@@ -28,7 +28,7 @@ if(!$udperms->checkPermissions()) {
 }
 
 // check for MySQL 4.0.14
-$mysqlVerOk = (version_compare(mysql_get_server_info(),"4.0.14")>=0);
+$mysqlVerOk = (version_compare($modx->db->getVersion(),"4.0.14")>=0);
 
 // Run the duplicator
 $id = duplicateDocument($id);
@@ -115,8 +115,8 @@ function duplicateDocument($docid, $parent=null, $_toplevel=0) {
 	// Start duplicating all the child documents that aren't deleted.
 	$_toplevel++;
 	$rs = $modx->db->select('id', $tblsc, 'parent='.$docid.' AND deleted=0', 'id ASC');
-	if (mysql_num_rows($rs)) {
-		while ($row = mysql_fetch_assoc($rs))
+	if ($modx->db->getRecordCount($rs)) {
+		while ($row = $modx->db->getRow($rs))
 			duplicateDocument($row['id'], $newparent, $_toplevel);
 	}
 
@@ -136,23 +136,10 @@ function duplicateKeywords($oldid,$newid){
 			array('content_id'=>'', 'keyword_id'=>''), $tblkw, // Insert into
 			$newid.', keyword_id', $tblkw, 'content_id='.$oldid // Copy from
 		);
-		/* old way *
-		$sql = 'INSERT INTO '.$tblkw.' (content_id, keyword_id)
-				SELECT '.$newid.', keyword_id
-				FROM '.$tblkw.' WHERE content_id='.$oldid;
-		$rs = mysql_query($sql); /**/
 	} else {
 		$ds = $modx->db->select('keyword_id', $tblkw, 'content_id='.$oldid);
 		while ($row = $modx->db->getRow($ds))
 			$modx->db->insert(array('content_id'=>$newid, 'keyword_id'=>$row['keyword_id']), $tblkw);
-		/* old way *
-		$sql = 'SELECT keyword_id FROM '.$tblkw.' WHERE content_id='.$oldid;
-		$ds = mysql_query($sql);
-		while($row = mysql_fetch_assoc($ds)) {
-			$sql = 'INSERT INTO '.$tblkw.' (content_id, keyword_id) VALUES
-					('.$newid.', '.$row['keyword_id'].')';
-			$rs = mysql_query($sql);
-		} /**/
 	}
 }
 
@@ -168,25 +155,10 @@ function duplicateTVs($oldid,$newid){
 			array('contentid'=>'', 'tmplvarid'=>'', 'value'=>''), $tbltvc, // Insert into
 			$newid.', tmplvarid, value', $tbltvc, 'contentid='.$oldid // Copy from
 		);
-		/* old way *
-		$sql = "INSERT INTO $tbltvc (contentid, tmplvarid, value)
-				SELECT $newid, tmplvarid,value
-				FROM $tbltvc WHERE contentid=$oldid;";
-		$rs = mysql_query($sql); /**/
 	} else {
 		$ds = $modx->db->select('tmplvarid, value', $tbltvc, 'contentid='.$oldid);
 		while ($row = $modx->db->getRow($ds))
 			$modx->db->insert(array('contentid'=>$newid, 'tmplvarid'=>$row['tmplvarid'], 'value'=>$modx->db->escape($row['value'])), $tbltvc);
-		/* old way *
-		$sql = "SELECT $newid as 'newid', tmplvarid, value
-				FROM $tbltvc WHERE contentid=$oldid;";
-		$ds = mysql_query($sql);
-		while($row = mysql_fetch_assoc($ds)) {
-			$sql = "INSERT INTO $tbltvc
-					(contentid, tmplvarid,value) VALUES
-					(".$row['newid'].", '".$row['tmplvarid']."','".mysql_escape_string($row['value'])."');";
-			$rs = mysql_query($sql);
-		} /**/
 	}
 }
 
@@ -202,26 +174,10 @@ function duplicateAccess($oldid,$newid){
 			array('document'=>'', 'document_group'=>''), $tbldg, // Insert into
 			$newid.', document_group', $tbldg, 'document='.$oldid // Copy from
 		);
-		/* old way *
-		$sql = "INSERT INTO $tbldg (document, document_group)
-				SELECT $newid, document_group
-				FROM $tbldg WHERE document=$oldid;";
-		$rs = mysql_query($sql);
-		/**/
 	} else {
 		$ds = $modx->db->select('document_group', $tbldg, 'document='.$oldid);
 		while ($row = $modx->db->getRow($ds))
 			$modx->db->insert(array('document'=>$newid, 'document_group'=>$row['document_group']), $tbldg);
-		/* old way *
-		$sql = "SELECT $newid as 'newid', document_group
-				FROM $tbldg WHERE document=$oldid;";
-		$ds = mysql_query($sql);
-		while($row = mysql_fetch_assoc($ds)) {
-			$sql = "INSERT INTO $tbldg
-					(document, document_group) VALUES
-					('".$row['newid']."', '".$row['document_group']."');";
-			$rs = mysql_query($sql);
-		} /**/
 	}
 }
 

@@ -1,0 +1,13 @@
+.ddMaxLengthCount {
+	font-size: 18px;
+	color: #999999;
+}
+
+.maxLenghtWarning {color: #5C0002;}
+
+.maxLenghtError {color: #D40D12;}
+
+.maxLenghtErrorField {
+	background-image: none !important;
+	background-color: #ff9999 !important;
+}

@@ -16,7 +16,7 @@
     body {font-size: 75%; /* 12px 62.5% for 10px*/margin-bottom: 1px; /* avoid jumping scrollbars */background: #F4F4F4; text-shadow: 0 1px 0 #fff;}
     h1 {padding:0;margin:0;font-weight:normal;font-size:218%;}
     form {border: 5px solid #EAECEE;padding:10px;}
-    .sectionHeader {padding: 5px 3px 5px 18px;font-weight: bold;color: #000;background: #EAECEE url(media/style/MODxCarbon/images/misc/fade.gif) repeat-x top;}
+    .sectionHeader {padding: 5px 3px 5px 18px;font-weight: bold;color: #000;background: #EAECEE url(media/style/MODxRE/images/misc/fade.gif) repeat-x top;}
     .sectionBody {padding:20px;display:block;background: #fff;}
     #mx_loginbox {width: 460px;margin:30px auto 0;}
     fieldset.buttonset{text-align:center;border:none;padding-top:20px;}

@@ -68,7 +68,7 @@
 	</label><br />
 	
   [+jot.captcha:is=`1`:then=`
-		<div style="width:150px;margin-top: 5px;margin-bottom: 5px;"><a href="[+jot.link.current:esc+]"><img src="[(base_url)]manager/includes/veriword.php?rand=[+jot.seed+]" width="148" height="60" alt="If you have trouble reading the code, click on the code itself to generate a new random code." style="border: 1px solid #003399" /></a></div>
+		<div style="width:150px;margin-top: 5px;margin-bottom: 5px;"><a href="[+jot.link.current:esc+]"><img src="[(modx_manager_url)]includes/veriword.php?rand=[+jot.seed+]" width="148" height="60" alt="If you have trouble reading the code, click on the code itself to generate a new random code." style="border: 1px solid #003399" /></a></div>
 		<label for="vericode[+jot.id+]">Help prevent spam - enter security code above:<br /><input type="text" name="vericode" style="width:150px;" size="20" id="vericode[+jot.id+]" /></label>&nbsp;
 	`:strip+]
 	

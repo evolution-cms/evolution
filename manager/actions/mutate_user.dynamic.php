@@ -1,5 +1,5 @@
 <?php
-if (IN_MANAGER_MODE != "true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+if (IN_MANAGER_MODE != "true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 
 switch((int) $_REQUEST['a']) {
   case 12:
@@ -23,11 +23,11 @@ $user = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 // check to see the snippet editor isn't locked
 $sql = "SELECT internalKey, username FROM $dbase.`" . $table_prefix . "active_users` WHERE $dbase.`" . $table_prefix . "active_users`.action=12 AND $dbase.`" . $table_prefix . "active_users`.id=$user";
-$rs = mysql_query($sql);
-$limit = mysql_num_rows($rs);
+$rs = $modx->db->query($sql);
+$limit = $modx->db->getRecordCount($rs);
 if ($limit > 1) {
 	for ($i = 0; $i < $limit; $i++) {
-		$lock = mysql_fetch_assoc($rs);
+		$lock = $modx->db->getRow($rs);
 		if ($lock['internalKey'] != $modx->getLoginUserID()) {
 			$msg = sprintf($_lang["lock_msg"], $lock['username'], "user");
 			$e->setError(5, $msg);
@@ -40,8 +40,8 @@ if ($limit > 1) {
 if ($_REQUEST['a'] == '12') {
 	// get user attribute
 	$sql = "SELECT * FROM $dbase.`" . $table_prefix . "user_attributes` WHERE $dbase.`" . $table_prefix . "user_attributes`.internalKey = " . $user . ";";
-	$rs = mysql_query($sql);
-	$limit = mysql_num_rows($rs);
+	$rs = $modx->db->query($sql);
+	$limit = $modx->db->getRecordCount($rs);
 	if ($limit > 1) {
 		echo "More than one user returned!<p>";
 		exit;
@@ -50,13 +50,13 @@ if ($_REQUEST['a'] == '12') {
 		echo "No user returned!<p>";
 		exit;
 	}
-	$userdata = mysql_fetch_assoc($rs);
+	$userdata = $modx->db->getRow($rs);
 
 	// get user settings
 	$sql = "SELECT us.* FROM $dbase.`" . $table_prefix . "user_settings` us WHERE us.user = " . $user . ";";
-	$rs = mysql_query($sql);
+	$rs = $modx->db->query($sql);
 	$usersettings = array ();
-	while ($row = mysql_fetch_assoc($rs))
+	while ($row = $modx->db->getRow($rs))
 		$usersettings[$row['setting_name']] = $row['setting_value'];
 	// manually extract so that user display settings are not overwritten
 	foreach ($usersettings as $k => $v) {
@@ -67,8 +67,8 @@ if ($_REQUEST['a'] == '12') {
 	
 	// get user name
 	$sql = "SELECT * FROM $dbase.`" . $table_prefix . "manager_users` WHERE $dbase.`" . $table_prefix . "manager_users`.id = " . $user . ";";
-	$rs = mysql_query($sql);
-	$limit = mysql_num_rows($rs);
+	$rs = $modx->db->query($sql);
+	$limit = $modx->db->getRecordCount($rs);
 	if ($limit > 1) {
 		echo "More than one user returned while getting username!<p>";
 		exit;
@@ -77,7 +77,7 @@ if ($_REQUEST['a'] == '12') {
 		echo "No user returned while getting username!<p>";
 		exit;
 	}
-	$usernamedata = mysql_fetch_assoc($rs);
+	$usernamedata = $modx->db->getRow($rs);
 	$_SESSION['itemname'] = $usernamedata['username'];
 } else {
 	$userdata = array ();
@@ -110,11 +110,11 @@ function ConvertDate($date) {
 // include the country list language file
 $_country_lang = array();
 include_once "lang/country/english_country.inc.php";
-if($manager_language!="english" && file_exists($modx->config['base_path']."manager/includes/lang/country/".$manager_language."_country.inc.php")){
+if($manager_language!="english" && file_exists($modx->config['site_manager_path']."includes/lang/country/".$manager_language."_country.inc.php")){
     include_once "lang/country/".$manager_language."_country.inc.php";
 }
 
-$displayStyle = (($_SESSION['browser'] == 'mz') || ($_SESSION['browser'] == 'op') || ($_SESSION['browser'] == 'sf')) ? "table-row" : "block";
+$displayStyle = ($_SESSION['browser']==='modern') ? 'table-row' : 'block' ;
 ?>
 <script type="text/javascript" src="media/calendar/datepicker.js"></script>
 <script type="text/javascript">
@@ -247,9 +247,9 @@ if (is_array($evtOut))
     			</a>
     			  <span class="and"> + </span>				
     			<select id="stay" name="stay">
-    			  <option id="stay1" value="1" <?php echo $_REQUEST['stay']=='1' ? ' selected=""' : ''?> ><?php echo $_lang['stay_new']?></option>
+    			  <option id="stay1" value="1" <?php echo $_REQUEST['stay']=='1' ? ' selected="selected"' : ''?> ><?php echo $_lang['stay_new']?></option>
     			  <option id="stay2" value="2" <?php echo $_REQUEST['stay']=='2' ? ' selected="selected"' : ''?> ><?php echo $_lang['stay']?></option>
-    			  <option id="stay3" value=""  <?php echo $_REQUEST['stay']=='' ? ' selected=""' : ''?>  ><?php echo $_lang['close']?></option>
+    			  <option id="stay3" value=""  <?php echo $_REQUEST['stay']=='' ? ' selected="selected"' : ''?>  ><?php echo $_lang['close']?></option>
     			</select>		
     		  </li>
     		  <?php
@@ -339,12 +339,12 @@ if (is_array($evtOut))
 
 $notAdmin = ($_SESSION['mgrRole'] == 1) ? "" : "WHERE id != 1";
 $sql = "select name, id from $dbase.`" . $table_prefix . "user_roles` $notAdmin";
-$rs = mysql_query($sql);
+$rs = $modx->db->query($sql);
 ?>
 		<select name="role" class="inputBox" onchange='documentDirty=true;' style="width:300px">
 		<?php
 
-while ($row = mysql_fetch_assoc($rs)) {
+while ($row = $modx->db->getRow($rs)) {
     if ($_REQUEST['a']=='11') {
         $selectedtext = $row['id'] == '1' ? ' selected="selected"' : '';
     } else {
@@ -374,6 +374,16 @@ while ($row = mysql_fetch_assoc($rs)) {
 			<td>&nbsp;</td>
 			<td><input type="text" name="fax" class="inputBox" value="<?php echo htmlspecialchars($userdata['fax']); ?>" onchange="documentDirty=true;" /></td>
 		  </tr>
+		<tr>
+			<td><?php echo $_lang['user_street']; ?>:</td>
+			<td>&nbsp;</td>
+			<td><input type="text" name="street" class="inputBox" value="<?php echo htmlspecialchars($userdata['street']); ?>" onchange="documentDirty=true;" /></td>
+		</tr>
+		<tr>
+			<td><?php echo $_lang['user_city']; ?>:</td>
+			<td>&nbsp;</td>
+			<td><input type="text" name="city" class="inputBox" value="<?php echo htmlspecialchars($userdata['city']); ?>" onchange="documentDirty=true;" /></td>
+		</tr>
 		  <tr>
 			<td><?php echo $_lang['user_state']; ?>:</td>
 			<td>&nbsp;</td>
@@ -414,6 +424,7 @@ while ($row = mysql_fetch_assoc($rs)) {
 				<option value=""></option>
 				<option value="1" <?php echo ($userdata['gender']=='1')? "selected='selected'":""; ?>><?php echo $_lang['user_male']; ?></option>
 				<option value="2" <?php echo ($userdata['gender']=='2')? "selected='selected'":""; ?>><?php echo $_lang['user_female']; ?></option>
+				<option value="3" <?php echo ($userdata['gender']=='3')? "selected='selected'":""; ?>><?php echo $_lang['user_other']; ?></option>
 				</select>
 			</td>
 		  </tr>
@@ -765,7 +776,7 @@ if (is_array($evtOut))
 			function BrowseServer() {
 				var w = screen.width * 0.7;
 				var h = screen.height * 0.7;
-				OpenServerBrowser("<?php echo $base_url; ?>manager/media/browser/mcpuk/browser.html?Type=images&Connector=<?php echo $base_url; ?>manager/media/browser/mcpuk/connectors/php/connector.php&ServerPath=<?php echo $base_url; ?>", w, h);
+				OpenServerBrowser("<?php echo MODX_MANAGER_URL; ?>media/browser/mcpuk/browser.php?Type=images", w, h);
 			}
 			function SetUrl(url, width, height, alt){
 				document.userform.photo.value = url;
@@ -789,20 +800,17 @@ if (is_array($evtOut))
           </tr>
 		</table>
 	</div>
-</div>
-</div>
-
+	
+<?php if ($use_udperms == 1):?>
 <?php
-
-if ($use_udperms == 1) {
 	$groupsarray = array ();
 
 	if ($_GET['a'] == '12') { // only do this bit if the user is being edited
 		$sql = "SELECT * FROM $dbase.`" . $table_prefix . "member_groups` where member=" . $_GET['id'] . "";
-		$rs = mysql_query($sql);
-		$limit = mysql_num_rows($rs);
+		$rs = $modx->db->query($sql);
+		$limit = $modx->db->getRecordCount($rs);
 		for ($i = 0; $i < $limit; $i++) {
-			$currentgroup = mysql_fetch_assoc($rs);
+			$currentgroup = $modx->db->getRow($rs);
 			$groupsarray[$i] = $currentgroup['user_group'];
 		}
 	}
@@ -813,24 +821,28 @@ if ($use_udperms == 1) {
 			$groupsarray[] = $v;
 	}
 ?>
-
-<div class="sectionHeader"><?php echo $_lang['access_permissions']; ?></div><div class="sectionBody">
+    <div class="tab-page" id="tabAccess">
+    	<h2 class="tab"><?php echo $_lang["access_permissions"] ?></h2>
+    	<script type="text/javascript">tpUser.addTabPage( document.getElementById( "tabAccess" ) );</script>
+    <div class="sectionHeader"><?php echo $_lang['access_permissions']; ?></div>
+    <div class="sectionBody">
 <?php
-
 	echo "<p>" . $_lang['access_permissions_user_message'] . "</p>";
 	$sql = "SELECT name, id FROM $dbase.`" . $table_prefix . "membergroup_names` ORDER BY name";
-	$rs = mysql_query($sql);
-	$limit = mysql_num_rows($rs);
+	$rs = $modx->db->query($sql);
+	$limit = $modx->db->getRecordCount($rs);
 	for ($i = 0; $i < $limit; $i++) {
-		$row = mysql_fetch_assoc($rs);
+		$row = $modx->db->getRow($rs);
 		echo "<input type='checkbox' name='user_groups[]' value='" . $row['id'] . "'" . (in_array($row['id'], $groupsarray) ? " checked='checked'" : "") . " />" . $row['name'] . "<br />";
 	}
 ?>
-</div>
-<?php
+    </div>
+<?php endif; ?>
+    </div>
 
-}
-?>
+</div>
+</div>
+
 <input type="submit" name="save" style="display:none">
 <?php
 

@@ -1,9 +1,9 @@
 <?php
 /**
- * MODx language File
+ * MODX language File
  *
  * @author davaeron
- * @package MODx installer for 0.9.6.2
+ * @package MODX installer for 0.9.6.2
  * @revision 3729
  *
  * Filename:       /install/lang/norwegian/norwegian.inc.php
@@ -31,32 +31,32 @@ $_lang["begin"] = 'Start';
 $_lang["btnback_value"] = 'Tilbake';
 $_lang["btnclose_value"] = 'Lukk';
 $_lang["btnnext_value"] = 'Neste';
-$_lang["cant_write_config_file"] = 'MODx kunne ikke skrive konfigurasjonsfilen. Kopier f&oslash;lgende til filen ';
-$_lang["cant_write_config_file_note"] = 'N&aring;r det er klart kan du logge inn i MODx administrasjonskontoen ved &aring; g&aring; til adressen DittDomene.xx/manager/ i din nettleser.';
+$_lang["cant_write_config_file"] = 'MODX kunne ikke skrive konfigurasjonsfilen. Kopier f&oslash;lgende til filen ';
+$_lang["cant_write_config_file_note"] = 'N&aring;r det er klart kan du logge inn i MODX administrasjonskontoen ved &aring; g&aring; til adressen DittDomene.xx/[+MGR_DIR+]/ i din nettleser.';
 $_lang["checkbox_select_options"] = 'Alternativ for kryssbokser:';
 $_lang["checking_if_cache_exist"] = 'Kontrollerer at katalogen <span class="mono">assets/cache</span> eksisterer: ';
 $_lang["checking_if_cache_file2_writable"] = 'Kontrollerer at filen <span class="mono">assets/cache/sitePublishing.idx.php</span> er skrivbar: ';
 $_lang["checking_if_cache_file_writable"] = 'Kontrollerer at filen <span class="mono">assets/cache/siteCache.idx.php</span> er skrivbar: ';
 $_lang["checking_if_cache_writable"] = 'Kontrollerer at katalogen <span class="mono">assets/cache</span> er skrivbar: ';
-$_lang["checking_if_config_exist_and_writable"] = 'Kontrollerer at filen <span class="mono">manager/includes/config.inc.php</span> eksisterer og er skrivbar: ';
+$_lang["checking_if_config_exist_and_writable"] = 'Kontrollerer at filen <span class="mono">[+MGR_DIR+]/includes/config.inc.php</span> eksisterer og er skrivbar: ';
 $_lang["checking_if_export_exists"] = 'Kontrollerer at katalogen <span class="mono">assets/export</span> eksisterer: ';
 $_lang["checking_if_export_writable"] = 'Kontrollerer at katalogen <span class="mono">assets/export</span> er skrivbar: ';
-$_lang["checking_if_images_exist"] = 'Kontrollerer at katalogen <span class="mono">assets/images</span> eksisterer: ';
-$_lang["checking_if_images_writable"] = 'Kontrollerer at katalogen <span class="mono">assets/images</span> er skrivbar: ';
+$_lang["checking_if_images_exist"] = 'Kontrollerer at katalogen <span class="mono">assets/images</span>, <span class="mono">/assets/media</span>, <span class="mono">/assets/backup</span>, <span class="mono">/assets/.thumbs</span> eksisterer: ';
+$_lang["checking_if_images_writable"] = 'Kontrollerer at katalogen <span class="mono">assets/images</span>, <span class="mono">/assets/media</span>, <span class="mono">/assets/backup</span>, <span class="mono">/assets/.thumbs</span> er skrivbar: ';
 $_lang["checking_mysql_strict_mode"] = 'Sjekker MySQL for strict mode: ';
 $_lang["checking_mysql_version"] = 'Sjekker MySQL versjon: ';
 $_lang["checking_php_version"] = 'Kontrollerer PHP-versjon: ';
 $_lang["checking_registerglobals"] = 'Kontrollerar att Register_Globals är inaktiverad: ';
-$_lang["checking_registerglobals_note"] = 'Denne konfigurasjonen gj&oslash;r din nettside betydelig mer s&aring;rbar for webkodeinjeksjon (Cross Site Scripting - XSS). Du b&oslash;r kontakte din webhost og be om &aring; f&aring; inaktivert denne instillingen. Vanligvis lar det seg gj&oslash;re p&aring; tre f&oslash;lgende m&aring;ter: modifisering av den globale php.ini-filen, tillegg av regler i en .htaccess-fil i roten p&aring; din MODX-installasjon eller gjennom &aring; legge til en tilpasset php.ini-fil (som tilsidesetter den globale filen) i alla kataloger i din installasjon (og det finns masser av dem). Du kan fremdeles installere MODx, men ta denne advarselen p&aring; alvor.'; //Look at changing this to provide a solution.
+$_lang["checking_registerglobals_note"] = 'Denne konfigurasjonen gj&oslash;r din nettside betydelig mer s&aring;rbar for webkodeinjeksjon (Cross Site Scripting - XSS). Du b&oslash;r kontakte din webhost og be om &aring; f&aring; inaktivert denne instillingen. Vanligvis lar det seg gj&oslash;re p&aring; tre f&oslash;lgende m&aring;ter: modifisering av den globale php.ini-filen, tillegg av regler i en .htaccess-fil i roten p&aring; din MODX-installasjon eller gjennom &aring; legge til en tilpasset php.ini-fil (som tilsidesetter den globale filen) i alla kataloger i din installasjon (og det finns masser av dem). Du kan fremdeles installere MODX, men ta denne advarselen p&aring; alvor.'; //Look at changing this to provide a solution.
 $_lang["checking_sessions"] = 'Kontrollerer at sesjoner er korrekt konfigurert: ';
 $_lang["checking_table_prefix"] = 'Kontrollerer tabellprefixet `';
 $_lang["chunks"] = 'Chunks';
-$_lang["config_permissions_note"] = 'For nye installasjoner i Linux/Unix-milj&oslash; m&aring; en tom fil med navnet <span class="mono">config.inc.php</span> opprettes i katalogen <span class="mono">manager/includes/</span> med skriverrettighetene satt til 666.';
+$_lang["config_permissions_note"] = 'For nye installasjoner i Linux/Unix-milj&oslash; m&aring; en tom fil med navnet <span class="mono">config.inc.php</span> opprettes i katalogen <span class="mono">[+MGR_DIR+]/includes/</span> med skriverrettighetene satt til 666.';
 $_lang["connection_screen_collation"] = 'Kollasjonering:';
 $_lang["connection_screen_connection_information"] = 'Tilkoblingsopplysninger';
 $_lang["connection_screen_connection_method"] = 'Tilkoblingsmetode:';
 $_lang["connection_screen_database_connection_information"] = 'Databaseopplysninger';
-$_lang["connection_screen_database_connection_note"] = 'Angi navnet p&aring; databasen som ble opprettet for MODx. Om det ikke finnes en database fra f&oslash;r, kommer installasjonsprogrammet til &aring; pr&oslash;ve &aring; opprette en for deg. Dette kan mislykkes avhengig av MySQL-konfigurasjonen eller databasens tilgangsrettigheter for ditt domene/installasjon.';
+$_lang["connection_screen_database_connection_note"] = 'Angi navnet p&aring; databasen som ble opprettet for MODX. Om det ikke finnes en database fra f&oslash;r, kommer installasjonsprogrammet til &aring; pr&oslash;ve &aring; opprette en for deg. Dette kan mislykkes avhengig av MySQL-konfigurasjonen eller databasens tilgangsrettigheter for ditt domene/installasjon.';
 $_lang["connection_screen_database_host"] = 'Databasevert:';
 $_lang["connection_screen_database_login"] = 'Databasens inloggingsnavn:';
 $_lang["connection_screen_database_name"] = 'Databasenavn:';
@@ -104,10 +104,10 @@ $_lang["installing_demo_site"] = 'Installerer pr&oslash;ve-data: ';
 $_lang["language_code"] = 'no';
 $_lang["loading"] = 'Henter...';
 $_lang["modules"] = 'Moduler';
-$_lang["modx_footer1"] = '&copy; 2005-2011 the <a href="http://www.modxcms.com/" target="_blank" style="color: green; text-decoration:underline">MODx</a> Content Mangement Framework (CMF) project. Med enerett. MODx er lisensiert under GNU GPL.';
-$_lang["modx_footer2"] = 'MODx er fri programvare. Vi oppmuntrer deg til &aring; v&aelig;re kreativ og bruke MODx p&aring; hvilken m&aring;te du vil. V&aelig;r bare n&oslash;ye med &aring; beholde kildekoden fri om du gj&oslash;r endringer og siden velger &aring; omdistribuere din modifiserte versjon av MODx.';
-$_lang["modx_install"] = 'MODx &raquo; Installasjon';
-$_lang["modx_requires_php"] = ', og MODx krever PHP 4.2.0 eller senere.';
+$_lang["modx_footer1"] = '&copy; 2005-2013 the <a href="http://modx.com/" target="_blank" style="color: green; text-decoration:underline">MODX</a> Content Mangement Framework (CMF) project. Med enerett. MODX er lisensiert under GNU GPL.';
+$_lang["modx_footer2"] = 'MODX er fri programvare. Vi oppmuntrer deg til &aring; v&aelig;re kreativ og bruke MODX p&aring; hvilken m&aring;te du vil. V&aelig;r bare n&oslash;ye med &aring; beholde kildekoden fri om du gj&oslash;r endringer og siden velger &aring; omdistribuere din modifiserte versjon av MODX.';
+$_lang["modx_install"] = 'MODX &raquo; Installasjon';
+$_lang["modx_requires_php"] = ', og MODX krever PHP 4.2.0 eller senere.';
 $_lang["mysql_5051"] = ' MySQL server versjon er 5.0.51!';
 $_lang["mysql_5051_warning"] = 'Det er kjente problemer med MySQL 5.0.51. Det anbefales at du oppgraderer f&oslash;r du fortsetter.';
 $_lang["mysql_version_is"] = ' Din MySQL versjon er: ';
@@ -116,7 +116,7 @@ $_lang["not_found"] = 'ble ikke funnet';
 $_lang["ok"] = 'OK!';
 $_lang["optional_items"] = 'Valgbare alternativ';
 $_lang["optional_items_note"] = 'Velg dine installasjonsalternativ og klikk Installér:';
-$_lang["php_security_notice"] = '<legend>Sikkerhetsmelding</legend><p>Selv om MODx kommer til &aring; fungere p&aring; din PHP-versjon, s&aring; anbefales det ikke &aring; bruke MODx med den versjonen. Din PHP-versjon er s&aring;rbar for en rekke sikkerhetshull. Oppgrader til PHP-versjon 4.3.8 eller senere, der disse sikkerhetshullene er tettet. Det anbefales at du oppgraderer til denne versjonen for &aring; beskytte ditt nettsted.</p>';
+$_lang["php_security_notice"] = '<legend>Sikkerhetsmelding</legend><p>Selv om MODX kommer til &aring; fungere p&aring; din PHP-versjon, s&aring; anbefales det ikke &aring; bruke MODX med den versjonen. Din PHP-versjon er s&aring;rbar for en rekke sikkerhetshull. Oppgrader til PHP-versjon 4.3.8 eller senere, der disse sikkerhetshullene er tettet. Det anbefales at du oppgraderer til denne versjonen for &aring; beskytte ditt nettsted.</p>';
 $_lang["please_correct_error"] = '. Korrigér feilen';
 $_lang["please_correct_errors"] = '. Korrigér feilen';
 $_lang["plugins"] = 'Plugins';
@@ -128,7 +128,7 @@ $_lang["running_database_updates"] = 'Kj&oslash;r oppdateringer for databasen: '
 $_lang["sample_web_site"] = 'Pr&oslash;ve-data';
 $_lang["sample_web_site_note"] = 'V&aelig;r klar over at dette kommer til &aring; <b style="color:#CC0000;">skrive over</b> eksisterende dokumenter og ressurser.';
 $_lang["setup_cannot_continue"] = 'Installasjonsprogrammet kan desverre ikke fortsette p&aring; grunn av ovenforst&aring;ende ';
-$_lang["setup_couldnt_install"] = 'MODx installasjonsprogramet kunne ikke legge til/endre noen tabeller i den valgte databasen.';
+$_lang["setup_couldnt_install"] = 'MODX installasjonsprogramet kunne ikke legge til/endre noen tabeller i den valgte databasen.';
 $_lang["setup_database"] = 'Installasjonsprogrammet kommer n&aring; til &aring; fors&oslash;ke &aring; konfigurere databasen:<br />';
 $_lang["setup_database_create_connection"] = 'Oppretter tilkobling til databasen: ';
 $_lang["setup_database_create_connection_failed"] = 'Tilkoblingen til databasen mislyktes!';
@@ -153,14 +153,14 @@ $_lang["status_passed"] = 'godkjent - databasen valgt';
 $_lang["status_passed_database_created"] = 'godkjent - database opprettet';
 $_lang["status_passed_server"] = 'godkjent - kollasjoneringer er n&aring; tilgjengelig';
 $_lang["strict_mode"] = ' MySQL serveren er i strict mode!';
-$_lang["strict_mode_error"] = 'MODx krever at strict mode er utkoblet. Du kan sette MySQL tilstanden ved &aring; endre my.cnf filen eller ved &aring; kontakte din serveradministrator.';
+$_lang["strict_mode_error"] = 'MODX krever at strict mode er utkoblet. Du kan sette MySQL tilstanden ved &aring; endre my.cnf filen eller ved &aring; kontakte din serveradministrator.';
 $_lang["summary_setup_check"] = 'Installasjonsprogrammet har gjennomf&oslash;rt en del tester för &aring; kontrollere at alt er klart for &aring; starte installasjonen.';
 $_lang["table_prefix_already_inuse"] = ' - Tabellprefixet brukes allerede i denne databasen!';
 $_lang["table_prefix_already_inuse_note"] = 'Installasjonsprogrammet kunne ikke installere i den valgte databasen ettersom den allerede inneholder tabeller med det prefixet du oppga. Angi et nytt prefix og kj&oslash;r installasjonsprogrammet p&aring; nytt.';
 $_lang["table_prefix_not_exist"] = ' - Tabellprefixet finnes ikke i denne databasen!';
 $_lang["table_prefix_not_exist_note"] = 'Installasjonsprogrammet kunne ikke installere i den valgte databasen ettersom den ikke inneholder tabeller med det prefixet du oppga f&oslash;r oppgraderingen. Velg et eksisterende prefix og kj&oslash;r installasjonsprogrammet p&aring; nytt.';
 $_lang["templates"] = 'Maler';
-$_lang["to_log_into_content_manager"] = 'Du kan logge inn i inneholdsh&aring;ndtereren (manager/index.php)ved &aring; klikke p&aring; \"Lukk\"-knappen.';
+$_lang["to_log_into_content_manager"] = 'Du kan logge inn i inneholdsh&aring;ndtereren ([+MGR_DIR+]/index.php)ved &aring; klikke p&aring; \"Lukk\"-knappen.';
 $_lang["toggle"] = 'Skift';
 $_lang["unable_install_chunk"] = 'Kunne ikke installere chunk.  Fil';
 $_lang["unable_install_module"] = 'Kunne ikke installere modul.  Fil';
@@ -169,10 +169,10 @@ $_lang["unable_install_snippet"] = 'Kunne ikke installere snippet.  Fil';
 $_lang["unable_install_template"] = 'Kunne ikke installere template.  Fil';
 $_lang["upgrade_note"] = '<strong>Notér:</strong> F&oslash;r du begynner &aring; bruke ditt nettsted b&oslash;r du logge inn i inneholdsh&aring;ndtereren via en administrasjonskonto og kontrollere og lagre dine konfigurasjonsinstillingar.';
 $_lang["upgraded"] = 'Oppgradert';
-$_lang["visit_forum"] = ', s&aring; bes&oslash;k <a href="http://www.modxcms.com/forums/" target="_blank">MODx forum</a>.';
+$_lang["visit_forum"] = ', s&aring; bes&oslash;k <a href="http://forums.modx.com/" target="_blank">MODX forum</a>.';
 $_lang["warning"] = 'ADVARSEL!';
 $_lang["welcome_message_text"] = 'Dette programmet vil guide deg gjennom hele installasjonen.';
-$_lang["welcome_message_welcome"] = 'Velkommen til installasjonsprogrammet for MODx.';
+$_lang["welcome_message_welcome"] = 'Velkommen til installasjonsprogrammet for MODX.';
 $_lang["writing_config_file"] = 'Skriver konfigurasjonsfil: ';
 $_lang["you_running_php"] = ' - Du k&oslash;rer PHP ';
 ?>

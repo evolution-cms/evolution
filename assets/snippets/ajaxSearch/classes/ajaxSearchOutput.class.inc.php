@@ -4,9 +4,9 @@
 * -----------------------------------------------------------------------------
 * @package  AjaxSearchOutput
 *
-* @author       Coroico - www.modx.wangba.fr
-* @version      1.9.2
-* @date         05/12/2010
+* @author       Coroico - www.evo.wangba.fr
+* @version      1.9.3
+* @date         26/09/2012
 *
 * Purpose:
 *    The AjaxSearchOutput class contains all functions and data used to display output
@@ -624,6 +624,7 @@ class AjaxSearchOutput {
     * Set log infos into DB for failed searches
     */
     function _setFailedSearches($asCall = '', $select = '') {
+        global $modx;
         $logid = '';
         if ($this->log >= 1 ) {
             $logInfo = array();
@@ -631,7 +632,7 @@ class AjaxSearchOutput {
             $logInfo['nbResults'] = 0;
             $logInfo['results'] = '';
             $logInfo['asCall'] = $asCall;
-            $logInfo['asSelect'] = mysql_real_escape_string($select);
+            $logInfo['asSelect'] = $modx->db->escape($select);
             $logid = $this->asLog->setLogRecord($logInfo);
         }
         return $logid;
@@ -640,6 +641,7 @@ class AjaxSearchOutput {
     * Set log infos into DB for successfull searches
     */
     function _setSuccessfullSearches($ig) {
+        global $modx;
         $logid = '';
         if ($this->log == 2) {
             $logInfo = array();
@@ -647,7 +649,7 @@ class AjaxSearchOutput {
             $logInfo['nbResults'] = $this->asResults->groupResults[$ig]['length'];
             $logInfo['results'] = $this->asResults->groupResults[$ig]['found'];
             $logInfo['asCall'] = $this->_getAsCall($this->asResults->groupResults[$ig]['ucfg']);
-            $logInfo['asSelect'] = mysql_real_escape_string($this->asResults->groupResults[$ig]['select']);
+            $logInfo['asSelect'] = $modx->db->escape($this->asResults->groupResults[$ig]['select']);
             $logid = $this->asLog->setLogRecord($logInfo);
         }
         return $logid;
@@ -839,7 +841,7 @@ class AjaxSearchOutput {
         $tbl = $modx->getFullTableName('site_snippets');
         $select = "SELECT * FROM " . $tbl . " WHERE " . $tbl . ".name='" . $modx->db->escape($snippetName) . "';";
         $rs = $modx->db->query($select);
-        return $modx->recordCount($rs);
+        return $modx->db->getRecordCount($rs);
     }
     /*
     * Get offset of other groups

@@ -1,7 +1,12 @@
 <?php
 //:: MODx Installer Setup file 
 //:::::::::::::::::::::::::::::::::::::::::
-require_once('../manager/includes/version.inc.php');
+if (file_exists(dirname(__FILE__)."/../assets/cache/siteManager.php")) {
+    include_once(dirname(__FILE__)."/../assets/cache/siteManager.php");
+}else{
+define('MGR_DIR', 'manager');
+}
+require_once('../'.MGR_DIR.'/includes/version.inc.php');
 
 $moduleName = "MODX";
 $moduleVersion = $modx_branch.' '.$modx_version;
@@ -138,7 +143,8 @@ if(is_dir($pluginPath) && is_readable($pluginPath)) {
                 $params['guid'],
                 $params['modx_category'],
                 $params['legacy_names'],
-                array_key_exists('installset', $params) ? preg_split("/\s*,\s*/", $params['installset']) : false
+                array_key_exists('installset', $params) ? preg_split("/\s*,\s*/", $params['installset']) : false,
+                intval($params['disabled'])
             );
         }
     }

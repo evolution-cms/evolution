@@ -1,5 +1,5 @@
 # ignore any files beginning with .
-\.*
+#\.*
 
 # and any files in the cache directory
 /assets/cache/*

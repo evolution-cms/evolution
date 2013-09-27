@@ -1,9 +1,9 @@
 <?php
 
-// Default configuration file - AjaxSearch 1.9
+// Default configuration file - AjaxSearch 1.9.3
 // Keep care all these values are required
 
-$dcfg['version'] = '1.9.2';
+$dcfg['version'] = '1.9.3';
 $dcfg['config'] = '';
 $dcfg['debug'] = 0;
 $dcfg['timeLimit'] = 60;
@@ -73,9 +73,9 @@ $dcfg['tplAjaxResult'] = '@FILE:' . AS_SPATH . 'templates/ajaxResult.tpl.html';
 $dcfg['tplPaging2'] = '@FILE:' . AS_SPATH . 'templates/paging2.tpl.html';
 $dcfg['jscript'] = 'mootools';
 $dcfg['addJscript'] = 1;
-$dcfg['jsMooTools'] = 'manager/media/script/mootools/mootools.js';
+$dcfg['jsMooTools'] = MODX_MANAGER_URL.'/media/script/mootools/mootools.js';
 $dcfg['jsMooTools2'] = AS_SPATH . 'js/mootools2/mootools-1.2.4.js';
-$dcfg['jsJquery'] = 'assets/js/jquery-1.4.4.min.js';
+$dcfg['jsJquery'] = 'assets/js/jquery.min.js';
 
 // For a global parameter initialisation use the following syntax $__param = 'value';
 // To overwrite parameter snippet call use $param = 'value';

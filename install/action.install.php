@@ -33,10 +33,10 @@ function closepage(){
 	var chk = document.install.rminstaller;
 	if(chk && chk.checked) {
 		// remove install folder and files
-		window.location.href = "../manager/processors/remove_installer.processor.php?rminstall=1";
+		window.location.href = "../<?php echo MGR_DIR;?>/processors/remove_installer.processor.php?rminstall=1";
 	}
 	else {
-		window.location.href = "../manager/";
+		window.location.href = "../<?php echo MGR_DIR;?>/";
 	}
 }
 /* ]]> */

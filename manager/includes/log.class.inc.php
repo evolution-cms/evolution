@@ -33,10 +33,10 @@ class logHandler {
         $this->entry['internalKey'] = $internalKey == "" ? $modx->getLoginUserID() : $internalKey;
         $this->entry['username'] = $username == "" ? $modx->getLoginUserName() : $username;
 
-        $this->entry['itemId'] = empty($itemid) ? (int) $_REQUEST['id'] : $itemid;  // writes the id to the object
+        $this->entry['itemId'] = (empty($itemid) && isset($_REQUEST['id'])) ? (int)$_REQUEST['id'] : $itemid;  // writes the id to the object
         if($this->entry['itemId'] == 0) $this->entry['itemId'] = "-"; // to stop items having id 0
 
-        $this->entry['itemName'] = $itemname == "" ? $_SESSION['itemname'] : $itemname; // writes the id to the object
+        $this->entry['itemName'] = ($itemname == "" && isset($_SESSION['itemname']))? $_SESSION['itemname'] : $itemname; // writes the id to the object
         if($this->entry['itemName'] == "") $this->entry['itemName'] = "-"; // to stop item name being empty
 
         $this->writeToLog();
@@ -66,19 +66,26 @@ class logHandler {
             }
         }
 
-        $sql = 'INSERT INTO '.$modx->getFullTableName('manager_log').'
-            (timestamp, internalKey, username, action, itemid, itemname, message) VALUES
-            (\''.time().'\',
-             \''.$modx->db->escape($this->entry['internalKey']).'\',
-             \''.$modx->db->escape($this->entry['username']).'\',
-             \''.$this->entry['action'].'\',
-             \''.$this->entry['itemId'].'\',
-             \''.$modx->db->escape($this->entry['itemName']).'\',
-             \''.$modx->db->escape($this->entry['msg']).'\')';
-
-        if(!$rs=$modx->db->query($sql)) {
-            $this->logError("Couldn't save log to table! ".mysql_error());
+        $fields['timestamp']   = time();
+        $fields['internalKey'] = $modx->db->escape($this->entry['internalKey']);
+        $fields['username']    = $modx->db->escape($this->entry['username']);
+        $fields['action']      = $this->entry['action'];
+        $fields['itemid']      = $this->entry['itemId'];
+        $fields['itemname']    = $modx->db->escape($this->entry['itemName']);
+        $fields['message']     = $modx->db->escape($this->entry['msg']);
+        $insert_id = $modx->db->insert($fields,'[+prefix+]manager_log');
+        if(!$insert_id) {
+            $this->logError("Couldn't save log to table! ".$modx->db->getLastError());
             return true;
+        }
+        else
+        {
+            $limit = (isset($modx->config['manager_log_limit'])) ? intval($modx->config['manager_log_limit']) : 3000;
+            $trim  = (isset($modx->config['manager_log_trim']))  ? intval($modx->config['manager_log_trim']) : 100;
+            if(($insert_id % $trim) === 0)
+            {
+                $modx->rotate_log('manager_log',$limit,$trim);
+            }
         }
     }
 }

@@ -1,52 +1,28 @@
-<?php
-$selfpos = strlen('manager/media/browser/mcpuk/browser.php');
-$base_path = substr(str_replace('\\','/',__FILE__), 0, $selfpos * -1);
-define('MODX_BASE_PATH', $base_path);
-$rb = new FBROWSER();
-$ph = array();
-$ph['seturl_js'] = $rb->seturl_js();
-$output = $rb->render_fbrowser($ph);
-header('X-UA-Compatible: IE=EmulateIE7');
-echo $output;
-
-class FBROWSER
-{
-	function seturl_js()
-	{
-		$editor = (isset($_GET['editor'])) ? $_GET['editor'] : '';
-		$seturl_js_filename = ($editor!=='' && !stristr($editor,"..")) ? 'seturl_js_'  . htmlspecialchars($editor) . '.inc' : '';
-		$seturl_js_path = MODX_BASE_PATH . 'assets/plugins/';
-		
-		if($seturl_js_filename!='' && file_exists($seturl_js_path . $seturl_js_filename))
-		{
-			$result = file_get_contents($seturl_js_path . $seturl_js_filename);
-		}
-		else
-		{
-			switch($editor)
-			{
-				case 'tinymce' :
-				case 'tinymce3':
-					$editor_path = isset($_GET['editorpath']) ? htmlspecialchars($_GET['editorpath'], ENT_QUOTES) : '';
-					$result = file_get_contents('seturl_js_tinymce.inc');
-					$result = str_replace('[+editor_path+]', $editor_path, $result);
-					break;
-				default:
-				$result = '<script src="seturl.js" type="text/javascript"></script>' . PHP_EOL;
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html" />
+	<script type="text/javascript">
+		window.opener.KCFinder = {
+			callBack: function(url) {
+				window.opener.KCFinder = null;
+				window.opener.SetUrl(url);
 			}
-		}
-		return $result;
-	}
-	
-	function render_fbrowser($ph)
-	{
-		$browser_html = file_get_contents('browser.html.inc');
-		$browser_html2 = $browser_html;
-		foreach($ph as $name => $value)
-		{
-			$name = '[+' . $name . '+]';
-			$browser_html = str_replace($name, $value, $browser_html);
-		}
-		return $browser_html;
-	}
-}
+		};
+<?php
+	if(isset($_GET['type']))     $type = strip_tags(trim($_GET['type']));
+	elseif(isset($_GET['Type'])) $type = strip_tags(trim($_GET['Type']));
+    else                         $type = 'images';
+    
+    if($type==='image') $type = 'images';
+    
+	$opener = (isset($_GET['editor'])) ? 'opener=' . strip_tags(trim($_GET['editor'])) : '';
+	$request_uri = "{$opener}&type={$type}";
+?>
+		window.location.href = "browse.php?<?php echo $request_uri; ?>";
+	</script>
+</head>
+
+<body>
+</body>
+</html>

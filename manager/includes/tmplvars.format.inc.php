@@ -58,7 +58,7 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
 
         case "delim":	// display as delimitted list
             $value = parseInput($value,"||");
-            $p = $params['format'] ? $params['format']:",";
+            $p = $params['format'] ? $params['format']:" ";
             if ($p=="\\n") $p = "\n";
             $o = str_replace("||",$p,$value);
             break;
@@ -85,8 +85,8 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
 
         case "floater":
             $value = parseInput($value," ");
-            $modx->regClientStartupScript("manager/media/script/mootools/mootools.js", array('name'=>'mootools', 'version'=>'1.1.1', 'plaintext'=>false));
-            $modx->regClientStartupScript("manager/media/script/mootools/moodx.js", array('name'=>'moodx', 'version'=>'0', 'plaintext'=>false));
+            $modx->regClientStartupScript(MODX_MANAGER_URL."media/script/mootools/mootools.js", array('name'=>'mootools', 'version'=>'1.1.1', 'plaintext'=>false));
+            $modx->regClientStartupScript(MODX_MANAGER_URL."media/script/mootools/moodx.js", array('name'=>'moodx', 'version'=>'0', 'plaintext'=>false));
             $class = (!empty($params['class']) ? " class=\"".$params['class']."\"" : "");
             $style = (!empty($params['style']) ? " style=\"".$params['style']."\"" : "");
             $o .= "\n<div id=\"".$id."\"".$class.$style.">".$value."</div>\n";
@@ -106,8 +106,8 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
 
         case "marquee":
             $value = parseInput($value," ");
-            $modx->regClientStartupScript("manager/media/script/mootools/mootools.js", array('name'=>'mootools', 'version'=>'1.1.1', 'plaintext'=>false));
-            $modx->regClientStartupScript("manager/media/script/mootools/moodx.js", array('name'=>'moodx', 'version'=>'0', 'plaintext'=>false));
+            $modx->regClientStartupScript(MODX_MANAGER_URL."media/script/mootools/mootools.js", array('name'=>'mootools', 'version'=>'1.1.1', 'plaintext'=>false));
+            $modx->regClientStartupScript(MODX_MANAGER_URL."media/script/mootools/moodx.js", array('name'=>'moodx', 'version'=>'0', 'plaintext'=>false));
             $class = (!empty($params['class']) ? " class=\"".$params['class']."\"" : "");
             $style = (!empty($params['style']) ? " style=\"".$params['style']."\"" : "");
             $o .= "\n<div id=\"".$id."\"".$class.$style."><div id=\"marqueeContent\">".$value."</div></div>\n";
@@ -126,8 +126,8 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
             break;
 
         case "ticker":
-            $modx->regClientStartupScript("manager/media/script/mootools/mootools.js", array('name'=>'mootools', 'version'=>'1.1.1', 'plaintext'=>false));
-            $modx->regClientStartupScript("manager/media/script/mootools/moostick.js?init=false", array('name'=>'moostick', 'version'=>'0', 'plaintext'=>false));
+            $modx->regClientStartupScript(MODX_MANAGER_URL."media/script/mootools/mootools.js", array('name'=>'mootools', 'version'=>'1.1.1', 'plaintext'=>false));
+            $modx->regClientStartupScript(MODX_MANAGER_URL."media/script/mootools/moostick.js?init=false", array('name'=>'moostick', 'version'=>'0', 'plaintext'=>false));
             $class = (!empty($params['class']) ? " class=\"".$params['class']."\"" : "");
             $style = (!empty($params['style']) ? " style=\"".$params['style']."\"" : "");
             $o .= "\n<div id=\"".$id."\"".$class.$style.">\n";
@@ -233,12 +233,7 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
             $value = parseInput($value);
             $id = '_'.time();
             if(!$params['vpid']) $params['vpid'] = $id;
-            if($_SESSION['browser']=='ns' && $_SESSION['browser_version']<'5.0') {
-                $sTag = "<ilayer"; $eTag = "</ilayer>";
-            }
-            else {
-                $sTag = "<iframe"; $eTag = "</iframe>";
-            }
+            $sTag = "<iframe"; $eTag = "</iframe>";
             $autoMode = "0";
             $w = $params['width'];
             $h = $params['height'];
@@ -256,7 +251,7 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
                 $autoMode = "2";	//height only
             }
 
-            $modx->regClientStartupScript("manager/media/script/bin/viewport.js", array('name'=>'viewport', 'version'=>'0', 'plaintext'=>false));
+            $modx->regClientStartupScript(MODX_MANAGER_URL."media/script/bin/viewport.js", array('name'=>'viewport', 'version'=>'0', 'plaintext'=>false));
             $o =  $sTag." id='".$params['vpid']."' name='".$params['vpid']."' ";
             if ($params['class']) $o.= " class='".$params['class']."' ";
             if ($params['style']) $o.= " style='".$params['style']."' ";
@@ -269,7 +264,7 @@ function getTVDisplayFormat($name,$value,$format,$paramstring="",$tvtype="",$doc
             break;
 
         case "datagrid":
-            include_once MODX_BASE_PATH."manager/includes/controls/datagrid.class.php";
+            include_once MODX_MANAGER_PATH."includes/controls/datagrid.class.php";
             $grd = new DataGrid('',$value);
 
             $grd->noRecordMsg		=$params['egmsg'];
@@ -370,11 +365,12 @@ function decodeParamValue($s){
 
 // returns an array if a delimiter is present. returns array is a recordset is present
 function parseInput($src, $delim="||", $type="string", $columns=true) { // type can be: string, array
+	global $modx;
     if (is_resource($src)) {
         // must be a recordset
         $rows = array();
-        $nc = mysql_num_fields($src);
-        while ($cols = mysql_fetch_row($src)) $rows[] = ($columns)? $cols : implode(" ",$cols);
+        $nc = $modx->db->numFields($src);
+        while ($cols = $modx->db->getRow($src,'num')) $rows[] = ($columns)? $cols : implode(" ",$cols);
         return ($type=="array")? $rows : implode($delim,$rows);
     }
     else {

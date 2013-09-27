@@ -1,4 +1,5 @@
 <div id="interaction">
+    <div class="section">
     <div class="sectionHeader">[+lang.DM_range_title+]</div> 
     <div class="sectionBody"> 
     <form id="range" action="" method="post"> 
@@ -17,5 +18,6 @@
     </form>
     <br />
     [+lang.DM_select_range_text+]
-    <div style="clear:both;"></div> 
+    <div style="clear:both;"></div>
+    </div>
 </div>

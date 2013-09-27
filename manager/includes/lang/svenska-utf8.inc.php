@@ -12,8 +12,8 @@
 $modx_lang_attribute = 'sv'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
 
-$_lang["about_msg"] = 'MODx är ett <a href="http://modxcms.com/what-is-modx.html" target="_blank">PHP applikationsramverk och system för innehållshantering</a> och är licensierat under <a href="../assets/docs/license.txt">GNU GPL</a>.';
-$_lang["about_title"] = 'Om MODx';
+$_lang["about_msg"] = 'MODX är ett <a href="http://modx.com/" target="_blank">PHP applikationsramverk och system för innehållshantering</a> och är licensierat under <a href="../assets/docs/license.txt">GNU GPL</a>.';
+$_lang["about_title"] = 'Om MODX';
 $_lang["access_permission_denied"] = 'Du har inte behörighet för denna resurs.';
 $_lang["access_permission_parent_denied"] = 'Du har inte behörighet att skapa en resurs här eller att flytta en hit! Välj en annan plats.';
 $_lang["access_permissions"] = 'Åtkomstinställningar';
@@ -38,7 +38,7 @@ $_lang["access_permissions_user_message"] = 'Ange vilka användargrupper denna a
 $_lang["access_permissions_users_in_group"] = 'Användare i gruppen:';
 $_lang["access_permissions_users_tab"] = 'Se de användargrupper som har skapats. Du kan också skapa nya, byta namn på och ta bort grupper samt se vilka användare som är medlemmar i de olika grupperna. För att lägga till eller ta bort en användare från en grupp - redigera användaren direkt. Administratörer (som har roll-ID 1) har alltid tillgång till alla resurser, så de behöver inte läggas till i några grupper.';
 $_lang["account_email"] = 'Kontots e-post';
-$_lang["actioncomplete"] = '<b>Åtgärden har utförts!</b><br /> - Vänta medan MODx rensar upp.';
+$_lang["actioncomplete"] = '<b>Åtgärden har utförts!</b><br /> - Vänta medan MODX rensar upp.';
 $_lang["activity_message"] = 'Denna lista visar de senaste resurserna som du skapat eller redigerat.';
 $_lang["activity_title"] = 'Nyligen skapade/redigerade resurser';
 $_lang["add"] = 'Lägg till';
@@ -53,7 +53,7 @@ $_lang["add_template"] = 'Lägg till mall';
 $_lang["add_tv"] = 'Lägg till mallvariabel';
 $_lang["add_weblink"] = 'Ny webblänk';
 $_lang["administrator_role_message"] = 'Denna roll kan inte redigeras eller tas bort.';
-$_lang['administrators'] = 'Administratörer';
+$_lang["administrators"] = 'Administratörer';
 $_lang["after_saving"] = 'Efter sparande';
 $_lang["alert_delete_self"] = 'Du kan inte ta bort dig själv!';
 $_lang["alias"] = 'URL-alias';
@@ -76,7 +76,7 @@ $_lang["cancel"] = 'Avbryt';
 $_lang["captcha_code"] = 'Säkerhetskod';
 $_lang["captcha_message"] = 'Använd detta för att stärka säkerheten genom att låta användare skriva in en säkerhetskod som är oläsbar för maskiner (och scriptkidsens hackingscript).';
 $_lang["captcha_title"] = 'Använd CAPTCHA-koder';
-$_lang["captcha_words_default"] = 'MODx,Access,Better,BitCode,Chunk,Cache,Desc,Design,Excell,Enjoy,URLs,TechView,Gerald,Griff,Humphrey,Holiday,Intel,Integration,Joystick,Join(),Oscope,Genetic,Light,Likeness,Marit,Maaike,Niche,Netherlands,Ordinance,Oscillo,Parser,Phusion,Query,Question,Regalia,Righteous,Snippet,Sentinel,Template,Thespian,Unity,Enterprise,Verily,Tattoo,Veri,Website,WideWeb,Yap,Yellow,Zebra,Zygote';
+$_lang["captcha_words_default"] = 'MODX,Access,Better,BitCode,Chunk,Cache,Desc,Design,Excell,Enjoy,URLs,TechView,Gerald,Griff,Humphrey,Holiday,Intel,Integration,Joystick,Join(),Oscope,Genetic,Light,Likeness,Marit,Maaike,Niche,Netherlands,Ordinance,Oscillo,Parser,Phusion,Query,Question,Regalia,Righteous,Snippet,Sentinel,Template,Thespian,Unity,Enterprise,Verily,Tattoo,Veri,Website,WideWeb,Yap,Yellow,Zebra,Zygote';
 $_lang["captcha_words_message"] = 'Skriv en lista med CAPTCHA-ord som används om CAPTCHA är påslaget. Separera orden med kommatecken. Detta textfält är begränsat till 255 tecken.';
 $_lang["captcha_words_title"] = 'CAPTCHA-ord';
 $_lang["category_heading"] = 'Kategori';
@@ -110,9 +110,9 @@ $_lang["collapse_tree"] = 'Fäll ihop webbplatsträd';
 $_lang["comment"] = 'Kommentar';
 $_lang["configcheck_admin"] = 'Kontakta en systemadministratör och varna om detta meddelande!';
 $_lang["configcheck_cache"] = 'cache-katalogen är inte skrivbar';
-$_lang["configcheck_cache_msg"] = 'MODx kan inte skriva till cache-katalogen. MODx kommer fortfarande att fungera som förväntat, men inga resurser kommer att cachas. För att rätta till det här, gör /_cache/-katalogen skrivbar.';
+$_lang["configcheck_cache_msg"] = 'MODX kan inte skriva till cache-katalogen. MODX kommer fortfarande att fungera som förväntat, men inga resurser kommer att cachas. För att rätta till det här, gör /_cache/-katalogen skrivbar.';
 $_lang["configcheck_configinc"] = 'Konfigurationsfilen är fortfarande skrivbar';
-$_lang["configcheck_configinc_msg"] = 'Elaka människor kan orsaka stora skador på din webbplats och allt som hör till den. <strong>På riktigt.</strong> Se till att konfigurationsfilen (/manager/includes/config.inc.php) blir skrivskyddad!';
+$_lang["configcheck_configinc_msg"] = 'Elaka människor kan orsaka stora skador på din webbplats och allt som hör till den. <strong>På riktigt.</strong> Se till att konfigurationsfilen (/[+MGR_DIR+]/includes/config.inc.php) blir skrivskyddad!';
 $_lang["configcheck_default_msg"] = 'En ospecificerad varning hittades, vilket är konstigt.';
 $_lang["configcheck_errorpage_unavailable"] = 'Felsidan för din webbplats är inte tillgänglig.';
 $_lang["configcheck_errorpage_unavailable_msg"] = 'Detta betyder att din felsida inte är tillgänglig för vanliga användare eller att den inte existerar. Det här kan leda till att ett tillstånd med upprepande loopar skapas och ger upphov till att många fel rapporteras i webbplatsens loggar. Kontrollera att inga webbanvändargrupper är anslutna till sidan.';
@@ -122,13 +122,13 @@ $_lang["configcheck_hide_warning"] = '<a href="javascript:hideConfigCheckWarning
 $_lang["configcheck_images"] = 'Bildkatalogen är inte skrivbar';
 $_lang["configcheck_images_msg"] = 'Bildkatalogen är inte skrivbar eller finns inte. Detta betyder att bildhanteringsfunktionerna i editorn inte kommer att fungera!';
 $_lang["configcheck_installer"] = 'Installationsprogrammet är fortfarande kvar';
-$_lang["configcheck_installer_msg"] = 'Katalogen /install innehåller installationsprogrammet för MODx. Tänk vad som kan hända om en elaka människor hittar katalogen och kör installationen! De kommer förhoppningsvis inte så långt, eftersom databasen kräver inloggningsuppgifter, men det är ändå bäst att ta bort katalogen från servern.';
+$_lang["configcheck_installer_msg"] = 'Katalogen /install innehåller installationsprogrammet för MODX. Tänk vad som kan hända om en elaka människor hittar katalogen och kör installationen! De kommer förhoppningsvis inte så långt, eftersom databasen kräver inloggningsuppgifter, men det är ändå bäst att ta bort katalogen från servern.';
 $_lang["configcheck_lang_difference"] = 'Fel antal fraser i språkfilen';
 $_lang["configcheck_lang_difference_msg"] = 'Språket som för närvarande är valt har ett annat antal fraser än standardspråket. Detta behöver inte vara ett problem, men kan betyda att språkfilen behöver uppdateras.';
 $_lang["configcheck_notok"] = 'En eller flera konfigurationsdetaljer är inte korrekta:';
 $_lang["configcheck_ok"] = 'Kontrollen utförd OK - inga varningar att rapportera.';
 $_lang["configcheck_php_gdzip"] = 'GD och/eller Zip PHP-tillägg kunde inte hittas';
-$_lang["configcheck_php_gdzip_msg"] = 'MODx behöver tilläggen GD och Zip aktiverade för PHP. Även om MODx kommer att fungera utan dom, så kommer du inte att kunna utnyttja alla möjligheterna i den inbyggda filhanteraren, bildredigeraren eller captcha för inloggningar.';
+$_lang["configcheck_php_gdzip_msg"] = 'MODX behöver tilläggen GD och Zip aktiverade för PHP. Även om MODX kommer att fungera utan dom, så kommer du inte att kunna utnyttja alla möjligheterna i den inbyggda filhanteraren, bildredigeraren eller captcha för inloggningar.';
 $_lang["configcheck_register_globals"] = 'register_globals är satt till ON i din konfigurationsfil för php - php.ini';
 $_lang["configcheck_register_globals_msg"] = 'Denna konfiguration gör din webbplats betydligt mer sårbar för så kallade serveröverskridande scriptattacker (Cross Site Scripting eller XSS). Du bör ta kontakt med din webbhost och ta reda på vad du kan göra för att stänga av den här inställningen.';
 $_lang["configcheck_title"] = 'Konfigurationskontroll';
@@ -141,7 +141,7 @@ $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'Detta betyder att din 
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'Den otillåten-sida som angetts i inställningarna är inte publicerad.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'Detta betyder att din otillåten-sida är oåtkomlig för allmänheten. Publicera sidan eller kontrollera under Verktyg &gt; Konfiguration att den angivna sidan är en existerande resurs i webbplatsens resursträd.';
 $_lang["configcheck_validate_referer"] = 'Säkerhetsvarning: validering av HTTP-header';
-$_lang["configcheck_validate_referer_msg"] = "Konfigurationsinställningen <strong>Kontrollera HTTP_REFERER-headers?</strong> är inaktiverad. Vi rekommenderar att den aktiveras. <a href=\"index.php?a=17\">Gå till konfigurationssidan</a>.";
+$_lang["configcheck_validate_referer_msg"] = 'Konfigurationsinställningen <strong>Kontrollera HTTP_REFERER-headers?</strong> är inaktiverad. Vi rekommenderar att den aktiveras. <a href="index.php?a=17">Gå till konfigurationssidan</a>.';
 $_lang["configcheck_warning"] = 'Konfigurationsvarning: ';
 $_lang["configcheck_what"] = 'Vad betyder det här?';
 $_lang["confirm_block"] = 'Är du säker på att du vill blockera denna användare?';
@@ -178,12 +178,12 @@ $_lang["create_resource_title"] = 'Skapa resurs';
 $_lang["create_weblink_here"] = 'Skapa webblänk här';
 $_lang["createdon"] = 'Skapat datum';
 $_lang["credits"] = 'Erkännanden';
-$_lang["credits_shouts_msg"] = '<p>MODx förvaltas och underhålls på <a href="http://modxcms.com/about/" target="_blank">MODxCMS.com</a>.</p>';
+$_lang["credits_shouts_msg"] = '<p>MODX förvaltas och underhålls på <a href="http://modx.com/" target="_blank">modx.com</a>.</p>';
 $_lang["custom_contenttype_message"] = 'Lägg till egna innehållstyper för resurser. Skriv in innehållstypen i det övre fältet och klicka på "Lägg till" för att lägga till en ny. Markera den innehållstyp som du vill ta bort i det nedre fältet och klicka på "Ta bort".';
 $_lang["custom_contenttype_title"] = 'Egna innehållstyper';
 $_lang["database_charset"] = 'Databasens teckenuppsättning';
 $_lang["database_collation"] = 'Databasens kollationering';
-$_lang["database_name"] = 'Databasens namn'; 
+$_lang["database_name"] = 'Databasens namn';
 $_lang["database_overhead"] = '<b style="color:#990033;">Notera:</b><br />"Overhead" är oanvänt utrymme reserverat av MySQL. Klicka på ett overhead-belopp för att frigöra utrymmet.';
 $_lang["database_server"] = 'Databasens server';
 $_lang["database_table_clickbackup"] = 'för att säkerhetskopiera och ladda ner de valda tabellerna.';
@@ -285,8 +285,8 @@ $_lang["export_site_failed_no_retrieve"] = 'Kan inte hämta dokument.';
 $_lang["export_site_failed_no_write"] = 'Kan inte skriva fil.';
 $_lang["export_site_html"] = 'Exportera webbplatsen till HTML';
 $_lang["export_site_maxtime"] = 'Max exporttid';
-$_lang["export_site_maxtime_message"] = 'Ange hur många sekunder MODx har på sig för att exportera webbplatsen (åsidosätter PHPs inställningar). Skriv 0 för obegränsad tid. Notera att om 0 eller ett väldigt högt nummer anges, kan det få din server att göra konstiga saker och rekommenderas därför inte.';
-$_lang["export_site_message"] = '<p>Använd denna funktion för att exportera hela webbplatsen till statiska HTML-filer. Kom ihåg att du förlorar stora delar av funktionaliteten i MODx om du gör det:</p><ul><li>Sidläsningar på exporterade filer kommer inte att lagras.</li><li>Interaktiva snippets kommer inte att fungera i exporterade filer</li><li>Endast vanliga resurser kommer att exporteras. Webblänkar blir alltså inte exporterade.</li><li>Exportprocessen kan misslyckas om dina resurser innehåller snippets som skickar omdirigeringsanvisningar.</li><li>Beroende på hur du skrivit dina resurser, kan bilder och stilmallar få fel sökvägar. Fixa det här genom att spara eller flytta dina exporterade filer till samma katalog som index.php för MODx befinner sig i.</li></ul><p>Fyll i formuläret och tryck på "Starta export" för att starta exportprocessen. Filerna som skapas kommer att sparas i katalogen assets/export, och när det är möjligt, används resursens URL-alias som filnamn. När du ska exporterar din webbplats är det bäst att ha MODx  konfigurationsinställning "Vänliga URL-alias" satt till "Ja". Beroende på storleken på din webbplats, kan exporten ta en del tid.</p><p><em>Redan existerande filer kommer att skrivas över om de har samma namn som en exporterad fil!</em></p>';
+$_lang["export_site_maxtime_message"] = 'Ange hur många sekunder MODX har på sig för att exportera webbplatsen (åsidosätter PHPs inställningar). Skriv 0 för obegränsad tid. Notera att om 0 eller ett väldigt högt nummer anges, kan det få din server att göra konstiga saker och rekommenderas därför inte.';
+$_lang["export_site_message"] = '<p>Använd denna funktion för att exportera hela webbplatsen till statiska HTML-filer. Kom ihåg att du förlorar stora delar av funktionaliteten i MODX om du gör det:</p><ul><li>Sidläsningar på exporterade filer kommer inte att lagras.</li><li>Interaktiva snippets kommer inte att fungera i exporterade filer</li><li>Endast vanliga resurser kommer att exporteras. Webblänkar blir alltså inte exporterade.</li><li>Exportprocessen kan misslyckas om dina resurser innehåller snippets som skickar omdirigeringsanvisningar.</li><li>Beroende på hur du skrivit dina resurser, kan bilder och stilmallar få fel sökvägar. Fixa det här genom att spara eller flytta dina exporterade filer till samma katalog som index.php för MODX befinner sig i.</li></ul><p>Fyll i formuläret och tryck på "Starta export" för att starta exportprocessen. Filerna som skapas kommer att sparas i katalogen assets/export, och när det är möjligt, används resursens URL-alias som filnamn. När du ska exporterar din webbplats är det bäst att ha MODX  konfigurationsinställning "Vänliga URL-alias" satt till "Ja". Beroende på storleken på din webbplats, kan exporten ta en del tid.</p><p><em>Redan existerande filer kommer att skrivas över om de har samma namn som en exporterad fil!</em></p>';
 $_lang["export_site_numberdocs"] = '<p><b>Hittade %s resurser att exportera...</b></p>';
 $_lang["export_site_prefix"] = 'Filprefix';
 $_lang["export_site_start"] = 'Starta export';
@@ -305,7 +305,7 @@ $_lang["file_delete_folder"] = 'Ta bort katalog';
 $_lang["file_deleted"] = 'Klart!';
 $_lang["file_download_file"] = 'Ladda ner fil';
 $_lang["file_download_unzip"] = 'Zippa upp fil';
-$_lang["file_folder_chmod_error"] = 'Kunde inte ändra behörigheterna. Du måste själv ändra behörigheterna utanför MODx.';
+$_lang["file_folder_chmod_error"] = 'Kunde inte ändra behörigheterna. Du måste själv ändra behörigheterna utanför MODX.';
 $_lang["file_folder_created"] = 'Katalog skapad!';
 $_lang["file_folder_deleted"] = 'Katalogen togs bort!';
 $_lang["file_folder_not_created"] = 'Kunde inte skapa katalog';
@@ -315,7 +315,7 @@ $_lang["file_not_saved"] = 'Kan inte spara filen. Kontrollera att målkatalogen 
 $_lang["file_saved"] = 'Filen uppdaterades utan problem!';
 $_lang["file_unzip"] = 'Uppzippningen klar!';
 $_lang["file_unzip_fail"] = 'Uppzippningen misslyckades!';
-$_lang["filemanager_path_message"] = 'IIS fyller oftast inte i inställningarna för document_root ordentligt, vilket används av filhanteraren för att bestämma vad du kan se. Om du har problem med filhanteraren, se till så att denna sökväg pekar till roten på din MODx-installation.';
+$_lang["filemanager_path_message"] = 'IIS fyller oftast inte i inställningarna för document_root ordentligt, vilket används av filhanteraren för att bestämma vad du kan se. Om du har problem med filhanteraren, se till så att denna sökväg pekar till roten på din MODX-installation.';
 $_lang["filemanager_path_title"] = 'Sökväg till filhanteraren';
 $_lang["files_access_denied"] = 'Åtkomst nekad!';
 $_lang["files_data"] = 'Data';
@@ -354,7 +354,7 @@ $_lang["forgot_password_email_intro"] = 'En förfrågan om att ändra ditt konto
 $_lang["forgot_password_email_link"] = 'Klicka här för att fullborda processen.';
 $_lang["forgot_your_password"] = 'Glömt ditt lösenord?';
 $_lang["friday"] = 'Fredag';
-$_lang["friendly_alias_message"] = 'Om vänliga URL:er aktiveras kommer resursens URL-alias att användas istället för resursens ID. Det betyder att en resurs med ID 1 som har URL-aliaset "introduktion", inget prefix (tomt) och suffixet satt till ".html" vid en aktivering av vänliga URL:er kommer att få adressen "introduktion.html". Om det inte finns något URL-alias, kommer MODx att generera adressen "1.html".';
+$_lang["friendly_alias_message"] = 'Om vänliga URL:er aktiveras kommer resursens URL-alias att användas istället för resursens ID. Det betyder att en resurs med ID 1 som har URL-aliaset "introduktion", inget prefix (tomt) och suffixet satt till ".html" vid en aktivering av vänliga URL:er kommer att få adressen "introduktion.html". Om det inte finns något URL-alias, kommer MODX att generera adressen "1.html".';
 $_lang["friendly_alias_title"] = 'Använd vänliga URL-alias';
 $_lang["friendlyurls_message"] = 'Använd sökmotorvänliga adesser på Apache-webbservrar med mod_rewrite eller på IIS-servrar med plugins från tredje part. För mer information, se .htaccess-filen placerad i webbplatsens rot som följde med i distributionen.';
 $_lang["friendlyurls_title"] = 'Använd vänliga URL:er';
@@ -368,7 +368,7 @@ $_lang["go"] = 'Utför';
 $_lang["group_access_permissions"] = 'Användargruppsåtkomst';
 $_lang["guid"] = 'GUID';
 $_lang["help"] = 'Hjälp';
-$_lang["help_msg"] = '<p>Besök <a href="http://modxcms.com/forums/" target="_blank">MODx Forum</a> om du behöver hjälp med MODx. Det finns också en växande mängd <a href="http://modxcms.com/documentation" target="blank">dokumentation och guider</a> som berör i stort sett alla aspekter av MODx.</p><p>Vi planerar också att erbjuda kommersiella supporttjänster. Sänd oss ett <a href="mailto:hello@modxcms.com?subject=MODx Commercial Support Inquiry">e-postmeddelande om du är intresserad</a>.</p>';
+$_lang["help_msg"] = '<p>Besök <a href="http://forums.modx.com/" target="_blank">MODX Forum</a> om du behöver hjälp med MODX. Det finns också en växande mängd <a href="http://modx.com/documentation" target="blank">dokumentation och guider</a> som berör i stort sett alla aspekter av MODX.</p><p>Vi planerar också att erbjuda kommersiella supporttjänster. Sänd oss ett <a href="mailto:hello@modx.com?subject=MODX Commercial Support Inquiry">e-postmeddelande om du är intresserad</a>.</p>';
 $_lang["help_title"] = 'Hjälp';
 $_lang["hide_tree"] = 'Dölj webbplatsträd';
 $_lang["home"] = 'Hem';
@@ -404,10 +404,25 @@ $_lang["info"] = 'Information';
 $_lang["information"] = 'Information';
 $_lang["inline"] = 'Inline';
 $_lang["insert"] = 'Infoga';
+$_lang["maxImageWidth"] = 'Maximum image width';
+$_lang["maxImageHeight"] = 'Maximum image height';
+$_lang["thumbWidth"] = 'Maximum thumbnail width';
+$_lang["thumbHeight"] = 'Maximum thumbnail height';
+$_lang["thumbsDir"] = 'Thumbnails directory location';
+$_lang["jpegQuality"] = 'JPEG compression';
+$_lang["denyZipDownload"] = 'Disable zip-archives downloading';
+$_lang["denyExtensionRename"] = 'Disable renaming of file extensions';
+$_lang["maxImageWidth_message"] = 'If uploaded image resolution exceeds this setting it will be automatically resized. Set 0 to avoid.';
+$_lang["maxImageHeight_message"] = 'If uploaded image resolution exceeds this setting it will be automatically resized. Set 0 to avoid.';
+$_lang["thumbWidth_message"] = 'Maximum thumbnail width.';
+$_lang["thumbHeight_message"] = 'Maximum thumbnail height.';
+$_lang["thumbsDir_message"] = 'The name of previews folder.';
+$_lang["jpegQuality_message"] = 'JPEG compression quality of thumbnails and resized images';
+$_lang["showHiddenFiles"] = 'Show hidden files in file browser';
 $_lang["keyword"] = 'Nyckelord';
 $_lang["keywords"] = 'Nyckelord';
 $_lang["keywords_intro"] = 'För att ändra ett nyckelord skriver du helt enkelt in det nya nyckelordet i fältet bredvid nyckelordet du vill ändra. Bocka för "Ta bort" för det nyckelord du vill ta bort. Om du bockar för "Ta bort" och dessutom ändrar nyckelordets namn, så kommer namnändringen inte att ske eftersom nyckelordet tas bort!';
-$_lang["language_message"] = 'Välj vilket språket du vill använda i MODx innehållshanterare.';
+$_lang["language_message"] = 'Välj vilket språket du vill använda i MODX innehållshanterare.';
 $_lang["language_title"] = 'Språk';
 $_lang["launch_site"] = 'Visa webbplatsen';
 $_lang["link_attributes"] = 'Länkattribut';
@@ -415,7 +430,7 @@ $_lang["link_attributes_help"] = 'Ange frivilliga attribut för en länk till de
 $_lang["list_mode"] = 'Sätt på/av listläget - används för att lista alla poster i tabellen.';
 $_lang["loading_doc_tree"] = 'Laddar webbplatsträd...';
 $_lang["loading_menu"] = 'Laddar meny...';
-$_lang["loading_page"] = 'Vänta medan MODx laddar sidan...';
+$_lang["loading_page"] = 'Vänta medan MODX laddar sidan...';
 $_lang["localtime"] = 'Lokal tid';
 $_lang["lock_htmlsnippet"] = 'Lås chunk för redigering';
 $_lang["lock_htmlsnippet_msg"] = 'Endast administratörer (roll-ID 1) kan redigera denna chunk.';
@@ -443,7 +458,7 @@ $_lang["login_captcha_message"] = 'Skriv in säkerhetskoden som visas i bilden. 
 $_lang["login_homepage"] = 'Startsida efter inloggning';
 $_lang["login_homepage_message"] = 'Ange ID till den resurs du vill skicka användaren till efter den har loggat in.<br /><b>OBS: Se till att det ID du anger tillhör en existerande resurs, att den har blivit publicerad och kan kommas åt av användaren!</b>';
 $_lang["login_message"] = 'Fyll i dina inloggningsuppgifter för att starta din session. Det är skillnad mellan stora och små bokstäver i ditt användarnamn och lösenord.';
-$_lang["logo_slogan"] = 'Skapa och gör mer med mindre - \nMODx innehållshanterare';
+$_lang["logo_slogan"] = 'Skapa och gör mer med mindre - \nMODX innehållshanterare';
 $_lang["logout"] = 'Logga ut';
 $_lang["long_title"] = 'Lång titel';
 $_lang["mail_check_timeperiod_message"] = 'Anger, i sekunder, hur ofta systemet kontrollerar om ny e-post inkommit till hanteraren.';
@@ -529,11 +544,11 @@ $_lang["module_resource_title"] = 'Modulberoenden';
 $_lang["module_title"] = 'Skapa/redigera modul';
 $_lang["module_viewdepend_msg"] = 'Se vilka element som den här modulen är beroende av. Klicka på knappen "Hantera beroenden" för att ändra beroendena.';
 $_lang["modules"] = 'Moduler';
-$_lang["modx_news"] = 'MODx Nyhetsnotiser';
-$_lang["modx_news_tab"] = 'MODx Nyheter';
-$_lang["modx_news_title"] = 'MODx Nyheter';
-$_lang["modx_security_notices"] = 'MODx Säkerhetsnotiser';
-$_lang["modx_version"] = 'MODx-version';
+$_lang["modx_news"] = 'MODX Nyhetsnotiser';
+$_lang["modx_news_tab"] = 'MODX Nyheter';
+$_lang["modx_news_title"] = 'MODX Nyheter';
+$_lang["modx_security_notices"] = 'MODX Säkerhetsnotiser';
+$_lang["modx_version"] = 'MODX-version';
 $_lang["monday"] = 'Måndag';
 $_lang["move"] = 'Flytta';
 $_lang["move_resource"] = 'Flytta resurs';
@@ -631,7 +646,7 @@ $_lang["paging_total"] = 'totalt';
 $_lang["parameter"] = 'Parameter';
 $_lang["password"] = 'Lösenord';
 $_lang["password_change_request"] = 'Förfrågan om ändrat lösenord';
-$_lang["password_gen_gen"] = 'Låt MODx generera ett lösenord';
+$_lang["password_gen_gen"] = 'Låt MODX generera ett lösenord';
 $_lang["password_gen_length"] = 'Lösenordet du anger måste vara minst 6 tecken långt.';
 $_lang["password_gen_method"] = 'Ny lösenordsmetod';
 $_lang["password_gen_specify"] = 'Låt mig ange ett lösenord:';
@@ -639,7 +654,7 @@ $_lang["password_method"] = 'Metod för tillkännagivande av lösenord';
 $_lang["password_method_email"] = 'Skicka det nya lösenordet med e-post.';
 $_lang["password_method_screen"] = 'Visa det nya lösenordet på skärmen.';
 $_lang["password_msg"] = 'Det nya lösenordet för <b>%s</b> är <b>%s</b>.';
-$_lang["php_version_check"] = 'MODx är kompatibelt med PHP version 5.0.0 eller högre. Du behöver uppgradera din installation av PHP!';
+$_lang["php_version_check"] = 'MODX är kompatibelt med PHP version 5.0.0 eller högre. Du behöver uppgradera din installation av PHP!';
 $_lang["plugin"] = 'Plugin';
 $_lang["plugin_code"] = 'Plugin-kod (php)';
 $_lang["plugin_config"] = 'Konfigurera plugin';
@@ -661,9 +676,9 @@ $_lang["public"] = 'Offentlig';
 $_lang["publish_date"] = 'Publiceringsdatum';
 $_lang["publish_events"] = 'Publicera händelser';
 $_lang["publish_resource"] = 'Publicera resurs';
-$_lang["rb_base_dir_message"] = 'Ange den fysiska sökvägen till filhanterarens katalog. Den här inställningen görs vanligen automatiskt, men om du använder IIS är det möjligt att MODx inte kan räkna ut sökvägen själv, vilket orsakar ett felmeddelande i filhanteraren. I så fall kan du skriva in sökvägen till bildkatalogen här (sökvägen som den visas i Utforskaren).<br /><b>OBS: Filhanterarens katalog måste innehålla underkatalogerna images, files, flash och media för att filhanteraren ska fungera korrekt.</b>';
+$_lang["rb_base_dir_message"] = 'Ange den fysiska sökvägen till filhanterarens katalog. Den här inställningen görs vanligen automatiskt, men om du använder IIS är det möjligt att MODX inte kan räkna ut sökvägen själv, vilket orsakar ett felmeddelande i filhanteraren. I så fall kan du skriva in sökvägen till bildkatalogen här (sökvägen som den visas i Utforskaren).<br /><b>OBS: Filhanterarens katalog måste innehålla underkatalogerna images, files, flash och media för att filhanteraren ska fungera korrekt.</b>';
 $_lang["rb_base_dir_title"] = 'Sökväg till filer';
-$_lang["rb_base_url_message"] = 'Ange den virtuella sökvägen till filhanterarens katalog. Den här inställningen görs vanligen automatiskt, men om du använder IIS är det möjligt att MODx inte kan räkna ut adressen på egen hand, vilket orsakar ett felmeddelande i filhanteraren. I så fall kan du skriva in adressen till bildkatalogen här (adressen som du skulle skriva den i Internet Explorer).';
+$_lang["rb_base_url_message"] = 'Ange den virtuella sökvägen till filhanterarens katalog. Den här inställningen görs vanligen automatiskt, men om du använder IIS är det möjligt att MODX inte kan räkna ut adressen på egen hand, vilket orsakar ett felmeddelande i filhanteraren. I så fall kan du skriva in adressen till bildkatalogen här (adressen som du skulle skriva den i Internet Explorer).';
 $_lang["rb_base_url_title"] = 'Filhanterarens URL';
 $_lang["rb_message"] = 'Välj "Ja" för att använda filhanteraren. Detta låter dina användare läsa och ladda upp filer såsom bilder, flash- och mediafiler till servern.';
 $_lang["rb_title"] = 'Använd filhanterare';
@@ -704,7 +719,7 @@ $_lang["resource_metatag_help"] = 'Välj de META-taggar och nyckelord som du vil
 $_lang["resource_opt_contentdispo"] = 'Innehållsdisposition';
 $_lang["resource_opt_contentdispo_help"] = 'Använd innehållsdispositionsfältet för att specificera hur den här resursen ska hanteras av webbläsaren. För filnedladdningar väljer du inställningen "Bifogad fil".';
 $_lang["resource_opt_emptycache"] = 'Töm cachen';
-$_lang["resource_opt_emptycache_help"] = 'Lämnar du detta fält markerat, kommer MODx att tömma sin cache när du sparar resursen. Det gör att dina besökare inte kommer att se en gammal version av resursen.';
+$_lang["resource_opt_emptycache_help"] = 'Lämnar du detta fält markerat, kommer MODX att tömma sin cache när du sparar resursen. Det gör att dina besökare inte kommer att se en gammal version av resursen.';
 $_lang["resource_opt_folder"] = 'Behållare';
 $_lang["resource_opt_folder_help"] = 'Markera här om resursen ska fungera som en behållare för andra resurser. En "behållare" är som en mapp, men den kan också ha ett eget innehåll.';
 $_lang["resource_opt_menu_index"] = 'Menyindex';
@@ -729,7 +744,7 @@ $_lang["resource_title"] = 'Titel';
 $_lang["resource_title_help"] = 'Skriv namnet/titeln på resursen här. Undvik omvända snedstreck i namnet.';
 $_lang["resource_to_be_moved"] = 'Resursen som ska flyttas';
 $_lang["resource_type"] = 'Resurstyp';
-$_lang["resource_type_message"] = 'Webblänkar refererar till resurser på internet, inklusive en annan MODx-resurs, en extern sida, en bild eller en annan fil på internet. Webblänkar ska ha internetmediatypen "text/html" och innehållsdispositionen "inline".';
+$_lang["resource_type_message"] = 'Webblänkar refererar till resurser på internet, inklusive en annan MODX-resurs, en extern sida, en bild eller en annan fil på internet. Webblänkar ska ha internetmediatypen "text/html" och innehållsdispositionen "inline".';
 $_lang["resource_type_weblink"] = 'Webblänk';
 $_lang["resource_type_webpage"] = 'Webbsida';
 $_lang["resource_weblink_help"] = 'Ange adressen till objektet du vill referera till med denna webblänk.';
@@ -794,7 +809,7 @@ $_lang["role_new_user"] = 'Skapa nya användare';
 $_lang["role_new_web_user"] = 'Skapa nya webbanvändare';
 $_lang["role_plugin_management"] = 'Hantera plugins';
 $_lang["role_publish_doc"] = 'Publicera resurser';
-$_lang['role_remove_locks'] = 'Ta bort lås';
+$_lang["role_remove_locks"] = 'Ta bort lås';
 $_lang["role_role_management"] = 'Roller';
 $_lang["role_run_module"] = 'Kör modul';
 $_lang["role_save_chunk"] = 'Spara chunks';
@@ -819,10 +834,10 @@ $_lang["role_view_unpublished"] = 'Visa opublicerade resurser';
 $_lang["role_web_access_persmissions"] = 'Rättigheter för webbåtkomst';
 $_lang["role_web_user_management"] = 'Hantera webbanvändare';
 $_lang["rss_url_news_default"] = 'http://feeds.feedburner.com/modx-announce';
-$_lang["rss_url_news_message"] = 'Ange URL:en för MODx nyhetsflöde.';
+$_lang["rss_url_news_message"] = 'Ange URL:en för MODX nyhetsflöde.';
 $_lang["rss_url_news_title"] = 'RSS nyhetsflöde';
 $_lang["rss_url_security_default"] = 'http://feeds.feedburner.com/modxsecurity';
-$_lang["rss_url_security_message"] = 'Ange URL:en för MODx säkerhetsflöde.';
+$_lang["rss_url_security_message"] = 'Ange URL:en för MODX säkerhetsflöde.';
 $_lang["rss_url_security_title"] = 'RSS säkerhetsflöde';
 $_lang["run_module"] = 'Kör modul';
 $_lang["saturday"] = 'Lördag';
@@ -868,11 +883,12 @@ $_lang["settings_events"] = 'Systemhändelse';
 $_lang["settings_furls"] = 'Vänliga adresser';
 $_lang["settings_general"] = 'Allmänt';
 $_lang["settings_misc"] = 'Filhanteraren';
+$_lang["settings_KC"] = 'File Browser';
 $_lang["settings_page_settings"] = 'Inställningar';
 $_lang["settings_photo"] = 'Foto';
 $_lang["settings_properties"] = 'Egenskaper';
 $_lang["settings_site"] = 'Webbplatsen';
-$_lang["settings_strip_image_paths_message"] = 'Om denna inställning sätts till "Nej", så kommer MODx att skriva sökvägarna till filer i filhanteraren (bilder, filer, flash etc.) som absoluta URL:er. Relativa URL:er är användbara om du ska flytta din MODX-installation, t&nbsp;ex från en testserver till en produktionsserver. Om du inte har någon aning om vad det här betyder, så är det bäst att lämna inställningen satt till "Ja".';
+$_lang["settings_strip_image_paths_message"] = 'Om denna inställning sätts till "Nej", så kommer MODX att skriva sökvägarna till filer i filhanteraren (bilder, filer, flash etc.) som absoluta URL:er. Relativa URL:er är användbara om du ska flytta din MODX-installation, t&nbsp;ex från en testserver till en produktionsserver. Om du inte har någon aning om vad det här betyder, så är det bäst att lämna inställningen satt till "Ja".';
 $_lang["settings_strip_image_paths_title"] = 'Skriv om sökvägar till resurser?';
 $_lang["settings_templvars"] = 'Mallvariabler';
 $_lang["settings_title"] = 'Systeminställningar';
@@ -917,10 +933,43 @@ $_lang["sunday"] = 'Söndag';
 $_lang["sys_alert"] = 'Systemlarm';
 $_lang["sysinfo_activity_message"] = 'Denna lista visar vilka resurser som nyligen redigerats av dina användare.';
 $_lang["sysinfo_userid"] = 'Användare';
-$_lang["system_email_signup"] = "Hej [+uid+]!\n\nHär kommer dina inloggningsuppgifter för [+sname+] innehållshanterare.\n\nAnvändarnamn: [+uid+]\nLösenord: [+pwd+]\n\nDu kan ändra ditt lösenord när du loggat in i innehålshanteraren ([+surl+]).\n\nVänliga hälsningar\nWebmastern";
-$_lang["system_email_webreminder"] = "Hej [+uid+]!\n\nKlicka på följande länk för att aktivera ditt nya lösenord:\n\n[+surl+]\n\nOm allt går bra använder du följande lösenord för att logga in:\n\nLösenord:[+pwd+]\n\nOm du inte har bett om det här brevet så kan du strunta i det.\n\nVänliga hälsningar\nWebmastern";
-$_lang["system_email_websignup"] = "Hej [+uid+]!\n\nHär kommer dina inloggningsuppgifter för [+sname+].\n\nAnvändarnamn: [+uid+]\nLösenord: [+pwd+]\n\nDu kan ändra ditt lösenord när du loggat in i [+sname+] ([+surl+]).\n\nVänliga hälsningar\nWebmastern";
-$_lang["table_hoverinfo"] = 'Placera markören över ett tabellnamn för att se en kort beskrivning av tabellens funktion (gäller dock inte alla tabellnamn).'; 
+$_lang["system_email_signup"] = 'Hej [+uid+]!
+
+Här kommer dina inloggningsuppgifter för [+sname+] innehållshanterare.
+
+Användarnamn: [+uid+]
+Lösenord: [+pwd+]
+
+Du kan ändra ditt lösenord när du loggat in i innehålshanteraren ([+surl+]).
+
+Vänliga hälsningar
+Webmastern';
+$_lang["system_email_webreminder"] = 'Hej [+uid+]!
+
+Klicka på följande länk för att aktivera ditt nya lösenord:
+
+[+surl+]
+
+Om allt går bra använder du följande lösenord för att logga in:
+
+Lösenord:[+pwd+]
+
+Om du inte har bett om det här brevet så kan du strunta i det.
+
+Vänliga hälsningar
+Webmastern';
+$_lang["system_email_websignup"] = 'Hej [+uid+]!
+
+Här kommer dina inloggningsuppgifter för [+sname+].
+
+Användarnamn: [+uid+]
+Lösenord: [+pwd+]
+
+Du kan ändra ditt lösenord när du loggat in i [+sname+] ([+surl+]).
+
+Vänliga hälsningar
+Webmastern';
+$_lang["table_hoverinfo"] = 'Placera markören över ett tabellnamn för att se en kort beskrivning av tabellens funktion (gäller dock inte alla tabellnamn).';
 $_lang["table_prefix"] = 'Tabellprefix';
 $_lang["tag"] = 'Tagg';
 $_lang["template"] = 'Mall';
@@ -951,6 +1000,7 @@ $_lang["tmplvars_caption"] = 'Rubrik';
 $_lang["tmplvars_default"] = 'Standardvärde';
 $_lang["tmplvars_description"] = 'Beskrivning';
 $_lang["tmplvars_elements"] = 'Inmatningsvärden';
+$_lang["tmplvars_inherited"] = 'Value inherited';
 $_lang["tmplvars_management_msg"] = 'Hantera ytterligare innehållsfält (mallvariabler) för dina resurser.';
 $_lang["tmplvars_msg"] = 'Lägga till och redigera mallvariabeln här. Den måste tilldelas till en eller flera mallar för att den ska kunna kommas åt från snippets och resurser.';
 $_lang["tmplvars_name"] = 'Mallvariabelnamn';
@@ -971,7 +1021,7 @@ $_lang["track_visitors_title"] = 'Aktivera insamling av statistik';
 $_lang["tree_page_click"] = 'Beteende vid sidklick';
 $_lang["tree_page_click_message"] = 'Standardbeteendet när man klickar på en sida i webbplatsträdet.';
 $_lang["tree_show_protected"] = 'Visa skyddade sidor';
-$_lang["tree_show_protected_message"] = 'När den här inställningen är satt till "Nej" visas inte skyddade resurser (och deras underresurser) i webbplatsträdet. "Nej" är den traditionella inställningen för MODx.';
+$_lang["tree_show_protected_message"] = 'När den här inställningen är satt till "Nej" visas inte skyddade resurser (och deras underresurser) i webbplatsträdet. "Nej" är den traditionella inställningen för MODX.';
 $_lang["truncate_table"] = 'Klicka här för att trunkera den här tabellen';
 $_lang["tuesday"] = 'Tisdag';
 $_lang["tv"] = 'Mallvariabel';
@@ -1066,12 +1116,12 @@ $_lang["websignupemail_message"] = 'Ange det meddelande som skickas till använd
 $_lang["websignupemail_title"] = 'E-post för webbregistreringar';
 $_lang["wednesday"] = 'Onsdag';
 $_lang["welcome_messages"] = 'Din Inkorg innehåller <b>%d</b> meddelande(n), av vilka <b>%s</b> är oläst(a).';
-$_lang["welcome_title"] = 'Välkommen till webbpubliceringsverktyget MODx';
-$_lang["which_editor_message"] = 'Välj vilken richtext-editor du vill använda. Du kan ladda ner och installera fler richtext-editorer från MODx nedladdningssida.';
+$_lang["welcome_title"] = 'Välkommen till webbpubliceringsverktyget MODX';
+$_lang["which_editor_message"] = 'Välj vilken richtext-editor du vill använda. Du kan ladda ner och installera fler richtext-editorer från MODX nedladdningssida.';
 $_lang["which_editor_title"] = 'Editor att använda';
 $_lang["working"] = 'Arbetar...';
 $_lang["wrap_lines"] = 'Radbryt';
-$_lang["xhtml_urls_message"] = 'Ersätter et-tecken (&amp;) i URLer som genereras av MODx med den validerande &amp;<!-- -->amp; html-entiteten.';
+$_lang["xhtml_urls_message"] = 'Ersätter et-tecken (&amp;) i URLer som genereras av MODX med den validerande &amp;<!-- -->amp; html-entiteten.';
 $_lang["xhtml_urls_title"] = 'XHTML-URL:er';
 $_lang["yes"] = 'Ja';
 $_lang["you_got_mail"] = 'Du har fått e-post';
@@ -1081,4 +1131,61 @@ $_lang["yourinfo_role"] = 'Din roll är';
 $_lang["yourinfo_title"] = 'Din information';
 $_lang["yourinfo_total_logins"] = 'Totalt antal inloggningar';
 $_lang["yourinfo_username"] = 'Du är inloggad som';
-?>
+$_lang["a17_error_reporting_title"] = 'Detection level of the PHP error';
+$_lang["a17_error_reporting_msg"] = 'Set the detection level of the PHP error.';
+$_lang["a17_error_reporting_opt0"] = 'Ignore all';
+$_lang["a17_error_reporting_opt1"] = 'Ignore the warning of a slight notice level(<a href="https://www.google.com/search?q=E_DEPRECATED+E_STRICT" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT</a>)';
+$_lang["a17_error_reporting_opt2"] = 'Detect all errors except E_NOTICE';
+$_lang["a17_error_reporting_opt99"] = 'Detect all';
+$_lang["pwd_hash_algo_title"] = 'Hash algorithm';
+$_lang["pwd_hash_algo_message"] = 'Password hash algorithm.';
+$_lang["enable_bindings_title"] = 'Enable @Bindings commands';
+$_lang["enable_bindings_message"] = 'Prevents the execution of PHP functions through TV @Bindings. Useful if you have Manager users who should not be able to create PHP code but need to be able to create or edit TVs. The output of any TV with an @Binding will be "@Bindings disabled".';
+$_lang["bkmgr_alert_mkdir"] = 'A file cannot be created in a directory.  Please check the permission of [+snapshot_path+]';
+$_lang["bkmgr_restore_msg"] = '<p>A site can be restore using an SQL file. </p>';
+$_lang["bkmgr_restore_title"] = 'Restore';
+$_lang["bkmgr_import_ok"] = 'SQL recovery was performed normally.';
+$_lang["bkmgr_snapshot_ok"] = 'The snapshot was saved normally.';
+$_lang["bkmgr_run_sql_file_label"] = 'Execute by sql file';
+$_lang["bkmgr_run_sql_direct_label"] = 'Direct execute SQL command strings';
+$_lang["bkmgr_run_sql_submit"] = 'Execute restore';
+$_lang["bkmgr_run_sql_result"] = 'Result';
+$_lang["bkmgr_snapshot_title"] = 'Snapshot save and recovery';
+$_lang["bkmgr_snapshot_msg"] = '<p>The contents of the database are saved and restored to a server.<br />Preservation place : [+snapshot_path+] ($modx->config[\'snapshot_path\'])</p>';
+$_lang["bkmgr_snapshot_submit"] = 'Add snapshot';
+$_lang["bkmgr_snapshot_list_title"] = 'List of snapshot';
+$_lang["bkmgr_restore_submit"] = 'Revert this data';
+$_lang["bkmgr_snapshot_nothing"] = 'No snapshot';
+$_lang["files.dynamic.php1"] = 'create text file';
+$_lang["files.dynamic.php2"] = 'This directory cannot be displayed.';
+$_lang["files.dynamic.php3"] = 'There is a problem in a file name.';
+$_lang["files.dynamic.php4"] = 'The text file was created.';
+$_lang["not_readable_dir"] = 'Can not read this directory.';
+$_lang["confirm_delete_dir"] = 'Are you sure you want to delete the directory?';
+$_lang["confirm_delete_dir_recursive"] = 'Are you sure you want to delete the directory?\n\nAny children files will also be deleted.';
+$_lang["make_folders_title"] = 'Make end slash URL at the container';
+$_lang["make_folders_message"] = 'The slash to append to Resources set as containers when using FURLs.';
+$_lang["check_files_onlogin_title"] = 'Check core files on login';
+$_lang["check_files_onlogin_message"] = 'By enabling this option, important system files will be checked for modification typical of scripted website attacks. While not a foolproof guarantee, it may alert you to a compromised MODX system file and website.';
+$_lang["configcheck_sysfiles_mod"] = 'Important System Files have been modified.';
+$_lang["configcheck_sysfiles_mod_msg"] = 'You have enabled the setting to check important system files to detect possible website script attacks. This doesn\'t necessarily mean that your site has been compromised, however, you should review the changed files.(index.php, .htaccess, [+MGR_DIR+]/index.php, [+MGR_DIR+]/includes/config.inc.php)';
+$_lang["email_method_title"] = 'Sendmail method';
+$_lang["email_method_mail"] = 'mail() PHP function';
+$_lang["email_method_smtp"] = 'SMTP Server';
+$_lang["smtp_auth_title"] = 'SMTP－AUTH';
+$_lang["smtp_host_title"] = 'SMTP host';
+$_lang["smtp_username_title"] = 'SMTP user name';
+$_lang["smtp_password_title"] = 'SMTP password';
+$_lang["smtp_port_title"] = 'SMTP port';
+$_lang["setting_resource_tree_node_name"] = 'The node name of a resource tree';
+$_lang["setting_resource_tree_node_name_desc"] = 'Specify the Resource field to use when rendering the nodes in the Resource Tree. Defaults to pagetitle, although any Resource field can be used, such as menutitle, alias.';
+$_lang["cache_type_title"] = 'Document caching type';
+$_lang["cache_type_1"] = 'Cache is based only on document id (standard)';
+$_lang["cache_type_2"] = 'Cache is based on document id and $_GET parameters';
+$_lang["seostrict_title"] = 'Use SEO Strict URLs';
+$_lang["seostrict_message"] = 'Enforces the use of strict URLs to prevent duplicate content if needed';
+$_lang["settings_friendlyurls_alert"] = 'It is necessary to rename the ht.access file of a MODX installation directory at .htaccess to use the Friendly URL function.';
+$_lang["settings_friendlyurls_alert2"] = 'Since it has installed in a subdirectory, it is necessary to change the contents of .htaccess.';
+$_lang["user_street"] = 'Street';
+$_lang["user_city"] = 'City';
+$_lang["user_other"] = 'Other';

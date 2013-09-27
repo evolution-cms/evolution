@@ -17,9 +17,9 @@ $table_prefix = $modx->dbConfig['table_prefix'];
                 FROM $dbase.`".$table_prefix."web_users` wu
                 WHERE wu.id='".$modx->db->escape($id)."'";
         $ds = $modx->db->query($sql);
-        $limit = $modx->recordCount($ds);
+        $limit = $modx->db->getRecordCount($ds);
         if($limit==1) {
-            $row = $modx->fetchRow($ds);
+            $row = $modx->db->getRow($ds);
             $username = $row["username"];
             list($newpwd,$newpwdkey) = explode("|",$row['cachepwd']);
             if($newpwdkey!=$pwdkey) {
@@ -78,11 +78,11 @@ $table_prefix = $modx->dbConfig['table_prefix'];
                 WHERE wua.email='".$modx->db->escape($email)."'";
 
         $ds = $modx->db->query($sql);
-        $limit = $modx->recordCount($ds);
+        $limit = $modx->db->getRecordCount($ds);
         if($limit==1) {
             $newpwd = webLoginGeneratePassword(8);
             $newpwdkey = webLoginGeneratePassword(8); // activation key
-            $row = $modx->fetchRow($ds);
+            $row = $modx->db->getRow($ds);
             //save new password
             $sql="UPDATE $dbase.`".$table_prefix."web_users`
                   SET cachepwd='".$newpwd."|".$newpwdkey."'
@@ -229,7 +229,7 @@ $table_prefix = $modx->dbConfig['table_prefix'];
     // load user settings
     if($internalKey){
         $result = $modx->db->query("SELECT setting_name, setting_value FROM ".$dbase.".`".$table_prefix."web_user_settings` WHERE webuser='$internalKey'");
-        while ($row = $modx->fetchRow($result, 'both')) $modx->config[$row[0]] = $row[1];
+        while ($row = $modx->db->getRow($result, 'both')) $modx->config[$row[0]] = $row[1];
     }
 
     if($failedlogins>=$modx->config['failed_login_attempts'] && $blockeduntildate>time()) {    // blocked due to number of login errors.

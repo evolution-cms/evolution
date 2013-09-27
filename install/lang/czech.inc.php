@@ -1,9 +1,9 @@
 <?php
 /**
- * MODx language File
+ * MODX language File
  *
  * @author modxcms.cz
- * @package MODx
+ * @package MODX
  * @version 1.5
  * @updated 2010-12-11
  * 
@@ -31,18 +31,18 @@ $_lang["begin"] = 'Začít';
 $_lang["btnback_value"] = 'Zpět';
 $_lang["btnclose_value"] = 'Zavřít';
 $_lang["btnnext_value"] = 'Další';
-$_lang["cant_write_config_file"] = 'MODx nemohl zapsat konfigurační soubor. Následující obsah vložte do souboru ';
-$_lang["cant_write_config_file_note"] = 'Až bude tento obsah uložen v souboru, můžete se přihlásit do MODx správce obsahu na adrese AdresaVasichStranek.cz/manager/.';
+$_lang["cant_write_config_file"] = 'MODX nemohl zapsat konfigurační soubor. Následující obsah vložte do souboru ';
+$_lang["cant_write_config_file_note"] = 'Až bude tento obsah uložen v souboru, můžete se přihlásit do MODX správce obsahu na adrese AdresaVasichStranek.cz/'.MGR_DIR.'/.';
 $_lang["checkbox_select_options"] = 'Možnosti výběru zaškrtávacích polí:';
 $_lang["checking_if_cache_exist"] = 'Kontrola existence adresářů <span class="mono">/assets/cache</span> a <span class="mono">/assets/cache/rss</span>: ';
 $_lang["checking_if_cache_file_writable"] = 'Kontrola zda lze zapisovat do souboru <span class="mono">/assets/cache/siteCache.idx.php</span>: ';
 $_lang["checking_if_cache_file2_writable"] = 'Kontrola zda lze zapisovat do souboru <span class="mono">/assets/cache/sitePublishing.idx.php</span>: ';
 $_lang["checking_if_cache_writable"] = 'Kontrola zda lze zapisovat do adresářů <span class="mono">/assets/cache</span> a <span class="mono">/assets/cache/rss</span>: ';
-$_lang["checking_if_config_exist_and_writable"] = 'Kontrola zda existuje soubor <span class="mono">/manager/includes/config.inc.php</span> a lze do něj zapisovat: ';
+$_lang["checking_if_config_exist_and_writable"] = 'Kontrola zda existuje soubor <span class="mono">/'.MGR_DIR.'/includes/config.inc.php</span> a lze do něj zapisovat: ';
 $_lang["checking_if_export_exists"] = 'Kontrola existence adresáře <span class="mono">/assets/export</span>: ';
 $_lang["checking_if_export_writable"] = 'Kontrola zda lze zapisovat do adresáře <span class="mono">/assets/export</span>: ';
-$_lang["checking_if_images_exist"] = 'Kontrola zda existují adresáře <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> a <span class="mono">/assets/media</span>: ';
-$_lang["checking_if_images_writable"] = 'Kontrola zda lze zapisovat do adresářů <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> a <span class="mono">/assets/media</span>: ';
+$_lang["checking_if_images_exist"] = 'Kontrola zda existují adresáře <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span>, <span class="mono">/assets/media</span>, <span class="mono">/assets/backup</span> a <span class="mono">/assets/.thumbs</span>: ';
+$_lang["checking_if_images_writable"] = 'Kontrola zda lze zapisovat do adresářů <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span>, <span class="mono">/assets/media</span>, <span class="mono">/assets/backup</span> a <span class="mono">/assets/.thumbs</span>: ';
 $_lang["checking_mysql_strict_mode"] = 'Kontrola MySQL strict sql_mode: ';
 $_lang["checking_mysql_version"] = 'Kontrola verze MySQL: ';
 $_lang["checking_php_version"] = 'Kontrola verze PHP: ';
@@ -51,11 +51,11 @@ $_lang["checking_registerglobals_note"] = 'Díky tomtuto nastavení je Váš por
 $_lang["checking_sessions"] = 'Kontrola zda jsou správně nakonfigurovány session: ';
 $_lang["checking_table_prefix"] = 'Kontrola prefixů tabulek `';
 $_lang["chunks"] = 'Chunky';
-$_lang["config_permissions_note"] = 'V nových instalacích Linux/Unix vytvořte prázdná soubor s názvem <span class="mono">config.inc.php</span> v adresáři <span class="mono">/manager/includes/</span> s atributy 0666.';
+$_lang["config_permissions_note"] = 'V nových instalacích Linux/Unix vytvořte prázdná soubor s názvem <span class="mono">config.inc.php</span> v adresáři <span class="mono">/'.MGR_DIR.'/includes/</span> s atributy 0666.';
 $_lang["connection_screen_collation"] = 'Porovnání:';
 $_lang["connection_screen_connection_method"] = 'Způsob připojení:';
 $_lang["connection_screen_database_connection_information"] = 'Informace o databázi';
-$_lang["connection_screen_database_connection_note"] = 'Zadejte název databáze, kterou chcete použít nebo kterou chcete vytvořit pro tuto instalaci systému MODx. Pokud databáze neexistuje pokusí se ji instalátor vytvořit. Toto se nemusí povést v závislosti na nastavení MySQL nebo na uživatelských právech pro vaši doménu/instalaci.';
+$_lang["connection_screen_database_connection_note"] = 'Zadejte název databáze, kterou chcete použít nebo kterou chcete vytvořit pro tuto instalaci systému MODX. Pokud databáze neexistuje pokusí se ji instalátor vytvořit. Toto se nemusí povést v závislosti na nastavení MySQL nebo na uživatelských právech pro vaši doménu/instalaci.';
 $_lang["connection_screen_database_host"] = 'Hostitel databáze:';
 $_lang["connection_screen_database_info"] = 'Databázové informace';
 $_lang["connection_screen_database_login"] = 'Uživatelské jméno do databáze:';
@@ -80,7 +80,7 @@ $_lang["database_connection_failed_note"] = 'Zkontrolujte přihlašovací údaje
 $_lang["database_use_failed"] = 'Nelze vybrat tuto databázi!';
 $_lang["database_use_failed_note"] = 'Zkontrolujte oprávnění daného uživatele pro tuto databázi a zkuste to znovu.';
 $_lang["default_language"] = 'Výchozí jazyk správce obsahu';
-$_lang["default_language_description"] = 'Toto bude výchozí jazyk, který bude použit v MODx správci obsahu.';
+$_lang["default_language_description"] = 'Toto bude výchozí jazyk, který bude použit v MODX správci obsahu.';
 $_lang["during_execution_of_sql"] = ' při provádění SQL ';
 $_lang["encoding"] = 'utf-8'; //charset encoding for html header
 $_lang["error"] = 'chyba';
@@ -88,8 +88,8 @@ $_lang["errors"] = 'chyby';
 $_lang["failed"] = 'SELHALO!';
 $_lang["help"] = 'Nápověda!';
 $_lang["help_link"] = 'http://www.modxcms.cz/forums/';
-$_lang["help_title"] = 'Pomoc při instalaci využitím MODx diskuse';
-$_lang["iagree_box"] = 'Souhlasím s podmínkami <a href="../assets/docs/license.txt" target="_blank">MODx licence</a>. Pro překlady GPL verze 2 licence, navštivte prosím <a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-translations.html" target="_blank">stránku GNU Operating System</a>.';
+$_lang["help_title"] = 'Pomoc při instalaci využitím MODX diskuse';
+$_lang["iagree_box"] = 'Souhlasím s podmínkami <a href="../assets/docs/license.txt" target="_blank">MODX licence</a>. Pro překlady GPL verze 2 licence, navštivte prosím <a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-translations.html" target="_blank">stránku GNU Operating System</a>.';
 $_lang["install"] = 'Instalovat';
 $_lang["install_overwrite"] = 'Instalovat/Přepsat';
 $_lang["install_results"] = 'Výsledky instalace';
@@ -110,10 +110,10 @@ $_lang["installing_demo_site"] = 'Instalovat ukázkový portál: ';
 $_lang["language_code"] = 'cs';	// for html element e.g. <html xml:lang="en" lang="en">
 $_lang["loading"] = 'Načítám...';
 $_lang["modules"] = 'Moduly';
-$_lang["modx_footer1"] = '&copy; 2005-2011 the <a href="http://www.modxcms.com/" target="_blank" style="color: green; text-decoration:underline">MODx</a> Content Management Framework (CMF) projekt. Všechna práva vyhrazena. MODx je licencován pod GNU GPL.';
-$_lang["modx_footer2"] = 'MODx je free software. Doporučujeme Vám být kreativní a používat MODx jak jen uznáte za vhodné. Pouze se ujistěte, že pokud uděláte nějaké změny a budete chtít upravený MODx distribuovat dál, musí být zdrojové kódy volně přístupné!!';
-$_lang["modx_install"] = 'MODx &raquo; Instalace';
-$_lang["modx_requires_php"] = ', a MODx vyžaduje PHP 4.2.0 nebo novější';
+$_lang["modx_footer1"] = '&copy; 2005-2013 the <a href="http://modx.com/" target="_blank" style="color: green; text-decoration:underline">MODX</a> Content Management Framework (CMF) projekt. Všechna práva vyhrazena. MODX je licencován pod GNU GPL.';
+$_lang["modx_footer2"] = 'MODX je free software. Doporučujeme Vám být kreativní a používat MODX jak jen uznáte za vhodné. Pouze se ujistěte, že pokud uděláte nějaké změny a budete chtít upravený MODX distribuovat dál, musí být zdrojové kódy volně přístupné!!';
+$_lang["modx_install"] = 'MODX &raquo; Instalace';
+$_lang["modx_requires_php"] = ', a MODX vyžaduje PHP 4.2.0 nebo novější';
 $_lang["mysql_5051"] = ' Verze MySQL serveru je 5.0.51!';
 $_lang["mysql_5051_warning"] = 'Jsou známy problémy s MySQL 5.0.51. Je doporučeno, abyste před pokračováním aktualizovali.';
 $_lang["mysql_version_is"] = ' Verze Vaší MySQL je: ';
@@ -123,7 +123,7 @@ $_lang["not_found"] = 'nenalezen';
 $_lang["ok"] = 'OK!';
 $_lang["optional_items"] = 'Volitelné položky';
 $_lang["optional_items_note"] = 'Vyberte si položky, které chcete při instalaci nainstalovat/aktualizovat a klikněte na "Instalovat":';
-$_lang["php_security_notice"] = '<legend>Bezpečnostní oznámení</legend><p>Dokud bude běžet MODx na verzi PHP (%s), nedoporučujeme vám MODx v této verzi používat. Vaše verze PHP je zranitelná mnoha bezpečnostními dírami. Aktualizujte PHP na verzi 4.3.11 nebo novější, které obsahují záplaty těchto děr. Dopuručujeme Vám aktualizovat na tuto verzi pro zvýšení bezpečnosti Vašich vlastních webových stránek.</p>';
+$_lang["php_security_notice"] = '<legend>Bezpečnostní oznámení</legend><p>Dokud bude běžet MODX na verzi PHP (%s), nedoporučujeme vám MODX v této verzi používat. Vaše verze PHP je zranitelná mnoha bezpečnostními dírami. Aktualizujte PHP na verzi 4.3.11 nebo novější, které obsahují záplaty těchto děr. Dopuručujeme Vám aktualizovat na tuto verzi pro zvýšení bezpečnosti Vašich vlastních webových stránek.</p>';
 $_lang["please_correct_error"] = '. Opravte chybu';
 $_lang["please_correct_errors"] = '.Opravte chyby';
 $_lang["plugins"] = 'Pluginy';
@@ -140,7 +140,7 @@ $_lang["sample_web_site_note"] = 'Berte na vědomí, že tato možnost <b>přep�
 $_lang["session_problem"] = 'Byl detekován problém se session na Vašem serveru. Proberte tento problém se svým administrátorem serveru.';
 $_lang["session_problem_try_again"] = 'Zkusit znovu?'; 
 $_lang["setup_cannot_continue"] = 'Bohužel, instalátor nemůže pokračovat vzhledem k výše uvedeným ';
-$_lang["setup_couldnt_install"] = 'MODx instalátor nemůže instalovat/změnit některé tabulky ve zvolené databázi.';
+$_lang["setup_couldnt_install"] = 'MODX instalátor nemůže instalovat/změnit některé tabulky ve zvolené databázi.';
 $_lang["setup_database"] = 'Instalátor se nyní pokusí nastavit databázi:<br />';
 $_lang["setup_database_create_connection"] = 'Vytvářím připojení k databázi: ';
 $_lang["setup_database_create_connection_failed"] = 'Připojení k databázi se nezdařilo!';
@@ -165,16 +165,16 @@ $_lang["status_passed"] = 'v pořádku - databáze vybrána';
 $_lang["status_passed_database_created"] = 'v pořádku - databáze vytvořena';
 $_lang["status_passed_server"] = 'v pořádku - porovnání je dostupné';
 $_lang["strict_mode"] = ' MySQL  strict sql_mode je aktivní!';
-$_lang["strict_mode_error"] = 'Určité vlastnosti systému MODx nemusí fungovat správně jestliže je STRICT_TRANS_TABLES sql_mode neaktivní. MySQL mód lze změnit úpravou souboru "my.cnf" nebo kontaktujte administrátora serveru.';
+$_lang["strict_mode_error"] = 'Určité vlastnosti systému MODX nemusí fungovat správně jestliže je STRICT_TRANS_TABLES sql_mode neaktivní. MySQL mód lze změnit úpravou souboru "my.cnf" nebo kontaktujte administrátora serveru.';
 $_lang["summary_setup_check"] = 'Instalátor provedl řadu kontrol, které je nutné provést před spuštěním instalátoru.';
 $_lang["system_configuration"] = 'Konfigurace systému';
-$_lang["system_configuration_validate_referer_description"] = 'Nastavení <strong>Ověřit hlavičky HTTP_REFERER</strong> je doporučeno a může ochránit Váš portál před útoky CSRF, ale na některých serverech může zapříčinit nedostupnost MODx správce obsahu.';
+$_lang["system_configuration_validate_referer_description"] = 'Nastavení <strong>Ověřit hlavičky HTTP_REFERER</strong> je doporučeno a může ochránit Váš portál před útoky CSRF, ale na některých serverech může zapříčinit nedostupnost MODX správce obsahu.';
 $_lang["table_prefix_already_inuse"] = ' - Prefix tabulek se již v této databázi používá!';
 $_lang["table_prefix_already_inuse_note"] = 'Instalátor nemohl provést instalaci do vybrané databáze, neboť ta již obsahuje tabulky s tímto prefixem. Vyberte nový prefix tabulek a spusťte instalátor znovu.';
 $_lang["table_prefix_not_exist"] = ' - Tabulky s daným prefixem v této databázi neexistují!';
 $_lang["table_prefix_not_exist_note"] = 'Instalátor nemohl provést instalaci do vybrané databáze, neboť neobsahuje tabulky se zadaným prefixem. Vyberte existující prefix tabulek a spusťte instalátor znovu.';
 $_lang["templates"] = 'Šablony';
-$_lang["to_log_into_content_manager"] = 'Pro přihlášení do správce obsahu (manager/index.php) klikněte na tlačítko "Zavřít".';
+$_lang["to_log_into_content_manager"] = 'Pro přihlášení do správce obsahu ('.MGR_DIR.'/index.php) klikněte na tlačítko "Zavřít".';
 $_lang["toggle"] = 'Přepnutí';
 $_lang['tvs'] = 'Template Variables';
 $_lang["unable_install_chunk"] = 'Nepodařilo se nainstalovat chunk. Soubor';
@@ -182,14 +182,14 @@ $_lang["unable_install_module"] = 'Nepodařilo se nainstalovat modul.  Soubor';
 $_lang["unable_install_plugin"] = 'Nepodařilo se nainstalovat plugin.  Soubor';
 $_lang["unable_install_snippet"] = 'Nepodařilo se nainstalovat snippet.  Soubor';
 $_lang["unable_install_template"] = 'Nepodařilo se nainstalovat šablonu.  Soubor';
-$_lang["upgrade_note"] = '<strong>Poznámka:</strong> Před tím než začnete procházet web by jste se měl přihlásit do MODx správce obsahu pod administrátorským účtem a zkontrolovat Konfiguraci systému.';
+$_lang["upgrade_note"] = '<strong>Poznámka:</strong> Před tím než začnete procházet web by jste se měl přihlásit do MODX správce obsahu pod administrátorským účtem a zkontrolovat Konfiguraci systému.';
 $_lang["upgraded"] = 'Aktualizováno';
 $_lang["validate_referer_title"] = 'Ověřit hlavičky HTTP_REFERER?';
-$_lang["visit_forum"] = ', navštivte <a href="http://www.modxcms.com/forums/" target="_blank">MODx diskusi</a>.';
+$_lang["visit_forum"] = ', navštivte <a href="http://forums.modx.com/" target="_blank">MODX diskusi</a>.';
 $_lang["warning"] = 'VAROVÁNÍ!';
 $_lang["welcome_message_start"] = 'Nejdříve si vyberte typ instalace:';
 $_lang["welcome_message_text"] = 'Tento program Vás provede zbytkem instalace.';
-$_lang["welcome_message_welcome"] = 'Vítejte v instalačním programu systému MODx.';
+$_lang["welcome_message_welcome"] = 'Vítejte v instalačním programu systému MODX.';
 $_lang["writing_config_file"] = 'Zapisuji konfigurační soubor: ';
 $_lang["yes"] = 'Ano';
 $_lang["you_running_php"] = ' - Váš server běží na PHP ';

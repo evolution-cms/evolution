@@ -27,7 +27,7 @@ class modxDebugConsole{
 		}
 		$placeholders = array(
 			"[+ditto_base_url+]" => $base_path,
-			"[+base_url+]" => $modx->config["site_url"]."manager",
+			"[+base_url+]" => $modx->config["site_url"].MGR_DIR . '/',
 			"[+theme+]" => $modx->config["manager_theme"],
 			"[+title+]" => $title,
 			"[+content+]" => $content,
@@ -116,7 +116,8 @@ class modxDebugConsole{
 	// Make all MODx tags safe for the output
 	// ---------------------------------------------------
 	function makeMODxSafe($value) {
-		$value = (strpos($value,"<") !== FALSE) ? "<pre>".htmlentities($value)."</pre>" : $value;
+		global $modx;
+		$value = (strpos($value,"<") !== FALSE) ? "<pre>".htmlentities($value,ENT_NOQUOTES,$modx->config["modx_charset"])."</pre>" : $value;
 		$value = str_replace("[","&#091;",$value);
 		$value = str_replace("]","&#093;",$value);
 		$value = str_replace("{","&#123;",$value);

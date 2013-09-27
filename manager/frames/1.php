@@ -1,16 +1,13 @@
 <?php
-if (IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
-include_once ("browsercheck.inc.php");
-$browser = $client->property('browser');
-$_SESSION['browser'] = $browser;
-$version = $client->property('version');
-$_SESSION['browser_version'] = $version;
+if (IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
+$_SESSION['browser'] = (strpos($_SERVER['HTTP_USER_AGENT'],'MSIE 1')!==false) ? 'legacy_IE' : 'modern';
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 if(!isset($modx->config['manager_menu_height'])) $modx->config['manager_menu_height'] = '70';
 if(!isset($modx->config['manager_tree_width']))  $modx->config['manager_tree_width']  = '260';
+$modx->invokeEvent('OnManagerPreFrameLoader',array('action'=>$action));
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
-<html <?php echo ($modx_textdir ? 'dir="rtl" lang="' : 'lang="').$mxla.'" xml:lang="'.$mxla.'"'; ?>>
+<html <?php echo (isset($modx_textdir) && $modx_textdir ? 'dir="rtl" lang="' : 'lang="').$mxla.'" xml:lang="'.$mxla.'"'; ?>>
 <head>
 	<title><?php echo $site_name?> - (MODX CMS Manager)</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx_manager_charset?>" />
@@ -34,3 +31,5 @@ if(!isset($modx->config['manager_tree_width']))  $modx->config['manager_tree_wid
 </frameset>
 <noframes>This software requires a browser with support for frames.</noframes>
 </html>
+<?php
+$modx->invokeEvent('OnManagerFrameLoader',array('action'=>$action));

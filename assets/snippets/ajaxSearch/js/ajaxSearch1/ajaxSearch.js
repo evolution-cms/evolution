@@ -1,6 +1,6 @@
 /*
- * AjaxSearch 1.9.2 - package AjaxSearch 1 - Mootools 1.11
- * author: Coroico - www.modx.wangba.fr - 05/12/2010
+ * AjaxSearch 1.9.3 - package AjaxSearch 1 - Mootools 1.11
+ * author: Coroico - www.evo.wangba.fr - 26/09/2012
  *
  * Licensed under the GPL license: http://www.gnu.org/copyleft/gpl.html
  */
@@ -14,7 +14,7 @@ var _closeAlt='close search';
 var _load=_base + 'images/indicator.white.gif'; // loading image
 var _loadAlt='loading';
 
-var _version='1.9.2';var _opacity=1;var _liveSearch=0;var _minChars=3;var _init='none';var _pagingType=1;function activateSearch(){for(ias=0;ias<asvar.length;ias++){var asv=eval('('+asvar[ias]+')');activateAsInstance(asv);}}
+var _version='1.9.3';var _opacity=1;var _liveSearch=0;var _minChars=3;var _init='none';var _pagingType=1;function activateSearch(){for(ias=0;ias<asvar.length;ias++){var asv=eval('('+asvar[ias]+')');activateAsInstance(asv);}}
 function activateAsInstance(asv){var as=Array();as['vsn']=asv.vsn;as['adv']=asv.adv;as['sub']=asv.sub;as['bxt']=asv.bxt;as['cfg']=asv.cfg;as['lt']=null;as['is']=false;if(as['vsn']!=_version){alert("AjaxSearch version obsolete. Empty your browser cache and check the version of AjaxSearch-jQuery.js file");return;}
 var res=as['cfg'].match(/&pagingType=`([^`]*)`/);as['pgt']=_pagingType;if(res!==null)as['pgt']=res[1];res=as['cfg'].match(/&opacity=`([^`]*)`/);as['opc']=_opacity;if(res!==null)as['opc']=parseFloat(res[1]);res=as['cfg'].match(/&init=`([^`]*)`/);as['ini']=_init;if(res!==null)as['ini']=res[1];res=as['cfg'].match(/&liveSearch=`([^`]*)`/);as['lvs']=_liveSearch;if(res!==null)as['lvs']=parseInt(res[1]);res=as['cfg'].match(/&minChars=`([^`]*)`/);as['mch']=_minChars;if(res!==null)as['mch']=parseInt(res[1]);res=as['cfg'].match(/&asId=`([^`]*)`/);as['px']='';if(res!==null)as['px']=res[1]+'_';var p=as['px'];sf=$(p+'ajaxSearch_form');if(sf){as['so']=$(p+'ajaxSearch_output');as['so'].setStyle('opacity','0');as['so'].removeClass('init');var c=new Element('img');c.setProperties({src:_close,alt:_closeAlt,id:p+'searchClose'});c.setStyle('opacity','0');sf.appendChild(c);as['sc']=c;var l=new Element('img');l.setProperties({src:_load,alt:_loadAlt,id:p+'indicator'});l.setStyle('opacity','0');sf.appendChild(l);as['sl']=l;var n=new Element('div');n.setProperty('id','current-search-results');n.setStyle('opacity','1');as['so'].appendChild(n);as['sr']=n;as['si']=$(p+'ajaxSearch_input');as['se']=$(p+'ajaxSearch_select');if(!as['lvs'])as['ss']=$(p+'ajaxSearch_submit');as['sc'].addEvent('click',function(){closeSearch(as);});if(!as['lvs'])sf.addEvent('submit',function(e){new Event(e).stop();doSearch(as);});else as['si'].addEvent('keyup',function(){doLiveSearch(as);});if(as['si'])as['si'].addEvent('keydown',function(e){var keyCode=e.keyCode||e.which;if(keyCode==13){doSearch(as);}});doSearch(as);}}
 function doLiveSearch(as){if(as['lt']){window.clearTimeout(as['lt']);}

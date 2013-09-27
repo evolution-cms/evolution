@@ -86,7 +86,33 @@ class DBAPI {
       $charset = $this->config['charset'];
       $connection_method = $this->config['connection_method'];
       $tstart = $modx->getMicroTime();
-      if (!$this->conn = ($persist ? mysql_pconnect($host, $uid, $pwd) : mysql_connect($host, $uid, $pwd, true))) {
+      $safe_count = 0;
+      while(!$this->conn && $safe_count<3)
+      {
+          if($persist!=0) $this->conn = mysql_pconnect($host, $uid, $pwd);
+          else            $this->conn = mysql_connect($host, $uid, $pwd, true);
+          
+          if(!$this->conn)
+          {
+            if(isset($modx->config['send_errormail']) && $modx->config['send_errormail'] !== '0')
+            {
+               if($modx->config['send_errormail'] <= 2)
+               {
+                  $logtitle    = 'Failed to create the database connection!';
+                  $request_uri = $_SERVER['REQUEST_URI'];
+                  $request_uri = htmlspecialchars($request_uri, ENT_QUOTES);
+                  $ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES);
+                  $referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES);
+                  $subject = 'Missing to create the database connection! from ' . $modx->config['site_name'];
+                  $msg = "{$logtitle}<br />{$request_uri}<br />{$ua}<br />{$referer}";
+                  $modx->sendmail($subject,$msg);
+               }
+            }
+            sleep(1);
+            $safe_count++;
+          }
+      }
+      if (!$this->conn) {
          $modx->messageQuit("Failed to create the database connection!");
          exit;
       } else {
@@ -252,6 +278,38 @@ class DBAPI {
          return $lid ? $lid : $rt;
       }
    }
+   /**
+    * @name:  freeResult
+    *
+    */
+   function freeResult($rs) {
+      mysql_free_result($rs);
+   }
+   
+   /**
+    * @name:  numFields
+    *
+    */
+   function numFields($rs) {
+      return mysql_num_fields($rs);
+   }
+   
+   /**
+    * @name:  fieldName
+    *
+    */
+   function fieldName($rs,$col=0) {
+      return mysql_field_name($rs,$col);
+   }
+   
+    /**
+    * @name:  selectDb
+    *
+    */
+   function selectDb($name) {
+      mysql_select_db($name);
+   }
+   
 
    /**
     * @name:  getInsertId
@@ -301,6 +359,9 @@ class DBAPI {
          }
          elseif ($mode == 'num') {
             return mysql_fetch_row($ds);
+         }
+		 elseif ($mode == 'object') {
+            return mysql_fetch_object($ds);
          }
          elseif ($mode == 'both') {
             return mysql_fetch_array($ds, MYSQL_BOTH);
@@ -462,7 +523,7 @@ class DBAPI {
       if (!is_resource($dsq))
          $dsq = $this->query($dsq);
       if ($dsq) {
-         include_once MODX_BASE_PATH . '/manager/includes/controls/datagrid.class.php';
+         include_once MODX_MANAGER_PATH . 'includes/controls/datagrid.class.php';
          $grd = new DataGrid('', $dsq);
 
          $grd->noRecordMsg = $params['noRecordMsg'];
@@ -497,6 +558,10 @@ class DBAPI {
       }
    }
 
+   
+   
+   
+   
    /**
    * @name:  makeArray
    * @desc:  turns a recordset into a multidimensional array
@@ -546,6 +611,14 @@ class DBAPI {
        else $result = $str;
        
        return $result;
+   }
+   
+   function optimize($table_name)
+   {
+       $table_name = str_replace('[+prefix+]', $this->config['table_prefix'], $table_name);
+       $rs = $this->query("OPTIMIZE TABLE `{$table_name}`");
+       if($rs) $rs = $this->query("ALTER TABLE `{$table_name}`");
+       return $rs;
    }
 }
 ?>

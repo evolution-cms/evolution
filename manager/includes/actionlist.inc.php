@@ -1,5 +1,5 @@
 <?php
-if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 
 // action list
 $GLOBALS['action_list'] = array(
@@ -60,7 +60,7 @@ $GLOBALS['action_list'] = array(
 	'56'	=> 'Refresh resource tree',
 	'57'	=> 'Refresh menu',
 	'58'	=> 'Logged in',
-	'59'	=> 'About MODx',
+	'59'    => 'About MODX',
 	'60'	=> 'Emptying Recycle Bin',
 	'61'	=> 'Publishing a resource',
 	'62'	=> 'Un-publishing a resource',
@@ -118,6 +118,8 @@ $GLOBALS['action_list'] = array(
 	'114'	=> 'View event log',
 	'115'	=> 'View event log details',
 	'116'	=> 'Delete event log',
+	'117'   => 'Editing tv rank',
+	'118'   => 'Call settings ajax include',
 
 	'300'	=> 'Create Template Variable',
 	'301'	=> 'Edit Template Variable',
@@ -126,6 +128,7 @@ $GLOBALS['action_list'] = array(
 	'304'	=> 'Duplicate Template Variable',
 
 	'200'	=> 'Viewing phpInfo()',
+	'501'   => 'Delete category',
 	'998'	=> 'Viewing web page',
 	'999'	=> 'Viewing test page',
 );

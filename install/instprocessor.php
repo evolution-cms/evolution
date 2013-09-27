@@ -1,4 +1,10 @@
 <?php
+if (file_exists(dirname(__FILE__)."/../assets/cache/siteManager.php")) {
+    include_once(dirname(__FILE__)."/../assets/cache/siteManager.php");
+}else{
+define('MGR_DIR', 'manager');
+}
+
 global $moduleName;
 global $moduleVersion;
 global $moduleSQLBaseFile;
@@ -24,7 +30,7 @@ $installMode= intval($_POST['installmode']);
 $installData = $_POST['installdata'] == "1" ? 1 : 0;
 
 //if ($installMode == 1) {
-//	include "../manager/includes/config.inc.php";
+//	include "../".MGR_DIR."/includes/config.inc.php";
 //} else {
 // get db info from post
 $database_server = $_POST['databasehost'];
@@ -198,11 +204,18 @@ if ($moduleSQLBaseFile) {
     }
 }
 
+// custom or not
+if (file_exists(dirname(__FILE__)."/../../assets/cache/siteManager.php")) {
+    $mgrdir = 'include_once(dirname(__FILE__)."/../../assets/cache/siteManager.php");';
+}else{
+$mgrdir = 'define(\'MGR_DIR\', \'manager\');';
+}
+
 // write the config.inc.php file if new installation
 echo "<p>" . $_lang['writing_config_file'];
 $configString = '<?php
 /**
- * MODx Configuration file
+ * MODX Configuration file
  */
 $database_type = \'mysql\';
 $database_server = \'' . $database_server . '\';
@@ -219,7 +232,7 @@ $lastInstallTime = '.time().';
 $site_sessionname = \'' . $site_sessionname . '\';
 $https_port = \'443\';
 
-if(!defined("MGR_DIR")) define("MGR_DIR", "manager");
+'.$mgrdir.'
 
 // automatically assign base_path and base_url
 if(empty($base_path)||empty($base_url)||$_REQUEST[\'base_path\']||$_REQUEST[\'base_url\']) {
@@ -229,15 +242,24 @@ if(empty($base_path)||empty($base_url)||$_REQUEST[\'base_path\']||$_REQUEST[\'ba
     } else {
         $script_name= $_SERVER[\'SCRIPT_NAME\'];
     }
-    $a= explode("/manager", str_replace("\\\\", "/", dirname($script_name)));
+    $script_name = str_replace("\\\\", "/", dirname($script_name));
+    if(strpos($script_name,MGR_DIR)!==false)
+        $separator = MGR_DIR;
+    elseif(strpos($script_name,\'/assets/\')!==false)
+        $separator = \'assets\';
+    else $separator = \'\';
+    
+    if($separator!==\'\') $a= explode(\'/\'.$separator, $script_name);
+    else $a = array($script_name);
+    
     if (count($a) > 1)
         array_pop($a);
-    $url= implode("manager", $a);
+    $url= implode($separator, $a);
     reset($a);
-    $a= explode("manager", str_replace("\\\\", "/", dirname(__FILE__)));
+    $a= explode(MGR_DIR, str_replace("\\\\", "/", dirname(__FILE__)));
     if (count($a) > 1)
         array_pop($a);
-    $pth= implode("manager", $a);
+    $pth= implode(MGR_DIR, $a);
     unset ($a);
     $base_url= $url . (substr($url, -1) != "/" ? "/" : "");
     $base_path= $pth . (substr($pth, -1) != "/" && substr($pth, -1) != "\\\\" ? "/" : "");
@@ -253,8 +275,8 @@ $site_url .= $base_url;
 if (!defined(\'MODX_BASE_PATH\')) define(\'MODX_BASE_PATH\', $base_path);
 if (!defined(\'MODX_BASE_URL\')) define(\'MODX_BASE_URL\', $base_url);
 if (!defined(\'MODX_SITE_URL\')) define(\'MODX_SITE_URL\', $site_url);
-if (!defined(\'MODX_MANAGER_PATH\')) define(\'MODX_MANAGER_PATH\', $base_path.\'manager/\');
-if (!defined(\'MODX_MANAGER_URL\')) define(\'MODX_MANAGER_URL\', $site_url.\'manager/\');
+if (!defined(\'MODX_MANAGER_PATH\')) define(\'MODX_MANAGER_PATH\', $base_path.MGR_DIR.\'/\');
+if (!defined(\'MODX_MANAGER_URL\')) define(\'MODX_MANAGER_URL\', $site_url.MGR_DIR.\'/\');
 
 // start cms session
 if(!function_exists(\'startCMSSession\')) {
@@ -279,7 +301,7 @@ if(!function_exists(\'startCMSSession\')) {
     }
 }';
 $configString .= "\n?>";
-$filename = '../manager/includes/config.inc.php';
+$filename = '../'.MGR_DIR.'/includes/config.inc.php';
 $configFileFailed = false;
 if (@ !$handle = fopen($filename, 'w')) {
     $configFileFailed = true;
@@ -292,13 +314,13 @@ if (@ fwrite($handle, $configString) === FALSE) {
 @ fclose($handle);
 
 // try to chmod the config file go-rwx (for suexeced php)
-$chmodSuccess = @chmod($filename, 0600);
+$chmodSuccess = @chmod($filename, 0404);
 
 if ($configFileFailed == true) {
     echo "<span class=\"notok\">" . $_lang['failed'] . "</span></p>";
     $errors += 1;
 ?>
-    <p><?php echo $_lang['cant_write_config_file']?><span class="mono">manager/includes/config.inc.php</span></p>
+    <p><?php echo $_lang['cant_write_config_file']?><span class="mono"><?php echo MGR_DIR; ?>/includes/config.inc.php</span></p>
     <textarea style="width:400px; height:160px;">
     <?php echo $configString; ?>
     </textarea>
@@ -309,10 +331,10 @@ if ($configFileFailed == true) {
     echo "<span class=\"ok\">" . $_lang['ok'] . "</span></p>";
 }
 
-// generate new site_id and set manager theme to MODxCarbon
+// generate new site_id and set manager theme to MODxRE
 if ($installMode == 0) {
     $siteid = uniqid('');
-    mysql_query("REPLACE INTO $dbase.`" . $table_prefix . "system_settings` (setting_name,setting_value) VALUES('site_id','$siteid'),('manager_theme','MODxCarbon')", $sqlParser->conn);
+    mysql_query("REPLACE INTO $dbase.`" . $table_prefix . "system_settings` (setting_name,setting_value) VALUES('site_id','$siteid'),('manager_theme','MODxRE')", $sqlParser->conn);
 } else {
     // update site_id if missing
     $ds = mysql_query("SELECT setting_name,setting_value FROM $dbase.`" . $table_prefix . "system_settings` WHERE setting_name='site_id'", $sqlParser->conn);
@@ -333,7 +355,7 @@ if (isset ($_POST['template']) || $installData) {
     $selTemplates = $_POST['template'];
     foreach ($moduleTemplates as $k=>$moduleTemplate) {
         $installSample = in_array('sample', $moduleTemplate[6]) && $installData == 1;
-        if(in_array($k, $selTemplates) || $installSample) {
+        if($installSample || in_array($k, $selTemplates)) {
             $name = mysql_real_escape_string($moduleTemplate[0]);
             $desc = mysql_real_escape_string($moduleTemplate[1]);
             $category = mysql_real_escape_string($moduleTemplate[4]);
@@ -378,7 +400,7 @@ if (isset ($_POST['tv']) || $installData) {
     $selTVs = $_POST['tv'];
     foreach ($moduleTVs as $k=>$moduleTV) {
         $installSample = in_array('sample', $moduleTV[12]) && $installData == 1;
-        if(in_array($k, $selTVs) || $installSample) {
+        if($installSample || in_array($k, $selTVs)) {
             $name = mysql_real_escape_string($moduleTV[0]);
             $caption = mysql_real_escape_string($moduleTV[1]);
             $desc = mysql_real_escape_string($moduleTV[2]);
@@ -449,7 +471,7 @@ if (isset ($_POST['chunk']) || $installData) {
     $selChunks = $_POST['chunk'];
     foreach ($moduleChunks as $k=>$moduleChunk) {
         $installSample = in_array('sample', $moduleChunk[5]) && $installData == 1;
-        if(in_array($k, $selChunks) || $installSample) {
+        if($installSample || in_array($k, $selChunks)) {
 
             $name = mysql_real_escape_string($moduleChunk[0]);
             $desc = mysql_real_escape_string($moduleChunk[1]);
@@ -503,7 +525,7 @@ if (isset ($_POST['module']) || $installData) {
     $selModules = $_POST['module'];
     foreach ($moduleModules as $k=>$moduleModule) {
         $installSample = in_array('sample', $moduleModule[7]) && $installData == 1;
-        if(in_array($k, $selModules) || $installSample) {
+        if($installSample || in_array($k, $selModules)) {
             $name = mysql_real_escape_string($moduleModule[0]);
             $desc = mysql_real_escape_string($moduleModule[1]);
             $filecontent = $moduleModule[2];
@@ -549,7 +571,7 @@ if (isset ($_POST['plugin']) || $installData) {
     $selPlugs = $_POST['plugin'];
     foreach ($modulePlugins as $k=>$modulePlugin) {
         $installSample = in_array('sample', $modulePlugin[8]) && $installData == 1;
-        if(in_array($k, $selPlugs) || $installSample) {
+        if($installSample || in_array($k, $selPlugs)) {
             $name = mysql_real_escape_string($modulePlugin[0]);
             $desc = mysql_real_escape_string($modulePlugin[1]);
             $filecontent = $modulePlugin[2];
@@ -558,6 +580,7 @@ if (isset ($_POST['plugin']) || $installData) {
             $guid = mysql_real_escape_string($modulePlugin[5]);
             $category = mysql_real_escape_string($modulePlugin[6]);
             $leg_names = '';
+            $disabled = $modulePlugin[9];
             if(array_key_exists(7, $modulePlugin)) {
                 // parse comma-separated legacy names and prepare them for sql IN clause
                 $leg_names = "'" . implode("','", preg_split('/\s*,\s*/', mysql_real_escape_string($modulePlugin[7]))) . "'";
@@ -605,7 +628,7 @@ if (isset ($_POST['plugin']) || $installData) {
                     }
                     echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
                 } else {
-                    if (!@ mysql_query("INSERT INTO $dbase.`" . $table_prefix . "site_plugins` (name,description,plugincode,properties,moduleguid,category) VALUES('$name','$desc','$plugin','$properties','$guid',$category);", $sqlParser->conn)) {
+                    if (!@ mysql_query("INSERT INTO $dbase.`" . $table_prefix . "site_plugins` (name,description,plugincode,properties,moduleguid,category,disabled) VALUES('$name','$desc','$plugin','$properties','$guid',$category,$disabled);", $sqlParser->conn)) {
                         echo "<p>" . mysql_error() . "</p>";
                         return;
                     }
@@ -634,7 +657,7 @@ if (isset ($_POST['snippet']) || $installData) {
     $selSnips = $_POST['snippet'];
     foreach ($moduleSnippets as $k=>$moduleSnippet) {
         $installSample = in_array('sample', $moduleSnippet[5]) && $installData == 1;
-        if(in_array($k, $selSnips) || $installSample) {
+        if($installSample || in_array($k, $selSnips)) {
             $name = mysql_real_escape_string($moduleSnippet[0]);
             $desc = mysql_real_escape_string($moduleSnippet[1]);
             $filecontent = $moduleSnippet[2];
@@ -697,16 +720,17 @@ if ($installData && $moduleSQLDataFile) {
 if ($callBackFnc != "")
     $callBackFnc ($sqlParser);
 
-// Setup the MODx API -- needed for the cache processor
+// Setup the MODX API -- needed for the cache processor
 define('MODX_API_MODE', true);
 define('MODX_BASE_PATH', $base_path);
+if (!defined('MODX_MANAGER_PATH')) define('MODX_MANAGER_PATH', $base_path.MGR_DIR.'/');
 $database_type = 'mysql';
 // initiate a new document parser
-include_once('../manager/includes/document.parser.class.inc.php');
+include_once('../'.MGR_DIR.'/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
 $modx->db->connect();
 // always empty cache after install
-include_once "../manager/processors/cache_sync.class.processor.php";
+include_once "../".MGR_DIR."/processors/cache_sync.class.processor.php";
 $sync = new synccache();
 $sync->setCachepath("../assets/cache/");
 $sync->setReport(false);
@@ -770,6 +794,7 @@ function propUpdate($new,$old){
 
 function getCreateDbCategory($category, $sqlParser) {
     $dbase = $sqlParser->dbname;
+    $dbase = '`' . trim($dbase,'`') . '`';
     $table_prefix = $sqlParser->prefix;
     $category_id = 0;
     if(!empty($category)) {

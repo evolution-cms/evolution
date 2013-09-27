@@ -1,6 +1,6 @@
 <?php
 if (IN_MANAGER_MODE != "true")
-	die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+	die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 if (!$modx->hasPermission('save_web_user')) {
 	$e->setError(3);
 	$e->dumpError();
@@ -34,6 +34,8 @@ $mobilephone          = $input['mobilephone'];
 $fax                  = $input['fax'];
 $dob                  = !empty ($input['dob']) ? ConvertDate($input['dob']) : 0;
 $country              = $input['country'];
+$street               = $input['street'];
+$city                 = $input['city'];
 $state                = $input['state'];
 $zip                  = $input['zip'];
 $gender               = !empty($input['gender']) ? $input['gender'] : 0;
@@ -123,7 +125,7 @@ switch ($_POST['mode']) {
 		}
 
         $f = array();
-        $f = compact('internalKey','fullname','role','email','phone','mobilephone','fax','zip','state','country','gender','dob','photo','comment','blocked','blockeduntil','blockedafter');
+        $f = compact('internalKey','fullname','role','email','phone','mobilephone','fax','zip','street','city','state','country','gender','dob','photo','comment','blocked','blockeduntil','blockedafter');
         $f = $modx->db->escape($f);
 		$rs = $modx->db->insert($f, '[+prefix+]web_user_attributes');
 		if (!$rs) {
@@ -197,7 +199,7 @@ switch ($_POST['mode']) {
 				<li><a href="<?php echo $stayUrl ?>"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['close']; ?></a></li>
 			</ul>
 			</div>
-			
+            <div class="section">
 			<div class="sectionHeader"><?php echo $_lang['web_user_title']; ?></div>
 			<div class="sectionBody">
 			<div id="disp">
@@ -206,6 +208,7 @@ switch ($_POST['mode']) {
 			</p>
 			</div>
 			</div>
+            </div>
 		<?php
 
 			include_once "footer.inc.php";
@@ -283,7 +286,7 @@ switch ($_POST['mode']) {
 			exit;
 		}
 		$f = array();
-		$f = compact('fullname','role','email','phone','mobilephone','fax','zip','state','country','gender','dob','photo','comment','failedlogincount','blocked','blockeduntil','blockedafter');
+		$f = compact('fullname','role','email','phone','mobilephone','fax','zip','street','city','state','country','gender','dob','photo','comment','failedlogincount','blocked','blockeduntil','blockedafter');
 		$f = $modx->db->escape($f);
 		if (!$rs = $modx->db->update($f, '[+prefix+]web_user_attributes', "internalKey='{$esc_id}'")) {
 			webAlert("An error occurred while attempting to update the user's attributes.");
@@ -362,13 +365,14 @@ switch ($_POST['mode']) {
 				<li><a href="<?php echo $stayUrl ?>"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['close']; ?></a></li>
 			</ul>
 			</div>
-			
+            <div class="section">
 			<div class="sectionHeader"><?php echo $_lang['web_user_title']; ?></div>
 			<div class="sectionBody">
 			<div id="disp">
 				<p><?php echo sprintf($_lang["password_msg"], $newusername, $newpassword); ?></p>
 			</div>
 			</div>
+            </div>
 		<?php
 
 			include_once "footer.inc.php";
@@ -401,7 +405,7 @@ function save_user_quoted_printable($string) {
 
 // Send an email to the user
 function sendMailMessage($email, $uid, $pwd, $ufn) {
-	global $websignupemail_message;
+	global $modx,$_lang,$websignupemail_message;
 	global $emailsubject, $emailsender;
 	global $site_name, $site_start, $site_url;
 	$message = sprintf($websignupemail_message, $uid, $pwd); // use old method
@@ -414,22 +418,14 @@ function sendMailMessage($email, $uid, $pwd, $ufn) {
 	$message = str_replace("[+semail+]", $emailsender, $message);
 	$message = str_replace("[+surl+]", $site_url, $message);
 	
-	$headers = "From: " . $emailsender . "\r\n";
-	$headers .= "X-Mailer: Content Manager - PHP/" . phpversion();
-	$headers .= "\r\n";
-	$headers .= "MIME-Version: 1.0\r\n";
-	$headers .= "Content-Type: text/plain; charset=utf-8\r\n";
-	$headers .= "Content-Transfer-Encoding: quoted-printable\r\n";
-	$subject = "=?UTF-8?Q?".$emailsubject."?=";
-	$message = save_user_quoted_printable($message);
-
-	if (ini_get('safe_mode') == FALSE) {
-		if (!mail($email, $subject, $message, $headers, "-f $emailsender")) {
-			webAlert("$email - {$_lang['error_sending_email']}");
-			exit;
-		}
-	} elseif (!mail($email, $subject, $message, $headers)) {
-		webAlert("$email - {$_lang['error_sending_email']}");
+	$param = array();
+	$param['from']    = "{$site_name}<{$emailsender}>";
+	$param['subject'] = $emailsubject;
+	$param['body']    = $message;
+	$param['to']      = $email;
+	$rs = $modx->sendmail($param);
+	if (!$rs) {
+		webAlert("{$email} - {$_lang['error_sending_email']}");
 		exit;
 	}
 }

@@ -1,5 +1,5 @@
 <?php
-if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 if(!$modx->hasPermission('manage_metatags')) {
 	$e->setError(3);
 	$e->dumpError();
@@ -19,10 +19,10 @@ $modx->manager->initPageViewState();
 		var deleteList="";
 	<?php 
 		$sql = "SELECT * FROM $dbase.`".$table_prefix."site_keywords` ORDER BY keyword ASC";
-		$rs = mysql_query($sql);
-		$limit = mysql_num_rows($rs); 
+		$rs = $modx->db->query($sql);
+		$limit = $modx->db->getRecordCount($rs); 
 		for($i=0;$i<$limit;$i++) {
-		$row=mysql_fetch_assoc($rs);
+		$row=$modx->db->getRow($rs);
 		?>
 
 		if(document.getElementById('delete<?php echo $row['id']; ?>').checked==true) {
@@ -102,6 +102,7 @@ $modx->manager->initPageViewState();
 <input type="hidden" name="id" value="" />
 <br />
 <!-- META tags -->
+<div class="section">
 <div class="sectionHeader"><?php echo $_lang['metatags'] ;?></div><div class="sectionBody">
 	<?php echo $_lang['metatag_intro'] ;?><br /><br />
 	<div class="searchbara">
@@ -166,8 +167,8 @@ $modx->manager->initPageViewState();
 		$sql = "SELECT * " .
 				"FROM ".$modx->getFullTableName("site_metatags")." st ".
 				"ORDER BY name";
-		$ds = mysql_query($sql);
-		include_once $base_path."manager/includes/controls/datagrid.class.php";
+		$ds = $modx->db->query($sql);
+		include_once MODX_MANAGER_PATH."includes/controls/datagrid.class.php";
 		$grd = new DataGrid('',$ds,$number_of_results); // set page size to 0 t show all items
 		$grd->noRecordMsg = $_lang["no_records_found"];
 		$grd->cssClass="grid";
@@ -192,13 +193,15 @@ $modx->manager->initPageViewState();
 		</tr>
 	</table>
 </div>
+</div>
 
 <!-- keywords -->
+<div class="section">
 <div class="sectionHeader"><?php echo $_lang['keywords'] ;?></div><div class="sectionBody">
 <?php echo $_lang['keywords_intro'] ;?><br /><br />
 <?php
 	$sql = "SELECT * FROM $dbase.`".$table_prefix."site_keywords` ORDER BY keyword ASC";
-	$ds = mysql_query($sql);
+	$ds = $modx->db->query($sql);
 	$grd = new DataGrid('',$ds,$number_of_results); // set page size to 0 t show all items
 	$grd->noRecordMsg = $_lang["no_keywords_found"];
 	$grd->cssClass="grid";
@@ -226,6 +229,7 @@ $modx->manager->initPageViewState();
 			</td>
 		</tr>
 	</table>
+</div>
 </div>
 </form>
 

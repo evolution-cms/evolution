@@ -1,4 +1,11 @@
 <?php
+
+if (file_exists(dirname(__FILE__)."/../assets/cache/siteManager.php")) {
+    include_once(dirname(__FILE__)."/../assets/cache/siteManager.php");
+}else{
+    define('MGR_DIR', 'manager');
+}
+
 $installMode = intval($_POST['installmode']);
 if ($installMode == 0 || $installMode == 2) {
     $database_collation = isset($_POST['database_collation']) ? $_POST['database_collation'] : 'utf8_general_ci';
@@ -10,7 +17,7 @@ if ($installMode == 0 || $installMode == 2) {
         $_SESSION['databaseloginname'] = $_POST['databaseloginname'];
 }
 elseif ($installMode == 1) {
-    include "../manager/includes/config.inc.php";
+    include "../".MGR_DIR."/includes/config.inc.php";
 
     if (@ $conn = mysql_connect($database_server, $database_user, $database_password)) {
         if (@ mysql_query("USE {$dbase}")) {
@@ -158,7 +165,7 @@ $limit = count($modulePlugins);
 if ($limit > 0) {
     $pluginOutput = '';
     for ($i = 0; $i < $limit; $i++) {
-        $class = !in_array('sample', $modulePlugins[$i][8]) ? "toggle" : "toggle demo";
+        $class = !in_array('sample', (array) $modulePlugins[$i][8]) ? "toggle" : "toggle demo";
         $chk = in_array($i, $plugins) || (!$options_selected) ? 'checked="checked"' : "";
         $pluginOutput .= "<input type=\"checkbox\" name=\"plugin[]\" value=\"$i\" class=\"{$class}\" $chk />" . $_lang['install_update'] . " <span class=\"comname\">" . $modulePlugins[$i][0] . "</span> - " . $modulePlugins[$i][1] . "<hr />";
     }
@@ -174,7 +181,7 @@ $limit = count($moduleSnippets);
 if ($limit > 0) {
     $snippetOutput = '';
     for ($i = 0; $i < $limit; $i++) {
-        $class = !in_array('sample', $moduleSnippets[$i][5]) ? "toggle" : "toggle demo";
+        $class = !in_array('sample', (array) $moduleSnippets[$i][5]) ? "toggle" : "toggle demo";
         $chk = in_array($i, $snippets) || (!$options_selected) ? 'checked="checked"' : "";
         $snippetOutput .= "<input type=\"checkbox\" name=\"snippet[]\" value=\"$i\" class=\"{$class}\" $chk />" . $_lang['install_update'] . " <span class=\"comname\">" . $moduleSnippets[$i][0] . "</span> - " . $moduleSnippets[$i][1] . "<hr />";
     }
@@ -191,9 +198,9 @@ if ($limit > 0) {
     </p>
 
 </form>
-<script type="text/javascript" src="../assets/js/jquery-1.4.4.min.js"></script>
+<script type="text/javascript" src="../assets/js/jquery.min.js"></script>
 <script type="text/javascript">
-    $(document).ready(function(){
+    jQuery(function(){
 
         jQuery('#toggle_check_all').click(function(evt){
             evt.preventDefault();

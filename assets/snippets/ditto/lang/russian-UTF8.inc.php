@@ -4,7 +4,7 @@
  * Filename:       assets/snippets/ditto/lang/russian-UTF8.inc.php
  * Language:       Russian
  * Encoding:       UTF8
- * Translated by:  Russian MODx community, Jaroslav Sidorkin, based on translation by modx.ru
+ * Translated by:  Russian MODX community, Jaroslav Sidorkin, based on translation by modx.ru
  * Date:           9 May 2010
  * Version:        2.1.0
 */

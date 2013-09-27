@@ -83,14 +83,14 @@ class DataSetPager {
 	}
 
 	function render(){
-		global $_PAGE;
+		global $modx,$_PAGE;
 			
 		$isDataset = is_resource($this->ds);
 		
 		if (!$this->selPageStyle) $this->selPageStyle = "font-weight:bold";
 		
 		// get total number of rows		
-		$tnr = ($isDataset)? mysql_num_rows($this->ds):count($this->ds); 
+		$tnr = ($isDataset)? $modx->db->getRecordCount($this->ds):count($this->ds); 
 
 		// render: no records found
 		if($tnr<=0) {
@@ -118,7 +118,8 @@ class DataSetPager {
 			$fnc = $this->renderPagerFnc;
 			$args = $this->renderPagerFncArgs;
 			if (!isset($fnc)){
-				$url = $_SERVER['PHP_SELF']."?";
+				if($modx->isFrontend()) $url = $modx->makeUrl($modx->documentIdentifier,'','','full') . '?';
+				else                    $url = $_SERVER['PHP_SELF'] . '?';
 				$i=0;
 				foreach($_GET as $n => $v) if($n!='dpgn'.$this->id) {$i++;$url.=(($i>1)? "&":"")."$n=$v";}
 				if($i>=1)$url.="&";
@@ -143,7 +144,7 @@ class DataSetPager {
 			$fncObject = is_object($fnc);
 			$minitems = (($p-1)*$this->pageSize)+1;
 			$maxitems = (($p-1)*$this->pageSize)+$this->pageSize;
-			while ($i<=$maxitems && ($row = ($isDataset)? mysql_fetch_assoc($this->ds):$this->ds[$i-1])) {
+			while ($i<=$maxitems && ($row = ($isDataset)? $modx->db->getRow($this->ds):$this->ds[$i-1])) {
 				if ($i>=$minitems && $i<=$maxitems){
 					if($fncObject) {
 						if($args!="") $this->rows .= $fnc->RenderRowFnc($i,$row,$args);

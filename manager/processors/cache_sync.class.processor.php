@@ -7,6 +7,8 @@ class synccache{
     var $deletedfiles = array();
     var $aliases = array();
     var $parents = array();
+    var $aliasVisible = array();
+	
 
     function setCachepath($path) {
         $this->cachePath = $path;
@@ -31,17 +33,20 @@ class synccache{
     function getParents($id, $path = '') { // modx:returns child's parent
         global $modx;
         if(empty($this->aliases)) {
-            $sql = "SELECT id, IF(alias='', id, alias) AS alias, parent FROM ".$modx->getFullTableName('site_content');
+            //$sql = "SELECT id, IF(alias='', id, alias) AS alias, parent FROM ".$modx->getFullTableName('site_content');
+            $sql = "SELECT id, IF(alias='', id, alias) AS alias, parent, alias_visible FROM ".$modx->getFullTableName('site_content');
+			
             $qh = $modx->db->query($sql);
             if ($qh && $modx->db->getRecordCount($qh) > 0)  {
                 while ($row = $modx->db->getRow($qh)) {
                     $this->aliases[$row['id']] = $row['alias'];
                     $this->parents[$row['id']] = $row['parent'];
+					$this->aliasVisible[$row['id']] = $row['alias_visible'];
                 }
             }
         }
         if (isset($this->aliases[$id])) {
-            $path = $this->aliases[$id] . ($path != '' ? '/' : '') . $path;
+            $path = ($this->aliasVisible[$id] == 1 ? $this->aliases[$id] . ($path != '' ? '/' : '') . $path : $path);
             return $this->getParents($this->parents[$id], $path);
         }
         return $path;

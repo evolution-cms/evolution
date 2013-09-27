@@ -1,8 +1,9 @@
 <?php
-if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 if (!array_key_exists('mail_check_timeperiod', $modx->config) || !is_numeric($modx->config['mail_check_timeperiod'])) {
 	$modx->config['mail_check_timeperiod'] = 5;
 }
+$modx_textdir = isset($modx_textdir) ? $modx_textdir : null;
 if ($manager_theme) $manager_theme .= '/';
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 ?>
@@ -35,7 +36,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			return false;
 		} catch(oException) {
 			// Delay first run until we're ready...
-			xx=updateMail.delay(1000,'',true);
+			xx=updateMail.delay(1000 * 60,'',true);
 		}
 	};
 
@@ -136,7 +137,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 			y=window.setTimeout('reloadtree()',500);
 		}
 		if(rFrame==10) {
-			window.top.location.href = "../manager";
+			window.top.location.href = "../<?php echo MGR_DIR;?>";
 		}
 	}
 

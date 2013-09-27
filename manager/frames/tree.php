@@ -1,7 +1,7 @@
-<?php if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+<?php if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 
     $theme = $manager_theme ? "$manager_theme/":"";
-
+    $modx_textdir = isset($modx_textdir) ? $modx_textdir : null;
     function constructLink($action, $img, $text, $allowed) {
         if($allowed==1) { ?>
             <div class="menuLink" onclick="menuHandler(<?php echo $action ; ?>); hideMenu();">
@@ -33,15 +33,15 @@
     var i = new Image(18,18);
     i.src="<?php echo $_style["tree_page"]?>";
     i = new Image(18,18);
-    i.src="<?php echo $_style["tree_globe"]?>";
+    i.src="<?php echo isset($_style["tree_globe"]) ? $_style["tree_globe"] : $_style["tree_page"]; ?>";
     i = new Image(18,18);
     i.src="<?php echo $_style["tree_minusnode"]?>";
     i = new Image(18,18);
     i.src="<?php echo $_style["tree_plusnode"]?>";
     i = new Image(18,18);
-    i.src="<?php echo $_style["tree_folderopen"]?>";
+    i.src="<?php echo isset($_style["tree_folderopen"]) ? $_style["tree_folderopen"] : $_style["tree_page"]; ?>";
     i = new Image(18,18);
-    i.src="<?php echo $_style["tree_folder"]?>";
+    i.src="<?php echo isset($_style["tree_folder"]) ? $_style["tree_folder"] : $_style["tree_page"]; ?>";
 
 
     var rpcNode = null;
@@ -298,7 +298,7 @@
         }
     }
 
-    function treeAction(id, name) {
+    function treeAction(id, name, treedisp_children) {
         if(ca=="move") {
             try {
                 parent.main.setMoveValue(id, name);
@@ -312,7 +312,11 @@
                 parent.main.location.href="index.php?a=2";
             } else {
                 // parent.main.location.href="index.php?a=3&id=" + id + getFolderState(); //just added the getvar &opened=
-                parent.main.location.href="index.php?a=<?php echo (!empty($modx->config['tree_page_click']) ? $modx->config['tree_page_click'] : '27'); ?>&id=" + id; // edit as default action
+                if(treedisp_children==0) {
+					parent.main.location.href="index.php?a=3&id=" + id + getFolderState();
+				} else {
+					parent.main.location.href="index.php?a=<?php echo (!empty($modx->config['tree_page_click']) ? $modx->config['tree_page_click'] : '27'); ?>&id=" + id; // edit as default action
+				}
             }
         }
         if(ca=="parent") {
@@ -386,8 +390,16 @@
 
 
 </head>
-<body onClick="hideMenu(1);" class="treeframebody<?php echo $modx_textdir ? ' rtl':''?>">
+<body onClick="hideMenu(1);" class="<?php echo $modx_textdir ? ' rtl':''?>">
 
+<?php
+    // invoke OnTreePrerender event
+    $evtOut = $modx->invokeEvent('OnManagerTreeInit',$_REQUEST);
+    if (is_array($evtOut))
+        echo implode("\n", $evtOut);
+?>
+
+<div class="treeframebody">
 <div id="treeSplitter"></div>
 
 <table id="treeMenu" width="100%"  border="0" cellpadding="0" cellspacing="0">
@@ -458,7 +470,19 @@ if(isset($_REQUEST['tree_sortdir'])) {
 </div>
 
 <div id="treeHolder">
+<?php
+    // invoke OnTreeRender event
+    $evtOut = $modx->invokeEvent('OnManagerTreePrerender', $_REQUEST);
+    if (is_array($evtOut))
+        echo implode("\n", $evtOut);
+?>
     <div><?php echo $_style['tree_showtree']; ?>&nbsp;<span class="rootNode" onClick="treeAction(0, '<?php echo addslashes($site_name); ?>');"><b><?php echo $site_name; ?></b></span><div id="treeRoot"></div></div>
+<?php
+    // invoke OnTreeRender event
+    $evtOut = $modx->invokeEvent('OnManagerTreeRender', $_REQUEST);
+    if (is_array($evtOut))
+        echo implode("\n", $evtOut);
+?>
 </div>
 
 <script type="text/javascript">
@@ -561,6 +585,7 @@ function menuHandler(action) {
     constructLink(1, $_style["icons_resource_overview"], $_lang["resource_overview"], $modx->hasPermission('view_document')); // view
     constructLink(12, $_style["icons_preview_resource"], $_lang["preview_resource"], 1); // preview
     ?>
+</div>
 </div>
 
 </body>

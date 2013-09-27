@@ -1,5 +1,5 @@
 <?php
-if(IN_MANAGER_MODE != 'true') die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+if(IN_MANAGER_MODE != 'true') die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 
 if(!$modx->hasPermission('change_password')) {
 	$e->setError(3);
@@ -18,6 +18,7 @@ else    $manager_theme  = '';
 	  <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
 	</ul>
 </div>
+<div class="section">
 <div class="sectionHeader"><?php echo $_lang['change_password']?></div>
 <div class="sectionBody">
 	<form action="index.php?a=34" method="post" name="userform">
@@ -39,4 +40,5 @@ else    $manager_theme  = '';
 
 	<input type="submit" name="save" style="display:none">
 </form>
+</div>
 </div>

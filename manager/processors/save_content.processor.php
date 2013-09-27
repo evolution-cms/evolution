@@ -1,6 +1,6 @@
 <?php
 if (IN_MANAGER_MODE != "true")
-	die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+	die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 
 if (!$modx->hasPermission('save_document')) {
 	$e->setError(3);
@@ -36,6 +36,15 @@ $longtitle = $modx->db->escape($_POST['longtitle']);
 $donthit = intval($_POST['donthit']);
 $menutitle = $modx->db->escape($_POST['menutitle']);
 $hidemenu = intval($_POST['hidemenu']);
+$aliasvisible = $_POST['alias_visible'];
+
+/************* webber ********/
+$sd=isset($_POST['dir'])?'&dir='.$_POST['dir']:'&dir=DESC';
+$sb=isset($_POST['sort'])?'&sort='.$_POST['sort']:'&sort=pub_date';
+$pg=isset($_POST['page'])?'&page='.(int)$_POST['page']:'';
+$add_path=$sd.$sb.$pg;
+
+
 
 if (trim($pagetitle == "")) {
 	if ($type == "reference") {
@@ -79,6 +88,17 @@ if ($friendly_urls) {
 				}
 				$alias = $tempAlias;
 			}
+		}else{
+                if ($modx->db->getValue("SELECT COUNT(id) FROM " . $tbl_site_content . " WHERE id<>'$id' AND parent=$parent AND alias='$alias'") != 0) {
+                        $cnt = 1;
+                        $tempAlias = $alias;
+                        while ($modx->db->getValue("SELECT COUNT(id) FROM " . $tbl_site_content . " WHERE id<>'$id' AND parent=$parent AND alias='$tempAlias'") != 0) {
+                                $tempAlias = $alias;
+                                $tempAlias .= $cnt;
+                                $cnt++;
+                        }
+                        $alias = $tempAlias;
+                }                       
 		}
 	}
 
@@ -113,6 +133,26 @@ if ($friendly_urls) {
 	// strip alias of special characters
 	elseif ($alias) {
 		$alias = $modx->stripAlias($alias);
+		//webber
+		$docid = $modx->db->getValue("SELECT id FROM " . $tbl_site_content . " WHERE id<>'$id' AND alias='$alias' AND parent=$parent LIMIT 1");
+                if ($docid > 0) {
+                        if ($actionToTake == 'edit') {
+                                $modx->manager->saveFormValues(27);
+                                $url = "index.php?a=27&id=" . $id;
+                                include_once "header.inc.php";
+                                $modx->webAlert(sprintf($_lang["duplicate_alias_found"], $docid, $alias), $url);
+                                include_once "footer.inc.php";
+                                exit;
+                        } else {
+                                $modx->manager->saveFormValues(4);
+                                $url = "index.php?a=4";
+                                include_once "header.inc.php";
+                                $modx->webAlert(sprintf($_lang["duplicate_alias_found"], $docid, $alias), $url);
+                                include_once "footer.inc.php";
+                                exit;
+                        }
+                }
+        //end webber        
 	}
 }
 elseif ($alias) {
@@ -281,6 +321,23 @@ switch ($actionToTake) {
 	case 'new' :
 
 		// invoke OnBeforeDocFormSave event
+		switch($modx->config['docid_incrmnt_method'])
+		{
+			case '1':
+				$from = "{$tbl_site_content} AS T0 LEFT JOIN {$tbl_site_content} AS T1 ON T0.id + 1 = T1.id";
+				$where = "T1.id IS NULL";
+				$rs = $modx->db->select('MIN(T0.id)+1', $from, "T1.id IS NULL");
+				$id = $modx->db->getValue($rs);
+				break;
+			case '2':
+				$rs = $modx->db->select('MAX(id)+1',$tbl_site_content);
+				$id = $modx->db->getValue($rs);
+			break;
+			
+			default:
+				$id = '';
+		}
+		
 		$modx->invokeEvent("OnBeforeDocFormSave", array (
 			"mode" => "new",
 			"id" => $id
@@ -296,8 +353,8 @@ switch ($actionToTake) {
 		$publishedon = ($published ? $currentdate : 0);
 		$publishedby = ($published ? $modx->getLoginUserID() : 0);
 
-		$sql = "INSERT INTO $tbl_site_content (introtext,content, pagetitle, longtitle, type, description, alias, link_attributes, isfolder, richtext, published, parent, template, menuindex, searchable, cacheable, createdby, createdon, editedby, editedon, publishedby, publishedon, pub_date, unpub_date, contentType, content_dispo, donthit, menutitle, hidemenu)
-						VALUES('" . $introtext . "','" . $content . "', '" . $pagetitle . "', '" . $longtitle . "', '" . $type . "', '" . $description . "', '" . $alias . "', '" . $link_attributes . "', '" . $isfolder . "', '" . $richtext . "', '" . $published . "', '" . $parent . "', '" . $template . "', '" . $menuindex . "', '" . $searchable . "', '" . $cacheable . "', '" . $modx->getLoginUserID() . "', " . $currentdate . ", '" . $modx->getLoginUserID() . "', " . $currentdate . ", " . $publishedby . ", " . $publishedon . ", '$pub_date', '$unpub_date', '$contentType', '$contentdispo', '$donthit', '$menutitle', '$hidemenu')";
+		$sql = "INSERT INTO $tbl_site_content (introtext,content, pagetitle, longtitle, type, description, alias, link_attributes, isfolder, richtext, published, parent, template, menuindex, searchable, cacheable, createdby, createdon, editedby, editedon, publishedby, publishedon, pub_date, unpub_date, contentType, content_dispo, donthit, menutitle, hidemenu, alias_visible)
+						VALUES('" . $introtext . "','" . $content . "', '" . $pagetitle . "', '" . $longtitle . "', '" . $type . "', '" . $description . "', '" . $alias . "', '" . $link_attributes . "', '" . $isfolder . "', '" . $richtext . "', '" . $published . "', '" . $parent . "', '" . $template . "', '" . $menuindex . "', '" . $searchable . "', '" . $cacheable . "', '" . $modx->getLoginUserID() . "', " . $currentdate . ", '" . $modx->getLoginUserID() . "', " . $currentdate . ", " . $publishedby . ", " . $publishedon . ", '$pub_date', '$unpub_date', '$contentType', '$contentdispo', '$donthit', '$menutitle', '$hidemenu', '$aliasvisible')";
 
 		$rs = $modx->db->query($sql);
 		if (!$rs) {
@@ -332,7 +389,7 @@ switch ($actionToTake) {
 			$new_groups = array();
 			foreach ($document_groups as $value_pair) {
 				// first, split the pair (this is a new document, so ignore the second value
-				list($group) = explode(',', $value_pair); // @see manager/actions/mutate_content.dynamic.php @ line 1138 (permissions list)
+				list($group) = explode(',', $value_pair); // @see actions/mutate_content.dynamic.php @ line 1138 (permissions list)
 				$new_groups[] = '('.(int)$group.','.$key.')';
 			}
 			$saved = true;
@@ -377,11 +434,11 @@ switch ($actionToTake) {
 		));
 
 		// secure web documents - flag as private
-		include $base_path . "manager/includes/secure_web_documents.inc.php";
+		include MODX_MANAGER_PATH . "includes/secure_web_documents.inc.php";
 		secureWebDocument($key);
 
 		// secure manager documents - flag as private
-		include $base_path . "manager/includes/secure_mgr_documents.inc.php";
+		include MODX_MANAGER_PATH . "includes/secure_mgr_documents.inc.php";
 		secureMgrDocument($key);
 
 		if ($syncsite == 1) {
@@ -403,7 +460,7 @@ switch ($actionToTake) {
 				$a = ($_POST['stay'] == '2') ? "27&id=$key" : "4&pid=$parent";
 			$header = "Location: index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'];
 		} else {
-			$header = "Location: index.php?r=1&id=$id&a=7&dv=1";
+			$header = "Location: index.php?r=1&id=$key&a=7&dv=1";
 		}
 		header($header);
 
@@ -481,7 +538,7 @@ switch ($actionToTake) {
 		// update the document
 		$sql = "UPDATE $tbl_site_content SET introtext='$introtext', content='$content', pagetitle='$pagetitle', longtitle='$longtitle', type='$type', description='$description', alias='$alias', link_attributes='$link_attributes',
 				isfolder=$isfolder, richtext=$richtext, published=$published, pub_date=$pub_date, unpub_date=$unpub_date, parent=$parent, template=$template, menuindex='$menuindex',
-				searchable=$searchable, cacheable=$cacheable, editedby=" . $modx->getLoginUserID() . ", editedon=" . $currentdate . ", publishedon=$publishedon, publishedby=$publishedby, contentType='$contentType', content_dispo='$contentdispo', donthit='$donthit', menutitle='$menutitle', hidemenu='$hidemenu'  WHERE id=$id;";
+				searchable=$searchable, cacheable=$cacheable, editedby=" . $modx->getLoginUserID() . ", editedon=" . $currentdate . ", publishedon=$publishedon, publishedby=$publishedby, contentType='$contentType', content_dispo='$contentdispo', donthit='$donthit', menutitle='$menutitle', hidemenu='$hidemenu', alias_visible='$aliasvisible'  WHERE id=$id;";
 
 		$rs = $modx->db->query($sql);
 		if (!$rs) {
@@ -532,7 +589,7 @@ switch ($actionToTake) {
 			$new_groups = array();
 			// process the new input
 			foreach ($document_groups as $value_pair) {
-				list($group, $link_id) = explode(',', $value_pair); // @see manager/actions/mutate_content.dynamic.php @ line 1138 (permissions list)
+				list($group, $link_id) = explode(',', $value_pair); // @see actions/mutate_content.dynamic.php @ line 1138 (permissions list)
 				$new_groups[$group] = $link_id;
 			}
 
@@ -614,11 +671,11 @@ switch ($actionToTake) {
 		));
 
 		// secure web documents - flag as private
-		include $base_path . "manager/includes/secure_web_documents.inc.php";
+		include MODX_MANAGER_PATH . "includes/secure_web_documents.inc.php";
 		secureWebDocument($id);
 
 		// secure manager documents - flag as private
-		include $base_path . "manager/includes/secure_mgr_documents.inc.php";
+		include MODX_MANAGER_PATH . "includes/secure_mgr_documents.inc.php";
 		secureMgrDocument($id);
 
 		if ($syncsite == 1) {
@@ -642,9 +699,9 @@ switch ($actionToTake) {
 					// document
 					$a = ($_POST['stay'] == '2') ? "27&id=$id" : "4&pid=$parent";
 				}
-				$header = "Location: index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'];
+				$header = "Location: index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'].$add_path;
 			} else {
-				$header = "Location: index.php?r=1&id=$id&a=7&dv=1";
+				$header = "Location: index.php?r=1&id=$id&a=7&dv=1".$add_path;
 			}
 		}
 		header($header);

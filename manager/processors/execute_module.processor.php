@@ -1,12 +1,12 @@
 <?php
-if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 if(!$modx->hasPermission('exec_module')) {	
 	$e->setError(3);
 	$e->dumpError();	
 }
 
-if(isset($_REQUEST['id'])) {
-	$id = intval($_REQUEST['id']);
+if(isset($_GET['id'])) {
+	$id = intval($_GET['id']);
 } else {
 	$id=0;
 }
@@ -23,13 +23,13 @@ if($_SESSION['mgrRole']!=1){
 		"FROM ".$modx->getFullTableName("site_module_access")." sma " .
 		"LEFT JOIN ".$modx->getFullTableName("member_groups")." mg ON mg.user_group = sma.usergroup AND member='".$modx->getLoginUserID()."'".
 		"WHERE sma.module = '$id'";
-	$rs = $modx->dbQuery($sql);
+	$rs = $modx->db->query($sql);
 
 	//initialize permission to -1, if it stays -1 no permissions
 	//attached so permission granted
 	$permissionAccessInt = -1;
 
-	while ($row = $modx->fetchRow($rs)) {
+	while ($row = $modx->db->getRow($rs)) {
 		if($row["usergroup"] && $row["member"]) {
 			//if there are permissions and this member has permission, ofcourse
 			//this is granted
@@ -55,8 +55,8 @@ if($_SESSION['mgrRole']!=1){
 $sql = "SELECT * " .
 		"FROM ".$modx->getFullTableName("site_modules")." " .
 		"WHERE id = $id;";
-$rs = mysql_query($sql);
-$limit = mysql_num_rows($rs);
+$rs = $modx->db->query($sql);
+$limit = $modx->db->getRecordCount($rs);
 if($limit>1) {
 	echo "<script type='text/javascript'>" .
 			"function jsalert(){ alert('Multiple modules sharing same unique id $id. Please contact the Site Administrator');" .
@@ -73,7 +73,7 @@ if($limit<1) {
 			"</script>";
 	exit;
 }
-$content = mysql_fetch_assoc($rs);
+$content = $modx->db->getRow($rs);
 if($content['disabled']) {
 	echo "<script type='text/javascript'>" .
 			"function jsalert(){ alert('This module is disabled and cannot be executed.');" .
@@ -100,7 +100,7 @@ $_SESSION['itemname'] = $content['name'];
 
 $output = evalModule($content["modulecode"],$parameter);
 echo $output;
-include $base_path."manager/includes/sysalert.display.inc.php";
+include MODX_MANAGER_PATH."includes/sysalert.display.inc.php";
 
 // evalModule
 function evalModule($moduleCode,$params){
@@ -111,18 +111,33 @@ function evalModule($moduleCode,$params){
 		extract($params, EXTR_SKIP);
 	}
 	ob_start();
-		$mod = eval($moduleCode);
-		$msg = ob_get_contents();
+	$mod = eval($moduleCode);
+	$msg = ob_get_contents();
 	ob_end_clean();
-	if ($php_errormsg) { 
-		if(!strpos($php_errormsg,'Deprecated')) { // ignore php5 strict errors
-			// log error		
-			global $content;
-			$modx->logEvent(1,3,"<b>$php_errormsg</b><br /><br /> $msg",$content['name']." - Module");
-			if($modx->isBackend()) $modx->event->alert("<span style='color:maroon;'><b>".$content['name']." - Module"." runtime error:</b></span><br /><br />An error occurred while loading the module. Please see the event log.");
+	if (isset($php_errormsg))
+	{
+		$error_info = error_get_last();
+        switch($error_info['type'])
+        {
+        	case E_NOTICE :
+        		$error_level = 1;
+        	case E_USER_NOTICE :
+        		break;
+        	case E_DEPRECATED :
+        	case E_USER_DEPRECATED :
+        	case E_STRICT :
+        		$error_level = 2;
+        		break;
+        	default:
+        		$error_level = 99;
+        }
+		if($modx->config['error_reporting']==='99' || 2<$error_level)
+		{
+			extract($error_info);
+			$result = $modx->messageQuit('PHP Parse Error', '', true, $type, $file, $content['name'] . ' - Module', $text, $line, $msg);
+			$modx->event->alert("An error occurred while loading. Please see the event log for more information<p>{$msg}</p>");
 		}
 	}
-	unset($modx->event->params); 
+	unset($modx->event->params);
 	return $mod.$msg;
 }
-?>

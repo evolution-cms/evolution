@@ -1,5 +1,5 @@
 <?php
-if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODx Content Manager instead of accessing this file directly.");
+if(IN_MANAGER_MODE!="true") die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 if(!$modx->hasPermission('access_permissions')) {
 	$e->setError(3);
 	$e->dumpError();
@@ -32,7 +32,7 @@ switch ($operation) {
 			}
 
 			// get new id
-			$id = mysql_insert_id();
+			$id = $modx->db->getInsertId();
 
 			// invoke OnManagerCreateGroup event
 			$modx->invokeEvent('OnManagerCreateGroup', array(
@@ -54,7 +54,7 @@ switch ($operation) {
 			}
 
 			// get new id
-			$id = mysql_insert_id();
+			$id = $modx->db->getInsertId();
 
 			// invoke OnCreateDocGroup event
 			$modx->invokeEvent('OnCreateDocGroup', array(
@@ -176,7 +176,7 @@ switch ($operation) {
 
 // secure manager documents - flag as private
 if($updategroupaccess==true){
-	include $base_path."manager/includes/secure_mgr_documents.inc.php";
+	include MODX_MANAGER_PATH."includes/secure_mgr_documents.inc.php";
 	secureMgrDocument();
 
 	// Update the private group column

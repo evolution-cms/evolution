@@ -10,7 +10,7 @@ img {
 html {
 	font-size: 100.01%;
 	line-height: 1.5;
-	font-family: Helvetica, Arial, sans-serif;
+	font-family:  Arial, HelveticaNeue, "Helvetica Neue", Helvetica, "Hiragino Kaku Gothic Pro", Meiryo, sans-serif;
 	color: #111;
 }
 body {
@@ -471,6 +471,8 @@ input.submit {
 .sectionHeader {
 	padding: 5px 3px 5px 18px;
 	background: #EFEFEF url(images/misc/fade.gif) repeat-x top;
+	overflow:hidden;
+	zoom:1;
 	border-radius : 5px 5px 0 0;
 	-moz-border-radius : 5px 5px 0 0;
 	-webkit-border-radius:5px 5px 0 0;
@@ -577,10 +579,10 @@ a img {
 }
 
 #treeRoot div img {
-	margin: 0 0 0 -6px;
+	margin: 0;
 }
 	.rtl #treeRoot div img {
-		margin: 0 -6px 0 0;
+		margin: 0;
 	}
 #floater {
 	display: none;
@@ -689,6 +691,7 @@ table.grid td.even, .gridAltItem {
 	width: 100%;
 	border: 1px solid silver;
 	background-color: #DBDBDB;
+    margin-bottom:8px;
 }
 .searchtext {
 	height: 18px;
@@ -1660,3 +1663,6 @@ form#mutate input.number {width:60px !important;padding-right:10px;text-align:ri
 optgroup {font-style:normal;}
 
 #mainpane table th {vertical-align:top;}
+/*Refactor #4440*/
+table.fields {border: 0px solid #fff;}
+table.fields td {border: 0px solid #fff;}
