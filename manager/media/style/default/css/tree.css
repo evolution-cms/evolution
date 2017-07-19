@@ -26,7 +26,7 @@
 #treeRoot a.protected .title { color: #aaa; }
 #treeRoot a .lockedResource { cursor: pointer; }
 #treeRoot a .editResource { margin-left: 0.2em }
-#treeRoot .indent { position: relative; z-index: -1; float: left; height: 1.5em; }
+#treeRoot .indent { z-index: -1; float: left; height: 1.5em; }
 #treeRoot .indent i { float: left; height: 1.2em; width: 1.5em }
 #treeRoot .empty { color: #aaa; cursor: default; }
 #treeRoot .icon { cursor: pointer; -webkit-transition-duration: 0.15s; transition-duration: 0.15s }
