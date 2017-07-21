@@ -208,7 +208,7 @@ if($numRecords > 0) {
 			'createdon' => '<div class="text-right">' . ($modx->toDateFormat($children['createdon'] + $server_offset_time, 'dateOnly')) . '</div>',
 			'pub_date' => '<div class="text-right">' . ($children['pub_date'] ? ($modx->toDateFormat($children['pub_date'] + $server_offset_time, 'dateOnly')) : '') . '</div>',
 			'status' => '<div class="text-nowrap">' . ($children['published'] == 0 ? '<span class="unpublishedDoc">' . $_lang['page_data_unpublished'] . '</span>' : '<span class="publishedDoc">' . $_lang['page_data_published'] . '</span>') . '</div>',
-			'edit' => '<div class="actions text-center text-nowrap">' . ($modx->hasPermission('edit_document') ? '<a href="index.php?a=27&amp;id=' . $children['id'] . $add_path . '" title="' . $_lang['edit'] . '"><i class="' . $_style["icons_edit_resource"] . '"></i></a><a href="index.php?a=51&amp;id=' . $children['id'] . $add_path . '" title="' . $_lang['move'] . '"><i 
+			'edit' => '<div class="actions text-center text-nowrap">' . ($modx->hasPermission('edit_document') ? '<a href="index.php?a=27&amp;r=1&amp;id=' . $children['id'] . $add_path . '" title="' . $_lang['edit'] . '"><i class="' . $_style["icons_edit_resource"] . '"></i></a><a href="index.php?a=51&amp;id=' . $children['id'] . $add_path . '" title="' . $_lang['move'] . '"><i 
 				class="' . $_style["icons_move_document"] . '"></i></a>' . $icon_pub_unpub : '') . ($modx->hasPermission('delete_document') ? $icon_del_undel : '') . '</div>'
 		);
 	}
@@ -229,7 +229,7 @@ if($numRecords > 0) {
 				document.location.href = "index.php?pid=<?= $_REQUEST['id'] ?>&a=72";
 			},
 			edit: function() {
-				document.location.href = "index.php?id=<?= $_REQUEST['id'] ?>&a=27";
+				document.location.href = "index.php?id=<?= $_REQUEST['id'] ?>&a=27&r=1";
 			},
 			save: function() {
 				documentDirty = false;
