@@ -90,7 +90,7 @@ function bold($cond = false) {
 		},
 		cancel: function() {
 			documentDirty = false;
-			document.location.href = 'index.php?a=76';
+			document.location.href = 'index.php?a=76&utype=<?php echo $lockElementType; ?>&uid=<?php echo $lockElementId; ?>';
 		}
 	};
 

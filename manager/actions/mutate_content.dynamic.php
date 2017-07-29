@@ -184,10 +184,12 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 				}
 			},
 			cancel: function() {
+				setLastClickedElement(0,0);
 				documentDirty = false;
 				document.location.href = 'index.php?<?=($id == 0 ? 'a=2' : 'a=3&r=1&id=' . $id . $add_path) ?>';
 			},
 			duplicate: function() {
+				setLastClickedElement(0,0);
 				if(confirm("<?= $_lang['confirm_resource_duplicate']?>") === true) {
 					document.location.href = "index.php?id=<?= $_REQUEST['id'] ?>&a=94<?= $add_path ?>";
 				}

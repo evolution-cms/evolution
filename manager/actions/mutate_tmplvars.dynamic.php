@@ -107,7 +107,7 @@ if(is_array($evtOut)) {
 		},
 		cancel: function() {
 			documentDirty = false;
-			document.location.href = 'index.php?a=<?= $origin ?><?=($originId != NULL ? '&id=' . $originId : '') ?>';
+			document.location.href = 'index.php?a=<?= $origin ?><?=($originId != NULL ? '&id=' . $originId : '') ?>&utype=<?php echo $lockElementType; ?>&uid=<?php echo $lockElementId; ?>';
 		}
 	};
 

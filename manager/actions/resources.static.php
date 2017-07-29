@@ -14,6 +14,11 @@ if(file_exists(MODX_MANAGER_PATH . '/media/style/' . $modx->config['manager_them
 	include_once(MODX_MANAGER_PATH . 'actions/resources/mgrResources.class.php');
 }
 
+// Handle unlocking Elements via Cancel-Button / GET-Params
+if(isset($_REQUEST['utype']) && $_REQUEST['uid']) {
+    $modx->unlockElement($_REQUEST['utype'], $_REQUEST['uid']);
+}
+
 $resources = new mgrResources();
 
 // Prepare lang-strings for "Lock Elements"
