@@ -40,8 +40,9 @@ a.hometblink:hover { text-decoration: underline; color: Gray; }*/
 /* -------------------------[ Tabs ]--- */
 .sectionBody .tab-page { clear: both; width: 100%; background-color: #fff; padding: 0; border: 0; border-radius: 0; box-shadow: 0 0 0.3rem 0 rgba(0, 0, 0, .1) }
 .sectionBody > .tab-pane > .tab-page { padding: 1.3rem; }
-.sectionHeader { padding: 7px 0px; }
-.tab-page .sectionBody { padding: 12px 0px; }
+.sectionHeader {background: #F2F2F2;color: #666;margin: 0;zoom: 1;font-weight: 500;font-size: 14px;border: 1px solid #ccc;border-bottom: none;text-shadow: 0px 1px 0px #FFF;padding: 7px 12px;
+}
+.tab-page .sectionBody {padding: 17px;border: 1px solid #CCCCCC;margin: 0 0px 15px;}
 .tab-page > table { width: 100%; border-collapse: collapse }
 /* -------------------------[ Welcome Page ]--- */
 /*#mainActionPages { background: #f5f5f5; }*/
