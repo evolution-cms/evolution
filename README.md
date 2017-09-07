@@ -34,7 +34,7 @@ Just use [Evo Installer](https://github.com/evolution-cms/installer)
 
 ### Screenshots
 
-![screenshot_1](https://user-images.githubusercontent.com/7342798/30128617-a74d689c-9343-11e7-9ef5-5a37c3b94cf1.jpg)
+![screenshot_1](https://user-images.githubusercontent.com/7342798/30167975-5ec146c0-93e8-11e7-8cf8-b324c2b09477.jpg)
 
 ![screenshot_2](https://user-images.githubusercontent.com/7342798/30128635-b34fa2a4-9343-11e7-9d87-13d0e17fb69e.jpg)
 
