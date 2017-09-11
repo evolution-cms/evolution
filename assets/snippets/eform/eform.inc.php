@@ -379,7 +379,7 @@ function eForm($modx,$params) {
 					$body .="</table>";
 					$modx->loadExtension('MODxMailer');
 				// send abuse alert
-					$modx->mail->IsHTML($isHtml);
+					$modx->mail->IsHTML(1);
 					$modx->mail->From		= $modx->config['emailsender'];
 					$modx->mail->FromName	= $modx->config['site_name'];
 					$modx->mail->Subject	= $_lang['ef_mail_abuse_subject'];

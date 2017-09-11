@@ -89,6 +89,9 @@ if($manager_language != "english" && file_exists($modx->config['site_manager_pat
 }
 
 $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
+if($which_browser == 'default') {
+	$which_browser = $modx->configGlobal['which_browser'] ? $modx->configGlobal['which_browser'] : $modx->config['which_browser'];
+}
 ?>
 <script type="text/javascript">
 

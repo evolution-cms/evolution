@@ -2475,7 +2475,7 @@ class DocumentParser {
         $pms= $_SESSION['mgrPermissions'];
         if ($pms)
             $state= ($pms[$pm] == 1);
-        return $state;
+        return (int) $state;
     }
         
     /**

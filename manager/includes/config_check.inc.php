@@ -140,9 +140,13 @@ if (!is_writable(MODX_BASE_PATH . "assets/images/")) {
     $warnings[] = array($_lang['configcheck_images']);
 }
 
-if (count($_lang)!=$length_eng_lang) {
-    //$warningspresent = 0;
-    //$warnings[] = array($_lang['configcheck_lang_difference']);
+if(strpos($modx->config['rb_base_dir'],MODX_BASE_PATH)!==0) {
+    $warningspresent = 1;
+    $warnings[] = array($_lang['configcheck_rb_base_dir']);
+}
+if(strpos($modx->config['filemanager_path'],MODX_BASE_PATH)!==0) {
+    $warningspresent = 1;
+    $warnings[] = array($_lang['configcheck_filemanager_path']);
 }
 
 // clear file info cache
@@ -212,6 +216,12 @@ for ($i=0;$i<count($warnings);$i++) {
             }
             $msg .= '<br />' . sprintf($_lang["configcheck_hide_warning"], 'templateswitcher_present');
             $warnings[$i][1] = "<span id=\"templateswitcher_present_warning_wrapper\">{$msg}</span>\n";
+            break;
+        case $_lang['configcheck_rb_base_dir'] :
+            $warnings[$i][1] = $_lang['configcheck_rb_base_dir_msg'];
+            break;
+        case $_lang['configcheck_filemanager_path'] :
+            $warnings[$i][1] = $_lang['configcheck_filemanager_path_msg'];
             break;
         default :
             $warnings[$i][1] = $_lang['configcheck_default_msg'];

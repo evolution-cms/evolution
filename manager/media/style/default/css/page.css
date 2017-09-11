@@ -30,7 +30,7 @@
 #resizer { display: none }
 #frameset #mask_resizer { z-index: 3 !important; opacity: 0.5; visibility: visible; background-color: #000; -webkit-transition: 0.2s; transition: 0.2s }
 .sidebar-closed #frameset #mask_resizer { opacity: 0; visibility: hidden; }
-#tree { z-index: 5; width: auto !important; box-shadow: 0 0 1rem rgba(0, 0, 0, 0.25); -webkit-transition: 0.25s; transition: 0.25s }
+#tree { z-index: 5; width: 100% !important; max-width: 20rem; box-shadow: 0 0 1rem rgba(0, 0, 0, 0.25); -webkit-transition: 0.25s; transition: 0.25s }
 .sidebar-closed #tree { width: auto !important; box-shadow: none; -webkit-transform: translate3d(-100%, 0, 0); transform: translate3d(-100%, 0, 0); }
 #tree .treeframebody { box-shadow: none }
 .sidebar-closed #main::after { content: ""; position: absolute; z-index: 1; left: 0; top: 6rem; bottom: 0; width: 1rem; }

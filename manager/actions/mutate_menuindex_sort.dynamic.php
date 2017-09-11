@@ -41,10 +41,19 @@ $disabled = 'true';
 $pagetitle = '';
 $ressourcelist = '';
 if ($id !== null) {
-    $rs = $modx->db->select('pagetitle', $modx->getFullTableName('site_content'), "id='{$id}'");
+    $tblsc = $modx->getFullTableName('site_content');
+    $tbldg = $modx->getFullTableName('document_groups');
+
+    $rs = $modx->db->select('pagetitle', $tblsc, 'id=' . $id . '');
     $pagetitle = $modx->db->getValue($rs);
 
-    $rs = $modx->db->select('id, pagetitle, parent, menuindex, published, hidemenu, deleted, isfolder', $modx->getFullTableName('site_content'), "parent='{$id}'", 'menuindex ASC');
+    $docgrp = (isset($_SESSION['mgrDocgroups']) && is_array($_SESSION['mgrDocgroups'])) ? implode(',', $_SESSION['mgrDocgroups']) : '';
+    $docgrp_cond = $docgrp ? "OR dg.document_group IN ({$docgrp})" : '';
+    $mgrRole = (isset ($_SESSION['mgrRole']) && (string)$_SESSION['mgrRole'] === '1') ? '1' : '0';
+    $access = " AND (1={$mgrRole} OR sc.privatemgr=0" . (!$docgrp ? ')' : " OR dg.document_group IN ({$docgrp}))");
+
+    $rs = $modx->db->select('sc.id, sc.pagetitle, sc.parent, sc.menuindex, sc.published, sc.hidemenu, sc.deleted, sc.isfolder', $tblsc . 'AS sc LEFT JOIN ' . $tbldg . ' dg ON dg.document=sc.id', 'sc.parent=' . $id . $access . ' GROUP BY sc.id', 'menuindex ASC');
+
     if ($modx->db->getRecordCount($rs)) {
         $ressourcelist .= '<div class="clearfix"><ul id="sortlist" class="sortableList">';
         while ($row = $modx->db->getRow($rs)) {
@@ -66,76 +75,76 @@ $pagetitle = $id == 0 ? $site_name : $pagetitle;
 
 <script type="text/javascript">
 
-    parent.tree.updateTree();
+  parent.tree.updateTree();
 
-    var actions = {
-        save: function() {
-            var el = document.getElementById('updated');
-            if (el) {
-                el.style.display = 'none';
-            }
-            el = document.getElementById('updating');
-            if (el) {
-                el.style.display = 'block';
-            }
-            setTimeout('document.sortableListForm.submit()', 1000);
-        }, cancel: function() {
-            document.location.href = 'index.php?a=2';
-        },
-    };
-
-    function renderList()
-    {
-        var list = '';
-        var els = document.querySelectorAll('.sortableList > li');
-        for (var i = 0; i < els.length; i++) {
-            list += els[i].id + ';';
-        }
-        document.getElementById('list').value = list;
+  var actions = {
+    save: function() {
+      var el = document.getElementById('updated');
+      if (el) {
+        el.style.display = 'none';
+      }
+      el = document.getElementById('updating');
+      if (el) {
+        el.style.display = 'block';
+      }
+      setTimeout('document.sortableListForm.submit()', 1000);
+    }, cancel: function() {
+      document.location.href = 'index.php?a=2';
     }
+  };
 
-    var sortdir = 'asc';
-
-    function sort()
-    {
-        var els = document.querySelectorAll('.sortableList > li');
-        var keyA, keyB;
-        if (sortdir === 'asc') {
-            els = [].slice.call(els).sort(function(a, b) {
-                keyA = a.innerText.toLowerCase();
-                keyB = b.innerText.toLowerCase();
-                return keyA.localeCompare(keyB);
-            });
-            sortdir = 'desc';
-        } else {
-            els = [].slice.call(els).sort(function(b, a) {
-                keyA = a.innerText.toLowerCase();
-                keyB = b.innerText.toLowerCase();
-                return keyA.localeCompare(keyB);
-            });
-            sortdir = 'asc';
-        }
-        var ul = document.getElementById('sortlist');
-        var list = '';
-        for (var i = 0; i < els.length; i++) {
-            ul.appendChild(els[i]);
-            list += els[i].id + ';';
-        }
-        document.getElementById('list').value = list;
+  function renderList()
+  {
+    var list = '';
+    var els = document.querySelectorAll('.sortableList > li');
+    for (var i = 0; i < els.length; i++) {
+      list += els[i].id + ';';
     }
+    document.getElementById('list').value = list;
+  }
 
-    function resetSortOrder()
-    {
-        if (confirm('<?= $_lang["confirm_reset_sort_order"] ?>') === true) {
-            documentDirty = false;
-            var input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'reset';
-            input.value = 'true';
-            document.sortableListForm.appendChild(input);
-            actions.save();
-        }
+  var sortdir = 'asc';
+
+  function sort()
+  {
+    var els = document.querySelectorAll('.sortableList > li');
+    var keyA, keyB;
+    if (sortdir === 'asc') {
+      els = [].slice.call(els).sort(function(a, b) {
+        keyA = a.innerText.toLowerCase();
+        keyB = b.innerText.toLowerCase();
+        return keyA.localeCompare(keyB);
+      });
+      sortdir = 'desc';
+    } else {
+      els = [].slice.call(els).sort(function(b, a) {
+        keyA = a.innerText.toLowerCase();
+        keyB = b.innerText.toLowerCase();
+        return keyA.localeCompare(keyB);
+      });
+      sortdir = 'asc';
     }
+    var ul = document.getElementById('sortlist');
+    var list = '';
+    for (var i = 0; i < els.length; i++) {
+      ul.appendChild(els[i]);
+      list += els[i].id + ';';
+    }
+    document.getElementById('list').value = list;
+  }
+
+  function resetSortOrder()
+  {
+    if (confirm('<?= $_lang["confirm_reset_sort_order"] ?>') === true) {
+      documentDirty = false;
+      var input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'reset';
+      input.value = 'true';
+      document.sortableListForm.appendChild(input);
+      actions.save();
+    }
+  }
 
 </script>
 
@@ -150,16 +159,16 @@ $pagetitle = $id == 0 ? $site_name : $pagetitle;
         <b><?= $pagetitle ?> (<?= $id ?>)</b>
         <?php
         if ($ressourcelist) {
-        ?>
-        <p><?= $_lang["sort_elements_msg"] ?></p>
-        <p>
-            <a class="btn btn-secondary" href="javascript:;" onclick="sort();return false;"><i class="<?= $_style['actions_sort'] ?>"></i> <?= $_lang['sort_alphabetically'] ?></a>
-            <a class="btn btn-secondary" href="javascript:;" onclick="resetSortOrder();return false;"><i class="<?= $_style['actions_refresh'] ?>"></i> <?= $_lang['reset_sort_order'] ?></a>
-        </p>
-        <?= $updateMsg ?>
-        <span class="text-danger" style="display:none;" id="updating"><?= $_lang['sort_updating'] ?></span>
-        <?= $ressourcelist ?>
-        <?
+            ?>
+            <p><?= $_lang["sort_elements_msg"] ?></p>
+            <p>
+                <a class="btn btn-secondary" href="javascript:;" onclick="sort();return false;"><i class="<?= $_style['actions_sort'] ?>"></i> <?= $_lang['sort_alphabetically'] ?></a>
+                <a class="btn btn-secondary" href="javascript:;" onclick="resetSortOrder();return false;"><i class="<?= $_style['actions_refresh'] ?>"></i> <?= $_lang['reset_sort_order'] ?></a>
+            </p>
+            <?= $updateMsg ?>
+            <span class="text-danger" style="display:none;" id="updating"><?= $_lang['sort_updating'] ?></span>
+            <?= $ressourcelist ?>
+            <?
         } else {
             echo $updateMsg;
         }
@@ -174,10 +183,10 @@ $pagetitle = $id == 0 ? $site_name : $pagetitle;
 
 <script type="text/javascript">
 
-    evo.sortable('.sortableList > li', {
-        complete: function() {
-            renderList();
-        }
-    })
+  evo.sortable('.sortableList > li', {
+    complete: function() {
+      renderList();
+    }
+  });
 
 </script>

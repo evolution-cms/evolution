@@ -85,6 +85,7 @@ a.text-gray-dark:focus, a.text-gray-dark:hover { color: #101112 !important }
 .invisible { visibility: hidden !important; }
 .clear { clear: both; }
 /* custom */
+#loadingmask { display: none !important; }
 .fa > .fa-lock { position: relative; float: left; width: auto !important; margin-top: -1em; font-size: 0.7em !important; color: #FFC107 !important; -webkit-text-stroke: 1px rgba(0, 0, 0, 0.39); text-stroke: 1px rgba(0, 0, 0, 0.39); }
 .rotate180 { -webkit-transform: rotate(180deg); -moz-transform: rotate(180deg); -ms-transform: rotate(180deg); -o-transform: rotate(180deg); transform: rotate(180deg); }
 .disabledPlugin, .disabledPlugin a { color: #B68282; font-style: italic; }

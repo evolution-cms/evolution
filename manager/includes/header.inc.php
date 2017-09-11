@@ -71,20 +71,21 @@ if (!empty($_COOKIE['MODX_themeColor'])) {
             if (e.buttons) {
               return;
             }
+            var x = e.clientX, y = e.clientY;
             b.innerHTML = (this.dataset && this.dataset.tooltip ? (this.dataset.tooltip[0] === '#' ? document.querySelector(this.dataset.tooltip).innerHTML : this.dataset.tooltip) : this.innerHTML);
-            if (e.pageX + b.offsetWidth + (c * 2) > window.innerWidth) {
-              b.style.left = Math.round(e.pageX - b.offsetWidth - (c * 2)) + 'px';
+            if (x + b.offsetWidth + (c * 2) > window.innerWidth) {
+              b.style.left = Math.round(x - b.offsetWidth - (c * 2)) + 'px';
               b.classList.add('evo-tooltip-right');
             } else {
-              b.style.left = Math.round(e.pageX) + 'px';
+              b.style.left = Math.round(x) + 'px';
               b.classList.add('evo-tooltip-left');
             }
-            if (e.pageY - (b.offsetHeight / 2) - c < 0) {
+            if (y - (b.offsetHeight / 2) - c < 0) {
               b.style.top = 0;
-            } else if (e.pageY + (b.offsetHeight / 2) > window.innerHeight) {
+            } else if (y + (b.offsetHeight / 2) > window.innerHeight) {
               b.style.top = Math.round(window.innerHeight - b.offsetHeight) - (c * 2) + 'px';
             } else {
-              b.style.top = Math.round(e.pageY - (b.offsetHeight / 2)) - c + 'px';
+              b.style.top = Math.round(y - (b.offsetHeight / 2)) - c + 'px';
             }
             b.classList.add('show');
           });
