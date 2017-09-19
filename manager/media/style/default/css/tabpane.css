@@ -1,8 +1,8 @@
 /* [ Tabs ] */
 .tab-row { position: relative; z-index: 1; white-space: nowrap; padding: 0 1.5rem }
 .tab-row::after, .tab-row-container::after { content: ""; position: absolute; z-index: 1; left: 0; right: 0; bottom: 0; height: 1px; background-color: #ddd }
-.tab-row .tab { position: relative; display: inline-block; margin: 0; padding: 0 0.875rem; line-height: 2.7rem; height: 2.5rem; text-transform: uppercase; border: 1px solid rgba(0, 0, 0, 0); border-bottom: none; cursor: pointer; -webkit-user-select: none; user-select: none; }
-.tab-row .tab, .tab-row .tab a { color: rgba(0, 0, 0, 0.6); font-size: 0.75rem }
+.tab-row .tab, .tab-pane > .tab-page > .tab { position: relative; display: inline-block; margin: 0; padding: 0 0.875rem; line-height: 2.7rem; height: 2.5rem; text-transform: uppercase; border: 1px solid rgba(0, 0, 0, 0); border-bottom: none; cursor: pointer; -webkit-user-select: none; user-select: none; }
+.tab-row .tab, .tab-row .tab a, .tab-pane > .tab-page > .tab { color: rgba(0, 0, 0, 0.6); font-size: 0.75rem }
 .tab-row .tab.selected { z-index: 2; border-color: #ddd; background-color: #fff; color: #444; font-weight: 700 }
 .tab-row .tab .fa { margin-right: 0.1em; font-size: 0.875rem }
 /* tabs-container */
@@ -14,6 +14,12 @@
 .tab-row-container > i.next { right: 0; }
 .tab-row-container > i.disable { font-size: 0.8rem; color: rgba(0, 0, 0, 0.2); pointer-events: none }
 /* tab-page */
+.tab-pane > .tab-page { display: none }
+.tab-pane > .tab-page:first-of-type { display: block; margin-top: 2.5rem; }
+.tab-pane > .tab-page > .tab { top: -2.5rem; left: 1.5rem; background-color: #f9f9f9; border-color: #ddd; }
+.sectionBody > .tab-pane > .tab-page > .tab { top: -3.7rem; left: 0.3rem; }
+.tab-pane > .tab-page > div:first-of-type, .tab-pane > .tab-page > table { margin-top: -2.5rem }
+.dynamic-tab-pane-control.tab-pane > .tab-page > div:first-of-type, .dynamic-tab-pane-control.tab-pane > .tab-page > table { margin-top: 0 }
 .tab-page { clear: both; width: 100%; background-color: #fff; padding: 0; border: 0; border-radius: 0; box-shadow: 0 0 0.3rem 0 rgba(0, 0, 0, .1) }
 .tab-page .tab-header, .sectionHeader { margin-top: 1em; padding: .5rem 1.25rem; letter-spacing: .03rem }
 .tab-page .tab-header + .tab-header, .tab-page .sectionHeader + .sectionHeader { margin-top: 0; border-top: 1px solid #ccc; }
@@ -92,6 +98,7 @@
 .evo-tab-row .tab-row .tab small { margin-left: .25em }
 .evo-tab-row .tab-row .tab:not(#evo-tab-home) i.help { display: none }
 .evo-tab-row .tab-row .tab:not(#evo-tab-home) i { margin-right: .2em }
+.evo-tab-row .tab-row .tab span { background: none !important }
 .evo-tab-row .tab-row .tab .tab-title { float: left; width: 5rem; line-height: 2rem; text-overflow: ellipsis; overflow: hidden; }
 .evo-tab-row .tab-row .tab .tab-close { float: right; margin: 0 -.75rem 0 .5rem; padding: .25em; line-height: 1.3em; font-size: 1.3em; font-weight: 700; color: #9e9e9e }
 .evo-tab-row .tab-row .tab .tab-close:hover { color: #d9534f }

@@ -28,4 +28,3 @@ $modx->db->delete($modx->getFullTableName('user_roles'), "id='{$id}'");
 
 $header="Location: index.php?a=86";
 header($header);
-?>

@@ -22,4 +22,3 @@ if(!isset($_GET['id'])) {
 		echo 'No type or id sent with request.';
 	}
 }
-?>

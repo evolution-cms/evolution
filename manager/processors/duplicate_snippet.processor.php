@@ -33,4 +33,3 @@ $_SESSION['itemname'] = $name;
 // finish duplicating - redirect to new snippet
 $header="Location: index.php?r=2&a=22&id=$newid";
 header($header);
-?>

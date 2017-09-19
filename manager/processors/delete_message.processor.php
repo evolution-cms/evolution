@@ -25,4 +25,3 @@ $modx->db->delete($modx->getFullTableName('user_messages'), "id='{$id}'");
 
 $header="Location: index.php?a=10";
 header($header);
-?>

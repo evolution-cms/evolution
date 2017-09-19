@@ -32,4 +32,3 @@ if(strlen($pass1)<6){
 
 $header="Location: index.php?a=2";
 header($header);
-?>

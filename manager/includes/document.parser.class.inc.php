@@ -8,73 +8,73 @@ if (!defined('E_DEPRECATED')) define('E_DEPRECATED', 8192);
 if (!defined('E_USER_DEPRECATED')) define('E_USER_DEPRECATED', 16384);
 
 class DocumentParser {
-    var $apiVersion;
-    var $db; // db object
-    var $event, $Event; // event object
-    var $pluginEvent;
-    var $config= null;
-    var $configGlobal= null; // contains backup of settings overwritten by user-settings 
-    var $rs;
-    var $result;
-    var $sql;
-    var $table_prefix;
-    var $debug;
-    var $documentIdentifier;
-    var $documentMethod;
-    var $documentGenerated;
-    var $documentContent;
-    var $documentOutput;
-    var $tstart;
-    var $mstart;
-    var $minParserPasses;
-    var $maxParserPasses;
-    var $documentObject;
-    var $templateObject;
-    var $snippetObjects;
-    var $stopOnNotice;
-    var $executedQueries;
-    var $queryTime;
-    var $currentSnippet;
-    var $documentName;
-    var $aliases;
-    var $visitor;
-    var $entrypage;
-    var $documentListing;
-    var $dumpSnippets;
-    var $snippetsCode;
-    var $snippetsTime=array();
-    var $chunkCache;
-    var $snippetCache;
-    var $contentTypes;
-    var $dumpSQL;
-    var $queryCode;
-    var $virtualDir;
-    var $placeholders;
-    var $sjscripts;
-    var $jscripts;
-    var $loadedjscripts;
-    var $documentMap;
-    var $forwards= 3;
-    var $error_reporting;
-    var $dumpPlugins;
-    var $pluginsCode;
-    var $pluginsTime=array();
-    var $pluginCache=array();
-    var $aliasListing;
-    var $lockedElements=null;
-    var $tmpCache = array();
+    public $apiVersion;
+    public $db; // db object
+    public $event, $Event; // event object
+    public $pluginEvent;
+    public $config= null;
+    public $configGlobal= null; // contains backup of settings overwritten by user-settings 
+    public $rs;
+    public $result;
+    public $sql;
+    public $table_prefix;
+    public $debug;
+    public $documentIdentifier;
+    public $documentMethod;
+    public $documentGenerated;
+    public $documentContent;
+    public $documentOutput;
+    public $tstart;
+    public $mstart;
+    public $minParserPasses;
+    public $maxParserPasses;
+    public $documentObject;
+    public $templateObject;
+    public $snippetObjects;
+    public $stopOnNotice;
+    public $executedQueries;
+    public $queryTime;
+    public $currentSnippet;
+    public $documentName;
+    public $aliases;
+    public $visitor;
+    public $entrypage;
+    public $documentListing;
+    public $dumpSnippets;
+    public $snippetsCode;
+    public $snippetsTime=array();
+    public $chunkCache;
+    public $snippetCache;
+    public $contentTypes;
+    public $dumpSQL;
+    public $queryCode;
+    public $virtualDir;
+    public $placeholders;
+    public $sjscripts;
+    public $jscripts;
+    public $loadedjscripts;
+    public $documentMap;
+    public $forwards= 3;
+    public $error_reporting;
+    public $dumpPlugins;
+    public $pluginsCode;
+    public $pluginsTime=array();
+    public $pluginCache=array();
+    public $aliasListing;
+    public $lockedElements=null;
+    public $tmpCache = array();
     private $version=array();
     public $extensions = array();
     public $cacheKey = null;
     public $recentUpdate = 0;
     public $useConditional = false;
     protected $systemCacheKey = null;
-    var $snipLapCount;
-    var $messageQuitCount;
-    var $time;
-    var $sid;
+    public $snipLapCount;
+    public $messageQuitCount;
+    public $time;
+    public $sid;
     private $q;
-    var $decoded_request_uri;
+    public $decoded_request_uri;
 
     /**
      * Document constructor
@@ -83,6 +83,7 @@ class DocumentParser {
      */
     function __construct() {
         $this->apiVersion = '1.0.0'; // This is New evolution
+        if($this->isLoggedIn()) ini_set('display_errors', 1);
         global $database_server;
         if(substr(PHP_OS,0,3) === 'WIN' && $database_server==='localhost') $database_server = '127.0.0.1';
         $this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
@@ -297,53 +298,55 @@ class DocumentParser {
      * Get MODX settings including, but not limited to, the system_settings table
      */
     function getSettings() {
-        $tbl_system_settings   = $this->getFullTableName('system_settings');
-        if (!isset($this->config['site_name'])) {
-            if ($included= is_file(MODX_BASE_PATH . $this->getCacheFolder() . 'siteCache.idx.php')) {
-                $included= include_once (MODX_BASE_PATH . $this->getCacheFolder() . 'siteCache.idx.php');
-            }
-            if (!$included || !isset($this->config['site_name'])) {
-                include_once(MODX_MANAGER_PATH . 'processors/cache_sync.class.processor.php');
-                $cache = new synccache();
-                $cache->setCachepath(MODX_BASE_PATH . $this->getCacheFolder());
-                $cache->setReport(false);
-                $rebuilt = $cache->buildCache($this);
-                $included = false;
-                if($rebuilt && is_file(MODX_BASE_PATH . $this->getCacheFolder() . 'siteCache.idx.php')) {
-                    $included= include(MODX_BASE_PATH . $this->getCacheFolder() . 'siteCache.idx.php');
-                }
-                if(!$included) {
-                    $result= $this->db->select('setting_name, setting_value', $tbl_system_settings);
-                    while ($row= $this->db->getRow($result)) {
-                        $this->config[$row['setting_name']]= $row['setting_value'];
-                    }
-                    if ($this->config['enable_filter']) {
-                        $where = "plugincode LIKE '%phx.parser.class.inc.php%OnParseDocument();%' AND disabled != 1";
-                        $count = $this->db->getRecordCount($this->db->select('id', '[+prefix+]site_plugins', $where));
-                        if ($count) {
-                            $this->config['enable_filter'] = '0';
-                        }
-                    }
-                }
-            }
-        }
+        if (!isset($this->config['site_name'])) $this->recoverySiteCache();
 
         // setup default site id - new installation should generate a unique id for the site.
         if(!isset($this->config['site_id'])) $this->config['site_id'] = "MzGeQ2faT4Dw06+U49x3";
 
         // store base_url and base_path inside config array
-        $this->config['base_url']           = MODX_BASE_URL;
-        $this->config['base_path']          = MODX_BASE_PATH;
-        $this->config['site_url']           = MODX_SITE_URL;
-        $this->config['valid_hostnames']    = MODX_SITE_HOSTNAMES;
-        $this->config['site_manager_url']   = MODX_MANAGER_URL;
-        $this->config['site_manager_path']  = MODX_MANAGER_PATH;
-        $this->error_reporting              = $this->config['error_reporting'];
-        $this->config['filemanager_path']   = str_replace('[(base_path)]',MODX_BASE_PATH,$this->config['filemanager_path']);
-        $this->config['rb_base_dir']        = str_replace('[(base_path)]',MODX_BASE_PATH,$this->config['rb_base_dir']);
+        $this->config['base_url']          = MODX_BASE_URL;
+        $this->config['base_path']         = MODX_BASE_PATH;
+        $this->config['site_url']          = MODX_SITE_URL;
+        $this->config['valid_hostnames']   = MODX_SITE_HOSTNAMES;
+        $this->config['site_manager_url']  = MODX_MANAGER_URL;
+        $this->config['site_manager_path'] = MODX_MANAGER_PATH;
+        $this->error_reporting             = $this->config['error_reporting'];
+        $this->config['filemanager_path']  = str_replace('[(base_path)]',MODX_BASE_PATH,$this->config['filemanager_path']);
+        $this->config['rb_base_dir']       = str_replace('[(base_path)]',MODX_BASE_PATH,$this->config['rb_base_dir']);
         
-        // now merge user settings into MODX-configuration
+        // now merge user settings into evo-configuration
         $this->getUserSettings();
+    }
+
+    private function recoverySiteCache() {
+        $site_cache_dir  = MODX_BASE_PATH . $this->getCacheFolder();
+        $site_cache_path = $site_cache_dir. 'siteCache.idx.php';
+
+        if (is_file($site_cache_path)) include($site_cache_path);
+        if (isset($this->config['site_name'])) return;
+
+        include_once(MODX_MANAGER_PATH . 'processors/cache_sync.class.processor.php');
+        $cache = new synccache();
+        $cache->setCachepath($site_cache_dir);
+        $cache->setReport(false);
+        $cache->buildCache($this);
+
+        clearstatcache();
+        if (is_file($site_cache_path)) include($site_cache_path);
+        if (isset($this->config['site_name'])) return;
+
+        $rs= $this->db->select('setting_name, setting_value', '[+prefix+]system_settings');
+        while ($row= $this->db->getRow($rs)) {
+            $this->config[$row['setting_name']]= $row['setting_value'];
+        }
+
+        if (!$this->config['enable_filter']) return;
+
+        $where = "plugincode LIKE '%phx.parser.class.inc.php%OnParseDocument();%' AND disabled != 1";
+        $rs = $this->db->select('id', '[+prefix+]site_plugins', $where);
+        if ($this->db->getRecordCount($rs)) {
+            $this->config['enable_filter'] = '0';
+        }
     }
 
     /**
@@ -482,18 +485,9 @@ class DocumentParser {
      * @return boolean
      */
     function checkSiteStatus() {
-        $siteStatus= $this->config['site_status'];
-        if ($siteStatus == 1) {
-            // site online
-            return true;
-        }
-        elseif ($siteStatus == 0 && $this->isLoggedIn()) {
-            // site offline but launched via the manager
-            return true;
-        } else {
-            // site is offline
-            return false;
-        }
+        if($this->config['site_status']) return true;  // site online
+        elseif($this->isLoggedin())      return true;  // site offline but launched via the manager
+        else                             return false; // site is offline
     }
 
      /**
@@ -503,25 +497,27 @@ class DocumentParser {
      * @return string
      */
     function cleanDocumentIdentifier($qOrig) {
-        (!empty($qOrig)) or $qOrig = $this->config['site_start'];
+        if(!$qOrig) $qOrig = $this->config['site_start'];
         $q= $qOrig;
         /* First remove any / before or after */
         $q = trim($q,'/');
         /* Save path if any */
         /* FS#476 and FS#308: only return virtualDir if friendly paths are enabled */
         if ($this->config['use_alias_path'] == 1) {
-            $this->virtualDir= dirname($q);
-            $this->virtualDir= ($this->virtualDir == '.' ? '' : $this->virtualDir);
-            $q = preg_replace('/.*[\/\\\]/', '', $q);
+            $_ = strrpos($q,'/');
+            $this->virtualDir = $_!==false ? substr($q,0,$_) : '';
+            if($_!==false) $q = preg_replace('@.*/@', '', $q);
         } else {
             $this->virtualDir= '';
         }
-        $q= str_replace($this->config['friendly_url_prefix'], "", $q);
-        $q= str_replace($this->config['friendly_url_suffix'], "", $q);
-        if (is_numeric($q) && !isset($this->documentListing[$q])) { /* we got an ID returned, check to make sure it's not an alias */
+        $pre = $this->config['friendly_url_prefix'];
+        $suf = $this->config['friendly_url_suffix'];
+        if($pre && preg_match('@^'.$pre.'(.*)$@',$q,$_)) $q= $_[1];
+        if($suf && preg_match('@(.*)'.$suf.'$@',$q,$_))  $q= $_[1];
+        if (preg_match('@^[1-9][0-9]*$@',$q) && !isset($this->documentListing[$q])) { /* we got an ID returned, check to make sure it's not an alias */
             /* FS#476 and FS#308: check that id is valid in terms of virtualDir structure */
             if ($this->config['use_alias_path'] == 1) {
-                if ((($this->virtualDir != '' && !isset($this->documentListing[$this->virtualDir . '/' . $q])) || ($this->virtualDir == '' && !isset($this->documentListing[$q]))) && (($this->virtualDir != '' && isset($this->documentListing[$this->virtualDir]) && in_array($q, $this->getChildIds($this->documentListing[$this->virtualDir], 1))) || ($this->virtualDir == '' && in_array($q, $this->getChildIds(0, 1))))) {
+                if (($this->virtualDir != '' && !isset($this->documentListing[$this->virtualDir . '/' . $q]) || ($this->virtualDir == '' && !isset($this->documentListing[$q]))) && (($this->virtualDir != '' && isset($this->documentListing[$this->virtualDir]) && in_array($q, $this->getChildIds($this->documentListing[$this->virtualDir], 1))) || ($this->virtualDir == '' && in_array($q, $this->getChildIds(0, 1))))) {
                     $this->documentMethod= 'id';
                     return $q;
                 } else { /* not a valid id in terms of virtualDir, treat as alias */
@@ -548,20 +544,21 @@ class DocumentParser {
         return $this->getCacheFolder()."docid_" . $key . ".pageCache.php";
     }
     public function makePageCacheKey($id){
-        $hash = $id;
-        $tmp = null;
-        $params = array();
+        $params = $_GET;
+        if(isset($params['q'])) unset($params['q']);
+
         if(!empty($this->systemCacheKey)){
             $hash = $this->systemCacheKey;
-        }else {
-            if (!empty($_GET)) {
-                // Sort GET parameters so that the order of parameters on the HTTP request don't affect the generated cache ID.
-                $params = $_GET;
-                ksort($params);
-                $hash .= '_'.md5(http_build_query($params));
-            }
+        } elseif (!empty($params)) {
+            // Sort GET parameters so that the order of parameters on the HTTP request don't affect the generated cache ID.
+            ksort($params);
+            $hash .= '_'.md5(http_build_query($params));
         }
-        $evtOut = $this->invokeEvent("OnMakePageCacheKey", array ("hash" => $hash, "id" => $id, 'params' => $params));
+        else $hash = $id;
+
+        if(isset($_GET['q'])) $params['q'] = $_GET['q'];
+        $evtOut = $this->invokeEvent("OnMakePageCacheKey", array ('hash' => $hash, 'id' => $id, 'params' => $params));
+        $tmp = array();
         if (is_array($evtOut) && count($evtOut) > 0){
             $tmp = array_pop($evtOut);
         }
@@ -822,7 +819,7 @@ class DocumentParser {
     /**
      * Checks the publish state of page
      */
-    function checkPublishStatus() {
+    function updatePubStatus() {
         $cacheRefreshTime= 0;
         $recent_update = 0;
         @include(MODX_BASE_PATH . $this->getCacheFolder() . 'sitePublishing.idx.php');
@@ -847,6 +844,10 @@ class DocumentParser {
         $this->clearCache('full');
     }
 
+    function checkPublishStatus() {
+        $this->updatePubStatus();
+    }
+
     /**
      * Final jobs.
      *
@@ -859,18 +860,19 @@ class DocumentParser {
             // invoke OnBeforeSaveWebPageCache event
             $this->invokeEvent("OnBeforeSaveWebPageCache");
 
-            if (!empty($this->cacheKey) && is_scalar($this->cacheKey) && $fp= @fopen(MODX_BASE_PATH.$this->getHashFile($this->cacheKey), "w")) {
+            if (!empty($this->cacheKey) && is_scalar($this->cacheKey)) {
                 // get and store document groups inside document object. Document groups will be used to check security on cache pages
-                $rs = $this->db->select('document_group', $this->getFullTableName("document_groups"), "document='{$this->documentIdentifier}'");
-                $docGroups= $this->db->getColumn("document_group", $rs);
+                $where = "document='{$this->documentIdentifier}'";
+                $rs = $this->db->select('document_group', '[+prefix+]document_groups', $where);
+                $docGroups= $this->db->getColumn('document_group', $rs);
 
                 // Attach Document Groups and Scripts
                 if (is_array($docGroups)) $this->documentObject['__MODxDocGroups__'] = implode(",", $docGroups);
 
                 $docObjSerial= serialize($this->documentObject);
                 $cacheContent= $docObjSerial . "<!--__MODxCacheSpliter__-->" . $this->documentContent;
-                fputs($fp, "<?php die('Unauthorized access.'); ?>$cacheContent");
-                fclose($fp);
+                $page_cache_path = MODX_BASE_PATH.$this->getHashFile($this->cacheKey);
+                file_put_contents($page_cache_path, "<?php die('Unauthorized access.'); ?>$cacheContent");
             }
         }
 
@@ -991,9 +993,13 @@ class DocumentParser {
                 $value = getTVDisplayFormat($value[0], $value[1], $value[2], $value[3], $value[4]);
             }
             
-            if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
+            $s = &$matches[0][$i];
+            if($modifiers!==false) {
+                $value = $this->applyFilter($value,$modifiers,$key);
+            }
             
-            $content= str_replace($matches[0][$i], $value, $content);
+            if(strpos($content,$s)!==false) $content= str_replace($s, $value, $content);
+            else $this->addLog('mergeDocumentContent parse error',$_SERVER['REQUEST_URI'].$s,2);
         }
         
         return $content;
@@ -1106,7 +1112,9 @@ class DocumentParser {
             else continue;
             
             if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
-            $content= str_replace($matches[0][$i], $value, $content);
+            $s = &$matches[0][$i];
+            if(strpos($content,$s)!==false) $content= str_replace($s, $value, $content);
+            else $this->addLog('mergeSettingsContent parse error',$_SERVER['REQUEST_URI'].$s,2);
         }
         return $content;
     }
@@ -1147,7 +1155,9 @@ class DocumentParser {
             
             if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
             
-            $content= str_replace($matches[0][$i], $value, $content);
+            $s = &$matches[0][$i];
+            if(strpos($content,$s)!==false) $content= str_replace($s, $value, $content);
+            else $this->addLog('mergeChunkContent parse error',$_SERVER['REQUEST_URI'].$s,2);
         }
         return $content;
     }
@@ -1183,7 +1193,9 @@ class DocumentParser {
                 $modifiers = $this->mergePlaceholderContent($modifiers);
                 $value = $this->applyFilter($value,$modifiers,$key);
             }
-            $content= str_replace($matches[0][$i], $value, $content);
+            $s = &$matches[0][$i];
+            if(strpos($content,$s)!==false) $content= str_replace($s, $value, $content);
+            else $this->addLog('mergePlaceholderContent parse error',$_SERVER['REQUEST_URI'].$s,2);
         }
         return $content;
     }
@@ -1264,7 +1276,7 @@ class DocumentParser {
         $cmd = str_ireplace(array(' and ',' or '),array('&&','||'),$cmd);
         
         if(!preg_match('@^[0-9]*$@', $cmd) && preg_match('@^[0-9<= \-\+\*/\(\)%!&|]*$@', $cmd))
-            $cmd = (int) eval("return {$cmd};");
+            $cmd = eval("return {$cmd};");
         else {
             $_ = explode(',', '[*,[(,{{,[[,[!,[+');
             foreach($_ as $left) {
@@ -1273,10 +1285,12 @@ class DocumentParser {
                     break;
                 }
             }
-            $cmd = (int) $cmd;
         }
-        if($cmd < 0) $cmd = 0;
+        if(!preg_match('@^[0-9]+$@',$cmd)) $cmd = empty(trim($cmd)) ? 0 : 1;
+        elseif($cmd <= 0)                  $cmd = 0;
+
         if($reverse) $cmd = !$cmd;
+        
         return $cmd;
     }
     
@@ -1301,12 +1315,14 @@ class DocumentParser {
     function escapeLiteralTagsContent($content, $left='<@LITERAL>', $right='<@ENDLITERAL>') {
         if(stripos($content,$left)===false) return $content;
         $matches = $this->getTagsFromContent($content,$left,$right);
+        if(empty($matches)) return $content;
+
         list($sTags,$rTags) = $this->getTagsForEscape();
-        if(!empty($matches)) {
-            foreach($matches[1] as $i=>$v) {
-                $v = str_ireplace($sTags,$rTags,$v);
-                $content = str_replace($matches[0][$i],$v,$content);
-            }
+        foreach($matches[1] as $i=>$v) {
+            $v = str_ireplace($sTags,$rTags,$v);
+            $s = &$matches[0][$i];
+            if(strpos($content,$s)!==false) $content= str_replace($s, $value, $content);
+            else $this->addLog('ignoreCommentedTagsContent parse error',$_SERVER['REQUEST_URI'].$s,2);
         }
         return $content;
     }
@@ -1435,16 +1451,19 @@ class DocumentParser {
             $this->snippetsCode .= sprintf('<fieldset><legend><b style="color: #821517;">PARSE PASS %s</b></legend><p>The following snippets (if any) were parsed during this pass.</p>', $this->snipLapCount);
         
         foreach($matches[1] as $i=>$call) {
+            $s = &$matches[0][$i];
             if(substr($call,0,2)==='$_') {
                 if(strpos($content,'_PHX_INTERNAL_')===false) $value = $this->_getSGVar($call);
-                else                                          $value = $matches[0][$i];
-                $content = str_replace($matches[0][$i], $value, $content);
+                else                                          $value = $s;
+                if(strpos($content,$s)!==false) $content= str_replace($s, $value, $content);
+                else $this->addLog('evalSnippetsSGVar parse error',$_SERVER['REQUEST_URI'].$s,2);
                 continue;
             }
             $value = $this->_get_snip_result($call);
             if(is_null($value)) continue;
             
-            $content = str_replace($matches[0][$i], $value, $content);
+            if(strpos($content,$s)!==false) $content= str_replace($s, $value, $content);
+            else $this->addLog('evalSnippets parse error',$_SERVER['REQUEST_URI'].$s,2);
         }
         
         if ($this->dumpSnippets) $this->snippetsCode .= '</fieldset><br />';
@@ -1459,6 +1478,7 @@ class DocumentParser {
         list($key,$modifiers) = $this->splitKeyAndFilter($key);
         $this->config['enable_filter'] = $_;
         $key = str_replace(array('(',')'),array("['","']"),$key);
+        $key = rtrim($key,';');
         if(strpos($key,'$_SESSION')!==false)
         {
             $_ = $_SESSION;
@@ -2088,7 +2108,14 @@ class DocumentParser {
         $this->_IIS_furl_fix(); // IIS friendly url fix
 
         // check site settings
-        if (!$this->checkSiteStatus()) {
+        if ($this->checkSiteStatus()) {
+            // make sure the cache doesn't need updating
+            $this->updatePubStatus();
+
+            // find out which document we need to display
+            $this->documentMethod= filter_input(INPUT_GET,'q') ? 'alias' : 'id';
+            $this->documentIdentifier= $this->getDocumentIdentifier($this->documentMethod);
+        } else {
             header('HTTP/1.0 503 Service Unavailable');
             $this->systemCacheKey = 'unavailable';
             if (!$this->config['site_unavailable_page']) {
@@ -2098,16 +2125,9 @@ class DocumentParser {
                 exit; // stop processing here, as the site's offline
             } else {
                 // setup offline page document settings
-                $this->documentMethod= "id";
+                $this->documentMethod= 'id';
                 $this->documentIdentifier= $this->config['site_unavailable_page'];
             }
-        } else {
-            // make sure the cache doesn't need updating
-            $this->checkPublishStatus();
-
-            // find out which document we need to display
-            $this->documentMethod= filter_input(INPUT_GET,'q') ? 'alias' : 'id';
-            $this->documentIdentifier= $this->getDocumentIdentifier($this->documentMethod);
         }
 
         if ($this->documentMethod == "alias") {
@@ -3280,22 +3300,33 @@ class DocumentParser {
      * @return boolean 
      */
     function clearCache($type='', $report=false) {
-        if ($type=='full') {
-        include_once(MODX_MANAGER_PATH . 'processors/cache_sync.class.processor.php');
-        $sync = new synccache();
-        $sync->setCachepath(MODX_BASE_PATH . $this->getCacheFolder());
-        $sync->setReport($report);
-        $sync->emptyCache();
+        $cache_dir = MODX_BASE_PATH . $this->getCacheFolder();
+        if(is_array($type)) {
+            foreach($type as $_) {
+                $this->clearCache($_,$report);
+            }
+        } elseif ($type=='full') {
+            include_once(MODX_MANAGER_PATH . 'processors/cache_sync.class.processor.php');
+            $sync = new synccache();
+            $sync->setCachepath($cache_dir);
+            $sync->setReport($report);
+            $sync->emptyCache();
+        } elseif(preg_match('@^[1-9][0-9]*$@',$type)) {
+            $key = ($this->config['cache_type'] == 2) ? $this->makePageCacheKey($type) : $type;
+            $file_name = "docid_" . $key . "_*.pageCache.php";
+            $cache_path = $cache_dir . $file_name;
+            $files = glob($cache_path);
+            $files[] = $cache_dir . "docid_" . $key . ".pageCache.php";
+            foreach($files as $file) {
+                if (!is_file($file)) continue;
+                unlink($file);
+            }
         } else {
-            $files = glob(MODX_BASE_PATH . $this->getCacheFolder().'*');
-            $deletedfiles = array();
-            while ($file = array_shift($files)) {
-                $name = preg_replace('/.*[\/\\\]/', '', $file);
-                if (preg_match('/\.pageCache/',$name) && !in_array($name, $deletedfiles)) {
-                    $deletedfiles[] = $name;
-                    unlink($file);
-                    clearstatcache();
-                }
+            $files = glob($cache_dir.'*');
+            foreach ($files as $file) {
+                if (strpos($name,'.pageCache.php')===false) continue;
+                if (!is_file($file)) continue;
+                unlink($file);
             }
         }
     }
@@ -3562,11 +3593,15 @@ class DocumentParser {
             
             $value = $ph[$key];
             
+            $s = &$matches[0][$i];
             if($modifiers!==false) {
-                if(strpos($modifiers,$left)!==false) $modifiers=$this->parseText($modifiers,$ph,$left,$right);
+                if(strpos($modifiers,$left)!==false) {
+                    $modifiers = $this->parseText($modifiers,$ph,$left,$right);
+                }
                 $value = $this->applyFilter($value,$modifiers,$key);
             }
-            $tpl = str_replace($matches[0][$i], $value, $tpl);
+            if(strpos($tpl,$s)!==false) $tpl= str_replace($s, $value, $tpl);
+            else $this->addLog('parseText parse error',$_SERVER['REQUEST_URI'].$s,2);
         }
         
         return $tpl;
@@ -5270,7 +5305,8 @@ class DocumentParser {
                     $functionName = $val['function'];
             }
             $tmp = 1;
-            $args = array_pad(array(), count($val['args']), '$var');
+            $_ = (!empty($val['args'])) ? count($val['args']) : 0;
+            $args = array_pad(array(), $_, '$var');
             $args = implode(", ", $args);
             $modx = & $this;
             $args = preg_replace_callback('/\$var/', function() use($modx, &$tmp, $val){
@@ -5505,17 +5541,25 @@ class DocumentParser {
             return $q[0];
         }
     }
+
+    public function addLog($title='no title',$msg='',$type=1) {
+        if($title==='')    $title = 'no title';
+        if(is_array($msg)) $msg = '<pre>'.print_r($msg,true).'</pre>';
+        elseif($msg==='')  $msg = $_SERVER['REQUEST_URI'];
+        $this->logEvent(0, $type, $msg, $title);
+    }
+    
 }
 
 /**
  * System Event Class
  */
 class SystemEvent {
-    var $name;
-    var $_propagate;
-    var $_output;
-    var $activated;
-    var $activePlugin;
+    public $name;
+    public $_propagate;
+    public $_output;
+    public $activated;
+    public $activePlugin;
 
     /**
      * @param string $name Name of the event

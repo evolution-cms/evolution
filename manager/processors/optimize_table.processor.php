@@ -33,4 +33,3 @@ if (isset($_REQUEST['t'])) {
 $mode = intval($_REQUEST['mode']);
 $header="Location: index.php?a={$mode}&s=4";
 header($header);
-?>

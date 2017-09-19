@@ -5,13 +5,14 @@ if(IN_MANAGER_MODE != "true") {
 
 // (un)publishing of documents, version 2!
 // first, publish document waiting to be published
-$ctime = time();
-$sctable = $modx->getFullTableName('site_content');
+$ctime = $_SERVER['REQUEST_TIME'];
 
-$modx->db->update(array('published' => 1), $sctable, "pub_date < {$ctime} AND pub_date!=0 AND unpub_date > {$ctime}");
+$where = "pub_date < {$ctime} AND pub_date!=0 AND unpub_date > {$ctime}";
+$modx->db->update('published=1', '[+prefix+]site_content', $where);
 $num_rows_pub = $modx->db->getAffectedRows();
 
-$modx->db->update(array('published' => 0), $sctable, "unpub_date < {$ctime} AND unpub_date!=0 AND published=1");
+$where = "unpub_date < {$ctime} AND unpub_date!=0 AND published=1";
+$modx->db->update('published=0', '[+prefix+]site_content', $where);
 $num_rows_unpub = $modx->db->getAffectedRows();
 
 ?>
@@ -28,8 +29,8 @@ $num_rows_unpub = $modx->db->getAffectedRows();
 
 <div class="tab-page">
 	<div class="container container-body">
-		<?php printf("<p>" . $_lang["refresh_published"] . "</p>", $num_rows_pub) ?>
-		<?php printf("<p>" . $_lang["refresh_unpublished"] . "</p>", $num_rows_unpub) ?>
+		<?php if($num_rows_pub)   printf('<p>' . $_lang["refresh_published"]   . '</p>', $num_rows_pub) ?>
+		<?php if($num_rows_unpub) printf('<p>' . $_lang["refresh_unpublished"] . '</p>', $num_rows_unpub) ?>
 		<?php
 		$modx->clearCache('full', true);
 		// invoke OnSiteRefresh event

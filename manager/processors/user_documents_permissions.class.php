@@ -61,5 +61,3 @@ class udperms{
 		return $permissionsok;
 	}
 }
-
-?>

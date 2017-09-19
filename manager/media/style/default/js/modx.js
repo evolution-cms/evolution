@@ -890,7 +890,7 @@
           if (rpcNodeText === '' || rpcNodeText.indexOf(loadText) > 0) {
             var folderState = this.getFolderState();
             d.getElementById('treeloader').classList.add('visible');
-            modx.get(modx.MODX_MANAGER_URL + '?a=1&f=nodes&indent=' + el.dataset.indent + '&parent=' + id + '&expandAll=' + el.dataset.expandall + folderState, function(r) {
+            modx.post(modx.MODX_MANAGER_URL + 'media/style/' + modx.config.theme + '/ajax.php', 'a=1&f=nodes&indent=' + el.dataset.indent + '&parent=' + id + '&expandAll=' + el.dataset.expandall + folderState, function(r) {
               modx.tree.rpcLoadData(r);
               modx.tree.draggable();
             });
@@ -1244,7 +1244,7 @@
           d.getElementById('treeloader').classList.add('visible');
           this.setItemToChange();
           this.rpcNode = d.getElementById('treeRoot');
-          modx.get(modx.MODX_MANAGER_URL + '?a=1&f=nodes&indent=1&parent=0&expandAll=2&id=' + this.itemToChange, function(r) {
+          modx.post(modx.MODX_MANAGER_URL + 'media/style/' + modx.config.theme + '/ajax.php', 'a=1&f=nodes&indent=1&parent=0&expandAll=2&id=' + this.itemToChange, function(r) {
             modx.tree.rpcLoadData(r);
             modx.tree.draggable();
           });
@@ -1253,7 +1253,7 @@
       expandTree: function() {
         this.rpcNode = d.getElementById('treeRoot');
         d.getElementById('treeloader').classList.add('visible');
-        modx.get(modx.MODX_MANAGER_URL + '?a=1&f=nodes&indent=1&parent=0&expandAll=1&id=' + this.itemToChange, function(r) {
+        modx.post(modx.MODX_MANAGER_URL + 'media/style/' + modx.config.theme + '/ajax.php', 'a=1&f=nodes&indent=1&parent=0&expandAll=1&id=' + this.itemToChange, function(r) {
           modx.tree.rpcLoadData(r);
           modx.tree.saveFolderState();
           modx.tree.draggable();
@@ -1262,7 +1262,7 @@
       collapseTree: function() {
         this.rpcNode = d.getElementById('treeRoot');
         d.getElementById('treeloader').classList.add('visible');
-        modx.get(modx.MODX_MANAGER_URL + '?a=1&f=nodes&indent=1&parent=0&expandAll=0&id=' + this.itemToChange, function(r) {
+        modx.post(modx.MODX_MANAGER_URL + 'media/style/' + modx.config.theme + '/ajax.php', 'a=1&f=nodes&indent=1&parent=0&expandAll=0&id=' + this.itemToChange, function(r) {
           modx.openedArray = [];
           modx.tree.saveFolderState();
           modx.tree.rpcLoadData(r);
@@ -1273,8 +1273,8 @@
         this.rpcNode = d.getElementById('treeRoot');
         d.getElementById('treeloader').classList.add('visible');
         var a = d.sortFrm;
-        var b = '?a=1&f=nodes&indent=1&parent=0&expandAll=2&dt=' + a.dt.value + '&tree_sortby=' + a.sortby.value + '&tree_sortdir=' + a.sortdir.value + '&tree_nodename=' + a.nodename.value + '&id=' + this.itemToChange + '&showonlyfolders=' + a.showonlyfolders.value;
-        modx.get(modx.MODX_MANAGER_URL + b, function(r) {
+        var b = 'a=1&f=nodes&indent=1&parent=0&expandAll=2&dt=' + a.dt.value + '&tree_sortby=' + a.sortby.value + '&tree_sortdir=' + a.sortdir.value + '&tree_nodename=' + a.nodename.value + '&id=' + this.itemToChange + '&showonlyfolders=' + a.showonlyfolders.value;
+        modx.post(modx.MODX_MANAGER_URL + 'media/style/' + modx.config.theme + '/ajax.php', b, function(r) {
           modx.tree.rpcLoadData(r);
           modx.tree.draggable();
         });
@@ -1294,7 +1294,7 @@
         return a;
       },
       saveFolderState: function() {
-        modx.get(modx.MODX_MANAGER_URL + '?a=1&f=nodes&savestateonly=1' + this.getFolderState());
+        modx.post(modx.MODX_MANAGER_URL + 'media/style/' + modx.config.theme + '/ajax.php', 'a=1&f=nodes&savestateonly=1' + this.getFolderState());
       },
       showSorter: function(e) {
         e = e || w.event;
@@ -1558,10 +1558,10 @@
               w.main = e.target.contentWindow;
               o.url = w.main.location.search || w.location.hash;
               o.uid = modx.urlToUid(o.url);
+              tabpage = e.target.parentNode;
               if (!!w.main.__alertQuit) {
+                tab = d.getElementById('evo-tab-' + o.uid) || null;
                 var message = w.main.document.body.querySelector('p').innerHTML;
-                tabpage = e.target.parentNode;
-                tab = null;
                 w.main.alert = function() {};
                 history.pushState(null, d.title, modx.getActionFromUrl(w.location.search, 2) ? modx.MODX_MANAGER_URL : '#' + w.location.search);
                 window.onpopstate = function() {
@@ -1573,18 +1573,19 @@
                   position: 'top center alertQuit',
                   content: message
                 });
-                modx.getLockedElements(modx.main.getQueryVariable('a', a.url), modx.main.getQueryVariable('id', a.url), function(data) {
+                modx.getLockedElements(modx.main.getQueryVariable('a', o.url), modx.main.getQueryVariable('id', o.url), function(data) {
                   if (!!data) {
                     tabpage.close();
                     modx.tree.restoreTree();
                   } else {
-                    w.main.location.href = modx.MODX_MANAGER_URL + a.url;
-                    w.history.replaceState(null, d.title, modx.getActionFromUrl(a.url, 2) ? modx.MODX_MANAGER_URL : '#' + a.url);
+                    w.main.location.href = modx.MODX_MANAGER_URL + o.url;
+                    w.history.replaceState(null, d.title, modx.getActionFromUrl(o.url, 2) ? modx.MODX_MANAGER_URL : '#' + o.url);
                   }
                 });
               } else {
                 var old_uid = tabpage.id.replace('evo-tab-page-', '');
-                if (modx.main.getQueryVariable('a', o.url) === '2') {
+                tab = d.getElementById('evo-tab-' + old_uid);
+                if (modx.getActionFromUrl(o.url, 2)) {
                   tabpage.close();
                 } else if (old_uid !== o.uid && d.getElementById('evo-tab-' + o.uid)) {
                   tabpage.close();
@@ -2061,10 +2062,10 @@
   w.mainMenu.reloadtree = function() {
     //console.log('mainMenu.reloadtree()');
     if (modx.plugins.ElementsInTree) {
-      setTimeout('reloadElementsInTree()', 40);
+      setTimeout('reloadElementsInTree()', 50);
     }
     if (modx.config.global_tabs) {
-      setTimeout('modx.tree.restoreTree()', 50);
+      setTimeout('modx.tree.restoreTree()', 100);
     }
   };
   w.mainMenu.startrefresh = function(a) {

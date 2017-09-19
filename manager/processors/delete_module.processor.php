@@ -40,4 +40,3 @@ $modx->clearCache('full');
 // finished emptying cache - redirect
 $header="Location: index.php?a=106&r=2";
 header($header);
-?>

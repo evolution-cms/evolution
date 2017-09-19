@@ -3,7 +3,7 @@
 define('MODX_API_MODE', true);
 define('IN_MANAGER_MODE', true);
 
-include_once("../../../../index.php");
+include_once("./../../../../index.php");
 
 $modx->db->connect();
 
@@ -15,8 +15,14 @@ if (!isset($_SESSION['mgrValidated']) || !isset($_SERVER['HTTP_X_REQUESTED_WITH'
     $modx->sendErrorPage();
 }
 
-include_once MODX_BASE_PATH . MGR_DIR . '/includes/lang/' . $modx->config['manager_language'] . '.inc.php';
-include_once MODX_BASE_PATH . MGR_DIR . '/media/style/' . $modx->config['manager_theme'] . '/style.php';
+$modx->sid = session_id();
+
+$_lang = array();
+include_once MODX_MANAGER_PATH . '/includes/lang/english.inc.php';
+if ($modx->config['manager_language'] != 'english') {
+    include_once MODX_MANAGER_PATH . '/includes/lang/' . $modx->config['manager_language'] . '.inc.php';
+}
+include_once MODX_MANAGER_PATH . '/media/style/' . $modx->config['manager_theme'] . '/style.php';
 
 $action = isset($_REQUEST['a']) ? $_REQUEST['a'] : '';
 $frame = isset($_REQUEST['f']) ? $_REQUEST['f'] : '';
@@ -33,7 +39,7 @@ if (isset($action)) {
 
             switch ($frame) {
                 case 'nodes':
-                    include_once MODX_BASE_PATH . MGR_DIR . '/media/style/' . $modx->config['manager_theme'] . '/frames/nodes.php';
+                    include_once MODX_MANAGER_PATH . '/frames/nodes.php';
 
                     break;
             }

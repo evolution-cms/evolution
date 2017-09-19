@@ -8,4 +8,3 @@ $modx->db->truncate($modx->getFullTableName('manager_log'));
 
 $header="Location: index.php?a=13";
 header($header);
-?>

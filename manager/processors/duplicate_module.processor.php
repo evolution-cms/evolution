@@ -68,4 +68,3 @@ $_SESSION['itemname'] = $name;
 // finish duplicating - redirect to new module
 $header="Location: index.php?r=2&a=108&id=$newid";
 header($header);
-?>

@@ -19,4 +19,3 @@ $modx->db->delete($modx->getFullTableName('event_log'), $where);
 
 $header="Location: index.php?a=114";
 header($header);
-?>

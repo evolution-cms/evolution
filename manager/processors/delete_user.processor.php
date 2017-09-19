@@ -50,4 +50,3 @@ $modx->invokeEvent("OnUserFormDelete",
 
 $header="Location: index.php?a=75";
 header($header);
-?>

@@ -41,4 +41,3 @@ $_SESSION['itemname'] = $name;
 // finish duplicating - redirect to new template
 $header="Location: index.php?r=2&a=16&id=$newid";
 header($header);
-?>

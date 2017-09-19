@@ -19,4 +19,3 @@ deleteCategory($id);
 // finished emptying cache - redirect
 $header="Location: index.php?a=76";
 header($header);
-?>

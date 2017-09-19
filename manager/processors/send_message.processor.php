@@ -67,4 +67,3 @@ if($sendto=='a') {
 
 $header = "Location: index.php?a=10";
 header($header);
-?>

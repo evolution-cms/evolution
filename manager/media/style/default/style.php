@@ -240,6 +240,14 @@ $_style['ed_save']                  = $style_path.'misc/ed_save.gif';
 
 // actions buttons templates
 $action = isset($_REQUEST['a']) ? $_REQUEST['a'] : '';
+if (!empty($modx->config['global_tabs']) && !isset($_SESSION['stay'])) {
+    $_REQUEST['stay'] = 2;
+}
+if (isset($_REQUEST['stay'])) {
+    $_SESSION['stay'] = $_REQUEST['stay'];
+} else if (isset($_SESSION['stay'])) {
+    $_REQUEST['stay'] = $_SESSION['stay'];
+}
 $stay = isset($_REQUEST['stay']) ? $_REQUEST['stay'] : '';
 $addnew = 0;
 $run = 0;

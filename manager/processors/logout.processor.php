@@ -40,4 +40,3 @@ $modx->invokeEvent("OnManagerLogout",
 
 // show login screen
 header('Location: ' . MODX_MANAGER_URL);
-?>

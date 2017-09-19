@@ -200,7 +200,7 @@ class ditto {
 	function parseFilters($filter=false,$cFilters=false,$pFilters = false,$globalDelimiter,$localDelimiter) {
 		$parsedFilters = array('basic'=>array(),'custom'=>array());
 		$filters = explode($globalDelimiter, $filter);
-		if ($filter && count($filters) > 0) {
+		if (!empty($filters)) {
 			foreach ($filters AS $filter) {
 				if (!empty($filter)) {
 					$filterArray = explode($localDelimiter, $filter);
@@ -321,15 +321,7 @@ class ditto {
 	function parseModifiers($tpl,$ph,$contentVars){
 		global $modx;
 		if ($modx->config['enable_filter']) {
-			$content = $tpl;
-			$i = 0;
-			while($i<10) {
-				$bt = $content;
-				if(strpos($content,'[+')!==false) $content = $modx->parseText($content,$ph);
-				else                              $content = $modx->parseDocumentSource($content);
-				if($bt===$content) break;
-				$i++;
-			}
+			$content = $this->parseDocumentSource($tpl,$ph);
 		}
 		else {
 			foreach($ph as $key=>$content) {
@@ -342,6 +334,38 @@ class ditto {
 		return $content;
 	}
 	
+    function parseDocumentSource($content='',$ph)
+    {
+        global $modx;
+        
+        if(strpos($content,'[')===false && strpos($content,'{')===false) return $content;
+        
+        $loopLimit = @ $modx->maxParserPasses ?: 10;
+        $bt='';
+        $i=0;
+        while($bt!==$content)
+        {
+            $bt = $content;
+            if(strpos($content,'[+')!==false) $content = $modx->parseText($content,$ph);
+            if(strpos($content,'[+')!==false) continue;
+
+            if(strpos($content,'[*')!==false && $modx->documentIdentifier)
+                                              $content = $modx->mergeDocumentContent($content);
+            if(strpos($content,'[+')!==false && $content!==$bt) continue;
+            if(strpos($content,'[(')!==false) $content = $modx->mergeSettingsContent($content);
+            if(strpos($content,'[+')!==false && $content!==$bt) continue;
+            if(strpos($content,'{{')!==false) $content = $modx->mergeChunkContent($content);
+            if(strpos($content,'[+')!==false && $content!==$bt) continue;
+            if(strpos($content,'[!')!==false) $content = str_replace(array('[!','!]'),array('[[',']]'),$content);
+            if(strpos($content,'[[')!==false) $content = $modx->evalSnippets($content);
+
+            if($content===$bt)  break;
+            if($loopLimit < $i) break;
+            $i++;
+        }
+        return $content;
+    }
+
 	// ---------------------------------------------------
 	// Function: parseFields
 	// Find the fields that are contained in the custom placeholders or those that are needed in other functions
@@ -516,7 +540,7 @@ class ditto {
 		
 	function determineIDs($IDs, $IDType, $TVs, $orderBy, $depth, $showPublishedOnly, $seeThruUnpub, $hideFolders, $hidePrivate, $showInMenuOnly, $myWhere, $dateSource, $limit, $summarize, $filter, $paginate, $randomize) {
 		global $modx;
-		if (($summarize == 0 && $summarize != 'all') || count($IDs) == 0 || ($IDs == false && $IDs != '0')) {
+		if (($summarize == 0 && $summarize != 'all') || empty($IDs)) {
 			return array();
 		}
 		
@@ -833,7 +857,7 @@ class ditto {
 			if ($this->prefetch && $this->sortOrder!==false) $doc['ditto_sort'] = $this->sortOrder[$doc['id']];
 			
 			$k = '#'.$doc['id'];
-			if (count($this->prefetch['resource']) > 0) {
+			if (!empty($this->prefetch['resource'])) {
 				$docs[$k] = array_merge($doc,$this->prefetch['resource'][$k]);
 				// merge the prefetch array and the normal array
 			}
@@ -843,7 +867,7 @@ class ditto {
 		}
 
 		$TVs = array_unique($TVs);
-		if (count($TVs) > 0) {
+		if (!empty($TVs)) {
 			foreach($TVs as $tv){
 				$TVData = array_merge_recursive($this->appendTV($tv,$TVIDs),$TVData);
 			}
@@ -863,7 +887,7 @@ class ditto {
 	
 	function getDocumentsIDs($ids= array (), $published= 1) {
 		global $modx;
-	    if (count($ids) == 0) {
+	    if (empty($ids)) {
 	        return false;
 	    } else {
 	    	$ids = join(',',$ids);

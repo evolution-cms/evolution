@@ -129,4 +129,3 @@ if($updategroupaccess==true){
 
 $header = "Location: index.php?a=40";
 header($header);
-?>
