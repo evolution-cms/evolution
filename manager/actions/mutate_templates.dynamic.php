@@ -133,7 +133,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 						<label class="col-md-3 col-lg-2">
 							<?= $_lang['template_name'] ?>
 							<?php if($id == $modx->config['default_template']) {
-								echo '<small class="form-text text-danger">' . mb_strtolower(rtrim($_lang['defaulttemplate_title'], ':')) . '</small>';
+								echo '<small class="form-text text-danger">' . mb_strtolower(rtrim($_lang['defaulttemplate_title'], ':'), $modx_manager_charset) . '</small>';
 							} ?>
 						</label>
 						<div class="col-md-9 col-lg-10">
