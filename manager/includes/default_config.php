@@ -12,6 +12,7 @@ $c['custom_contenttype']       = 'application/rss+xml,application/pdf,applicatio
 $c['docid_incrmnt_method']     = 0;
 $c['valid_hostnames']          = '';
 $c['enable_filter']            = 0;
+$c['enable_at_syntax']         = 1;
 $c['minifyphp_incache']        = 0;
 $c['rss_url_news']             = $_lang["rss_url_news_default"];
 $c['rss_url_security']         = $_lang["rss_url_security_default"];

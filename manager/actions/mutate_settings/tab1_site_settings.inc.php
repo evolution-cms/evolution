@@ -149,6 +149,21 @@ table.sysSettings tr.noborder td {border:none;}
         <div class="comment"><?php echo $_lang['enable_filter_message']; ?></div>
       </td>
     </tr>
+    <tr>
+      <th><?php echo $_lang['enable_at_syntax_title'] ?><br><small>[(enable_at_syntax)]</small></th>
+      <td >
+        <?php echo wrap_label($_lang['yes'],form_radio('enable_at_syntax', 1));?><br />
+        <?php echo wrap_label($_lang['no'], form_radio('enable_at_syntax', 0));?>
+        <div class="comment">
+            <?php echo $_lang['enable_at_syntax_message']; ?>
+            <ul>
+                <li><a href="https://github.com/modxcms/evolution/wiki/@IF-@ELSEIF-@ELSE-@ENDIF" target="_blank">@IF @ELSEIF @ELSE @ENDIF</a></li>
+                <li>&lt;@LITERAL&gt; {{string}} [*string*] [[string]] &lt;@ENDLITERAL&gt;</li>
+                <li>&lt;!--@- Do not output -@--&gt;</li>
+            </ul>
+        </div>
+      </td>
+    </tr>
   <tr>
     <th><?php echo $_lang['defaultpublish_title'] ?><br><small>[(publish_default)]</small></th>
     <td>

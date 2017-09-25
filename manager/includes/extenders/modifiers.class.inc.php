@@ -343,12 +343,12 @@ class MODIFIERS {
                 $conditional = join(' ',$this->condition);
                 $isvalid = intval(eval("return ({$conditional});"));
                 if ($isvalid) return $this->srcValue;
-                break;
+                return NULL;
             case 'then':
                 $conditional = join(' ',$this->condition);
                 $isvalid = intval(eval("return ({$conditional});"));
                 if ($isvalid)  return $opt;
-                break;
+                return null;
             case 'else':
                 $conditional = join(' ',$this->condition);
                 $isvalid = intval(eval("return ({$conditional});"));
@@ -373,6 +373,7 @@ class MODIFIERS {
                 return htmlentities($value,ENT_QUOTES,$modx->config['modx_charset']);
             case 'html_entity_decode':
             case 'decode_html':
+            case 'html_decode':
                 return html_entity_decode($value,ENT_QUOTES,$modx->config['modx_charset']);
             case 'esc':
             case 'escape':
@@ -384,6 +385,7 @@ class MODIFIERS {
             case 'htmlspecialchars':
             case 'hsc':
             case 'encode_html':
+            case 'html_encode':
                 return preg_replace('/&amp;(#[0-9]+|[a-z]+);/i', '&$1;', htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']));
             case 'spam_protect':
                 return str_replace(array('@','.'),array('&#64;','&#46;'),$value);
@@ -410,8 +412,9 @@ class MODIFIERS {
                     $value = preg_replace('@(<br[ /]*>)\n@','$1',$value);
                     $value = preg_replace('@<br[ /]*>@',"\n",$value);
                 }
-                return strip_tags($value,$params);
+                return $this->strip_tags($value,$params);
             case 'urlencode':
+            case 'url_encode':
             case 'encode_url':
                 return urlencode($value);
             case 'base64_decode':
@@ -421,6 +424,7 @@ class MODIFIERS {
             case 'encode_sha1': $cmd = 'sha1';
             case 'addslashes':
             case 'urldecode':
+            case 'url_decode':
             case 'rawurlencode':
             case 'rawurldecode':
             case 'base64_encode':
@@ -550,7 +554,11 @@ class MODIFIERS {
                     $_[] = str_replace(array('[+value+]','[+output+]','{value}','%s'),$v,$opt);
                 }
                 return join("\n", $_);
-                break;
+            case 'array_pop':
+            case 'array_shift':
+                if(strpos($value,'||')!==false) $delim = '||';
+                else                            $delim = ',';
+                return $cmd(explode($delim,$value));
             case 'preg_replace':
             case 'regex_replace':
                 if(empty($opt) || strpos($opt,',')===false) break;
@@ -799,12 +807,11 @@ class MODIFIERS {
                 $filename = MODX_BASE_PATH.$opt.$filename;
                 
                 if(is_file($filename)){
-                    $size = filesize($filename);
                     clearstatcache();
+                    $size = filesize($filename);
                     return $size;
                 }
                 else return '';
-                break;
             #####  User info
             case 'username':
             case 'fullname':
@@ -911,7 +918,6 @@ class MODIFIERS {
             // If we haven't yet found the modifier, let's look elsewhere
             default:
                 $value = $this->getValueFromElement($key, $value, $cmd, $opt);
-                break;
         }
         return $value;
     }
@@ -1131,5 +1137,17 @@ class MODIFIERS {
     }
     function str_word_count($str) {
         return count(preg_split('~[^\p{L}\p{N}\']+~u',$str));
+    }
+    function strip_tags($value,$params='') {
+        global $modx;
+
+        if(stripos($params,'style')===false && stripos($value,'</style>')!==false) {
+            $value = preg_replace('@<style.*?>.*?</style>@is', '', $value);
+        }
+        if(stripos($params,'script')===false && stripos($value,'</script>')!==false) {
+            $value = preg_replace('@<script.*?>.*?</script>@is', '', $value);        
+        }
+  
+        return trim(strip_tags($value,$params));
     }
 }

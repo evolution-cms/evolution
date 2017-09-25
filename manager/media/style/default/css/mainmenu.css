@@ -69,12 +69,16 @@
 #searchresult .ajaxSearchResults ul, #searchresult .ajaxSearchResults li { margin: 0; padding: 0; list-style: none }
 #searchresult .ajaxSearchResults b, #searchresult .ajaxSearchResults strong, #searchresult .ajaxSearchResults a { position: relative; z-index: 0; display: block; color: #333; padding: 0.25rem 1rem; margin-top: -1px; border-top: 1px solid rgba(0, 0, 0, 0.03); border-bottom: 1px solid rgba(0, 0, 0, 0.03); box-sizing: border-box }
 #searchresult .ajaxSearchResults b { z-index: 1; background-color: #ddd }
-#searchresult .ajaxSearchResults a { color: #1377c5; padding: 0.25rem 2rem 0.25rem 1rem; text-decoration: none; }
+#searchresult .ajaxSearchResults a { padding: 0.25rem 2rem 0.25rem 1rem; text-decoration: none; }
 #searchresult .ajaxSearchResults a:hover { color: #333; background-color: #f2f2f2; }
-#searchresult .ajaxSearchResults a > i { position: absolute; right: 0; top: 50%; width: 2rem; height: 2rem; margin-top: -1rem; line-height: 2rem; text-align: center; }
+#searchresult .ajaxSearchResults a > i { position: absolute; right: 0; top: 50%; width: 2rem; height: 2rem; margin-top: -1rem; line-height: 2rem; text-align: center; color: #1976d2; }
+#searchresult .ajaxSearchResults a.selected > i { color: #fff }
 #searchresult .ajaxSearchResults a.selected { z-index: 1; background-color: #1976d2; color: #fff; font-weight: 700; }
 #searchresult .ajaxSearchResults a .text-danger { color: #333; font-weight: 700 }
 #searchresult .ajaxSearchResults a.selected .text-danger { color: #ffc107; text-shadow: 0 0 1px rgba(0, 0, 0, 0.5); }
+#searchresult .ajaxSearchResults .locked a { font-style: italic; color: #646464; }
+#searchresult .ajaxSearchResults .disabled a { opacity: .5; color: #7d2a24; }
+#searchresult .ajaxSearchResults .deleted a { color: #a52a2a; text-decoration: line-through }
 @media (min-width: 1020px) {
 /*#mainMenu #nav > li > a > .fa { font-size: 1.2rem }*/
 }

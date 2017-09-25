@@ -64,6 +64,10 @@ if($e->name == 'OnManagerWelcomeHome'){
         $e->output(serialize($widgets));
         return;
     }
+
+    // Create directory 'assets/cache/updater'
+    if(!file_exists(MODX_BASE_PATH . 'assets/cache/updater'))
+        mkdir(MODX_BASE_PATH . 'assets/cache/updater', intval($modx->config['new_folder_permissions'], 8), true);
     
     $output = '';
     if(!file_exists(MODX_BASE_PATH . 'assets/cache/updater/check_'.date("d").'.json')){

@@ -16,6 +16,7 @@ if (!isset($_SESSION['mgrValidated']) || !isset($_SERVER['HTTP_X_REQUESTED_WITH'
 }
 
 $modx->sid = session_id();
+$modx->loadExtension("ManagerAPI");
 
 $_lang = array();
 include_once MODX_MANAGER_PATH . '/includes/lang/english.inc.php';

@@ -1,14 +1,18 @@
 <?php
 
+global $site_sessionname;
+$site_sessionname = genEvoSessionName(); // For legacy extras not using startCMSSession
+
+function genEvoSessionName() {
+    $_ = crc32(__FILE__);
+    $_ = sprintf('%u', $_);
+    return 'evo' . base_convert($_,10,36);
+}
+
 function startCMSSession(){
     
     global $site_sessionname, $https_port;
     
-    $_ = crc32(__FILE__);
-    $_ = sprintf('%u', $_);
-    $_ = base_convert($_,10,36);
-    $site_sessionname = 'evo' . $_;
-
     session_name($site_sessionname);
     removeInvalidCmsSessionIds($site_sessionname);
     session_start();
