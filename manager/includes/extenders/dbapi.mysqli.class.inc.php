@@ -223,6 +223,16 @@ class DBAPI {
 		}
 	}
 
+    function save($fields, $table, $where='') { // This is similar to "replace into table".
+        
+        if($where === '')                                                  $mode = 'insert';
+        elseif($this->getRecordCount($this->select('*',$table,$where))==0) $mode = 'insert';
+        else                                                               $mode = 'update';
+        
+        if($mode==='insert') return $this->insert($fields, $table);
+        else                 return $this->update($fields, $table, $where);
+    }
+    
 	function isResult($rs) {
 		return is_object($rs);
 	}

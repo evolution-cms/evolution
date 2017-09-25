@@ -335,6 +335,17 @@ class DBAPI {
          return $lid;
       }
    }
+   
+    function save($fields, $table, $where='') {
+        
+        if($where === '')                                                  $mode = 'insert';
+        elseif($this->getRecordCount($this->select('*',$table,$where))==0) $mode = 'insert';
+        else                                                               $mode = 'update';
+        
+        if($mode==='insert') return $this->insert($fields, $table);
+        else                 return $this->update($fields, $table, $where);
+    }
+    
    /**
     * @name:  isResult
     *

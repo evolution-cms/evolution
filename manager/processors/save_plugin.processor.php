@@ -1,9 +1,9 @@
 <?php
-if (IN_MANAGER_MODE != "true") {
-    die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
+if (IN_MANAGER_MODE != 'true') {
+    die('<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.');
 }
 if (!$modx->hasPermission('save_plugin')) {
-    $modx->webAlertAndQuit($_lang["error_no_privileges"]);
+    $modx->webAlertAndQuit($_lang['error_no_privileges']);
 }
 
 $id = intval($_POST['id']);
@@ -12,10 +12,10 @@ $description = $modx->db->escape($_POST['description']);
 $locked = $_POST['locked'] == 'on' ? '1' : '0';
 $plugincode = $modx->db->escape($_POST['post']);
 $properties = $modx->db->escape($_POST['properties']);
-$disabled = $_POST['disabled'] == "on" ? '1' : '0';
+$disabled = $_POST['disabled'] == 'on' ? '1' : '0';
 $moduleguid = $modx->db->escape($_POST['moduleguid']);
 $sysevents = $_POST['sysevents'];
-$parse_docblock = $_POST['parse_docblock'] == "1" ? '1' : '0';
+$parse_docblock = $_POST['parse_docblock'] == '1' ? '1' : '0';
 $currentdate = time() + $modx->config['server_offset_time'];
 
 //Kyle Jaebker - added category support
@@ -28,14 +28,14 @@ if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
     $categoryid = getCategory($_POST['newcategory']);
 }
 
-if ($name == "") {
-    $name = "Untitled plugin";
+if ($name == '') {
+    $name = 'Untitled plugin';
 }
 
 if ($parse_docblock) {
     $parsed = $modx->parseDocBlockFromString($plugincode, true);
-    $name = isset($parsed['name']) ? $parsed['name'] : $name;
-    $sysevents = isset($parsed['events']) ? explode(',', $parsed['events']) : $sysevents;
+    $name       = isset($parsed['name']) ? $parsed['name'] : $name;
+    $sysevents  = isset($parsed['events']) ? explode(',', $parsed['events']) : $sysevents;
     $properties = isset($parsed['properties']) ? $parsed['properties'] : $properties;
     $moduleguid = isset($parsed['guid']) ? $parsed['guid'] : $moduleguid;
 
@@ -56,9 +56,9 @@ switch ($_POST['mode']) {
     case '101':
 
         // invoke OnBeforePluginFormSave event
-        $modx->invokeEvent("OnBeforePluginFormSave", array(
-            "mode" => "new",
-            "id" => $id
+        $modx->invokeEvent('OnBeforePluginFormSave', array(
+            'mode' => 'new',
+            'id' => $id
         ));
 
         // disallow duplicate names for active plugins
@@ -67,7 +67,7 @@ switch ($_POST['mode']) {
             $count = $modx->db->getValue($rs);
             if ($count > 0) {
                 $modx->manager->saveFormValues(101);
-                $modx->webAlertAndQuit(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $name), "index.php?a=101");
+                $modx->webAlertAndQuit(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $name), 'index.php?a=101');
             }
         }
 
@@ -89,9 +89,9 @@ switch ($_POST['mode']) {
         saveEventListeners($newid, $sysevents, $_POST['mode']);
 
         // invoke OnPluginFormSave event
-        $modx->invokeEvent("OnPluginFormSave", array(
-            "mode" => "new",
-            "id" => $newid
+        $modx->invokeEvent('OnPluginFormSave', array(
+            'mode' => 'new',
+            'id' => $newid
         ));
 
         // Set the item name for logger
@@ -102,20 +102,20 @@ switch ($_POST['mode']) {
 
         // finished emptying cache - redirect
         if ($_POST['stay'] != '') {
-            $a = ($_POST['stay'] == '2') ? "102&id=$newid" : "101";
-            $header = "Location: index.php?a=" . $a . "&r=2&stay=" . $_POST['stay'];
+            $a = ($_POST['stay'] == '2') ? "102&id=$newid" : '101';
+            $header = 'Location: index.php?a=' . $a . '&r=2&stay=' . $_POST['stay'];
             header($header);
         } else {
-            $header = "Location: index.php?a=76&r=2";
+            $header = 'Location: index.php?a=76&r=2';
             header($header);
         }
         break;
     case '102':
 
         // invoke OnBeforePluginFormSave event
-        $modx->invokeEvent("OnBeforePluginFormSave", array(
-            "mode" => "upd",
-            "id" => $id
+        $modx->invokeEvent('OnBeforePluginFormSave', array(
+            'mode' => 'upd',
+            'id' => $id
         ));
 
         // disallow duplicate names for active plugins
@@ -144,9 +144,9 @@ switch ($_POST['mode']) {
         saveEventListeners($id, $sysevents, $_POST['mode']);
 
         // invoke OnPluginFormSave event
-        $modx->invokeEvent("OnPluginFormSave", array(
-            "mode" => "upd",
-            "id" => $id
+        $modx->invokeEvent('OnPluginFormSave', array(
+            'mode' => 'upd',
+            'id' => $id
         ));
 
         // Set the item name for logger
@@ -157,17 +157,17 @@ switch ($_POST['mode']) {
 
         // finished emptying cache - redirect
         if ($_POST['stay'] != '') {
-            $a = ($_POST['stay'] == '2') ? "102&id=$id" : "101";
-            $header = "Location: index.php?a=" . $a . "&r=2&stay=" . $_POST['stay'];
+            $a = ($_POST['stay'] == '2') ? "102&id=$id" : '101';
+            $header = 'Location: index.php?a=' . $a . '&r=2&stay=' . $_POST['stay'];
             header($header);
         } else {
             $modx->unlockElement(5, $id);
-            $header = "Location: index.php?a=76&r=2";
+            $header = 'Location: index.php?a=76&r=2';
             header($header);
         }
         break;
     default:
-        $modx->webAlertAndQuit("No operation set in request.");
+        $modx->webAlertAndQuit('No operation set in request.');
 }
 
 # Save Plugin Event Listeners
@@ -193,9 +193,9 @@ function saveEventListeners($id, $sysevents, $mode)
         }
         $insert_sysevents[] = array('pluginid' => $id, 'evtid' => $evtId, 'priority' => $priority);
     }
-    $modx->db->delete($tblSitePluginEvents, "pluginid='{$id}'");
+    
     foreach ($insert_sysevents as $insert_sysevent) {
-        $modx->db->insert($insert_sysevent, $tblSitePluginEvents);
+        $modx->db->save($insert_sysevent, '[+prefix+]site_plugin_events',"pluginid='{$id}'");
     }
 }
 
