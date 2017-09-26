@@ -8,7 +8,20 @@
 
 if(!defined('MODX_BASE_PATH')){die('What are you doing? Get out of here!');}
 if (empty($_SESSION['mgrInternalKey'])) return;
-
+// get manager role
+$internalKey = $modx->getLoginUserID();
+$sid = $modx->sid;
+$role = $_SESSION['mgrRole'];
+$user = $_SESSION['mgrShortname'];
+if(($role!=1) AND ($wdgVisibility == 'AdminOnly')) {    
+}
+else if(($role==1) AND ($wdgVisibility == 'AdminExcluded')) {    
+}
+else if(($role!=$ThisRole) AND ($wdgVisibility == 'ThisRoleOnly')) {    
+}
+else if(($user!=$ThisUser) AND ($wdgVisibility == 'ThisUserOnly')) {    
+}
+else {
 $version = 'evolution-cms/evolution';
 $type = isset($type) ? $type: 'tags';
 $showButton = isset($showButton) ? $showButton: 'AdminOnly';
@@ -261,4 +274,5 @@ header("Location: /install/index.php?action=mode");');
             break;
     }
 
+}
 }
