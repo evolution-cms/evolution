@@ -1,5 +1,5 @@
 /* Action buttons based Manager nav */
-
+#qmEditor, #qmEditorClosed {padding:0!important; border: 0;}
 #qmEditor ul 
 { /* .actionButtons --> #qmEditor */
 	margin: 0;
@@ -9,39 +9,37 @@
 
 #qmEditor li 
 {
-	margin: 0 8px 0 0;
+	margin: 0 1px 0 0;
 	float: left;
-	height: 15px;
-	line-height: 15px;
-	padding: 0;
+	height: 34px;
+	line-height: 30px;
+    padding: 4px 3px 4px 2px;
     list-style-type: none;
-    height: auto;
     width: auto;
     background: none;
     border: 0;
     list-style-image:none;
 }
+#qmEditor li:hover {background-color: rgba(255,255,255,.1);}
+  
 
 #qmEditor .qmButton, .qm-edit, .qm-new, .qm-tv, .qm-save, .qm-cancel
 {
   font-size: 13px;
   font-weight: 500;
   text-shadow: none;
-  background: #fff;
+  background: transparent;
   filter: none;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  padding: 2px 7px;
-  border-radius: 3px;
-  margin: 0 2px;
-  background-color: rgba(255,255,255,.1);
-  color: #fff !important;
+  padding: 0px 3px;
+  margin: 0 1px;
+  color: #bbb !important;
   /*box-shadow: 0 0 0 1px #E4E4E4;*/
   box-shadow: none;
   transition: none;
 }
 #qmEditor .qmButton, .qm-edit, .qm-new, .qm-tv, .qm-save, .qm-cancel
 {
-  padding: 6px 10px;
+  padding: 7px 9px;
 }
 .qm-tv a, .qm-save a, .qm-cancel a
 {
@@ -62,7 +60,7 @@
 #qmEditor .qmButton:hover, .qm-edit:hover, .qm-new:hover, .qm-tv:hover, .qm-save:hover, .qm-cancel:hover
 {
   text-decoration: none;
-  background-color: rgba(255,255,255,.3);
+  color: #fff!important;
 }
 .qm-cancel a:hover, .qm-save a:hover    
 {
