@@ -1669,8 +1669,9 @@ class DocumentParser
                 }
             }
         }
+        $cmd = trim($cmd);
         if (!preg_match('@^[0-9]+$@', $cmd)) {
-            $cmd = empty(trim($cmd)) ? 0 : 1;
+            $cmd = empty($cmd) ? 0 : 1;
         } elseif ($cmd <= 0) {
             $cmd = 0;
         }
