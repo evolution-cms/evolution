@@ -653,29 +653,21 @@ class DocumentParser
      * @param $id
      * @return array|mixed|null|string
      */
-    public function makePageCacheKey($id)
-    {
-        $params = $_GET;
-        $hash = '';
-        if (isset($params['q'])) {
-            unset($params['q']);
-        }
-
-        if (!empty($this->systemCacheKey)) {
+    public function makePageCacheKey($id){
+        $hash = $id;
+        $tmp = null;
+        $params = array();
+        if(!empty($this->systemCacheKey)){
             $hash = $this->systemCacheKey;
-        } elseif (!empty($params)) {
-            // Sort GET parameters so that the order of parameters on the HTTP request don't affect the generated cache ID.
-            ksort($params);
-            $hash .= '_' . md5(http_build_query($params));
         } else {
-            $hash = $id;
+            if (!empty($_GET)) {
+                // Sort GET parameters so that the order of parameters on the HTTP request don't affect the generated cache ID.
+                $params = $_GET;
+                ksort($params);
+                $hash .= '_'.md5(http_build_query($params));
+            }
         }
-
-        if (isset($_GET['q'])) {
-            $params['q'] = $_GET['q'];
-        }
-        $evtOut = $this->invokeEvent("OnMakePageCacheKey", array('hash' => $hash, 'id' => $id, 'params' => $params));
-        $tmp = array();
+        $evtOut = $this->invokeEvent('OnMakePageCacheKey', array ('hash' => $hash, 'id' => $id, 'params' => $params));
         if (is_array($evtOut) && count($evtOut) > 0) {
             $tmp = array_pop($evtOut);
         }
@@ -1677,8 +1669,9 @@ class DocumentParser
                 }
             }
         }
+        $cmd = trim($cmd);
         if (!preg_match('@^[0-9]+$@', $cmd)) {
-            $cmd = empty(trim($cmd)) ? 0 : 1;
+            $cmd = empty($cmd) ? 0 : 1;
         } elseif ($cmd <= 0) {
             $cmd = 0;
         }

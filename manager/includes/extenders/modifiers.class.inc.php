@@ -189,9 +189,7 @@ class MODIFIERS {
         
         foreach($modifiers as $i=>$a)
         {
-            if ($modx->debug) $fstart = $modx->getMicroTime();
             $value = $this->Filter($key,$value, $a['cmd'], $a['opt']);
-            if ($modx->debug) $modx->addLogEntry('$modx->filter->'.__FUNCTION__."(:{$a['cmd']})",$fstart);
         }
         $this->tmpCache[$cacheKey] = $value;
         return $value;
