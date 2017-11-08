@@ -246,8 +246,9 @@
   }
 
   .ElementsInTree #tree .actionButtons--eit {
-    top: 1.95rem;
-    right: 0.8rem;
+    margin:0;
+    top: 1.875rem;
+    right: 0;
   }
 
   .ElementsInTree #tree .actionButtons--eit li {
