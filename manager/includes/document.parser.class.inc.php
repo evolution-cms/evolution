@@ -1981,7 +1981,13 @@ class DocumentParser
         $default_params = $this->parseProperties($snippetObject['properties'], $this->currentSnippet, 'snippet');
         $params = array_merge($default_params, $params);
 
+        $_ = $this->config['enable_filter'];
+        if($this->config['enable_filter'] && strpos(strtolower($this->currentSnippet),'maxigallery')!==false) {
+            $this->config['enable_filter'] = 0;
+        }
         $value = $this->evalSnippet($snippetObject['content'], $params);
+        $this->config['enable_filter'] = $_;
+        
         $this->currentSnippet = '';
         if ($modifiers !== false) {
             $value = $this->applyFilter($value, $modifiers, $key);
