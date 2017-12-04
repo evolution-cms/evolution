@@ -79,6 +79,8 @@ for ($i=1;$i<count($opers);$i++){
     }
     $operator = strtolower($operator);
 
+    if(preg_match('/^(\[\+(.*?)\+\])$/i', $subject)) $subject = '';
+    
     switch ($operator) {
         case '%':
             $output = ($subject %$operand==0) ? true: false;$i++;

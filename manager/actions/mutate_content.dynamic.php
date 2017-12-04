@@ -995,7 +995,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                             if ($group_tvs == 1 || $group_tvs == 3) {
                                                 if ($i === 0) {
                                                     $templateVariables .= '
-                            <div class="tab-section">
+                            <div class="tab-section" id="tabTV_' . $row['category_id'] . '">
                                 <div class="tab-header">' . $row['category'] . '</div>
                                 <div class="tab-body tmplvars">
                                     <table>' . "\n";
@@ -1005,7 +1005,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                 </div>
                             </div>
                             
-                            <div class="tab-section">
+                            <div class="tab-section" id="tabTV_' . $row['category_id'] . '">
                                 <div class="tab-header">' . $row['category'] . '</div>
                                 <div class="tab-body tmplvars">
                                     <table>';

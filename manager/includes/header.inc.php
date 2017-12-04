@@ -58,7 +58,7 @@ if ($modx->config['manager_theme'] == 'default') {
     <script type="text/javascript" src="media/script/tabpane.js"></script>
     <?= sprintf('<script type="text/javascript" src="%s"></script>' . "\n", $modx->config['mgr_jquery_path']) ?>
     <?php if ($modx->config['show_picker'] != "0") { ?>
-    <script src="media/style/<?= $modx->config['manager_theme'] ?>/js/color.switcher.js" type="text/javascript"></script>
+        <script src="media/style/<?= $modx->config['manager_theme'] ?>/js/color.switcher.js" type="text/javascript"></script>
     <?php } ?>
     <?php
     $aArr = array('2');
@@ -76,6 +76,8 @@ if ($modx->config['manager_theme'] == 'default') {
       if (!evo) {
         var evo = {};
       }
+
+      var actions;
 
       // evoTooltips
       evo.tooltips = function(a) {
@@ -339,7 +341,7 @@ if ($modx->config['manager_theme'] == 'default') {
                 a[i].nextElementSibling.classList.add('in');
                 a[i].classList.remove('collapsed');
               }
-            }
+            };
           }
         }
       };
@@ -402,6 +404,45 @@ if ($modx->config['manager_theme'] == 'default') {
           };
         }
         evo.tooltips('[data-tooltip]');
+
+        if (document.forms.length && document.forms.mutate && window.frameElement.parentNode.parentNode.classList.contains('evo-popup')) {
+          window.focus();
+          document.forms.mutate.addEventListener('submit', function(e) {
+            if ((actionSelect && actionSelect.value === '') || (!actionSelect && actionSaveButton)) {
+              if (actionSelect) {
+                actionSelect.parentNode.removeChild(actionSelect);
+              }
+              if (top.mainMenu) {
+                top.mainMenu.work();
+              }
+              var xhr = new XMLHttpRequest();
+              xhr.onload = function() {
+                if (this.status === 200 && this.readyState === 4) {
+                  if (top.mainMenu) {
+                    top.mainMenu.stopWork();
+                  }
+                  if (top.tree) {
+                    top.tree.restoreTree();
+                  }
+                  window.frameElement.parentNode.parentNode.close(e);
+                }
+              };
+              xhr.open(document.forms.mutate.method, document.forms.mutate.action, true);
+              xhr.send(new FormData(document.forms.mutate));
+              e.preventDefault();
+            }
+          }, false);
+
+          actions.cancel = function() {
+            window.frameElement.parentNode.parentNode.close();
+          };
+
+          window.addEventListener('keydown', function(e) {
+            if (e.keyCode === 27) {
+              window.frameElement.parentNode.parentNode.close();
+            }
+          })
+        }
       }
 
       function reset_path(elementName)
@@ -527,4 +568,4 @@ if ($modx->config['manager_theme'] == 'default') {
       /* ]]> */
     </script>
 </head>
-<body <?= ($modx_textdir ? ' class="rtl"' : '') ?> class="<?= $body_class ?>"  data-evocp="color">
+<body <?= ($modx_textdir ? ' class="rtl"' : '') ?> class="<?= $body_class ?>" data-evocp="color">

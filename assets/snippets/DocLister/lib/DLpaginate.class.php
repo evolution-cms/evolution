@@ -335,7 +335,10 @@ class DLpaginate
         /* Setup page vars for display. */
         $prev = ($this->page <= 1) ? 0 : $this->page - 1; //previous page is page - 1
         $next = (($this->page == $this->total_pages) ? 0 : ($this->page + 1)); //next page is page + 1
-        $lastpage = ceil($this->total_pages / $this->limit); //lastpage is = total pages / items per page, rounded up.
+        $lastpage = $this->total_pages;
+        if ($this->limit > 1 && $lastpage > $this->limit) {
+            $lastpage = $this->limit;
+        }
         $lpm1 = $lastpage - 1; //last page minus 1
 
         /*
@@ -360,7 +363,7 @@ class DLpaginate
                 }
             } elseif ($lastpage > 5 + ($this->adjacents * 2)) { //enough pages to hide some
                 //close to beginning; only hide later pages
-                if ($this->page < 1 + ($this->adjacents * 2)) {
+                if ($this->page <= 2 + ($this->adjacents * 2)) {
                     for ($counter = 1; $counter < 4 + ($this->adjacents * 2); $counter++) {
                         $tpl = ($counter == $this->page) ? $this->currentT : $this->numberT;
                         $this->pagination .= $this->renderItemTPL($tpl, $counter);

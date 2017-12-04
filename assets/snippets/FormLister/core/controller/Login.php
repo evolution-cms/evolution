@@ -62,7 +62,7 @@ class Login extends Core
 
             return;
         }
-        $login = $this->getField($this->getCFGDef('loginField', 'username'));
+        $login = strtolower($this->getField($this->getCFGDef('loginField', 'username')));
         $password = $this->getField($this->getCFGDef('passwordField', 'password'));
         $remember = $this->getField($this->getCFGDef('rememberField', 'rememberme'));
         if ($this->user->checkBlock($login)) {

@@ -2,7 +2,7 @@
 #treeloader { position: absolute; display: block; overflow: hidden; right: 0.3em; top: 0.15em; opacity: 0; visibility: hidden; -webkit-transition-duration: 0.5s; transition-duration: 0.5s }
 #treeloader .fa { font-size: 1em; }
 #treeloader.visible { opacity: 0.7; visibility: visible; -webkit-transition-duration: 0s; transition-duration: 0s }
-.treeframebody { height: 100%; background-color: #fafafa; border-right: 1px solid #cfd2d6; }
+.treeframebody { height: 100%; min-height: calc(100% + 1px); background-color: #fafafa; border-right: 1px solid #cfd2d6; }
 #treeMenu { display: table; width: 100%; height: 1.875rem; table-layout: fixed; margin-top: -1px; background-color: #dfdfdf; border-bottom: 1px solid #cfd2d6 }
 #treeMenu .treeButton { display: table-cell; cursor: pointer; height: 1.875rem; line-height: 2rem; white-space: nowrap; text-align: center; vertical-align: middle; -webkit-transition-duration: 0.15s; transition-duration: 0.15s }
 #treeMenu .treeButton:hover:not(.disabled) { background-color: rgba(255, 255, 255, .5); cursor: pointer; -webkit-transition-duration: 0s; transition-duration: 0s }
@@ -11,24 +11,25 @@
 #treeMenu .treeButton.disabled { color: #777; opacity: 0.5 }
 #treeHolder { position: relative; z-index: 1; cursor: default; overflow: auto; height: 100%; max-height: calc(100% - 30px); white-space: nowrap }
 #treeHolder .rootNode { position: relative; }
-#treeHolder .rootNode a { display: block; padding: 0.25em 0.5em; color: #333; cursor: pointer; -webkit-transition-duration: 0.15s; transition-duration: 0.15s }
+#treeHolder .rootNode a { display: block; overflow: hidden; padding: 0.25em 0.5em; text-overflow: ellipsis; color: #333; cursor: pointer; -webkit-transition-duration: 0.15s; transition-duration: 0.15s }
 #treeHolder .rootNode a .fa { margin-right: 0.5em }
 #treeRoot { float: left; width: 100%; color: #333; }
-#treeRoot a { display: block; clear: both; text-decoration: none; padding: 0.1em 0 0.1em 2.2em; font-size: 1em; color: #333; cursor: default; -webkit-transition-duration: 0.15s; transition-duration: 0.15s }
+#treeRoot a { display: block; clear: both; overflow: hidden; text-decoration: none; padding: 0.1em 0 0.1em 2.2em; font-size: 1em; text-overflow: ellipsis; color: #333; cursor: default; -webkit-transition-duration: 0.15s; transition-duration: 0.15s }
 #treeRoot a:hover:not(.empty), #treeRoot a.current { background-color: rgba(33, 150, 243, 0.1) }
 #treeRoot a small { margin: 0 0.8em 0 0.2em }
 #treeRoot a.selected, #treeRoot .dragenter > a { background-color: rgba(0, 0, 0, 0.1); }
-#treeRoot .dragafter > a .indent::after, #treeRoot .dragbefore > a .indent::before { content: "\f0da"; display: block; position: absolute; right: 0.1em; bottom: -0.5em; height: 1em; font: normal normal normal 1em/1em FontAwesome; }
-#treeRoot .dragbefore > a .indent::before { bottom: auto; top: -0.5em; }
 #treeRoot a .title { padding: 0 0.2em; color: #0275d8; cursor: pointer; -webkit-transition-duration: 0.15s; transition-duration: 0.15s }
-#treeRoot a.deleted .title { color: #A52A2A; text-decoration: line-through; }
-#treeRoot a.unpublished .title { color: #B68282; font-style: italic; }
+#treeRoot a.deleted .title { color: #a52a2a; text-decoration: line-through; }
+#treeRoot a.unpublished .title { color: #b68282; font-style: italic; }
 #treeRoot a.hidemenu .title { color: #404040; }
 #treeRoot a.protected { position: relative; opacity: .5; background-color: transparent !important; }
 #treeRoot a .lockedResource { cursor: pointer; }
 #treeRoot a .editResource { margin-left: 0.2em }
 #treeRoot .indent { position: relative; z-index: -1; float: left; height: 1.5em; }
 #treeRoot .indent i { float: left; height: 1.2em; width: 1.5em }
+#treeRoot .dragafter > a .indent, #treeRoot .dragbefore > a .indent { z-index: 1; }
+#treeRoot .dragafter > a .indent::after, #treeRoot .dragbefore > a .indent::before { content: "\f0da"; display: block; position: absolute; right: 0.1em; bottom: -0.5em; height: 1em; font: normal normal normal 1em/1em FontAwesome; color: #f04 }
+#treeRoot .dragbefore > a .indent::before { bottom: auto; top: -0.5em; }
 #treeRoot .empty { color: #aaa; cursor: default; }
 #treeRoot .icon { cursor: pointer; -webkit-transition-duration: 0.15s; transition-duration: 0.15s }
 #treeRoot .icon:hover > .fa { color: #000 }
@@ -46,7 +47,7 @@
 .dark #treeMenu .treeButton { color: #a9a9a9; }
 .dark #treeMenu .treeButton:hover:not(.disabled) { background-color: #2d3033; color: #fff }
 .dark #tree .treeframebody { background-color: #202329; border-color: #2a2d33 }
-.dark #treeHolder .rootNode a { color: #C5C5C5; }
+.dark #treeHolder .rootNode a { color: #c5c5c5; }
 .dark #treeHolder .rootNode a:hover { color: #eee }
 .dark #treeRoot { color: #b3b3b3; }
 .dark #treeRoot a { color: #b3b3b3; }
@@ -54,8 +55,8 @@
 .dark #treeRoot a.selected, #treeRoot .dragenter > a { background-color: rgba(0, 142, 255, 0.19); }
 .dark #treeRoot .dragafter > a::after, .dark #treeRoot .dragbefore > a::before { background-color: rgba(255, 255, 255, 0.25); }
 .dark #treeRoot a .title { color: #7cb2dc; }
-.dark #treeRoot a.hidemenu .title { color: #C5C5C5; }
-.dark #treeRoot a.deleted .title { color: #A52A2A; }
+.dark #treeRoot a.hidemenu .title { color: #c5c5c5; }
+.dark #treeRoot a.deleted .title { color: #a52a2a; }
 .dark #treeRoot a.unpublished .title { color: #d0726b }
 .dark #treeRoot .icon:hover > .fa { color: #fff }
 .dark #treeRoot a .title:hover { color: #a2d4fb; }

@@ -495,12 +495,12 @@ class modUsers extends MODxAPI
                     unset($_SESSION['webUserGroupNames']);
                     unset($_SESSION['webDocgroups']);
 
-                    setcookie($cookieName, '', time() - 60, '/');
+                    setcookie($cookieName, '', time() - 60, MODX_BASE_URL);
                 } else {
                     if (isset($_COOKIE[session_name()])) {
-                        setcookie(session_name(), '', time() - 60, '/');
+                        setcookie(session_name(), '', time() - 60, MODX_BASE_URL);
                     }
-                    setcookie($cookieName, '', time() - 60, '/');
+                    setcookie($cookieName, '', time() - 60, MODX_BASE_URL);
                     session_destroy();
                 }
                 break;
@@ -532,7 +532,7 @@ class modUsers extends MODxAPI
             $cookieValue = array(md5($this->get('username')), $this->get('password'), $this->get('sessionid'), $remember);
             $cookieValue = implode('|', $cookieValue);
             $cookieExpires = time() + $remember;
-            setcookie($cookieName, $cookieValue, $cookieExpires, '/', '', $secure, true);
+            setcookie($cookieName, $cookieValue, $cookieExpires, MODX_BASE_URL, '', $secure, true);
         }
 
         return $this;

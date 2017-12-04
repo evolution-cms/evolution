@@ -272,7 +272,7 @@ class modManagers extends MODxAPI
             if ($value == '' || !$this->isChanged($key)) {
                 continue;
             }
-            $result = $this->query("SELECT `setting_value` FROM {$this->makeTable('web_user_settings')} WHERE `user` = '{$this->id}' AND `setting_name` = '{$key}'");
+            $result = $this->query("SELECT `setting_value` FROM {$this->makeTable('user_settings')} WHERE `user` = '{$this->id}' AND `setting_name` = '{$key}'");
             if ($this->modx->db->getRecordCount($result) > 0) {
                 $this->query("UPDATE {$this->makeTable('user_settings')} SET `setting_value` = '{$value}' WHERE `user` = '{$this->id}' AND `setting_name` = '{$key}';");
             } else {
@@ -512,9 +512,9 @@ class modManagers extends MODxAPI
                 }
                 break;
             case 'destroy':
-                if (isset($_SESSION['webValidated'])) {
+                if (isset($_SESSION['mgrValidated'])) {
                     unset($_SESSION['usertype']);
-                    unset($_SESSION['webShortname']);
+                    unset($_SESSION['mgrShortname']);
                     unset($_SESSION['mgrFullname']);
                     unset($_SESSION['mgrEmail']);
                     unset($_SESSION['mgrValidated']);
@@ -525,12 +525,12 @@ class modManagers extends MODxAPI
                     unset($_SESSION['mgrDocgroups']);
                     unset($_SESSION['mgrPermissions']);
 
-                    setcookie($cookieName, '', time() - 60, '/');
+                    setcookie($cookieName, '', time() - 60, MODX_BASE_URL);
                 } else {
                     if (isset($_COOKIE[session_name()])) {
-                        setcookie(session_name(), '', time() - 60, '/');
+                        setcookie(session_name(), '', time() - 60, MODX_BASE_URL);
                     }
-                    setcookie($cookieName, '', time() - 60, '/');
+                    setcookie($cookieName, '', time() - 60, MODX_BASE_URL);
                     session_destroy();
                 }
                 break;
@@ -561,7 +561,7 @@ class modManagers extends MODxAPI
             $remember = is_bool($remember) ? (60 * 60 * 24 * 365 * 5) : (int)$remember;
             $cookieValue = $this->get('username');
             $cookieExpires = time() + $remember;
-            setcookie($cookieName, $cookieValue, $cookieExpires, '/', '', $secure, true);
+            setcookie($cookieName, $cookieValue, $cookieExpires, MODX_BASE_URL, '', $secure, true);
         }
 
         return $this;

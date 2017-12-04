@@ -242,7 +242,7 @@ $widgets['welcome'] = array(
 				<div class="wm_buttons card-body"> 
 					<!--@IF:[[#hasPermission?key=new_user]] OR [[#hasPermission?key=edit_user]]--> 
 					<span class="wm_button">
-						<a href="index.php?a=75">
+						<a target="main" href="index.php?a=75">
 							<i class="[&icons_security_large&]" title="[%user_management_title%]"></i>
 							<span>[%user_management_title%]</span>
 						</a>
@@ -250,7 +250,7 @@ $widgets['welcome'] = array(
 					<!--@ENDIF--> 
 					<!--@IF:[[#hasPermission?key=new_web_user]] OR [[#hasPermission?key=edit_web_user]]--> 
 					<span class="wm_button">
-						<a href="index.php?a=99">
+						<a target="main" href="index.php?a=99">
 							<i class="[&icons_webusers_large&]" title="[%web_user_management_title%]"></i>
 							<span>[%web_user_management_title%]</span>
 						</a>
@@ -258,7 +258,7 @@ $widgets['welcome'] = array(
 					<!--@ENDIF--> 
 					<!--@IF:[[#hasPermission?key=new_module]] OR [[#hasPermission?key=edit_module]]--> 
 					<span class="wm_button">
-						<a href="index.php?a=106">
+						<a target="main" href="index.php?a=106">
 							<i class="[&icons_modules_large&]" title="[%manage_modules%]"></i>
 							<span>[%modules%]</span>
 						</a>
@@ -266,7 +266,7 @@ $widgets['welcome'] = array(
 					<!--@ENDIF--> 
 					<!--@IF:[[#hasAnyPermission:is(1)]] --> 
 					<span class="wm_button">
-						<a href="index.php?a=76">
+						<a target="main" href="index.php?a=76">
 							<i class="[&icons_resources_large&]" title="[%element_management%]"></i>
 							<span>[%elements%]</span>
 						</a>
@@ -274,7 +274,7 @@ $widgets['welcome'] = array(
 					<!--@ENDIF--> 
 					<!--@IF:[[#hasPermission?key=bk_manager]]--> 
 					<span class="wm_button">
-						<a href="index.php?a=93">
+						<a target="main" href="index.php?a=93">
 							<i class="[&icons_backup_large&]" title="[%bk_manager%]"></i>
 							<span>[%backup%]</span>
 						</a>
@@ -282,7 +282,7 @@ $widgets['welcome'] = array(
 					<!--@ENDIF--> 
 					<!--@IF:[[#hasPermission?key=help]] OR [[#hasPermission?key=edit_module]]--> 
 					<span class="wm_button">
-						<a href="index.php?a=9">
+						<a target="main" href="index.php?a=9">
 							<i class="[&icons_help_large&]" title="[%help%]"></i>
 							<span>[%help%]</span>
 						</a>
@@ -441,7 +441,7 @@ echo $content;
 function getTplWidget() { // recent document info
 	return '
 		<div class="[+cols+]" id="[+id+]">
-			<div class="card"[+bodyAttr+]>
+			<div class="card"[+cardAttr+]>
 				<div class="card-header"[+headAttr+]> <i class="fa [+icon+]"></i> [+title+] </div>
 				<div class="card-block"[+bodyAttr+]> [+body+] </div>
 			</div>

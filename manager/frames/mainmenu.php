@@ -101,7 +101,7 @@ if($modx->hasPermission('edit_template')) {
 	$sitemenu['element_templates'] = array(
 		'element_templates',
 		'elements',
-		'<i class="fa fa-newspaper-o"></i>' . $_lang['manage_templates'],
+		'<i class="fa fa-newspaper-o"></i>' . $_lang['manage_templates'] . '<i class="fa fa-angle-right toggle"></i>',
 		'index.php?a=76&tab=' . $tab++,
 		$_lang['manage_templates'],
 		'',
@@ -109,14 +109,14 @@ if($modx->hasPermission('edit_template')) {
 		'main',
 		0,
 		10,
-		'toggle-dropdown'
+		'dropdown-toggle'
 	);
 }
 if($modx->hasPermission('edit_template') && $modx->hasPermission('edit_snippet') && $modx->hasPermission('edit_chunk') && $modx->hasPermission('edit_plugin')) {
 	$sitemenu['element_tplvars'] = array(
 		'element_tplvars',
 		'elements',
-		'<i class="fa fa-list-alt"></i>' . $_lang['tmplvars'],
+		'<i class="fa fa-list-alt"></i>' . $_lang['tmplvars'] . '<i class="fa fa-angle-right toggle"></i>',
 		'index.php?a=76&tab=' . $tab++,
 		$_lang['tmplvars'],
 		'',
@@ -124,14 +124,14 @@ if($modx->hasPermission('edit_template') && $modx->hasPermission('edit_snippet')
 		'main',
 		0,
 		20,
-		'toggle-dropdown'
+		'dropdown-toggle'
 	);
 }
 if($modx->hasPermission('edit_chunk')) {
 	$sitemenu['element_htmlsnippets'] = array(
 		'element_htmlsnippets',
 		'elements',
-		'<i class="fa fa-th-large"></i>' . $_lang['manage_htmlsnippets'],
+		'<i class="fa fa-th-large"></i>' . $_lang['manage_htmlsnippets'] . '<i class="fa fa-angle-right toggle"></i>',
 		'index.php?a=76&tab=' . $tab++,
 		$_lang['manage_htmlsnippets'],
 		'',
@@ -139,14 +139,14 @@ if($modx->hasPermission('edit_chunk')) {
 		'main',
 		0,
 		30,
-		'toggle-dropdown'
+		'dropdown-toggle'
 	);
 }
 if($modx->hasPermission('edit_snippet')) {
 	$sitemenu['element_snippets'] = array(
 		'element_snippets',
 		'elements',
-		'<i class="fa fa-code"></i>' . $_lang['manage_snippets'],
+		'<i class="fa fa-code"></i>' . $_lang['manage_snippets'] . '<i class="fa fa-angle-right toggle"></i>',
 		'index.php?a=76&tab=' . $tab++,
 		$_lang['manage_snippets'],
 		'',
@@ -154,14 +154,14 @@ if($modx->hasPermission('edit_snippet')) {
 		'main',
 		0,
 		40,
-		'toggle-dropdown'
+		'dropdown-toggle'
 	);
 }
 if($modx->hasPermission('edit_plugin')) {
 	$sitemenu['element_plugins'] = array(
 		'element_plugins',
 		'elements',
-		'<i class="fa fa-plug"></i>' . $_lang['manage_plugins'],
+		'<i class="fa fa-plug"></i>' . $_lang['manage_plugins'] . '<i class="fa fa-angle-right toggle"></i>',
 		'index.php?a=76&tab=' . $tab++,
 		$_lang['manage_plugins'],
 		'',
@@ -169,7 +169,7 @@ if($modx->hasPermission('edit_plugin')) {
 		'main',
 		0,
 		50,
-		'toggle-dropdown'
+		'dropdown-toggle'
 	);
 }
 //$sitemenu['element_categories']     = array('element_categories','elements',$_lang['element_categories'],'index.php?a=76&tab=5',$_lang['element_categories'],'','new_template,edit_template,new_snippet,edit_snippet,new_chunk,edit_chunk,new_plugin,edit_plugin','main',1,60,'');
@@ -224,7 +224,7 @@ if($modx->hasPermission('new_module') || $modx->hasPermission('edit_module') || 
 
 if($modx->hasPermission('exec_module')) {
 	if($_SESSION['mgrRole'] != 1 && !empty($modx->config['use_udperms'])) {
-		$rs = $modx->db->query('SELECT DISTINCT sm.id, sm.name, sm,icon, mg.member
+		$rs = $modx->db->query('SELECT DISTINCT sm.id, sm.name, sm.icon, mg.member
 				FROM ' . $modx->getFullTableName('site_modules') . ' AS sm
 				LEFT JOIN ' . $modx->getFullTableName('site_module_access') . ' AS sma ON sma.module = sm.id
 				LEFT JOIN ' . $modx->getFullTableName('member_groups') . ' AS mg ON sma.usergroup = mg.user_group
@@ -258,7 +258,7 @@ if($modx->hasPermission('edit_user')) {
 	$sitemenu['user_management_title'] = array(
 		'user_management_title',
 		'users',
-		'<i class="fa fa fa-user"></i>' . $_lang['user_management_title'],
+		'<i class="fa fa fa-user"></i>' . $_lang['user_management_title'] . '<i class="fa fa-angle-right toggle"></i>',
 		'index.php?a=75',
 		$_lang['user_management_title'],
 		'',
@@ -266,7 +266,7 @@ if($modx->hasPermission('edit_user')) {
 		'main',
 		0,
 		10,
-		'toggle-dropdown'
+		'dropdown-toggle'
 	);
 }
 
@@ -274,7 +274,7 @@ if($modx->hasPermission('edit_web_user')) {
 	$sitemenu['web_user_management_title'] = array(
 		'web_user_management_title',
 		'users',
-		'<i class="fa fa-users"></i>' . $_lang['web_user_management_title'],
+		'<i class="fa fa-users"></i>' . $_lang['web_user_management_title'] . '<i class="fa fa-angle-right toggle"></i>',
 		'index.php?a=99',
 		$_lang['web_user_management_title'],
 		'',
@@ -282,7 +282,7 @@ if($modx->hasPermission('edit_web_user')) {
 		'main',
 		0,
 		20,
-		'toggle-dropdown'
+		'dropdown-toggle'
 	);
 }
 
@@ -353,7 +353,7 @@ $sitemenu['refresh_site'] = array(
             'a', // tag
             'javascript:;', // href
             'btn btn-secondary', // class or btn-success
-            'modx.popup({url:\'index.php?a=26\', title:\'' . $_lang['refresh_site'] . '\', icon: \'fa-recycle\', iframe: \'ajax\', selector: \'.tab-page>.container\', position: \'right top\', width: \'auto\', maxheight: \'50%\'})', // onclick
+            'modx.popup({url:\'index.php?a=26\', title:\'' . $_lang['refresh_site'] . '\', icon: \'fa-recycle\', iframe: \'ajax\', selector: \'.tab-page>.container\', position: \'right top\', width: \'auto\', maxheight: \'50%\', wrap: \'body\' })', // onclick
             $_lang['refresh_site'], // title
             '<i class="fa fa-recycle"></i>' // innerHTML
         )
@@ -458,5 +458,8 @@ $menu = new EVOmenu();
 $menu->Build($sitemenu, array(
 	'outerClass' => 'nav',
 	'innerClass' => 'dropdown-menu',
-	'parentClass' => 'dropdown'
+	'parentClass' => 'dropdown',
+    'parentLinkClass' => 'dropdown-toggle',
+    'parentLinkAttr' => '',
+    'parentLinkIn' => ''
 ));

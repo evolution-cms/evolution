@@ -171,7 +171,8 @@ if ($modx->config['manager_theme'] == 'default') {
           not_deleted: "<?= $_lang['not_deleted'] ?>",
           unable_set_link: "<?= $_lang['unable_set_link'] ?>",
           unable_set_parent: "<?= $_lang['unable_set_parent'] ?>",
-          working: "<?= $_lang['working'] ?>"
+          working: "<?= $_lang['working'] ?>",
+          paging_prev: "<?= $_lang["paging_prev"] ?>"
         },
         style: {
           actions_file: '<?= addslashes($_style['actions_file']) ?>',
@@ -211,10 +212,15 @@ if ($modx->config['manager_theme'] == 'default') {
           ElementsInTree: <?= isset($modx->pluginCache['ElementsInTree']) ? 1 : 0 ?>,
           EVOmodal: <?= isset($modx->pluginCache['EVO.modal']) ? 1 : 0 ?>
         },
-        extend: function(a, b) {
-          for (var c in a) {
-            a[c] = b[c];
+        extend: function() {
+          for (var i = 1; i < arguments.length; i++) {
+            for (var key in arguments[i]) {
+              if (arguments[i].hasOwnProperty(key)) {
+                arguments[0][key] = arguments[i][key];
+              }
+            }
           }
+          return arguments[0];
         },
         extended: function(a) {
           for (var b in a) {
@@ -284,14 +290,14 @@ if ($modx->config['manager_theme'] == 'default') {
                                         <?php } ?>
                                         <?php if ($use_browser && $modx->hasPermission('assets_images')) { ?>
                                             <li>
-                                                <a onclick="" href="media/browser/mcpuk/browse.php?&type=images" target="main">
+                                                <a onclick="" href="media/browser/<?= $which_browser ?>/browse.php?&type=images" target="main">
                                                     <?= $_style['images_management'] ?><?= $_lang['images_management'] ?>
                                                 </a>
                                             </li>
                                         <?php } ?>
                                         <?php if ($use_browser && $modx->hasPermission('assets_files')) { ?>
                                             <li>
-                                                <a onclick="" href="media/browser/mcpuk/browse.php?&type=files" target="main">
+                                                <a onclick="" href="media/browser/<?= $which_browser ?>/browse.php?&type=files" target="main">
                                                     <?= $_style['files_management'] ?><?= $_lang['files_management'] ?>
                                                 </a>
                                             </li>

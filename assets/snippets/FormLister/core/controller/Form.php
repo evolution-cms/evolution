@@ -210,7 +210,7 @@ class Form extends Core
     {
         $attachments = array();
         foreach ($this->getFormData('files') as $files) {
-            if (is_null($files[0])) {
+            if (!isset($files[0])) {
                 $files = array($files);
             }
             foreach ($files as $file) {
@@ -222,7 +222,7 @@ class Form extends Core
 
         $userfiles = $this->config->loadArray($this->getCFGDef('attachFiles'));
         foreach ($userfiles as $field => $files) {
-            if (is_null($files[0])) {
+            if (!isset($files[0])) {
                 $files = array($files);
             }
             foreach ($files as $file) {
@@ -245,7 +245,7 @@ class Form extends Core
     {
         $fields = array();
         foreach ($this->getFormData('files') as $field => $files) {
-            if (is_null($files[0])) {
+            if (!isset($files[0])) {
                 $files = array($files);
             }
             foreach ($files as $file) {
@@ -257,7 +257,7 @@ class Form extends Core
 
         $userfiles = $this->config->loadArray($this->getCFGDef('attachFiles'));
         foreach ($userfiles as $field => $files) {
-            if (is_null($files[0])) {
+            if (!isset($files[0])) {
                 $files = array($files);
             }
             foreach ($files as $file) {

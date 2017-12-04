@@ -14,7 +14,7 @@ $plugincode = $modx->db->escape($_POST['post']);
 $properties = $modx->db->escape($_POST['properties']);
 $disabled = $_POST['disabled'] == 'on' ? '1' : '0';
 $moduleguid = $modx->db->escape($_POST['moduleguid']);
-$sysevents = $_POST['sysevents'];
+$sysevents = !empty($_POST['sysevents']) ? $_POST['sysevents'] : array();
 $parse_docblock = $_POST['parse_docblock'] == '1' ? '1' : '0';
 $currentdate = time() + $modx->config['server_offset_time'];
 

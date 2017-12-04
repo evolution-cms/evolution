@@ -187,8 +187,8 @@ ul.breadcrumbs span::after { margin-left: 2em; font-family: FontAwesome; content
 /* [ SEARCHBAR ] */
 .searchbar input[type=text] { max-width: 10rem }
 /* [ WIDGETS ] */
-.widgets .card { margin-bottom: .75rem; border: 1px solid rgba(0,0,0,.1); border-radius: 3px; background-color: #fff; /*box-shadow: 0 0 0.1rem 0 rgba(0, 0, 0, 0.1), 0 0.1rem 0.3rem rgba(0, 0, 0, 0.05);*/ }
-.widgets .card-header { padding: .5rem 1rem; font-size: .9rem; color: #616a73; font-weight: 700; border: none; border-bottom: 1px solid rgba(0,0,0,.05); background-color: #fff; }
+.widgets .card { margin-bottom: .75rem; border: 1px solid rgba(0, 0, 0, .1); border-radius: 3px; background-color: #fff; /*box-shadow: 0 0 0.1rem 0 rgba(0, 0, 0, 0.1), 0 0.1rem 0.3rem rgba(0, 0, 0, 0.05);*/ }
+.widgets .card-header { padding: .5rem 1rem; font-size: .9rem; color: #616a73; font-weight: 700; border: none; border-bottom: 1px solid rgba(0, 0, 0, .05); background-color: #fff; }
 .widgets .card-header .fa { font-size: .9rem }
 .widgets .card-block { padding: 0; }
 .widgets .card-block .card-block p { padding: 0 1rem }
@@ -200,15 +200,27 @@ ul.breadcrumbs span::after { margin-left: 2em; font-family: FontAwesome; content
 .widgets .table tr th:last-child, .widgets .table tr td:last-child { padding-right: 1rem !important }
 .widgets .table .actions a .fa { margin: 0 .05rem; }
 /* widgets custom */
-.widgets #welcome .wm_buttons { text-align: center }
-.widgets #welcome .wm_button { display: inline-block; margin: 0 .15rem .5rem; }
-.widgets #welcome .wm_button a { display: inline-block; text-decoration: none; color: #646b7b; padding: .25rem; /*min-width: 6rem; background-color: #f9f9f9;*/ border-radius: 0.25rem; box-shadow: none; transition-duration: .5s }
-.widgets #welcome .wm_button a:hover { color: #373b46; }
+.widgets #welcome .wm_buttons { display: -ms-flexbox; display: flex; -ms-flex-wrap: wrap; flex-wrap: wrap; margin-bottom: 1rem; padding: 0; text-align: center; border-bottom: 1px solid rgba(0, 0, 0, .05); }
+.widgets #welcome .wm_button { max-width: 16.666667%; flex: 0 0 16.666667%; }
+.widgets #welcome .wm_button a { display: block; height: 100%; padding: 1rem 1rem .5rem; text-decoration: none; color: #646b7b; box-shadow: none; transition-duration: .5s }
+.widgets #welcome .wm_button a:hover { color: #373b46; background-color: rgba(93, 109, 202, 0.16) }
 .widgets #welcome .wm_button a .fa { display: inline-block; }
-.widgets #welcome .wm_button a .fa + span { display: block; font-size: .7rem; }
+.widgets #welcome .wm_button a .fa + span { display: block; padding: .5em 0; line-height: 1em; font-size: .7rem; }
 .widgets #modxrecent_widget .table.data tbody tr:not(:hover) { background-color: #fff }
 .widgets #modxrecent_widget .table.data tbody tr:nth-child(4n+1):not(:hover) { background-color: #f6f8f8 }
 .widgets #modxrecent_widget .table.data tbody tr:nth-child(2n) { background-color: #fff }
+@media (max-width: 1399px) {
+.widgets #welcome .wm_button { max-width: 20%; flex: 0 0 20%; }
+}
+@media (max-width: 1199px) {
+.widgets #welcome .wm_button { max-width: 25%; flex: 0 0 25%; }
+}
+@media (max-width: 991px) {
+.widgets #welcome .wm_button { max-width: 33.3333%; flex: 0 0 33.3333%; }
+}
+@media (max-width: 767px) {
+.widgets #welcome .wm_button { max-width: 50%; flex: 0 0 50%; }
+}
 /* [ DATEPICKER ] */
 .dp_container { position: absolute; z-index: 500; }
 .dp_cal { overflow: hidden; width: 220px; margin: 0.25rem 0; background-color: #fff; -webkit-box-shadow: 0 0.3rem 1rem rgba(0, 0, 0, 0.3); box-shadow: 0 0.3rem 1rem rgba(0, 0, 0, 0.3); }
@@ -227,7 +239,7 @@ ul.breadcrumbs span::after { margin-left: 2em; font-family: FontAwesome; content
 .dp_cal input { width: 68% !important }
 .dp_cal button { position: absolute; top: 0; right: 0; margin: 0 !important; width: 30% !important }
 /* datepicker icon clear */
-.clearDate { position: relative; margin: 0.5rem 0 0 -1.5rem; z-index:10; }
+.clearDate { position: relative; margin: 0.5rem 0 0 -1.5rem; z-index: 10; }
 /* [ GRID STYLE ] */
 .grid { width: 100%; background-color: #fff !important; border: 1px solid rgba(0, 0, 0, 0.1); border-collapse: collapse; }
 .grid thead, .grid tfoot { background-color: #e9e9e9 }
@@ -271,15 +283,15 @@ ul.sortableList li.ghost { z-index: 2; box-shadow: 0 0.25rem 1.5rem rgba(0, 0, 0
 .dark .tab-page, .dark .sectionBody .tab-page, .dark .tab-row .tab.selected, .dark .tab-row .tab.selected.hover, .dark .tab-row .tab.selected:before, .dark .tab-row .tab.selected span { background-color: #f9f9f9; }
 .dark, .dark .resourceTable .panel-heading { background: #ecf0f1 !important; }
 .dark .resourceTable .panel-heading:hover { background: #ecf0f1 !important; }
-.dark .multitv .list li.element a.copy, .multitv .list li.element a.remove { background: #f9f9f9 !important; }
+.dark .multitv .list li.element a.copy, .multitv .list li.element a.remove { background: transparent !important; }
 .dark .multitv .list li.element { background: #fefefe !important; }
 .dark .split { border-color: rgba(0, 0, 0, .05) }
 .dark hr { background: transparent; }
-.dark .content-blocks .block { background: #fefefe; border: 1px solid #e3e3e3; }
-.dark .content-blocks .block .fields-group { border: 1px dashed #e2e2e2; }
+/*.dark .content-blocks .block { background: #fefefe; border: 1px solid #e3e3e3; }
+.dark .content-blocks .block .fields-group { border: 1px dashed #e2e2e2; }*/
 .dark .content-blocks input[type="text"], .dark .content-blocks input[type="password"], .dark .content-blocks input[type="number"], .dark .content-blocks textarea { background-color: #fbfbfb !important; border-color: #dbdbdb !important; }
-.dark .content-blocks .controls { background: transparent !important; }
-.dark .widgets .card-header { color: #616a73; background-color: #fff;}
+.dark .content-blocks .controls { background: #f9f9f9 !important; }
+.dark .widgets .card-header { color: #616a73; background-color: #fff; }
 /*
  [ OTHERS COMPONENTS ] - this components need fix css
 */
@@ -309,45 +321,16 @@ form#docfinder div.tab-page { height: auto !important }
 #SimpleGallery .pagination { display: block }
 #SimpleGallery .sg_image { width: auto }
 /* multiTV */
-.multitv .list li.element a.copy, .multitv .list li.element a.remove { width: 25px !important; text-align: center; background: #fff !important; top: -10px !important; }
+.multitv .list li.element a.copy, .multitv .list li.element a.remove { width: 25px !important; text-align: center; background: transparent !important; top: -10px !important; }
 .multitv .list li.element { border-radius: .25rem; border: 1px solid rgba(0, 0, 0, .125); background: #fefefe !important; margin-bottom: 10px !important; }
-
 /* loginbox animation */
 @keyframes anim-loginbox {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+from { opacity: 0; transform: translateY(30px); }
+to { opacity: 1; transform: translateY(0); }
 }
 @-webkit-keyframes anim-loginbox {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+from { opacity: 0; transform: translateY(30px); }
+to { opacity: 1; transform: translateY(0); }
 }
-.loginbox {
-  -webkit-animation-name: anim-loginbox;
-  -webkit-animation-duration: .5s;
-  -webkit-animation-iteration-count: 1;
-  -webkit-animation-timing-function: ease;
-  -webkit-animation-fill-mode: forwards;
-  -moz-animation-name: anim-loginbox;
-  -moz-animation-duration: .5s;
-  -moz-animation-iteration-count: 1;
-  -moz-animation-timing-function: ease;
-  -moz-animation-fill-mode: forwards;
-  animation-name: anim-loginbox;
-  animation-duration: .5s;
-  animation-iteration-count: 1;
-  animation-timing-function: ease;
-  animation-fill-mode: forwards;
-}
+.loginbox { -webkit-animation-name: anim-loginbox; -webkit-animation-duration: .5s; -webkit-animation-iteration-count: 1; -webkit-animation-timing-function: ease; -webkit-animation-fill-mode: forwards; -moz-animation-name: anim-loginbox; -moz-animation-duration: .5s; -moz-animation-iteration-count: 1; -moz-animation-timing-function: ease; -moz-animation-fill-mode: forwards; animation-name: anim-loginbox; animation-duration: .5s; animation-iteration-count: 1; animation-timing-function: ease; animation-fill-mode: forwards; }
 /* end loginbox animation */

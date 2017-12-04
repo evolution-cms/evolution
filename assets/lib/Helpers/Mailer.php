@@ -28,7 +28,9 @@ class Mailer
     {
         $this->modx = $modx;
         $this->mail = new \MODxMailer();
-        $this->mail->init($modx);
+        if (method_exists('\MODxMailer', 'init')) {
+            $this->mail->init($modx);
+        }
         $this->config = $cfg;
         $this->debug = $debug;
         $this->applyMailConfig();

@@ -70,7 +70,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 			<input type="hidden" name="settings_version" value="<?php echo $modx->getVersionData('version'); ?>" />
 			<!-- this field is used to check site settings have been entered/ updated after install or upgrade -->
 			<?php if(!isset($settings_version) || $settings_version != $modx->getVersionData('version')) { ?>
-				<div class='sectionBody'><p><?php echo $_lang['settings_after_install']; ?></p></div>
+				<div class='sectionBody'><p class='element-edit-message-tab alert alert-warning'><?php echo $_lang['settings_after_install']; ?></p></div>
 			<?php } ?>
 			<div class="tab-pane" id="settingsPane">
 				<script type="text/javascript">

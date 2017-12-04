@@ -5288,7 +5288,7 @@ class DocumentParser
             return false;
         }
 
-        $results = array();
+        $results = null;
         foreach ($this->pluginEvent[$evtName] as $pluginName) { // start for loop
             if ($this->dumpPlugins) {
                 $eventtime = $this->getMicroTime();

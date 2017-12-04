@@ -153,7 +153,7 @@ class Content extends Form
                     if ($this->checkSubmitProtection() || $this->checkSubmitLimit()) {
                         return;
                     }
-                    if ($this->owner || !$this->getCFGDef('onlyUsers',1)) {
+                    if ($this->owner || !$this->getCFGDef('onlyUsers', 1)) {
                         $fields[$ownerField] = $this->owner;
                         $result = $this->content->create($fields)->save(true, $clearCache);
                     }
@@ -239,9 +239,11 @@ class Content extends Form
     public function getContentFields($flip = false)
     {
         $fields = array();
-        $contentFields = $this->config->loadArray($this->getCFGDef('contentFields'));
+        $contentFields = $this->getCFGDef('contentFields');
+        $contentFields = $this->config->loadArray($contentFields, '');
         if (!$contentFields) {
             $fields = $this->filterFields($this->getFormData('fields'), $this->allowedFields, $this->forbiddenFields);
+            $this->log('Unable to get juxtaposition of content fields', array('contentFields' => $fields));
         } else {
             if ($flip || ($this->mode == 'edit' && !$this->isSubmitted())) {
                 $contentFields = array_flip($contentFields);
@@ -252,6 +254,7 @@ class Content extends Form
                     $fields[$field] = $formField;
                 }
             }
+            $this->log('Juxtaposition of content fields', array('contentFields' => $fields));
         }
 
         return $fields;

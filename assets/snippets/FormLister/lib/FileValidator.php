@@ -2,7 +2,7 @@
 
 /**
  * Правила проверки файлов
- * Class fValidator
+ * Class FileValidator
  * @package FormLister
  */
 class FileValidator
