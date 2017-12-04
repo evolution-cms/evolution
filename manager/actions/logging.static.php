@@ -135,9 +135,7 @@ $logs = $modx->db->makeArray($rs);
                     <div class="col-sm-8 col-md-5 col-lg-4">
                         <div class="input-group">
                             <input type="text" id="datefrom" name="datefrom" class="form-control unstyled DatePicker" value="<?= isset($_REQUEST['datefrom']) ? $_REQUEST['datefrom'] : "" ?>" />
-                            <span class="input-group-addon">
-								<a class="text-danger" href="javascript:;" onclick="document.logging.datefrom.value=''; return true;" onmouseover="window.status='Don\'t set a date'; return true;" onmouseout="window.status=''; return true;"><i class="<?= $_style["actions_calendar_delete"] ?>"></i></a>
-							</span>
+                            <i onClick="document.logging.datefrom.value=''; return true;" class="clearDate <?php echo $_style["actions_calendar_delete"] ?>" title="<?php echo $_lang['remove_date']; ?>"></i>
                         </div>
                     </div>
                 </div>
@@ -146,9 +144,7 @@ $logs = $modx->db->makeArray($rs);
                     <div class="col-sm-8 col-md-5 col-lg-4">
                         <div class="input-group">
                             <input type="text" id="dateto" name="dateto" class="form-control unstyled DatePicker" value="<?= isset($_REQUEST['dateto']) ? $_REQUEST['dateto'] : "" ?>" />
-                            <span class="input-group-addon">
-								<a class="text-danger" href="javascript:;" onclick="document.logging.dateto.value=''; return true;" onmouseover="window.status='Don\'t set a date'; return true;" onmouseout="window.status=''; return true;"><i class="<?= $_style["actions_calendar_delete"] ?>"></i></a>
-							</span>
+                            <i onClick="document.logging.dateto.value=''; return true;" class="clearDate <?php echo $_style["actions_calendar_delete"] ?>" title="<?php echo $_lang['remove_date']; ?>"></i>
                         </div>
                     </div>
                 </div>

@@ -227,7 +227,7 @@ ul.breadcrumbs span::after { margin-left: 2em; font-family: FontAwesome; content
 .dp_cal input { width: 68% !important }
 .dp_cal button { position: absolute; top: 0; right: 0; margin: 0 !important; width: 30% !important }
 /* datepicker icon clear */
-.clearDate { position: relative; margin: 0.5rem 0 0 -1.5rem; }
+.clearDate { position: relative; margin: 0.5rem 0 0 -1.5rem; z-index:10; }
 /* [ GRID STYLE ] */
 .grid { width: 100%; background-color: #fff !important; border: 1px solid rgba(0, 0, 0, 0.1); border-collapse: collapse; }
 .grid thead, .grid tfoot { background-color: #e9e9e9 }

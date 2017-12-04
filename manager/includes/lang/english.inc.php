@@ -126,7 +126,7 @@ $_lang["configcheck_errorpage_unavailable"] = 'Your site\'s Error page is not av
 $_lang["configcheck_errorpage_unavailable_msg"] = 'This means that your Error page is not accessible to normal web surfers or does not exist. This can lead to a recursive looping condition and many errors in your site logs. Make sure there are no Webuser Groups assigned to the page.';
 $_lang["configcheck_errorpage_unpublished"] = 'Your site\'s Error page is not published or does not exist.';
 $_lang["configcheck_errorpage_unpublished_msg"] = 'This means that your Error page is inaccessible to the general public. Publish the page or make sure it is assigned to an existing Resource in your Site Tree in the Tools &gt; Configuration menu.';
-$_lang["configcheck_filemanager_path"] = 'The currently set <u>File Manager path</u> seems incorrect.';
+$_lang["configcheck_filemanager_path"] = 'The currently set <a href="/[+MGR_DIR+]/#?a=17&tab=5">File Manager path</a> seems incorrect.';
 $_lang["configcheck_filemanager_path_msg"] = 'This can happen for example by moving your installation to a different directory or server. Please check and update your Evo system configuration.';
 $_lang["configcheck_hide_warning"] = '<a href="javascript:hideConfigCheckWarning(\'%s\');"><em>Don\'t show this again.</em></a>';
 $_lang["configcheck_images"] = 'Images directory not writable';
@@ -139,7 +139,7 @@ $_lang["configcheck_notok"] = 'One or more configuration details didn\'t check o
 $_lang["configcheck_ok"] = 'Check passed OK - no warnings to report.';
 $_lang["configcheck_php_gdzip"] = 'GD and/or Zip PHP extensions not found';
 $_lang["configcheck_php_gdzip_msg"] = 'EVO needs the GD and Zip extension enabled for PHP. While EVO will work without them, you will not be able to take full advantage of the built-in File Manager, Image Editor or Captcha for logins.';
-$_lang["configcheck_rb_base_dir"] = 'The currently set <u>File base path</u> seems incorrect.';
+$_lang["configcheck_rb_base_dir"] = 'The currently set <a href="/[+MGR_DIR+]/#?a=17&tab=6">File base path</a> seems incorrect.';
 $_lang["configcheck_rb_base_dir_msg"] = 'This can happen for example by moving your installation to a different directory or server. Please check and update your Evo system configuration.';
 $_lang["configcheck_register_globals"] = 'register_globals is set to ON in your php.ini configuration file';
 $_lang["configcheck_register_globals_msg"] = 'This configuration makes your site much more susceptible to Cross Site Scripting (XSS) attacks. You should speak to your host about what you can do to disable this setting.';

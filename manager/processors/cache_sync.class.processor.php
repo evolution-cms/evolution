@@ -93,6 +93,13 @@ class synccache
             }
         }
 
+        if(function_exists('opcache_get_status')) {
+            $opcache = opcache_get_status();
+            if (!empty($opcache['opcache_enabled'])) {
+                opcache_reset();
+            }
+        }
+
         $this->buildCache($modx);
 
         $this->publishTimeConfig();
@@ -103,6 +110,9 @@ class synccache
             $total = count($deletedfiles);
             echo sprintf($_lang['refresh_cache'], $filesincache, $total);
             if ($total > 0) {
+                if (isset($opcache)) {
+                    echo '<p>Opcache empty.</p>';
+                }
                 echo '<p>' . $_lang['cache_files_deleted'] . '</p><ul>';
                 foreach ($deletedfiles as $deletedfile) {
                     echo '<li>' . $deletedfile . '</li>';

@@ -1456,7 +1456,7 @@
                 name: a.name || '',
                 uid: modx.getActionFromUrl(a.url, 2) ? 'home' : modx.urlToUid(a.url),
                 action: modx.main.getQueryVariable('a', a.url),
-                closeactions: ['6', '61', '62', '63'],
+                closeactions: ['6', '61', '62', '63', '94'],
                 reload: 0,
                 show: function(uid, title, callback) {
                   if (typeof uid === 'function') {

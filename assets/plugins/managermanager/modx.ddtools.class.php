@@ -427,27 +427,9 @@ class ddTools {
 				while ($doc = $modx->db->getRow($update_ids_res)){
 					//Перебираем массив TV
 					foreach ($update[1] as $val){
-						//Проверим, что id существует (а то ведь могли и именем ошибиться)
 						if (isset($val['id'])){
-							//Пробуем обновить значение нужной TV
-							$modx->db->update(
-								"`value` = '{$val['val']}'",
-								self::$tables['site_tmplvar_contentvalues'],
-								"`tmplvarid` = {$val['id']} AND `contentid` = {$doc['id']}"
-							);
-							
-							//Проверяем сколько строк нашлось при обновлении
-							preg_match('/Rows matched: (\d+)/', $modx->db->info(), $updatedRows);
-							
-							//Если ничего не обновилось (не нашлось)
-							if ($updatedRows[1] == 0){
-								//Добавляем значение нужной TV в базу
-								$modx->db->insert(
-									array('value' => $val['val'], 'tmplvarid' => $val['id'], 'contentid' => $doc['id']),
-									self::$tables['site_tmplvar_contentvalues']
-								);
-							}
-						}
+					        $modx->db->query('INSERT INTO ' . self::$tables['site_tmplvar_contentvalues'] . ' (contentid, tmplvarid, value) VALUES (' . $doc['id'] . ', ' . $val['id'] . ', "' . $val['val'] . '") ON DUPLICATE KEY UPDATE value = "' . $val['val'] . '"');
+					    }
 					}
 				}
 			}

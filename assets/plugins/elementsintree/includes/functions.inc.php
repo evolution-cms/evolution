@@ -57,7 +57,7 @@ function createElementsList($elmTable,$action,$nameField = 'name') {
     global $modx, $_lang, $modx_textdir;
     
     $field = array();
-    if    ($elmTable == 'site_plugins')  $field['disabled'] = '[+prefix+]site_plugins.disabled';
+    if    ($elmTable == 'site_htmlsnippets' || $elmTable == 'site_snippets' || $elmTable == 'site_plugins')  $field['disabled'] = "[+prefix+]{$elmTable}.disabled";
     elseif($elmTable == 'site_tmplvars') $field['caption']  = '[+prefix+]site_tmplvars.caption';
 
     $field['name']        = "[+prefix+]{$elmTable}.{$nameField}";
@@ -70,7 +70,7 @@ function createElementsList($elmTable,$action,$nameField = 'name') {
     $from[] = "[+prefix+]{$elmTable}";
     $from[] = "left join [+prefix+]categories on [+prefix+]{$elmTable}.category=[+prefix+]categories.id";
 
-    $orderby = in_array($elmTable, array('site_plugins','site_tmplvars')) ? '6,2' : '5,1';
+    $orderby = in_array($elmTable, array('site_tmplvars','site_htmlsnippets','site_snippets','site_plugins')) ? '6,2' : '5,1';
     
     $rs = $modx->db->select($field,$from,'',$orderby);
 
@@ -94,7 +94,7 @@ function createElementsList($elmTable,$action,$nameField = 'name') {
             $output .= '<div class="panel-heading"><span class="panel-title"><a class="accordion-toggle" id="toggle'.$elmTable.$row['catid'].'" href="#collapse'.$elmTable.$row['catid'].'" data-cattype="'.$elmTable.'" data-catid="'.$row['catid'].'" title="Click to toggle collapse. Shift+Click to toggle all."> '.$row['category'].'</a></span></div><div class="panel-collapse in '.$elmTable.'"  id="collapse'.$elmTable.$row['catid'].'"><ul>';
             $insideUl = 1;
         }
-        if ($elmTable == 'site_plugins') $class = $row['disabled'] ? ' class="disabledPlugin"' : '';
+        $class = !empty($row['disabled']) ? ' class="disabledPlugin"' : '';
         $lockIcon = renderLockIcon($elmTable, $row['id']);
         $output .= '<li class="eltree">'.$lockIcon.'<span'.$class.'><a href="index.php?id='.$row['id'].'&amp;a='.$action.'" title="'.strip_tags($row['description']).'" target="main" class="context-menu" data-type="'.$elmTable.'" data-id="'.$row['id'].'"><span class="elementname">'.$row['name'].'</span><small> (' . $row['id'] . ')</small></a>
           <a class="ext-ico" href="#" title="Open in new window" onclick="window.open(\'index.php?id='.$row['id'].'&a='.$action.'\',\'gener\',\'width=800,height=600,top=\'+((screen.height-600)/2)+\',left=\'+((screen.width-800)/2)+\',toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=no\')"> <small><i class="fa fa-external-link" aria-hidden="true"></i></small></a>'.($modx_textdir ? '&rlm;' : '').'</span>';

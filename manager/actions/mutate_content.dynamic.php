@@ -1160,7 +1160,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 									<td>
 										<input type="text" id="pub_date" <?= $mx_can_pub ?>name="pub_date" class="DatePicker" value="<?= ($content['pub_date'] == "0" || !isset($content['pub_date']) ? '' : $modx->toDateFormat($content['pub_date'])) ?>" onblur="documentDirty=true;" />
 										<a href="javascript:" onclick="document.mutate.pub_date.value=''; return true;" onmouseover="window.status='<?= $_lang['remove_date'] ?>'; return true;" onmouseout="window.status=''; return true;">
-											<i class="<?= $_style["actions_calendar"] ?>" title="<?= $_lang['remove_date'] ?>"></i></a>
+											<i class="<?= $_style["actions_calendar_delete"] ?>" title="<?= $_lang['remove_date'] ?>"></i></a>
 									</td>
 								</tr>
 								<tr>
@@ -1176,7 +1176,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 									<td>
 										<input type="text" id="unpub_date" <?= $mx_can_pub ?>name="unpub_date" class="DatePicker" value="<?= ($content['unpub_date'] == "0" || !isset($content['unpub_date']) ? '' : $modx->toDateFormat($content['unpub_date'])) ?>" onblur="documentDirty=true;" />
 										<a href="javascript:" onclick="document.mutate.unpub_date.value=''; return true;" onmouseover="window.status='<?= $_lang['remove_date'] ?>'; return true;" onmouseout="window.status=''; return true;">
-											<i class="<?= $_style["actions_calendar"] ?>" title="<?= $_lang['remove_date'] ?>"></i></a>
+											<i class="<?= $_style["actions_calendar_delete"] ?>" title="<?= $_lang['remove_date'] ?>"></i></a>
 									</td>
 								</tr>
 								<tr>
