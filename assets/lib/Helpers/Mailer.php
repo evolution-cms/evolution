@@ -91,8 +91,9 @@ class Mailer
         } elseif (empty($report)) {
             return false;
         }
-
-        $this->mail->Body = $report;
+		
+		// Если в дизайне сообщения или в теле сообщения имеются изображения, то они будут встроены.	
+        $this->mail->Body = $this->mail->msgHTML($report, MODX_BASE_PATH);
 
         $result = $this->mail->send();
         if ($result) {
@@ -116,8 +117,9 @@ class Mailer
             return false;
         }
 
-        $this->mail->Body = $report;
-
+        // Если в дизайне сообщения или в теле сообщения имеются изображения, то они будут встроены.	
+        $this->mail->Body = $this->mail->msgHTML($report, MODX_BASE_PATH);
+		
         $this->Body = $this->modx->removeSanitizeSeed($this->mail->Body);
         $this->Subject = $this->modx->removeSanitizeSeed($this->mail->Subject);
         try {
