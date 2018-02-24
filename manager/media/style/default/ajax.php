@@ -17,6 +17,7 @@ if (!isset($_SESSION['mgrValidated']) || !isset($_SERVER['HTTP_X_REQUESTED_WITH'
 
 $modx->sid = session_id();
 $modx->loadExtension("ManagerAPI");
+extract($modx->config, EXTR_OVERWRITE); // For correct function of native processors
 
 $_lang = array();
 include_once MODX_MANAGER_PATH . '/includes/lang/english.inc.php';
@@ -32,6 +33,8 @@ $docGroups = isset($_SESSION['mgrDocgroups']) && is_array($_SESSION['mgrDocgroup
 
 // set limit sql query
 $limit = !empty($modx->config['number_of_results']) ? (int) $modx->config['number_of_results'] : 100;
+
+$json = array();
 
 if (isset($action)) {
     switch ($action) {
@@ -481,8 +484,6 @@ if (isset($action)) {
         }
 
         case 'movedocument' : {
-            $json = array();
-
             if ($modx->hasPermission('new_document') && $modx->hasPermission('edit_document') && $modx->hasPermission('save_document')) {
                 $id = !empty($_REQUEST['id']) ? (int)$_REQUEST['id'] : '';
                 $parent = isset($_REQUEST['parent']) ? (int)$_REQUEST['parent'] : 0;
@@ -583,8 +584,7 @@ if (isset($action)) {
                 $json['errors'] = $_lang["error_no_privileges"];
             }
 
-            header('content-type: application/json');
-            echo json_encode($json, JSON_FORCE_OBJECT | JSON_UNESCAPED_UNICODE);
+            $modx->jsonResponse($json);
 
             break;
         }
@@ -614,5 +614,38 @@ if (isset($action)) {
 
             break;
         }
+        
+        /* Ajax-Button Actions */
+	    case 'publish.res': {
+		    $published = getDocumentTv('published');
+		    $state = $published == 0 ? 1 : 0;
+		    if($state) {
+			    require_once('../../../processors/publish_content.processor.php');
+		    } else {
+			    require_once('../../../processors/unpublish_content.processor.php');
+		    }
+		    $json['result'] = $state == 1 ? 'publish' : 'unpublish';
+			break;
+		}
+	    case 'delete.res': {
+		    $deleted = getDocumentTv('deleted');
+		    $state = $deleted == 0 ? 1 : 0;
+		    if($state) {
+			    require_once('../../../processors/delete_content.processor.php');
+		    } else {
+			    require_once('../../../processors/undelete_content.processor.php');
+		    }
+		    $json['result'] = $state == 1 ? 'delete' : 'undelete';
+			break;
+		}
     }
+    if(!empty($json)) $modx->jsonResponse($json);
+}
+
+function getDocumentTv($tv) {
+	global $modx, $_lang;
+	$modx->setAjaxMode(true);
+	$id = isset($_REQUEST['id'])? intval($_REQUEST['id']) : 0;
+	if($id==0) $modx->webAlertAndQuit($_lang["error_no_id"]);
+	return $modx->db->getValue($modx->db->select($tv, $modx->getFullTableName('site_content'), 'id=' . $id));
 }

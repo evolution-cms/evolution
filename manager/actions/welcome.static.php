@@ -524,9 +524,9 @@ function getRecentInfoList() {
 
 		if($modx->hasPermission('delete_document')) {
 			if($ph['deleted'] == 0) {
-				$delete_btn = '<a onclick="return confirm(\'[%confirm_delete_record%]\')" title="[%delete_resource%]" href="index.php?a=6&amp;id=[+id+]" target="main"><i class="fa fa-trash fa-fw"></i></a> ';
+				$delete_btn = '<a onclick="return confirm(\'[%confirm_delete_record%]\')" title="[%delete_resource%]" href="index.php?a=6&amp;id=[+id+]" target="main" data-ajaxaction="delete.res" data-id="[+id+]" data-element="row[+id+]"><i class="fa fa-trash fa-fw"></i></a> ';
 			} else {
-				$delete_btn = '<a onclick="return confirm(\'[%confirm_undelete%]\')" title="[%undelete_resource%]" href="index.php?a=63&amp;id=[+id+]" target="main"><i class="fa fa-arrow-circle-o-up fa-fw"></i></a> ';
+				$delete_btn = '<a onclick="return confirm(\'[%confirm_undelete%]\')" title="[%undelete_resource%]" href="index.php?a=63&amp;id=[+id+]" target="main" data-ajaxaction="delete.res" data-id="[+id+]" data-element="row[+id+]"><i class="fa fa-arrow-circle-o-up fa-fw"></i></a> ';
 			}
 			$ph['delete_btn'] = str_replace('[+id+]', $docid, $delete_btn);
 		} else {
@@ -534,13 +534,13 @@ function getRecentInfoList() {
 		}
 
 		if($ph['deleted'] == 1 && $ph['published'] == 0) {
-			$publish_btn = '<a class="disabled" title="[%publish_resource%]" href="index.php?a=61&amp;id=[+id+]" target="main"><i class="fa fa-arrow-up fa-fw"></i></a> ';
+			$publish_btn = '<a class="disabled" title="[%publish_resource%]" href="index.php?a=61&amp;id=[+id+]" target="main" data-ajaxaction="publish.res" data-id="[+id+]" data-element="row[+id+]"><i class="fa fa-arrow-up fa-fw"></i></a> ';
 		} elseif($ph['deleted'] == 1 && $ph['published'] == 1) {
-			$publish_btn = '<a class="disabled" title="[%publish_resource%]" href="index.php?a=61&amp;id=[+id+]" target="main"><i class="fa fa-arrow-down fa-fw"></i></a> ';
+			$publish_btn = '<a class="disabled" title="[%publish_resource%]" href="index.php?a=61&amp;id=[+id+]" target="main" data-ajaxaction="publish.res" data-id="[+id+]" data-element="row[+id+]"><i class="fa fa-arrow-down fa-fw"></i></a> ';
 		} elseif($ph['deleted'] == 0 && $ph['published'] == 0) {
-			$publish_btn = '<a title="[%publish_resource%]" href="index.php?a=61&amp;id=[+id+]" target="main"><i class="fa fa-arrow-up fa-fw"></i></a> ';
+			$publish_btn = '<a title="[%publish_resource%]" href="index.php?a=61&amp;id=[+id+]" target="main" data-ajaxaction="publish.res" data-id="[+id+]" data-element="row[+id+]"><i class="fa fa-arrow-up fa-fw"></i></a> ';
 		} else {
-			$publish_btn = '<a title="[%unpublish_resource%]" href="index.php?a=62&amp;id=[+id+]" target="main"><i class="fa fa-arrow-down fa-fw"></i></a> ';
+			$publish_btn = '<a title="[%unpublish_resource%]" href="index.php?a=62&amp;id=[+id+]" target="main" data-ajaxaction="publish.res" data-id="[+id+]" data-element="row[+id+]"><i class="fa fa-arrow-down fa-fw"></i></a> ';
 		}
 		$ph['publish_btn'] = str_replace('[+id+]', $docid, $publish_btn);
 
@@ -566,7 +566,7 @@ function getRecentInfoList() {
 
 function getRecentInfoRowTpl() {
 	$tpl = '
-						<tr>
+						<tr id="row[+id+]">
 							<td data-toggle="collapse" data-target=".collapse[+id+]" class="text-right"><span class="label label-info">[+id+]</span></td>
 							<td data-toggle="collapse" data-target=".collapse[+id+]"><a class="[+status+]" title="[%edit_resource%]" href="index.php?a=3&amp;id=[+id+]" target="main">[+pagetitle+]</a></td>
 							<td data-toggle="collapse" data-target=".collapse[+id+]" class="text-right text-nowrap">[+editedon:math("%s+[(server_offset_time)]"):dateFormat+]</td>

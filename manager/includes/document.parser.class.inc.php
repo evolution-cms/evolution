@@ -80,6 +80,7 @@ class DocumentParser
     public $sid;
     private $q;
     public $decoded_request_uri;
+    public $ajaxMode = false;
 
     /**
      * Document constructor
@@ -3039,6 +3040,7 @@ class DocumentParser
     function webAlertAndQuit($msg, $url = "")
     {
         global $modx_manager_charset;
+        if($this->ajaxMode === true) $this->jsonResponse(array('error'=>$msg));
         if (substr(strtolower($url), 0, 11) == "javascript:") {
             $fnc = substr($url, 11);
         } elseif ($url) {
@@ -3047,7 +3049,7 @@ class DocumentParser
             $fnc = "history.back(-1);";
         }
         echo "<html><head>
-            <title>MODX :: Alert</title>
+            <title>EVO :: Alert</title>
             <meta http-equiv=\"Content-Type\" content=\"text/html; charset={$modx_manager_charset};\">
             <script>
                 function __alertQuit() {
@@ -6476,6 +6478,25 @@ class DocumentParser
     {
         $this->loadExtension('PHPCOMPAT');
         return $this->phpcompat->htmlspecialchars($str, $flags, $encode);
+    }
+
+    /**
+     * Sets ajaxMode to handle ajax-requests, error-msg etc correctly
+     *
+     * @param boolean $state State of ajaxMode
+     */
+    function setAjaxMode($state) {
+        $this->ajaxMode = $state === true ? true : false;
+    }
+
+    /**
+     * Send array as JSON-object and exit
+     *
+     * @param array $array Array to convert
+     */
+    function jsonResponse($array) {
+        header('content-type: application/json');
+        exit(json_encode($array, JSON_FORCE_OBJECT | JSON_UNESCAPED_UNICODE));
     }
 
     /**

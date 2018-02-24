@@ -90,5 +90,7 @@ $_SESSION['itemname'] = $content['pagetitle'];
 $modx->clearCache('full');
 
 // finished emptying cache - redirect
-$header="Location: index.php?a=3&id=$pid&r=1".$add_path;
-header($header);
+if($modx->ajaxMode !== true) {
+	$header="Location: index.php?a=3&id=$pid&r=1".$add_path;
+	header($header);
+}
