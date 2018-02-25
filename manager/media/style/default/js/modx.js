@@ -331,6 +331,49 @@
         modx.search.result.innerHTML = '';
       }
     },
+    ajaxActions: {
+      els: null,
+      init: function() {
+        this.els = w.main.document.querySelectorAll('[data-ajaxaction]');
+        for (var key in this.els) {
+            if (this.els.hasOwnProperty(key)) {
+                this.els[key].onclick = function(e) {
+                    e.preventDefault();
+                    var el = e.target.parentNode;
+                    var action = el.getAttribute('data-ajaxaction');
+                    var id = el.getAttribute('data-id');
+                    var respEl = w.main.document.getElementById(el.getAttribute('data-element'));
+                    modx.post(modx.MODX_MANAGER_URL + 'media/style/default/ajax.php?r='+Math.floor((Math.random()*99999999)+1), {
+                        a: action,
+                        id: id
+                    }, function(resp) {
+                        var data = JSON.parse(resp);
+                        // console.log(respEl, action, data.result);
+                        switch(action) {
+                            case 'publish.res':
+                                if(data.result == 'publish') respEl.classList.remove("unpublished");
+                                else if(data.result == 'unpublish') respEl.classList.add("unpublished");
+                                break;
+                            case 'delete.res':
+                                if(data.result == 'delete') respEl.classList.add("deleted");
+                                else if(data.result == 'undelete') respEl.classList.remove("deleted");
+                                break;
+                        }
+                        if(data.error) {
+                            modx.popup({
+                                type: 'warning',
+                                title: 'EVO :: Alert',
+                                position: 'top center alertQuit',
+                                content: data.error,
+                                wrap: 'body'
+                            });
+                        }
+                    })
+                };
+            }
+        }
+      }
+    },
     main: {
       id: 'main',
       idFrame: 'mainframe',
@@ -345,6 +388,7 @@
         if (modx.config.global_tabs) {
           w.main.document.addEventListener('click', modx.tabs, false);
         }
+        modx.ajaxActions.init();
         w.history.replaceState(null, d.title, modx.getActionFromUrl(w.main.location.search, 2) ? modx.MODX_MANAGER_URL : '#' + w.main.location.search);
         setTimeout('modx.tree.restoreTree()', 100);
       },
@@ -1583,7 +1627,7 @@
             };
             modx.popup({
               type: 'warning',
-              title: 'MODX :: Alert',
+              title: 'EVO :: Alert',
               position: 'top center alertQuit',
               content: message,
               wrap: 'body'
@@ -1967,7 +2011,7 @@
                 if (!!e.target.contentWindow.__alertQuit) {
                   modx.popup({
                     type: 'warning',
-                    title: 'MODX :: Alert',
+                    title: 'EVO :: Alert',
                     position: 'top center alertQuit',
                     content: e.target.contentWindow.document.body.querySelector('p').innerHTML
                   });
@@ -1991,6 +2035,7 @@
                   }
                 }
                 e.target.contentWindow.close = o.close;
+                modx.ajaxActions.init();
                 modx.main.stopWork();
               };
               o.el.lastChild.appendChild(o.frame);

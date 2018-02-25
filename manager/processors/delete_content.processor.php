@@ -6,7 +6,7 @@ if (!$modx->hasPermission('delete_document')) {
     $modx->webAlertAndQuit($_lang["error_no_privileges"]);
 }
 
-$id = isset($_GET['id'])? intval($_GET['id']) : 0;
+$id = isset($_REQUEST['id'])? intval($_REQUEST['id']) : 0;
 if ($id==0) {
     $modx->webAlertAndQuit($_lang["error_no_id"]);
 }
@@ -123,5 +123,7 @@ $_SESSION['itemname'] = $content['pagetitle'];
 $modx->clearCache('full');
 
 // finished emptying cache - redirect
-$header="Location: index.php?a=3&id=$pid&r=1".$add_path;
-header($header);
+if($modx->ajaxMode !== true) {
+	$header="Location: index.php?a=3&id=$pid&r=1".$add_path;
+	header($header);
+}

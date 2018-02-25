@@ -237,9 +237,11 @@ $modx->config['global_tabs'] = (int)($modx->config['global_tabs'] && ($user['rol
       <?php
       $opened = array_filter(array_map('intval', explode('|', $_SESSION['openedArray'])));
       echo (empty($opened) ? '' : 'modx.openedArray[' . implode("] = 1;\n		modx.openedArray[", $opened) . '] = 1;') . "\n";
+      if(filemtime(MODX_MANAGER_PATH.'media/style/'.$modx->config["manager_theme"].'/js/modx.js') > filemtime(MODX_MANAGER_PATH.'media/style/'.$modx->config["manager_theme"].'/js/modx.min.js')) $modxJs = 'modx.js';
+      else $modxJs = 'modx.min.js'; // For easier development
       ?>
     </script>
-    <script src="media/style/<?= $modx->config['manager_theme'] ?>/js/modx.min.js?v=<?= $lastInstallTime ?>"></script>
+    <script src="media/style/<?= $modx->config['manager_theme'] ?>/js/<?= $modxJs ?>?v=<?= $lastInstallTime ?>"></script>
     <?php if ($modx->config['show_picker'] != "0") { ?>
         <script src="media/script/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
         <script src="media/script/spectrum/spectrum.evo.min.js" type="text/javascript"></script>

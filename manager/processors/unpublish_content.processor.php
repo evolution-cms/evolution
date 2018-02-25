@@ -57,6 +57,7 @@ $_SESSION['itemname'] = $content['pagetitle'];
 // empty cache
 $modx->clearCache('full');
 
-$header="Location: index.php?a=3&id=$pid&r=1".$add_path;
-
-header($header);
+if($modx->ajaxMode !== true) {
+	$header="Location: index.php?a=3&id=$pid&r=1" . $add_path;
+	header($header);
+}
