@@ -21,7 +21,7 @@
 #mainMenu .nav > li .fa { min-width: 1em; line-height: 2.2rem; font-size: .9rem; vertical-align: top }
 #mainMenu #nav > li > a > .fa { display: none }
 #mainMenu #nav #bars { width: 3.5rem; text-align: center }
-#mainMenu #nav #bars a { padding: 0 1rem; }
+
 #mainMenu #nav #bars .fa { display: inline-block; min-width: 0.25rem; width: 1.5rem; margin: 0; text-align: center; overflow: hidden; -webkit-transition-duration: 0.15s; transition-duration: 0.15s }
 .sidebar-closed #mainMenu #nav #bars .fa { width: 0.25rem; }
 #mainMenu #system > a > .fa { font-size: 1.3rem }
@@ -93,7 +93,7 @@
 #mainMenu .nav > li > a, #mainMenu .nav .label_searchid, #mainMenu .nav > li .fa, #mainMenu .nav > li > a .icon { line-height: 3.1rem; }
 #mainMenu .nav > li > a .icon.photo { width: 2.5rem; height: 2.5rem; margin-top: .3rem; }
 #mainMenu .nav > li .fa { font-size: 1rem; }
-#mainMenu #nav > li > a { padding: 0 1.3rem; font-size: .875rem; }
+#mainMenu #nav > li > a {  font-size: .875rem; }
 #mainMenu #nav > li > a > .fa { display: none }
 #mainMenu .nav > li > a .icon .fa { line-height: 3rem; font-size: 1.5rem; }
 #mainMenu .nav > li > ul { -webkit-transform: scale(.9); transform: scale(.9); box-shadow: 0 0.5rem 3rem rgba(0, 0, 0, 0.4); }
