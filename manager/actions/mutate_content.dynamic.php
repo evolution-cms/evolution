@@ -951,8 +951,8 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                     $sort = 'cat.rank,cat.id,' . $sort;
                                 }
                                 $where = vsprintf("tvtpl.templateid='%s' AND (1='%s' OR ISNULL(tva.documentgroup) %s)", $vs);
-				$evtOut = $modx->invokeEvent('OnDocTVPrerender', array('id' => $id));
-                                if($evtOut && is_array($evtOut)) {
+				$evtOut = $modx->invokeEvent('OnDocTVPrerender', array('id' => $id, 'template' => $template));
+                                if ($evtOut && is_array($evtOut)) {
                                     $where .= implode(' ', $evtOut);
                                 }
                                 $rs = $modx->db->select($field, $from, $where, $sort);
