@@ -1009,6 +1009,7 @@ REPLACE INTO `{PREFIX}system_eventnames`
 ('1033','OnDocFormUnDelete','1','Documents'),
 ('1034','onBeforeMoveDocument','1','Documents'),
 ('1035','onAfterMoveDocument','1','Documents'),
+('1040','OnDocTVPrerender','1','Documents'),
 ('34','OnPluginFormPrerender','1','Plugins'),
 ('35','OnPluginFormRender','1','Plugins'),
 ('36','OnBeforePluginFormSave','1','Plugins'),
