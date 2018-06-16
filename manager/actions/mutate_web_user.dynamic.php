@@ -3,7 +3,7 @@ if( ! defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true) {
 	die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the EVO Content Manager instead of accessing this file directly.");
 }
 
-switch($modx->manager->action) {
+switch($modx->getManagerApi()->action) {
 	case 88:
 		if(!$modx->hasPermission('edit_web_user')) {
 			$modx->webAlertAndQuit($_lang["error_no_privileges"]);
@@ -22,29 +22,29 @@ $user = isset($_REQUEST['id']) ? (int)$_REQUEST['id'] : 0;
 
 
 // check to see the snippet editor isn't locked
-$rs = $modx->db->select('username', $modx->getFullTableName('active_users'), "action=88 AND id='{$user}' AND internalKey!='" . $modx->getLoginUserID() . "'");
-if($username = $modx->db->getValue($rs)) {
+$rs = $modx->getDatabase()->select('username', $modx->getDatabase()->getFullTableName('active_users'), "action=88 AND id='{$user}' AND internalKey!='" . $modx->getLoginUserID() . "'");
+if($username = $modx->getDatabase()->getValue($rs)) {
 	$modx->webAlertAndQuit(sprintf($_lang["lock_msg"], $username, "web user"));
 }
 // end check for lock
 
-if($modx->manager->action == '88') {
+if($modx->getManagerApi()->action == '88') {
 	// get user attributes
-	$rs = $modx->db->select('*', $modx->getFullTableName('web_user_attributes'), "internalKey = '{$user}'");
-	$userdata = $modx->db->getRow($rs);
+	$rs = $modx->getDatabase()->select('*', $modx->getDatabase()->getFullTableName('web_user_attributes'), "internalKey = '{$user}'");
+	$userdata = $modx->getDatabase()->getRow($rs);
 	if(!$userdata) {
 		$modx->webAlertAndQuit("No user returned!");
 	}
 
 	// get user settings
-	$rs = $modx->db->select('*', $modx->getFullTableName('web_user_settings'), "webuser = '{$user}'");
+	$rs = $modx->getDatabase()->select('*', $modx->getDatabase()->getFullTableName('web_user_settings'), "webuser = '{$user}'");
 	$usersettings = array();
-	while($row = $modx->db->getRow($rs)) $usersettings[$row['setting_name']] = $row['setting_value'];
+	while($row = $modx->getDatabase()->getRow($rs)) $usersettings[$row['setting_name']] = $row['setting_value'];
 	extract($usersettings, EXTR_OVERWRITE);
 
 	// get user name
-	$rs = $modx->db->select('*', $modx->getFullTableName('web_users'), "id = '{$user}'");
-	$usernamedata = $modx->db->getRow($rs);
+	$rs = $modx->getDatabase()->select('*', $modx->getDatabase()->getFullTableName('web_users'), "id = '{$user}'");
+	$usernamedata = $modx->getDatabase()->getRow($rs);
 	if(!$usernamedata) {
 		$modx->webAlertAndQuit("No user returned while getting username!");
 	}
@@ -64,8 +64,8 @@ $usernamedata['username'] = html_entity_decode($usernamedata['username'], ENT_NO
 
 // restore saved form
 $formRestored = false;
-if($modx->manager->hasFormValues()) {
-	$modx->manager->loadFormValues();
+if($modx->getManagerApi()->hasFormValues()) {
+	$modx->getManagerApi()->loadFormValues();
 	// restore post values
 	$userdata = array_merge($userdata, $_POST);
 	$userdata['dob'] = $modx->toTimeStamp($userdata['dob']);
@@ -195,7 +195,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 		echo implode("", $evtOut);
 	}
 	?>
-	<input type="hidden" name="mode" value="<?php echo $modx->manager->action; ?>" />
+	<input type="hidden" name="mode" value="<?php echo $modx->getManagerApi()->action; ?>" />
 	<input type="hidden" name="id" value="<?php echo $user ?>" />
 	<input type="hidden" name="blockedmode" value="<?php echo ($userdata['blocked'] == 1 || ($userdata['blockeduntil'] > time() && $userdata['blockeduntil'] != 0) || ($userdata['blockedafter'] < time() && $userdata['blockedafter'] != 0) || $userdata['failedlogins'] > 3) ? "1" : "0" ?>" />
 
@@ -225,24 +225,24 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 							<br /></td>
 					</tr>
 					<?php if(!empty($userdata['id'])) { ?>
-						<tr id="showname" style="display: <?php echo ($modx->manager->action == '88' && (!isset($usernamedata['oldusername']) || $usernamedata['oldusername'] == $usernamedata['username'])) ? $displayStyle : 'none'; ?> ">
-							<td colspan="3"><i class="<?php echo $_style["icons_user"] ?>"></i>&nbsp;<b><?php echo $modx->htmlspecialchars(!empty($usernamedata['oldusername']) ? $usernamedata['oldusername'] : $usernamedata['username']); ?></b> - <span class="comment"><a href="javascript:;" onClick="changeName();return false;"><?php echo $_lang["change_name"]; ?></a></span>
-								<input type="hidden" name="oldusername" value="<?php echo $modx->htmlspecialchars(!empty($usernamedata['oldusername']) ? $usernamedata['oldusername'] : $usernamedata['username']); ?>" />
+						<tr id="showname" style="display: <?php echo ($modx->getManagerApi()->action == '88' && (!isset($usernamedata['oldusername']) || $usernamedata['oldusername'] == $usernamedata['username'])) ? $displayStyle : 'none'; ?> ">
+							<td colspan="3"><i class="<?php echo $_style["icons_user"] ?>"></i>&nbsp;<b><?php echo $modx->getPhpCompat()->htmlspecialchars(!empty($usernamedata['oldusername']) ? $usernamedata['oldusername'] : $usernamedata['username']); ?></b> - <span class="comment"><a href="javascript:;" onClick="changeName();return false;"><?php echo $_lang["change_name"]; ?></a></span>
+								<input type="hidden" name="oldusername" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(!empty($usernamedata['oldusername']) ? $usernamedata['oldusername'] : $usernamedata['username']); ?>" />
 							</td>
 						</tr>
 					<?php } ?>
-					<tr id="editname" style="display:<?php echo $modx->manager->action == '87' || (isset($usernamedata['oldusername']) && $usernamedata['oldusername'] != $usernamedata['username']) ? $displayStyle : 'none'; ?>">
+					<tr id="editname" style="display:<?php echo $modx->getManagerApi()->action == '87' || (isset($usernamedata['oldusername']) && $usernamedata['oldusername'] != $usernamedata['username']) ? $displayStyle : 'none'; ?>">
 						<th><?php echo $_lang['username']; ?>:</th>
 						<td>&nbsp;</td>
-						<td><input type="text" name="newusername" class="inputBox" value="<?php echo $modx->htmlspecialchars(isset($_POST['newusername']) ? $_POST['newusername'] : $usernamedata['username']); ?>" onChange='documentDirty=true;' maxlength="100" /></td>
+						<td><input type="text" name="newusername" class="inputBox" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($_POST['newusername']) ? $_POST['newusername'] : $usernamedata['username']); ?>" onChange='documentDirty=true;' maxlength="100" /></td>
 					</tr>
 					<tr>
-						<th><?php echo $modx->manager->action == '87' ? $_lang['password'] . ":" : $_lang['change_password_new'] . ":"; ?></th>
+						<th><?php echo $modx->getManagerApi()->action == '87' ? $_lang['password'] . ":" : $_lang['change_password_new'] . ":"; ?></th>
 						<td>&nbsp;</td>
-						<td><input name="newpasswordcheck" type="checkbox" onClick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);"<?php echo $modx->manager->action == "87" ? " checked disabled" : ""; ?>>
-							<input type="hidden" name="newpassword" value="<?php echo $modx->manager->action == "87" ? 1 : 0; ?>" onChange="documentDirty=true;" />
+						<td><input name="newpasswordcheck" type="checkbox" onClick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);"<?php echo $modx->getManagerApi()->action == "87" ? " checked disabled" : ""; ?>>
+							<input type="hidden" name="newpassword" value="<?php echo $modx->getManagerApi()->action == "87" ? 1 : 0; ?>" onChange="documentDirty=true;" />
 							<br />
-							<span style="display:<?php echo $modx->manager->action == "87" ? "block" : "none"; ?>" id="passwordBlock">
+							<span style="display:<?php echo $modx->getManagerApi()->action == "87" ? "block" : "none"; ?>" id="passwordBlock">
 							<fieldset style="width:300px">
 								<legend><?php echo $_lang['password_gen_method']; ?></legend>
 								<input type=radio name="passwordgenmethod" value="g" <?php echo $_POST['passwordgenmethod'] == "spec" ? "" : 'checked="checked"'; ?> />
@@ -274,13 +274,13 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 					<tr>
 						<th><?php echo $_lang['user_full_name']; ?>:</th>
 						<td>&nbsp;</td>
-						<td><input type="text" name="fullname" class="inputBox" value="<?php echo $modx->htmlspecialchars(isset($_POST['fullname']) ? $_POST['fullname'] : $userdata['fullname']); ?>" onChange="documentDirty=true;" /></td>
+						<td><input type="text" name="fullname" class="inputBox" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($_POST['fullname']) ? $_POST['fullname'] : $userdata['fullname']); ?>" onChange="documentDirty=true;" /></td>
 					</tr>
 					<tr>
 						<th><?php echo $_lang['user_email']; ?>:</th>
 						<td>&nbsp;</td>
 						<td><input type="text" name="email" class="inputBox" value="<?php echo isset($_POST['email']) ? $_POST['email'] : $userdata['email']; ?>" onChange="documentDirty=true;" />
-							<input type="hidden" name="oldemail" value="<?php echo $modx->htmlspecialchars(!empty($userdata['oldemail']) ? $userdata['oldemail'] : $userdata['email']); ?>" /></td>
+							<input type="hidden" name="oldemail" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(!empty($userdata['oldemail']) ? $userdata['oldemail'] : $userdata['email']); ?>" /></td>
 					</tr>
 					<tr>
 						<th><?php echo $_lang['user_phone']; ?>:</th>
@@ -300,12 +300,12 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 					<tr>
 						<th><?php echo $_lang['user_street']; ?>:</th>
 						<td>&nbsp;</td>
-						<td><input type="text" name="street" class="inputBox" value="<?php echo $modx->htmlspecialchars($userdata['street']); ?>" onChange="documentDirty=true;" /></td>
+						<td><input type="text" name="street" class="inputBox" value="<?php echo $modx->getPhpCompat()->htmlspecialchars($userdata['street']); ?>" onChange="documentDirty=true;" /></td>
 					</tr>
 					<tr>
 						<th><?php echo $_lang['user_city']; ?>:</th>
 						<td>&nbsp;</td>
-						<td><input type="text" name="city" class="inputBox" value="<?php echo $modx->htmlspecialchars($userdata['city']); ?>" onChange="documentDirty=true;" /></td>
+						<td><input type="text" name="city" class="inputBox" value="<?php echo $modx->getPhpCompat()->htmlspecialchars($userdata['city']); ?>" onChange="documentDirty=true;" /></td>
 					</tr>
 					<tr>
 						<th><?php echo $_lang['user_state']; ?>:</th>
@@ -349,9 +349,9 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 					<tr>
 						<th><?php echo $_lang['comment']; ?>:</th>
 						<td>&nbsp;</td>
-						<td><textarea type="text" name="comment" class="inputBox" rows="5" onChange="documentDirty=true;"><?php echo $modx->htmlspecialchars(isset($_POST['comment']) ? $_POST['comment'] : $userdata['comment']); ?></textarea></td>
+						<td><textarea type="text" name="comment" class="inputBox" rows="5" onChange="documentDirty=true;"><?php echo $modx->getPhpCompat()->htmlspecialchars(isset($_POST['comment']) ? $_POST['comment'] : $userdata['comment']); ?></textarea></td>
 					</tr>
-					<?php if($modx->manager->action == '88') { ?>
+					<?php if($modx->getManagerApi()->action == '88') { ?>
 						<tr>
 							<th><?php echo $_lang['user_logincount']; ?>:</th>
 							<td>&nbsp;</td>
@@ -483,7 +483,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 				<table border="0" cellspacing="0" cellpadding="3" class="table table--edit table--editUser">
 					<tr>
 						<th><?php echo $_lang["user_photo"] ?></th>
-						<td><input onChange="documentDirty=true;" type='text' maxlength='255' name="photo" value="<?php echo $modx->htmlspecialchars(isset($_POST['photo']) ? $_POST['photo'] : $userdata['photo']); ?>" />
+						<td><input onChange="documentDirty=true;" type='text' maxlength='255' name="photo" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($_POST['photo']) ? $_POST['photo'] : $userdata['photo']); ?>" />
 							<input type="button" value="<?php echo $_lang['insert']; ?>" onClick="BrowseServer();" /></td>
 					</tr>
 					<tr>
@@ -500,9 +500,9 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 
 			$groupsarray = array();
 
-			if($modx->manager->action == '88') { // only do this bit if the user is being edited
-				$rs = $modx->db->select('webgroup', $modx->getFullTableName('web_groups'), "webuser='{$user}'");
-				$groupsarray = $modx->db->getColumn('webgroup', $rs);
+			if($modx->getManagerApi()->action == '88') { // only do this bit if the user is being edited
+				$rs = $modx->getDatabase()->select('webgroup', $modx->getDatabase()->getFullTableName('web_groups'), "webuser='{$user}'");
+				$groupsarray = $modx->getDatabase()->getColumn('webgroup', $rs);
 			}
 			// retain selected user groups between post
 			if(is_array($_POST['user_groups'])) {
@@ -514,8 +514,8 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 				<script type="text/javascript">tpUser.addTabPage(document.getElementById("tabPermissions"));</script>
 				<p><?php echo $_lang['access_permissions_user_message'] ?></p>
 				<?php
-				$rs = $modx->db->select('name, id', $modx->getFullTableName('webgroup_names'), '', 'name');
-				while($row = $modx->db->getRow($rs)) {
+				$rs = $modx->getDatabase()->select('name, id', $modx->getDatabase()->getFullTableName('webgroup_names'), '', 'name');
+				while($row = $modx->getDatabase()->getRow($rs)) {
 					echo '<label><input type="checkbox" name="user_groups[]" value="' . $row['id'] . '"' . (in_array($row['id'], $groupsarray) ? ' checked="checked"' : '') . ' />' . $row['name'] . '</label><br />';
 				}
 				}

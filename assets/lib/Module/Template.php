@@ -45,11 +45,11 @@ abstract class Template
 
     /**
      * Template constructor.
-     * @param \DocumentParser $modx
+     * @param \EvolutionCMS\Core $modx
      * @param bool $ajax
      * @param null $tplFolder
      */
-    public function __construct(\DocumentParser $modx, $ajax = false, $tplFolder = null)
+    public function __construct(\EvolutionCMS\Core $modx, $ajax = false, $tplFolder = null)
     {
         $this->_modx = $modx;
         self::$_ajax = (boolean)$ajax;

@@ -17,7 +17,7 @@ class modUsers extends MODxAPI
         ),
         'attribute' => array(
             'fullname'         => '',
-            'role'             => '',
+            'role'             => 0,
             'email'            => '',
             'phone'            => '',
             'mobilephone'      => '',
@@ -52,6 +52,11 @@ class modUsers extends MODxAPI
      */
     protected $givenPassword = '';
     protected $groupIds = array();
+    protected $userIdCache = array(
+        'attribute.internalKey' => '',
+        'attribute.email' => '',
+        'user.username' => ''
+    );
 
     /**
      * @var integer
@@ -60,11 +65,11 @@ class modUsers extends MODxAPI
 
     /**
      * MODxAPI constructor.
-     * @param DocumentParser $modx
+     * @param EvolutionCMS\Core $modx
      * @param bool $debug
      * @throws Exception
      */
-    public function __construct(DocumentParser $modx, $debug = false)
+    public function __construct(EvolutionCMS\Core $modx, $debug = false)
     {
         $this->setRememberTime(60 * 60 * 24 * 365 * 5);
         parent::__construct($modx, $debug);
@@ -136,13 +141,41 @@ class modUsers extends MODxAPI
     }
 
     /**
+     *
+     */
+    public function close()
+    {
+        parent::close();
+        $this->userIdCache = array(
+            'attribute.internalKey' => '',
+            'attribute.email' => '',
+            'user.username' => ''
+        );
+    }
+
+    /**
+     * @param $id
+     * @return mixed
+     */
+    protected function getUserId($id) {
+        $find = $this->findUser($id);
+        if ($find && !empty($this->userIdCache[$find])) {
+            $id = $this->userIdCache[$find];
+        } else {
+            $id = null;
+        }
+
+        return $id;
+    }
+
+    /**
      * @param $id
      * @return $this
      */
     public function edit($id)
     {
         $id = is_scalar($id) ? trim($id) : '';
-        if ($this->getID() != $id) {
+        if ($this->getUserId($id) != $id) {
             $this->close();
             $this->newDoc = false;
 
@@ -152,6 +185,9 @@ class modUsers extends MODxAPI
                 $this->set('editedon', time());
                 $this->editQuery($find, $id);
                 $this->id = empty($this->field['internalKey']) ? null : $this->get('internalKey');
+                $this->userIdCache['attribute.internalKey'] = $this->getID();
+                $this->userIdCache['attribute.email'] = $this->get('email');
+                $this->userIdCache['user.username'] = $this->get('username');
                 $this->store($this->toArray());
                 unset($this->field['id']);
                 unset($this->field['internalKey']);
@@ -170,9 +206,9 @@ class modUsers extends MODxAPI
         $result = $this->query("
             SELECT * from {$this->makeTable('web_user_attributes')} as attribute
             LEFT JOIN {$this->makeTable('web_users')} as user ON user.id=attribute.internalKey
-            WHERE BINARY {$find}='{$this->escape($id)}'
+            WHERE {$find}='{$this->escape($id)}'
         ");
-        $this->field = $this->modx->db->getRow($result);
+        $this->field = $this->modx->getDatabase()->getRow($result);
     }
 
     /**
@@ -192,9 +228,9 @@ class modUsers extends MODxAPI
                     session_regenerate_id(false);
                     $value = session_id();
                     if ($mid = $this->modx->getLoginUserID('mgr')) {
-                        $this->modx->db->query("UPDATE {$this->makeTable('active_user_locks')} SET `sid`='{$value}' WHERE `internalKey`={$mid}");
-                        $this->modx->db->query("UPDATE {$this->makeTable('active_user_sessions')} SET `sid`='{$value}' WHERE `internalKey`={$mid}");
-                        $this->modx->db->query("UPDATE {$this->makeTable('active_users')} SET `sid`='{$value}' WHERE `internalKey`={$mid}");
+                        $this->modx->getDatabase()->query("UPDATE {$this->makeTable('active_user_locks')} SET `sid`='{$value}' WHERE `internalKey`={$mid}");
+                        $this->modx->getDatabase()->query("UPDATE {$this->makeTable('active_user_sessions')} SET `sid`='{$value}' WHERE `internalKey`={$mid}");
+                        $this->modx->getDatabase()->query("UPDATE {$this->makeTable('active_users')} SET `sid`='{$value}' WHERE `internalKey`={$mid}");
                     }
                     break;
                 case 'editedon':
@@ -233,7 +269,7 @@ class modUsers extends MODxAPI
             return false;
         }
 
-        if (!$this->checkUnique('web_users', 'username')) {
+        if ($this->isChanged('username') && !$this->checkUnique('web_users', 'username')) {
             $this->log['UniqueUsername'] = 'username not unique <pre>' . print_r(
                 $this->get('username'),
                 true
@@ -242,7 +278,7 @@ class modUsers extends MODxAPI
             return false;
         }
 
-        if (!$this->checkUnique('web_user_attributes', 'email', 'internalKey')) {
+        if ($this->isChanged('username') && !$this->checkUnique('web_user_attributes', 'email', 'internalKey')) {
             $this->log['UniqueEmail'] = 'Email not unique <pre>' . print_r($this->get('email'), true) . '</pre>';
 
             return false;
@@ -270,7 +306,7 @@ class modUsers extends MODxAPI
         }
 
         if ($this->newDoc) {
-            $this->id = $this->modx->db->getInsertId();
+            $this->id = $this->modx->getDatabase()->getInsertId();
         }
 
         $this->saveQuery($fld);
@@ -281,7 +317,7 @@ class modUsers extends MODxAPI
                 continue;
             }
             $result = $this->query("SELECT `setting_value` FROM {$this->makeTable('web_user_settings')} WHERE `webuser` = '{$this->id}' AND `setting_name` = '{$key}'");
-            if ($this->modx->db->getRecordCount($result) > 0) {
+            if ($this->modx->getDatabase()->getRecordCount($result) > 0) {
                 $this->query("UPDATE {$this->makeTable('web_user_settings')} SET `setting_value` = '{$value}' WHERE `webuser` = '{$this->id}' AND `setting_name` = '{$key}';");
             } else {
                 $this->query("INSERT into {$this->makeTable('web_user_settings')} SET `webuser` = {$this->id},`setting_name` = '{$key}',`setting_value` = '{$value}';");
@@ -372,6 +408,9 @@ class modUsers extends MODxAPI
         return $flag;
     }
 
+    /**
+     * @return mixed
+     */
     protected function deleteQuery()
     {
         return $this->query("
@@ -415,8 +454,12 @@ class modUsers extends MODxAPI
      */
     public function checkBlock($id = 0)
     {
-        $tmp = clone $this;
-        if ($id && $tmp->getID() != $id) {
+        if ($this->getID()) {
+            $tmp = clone $this;
+        } else {
+            $tmp = $this;
+        }
+        if ($id && $tmp->getUserId($id) != $id) {
             $tmp->edit($id);
         }
         $now = time();
@@ -439,8 +482,12 @@ class modUsers extends MODxAPI
      */
     public function testAuth($id, $password, $blocker, $fire_events = false)
     {
-        $tmp = clone $this;
-        if ($id && $tmp->getID() != $id) {
+        if ($this->getID()) {
+            $tmp = clone $this;
+        } else {
+            $tmp = $this;
+        }
+        if ($id && $tmp->getUserId($id) != $id) {
             $tmp->edit($id);
         }
 
@@ -485,8 +532,8 @@ class modUsers extends MODxAPI
                     $fulltime = (int)$cookie[4];
                 }
                 $this->close();
-                $q = $this->modx->db->query("SELECT id FROM " . $this->makeTable('web_users') . " WHERE md5(username)='{$this->escape($cookie[0])}'");
-                $id = $this->modx->db->getValue($q);
+                $q = $this->modx->getDatabase()->query("SELECT id FROM " . $this->makeTable('web_users') . " WHERE md5(username)='{$this->escape($cookie[0])}'");
+                $id = $this->modx->getDatabase()->getValue($q);
                 if ($this->edit($id)
                     && null !== $this->getID()
                     && $this->get('password') == $cookie[1]
@@ -624,13 +671,13 @@ class modUsers extends MODxAPI
         $out = array();
         $user = $this->switchObject($userID);
         if (null !== $user->getID()) {
-            $web_groups = $this->modx->getFullTableName('web_groups');
-            $webgroup_access = $this->modx->getFullTableName('webgroup_access');
+            $web_groups = $this->modx->getDatabase()->getFullTableName('web_groups');
+            $webgroup_access = $this->modx->getDatabase()->getFullTableName('webgroup_access');
 
             $sql = "SELECT `uga`.`documentgroup` FROM {$web_groups} as `ug`
                 INNER JOIN {$webgroup_access} as `uga` ON `uga`.`webgroup`=`ug`.`webgroup`
                 WHERE `ug`.`webuser` = " . $user->getID();
-            $out = $this->modx->db->getColumn('documentgroup', $this->query($sql));
+            $out = $this->modx->getDatabase()->getColumn('documentgroup', $this->query($sql));
         }
         unset($user);
 
@@ -652,7 +699,7 @@ class modUsers extends MODxAPI
             $rs = $this->query("SELECT `ug`.`webgroup`, `ugn`.`name` FROM {$web_groups} as `ug`
                 INNER JOIN {$webgroup_names} as `ugn` ON `ugn`.`id`=`ug`.`webgroup`
                 WHERE `ug`.`webuser` = " . $user->getID());
-            while ($row = $this->modx->db->getRow($rs)) {
+            while ($row = $this->modx->getDatabase()->getRow($rs)) {
                 $out[$row['webgroup']] = $row['name'];
             }
         }

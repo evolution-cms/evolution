@@ -17,7 +17,7 @@ $params['prepare'] = trim(implode(",", $prepare), ',');
 if (!class_exists("DLSitemap")) {
     class DLSitemap
     {
-        public static function prepare(array $data, DocumentParser $modx, $_DocLister)
+        public static function prepare(array $data, EvolutionCMS\Core $modx, $_DocLister)
         {
             $data['date'] = !empty($data['editedon']) ? $data['editedon'] : $data['createdon'];
             $datediff = floor((time() - $data['date']) / 86400);

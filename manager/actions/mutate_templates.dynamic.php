@@ -3,7 +3,7 @@ if( ! defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true) {
 	die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the EVO Content Manager instead of accessing this file directly.");
 }
 
-switch($modx->manager->action) {
+switch($modx->getManagerApi()->action) {
 	case 16:
 		if(!$modx->hasPermission('edit_template')) {
 			$modx->webAlertAndQuit($_lang["error_no_privileges"]);
@@ -20,7 +20,7 @@ switch($modx->manager->action) {
 
 $id = isset($_REQUEST['id']) ? (int)$_REQUEST['id'] : 0;
 
-$tbl_site_templates = $modx->getFullTableName('site_templates');
+$tbl_site_templates = $modx->getDatabase()->getFullTableName('site_templates');
 
 // check to see the snippet editor isn't locked
 if($lockedEl = $modx->elementIsLocked(1, $id)) {
@@ -33,8 +33,8 @@ $modx->lockElement(1, $id);
 
 $content = array();
 if(!empty($id)) {
-	$rs = $modx->db->select('*', $tbl_site_templates, "id='{$id}'");
-	$content = $modx->db->getRow($rs);
+	$rs = $modx->getDatabase()->select('*', $tbl_site_templates, "id='{$id}'");
+	$content = $modx->getDatabase()->getRow($rs);
 	if(!$content) {
 		$modx->webAlertAndQuit("No database record has been found for this template.");
 	}
@@ -48,12 +48,12 @@ if(!empty($id)) {
 	$content['category'] = (int)$_REQUEST['catid'];
 }
 
-if($modx->manager->hasFormValues()) {
-	$modx->manager->loadFormValues();
+if($modx->getManagerApi()->hasFormValues()) {
+	$modx->getManagerApi()->loadFormValues();
 }
 
 $content = array_merge($content, $_POST);
-$selectable = $modx->manager->action == 19 ? 1 : $content['selectable'];
+$selectable = $modx->getManagerApi()->action == 19 ? 1 : $content['selectable'];
 
 // Add lock-element JS-Script
 $lockElementId = $id;
@@ -106,7 +106,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 	?>
 	<input type="hidden" name="a" value="20">
 	<input type="hidden" name="id" value="<?= $_REQUEST['id'] ?>">
-	<input type="hidden" name="mode" value="<?= $modx->manager->action ?>">
+	<input type="hidden" name="mode" value="<?= $modx->getManagerApi()->action ?>">
 
 	<h1>
 		<i class="fa fa-newspaper-o"></i><?= ($content['templatename'] ? $content['templatename'] . '<small>(' . $content['id'] . ')</small>' : $_lang['new_template']) ?><i class="fa fa-question-circle help"></i>
@@ -138,7 +138,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 						</label>
 						<div class="col-md-9 col-lg-10">
 							<div class="form-control-name clearfix">
-								<input name="templatename" type="text" maxlength="100" value="<?= $modx->htmlspecialchars($content['templatename']) ?>" class="form-control form-control-lg" onchange="documentDirty=true;">
+								<input name="templatename" type="text" maxlength="100" value="<?= $modx->getPhpCompat()->htmlspecialchars($content['templatename']) ?>" class="form-control form-control-lg" onchange="documentDirty=true;">
 								<?php if($modx->hasPermission('save_role')): ?>
 									<label class="custom-control" title="<?= $_lang['lock_template'] . "\n" . $_lang['lock_template_msg'] ?>" tooltip>
 										<input name="locked" type="checkbox"<?= ($content['locked'] == 1 ? ' checked="checked"' : '') ?> />
@@ -153,7 +153,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 					<div class="row form-row">
 						<label class="col-md-3 col-lg-2"><?= $_lang['template_desc'] ?></label>
 						<div class="col-md-9 col-lg-10">
-							<input name="description" type="text" maxlength="255" value="<?= $modx->htmlspecialchars($content['description']) ?>" class="form-control" onchange="documentDirty=true;">
+							<input name="description" type="text" maxlength="255" value="<?= $modx->getPhpCompat()->htmlspecialchars($content['description']) ?>" class="form-control" onchange="documentDirty=true;">
 						</div>
 					</div>
 					<div class="row form-row">
@@ -164,7 +164,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 								<?php
 								include_once(MODX_MANAGER_PATH . 'includes/categories.inc.php');
 								foreach(getCategories() as $n => $v) {
-									echo "<option value='" . $v['id'] . "'" . ($content["category"] == $v["id"] ? " selected='selected'" : "") . ">" . $modx->htmlspecialchars($v["category"]) . "</option>";
+									echo "<option value='" . $v['id'] . "'" . ($content["category"] == $v["id"] ? " selected='selected'" : "") . ">" . $modx->getPhpCompat()->htmlspecialchars($v["category"]) . "</option>";
 								}
 								?>
 							</select>
@@ -190,7 +190,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 				<span><?= $_lang['template_code'] ?></span>
 			</div>
 			<div class="section-editor clearfix">
-				<textarea dir="ltr" name="post" class="phptextarea" rows="20" onChange="documentDirty=true;"><?= (isset($content['post']) ? $modx->htmlspecialchars($content['post']) : $modx->htmlspecialchars($content['content'])) ?></textarea>
+				<textarea dir="ltr" name="post" class="phptextarea" rows="20" onChange="documentDirty=true;"><?= (isset($content['post']) ? $modx->getPhpCompat()->htmlspecialchars($content['post']) : $modx->getPhpCompat()->htmlspecialchars($content['content'])) ?></textarea>
 			</div>
 			<!-- HTML text editor end -->
 
@@ -199,21 +199,21 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 			<?php
 			$selectedTvs = array();
 			if(!isset($_POST['assignedTv'])) {
-				$rs = $modx->db->select(sprintf("tv.name AS tvname, tv.id AS tvid, tr.templateid AS templateid, tv.description AS tvdescription, tv.caption AS tvcaption, tv.locked AS tvlocked, if(isnull(cat.category),'%s',cat.category) AS category", $_lang['no_category']), sprintf("%s tv
+				$rs = $modx->getDatabase()->select(sprintf("tv.name AS tvname, tv.id AS tvid, tr.templateid AS templateid, tv.description AS tvdescription, tv.caption AS tvcaption, tv.locked AS tvlocked, if(isnull(cat.category),'%s',cat.category) AS category", $_lang['no_category']), sprintf("%s tv
                 LEFT JOIN %s tr ON tv.id=tr.tmplvarid
-                LEFT JOIN %s cat ON tv.category=cat.id", $modx->getFullTableName('site_tmplvars'), $modx->getFullTableName('site_tmplvar_templates'), $modx->getFullTableName('categories')), "templateid='{$id}'", "tr.rank DESC, tv.rank DESC, tvcaption DESC, tvid DESC"     // workaround for correct sort of none-existing ranks
+                LEFT JOIN %s cat ON tv.category=cat.id", $modx->getDatabase()->getFullTableName('site_tmplvars'), $modx->getDatabase()->getFullTableName('site_tmplvar_templates'), $modx->getDatabase()->getFullTableName('categories')), "templateid='{$id}'", "tr.rank DESC, tv.rank DESC, tvcaption DESC, tvid DESC"     // workaround for correct sort of none-existing ranks
 				);
-				while($row = $modx->db->getRow($rs)) {
+				while($row = $modx->getDatabase()->getRow($rs)) {
 					$selectedTvs[$row['tvid']] = $row;
 				}
 				$selectedTvs = array_reverse($selectedTvs, true);       // reverse ORDERBY DESC
 			}
 
 			$unselectedTvs = array();
-			$rs = $modx->db->select(sprintf("tv.name AS tvname, tv.id AS tvid, tr.templateid AS templateid, tv.description AS tvdescription, tv.caption AS tvcaption, tv.locked AS tvlocked, if(isnull(cat.category),'%s',cat.category) AS category, cat.id as catid", $_lang['no_category']), sprintf("%s tv
+			$rs = $modx->getDatabase()->select(sprintf("tv.name AS tvname, tv.id AS tvid, tr.templateid AS templateid, tv.description AS tvdescription, tv.caption AS tvcaption, tv.locked AS tvlocked, if(isnull(cat.category),'%s',cat.category) AS category, cat.id as catid", $_lang['no_category']), sprintf("%s tv
 	    LEFT JOIN %s tr ON tv.id=tr.tmplvarid
-	    LEFT JOIN %s cat ON tv.category=cat.id", $modx->getFullTableName('site_tmplvars'), $modx->getFullTableName('site_tmplvar_templates'), $modx->getFullTableName('categories')), "", "category, tvcaption");
-			while($row = $modx->db->getRow($rs)) {
+	    LEFT JOIN %s cat ON tv.category=cat.id", $modx->getDatabase()->getFullTableName('site_tmplvars'), $modx->getDatabase()->getFullTableName('site_tmplvar_templates'), $modx->getDatabase()->getFullTableName('categories')), "", "category, tvcaption");
+			while($row = $modx->getDatabase()->getRow($rs)) {
 				$unselectedTvs[$row['tvid']] = $row;
 			}
 
@@ -252,7 +252,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 					foreach($selectedTvs as $row) {
 						$desc = !empty($row['tvdescription']) ? '&nbsp;&nbsp;<small>(' . $row['tvdescription'] . ')</small>' : '';
 						$locked = $row['tvlocked'] ? ' <em>(' . $_lang['locked'] . ')</em>' : "";
-						$tvList .= sprintf('<li><label><input name="assignedTv[]" value="%s" type="checkbox" checked="checked" onchange="documentDirty=true;jQuery(\'#tvsDirty\').val(\'1\');"> %s <small>(%s)</small> - %s%s</label>%s <a href="index.php?id=%s&a=301&or=%s&oid=%s">%s</a></li>', $row['tvid'], $row['tvname'], $row['tvid'], $row['tvcaption'], $desc, $locked, $row['tvid'], $modx->manager->action, $id, $_lang['edit']);
+						$tvList .= sprintf('<li><label><input name="assignedTv[]" value="%s" type="checkbox" checked="checked" onchange="documentDirty=true;jQuery(\'#tvsDirty\').val(\'1\');"> %s <small>(%s)</small> - %s%s</label>%s <a href="index.php?id=%s&a=301&or=%s&oid=%s">%s</a></li>', $row['tvid'], $row['tvname'], $row['tvid'], $row['tvcaption'], $desc, $locked, $row['tvid'], $modx->getManagerApi()->action, $id, $_lang['edit']);
 					}
 					$tvList .= '</ul>';
 
@@ -278,7 +278,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 
 					$desc = !empty($row['tvdescription']) ? '&nbsp;&nbsp;<small>(' . $row['tvdescription'] . ')</small>' : '';
 					$locked = $row['tvlocked'] ? ' <em>(' . $_lang['locked'] . ')</em>' : "";
-					$tvList .= sprintf('<li><label><input name="assignedTv[]" value="%s" type="checkbox" onchange="documentDirty=true;jQuery(\'#tvsDirty\').val(\'1\');"> %s <small>(%s)</small> - %s%s</label>%s <a href="index.php?id=%s&a=301&or=%s&oid=%s">%s</a></li>', $row['tvid'], $row['tvname'], $row['tvid'], $row['tvcaption'], $desc, $locked, $row['tvid'], $modx->manager->action, $id, $_lang['edit']);
+					$tvList .= sprintf('<li><label><input name="assignedTv[]" value="%s" type="checkbox" onchange="documentDirty=true;jQuery(\'#tvsDirty\').val(\'1\');"> %s <small>(%s)</small> - %s%s</label>%s <a href="index.php?id=%s&a=301&or=%s&oid=%s">%s</a></li>', $row['tvid'], $row['tvname'], $row['tvid'], $row['tvcaption'], $desc, $locked, $row['tvid'], $modx->getManagerApi()->action, $id, $_lang['edit']);
 					$tvList .= '</li>';
 
 					$preCat = $row['category'];

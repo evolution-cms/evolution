@@ -22,10 +22,13 @@ class modxRTEbridge
     public $debug = false;                      // Enable/disable debug messages via HTML-comment
     public $debugMessages = array();            // Holds all messages - added by    $this->debugMessages[] = 'Message';
     public $ajaxSecHash = array();              // Holds security-hashes
+    private $mgrAction = null;
 
     public function __construct($editorKey = NULL, $bridgeConfig=array(), $tvOptions=array(), $basePath='')
     {
-        global $modx, $settings, $usersettings;
+        global $settings, $usersettings;
+
+        $modx = evolutionCMS();
 
         if ($editorKey == NULL) {
             exit('modxRTEbridge: No editorKey set in plugin-initialization.');
@@ -51,9 +54,11 @@ class modxRTEbridge
         $this->gSettingsCustom        = isset($bridgeConfig['gSettingsCustom']) ? $bridgeConfig['gSettingsCustom'] : array();
         $this->gSettingsDefaultValues = isset($bridgeConfig['gSettingsDefaultValues']) ? $bridgeConfig['gSettingsDefaultValues'] : array();
 
+        $this->mgrAction = $modx->getService(EvolutionCMS\Interfaces\ManagerApiInterface::class)->action;
+
         // Determine settings from Modx
-        $mgrAction = isset($modx->manager->action) ? $modx->manager->action : 11;
-        switch ($mgrAction) {
+        $this->mgrAction = $this->mgrAction ? $this->mgrAction : 11;
+        switch ($this->mgrAction) {
             // Create empty array()
             case 11:    // Create new user
                 $editorConfig = array();
@@ -84,7 +89,7 @@ class modxRTEbridge
         foreach($this->gSettingsRows as $param=>$row) {
             if(isset($row['defaultCheckbox']) && $row['defaultCheckbox']) {
                 $useGlobalName = $editorKey . '_' . $param . '_useglobal';
-                $this->modxParams[$param . '_useglobal'] = !empty($editorConfig[$useGlobalName]) || (isset($editorConfig[$useGlobalName]) && is_null($editorConfig[$useGlobalName])) ? '1' : '0';
+                $this->modxParams[$param . '_useglobal'] = !isset($editorConfig[$useGlobalName]) || !empty($editorConfig[$useGlobalName]) || (isset($editorConfig[$useGlobalName]) && is_null($editorConfig[$useGlobalName])) ? '1' : '0';
             }
         }
 
@@ -94,14 +99,14 @@ class modxRTEbridge
             // Handle defaultCheckbox
             if(isset($row['defaultCheckbox']) && $row['defaultCheckbox']) {
                 $useGlobalName = $editorKey . '_' . $param . '_useglobal';
-                $this->modxParams[$param . '_useglobal'] = !empty($editorConfig[$useGlobalName]) || (isset($editorConfig[$useGlobalName]) && is_null($editorConfig[$useGlobalName])) ? '1' : '0';
+                $this->modxParams[$param . '_useglobal'] = !isset($editorConfig[$useGlobalName]) || !empty($editorConfig[$useGlobalName]) || (isset($editorConfig[$useGlobalName]) && is_null($editorConfig[$useGlobalName])) ? '1' : '0';
             }
         };
 
         // Take over editor-configuration from Modx
         foreach ($modxParamsArr as $p) {
             $useGlobalName = $p . '_useglobal';
-            if (!in_array($mgrAction,array(11,12)) && isset($this->modxParams[$useGlobalName]) && $this->modxParams[$useGlobalName] == '1' && isset($modx->configGlobal[$editorKey . '_' . $p])) {
+            if (!in_array($this->mgrAction,array(11,12)) && isset($this->modxParams[$useGlobalName]) && $this->modxParams[$useGlobalName] == '1' && isset($modx->configGlobal[$editorKey . '_' . $p])) {
                 $value = $modx->configGlobal[$editorKey . '_' . $p];
             }
             else {
@@ -222,7 +227,7 @@ class modxRTEbridge
     // Renders complete JS-Script
     public function getEditorScript()
     {
-        global $modx;
+        $modx = evolutionCMS();
         $ph = array();
         $output = "<!-- modxRTEbridge {$this->editorKey} -->\n";
 
@@ -307,7 +312,7 @@ class modxRTEbridge
      */
     public function prepareDefaultPlaceholders($selector='', $render=true)
     {
-        global $modx;
+        $modx = evolutionCMS();
 
         if($render) {
             $ph['configString']    = $this->renderConfigString();
@@ -329,7 +334,7 @@ class modxRTEbridge
     // Init/load theme
     public function initTheme($selector)
     {
-        global $modx;
+        $modx = evolutionCMS();
 
         $this->theme = isset($this->tvOptions[$selector]['theme']) ? $this->tvOptions[$selector]['theme'] : $this->theme;
 
@@ -378,7 +383,7 @@ class modxRTEbridge
     // Renders String for initialization via JS
     public function renderConfigString()
     {
-        global $modx;
+        $modx = evolutionCMS();
 
         $config = array();
         $defaultPhs = $this->prepareDefaultPlaceholders('',false);
@@ -471,7 +476,7 @@ class modxRTEbridge
     // Adds initilization before </body> for frontend-editors
     public function addEditorScriptToBody()
     {
-        global $modx;
+        $modx = evolutionCMS();
 
         if (isset($_SESSION['usertype']) && $_SESSION['usertype'] == 'manager') {   // Show only when logged in manager
             // Add only once
@@ -502,7 +507,7 @@ class modxRTEbridge
     // Outputs Modx- / user-configuration settings
     public function getModxSettings()
     {
-        global $modx;
+        $modx = evolutionCMS();
         $params = &$this->pluginParams;
 
         if (defined('INTERFACE_RENDERED_' . $this->editorKey)) {
@@ -535,7 +540,7 @@ class modxRTEbridge
         $entermode = !empty($ph[$this->editorKey . '_entermode']) ? $ph[$this->editorKey . '_entermode'] : 'p';
         $ph['entermode_options'] = '<label><input name="[+name+]" type="radio" value="p" ' . $this->checked($entermode == 'p') . '/>' . $this->lang('entermode_opt1') . '</label><br />';
         $ph['entermode_options'] .= '<label><input name="[+name+]" type="radio" value="br" ' . $this->checked($entermode == 'br') . '/>' . $this->lang('entermode_opt2') . '</label>';
-        switch ($modx->manager->action) {
+        switch ($modx->getService(EvolutionCMS\Interfaces\ManagerApiInterface::class)->action) {
             case '11':
             case '12':
             case '119':
@@ -548,7 +553,7 @@ class modxRTEbridge
         $element_format = !empty($ph[$this->editorKey . '_element_format']) ? $ph[$this->editorKey . '_element_format'] : 'xhtml';
         $ph['element_format_options'] = '<label><input name="[+name+]" type="radio" value="xhtml" ' . $this->checked($element_format == 'xhtml') . '/>XHTML</label><br />';
         $ph['element_format_options'] .= '<label><input name="[+name+]" type="radio" value="html" ' . $this->checked($element_format == 'html') . '/>HTML</label>';
-        switch ($modx->manager->action) {
+        switch ($this->mgrAction) {
             case '11':
             case '12':
             case '119':
@@ -562,7 +567,7 @@ class modxRTEbridge
         $ph['schema_options'] = '<label><input name="[+name+]" type="radio" value="html4" ' . $this->checked($schema == 'html4') . '/>HTML4(XHTML)</label><br />';
         $ph['schema_options'] .= '<label><input name="[+name+]" type="radio" value="html5" ' . $this->checked($schema == 'html5') . '/>HTML5</label><br />';
         $ph['schema_options'] .= '<label><input name="[+name+]" type="radio" value="html5-strict" ' . $this->checked($schema == 'html5-strict') . '/>HTML5-strict</label>';
-        switch ($modx->manager->action) {
+        switch ($this->mgrAction) {
             case '11':
             case '12':
             case '119':
@@ -595,7 +600,7 @@ class modxRTEbridge
             $row['default'] = isset($this->gSettingsDefaultValues[$name]) ? '<span class="default-val" style="margin:0.5em 0;display:block">' . $this->lang('default') . '<i>' . $this->gSettingsDefaultValues[$name] . '</i></span>' : '';
 
             // Prepare Default-Checkboxes for user-settings
-            if(in_array($modx->manager->action, array(11,12)) && isset($row['defaultCheckbox']) && $row['defaultCheckbox']) {
+            if(in_array($this->mgrAction, array(11,12)) && isset($row['defaultCheckbox']) && $row['defaultCheckbox']) {
                 $useGlobalName          = $name . '_useglobal';
                 $useGlobal              = is_null($this->modxParams[$useGlobalName]) || !empty($this->modxParams[$useGlobalName]) ? '1' : '0';
                 $useGlobalBool          = $useGlobal ? true : false;
@@ -634,7 +639,7 @@ class modxRTEbridge
     // Replace all translation-placeholders
     public function replaceTranslations($output)
     {
-        global $modx;
+        $modx = evolutionCMS();
 
         $placeholderArr = $modx->getTagsFromContent($output, '[+', '+]');
         if (!empty($placeholderArr)) {
@@ -651,12 +656,12 @@ class modxRTEbridge
     // helpers for getModxSettings()
     public function getThemeNames()
     {
-        global $modx;
+        $modx = evolutionCMS();
         $params = $this->pluginParams;
 
         $themeDir = "{$params['base_path']}theme/";
 
-        switch ($modx->manager->action) {
+        switch ($this->mgrAction) {
             case '11':
             case '12':
             case '119':
@@ -687,7 +692,6 @@ class modxRTEbridge
 
     public function getSkinNames()
     {
-        global $modx;
         $params = $this->pluginParams;
 
         if (empty($params['skinsDirectory'])) {
@@ -696,7 +700,7 @@ class modxRTEbridge
 
         $skinDir = "{$params['base_path']}{$params['skinsDirectory']}";
 
-        switch ($modx->manager->action) {
+        switch ($this->mgrAction) {
             case '11':
             case '12':
             case '119':
@@ -732,12 +736,11 @@ class modxRTEbridge
 
     public function getSkinThemeNames()
     {
-        global $modx;
         $params = $this->pluginParams;
 
         $themeDir = "{$params['base_path']}{$params['skinthemeDirectory']}";
 
-        switch ($modx->manager->action) {
+        switch ($this->mgrAction) {
             case '11':
             case '12':
             case '119':
@@ -776,7 +779,8 @@ class modxRTEbridge
     // Init translations
     public function initLang($basePath)
     {
-        global $modx;
+        global $_lang;
+        $modx = evolutionCMS();
 
         // Init langArray once
         if (empty($this->langArr)) {
@@ -827,7 +831,7 @@ class modxRTEbridge
     // Get PluginConfiguration by Connectors
     public function getModxPluginConfiguration($pluginName)
     {
-        global $modx;
+        $modx = evolutionCMS();
 
         if( $pluginName != NULL ) {
             if (empty ($modx->config)) { $modx->getSettings(); };
@@ -879,7 +883,7 @@ class modxRTEbridge
 
     public function setEditableIds($editableIds)
     {
-        global $modx;
+        $modx = evolutionCMS();
 
         if(!empty($editableIds) && isset($editableIds[1])) {
             foreach ($editableIds[1] as $i=>$id)
@@ -890,7 +894,7 @@ class modxRTEbridge
     // Helper to avoid Placeholder-/Snippet-Execution for Frontend-Editors
     public function protectModxPhs()
     {
-        global $modx;
+        $modx = evolutionCMS();
 
         if(isset($modx->modxRTEbridge['editableIds']) && isset($_SESSION['mgrValidated'])) {
             foreach ($modx->modxRTEbridge['editableIds'] as $modxPh=>$x) {
@@ -962,7 +966,7 @@ class modxRTEbridge
      **************************************************************/
     public function getTemplateChunkList()
     {
-        global $modx;
+        $modx = evolutionCMS();
 
         $templatesArr = array();
 
@@ -1015,12 +1019,12 @@ class modxRTEbridge
 
     public function saveContentProcessor($rid, $ppPluginName, $ppEditableIds='editableIds')
     {
-        global $modx;
+        $modx = evolutionCMS();
 
         if ($rid > 0 && $modx->getLoginUserType() === 'manager')
         {
             if(!isset($_POST['secHash']) ||
-               !isset($_SESSION['modxRTEbridge']['secHash'][$rid]) ||
+                !isset($_SESSION['modxRTEbridge']['secHash'][$rid]) ||
                 $_POST['secHash'] != $_SESSION['modxRTEbridge']['secHash'][$rid]) return 'secHash invalid';
 
             $editableIds = explode(',', $_POST['phs']);

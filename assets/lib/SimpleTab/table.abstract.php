@@ -57,11 +57,11 @@ class dataTable extends \autoTable
         $ids = $this->sanitarIn($ids);
         $table = $this->makeTable($this->table);
         $rows = $this->query("SELECT MIN(`{$this->indexName}`) FROM {$table} WHERE `{$this->pkName}` IN ({$ids})");
-        $index = $this->modx->db->getValue($rows);
+        $index = $this->modx->getDatabase()->getValue($rows);
         $index = $index - 1;
         $this->query("SET @index := " . $index);
         $this->query("UPDATE {$table} SET `{$this->indexName}` = (@index := @index + 1) WHERE (`{$this->indexName}`>{$index} AND `{$this->rfName}`={$rid} AND `{$this->pkName}` NOT IN ({$ids})) ORDER BY `{$this->indexName}` ASC");
-        $out = $this->modx->db->getAffectedRows();
+        $out = $this->modx->getDatabase()->getAffectedRows();
 
         return $out;
     }
@@ -90,7 +90,7 @@ class dataTable extends \autoTable
             return false;
         }
         $rows = $this->query("SELECT count(`{$this->pkName}`) FROM {$table} WHERE `{$this->rfName}`={$rid}");
-        $index = $this->modx->db->getValue($rows);
+        $index = $this->modx->getDatabase()->getValue($rows);
         $cnt = count($ids);
         $ids = implode(',', $ids);
         if ($dir == 'top') {
@@ -103,7 +103,7 @@ class dataTable extends \autoTable
             $this->query("SET @index := " . ($cnt - 1));
         }
         $this->query("UPDATE {$table} SET `{$this->indexName}` = (@index := @index + 1) WHERE (`{$this->pkName}` NOT IN ({$ids})) AND `{$this->rfName}` = {$rid} ORDER BY `{$this->indexName}` ASC");
-        $out = $this->modx->db->getAffectedRows();
+        $out = $this->modx->getDatabase()->getAffectedRows();
 
         return $out;
     }
@@ -207,23 +207,23 @@ class dataTable extends \autoTable
         /* more refactoring  needed */
         if ($targetIndex < $sourceIndex) {
             if (($point == 'top' && $orderDir == 'asc') || ($point == 'bottom' && $orderDir == 'desc')) {
-                $this->modx->db->update(
+                $this->modx->getDatabase()->update(
                     "`{$this->indexName}`=`{$this->indexName}`+1",
                     $table,
                     "`{$this->indexName}`>={$targetIndex} AND `{$this->indexName}`<{$sourceIndex} AND `{$this->rfName}`={$rid}"
                 );
-                $rows = $this->modx->db->update(
+                $rows = $this->modx->getDatabase()->update(
                     "`{$this->indexName}`={$targetIndex}",
                     $table,
                     "`{$this->pkName}`={$sourceId}"
                 );
             } elseif (($point == 'bottom' && $orderDir == 'asc') || ($point == 'top' && $orderDir == 'desc')) {
-                $this->modx->db->update(
+                $this->modx->getDatabase()->update(
                     "`{$this->indexName}`=`{$this->indexName}`+1",
                     $table,
                     "`{$this->indexName}`>{$targetIndex} AND `{$this->indexName}`<{$sourceIndex} AND `{$this->rfName}`={$rid}"
                 );
-                $rows = $this->modx->db->update(
+                $rows = $this->modx->getDatabase()->update(
                     "`{$this->indexName}`=1+{$targetIndex}",
                     $table,
                     "`{$this->pkName}`={$sourceId}"
@@ -231,23 +231,23 @@ class dataTable extends \autoTable
             }
         } else {
             if (($point == 'bottom' && $orderDir == 'asc') || ($point == 'top' && $orderDir == 'desc')) {
-                $this->modx->db->update(
+                $this->modx->getDatabase()->update(
                     "`{$this->indexName}`=`{$this->indexName}`-1",
                     $table,
                     "`{$this->indexName}`<={$targetIndex} AND `{$this->indexName}`>={$sourceIndex} AND `{$this->rfName}`={$rid}"
                 );
-                $rows = $this->modx->db->update(
+                $rows = $this->modx->getDatabase()->update(
                     "`{$this->indexName}`={$targetIndex}",
                     $table,
                     "`{$this->pkName}`={$sourceId}"
                 );
             } elseif (($point == 'top' && $orderDir == 'asc') || ($point == 'bottom' && $orderDir == 'desc')) {
-                $this->modx->db->update(
+                $this->modx->getDatabase()->update(
                     "`{$this->indexName}`=`{$this->indexName}`-1",
                     $table,
                     "`{$this->indexName}`<{$targetIndex} AND `{$this->indexName}`>={$sourceIndex} AND `{$this->rfName}`={$rid}"
                 );
-                $rows = $this->modx->db->update(
+                $rows = $this->modx->getDatabase()->update(
                     "`{$this->indexName}`=-1+{$targetIndex}",
                     $table,
                     "`{$this->pkName}`={$sourceId}"

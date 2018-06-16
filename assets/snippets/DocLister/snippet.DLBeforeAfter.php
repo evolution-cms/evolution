@@ -77,7 +77,7 @@ $noRule = ($start >= 0) ? 'before' : 'after';
 if ($start < 0) {
     $start = abs($start) > $display ? ($start + $display) : 0;
 }
-$d = $modx->db->escape($currentDay);
+$d = $modx->getDatabase()->escape($currentDay);
 if ($dateSource == 'tv') {
     $params['tvSortType'] = 'TVDATETIME';
     $query = array(

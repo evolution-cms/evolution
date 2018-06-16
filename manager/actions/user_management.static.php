@@ -7,7 +7,7 @@ if(!$modx->hasPermission('edit_user')) {
 }
 
 // initialize page view state - the $_PAGE object
-$modx->manager->initPageViewState();
+$modx->getManagerApi()->initPageViewState();
 
 // get and save search string
 if($_REQUEST['op'] == 'reset') {
@@ -15,7 +15,7 @@ if($_REQUEST['op'] == 'reset') {
 	$_PAGE['vs']['search'] = '';
 } else {
 	$query = isset($_REQUEST['search']) ? $_REQUEST['search'] : $_PAGE['vs']['search'];
-	$sqlQuery = $modx->db->escape($query);
+	$sqlQuery = $modx->getDatabase()->escape($query);
 	$_PAGE['vs']['search'] = $query;
 }
 
@@ -25,8 +25,7 @@ $_PAGE['vs']['lm'] = $listmode;
 
 
 // context menu
-include_once MODX_MANAGER_PATH . "includes/controls/contextmenu.php";
-$cm = new ContextMenu("cntxm", 150);
+$cm = new \EvolutionCMS\Support\ContextMenu("cntxm", 150);
 $cm->addItem($_lang["edit"], "js:menuAction(1)", $_style["actions_edit"], (!$modx->hasPermission('edit_user') ? 1 : 0));
 $cm->addItem($_lang["delete"], "js:menuAction(2)", $_style["actions_delete"], (!$modx->hasPermission('delete_user') ? 1 : 0));
 echo $cm->render();
@@ -127,38 +126,37 @@ echo $cm->render();
 					if(!empty($sqlQuery)) {
 						$where .= (empty($where) ? "" : " AND ") . "((mu.username LIKE '{$sqlQuery}%') OR (mua.fullname LIKE '%{$sqlQuery}%') OR (mua.email LIKE '{$sqlQuery}%'))";
 					}
-					$ds = $modx->db->select("mu.id, mu.username, rname.name AS role, mua.fullname, mua.email, ELT(mua.gender, '{$_lang['user_male']}', '{$_lang['user_female']}', '{$_lang['user_other']}') AS gender, IF(mua.blocked,'{$_lang['yes']}','-') as blocked, mua.thislogin", $modx->getFullTableName('manager_users') . " AS mu 
-			INNER JOIN " . $modx->getFullTableName('user_attributes') . " AS mua ON mua.internalKey=mu.id 
-			LEFT JOIN " . $modx->getFullTableName('user_roles') . " AS rname ON mua.role=rname.id", $where, 'mua.blocked ASC, mua.thislogin DESC');
-					include_once MODX_MANAGER_PATH . "includes/controls/datagrid.class.php";
-					$grd = new DataGrid('', $ds, $modx->config['number_of_results']); // set page size to 0 t show all items
+					$ds = $modx->getDatabase()->select("mu.id, mu.username, rname.name AS role, mua.fullname, mua.email, IF(mua.blocked,'{$_lang['yes']}','-') as blocked, mua.thislogin, mua.logincount", $modx->getDatabase()->getFullTableName('manager_users') . " AS mu 
+			INNER JOIN " . $modx->getDatabase()->getFullTableName('user_attributes') . " AS mua ON mua.internalKey=mu.id 
+			LEFT JOIN " . $modx->getDatabase()->getFullTableName('user_roles') . " AS rname ON mua.role=rname.id", $where, 'mua.blocked ASC, mua.thislogin DESC');
+					$grd = new \EvolutionCMS\Support\DataGrid('', $ds, $modx->config['number_of_results']); // set page size to 0 t show all items
 					$grd->noRecordMsg = $_lang["no_records_found"];
 					$grd->cssClass = "table data";
 					$grd->columnHeaderClass = "tableHeader";
 					$grd->itemClass = "tableItem";
 					$grd->altItemClass = "tableAltItem";
-					$grd->fields = "id,username,fullname,role,email,gender,blocked,thislogin";
+					$grd->fields = "id,username,fullname,role,email,thislogin,logincount,blocked";
 					$grd->columns = implode(',', array(
 						$_lang["icon"],
 						$_lang["name"],
 						$_lang["user_full_name"],
 						$_lang['role'],
 						$_lang["email"],
-						$_lang["user_gender"],
-						$_lang["user_block"],
-						$_lang["login_button"]
+						$_lang["user_prevlogin"],
+						$_lang["user_logincount"],
+						$_lang["user_block"]
 					));
-					$grd->colWidths = "1%,,,,,,1%,1%";
-					$grd->colAligns = "center,,,,,center,center,right' nowrap='nowrap";
+					$grd->colWidths = "1%,,,,,1%,1%,1%";
+					$grd->colAligns = "center,,,,,right' nowrap='nowrap,right,center";
 					$grd->colTypes = implode('||', array(
 						'template:<a class="gridRowIcon" href="javascript:;" onclick="return showContentMenu([+id+],event);" title="' . $_lang['click_to_context'] . '"><i class="' . $_style['icons_user'] . '"></i></a>',
 						'template:<a href="index.php?a=12&id=[+id+]" title="' . $_lang['click_to_edit_title'] . '">[+value+]</a>',
 						'template:[+fullname+]',
 						'template:[+role+]',
 						'template:[+email+]',
-						'template:[+gender+]',
-						'template:[+blocked+]',
-						'date: ' . $modx->toDateFormat('[+thislogin+]', 'formatOnly') . ' %H:%M'
+						'date: ' . $modx->toDateFormat('[+thislogin+]', 'formatOnly') . ' %H:%M',
+						'template:[+logincount+]',
+						'template:[+blocked+]'
 					));
 					if($listmode == '1') {
 						$grd->pageSize = 0;

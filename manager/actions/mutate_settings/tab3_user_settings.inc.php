@@ -139,6 +139,20 @@
     <td class="comment"><?php echo $_lang['webpwdreminder_message'] ?></td>
   </tr>
   <tr>
+    <td colspan="2"><div class="split"></div></td>
+  </tr>
+  <tr>
+    <td nowrap class="warning" valign="top"><?php echo $_lang['allow_multiple_emails_title'] ?><br><small>[(allow_multiple_emails)]</small></td>
+    <td>
+      <?php echo wrap_label($_lang['yes'],form_radio('allow_multiple_emails','1'));?><br />
+      <?php echo wrap_label($_lang['no'], form_radio('allow_multiple_emails','0'));?>
+    </td>
+  </tr>
+  <tr>
+    <td width="200">&nbsp;</td>
+    <td class="comment"><?php echo $_lang['allow_multiple_emails_message'] ?></td>
+  </tr>
+  <tr>
     <td colspan="2">
         <?php
             // invoke OnUserSettingsRender event

@@ -19,15 +19,14 @@ if($newParentID < 0) $modx->webAlertAndQuit($_lang["error_movedocument2"]);
 $parents = $modx->getParentIds($newParentID);
 if (in_array($documentID, $parents))  $modx->webAlertAndQuit($_lang["error_movedocument2"]);
 
-$rs = $modx->db->select('parent', $modx->getFullTableName('site_content'), "id='{$documentID}'");
-$oldparent = $modx->db->getValue($rs);
+$rs = $modx->getDatabase()->select('parent', $modx->getDatabase()->getFullTableName('site_content'), "id='{$documentID}'");
+$oldparent = $modx->getDatabase()->getValue($rs);
 
 // check user has permission to move document to chosen location
 
 if ($use_udperms == 1) {
 	if ($oldparent != $newParentID) {
-		include_once MODX_MANAGER_PATH . "processors/user_documents_permissions.class.php";
-		$udperms = new udperms();
+		$udperms = new EvolutionCMS\Legacy\Permissions();
 		$udperms->user = $modx->getLoginUserID();
 		$udperms->document = $newParentID;
 		$udperms->role = $_SESSION['mgrRole'];
@@ -36,22 +35,6 @@ if ($use_udperms == 1) {
 			$modx->webAlertAndQuit($_lang["access_permission_parent_denied"]);
 		 }
 	}
-}
-
-/**
- * @param int $currDocID
- * @return array
- */
-function allChildren($currDocID) {
-	global $modx;
-	$children= array();
-	$currDocID = $modx->db->escape($currDocID);
-	$rs = $modx->db->select('id', $modx->getFullTableName('site_content'), "parent = '{$currDocID}'");
-	while ($child= $modx->db->getRow($rs)) {
-		$children[]= $child['id'];
-		$children= array_merge($children, allChildren($child['id']));
-	}
-	return $children;
 }
 
 $evtOut = $modx->invokeEvent("onBeforeMoveDocument", array (
@@ -70,27 +53,27 @@ if (is_array($evtOut) && count($evtOut) > 0){
 
 $children = allChildren($documentID);
 if (!array_search($newParentID, $children)) {
-	$modx->db->update(array(
+	$modx->getDatabase()->update(array(
 		'isfolder' => 1,
-	), $modx->getFullTableName('site_content'), "id='{$newParentID}'");
+	), $modx->getDatabase()->getFullTableName('site_content'), "id='{$newParentID}'");
 
-	$modx->db->update(array(
+	$modx->getDatabase()->update(array(
 		'parent'   => $newParentID,
 		'editedby' => $modx->getLoginUserID(),
 		'editedon' => time(),
-	), $modx->getFullTableName('site_content'), "id='{$documentID}'");
+	), $modx->getDatabase()->getFullTableName('site_content'), "id='{$documentID}'");
 
 	// finished moving the document, now check to see if the old_parent should no longer be a folder.
-	$rs = $modx->db->select('COUNT(*)', $modx->getFullTableName('site_content'), "parent='{$oldparent}'");
-	$limit = $modx->db->getValue($rs);
+	$rs = $modx->getDatabase()->select('COUNT(*)', $modx->getDatabase()->getFullTableName('site_content'), "parent='{$oldparent}'");
+	$limit = $modx->getDatabase()->getValue($rs);
 
 	if(!$limit>0) {
-		$modx->db->update(array(
+		$modx->getDatabase()->update(array(
 			'isfolder' => 0,
-		), $modx->getFullTableName('site_content'), "id='{$oldparent}'");
+		), $modx->getDatabase()->getFullTableName('site_content'), "id='{$oldparent}'");
 	}
 	// Set the item name for logger
-	$pagetitle = $modx->db->getValue($modx->db->select('pagetitle', $modx->getFullTableName('site_content'), "id='{$documentID}'"));
+	$pagetitle = $modx->getDatabase()->getValue($modx->getDatabase()->select('pagetitle', $modx->getDatabase()->getFullTableName('site_content'), "id='{$documentID}'"));
 	$_SESSION['itemname'] = $pagetitle;
 
 	$modx->invokeEvent("onAfterMoveDocument", array (

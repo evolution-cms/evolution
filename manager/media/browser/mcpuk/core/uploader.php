@@ -366,14 +366,14 @@ class uploader {
 
 
 	protected function getTransaliasSettings() {
-		global $modx;
+		$modx = evolutionCMS();
 
 		// Cleaning uploaded filename?
-		$setting = $modx->db->select('count(*)', $modx->getFullTableName('system_settings'), 'setting_name="clean_uploaded_filename" AND setting_value=1');
-		if ($modx->db->getValue($setting)>0) {
+		$setting = $modx->getDatabase()->select('count(*)', $modx->getDatabase()->getFullTableName('system_settings'), 'setting_name="clean_uploaded_filename" AND setting_value=1');
+		if ($modx->getDatabase()->getValue($setting)>0) {
 			// Transalias plugin active?
-			$res = $modx->db->select('properties', $modx->getFullTableName('site_plugins'), 'name="TransAlias" AND disabled=0');
-			if ($properties = $modx->db->getValue($res)) {
+			$res = $modx->getDatabase()->select('properties', $modx->getDatabase()->getFullTableName('site_plugins'), 'name="TransAlias" AND disabled=0');
+			if ($properties = $modx->getDatabase()->getValue($res)) {
 				$properties = $modx->parseProperties($properties, 'TransAlias', 'plugin');
 			} else {
 				$properties = NULL;
@@ -472,7 +472,7 @@ class uploader {
             return $this->label("The image is too big and/or cannot be resized.");
 
 
-	// CHECK FOR MODX MAX FILE SIZE                
+	// CHECK FOR MODX MAX FILE SIZE
 	$actualfilesize=filesize($file['tmp_name']);
 	if (isset($this->config['maxfilesize']) && $actualfilesize > $this->config['maxfilesize'])
 	    return $this->label("File is too big: ".$actualfilesize." Bytes. (max ".$this->config['maxfilesize']." Bytes)");
@@ -617,7 +617,7 @@ class uploader {
             try {
                 $img->image->setImageProperty('exif:Orientation', "1");
             } catch (Exception $e) {}
-        
+
         // WATERMARK
         if (isset($this->config['watermark']['file']) &&
             is_file($this->config['watermark']['file'])
@@ -634,12 +634,12 @@ class uploader {
         $type = exif_imagetype( $file );
 
         switch ( $type ) {
-            case IMAGETYPE_GIF: 
+            case IMAGETYPE_GIF:
                 return $img->output( 'gif', $options );
 
-            case IMAGETYPE_PNG: 
+            case IMAGETYPE_PNG:
                 return $img->output( 'png', $options );
-            
+
             default:
                 return $img->output( 'jpeg', array_merge( $options, array( 'quality' => $this->config['jpegQuality'] ) ) );
         }
@@ -682,7 +682,7 @@ class uploader {
             $height = imagesy( $img->image );
             $back   = image::factory( $this->imageDriver, array( $width, $height ) );
             $tile   = image::factory( $this->imageDriver, __DIR__ . '/../themes/' . $this->config['theme'] . '/img/bg_transparent.png' );
-            
+
             imagesettile( $back->image, $tile->image );
             imagefilledrectangle( $back->image, 0, 0, $width, $height, IMG_COLOR_TILED );
             imagecopy( $back->image, $img->image, 0, 0, 0, 0, $width, $height );

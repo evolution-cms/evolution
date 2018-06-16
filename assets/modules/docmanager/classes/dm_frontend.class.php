@@ -1,4 +1,5 @@
 <?php
+use \EvolutionCMS\Support\DataGrid;
 
 class DocManagerFrontend {
 	var $dm = null;
@@ -7,7 +8,6 @@ class DocManagerFrontend {
     function __construct(&$dm, &$modx) {
     	$this->dm = &$dm;
     	$this->modx = &$modx;
-    	include (MODX_MANAGER_PATH.'includes/controls/datagrid.class.php');
     }
     
     function getViews() {

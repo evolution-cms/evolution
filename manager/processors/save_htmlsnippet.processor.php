@@ -7,9 +7,9 @@ if (!$modx->hasPermission('save_chunk')) {
 }
 
 $id = (int)$_POST['id'];
-$snippet = $modx->db->escape($_POST['post']);
-$name = $modx->db->escape(trim($_POST['name']));
-$description = $modx->db->escape($_POST['description']);
+$snippet = $modx->getDatabase()->escape($_POST['post']);
+$name = $modx->getDatabase()->escape(trim($_POST['name']));
+$description = $modx->getDatabase()->escape($_POST['description']);
 $locked = $_POST['locked'] == 'on' ? 1 : 0;
 $disabled = $_POST['disabled'] == "on" ? '1' : '0';
 $currentdate = time() + $modx->config['server_offset_time'];
@@ -44,15 +44,15 @@ switch ($_POST['mode']) {
         ));
 
         // disallow duplicate names for new chunks
-        $rs = $modx->db->select('COUNT(*)', $modx->getFullTableName('site_htmlsnippets'), "name='{$name}'");
-        $count = $modx->db->getValue($rs);
+        $rs = $modx->getDatabase()->select('COUNT(*)', $modx->getDatabase()->getFullTableName('site_htmlsnippets'), "name='{$name}'");
+        $count = $modx->getDatabase()->getValue($rs);
         if ($count > 0) {
-            $modx->manager->saveFormValues(77);
+            $modx->getManagerApi()->saveFormValues(77);
             $modx->webAlertAndQuit(sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], $name), "index.php?a=77");
         }
 
         //do stuff to save the new doc
-        $newid = $modx->db->insert(array(
+        $newid = $modx->getDatabase()->insert(array(
             'name' => $name,
             'description' => $description,
             'snippet' => $snippet,
@@ -63,7 +63,7 @@ switch ($_POST['mode']) {
             'disabled' => $disabled,
             'createdon' => $currentdate,
             'editedon' => $currentdate
-        ), $modx->getFullTableName('site_htmlsnippets'));
+        ), $modx->getDatabase()->getFullTableName('site_htmlsnippets'));
 
         // invoke OnChunkFormSave event
         $modx->invokeEvent("OnChunkFormSave", array(
@@ -95,14 +95,14 @@ switch ($_POST['mode']) {
         ));
 
         // disallow duplicate names for chunks
-        $rs = $modx->db->select('COUNT(*)', $modx->getFullTableName('site_htmlsnippets'), "name='{$name}' AND id!='{$id}'");
-        if ($modx->db->getValue($rs) > 0) {
-            $modx->manager->saveFormValues(78);
+        $rs = $modx->getDatabase()->select('COUNT(*)', $modx->getDatabase()->getFullTableName('site_htmlsnippets'), "name='{$name}' AND id!='{$id}'");
+        if ($modx->getDatabase()->getValue($rs) > 0) {
+            $modx->getManagerApi()->saveFormValues(78);
             $modx->webAlertAndQuit(sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], $name), "index.php?a=78&id={$id}");
         }
 
         //do stuff to save the edited doc
-        $modx->db->update(array(
+        $modx->getDatabase()->update(array(
             'name' => $name,
             'description' => $description,
             'snippet' => $snippet,
@@ -112,7 +112,7 @@ switch ($_POST['mode']) {
             'editor_name' => $editor_name,
             'disabled' => $disabled,
             'editedon' => $currentdate
-        ), $modx->getFullTableName('site_htmlsnippets'), "id='{$id}'");
+        ), $modx->getDatabase()->getFullTableName('site_htmlsnippets'), "id='{$id}'");
 
         // invoke OnChunkFormSave event
         $modx->invokeEvent("OnChunkFormSave", array(

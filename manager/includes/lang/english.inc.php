@@ -126,7 +126,7 @@ $_lang["configcheck_errorpage_unavailable"] = 'Your site\'s Error page is not av
 $_lang["configcheck_errorpage_unavailable_msg"] = 'This means that your Error page is not accessible to normal web surfers or does not exist. This can lead to a recursive looping condition and many errors in your site logs. Make sure there are no Webuser Groups assigned to the page.';
 $_lang["configcheck_errorpage_unpublished"] = 'Your site\'s Error page is not published or does not exist.';
 $_lang["configcheck_errorpage_unpublished_msg"] = 'This means that your Error page is inaccessible to the general public. Publish the page or make sure it is assigned to an existing Resource in your Site Tree in the Tools &gt; Configuration menu.';
-$_lang["configcheck_filemanager_path"] = 'The currently set <a href="/[+MGR_DIR+]/#?a=17&tab=5">File Manager path</a> seems incorrect.';
+$_lang["configcheck_filemanager_path"] = 'The currently set <a href="index.php?a=17&tab=5">File Manager path</a> seems incorrect.';
 $_lang["configcheck_filemanager_path_msg"] = 'This can happen for example by moving your installation to a different directory or server. Please check and update your Evo system configuration.';
 $_lang["configcheck_hide_warning"] = '<a href="javascript:hideConfigCheckWarning(\'%s\');"><em>Don\'t show this again.</em></a>';
 $_lang["configcheck_images"] = 'Images directory not writable';
@@ -139,7 +139,7 @@ $_lang["configcheck_notok"] = 'One or more configuration details didn\'t check o
 $_lang["configcheck_ok"] = 'Check passed OK - no warnings to report.';
 $_lang["configcheck_php_gdzip"] = 'GD and/or Zip PHP extensions not found';
 $_lang["configcheck_php_gdzip_msg"] = 'EVO needs the GD and Zip extension enabled for PHP. While EVO will work without them, you will not be able to take full advantage of the built-in File Manager, Image Editor or Captcha for logins.';
-$_lang["configcheck_rb_base_dir"] = 'The currently set <a href="/[+MGR_DIR+]/#?a=17&tab=6">File base path</a> seems incorrect.';
+$_lang["configcheck_rb_base_dir"] = 'The currently set <a href="index.php?a=17&tab=6">File base path</a> seems incorrect.';
 $_lang["configcheck_rb_base_dir_msg"] = 'This can happen for example by moving your installation to a different directory or server. Please check and update your Evo system configuration.';
 $_lang["configcheck_register_globals"] = 'register_globals is set to ON in your php.ini configuration file';
 $_lang["configcheck_register_globals_msg"] = 'This configuration makes your site much more susceptible to Cross Site Scripting (XSS) attacks. You should speak to your host about what you can do to disable this setting.';
@@ -710,6 +710,7 @@ $_lang["plugin_priority"] = 'Edit Plugin Execution Order by Event';
 $_lang["plugin_priority_instructions"] = 'Drag to reorder the Plugins under each Event header. The first plugin to execute should go at the top.';
 $_lang["plugin_priority_title"] = 'Plugin Execution Order';
 $_lang["purge_plugin"] = 'Purge obsolete plugins';
+$_lang["purge_plugin_confirm"] = 'Are you sure you want to purge obsolete plugins?';
 $_lang["plugin_title"] = 'Create/edit Plugin';
 $_lang["preview"] = 'Preview';
 $_lang["preview_msg"] = 'This is a preview of your last saved changes. Click here to <a href="javascript:;" onclick="saveRefreshPreview();">Save and Refresh</a> your current changes';
@@ -1161,7 +1162,7 @@ $_lang["user_female"] = 'Female';
 $_lang["user_full_name"] = 'Full name';
 $_lang["user_gender"] = 'Gender';
 $_lang["user_is_blocked"] = 'This User is blocked!';
-$_lang["user_logincount"] = 'Number of logins';
+$_lang["user_logincount"] = 'Login count';
 $_lang["user_male"] = 'Male';
 $_lang["user_management_msg"] = 'Choose the Content Manager to edit. Content Manager Users are those Users who are allowed to log into the Content Manager';
 $_lang["user_management_title"] = 'Manager Users';
@@ -1205,6 +1206,8 @@ $_lang["webpwdreminder_message"] = 'Enter a message to be sent to your Web Users
 $_lang["webpwdreminder_title"] = 'Web Reminder Email';
 $_lang["websignupemail_message"] = 'Set the email message sent to Users when creating accounts including their username and password<br /><b>Note:</b> The following Placeholders are replaced by the Content Manager when the message is sent: <br /><br />[+sname+] - Name of your web site, <br />[+saddr+] - Your web site email address, <br />[+surl+] - Your site url, <br />[+uid+] - User\'s Login name or id, <br />[+pwd+] - User\'s password, <br />[+ufn+] - User\'s full name. <br /><br /><b>Leave the [+uid+] and [+pwd+] in the e-mail, or else the username and password won\'t be sent in the mail and your Users won\'t know their username or password!</b>';
 $_lang["websignupemail_title"] = 'Web Signup e-mail';
+$_lang["allow_multiple_emails_title"] = 'Duplicate Web User email address';
+$_lang["allow_multiple_emails_message"] = 'Allows Web Users to share the same email address for situations when a member may not have their own email address or there is just one family email address.<br/>Note: Any password reminder and registration logic will need to account for this option if set to yes.';
 $_lang["wednesday"] = 'Wednesday';
 $_lang["welcome_messages"] = 'Your Inbox contains <strong>%d</strong> message(s), of which <strong>%s</strong> are unread.';
 $_lang["welcome_title"] = 'Welcome to your EVO Content Manager';
@@ -1488,3 +1491,18 @@ $_lang['email_sender_method'] = 'The envelope sender of the message';
 $_lang['auto'] = 'Auto-detect';
 $_lang['use_emailsender'] = 'Use [(emailsender)] value';
 $_lang['email_sender_method_message'] = 'The envelope sender of the message. This will usually be turned into a Return-Path header by the receiver, and is the address that bounces will be sent to. Auto-detect will work in most cases.';
+
+$_lang['login_form_position_title'] = 'Login form postiton';
+$_lang['login_form_position_left'] = 'left';
+$_lang['login_form_position_center'] = 'center';
+$_lang['login_form_position_right'] = 'right';
+$_lang['login_logo_title'] = 'Login page logo image';
+$_lang['login_logo_message'] = 'Recomended login logo image width: 360px, type .png';
+$_lang['login_bg_title'] = 'Login page background image';
+$_lang['login_bg_message'] = 'Recomended login page background image width: 1920px  ';
+
+$_lang['manager_menu_position_title'] = 'Main menu position';
+$_lang['manager_menu_position_top'] = 'top';
+$_lang['manager_menu_position_left'] = 'left';
+
+$_lang['invalid_event_response'] = 'The %s event has ivalid output';

@@ -18,7 +18,7 @@ if(count($SystemAlertMsgQueque) > 0) {
 	});
 </script>
 <?php
-if(in_array($modx->manager->action, array(
+if(in_array($modx->getManagerApi()->action, array(
 	85,
 	27,
 	4,
@@ -29,7 +29,7 @@ if(in_array($modx->manager->action, array(
 	87,
 	88
 ))) {
-	echo $modx->manager->loadDatePicker($modx->config['mgr_date_picker_path']);
+	echo $modx->getManagerApi()->loadDatePicker($modx->config['mgr_date_picker_path']);
 }
 ?>
 </body>

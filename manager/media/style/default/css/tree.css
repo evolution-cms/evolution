@@ -1,4 +1,5 @@
 /* tree */
+#tree { font-size: 0.8125rem; }
 #treeloader { position: absolute; display: block; overflow: hidden; right: 0.3em; top: 0.15em; opacity: 0; visibility: hidden; -webkit-transition-duration: 0.5s; transition-duration: 0.5s }
 #treeloader .fa { font-size: 1em; }
 #treeloader.visible { opacity: 0.7; visibility: visible; -webkit-transition-duration: 0s; transition-duration: 0s }
@@ -9,13 +10,13 @@
 #treeMenu .treeButton:not(.disabled):active { background-color: #d5d5d5 }
 #treeMenu .treeButton .fa { display: block; width: 1.2em; height: 1.2em; margin: auto; line-height: 1.3em; font-size: 1.1em; }
 #treeMenu .treeButton.disabled { color: #777; opacity: 0.5 }
-#treeHolder { position: relative; z-index: 1; cursor: default; overflow: auto; height: 100%; max-height: calc(100% - 30px); white-space: nowrap }
+#treeHolder { position: relative; z-index: 1; cursor: default; overflow: auto; height: 100%; max-height: calc(100% - 30px); white-space: nowrap; padding-bottom:10px; }
 #treeHolder .rootNode { position: relative; }
-#treeHolder .rootNode a { display: block; overflow: hidden; padding: .55em 1em 0.5em 1em; text-overflow: ellipsis; color: #333; cursor: pointer; -webkit-transition-duration: 0.15s; transition-duration: 0.15s; font-weight: bold }
+#treeHolder .rootNode a { display: block; overflow: hidden; padding: 1em 1em 0.5em 1.25em; text-overflow: ellipsis; color: #333; cursor: pointer; -webkit-transition-duration: 0.15s; transition-duration: 0.15s; font-weight: bold }
 #treeHolder .rootNode a .fa { margin-right: 0.5em }
 #treeHolder .rootNode .icon { display: none; }
 #treeRoot { float: left; width: 100%; color: #333; }
-#treeRoot a { display: block; clear: both; overflow: hidden; text-decoration: none; padding: 0.1em 0 0.1em 2.2em; font-size: 1em; text-overflow: ellipsis; color: #333; cursor: default; -webkit-transition-duration: 0.15s; transition-duration: 0.15s }
+#treeRoot a { display: block; clear: both; overflow: hidden; text-decoration: none; padding-top: 0.1em; padding-bottom: 0.1em; padding-left: 2.5em !important; padding-right: 0; font-size: 1em; text-overflow: ellipsis; color: #333; cursor: default; -webkit-transition-duration: 0.15s; transition-duration: 0.15s }
 #treeRoot a:hover:not(.empty), #treeRoot a.current { background-color: rgba(33, 150, 243, 0.1) }
 #treeRoot a small { margin: 0 0.8em 0 0.2em }
 #treeRoot a.selected, #treeRoot .dragenter > a { background-color: rgba(0, 0, 0, 0.1); }
@@ -37,15 +38,12 @@
 #treeRoot .toggle { float: left; margin: 1px 0.2em 1px -1.5em; width: 1.3em; height: 1.3em; line-height: 1.4em; text-align: center; vertical-align: top; cursor: pointer; border-radius: 50%; -webkit-transition-duration: 0.15s; transition-duration: 0.15s }
 #treeRoot .toggle:hover { background-color: rgba(255, 255, 255, 0.5); }
 #treeRoot .toggle .fa { margin: 0; width: auto; }
-#treeRoot .fa, #treeHolder .rootNode .fa { margin-right: 1px; width: 1em; font-size: 1.1em; text-align: center; color: #565656; -webkit-transition-duration: 0.15s; transition-duration: 0.15s }
+#treeRoot .fa, #treeHolder .rootNode .fa { margin-right: 1px; width: 1em; font-size: 1.08em; text-align: center; color: #565656; -webkit-transition-duration: 0.15s; transition-duration: 0.15s }
 #treeRoot a[data-private="1"] .icon::after { position: relative; float: left; margin: .5em -1em 0 0; content: "\f023"; font-family: FontAwesome; font-size: 0.75em; color: #d9534f; }
 #treeRoot .fa-file, #treeRoot .fa-file-o, #treeRoot .fa-file-code, #treeRoot .fa-file-code-o { }
 #treeRoot .fa-folder, #treeRoot .fa-folder-open, #treeRoot .fa-folder-o, #treeRoot .fa-folder-open-o, #treeRoot .fa-exclamation-triangle { margin-top: 0.1em; text-align: left }
 #treeRoot .fa-link { margin-right: 0; font-size: 0.8em }
 #treeRoot #binFull { display: none }
-@media (min-width: 1200px) {
-#tree { font-size: .875rem; letter-spacing: 0.0321em; }
-}
 /* modes theme */
 /* lightness */
 .lightness #treeMenu { background-color: #e8e8e8 }
@@ -79,4 +77,4 @@
 /* darkness */
 .darkness #tree .treeframebody { background-color: #202329; border-color: #414449; }
 .darkness #treeMenu { background-color: #1a1c21; border-color: #414449; }
-
+.darkness #mainMenu .nav > li > ul > li, .dark.navbar-left #mainMenu .nav > li > ul > li { border-bottom-color: rgba(0, 0, 0, 0.15); }

@@ -92,8 +92,9 @@ class Profile extends Form
     {
         $result = true;
         if (is_scalar($value) && !is_null($fl->user) && ($fl->user->get("email") !== $value)) {
-            $fl->user->set('email', mb_strtolower($value));
-            $result = $fl->user->checkUnique('web_user_attributes', 'email', 'internalKey');
+            $user = clone($fl->user);
+            $user->set('email', $value);
+            $result = $user->checkUnique('web_user_attributes', 'email', 'internalKey');
         }
 
         return $result;
@@ -108,8 +109,9 @@ class Profile extends Form
     {
         $result = true;
         if (is_scalar($value) && !is_null($fl->user) && ($fl->user->get("email") !== $value)) {
-            $fl->user->set('username', mb_strtolower($value));
-            $result = $fl->user->checkUnique('web_users', 'username');
+            $user = clone($fl->user);
+            $user->set('username', $value);
+            $result = $user->checkUnique('web_users', 'username');
         }
 
         return $result;
@@ -144,10 +146,10 @@ class Profile extends Form
         }
         $fields = $this->filterFields($this->getFormData('fields'), $this->allowedFields, $this->forbiddenFields);
         if (isset($fields['username'])) {
-            $fields['username'] = is_scalar($fields['username']) ? mb_strtolower($fields['username']) : '';
+            $fields['username'] = is_scalar($fields['username']) ? $fields['username'] : '';
         }
         if (isset($fields['email'])) {
-            $fields['email'] = is_scalar($fields['username']) ? mb_strtolower($fields['email']) : '';
+            $fields['email'] = is_scalar($fields['email']) ? $fields['email'] : '';
         }
         $result = $this->user->fromArray($fields)->save(true);
         $this->log('Update profile', array('data' => $fields, 'result' => $result, 'log' => $this->user->getLog()));

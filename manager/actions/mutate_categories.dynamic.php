@@ -24,8 +24,7 @@ $_module_params = array(
 	'messages'         => array()
 );
 
-require_once $_module_params['inc_dir'] . 'Module_Categories_Manager.php';
-$cm = new Module_Categories_Manager();
+$cm = new EvolutionCMS\Legacy\ModuleCategoriesManager();
 
 // assign module_params to internal params
 foreach( $_module_params as $param => $value )

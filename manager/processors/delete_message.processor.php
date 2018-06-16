@@ -12,8 +12,8 @@ if ($id==0) {
 }
 
 // check the user is allowed to delete this message
-$rs = $modx->db->select('recipient', $modx->getFullTableName('user_messages'), "id='{$id}'");
-$message = $modx->db->getRow($rs);
+$rs = $modx->getDatabase()->select('recipient', $modx->getDatabase()->getFullTableName('user_messages'), "id='{$id}'");
+$message = $modx->getDatabase()->getRow($rs);
 if (!$message) {
     $modx->webAlertAndQuit("Wrong number of messages returned!");
 }
@@ -23,7 +23,7 @@ if ($message['recipient']!=$modx->getLoginUserID()) {
 }
 
 // delete message
-$modx->db->delete($modx->getFullTableName('user_messages'), "id='{$id}'");
+$modx->getDatabase()->delete($modx->getDatabase()->getFullTableName('user_messages'), "id='{$id}'");
 
 $header="Location: index.php?a=10";
 header($header);

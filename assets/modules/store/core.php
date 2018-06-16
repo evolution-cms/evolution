@@ -110,6 +110,9 @@ default:
 	$Store->lang['lang'] = $Store->language;
 	$Store->lang['_type'] = json_encode($PACK);
 	$Store->lang['v'] = $version;
+	if ($modx->config['manager_theme_mode'] == 4 ){
+		$Store->lang['body_class_name'] = 'darkness';
+	}
 	$tpl = Store::parse( $Store->tpl(dirname( __FILE__ ).'/template/main.html') ,$modx->config ) ;
 	$tpl = Store::parse( $tpl ,$Store->lang ) ;
 	echo $tpl;

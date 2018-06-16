@@ -17,8 +17,7 @@ body {
 }
 
 .pagetitle {
-  position: relative;
-  left: 10px
+  margin-left: 10px;
 }
 
 .github {
@@ -545,3 +544,14 @@ body,
   min-width: 40px;
   margin-right:8px;
 }
+
+.darkness .box, .darkness .item_content, .darkness .install_extras, .darkness .info, .darkness .catalog_item.liststyle .install_extras{
+  border: 1px solid #414449;
+  background: #202329;
+}
+.darkness #store_search{
+  border: #414449 1px solid!important;
+}
+
+
+

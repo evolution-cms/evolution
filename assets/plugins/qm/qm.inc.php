@@ -1,8 +1,8 @@
 <?php
 /**
  * QuickManager+
- *  
- * @author      Mikko Lammi, www.maagit.fi, updated by Dmi3yy and Nicola1971 
+ *
+ * @author      Mikko Lammi, www.maagit.fi, updated by Dmi3yy and Nicola1971
  * @license     GNU General Public License (GPL), http://www.gnu.org/copyleft/gpl.html
  * @version     1.5.10 updated 02/02/2018
  */
@@ -11,11 +11,11 @@ if(!class_exists('Qm')) {
 
 class Qm {
   var $modx;
-  
+
     //_______________________________________________________
     function __construct(&$modx, $jqpath='', $loadmanagerjq='', $loadfrontendjq='', $noconflictjq='', $loadfa='', $loadtb='', $tbwidth='', $tbheight='', $hidefields='', $hidetabs='', $hidesections='', $addbutton='', $tpltype='', $tplid='', $custombutton='', $managerbutton='', $logout='', $autohide='', $position='', $editbuttons='', $editbclass='', $newbuttons='', $newbclass='', $tvbuttons='', $tvbclass='', $buttonStyle='', $removeBg='') {
         $this->modx = $modx;
-        
+
         // Get plugin parameters
         $this->jqpath = $jqpath;
         $this->loadmanagerjq = $loadmanagerjq;
@@ -27,8 +27,8 @@ class Qm {
         $this->tbheight = $tbheight;
         $this->usemm = null;
         $this->hidefields = $hidefields;
-        $this->hidetabs = $hidetabs;  
-        $this->hidesections = $hidesections;     
+        $this->hidetabs = $hidetabs;
+        $this->hidesections = $hidesections;
         $this->addbutton = $addbutton;
         $this->tpltype = $tpltype;
         $this->tplid = $tplid;
@@ -45,97 +45,97 @@ class Qm {
         $this->tvbclass = $tvbclass;
         $this->buttonStyle = $buttonStyle;
         $this->removeBg = $removeBg;
-        
+
         // Includes
         include_once($this->modx->config['base_path'].'assets/plugins/qm/mcc.class.php');
-        
+
         // Run plugin
         $this->Run();
     }
-    
+
     //_______________________________________________________
     function Run() {
-        
+
         // Include MODX manager language file
         global $_lang;
-		
+
 		// Get manager language
         $manager_language = $this->modx->config['manager_language'];
-        
+
         // Individual user language setting (if set)
         if (isset($_SESSION['mgrUsrConfigSet']['manager_language'])) $manager_language = $_SESSION['mgrUsrConfigSet']['manager_language'];
-	
+
 		// Include_once the language file
         if(!isset($manager_language) || !file_exists(MODX_MANAGER_PATH."includes/lang/".$manager_language.".inc.php")) {
             $manager_language = "english"; // if not set, get the english language file.
         }
         // Include default language
         include_once MODX_MANAGER_PATH."includes/lang/english.inc.php";
-        
+
         // Include user language
         if($manager_language!="english" && file_exists(MODX_MANAGER_PATH."includes/lang/".$manager_language.".inc.php")) {
             include_once MODX_MANAGER_PATH."includes/lang/".$manager_language.".inc.php";
         }
-        
+
         // Get event
         $e = &$this->modx->Event;
-        
+
         // Run plugin based on event
         switch ($e->name) {
-            
+
             // Save document
             case 'OnDocFormSave':
-                
+
                 // Saving process for Qm only
                 if(intval($_REQUEST['quickmanager']) == 1) {
-            
+
                     $id = $e->params['id'];
                     $key = $id;
-                    
+
                     // Normal saving document procedure stops to redirect => Before redirecting secure documents and clear cache
-                    
+
                     // Secure web documents - flag as private (code from: processors/save_content.processor.php)
     		        include $this->modx->config['site_manager_path']."includes/secure_web_documents.inc.php";
     		        secureWebDocument($key);
-    
+
             		// Secure manager documents - flag as private (code from: processors/save_content.processor.php)
             		include $this->modx->config['site_manager_path']."includes/secure_mgr_documents.inc.php";
             		secureMgrDocument($key);
-                    
+
                     // Clear cache
                     $this->modx->clearCache('full');
-                    
+
                     // Different doc to be refreshed than the one we are editing?
                     if (isset($_POST['qmrefresh'])) {
                         $id = intval($_POST['qmrefresh']);
                     }
-                    
+
                     // Redirect to clearer page which refreshes parent window and closes modal box frame
                     if ($this->modx->config['friendly_urls'] == 1){
-                        $this->modx->sendRedirect($this->modx->makeUrl($id).'?quickmanagerclose=1', 0, 'REDIRECT_HEADER', 'HTTP/1.1 301 Moved Permanently'); 
+                        $this->modx->sendRedirect($this->modx->makeUrl($id).'?quickmanagerclose=1', 0, 'REDIRECT_HEADER', 'HTTP/1.1 301 Moved Permanently');
                     }else{
-                        $this->modx->sendRedirect($this->modx->makeUrl($id).'&quickmanagerclose=1', 0, 'REDIRECT_HEADER', 'HTTP/1.1 301 Moved Permanently');    
+                        $this->modx->sendRedirect($this->modx->makeUrl($id).'&quickmanagerclose=1', 0, 'REDIRECT_HEADER', 'HTTP/1.1 301 Moved Permanently');
                     }
-                    
+
                 }
-                
+
                 break;
-            
+
             // Display page in front-end
             case 'OnWebPagePrerender':
-    
+
                 // Get document id
                 $docID = $this->modx->documentIdentifier;
-                
+
                 // Get page output
                 $output = &$this->modx->documentOutput;
-                
+
                 // Close modal box after saving (previously close.php)
                 if (isset($_GET['quickmanagerclose'])) {
-                    
+
                     // Set url to refresh
                     $url = $this->modx->makeUrl($docID, '', '', 'full');
-                    
+
                     $output = '
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -149,82 +149,77 @@ class Qm {
 ';
                     break;
                 }
-                
+
                 // QM+ TV edit
                 if(intval($_GET['quickmanagertv'] == 1) && $_GET['tvname'] != '' && $this->tvbuttons == 'true') {
-                    
+
                     $tvName = '';
                     $locked = FALSE;
                     $access = FALSE;
                     $save = 0;
                     $imagePreview = '';
-                    
-                    // Includes
-                    include_once(MODX_MANAGER_PATH.'includes/tmplvars.inc.php');
-                    include_once(MODX_MANAGER_PATH.'includes/tmplvars.commands.inc.php');
-                    include_once(MODX_MANAGER_PATH.'includes/tmplvars.format.inc.php');
-                    
+
                     // Get save status
-                    if (isset($_POST['save'])) $save = intval($_POST['save']); 
-                    
+                    if (isset($_POST['save'])) $save = intval($_POST['save']);
+
                     // Get TV name
                     if (preg_match('/^([^\\"\'\(\)<>!?]+)/i', $_GET['tvname'])) $tvName = $_GET['tvname'];
-                    
+
                     // Get TV array
                     $tv = $this->modx->getTemplateVar($tvName, '*', $docID);
-                    
+
                     // Handle default TVs
                     switch ($tvName) {
-                        case 'pagetitle'    : $tv['type'] = 'text';     $tv['caption'] = $this->getDefaultTvCaption($tvName); $access = TRUE; break;     
+                        case 'pagetitle'    : $tv['type'] = 'text';     $tv['caption'] = $this->getDefaultTvCaption($tvName); $access = TRUE; break;
                         case 'longtitle'    : $tv['type'] = 'text';     $tv['caption'] = $this->getDefaultTvCaption($tvName); $access = TRUE; break;
                         case 'description'  : $tv['type'] = 'text';     $tv['caption'] = $this->getDefaultTvCaption($tvName); $access = TRUE; break;
                         case 'content'      : $tv['type'] = 'richtext'; $tv['caption'] = $this->getDefaultTvCaption($tvName); $access = TRUE; break;
                         case 'menutitle'    : $tv['type'] = 'text';     $tv['caption'] = $this->getDefaultTvCaption($tvName); $access = TRUE; break;
                         case 'introtext'    : $tv['type'] = 'textarea'; $tv['caption'] = $this->getDefaultTvCaption($tvName); $access = TRUE; break;
                     }
-                    
+
                     // Check TV access
                     if (!$access) { $access = $this->checkTvAccess($tv['id']); }
-                    
+
                     // User can access TV
                     if ($access) {
-                        
+
                         // Show TV form
                         if ($save == 0) {
-                        
+
                             // Check is document locked? Someone else is editing the document...  //$_lang['lock_msg']
                             if ($this->checkLocked()) $locked = TRUE;
-                                
+
                             // Set document locked
-                            else $this->setLocked(1);                       
-                            
+                            else $this->setLocked(1);
+
                             // Handle RTE
-                            if($tv['type'] == 'richtext') {                   
+                            if($tv['type'] == 'richtext') {
                                 // Invoke OnRichTextEditorInit event
                                 $eventOutput = $this->modx->invokeEvent("OnRichTextEditorInit", array('editor'=>$this->modx->config['which_editor'], 'elements'=>array('tv'.$tvName)));
-                                
+
                                 if(is_array($eventOutput)) {
                                     $editorHtml = implode("",$eventOutput);
                                 }
                             }
-                            
+
                             // Render TV html
                             $tvHtml = renderFormElement($tv['type'], $tv['name'], $tv['default_text'], $tv['elements'], $tv['value']);
-                            
+
                             // Get jQuery conflict mode
     					    if ($this->noconflictjq == 'true') $jq_mode = '$j';
     					    else $jq_mode = '$';
 					    }
-                        
+
                         // Save TV
                         else {
                             // Remove document locked
-                            $this->setLocked(0); 
-                            
+                            $this->setLocked(0);
+
                             // Save TV
                             $this->saveTv($tvName);
                         }
-                        
+
                         // Page output: header
                         $output = '
                         <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -237,21 +232,21 @@ class Qm {
                         <script src="'.$this->modx->config['site_url'].$this->jqpath.'" type="text/javascript"></script>
                         </head>
                         ';
-                        
+
                         // Page output: TV form
                         if ($save == 0) {
                             $output .= ' 
                             <body id="qm-tv-body">
                             ';
-                            
+
                             // Document is locked message
                             if ($locked) {
                                 $output .= '
                                 <h1>'.$_lang['locked'].'</h1>
                                 <div id="qm-tv-description">'.$_lang['lock_msg'].'</div> 
-                                ';   
+                                ';
                             }
-                            
+
                             // Normal form
                             else {
                                 // Image preview
@@ -311,35 +306,35 @@ class Qm {
                                 ';
                             }
                         }
-                        
+
                         // Page output: close modal box and refresh parent frame
-                        else $output .= '<body onload="parent.location.reload();">'; 
-                        
+                        else $output .= '<body onload="parent.location.reload();">';
+
                         // Page output: footer
                         $output .= '
                         </body>
                         </html>
-                        ';  
+                        ';
                     }
-                    
+
                     else {
-                        $output = 'Error: Access denied.'; 
+                        $output = 'Error: Access denied.';
                     }
                 }
-                
+
                 // QM+ with toolbar
                 else {
 
                     if(isset($_SESSION['mgrValidated']) && $_REQUEST['z'] != 'manprev') {
-                        
+
                         // If logout break here
                         if(isset($_REQUEST['logout'])) {
                             $this->Logout();
                             break;
                         }
-                        
+
                         $userID = $_SESSION['mgrInternalKey'];
-                        
+
                         // Add ID
                         $controls .= '<li class="qmId"><span class="textid">ID: </span>'.$docID.'</li>';
                         // Go to Manager button
@@ -352,57 +347,57 @@ class Qm {
                             $controls .= $managerButton;
                         }
                         // Edit button
-                        
+
                         $editButton = '
                         <li class="qmEdit">
-                        <a class="qmButton qmEdit colorbox primary" href="'.$this->modx->config['site_manager_url'].'index.php?a=27&amp;id='.$docID.'&amp;quickmanager=1"><i class="fa fa-2x fa-fw fa-pencil-square-o butticon"></i><span class="butttext">'.$_lang['edit_resource'].'</span></a>
+                        <a title="'.$_lang['edit_resource'].'" class="qmButton qmEdit colorbox primary" href="'.$this->modx->config['site_manager_url'].'index.php?a=27&amp;id='.$docID.'&amp;quickmanager=1"><i class="fa fa-2x fa-fw fa-pencil-square-o butticon"></i><span class="butttext">'.$_lang['edit_resource'].'</span></a>
                         </li>
                         ';
-                        
+
                         // Check if user has manager access to current document
                         $access = $this->checkAccess();
-                        
-                        // Does user have permissions to edit document   
+
+                        // Does user have permissions to edit document
                         if($access) $controls .= $editButton;
-                        
-                        if ($this->addbutton == 'true' && $access) {                    
+
+                        if ($this->addbutton == 'true' && $access) {
                             // Add button
                             $addButton = '
                             <li class="qmAdd">
                             <a class="qmButton qmAdd colorbox" href="'.$this->modx->config['site_manager_url'].'index.php?a=4&amp;pid='.$docID.'&amp;quickmanager=1"><i class="fa fa-2x fa-fw fa-file butticon"></i><span class="butttext">'.$_lang['create_resource_here'].'</span></a>
                             </li>
                             ';
-                            
+
                             // Does user have permissions to add document
-                            if($this->modx->hasPermission('new_document')) $controls .= $addButton;        
-                        }            
-                        
+                            if($this->modx->hasPermission('new_document')) $controls .= $addButton;
+                        }
+
                         // Custom add buttons if not empty and enough permissions
-                        if ($this->custombutton != '') {  
-                            
+                        if ($this->custombutton != '') {
+
                             // Replace [*id*] with current doc id
-                            $this->custombutton = str_replace("[*id*]", $docID, $this->custombutton); 
-                            
+                            $this->custombutton = str_replace("[*id*]", $docID, $this->custombutton);
+
                             // Handle [~id~] links
                             $this->custombutton = $this->modx->rewriteUrls($this->custombutton);
-                                                                
+
                             $buttons = explode("||", $this->custombutton); // Buttons are divided by "||"
-                            
+
                             // Custom buttons class index
                             $i = 0;
-                            
+
                             // Parse buttons
                             foreach($buttons as $key => $field) {
                                 $i++;
-                             
+
                                 $field = substr($field, 1, -1); // Trim "'" from beginning and from end
                                 $buttonParams = explode("','", $field); // Button params are divided by "','"
-                                
+
                                 $buttonTitle = $buttonParams[0];
                                 $buttonAction = $buttonParams[1]; // Contains URL if this is not add button
                                 $buttonParentId = $buttonParams[2]; // Is empty is this is not add button
                                 $buttonTplId = $buttonParams[3];
-                                                        
+
                                 // Button visible for all
                                 if ($buttonParams[4] == '') {
                                     $showButton = TRUE;
@@ -410,12 +405,12 @@ class Qm {
                                 // Button is visible for specific user roles
                                 else {
                                     $showButton = FALSE;
-                                
+
                                     // Get user roles the button is visible for
                                     $buttonRoles = explode(",", $buttonParams[4]); // Roles are divided by ','
-                                                                
+
                                     // Check if user role is found
-                                    foreach($buttonRoles as $key => $field) { 
+                                    foreach($buttonRoles as $key => $field) {
                                         if ($field == $_SESSION['mgrRole']) {
                                             $showButton = TRUE;
                                         }
@@ -429,34 +424,34 @@ class Qm {
                                         case 'new':
                                             $customButton = '
                                             <li class="qm-custom-'.$i.' qmCustom">
-                                            <a class="qmButton qmCustom colorbox" href="'.$this->modx->config['site_manager_url'].'index.php?a=4&amp;pid='.$buttonParentId.'&amp;quickmanager=1&amp;customaddtplid='.$buttonTplId.'"><i class="fa fa-2x fa-fw fa-'.$buttonIcon.' butticon"></i><span class="butttext">'.$buttonTitle.'</span></a>
+                                            <a title="'.$buttonTitle.'" class="qmButton qmCustom colorbox" href="'.$this->modx->config['site_manager_url'].'index.php?a=4&amp;pid='.$buttonParentId.'&amp;quickmanager=1&amp;customaddtplid='.$buttonTplId.'"><i class="fa fa-2x fa-fw fa-'.$buttonIcon.' butticon"></i><span class="butttext">'.$buttonTitle.'</span></a>
                                             </li>
                                             ';
                                         break;
-                                    
+
                                         case 'link':
                                             $customButton  = '
                                             <li class="qm-custom-'.$i.' qmCustom">
-                                            <a class="qmButton qmCustom" href="'.$buttonParentId.'" ><i class="fa fa-2x fa-fw fa-'.$buttonIcon.' butticon"></i><span class="butttext">'.$buttonTitle.'</span></a>
+                                            <a title="'.$buttonTitle.'" class="qmButton qmCustom" href="'.$buttonParentId.'" ><i class="fa fa-2x fa-fw fa-'.$buttonIcon.' butticon"></i><span class="butttext">'.$buttonTitle.'</span></a>
                                             </li>
-                                            ';    
+                                            ';
                                         break;
-                                        
+
                                         case 'modal':
                                             $customButton  = '
                                             <li class="qm-custom-'.$i.' qmCustom">
-                                            <a class="qmButton qmCustom colorbox" href="'.$buttonParentId.'" ><i class="fa fa-2x fa-fw fa-'.$buttonIcon.' butticon"></i><span class="butttext">'.$buttonTitle.'</span></a>
+                                            <a title="'.$buttonTitle.'" class="qmButton qmCustom colorbox" href="'.$buttonParentId.'" ><i class="fa fa-2x fa-fw fa-'.$buttonIcon.' butticon"></i><span class="butttext">'.$buttonTitle.'</span></a>
                                             </li>
-                                            ';   
+                                            ';
                                         break;
                                     }
-                                    $controls .= $customButton;  
-                                }                                             
-                            }                                   
-                        } 
-                          
+                                    $controls .= $customButton;
+                                }
+                            }
+                        }
 
-                        
+
+
                         // Logout button
                         $logout = $this->modx->config['site_manager_url'].'index.php?a=8&amp;quickmanager=logout&amp;logoutid='.$docID;
                         $logoutButton  = '
@@ -464,9 +459,9 @@ class Qm {
                         <a id="qmLogout" class="qmButton qmLogout" title="'.$_lang['logout'].'" href="'.$logout.'" ><i class="fa fa-2x fa-fw fa-sign-out butticon"></i><span class="butttext">'.$_lang['logout'].'</span></a>
                         </li>
                         ';
-                        
+
                         $controls .= $logoutButton;
-                        
+
                         $username = $_SESSION['mgrShortname'];
                         // Add action buttons
                         $editor = '
@@ -483,15 +478,15 @@ class Qm {
                         '.$controls.'
                         </ul>
     					</div>';
-    					
+
                         $MGR_DIR = $this->modx->getManagerPath( );
                         $css = '
                         <link rel="stylesheet" type="text/css" href="'.$this->modx->config['site_url'].'assets/plugins/qm/css/style.css" />';
-                    
+
                         $css .= '
                         <!--[if IE]><link rel="stylesheet" type="text/css" href="'.$this->modx->config['site_url'].'assets/plugins/qm/css/ie.css" /><![endif]-->
                         ';
-                                                
+
                         // font-awesome
                         if ($this->loadfa == 'true') {
                         $css .= '
@@ -532,7 +527,7 @@ class Qm {
                             </style>
                             ';
                         }
-                        else 
+                        else
                         // Top toolbar Autohide true
                         if (($this->autohide == 'true') && ($this->position == 'top')) {
                             $css .= '
@@ -555,7 +550,7 @@ class Qm {
                             </style>
                             ';
                         }
-                        else 
+                        else
                         // Top toolbar Relative
                         if ($this->position == 'before') {
                             $css .= '
@@ -578,7 +573,7 @@ class Qm {
                             </style>
                             ';
                         }
-                        else 
+                        else
                         // Bottom toolbar Autohide true
                         if (($this->autohide == 'true') && ($this->position == 'bottom')) {
                             $css .= '
@@ -729,30 +724,30 @@ class Qm {
                             <script type="text/javascript" src="'.$this->modx->config['site_url'].'assets/plugins/qm/js/jquery.colorbox-min.js"></script>
                             ';
                         }
-                        
+
                         // Insert ColorBox jQuery definitions for QuickManager+
                         $head .= '
                         <script type="text/javascript">
                         ';
-                        
-                        // jQuery in noConflict mode 
+
+                        // jQuery in noConflict mode
                         if ($this->noconflictjq == 'true')
                         {
                             $head .= '
                         	var $j = jQuery.noConflict();
                         	$j(document).ready(function($)
                         	';
-                        	
+
                         	$jvar = 'j';
                         }
-                        	
-                        // jQuery in normal mode 
-                        else { 	
+
+                        // jQuery in normal mode
+                        else {
                             $head .= '$(document).ready(function($)';
-                            
+
                             $jvar = '';
                         }
-                            
+
                         $head .= '    
                             {                      
                         		$'.$jvar.'("a.colorbox").colorbox({width:"'.$this->tbwidth.'", height:"'.$this->tbheight.'", iframe:true, overlayClose:false, opacity:0.5, transition:"fade", speed:150});
@@ -850,86 +845,86 @@ class Qm {
                         });
                         </script>
                         ";
-                        
+
                         // Insert QM+ css in head
                         $head .= $css;
-            
+
                         // Place QM+ head information in head, just before </head> tag
                         $output = preg_replace('~(</head>)~i', $head . '\1', $output);
-            
+
                         // Insert editor toolbar right after <body> tag
                         $output = preg_replace('~(<body[^>]*>)~i', '\1' . $editor, $output);
-                        
+
                         // Search and create edit buttons in to the content
                         if ($this->editbuttons == 'true' && $access) {
                             $output = preg_replace('/<!-- '.$this->editbclass.' ([0-9]+) \'([^\\"\'\(\)<>!?]+)\' -->/', '<span class="'.$this->editbclass.'"><a class="colorbox" href="'.$this->modx->config['site_manager_url'].'index.php?a=27&amp;id=$1&amp;quickmanager=1&amp;qmrefresh='.$docID.'"><span>$2</span></a></span>', $output);
                         }
-                        
+
                         // Search and create new document buttons in to the content
                         if ($this->newbuttons == 'true' && $access) {
                             $output = preg_replace('/<!-- '.$this->newbclass.' ([0-9]+) ([0-9]+) \'([^\\"\'\(\)<>!?]+)\' -->/', '<span class="'.$this->newbclass.'"><a class="colorbox" href="'.$this->modx->config['site_manager_url'].'index.php?a=4&amp;pid=$1&amp;quickmanager=1&amp;customaddtplid=$2"><span>$3</span></a></span>', $output);
                         }
-                        
+
                         // Search and create new document buttons in to the content
                         if ($this->tvbuttons == 'true' && $access) {
                             // Set and get user doc groups for TV permissions
                             $this->docGroup = '';
                             $mrgDocGroups = $_SESSION['mgrDocgroups'];
-                            if (!empty($mrgDocGroups)) $this->docGroup = implode(",", $mrgDocGroups); 
+                            if (!empty($mrgDocGroups)) $this->docGroup = implode(",", $mrgDocGroups);
 
                             // Create TV buttons and check TV permissions
                             $output = preg_replace_callback('/<!-- '.$this->tvbclass.' ([^\\"\'\(\)<>!?]+) -->/', array(&$this, 'createTvButtons'), $output);
-                        } 
+                        }
                     }
                 }
-                
+
                 break;
-            
+
             // Edit document in ThickBox frame (MODX manager frame)
             case 'OnDocFormPrerender':
-                                        
+
                 // If there is Qm call, add control buttons and modify to edit document page
                 if (intval($_REQUEST['quickmanager']) == 1) {
-                
+
                     global $content, $_style;
-                    
+
                     // Set template for new document, action = 4
-                    if(intval($_GET['a']) == 4) {    
-                        
+                    if(intval($_GET['a']) == 4) {
+
                         // Custom add button
                         if (isset($_GET['customaddtplid'])) {
                             // Set template
-                            $content['template'] = intval($_GET['customaddtplid']);   
+                            $content['template'] = intval($_GET['customaddtplid']);
                         }
-                        
+
                         // Normal add button
-                        else {                                     
+                        else {
                             switch ($this->tpltype) {
                                 // Template type is parent
                                 case 'parent':
                                     // Get parent document id
                                     $pid = $content['parent'] ? $content['parent'] : intval($_REQUEST['pid']);
-            
+
                                     // Get parent document
                                     $parent = $this->modx->getDocument($pid);
-                        
+
                                     // Set parent template
                                     $content['template'] = $parent['template'];
-                                
+
                                     break;
-                                
+
                                 // Template is specific id
                                 case 'id':
                                     $content['template'] = $this->tplid;
-                                
+
                                     break;
-                                
+
                                 // Template is inherited by Inherit Selected Template plugin
                                 case 'selected': // Template is inherited by Inherit Selected Template plugin
                                 case 'sibling':
                                     // Get parent document id
                                     $pid = $content['parent'] ? $content['parent'] : intval($_REQUEST['pid']);
-                                    
+
                                     if ($this->modx->config['auto_template_logic'] === 'sibling') {
                                         // Eoler: template_autologic in Evolution 1.0.5+
                                         // http://tracker.modx.com/issues/9586
@@ -948,7 +943,7 @@ class Qm {
                                         // Get "inheritTpl" TV
                                         $tv = $this->modx->getTemplateVar('inheritTpl', '', $pid);
                                     }
-                                    
+
                                     // Set template to inherit
                                     if ($tv['value'] != '') $content['template'] = $tv['value'];
                                     else                    $content['template'] = $this->modx->config['default_template'];
@@ -959,70 +954,70 @@ class Qm {
 
                     // Manager control class
                     $mc = new Mcc();
-                
+
                     // Hide default manager action buttons
                     $mc->addLine('$("#actions").hide();');
-    
-					
+
+
 					// Get doc id
 					$doc_id = intval($_REQUEST['id']);
-					
+
 					// Get jQuery conflict mode
 					if ($this->noconflictjq == 'true') $jq_mode = '$j';
 					else $jq_mode = '$';
-					
+
 					// Add action buttons
                     $url = $this->modx->makeUrl($doc_id,'','','full');
                     $mc->addLine('var controls = "<div style=\"padding:4px 0;position:fixed;top:10px;right:10px;z-index:1000\" id=\"qmcontrols\" class=\"actions\"><a id=\"Button1\" class=\"btn btn-success\" href=\"#\" onclick=\"documentDirty=false;document.mutate.save.click();return false;\"><span> '.$_lang['save'].'</span></a><a id=\"Button5\" class=\"btn btn-secondary\" href=\"#\" onclick=\"parent.location.href=\''.$url.'\'; return false;\"><span> '.$_lang['cancel'].'</span></a></div>";');
-                    
+
                     // Modify head
                     $mc->head = '<script type="text/javascript">document.body.style.display="none";</script>';
                     if ($this->loadmanagerjq == 'true') $mc->head .= '<script src="'.$this->modx->config['site_url'].$this->jqpath.'" type="text/javascript"></script>';
-    
+
                     // Add control button
                     $mc->addLine('$("body").prepend(controls);');
 
                     // Hide fields to from front-end editors
                     if ($this->hidefields != '') {
                         $hideFields = explode(",", $this->hidefields);
-                        
+
                         foreach($hideFields as $key => $field) {
-                            $mc->hideField($field); 
+                            $mc->hideField($field);
                         }
                     }
-                              
+
                     // Hide tabs to from front-end editors
                     if ($this->hidetabs != '') {
                         $hideTabs = explode(",", $this->hidetabs);
-                        
+
                         foreach($hideTabs as $key => $field) {
-                            $mc->hideTab($field); 
+                            $mc->hideTab($field);
                         }
                     }
-                    
+
                     // Hide sections from front-end editors
                     if ($this->hidesections != '') {
                         $hideSections = explode(",", $this->hidesections);
-                        
+
                         foreach($hideSections as $key => $field) {
-                            $mc->hideSection($field); 
+                            $mc->hideSection($field);
                         }
                     }
-                                             
+
                     // Hidden field to verify that QM+ call exists
                     $hiddenFields = '<input type="hidden" name="quickmanager" value="1" />';
-                    
+
                     // Different doc to be refreshed?
                     if (isset($_REQUEST['qmrefresh'])) {
                         $hiddenFields .= '<input type="hidden" name="qmrefresh" value="'.intval($_REQUEST['qmrefresh']).'" />';
                     }
-                    
+
                     // Output
                     $e->output($mc->Output().$hiddenFields);
                 }
-                
+
             break;
-            
+
             // Where to logout
             case 'OnManagerLogout':
                 // Only if cancel editing the document and QuickManager is in use
@@ -1032,54 +1027,54 @@ class Qm {
                         $this->modx->sendRedirect($this->modx->makeUrl($_REQUEST['logoutid']), 0, 'REDIRECT_HEADER', 'HTTP/1.1 301 Moved Permanently');
                     }
                 }
-            
+
             break;
         }
     }
-    
-    // Check if user has manager access permissions to current document 
+
+    // Check if user has manager access permissions to current document
     //_______________________________________________________
     function checkAccess() {
         $access = FALSE;
 
         // If user is admin (role = 1)
         if ($_SESSION['mgrRole'] == 1) $access = TRUE;
-        
+
         else {
             $docID = $this->modx->documentIdentifier;
-                   
+
             // Database table
             $table= $this->modx->getFullTableName("document_groups");
-            
+
             // Check if current document is assigned to one or more doc groups
             $result = $this->modx->db->select('count(id)', $table, "document='{$docID}'");
             $rowCount= $this->modx->db->getValue($result);
-            
+
             // If document is assigned to one or more doc groups, check access
             if ($rowCount >= 1) {
-            
+
                 // Get document groups for current user
                 $mrgDocGroups = $_SESSION['mgrDocgroups'];
                 if (!empty($mrgDocGroups))  {
-                    $docGroup = implode(",", $mrgDocGroups); 
-                    
-                    // Check if user has access to current document 
+                    $docGroup = implode(",", $mrgDocGroups);
+
+                    // Check if user has access to current document
                     $result = $this->modx->db->select('count(id)', $table, "document = '{$docID}' AND document_group IN ({$docGroup})");
                     $rowCount = $this->modx->db->getValue($result);
-                    
+
                     if ($rowCount >= 1) $access = TRUE;
                 }
-                
+
                 else $access = FALSE;
             }
-            
+
             else $access = TRUE;
         }
-        
+
         return $access;
     }
-    
-    // Function from: processors/cache_sync.class.processor.php 
+
+    // Function from: processors/cache_sync.class.processor.php
     //_____________________________________________________
     function getParents($id, $path = '') { // modx:returns child's parent
 		if(empty($this->aliases)) {
@@ -1094,88 +1089,88 @@ class Qm {
 			return $this->getParents($this->parents[$id], $path);
 		}
 		return $path;
-	} 
-	
+	}
+
 	// Create TV buttons if user has permissions to TV
 	//_____________________________________________________
 	function createTvButtons($matches) {
-	    
+
         $access = FALSE;
         $table = $this->modx->getFullTableName('site_tmplvar_access');
         $docID = $this->modx->documentIdentifier;
-        
+
         // Get TV caption for button title
 	    $tv = $this->modx->getTemplateVar($matches[1]);
 	    $caption = $tv['caption'];
-	
+
 	    // If caption is empty this must be a "build-in-tv-field" like pagetitle etc.
 	    if ($caption == '') {
-	        
+
             // Allowed for all
-            $access = TRUE;    
-            
+            $access = TRUE;
+
             // Resolve caption
             $caption = $this->getDefaultTvCaption($matches[1]);
 	    }
-	    
+
 	    // Check TV access
 	    else {
 	       $access = $this->checkTvAccess($tv['id']);
 	    }
-	    
+
 	    // Return TV button link if access
 	    if ($access && $caption != '') {
             $amp = ($this->modx->config['friendly_urls'] == 1) ? '?' : '&';
 	        return '<span class="'.$this->tvbclass.'"><a class="colorbox" href="'.$this->modx->makeUrl($docID).$amp.'quickmanagertv=1&amp;tvname='.$matches[1].'"><span>'.$caption.'</span></a></span>';
-        } 
+        }
     }
-    
+
     // Check user access to TV
 	//_____________________________________________________
 	function checkTvAccess($tvId) {
 	    $access = FALSE;
 	    $table = $this->modx->getFullTableName('site_tmplvar_access');
-	    
+
 	    // If user is admin (role = 1)
         if ($_SESSION['mgrRole'] == 1 && !$access) { $access = TRUE; }
-	    
-	    // Check permission to TV, is TV in document group?  
+
+	    // Check permission to TV, is TV in document group?
 	    if (!$access) {
 	        $result = $this->modx->db->select('count(id)', $table, "tmplvarid = '{$tvId}'");
             $rowCount = $this->modx->db->getValue($result);
             // TV is not in any document group
-            if ($rowCount == 0) { $access = TRUE; }    
+            if ($rowCount == 0) { $access = TRUE; }
 	    }
-	    
-	    // Check permission to TV, TV is in document group 
+
+	    // Check permission to TV, TV is in document group
 	    if (!$access && $this->docGroup != '') {
             $result = $this->modx->db->select('count(id)', $table, "tmplvarid = '{$tvId}' AND documentgroup IN ({$this->docGroup})");
             $rowCount = $this->modx->db->getValue($result);
             if ($rowCount >= 1) { $access = TRUE; }
-        }    
-        
+        }
+
         return $access;
 	}
-    
+
 	// Get default TV ("build-in" TVs) captions
 	//_____________________________________________________
 	function getDefaultTvCaption($name) {
-	
+
 	    global $_lang;
 	    $caption = '';
-	    
+
 	    switch ($name) {
-            case 'pagetitle'    : $caption = $_lang['resource_title']; break;     
+            case 'pagetitle'    : $caption = $_lang['resource_title']; break;
             case 'longtitle'    : $caption = $_lang['long_title']; break;
             case 'description'  : $caption = $_lang['resource_description']; break;
             case 'content'      : $caption = $_lang['resource_content']; break;
             case 'menutitle'    : $caption = $_lang['resource_opt_menu_title']; break;
             case 'introtext'    : $caption = $_lang['resource_summary']; break;
         }
-        
+
         return $caption;
 	}
-	
+
 	// Check that a document isn't locked for editing
 	//_____________________________________________________
 	function checkLocked() {
@@ -1189,49 +1184,49 @@ class Qm {
 
 		return $locked;
 	}
-	
+
 	// Set document locked on/off
 	//_____________________________________________________
 	function setLocked($locked) {
 
 		$pageId = $this->modx->documentIdentifier;
-		
+
 		// Set document locked
 		if ($locked == 1) {
     		$this->modx->lockElement(7, $pageId);
         }
-        
+
         // Set document unlocked
         else {
-            $this->modx->unlockElement(7, $pageId);    
+            $this->modx->unlockElement(7, $pageId);
         }
 	}
-	
+
 	// Save TV
 	//_____________________________________________________
 	function saveTv($tvName) {
-	
+
         $tmplvarContentValuesTable = $this->modx->getFullTableName('site_tmplvar_contentvalues');
         $siteContentTable = $this->modx->getFullTableName('site_content');
         $pageId = $this->modx->documentIdentifier;
         $result = null;
         $time = time();
-        $user = $_SESSION['mgrInternalKey'];      
+        $user = $_SESSION['mgrInternalKey'];
         $tvId = isset($_POST['tvid']) ? intval($_POST['tvid']) : '';
         $tvContent = isset($_POST['tv'.$tvName]) ? $_POST['tv'.$tvName] : '';
         $tvContentTemp = '';
-        
+
         // Escape TV content
         $tvContent = $this->modx->db->escape($tvContent);
-        
+
         // Invoke OnBeforeDocFormSave event
         $this->modx->invokeEvent('OnBeforeDocFormSave', array('mode'=>'upd', 'id'=>$pageId));
-        
+
         // Handle checkboxes and other arrays, TV to be saved must be e.g. value1||value2||value3
         if (is_array($tvContent)) {
             $tvContent = implode("||", $tvContent);
         }
-        
+
         // Save TV
         if ($tvId != '') {
             $fields = array(
@@ -1240,27 +1235,27 @@ class Qm {
                 'value'     => $tvContent,
                 );
             $result = $this->modx->db->select('count(id)', $tmplvarContentValuesTable, "tmplvarid = '{$fields['tmplvarid']}' AND contentid = '{$fields['contentid']}'");
-            
-            // TV exists, update TV   
+
+            // TV exists, update TV
             if($this->modx->db->getValue($result)) {
                 $this->modx->db->update($fields, $tmplvarContentValuesTable, "tmplvarid = '{$fields['tmplvarid']}' AND contentid = '{$fields['contentid']}'");
-            } 
-        
-            // TV does not exist, create new TV   
+            }
+
+            // TV does not exist, create new TV
             else {
                 $this->modx->db->insert($fields, $tmplvarContentValuesTable);
             }
-            
+
             // Page edited by
             $this->modx->db->update(
                 array(
                     'editedon' => $time,
                     'editedby' => $user
                     ), $siteContentTable, "id = '{$pageId}'");
-        } 
-        
+        }
+
         // Save default field, e.g. pagetitle
-        else {                
+        else {
             $this->modx->db->update(
                 array(
                     $tvName    => $tvContent,
@@ -1268,13 +1263,13 @@ class Qm {
                     'editedby' => $user
                     ), $siteContentTable, "id = '{$pageId}'");
         }
-        
+
             // Invoke OnDocFormSave event
             $this->modx->invokeEvent('OnDocFormSave', array('mode'=>'upd', 'id'=>$pageId));
-            
+
             // Clear cache
             $this->modx->clearCache('full');
     }
-	
+
 }
 }

@@ -36,10 +36,10 @@ $base_url = $url . (substr($url, -1) != "/" ? "/" : "");
 $base_path = $pth . (substr($pth, -1) != "/" ? "/" : "");
 
 
-if(!function_exists('parseProperties')) {
+if(!function_exists('propertiesNameValue')) {
     // parses a resource property string and returns the result as an array
     // duplicate of method in documentParser class
-    function parseProperties($propertyString) {
+    function propertiesNameValue($propertyString) {
         $parameter= array ();
         if (!empty ($propertyString)) {
             $tmpParams= explode("&", $propertyString);
@@ -447,8 +447,7 @@ if ($installData && $moduleSQLDataFile) {
 
 // always empty cache after install
 
-include_once MGR."/processors/cache_sync.class.processor.php";
-$sync = new synccache();
+$sync = new EvolutionCMS\Cache();
 $sync->setCachepath(MODX_BASE_PATH."assets/cache/");
 $sync->setReport(false);
 $sync->emptyCache(); // first empty the cache
@@ -479,8 +478,9 @@ function parseProperties($propertyString, $json=false) {
     $propertyString = str_replace('{}', '', $propertyString );
     $propertyString = str_replace('} {', ',', $propertyString );
 
-    if(empty($propertyString)) return array();
-    if($propertyString=='{}' || $propertyString=='[]') return array();
+    if (empty($propertyString) || $propertyString == '{}' || $propertyString == '[]') {
+        $propertyString = '';
+    }
 
     $jsonFormat = isJson($propertyString, true);
     $property = array();

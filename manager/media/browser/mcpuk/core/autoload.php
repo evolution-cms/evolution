@@ -23,8 +23,8 @@ include_once(dirname(__FILE__)."/../../../../../assets/cache/siteManager.php");
 require_once('../../../includes/protect.inc.php');
 include_once('../../../includes/config.inc.php');
 include_once('../../../includes/document.parser.class.inc.php');
-$modx = new DocumentParser;
-$modx->db->connect();
+$modx = evolutionCMS();
+$modx->getDatabase()->connect();
 startCMSSession();
 if(!isset($_SESSION['mgrValidated'])) {
         die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the EVO Content Manager instead of accessing this file directly.");

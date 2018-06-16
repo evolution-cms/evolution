@@ -75,6 +75,7 @@
     [+onManagerMainFrameHeaderHTMLBlock+]
 </head>
 <body>
+<script>if ( [(manager_theme_mode)] == '4') {document.body.className='darkness';}</script>
 
 <h1>
     <i class="fa fa-file-text"></i>[+lang.DM_module_title+]

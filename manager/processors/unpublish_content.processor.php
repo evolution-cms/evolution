@@ -12,7 +12,7 @@ if($id==0) {
 }
 
 /************webber ********/
-$content=$modx->db->getRow($modx->db->select('parent, pagetitle', $modx->getFullTableName('site_content'), "id='{$id}'"));
+$content=$modx->getDatabase()->getRow($modx->getDatabase()->select('parent, pagetitle', $modx->getDatabase()->getFullTableName('site_content'), "id='{$id}'"));
 $pid=($content['parent']==0?$id:$content['parent']);
 
 /************** webber *************/
@@ -26,8 +26,7 @@ $add_path=$sd.$sb.$pg;
 
 
 // check permissions on the document
-include_once MODX_MANAGER_PATH . "processors/user_documents_permissions.class.php";
-$udperms = new udperms();
+$udperms = new EvolutionCMS\Legacy\Permissions();
 $udperms->user = $modx->getLoginUserID();
 $udperms->document = $id;
 $udperms->role = $_SESSION['mgrRole'];
@@ -37,7 +36,7 @@ if(!$udperms->checkPermissions()) {
 }
 
 // update the document
-$modx->db->update(
+$modx->getDatabase()->update(
 	array(
 		'published'   => 0,
 		'pub_date'    => 0,
@@ -46,7 +45,7 @@ $modx->db->update(
 		'editedon'    => time(),
 		'publishedby' => 0,
 		'publishedon' => 0,
-	), $modx->getFullTableName('site_content'), "id='{$id}'");
+	), $modx->getDatabase()->getFullTableName('site_content'), "id='{$id}'");
 
 // invoke OnDocUnPublished  event
 $modx->invokeEvent("OnDocUnPublished",array("docid"=>$id));

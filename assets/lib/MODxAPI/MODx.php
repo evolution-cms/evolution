@@ -3,7 +3,8 @@ include_once(MODX_BASE_PATH . 'assets/lib/APIHelpers.class.php');
 include_once(MODX_BASE_PATH . 'assets/snippets/DocLister/lib/jsonHelper.class.php');
 include_once(MODX_BASE_PATH . 'assets/snippets/DocLister/lib/DLCollection.class.php');
 
-use \Doctrine\Common\Cache\Cache;
+use Doctrine\Common\Cache\Cache;
+use EvolutionCMS\Core as DocumentParser;
 
 /**
  * Class MODxAPIhelpers
@@ -69,7 +70,7 @@ abstract class MODxAPI extends MODxAPIhelpers
 {
     /**
      * Объект DocumentParser - основной класс MODX
-     * @var \DocumentParser
+     * @var DocumentParser
      * @access protected
      */
     protected $modx = null;
@@ -251,7 +252,7 @@ abstract class MODxAPI extends MODxAPIhelpers
             $this->addQuery($SQL);
         }
 
-        return empty($SQL) ? null : $this->modx->db->query($SQL);
+        return empty($SQL) ? null : $this->modx->getDatabase()->query($SQL);
     }
 
     /**
@@ -263,7 +264,7 @@ abstract class MODxAPI extends MODxAPIhelpers
         if (!is_scalar($value)) {
             $value = '';
         } else {
-            $value = $this->modx->db->escape($value);
+            $value = $this->modx->getDatabase()->escape($value);
         }
 
         return $value;
@@ -559,26 +560,7 @@ abstract class MODxAPI extends MODxAPIhelpers
      */
     final public function cleanIDs($IDs, $sep = ',', $ignore = array())
     {
-        $out = array();
-        if (!is_array($IDs)) {
-            if (is_scalar($IDs)) {
-                $IDs = explode($sep, $IDs);
-            } else {
-                $IDs = array();
-                throw new Exception('Invalid IDs list <pre>' . print_r($IDs, 1) . '</pre>');
-            }
-        }
-        foreach ($IDs as $item) {
-            $item = trim($item);
-            if (is_scalar($item) && (int)$item >= 0) { //Fix 0xfffffffff
-                if (!empty($ignore) && in_array((int)$item, $ignore, true)) {
-                    $this->log[] = 'Ignore id ' . (int)$item;
-                } else {
-                    $out[] = (int)$item;
-                }
-            }
-        }
-        $out = array_unique($out);
+        $out = APIhelpers::cleanIDs($IDs, $sep, $ignore);
 
         return $out;
     }
@@ -699,7 +681,7 @@ abstract class MODxAPI extends MODxAPIhelpers
     final public function makeTable($table)
     {
         //Без использования APIHelpers::getkey(). Иначе getFullTableName будет всегда выполняться
-        return (isset($this->_table[$table])) ? $this->_table[$table] : $this->modx->getFullTableName($table);
+        return (isset($this->_table[$table])) ? $this->_table[$table] : $this->modx->getDatabase()->getFullTableName($table);
     }
 
     /**
@@ -750,7 +732,7 @@ abstract class MODxAPI extends MODxAPIhelpers
 
         if ($where != '') {
             $sql = $this->query("SELECT `" . $this->escape($PK) . "` FROM " . $this->makeTable($table) . " WHERE " . $where);
-            $id = $this->modx->db->getValue($sql);
+            $id = $this->modx->getDatabase()->getValue($sql);
             if (!$id || (!$this->newDoc && $id == $this->getID())) {
                 $flag = true;
             } else {

@@ -12,7 +12,7 @@ if($id==0) {
 }
 
 // Set the item name for logger
-$name = $modx->db->getValue($modx->db->select('name', $modx->getFullTableName('site_snippets'), "id='{$id}'"));
+$name = $modx->getDatabase()->getValue($modx->getDatabase()->select('name', $modx->getDatabase()->getFullTableName('site_snippets'), "id='{$id}'"));
 $_SESSION['itemname'] = $name;
 
 // invoke OnBeforeSnipFormDelete event
@@ -22,7 +22,7 @@ $modx->invokeEvent("OnBeforeSnipFormDelete",
 	));
 
 // delete the snippet.
-$modx->db->delete($modx->getFullTableName('site_snippets'), "id='{$id}'");
+$modx->getDatabase()->delete($modx->getDatabase()->getFullTableName('site_snippets'), "id='{$id}'");
 
 // invoke OnSnipFormDelete event
 $modx->invokeEvent("OnSnipFormDelete",

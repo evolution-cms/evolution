@@ -6,10 +6,10 @@ if (!$modx->hasPermission('logs')) {
     $modx->webAlertAndQuit($_lang["error_no_privileges"]);
 }
 
-$res = $modx->db->query("show variables like 'character_set_database'");
-$charset = $modx->db->getRow($res, 'num');
-$res = $modx->db->query("show variables like 'collation_database'");
-$collation = $modx->db->getRow($res, 'num');
+$res = $modx->getDatabase()->query("show variables like 'character_set_database'");
+$charset = $modx->getDatabase()->getRow($res, 'num');
+$res = $modx->getDatabase()->query("show variables like 'collation_database'");
+$collation = $modx->getDatabase()->getRow($res, 'num');
 
 $serverArr = array(
     $_lang['modx_version'] => $modx->getVersionData('version') . ' ' . $newversiontext,
@@ -22,10 +22,10 @@ $serverArr = array(
     $_lang['serveroffset'] => $server_offset_time / (60 * 60) . ' h',
     $_lang['database_name'] => trim($dbase, '`'),
     $_lang['database_server'] => $database_server,
-    $_lang['database_version'] => $modx->db->getVersion(),
+    $_lang['database_version'] => $modx->getDatabase()->getVersion(),
     $_lang['database_charset'] => $charset[1],
     $_lang['database_collation'] => $collation[1],
-    $_lang['table_prefix'] => $modx->db->config['table_prefix'],
+    $_lang['table_prefix'] => $modx->getDatabase()->config['table_prefix'],
     $_lang['cfg_base_path'] => MODX_BASE_PATH,
     $_lang['cfg_base_url'] => MODX_BASE_URL,
     $_lang['cfg_manager_url'] => MODX_MANAGER_URL,
@@ -95,10 +95,10 @@ $serverArr = array(
                     </thead>
                     <tbody>
                     <?php
-                    $sql = "SHOW TABLE STATUS FROM $dbase LIKE '" . $modx->db->escape($modx->db->config['table_prefix']) . "%';";
-                    $rs = $modx->db->query($sql);
+                    $sql = "SHOW TABLE STATUS FROM $dbase LIKE '" . $modx->getDatabase()->escape($modx->getDatabase()->config['table_prefix']) . "%';";
+                    $rs = $modx->getDatabase()->query($sql);
                     $i = 0;
-                    while ($log_status = $modx->db->getRow($rs)) {
+                    while ($log_status = $modx->getDatabase()->getRow($rs)) {
                         ?>
                         <tr>
                             <td class="text-primary"><b><?= $log_status['Name'] ?></b></td>
@@ -107,8 +107,8 @@ $serverArr = array(
 
                             <?php
                             $truncateable = array(
-                                $modx->db->config['table_prefix'] . 'event_log',
-                                $modx->db->config['table_prefix'] . 'manager_log',
+                                $modx->getDatabase()->config['table_prefix'] . 'event_log',
+                                $modx->getDatabase()->config['table_prefix'] . 'manager_log',
                             );
                             if ($modx->hasPermission('settings') && in_array($log_status['Name'], $truncateable)) {
                                 echo "<td class=\"text-xs-right\">";

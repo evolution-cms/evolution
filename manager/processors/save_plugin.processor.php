@@ -7,13 +7,13 @@ if (!$modx->hasPermission('save_plugin')) {
 }
 
 $id = (int)$_POST['id'];
-$name = $modx->db->escape(trim($_POST['name']));
-$description = $modx->db->escape($_POST['description']);
+$name = $modx->getDatabase()->escape(trim($_POST['name']));
+$description = $modx->getDatabase()->escape($_POST['description']);
 $locked = $_POST['locked'] == 'on' ? '1' : '0';
-$plugincode = $modx->db->escape($_POST['post']);
-$properties = $modx->db->escape($_POST['properties']);
+$plugincode = $modx->getDatabase()->escape($_POST['post']);
+$properties = $modx->getDatabase()->escape($_POST['properties']);
 $disabled = $_POST['disabled'] == 'on' ? '1' : '0';
-$moduleguid = $modx->db->escape($_POST['moduleguid']);
+$moduleguid = $modx->getDatabase()->escape($_POST['moduleguid']);
 $sysevents = !empty($_POST['sysevents']) ? $_POST['sysevents'] : array();
 $parse_docblock = $_POST['parse_docblock'] == '1' ? '1' : '0';
 $currentdate = time() + $modx->config['server_offset_time'];
@@ -50,7 +50,7 @@ if ($parse_docblock) {
     }
 }
 
-$tblSitePlugins = $modx->getFullTableName('site_plugins');
+$tblSitePlugins = $modx->getDatabase()->getFullTableName('site_plugins');
 $eventIds = array();
 switch ($_POST['mode']) {
     case '101':
@@ -63,16 +63,16 @@ switch ($_POST['mode']) {
 
         // disallow duplicate names for active plugins
         if ($disabled == '0') {
-            $rs = $modx->db->select('COUNT(id)', $modx->getFullTableName('site_plugins'), "name='{$name}' AND disabled='0'");
-            $count = $modx->db->getValue($rs);
+            $rs = $modx->getDatabase()->select('COUNT(id)', $modx->getDatabase()->getFullTableName('site_plugins'), "name='{$name}' AND disabled='0'");
+            $count = $modx->getDatabase()->getValue($rs);
             if ($count > 0) {
-                $modx->manager->saveFormValues(101);
+                $modx->getManagerApi()->saveFormValues(101);
                 $modx->webAlertAndQuit(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $name), 'index.php?a=101');
             }
         }
 
         //do stuff to save the new plugin
-        $newid = $modx->db->insert(array(
+        $newid = $modx->getDatabase()->insert(array(
             'name' => $name,
             'description' => $description,
             'plugincode' => $plugincode,
@@ -120,15 +120,15 @@ switch ($_POST['mode']) {
 
         // disallow duplicate names for active plugins
         if ($disabled == '0') {
-            $rs = $modx->db->select('COUNT(*)', $modx->getFullTableName('site_plugins'), "name='{$name}' AND id!='{$id}' AND disabled='0'");
-            if ($modx->db->getValue($rs) > 0) {
-                $modx->manager->saveFormValues(102);
+            $rs = $modx->getDatabase()->select('COUNT(*)', $modx->getDatabase()->getFullTableName('site_plugins'), "name='{$name}' AND id!='{$id}' AND disabled='0'");
+            if ($modx->getDatabase()->getValue($rs) > 0) {
+                $modx->getManagerApi()->saveFormValues(102);
                 $modx->webAlertAndQuit(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $name), "index.php?a=102&id={$id}");
             }
         }
 
         //do stuff to save the edited plugin
-        $modx->db->update(array(
+        $modx->getDatabase()->update(array(
             'name' => $name,
             'description' => $description,
             'plugincode' => $plugincode,
@@ -169,66 +169,3 @@ switch ($_POST['mode']) {
     default:
         $modx->webAlertAndQuit('No operation set in request.');
 }
-
-# Save Plugin Event Listeners
-function saveEventListeners($id, $sysevents, $mode)
-{
-    global $modx;
-    // save selected system events
-    $formEventList = array();
-    foreach ($sysevents as $evtId) {
-        if(!preg_match('@^[1-9][0-9]*$@',$evtId)) $evtId = getEventIdByName($evtId);
-        if ($mode == '101') {
-            $rs = $modx->db->select('max(priority) as priority', '[+prefix+]site_plugin_events', "evtid='{$evtId}'");
-        } else {
-            $rs = $modx->db->select('priority', '[+prefix+]site_plugin_events', "evtid='{$evtId}' and pluginid='{$id}'");
-        }
-        $prevPriority = $modx->db->getValue($rs);
-        if ($mode == '101') {
-            $priority = isset($prevPriority) ? $prevPriority + 1 : 1;
-        } else {
-            $priority = isset($prevPriority) ? $prevPriority : 1;
-        }
-        $formEventList[] = array('pluginid' => $id, 'evtid' => $evtId, 'priority' => $priority);
-    }
-
-    $evtids = array();
-    foreach ($formEventList as $eventInfo) {
-        $where = vsprintf("pluginid='%s' AND evtid='%s'", $eventInfo);
-        $modx->db->save($eventInfo, '[+prefix+]site_plugin_events', $where);
-        $evtids[] = $eventInfo['evtid'];
-    }
-
-    $rs = $modx->db->select('*', '[+prefix+]site_plugin_events', sprintf("pluginid='%s'", $id));
-    $dbEventList = array();
-    $del = array();
-    while($row = $modx->db->getRow($rs)) {
-        if(!in_array($row['evtid'], $evtids)) $del[] = $row['evtid'];
-    }
-
-    if(empty($del)) return;
-
-    foreach($del as $delid) {
-        $modx->db->delete('[+prefix+]site_plugin_events', sprintf("evtid='%s' AND pluginid='%s'", $delid, $id));
-    }
-}
-
-/**
- * @param string $name
- * @return string|int
- */
-function getEventIdByName($name)
-{
-    global $modx;
-    static $eventIds=array();
-
-    if(isset($eventIds[$name])) return $eventIds[$name];
-
-    $rs = $modx->db->select('id, name', '[+prefix+]system_eventnames');
-    while ($row = $modx->db->getRow($rs)) {
-        $eventIds[$row['name']] = $row['id'];
-    }
-
-    return $eventIds[$name];
-}
-

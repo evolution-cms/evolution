@@ -100,6 +100,61 @@
             </td>
         </tr>
 
+
+          <tr>
+        <th><?php echo $_lang["login_logo_title"] ?><br><small>[(login_logo)]</small></th>
+        <td>
+          <div style="float:right;"><img name="login_logo" style="max-height: 48px" src="<?php echo !empty($login_logo) ? MODX_SITE_URL . $login_logo : $_style['tx']; ?>" /></div>
+          <input name="login_logo" id="login_logo" type="text" maxlength="100" style="width: 200px;" value="<?php echo $login_logo; ?>" /><input type="button" value="<?php echo $_lang['insert']; ?>" onclick="BrowseServer('login_logo')" />
+          <div class="comment"><?php echo $_lang["login_logo_message"] ?></div>
+        </td>
+      </tr>
+       <tr>
+            <td colspan="2">
+                <div class="split"></div>
+            </td>
+        </tr>
+      <tr>
+        <th><?php echo $_lang["login_bg_title"] ?><br><small>[(login_bg)]</small></th>
+        <td>
+          <div style="float:right;"><img name="login_bg" style="max-height: 48px" src="<?php echo !empty($login_bg) ? MODX_SITE_URL . $login_bg : $_style['tx']; ?>" /></div>
+          <input name="login_bg" id="login_bg" type="text" maxlength="100" style="width: 200px;" value="<?php echo $login_bg; ?>" /><input type="button" value="<?php echo $_lang['insert']; ?>" onclick="BrowseServer('login_bg')" />
+          <div class="comment"><?php echo $_lang["login_bg_message"] ?></div>
+        </td>
+      </tr>
+       <tr>
+            <td colspan="2">
+                <div class="split"></div>
+            </td>
+        </tr>
+      <tr>
+        <th><?php echo $_lang['login_form_position_title'] ?><br><small>[(login_form_position)]</small></th>
+        <td>
+            <?php echo wrap_label($_lang['login_form_position_left'],form_radio('login_form_position', 'left'));?><br />
+            <?php echo wrap_label($_lang['login_form_position_center'], form_radio('login_form_position', 'center'));?><br />
+            <?php echo wrap_label($_lang['login_form_position_right'], form_radio('login_form_position', 'right'));?>
+        </td>
+      </tr>
+         <tr>
+            <td colspan="2">
+                <div class="split"></div>
+            </td>
+        </tr>
+
+      <tr>
+        <th><?php echo $_lang['manager_menu_position_title'] ?><br><small>[(manager_menu_position)]</small></th>
+        <td>
+            <?php echo wrap_label($_lang['manager_menu_position_top'],form_radio('manager_menu_position', 'top'));?><br />
+            <?php echo wrap_label($_lang['manager_menu_position_left'], form_radio('manager_menu_position', 'left'));?><br />
+        </td>
+      </tr>
+
+        <tr>
+            <td colspan="2">
+                <div class="split"></div>
+            </td>
+        </tr>
+
         <tr>
             <td nowrap class="warning"><?= $_lang['show_picker'] ?><br>
                 <small>[(show_picker)]</small>
@@ -568,3 +623,64 @@
         </tr>
     </table>
 </div>
+
+<script type="text/javascript">
+  var lastImageCtrl;
+  var lastFileCtrl;
+  function OpenServerBrowser(url, width, height) {
+    var iLeft = (screen.width - width) / 2;
+    var iTop = (screen.height - height) / 2;
+
+    var sOptions = "toolbar=no,status=no,resizable=yes,dependent=yes";
+    sOptions += ",width=" + width;
+    sOptions += ",height=" + height;
+    sOptions += ",left=" + iLeft;
+    sOptions += ",top=" + iTop;
+
+    var oWindow = window.open(url, "FCKBrowseWindow", sOptions);
+  }
+
+  function BrowseServer(ctrl) {
+    lastImageCtrl = ctrl;
+    var w = screen.width * 0.7;
+    var h = screen.height * 0.7;
+    OpenServerBrowser("<?php echo MODX_MANAGER_URL; ?>media/browser/<?php echo $which_browser;?>/browser.php?Type=images", w, h);
+  }
+
+  function BrowseFileServer(ctrl) {
+    lastFileCtrl = ctrl;
+    var w = screen.width * 0.7;
+    var h = screen.height * 0.7;
+    OpenServerBrowser("<?php echo MODX_MANAGER_URL; ?>media/browser/<?php echo $which_browser;?>/browser.php?Type=files", w, h);
+  }
+
+  function SetUrlChange(el) {
+    if ('createEvent' in document) {
+      var evt = document.createEvent('HTMLEvents');
+      evt.initEvent('change', false, true);
+      el.dispatchEvent(evt);
+    } else {
+      el.fireEvent('onchange');
+    }
+  }
+
+  function SetUrl(url, width, height, alt) {
+    if(lastFileCtrl) {
+      var c = document.getElementById(lastFileCtrl);
+      if(c && c.value != url) {
+        c.value = url;
+        SetUrlChange(c);
+      }
+      lastFileCtrl = '';
+    } else if(lastImageCtrl) {
+      var c = document.getElementById(lastImageCtrl);
+      if(c && c.value != url) {
+        c.value = url;
+        SetUrlChange(c);
+      }
+      lastImageCtrl = '';
+    } else {
+      return;
+    }
+  }
+</script>

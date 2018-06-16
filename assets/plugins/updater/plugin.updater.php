@@ -23,6 +23,7 @@ $ThisUser = isset($ThisUser) ? $ThisUser : '';
 $version = isset($version) ? $version : 'evolution-cms/evolution';
 $type = isset($type) ? $type : 'tags';
 $showButton = isset($showButton) ? $showButton : 'AdminOnly';
+$result = '';
 
 if ($role != 1 && $wdgVisibility == 'AdminOnly') {
 
@@ -207,15 +208,19 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
         switch ($_GET['q']) {
             case $_SESSION['updatelink']:
                 $currentVersion = $modx->getVersionData();
-                $commit = $_GET['sha'];
+                $commit = isset($_GET['sha']) ? $_GET['sha'] : '';
                 if ($_SESSION['updateversion'] != $currentVersion['version'] || (isset($commit) && $type == 'commits')) {
 
                     file_put_contents(MODX_BASE_PATH . 'update.php', '<?php
-function downloadFile($url, $path)
-{
+function downloadFile(
+    $url,
+    $path
+) {
     $newfname = $path;
+    $file = null;
+    $newf = null;
     try {
-        if( ini_get("allow_url_fopen") ) {
+        if (ini_get("allow_url_fopen")) {
             $file = fopen($url, "rb");
             if ($file) {
                 $newf = fopen($newfname, "wb");
@@ -233,7 +238,7 @@ function downloadFile($url, $path)
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
             $content = curl_exec($ch);
             curl_close($ch);
-            file_put_contents($newfname,$content);
+            file_put_contents($newfname, $content);
         }
     } catch (Exception $e) {
         $this->errors[] = array("ERROR:Download", $e->getMessage());
@@ -257,9 +262,8 @@ function removeFolder($path)
         return;
     }
 
-    $it    = new RecursiveDirectoryIterator($dir);
-    $files = new RecursiveIteratorIterator($it,
-        RecursiveIteratorIterator::CHILD_FIRST);
+    $it = new RecursiveDirectoryIterator($dir);
+    $files = new RecursiveIteratorIterator($it, RecursiveIteratorIterator::CHILD_FIRST);
     foreach ($files as $file) {
         if ($file->getFilename() === "." || $file->getFilename() === "..") {
             continue;
@@ -273,10 +277,12 @@ function removeFolder($path)
     rmdir($dir);
 }
 
-function copyFolder($src, $dest)
-{
-    $path    = realpath($src);
-    $dest    = realpath($dest);
+function copyFolder(
+    $src,
+    $dest
+) {
+    $path = realpath($src);
+    $dest = realpath($dest);
     $objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path), RecursiveIteratorIterator::SELF_FIRST);
     foreach ($objects as $name => $object) {
 
@@ -287,13 +293,15 @@ function copyFolder($src, $dest)
         }
 
         if (is_writable($dest . $startsAt) and $object->isFile()) {
-            copy((string) $name, $dest . $startsAt . DIRECTORY_SEPARATOR . basename($name));
+            copy((string)$name, $dest . $startsAt . DIRECTORY_SEPARATOR . basename($name));
         }
     }
 }
 
-function mmkDir($folder, $perm = 0777)
-{
+function mmkDir(
+    $folder,
+    $perm = 0777
+) {
     if (!is_dir($folder)) {
         mkdir($folder, $perm);
     }
@@ -301,7 +309,7 @@ function mmkDir($folder, $perm = 0777)
 
 $version = "' . $version . '";
 
-downloadFile("https://github.com/".$version."/archive/" . $_GET["version"] . ".zip", "evo.zip");
+downloadFile("https://github.com/" . $version . "/archive/" . $_GET["version"] . ".zip", "evo.zip");
 $zip = new ZipArchive;
 $res = $zip->open(__DIR__ . "/evo.zip");
 $zip->extractTo(__DIR__ . "/temp");
@@ -321,24 +329,26 @@ removeFolder(__DIR__ . "/temp/" . $dir . "/install/assets/templates");
 unlink(__DIR__ . "/temp/" . $dir . "/ht.access");
 unlink(__DIR__ . "/temp/" . $dir . "/README.md");
 unlink(__DIR__ . "/temp/" . $dir . "/sample-robots.txt");
+unlink(__DIR__ . "/temp/" . $dir . "/composer.json");
 
-
-if(is_file(__DIR__ . "/assets/cache/siteManager.php")){
+if (is_file(__DIR__ . "/assets/cache/siteManager.php")) {
 
     unlink(__DIR__ . "/temp/" . $dir . "/assets/cache/siteManager.php");
     include_once(__DIR__ . "/assets/cache/siteManager.php");
-    if(!defined("MGR_DIR")){ define("MGR_DIR","manager"); }
-    if(MGR_DIR != "manager"){
-        mmkDir(__DIR__."/temp/".$dir."/".MGR_DIR);
-        copyFolder(__DIR__."/temp/".$dir."/manager", __DIR__."/temp/".$dir."/".MGR_DIR);
-        removeFolder(__DIR__."/temp/".$dir."/manager");
-    } 
+    if (!defined("MGR_DIR")) {
+        define("MGR_DIR", "manager");
+    }
+    if (MGR_DIR != "manager") {
+        mmkDir(__DIR__ . "/temp/" . $dir . "/" . MGR_DIR);
+        copyFolder(__DIR__ . "/temp/" . $dir . "/manager", __DIR__ . "/temp/" . $dir . "/" . MGR_DIR);
+        removeFolder(__DIR__ . "/temp/" . $dir . "/manager");
+    }
     // echo __DIR__."/temp/".$dir."/".MGR_DIR;
 }
-copyFolder(__DIR__."/temp/".$dir, __DIR__."/");
-removeFolder(__DIR__."/temp");
-unlink(__DIR__."/evo.zip");
-unlink(__DIR__."/update.php");
+copyFolder(__DIR__ . "/temp/" . $dir, __DIR__ . "/");
+removeFolder(__DIR__ . "/temp");
+unlink(__DIR__ . "/evo.zip");
+unlink(__DIR__ . "/update.php");
 header("Location: ' . constant('MODX_SITE_URL') . 'install/index.php?action=mode");');
                 if ($result === false){
                     echo 'Update failed: cannot write to ' . MODX_BASE_PATH . 'update.php';

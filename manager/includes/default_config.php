@@ -108,4 +108,9 @@ $c['search_default']           = '1';
 $c['group_tvs']                = 0;
 $c['global_tabs']              = 1;
 $c['manager_theme_mode']       = '3';
+$c['login_form_position']      = 'left';
+$c['manager_menu_position']    = 'top';
+$c['tinymce4_skin']            = 'lightgray';
+
+
 

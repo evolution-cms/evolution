@@ -11,4 +11,4 @@
 .contextMenu .cntxMnuItem { white-space: nowrap }
 /* modes theme */
 /* darkness */
-.darkness #mx_contextmenu, .darkness #contextmenu, .darkness .nu-context-menu, .darkness .contextMenu { background-color: #343942; }
+.darkness #mx_contextmenu, .darkness #contextmenu, .darkness .nu-context-menu, .darkness .contextMenu { background-color: #343942; color: inherit; }

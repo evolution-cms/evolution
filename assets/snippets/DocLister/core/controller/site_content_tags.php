@@ -33,7 +33,7 @@ class site_content_tagsDocLister extends site_contentDocLister
     }
 
     /**
-     * @absctract
+     * @abstract
      */
     public function getUrl($id = 0)
     {
@@ -114,7 +114,7 @@ class site_content_tagsDocLister extends site_contentDocLister
             if (is_array($tag['tag'])) {
                 $where = "t.`name` IN (" . $this->sanitarIn($tag['tag']) . ")";
             } else {
-                $where = "t.`name`='" . $this->modx->db->escape($tag['tag']) . "'";
+                $where = "t.`name`='" . $this->modx->getDatabase()->escape($tag['tag']) . "'";
             }
             $where .= ($this->getCFGDef('tagsData', '') > 0) ? "AND ct.tv_id=" . (int)$this->getCFGDef(
                 'tagsData',

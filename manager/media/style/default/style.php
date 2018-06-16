@@ -15,7 +15,7 @@ if(!$modx->config['lang_code']) {
 	$modx->config['lang_code'] = !$modx_lang_attribute ? 'en' : $modx_lang_attribute;
 }
 
-if($_GET['a'] == 2) {
+if(!empty($_GET['a']) && $_GET['a'] == 2) {
 	include_once('welcome.php');
 }
 

@@ -107,7 +107,7 @@
                     window.location = this.response.substr(10);
                 } else {
                     var cimg = document.getElementById('captcha_image');
-                    if(cimg) cimg.src = 'includes/veriword.php?rand=' + Math.random();
+                    if(cimg) cimg.src = 'captcha.php?rand=' + Math.random();
                     form.submitButton.classList.remove('scaleX');
                     alert(this.response);
                 }

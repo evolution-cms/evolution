@@ -53,19 +53,19 @@ if(is_array($evtOut)) {
 	<div id="treeHolder">
 		<?php
 		// invoke OnManagerTreePrerender event
-		$evtOut = $modx->invokeEvent('OnManagerTreePrerender', $modx->db->escape($_REQUEST));
+		$evtOut = $modx->invokeEvent('OnManagerTreePrerender', $modx->getDatabase()->escape($_REQUEST));
 		if(is_array($evtOut)) {
 			echo implode("\n", $evtOut);
 		}
 		?>
-		<div id="node0" class="rootNode"><a class="node" onclick="modx.tree.treeAction(event, 0)" data-id="0" data-title-esc="<?php $site_name = htmlspecialchars($site_name, ENT_QUOTES, $modx->config['modx_charset']);
+		<div id="node0" class="rootNode"><a class="node" onclick="modx.tree.treeAction(event, 0)" data-id="0" data-title-esc="<?php $site_name = $modx->getPhpCompat()->entities($site_name);
 			echo $site_name; ?>"><span class="icon"><?php echo $_style['tree_showtree']; ?></span><span class="title"><?php echo $site_name; ?></span></a>
 			<div id="treeloader"><i class="fa fa-cog fa-spin fa-3x fa-fw"></i></div>
 		</div>
 		<div id="treeRoot"></div>
 		<?php
 		// invoke OnManagerTreeRender event
-		$evtOut = $modx->invokeEvent('OnManagerTreeRender', $modx->db->escape($_REQUEST));
+		$evtOut = $modx->invokeEvent('OnManagerTreeRender', $modx->getDatabase()->escape($_REQUEST));
 		if(is_array($evtOut)) {
 			echo implode("\n", $evtOut);
 		}

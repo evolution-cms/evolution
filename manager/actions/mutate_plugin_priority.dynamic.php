@@ -12,7 +12,7 @@ $updateMsg = '';
 
 if (isset($_POST['listSubmitted'])) {
     $updateMsg .= '<span class="text-success" id="updated">' . $_lang['sort_updated'] . '</span>';
-    $tbl = $modx->getFullTableName('site_plugin_events');
+    $tbl = $modx->getDatabase()->getFullTableName('site_plugin_events');
 
     foreach ($_POST as $listName => $listValue) {
         if ($listName == 'listSubmitted') {
@@ -26,7 +26,7 @@ if (isset($_POST['listSubmitted'])) {
                     continue;
                 }
                 $pluginId = ltrim($item, 'item_');
-                $modx->db->update(array('priority' => $key), $tbl, "pluginid='{$pluginId}' AND evtid='{$listName}'");
+                $modx->getDatabase()->update(array('priority' => $key), $tbl, "pluginid='{$pluginId}' AND evtid='{$listName}'");
             }
         }
     }
@@ -34,16 +34,16 @@ if (isset($_POST['listSubmitted'])) {
     $modx->clearCache('full');
 }
 
-$rs = $modx->db->select("sysevt.name as evtname, sysevt.id as evtid, pe.pluginid, plugs.name, pe.priority, plugs.disabled", $modx->getFullTableName('system_eventnames') . " sysevt
-		INNER JOIN " . $modx->getFullTableName('site_plugin_events') . " pe ON pe.evtid = sysevt.id
-		INNER JOIN " . $modx->getFullTableName('site_plugins') . " plugs ON plugs.id = pe.pluginid", '', 'sysevt.name,pe.priority');
+$rs = $modx->getDatabase()->select("sysevt.name as evtname, sysevt.id as evtid, pe.pluginid, plugs.name, pe.priority, plugs.disabled", $modx->getDatabase()->getFullTableName('system_eventnames') . " sysevt
+		INNER JOIN " . $modx->getDatabase()->getFullTableName('site_plugin_events') . " pe ON pe.evtid = sysevt.id
+		INNER JOIN " . $modx->getDatabase()->getFullTableName('site_plugins') . " plugs ON plugs.id = pe.pluginid", '', 'sysevt.name,pe.priority');
 
 $insideUl = 0;
 $preEvt = '';
 $sortableList = '';
 $sortables = array();
 
-while ($plugins = $modx->db->getRow($rs)) {
+while ($plugins = $modx->getDatabase()->getRow($rs)) {
     if ($preEvt !== $plugins['evtid']) {
         $sortables[] = $plugins['evtid'];
         $sortableList .= $insideUl ? '</ul></div>' : '';

@@ -10,7 +10,7 @@ class Validator
      * @param $value
      * @return bool
      */
-    public function required($value) {
+    public static function required($value) {
         return !in_array($value, array(null, ''), true);
     }
 
@@ -19,7 +19,7 @@ class Validator
      * @param $format
      * @return bool
      */
-    public function date($value, $format) {
+    public static function date($value, $format) {
         if (!is_scalar($value)) {
             return false;
         }
@@ -32,7 +32,7 @@ class Validator
      * @param $min
      * @return bool
      */
-    public function min($value, $min)
+    public static function min($value, $min)
     {
         return is_scalar($value) && $value >= $min;
     }
@@ -42,7 +42,7 @@ class Validator
      * @param $max
      * @return bool
      */
-    public function max($value, $max)
+    public static function max($value, $max)
     {
         return is_scalar($value) && $value <= $max;
     }
@@ -52,7 +52,7 @@ class Validator
      * @param $min
      * @return bool
      */
-    public function greater($value, $min)
+    public static function greater($value, $min)
     {
         return is_scalar($value) && $value > $min;
     }
@@ -62,7 +62,7 @@ class Validator
      * @param $max
      * @return bool
      */
-    public function less($value, $max)
+    public static function less($value, $max)
     {
         return is_scalar($value) && $value < $max;
     }
@@ -73,7 +73,7 @@ class Validator
      * @param $max
      * @return bool
      */
-    public function between($value, $min, $max)
+    public static function between($value, $min, $max)
     {
         return (is_scalar($value) && $value >= $min && $value <= $max);
     }
@@ -83,7 +83,7 @@ class Validator
      * @param $allowed
      * @return bool
      */
-    public function equals($value, $allowed)
+    public static function equals($value, $allowed)
     {
         return is_scalar($value) && $value === $allowed;
     }
@@ -93,7 +93,7 @@ class Validator
      * @param array $allowed
      * @return bool
      */
-    public function in($value, $allowed)
+    public static function in($value, $allowed)
     {
         return is_scalar($value) && in_array($value, $allowed, true);
     }
@@ -102,7 +102,7 @@ class Validator
      * @param $value
      * @return bool
      */
-    public function alpha($value)
+    public static function alpha($value)
     {
         return (bool) is_scalar($value) && preg_match('/^\pL++$/uD', $value);
     }
@@ -111,8 +111,9 @@ class Validator
      * @param $value
      * @return bool
      */
-    public function numeric($value)
+    public static function numeric($value)
     {
+        //var_dump($value);
         return (bool) is_scalar($value) && preg_match('#^[0-9]*$#',$value);
     }
 
@@ -120,7 +121,7 @@ class Validator
      * @param $value
      * @return bool
      */
-    public function alphaNumeric($value)
+    public static function alphaNumeric($value)
     {
         return (bool) is_scalar($value) && preg_match('/^[\pL\pN]++$/uD', $value);
     }
@@ -129,7 +130,7 @@ class Validator
      * @param $value
      * @return bool
      */
-    public function slug($value)
+    public static function slug($value)
     {
         return (bool) is_scalar($value) && preg_match('/^[\pL\pN\-\_]++$/uD', $value);
     }
@@ -138,7 +139,7 @@ class Validator
      * @param $value
      * @return bool
      */
-    public function decimal($value)
+    public static function decimal($value)
     {
         return (bool) is_scalar($value) && preg_match('/^[0-9]+(?:\.[0-9]+)?$/D', $value);
     }
@@ -148,7 +149,7 @@ class Validator
      * @param $value
      * @return bool
      */
-    public function phone($value)
+    public static function phone($value)
     {
         return (bool) is_scalar($value) && preg_match('#^[0-9\(\)\+ \-]*$#',$value);
     }
@@ -158,7 +159,7 @@ class Validator
      * @param $regexp
      * @return bool
      */
-    public function matches($value,$regexp)
+    public static function matches($value,$regexp)
     {
         return (bool) is_scalar($value) && preg_match($regexp,$value);
     }
@@ -167,7 +168,7 @@ class Validator
      * @param $value
      * @return bool
      */
-    public function url($value)
+    public static function url($value)
     {
         return (bool) is_scalar($value) && preg_match(
             '~^
@@ -184,7 +185,7 @@ class Validator
      * @param $value
      * @return bool
      */
-    public function email($value)
+    public static function email($value)
     {
         return (bool) is_scalar($value) && preg_match(
             '/^
@@ -203,9 +204,9 @@ class Validator
      * @param $length
      * @return bool
      */
-    public function length($value, $length)
+    public static function length($value, $length)
     {
-        return $this->getLength($value) === $length;
+        return self::getLength($value) === $length;
     }
 
     /**
@@ -213,9 +214,9 @@ class Validator
      * @param $minLength
      * @return bool
      */
-    public function minLength($value, $minLength)
+    public static function minLength($value, $minLength)
     {
-        return $this->getLength($value) >= $minLength;
+        return self::getLength($value) >= $minLength;
     }
 
     /**
@@ -223,9 +224,9 @@ class Validator
      * @param $maxLength
      * @return bool
      */
-    public function maxLength($value, $maxLength)
+    public static function maxLength($value, $maxLength)
     {
-        return $this->getLength($value) <= $maxLength;
+        return self::getLength($value) <= $maxLength;
     }
 
     /**
@@ -234,12 +235,12 @@ class Validator
      * @param $maxLength
      * @return bool
      */
-    public function lengthBetween($value, $minLength, $maxLength)
+    public static function lengthBetween($value, $minLength, $maxLength)
     {
         if (!is_scalar($value)) {
             return false;
         }
-        $length = $this->getLength($value);
+        $length = self::getLength($value);
 
         return ($length >= $minLength && $length <= $maxLength);
     }
@@ -249,7 +250,7 @@ class Validator
      * @param $minSize
      * @return bool
      */
-    public function minCount($value, $minSize) {
+    public static function minCount($value, $minSize) {
         return is_array($value) && count($value) >= $minSize;
     }
 
@@ -258,7 +259,7 @@ class Validator
      * @param $maxSize
      * @return bool
      */
-    public function maxCount($value, $maxSize) {
+    public static function maxCount($value, $maxSize) {
         return is_array($value) && count($value) <= $maxSize;
     }
 
@@ -268,7 +269,7 @@ class Validator
      * @param $maxSize
      * @return bool
      */
-    public function countBetween($value, $minSize, $maxSize) {
+    public static function countBetween($value, $minSize, $maxSize) {
         return (is_array($value) && count($value) >= $minSize && count($value) <= $maxSize);
     }
 
@@ -276,7 +277,7 @@ class Validator
      * @param $string
      * @return int
      */
-    protected function getLength($string)
+    protected static function getLength($string)
     {
         return strlen(utf8_decode($string));
     }

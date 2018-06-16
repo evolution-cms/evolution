@@ -7,9 +7,9 @@ if (!$modx->hasPermission('save_template')) {
 }
 
 $id = (int)$_POST['id'];
-$template = $modx->db->escape($_POST['post']);
-$templatename = $modx->db->escape(trim($_POST['templatename']));
-$description = $modx->db->escape($_POST['description']);
+$template = $modx->getDatabase()->escape($_POST['post']);
+$templatename = $modx->getDatabase()->escape(trim($_POST['templatename']));
+$description = $modx->getDatabase()->escape($_POST['description']);
 $locked = $_POST['locked'] == 'on' ? 1 : 0;
 $selectable = $id == $modx->config['default_template'] ? 1 :    // Force selectable
     $_POST['selectable'] == 'on' ? 1 : 0;
@@ -42,15 +42,15 @@ switch ($_POST['mode']) {
         ));
 
         // disallow duplicate names for new templates
-        $rs = $modx->db->select('COUNT(id)', $modx->getFullTableName('site_templates'), "templatename='{$templatename}'");
-        $count = $modx->db->getValue($rs);
+        $rs = $modx->getDatabase()->select('COUNT(id)', $modx->getDatabase()->getFullTableName('site_templates'), "templatename='{$templatename}'");
+        $count = $modx->getDatabase()->getValue($rs);
         if ($count > 0) {
-            $modx->manager->saveFormValues(19);
+            $modx->getManagerApi()->saveFormValues(19);
             $modx->webAlertAndQuit(sprintf($_lang['duplicate_name_found_general'], $_lang['template'], $templatename), "index.php?a=19");
         }
 
         //do stuff to save the new doc
-        $newid = $modx->db->insert(array(
+        $newid = $modx->getDatabase()->insert(array(
             'templatename' => $templatename,
             'description' => $description,
             'content' => $template,
@@ -59,7 +59,7 @@ switch ($_POST['mode']) {
             'category' => $categoryid,
             'createdon' => $currentdate,
             'editedon' => $currentdate
-        ), $modx->getFullTableName('site_templates'));
+        ), $modx->getDatabase()->getFullTableName('site_templates'));
 
         // invoke OnTempFormSave event
         $modx->invokeEvent("OnTempFormSave", array(
@@ -95,15 +95,15 @@ switch ($_POST['mode']) {
         ));
 
         // disallow duplicate names for templates
-        $rs = $modx->db->select('COUNT(*)', $modx->getFullTableName('site_templates'), "templatename='{$templatename}' AND id!='{$id}'");
-        $count = $modx->db->getValue($rs);
+        $rs = $modx->getDatabase()->select('COUNT(*)', $modx->getDatabase()->getFullTableName('site_templates'), "templatename='{$templatename}' AND id!='{$id}'");
+        $count = $modx->getDatabase()->getValue($rs);
         if ($count > 0) {
-            $modx->manager->saveFormValues(16);
+            $modx->getManagerApi()->saveFormValues(16);
             $modx->webAlertAndQuit(sprintf($_lang['duplicate_name_found_general'], $_lang['template'], $templatename), "index.php?a=16&id={$id}");
         }
 
         //do stuff to save the edited doc
-        $modx->db->update(array(
+        $modx->getDatabase()->update(array(
             'templatename' => $templatename,
             'description' => $description,
             'content' => $template,
@@ -111,7 +111,7 @@ switch ($_POST['mode']) {
             'selectable' => $selectable,
             'category' => $categoryid,
             'editedon' => $currentdate
-        ), $modx->getFullTableName('site_templates'), "id='{$id}'");
+        ), $modx->getDatabase()->getFullTableName('site_templates'), "id='{$id}'");
         // Set new assigned Tvs
         saveTemplateAccess($id);
 
@@ -142,40 +142,4 @@ switch ($_POST['mode']) {
         break;
     default:
         $modx->webAlertAndQuit("No operation set in request.");
-}
-
-/**
- * @param int $id
- */
-function saveTemplateAccess($id)
-{
-    global $modx;
-    if ($_POST['tvsDirty'] == 1) {
-        $newAssignedTvs = $_POST['assignedTv'];
-
-        // Preserve rankings of already assigned TVs
-        $rs = $modx->db->select("tmplvarid, rank", $modx->getFullTableName('site_tmplvar_templates'), "templateid='{$id}'", "");
-
-        $ranksArr = array();
-        $highest = 0;
-        while ($row = $modx->db->getRow($rs)) {
-            $ranksArr[$row['tmplvarid']] = $row['rank'];
-            $highest = $highest < $row['rank'] ? $row['rank'] : $highest;
-        };
-
-        $modx->db->delete($modx->getFullTableName('site_tmplvar_templates'), "templateid='{$id}'");
-        if (empty($newAssignedTvs)) {
-            return;
-        }
-        foreach ($newAssignedTvs as $tvid) {
-            if (!$id || !$tvid) {
-                continue;
-            }    // Dont link zeros
-            $modx->db->insert(array(
-                'templateid' => $id,
-                'tmplvarid' => $tvid,
-                'rank' => isset($ranksArr[$tvid]) ? $ranksArr[$tvid] : $highest += 1 // append TVs to rank
-            ), $modx->getFullTableName('site_tmplvar_templates'));
-        }
-    }
 }

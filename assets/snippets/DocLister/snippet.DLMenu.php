@@ -7,6 +7,9 @@ if (!isset($params['addWhereList'])) {
 }
 if (!isset($params['sortBy'])) {
     $params['sortBy'] = 'c.menuindex';
+    if (isset($params['sortType1']) && $params['sortType1'] === 'doclist') {
+        $params['sortBy1'] = 'c.id';
+    }
 }
 if (!isset($params['sortDir'])) {
     $params['sortDir'] = 'ASC';

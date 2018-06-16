@@ -12,7 +12,7 @@ if ($id==0) {
 }
 
 // Set the item name for logger
-$name = $modx->db->getValue($modx->db->select('category', $modx->getFullTableName('categories'), "id='{$id}'"));
+$name = $modx->getDatabase()->getValue($modx->getDatabase()->select('category', $modx->getDatabase()->getFullTableName('categories'), "id='{$id}'"));
 $_SESSION['itemname'] = $name;
 
 include_once(MODX_MANAGER_PATH.'includes/categories.inc.php');

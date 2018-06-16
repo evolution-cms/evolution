@@ -31,31 +31,54 @@ if($modx->hasPermission('messages')) {
 	$ph['MessageInfo'] = implode("\n", $msg);
 }
 
+$iconTpl = $modx->getChunk('manager#welcome\WrapIcon');
 // setup icons
 if($modx->hasPermission('new_user') || $modx->hasPermission('edit_user')) {
 	$icon = '<i class="[&icons_security_large&]" alt="[%user_management_title%]"> </i>[%user_management_title%]';
-	$ph['SecurityIcon'] = wrapIcon($icon, 75);
+	$ph['SecurityIcon'] = sprintf($iconTpl,$icon, 75);
 }
 if($modx->hasPermission('new_web_user') || $modx->hasPermission('edit_web_user')) {
 	$icon = '<i class="[&icons_webusers_large&]" alt="[%web_user_management_title%]"> </i>[%web_user_management_title%]';
-	$ph['WebUserIcon'] = wrapIcon($icon, 99);
+	$ph['WebUserIcon'] = sprintf($iconTpl,$icon, 99);
 }
 if($modx->hasPermission('new_module') || $modx->hasPermission('edit_module')) {
 	$icon = '<i class="[&icons_modules_large&]" alt="[%manage_modules%]"> </i>[%modules%]';
-	$ph['ModulesIcon'] = wrapIcon($icon, 106);
+	$ph['ModulesIcon'] = sprintf($iconTpl,$icon, 106);
 }
 if($modx->hasPermission('new_template') || $modx->hasPermission('edit_template') || $modx->hasPermission('new_snippet') || $modx->hasPermission('edit_snippet') || $modx->hasPermission('new_plugin') || $modx->hasPermission('edit_plugin') || $modx->hasPermission('manage_metatags')) {
 	$icon = '<i class="[&icons_resources_large&]" alt="[%element_management%]"> </i>[%elements%]';
-	$ph['ResourcesIcon'] = wrapIcon($icon, 76);
+	$ph['ResourcesIcon'] = sprintf($iconTpl,$icon, 76);
 }
 if($modx->hasPermission('bk_manager')) {
 	$icon = '<i class="[&icons_backup_large&]" alt="[%bk_manager%]"> </i>[%backup%]';
-	$ph['BackupIcon'] = wrapIcon($icon, 93);
+	$ph['BackupIcon'] = sprintf($iconTpl,$icon, 93);
 }
 if($modx->hasPermission('help')) {
 	$icon = '<i class="[&icons_help_large&]" alt="[%help%]" /> </i>[%help%]';
-	$ph['HelpIcon'] = wrapIcon($icon, 9);
+	$ph['HelpIcon'] = sprintf($iconTpl,$icon, 9);
 }
+
+if($modx->hasPermission('new_document')) {
+	$icon = '<i class="[&icons_resource_large&]"></i>[%add_resource%]';
+	$ph['ResourceIcon'] = sprintf($iconTpl,$icon, 4);
+	$icon = '<i class="[&icons_weblink_large&]"></i>[%add_weblink%]';
+	$ph['WeblinkIcon'] = sprintf($iconTpl,$icon, 72);
+}
+if($modx->hasPermission('assets_images')) {
+	$icon = '<i class="[&icons_images_large&]"></i>[%images_management%]';
+	$ph['ImagesIcon'] = sprintf($iconTpl,$icon, 72);
+}
+if($modx->hasPermission('assets_files')) {
+	$icon = '<i class="[&icons_files_large&]"></i>[%files_management%]';
+	$ph['FilesIcon'] = sprintf($iconTpl,$icon, 72);
+}
+if($modx->hasPermission('change_password')) {
+	$icon = '<i class="[&icons_password_large&]"></i>[%change_password%]';
+	$ph['PasswordIcon'] = sprintf($iconTpl,$icon, 28);
+}
+$icon = '<i class="[&icons_logout_large&]"></i>[%logout%]';
+$ph['LogoutIcon'] = sprintf($iconTpl,$icon, 8);
+
 // do some config checks
 if(($modx->config['warning_visibility'] == 0 && $_SESSION['mgrRole'] == 1) || $modx->config['warning_visibility'] == 1) {
 	include_once(MODX_MANAGER_PATH . 'includes/config_check.inc.php');
@@ -84,9 +107,9 @@ if(isset($_SESSION['show_logout_reminder'])) {
 }
 
 // Check multiple sessions
-//$where = sprintf("internalKey='%s'", $modx->db->escape($_SESSION['mgrInternalKey']));
-//$rs = $modx->db->select('count(*) AS count', '[+prefix+]active_user_sessions', $where);
-//$count = $modx->db->getValue($rs);
+//$where = sprintf("internalKey='%s'", $modx->getDatabase()->escape($_SESSION['mgrInternalKey']));
+//$rs = $modx->getDatabase()->select('count(*) AS count', $modx->getDatabase()->getFullTableName('active_user_sessions'), $where);
+//$count = $modx->getDatabase()->getValue($rs);
 /*
 if($count > 1) {
 	$ph['multiple_sessions_msg'] = $modx->parseText($_lang['multiple_sessions_msg'], array(
@@ -99,7 +122,7 @@ if($count > 1) {
 }*/
 $ph['show_multiple_sessions'] = 'none';
 
-$ph['RecentInfo'] = getRecentInfo();
+$ph['RecentInfo'] = $modx->getChunk('manager#welcome\RecentInfo');
 
 $tpl = '
 <table class="table data">
@@ -136,11 +159,11 @@ $ph['UserInfo'] = $modx->parseText($tpl, array(
 ));
 
 $from = array();
-$from[] = '[+prefix+]active_user_sessions';
-$from[] = " us LEFT JOIN [+prefix+]active_users au ON au.sid=us.sid WHERE au.action <> '8'";
-$rs = $modx->db->select('*', $from, '', 'username ASC, au.sid ASC');
+$from[] = $modx->getDatabase()->getFullTableName('active_user_sessions');
+$from[] = " us LEFT JOIN " . $modx->getDatabase()->getFullTableName('active_users') . " au ON au.sid=us.sid WHERE au.action <> '8'";
+$rs = $modx->getDatabase()->select('*', $from, '', 'username ASC, au.sid ASC');
 
-if($modx->db->getRecordCount($rs) < 1) {
+if($modx->getDatabase()->getRecordCount($rs) < 1) {
 	$html = '<p>[%no_active_users_found%]</p>';
 } else {
 	include_once(MODX_MANAGER_PATH . 'includes/actionlist.inc.php');
@@ -168,7 +191,7 @@ if($modx->db->getRecordCount($rs) < 1) {
 	$userList = array();
 	$userCount = array();
 	// Create userlist with session-count first before output
-	while($activeusers = $modx->db->getRow($rs)) {
+	while($activeusers = $modx->getDatabase()->getRow($rs)) {
 		$userCount[$activeusers['internalKey']] = isset($userCount[$activeusers['internalKey']]) ? $userCount[$activeusers['internalKey']] + 1 : 1;
 
 		$idle = $activeusers['lasthit'] < $timetocheck ? ' class="userIdle"' : '';
@@ -205,7 +228,7 @@ $ph['modx_security_notices_content'] = $feedData['modx_security_notices_content'
 $ph['modx_news_content'] = $feedData['modx_news_content'];
 
 $ph['theme'] = $modx->config['manager_theme'];
-$ph['site_name'] = $modx->config['site_name'];
+$ph['site_name'] = $modx->getPhpCompat()->entities($modx->config['site_name']);
 $ph['home'] = $_lang['home'];
 $ph['logo_slogan'] = $_lang['logo_slogan'];
 $ph['welcome_title'] = $_lang['welcome_title'];
@@ -226,7 +249,7 @@ $ph['modx_news_title'] = $_lang['modx_news_title'];
 
 $modx->toPlaceholders($ph);
 
-$script = getStartUpScript();
+$script = $modx->getChunk('manager#welcome\StartUpScript');
 $modx->regClientScript($script);
 
 // invoke event OnManagerWelcomePrerender
@@ -239,59 +262,55 @@ if(is_array($evtOut)) {
 $widgets['welcome'] = array(
 	'menuindex' => '10',
 	'id' => 'welcome',
-	'cols' => 'col-sm-6',
+	'cols' => 'col-lg-6',
 	'icon' => 'fa-home',
 	'title' => '[%welcome_title%]',
 	'body' => '
 				<div class="wm_buttons card-body"> 
-					<!--@IF:[[#hasPermission?key=new_user]] OR [[#hasPermission?key=edit_user]]--> 
+					<!--@IF:[[#hasPermission?key=new_document]]--> 
 					<span class="wm_button">
-						<a target="main" href="index.php?a=75">
-							<i class="[&icons_security_large&]" title="[%user_management_title%]"></i>
-							<span>[%user_management_title%]</span>
+						<a target="main" href="index.php?a=4">
+							<i class="[&icons_resource_large&]"></i>
+							<span>[%add_resource%]</span>
+						</a>
+					</span> 
+					<span class="wm_button">
+						<a target="main" href="index.php?a=72">
+							<i class="[&icons_weblink_large&]"></i>
+							<span>[%add_weblink%]</span>
 						</a>
 					</span> 
 					<!--@ENDIF--> 
-					<!--@IF:[[#hasPermission?key=new_web_user]] OR [[#hasPermission?key=edit_web_user]]--> 
+					<!--@IF:[[#hasPermission?key=assets_images]]--> 
 					<span class="wm_button">
-						<a target="main" href="index.php?a=99">
-							<i class="[&icons_webusers_large&]" title="[%web_user_management_title%]"></i>
-							<span>[%web_user_management_title%]</span>
+						<a target="main" href="media/browser/mcpuk/browse.php?filemanager=media/browser/mcpuk/browse.php&type=images">
+							<i class="[&icons_images_large&]"></i>
+							<span>[%images_management%]</span>
+						</a>
+					</span> 
+					<!--@ENDIF-->
+					<!--@IF:[[#hasPermission?key=assets_files]]--> 
+					<span class="wm_button">
+						<a target="main" href="media/browser/mcpuk/browse.php?filemanager=media/browser/mcpuk/browse.php&type=files">
+							<i class="[&icons_files_large&]"></i>
+							<span>[%files_management%]</span>
+						</a>
+					</span> 
+					<!--@ENDIF-->
+					<!--@IF:[[#hasPermission?key=change_password]]--> 
+					<span class="wm_button">
+						<a target="main" href="index.php?a=28">
+							<i class="[&icons_password_large&]"></i>
+							<span>[%change_password%]</span>
 						</a>
 					</span> 
 					<!--@ENDIF--> 
-					<!--@IF:[[#hasPermission?key=new_module]] OR [[#hasPermission?key=edit_module]]--> 
 					<span class="wm_button">
-						<a target="main" href="index.php?a=106">
-							<i class="[&icons_modules_large&]" title="[%manage_modules%]"></i>
-							<span>[%modules%]</span>
+						<a target="_top" href="index.php?a=8">
+							<i class="[&icons_logout_large&]"></i>
+							<span>[%logout%]</span>
 						</a>
 					</span> 
-					<!--@ENDIF--> 
-					<!--@IF:[[#hasAnyPermission:is(1)]] --> 
-					<span class="wm_button">
-						<a target="main" href="index.php?a=76">
-							<i class="[&icons_resources_large&]" title="[%element_management%]"></i>
-							<span>[%elements%]</span>
-						</a>
-					</span> 
-					<!--@ENDIF--> 
-					<!--@IF:[[#hasPermission?key=bk_manager]]--> 
-					<span class="wm_button">
-						<a target="main" href="index.php?a=93">
-							<i class="[&icons_backup_large&]" title="[%bk_manager%]"></i>
-							<span>[%backup%]</span>
-						</a>
-					</span> 
-					<!--@ENDIF--> 
-					<!--@IF:[[#hasPermission?key=help]] OR [[#hasPermission?key=edit_module]]--> 
-					<span class="wm_button">
-						<a target="main" href="index.php?a=9">
-							<i class="[&icons_help_large&]" title="[%help%]"></i>
-							<span>[%help%]</span>
-						</a>
-					</span> 
-					<!--@ENDIF--> 
 				</div>
 				<div class="userprofiletable card-body">
 					<table>
@@ -325,7 +344,7 @@ $widgets['welcome'] = array(
 $widgets['onlineinfo'] = array(
 	'menuindex' => '20',
 	'id' => 'onlineinfo',
-	'cols' => 'col-sm-6',
+	'cols' => 'col-lg-6',
 	'icon' => 'fa-user',
 	'title' => '[%onlineusers_title%]',
 	'body' => '<div class="userstable">[+OnlineInfo+]</div>',
@@ -377,7 +396,7 @@ usort($widgets, function ($a, $b) {
 	return $a['menuindex'] - $b['menuindex'];
 });
 
-$tpl = getTplWidget();
+$tpl = $modx->getChunk('manager#welcome\Widget');
 $output = '';
 foreach($widgets as $widget) {
 	if ($widget['hide'] != '1'){
@@ -442,185 +461,3 @@ echo $content;
 //	<a href="javascript:;" class="setting"><i class="fa fa-cog"></i></a>
 //  <a href="javascript:;" class="closed"><i class="fa fa-close"></i></a>
 //</span>
-function getTplWidget() { // recent document info
-	return '
-		<div class="[+cols+]" id="[+id+]">
-			<div class="card"[+cardAttr+]>
-				<div class="card-header"[+headAttr+]> <i class="fa [+icon+]"></i> [+title+] </div>
-				<div class="card-block"[+bodyAttr+]> [+body+] </div>
-			</div>
-		</div>
-';
-}
-
-function getRecentInfo() { // recent document info
-	global $modx;
-
-	$modx->addSnippet('recentInfoList', 'getRecentInfoList');
-
-	$html = '
-			<div class="table-responsive">
-				<table class="table data">
-					<thead>
-						<tr>
-							<th style="width: 1%">[%id%]</th>
-							<th>[%resource_title%]</th>
-							<th style="width: 1%">[%page_data_edited%]</th>
-							<th style="width: 1%">[%user%]</th>
-							<th style="width: 1%; text-align: center">[%mgrlog_action%]</th>
-						</tr>
-					</thead>
-					<tbody>
-					[[#recentInfoList]]
-					</tbody>
-				</table>
-			</div>
-';
-	return $html;
-}
-
-function getRecentInfoList() {
-	global $modx;
-
-	$rs = $modx->db->select('*', '[+prefix+]site_content', '', 'editedon DESC', 10);
-
-	if($modx->db->getRecordCount($rs) < 1) {
-		return '<tr><td>[%no_activity_message%]</td></tr>';
-	}
-
-	$tpl = getRecentInfoRowTpl();
-
-	$btntpl['edit'] = '<a title="[%edit_resource%]" href="index.php?a=27&amp;id=[+id+]" target="main"><i class="fa fa-edit fa-fw"></i></a> ';
-	$btntpl['preview_btn'] = '<a [+preview_disabled+]" title="[%preview_resource%]" target="_blank" href="../index.php?&amp;id=[+id+]"><i class="fa fa-eye fa-fw"></i></a> ';
-
-	$output = array();
-	while($ph = $modx->db->getRow($rs)) {
-		$docid = $ph['id'];
-		$_ = $modx->getUserInfo($ph['editedby']);
-		$ph['username'] = $_['username'];
-
-		if($ph['deleted'] == 1) {
-			$ph['status'] = 'deleted text-danger';
-		} elseif($ph['published'] == 0) {
-			$ph['status'] = 'unpublished font-italic text-muted';
-		} else {
-			$ph['status'] = 'published';
-		}
-
-		if($modx->hasPermission('edit_document')) {
-			$ph['edit_btn'] = str_replace('[+id+]', $docid, $btntpl['edit']);
-		} else {
-			$ph['edit_btn'] = '';
-		}
-
-		$preview_disabled = ($ph['deleted'] == 1) ? 'disabled' : '';
-		$ph['preview_btn'] = str_replace(array(
-			'[+id+]',
-			'[+preview_disabled+]'
-		), array(
-			$docid,
-			$preview_disabled
-		), $btntpl['preview_btn']);
-
-		if($modx->hasPermission('delete_document')) {
-			if($ph['deleted'] == 0) {
-				$delete_btn = '<a onclick="return confirm(\'[%confirm_delete_record%]\')" title="[%delete_resource%]" href="index.php?a=6&amp;id=[+id+]" target="main"><i class="fa fa-trash fa-fw"></i></a> ';
-			} else {
-				$delete_btn = '<a onclick="return confirm(\'[%confirm_undelete%]\')" title="[%undelete_resource%]" href="index.php?a=63&amp;id=[+id+]" target="main"><i class="fa fa-arrow-circle-o-up fa-fw"></i></a> ';
-			}
-			$ph['delete_btn'] = str_replace('[+id+]', $docid, $delete_btn);
-		} else {
-			$ph['delete_btn'] = '';
-		}
-
-		if($ph['deleted'] == 1 && $ph['published'] == 0) {
-			$publish_btn = '<a class="disabled" title="[%publish_resource%]" href="index.php?a=61&amp;id=[+id+]" target="main"><i class="fa fa-arrow-up fa-fw"></i></a> ';
-		} elseif($ph['deleted'] == 1 && $ph['published'] == 1) {
-			$publish_btn = '<a class="disabled" title="[%publish_resource%]" href="index.php?a=61&amp;id=[+id+]" target="main"><i class="fa fa-arrow-down fa-fw"></i></a> ';
-		} elseif($ph['deleted'] == 0 && $ph['published'] == 0) {
-			$publish_btn = '<a title="[%publish_resource%]" href="index.php?a=61&amp;id=[+id+]" target="main"><i class="fa fa-arrow-up fa-fw"></i></a> ';
-		} else {
-			$publish_btn = '<a title="[%unpublish_resource%]" href="index.php?a=62&amp;id=[+id+]" target="main"><i class="fa fa-arrow-down fa-fw"></i></a> ';
-		}
-		$ph['publish_btn'] = str_replace('[+id+]', $docid, $publish_btn);
-
-		$ph['info_btn'] = str_replace('[+id+]', $docid, '<a title="[%resource_overview%]" data-toggle="collapse" data-target=".collapse[+id+]"><i class="fa fa-info fa-fw"></i></a>');
-
-		if($ph['longtitle'] == '') {
-			$ph['longtitle'] = '(<i>[%not_set%]</i>)';
-		}
-		if($ph['description'] == '') {
-			$ph['description'] = '(<i>[%not_set%]</i>)';
-		}
-		if($ph['introtext'] == '') {
-			$ph['introtext'] = '(<i>[%not_set%]</i>)';
-		}
-		if($ph['alias'] == '') {
-			$ph['alias'] = '(<i>[%not_set%]</i>)';
-		}
-
-		$output[] = $modx->parseText($tpl, $ph);
-	}
-	return implode("\n", $output);
-}
-
-function getRecentInfoRowTpl() {
-	$tpl = '
-						<tr>
-							<td data-toggle="collapse" data-target=".collapse[+id+]" class="text-right"><span class="label label-info">[+id+]</span></td>
-							<td data-toggle="collapse" data-target=".collapse[+id+]"><a class="[+status+]" title="[%edit_resource%]" href="index.php?a=3&amp;id=[+id+]" target="main">[+pagetitle+]</a></td>
-							<td data-toggle="collapse" data-target=".collapse[+id+]" class="text-right text-nowrap">[+editedon:math("%s+[(server_offset_time)]"):dateFormat+]</td>
-							<td data-toggle="collapse" data-target=".collapse[+id+]">[+username+]</td>
-							<td style="text-align: right;" class="actions">[+edit_btn+][+preview_btn+][+delete_btn+][+publish_btn+][+info_btn+]</td>
-						</tr>
-						<tr class="resource-overview-accordian collapse collapse[+id+]">
-							<td colspan="6">
-								<div class="overview-body text-small">
-									<ul>
-										<li><b>[%long_title%]</b>: [+longtitle+]</li>
-										<li><b>[%description%]</b>: [+description+]</li>
-										<li><b>[%resource_summary%]</b>: [+introtext+]</li>
-										<li><b>[%type%]</b>: [+type:is(reference):then([%weblink%]):else([%resource%])+]</li>
-										<li><b>[%resource_alias%]</b>: [+alias+]</li>
-										<li><b>[%page_data_cacheable%]</b>: [+cacheable:is(1):then([%yes%]):else([%no%])+]</li>
-										<li><b>[%resource_opt_show_menu%]</b>: [+hidemenu:is(0):then([%yes%]):else([%no%])+]</li>
-										<li><b>[%page_data_template%]</b>: [+template:templatename+]</li>
-									</ul>
-								</div>
-							</td>
-						</tr>';
-	return $tpl;
-}
-
-// setup icons
-function wrapIcon($i, $action) {
-	return sprintf('<a href="index.php?a=%s" target="main"><span class="wm_button" style="border:0">%s</span></a>', $action, $i);
-}
-
-function getStartUpScript() {
-	$script = '
-        <script type="text/javascript">
-        function hideConfigCheckWarning(key) {
-        	var xhr = new XMLHttpRequest();
-        	xhr.open("POST", "index.php?a=118", true);
-        	xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;");
-        	xhr.onload = function() {
-        		if(this.readyState === 4) {
-        			var fieldset = document.getElementById(key + "_warning_wrapper").parentNode.parentNode;
-        			fieldset.className = "collapse";
-        		}
-        	};
-        	xhr.send("action=setsetting&key=_hide_configcheck_" + key + "&value=1");
-        }
-		(function($) {
-			$("[data-toggle=\'collapse\']").click(function(e) {
-				if(e.target.tagName === "A") return;
-				if($(this).data("target")) {
-					$($(this).data("target")).toggleClass("in")
-				}
-			});
-		})(jQuery);        
-        </script>
-';
-	return $script;
-}

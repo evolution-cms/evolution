@@ -12,7 +12,7 @@ if($id==0) {
 }
 
 // Set the item name for logger
-$name = $modx->db->getValue($modx->db->select('name', $modx->getFullTableName('site_htmlsnippets'), "id='{$id}'"));
+$name = $modx->getDatabase()->getValue($modx->getDatabase()->select('name', $modx->getDatabase()->getFullTableName('site_htmlsnippets'), "id='{$id}'"));
 $_SESSION['itemname'] = $name;
 
 // invoke OnBeforeChunkFormDelete event
@@ -22,7 +22,7 @@ $modx->invokeEvent("OnBeforeChunkFormDelete",
 	));
 
 // delete the chunk.
-$modx->db->delete($modx->getFullTableName('site_htmlsnippets'), "id='{$id}'");
+$modx->getDatabase()->delete($modx->getDatabase()->getFullTableName('site_htmlsnippets'), "id='{$id}'");
 
 // invoke OnChunkFormDelete event
 $modx->invokeEvent("OnChunkFormDelete",

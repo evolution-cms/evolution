@@ -3,13 +3,19 @@
  * This file includes slightly modified code from the MODX core distribution.
  */
 define('MODX_API_MODE', true);
-include_once ('../../../index.php');
+
+include_once '../../../index.php';
+
 $modx->db->connect();
 $modx->getSettings();
-$modx->invokeEvent('OnManagerPageInit');
-if (!isset($_SESSION['mgrValidated'])) die('');
 
-include_once(MODX_BASE_PATH . 'assets/modules/docmanager/classes/docmanager.class.php');
+$modx->invokeEvent('OnManagerPageInit');
+
+if (!isset($_SESSION['mgrValidated'])) {
+    die('');
+}
+
+include_once MODX_BASE_PATH . 'assets/modules/docmanager/classes/docmanager.class.php';
 $dm = new DocManager($modx);
 $dm->getLang();
 $dm->getTheme();
@@ -20,11 +26,12 @@ $which_browser = $modx->configGlobal['which_browser'] ? $modx->configGlobal['whi
 
 if (isset($_POST['tplID']) && is_numeric($_POST['tplID'])) {
     $rs = $modx->db->select('*', $modx->getFullTableName('site_tmplvars') . " tv
-			LEFT JOIN " . $modx->getFullTableName('site_tmplvar_templates') . " AS tvt ON tv.id = tvt.tmplvarid", "tvt.templateid ='{$_POST['tplID']}'");
+			LEFT JOIN " . $modx->getFullTableName('site_tmplvar_templates') . " AS tvt ON tv.id = tvt.tmplvarid",
+        "tvt.templateid ='{$_POST['tplID']}'");
     $limit = $modx->db->getRecordCount($rs);
 
     if ($limit > 0) {
-        require(MODX_MANAGER_PATH . 'includes/tmplvars.commands.inc.php');
+        require MODX_MANAGER_PATH . 'includes/tmplvars.commands.inc.php';
         $output .= "<table style='position:relative' border='0' cellspacing='0' cellpadding='3' width='96%'>";
 
         $i = 0;
@@ -40,7 +47,8 @@ if (isset($_POST['tplID']) && is_numeric($_POST['tplID'])) {
 				</td>
 				<td valign="top" style="position:relative">';
             $base_url = str_replace("assets/modules/docmanager/", "", MODX_BASE_URL);
-            $output .= renderFormElement($row['type'], $row['id'], $row['default_text'], $row['elements'], $row['value'], ' style="width:300px;"');
+            $output .= DMrenderFormElement($row['type'], $row['id'], $row['default_text'], $row['elements'],
+                $row['value'], ' style="width:300px;"');
             $output .= '</td></tr>';
         }
         $output .= '</table>';
@@ -55,7 +63,7 @@ if (isset($_POST['tplID']) && is_numeric($_POST['tplID'])) {
 }
 
 
-function renderFormElement($field_type, $field_id, $default_text, $field_elements, $field_value, $field_style = '')
+function DMrenderFormElement($field_type, $field_id, $default_text, $field_elements, $field_value, $field_style = '')
 {
     global $modx;
     global $dm;
@@ -123,12 +131,18 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
                 if (strlen($itemvalue) == 0) {
                     $itemvalue = $item;
                 }
-                $field_html .= '<option value="' . htmlspecialchars($itemvalue) . '"' . (in_array($itemvalue, $field_value) ? ' selected="selected"' : '') . '>' . htmlspecialchars($item) . '</option>';
+                $field_html .= '<option value="' . htmlspecialchars($itemvalue) . '"' . (in_array($itemvalue,
+                        $field_value) ? ' selected="selected"' : '') . '>' . htmlspecialchars($item) . '</option>';
             }
             $field_html .= "</select>";
             break;
         case "url": // handles url input fields
-            $urls = array('' => '--', 'http://' => 'http://', 'https://' => 'https://', 'ftp://' => 'ftp://', 'mailto:' => 'mailto:');
+            $urls = array(''         => '--',
+                          'http://'  => 'http://',
+                          'https://' => 'https://',
+                          'ftp://'   => 'ftp://',
+                          'mailto:'  => 'mailto:'
+            );
             $field_html = '<table border="0" cellspacing="0" cellpadding="0"><tr><td><select id="tv' . $field_id . '_prefix" name="tv' . $field_id . '_prefix" onchange="documentDirty=true;">';
             foreach ($urls as $k => $v) {
                 if (strpos($field_value, $v) === false) {
@@ -150,7 +164,8 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
                 if (strlen($itemvalue) == 0) {
                     $itemvalue = $item;
                 }
-                $field_html .= '<input type="checkbox" value="' . htmlspecialchars($itemvalue) . '" id="tv_' . $i . '" name="tv' . $field_id . '[]" ' . (in_array($itemvalue, $field_value) ? " checked='checked'" : "") . ' onchange="documentDirty=true;" /><label for="tv_' . $i . '">' . $item . '</label><br />';
+                $field_html .= '<input type="checkbox" value="' . htmlspecialchars($itemvalue) . '" id="tv_' . $i . '" name="tv' . $field_id . '[]" ' . (in_array($itemvalue,
+                        $field_value) ? " checked='checked'" : "") . ' onchange="documentDirty=true;" /><label for="tv_' . $i . '">' . $item . '</label><br />';
                 $i++;
             }
             break;
@@ -275,20 +290,6 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
         default: // the default handler -- for errors, mostly
             $field_html .= '<input type="text" id="tv' . $field_id . '" name="tv' . $field_id . '" value="' . htmlspecialchars($field_value) . '" ' . $field_style . ' onchange="documentDirty=true;" />';
     } // end switch statement
+
     return $field_html;
 } // end renderFormElement function
-
-
-function ParseIntputOptions($v)
-{
-    global $modx;
-    $a = array();
-    if (is_array($v)) {
-        return $v;
-    } else if ($modx->db->isResult($v)) {
-        $a = $modx->db->makeArray($v);
-    } else {
-        $a = explode("||", $v);
-    }
-    return $a;
-}

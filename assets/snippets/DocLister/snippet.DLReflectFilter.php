@@ -74,7 +74,7 @@ if (!call_user_func($reflectValidator, $tmpGet)) {
     $activeReflect = $tmpGet;
 }
 if ($activeReflect) {
-    $v = $modx->db->escape($activeReflect);
+    $v = $modx->getDatabase()->escape($activeReflect);
     if ($reflectSource === 'tv') {
         $params['tvSortType'] = 'TVDATETIME';
         $query = 'STR_TO_DATE(`dltv_' . $reflectField . "_1`.`value`, '%d-%m-%Y %H:%i:%s')";

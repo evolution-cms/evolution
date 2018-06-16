@@ -12,7 +12,7 @@ if($id==0) {
 }
 
 /************ webber ********/
-$content=$modx->db->getRow($modx->db->select('parent, pagetitle', $modx->getFullTableName('site_content'), "id='{$id}'"));
+$content=$modx->getDatabase()->getRow($modx->getDatabase()->select('parent, pagetitle', $modx->getDatabase()->getFullTableName('site_content'), "id='{$id}'"));
 $pid=($content['parent']==0?$id:$content['parent']);
 
 /************** webber *************/
@@ -25,8 +25,7 @@ $add_path=$sd.$sb.$pg;
 
 
 // check permissions on the document
-include_once MODX_MANAGER_PATH . "processors/user_documents_permissions.class.php";
-$udperms = new udperms();
+$udperms = new EvolutionCMS\Legacy\Permissions();
 $udperms->user = $modx->getLoginUserID();
 $udperms->document = $id;
 $udperms->role = $_SESSION['mgrRole'];
@@ -36,49 +35,31 @@ if(!$udperms->checkPermissions()) {
 }
 
 // get the timestamp on which the document was deleted.
-$rs = $modx->db->select('deletedon', $modx->getFullTableName('site_content'), "id='{$id}' AND deleted=1");
-$deltime = $modx->db->getValue($rs);
+$rs = $modx->getDatabase()->select('deletedon', $modx->getDatabase()->getFullTableName('site_content'), "id='{$id}' AND deleted=1");
+$deltime = $modx->getDatabase()->getValue($rs);
 if(!$deltime) {
 	$modx->webAlertAndQuit("Couldn't find document to determine it's date of deletion!");
 }
 
 $children = array();
 
-/**
- * @param int $parent
- */
-function getChildren($parent) {
-
-	global $modx;
-	global $children;
-	global $deltime;
-
-	$rs = $modx->db->select('id', $modx->getFullTableName('site_content'), "parent='".(int)$parent."' AND deleted=1 AND deletedon='".(int)$deltime."'");
-		// the document has children documents, we'll need to delete those too
-		while ($row=$modx->db->getRow($rs)) {
-			$children[] = $row['id'];
-			getChildren($row['id']);
-			//echo "Found childNode of parentNode $parent: ".$row['id']."<br />";
-		}
-}
-
-getChildren($id);
+getChildrenForUnDelete($id);
 
 if(count($children)>0) {
-	$modx->db->update(
+	$modx->getDatabase()->update(
 		array(
 			'deleted'   => 0,
 			'deletedby' => 0,
 			'deletedon' => 0,
-		), $modx->getFullTableName('site_content'), "id IN(".implode(", ", $children).")");
+		), $modx->getDatabase()->getFullTableName('site_content'), "id IN(".implode(", ", $children).")");
 }
 //'undelete' the document.
-$modx->db->update(
+$modx->getDatabase()->update(
 	array(
 		'deleted'   => 0,
 		'deletedby' => 0,
 		'deletedon' => 0,
-	), $modx->getFullTableName('site_content'), "id='{$id}'");
+	), $modx->getDatabase()->getFullTableName('site_content'), "id='{$id}'");
 
 $modx->invokeEvent("OnDocFormUnDelete",
     array(

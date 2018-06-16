@@ -18,31 +18,7 @@ $translationLinks = array(
 	1=>array('title'=>$_lang["extras"],'link'=>'https://www.transifex.com/evolutioncms/extras/'),
 );
 
-/**
- * @param string $sectionHeader
- * @param array $linkArr
- * @return string
- */
-function createList($sectionHeader, $linkArr) {
-	$output = '<div class="sectionHeader">'.$sectionHeader.'</div><div class="sectionBody">'."\n";
-	$output .= '<table width="500"  border="0" cellspacing="0" cellpadding="0">'."\n";
-	$links = '';
-	foreach($linkArr as $row) {
-		if (!is_array($row['link'])) $row['link'] = array($row['link']);
-		foreach ($row['link'] as $link) {
-			$links .= $links != '' ? '<br/>' : '';
-			$links .= '<a href="' . $link . '" target="_blank">' . $link . '</a>';
-		}
-		$output .= '
-		<tr>
-			<td align="left"><strong>' . $row["title"] . '</strong></td>
-			<td align="left">' . $links . '</td>
-		</tr>';
-		$links = '';
-	}
-	$output .= '</table></div>'."\n";
-    return $output;
-}
+
 echo $logo;
 echo createList($_lang['evo_downloads_title'], $downloadLinks);
 echo createList($_lang['help_translating_title'], $translationLinks);

@@ -38,8 +38,12 @@ $historyEventDelay = (isset($historyEventDelay) ? $historyEventDelay : 1250);
 $fontSize = (isset($fontSize) ? 'font-size:' . $fontSize . 'px !important;' : '');
 $lineHeight = (isset($lineHeight) ? 'line-height:' . $lineHeight . ' !important;' : '');
 
-if ($modx->config['manager_theme_mode'] == 3 || $modx->config['manager_theme_mode'] == 4) {
-	$theme = $darktheme;
+if (!empty($_COOKIE['MODX_themeMode'])) {
+    if ($_COOKIE['MODX_themeMode'] == 3 || $_COOKIE['MODX_themeMode'] == 4) {
+        $theme = $darktheme;
+    }
+} elseif ($modx->config['manager_theme_mode'] == 3 || $modx->config['manager_theme_mode'] == 4) {
+    $theme = $darktheme;
 }
 /*
  * This plugin is only valid in "text" mode. So check for the current Editor

@@ -10,22 +10,22 @@ if(!$modx->hasPermission('edit_module')) {
 $id = isset($_REQUEST['id']) ? (int)$_REQUEST['id'] : 0;
 
 // Get table names (alphabetical)
-$tbl_active_users = $modx->getFullTableName('active_users');
-$tbl_site_content = $modx->getFullTableName('site_content');
-$tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
-$tbl_site_module_depobj = $modx->getFullTableName('site_module_depobj');
-$tbl_site_modules = $modx->getFullTableName('site_modules');
-$tbl_site_plugins = $modx->getFullTableName('site_plugins');
-$tbl_site_snippets = $modx->getFullTableName('site_snippets');
-$tbl_site_templates = $modx->getFullTableName('site_templates');
-$tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
+$tbl_active_users = $modx->getDatabase()->getFullTableName('active_users');
+$tbl_site_content = $modx->getDatabase()->getFullTableName('site_content');
+$tbl_site_htmlsnippets = $modx->getDatabase()->getFullTableName('site_htmlsnippets');
+$tbl_site_module_depobj = $modx->getDatabase()->getFullTableName('site_module_depobj');
+$tbl_site_modules = $modx->getDatabase()->getFullTableName('site_modules');
+$tbl_site_plugins = $modx->getDatabase()->getFullTableName('site_plugins');
+$tbl_site_snippets = $modx->getDatabase()->getFullTableName('site_snippets');
+$tbl_site_templates = $modx->getDatabase()->getFullTableName('site_templates');
+$tbl_site_tmplvars = $modx->getDatabase()->getFullTableName('site_tmplvars');
 
 // initialize page view state - the $_PAGE object
-$modx->manager->initPageViewState();
+$modx->getManagerApi()->initPageViewState();
 
 // check to see the  editor isn't locked
-$rs = $modx->db->select('username', $tbl_active_users, "action=108 AND id='{$id}' AND internalKey!='" . $modx->getLoginUserID() . "'");
-if($username = $modx->db->getValue($rs)) {
+$rs = $modx->getDatabase()->select('username', $tbl_active_users, "action=108 AND id='{$id}' AND internalKey!='" . $modx->getLoginUserID() . "'");
+if($username = $modx->getDatabase()->getValue($rs)) {
 	$modx->webAlertAndQuit(sprintf($_lang['lock_msg'], $username, 'module'));
 }
 // end check for lock
@@ -57,9 +57,9 @@ switch($_REQUEST['op']) {
 			if($rt == 'tv') {
 				$type = 60;
 			}
-			$modx->db->delete($tbl_site_module_depobj, "module='{$id}' AND resource IN (" . implode(',', $opids) . ") AND type='{$type}'");
+			$modx->getDatabase()->delete($tbl_site_module_depobj, "module='{$id}' AND resource IN (" . implode(',', $opids) . ") AND type='{$type}'");
 			foreach($opids as $opid) {
-				$modx->db->insert(array(
+				$modx->getDatabase()->insert(array(
 					'module' => $id,
 					'resource' => $opid,
 					'type' => $type,
@@ -72,11 +72,11 @@ switch($_REQUEST['op']) {
 		$opids = array_filter(array_map('intval', $_REQUEST['depid']));
 
 		// get resources that needs to be removed
-		$ds = $modx->db->select('*', $tbl_site_module_depobj, "id IN (" . implode(",", $opids) . ")");
+		$ds = $modx->getDatabase()->select('*', $tbl_site_module_depobj, "id IN (" . implode(",", $opids) . ")");
 		// loop through resources and look for plugins and snippets
 		$plids = array();
 		$snid = array();
-		while($row = $modx->db->getRow($ds)) {
+		while($row = $modx->getDatabase()->getRow($ds)) {
 			if($row['type'] == '30') {
 				$plids[$i] = $row['resource'];
 			}
@@ -85,26 +85,26 @@ switch($_REQUEST['op']) {
 			}
 		}
 		// get guid
-		$ds = $modx->db->select('guid', $tbl_site_modules, "id='{$id}'");
-		$guid = $modx->db->getValue($ds);
+		$ds = $modx->getDatabase()->select('guid', $tbl_site_modules, "id='{$id}'");
+		$guid = $modx->getDatabase()->getValue($ds);
 		// reset moduleguid for deleted resources
 		if(($cp = count($plids)) || ($cs = count($snids))) {
 			if($cp) {
-				$modx->db->update(array('moduleguid' => ''), $tbl_site_plugins, "id IN (" . implode(',', $plids) . ") AND moduleguid='{$guid}'");
+				$modx->getDatabase()->update(array('moduleguid' => ''), $tbl_site_plugins, "id IN (" . implode(',', $plids) . ") AND moduleguid='{$guid}'");
 			}
 			if($cs) {
-				$modx->db->update(array('moduleguid' => ''), $tbl_site_plugins, "id IN (" . implode(',', $snids) . ") AND moduleguid='{$guid}'");
+				$modx->getDatabase()->update(array('moduleguid' => ''), $tbl_site_plugins, "id IN (" . implode(',', $snids) . ") AND moduleguid='{$guid}'");
 			}
 			// reset cache
 			$modx->clearCache('full');
 		}
-		$modx->db->delete($tbl_site_module_depobj, "id IN (" . implode(',', $opids) . ")");
+		$modx->getDatabase()->delete($tbl_site_module_depobj, "id IN (" . implode(',', $opids) . ")");
 		break;
 }
 
 // load record
-$rs = $modx->db->select('*', $tbl_site_modules, "id = '{$id}'");
-$content = $modx->db->getRow($rs);
+$rs = $modx->getDatabase()->select('*', $tbl_site_modules, "id = '{$id}'");
+$content = $modx->getDatabase()->getRow($rs);
 if(!$content) {
 	$modx->webAlertAndQuit("Module not found for id '{$id}'.");
 }
@@ -203,7 +203,7 @@ if($content['locked'] == 1 && $_SESSION['mgrRole'] != 1) {
 				<tr>
 					<td valign="top" align="left">
 						<?php
-						$ds = $modx->db->select("smd.id,COALESCE(ss.name,st.templatename,sv.name,sc.name,sp.name,sd.pagetitle) as name,
+						$ds = $modx->getDatabase()->select("smd.id,COALESCE(ss.name,st.templatename,sv.name,sc.name,sp.name,sd.pagetitle) as name,
 				CASE smd.type
 					WHEN 10 THEN 'Chunk'
 					WHEN 20 THEN 'Document'
@@ -218,8 +218,7 @@ if($content['locked'] == 1 && $_SESSION['mgrRole'] != 1) {
 					LEFT JOIN {$tbl_site_snippets} AS ss ON ss.id = smd.resource AND smd.type = '40'
 					LEFT JOIN {$tbl_site_templates} AS st ON st.id = smd.resource AND smd.type = '50'
 					LEFT JOIN {$tbl_site_tmplvars} AS sv ON sv.id = smd.resource AND smd.type = '60'", "smd.module={$id}", "smd.type,name");
-						include_once MODX_MANAGER_PATH . "includes/controls/datagrid.class.php";
-						$grd = new DataGrid('', $ds, 0); // set page size to 0 t show all items
+						$grd = new \EvolutionCMS\Support\DataGrid('', $ds, 0); // set page size to 0 t show all items
 						$grd->noRecordMsg = $_lang["no_records_found"];
 						$grd->cssClass = "grid";
 						$grd->columnHeaderClass = "gridHeader";

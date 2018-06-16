@@ -12,7 +12,7 @@ if($id==0) {
 }
 
 // Set the item name for logger
-$username = $modx->db->getValue($modx->db->select('username', $modx->getFullTableName('web_users'), "id='{$id}'"));
+$username = $modx->getDatabase()->getValue($modx->getDatabase()->select('username', $modx->getDatabase()->getFullTableName('web_users'), "id='{$id}'"));
 $_SESSION['itemname'] = $username;
 
 // invoke OnBeforeWUsrFormDelete event
@@ -22,13 +22,13 @@ $modx->invokeEvent("OnBeforeWUsrFormDelete",
 	));
 
 // delete the user.
-$modx->db->delete($modx->getFullTableName('web_users'), "id='{$id}'");
+$modx->getDatabase()->delete($modx->getDatabase()->getFullTableName('web_users'), "id='{$id}'");
 
 // delete user groups
-$modx->db->delete($modx->getFullTableName('web_groups'), "webuser='{$id}'");
+$modx->getDatabase()->delete($modx->getDatabase()->getFullTableName('web_groups'), "webuser='{$id}'");
 
 // delete the attributes
-$modx->db->delete($modx->getFullTableName('web_user_attributes'), "internalKey='{$id}'");
+$modx->getDatabase()->delete($modx->getDatabase()->getFullTableName('web_user_attributes'), "internalKey='{$id}'");
 
 // invoke OnWebDeleteUser event
 $modx->invokeEvent("OnWebDeleteUser",

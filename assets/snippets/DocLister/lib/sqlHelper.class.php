@@ -1,5 +1,6 @@
 <?php
 
+use EvolutionCMS\Core as DocumentParser;
 /**
  * Class sqlHelper
  */
@@ -85,7 +86,7 @@ class sqlHelper
                 );
                 $escaped = true;
             }
-            $str = $modx->db->escape($str);
+            $str = $modx->getDatabase()->escape($str);
             $str = str_replace('[+value+]', $str, $tpl);
 
             if ($escaped) {

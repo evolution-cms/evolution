@@ -7,7 +7,7 @@ if(!isset($_GET['id'])) {
 	if(!$modx->hasPermission('remove_locks')) $modx->webAlertAndQuit($_lang["error_no_privileges"]);
 
 	// Remove all locks
-	$modx->db->truncate($modx->getFullTableName('active_user_locks'));
+	$modx->getDatabase()->truncate($modx->getDatabase()->getFullTableName('active_user_locks'));
 
 	$header = "Location: index.php?a=2";
 	header($header);

@@ -2,10 +2,8 @@
 
 include_once(MODX_BASE_PATH . 'assets/lib/APIHelpers.class.php');
 include_once(MODX_BASE_PATH . 'assets/lib/Helpers/FS.php');
-include_once(MODX_MANAGER_PATH . 'includes/extenders/modxmailer.class.inc.php');
 
-use MODxMailer;
-use DocumentParser;
+use EvolutionCMS\Core as DocumentParser;
 use PHPMailer\PHPMailer\Exception as phpmailerException;
 
 /**
@@ -44,10 +42,8 @@ class Mailer
         $this->modx = $modx;
         $this->noemail = (bool)(isset($cfg['noemail']) ? $cfg['noemail'] : 0);
         if (!$this->noemail) {
-            $this->mail = new MODxMailer();
-            if (method_exists('MODxMailer', 'init')) {
-                $this->mail->init($modx);
-            }
+            $this->mail = $modx->getMail();
+            $this->mail->init();
             $this->config = $cfg;
             $this->debug = $debug;
             $this->applyMailConfig();

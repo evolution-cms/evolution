@@ -21,7 +21,7 @@ $sitemenu['bars'] = array(
 $sitemenu['site'] = array(
 	'site',
 	'main',
-	'<i class="fa fa-tachometer"></i>' . $_lang['home'],
+	'<i class="fa fa-tachometer"></i><span class="menu-item-text">' . $_lang['home'] . '</span>',
 	'index.php?a=2',
 	$_lang['home'],
 	'',
@@ -36,7 +36,7 @@ if($modx->hasPermission('edit_template') || $modx->hasPermission('edit_snippet')
 	$sitemenu['elements'] = array(
 		'elements',
 		'main',
-		'<i class="fa fa-th"></i>' . $_lang['elements'],
+		'<i class="fa fa-th"></i><span class="menu-item-text">' . $_lang['elements'] . '</span>',
 		'javascript:;',
 		$_lang['elements'],
 		' return false;',
@@ -52,7 +52,7 @@ if($modx->hasPermission('exec_module')) {
 	$sitemenu['modules'] = array(
 		'modules',
 		'main',
-		'<i class="'.$_style['icons_modules'] .'"></i>' . $_lang['modules'],
+		'<i class="'.$_style['icons_modules'] .'"></i><span class="menu-item-text">' . $_lang['modules'] . '</span>',
 		'javascript:;',
 		$_lang['modules'],
 		' return false;',
@@ -68,7 +68,7 @@ if($modx->hasPermission('edit_user') || $modx->hasPermission('edit_web_user') ||
 	$sitemenu['users'] = array(
 		'users',
 		'main',
-		'<i class="fa fa-users"></i>' . $_lang['users'],
+		'<i class="fa fa-users"></i><span class="menu-item-text">' . $_lang['users'] . '</span>',
 		'javascript:;',
 		$_lang['users'],
 		' return false;',
@@ -84,7 +84,7 @@ if($modx->hasPermission('empty_cache') || $modx->hasPermission('bk_manager') || 
 	$sitemenu['tools'] = array(
 		'tools',
 		'main',
-		'<i class="fa fa-wrench"></i>' . $_lang['tools'],
+		'<i class="fa fa-wrench"></i><span class="menu-item-text">' . $_lang['tools'] . '</span>',
 		'javascript:;',
 		$_lang['tools'],
 		' return false;',
@@ -224,17 +224,17 @@ if($modx->hasPermission('new_module') || $modx->hasPermission('edit_module') || 
 
 if($modx->hasPermission('exec_module')) {
 	if($_SESSION['mgrRole'] != 1 && !empty($modx->config['use_udperms'])) {
-		$rs = $modx->db->query('SELECT DISTINCT sm.id, sm.name, sm.icon, mg.member
-				FROM ' . $modx->getFullTableName('site_modules') . ' AS sm
-				LEFT JOIN ' . $modx->getFullTableName('site_module_access') . ' AS sma ON sma.module = sm.id
-				LEFT JOIN ' . $modx->getFullTableName('member_groups') . ' AS mg ON sma.usergroup = mg.user_group
+		$rs = $modx->getDatabase()->query('SELECT DISTINCT sm.id, sm.name, sm.icon, mg.member
+				FROM ' . $modx->getDatabase()->getFullTableName('site_modules') . ' AS sm
+				LEFT JOIN ' . $modx->getDatabase()->getFullTableName('site_module_access') . ' AS sma ON sma.module = sm.id
+				LEFT JOIN ' . $modx->getDatabase()->getFullTableName('member_groups') . ' AS mg ON sma.usergroup = mg.user_group
                 WHERE (mg.member IS NULL OR mg.member = ' . $modx->getLoginUserID() . ') AND sm.disabled != 1 AND sm.locked != 1
                 ORDER BY sm.name');
 	} else {
-		$rs = $modx->db->select('*', $modx->getFullTableName('site_modules'), 'disabled != 1', 'name');
+		$rs = $modx->getDatabase()->select('*', $modx->getDatabase()->getFullTableName('site_modules'), 'disabled != 1', 'name');
 	}
-	if($modx->db->getRecordCount($rs)) {
-	    while ($row = $modx->db->getRow($rs)) {
+	if($modx->getDatabase()->getRecordCount($rs)) {
+	    while ($row = $modx->getDatabase()->getRow($rs)) {
             $sitemenu['module' . $row['id']] = array(
                 'module' . $row['id'],
                 'modules',

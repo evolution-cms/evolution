@@ -32,7 +32,7 @@ abstract class autoTable extends MODxAPI
     {
         parent::__construct($modx, $debug);
         if (empty($this->default_field)) {
-            $data = $this->modx->db->getTableMetaData($this->makeTable($this->table));
+            $data = $this->modx->getDatabase()->getTableMetaData($this->makeTable($this->table));
             foreach ($data as $item) {
                 if (empty($this->pkName) && $item['Key'] == 'PRI') {
                     $this->pkName = $item['Field'];
@@ -57,7 +57,7 @@ abstract class autoTable extends MODxAPI
             $this->markAllEncode();
             $this->newDoc = false;
             $result = $this->query("SELECT * from {$this->makeTable($this->table)} where `" . $this->pkName . "`='" . $this->escape($id) . "'");
-            $this->fromArray($this->modx->db->getRow($result));
+            $this->fromArray($this->modx->getDatabase()->getRow($result));
             $this->store($this->toArray());
             $this->id = $this->eraseField($this->pkName);
             if (is_bool($this->id) && $this->id === false) {
@@ -105,7 +105,7 @@ abstract class autoTable extends MODxAPI
             }
             $this->query($SQL);
             if ($this->newDoc) {
-                $this->id = $this->modx->db->getInsertId();
+                $this->id = $this->modx->getDatabase()->getInsertId();
             }
         }
         if ($clearCache) {

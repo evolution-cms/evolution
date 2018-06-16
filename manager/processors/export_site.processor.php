@@ -9,12 +9,10 @@ if(!$modx->hasPermission('export_static')) {
 $maxtime = (is_numeric($_POST['maxtime'])) ? $_POST['maxtime'] : 30;
 @set_time_limit($maxtime);
 
-$modx->loadExtension('EXPORT_SITE');
-
 
 if(is_dir(MODX_BASE_PATH . 'temp'))       $export_dir = MODX_BASE_PATH . 'temp/export';
 elseif(is_dir(MODX_BASE_PATH . 'assets')) $export_dir = MODX_BASE_PATH . 'assets/export';
-$modx->export->targetDir = $export_dir;
+$modx->getExportSite()->targetDir = $export_dir;
 
 if(strpos($modx->config['base_path'],"{$export_dir}/")===0 && 0 <= strlen(str_replace("{$export_dir}/",'',$modx->config['base_path'])))
 	return $_lang['export_site.static.php6'];
@@ -23,10 +21,10 @@ elseif($modx->config['rb_base_dir'] === $export_dir . '/')
 elseif(!is_writable($export_dir))
 	return $_lang['export_site_target_unwritable'];
 
-$modx->export->generate_mode = $_POST['generate_mode'];
+$modx->getExportSite()->generate_mode = $_POST['generate_mode'];
 
-$modx->export->setExportDir($export_dir);
-$modx->export->removeDirectoryAll($export_dir);
+$modx->getExportSite()->setExportDir($export_dir);
+$modx->getExportSite()->removeDirectoryAll($export_dir);
 
 $ignore_ids      = $_POST['ignore_ids'];
 $repl_before     = $_POST['repl_before'];
@@ -40,17 +38,17 @@ if($ignore_ids!==$_POST['ignore_ids']
 	$modx->clearCache('full');
 }
 
-$total = $modx->export->getTotal($_POST['ignore_ids'], $modx->config['export_includenoncache']);
+$total = $modx->getExportSite()->getTotal($_POST['ignore_ids'], $modx->config['export_includenoncache']);
 
 $output = sprintf($_lang['export_site_numberdocs'], $total);
-$modx->export->total = $total;
+$modx->getExportSite()->total = $total;
 
-$modx->export->repl_before = $_POST['repl_before'];
-$modx->export->repl_after  = $_POST['repl_after'];
+$modx->getExportSite()->repl_before = $_POST['repl_before'];
+$modx->getExportSite()->repl_after  = $_POST['repl_after'];
 
-$output .= $modx->export->run();
+$output .= $modx->getExportSite()->run();
 
-$exportend = $modx->export->get_mtime();
-$totaltime = ($exportend - $modx->export->exportstart);
+$exportend = $modx->getExportSite()->get_mtime();
+$totaltime = ($exportend - $modx->getExportSite()->exportstart);
 $output .= sprintf ('<p>'.$_lang["export_site_time"].'</p>', round($totaltime, 3));
 return $output;

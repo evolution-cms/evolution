@@ -1,0 +1,115 @@
+<?php
+
+$aboveRoot = __DIR__ . '/../../../';
+
+include_once $aboveRoot . 'vendor/autoload.php';
+
+global $database_type,
+       $database_server,
+       $database_user,
+       $database_password,
+       $database_connection_charset,
+       $database_connection_method,
+       $dbase,
+       $table_prefix,
+       $https_port,
+       $coreClass,
+       $session_cookie_path,
+       $session_cookie_domain;
+
+$envFile = $aboveRoot . '.env';
+if (file_exists($envFile)) {
+    if (!is_readable($envFile)) {
+        throw new Exception("!!! .env file can't readable");
+    }
+
+    /**
+     * @see: https://github.com/m1/Env
+     */
+    $config = M1\Env\Parser::parse(file_get_contents($envFile));
+
+    if (!empty($config['DB_TYPE'])) {
+        $database_type = $config['DB_TYPE'];
+    }
+
+    if (!empty($config['DB_HOST'])) {
+        $database_server = $config['DB_HOST'];
+    }
+
+    if (!empty($config['DB_USERNAME'])) {
+        $database_user = $config['DB_USERNAME'];
+    }
+
+    if (!empty($config['DB_PASSWORD'])) {
+        $database_password = $config['DB_PASSWORD'];
+    }
+
+    if (!empty($config['DB_CHARSET'])) {
+        $database_connection_charset = $config['DB_CHARSET'];
+    }
+
+    if (!empty($config['DB_METHOD'])) {
+        $database_connection_method = $config['DB_METHOD'];
+    }
+
+    if (!empty($config['DB_DATABASE'])) {
+        $dbase = '`' . trim($config['DB_DATABASE'], '`') . '`';
+    }
+
+    if (!empty($config['DB_PREFIX'])) {
+        $table_prefix = $config['DB_PREFIX'];
+    }
+
+    if (!empty($config['HTTPS_PORT'])) {
+        $https_port = $config['HTTPS_PORT'];
+    }
+
+    if (!empty($config['CORE_CLASS'])) {
+        $coreClass = $config['CORE_CLASS'];
+    }
+
+    if (!empty($config['COOKIE_PATH'])) {
+        $session_cookie_path = $config['COOKIE_PATH'];
+    }
+
+    if (!empty($config['COOKIE_DOMAIN'])) {
+        $session_cookie_domain = $config['COOKIE_DOMAIN'];
+    }
+
+    if (!empty($config['MODX_BASE_PATH'])) {
+        define('MODX_BASE_PATH', $config['MODX_BASE_PATH']);
+    }
+
+    if (!empty($config['MODX_BASE_URL'])) {
+        define('MODX_BASE_URL', $config['MODX_BASE_URL']);
+    }
+
+    if (!empty($config['MODX_SITE_URL'])) {
+        define('MODX_SITE_URL', $config['MODX_SITE_URL']);
+    }
+
+    if (!empty($config['DB_TYPE'])) {
+        define('MODX_SITE_HOSTNAMES', $config['DB_TYPE']);
+    }
+
+    if (!empty($config['MGR_DIR'])) {
+        define('MGR_DIR', $config['MGR_DIR']);
+    }
+
+    if (!empty($config['MODX_MANAGER_PATH'])) {
+        define('MODX_MANAGER_PATH', $config['MODX_MANAGER_PATH']);
+    }
+
+    if (!empty($config['MODX_MANAGER_URL'])) {
+        define('MODX_MANAGER_URL', $config['MODX_MANAGER_URL']);
+    }
+
+    if (!empty($config['EVO_BOOTSTRAP_FILE'])) {
+        define('EVO_BOOTSTRAP_FILE', $config['EVO_BOOTSTRAP_FILE']);
+        require_once EVO_BOOTSTRAP_FILE;
+    }
+
+    if (!empty($config['EVO_SERVICES_FILE'])) {
+        define('EVO_SERVICES_FILE', $config['EVO_SERVICES_FILE']);
+    }
+}

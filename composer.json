@@ -1,36 +1,36 @@
 {
-    "name": "evolutioncms/evolution",
-    "description": "Evolution CMS is a Content Management System, ex MODX Evolution",
-    "type": "project",
-    "keywords": [
-        "content",
-        "CMS",
-        "routing",
-        "templating"
-    ],
-    "homepage": "http://evo.im/",
-    "license": "GPL-2.0+",
-    "authors": [
-        {
-            "name": "Dmytro Lukianenko",
-            "email": "dmi3yy@gmail.com",
-            "homepage": "http://dmi3yy.com",
-            "role": "Developer"
-        }
-    ],
-    "support": {
-        "docs": "http://docs.evo.im",
-        "email": "dmi3yy@evo.im",
-        "telegram": "https://t.me/evolutioncms",
-        "issues": "https://github.com/evolution-cms/evolution/issues/",
-        "source": "https://github.com/evolution-cms/evolution/"
-    },
-    "config": {
-        "vendor-dir": "vendor"
-    },
-    "require": {
-        "php": ">=5.6"
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+  "name": "evolutioncms/evolution",
+  "description": "Evolution CMS is a Content Management System, ex MODX Evolution",
+  "type": "project",
+  "keywords": [
+    "content",
+    "CMS",
+    "routing",
+    "templating"
+  ],
+  "homepage": "http://evo.im/",
+  "license": "GPL-2.0+",
+  "authors": [
+    {
+      "name": "Dmytro Lukianenko",
+      "email": "dmi3yy@gmail.com",
+      "homepage": "http://dmi3yy.com",
+      "role": "Developer"
+    }
+  ],
+  "support": {
+    "docs": "http://docs.evo.im",
+    "email": "dmi3yy@evo.im",
+    "telegram": "https://t.me/evolutioncms",
+    "issues": "https://github.com/evolution-cms/evolution/issues/",
+    "source": "https://github.com/evolution-cms/evolution/"
+  },
+  "config": {
+    "vendor-dir": "vendor"
+  },
+  "require": {
+    "php": ">=5.6"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
 }

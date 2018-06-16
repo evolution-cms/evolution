@@ -3,7 +3,7 @@ if( ! defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true) {
     die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the EVO Content Manager instead of accessing this file directly.");
 }
 
-switch ($modx->manager->action) {
+switch ($modx->getManagerApi()->action) {
     case 22:
         if (!$modx->hasPermission('edit_snippet')) {
             $modx->webAlertAndQuit($_lang["error_no_privileges"]);
@@ -21,9 +21,9 @@ switch ($modx->manager->action) {
 $id = isset($_REQUEST['id']) ? (int)$_REQUEST['id'] : 0;
 
 // Get table Names (alphabetical)
-$tbl_site_module_depobj = $modx->getFullTableName('site_module_depobj');
-$tbl_site_modules = $modx->getFullTableName('site_modules');
-$tbl_site_snippets = $modx->getFullTableName('site_snippets');
+$tbl_site_module_depobj = $modx->getDatabase()->getFullTableName('site_module_depobj');
+$tbl_site_modules = $modx->getDatabase()->getFullTableName('site_modules');
+$tbl_site_snippets = $modx->getDatabase()->getFullTableName('site_snippets');
 
 // check to see the snippet editor isn't locked
 if ($lockedEl = $modx->elementIsLocked(4, $id)) {
@@ -36,8 +36,8 @@ $modx->lockElement(4, $id);
 
 $content = array();
 if (isset($_GET['id'])) {
-    $rs = $modx->db->select('*', $tbl_site_snippets, "id='{$id}'");
-    $content = $modx->db->getRow($rs);
+    $rs = $modx->getDatabase()->select('*', $tbl_site_snippets, "id='{$id}'");
+    $content = $modx->getDatabase()->getRow($rs);
     if (!$content) {
         header("Location: " . MODX_SITE_URL . "index.php?id=" . $site_start);
     }
@@ -53,8 +53,8 @@ if (isset($_GET['id'])) {
     $content['category'] = (int)$_REQUEST['catid'];
 }
 
-if ($modx->manager->hasFormValues()) {
-    $modx->manager->loadFormValues();
+if ($modx->getManagerApi()->hasFormValues()) {
+    $modx->getManagerApi()->loadFormValues();
 }
 
 $content = array_merge($content, $_POST);
@@ -423,12 +423,12 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
     }
 
     // Prepare info-tab via parseDocBlock
-    $snippetcode = isset($content['snippet']) ? $modx->db->escape($content['snippet']) : '';
+    $snippetcode = isset($content['snippet']) ? $modx->getDatabase()->escape($content['snippet']) : '';
     $parsed = $modx->parseDocBlockFromString($snippetcode);
     $docBlockList = $modx->convertDocBlockIntoList($parsed);
     ?>
     <input type="hidden" name="id" value="<?= $content['id'] ?>">
-    <input type="hidden" name="mode" value="<?= $modx->manager->action ?>">
+    <input type="hidden" name="mode" value="<?= $modx->getManagerApi()->action ?>">
 
     <h1 class="pagetitle">
         <i class="fa fa-code"></i><?= ($content['name'] ? $content['name'] . '<small>(' . $content['id'] . ')</small>' : $_lang['new_snippet']) ?><i class="fa fa-question-circle help"></i>
@@ -455,7 +455,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                         <label class="col-md-3 col-lg-2"><?= $_lang['snippet_name'] ?></label>
                         <div class="col-md-9 col-lg-10">
                             <div class="form-control-name clearfix">
-                                <input name="name" type="text" maxlength="100" value="<?= $modx->htmlspecialchars($content['name']) ?>" class="form-control form-control-lg" onchange="documentDirty=true;" />
+                                <input name="name" type="text" maxlength="100" value="<?= $modx->getPhpCompat()->htmlspecialchars($content['name']) ?>" class="form-control form-control-lg" onchange="documentDirty=true;" />
                                 <?php if ($modx->hasPermission('save_role')): ?>
                                     <label class="custom-control" title="<?= $_lang['lock_snippet'] . "\n" . $_lang['lock_snippet_msg'] ?>" tooltip>
                                         <input name="locked" type="checkbox"<?= ($content['locked'] == 1 ? ' checked="checked"' : '') ?> />
@@ -483,7 +483,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                 <?php
                                 include_once(MODX_MANAGER_PATH . 'includes/categories.inc.php');
                                 foreach (getCategories() as $n => $v) {
-                                    echo '<option value="' . $v['id'] . '"' . ($content['category'] == $v['id'] ? ' selected="selected"' : '') . '>' . $modx->htmlspecialchars($v['category']) . '</option>';
+                                    echo '<option value="' . $v['id'] . '"' . ($content['category'] == $v['id'] ? ' selected="selected"' : '') . '>' . $modx->getPhpCompat()->htmlspecialchars($v['category']) . '</option>';
                                 }
                                 ?>
                             </select>
@@ -505,7 +505,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                         <?php endif; ?>
                         <div class="form-row">
                             <label>
-                                <input name="parse_docblock" type="checkbox"<?= ($modx->manager->action == 23 ? ' checked="checked"' : '') ?> value="1" /> <?= $_lang['parse_docblock'] ?></label>
+                                <input name="parse_docblock" type="checkbox"<?= ($modx->getManagerApi()->action == 23 ? ' checked="checked"' : '') ?> value="1" /> <?= $_lang['parse_docblock'] ?></label>
                             <small class="form-text text-muted"><?= $_lang['parse_docblock_msg'] ?></small>
                         </div>
                     </div>
@@ -517,7 +517,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                 <span><?= $_lang['snippet_code'] ?></span>
             </div>
             <div class="section-editor clearfix">
-                <textarea dir="ltr" name="post" class="phptextarea" rows="20" wrap="soft" onchange="documentDirty=true;"><?= (isset($content['post']) ? trim($modx->htmlspecialchars($content['post'])) : "<?php" . "\n" . trim($modx->htmlspecialchars($content['snippet'])) . "\n") ?></textarea>
+                <textarea dir="ltr" name="post" class="phptextarea" rows="20" wrap="soft" onchange="documentDirty=true;"><?= (isset($content['post']) ? trim($modx->getPhpCompat()->htmlspecialchars($content['post'])) : "<?php" . "\n" . trim($modx->getPhpCompat()->htmlspecialchars($content['snippet'])) . "\n") ?></textarea>
             </div>
             <!-- PHP text editor end -->
         </div>
@@ -548,11 +548,11 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                             <select name="moduleguid" class="form-control" onchange="documentDirty=true;">
                                 <option>&nbsp;</option>
                                 <?php
-                                $ds = $modx->db->select('sm.id,sm.name,sm.guid', "{$tbl_site_modules} AS sm 
+                                $ds = $modx->getDatabase()->select('sm.id,sm.name,sm.guid', "{$tbl_site_modules} AS sm 
 								INNER JOIN {$tbl_site_module_depobj} AS smd ON smd.module=sm.id AND smd.type=40 
 								INNER JOIN {$tbl_site_snippets} AS ss ON ss.id=smd.resource", "smd.resource='{$id}' AND sm.enable_sharedparams=1", 'sm.name');
-                                while ($row = $modx->db->getRow($ds)) {
-                                    echo "<option value='" . $row['guid'] . "'" . ($content['moduleguid'] == $row['guid'] ? " selected='selected'" : "") . ">" . $modx->htmlspecialchars($row['name']) . "</option>";
+                                while ($row = $modx->getDatabase()->getRow($ds)) {
+                                    echo "<option value='" . $row['guid'] . "'" . ($content['moduleguid'] == $row['guid'] ? " selected='selected'" : "") . ">" . $modx->getPhpCompat()->htmlspecialchars($row['name']) . "</option>";
                                 }
                                 ?>
                             </select>

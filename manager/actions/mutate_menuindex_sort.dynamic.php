@@ -13,8 +13,7 @@ $ressourcelist = '';
 $updateMsg = '';
 
 // check permissions on the document
-include_once MODX_MANAGER_PATH . "processors/user_documents_permissions.class.php";
-$udperms = new udperms();
+$udperms = new EvolutionCMS\Legacy\Permissions();
 $udperms->user = $modx->getLoginUserID();
 $udperms->document = $id;
 $udperms->role = $_SESSION['mgrRole'];
@@ -31,7 +30,7 @@ if (isset($_POST['listSubmitted'])) {
             $docid = ltrim($value, 'item_');
             $key = $reset ? 0 : $key;
             if (is_numeric($docid)) {
-                $modx->db->update(array('menuindex' => $key), $modx->getFullTableName('site_content'), "id='{$docid}'");
+                $modx->getDatabase()->update(array('menuindex' => $key), $modx->getDatabase()->getFullTableName('site_content'), "id='{$docid}'");
             }
         }
     }
@@ -41,22 +40,22 @@ $disabled = 'true';
 $pagetitle = '';
 $ressourcelist = '';
 if ($id !== null) {
-    $tblsc = $modx->getFullTableName('site_content');
-    $tbldg = $modx->getFullTableName('document_groups');
+    $tblsc = $modx->getDatabase()->getFullTableName('site_content');
+    $tbldg = $modx->getDatabase()->getFullTableName('document_groups');
 
-    $rs = $modx->db->select('pagetitle', $tblsc, 'id=' . $id . '');
-    $pagetitle = $modx->db->getValue($rs);
+    $rs = $modx->getDatabase()->select('pagetitle', $tblsc, 'id=' . $id . '');
+    $pagetitle = $modx->getDatabase()->getValue($rs);
 
     $docgrp = (isset($_SESSION['mgrDocgroups']) && is_array($_SESSION['mgrDocgroups'])) ? implode(',', $_SESSION['mgrDocgroups']) : '';
     $docgrp_cond = $docgrp ? "OR dg.document_group IN ({$docgrp})" : '';
     $mgrRole = (isset ($_SESSION['mgrRole']) && (string)$_SESSION['mgrRole'] === '1') ? '1' : '0';
     $access = " AND (1={$mgrRole} OR sc.privatemgr=0" . (!$docgrp ? ')' : " OR dg.document_group IN ({$docgrp}))");
 
-    $rs = $modx->db->select('sc.id, sc.pagetitle, sc.parent, sc.menuindex, sc.published, sc.hidemenu, sc.deleted, sc.isfolder', $tblsc . 'AS sc LEFT JOIN ' . $tbldg . ' dg ON dg.document=sc.id', 'sc.parent=' . $id . $access . ' GROUP BY sc.id', 'menuindex ASC');
+    $rs = $modx->getDatabase()->select('sc.id, sc.pagetitle, sc.parent, sc.menuindex, sc.published, sc.hidemenu, sc.deleted, sc.isfolder', $tblsc . 'AS sc LEFT JOIN ' . $tbldg . ' dg ON dg.document=sc.id', 'sc.parent=' . $id . $access . ' GROUP BY sc.id', 'menuindex ASC');
 
-    if ($modx->db->getRecordCount($rs)) {
+    if ($modx->getDatabase()->getRecordCount($rs)) {
         $ressourcelist .= '<div class="clearfix"><ul id="sortlist" class="sortableList">';
-        while ($row = $modx->db->getRow($rs)) {
+        while ($row = $modx->getDatabase()->getRow($rs)) {
             $classes = '';
             $classes .= ($row['hidemenu']) ? ' notInMenuNode ' : ' inMenuNode';
             $classes .= ($row['published']) ? ' publishedNode ' : ' unpublishedNode ';
@@ -149,14 +148,14 @@ $pagetitle = empty($id) ? $site_name : $pagetitle;
 </script>
 
 <h1>
-    <i class="fa fa-sort-numeric-asc"></i><?= ($pagetitle ? $pagetitle . '<small>(' . $id . ')</small>' : $_lang['sort_menuindex']) ?>
+    <i class="fa fa-sort-numeric-asc"></i><?= ($pagetitle ? $modx->getPhpCompat()->entities($pagetitle) . '<small>(' . $id . ')</small>' : $_lang['sort_menuindex']) ?>
 </h1>
 
 <?= $_style['actionbuttons']['dynamic']['save'] ?>
 
 <div class="tab-page">
     <div class="container container-body">
-        <b><?= $pagetitle ?> (<?= $id ?>)</b>
+        <b><?= $modx->getPhpCompat()->entities($pagetitle) ?> (<?= $id ?>)</b>
         <?php
         if ($ressourcelist) {
             ?>

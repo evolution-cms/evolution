@@ -11,9 +11,9 @@ class FileValidator
      * @param $value
      * @return bool
      */
-    public function required($value)
+    public static function required($value)
     {
-        if (!$this->isArray($value)) {
+        if (!self::isArray($value)) {
             $value = array($value);
         }
         $flag = false;
@@ -31,9 +31,9 @@ class FileValidator
      * @param $value
      * @return bool
      */
-    public function optional($value)
+    public static function optional($value)
     {
-        if (!$this->isArray($value)) {
+        if (!self::isArray($value)) {
             $value = array($value);
         }
         $flag = false;
@@ -56,9 +56,9 @@ class FileValidator
      * @param $allowed
      * @return bool
      */
-    public function allowed($value, $allowed)
+    public static function allowed($value, $allowed)
     {
-        if (!$this->isArray($value)) {
+        if (!self::isArray($value)) {
             $value = array($value);
         }
         $flag = false;
@@ -81,9 +81,9 @@ class FileValidator
      * @param $value
      * @return bool
      */
-    public function images($value)
+    public static function images($value)
     {
-        return $this->allowed($value, array("jpg", "jpeg", "png", "gif", "bmp"));
+        return self::allowed($value, array("jpg", "jpeg", "png", "gif", "bmp"));
     }
 
     /**
@@ -91,9 +91,9 @@ class FileValidator
      * @param $max
      * @return bool
      */
-    public function maxSize($value, $max)
+    public static function maxSize($value, $max)
     {
-        if (!$this->isArray($value)) {
+        if (!self::isArray($value)) {
             $value = array($value);
         }
         $flag = false;
@@ -113,9 +113,9 @@ class FileValidator
      * @param $min
      * @return bool
      */
-    public function minSize($value, $min)
+    public static function minSize($value, $min)
     {
-        if (!$this->isArray($value)) {
+        if (!self::isArray($value)) {
             $value = array($value);
         }
         $flag = false;
@@ -140,9 +140,9 @@ class FileValidator
      * @param $max
      * @return bool
      */
-    public function sizeBetween($value, $min, $max)
+    public static function sizeBetween($value, $min, $max)
     {
-        if (!$this->isArray($value)) {
+        if (!self::isArray($value)) {
             $value = array($value);
         }
         $flag = false;
@@ -166,13 +166,13 @@ class FileValidator
      * @param $max
      * @return bool
      */
-    public function maxCount($value, $max)
+    public static function maxCount($value, $max)
     {
-        if (!$this->isArray($value)) {
+        if (!self::isArray($value)) {
             $value = array($value);
         }
 
-        return $this->getCount($value) < $max;
+        return self::getCount($value) < $max;
     }
 
     /**
@@ -180,13 +180,13 @@ class FileValidator
      * @param $min
      * @return bool
      */
-    public function minCount($value, $min)
+    public static function minCount($value, $min)
     {
-        if (!$this->isArray($value)) {
+        if (!self::isArray($value)) {
             $value = array($value);
         }
 
-        return $this->getCount($value) > $min;
+        return self::getCount($value) > $min;
     }
 
     /**
@@ -195,20 +195,20 @@ class FileValidator
      * @param $max
      * @return bool
      */
-    public function countBetween($value, $min, $max)
+    public static function countBetween($value, $min, $max)
     {
-        if (!$this->isArray($value)) {
+        if (!self::isArray($value)) {
             $value = array($value);
         }
 
-        return $this->getCount($value) > $min && $this->getCount($value) < $max;
+        return self::getCount($value) > $min && self::getCount($value) < $max;
     }
 
     /**
      * @param $value
      * @return bool
      */
-    protected function isArray($value)
+    protected static function isArray($value)
     {
         return isset($value[0]);
     }
@@ -217,7 +217,7 @@ class FileValidator
      * @param $value
      * @return int
      */
-    protected function getCount($value)
+    protected static function getCount($value)
     {
         $out = 0;
         foreach ($value as $file) {

@@ -137,12 +137,12 @@ abstract class filterDocLister
             case '=':
             case 'eq':
             case 'is':
-                $output .= " = '" . $this->modx->db->escape($value) . "'";
+                $output .= " = '" . $this->modx->getDatabase()->escape($value) . "'";
                 break;
             case '!=':
             case 'no':
             case 'isnot':
-                $output .= " != '" . $this->modx->db->escape($value) . "'";
+                $output .= " != '" . $this->modx->getDatabase()->escape($value) . "'";
                 break;
             case '>':
             case 'gt':
@@ -171,14 +171,14 @@ abstract class filterDocLister
                 $output = $this->DocLister->LikeEscape($output, $value, '=', '%[+value+]');
                 break;
             case 'regexp':
-                $output .= " REGEXP '" . $this->modx->db->escape($value) . "'";
+                $output .= " REGEXP '" . $this->modx->getDatabase()->escape($value) . "'";
                 break;
             case 'against':
                 /** content:pagetitle,description,content,introtext:against:искомая строка */
                 if (trim($value) != '') {
                     $field = explode(",", $this->field);
                     $field = implode(",", $this->DocLister->renameKeyArr($field, $this->getTableAlias()));
-                    $output = "MATCH ({$field}) AGAINST ('{$this->modx->db->escape($value)}*')";
+                    $output = "MATCH ({$field}) AGAINST ('{$this->modx->getDatabase()->escape($value)}*')";
                 }
                 break;
             case 'containsOne':

@@ -118,7 +118,7 @@ class user_DL_Extender extends extDocLister
         if (count($user) > 0) {
             $user = implode(",", $this->DocLister->cleanIDs($user));
             //without a.sessionid and u.password
-            $sql = $this->modx->db->query("
+            $sql = $this->modx->getDatabase()->query("
                 SELECT
                     u.id,
                     u.username,
@@ -152,7 +152,7 @@ class user_DL_Extender extends extDocLister
                 WHERE
                     u.id IN ({$user})
             ");
-            while ($tmp = $this->modx->db->getRow($sql)) {
+            while ($tmp = $this->modx->getDatabase()->getRow($sql)) {
                 $out[$tmp['id']] = $tmp;
             }
         }

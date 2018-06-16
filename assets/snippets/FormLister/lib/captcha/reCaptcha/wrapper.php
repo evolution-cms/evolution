@@ -44,7 +44,7 @@ class ReCaptchaWrapper implements CaptchaInterface
     {
         $siteKey = \APIhelpers::getkey($this->cfg, 'siteKey');
         $type = \APIhelpers::getkey($this->cfg, 'type', 'image');
-        $size = \APIhelpers::getkey($this->cfg, 'tabindex', 0);
+        $size = \APIhelpers::getkey($this->cfg, 'size', 'normal');
         $tabindex = \APIhelpers::getkey($this->cfg, 'tabindex', 0);
         $theme = \APIhelpers::getkey($this->cfg, 'theme', 'light');
         $id = \APIhelpers::getkey($this->cfg, 'id');

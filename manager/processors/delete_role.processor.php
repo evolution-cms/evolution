@@ -15,18 +15,18 @@ if($id==1){
 	$modx->webAlertAndQuit("The role you are trying to delete is the admin role. This role cannot be deleted!");
 }
 
-$rs = $modx->db->select('COUNT(*)', $modx->getFullTableName('user_attributes'), "role='{$id}'");
-$count=$modx->db->getValue($rs);
+$rs = $modx->getDatabase()->select('COUNT(*)', $modx->getDatabase()->getFullTableName('user_attributes'), "role='{$id}'");
+$count=$modx->getDatabase()->getValue($rs);
 if($count>0){
 	$modx->webAlertAndQuit("There are users with this role. It can't be deleted.");
 }
 
 // Set the item name for logger
-$name = $modx->db->getValue($modx->db->select('name', $modx->getFullTableName('user_roles'), "id='{$id}'"));
+$name = $modx->getDatabase()->getValue($modx->getDatabase()->select('name', $modx->getDatabase()->getFullTableName('user_roles'), "id='{$id}'"));
 $_SESSION['itemname'] = $name;
 
 // delete the attributes
-$modx->db->delete($modx->getFullTableName('user_roles'), "id='{$id}'");
+$modx->getDatabase()->delete($modx->getDatabase()->getFullTableName('user_roles'), "id='{$id}'");
 
 $header="Location: index.php?a=86";
 header($header);

@@ -8,8 +8,8 @@ if (!$modx->hasPermission('save_snippet')) {
 
 $id = (int)$_POST['id'];
 $snippet = trim($_POST['post']);
-$name = $modx->db->escape(trim($_POST['name']));
-$description = $modx->db->escape($_POST['description']);
+$name = $modx->getDatabase()->escape(trim($_POST['name']));
+$description = $modx->getDatabase()->escape($_POST['description']);
 $locked = $_POST['locked'] == 'on' ? 1 : 0;
 $disabled = $_POST['disabled'] == "on" ? '1' : '0';
 $currentdate = time() + $modx->config['server_offset_time'];
@@ -26,9 +26,9 @@ if (substr($snippet, -2) == '?>') {
     $snippet = substr($snippet, 0, -2);
 }
 
-$snippet = $modx->db->escape($snippet);
-$properties = $modx->db->escape($_POST['properties']);
-$moduleguid = $modx->db->escape($_POST['moduleguid']);
+$snippet = $modx->getDatabase()->escape($snippet);
+$properties = $modx->getDatabase()->escape($_POST['properties']);
+$moduleguid = $modx->getDatabase()->escape($_POST['moduleguid']);
 $parse_docblock = $_POST['parse_docblock'] == "1" ? '1' : '0';
 
 //Kyle Jaebker - added category support
@@ -75,15 +75,15 @@ switch ($_POST['mode']) {
         ));
 
         // disallow duplicate names for new snippets
-        $rs = $modx->db->select('COUNT(id)', $modx->getFullTableName('site_snippets'), "name='{$name}'");
-        $count = $modx->db->getValue($rs);
+        $rs = $modx->getDatabase()->select('COUNT(id)', $modx->getDatabase()->getFullTableName('site_snippets'), "name='{$name}'");
+        $count = $modx->getDatabase()->getValue($rs);
         if ($count > 0) {
-            $modx->manager->saveFormValues(23);
+            $modx->getManagerApi()->saveFormValues(23);
             $modx->webAlertAndQuit(sprintf($_lang['duplicate_name_found_general'], $_lang['snippet'], $name), "index.php?a=23");
         }
 
         //do stuff to save the new doc
-        $newid = $modx->db->insert(array(
+        $newid = $modx->getDatabase()->insert(array(
             'name' => $name,
             'description' => $description,
             'snippet' => $snippet,
@@ -94,7 +94,7 @@ switch ($_POST['mode']) {
             'disabled' => $disabled,
             'createdon' => $currentdate,
             'editedon' => $currentdate
-        ), $modx->getFullTableName('site_snippets'));
+        ), $modx->getDatabase()->getFullTableName('site_snippets'));
 
         // invoke OnSnipFormSave event
         $modx->invokeEvent("OnSnipFormSave", array(
@@ -126,14 +126,14 @@ switch ($_POST['mode']) {
         ));
 
         // disallow duplicate names for snippets
-        $rs = $modx->db->select('COUNT(*)', $modx->getFullTableName('site_snippets'), "name='{$name}' AND id!='{$id}'");
-        if ($modx->db->getValue($rs) > 0) {
-            $modx->manager->saveFormValues(22);
+        $rs = $modx->getDatabase()->select('COUNT(*)', $modx->getDatabase()->getFullTableName('site_snippets'), "name='{$name}' AND id!='{$id}'");
+        if ($modx->getDatabase()->getValue($rs) > 0) {
+            $modx->getManagerApi()->saveFormValues(22);
             $modx->webAlertAndQuit(sprintf($_lang['duplicate_name_found_general'], $_lang['snippet'], $name), "index.php?a=22&id={$id}");
         }
 
         //do stuff to save the edited doc
-        $modx->db->update(array(
+        $modx->getDatabase()->update(array(
             'name' => $name,
             'description' => $description,
             'snippet' => $snippet,
@@ -143,7 +143,7 @@ switch ($_POST['mode']) {
             'category' => $categoryid,
             'disabled' => $disabled,
             'editedon' => $currentdate
-        ), $modx->getFullTableName('site_snippets'), "id='{$id}'");
+        ), $modx->getDatabase()->getFullTableName('site_snippets'), "id='{$id}'");
 
         // invoke OnSnipFormSave event
         $modx->invokeEvent("OnSnipFormSave", array(

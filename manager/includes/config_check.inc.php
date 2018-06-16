@@ -6,9 +6,9 @@ if( ! defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true) {
 // PROCESSOR FIRST
 if($_SESSION['mgrRole'] == 1) {
 	if($_REQUEST['b'] == 'resetSysfilesChecksum' && $modx->hasPermission('settings')) {
-		$current = $modx->manager->getSystemChecksum($modx->config['check_files_onlogin']);
+		$current = $modx->getManagerApi()->getSystemChecksum($modx->config['check_files_onlogin']);
 		if(!empty($current)) {
-			$modx->manager->setSystemChecksum($current);
+			$modx->getManagerApi()->setSystemChecksum($current);
 			$modx->clearCache('full');
 			$modx->config['sys_files_checksum'] = $current;
 		};
@@ -18,7 +18,7 @@ if($_SESSION['mgrRole'] == 1) {
 // NOW CHECK CONFIG
 $warningspresent = 0;
 
-$sysfiles_check = $modx->manager->checkSystemChecksum();
+$sysfiles_check = $modx->getManagerApi()->checkSystemChecksum();
 if ($sysfiles_check!=='0'){
       $warningspresent = 1;
       $warnings[] = array($_lang['configcheck_sysfiles_mod']);
@@ -44,7 +44,7 @@ if (!extension_loaded('gd') || !extension_loaded('zip')) {
 
 if(!isset($modx->config['_hide_configcheck_validate_referer']) || $modx->config['_hide_configcheck_validate_referer'] !== '1') {
     if(isset($_SESSION['mgrPermissions']['settings']) && $_SESSION['mgrPermissions']['settings'] == '1') {
-        if ($modx->db->getValue($modx->db->select('COUNT(setting_value)', $modx->getFullTableName('system_settings'), "setting_name='validate_referer' AND setting_value='0'"))) {
+        if ($modx->getDatabase()->getValue($modx->getDatabase()->select('COUNT(setting_value)', $modx->getDatabase()->getFullTableName('system_settings'), "setting_name='validate_referer' AND setting_value='0'"))) {
             $warningspresent = 1;
             $warnings[] = array($_lang['configcheck_validate_referer']);
         }
@@ -54,8 +54,8 @@ if(!isset($modx->config['_hide_configcheck_validate_referer']) || $modx->config[
 // check for Template Switcher plugin
 if(!isset($modx->config['_hide_configcheck_templateswitcher_present']) || $modx->config['_hide_configcheck_templateswitcher_present'] !== '1') {
     if(isset($_SESSION['mgrPermissions']['edit_plugin']) && $_SESSION['mgrPermissions']['edit_plugin'] == '1') {
-        $rs = $modx->db->select('name, disabled', $modx->getFullTableName('site_plugins'), "name IN ('TemplateSwitcher', 'Template Switcher', 'templateswitcher', 'template_switcher', 'template switcher') OR plugincode LIKE '%TemplateSwitcher%'");
-        $row = $modx->db->getRow($rs);
+        $rs = $modx->getDatabase()->select('name, disabled', $modx->getDatabase()->getFullTableName('site_plugins'), "name IN ('TemplateSwitcher', 'Template Switcher', 'templateswitcher', 'template_switcher', 'template switcher') OR plugincode LIKE '%TemplateSwitcher%'");
+        $row = $modx->getDatabase()->getRow($rs);
         if($row && $row['disabled'] == 0) {
             $warningspresent = 1;
             $warnings[] = array($_lang['configcheck_templateswitcher_present']);
@@ -96,22 +96,22 @@ JS;
     }
 }
 
-if ($modx->db->getValue($modx->db->select('published', $modx->getFullTableName('site_content'), "id='{$unauthorized_page}'")) == 0) {
+if ($modx->getDatabase()->getValue($modx->getDatabase()->select('published', $modx->getDatabase()->getFullTableName('site_content'), "id='{$unauthorized_page}'")) == 0) {
     $warningspresent = 1;
     $warnings[] = array($_lang['configcheck_unauthorizedpage_unpublished']);
 }
 
-if ($modx->db->getValue($modx->db->select('published', $modx->getFullTableName('site_content'), "id='{$error_page}'")) == 0) {
+if ($modx->getDatabase()->getValue($modx->getDatabase()->select('published', $modx->getDatabase()->getFullTableName('site_content'), "id='{$error_page}'")) == 0) {
     $warningspresent = 1;
     $warnings[] = array($_lang['configcheck_errorpage_unpublished']);
 }
 
-if ($modx->db->getValue($modx->db->select('privateweb', $modx->getFullTableName('site_content'), "id='{$unauthorized_page}'")) == 1) {
+if ($modx->getDatabase()->getValue($modx->getDatabase()->select('privateweb', $modx->getDatabase()->getFullTableName('site_content'), "id='{$unauthorized_page}'")) == 1) {
     $warningspresent = 1;
     $warnings[] = array($_lang['configcheck_unauthorizedpage_unavailable']);
 }
 
-if ($modx->db->getValue($modx->db->select('privateweb', $modx->getFullTableName('site_content'), "id='{$error_page}'")) == 1) {
+if ($modx->getDatabase()->getValue($modx->getDatabase()->select('privateweb', $modx->getDatabase()->getFullTableName('site_content'), "id='{$error_page}'")) == 1) {
     $warningspresent = 1;
     $warnings[] = array($_lang['configcheck_errorpage_unavailable']);
 }
@@ -121,7 +121,7 @@ if (!function_exists('checkSiteCache')) {
      * @return bool
      */
     function checkSiteCache() {
-        global $modx;
+        $modx = evolutionCMS();
         $checked= true;
         if (file_exists($modx->config['base_path'] . 'assets/cache/siteCache.idx.php')) {
             $checked= @include_once ($modx->config['base_path'] . 'assets/cache/siteCache.idx.php');

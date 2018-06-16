@@ -2,10 +2,10 @@
 if( ! defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true) {
 	die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the EVO Content Manager instead of accessing this file directly.");
 }
-if(!$modx->hasPermission('edit_template') && $modx->manager->action == '301') {
+if(!$modx->hasPermission('edit_template') && $modx->getManagerApi()->action == '301') {
 	$modx->webAlertAndQuit($_lang["error_no_privileges"]);
 }
-if(!$modx->hasPermission('new_template') && $modx->manager->action == '300') {
+if(!$modx->hasPermission('new_template') && $modx->getManagerApi()->action == '300') {
 	$modx->webAlertAndQuit($_lang["error_no_privileges"]);
 }
 
@@ -13,10 +13,10 @@ $id = isset($_REQUEST['id']) ? (int)$_REQUEST['id'] : 0;
 $origin = isset($_REQUEST['or']) ? (int)$_REQUEST['or'] : 76;
 $originId = isset($_REQUEST['oid']) ? (int)$_REQUEST['oid'] : NULL;
 
-$tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
-$tbl_site_templates = $modx->getFullTableName('site_templates');
-$tbl_site_tmplvar_templates = $modx->getFullTableName('site_tmplvar_templates');
-$tbl_documentgroup_names = $modx->getFullTableName('documentgroup_names');
+$tbl_site_tmplvars = $modx->getDatabase()->getFullTableName('site_tmplvars');
+$tbl_site_templates = $modx->getDatabase()->getFullTableName('site_templates');
+$tbl_site_tmplvar_templates = $modx->getDatabase()->getFullTableName('site_tmplvar_templates');
+$tbl_documentgroup_names = $modx->getDatabase()->getFullTableName('documentgroup_names');
 
 // check to see the snippet editor isn't locked
 if($lockedEl = $modx->elementIsLocked(2, $id)) {
@@ -30,8 +30,8 @@ $modx->lockElement(2, $id);
 global $content;
 $content = array();
 if(isset($_GET['id'])) {
-	$rs = $modx->db->select('*', $tbl_site_tmplvars, "id='{$id}'");
-	$content = $modx->db->getRow($rs);
+	$rs = $modx->getDatabase()->select('*', $tbl_site_tmplvars, "id='{$id}'");
+	$content = $modx->getDatabase()->getRow($rs);
 	if(!$content) {
 		header("Location: " . MODX_SITE_URL . "index.php?id={$site_start}");
 	}
@@ -47,8 +47,8 @@ if(isset($_GET['id'])) {
 	$content['category'] = (int)$_REQUEST['catid'];
 }
 
-if($modx->manager->hasFormValues()) {
-	$modx->manager->loadFormValues();
+if($modx->getManagerApi()->hasFormValues()) {
+	$modx->getManagerApi()->loadFormValues();
 }
 
 $content = array_merge($content, $_POST);
@@ -287,8 +287,8 @@ if(is_array($evtOut)) {
 	<input type="hidden" name="a" value="302">
 	<input type="hidden" name="or" value="<?= $origin ?>">
 	<input type="hidden" name="oid" value="<?= $originId ?>">
-	<input type="hidden" name="mode" value="<?= $modx->manager->action ?>">
-	<input type="hidden" name="params" value="<?= $modx->htmlspecialchars($content['display_params']) ?>">
+	<input type="hidden" name="mode" value="<?= $modx->getManagerApi()->action ?>">
+	<input type="hidden" name="params" value="<?= $modx->getPhpCompat()->htmlspecialchars($content['display_params']) ?>">
 
 	<h1>
 		<i class="fa fa-list-alt"></i><?= ($content['name'] ? $content['name'] . '<small>(' . $content['id'] . ')</small>' : $_lang['new_tmplvars']) ?><i class="fa fa-question-circle help"></i>
@@ -313,7 +313,7 @@ if(is_array($evtOut)) {
 					<label class="col-md-3 col-lg-2"><?= $_lang['tmplvars_name'] ?></label>
 					<div class="col-md-9 col-lg-10">
 						<div class="form-control-name clearfix">
-							<input name="name" type="text" maxlength="50" value="<?= $modx->htmlspecialchars($content['name']) ?>" class="form-control form-control-lg" onchange="documentDirty=true;" />
+							<input name="name" type="text" maxlength="50" value="<?= $modx->getPhpCompat()->htmlspecialchars($content['name']) ?>" class="form-control form-control-lg" onchange="documentDirty=true;" />
 							<?php if($modx->hasPermission('save_role')): ?>
 								<label class="custom-control" title="<?= $_lang['lock_tmplvars'] . "\n" . $_lang['lock_tmplvars_msg'] ?>" tooltip>
 									<input name="locked" type="checkbox"<?= ($content['locked'] == 1 ? ' checked="checked"' : '') ?> />
@@ -328,13 +328,13 @@ if(is_array($evtOut)) {
 				<div class="row form-row">
 					<label class="col-md-3 col-lg-2"><?= $_lang['tmplvars_caption'] ?></label>
 					<div class="col-md-9 col-lg-10">
-						<input name="caption" type="text" maxlength="80" value="<?= $modx->htmlspecialchars($content['caption']) ?>" class="form-control" onchange="documentDirty=true;" />
+						<input name="caption" type="text" maxlength="80" value="<?= $modx->getPhpCompat()->htmlspecialchars($content['caption']) ?>" class="form-control" onchange="documentDirty=true;" />
 					</div>
 				</div>
 				<div class="row form-row">
 					<label class="col-md-3 col-lg-2"><?= $_lang['tmplvars_description'] ?></label>
 					<div class="col-md-9 col-lg-10">
-						<input name="description" type="text" maxlength="255" value="<?= $modx->htmlspecialchars($content['description']) ?>" class="form-control" onChange="documentDirty=true;">
+						<input name="description" type="text" maxlength="255" value="<?= $modx->getPhpCompat()->htmlspecialchars($content['description']) ?>" class="form-control" onChange="documentDirty=true;">
 					</div>
 				</div>
 				<div class="row form-row">
@@ -345,7 +345,7 @@ if(is_array($evtOut)) {
 							<?php
 							include_once(MODX_MANAGER_PATH . 'includes/categories.inc.php');
 							foreach(getCategories() as $n => $v) {
-								echo "<option value='" . $v['id'] . "'" . ($content["category"] == $v["id"] ? " selected='selected'" : "") . ">" . $modx->htmlspecialchars($v["category"]) . "</option>";
+								echo "<option value='" . $v['id'] . "'" . ($content["category"] == $v["id"] ? " selected='selected'" : "") . ">" . $modx->getPhpCompat()->htmlspecialchars($v["category"]) . "</option>";
 							}
 							?>
 						</select>
@@ -400,7 +400,7 @@ if(is_array($evtOut)) {
 						<small class="form-text text-muted"><?= $_lang['tmplvars_binding_msg'] ?></small>
 					</label>
 					<div class="col-md-9 col-lg-10">
-						<textarea name="elements" maxlength="65535" rows="4" class="form-control" onchange="documentDirty=true;"><?= $modx->htmlspecialchars($content['elements']) ?></textarea>
+						<textarea name="elements" maxlength="65535" rows="4" class="form-control" onchange="documentDirty=true;"><?= $modx->getPhpCompat()->htmlspecialchars($content['elements']) ?></textarea>
 					</div>
 				</div>
 				<div class="row form-row">
@@ -408,7 +408,7 @@ if(is_array($evtOut)) {
 						<small class="form-text text-muted"><?= $_lang['tmplvars_binding_msg'] ?></small>
 					</label>
 					<div class="col-md-9 col-lg-10">
-						<textarea name="default_text" class="form-control" rows="4" onchange="documentDirty=true;"><?= $modx->htmlspecialchars($content['default_text']) ?></textarea>
+						<textarea name="default_text" class="form-control" rows="4" onchange="documentDirty=true;"><?= $modx->getPhpCompat()->htmlspecialchars($content['default_text']) ?></textarea>
 					</div>
 				</div>
 				<div class="row form-row">
@@ -455,14 +455,14 @@ if(is_array($evtOut)) {
 					<a class="btn btn-secondary btn-sm" href="javascript:;" onClick="check_toggle(); return false;"><?= $_lang['check_toggle'] ?></a>
 				</div>
 				<?php
-				$rs = $modx->db->select(sprintf("tpl.id AS id, templatename, tpl.description AS tpldescription, tpl.locked AS tpllocked, tpl.selectable AS selectable, tmplvarid, if(isnull(cat.category),'%s',cat.category) AS category, cat.id AS catid", $_lang['no_category']), sprintf("%s as tpl
+				$rs = $modx->getDatabase()->select(sprintf("tpl.id AS id, templatename, tpl.description AS tpldescription, tpl.locked AS tpllocked, tpl.selectable AS selectable, tmplvarid, if(isnull(cat.category),'%s',cat.category) AS category, cat.id AS catid", $_lang['no_category']), sprintf("%s as tpl
                     LEFT JOIN %s as stt ON stt.templateid=tpl.id AND stt.tmplvarid='%s'
-                    LEFT JOIN %s as cat ON tpl.category=cat.id", $modx->getFullTableName('site_templates'), $modx->getFullTableName('site_tmplvar_templates'), $id, $modx->getFullTableName('categories')), '', "category, templatename");
+                    LEFT JOIN %s as cat ON tpl.category=cat.id", $modx->getDatabase()->getFullTableName('site_templates'), $modx->getDatabase()->getFullTableName('site_tmplvar_templates'), $id, $modx->getDatabase()->getFullTableName('categories')), '', "category, templatename");
 
 				$tplList = '<ul>';
 				$preCat = '';
 				$insideUl = 0;
-				while($row = $modx->db->getRow($rs)) {
+				while($row = $modx->getDatabase()->getRow($rs)) {
 					$row['category'] = stripslashes($row['category']); //pixelchutes
 					if($preCat !== $row['category']) {
 						$tplList .= $insideUl ? '</ul>' : '';
@@ -470,7 +470,7 @@ if(is_array($evtOut)) {
 						$insideUl = 1;
 					}
 
-					if($modx->manager->action == '300' && $modx->config['default_template'] == $row['id']) {
+					if($modx->getManagerApi()->action == '300' && $modx->config['default_template'] == $row['id']) {
 						$checked = true;
 					} elseif(isset($_GET['tpl']) && $_GET['tpl'] == $row['id']) {
 						$checked = true;
@@ -508,8 +508,8 @@ if(is_array($evtOut)) {
 				<?php
 				if($use_udperms == 1) {
 					// fetch permissions for the variable
-					$rs = $modx->db->select('documentgroup', $modx->getFullTableName('site_tmplvar_access'), "tmplvarid='{$id}'");
-					$groupsarray = $modx->db->getColumn('documentgroup', $rs);
+					$rs = $modx->getDatabase()->select('documentgroup', $modx->getDatabase()->getFullTableName('site_tmplvar_access'), "tmplvarid='{$id}'");
+					$groupsarray = $modx->getDatabase()->getColumn('documentgroup', $rs);
 
 					?>
 					<?php if($modx->hasPermission('access_permissions')) { ?>
@@ -540,11 +540,11 @@ if(is_array($evtOut)) {
 						<p><?= $_lang['tmplvar_access_msg'] ?></p>
 						<?php
 						$chk = '';
-						$rs = $modx->db->select('name, id', $tbl_documentgroup_names);
+						$rs = $modx->getDatabase()->select('name, id', $tbl_documentgroup_names);
 						if(empty($groupsarray) && is_array($_POST['docgroups']) && empty($_POST['id'])) {
 							$groupsarray = $_POST['docgroups'];
 						}
-						while($row = $modx->db->getRow($rs)) {
+						while($row = $modx->getDatabase()->getRow($rs)) {
 							$checked = in_array($row['id'], $groupsarray);
 							if($modx->hasPermission('access_permissions')) {
 								if($checked) {

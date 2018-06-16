@@ -17,7 +17,7 @@ if($id==$modx->getLoginUserID()) {
 }
 
 // Set the item name for logger
-$username = $modx->db->getValue($modx->db->select('username', $modx->getFullTableName('manager_users'), "id='{$id}'"));
+$username = $modx->getDatabase()->getValue($modx->getDatabase()->select('username', $modx->getDatabase()->getFullTableName('manager_users'), "id='{$id}'"));
 $_SESSION['itemname'] = $username;
 
 // invoke OnBeforeUserFormDelete event
@@ -27,15 +27,15 @@ $modx->invokeEvent("OnBeforeUserFormDelete",
 	));
 
 // delete the user.
-$modx->db->delete($modx->getFullTableName('manager_users'), "id='{$id}'");
+$modx->getDatabase()->delete($modx->getDatabase()->getFullTableName('manager_users'), "id='{$id}'");
 
-$modx->db->delete($modx->getFullTableName('member_groups'), "member='{$id}'");
+$modx->getDatabase()->delete($modx->getDatabase()->getFullTableName('member_groups'), "member='{$id}'");
 
 // delete user settings
-$modx->db->delete($modx->getFullTableName('user_settings'), "user='{$id}'");
+$modx->getDatabase()->delete($modx->getDatabase()->getFullTableName('user_settings'), "user='{$id}'");
 
 // delete the attributes
-$modx->db->delete($modx->getFullTableName('user_attributes'), "internalKey='{$id}'");
+$modx->getDatabase()->delete($modx->getDatabase()->getFullTableName('user_attributes'), "internalKey='{$id}'");
 
 // invoke OnManagerDeleteUser event
 $modx->invokeEvent("OnManagerDeleteUser",

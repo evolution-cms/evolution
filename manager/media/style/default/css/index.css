@@ -1,9 +1,17 @@
+@supports (-webkit-overflow-scrolling: touch) {
+html, body  { height: 100%; overflow: auto; -webkit-overflow-scrolling: touch; /* ios iframe scroll jumping to top fix */ }
+}
 #frameset { position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; }
 #mainMenu, #tree, #main { position: absolute; }
 #mainMenu { top: 0; left: 0; width: 100%; height: 2.2rem; z-index: 100; }
 #tree { left: 0; top: 2.2rem; bottom: 0; width: 25rem; max-width: 100%; overflow: hidden; z-index: 2; }
 #main { left: 25rem; top: 2.2rem; right: 0; bottom: 0; z-index: 1; }
-#main #mainframe { display: block; position: absolute; width: 100%; height: 100%; overflow: auto; }
+#main #mainframe { display: block; position: absolute; width: 100%; height: 100%; overflow: auto;}
+
+.ios #main #mainframe, .ios #main .tabframes { overflow: hidden !important; min-width: 100%!important; width: 100px!important; *width: 100%!important; }
+.ios .iframe-scroller { -webkit-overflow-scrolling: touch; overflow: auto; width:100%; height:100%; }
+.ios .evo-tab-page.iframe-scroller { height:calc(100% - 2.3em) }
+
 /* floater */
 #floater { position: fixed; z-index: 1000; opacity: 0; visibility: hidden; max-width: 20rem; padding: 1.5rem; top: 4rem; left: 2rem; border-radius: 0.25rem; background-color: #fff; -webkit-box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3); box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3); transition-duration: 0.15s }
 #floater.show { opacity: 1; visibility: visible; }
@@ -42,7 +50,7 @@ to { transform: rotate(360deg) }
 .dark #main { background-color: #ecf0f1 }
 .dark #mainloader { background-color: rgba(0, 0, 0, 0.1); }
 /* darkness */
-.darkness { letter-spacing: .021em }
+.darkness { letter-spacing: .021em; }
 .darkness #mainloader { background-color: rgba(0, 0, 0, 0.1); }
 .darkness, .darkness #frameset, .darkness #main { background-color: #282c34; color: #bdbdbd; }
 .darkness > form { background-color: #202329 }

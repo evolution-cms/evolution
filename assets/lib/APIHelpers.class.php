@@ -382,6 +382,39 @@ class APIhelpers
     }
 
     /**
+     * @param $IDs
+     * @param string $sep
+     * @param integer[] $ignore
+     * @return array
+     * @throws Exception
+     */
+    public static function cleanIDs($IDs, $sep = ',', $ignore = array())
+    {
+        $out = array();
+        if (!is_array($IDs)) {
+            if (is_scalar($IDs)) {
+                $IDs = explode($sep, $IDs);
+            } else {
+                $IDs = array();
+                throw new Exception('Invalid IDs list <pre>' . print_r($IDs, 1) . '</pre>');
+            }
+        }
+        foreach ($IDs as $item) {
+            $item = trim($item);
+            if (is_scalar($item) && (int)$item >= 0) { //Fix 0xfffffffff
+                if (!empty($ignore) && in_array((int)$item, $ignore, true)) {
+                    $this->log[] = 'Ignore id ' . (int)$item;
+                } else {
+                    $out[] = (int)$item;
+                }
+            }
+        }
+        $out = array_unique($out);
+
+        return $out;
+    }
+
+    /**
      * Переменовывание элементов массива
      *
      * @param array $data массив с данными

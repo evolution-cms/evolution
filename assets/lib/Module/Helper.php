@@ -10,7 +10,7 @@ class Helper extends \APIhelpers
 {
     /**
      * Объект DocumentParser - основной класс MODX
-     * @var \DocumentParser
+     * @var \EvolutionCMS\Core
      * @access protected
      */
     protected static $modx = null;
@@ -20,10 +20,10 @@ class Helper extends \APIhelpers
     protected static $mode = 'list';
 
     /**
-     * @param \DocumentParser $modx
+     * @param \EvolutionCMS\Core $modx
      * @param string $mode
      */
-    public static function init(\DocumentParser $modx, $mode = 'list')
+    public static function init(\EvolutionCMS\Core $modx, $mode = 'list')
     {
         self::$modx = $modx;
         self::setMode($mode);
@@ -52,9 +52,9 @@ class Helper extends \APIhelpers
      */
     protected static function _counter($from, $where = '')
     {
-        $q = self::$modx->db->select('count(id)', self::$modx->getFullTableName($from), $where);
+        $q = self::$modx->getDatabase()->select('count(id)', self::$modx->getDatabase()->getFullTableName($from), $where);
 
-        return self::$modx->db->getValue($q);
+        return self::$modx->getDatabase()->getValue($q);
     }
 
     /**

@@ -12,13 +12,13 @@ if($id==0) {
 }
 
 // count duplicates
-$name = $modx->db->getValue($modx->db->select('name', $modx->getFullTableName('site_tmplvars'), "id='{$id}'"));
-$count = $modx->db->getRecordCount($modx->db->select('name', $modx->getFullTableName('site_tmplvars'), "name LIKE '{$name} {$_lang['duplicated_el_suffix']}%'"));
+$name = $modx->getDatabase()->getValue($modx->getDatabase()->select('name', $modx->getDatabase()->getFullTableName('site_tmplvars'), "id='{$id}'"));
+$count = $modx->getDatabase()->getRecordCount($modx->getDatabase()->select('name', $modx->getDatabase()->getFullTableName('site_tmplvars'), "name LIKE '{$name} {$_lang['duplicated_el_suffix']}%'"));
 if($count>=1) $count = ' '.($count+1);
 else $count = '';
 
 // duplicate TV
-$newid = $modx->db->insert(
+$newid = $modx->getDatabase()->insert(
 	array(
 		'type'=>'',
 		'name'=>'',
@@ -30,29 +30,29 @@ $newid = $modx->db->insert(
 		'display'=>'',
 		'display_params'=>'',
 		'category'=>'',
-		), $modx->getFullTableName('site_tmplvars'), // Insert into
-	"type, CONCAT(name, ' {$_lang['duplicated_el_suffix']}{$count}') AS name, CONCAT(caption, ' Duplicate{$count}') AS caption, description, default_text, elements, rank, display, display_params, category", $modx->getFullTableName('site_tmplvars'), "id='{$id}'"); // Copy from
+		), $modx->getDatabase()->getFullTableName('site_tmplvars'), // Insert into
+	"type, CONCAT(name, ' {$_lang['duplicated_el_suffix']}{$count}') AS name, CONCAT(caption, ' Duplicate{$count}') AS caption, description, default_text, elements, rank, display, display_params, category", $modx->getDatabase()->getFullTableName('site_tmplvars'), "id='{$id}'"); // Copy from
 
 
 // duplicate TV Template Access Permissions
-$modx->db->insert(
+$modx->getDatabase()->insert(
 	array(
 		'tmplvarid'=>'',
 		'templateid'=>'',
 		'rank'=>'',
-		), $modx->getFullTableName('site_tmplvar_templates'), // Insert into
-	"'{$newid}', templateid, rank", $modx->getFullTableName('site_tmplvar_templates'), "tmplvarid='{$id}'"); // Copy from
+		), $modx->getDatabase()->getFullTableName('site_tmplvar_templates'), // Insert into
+	"'{$newid}', templateid, rank", $modx->getDatabase()->getFullTableName('site_tmplvar_templates'), "tmplvarid='{$id}'"); // Copy from
 
 // duplicate TV Access Permissions
-$modx->db->insert(
+$modx->getDatabase()->insert(
 	array(
 		'tmplvarid'=>'',
 		'documentgroup'=>'',
-		), $modx->getFullTableName('site_tmplvar_access'), // Insert into
-	"'{$newid}', documentgroup", $modx->getFullTableName('site_tmplvar_access'), "tmplvarid='{$id}'"); // Copy from
+		), $modx->getDatabase()->getFullTableName('site_tmplvar_access'), // Insert into
+	"'{$newid}', documentgroup", $modx->getDatabase()->getFullTableName('site_tmplvar_access'), "tmplvarid='{$id}'"); // Copy from
 
 // Set the item name for logger
-$name = $modx->db->getValue($modx->db->select('name', $modx->getFullTableName('site_tmplvars'), "id='{$newid}'"));
+$name = $modx->getDatabase()->getValue($modx->getDatabase()->select('name', $modx->getDatabase()->getFullTableName('site_tmplvars'), "id='{$newid}'"));
 $_SESSION['itemname'] = $name;
 
 // finish duplicating - redirect to new variable

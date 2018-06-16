@@ -7,15 +7,15 @@ if (!$modx->hasPermission('save_template')) {
 }
 
 $id = (int)$_POST['id'];
-$name = $modx->db->escape(trim($_POST['name']));
-$description = $modx->db->escape($_POST['description']);
-$caption = $modx->db->escape($_POST['caption']);
-$type = $modx->db->escape($_POST['type']);
-$elements = $modx->db->escape($_POST['elements']);
-$default_text = $modx->db->escape($_POST['default_text']);
-$rank = isset ($_POST['rank']) ? $modx->db->escape($_POST['rank']) : 0;
-$display = $modx->db->escape($_POST['display']);
-$params = $modx->db->escape($_POST['params']);
+$name = $modx->getDatabase()->escape(trim($_POST['name']));
+$description = $modx->getDatabase()->escape($_POST['description']);
+$caption = $modx->getDatabase()->escape($_POST['caption']);
+$type = $modx->getDatabase()->escape($_POST['type']);
+$elements = $modx->getDatabase()->escape($_POST['elements']);
+$default_text = $modx->getDatabase()->escape($_POST['default_text']);
+$rank = isset ($_POST['rank']) ? $modx->getDatabase()->escape($_POST['rank']) : 0;
+$display = $modx->getDatabase()->escape($_POST['display']);
+$params = $modx->getDatabase()->escape($_POST['params']);
 $locked = $_POST['locked'] == 'on' ? 1 : 0;
 $origin = isset($_REQUEST['or']) ? (int)$_REQUEST['or'] : 76;
 $originId = isset($_REQUEST['oid']) ? (int)$_REQUEST['oid'] : null;
@@ -38,7 +38,7 @@ $name = $name != '' ? $name : "Untitled variable";
 $caption = $caption != '' ? $caption : $name;
 
 // get table names
-$tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
+$tbl_site_tmplvars = $modx->getDatabase()->getFullTableName('site_tmplvars');
 
 switch ($_POST['mode']) {
     case '300':
@@ -50,21 +50,21 @@ switch ($_POST['mode']) {
         ));
 
         // disallow duplicate names for new tvs
-        $rs = $modx->db->select('COUNT(*)', $tbl_site_tmplvars, "name='{$name}'");
-        $count = $modx->db->getValue($rs);
+        $rs = $modx->getDatabase()->select('COUNT(*)', $tbl_site_tmplvars, "name='{$name}'");
+        $count = $modx->getDatabase()->getValue($rs);
         if ($count > 0) {
-            $modx->manager->saveFormValues(300);
+            $modx->getManagerApi()->saveFormValues(300);
             $modx->webAlertAndQuit(sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $name), "index.php?a=300");
         }
         // disallow reserved names
         if (in_array($name, array('id', 'type', 'contentType', 'pagetitle', 'longtitle', 'description', 'alias', 'link_attributes', 'published', 'pub_date', 'unpub_date', 'parent', 'isfolder', 'introtext', 'content', 'richtext', 'template', 'menuindex', 'searchable', 'cacheable', 'createdby', 'createdon', 'editedby', 'editedon', 'deleted', 'deletedon', 'deletedby', 'publishedon', 'publishedby', 'menutitle', 'donthit', 'privateweb', 'privatemgr', 'content_dispo', 'hidemenu', 'alias_visible'))) {
             $_POST['name'] = '';
-            $modx->manager->saveFormValues(300);
+            $modx->getManagerApi()->saveFormValues(300);
             $modx->webAlertAndQuit(sprintf($_lang['reserved_name_warning'], $_lang['tv'], $name), "index.php?a=300");
         }
 
         // Add new TV
-        $newid = $modx->db->insert(array(
+        $newid = $modx->getDatabase()->insert(array(
             'name' => $name,
             'description' => $description,
             'caption' => $caption,
@@ -114,19 +114,19 @@ switch ($_POST['mode']) {
         ));
 
         // disallow duplicate names for tvs
-        $rs = $modx->db->select('COUNT(*)', $tbl_site_tmplvars, "name='{$name}' AND id!='{$id}'");
-        if ($modx->db->getValue($rs) > 0) {
-            $modx->manager->saveFormValues(300);
+        $rs = $modx->getDatabase()->select('COUNT(*)', $tbl_site_tmplvars, "name='{$name}' AND id!='{$id}'");
+        if ($modx->getDatabase()->getValue($rs) > 0) {
+            $modx->getManagerApi()->saveFormValues(300);
             $modx->webAlertAndQuit(sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $name), "index.php?a=301&id={$id}");
         }
         // disallow reserved names
         if (in_array($name, array('id', 'type', 'contentType', 'pagetitle', 'longtitle', 'description', 'alias', 'link_attributes', 'published', 'pub_date', 'unpub_date', 'parent', 'isfolder', 'introtext', 'content', 'richtext', 'template', 'menuindex', 'searchable', 'cacheable', 'createdby', 'createdon', 'editedby', 'editedon', 'deleted', 'deletedon', 'deletedby', 'publishedon', 'publishedby', 'menutitle', 'donthit', 'privateweb', 'privatemgr', 'content_dispo', 'hidemenu', 'alias_visible'))) {
-            $modx->manager->saveFormValues(300);
+            $modx->getManagerApi()->saveFormValues(300);
             $modx->webAlertAndQuit(sprintf($_lang['reserved_name_warning'], $_lang['tv'], $name), "index.php?a=301&id={$id}");
         }
 
         // update TV
-        $modx->db->update(array(
+        $modx->getDatabase()->update(array(
             'name' => $name,
             'description' => $description,
             'caption' => $caption,
@@ -171,68 +171,4 @@ switch ($_POST['mode']) {
         break;
     default:
         $modx->webAlertAndQuit("No operation set in request.");
-}
-
-/**
- * @return void
- */
-function saveTemplateVarAccess()
-{
-    global $id, $newid;
-    global $modx;
-
-    if ($newid) {
-        $id = $newid;
-    }
-    $templates = $_POST['template']; // get muli-templates based on S.BRENNAN mod
-
-    // update template selections
-    $tbl_site_tmplvar_templates = $modx->getFullTableName('site_tmplvar_templates');
-
-    $getRankArray = array();
-
-    $getRank = $modx->db->select("templateid, rank", $tbl_site_tmplvar_templates, "tmplvarid='{$id}'");
-
-    while ($row = $modx->db->getRow($getRank)) {
-        $getRankArray[$row['templateid']] = $row['rank'];
-    }
-
-    $modx->db->delete($tbl_site_tmplvar_templates, "tmplvarid = '{$id}'");
-    if (!empty($templates)) {
-        for ($i = 0; $i < count($templates); $i++) {
-            $setRank = ($getRankArray[$templates[$i]]) ? $getRankArray[$templates[$i]] : 0;
-            $modx->db->insert(array(
-                'tmplvarid' => $id,
-                'templateid' => $templates[$i],
-                'rank' => $setRank,
-            ), $tbl_site_tmplvar_templates);
-        }
-    }
-}
-
-function saveDocumentAccessPermissons()
-{
-    global $id, $newid;
-    global $modx, $use_udperms;
-
-    $tbl_site_tmplvar_templates = $modx->getFullTableName('site_tmplvar_access');
-
-    if ($newid) {
-        $id = $newid;
-    }
-    $docgroups = $_POST['docgroups'];
-
-    // check for permission update access
-    if ($use_udperms == 1) {
-        // delete old permissions on the tv
-        $modx->db->delete($tbl_site_tmplvar_templates, "tmplvarid='{$id}'");
-        if (is_array($docgroups)) {
-            foreach ($docgroups as $value) {
-                $modx->db->insert(array(
-                    'tmplvarid' => $id,
-                    'documentgroup' => stripslashes($value),
-                ), $tbl_site_tmplvar_templates);
-            }
-        }
-    }
 }

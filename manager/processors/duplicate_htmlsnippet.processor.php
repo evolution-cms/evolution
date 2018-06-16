@@ -12,23 +12,23 @@ if($id==0) {
 }
 
 // count duplicates
-$name = $modx->db->getValue($modx->db->select('name', $modx->getFullTableName('site_htmlsnippets'), "id='{$id}'"));
-$count = $modx->db->getRecordCount($modx->db->select('name', $modx->getFullTableName('site_htmlsnippets'), "name LIKE '{$name} {$_lang['duplicated_el_suffix']}%'"));
+$name = $modx->getDatabase()->getValue($modx->getDatabase()->select('name', $modx->getDatabase()->getFullTableName('site_htmlsnippets'), "id='{$id}'"));
+$count = $modx->getDatabase()->getRecordCount($modx->getDatabase()->select('name', $modx->getDatabase()->getFullTableName('site_htmlsnippets'), "name LIKE '{$name} {$_lang['duplicated_el_suffix']}%'"));
 if($count>=1) $count = ' '.($count+1);
 else $count = '';
 
 // duplicate htmlsnippet
-$newid = $modx->db->insert(
+$newid = $modx->getDatabase()->insert(
 	array(
 		'name'=>'',
 		'description'=>'',
 		'snippet'=>'',
 		'category'=>'',
-		), $modx->getFullTableName('site_htmlsnippets'), // Insert into
-	"CONCAT(name, ' {$_lang['duplicated_el_suffix']}{$count}') AS name, description, snippet, category", $modx->getFullTableName('site_htmlsnippets'), "id='{$id}'"); // Copy from
+		), $modx->getDatabase()->getFullTableName('site_htmlsnippets'), // Insert into
+	"CONCAT(name, ' {$_lang['duplicated_el_suffix']}{$count}') AS name, description, snippet, category", $modx->getDatabase()->getFullTableName('site_htmlsnippets'), "id='{$id}'"); // Copy from
 
 // Set the item name for logger
-$name = $modx->db->getValue($modx->db->select('name', $modx->getFullTableName('site_htmlsnippets'), "id='{$newid}'"));
+$name = $modx->getDatabase()->getValue($modx->getDatabase()->select('name', $modx->getDatabase()->getFullTableName('site_htmlsnippets'), "id='{$newid}'"));
 $_SESSION['itemname'] = $name;
 
 // finish duplicating - redirect to new chunk

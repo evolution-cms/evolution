@@ -54,8 +54,8 @@ class tv_DL_filter extends content_DL_filter
                 $this->tv_id = $tmp[0];
             }
             if (!$this->tv_id) {
-                $tvid = $this->modx->db->query("SELECT id FROM " . $this->DocLister->getTable('site_tmplvars') . " WHERE `name` = '" . $this->modx->db->escape($this->field) . "'");
-                $this->tv_id = intval($this->modx->db->getValue($tvid));
+                $tvid = $this->modx->getDatabase()->query("SELECT id FROM " . $this->DocLister->getTable('site_tmplvars') . " WHERE `name` = '" . $this->modx->getDatabase()->escape($this->field) . "'");
+                $this->tv_id = intval($this->modx->getDatabase()->getValue($tvid));
             }
 
             if (!$this->tv_id) {

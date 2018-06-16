@@ -136,7 +136,7 @@ class shopkeeperDocLister extends site_contentDocLister
     }
 
     /**
-     * @absctract
+     * @abstract
      */
     public function getChildrenCount()
     {
@@ -204,7 +204,7 @@ class shopkeeperDocLister extends site_contentDocLister
             $limit = $maxDocs > 0 ? $this->LimitSQL($this->getCFGDef('maxDocs', 0)) : '';
 
             $rs = $this->dbQuery("SELECT count(*) FROM (SELECT count(*) FROM {$from} {$where} {$group} {$limit}) as `tmp`");
-            $out = $this->modx->db->getValue($rs);
+            $out = $this->modx->getDatabase()->getValue($rs);
         }
 
         return $out;
@@ -256,7 +256,7 @@ class shopkeeperDocLister extends site_contentDocLister
 
             $rs = $this->dbQuery("SELECT {$fields} FROM {$tbl_site_content} {$where} {$group} {$sort} {$limit}");
 
-            while ($item = $this->modx->db->getRow($rs)) {
+            while ($item = $this->modx->getDatabase()->getRow($rs)) {
                 $out[$item['id']] = $item;
             }
         }
@@ -288,7 +288,7 @@ class shopkeeperDocLister extends site_contentDocLister
         $rs = $this->dbQuery("SELECT id FROM {$tbl_site_content} {$where} AND c.id IN(SELECT DISTINCT s.parent FROM " . $this->getTable('catalog',
                 's') . ")");
 
-        while ($item = $this->modx->db->getRow($rs)) {
+        while ($item = $this->modx->getDatabase()->getRow($rs)) {
             $out[] = $item['id'];
         }
 
@@ -364,7 +364,7 @@ class shopkeeperDocLister extends site_contentDocLister
                 $this->LimitSQL($this->getCFGDef('queryLimit', 0))
             );
 
-            while ($item = $this->modx->db->getRow($rs)) {
+            while ($item = $this->modx->getDatabase()->getRow($rs)) {
                 $out[$item['id']] = $item;
             }
         }

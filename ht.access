@@ -23,7 +23,7 @@ RewriteRule .* - [F,L]
 #RewriteCond %{HTTP_HOST} !^$
 #RewriteCond %{HTTP_HOST} !^www\. [NC]
 #RewriteCond %{HTTP_HOST} (.+)$
-#RewriteRule ^(.*)$ http://www.%1/$1 [R=permanent,L] . 
+#RewriteRule ^(.*)$ http://www.%1/$1 [R=permanent,L] .
 
 # without www
 #RewriteCond %{HTTP_HOST} .

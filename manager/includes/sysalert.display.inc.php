@@ -32,7 +32,7 @@ window.addEvent('domready', function() {
 			var sysAlert = new Element('div').setProperties({
 				'class': 'sysAlert'
 			});
-			sysAlert.innerHTML = '<?php echo $modx->db->escape($sysMsgs);?>';
+			sysAlert.innerHTML = '<?php echo $modx->getDatabase()->escape($sysMsgs);?>';
 			var boxHtml = new MooPrompt('<?php echo $_lang['sys_alert']; ?>', sysAlert, {
 				buttons: 1,
 				button1: 'Ok',

@@ -27,9 +27,9 @@ if (isset($resources->items['site_plugins'])) { ?>
                         <?php } ?>
                         <?php
                         if ($modx->hasPermission('delete_plugin') && $_SESSION['mgrRole'] == 1) {
-                            $tbl_site_plugins = $modx->getFullTableName('site_plugins');
-                            if ($modx->db->getRecordCount($modx->db->query("SELECT id FROM {$tbl_site_plugins} t1 WHERE disabled = 1 AND name IN (SELECT name FROM {$tbl_site_plugins} t2 WHERE t1.name = t2.name AND t1.id != t2.id)"))) { ?>
-                                <a class="btn btn-danger" href="index.php?a=119"><?= $_lang['purge_plugin'] ?></a>
+                            $tbl_site_plugins = $modx->getDatabase()->getFullTableName('site_plugins');
+                            if ($modx->getDatabase()->getRecordCount($modx->getDatabase()->query("SELECT id FROM {$tbl_site_plugins} t1 WHERE disabled = 1 AND name IN (SELECT name FROM {$tbl_site_plugins} t2 WHERE t1.name = t2.name AND t1.id != t2.id)"))) { ?>
+                                <a onclick="return confirm('<?php echo $_lang['purge_plugin_confirm'] ?>')" class="btn btn-danger" href="index.php?a=119"><?= $_lang['purge_plugin'] ?></a>
                                 <?php
                             }
                         } ?>

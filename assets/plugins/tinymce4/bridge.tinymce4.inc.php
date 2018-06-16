@@ -49,7 +49,8 @@ class tinymce4bridge extends modxRTEbridge
                 'template_docs' => '',
                 'template_chunks' => '',
                 'custom_buttons3' => '',
-                'custom_buttons4' => ''
+                'custom_buttons4' => '',
+                'skin' => ''
             )
         );
 

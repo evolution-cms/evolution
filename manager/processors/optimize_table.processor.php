@@ -15,7 +15,7 @@ if (isset($_REQUEST['t'])) {
 	// Set the item name for logger
 	$_SESSION['itemname'] = $_REQUEST['t'];
 
-	$modx->db->optimize($_REQUEST['t']);
+	$modx->getDatabase()->optimize($_REQUEST['t']);
 
 } elseif (isset($_REQUEST['u'])) {
 
@@ -26,7 +26,7 @@ if (isset($_REQUEST['t'])) {
 	// Set the item name for logger
 	$_SESSION['itemname'] = $_REQUEST['u'];
 
-	$modx->db->truncate($_REQUEST['u']);
+	$modx->getDatabase()->truncate($_REQUEST['u']);
 
 } else {
 	$modx->webAlertAndQuit($_lang["error_no_optimise_tablename"]);

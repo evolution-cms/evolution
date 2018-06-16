@@ -45,6 +45,7 @@
 
 # Manager
 /manager/includes/config.inc.php
+/manager/includes/config_mutator.php
 
 # Composer
 /composer.phar
@@ -72,3 +73,5 @@ Desktop.ini
 
 # except do not ignore .gitignore
 !.gitignore
+
+.env

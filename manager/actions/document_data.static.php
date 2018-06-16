@@ -16,10 +16,10 @@ if(isset($_GET['opened'])) {
 $url = $modx->config['site_url'];
 
 // Get table names (alphabetical)
-$tbl_document_groups = $modx->getFullTableName('document_groups');
-$tbl_manager_users = $modx->getFullTableName('manager_users');
-$tbl_site_content = $modx->getFullTableName('site_content');
-$tbl_site_templates = $modx->getFullTableName('site_templates');
+$tbl_document_groups = $modx->getDatabase()->getFullTableName('document_groups');
+$tbl_manager_users = $modx->getDatabase()->getFullTableName('manager_users');
+$tbl_site_content = $modx->getDatabase()->getFullTableName('site_content');
+$tbl_site_templates = $modx->getDatabase()->getFullTableName('site_templates');
 
 // Get access permissions
 if($_SESSION['mgrDocgroups']) {
@@ -29,17 +29,17 @@ $access = "1='" . $_SESSION['mgrRole'] . "' OR sc.privatemgr=0" . (!$docgrp ? ""
 
 //
 if($_SESSION['tree_show_only_folders']) {
-	$parent = $id ? ($modx->db->getValue("SELECT parent FROM " . $tbl_site_content . " WHERE id=$id LIMIT 1")) : 0;
-	$isfolder = $modx->db->getValue("SELECT isfolder FROM " . $tbl_site_content . " WHERE id=$id LIMIT 1");
+	$parent = $id ? ($modx->getDatabase()->getValue("SELECT parent FROM " . $tbl_site_content . " WHERE id=$id LIMIT 1")) : 0;
+	$isfolder = $modx->getDatabase()->getValue("SELECT isfolder FROM " . $tbl_site_content . " WHERE id=$id LIMIT 1");
 	if(!$isfolder && $parent != 0) {
 		$id = $_REQUEST['id'] = $parent;
 	}
 }
 
 // Get the document content
-$rs = $modx->db->select('DISTINCT sc.*', "{$tbl_site_content} AS sc
+$rs = $modx->getDatabase()->select('DISTINCT sc.*', "{$tbl_site_content} AS sc
 		LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id", "sc.id ='{$id}' AND ({$access})");
-$content = $modx->db->getRow($rs);
+$content = $modx->getDatabase()->getRow($rs);
 if(!$content) {
 	$modx->webAlertAndQuit($_lang["access_permission_denied"]);
 }
@@ -48,16 +48,16 @@ if(!$content) {
  * "General" tab setup
  */
 // Get Creator's username
-$rs = $modx->db->select('username', $tbl_manager_users, "id='{$content['createdby']}'");
-$createdbyname = $modx->db->getValue($rs);
+$rs = $modx->getDatabase()->select('username', $tbl_manager_users, "id='{$content['createdby']}'");
+$createdbyname = $modx->getDatabase()->getValue($rs);
 
 // Get Editor's username
-$rs = $modx->db->select('username', $tbl_manager_users, "id='{$content['editedby']}'");
-$editedbyname = $modx->db->getValue($rs);
+$rs = $modx->getDatabase()->select('username', $tbl_manager_users, "id='{$content['editedby']}'");
+$editedbyname = $modx->getDatabase()->getValue($rs);
 
 // Get Template name
-$rs = $modx->db->select('templatename', $tbl_site_templates, "id='{$content['template']}'");
-$templatename = $modx->db->getValue($rs);
+$rs = $modx->getDatabase()->select('templatename', $tbl_site_templates, "id='{$content['template']}'");
+$templatename = $modx->getDatabase()->getValue($rs);
 
 // Set the item name for logger
 $_SESSION['itemname'] = $content['pagetitle'];
@@ -68,19 +68,17 @@ $_SESSION['itemname'] = $content['pagetitle'];
 $maxpageSize = $modx->config['number_of_results'];
 define('MAX_DISPLAY_RECORDS_NUM', $maxpageSize);
 
-$modx->loadExtension('makeTable');
-
 // Get child document count
-$rs = $modx->db->select('count(DISTINCT sc.id)', "{$tbl_site_content} AS sc
+$rs = $modx->getDatabase()->select('count(DISTINCT sc.id)', "{$tbl_site_content} AS sc
 		LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id", "sc.parent='{$content['id']}' AND ({$access})");
-$numRecords = $modx->db->getValue($rs);
+$numRecords = $modx->getDatabase()->getValue($rs);
 
 $sort = isset($_REQUEST['sort']) ? $_REQUEST['sort'] : 'createdon';
 $dir = isset($_REQUEST['dir']) ? $_REQUEST['dir'] : 'DESC';
 
 // Get child documents (with paging)
-$rs = $modx->db->select('DISTINCT sc.*', "{$tbl_site_content} AS sc
-		LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id", "sc.parent='{$content['id']}' AND ({$access})", "{$sort} {$dir}", $modx->table->handlePaging() // add limit clause
+$rs = $modx->getDatabase()->select('DISTINCT sc.*', "{$tbl_site_content} AS sc
+		LEFT JOIN {$tbl_document_groups} AS dg ON dg.document = sc.id", "sc.parent='{$content['id']}' AND ({$access})", "{$sort} {$dir}", $modx->getMakeTable()->handlePaging() // add limit clause
 );
 $filter_sort = '';
 $filter_dir = '';
@@ -89,7 +87,7 @@ if($numRecords > 0) {
 		'<option value="published"' . (($sort == 'published') ? ' selected' : '') . '>' . $_lang['resource_opt_is_published'] . '</option>' . //********//
 		'</select>';
 	$filter_dir = '<select size="1" name="dir" class="form-control form-control-sm" onchange="document.location=\'index.php?a=3&id=' . $id . '&sort=' . $sort . '&dir=\'+this.options[this.selectedIndex].value">' . '<option value="DESC"' . (($dir == 'DESC') ? ' selected' : '') . '>' . $_lang['sort_desc'] . '</option>' . '<option value="ASC"' . (($dir == 'ASC') ? ' selected' : '') . '>' . $_lang['sort_asc'] . '</option>' . '</select>';
-	$resource = $modx->db->makeArray($rs);
+	$resource = $modx->getDatabase()->makeArray($rs);
 
 	// CSS style for table
 	//	$tableClass = 'grid';
@@ -107,11 +105,11 @@ if($numRecords > 0) {
 	);
 
 
-	$modx->table->setTableClass($tableClass);
-	$modx->table->setColumnHeaderClass($columnHeaderClass);
-	//	$modx->table->setRowHeaderClass($rowHeaderClass);
-	//	$modx->table->setRowRegularClass($rowRegularClass);
-	//	$modx->table->setRowAlternateClass($rowAlternateClass);
+	$modx->getMakeTable()->setTableClass($tableClass);
+	$modx->getMakeTable()->setColumnHeaderClass($columnHeaderClass);
+	//	$modx->getMakeTable()->setRowHeaderClass($rowHeaderClass);
+	//	$modx->getMakeTable()->setRowRegularClass($rowRegularClass);
+	//	$modx->getMakeTable()->setRowAlternateClass($rowAlternateClass);
 
 	// Table header
 	$listTableHeader = array(
@@ -130,7 +128,7 @@ if($numRecords > 0) {
 		'1%',
 		'1%'
 	);
-	$modx->table->setColumnWidths($tbWidth);
+	$modx->getMakeTable()->setColumnWidths($tbWidth);
 
 	$sd = isset($_REQUEST['dir']) ? '&amp;dir=' . $_REQUEST['dir'] : '&amp;dir=DESC';
 	$sb = isset($_REQUEST['sort']) ? '&amp;sort=' . $_REQUEST['sort'] : '&amp;sort=createdon';
@@ -208,8 +206,8 @@ if($numRecords > 0) {
 		);
 	}
 
-	$modx->table->createPagingNavigation($numRecords, 'a=3&id=' . $content['id'] . '&dir=' . $dir . '&sort=' . $sort);
-	$children_output = $modx->table->create($listDocs, $listTableHeader, 'index.php?a=3&amp;id=' . $content['id']);
+	$modx->getMakeTable()->createPagingNavigation($numRecords, 'a=3&id=' . $content['id'] . '&dir=' . $dir . '&sort=' . $sort);
+	$children_output = $modx->getMakeTable()->create($listDocs, $listTableHeader, 'index.php?a=3&amp;id=' . $content['id']);
 } else {
 	// No Child documents
 	$children_output = '<div class="container"><p>' . $_lang['resources_in_container_no'] . '</p></div>';
@@ -423,7 +421,7 @@ if($numRecords > 0) {
 						$buffer .= fgets($handle, 4096);
 					}
 					fclose($handle);
-					$buffer = '<div class="navbar navbar-editor">' . $_lang['page_data_cached'] . '</div><div class="section-editor clearfix"><textarea rows="20" wrap="soft">' . $modx->htmlspecialchars($buffer) . "</textarea></div>\n";
+					$buffer = '<div class="navbar navbar-editor">' . $_lang['page_data_cached'] . '</div><div class="section-editor clearfix"><textarea rows="20" wrap="soft">' . $modx->getPhpCompat()->htmlspecialchars($buffer) . "</textarea></div>\n";
 				}
 				echo $buffer;
 				?>

@@ -48,11 +48,6 @@
  *          content
  */
 
-$autoloader = realpath(__DIR__.'/../vendor/autoload.php');
-if (file_exists($autoloader) && is_readable($autoloader)) {
-	include_once($autoloader);
-}
-
 // get start time
 $mtime = microtime(); $mtime = explode(" ",$mtime); $mtime = $mtime[1] + $mtime[0]; $tstart = $mtime;
 $mstart = memory_get_usage();
@@ -138,21 +133,14 @@ if (!file_exists($config_filename)) {
 include_once "config.inc.php";
 
 // initiate the content manager class
-if (isset($coreClass) && class_exists($coreClass)) {
-	$modx = new $coreClass;
-}
-if (!isset($modx) || !($modx instanceof \DocumentParser)) {
-	include_once(MODX_MANAGER_PATH.'includes/document.parser.class.inc.php');
-	$modx = new \DocumentParser;
-}
+$modx = evolutionCMS();
 
-$modx->loadExtension("ManagerAPI");
 $modx->getSettings();
 $modx->tstart = $tstart;
 $modx->mstart = $mstart;
 
 // connect to the database
-$modx->db->connect();
+$modx->getDatabase()->connect();
 
 // start session
 startCMSSession();
@@ -241,7 +229,7 @@ if (isset($_POST['updateMsgCount']) && $modx->hasPermission('messages')) {
 }
 
 // save page to manager object
-$modx->manager->action = $action;
+$modx->getManagerApi()->action = $action;
 
 // attempt to foil some simple types of CSRF attacks
 if (isset($modx->config['validate_referer']) && (int)$modx->config['validate_referer']) {
@@ -273,6 +261,8 @@ function includeFileProcessor ($filepath,$manager_theme) {
 	}
 	return $element;
 }
+
+$managerTheme = new EvolutionCMS\ManagerTheme($modx, $manager_theme);
 
 // Now we decide what to do according to the action request. This is a BIG list :)
 switch ($action) {
@@ -984,8 +974,7 @@ switch ($action) {
 /********************************************************************/
 // log action, unless it's a frame request
 if($action!=1 && $action!=7 && $action!=2) {
-	include_once "log.class.inc.php";
-	$log = new logHandler;
+	$log = new EvolutionCMS\Legacy\LogHandler;
 	$log->initAndWriteLog();
 }
 /********************************************************************/

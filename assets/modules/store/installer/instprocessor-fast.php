@@ -72,10 +72,10 @@ $base_url = $url . (substr($url, -1) != "/" ? "/" : "");
 $base_path = $pth . (substr($pth, -1) != "/" ? "/" : "");
 
 
-if(!function_exists('parseProperties')) {
+if(!function_exists('propertiesNameValue')) {
     // parses a resource property string and returns the result as an array
     // duplicate of method in documentParser class
-    function parseProperties($propertyString) {
+    function propertiesNameValue($propertyString) {
         $parameter= array ();
         if (!empty ($propertyString)) {
             $tmpParams= explode("&", $propertyString);
@@ -128,14 +128,14 @@ if ( count($moduleTemplates )>0) {
                 $rs = $modx->db->query("SELECT * FROM `" . $table_prefix . "site_templates` WHERE templatename='$name'");
 
                 if ($modx->db->getRecordCount($rs)) {
-                    if (!@ $modx->db->query("UPDATE `" . $table_prefix . "site_templates` SET content='$template', description='$desc', category=$category_id, locked='$locked'  WHERE templatename='$name';")) {
+                    if (!@ $modx->db->query("UPDATE `" . $table_prefix . "site_templates` SET content='$template', description='$desc', category='$category_id', locked='$locked'  WHERE templatename='$name';")) {
                         $errors += 1;
                         echo "<p>" . mysql_error() . "</p>";
                         return;
                     }
                     echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
                 } else {
-                    if (!@ $modx->db->query("INSERT INTO `" . $table_prefix . "site_templates` (templatename,description,content,category,locked) VALUES('$name','$desc','$template',$category_id,'$locked');")) {
+                    if (!@ $modx->db->query("INSERT INTO `" . $table_prefix . "site_templates` (templatename,description,content,category,locked) VALUES('$name','$desc','$template','$category_id','$locked');")) {
                         $errors += 1;
                         echo "<p>" . mysql_error() . "</p>";
                         return;
@@ -175,7 +175,7 @@ if (count($moduleTVs )>0) {
             if ($modx->db->getRecordCount($rs)) {
                 $insert = true;
                 while($row = $modx->db->getRow($rs,'assoc')) {
-                    if (!@ $modx->db->query("UPDATE `" . $table_prefix . "site_tmplvars` SET type='$input_type', caption='$caption', description='$desc', category=$category, locked=$locked, elements='$input_options', display='$output_widget', display_params='$output_widget_params', default_text='$input_default' WHERE id={$row['id']};")) {
+                    if (!@ $modx->db->query("UPDATE `" . $table_prefix . "site_tmplvars` SET type='$input_type', caption='$caption', description='$desc', category='$category', locked='$locked', elements='$input_options', display='$output_widget', display_params='$output_widget_params', default_text='$input_default' WHERE id='{$row['id']}';")) {
                         echo "<p>" . mysql_error() . "</p>";
                         return;
                     }
@@ -184,7 +184,7 @@ if (count($moduleTVs )>0) {
                 echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
             } else {
                 //$q = "INSERT INTO `" . $table_prefix . "site_tmplvars` (type,name,caption,description,category,locked,elements,display,display_params,default_text) VALUES('$input_type','$name','$caption','$desc',(SELECT (CASE COUNT(*) WHEN 0 THEN 0 ELSE `id` END) `id` FROM `" . $table_prefix . "categories` WHERE `category` = '$category'),$locked,'$input_options','$output_widget','$output_widget_params','$input_default');";
-                $q = "INSERT INTO `" . $table_prefix . "site_tmplvars` (type,name,caption,description,category,locked,elements,display,display_params,default_text) VALUES('$input_type','$name','$caption','$desc',$category,$locked,'$input_options','$output_widget','$output_widget_params','$input_default');";
+                $q = "INSERT INTO `" . $table_prefix . "site_tmplvars` (type,name,caption,description,category,locked,elements,display,display_params,default_text) VALUES('$input_type','$name','$caption','$desc','$category','$locked','$input_options','$output_widget','$output_widget_params','$input_default');";
                 if (!@ $modx->db->query($q)) {
                     echo "<p>" . mysql_error() . "</p>";
                     return;
@@ -212,7 +212,7 @@ if (count($moduleTVs )>0) {
                         if ($ds && $ts) {
                             $tRow = $modx->db->getRow($ts,'assoc');
                             $templateId = $tRow['id'];
-                            $modx->db->query("INSERT INTO `" . $table_prefix . "site_tmplvar_templates` (tmplvarid, templateid) VALUES($id, $templateId)");
+                            $modx->db->query("INSERT INTO `" . $table_prefix . "site_tmplvar_templates` (tmplvarid, templateid) VALUES('$id', '$templateId')");
                        }
                     }
                 }
@@ -253,7 +253,7 @@ if (count($moduleChunks )>0) {
                 }
                 $update = $count_original_name > 0 && $overwrite == 'true';
                 if ($update) {
-                    if (!@ $modx->db->query("UPDATE `" . $table_prefix . "site_htmlsnippets` SET snippet='$chunk', description='$desc', category=$category_id WHERE name='$name';")) {
+                    if (!@ $modx->db->query("UPDATE `" . $table_prefix . "site_htmlsnippets` SET snippet='$chunk', description='$desc', category='$category_id' WHERE name='$name';")) {
                         $errors += 1;
                         echo "<p>" . mysql_error() . "</p>";
                         return;
@@ -263,7 +263,7 @@ if (count($moduleChunks )>0) {
                     if($count_original_name > 0 && $overwrite == 'false') {
                         $name = $newname;
                     }
-                    if (!@ $modx->db->query("INSERT INTO `" . $table_prefix . "site_htmlsnippets` (name,description,snippet,category) VALUES('$name','$desc','$chunk',$category_id);")) {
+                    if (!@ $modx->db->query("INSERT INTO `" . $table_prefix . "site_htmlsnippets` (name,description,snippet,category) VALUES('$name','$desc','$chunk','$category_id');")) {
                         $errors += 1;
                         echo "<p>" . mysql_error() . "</p>";
                         return;
@@ -311,7 +311,7 @@ if (count($moduleModules )>0) {
                     echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
                 } else {
                     $properties = $modx->db->escape(parseProperties($properties, true));
-                    if (!@ $modx->db->query("INSERT INTO `" . $table_prefix . "site_modules` (name,description,modulecode,properties,guid,enable_sharedparams,category) VALUES('$name','$desc','$module','$properties','$guid','$shared', $category);")) {
+                    if (!@ $modx->db->query("INSERT INTO `" . $table_prefix . "site_modules` (name,description,modulecode,properties,guid,enable_sharedparams,category) VALUES('$name','$desc','$module','$properties','$guid','$shared', '$category');")) {
                         echo "<p>" . mysql_error() . "</p>";
                         return;
                     }
@@ -366,13 +366,13 @@ if (count($modulePlugins )>0) {
                     while($row = $modx->db->getRow($rs,'assoc')) {
                         $props = $modx->db->escape(propUpdate($properties,$row['properties']));
                         if($row['description'] == $desc){
-                            if (!@ $modx->db->query("UPDATE `" . $table_prefix . "site_plugins` SET plugincode='$plugin', description='$desc', properties='$props' WHERE id={$row['id']};")) {
+                            if (!@ $modx->db->query("UPDATE `" . $table_prefix . "site_plugins` SET plugincode='$plugin', description='$desc', properties='$props' WHERE id='{$row['id']}';")) {
                                 echo "<p>" . mysql_error() . "</p>";
                                 return;
                             }
                             $insert = false;
                         } else {
-                            if (!@ $modx->db->query("UPDATE `" . $table_prefix . "site_plugins` SET disabled='1' WHERE id={$row['id']};")) {
+                            if (!@ $modx->db->query("UPDATE `" . $table_prefix . "site_plugins` SET disabled='1' WHERE id='{$row['id']}';")) {
                                 echo "<p>".mysql_error()."</p>";
                                 return;
                             }
@@ -380,7 +380,7 @@ if (count($modulePlugins )>0) {
                     }
                     if($insert === true) {
                         $properties = $modx->db->escape(parseProperties($properties, true));
-                        if(!@$modx->db->query("INSERT INTO `".$table_prefix."site_plugins` (name,description,plugincode,properties,moduleguid,disabled,category) VALUES('$name','$desc','$plugin','$properties','$guid','0',$category);",$sqlParser->conn)) {
+                        if(!@$modx->db->query("INSERT INTO `".$table_prefix."site_plugins` (name,description,plugincode,properties,moduleguid,disabled,category) VALUES('$name','$desc','$plugin','$properties','$guid','0','$category');",$sqlParser->conn)) {
                             echo "<p>".mysql_error()."</p>";
                             return;
                         }
@@ -388,7 +388,7 @@ if (count($modulePlugins )>0) {
                     echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
                 } else {
                     $properties = $modx->db->escape(parseProperties($properties, true));
-                    if (!@ $modx->db->query("INSERT INTO `" . $table_prefix . "site_plugins` (name,description,plugincode,properties,moduleguid,disabled,category) VALUES('$name','$desc','$plugin','$properties','$guid',$disabled,$category);")) {
+                    if (!@ $modx->db->query("INSERT INTO `" . $table_prefix . "site_plugins` (name,description,plugincode,properties,moduleguid,disabled,category) VALUES('$name','$desc','$plugin','$properties','$guid','$disabled','$category');")) {
                         echo "<p>" . mysql_error() . "</p>";
                         return;
                     }
@@ -449,7 +449,7 @@ if (count($moduleSnippets ) > 0) {
                     echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
                 } else {
                     $properties = $modx->db->escape(parseProperties($properties, true));
-                    if (!$modx->db->query("INSERT INTO `" . $table_prefix . "site_snippets` (name,description,snippet,properties,category) VALUES('$name','$desc','$snippet','$properties',$category);")) {
+                    if (!$modx->db->query("INSERT INTO `" . $table_prefix . "site_snippets` (name,description,snippet,properties,category) VALUES('$name','$desc','$snippet','$properties','$category');")) {
                         echo "<p>" . mysql_error() . "</p>";
                         return;
                     }
@@ -484,8 +484,7 @@ if (is_file($installPath.'/'.$moduleSQLDataFile)) {
 
 // always empty cache after install
 
-include_once MGR."/processors/cache_sync.class.processor.php";
-$sync = new synccache();
+$sync = new EvolutionCMS\Cache();
 $sync->setCachepath(MODX_BASE_PATH."assets/cache/");
 $sync->setReport(false);
 $sync->emptyCache(); // first empty the cache
@@ -515,8 +514,9 @@ function parseProperties($propertyString, $json=false) {
     $propertyString = str_replace('{}', '', $propertyString );
     $propertyString = str_replace('} {', ',', $propertyString );
 
-    if(empty($propertyString)) return array();
-    if($propertyString=='{}' || $propertyString=='[]') return array();
+    if (empty($propertyString) || $propertyString == '{}' || $propertyString == '[]') {
+        $propertyString = '';
+    }
 
     $jsonFormat = isJson($propertyString, true);
     $property = array();

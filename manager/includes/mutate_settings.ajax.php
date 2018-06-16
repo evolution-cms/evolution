@@ -13,10 +13,10 @@ $lang = preg_replace('/[^A-Za-z0-9_\s\+\-\.\/]/', '', $_POST['lang']);
 $key = preg_replace('/[^A-Za-z0-9_\-\.\/]/', '', $_POST['key']);
 $value = preg_replace('/[^A-Za-z0-9_\-\.\/]/', '', $_POST['value']);
 
-$action = $modx->db->escape($action);
-$lang = $modx->db->escape($lang);
-$key = $modx->db->escape($key);
-$value = $modx->db->escape($value);
+$action = $modx->getDatabase()->escape($action);
+$lang = $modx->getDatabase()->escape($lang);
+$key = $modx->getDatabase()->escape($key);
+$value = $modx->getDatabase()->escape($value);
 
 $str = '';
 $emptyCache = false;
@@ -29,20 +29,20 @@ switch (true) {
         break;
     }
     case ($action == 'setsetting' && !empty($key) && !empty($value)): {
-        $sql = "REPLACE INTO " . $modx->getFullTableName("system_settings") . " (setting_name, setting_value) VALUES('{$key}', '{$value}');";
+        $sql = "REPLACE INTO " . $modx->getDatabase()->getFullTableName("system_settings") . " (setting_name, setting_value) VALUES('{$key}', '{$value}');";
         $str = "true";
-        $modx->db->query($sql);
+        $modx->getDatabase()->query($sql);
         $emptyCache = true;
         break;
     }
     case ($action == 'updateplugin' && ($key == '_delete_' && !empty($lang))): {
-        $modx->db->delete($modx->getFullTableName("site_plugins"), "name='{$lang}'");
+        $modx->getDatabase()->delete($modx->getDatabase()->getFullTableName("site_plugins"), "name='{$lang}'");
         $str = "true";
         $emptyCache = true;
         break;
     }
     case ($action == 'updateplugin' && (!empty($key) && !empty($lang) && !empty($value))): {
-        $modx->db->update(array($key => $value), $modx->getFullTableName("site_plugins"), "name = '{$lang}'");
+        $modx->getDatabase()->update(array($key => $value), $modx->getDatabase()->getFullTableName("site_plugins"), "name = '{$lang}'");
         $str = "true";
         $emptyCache = true;
         break;

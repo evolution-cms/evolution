@@ -43,7 +43,7 @@ class site_contentDocLister extends DocLister
     }
 
     /**
-     * @absctract
+     * @abstract
      */
     public function getDocs($tvlist = '')
     {
@@ -52,6 +52,14 @@ class site_contentDocLister extends DocLister
         }
 
         $this->extTV->getAllTV_Name();
+
+        /**
+         * @var $multiCategories multicategories_DL_Extender
+         */
+        $multiCategories = $this->getCFGDef('multiCategories', 0) ? $this->getExtender('multicategories', true) : null;
+        if ($multiCategories) {
+            $multiCategories->init($this);
+        }
 
         /**
          * @var $extJotCount jotcount_DL_Extender
@@ -371,7 +379,7 @@ class site_contentDocLister extends DocLister
                     $maxDocs = $this->getCFGDef('maxDocs', 0);
                     $limit = $maxDocs > 0 ? $this->LimitSQL($this->getCFGDef('maxDocs', 0)) : '';
                     $rs = $this->dbQuery("SELECT count(*) FROM (SELECT count(*) FROM {$from} {$where} {$group} {$limit}) as `tmp`");
-                    $out = $this->modx->db->getValue($rs);
+                    $out = $this->modx->getDatabase()->getValue($rs);
                 } else {
                     $out = count($this->IDs);
                 }
@@ -430,7 +438,7 @@ class site_contentDocLister extends DocLister
 
             $rs = $this->dbQuery("SELECT {$fields} FROM {$tbl_site_content} {$where} {$group} {$sort} {$limit}");
 
-            while ($item = $this->modx->db->getRow($rs)) {
+            while ($item = $this->modx->getDatabase()->getRow($rs)) {
                 $out[$item['id']] = $item;
             };
         }
@@ -461,7 +469,7 @@ class site_contentDocLister extends DocLister
 
         $rs = $this->dbQuery("SELECT id FROM {$tbl_site_content} {$where}");
 
-        while ($item = $this->modx->db->getRow($rs)) {
+        while ($item = $this->modx->getDatabase()->getRow($rs)) {
             $out[] = $item['id'];
         }
 
@@ -551,7 +559,7 @@ class site_contentDocLister extends DocLister
                 $sort . " " .
                 $this->LimitSQL($this->getCFGDef('queryLimit', 0)));
 
-            while ($item = $this->modx->db->getRow($rs)) {
+            while ($item = $this->modx->getDatabase()->getRow($rs)) {
                 $out[$item['id']] = $item;
             }
         }

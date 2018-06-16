@@ -73,7 +73,7 @@ class Register extends Form
     {
         $result = true;
         if (is_scalar($value) && !is_null($fl->user)) {
-            $fl->user->set('email', mb_strtolower($value));
+            $fl->user->set('email', $value);
             $result = $fl->user->checkUnique('web_user_attributes', 'email', 'internalKey');
         }
 
@@ -91,7 +91,7 @@ class Register extends Form
     {
         $result = true;
         if (is_scalar($value) && !is_null($fl->user)) {
-            $fl->user->set('username', mb_strtolower($value));
+            $fl->user->set('username', $value);
             $result = $fl->user->checkUnique('web_users', 'username');
         }
 
@@ -131,8 +131,8 @@ class Register extends Form
         if ($checkActivation) {
             $fields['logincount'] = -1;
         }
-        $fields['username'] = is_scalar($fields['username']) ? mb_strtolower($fields['username']) : '';
-        $fields['email'] = is_scalar($fields['email']) ? mb_strtolower($fields['email']) : '';
+        $fields['username'] = is_scalar($fields['username']) ? $fields['username'] : '';
+        $fields['email'] = is_scalar($fields['email']) ? $fields['email'] : '';
         $this->user->create($fields);
         $this->addWebUserToGroups(0, $this->config->loadArray($this->getCFGDef('userGroups')));
         $result = $this->user->save(true);

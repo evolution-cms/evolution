@@ -17,7 +17,7 @@ if (isset($_GET['cls']) && $_GET['cls']==1) {
 }
 
 // delete event log
-$modx->db->delete($modx->getFullTableName('event_log'), $where);
+$modx->getDatabase()->delete($modx->getDatabase()->getFullTableName('event_log'), $where);
 
 $header="Location: index.php?a=114";
 header($header);

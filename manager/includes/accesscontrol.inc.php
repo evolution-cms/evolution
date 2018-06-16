@@ -77,14 +77,30 @@ if (!isset($_SESSION['mgrValidated'])) {
     $html = is_array($evtOut) ? implode('', $evtOut) : '';
     $modx->setPlaceholder('OnManagerLoginFormPrerender', $html);
 
-    $modx->setPlaceholder('site_name', $site_name);
+    $modx->setPlaceholder('site_name', $modx->getPhpCompat()->entities($site_name));
     $modx->setPlaceholder('manager_path', MGR_DIR);
     $modx->setPlaceholder('logo_slogan', $_lang["logo_slogan"]);
     $modx->setPlaceholder('login_message', $_lang["login_message"]);
-    $modx->setPlaceholder('manager_theme_url',
-        MODX_MANAGER_URL . 'media/style/' . $modx->config['manager_theme'] . '/');
+    $modx->setPlaceholder('manager_theme_url', MODX_MANAGER_URL . 'media/style/' . $modx->config['manager_theme'] . '/');
     $modx->setPlaceholder('year', date('Y'));
-    
+
+    // set login logo image
+    if ( !empty($modx->config['login_logo']) ) {
+        $modx->setPlaceholder('login_logo', MODX_SITE_URL . $modx->config['login_logo']);
+    } else {
+        $modx->setPlaceholder('login_logo', MODX_MANAGER_URL . 'media/style/' . $modx->config['manager_theme'] . '/images/login/default/login-logo.png');
+    }
+
+    // set login background image
+    if ( !empty($modx->config['login_bg']) ) {
+        $modx->setPlaceholder('login_bg', MODX_SITE_URL . $modx->config['login_bg']);
+    } else {
+        $modx->setPlaceholder('login_bg', MODX_MANAGER_URL . 'media/style/' . $modx->config['manager_theme'] . '/images/login/default/login-background.jpg');
+    }
+
+    // set form position css class
+    $modx->setPlaceholder('login_form_position_class', 'loginbox-' . $modx->config['login_form_position']);
+
     switch ($modx->config['manager_theme_mode']) {
       case '1':
         $modx->setPlaceholder('manager_theme_style', 'lightness');
@@ -97,8 +113,8 @@ if (!isset($_SESSION['mgrValidated'])) {
         break;
       case '4':
         $modx->setPlaceholder('manager_theme_style', 'darkness');
-        break;    }
-
+        break;
+	}
 
     // andrazk 20070416 - notify user of install/update
     if (isset($_GET['installGoingOn'])) {
@@ -120,7 +136,7 @@ if (!isset($_SESSION['mgrValidated'])) {
     if ($modx->config['use_captcha'] == 1) {
         $modx->setPlaceholder('login_captcha_message', $_lang["login_captcha_message"]);
         $modx->setPlaceholder('captcha_image',
-            '<a href="' . MODX_MANAGER_URL . '" class="loginCaptcha"><img id="captcha_image" src="' . MODX_MANAGER_URL . 'includes/veriword.php?rand=' . rand() . '" alt="' . $_lang["login_captcha_message"] . '" /></a>');
+            '<a href="' . MODX_MANAGER_URL . '" class="loginCaptcha"><img id="captcha_image" src="' . MODX_MANAGER_URL . 'captcha.php?rand=' . rand() . '" alt="' . $_lang["login_captcha_message"] . '" /></a>');
         $modx->setPlaceholder('captcha_input',
             '<label>' . $_lang["captcha_code"] . '</label> <input type="text" name="captcha_code" tabindex="3" value="" />');
     }
@@ -209,9 +225,9 @@ if (!isset($_SESSION['mgrValidated'])) {
             $itemid = null;
         }
         $sql = sprintf("REPLACE INTO %s (sid, internalKey, username, lasthit, action, id) VALUES ('%s', %d, '%s', %d, '%s', %s)",
-            $modx->getFullTableName('active_users') // Table
+            $modx->getDatabase()->getFullTableName('active_users') // Table
             , session_id(), $modx->getLoginUserID(), $_SESSION['mgrShortname'], $lasthittime, (string)$action,
             $itemid == null ? var_export(null, true) : $itemid);
-        $modx->db->query($sql);
+        $modx->getDatabase()->query($sql);
     }
 }

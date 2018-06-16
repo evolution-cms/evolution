@@ -24,6 +24,7 @@
     <script type="text/javascript">parent.tree.updateTree();</script>
 </head>
 <body>
+<script>if ( [(manager_theme_mode)] == '4') {document.body.className='darkness';}</script>
 
 <h1>[+lang.DM_module_title+]</h1>
 

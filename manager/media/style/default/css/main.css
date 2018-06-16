@@ -38,7 +38,7 @@ h2#edit_document_title { font-size: 0.9rem; color: #f5f5f5; width: 100%; border-
 fieldset#preview h2.tab { float: right; }
 /*
 * Generic styles for all form elements
-    */
+*/
 form#mutate dt, form#mutate dd { margin-bottom: 10px; }
 form#mutate dt label, form#mutate dt h3.label { font-size: 1em; display: inline; float: left; width: 200px; color: #821517 !important; font-weight: 500; }
 form#mutate dd { margin-left: 210px; }
@@ -104,6 +104,11 @@ code { font-size: inherit; font-family: Consolas, 'Courier New', 'Courier', mono
 table th { font-weight: 500; }
 .table--edit th { width: 200px; color: #555; font-size: inherit; }
 .table--edit input[type="text"], .table--edit input[type="password"], .table--edit input[type="number"], .table--edit textarea, .table--edit select, .settings input[type="text"], .settings input[type="password"], .settings input[type="number"], .settings textarea, .settings select { width: 300px; }
+/* stacked table cells on small screens */
+@media (max-width: 567px) {
+#documentPane #tabGeneral > table > tbody > tr > td, #documentPane #tabGeneral .tmplvars > table > tbody > tr > td, #documentPane #tabSettings > table > tbody > tr > td, #settingsPane > .tab-page > table > tbody > tr > td, #settingsPane > .tab-page > table > tbody > tr > th {display: block !important;width: 100% !important;}
+#settingsPane > .tab-page > table > tbody > tr > th {border-bottom-width: 0;}
+}
 /*
  * MODxRE2 styles
  * css above is original MODxRE
@@ -112,8 +117,10 @@ table th { font-weight: 500; }
 /* nav */
 .no-events { pointer-events: none; }
 /* Required for Bootstrap3 Collapse */
-.panel-title > a::before { content: "\f107"; /* fa-angle-down */ font-family: "FontAwesome"; }
-.panel-title > a.collapsed::before { content: "\f105"; /* fa-angle-right */ padding: 0 1px 0 3px; }
+.panel-title > a::before { content: "\f107"; /* fa-angle-down */
+font-family: "FontAwesome"; }
+.panel-title > a.collapsed::before { content: "\f105"; /* fa-angle-right */
+padding: 0 1px 0 3px; }
 .panel-title > a { font-size: 1.1em; color: #657587; display: block; padding: 3px 0; }
 .panel-title > a:hover { text-decoration: none; color: #1377c5; background: rgba(255, 255, 255, 0.27); }
 /* category icons in manage elements */
@@ -175,7 +182,8 @@ ul.elements_buttonbar .fa { font-size: 0.875rem; padding: 1px 1px 0; }
 /* Flex-view */
 .resourceTable.flex ul.elements { -webkit-column-gap: 10px; -moz-column-gap: 10px; -o-column-gap: 10px; column-gap: 10px; }
 .resourceTable.flex ul.elements { }
-.resourceTable.flex ul.elements > li { overflow: hidden; /* fix for Firefox */ break-inside: avoid-column; -webkit-column-break-inside: avoid; -moz-column-break-inside: avoid; -o-column-break-inside: avoid; -ms-column-break-inside: avoid; column-break-inside: avoid; page-break-inside: avoid }
+.resourceTable.flex ul.elements > li { overflow: hidden; /* fix for Firefox */
+break-inside: avoid-column; -webkit-column-break-inside: avoid; -moz-column-break-inside: avoid; -o-column-break-inside: avoid; -ms-column-break-inside: avoid; column-break-inside: avoid; page-break-inside: avoid }
 .resourceTable.flex .elements_descr { display: block; margin-left: 1.5em; }
 #content_body #which_editor { margin-top: 12px; }
 /* resource children list */

@@ -39,12 +39,12 @@ if (isset($_REQUEST['searchid'])) {
                     <div class="col-md-3 col-lg-2"><?= $_lang['search_criteria_template_id'] ?></div>
                     <div class="col-md-9 col-lg-10">
                         <?php
-                        $rs = $modx->db->select('*', $modx->getFullTableName('site_templates'));
+                        $rs = $modx->getDatabase()->select('*', $modx->getDatabase()->getFullTableName('site_templates'));
                         $option[] = '<option value="">No selected</option>';
                         $templateid = (isset($_REQUEST['templateid']) && $_REQUEST['templateid'] !== '') ? (int)$_REQUEST['templateid'] : '';
                         $selected = $templateid === 0 ? ' selected="selected"' : '';
                         $option[] = '<option value="0"' . $selected . '>(blank)</option>';
-                        while ($row = $modx->db->getRow($rs)) {
+                        while ($row = $modx->getDatabase()->getRow($rs)) {
                             $templatename = htmlspecialchars($row['templatename'], ENT_QUOTES, $modx->config['modx_charset']);
                             $selected = $row['id'] == $templateid ? ' selected="selected"' : '';
                             $option[] = sprintf('<option value="%s"%s>%s(%s)</option>', $row['id'], $selected, $templatename, $row['id']);
@@ -80,14 +80,14 @@ if (isset($_REQUEST['searchid'])) {
 <?php
 //TODO: сделать поиск по уму пока сделаю что б одно поле было для id,longtitle,pagetitle,alias далее нужно думаю добавить что б и в елементах искало
 if (isset($_REQUEST['submitok'])) {
-    $tbl_site_content = $modx->getFullTableName('site_content');
-    $tbldg = $modx->getFullTableName('document_groups');
+    $tbl_site_content = $modx->getDatabase()->getFullTableName('site_content');
+    $tbldg = $modx->getDatabase()->getFullTableName('document_groups');
 
     $searchfields = htmlentities(trim($_POST['searchfields']), ENT_QUOTES, $modx_manager_charset);
-    $searchlongtitle = $modx->db->escape(trim($_REQUEST['searchfields']));
-    $search_alias = $modx->db->escape(trim($_REQUEST['searchfields']));
+    $searchlongtitle = $modx->getDatabase()->escape(trim($_REQUEST['searchfields']));
+    $search_alias = $modx->getDatabase()->escape(trim($_REQUEST['searchfields']));
     $templateid = isset($_REQUEST['templateid']) && $_REQUEST['templateid'] !== '' ? (int)$_REQUEST['templateid'] : '';
-    $searchcontent = $modx->db->escape($_REQUEST['content']);
+    $searchcontent = $modx->getDatabase()->escape($_REQUEST['content']);
 
     $fields = 'DISTINCT sc.id, contenttype, pagetitle, longtitle, description, introtext, menutitle, deleted, published, isfolder, type';
 
@@ -96,7 +96,7 @@ if (isset($_REQUEST['submitok'])) {
     // Handle Input "Search by exact URL"
     $idFromAlias = false;
     if (isset($_REQUEST['url']) && $_REQUEST['url'] !== '') {
-        $url = $modx->db->escape($_REQUEST['url']);
+        $url = $modx->getDatabase()->escape($_REQUEST['url']);
         $friendly_url_suffix = $modx->config['friendly_url_suffix'];
         $base_url = $modx->config['base_url'];
         $site_url = $modx->config['site_url'];
@@ -114,10 +114,10 @@ if (isset($_REQUEST['submitok'])) {
     if ($searchfields != '') {
 
 		/*start search by TV. Added Rising13*/
-		$tbl_site_tmplvar_contentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
+		$tbl_site_tmplvar_contentvalues = $modx->getDatabase()->getFullTableName('site_tmplvar_contentvalues');
 		$articul_query = "SELECT `contentid` FROM {$tbl_site_tmplvar_contentvalues} WHERE `value` LIKE '%{$searchfields}%'";
-		$articul_result = $modx->db->query($articul_query);
-		$articul_id_array = $modx->db->makeArray($articul_result);
+		$articul_result = $modx->getDatabase()->query($articul_query);
+		$articul_id_array = $modx->getDatabase()->makeArray($articul_result);
 		if(count($articul_id_array)>0){
 			$articul_id = '';
 			$i = 1;
@@ -192,8 +192,8 @@ if (isset($_REQUEST['submitok'])) {
     $where = $sqladd;
 
     if ($where) {
-        $rs = $modx->db->select($fields, $tbl_site_content . ' AS sc LEFT JOIN ' . $tbldg . ' AS dg ON dg.document=sc.id', $where, 'sc.id');
-        $limit = $modx->db->getRecordCount($rs);
+        $rs = $modx->getDatabase()->select($fields, $tbl_site_content . ' AS sc LEFT JOIN ' . $tbldg . ' AS dg ON dg.document=sc.id', $where, 'sc.id');
+        $limit = $modx->getDatabase()->getRecordCount($rs);
     } else {
         $limit = 0;
     }
@@ -242,7 +242,7 @@ if (isset($_REQUEST['submitok'])) {
                             'image/png' => $_style["tree_page_png"]
                         );
 
-                        while ($row = $modx->db->getRow($rs)) {
+                        while ($row = $modx->getDatabase()->getRow($rs)) {
                             // figure out the icon for the document...
                             $icon = "";
                             if ($row['type'] == 'reference') {
@@ -296,10 +296,10 @@ if (isset($_REQUEST['submitok'])) {
 
                 //docs
                 if ($modx->hasPermission('new_document') && $modx->hasPermission('edit_document') && $modx->hasPermission('save_document')) {
-                    $docscounts = $modx->db->getRecordCount($rs);
+                    $docscounts = $modx->getDatabase()->getRecordCount($rs);
                     if ($docscounts > 0) {
                         $output .= '<li><b><i class="fa fa-sitemap"></i> ' . $_lang["manage_documents"] . ' (' . $docscounts . ')</b></li>';
-                        while ($row = $modx->db->getRow($rs)) {
+                        while ($row = $modx->getDatabase()->getRow($rs)) {
                             $output .= '<li' . addClassForItemList('', !$row['published'], $row['deleted']) . '><a href="index.php?a=27&id=' . $row['id'] . '" id="content_' . $row['id'] . '" target="main">' . highlightingCoincidence($row['pagetitle'] . ' <small>(' . $row['id'] . ')</small>', $_REQUEST['searchfields']) . $_style['icons_external_link'] . '</a></li>';
                         }
                     }
@@ -307,14 +307,14 @@ if (isset($_REQUEST['submitok'])) {
 
                 //templates
                 if ($modx->hasPermission('edit_template')) {
-                    $rs = $modx->db->select("id,templatename,locked", $modx->getFullTableName('site_templates'), "`id` like '%" . $searchfields . "%' 
+                    $rs = $modx->getDatabase()->select("id,templatename,locked", $modx->getDatabase()->getFullTableName('site_templates'), "`id` like '%" . $searchfields . "%' 
 					OR `templatename` like '%" . $searchfields . "%' 
 					OR `description` like '%" . $searchfields . "%' 
 					OR `content` like '%" . $searchfields . "%'");
-                    $templatecounts = $modx->db->getRecordCount($rs);
+                    $templatecounts = $modx->getDatabase()->getRecordCount($rs);
                     if ($templatecounts > 0) {
                         $output .= '<li><b><i class="fa fa-newspaper-o"></i> ' . $_lang["manage_templates"] . ' (' . $templatecounts . ')</b></li>';
-                        while ($row = $modx->db->getRow($rs)) {
+                        while ($row = $modx->getDatabase()->getRow($rs)) {
                             $output .= '<li' . addClassForItemList($row['locked']) . '><a href="index.php?a=16&id=' . $row['id'] . '" id="templates_' . $row['id'] . '" target="main">' . highlightingCoincidence($row['templatename'], $_REQUEST['searchfields']) . $_style['icons_external_link'] . '</a></li>';
                         }
                     }
@@ -322,7 +322,7 @@ if (isset($_REQUEST['submitok'])) {
 
                 //tvs
                 if ($modx->hasPermission('edit_template') && $modx->hasPermission('edit_snippet') && $modx->hasPermission('edit_chunk') && $modx->hasPermission('edit_plugin')) {
-                    $rs = $modx->db->select("id,name,locked", $modx->getFullTableName('site_tmplvars'), "`id` like '%" . $searchfields . "%' 
+                    $rs = $modx->getDatabase()->select("id,name,locked", $modx->getDatabase()->getFullTableName('site_tmplvars'), "`id` like '%" . $searchfields . "%' 
 					OR `name` like '%" . $searchfields . "%' 
 					OR `description` like '%" . $searchfields . "%' 
 					OR `type` like '%" . $searchfields . "%' 
@@ -330,10 +330,10 @@ if (isset($_REQUEST['submitok'])) {
 					OR `display` like '%" . $searchfields . "%' 
 					OR `display_params` like '%" . $searchfields . "%' 
 					OR `default_text` like '%" . $searchfields . "%'");
-                    $tvscounts = $modx->db->getRecordCount($rs);
+                    $tvscounts = $modx->getDatabase()->getRecordCount($rs);
                     if ($tvscounts > 0) {
                         $output .= '<li><b><i class="fa fa-list-alt"></i> ' . $_lang["settings_templvars"] . ' (' . $tvscounts . ')</b></li>';
-                        while ($row = $modx->db->getRow($rs)) {
+                        while ($row = $modx->getDatabase()->getRow($rs)) {
                             $output .= '<li' . addClassForItemList($row['locked']) . '><a href="index.php?a=301&id=' . $row['id'] . '" id="tmplvars_' . $row['id'] . '" target="main">' . highlightingCoincidence($row['name'], $_REQUEST['searchfields']) . $_style['icons_external_link'] . '</a></li>';
                         }
                     }
@@ -341,14 +341,14 @@ if (isset($_REQUEST['submitok'])) {
 
                 //Chunks
                 if ($modx->hasPermission('edit_chunk')) {
-                    $rs = $modx->db->select("id,name,locked,disabled", $modx->getFullTableName('site_htmlsnippets'), "`id` like '%" . $searchfields . "%' 
+                    $rs = $modx->getDatabase()->select("id,name,locked,disabled", $modx->getDatabase()->getFullTableName('site_htmlsnippets'), "`id` like '%" . $searchfields . "%' 
 					OR `name` like '%" . $searchfields . "%' 
 					OR `description` like '%" . $searchfields . "%'     
 					OR `snippet` like '%" . $searchfields . "%'");
-                    $chunkscounts = $modx->db->getRecordCount($rs);
+                    $chunkscounts = $modx->getDatabase()->getRecordCount($rs);
                     if ($chunkscounts > 0) {
                         $output .= '<li><b><i class="fa fa-th-large"></i> ' . $_lang["manage_htmlsnippets"] . ' (' . $chunkscounts . ')</b></li>';
-                        while ($row = $modx->db->getRow($rs)) {
+                        while ($row = $modx->getDatabase()->getRow($rs)) {
                             $output .= '<li' . addClassForItemList($row['locked'], $row['disabled']) . '><a href="index.php?a=78&id=' . $row['id'] . '" id="htmlsnippets_' . $row['id'] . '" target="main">' . highlightingCoincidence($row['name'], $_REQUEST['searchfields']) . $_style['icons_external_link'] . '</a></li>';
                         }
                     }
@@ -356,16 +356,16 @@ if (isset($_REQUEST['submitok'])) {
 
                 //Snippets
                 if ($modx->hasPermission('edit_snippet')) {
-                    $rs = $modx->db->select("id,name,locked,disabled", $modx->getFullTableName('site_snippets'), "`id` like '%" . $searchfields . "%' 
+                    $rs = $modx->getDatabase()->select("id,name,locked,disabled", $modx->getDatabase()->getFullTableName('site_snippets'), "`id` like '%" . $searchfields . "%' 
 					OR `name` like '%" . $searchfields . "%' 
 					OR `description` like '%" . $searchfields . "%' 
 					OR `snippet` like '%" . $searchfields . "%'  
 					OR `properties` like '%" . $searchfields . "%'      
 					OR `moduleguid` like '%" . $searchfields . "%'");
-                    $snippetscounts = $modx->db->getRecordCount($rs);
+                    $snippetscounts = $modx->getDatabase()->getRecordCount($rs);
                     if ($snippetscounts > 0) {
                         $output .= '<li><b><i class="fa fa-code"></i> ' . $_lang["manage_snippets"] . ' (' . $snippetscounts . ')</b></li>';
-                        while ($row = $modx->db->getRow($rs)) {
+                        while ($row = $modx->getDatabase()->getRow($rs)) {
                             $output .= '<li' . addClassForItemList($row['locked'], $row['disabled']) . '><a href="index.php?a=22&id=' . $row['id'] . '" id="snippets_' . $row['id'] . '" target="main">' . highlightingCoincidence($row['name'], $_REQUEST['searchfields']) . $_style['icons_external_link'] . '</a></li>';
                         }
                     }
@@ -373,16 +373,16 @@ if (isset($_REQUEST['submitok'])) {
 
                 //plugins
                 if ($modx->hasPermission('edit_plugin')) {
-                    $rs = $modx->db->select("id,name,locked,disabled", $modx->getFullTableName('site_plugins'), "`id` like '%" . $searchfields . "%' 
+                    $rs = $modx->getDatabase()->select("id,name,locked,disabled", $modx->getDatabase()->getFullTableName('site_plugins'), "`id` like '%" . $searchfields . "%' 
 					OR `name` like '%" . $searchfields . "%' 
 					OR `description` like '%" . $searchfields . "%' 
 					OR `plugincode` like '%" . $searchfields . "%'  
 					OR `properties` like '%" . $searchfields . "%'      
 					OR `moduleguid` like '%" . $searchfields . "%'");
-                    $pluginscounts = $modx->db->getRecordCount($rs);
+                    $pluginscounts = $modx->getDatabase()->getRecordCount($rs);
                     if ($pluginscounts > 0) {
                         $output .= '<li><b><i class="fa fa-plug"></i> ' . $_lang["manage_plugins"] . ' (' . $pluginscounts . ')</b></li>';
-                        while ($row = $modx->db->getRow($rs)) {
+                        while ($row = $modx->getDatabase()->getRow($rs)) {
                             $output .= '<li' . addClassForItemList($row['locked'], $row['disabled']) . '><a href="index.php?a=102&id=' . $row['id'] . '" id="plugins_' . $row['id'] . '" target="main">' . highlightingCoincidence($row['name'], $_REQUEST['searchfields']) . $_style['icons_external_link'] . '</a></li>';
                         }
                     }
@@ -390,17 +390,17 @@ if (isset($_REQUEST['submitok'])) {
 
                 //modules
                 if ($modx->hasPermission('edit_module')) {
-                    $rs = $modx->db->select("id,name,locked,disabled", $modx->getFullTableName('site_modules'), "`id` like '%" . $searchfields . "%' 
+                    $rs = $modx->getDatabase()->select("id,name,locked,disabled", $modx->getDatabase()->getFullTableName('site_modules'), "`id` like '%" . $searchfields . "%' 
                     OR `name` like '%" . $searchfields . "%' 
                     OR `description` like '%" . $searchfields . "%' 
                     OR `modulecode` like '%" . $searchfields . "%'  
                     OR `properties` like '%" . $searchfields . "%'  
                     OR `guid` like '%" . $searchfields . "%'      
                     OR `resourcefile` like '%" . $searchfields . "%'");
-                    $modulescounts = $modx->db->getRecordCount($rs);
+                    $modulescounts = $modx->getDatabase()->getRecordCount($rs);
                     if ($modulescounts > 0) {
                         $output .= '<li><b><i class="fa fa-cogs"></i> ' . $_lang["modules"] . ' (' . $modulescounts . ')</b></li>';
-                        while ($row = $modx->db->getRow($rs)) {
+                        while ($row = $modx->getDatabase()->getRow($rs)) {
                             $output .= '<li' . addClassForItemList($row['locked'], $row['disabled']) . '><a href="index.php?a=108&id=' . $row['id'] . '" id="modules_' . $row['id'] . '" target="main">' . highlightingCoincidence($row['name'], $_REQUEST['searchfields']) . $_style['icons_external_link'] . '</a></li>';
                         }
                     }
@@ -413,45 +413,4 @@ if (isset($_REQUEST['submitok'])) {
         </div>
     </div>
     <?php
-}
-
-/**
- * @param string $text
- * @param string $search
- * @return string
- */
-function highlightingCoincidence($text, $search)
-{
-    $regexp = '!(' . str_replace(array(
-            '(',
-            ')'
-        ), array(
-            '\(',
-            '\)'
-        ), trim($search)) . ')!isu';
-    return preg_replace($regexp, '<span class="text-danger">$1</span>', $text);
-}
-
-/**
- * @param string $locked
- * @param string $disabled
- * @param string $deleted
- * @return string
- */
-function addClassForItemList($locked = '', $disabled = '', $deleted = '')
-{
-    $class = '';
-    if ($locked) {
-        $class .= 'locked';
-    }
-    if ($disabled) {
-        $class .= ' disabled';
-    }
-    if ($deleted) {
-        $class .= ' deleted';
-    }
-    if ($class) {
-        $class = ' class="' . trim($class) . '"';
-    }
-    return $class;
 }

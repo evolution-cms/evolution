@@ -1,6 +1,10 @@
 <?php
     $MODX_SITE_HOSTNAMES = MODX_SITE_HOSTNAMES; // Fix for PHP 5.4
-    if(empty($valid_hostnames) && empty($MODX_SITE_HOSTNAMES)) $valid_hostnames = $_SERVER['HTTP_HOST'];
+    if(empty($valid_hostnames) && empty($MODX_SITE_HOSTNAMES)) {
+        $valid_hostnames = $_SERVER['HTTP_HOST'];
+    } else {
+        $valid_hostnames = $MODX_SITE_HOSTNAMES;
+    }
 ?>
 <!-- Interface & editor settings -->
 <div class="tab-page" id="tabPageSecurity">
@@ -40,7 +44,7 @@
     <th><?php echo $_lang['check_files_onlogin_title'] ?><br><small>[(check_files_onlogin)]</small></th>
     <td>
       <textarea name="check_files_onlogin"><?php echo $check_files_onlogin;?></textarea><br />
-        
+
 </td>
 </tr>
    <tr>
@@ -62,7 +66,7 @@
     </tr>
     <tr>
       <td nowrap class="warning"><?php echo $_lang['valid_hostnames_title'] ?><br><small>[(valid_hostnames)]</small></td>
-      <td ><input onchange="documentDirty=true;" type="text" maxlength="255" style="width: 200px;" name="valid_hostnames" value="<?php echo $modx->htmlspecialchars($valid_hostnames); ?>" /></td>
+      <td ><input onchange="documentDirty=true;" type="text" maxlength="255" style="width: 200px;" name="valid_hostnames" value="<?php echo $modx->getPhpCompat()->htmlspecialchars($valid_hostnames); ?>" /></td>
     </tr>
     <tr>
       <td width="200">&nbsp;</td>
@@ -154,12 +158,12 @@
 <td>
 <?php
 if(empty($pwd_hash_algo)) $phm['sel']['UNCRYPT'] = 1;
-$phm['e']['BLOWFISH_Y'] = $modx->manager->checkHashAlgorithm('BLOWFISH_Y') ? 0:1;
-$phm['e']['BLOWFISH_A'] = $modx->manager->checkHashAlgorithm('BLOWFISH_A') ? 0:1;
-$phm['e']['SHA512']     = $modx->manager->checkHashAlgorithm('SHA512') ? 0:1;
-$phm['e']['SHA256']     = $modx->manager->checkHashAlgorithm('SHA256') ? 0:1;
-$phm['e']['MD5']        = $modx->manager->checkHashAlgorithm('MD5') ? 0:1;
-$phm['e']['UNCRYPT']    = $modx->manager->checkHashAlgorithm('UNCRYPT') ? 0:1;
+$phm['e']['BLOWFISH_Y'] = $modx->getManagerApi()->checkHashAlgorithm('BLOWFISH_Y') ? 0:1;
+$phm['e']['BLOWFISH_A'] = $modx->getManagerApi()->checkHashAlgorithm('BLOWFISH_A') ? 0:1;
+$phm['e']['SHA512']     = $modx->getManagerApi()->checkHashAlgorithm('SHA512') ? 0:1;
+$phm['e']['SHA256']     = $modx->getManagerApi()->checkHashAlgorithm('SHA256') ? 0:1;
+$phm['e']['MD5']        = $modx->getManagerApi()->checkHashAlgorithm('MD5') ? 0:1;
+$phm['e']['UNCRYPT']    = $modx->getManagerApi()->checkHashAlgorithm('UNCRYPT') ? 0:1;
 ?>
 <?php echo wrap_label('CRYPT_BLOWFISH_Y (salt &amp; stretch)',form_radio('pwd_hash_algo','BLOWFISH_Y', '', $phm['e']['BLOWFISH_Y']));?><br />
 <?php echo wrap_label('CRYPT_BLOWFISH_A (salt &amp; stretch)',form_radio('pwd_hash_algo','BLOWFISH_A', '', $phm['e']['BLOWFISH_A']));?><br />
@@ -216,6 +220,15 @@ if(!$gdAvailable) $use_captcha = 0;
   </tr>
   <tr class="captchaRow" <?php echo showHide($use_captcha==1);?>>
     <td colspan="2"><div class="split"></div></td>
+  </tr>
+  <tr>
+    <td colspan="2">
+        <?php
+            // invoke OnMiscSettingsRender event
+            $evtOut = $modx->invokeEvent('OnSecuritySettingsRender');
+            if(is_array($evtOut)) echo implode("",$evtOut);
+        ?>
+    </td>
   </tr>
 </table>
 </div>

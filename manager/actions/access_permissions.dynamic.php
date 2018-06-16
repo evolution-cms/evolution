@@ -7,32 +7,32 @@ if(!$modx->hasPermission('access_permissions')) {
 }
 
 // Get table names (alphabetical)
-$tbl_document_groups = $modx->getFullTableName('document_groups');
-$tbl_documentgroup_names = $modx->getFullTableName('documentgroup_names');
-$tbl_manager_users = $modx->getFullTableName('manager_users');
-$tbl_member_groups = $modx->getFullTableName('member_groups');
-$tbl_membergroup_access = $modx->getFullTableName('membergroup_access');
-$tbl_membergroup_names = $modx->getFullTableName('membergroup_names');
-$tbl_site_content = $modx->getFullTableName('site_content');
+$tbl_document_groups = $modx->getDatabase()->getFullTableName('document_groups');
+$tbl_documentgroup_names = $modx->getDatabase()->getFullTableName('documentgroup_names');
+$tbl_manager_users = $modx->getDatabase()->getFullTableName('manager_users');
+$tbl_member_groups = $modx->getDatabase()->getFullTableName('member_groups');
+$tbl_membergroup_access = $modx->getDatabase()->getFullTableName('membergroup_access');
+$tbl_membergroup_names = $modx->getDatabase()->getFullTableName('membergroup_names');
+$tbl_site_content = $modx->getDatabase()->getFullTableName('site_content');
 
 // find all document groups, for the select :)
-$rs = $modx->db->select('*', $tbl_documentgroup_names, '', 'name');
-if($modx->db->getRecordCount($rs) < 1) {
+$rs = $modx->getDatabase()->select('*', $tbl_documentgroup_names, '', 'name');
+if($modx->getDatabase()->getRecordCount($rs) < 1) {
 	$docgroupselector = '[no groups to add]';
 } else {
 	$docgroupselector = '<select name="docgroup">' . "\n";
-	while($row = $modx->db->getRow($rs)) {
+	while($row = $modx->getDatabase()->getRow($rs)) {
 		$docgroupselector .= "\t" . '<option value="' . $row['id'] . '">' . $row['name'] . "</option>\n";
 	}
 	$docgroupselector .= "</select>\n";
 }
 
-$rs = $modx->db->select('*', $tbl_membergroup_names, '', 'name');
-if($modx->db->getRecordCount($rs) < 1) {
+$rs = $modx->getDatabase()->select('*', $tbl_membergroup_names, '', 'name');
+if($modx->getDatabase()->getRecordCount($rs) < 1) {
 	$usrgroupselector = '[no user groups]';
 } else {
 	$usrgroupselector = '<select name="usergroup">' . "\n";
-	while($row = $modx->db->getRow($rs)) {
+	while($row = $modx->getDatabase()->getRow($rs)) {
 		$usrgroupselector .= "\t" . '<option value="' . $row['id'] . '">' . $row['name'] . "</option>\n";
 	}
 	$usrgroupselector .= "</select>\n";
@@ -96,10 +96,10 @@ if($modx->db->getRecordCount($rs) < 1) {
 				</form>
 			</div>
 			<?php
-			$rs = $modx->db->select('groupnames.*, users.id AS user_id, users.username user_name', $tbl_membergroup_names . ' AS groupnames
+			$rs = $modx->getDatabase()->select('groupnames.*, users.id AS user_id, users.username user_name', $tbl_membergroup_names . ' AS groupnames
 			LEFT JOIN ' . $tbl_member_groups . ' AS groups ON groups.user_group = groupnames.id
 			LEFT JOIN ' . $tbl_manager_users . ' AS users ON users.id = groups.member', '', 'groupnames.name, user_name');
-			if($modx->db->getRecordCount($rs) < 1) {
+			if($modx->getDatabase()->getRecordCount($rs) < 1) {
 				?>
 				<div class="text-danger"><?= $_lang['no_groups_found'] ?></div>
 				<?php
@@ -108,7 +108,7 @@ if($modx->db->getRecordCount($rs) < 1) {
 			<div class="form-group">
 				<?php
 				$pid = '';
-				while($row = $modx->db->getRow($rs)) {
+				while($row = $modx->getDatabase()->getRow($rs)) {
 					if($pid != $row['id']) {
 						if($pid != '') {
 							echo '</div><div class="form-group">';
@@ -119,7 +119,7 @@ if($modx->db->getRecordCount($rs) < 1) {
 							<input type="hidden" name="groupid" value="<?= $row['id'] ?>" />
 							<input type="hidden" name="operation" value="rename_user_group" />
 							<div class="input-group">
-								<input class="form-control" type="text" name="newgroupname" value="<?= $modx->htmlspecialchars($row['name']) ?>" />
+								<input class="form-control" type="text" name="newgroupname" value="<?= $modx->getPhpCompat()->htmlspecialchars($row['name']) ?>" />
 								<div class="input-group-btn">
 									<input class="btn btn-secondary" type="submit" value="<?= $_lang['rename'] ?>" />
 									<input class="btn btn-danger" type="button" value="<?= $_lang['delete'] ?>" onclick="deletegroup(<?= $row['id'] ?>,'usergroup');" />
@@ -167,10 +167,10 @@ if($modx->db->getRecordCount($rs) < 1) {
 				</form>
 			</div>
 			<?php
-			$rs = $modx->db->select('dgnames.id, dgnames.name, sc.id AS doc_id, sc.pagetitle AS doc_title', $tbl_documentgroup_names . ' AS dgnames
+			$rs = $modx->getDatabase()->select('dgnames.id, dgnames.name, sc.id AS doc_id, sc.pagetitle AS doc_title', $tbl_documentgroup_names . ' AS dgnames
 			LEFT JOIN ' . $tbl_document_groups . ' AS dg ON dg.document_group = dgnames.id
 			LEFT JOIN ' . $tbl_site_content . ' AS sc ON sc.id = dg.document', '', 'dgnames.name, sc.id');
-			if($modx->db->getRecordCount($rs) < 1) {
+			if($modx->getDatabase()->getRecordCount($rs) < 1) {
 				?>
 				<div class="text-danger"><?= $_lang['no_groups_found'] ?></div>
 				<?php
@@ -179,7 +179,7 @@ if($modx->db->getRecordCount($rs) < 1) {
 			<div class="form-group">
 				<?php
 				$pid = '';
-				while($row = $modx->db->getRow($rs)) {
+				while($row = $modx->getDatabase()->getRow($rs)) {
 					if($pid != $row['id']) {
 						if($pid != '') {
 							echo '</div><div class="form-group">';
@@ -190,7 +190,7 @@ if($modx->db->getRecordCount($rs) < 1) {
 							<input type="hidden" name="groupid" value="<?= $row['id'] ?>" />
 							<input type="hidden" name="operation" value="rename_document_group" />
 							<div class="input-group">
-								<input class="form-control" type="text" name="newgroupname" value="<?= $modx->htmlspecialchars($row['name']) ?>" />
+								<input class="form-control" type="text" name="newgroupname" value="<?= $modx->getPhpCompat()->htmlspecialchars($row['name']) ?>" />
 								<div class="input-group-btn">
 									<input class="btn btn-secondary" type="submit" value="<?= $_lang['rename'] ?>" />
 									<input class="btn btn-danger" type="button" value="<?= $_lang['delete'] ?>" onclick="deletegroup(<?= $row['id'] ?>,'documentgroup');" />
@@ -208,7 +208,7 @@ if($modx->db->getRecordCount($rs) < 1) {
 						continue;
 					}
 					?>
-					<?= ($pid == $row['id'] ? ', ' : '') ?><a href="index.php?a=3&id=<?= $row['doc_id'] ?>" title="<?= $modx->htmlspecialchars($row['doc_title']) ?>"><?= $row['doc_id'] ?></a>
+					<?= ($pid == $row['id'] ? ', ' : '') ?><a href="index.php?a=3&id=<?= $row['doc_id'] ?>" title="<?= $modx->getPhpCompat()->htmlspecialchars($row['doc_title']) ?>"><?= $row['doc_id'] ?></a>
 					<?php
 					$pid = $row['id'];
 				}
@@ -226,10 +226,10 @@ if($modx->db->getRecordCount($rs) < 1) {
 			<p class="element-edit-message-tab alert alert-warning"><?= $_lang['access_permissions_links_tab'] ?></p>
 			<?php
 			// User/Document Group Links
-			$rs = $modx->db->select('groupnames.*, groupacc.id AS link_id, dgnames.id AS dg_id, dgnames.name AS dg_name', $tbl_membergroup_names . ' AS groupnames
+			$rs = $modx->getDatabase()->select('groupnames.*, groupacc.id AS link_id, dgnames.id AS dg_id, dgnames.name AS dg_name', $tbl_membergroup_names . ' AS groupnames
 			LEFT JOIN ' . $tbl_membergroup_access . ' AS groupacc ON groupacc.membergroup = groupnames.id
 			LEFT JOIN ' . $tbl_documentgroup_names . ' AS dgnames ON dgnames.id = groupacc.documentgroup', '', 'name, dg_name');
-			if($modx->db->getRecordCount($rs) < 1) {
+			if($modx->getDatabase()->getRecordCount($rs) < 1) {
 				?>
 				<div class="text-danger"><?= $_lang['no_groups_found'] ?></div>
 				<?php
@@ -251,7 +251,7 @@ if($modx->db->getRecordCount($rs) < 1) {
 				<ul>
 					<?php
 					$pid = '';
-					while($row = $modx->db->getRow($rs)) {
+					while($row = $modx->getDatabase()->getRow($rs)) {
 						if($row['id'] != $pid) {
 							if($pid != '') {
 								echo '</ul></li>';

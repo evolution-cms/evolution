@@ -63,9 +63,7 @@ class Login extends Core
             return;
         }
         $login = $this->getField($this->getCFGDef('loginField', 'username'));
-        if (is_scalar($login)) {
-            $login = mb_strtolower($login);
-        } else {
+        if (!is_scalar($login)) {
             $login = '';
         }
         $password = $this->getField($this->getCFGDef('passwordField', 'password'));

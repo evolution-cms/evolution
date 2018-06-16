@@ -4,7 +4,7 @@ class DATEPICKER {
      * @return string
      */
     public function getDP() {
-        global $modx;
+        $modx = evolutionCMS();
 
         $load_script = file_get_contents(dirname(__FILE__).'/datepicker.tpl');
         if(!isset($modx->config['lang_code'])) $modx->config['lang_code'] = $this->getLangCode();
@@ -16,7 +16,7 @@ class DATEPICKER {
      * @return string
      */
     public function getLangCode() {
-        global $modx, $modx_lang_attribute;
+        $modx = evolutionCMS(); global $modx_lang_attribute;
 
         if(!$modx_lang_attribute) return 'en';
 

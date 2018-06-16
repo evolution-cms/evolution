@@ -13,11 +13,11 @@ if (isset ($modx)) {
 
 if (!empty($user_id)) {
     // Raymond: grab the user settings from the database.
-    $rs = $modx->db->select('setting_name, setting_value', $modx->getFullTableName('user_settings'),
+    $rs = $modx->getDatabase()->select('setting_name, setting_value', $modx->getDatabase()->getFullTableName('user_settings'),
         "user=" . $modx->getLoginUserID());
 
     $which_browser_default = $which_browser;
-    while ($row = $modx->db->getRow($rs)) {
+    while ($row = $modx->getDatabase()->getRow($rs)) {
         if ($row['setting_name'] == 'which_browser' && $row['setting_value'] == 'default') {
             $row['setting_value'] = $which_browser_default;
         }

@@ -13,17 +13,17 @@ if($id==0) {
 
 // check if user has access permission, except admins
 if($_SESSION['mgrRole']!=1){
-	$rs = $modx->db->select(
+	$rs = $modx->getDatabase()->select(
 		'sma.usergroup,mg.member',
-		$modx->getFullTableName("site_module_access")." sma
-			LEFT JOIN ".$modx->getFullTableName("member_groups")." mg ON mg.user_group = sma.usergroup AND member='".$modx->getLoginUserID()."'",
+		$modx->getDatabase()->getFullTableName("site_module_access")." sma
+			LEFT JOIN ".$modx->getDatabase()->getFullTableName("member_groups")." mg ON mg.user_group = sma.usergroup AND member='".$modx->getLoginUserID()."'",
 		"sma.module = '{$id}'"
 		);
 	//initialize permission to -1, if it stays -1 no permissions
 	//attached so permission granted
 	$permissionAccessInt = -1;
 
-	while ($row = $modx->db->getRow($rs)) {
+	while ($row = $modx->getDatabase()->getRow($rs)) {
 		if($row["usergroup"] && $row["member"]) {
 			//if there are permissions and this member has permission, ofcourse
 			//this is granted
@@ -41,8 +41,8 @@ if($_SESSION['mgrRole']!=1){
 }
 
 // get module data
-$rs = $modx->db->select('*', $modx->getFullTableName("site_modules"), "id='{$id}'");
-$content = $modx->db->getRow($rs);
+$rs = $modx->getDatabase()->select('*', $modx->getDatabase()->getFullTableName("site_modules"), "id='{$id}'");
+$content = $modx->getDatabase()->getRow($rs);
 if(!$content) {
 	$modx->webAlertAndQuit("No record found for id {$id}.", "index.php?a=106");
 }
@@ -59,50 +59,10 @@ $parameter = $modx->parseProperties($content["properties"], $content["guid"], 'm
 // Set the item name for logger
 $_SESSION['itemname'] = $content['name'];
 
+
 $output = evalModule($content["modulecode"],$parameter);
+if (strpos(trim($output),'<')===0 && strpos(trim($output),'<?xml')!==0) {
+	echo "<style>@supports (-webkit-overflow-scrolling: touch) {body,html {-webkit-overflow-scrolling: touch;overflow:auto!important;height:100%!important}}</style>"; // for iframe scroller
+}
 echo $output;
 include MODX_MANAGER_PATH."includes/sysalert.display.inc.php";
-
-/**
- * evalModule
- *
- * @param string $moduleCode
- * @param array $params
- * @return string
- */
-function evalModule($moduleCode,$params){
-	global $modx;
-	$modx->event->params = &$params; // store params inside event object
-	if(is_array($params)) {
-		extract($params, EXTR_SKIP);
-	}
-	ob_start();
-	$mod = eval($moduleCode);
-	$msg = ob_get_contents();
-	ob_end_clean();
-	if (isset($php_errormsg))
-	{
-		$error_info = error_get_last();
-        switch($error_info['type'])
-        {
-        	case E_NOTICE :
-        		$error_level = 1;
-        	case E_USER_NOTICE :
-        		break;
-        	case E_DEPRECATED :
-        	case E_USER_DEPRECATED :
-        	case E_STRICT :
-        		$error_level = 2;
-        		break;
-        	default:
-        		$error_level = 99;
-        }
-		if($modx->config['error_reporting']==='99' || 2<$error_level)
-		{
-			$modx->messageQuit('PHP Parse Error', '', true, $error_info['type'], $error_info['file'], $_SESSION['itemname'] . ' - Module', $error_info['message'], $error_info['line'], $msg);
-			$modx->event->alert("An error occurred while loading. Please see the event log for more information<p>{$msg}</p>");
-		}
-	}
-	unset($modx->event->params);
-	return $mod.$msg;
-}
