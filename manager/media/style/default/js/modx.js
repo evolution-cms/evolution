@@ -1663,6 +1663,7 @@
             this.row.removeChild(this.tab);
             modx.tabs.selected.show();
           }
+	  tree.ca = 'open';
         },
         select: function(e) {
           if (e.target.className === 'tab-close') {
