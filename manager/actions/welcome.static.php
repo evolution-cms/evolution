@@ -205,7 +205,7 @@ if($modx->getDatabase()->getRecordCount($rs) < 1) {
 			$webicon,
 			abs($activeusers['internalKey']),
 			$ip,
-			strftime('%H:%M:%S', $activeusers['lasthit'] + $server_offset_time),
+			strftime($modx->toDateFormat(0,'formatOnly').' %H:%M:%S', $activeusers['lasthit'] + $server_offset_time),
 			$currentaction
 		);
 	}
