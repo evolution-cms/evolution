@@ -914,6 +914,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                             <?php
 
                             $templateVariables = '';
+							$templateVariablesOutput = '';
 
                             if (($content['type'] == 'document' || $modx->manager->action == '4') || ($content['type'] == 'reference' || $modx->manager->action == 72)) {
                                 $template = $default_template;
@@ -1087,7 +1088,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                             $i++;
                                         }
                                     }
-
+									
                                     if ($templateVariablesGeneral) {
                                         echo '<table id="tabTV_0" class="tmplvars"><tbody>' . $templateVariablesGeneral . '</tbody></table>';
                                     }
@@ -1147,7 +1148,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                             }
 
                             // Template Variables
-                            if ($group_tvs < 3) {
+                            if ($group_tvs < 3 && $templateVariablesOutput) {
                                 echo $templateVariables;
                             }
                             ?>
@@ -1360,7 +1361,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 
                     <?php
                     //Template Variables
-                    if ($modx->config['group_tvs'] > 2) {
+                    if ($modx->config['group_tvs'] > 2 && $templateVariablesOutput) {
                         echo $templateVariables;
                     }
                     ?>
