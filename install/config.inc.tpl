@@ -110,7 +110,11 @@ spl_autoload_register(function ($class) {
 
         if (in_array($type, ['plugins', 'snippets', 'modules', 'tvs'])) {
             $dir = strtolower(array_shift($parts));
-            include MODX_BASE_PATH . 'assets/' . $type . '/' . $dir . '/' . implode('/', $parts) . '.php';
+            $file = MODX_BASE_PATH . 'assets/' . $type . '/' . $dir . '/' . implode('/', $parts) . '.php';
+
+            if (is_readable($file)) {
+                include $file;
+            }
         }
     }
 }, true, true);
