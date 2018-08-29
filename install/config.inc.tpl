@@ -101,6 +101,24 @@ if( ! preg_match('/\/$/', MODX_BASE_PATH)) {
     throw new RuntimeException('Please, use trailing slash at the end of MODX_BASE_PATH');
 }
 
+spl_autoload_register(function ($class) {
+    $parts = explode('\\', $class);
+    $base = array_shift($parts);
+
+    if ($base == 'EvolutionCMS') {
+        $type = strtolower(array_shift($parts)) . 's';
+
+        if (in_array($type, ['plugins', 'snippets', 'modules', 'tvs'])) {
+            $dir = strtolower(array_shift($parts));
+            $file = MODX_BASE_PATH . 'assets/' . $type . '/' . $dir . '/' . implode('/', $parts) . '.php';
+
+            if (is_readable($file)) {
+                include $file;
+            }
+        }
+    }
+}, true, true);
+
 if (!defined('MODX_BASE_URL')) {
     define('MODX_BASE_URL', $base_url);
 }
