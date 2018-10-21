@@ -27,7 +27,7 @@ $default_field = array('type','contentType','pagetitle','longtitle','description
 $docid = (isset($docid) && (int)$docid>0) ? (int)$docid : $modx->documentIdentifier;
 if(isset($templid) && (int)$templid>=0) {
 	$doc['parent'] = $docid;
-	$limit = (isset($limit) && (int)$limit>=0) ? (int)$limit : 11;
+	$limit = (isset($limit) && (int)$limit>=0) ? (int)$limit : 10;
 	do {
 		$doc = $modx->getDocument($doc['parent'], 'id, parent, template');
 		if($doc === false) return '';
