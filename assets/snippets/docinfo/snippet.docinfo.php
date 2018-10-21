@@ -27,14 +27,14 @@ $default_field = array('type','contentType','pagetitle','longtitle','description
 $docid = (isset($docid) && (int)$docid>0) ? (int)$docid : $modx->documentIdentifier;
 if(isset($templid) && (int)$templid>=0) {
 	$doc['parent'] = $docid;
-	$limit = (isset($limit) && (int)$limit>=0) ? (int)$limit+1 : 11;
+	$limit = (isset($limit) && (int)$limit>=0) ? (int)$limit : 11;
 	do {
 		$doc = $modx->getDocument($doc['parent'], 'id, parent, template');
 		if($doc === false) return '';
 		if($doc['template'] == (int)$templid) $docid = $doc['id'];
 		$limit--;
 	}
-	while($doc['template'] != (int)$templid && (int)$doc['parent'] > 0 && $limit > 0);
+	while($doc['template'] != (int)$templid && (int)$doc['parent'] > 0 && $limit >= 0);
 	if($doc['template'] != (int)$templid) return '';
 }
 $field = (isset($field)) ? $field : 'pagetitle';
