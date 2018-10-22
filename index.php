@@ -87,6 +87,9 @@ if (! defined('IN_MANAGER_MODE')) {
 if (! defined('MODX_API_MODE')) {
     define('MODX_API_MODE', false);
 }
+if (! defined('MODX_CLI')) {
+    define('MODX_CLI', false);
+}
 
 // initiate a new document parser
 $modx = evolutionCMS();
