@@ -5491,10 +5491,10 @@ class DocumentParser
                 $this->pluginsCode .= '</fieldset><br />';
                 $this->pluginsTime["{$evtName} / {$pluginName}"] += $eventtime;
             }
-            if ($e->getOutput() != '') {
-                $results[] = $e->getOutput();
+            if ($this->event->getOutput() != '') {
+                $results[] = $this->event->getOutput();
             }
-            if ($e->_propagate != true) {
+            if ($this->event->_propagate != true) {
                 break;
             }
         }
