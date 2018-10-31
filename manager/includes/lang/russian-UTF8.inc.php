@@ -1260,7 +1260,7 @@ $_lang["bkmgr_restore_submit"] = 'Восстановить резервную к
 $_lang["bkmgr_restore_confirm"] = 'Вы уверены, что хотите восстановить резервную копию\n[+filename+].  ?';
 $_lang["bkmgr_snapshot_nothing"] = 'Нет резервных копий';
 
-$_lang["files.dynamic.php1"] = 'Создать PHP-файл';
+$_lang["files.dynamic.php1"] = 'Создать файл';
 $_lang["files.dynamic.php2"] = 'files.dynamic.php2';
 $_lang["files.dynamic.php3"] = 'files.dynamic.php3';
 $_lang["files.dynamic.php4"] = 'files.dynamic.php4';

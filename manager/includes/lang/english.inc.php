@@ -1268,7 +1268,7 @@ $_lang["bkmgr_restore_submit"] = 'Revert this data';
 $_lang["bkmgr_restore_confirm"] = 'Are you sure you want to revert backup\n[+filename+] ?';
 $_lang["bkmgr_snapshot_nothing"] = 'No snapshots available';
 
-$_lang["files.dynamic.php1"] = 'New Text File';
+$_lang["files.dynamic.php1"] = 'New File';
 $_lang["files.dynamic.php2"] = 'This directory cannot be displayed.';
 $_lang["files.dynamic.php3"] = 'There is a problem in a file name.';
 $_lang["files.dynamic.php4"] = 'The text file was created.';
