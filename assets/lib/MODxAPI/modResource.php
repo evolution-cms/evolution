@@ -624,6 +624,8 @@ class modResource extends MODxAPI
             'docObj' => $this
         ), $fire_events);
 
+        $this->modx->getAliasListing($this->id);
+
         if ($clearCache) {
             $this->clearCache($fire_events);
         }
