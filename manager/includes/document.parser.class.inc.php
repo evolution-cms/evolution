@@ -4147,7 +4147,7 @@ class DocumentParser
         if (isset($this->aliasListing[$id])) {
             $out = $this->aliasListing[$id];
         } else {
-            $q = $this->db->query("SELECT id,alias,isfolder,parent FROM " . $this->getFullTableName("site_content") . " WHERE id=" . (int)$id);
+            $q = $this->db->query("SELECT id,alias,isfolder,parent,alias_visible FROM " . $this->getFullTableName("site_content") . " WHERE id=" . (int)$id);
             if ($this->db->getRecordCount($q) == '1') {
                 $q = $this->db->getRow($q);
                 $this->aliasListing[$id] = array(
@@ -4155,6 +4155,7 @@ class DocumentParser
                     'alias' => $q['alias'] == '' ? $q['id'] : $q['alias'],
                     'parent' => (int)$q['parent'],
                     'isfolder' => (int)$q['isfolder'],
+                    'alias_visible' => (int)$q['alias_visible'],
                 );
                 if ($this->aliasListing[$id]['parent'] > 0) {
                     //fix alias_path_usage
