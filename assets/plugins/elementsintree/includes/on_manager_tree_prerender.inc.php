@@ -1,13 +1,22 @@
 <?php
+if (!defined('MODX_BASE_PATH')) {
+    die('What are you doing? Get out of here!');
+}
 
-if(!defined('MODX_BASE_PATH')) die('What are you doing? Get out of here!');
+$ph = array();
 
 // use icons
-$ph['tabPadding'] = ($useIcons == 'yes') ? '10px' : '9px';
+$ph['tabPadding'] = (isset($useIcons) && $useIcons === 'yes') ? '10px' : '9px';
 
 // tree buttons in tab
-$ph['treeButtonsInTab_js']  = ($treeButtonsInTab == 'yes') ? file_get_contents($eit_base_path.'assets/js_treeButtonsInTab.tpl') : '';
-$ph['treeButtonsInTab_css'] = ($treeButtonsInTab == 'yes') ? file_get_contents($eit_base_path.'assets/css_treeButtonsInTab.tpl') : '';
+if (isset($treeButtonsInTab) && $treeButtonsInTab === 'yes') {
+    $ph['treeButtonsInTab_js']  = file_get_contents($eitBaseBath.'assets/js_treeButtonsInTab.tpl');
+    $ph['treeButtonsInTab_css'] = file_get_contents($eitBaseBath.'assets/css_treeButtonsInTab.tpl');
+} else {
+    $ph['treeButtonsInTab_js'] = '';
+    $ph['treeButtonsInTab_css'] = '';
+}
+
 $ph['tabTreeTitle'] = '<i class="fa fa-sitemap"></i>';
 
 // Prepare lang-strings
@@ -23,6 +32,6 @@ $unlockTranslations['type7'] = $_lang["lock_element_type_7"];
 $unlockTranslations['type8'] = $_lang["lock_element_type_8"];
 
 // start main output
-$output = file_get_contents($eit_base_path.'assets/txt_content.tpl');
-$output = $modx->parseText($output,$ph);
-$e->output($output);
+$modx->event->addOutput(
+    $modx->parseText(file_get_contents($eitBaseBath.'assets/txt_content.tpl'), $ph)
+);

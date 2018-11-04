@@ -349,13 +349,6 @@ $modx->config['global_tabs'] = (int)($modx->config['global_tabs'] && ($user['rol
                                         <?= $_style['page_logout'] ?><?= $_lang['logout'] ?>
                                     </a>
                                 </li>
-                                <?php
-                                $style = $modx->config['settings_version'] != $modx->getVersionData('version') ? 'style="color:#ffff8a;"' : '';
-                                $version = 'Evolution';
-                                ?>
-                                <?php
-                                echo sprintf('<li><span class="dropdown-item" title="%s &ndash; %s" %s>' . $version . ' %s</span></li>', $site_name, $modx->getVersionData('full_appname'), $style, $modx->config['settings_version']);
-                                ?>
                             </ul>
                         </li>
                         <?php if ($modx->hasPermission('settings') || $modx->hasPermission('view_eventlog') || $modx->hasPermission('logs') || $modx->hasPermission('help')) { ?>
@@ -402,6 +395,13 @@ $modx->config['global_tabs'] = (int)($modx->config['global_tabs'] && ($user['rol
                                             </a>
                                         </li>
                                     <?php } ?>
+                                    <?php
+                                    $style = $modx->config['settings_version'] != $modx->getVersionData('version') ? 'style="color:#ffff8a;"' : '';
+                                    $version = 'Evolution';
+                                    ?>
+                                    <?php
+                                    echo sprintf('<li><span class="dropdown-item" title="%s &ndash; %s" %s>' . $version . ' %s</span></li>', $site_name, $modx->getVersionData('full_appname'), $style, $modx->config['settings_version']);
+                                    ?>
                                 </ul>
                             </li>
                         <?php } ?>

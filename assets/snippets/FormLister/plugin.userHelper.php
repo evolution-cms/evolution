@@ -7,7 +7,7 @@
  */
 $e = $modx->event;
 include_once(MODX_BASE_PATH . 'assets/lib/MODxAPI/modUsers.php');
-if ($e->name == 'OnWebAuthentication') {
+if ($e->name == 'OnWebAuthentication' && isset($userObj)) {
     /**
      * @var modUsers $userObj
      */
@@ -21,7 +21,7 @@ if ($e->name == 'OnWebAuthentication') {
         $userObj->save();
     }
 }
-if ($e->name == 'OnWebLogin') {
+if ($e->name == 'OnWebLogin' && isset($userObj)) {
     if (!$userObj->get('lastlogin')) {
         $userObj->set('lastlogin', time());
     } else {

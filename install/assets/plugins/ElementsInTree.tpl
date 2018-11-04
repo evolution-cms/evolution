@@ -5,7 +5,7 @@
  * Get access to all Elements and Modules inside Manager sidebar
  *
  * @category    plugin
- * @version     1.5.9
+ * @version     1.5.10
  * @license     http://creativecommons.org/licenses/GPL/2.0/ GNU Public License (GPL v2)
  * @internal    @properties &adminRoleOnly=Administrators only;list;yes,no;yes;;Show tabs only for users with administrator role. &treeButtonsInTab=Tree buttons in tab;list;yes,no;yes;;Move Tree buttons into Site Tree tab.
  * @internal    @events OnManagerTreePrerender,OnManagerTreeRender,OnManagerMainFrameHeaderHTMLBlock,OnTempFormSave,OnTVFormSave,OnChunkFormSave,OnSnipFormSave,OnPluginFormSave,OnModFormSave,OnTempFormDelete,OnTVFormDelete,OnChunkFormDelete,OnSnipFormDelete,OnPluginFormDelete,OnModFormDelete
@@ -20,7 +20,8 @@
  * @author      Nicola1971 https://github.com/Nicola1971
  * @author      Deesen https://github.com/Deesen
  * @author      yama https://github.com/yama
- * @lastupdate  01/09/2017
+ * @author      Agel_Nash https://github.com/AgelxNash
+ * @lastupdate  04/11/2018
  */
 
 require MODX_BASE_PATH.'assets/plugins/elementsintree/plugin.elementsintree.php';

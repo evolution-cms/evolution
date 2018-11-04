@@ -3,7 +3,7 @@
  * DocInfo
  *
  * @category  parser
- * @version   0.4
+ * @version   0.4.1
  * @license     GNU General Public License (GPL), http://www.gnu.org/copyleft/gpl.html
  * @param string $field Значение какого поля необходимо достать
  * @param int $docid ID документа
@@ -35,7 +35,7 @@ $default_field = array(
 $docid = (isset($docid) && (int)$docid > 0) ? (int)$docid : $modx->documentIdentifier;
 $templid = isset($templid) ? (int)$templid : null;
 $doc = array();
-if ($templid >= 0) {
+if ($templid !== null && $templid >= 0) {
     $doc['parent'] = $docid;
     $limit = (isset($limit) && (int)$limit >= 0) ? (int)$limit : 10;
     do {

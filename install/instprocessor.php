@@ -155,6 +155,7 @@ $setupPath = realpath(dirname(__FILE__));
 include "{$setupPath}/setup.info.php";
 include "{$setupPath}/sqlParser.class.php";
 $sqlParser = new SqlParser($database_server, $database_user, $database_password, str_replace("`", "", $dbase), $table_prefix, $adminname, $adminemail, $adminpass, $database_connection_charset, $managerlanguage, $database_connection_method, $auto_template_logic);
+$sqlParser->database_collation = $database_collation;
 $sqlParser->mode = ($installMode < 1) ? "new" : "upd";
 /* image and file manager paths now handled via settings screen in Manager
 $sqlParser->imageUrl = 'http://' . $_SERVER['SERVER_NAME'] . $base_url . "assets/";

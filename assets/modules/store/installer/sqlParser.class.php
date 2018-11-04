@@ -7,14 +7,15 @@ class SqlParser {
 	var $conn, $installFailed, $sitename, $adminname, $adminemail, $adminpass, $managerlanguage;
 	var $mode, $fileManagerPath, $imgPath, $imgUrl;
     var $connection_charset, $connection_method;
+    public $database_collation;
 
 	public function __construct() {
 		$adminname='';
-		$adminemail=''; 
-		$adminpass='';		
-		$connection_charset= 'utf8'; 
-		$managerlanguage='english'; 
-		$connection_method = 'SET CHARACTER SET'; 
+		$adminemail='';
+		$adminpass='';
+		$connection_charset= 'utf8';
+		$managerlanguage='english';
+		$connection_method = 'SET CHARACTER SET';
 		$auto_template_logic = 'parent';
 		$this->adminname = $adminname;
 		$this->adminemail = $adminemail;
@@ -27,7 +28,7 @@ class SqlParser {
 
 	function process($filename) {
 	    global $modx_version,$modx;
-		
+
 		// check to make sure file exists
 		if (!file_exists($filename)) {
 			$this->mysqlErrors[] = array("error" => "File '$filename' not found");
@@ -53,6 +54,7 @@ class SqlParser {
 
 		// replace {} tags
 		$idata = str_replace('{PREFIX}', $modx->db->config['table_prefix'], $idata);
+        $idata = str_replace('{TABLEENCODING}', $this->getTableEncoding(), $idata);
 		$idata = str_replace('{ADMIN}', $this->adminname, $idata);
 		$idata = str_replace('{ADMINEMAIL}', $this->adminemail, $idata);
 		$idata = str_replace('{ADMINPASS}', $this->adminpass, $idata);
@@ -82,9 +84,17 @@ class SqlParser {
 			$num = $num + 1;
 			if ($sql_do) $modx->db->query($sql_do, false);
 		}
-		
-		
-	}
-}
 
-?>
+
+	}
+
+    public function getTableEncoding()
+    {
+        $out = 'DEFAULT CHARSET=' . $this->connection_charset;
+        if (!empty($this->database_collation)) {
+            $out .= ' COLLATE=' . $this->database_collation;
+        }
+
+        return $out;
+    }
+}

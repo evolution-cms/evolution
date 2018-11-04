@@ -27,6 +27,7 @@ class SqlParser {
     public $connection_method;
     public $ignoreDuplicateErrors;
     public $autoTemplateLogic;
+    public $database_collation;
 
 	public function __construct($host, $user, $password, $db, $prefix='modx_', $adminname, $adminemail, $adminpass, $connection_charset= 'utf8', $managerlanguage='english', $connection_method = 'SET CHARACTER SET', $auto_template_logic = 'parent') {
 		$this->host = $host;
@@ -92,6 +93,7 @@ class SqlParser {
 
 		// replace {} tags
 		$idata = str_replace('{PREFIX}', $this->prefix, $idata);
+		$idata = str_replace('{TABLEENCODING}', $this->getTableEncoding(), $idata);
 		$idata = str_replace('{ADMIN}', $this->adminname, $idata);
 		$idata = str_replace('{ADMINEMAIL}', $this->adminemail, $idata);
 		$idata = str_replace('{ADMINPASS}', $this->adminpass, $idata);
@@ -138,6 +140,16 @@ class SqlParser {
 			}
 		}
 	}
+
+	public function getTableEncoding()
+    {
+        $out = 'DEFAULT CHARSET=' . $this->connection_charset;
+        if (!empty($this->database_collation)) {
+            $out .= ' COLLATE=' . $this->database_collation;
+        }
+
+        return $out;
+    }
 
     public function close() {
 		mysqli_close($this->conn);

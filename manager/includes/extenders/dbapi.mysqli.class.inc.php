@@ -565,7 +565,7 @@ class DBAPI
         }
         if ($dsq) {
             $r = $this->getRow($dsq, 'num');
-            $out = isset($r[0]) ? $r[0] : false;
+            $out = is_array($r) && array_key_exists(0, $r) ? $r[0] : false;
         }
 
         return $out;

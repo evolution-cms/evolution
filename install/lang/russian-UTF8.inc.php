@@ -6,8 +6,8 @@
  * @author Safronovich Victor
  * @author Rudnykh Vitalii
  * @author Russian EVO Community
- * @version 1.5.0
- * @date 2018/02/23
+ * @version 1.4.5
+ * @date 2018/10/31
  *
  * @language Russian
  * @package modx
@@ -38,6 +38,8 @@ $_lang["btnnext_value"] = 'Далее';
 $_lang["cant_write_config_file"] = 'Программа установки не смогла записать файл конфигурации. Скопируйте вышеперечисленное в файл ';
 $_lang["cant_write_config_file_note"] = 'Как только вы это сделаете, вы можете войти в панель управления, перейдя в браузере по адресу Адрес_Вашего_Сайта/[+MGR_DIR+]/.';
 $_lang["checkbox_select_options"] = 'Параметры выбора флажков:';
+$_lang["checking_iconv"] = 'Проверка доступности <span class="mono">iconv</span>: ';
+$_lang["checking_iconv_note"] = 'Необходимо установить/включить расширение iconv. Пожалуйста, обратитесь к администратору сервера, чтобы сделать это.';
 $_lang["checking_if_cache_exist"] = 'Проверка существования папок <span class="mono">/assets/cache</span> и <span class="mono">/assets/cache/rss</span>: ';
 $_lang["checking_if_cache_file_writable"] = 'Проверка возможности записи в файл <span class="mono">/assets/cache/siteCache.idx.php</span>: ';
 $_lang["checking_if_cache_file2_writable"] = 'Проверка возможности записи в файл <span class="mono">/assets/cache/sitePublishing.idx.php</span>: ';
@@ -136,11 +138,14 @@ $_lang["please_correct_error"] = '. Исправьте эту ошибку';
 $_lang["please_correct_errors"] = '. Исправьте эти ошибки';
 $_lang["plugins"] = 'Плагины';
 $_lang["preinstall_validation"] = 'Проверка перед установкой';
+$_lang["recommend_collation"] = 'utf8_general_ci';
+$_lang["recommend_collations_order"] = 'utf8mb4_unicode_ci,utf8mb4_general_ci,utf8_unicode_ci,utf8_general_ci,utf8mb4_bin,utf8_bin,utf8mb4_unicode_520_ci,utf8_unicode_520_ci,utf8_general_mysql500_ci';
 $_lang["recommend_setting_change_title"] = 'Рекомендуемое изменение настройки';
 $_lang["recommend_setting_change_validate_referer_confirmation"] = 'Изменить установку: <em>Проверять заголовки HTTP_REFERER?</em>';
 $_lang["recommend_setting_change_validate_referer_description"] = 'Ваш сайт не настроен на проверку серверных заголовков HTTP_REFERER во входящих запросах в систему управления. Мы настоятельно рекомендуем включить этот параметр, чтобы снизить риск CSRF (Cross Site Request Forgery - подделка межсайтовых запросов) атак.';
 $_lang["remove_install_folder_auto"] = 'Удалить папку и файлы программы установки с моего сайта <br />&nbsp;(Для выполнения этой операции необходимы права на запись в папку install).';
 $_lang["remove_install_folder_manual"] = 'Пожалуйста, удалите папку &quot;<b>install</b>&quot; прежде чем войти в панель управления.';
+$_lang["resetting_database"] = 'Обновить базу данных демо-сайта: ';
 $_lang["retry"] = 'Повторить';
 $_lang["running_database_updates"] = 'Обновление базы данных: ';
 $_lang["sample_web_site"] = 'Пример веб-сайта';
@@ -202,4 +207,3 @@ $_lang["welcome_message_welcome"] = 'Добро пожаловать в прог
 $_lang["writing_config_file"] = 'Запись конфигурационного файла: ';
 $_lang["yes"] = 'Да';
 $_lang["you_running_php"] = ' - вы используете PHP ';
-?>

@@ -2,8 +2,8 @@
 /**
  * EVO Manager language file
  *
- * @version 1.2.1RC
- * @date 2016/12/26
+ * @version 1.4.5
+ * @date 2018/10/31
  * @author The EVO Project Team
  *
  * @language Russian
@@ -700,8 +700,8 @@ $_lang["password_gen_specify"] = 'Я сам задам пароль:';
 $_lang["password_method"] = 'Способ уведомления о новом пароле';
 $_lang["password_method_email"] = 'Послать новый пароль по e-mail.';
 $_lang["password_method_screen"] = 'Показать новый пароль на экране.';
-$_lang["password_msg"] = 'Для пользователя <b>%s</b> задан новый пароль - <b>%s</b>.';
-$_lang["php_version_check"] = 'Система EVO работает с PHP версии 5.4.0 или выше. Пожалуйста, обновите PHP';
+$_lang["password_msg"] = 'Для пользователя <b>%s</b> задан новый пароль - <b>%s</b><br>';
+$_lang["php_version_check"] = 'Система EVO работает с PHP версии 5.6.0 или выше. Пожалуйста, обновите PHP';
 $_lang["plugin"] = 'Плагин';
 $_lang["plugins"] = 'Плагины';
 $_lang["plugin_code"] = 'Код плагина (php)';

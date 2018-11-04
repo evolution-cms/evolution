@@ -14,12 +14,6 @@ if (!defined('E_USER_DEPRECATED')) {
 class DocumentParser
 {
     /**
-     * This is New evolution
-     * @var string
-     */
-    public $apiVersion = '1.0.0';
-
-    /**
      * db object
      * @var DBAPI
      * @see /manager/includes/extenders/ex_dbapi.inc.php
@@ -4228,7 +4222,7 @@ class DocumentParser
         if (isset($this->aliasListing[$id])) {
             $out = $this->aliasListing[$id];
         } else {
-            $q = $this->db->query("SELECT id,alias,isfolder,parent FROM " . $this->getFullTableName("site_content") . " WHERE id=" . (int)$id);
+            $q = $this->db->query("SELECT id,alias,isfolder,parent,alias_visible FROM " . $this->getFullTableName("site_content") . " WHERE id=" . (int)$id);
             if ($this->db->getRecordCount($q) == '1') {
                 $q = $this->db->getRow($q);
                 $this->aliasListing[$id] = array(
@@ -4236,6 +4230,7 @@ class DocumentParser
                     'alias' => $q['alias'] == '' ? $q['id'] : $q['alias'],
                     'parent' => (int)$q['parent'],
                     'isfolder' => (int)$q['isfolder'],
+                    'alias_visible' => (int)$q['alias_visible'],
                 );
                 if ($this->aliasListing[$id]['parent'] > 0) {
                     //fix alias_path_usage
@@ -6778,7 +6773,7 @@ class DocumentParser
      */
     private static function _getCleanQueryString()
     {
-        $q = MODX_CLI ? null : $_GET['q'];
+        $q = MODX_CLI ? null : (isset($_GET['q']) ? $_GET['q'] : '');
 
         //Return null if the query doesn't exist
         if (empty($q)) {

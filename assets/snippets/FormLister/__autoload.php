@@ -19,6 +19,7 @@ function autoloade366e6fef0b0abb40d30844d932018e7($class) {
             'FormLister\\DeleteContent' => '/core/controller/DeleteContent.php',
             'FormLister\\DeleteUser' => '/core/controller/DeleteUser.php',
             'FormLister\\FileValidator' => '/lib/FileValidator.php',
+            'FormLister\\Filters' => '/lib/Filters.php',
             'FormLister\\Form' => '/core/controller/Form.php',
             'FormLister\\Login' => '/core/controller/Login.php',
             'FormLister\\MailChimp' => '/core/controller/MailChimp.php',

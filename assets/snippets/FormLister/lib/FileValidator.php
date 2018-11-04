@@ -66,7 +66,7 @@ class FileValidator
             if ($file['error'] === 4) {
                 $flag = true;
             } else {
-                $ext = strtolower(array_pop(explode('.', $file['name'])));
+                $ext = strtolower(substr(strrchr($file['name'], '.'), 1));
                 $flag = in_array($ext, $allowed);
                 if (!$flag) {
                     break;

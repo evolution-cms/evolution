@@ -626,6 +626,9 @@ class modResource extends MODxAPI
         if (!empty($this->groupIds)) {
             $this->setDocumentGroups($this->id, $this->groupIds);
         }
+
+        $this->modx->getAliasListing($this->id);
+
         $this->invokeEvent('OnDocFormSave', array(
             'mode'   => $this->mode,
             'id'     => isset($this->id) ? $this->id : '',

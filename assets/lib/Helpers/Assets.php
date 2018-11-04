@@ -96,7 +96,7 @@ class AssetsHelper
         $out = '';
         if (!isset($this->modx->loadedjscripts[$name])) {
             $src = $params['src'];
-            $remote = strpos($src, "http") !== false;
+            $remote = strpos($src, 'http') === 0 || strpos($src, '//') === 0;
             if (!$remote) {
                 $src = $this->modx->config['site_url'] . $src;
                 if (!$this->fs->checkFile($params['src'])) {
