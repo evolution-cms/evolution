@@ -301,7 +301,7 @@ class CheckOutdated
                     '<b>[+settings_config+] > [%' . $key . '_title%]</b> ' .
                     '([+oldUrl+]) [%outdated%]. ' .
                     '[%please_download_and_install%] <b>UpdateEvoRss</b>  [%from%]' .
-                    ' <a target="main" href="index.php?a=112&id=[+ExtrasID+]">[%extras_module%]</a>' .
+                    ' <a target="main" href="index.php?a=112&id=[+extrasID+]">[%extras_module%]</a>' .
                 '</div>';
 
             $out = $this->parseTemplate(
