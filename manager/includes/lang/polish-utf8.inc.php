@@ -2,8 +2,8 @@
 /**
  * EVO Manager language file
  *
- * @version 1.4.5
- * @date 2018/10/31
+ * @version 1.4.6
+ * @date 2018/11/10
  * @author The EVO Project Team
  * @author Piotr Matysiak (pmfx)
  *
@@ -95,7 +95,7 @@ $_lang["cfg_base_url"] = 'MODX_BASE_URL';
 $_lang["cfg_manager_path"] = 'MODX_MANAGER_PATH';
 $_lang["cfg_manager_url"] = 'MODX_MANAGER_URL';
 $_lang["cfg_site_url"] = 'MODX_SITE_URL';
-$_lang["change_name"] = 'Zmień nazwę';
+$_lang["change_name"] = 'Zmień nazwę użytkownika';
 $_lang["change_password"] = 'Zmień hasło';
 $_lang["change_password_confirm"] = 'Potwierdź hasło';
 $_lang["change_password_message"] = 'Proszę wprowadzić nowe hasło, następnie ponowić je i zatwierdzić. Hasło musi mieć minimum 6 znaków. ';
@@ -177,7 +177,7 @@ $_lang["confirm_delete_user"] = 'Czy na pewno chcesz usunąć tego użytkownika?
 $_lang["confirm_duplicate_record"] = 'Czy na pewno chcesz zduplikować ten rekord?';
 $_lang["confirm_empty_trash"] = 'Opróżnienie kosza spowoduje całkowite usunięcie wcześniej skasowanych dokumentów?nnKontynuować?';
 $_lang["confirm_load_depends"] = 'Czy na pewno chcesz załadować ekran Menedżera zależności bez zapisywania zmian?';
-$_lang["confirm_name_change"] = 'Zmiana nazwy użytkownika może wpłynąć na inne aplikacje podlinkowane do panelu administracji. nn Czy na pewno chcesz zmienić nazwę użytkownika?';
+$_lang["confirm_name_change"] = 'Zmiana nazwy użytkownika może wpłynąć na inne aplikacje podłączone do panelu administracji.\n\nCzy na pewno chcesz zmienić tę nazwę użytkownika?';
 $_lang["confirm_publish"] = '\n\nOpublikowanie tego dokumentu spowoduje usunięcie wcześniejszych dat publikacji/zamknięcia publikacji, które mogły być ustawione. Jeśli chcesz zachować te daty wybierz \'edycję\' dokumentu.nnKontynuować?';
 $_lang["confirm_remove_locks"] = 'Użytkownicy czasami zamykają przeglądarkę podczas edycji dokumentu, szablonu, snippeta lub parsera. W ten sposób pozostawiają edytowane pozycje zablokowane. Naciskając OK możesz zdjąć wszystkie aktualne blokady.nnKontynuować?';
 $_lang["confirm_reset_sort_order"] = 'Czy jesteś pewien że chcesz zresetować \"sort order/index\" wszystkich wyświetlonych elementów do 0?';
@@ -518,6 +518,8 @@ $_lang["manager_theme_mode1"] = 'Wszystko jasne';
 $_lang["manager_theme_mode2"] = 'Ciemna nawigacja';
 $_lang["manager_theme_mode3"] = 'Ciemna nawigacja i drzewo zasobów';
 $_lang["manager_theme_mode4"] = 'Wszystko ciemne';
+$_lang['manager_theme_mode_message'] = 'Ustawienie jest traktowane jako domyślne i może być ominięte, gdy użyto przycisku zmiany motywu w drzewie zasobów: <i class="fa fa-lg fa-adjust"></i>';
+$_lang['manager_theme_mode_title'] = 'Motyw kolorystyczny';
 $_lang["messages"] = 'Wiadomości';
 $_lang["messages_all"] = 'Wszystkich';
 $_lang["messages_compose"] = 'Nowa wiadomość';
@@ -597,7 +599,7 @@ $_lang["move_resource"] = 'Przenieś dokument';
 $_lang["move_resource_message"] = 'Możesz przenieść dokument wraz z dokumentami podrzędnymi poprzez zaznaczenie nowego dokumentu nadrzędnego w drzewie. Jeśli wybierzesz dokument, który nie jest folderem, zostanie on w niego zmieniony. Proszę kliknąć na nowym dokumencie nadrzędnym w drzewie.';
 $_lang["move_resource_new_parent"] = 'Proszę wybrać nowy dokument nadrzędny w drzewie dokumentów.';
 $_lang["move_resource_title"] = 'Przenieś dokument';
-$_lang["name"] = 'Nazwa';
+$_lang["name"] = 'Nazwa użytkownika';
 $_lang["new_category"] = 'Nowa kategoria';
 $_lang["new_file_permissions_message"] = 'Przy ładowaniu nowego pliku w Menadżerze Plików, system spróbuje zmienić uprawnienia pliku na podane. Może to nie działać w pewnych przypadkach, np. na serwerze IIS - w takim przypadku musisz zmienić uprawnienia ręcznie.';
 $_lang["new_file_permissions_title"] = 'Uprawnienia nowych plików';
@@ -640,11 +642,11 @@ $_lang["offline"] = 'Offline';
 $_lang["online"] = 'Online';
 $_lang["onlineusers_action"] = 'Akcja';
 $_lang["onlineusers_actionid"] = 'ID akcji';
-$_lang["onlineusers_ipaddress"] = 'Adres IP użytkownika';
+$_lang["onlineusers_ipaddress"] = 'Adres IP';
 $_lang["onlineusers_lasthit"] = 'Ostatnio odwiedzone';
 $_lang["onlineusers_message"] = 'Użytkownicy aktywni w ostatnich 20 minutach (';
 $_lang["onlineusers_title"] = 'Zalogowani użytkownicy';
-$_lang["onlineusers_user"] = 'Użytkownik';
+$_lang["onlineusers_user"] = 'Nazwa użytkownika';
 $_lang["onlineusers_userid"] = 'ID Użytkownika';
 $_lang["optimize_table"] = 'Kliknij tutaj, aby zoptymalizować tabelę';
 $_lang["page_data_alias"] = 'Alias';
@@ -700,7 +702,7 @@ $_lang["password_method"] = 'Metoda powiadamiania o haśle';
 $_lang["password_method_email"] = 'Wyślij nowe hasło emailem.';
 $_lang["password_method_screen"] = 'Pokaż nowe hasło na ekranie.';
 $_lang["password_msg"] = 'Nowym hasłem dla <b>%s</b> jest <b>%s</b><br>';
-$_lang["php_version_check"] = 'EVO jest kompatybilny z PHP wersją 5.6.0 i wyższą. This server is using version %s%. Zaktualizuj swoją instalację PHP!';
+$_lang["php_version_check"] = 'EVO jest kompatybilne z wersją PHP 5.6.0 i wyższą. Ten serwer używa wersji %s%. Zaktualizuj swoją wersję PHP!';
 $_lang["plugin"] = 'Wtyczka';
 $_lang["plugins"] = 'Wtyczki';
 $_lang["plugin_code"] = 'Kod wtyczki (php)';
@@ -967,6 +969,7 @@ $_lang["settings_templvars"] = 'Zmienne szablonu';
 $_lang["settings_title"] = 'Konfiguracja systemu';
 $_lang["settings_ui"] = 'Interfejs i edytor';
 $_lang["settings_users"] = 'Użytkownik';
+$_lang["settings_email_templates"] = 'E-mail i szablony';
 $_lang["show_meta"] = 'Pokazuj zakładkę META tagów i słów kluczowych';
 $_lang["show_meta_message"] = 'Pokazuj zakładkę META tagów i słów kluczowych podczas edycji dokumentu.';
 $_lang["show_tree"] = 'Pokaż drzewo';
@@ -1247,8 +1250,6 @@ $_lang["enable_filter_title"] = 'Włącz filtry';
 $_lang["enable_filter_message"] = 'Filtry pozwalają na manipulowanie pokazywaniem lub przetwarzaniem tagów. Pozwalają zmodyfikować wartości na poziomie szablonu analogicznie jak PHx. <a href="https://github.com/modxcms/evolution/issues/623" target="ext_help">Więcej informacji</a>.'; // todo: change link to documentation
 $_lang["enable_filter_phx_warning"] = 'Jeśli wtyczka PHx zostanie wykryta, wbudowane filtry będą domyślnie wyłączone';
 
-$_lang["enable_filter_phx_warning"] = 'Jeśli wtyczka PHx zostanie wykryta, wbudowane filtry będą domyślnie wyłączone';
-
 $_lang["enable_at_syntax_title"] = 'Włącz &lt;@SYNTAX&gt;';
 $_lang["enable_at_syntax_message"] = '&lt;@SYNTAX&gt;(atmark syntax) to prosta i lekka składnia szablonów. Została zaprojektowania aby wziąć pod uwagę współistnienie tagów HTML oraz ciągów danych treści.';
 
@@ -1269,7 +1270,7 @@ $_lang["bkmgr_restore_submit"] = 'Przywróć te dane';
 $_lang["bkmgr_restore_confirm"] = 'Czy jesteś pewien, że chcesz przywrócić kopię zapasową\n[+filename+] ?';
 $_lang["bkmgr_snapshot_nothing"] = 'Brak zrzutów';
 
-$_lang["files.dynamic.php1"] = 'Utwórz plik tekstowy';
+$_lang["files.dynamic.php1"] = 'Nowy plik';
 $_lang["files.dynamic.php2"] = 'Ten katalog nie może zostać wyświetlony.';
 $_lang["files.dynamic.php3"] = 'Wystąpił problem z nazwą pliku.';
 $_lang["files.dynamic.php4"] = 'Plik tekstowy został utworzony.';
@@ -1501,6 +1502,9 @@ $_lang['login_form_position_title'] = 'Pozycja formularza logowania';
 $_lang['login_form_position_left'] = 'Lewa strona';
 $_lang['login_form_position_center'] = 'Wyśrodkowany';
 $_lang['login_form_position_right'] = 'Prawa strona';
+$_lang["login_form_style"] = 'Styl formularza logowania';
+$_lang["login_form_style_dark"] = 'Ciemny';
+$_lang["login_form_style_light"] = 'Jasny';
 $_lang['login_logo_title'] = 'Logo strony logowania';
 $_lang['login_logo_message'] = 'Zalecana szerokość to 360px i typ pliku PNG';
 $_lang['login_bg_title'] = 'Tło strony logowania';
