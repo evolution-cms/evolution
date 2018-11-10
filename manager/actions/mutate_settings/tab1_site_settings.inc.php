@@ -137,6 +137,17 @@ table.sysSettings tr.noborder td {border:none;}
       </td>
     </tr>
     <tr>
+      <th><?php echo $_lang['enable_mootools'] ?><br><small>[(enable_mootools)]</small></th>
+      <td>
+        <?php echo wrap_label($_lang['yes'],form_radio('enable_mootools', 1));?><br />
+        <?php echo wrap_label($_lang['no'], form_radio('enable_mootools', 0));?>
+        <div class="comment">
+            <?php echo $_lang['enable_mootools_message']; ?>          
+        </div>
+      </td>
+      </tr>
+    <tr>
+    <tr>
       <th><?php echo $_lang['enable_at_syntax_title'] ?><br><small>[(enable_at_syntax)]</small></th>
       <td >
           <?php echo wrap_label($_lang['yes'],form_radio('enable_at_syntax', 1));?><br />

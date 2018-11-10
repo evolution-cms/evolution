@@ -12,7 +12,7 @@ if( ! defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true) {
 	<li>[F] Fixed problem with scrolling on iOS devices</li>
 	<li>[I] Added mobile mode for tinyMCE4</li>
 	<li>[F] fixed problem (HTTP2 / SSL & check connection to server)</li>
-	<li>[R] Singleton: instead of using <b>global $ modx;</b> it is recommended to use <b>$ modx = EvolutionCMS ();</b></li>
+	<li>[R] Singleton: instead of using <code>global $ modx;</code> it is recommended to use <code>$ modx = EvolutionCMS ();</code></li>
 	<li>[F] Fixed bug in the OnParseProperties event</li>
 	<li>[F] TVs that are without a category remain in the local tab (when using the settings for moving TV)</li>
 	<li>[F] Cross-Site Scripting <a href="https://www.exploit-db.com/exploits/44775/" target="_blank">https://www.exploit-db.com/exploits/44775/</a> Site name field XSS fix</li>

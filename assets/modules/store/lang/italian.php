@@ -43,8 +43,8 @@ $_Lang ['install_file_success'] = "Installazione riuscita";
 
 /* faq */
 $_Lang['faq'] = '
-<li><a href="http://extras.evolution-cms.com/faq/whatfor.html" target="_blank">A cosa serve la repository</a></li>⏎
-<li><a href="http://extras.evolution-cms.com/faq/howtoadd.html" target="_blank">Come aggiungere un pacchetto alla repository</a></li>⏎
-<li><a href="http://extras.evolution-cms.com/faq/howtocollect.html" target="_blank">Come creare un pacchetto per la installazione</a></li>';
+<li><a href="https://extras.evo.im/faq/whatfor.html" target="_blank">A cosa serve la repository</a></li>⏎
+<li><a href="https://extras.evo.im/faq/howtoadd.html" target="_blank">Come aggiungere un pacchetto alla repository</a></li>⏎
+<li><a href="https://extras.evo.im/faq/howtocollect.html" target="_blank">Come creare un pacchetto per la installazione</a></li>';
 
 ?>

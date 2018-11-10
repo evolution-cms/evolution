@@ -87,7 +87,14 @@ if ($modx->config['manager_theme'] == 'default') {
         <script src="media/style/<?= $modx->config['manager_theme'] ?>/js/color.switcher.js"
                 type="text/javascript"></script>
     <?php } ?>
-
+    <?php if ($modx->config['enable_mootools'] != "0") { ?>    
+    <?php
+    $aArr = array('2');
+    if (!in_array($_REQUEST['a'], $aArr)) { ?>
+        <script src="media/script/mootools/mootools.js" type="text/javascript"></script>
+        <script src="media/script/mootools/moodx.js" type="text/javascript"></script>
+    <?php } ?>
+    <?php } ?>
     <!-- OnManagerMainFrameHeaderHTMLBlock -->
     <?= $onManagerMainFrameHeaderHTMLBlock . "\n" ?>
 

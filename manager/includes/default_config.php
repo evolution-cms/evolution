@@ -113,3 +113,4 @@ $c['login_form_style']         = 'dark';
 $c['manager_menu_position']    = 'top';
 $c['tinymce4_skin']            = 'lightgray';
 $c['chunk_processor']          = '';
+$c['enable_mootools']          = 1;

@@ -331,7 +331,7 @@ class CheckOutdated
     public function getExtrasUrl($package = null)
     {
         if ($this->getExtrasId() === 0) {
-            $url = 'https://extras.evolution-cms.com/find/' . $package;
+            $url = 'https://extras.evo.im/find/' . $package;
         } else {
             $url = 'index.php?a=112&id=' . $this->getExtrasId();
         }

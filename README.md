@@ -52,7 +52,8 @@ Previous Releases:
 https://modx.com/download/evolution/previous-releases.html
 
 Extras:
-https://extras.evolution-cms.com
+https://extras.evo.im
 
 Documentation:
+http://docs.evo.im
 https://evolution-docs.com

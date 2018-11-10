@@ -43,8 +43,8 @@ $_Lang['install_file_success'] = "Установка завершена";
 
 /* faq */
 $_Lang['faq'] = '
-<li><a href="http://extras.evolution-cms.com/ru/faq/whatfor.html" target="_blank">Зачем свой репозиторий</a></li>
-<li><a href="http://extras.evolution-cms.com/ru/faq/howtoadd.html" target="_blank">Как добавить пакет в репозиторий</a></li>
-<li><a href="http://extras.evolution-cms.com/ru/faq/howtocollect.html" target="_blank">Как правильно собрать пакет для установки</a></li>';
+<li><a href="https://extras.evo.im/ru/faq/whatfor.html" target="_blank">Зачем свой репозиторий</a></li>
+<li><a href="https://extras.evo.im/ru/faq/howtoadd.html" target="_blank">Как добавить пакет в репозиторий</a></li>
+<li><a href="https://extras.evo.im/ru/faq/howtocollect.html" target="_blank">Как правильно собрать пакет для установки</a></li>';
 
 ?>

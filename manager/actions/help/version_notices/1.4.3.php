@@ -8,7 +8,7 @@ if( ! defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true) {
 <ul>
   <li>Lightness: everything is light </li>
 	<li>Light: the header is dark </li>
-	<li>Darkn: header and sidebar are dark </li>
+	<li>Dark: header and sidebar are dark </li>
   <li>Darkness: everything is dark</li>
 </ul>
 <p></p>
