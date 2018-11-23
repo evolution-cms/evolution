@@ -43,6 +43,7 @@ $p['TplSubOwner'] = \APIhelpers::getkey($p, 'TplSubOwner',
 $currentOwnerTpl = \APIhelpers::getkey($p, 'TplOwner' . $currentDepth);
 if (empty($currentOwnerTpl)) {
     $currentOwnerTpl = \APIhelpers::getkey($p, (($currentDepth == 1) ? 'TplMainOwner' : 'TplSubOwner'));
+    $currentOwnerTpl = str_replace('[+dl.currentDepth+]', $currentDepth, $currentOwnerTpl);
 }
 
 
