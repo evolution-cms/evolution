@@ -58,7 +58,8 @@ class site_content_menuDocLister extends site_contentDocLister
                 $this->levels[1] = $docs;
                 $this->extCache->save($this->levels, 'menudata');
             }
-            $this->setActiveBranch($this->getHereId(), 1);
+            $maxDepth = $this->getCFGDef('maxDepth') ? $this->getCFGDef('maxDepth') : 1;
+            $this->setActiveBranch($this->getHereId(), $maxDepth);
         } else {
             $this->_getChildren();
         }
