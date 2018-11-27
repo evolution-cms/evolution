@@ -79,6 +79,9 @@ $fNameSuf = '-' .
     substr(md5(serialize($params) . filemtime(MODX_BASE_PATH . $input)), 0, 3) .
     '.' . $params['f'];
 
+/* Fix for AdBlock */
+$fNameSuf = str_replace('ad', 't_dat', $fNameSuf);
+
 $outputFilename = MODX_BASE_PATH . $fNamePref . $fName . $fNameSuf;
 if (! file_exists($outputFilename)) {
     if (! class_exists('phpthumb')) {
