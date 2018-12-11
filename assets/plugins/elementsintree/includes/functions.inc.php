@@ -91,11 +91,11 @@ function createElementsList($elmTable, $action, $nameField = 'name')
         case 'site_htmlsnippets':
         case 'site_snippets':
         case 'site_plugins':
-            $orderBy = '6,1';
+            $orderBy = '5,1';
             $field['disabled'] = "[+prefix+]{$elmTable}.disabled";
             break;
         case 'site_tmplvars':
-            $orderBy = '6,1';
+            $orderBy = '5,1';
             $field['caption'] = "[+prefix+]{$elmTable}.caption";
             break;
         default:
