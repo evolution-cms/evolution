@@ -22,6 +22,10 @@ if (! defined('MODX_BASE_PATH')) {
     die('What are you doing? Get out of here!');
 }
 
+if (!empty($input) && strtolower(substr($input, -4)) == '.svg') {
+    return $input;
+}
+
 $newFolderAccessMode = $modx->getConfig('new_folder_permissions');
 $newFolderAccessMode = empty($new) ? 0777 : octdec($newFolderAccessMode);
 
