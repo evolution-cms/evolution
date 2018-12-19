@@ -6849,7 +6849,7 @@ class DocumentParser
      */
     public function getMakeTable($reload = false)
     {
-        if ($this->makeTable === null || $reload === true) {
+        if ($this->table === null || $reload === true) {
             $this->loadExtension('makeTable');
         }
         return $this->table;
