@@ -749,7 +749,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 
 												$selectedtext = ($row['id'] == $content['template']) ? ' selected="selected"' : '';
 
-												echo "\t\t\t\t\t" . '<option value="' . $row['id'] . '"' . $selectedtext . '>' . $row['templatename'] . "</option>\n";
+												echo "\t\t\t\t\t" . '<option value="' . $row['id'] . '"' . $selectedtext . '>' . $row['templatename'] . " (".$row['id'].")</option>\n";
 												$currentCategory = $thisCategory;
 											}
 											if($thisCategory != '') {
