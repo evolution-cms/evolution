@@ -2,19 +2,19 @@
 /**
  * ManagerManager plugin
  * @version 0.6.3 (2018-01-22)
- * 
+ *
  * @for Evo 1.4.x
- * 
+ *
  * @desc Used to manipulate the display of document fields in the manager.
- * 
+ *
  * @link http://code.divandesign.biz/modx/managermanager/0.6.2
- * 
+ *
  * @author DivanDesign studio (www.DivanDesign.biz), Nick Crossland (www.rckt.co.uk)
- * 
+ *
  * @inspiration HideEditor plugin by Timon Reinhard and Gildas; HideManagerFields by Brett @ The Man Can!
- * 
+ *
  * @license Released under the GNU General Public License: http://creativecommons.org/licenses/GPL/2.0/
- * 
+ *
  * @copyright 2014
  */
 
@@ -31,7 +31,7 @@ if (!isset($e->params['config_chunk'])){$e->params['config_chunk'] = '';}
 
 $jsUrls = array(
 	'jq' => array(
-		'url' => $modx->config['site_url'].'assets/plugins/managermanager/js/jquery.min.js',
+		'url' => $modx->config['site_url'].'assets/plugins/managermanager/js/jquery-1.9.1.min.js',
 		'name' => 'jquery',
 		'version' => '1.9.1'
 	),
@@ -75,7 +75,7 @@ if ($handle = opendir($widget_dir)){
 				include_once($widget_dir.'/'.$file.'/'.$file.'.php');
 		}
 	}
-	
+
 	closedir($handle);
 }
 
@@ -136,12 +136,12 @@ $all_tvs = $modx->db->makeArray($modx->db->select('name,type,id', $modx->getFull
 foreach ($all_tvs as $thisTv){
 	// What is the field name?
 	$n = $thisTv['name'];
-	
+
 	// Checkboxes place an underscore in the ID, so accommodate this...
 	$fieldname_suffix = '';
-	
+
 	// What fieldtype is this TV type?
-	$thisTvI = explode(":", $thisTv['type']);	
+	$thisTvI = explode(":", $thisTv['type']);
 	switch ($thisTvI['0']){
 		case 'textarea':
 		case 'rawtextarea':
@@ -150,27 +150,27 @@ foreach ($all_tvs as $thisTv){
 		case 'custom_tv':
 			$t = 'textarea';
 		break;
-		
+
 		case 'dropdown':
 		case 'listbox':
 			$t = 'select';
 		break;
-		
+
 		case 'listbox-multiple':
 			$t = 'select';
 			$fieldname_suffix = '[]';
 		break;
-		
+
 		case 'checkbox':
 			$t = 'input';
 			$fieldname_suffix = '[]';
 		break;
-		
+
 		default:
 			$t = 'input';
 		break;
 	}
-	
+
 	// check if there are any name clashes between TVs and default field names? If there is, preserve the default field
 	if (!isset($mm_fields[$n])){
 		$mm_fields[$n] = array('fieldtype' => $t, 'fieldname' => 'tv'.$thisTv['id'].$fieldname_suffix, 'dbname' => '', 'tv' => true);
@@ -182,9 +182,9 @@ if (!function_exists('make_changes')){
 	function make_changes($chunk){
 		//Global modx object & $content for rules
 		global $modx, $content;
-		
+
 		$config_file = $modx->config['base_path'].'assets/plugins/managermanager/mm_rules.inc.php';
-		
+
 		//See if there is any chunk output (e.g. it exists, and is not empty)
 		$chunk_output = $modx->getChunk($chunk);
 		if (!empty($chunk_output)){
@@ -204,7 +204,7 @@ if (!function_exists('make_changes')){
 if (!function_exists('initJQddManagerManager')){
 	function initJQddManagerManager(){
 		global $modx, $mm_fields;
-		
+
 		$output =
 '
 $j.ddMM.config.site_url = "'.$modx->config['site_url'].'";
@@ -215,7 +215,7 @@ $j.ddMM.urls.manager = "'.MODX_MANAGER_URL.'";
 
 $j.ddMM.fields = $j.parseJSON(\''.json_encode($mm_fields).'\');
 ';
-		
+
 		return $output;
 	}
 }
@@ -228,17 +228,17 @@ switch ($e->name){
 		$plugin_id_editing = $e->params['id'];
 		$result = $modx->db->select('name', $modx->getFullTableName('site_plugins'), 'id='.$plugin_id_editing);
 		$plugin_editing_name = $modx->db->getValue($result);
-		
+
 		// if it's the right plugin
 		if (strtolower($plugin_editing_name) == 'managermanager'){
 			// Get all templates
 			$result = $modx->db->select('templatename, id, description', $modx->getFullTableName('site_templates'), '', 'templatename ASC');
 			$all_templates = $modx->db->makeArray($result);
-			
+
 			$template_table = '<table>';
 			$template_table .= '<tr><th class="gridHeader">Template name</th><th class="gridHeader">Template description</th><th class="gridHeader">ID</th></tr>';
 			$template_table .= '<tr><td class="gridItem">(blank)</td><td class="gridItem">Blank</td><td class="gridItem">0</td></tr>';
-			
+
 			foreach ($all_templates as $count => $tpl){
 				$class = ($count % 2) ? 'gridItem':'gridAltItem';
 				$template_table .= '<tr>';
@@ -247,15 +247,15 @@ switch ($e->name){
 				$template_table .= '<td class="'.$class.'">'.$tpl['id'].'</td>';
 				$template_table .= '</tr>';
 			}
-			
+
 			$template_table .= '</table>';
-			
+
 			// Get all tvs
 			$result = $modx->db->select('name,caption,id', $modx->getFullTableName('site_tmplvars'), '', 'name ASC');
 			$all_tvs = $modx->db->makeArray($result);
 			$tvs_table = '<table>';
 			$tvs_table .= '<tr><th class="gridHeader">TV name</th><th class="gridHeader">TV caption</th><th class="gridHeader">ID</th></tr>';
-			
+
 			foreach ($all_tvs as $count => $tv){
 				$class = ($count % 2) ? 'gridItem' : 'gridAltItem';
 				$tvs_table .= '<tr>';
@@ -264,16 +264,16 @@ switch ($e->name){
 				$tvs_table .= '<td class="'.$class.'">'.$tv['id'].'</td>';
 				$tvs_table .= '</tr>';
 			}
-			
+
 			$tvs_table .= '</table>';
-			
+
 			// Get all roles
 			$result = $modx->db->select('name, id', $modx->getFullTableName('user_roles'), '', 'name ASC');
 			$all_roles = $modx->db->makeArray($result);
-			
+
 			$roles_table = '<table>';
 			$roles_table .= '<tr><th class="gridHeader">Role name</th><th class="gridHeader">ID</th></tr>';
-			
+
 			foreach ($all_roles as $count => $role){
 				$class = ($count % 2) ? 'gridItem' : 'gridAltItem';
 				$roles_table .= '<tr>';
@@ -281,31 +281,31 @@ switch ($e->name){
 				$roles_table .= '<td class="'.$class.'">'.$role['id'].'</td>';
 				$roles_table .= '</tr>';
 			}
-			
+
 			$roles_table .= '</table>';
-			
+
 			// Load the jquery library
 			$output = '<!-- Begin ManagerManager output -->'."\n";
 			if(!isset($modx->config['mgr_jquery_path']) || empty($modx->config['mgr_jquery_path']))
 				$output .= includeJsCss($jsUrls['jq']['url'], 'html', $jsUrls['jq']['name'], $jsUrls['jq']['version']);
 			$output .= includeJsCss($jsUrls['mm']['url'], 'html', $jsUrls['mm']['name'], $jsUrls['mm']['version']);
-			
+
 			$output .= '<script type="text/javascript">'."\n";
 			//produces var $j = jQuery.noConflict();
 			$output .= "var \$j = jQuery.noConflict(); \n";
-			
+
 			$output .= initJQddManagerManager();
-			
+
 			$output .= "mm_lastTab = 'tabEvents'; \n";
 			$e->output($output);
-			
+
 			mm_createTab('Templates, TVs &amp; Roles', 'rolestemplates', '', '', '<p>These are the IDs for current templates,tvs and roles in your site.</p>'.$template_table.'&nbsp;'.$tvs_table.'&nbsp;'.$roles_table);
-			
+
 			$e->output('</script>');
 			$e->output('<!-- End ManagerManager output -->'."\n");
 		}
 	break;
-	
+
 	case 'OnDocFormPrerender':
 		$e->output("<!-- Begin ManagerManager output -->\n");
 		// Load the js libraries
@@ -313,7 +313,7 @@ switch ($e->name){
 			$e->output(includeJsCss($jsUrls['jq']['url'], 'html', $jsUrls['jq']['name'], $jsUrls['jq']['version']));
 		$e->output(includeJsCss($jsUrls['mm']['url'], 'html', $jsUrls['mm']['name'], $jsUrls['mm']['version']));
 		$e->output(includeJsCss($jsUrls['ddTools']['url'], 'html', $jsUrls['ddTools']['name'], $jsUrls['ddTools']['version']));
-		
+
 		// Create a mask to cover the page while the fields are being rearranged
 		$e->output(
 '
@@ -334,13 +334,13 @@ $j(function(){
 });
 </script>
 ');
-		
+
 		//Just run widgets
 		make_changes($e->params['config_chunk']);
-		
+
 		$e->output("<!-- End ManagerManager output -->\n");
 	break;
-	
+
 	// The main document editing form
 	case 'OnDocFormRender':
 		// Include the JQuery call
@@ -369,10 +369,10 @@ $j(function(){
 			$j("div.sectionBody:eq(sidx+1)").attr("id", "sectionContentBody");
 			$j("div.sectionBody:eq(sidx+2)").attr("id", "sectionTVsBody");
 		');
-		
+
 		// Get the JS for the changes & display the status
 		$e->output(make_changes($e->params['config_chunk']));
-		
+
 		// Close it off
 		$e->output('
 			// Misc tidying up
@@ -412,17 +412,17 @@ $j(function(){
 <!-- ManagerManager Plugin :: End -->
 		');
 	break;
-	
+
 	case 'OnTVFormRender':
 		// Should we remove deprecated Template variable types from the TV creation list?
 		$remove_deprecated_tv_types = ($e->params['remove_deprecated_tv_types_pref'] == 'yes') ? true : false;
-		
+
 		if ($remove_deprecated_tv_types){
 			// Load the jquery library
 			echo '<!-- Begin ManagerManager output -->';
 			if(!isset($modx->config['mgr_jquery_path']) || empty($modx->config['mgr_jquery_path']))
 				echo includeJsCss($jsUrls['jq']['url'], 'html', $jsUrls['jq']['name'], $jsUrls['jq']['version']);
-			
+
 			// Create a mask to cover the page while the fields are being rearranged
 			echo '
 <script type="text/javascript">
@@ -439,15 +439,15 @@ $j(function(){
 			echo '<!-- End ManagerManager output -->';
 		}
 	break;
-	
+
 	case 'OnDocDuplicate':
 		//Get document template from db
 		$mm_current_page['template'] = $modx->db->getValue($modx->db->select('template', ddTools::$tables['site_content'], '`id` = '.$e->params['new_id']));
-		
+
 		//Just run widgets
 		make_changes($e->params['config_chunk']);
 	break;
-	
+
 	case 'OnDocFormSave':
 	case 'OnBeforeDocFormSave':
 		//Just run widgets
