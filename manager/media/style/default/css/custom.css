@@ -197,7 +197,7 @@ line-height: 1.7; border: 1px solid #ddd; text-decoration: none; color: #333; }
 /* [ SEARCHBAR ] */
 .searchbar input[type=text] { max-width: 10rem }
 /* [ WIDGETS ] */
-.widgets .card { margin-bottom: 1rem; border-width: 0; border-radius: 0; background-color: #fff; -webkit-transition: box-shadow .35s; transition: box-shadow .35s; box-shadow: 0 0.1rem 0.3rem 0 rgba(0, 0, 0, 0.075); }
+.widgets .card { clear: both; margin-bottom: 1rem; border-width: 0; border-radius: 0; background-color: #fff; -webkit-transition: box-shadow .35s; transition: box-shadow .35s; box-shadow: 0 0.1rem 0.3rem 0 rgba(0, 0, 0, 0.075); }
 .widgets .card:hover { box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.07); }
 .widgets .card-header { padding: .5rem 1rem; font-size: .9rem; color: #616a73; font-weight: 700; border-radius: 0; border: none; border-bottom: 1px solid rgba(0, 0, 0, .05); text-transform: none; background-color: transparent; border-bottom: 1px solid rgba(0, 0, 0, 0.05); }
 .widgets .card-header .fa { font-size: .9rem }
