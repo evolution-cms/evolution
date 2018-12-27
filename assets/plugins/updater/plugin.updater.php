@@ -1,7 +1,7 @@
 <?php
 /*
 @TODO:
-— auto backup system files 
+— auto backup system files
 — rollback option for updater
 */
 
@@ -94,7 +94,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
             require_once('media/rss/rss_fetch.inc');
             $branchPath = 'https://github.com/'.$version.'/'.$type.'/'.$branch;
             $url = $branchPath.'.atom';
-            
+
             // create Feed
             $updateButton = '';
             $rss = @fetch_rss($url);
@@ -104,7 +104,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                 }
                 $updateButton .= '<div class="table-responsive" style="max-height:200px;"><table class="table data">';
                 $updateButton .= '<thead><tr><th>'.$_lang['table_commitdate'].'</th><th>'.$_lang['table_titleauthor'].'</th><th></th></tr></thead><tbody>';
-            
+
             $items = array_slice($rss->items, 0, $commitCount);
             foreach ($items as $item) {
                 $commitid = $item['id'];
@@ -119,11 +119,11 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                     $updateButton .= '<td></td></tr>';
                 }  else {
                     $updateButton .= '<td><a onclick="return confirm(\''.$_lang['are_you_sure_update'].'\')" target="_parent" title="sha: '.$commit.'" class="btn btn-sm btn-danger" href="'.MODX_SITE_URL.$_SESSION['updatelink'].'&sha='.$commit.'">'.$_lang['updateButtonCommit_txt'].'</a></td></tr>';
-                }             
+                }
             }
-    
+
             $updateButton .= '</tbody></table></div>';
-    
+
             $output = '<div class="card-body">GitHub commits for <strong>(<a target="_blank" href="' . $branchPath . '">' . $branchPath . '</a>)</strong><br>
             <small style="color:red;font-size:10px"> ' . $_lang['bkp_before_msg'] . '</small><br>
             <small style="color:red;font-size:10px">' . $errorsMessage . '</small>
@@ -143,7 +143,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
             if (!file_exists(MODX_BASE_PATH . 'assets/cache/updater')) {
                 mkdir(MODX_BASE_PATH . 'assets/cache/updater', intval($modx->config['new_folder_permissions'], 8), true);
             }
-    
+
             $output = '';
             if (!file_exists(MODX_BASE_PATH . 'assets/cache/updater/check_' . date("d") . '.json')) {
                 $ch = curl_init();
@@ -162,16 +162,37 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                 }
                 $info = json_decode($info, true);
                 $git['version'] = $info[0]['name'];
+                 foreach($info as $key => $val ) {
+                     if(strpos($val['name'], 'alpha')) {
+                         $git['alpha'] = $val['name'];
+                         continue;
+                     }
+                     elseif(strpos($val['name'], 'beta')) {
+                         $git['beta'] = $val['name'];
+                         continue;
+                     }
+                     else {
+                         $git['stable'] = $val['name'];
+                         break;
+                     }
+                 }
+                $git['version'] = $info[0]['name'];
                 //$git['date'] = strtotime($info[0]['commit']['author']['date']);
                 file_put_contents(MODX_BASE_PATH . 'assets/cache/updater/check_' . date("d") . '.json', json_encode($git));
             } else {
                 $git = file_get_contents(MODX_BASE_PATH . 'assets/cache/updater/check_' . date("d") . '.json');
                 $git = json_decode($git, true);
             }
-    
+
+            if($stableOnly == 'true') {
+                if(version_compare($git['version'], $git['stable'], '!=')) {
+                    $git['version'] = $git['stable'];
+                }
+            }
+
             $currentVersion = $modx->getVersionData();
             $_SESSION['updateversion'] = $git['version'];
-            
+
             if (version_compare($git['version'], $currentVersion['version'], '>') && $git['version'] != '') {
                 // get manager role
                 $role = $_SESSION['mgrRole'];
@@ -180,12 +201,12 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                 } else {
                     $updateButton = '<a target="_parent" onclick="return confirm(\''.$_lang['are_you_sure_update'].'\')" href="' . MODX_SITE_URL . $_SESSION['updatelink'] . '" class="btn btn-sm btn-danger">' . $_lang['updateButton_txt'] . ' ' . $git['version'] . '</a><br><br>';
                 }
-    
+
                 $output = '<div class="card-body">' . $_lang['cms_outdated_msg'] . ' <strong>' . $git['version'] . '</strong> <br><br>
                     ' . $updateButton . '
                     <small style="color:red;font-size:10px"> ' . $_lang['bkp_before_msg'] . '</small>
                     <small style="color:red;font-size:10px">' . $errorsMessage . '</small></div>';
-    
+
                 $widgets['updater'] = array(
                     'menuindex' => '1',
                     'id' => 'updater',
@@ -194,7 +215,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                     'title' => $_lang['system_update'],
                     'body' => $output
                 );
-    
+
                 $e->output(serialize($widgets));
             }
         }
@@ -332,7 +353,7 @@ if(is_file(__DIR__ . "/assets/cache/siteManager.php")){
         mmkDir(__DIR__."/temp/".$dir."/".MGR_DIR);
         copyFolder(__DIR__."/temp/".$dir."/manager", __DIR__."/temp/".$dir."/".MGR_DIR);
         removeFolder(__DIR__."/temp/".$dir."/manager");
-    } 
+    }
     // echo __DIR__."/temp/".$dir."/".MGR_DIR;
 }
 copyFolder(__DIR__."/temp/".$dir, __DIR__."/");
@@ -348,7 +369,7 @@ header("Location: ' . constant('MODX_SITE_URL') . 'install/index.php?action=mode
                         $versionText = $version . '/' . $type . '/' . $branch . '/' . $commit;
                     } else {
                         $versionGet = $_SESSION['updateversion'];
-                        $versionText = $_SESSION['updateversion'];	
+                        $versionText = $_SESSION['updateversion'];
                     }
                     echo '<html><head></head><body><h2>Evolution Updater</h2>
                           <p>Downloading version: <strong>' . $versionText . '</strong>.</p>
