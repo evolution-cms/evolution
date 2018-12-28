@@ -163,16 +163,37 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                 }
                 $info = json_decode($info, true);
                 $git['version'] = $info[0]['name'];
+                 foreach($info as $key => $val ) {
+                     if(strpos($val['name'], 'alpha')) {
+                         $git['alpha'] = $val['name'];
+                         continue;
+                     }
+                     elseif(strpos($val['name'], 'beta')) {
+                         $git['beta'] = $val['name'];
+                         continue;
+                     }
+                     else {
+                         $git['stable'] = $val['name'];
+                         break;
+                     }
+                 }
+                $git['version'] = $info[0]['name'];
                 //$git['date'] = strtotime($info[0]['commit']['author']['date']);
                 file_put_contents(MODX_BASE_PATH . 'assets/cache/updater/check_' . date("d") . '.json', json_encode($git));
             } else {
                 $git = file_get_contents(MODX_BASE_PATH . 'assets/cache/updater/check_' . date("d") . '.json');
                 $git = json_decode($git, true);
             }
-    
+
+            if($stableOnly == 'true') {
+                if(version_compare($git['version'], $git['stable'], '!=')) {
+                    $git['version'] = $git['stable'];
+                }
+            }
+
             $currentVersion = $modx->getVersionData();
             $_SESSION['updateversion'] = $git['version'];
-            
+
             if (version_compare($git['version'], $currentVersion['version'], '>') && $git['version'] != '') {
                 // get manager role
                 $role = $_SESSION['mgrRole'];
