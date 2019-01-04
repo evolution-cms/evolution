@@ -146,6 +146,10 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
             }
 
             $output = '';
+            
+            $currentVersion = $modx->getVersionData();
+            $currentMajorVersion = array_shift(explode('.', $currentVersion['version']));
+
             if (!file_exists(MODX_BASE_PATH . 'assets/cache/updater/check_' . date("d") . '.json')) {
                 $ch = curl_init();
                 $url = 'https://api.github.com/repos/' . $version . '/' . $type;
@@ -162,23 +166,27 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                     return;
                 }
                 $info = json_decode($info, true);
-                $git['version'] = $info[0]['name'];
-                 foreach($info as $key => $val ) {
-                     if(strpos($val['name'], 'alpha')) {
-                         $git['alpha'] = $val['name'];
-                         continue;
-                     }
-                     elseif(strpos($val['name'], 'beta')) {
-                         $git['beta'] = $val['name'];
-                         continue;
-                     }
-                     else {
-                         $git['stable'] = $val['name'];
-                         break;
-                     }
+
+                foreach($info as $key => $val ) {
+                    if( $currentMajorVersion == array_shift(explode('.', $val['name'])) ){
+                        
+                        $git['version'] = $val['name'];
+                        
+                        if(strpos($val['name'], 'alpha')) {
+                            $git['alpha'] = $val['name'];
+                            continue;
+                        }
+                        elseif(strpos($val['name'], 'beta')) {
+                            $git['beta'] = $val['name'];
+                            continue;
+                        }
+                        else {
+                            $git['stable'] = $val['name'];
+                            break;
+                        }
+                    }
                  }
-                $git['version'] = $info[0]['name'];
-                //$git['date'] = strtotime($info[0]['commit']['author']['date']);
+
                 file_put_contents(MODX_BASE_PATH . 'assets/cache/updater/check_' . date("d") . '.json', json_encode($git));
             } else {
                 $git = file_get_contents(MODX_BASE_PATH . 'assets/cache/updater/check_' . date("d") . '.json');
@@ -191,7 +199,6 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                 }
             }
 
-            $currentVersion = $modx->getVersionData();
             $_SESSION['updateversion'] = $git['version'];
 
             if (version_compare($git['version'], $currentVersion['version'], '>') && $git['version'] != '') {
