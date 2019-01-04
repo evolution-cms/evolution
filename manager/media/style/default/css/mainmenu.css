@@ -88,6 +88,7 @@ border: none !important; border-left: 1px solid rgba(0, 0, 0, 0.05) !important; 
 #searchresult { top: 2.5rem; }
 #mainMenu #nav #site a { margin-left: 9.25rem; }
 body:not(.lightness) #mainMenu #nav #site::before { content: ""; display: block; overflow: hidden; position: absolute; left: 0; top: 0; width: 9rem; height: 100%; background: url("../images/misc/logo-navbar.png") 0 50% no-repeat; background-size: 8rem; }
+body:not(.navbar-left).lightness #mainMenu #nav #site::before { content: ""; display: block; overflow: hidden; position: absolute; left: 0; top: 0; width: 9rem; height: 100%; background: url("../images/misc/login-logo.png") 0 50% no-repeat; background-size: 8rem; }
 #mainMenu, #mainMenu .nav > li > a, #mainMenu .nav .label_searchid, #mainMenu .nav > li > a .icon, #mainMenu #searchform .mask, #mainMenu #nav #site::before { height: 2.5rem; }
 #mainMenu .nav > li > a, #mainMenu .nav .label_searchid, #mainMenu .nav > li .fa, #mainMenu .nav > li > a .icon { line-height: 2.5rem; }
 #mainMenu .nav > li > a .icon.photo { width: 2.1rem; height: 2.1rem; margin-top: .2rem; }
@@ -131,7 +132,6 @@ body:not(.lightness) #mainMenu #nav #site::before { content: ""; display: block;
 .lightness #mainMenu { background-color: #f1f1f1; color: #464646; }
 .lightness #mainMenu .nav > li > a, .lightness #mainMenu .nav .label_searchid { color: #464646 }
 .lightness #mainMenu.show .nav > li.dropdown.hover > a { color: #222; }
-body:not(.navbar-left).lightness #mainMenu #nav #site::before { content: ""; display: block; overflow: hidden; position: absolute; left: 0; top: 0; width: 9rem; height: 100%; background: url("../images/misc/login-logo.png") 0 50% no-repeat; background-size: 8rem; }
 /* light */
 .light #mainMenu { -webkit-box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, .3); box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, .3); }
 .light #mainMenu { background-color: #343944; color: #cacaca; }
