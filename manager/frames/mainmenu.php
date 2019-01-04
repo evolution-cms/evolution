@@ -258,7 +258,7 @@ if($modx->hasPermission('edit_user')) {
 	$sitemenu['user_management_title'] = array(
 		'user_management_title',
 		'users',
-		'<i class="fa fa fa-user"></i>' . $_lang['user_management_title'] . '<i class="fa fa-angle-right toggle"></i>',
+		'<i class="fa fa-user-circle-o"></i>' . $_lang['user_management_title'] . '<i class="fa fa-angle-right toggle"></i>',
 		'index.php?a=75',
 		$_lang['user_management_title'],
 		'',
@@ -274,7 +274,7 @@ if($modx->hasPermission('edit_web_user')) {
 	$sitemenu['web_user_management_title'] = array(
 		'web_user_management_title',
 		'users',
-		'<i class="fa fa-users"></i>' . $_lang['web_user_management_title'] . '<i class="fa fa-angle-right toggle"></i>',
+		'<i class="fa fa-user"></i>' . $_lang['web_user_management_title'] . '<i class="fa fa-angle-right toggle"></i>',
 		'index.php?a=99',
 		$_lang['web_user_management_title'],
 		'',
