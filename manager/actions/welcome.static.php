@@ -323,7 +323,13 @@ $buttons .='<span class="wm_button">
 
 
 
-
+$messages = '';
+if($modx->hasPermission('messages')) {
+	$messages = '<tr>
+					<td>[%inbox%]</td>
+					<td><a href="index.php?a=10" target="main"><b>[[#getMessageCount]]</b></a></td>
+				</tr>';
+}
 
 
 $widgets['welcome'] = array(
@@ -354,12 +360,7 @@ $widgets['welcome'] = array(
 							<td>[%yourinfo_total_logins%]</td>
 							<td><b>[[$_SESSION[\'mgrLogincount\']:math(\'%s+1\')]]</b></td>
 						</tr>
-						<!--@IF:[[#hasPermission?key=messages]]-->
-						<tr>
-							<td>[%inbox%]</td>
-							<td><a href="index.php?a=10" target="main"><b>[[#getMessageCount]]</b></a></td>
-						</tr>
-						<!--@ENDIF-->
+						'.$messages.'
 					</table>
 				</div>
 		',
