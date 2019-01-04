@@ -258,6 +258,74 @@ if(is_array($evtOut)) {
 	$ph['OnManagerWelcomePrerender'] = $output;
 }
 
+
+$buttons = '';
+if($modx->hasPermission('new_document')) {
+	$buttons .='<span class="wm_button">
+					<a target="main" href="index.php?a=4">
+						<i class="[&icons_resource_large&]"></i>
+						<span>[%add_resource%]</span>
+					</a>
+				</span> 
+				<span class="wm_button">
+					<a target="main" href="index.php?a=72">
+						<i class="[&icons_weblink_large&]"></i>
+						<span>[%add_weblink%]</span>
+					</a>
+				</span>';
+}
+if($modx->hasPermission('assets_images')) {
+	$buttons .='<span class="wm_button">
+					<a target="main" href="media/browser/mcpuk/browse.php?filemanager=media/browser/mcpuk/browse.php&type=images">
+						<i class="[&icons_images_large&]"></i>
+						<span>[%images_management%]</span>
+					</a>
+				</span>';
+}
+if($modx->hasPermission('assets_files')) {
+	$buttons .='<span class="wm_button">
+					<a target="main" href="media/browser/mcpuk/browse.php?filemanager=media/browser/mcpuk/browse.php&type=files">
+						<i class="[&icons_files_large&]"></i>
+						<span>[%files_management%]</span>
+					</a>
+				</span>';
+}
+if($modx->hasPermission('edit_template') || $modx->hasPermission('edit_snippet') || $modx->hasPermission('edit_chunk') || $modx->hasPermission('edit_plugin')) {
+	$buttons .='<span class="wm_button">
+					<a target="main" href="index.php?a=76">
+						<i class="[&icons_resources_large&]" title="[%element_management%]"></i>
+						<span>[%elements%]</span>
+					</a>
+				</span>';
+}
+if($modx->hasPermission('bk_manager')) {
+	$buttons .='<span class="wm_button">
+					<a target="main" href="index.php?a=93">
+						<i class="[&icons_backup_large&]" title="[%bk_manager%]"></i>
+						<span>[%backup%]</span>
+					</a>
+				</span>';
+} 
+if($modx->hasPermission('change_password')) {
+	$buttons .='<span class="wm_button">
+					<a target="main" href="index.php?a=28">
+						<i class="[&icons_password_large&]"></i>
+						<span>[%change_password%]</span>
+					</a>
+				</span>'; 
+}
+$buttons .='<span class="wm_button">
+				<a target="_top" href="index.php?a=8">
+					<i class="[&icons_logout_large&]"></i>
+					<span>[%logout%]</span>
+				</a>
+			</span> ';
+
+
+
+
+
+
 $widgets['welcome'] = array(
 	'menuindex' => '10',
 	'id' => 'welcome',
@@ -266,66 +334,7 @@ $widgets['welcome'] = array(
 	'title' => '[%welcome_title%]',
 	'body' => '
 				<div class="wm_buttons card-body"> 
-					<!--@IF:[[#hasPermission?key=new_document]]--> 
-					<span class="wm_button">
-						<a target="main" href="index.php?a=4">
-							<i class="[&icons_resource_large&]"></i>
-							<span>[%add_resource%]</span>
-						</a>
-					</span> 
-					<span class="wm_button">
-						<a target="main" href="index.php?a=72">
-							<i class="[&icons_weblink_large&]"></i>
-							<span>[%add_weblink%]</span>
-						</a>
-					</span> 
-					<!--@ENDIF--> 
-					<!--@IF:[[#hasPermission?key=assets_images]]--> 
-					<span class="wm_button">
-						<a target="main" href="media/browser/mcpuk/browse.php?filemanager=media/browser/mcpuk/browse.php&type=images">
-							<i class="[&icons_images_large&]"></i>
-							<span>[%images_management%]</span>
-						</a>
-					</span> 
-					<!--@ENDIF-->
-					<!--@IF:[[#hasPermission?key=assets_files]]--> 
-					<span class="wm_button">
-						<a target="main" href="media/browser/mcpuk/browse.php?filemanager=media/browser/mcpuk/browse.php&type=files">
-							<i class="[&icons_files_large&]"></i>
-							<span>[%files_management%]</span>
-						</a>
-					</span> 
-					<!--@ENDIF-->
-					<!--@IF:[[#hasAnyPermission:is(1)]] --> 
-					<span class="wm_button">
-						<a target="main" href="index.php?a=76">
-							<i class="[&icons_resources_large&]" title="[%element_management%]"></i>
-							<span>[%elements%]</span>
-						</a>
-					</span> 
-					<!--@ENDIF--> 
-					<!--@IF:[[#hasPermission?key=bk_manager]]--> 
-					<span class="wm_button">
-						<a target="main" href="index.php?a=93">
-							<i class="[&icons_backup_large&]" title="[%bk_manager%]"></i>
-							<span>[%backup%]</span>
-						</a>
-					</span> 
-					<!--@ENDIF--> 
-					<!--@IF:[[#hasPermission?key=change_password]]--> 
-					<span class="wm_button">
-						<a target="main" href="index.php?a=28">
-							<i class="[&icons_password_large&]"></i>
-							<span>[%change_password%]</span>
-						</a>
-					</span> 
-					<!--@ENDIF--> 
-					<span class="wm_button">
-						<a target="_top" href="index.php?a=8">
-							<i class="[&icons_logout_large&]"></i>
-							<span>[%logout%]</span>
-						</a>
-					</span> 
+					'.$buttons.'
 				</div>
 				<div class="userprofiletable card-body">
 					<table>
