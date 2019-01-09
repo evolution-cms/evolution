@@ -1,6 +1,24 @@
 This file shows the changes in recent releases of Evolution CMS. The most current release is usually the
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
+Evolution CMS 1.4.8 (Jan 09, 2019)
+* [GitHub:#b5a75a063] - [fix] Lightness navbar logo at width < 1200px (Nicola)
+* [GitHub:#f25f3deaf] - [fix] ElementsInTree should be sorted by name #887 (Dmi3yy)
+* [GitHub:#a191ca1cc] - [fix] ser Icon Standardisation Suggestion #349 (Dmi3yy)
+* [GitHub:#9024535fb] - [refactor] clear (core) welcome.static  @IF (Dmi3yy)
+* [GitHub:#f72a18f43] - [fix] (core) buttons on welcome page, not work with Permission (Dmi3yy)
+* [GitHub:#9a169f379] - [refactor] (Extras) Updater - update only minor version(1.4 to 1.5,  2.0 to 2.1)  (Update across major version  (1.4 to 2.0 or 2.6 to 3.0 ) need do manual or from another plugin) (Dmi3yy)
+* [GitHub:#6b7901402] - [fix] (extras) lang typo error (Dmi3yy)
+* [GitHub:#f04a856fc] - [fix] only if  Enable modifiers in settings: #1200 Enable modifiers in Wayfinder - add nested placeholders to $tags like for $fetch = "phx:input=`[+wf.linktext+]`:test". (Dmi3yy)
+* [GitHub:#09a17870a] - [fix] (widgets): style fix (Serg)
+* [GitHub:#9e8c2d8e5] - [fix] (managermanager): path to the jquery file (Agel_Nash)
+* [GitHub:#55c39917c] - [feat] (manager) show template id in select on Document edit page (Dmi3yy)
+* [GitHub:#c43ac0f13] - [fix] (core): typo (Agel_Nash)
+* [GitHub:#61815afa8] - [feat] (core): more compatible with 2.x branch (Agel_Nash)
+* [GitHub:#db1127ae7] - [style] (lexicon): spanish (Agel_Nash)
+* [GitHub:#9727fb352] - [fix] (phpthumb): skipping svg files (Serg)
+* [GitHub:#080f2492f] - [fix] (ElementsInTree) Categories are not sorted by name ASC (Nicola)
+
 
 Evolution CMS 1.4.7 (Dec 10, 2018)
 * [GitHub:#92a15c0b6] - [fix] for php7: ddmultiplefields.php  http://modx.im/blog/addons/4265.html#comment44232 (Dmi3yy)
