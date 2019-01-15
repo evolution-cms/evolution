@@ -1188,6 +1188,7 @@ class DocumentParser
         if (empty($_)) {
             return array();
         }
+        $tags = array();
         foreach ($_ as $v) {
             $tags[0][] = "{$left}{$v}{$right}";
             $tags[1][] = $v;
@@ -4472,6 +4473,7 @@ class DocumentParser
      */
     public function getTpl($tpl)
     {
+        $command = '';
         $template = $tpl;
         if (preg_match("/^@([^:\s]+)[:\s]+(.+)$/s", trim($tpl), $match)) {
             $command = strtoupper($match[1]);

@@ -19,8 +19,9 @@ if (!isset($modx->config['mgr_date_picker_path'])) {
 
 $body_class = '';
 $theme_modes = array('', 'lightness', 'light', 'dark', 'darkness');
-if (!empty($theme_modes[$_COOKIE['MODX_themeMode']])) {
-    $body_class .= ' ' . $theme_modes[$_COOKIE['MODX_themeMode']];
+$theme_mode = isset($_COOKIE['MODX_themeMode']) ? $_COOKIE['MODX_themeMode'] : '';
+if (!empty($theme_modes[$theme_mode])) {
+    $body_class .= ' ' . $theme_modes[$theme_mode];
 } elseif (!empty($theme_modes[$modx->config['manager_theme_mode']])) {
     $body_class .= ' ' . $theme_modes[$modx->config['manager_theme_mode']];
 }
