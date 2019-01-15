@@ -1,6 +1,6 @@
 <!-- User settings -->
 <div class="tab-page" id="tabPage4">
-    <h2 class="tab">{{ ManagerTheme::getLexicon('settings_email_templates') }}</h2>
+    <h2 class="tab">{{ ManagerTheme::getLexicon('settings_users') }}</h2>
     <script type="text/javascript">tpSettings.addTabPage(document.getElementById('tabPage4'));</script>
     <div class="container container-body">
 
