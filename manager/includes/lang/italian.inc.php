@@ -6,14 +6,14 @@
  * @date 2014/02/24
  * @author The EVO Project Team
  *
- * @language English
+ * @language Italian
  * @package Evo
  * @subpackage manager
  *
  * Please commit your language changes on Transifex (https://www.transifex.com/projects/p/modx-evolution/) or on GitHub (https://github.com/modxcms/evolution).
  */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL languages
-$modx_lang_attribute = 'en'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
+$modx_lang_attribute = 'it'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
 
 $_lang["about_msg"] = 'EVO è un <a href="http://evo.im/" target="_blank">Framework PHP e Sistema di Gestione dei Contenuti (CMS)</a> distribuito con licenza <a href="../assets/docs/license.txt">GNU GPL</a>.';
@@ -1036,7 +1036,8 @@ Password: [+pwd+]
 Quando ti sarai autenticato nel sistema di gestione ([+surl+]), potrai cambiare la tua password.
 
 Cordiali Saluti,
- l\'amministratore del Sito
+
+ l\'amministratore del Sito
 </html>';
 $_lang["system_email_webreminder"] = 'Salve [+uid+]
 

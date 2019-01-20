@@ -6,14 +6,14 @@
  * @date 2014/02/24
  * @author The EVO Project Team
  *
- * @language English
+ * @language German
  * @package modx
  * @subpackage manager
  *
  * Please commit your language changes on Transifex (https://www.transifex.com/projects/p/modx-evolution/) or on GitHub (https://github.com/modxcms/evolution).
  */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL languages
-$modx_lang_attribute = 'en'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
+$modx_lang_attribute = 'de'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
 
 $_lang["about_msg"] = 'EVO ist ein <a href="http://evo.im/" target="_blank">PHP Application Framework und Content Management System</a> lizensiert unter der <a href="../assets/docs/license.txt">GNU GPL</a>.';

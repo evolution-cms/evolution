@@ -13,7 +13,7 @@
  * Please commit your language changes on Transifex (https://www.transifex.com/projects/p/modx-evolution/) or on GitHub (https://github.com/modxcms/evolution).
  */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
-$modx_lang_attribute = 'en'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
+$modx_lang_attribute = 'pt'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
 
 $_lang["about_msg"] = 'MODX é um <a href=\'http://modx.com/\' target=\'_blank\'>Sistema em PHP para Gestão de Conteúdos</a> (em Inglês).';
