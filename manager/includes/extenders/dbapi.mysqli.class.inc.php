@@ -53,6 +53,7 @@ class DBAPI
         $uid = $uid ? $uid : $this->config['user'];
         $pwd = $pwd ? $pwd : $this->config['pass'];
         $host = $host ? $host : $this->config['host'];
+        $host = explode(':', $host, 2);
         $dbase = $dbase ? $dbase : $this->config['dbase'];
         $dbase = trim($dbase, '`'); // remove the `` chars
         $charset = $this->config['charset'];
@@ -60,7 +61,6 @@ class DBAPI
         $tstart = $modx->getMicroTime();
         $safe_count = 0;
         do {
-            $host = explode(':', $host, 2);
             $this->conn = new mysqli($host[0], $uid, $pwd, $dbase, isset($host[1]) ? $host[1] : null);
             if ($this->conn->connect_error) {
                 $this->conn = null;
