@@ -1,41 +1,5 @@
 <?php
 
-if (!function_exists('getChildrenForDelete')) {
-    /**
-     * @param int $parent
-     */
-    function getChildrenForDelete($parent)
-    {
-        $modx = evolutionCMS();
-        global $children;
-        global $site_start;
-        global $site_unavailable_page;
-        global $error_page;
-        global $unauthorized_page;
-
-        $parent = $modx->getDatabase()->escape($parent);
-        $rs = $modx->getDatabase()->select('id', $modx->getDatabase()->getFullTableName('site_content'), "parent={$parent} AND deleted=0");
-        // the document has children documents, we'll need to delete those too
-        while ($childid = $modx->getDatabase()->getValue($rs)) {
-            if ($childid == $site_start) {
-                $modx->webAlertAndQuit("The document you are trying to delete is a folder containing document {$childid}. This document is registered as the 'Site start' document, and cannot be deleted. Please assign another document as your 'Site start' document and try again.");
-            }
-            if ($childid == $site_unavailable_page) {
-                $modx->webAlertAndQuit("The document you are trying to delete is a folder containing document {$childid}. This document is registered as the 'Site unavailable page' document, and cannot be deleted. Please assign another document as your 'Site unavailable page' document and try again.");
-            }
-            if ($childid == $error_page) {
-                $modx->webAlertAndQuit("The document you are trying to delete is a folder containing document {$childid}. This document is registered as the 'Site error page' document, and cannot be deleted. Please assign another document as your 'Site error page' document and try again.");
-            }
-            if ($childid == $unauthorized_page) {
-                $modx->webAlertAndQuit("The document you are trying to delete is a folder containing document {$childid}. This document is registered as the 'Site unauthorized page' document, and cannot be deleted. Please assign another document as your 'Site unauthorized page' document and try again.");
-            }
-            $children[] = $childid;
-            getChildrenForDelete($childid);
-            //echo "Found childNode of parentNode $parent: ".$childid."<br />";
-        }
-    }
-}
-
 if(!function_exists('duplicateDocument')) {
     /**
      * @param int $docid
@@ -805,27 +769,5 @@ if (!function_exists('webAlertAndQuit')) {
         $mode = $_POST['mode'];
         $modx->getManagerApi()->saveFormValues($mode);
         $modx->webAlertAndQuit($msg, "index.php?a={$mode}" . ($mode === $action ? "&id={$id}" : ''));
-    }
-}
-
-if (!function_exists('getChildrenForUnDelete')) {
-    /**
-     * @param int $parent
-     */
-    function getChildrenForUnDelete($parent)
-    {
-
-        $modx = evolutionCMS();
-        global $children;
-        global $deltime;
-
-        $rs = $modx->getDatabase()->select('id', $modx->getDatabase()->getFullTableName('site_content'),
-            "parent='" . (int)$parent . "' AND deleted=1 AND deletedon='" . (int)$deltime . "'");
-        // the document has children documents, we'll need to delete those too
-        while ($row = $modx->getDatabase()->getRow($rs)) {
-            $children[] = $row['id'];
-            getChildrenForUnDelete($row['id']);
-            //echo "Found childNode of parentNode $parent: ".$row['id']."<br />";
-        }
     }
 }

@@ -79,73 +79,73 @@ class SiteContent extends Eloquent\Model
     const CREATED_AT = 'createdon';
     const UPDATED_AT = 'editedon';
     const DELETED_AT = 'deletedon';
-	protected $dateFormat = 'U';
+    protected $dateFormat = 'U';
 
-	protected $casts = [
-		'published' => 'int',
-		'pub_date' => 'int',
-		'unpub_date' => 'int',
-		'parent' => 'int',
-		'isfolder' => 'int',
-		'richtext' => 'bool',
-		'template' => 'int',
-		'menuindex' => 'int',
-		'searchable' => 'int',
-		'cacheable' => 'int',
-		'createdby' => 'int',
-		'createdon' => 'int',
-		'editedby' => 'int',
-		'editedon' => 'int',
-		'deleted' => 'int',
-		'deletedby' => 'int',
-		'publishedon' => 'int',
-		'publishedby' => 'int',
-		'donthit' => 'bool',
-		'privateweb' => 'bool',
-		'privatemgr' => 'bool',
-		'content_dispo' => 'bool',
-		'hidemenu' => 'bool',
-		'alias_visible' => 'int'
-	];
+    protected $casts = [
+        'published' => 'int',
+        'pub_date' => 'int',
+        'unpub_date' => 'int',
+        'parent' => 'int',
+        'isfolder' => 'int',
+        'richtext' => 'bool',
+        'template' => 'int',
+        'menuindex' => 'int',
+        'searchable' => 'int',
+        'cacheable' => 'int',
+        'createdby' => 'int',
+        'createdon' => 'int',
+        'editedby' => 'int',
+        'editedon' => 'int',
+        'deleted' => 'int',
+        'deletedby' => 'int',
+        'publishedon' => 'int',
+        'publishedby' => 'int',
+        'donthit' => 'bool',
+        'privateweb' => 'bool',
+        'privatemgr' => 'bool',
+        'content_dispo' => 'bool',
+        'hidemenu' => 'bool',
+        'alias_visible' => 'int'
+    ];
 
-	protected $fillable = [
-		'type',
-		'contentType',
-		'pagetitle',
-		'longtitle',
-		'description',
-		'alias',
-		'link_attributes',
-		'published',
-		'pub_date',
-		'unpub_date',
-		'parent',
-		'isfolder',
-		'introtext',
-		'content',
-		'richtext',
-		'template',
-		'menuindex',
-		'searchable',
-		'cacheable',
-		'createdby',
-		'editedby',
-		'deleted',
-		'deletedby',
-		'publishedon',
-		'publishedby',
-		'menutitle',
-		'donthit',
-		'privateweb',
-		'privatemgr',
-		'content_dispo',
-		'hidemenu',
-		'alias_visible'
-	];
+    protected $fillable = [
+        'type',
+        'contentType',
+        'pagetitle',
+        'longtitle',
+        'description',
+        'alias',
+        'link_attributes',
+        'published',
+        'pub_date',
+        'unpub_date',
+        'parent',
+        'isfolder',
+        'introtext',
+        'content',
+        'richtext',
+        'template',
+        'menuindex',
+        'searchable',
+        'cacheable',
+        'createdby',
+        'editedby',
+        'deleted',
+        'deletedby',
+        'publishedon',
+        'publishedby',
+        'menutitle',
+        'donthit',
+        'privateweb',
+        'privatemgr',
+        'content_dispo',
+        'hidemenu',
+        'alias_visible'
+    ];
 
     protected $managerActionsMap = [
         'id' => [
-            'actions.info'  => 3
+            'actions.info' => 3
         ]
     ];
 
@@ -156,7 +156,7 @@ class SiteContent extends Eloquent\Model
             $key = 'pagetitle';
         }
 
-        return  $this->getAttributeValue($key);
+        return $this->getAttributeValue($key);
     }
 
 
@@ -185,7 +185,7 @@ class SiteContent extends Eloquent\Model
         return $this->convertTimestamp($this->unpub_date);
     }
 
-    public function getWasNullAttribute() : bool
+    public function getWasNullAttribute(): bool
     {
         return trim($this->content) === '' && $this->template === 0;
     }
@@ -200,16 +200,26 @@ class SiteContent extends Eloquent\Model
         return array_key_exists($this->getKey(), self::getLockedElements());
     }
 
-    public function getAlreadyEditInfoAttribute() :? array
+    public function getAlreadyEditInfoAttribute(): ?array
     {
         return $this->isAlreadyEdit ? self::getLockedElements()[$this->getKey()] : null;
+    }
+
+    public function getAllChildrens($parent)
+    {
+        $ids = [];
+        foreach ($parent->childrens as $child) {
+            $ids[] = $child->id;
+            $ids = array_merge($ids, $this->getAllChildrens($child));
+        }
+        return $ids;
     }
 
     public function scopePublishDocuments(Eloquent\Builder $builder, $time)
     {
         return $builder->where('pub_date', '<=', $time)
             ->where('pub_date', '>', 0)
-            ->where(function(Eloquent\Builder $query) use($time) {
+            ->where(function (Eloquent\Builder $query) use ($time) {
                 $query->where('unpub_date', '>', $time)
                     ->orWhere('unpub_date', '=', 0);
             })->where('published', '=', 0);
@@ -227,13 +237,13 @@ class SiteContent extends Eloquent\Model
         return $this->hasMany(SiteTmplvarContentvalue::class, 'contentid', 'id');
     }
 
-    public function ancestor() : Eloquent\Relations\BelongsTo
+    public function ancestor(): Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(__CLASS__, 'parent')
             ->withTrashed();
     }
 
-    public function childrens() : Eloquent\Relations\HasMany
+    public function childrens(): Eloquent\Relations\HasMany
     {
         return $this->hasMany(__CLASS__, 'parent')
             ->withTrashed();
