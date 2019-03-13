@@ -33,7 +33,7 @@ function mm_ddYMap($tvs, $roles = '', $templates = '', $w = 'auto', $h = '400', 
 		//The main js file including
 		$output = includeJsCss($modx->config['site_url'].'assets/plugins/managermanager/widgets/ddymap/jquery.ddMM.mm_ddYMap.js', 'html', 'jquery.ddMM.mm_ddYMap', '1.0.2');
 		//The Yandex.Maps library including
-		$output .= includeJsCss('http://api-maps.yandex.ru/2.0/?load=package.full&lang=ru-RU&onload=mm_ddYMap_init', 'html', 'api-maps.yandex.ru', '2.0');
+		$output .= includeJsCss('//api-maps.yandex.ru/2.0/?load=package.full&lang=ru-RU&onload=mm_ddYMap_init', 'html', 'api-maps.yandex.ru', '2.0');
 		
 		$e->output($output);
 	}else if ($e->name == 'OnDocFormRender'){

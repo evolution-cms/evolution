@@ -13,6 +13,7 @@
  * @param $w {'auto'; integer} - Width of the map container. Default: 'auto'.
  * @param $h {integer} - Height of the map container. Default: 400.
  * @param $hideField {0; 1} - Original coordinates field hiding status (1 — hide, 0 — show). Default: 1.
+ * @param $apiKey  (string) Api key from google console
  * 
  * @link http://code.divandesign.biz/modx/mm_ddgmap/1.2b
  * 
@@ -20,7 +21,7 @@
  * http://www.DivanDesign.biz
  */
 
-function mm_ddGMap($tvs, $roles = '', $templates = '', $w = 'auto', $h = '400', $hideField = true){
+function mm_ddGMap($tvs, $roles = '', $templates = '', $w = 'auto', $h = '400', $hideField = true,$apiKey=''){
 	if (!useThisRule($roles, $templates)){return;}
 	
 	global $modx;
@@ -32,7 +33,7 @@ function mm_ddGMap($tvs, $roles = '', $templates = '', $w = 'auto', $h = '400', 
 		//The main js file including
 		$output = includeJsCss($modx->config['site_url'].'assets/plugins/managermanager/widgets/ddgmap/jquery.ddMM.mm_ddGMap.js', 'html', 'jquery.ddMM.mm_ddGMap', '1.0');
 		//The Google.Maps library including
-		$output .= includeJsCss('http://maps.google.com/maps/api/js?sensor=false&hl='.$modx_lang_attribute.'&callback=mm_ddGMap_init', 'html', 'maps.google.com', '0');
+		$output .= includeJsCss('//maps.google.com/maps/api/js?sensor=false&hl='.$modx_lang_attribute.'&callback=mm_ddGMap_init&key='.$apiKey, 'html', 'maps.google.com', '0');
 		
 		$e->output($output);
 	}else if ($e->name == 'OnDocFormRender'){
@@ -40,7 +41,7 @@ function mm_ddGMap($tvs, $roles = '', $templates = '', $w = 'auto', $h = '400', 
 		
 		$output = '';
 		$tvs = makeArray($tvs);
-		
+
 		$usedTvs = tplUseTvs($mm_current_page['template'], $tvs, '', 'id', 'name');
 		if ($usedTvs == false){return;}
 		
