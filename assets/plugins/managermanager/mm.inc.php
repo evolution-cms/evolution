@@ -400,6 +400,24 @@ $j(function(){
 					
 				if (visibleOptions == 0){$this.remove();}
 			});
+			function hideTabsAfterOnload(){
+				if (tpSettings.pages[tpSettings.getSelectedIndex()] ===undefined){
+					//load all tabs for check first visible
+					var $mm_hideTabs_allTabs = $j();
+					for (var i = 0; i < tpSettings.pages.length - 1; i++){
+						$mm_hideTabs_allTabs = $mm_hideTabs_allTabs.add(tpSettings.pages[i].tab);
+					}
+					//Activate the first visible tab
+					$mm_hideTabs_allTabs.filter(":visible").eq(0).trigger("click");
+				}
+			}
+			// DOM2
+			if (typeof window.addEventListener !== "undefined") {
+			  window.addEventListener("load", hideTabsAfterOnload);
+			}// IE
+			else if (typeof window.attachEvent !== "undefined") {
+			  window.attachEvent("onload", hideTabsAfterOnload);
+			}
 		}catch(e){
 			// If theres an error, fail nicely
 			alert("ManagerManager: An error has occurred: " + e.name + " - " + e.message);
