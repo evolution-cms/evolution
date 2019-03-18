@@ -256,7 +256,7 @@ class synccache
             $config[$key] = $value;
         }
 
-        if ($config['enable_filter']) {
+        if (isset($config['enable_filter']) && $config['enable_filter']) {
             $where = "plugincode LIKE '%phx.parser.class.inc.php%OnParseDocument();%' AND disabled != 1";
             $count = $modx->db->getRecordCount($modx->db->select('id', '[+prefix+]site_plugins', $where));
             if ($count) {
