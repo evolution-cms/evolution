@@ -5,7 +5,7 @@ $sb = isset($_REQUEST['sort']) ? '&sort=' . $_REQUEST['sort'] : '&sort=createdon
 $pg = isset($_REQUEST['page']) ? '&page=' . (int) $_REQUEST['page'] : '';
 $add_path = $sd . $sb . $pg;
 /*******************/
-global $content;
+global $content, $richtexteditorIds, $richtexteditorOptions;
 $richtexteditorIds = array();
 $defaultContentType = 'document';
 // check permissions

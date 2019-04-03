@@ -58,7 +58,7 @@ for (var i = 0; i < tpSettings.pages.length - 1; i++){
 }
 
 //If the active tab is hidden
-if ($j(tpSettings.pages[tpSettings.getSelectedIndex()].tab).is(":hidden")){
+if (tpSettings.pages[tpSettings.getSelectedIndex()] !== undefined && $j(tpSettings.pages[tpSettings.getSelectedIndex()].tab).is(":hidden")){
 	//Activate the first visible tab
 	$mm_hideTabs_allTabs.filter(":visible").eq(0).trigger("click");
 }

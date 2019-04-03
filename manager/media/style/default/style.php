@@ -94,10 +94,10 @@ $_style['tree_page_excel_secure']   = "<i class='fa fa-file-excel-o'><i class='f
 $_style['icons_new_document']       = 'fa fa-file-o';
 $_style['icons_new_weblink']        = 'fa fa-link';
 $_style['icons_move_document']      = 'fa fa-arrows';
-$_style['icons_publish_document']   = 'fa fa-arrow-up';
-$_style['icons_unpublish_resource'] = 'fa fa-arrow-down';
+$_style['icons_publish_document']   = 'fa fa-check';
+$_style['icons_unpublish_resource'] = 'fa fa-close';
 $_style['icons_delete_resource']    = 'fa fa-trash';
-$_style['icons_undelete_resource']  = 'fa fa-arrow-circle-o-up';
+$_style['icons_undelete_resource']  = 'fa fa-undo';
 $_style['icons_resource_overview']  = 'fa fa-info';
 $_style['icons_edit_resource']      = 'fa fa-pencil-square-o';
 //context menu
