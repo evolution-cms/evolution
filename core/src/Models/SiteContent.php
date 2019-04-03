@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Eloquent;
 use EvolutionCMS\Traits;
+use Illuminate\Support\Collection;
 
 /**
  * EvolutionCMS\Models\SiteContent
@@ -44,10 +45,12 @@ use EvolutionCMS\Traits;
  * @property int $alias_visible
  *
  * BelongsTo
- * @property null|SiteContent $ancestor
+ * @property SiteContent|null $ancestor
+ * @property SiteTemplate|null $tpl
  *
  * HasMany
  * @property Eloquent\Collection $childrens
+ * @property Eloquent\Collection $templateValues
  *
  * BelongsToMany
  * @property Eloquent\Collection $documentGroups
@@ -66,6 +69,10 @@ use EvolutionCMS\Traits;
  * @property-read mixed $un_pub_at
  * @property-read bool $wasNull
  *
+ * Scope
+ * @method static Eloquent\Builder publishDocuments($time)
+ * @method static Eloquent\Builder unPublishDocuments($time)
+ *
  * @mixin \Eloquent
  */
 class SiteContent extends Eloquent\Model
@@ -79,69 +86,69 @@ class SiteContent extends Eloquent\Model
     const CREATED_AT = 'createdon';
     const UPDATED_AT = 'editedon';
     const DELETED_AT = 'deletedon';
-    protected $dateFormat = 'U';
+	protected $dateFormat = 'U';
 
-    protected $casts = [
-        'published' => 'int',
-        'pub_date' => 'int',
-        'unpub_date' => 'int',
-        'parent' => 'int',
-        'isfolder' => 'int',
-        'richtext' => 'bool',
-        'template' => 'int',
-        'menuindex' => 'int',
-        'searchable' => 'int',
-        'cacheable' => 'int',
-        'createdby' => 'int',
-        'createdon' => 'int',
-        'editedby' => 'int',
-        'editedon' => 'int',
-        'deleted' => 'int',
-        'deletedby' => 'int',
-        'publishedon' => 'int',
-        'publishedby' => 'int',
-        'donthit' => 'bool',
-        'privateweb' => 'bool',
-        'privatemgr' => 'bool',
-        'content_dispo' => 'bool',
-        'hidemenu' => 'bool',
-        'alias_visible' => 'int'
-    ];
+	protected $casts = [
+		'published' => 'int',
+		'pub_date' => 'int',
+		'unpub_date' => 'int',
+		'parent' => 'int',
+		'isfolder' => 'int',
+		'richtext' => 'bool',
+		'template' => 'int',
+		'menuindex' => 'int',
+		'searchable' => 'int',
+		'cacheable' => 'int',
+		'createdby' => 'int',
+		'createdon' => 'int',
+		'editedby' => 'int',
+		'editedon' => 'int',
+		'deleted' => 'int',
+		'deletedby' => 'int',
+		'publishedon' => 'int',
+		'publishedby' => 'int',
+		'donthit' => 'bool',
+		'privateweb' => 'bool',
+		'privatemgr' => 'bool',
+		'content_dispo' => 'bool',
+		'hidemenu' => 'bool',
+		'alias_visible' => 'int'
+	];
 
-    protected $fillable = [
-        'type',
-        'contentType',
-        'pagetitle',
-        'longtitle',
-        'description',
-        'alias',
-        'link_attributes',
-        'published',
-        'pub_date',
-        'unpub_date',
-        'parent',
-        'isfolder',
-        'introtext',
-        'content',
-        'richtext',
-        'template',
-        'menuindex',
-        'searchable',
-        'cacheable',
-        'createdby',
-        'editedby',
-        'deleted',
-        'deletedby',
-        'publishedon',
-        'publishedby',
-        'menutitle',
-        'donthit',
-        'privateweb',
-        'privatemgr',
-        'content_dispo',
-        'hidemenu',
-        'alias_visible'
-    ];
+	protected $fillable = [
+		'type',
+		'contentType',
+		'pagetitle',
+		'longtitle',
+		'description',
+		'alias',
+		'link_attributes',
+		'published',
+		'pub_date',
+		'unpub_date',
+		'parent',
+		'isfolder',
+		'introtext',
+		'content',
+		'richtext',
+		'template',
+		'menuindex',
+		'searchable',
+		'cacheable',
+		'createdby',
+		'editedby',
+		'deleted',
+		'deletedby',
+		'publishedon',
+		'publishedby',
+		'menutitle',
+		'donthit',
+		'privateweb',
+		'privatemgr',
+		'content_dispo',
+		'hidemenu',
+		'alias_visible'
+	];
 
     protected $managerActionsMap = [
         'id' => [
@@ -149,6 +156,9 @@ class SiteContent extends Eloquent\Model
         ]
     ];
 
+    /**
+     * @return mixed
+     */
     public function getNodeNameAttribute()
     {
         $key = evolutionCMS()->getConfig('resource_tree_node_name', 'pagetitle');
@@ -159,32 +169,49 @@ class SiteContent extends Eloquent\Model
         return $this->getAttributeValue($key);
     }
 
-
+    /**
+     * @return \Illuminate\Support\Carbon|null
+     */
     public function getCreatedAtAttribute()
     {
         return $this->convertTimestamp($this->createdon);
     }
 
+    /**
+     * @return \Illuminate\Support\Carbon|null
+     */
     public function getUpdatedAtAttribute()
     {
         return $this->convertTimestamp($this->editedon);
     }
 
+    /**
+     * @return \Illuminate\Support\Carbon|null
+     */
     public function getDeletedAtAttribute()
     {
         return $this->convertTimestamp($this->deletedon);
     }
 
+    /**
+     * @return \Illuminate\Support\Carbon|null
+     */
     public function getPubAtAttribute()
     {
         return $this->convertTimestamp($this->pub_date);
     }
 
+    /**
+     * @return \Illuminate\Support\Carbon|null
+     */
     public function getUnPubAtAttribute()
     {
         return $this->convertTimestamp($this->unpub_date);
     }
 
+    /**
+     * @return bool
+     */
     public function getWasNullAttribute(): bool
     {
         return trim($this->content) === '' && $this->template === 0;
@@ -195,12 +222,18 @@ class SiteContent extends Eloquent\Model
         return evolutionCMS()->getLockedElements(7);
     }
 
-    public function getIsAlreadyEditAttribute()
+    /**
+     * @return bool
+     */
+    public function getIsAlreadyEditAttribute() : bool
     {
         return array_key_exists($this->getKey(), self::getLockedElements());
     }
 
-    public function getAlreadyEditInfoAttribute(): ?array
+    /**
+     * @return array|null
+     */
+    public function getAlreadyEditInfoAttribute() :? array
     {
         return $this->isAlreadyEdit ? self::getLockedElements()[$this->getKey()] : null;
     }
@@ -214,8 +247,32 @@ class SiteContent extends Eloquent\Model
         }
         return $ids;
     }
+    /**
+     * @return Collection
+     */
+    public function getTvAttribute() : Collection
+    {
+        /** @var Collection $docTv */
+        if ($this->tpl->tvs === null) {
+            return collect();
+        }
+        $docTv = $this->templateValues->pluck('value', 'id');
+        return $this->tpl->tvs->map(function (SiteTmplvar $value) use ($docTv) {
+            $out = $value->default_text;
+            if ($docTv->has($value->getKey())) {
+                $out = $docTv->get($value->getKey());
+            }
 
-    public function scopePublishDocuments(Eloquent\Builder $builder, $time)
+            return ['name' => $value->name, 'value' => $out];
+        });
+    }
+
+    /**
+     * @param Eloquent\Builder $builder
+     * @param $time
+     * @return Eloquent\Builder
+     */
+    public function scopePublishDocuments(Eloquent\Builder $builder, $time) : Eloquent\Builder
     {
         return $builder->where('pub_date', '<=', $time)
             ->where('pub_date', '>', 0)
@@ -225,32 +282,57 @@ class SiteContent extends Eloquent\Model
             })->where('published', '=', 0);
     }
 
-    public function scopeUnPublishDocuments(Eloquent\Builder $builder, $time)
+    /**
+     * @param Eloquent\Builder $builder
+     * @param $time
+     * @return Eloquent\Builder
+     */
+    public function scopeUnPublishDocuments(Eloquent\Builder $builder, $time) : Eloquent\Builder
     {
         return $builder->where('unpub_date', '<=', $time)
             ->where('unpub_date', '>', 0)
             ->where('published', '=', 1);
     }
 
-    public function templateValues()
+    /**
+     * @return Eloquent\Relations\HasMany
+     */
+    public function templateValues() : Eloquent\Relations\HasMany
     {
         return $this->hasMany(SiteTmplvarContentvalue::class, 'contentid', 'id');
     }
 
-    public function ancestor(): Eloquent\Relations\BelongsTo
+    /**
+     * @return Eloquent\Relations\BelongsTo
+     */
+    public function ancestor() : Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(__CLASS__, 'parent')
             ->withTrashed();
     }
 
-    public function childrens(): Eloquent\Relations\HasMany
+    /**
+     * @return Eloquent\Relations\HasMany
+     */
+    public function childrens() : Eloquent\Relations\HasMany
     {
         return $this->hasMany(__CLASS__, 'parent')
             ->withTrashed();
     }
 
+    /**
+     * @return Eloquent\Relations\BelongsToMany
+     */
     public function documentGroups(): Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(DocumentgroupName::class, 'document_groups', 'document', 'document_group');
+    }
+
+    /**
+     * @return Eloquent\Relations\BelongsTo
+     */
+    public function tpl() : Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(SiteTemplate::class, 'template', 'id');
     }
 }
