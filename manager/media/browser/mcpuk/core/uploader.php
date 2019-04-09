@@ -586,6 +586,7 @@ class uploader {
                 return $img->output( 'gif', $options );
 
             case IMAGETYPE_PNG:
+		$options['quality'] = 9;
                 return $img->output( 'png', $options );
 
             default:
