@@ -131,7 +131,9 @@ if (!empty($site_hostnames[0]) && !in_array($site_hostname, $site_hostnames)) {
 // assign site_url
 if (!defined('MODX_SITE_URL')) {
     $secured = (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https');
-    $site_url = ((isset ($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') || $_SERVER['SERVER_PORT'] == $https_port || $secured) ? 'https://' : 'http://';
+//  $site_url = ((isset ($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') || $_SERVER['SERVER_PORT'] == $https_port || $secured) ? 'https://' : 'http://';
+    $site_url = ((isset ($_SERVER['HTTPS']) && ( (strtolower($_SERVER['HTTPS']) == 'on') || ($_SERVER['HTTPS']) == '1')) || $_SERVER['SERVER_PORT'] == $https_port || $secured) ? 'https://' : 'http://';
+  
     $site_url .= $site_hostname;
     if ($_SERVER['SERVER_PORT'] != 80) {
         $site_url = str_replace(':' . $_SERVER['SERVER_PORT'], '', $site_url);
