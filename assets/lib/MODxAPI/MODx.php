@@ -545,7 +545,7 @@ abstract class MODxAPI extends MODxAPIhelpers
      */
     public function isChanged($key)
     {
-        $flag = ! isset($this->store[$key]) || (isset($this->store[$key]) && $this->store[$key] != $this->field[$key]);
+        $flag = ! isset($this->store[$key]) || (isset($this->store[$key], $this->field[$key]) && $this->store[$key] != $this->field[$key]);
 
         return $flag;
     }
