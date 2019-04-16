@@ -769,15 +769,15 @@
             this.parentNode.classList.add('dragafter');
             this.parentNode.classList.remove('dragbefore');
             this.parentNode.classList.remove('dragenter');
-            e.dataTransfer.effectAllowed = 'link';
-            e.dataTransfer.dropEffect = 'link';
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.dropEffect = 'move';
           } else if (c < this.offsetHeight / 3) {
             //this.parentNode.className = 'dragbefore';
             this.parentNode.classList.add('dragbefore');
             this.parentNode.classList.remove('dragafter');
             this.parentNode.classList.remove('dragenter');
-            e.dataTransfer.effectAllowed = 'link';
-            e.dataTransfer.dropEffect = 'link';
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.dropEffect = 'move';
           } else {
             //this.parentNode.className = 'dragenter';
             this.parentNode.classList.add('dragenter');
@@ -1551,10 +1551,10 @@
               this.page.innerHTML='<iframe class="tabframes" src="'+this.url+'" name="'+this.name+'" width="100%" height="100%" scrolling="auto" frameborder="0"></iframe>'
           };
           d.getElementById('main').appendChild(this.page);
-          console.time('load-tab');
+          //console.time('load-tab');
           this.page.firstElementChild.onload = function(e) {
             s.onload.call(s, e);
-            console.timeEnd('load-tab');
+            //console.timeEnd('load-tab');
           };
           this.tab = d.createElement('h2');
           this.tab.id = 'evo-tab-' + this.uid;
