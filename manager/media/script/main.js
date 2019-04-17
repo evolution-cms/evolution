@@ -268,14 +268,15 @@ evo.collapse = function(a, b) {
 
 // check connection to server
 evo.checkConnectionToServer = function() {
-  var xhr = new (window.ActiveXObject || XMLHttpRequest)('Microsoft.XMLHTTP');
+  /*var xhr = new (window.ActiveXObject || XMLHttpRequest)('Microsoft.XMLHTTP');
   xhr.open('GET', evo.urlCheckConnectionToServer + '?time=' + new Date().getTime(), false);
   try {
     xhr.send();
     return (xhr.status >= 200 && xhr.status < 300 || xhr.status === 304);
   } catch (error) {
     return false;
-  }
+  }*/
+  return true;
 };
 
 function document_onload() {
