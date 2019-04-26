@@ -399,7 +399,7 @@ if($which_browser == 'default') {
 						<tr>
 							<th><?php echo $_lang['user_prevlogin']; ?>:</th>
 							<td>&nbsp;</td>
-							<td><?php echo $modx->toDateFormat($userdata['lastlogin'] + $server_offset_time) ?></td>
+							<td><?php echo $modx->toDateFormat($userdata['thislogin'] + $server_offset_time) ?></td>
 						</tr>
 						<tr>
 							<th><?php echo $_lang['user_failedlogincount']; ?>:</th>
