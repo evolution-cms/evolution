@@ -120,7 +120,7 @@ echo $cm->render();
 			<div class="row">
 				<div class="table-responsive">
 					<?php
-					$ds = $modx->db->select("wu.id, wu.username, wua.fullname, wua.email, wua.lastlogin, wua.logincount, IF(wua.blocked,'{$_lang['yes']}','-') as 'blocked'", $modx->getFullTableName("web_users") . " wu 
+					$ds = $modx->db->select("wu.id, wu.username, wua.fullname, wua.email, wua.thislogin, wua.logincount, IF(wua.blocked,'{$_lang['yes']}','-') as 'blocked'", $modx->getFullTableName("web_users") . " wu 
 			INNER JOIN " . $modx->getFullTableName("web_user_attributes") . " wua ON wua.internalKey=wu.id", ($sqlQuery ? "(wu.username LIKE '{$sqlQuery}%') OR (wua.fullname LIKE '%{$sqlQuery}%') OR (wua.email LIKE '%{$sqlQuery}%')" : ""), 'username');
 					include_once MODX_MANAGER_PATH . "includes/controls/datagrid.class.php";
 					$grd = new DataGrid('', $ds, $number_of_results); // set page size to 0 t show all items
@@ -129,7 +129,7 @@ echo $cm->render();
 					$grd->columnHeaderClass = "tableHeader";
 					$grd->itemClass = "tableItem";
 					$grd->altItemClass = "tableAltItem";
-					$grd->fields = "id,username,fullname,email,lastlogin,logincount,blocked";
+					$grd->fields = "id,username,fullname,email,thislogin,logincount,blocked";
 					$grd->columns = $_lang["icon"] . " ," . $_lang["name"] . " ," . $_lang["user_full_name"] . " ," . $_lang["email"] . " ," . $_lang["user_prevlogin"] . " ," . $_lang["user_logincount"] . " ," . $_lang["user_block"];
 					$grd->colWidths = "1%,,,,1%,1%,1%";
 					$grd->colAligns = "center,,,,right' nowrap='nowrap,right,center";
