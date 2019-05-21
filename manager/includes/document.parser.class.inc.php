@@ -3553,7 +3553,7 @@ class DocumentParser
             'usertype' => $usertype
         ), $this->getFullTableName("event_log"));
 
-        $this->invokeEvent('OnErrorAlert', array(
+        $this->invokeEvent('OnLogEvent', array(
             'eventid' => $evtid,
             'type' => $type,
             'createdon' => $_SERVER['REQUEST_TIME'] + $this->config['server_offset_time'],
