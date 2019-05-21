@@ -3553,6 +3553,16 @@ class DocumentParser
             'usertype' => $usertype
         ), $this->getFullTableName("event_log"));
 
+        $this->invokeEvent('OnErrorAlert', array(
+            'eventid' => $evtid,
+            'type' => $type,
+            'createdon' => $_SERVER['REQUEST_TIME'] + $this->config['server_offset_time'],
+            'source' => $esc_source,
+            'description' => $msg,
+            'user' => $LoginUserID,
+            'usertype' => $usertype
+        ));
+
         if (isset($this->config['send_errormail']) && $this->config['send_errormail'] !== '0') {
             if ($this->config['send_errormail'] <= $type) {
                 $this->sendmail(array(

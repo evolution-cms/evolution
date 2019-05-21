@@ -871,6 +871,7 @@ ALTER TABLE `{PREFIX}manager_log`
 ALTER TABLE `{PREFIX}manager_log`
 	CHANGE COLUMN `ip` `ip` VARCHAR(46) NULL DEFAULT NULL AFTER `message`;
 
+ALTER TABLE `{PREFIX}site_templates` ADD COLUMN `templatealias` VARCHAR(255) NULL DEFAULT NULL AFTER `templatename`;
 # ]]upgrade-able
 
 
@@ -1118,7 +1119,8 @@ REPLACE INTO `{PREFIX}system_eventnames`
 ('1008','OnFileBrowserCopy','1','File Browser Events'),
 ('1009','OnBeforeFileBrowserCopy','1','File Browser Events'),
 ('1010','OnBeforeFileBrowserRename','1','File Browser Events'),
-('1011','OnFileBrowserRename','1','File Browser Events');
+('1011','OnFileBrowserRename','1','File Browser Events'),
+('1012','OnErrorAlert','1','');
 
 
 # ^ I don't think we need more than 1000 built-in events. Custom events will start at 1001
