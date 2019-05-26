@@ -1,6 +1,29 @@
 This file shows the changes in recent releases of Evolution CMS. The most current release is usually the
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
+Evolution CMS 1.4.9 (May 29, 2019)
+* [GitHub:#e882db74d]  - update phpthumb add support WebPConvert (Serious)
+* [GitHub:#f0bd80324] - 1.4.9 Version Notices (help) (Nicola)
+* [GitHub:#22a116761] - add(core) rename event OnErrorAlert to OnLogEvent. (Serious)
+* [GitHub:#23b85602a] - add(core) add new event OnErrorAlert. Invoked after save data to event_log. (Serious)
+* [GitHub:#665d09cee] - set auto_template_logic -> sibling by default (Dmi3yy)
+* [GitHub:#394660fdf] - Update mutate_web_user.dynamic.php (Mr B)
+* [GitHub:#8a9682163] - Update mutate_user.dynamic.php (Mr B)
+* [GitHub:#25dbb695b] - Fix - display thislogin date for users / managers (Mr B)
+* [GitHub:#d342d5958] - fix(security): update htaccess (Dmi3yy)
+* [GitHub:#6ecc1190e] - Fast fix #1058  but need refactor (Dmi3yy)
+* [GitHub:#719b3b7fe] - fix(core): modx.js dataTransfer.dropEffect = 'link' replace to 'move' for Safari (Serg)
+* [GitHub:#5940e5606] - Error : Undefined index (Kamil)
+* [GitHub:#87f44884b] - Update config.inc.tpl (Dreamer0x01)
+* [GitHub:#2db0a3943] - fix missing quality setting for png files (Pathologic)
+* [GitHub:#c6bdc2570] - Undefined index: enable_filter (Kamil)
+* [GitHub:#fd8ca0de2] - fix google and yandex map (Владимир)
+* [GitHub:#2a961c71c] - fix when one doc have many tabs one have one or two (Владимир)
+* [GitHub:#39a850be6] - fix(dbapi): unpacking the host string in a circle (Agel_Nash)
+* [GitHub:#2495a7672] - fix wrong language codes (#976) (Pathologic)
+* [GitHub:#9a20d8d6d] - fix(core): undefined variable (Serg)
+
+
 Evolution CMS 1.4.8 (Jan 09, 2019)
 * [GitHub:#b5a75a063] - [fix] Lightness navbar logo at width < 1200px (Nicola)
 * [GitHub:#f25f3deaf] - [fix] ElementsInTree should be sorted by name #887 (Dmi3yy)

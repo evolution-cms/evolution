@@ -13,7 +13,8 @@ if( ! defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true) {
 <p></p>
 <p>Fixes and Updates in 1.4.9:</p>
 <ul>
-	
+
+    <li>[I] Add support WebP for phpthumb (Ser1ous)</li>
 	<li>[I] New event OnLogEvent (Ser1ous)</li>
 	<li>[F] set auto_template_logic -> sibling by default (Dmi3yy)</li>
 	<li>[U] Update mutate_web_user.dynamic.php (bossloper)</li>
@@ -32,3 +33,10 @@ if( ! defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true) {
 	<li>[F] (core) fix undefined variable (Serg)</li>
 
 </ul>
+
+<p><b> WebP for phpthumb:</b></p>
+<p>For work need:<br>
+    - install rosell-dk/webp-convert from composer <br>
+    - use not cacheble with param &webp=1
+</p>
+
