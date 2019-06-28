@@ -34,7 +34,7 @@ if (isset($_POST['listSubmitted'])) {
     $modx->clearCache('full');
 }
 
-$rs = $modx->db->select("name, caption, id, rank", $tbl_site_tmplvars, "", "rank ASC, id ASC");
+$rs = $modx->db->select("`name`,`caption`,`id`,`rank`", $tbl_site_tmplvars, "", "`rank` ASC, `id` ASC");
 
 if ($modx->db->getRecordCount($rs)) {
     $sortableList = '<div class="clearfix"><ul id="sortlist" class="sortableList">';
