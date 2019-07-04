@@ -177,6 +177,12 @@ class DocumentParser
      *
      * @return DocumentParser
      */
+    
+    /**
+    * check the start of the "updatePubStatus" method
+    */
+    private $updatePubStatusChecked = false;
+    
     public function __construct()
     {
         if ($this->isLoggedIn()) {
@@ -1101,6 +1107,9 @@ class DocumentParser
         if ($timeNow < $cacheRefreshTime || $cacheRefreshTime == 0) {
             return;
         }
+        
+        // method worked
+        $this->updatePubStatusChecked = true;
 
         // now, check for documents that need publishing
         $field = array('published' => 1, 'publishedon' => $timeNow);
