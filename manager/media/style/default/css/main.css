@@ -1,5 +1,5 @@
 /* -------------------------[ Misc stuff ]--- */
-.comment { font-size: 11px; color: #999; padding: 4px 0; }
+.comment { font-size: 11px; color: #999; padding: 4px 0; line-height: 1; display: block; }
 .screen { border: 1px solid #ddd; text-align: center; }
 .even { background: #d9e7c2; }
 .odd { background: #fff; }
