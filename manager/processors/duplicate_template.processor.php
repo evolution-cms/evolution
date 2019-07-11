@@ -32,9 +32,9 @@ $modx->db->insert(
 	array(
 		'tmplvarid'=>'',
 		'templateid'=>'',
-		'rank'=>'',
+		'`rank`'=>'',
 		), $modx->getFullTableName('site_tmplvar_templates'), // Insert into
-	"tmplvarid, '{$newid}', rank", $modx->getFullTableName('site_tmplvar_templates'), "templateid='{$id}'"); // Copy from
+	"tmplvarid, '{$newid}', `rank`", $modx->getFullTableName('site_tmplvar_templates'), "templateid='{$id}'"); // Copy from
 
 // Set the item name for logger
 $name = $modx->db->getValue($modx->db->select('templatename', $modx->getFullTableName('site_templates'), "id='{$newid}'"));
