@@ -13,12 +13,23 @@ $modx->loadExtension('ManagerAPI');
 $modx->loadExtension('phpass');
 
 $core_path = MODX_MANAGER_PATH . 'includes/';
+
+// Now that session is given get user settings and merge into $modx->config
+$usersettings = $modx->getUserSettings();
+
+$settings =& $modx->config;
+extract($modx->config, EXTR_OVERWRITE);
+
 // include_once the language file
 $_lang = array();
 include_once("{$core_path}lang/english.inc.php");
 
 if($manager_language !== 'english' && is_file("{$core_path}lang/{$manager_language}.inc.php")) {
 	include_once("{$core_path}lang/{$manager_language}.inc.php");
+}
+// allow custom language overrides not altered by future EVO-updates
+if(is_file("{$core_path}lang/override/{$manager_language}.inc.php")) {
+	include_once("{$core_path}lang/override/{$manager_language}.inc.php");
 }
 // include the logger
 include_once("{$core_path}log.class.inc.php");
