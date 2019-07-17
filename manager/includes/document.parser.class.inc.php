@@ -5933,7 +5933,7 @@ class DocumentParser
             return $content;
         }
 
-        $enable_filter = $this->config['enable_filter'];
+        $enable_filter = isset($this->config['enable_filter']) ? $this->config['enable_filter'] : 0;
         $this->config['enable_filter'] = 1;
         $_ = array('[* *]', '[( )]', '{{ }}', '[[ ]]', '[+ +]');
         foreach ($_ as $brackets) {
