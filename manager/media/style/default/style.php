@@ -218,7 +218,8 @@ $_style['icons_modules']            = 'fa fa-cubes'; //$style_path.'icons/module
 $_style['icons_run']                = $style_path.'icons/play.png';
 
 //users and webusers
-$_style['icons_user']               = 'fa fa-user'; //$style_path.'icons/user.png';
+$_style['icons_user']               = 'fa fa-user-circle-o'; //$style_path.'icons/user.png';
+$_style['icons_web_user']           = 'fa fa-user'; //$style_path.'icons/user.png';
 
 //Messages
 $_style['icons_message_unread']     = $style_path.'icons/email.png';

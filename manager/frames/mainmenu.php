@@ -306,7 +306,7 @@ if($modx->hasPermission('access_permissions')) {
 	$sitemenu['manager_permissions'] = array(
 		'manager_permissions',
 		'users',
-		'<i class="fa fa-male"></i>' . $_lang['manager_permissions'],
+		'<i class="fa fa-universal-access"></i>' . $_lang['manager_permissions'],
 		'index.php?a=40',
 		$_lang['manager_permissions'],
 		'',
@@ -322,7 +322,7 @@ if($modx->hasPermission('web_access_permissions')) {
 	$sitemenu['web_permissions'] = array(
 		'web_permissions',
 		'users',
-		'<i class="fa fa-universal-access"></i>' . $_lang['web_permissions'],
+		'<i class="fa fa-male"></i>' . $_lang['web_permissions'],
 		'index.php?a=91',
 		$_lang['web_permissions'],
 		'',

@@ -62,7 +62,7 @@ if($modx->db->getRecordCount($rs) < 1) {
 </script>
 
 <h1>
-	<i class="fa fa-male"></i><?= $_lang['mgr_access_permissions']; ?><i class="fa fa-question-circle help"></i>
+	<i class="fa fa-universal-access"></i><?= $_lang['mgr_access_permissions']; ?><i class="fa fa-question-circle help"></i>
 </h1>
 
 <div class="container element-edit-message">

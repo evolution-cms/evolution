@@ -215,7 +215,7 @@ if($which_browser == 'default') {
 	<input type="hidden" name="blockedmode" value="<?php echo ($userdata['blocked'] == 1 || ($userdata['blockeduntil'] > time() && $userdata['blockeduntil'] != 0) || ($userdata['blockedafter'] < time() && $userdata['blockedafter'] != 0) || $userdata['failedlogins'] > 3) ? "1" : "0" ?>" />
 
 	<h1>
-        <i class="fa fa fa-user"></i><?= ($usernamedata['username'] ? $usernamedata['username'] . '<small>(' . $usernamedata['id'] . ')</small>' : $_lang['user_title']) ?>
+        <i class="fa fa-user-circle-o"></i><?= ($usernamedata['username'] ? $usernamedata['username'] . '<small>(' . $usernamedata['id'] . ')</small>' : $_lang['user_title']) ?>
     </h1>
 
 	<?php echo $_style['actionbuttons']['dynamic']['user'] ?>
