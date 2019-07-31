@@ -9,7 +9,7 @@ $tpl = '<tr>
     <td data-toggle="collapse" data-target=".collapse[+id+]"><a class="[+status+]" title="[%edit_resource%]" href="index.php?a=3&amp;id=[+id+]" target="main">[+pagetitle+]</a></td>
     <td data-toggle="collapse" data-target=".collapse[+id+]" class="text-right text-nowrap">[+editedon:math("%s+[(server_offset_time)]"):dateFormat=`'.$modx->toDateFormat(0,'formatOnly').' %H:%M:%S`+]</td>
     <td data-toggle="collapse" data-target=".collapse[+id+]" class="text-nowrap">[+username+]</td>
-    <td style="text-align: right;" class="actions">[+edit_btn+][+preview_btn+][+delete_btn+][+publish_btn+][+info_btn+]</td>
+    <td style="text-align: right;" class="actions">[+edit_btn+][+publish_btn+][+delete_btn+][+info_btn+][+preview_btn+]</td>
 </tr>
 <tr class="resource-overview-accordian collapse collapse[+id+]">
     <td colspan="6">
@@ -64,7 +64,7 @@ while ($ph = $modx->getDatabase()->getRow($rs)) {
         if ($ph['deleted'] == 0) {
             $delete_btn = '<a onclick="return confirm(\'[%confirm_delete_record%]\')" title="[%delete_resource%]" href="index.php?a=6&amp;id=[+id+]" target="main"><i class="fa fa-trash fa-fw"></i></a> ';
         } else {
-            $delete_btn = '<a onclick="return confirm(\'[%confirm_undelete%]\')" title="[%undelete_resource%]" href="index.php?a=63&amp;id=[+id+]" target="main"><i class="fa fa-arrow-circle-o-up fa-fw"></i></a> ';
+            $delete_btn = '<a onclick="return confirm(\'[%confirm_undelete%]\')" title="[%undelete_resource%]" href="index.php?a=63&amp;id=[+id+]" target="main"><i class="fa fa-undo fa-fw"></i></a> ';
         }
         $ph['delete_btn'] = str_replace('[+id+]', $docid, $delete_btn);
     } else {
@@ -72,13 +72,13 @@ while ($ph = $modx->getDatabase()->getRow($rs)) {
     }
 
     if ($ph['deleted'] == 1 && $ph['published'] == 0) {
-        $publish_btn = '<a class="disabled" title="[%publish_resource%]" href="index.php?a=61&amp;id=[+id+]" target="main"><i class="fa fa-arrow-up fa-fw"></i></a> ';
+        $publish_btn = '<a class="disabled" title="[%publish_resource%]" href="index.php?a=61&amp;id=[+id+]" target="main"><i class="fa fa-check fa-fw"></i></a> ';
     } elseif ($ph['deleted'] == 1 && $ph['published'] == 1) {
-        $publish_btn = '<a class="disabled" title="[%publish_resource%]" href="index.php?a=61&amp;id=[+id+]" target="main"><i class="fa fa-arrow-down fa-fw"></i></a> ';
+        $publish_btn = '<a class="disabled" title="[%publish_resource%]" href="index.php?a=61&amp;id=[+id+]" target="main"><i class="fa fa-close fa-fw"></i></a> ';
     } elseif ($ph['deleted'] == 0 && $ph['published'] == 0) {
-        $publish_btn = '<a title="[%publish_resource%]" href="index.php?a=61&amp;id=[+id+]" target="main"><i class="fa fa-arrow-up fa-fw"></i></a> ';
+        $publish_btn = '<a title="[%publish_resource%]" href="index.php?a=61&amp;id=[+id+]" target="main"><i class="fa fa-check fa-fw"></i></a> ';
     } else {
-        $publish_btn = '<a title="[%unpublish_resource%]" href="index.php?a=62&amp;id=[+id+]" target="main"><i class="fa fa-arrow-down fa-fw"></i></a> ';
+        $publish_btn = '<a title="[%unpublish_resource%]" href="index.php?a=62&amp;id=[+id+]" target="main"><i class="fa fa-close fa-fw"></i></a> ';
     }
     $ph['publish_btn'] = str_replace('[+id+]', $docid, $publish_btn);
 
