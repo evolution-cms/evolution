@@ -22,7 +22,7 @@
                 foreach ($data as $category): ?>
                     <tr id="item_<?= $category['id'] ?>">
                         <td>
-                            <i class="fa fa-list-alt"></i> <?= $category['category'] ?>
+                            <i class="fa fa-object-group"></i> <?= $category['category'] ?>
                             <input type="hidden" class="sort" name="<?= $view->get('request_key') ?>[sort][data][<?= $category['id'] ?>][rank]" value="<?= $category['rank'] ?>" />
                             <input type="hidden" name="<?= $view->get('request_key') ?>[sort][data][<?= $category['id'] ?>][id]" value="<?= $category['id'] ?>" />
                             <input type="hidden" name="<?= $view->get('request_key') ?>[sort][data][<?= $category['id'] ?>][category]" value="<?= urlencode($category['category']) ?>" />
