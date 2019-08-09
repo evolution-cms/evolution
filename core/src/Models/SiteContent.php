@@ -250,6 +250,17 @@ class SiteContent extends Eloquent\Model
         }
         return $ids;
     }
+    
+    /**
+     * @return Collection
+     */
+    public function getDocument(): Collection
+    {
+        $out = $this->getAttributes();
+        $tvs = $this->getTvAttribute()->pluck('value', 'name')->toArray();
+
+        return collect(array_merge($out, $tvs));
+    }
 
     /**
      * @return Collection
