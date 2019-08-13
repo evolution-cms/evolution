@@ -87,6 +87,9 @@ $fNameSuf = '-' .
     substr(md5(serialize($params) . filemtime(MODX_BASE_PATH . $input)), 0, 3) .
     '.' . $params['f'];
 
+if (isset($adBlockFix) && $adBlockFix === '1')
+    $fNameSuf = str_replace('ad', 'at', $fNameSuf);
+
 $outputFilename = MODX_BASE_PATH . $fNamePref . $fName . $fNameSuf;
 if (!file_exists($outputFilename)) {
     if (!class_exists('phpthumb')) {

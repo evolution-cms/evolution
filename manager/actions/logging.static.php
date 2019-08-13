@@ -166,7 +166,7 @@ $logs = $modx->db->makeArray($rs);
                     </div>
                 </div>
 
-                <a class="btn btn-success" href="javascript:;" onclick="documentDirty=false;document.logging.log_submit.click();"><i class="<?= $_style["actions_save"] ?>"></i> <?= $_lang['search'] ?></a>
+                <a class="btn btn-success" href="javascript:;" onclick="documentDirty=false;document.logging.log_submit.click();"><i class="<?= $_style["actions_search"] ?>"></i> <?= $_lang['search'] ?></a>
                 <a class="btn btn-secondary" href="index.php?a=2" onclick="documentDirty=false;"><i class="<?= $_style["actions_cancel"] ?>"></i> <?= $_lang['cancel'] ?></a>
 
                 <input type="submit" name="log_submit" value="<?= $_lang["mgrlog_searchlogs"] ?>" style="display:none;" />

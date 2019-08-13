@@ -95,7 +95,7 @@ echo $cm->render();
 	<input type="hidden" name="op" value="" />
 
 	<h1>
-		<i class="fa fa fa-user"></i><?= $_lang['user_management_title'] ?><i class="fa fa-question-circle help"></i>
+		<i class="fa fa-user-circle-o"></i><?= $_lang['user_management_title'] ?><i class="fa fa-question-circle help"></i>
 	</h1>
 
 	<div class="container element-edit-message">

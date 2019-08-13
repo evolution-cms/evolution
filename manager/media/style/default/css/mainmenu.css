@@ -87,8 +87,8 @@ border: none !important; border-left: 1px solid rgba(0, 0, 0, 0.05) !important; 
 @media (min-width: 1200px) {
 #searchresult { top: 2.5rem; }
 #mainMenu #nav #site a { margin-left: 9.25rem; }
-body:not(.lightness) #mainMenu #nav #site::before { content: ""; display: block; overflow: hidden; position: absolute; left: 0; top: 0; width: 9rem; height: 100%; background: url("../images/misc/logo-navbar.png") 0 50% no-repeat; background-size: 8rem; }
-body:not(.navbar-left).lightness #mainMenu #nav #site::before { content: ""; display: block; overflow: hidden; position: absolute; left: 0; top: 0; width: 9rem; height: 100%; background: url("../images/misc/login-logo.png") 0 50% no-repeat; background-size: 8rem; }
+body.lightness #mainMenu #nav #site::before { content: ""; display: block; overflow: hidden; position: absolute; left: 0; top: 0; width: 9rem; height: 100%; background: url("../images/misc/logo-navbar.png") 0 50% no-repeat; background-size: 8rem; }
+body.light #mainMenu #nav #site::before, body.dark #mainMenu #nav #site::before, body.darkness #mainMenu #nav #site::before { content: ""; display: block; overflow: hidden; position: absolute; left: 0; top: 0; width: 9rem; height: 100%; background: url("../images/misc/logo-navbar-white.png") 0 50% no-repeat; background-size: 8rem; }
 #mainMenu, #mainMenu .nav > li > a, #mainMenu .nav .label_searchid, #mainMenu .nav > li > a .icon, #mainMenu #searchform .mask, #mainMenu #nav #site::before { height: 2.5rem; }
 #mainMenu .nav > li > a, #mainMenu .nav .label_searchid, #mainMenu .nav > li .fa, #mainMenu .nav > li > a .icon { line-height: 2.5rem; }
 #mainMenu .nav > li > a .icon.photo { width: 2.1rem; height: 2.1rem; margin-top: .2rem; }
@@ -131,6 +131,7 @@ body:not(.navbar-left).lightness #mainMenu #nav #site::before { content: ""; dis
 .lightness #mainMenu { -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15); }
 .lightness #mainMenu { background-color: #f1f1f1; color: #464646; }
 .lightness #mainMenu .nav > li > a, .lightness #mainMenu .nav .label_searchid { color: #464646 }
+.lightness #mainMenu .nav > li.active > a { color: #222; background: #fff; }
 .lightness #mainMenu.show .nav > li.dropdown.hover > a { color: #222; }
 /* light */
 .light #mainMenu { -webkit-box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, .3); box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, .3); }
@@ -207,7 +208,7 @@ body:not(.navbar-left).lightness #mainMenu #nav #site::before { content: ""; dis
 .navbar-left #tree { padding-left: 5rem; }
 .navbar-left.sidebar-closed #main { left: 5rem !important; }
 .navbar-left #mainMenu, .navbar-left #mainMenu #nav.nav > #bars, .navbar-left #mainMenu #settings.nav > #account, .navbar-left #mainMenu #settings.nav > #system { width: 5rem; }
-.navbar-left #mainMenu #nav #site::before { display: none; }
+.navbar-left #mainMenu #nav #site::before { display: none !important; }
 .navbar-left #mainMenu #nav #site a { margin-left: 0; }
 .navbar-left #mainMenu #nav > li > a > .fa, .navbar-left #mainMenu #searchform .fa, .navbar-left #mainMenu #preview .fa, .navbar-left #mainMenu #nav > li > .fa, .navbar-left #mainMenu #nav > li > a > .fa, .navbar-left #mainMenu #system > a > .fa { font-size: 1.125rem; }
 .navbar-left #mainMenu .menu-item-text, .navbar-left #mainMenu .username { display: block; font-size: 0.6875rem; line-height: 1em; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 0 0.3125rem .5rem; }

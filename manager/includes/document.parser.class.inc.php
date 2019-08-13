@@ -2461,7 +2461,7 @@ class DocumentParser
             }
 
             if ($this->config['aliaslistingfolder'] == 1) {
-                preg_match_all('!\[\~([0-9]+)\~\]!ise', $documentSource, $match);
+                preg_match_all('!\[\~([0-9]+)\~\]!is', $documentSource, $match);
                 $ids = implode(',', array_unique($match['1']));
                 if ($ids) {
                     $res = $this->db->select("id,alias,isfolder,parent,alias_visible", $this->getFullTableName('site_content'), "id IN (" . $ids . ") AND isfolder = '0'");
@@ -5933,7 +5933,7 @@ class DocumentParser
             return $content;
         }
 
-        $enable_filter = $this->config['enable_filter'];
+        $enable_filter = isset($this->config['enable_filter']) ? $this->config['enable_filter'] : 0;
         $this->config['enable_filter'] = 1;
         $_ = array('[* *]', '[( )]', '{{ }}', '[[ ]]', '[+ +]');
         foreach ($_ as $brackets) {

@@ -95,7 +95,7 @@ echo $cm->render();
 	<input type="hidden" name="op" value="" />
 
 	<h1>
-		<i class="fa fa-users"></i><?= $_lang['web_user_management_title'] ?><i class="fa fa-question-circle help"></i>
+		<i class="fa fa-user"></i><?= $_lang['web_user_management_title'] ?><i class="fa fa-question-circle help"></i>
 	</h1>
 
 	<div class="container element-edit-message">
@@ -133,7 +133,7 @@ echo $cm->render();
 					$grd->columns = $_lang["icon"] . " ," . $_lang["name"] . " ," . $_lang["user_full_name"] . " ," . $_lang["email"] . " ," . $_lang["user_prevlogin"] . " ," . $_lang["user_logincount"] . " ," . $_lang["user_block"];
 					$grd->colWidths = "1%,,,,1%,1%,1%";
 					$grd->colAligns = "center,,,,right' nowrap='nowrap,right,center";
-					$grd->colTypes = "template:<a class='gridRowIcon' href='javascript:;' onclick='return showContentMenu([+id+],event);' title='" . $_lang["click_to_context"] . "'><i class='" . $_style["icons_user"] . "'></i></a>||template:<a href='index.php?a=88&id=[+id+]' title='" . $_lang["click_to_edit_title"] . "'>[+value+]</a>||template:[+fullname+]||template:[+email+]||date: " . $modx->toDateFormat('[+thislogin+]', 'formatOnly') . 
+					$grd->colTypes = "template:<a class='gridRowIcon' href='javascript:;' onclick='return showContentMenu([+id+],event);' title='" . $_lang["click_to_context"] . "'><i class='" . $_style["icons_web_user"] . "'></i></a>||template:<a href='index.php?a=88&id=[+id+]' title='" . $_lang["click_to_edit_title"] . "'>[+value+]</a>||template:[+fullname+]||template:[+email+]||date: " . $modx->toDateFormat('[+thislogin+]', 'formatOnly') . 
 					" %H:%M";
 					if($listmode == '1') {
 						$grd->pageSize = 0;

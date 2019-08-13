@@ -66,10 +66,10 @@ $_style['ctx_edit_document']        = 'fa fa-pencil-square-o';
 $_style['ctx_move_document']        = 'fa fa-arrows';
 $_style['ctx_resource_duplicate']   = 'fa fa-clone';
 $_style['ctx_sort_menuindex']       = 'fa fa-sort-numeric-asc';
-$_style['ctx_publish_document']     = 'fa fa-arrow-up';
-$_style['ctx_unpublish_resource']   = 'fa fa-arrow-down';
+$_style['ctx_publish_document']     = 'fa fa-check';
+$_style['ctx_unpublish_resource']   = 'fa fa-close';
 $_style['ctx_delete']               = 'fa fa-trash';
-$_style['ctx_undelete_resource']    = 'fa fa-arrow-circle-o-up';
+$_style['ctx_undelete_resource']    = 'fa fa-undo';
 $_style['ctx_weblink']              = 'fa fa-link';
 $_style['ctx_resource_overview']    = 'fa fa-info';
 $_style['ctx_preview_resource']     = 'fa fa-eye';
@@ -126,10 +126,10 @@ $_style['icons_external_link']      = '<i class="fa fa-external-link"></i>';
 $_style['icons_new_document']       = 'fa fa-file-o';
 $_style['icons_new_weblink']        = 'fa fa-link';
 $_style['icons_move_document']      = 'fa fa-arrows';
-$_style['icons_publish_document']   = 'fa fa-arrow-up';
-$_style['icons_unpublish_resource'] = 'fa fa-arrow-down';
+$_style['icons_publish_document']   = 'fa fa-check';
+$_style['icons_unpublish_resource'] = 'fa fa-close';
 $_style['icons_delete_resource']    = 'fa fa-trash';
-$_style['icons_undelete_resource']  = 'fa fa-arrow-circle-o-up';
+$_style['icons_undelete_resource']  = 'fa fa-undo';
 $_style['icons_resource_overview']  = 'fa fa-info';
 $_style['icons_edit_resource']      = 'fa fa-pencil-square-o';
 //context menu
@@ -218,7 +218,8 @@ $_style['icons_modules']            = 'fa fa-cubes'; //$style_path.'icons/module
 $_style['icons_run']                = $style_path.'icons/play.png';
 
 //users and webusers
-$_style['icons_user']               = 'fa fa-user'; //$style_path.'icons/user.png';
+$_style['icons_user']               = 'fa fa-user-circle-o'; //$style_path.'icons/user.png';
+$_style['icons_web_user']           = 'fa fa-user'; //$style_path.'icons/user.png';
 
 //Messages
 $_style['icons_message_unread']     = $style_path.'icons/email.png';
