@@ -877,6 +877,7 @@ ALTER TABLE `{PREFIX}manager_log`
 ALTER TABLE `{PREFIX}site_templates` ADD COLUMN `templatealias` VARCHAR(255) NULL DEFAULT NULL AFTER `templatename`;
 # ]]upgrade-able
 
+ALTER TABLE {PREFIX}site_tmplvars MODIFY type VARCHAR(50);
 
 # Insert / Replace system records
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
