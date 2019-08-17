@@ -785,6 +785,7 @@ ALTER TABLE `{PREFIX}site_tmplvar_templates`
 
 ALTER TABLE `{PREFIX}site_tmplvars`
  MODIFY COLUMN `name` varchar(50) NOT NULL default '',
+ MODIFY COLUMN `type` varchar(50) NOT NULL default '',
  MODIFY COLUMN `elements` text,
  MODIFY COLUMN `display` varchar(20) NOT NULL DEFAULT '' COMMENT 'Display Control',
  MODIFY COLUMN `display_params` text COMMENT 'Display Control Properties',
