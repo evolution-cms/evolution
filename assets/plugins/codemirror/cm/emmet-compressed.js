@@ -312,6 +312,10 @@ cur:"cursor:${pointer};","cur:a":"cursor:auto;","cur:d":"cursor:default;","cur:c
 "!Shopkeeper":"[!Shopkeeper? &orderFormPage=`10`!]",
 "multiTV":"[[multiTV? &tvName=`` &docid=`[*id*]` &tplConfig=`` &outerTpl=`@CODE:<ul>[+wrapper+]</ul>` &rowTpl=`@CODE:<li>[+event+], [+location+], [+price+]</li>` &display=`all` &offset=`0` &orderBy=``]]",
 "!multiTV":"[!multiTV? &tvName=`` &docid=`[*id*]` &tplConfig=`` &outerTpl=`@CODE:<ul>[+wrapper+]</ul>` &rowTpl=`@CODE:<li>[+event+], [+location+], [+price+]</li>` &display=`all` &offset=`0` &orderBy=``!]",
+"DocLister":'[[DocLister? &display=`4` &depth=`2` &tpl=`@CODE: [+pagetitle+]` &dateFormat=`%d.%m.%Y в %H:%M` &dateSource=`pub_date` &parents=`2` &tvList=`img`&addWhereList=``&sortBy=`menuindex`&paginate=`pages`&TplNextP=`` &TplPrevP=`` &TplPage=`@CODE: <li><a href="[+link+]">[+num+]</a></li>` &TplCurrentPage=`@CODE: <li class="active"><a href="[+link+]">[+num+]</a></li>`&TplWrapPaginate=`@CODE: <div class="pagination"><ul>[+wrap+]</ul></div>`]]',
+"!DocLister":'[!DocLister? &display=`4` &depth=`2` &tpl=`@CODE: [+pagetitle+]` &dateFormat=`%d.%m.%Y в %H:%M` &dateSource=`pub_date` &parents=`2` &tvList=`img`&addWhereList=``&sortBy=`menuindex`&paginate=`pages`&TplNextP=`` &TplPrevP=`` &TplPage=`@CODE: <li><a href="[+link+]">[+num+]</a></li>` &TplCurrentPage=`@CODE: <li class="active"><a href="[+link+]">[+num+]</a></li>`&TplWrapPaginate=`@CODE: <div class="pagination"><ul>[+wrap+]</ul></div>`!]',
+"!DLmenu":'[!DLMenu? &parents=`2` &maxDepth=`2` &outerTpl=`@CODE: <ul [+classes+]>[+wrap+]</ul>` &rowTpl=`@CODE:<li[+classes+]><a href="[+url+]">[+title+]</a></li>` &outerClass=`nav navbar-nav` &parentClass=`dropdown` &hereClass=`active` &activeClass=`active` &innerClass=`dropdown-menu`!]',
+"DLmenu":'[[DLMenu? &parents=`2` &maxDepth=`2` &outerTpl=`@CODE: <ul [+classes+]>[+wrap+]</ul>` &rowTpl=`@CODE:<li[+classes+]><a href="[+url+]">[+title+]</a></li>` &outerClass=`nav navbar-nav` &parentClass=`dropdown` &hereClass=`active` &activeClass=`active` &innerClass=`dropdown-menu`]]',
 "@multiTV":"@INCLUDE/assets/tvs/multitv/multitv.customtv.php",
 "@choiceTV":"@INCLUDE /assets/tvs/choicetv/choicetv.php",
 
