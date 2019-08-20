@@ -450,10 +450,6 @@ ul.mmTagList { float: left; margin-top: .25rem !important
 .mce-container, .mce-container-body { box-sizing: border-box !important }
 .mce-container button { border: none; border-radius: 0; background-color: transparent; }
 .mce-window-head .mce-close { padding: 0; }
-#editorRow_TinyMCE { background-color: #fff; }
-#editorRow_TinyMCE tr { border: 1px dotted rgba(0, 0, 0, .05); }
-#editorRow_TinyMCE th { white-space: nowrap }
-#editorRow_TinyMCE th, #editorRow_TinyMCE td { padding: 0.5em; border: none !important }
 /* wrap TinyMCE3 toolbar */
 .mceEditor .mceToolbar td { height: 24px; float: left }
 /* codeMirror */
