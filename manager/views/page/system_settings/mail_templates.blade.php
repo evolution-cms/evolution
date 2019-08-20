@@ -68,7 +68,7 @@
                 'label' => ManagerTheme::getLexicon('smtp_secure_title'),
                 'small' => '[(smtp_secure)]',
                 'value' => $settings['smtp_secure'],
-                'attributes' => 'onChange="documentDirty=true;" size="1"',
+                'attributes' => 'onChange="documentDirty=true;"',
                 'options' => [
                     'none' => ManagerTheme::getLexicon('no'),
                     'ssl' => 'SSL',
