@@ -12,7 +12,7 @@
             'options' => $langKeys,
             'as' => 'values',
             'ucwords' => true,
-            'attributes' => 'onChange="documentDirty=true;" size="1"',
+            'attributes' => 'onChange="documentDirty=true;"',
             'comment' => ManagerTheme::getLexicon('language_message')
         ])
 
@@ -23,7 +23,7 @@
             'label' => ManagerTheme::getLexicon('charset_title'),
             'small' => '[(modx_charset)]',
             'value' => $settings['modx_charset'],
-            'attributes' => 'onChange="documentDirty=true;" size="1"',
+            'attributes' => 'onChange="documentDirty=true;"',
             'options' => include EVO_CORE_PATH . '/factory/charsets.php',
             'comment' => ManagerTheme::getLexicon('charset_message')
         ])
@@ -35,7 +35,7 @@
             'label' => ManagerTheme::getLexicon('manager_theme'),
             'small' => '[(manager_theme)]',
             'value' => $settings['manager_theme'],
-            'attributes' => 'onChange="documentDirty=true; document.forms[\'settings\'].theme_refresher.value = Date.parse(new Date());" size="1"',
+            'attributes' => 'onChange="documentDirty=true; document.forms[\'settings\'].theme_refresher.value = Date.parse(new Date());"',
             'options' => $themes,
             'ucwords' => true,
             'comment' => '<input type="hidden" name="theme_refresher" value="" />'
@@ -64,7 +64,7 @@
             'small' => '[(login_logo)]',
             'for' => 'login_logo',
             'element' => '
-                <div class="col-md-8">
+                <div class="col-md-9">
                     <div class="input-group">' .
                         ManagerTheme::view('form.inputElement', [
                             'name' => 'login_logo',
@@ -80,7 +80,7 @@
                         '</div>
                     </div>
                 </div>
-                <div class="col-md-4 text-right">
+                <div class="col-md-3 text-right">
                     <img name="login_logo" style="max-height: 48px" src="' .
                     ($settings['login_logo'] ? MODX_SITE_URL . $settings['login_logo'] : '') . '" />
                 </div>',
@@ -94,7 +94,7 @@
             'small' => '[(login_bg)]',
             'for' => 'login_bg',
             'element' => '
-                <div class="col-md-8">
+                <div class="col-md-9">
                     <div class="input-group">' .
                         ManagerTheme::view('form.inputElement', [
                             'name' => 'login_bg',
@@ -110,7 +110,7 @@
                         '</div>
                     </div>
                 </div>
-                <div class="col-md-4 text-right">
+                <div class="col-md-3 text-right">
                     <img name="login_bg" style="max-height: 48px" src="' .
                     ($settings['login_bg'] ? MODX_SITE_URL . $settings['login_bg'] : '') . '" />
                 </div>',
@@ -128,8 +128,7 @@
                 'left' => ManagerTheme::getLexicon('login_form_position_left'),
                 'center' => ManagerTheme::getLexicon('login_form_position_center'),
                 'right' => ManagerTheme::getLexicon('login_form_position_right')
-            ],
-            'comment' => ManagerTheme::getLexicon('manager_theme_mode_message')
+            ]
         ])
 
         <div class="split my-1"></div>
@@ -140,8 +139,8 @@
             'small' => '[(login_form_style)]',
             'value' => $settings['login_form_style'],
             'options' => [
-                'dark' => 'Dark',
-                'light' => 'Light'
+                'dark' => ManagerTheme::getLexicon('login_form_style_dark'),
+                'light' => ManagerTheme::getLexicon('login_form_style_light')
             ]
         ])
 
@@ -249,7 +248,7 @@
             'small' => '[(group_tvs)]',
             'value' => $settings['group_tvs'],
             'options' => explode(',', ManagerTheme::getLexicon('settings_group_tv_options')),
-            'attributes' => 'onChange="documentDirty=true;" size="1"',
+            'attributes' => 'onChange="documentDirty=true;"',
             'comment' => ManagerTheme::getLexicon('settings_group_tv_message')
         ])
 
@@ -297,7 +296,7 @@
                 'editedon' => '[*editedon*]',
                 'publishedon' => '[*publishedon*]'
             ],
-            'attributes' => 'onChange="documentDirty=true;" size="1"',
+            'attributes' => 'onChange="documentDirty=true;"',
             'comment' => ManagerTheme::getLexicon('setting_resource_tree_node_name_desc') . '<br /><b>' . ManagerTheme::getLexicon('setting_resource_tree_node_name_desc_add') . '</b>'
         ])
 
@@ -343,7 +342,7 @@
             'label' => ManagerTheme::getLexicon('datetime_format'),
             'small' => '[(datetime_format)]',
             'value' => $settings['datetime_format'],
-            'attributes' => 'onChange="documentDirty=true;" size="1"',
+            'attributes' => 'onChange="documentDirty=true;"',
             'options' =>  ['dd-mm-YYYY', 'mm/dd/YYYY', 'YYYY/mm/dd'],
             'as' => 'values',
             'comment' => ManagerTheme::getLexicon('datetime_format_message')
@@ -433,7 +432,7 @@
                     'label' => ManagerTheme::getLexicon('which_editor_title'),
                     'small' => '[(which_editor)]',
                     'value' => $settings['which_editor'],
-                    'attributes' => 'onChange="documentDirty=true;" size="1"',
+                    'attributes' => 'onChange="documentDirty=true;"',
                     'first' => [
                         'value' => 'none',
                         'text' => ManagerTheme::getLexicon('none')
@@ -450,7 +449,7 @@
                     'label' => ManagerTheme::getLexicon('fe_editor_lang_title'),
                     'small' => '[(fe_editor_lang)]',
                     'value' => $settings['fe_editor_lang'],
-                    'attributes' => 'onChange="documentDirty=true;" size="1"',
+                    'attributes' => 'onChange="documentDirty=true;"',
                     'first' => [
                         'text' => ManagerTheme::getLexicon('language_title')
                     ],

@@ -128,7 +128,7 @@
                     'name' => 'default_template',
                     'value' => $settings['default_template'],
                     'options' => $templates['items'],
-                    'attributes' => 'size="1" onchange="documentDirty=true;wrap=document.getElementById(\'template_reset_options_wrapper\');if(this.options[this.selectedIndex].value!=' . $settings['default_template'] . '){wrap.style.display=\'block\';}else{wrap.style.display=\'none\';}"'
+                    'attributes' => 'onchange="documentDirty=true;wrap=document.getElementById(\'template_reset_options_wrapper\');if(this.options[this.selectedIndex].value!=' . $settings['default_template'] . '){wrap.style.display=\'block\';}else{wrap.style.display=\'none\';}"'
                     ]) .
                     '<div id="template_reset_options_wrapper" style="display:none;">' .
                         ManagerTheme::view('form.radio', [
@@ -403,7 +403,7 @@
                 'small' => '[(server_offset_time)]',
                 'value' => $settings['server_offset_time'],
                 'options' => $serverTimes,
-                'attributes' => 'onChange="documentDirty=true;" size="1"',
+                'attributes' => 'onChange="documentDirty=true;"',
                 'comment' => sprintf(ManagerTheme::getLexicon('serveroffset_message'), strftime('%H:%M:%S', time()), strftime('%H:%M:%S', time() + $settings['server_offset_time']))
             ])
 

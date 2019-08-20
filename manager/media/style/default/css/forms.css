@@ -42,7 +42,6 @@ select:not([size]):not([multiple]), select.form-control:not([size]):not([multipl
 .btn-default:hover { color: #fff; background-color: #1a1c21; border-color: #1a1c21 }
 textarea, textarea.form-control { width: 100%; line-height: 1.5; overflow: auto; resize: vertical }
 select:not([size]):not([multiple]), select[size="1"] { padding-right: 2em !important; background-image: url("data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PScwIDAgMTc5MiAxNzkyJyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnPjxwYXRoIGQ9J00xMzk1IDczNnEwIDEzLTEwIDIzbC00NjYgNDY2cS0xMCAxMC0yMyAxMHQtMjMtMTBsLTQ2Ni00NjZxLTEwLTEwLTEwLTIzdDEwLTIzbDUwLTUwcTEwLTEwIDIzLTEwdDIzIDEwbDM5MyAzOTMgMzkzLTM5M3ExMC0xMCAyMy0xMHQyMyAxMGw1MCA1MHExMCAxMCAxMCAyM3onIGZpbGw9JyUyMzQ0NCcvPjwvc3ZnPg==") !important; background-repeat: no-repeat; background-position: right center; background-size: 2em 1.3em }
-select[size="1"]:not(.unstyled), select[name="which_editor"] { width: auto; }
 optgroup { font-style: normal; font-weight: 500; background-color: #ddd; }
 optgroup option { font-weight: normal; background-color: #fff; }
 input[type=color] { width: 2.308em; height: 2.308em; -webkit-appearance: menulist; -moz-appearance: menupopup }
