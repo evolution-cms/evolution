@@ -738,4 +738,34 @@ class DBAPI
 
         return implode(' ', $_);
     }
+
+    /**
+     * @param int $flag
+     * @param string $name
+     * @return bool
+     */
+    public function begin ($flag = 0, $name = null)
+    {
+        return $this->conn->begin_transaction($flag, $name);
+    }
+
+    /**
+     * @param int $flag
+     * @param string $name
+     * @return bool
+     */
+    public function commit ($flag = 0, $name = null)
+    {
+        return $this->conn->commit($flag, $name);
+    }
+
+    /**
+     * @param int $flag
+     * @param string $name
+     * @return bool
+     */
+    public function rollback ($flag = 0, $name = null)
+    {
+        return $this->conn->rollback($flag, $name);
+    }
 }
