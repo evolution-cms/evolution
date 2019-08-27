@@ -154,6 +154,7 @@ table.actionButtons .searchtext { padding: 5px; height: 24px; width: 150px; }
 .table.data .actions .disabled { visibility: hidden }
 /* table-data-nowrap */
 .table.data.nowrap th, .table.data.nowrap td { white-space: nowrap }
+.table.data.nowrap.eventlog a, .table.data.nowrap.eventlog span { float: left; padding-right: 5px; white-space: normal }
 /* table-data-sortable */
 .table.data thead .sortable a, .table.data thead .sortable-text a { color: #777; text-decoration: none !important; }
 .table.data thead .sortable a:hover, .table.data thead .sortable-text a:hover { color: #222 }

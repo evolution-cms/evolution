@@ -134,7 +134,7 @@ echo $cm->render();
 					$grd->pageClass = 'page-item';
 					$grd->selPageClass = 'page-item active';
 					$grd->noRecordMsg = $_lang['no_records_found'];
-					$grd->cssClass = "table data nowrap";
+					$grd->cssClass = "table data nowrap eventlog";
 					$grd->columnHeaderClass = "tableHeader";
 					$grd->itemClass = "tableItem";
 					$grd->altItemClass = "tableAltItem";
