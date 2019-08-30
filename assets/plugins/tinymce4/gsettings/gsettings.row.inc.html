@@ -1,9 +1,17 @@
-    <tr class="row1" style="display: [+display+];">
-        <th>[+title+]</th>
-        <td>
-            [+configTpl+]
-            <div>[+message+][+messageVal+]</div>
+<div class="row form-row form-element-input">
+    <label for="[+name+]" class="control-label col-5 col-md-3 col-lg-2">
+        [+title+]
+        <small class="form-text text-muted">[([+name+])]</small>
+    </label>
+    <div class="col-7 col-md-9 col-lg-10">
+        [+configTpl+]
+        <small class="form-text text-muted">
             [+default+]
             [+defaultCheckbox+]
-        </td>
-    </tr>
+            [+message+]
+            [+messageVal+]
+        </small>
+    </div>
+</div>
+
+<div class="split my-1"></div>

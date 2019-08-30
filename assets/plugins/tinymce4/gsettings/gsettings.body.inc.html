@@ -1,20 +1,17 @@
-<style type="text/css">
-textarea.mce {width:95%;height:53px;display:block;}
-#editorRow_TinyMCE {width:99%;}
-#editorRow_TinyMCE #editorRow_TinyMCE th {width:220px;margin-left:25px;}
-#editorRow_TinyMCE td,#editorRow_TinyMCE th {border-bottom:1px dotted #ccc;}
+<div class="row form-row form-element-input settings editorRow">
+  <div class="col-12 col-md-12 col-lg-12">
+      <h1>[+editorLogo+] [+editorLabel+] [+settings+] <b style="float: right;">v[+editorVersion+]</b></h1>
+  </div>
+</div>
 
-</style>
-<table id="editorRow_TinyMCE" class="settings editorRow">
-  <tr class="row1" style="display: [+display+];">
-    <th colspan="2" style="color:#707070; background-color:#eeeeee;line-height:50px;"><h4 style="margin:3px;">[+editorLogo+] [+editorLabel+] [+settings+] <b style="float:right">v[+editorVersion+]</b></h4></th>
-  </tr>
-  [+rows+]
-</table>
+<div class="split my-1"></div>
+
+[+rows+]
+
 <script>
-    jQuery("input.defaultCheckbox").on('change', function() {
-        hiddenId = jQuery(this).attr("id") + '_hidden';
-        val = jQuery(this).is(":checked") ? '1' : '0';
-        jQuery("#"+hiddenId).attr("value", val);
-    });
+  jQuery("input.defaultCheckbox").on('change', function () {
+      hiddenId = jQuery(this).attr("id") + '_hidden';
+      val = jQuery(this).is(":checked") ? '1' : '0';
+      jQuery("#" + hiddenId).attr("value", val);
+  });
 </script>
