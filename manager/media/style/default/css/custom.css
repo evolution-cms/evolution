@@ -26,7 +26,7 @@ select[name=usergroup], select[name=docgroup] { margin: 0 0.5em; }
 select[name=docgroup] + input[type=submit] { float: none; margin: 0; }
 #settingsPane #filemanager_path, #settingsPane #rb_base_dir, #settingsPane input[name=txt_custom_contenttype] { border-top-right-radius: 0; border-bottom-right-radius: 0 }
 #settingsPane #filemanager_path + input[name=reset_filemanager_path], #settingsPane #rb_base_dir + input[name=reset_rb_base_dir], #settingsPane input[name=txt_custom_contenttype] + input[type=button], input[name=photo] + input[type=button], #range input#pids + input[name=fsubmit], input[name="ta"].inputBox + input[type=button], input[name="ta"].inputBox + .CodeMirror + input[type=button], #documentPane input[name^=tv]:not([class*=mtv]) + input[type=button] { z-index: 5; float: right; margin-top: -2.30769em; width: auto !important; border-top-left-radius: 0; border-bottom-left-radius: 0 }
-#settingsPane [name=site_name], #settingsPane [name=txt_custom_contenttype], #settingsPane [name=filemanager_path], #settingsPane [name=rb_base_dir], input[name=photo], #range input#pids, input[maxlength="350"], textarea.mce, #editorRow_TinyMCE { width: 100% !important }
+#settingsPane [name=site_name], #settingsPane [name=txt_custom_contenttype], #settingsPane [name=filemanager_path], #settingsPane [name=rb_base_dir], input[name=photo], #range input#pids, input[maxlength="350"], textarea.mce { width: 100% !important }
 #range::after { content: ""; display: table; width: 100% }
 /* [ Editor ] */
 .navbar.navbar-editor {
@@ -334,7 +334,7 @@ border-bottom: 1px solid #e0e0e0; }
 .darkness #content_body { margin: 0 -1.5rem; }
 .darkness .card .table.data, .darkness .table td[style="background-color:#ffffff;"] { background: #202329 !important; }
 .darkness .table.data, .darkness .grid { background: #282c34 !important; border: none !important }
-.darkness .table.data thead, .darkness .grid thead, .darkness #editorRow_TinyMCE { background: none }
+.darkness .table.data thead, .darkness .grid thead { background: none }
 .darkness .table.data thead th, .darkness .table.data thead td, .darkness .grid th, .darkness .grid thead td { padding: 0.75rem !important; background-color: #202329; border: none; border-bottom: 1px solid #1f5994; color: #777; text-transform: uppercase; font-size: 0.675rem; }
 .darkness .table.data thead .sortable a, .darkness .table.data thead .sortable-text a, .darkness .sortabletable th a { color: #777; }
 .darkness .table th a:hover, .darkness .table thead td a:hover, .darkness .grid th a:hover, .darkness .grid thead td a:hover, .darkness .table .sortable:hover a, .darkness .table .sortable-text:hover a { color: #eee !important; }
@@ -351,11 +351,10 @@ padding: .25rem .5rem; background: none; border: none !important; color: inherit
 .darkness .table.data .actions a:hover .fa::before { color: #eee; }
 .darkness .table.data .actions a:hover .fa::after { background-color: #3b414e; }
 .darkness .table.data .actions a:hover .fa.fa-trash::before { color: #d80030; }
-.darkness table .split, .darkness #editorRow_TinyMCE tr, .darkness table.table.table--edit > tbody > tr, .darkness .sysSettings > tbody > tr { border: none; border-bottom: 1px solid #23262b !important; }
+.darkness table .split, .darkness table.table.table--edit > tbody > tr, .darkness .sysSettings > tbody > tr { border: none; border-bottom: 1px solid #23262b !important; }
 .darkness table .split { margin: 0 -.5rem; }
 .darkness table tr.noborder { border: none !important; }
 .darkness table .comment { color: #999 !important; }
-.darkness #editorRow_TinyMCE > tbody > tr:first-child > th { background: none !important; color: inherit !important; }
 .darkness .section-editor, .darkness #content_body { border-top: 1px solid #414449; }
 .darkness #file_editfile .navbar-editor, .darkness #file_editfile [name="editFile"], .darkness #content_body, .darkness .section-editor { border-bottom: 1px solid #414449; }
 .darkness .section-editor > textarea, .darkness #content_body > div > textarea, .darkness #content_body > .section-editor { margin-top: 0 }
@@ -486,7 +485,7 @@ to { opacity: 1; transform: translateY(0); }
 .table.data > tbody > tr:hover { background-color: rgba(0, 0, 0, 0.03) !important; }
 ul.breadcrumbs { margin: 0 0 1rem 0; padding: .5rem 0.8rem; line-height: normal; font-size: .675rem; color: #888; border-width: 0; background-image: linear-gradient(to right, rgba(0, 0, 0, 0.04), transparent 60%); }
 ul.breadcrumbs a { color: #333; }
-#settingsPane [name="site_name"], #settingsPane [name="emailsender"], #settingsPane [name="emailsubject"], #settingsPane [name="datepicker_offset"], #settingsPane [name="editor_css_path"], #settingsPane [name="safe_functions_at_eval"], #settingsPane [name="valid_hostnames"], #settingsPane [name="upload_files"], #settingsPane [name="upload_images"], #settingsPane [name="upload_media"], #settingsPane [name="upload_flash"], #settingsPane [name="txt_custom_contenttype"], #settingsPane [name="filemanager_path"], #settingsPane [name="rb_base_url"], #settingsPane [name="rb_base_dir"], #settingsPane [name="thumbsDir"], input[name="photo"], #range input#pids, input[maxlength="350"], textarea.mce, #editorRow_TinyMCE { width: 100% !important; }
+#settingsPane [name="site_name"], #settingsPane [name="emailsender"], #settingsPane [name="emailsubject"], #settingsPane [name="datepicker_offset"], #settingsPane [name="editor_css_path"], #settingsPane [name="safe_functions_at_eval"], #settingsPane [name="valid_hostnames"], #settingsPane [name="upload_files"], #settingsPane [name="upload_images"], #settingsPane [name="upload_media"], #settingsPane [name="upload_flash"], #settingsPane [name="txt_custom_contenttype"], #settingsPane [name="filemanager_path"], #settingsPane [name="rb_base_url"], #settingsPane [name="rb_base_dir"], #settingsPane [name="thumbsDir"], input[name="photo"], #range input#pids, input[maxlength="350"], textarea.mce { width: 100% !important; }
 #news .card-block > div, #security .card-block > div { padding: 0 !important; }
 #news .card-block ul, #security .card-block ul { padding: 0; margin: 0; }
 #news .card-block ul li, #security .card-block ul li { padding: 0.75rem 1rem; border-bottom: 1px solid #ebebeb; }
