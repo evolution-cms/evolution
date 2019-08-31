@@ -7,7 +7,7 @@ $settingsRows = array(
         'title'=>'editor_theme_title',
         'name'=>'[+name+]',
         'configTpl'=>'
-            <select name="[+name+]" id="[+name+]" class="inputBox">
+            <select name="[+name+]" id="[+name+]" class="inputBox" size="1">
                 [+theme_options+]
             </select>',
         'message'=>'editor_theme_message',
@@ -17,7 +17,7 @@ $settingsRows = array(
         'title'=>'editor_skin_title',
         'name'=>'[+name+]',
         'configTpl'=>'
-            <select name="[+name+]" id="[+name+]" class="inputBox">
+            <select name="[+name+]" id="[+name+]" class="inputBox" size="1">
                 [+skin_options+]
             </select>',
         'message'=>'editor_skin_message',
@@ -27,7 +27,7 @@ $settingsRows = array(
         'title'=>'editor_skintheme_title',
         'name'=>'[+name+]',
         'configTpl'=>'
-            <select name="[+name+]" id="[+name+]" class="inputBox">
+            <select name="[+name+]" id="[+name+]" class="inputBox" size="1">
                 [+skintheme_options+]
             </select>',
         'message'=>'editor_skintheme_message',
