@@ -30,7 +30,7 @@
                 'label' => ManagerTheme::getLexicon('which_browser_default_title'),
                 'small' => '[(which_browser)]',
                 'value' => $settings['which_browser'],
-                'attributes' => 'size="1" onChange="documentDirty=true;"',
+                'attributes' => 'onChange="documentDirty=true;" size="1"',
                 'options' => $fileBrowsers,
                 'as' => 'values',
                 'comment' => ManagerTheme::getLexicon('which_browser_default_msg')

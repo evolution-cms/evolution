@@ -64,7 +64,7 @@
             'small' => '[(login_logo)]',
             'for' => 'login_logo',
             'element' => '
-                <div class="col-md-8">
+                <div class="col-md-9">
                     <div class="input-group">' .
                         ManagerTheme::view('form.inputElement', [
                             'name' => 'login_logo',
@@ -80,7 +80,7 @@
                         '</div>
                     </div>
                 </div>
-                <div class="col-md-4 text-right">
+                <div class="col-md-3 text-right">
                     <img name="login_logo" style="max-height: 48px" src="' .
                     ($settings['login_logo'] ? MODX_SITE_URL . $settings['login_logo'] : '') . '" />
                 </div>',
@@ -94,7 +94,7 @@
             'small' => '[(login_bg)]',
             'for' => 'login_bg',
             'element' => '
-                <div class="col-md-8">
+                <div class="col-md-9">
                     <div class="input-group">' .
                         ManagerTheme::view('form.inputElement', [
                             'name' => 'login_bg',
@@ -110,7 +110,7 @@
                         '</div>
                     </div>
                 </div>
-                <div class="col-md-4 text-right">
+                <div class="col-md-3 text-right">
                     <img name="login_bg" style="max-height: 48px" src="' .
                     ($settings['login_bg'] ? MODX_SITE_URL . $settings['login_bg'] : '') . '" />
                 </div>',
@@ -128,8 +128,7 @@
                 'left' => ManagerTheme::getLexicon('login_form_position_left'),
                 'center' => ManagerTheme::getLexicon('login_form_position_center'),
                 'right' => ManagerTheme::getLexicon('login_form_position_right')
-            ],
-            'comment' => ManagerTheme::getLexicon('manager_theme_mode_message')
+            ]
         ])
 
         <div class="split my-1"></div>
@@ -140,8 +139,8 @@
             'small' => '[(login_form_style)]',
             'value' => $settings['login_form_style'],
             'options' => [
-                'dark' => 'Dark',
-                'light' => 'Light'
+                'dark' => ManagerTheme::getLexicon('login_form_style_dark'),
+                'light' => ManagerTheme::getLexicon('login_form_style_light')
             ]
         ])
 

@@ -128,7 +128,7 @@
                     'name' => 'default_template',
                     'value' => $settings['default_template'],
                     'options' => $templates['items'],
-                    'attributes' => 'size="1" onchange="documentDirty=true;wrap=document.getElementById(\'template_reset_options_wrapper\');if(this.options[this.selectedIndex].value!=' . $settings['default_template'] . '){wrap.style.display=\'block\';}else{wrap.style.display=\'none\';}"'
+                    'attributes' => 'onchange="documentDirty=true;wrap=document.getElementById(\'template_reset_options_wrapper\');if(this.options[this.selectedIndex].value!=' . $settings['default_template'] . '){wrap.style.display=\'block\';}else{wrap.style.display=\'none\';}" size="1"'
                     ]) .
                     '<div id="template_reset_options_wrapper" style="display:none;">' .
                         ManagerTheme::view('form.radio', [
