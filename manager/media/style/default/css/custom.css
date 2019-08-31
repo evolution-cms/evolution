@@ -486,6 +486,7 @@ to { opacity: 1; transform: translateY(0); }
 ul.breadcrumbs { margin: 0 0 1rem 0; padding: .5rem 0.8rem; line-height: normal; font-size: .675rem; color: #888; border-width: 0; background-image: linear-gradient(to right, rgba(0, 0, 0, 0.04), transparent 60%); }
 ul.breadcrumbs a { color: #333; }
 #settingsPane [name="site_name"], #settingsPane [name="emailsender"], #settingsPane [name="emailsubject"], #settingsPane [name="datepicker_offset"], #settingsPane [name="editor_css_path"], #settingsPane [name="safe_functions_at_eval"], #settingsPane [name="valid_hostnames"], #settingsPane [name="upload_files"], #settingsPane [name="upload_images"], #settingsPane [name="upload_media"], #settingsPane [name="upload_flash"], #settingsPane [name="txt_custom_contenttype"], #settingsPane [name="filemanager_path"], #settingsPane [name="rb_base_url"], #settingsPane [name="rb_base_dir"], #settingsPane [name="thumbsDir"], input[name="photo"], #range input#pids, input[maxlength="350"], textarea.mce { width: 100% !important; }
+#settingsPane select[size="1"] { width: 50%; }
 #news .card-block > div, #security .card-block > div { padding: 0 !important; }
 #news .card-block ul, #security .card-block ul { padding: 0; margin: 0; }
 #news .card-block ul li, #security .card-block ul li { padding: 0.75rem 1rem; border-bottom: 1px solid #ebebeb; }
