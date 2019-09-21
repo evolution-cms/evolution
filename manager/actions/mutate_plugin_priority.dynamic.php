@@ -10,23 +10,20 @@ $siteURL = $modx->config['site_url'];
 
 $updateMsg = '';
 
-if (isset($_POST['listSubmitted'])) {
+if (isset($_POST['priority']) && is_array($_POST['priority'])) {
     $updateMsg .= '<span class="text-success" id="updated">' . $_lang['sort_updated'] . '</span>';
     $tbl = $modx->getFullTableName('site_plugin_events');
 
-    foreach ($_POST as $listName => $listValue) {
-        if ($listName == 'listSubmitted') {
+    foreach ($_POST['priority'] as $eventId => $pluginIds) {
+        if (!is_numeric($eventId) || !is_array($pluginIds)) {
             continue;
         }
-        $orderArray = explode(',', $listValue);
-        $listName = ltrim($listName, 'list_');
-        if (count($orderArray) > 0) {
-            foreach ($orderArray as $key => $item) {
-                if ($item == '') {
-                    continue;
+
+        if (count($pluginIds)) {
+            foreach ($pluginIds as $sortIndex => $pluginId) {
+                if (is_numeric($pluginId)) {
+                    $modx->db->update(array('priority' => $sortIndex), $tbl, "pluginid='" . intval($pluginId) . "' AND evtid='" . intval($eventId) . "'");
                 }
-                $pluginId = ltrim($item, 'item_');
-                $modx->db->update(array('priority' => $key), $tbl, "pluginid='{$pluginId}' AND evtid='{$listName}'");
             }
         }
     }
@@ -35,8 +32,8 @@ if (isset($_POST['listSubmitted'])) {
 }
 
 $rs = $modx->db->select("sysevt.name as evtname, sysevt.id as evtid, pe.pluginid, plugs.name, pe.priority, plugs.disabled", $modx->getFullTableName('system_eventnames') . " sysevt
-		INNER JOIN " . $modx->getFullTableName('site_plugin_events') . " pe ON pe.evtid = sysevt.id
-		INNER JOIN " . $modx->getFullTableName('site_plugins') . " plugs ON plugs.id = pe.pluginid", '', 'sysevt.name,pe.priority');
+        INNER JOIN " . $modx->getFullTableName('site_plugin_events') . " pe ON pe.evtid = sysevt.id
+        INNER JOIN " . $modx->getFullTableName('site_plugins') . " plugs ON plugs.id = pe.pluginid", '', 'sysevt.name,pe.priority');
 
 $insideUl = 0;
 $preEvt = '';
@@ -50,7 +47,7 @@ while ($plugins = $modx->db->getRow($rs)) {
         $sortableList .= '<div class="form-group clearfix"><strong>' . $plugins['evtname'] . '</strong><ul id="' . $plugins['evtid'] . '" class="sortableList">';
         $insideUl = 1;
     }
-    $sortableList .= '<li id="item_' . $plugins['pluginid'] . '"' . ($plugins['disabled'] ? ' class="disabledPlugin"' : '') . '><i class="fa fa-plug"></i> ' . $plugins['name'] . ($plugins['disabled'] ? ' (hide)' : '') . '</li>';
+    $sortableList .= '<li id="item_' . $plugins['pluginid'] . '"' . ($plugins['disabled'] ? ' class="disabledPlugin"' : '') . '><i class="fa fa-plug"></i> ' . $plugins['name'] . ($plugins['disabled'] ? ' (hide)' : '') . '<input type="hidden" name="priority[' . $plugins['evtid'] . '][]" value="' . $plugins['pluginid'] . '"></li>';
     $preEvt = $plugins['evtid'];
 }
 if ($insideUl) {
@@ -95,31 +92,12 @@ require_once(MODX_MANAGER_PATH . 'includes/header.inc.php');
 
         <span class="text-danger" style="display:none;" id="updating"><?= $_lang['sort_updating'] ?></span>
 
-        <?= $sortableList ?>
+        <form name="sortableListForm" method="post" action="">
+            <?= $sortableList ?>
+        </form>
     </div>
 </div>
 
-<form name="sortableListForm" method="post" action="">
-    <input type="hidden" name="listSubmitted" value="true" />
-    <?php
-    foreach ($sortables as $list) {
-    ?>
-    <input type="hidden" id="list_<?= $list ?>" name="list_<?= $list ?>" value="" />
-    <?php
-    }
-    ?>
-</form>
-
 <script type="text/javascript">
-
-    evo.sortable('.sortableList > li', {
-        complete: function(a) {
-            let list = [];
-            for (let i = 0; i < a.parentNode.childNodes.length; i++) {
-                list.push(a.parentNode.childNodes[i].id);
-            }
-            document.getElementById('list_' + a.parentNode.id).value = list.join(',');
-        },
-    });
-
+    evo.sortable('.sortableList > li');
 </script>
