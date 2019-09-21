@@ -364,7 +364,7 @@ if (isset ($_POST['plugin']) || $installData) {
                         $id = $row["id"];
                         $_events = implode("','", $events);
                         // add new events
-                        $modx->db->query("INSERT IGNORE INTO `" . $table_prefix . "site_plugin_events` (pluginid, evtid) SELECT '$id' as 'pluginid',se.id as 'evtid' FROM `" . $table_prefix . "system_eventnames` se WHERE name IN ('" . $_events . "')");
+                        $modx->db->query("INSERT IGNORE INTO `" . $table_prefix . "site_plugin_events` (pluginid, evtid, priority) SELECT '$id' as 'pluginid', se.id as 'evtid', IF(spe.priority IS NULL, 0, MAX(spe.priority) + 1) as 'priority' FROM `" . $table_prefix . "system_eventnames` se LEFT JOIN `" . $table_prefix . "site_plugin_events` spe ON spe.evtid = se.id WHERE name IN ('{$_events}') GROUP BY se.id");
                         // remove existing events
                         $modx->db->query("DELETE `pe` FROM `{$table_prefix}site_plugin_events` `pe` LEFT JOIN `{$table_prefix}system_eventnames` `se` ON `pe`.`evtid`=`se`.`id` AND `name` IN ('{$_events}') WHERE ISNULL(`name`) AND `pluginid` = {$id}");
                     }
