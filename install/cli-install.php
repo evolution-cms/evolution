@@ -24,7 +24,8 @@ if(!defined('MGR_DIR') && is_dir($base_path."manager")) {
 }
 
 require_once($path."lang.php");
-require_once($base_path.MGR_DIR.'/includes/version.inc.php');
+require_once($base_path.MGR_DIR . '/includes/version.inc.php');
+include_once($base_path.MGR_DIR . '/includes/preload.functions.inc.php');
 
 $moduleName = "EVO";
 $moduleVersion = $modx_branch.' '.$modx_version;
