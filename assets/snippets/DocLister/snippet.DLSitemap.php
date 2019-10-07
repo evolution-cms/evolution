@@ -1,5 +1,4 @@
 <?php
-
 include_once(MODX_BASE_PATH . 'assets/lib/APIHelpers.class.php');
 
 if (!isset($params['config'])) {
@@ -9,11 +8,6 @@ if (!isset($schema)) {
     $schema = 'https://www.sitemaps.org/schemas/sitemap/0.9';
 }
 
-$prepare = array();
-$prepare[] = \APIhelpers::getkey($modx->event->params, 'BeforePrepare', '');
-$prepare[] = 'DLSitemap::prepare';
-$prepare[] = \APIhelpers::getkey($modx->event->params, 'AfterPrepare', '');
-$params['prepare'] = trim(implode(",", $prepare), ',');
 if (!class_exists("DLSitemap")) {
     class DLSitemap
     {
@@ -53,6 +47,17 @@ if (!class_exists("DLSitemap")) {
         }
     }
 }
+
+$params['prepare'] = function ($data, $modx, $_DocLister) {
+    if ($BeforePrepare = $_DocLister->getCFGDef('BeforePrepare')) {
+        $data = call_user_func($BeforePrepare, $data, $modx, $_DocLister);
+    }
+    $data = DLSitemap::prepare($data, $modx, $_DocLister);
+    if ($AfterPrepare = $_DocLister->getCFGDef('AfterPrepare')) {
+        $data = call_user_func($AfterPrepare, $data, $modx, $_DocLister);
+    }
+    return $data;
+};
 
 $out = $modx->runSnippet('DocLister', $params);
 if (!empty($out)) {
