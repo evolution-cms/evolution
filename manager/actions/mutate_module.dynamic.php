@@ -209,6 +209,9 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 					ll = ls;
 				}
 
+				key   = key.replace(/\"/g, '&quot;');
+				value = value.replace(/\"/g, '&quot;');
+
 				switch(type) {
 					case 'int':
 						c = '<input type="text" name="prop_' + key + '" value="' + value + '" size="30" onchange="setParameter(\'' + key + '\',\'' + type + '\',this)" />';
