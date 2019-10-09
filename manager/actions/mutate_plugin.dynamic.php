@@ -196,6 +196,9 @@ function bold($cond = false)
                     ll = ls;
                 }
 
+                key   = key.replace(/\"/g, '&quot;');
+                value = value.replace(/\"/g, '&quot;');
+
                 switch (type) {
                     case 'int':
                         c = '<input type="text" name="prop_' + key + '" value="' + value + '" onchange="setParameter(\'' + key + '\',\'' + type + '\',this)" />';
