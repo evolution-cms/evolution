@@ -141,6 +141,21 @@ WebFXTabPane.prototype = {
 
     return tp;
   },
+  removeTabPage: function(oElement) {
+    if (oElement.tabPage) {
+      var tab  = oElement.tabPage.tab,
+          span = oElement.tabPage.aElement;
+
+      while (span.hasChildNodes()) {
+        tab.appendChild(span.firstChild);
+      }
+
+      tab.removeChild(span);
+
+      oElement.insertBefore(tab, oElement.firstChild);
+      oElement.tabPage.dispose();
+    }
+  },
   dispose: function() {
     this.element.tabPane = null;
     this.element = null;
