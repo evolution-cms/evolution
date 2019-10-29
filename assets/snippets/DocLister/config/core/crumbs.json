@@ -1,7 +1,7 @@
 {
   "debug": "0",
   "tpl": "@CODE:<li itemprop=\"itemListElement\" itemscope itemtype=\"http://schema.org/ListItem\"><meta itemprop=\"position\" content=\"[+iteration+]\" /><a href=\"[+url+]\" title=\"[+e.title+]\"  itemprop=\"item\"><span itemprop=\"name\">[+title+]</span></a></li>",
-  "tplCurrent": "@CODE:<li class=\"active\" itemprop=\"itemListElement\" itemscope itemtype=\"http://schema.org/ListItem\"><meta itemprop=\"position\" content=\"[+iteration+]\" /><span itemprop=\"item\">[+title+]</span></li>",
+  "tplCurrent": "@CODE:<li class=\"active\" itemprop=\"itemListElement\" itemscope itemtype=\"http://schema.org/ListItem\"><meta itemprop=\"position\" content=\"[+iteration+]\" /><span itemprop=\"name\">[+title+]</span></li>",
   "ownerTPL": "@CODE:<nav class=\"breadcrumbs\"><ul class=\"breadcrumb\" itemscope itemtype=\"http://schema.org/BreadcrumbList\">[+crumbs.wrap+]</ul></nav>",
   "sysKey": "crumbs",
   "urlScheme": "full"

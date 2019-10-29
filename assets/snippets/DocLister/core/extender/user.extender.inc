@@ -93,11 +93,15 @@ class user_DL_Extender extends extDocLister
             case 'mgr':
                 $table['users'] = $this->modx->getFullTableName('manager_users');
                 $table['attributes'] = $this->modx->getFullTableName('user_attributes');
+                $table['groups'] = $this->modx->getFullTableName('member_groups');
+                $table['groupnames'] = $this->modx->getFullTableName('membergroup_names');
                 break;
             case 'web':
             default:
                 $table['users'] = $this->modx->getFullTableName('web_users');
                 $table['attributes'] = $this->modx->getFullTableName('web_user_attributes');
+                $table['groups'] = $this->modx->getFullTableName('web_groups');
+                $table['groupnames'] = $this->modx->getFullTableName('webgroup_names');
                 break;
         }
 
@@ -155,9 +159,43 @@ class user_DL_Extender extends extDocLister
             while ($tmp = $this->modx->db->getRow($sql)) {
                 $out[$tmp['id']] = $tmp;
             }
+            if (!empty($out)) {
+                $this->getUserGroups($out);
+            }
         }
 
         return $out;
+    }
+
+    /**
+     * @param array $data
+     */
+    private function getUserGroups(&$data) {
+        $users = array_keys($data);
+        if ($users) {
+            $type = $this->DocLister->getCFGDef('usertype', 'web');
+            $ids = implode(',', $users);
+            $table = "{$this->table['groups']} `g` LEFT JOIN {$this->table['groupnames']} `n`";
+            switch ($type) {
+                case 'manager':
+                case 'mgr':
+                    $q = "SELECT `member` as `user`, `name` FROM {$table} ON `g`.`user_group` = `n`.`id`  WHERE `member` IN ({$ids})";
+                    break;
+                case 'web':
+                default:
+                    $q = "SELECT `webuser` as `user`, `name` FROM {$table} ON `g`.`webgroup` = `n`.`id`  WHERE `webuser` IN ({$ids})";
+                    break;
+            }
+            $q = $this->modx->db->query($q);
+            while ($row = $this->modx->db->getRow($q)) {
+                $data[$row['user']]['groups'][] = $row['name'];
+            }
+            foreach($data as &$value) {
+                if (isset($value['groups'])) {
+                    $value['groups'] = json_encode($value['groups']);
+                }
+            }
+        }
     }
 
 }

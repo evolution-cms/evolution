@@ -130,7 +130,6 @@ abstract class autoTable extends MODxAPI
             if (! empty($id)) {
                 $this->query("DELETE from {$this->makeTable($this->table)} where `" . $this->pkName . "` IN ({$id})");
             }
-            $this->clearCache($fire_events);
         } else {
             throw new Exception('Invalid IDs list for delete: <pre>' . print_r($ids, 1) . '</pre>');
         }

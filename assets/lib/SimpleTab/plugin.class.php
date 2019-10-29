@@ -96,23 +96,30 @@ abstract class Plugin
 
     /**
      * @return bool
+     * false если можно выводить
      */
     public function checkPermissions()
     {
         $templates = isset($this->params['templates']) ? explode(',', $this->params['templates']) : false;
-        $roles = isset($this->params['roles']) ? explode(',', $this->params['roles']) : false;
-
-        $tplFlag = ($this->checkTemplate && (
-            ! $templates || ($templates && !in_array($this->params['template'],$templates))
-        ));
-
         $documents = isset($this->params['documents']) ? explode(',', $this->params['documents']) : false;
-        $docFlag = ($this->checkId && $tplFlag) ? !($documents && in_array($this->params['id'], $documents)) : $tplFlag;
-
         $ignoreDocs = isset($this->params['ignoreDoc']) ? explode(',', $this->params['ignoreDoc']) : false;
-        $ignoreFlag = ($this->checkId && $ignoreDocs && in_array($this->params['id'], $ignoreDocs));
+        $roles = isset($this->params['roles']) ? explode(',', $this->params['roles']) : false;
+        if ($this->checkTemplate && $templates !== false && in_array($this->params['template'], $templates)) {
+            $out = false;
+        } elseif ($this->checkId && $documents !== false && in_array($this->params['id'], $documents)) {
+            $out = false;
+        } else {
+            $out = true;
+        }
 
-        return ($docFlag || $ignoreFlag || ($roles && !in_array($_SESSION['mgrRole'], $roles)));
+        if (!$out && $this->checkId && $ignoreDocs !== false && in_array($this->params['id'], $ignoreDocs)) {
+            $out = true;
+        }
+        if (!$out && $roles !== false && in_array($_SESSION['mgrRole'], $roles)) {
+            $out = false;
+        }
+
+        return $out;
     }
 
     /**
@@ -224,7 +231,8 @@ abstract class Plugin
      */
     public function checkTable()
     {
-        $sql = "SHOW TABLES LIKE '{$this->_table}'";
+        $table = $this->modx->db->config['table_prefix'] . $this->table;
+        $sql = "SHOW TABLES LIKE '{$table}'";
 
         return $this->modx->db->getRecordCount($this->modx->db->query($sql));
     }

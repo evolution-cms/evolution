@@ -83,6 +83,7 @@ class APIhelpers
         if (! empty($validate) && is_callable($validate)) {
             $out = (($validate($out) === true) ? $out : $default);
         }
+
         return $out;
     }
 
@@ -409,6 +410,38 @@ class APIhelpers
             }
         }
         $out = array_unique($out);
+
+        return $out;
+    }
+
+    /**
+     * Предварительная обработка данных перед вставкой в SQL запрос вида IN
+     * Если данные в виде строки, то происходит попытка сформировать массив из этой строки по разделителю $sep
+     * Точно по тому, по которому потом данные будут собраны обратно
+     *
+     * @param integer|string|array $data данные для обработки
+     * @param string $sep разделитель
+     * @param boolean $quote заключать ли данные на выходе в кавычки
+     * @return string обработанная строка
+     */
+    public static function sanitarIn($data, $sep = ',', $quote = true)
+    {
+        $modx = evolutionCMS();
+        if (is_scalar($data)) {
+            $data = explode($sep, $data);
+        }
+        if (!is_array($data)) {
+            $data = array(); //@TODO: throw
+        }
+
+        $out = array();
+        foreach ($data as $item) {
+            if ($item !== '') {
+                $out[] = $modx->db->escape($item);
+            }
+        }
+        $q = $quote ? "'" : "";
+        $out = $q . implode($q . "," . $q, $out) . $q;
 
         return $out;
     }

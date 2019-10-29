@@ -15,4 +15,5 @@ if (!isset($params['sortDir'])) {
     $params['sortDir'] = 'ASC';
 }
 $params['depth'] = 0;
+
 return $modx->runSnippet('DocLister', $params);

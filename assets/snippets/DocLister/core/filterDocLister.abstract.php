@@ -133,6 +133,8 @@ abstract class filterDocLister
         );
         $output = sqlHelper::tildeField($field, $table_alias);
 
+        $delimiter = $this->DocLister->getCFGDef('filter_delimiter', ',');
+
         switch ($operator) {
             case '=':
             case 'eq':
@@ -188,7 +190,8 @@ abstract class filterDocLister
                 }
                 break;
             case 'containsOne':
-                $words = explode($this->DocLister->getCFGDef('filter_delimiter', ','), $value);
+                $containsOneDelimiter = $this->DocLister->getCFGDef('filter_delimiter:containsOne', $delimiter);
+                $words = explode($containsOneDelimiter, $value);
                 $word_arr = array();
                 foreach ($words as $word) {
                     /**
@@ -208,7 +211,8 @@ abstract class filterDocLister
                 }
                 break;
             case 'containsAll':
-                $words = explode($this->DocLister->getCFGDef('filter_delimiter', ','), $value);
+                $containsAllDelimiter = $this->DocLister->getCFGDef('filter_delimiter:containsAll', $delimiter);
+                $words = explode($containsAllDelimiter, $value);
                 $word_arr = array();
                 foreach ($words as $word) {
                     if (($likeWord = $this->DocLister->LikeEscape($output, $word)) !== '') {
@@ -222,10 +226,12 @@ abstract class filterDocLister
                 }
             break;
             case 'in':
-                $output .= ' IN(' . $this->DocLister->sanitarIn($value, ',', true) . ')';
+                $inDelimiter = $this->DocLister->getCFGDef('filter_delimiter:in', $delimiter);
+                $output .= ' IN(' . $this->DocLister->sanitarIn($value, $inDelimiter, true) . ')';
                 break;
             case 'notin':
-                $output = '(' . $output . ' NOT IN(' . $this->DocLister->sanitarIn($value, ',', true) . ') OR ' . $output . ' IS NULL)';
+                $notinDelimiter = $this->DocLister->getCFGDef('filter_delimiter:notin', $delimiter);
+                $output = '(' . $output . ' NOT IN(' . $this->DocLister->sanitarIn($value, $notinDelimiter, true) . ') OR ' . $output . ' IS NULL)';
                 break;
             default:
                 $output = '';

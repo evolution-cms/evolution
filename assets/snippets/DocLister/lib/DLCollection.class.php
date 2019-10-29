@@ -23,7 +23,7 @@ class DLCollection extends Helpers\Collection
         $this->modx = $modx;
         switch (true) {
             case is_resource($data):
-            case (is_object($data) && $data instanceof mysqli_result):
+            case (is_object($data) && ($data instanceof mysqli_result || $data instanceof PDOStatement)):
                 $this->fromQuery($data, false);
                 break;
             case is_array($data):

@@ -188,6 +188,7 @@ class modUsers extends MODxAPI
                 $this->userIdCache['attribute.internalKey'] = $this->getID();
                 $this->userIdCache['attribute.email'] = $this->get('email');
                 $this->userIdCache['user.username'] = $this->get('username');
+                $this->loadUserSettings();
                 $this->store($this->toArray());
                 unset($this->field['id']);
                 unset($this->field['internalKey']);
@@ -195,6 +196,16 @@ class modUsers extends MODxAPI
         }
 
         return $this;
+    }
+
+    protected function loadUserSettings()
+    {
+        $webUser = $this->getID();
+
+        if (!empty($webUser)) {
+            $settings = $this->modx->db->makeArray($this->modx->db->select('*', $this->makeTable('web_user_settings'), "webuser = {$webUser}"));
+            $this->fromArray(array_column($settings,'setting_value','setting_name'));
+        }
     }
 
     /**
@@ -225,9 +236,15 @@ class modUsers extends MODxAPI
                     $value = $this->getPassword($value);
                     break;
                 case 'sessionid':
+                    //short bug fix when authoring a web user if the manager is logged in
+                    $oldSessionId  =  session_id();
                     session_regenerate_id(false);
                     $value = session_id();
                     if ($mid = $this->modx->getLoginUserID('mgr')) {
+                        //short bug fix when authoring a web user if the manager is logged in
+                        $this->modx->db->delete($this->makeTable('active_users'),"`internalKey`={$mid} and `sid` != '{$oldSessionId}'  " );
+                        $this->modx->db->delete($this->makeTable('active_user_sessions'),"`internalKey`={$mid} and `sid` != '{$oldSessionId}'  " );
+
                         $this->modx->db->query("UPDATE {$this->makeTable('active_user_locks')} SET `sid`='{$value}' WHERE `internalKey`={$mid}");
                         $this->modx->db->query("UPDATE {$this->makeTable('active_user_sessions')} SET `sid`='{$value}' WHERE `internalKey`={$mid}");
                         $this->modx->db->query("UPDATE {$this->makeTable('active_users')} SET `sid`='{$value}' WHERE `internalKey`={$mid}");
