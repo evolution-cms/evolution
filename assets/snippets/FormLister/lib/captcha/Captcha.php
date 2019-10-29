@@ -26,9 +26,9 @@ interface CaptchaInterface
 
     /**
      * Проверяет капчу
-     * @param \FormLister\Core $FormLister
+     * @param Core $FormLister
      * @param string $value
-     * @param \FormLister\CaptchaInterface $captcha
+     * @param CaptchaInterface $captcha
      * @return bool|string
      */
     public static function validate (Core $FormLister, $value, CaptchaInterface $captcha);

@@ -33,8 +33,10 @@ if (!class_exists($classname)) {
         require_once($dir . $controller . ".php");
     }
 }
-if (!isset($langDir)) $params['langDir'] = 'assets/snippets/FormLister/core/lang/';
 
+$DLTemplate = DLTemplate::getInstance($modx);
+$templatePath = $DLTemplate->getTemplatePath();
+$templateExtension = $DLTemplate->getTemplateExtension();
 if (class_exists($classname)) {
     /** @var \FormLister\Core $FormLister */
     $FormLister = new $classname($modx, $params);
@@ -42,7 +44,7 @@ if (class_exists($classname)) {
     $FormLister->initForm();
     $out = $FormLister->render();
     if ($FormLister->getFormStatus() && isset($saveObject) && is_scalar($saveObject)) {
-        $modx->setPlaceholder($saveObject,$FormLister);
+        $modx->setPlaceholder($saveObject, $FormLister);
     }
 
     if (!is_null($FormLister->debug)) {
@@ -51,5 +53,6 @@ if (class_exists($classname)) {
 } else {
     $modx->logEvent(0, 1, "Controller {$classname} is missing", 'FormLister');
 }
+$DLTemplate->setTemplatePath($templatePath)->setTemplateExtension($templateExtension);
 
 return $out;

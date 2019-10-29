@@ -1,5 +1,7 @@
 <?php namespace FormLister;
-
+use APIhelpers;
+use DocumentParser;
+use jsonHelper;
 /**
  * Контроллер для восстановления паролей
  * Class Reminder
@@ -14,20 +16,18 @@ class Activate extends Form
 
     /**
      * Reminder constructor.
-     * @param \DocumentParser $modx
+     * @param DocumentParser $modx
      * @param array $cfg
      */
-    public function __construct(\DocumentParser $modx, $cfg = array())
+    public function __construct(DocumentParser $modx, $cfg = array())
     {
         parent::__construct($modx, $cfg);
         $this->user = $this->loadModel(
             $this->getCFGDef('model', '\modUsers'),
             $this->getCFGDef('modelPath', 'assets/lib/MODxAPI/modUsers.php')
         );
-        $lang = $this->lexicon->loadLang('activate');
-        if ($lang) {
-            $this->log('Lexicon loaded', array('lexicon' => $lang));
-        }
+        $this->lexicon->fromFile('activate');
+        $this->log('Lexicon loaded', array('lexicon' => $this->lexicon->getLexicon()));
         $userField = $this->getCFGDef('userField', 'email');
         $this->userField = $userField;
         $uidName = $this->getCFGDef('uidName', $this->user->fieldPKName());
@@ -48,7 +48,7 @@ class Activate extends Form
             $this->redirect('exitTo');
             $this->user->edit($id);
             $this->setFields($this->user->toArray());
-            $this->renderTpl = $this->getCFGDef('skipTpl', $this->lexicon->getMsg('activate.default_skipTpl'));
+            $this->renderTpl = $this->getCFGDef('skipTpl', $this->translate('activate.default_skipTpl'));
             $this->setValid(false);
         }
 
@@ -60,7 +60,7 @@ class Activate extends Form
     }
 
     /**
-     * @return bool
+     *
      */
     public function renderActivate()
     {
@@ -69,9 +69,11 @@ class Activate extends Form
         if (is_scalar($hash) && $hash && $hash == $this->getUserHash($uid)) {
             $this->process();
         } else {
-            $this->addMessage($this->lexicon->getMsg('activate.update_failed'));
+            $this->addMessage($this->translate('activate.update_failed'));
             $this->setValid(false);
         }
+
+        return;
     }
 
     /**
@@ -84,7 +86,7 @@ class Activate extends Form
             $hash = false;
         } else {
             $userdata = $this->user->edit($uid)->toArray();
-            $hash = $this->user->getID() && $userdata['logincount'] < 0 ? md5(json_encode($userdata)) : false;
+            $hash = $this->user->getID() && $userdata['logincount'] < 0 ? md5(jsonHelper::toJson($userdata)) : false;
         }
 
         return $hash;
@@ -111,7 +113,7 @@ class Activate extends Form
                 ) {
                     $this->setFields($this->user->toArray());
                     if (empty($password)) {
-                        $password = \APIhelpers::genPass($this->getCFGDef('passwordLength', 6));
+                        $password = APIhelpers::genPass($this->getCFGDef('passwordLength', 6));
                         $this->user->set('password', $password)->save(true);
                         $this->setField('user.password', $password);
                         $hash = $this->getUserHash($uid);
@@ -124,7 +126,7 @@ class Activate extends Form
                     $this->mailConfig['to'] = $this->user->get('email');
                     parent::process();
                 } else {
-                    $this->addMessage($this->lexicon->getMsg('activate.no_activation'));
+                    $this->addMessage($this->translate('activate.no_activation'));
                 }
                 break;
             /**
@@ -137,14 +139,13 @@ class Activate extends Form
                     $result = $this->user->edit($uid)->set('logincount', 0)->save(true);
                     $this->log('Activate user', array('user' => $uid, 'result' => $result));
                     if (!$result) {
-                        $this->addMessage($this->lexicon->getMsg('activate.update_failed'));
+                        $this->addMessage($this->translate('activate.update_failed'));
                     } else {
                         $this->setFields($this->user->toArray());
                         $this->postProcess();
                     }
                 } else {
-                    $this->addMessage($this->lexicon->getMsg('activate.update_failed'));
-                    parent::process();
+                    $this->addMessage($this->translate('activate.update_failed'));
                 }
                 break;
         }
@@ -159,12 +160,12 @@ class Activate extends Form
         switch ($this->mode) {
             case "hash":
                 $this->renderTpl = $this->getCFGDef('successTpl',
-                    $this->lexicon->getMsg('activate.default_successTpl'));
+                    $this->translate('activate.default_successTpl'));
                 break;
             case "activate":
                 $this->redirect();
                 $this->renderTpl = $this->getCFGDef('activateSuccessTpl',
-                    $this->lexicon->getMsg('activate.default_activateSuccessTpl'));
+                    $this->translate('activate.default_activateSuccessTpl'));
         }
     }
 }

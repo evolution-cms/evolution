@@ -1,5 +1,7 @@
 <?php namespace FormLister;
 
+use DocumentParser;
+
 /**
  * Class DeleteUser
  * @package FormLister
@@ -12,10 +14,10 @@ class DeleteContent extends Form
 
     /**
      * Form constructor.
-     * @param \DocumentParser $modx
+     * @param DocumentParser $modx
      * @param array $cfg
      */
-    public function __construct(\DocumentParser $modx, array $cfg = array())
+    public function __construct(DocumentParser $modx, array $cfg = array())
     {
         parent::__construct($modx, $cfg);
         $this->content = $this->loadModel(
@@ -26,10 +28,8 @@ class DeleteContent extends Form
             $this->getCFGDef('model', '\modUsers'),
             $this->getCFGDef('modelPath', 'assets/lib/MODxAPI/modUsers.php')
         );
-        $lang = $this->lexicon->loadLang('deleteContent');
-        if ($lang) {
-            $this->log('Lexicon loaded', array('lexicon' => $lang));
-        }
+        $this->lexicon->fromFile('deleteContent');
+        $this->log('Lexicon loaded', array('lexicon' => $this->lexicon->getLexicon()));
         $idField = $this->getCFGDef('idField','id');
         if (isset($_REQUEST[$idField]) && is_scalar($_REQUEST[$idField])) {
             $this->id = (int)$_REQUEST[$idField];
@@ -50,14 +50,14 @@ class DeleteContent extends Form
         $uid = $this->modx->getLoginUserID('web');
         if (!$uid) {
             $this->redirect('exitTo');
-            $this->renderTpl = $this->getCFGDef('skipTpl', $this->lexicon->getMsg('deleteContent.default_skipTpl'));
+            $this->renderTpl = $this->getCFGDef('skipTpl', $this->translate('deleteContent.default_skipTpl'));
         } elseif (!$this->id || !$this->content->edit($this->id)->getID() || $this->content->get('deleted')) {
             $this->redirect('badRecordTo');
             $this->renderTpl = $this->getCFGDef('badRecordTpl',
-                $this->lexicon->getMsg('deleteContent.default_badRecordTpl'));
+                $this->translate('deleteContent.default_badRecordTpl'));
         }  elseif ($uid != $this->content->edit($this->id)->get($this->getCFGDef('ownerField','aid'))) {
             $this->renderTpl = $this->getCFGDef('badOwnerTpl',
-                $this->lexicon->getMsg('deleteContent.default_badOwnerTpl'));
+                $this->translate('deleteContent.default_badOwnerTpl'));
         } else {
             $flag = true;
             $this->setFields($this->content->edit($this->id)->toArray());
@@ -76,15 +76,15 @@ class DeleteContent extends Form
     {
         $result = $this->content->delete($this->id, true);
         if ($result) {
-            parent::process();
+            return parent::process();
         } else {
-            return $this->addMessage($this->lexicon->getMsg('deleteContent.delete_failed'));
+            return $this->addMessage($this->translate('deleteContent.delete_failed'));
         }
     }
 
     public function postProcess()
     {
         parent::postProcess();
-        $this->renderTpl = $this->getCFGDef('successTpl', $this->lexicon->getMsg('deleteContent.default_successTpl'));
+        $this->renderTpl = $this->getCFGDef('successTpl', $this->translate('deleteContent.default_successTpl'));
     }
 }

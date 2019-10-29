@@ -56,12 +56,33 @@ class Debug
      */
     public function dumpData($data, $wrap = '', $charset = 'UTF-8')
     {
-        $out = \APIHelpers::sanitarTag(print_r($data, 1), $charset);
+        $out = \APIHelpers::sanitarTag(print_r($this->cleanData($data), 1), $charset);
         if (!empty($wrap) && is_string($wrap)) {
             $out = "<{$wrap}>{$out}</{$wrap}>";
         }
 
         return $out;
+    }
+
+    /**
+     * @param $data
+     * @return array
+     */
+    public function cleanData($data) {
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                if (is_object($value)) {
+                    $data[$key] = 'Object: ' . get_class($value);
+                } elseif (is_array($value)) {
+                    $data[$key] = $this->cleanData($value);
+                }
+            }
+            if (empty($data)) {
+                $data = 'No data provided' . PHP_EOL;
+            }
+        }
+
+        return $data;
     }
 
     public function saveLog()

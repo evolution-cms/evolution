@@ -1,5 +1,8 @@
 <?php namespace FormLister;
 
+use DateTime;
+use jsonHelper;
+
 /**
  * Контроллер для регистрации пользователя
  * Class Register
@@ -7,6 +10,7 @@
  */
 class Register extends Form
 {
+    use DateConverter;
     /**
      * @var \modUsers
      */
@@ -24,10 +28,9 @@ class Register extends Form
             $this->getCFGDef('model', '\modUsers'),
             $this->getCFGDef('modelPath', 'assets/lib/MODxAPI/modUsers.php')
         );
-        $lang = $this->lexicon->loadLang('register');
-        if ($lang) {
-            $this->log('Lexicon loaded', array('lexicon' => $lang));
-        }
+        $this->lexicon->fromFile('register');
+        $this->log('Lexicon loaded', array('lexicon' => $this->lexicon->getLexicon()));
+        $this->dateFormat = $this->getCFGDef('dateFormat', '');
     }
 
     /**
@@ -39,7 +42,7 @@ class Register extends Form
             $this->redirect('exitTo');
             $this->user->edit($id);
             $this->setFields($this->user->toArray());
-            $this->renderTpl = $this->getCFGDef('skipTpl', $this->lexicon->getMsg('register.default_skipTpl'));
+            $this->renderTpl = $this->getCFGDef('skipTpl', $this->translate('register.default_skipTpl'));
             $this->setValid(false);
         };
 
@@ -47,19 +50,16 @@ class Register extends Form
     }
 
     /**
-     * @param string $param
-     * @return array|mixed|\xNop
+     * Возвращает результат проверки формы
+     * @return bool
      */
-    public function getValidationRules($param = 'rules')
+    public function validateForm ()
     {
-        $rules = parent::getValidationRules($param);
-        if (isset($rules['password']) && isset($rules['repeatPassword']) && !empty($this->getField('password'))) {
-            if (isset($rules['repeatPassword']['equals'])) {
-                $rules['repeatPassword']['equals']['params'] = $this->getField('password');
-            }
+        if (isset($this->rules['password']) && isset($this->rules['repeatPassword']) && !empty($this->getField('password')) && isset($this->rules['repeatPassword']['equals'])) {
+            $this->rules['repeatPassword']['equals']['params'] = $this->getField('password');
         }
 
-        return $rules;
+        return parent::validateForm();
     }
 
     /**
@@ -118,15 +118,15 @@ class Register extends Form
         if ($this->getField('username') == '') {
             $this->setField('username', $this->getField('email'));
         }
-        if ($this->checkSubmitProtection()) {
-            return;
-        }
         //регистрация со случайным паролем
         if ($this->getField('password') == '' && !isset($this->rules['password'])) {
             $this->setField('password', \APIhelpers::genPass($this->getCFGDef('passwordLength', 6)));
         }
         $password = $this->getField('password');
         $fields = $this->filterFields($this->getFormData('fields'), $this->allowedFields, $this->forbiddenFields);
+        if (isset($fields['dob']) && ($dob = $this->toTimestamp($fields['dob']))) {
+            $fields['dob'] = $dob;
+        }
         $checkActivation = $this->getCFGDef('checkActivation', 0);
         if ($checkActivation) {
             $fields['logincount'] = -1;
@@ -138,15 +138,18 @@ class Register extends Form
         $result = $this->user->save(true);
         $this->log('Register user', array('data' => $fields, 'result' => $result, 'log' => $this->user->getLog()));
         if (!$result) {
-            $this->addMessage($this->lexicon->getMsg('register.registration_failed'));
+            $this->addMessage($this->translate('register.registration_failed'));
         } else {
             $this->user->close();
             $userdata = $this->user->edit($result)->toArray();
             $this->setFields($userdata);
+            if ($dob = $this->fromTimestamp($this->getField('dob'))) {
+                $this->setField('dob', $dob);
+            }
             $this->setField('user.password', $password);
             $this->runPrepare('preparePostProcess');
             if ($checkActivation) {
-                $hash = md5(json_encode($userdata));
+                $hash = md5(jsonHelper::toJSON($userdata));
                 $uidName = $this->getCFGDef('uidName', $this->user->fieldPKName());
                 $query = http_build_query(array(
                     $uidName => $result,
@@ -169,7 +172,7 @@ class Register extends Form
     {
         $this->redirect();
         $this->setFormStatus(true); //результат отправки писем значения не имеет
-        $this->renderTpl = $this->getCFGDef('successTpl', $this->lexicon->getMsg('register.default_successTpl'));
+        $this->renderTpl = $this->getCFGDef('successTpl', $this->translate('register.default_successTpl'));
     }
 
     /**

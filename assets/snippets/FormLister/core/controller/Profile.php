@@ -1,12 +1,15 @@
 <?php namespace FormLister;
 
+use DocumentParser;
+
 /**
  * Контроллер для редактирования профиля
  * Class Profile
  * @package FormLister
  */
-class Profile extends Form
+class Profile extends Core
 {
+    use DateConverter;
     /**
      * @var \modUsers
      */
@@ -14,34 +17,43 @@ class Profile extends Form
 
     /**
      * Profile constructor.
-     * @param \DocumentParser $modx
+     * @param DocumentParser $modx
      * @param array $cfg
      */
-    public function __construct(\DocumentParser $modx, $cfg = array())
+    public function __construct(DocumentParser $modx, $cfg = array())
     {
         parent::__construct($modx, $cfg);
-        $lang = $this->lexicon->loadLang('profile');
-        if ($lang) {
-            $this->log('Lexicon loaded', array('lexicon' => $lang));
-        }
+        $this->lexicon->fromFile('profile');
+        $this->log('Lexicon loaded', array('lexicon' => $this->lexicon->getLexicon()));
         $uid = $modx->getLoginUserId('web');
         if ($uid) {
+            /* @var $user \modUsers */
             $user = $this->loadModel(
                 $this->getCFGDef('model', '\modUsers'),
                 $this->getCFGDef('modelPath', 'assets/lib/MODxAPI/modUsers.php')
             );
             $this->user = $user->edit($uid);
-            if ($ds = $this->getCFGDef('defaultsSources')) {
-                $defaultsSources = "{$ds};param:userdata";
-            } else {
-                $defaultsSources = "param:userdata";
-            }
             $this->config->setConfig(array(
-                'defaultsSources' => $defaultsSources,
                 'userdata' => $this->user->toArray()
             ));
         }
+        $this->dateFormat = $this->getCFGDef('dateFormat', '');
     }
+
+    /**
+     * Загружает в formData данные не из формы
+     * @param string $sources список источников
+     * @param string $arrayParam название параметра с данными
+     * @return $this
+     */
+    public function setExternalFields ($sources = 'array', $arrayParam = 'defaults')
+    {
+        parent::setExternalFields($sources, $arrayParam);
+        parent::setExternalFields('array', 'userdata');
+
+        return $this;
+    }
+
 
     /**
      * @return string
@@ -50,8 +62,11 @@ class Profile extends Form
     {
         if (is_null($this->user) || !$this->user->getID()) {
             $this->redirect('exitTo');
-            $this->renderTpl = $this->getCFGDef('skipTpl', $this->lexicon->getMsg('profile.default_skipTpl'));
+            $this->renderTpl = $this->getCFGDef('skipTpl', $this->translate('profile.default_skipTpl'));
             $this->setValid(false);
+        }
+        if (!$this->isSubmitted() && ($dob = $this->getField('dob'))) {
+            $this->setField('dob', $this->fromTimestamp($dob));
         }
 
         return parent::render();
@@ -59,28 +74,27 @@ class Profile extends Form
 
 
     /**
-     * @param string $param
-     * @return array|mixed|\xNop
+     * Возвращает результат проверки формы
+     * @return bool
      */
-    public function getValidationRules($param = 'rules')
+    public function validateForm()
     {
-        $rules = parent::getValidationRules($param);
         $password = $this->getField('password');
         if (empty($password) || !is_scalar($password)) {
             $this->forbiddenFields[] = 'password';
-            if (isset($rules['password'])) {
-                unset($rules['password']);
+            if (isset($this->rules['password'])) {
+                unset($this->rules['password']);
             }
-            if (isset($rules['repeatPassword'])) {
-                unset($rules['repeatPassword']);
+            if (isset($this->rules['repeatPassword'])) {
+                unset($this->rules['repeatPassword']);
             }
         } else {
-            if (isset($rules['repeatPassword']['equals'])) {
-                $rules['repeatPassword']['equals']['params'] = $this->getField('password');
+            if (isset($this->rules['repeatPassword']['equals'])) {
+                $this->rules['repeatPassword']['equals']['params'] = $this->getField('password');
             }
         }
 
-        return $rules;
+        return parent::validateForm();
     }
 
     /**
@@ -92,6 +106,7 @@ class Profile extends Form
     {
         $result = true;
         if (is_scalar($value) && !is_null($fl->user) && ($fl->user->get("email") !== $value)) {
+            /* @var $user \modUsers */
             $user = clone($fl->user);
             $user->set('email', $value);
             $result = $user->checkUnique('web_user_attributes', 'email', 'internalKey');
@@ -109,6 +124,7 @@ class Profile extends Form
     {
         $result = true;
         if (is_scalar($value) && !is_null($fl->user) && ($fl->user->get("email") !== $value)) {
+            /* @var $user \modUsers */
             $user = clone($fl->user);
             $user->set('username', $value);
             $result = $user->checkUnique('web_users', 'username');
@@ -151,13 +167,19 @@ class Profile extends Form
         if (isset($fields['email'])) {
             $fields['email'] = is_scalar($fields['email']) ? $fields['email'] : '';
         }
+        if (isset($fields['dob']) && ($dob = $this->toTimestamp($fields['dob']))) {
+            $fields['dob'] = $dob;
+        }
         $result = $this->user->fromArray($fields)->save(true);
         $this->log('Update profile', array('data' => $fields, 'result' => $result, 'log' => $this->user->getLog()));
         if ($result) {
             $this->setFormStatus(true);
             $this->user->close();
             $this->setFields($this->user->edit($result)->toArray());
-            $this->setField('user.password',$newpassword);
+            if ($dob = $this->fromTimestamp($this->getField('dob'))) {
+                $this->setField('dob', $dob);
+            }
+            $this->setField('user.password', $newpassword);
             $this->runPrepare('preparePostProcess');
             if (!empty($newpassword) && ($password !== $this->user->getPassword($newpassword))) {
                 $this->user->logOut('WebLoginPE', true);
@@ -167,10 +189,10 @@ class Profile extends Form
             if ($successTpl = $this->getCFGDef('successTpl')) {
                 $this->renderTpl = $successTpl;
             } else {
-                $this->addMessage($this->lexicon->getMsg('profile.update_success'));
+                $this->addMessage($this->translate('profile.update_success'));
             }
         } else {
-            $this->addMessage($this->lexicon->getMsg('profile.update_failed'));
+            $this->addMessage($this->translate('profile.update_failed'));
         }
     }
 }

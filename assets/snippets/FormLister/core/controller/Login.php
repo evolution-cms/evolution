@@ -1,5 +1,7 @@
 <?php namespace FormLister;
 
+use DocumentParser;
+
 /**
  * Контроллер для авторизации пользователя
  * Class Login
@@ -7,16 +9,17 @@
  */
 class Login extends Core
 {
+    use DateConverter;
     public $user = null;
     protected $requestUri = '';
     protected $context = '';
 
     /**
      * Login constructor.
-     * @param \DocumentParser $modx
+     * @param DocumentParser $modx
      * @param array $cfg
      */
-    public function __construct(\DocumentParser $modx, $cfg = array())
+    public function __construct(DocumentParser $modx, $cfg = array())
     {
         parent::__construct($modx, $cfg);
         $this->user = $this->loadModel(
@@ -29,10 +32,9 @@ class Login extends Core
         } 
         $this->requestUri = $this->modx->getConfig('site_url') . $requestUri;
         $this->context = $this->getCFGDef('context', 'web');
-        $lang = $this->lexicon->loadLang('login');
-        if ($lang) {
-            $this->log('Lexicon loaded', array('lexicon' => $lang));
-        }
+        $this->lexicon->fromFile('login');
+        $this->log('Lexicon loaded', array('lexicon' => $this->lexicon->getLexicon()));
+        $this->dateFormat = $this->getCFGDef('dateFormat', '');
     }
 
     /**
@@ -106,6 +108,9 @@ class Login extends Core
             $this->redirect();
         }
         $this->setFields($this->user->toArray());
+        if ($dob = $this->fromTimestamp($this->getField('dob'))) {
+            $this->setField('dob', $dob);
+        }
         $this->renderTpl = $this->getCFGDef('successTpl');
     }
 }

@@ -90,7 +90,7 @@ class Filters {
      * @return null|string|string[]
      */
     public static function phone($value) {
-        return is_scalar($value) ? preg_replace('/[^\D\(\)\s\+-]/', '', $value) : '';
+        return is_scalar($value) ? preg_replace('/[^\d\(\)\s\+-]/', '', $value) : '';
     }
 
     /**
@@ -130,7 +130,15 @@ class Filters {
      * @return null|string|string[]
      */
     public static function removeExtraSpaces ($value) {
-        return is_scalar($value) ? preg_replace('/\s+/', ' ', $value) : '';
+        return is_scalar($value) ? preg_replace('/\s+/u', ' ', $value) : '';
+    }
+
+    /**
+     * @param $value
+     * @return null|string|string[]
+     */
+    public static function compressText ($value) {
+        return is_scalar($value) ? preg_replace(array('/(\v){3,}/u', '/\h+/u'), array('$1$1', ' '), $value) : '';
     }
 
     /**
