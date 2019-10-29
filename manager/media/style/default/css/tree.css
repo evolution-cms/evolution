@@ -30,7 +30,7 @@
 #treeRoot .indent { position: relative; z-index: -1; float: left; height: 1.5em; }
 #treeRoot .indent i { float: left; height: 1.2em; width: 1.5em }
 #treeRoot .dragafter > a .indent, #treeRoot .dragbefore > a .indent { z-index: 1; }
-#treeRoot .dragafter > a .indent::after, #treeRoot .dragbefore > a .indent::before { content: "\f0da"; display: block; position: absolute; right: 0.1em; bottom: -0.5em; height: 1em; font: normal normal normal 1em/1em FontAwesome; color: #f04 }
+#treeRoot .dragafter > a .indent::after, #treeRoot .dragbefore > a .indent::before { content: "\f0da"; display: block; position: absolute; right: 0.1em; bottom: -0.5em; height: 1em; font: normal normal normal 1em/1em 'Font Awesome 5 Free'; color: #f04 }
 #treeRoot .dragbefore > a .indent::before { bottom: auto; top: -0.5em; }
 #treeRoot .empty { color: #aaa; cursor: default; }
 #treeRoot .icon { cursor: pointer; -webkit-transition-duration: 0.15s; transition-duration: 0.15s }
@@ -39,7 +39,7 @@
 #treeRoot .toggle:hover { background-color: rgba(255, 255, 255, 0.5); }
 #treeRoot .toggle .fa { margin: 0; width: auto; }
 #treeRoot .fa, #treeHolder .rootNode .fa { margin-right: 1px; width: 1em; font-size: 1.08em; text-align: center; color: #565656; -webkit-transition-duration: 0.15s; transition-duration: 0.15s }
-#treeRoot a[data-private="1"] .icon::after { position: relative; float: left; margin: .5em -1em 0 0; content: "\f023"; font-family: FontAwesome; font-size: 0.75em; color: #d9534f; }
+#treeRoot a[data-private="1"] .icon::after { position: relative; float: left; margin: .5em -1em 0 0; content: "\f023"; font-family: 'Font Awesome 5 Free'; font-size: 0.75em; color: #d9534f; }
 #treeRoot .fa-file, #treeRoot .fa-file-o, #treeRoot .fa-file-code, #treeRoot .fa-file-code-o { }
 #treeRoot .fa-folder, #treeRoot .fa-folder-open, #treeRoot .fa-folder-o, #treeRoot .fa-folder-open-o, #treeRoot .fa-exclamation-triangle { margin-top: 0.1em; text-align: left }
 #treeRoot .fa-link { margin-right: 0; font-size: 0.8em }

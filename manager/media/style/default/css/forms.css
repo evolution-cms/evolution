@@ -6,7 +6,7 @@ button, input { margin: 0; padding: 0; border: none; font: inherit; line-height:
 input[type=checkbox], input[type=radio] { width: 0.8125rem !important; height: 0.8125rem !important; margin-right: 0.25em; vertical-align: -0.15em; border-radius: .1rem;
 border: 1px solid #d4d4d4; background: #fff no-repeat 50% -1em; outline: none; transition: border-color .2s, background-position .1s; }
 input[type=checkbox] { background-image: url("data:image/svg+xml;utf8,%3Csvg%20viewBox%3D%270%200%201792%201792%27%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%3E%3Cpath%20d%3D%27M1671%20566q0%2040-28%2068l-724%20724-136%20136q-28%2028-68%2028t-68-28l-136-136-362-362q-28-28-28-68t28-68l136-136q28-28%2068-28t68%2028l294%20295%20656-657q28-28%2068-28t68%2028l136%20136q28%2028%2028%2068z%27%20fill%3D%27%23444%27/%3E%3C/svg%3E"); background-size: 1em; }
-input[type=radio] { background-image: url("data:image/svg+xml;utf-8,%3Csvg%20viewBox%3D%270%200%201792%201792%27%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%3E%3Cpath%20d%3D%27M1664%20896q0%20209-103%20385.5t-279.5%20279.5-385.5%20103-385.5-103-279.5-279.5-103-385.5%20103-385.5%20279.5-279.5%20385.5-103%20385.5%20103%20279.5%20279.5%20103%20385.5z%27%20fill%3D%27%23444%27/%3E%3C/svg%3E"); background-size: .609375em; border-radius: 50% }
+input[type=radio] { background-image: url("data:image/svg+xml;utf-8,%3Csvg%20viewBox%3D%270%200%201792%201792%27%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%3E%3Cpath%20d%3D%27M1664%20896q0%20209-103%20385.5t-279.5%20279.5-385.5%20103-385.5-103-279.5-279.5-103-385.5%20103-385.5%20279.5-279.5%20385.5-103%20385.5%20103%20279.5%20279.5%20103%20385.5z%27%20fill%3D%27%23444%27/%3E%3C/svg%3E"); background-size: .545em; border-radius: 50% }
 input[type=checkbox]:hover, input[type=radio]:hover { border-color: #bcbcbc }
 input[type=checkbox]:active, input[type=radio]:active { background-color: #fafafa; }
 input[type=checkbox]:focus, input[type=radio]:focus { border-color: #4d8ef9 !important; box-shadow: 0 0 0 1px rgba(77, 142, 249, 0.5) }
@@ -79,7 +79,7 @@ select:not([size]):not([multiple]) { text-indent: -2px }
 .darkness #actions .dropdown-menu .btn:hover { background-color: #3c424e; color: #fff }
 .darkness optgroup { background-color: #202329 }
 .darkness optgroup option { background-color: #1a1c21 }
-.darkness .float-xs-right > select { width: auto }
+.darkness .float-right > select { width: auto }
 .darkness input[type=checkbox], .darkness input[type=radio] { border: 1px solid #414449; background-color: #202329 }
 .darkness input[type=checkbox]:checked, .darkness input[type=radio]:checked { background-color: #ffc107; border-color: #ffc107 !important }
 .darkness input[type=checkbox]:checked:hover, .darkness input[type=radio]:checked:hover { box-shadow: 0 0 .5em #ffc107 }

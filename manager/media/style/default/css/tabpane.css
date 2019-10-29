@@ -2,14 +2,14 @@
 .tab-row { position: relative; z-index: 1; white-space: nowrap; padding: 0 1.5rem }
 .tab-row::after, .tab-row-container::after { content: ""; position: absolute; z-index: 1; left: 0; right: 0; bottom: 0; height: 1px; background-color: #ddd }
 .tab-row .tab, .tab-pane > .tab-page > .tab { position: relative; display: inline-block; margin: 0; padding: 0 0.875rem; line-height: 2.7rem; height: 2.5rem; text-transform: uppercase; border: 1px solid rgba(0, 0, 0, 0); border-bottom: none; cursor: pointer; -webkit-user-select: none; user-select: none; }
-.tab-row .tab, .tab-row .tab a, .tab-pane > .tab-page > .tab { color: rgba(0, 0, 0, 0.6); font-size: 0.75rem }
+.tab-row .tab, .tab-row .tab a, .tab-pane > .tab-page > .tab { color: rgba(0, 0, 0, 0.6); font-size: 0.75rem; text-decoration: none; }
 .tab-row .tab.selected { z-index: 2; border-color: #ddd; background-color: #fff; color: #444; font-weight: 700 }
-.tab-row .tab .fa { margin-right: 0.1em; font-size: 0.875rem }
+.tab-row .tab .fa { margin-right: 0.5em; font-size: 0.875rem }
 /* tabs-container */
 .tab-row-container { height: 2.5rem; left: 0; overflow-y: hidden; padding: 0 1.5rem; position: relative; z-index: 0 }
 .tab-row-container .tab-row { z-index: 2; -webkit-overflow-scrolling: touch; overflow-x: auto; padding: 0 0 2rem; white-space: nowrap }
 .tab-row-container .tab-row::after { display: none }
-.tab-row-container > i { position: absolute; top: 0; height: 100%; text-align: center; font: normal normal normal 1.2rem/2.7rem FontAwesome; cursor: pointer; transition-duration: 0.2s; width: 1.5rem; }
+.tab-row-container > i { position: absolute; top: 0; height: 100%; text-align: center; font-size: 1.2rem; line-height: 2.7rem; font-family: "Font Awesome 5 Free"; cursor: pointer; transition-duration: 0.2s; width: 1.5rem; }
 .tab-row-container > i.prev { left: 0; }
 .tab-row-container > i.next { right: 0; }
 .tab-row-container > i.disable { font-size: 0.8rem; color: rgba(0, 0, 0, 0.2); pointer-events: none }
@@ -49,7 +49,7 @@ background-color: #efeff6; border: 1px solid #e0e0e0; border-bottom: 2px solid #
 .tab-page > .tab-pane > .tab-page { box-shadow: none; }
 .tab-page > .tab-pane > .tab-page > .tab-body { padding-bottom: 0 }
 /* tab-page-header collapse */
-.tab-page .tab-header[data-toggle="collapse"]::after { float: right; content: "\f107"; font-family: FontAwesome; font-size: 1rem; line-height: 1em; color: #777; cursor: pointer; transition-duration: .3s }
+.tab-page .tab-header[data-toggle="collapse"]::after { float: right; content: "\f107"; font-family: 'Font Awesome 5 Free'; font-size: 1rem; line-height: 1em; color: #777; cursor: pointer; transition-duration: .3s }
 .tab-page .tab-header[data-toggle="collapse"].collapsed::after { transform: rotate(180deg) }
 .tab-page .tab-header[data-toggle="collapse"]:hover::after { color: #333 }
 /* old style */

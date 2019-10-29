@@ -51,7 +51,7 @@ foreach($mraTranslations as $key => $value) $mraTranslations[$key] = iconv($modx
 
 <script type="text/javascript" src="media/script/jquery.quicksearch.js"></script>
 <script type="text/javascript" src="media/script/jquery.nucontextmenu.js"></script>
-<script type="text/javascript" src="media/script/bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="media/script/bootstrap/js/bootstrap.min.js?v4.3.1"></script>
 <script type="text/javascript" src="actions/resources/functions.js"></script>
 
 <h1>

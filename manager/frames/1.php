@@ -250,7 +250,7 @@ $modx->config['global_tabs'] = (int)($modx->config['global_tabs'] && ($user['rol
     </script>
     <script src="media/style/<?= $modx->config['manager_theme'] ?>/js/modx.min.js?v=<?= $lastInstallTime ?>"></script>
     <?php if ($modx->config['show_picker'] != "0") { ?>
-        <script src="media/script/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+        <script src="media/script/bootstrap/js/bootstrap.min.js?4.3.1" type="text/javascript"></script>
         <script src="media/script/spectrum/spectrum.evo.min.js" type="text/javascript"></script>
         <script src="media/style/<?= $modx->config['manager_theme'] ?>/js/color.switcher.js" type="text/javascript"></script>
     <?php } ?>

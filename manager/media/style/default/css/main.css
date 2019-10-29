@@ -1,5 +1,5 @@
 /* -------------------------[ Misc stuff ]--- */
-.comment { font-size: 11px; color: #999; padding: 4px 0; line-height: 1; display: block; }
+.comment { font-size: 11px; color: #999; padding: 4px 0; }
 .screen { border: 1px solid #ddd; text-align: center; }
 .even { background: #d9e7c2; }
 .odd { background: #fff; }
@@ -97,7 +97,7 @@ code { font-size: inherit; font-family: Consolas, 'Courier New', 'Courier', mono
 .table, #documentPane #tv_body table, #documentPane .tmplvars table, #documentPane [id*="table-"], #documentPane [id*="table-tv"] { width: 100%; }
 #documentPane .tab-page > table > tr > td:first-child, #documentPane .tab-page > table > tbody > tr > td:first-child, #documentPane .tab-page .tmplvars > table > tbody > tr > td:first-child, #tmplvarsPane .tab-page > table > tbody > tr > td:first-child, #tmplvarsPane .tab-page > table > tbody > tr > th:first-child, #chunkPane .tab-page > table > tbody > tr > td:first-child, #chunkPane .tab-page > table > tbody > tr > th:first-child, #snipetPane .tab-page > table > tbody > tr > td:first-child, #snipetPane .tab-page > table > tbody > tr > th:first-child, #pluginPane .tab-page > table > tbody > tr > td:first-child, #pluginPane .tab-page > table > tbody > tr > th:first-child, #modulePane .tab-page > table > tbody > tr > td:first-child, #modulePane .tab-page > table > tbody > tr > th:first-child, #docManagerPane .tab-page #dates > table > tbody > tr > td:first-child { width: 200px }
 #documentPane .tab-page > table > tr > td:last-child, #documentPane .tab-page .tmplvars > table > tbody > tr > td:last-child { width: inherit !important }
-#documentPane .tab-page > table > tbody > tr > td:first-child > .warning { display: inline-block; width: calc(100% - 1rem); }
+/*#documentPane .tab-page > table > tbody > tr > td:first-child > .warning { display: inline-block; width: calc(100% - 1rem); }*/
 #documentPane .tab-page > table > tbody > tr > td:first-child > [data-tooltip] { margin-top: 0.3rem; vertical-align: top }
 .table--edit { margin-bottom: 1rem; }
 .table th, .table td { text-align: left; vertical-align: middle; }
@@ -117,25 +117,16 @@ table th { font-weight: 500; }
 /* nav */
 .no-events { pointer-events: none; }
 /* Required for Bootstrap3 Collapse */
-.panel-title > a::before { content: "\f107"; /* fa-angle-down */
-font-family: "FontAwesome"; }
-.panel-title > a.collapsed::before { content: "\f105"; /* fa-angle-right */
-padding: 0 1px 0 3px; }
 .panel-title > a { font-size: 1.1em; color: #657587; display: block; padding: 3px 0; }
 .panel-title > a:hover { text-decoration: none; color: #1377c5; background: rgba(255, 255, 255, 0.27); }
+.panel-title > a > i::before { content: "\f107"; /* fa-angle-down */ }
+.panel-title > a.collapsed > i::before { content: "\f105"; /* fa-angle-right */ }
 /* category icons in manage elements */
 #site_templates, #site_tmplvars, #site_htmlsnippets, #site_snippets, #site_plugins { padding-left: 0; }
-#site_templates li, #site_tmplvars li, #site_htmlsnippets li, #site_snippets li, #site_snippets li, #site_plugins li, #categories_list li { list-style: none; margin-left: -21px; }
-#site_templates li strong:before, #site_tmplvars li strong:before, #site_htmlsnippets li strong:before, #site_snippets li strong:before, #site_snippets li strong:before, #site_plugins li strong:before, #categories_list li strong:before { font-family: "FontAwesome"; font-style: normal; font-weight: normal; color: #5b6f7a; padding: 0 5px 0 5px; content: '\f105'; }
+#site_templates li, #site_tmplvars li, #site_htmlsnippets li, #site_snippets li, #site_modules li, #site_plugins li, #categories_list li { list-style: none; margin-left: -21px; }
+#site_templates li strong:before, #site_tmplvars li strong:before, #site_htmlsnippets li strong:before, #site_snippets li strong:before, #site_modules li strong:before, #site_plugins li strong:before, #categories_list li strong:before { font-family: "Font Awesome 5 Free"; font-style: normal; font-weight: normal; color: #5b6f7a; padding: 0 5px 0 5px; content: '\f105'; }
 .tab-pane ul li ul li strong:before { content: ''; }
 /* elements icons in manage elements */
-a.man_el_name:before { font-family: "FontAwesome"; font-style: normal; font-weight: normal; font-size: 0.875rem; color: #5b6f7a; }
-a.man_el_name.site_templates:before { content: '\f1ea'; }
-a.man_el_name.site_tmplvars:before { content: '\f022'; }
-a.man_el_name.site_htmlsnippets:before { content: '\f009'; }
-a.man_el_name.site_snippets:before { content: '\f121'; }
-a.man_el_name.site_plugins:before { content: '\f1e6'; }
-a.man_el_name.site_modules:before { content: '\f085'; }
 div#tabCategory.tab-page ul li ul li { padding-top: 7px; padding-bottom: 7px; }
 /*Fake tables for providing dynamic amount of cells per row*/
 .rTable { display: table; width: 100%; padding: 0; }
@@ -168,7 +159,7 @@ ul.elements_buttonbar li { display: table-cell; padding: 0 !important; width: 2e
 ul.elements_buttonbar li a { display: block; width: 2em; padding: 4px 2px 2px 2px; margin: 1px; min-width: 22px; }
 ul.elements_buttonbar .fa { font-size: 0.875rem; padding: 1px 1px 0; }
 /* Checkbox "Icons" */
-.noicons.tab-page ul li ul li a:before, .noicons .elements_description a:before { display: none !important; }
+.noicons.tab-page ul li ul li a:before, .noicons .elements_description a > i.fa:first-child { display: none !important; }
 /* View-dependent styles */
 /* List-view */
 .resourceTable.list li { }
@@ -198,4 +189,4 @@ break-inside: avoid-column; -webkit-column-break-inside: avoid; -moz-column-brea
 .modx-alert { display: block; margin: 60px 10px 10px 10px; padding: 1em; }
 .modx-alert.alert-error { background-color: #ffd0d0; border: 1px solid #f00; color: #000; }
 tr.userIdle td { color: #aaa; }
-tr.userIdle td strong:before { font-family: "FontAwesome"; font-style: normal; font-weight: normal; color: #aaa; padding: 0 5px 0 0; content: '\f017'; }
+tr.userIdle td strong:before { font-family: "Font Awesome 5 Free"; font-style: normal; font-weight: normal; color: #aaa; padding: 0 5px 0 0; content: '\f017'; }

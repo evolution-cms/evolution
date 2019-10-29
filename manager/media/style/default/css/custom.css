@@ -1,8 +1,16 @@
 /* [ COLS ] */
 .row { margin-left: -1.25rem; margin-right: -1.25rem }
-.container { padding-left: 1.25rem; padding-right: 1.25rem; width: 100% }
+.container { padding-left: 1.25rem; padding-right: 1.25rem; width: 100%; min-width:100%}
 /* :TODO .container-body need remove and replace .tab-content */
 .container-body { padding: 1.25rem }
+
+/*Collapce old*/
+.collapse { display: none}
+.collapse.in {display: block}
+tr.collapse.in {display: table-row}
+tbody.collapse.in { display: table-row-group}
+
+
 /* [ FORMS ] */
 .form-row { margin-bottom: 0.25rem; }
 .form-row.row { margin-left: 0; margin-right: -1rem }
@@ -14,7 +22,7 @@
 .form-control-name { position: relative; }
 .form-control-name .form-control { padding-right: 2em }
 .form-control-name .custom-control { display: block; overflow: hidden; position: absolute; z-index: 3; top: 0; right: 0; width: 2em; height: 100%; margin: 0; padding: 0; cursor: pointer }
-.form-control-name .custom-control input { position: absolute; left: -100% }
+.form-control-name .custom-control input { position: absolute; left: -100%; opacity: 0; }
 .form-control-name .custom-control .fa-lock { margin-top: 0.6em; font-size: 1.5em }
 .form-control-name .custom-control .fa-lock::before { content: "\f09c"; color: #ddd }
 .form-control-name .custom-control input:checked ~ .fa-lock::before { content: "\f023"; color: #d9534f }
@@ -26,7 +34,6 @@ select[name=usergroup], select[name=docgroup] { margin: 0 0.5em; }
 select[name=docgroup] + input[type=submit] { float: none; margin: 0; }
 #settingsPane #filemanager_path, #settingsPane #rb_base_dir, #settingsPane input[name=txt_custom_contenttype] { border-top-right-radius: 0; border-bottom-right-radius: 0 }
 #settingsPane #filemanager_path + input[name=reset_filemanager_path], #settingsPane #rb_base_dir + input[name=reset_rb_base_dir], #settingsPane input[name=txt_custom_contenttype] + input[type=button], input[name=photo] + input[type=button], #range input#pids + input[name=fsubmit], input[name="ta"].inputBox + input[type=button], input[name="ta"].inputBox + .CodeMirror + input[type=button], #documentPane input[name^=tv]:not([class*=mtv]) + input[type=button] { z-index: 5; float: right; margin-top: -2.30769em; width: auto !important; border-top-left-radius: 0; border-bottom-left-radius: 0 }
-#settingsPane [name=site_name], #settingsPane [name=txt_custom_contenttype], #settingsPane [name=filemanager_path], #settingsPane [name=rb_base_dir], input[name=photo], #range input#pids, input[maxlength="350"], textarea.mce, #editorRow_TinyMCE { width: 100% !important }
 #range::after { content: ""; display: table; width: 100% }
 /* [ Editor ] */
 .navbar.navbar-editor {
@@ -45,7 +52,7 @@ font-size: .6772rem; height: 2.4em; line-height: 1.4 }
 #actions .btn-group .btn-success { box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .07); }
 #actions .btn-group .btn-success:hover { box-shadow: none }
 #actions .btn-group .plus { z-index: 2; float: right; margin: -2.4em 0 0 0; width: 2rem; padding-left: 0; padding-right: 0; text-align: center; cursor: default; }
-#actions .btn-group .plus::before { content: "\f107"; font-family: FontAwesome }
+#actions .btn-group .plus::before { content: "\f107"; font-weight: 900; font-family: 'Font Awesome 5 Free' }
 #actions .btn-group .show .plus::before { content: "\f106"; }
 #actions .btn-group select#stay { display: block; position: relative; z-index: -1; clear: both; width: auto; height: 0; margin: -100% 0 -2rem 0; font-size: 0.675rem; opacity: 0; visibility: hidden; }
 #actions .btn-group .dropdown-menu { display: none; position: absolute; z-index: -1; left: auto; right: 0; top: 100%; width: 100%; min-width: 2rem; margin: 0; padding: 0; text-align: left; font-size: .6772rem;
@@ -61,7 +68,9 @@ border-top: none; border-radius: 0 0 0.1em 0.1em; overflow: hidden; }
 @media (max-width: 840px) {
 #actions { right: 0 }
 #actions .btn-group .btn span, #actions .btn-group select#stay, #_actions .btn-group .btn span { display: none }
+
 #actions .btn-group .btn .fa, #_actions .btn-group .btn .fa { display: inline-block }
+
 #actions .btn-group .dropdown-menu { width: 2rem }
 #actions .btn-group .dropdown-menu span { padding-left: 0; padding-right: 0; text-align: center }
 #_actions .btn-group .input-group-btn .btn { margin-left: -1px }
@@ -75,7 +84,7 @@ border-top: none; border-radius: 0 0 0.1em 0.1em; overflow: hidden; }
 #actions .actionButtons li a, #actions .actionButtons .plus { float: left; padding: 0 10px !important; height: 32px; line-height: 30px; -webkit-user-select: none; user-select: none; }
 #actions .actionButtons li:last-child { margin: 0 }
 #actions .actionButtons #Button1 a { width: 100%; text-align: left; }
-#actions .actionButtons .plus { overflow: hidden; float: right; margin: -32px 0 0 0; width: 35px; border-radius: 0 3px 3px 0 !important; text-align: center; cursor: default; font: normal normal normal 0/30px FontAwesome }
+#actions .actionButtons .plus { overflow: hidden; float: right; margin: -32px 0 0 0; width: 35px; border-radius: 0 3px 3px 0 !important; text-align: center; cursor: default; font: normal normal normal 0/30px 'Font Awesome 5 Free' }
 #actions .actionButtons .plus::before { content: "\f107"; font-size: 14px }
 #actions .actionButtons .show .plus::before { content: "\f106"; }
 #actions .actionButtons .dropdown-menu { display: none; position: absolute; z-index: -1; left: auto; right: 0; top: 100%; width: 100%; min-width: 35px; margin: -2px 0 0; padding: 2px 0 0; text-align: left; font-size: 1em; background-color: #fff; border: 1px solid #32ab9a; border-top: none; border-radius: 0 0 3px 3px; overflow: hidden; }
@@ -154,13 +163,12 @@ table.actionButtons .searchtext { padding: 5px; height: 24px; width: 150px; }
 .table.data .actions .disabled { visibility: hidden }
 /* table-data-nowrap */
 .table.data.nowrap th, .table.data.nowrap td { white-space: nowrap }
-.table.data.nowrap.eventlog a, .table.data.nowrap.eventlog span { float: left; padding-right: 5px; white-space: normal }
 /* table-data-sortable */
-.table.data thead .sortable a, .table.data thead .sortable-text a { color: #777; text-decoration: none !important; }
-.table.data thead .sortable a:hover, .table.data thead .sortable-text a:hover { color: #222 }
-.table.data thead .sortable a::after, .table.data thead .sortable-text a::after { content: "\f107"; font-family: FontAwesome; opacity: .3; margin-left: .5em; }
-.table.data thead .sortable.forwardSort a::after, .table.data thead .sortable-text.forwardSort a::after { opacity: 1; content: "\f106"; color: #d9534f }
-.table.data thead .sortable.reverseSort a::after, .table.data thead .sortable-text.reverseSort a::after { opacity: 1; content: "\f107"; color: #d9534f }
+.table.data thead .sortable a, .table.data thead .sortable-text a, .table.data thead .sortable-numeric a { color: #777; text-decoration: none !important; }
+.table.data thead .sortable a:hover, .table.data thead .sortable-text a:hover, .table.data thead .sortable-numeric a:hover { color: #222 }
+.table.data thead .sortable a::after, .table.data thead .sortable-text a::after, .table.data thead .sortable-numeric a::after { content: "\f107"; font-family: 'Font Awesome 5 Free'; opacity: .3; margin-left: .5em; }
+.table.data thead .sortable.forwardSort a::after, .table.data thead .sortable-text.forwardSort a::after, .table.data thead .sortable-numeric.forwardSort a::after { opacity: 1; content: "\f106"; color: #d9534f }
+.table.data thead .sortable.reverseSort a::after, .table.data thead .sortable-text.reverseSort a::after, .table.data thead .sortable-numeric.reverseSort a::after { opacity: 1; content: "\f107"; color: #d9534f }
 .table.data thead .sortable:hover a::after, .table.data thead .sortable-text:hover a::after, .table.data thead .sortable-numeric:hover a::after, .table.data thead .sortable-date:hover a::after { opacity: 1 }
 .table.data thead .sortable, .table.data thead .sortable-text, .table.data thead .sortable-numeric, .table.data thead .sortable-date { cursor: pointer }
 .table.data thead .sortable-text span, .table.data thead .sortable-numeric span, .table.data thead .sortable-date span { display: none }
@@ -186,7 +194,7 @@ color: #888; border-bottom: 1px dotted #cecaca; }
 ul.breadcrumbs li { list-style: none; display: inline-block; padding: 0; margin: 0; }
 ul.breadcrumbs a { text-decoration: none; }
 ul.breadcrumbs span { display: inline-block; width: 1.25em; vertical-align: top; text-indent: -2.25em; overflow: hidden; }
-ul.breadcrumbs span::after { margin-left: 2em; font-family: FontAwesome; content: "\f105" }
+ul.breadcrumbs span::after { margin-left: 2em; font-family: 'Font Awesome 5 Free'; content: "\f105" }
 /* [ PAGINATION ] */
 #pagination { padding: 0 1.25rem; margin: .5rem 0 0; }
 #pagination ul {
@@ -198,7 +206,7 @@ line-height: 1.7; border: 1px solid #ddd; text-decoration: none; color: #333; }
 /* [ SEARCHBAR ] */
 .searchbar input[type=text] { max-width: 10rem }
 /* [ WIDGETS ] */
-.widgets .card { clear: both; margin-bottom: 1rem; border-width: 0; border-radius: 0; background-color: #fff; -webkit-transition: box-shadow .35s; transition: box-shadow .35s; box-shadow: 0 0.1rem 0.3rem 0 rgba(0, 0, 0, 0.075); }
+.widgets .card { margin-bottom: 1rem; margin-right: 0.6rem; border-width: 0; border-radius: 0; background-color: #fff; -webkit-transition: box-shadow .35s; transition: box-shadow .35s; box-shadow: 0 0.1rem 0.3rem 0 rgba(0, 0, 0, 0.075); }
 .widgets .card:hover { box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.07); }
 .widgets .card-header { padding: .5rem 1rem; font-size: .9rem; color: #616a73; font-weight: 700; border-radius: 0; border: none; border-bottom: 1px solid rgba(0, 0, 0, .05); text-transform: none; background-color: transparent; border-bottom: 1px solid rgba(0, 0, 0, 0.05); }
 .widgets .card-header .fa { font-size: .9rem }
@@ -217,8 +225,11 @@ line-height: 1.7; border: 1px solid #ddd; text-decoration: none; color: #333; }
 .widgets #welcome .wm_button a { display: block; height: 100%; padding: 1rem 1rem .5rem;
 text-decoration: none; color: #646b7b; box-shadow: none; transition-duration: .5s }
 .widgets #welcome .wm_button a:hover { color: #373b46; background-color: rgba(93, 109, 202, 0.16) }
+
 .widgets #welcome .wm_button a .fa { display: inline-block; }
-.widgets #welcome .wm_button a .fa + span { display: block; padding: .5em 0; line-height: 1em; font-size: .7rem; }
+
+.widgets #welcome .wm_button a .fa + span { display: block; padding: .5em 0; line-height: 1em; font-size: .7rem; word-wrap:normal; }
+
 .widgets #modxrecent_widget .table.data tbody tr:not(:hover) { background-color: #fff }
 .widgets #modxrecent_widget .table.data tbody tr:nth-child(4n+1):not(:hover) { background-color: #f6f8f8 }
 .widgets #modxrecent_widget .table.data tbody tr:nth-child(2n) { background-color: #fff }
@@ -491,7 +502,7 @@ to { opacity: 1; transform: translateY(0); }
 .table.data > tbody > tr:hover { background-color: rgba(0, 0, 0, 0.03) !important; }
 ul.breadcrumbs { margin: 0 0 1rem 0; padding: .5rem 0.8rem; line-height: normal; font-size: .675rem; color: #888; border-width: 0; background-image: linear-gradient(to right, rgba(0, 0, 0, 0.04), transparent 60%); }
 ul.breadcrumbs a { color: #333; }
-#settingsPane [name="site_name"], #settingsPane [name="emailsender"], #settingsPane [name="emailsubject"], #settingsPane [name="datepicker_offset"], #settingsPane [name="editor_css_path"], #settingsPane [name="safe_functions_at_eval"], #settingsPane [name="valid_hostnames"], #settingsPane [name="upload_files"], #settingsPane [name="upload_images"], #settingsPane [name="upload_media"], #settingsPane [name="upload_flash"], #settingsPane [name="txt_custom_contenttype"], #settingsPane [name="filemanager_path"], #settingsPane [name="rb_base_url"], #settingsPane [name="rb_base_dir"], #settingsPane [name="thumbsDir"], input[name="photo"], #range input#pids, input[maxlength="350"], textarea.mce, #editorRow_TinyMCE { width: 100% !important; }
+
 #news .card-block > div, #security .card-block > div { padding: 0 !important; }
 #news .card-block ul, #security .card-block ul { padding: 0; margin: 0; }
 #news .card-block ul li, #security .card-block ul li { padding: 0.75rem 1rem; border-bottom: 1px solid #ebebeb; }

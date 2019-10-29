@@ -1,5 +1,5 @@
 @supports (-webkit-overflow-scrolling: touch) {
-html, body { -webkit-overflow-scrolling: touch; overflow: auto; height: 100%; /* ios iframe scroll jumping to top fix */ }
+    html, body { -webkit-overflow-scrolling: touch; overflow: auto; height: 100%; /* ios iframe scroll jumping to top fix */ }
 }
 #frameset { position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; }
 #mainMenu, #tree, #main { position: absolute; }
@@ -52,5 +52,5 @@ to { transform: rotate(360deg) }
 /* darkness */
 .darkness { letter-spacing: .021em; }
 .darkness #mainloader { background-color: rgba(0, 0, 0, 0.1); }
-.darkness, .darkness #frameset, .darkness #main { background-color: #282c34; color: #bdbdbd; }
+.darkness, .darkness #frameset, .darkness #main, .darkness .table  { background-color: #282c34; color: #bdbdbd; }
 .darkness > form { background-color: #202329 }

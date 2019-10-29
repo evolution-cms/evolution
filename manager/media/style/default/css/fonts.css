@@ -6,7 +6,7 @@ html { font-size: 16px; }
 html { font-size: 16px; }
 }
 @supports (-webkit-overflow-scrolling: touch) {
-html, body { -webkit-overflow-scrolling: touch; overflow: auto; height: 100%; /* ios iframe scroll jumping to top fix */ }
+    html, body { -webkit-overflow-scrolling: touch; overflow: auto; height: 100%; /* ios iframe scroll jumping to top fix */ }
 }
 body { font-weight: normal; font-style: normal; font-size: 0.8125rem; line-height: 1.5; font-family: sans-serif; -webkit-font-smoothing: subpixel-antialiased }
 /* For Arabic Font */

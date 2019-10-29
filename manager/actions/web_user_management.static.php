@@ -104,16 +104,20 @@ echo $cm->render();
 
 	<div class="tab-page">
 		<div class="container container-body">
-            <div class="searchbar form-group">
+            <div class="row searchbar form-group">
                 <div class="input-group">
-                    <div class="input-group-btn">
+                    <div class="col-sm-6 input-group-btn">
                         <a class="btn btn-success btn-sm" href="index.php?a=87"><i class="<?= $_style["actions_new"] ?>"></i> <?= $_lang['new_web_user'] ?></a>
                     </div>
-                    <input class="form-control form-control-sm float-xs-right" name="search" type="text" value="<?= $query ?>" placeholder="<?= $_lang["search"] ?>" />
-                    <div class="input-group-btn">
-                        <a class="btn btn-secondary btn-sm" href="javascript:;" title="<?= $_lang["search"] ?>" onclick="searchResource();return false;"><i class="<?= $_style['actions_search'] ?>"></i></a>
-                        <a class="btn btn-secondary btn-sm" href="javascript:;" title="<?= $_lang["reset"] ?>" onclick="resetSearch();return false;"><i class="<?= $_style['actions_refresh'] ?>"></i></a>
-                        <a class="btn btn-secondary btn-sm" href="javascript:;" title="<?= $_lang["list_mode"] ?>" onclick="changeListMode();return false;"><i class="<?= $_style['actions_table'] ?>"></i></a>
+                    <div class="col-sm-6 ">
+                        <div class="input-group float-right w-auto">
+                            <input class="form-control form-control-sm" name="search" type="text" value="<?= $query ?>" placeholder="<?= $_lang["search"] ?>" />
+                            <div class="input-group-append">
+                                <a class="btn btn-secondary btn-sm" href="javascript:;" title="<?= $_lang["search"] ?>" onclick="searchResource();return false;"><i class="<?= $_style['actions_search'] ?>"></i></a>
+                                <a class="btn btn-secondary btn-sm" href="javascript:;" title="<?= $_lang["reset"] ?>" onclick="resetSearch();return false;"><i class="<?= $_style['actions_refresh'] ?>"></i></a>
+                                <a class="btn btn-secondary btn-sm" href="javascript:;" title="<?= $_lang["list_mode"] ?>" onclick="changeListMode();return false;"><i class="<?= $_style['actions_table'] ?>"></i></a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

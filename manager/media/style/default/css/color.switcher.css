@@ -49,7 +49,7 @@ i.evocpicon:hover { -webkit-transform: rotate(30deg); -moz-transform: rotate(30d
 .dark .evocp-frame .panel-heading .btn:hover { background-color: #1a1c21; }
 .dark .evocp-frame h2 { border-color: #3e4144; }
 .evocp-frame .panel-heading .togglearrow { width: 10px; font-size: 10px; color: #bbb; margin-right: 2px; margin-top: -5px; }
-.evocp-box .evocp-menuHColor.colorSelected:before, .evocp-box .evocp-menuColor.colorSelected:before, .evocp-box .evocp-bgmcolor.colorSelected:before, .evocp-box .evocp-color.colorSelected:before, .evocp-box .evocp-alinkcolor.colorSelected:before { font-family: FontAwesome; content: "\f1fc"; display: inline-block; padding-top: 3px; vertical-align: middle; color: #fff; }
+.evocp-box .evocp-menuHColor.colorSelected:before, .evocp-box .evocp-menuColor.colorSelected:before, .evocp-box .evocp-bgmcolor.colorSelected:before, .evocp-box .evocp-color.colorSelected:before, .evocp-box .evocp-alinkcolor.colorSelected:before { font-family: 'Font Awesome 5 Free'; content: "\f1fc"; display: inline-block; padding-top: 3px; vertical-align: middle; color: #fff; }
 .evocp-box .evocp-menuHColor.evocp_light.colorSelected:before, .evocp-box .evocp-menuColor.evocp_light.colorSelected:before, .evocp-box .evocp-bgmcolor.evocp_light.colorSelected:before, .evocp-box .evocp-color.evocp_light.colorSelected:before, .evocp-box .evocp-alinkcolor.evocp_light.colorSelected:before { color: #444 !important; }
 .dark .evocp-box .btn-secondary { background-color: #2f323a; border-color: #3e4144; color: #fafafa; }
 /*fix for mainmenu*/

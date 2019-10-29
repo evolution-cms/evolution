@@ -2348,7 +2348,7 @@
 .datagrid-row-collapse:before
 {
     display: inline-block;
-    font: normal normal normal 14px/1 FontAwesome;
+    font: normal normal normal 14px/1 'Font Awesome 5 Free';
     font-size: 14px;
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
@@ -2584,7 +2584,7 @@
     color:yellow;
 }
 .tree-expanded:before {
-    content:"\f147";
+    content:"\f146";
     background: #fff;
     font-size:15px;
 }
@@ -2594,7 +2594,7 @@
     font-size:15px;
 }
 .tree-collapsed:before {
-    content:"\f196";
+    content:"\f0fe";
     background: #fff;font-size:15px;
 }
 .tree-collapsed-hover:before {
@@ -2643,10 +2643,10 @@
     background: url('images/loading.gif') no-repeat center center;
 }
 .tree-checkbox0:before {
-    content:"\f096";
+    content:"\f0c8";
 }
 .tree-checkbox1:before {
-    content:"\f046";
+    content:"\f14a";
 }
 .tree-checkbox2:before {
     content:"\f14a";

@@ -208,7 +208,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                 <!-- HTML text editor start -->
                 <div class="navbar navbar-editor">
                     <span><?= $_lang['chunk_code'] ?></span>
-                    <span class="float-xs-right"><?= $_lang['which_editor_title'] ?>
+                    <span class="float-right"><?= $_lang['which_editor_title'] ?>
                         <select class="form-control form-control-sm" id="which_editor" name="which_editor" size="1" onchange="changeRTE();">
 						<option value="none"<?= $which_editor == 'none' ? ' selected="selected"' : '' ?>><?= $_lang['none'] ?></option>
                             <?php

@@ -396,7 +396,7 @@ if($numRecords > 0) {
 							<span class="publishedDoc"><?= $numRecords . ' ' . $_lang['resources_in_container'] ?> (<strong><?= html_escape($content['pagetitle'], $modx->config['modx_charset']) ?></strong>)</span>
 						</div>
 					<?php endif; ?>
-					<div class="float-xs-right">
+					<div class="float-right">
 						<?= $filter_sort . ' ' . $filter_dir ?>
 					</div>
 
