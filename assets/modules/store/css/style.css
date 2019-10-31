@@ -29,9 +29,10 @@ body {
 }
 .github::before {
   display: inline-block;
-  font-family: 'FontAwesome';
+  font-family: 'Font Awesome 5 Free';
   font-size: 28px;
   content: "\f09b";
+  font-weight: bold;
 }
 
 .typesbadge {
@@ -319,40 +320,40 @@ nav ul li {
 }
 
 .info .version:before {
-  font-family: FontAwesome;
+  font-family: 'Font Awesome 5 Free';
   font-style: normal;
-  font-weight: normal;
   color: #3697cd;
   padding: 0 5px 0 0;
   content: '\f021 ';
+  font-weight: bold;
 }
 
 .info .autor:before {
-  font-family: FontAwesome;
+  font-family: 'Font Awesome 5 Free';
   font-style: normal;
-  font-weight: normal;
   color: #3697cd;
   padding: 0 5px 0 0;
   content: '\f007';
+  font-weight: bold;
 }
 
 .info .date:before {
-  font-family: FontAwesome;
+  font-family: 'Font Awesome 5 Free';
   font-style: normal;
-  font-weight: normal;
   color: #3697cd;
   padding: 0 5px 0 0;
   content: '\f017 ';
+  font-weight: bold;
 }
 
 .info .download:before {
-  font-family: FontAwesome;
+  font-family: 'Font Awesome 5 Free';
   font-style: normal;
-  font-weight: normal;
   color: #3697cd;
   color: #3697cd;
   padding: 0 5px 0 0;
   content: '\f019';
+  font-weight: bold;
 }
 
 .descript {
@@ -522,14 +523,14 @@ body,
   padding: 7px;
 }
 
-.catalog_item.liststyle .row-category h3:before {
-  font-family: FontAwesome;
-  font-style: normal;
-  font-weight: normal;
-  color: #444;
-  padding: 0 12px 0 5px;
-  content: '\f09b';
-}
+/*.catalog_item.liststyle .row-category h3:before {*/
+/*  font-family: 'Font Awesome 5 Free';*/
+/*  font-style: normal;*/
+/*  color: #444;*/
+/*  padding: 0 12px 0 5px;*/
+/*  content: '\f09b';*/
+/*  font-weight: bold;*/
+/*}*/
 
 .catalog_item.liststyle .catalog_info .info_extras {
   position: absolute;

@@ -4,7 +4,7 @@
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
     <meta content="jquery,ui,easy,easyui,web" name="keywords">
     <meta content="easyui help you build your web page easily!" name="description">
-    <title>EVO Store</title>
+    <title>Evolution CMS Store</title>
     <link rel="stylesheet" type="text/css" href="media/style/[+manager_theme+]/style.css" />
     <link rel="stylesheet" type="text/css" href="[+site_url+]/assets/modules/store/css/style.css" />
     <!--- <link rel="stylesheet" type="text/css" href="media/style/[+manager_theme+]/store.css" /> -->
@@ -18,132 +18,132 @@
 </head>
 
 <body class="[+body_class_name+]">
-    <h1 class="pagetitle">
+<h1 class="pagetitle">
       <span class="pagetitle-icon">
         <i class="fa fa-archive"></i>
       </span>
-      <span class="pagetitle-text">
-        [+store_name+] <span class="version">[+v+]</span> 
+    <span class="pagetitle-text">
+        [+store_name+] <span class="version">[+v+]</span>
       </span>
-    </h1>
-    <div id="actions" style="display:none">
-        <span class="warning">[+version_evailble+]: <span class="new_version">0.2</span> (<a href="javascript:store.update()">[+update+]</a>)</span>
-    </div>
-    <div class="wrapper">
-        <div class="container-fluid">
-            <div class="row">
+</h1>
+<div id="actions" style="display:none">
+    <span class="warning">[+version_evailble+]: <span class="new_version">0.2</span> (<a href="javascript:store.update()">[+update+]</a>)</span>
+</div>
+<div class="wrapper">
+    <div class="container-fluid">
+        <div class="row">
 
-                <!-- sidebar col -->
-                <div class="col-sm-3">
-                    <div id="sidebar2" class="sidebar2">
-                        <div class="box mh">
-                            <h4>[+category+]:</h4>
-                            <div class="category_list">
-                            </div>
+            <!-- sidebar col -->
+            <div class="col-sm-3">
+                <div id="sidebar2" class="sidebar2">
+                    <div class="box mh">
+                        <h4>[+category+]:</h4>
+                        <div class="category_list">
                         </div>
-                        <div class="box mh">
-                            <h4>[+install_file+]:</h4>
-                            <form id="install_file_form" method="post" enctype="multipart/form-data">
-                                <label>[+choose_file_msg+]
-                                    <input type="file" id="install_file" name="install_file" value="">
-                                </label>
-                                <button id="install_file_btn" type="button">[+install_file_btn+]</button>
-                                <input type="hidden" name="action" value="install_file">
-                                <input type="hidden" name="method" value="fast">
-                            </form>
-                            <progress id="install_file_prg" style="display:none"></progress>
-                            <div id="install_file_resp"></div>
+                    </div>
+                    <div class="box mh">
+                        <h4>[+install_file+]:</h4>
+                        <form id="install_file_form" method="post" enctype="multipart/form-data">
+                            <label>[+choose_file_msg+]
+                                <input type="file" id="install_file" name="install_file" value="">
+                            </label>
+                            <button id="install_file_btn" type="button">[+install_file_btn+]</button>
+                            <input type="hidden" name="action" value="install_file">
+                            <input type="hidden" name="method" value="fast">
+                        </form>
+                        <progress id="install_file_prg" style="display:none"></progress>
+                        <div id="install_file_resp"></div>
+                    </div>
+                    <div class="box mh" id="login">
+                        <h4>[+enter_in_own_repository+]:</h4>
+                        <div class="cart_list">
+                            Email:
+                            <br />
+                            <input type="email" name="name" value="[+user_email+]" placeholder="[+user_email+]"> [+password+]:
+                            <br />
+                            <input type="password" name="password" type="password" placeholder="[+password+]">
+                            <span class="error" style="display:none">[+login_errors+]</span>
                         </div>
-                        <div class="box mh" id="login">
-                            <h4>[+enter_in_own_repository+]:</h4>
-                            <div class="cart_list">
-                                Email:
-                                <br />
-                                <input type="email" name="name" value="[+user_email+]" placeholder="[+user_email+]"> [+password+]:
-                                <br />
-                                <input type="password" name="password" type="password" placeholder="[+password+]">
-                                <span class="error" style="display:none">[+login_errors+]</span>
-                            </div>
-                            <ul class="loginul">
-                                <li><a href="javascript:store.login()" class="btn btn-sm btn-success loginbut">[+enter+]</a>
-                                </li>
-                            </ul>
-                            <a href="http://extras.evo.im/my-repo/register.html" target="_blank" class="">[+register+]</a>
-                        </div>
-                        <!-- <div class="box logined" style="display:none;">
+                        <ul class="loginul">
+                            <li><a href="javascript:store.login()" class="btn btn-sm btn-success loginbut">[+enter+]</a>
+                            </li>
+                        </ul>
+                        <a href="https://extras.evo.im/my-repo/register.html" target="_blank" class="">[+register+]</a>
+                    </div>
+                    <!-- <div class="box logined" style="display:none;">
 <h4><span id="username"></span>:</h4>
 <br/>
 <ul class="actionButtons">
 <li><a href="javascript:store.logout()" class="fr" style="margin-left:10px" >[+exit+]</a></li>
 </ul>
 </div> -->
-                        <div class="box mh logined" style="display:none;">
-                            <h4><span id="username"></span>:</h4>
-                            <a href="javascript:store.logout()" class="fr" style="margin-left:10px">[+exit+]</a>
-                            <h4>[+own_repository+]:</h4>
-                            <div class="category_list2">
-                                <ul>
-                                    <li><a href="#" class="row.category" data-id="5">Избранное</a><span> &nbsp;<small>(2) </small></span>
-                                    </li>
-                                    <li><a href="#" class="row.category" data-id="2">Каталог</a><span> &nbsp;<small>(9) </small></span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="box">
-                            <h4>FAQ:</h4>
+                    <div class="box mh logined" style="display:none;">
+                        <h4><span id="username"></span>:</h4>
+                        <a href="javascript:store.logout()" class="fr" style="margin-left:10px">[+exit+]</a>
+                        <h4>[+own_repository+]:</h4>
+                        <div class="category_list2">
                             <ul>
-                                [+faq+]
+                                <li><a href="#" class="row.category" data-id="5">Избранное</a><span> &nbsp;<small>(2) </small></span>
+                                </li>
+                                <li><a href="#" class="row.category" data-id="2">Каталог</a><span> &nbsp;<small>(9) </small></span>
+                                </li>
                             </ul>
                         </div>
-                        <p>
-                            Copyright 2017
-                            <br>
-                            <a href="https://evo.im/" target="_blank">Bumkaka & Dmi3yy</a>
-                        </p>
                     </div>
+                    <div class="box">
+                        <h4>FAQ:</h4>
+                        <ul>
+                            [+faq+]
+                        </ul>
+                    </div>
+                    <p>
+                        Copyright 2017
+                        <br>
+                        <a href="https://evo.im/" target="_blank">Bumkaka & Dmi3yy</a>
+                    </p>
                 </div>
+            </div>
 
-                <!-- list col -->
-                <div class="extras-list col-sm-9">
-                    <div class="cont2">
-                        <div class="item_header" style="display:none">
-                            <select size="1" name="sort">
-                                <option value="createdon" selected="">[+s1_1_reated_on+]</option>
-                                <option value="pagetitle">[+s1_2_name+]</option>
-                                <option value="menuindex">[+s1_3_position+]</option>
-                                <option value="published">[+s1_4_published+]</option>
-                            </select>
-                            <select size="1" name="dir">
-                                <option value="DESC" selected="">[+s2_1_up+]</option>
-                                <option value="ASC">[+s2_2_down+]</option>
-                            </select>
-                            <input type="hidden" name="parent" value="2">
-                        </div>
+            <!-- list col -->
+            <div class="extras-list col-sm-9">
+                <div class="cont2">
+                    <div class="item_header" style="display:none">
+                        <select size="1" name="sort">
+                            <option value="createdon" selected="">[+s1_1_reated_on+]</option>
+                            <option value="pagetitle">[+s1_2_name+]</option>
+                            <option value="menuindex">[+s1_3_position+]</option>
+                            <option value="published">[+s1_4_published+]</option>
+                        </select>
+                        <select size="1" name="dir">
+                            <option value="DESC" selected="">[+s2_1_up+]</option>
+                            <option value="ASC">[+s2_2_down+]</option>
+                        </select>
+                        <input type="hidden" name="parent" value="2">
+                    </div>
 
-                        <div class="list-tools">
+                    <div class="list-tools">
 
-                            <div class="input-group">
+                        <div class="input-group">
                                 <span class="input-group-btn">
 					<button id="hide-side" type="button" class="btn btn-secondary"><i id="hide-icon" class="fa fa-bars"></i></button>
 				  </span>
-                                <input id="store_search" class="form-control" onkeyup="store_search( $(this).val() )" placeholder="[+search+]" type="text" name="store_search" value="">
-                                <span class="input-group-btn">
+                            <input id="store_search" class="form-control" onkeyup="store_search( $(this).val() )" placeholder="[+search+]" type="text" name="store_search" value="">
+                            <span class="input-group-btn">
                     <button id="list-btn" type="button" class="btn btn-secondary bt-active"><i class="fa fa-list" aria-hidden="true"></i></button>
                   </span>
-                                <span class="input-group-btn">
+                            <span class="input-group-btn">
                     <button id="3col-btn" type="button" class="btn btn-secondary"><i class="fa fa-th" aria-hidden="true"></i></button>
                   </span>
-                                <span class="input-group-btn">
+                            <span class="input-group-btn">
                     <button id="2col-btn" type="button" class="btn btn-secondary"><i class="fa fa-th-large" aria-hidden="true"></i></button>
                   </span>
-                            </div>
-
                         </div>
 
-                        <div class="item_list row">
-                        </div>
-                        <!-- <div class="item_footer">
+                    </div>
+
+                    <div class="item_list row">
+                    </div>
+                    <!-- <div class="item_footer">
 <ul class="paginate">
 <li><a href=""> < </a></li>
 <li><span>1</span></li>
@@ -152,88 +152,55 @@
 <li><a href=""> > </a></li>
 </ul>
 </div> -->
-                        <br/>
-                    </div>
+                    <br/>
                 </div>
-
             </div>
+
         </div>
     </div>
-    <div class="clearz"></div>
-    <div style="display:none" class="tpl">
-        <textarea name="types">[+_type+]</textarea>
-        <input type="hidden" name="language" value="[+lang+]">
-        <textarea type="hidden" name="hash">[+hash+]</textarea>
-        <div id="tpl_category">
-            <li>
-                <a href="#" class="row.category" data-id="%id%" data-tpl="%tpl%">%title%</a><span> &nbsp;<small>(%count%) </small></span>
-            </li>
-        </div>
-        <div id="tpl_category2">
-            <li>
-                <a href="#" class="row.category2" data-id="%id%">%category%</a><span> &nbsp;<small>(%count%) </small></span>
-            </li>
-        </div>
-        <div id="tpl_list">
-            <div class="col-sm-4 catalog_item %cls%">
-                <div class="item_content">
-                    <div class="info_block">
-                        <div id="catalog_img" class="catalog_thumb">
-                            <i class="%zip%"></i>
-                            <span class="typesbadge">%type%</span>
-                            <img class="img-fluid" src="" alt="">
-                        </div>
-                        <div class="catalog_info">
-                            <a class="row-category">
-                                <h3>%title%</h3>
-                            </a>
-                            <span class="descript">%description%</span>
-                            <div class="info_extras">
-                                <button class="btn btn-sm btn-secondary pull-right" onclick="window.parent.modx.popup({content:'<h2>%title% %version%</h2><h3>%type%</h3><p>%description%</p><span class=\'fa fa-refresh\'></span> version: <strong>%version%</strong><br/><span class=\'fa fa-clock-o\'></span> Updated: <strong>%date%</strong><br/><span class=\'fa fa-user\'> </span> Author: <strong>%author%</strong><br/><span class=\'fa fa-download\'> </span>  Downloads:  <strong>%downloads%</strong>',type:'default',width:'400px',height:'400px',hide:0,hover:0,overlay:0,overlayclose:1})"><i class="fa fa-info"></i> more</button>
-                            </div>
-                            <div class="install_extras">
-                                <a href="#" class="btn btn-success item-install" data-url="%url%" data-id="%id%" data-name="%title%" data-method="%type%">[+install+]</a>
-                                <a href="#" class="btn btn-primary item-reinstall" data-text="[+alert_overwrite+]" data-url="%url%" data-id="%id%" data-name="%title%" data-method="%type%">[+reinstall+] <i class="curr">[+installed+]</i></a>
-                                <a href="#" class="btn btn-primary item-update" data-text="[+alert_overwrite+]" data-url="%url%" data-id="%id%" data-name="%title%" data-method="%type%">[+update+] <i class="curr">[+installed+] - %current_version%</i></a>
-                                <select name="link"></select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="info">
-                        <span class="version"><strong>%version%</strong></span>
-                        <span class="download"><strong>%downloads%</strong></span>
-                    </div>
-                    <div class="blocked_item"></div>
-                    <div class="informer loader"></div>
-                    <div class="informer">
-                        <div>[+installed2+].</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="tpl_cart">
-            <div class="catalog_item tpl-cart %cls%">
+</div>
+<div class="clearz"></div>
+<div style="display:none" class="tpl">
+    <textarea name="types">[+_type+]</textarea>
+    <input type="hidden" name="language" value="[+lang+]">
+    <textarea type="hidden" name="hash">[+hash+]</textarea>
+    <div id="tpl_category">
+        <li>
+            <a href="#" class="row.category" data-id="%id%" data-tpl="%tpl%">%title%</a><span> &nbsp;<small>(%count%) </small></span>
+        </li>
+    </div>
+    <div id="tpl_category2">
+        <li>
+            <a href="#" class="row.category2" data-id="%id%">%category%</a><span> &nbsp;<small>(%count%) </small></span>
+        </li>
+    </div>
+    <div id="tpl_list">
+        <div class="col-sm-4 catalog_item %cls%">
+            <div class="item_content">
                 <div class="info_block">
-                    <div class="catalog_thumb"><img src="">
+                    <div id="catalog_img" class="catalog_thumb">
+                        <span class="typesbadge">%type%</span>
+                        <img class="img-fluid" src="" alt="">
                     </div>
                     <div class="catalog_info">
-                        <div class="info fr">
-                            <span class="version"><strong>%version%</strong></span>
-                            <span class="autor"><strong>%author%</strong></span>
-                            <span class="date"><strong>%date%</strong></span>
-                            <span class="download"><strong>%downloads%</strong></span>
-                        </div>
-                        <br />
                         <a class="row-category">
                             <h3>%title%</h3>
                         </a>
-                        &nbsp;<i class="types">(%type%)</i>
-                        <br />
                         <span class="descript">%description%</span>
-                        <br>
-                        <a href="#" class="item-install" data-url="%url%" data-id="%id%" data-name="%title%" data-method="%type%">[+install+]</a>
-                        <select name="link"></select>
+                        <div class="info_extras">
+                            <button class="btn btn-sm btn-secondary pull-right" onclick="window.parent.modx.popup({content:'<h2>%title% %version%</h2><h3>%type%</h3><p>%description%</p><span class=\'fa fa-refresh\'></span> version: <strong>%version%</strong><br/><span class=\'fa fa-clock-o\'></span> Updated: <strong>%date%</strong><br/><span class=\'fa fa-user\'> </span> Author: <strong>%author%</strong><br/><span class=\'fa fa-download\'> </span>  Downloads:  <strong>%downloads%</strong>',type:'default',width:'400px',height:'400px',hide:0,hover:0,overlay:0,overlayclose:1})"><i class="fa fa-info"></i> more</button>
+                        </div>
+                        <div class="install_extras">
+                            <a href="#" class="btn btn-success item-install" data-url="%url%" data-id="%id%" data-name="%title%" data-method="%type%">[+install+]</a>
+                            <a href="#" class="btn btn-primary item-reinstall" data-text="[+alert_overwrite+]" data-url="%url%" data-id="%id%" data-name="%title%" data-method="%type%">[+reinstall+] <i class="curr">[+installed+]</i></a>
+                            <a href="#" class="btn btn-primary item-update" data-text="[+alert_overwrite+]" data-url="%url%" data-id="%id%" data-name="%title%" data-method="%type%">[+update+] <i class="curr">[+installed+] - %current_version%</i></a>
+                            <select name="link"></select>
+                        </div>
                     </div>
+                </div>
+                <div class="info">
+                    <span class="version"><strong>%version%</strong></span>
+                    <span class="download"><strong>%downloads%</strong></span>
                 </div>
                 <div class="blocked_item"></div>
                 <div class="informer loader"></div>
@@ -243,95 +210,127 @@
             </div>
         </div>
     </div>
-    <div id="loading" style="display:none;"></div>
-    <script type="text/javascript">
-        jQuery(document).ready(function($) {
-            // Get sidebar state
-            var HideExtraSide;
-            var hide_xtraSidebar = localStorage.getItem('hide_xtraSidebar');
-            if (hide_xtraSidebar) {
-                HideExtraSide = hide_xtraSidebar;
-                setxtraSide(HideExtraSide);
-            }
+    <div id="tpl_cart">
+        <div class="catalog_item tpl-cart %cls%">
+            <div class="info_block">
+                <div class="catalog_thumb"><img src="">
+                </div>
+                <div class="catalog_info">
+                    <div class="info fr">
+                        <span class="version"><strong>%version%</strong></span>
+                        <span class="autor"><strong>%author%</strong></span>
+                        <span class="date"><strong>%date%</strong></span>
+                        <span class="download"><strong>%downloads%</strong></span>
+                    </div>
+                    <br />
+                    <a class="row-category">
+                        <h3>%title%</h3>
+                    </a>
+                    &nbsp;<i class="types">(%type%)</i>
+                    <br />
+                    <span class="descript">%description%</span>
+                    <br>
+                    <a href="#" class="item-install" data-url="%url%" data-id="%id%" data-name="%title%" data-method="%type%">[+install+]</a>
+                    <select name="link"></select>
+                </div>
+            </div>
+            <div class="blocked_item"></div>
+            <div class="informer loader"></div>
+            <div class="informer">
+                <div>[+installed2+].</div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="loading" style="display:none;"></div>
+<script type="text/javascript">
+    jQuery(document).ready(function($) {
+        // Get sidebar state
+        var HideExtraSide;
+        var hide_xtraSidebar = localStorage.getItem('hide_xtraSidebar');
+        if (hide_xtraSidebar) {
+            HideExtraSide = hide_xtraSidebar;
+            setxtraSide(HideExtraSide);
+        }
 
-            function setxtraSide(HideExtraSide) {
-                var x = document.getElementById('sidebar2');
-                x.style.display = 'none';
-                $('.extras-list').removeClass('col-sm-9');
-                $('.extras-list').addClass('col-sm-12');
+        function setxtraSide(HideExtraSide) {
+            var x = document.getElementById('sidebar2');
+            x.style.display = 'none';
+            $('.extras-list').removeClass('col-sm-9');
+            $('.extras-list').addClass('col-sm-12');
+            $('#hide-icon').toggleClass('fa-bars fa-ellipsis-v');
+        }
+        $("#hide-side").click(function() {
+            var x = document.getElementById('sidebar2');
+            if (x.style.display === 'none') {
+                x.style.display = 'block';
+                $('.extras-list').removeClass('col-sm-12');
+                $('.extras-list').addClass('col-sm-9');
                 $('#hide-icon').toggleClass('fa-bars fa-ellipsis-v');
+                localStorage.removeItem('hide_xtraSidebar');
+            } else {
+                setxtraSide(HideExtraSide);
+                HideExtraSide = "1";
+                localStorage.setItem('hide_xtraSidebar', HideExtraSide);
             }
-            $("#hide-side").click(function() {
-                var x = document.getElementById('sidebar2');
-                if (x.style.display === 'none') {
-                    x.style.display = 'block';
-                    $('.extras-list').removeClass('col-sm-12');
-                    $('.extras-list').addClass('col-sm-9');
-                    $('#hide-icon').toggleClass('fa-bars fa-ellipsis-v');
-                    localStorage.removeItem('hide_xtraSidebar');
-                } else {
-                    setxtraSide(HideExtraSide);
-                    HideExtraSide = "1";
-                    localStorage.setItem('hide_xtraSidebar', HideExtraSide);
-                }
-            });
-            // Get layout 
-            var ExtraLayout;
-            var xtras_layout = localStorage.getItem('xtras_layout');
-            if (xtras_layout == '2columns') {
-                set2columns();
-            }
-            if (xtras_layout == '3columns') {
-                set3columns();
-            }
-            if (xtras_layout == 'liststyle') {
-                setList();
-            }
-            //columns
-            function set2columns() {
-                $('.catalog_item').removeClass('col-sm-4');
-                $('.catalog_item').removeClass('col-sm-12');
-                $('.catalog_item').addClass('col-sm-6');
-                $('#3col-btn').removeClass('bt-active');
-                $('#list-btn').removeClass('bt-active');
-                $('#2col-btn').addClass('bt-active');
-                $('.catalog_item').removeClass('liststyle');
-            }
-
-            $("#2col-btn").click(function() {
-                set2columns();
-                localStorage.setItem('xtras_layout', '2columns');
-            });
-
-            function set3columns() {
-                $('.catalog_item').removeClass('col-sm-6');
-                $('.catalog_item').removeClass('col-sm-12');
-                $('.catalog_item').addClass('col-sm-4');
-                $('#2col-btn').removeClass('bt-active');
-                $('#list-btn').removeClass('bt-active');
-                $('#3col-btn').addClass('bt-active');
-                $('.catalog_item').removeClass('liststyle');
-            }
-            $("#3col-btn").click(function() {
-                set3columns();
-                localStorage.setItem('xtras_layout', '3columns');
-            });
-
-            function setList() {
-                $('.catalog_item').removeClass('col-sm-6');
-                $('.catalog_item').addClass('col-sm-12');
-                $('.catalog_item').addClass('liststyle');
-                $('#2col-btn').removeClass('bt-active');
-                $('#3col-btn').removeClass('bt-active');
-                $('#list-btn').addClass('bt-active');
-            }
-            $("#list-btn").click(function() {
-                setList();
-                localStorage.setItem('xtras_layout', 'liststyle');
-            });
-
         });
-    </script>
+        // Get layout
+        var ExtraLayout;
+        var xtras_layout = localStorage.getItem('xtras_layout');
+        if (xtras_layout == '2columns') {
+            set2columns();
+        }
+        if (xtras_layout == '3columns') {
+            set3columns();
+        }
+        if (xtras_layout == 'liststyle') {
+            setList();
+        }
+        //columns
+        function set2columns() {
+            $('.catalog_item').removeClass('col-sm-4');
+            $('.catalog_item').removeClass('col-sm-12');
+            $('.catalog_item').addClass('col-sm-6');
+            $('#3col-btn').removeClass('bt-active');
+            $('#list-btn').removeClass('bt-active');
+            $('#2col-btn').addClass('bt-active');
+            $('.catalog_item').removeClass('liststyle');
+        }
+
+        $("#2col-btn").click(function() {
+            set2columns();
+            localStorage.setItem('xtras_layout', '2columns');
+        });
+
+        function set3columns() {
+            $('.catalog_item').removeClass('col-sm-6');
+            $('.catalog_item').removeClass('col-sm-12');
+            $('.catalog_item').addClass('col-sm-4');
+            $('#2col-btn').removeClass('bt-active');
+            $('#list-btn').removeClass('bt-active');
+            $('#3col-btn').addClass('bt-active');
+            $('.catalog_item').removeClass('liststyle');
+        }
+        $("#3col-btn").click(function() {
+            set3columns();
+            localStorage.setItem('xtras_layout', '3columns');
+        });
+
+        function setList() {
+            $('.catalog_item').removeClass('col-sm-6');
+            $('.catalog_item').addClass('col-sm-12');
+            $('.catalog_item').addClass('liststyle');
+            $('#2col-btn').removeClass('bt-active');
+            $('#3col-btn').removeClass('bt-active');
+            $('#list-btn').addClass('bt-active');
+        }
+        $("#list-btn").click(function() {
+            setList();
+            localStorage.setItem('xtras_layout', 'liststyle');
+        });
+
+    });
+</script>
 </body>
 
 </html>
