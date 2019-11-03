@@ -605,6 +605,9 @@ ALTER TABLE `{PREFIX}user_attributes`
 ALTER TABLE `{PREFIX}user_attributes`
   ADD COLUMN `createdon` integer NOT NULL DEFAULT '0';
 
+ALTER TABLE `{PREFIX}user_attributes`
+  ADD COLUMN `verified` int(1) NOT NULL DEFAULT 1;
+
 ALTER TABLE `{PREFIX}user_roles`
   ADD COLUMN `edit_chunk`          INT(1) NOT NULL DEFAULT '0' AFTER `delete_snippet`;
 
@@ -664,6 +667,9 @@ ALTER TABLE `{PREFIX}web_user_attributes`
 
 ALTER TABLE `{PREFIX}web_user_attributes`
   ADD COLUMN `createdon` integer NOT NULL DEFAULT '0';
+
+ALTER TABLE `{PREFIX}web_user_attributes`
+  ADD COLUMN `verified` int(1) NOT NULL DEFAULT 0;
 
 ALTER TABLE `{PREFIX}site_snippets`
   ADD COLUMN `createdon` integer NOT NULL DEFAULT '0';

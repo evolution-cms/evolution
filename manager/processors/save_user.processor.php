@@ -37,6 +37,7 @@ $gender = !empty($input['gender']) ? $input['gender'] : 0;
 $photo = $input['photo'];
 $comment = $input['comment'];
 $role = !empty($input['role']) ? $input['role'] : 0;
+$verified = !empty($input['verified']) ? (int)!!$input['verified'] : 0;
 $failedlogincount = !empty($input['failedlogincount']) ? $input['failedlogincount'] : 0;
 $blocked = !empty($input['blocked']) ? $input['blocked'] : 0;
 $blockeduntil = !empty($input['blockeduntil']) ? $modx->toTimeStamp($input['blockeduntil']) : 0;
@@ -112,9 +113,9 @@ switch ($input['mode']) {
         $field = array();
         $field['password'] = $modx->phpass->HashPassword($newpassword);
         $modx->db->update($field, $tbl_manager_users, "id='{$internalKey}'");
-
+        $verified = 1;
         $field = compact('internalKey', 'fullname', 'role', 'email', 'phone', 'mobilephone', 'fax', 'zip', 'street',
-            'city', 'state', 'country', 'gender', 'dob', 'photo', 'comment', 'blocked', 'blockeduntil', 'blockedafter');
+            'city', 'state', 'country', 'gender', 'dob', 'photo', 'comment', 'blocked', 'blockeduntil', 'blockedafter', 'verified');
         $field = $modx->db->escape($field);
         $modx->db->insert($field, $tbl_user_attributes);
 
@@ -253,7 +254,7 @@ switch ($input['mode']) {
         $modx->db->update($field, $tbl_manager_users, "id='{$id}'");
         $field = compact('fullname', 'role', 'email', 'phone', 'mobilephone', 'fax', 'zip', 'street', 'city', 'state',
             'country', 'gender', 'dob', 'photo', 'comment', 'failedlogincount', 'blocked', 'blockeduntil',
-            'blockedafter');
+            'blockedafter', 'verified');
         $field = $modx->db->escape($field);
         $modx->db->update($field, $tbl_user_attributes, "internalKey='{$id}'");
 

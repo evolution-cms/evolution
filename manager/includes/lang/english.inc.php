@@ -1182,6 +1182,7 @@ $_lang["user_state"] = 'State';
 $_lang["user_title"] = 'Create/Edit Manager User';
 $_lang["user_upload_message"] = ' If you wish to stop this User uploading any filetypes in this category, make sure that the \'Use Main Configuration Setting\' checkbox is not ticked and leave the field blank.';
 $_lang["user_use_config"] = 'Use System Configuration Setting';
+$_lang["user_verification"] = 'User is verified';
 $_lang["user_zip"] = 'Zip';
 $_lang["username"] = 'Username';
 $_lang["users"] = 'Users';

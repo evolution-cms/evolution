@@ -43,6 +43,7 @@ $gender = !empty($input['gender']) ? $input['gender'] : 0;
 $photo = $input['photo'];
 $comment = $input['comment'];
 $role = !empty($input['role']) ? $input['role'] : 0;
+$verified = !empty($input['verified']) ? (int)!!$input['verified'] : 0;
 $failedlogincount = !empty($input['failedlogincount']) ? $input['failedlogincount'] : 0;
 $blocked = !empty($input['blocked']) ? $input['blocked'] : 0;
 $blockeduntil = !empty($input['blockeduntil']) ? $modx->toTimeStamp($input['blockeduntil']) : 0;
@@ -102,9 +103,9 @@ switch ($input['mode']) {
         $field['username'] = $esc_newusername;
         $field['password'] = md5($newpassword);
         $internalKey = $modx->db->insert($field, $tbl_web_users);
-
+        $verified = 1;
         $field = compact('internalKey', 'fullname', 'role', 'email', 'phone', 'mobilephone', 'fax', 'zip', 'street',
-            'city', 'state', 'country', 'gender', 'dob', 'photo', 'comment', 'blocked', 'blockeduntil', 'blockedafter');
+            'city', 'state', 'country', 'gender', 'dob', 'photo', 'comment', 'blocked', 'blockeduntil', 'blockedafter', 'verified');
         $field = $modx->db->escape($field);
         $modx->db->insert($field, $tbl_web_user_attributes);
 

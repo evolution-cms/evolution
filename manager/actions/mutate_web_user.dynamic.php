@@ -354,6 +354,11 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 						<td>&nbsp;</td>
 						<td><textarea type="text" name="comment" class="inputBox" rows="5" onChange="documentDirty=true;"><?php echo $modx->htmlspecialchars(isset($_POST['comment']) ? $_POST['comment'] : $userdata['comment']); ?></textarea></td>
 					</tr>
+					<tr>
+						<th><?php echo $_lang['user_verification']; ?>:</th>
+						<td>&nbsp;</td>
+						<td><input type="checkbox" name="verified" value="1" <?php echo ($userdata['verified'] == 1 ? 'checked ' : ''); ?><?php echo ($modx->manager->action == 87 ? 'disabled' : ''); ?>></td>
+					</tr>
 					<?php if($modx->manager->action == '88') { ?>
 						<tr>
 							<th><?php echo $_lang['user_logincount']; ?>:</th>
