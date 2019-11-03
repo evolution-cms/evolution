@@ -212,7 +212,7 @@ if($which_browser == 'default') {
     <input type="hidden" name="a" value="32">
 	<input type="hidden" name="mode" value="<?php echo $modx->manager->action; ?>">
 	<input type="hidden" name="id" value="<?php echo $user ?>">
-	<input type="hidden" name="blockedmode" value="<?php echo ($userdata['blocked'] == 1 || ($userdata['blockeduntil'] > time() && $userdata['blockeduntil'] != 0) || ($userdata['blockedafter'] < time() && $userdata['blockedafter'] != 0) || $userdata['failedlogins'] > 3) ? "1" : "0" ?>" />
+	<input type="hidden" name="blockedmode" value="<?php echo ($userdata['blocked'] == 1 || ($userdata['blockeduntil'] > time() && $userdata['blockeduntil'] != 0) || ($userdata['blockedafter'] < time() && $userdata['blockedafter'] != 0) || $userdata['failedlogins'] > $modx->getConfig('failed_login_attempts')) ? "1" : "0" ?>" />
 
 	<h1>
         <i class="fa fa-user-circle-o"></i><?= ($usernamedata['username'] ? $usernamedata['username'] . '<small>(' . $usernamedata['id'] . ')</small>' : $_lang['user_title']) ?>
