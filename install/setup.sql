@@ -834,6 +834,8 @@ ALTER TABLE `{PREFIX}system_settings` DROP INDEX `setting_name`;
 
 ALTER TABLE `{PREFIX}system_settings` ADD PRIMARY KEY (`setting_name`);
 
+ALTER TABLE `{PREFIX}system_eventnames` DROP INDEX `name`;
+
 ALTER TABLE `{PREFIX}system_eventnames` ADD UNIQUE INDEX `name` (`name`);
 
 ALTER TABLE `{PREFIX}user_settings` DROP PRIMARY KEY;
