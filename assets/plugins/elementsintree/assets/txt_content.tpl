@@ -172,7 +172,7 @@
 
   #treePane .panel-title > a::before {
     content: "\f107"; /* fa-angle-down */
-    font-family: "FontAwesome";
+    font-family: "Font Awesome 5 Free";
     font-size: 14px;
     margin-left:-17px;
     width: 10px;
@@ -357,11 +357,12 @@
   }
 
   .ElementsInTree #tree .eltree:before {
-    font-family: "FontAwesome";
+    font-family: "Font Awesome 5 Free";
     font-size: 14px;
     padding:0 5px 0 0;
     margin-right:2px;
     color: #657587;
+    font-weight: bold;
   }
 
   .ElementsInTree #tree .eltree:hover, 
