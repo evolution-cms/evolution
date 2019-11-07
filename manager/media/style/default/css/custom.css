@@ -466,6 +466,7 @@ ul.mmTagList { float: left; margin-top: .25rem !important
 #editorRow_TinyMCE tr { border: 1px dotted rgba(0, 0, 0, .05); }
 #editorRow_TinyMCE th { white-space: nowrap }
 #editorRow_TinyMCE th, #editorRow_TinyMCE td { padding: 0.5em; border: none !important }
+div.mce-fullscreen { margin-top:2.6rem;	}
 /* wrap TinyMCE3 toolbar */
 .mceEditor .mceToolbar td { height: 24px; float: left }
 /* codeMirror */
