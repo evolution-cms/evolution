@@ -446,19 +446,19 @@
         },
         scroll: function(row, sel, a) {
           sel = sel || row.querySelector('.selected') || row.firstChild;
-          a = a || 100;
+          a = a || 64;
           var c = 0,
               elms = row.childNodes;
           for (var i = 0; i < elms.length; i++) {
             c += elms[i].offsetWidth;
           }
           if (row.scrollLeft > sel.offsetLeft) {
-            $(row).animate({
+            modx.animate(row, {
               scrollLeft: sel.offsetLeft - (sel.previousSibling ? 30 : 1)
             }, a);
           }
           if (sel.offsetLeft + sel.offsetWidth > row.offsetWidth + row.scrollLeft) {
-            $(row).animate({
+            modx.animate(row, {
               scrollLeft: sel.offsetLeft - row.offsetWidth + sel.offsetWidth + (sel.nextSibling ? 30 : 0)
             }, a);
           }
@@ -951,9 +951,9 @@
           icon.innerHTML = el.dataset.iconFolderClose;
           delete modx.openedArray[id];
           this.rpcNode.style.overflow = 'hidden';
-          $(this.rpcNode.firstChild).animate({
-            marginTop: -this.rpcNode.offsetHeight + 'px'
-          }, 100, function() {
+          modx.animate(this.rpcNode.firstChild, {
+            marginTop: -this.rpcNode.offsetHeight
+          }, 64, function() {
             this.parentNode.innerHTML = '';
           });
           this.saveFolderState();
@@ -976,9 +976,9 @@
             } else {
               this.rpcNode.style.overflow = 'hidden';
               this.rpcNode.firstElementChild.style.marginTop = -this.rpcNode.offsetHeight + 'px';
-              $(this.rpcNode.firstChild).animate({
+              modx.animate(this.rpcNode.firstChild, {
                 marginTop: 0
-              }, 100);
+              }, 64);
             }
             d.getElementById('treeloader').classList.remove('visible');
           } else {
@@ -1546,10 +1546,11 @@
           this.page.id = 'evo-tab-page-' + this.uid;
           this.page.className = 'evo-tab-page iframe-scroller show';
           if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-              this.page.innerHTML='<iframe class="tabframes" src="'+this.url+'" name="'+this.name+'" width="100%" height="100%" scrolling="no" frameborder="0"></iframe>';
-			  } else {
-              this.page.innerHTML='<iframe class="tabframes" src="'+this.url+'" name="'+this.name+'" width="100%" height="100%" scrolling="auto" frameborder="0"></iframe>'
-          };
+            this.page.innerHTML = '<iframe class="tabframes" src="' + this.url + '" name="' + this.name + '" width="100%" height="100%" scrolling="no" frameborder="0"></iframe>';
+          } else {
+            this.page.innerHTML = '<iframe class="tabframes" src="' + this.url + '" name="' + this.name + '" width="100%" height="100%" scrolling="auto" frameborder="0"></iframe>';
+          }
+          ;
           d.getElementById('main').appendChild(this.page);
           //console.time('load-tab');
           this.page.firstElementChild.onload = function(e) {
@@ -2050,7 +2051,7 @@
           b = 0,
           c = d.documentElement,
           e = d.body;
-      if (typeof(w.innerWidth) === 'number') {
+      if (typeof (w.innerWidth) === 'number') {
         a = w.innerWidth;
         b = w.innerHeight;
       } else if (c && (c.clientWidth || c.clientHeight)) {
@@ -2420,6 +2421,59 @@
           b = 'fa fa-circle';
       }
       return b;
+    },
+    animate: function(a, b, c, d) {
+      if (!a || !b || typeof b !== 'object') return;
+      var e = 'px';
+      if (typeof c === 'function') {
+        d = c;
+        c = null;
+      }
+      c = c || 64;
+      d = typeof d !== 'function' ? function() { } : d;
+      var f = getComputedStyle(a);
+      for (var k in b) {
+        if (b.hasOwnProperty(k)) {
+          if (k === 'opacity') {
+            e = '';
+          }
+          var g = f[k];
+          if (k === 'scrollLeft') {
+            g = a.scrollLeft;
+          } else if (k === 'scrollTop') {
+            g = a.scrollTop;
+          }
+          b[k] = {
+            start: parseInt(g),
+            end: b[k],
+            unit: e
+          };
+        }
+      }
+      var h = performance.now();
+      requestAnimationFrame(function animate(i) {
+        var l = (h > i ? h - i : i - h) / c;
+        if (l > 1) {
+          l = 1;
+        }
+        for (var k in b) {
+          if (b.hasOwnProperty(k)) {
+            var m = b[k]['start'] + ((b[k]['end'] - b[k]['start']) * l);
+            if (k === 'scrollLeft') {
+              a.scrollLeft = m;
+            } else if (k === 'scrollTop') {
+              a.scrollTop = m;
+            } else {
+              a.style[k] = m + b[k]['unit'];
+            }
+          }
+        }
+        if (l < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          d.call(a);
+        }
+      });
     }
   });
   w.mainMenu = {};
