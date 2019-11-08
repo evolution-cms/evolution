@@ -1,4 +1,4 @@
-(function($, w, d, u) {
+(function(w, d, u) {
   'use strict';
   modx.extended({
     frameset: 'frameset',
@@ -2562,7 +2562,7 @@
   d.addEventListener('DOMContentLoaded', function() {
     modx.init();
   });
-})(typeof jQuery !== 'undefined' ? jQuery : '', window, document, undefined);
+})(window, document, undefined);
 
 (function() {
   if (!Element.prototype.closest) {
