@@ -134,7 +134,7 @@ REPLACE INTO `{PREFIX}web_groups` VALUES ('1','1','1');
 #
 
 
-REPLACE INTO `{PREFIX}web_user_attributes` VALUES ('1','1','Site Admin','0','you@example.com','','','0','0','0','25','1129049624','1129063123','0','f426f3209310abfddf2ee00e929774b4','0','0','','','','','','','','', UNIX_TIMESTAMP(), 0);
+REPLACE INTO `{PREFIX}web_user_attributes` VALUES ('1','1','Site Admin','0','you@example.com','','','0','0','0','25','1129049624','1129063123','0','f426f3209310abfddf2ee00e929774b4','0','0','','','','','','','','', UNIX_TIMESTAMP(), 0, 1);
 
 
 #
