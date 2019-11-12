@@ -124,7 +124,7 @@ table th { font-weight: 500; }
 /* category icons in manage elements */
 #site_templates, #site_tmplvars, #site_htmlsnippets, #site_snippets, #site_plugins { padding-left: 0; }
 #site_templates li, #site_tmplvars li, #site_htmlsnippets li, #site_snippets li, #site_modules li, #site_plugins li, #categories_list li { list-style: none; margin-left: -21px; }
-#site_templates li strong:before, #site_tmplvars li strong:before, #site_htmlsnippets li strong:before, #site_snippets li strong:before, #site_modules li strong:before, #site_plugins li strong:before, #categories_list li strong:before { font-family: "Font Awesome 5 Free"; font-style: normal; font-weight: normal; color: #5b6f7a; padding: 0 5px 0 5px; content: '\f105'; }
+#site_templates li strong:before, #site_tmplvars li strong:before, #site_htmlsnippets li strong:before, #site_snippets li strong:before, #site_modules li strong:before, #site_plugins li strong:before, #categories_list li strong:before { font-family: "Font Awesome 5 Free"; font-style: normal; font-weight: 600; color: #5b6f7a; padding: 0 5px 0 5px; content: '\f105'; }
 .tab-pane ul li ul li strong:before { content: ''; }
 /* elements icons in manage elements */
 div#tabCategory.tab-page ul li ul li { padding-top: 7px; padding-bottom: 7px; }
