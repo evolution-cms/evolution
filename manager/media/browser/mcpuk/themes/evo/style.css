@@ -22,13 +22,13 @@ div.folder a { display: inline-block; text-decoration: none; cursor: default; ou
 span.folder { display: inline-block; font-size: 1.1rem; line-height: 1.2rem; padding: 2px 3px 2px 3px; outline: none; background: no-repeat 3px center; cursor: pointer; border: 1px solid transparent; }
 span.brace { float: left; width: 1.6rem; height: 1.6rem; padding-left: 0; line-height: 1.9rem; font-size: 0; text-align: center; outline: none; }
 span.current { background-color: #e4f0fa; border-color: #e4f0fa; color: #0e80cb; }
-span.current:before { display: inline-block; font-family: 'Font Awesome 5 Free'; content: "\f07c"; width: 1.3em; font-size: 1.3rem; line-height: .8em; vertical-align: middle; color: #565656; }
+span.current:before { display: inline-block; font-family: 'Font Awesome 5 Free'; content: "\f07c"; font-weight: 600; width: 1.3em; font-size: 1.3rem; line-height: .8em; vertical-align: middle; color: #565656; }
 span.regular { background-color: #f8f7f6; }
-span.regular:before { display: inline-block; font-family: 'Font Awesome 5 Free'; content: "\f07b"; width: 1.3em; font-size: 1.3rem; line-height: .8em; vertical-align: middle; color: #565656; }
+span.regular:before { display: inline-block; font-family: 'Font Awesome 5 Free'; content: "\f07b"; font-weight: 600; width: 1.3em; font-size: 1.3rem; line-height: .8em; vertical-align: middle; color: #565656; }
 span.regular:hover, span.context { background-color: #ddebf8; border-color: #cee0f4; color: #000; }
-span.opened:before { display: inline-block; font-family: 'Font Awesome 5 Free'; content: "\f107"; width: 1.3em; font-size: 1.3rem; line-height: .8em; vertical-align: middle; color: #565656; }
-span.closed:before { display: inline-block; font-family: 'Font Awesome 5 Free'; content: "\f105"; width: 1.3em; font-size: 1.3rem; line-height: .8em; vertical-align: middle; color: #565656; }
-span.denied:before { display: inline-block; font-family: 'Font Awesome 5 Free'; content: "\f05e"; width: 1.3em; font-size: 1.3rem; line-height: .8em; vertical-align: middle; color: #565656; }
+span.opened:before { display: inline-block; font-family: 'Font Awesome 5 Free'; content: "\f107"; font-weight: 600; width: 1.3em; font-size: 1.3rem; line-height: .8em; vertical-align: middle; color: #565656; }
+span.closed:before { display: inline-block; font-family: 'Font Awesome 5 Free'; content: "\f105"; font-weight: 600; width: 1.3em; font-size: 1.3rem; line-height: .8em; vertical-align: middle; color: #565656; }
+span.denied:before { display: inline-block; font-family: 'Font Awesome 5 Free'; content: "\f05e"; font-weight: 600; width: 1.3em; font-size: 1.3rem; line-height: .8em; vertical-align: middle; color: #565656; }
 div.file { padding: 4px; margin: 3px; border: 1px solid #aaa; background: #fff; }
 div.file:hover { background: #ddebf8; border-color: #a7bed7; }
 div.file .name { margin-top: 4px; font-weight: bold; height: 16px; overflow: hidden; }
@@ -88,7 +88,7 @@ input[type=checkbox]:checked + label { color: #f00; font-style: normal; }
 .menu a:hover { background-color: #0e80cb; color: #fff; }
 .menu a:hover:before { color: #fff; }
 .menu a[href="kcact:refresh"]:before { content: "\f021"; font-weight: bold;}
-.menu a[href="kcact:mkdir"]:before { content: "\f114"; font-weight: bold;}
+.menu a[href="kcact:mkdir"]:before { content: "\f65e"; font-weight: 900;}
 .menu a[href="kcact:mvdir"]:before, .menu a[href="kcact:mv"]:before { content: "\f246"; font-weight: bold;}
 .menu a[href="kcact:rmdir"]:before, .menu a[href="kcact:rm"]:before, .menu a[href="kcact:rmcbd"]:before { content: "\f1f8"; font-weight: bold;}
 .menu a[href="kcact:clpbrdadd"]:before { content: "\f0ea"; font-weight: bold;}
