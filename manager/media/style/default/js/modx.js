@@ -1631,6 +1631,7 @@
                 w.history.replaceState(null, d.title, modx.getActionFromUrl(s.url, 2) ? modx.MODX_MANAGER_URL : '#' + s.url);
               }
             });
+            modx.main.stopWork();
           } else {
             if (modx.getActionFromUrl(this.url, 2) || (~this.saveAndCloseActions.indexOf(modx.getActionFromUrl(this.url)) && parseInt(modx.main.getQueryVariable('r', this.url)))) {
               this.close(e);
