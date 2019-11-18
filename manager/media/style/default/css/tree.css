@@ -39,7 +39,7 @@
 #treeRoot .toggle:hover { background-color: rgba(255, 255, 255, 0.5); }
 #treeRoot .toggle .fa { margin: 0; width: auto; }
 #treeRoot .fa, #treeHolder .rootNode .fa { margin-right: 1px; width: 1em; font-size: 1.08em; text-align: center; color: #565656; -webkit-transition-duration: 0.15s; transition-duration: 0.15s }
-#treeRoot a[data-private="1"] .icon::after { position: relative; float: left; margin: .5em -1em 0 0; content: "\f023"; font-family: 'Font Awesome 5 Free'; font-size: 0.75em; color: #d9534f; }
+#treeRoot a[data-private="1"] .icon::after { position: relative; float: left; margin: .5em -1em 0 0; content: "\f023"; font-family: 'Font Awesome 5 Free'; font-size: 0.75em; color: #d9534f; font-weight:600;}
 #treeRoot .fa-file, #treeRoot .fa-file-o, #treeRoot .fa-file-code, #treeRoot .fa-file-code-o { }
 #treeRoot .fa-folder, #treeRoot .fa-folder-open, #treeRoot .fa-folder-o, #treeRoot .fa-folder-open-o, #treeRoot .fa-exclamation-triangle { margin-top: 0.1em; text-align: left }
 #treeRoot .fa-link { margin-right: 0; font-size: 0.8em }
