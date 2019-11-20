@@ -119,8 +119,8 @@ table th { font-weight: 500; }
 /* Required for Bootstrap3 Collapse */
 .panel-title > a { font-size: 1.1em; color: #657587; display: block; padding: 3px 0; }
 .panel-title > a:hover { text-decoration: none; color: #1377c5; background: rgba(255, 255, 255, 0.27); }
-.panel-title > a > i::before { content: "\f107"; /* fa-angle-down */ }
-.panel-title > a.collapsed > i::before { content: "\f105"; /* fa-angle-right */ }
+.panel-title > a::before { font-family: "Font Awesome 5 Free"; font-style: normal; font-weight: 600; content: "\f107"; /* fa-angle-down */ }
+.panel-title > a.collapsed::before { content: "\f105"; /* fa-angle-right */ }
 /* category icons in manage elements */
 #site_templates, #site_tmplvars, #site_htmlsnippets, #site_snippets, #site_plugins { padding-left: 0; }
 #site_templates li, #site_tmplvars li, #site_htmlsnippets li, #site_snippets li, #site_modules li, #site_plugins li, #categories_list li { list-style: none; margin-left: -21px; }
