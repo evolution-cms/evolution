@@ -116,7 +116,7 @@ switch ($_POST['mode']) {
 
         if($templatealias == '')
             $templatealias = $templatename;
-        $templatealias = strtolower($modx->stripAlias(trim($templatealias)));
+        $templatealias = strtolower(trim(preg_replace('/[^\.\/%A-Za-z0-9 _-]/', '', $templatealias)));
 
         $docid = $modx->getDatabase()->getValue($modx->getDatabase()->select('id', $modx->getDatabase()->getFullTableName('site_templates'), "id<>'$id' AND templatealias='$templatealias'", '', 1));
 
