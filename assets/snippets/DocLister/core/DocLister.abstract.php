@@ -244,7 +244,7 @@ abstract class DocLister
                 default:
                     $cfg['idType'] = "parents";
                     if (($IDs = $this->getCFGDef('parents', '')) === '') {
-                        $IDs = $this->getCurrentMODXPageID();
+                        $IDs = $cfg['parents'] = $this->getCurrentMODXPageID();
                     }
                     break;
             }
@@ -1648,10 +1648,10 @@ abstract class DocLister
         $this->debug->debug("getFilters: " . $this->debug->dumpData($filter_string), 'getFilter', 1);
         // the filter parameter tells us, which filters can be used in this query
         $filter_string = ltrim(trim($filter_string, ';'));
-        if (!$filter_string) {
-            return;
-        }
         $output = array('join' => '', 'where' => '');
+        if (!$filter_string) {
+            return $output;
+        }
         $logic_op_found = false;
         $joins = $wheres = array();
         foreach ($this->_logic_ops as $op => $sql) {

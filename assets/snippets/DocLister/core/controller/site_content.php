@@ -154,7 +154,11 @@ class site_contentDocLister extends DocLister
                     ); //inside the chunks available all placeholders set via $modx->toPlaceholders with prefix id, and with prefix sysKey
                     $item['iteration'] = $i; //[+iteration+] - Number element. Starting from zero
 
-                    $item['title'] = ($item['menutitle'] == '' ? $item['pagetitle'] : $item['menutitle']);
+                    if (isset($item['menutitle']) && $item['menutitle'] != '') {
+                        $item['title'] = $item['menutitle'];
+                    } elseif (isset($item['pagetitle'])) {
+                        $item['title'] = $item['pagetitle'];
+                    }
 
                     if ($this->getCFGDef('makeUrl', 1)) {
                         if ($item['type'] == 'reference') {

@@ -2355,7 +2355,20 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
-
+.tree-expanded:before,
+.tree-collapsed:before,
+.tree-expanded-hover:before,
+.tree-collapsed-hover:before,
+.tree-folder:before,
+.tree-folder-open:before,
+.tree-file:before,
+.tree-dnd-yes:before,
+.tree-dnd-no:before,
+.tree-checkbox0:before,
+.tree-checkbox1:before,
+.tree-checkbox2:before {
+    font-weight: 400;
+}
 .panel-loading:before {
     content:"\f021";
     -webkit-animation: fa-spin 2s infinite linear;
