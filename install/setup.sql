@@ -797,9 +797,13 @@ ALTER TABLE `{PREFIX}site_tmplvars`
  MODIFY COLUMN `display_params` text COMMENT 'Display Control Properties',
  MODIFY COLUMN `default_text` text;
 
+ALTER TABLE `{PREFIX}system_eventnames` DROP INDEX `name`;
+
 ALTER TABLE `{PREFIX}system_eventnames`
- MODIFY COLUMN  `name` varchar(50) NOT NULL DEFAULT '',
+ MODIFY COLUMN `name` varchar(50) NOT NULL DEFAULT '',
  MODIFY COLUMN `service` tinyint(4) NOT NULL DEFAULT '0' COMMENT 'System Service number';
+
+DELETE FROM `{PREFIX}system_eventnames` USING `{PREFIX}system_eventnames`, `{PREFIX}system_eventnames` `e1` WHERE `{PREFIX}system_eventnames`.`id` > `e1`.`id` AND `{PREFIX}system_eventnames`.`name` = `e1`.`name`;
 
 ALTER TABLE `{PREFIX}system_settings` MODIFY COLUMN `setting_value` text;
 
@@ -839,8 +843,6 @@ ALTER TABLE `{PREFIX}system_settings` DROP PRIMARY KEY;
 ALTER TABLE `{PREFIX}system_settings` DROP INDEX `setting_name`;
 
 ALTER TABLE `{PREFIX}system_settings` ADD PRIMARY KEY (`setting_name`);
-
-ALTER TABLE `{PREFIX}system_eventnames` DROP INDEX `name`;
 
 ALTER TABLE `{PREFIX}system_eventnames` ADD UNIQUE INDEX `name` (`name`);
 
