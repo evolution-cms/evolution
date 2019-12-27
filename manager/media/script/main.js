@@ -264,16 +264,23 @@ evo.collapse = function(a, b) {
 };
 
 // check connection to server
-evo.checkConnectionToServer = function() {
-  var xhr = new (window.ActiveXObject || XMLHttpRequest)('Microsoft.XMLHTTP');
-  xhr.open('GET', evo.urlCheckConnectionToServer + '?time=' + new Date().getTime(), false);
-  try {
-    xhr.send();
-    return (xhr.status >= 200 && xhr.status < 300 || xhr.status === 304);
-  } catch (error) {
-    return false;
-  }
-};
+if("fetch" in window) {
+  evo.checkConnectionToServer = async function() {
+    let response = await fetch(evo.urlCheckConnectionToServer + '?time=' + new Date().getTime());
+    return (response.ok || response.status === 304);
+  };
+} else {
+  evo.checkConnectionToServer = function() {
+    var xhr = new (window.ActiveXObject || XMLHttpRequest)('Microsoft.XMLHTTP');
+    xhr.open('GET', evo.urlCheckConnectionToServer + '?time=' + new Date().getTime(), false);
+    try {
+      xhr.send();
+      return (xhr.status >= 200 && xhr.status < 300 || xhr.status === 304);
+    } catch (error) {
+      return false;
+    }
+  };
+}
 
 function document_onload() {
   stopWorker();
