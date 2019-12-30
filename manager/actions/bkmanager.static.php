@@ -5,6 +5,7 @@ if( ! defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true) {
 if (!$modx->hasPermission('bk_manager')) {
     $modx->webAlertAndQuit($_lang["error_no_privileges"]);
 }
+require_once MODX_BASE_PATH.'assets/lib/Helpers/FS.php';
 
 $dbase = trim($dbase, '`');
 
@@ -24,17 +25,17 @@ if ($mode == 'restore1') {
     if (isset($_POST['textarea']) && !empty($_POST['textarea'])) {
         $source = trim($_POST['textarea']);
         $_SESSION['textarea'] = $source . "\n";
+        import_sql($source);
     } else {
-        $source = file_get_contents($_FILES['sqlfile']['tmp_name']);
+        import_sql_from_file($_FILES['sqlfile']['tmp_name']);
     }
-    import_sql($source);
+
     header('Location: index.php?r=9&a=93');
     exit;
 } elseif ($mode == 'restore2') {
     $path = $modx->config['snapshot_path'] . $_POST['filename'];
     if (file_exists($path)) {
-        $source = file_get_contents($path);
-        import_sql($source);
+        import_sql_from_file($path);
         if (headers_sent()) {
             echo "<script>document.location.href='index.php?r=9&a=93';</script>\n";
         } else {
@@ -93,6 +94,7 @@ if ($mode == 'restore1') {
     $pattern = "{$modx->config['snapshot_path']}*.sql";
     $files = glob($pattern, GLOB_NOCHECK);
     $total = ($files[0] !== $pattern) ? count($files) : 0;
+
     arsort($files);
     while (10 < $total && $limit < 50) {
         $del_file = array_pop($files);
@@ -558,16 +560,24 @@ class Mysqldumper
     {
         $modx = evolutionCMS();
         $createtable = array();
+        $FS = \Helpers\FS::getInstance();
 
         // Set line feed
         $lf = "\n";
         $tempfile_path = $modx->config['base_path'] . 'assets/backup/temp.php';
 
+        //если предедущая выгрузка завершылась не верно
+        if($FS->checkFile($tempfile_path)){
+            unlink($tempfile_path);
+        }
+
         $result = $modx->db->query('SHOW TABLES');
         $tables = $this->result2Array(0, $result);
         foreach ($tables as $tblval) {
             $result = $modx->db->query("SHOW CREATE TABLE `{$tblval}`");
+
             $createtable[$tblval] = $this->result2Array(1, $result);
+
         }
 
         $version = $modx->getVersionData();
@@ -594,6 +604,7 @@ class Mysqldumper
             unset($this->_dbtables);
         }
         foreach ($tables as $tblval) {
+
             // check for selected table
             if (isset($this->_dbtables)) {
                 if (strstr(",{$this->_dbtables},", ",{$tblval},") === false) {
@@ -605,6 +616,7 @@ class Mysqldumper
                     continue;
                 }
             }
+
             $output .= "{$lf}{$lf}# --------------------------------------------------------{$lf}{$lf}";
             $output .= "#{$lf}# Table structure for table `{$tblval}`{$lf}";
             $output .= "#{$lf}{$lf}";
@@ -614,50 +626,89 @@ class Mysqldumper
                 $output .= "DROP TABLE IF EXISTS `{$tblval}`;{$lf}";
                 $output .= "SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;{$lf}{$lf}";
             }
+
             $output .= "{$createtable[$tblval][0]};{$lf}";
             $output .= $lf;
             $output .= "#{$lf}# Dumping data for table `{$tblval}`{$lf}#{$lf}";
-            $result = $modx->db->select('*', $tblval);
-            $rows = $this->loadObjectList('', $result);
-            foreach ($rows as $row) {
-                $insertdump = $lf;
-                $insertdump .= "INSERT INTO `{$tblval}` VALUES (";
-                $arr = $this->object2Array($row);
-                if( ! is_array($arr)) $arr = array();
-                foreach ($arr as $key => $value) {
-                    if (is_null($value)) {
-                        $value = 'NULL';
-                    } else {
-                        $value = addslashes($value);
-                        $value = str_replace(array(
-                            "\r\n",
-                            "\r",
-                            "\n"
-                        ), '\\n', $value);
-                        $value = "'{$value}'";
+
+
+            file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
+            $output = '';
+
+            //количество строк за запрос
+            $rowByOneQuery = 10000;
+            //делим на части
+            $rowCount = $modx->db->getValue($modx->db->select("COUNT(*)",$tblval));
+            // Находим общее число страниц
+            $total = intval(($rowCount - 1) / $rowByOneQuery) + 1;
+
+            $queryCounts = 0;
+
+            for ($page = 1; $page <= $total; $page++) {
+                $start = $page * $rowByOneQuery - $rowByOneQuery;
+                $result = $modx->db->select('*', $tblval, '', '', "$start, $rowByOneQuery");
+                while ($arr = $modx->db->getRow($result)) {
+                    //формируем блок  значений
+                    $insertdump = "(";
+                    if (!is_array($arr)) $arr = array();
+
+                    foreach ($arr as $key => $value) {
+                        if (is_null($value)) {
+                            $value = 'NULL';
+                        } else {
+                            $value = addslashes($value);
+                            $value = str_replace(array(
+                                "\r\n",
+                                "\r",
+                                "\n"
+                            ), '\\n', $value);
+                            $value = "'{$value}'";
+                        }
+                        $insertdump .= $value . ',';
                     }
-                    $insertdump .= $value . ',';
-                }
-                $output .= rtrim($insertdump, ',') . ");\n";
-                if (1048576 < strlen($output)) {
-                    file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
-                    $output = '';
+                    $insertdump = rtrim($insertdump, ',') . ")";
+
+                    //если еще небыло значен
+                    if($queryCounts === 0){
+                        $output .= $lf."INSERT INTO `{$tblval}` VALUES";
+                    }
+                    else{
+                        $output .= ",";
+                    }
+                    $output .= $lf."  ".$insertdump;
+                    $queryCounts++;
+
+                    //если записали больше 30 строк з запрос ставим ; и сбрасивыем счетчик
+                    if($queryCounts>30){
+                        $output .= ";".$lf;
+                        $queryCounts = 0;
+                    }
+
+                    //если большая строрки пишем в файл чтоб не перегрузить память
+
+                    if (5040000 < strlen($output)) {
+                        file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
+                        $output = '';
+                    }
                 }
             }
+            //если данные есть, и записано больше 0 строк данных ставим ; в конце
+            if(!empty($output) && $queryCounts >0){
+                $output .= ";".$lf;
+            }
+
+            //пишем блок в файл
             file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
             $output = '';
         }
-        $output = file_get_contents($tempfile_path);
-        if (!empty($output)) {
-            unlink($tempfile_path);
-        }
+
 
         switch ($callBack) {
             case 'dumpSql':
-                dumpSql($output);
+                dumpSql($tempfile_path);
                 break;
             case 'snapshot':
-                snapshot($output);
+                snapshot($tempfile_path);
                 break;
         }
         return true;
@@ -728,6 +779,33 @@ class Mysqldumper
     }
 }
 
+
+/**
+ * @param string $source
+ * @param string $result_code
+ */
+function import_sql_from_file($path, $result_code = 'import_ok')
+{
+    $modx = evolutionCMS();
+    if(!file_exists($path)){
+        return false;
+    }
+    $fp = fopen($path,'r');
+
+    $output = '';
+    $inStructure = false;
+    while (($buffer = fgets($fp)) !== false) {
+        $output .= $buffer ."\n";
+        if(strlen($output) > 5040000 && $buffer ===  "\n"){
+            import_sql($output);
+            $output = '';
+        }
+    }
+
+    import_sql($output);
+}
+
+
 /**
  * @param string $source
  * @param string $result_code
@@ -743,6 +821,7 @@ function import_sql($source, $result_code = 'import_ok')
 
     $settings = getSettings();
 
+
     if (strpos($source, "\r") !== false) {
         $source = str_replace(array(
             "\r\n",
@@ -751,6 +830,7 @@ function import_sql($source, $result_code = 'import_ok')
         ), "\n", $source);
     }
     $sql_array = preg_split('@;[ \t]*\n@', $source);
+
     foreach ($sql_array as $sql_entry) {
         $sql_entry = trim($sql_entry, "\r\n; ");
         if (empty($sql_entry)) {
@@ -767,12 +847,13 @@ function import_sql($source, $result_code = 'import_ok')
 }
 
 /**
- * @param string $dumpstring
+ * @param string $dumpTempFilePath
  * @return bool
  */
-function dumpSql(&$dumpstring)
+function dumpSql($dumpTempFilePath)
 {
     $modx = evolutionCMS();
+    $dumpstring = file_get_contents($dumpTempFilePath);
     $today = $modx->toDateFormat(time(), 'dateOnly');
     $today = str_replace('/', '-', $today);
     $today = strtolower($today);
@@ -790,13 +871,13 @@ function dumpSql(&$dumpstring)
 }
 
 /**
- * @param string $dumpstring
+ * @param string $dumpTempFilePath
  * @return bool
  */
-function snapshot(&$dumpstring)
+function snapshot($dumpTempFilePath)
 {
     global $path;
-    file_put_contents($path, $dumpstring, FILE_APPEND);
+    rename($dumpTempFilePath, $path);
     return true;
 }
 
