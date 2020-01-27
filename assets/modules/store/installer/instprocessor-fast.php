@@ -359,7 +359,8 @@ if (count($modulePlugins )>0) {
                 // remove installer docblock
                 $plugin = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', $plugin, 1);
                 $plugin = $modx->db->escape($plugin);
-                $rs = $modx->db->query("SELECT * FROM `" . $table_prefix . "site_plugins` WHERE name='$name'");
+                $rs = $modx->db->query("SELECT * FROM `" . $table_prefix . "site_plugins` WHERE name='$name' ORDER BY id");
+                $prev_id = null;
 
                 if ($modx->db->getRecordCount($rs)) {
                     $insert = true;
@@ -377,6 +378,7 @@ if (count($modulePlugins )>0) {
                                 return;
                             }
                         }
+                        $prev_id = $row['id'];
                     }
                     if($insert === true) {
                         if(!@$modx->db->query("INSERT INTO `".$table_prefix."site_plugins` (name,description,plugincode,properties,moduleguid,disabled,category) VALUES('$name','$desc','$plugin','$props','$guid','0','$category');",$sqlParser->conn)) {
@@ -401,8 +403,29 @@ if (count($modulePlugins )>0) {
                         $row = $modx->db->getRow($ds,'assoc');
                         $id = $row["id"];
                         $_events = implode("','", $events);
+
                         // add new events
-                        $modx->db->query("INSERT IGNORE INTO `" . $table_prefix . "site_plugin_events` (pluginid, evtid, priority) SELECT '$id' as 'pluginid', se.id as 'evtid', IF(spe.priority IS NULL, 0, MAX(spe.priority) + 1) as 'priority' FROM `" . $table_prefix . "system_eventnames` se LEFT JOIN `" . $table_prefix . "site_plugin_events` spe ON spe.evtid = se.id WHERE name IN ('{$_events}') GROUP BY se.id");
+                        if ($prev_id) {
+                            $prev_id = $modx->db->escape($prev_id);
+
+                            $modx->db->query("INSERT IGNORE INTO `" . $table_prefix . "site_plugin_events` (pluginid, evtid, priority)
+                                SELECT '$id' as 'pluginid', se.id AS `evtid`, IF(spe.pluginid IS NULL, IF(spe2.priority IS NULL, 0, MAX(spe2.priority) + 1), spe.priority) AS `priority`
+                                FROM `" . $table_prefix . "system_eventnames` se
+                                LEFT JOIN `" . $table_prefix . "site_plugin_events` spe ON spe.evtid = se.id AND spe.pluginid = '$prev_id'
+                                LEFT JOIN `" . $table_prefix . "site_plugin_events` spe2 ON spe2.evtid = se.id
+                                WHERE name IN ('" . $_events . "')
+                                GROUP BY se.id
+                            ");
+                        } else {
+                            $modx->db->query("INSERT IGNORE INTO `" . $table_prefix . "site_plugin_events` (pluginid, evtid, priority)
+                                SELECT '$id' as 'pluginid', se.id as 'evtid', IF(spe.priority IS NULL, 0, MAX(spe.priority) + 1) as 'priority' 
+                                FROM `" . $table_prefix . "system_eventnames` se
+                                LEFT JOIN `" . $table_prefix . "site_plugin_events` spe ON spe.evtid = se.id
+                                WHERE name IN ('" . $_events . "')
+                                GROUP BY se.id;
+                            ");
+                        }
+
                         // remove existing events
                         $modx->db->query("DELETE `pe` FROM `{$table_prefix}site_plugin_events` `pe` LEFT JOIN `{$table_prefix}system_eventnames` `se` ON `pe`.`evtid`=`se`.`id` AND `name` IN ('{$_events}') WHERE ISNULL(`name`) AND `pluginid` = {$id}");
                     }
