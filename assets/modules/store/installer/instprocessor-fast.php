@@ -398,7 +398,7 @@ if (count($modulePlugins )>0) {
                 }
                 // add system events
                 if (count($events) > 0) {
-                    $ds=$modx->db->query("SELECT id FROM `".$table_prefix."site_plugins` WHERE name='$name' AND description='$desc';",$sqlParser->conn);
+                    $ds=$modx->db->query("SELECT id FROM `".$table_prefix."site_plugins` WHERE name='$name' AND description='$desc' ORDER BY id DESC LIMIT 1;",$sqlParser->conn);
                     if ($ds) {
                         $row = $modx->db->getRow($ds,'assoc');
                         $id = $row["id"];
