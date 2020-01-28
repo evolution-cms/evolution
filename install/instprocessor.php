@@ -579,14 +579,14 @@ if (isset ($_POST['plugin']) || $installData) {
                 }
                 // add system events
                 if (count($events) > 0) {
-                    $ds=mysqli_query($sqlParser->conn, "SELECT id FROM $dbase.`".$table_prefix."site_plugins` WHERE name='$name' AND description='$desc';");
+                    $ds=mysqli_query($sqlParser->conn, "SELECT id FROM $dbase.`".$table_prefix."site_plugins` WHERE name='$name' AND description='$desc' ORDER BY id DESC LIMIT 1;");
                     if ($ds) {
                         $row = mysqli_fetch_assoc($ds);
                         $id = $row["id"];
                         $_events = implode("','", $events);
                         // add new events
                         if ($prev_id) {
-                            $prev_id = mysqli_real_escape_string($prev_id);
+                            $prev_id = mysqli_real_escape_string($conn, $prev_id);
 
                             mysqli_query($sqlParser->conn, "INSERT IGNORE INTO $dbase.`" . $table_prefix . "site_plugin_events` (pluginid, evtid, priority)
                                 SELECT '$id' as 'pluginid', se.id AS `evtid`, IF(spe.pluginid IS NULL, IF(spe2.priority IS NULL, 0, MAX(spe2.priority) + 1), spe.priority) AS `priority`
