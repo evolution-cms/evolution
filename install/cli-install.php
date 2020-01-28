@@ -1301,7 +1301,8 @@ if (is_array($modulePlugins) || $installData) {
                 $plugin = end(preg_split("/(\/\/)?\s*\<\?php/", file_get_contents($filecontent), 2));
                 $plugin = removeDocblock($plugin, 'plugin');
                 $plugin = mysqli_real_escape_string($conn, $plugin);
-                $rs = mysqli_query($sqlParser->conn, "SELECT * FROM $dbase.`" . $table_prefix . "site_plugins` WHERE name='$name'");
+                $rs = mysqli_query($sqlParser->conn, "SELECT * FROM $dbase.`" . $table_prefix . "site_plugins` WHERE name='$name' ORDER BY id");
+                $prev_id = null;
                 if (mysqli_num_rows($rs)) {
                     $insert = true;
                     while($row = mysqli_fetch_assoc($rs)) {
@@ -1318,6 +1319,7 @@ if (is_array($modulePlugins) || $installData) {
                                 return;
                             }
                         }
+                        $prev_id = $row['id'];
                     }
                     if($insert === true) {
                         $properties = mysqli_real_escape_string($conn, propUpdate($properties,$row['properties']));
@@ -1339,13 +1341,26 @@ if (is_array($modulePlugins) || $installData) {
                 }
                 // add system events
                 if (count($events) > 0) {
-                    $ds=mysqli_query($sqlParser->conn, "SELECT id FROM $dbase.`".$table_prefix."site_plugins` WHERE name='$name' AND description='$desc';");
+                    $ds=mysqli_query($sqlParser->conn, "SELECT id FROM $dbase.`".$table_prefix."site_plugins` WHERE name='$name' AND description='$desc' ORDER BY id DESC LIMIT 1;");
                     if ($ds) {
                         $row = mysqli_fetch_assoc($ds);
                         $id = $row["id"];
                         $_events = implode("','", $events);
                         // add new events
-                        mysqli_query($sqlParser->conn, "INSERT IGNORE INTO $dbase.`" . $table_prefix . "site_plugin_events` (pluginid, evtid, priority) SELECT '$id' as 'pluginid', se.id as 'evtid', IF(spe.priority IS NULL, 0, MAX(spe.priority) + 1) as 'priority' FROM $dbase.`" . $table_prefix . "system_eventnames` se LEFT JOIN $dbase.`" . $table_prefix . "site_plugin_events` spe ON spe.evtid = se.id WHERE name IN ('{$_events}') GROUP BY se.id");
+                        if ($prev_id) {
+                            $prev_id = mysqli_real_escape_string($conn, $prev_id);
+
+                            mysqli_query($sqlParser->conn, "INSERT IGNORE INTO $dbase.`" . $table_prefix . "site_plugin_events` (pluginid, evtid, priority)
+                                SELECT '$id' as 'pluginid', se.id AS `evtid`, IF(spe.pluginid IS NULL, IF(spe2.priority IS NULL, 0, MAX(spe2.priority) + 1), spe.priority) AS `priority`
+                                FROM $dbase.`" . $table_prefix . "system_eventnames` se
+                                LEFT JOIN $dbase.`" . $table_prefix . "site_plugin_events` spe ON spe.evtid = se.id AND spe.pluginid = '$prev_id'
+                                LEFT JOIN $dbase.`" . $table_prefix . "site_plugin_events` spe2 ON spe2.evtid = se.id
+                                WHERE name IN ('" . $_events . "')
+                                GROUP BY se.id
+                            ");
+                        } else {
+                            mysqli_query($sqlParser->conn, "INSERT IGNORE INTO $dbase.`" . $table_prefix . "site_plugin_events` (pluginid, evtid, priority) SELECT '$id' as 'pluginid', se.id as 'evtid', IF(spe.priority IS NULL, 0, MAX(spe.priority) + 1) as 'priority' FROM $dbase.`" . $table_prefix . "system_eventnames` se LEFT JOIN $dbase.`" . $table_prefix . "site_plugin_events` spe ON spe.evtid = se.id WHERE name IN ('{$_events}') GROUP BY se.id");
+                        }
                         // remove absent events
                         mysqli_query($sqlParser->conn, "DELETE `pe` FROM {$dbase}.`{$table_prefix}site_plugin_events` `pe` LEFT JOIN {$dbase}.`{$table_prefix}system_eventnames` `se` ON `pe`.`evtid`=`se`.`id` AND `name` IN ('{$_events}') WHERE ISNULL(`name`) AND `pluginid` = {$id}");
                     }
