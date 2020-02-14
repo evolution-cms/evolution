@@ -1290,6 +1290,7 @@ $_lang['email_method_title'] = 'Метод отправки писем';
 $_lang['email_method_mail'] = 'MAIL - cообщения отправляются с помощью функции mail().';
 $_lang['email_method_smtp'] = 'Через SMTP-сервер';
 $_lang['smtp_auth_title'] = 'SMTP авторизация';
+$_lang['smtp_autotls_title'] = 'SMTPAutoTLS';
 $_lang['smtp_host_title'] = 'Адрес SMTP-сервера';
 $_lang['smtp_secure_title'] = 'Защита SMTP';
 $_lang['smtp_username_title'] = 'SMTP почта';

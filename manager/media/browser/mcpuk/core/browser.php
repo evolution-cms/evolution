@@ -1032,7 +1032,9 @@ class browser extends uploader
                         ($cdir['name'] == $path[$index + 1])
                     )
                 ) {
-                    $dirs[$i]['dirs'] = $this->getTree($dir, $index + 1);
+                    if($index + 1 <=(count($path) - 1)) {
+                        $dirs[$i]['dirs'] = $this->getTree($dir, $index + 1);
+                    }
                     if (!is_array($dirs[$i]['dirs']) || !count($dirs[$i]['dirs'])) {
                         unset($dirs[$i]['dirs']);
                         continue;
@@ -1114,17 +1116,11 @@ class browser extends uploader
             return false;
         }
         $dirs = dir::content($dir, array('types' => "dir"));
-        if (is_array($dirs)) {
-            foreach ($dirs as $key => $cdir) {
-                if (substr(basename($cdir), 0, 1) == ".") {
-                    unset($dirs[$key]);
-                }
-            }
-            $hasDirs = count($dirs) ? true : false;
+        if (is_dir($dir)) {
+            $hasDirs = true;
         } else {
             $hasDirs = false;
         }
-
         $writable = dir::isWritable($dir);
         $info = array(
             'name'      => stripslashes(basename($dir)),

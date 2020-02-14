@@ -14,7 +14,7 @@ class ServiceProvider extends BaseServiceProvider
      * @param $namespace
      * @throws \Exception
      */
-    protected function loadSnippetsFrom($path, $namespace)
+    protected function loadSnippetsFrom($path, $namespace = '')
     {
         $found = $this->app->findElements('snippet', $path, array('php'));
         foreach ($found as $name => $code) {
@@ -29,7 +29,7 @@ class ServiceProvider extends BaseServiceProvider
      * @param $namespace
      * @throws \Exception
      */
-    protected function loadChunksFrom($path, $namespace)
+    protected function loadChunksFrom($path, $namespace = '')
     {
         $found = $this->app->findElements('chunk', $path, array('tpl', 'html'));
         foreach ($found as $name => $code) {
@@ -58,9 +58,9 @@ class ServiceProvider extends BaseServiceProvider
      * @param $code
      * @param $namespace
      */
-    protected function addSnippet($name, $code, $namespace)
+    protected function addSnippet($name, $code, $namespace = '')
     {
-        $this->app->addSnippet($name, $code, $namespace . '#');
+        $this->app->addSnippet($name, $code, !empty($namespace) ? $namespace . '#' : '');
     }
 
     /**
@@ -70,8 +70,8 @@ class ServiceProvider extends BaseServiceProvider
      * @param $code
      * @param $namespace
      */
-    protected function addChunk($name, $code, $namespace)
+    protected function addChunk($name, $code, $namespace = '')
     {
-        $this->app->addChunk($name, $code, $namespace . '#');
+        $this->app->addChunk($name, $code, !empty($namespace) ? $namespace . '#' : '');
     }
 }

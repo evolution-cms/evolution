@@ -40,6 +40,7 @@ class Mail extends PHPMailer
                 $this->Port = $modx->getConfig('smtp_port');
                 $this->Host = $modx->getConfig('smtp_host');
                 $this->SMTPAuth = $modx->getConfig('smtp_auth') === '1' ? true : false;
+                $this->SMTPAutoTLS = $modx->getConfig('smtp_autotls') === '0' ? false : true;
                 $this->Username = $modx->getConfig('smtp_username');
                 $this->Password = $modx->getConfig('smtppw');
                 if (10 < strlen($this->Password)) {

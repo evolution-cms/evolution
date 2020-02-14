@@ -91,7 +91,7 @@
         <p>
             <?=$_lang['writing_config_file']?> <span class="notok"><?=$_lang['failed']?></span>
         </p>
-        <p><?=$_lang['cant_write_config_file']?> <span class="mono"><?=MGR_DIR?>/includes/config.inc.php</span></p>
+        <p><?=$_lang['cant_write_config_file']?> <span class="mono">/core/config/database/connections/default.php</span></p>
         <textarea style="width:400px; height:160px;"><?=$configString?></textarea>
         <p><?=$_lang['cant_write_config_file_note']?></p>
     <?php else : ?>

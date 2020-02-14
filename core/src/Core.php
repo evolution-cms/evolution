@@ -3064,7 +3064,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 'id,alias,isfolder,parent'
                 , $this->getDatabase()->getFullTableName('site_content')
                 , sprintf(
-                    "parent IN (%d) AND deleted = '0'"
+                    "parent IN (%s) AND deleted = '0'"
                     , $id
                 )
             );
@@ -4416,14 +4416,21 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             is_numeric($cacheTime)
             && $this->getConfig('enable_cache')
         ){
-            $arrPlaceholderCheckAfterSnippet = $this->placeholders;
-            $arrPlaceholderFromSnippet = array_diff($arrPlaceholderCheckAfterSnippet, $arrPlaceholderCheck);
             if ($cacheTime != 0) {
                 Cache::put($cacheKey, $result, $cacheTime);
-                Cache::put($cacheKey . '_placeholders', $arrPlaceholderFromSnippet, $cacheTime);
-            }else {
+            } else {
                 Cache::forever($cacheKey, $result);
-                Cache::forever($cacheKey . '_placeholders', $arrPlaceholderFromSnippet);
+            }
+
+            if (!empty($this->placeholders)) {
+                $arrPlaceholderCheckAfterSnippet = $this->placeholders;
+                $arrPlaceholderFromSnippet = array_diff($arrPlaceholderCheckAfterSnippet, $arrPlaceholderCheck);
+
+                if ($cacheTime != 0) {
+                    Cache::put($cacheKey . '_placeholders', $arrPlaceholderFromSnippet, $cacheTime);
+                } else {
+                    Cache::forever($cacheKey . '_placeholders', $arrPlaceholderFromSnippet);
+                }
             }
         }
         return $result;
@@ -6588,6 +6595,11 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     public function addDataToView($data = [])
     {
         $this->dataForView = array_merge($this->dataForView, $data);
+    }
+
+    public function getDataForView()
+    {
+        return $this->dataForView;
     }
 
     /**

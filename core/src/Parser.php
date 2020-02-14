@@ -169,7 +169,7 @@ class Parser
      */
     public function getTemplateData ($data = array())
     {
-        $plh = $this->templateData;
+        $plh = array_merge($this->modx->getDataForView(), $this->templateData);
         $plh['data'] = $data;
         $plh['modx'] = $this->modx;
 

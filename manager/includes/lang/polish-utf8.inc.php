@@ -1295,6 +1295,7 @@ $_lang['email_method_title'] = 'Metoda wysyłania poczty';
 $_lang['email_method_mail'] = 'Funkcja PHP mail()';
 $_lang['email_method_smtp'] = 'Serwer SMTP';
 $_lang['smtp_auth_title'] = 'SMTP-AUTH';
+$_lang['smtp_autotls_title'] = 'SMTPAutoTLS';
 $_lang['smtp_host_title'] = 'SMTP host';
 $_lang['smtp_secure_title'] = 'Zaszyfrowane SMTP';
 $_lang['smtp_username_title'] = 'Nazwa użytkownika SMTP';

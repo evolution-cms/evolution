@@ -63,6 +63,19 @@
 
             <div class="split my-1"></div>
 
+            @include('manager::form.radio', [
+                'name' => 'smtp_autotls',
+                'label' => ManagerTheme::getLexicon('smtp_autotls_title'),
+                'small' => '[(smtp_autotls)]',
+                'value' => $settings['smtp_autotls'],
+                'options' => [
+                    1 => ManagerTheme::getLexicon('yes'),
+                    0 => ManagerTheme::getLexicon('no')
+                ]
+            ])
+
+            <div class="split my-1"></div>
+
             @include('manager::form.select', [
                 'name' => 'smtp_secure',
                 'label' => ManagerTheme::getLexicon('smtp_secure_title'),

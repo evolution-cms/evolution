@@ -844,12 +844,13 @@ if ($conn) {
                     $plugin = removeDocblock($plugin, 'plugin');
                     $plugin = sql_escape($plugin);
                     $query = sprintf(
-                        "SELECT * FROM %s.`%s` WHERE name='%s'"
+                        "SELECT * FROM %s.`%s` WHERE name='%s' ORDER BY id"
                         , $dbase
                         , table_prefix('site_plugins')
                         , $name
                     );
                     $rs = mysqli_query($sqlParser->conn, $query);
+                    $prev_id = null;
                     if (mysqli_num_rows($rs)) {
                         $installDataLevel['plugins'][$modulePlugin[0]]['type'] = 'update';
                         $insert = true;
@@ -890,6 +891,7 @@ if ($conn) {
                                     break 2;
                                 }
                             }
+                            $prev_id = $row['id'];
                         }
                         if ($insert === true) {
                             if(!mysqli_query(
@@ -941,7 +943,7 @@ if ($conn) {
                     // add system events
                     if (count($events) > 0) {
                         $query = sprintf(
-                            "SELECT id FROM %s.`%s` WHERE name='%s' AND description='%s'"
+                            "SELECT id FROM %s.`%s` WHERE name='%s' AND description='%s' ORDER BY id DESC LIMIT 1"
                             , $dbase
                             , table_prefix('site_plugins')
                             , $name
@@ -953,14 +955,32 @@ if ($conn) {
                             $id = $row["id"];
                             $_events = implode("','", $events);
                             // add new events
-                            $sql = sprintf(
-                                "INSERT IGNORE INTO %s.`%s` (pluginid, evtid, priority) SELECT '$id' as 'pluginid', se.id as 'evtid', IF(spe.priority IS NULL, 0, MAX(spe.priority) + 1) as 'priority' FROM $dbase.`%s` se LEFT JOIN $dbase.`%s` spe ON spe.evtid = se.id WHERE name IN ('%s') GROUP BY se.id"
-                                , $dbase
-                                , table_prefix('site_plugin_events')
-                                , table_prefix('system_eventnames')
-                                , table_prefix('site_plugin_events')
-                                , $_events
-                            );
+                            if ($prev_id) {
+                                $sql = sprintf(
+                                    "INSERT IGNORE INTO $dbase.`%s` (pluginid, evtid, priority)
+                                        SELECT '$id' as 'pluginid', se.id as 'evtid', IF(spe.pluginid IS NULL, IF(spe2.priority IS NULL, 0, MAX(spe2.priority) + 1), spe.priority) as 'priority'
+                                        FROM $dbase.`%s` se
+                                        LEFT JOIN $dbase.`%s` spe ON spe.evtid = se.id AND spe.pluginid = '%s'
+                                        LEFT JOIN $dbase.`%s` spe2 ON spe2.evtid = se.id
+                                        WHERE name IN ('%s')
+                                        GROUP BY se.id"
+                                    , table_prefix('site_plugin_events')
+                                    , table_prefix('system_eventnames')
+                                    , table_prefix('site_plugin_events')
+                                    , sql_escape($prev_id)
+                                    , table_prefix('site_plugin_events')
+                                    , $_events
+                                );
+                            } else {
+                                $sql = sprintf(
+                                    "INSERT IGNORE INTO %s.`%s` (pluginid, evtid, priority) SELECT '$id' as 'pluginid', se.id as 'evtid', IF(spe.priority IS NULL, 0, MAX(spe.priority) + 1) as 'priority' FROM $dbase.`%s` se LEFT JOIN $dbase.`%s` spe ON spe.evtid = se.id WHERE name IN ('%s') GROUP BY se.id"
+                                    , $dbase
+                                    , table_prefix('site_plugin_events')
+                                    , table_prefix('system_eventnames')
+                                    , table_prefix('site_plugin_events')
+                                    , $_events
+                                );
+                            }
                             mysqli_query($sqlParser->conn, $sql);
                             // remove absent events
                             $sql = sprintf(
