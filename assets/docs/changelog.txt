@@ -1,6 +1,37 @@
 This file shows the changes in recent releases of Evolution CMS. The most current release is usually the
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
+
+Evolution CMS 1.4.11 (Mar 13, 2020)
+
+* [GitHub:#6f67301ba] - Update DocLister to 2.5.2 (Dmi3yy)
+* [GitHub:#8d5b31b1f] - Update FormLister to 1.10.3 (Dmi3yy)
+* [GitHub:#6e491904a] - keep plugins priority (mnoskov)
+* [GitHub:#0859d1062] - getting installed plugin fix (mnoskov)
+* [GitHub:#376d7f57c] - getting previous events fix (mnoskov)
+* [GitHub:#449e8160e] - Update instprocessor.php (mnoskov)
+* [GitHub:#1883666e4] - update bk manager (dzhuryn)
+* [GitHub:#acc871ecb] - nested snippet 100->200 (Dmytro Lukianenko)
+* [GitHub:#6f7ad2534] - Update russian.php (projkin)
+* [GitHub:#e4c47375d] - remove event name duplicates (Pathologic)
+* [GitHub:#425b623f8] - fix for nested snippet work with PHx (Dmi3yy)
+* [GitHub:#21ae71665] - fix(forms.css): fixed height input (Serg)
+* [GitHub:#7c44e274c] - fix(forms.css) changed height inputs (Serg)
+* [GitHub:#f3be07dd7] - Fix missing panel toggle arrows (Mr B)
+* [GitHub:#29f80ce9a] - Fix tree icon for private resource (Mr B)
+* [GitHub:#6c5f69caa] - fix(modx.js): remove loader with locked resource (Serg)
+* [GitHub:#787bf71c4] - fix #1261 mcpuk browser missing icons (Nicola)
+* [GitHub:#53ec9444f] - Fix right arrow icon before element description (Sasha Beep)
+* [GitHub:#d1a4f2e83] - fix demo site install (Pathologic)
+* [GitHub:#22713e57e] - fix(modx.js): remove jQuery variable (Serg)
+* [GitHub:#f5079d97f] - feat(modx.js): remove jQuery methods (Serg)
+* [GitHub:#0fbd46f2a] - feat(modx.js): remove jQuery animate (Serg)
+* [GitHub:#3a864cbc9] - fix #1246 (kivamp)
+* [GitHub:#e08a7f971] - Fix fullscreen tinymce hiding buttons (Mr B)
+* [GitHub:#8bcf79aa7] - fix icon in tree when move #1167 (Dmi3yy)
+* [GitHub:#8bcf79237] - fix allert with error internet connection in Chrome (Dmi3yy)
+
+
 Evolution CMS 1.4.10 (Nov 5, 2019)
 * [GitHub:#9cdb6bca9] - Update FA5 in Elements Tree (Dmi3yy)
 * [GitHub:#ce883d04a] - fix ignore failed_login_attempts setting (Pathologic)
