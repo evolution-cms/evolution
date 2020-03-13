@@ -95,6 +95,7 @@ class site_content_menuDocLister extends site_contentDocLister
             $this->config->setConfig(array('hideSubMenus' => 1));
         }
         $key = 'menudata' . $maxDepth;
+        $displayKey = 'menudisplay' . $maxDepth;
         $this->levels = $this->extCache->load($key);
         if ($this->levels === false) {
             $this->levels = array();
@@ -145,6 +146,9 @@ class site_content_menuDocLister extends site_contentDocLister
                 $this->AddTable = array();
             }
             $this->extCache->save($this->levels, $key);
+            $this->extCache->save($this->display, $displayKey);
+        } else {
+            $this->display = $this->extCache->load($displayKey);
         }
     }
 
@@ -411,7 +415,6 @@ class site_content_menuDocLister extends site_contentDocLister
         if ($data['iteration'] == $data['_display']) {
             $data['last'] = 1;
         }
-
         $titleField = $this->getCFGDef('titleField', 'title');
         $data[$titleField] = isset($data['menutitle']) && !empty($data['menutitle']) ? $data['menutitle'] : $data['pagetitle'];
         $data['level'] = $this->currentLevel;

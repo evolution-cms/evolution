@@ -42,6 +42,9 @@ class site_content_tagsDocLister extends site_contentDocLister
         $link = $this->checkExtender('request') ? $this->extender['request']->getLink() : "";
         $tag = $this->checkTag();
         if ($tag !== false && is_array($tag) && $tag['mode'] == 'get') {
+            if (is_array($tag['tag'])) {
+                $tag['tag'] = implode($this->getCFGDef('tagsSeparator', '||'), $tag['tag']);
+            }
             $link .= "&tag=" . urlencode($tag['tag']);
         }
         $url = ($id == $this->modx->config['site_start']) ? $this->modx->config['site_url'] . ($link != '' ? "?{$link}" : "") : $this->modx->makeUrl(
@@ -71,15 +74,17 @@ class site_content_tagsDocLister extends site_contentDocLister
                     case 'static':
                     default:
                         $tag = $tmp[1];
-                        $separator = $this->getCFGDef('tagsSeparator', '||');
-                        if (!empty($tag) && !empty($separator)) {
-                            $_tag = explode($separator, $tag);
-                            if (count($_tag) > 1) {
-                                $tag = $_tag;
-                            }
-                        }
                         break;
                 }
+
+                $separator = $this->getCFGDef('tagsSeparator', '||');
+                if (!empty($tag) && !empty($separator)) {
+                    $_tag = array_map('trim', explode($separator, $tag));
+                    if (count($_tag) > 1) {
+                        $tag = $_tag;
+                    }
+                }
+
                 $this->tag = array("mode" => $tmp[0], "tag" => $tag);
                 $this->toPlaceholders($this->sanitarData($tag), 1, "tag");
             }

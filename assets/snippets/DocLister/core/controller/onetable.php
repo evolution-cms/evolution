@@ -55,6 +55,8 @@ class onetableDocLister extends DocLister
             $extCommentsCount->init($this);
         }
 
+        $this->getExtender($this->getCFGDef('extender', ""), false, true)->init($this);
+
         $type = $this->getCFGDef('idType', 'parents');
         $this->_docs = ($type == 'parents') ? $this->getChildrenList() : $this->getDocList();
 

@@ -398,8 +398,6 @@ abstract class DocLister
             if (is_null($this->debug)) {
                 $this->debug = new xNop();
                 $this->_debugMode = 0;
-                error_reporting(0);
-                ini_set('display_errors', 0);
             }
         }
     }

@@ -40,7 +40,8 @@ class modUsers extends MODxAPI
             'photo'            => '',
             'comment'          => '',
             'createdon'        => 0,
-            'editedon'         => 0
+            'editedon'         => 0,
+            'verified'         => 0
         ),
         'hidden'    => array(
             'internalKey'
@@ -204,7 +205,7 @@ class modUsers extends MODxAPI
 
         if (!empty($webUser)) {
             $settings = $this->modx->db->makeArray($this->modx->db->select('*', $this->makeTable('web_user_settings'), "webuser = {$webUser}"));
-            $this->fromArray(array_column($settings,'setting_value','setting_name'));
+            $this->fromArray(array_column($settings, 'setting_value', 'setting_name'));
         }
     }
 
@@ -329,17 +330,6 @@ class modUsers extends MODxAPI
         $this->saveQuery($fld);
         unset($fld['id']);
 
-        foreach ($fld as $key => $value) {
-            if ($value == '' || ! $this->isChanged($key)) {
-                continue;
-            }
-            $result = $this->query("SELECT `setting_value` FROM {$this->makeTable('web_user_settings')} WHERE `webuser` = '{$this->id}' AND `setting_name` = '{$key}'");
-            if ($this->modx->db->getRecordCount($result) > 0) {
-                $this->query("UPDATE {$this->makeTable('web_user_settings')} SET `setting_value` = '{$value}' WHERE `webuser` = '{$this->id}' AND `setting_name` = '{$key}';");
-            } else {
-                $this->query("INSERT into {$this->makeTable('web_user_settings')} SET `webuser` = {$this->id},`setting_name` = '{$key}',`setting_value` = '{$value}';");
-            }
-        }
         if (! $this->newDoc && $this->givenPassword) {
             $this->invokeEvent('OnWebChangePassword', array(
                 'userObj'      => $this,

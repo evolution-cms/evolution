@@ -6,9 +6,10 @@ if (! defined('MODX_BASE_PATH')) {
 $ID = $modx->documentObject['id'];
 $params = is_array($modx->Event->params) ? $modx->Event->params : array();
 $params = array_merge($params, array(
-        'api'   => 1,
-        'debug' => '0'
-    ));
+    'api'   => 1,
+    'debug' => '0',
+    'parents' => isset($parents) ? $parents : $modx->documentObject['parent']
+));
 
 $json = $modx->runSnippet("DocLister", $params);
 $children = jsonHelper::jsonDecode($json, array('assoc' => true));
@@ -39,7 +40,11 @@ if ($next == $prev) {
 }
 
 $TPL = DLTemplate::getInstance($modx);
-return ($prev == $ID) ? '' : $TPL->parseChunk($prevnextTPL, array(
-    'prev' => empty($prev) ? '' : $TPL->parseChunk($prevTPL, $children[$prev]),
-    'next' => empty($next) ? '' : $TPL->parseChunk($nextTPL, $children[$next]),
-));
+return ($prev == $ID)
+    ? ''
+    : isset($api) && $api == 1
+        ? ['prev' => empty($prev) ? '' : $children[$prev], 'next' => empty($next) ? '' : $children[$next]]
+        : $TPL->parseChunk($prevnextTPL, array(
+            'prev' => empty($prev) ? '' : $TPL->parseChunk($prevTPL, $children[$prev]),
+            'next' => empty($next) ? '' : $TPL->parseChunk($nextTPL, $children[$next]),
+        ));

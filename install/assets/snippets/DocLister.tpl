@@ -5,7 +5,7 @@
  * Snippet to display the information of the tables by the description rules. The main goal - replacing Ditto and CatalogView
  *
  * @category 	snippet
- * @version 	2.5.0
+ * @version 	2.5.2
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@properties
  * @internal	@modx_category Content
