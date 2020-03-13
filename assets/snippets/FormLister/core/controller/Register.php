@@ -1,27 +1,26 @@
 <?php namespace FormLister;
 
-use DateTime;
+use APIhelpers;
 use jsonHelper;
+use modUsers;
 
 /**
  * Контроллер для регистрации пользователя
  * Class Register
  * @package FormLister
+ * @property modUsers $user
  */
 class Register extends Form
 {
     use DateConverter;
-    /**
-     * @var \modUsers
-     */
-    public $user = null;
+    public $user;
 
     /**
      * Register constructor.
      * @param \DocumentParser $modx
      * @param array $cfg
      */
-    public function __construct(\DocumentParser $modx, $cfg = array())
+    public function __construct (\DocumentParser $modx, $cfg = [])
     {
         parent::__construct($modx, $cfg);
         $this->user = $this->loadModel(
@@ -29,14 +28,14 @@ class Register extends Form
             $this->getCFGDef('modelPath', 'assets/lib/MODxAPI/modUsers.php')
         );
         $this->lexicon->fromFile('register');
-        $this->log('Lexicon loaded', array('lexicon' => $this->lexicon->getLexicon()));
+        $this->log('Lexicon loaded', ['lexicon' => $this->lexicon->getLexicon()]);
         $this->dateFormat = $this->getCFGDef('dateFormat', '');
     }
 
     /**
      * @return string
      */
-    public function render()
+    public function render ()
     {
         if ($id = $this->modx->getLoginUserID('web')) {
             $this->redirect('exitTo');
@@ -69,7 +68,7 @@ class Register extends Form
      * @param $value
      * @return bool
      */
-    public static function uniqueEmail($fl, $value)
+    public static function uniqueEmail ($fl, $value)
     {
         $result = true;
         if (is_scalar($value) && !is_null($fl->user)) {
@@ -87,7 +86,7 @@ class Register extends Form
      * @param $value
      * @return bool
      */
-    public static function uniqueUsername($fl, $value)
+    public static function uniqueUsername ($fl, $value)
     {
         $result = true;
         if (is_scalar($value) && !is_null($fl->user)) {
@@ -95,13 +94,13 @@ class Register extends Form
             $result = $fl->user->checkUnique('web_users', 'username');
         }
 
-        return $result ;
+        return $result;
     }
 
     /**
      *
      */
-    public function process()
+    public function process ()
     {
         if (!empty($this->allowedFields)) {
             $this->allowedFields[] = 'username';
@@ -120,7 +119,7 @@ class Register extends Form
         }
         //регистрация со случайным паролем
         if ($this->getField('password') == '' && !isset($this->rules['password'])) {
-            $this->setField('password', \APIhelpers::genPass($this->getCFGDef('passwordLength', 6)));
+            $this->setField('password', APIhelpers::genPass($this->getCFGDef('passwordLength', 6)));
         }
         $password = $this->getField('password');
         $fields = $this->filterFields($this->getFormData('fields'), $this->allowedFields, $this->forbiddenFields);
@@ -128,15 +127,17 @@ class Register extends Form
             $fields['dob'] = $dob;
         }
         $checkActivation = $this->getCFGDef('checkActivation', 0);
-        if ($checkActivation) {
-            $fields['logincount'] = -1;
-        }
+        $fields['verified'] = (int)!$checkActivation;
         $fields['username'] = is_scalar($fields['username']) ? $fields['username'] : '';
         $fields['email'] = is_scalar($fields['email']) ? $fields['email'] : '';
         $this->user->create($fields);
         $this->addWebUserToGroups(0, $this->config->loadArray($this->getCFGDef('userGroups')));
         $result = $this->user->save(true);
-        $this->log('Register user', array('data' => $fields, 'result' => $result, 'log' => $this->user->getLog()));
+        $this->log('Register user', [
+            'data'   => $fields,
+            'result' => $result,
+            'log'    => $this->user->getLog()
+        ]);
         if (!$result) {
             $this->addMessage($this->translate('register.registration_failed'));
         } else {
@@ -151,10 +152,10 @@ class Register extends Form
             if ($checkActivation) {
                 $hash = md5(jsonHelper::toJSON($userdata));
                 $uidName = $this->getCFGDef('uidName', $this->user->fieldPKName());
-                $query = http_build_query(array(
+                $query = http_build_query([
                     $uidName => $result,
                     'hash'   => $hash
-                ));
+                ]);
                 $url = $this->getCFGDef('activateTo', $this->modx->getConfig('site_start'));
                 $this->setField(
                     'activate.url',
@@ -168,11 +169,13 @@ class Register extends Form
     /**
      *
      */
-    public function postProcess()
+    public function postProcess ()
     {
-        $this->redirect();
-        $this->setFormStatus(true); //результат отправки писем значения не имеет
-        $this->renderTpl = $this->getCFGDef('successTpl', $this->translate('register.default_successTpl'));
+        parent::postProcess();
+        $tpl = $this->getCFGDef('successTpl', $this->translate('register.default_successTpl'));
+        if (!empty($tpl)) {
+            $this->renderTpl = $tpl;
+        }
     }
 
     /**
@@ -181,7 +184,7 @@ class Register extends Form
      * @param array $groups
      * @return $this
      */
-    public function addWebUserToGroups($uid = 0, $groups = array())
+    public function addWebUserToGroups ($uid = 0, $groups = [])
     {
         if (!$groups) {
             return $this;

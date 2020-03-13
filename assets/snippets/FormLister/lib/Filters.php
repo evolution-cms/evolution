@@ -82,7 +82,7 @@ class Filters {
      * @return mixed|string
      */
     public static function email($value) {
-        return is_scalar($value) ? filter_var($value, FILTER_SANITIZE_EMAIL) : '';
+        return is_scalar($value) ? preg_replace('/[^\pL\d\!\#\$\%\&\'\*\+\-\/\=\?\^\_\`\{\|\}\-\@\.\[\]]/u', '', $value) : '';
     }
 
     /**
@@ -90,7 +90,7 @@ class Filters {
      * @return null|string|string[]
      */
     public static function phone($value) {
-        return is_scalar($value) ? preg_replace('/[^\d\(\)\s\+-]/', '', $value) : '';
+        return is_scalar($value) ? preg_replace('/[^\d\(\)\s\+\-]/', '', $value) : '';
     }
 
     /**
@@ -106,7 +106,7 @@ class Filters {
      * @return null|string|string[]
      */
     public static function alpha($value) {
-        return is_scalar($value) ? preg_replace('/[^\pL]/', '', $value) : '';
+        return is_scalar($value) ? preg_replace('/[^\pL]/u', '', $value) : '';
     }
 
     /**
@@ -122,7 +122,7 @@ class Filters {
      * @return null|string|string[]
      */
     public static function alphaNumeric($value) {
-        return is_scalar($value) ? preg_replace('/[^\pL\d]/', '', $value) : '';
+        return is_scalar($value) ? preg_replace('/[^\pL\d]/u', '', $value) : '';
     }
 
     /**

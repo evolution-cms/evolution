@@ -9,6 +9,7 @@ use Helpers\Mailer;
 /**
  * Class Form
  * @package FormLister
+ * @property array $mailConfig
  */
 class Form extends Core
 {
@@ -17,23 +18,17 @@ class Form extends Core
      * Настройки для отправки почты
      * @var array
      */
-    public $mailConfig = array();
-    /**
-     * Правила валидации файлов
-     * @var array
-     */
-    protected $fileRules = array();
+    public $mailConfig = [];
 
     /**
      * Form constructor.
      * @param \DocumentParser $modx
      * @param array $cfg
      */
-    public function __construct(\DocumentParser $modx, array $cfg = array())
+    public function __construct (\DocumentParser $modx, array $cfg = [])
     {
         parent::__construct($modx, $cfg);
-        $this->setFiles($this->filesToArray($_FILES));
-        $this->mailConfig = array(
+        $this->mailConfig = [
             'isHtml'   => $this->getCFGDef('isHtml', 1),
             'to'       => $this->getCFGDef('to'),
             'from'     => $this->getCFGDef('from', $this->modx->getConfig('emailsender')),
@@ -43,35 +38,9 @@ class Form extends Core
             'cc'       => $this->getCFGDef('cc'),
             'bcc'      => $this->getCFGDef('bcc'),
             'noemail'  => $this->getCFGDef('noemail', false)
-        );
+        ];
         $this->lexicon->fromFile('form');
-        $this->log('Lexicon loaded', array('lexicon' => $this->lexicon->getLexicon()));
-    }
-
-    /**
-     * @return bool
-     */
-    public function validateForm()
-    {
-        parent::validateForm();
-        if (!$this->getCFGDef('attachments')) {
-            return $this->isValid();
-        }
-        $validator = $this->getCFGDef('fileValidator', '\FormLister\FileValidator');
-        $validator = $this->loadModel($validator, '', array());
-        $fields = $this->getFormData('files');
-        $rules = $this->getValidationRules('fileRules');
-        $this->fileRules = array_merge($this->fileRules, $rules);
-        $this->log('Prepare to validate files', array('fields' => $fields, 'rules' => $this->fileRules));
-        $result = $this->validate($validator, $this->fileRules, $fields);
-        if ($result !== true) {
-            foreach ($result as $item) {
-                $this->addError($item[0], $item[1], $item[2]);
-            }
-            $this->log('File validation errors', $this->getFormData('errors'));
-        }
-
-        return $this->isValid();
+        $this->log('Lexicon loaded', ['lexicon' => $this->lexicon->getLexicon()]);
     }
 
     /**
@@ -80,16 +49,18 @@ class Form extends Core
      * @param string $tplParam имя параметра с шаблоном письма
      * @return null|string
      */
-    public function renderReport($tplParam = 'reportTpl')
+    public function renderReport ($tplParam = 'reportTpl')
     {
         $tpl = $this->getCFGDef($tplParam, 'reportTpl');
+        $skipPrerender = $this->getCFGDef('skipPrerender', 0);
         if (empty($tpl) && $tplParam == 'reportTpl') {
             $tpl = '@CODE:';
             foreach ($this->getFormData('fields') as $key => $value) {
                 $tpl .= \APIhelpers::e($key) . ": [+{$key}.value+]" . PHP_EOL;
             }
+            $skipPrerender = false;
         }
-        $out = $this->parseChunk($tpl, $this->prerenderForm(true));
+        $out = $this->parseChunk($tpl, $skipPrerender ? $this->getFormData('fields') : $this->prerenderForm(true));
 
         return $out;
     }
@@ -99,7 +70,7 @@ class Form extends Core
      * @param string $param
      * @return mixed|null|string
      */
-    public function renderSubject($param = 'subject')
+    public function renderSubject ($param = 'subject')
     {
         $subject = $this->getCFGDef($param . 'Tpl');
         if (!empty($subject)) {
@@ -114,10 +85,14 @@ class Form extends Core
     /**
      * @return array
      */
-    public function getAttachments()
+    public function getAttachments ()
     {
-        $attachments = array();
-        foreach ($this->getFormData('files') as $files) {
+        $attachments = [];
+        $attach = $this->config->loadArray($this->getCFGDef('attachments'));
+        $formfiles = $this->getFormData('files');
+        foreach ($attach as $field) {
+            if (!isset($formfiles[$field])) continue;
+            $files = $formfiles[$field];
             if (!isset($files[0])) {
                 $files = array($files);
             }
@@ -148,10 +123,14 @@ class Form extends Core
     /**
      * @return $this
      */
-    public function setFileFields()
+    public function setFileFields ()
     {
-        $fields = array();
-        foreach ($this->getFormData('files') as $field => $files) {
+        $fields = [];
+        $attach = $this->config->loadArray($this->getCFGDef('attachments'));
+        $formfiles = $this->getFormData('files');
+        foreach ($attach as $field) {
+            if (!isset($formfiles[$field])) continue;
+            $files = $formfiles[$field];
             if (!isset($files[0])) {
                 $files = array($files);
             }
@@ -183,17 +162,17 @@ class Form extends Core
      * Оправляет письмо
      * @return mixed
      */
-    public function sendReport()
+    public function sendReport ()
     {
         $mailer = new Mailer($this->modx, array_merge(
             $this->mailConfig,
-            array('subject' => $this->renderSubject())
+            ['subject' => $this->renderSubject()]
         ));
         $attachments = $this->getAttachments();
         if ($attachments) {
             $mailer->attachFiles($attachments);
             $this->log('Attachments', $attachments);
-            $field = array();
+            $field = [];
             foreach ($attachments as $file) {
                 $field[] = $file['filename'];
             }
@@ -201,7 +180,11 @@ class Form extends Core
         }
         $report = $this->renderReport();
         $out = $mailer->send($report) || $this->getCFGDef('ignoreMailerResult', 0);
-        $this->log('Mail report', array('report' => $report, 'mailer_config' => $mailer->config, 'result' => $out));
+        $this->log('Mail report', [
+            'report'        => $report,
+            'mailer_config' => $mailer->config,
+            'result'        => $out
+        ]);
 
         return $out;
     }
@@ -210,7 +193,7 @@ class Form extends Core
      * Оправляет копию письма на указанный адрес
      * @return mixed
      */
-    public function sendAutosender()
+    public function sendAutosender ()
     {
         $to = $this->getCFGDef('autosender');
 
@@ -225,11 +208,11 @@ class Form extends Core
         $out = empty($to) ? true : $mailer->send($report);
         $this->log(
             'Mail autosender report',
-            array(
+            [
                 'report'        => $report,
                 'mailer_config' => $mailer->config,
                 'result'        => $out
-            )
+            ]
         );
 
         return $out;
@@ -239,7 +222,7 @@ class Form extends Core
      * Отправляет копию письма на адрес из поля email
      * @return mixed
      */
-    public function sendCCSender()
+    public function sendCCSender ()
     {
         $to = $this->getField($this->getCFGDef('ccSenderField', 'email'));
 
@@ -255,11 +238,11 @@ class Form extends Core
             $out = empty($to) ? true : $mailer->send($report);
             $this->log(
                 'Mail CC report',
-                array(
-                    'report' => $report,
+                [
+                    'report'        => $report,
                     'mailer_config' => $mailer->config,
-                    'result' => $out
-                )
+                    'result'        => $out
+                ]
             );
         } else {
             $out = true;
@@ -271,7 +254,7 @@ class Form extends Core
     /**
      * @return string
      */
-    public function render()
+    public function render ()
     {
         if ($this->isSubmitted() && ($this->checkSubmitLimit() || $this->checkSubmitProtection())) {
             return $this->renderForm();
@@ -283,7 +266,7 @@ class Form extends Core
     /**
      *
      */
-    public function process()
+    public function process ()
     {
         $now = time() + $this->modx->getConfig('server_offset_time');
         $this->setField('form.date', date($this->getCFGDef('dateFormat', $this->translate('form.dateFormat')), $now));
@@ -302,7 +285,7 @@ class Form extends Core
      * @param array $cfg
      * @return array
      */
-    public function parseMailerParams($cfg = array())
+    public function parseMailerParams ($cfg = [])
     {
         if ($this->getCFGDef('parseMailerParams', 0) && !empty($cfg)) {
             $plh = \APIhelpers::renameKeyArr($this->prerenderForm(true), '[', ']', '+');
@@ -319,15 +302,18 @@ class Form extends Core
     /**
      *
      */
-    public function postProcess()
+    public function postProcess ()
     {
         $this->setFormStatus(true);
+        $this->runPrepare('prepareAfterProcess');
         if ($this->getCFGDef('deleteAttachments', 0)) {
             $this->deleteAttachments();
         }
-        $this->runPrepare('prepareAfterProcess');
         $this->redirect();
-        $this->renderTpl = $this->getCFGDef('successTpl', $this->translate('form.default_successTpl'));
+        $tpl = $this->getCFGDef('successTpl', $this->translate('form.default_successTpl'));
+        if (!empty($tpl)) {
+            $this->renderTpl = $tpl;
+        }
     }
 
     /**
@@ -336,18 +322,18 @@ class Form extends Core
      * @param string $subjectParam
      * @return array
      */
-    public function getMailSendConfig($to, $fromParam, $subjectParam = 'subject')
+    public function getMailSendConfig ($to, $fromParam, $subjectParam = 'subject')
     {
         $subject = empty($this->getCFGDef($subjectParam . 'Tpl'))
             ? $this->renderSubject()
             : $this->renderSubject($subjectParam);
         $out = array_merge(
             $this->mailConfig,
-            array(
+            [
                 'subject'  => $subject,
                 'to'       => $to,
                 'fromName' => $this->getCFGDef($fromParam, $this->modx->getConfig('site_name'))
-            )
+            ]
         );
         $out = $this->parseMailerParams($out);
 
@@ -357,7 +343,7 @@ class Form extends Core
     /**
      * @return $this
      */
-    public function deleteAttachments()
+    public function deleteAttachments ()
     {
         $files = $this->getAttachments();
         foreach ($files as $file) {

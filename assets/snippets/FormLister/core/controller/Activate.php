@@ -2,14 +2,19 @@
 use APIhelpers;
 use DocumentParser;
 use jsonHelper;
+use modUsers;
+
 /**
  * Контроллер для восстановления паролей
  * Class Reminder
  * @package FormLister
+ * @property modUsers $user
+ * @property string $mode;
+ * @property string $userField
  */
 class Activate extends Form
 {
-    protected $user = null;
+    protected $user;
 
     protected $mode = 'hash';
     protected $userField = '';
@@ -19,7 +24,7 @@ class Activate extends Form
      * @param DocumentParser $modx
      * @param array $cfg
      */
-    public function __construct(DocumentParser $modx, $cfg = array())
+    public function __construct(DocumentParser $modx, $cfg = [])
     {
         parent::__construct($modx, $cfg);
         $this->user = $this->loadModel(
@@ -27,7 +32,7 @@ class Activate extends Form
             $this->getCFGDef('modelPath', 'assets/lib/MODxAPI/modUsers.php')
         );
         $this->lexicon->fromFile('activate');
-        $this->log('Lexicon loaded', array('lexicon' => $this->lexicon->getLexicon()));
+        $this->log('Lexicon loaded', ['lexicon' => $this->lexicon->getLexicon()]);
         $userField = $this->getCFGDef('userField', 'email');
         $this->userField = $userField;
         $uidName = $this->getCFGDef('uidName', $this->user->fieldPKName());
@@ -86,7 +91,7 @@ class Activate extends Form
             $hash = false;
         } else {
             $userdata = $this->user->edit($uid)->toArray();
-            $hash = $this->user->getID() && $userdata['logincount'] < 0 ? md5(jsonHelper::toJson($userdata)) : false;
+            $hash = $this->user->getID() && !$userdata['verified'] ? md5(jsonHelper::toJson($userdata)) : false;
         }
 
         return $hash;
@@ -121,7 +126,7 @@ class Activate extends Form
                     $url = $this->getCFGDef('activateTo', isset($this->modx->documentIdentifier) && $this->modx->documentIdentifier > 0 ? $this->modx->documentIdentifier : $this->config['site_start']);
                     $uidName = $this->getCFGDef('uidName', $this->user->fieldPKName());
                     $this->setField('activate.url', $this->modx->makeUrl($url, "",
-                        http_build_query(array($uidName => $this->getField('id'), 'hash' => $hash)),
+                        http_build_query([$uidName => $this->getField('id'), 'hash' => $hash]),
                         'full'));
                     $this->mailConfig['to'] = $this->user->get('email');
                     parent::process();
@@ -136,8 +141,8 @@ class Activate extends Form
                 $uid = $this->getField('id');
                 $hash = $this->getField('hash');
                 if ($hash && $hash == $this->getUserHash($uid)) {
-                    $result = $this->user->edit($uid)->set('logincount', 0)->save(true);
-                    $this->log('Activate user', array('user' => $uid, 'result' => $result));
+                    $result = $this->user->edit($uid)->set('verified', 1)->save(true);
+                    $this->log('Activate user', ['user' => $uid, 'result' => $result]);
                     if (!$result) {
                         $this->addMessage($this->translate('activate.update_failed'));
                     } else {
@@ -152,20 +157,31 @@ class Activate extends Form
     }
 
     /**
+     * @return string
+     */
+    public function getMode() {
+        return $this->mode;
+    }
+
+    /**
      *
      */
     public function postProcess()
     {
         $this->setFormStatus(true);
+        $this->runPrepare('prepareAfterProcess');
         switch ($this->mode) {
-            case "hash":
-                $this->renderTpl = $this->getCFGDef('successTpl',
+            case 'hash':
+                $tpl = $this->getCFGDef('successTpl',
                     $this->translate('activate.default_successTpl'));
                 break;
-            case "activate":
+            case 'activate':
                 $this->redirect();
-                $this->renderTpl = $this->getCFGDef('activateSuccessTpl',
+                $tpl = $this->getCFGDef('activateSuccessTpl',
                     $this->translate('activate.default_activateSuccessTpl'));
+        }
+        if (!empty($tpl)) {
+            $this->renderTpl = $tpl;
         }
     }
 }

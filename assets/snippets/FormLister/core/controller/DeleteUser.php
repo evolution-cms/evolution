@@ -1,27 +1,29 @@
 <?php namespace FormLister;
 
 use DocumentParser;
+use modUsers;
 
 /**
  * Class DeleteUser
  * @package FormLister
+ * @property modUsers $user
  */
 class DeleteUser extends Form
 {
-    public $user = null;
+    public $user;
 
     /**
      * Form constructor.
      * @param DocumentParser $modx
      * @param array $cfg
      */
-    public function __construct(DocumentParser $modx, array $cfg = array())
+    public function __construct(DocumentParser $modx, array $cfg = [])
     {
         parent::__construct($modx, $cfg);
         $this->lexicon->fromFile('deleteUser');
-        $this->log('Lexicon loaded', array('lexicon' => $this->lexicon->getLexicon()));
+        $this->log('Lexicon loaded', ['lexicon' => $this->lexicon->getLexicon()]);
         $uid = $modx->getLoginUserId('web');
-        $userdata = array();
+        $userdata = [];
         if ($uid) {
             $this->user = $this->loadModel(
                 $this->getCFGDef('model', '\modUsers'),
@@ -31,13 +33,13 @@ class DeleteUser extends Form
                 $userdata = $this->user->edit($uid)->toArray();
                 unset($userdata['password']);
             }
-            $this->config->setConfig(array(
+            $this->config->setConfig([
                 'ignoreMailerResult' => 1,
                 'keepDefaults'       => 1,
                 'protectSubmit'      => 0,
                 'submitLimit'        => 0,
                 'userdata'           => $userdata
-            ));
+            ]);
         }
     }
 

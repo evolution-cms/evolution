@@ -1,15 +1,20 @@
 <?php namespace FormLister;
 
+use autoTable;
 use DocumentParser;
+use modUsers;
 
 /**
  * Class DeleteUser
  * @package FormLister
+ * @property autoTable $content
+ * @property modUsers $user
+ * @property int $id
  */
 class DeleteContent extends Form
 {
-    public $content = null;
-    public $user = null;
+    public $content;
+    public $user;
     protected $id = 0;
 
     /**
@@ -29,16 +34,16 @@ class DeleteContent extends Form
             $this->getCFGDef('modelPath', 'assets/lib/MODxAPI/modUsers.php')
         );
         $this->lexicon->fromFile('deleteContent');
-        $this->log('Lexicon loaded', array('lexicon' => $this->lexicon->getLexicon()));
+        $this->log('Lexicon loaded', ['lexicon' => $this->lexicon->getLexicon()]);
         $idField = $this->getCFGDef('idField','id');
         if (isset($_REQUEST[$idField]) && is_scalar($_REQUEST[$idField])) {
             $this->id = (int)$_REQUEST[$idField];
         }
-        $this->config->setConfig(array(
+        $this->config->setConfig([
             'ignoreMailerResult' => 1,
             'protectSubmit'      => 0,
             'submitLimit'        => 0
-        ));
+        ]);
     }
 
     /**
@@ -71,6 +76,7 @@ class DeleteContent extends Form
 
     /**
      *
+     * @throws \Exception
      */
     public function process()
     {

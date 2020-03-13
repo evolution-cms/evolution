@@ -3,15 +3,20 @@
 use APIhelpers;
 use DocumentParser;
 use jsonHelper;
+use modUsers;
 
 /**
  * Контроллер для восстановления паролей
  * Class Reminder
  * @package FormLister
+ * @property modUsers $user
+ * @property string $userField
+ * @property string $uidField
+ * @property string $hashField
  */
 class Reminder extends Form
 {
-    protected $user = null;
+    protected $user;
 
     protected $mode = 'hash';
     protected $userField = '';
@@ -23,7 +28,7 @@ class Reminder extends Form
      * @param DocumentParser $modx
      * @param array $cfg
      */
-    public function __construct(DocumentParser $modx, $cfg = array())
+    public function __construct (DocumentParser $modx, $cfg = [])
     {
         parent::__construct($modx, $cfg);
         $this->user = $this->loadModel(
@@ -39,17 +44,17 @@ class Reminder extends Form
         $this->hashField = $hashField;
         $this->uidField = $uidField;
         $this->userField = $userField;
-        $this->config->setConfig(array(
+        $this->config->setConfig([
             'protectSubmit' => 0
-        ));
+        ]);
         if ((isset($_REQUEST[$hashField]) && !empty($_REQUEST[$hashField])) && (isset($_REQUEST[$uidName]) && !empty($_REQUEST[$uidName]))) {
             $this->setFields($_REQUEST);
             $this->mode = 'reset';
-            $this->config->setConfig(array(
+            $this->config->setConfig([
                 'rules'       => $this->getCFGDef('resetRules'),
                 'reportTpl'   => $this->getCFGDef('resetReportTpl'),
                 'submitLimit' => 0
-            ));
+            ]);
         }
         $this->log('Reminder mode is ' . $this->mode);
     }
@@ -57,7 +62,7 @@ class Reminder extends Form
     /**
      * @return string
      */
-    public function render()
+    public function render ()
     {
         if ($id = $this->modx->getLoginUserID('web')) {
             $this->redirect('exitTo');
@@ -78,7 +83,7 @@ class Reminder extends Form
     /**
      *
      */
-    public function renderReset()
+    public function renderReset ()
     {
         $hash = $this->getField($this->hashField);
         $uid = $this->getField($this->getCFGDef('uidName', $this->uidField));
@@ -100,7 +105,7 @@ class Reminder extends Form
      * Возвращает результат проверки формы
      * @return bool
      */
-    public function validateForm()
+    public function validateForm ()
     {
         if (isset($this->rules['password']) && isset($this->rules['repeatPassword']) && !empty($this->getField('password')) && isset($this->rules['repeatPassword']['equals'])) {
             $this->rules['repeatPassword']['equals']['params'] = $this->getField('password');
@@ -113,7 +118,7 @@ class Reminder extends Form
      * @param $uid
      * @return bool|string
      */
-    public function getUserHash($uid)
+    public function getUserHash ($uid)
     {
         if (is_null($this->user)) {
             $hash = false;
@@ -128,7 +133,7 @@ class Reminder extends Form
     /**
      *
      */
-    public function process()
+    public function process ()
     {
         switch ($this->mode) {
             /**
@@ -138,12 +143,14 @@ class Reminder extends Form
                 $uid = $this->getField($this->userField);
                 if ($hash = $this->getUserHash($uid)) {
                     $this->setFields($this->user->toArray());
-                    $url = $this->getCFGDef('resetTo', isset($this->modx->documentIdentifier) && $this->modx->documentIdentifier > 0 ? $this->modx->documentIdentifier : $this->modx->getConfig('site_start'));
+                    $url = $this->getCFGDef('resetTo',
+                        isset($this->modx->documentIdentifier) && $this->modx->documentIdentifier > 0 ? $this->modx->documentIdentifier : $this->modx->getConfig('site_start'));
                     $uidName = $this->getCFGDef('uidName', $this->uidField);
                     $this->setField('reset.url', $this->modx->makeUrl($url, "",
-                        http_build_query(array($uidName  => $this->getField($this->uidField),
-                                               $this->hashField => $hash
-                        )),
+                        http_build_query([
+                            $uidName         => $this->getField($this->uidField),
+                            $this->hashField => $hash
+                        ]),
                         'full'));
                     $this->mailConfig['to'] = $this->user->get('email');
                     parent::process();
@@ -165,7 +172,7 @@ class Reminder extends Form
                     }
                     $fields = $this->filterFields($this->getFormData('fields'), array($this->userField, 'password'));
                     $result = $this->user->edit($uid)->fromArray($fields)->save(true);
-                    $this->log('Update password', array('data' => $fields, 'result' => $result));
+                    $this->log('Update password', ['data' => $fields, 'result' => $result]);
                     if (!$result) {
                         $this->addMessage($this->translate('reminder.update_failed'));
                     } else {
@@ -185,17 +192,26 @@ class Reminder extends Form
     }
 
     /**
+     * @return string
+     */
+    public function getMode() {
+        return $this->mode;
+    }
+
+    /**
      *
      */
-    public function postProcess()
+    public function postProcess ()
     {
         $this->setFormStatus(true);
+        $this->runPrepare('prepareAfterProcess');
         switch ($this->mode) {
-            case "hash":
+            case 'hash':
                 $this->renderTpl = $this->getCFGDef('successTpl',
                     $this->translate('reminder.default_successTpl'));
                 break;
-            case "reset":
+            case 'reset':
+            default:
                 $this->redirect();
                 $this->renderTpl = $this->getCFGDef('resetSuccessTpl',
                     $this->translate('reminder.default_resetSuccessTpl'));

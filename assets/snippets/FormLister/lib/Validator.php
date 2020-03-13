@@ -186,16 +186,7 @@ class Validator
      */
     public static function email($value)
     {
-        return (bool) is_scalar($value) && preg_match(
-            '/^
-                [-_a-z0-9\'+*$^&%=~!?{}]++
-                (?:\.[-_a-z0-9\'+*$^&%=~!?{}]+)*+
-                @(?:(?![-.])[-a-z0-9.]+(?<![-.])\.
-                [a-z]{2,6}|\d{1,3}(?:\.\d{1,3}){3})
-                (?::\d++)?
-            $/iDx',
-            $value
-        );
+        return (bool) is_scalar($value) && filter_var(self::sanitizeEmail($value), FILTER_VALIDATE_EMAIL);
     }
 
     /**
@@ -279,5 +270,19 @@ class Validator
     protected static function getLength($string)
     {
         return strlen(utf8_decode($string));
+    }
+
+    /**
+     * @param $email
+     * @return string
+     */
+    protected static function sanitizeEmail($email) {
+        if (function_exists('idn_to_ascii')) {
+            $_email = explode('@', $email);
+            $_email[1] = idn_to_ascii($_email[1]);
+            $email = implode('@', $_email);
+        }
+
+        return $email;
     }
 }

@@ -1,16 +1,20 @@
 <?php namespace FormLister;
 
 use DocumentParser;
+use modUsers;
 
 /**
  * Контроллер для авторизации пользователя
  * Class Login
  * @package FormLister
+ * @property modUsers $user
+ * @property string $requestUri
+ * @property string $context
  */
 class Login extends Core
 {
     use DateConverter;
-    public $user = null;
+    public $user;
     protected $requestUri = '';
     protected $context = '';
 
@@ -19,7 +23,7 @@ class Login extends Core
      * @param DocumentParser $modx
      * @param array $cfg
      */
-    public function __construct(DocumentParser $modx, $cfg = array())
+    public function __construct(DocumentParser $modx, $cfg = [])
     {
         parent::__construct($modx, $cfg);
         $this->user = $this->loadModel(
@@ -33,7 +37,7 @@ class Login extends Core
         $this->requestUri = $this->modx->getConfig('site_url') . $requestUri;
         $this->context = $this->getCFGDef('context', 'web');
         $this->lexicon->fromFile('login');
-        $this->log('Lexicon loaded', array('lexicon' => $this->lexicon->getLexicon()));
+        $this->log('Lexicon loaded', ['lexicon' => $this->lexicon->getLexicon()]);
         $this->dateFormat = $this->getCFGDef('dateFormat', '');
     }
 
@@ -77,7 +81,7 @@ class Login extends Core
         }
         $this->user->edit($login);
 
-        if ($this->getCFGDef('checkActivation', 0) && $this->user->get('logincount') < 0) {
+        if ($this->getCFGDef('checkActivation', 0) && !$this->user->get('verified')) {
             $this->addMessage($this->lexicon->getMsg('login.user_notactivated'));
 
             return;
@@ -95,6 +99,7 @@ class Login extends Core
         $loginCookie = $this->getCFGDef('cookieName', 'WebLoginPE');
         $this->user->authUser($login, $remember, $loginCookie, true);
         $this->setFormStatus(true);
+        $this->runPrepare('prepareAfterProcess');
         if (isset($this->modx->documentIdentifier) && $this->modx->documentIdentifier == $this->modx->getConfig('unauthorized_page')) {
             $uaPage = $this->modx->makeUrl($this->modx->getConfig('unauthorized_page'), "", "", "full");
             $requested = explode('?', $this->requestUri);
