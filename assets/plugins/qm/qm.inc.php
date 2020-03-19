@@ -4,7 +4,7 @@
  *  
  * @author      Mikko Lammi, www.maagit.fi, updated by Dmi3yy and Nicola1971 
  * @license     GNU General Public License (GPL), http://www.gnu.org/copyleft/gpl.html
- * @version     1.5.10 updated 02/02/2018
+ * @version     1.5.11 updated 19/03/2020
  */
 
 if(!class_exists('Qm')) {
@@ -963,15 +963,19 @@ class Qm {
                     // Hide default manager action buttons
                     $mc->addLine('$("#actions").hide();');
     
+                    // Get doc id
+                    $doc_id = intval($_REQUEST['id']);
+			
+                    // Different doc to be returned to for cancel?
+                    if (isset($_REQUEST['qmrefresh'])) {
+                        $doc_id = intval($_REQUEST['qmrefresh']);
+                    }			
 					
-					// Get doc id
-					$doc_id = intval($_REQUEST['id']);
+                    // Get jQuery conflict mode
+                    if ($this->noconflictjq == 'true') $jq_mode = '$j';
+                    else $jq_mode = '$';
 					
-					// Get jQuery conflict mode
-					if ($this->noconflictjq == 'true') $jq_mode = '$j';
-					else $jq_mode = '$';
-					
-					// Add action buttons
+                    // Add action buttons
                     $url = $this->modx->makeUrl($doc_id,'','','full');
                     $mc->addLine('var controls = "<div style=\"padding:4px 0;position:fixed;top:10px;right:10px;z-index:1000\" id=\"qmcontrols\" class=\"actions\"><a id=\"Button1\" class=\"btn btn-success\" href=\"#\" onclick=\"documentDirty=false;document.mutate.save.click();return false;\"><span> '.$_lang['save'].'</span></a><a id=\"Button5\" class=\"btn btn-secondary\" href=\"#\" onclick=\"parent.location.href=\''.$url.'\'; return false;\"><span> '.$_lang['cancel'].'</span></a></div>";');
                     
