@@ -1113,17 +1113,9 @@ class browser extends uploader
         if ((substr(basename($dir), 0, 1) == ".") || !is_dir($dir) || !is_readable($dir)) {
             return false;
         }
-        $dirs = dir::content($dir, array('types' => "dir"));
-        if (is_array($dirs)) {
-            foreach ($dirs as $key => $cdir) {
-                if (substr(basename($cdir), 0, 1) == ".") {
-                    unset($dirs[$key]);
-                }
-            }
-            $hasDirs = count($dirs) ? true : false;
-        } else {
-            $hasDirs = false;
-        }
+
+        $dirs  = glob($dir.'/*',GLOB_ONLYDIR);
+        $hasDirs = !empty($dirs);
 
         $writable = dir::isWritable($dir);
         $info = array(
