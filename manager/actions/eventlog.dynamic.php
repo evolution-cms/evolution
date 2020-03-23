@@ -135,6 +135,7 @@ echo $cm->render();
 					include_once MODX_MANAGER_PATH . "includes/controls/datagrid.class.php";
 					$grd = new DataGrid('', $ds, $number_of_results); // set page size to 0 t show all items
 					$grd->pagerClass = '';
+					$grd->pagerStyle = 'white-space: normal;';
 					$grd->pageClass = 'page-item';
 					$grd->selPageClass = 'page-item active';
 					$grd->noRecordMsg = $_lang['no_records_found'];
