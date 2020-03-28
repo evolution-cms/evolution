@@ -108,10 +108,10 @@ function renderFormElement($field_type, $field_id, $default_text = '', $field_el
 				);
 				$field_html = '<table border="0" cellspacing="0" cellpadding="0"><tr><td><select id="tv' . $field_id . '_prefix" name="tv' . $field_id . '_prefix" onchange="documentDirty=true;">';
 				foreach($urls as $k => $v) {
-					if(strpos($field_value, $v) === false) {
+					if(strpos($field_value, $v) !== 0) {
 						$field_html .= '<option value="' . $v . '">' . $k . '</option>';
-					} else {
-						$field_value = str_replace($v, '', $field_value);
+					} elseif (!empty($k)) {
+						$field_value = preg_replace("~^{$v}~", '', $field_value);
 						$field_html .= '<option value="' . $v . '" selected="selected">' . $k . '</option>';
 					}
 				}
