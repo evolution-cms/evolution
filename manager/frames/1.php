@@ -113,7 +113,7 @@ $modx->config['global_tabs'] = (int)($modx->config['global_tabs'] && ($user['rol
 <!DOCTYPE html>
 <html <?= (isset($modx_textdir) && $modx_textdir ? 'dir="rtl" lang="' : 'lang="') . $mxla . '" xml:lang="' . $mxla . '"' ?>>
 <head>
-    <title><?= $site_name ?>- (EVO CMS Manager)</title>
+    <title><?= $site_name ?> (EVO CMS Manager)</title>
     <meta http-equiv="Content-Type" content="text/html; charset=<?= $modx_manager_charset ?>" />
     <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" />
     <meta name="theme-color" content="#1d2023" />
