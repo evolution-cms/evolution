@@ -243,7 +243,7 @@ switch ($input['mode']) {
         $modx->db->update($field, $tbl_web_users, "id='{$id}'");
         $field = compact('fullname', 'role', 'email', 'phone', 'mobilephone', 'fax', 'zip', 'street', 'city', 'state',
             'country', 'gender', 'dob', 'photo', 'comment', 'failedlogincount', 'blocked', 'blockeduntil',
-            'blockedafter');
+            'blockedafter', 'verified');
         $field = $modx->db->escape($field);
         $modx->db->update($field, $tbl_web_user_attributes, "internalKey='{$id}'");
 
