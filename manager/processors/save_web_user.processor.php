@@ -104,8 +104,9 @@ switch ($input['mode']) {
         $field['password'] = md5($newpassword);
         $internalKey = $modx->db->insert($field, $tbl_web_users);
         $verified = 1;
+        $createdon = time() + $modx->getConfig('server_offset_time');
         $field = compact('internalKey', 'fullname', 'role', 'email', 'phone', 'mobilephone', 'fax', 'zip', 'street',
-            'city', 'state', 'country', 'gender', 'dob', 'photo', 'comment', 'blocked', 'blockeduntil', 'blockedafter', 'verified');
+            'city', 'state', 'country', 'gender', 'dob', 'photo', 'comment', 'blocked', 'blockeduntil', 'blockedafter', 'verified', 'createdon');
         $field = $modx->db->escape($field);
         $modx->db->insert($field, $tbl_web_user_attributes);
 
@@ -241,9 +242,10 @@ switch ($input['mode']) {
             $field['password'] = md5($newpassword);
         }
         $modx->db->update($field, $tbl_web_users, "id='{$id}'");
+        $editedon = time() + $modx->getConfig('server_offset_time');
         $field = compact('fullname', 'role', 'email', 'phone', 'mobilephone', 'fax', 'zip', 'street', 'city', 'state',
             'country', 'gender', 'dob', 'photo', 'comment', 'failedlogincount', 'blocked', 'blockeduntil',
-            'blockedafter', 'verified');
+            'blockedafter', 'verified', 'editedon');
         $field = $modx->db->escape($field);
         $modx->db->update($field, $tbl_web_user_attributes, "internalKey='{$id}'");
 
