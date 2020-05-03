@@ -594,10 +594,10 @@ if (isset ($_POST['plugin']) || $installData) {
                                 LEFT JOIN $dbase.`" . $table_prefix . "site_plugin_events` spe ON spe.evtid = se.id AND spe.pluginid = '$prev_id'
                                 LEFT JOIN $dbase.`" . $table_prefix . "site_plugin_events` spe2 ON spe2.evtid = se.id
                                 WHERE name IN ('" . $_events . "')
-                                GROUP BY se.id
+                                GROUP BY se.id, priority
                             ");
                         } else {
-                            mysqli_query($sqlParser->conn, "INSERT IGNORE INTO $dbase.`" . $table_prefix . "site_plugin_events` (pluginid, evtid, priority) SELECT '$id' as 'pluginid', se.id as 'evtid', IF(spe.priority IS NULL, 0, MAX(spe.priority) + 1) as 'priority' FROM $dbase.`" . $table_prefix . "system_eventnames` se LEFT JOIN $dbase.`" . $table_prefix . "site_plugin_events` spe ON spe.evtid = se.id WHERE name IN ('{$_events}') GROUP BY se.id");
+                            mysqli_query($sqlParser->conn, "INSERT IGNORE INTO $dbase.`" . $table_prefix . "site_plugin_events` (pluginid, evtid, priority) SELECT '$id' as 'pluginid', se.id as 'evtid', IF(spe.priority IS NULL, 0, MAX(spe.priority) + 1) as 'priority' FROM $dbase.`" . $table_prefix . "system_eventnames` se LEFT JOIN $dbase.`" . $table_prefix . "site_plugin_events` spe ON spe.evtid = se.id WHERE name IN ('{$_events}') GROUP BY se.id, priority");
                         }
 
                         // remove absent events

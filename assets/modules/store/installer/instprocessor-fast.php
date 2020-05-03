@@ -414,7 +414,7 @@ if (count($modulePlugins )>0) {
                                 LEFT JOIN `" . $table_prefix . "site_plugin_events` spe ON spe.evtid = se.id AND spe.pluginid = '$prev_id'
                                 LEFT JOIN `" . $table_prefix . "site_plugin_events` spe2 ON spe2.evtid = se.id
                                 WHERE name IN ('" . $_events . "')
-                                GROUP BY se.id
+                                GROUP BY se.id, priority
                             ");
                         } else {
                             $modx->db->query("INSERT IGNORE INTO `" . $table_prefix . "site_plugin_events` (pluginid, evtid, priority)
@@ -422,7 +422,7 @@ if (count($modulePlugins )>0) {
                                 FROM `" . $table_prefix . "system_eventnames` se
                                 LEFT JOIN `" . $table_prefix . "site_plugin_events` spe ON spe.evtid = se.id
                                 WHERE name IN ('" . $_events . "')
-                                GROUP BY se.id;
+                                GROUP BY se.id, priority;
                             ");
                         }
 
