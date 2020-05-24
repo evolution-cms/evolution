@@ -603,8 +603,8 @@ class Mysqldumper
         } else {
             unset($this->_dbtables);
         }
-        foreach ($tables as $tblval) {
 
+        foreach ($tables as $tblval) {
             // check for selected table
             if (isset($this->_dbtables)) {
                 if (strstr(",{$this->_dbtables},", ",{$tblval},") === false) {
@@ -629,9 +629,12 @@ class Mysqldumper
 
             $output .= "{$createtable[$tblval][0]};{$lf}";
             $output .= $lf;
-            $output .= "#{$lf}# Dumping data for table `{$tblval}`{$lf}#{$lf}";
+            file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
+            $output = '';
+        }
 
-
+        foreach ($tables as $tblval) {
+            $output .= "{$lf}#{$lf}# Dumping data for table `{$tblval}`{$lf}#{$lf}";
             file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
             $output = '';
 
