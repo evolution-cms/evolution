@@ -560,7 +560,7 @@ class DBAPI
     public function getValue($dsq)
     {
         $out = false;
-        if ( ! ($dsq instanceof mysqli_result)) {
+        if ($dsq !== false && ! ($dsq instanceof mysqli_result)) {
             $dsq = $this->query($dsq);
         }
         if ($dsq) {
