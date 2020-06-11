@@ -687,7 +687,7 @@ function ls($curpath)
         echo '<tr>';
         echo '<td>' . $dirs_array[$i]['text'] . '</td>';
         echo '<td class="text-nowrap">' . $modx->toDateFormat($dirs_array[$i]['stats']['9']) . '</td>';
-        echo '<td class="text-right">' . $modx->nicesize($dirs_array[$i]['stats']['7']) . '</td>';
+        echo '<td class="text-right text-nowrap">' . $modx->nicesize($dirs_array[$i]['stats']['7']) . '</td>';
         echo '<td class="actions text-right">';
         echo $dirs_array[$i]['rename'];
         echo $dirs_array[$i]['delete'];
@@ -703,7 +703,7 @@ function ls($curpath)
         echo '<tr ' . markRow($files_array[$i]['file'], $_REQUEST['path'], $_REQUEST['mode']) . '>';
         echo '<td>' . $files_array[$i]['text'] . '</td>';
         echo '<td class="text-nowrap">' . $modx->toDateFormat($files_array[$i]['stats']['9']) . '</td>';
-        echo '<td class="text-right">' . $modx->nicesize($files_array[$i]['stats']['7']) . '</td>';
+        echo '<td class="text-right text-nowrap">' . $modx->nicesize($files_array[$i]['stats']['7']) . '</td>';
         echo '<td class="actions text-right">';
         echo $files_array[$i]['unzip'];
         echo $files_array[$i]['view'];
