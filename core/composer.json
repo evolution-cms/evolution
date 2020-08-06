@@ -60,7 +60,8 @@
     "i-rocky/eloquent-dynamic-relation": "^1.0"
   },
   "require-dev": {
-    "roave/security-advisories": "dev-master"
+    "roave/security-advisories": "dev-master",
+    "phpunit/phpunit": "^8"
   },
   "config": {
     "preferred-install": "dist",
