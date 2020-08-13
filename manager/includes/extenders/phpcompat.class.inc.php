@@ -15,9 +15,7 @@ class PHPCOMPAT
     {
         $modx = evolutionCMS();
 
-        if ($str == '') {
-            return '';
-        }
+        if (is_array($str) || $str == '') return '';
 
         if ($encode == '') {
             $encode = $modx->config['modx_charset'];
