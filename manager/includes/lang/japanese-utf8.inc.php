@@ -2,11 +2,12 @@
 /**
  * MODX Manager language file
  *
- * @version 1.0.15
- * @date 2014/02/24
+ * @version 1.0.16
+ * @date 2020/08/20
  * @author eastbind
  * @author MEGU
  * @author yamamoto
+ * @author shobu
  *
  * @language Japanese
  * @package modx
@@ -748,7 +749,7 @@ $_lang["resource_opt_richtext"] = 'リッチテキストで編集';
 $_lang["resource_opt_richtext_help"] = '通常の記事を書く場合はここにチェックを入れたままとし、リッチテキストエディターでリソースを編集することをおすすめします。リソースがJavaScriptやフォームを含む場合は、チェックを外してプレーンテキストによる編集を行ってください。';
 $_lang["resource_opt_show_menu"] = 'メニューに表示';
 $_lang["resource_opt_show_menu_help"] = 'メニューにこのリソースを表示するにはこのオプションをチェックしてください。メニュー作成スニペットにはこのオプションを無視するものもありますのでご注意ください。';
-$_lang["resource_opt_trackvisit_help"] = 'このページへの訪問者をログに記録する(対応モジュールが必要)';
+$_lang["resource_opt_trackvisit_help"] = 'このリソースのサブリソースを表示させたくない場合はチェックを外す';
 $_lang["resource_overview"] = '詳細情報を表示';
 $_lang["resource_parent"] = '親リソース';
 $_lang["resource_parent_help"] = 'コンテナアイコンをクリックすると、このリソースの親(コンテナ)を変更できる状態になります。アイコンが変化している状態で、親にしたいリソースをリソースツリー上でクリックしてください。もう一度クリックすると元に戻ります。';
@@ -1035,8 +1036,8 @@ $_lang["tools"] = 'ツール';
 $_lang["top_howmany_message"] = '訪問レポートの「トップ ...」に何件表示するか指定します。(※訪問レポートの機能は現在のMODXには実装されていません)';
 $_lang["top_howmany_title"] = 'トップ 表示件数';
 $_lang["total"] = '合計';
-$_lang["track_visitors_message"] = 'このサイトのアクセス解析データを蓄積します(※実際には蓄積されません。対応モジュールが必要)。';
-$_lang["track_visitors_title"] = 'アクセスログを記録';
+$_lang["track_visitors_message"] = 'リソースツリー上にサブリソースを表示させる場合はチェックしてください。';
+$_lang["track_visitors_title"] = 'サブリソースを表示する';
 $_lang["tree_page_click"] = 'リソースツリークリック時の動作';
 $_lang["tree_page_click_message"] = 'リソースツリーをクリックした時の既定の動作を設定します。「自動」を選ぶとリソースがコンテナかどうかで判定します。';
 $_lang["tree_show_protected"] = '権限のないリソースの表示';
