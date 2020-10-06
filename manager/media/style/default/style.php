@@ -138,7 +138,7 @@ $_style['icons_edit_document']      = $style_path.'icons/save.png';
 $_style['icons_delete_document']    = $style_path.'icons/trash.png';
 //locks
 $_style['icons_preview_resource']   = $style_path.'icons/eye.png';//$style_path.'icons/eye.png';
-$_style['icons_secured']            = "<i class='fa fa-lock'></i>";//$style_path.'icons/lock.png';
+$_style['icons_secured']            = 'fa fa-lock';//$style_path.'icons/lock.png';
 
 //file manager icons
 $_style['files_save']               = 'fa fa-floppy-o';
