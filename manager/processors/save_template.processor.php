@@ -13,7 +13,7 @@ $templatealias = trim($_POST['templatealias']);
 $description = $_POST['description'];
 $locked = isset($_POST['locked']) && $_POST['locked'] == 'on' ? 1 : 0;
 $selectable = $id == $modx->config['default_template'] ? 1 :    // Force selectable
-    isset($_POST['selectable']) && $_POST['selectable'] == 'on' ? 1 : 0;
+    (isset($_POST['selectable']) && $_POST['selectable'] == 'on' ? 1 : 0);
 $currentdate = time() + $modx->config['server_offset_time'];
 
 //Kyle Jaebker - added category support
