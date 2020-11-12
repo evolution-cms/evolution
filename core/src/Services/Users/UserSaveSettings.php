@@ -162,7 +162,7 @@ class UserSaveSettings implements ServiceInterface
             if (is_array($vl)) {
                 $vl = implode(',', $vl);
             }
-            if ($vl != '') {
+            if ((string)$vl != '') {
                 $f = array();
                 $f['user'] = $this->userData['id'];
                 $f['setting_name'] = $n;
