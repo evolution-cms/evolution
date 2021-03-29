@@ -557,6 +557,16 @@ class LazyCollection implements Enumerable
     }
 
     /**
+     * Determine if the collection contains a single item.
+     *
+     * @return bool
+     */
+    public function containsOneItem()
+    {
+        return $this->take(2)->count() === 1;
+    }
+
+    /**
      * Join all items from the collection using a string. The final items can use a separate glue string.
      *
      * @param  string  $glue
@@ -1061,7 +1071,7 @@ class LazyCollection implements Enumerable
         return new static(function () use ($callback) {
             $iterator = $this->getIterator();
 
-            $chunk = new Collection();
+            $chunk = new Collection;
 
             if ($iterator->valid()) {
                 $chunk[$iterator->key()] = $iterator->current();
@@ -1073,7 +1083,7 @@ class LazyCollection implements Enumerable
                 if (! $callback($iterator->current(), $iterator->key(), $chunk)) {
                     yield new static($chunk);
 
-                    $chunk = new Collection();
+                    $chunk = new Collection;
                 }
 
                 $chunk[$iterator->key()] = $iterator->current();

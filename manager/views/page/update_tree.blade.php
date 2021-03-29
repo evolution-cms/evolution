@@ -23,7 +23,7 @@
                 <p>
                     {!! ManagerTheme::getLexicon('update_tree_description') !!}
                 </p>
-                @if($count < 1000)
+                @if($count < 3000)
 
                     @if($finish == 1)
                         <div class="alert alert-success" role="alert">

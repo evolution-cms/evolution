@@ -180,6 +180,7 @@ if (! defined('MODX_SANITIZE_SEED')) {
 }
 
 if (is_cli()) {
+    define('MODX_CLI', true);
     if (! (defined('MODX_BASE_PATH') || defined('MODX_BASE_URL'))) {
         throw new RuntimeException('Please, define MODX_BASE_PATH and MODX_BASE_URL on cli mode');
     }

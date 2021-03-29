@@ -26,7 +26,7 @@ class HelperProcessor
 
         $defaultCacheFolder = 'assets/cache/';
         $cacheFolder = isset($cacheFolder) ? $cacheFolder : $defaultCacheFolder . 'images';
-        $phpThumbPath = isset($phpThumbPath) ? $phpThumbPath : 'core/functions/phpthumb/';
+        $phpThumbNoImagePath = isset($phpThumbNoImagePath) ? $phpThumbNoImagePath : 'assets/images/';
 
         /**
          * @see: https://github.com/kalessil/phpinspectionsea/blob/master/docs/probable-bugs.md#mkdir-race-condition
@@ -41,7 +41,7 @@ class HelperProcessor
         }
 
         if (empty($input) || !file_exists(MODX_BASE_PATH . $input)) {
-            $input = isset($noImage) ? $noImage : $phpThumbPath . 'noimage.png';
+            $input = isset($noImage) ? $noImage : $phpThumbNoImagePath . 'noimage.png';
         }
 
         /**
@@ -91,9 +91,6 @@ class HelperProcessor
 
         $outputFilename = MODX_BASE_PATH . $fNamePref . $fName . $fNameSuf;
         if (!file_exists($outputFilename)) {
-            if (!class_exists('phpthumb')) {
-                require_once MODX_BASE_PATH . $phpThumbPath . '/phpthumb.class.php';
-            }
             $phpThumb = new \phpthumb();
             $phpThumb->config_cache_directory = MODX_BASE_PATH . $defaultCacheFolder;
             $phpThumb->config_temp_directory = $defaultCacheFolder;
