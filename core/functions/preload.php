@@ -24,7 +24,7 @@ if (!function_exists('evolutionCMS')) {
             }
         }
 
-        if (IN_MANAGER_MODE == true && IN_INSTALL_MODE == false) {
+        if (IN_MANAGER_MODE == true && IN_INSTALL_MODE == false && !is_cli()) {
             // attempt to foil some simple types of CSRF attacks
             if ((int)$modx->getConfig('validate_referer') !== 0) {
                 if (isset($_SERVER['HTTP_REFERER'])) {
