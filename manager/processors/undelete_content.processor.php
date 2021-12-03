@@ -43,15 +43,19 @@ array_unshift($documentDeleteIds, $id);
 $site_content_table = (new \EvolutionCMS\Models\SiteContent())->getTable();
 DB::table($site_content_table)
     ->whereIn('id', $documentDeleteIds)
-    ->update(['deleted' => 0,
+    ->update([
+        'deleted' => 0,
         'deletedby' => 0,
-        'deletedon' => 0]);
+        'deletedon' => 0
+    ]);
 
-$modx->invokeEvent("OnDocFormUnDelete",
+$modx->invokeEvent(
+    "OnDocFormUnDelete",
     array(
         "id" => $id,
         "children" => $children
-    ));
+    )
+);
 
 // Set the item name for logger
 $_SESSION['itemname'] = $document->pagetitle;

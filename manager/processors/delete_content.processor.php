@@ -36,11 +36,13 @@ if (!$udperms->checkPermissions()) {
 $children = $document->getAllChildren($document);
 
 // invoke OnBeforeDocFormDelete event
-$modx->invokeEvent("OnBeforeDocFormDelete",
+$modx->invokeEvent(
+    "OnBeforeDocFormDelete",
     array(
         "id" => $id,
         "children" => $children
-    ));
+    )
+);
 
 $documentDeleteIds = $children;
 array_unshift($documentDeleteIds, $id);
@@ -66,16 +68,20 @@ foreach ($documentDeleteIds as $deleteId) {
 $site_content_table = (new \EvolutionCMS\Models\SiteContent())->getTable();
 DB::table($site_content_table)
     ->whereIn('id', $documentDeleteIds)
-    ->update(['deleted' => 1,
-        'deletedby'=>$modx->getLoginUserID('mgr'),
-        'deletedon'=>time()]);
+    ->update([
+        'deleted' => 1,
+        'deletedby' => $modx->getLoginUserID('mgr'),
+        'deletedon' => time()
+    ]);
 
 // invoke OnDocFormDelete event
-$modx->invokeEvent("OnDocFormDelete",
+$modx->invokeEvent(
+    "OnDocFormDelete",
     array(
         "id" => $id,
         "children" => $children
-    ));
+    )
+);
 
 // Set the item name for logger
 $_SESSION['itemname'] = $document->pagetitle;
