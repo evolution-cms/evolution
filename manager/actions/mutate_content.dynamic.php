@@ -14,10 +14,10 @@ global $content, $richtexteditorIds, $richtexteditorOptions;
 $richtexteditorIds = array();
 $defaultContentType = 'document';
 // check permissions
-switch ($modx->getManagerApi()->action) {
+switch (evo()->getManagerApi()->action) {
     case 27:
-        if (!$modx->hasPermission('edit_document')) {
-            $modx->webAlertAndQuit($_lang["error_no_privileges"]);
+        if (!evo()->hasPermission('edit_document')) {
+            evo()->webAlertAndQuit($_lang["error_no_privileges"]);
         }
         break;
     case 85:
@@ -25,47 +25,49 @@ switch ($modx->getManagerApi()->action) {
         $defaultContentType = 'reference';
         // no break
     case 4:
-        if (!$modx->hasPermission('new_document')) {
-            $modx->webAlertAndQuit($_lang["error_no_privileges"]);
-        } elseif (isset($_REQUEST['pid']) && $_REQUEST['pid'] != '0') {
+        if (!evo()->hasPermission('new_document')) {
+            evo()->webAlertAndQuit($_lang["error_no_privileges"]);
+        } elseif (isset($_REQUEST['pid']) && $_REQUEST['pid'] != 0) {
             // check user has permissions for parent
             $udperms = new EvolutionCMS\Legacy\Permissions();
-            $udperms->user = $modx->getLoginUserID('mgr');
+            $udperms->user = evo()->getLoginUserID('mgr');
             $udperms->document = empty($_REQUEST['pid']) ? 0 : $_REQUEST['pid'];
             $udperms->role = $_SESSION['mgrRole'];
             if (!$udperms->checkPermissions()) {
-                $modx->webAlertAndQuit($_lang["access_permission_denied"]);
+                evo()->webAlertAndQuit($_lang["access_permission_denied"]);
             }
         }
         break;
     default:
-        $modx->webAlertAndQuit($_lang["error_no_privileges"]);
+    evo()->webAlertAndQuit($_lang["error_no_privileges"]);
 }
 
-$id = isset($_REQUEST['id']) ? (int)$_REQUEST['id'] : 0;
+$id = (int)$_REQUEST['id'] ?? 0;
 
 
-if ($modx->getManagerApi()->action == 27) {
+if (evo()->getManagerApi()->action == 27) {
     //editing an existing document
     // check permissions on the document
     $udperms = new EvolutionCMS\Legacy\Permissions();
-    $udperms->user = $modx->getLoginUserID('mgr');
+    $udperms->user = evo()->getLoginUserID('mgr');
     $udperms->document = $id;
     $udperms->role = $_SESSION['mgrRole'];
 
     if (!$udperms->checkPermissions()) {
-        $modx->webAlertAndQuit($_lang["access_permission_denied"]);
+        evo()->webAlertAndQuit($_lang["access_permission_denied"]);
     }
 }
 
 // check to see if resource isn't locked
-if ($lockedEl = $modx->elementIsLocked(7, $id)) {
-    $modx->webAlertAndQuit(sprintf($_lang['lock_msg'], $lockedEl['username'], $_lang['resource']));
+if ($lockedEl = evo()->elementIsLocked(7, $id)) {
+    evo()->webAlertAndQuit(
+        sprintf($_lang['lock_msg'], $lockedEl['username'], $_lang['resource'])
+    );
 }
 // end check for lock
 
 // Lock resource for other users to edit
-$modx->lockElement(7, $id);
+evo()->lockElement(7, $id);
 
 // get document groups for current user
 if ($_SESSION['mgrDocgroups']) {
@@ -86,7 +88,7 @@ if (!empty($id)) {
     $content = $documentObjectQuery->withTrashed()->first()->toArray();
     $modx->documentObject = &$content;
     if (!$content) {
-        $modx->webAlertAndQuit($_lang["access_permission_denied"]);
+        evo()->webAlertAndQuit($_lang["access_permission_denied"]);
     }
     $_SESSION['itemname'] = $content['pagetitle'];
 } else {
@@ -102,7 +104,7 @@ if (!empty($id)) {
 }
 
 // restore saved form
-$formRestored = $modx->getManagerApi()->loadFormValues();
+$formRestored = evo()->getManagerApi()->loadFormValues();
 if (isset($_REQUEST['newtemplate'])) {
     $formRestored = true;
 }
@@ -116,18 +118,18 @@ if ($formRestored == true) {
     if (empty($content['pub_date'])) {
         unset($content['pub_date']);
     } else {
-        $content['pub_date'] = $modx->toTimeStamp($content['pub_date']);
+        $content['pub_date'] = evo()->toTimeStamp($content['pub_date']);
     }
     if (empty($content['unpub_date'])) {
         unset($content['unpub_date']);
     } else {
-        $content['unpub_date'] = $modx->toTimeStamp($content['unpub_date']);
+        $content['unpub_date'] = evo()->toTimeStamp($content['unpub_date']);
     }
 }
 
 // increase menu index if this is a new document
 if (!isset($_REQUEST['id'])) {
-    if ($modx->getConfig('auto_menuindex')) {
+    if (evo()->getConfig('auto_menuindex')) {
         $pid = (int)get_by_key($_REQUEST, 'pid', 0, 'is_scalar');
         $content['menuindex'] = SiteContent::withTrashed()->where('parent', $pid)->count();
     } else {
@@ -138,7 +140,7 @@ if (!isset($_REQUEST['id'])) {
 $content['type'] = get_by_key($content, 'type', $defaultContentType, 'is_scalar');
 
 if (isset($_POST['which_editor'])) {
-    $modx->setConfig('which_editor', get_by_key($_POST, 'which_editor', '', 'is_scalar'));
+    evo()->setConfig('which_editor', get_by_key($_POST, 'which_editor', '', 'is_scalar'));
 }
 
 // Add lock-element JS-Script
@@ -158,7 +160,6 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
         background-size: contain;
         cursor: pointer
     }
-
     .image_for_field[data-image=""] {
         display: none
     }
@@ -178,10 +179,10 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 
     var actions = {
         new: function() {
-            document.location.href = "index.php?pid=<?= isset($_REQUEST['id']) ? $_REQUEST['id'] : '' ?>&a=4";
+            document.location.href = "index.php?pid=<?= $_REQUEST['id'] ?? '' ?>&a=4";
         },
         newlink: function() {
-            document.location.href = "index.php?pid=<?= isset($_REQUEST['id']) ? $_REQUEST['id'] : '' ?>&a=72";
+            document.location.href = "index.php?pid=<?= $_REQUEST['id'] ?? '' ?>&a=72";
         },
         save: function() {
             documentDirty = false;
@@ -203,7 +204,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
             }
         },
         view: function() {
-            window.open('<?= $modx->getConfig('friendly_urls') ? UrlProcessor::makeUrl($id) : MODX_SITE_URL . 'index.php?id=' . $id ?>', 'previeWin');
+            window.open('<?= UrlProcessor::makeUrl($id) ?>', 'previeWin');
         }
     };
 
@@ -317,14 +318,14 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
         if (documentDirty === true) {
             if (confirm('<?= $_lang['tmplvar_change_template_msg'] ?>')) {
                 documentDirty = false;
-                document.mutate.a.value = <?= $modx->getManagerApi()->action ?>;
+                document.mutate.a.value = <?= evo()->getManagerApi()->action ?>;
                 document.mutate.newtemplate.value = newTemplate;
                 document.mutate.submit();
             } else {
                 dropTemplate[curTemplateIndex].selected = true;
             }
         } else {
-            document.mutate.a.value = <?= $modx->getManagerApi()->action ?>;
+            document.mutate.a.value = <?= evo()->getManagerApi()->action ?>;
             document.mutate.newtemplate.value = newTemplate;
             document.mutate.submit();
         }
@@ -354,7 +355,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
         }
 
         documentDirty = false;
-        document.mutate.a.value = <?= $modx->getManagerApi()->action ?>;
+        document.mutate.a.value = <?= evo()->getManagerApi()->action ?>;
         document.mutate.newtemplate.value = newTemplate;
         document.mutate.which_editor.value = newEditor;
         document.mutate.submit();
@@ -487,7 +488,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
     }
 
     <?php
-    if (get_by_key($content, 'type') === 'reference' || $modx->getManagerApi()->action == '72') {
+    if (get_by_key($content, 'type') === 'reference' || evo()->getManagerApi()->action == 72) {
         $ResourceManagerLoaded = true;
     }
     ?>
@@ -495,17 +496,23 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
     function evoRenderTvImageCheck(a) {
         var b = document.getElementById('image_for_' + a.target.id),
             c = new Image;
-        a.target.value ? (c.src = "<?php echo evo()->getConfig('site_url') ?>" + a.target.value, c.onerror = function() {
+        a.target.value ? (c.src = "<?= evo()->getConfig('site_url') ?>" + a.target.value, c.onerror = function() {
             b.style.backgroundImage = '', b.setAttribute('data-image', '');
         }, c.onload = function() {
             b.style.backgroundImage = 'url(\'' + this.src + '\')', b.setAttribute('data-image', this.src);
         }) : (b.style.backgroundImage = '', b.setAttribute('data-image', ''));
     }
 </script>
-<form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php" onsubmit="documentDirty=false;">
+<form
+    name="mutate"
+    id="mutate"
+    class="content"
+    method="post" enctype="multipart/form-data" action="index.php"
+    onsubmit="documentDirty=false;"
+>
     <?php
     // invoke OnDocFormPrerender event
-    $evtOut = $modx->invokeEvent('OnDocFormPrerender', array(
+    $evtOut = evo()->invokeEvent('OnDocFormPrerender', array(
         'id' => $id,
         'template' => $content['template']
     ));
@@ -515,53 +522,65 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
     }
 
     /*************************/
-    $dir = isset($_REQUEST['dir']) ? $_REQUEST['dir'] : '';
-    $sort = isset($_REQUEST['sort']) ? $_REQUEST['sort'] : 'createdon';
+    $dir = $_REQUEST['dir'] ?? '';
+    $sort = $_REQUEST['sort'] ?? 'createdon';
     $page = isset($_REQUEST['page']) ? (int) $_REQUEST['page'] : '';
     /*************************/
 
     ?>
     <input type="hidden" name="a" value="5" />
     <input type="hidden" name="id" id="docid" value="<?= (int)get_by_key($content, 'id', 0, 'is_scalar') ?>" />
-    <input type="hidden" name="mode" value="<?= $modx->getManagerApi()->action ?>" />
-    <input type="hidden" name="MAX_FILE_SIZE" value="<?= $modx->getConfig('upload_maxsize') ?>" />
+    <input type="hidden" name="mode" value="<?= evo()->getManagerApi()->action ?>" />
+    <input type="hidden" name="MAX_FILE_SIZE" value="<?= evo()->getConfig('upload_maxsize') ?>" />
     <input type="hidden" name="refresh_preview" value="0" />
     <input type="hidden" name="newtemplate" value="" />
-    <input type="hidden" name="dir" value="<?= entities($dir, $modx->getConfig('modx_charset')) ?>" />
-    <input type="hidden" name="sort" value="<?= entities($sort, $modx->getConfig('modx_charset')) ?>" />
+    <input type="hidden" name="dir" value="<?= entities($dir, evo()->getConfig('modx_charset')) ?>" />
+    <input type="hidden" name="sort" value="<?= entities($sort, evo()->getConfig('modx_charset')) ?>" />
     <input type="hidden" name="page" value="<?= $page ?>" />
 
     <fieldset id="create_edit">
 
         <h1>
-            <i class="<?= $_style['icon_edit'] ?>"></i><?php if (isset($_REQUEST['id'])) {
-                                                            echo entities(iconv_substr($content['pagetitle'], 0, 50, $modx->getConfig('modx_charset')), $modx->getConfig('modx_charset')) . (iconv_strlen($content['pagetitle'], $modx->getConfig('modx_charset')) > 50 ? '...' : '') . '<small>(' . (int)$_REQUEST['id'] . ')</small>';
-                                                        } else {
-                                                            if ($modx->getManagerApi()->action == '4') {
-                                                                echo $_lang['add_resource'];
-                                                            } else if ($modx->getManagerApi()->action == '72') {
-                                                                echo $_lang['add_weblink'];
-                                                            } else {
-                                                                echo $_lang['create_resource_title'];
-                                                            }
-                                                        } ?>
+            <i class="<?= $_style['icon_edit'] ?>"></i>
+            <?php if (isset($_REQUEST['id'])) {
+                echo sprintf(
+                    '%s%s<small>(%s)</small>',
+                    entities(
+                        iconv_substr(
+                            $content['pagetitle'], 0, 50, evo()->getConfig('modx_charset')
+                        ),
+                        evo()->getConfig('modx_charset')
+                    ),
+                    iconv_strlen($content['pagetitle'], evo()->getConfig('modx_charset')) > 50
+                        ? '...'
+                        : '', (int)$_REQUEST['id']
+                );
+            } else {
+                if (evo()->getManagerApi()->action == 4) {
+                    echo $_lang['add_resource'];
+                } elseif (evo()->getManagerApi()->action == 72) {
+                    echo $_lang['add_weblink'];
+                } else {
+                    echo $_lang['create_resource_title'];
+                }
+            } ?>
         </h1>
 
         <?= ManagerTheme::getStyle('actionbuttons.dynamic.document') ?>
 
         <?php
         // breadcrumbs
-        if ($modx->getConfig('use_breadcrumbs')) {
+        if (evo()->getConfig('use_breadcrumbs')) {
             $out = '';
             $temp = array();
             $title = isset($content['pagetitle']) ? $content['pagetitle'] : $_lang['create_resource_title'];
 
             if (isset($_REQUEST['id']) && $content['parent'] != 0) {
                 $bID = (int) $_REQUEST['id'];
-                $temp = $modx->getParentIds($bID);
+                $temp = evo()->getParentIds($bID);
             } else if (isset($_REQUEST['pid'])) {
                 $bID = (int) $_REQUEST['pid'];
-                $temp = $modx->getParentIds($bID);
+                $temp = evo()->getParentIds($bID);
                 array_unshift($temp, $bID);
             }
 
@@ -569,12 +588,23 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                 $parents = implode(',', $temp);
 
                 if (!empty($parents)) {
-                    $parentsResult = SiteContent::withTrashed()->select('id', 'pagetitle')->whereIn('id', $temp)->get();
+                    $parentsResult = SiteContent::withTrashed()
+                        ->select('id', 'pagetitle')
+                        ->whereIn('id', $temp)
+                        ->get();
                     foreach ($parentsResult->toArray() as $row) {
-                        $out .= '<li class="breadcrumbs__li">
-                                <a href="index.php?a=27&id=' . $row['id'] . '" class="breadcrumbs__a">' . htmlspecialchars($row['pagetitle'], ENT_QUOTES, $modx->getConfig('modx_charset')) . '</a>
+                        $out .= sprintf(
+                            '<li class="breadcrumbs__li">
+                                <a href="index.php?a=27&id=%s" class="breadcrumbs__a">%s</a>
                                 <span class="breadcrumbs__sep">&gt;</span>
-                            </li>';
+                            </li>',
+                            $row['id'],
+                            htmlspecialchars(
+                                $row['pagetitle'],
+                                ENT_QUOTES,
+                                evo()->getConfig('modx_charset')
+                            )
+                        );
                     }
                 }
             }
@@ -586,19 +616,21 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 
         <!-- start main wrapper -->
         <div class="sectionBody">
-
             <div class="tab-pane" id="documentPane">
-                <script type="text/javascript">
-                    var tpSettings = new WebFXTabPane(document.getElementById("documentPane"), <?= $modx->getConfig('remember_last_tab') ? 'true' : 'false' ?>);
+                <script>
+                    var tpSettings = new WebFXTabPane(
+                        document.getElementById("documentPane"),
+                        <?= evo()->getConfig('remember_last_tab') ? 'true' : 'false' ?>
+                    );
                 </script>
 
                 <!-- General -->
                 <?php
-                $evtOut = $modx->invokeEvent('OnDocFormTemplateRender', array(
+                $evtOut = evo()->invokeEvent('OnDocFormTemplateRender', array(
                     'id' => $id
                 ));
 
-                $group_tvs = $modx->getConfig('group_tvs');
+                $group_tvs = evo()->getConfig('group_tvs');
                 $templateVariables = '';
                 $templateVariablesOutput = '';
 
@@ -608,7 +640,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                 ?>
                     <div class="tab-page" id="tabGeneral">
                         <h2 class="tab"><?= ManagerTheme::getLexicon('settings_general'); ?></h2>
-                        <script type="text/javascript">
+                        <script>
                             tpSettings.addTabPage(document.getElementById("tabGeneral"));
                         </script>
 
@@ -616,10 +648,26 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                             <tr>
                                 <td>
                                     <span class="warning"><?= ManagerTheme::getLexicon('resource_title'); ?></span>
-                                    <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('resource_title_help'); ?>"></i>
+                                    <i
+                                        class="<?= $_style["icon_question_circle"] ?>"
+                                        data-tooltip="<?= ManagerTheme::getLexicon('resource_title_help'); ?>"
+                                    ></i>
                                 </td>
                                 <td>
-                                    <input name="pagetitle" type="text" maxlength="255" value="<?= $modx->getPhpCompat()->htmlspecialchars(stripslashes(get_by_key($content, 'pagetitle', '', 'is_scalar'))) ?>" class="inputBox" onchange="documentDirty=true;" spellcheck="true" />
+                                    <input
+                                        name="pagetitle"
+                                        type="text"
+                                        maxlength="255"
+                                        value="<?=
+                                            evo()->getPhpCompat()->htmlspecialchars(
+                                                stripslashes(
+                                                    get_by_key($content, 'pagetitle', '', 'is_scalar')
+                                                )
+                                            ) ?>"
+                                        class="inputBox"
+                                        onchange="documentDirty=true;"
+                                        spellcheck="true"
+                                    />
                                     <script>
                                         document.getElementsByName("pagetitle")[0].focus();
                                     </script>
@@ -628,50 +676,118 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                             <tr>
                                 <td>
                                     <span class="warning"><?= ManagerTheme::getLexicon('long_title'); ?></span>
-                                    <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('resource_long_title_help'); ?>"></i>
+                                    <i
+                                        class="<?= $_style["icon_question_circle"] ?>"
+                                        data-tooltip="<?= ManagerTheme::getLexicon('resource_long_title_help'); ?>"
+                                    ></i>
                                 </td>
                                 <td>
-                                    <input name="longtitle" type="text" maxlength="255" value="<?= $modx->getPhpCompat()->htmlspecialchars(stripslashes(get_by_key($content, 'longtitle', '', 'is_scalar'))) ?>" class="inputBox" onchange="documentDirty=true;" spellcheck="true" />
+                                    <input
+                                        name="longtitle" type="text" maxlength="255"
+                                        value="<?=
+                                            evo()->getPhpCompat()->htmlspecialchars(
+                                                stripslashes(
+                                                    get_by_key($content, 'longtitle', '', 'is_scalar')
+                                                )
+                                            ) ?>"
+                                        class="inputBox" onchange="documentDirty=true;"
+                                        spellcheck="true"
+                                    />
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     <span class="warning"><?= ManagerTheme::getLexicon('resource_description'); ?></span>
-                                    <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('resource_description_help'); ?>"></i>
+                                    <i
+                                        class="<?= $_style["icon_question_circle"] ?>"
+                                        data-tooltip="<?= ManagerTheme::getLexicon('resource_description_help'); ?>"
+                                    ></i>
                                 </td>
                                 <td>
-                                    <input name="description" type="text" maxlength="255" value="<?= $modx->getPhpCompat()->htmlspecialchars(stripslashes(get_by_key($content, 'description', '', 'is_scalar'))) ?>" class="inputBox" onchange="documentDirty=true;" spellcheck="true" />
+                                    <input
+                                        name="description" type="text" maxlength="255"
+                                        value="<?=
+                                            evo()->getPhpCompat()->htmlspecialchars(
+                                                stripslashes(
+                                                    get_by_key($content, 'description', '', 'is_scalar')
+                                                )
+                                            ) ?>"
+                                        class="inputBox" onchange="documentDirty=true;"
+                                        spellcheck="true"
+                                    />
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     <span class="warning"><?= ManagerTheme::getLexicon('resource_alias'); ?></span>
-                                    <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('resource_alias_help'); ?>"></i>
+                                    <i
+                                        class="<?= $_style["icon_question_circle"] ?>"
+                                        data-tooltip="<?= ManagerTheme::getLexicon('resource_alias_help'); ?>"
+                                    ></i>
                                 </td>
                                 <td>
-                                    <input name="alias" type="text" maxlength="100" value="<?= stripslashes(get_by_key($content, 'alias', '', 'is_scalar')) ?>" class="inputBox" onchange="documentDirty=true;" />
+                                    <input
+                                        name="alias" type="text" maxlength="100"
+                                        value="<?= stripslashes(get_by_key($content, 'alias', '', 'is_scalar')) ?>"
+                                        class="inputBox" onchange="documentDirty=true;"
+                                    />
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     <span class="warning"><?= ManagerTheme::getLexicon('link_attributes'); ?></span>
-                                    <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('link_attributes_help'); ?>"></i>
+                                    <i
+                                        class="<?= $_style["icon_question_circle"] ?>"
+                                        data-tooltip="<?= ManagerTheme::getLexicon('link_attributes_help'); ?>"
+                                    ></i>
                                 </td>
                                 <td>
-                                    <input name="link_attributes" type="text" maxlength="255" value="<?= $modx->getPhpCompat()->htmlspecialchars(stripslashes(get_by_key($content, 'link_attributes', '', 'is_scalar'))) ?>" class="inputBox" onchange="documentDirty=true;" />
+                                    <input
+                                        name="link_attributes" type="text" maxlength="255"
+                                        value="<?= evo()->getPhpCompat()->htmlspecialchars(
+                                            stripslashes(
+                                                get_by_key($content, 'link_attributes', '', 'is_scalar')
+                                            )
+                                        ) ?>"
+                                        class="inputBox" onchange="documentDirty=true;"
+                                    />
                                 </td>
                             </tr>
 
-                            <?php if ($content['type'] == 'reference' || $modx->getManagerApi()->action == '72') { // Web Link specific
+                            <?php
+                                if ($content['type'] === 'reference' || evo()->getManagerApi()->action == 72) {
+                                // Web Link specific
                             ?>
-
                                 <tr>
-                                    <td><span class="warning"><?= ManagerTheme::getLexicon('weblink'); ?></span>
-                                        <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('resource_weblink_help'); ?>"></i>
+                                    <td>
+                                        <span class="warning"><?= ManagerTheme::getLexicon('weblink'); ?></span>
+                                        <i
+                                            class="<?= $_style["icon_question_circle"] ?>"
+                                            data-tooltip="<?= ManagerTheme::getLexicon('resource_weblink_help'); ?>"
+                                        ></i>
                                     </td>
                                     <td>
-                                        <i id="llock" class="<?= $_style["icon_chain"] ?>" onclick="enableLinkSelection(!allowLinkSelection);"></i>
-                                        <input name="ta" id="ta" type="text" maxlength="255" value="<?= (!empty($content['content']) ? entities(stripslashes($content['content']), $modx->getConfig('modx_charset')) : 'http://') ?>" class="inputBox" onchange="documentDirty=true;" /><input type="button" value="<?= ManagerTheme::getLexicon('insert'); ?>" onclick="BrowseFileServer('ta')" />
+                                        <i
+                                            id="llock"
+                                            class="<?= $_style["icon_chain"] ?>"
+                                            onclick="enableLinkSelection(!allowLinkSelection);"
+                                        ></i>
+                                        <input
+                                            name="ta" id="ta" type="text" maxlength="255"
+                                            value="<?=
+                                                (!empty($content['content'])
+                                                    ? entities(
+                                                        stripslashes($content['content']), evo()->getConfig('modx_charset')
+                                                    )
+                                                    : 'http://')
+                                                ?>"
+                                            class="inputBox" onchange="documentDirty=true;"
+                                        />
+                                        <input
+                                            type="button"
+                                            value="<?= ManagerTheme::getLexicon('insert'); ?>"
+                                            onclick="BrowseFileServer('ta')"
+                                        />
                                     </td>
                                 </tr>
 
@@ -680,19 +796,39 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                             <tr>
                                 <td valign="top">
                                     <span class="warning"><?= ManagerTheme::getLexicon('resource_summary'); ?></span>
-                                    <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('resource_summary_help'); ?>" spellcheck="true"></i>
+                                    <i
+                                        class="<?= $_style["icon_question_circle"] ?>"
+                                        data-tooltip="<?= ManagerTheme::getLexicon('resource_summary_help'); ?>"
+                                        spellcheck="true"
+                                    ></i>
                                 </td>
                                 <td valign="top">
-                                    <textarea id="introtext" name="introtext" class="inputBox" rows="3" cols="" onchange="documentDirty=true;"><?= $modx->getPhpCompat()->htmlspecialchars(stripslashes(get_by_key($content, 'introtext', '', 'is_scalar'))) ?></textarea>
+                                    <textarea
+                                        id="introtext"
+                                        name="introtext" class="inputBox" rows="3" cols=""
+                                        onchange="documentDirty=true;"
+                                    ><?=
+                                        evo()->getPhpCompat()->htmlspecialchars(
+                                            stripslashes(
+                                                get_by_key($content, 'introtext', '', 'is_scalar')
+                                            )
+                                        ) ?></textarea>
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     <span class="warning"><?= ManagerTheme::getLexicon('page_data_template'); ?></span>
-                                    <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('page_data_template_help'); ?>"></i>
+                                    <i
+                                        class="<?= $_style["icon_question_circle"] ?>"
+                                        data-tooltip="<?= ManagerTheme::getLexicon('page_data_template_help'); ?>"
+                                    ></i>
                                 </td>
                                 <td>
-                                    <select id="template" name="template" class="inputBox" onchange="templateWarning();">
+                                    <select
+                                        id="template"
+                                        name="template" class="inputBox"
+                                        onchange="templateWarning();"
+                                    >
                                         <option value="0">(blank)</option>
                                         <?php
                                         $templates = \EvolutionCMS\Models\SiteTemplate::query()
@@ -705,9 +841,9 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                             )
                                             ->leftJoin('categories', 'site_templates.category', '=', 'categories.id')
                                             ->orderBy('categories.category', 'ASC')
-                                            ->orderBy('site_templates.templatename', 'ASC')->get();
-
-                                        $currentCategory = '';
+                                            ->orderBy('site_templates.templatename', 'ASC')
+                                            ->get();
+                                        $previousCategory = '';
                                         $closeOptGroup = false;
                                         foreach ($templates as $template) {
                                             $row = $template->toArray();
@@ -715,25 +851,29 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                                 continue;
                                             };
                                             // Skip if not selectable but show if selected!
-                                            $thisCategory = $row['category_name'];
-                                            if ($thisCategory == null) {
-                                                $thisCategory = $_lang["no_category"];
+                                            if ($row['category_name'] == null) {
+                                                $currentCategory = $_lang["no_category"];
+                                            } else {
+                                                $currentCategory = $row['category_name'];
                                             }
-                                            if ($thisCategory != $currentCategory) {
+                                            if ($currentCategory != $previousCategory) {
                                                 if ($closeOptGroup) {
-                                                    echo "\t\t\t\t\t</optgroup>\n";
+                                                    echo "</optgroup>\n";
                                                 }
-                                                echo "\t\t\t\t\t<optgroup label=\"$thisCategory\">\n";
+                                                echo "<optgroup label=\"$currentCategory\">\n";
                                                 $closeOptGroup = true;
                                             }
-
-                                            $selectedtext = ($row['id'] == $content['template']) ? ' selected="selected"' : '';
-
-                                            echo "\t\t\t\t\t" . '<option value="' . $row['id'] . '"' . $selectedtext . '>' . $row['templatename'] . " (" . $row['id'] . ")</option>\n";
-                                            $currentCategory = $thisCategory;
+                                            echo sprintf(
+                                                '<option value="%s"%s>%s (%s)</option>',
+                                                $row['id'],
+                                                ($row['id'] == $content['template']) ? ' selected="selected"' : '',
+                                                $row['templatename'],
+                                                $row['id']
+                                            );
+                                            $previousCategory = $currentCategory;
                                         }
-                                        if ($thisCategory != '') {
-                                            echo "\t\t\t\t\t</optgroup>\n";
+                                        if ($currentCategory != '') {
+                                            echo "</optgroup>\n";
                                         }
                                         ?>
                                     </select>
@@ -742,78 +882,147 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                             <tr>
                                 <td>
                                     <span class="warning"><?= ManagerTheme::getLexicon('resource_opt_menu_title'); ?></span>
-                                    <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('resource_opt_menu_title_help'); ?>"></i>
+                                    <i
+                                        class="<?= $_style["icon_question_circle"] ?>"
+                                        data-tooltip="<?= ManagerTheme::getLexicon('resource_opt_menu_title_help'); ?>"
+                                    ></i>
                                 </td>
                                 <td>
-                                    <input name="menutitle" type="text" maxlength="255" value="<?= $modx->getPhpCompat()->htmlspecialchars(stripslashes(get_by_key($content, 'menutitle', '', 'is_scalar'))) ?>" class="inputBox" onchange="documentDirty=true;" />
+                                    <input name="menutitle" type="text" maxlength="255" value="<?= evo()->getPhpCompat()->htmlspecialchars(stripslashes(get_by_key($content, 'menutitle', '', 'is_scalar'))) ?>" class="inputBox" onchange="documentDirty=true;" />
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     <span class="warning"><?= ManagerTheme::getLexicon('resource_opt_menu_index'); ?></span>
-                                    <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('resource_opt_menu_index_help'); ?>"></i>
+                                    <i
+                                        class="<?= $_style["icon_question_circle"] ?>"
+                                        data-tooltip="<?= ManagerTheme::getLexicon('resource_opt_menu_index_help'); ?>"
+                                    ></i>
                                 </td>
                                 <td>
-                                    <input name="menuindex" type="text" maxlength="6" value="<?= $content['menuindex'] ?>" class="inputBox" onchange="documentDirty=true;" />
-                                    <a href="javascript:;" class="btn btn-secondary" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')-1;elm.value=v>0? v:0;elm.focus();documentDirty=true;return false;"><i class="<?= $_style['icon_angle_left'] ?>"></i></a>
-                                    <a href="javascript:;" class="btn btn-secondary" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')+1;elm.value=v>0? v:0;elm.focus();documentDirty=true;return false;"><i class="<?= $_style['icon_angle_right'] ?>"></i></a>
+                                    <input
+                                        name="menuindex" type="text" maxlength="6"
+                                        value="<?= $content['menuindex'] ?>"
+                                        class="inputBox" onchange="documentDirty=true;"
+                                    />
+                                    <a
+                                        href="javascript:;"
+                                        class="btn btn-secondary"
+                                        onclick="
+                                            var elm=document.mutate.menuindex;
+                                            var v=parseInt(elm.value+'')-1;
+                                            elm.value=v>0? v:0;
+                                            elm.focus();
+                                            documentDirty=true;
+                                            return false;"
+                                    ><i class="<?= $_style['icon_angle_left'] ?>"></i></a>
+                                    <a
+                                        href="javascript:;"
+                                        class="btn btn-secondary"
+                                        onclick="
+                                            var elm=document.mutate.menuindex;
+                                            var v=parseInt(elm.value+'')+1;
+                                            elm.value=v>0? v:0;
+                                            elm.focus();
+                                            documentDirty=true;
+                                            return false;"
+                                    ><i class="<?= $_style['icon_angle_right'] ?>"></i></a>
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     <span class="warning"><?= ManagerTheme::getLexicon('resource_opt_show_menu'); ?></span>
-                                    <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('resource_opt_show_menu_help'); ?>"></i>
+                                    <i
+                                        class="<?= $_style["icon_question_circle"] ?>"
+                                        data-tooltip="<?= ManagerTheme::getLexicon('resource_opt_show_menu_help'); ?>"
+                                    ></i>
                                 </td>
                                 <td>
-                                    <input name="hidemenucheck" type="checkbox" class="checkbox" <?= (empty($content['hidemenu']) ? 'checked="checked"' : '') ?> onclick="changestate(document.mutate.hidemenu);" /><input type="hidden" name="hidemenu" class="hidden" value="<?= (empty($content['hidemenu']) ? 0 : 1) ?>" />
+                                    <input
+                                        name="hidemenucheck"
+                                        type="checkbox"
+                                        class="checkbox"
+                                        <?= (empty($content['hidemenu']) ? 'checked="checked"' : '') ?>
+                                        onclick="changestate(document.mutate.hidemenu);"
+                                    />
+                                    <input
+                                        type="hidden"
+                                        name="hidemenu" class="hidden"
+                                        value="<?= (empty($content['hidemenu']) ? 0 : 1) ?>"
+                                    />
                                 </td>
                             </tr>
                             <tr>
                                 <td valign="top">
                                     <span class="warning"><?= ManagerTheme::getLexicon('resource_parent'); ?></span>
-                                    <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('resource_parent_help'); ?>"></i>
+                                    <i
+                                        class="<?= $_style["icon_question_circle"] ?>"
+                                        data-tooltip="<?= ManagerTheme::getLexicon('resource_parent_help'); ?>"
+                                    ></i>
                                 </td>
                                 <td valign="top">
                                     <?php
                                     $parentlookup = false;
                                     if (isset($_REQUEST['id'])) {
                                         if ($content['parent'] == 0) {
-                                            $parentname = $modx->getConfig('site_name');
+                                            $parentname = evo()->getConfig('site_name');
                                         } else {
                                             $parentlookup = $content['parent'];
                                         }
                                     } elseif (isset($_REQUEST['pid'])) {
                                         if ($_REQUEST['pid'] == 0) {
-                                            $parentname = $modx->getConfig('site_name');
+                                            $parentname = evo()->getConfig('site_name');
                                         } else {
                                             $parentlookup = $_REQUEST['pid'];
                                         }
                                     } elseif (isset($_POST['parent'])) {
                                         if ($_POST['parent'] == 0) {
-                                            $parentname = $modx->getConfig('site_name');
+                                            $parentname = evo()->getConfig('site_name');
                                         } else {
                                             $parentlookup = $_POST['parent'];
                                         }
                                     } else {
-                                        $parentname = $modx->getConfig('site_name');
+                                        $parentname = evo()->getConfig('site_name');
                                         $content['parent'] = 0;
                                     }
                                     if ($parentlookup !== false && is_numeric($parentlookup)) {
-                                        $parentname = SiteContent::withTrashed()->select('pagetitle')->find($parentlookup)->pagetitle;
+                                        $parentname = SiteContent::withTrashed()
+                                            ->select('pagetitle')
+                                            ->find($parentlookup)
+                                            ->pagetitle;
                                         if (!$parentname) {
-                                            $modx->webAlertAndQuit($_lang["error_no_parent"]);
+                                            evo()->webAlertAndQuit($_lang["error_no_parent"]);
                                         }
                                     }
                                     ?>
-                                    <i id="plock" class="<?= $_style["icon_folder"] ?>" onclick="enableParentSelection(!allowParentSelection);"></i>
-                                    <b><span id="parentName"><?= (isset($_REQUEST['pid']) ? entities($_REQUEST['pid']) : $content['parent']) ?> (<?= entities($parentname) ?>)</span></b>
-                                    <input type="hidden" name="parent" value="<?= (isset($_REQUEST['pid']) ? entities($_REQUEST['pid']) : $content['parent']) ?>" onchange="documentDirty=true;" />
+                                    <i
+                                        id="plock"
+                                        class="<?= $_style["icon_folder"] ?>"
+                                        onclick="enableParentSelection(!allowParentSelection);"
+                                    ></i>
+                                    <b><span id="parentName">
+                                        <?=
+                                            isset($_REQUEST['pid'])
+                                                ? entities($_REQUEST['pid'])
+                                                : $content['parent']
+                                        ?> (<?= entities($parentname) ?>)
+                                    </span></b>
+                                    <input
+                                        type="hidden"
+                                        name="parent"
+                                        value="<?=
+                                            isset($_REQUEST['pid'])
+                                                ? entities($_REQUEST['pid'])
+                                                : $content['parent']
+                                        ?>"
+                                        onchange="documentDirty=true;"
+                                    />
                                 </td>
                             </tr>
                             <tr></tr>
                             <?php
                             /*
-                                if($content['type'] == 'reference' || $modx->getManagerApi()->action == '72') {
+                                if($content['type'] == 'reference' || evo()->getManagerApi()->action == 72) {
                                     ?>
                                     <tr>
                                         <td colspan="2">
@@ -827,11 +1036,11 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                             <select id="which_editor" name="which_editor" onchange="changeRTE();">
                                                 <?php
                                                 // invoke OnRichTextEditorRegister event
-                                                $evtOut = $modx->invokeEvent("OnRichTextEditorRegister");
+                                                $evtOut = evo()->invokeEvent("OnRichTextEditorRegister");
                                                 if(is_array($evtOut)) {
                                                     for($i = 0; $i < count($evtOut); $i++) {
                                                         $editor = $evtOut[$i];
-                                                        echo "\t\t\t", '<option value="', $editor, '"', ($modx->getConfig('which_editor') == $editor ? ' selected="selected"' : ''), '>', $editor, "</option>\n";
+                                                        echo "\t\t\t", '<option value="', $editor, '"', (evo()->getConfig('which_editor') == $editor ? ' selected="selected"' : ''), '>', $editor, "</option>\n";
                                                     }
                                                 }
                                                 ?>
@@ -842,7 +1051,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                 }*/
                             ?>
 
-                            <?php if ($content['type'] == 'document' || $modx->getManagerApi()->action == '4') { ?>
+                            <?php if ($content['type'] === 'document' || evo()->getManagerApi()->action == 4) { ?>
                                 <tr>
                                     <td colspan="2">
                                         <hr>
@@ -850,15 +1059,25 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                         <div class="clearfix">
                                             <span id="content_header"><?= ManagerTheme::getLexicon('resource_content'); ?></span>
                                             <label class="float-right"><?= ManagerTheme::getLexicon('which_editor_title'); ?>
-                                                <select id="which_editor" class="form-control form-control-sm" size="1" name="which_editor" onchange="changeRTE();">
+                                                <select
+                                                    id="which_editor"
+                                                    class="form-control form-control-sm"
+                                                    size="1"
+                                                    name="which_editor" onchange="changeRTE();"
+                                                >
                                                     <option value="none"><?= ManagerTheme::getLexicon('none'); ?></option>
                                                     <?php
                                                     // invoke OnRichTextEditorRegister event
-                                                    $evtOut = $modx->invokeEvent("OnRichTextEditorRegister");
+                                                    $evtOut = evo()->invokeEvent("OnRichTextEditorRegister");
                                                     if (is_array($evtOut)) {
-                                                        for ($i = 0; $i < count($evtOut); $i++) {
+                                                        for ($i = 0, $iMax = count($evtOut); $i < $iMax; $i++) {
                                                             $editor = $evtOut[$i];
-                                                            echo "\t\t\t", '<option value="', $editor, '"', ($modx->getConfig('which_editor') == $editor ? ' selected="selected"' : ''), '>', $editor, "</option>\n";
+                                                            echo sprintf(
+                                                                '<option value="%s"%s>%s</option>',
+                                                                $editor,
+                                                                evo()->getConfig('which_editor') == $editor ? ' selected="selected"' : '',
+                                                                $editor
+                                                            );
                                                         }
                                                     }
                                                     ?>
@@ -866,27 +1085,31 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                             </label>
                                         </div>
                                         <div id="content_body">
-                                            <?php
-                                            if ((!empty($content['richtext']) || $modx->getManagerApi()->action == '4') && $modx->getConfig('use_editor')) {
-                                                $htmlContent = get_by_key($content, 'content', '', 'is_scalar');
-                                            ?>
-                                                <div class="section-editor clearfix">
-                                                    <textarea id="ta" name="ta" onchange="documentDirty=true;"><?= $modx->getPhpCompat()->htmlspecialchars($htmlContent) ?></textarea>
-                                                </div>
-                                            <?php
-                                                // Richtext-[*content*]
-                                                $richtexteditorIds = [
-                                                    $modx->getConfig('which_editor') => ['ta']
-                                                ];
-                                                $richtexteditorOptions = [
-                                                    $modx->getConfig('which_editor') => [
-                                                        'ta' => ''
-                                                    ]
-                                                ];
-                                            } else {
-                                                echo "\t" . '<div><textarea class="phptextarea" id="ta" name="ta" rows="20" wrap="soft" onchange="documentDirty=true;">', $modx->getPhpCompat()->htmlspecialchars(get_by_key($content, 'content', '')), '</textarea></div>' . "\n";
-                                            }
-                                            ?>
+                                        <?php
+                                        if ((!empty($content['richtext']) || evo()->getManagerApi()->action == 4) && evo()->getConfig('use_editor')) {
+                                            $htmlContent = get_by_key($content, 'content', '', 'is_scalar');
+                                        ?>
+                                            <div class="section-editor clearfix">
+                                                <textarea
+                                                    id="ta"
+                                                    name="ta"
+                                                    onchange="documentDirty=true;"
+                                                ><?= evo()->getPhpCompat()->htmlspecialchars($htmlContent) ?></textarea>
+                                            </div>
+                                        <?php
+                                            // Richtext-[*content*]
+                                            $richtexteditorIds = [
+                                                evo()->getConfig('which_editor') => ['ta']
+                                            ];
+                                            $richtexteditorOptions = [
+                                                evo()->getConfig('which_editor') => [
+                                                    'ta' => ''
+                                                ]
+                                            ];
+                                        } else {
+                                            echo '<div><textarea class="phptextarea" id="ta" name="ta" rows="20" wrap="soft" onchange="documentDirty=true;">'. evo()->getPhpCompat()->htmlspecialchars(get_by_key($content, 'content', '')). '</textarea></div>' . "\n";
+                                        }
+                                        ?>
                                         </div>
                                     </td>
                                 </tr>
@@ -896,7 +1119,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 
                         <?php
 
-                        if (($content['type'] == 'document' || $modx->getManagerApi()->action == '4') || ($content['type'] == 'reference' || $modx->getManagerApi()->action == 72)) {
+                        if (($content['type'] === 'document' || evo()->getManagerApi()->action == 4) || ($content['type'] === 'reference' || evo()->getManagerApi()->action == 72)) {
                             $template = getDefaultTemplate();
                             if (isset($_REQUEST['newtemplate'])) {
                                 $template = $_REQUEST['newtemplate'];
@@ -906,12 +1129,18 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                 }
                             }
                             $id = (int)$id;
-                            $tvs = SiteTmplvar::query()->select('site_tmplvars.*', 'site_tmplvar_contentvalues.value', 'site_tmplvar_templates.rank as tvrank', 'site_tmplvar_templates.rank', 'site_tmplvars.id', 'site_tmplvars.rank')
+                            $tvs = SiteTmplvar::query()
+                                ->select(
+                                    'site_tmplvars.*', 'site_tmplvar_contentvalues.value', 'site_tmplvar_templates.rank as tvrank', 'site_tmplvar_templates.rank', 'site_tmplvars.id', 'site_tmplvars.rank'
+                                )
                                 ->join('site_tmplvar_templates', 'site_tmplvar_templates.tmplvarid', '=', 'site_tmplvars.id')
-                                ->leftJoin('site_tmplvar_contentvalues', function ($join) use ($id) {
-                                    $join->on('site_tmplvar_contentvalues.tmplvarid', '=', 'site_tmplvars.id');
-                                    $join->on('site_tmplvar_contentvalues.contentid', '=', \DB::raw($id));
-                                })->leftJoin('site_tmplvar_access', 'site_tmplvar_access.tmplvarid', '=', 'site_tmplvars.id');
+                                ->leftJoin(
+                                    'site_tmplvar_contentvalues',
+                                    function ($join) use ($id) {
+                                        $join->on('site_tmplvar_contentvalues.tmplvarid', '=', 'site_tmplvars.id');
+                                        $join->on('site_tmplvar_contentvalues.contentid', '=', \DB::raw($id));
+                                    })
+                                ->leftJoin('site_tmplvar_access', 'site_tmplvar_access.tmplvarid', '=', 'site_tmplvars.id');
 
                             if ($group_tvs) {
                                 $tvs = $tvs->select(
@@ -936,7 +1165,8 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 
                             if ($_SESSION['mgrRole'] != 1) {
                                 $tvs = $tvs->where(function ($query) {
-                                    $query->whereNull('site_tmplvar_access.documentgroup')
+                                    $query
+                                        ->whereNull('site_tmplvar_access.documentgroup')
                                         ->orWhereIn('document_groups.document_group', $_SESSION['mgrDocgroups']);
                                 });
                             }
@@ -944,10 +1174,8 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                             $tvs = $tvs->get();
                             if (count($tvs) > 0) {
                                 $tvsArray = $tvs->toArray();
-
                                 $templateVariablesOutput = '';
                                 $templateVariablesGeneral = '';
-
                                 $i = $ii = 0;
                                 $tab = '';
                                 foreach ($tvsArray as $row) {
@@ -979,12 +1207,12 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                 <div class="tab-body tmplvars">
                                     <table>';
                                                 }
-                                            } else if ($group_tvs == 2 || $group_tvs == 4) {
+                                            } elseif ($group_tvs == 2 || $group_tvs == 4) {
                                                 if ($i === 0) {
                                                     $templateVariablesOutput .= '
                             <div id="tabTV_' . $row['category_id'] . '" class="tab-page tmplvars">
                                 <h2 class="tab">' . $row['category'] . '</h2>
-                                <script type="text/javascript">tpTemplateVariables.addTabPage(document.getElementById(\'tabTV_' . $row['category_id'] . '\'));</script>
+                                <script>tpTemplateVariables.addTabPage(document.getElementById(\'tabTV_' . $row['category_id'] . '\'));</script>
 
                                 <div class="tab-body tmplvars">
                                     <table>';
@@ -996,17 +1224,17 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 
                             <div id="tabTV_' . $row['category_id'] . '" class="tab-page tmplvars">
                                 <h2 class="tab">' . $row['category'] . '</h2>
-                                <script type="text/javascript">tpTemplateVariables.addTabPage(document.getElementById(\'tabTV_' . $row['category_id'] . '\'));</script>
+                                <script>tpTemplateVariables.addTabPage(document.getElementById(\'tabTV_' . $row['category_id'] . '\'));</script>
 
                                 <div class="tab-body tmplvars">
                                     <table>';
                                                 }
-                                            } else if ($group_tvs == 5) {
+                                            } elseif ($group_tvs == 5) {
                                                 if ($i === 0) {
                                                     $templateVariablesOutput .= '
                                 <div id="tabTV_' . $row['category_id'] . '" class="tab-page tmplvars">
                                     <h2 class="tab">' . $row['category'] . '</h2>
-                                    <script type="text/javascript">tpSettings.addTabPage(document.getElementById(\'tabTV_' . $row['category_id'] . '\'));</script>
+                                    <script>tpSettings.addTabPage(document.getElementById(\'tabTV_' . $row['category_id'] . '\'));</script>
                                     <table>';
                                                 } else {
                                                     $templateVariablesOutput .= '
@@ -1015,7 +1243,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 
                                 <div id="tabTV_' . $row['category_id'] . '" class="tab-page tmplvars">
                                     <h2 class="tab">' . $row['category'] . '</h2>
-                                    <script type="text/javascript">tpSettings.addTabPage(document.getElementById(\'tabTV_' . $row['category_id'] . '\'));</script>
+                                    <script>tpSettings.addTabPage(document.getElementById(\'tabTV_' . $row['category_id'] . '\'));</script>
 
                                     <table>';
                                                 }
@@ -1027,12 +1255,12 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                     }
 
                                     // Go through and display all Template Variables
-                                    if ($row['type'] == 'richtext' || $row['type'] == 'htmlarea') {
+                                    if ($row['type'] === 'richtext' || $row['type'] === 'htmlarea') {
                                         // determine TV-options
-                                        $tvOptions = $modx->parseProperties($row['elements']);
+                                        $tvOptions = evo()->parseProperties($row['elements']);
                                         if (!empty($tvOptions)) {
                                             // Allow different Editor with TV-option {"editor":"CKEditor4"} or &editor=Editor;text;CKEditor4
-                                            $editor = isset($tvOptions['editor']) ? $tvOptions['editor'] : $modx->getConfig('which_editor');
+                                            $editor = isset($tvOptions['editor']) ? $tvOptions['editor'] : evo()->getConfig('which_editor');
                                         };
                                         // Add richtext editor to the list
                                         $richtexteditorIds[$editor][] = "tv" . $row['id'];
@@ -1064,8 +1292,8 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                     }
 
                                     $tvDescription = (!empty($row['description'])) ? '<br /><span class="comment">' . $row['description'] . '</span>' : '';
-                                    $tvInherited = (substr($tvPBV, 0, 8) == '@INHERIT') ? '<br /><span class="comment inherited">(' . $_lang['tmplvars_inherited'] . ')</span>' : '';
-                                    $tvName = $modx->hasPermission('edit_template') ? '<br/><small class="protectedNode">[*' . $row['name'] . '*]</small>' : '';
+                                    $tvInherited = (strpos($tvPBV, '@INHERIT') === 0) ? '<br /><span class="comment inherited">(' . $_lang['tmplvars_inherited'] . ')</span>' : '';
+                                    $tvName = evo()->hasPermission('edit_template') ? '<br/><small class="protectedNode">[*' . $row['name'] . '*]</small>' : '';
 
                                     $templateVariablesTmp .= '
                                         <tr>
@@ -1111,22 +1339,22 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                     <div class="tab-section">
                         <div class="tab-header" id="tv_header">' . $_lang['settings_templvars'] . '</div>
                         <div class="tab-pane" id="paneTemplateVariables">
-                            <script type="text/javascript">
-                                tpTemplateVariables = new WebFXTabPane(document.getElementById(\'paneTemplateVariables\'), ' . ($modx->getConfig('remember_last_tab') ? 'true' : 'false') . ');
+                            <script>
+                                tpTemplateVariables = new WebFXTabPane(document.getElementById(\'paneTemplateVariables\'), ' . (evo()->getConfig('remember_last_tab') ? 'true' : 'false') . ')
                             </script>';
                                 } else if ($group_tvs == 3) {
                                     $templateVariables .= '
                         <div id="templateVariables" class="tab-page tmplvars">
                             <h2 class="tab">' . $_lang['settings_templvars'] . '</h2>
-                            <script type="text/javascript">tpSettings.addTabPage(document.getElementById(\'templateVariables\'));</script>';
+                            <script>tpSettings.addTabPage(document.getElementById(\'templateVariables\'));</script>';
                                 } else if ($group_tvs == 4) {
                                     $templateVariables .= '
                     <div id="templateVariables" class="tab-page tmplvars">
                         <h2 class="tab">' . $_lang['settings_templvars'] . '</h2>
-                        <script type="text/javascript">tpSettings.addTabPage(document.getElementById(\'templateVariables\'));</script>
+                        <script>tpSettings.addTabPage(document.getElementById(\'templateVariables\'));</script>
                         <div class="tab-pane" id="paneTemplateVariables">
-                            <script type="text/javascript">
-                                tpTemplateVariables = new WebFXTabPane(document.getElementById(\'paneTemplateVariables\'), ' . ($modx->getConfig('remember_last_tab') ? 'true' : 'false') . ');
+                            <script>
+                                tpTemplateVariables = new WebFXTabPane(document.getElementById(\'paneTemplateVariables\'), ' . (evo()->getConfig('remember_last_tab') ? 'true' : 'false') . ')
                             </script>';
                                 }
                                 if ($templateVariablesOutput) {
@@ -1165,54 +1393,122 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                     <!-- Settings -->
                     <div class="tab-page" id="tabSettings">
                         <h2 class="tab"><?= ManagerTheme::getLexicon('settings_page_settings'); ?></h2>
-                        <script type="text/javascript">
+                        <script>
                             tpSettings.addTabPage(document.getElementById("tabSettings"));
                         </script>
 
                         <table>
-                            <?php $mx_can_pub = $modx->hasPermission('publish_document') ? '' : 'disabled="disabled" ' ?>
+                            <?php $mx_can_pub = evo()->hasPermission('publish_document') ? '' : 'disabled="disabled" ' ?>
                             <tr>
                                 <td>
                                     <span class="warning"><?= ManagerTheme::getLexicon('resource_opt_published'); ?></span>
                                     <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('resource_opt_published_help'); ?>"></i>
                                 </td>
                                 <td>
-                                    <input <?= $mx_can_pub ?>name="publishedcheck" type="checkbox" class="checkbox" <?= (isset($content['published']) && $content['published'] == 1) || (!isset($content['published']) && $modx->getConfig('publish_default')) ? "checked" : '' ?> onclick="changestate(document.mutate.published);" />
-                                    <input type="hidden" name="published" value="<?= (isset($content['published']) && $content['published'] == 1) || (!isset($content['published']) && $modx->getConfig('publish_default')) ? 1 : 0 ?>" />
+                                    <?php
+                                    if (get_by_key($content, 'published') == 1) {
+                                        $published = 1;
+                                    } elseif(!isset($content['published']) && evo()->getConfig('publish_default')) {
+                                        $published = 1;
+                                    } else {
+                                        $published = 0;
+                                    }
+                                    ?>
+                                    <input
+                                        <?= $mx_can_pub ?>
+                                        name="publishedcheck"
+                                        type="checkbox"
+                                        class="checkbox"
+                                        <?= $published ? "checked" : '' ?>
+                                        onclick="changestate(document.mutate.published);"
+                                    />
+                                    <input
+                                        type="hidden"
+                                        name="published"
+                                        value="<?= $published ? 1 : 0 ?>"
+                                    />
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     <span class="warning"><?= ManagerTheme::getLexicon('page_data_publishdate'); ?></span>
-                                    <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('page_data_publishdate_help'); ?>"></i>
+                                    <i
+                                        class="<?= $_style["icon_question_circle"] ?>"
+                                        data-tooltip="<?= ManagerTheme::getLexicon('page_data_publishdate_help'); ?>"
+                                    ></i>
                                 </td>
                                 <td>
-                                    <input type="text" id="pub_date" <?= $mx_can_pub ?>name="pub_date" class="DatePicker" value="<?= ((int)get_by_key($content, 'pub_date', 0, 'is_scalar') === 0 || !isset($content['pub_date']) ? '' : $modx->toDateFormat($content['pub_date'])) ?>" onblur="documentDirty=true;" />
-                                    <a href="javascript:" onclick="document.mutate.pub_date.value=''; return true;" onmouseover="window.status='<?= ManagerTheme::getLexicon('remove_date'); ?>'; return true;" onmouseout="window.status=''; return true;">
-                                        <i class="<?= $_style["icon_calendar_close"] ?>" title="<?= ManagerTheme::getLexicon('remove_date'); ?>"></i></a>
+                                    <input
+                                        type="text"
+                                        id="pub_date"
+                                        <?= $mx_can_pub ?>
+                                        name="pub_date"
+                                        class="DatePicker"
+                                        value="<?=
+                                            ((int)get_by_key($content, 'pub_date', 0, 'is_scalar') === 0 || !isset($content['pub_date']) ? '' : evo()->toDateFormat($content['pub_date']))
+                                        ?>"
+                                        onblur="documentDirty=true;"
+                                    />
+                                    <a
+                                        href="javascript:"
+                                        onclick="document.mutate.pub_date.value=''; return true;"
+                                        onmouseover="
+                                            window.status='<?= ManagerTheme::getLexicon('remove_date'); ?>';
+                                            return true;"
+                                        onmouseout="window.status=''; return true;"
+                                    >
+                                        <i
+                                            class="<?= $_style["icon_calendar_close"] ?>"
+                                            title="<?= ManagerTheme::getLexicon('remove_date'); ?>"
+                                        ></i></a>
                                 </td>
                             </tr>
                             <tr>
                                 <td></td>
                                 <td>
-                                    <em> <?= $modx->getConfig('datetime_format') ?> HH:MM:SS</em>
+                                    <em> <?= evo()->getConfig('datetime_format') ?> HH:MM:SS</em>
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    <span class="warning"><?= ManagerTheme::getLexicon('page_data_unpublishdate'); ?></span>
-                                    <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('page_data_unpublishdate_help'); ?>"></i>
+                                    <span class="warning">
+                                        <?= ManagerTheme::getLexicon('page_data_unpublishdate'); ?>
+                                    </span>
+                                    <i
+                                        class="<?= $_style["icon_question_circle"] ?>"
+                                        data-tooltip="<?= ManagerTheme::getLexicon('page_data_unpublishdate_help'); ?>"
+                                    ></i>
                                 </td>
                                 <td>
-                                    <input type="text" id="unpub_date" <?= $mx_can_pub ?>name="unpub_date" class="DatePicker" value="<?= ((int)get_by_key($content, 'unpub_date', 0, 'is_scalar') === 0 || !isset($content['unpub_date']) ? '' : $modx->toDateFormat($content['unpub_date'])) ?>" onblur="documentDirty=true;" />
-                                    <a href="javascript:" onclick="document.mutate.unpub_date.value=''; return true;" onmouseover="window.status='<?= ManagerTheme::getLexicon('remove_date'); ?>'; return true;" onmouseout="window.status=''; return true;">
-                                        <i class="<?= $_style["icon_calendar_close"] ?>" title="<?= ManagerTheme::getLexicon('remove_date'); ?>"></i></a>
+                                    <input
+                                        type="text"
+                                        id="unpub_date"
+                                        <?= $mx_can_pub ?>
+                                        name="unpub_date"
+                                        class="DatePicker"
+                                        value="<?=
+                                            ((int)get_by_key($content, 'unpub_date', 0, 'is_scalar') === 0 || !isset($content['unpub_date']) ? '' : evo()->toDateFormat($content['unpub_date']))
+                                        ?>"
+                                        onblur="documentDirty=true;"
+                                    />
+                                    <a
+                                        href="javascript:"
+                                        onclick="document.mutate.unpub_date.value=''; return true;"
+                                        onmouseover="
+                                            window.status='<?= ManagerTheme::getLexicon('remove_date'); ?>';
+                                            return true;"
+                                        onmouseout="window.status=''; return true;"
+                                    >
+                                        <i
+                                            class="<?= $_style["icon_calendar_close"] ?>"
+                                            title="<?= ManagerTheme::getLexicon('remove_date'); ?>"
+                                        ></i></a>
                                 </td>
                             </tr>
                             <tr>
                                 <td></td>
                                 <td>
-                                    <em> <?= $modx->getConfig('datetime_format') ?> HH:MM:SS</em>
+                                    <em> <?= evo()->getConfig('datetime_format') ?> HH:MM:SS</em>
                                 </td>
                             </tr>
                             <tr>
@@ -1223,17 +1519,28 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 
                             <?php
 
-                            if ($_SESSION['mgrRole'] == 1 || $modx->getManagerApi()->action != '27' || $_SESSION['mgrInternalKey'] == $content['createdby'] || $modx->hasPermission('change_resourcetype')) {
+                            if ($_SESSION['mgrRole'] == 1 || evo()->getManagerApi()->action != 27 || $_SESSION['mgrInternalKey'] == $content['createdby'] || evo()->hasPermission('change_resourcetype')) {
                             ?>
                                 <tr>
                                     <td>
-                                        <span class="warning"><?= ManagerTheme::getLexicon('resource_type'); ?></span>
-                                        <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('resource_type_message'); ?>"></i>
+                                        <span class="warning">
+                                            <?= ManagerTheme::getLexicon('resource_type'); ?>
+                                        </span>
+                                        <i
+                                            class="<?= $_style["icon_question_circle"] ?>"
+                                            data-tooltip="<?= ManagerTheme::getLexicon('resource_type_message'); ?>"
+                                        ></i>
                                     </td>
                                     <td>
                                         <select name="type" class="inputBox" onchange="documentDirty=true;">
-                                            <option value="document" <?= ($content['type'] === 'document' || $modx->getManagerApi()->action == '85' || $modx->getManagerApi()->action == '4') ? ' selected="selected"' : '' ?>><?= ManagerTheme::getLexicon('resource_type_webpage'); ?></option>
-                                            <option value="reference" <?= ($content['type'] === 'reference' || $modx->getManagerApi()->action == '72') ? ' selected="selected"' : '' ?>><?= ManagerTheme::getLexicon('resource_type_weblink'); ?></option>
+                                            <option value="document" <?=
+                                                ($content['type'] === 'document' || evo()->getManagerApi()->action == 85 || evo()->getManagerApi()->action == 4) ? ' selected="selected"' : ''
+                                            ?>
+                                        ><?= ManagerTheme::getLexicon('resource_type_webpage'); ?></option>
+                                            <option
+                                                value="reference"
+                                                <?= ($content['type'] === 'reference' || evo()->getManagerApi()->action == 72) ? ' selected="selected"' : '' ?>
+                                            ><?= ManagerTheme::getLexicon('resource_type_weblink'); ?></option>
                                         </select>
                                     </td>
                                 </tr>
@@ -1241,7 +1548,10 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                 <tr>
                                     <td>
                                         <span class="warning"><?= ManagerTheme::getLexicon('page_data_contentType'); ?></span>
-                                        <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('page_data_contentType_help'); ?>"></i>
+                                        <i
+                                            class="<?= $_style["icon_question_circle"] ?>"
+                                            data-tooltip="<?= ManagerTheme::getLexicon('page_data_contentType_help'); ?>"
+                                        ></i>
                                     </td>
                                     <td>
                                         <select name="contentType" class="inputBox" onchange="documentDirty=true;">
@@ -1249,10 +1559,18 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                             if (empty($content['contentType'])) {
                                                 $content['contentType'] = 'text/html';
                                             }
-                                            $custom_content_type = EvolutionCMS()->getConfig('custom_contenttype', 'text/html,text/plain,text/xml');
-                                            $ct = explode(",", $custom_content_type);
-                                            for ($i = 0; $i < count($ct); $i++) {
-                                                echo "\t\t\t\t\t" . '<option value="' . $ct[$i] . '"' . ($content['contentType'] == $ct[$i] ? ' selected="selected"' : '') . '>' . $ct[$i] . "</option>\n";
+                                            $custom_content_type = EvolutionCMS()->getConfig(
+                                                'custom_contenttype',
+                                                'text/html,text/plain,text/xml'
+                                            );
+                                            $ct = explode(',', $custom_content_type);
+                                            for ($i = 0, $iMax = count($ct); $i < $iMax; $i++) {
+                                                echo sprintf(
+                                                    '<option value="%s" %s>%s</option>',
+                                                    $ct[$i],
+                                                    $content['contentType'] == $ct[$i] ? ' selected="selected"' : '',
+                                                    $ct[$i]
+                                                );
                                             }
                                             ?>
                                         </select>
@@ -1260,13 +1578,29 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                 </tr>
                                 <tr>
                                     <td>
-                                        <span class="warning"><?= ManagerTheme::getLexicon('resource_opt_contentdispo'); ?></span>
-                                        <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('resource_opt_contentdispo_help'); ?>"></i>
+                                        <span class="warning">
+                                            <?= ManagerTheme::getLexicon('resource_opt_contentdispo'); ?>
+                                        </span>
+                                        <i
+                                            class="<?= $_style["icon_question_circle"] ?>"
+                                            data-tooltip="<?=
+                                                ManagerTheme::getLexicon('resource_opt_contentdispo_help');
+                                            ?>"></i>
                                     </td>
                                     <td>
                                         <select name="content_dispo" class="inputBox" size="1" onchange="documentDirty=true;">
-                                            <option value="0" <?= (empty($content['content_dispo']) ? ' selected="selected"' : '') ?>><?= ManagerTheme::getLexicon('inline'); ?></option>
-                                            <option value="1" <?= (!empty($content['content_dispo']) ? ' selected="selected"' : '') ?>><?= ManagerTheme::getLexicon('attachment'); ?></option>
+                                            <option
+                                                value="0"
+                                                <?=
+                                                    (empty($content['content_dispo']) ? ' selected="selected"' : '')
+                                                ?>
+                                            ><?= ManagerTheme::getLexicon('inline'); ?></option>
+                                            <option
+                                                value="1"
+                                                <?=
+                                                    (!empty($content['content_dispo']) ? ' selected="selected"' : '')
+                                                ?>
+                                            ><?= ManagerTheme::getLexicon('attachment'); ?></option>
                                         </select>
                                     </td>
                                 </tr>
@@ -1278,12 +1612,19 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                 </tr>
                                 <?php
                             } else {
-                                if ($content['type'] != 'reference' && $modx->getManagerApi()->action != '72') {
+                                if ($content['type'] !== 'reference' && evo()->getManagerApi()->action != 72) {
                                     // non-admin managers creating or editing a document resource
                                 ?>
-                                    <input type="hidden" name="contentType" value="<?= (isset($content['contentType']) ? $content['contentType'] : "text/html") ?>" />
+                                    <input
+                                        type="hidden"
+                                        name="contentType"
+                                        value="<?= $content['contentType'] ?? 'text/html' ?>"
+                                    />
                                     <input type="hidden" name="type" value="document" />
-                                    <input type="hidden" name="content_dispo" value="<?= (isset($content['content_dispo']) ? $content['content_dispo'] : '0') ?>" />
+                                    <input
+                                        type="hidden" name="content_dispo"
+                                        value="<?= $content['content_dispo'] ?? 0 ?>"
+                                    />
                                 <?php
                                 } else {
                                     // non-admin managers creating or editing a reference (weblink) resource
@@ -1298,70 +1639,204 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                             <tr>
                                 <td>
                                     <span class="warning"><?= ManagerTheme::getLexicon('resource_opt_folder'); ?></span>
-                                    <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('resource_opt_folder_help'); ?>"></i>
+                                    <i
+                                        class="<?= $_style["icon_question_circle"] ?>"
+                                        data-tooltip="<?= ManagerTheme::getLexicon('resource_opt_folder_help'); ?>"
+                                    ></i>
                                 </td>
                                 <td>
-                                    <input name="isfoldercheck" type="checkbox" class="checkbox" <?= ((!empty($content['isfolder']) || $modx->getManagerApi()->action == '85') ? "checked" : '') ?> onclick="changestate(document.mutate.isfolder);" />
-                                    <input type="hidden" name="isfolder" value="<?= ((!empty($content['isfolder']) || $modx->getManagerApi()->action == '85') ? 1 : 0) ?>" onchange="documentDirty=true;" />
+                                    <input
+                                        name="isfoldercheck"
+                                        type="checkbox"
+                                        class="checkbox"
+                                        <?=
+                                            !empty($content['isfolder']) || evo()->getManagerApi()->action == 85
+                                                ? "checked"
+                                                : ''
+                                        ?>
+                                        onclick="changestate(document.mutate.isfolder);"
+                                    />
+                                    <input
+                                        type="hidden"
+                                        name="isfolder"
+                                        value="<?=
+                                            !empty($content['isfolder']) || evo()->getManagerApi()->action == 85
+                                                ? 1 : 0
+                                        ?>"
+                                        onchange="documentDirty=true;"
+                                    />
                                 </td>
                             </tr>
 
                             <tr>
                                 <td>
                                     <span class="warning"><?= ManagerTheme::getLexicon('resource_opt_alvisibled'); ?></span>
-                                    <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('resource_opt_alvisibled_help'); ?>"></i>
+                                    <i
+                                        class="<?= $_style["icon_question_circle"] ?>"
+                                        data-tooltip="<?= ManagerTheme::getLexicon('resource_opt_alvisibled_help'); ?>"
+                                    ></i>
                                 </td>
                                 <td>
-                                    <input name="alias_visible_check" type="checkbox" class="checkbox" <?= ((!isset($content['alias_visible']) || $content['alias_visible'] == 1) ? "checked" : '') ?> onclick="changestate(document.mutate.alias_visible);" /><input type="hidden" name="alias_visible" value="<?= ((!isset($content['alias_visible']) || $content['alias_visible'] == 1) ? 1 : 0) ?>" />
+                                    <input
+                                        name="alias_visible_check"
+                                        type="checkbox"
+                                        class="checkbox"
+                                        onclick="changestate(document.mutate.alias_visible);"
+                                        <?=
+                                            (!isset($content['alias_visible']) || $content['alias_visible'] == 1)
+                                                ? "checked"
+                                                : ''
+                                        ?>
+                                    />
+                                    <input
+                                        name="alias_visible"
+                                        value="<?=
+                                            (!isset($content['alias_visible']) || $content['alias_visible'] == 1)
+                                                ? 1
+                                                : 0
+                                        ?>"
+                                        type="hidden"
+                                    />
                                 </td>
                             </tr>
 
                             <tr>
                                 <td>
                                     <span class="warning"><?= ManagerTheme::getLexicon('resource_opt_richtext'); ?></span>
-                                    <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('resource_opt_richtext_help'); ?>"></i>
+                                    <i
+                                        class="<?= $_style["icon_question_circle"] ?>"
+                                        data-tooltip="<?= ManagerTheme::getLexicon('resource_opt_richtext_help'); ?>"
+                                    ></i>
                                 </td>
                                 <td>
-                                    <input name="richtextcheck" type="checkbox" class="checkbox" <?= (empty($content['richtext']) && $modx->getManagerApi()->action == '27' ? '' : "checked") ?> onclick="changestate(document.mutate.richtext);" />
-                                    <input type="hidden" name="richtext" value="<?= (empty($content['richtext']) && $modx->getManagerApi()->action == '27' ? 0 : 1) ?>" onchange="documentDirty=true;" />
+                                    <input
+                                        name="richtextcheck"
+                                        type="checkbox"
+                                        class="checkbox"
+                                        <?=
+                                            empty($content['richtext']) && evo()->getManagerApi()->action == 27
+                                                ? ''
+                                                : "checked"
+                                        ?>
+                                        onclick="changestate(document.mutate.richtext);"
+                                        />
+                                    <input
+                                        type="hidden"
+                                        name="richtext"
+                                        value="<?=
+                                            empty($content['richtext']) && evo()->getManagerApi()->action == 27
+                                                ? 0
+                                                : 1
+                                        ?>"
+                                        onchange="documentDirty=true;"
+                                    />
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     <span class="warning"><?= ManagerTheme::getLexicon('track_visitors_title'); ?></span>
-                                    <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('resource_opt_trackvisit_help'); ?>"></i>
+                                    <i
+                                        class="<?= $_style["icon_question_circle"] ?>"
+                                        data-tooltip="<?= ManagerTheme::getLexicon('resource_opt_trackvisit_help'); ?>"
+                                    ></i>
                                 </td>
                                 <td>
-                                    <input name="hide_from_treecheck" type="checkbox" class="checkbox" <?= empty($content['hide_from_tree']) ? 'checked="checked"' : '' ?> onclick="changestate(document.mutate.hide_from_tree);" /><input type="hidden" name="hide_from_tree" value="<?= empty($content['hide_from_tree']) ? 0 : 1 ?>" onchange="documentDirty=true;" />
+                                    <input
+                                        name="hide_from_treecheck"
+                                        type="checkbox"
+                                        class="checkbox"
+                                        <?= empty($content['hide_from_tree']) ? 'checked="checked"' : '' ?>
+                                        onclick="changestate(document.mutate.hide_from_tree);"
+                                    />
+                                    <input
+                                        type="hidden"
+                                        name="hide_from_tree"
+                                        value="<?= empty($content['hide_from_tree']) ? 0 : 1 ?>"
+                                        onchange="documentDirty=true;"
+                                    />
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     <span class="warning"><?= ManagerTheme::getLexicon('page_data_searchable'); ?></span>
-                                    <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('page_data_searchable_help'); ?>"></i>
+                                    <i
+                                        class="<?= $_style["icon_question_circle"] ?>"
+                                        data-tooltip="<?= ManagerTheme::getLexicon('page_data_searchable_help'); ?>"
+                                    ></i>
                                 </td>
+                                <?php
+                                if (get_by_key($content, 'searchable') == 1) {
+                                    $searchable = 1;
+                                } elseif(!isset($content['searchable']) && evo()->getConfig('search_default')){
+                                    $searchable = 1;
+                                } else {
+                                    $searchable = 0;
+                                }
+                                ?>
                                 <td>
-                                    <input name="searchablecheck" type="checkbox" class="checkbox" <?= (isset($content['searchable']) && $content['searchable'] == 1) || (!isset($content['searchable']) && $modx->getConfig('search_default')) ? "checked" : '' ?> onclick="changestate(document.mutate.searchable);" /><input type="hidden" name="searchable" value="<?= ((isset($content['searchable']) && $content['searchable'] == 1) || (!isset($content['searchable']) && $modx->getConfig('search_default')) ? 1 : 0) ?>" onchange="documentDirty=true;" />
+                                    <input
+                                        name="searchablecheck"
+                                        type="checkbox"
+                                        class="checkbox"
+                                        onclick="changestate(document.mutate.searchable);"
+                                        <?= $searchable ? "checked" : '' ?>
+                                    />
+                                    <input
+                                        type="hidden"
+                                        name="searchable"
+                                        value="<?= $searchable ?>"
+                                        onchange="documentDirty=true;" />
                                 </td>
                             </tr>
+                            <?php
+                                if (get_by_key($content, 'cacheable') == 1) {
+                                    $cacheable = 1;
+                                } elseif(!isset($content['cacheable']) && evo()->getConfig('cache_default')){
+                                    $cacheable = 1;
+                                } else {
+                                    $cacheable = 0;
+                                }
+                                ?>
                             <tr>
                                 <td>
                                     <span class="warning"><?= ManagerTheme::getLexicon('page_data_cacheable'); ?></span>
-                                    <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('page_data_cacheable_help'); ?>"></i>
+                                    <i
+                                        class="<?= $_style["icon_question_circle"] ?>"
+                                        data-tooltip="<?= ManagerTheme::getLexicon('page_data_cacheable_help') ?>"
+                                    ></i>
                                 </td>
                                 <td>
-                                    <input name="cacheablecheck" type="checkbox" class="checkbox" <?= ((isset($content['cacheable']) && $content['cacheable'] == 1) || (!isset($content['cacheable']) && $modx->getConfig('cache_default')) ? "checked" : '') ?> onclick="changestate(document.mutate.cacheable);" />
-                                    <input type="hidden" name="cacheable" value="<?= ((isset($content['cacheable']) && $content['cacheable'] == 1) || (!isset($content['cacheable']) && $modx->getConfig('cache_default')) ? 1 : 0) ?>" onchange="documentDirty=true;" />
+                                    <input
+                                        name="cacheablecheck"
+                                        type="checkbox"
+                                        class="checkbox"
+                                        onclick="changestate(document.mutate.cacheable);"
+                                        <?= $cacheable ? "checked" : '' ?>
+                                    />
+                                    <input
+                                        type="hidden"
+                                        name="cacheable"
+                                        value="<?= $cacheable ?>"
+                                        onchange="documentDirty=true;" />
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     <span class="warning"><?= ManagerTheme::getLexicon('resource_opt_emptycache'); ?></span>
                                     <input type="hidden" name="syncsite" value="1" />
-                                    <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?= ManagerTheme::getLexicon('resource_opt_emptycache_help'); ?>"></i>
+                                    <i
+                                        class="<?= $_style["icon_question_circle"] ?>"
+                                        data-tooltip="<?= ManagerTheme::getLexicon('resource_opt_emptycache_help'); ?>"
+                                    ></i>
                                 </td>
                                 <td>
-                                    <input name="syncsitecheck" type="checkbox" class="checkbox" checked="checked" onclick="changestate(document.mutate.syncsite);" />
+                                    <input
+                                        name="syncsitecheck"
+                                        type="checkbox"
+                                        class="checkbox"
+                                        checked="checked"
+                                        onclick="changestate(document.mutate.syncsite);"
+                                    />
                                 </td>
                             </tr>
                         </table>
@@ -1378,11 +1853,15 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                 <?php
                 /*******************************
                  * Document Access Permissions */
-                if ($modx->getConfig('use_udperms')) {
+                if (evo()->getConfig('use_udperms')) {
                     $groupsarray = array();
                     $sql = '';
 
-                    $documentId = ($modx->getManagerApi()->action == '27' ? $id : (!empty($_REQUEST['pid']) ? $_REQUEST['pid'] : $content['parent']));
+                    if (evo()->getManagerApi()->action == 27) {
+                        $documentId = $id;
+                    } else {
+                        $documentId = !empty($_REQUEST['pid']) ? $_REQUEST['pid'] : $content['parent'];
+                    }
                     if ($documentId > 0) {
                         // Load up, the permissions from the parent (if new document) or existing document
                         $documentGroups = \EvolutionCMS\Models\DocumentGroup::where('document', $documentId)->get();
@@ -1408,8 +1887,8 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                         $groupsarray = array_merge($groupsarray, $_POST['docgroups']);
                     }
 
-                    $isManager = $modx->hasPermission('access_permissions');
-                    $isWeb = $modx->hasPermission('web_access_permissions');
+                    $isManager = evo()->hasPermission('access_permissions');
+                    $isWeb = evo()->hasPermission('web_access_permissions');
 
                     // Setup Basic attributes for each Input box
                     $inputAttributes = array(
@@ -1435,7 +1914,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                         } // Mark as private access (either web or manager)
 
                         // Skip the access permission if the user doesn't have access...
-                        if ((!$isManager && $row['private_memgroup'] == '1') || (!$isWeb && $row['private_webgroup'] == '1')) {
+                        if ((!$isManager && $row['private_memgroup'] == 1) || (!$isWeb && $row['private_webgroup'] == 1)) {
                             continue;
                         }
 
@@ -1467,7 +1946,10 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                         } else {
                             ++$permissions_no;
                         }
-                        $permissions[] = "\t\t" . '<li>' . $inputHTML . '<label for="' . $inputId . '">' . $row['name'] . '</label></li>';
+                        $permissions[] = sprintf(
+                            '<li>%s<label for="%s">%s</label></li>',
+                            $inputHTML, $inputId, $row['name']
+                        );
                     }
                     // if mgr user doesn't have access to any of the displayable permissions, forget about them and make doc public
                     if ($_SESSION['mgrRole'] != 1 && ($permissions_yes == 0 && $permissions_no > 0)) {
@@ -1478,17 +1960,20 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                     if (!empty($permissions)) {
                         // Add the "All Document Groups" item if we have rights in both contexts
                         if ($isManager && $isWeb) {
-                            array_unshift($permissions, "\t\t" . '<li><input type="checkbox" class="checkbox" name="chkalldocs" id="groupall"' . (empty($notPublic) ? ' checked="checked"' : '') . ' onclick="makePublic(true);" /><label for="groupall" class="warning">' . $_lang['all_doc_groups'] . '</label></li>');
+                            array_unshift(
+                                $permissions,
+                                "\t\t" . '<li><input type="checkbox" class="checkbox" name="chkalldocs" id="groupall"' . (empty($notPublic) ? ' checked="checked"' : '') . ' onclick="makePublic(true);" /><label for="groupall" class="warning">' . $_lang['all_doc_groups'] . '</label></li>'
+                            );
                         }
                         // Output the permissions list...
                 ?>
                         <!-- Access Permissions -->
                         <div class="tab-page" id="tabAccess">
                             <h2 class="tab" id="tab_access_header"><?= ManagerTheme::getLexicon('access_permissions'); ?></h2>
-                            <script type="text/javascript">
+                            <script>
                                 tpSettings.addTabPage(document.getElementById("tabAccess"));
                             </script>
-                            <script type="text/javascript">
+                            <script>
                                 function makePublic(b) {
                                     var notPublic = false;
                                     var f = document.forms['mutate'];
@@ -1519,8 +2004,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                         </div>
                         <!--div class="tab-page" id="tabAccess"-->
                     <?php
-                    } // !empty($permissions)
-                    elseif ($_SESSION['mgrRole'] != 1 && ($permissions_yes == 0 && $permissions_no > 0) && ($_SESSION['mgrPermissions']['access_permissions'] == 1 || $_SESSION['mgrPermissions']['web_access_permissions'] == 1)) {
+                    } elseif ($_SESSION['mgrRole'] != 1 && ($permissions_yes == 0 && $permissions_no > 0) && ($_SESSION['mgrPermissions']['access_permissions'] == 1 || $_SESSION['mgrPermissions']['web_access_permissions'] == 1)) {
                     ?>
                         <p><?= ManagerTheme::getLexicon('access_permissions_docs_collision'); ?></p>
                 <?php
@@ -1535,7 +2019,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                 <?php
 
                 // invoke OnDocFormRender event
-                $evtOut = $modx->invokeEvent('OnDocFormRender', array(
+                $evtOut = evo()->invokeEvent('OnDocFormRender', array(
                     'id' => $id,
                     'template' => (int)get_by_key($content, 'template', 0, 'is_scalar')
                 ));
@@ -1551,15 +2035,15 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
     </fieldset>
 </form>
 
-<script type="text/javascript">
+<script>
     storeCurTemplate();
 </script>
 <?php
-if ((!empty($content['richtext']) || $modx->getManagerApi()->action == '4' || $modx->getManagerApi()->action == '72') && $modx->getConfig('use_editor')) {
+if ((!empty($content['richtext']) || evo()->getManagerApi()->action == 4 || evo()->getManagerApi()->action == 72) && evo()->getConfig('use_editor')) {
     if (is_array($richtexteditorIds)) {
         foreach ($richtexteditorIds as $editor => $elements) {
             // invoke OnRichTextEditorInit event
-            $evtOut = $modx->invokeEvent('OnRichTextEditorInit', array(
+            $evtOut = evo()->invokeEvent('OnRichTextEditorInit', array(
                 'editor' => $editor,
                 'elements' => $elements,
                 'options' => $richtexteditorOptions[$editor]
