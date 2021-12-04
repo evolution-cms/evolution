@@ -221,8 +221,8 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
         }
     };
 
-    var allowParentSelection = false;
-    var allowLinkSelection = false;
+    let allowParentSelection = false;
+    let allowLinkSelection = false;
 
     function enableLinkSelection(b) {
         var llock = document.getElementById('llock');
@@ -247,7 +247,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
     }
 
     function enableParentSelection(b) {
-        var plock = document.getElementById('plock');
+        let plock = document.getElementById('plock');
         if (b) {
             parent.tree.ca = "parent";
             plock.className = "<?= $_style["icon_folder_open"] ?>";
@@ -276,10 +276,9 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 
     // check if the selected parent is a child of this document
     function checkParentChildRelation(pId, pName) {
-        var sp;
-        var id = document.mutate.id.value;
-        var tdoc = parent.tree.document;
-        var pn = (tdoc.getElementById) ? tdoc.getElementById("node" + pId) : tdoc.all["node" + pId];
+        const id = document.mutate.id.value;
+        const tdoc = parent.tree.document;
+        let pn = tdoc.getElementById("node" + pId);
         if (!pn) return;
         if (pn.id.substr(4) === id) {
             alert("<?= $_lang['illegal_parent_self'] ?>");
@@ -287,7 +286,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
         } else {
             while (pn.getAttribute("p") > 0) {
                 pId = pn.getAttribute("p");
-                pn = (tdoc.getElementById) ? tdoc.getElementById("node" + pId) : tdoc.all["node" + pId];
+                pn = tdoc.getElementById("node" + pId);
                 if (pn.id.substr(4) === id) {
                     alert("<?= $_lang['illegal_parent_child'] ?>");
                     return;
@@ -297,11 +296,11 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
         return true;
     }
 
-    var curTemplate = -1;
-    var curTemplateIndex = 0;
+    let curTemplate = -1;
+    let curTemplateIndex = 0;
 
     function storeCurTemplate() {
-        var dropTemplate = document.getElementById('template');
+        const dropTemplate = document.getElementById('template');
         if (dropTemplate) {
             for (var i = 0; i < dropTemplate.length; i++) {
                 if (dropTemplate[i].selected) {
@@ -312,10 +311,10 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
         }
     }
 
-    var newTemplate;
+    let newTemplate;
 
     function templateWarning() {
-        var dropTemplate = document.getElementById('template');
+        const dropTemplate = document.getElementById('template');
         if (dropTemplate) {
             for (var i = 0; i < dropTemplate.length; i++) {
                 if (dropTemplate[i].selected) {
@@ -346,7 +345,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 
     // Added for RTE selection
     function changeRTE() {
-        var whichEditor = document.getElementById('which_editor'),
+        let whichEditor = document.getElementById('which_editor'),
             newEditor,
             i;
         if (whichEditor) {
@@ -357,7 +356,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                 }
             }
         }
-        var dropTemplate = document.getElementById('template');
+        const dropTemplate = document.getElementById('template');
         if (dropTemplate) {
             for (i = 0; i < dropTemplate.length; i++) {
                 if (dropTemplate[i].selected) {
@@ -377,13 +376,12 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
     /**
      * Snippet properties
      */
-
-    var snippetParams = {}; // Snippet Params
-    var currentParams = {}; // Current Params
-    var lastsp, lastmod = {};
+    let snippetParams = {}; // Snippet Params
+    let currentParams = {}; // Current Params
+    let lastsp, lastmod = {};
 
     function showParameters(ctrl) {
-        var c, p, df, cp, ar, desc, value, key, dt, f;
+        let c, p, df, cp, ar, desc, value, key, dt, f;
 
         cp = {};
         currentParams = {}; // reset;
@@ -407,7 +405,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
         }
 
         // setup parameters
-        var t, dp = (snippetParams[df]) ? snippetParams[df].split("&") : [""];
+        let t, dp = (snippetParams[df]) ? snippetParams[df].split("&") : [""];
         if (dp) {
             t = '<table width="100%" class="displayparams"><thead><tr><td width="50%"><?= $_lang['parameter'] ?><\/td><td width="50%"><?= $_lang['value'] ?><\/td><\/tr><\/thead>';
             for (p = 0; p < dp.length; p++) {
@@ -443,7 +441,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                 }
             }
             t += '<\/table>';
-            var td = (document.getElementById) ? document.getElementById('snippetparams') : document.all['snippetparams'];
+            let td = document.getElementById('snippetparams');
             td.innerHTML = t;
         }
         implodeParameters();
@@ -477,7 +475,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 
     // implode parameters
     function implodeParameters() {
-        var v, p, s = '';
+        let v, p, s = '';
         for (p in currentParams) {
             v = currentParams[p];
             if (v) s += '&' + p + '=' + encode(v);
@@ -488,15 +486,15 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 
     function encode(s) {
         s = s + '';
-        s = s.replace(/\=/g, '%3D'); // =
-        s = s.replace(/\&/g, '%26'); // &
+        s = s.replace(/=/g, '%3D'); // =
+        s = s.replace(/&/g, '%26'); // &
         return s;
     }
 
     function decode(s) {
         s = s + '';
-        s = s.replace(/\%3D/g, '='); // =
-        s = s.replace(/\%26/g, '&'); // &
+        s = s.replace(/%3D/g, '='); // =
+        s = s.replace(/%26/g, '&'); // &
         return s;
     }
 
@@ -509,11 +507,15 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
     function evoRenderTvImageCheck(a) {
         var b = document.getElementById('image_for_' + a.target.id),
             c = new Image;
-        a.target.value ? (c.src = "<?= evo()->getConfig('site_url') ?>" + a.target.value, c.onerror = function() {
+        if (!a.target.value) {
             b.style.backgroundImage = '', b.setAttribute('data-image', '');
-        }, c.onload = function() {
-            b.style.backgroundImage = 'url(\'' + this.src + '\')', b.setAttribute('data-image', this.src);
-        }) : (b.style.backgroundImage = '', b.setAttribute('data-image', ''));
+        } else {
+            c.src = "<?= evo()->getConfig('site_url') ?>" + a.target.value, c.onerror = function () {
+                b.style.backgroundImage = '', b.setAttribute('data-image', '');
+            }, c.onload = function () {
+                b.style.backgroundImage = 'url(\'' + this.src + '\')', b.setAttribute('data-image', this.src);
+            };
+        }
     }
 </script>
 <form
@@ -861,7 +863,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                             $row = $template->toArray();
                                             if ($row['selectable'] != 1 && $row['id'] != $content['template']) {
                                                 continue;
-                                            };
+                                            }
                                             // Skip if not selectable but show if selected!
                                             if ($row['category_name'] == null) {
                                                 $currentCategory = $_lang["no_category"];
@@ -931,7 +933,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                         class="inputBox" onchange="documentDirty=true;"
                                     />
                                     <a
-                                        href="javascript:;"
+                                        href="javascript:"
                                         class="btn btn-secondary"
                                         onclick="
                                             var elm=document.mutate.menuindex;
@@ -942,7 +944,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                             return false;"
                                     ><i class="<?= $_style['icon_angle_left'] ?>"></i></a>
                                     <a
-                                        href="javascript:;"
+                                        href="javascript:"
                                         class="btn btn-secondary"
                                         onclick="
                                             var elm=document.mutate.menuindex;
@@ -1285,7 +1287,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                         if (!empty($tvOptions)) {
                                             // Allow different Editor with TV-option {"editor":"CKEditor4"} or &editor=Editor;text;CKEditor4
                                             $editor = isset($tvOptions['editor']) ? $tvOptions['editor'] : evo()->getConfig('which_editor');
-                                        };
+                                        }
                                         // Add richtext editor to the list
                                         $richtexteditorIds[$editor][] = "tv" . $row['id'];
                                         $richtexteditorOptions[$editor]["tv" . $row['id']] = $tvOptions;
@@ -2002,24 +2004,31 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                             </script>
                             <script>
                                 function makePublic(b) {
-                                    var notPublic = false;
-                                    var f = document.forms['mutate'];
-                                    var chkpub = f['chkalldocs'];
-                                    var chks = f['docgroups[]'];
+                                    let i;
+                                    let notPublic = false;
+                                    const f = document.forms['mutate'];
+                                    let chkpub = f['chkalldocs'];
+                                    let chks = f['docgroups[]'];
                                     if (!chks && chkpub) {
                                         chkpub.checked = true;
                                         return false;
                                     } else if (!b && chkpub) {
-                                        if (!chks.length) notPublic = chks.checked;
-                                        else
-                                            for (var i = 0; i < chks.length; i++)
+                                        if (!chks.length) {
+                                            notPublic = chks.checked;
+                                        } else {
+                                            for (i = 0; i < chks.length; i++) {
                                                 if (chks[i].checked) notPublic = true;
+                                            }
+                                        }
                                         chkpub.checked = !notPublic;
                                     } else {
-                                        if (!chks.length) chks.checked = (b) ? false : chks.checked;
-                                        else
-                                            for (var i = 0; i < chks.length; i++)
+                                        if (!chks.length) {
+                                            chks.checked = (b) ? false : chks.checked;
+                                        } else {
+                                            for (i = 0; i < chks.length; i++) {
                                                 if (b) chks[i].checked = false;
+                                            }
+                                        }
                                         chkpub.checked = true;
                                     }
                                 }
