@@ -1,9 +1,18 @@
 <?php
 
-/********************/
+/**
+ * @var array $_lang
+ * @var array $_style
+ * @var DocumentParser $modx
+ */
 
+use EvolutionCMS\Models\DocumentGroup;
+use EvolutionCMS\Models\DocumentgroupName;
+use EvolutionCMS\Models\MembergroupAccess;
 use EvolutionCMS\Models\SiteContent;
+use EvolutionCMS\Models\SiteTemplate;
 use EvolutionCMS\Models\SiteTmplvar;
+use Illuminate\Support\Facades\DB;
 
 $sd = isset($_REQUEST['dir']) ? '&dir=' . $_REQUEST['dir'] : '&dir=DESC';
 $sb = isset($_REQUEST['sort']) ? '&sort=' . $_REQUEST['sort'] : '&sort=createdon';
