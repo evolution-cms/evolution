@@ -11,7 +11,7 @@ $pg = isset($_REQUEST['page']) ? '&page=' . (int) $_REQUEST['page'] : '';
 $add_path = $sd . $sb . $pg;
 /*******************/
 global $content, $richtexteditorIds, $richtexteditorOptions;
-$richtexteditorIds = array();
+$richtexteditorIds = [];
 $defaultContentType = 'document';
 // check permissions
 switch (evo()->getManagerApi()->action) {
@@ -92,7 +92,7 @@ if (!empty($id)) {
     }
     $_SESSION['itemname'] = $content['pagetitle'];
 } else {
-    $content = array();
+    $content = [];
 
     if (isset($_REQUEST['newtemplate'])) {
         $content['template'] = $_REQUEST['newtemplate'];
@@ -404,7 +404,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                 ar = (ar[1] + '').split(";");
                 desc = ar[0]; // description
                 dt = ar[1]; // data type
-                value = decode((currentParams[key]) ? currentParams[key] : (dt == 'list') ? ar[3] : (ar[2]) ? ar[2] : '');
+                value = decode((currentParams[key]) ? currentParams[key] : (dt === 'list') ? ar[3] : (ar[2]) ? ar[2] : '');
                 if (value !== currentParams[key]) currentParams[key] = value;
                 value = (value + '').replace(/^\s|\s$/, ""); // trim
                 if (dt) {
@@ -512,10 +512,10 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 >
     <?php
     // invoke OnDocFormPrerender event
-    $evtOut = evo()->invokeEvent('OnDocFormPrerender', array(
+    $evtOut = evo()->invokeEvent('OnDocFormPrerender', [
         'id' => $id,
         'template' => $content['template']
-    ));
+    ]);
 
     if (is_array($evtOut)) {
         echo implode('', $evtOut);
@@ -542,7 +542,8 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 
         <h1>
             <i class="<?= $_style['icon_edit'] ?>"></i>
-            <?php if (isset($_REQUEST['id'])) {
+            <?php
+            if (isset($_REQUEST['id'])) {
                 echo sprintf(
                     '%s%s<small>(%s)</small>',
                     entities(
@@ -555,14 +556,12 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                         ? '...'
                         : '', (int)$_REQUEST['id']
                 );
+            } elseif (evo()->getManagerApi()->action == 4) {
+                echo $_lang['add_resource'];
+            } elseif (evo()->getManagerApi()->action == 72) {
+                echo $_lang['add_weblink'];
             } else {
-                if (evo()->getManagerApi()->action == 4) {
-                    echo $_lang['add_resource'];
-                } elseif (evo()->getManagerApi()->action == 72) {
-                    echo $_lang['add_weblink'];
-                } else {
-                    echo $_lang['create_resource_title'];
-                }
+                echo $_lang['create_resource_title'];
             } ?>
         </h1>
 
@@ -572,7 +571,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
         // breadcrumbs
         if (evo()->getConfig('use_breadcrumbs')) {
             $out = '';
-            $temp = array();
+            $temp = [];
             $title = isset($content['pagetitle']) ? $content['pagetitle'] : $_lang['create_resource_title'];
 
             if (isset($_REQUEST['id']) && $content['parent'] != 0) {
@@ -626,9 +625,9 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 
                 <!-- General -->
                 <?php
-                $evtOut = evo()->invokeEvent('OnDocFormTemplateRender', array(
+                $evtOut = evo()->invokeEvent('OnDocFormTemplateRender', [
                     'id' => $id
-                ));
+                ]);
 
                 $group_tvs = evo()->getConfig('group_tvs');
                 $templateVariables = '';
@@ -864,9 +863,9 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                                 $closeOptGroup = true;
                                             }
                                             echo sprintf(
-                                                '<option value="%s"%s>%s (%s)</option>',
+                                                '<option value="%s" %s>%s (%s)</option>',
                                                 $row['id'],
-                                                ($row['id'] == $content['template']) ? ' selected="selected"' : '',
+                                                ($row['id'] == $content['template']) ? 'selected="selected"' : '',
                                                 $row['templatename'],
                                                 $row['id']
                                             );
@@ -888,7 +887,20 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                     ></i>
                                 </td>
                                 <td>
-                                    <input name="menutitle" type="text" maxlength="255" value="<?= evo()->getPhpCompat()->htmlspecialchars(stripslashes(get_by_key($content, 'menutitle', '', 'is_scalar'))) ?>" class="inputBox" onchange="documentDirty=true;" />
+                                    <input
+                                        name="menutitle"
+                                        type="text"
+                                        maxlength="255"
+                                        value="<?=
+                                        evo()->getPhpCompat()->htmlspecialchars(
+                                            stripslashes(
+                                                get_by_key($content, 'menutitle', '', 'is_scalar')
+                                            )
+                                        )
+                                        ?>"
+                                        class="inputBox"
+                                        onchange="documentDirty=true;"
+                                    />
                                 </td>
                             </tr>
                             <tr>
@@ -1073,7 +1085,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                                         for ($i = 0, $iMax = count($evtOut); $i < $iMax; $i++) {
                                                             $editor = $evtOut[$i];
                                                             echo sprintf(
-                                                                '<option value="%s"%s>%s</option>',
+                                                                '<option value="%s" %s>%s</option>',
                                                                 $editor,
                                                                 evo()->getConfig('which_editor') == $editor ? ' selected="selected"' : '',
                                                                 $editor
@@ -1118,7 +1130,6 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                         </table>
 
                         <?php
-
                         if (($content['type'] === 'document' || evo()->getManagerApi()->action == 4) || ($content['type'] === 'reference' || evo()->getManagerApi()->action == 72)) {
                             $template = getDefaultTemplate();
                             if (isset($_REQUEST['newtemplate'])) {
@@ -1298,7 +1309,9 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                     $templateVariablesTmp .= '
                                         <tr>
                                             <td><span class="warning">' . $row['caption'] . $tvName . '</span>' . $tvDescription . $tvInherited . '</td>
-                                            <td><div style="position:relative;' . ($row['type'] == 'date' ? '' : '') . '">' .
+                                            <td>
+                                            <div style="position:relative;">'
+                                        .
                                         renderFormElement(
                                             $row['type'],
                                             $row['id'],
@@ -1310,7 +1323,8 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                             $tvsArray,
                                             $content
                                         ) .
-                                        '</div></td>
+                                        '</div>
+                                            </td>
                                         </tr>';
 
                                     if ($group_tvs && $row['category_id'] == 0) {
@@ -1854,7 +1868,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                 /*******************************
                  * Document Access Permissions */
                 if (evo()->getConfig('use_udperms')) {
-                    $groupsarray = array();
+                    $groupsarray = [];
                     $sql = '';
 
                     if (evo()->getManagerApi()->action == 27) {
@@ -1891,13 +1905,13 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                     $isWeb = evo()->hasPermission('web_access_permissions');
 
                     // Setup Basic attributes for each Input box
-                    $inputAttributes = array(
+                    $inputAttributes = [
                         'type' => 'checkbox',
                         'class' => 'checkbox',
                         'name' => 'docgroups[]',
                         'onclick' => 'makePublic(false);',
-                    );
-                    $permissions = array(); // New Permissions array list (this contains the HTML)
+                    ];
+                    $permissions = []; // New Permissions array list (this contains the HTML)
                     $permissions_yes = 0; // count permissions the current mgr user has
                     $permissions_no = 0; // count permissions the current mgr user doesn't have
 
@@ -1928,7 +1942,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                         }
 
                         // Create attribute string list
-                        $inputString = array();
+                        $inputString = [];
                         foreach ($inputAttributes as $k => $v) $inputString[] = $k . '="' . $v . '"';
 
                         // Make the <input> HTML
@@ -1953,7 +1967,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                     }
                     // if mgr user doesn't have access to any of the displayable permissions, forget about them and make doc public
                     if ($_SESSION['mgrRole'] != 1 && ($permissions_yes == 0 && $permissions_no > 0)) {
-                        $permissions = array();
+                        $permissions = [];
                     }
 
                     // See if the Access Permissions section is worth displaying...
@@ -2019,10 +2033,10 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                 <?php
 
                 // invoke OnDocFormRender event
-                $evtOut = evo()->invokeEvent('OnDocFormRender', array(
+                $evtOut = evo()->invokeEvent('OnDocFormRender', [
                     'id' => $id,
                     'template' => (int)get_by_key($content, 'template', 0, 'is_scalar')
-                ));
+                ]);
 
                 if (is_array($evtOut)) {
                     echo implode('', $evtOut);
@@ -2043,11 +2057,11 @@ if ((!empty($content['richtext']) || evo()->getManagerApi()->action == 4 || evo(
     if (is_array($richtexteditorIds)) {
         foreach ($richtexteditorIds as $editor => $elements) {
             // invoke OnRichTextEditorInit event
-            $evtOut = evo()->invokeEvent('OnRichTextEditorInit', array(
+            $evtOut = evo()->invokeEvent('OnRichTextEditorInit', [
                 'editor' => $editor,
                 'elements' => $elements,
                 'options' => $richtexteditorOptions[$editor]
-            ));
+            ]);
             if (is_array($evtOut)) {
                 echo implode('', $evtOut);
             }
