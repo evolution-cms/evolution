@@ -14,14 +14,18 @@ use EvolutionCMS\Models\SiteTemplate;
 use EvolutionCMS\Models\SiteTmplvar;
 use Illuminate\Support\Facades\DB;
 
-$sd = isset($_REQUEST['dir']) ? '&dir=' . $_REQUEST['dir'] : '&dir=DESC';
-$sb = isset($_REQUEST['sort']) ? '&sort=' . $_REQUEST['sort'] : '&sort=createdon';
-$pg = isset($_REQUEST['page']) ? '&page=' . (int) $_REQUEST['page'] : '';
-$add_path = $sd . $sb . $pg;
+$add_path = sprintf(
+    '&dir=%s&sort=%s%s',
+    get_by_key($_REQUEST, 'dir', 'DESC'),
+    get_by_key($_REQUEST, 'sort', 'createdon'),
+    empty($_REQUEST['page']) ? '' : '&page='.$_REQUEST['page'],
+);
+
 /*******************/
 global $content, $richtexteditorIds, $richtexteditorOptions;
 $richtexteditorIds = [];
 $defaultContentType = 'document';
+
 // check permissions
 switch (evo()->getManagerApi()->action) {
     case 27:
@@ -51,8 +55,7 @@ switch (evo()->getManagerApi()->action) {
     evo()->webAlertAndQuit($_lang["error_no_privileges"]);
 }
 
-$id = (int)$_REQUEST['id'] ?? 0;
-
+$id = (int)($_REQUEST['id'] ?? 0);
 
 if (evo()->getManagerApi()->action == 27) {
     //editing an existing document
@@ -95,7 +98,6 @@ if (!empty($id)) {
         });
     }
     $content = $documentObjectQuery->withTrashed()->first()->toArray();
-    $modx->documentObject = &$content;
     if (!$content) {
         evo()->webAlertAndQuit($_lang["access_permission_denied"]);
     }
@@ -111,6 +113,8 @@ if (!empty($id)) {
 
     $_SESSION['itemname'] = $_lang["new_resource"];
 }
+
+$modx->documentObject = &$content;
 
 // restore saved form
 $formRestored = evo()->getManagerApi()->loadFormValues();
@@ -810,7 +814,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                         spellcheck="true"
                                     ></i>
                                 </td>
-                                <td valign="top">
+                                <td>
                                     <textarea
                                         id="introtext"
                                         name="introtext" class="inputBox" rows="3" cols=""
@@ -839,7 +843,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                     >
                                         <option value="0">(blank)</option>
                                         <?php
-                                        $templates = \EvolutionCMS\Models\SiteTemplate::query()
+                                        $templates = SiteTemplate::query()
                                             ->select(
                                                 'site_templates.templatename',
                                                 'site_templates.selectable',
@@ -1158,7 +1162,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                     'site_tmplvar_contentvalues',
                                     function ($join) use ($id) {
                                         $join->on('site_tmplvar_contentvalues.tmplvarid', '=', 'site_tmplvars.id');
-                                        $join->on('site_tmplvar_contentvalues.contentid', '=', \DB::raw($id));
+                                        $join->on('site_tmplvar_contentvalues.contentid', '=', DB::raw($id));
                                     })
                                 ->leftJoin('site_tmplvar_access', 'site_tmplvar_access.tmplvarid', '=', 'site_tmplvars.id');
 
@@ -1887,20 +1891,20 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                     }
                     if ($documentId > 0) {
                         // Load up, the permissions from the parent (if new document) or existing document
-                        $documentGroups = \EvolutionCMS\Models\DocumentGroup::where('document', $documentId)->get();
+                        $documentGroups = DocumentGroup::where('document', $documentId)->get();
                         foreach ($documentGroups as $documentGroup) {
                             $groupsarray[] = $documentGroup->document_group . ',' . $documentGroup->id;
                         }
 
-                        $groups = \EvolutionCMS\Models\DocumentgroupName::query()
+                        $groups = DocumentgroupName::query()
                             ->select('documentgroup_names.*', 'document_groups.id as link_id')
                             ->leftJoin('document_groups', function ($join) use ($documentId) {
                                 $join->on('document_groups.document_group', '=', 'documentgroup_names.id');
-                                $join->on('document_groups.document', '=', \DB::raw($documentId));
+                                $join->on('document_groups.document', '=', DB::raw($documentId));
                             })->get();
                     } else {
                         // Just load up the names, we're starting clean
-                        $groups = \EvolutionCMS\Models\DocumentgroupName::query()
+                        $groups = DocumentgroupName::query()
                             ->select('documentgroup_names.*')
                             ->get();
                     }
@@ -1959,7 +1963,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 
                         // does user have this permission?
 
-                        $count = \EvolutionCMS\Models\MembergroupAccess::query()
+                        $count = MembergroupAccess::query()
                             ->join('member_groups', 'member_groups.user_group', '=', 'membergroup_access.membergroup')
                             ->where('membergroup_access.documentgroup', $row['id'])
                             ->where('member_groups.member', $_SESSION['mgrInternalKey'])->count();
@@ -1985,7 +1989,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                         if ($isManager && $isWeb) {
                             array_unshift(
                                 $permissions,
-                                "\t\t" . '<li><input type="checkbox" class="checkbox" name="chkalldocs" id="groupall"' . (empty($notPublic) ? ' checked="checked"' : '') . ' onclick="makePublic(true);" /><label for="groupall" class="warning">' . $_lang['all_doc_groups'] . '</label></li>'
+                                '<li><input type="checkbox" class="checkbox" name="chkalldocs" id="groupall"' . (empty($notPublic) ? ' checked="checked"' : '') . ' onclick="makePublic(true);" /><label for="groupall" class="warning">' . $_lang['all_doc_groups'] . '</label></li>'
                             );
                         }
                         // Output the permissions list...
