@@ -29,7 +29,7 @@ class SessionServiceProvider extends IlluminateSessionServiceProvider
      */
     public function handleExitWithSession()
     {
-        $request = request();
+        $request = new Request;
 
         if (!$this->sessionConfigured() ||
             !$request->getSession() ||
