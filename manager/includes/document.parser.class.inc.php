@@ -4125,7 +4125,7 @@ class DocumentParser
 
         if($this->isBackend()) {
             if($_SESSION['mgrRole']==1) {
-                return '';
+                return '1=1';
             }
             return $docgrp
                 ? 'sc.privatemgr=0 OR dg.document_group IN (' . $docgrp . ')'
