@@ -177,7 +177,7 @@ if (count($moduleTVs) > 0) {
         $category = getCreateDbCategory($category, $sqlParser);
 
         $tmplavr = \EvolutionCMS\Models\SiteTmplvar::where('name', $name);
-        if ($tmplavr->count() > 0) {
+        if ($tmplavr && $tmplavr->count() > 0) {
             $insert = true;
             foreach ($tmplavr->get()->toArray() as $row) {
                 \EvolutionCMS\Models\SiteTmplvar::query()->where('id', $row['id'])->update(['type' => $input_type, 'caption' => $caption, 'description' => $desc, 'category' => $category, 'locked' => $locked, 'elements' => $input_options, 'display' => $output_widget, 'display_params' => $output_widget_params, 'default_text' => $input_default]);
@@ -209,7 +209,7 @@ if (count($moduleTVs) > 0) {
                             $template_name = $template_name->where('templatename', $template);
 
                         $template_name = $template_name->first();
-                        if (!is_null($ts)) {
+                        if (!is_null($template_name)) {
                             \EvolutionCMS\Models\SiteTmplvarTemplate::query()->create(['tmplvarid' => $templateVar->getKey(), 'templateid' => $template_name->getKey()]);
                         }
                     }
