@@ -1,10 +1,8 @@
 # assets
 /assets/backup/*
 !/assets/backup/index.html
-!/assets/backup/.htaccess
 
 /assets/cache/*
-!/assets/cache/.htaccess
 !/assets/cache/index.html
 !/assets/cache/siteManager.php
 !/assets/cache/sitePublishing.idx.php
@@ -13,31 +11,25 @@
 !/assets/cache/updater/index.html
 
 /assets/docs/*
-!/assets/docs/.htaccess
 !/assets/docs/changelog.txt
 !/assets/docs/index.html
 !/assets/docs/license.txt
 
 /assets/export/*
 !/assets/export/index.html
-!/assets/export/.htaccess
 
 /assets/files/*
 !/assets/files/index.html
-!/assets/files/.htaccess
 
 /assets/images/*
 !/assets/images/index.html
 !/assets/images/evo-logo.png
-!/assets/images/.htaccess
 
 /assets/import/*
 !/assets/import/index.html
-!/assets/import/.htaccess
 
 /assets/site/*
 !/assets/site/index.html
-!/assets/site/.htaccess
 
 # Core
 /core/.install
@@ -49,7 +41,6 @@
 # Composer
 /composer.phar
 
-!/vendor/.htaccess
 !/vendor/index.html
 
 # IDE Helper
@@ -61,17 +52,19 @@ _ide_helper.php
 /node_modules
 npm-debug.log
 
-
 #docker
 /docker/nginx/logs/*
+
 # System
 ftpsync.settings
 Thumbs.db
 Desktop.ini
 .DS_Store
+
 .idea
 .vagrant
 .rocketeer
+**/.htaccess
 
 # except do not ignore .gitignore
 !.gitignore
