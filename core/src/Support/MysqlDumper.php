@@ -11,7 +11,7 @@ use EvolutionCMS\Interfaces\MysqlDumperInterface;
  * @copyright Dennis Mozes
  * @license GNU/LGPL License: http://www.gnu.org/copyleft/lgpl.html
  *
- * Modified by Raymond for use with this module
+ * Modified by Raymond and Seiger for use with this module
  *
  **/
 class MysqlDumper implements MysqlDumperInterface
@@ -82,14 +82,15 @@ class MysqlDumper implements MysqlDumperInterface
         $databaseName = $dataBaseConfig['database'];
 
         $sql =  'SELECT table_name AS "table", round(((data_length + index_length) / 1024 / 1024)) "size" FROM information_schema.TABLES WHERE table_schema = "'.$databaseName.'"';
-        $tableSizes = array_column($modx->db->makeArray($modx->db->query($sql)),'size','table');
+        $tableSizes = array_column($modx->db->makeArray($modx->db->query($sql)), 'size', 'table');
+
+        // Sort tables by foreign key dependencies
+        $tables = $this->sortTablesByDependencies($this->_dbtables);
 
         // Set line feed
         $lf = "\n";
         $tempfile_path = MODX_BASE_PATH . 'assets/backup/temp.php';
 
-        $result = $modx->getDatabase()->query('SHOW TABLES');
-        $tables = $this->result2Array(0, $result);
         foreach ($tables as $tblval) {
             $result = $modx->getDatabase()->query("SHOW CREATE TABLE `{$tblval}`");
             $createtable[$tblval] = $this->result2Array(1, $result);
@@ -122,8 +123,6 @@ class MysqlDumper implements MysqlDumperInterface
 
 
         foreach ($tables as $tblval) {
-
-
             // check for selected table
             if (isset($this->_dbtables)) {
                 if (strstr(",{$this->_dbtables},", ",{$tblval},") === false) {
@@ -175,7 +174,7 @@ class MysqlDumper implements MysqlDumperInterface
 
 
                 while ($arr = $modx->getDatabase()->getRow($result)) {
-                    //формируем блок  значений
+                    //формируем блок значений
                     $insertdump = "(";
                     if (!is_array($arr)) $arr = array();
 
@@ -309,4 +308,82 @@ class MysqlDumper implements MysqlDumperInterface
         $this->snapshootFile = $file;
     }
 
+    /**
+     * Sorts the tables based on their foreign key dependencies.
+     *
+     * This method sorts the given list of tables in a way that ensures tables with no dependencies (or primary tables)
+     * are processed first, followed by tables that depend on other tables through foreign keys.
+     * It uses a topological sorting approach to ensure that tables with dependencies are created in the correct order.
+     * The method relies on the **getForeignKeyDependencies()** method to retrieve the dependencies of each table.
+     *
+     * @param array $dbtables An array of table names to be sorted based on their dependencies.
+     *
+     * @return array The sorted array of table names, with dependent tables placed after the ones they rely on.
+     */
+    public function sortTablesByDependencies($dbtables)
+    {
+        $sorted = [];
+        $visited = [];
+        $dependencies = $this->getForeignKeyDependencies($dbtables);
+
+        foreach ($dbtables as $table) {
+            $this->visitTable($table, $dependencies, $visited, $sorted);
+        }
+
+        return $sorted;
+    }
+
+    /**
+     * Retrieves all foreign key dependencies for the given tables.
+     * Returns an associative array with tables and their dependencies.
+     */
+    public function getForeignKeyDependencies($tables)
+    {
+        $dependencies = [];
+
+        foreach ($tables as $table) {
+            $sql = "SHOW CREATE TABLE `$table`";
+            $result = evo()->db->query($sql);
+            $createTableQuery = evo()->db->getRow($result)['Create Table'];
+            preg_match_all('/FOREIGN KEY \(`([^`]+)`\) REFERENCES `([^`]+)` \(`([^`]+)`\)/', $createTableQuery, $matches);
+
+            if (!empty($matches[2])) {
+                foreach ($matches[2] as $index => $referencedTable) {
+                    $dependencies[$table][] = $referencedTable;
+                }
+            }
+        }
+
+        return $dependencies;
+    }
+
+    /**
+     * Checks the table and its dependencies, visits all the tables it depends on, and adds them to the sorted list.
+     *
+     * This method recursively visits tables, checking their dependencies, and adds them to the **$sorted** array.
+     * If a table has already been visited, it is skipped.
+     * It works based on the principle of topological sorting to ensure the correct order of table creation
+     * during the dump process, taking foreign keys into account.
+     *
+     * @param string $table The name of the table to check.
+     * @param array $dependencies An associative array containing tables and their dependencies.
+     * @param array $visited An array containing already visited tables to avoid circular references.
+     * @param array $sorted An array where tables are added after visiting their dependencies.
+     */
+    private function visitTable($table, $dependencies, &$visited, &$sorted)
+    {
+        if (isset($visited[$table])) {
+            return;
+        }
+
+        $visited[$table] = true;
+
+        if (isset($dependencies[$table])) {
+            foreach ($dependencies[$table] as $dependentTable) {
+                $this->visitTable($dependentTable, $dependencies, $visited, $sorted);
+            }
+        }
+
+        $sorted[] = $table;
+    }
 }
