@@ -9,6 +9,7 @@ use EvolutionCMS\Models\ActiveUserLock;
 use EvolutionCMS\Models\ActiveUserSession;
 use EvolutionCMS\Models\DocumentGroup;
 use EvolutionCMS\Models\EventLog;
+use EvolutionCMS\Models\MembergroupAccess;
 use EvolutionCMS\Models\MembergroupName;
 use EvolutionCMS\Models\SiteContent;
 use EvolutionCMS\Models\SitePlugin;
@@ -5173,12 +5174,16 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     public function getUserDocGroups($resolveIds = false)
     {
         $context = $this->getContext();
-        if (isset($_SESSION[$context . 'Docgroups']) && isset($_SESSION[$context . 'Validated'])) {
+
+        if ($context == 'web' && isset($_SESSION['mgrValidated']) && (isset($_SESSION['mgrRole']) && $_SESSION['mgrRole'] == 1)) {
+            $dg = MembergroupAccess::pluck('documentgroup')->toArray();
+        } elseif (isset($_SESSION[$context . 'Docgroups']) && isset($_SESSION[$context . 'Validated'])) {
             $dg = $_SESSION[$context . 'Docgroups'];
             $dgn = isset($_SESSION[$context . 'DocgrpNames']) ? $_SESSION[$context . 'DocgrpNames'] : false;
         } else {
             $dg = '';
         }
+
         if (!$resolveIds) {
             return $dg;
         }

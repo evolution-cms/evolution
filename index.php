@@ -108,19 +108,16 @@ if (!defined('MODX_CLI')) {
     define('MODX_CLI', false);
 }
 
-// initiate a new document parser
-$modx = evolutionCMS();
-
-// set some parser options
-$modx->minParserPasses = 1; // min number of parser recursive loops or passes
-$modx->maxParserPasses = 10; // max number of parser recursive loops or passes
-$modx->dumpSQL = false;
-$modx->dumpSnippets = false; // feed the parser the execution start time
-$modx->dumpPlugins = false;
-$modx->mstart = $mstart;
+// Initiate a new document parser
+evo()->minParserPasses = 1; // min number of parser recursive loops or passes
+evo()->maxParserPasses = 10; // max number of parser recursive loops or passes
+evo()->dumpSQL = false;
+evo()->dumpSnippets = false; // feed the parser the execution start time
+evo()->dumpPlugins = false;
+evo()->mstart = $mstart;
 
 // Debugging mode:
-$modx->stopOnNotice = false;
+evo()->stopOnNotice = false;
 
 // Don't show PHP errors to the public
 if (!isset($_SESSION['mgrValidated']) || !$_SESSION['mgrValidated']) {
@@ -132,7 +129,7 @@ if (is_cli()) {
     @ini_set('max_execution_time', 0);
 }
 
-// execute the parser if index.php was not included
+// Execute the parser if index.php was not included
 if (!MODX_API_MODE && !MODX_CLI) {
-    $modx->processRoutes();
+    evo()->processRoutes();
 }

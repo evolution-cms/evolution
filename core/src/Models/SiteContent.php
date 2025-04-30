@@ -2067,8 +2067,8 @@ class SiteContent extends Eloquent\Model
     {
         $query->leftJoin('document_groups', 'document_groups.document', '=', 'site_content.id');
         $query->where(function($query){
-            $docgrp = EvolutionCMS()->getUserDocGroups();
-            if (EvolutionCMS()->isFrontend()) {
+            $docgrp = evo()->getUserDocGroups();
+            if (evo()->isFrontend()) {
                 $query->where('privateweb', 0);
             } else {
                 $query->whereRaw("1 = {$_SESSION['mgrRole']}");
