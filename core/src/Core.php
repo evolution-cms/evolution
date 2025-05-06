@@ -5177,6 +5177,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
         if ($context == 'web' && isset($_SESSION['mgrValidated']) && (isset($_SESSION['mgrRole']) && $_SESSION['mgrRole'] == 1)) {
             $dg = MembergroupAccess::pluck('documentgroup')->toArray();
+        } elseif ($context == 'web' && isset($_SESSION['mgrValidated'])) {
+            $dg = array_merge(($_SESSION['mgrDocgroups'] ?? []), ($_SESSION['webDocgroups'] ?? []));
         } elseif (isset($_SESSION[$context . 'Docgroups']) && isset($_SESSION[$context . 'Validated'])) {
             $dg = $_SESSION[$context . 'Docgroups'];
             $dgn = isset($_SESSION[$context . 'DocgrpNames']) ? $_SESSION[$context . 'DocgrpNames'] : false;
