@@ -37,7 +37,8 @@
   "require": {
     "php": ">=8.2",
     "ext-pdo": "*",
-    "ext-json": "*"
+    "ext-json": "*",
+    "ext-xml": "*"
   },
   "minimum-stability": "dev",
   "prefer-stable": true
