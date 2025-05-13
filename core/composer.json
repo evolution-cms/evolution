@@ -39,6 +39,7 @@
     "ext-json": "*",
     "ext-libxml": "*",
     "ext-mbstring": "*",
+    "ext-xml": "*",
     "ext-SimpleXML": "*",
     "guzzlehttp/guzzle": "^7.0.1",
     "illuminate/cache": "10.*",
