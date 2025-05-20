@@ -93,15 +93,15 @@ class DocManagerBackend {
 							$tmplvar = $_POST["tv" . $row['id']];
 					} else {
 						if (is_array($_POST["tv" . $tvKeyName])) {
-							$feature_insert = array();
-							$lst = $_POST["tv".$row['id']];
-							while (list($featureValue, $feature_item) = each ($lst)) {
-								$feature_insert[count($feature_insert)] = $feature_item;
+							$feature_insert = [];
+							$lst = $_POST["tv" . $row['id']];
+							foreach ($lst as $featureValue => $feature_item) {
+								$feature_insert[] = $feature_item;
 							}
-							$tmplvar = implode("||",$feature_insert);
-         				} else {
-  	  	    				$tmplvar = $_POST["tv".$row['id']];
-         				}
+							$tmplvar = implode("||", $feature_insert);
+						} else {
+							$tmplvar = $_POST["tv" . $row['id']];
+						}
 					}
 					$tmplVars["{$tvKeyName}"] = $tmplvar;
 				}

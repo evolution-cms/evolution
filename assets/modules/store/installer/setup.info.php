@@ -195,15 +195,15 @@ function clean_up($sqlParser) {
     }
 
     // secure web documents - privateweb
-    mysql_query("UPDATE `".$modx->db->config['table_prefix']."site_content` SET privateweb = 0 WHERE privateweb = 1",$sqlParser->conn);
+    $modx->db->query("UPDATE `".$modx->db->config['table_prefix']."site_content` SET privateweb = 0 WHERE privateweb = 1");
     $sql =  "SELECT DISTINCT sc.id
              FROM `".$modx->db->config['table_prefix']."site_content` sc
              LEFT JOIN `".$modx->db->config['table_prefix']."document_groups` dg ON dg.document = sc.id
              LEFT JOIN `".$modx->db->config['table_prefix']."webgroup_access` wga ON wga.documentgroup = dg.document_group
              WHERE wga.id>0";
-    $ds = $modx->db->queryquery($sql);
+    $ds = $modx->db->query($sql);
     if(!$ds) {
-        echo "An error occurred while executing a query: ".mysql_error();
+        echo "An error occurred while executing a query: ".$modx->db->getLastError();
     }
     else {
         while($r = $modx->db->GetRow($ds,'assoc')) $ids[]=$r["id"];
@@ -214,7 +214,7 @@ function clean_up($sqlParser) {
     }
 
     // secure manager documents privatemgr
-    mysql_query("UPDATE `".$modx->db->config['table_prefix']."site_content` SET privatemgr = 0 WHERE privatemgr = 1");
+    $modx->db->query("UPDATE `".$modx->db->config['table_prefix']."site_content` SET privatemgr = 0 WHERE privatemgr = 1");
     $sql =  "SELECT DISTINCT sc.id
              FROM `".$modx->db->config['table_prefix']."site_content` sc
              LEFT JOIN `".$modx->db->config['table_prefix']."document_groups` dg ON dg.document = sc.id
@@ -222,7 +222,7 @@ function clean_up($sqlParser) {
              WHERE mga.id>0";
     $ds = $modx->db->query($sql);
     if(!$ds) {
-        echo "An error occurred while executing a query: ".mysql_error();
+        echo "An error occurred while executing a query: " . $modx->db->getLastError();
     }
     else {
         while($r = $modx->db->GetRow($ds,'assoc')) $ids[]=$r["id"];
