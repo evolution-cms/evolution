@@ -198,7 +198,7 @@ if (count($moduleTVs )>0) {
                 if (count($assignments) > 0) {
 
                     // remove existing tv -> template assignments
-                    $ds=$modx->db->query("SELECT id FROM `".$table_prefix."site_tmplvars` WHERE name='$name' AND description='$desc';",$sqlParser->conn);
+                    $ds=$modx->db->query("SELECT id FROM `".$table_prefix."site_tmplvars` WHERE name='$name' AND description='$desc';");
                     $row = $modx->db->getRow($ds,'assoc');
                     $id = $row["id"];
                     $modx->db->query('DELETE FROM ' . $dbase . '.`' . $table_prefix . 'site_tmplvar_templates` WHERE tmplvarid = \'' . $id . '\'');
@@ -380,7 +380,7 @@ if (count($modulePlugins )>0) {
                         $prev_id = $row['id'];
                     }
                     if($insert === true) {
-                        if(!@$modx->db->query("INSERT INTO `".$table_prefix."site_plugins` (name,description,plugincode,properties,moduleguid,disabled,category) VALUES('$name','$desc','$plugin','$props','$guid','0','$category');",$sqlParser->conn)) {
+                        if(!@$modx->db->query("INSERT INTO `".$table_prefix."site_plugins` (name,description,plugincode,properties,moduleguid,disabled,category) VALUES('$name','$desc','$plugin','$props','$guid','0','$category');")) {
                             echo "<p>" . $modx->db->getLastError() . "</p>";
                             return;
                         }
@@ -397,7 +397,7 @@ if (count($modulePlugins )>0) {
                 }
                 // add system events
                 if (count($events) > 0) {
-                    $ds=$modx->db->query("SELECT id FROM `".$table_prefix."site_plugins` WHERE name='$name' AND description='$desc' ORDER BY id DESC LIMIT 1;",$sqlParser->conn);
+                    $ds=$modx->db->query("SELECT id FROM `".$table_prefix."site_plugins` WHERE name='$name' AND description='$desc' ORDER BY id DESC LIMIT 1;");
                     if ($ds) {
                         $row = $modx->db->getRow($ds,'assoc');
                         $id = $row["id"];
