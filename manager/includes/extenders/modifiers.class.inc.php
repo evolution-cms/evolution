@@ -632,8 +632,11 @@ class MODIFIERS {
                     if($opt=='') $opt = 0;
                     return number_format($value,$opt);
             case 'money_format':
-                    setlocale(LC_MONETARY,setlocale(LC_TIME,0));
-                    if($value!=='') return money_format($opt,(double)$value);
+                    if ($value !== '') {
+                        $locale = setlocale(LC_TIME, 0); // або LC_MONETARY
+                        $fmt = new \NumberFormatter($locale, \NumberFormatter::CURRENCY);
+                        return $fmt->formatCurrency((float) $value, $opt);
+                    }
                     break;
             case 'tobool':
                 return boolval($value);
