@@ -116,7 +116,7 @@ $_lang["installing_demo_site"] = 'サンプルサイトのインストール: ';
 $_lang["language_code"] = 'ja';
 $_lang["loading"] = '処理中...';
 $_lang["modules"] = 'モジュール';
-$_lang["modx_footer1"] = '&copy; 2005 - 2024 the <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> Content Management Framework (CMF) project. All rights reserved. Evolution CMS は GPL に基づいて使用が許諾されます。';
+$_lang["modx_footer1"] = '&copy; 2005 - [+current_year+] the <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> Content Management Framework (CMF) project. All rights reserved. Evolution CMS は GPL に基づいて使用が許諾されます。';
 $_lang["modx_footer2"] = 'Evo はフリーソフトウェアです。私たちはあなたが創造的であり、あなたが適当であると思われる方法で EVO を利用することを奨励します。変更を加えて、変更した EVO を再配布する場合は、必ずソースコードフリーを保持してください。';
 $_lang["modx_install"] = 'EVO &raquo; インストール';
 $_lang["modx_requires_php"] = 'EVOの動作にはPHP [+min_version+]以上が必要です。';

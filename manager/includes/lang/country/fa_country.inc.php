@@ -4,11 +4,10 @@
  *
  * @version 1.0.15
  * @date 2014/02/24
- * @author Mohsen (MotSmart), www.modxcms.ir
  *
- * @language Persian
+ * @language English
  * @package modx
- * @subpackage installer
+ * @subpackage manager
  *
  * Array keys refer to the ID number that is saved in the database
  *

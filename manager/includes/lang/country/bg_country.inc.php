@@ -5,7 +5,7 @@
  * @version 1.0.15
  * @date 2014/02/24
  *
- * @language Bulgarian
+ * @language English
  * @package modx
  * @subpackage manager
  *

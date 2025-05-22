@@ -115,7 +115,7 @@ $_lang["installing_demo_site"] = 'نصب محتوای سایت پیشفرض (د�
 $_lang["language_code"] = 'fa';
 $_lang["loading"] = 'در حال بارگذاری ...';
 $_lang["modules"] = 'ماژولها';
-$_lang["modx_footer1"] = '&copy; 2005 - 2024 کلیه ی حقوق برای پروژه ی سیستم مدیریت محتوای <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">مادایکس</a> محفوظ است. مادایکس تحت لیسانس GNU-GPL است.';
+$_lang["modx_footer1"] = '&copy; 2005 - [+current_year+] کلیه ی حقوق برای پروژه ی سیستم مدیریت محتوای <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">مادایکس</a> محفوظ است. مادایکس تحت لیسانس GNU-GPL است.';
 $_lang["modx_footer2"] = 'مادایکس نرم افزاری رایگان است، ما شما را تشویق به خلاقیت می کنیم، شما می توانید به منظور هماهنگی مادایکس با نیازهای خود، هر تغییری را در آن اعمال کنید. چنانچه قصد ارائه نسخه مادایکس ویژه خود به دیگران را دارید حتما آن را رایگان ارائه کنید!';
 $_lang["modx_install"] = 'MODX &raquo; برنامه نصب';
 $_lang["modx_requires_php"] = ', است, و مادایکس به نسخه ی PHP [+min_version+] و یا بالاتر نیاز دار';

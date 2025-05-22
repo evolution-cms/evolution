@@ -5,7 +5,7 @@
  * @version 1.0.13
  * @date 31/12/2013
  *
- * @language Japanese
+ * @language English
  * @package modx
  * @subpackage manager
  *
