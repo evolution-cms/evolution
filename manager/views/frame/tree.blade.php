@@ -1,8 +1,9 @@
 <?php
-$evtOut = evo()->invokeEvent('OnManagerTreeInit', $_REQUEST);
-if (is_array($evtOut)) {
-    echo implode("\n", $evtOut);
-}?>
+    $evtOut = evo()->invokeEvent('OnManagerTreeInit', $_REQUEST);
+    if (is_array($evtOut)) {
+        echo implode("\n", $evtOut);
+    }
+?>
 
 <div class="treeframebody">
     <div id="treeMenu">
@@ -29,16 +30,16 @@ if (is_array($evtOut)) {
         @if(evo()->hasPermission('empty_trash'))
             <a class="treeButton treeButtonDisabled" id="treeMenu_emptytrash" title="{{ ManagerTheme::getLexicon('empty_recycle_bin_empty') }}"><i class="{{ $_style['icon_trash'] }}"></i></a>
         @endif
-        <a class="treeButton" id="treeMenu_theme_dark" onclick="modx.tree.toggleTheme(event)" title="{{ ManagerTheme::getLexicon('manager_theme_mode_title') }}"><i class="{{ $_style['icon_theme'] }}"></i></a>
+        {{-- <a class="treeButton" id="treeMenu_theme_dark" onclick="modx.tree.toggleTheme(event)" title="{{ ManagerTheme::getLexicon('manager_theme_mode_title') }}"><i class="{{ $_style['icon_theme'] }}"></i></a> --}}
     </div>
 
     <div id="treeHolder">
         <?php
-        $evtOut = evo()->invokeEvent('OnManagerTreePrerender', $_REQUEST);
-        if(is_array($evtOut)) {
-            echo implode("\n", $evtOut);
-        }
-        $siteName = evo()->getPhpCompat()->entities(evo()->getConfig('site_name'));
+            $evtOut = evo()->invokeEvent('OnManagerTreePrerender', $_REQUEST);
+            if (is_array($evtOut)) {
+                echo implode("\n", $evtOut);
+            }
+            $siteName = evo()->getPhpCompat()->entities(evo()->getConfig('site_name'));
         ?>
 
         <div id="node0" class="rootNode"><a class="node" onclick="modx.tree.treeAction(event, 0)" data-id="0" data-title-esc="{{ $siteName }}"><span class="icon"><i class="{{ $_style['icon_sitemap'] }}"></i></span><span class="title">{{ $siteName }}</span></a>
@@ -47,9 +48,10 @@ if (is_array($evtOut)) {
         <div id="treeRoot0" class="treeRoot"></div>
 
         <?php
-        $evtOut = evo()->invokeEvent('OnManagerTreeRender', $_REQUEST);
-        if (is_array($evtOut)) {
-            echo implode("\n", $evtOut);
-        } ?>
+            $evtOut = evo()->invokeEvent('OnManagerTreeRender', $_REQUEST);
+            if (is_array($evtOut)) {
+                echo implode("\n", $evtOut);
+            }
+        ?>
     </div>
 </div>

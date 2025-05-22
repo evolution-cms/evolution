@@ -240,10 +240,17 @@
                                 </li>
                             </ul>
                         </li>
-                        @if (evo()->hasPermission('settings') ||
+                        <li id="theme">
+                            <a id="treeMenu_theme_dark" onclick="modx.tree.toggleTheme(event)" title="{{ManagerTheme::getLexicon('manager_theme_mode_title')}}">
+                                <i class="{{$_style['icon_theme']}}"></i>
+                            </a>
+                        </li>
+                        @if (
+                            evo()->hasPermission('settings') ||
                             evo()->hasPermission('view_eventlog') ||
                             evo()->hasPermission('logs') ||
-                            evo()->hasPermission('help'))
+                            evo()->hasPermission('help')
+                        )
                             <li id="system" class="dropdown">
                                 <a href="javascript:;" class="dropdown-toggle" title="{{ManagerTheme::getLexicon('system')}}" onclick="return false;">
                                     <i class="{{$_style['icon_cogs']}}"></i>
