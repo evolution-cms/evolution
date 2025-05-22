@@ -194,11 +194,11 @@
     }
     $ph['OnlineInfo'] = $html;
 
-    // include rss feeds for important forum topics
-    // Here you can set the urls to retrieve the RSS from. Simply add a $urls line following the numbering progress in the square brakets.
+    // Include rss feeds for important forum topics
+    // Here you can set the urls to retrieve the RSS from. Add a $urls line following the numbering progress in the square brackets.
 
-    $urls['modx_news_content'] = evo()->getConfig('rss_url_news');
-    $urls['modx_security_notices_content'] = evo()->getConfig('rss_url_security');
+    $urls['evo_news_content'] = evo()->getConfig('rss_url_news');
+    $urls['evo_security_notices_content'] = evo()->getConfig('rss_url_security');
 
     // How many items per Feed?
     $itemsNumber = 3;
@@ -238,8 +238,8 @@
         $feedData[$section] = $output;
     }
 
-    $ph['modx_security_notices_content'] = $feedData['modx_security_notices_content'];
-    $ph['modx_news_content'] = $feedData['modx_news_content'];
+    $ph['evo_security_notices_content'] = $feedData['evo_security_notices_content'];
+    $ph['evo_news_content'] = $feedData['evo_news_content'];
 
     $ph['theme'] = evo()->getConfig('manager_theme');
     $ph['site_name'] = evo()->getPhpCompat()->entities(evo()->getConfig('site_name'));
@@ -430,7 +430,7 @@
             'cols' => 'col-sm-6',
             'icon' => 'fa-rss',
             'title' => '[%modx_news_title%]',
-            'body' => '<div style="max-height:200px;overflow-y: scroll;padding: 1rem .5rem">[+modx_news_content+]</div>',
+            'body' => '<div style="max-height:200px;overflow-y: scroll;padding: 1rem .5rem">[+evo_news_content+]</div>',
             'hide' => '0',
         ];
     }
@@ -441,7 +441,7 @@
             'cols' => 'col-sm-6',
             'icon' => 'fa-exclamation-triangle',
             'title' => '[%security_notices_title%]',
-            'body' => '<div style="max-height:200px;overflow-y: scroll;padding: 1rem .5rem">[+modx_security_notices_content+]</div>',
+            'body' => '<div style="max-height:200px;overflow-y: scroll;padding: 1rem .5rem">[+evo_security_notices_content+]</div>',
             'hide' => '0',
         ];
     }
