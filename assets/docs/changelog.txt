@@ -1,6 +1,24 @@
 This file shows the changes in recent releases of Evolution CMS. The most current release is usually the
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
+Evolution CMS 3.2.6 (May 25, 2025)
+* [GitHub: c6db1d0] - Add Implemented automatic detection of foreign key dependency handling for database backup. (Seiger)
+* [GitHub: 4e1078c] - Add EVO_ define configs. (Seiger)
+* [GitHub: 746d8c7] - Add Composer update in CLI installation. (Seiger)
+* [GitHub: e0ee516] - Add Azerbaijani lang. (Seiger)
+* [GitHub: 50c6d16] - Add DE core updater. (Seiger)
+* [GitHub: 74bd6e5] - Add Access to all groups is Role Admin on frontend. (Seiger)
+* [GitHub: 6654bf6] - Add Name of the module being Execute module. (Seiger)
+* [GitHub: 54c455e] - Add Ability to log module events. (Seiger)
+* [GitHub: e836aa7] - Add Daily log with project name. (Seiger)
+* [GitHub: 0986af2] - Fix Replaced hardcoded path with actual one in the error description. (elcreator)
+* [GitHub: 2c4a0dc] - Fix Inability to log in to admin panel if NO_SESSION is set. (elcreator)
+* [GitHub: 9ca046e] - Fix Assets path and Url generate. (Seiger)
+* [GitHub: af8c774] - Fix TracyServiceProvider for PHP 8+. (Juniorbuka)
+* [GitHub: 2376df3] - Fix RSS widgets error if an RSS link is empty. (Seiger)
+* [GitHub: 464b891] - Fix Last active users action. (Seiger)
+* [GitHub: 9436cb6] - Fix Deprecated htmlspecialchars(). (Seiger)
+
 Evolution CMS 3.2.5 (May 31, 2024)
 * [GitHub: 25400e7] - Fix PHP 8.3 fixes. (Seiger)
 * [GitHub: e275891] - Fix Json error in TV Controller. (Seiger)
