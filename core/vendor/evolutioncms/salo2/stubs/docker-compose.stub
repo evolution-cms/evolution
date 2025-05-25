@@ -1,5 +1,4 @@
-# For more information: https://laravel.com/docs/salo
-version: '3'
+# For more information: https://laravel.com/docs/sail
 services:
     evo.php:
         build:

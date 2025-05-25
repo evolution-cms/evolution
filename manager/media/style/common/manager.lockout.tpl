@@ -78,7 +78,7 @@
 
 <!-- convert this to a language include -->
 <p class="loginLicense">
-	<strong>Evolution CMS</strong>&trade; is licensed under the GPL license. &copy; 2005 - 2024 <a href="https://evo.im/" target="_blank">Evolution CMS</a>.
+	<strong>Evolution CMS</strong>&trade; is licensed under the GPL license. &copy; 2005 - 2025 <a href="https://evo.im/" target="_blank">Evolution CMS</a>.
 </p>
 
 </body>

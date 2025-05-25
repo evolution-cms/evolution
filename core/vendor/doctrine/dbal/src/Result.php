@@ -264,7 +264,7 @@ class Result
      *
      * @deprecated Use {@see fetchNumeric()}, {@see fetchAssociative()} or {@see fetchOne()} instead.
      *
-     * @psalm-param FetchMode::* $mode
+     * @phpstan-param FetchMode::* $mode
      *
      * @return mixed
      *
@@ -303,7 +303,7 @@ class Result
      *
      * @deprecated Use {@see fetchAllNumeric()}, {@see fetchAllAssociative()} or {@see fetchFirstColumn()} instead.
      *
-     * @psalm-param FetchMode::* $mode
+     * @phpstan-param FetchMode::* $mode
      *
      * @return list<mixed>
      *

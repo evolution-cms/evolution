@@ -4,7 +4,7 @@
 
 [![CMS Evolution](https://img.shields.io/badge/CMS-Evolution-brightgreen.svg)](https://github.com/evolution-cms/evolution)
 [![GitHub release](https://img.shields.io/github/release/evolution-cms/evolution.svg)](https://github.com/evolution-cms/evolution/releases)
-![PHP version](https://img.shields.io/badge/PHP->=v8.1-red.svg?php=8.1)
+![PHP version](https://img.shields.io/badge/PHP->=v8.2-red.svg?php=8.2)
 [![Issues](https://img.shields.io/github/issues-closed-raw/evolution-cms/evolution.svg?maxAge=2592000)](https://github.com/evolution-cms/evolution/issues)
 [![Total Installs](https://img.shields.io/packagist/dt/evolutioncms/evolution)](https://packagist.org/packages/evolutioncms/evolution)
 [![Code quality](https://img.shields.io/scrutinizer/g/evolution-cms/evolution.svg?maxAge=2592000&b=develop)](https://scrutinizer-ci.com/g/evolution-cms/evolution/?branch=develop)

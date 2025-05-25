@@ -116,7 +116,7 @@ class PathRepository extends ArrayRepository implements ConfigurableRepositoryIn
         $this->loader = new ArrayLoader(null, true);
         $this->url = Platform::expandPath($repoConfig['url']);
         $this->process = $process ?? new ProcessExecutor($io);
-        $this->versionGuesser = new VersionGuesser($config, $this->process, new VersionParser());
+        $this->versionGuesser = new VersionGuesser($config, $this->process, new VersionParser(), $io);
         $this->repoConfig = $repoConfig;
         $this->options = $repoConfig['options'] ?? [];
         if (!isset($this->options['relative'])) {
@@ -181,7 +181,7 @@ class PathRepository extends ArrayRepository implements ConfigurableRepositoryIn
             if ('none' === $reference) {
                 $package['dist']['reference'] = null;
             } elseif ('config' === $reference || 'auto' === $reference) {
-                $package['dist']['reference'] = sha1($json . serialize($this->options));
+                $package['dist']['reference'] = hash('sha1', $json . serialize($this->options));
             }
 
             // copy symlink/relative options to transport options
@@ -194,16 +194,16 @@ class PathRepository extends ArrayRepository implements ConfigurableRepositoryIn
             // carry over the root package version if this path repo is in the same git repository as root package
             if (!isset($package['version']) && ($rootVersion = Platform::getEnv('COMPOSER_ROOT_VERSION'))) {
                 if (
-                    0 === $this->process->execute('git rev-parse HEAD', $ref1, $path)
-                    && 0 === $this->process->execute('git rev-parse HEAD', $ref2)
+                    0 === $this->process->execute(['git', 'rev-parse', 'HEAD'], $ref1, $path)
+                    && 0 === $this->process->execute(['git', 'rev-parse', 'HEAD'], $ref2)
                     && $ref1 === $ref2
                 ) {
-                    $package['version'] = $rootVersion;
+                    $package['version'] = $this->versionGuesser->getRootVersionFromEnv();
                 }
             }
 
             $output = '';
-            if ('auto' === $reference && is_dir($path . DIRECTORY_SEPARATOR . '.git') && 0 === $this->process->execute('git log -n1 --pretty=%H'.GitUtil::getNoShowSignatureFlag($this->process), $output, $path)) {
+            if ('auto' === $reference && is_dir($path . DIRECTORY_SEPARATOR . '.git') && 0 === $this->process->execute(array_merge(['git', 'log', '-n1', '--pretty=%H'], GitUtil::getNoShowSignatureFlags($this->process)), $output, $path)) {
                 $package['dist']['reference'] = trim($output);
             }
 

@@ -13,6 +13,7 @@
 namespace Composer\Command;
 
 use Composer\Package\Link;
+use Composer\Package\Package;
 use Composer\Package\PackageInterface;
 use Composer\Package\CompletePackageInterface;
 use Composer\Package\RootPackage;
@@ -24,6 +25,8 @@ use Composer\Repository\PlatformRepository;
 use Composer\Repository\RepositoryFactory;
 use Composer\Plugin\CommandEvent;
 use Composer\Plugin\PluginEvents;
+use Composer\Semver\Constraint\Bound;
+use Composer\Util\Platform;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Composer\Package\Version\VersionParser;
@@ -102,13 +105,30 @@ abstract class BaseDependencyCommand extends BaseCommand
 
         // If the version we ask for is not installed then we need to locate it in remote repos and add it.
         // This is needed for why-not to resolve conflicts from an uninstalled version against installed packages.
-        if (!$installedRepo->findPackage($needle, $textConstraint)) {
+        $matchedPackage = $installedRepo->findPackage($needle, $textConstraint);
+        if (!$matchedPackage) {
             $defaultRepos = new CompositeRepository(RepositoryFactory::defaultRepos($this->getIO(), $composer->getConfig(), $composer->getRepositoryManager()));
             if ($match = $defaultRepos->findPackage($needle, $textConstraint)) {
                 $installedRepo->addRepository(new InstalledArrayRepository([clone $match]));
+            } elseif (PlatformRepository::isPlatformPackage($needle)) {
+                $parser = new VersionParser();
+                $constraint = $parser->parseConstraints($textConstraint);
+                if ($constraint->getLowerBound() !== Bound::zero()) {
+                    $tempPlatformPkg = new Package($needle, $constraint->getLowerBound()->getVersion(), $constraint->getLowerBound()->getVersion());
+                    $installedRepo->addRepository(new InstalledArrayRepository([$tempPlatformPkg]));
+                }
             } else {
                 $this->getIO()->writeError('<error>Package "'.$needle.'" could not be found with constraint "'.$textConstraint.'", results below will most likely be incomplete.</error>');
             }
+        } elseif (PlatformRepository::isPlatformPackage($needle)) {
+            $extraNotice = '';
+            if (($matchedPackage->getExtra()['config.platform'] ?? false) === true) {
+                $extraNotice = ' (version provided by config.platform)';
+            }
+            $this->getIO()->writeError('<info>Package "'.$needle.' '.$textConstraint.'" found in version "'.$matchedPackage->getPrettyVersion().'"'.$extraNotice.'.</info>');
+        } elseif ($inverted) {
+            $this->getIO()->write('<comment>Package "'.$needle.'" '.$matchedPackage->getPrettyVersion().' is already installed! To find out why, run `composer why '.$needle.'`</comment>');
+            return 0;
         }
 
         // Include replaced packages for inverted lookups as they are then the actual starting point to consider
@@ -154,7 +174,7 @@ abstract class BaseDependencyCommand extends BaseCommand
             $this->printTable($output, $results);
         }
 
-        if ($inverted && $input->hasArgument(self::ARGUMENT_CONSTRAINT)) {
+        if ($inverted && $input->hasArgument(self::ARGUMENT_CONSTRAINT) && !PlatformRepository::isPlatformPackage($needle)) {
             $composerCommand = 'update';
 
             foreach ($composer->getPackage()->getRequires() as $rootRequirement) {
@@ -180,9 +200,9 @@ abstract class BaseDependencyCommand extends BaseCommand
     /**
      * Assembles and prints a bottom-up table of the dependencies.
      *
-     * @param array{PackageInterface, Link, mixed}[] $results
+     * @param array{PackageInterface, Link, array<mixed>|false}[] $results
      */
-    protected function printTable(OutputInterface $output, $results): void
+    protected function printTable(OutputInterface $output, array $results): void
     {
         $table = [];
         $doubles = [];
@@ -204,13 +224,13 @@ abstract class BaseDependencyCommand extends BaseCommand
                 $packageUrl = PackageInfo::getViewSourceOrHomepageUrl($package);
                 $nameWithLink = $packageUrl !== null ? '<href=' . OutputFormatter::escape($packageUrl) . '>' . $package->getPrettyName() . '</>' : $package->getPrettyName();
                 $rows[] = [$nameWithLink, $version, $link->getDescription(), sprintf('%s (%s)', $link->getTarget(), $link->getPrettyConstraint())];
-                if ($children) {
+                if (is_array($children)) {
                     $queue = array_merge($queue, $children);
                 }
             }
             $results = $queue;
             $table = array_merge($rows, $table);
-        } while (!empty($results));
+        } while (\count($results) > 0);
 
         $this->renderTable($table, $output);
     }
@@ -237,7 +257,7 @@ abstract class BaseDependencyCommand extends BaseCommand
     /**
      * Recursively prints a tree of the selected results.
      *
-     * @param array{PackageInterface, Link, mixed[]|bool}[] $results Results to be printed at this level.
+     * @param array{PackageInterface, Link, array<mixed>|false}[] $results Results to be printed at this level.
      * @param string  $prefix  Prefix of the current tree level.
      * @param int     $level   Current level of recursion.
      */
@@ -258,7 +278,7 @@ abstract class BaseDependencyCommand extends BaseCommand
             $linkText = sprintf('%s <%s>%s</%2$s> %s', $link->getDescription(), $prevColor, $link->getTarget(), $link->getPrettyConstraint());
             $circularWarn = $children === false ? '(circular dependency aborted here)' : '';
             $this->writeTreeLine(rtrim(sprintf("%s%s%s (%s) %s", $prefix, $isLast ? '└──' : '├──', $packageText, $linkText, $circularWarn)));
-            if ($children) {
+            if (is_array($children)) {
                 $this->printTree($children, $prefix . ($isLast ? '   ' : '│  '), $level + 1);
             }
         }

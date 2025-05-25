@@ -6,7 +6,6 @@ use Doctrine\DBAL\Exception;
 
 use function sprintf;
 
-/** @psalm-immutable */
 class InvalidLockMode extends Exception
 {
     public static function fromLockMode(int $lockMode): self

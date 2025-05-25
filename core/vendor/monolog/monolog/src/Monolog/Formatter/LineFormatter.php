@@ -40,8 +40,6 @@ class LineFormatter extends NormalizerFormatter
      * @param string|null $format                The format of the message
      * @param string|null $dateFormat            The format of the timestamp: one supported by DateTime::format
      * @param bool        $allowInlineLineBreaks Whether to allow inline line breaks in log entries
-     *
-     * @throws \RuntimeException If the function json_encode does not exist
      */
     public function __construct(?string $format = null, ?string $dateFormat = null, bool $allowInlineLineBreaks = false, bool $ignoreEmptyContextAndExtra = false, bool $includeStacktraces = false)
     {
@@ -177,7 +175,7 @@ class LineFormatter extends NormalizerFormatter
             if (null === $output) {
                 $pcreErrorCode = preg_last_error();
 
-                throw new \RuntimeException('Failed to run preg_replace: ' . $pcreErrorCode . ' / ' . Utils::pcreLastErrorMessage($pcreErrorCode));
+                throw new \RuntimeException('Failed to run preg_replace: ' . $pcreErrorCode . ' / ' . preg_last_error_msg());
             }
         }
 
@@ -206,16 +204,15 @@ class LineFormatter extends NormalizerFormatter
     {
         $str = $this->formatException($e);
 
-        if (($previous = $e->getPrevious()) instanceof \Throwable) {
-            do {
-                $depth++;
-                if ($depth > $this->maxNormalizeDepth) {
-                    $str .= "\n[previous exception] Over " . $this->maxNormalizeDepth . ' levels deep, aborting normalization';
-                    break;
-                }
-
-                $str .= "\n[previous exception] " . $this->formatException($previous);
-            } while ($previous = $previous->getPrevious());
+        $previous = $e->getPrevious();
+        while ($previous instanceof \Throwable) {
+            $depth++;
+            if ($depth > $this->maxNormalizeDepth) {
+                $str .= "\n[previous exception] Over " . $this->maxNormalizeDepth . ' levels deep, aborting normalization';
+                break;
+            }
+            $str .= "\n[previous exception] " . $this->formatException($previous);
+            $previous = $previous->getPrevious();
         }
 
         return $str;
@@ -245,7 +242,7 @@ class LineFormatter extends NormalizerFormatter
                 if (null === $str) {
                     $pcreErrorCode = preg_last_error();
 
-                    throw new \RuntimeException('Failed to run preg_replace: ' . $pcreErrorCode . ' / ' . Utils::pcreLastErrorMessage($pcreErrorCode));
+                    throw new \RuntimeException('Failed to run preg_replace: ' . $pcreErrorCode . ' / ' . preg_last_error_msg());
                 }
             }
 
@@ -311,6 +308,6 @@ class LineFormatter extends NormalizerFormatter
 
     private function stacktracesParserCustom(string $trace): string
     {
-        return implode("\n", array_filter(array_map($this->stacktracesParser, explode("\n", $trace))));
+        return implode("\n", array_filter(array_map($this->stacktracesParser, explode("\n", $trace)), fn ($line) => is_string($line) && trim($line) !== ''));
     }
 }

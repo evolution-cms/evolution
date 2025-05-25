@@ -32,6 +32,7 @@ class JsonFile
     public const LAX_SCHEMA = 1;
     public const STRICT_SCHEMA = 2;
     public const AUTH_SCHEMA = 3;
+    public const LOCK_SCHEMA = 4;
 
     /** @deprecated Use \JSON_UNESCAPED_SLASHES */
     public const JSON_UNESCAPED_SLASHES = 64;
@@ -41,6 +42,7 @@ class JsonFile
     public const JSON_UNESCAPED_UNICODE = 256;
 
     public const COMPOSER_SCHEMA_PATH = __DIR__ . '/../../../res/composer-schema.json';
+    public const LOCK_SCHEMA_PATH = __DIR__ . '/../../../res/composer-lock-schema.json';
 
     public const INDENT_DEFAULT = '    ';
 
@@ -228,8 +230,12 @@ class JsonFile
     {
         $isComposerSchemaFile = false;
         if (null === $schemaFile) {
-            $isComposerSchemaFile = true;
-            $schemaFile = self::COMPOSER_SCHEMA_PATH;
+            if ($schema === self::LOCK_SCHEMA) {
+                $schemaFile = self::LOCK_SCHEMA_PATH;
+            } else {
+                $isComposerSchemaFile = true;
+                $schemaFile = self::COMPOSER_SCHEMA_PATH;
+            }
         }
 
         // Prepend with file:// only when not using a special schema already (e.g. in the phar)
@@ -237,12 +243,10 @@ class JsonFile
             $schemaFile = 'file://' . $schemaFile;
         }
 
-        $schemaData = (object) ['$ref' => $schemaFile];
+        $schemaData = (object) ['$ref' => $schemaFile, '$schema' => "https://json-schema.org/draft-04/schema#"];
 
-        if ($schema === self::LAX_SCHEMA) {
-            $schemaData->additionalProperties = true;
-            $schemaData->required = [];
-        } elseif ($schema === self::STRICT_SCHEMA && $isComposerSchemaFile) {
+        if ($schema === self::STRICT_SCHEMA && $isComposerSchemaFile) {
+            $schemaData = json_decode((string) file_get_contents($schemaFile));
             $schemaData->additionalProperties = false;
             $schemaData->required = ['name', 'description'];
         } elseif ($schema === self::AUTH_SCHEMA && $isComposerSchemaFile) {
@@ -250,11 +254,13 @@ class JsonFile
         }
 
         $validator = new Validator();
-        $validator->check($data, $schemaData);
+        // convert assoc arrays to objects
+        $data = json_decode((string) json_encode($data));
+        $validator->validate($data, $schemaData);
 
         if (!$validator->isValid()) {
             $errors = [];
-            foreach ((array) $validator->getErrors() as $error) {
+            foreach ($validator->getErrors() as $error) {
                 $errors[] = ($error['property'] ? $error['property'].' : ' : '').$error['message'];
             }
             throw new JsonValidationException('"'.$source.'" does not match the expected JSON schema', $errors);
@@ -284,7 +290,7 @@ class JsonFile
             return Preg::replaceCallback(
                 '#^ {4,}#m',
                 static function ($match) use ($indent): string {
-                    return str_repeat($indent, (int)(strlen($match[0] ?? '') / 4));
+                    return str_repeat($indent, (int)(strlen($match[0]) / 4));
                 },
                 $json
             );

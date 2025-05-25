@@ -12,6 +12,7 @@
 
 namespace Composer\Command;
 
+use Composer\IO\IOInterface;
 use Composer\Package\AliasPackage;
 use Composer\Package\BasePackage;
 use Composer\Package\Locker;
@@ -72,9 +73,28 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        return $this->doBump(
+            $this->getIO(),
+            $input->getOption('dev-only'),
+            $input->getOption('no-dev-only'),
+            $input->getOption('dry-run'),
+            $input->getArgument('packages')
+        );
+    }
+
+    /**
+     * @param string[] $packagesFilter
+     * @throws \Seld\JsonLint\ParsingException
+     */
+    public function doBump(
+        IOInterface $io,
+        bool $devOnly,
+        bool $noDevOnly,
+        bool $dryRun,
+        array $packagesFilter
+    ): int {
         /** @readonly */
         $composerJsonPath = Factory::getComposerFile();
-        $io = $this->getIO();
 
         if (!Filesystem::isReadable($composerJsonPath)) {
             $io->writeError('<error>'.$composerJsonPath.' is not readable.</error>');
@@ -112,7 +132,7 @@ EOT
             $repo = $composer->getRepositoryManager()->getLocalRepository();
         }
 
-        if ($composer->getPackage()->getType() !== 'project' && !$input->getOption('dev-only')) {
+        if ($composer->getPackage()->getType() !== 'project' && !$devOnly) {
             $io->writeError('<warning>Warning: Bumping dependency constraints is not recommended for libraries as it will narrow down your dependencies and may cause problems for your users.</warning>');
 
             $contents = $composerJson->read();
@@ -125,15 +145,18 @@ EOT
 
         $bumper = new VersionBumper();
         $tasks = [];
-        if (!$input->getOption('dev-only')) {
+        if (!$devOnly) {
             $tasks['require'] = $composer->getPackage()->getRequires();
         }
-        if (!$input->getOption('no-dev-only')) {
+        if (!$noDevOnly) {
             $tasks['require-dev'] = $composer->getPackage()->getDevRequires();
         }
 
-        $packagesFilter = $input->getArgument('packages');
         if (count($packagesFilter) > 0) {
+            // support proxied args from the update command that contain constraints together with the package names
+            $packagesFilter = array_map(function ($constraint) {
+                return Preg::replace('{[:= ].+}', '', $constraint);
+            }, $packagesFilter);
             $pattern = BasePackage::packageNamesToRegexp(array_unique(array_map('strtolower', $packagesFilter)));
             foreach ($tasks as $key => $reqs) {
                 foreach ($reqs as $pkgName => $link) {
@@ -171,8 +194,6 @@ EOT
             }
         }
 
-        $dryRun = $input->getOption('dry-run');
-
         if (!$dryRun && !$this->updateFileCleanly($composerJson, $updates)) {
             $composerDefinition = $composerJson->read();
             foreach ($updates as $key => $packages) {
@@ -199,15 +220,8 @@ EOT
             $io->write('<info>No requirements to update in '.$composerJsonPath.'.</info>');
         }
 
-        if (!$dryRun && $composer->getLocker()->isLocked() && $changeCount > 0) {
-            $contents = file_get_contents($composerJson->getPath());
-            if (false === $contents) {
-                throw new \RuntimeException('Unable to read '.$composerJson->getPath().' contents to update the lock file hash.');
-            }
-            $lock = new JsonFile(Factory::getLockFile($composerJsonPath));
-            $lockData = $lock->read();
-            $lockData['content-hash'] = Locker::getContentHash($contents);
-            $lock->write($lockData);
+        if (!$dryRun && $composer->getLocker()->isLocked() && $composer->getConfig()->get('lock') && $changeCount > 0) {
+            $composer->getLocker()->updateHash($composerJson);
         }
 
         if ($dryRun && $changeCount > 0) {

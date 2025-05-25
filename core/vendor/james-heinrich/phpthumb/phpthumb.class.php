@@ -81,7 +81,7 @@ class phpthumb {
 	public $ws   = null;     // Width  (Square Images Only)
 	public $hs   = null;     // Height (Square Images Only)
 	public $f    = null;     // output image Format
-	public $q    = 75;       // jpeg output Quality
+	public $q    = -1;       // jpeg output Quality
 	public $sx   = null;     // Source crop top-left X position
 	public $sy   = null;     // Source crop top-left Y position
 	public $sw   = null;     // Source crop Width
@@ -221,7 +221,7 @@ class phpthumb {
 
 
 	// private: (should not be modified directly)
-	public $thumbnailQuality = 75;
+	public $thumbnailQuality = -1;
 	public $thumbnailFormat  = null;
 
 	public $sourceFilename   = null;
@@ -265,7 +265,7 @@ class phpthumb {
 	public $issafemode       = null;
 	public $php_memory_limit = null;
 
-	public $phpthumb_version = '1.7.22-202312071641';
+	public $phpthumb_version = '1.7.23-202503281052';
 
 	//////////////////////////////////////////////////////////////////////
 
@@ -320,7 +320,7 @@ class phpthumb {
 	// public:
 	public function purgeTempFiles() {
 		foreach ($this->tempFilesToDelete as $tempFileToDelete) {
-			if (file_exists($tempFileToDelete)) {
+			if ((strpos(basename($tempFileToDelete), 'pThumb') === 0) && file_exists($tempFileToDelete)) {
 				$this->DebugMessage('Deleting temp file "'.$tempFileToDelete.'"', __FILE__, __LINE__);
 				@unlink($tempFileToDelete);
 			}
@@ -572,8 +572,8 @@ class phpthumb {
 					if (($this->thumbnailQuality >= -1) && ($this->thumbnailQuality <= 9)) {
 						$PNGquality = $this->thumbnailQuality;
 					} else {
-						$this->DebugMessage('Specified thumbnailQuality "'.$this->thumbnailQuality.'" is outside the accepted range (0-9, or -1). Using 6 as default value.', __FILE__, __LINE__);
-						$PNGquality = 6;
+						$this->DebugMessage('Specified thumbnailQuality "'.$this->thumbnailQuality.'" is outside the accepted range (0-9, or -1). Using -1 as default value.', __FILE__, __LINE__);
+						$PNGquality = -1;
 					}
 					imagepng($this->gdimg_output, null, $PNGquality);
 				} else {
@@ -1096,7 +1096,7 @@ class phpthumb {
 		// for JPEG images, quality 1 (worst) to 99 (best)
 		// quality < 25 is nasty, with not much size savings - not recommended
 		// problems with 100 - invalid JPEG?
-		$this->thumbnailQuality = max(1, min(99, ($this->q ? (int) $this->q : 75)));
+		$this->thumbnailQuality = max(-1, min(99, ($this->q ? (int) $this->q : -1)));
 		$this->DebugMessage('$this->thumbnailQuality set to "'.$this->thumbnailQuality.'"', __FILE__, __LINE__);
 
 		return true;
@@ -3793,7 +3793,7 @@ if (false) {
 						if (function_exists($ImageCreateFromFunctionName)) {
 							$this->DebugMessage('Calling '.$ImageCreateFromFunctionName.'('.$filename.')', __FILE__, __LINE__);
 							$ImageCreateWasAttempted = true;
-							$gd_image = $ImageCreateFromFunctionName($filename);
+							$gd_image = @$ImageCreateFromFunctionName($filename);
 						} else {
 							$this->DebugMessage('NOT calling '.$ImageCreateFromFunctionName.'('.$filename.') because !function_exists('.$ImageCreateFromFunctionName.')', __FILE__, __LINE__);
 						}
@@ -3898,11 +3898,11 @@ if (false) {
 			$this->gdimg_source = $this->ImageCreateFromStringReplacement($this->rawImageData);
 			if (!$this->gdimg_source) {
 				if (substr($this->rawImageData, 0, 2) === 'BM') {
-					$this->getimagesizeinfo[2] = 6; // BMP
+					$this->getimagesizeinfo[2] = IMAGETYPE_BMP; // BMP
 				} elseif (substr($this->rawImageData, 0, 4) === 'II'."\x2A\x00") {
-					$this->getimagesizeinfo[2] = 7; // TIFF (littlendian)
+					$this->getimagesizeinfo[2] = IMAGETYPE_TIFF_II; // TIFF (littlendian)
 				} elseif (substr($this->rawImageData, 0, 4) === 'MM'."\x00\x2A") {
-					$this->getimagesizeinfo[2] = 8; // TIFF (bigendian)
+					$this->getimagesizeinfo[2] = IMAGETYPE_TIFF_MM; // TIFF (bigendian)
 				}
 				$this->DebugMessage('SourceImageToGD.ImageCreateFromStringReplacement() failed with unknown image type "'.substr($this->rawImageData, 0, 4).'" ('.phpthumb_functions::HexCharDisplay(substr($this->rawImageData, 0, 4)).')', __FILE__, __LINE__);
 //				return $this->ErrorImage('Unknown image type identified by "'.substr($this->rawImageData, 0, 4).'" ('.phpthumb_functions::HexCharDisplay(substr($this->rawImageData, 0, 4)).') in SourceImageToGD()['.__LINE__.']');
@@ -3914,9 +3914,10 @@ if (false) {
 				return $this->ErrorImage('$this->md5s != md5(sourceFilename)'."\n".'"'.$this->md5s.'" != '."\n".'"'.phpthumb_functions::md5_file_safe($this->sourceFilename).'"');
 			}
 			switch (@$this->getimagesizeinfo[2]) {
-				case 1:
-				case 3:
-					// GIF or PNG input file may have transparency
+				case IMAGETYPE_GIF:
+				case IMAGETYPE_PNG:
+				case IMAGETYPE_WEBP:
+					// GIF, PNG of WEBP input file may have transparency
 					$this->is_alpha = true;
 					break;
 			}
@@ -3992,18 +3993,23 @@ if (false) {
 			$gd_info = gd_info();
 			$GDreadSupport = false;
 			switch (@$this->getimagesizeinfo[2]) {
-				case 1:
+				case IMAGETYPE_GIF:
 					$imageHeader = 'Content-Type: image/gif';
 					$GDreadSupport = (bool) @$gd_info['GIF Read Support'];
 					break;
-				case 2:
+				case IMAGETYPE_JPEG:
 					$imageHeader = 'Content-Type: image/jpeg';
 					$GDreadSupport = (bool) @$gd_info['JPG Support'];
 					break;
-				case 3:
+				case IMAGETYPE_PNG:
 					$imageHeader = 'Content-Type: image/png';
 					$GDreadSupport = (bool) @$gd_info['PNG Support'];
 					break;
+				case IMAGETYPE_WEBP:
+					$imageHeader = 'Content-Type: image/webp';
+					$GDreadSupport = (bool) @$gd_info['WebP Support '];
+					break;
+
 			}
 			if ($imageHeader) {
 				// cannot create image for whatever reason (maybe imagecreatefromjpeg et al are not available?)
@@ -4044,7 +4050,7 @@ if (false) {
 			//switch (substr($this->rawImageData, 0, 2)) {
 			//	case 'BM':
 			switch (@$this->getimagesizeinfo[2]) {
-				case 6:
+				case IMAGETYPE_BMP:
 					ob_start();
 					if (!@include_once __DIR__ .'/phpthumb.bmp.php' ) {
 						ob_end_clean();
@@ -4071,8 +4077,8 @@ if (false) {
 			//switch (substr($this->rawImageData, 0, 4)) {
 			//	case 'II'."\x2A\x00":
 			//	case 'MM'."\x00\x2A":
-				case 7:
-				case 8:
+				case IMAGETYPE_TIFF_II:
+				case IMAGETYPE_TIFF_MM:
 					return $this->ErrorImage($this->ImageMagickVersion() ? 'ImageMagick failed on TIFF source conversion' : 'ImageMagick is unavailable and phpThumb() does not support TIFF source images without it');
 					break;
 

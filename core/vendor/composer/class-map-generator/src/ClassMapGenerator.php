@@ -46,12 +46,18 @@ class ClassMapGenerator
     private $classMap;
 
     /**
+     * @var non-empty-string
+     */
+    private $streamWrappersRegex;
+
+    /**
      * @param list<string> $extensions File extensions to scan for classes in the given paths
      */
     public function __construct(array $extensions = ['php', 'inc'])
     {
         $this->extensions = $extensions;
         $this->classMap = new ClassMap;
+        $this->streamWrappersRegex = sprintf('{^(?:%s)://}', implode('|', array_map('preg_quote', stream_get_wrappers())));
     }
 
     /**
@@ -142,18 +148,21 @@ class ClassMapGenerator
                 continue;
             }
 
-            if (!self::isAbsolutePath($filePath)) {
+            $isStreamWrapperPath = Preg::isMatch($this->streamWrappersRegex, $filePath);
+            if (!self::isAbsolutePath($filePath) && !$isStreamWrapperPath) {
                 $filePath = $cwd . '/' . $filePath;
                 $filePath = self::normalizePath($filePath);
             } else {
-                $filePath = Preg::replace('{[\\\\/]{2,}}', '/', $filePath);
+                $filePath = Preg::replace('{(?<!:)[\\\\/]{2,}}', '/', $filePath);
             }
 
             if ('' === $filePath) {
                 throw new \LogicException('Got an empty $filePath for '.$file->getPathname());
             }
 
-            $realPath = realpath($filePath);
+            $realPath = $isStreamWrapperPath
+                ? $filePath
+                : realpath($filePath);
 
             // fallback just in case but this really should not happen
             if (false === $realPath) {
@@ -191,7 +200,7 @@ class ClassMapGenerator
             foreach ($classes as $class) {
                 if (!$this->classMap->hasClass($class)) {
                     $this->classMap->addClass($class, $filePath);
-                } elseif ($filePath !== $this->classMap->getClassPath($class) && !Preg::isMatch('{/(test|fixture|example|stub)s?/}i', strtr($this->classMap->getClassPath($class).' '.$filePath, '\\', '/'))) {
+                } elseif ($filePath !== $this->classMap->getClassPath($class)) {
                     $this->classMap->addAmbiguousClass($class, $filePath);
                 }
             }
@@ -207,6 +216,8 @@ class ClassMapGenerator
      * @param  'psr-0'|'psr-4'          $namespaceType
      * @param  string                   $basePath      root directory of given autoload mapping
      * @return array<int, class-string> valid classes
+     *
+     * @throws \InvalidArgumentException When namespaceType is neither psr-0 nor psr-4
      */
     private function filterByNamespace(array $classes, string $filePath, string $baseNamespace, string $namespaceType, string $basePath): array
     {

@@ -8,6 +8,7 @@
 declare(strict_types=1);
 
 namespace Tracy\Dumper;
+use Dom;
 use Ds;
 
 
@@ -141,18 +142,18 @@ final class Exposer
 	}
 
 
-	public static function exposeDOMNode(\DOMNode $obj, Value $value, Describer $describer): void
+	public static function exposeDOMNode(\DOMNode|Dom\Node $obj, Value $value, Describer $describer): void
 	{
 		$props = preg_match_all('#^\s*\[([^\]]+)\] =>#m', print_r($obj, return: true), $tmp) ? $tmp[1] : [];
 		sort($props);
 		foreach ($props as $p) {
-			$describer->addPropertyTo($value, $p, $obj->$p, Value::PropertyPublic);
+			$describer->addPropertyTo($value, $p, @$obj->$p, Value::PropertyPublic); // @ some props may be deprecated
 		}
 	}
 
 
 	public static function exposeDOMNodeList(
-		\DOMNodeList|\DOMNamedNodeMap $obj,
+		\DOMNodeList|\DOMNamedNodeMap|Dom\NodeList|Dom\NamedNodeMap|Dom\TokenList|Dom\HTMLCollection $obj,
 		Value $value,
 		Describer $describer,
 	): void

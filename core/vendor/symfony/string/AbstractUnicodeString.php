@@ -124,7 +124,7 @@ abstract class AbstractUnicodeString extends AbstractString
                         }
 
                         if (null === $transliterator) {
-                            throw new InvalidArgumentException(sprintf('Unknown transliteration rule "%s".', $rule));
+                            throw new InvalidArgumentException(\sprintf('Unknown transliteration rule "%s".', $rule));
                         }
 
                         self::$transliterators['any-latin/bgn'] = $transliterator;
@@ -135,15 +135,21 @@ abstract class AbstractUnicodeString extends AbstractString
             } elseif (!\function_exists('iconv')) {
                 $s = preg_replace('/[^\x00-\x7F]/u', '?', $s);
             } else {
-                $s = @preg_replace_callback('/[^\x00-\x7F]/u', static function ($c) {
-                    $c = (string) iconv('UTF-8', 'ASCII//TRANSLIT', $c[0]);
+                $previousLocale = setlocale(\LC_CTYPE, 0);
+                try {
+                    setlocale(\LC_CTYPE, 'C');
+                    $s = @preg_replace_callback('/[^\x00-\x7F]/u', static function ($c) {
+                        $c = (string) iconv('UTF-8', 'ASCII//TRANSLIT', $c[0]);
 
-                    if ('' === $c && '' === iconv('UTF-8', 'ASCII//TRANSLIT', '²')) {
-                        throw new \LogicException(sprintf('"%s" requires a translit-able iconv implementation, try installing "gnu-libiconv" if you\'re using Alpine Linux.', static::class));
-                    }
+                        if ('' === $c && '' === iconv('UTF-8', 'ASCII//TRANSLIT', '²')) {
+                            throw new \LogicException(\sprintf('"%s" requires a translit-able iconv implementation, try installing "gnu-libiconv" if you\'re using Alpine Linux.', static::class));
+                        }
 
-                    return 1 < \strlen($c) ? ltrim($c, '\'`"^~') : ('' !== $c ? $c : '?');
-                }, $s);
+                        return 1 < \strlen($c) ? ltrim($c, '\'`"^~') : ('' !== $c ? $c : '?');
+                    }, $s);
+                } finally {
+                    setlocale(\LC_CTYPE, $previousLocale);
+                }
             }
         }
 
@@ -155,7 +161,7 @@ abstract class AbstractUnicodeString extends AbstractString
     public function camel(): static
     {
         $str = clone $this;
-        $str->string = str_replace(' ', '', preg_replace_callback('/\b.(?![A-Z]{2,})/u', static function ($m) {
+        $str->string = str_replace(' ', '', preg_replace_callback('/\b.(?!\p{Lu})/u', static function ($m) {
             static $i = 0;
 
             return 1 === ++$i ? ('İ' === $m[0] ? 'i̇' : mb_strtolower($m[0], 'UTF-8')) : mb_convert_case($m[0], \MB_CASE_TITLE, 'UTF-8');
@@ -361,8 +367,8 @@ abstract class AbstractUnicodeString extends AbstractString
 
     public function snake(): static
     {
-        $str = clone $this;
-        $str->string = str_replace(' ', '_', mb_strtolower(preg_replace(['/(\p{Lu}+)(\p{Lu}\p{Ll})/u', '/([\p{Ll}0-9])(\p{Lu})/u'], '\1 \2', $str->string), 'UTF-8'));
+        $str = $this->camel();
+        $str->string = mb_strtolower(preg_replace(['/(\p{Lu}+)(\p{Lu}\p{Ll})/u', '/([\p{Ll}0-9])(\p{Lu})/u'], '\1_\2', $str->string), 'UTF-8');
 
         return $str;
     }

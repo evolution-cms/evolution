@@ -24,11 +24,11 @@ final class ParameterTypeMap
     /**
      * Converts DBAL parameter type to PDO parameter type
      *
-     * @psalm-return PDO::PARAM_*
+     * @phpstan-return PDO::PARAM_*
      *
      * @throws UnknownParameterType
      *
-     * @psalm-assert ParameterType::* $type
+     * @phpstan-assert ParameterType::* $type
      */
     public static function convertParamType(int $type): int
     {

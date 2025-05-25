@@ -61,12 +61,17 @@ final class Statement implements StatementInterface
         $this->boundValues = array_fill(1, $paramCount, null);
     }
 
+    public function __destruct()
+    {
+        @$this->stmt->close();
+    }
+
     /**
      * @deprecated Use {@see bindValue()} instead.
      *
      * {@inheritDoc}
      *
-     * @psalm-assert ParameterType::* $type
+     * @phpstan-assert ParameterType::* $type
      */
     public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null): bool
     {
@@ -101,7 +106,7 @@ final class Statement implements StatementInterface
     /**
      * {@inheritDoc}
      *
-     * @psalm-assert ParameterType::* $type
+     * @phpstan-assert ParameterType::* $type
      */
     public function bindValue($param, $value, $type = ParameterType::STRING): bool
     {
@@ -159,7 +164,7 @@ final class Statement implements StatementInterface
             throw StatementError::new($this->stmt);
         }
 
-        return new Result($this->stmt);
+        return new Result($this->stmt, $this);
     }
 
     /**

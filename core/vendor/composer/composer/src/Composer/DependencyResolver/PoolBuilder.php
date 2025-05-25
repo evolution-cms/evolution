@@ -40,7 +40,7 @@ class PoolBuilder
 {
     /**
      * @var int[]
-     * @phpstan-var array<string, BasePackage::STABILITY_*>
+     * @phpstan-var array<key-of<BasePackage::STABILITIES>, BasePackage::STABILITY_*>
      */
     private $acceptableStabilities;
     /**
@@ -95,7 +95,7 @@ class PoolBuilder
      */
     private $loadedPerRepo = [];
     /**
-     * @var BasePackage[]
+     * @var array<int, BasePackage>
      */
     private $packages = [];
     /**
@@ -153,7 +153,7 @@ class PoolBuilder
 
     /**
      * @param int[] $acceptableStabilities array of stability => BasePackage::STABILITY_* value
-     * @phpstan-param array<string, BasePackage::STABILITY_*> $acceptableStabilities
+     * @phpstan-param array<key-of<BasePackage::STABILITIES>, BasePackage::STABILITY_*> $acceptableStabilities
      * @param int[] $stabilityFlags an array of package name => BasePackage::STABILITY_* value
      * @phpstan-param array<string, BasePackage::STABILITY_*> $stabilityFlags
      * @param array[] $rootAliases
@@ -201,9 +201,13 @@ class PoolBuilder
     {
         $this->restrictedPackagesList = $request->getRestrictedPackages() !== null ? array_flip($request->getRestrictedPackages()) : null;
 
-        if ($request->getUpdateAllowList()) {
+        if (\count($request->getUpdateAllowList()) > 0) {
             $this->updateAllowList = $request->getUpdateAllowList();
             $this->warnAboutNonMatchingUpdateAllowList($request);
+
+            if (null === $request->getLockedRepository()) {
+                throw new \LogicException('No lock repo present and yet a partial update was requested.');
+            }
 
             foreach ($request->getLockedRepository()->getPackages() as $lockedPackage) {
                 if (!$this->isUpdateAllowed($lockedPackage)) {
@@ -271,39 +275,45 @@ class PoolBuilder
             }
         }
 
-        while (!empty($this->packagesToLoad)) {
+        while (\count($this->packagesToLoad) > 0) {
             $this->loadPackagesMarkedForLoading($request, $repositories);
         }
 
         if (\count($this->temporaryConstraints) > 0) {
             foreach ($this->packages as $i => $package) {
                 // we check all alias related packages at once, so no need to check individual aliases
-                if (!isset($this->temporaryConstraints[$package->getName()]) || $package instanceof AliasPackage) {
+                if ($package instanceof AliasPackage) {
                     continue;
                 }
 
-                $constraint = $this->temporaryConstraints[$package->getName()];
-                $packageAndAliases = [$i => $package];
-                if (isset($this->aliasMap[spl_object_hash($package)])) {
-                    $packageAndAliases += $this->aliasMap[spl_object_hash($package)];
-                }
-
-                $found = false;
-                foreach ($packageAndAliases as $packageOrAlias) {
-                    if (CompilingMatcher::match($constraint, Constraint::OP_EQ, $packageOrAlias->getVersion())) {
-                        $found = true;
+                foreach ($package->getNames() as $packageName) {
+                    if (!isset($this->temporaryConstraints[$packageName])) {
+                        continue;
                     }
-                }
 
-                if (!$found) {
-                    foreach ($packageAndAliases as $index => $packageOrAlias) {
-                        unset($this->packages[$index]);
+                    $constraint = $this->temporaryConstraints[$packageName];
+                    $packageAndAliases = [$i => $package];
+                    if (isset($this->aliasMap[spl_object_hash($package)])) {
+                        $packageAndAliases += $this->aliasMap[spl_object_hash($package)];
+                    }
+
+                    $found = false;
+                    foreach ($packageAndAliases as $packageOrAlias) {
+                        if (CompilingMatcher::match($constraint, Constraint::OP_EQ, $packageOrAlias->getVersion())) {
+                            $found = true;
+                        }
+                    }
+
+                    if (!$found) {
+                        foreach ($packageAndAliases as $index => $packageOrAlias) {
+                            unset($this->packages[$index]);
+                        }
                     }
                 }
             }
         }
 
-        if ($this->eventDispatcher) {
+        if ($this->eventDispatcher !== null) {
             $prePoolCreateEvent = new PrePoolCreateEvent(
                 PluginEvents::PRE_POOL_CREATE,
                 $repositories,
@@ -413,7 +423,7 @@ class PoolBuilder
         $this->packagesToLoad = [];
 
         foreach ($repositories as $repoIndex => $repository) {
-            if (empty($packageBatch)) {
+            if (0 === \count($packageBatch)) {
                 break;
             }
 
@@ -499,7 +509,7 @@ class PoolBuilder
                 if ($propagateUpdate && $request->getUpdateAllowTransitiveDependencies()) {
                     $skippedRootRequires = $this->getSkippedRootRequires($request, $require);
 
-                    if ($request->getUpdateAllowTransitiveRootDependencies() || !$skippedRootRequires) {
+                    if ($request->getUpdateAllowTransitiveRootDependencies() || 0 === \count($skippedRootRequires)) {
                         $this->unlockPackage($request, $repositories, $require);
                         $this->markPackageNameForLoading($request, $require, $linkConstraint);
                     } else {
@@ -528,7 +538,7 @@ class PoolBuilder
                 if (isset($this->loadedPackages[$replace], $this->skippedLoad[$replace])) {
                     $skippedRootRequires = $this->getSkippedRootRequires($request, $replace);
 
-                    if ($request->getUpdateAllowTransitiveRootDependencies() || !$skippedRootRequires) {
+                    if ($request->getUpdateAllowTransitiveRootDependencies() || 0 === \count($skippedRootRequires)) {
                         $this->unlockPackage($request, $repositories, $replace);
                         // the replaced package only needs to be loaded if something else requires it
                         $this->markPackageNameForLoadingIfRequired($request, $replace);
@@ -615,7 +625,13 @@ class PoolBuilder
 
     private function warnAboutNonMatchingUpdateAllowList(Request $request): void
     {
+        if (null === $request->getLockedRepository()) {
+            throw new \LogicException('No lock repo present and yet a partial update was requested.');
+        }
+
         foreach ($this->updateAllowList as $pattern) {
+            $matchedPlatformPackage = false;
+
             $patternRegexp = BasePackage::packageNameToRegexp($pattern);
             // update pattern matches a locked package? => all good
             foreach ($request->getLockedRepository()->getPackages() as $package) {
@@ -626,10 +642,16 @@ class PoolBuilder
             // update pattern matches a root require? => all good, probably a new package
             foreach ($request->getRequires() as $packageName => $constraint) {
                 if (Preg::isMatch($patternRegexp, $packageName)) {
+                    if (PlatformRepository::isPlatformPackage($packageName)) {
+                        $matchedPlatformPackage = true;
+                        continue;
+                    }
                     continue 2;
                 }
             }
-            if (strpos($pattern, '*') !== false) {
+            if ($matchedPlatformPackage) {
+                $this->io->writeError('<warning>Pattern "' . $pattern . '" listed for update matches platform packages, but these cannot be updated by Composer.</warning>');
+            } elseif (strpos($pattern, '*') !== false) {
                 $this->io->writeError('<warning>Pattern "' . $pattern . '" listed for update does not match any locked packages.</warning>');
             } else {
                 $this->io->writeError('<warning>Package "' . $pattern . '" listed for update is not locked.</warning>');

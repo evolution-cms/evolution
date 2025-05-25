@@ -4,7 +4,7 @@ use EvolutionCMS\Facades\Console;
 
 $base_path = dirname(__DIR__) . '/';
 define('MODX_API_MODE', true);
-define('MODX_BASE_PATH', $base_path);
+define('EVO_BASE_PATH', $base_path);
 define('MODX_SITE_URL', '/');
 define('EVO_CORE_PATH', $base_path . 'core/');
 define('IN_INSTALL_MODE', true);
@@ -36,6 +36,7 @@ class InstallEvo
     public $database_collation = 'utf8mb4_unicode_520_ci';
     public $dbh;
     public $evo;
+    public $version;
 
     function __construct($argv)
     {
@@ -51,7 +52,6 @@ class InstallEvo
                 }
             }
         }
-
     }
 
     public function start()
@@ -73,15 +73,15 @@ class InstallEvo
 
     public function read_line($message, $message2 = "")
     {
-        echo $message;
+        info($message);
         return readline($message2);
     }
 
     public function initEvo()
     {
-
         include '../index.php';
-        $this->evo = EvolutionCMS();
+        $this->evo = evo();
+        $this->version = evo()->getVersionData()['full_appname'] ?? 'almost current version';
     }
 
     public function update()
@@ -105,14 +105,15 @@ class InstallEvo
         $this->checkConnectToDatabaseWithBase();
         $this->checkTablePrefix();
         $this->checkIssetTablePrefix();
-
         $this->checkCmsAdmin();
         $this->checkCmsAdminEmail();
         $this->checkCmsPassword();
         $this->checkLanguage();
+        $this->composerUpdate();
         $this->realInstall();
         $this->checkRemoveInstall();
         $this->removeInstall();
+        echo "\033[1;33;44mNow you use {$this->version}\033[0m" . PHP_EOL;
     }
 
     public function checkDatabaseType()
@@ -231,7 +232,7 @@ class InstallEvo
         try {
             $this->dbh = new PDO($this->databaseType . ':host=' . $this->databaseServer, $this->databaseUser, $this->databasePassword);
         } catch (PDOException $e) {
-            echo $e->getMessage() . "\n";
+            error('✖ ' . $e->getMessage());
             $this->dbh = false;
         }
         if ($this->dbh === false) {
@@ -252,8 +253,7 @@ class InstallEvo
         } catch (PDOException $e) {
             $error = $e->getCode();
             if ($error != 7 && $error != 1049) {
-                echo $e->getMessage() . "\n";
-
+                error('✖ ' . $e->getMessage());
                 $dbh_alt = false;
             }
         }
@@ -263,7 +263,6 @@ class InstallEvo
             try {
                 $this->dbh->query('CREATE DATABASE "' . $this->database . '" ENCODING \'' . $this->database_charset . '\';');
                 if ($this->dbh->errorCode() > 0) {
-
                     echo '<span id="database_fail" style="color:#FF0000;">' . print_r($this->dbh->errorInfo(), true) . '</span>';
                 }
                 $error = -1;
@@ -306,12 +305,57 @@ class InstallEvo
         try {
             $result = $this->dbh->query("SELECT COUNT(*) FROM {$this->tablePrefix}site_content");
             if ($result !== false) {
-                echo 'table prefix already exists';
+                error('✖ Table prefix already exists');
                 $this->tablePrefix = '';
                 $this->checkTablePrefix();
                 $this->checkIssetTablePrefix();
             }
         } catch (\PDOException $exception) {
+        }
+    }
+
+    public function composerUpdate()
+    {
+        $projectRoot = dirname(__DIR__);
+        $composerBin = $projectRoot . '/core/vendor/bin/composer';
+        $workingDir  = $projectRoot . '/core';
+        $cmd = sprintf(
+            'php %s update --no-interaction --prefer-dist --working-dir=%s',
+            escapeshellarg($composerBin),
+            escapeshellarg($workingDir)
+        );
+
+        if (!is_file($composerBin)) {
+            warning("⚠ Local Composer not found: {$composerBin} Please perform 'composer install' or 'composer update' manually.");
+            return;
+        }
+
+        success("✔ Usage local Composer");
+        info("   Running: {$cmd}");
+
+        $disabled = array_map('trim', explode(',', ini_get('disable_functions') ?: ''));
+
+        $exitCode = null;
+        if (!in_array('passthru', $disabled, true)) {
+            passthru($cmd, $exitCode);
+        } elseif (!in_array('exec', $disabled, true)) {
+            exec($cmd . ' 2>&1', $out, $exitCode);
+            echo implode(PHP_EOL, $out), PHP_EOL;
+        } elseif (!in_array('shell_exec', $disabled, true)) {
+            $output   = shell_exec($cmd . ' 2>&1');
+            $exitCode = (is_string($output) && $output !== '') ? 0 : 1;
+            echo $output;
+        } else {
+            warning('⚠ The passthru/exec/shell_exec functions are disabled in php.ini.');
+            warning('   Run "composer update" manually.');
+            return;
+        }
+
+        if ($exitCode === 0) {
+            success('✔ Dependencies updated successfully.');
+        } else {
+            error("✖ Composer finished with the code {$exitCode}.");
+            warning('   Make sure you have execute permissions and try "composer update" manually.');
         }
     }
 
@@ -377,7 +421,6 @@ class InstallEvo
 
     public function migrationAndSeed()
     {
-
         $delete_file = 'stubs/file_for_delete.txt';
         if (file_exists($delete_file)) {
             $files = explode("\n", file_get_contents($delete_file));
@@ -392,7 +435,7 @@ class InstallEvo
                 }
             }
         }
-        $_POST['database_type'] = $this->databaseType; //костыль для адекватной миграции
+        $_POST['database_type'] = $this->databaseType; // костиль для адекватної міграції
         Console::call('migrate', ['--path' => '../install/stubs/migrations', '--force' => true]);
         seed('install');
         $field = array();
@@ -410,7 +453,7 @@ class InstallEvo
         $systemSettings[] = ['setting_name' => 'emailsender', 'setting_value' => $this->cmsAdminEmail];
         $systemSettings[] = ['setting_name' => 'fe_editor_lang', 'setting_value' => $this->language];
         \EvolutionCMS\Models\SystemSetting::insert($systemSettings);
-
+        success('✔ All migrations is done!');
     }
 
     public function installModulesAndPlugins()
@@ -445,10 +488,9 @@ class InstallEvo
             }
             $d->close();
         }
+
         if (count($modulePlugins) > 0) {
-
             foreach ($modulePlugins as $k => $modulePlugin) {
-
                 $name = $modulePlugin[0];
                 $desc = $modulePlugin[1];
                 $filecontent = $modulePlugin[2];
@@ -462,9 +504,9 @@ class InstallEvo
                     // parse comma-separated legacy names and prepare them for sql IN clause
                     $leg_names = preg_split('/\s*,\s*/', $modulePlugin[7]);
                 }
-                if (!file_exists($filecontent))
+                if (!file_exists($filecontent)) {
                     echo $name . " " . $filecontent . " not found ";
-                else {
+                } else {
                     // disable legacy versions based on legacy_names provided
                     if (count($leg_names)) {
                         \EvolutionCMS\Models\SitePlugin::query()->whereIn('name', $leg_names)->update(['disabled' => 1]);
@@ -542,13 +584,9 @@ class InstallEvo
                             })
                                 ->whereNull('name')
                                 ->where('pluginid', $id)->delete();
-
                         }
                     }
-
-
                 }
-
             }
         }
         $moduleModules = [];
@@ -641,6 +679,7 @@ class InstallEvo
                 }
             }
             $d->close();
+            success('✔ All plugins is installed!');
         }
         // Install Modules
         if (count($moduleModules) > 0) {
@@ -652,10 +691,9 @@ class InstallEvo
                 $guid = $moduleModule[4];
                 $shared = $moduleModule[5];
                 $category = $moduleModule[6];
-                if (!file_exists($filecontent))
+                if (!file_exists($filecontent)) {
                     echo $name . " " . $filecontent . " not found ";
-                else {
-
+                } else {
                     // Create the category if it does not already exist
                     $category = getCreateDbCategory($category);
 
@@ -667,26 +705,25 @@ class InstallEvo
                     if (!is_null($moduleDb)) {
                         $props = propUpdate($properties, $moduleDb->properties);
                         \EvolutionCMS\Models\SiteModule::query()->where('name', $name)->update(['modulecode' => $module, 'description' => $desc, 'properties' => $props, 'enable_sharedparams' => $shared]);
-
                     } else {
                         $props = parseProperties($properties, true);
                         \EvolutionCMS\Models\SiteModule::query()->create(['name' => $name, 'guid' => $guid, 'category' => $category, 'modulecode' => $module, 'description' => $desc, 'properties' => $props, 'enable_sharedparams' => $shared]);
                     }
                 }
-
             }
+            success('✔ All modules is installed!');
         }
-
     }
 
     public function clearCacheAfterInstall()
     {
-        if (file_exists(MODX_BASE_PATH . 'assets/cache/installProc.inc.php')) {
-            @chmod(MODX_BASE_PATH . 'assets/cache/installProc.inc.php', 0755);
-            unlink(MODX_BASE_PATH . 'assets/cache/installProc.inc.php');
+        if (file_exists(EVO_BASE_PATH . 'assets/cache/installProc.inc.php')) {
+            @chmod(EVO_BASE_PATH . 'assets/cache/installProc.inc.php', 0755);
+            unlink(EVO_BASE_PATH . 'assets/cache/installProc.inc.php');
         }
         file_put_contents(EVO_CORE_PATH . '.install', time());
         $this->evo->clearCache('full');
+        success('✔ Cache after Install cleared!');
     }
 
     public function removeInstall()
@@ -694,11 +731,16 @@ class InstallEvo
         if ($this->removeInstall == 'y') {
             $path = __DIR__ . '/';
             removeFolder($path);
-            if (file_exists(MODX_BASE_PATH . '.tx'))
-                removeFolder(MODX_BASE_PATH . '.tx');
-            if (file_exists(MODX_BASE_PATH . 'README.md'))
-                unlink(MODX_BASE_PATH . 'README.md');
-            echo 'Install folder deleted!' . PHP_EOL . PHP_EOL;
+            if (file_exists(EVO_BASE_PATH . '.tx')) {
+                removeFolder(EVO_BASE_PATH . '.tx');
+            }
+            if (file_exists(EVO_BASE_PATH . 'README.md')) {
+                unlink(EVO_BASE_PATH . 'README.md');
+            }
+            if (file_exists(EVO_BASE_PATH . 'composer.json')) {
+                unlink(EVO_BASE_PATH . 'composer.json');
+            }
+            success('✔ Install folder deleted!');
         }
     }
 }

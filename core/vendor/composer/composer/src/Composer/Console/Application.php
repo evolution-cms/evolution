@@ -19,9 +19,9 @@ use Composer\Util\Platform;
 use Composer\Util\Silencer;
 use LogicException;
 use RuntimeException;
-use Seld\Signal\SignalHandler;
 use Symfony\Component\Console\Application as BaseApplication;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
+use Symfony\Component\Console\Exception\ExceptionInterface;
 use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -43,7 +43,6 @@ use Composer\EventDispatcher\ScriptExecutionException;
 use Composer\Exception\NoSslException;
 use Composer\XdebugHandler\XdebugHandler;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
-use Composer\Util\Http\ProxyManager;
 
 /**
  * The console application that handles the commands
@@ -85,9 +84,6 @@ class Application extends BaseApplication
      */
     private $initialWorkingDirectory;
 
-    /** @var SignalHandler */
-    private $signalHandler;
-
     public function __construct(string $name = 'Composer', string $version = '')
     {
         if (method_exists($this, 'setCatchErrors')) {
@@ -108,12 +104,6 @@ class Application extends BaseApplication
         }
 
         $this->io = new NullIO();
-
-        $this->signalHandler = SignalHandler::create([SignalHandler::SIGINT, SignalHandler::SIGTERM, SignalHandler::SIGHUP], function (string $signal, SignalHandler $handler) {
-            $this->io->writeError('Received '.$signal.', aborting', true, IOInterface::DEBUG);
-
-            $handler->exitWithLastSignal();
-        });
 
         if (!$shutdownRegistered) {
             $shutdownRegistered = true;
@@ -136,7 +126,6 @@ class Application extends BaseApplication
 
     public function __destruct()
     {
-        $this->signalHandler->unregister();
     }
 
     public function run(?InputInterface $input = null, ?OutputInterface $output = null): int
@@ -153,7 +142,10 @@ class Application extends BaseApplication
         $this->disablePluginsByDefault = $input->hasParameterOption('--no-plugins');
         $this->disableScriptsByDefault = $input->hasParameterOption('--no-scripts');
 
-        $stdin = defined('STDIN') ? STDIN : fopen('php://stdin', 'r');
+        static $stdin = null;
+        if (null === $stdin) {
+            $stdin = defined('STDIN') ? STDIN : fopen('php://stdin', 'r');
+        }
         if (Platform::getEnv('COMPOSER_TESTS_ARE_RUNNING') !== '1' && (Platform::getEnv('COMPOSER_NO_INTERACTION') || $stdin === false || !Platform::isTty($stdin))) {
             $input->setInteractive(false);
         }
@@ -182,7 +174,7 @@ class Application extends BaseApplication
 
         // determine command name to be executed without including plugin commands
         $commandName = '';
-        if ($name = $this->getCommandName($input)) {
+        if ($name = $this->getCommandNameBeforeBinding($input)) {
             try {
                 $commandName = $this->find($name)->getName();
             } catch (CommandNotFoundException $e) {
@@ -193,13 +185,29 @@ class Application extends BaseApplication
         }
 
         // prompt user for dir change if no composer.json is present in current dir
-        if ($io->isInteractive() && null === $newWorkDir && !in_array($commandName, ['', 'list', 'init', 'about', 'help', 'diagnose', 'self-update', 'global', 'create-project', 'outdated'], true) && !file_exists(Factory::getComposerFile()) && ($useParentDirIfNoJsonAvailable = $this->getUseParentDirConfigValue()) !== false) {
+        if (
+            null === $newWorkDir
+            // do not prompt for commands that can function without composer.json
+            && !in_array($commandName, ['', 'list', 'init', 'about', 'help', 'diagnose', 'self-update', 'global', 'create-project', 'outdated'], true)
+            && !file_exists(Factory::getComposerFile())
+            // if use-parent-dir is disabled we should not prompt
+            && ($useParentDirIfNoJsonAvailable = $this->getUseParentDirConfigValue()) !== false
+            // config --file ... should not prompt
+            && ($commandName !== 'config' || ($input->hasParameterOption('--file', true) === false && $input->hasParameterOption('-f', true) === false))
+            // calling a command's help should not prompt
+            && $input->hasParameterOption('--help', true) === false
+            && $input->hasParameterOption('-h', true) === false
+        ) {
             $dir = dirname(Platform::getCwd(true));
             $home = realpath(Platform::getEnv('HOME') ?: Platform::getEnv('USERPROFILE') ?: '/');
 
             // abort when we reach the home dir or top of the filesystem
             while (dirname($dir) !== $dir && $dir !== $home) {
                 if (file_exists($dir.'/'.Factory::getComposerFile())) {
+                    if ($useParentDirIfNoJsonAvailable !== true && !$io->isInteractive()) {
+                        $io->writeError('<info>No composer.json in current directory, to use the one at '.$dir.' run interactively or set config.use-parent-dir to true</info>');
+                        break;
+                    }
                     if ($useParentDirIfNoJsonAvailable === true || $io->askConfirmation('<info>No composer.json in current directory, do you want to use the one at '.$dir.'?</info> [<comment>Y,n</comment>]? ')) {
                         if ($useParentDirIfNoJsonAvailable === true) {
                             $io->writeError('<info>No composer.json in current directory, changing working directory to '.$dir.'</info>');
@@ -213,16 +221,13 @@ class Application extends BaseApplication
                 }
                 $dir = dirname($dir);
             }
+            unset($dir, $home);
         }
 
         $needsSudoCheck = !Platform::isWindows()
             && function_exists('exec')
             && !Platform::getEnv('COMPOSER_ALLOW_SUPERUSER')
-            && (ini_get('open_basedir') || (
-                !file_exists('/.dockerenv')
-                && !file_exists('/run/.containerenv')
-                && !file_exists('/var/run/.containerenv')
-            ));
+            && !Platform::isDocker();
         $isNonAllowedRoot = false;
 
         // Clobber sudo credentials if COMPOSER_ALLOW_SUPERUSER is not set before loading plugins
@@ -307,7 +312,7 @@ class Application extends BaseApplication
 
         // determine command name to be executed incl plugin commands, and check if it's a proxy command
         $isProxyCommand = false;
-        if ($name = $this->getCommandName($input)) {
+        if ($name = $this->getCommandNameBeforeBinding($input)) {
             try {
                 $command = $this->find($name);
                 $commandName = $command->getName();
@@ -325,7 +330,7 @@ class Application extends BaseApplication
                 function_exists('php_uname') ? php_uname('s') . ' / ' . php_uname('r') : 'Unknown OS'
             ), true, IOInterface::DEBUG);
 
-            if (PHP_VERSION_ID < 70205) {
+            if (\PHP_VERSION_ID < 70205) {
                 $io->writeError('<warning>Composer supports PHP 7.2.5 and above, you will most likely encounter problems with your PHP '.PHP_VERSION.'. Upgrading is strongly recommended but you can use Composer 2.2.x LTS as a fallback.</warning>');
             }
 
@@ -352,7 +357,7 @@ class Application extends BaseApplication
             // Check system temp folder for usability as it can cause weird runtime issues otherwise
             Silencer::call(static function () use ($io): void {
                 $pid = function_exists('getmypid') ? getmypid() . '-' : '';
-                $tempfile = sys_get_temp_dir() . '/temp-' . $pid . md5(microtime());
+                $tempfile = sys_get_temp_dir() . '/temp-' . $pid . bin2hex(random_bytes(5));
                 if (!(file_put_contents($tempfile, __FILE__) && (file_get_contents($tempfile) === __FILE__) && unlink($tempfile) && !file_exists($tempfile))) {
                     $io->writeError(sprintf('<error>PHP temp directory (%s) does not exist or is not writable to Composer. Set sys_temp_dir in your php.ini</error>', sys_get_temp_dir()));
                 }
@@ -384,8 +389,6 @@ class Application extends BaseApplication
         }
 
         try {
-            $proxyManager = ProxyManager::getInstance();
-
             if ($input->hasParameterOption('--profile')) {
                 $startTime = microtime(true);
                 $this->io->enableDebugging($startTime);
@@ -405,14 +408,6 @@ class Application extends BaseApplication
 
             if (isset($startTime)) {
                 $io->writeError('<info>Memory usage: '.round(memory_get_usage() / 1024 / 1024, 2).'MiB (peak: '.round(memory_get_peak_usage() / 1024 / 1024, 2).'MiB), time: '.round(microtime(true) - $startTime, 2).'s</info>');
-            }
-
-            if ($proxyManager->needsTransitionWarning()) {
-                $io->writeError('');
-                $io->writeError('<warning>Composer now requires separate proxy environment variables for HTTP and HTTPS requests.</warning>');
-                $io->writeError('<warning>Please set `https_proxy` in addition to your existing proxy environment variables.</warning>');
-                $io->writeError('<warning>This fallback (and warning) will be removed in Composer 2.8.0.</warning>');
-                $io->writeError('<warning>https://getcomposer.org/doc/faqs/how-to-use-composer-behind-a-proxy.md</warning>');
             }
 
             return $result;
@@ -500,6 +495,17 @@ class Application extends BaseApplication
         if ($exception instanceof TransportException && str_contains($exception->getMessage(), 'Unable to use a proxy')) {
             $io->writeError('<error>The following exception indicates your proxy is misconfigured</error>', true, IOInterface::QUIET);
             $io->writeError('<error>Check https://getcomposer.org/doc/faqs/how-to-use-composer-behind-a-proxy.md for details</error>', true, IOInterface::QUIET);
+        }
+
+        if (Platform::isWindows() && $exception instanceof TransportException && str_contains($exception->getMessage(), 'unable to get local issuer certificate')) {
+            $avastDetect = glob('C:\Program Files\Avast*');
+            if (is_array($avastDetect) && count($avastDetect) !== 0) {
+                $io->writeError('<error>The following exception indicates a possible issue with the Avast Firewall</error>', true, IOInterface::QUIET);
+                $io->writeError('<error>Check https://getcomposer.org/local-issuer for details</error>', true, IOInterface::QUIET);
+            } else {
+                $io->writeError('<error>The following exception indicates a possible issue with a Firewall/Antivirus</error>', true, IOInterface::QUIET);
+                $io->writeError('<error>Check https://getcomposer.org/local-issuer for details</error>', true, IOInterface::QUIET);
+            }
         }
 
         if (Platform::isWindows() && false !== strpos($exception->getMessage(), 'The system cannot find the path specified')) {
@@ -635,6 +641,24 @@ class Application extends BaseApplication
         }
 
         return $commands;
+    }
+
+    /**
+     * This ensures we can find the correct command name even if a global input option is present before it
+     *
+     * e.g. "composer -d foo bar" should detect bar as the command name, and not foo
+     */
+    private function getCommandNameBeforeBinding(InputInterface $input): ?string
+    {
+        $input = clone $input;
+        try {
+            // Makes ArgvInput::getFirstArgument() able to distinguish an option from an argument.
+            $input->bind($this->getDefinition());
+        } catch (ExceptionInterface $e) {
+            // Errors must be ignored, full binding/validation happens later when the command is known.
+        }
+
+        return $input->getFirstArgument();
     }
 
     public function getLongVersion(): string

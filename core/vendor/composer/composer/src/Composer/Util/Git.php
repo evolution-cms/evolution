@@ -32,6 +32,8 @@ class Git
     protected $process;
     /** @var Filesystem */
     protected $filesystem;
+    /** @var HttpDownloader */
+    protected $httpDownloader;
 
     public function __construct(IOInterface $io, Config $config, ProcessExecutor $process, Filesystem $fs)
     {
@@ -42,18 +44,101 @@ class Git
     }
 
     /**
+     * @param IOInterface|null $io If present, a warning is output there instead of throwing, so pass this in only for cases where this is a soft failure
+     */
+    public static function checkForRepoOwnershipError(string $output, string $path, ?IOInterface $io = null): void
+    {
+        if (str_contains($output, 'fatal: detected dubious ownership')) {
+            $msg = 'The repository at "' . $path . '" does not have the correct ownership and git refuses to use it:' . PHP_EOL . PHP_EOL . $output;
+            if ($io === null) {
+                throw new \RuntimeException($msg);
+            }
+            $io->writeError('<warning>'.$msg.'</warning>');
+        }
+    }
+
+    public function setHttpDownloader(HttpDownloader $httpDownloader): void
+    {
+        $this->httpDownloader = $httpDownloader;
+    }
+
+    /**
+     * Runs a set of commands using the $url or a variation of it (with auth, ssh, ..)
+     *
+     * Commands should use %url% placeholders for the URL instead of inlining it to allow this function to do its job
+     * %sanitizedUrl% is also automatically replaced by the url without user/pass
+     *
+     * As soon as a single command fails it will halt, so assume the commands are run as && in bash
+     *
+     * @param non-empty-array<non-empty-list<string>> $commands
+     * @param mixed $commandOutput  the output will be written into this var if passed by ref
+     *                              if a callable is passed it will be used as output handler
+     */
+    public function runCommands(array $commands, string $url, ?string $cwd, bool $initialClone = false, &$commandOutput = null): void
+    {
+        $callables = [];
+        foreach ($commands as $cmd) {
+            $callables[] = static function (string $url) use ($cmd): array {
+                $map = [
+                    '%url%' => $url,
+                    '%sanitizedUrl%' => Preg::replace('{://([^@]+?):(.+?)@}', '://', $url),
+                ];
+
+                return array_map(static function ($value) use ($map): string {
+                    return $map[$value] ?? $value;
+                }, $cmd);
+            };
+        }
+
+        // @phpstan-ignore method.deprecated
+        $this->runCommand($callables, $url, $cwd, $initialClone, $commandOutput);
+    }
+
+    /**
+     * @param callable|array<callable> $commandCallable
      * @param mixed       $commandOutput  the output will be written into this var if passed by ref
      *                                    if a callable is passed it will be used as output handler
+     * @deprecated Use runCommands with placeholders instead of callbacks for simplicity
      */
-    public function runCommand(callable $commandCallable, string $url, ?string $cwd, bool $initialClone = false, &$commandOutput = null): void
+    public function runCommand($commandCallable, string $url, ?string $cwd, bool $initialClone = false, &$commandOutput = null): void
     {
+        $commandCallables = is_callable($commandCallable) ? [$commandCallable] : $commandCallable;
+        $lastCommand = '';
+
         // Ensure we are allowed to use this URL by config
         $this->config->prohibitUrlByConfig($url, $this->io);
 
         if ($initialClone) {
             $origCwd = $cwd;
-            $cwd = null;
         }
+
+        $runCommands = function ($url) use ($commandCallables, $cwd, &$commandOutput, &$lastCommand, $initialClone) {
+            $collectOutputs = !is_callable($commandOutput);
+            $outputs = [];
+
+            $status = 0;
+            $counter = 0;
+            foreach ($commandCallables as $callable) {
+                $lastCommand = $callable($url);
+                if ($collectOutputs) {
+                    $outputs[] = '';
+                    $output = &$outputs[count($outputs) - 1];
+                } else {
+                    $output = &$commandOutput;
+                }
+                $status = $this->process->execute($lastCommand, $output, $initialClone && $counter === 0 ? null : $cwd);
+                if ($status !== 0) {
+                    break;
+                }
+                $counter++;
+            }
+
+            if ($collectOutputs) {
+                $commandOutput = implode('', $outputs);
+            }
+
+            return $status;
+        };
 
         if (Preg::isMatch('{^ssh://[^@]+@[^:]+:[^0-9]+}', $url)) {
             throw new \InvalidArgumentException('The source URL ' . $url . ' is invalid, ssh URLs should have a port number after ":".' . "\n" . 'Use ssh://git@example.com:22/path or just git@example.com:path if you do not want to provide a password or custom port.');
@@ -61,7 +146,7 @@ class Git
 
         if (!$initialClone) {
             // capture username/password from URL if there is one and we have no auth configured yet
-            $this->process->execute('git remote -v', $output, $cwd);
+            $this->process->execute(['git', 'remote', '-v'], $output, $cwd);
             if (Preg::isMatchStrictGroups('{^(?:composer|origin)\s+https?://(.+):(.+)@([^/]+)}im', $output, $match) && !$this->io->hasAuthentication($match[3])) {
                 $this->io->setAuthentication($match[3], rawurldecode($match[1]), rawurldecode($match[2]));
             }
@@ -69,6 +154,7 @@ class Git
 
         $protocols = $this->config->get('github-protocols');
         // public github, autoswitch protocols
+        // @phpstan-ignore composerPcre.maybeUnsafeStrictGroups
         if (Preg::isMatchStrictGroups('{^(?:https?|git)://' . self::getGitHubDomainsRegex($this->config) . '/(.*)}', $url, $match)) {
             $messages = [];
             foreach ($protocols as $protocol) {
@@ -78,7 +164,7 @@ class Git
                     $protoUrl = $protocol . "://" . $match[1] . "/" . $match[2];
                 }
 
-                if (0 === $this->process->execute($commandCallable($protoUrl), $commandOutput, $cwd)) {
+                if (0 === $runCommands($protoUrl)) {
                     return;
                 }
                 $messages[] = '- ' . $protoUrl . "\n" . Preg::replace('#^#m', '  ', $this->process->getErrorOutput());
@@ -97,14 +183,14 @@ class Git
         // if we have a private github url and the ssh protocol is disabled then we skip it and directly fallback to https
         $bypassSshForGitHub = Preg::isMatch('{^git@' . self::getGitHubDomainsRegex($this->config) . ':(.+?)\.git$}i', $url) && !in_array('ssh', $protocols, true);
 
-        $command = $commandCallable($url);
-
         $auth = null;
         $credentials = [];
-        if ($bypassSshForGitHub || 0 !== $this->process->execute($command, $commandOutput, $cwd)) {
+        if ($bypassSshForGitHub || 0 !== $runCommands($url)) {
             $errorMsg = $this->process->getErrorOutput();
             // private github repository without ssh key access, try https with auth
+            // @phpstan-ignore composerPcre.maybeUnsafeStrictGroups
             if (Preg::isMatchStrictGroups('{^git@' . self::getGitHubDomainsRegex($this->config) . ':(.+?)\.git$}i', $url, $match)
+                // @phpstan-ignore composerPcre.maybeUnsafeStrictGroups
                 || Preg::isMatchStrictGroups('{^https?://' . self::getGitHubDomainsRegex($this->config) . '/(.*?)(?:\.git)?$}i', $url, $match)
             ) {
                 if (!$this->io->hasAuthentication($match[1])) {
@@ -119,60 +205,78 @@ class Git
                 if ($this->io->hasAuthentication($match[1])) {
                     $auth = $this->io->getAuthentication($match[1]);
                     $authUrl = 'https://' . rawurlencode($auth['username']) . ':' . rawurlencode($auth['password']) . '@' . $match[1] . '/' . $match[2] . '.git';
-                    $command = $commandCallable($authUrl);
-                    if (0 === $this->process->execute($command, $commandOutput, $cwd)) {
+                    if (0 === $runCommands($authUrl)) {
                         return;
                     }
 
                     $credentials = [rawurlencode($auth['username']), rawurlencode($auth['password'])];
                     $errorMsg = $this->process->getErrorOutput();
                 }
-            } elseif (Preg::isMatchStrictGroups('{^https://(bitbucket\.org)/(.*?)(?:\.git)?$}i', $url, $match)) { //bitbucket oauth
-                $bitbucketUtil = new Bitbucket($this->io, $this->config, $this->process);
+            // @phpstan-ignore composerPcre.maybeUnsafeStrictGroups
+            } elseif (
+                Preg::isMatchStrictGroups('{^(https?)://(bitbucket\.org)/(.*?)(?:\.git)?$}i', $url, $match)
+                || Preg::isMatchStrictGroups('{^(git)@(bitbucket\.org):(.+?\.git)$}i', $url, $match)
+            ) { //bitbucket either through oauth or app password, with fallback to ssh.
+                $bitbucketUtil = new Bitbucket($this->io, $this->config, $this->process, $this->httpDownloader);
 
-                if (!$this->io->hasAuthentication($match[1])) {
+                $domain = $match[2];
+                $repo_with_git_part = $match[3];
+                if (!str_ends_with($repo_with_git_part, '.git')) {
+                    $repo_with_git_part .= '.git';
+                }
+                if (!$this->io->hasAuthentication($domain)) {
                     $message = 'Enter your Bitbucket credentials to access private repos';
 
-                    if (!$bitbucketUtil->authorizeOAuth($match[1]) && $this->io->isInteractive()) {
+                    if (!$bitbucketUtil->authorizeOAuth($domain) && $this->io->isInteractive()) {
                         $bitbucketUtil->authorizeOAuthInteractively($match[1], $message);
                         $accessToken = $bitbucketUtil->getToken();
-                        $this->io->setAuthentication($match[1], 'x-token-auth', $accessToken);
+                        $this->io->setAuthentication($domain, 'x-token-auth', $accessToken);
                     }
-                } else { //We're authenticating with a locally stored consumer.
-                    $auth = $this->io->getAuthentication($match[1]);
+                }
+
+                // First we try to authenticate with whatever we have stored.
+                // This will be successful if there is for example an app
+                // password in there.
+                if ($this->io->hasAuthentication($domain)) {
+                    $auth = $this->io->getAuthentication($domain);
+                    $authUrl = 'https://' . rawurlencode($auth['username']) . ':' . rawurlencode($auth['password']) . '@' . $domain . '/' . $repo_with_git_part;
+
+                    if (0 === $runCommands($authUrl)) {
+                        // Well if that succeeded on our first try, let's just
+                        // take the win.
+                        return;
+                    }
 
                     //We already have an access_token from a previous request.
                     if ($auth['username'] !== 'x-token-auth') {
-                        $accessToken = $bitbucketUtil->requestToken($match[1], $auth['username'], $auth['password']);
+                        $accessToken = $bitbucketUtil->requestToken($domain, $auth['username'], $auth['password']);
                         if (!empty($accessToken)) {
-                            $this->io->setAuthentication($match[1], 'x-token-auth', $accessToken);
+                            $this->io->setAuthentication($domain, 'x-token-auth', $accessToken);
                         }
                     }
                 }
 
-                if ($this->io->hasAuthentication($match[1])) {
-                    $auth = $this->io->getAuthentication($match[1]);
-                    $authUrl = 'https://' . rawurlencode($auth['username']) . ':' . rawurlencode($auth['password']) . '@' . $match[1] . '/' . $match[2] . '.git';
-
-                    $command = $commandCallable($authUrl);
-                    if (0 === $this->process->execute($command, $commandOutput, $cwd)) {
+                if ($this->io->hasAuthentication($domain)) {
+                    $auth = $this->io->getAuthentication($domain);
+                    $authUrl = 'https://' . rawurlencode($auth['username']) . ':' . rawurlencode($auth['password']) . '@' . $domain . '/' . $repo_with_git_part;
+                    if (0 === $runCommands($authUrl)) {
                         return;
                     }
 
                     $credentials = [rawurlencode($auth['username']), rawurlencode($auth['password'])];
-                    $errorMsg = $this->process->getErrorOutput();
-                } else { // Falling back to ssh
-                    $sshUrl = 'git@bitbucket.org:' . $match[2] . '.git';
-                    $this->io->writeError('    No bitbucket authentication configured. Falling back to ssh.');
-                    $command = $commandCallable($sshUrl);
-                    if (0 === $this->process->execute($command, $commandOutput, $cwd)) {
-                        return;
-                    }
-
-                    $errorMsg = $this->process->getErrorOutput();
                 }
+                //Falling back to ssh
+                $sshUrl = 'git@bitbucket.org:' . $repo_with_git_part;
+                $this->io->writeError('    No bitbucket authentication configured. Falling back to ssh.');
+                if (0 === $runCommands($sshUrl)) {
+                    return;
+                }
+
+                $errorMsg = $this->process->getErrorOutput();
             } elseif (
+                // @phpstan-ignore composerPcre.maybeUnsafeStrictGroups
                 Preg::isMatchStrictGroups('{^(git)@' . self::getGitLabDomainsRegex($this->config) . ':(.+?\.git)$}i', $url, $match)
+                // @phpstan-ignore composerPcre.maybeUnsafeStrictGroups
                 || Preg::isMatchStrictGroups('{^(https?)://' . self::getGitLabDomainsRegex($this->config) . '/(.*)}i', $url, $match)
             ) {
                 if ($match[1] === 'git') {
@@ -191,21 +295,20 @@ class Git
                 if ($this->io->hasAuthentication($match[2])) {
                     $auth = $this->io->getAuthentication($match[2]);
                     if ($auth['password'] === 'private-token' || $auth['password'] === 'oauth2' || $auth['password'] === 'gitlab-ci-token') {
-                        $authUrl = $match[1] . '://' . rawurlencode($auth['password']) . ':' . rawurlencode($auth['username']) . '@' . $match[2] . '/' . $match[3]; // swap username and password
+                        $authUrl = $match[1] . '://' . rawurlencode($auth['password']) . ':' . rawurlencode((string) $auth['username']) . '@' . $match[2] . '/' . $match[3]; // swap username and password
                     } else {
-                        $authUrl = $match[1] . '://' . rawurlencode($auth['username']) . ':' . rawurlencode($auth['password']) . '@' . $match[2] . '/' . $match[3];
+                        $authUrl = $match[1] . '://' . rawurlencode((string) $auth['username']) . ':' . rawurlencode((string) $auth['password']) . '@' . $match[2] . '/' . $match[3];
                     }
 
-                    $command = $commandCallable($authUrl);
-                    if (0 === $this->process->execute($command, $commandOutput, $cwd)) {
+                    if (0 === $runCommands($authUrl)) {
                         return;
                     }
 
-                    $credentials = [rawurlencode($auth['username']), rawurlencode($auth['password'])];
+                    $credentials = [rawurlencode((string) $auth['username']), rawurlencode((string) $auth['password'])];
                     $errorMsg = $this->process->getErrorOutput();
                 }
-            } elseif ($this->isAuthenticationFailure($url, $match)) { // private non-github/gitlab/bitbucket repo that failed to authenticate
-                if (strpos($match[2], '@')) {
+            } elseif (null !== ($match = $this->getAuthenticationFailure($url))) { // private non-github/gitlab/bitbucket repo that failed to authenticate
+                if (str_contains($match[2], '@')) {
                     [$authParts, $match[2]] = explode('@', $match[2], 2);
                 }
 
@@ -214,8 +317,8 @@ class Git
                     $auth = $this->io->getAuthentication($match[2]);
                 } elseif ($this->io->isInteractive()) {
                     $defaultUsername = null;
-                    if (isset($authParts) && $authParts) {
-                        if (false !== strpos($authParts, ':')) {
+                    if (isset($authParts) && $authParts !== '') {
+                        if (str_contains($authParts, ':')) {
                             [$defaultUsername, ] = explode(':', $authParts, 2);
                         } else {
                             $defaultUsername = $authParts;
@@ -232,10 +335,9 @@ class Git
                 }
 
                 if (null !== $auth) {
-                    $authUrl = $match[1] . rawurlencode($auth['username']) . ':' . rawurlencode($auth['password']) . '@' . $match[2] . $match[3];
+                    $authUrl = $match[1] . rawurlencode((string) $auth['username']) . ':' . rawurlencode((string) $auth['password']) . '@' . $match[2] . $match[3];
 
-                    $command = $commandCallable($authUrl);
-                    if (0 === $this->process->execute($command, $commandOutput, $cwd)) {
+                    if (0 === $runCommands($authUrl)) {
                         $this->io->setAuthentication($match[2], $auth['username'], $auth['password']);
                         $authHelper = new AuthHelper($this->io, $this->config);
                         $authHelper->storeAuth($match[2], $storeAuth);
@@ -243,7 +345,7 @@ class Git
                         return;
                     }
 
-                    $credentials = [rawurlencode($auth['username']), rawurlencode($auth['password'])];
+                    $credentials = [rawurlencode((string) $auth['username']), rawurlencode((string) $auth['password'])];
                     $errorMsg = $this->process->getErrorOutput();
                 }
             }
@@ -252,31 +354,34 @@ class Git
                 $this->filesystem->removeDirectory($origCwd);
             }
 
+            $lastCommand = implode(' ', $lastCommand);
             if (count($credentials) > 0) {
-                $command = $this->maskCredentials($command, $credentials);
+                $lastCommand = $this->maskCredentials($lastCommand, $credentials);
                 $errorMsg = $this->maskCredentials($errorMsg, $credentials);
             }
-            $this->throwException('Failed to execute ' . $command . "\n\n" . $errorMsg, $url);
+            $this->throwException('Failed to execute ' . $lastCommand . "\n\n" . $errorMsg, $url);
         }
     }
 
     public function syncMirror(string $url, string $dir): bool
     {
-        if (Platform::getEnv('COMPOSER_DISABLE_NETWORK') && Platform::getEnv('COMPOSER_DISABLE_NETWORK') !== 'prime') {
+        if ((bool) Platform::getEnv('COMPOSER_DISABLE_NETWORK') && Platform::getEnv('COMPOSER_DISABLE_NETWORK') !== 'prime') {
             $this->io->writeError('<warning>Aborting git mirror sync of '.$url.' as network is disabled</warning>');
 
             return false;
         }
 
         // update the repo if it is a valid git repository
-        if (is_dir($dir) && 0 === $this->process->execute('git rev-parse --git-dir', $output, $dir) && trim($output) === '.') {
+        if (is_dir($dir) && 0 === $this->process->execute(['git', 'rev-parse', '--git-dir'], $output, $dir) && trim($output) === '.') {
             try {
-                $commandCallable = static function ($url): string {
-                    $sanitizedUrl = Preg::replace('{://([^@]+?):(.+?)@}', '://', $url);
+                $commands = [
+                    ['git', 'remote', 'set-url', 'origin', '--', '%url%'],
+                    ['git', 'remote', 'update', '--prune', 'origin'],
+                    ['git', 'remote', 'set-url', 'origin', '--', '%sanitizedUrl%'],
+                    ['git', 'gc', '--auto'],
+                ];
 
-                    return sprintf('git remote set-url origin -- %s && git remote update --prune origin && git remote set-url origin -- %s && git gc --auto', ProcessExecutor::escape($url), ProcessExecutor::escape($sanitizedUrl));
-                };
-                $this->runCommand($commandCallable, $url, $dir);
+                $this->runCommands($commands, $url, $dir);
             } catch (\Exception $e) {
                 $this->io->writeError('<error>Sync mirror failed: ' . $e->getMessage() . '</error>', true, IOInterface::DEBUG);
 
@@ -285,15 +390,12 @@ class Git
 
             return true;
         }
+        self::checkForRepoOwnershipError($this->process->getErrorOutput(), $dir);
 
         // clean up directory and do a fresh clone into it
         $this->filesystem->removeDirectory($dir);
 
-        $commandCallable = static function ($url) use ($dir): string {
-            return sprintf('git clone --mirror -- %s %s', ProcessExecutor::escape($url), ProcessExecutor::escape($dir));
-        };
-
-        $this->runCommand($commandCallable, $url, $dir, true);
+        $this->runCommands([['git', 'clone', '--mirror', '--', '%url%', $dir]], $url, $dir, true);
 
         return true;
     }
@@ -305,10 +407,10 @@ class Git
                 $branch = Preg::replace('{(?:^dev-|(?:\.x)?-dev$)}i', '', $prettyVersion);
                 $branches = null;
                 $tags = null;
-                if (0 === $this->process->execute('git branch', $output, $dir)) {
+                if (0 === $this->process->execute(['git', 'branch'], $output, $dir)) {
                     $branches = $output;
                 }
-                if (0 === $this->process->execute('git tag', $output, $dir)) {
+                if (0 === $this->process->execute(['git', 'tag'], $output, $dir)) {
                     $tags = $output;
                 }
 
@@ -343,27 +445,39 @@ class Git
         return '';
     }
 
+    /**
+     * @return list<string>
+     */
+    public static function getNoShowSignatureFlags(ProcessExecutor $process): array
+    {
+        $flags = static::getNoShowSignatureFlag($process);
+        if ('' === $flags) {
+            return [];
+        }
+
+        return explode(' ', substr($flags, 1));
+    }
+
     private function checkRefIsInMirror(string $dir, string $ref): bool
     {
-        if (is_dir($dir) && 0 === $this->process->execute('git rev-parse --git-dir', $output, $dir) && trim($output) === '.') {
-            $escapedRef = ProcessExecutor::escape($ref.'^{commit}');
-            $exitCode = $this->process->execute(sprintf('git rev-parse --quiet --verify %s', $escapedRef), $ignoredOutput, $dir);
+        if (is_dir($dir) && 0 === $this->process->execute(['git', 'rev-parse', '--git-dir'], $output, $dir) && trim($output) === '.') {
+            $exitCode = $this->process->execute(['git', 'rev-parse', '--quiet', '--verify', $ref.'^{commit}'], $ignoredOutput, $dir);
             if ($exitCode === 0) {
                 return true;
             }
         }
+        self::checkForRepoOwnershipError($this->process->getErrorOutput(), $dir);
 
         return false;
     }
 
     /**
-     * @param array<mixed> $match
-     * @param-out array<int|string, string> $match
+     * @return array<int, string>|null
      */
-    private function isAuthenticationFailure(string $url, array &$match): bool
+    private function getAuthenticationFailure(string $url): ?array
     {
         if (!Preg::isMatchStrictGroups('{^(https?://)([^/]+)(.*)$}i', $url, $match)) {
-            return false;
+            return null;
         }
 
         $authFailures = [
@@ -377,11 +491,11 @@ class Git
         $errorOutput = $this->process->getErrorOutput();
         foreach ($authFailures as $authFailure) {
             if (strpos($errorOutput, $authFailure) !== false) {
-                return true;
+                return $match;
             }
         }
 
-        return false;
+        return null;
     }
 
     public function getMirrorDefaultBranch(string $url, string $dir, bool $isLocalPathRepository): ?string
@@ -392,20 +506,20 @@ class Git
 
         try {
             if ($isLocalPathRepository) {
-                $this->process->execute('git remote show origin', $output, $dir);
+                $this->process->execute(['git', 'remote', 'show', 'origin'], $output, $dir);
             } else {
-                $commandCallable = static function ($url): string {
-                    $sanitizedUrl = Preg::replace('{://([^@]+?):(.+?)@}', '://', $url);
+                $commands = [
+                    ['git', 'remote', 'set-url', 'origin', '--', '%url%'],
+                    ['git', 'remote', 'show', 'origin'],
+                    ['git', 'remote', 'set-url', 'origin', '--', '%sanitizedUrl%'],
+                ];
 
-                    return sprintf('git remote set-url origin -- %s && git remote show origin && git remote set-url origin -- %s', ProcessExecutor::escape($url), ProcessExecutor::escape($sanitizedUrl));
-                };
-
-                $this->runCommand($commandCallable, $url, $dir, false, $output);
+                $this->runCommands($commands, $url, $dir, false, $output);
             }
 
             $lines = $this->process->splitLines($output);
             foreach ($lines as $line) {
-                if (Preg::match('{^\s*HEAD branch:\s(.+)\s*$}m', $line, $matches) > 0) {
+                if (Preg::isMatch('{^\s*HEAD branch:\s(.+)\s*$}m', $line, $matches)) {
                     return $matches[1];
                 }
             }
@@ -466,7 +580,7 @@ class Git
         // git might delete a directory when it fails and php will not know
         clearstatcache();
 
-        if (0 !== $this->process->execute('git --version', $ignoredOutput)) {
+        if (0 !== $this->process->execute(['git', '--version'], $ignoredOutput)) {
             throw new \RuntimeException(Url::sanitize('Failed to clone ' . $url . ', git was not found, check that it is installed and in your PATH env.' . "\n\n" . $this->process->getErrorOutput()));
         }
 
@@ -482,7 +596,7 @@ class Git
     {
         if (false === self::$version) {
             self::$version = null;
-            if (0 === $process->execute('git --version', $output) && Preg::isMatch('/^git version (\d+(?:\.\d+)+)/m', $output, $matches)) {
+            if (0 === $process->execute(['git', '--version'], $output) && Preg::isMatch('/^git version (\d+(?:\.\d+)+)/m', $output, $matches)) {
                 self::$version = $matches[1];
             }
         }

@@ -405,8 +405,6 @@ SQL
      * @deprecated The SQL used for schema introspection is an implementation detail and should not be relied upon.
      *
      * {@inheritDoc}
-     *
-     * @link http://ezcomponents.org/docs/api/trunk/DatabaseSchema/ezcDbSchemaPgsqlReader.html
      */
     public function getListTableIndexesSQL($table, $database = null)
     {
@@ -1191,6 +1189,19 @@ SQL
         }
 
         return $sql;
+    }
+
+    /**
+     * Get the snippet used to retrieve the default value for a given column
+     */
+    public function getDefaultColumnValueSQLSnippet(): string
+    {
+        return <<<'SQL'
+             SELECT pg_get_expr(adbin, adrelid)
+             FROM pg_attrdef
+             WHERE c.oid = pg_attrdef.adrelid
+                AND pg_attrdef.adnum=a.attnum
+        SQL;
     }
 
     /**

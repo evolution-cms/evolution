@@ -291,7 +291,7 @@ EOT
             $source = $this->config->getSourceOfValue($settingKey);
 
             if (Preg::isMatch('/^repos?(?:itories)?(?:\.(.+))?/', $settingKey, $matches)) {
-                if (!isset($matches[1]) || $matches[1] === '') {
+                if (!isset($matches[1])) {
                     $value = $data['repositories'] ?? [];
                 } else {
                     if (!isset($data['repositories'][$matches[1]])) {
@@ -469,6 +469,18 @@ EOT
             'prepend-autoloader' => [$booleanValidator, $booleanNormalizer],
             'disable-tls' => [$booleanValidator, $booleanNormalizer],
             'secure-http' => [$booleanValidator, $booleanNormalizer],
+            'bump-after-update' => [
+                static function ($val): bool {
+                    return in_array($val, ['dev', 'no-dev', 'true', 'false', '1', '0'], true);
+                },
+                static function ($val) {
+                    if ('dev' === $val || 'no-dev' === $val) {
+                        return $val;
+                    }
+
+                    return $val !== 'false' && (bool) $val;
+                },
+            ],
             'cafile' => [
                 static function ($val): bool {
                     return file_exists($val) && Filesystem::isReadable($val);
@@ -664,7 +676,7 @@ EOT
             }],
             'minimum-stability' => [
                 static function ($val): bool {
-                    return isset(BasePackage::$stabilities[VersionParser::normalizeStability($val)]);
+                    return isset(BasePackage::STABILITIES[VersionParser::normalizeStability($val)]);
                 },
                 static function ($val): string {
                     return VersionParser::normalizeStability($val);
@@ -1013,7 +1025,7 @@ EOT
     }
 
     /**
-     * Suggest setting-keys, while taking given options in acount.
+     * Suggest setting-keys, while taking given options in account.
      */
     private function suggestSettingKeys(): \Closure
     {

@@ -1025,7 +1025,7 @@ class SqlitePlatform extends AbstractPlatform
      * {@inheritDoc}
      *
      * @param int|null $createFlags
-     * @psalm-param int-mask-of<AbstractPlatform::CREATE_*>|null $createFlags
+     * @phpstan-param int-mask-of<AbstractPlatform::CREATE_*>|null $createFlags
      */
     public function getCreateTableSQL(Table $table, $createFlags = null)
     {

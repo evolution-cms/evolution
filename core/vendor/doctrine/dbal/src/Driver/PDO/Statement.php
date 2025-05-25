@@ -29,7 +29,7 @@ final class Statement implements StatementInterface
      *
      * @throws UnknownParameterType
      *
-     * @psalm-assert ParameterType::* $type
+     * @phpstan-assert ParameterType::* $type
      */
     public function bindValue($param, $value, $type = ParameterType::STRING)
     {
@@ -64,7 +64,7 @@ final class Statement implements StatementInterface
      *
      * @throws UnknownParameterType
      *
-     * @psalm-assert ParameterType::* $type
+     * @phpstan-assert ParameterType::* $type
      */
     public function bindParam(
         $param,

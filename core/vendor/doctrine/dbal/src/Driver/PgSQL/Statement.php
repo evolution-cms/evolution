@@ -40,7 +40,7 @@ final class Statement implements StatementInterface
     /** @var array<int, mixed> */
     private array $parameters = [];
 
-    /** @psalm-var array<int, int> */
+    /** @var array<int, int> */
     private array $parameterTypes = [];
 
     /**

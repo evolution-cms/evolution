@@ -13,7 +13,6 @@ use function is_object;
 use function spl_object_hash;
 use function sprintf;
 
-/** @psalm-immutable */
 class Exception extends \Exception
 {
     public static function notSupported(string $method): self

@@ -1794,7 +1794,7 @@ abstract class AbstractPlatform
      *
      * @param string $fromClause The FROM clause to append the hint for the given lock mode to
      * @param int    $lockMode   One of the Doctrine\DBAL\LockMode::* constants
-     * @psalm-param LockMode::* $lockMode
+     * @phpstan-param LockMode::* $lockMode
      */
     public function appendLockHint(string $fromClause, int $lockMode): string
     {
@@ -2053,7 +2053,7 @@ abstract class AbstractPlatform
      * on this platform.
      *
      * @param int $createFlags
-     * @psalm-param int-mask-of<self::CREATE_*> $createFlags
+     * @phpstan-param int-mask-of<self::CREATE_*> $createFlags
      *
      * @return list<string> The list of SQL statements.
      *
@@ -2226,7 +2226,7 @@ abstract class AbstractPlatform
     }
 
     /**
-     * @param list<Table> $tables
+     * @param Table[] $tables
      *
      * @return list<string>
      *
@@ -4564,7 +4564,7 @@ abstract class AbstractPlatform
      * @deprecated Implement {@see createReservedKeywordsList()} instead.
      *
      * @return string
-     * @psalm-return class-string<KeywordList>
+     * @phpstan-return class-string<KeywordList>
      *
      * @throws Exception If not supported on this platform.
      */

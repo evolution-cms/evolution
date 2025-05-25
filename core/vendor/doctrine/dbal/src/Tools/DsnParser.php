@@ -19,7 +19,7 @@ use function str_replace;
 use function strpos;
 use function substr;
 
-/** @psalm-import-type Params from DriverManager */
+/** @phpstan-import-type Params from DriverManager */
 final class DsnParser
 {
     /** @var array<string, string|class-string<Driver>> */
@@ -32,7 +32,7 @@ final class DsnParser
     }
 
     /**
-     * @psalm-return Params
+     * @phpstan-return Params
      *
      * @throws MalformedDsnException
      */

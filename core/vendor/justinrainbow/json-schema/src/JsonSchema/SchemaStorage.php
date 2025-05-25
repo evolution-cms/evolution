@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace JsonSchema;
 
 use JsonSchema\Constraints\BaseConstraint;
@@ -10,15 +12,15 @@ use JsonSchema\Uri\UriRetriever;
 
 class SchemaStorage implements SchemaStorageInterface
 {
-    const INTERNAL_PROVIDED_SCHEMA_URI = 'internal://provided-schema/';
+    public const INTERNAL_PROVIDED_SCHEMA_URI = 'internal://provided-schema/';
 
     protected $uriRetriever;
     protected $uriResolver;
-    protected $schemas = array();
+    protected $schemas = [];
 
     public function __construct(
-        UriRetrieverInterface $uriRetriever = null,
-        UriResolverInterface $uriResolver = null
+        ?UriRetrieverInterface $uriRetriever = null,
+        ?UriResolverInterface $uriResolver = null
     ) {
         $this->uriRetriever = $uriRetriever ?: new UriRetriever();
         $this->uriResolver = $uriResolver ?: new UriResolver();
@@ -121,7 +123,7 @@ class SchemaStorage implements SchemaStorageInterface
     /**
      * {@inheritdoc}
      */
-    public function resolveRef($ref)
+    public function resolveRef($ref, $resolveStack = [])
     {
         $jsonPointer = new JsonPointer($ref);
 
@@ -138,9 +140,9 @@ class SchemaStorage implements SchemaStorageInterface
         $refSchema = $this->getSchema($fileName);
         foreach ($jsonPointer->getPropertyPaths() as $path) {
             if (is_object($refSchema) && property_exists($refSchema, $path)) {
-                $refSchema = $this->resolveRefSchema($refSchema->{$path});
+                $refSchema = $this->resolveRefSchema($refSchema->{$path}, $resolveStack);
             } elseif (is_array($refSchema) && array_key_exists($path, $refSchema)) {
-                $refSchema = $this->resolveRefSchema($refSchema[$path]);
+                $refSchema = $this->resolveRefSchema($refSchema[$path], $resolveStack);
             } else {
                 throw new UnresolvableJsonPointerException(sprintf(
                     'File: %s is found, but could not resolve fragment: %s',
@@ -156,12 +158,18 @@ class SchemaStorage implements SchemaStorageInterface
     /**
      * {@inheritdoc}
      */
-    public function resolveRefSchema($refSchema)
+    public function resolveRefSchema($refSchema, $resolveStack = [])
     {
         if (is_object($refSchema) && property_exists($refSchema, '$ref') && is_string($refSchema->{'$ref'})) {
-            $newSchema = $this->resolveRef($refSchema->{'$ref'});
-            $refSchema = (object) (get_object_vars($refSchema) + get_object_vars($newSchema));
-            unset($refSchema->{'$ref'});
+            if (in_array($refSchema, $resolveStack, true)) {
+                throw new UnresolvableJsonPointerException(sprintf(
+                    'Dereferencing a pointer to %s results in an infinite loop',
+                    $refSchema->{'$ref'}
+                ));
+            }
+            $resolveStack[] = $refSchema;
+
+            return $this->resolveRef($refSchema->{'$ref'}, $resolveStack);
         }
 
         return $refSchema;

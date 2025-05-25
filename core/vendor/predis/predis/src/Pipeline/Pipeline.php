@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2023 Till Krüss
+ * (c) 2021-2025 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -131,19 +131,28 @@ class Pipeline implements ClientContextInterface
      */
     protected function executePipeline(ConnectionInterface $connection, SplQueue $commands)
     {
+        $buffer = '';
+
         foreach ($commands as $command) {
-            $connection->writeRequest($command);
+            $buffer .= $command->serializeCommand();
         }
+
+        $connection->write($buffer);
 
         $responses = [];
         $exceptions = $this->throwServerExceptions();
+        $protocolVersion = (int) $connection->getParameters()->protocol;
 
         while (!$commands->isEmpty()) {
             $command = $commands->dequeue();
             $response = $connection->readResponse($command);
 
             if (!$response instanceof ResponseInterface) {
-                $responses[] = $command->parseResponse($response);
+                if ($protocolVersion === 2) {
+                    $responses[] = $command->parseResponse($response);
+                } else {
+                    $responses[] = $command->parseResp3Response($response);
+                }
             } elseif ($response instanceof ErrorResponseInterface && $exceptions) {
                 $this->exception($connection, $response);
             } else {

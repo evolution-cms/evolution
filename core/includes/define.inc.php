@@ -127,7 +127,7 @@ if (!defined('MODX_BASE_PATH') || !defined('MODX_BASE_URL')) {
     }
     unset($base_url);
 }
-if (!defined('EVO_BASE_PATH') || !defined('EVO_BASE_PATH')) {
+if (!defined('EVO_BASE_PATH') || !defined('EVO_BASE_URL')) {
     // automatically assign base_path and base_url
     $script_name = str_replace(
         '\\',

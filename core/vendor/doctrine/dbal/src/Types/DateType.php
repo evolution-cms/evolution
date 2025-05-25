@@ -34,7 +34,7 @@ class DateType extends Type
     /**
      * {@inheritDoc}
      *
-     * @psalm-param T $value
+     * @phpstan-param T $value
      *
      * @return (T is null ? null : string)
      *

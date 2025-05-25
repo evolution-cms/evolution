@@ -108,7 +108,7 @@
 	$_lang["language_code"] = 'de';
 	$_lang["loading"] = 'Laden …';
 	$_lang["modules"] = 'Module';
-	$_lang["modx_footer1"] = '&copy; 2005 - 2024 <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> Content Mangement Framework (CMF) Projekt. Alle Rechte vorbehalten. Evolution CMS ist unter der GNU GPL lizenziert.';
+	$_lang["modx_footer1"] = '&copy; 2005 - 2025 <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> Content Mangement Framework (CMF) Projekt. Alle Rechte vorbehalten. Evolution CMS ist unter der GNU GPL lizenziert.';
 	$_lang["modx_footer2"] = 'MODx is freie Software.  Wir ermutigen Sie, kreativ zu sein und MODx so zu nutzen wie es Ihnen am besten passt. Stellen Sie nur sicher, dass Sie bei Veränderungen des Quellcodes und der Weiterverbreitung der modifizierten MODx-Version den Quelltext frei zugänglich belassen!';
 	$_lang["modx_install"] = 'MODx &raquo; Installation';
 	$_lang["modx_requires_php"] = ', und MODx benötigt PHP 4.2.0. oder höher';

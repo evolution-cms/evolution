@@ -8,11 +8,7 @@ use Doctrine\DBAL\Driver\AbstractException;
 
 use function sprintf;
 
-/**
- * @internal
- *
- * @psalm-immutable
- */
+/** @internal */
 final class InvalidOption extends AbstractException
 {
     /** @param mixed $value */

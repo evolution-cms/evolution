@@ -11,7 +11,6 @@ use Doctrine\DBAL\Schema\Table;
 use function implode;
 use function sprintf;
 
-/** @psalm-immutable */
 final class NamedForeignKeyRequired extends SchemaException
 {
     public static function new(Table $localTable, ForeignKeyConstraint $foreignKey): self

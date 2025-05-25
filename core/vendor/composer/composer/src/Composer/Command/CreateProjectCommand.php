@@ -319,14 +319,6 @@ EOT
         $composer->getEventDispatcher()->dispatchScript(ScriptEvents::POST_CREATE_PROJECT_CMD, $installDevPackages);
 
         chdir($oldCwd);
-        $vendorComposerDir = $config->get('vendor-dir').'/composer';
-        if (is_dir($vendorComposerDir) && $fs->isDirEmpty($vendorComposerDir)) {
-            Silencer::call('rmdir', $vendorComposerDir);
-            $vendorDir = $config->get('vendor-dir');
-            if (is_dir($vendorDir) && $fs->isDirEmpty($vendorDir)) {
-                Silencer::call('rmdir', $vendorDir);
-            }
-        }
 
         return 0;
     }
@@ -338,10 +330,6 @@ EOT
      */
     protected function installRootPackage(InputInterface $input, IOInterface $io, Config $config, string $packageName, PlatformRequirementFilterInterface $platformRequirementFilter, ?string $directory = null, ?string $packageVersion = null, ?string $stability = 'stable', bool $preferSource = false, bool $preferDist = false, bool $installDevPackages = false, ?array $repositories = null, bool $disablePlugins = false, bool $disableScripts = false, bool $noProgress = false, bool $secureHttp = true): bool
     {
-        if (!$secureHttp) {
-            $config->merge(['config' => ['secure-http' => false]], Config::SOURCE_COMMAND);
-        }
-
         $parser = new VersionParser();
         $requirements = $parser->parseNameVersionPairs([$packageName]);
         $name = strtolower($requirements[0]['name']);
@@ -354,11 +342,21 @@ EOT
             $parts = explode("/", $name, 2);
             $directory = Platform::getCwd() . DIRECTORY_SEPARATOR . array_pop($parts);
         }
+        $directory = rtrim($directory, '/\\');
 
         $process = new ProcessExecutor($io);
         $fs = new Filesystem($process);
         if (!$fs->isAbsolutePath($directory)) {
             $directory = Platform::getCwd() . DIRECTORY_SEPARATOR . $directory;
+        }
+        if ('' === $directory) {
+            throw new \UnexpectedValueException('Got an empty target directory, something went wrong');
+        }
+
+        // set the base dir to ensure $config->all() below resolves the correct absolute paths to vendor-dir etc
+        $config->setBaseDir($directory);
+        if (!$secureHttp) {
+            $config->merge(['config' => ['secure-http' => false]], Config::SOURCE_COMMAND);
         }
 
         $io->writeError('<info>Creating a "' . $packageName . '" project at "' . $fs->findShortestPath(Platform::getCwd(), $directory, true) . '"</info>');
@@ -375,7 +373,7 @@ EOT
         if (null === $stability) {
             if (null === $packageVersion) {
                 $stability = 'stable';
-            } elseif (Preg::isMatchStrictGroups('{^[^,\s]*?@('.implode('|', array_keys(BasePackage::$stabilities)).')$}i', $packageVersion, $match)) {
+            } elseif (Preg::isMatchStrictGroups('{^[^,\s]*?@('.implode('|', array_keys(BasePackage::STABILITIES)).')$}i', $packageVersion, $match)) {
                 $stability = $match[1];
             } else {
                 $stability = VersionParser::parseStability($packageVersion);
@@ -384,12 +382,14 @@ EOT
 
         $stability = VersionParser::normalizeStability($stability);
 
-        if (!isset(BasePackage::$stabilities[$stability])) {
-            throw new \InvalidArgumentException('Invalid stability provided ('.$stability.'), must be one of: '.implode(', ', array_keys(BasePackage::$stabilities)));
+        if (!isset(BasePackage::STABILITIES[$stability])) {
+            throw new \InvalidArgumentException('Invalid stability provided ('.$stability.'), must be one of: '.implode(', ', array_keys(BasePackage::STABILITIES)));
         }
 
         $composer = $this->createComposerInstance($input, $io, $config->all(), $disablePlugins, $disableScripts);
         $config = $composer->getConfig();
+        // set the base dir here again on the new config instance, as otherwise in case the vendor dir is defined in an env var for example it would still override the value set above by $config->all()
+        $config->setBaseDir($directory);
         $rm = $composer->getRepositoryManager();
 
         $repositorySet = new RepositorySet($stability);
@@ -404,6 +404,12 @@ EOT
                 ) {
                     continue;
                 }
+
+                // disable symlinking for the root package by default as that most likely makes no sense
+                if (($repoConfig['type'] ?? null) === 'path' && !isset($repoConfig['options']['symlink'])) {
+                    $repoConfig['options']['symlink'] = false;
+                }
+
                 $repositorySet->addRepository(RepositoryFactory::createRepo($io, $config, $repoConfig, $rm));
             }
         }

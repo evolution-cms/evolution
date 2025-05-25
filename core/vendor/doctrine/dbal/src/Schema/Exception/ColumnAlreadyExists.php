@@ -8,7 +8,6 @@ use Doctrine\DBAL\Schema\SchemaException;
 
 use function sprintf;
 
-/** @psalm-immutable */
 final class ColumnAlreadyExists extends SchemaException
 {
     public static function new(string $tableName, string $columnName): self

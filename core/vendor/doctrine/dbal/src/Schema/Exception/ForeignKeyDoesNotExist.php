@@ -8,7 +8,6 @@ use Doctrine\DBAL\Schema\SchemaException;
 
 use function sprintf;
 
-/** @psalm-immutable */
 final class ForeignKeyDoesNotExist extends SchemaException
 {
     public static function new(string $foreignKeyName, string $table): self

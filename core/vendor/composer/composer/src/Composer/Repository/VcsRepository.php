@@ -66,7 +66,7 @@ class VcsRepository extends ArrayRepository implements ConfigurableRepositoryInt
     private $driver;
     /** @var ?VersionCacheInterface */
     private $versionCache;
-    /** @var string[] */
+    /** @var list<string> */
     private $emptyReferences = [];
     /** @var array<'tags'|'branches', array<string, TransportException>> */
     private $versionTransportExceptions = [];
@@ -165,7 +165,7 @@ class VcsRepository extends ArrayRepository implements ConfigurableRepositoryInt
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     public function getEmptyReferences(): array
     {
@@ -217,11 +217,6 @@ class VcsRepository extends ArrayRepository implements ConfigurableRepositoryInt
         foreach ($driver->getTags() as $tag => $identifier) {
             $tag = (string) $tag;
             $msg = 'Reading composer.json of <info>' . ($this->packageName ?: $this->url) . '</info> (<comment>' . $tag . '</comment>)';
-            if ($isVeryVerbose) {
-                $this->io->writeError($msg);
-            } elseif ($isVerbose) {
-                $this->io->overwriteError($msg, false);
-            }
 
             // strip the release- prefix from tags if present
             $tag = str_replace('release-', '', $tag);
@@ -243,6 +238,12 @@ class VcsRepository extends ArrayRepository implements ConfigurableRepositoryInt
                     $this->io->writeError('<warning>Skipped tag '.$tag.', invalid tag name</warning>');
                 }
                 continue;
+            }
+
+            if ($isVeryVerbose) {
+                $this->io->writeError($msg);
+            } elseif ($isVerbose) {
+                $this->io->overwriteError($msg, false);
             }
 
             try {
@@ -341,7 +342,8 @@ class VcsRepository extends ArrayRepository implements ConfigurableRepositoryInt
 
             // make sure branch packages have a dev flag
             if (strpos($parsedBranch, 'dev-') === 0 || VersionParser::DEFAULT_BRANCH_ALIAS === $parsedBranch) {
-                $version = 'dev-' . $branch;
+                $version = 'dev-' . str_replace('#', '+', $branch);
+                $parsedBranch = str_replace('#', '+', $parsedBranch);
             } else {
                 $prefix = strpos($branch, 'v') === 0 ? 'v' : '';
                 $version = $prefix . Preg::replace('{(\.9{7})+}', '.x', $parsedBranch);
@@ -439,6 +441,11 @@ class VcsRepository extends ArrayRepository implements ConfigurableRepositoryInt
         }
         if (!isset($data['source'])) {
             $data['source'] = $driver->getSource($identifier);
+        }
+
+        // if custom dist info is provided but does not provide a reference, copy the source reference to it
+        if (is_array($data['dist']) && !isset($data['dist']['reference']) && isset($data['source']['reference'])) {
+            $data['dist']['reference'] = $data['source']['reference'];
         }
 
         return $data;

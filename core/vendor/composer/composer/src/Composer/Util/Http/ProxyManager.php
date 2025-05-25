@@ -33,20 +33,8 @@ class ProxyManager
     /** @var ?self */
     private static $instance = null;
 
-    /** The following 3 properties can be removed after the transition period */
-
-    /** @var bool */
-    private $ignoreHttpsProxy = false;
-    /** @var bool */
-    private $isTransitional = false;
-    /** @var bool */
-    private $needsTransitionWarning = false;
-
     private function __construct()
     {
-        // this can be removed after the transition period
-        $this->isTransitional = true;
-
         try {
             $this->getProxyData();
         } catch (\RuntimeException $e) {
@@ -69,6 +57,11 @@ class ProxyManager
     public static function reset(): void
     {
         self::$instance = null;
+    }
+
+    public function hasProxy(): bool
+    {
+        return $this->httpProxy !== null || $this->httpsProxy !== null;
     }
 
     /**
@@ -97,16 +90,6 @@ class ProxyManager
     }
 
     /**
-     * Returns true if the user needs to set an https_proxy environment variable
-     *
-     * This method can be removed after the transition period
-     */
-    public function needsTransitionWarning(): bool
-    {
-        return $this->needsTransitionWarning;
-    }
-
-    /**
      * Returns a ProxyItem if one is set for the scheme, otherwise null
      */
     private function getProxyForScheme(string $scheme): ?ProxyItem
@@ -116,15 +99,6 @@ class ProxyManager
         }
 
         if ($scheme === 'https') {
-            // this can be removed after the transition period
-            if ($this->isTransitional && $this->httpsProxy === null) {
-                if ($this->httpProxy !== null && !$this->ignoreHttpsProxy) {
-                    $this->needsTransitionWarning = true;
-
-                    return $this->httpProxy;
-                }
-            }
-
             return $this->httpsProxy;
         }
 
@@ -178,11 +152,6 @@ class ProxyManager
             if (is_string($_SERVER[$name] ?? null)) {
                 if ($_SERVER[$name] !== '') {
                     return [$_SERVER[$name], $name];
-                }
-                // this can be removed after the transition period
-                if ($this->isTransitional && strtolower($name) === 'https_proxy') {
-                    $this->ignoreHttpsProxy = true;
-                    break;
                 }
             }
         }

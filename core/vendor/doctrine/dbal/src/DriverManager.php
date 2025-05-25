@@ -22,7 +22,7 @@ use function is_a;
 /**
  * Factory for creating {@see Connection} instances.
  *
- * @psalm-type OverrideParams = array{
+ * @phpstan-type OverrideParams = array{
  *     application_name?: string,
  *     charset?: string,
  *     dbname?: string,
@@ -41,7 +41,7 @@ use function is_a;
  *     user?: string,
  *     unix_socket?: string,
  * }
- * @psalm-type Params = array{
+ * @phpstan-type Params = array{
  *     application_name?: string,
  *     charset?: string,
  *     dbname?: string,
@@ -98,7 +98,7 @@ final class DriverManager
      * @deprecated Use actual driver names instead.
      *
      * @var array<string, string>
-     * @psalm-var array<string, key-of<self::DRIVER_MAP>>
+     * @phpstan-var array<string, key-of<self::DRIVER_MAP>>
      */
     private static array $driverSchemeAliases = [
         'db2'        => 'ibm_db2',
@@ -153,9 +153,9 @@ final class DriverManager
      *
      * @param Configuration|null $config       The configuration to use.
      * @param EventManager|null  $eventManager The event manager to use.
-     * @psalm-param Params $params
+     * @phpstan-param Params $params
      *
-     * @psalm-return ($params is array{wrapperClass: class-string<T>} ? T : Connection)
+     * @phpstan-return ($params is array{wrapperClass: class-string<T>} ? T : Connection)
      *
      * @throws Exception
      *
@@ -201,7 +201,7 @@ final class DriverManager
      * Returns the list of supported drivers.
      *
      * @return string[]
-     * @psalm-return list<key-of<self::DRIVER_MAP>>
+     * @phpstan-return list<key-of<self::DRIVER_MAP>>
      */
     public static function getAvailableDrivers(): array
     {
@@ -211,8 +211,8 @@ final class DriverManager
     /**
      * @throws Exception
      *
-     * @psalm-assert key-of<self::DRIVER_MAP>|null $driver
-     * @psalm-assert class-string<Driver>|null     $driverClass
+     * @phpstan-assert key-of<self::DRIVER_MAP>|null $driver
+     * @phpstan-assert class-string<Driver>|null     $driverClass
      */
     private static function createDriver(?string $driver, ?string $driverClass): Driver
     {
@@ -238,11 +238,11 @@ final class DriverManager
      * updated list of parameters.
      *
      * @param mixed[] $params The list of parameters.
-     * @psalm-param Params $params
+     * @phpstan-param Params $params
      *
      * @return mixed[] A modified list of parameters with info from a database
      *                 URL extracted into indidivual parameter parts.
-     * @psalm-return Params
+     * @phpstan-return Params
      *
      * @throws Exception
      */

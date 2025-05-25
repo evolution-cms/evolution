@@ -71,7 +71,7 @@ class VersionSelector
      */
     public function findBestCandidate(string $packageName, ?string $targetPackageVersion = null, string $preferredStability = 'stable', $platformRequirementFilter = null, int $repoSetFlags = 0, ?IOInterface $io = null, $showWarnings = true)
     {
-        if (!isset(BasePackage::$stabilities[$preferredStability])) {
+        if (!isset(BasePackage::STABILITIES[$preferredStability])) {
             // If you get this, maybe you are still relying on the Composer 1.x signature where the 3rd arg was the php version
             throw new \UnexpectedValueException('Expected a valid stability name as 3rd argument, got '.$preferredStability);
         }
@@ -86,7 +86,7 @@ class VersionSelector
         $constraint = $targetPackageVersion ? $this->getParser()->parseConstraints($targetPackageVersion) : null;
         $candidates = $this->repositorySet->findPackages(strtolower($packageName), $constraint, $repoSetFlags);
 
-        $minPriority = BasePackage::$stabilities[$preferredStability];
+        $minPriority = BasePackage::STABILITIES[$preferredStability];
         usort($candidates, static function (PackageInterface $a, PackageInterface $b) use ($minPriority) {
             $aPriority = $a->getStabilityPriority();
             $bPriority = $b->getStabilityPriority();
@@ -121,6 +121,7 @@ class VersionSelector
 
             foreach ($candidates as $pkg) {
                 $reqs = $pkg->getRequires();
+                $skip = false;
                 foreach ($reqs as $name => $link) {
                     if (!PlatformRepository::isPlatformPackage($name) || $platformRequirementFilter->isIgnored($name)) {
                         continue;
@@ -151,8 +152,8 @@ class VersionSelector
                     $isLatestVersion = !isset($alreadySeenNames[$pkg->getName()]);
                     $alreadySeenNames[$pkg->getName()] = true;
                     if ($io !== null && ($showWarnings === true || (is_callable($showWarnings) && $showWarnings($pkg)))) {
-                        $isFirstWarning = !isset($alreadyWarnedNames[$pkg->getName()]);
-                        $alreadyWarnedNames[$pkg->getName()] = true;
+                        $isFirstWarning = !isset($alreadyWarnedNames[$pkg->getName().'/'.$link->getTarget()]);
+                        $alreadyWarnedNames[$pkg->getName().'/'.$link->getTarget()] = true;
                         $latest = $isLatestVersion ? "'s latest version" : '';
                         $io->writeError(
                             '<warning>Cannot use '.$pkg->getPrettyName().$latest.' '.$pkg->getPrettyVersion().' as it '.$link->getDescription().' '.$link->getTarget().' '.$link->getPrettyConstraint().' which '.$reason.'.</>',
@@ -162,7 +163,11 @@ class VersionSelector
                     }
 
                     // skip candidate
-                    continue 2;
+                    $skip = true;
+                }
+
+                if ($skip) {
+                    continue;
                 }
 
                 $package = $pkg;

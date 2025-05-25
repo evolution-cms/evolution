@@ -1306,7 +1306,7 @@ class SQLServerPlatform extends AbstractPlatform
     {
         $length = $column['length'] ?? null;
 
-        if (! isset($column['fixed'])) {
+        if (empty($column['fixed'])) {
             return sprintf('VARCHAR(%d)', $length ?? 255);
         }
 
@@ -1559,12 +1559,14 @@ class SQLServerPlatform extends AbstractPlatform
             'smalldatetime'    => Types::DATETIME_MUTABLE,
             'smallint'         => Types::SMALLINT,
             'smallmoney'       => Types::INTEGER,
+            'sysname'          => Types::STRING,
             'text'             => Types::TEXT,
             'time'             => Types::TIME_MUTABLE,
             'tinyint'          => Types::SMALLINT,
             'uniqueidentifier' => Types::GUID,
             'varbinary'        => Types::BINARY,
             'varchar'          => Types::STRING,
+            'xml'              => Types::TEXT,
         ];
     }
 

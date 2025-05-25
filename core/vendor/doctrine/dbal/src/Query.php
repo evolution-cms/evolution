@@ -8,8 +8,6 @@ use Doctrine\DBAL\Types\Type;
 
 /**
  * An SQL query together with its bound parameters.
- *
- * @psalm-immutable
  */
 final class Query
 {
@@ -35,8 +33,6 @@ final class Query
     /**
      * @param array<mixed>                $params
      * @param array<Type|int|string|null> $types
-     *
-     * @psalm-suppress ImpurePropertyAssignment
      */
     public function __construct(string $sql, array $params, array $types)
     {

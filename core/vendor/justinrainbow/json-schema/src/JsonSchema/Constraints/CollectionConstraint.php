@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the JsonSchema package.
  *
@@ -9,6 +11,7 @@
 
 namespace JsonSchema\Constraints;
 
+use JsonSchema\ConstraintError;
 use JsonSchema\Entity\JsonPointer;
 
 /**
@@ -22,16 +25,16 @@ class CollectionConstraint extends Constraint
     /**
      * {@inheritdoc}
      */
-    public function check(&$value, $schema = null, JsonPointer $path = null, $i = null)
+    public function check(&$value, $schema = null, ?JsonPointer $path = null, $i = null): void
     {
         // Verify minItems
         if (isset($schema->minItems) && count($value) < $schema->minItems) {
-            $this->addError($path, 'There must be a minimum of ' . $schema->minItems . ' items in the array', 'minItems', array('minItems' => $schema->minItems));
+            $this->addError(ConstraintError::MIN_ITEMS(), $path, ['minItems' => $schema->minItems, 'found' => count($value)]);
         }
 
         // Verify maxItems
         if (isset($schema->maxItems) && count($value) > $schema->maxItems) {
-            $this->addError($path, 'There must be a maximum of ' . $schema->maxItems . ' items in the array', 'maxItems', array('maxItems' => $schema->maxItems));
+            $this->addError(ConstraintError::MAX_ITEMS(), $path, ['maxItems' => $schema->maxItems, 'found' => count($value)]);
         }
 
         // Verify uniqueItems
@@ -43,26 +46,30 @@ class CollectionConstraint extends Constraint
                 }, $value);
             }
             if (count(array_unique($unique)) != count($value)) {
-                $this->addError($path, 'There are no duplicates allowed in the array', 'uniqueItems');
+                $this->addError(ConstraintError::UNIQUE_ITEMS(), $path);
             }
         }
 
-        // Verify items
-        if (isset($schema->items)) {
-            $this->validateItems($value, $schema, $path, $i);
-        }
+        $this->validateItems($value, $schema, $path, $i);
     }
 
     /**
      * Validates the items
      *
-     * @param array            $value
-     * @param \stdClass        $schema
-     * @param JsonPointer|null $path
-     * @param string           $i
+     * @param array     $value
+     * @param \stdClass $schema
+     * @param string    $i
      */
-    protected function validateItems(&$value, $schema = null, JsonPointer $path = null, $i = null)
+    protected function validateItems(&$value, $schema = null, ?JsonPointer $path = null, $i = null): void
     {
+        if (\is_null($schema) || !isset($schema->items)) {
+            return;
+        }
+
+        if ($schema->items === true) {
+            return;
+        }
+
         if (is_object($schema->items)) {
             // just one type definition for the whole array
             foreach ($value as $k => &$v) {
@@ -98,7 +105,14 @@ class CollectionConstraint extends Constraint
                             $this->checkUndefined($v, $schema->additionalItems, $path, $k);
                         } else {
                             $this->addError(
-                                $path, 'The item ' . $i . '[' . $k . '] is not defined and the definition does not allow additional items', 'additionalItems', array('additionalItems' => $schema->additionalItems));
+                                ConstraintError::ADDITIONAL_ITEMS(),
+                                $path,
+                                [
+                                    'item' => $i,
+                                    'property' => $k,
+                                    'additionalItems' => $schema->additionalItems
+                                ]
+                            );
                         }
                     } else {
                         // Should be valid against an empty schema

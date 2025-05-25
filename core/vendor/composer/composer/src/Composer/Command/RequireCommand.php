@@ -95,8 +95,8 @@ class RequireCommand extends BaseCommand
                 new InputOption('no-audit', null, InputOption::VALUE_NONE, 'Skip the audit step after updating the composer.lock file (can also be set via the COMPOSER_NO_AUDIT=1 env var).'),
                 new InputOption('audit-format', null, InputOption::VALUE_REQUIRED, 'Audit output format. Must be "table", "plain", "json", or "summary".', Auditor::FORMAT_SUMMARY, Auditor::FORMATS),
                 new InputOption('update-no-dev', null, InputOption::VALUE_NONE, 'Run the dependency update with the --no-dev option.'),
-                new InputOption('update-with-dependencies', 'w', InputOption::VALUE_NONE, 'Allows inherited dependencies to be updated, except those that are root requirements.'),
-                new InputOption('update-with-all-dependencies', 'W', InputOption::VALUE_NONE, 'Allows all inherited dependencies to be updated, including those that are root requirements.'),
+                new InputOption('update-with-dependencies', 'w', InputOption::VALUE_NONE, 'Allows inherited dependencies to be updated, except those that are root requirements (can also be set via the COMPOSER_WITH_DEPENDENCIES=1 env var).'),
+                new InputOption('update-with-all-dependencies', 'W', InputOption::VALUE_NONE, 'Allows all inherited dependencies to be updated, including those that are root requirements (can also be set via the COMPOSER_WITH_ALL_DEPENDENCIES=1 env var).'),
                 new InputOption('with-dependencies', null, InputOption::VALUE_NONE, 'Alias for --update-with-dependencies'),
                 new InputOption('with-all-dependencies', null, InputOption::VALUE_NONE, 'Alias for --update-with-all-dependencies'),
                 new InputOption('ignore-platform-req', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Ignore a specific platform requirement (php & ext- packages).'),
@@ -231,7 +231,7 @@ EOT
 
         $requirements = $this->formatRequirements($requirements);
 
-        if (!$input->getOption('dev') && $io->isInteractive()) {
+        if (!$input->getOption('dev') && $io->isInteractive() && !$composer->isGlobal()) {
             $devPackages = [];
             $devTags = ['dev', 'testing', 'static analysis'];
             $currentRequiresByKey = $this->getPackagesByRequireKey();
@@ -554,22 +554,15 @@ EOT
 
         if (!$dryRun) {
             $this->updateFile($this->json, $requirements, $requireKey, $removeKey, $sortPackages);
-            if ($locker->isLocked()) {
-                $contents = file_get_contents($this->json->getPath());
-                if (false === $contents) {
-                    throw new \RuntimeException('Unable to read '.$this->json->getPath().' contents to update the lock file hash.');
-                }
-                $lockFile = Factory::getLockFile($this->json->getPath());
-                if (file_exists($lockFile)) {
-                    $lockMtime = filemtime($lockFile);
-                    $lock = new JsonFile($lockFile);
-                    $lockData = $lock->read();
-                    $lockData['content-hash'] = Locker::getContentHash($contents);
-                    $lock->write($lockData);
-                    if (is_int($lockMtime)) {
-                        @touch($lockFile, $lockMtime);
+            if ($locker->isLocked() && $composer->getConfig()->get('lock')) {
+                $stabilityFlags = RootPackageLoader::extractStabilityFlags($requirements, $composer->getPackage()->getMinimumStability(), []);
+                $locker->updateHash($this->json, function (array $lockData) use ($stabilityFlags) {
+                    foreach ($stabilityFlags as $packageName => $flag) {
+                        $lockData['stability-flags'][$packageName] = $flag;
                     }
-                }
+
+                    return $lockData;
+                });
             }
         }
 

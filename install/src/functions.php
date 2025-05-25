@@ -1,4 +1,10 @@
 <?php
+
+const ANSI_BOLD_GREEN = "\033[1;32m";
+const ANSI_BOLD_RED = "\033[1;31m";
+const ANSI_BOLD_YELLOW = "\033[1;33m";
+const ANSI_RESET = "\033[0m";
+
 if (!function_exists('getLangOptions')) {
     /**
      * @param  string  $install_language
@@ -764,5 +770,57 @@ if (!function_exists('seed')) {
                 \EvolutionCMS\Facades\Console::call('db:seed', ['--class' => '\\' . $class]);
             }
         }
+    }
+}
+
+/**
+ * Print a neutral info message (default color).
+ *
+ * @param string $text Text to print.
+ * @return void
+ */
+if (!function_exists('info')) {
+    function info(string $text): void
+    {
+        echo $text . PHP_EOL;
+    }
+}
+
+/**
+ * Print a success message (bold green).
+ *
+ * @param string $text Text to print.
+ * @return void
+ */
+if (!function_exists('success')) {
+    function success(string $text): void
+    {
+        echo ANSI_BOLD_GREEN . $text . ANSI_RESET . PHP_EOL;
+    }
+}
+
+/**
+ * Print a warning message (default color).
+ *
+ * @param string $text Text to print.
+ * @return void
+ */
+if (!function_exists('warning')) {
+    function warning(string $text): void
+    {
+        echo ANSI_BOLD_YELLOW . $text . ANSI_RESET . PHP_EOL;
+    }
+}
+
+/**
+ * Print an error message (bold red).
+ *
+ * @param string $text Text to print.
+ * @return void
+ */
+if (!function_exists('error')) {
+    function error(string $text): void
+    {
+        echo ANSI_BOLD_RED . $text . ANSI_RESET . PHP_EOL;
     }
 }
