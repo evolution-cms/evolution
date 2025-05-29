@@ -492,7 +492,7 @@ class InstallEvo
                 }
                 break;
         }
-        $configString = file_get_contents(EVO_BASE_PATH . 'stubs/files/config/database/connections/default.tpl');
+        $configString = file_get_contents(EVO_BASE_PATH . 'install/stubs/files/config/database/connections/default.tpl');
         $configString = parse($configString, $confph);
 
         $filename = EVO_CORE_PATH . 'config/database/connections/default.php';
