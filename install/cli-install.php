@@ -531,7 +531,7 @@ class InstallEvo
             }
         }
         $_POST['database_type'] = $this->databaseType; // костиль для адекватної міграції
-        Console::call('migrate', ['--path' => EVO_BASE_PATH . 'install/stubs/migrations', '--force' => true]);
+        Console::call('migrate', ['--path' => './install/stubs/migrations', '--force' => true]);
         //seed('install');
         $namespace = 'EvolutionCMS\\Installer\\Install\\';
         foreach (glob(EVO_BASE_PATH . "/install/stubs/seeds/install/*.php") as $filename) {
