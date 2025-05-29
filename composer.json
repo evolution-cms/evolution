@@ -34,6 +34,11 @@
   "config": {
     "vendor-dir": "vendor"
   },
+  "scripts": {
+    "post-create-project-cmd": [
+      "php install/cli-install.php"
+    ]
+  },
   "require": {
     "php": ">=8.2",
     "ext-pdo": "*",

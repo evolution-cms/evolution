@@ -829,11 +829,17 @@ class InstallEvo
             if (file_exists(EVO_BASE_PATH . '.tx')) {
                 removeFolder(EVO_BASE_PATH . '.tx');
             }
+            if (file_exists(EVO_BASE_PATH . 'vendor')) {
+                removeFolder(EVO_BASE_PATH . 'vendor');
+            }
             if (file_exists(EVO_BASE_PATH . 'README.md')) {
                 unlink(EVO_BASE_PATH . 'README.md');
             }
             if (file_exists(EVO_BASE_PATH . 'composer.json')) {
                 unlink(EVO_BASE_PATH . 'composer.json');
+            }
+            if (file_exists(EVO_BASE_PATH . 'composer.lock')) {
+                unlink(EVO_BASE_PATH . 'composer.lock');
             }
             success('✔ Install folder deleted!');
         }
