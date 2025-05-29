@@ -12,18 +12,21 @@ class ProviderRepository
      * @var \Illuminate\Contracts\Foundation\Application
      */
     protected $app;
+
     /**
      * The filesystem instance.
      *
      * @var \Illuminate\Filesystem\Filesystem
      */
     protected $files;
+
     /**
      * The path to the manifest file.
      *
      * @var string
      */
     protected $manifestPath;
+
     /**
      * Create a new service repository instance.
      *
@@ -38,6 +41,7 @@ class ProviderRepository
         $this->files = $files;
         $this->manifestPath = $manifestPath;
     }
+
     /**
      * Register the application service providers.
      *
@@ -67,6 +71,7 @@ class ProviderRepository
         }
         $this->app->addDeferredServices($manifest['deferred']);
     }
+
     /**
      * Load the service provider manifest JSON file.
      *
@@ -84,6 +89,7 @@ class ProviderRepository
             }
         }
     }
+
     /**
      * Determine if the manifest should be compiled.
      *
@@ -95,6 +101,7 @@ class ProviderRepository
     {
         return $manifest === null || $manifest['providers'] != $providers;
     }
+
     /**
      * Register the load events for the given provider.
      *
@@ -111,6 +118,7 @@ class ProviderRepository
             $this->app->register($provider);
         });
     }
+
     /**
      * Compile the application service manifest file.
      *
@@ -119,7 +127,7 @@ class ProviderRepository
      */
     protected function compileManifest($providers)
     {
-        // The service manifest should contain a list of all of the providers for
+        // The service manifest should contain a list of all the providers for
         // the application so we can compare it on each request to the service
         // and determine if the manifest should be recompiled or is current.
         $manifest = $this->freshManifest($providers);
@@ -127,8 +135,8 @@ class ProviderRepository
             if (class_exists($provider)) {
                 $instance = $this->createProvider($provider);
                 // When recompiling the service manifest, we will spin through each of the
-                // providers and check if it's a deferred provider or not. If so we'll
-                // add it's provided services to the manifest and note the provider.
+                // providers and check if it's a deferred provider or not.
+                // If so, we'll add it's provided services to the manifest and note the provider.
                 if ($instance->isDeferred()) {
                     foreach ($instance->provides() as $service) {
                         $manifest['deferred'][$service] = $provider;
@@ -145,6 +153,7 @@ class ProviderRepository
         }
         return $this->writeManifest($manifest);
     }
+
     /**
      * Create a fresh service manifest data structure.
      *
@@ -155,6 +164,7 @@ class ProviderRepository
     {
         return ['providers' => $providers, 'eager' => [], 'deferred' => []];
     }
+
     /**
      * Write the service manifest file to disk.
      *
@@ -173,6 +183,7 @@ class ProviderRepository
         );
         return array_merge(['when' => []], $manifest);
     }
+
     /**
      * Create a new provider instance.
      *

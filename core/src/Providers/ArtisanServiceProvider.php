@@ -27,7 +27,7 @@ use EvolutionCMS\Console\ViewClearCommand;
 use EvolutionCMS\Console\Lists;
 use EvolutionCMS\Console\Packages;
 
-/** @see: https://github.com/laravel/framework/blob/5.6/src/Illuminate/Foundation/Providers/ArtisanServiceProvider.php */
+/** @see: https://github.com/laravel/framework/blob/12.x/src/Illuminate/Foundation/Providers/ArtisanServiceProvider.php */
 class ArtisanServiceProvider extends ServiceProvider
 {
     /**

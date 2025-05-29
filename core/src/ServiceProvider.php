@@ -8,7 +8,7 @@ use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 class ServiceProvider extends BaseServiceProvider
 {
     /**
-     * Массовая регистрация виртуальных сниппетов с использованием неймспейса
+     * Mass registration of virtual snippets using namespace
      *
      * @param $path
      * @param $namespace
@@ -23,7 +23,7 @@ class ServiceProvider extends BaseServiceProvider
     }
 
     /**
-     * Массовая регистрация виртуальных чанков с использованием неймспейса
+     * Mass registration of virtual chunks using namespace
      *
      * @param $path
      * @param $namespace
@@ -38,7 +38,7 @@ class ServiceProvider extends BaseServiceProvider
     }
 
     /**
-     * Массовая регистрация виртуальных плагинов
+     * Bulk registration of virtual plugins
      *
      * @param $path
      * @throws \Exception
@@ -52,7 +52,7 @@ class ServiceProvider extends BaseServiceProvider
 
 
     /**
-     * Регистрация виртуального сниппета с использованием неймспейса
+     * Registering a virtual snippet using namespace
      *
      * @param $name
      * @param $code
@@ -64,7 +64,7 @@ class ServiceProvider extends BaseServiceProvider
     }
 
     /**
-     * Регистрация виртуального чанка с использованием неймспейса
+     * Registering a virtual chunk using namespace
      *
      * @param $name
      * @param $code

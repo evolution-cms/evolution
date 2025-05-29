@@ -5,7 +5,7 @@ use EvolutionCMS\Facades\Console;
 $base_path = dirname(__DIR__) . '/';
 define('MODX_API_MODE', true);
 define('EVO_BASE_PATH', $base_path);
-define('MODX_SITE_URL', '/');
+define('EVO_SITE_URL', '/');
 define('EVO_CORE_PATH', $base_path . 'core/');
 define('IN_INSTALL_MODE', true);
 define('MODX_CLI', true);
@@ -119,7 +119,7 @@ class InstallEvo
     public function checkDatabaseType()
     {
         if ($this->databaseType != 'pgsql' && $this->databaseType != 'mysql') {
-            $this->databaseType = $this->read_line("Please enter your database type: ");
+            $this->databaseType = $this->read_line("Please enter your database type (mysql or pgsql): ");
         }
         if ($this->databaseType != 'pgsql' && $this->databaseType != 'mysql') {
             $this->checkDatabaseType();
@@ -129,7 +129,7 @@ class InstallEvo
     public function checkDatabaseServer()
     {
         if ($this->databaseServer == '') {
-            $this->databaseServer = $this->read_line("Please enter database server: ");
+            $this->databaseServer = $this->read_line("Please enter database server (localhost): ");
         }
         if ($this->databaseServer == '') {
             $this->checkDatabaseServer();

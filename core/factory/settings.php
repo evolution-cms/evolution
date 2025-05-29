@@ -1,5 +1,4 @@
-<?php
-return [
+<?php return [
     'site_name' => 'My Evolution CMS Site',
     'site_start' => 1,
     'error_page' => 1,
@@ -16,7 +15,7 @@ return [
     'rss_url_security' => ManagerTheme::getLexicon("rss_url_security_default"),
     'friendly_urls' => 0,
     'friendly_url_prefix' => '',
-    'friendly_url_suffix' => '.html',
+    'friendly_url_suffix' => '/',
     'friendly_alias_urls' => '1',
     'use_alias_path' => '1',
     'make_folders' => '0',
