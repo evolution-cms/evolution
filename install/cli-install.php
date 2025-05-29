@@ -222,7 +222,7 @@ class InstallEvo
     public function checkDatabaseUser()
     {
         if ($this->databaseUser == '') {
-            $this->databaseServer = $this->ask('Please enter database user:', '');
+            $this->databaseUser = $this->ask('Please enter database user:', '');
         }
         if ($this->databaseUser == '') {
             $this->checkDatabaseUser();
