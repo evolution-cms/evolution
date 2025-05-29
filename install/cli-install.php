@@ -308,12 +308,6 @@ class InstallEvo
     public function checkRemoveInstall()
     {
         ob_end_clean();
-        if ($this->removeInstall != 'y' && $this->removeInstall != 'n') {
-            $this->removeInstall = $this->read_line("Do you want remove install directory (y/n)? ");
-        }
-        if ($this->removeInstall != 'y' && $this->removeInstall != 'n') {
-            $this->checkRemoveInstall();
-        }
 
         if (!in_array($this->removeInstall, ['y', 'n'], true)) {
             $this->removeInstall = $this->choice(
