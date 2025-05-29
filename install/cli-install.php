@@ -148,7 +148,7 @@ class InstallEvo
 
     public function initEvo()
     {
-        include '../index.php';
+        include EVO_BASE_PATH . 'index.php';
         $this->evo = evo();
         $this->version = evo()->getVersionData()['full_appname'] ?? 'almost current version';
     }
@@ -156,7 +156,7 @@ class InstallEvo
     public function update()
     {
         $this->initEvo();
-        Console::call('migrate', ['--path' => '../install/stubs/migrations', '--force' => true]);
+        Console::call('migrate', ['--path' => EVO_BASE_PATH . 'install/stubs/migrations', '--force' => true]);
         seed('update');
         echo 'Evolution CMS updated!' . "\n";
         $this->checkRemoveInstall();
