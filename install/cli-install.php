@@ -42,6 +42,7 @@ class InstallEvo
     {
         $args = array_slice($argv, 1);
         file_put_contents('/tmp/argv.log', var_export($argv, true));
+        file_put_contents('/tmp/args.log', var_export($args, true));
         foreach ($args as $arg) {
             $tmp = array_map('trim', explode('=', $arg));
             if (count($tmp) === 2) {
