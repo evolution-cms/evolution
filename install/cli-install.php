@@ -148,7 +148,7 @@ class InstallEvo
 
     public function initEvo()
     {
-        include EVO_BASE_PATH . 'index.php';
+        include '../index.php';
         $this->evo = evo();
         $this->version = evo()->getVersionData()['full_appname'] ?? 'almost current version';
     }
@@ -156,7 +156,7 @@ class InstallEvo
     public function update()
     {
         $this->initEvo();
-        Console::call('migrate', ['--path' => EVO_BASE_PATH . 'install/stubs/migrations', '--force' => true]);
+        Console::call('migrate', ['--path' => '../install/stubs/migrations', '--force' => true]);
         seed('update');
         echo 'Evolution CMS updated!' . "\n";
         $this->checkRemoveInstall();
@@ -492,7 +492,7 @@ class InstallEvo
                 }
                 break;
         }
-        $configString = file_get_contents(EVO_BASE_PATH . 'stubs/files/config/database/connections/default.tpl');
+        $configString = file_get_contents('stubs/files/config/database/connections/default.tpl');
         $configString = parse($configString, $confph);
 
         $filename = EVO_CORE_PATH . 'config/database/connections/default.php';
