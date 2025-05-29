@@ -41,7 +41,7 @@
   },
   "scripts": {
     "post-create-project-cmd": [
-      "php install/cli-install.php -- --typeInstall=1 --removeInstall=y"
+      "@php -- install/cli-install.php --typeInstall=1 --removeInstall=y"
     ]
   },
   "minimum-stability": "dev",
