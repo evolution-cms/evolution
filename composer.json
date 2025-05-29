@@ -36,7 +36,7 @@
   },
   "scripts": {
     "post-create-project-cmd": [
-      "php install/cli-install.php"
+      "php install/cli-install.php --typeInstall=1"
     ]
   },
   "require": {
