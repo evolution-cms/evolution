@@ -532,7 +532,16 @@ class InstallEvo
         }
         $_POST['database_type'] = $this->databaseType; // костиль для адекватної міграції
         Console::call('migrate', ['--path' => EVO_BASE_PATH . 'install/stubs/migrations', '--force' => true]);
-        seed('install');
+        //seed('install');
+        $namespace = 'EvolutionCMS\\Installer\\Install\\';
+        foreach (glob(EVO_BASE_PATH . "/install/stubs/seeds/install/*.php") as $filename) {
+            dump($filename);
+            include_once $filename;
+            $class = $namespace . basename($filename, '.php');
+            if (class_exists($class) && is_subclass_of($class, 'Illuminate\\Database\\Seeder')) {
+                EvolutionCMS\Facades\Console::call('db:seed', ['--class' => '\\' . $class]);
+            }
+        }
         $field = array();
         $field['password'] = $this->evo->getPasswordHash()->HashPassword($this->cmsPassword);
         $field['username'] = $this->cmsAdmin;
