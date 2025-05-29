@@ -762,8 +762,9 @@ if (!function_exists('seed')) {
     function seed($folder = 'install')
     {
         $folder = $folder == 'update' ? 'update' : 'install';
+        $seedDir = EVO_BASE_PATH . "install/stubs/seeds/{$folder}";
         $namespace = 'EvolutionCMS\\Installer\\' . ($folder == 'update' ? 'Update\\' : 'Install\\');
-        foreach (glob("../install/stubs/seeds/{$folder}/*.php") as $filename) {
+        foreach (glob($seedDir . '/*.php') ?: [] as $filename) {
             include_once $filename;
             $class = $namespace . basename($filename, '.php');
             if (class_exists($class) && is_subclass_of($class, 'Illuminate\\Database\\Seeder')) {
