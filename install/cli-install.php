@@ -41,8 +41,6 @@ class InstallEvo
     function __construct($argv)
     {
         $args = array_slice($argv, 1);
-        file_put_contents('/tmp/argv.log', var_export($argv, true));
-        file_put_contents('/tmp/args.log', var_export($args, true));
         foreach ($args as $arg) {
             $tmp = array_map('trim', explode('=', $arg));
             if (count($tmp) === 2) {
@@ -54,11 +52,12 @@ class InstallEvo
                 }
             }
         }
+        file_put_contents('/tmp/args.log', var_export($cli_variables, true));
     }
 
     public function start(): void
     {
-        if (!in_array($this->typeInstall, [1, 2], true)) {
+        if (!in_array((int)$this->typeInstall, [1, 2], true)) {
             $answer = $this->choice(
                 'Please choose your variant of install:',
                 ['Install', 'Update'],
@@ -67,7 +66,7 @@ class InstallEvo
             $this->typeInstall = $answer === 'Install' ? 1 : 2;
         }
 
-        match ($this->typeInstall) {
+        match ((int)$this->typeInstall) {
             1 => $this->install(),
             2 => $this->update(),
             default => $this->start(),
