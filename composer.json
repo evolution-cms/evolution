@@ -34,15 +34,15 @@
   "config": {
     "vendor-dir": "vendor"
   },
-  "scripts": {
-    "post-create-project-cmd": [
-      "php install/cli-install.php --typeInstall=1"
-    ]
-  },
   "require": {
     "php": ">=8.2",
     "ext-pdo": "*",
     "ext-json": "*"
+  },
+  "scripts": {
+    "post-create-project-cmd": [
+      "@php install/cli-install.php -- --typeInstall=1 --removeInstall=y"
+    ]
   },
   "minimum-stability": "dev",
   "prefer-stable": true

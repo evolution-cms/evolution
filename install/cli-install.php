@@ -281,11 +281,10 @@ class InstallEvo
 
     public function checkLanguage()
     {
-        var_dump(EVO_BASE_PATH, __DIR__);
         $langs = [];
-        if ($handle = opendir('../core/lang')) {
+        if ($handle = opendir(EVO_BASE_PATH . 'core/lang')) {
             while (false !== ($file = readdir($handle))) {
-                if (is_dir('../core/lang/' . $file) && $file != '.' && $file != '..') {
+                if (is_dir(EVO_BASE_PATH . 'core/lang/' . $file) && $file != '.' && $file != '..') {
                     $langs[] = $file;
                 }
             }
