@@ -52,7 +52,6 @@ class InstallEvo
                 }
             }
         }
-        file_put_contents('/tmp/args.log', var_export($cli_variables, true));
     }
 
     public function start(): void
