@@ -538,7 +538,7 @@ class InstallEvo
         $field['username'] = $this->cmsAdmin;
         $managerUser = EvolutionCMS\Models\User::create($field);
         $internalKey = $managerUser->getKey();
-        $role = (int)\EvolutionCMS\Models\UserRole::where('name', 'Administrator')->first()?->id;
+        $role = EvolutionCMS\Models\UserRole::where('name', 'Administrator')->first()->getKey();
         $field = ['internalKey' => $internalKey, 'email' => $this->cmsAdminEmail, 'role' => $role, 'verified' => 1];
         $managerUser->attributes()->create($field);
         $managerUser->attributes->role = $role;
@@ -547,7 +547,7 @@ class InstallEvo
         $systemSettings[] = ['setting_name' => 'auto_template_logic', 'setting_value' => 1];
         $systemSettings[] = ['setting_name' => 'emailsender', 'setting_value' => $this->cmsAdminEmail];
         $systemSettings[] = ['setting_name' => 'fe_editor_lang', 'setting_value' => $this->language];
-        \EvolutionCMS\Models\SystemSetting::insert($systemSettings);
+        EvolutionCMS\Models\SystemSetting::insert($systemSettings);
         success('✔ All migrations is done!');
     }
 
