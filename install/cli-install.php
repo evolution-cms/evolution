@@ -54,27 +54,96 @@ class InstallEvo
         }
     }
 
-    public function start()
+    public function start(): void
     {
-        if ($this->typeInstall != 1 && $this->typeInstall != 2) {
-            $this->typeInstall = $this->read_line("Please choose you variant of install." . "\n" . "1) Install" . "\n" . "2) Update" . "\n", "Chose: ");
+        if (!in_array($this->typeInstall, [1, 2], true)) {
+            $answer = $this->choice(
+                'Please choose your variant of install:',
+                ['Install', 'Update'],
+                0
+            );
+            $this->typeInstall = $answer === 'Install' ? 1 : 2;
         }
-        switch ($this->typeInstall) {
-            case 1:
-                $this->install();
-                break;
-            case 2:
-                $this->update();
-                break;
-            default:
-                $this->start();
-        }
+
+        match ($this->typeInstall) {
+            1 => $this->install(),
+            2 => $this->update(),
+            default => $this->start(),
+        };
     }
 
     public function read_line($message, $message2 = "")
     {
         info($message);
         return readline($message2);
+    }
+
+    /**
+     * Stylized console selection (no kernel dependency).
+     *
+     * @param string $question  Question text
+     * @param array  $options   ['Install', 'Update', …]
+     * @param int    $default   Default option index
+     * @return string           Selected element of the $options array
+     */
+    public function choice(string $question, array $options, int $default = 0): string
+    {
+        // ── ANSI colors, if the terminal supports them
+        $useColor = function_exists('stream_isatty') && stream_isatty(STDOUT);
+        $c = $useColor
+            ? [
+                'yellowBold' => "\e[1;33m",
+                'yellow' => "\e[0;33m",
+                'cyan' => "\e[0;36m",
+                'green' => "\e[0;32m",
+                'blue' => "\e[1;34m",
+                'reset' => "\e[0m",
+            ]
+            : array_fill_keys(['yellowBold', 'yellow', 'cyan', 'green', 'blue', 'reset'], '');
+
+        /* 1. Question */
+        echo PHP_EOL . $c['yellowBold'] . $question . $c['reset'] . PHP_EOL;
+
+        /* 2. List of options */
+        foreach ($options as $i => $label) {
+            $idx = $i + 1;
+            $def = $i === $default ? $c['green'] . ' *' . $c['reset'] : '';
+            printf("  [%s%2d%s] %s%s\n",
+                $c['yellow'], $idx, $c['reset'], $label, $def
+            );
+        }
+
+        /* 3. User input */
+        $max = count($options);
+        do {
+            $answer = readline("Choose [1-{$max}]: ");
+            if ($answer === '' && isset($options[$default])) {
+                return $options[$default];
+            }
+            $idx = (int)$answer - 1;
+        } while (!isset($options[$idx]));
+
+        return $options[$idx];
+    }
+
+    /**
+     * Prompts the user for a string.
+     *
+     * @param string      $question  Question text («Please enter database server»)
+     * @param string|null $default   Default value if Enter is pressed
+     * @return string
+     */
+    public function ask(string $question, ?string $default = null): string
+    {
+        $useColor = function_exists('stream_isatty') && stream_isatty(STDOUT);
+        $yellow = $useColor ? "\e[1;33m" : '';
+        $reset = $useColor ? "\e[0m"    : '';
+
+        $suffix = $default !== null ? " [{$default}]" : '';
+        echo PHP_EOL . $yellow . $question . $suffix . $reset . PHP_EOL;
+
+        $answer = readline('➤ ');
+        return $answer !== '' ? trim($answer) : (string) $default;
     }
 
     public function initEvo()
@@ -119,7 +188,11 @@ class InstallEvo
     public function checkDatabaseType()
     {
         if ($this->databaseType != 'pgsql' && $this->databaseType != 'mysql') {
-            $this->databaseType = $this->read_line("Please enter your database type (mysql or pgsql): ");
+            $this->databaseType = $this->choice(
+                'Please choose your database type:',
+                ['mysql', 'pgsql'],
+                0
+            );
         }
         if ($this->databaseType != 'pgsql' && $this->databaseType != 'mysql') {
             $this->checkDatabaseType();
@@ -129,7 +202,7 @@ class InstallEvo
     public function checkDatabaseServer()
     {
         if ($this->databaseServer == '') {
-            $this->databaseServer = $this->read_line("Please enter database server (localhost): ");
+            $this->databaseServer = $this->ask('Please enter database server:', 'localhost');
         }
         if ($this->databaseServer == '') {
             $this->checkDatabaseServer();
@@ -139,7 +212,7 @@ class InstallEvo
     public function checkDatabase()
     {
         if ($this->database == '') {
-            $this->database = $this->read_line("Please enter database: ");
+            $this->database = $this->ask('Please enter database:', '');
         }
         if ($this->database == '') {
             $this->checkDatabase();
@@ -149,7 +222,7 @@ class InstallEvo
     public function checkDatabaseUser()
     {
         if ($this->databaseUser == '') {
-            $this->databaseUser = $this->read_line("Please enter database user: ");
+            $this->databaseServer = $this->ask('Please enter database user:', '');
         }
         if ($this->databaseUser == '') {
             $this->checkDatabaseUser();
@@ -159,7 +232,7 @@ class InstallEvo
     public function checkDatabasePassword()
     {
         if ($this->databasePassword == '') {
-            $this->databasePassword = $this->read_line("Please enter database password: ");
+            $this->databasePassword = $this->ask('Please enter database password:', '');
         }
         if ($this->databasePassword == '') {
             $this->checkDatabasePassword();
@@ -169,7 +242,7 @@ class InstallEvo
     public function checkTablePrefix()
     {
         if ($this->tablePrefix == '') {
-            $this->tablePrefix = $this->read_line("Please enter table_prefix(default evo_): ");
+            $this->tablePrefix = $this->ask('Please enter table_prefix:', 'evo_');
         }
         if ($this->tablePrefix == '') {
             $this->tablePrefix = 'evo_';
@@ -179,7 +252,7 @@ class InstallEvo
     public function checkCmsAdmin()
     {
         if ($this->cmsAdmin == '') {
-            $this->cmsAdmin = $this->read_line("Please enter you login for access to manager: ");
+            $this->cmsAdmin = $this->ask('Please enter you login for access to manager:', '');
         }
         if ($this->cmsAdmin == '') {
             $this->checkCmsAdmin();
@@ -189,7 +262,7 @@ class InstallEvo
     public function checkCmsAdminEmail()
     {
         if ($this->cmsAdminEmail == '') {
-            $this->cmsAdminEmail = $this->read_line("Please enter you email: ");
+            $this->cmsAdminEmail = $this->ask('Please enter you email:', '');
         }
         if ($this->cmsAdminEmail == '') {
             $this->checkCmsAdminEmail();
@@ -199,7 +272,7 @@ class InstallEvo
     public function checkCmsPassword()
     {
         if ($this->cmsPassword == '') {
-            $this->cmsPassword = $this->read_line("Please enter you password for access to manager: ");
+            $this->cmsPassword = $this->ask('Please enter you password for access to manager:', '');
         }
         if ($this->database == '') {
             $this->checkCmsPassword();
@@ -208,10 +281,26 @@ class InstallEvo
 
     public function checkLanguage()
     {
-        if ($this->language != 'uk' && $this->language != 'en' && $this->language != 'ru') {
-            $this->language = $this->read_line("Enter you language(uk/en/ru): ");
+        $langs = [];
+        if ($handle = opendir('../core/lang')) {
+            while (false !== ($file = readdir($handle))) {
+                if (is_dir('../core/lang/' . $file) && $file != '.' && $file != '..') {
+                    $langs[] = $file;
+                }
+            }
+            closedir($handle);
         }
-        if ($this->language != 'uk' && $this->language != 'en' && $this->language != 'ru') {
+
+        if (!in_array($this->language, $langs)) {
+            sort($langs);
+            unset($langs[array_search('en', $langs)]);
+            $this->language = $this->choice(
+                'Please choose your language:',
+                array_merge(['en'], $langs),
+                0
+            );
+        }
+        if (!in_array($this->language, $langs)) {
             $this->checkLanguage();
         }
     }
@@ -223,6 +312,18 @@ class InstallEvo
             $this->removeInstall = $this->read_line("Do you want remove install directory (y/n)? ");
         }
         if ($this->removeInstall != 'y' && $this->removeInstall != 'n') {
+            $this->checkRemoveInstall();
+        }
+
+        if (!in_array($this->removeInstall, ['y', 'n'], true)) {
+            $this->removeInstall = $this->choice(
+                'Do you want remove install directory:',
+                ['y', 'n'],
+                0
+            );
+        }
+
+        if (!in_array($this->removeInstall, ['y', 'n'], true)) {
             $this->checkRemoveInstall();
         }
     }
