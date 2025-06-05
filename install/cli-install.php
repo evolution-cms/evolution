@@ -9,10 +9,11 @@ define('EVO_SITE_URL', '/');
 define('EVO_CORE_PATH', $base_path . 'core/');
 define('IN_INSTALL_MODE', true);
 define('MODX_CLI', true);
-require_once 'src/functions.php';
+require_once EVO_BASE_PATH . 'install/src/functions.php';
 /**
- * EVO Cli Installer
+ * EVO Cli Installer/Updater
  * php cli-install.php --typeInstall=1 --databaseType=pgsql --databaseServer=localhost --database=db_name --databaseUser=serious --databasePassword=serious  --tablePrefix=evo_ --cmsAdmin=admin --cmsAdminEmail=serious2008@gmail.com --cmsPassword=123456 --language=uk --removeInstall=y
+ * php cli-install.php --typeInstall=2 --removeInstall=y
  **/
 
 $install = new InstallEvo($argv);
@@ -187,104 +188,77 @@ class InstallEvo
 
     public function checkDatabaseType()
     {
-        if ($this->databaseType != 'pgsql' && $this->databaseType != 'mysql') {
+        $dbTypes = ['pgsql', 'mysql'];
+        while (!in_array($this->databaseType, $dbTypes)) {
             $this->databaseType = $this->choice(
                 'Please choose your database type:',
-                ['mysql', 'pgsql'],
-                0
+                $dbTypes
             );
-        }
-        if ($this->databaseType != 'pgsql' && $this->databaseType != 'mysql') {
-            $this->checkDatabaseType();
         }
     }
 
     public function checkDatabaseServer()
     {
-        if ($this->databaseServer == '') {
+        while ($this->databaseServer === '') {
             $this->databaseServer = $this->ask('Please enter database server:', 'localhost');
-        }
-        if ($this->databaseServer == '') {
-            $this->checkDatabaseServer();
         }
     }
 
     public function checkDatabase()
     {
-        if ($this->database == '') {
+        while ($this->database === '') {
             $this->database = $this->ask('Please enter database:', '');
-        }
-        if ($this->database == '') {
-            $this->checkDatabase();
         }
     }
 
     public function checkDatabaseUser()
     {
-        if ($this->databaseUser == '') {
+        while ($this->databaseUser === '') {
             $this->databaseUser = $this->ask('Please enter database user:', '');
-        }
-        if ($this->databaseUser == '') {
-            $this->checkDatabaseUser();
         }
     }
 
     public function checkDatabasePassword()
     {
-        if ($this->databasePassword == '') {
+        while ($this->databasePassword === '') {
             $this->databasePassword = $this->ask('Please enter database password:', '');
-        }
-        if ($this->databasePassword == '') {
-            $this->checkDatabasePassword();
         }
     }
 
     public function checkTablePrefix()
     {
-        if ($this->tablePrefix == '') {
+        while ($this->tablePrefix === '') {
             $this->tablePrefix = $this->ask('Please enter table_prefix:', 'evo_');
-        }
-        if ($this->tablePrefix == '') {
-            $this->tablePrefix = 'evo_';
         }
     }
 
     public function checkCmsAdmin()
     {
-        if ($this->cmsAdmin == '') {
+        while ($this->cmsAdmin === '') {
             $this->cmsAdmin = $this->ask('Please enter you login for access to manager:', '');
-        }
-        if ($this->cmsAdmin == '') {
-            $this->checkCmsAdmin();
         }
     }
 
     public function checkCmsAdminEmail()
     {
-        if ($this->cmsAdminEmail == '') {
+        while ($this->cmsAdminEmail === '') {
             $this->cmsAdminEmail = $this->ask('Please enter you email:', '');
-        }
-        if ($this->cmsAdminEmail == '') {
-            $this->checkCmsAdminEmail();
         }
     }
 
     public function checkCmsPassword()
     {
-        if ($this->cmsPassword == '') {
+        while ($this->cmsPassword === '') {
             $this->cmsPassword = $this->ask('Please enter you password for access to manager:', '');
-        }
-        if ($this->database == '') {
-            $this->checkCmsPassword();
         }
     }
 
     public function checkLanguage()
     {
         $langs = [];
-        if ($handle = opendir(EVO_BASE_PATH . 'core/lang')) {
+        if ($handle = opendir(EVO_CORE_PATH . 'lang')) {
             while (false !== ($file = readdir($handle))) {
-                if (is_dir(EVO_BASE_PATH . 'core/lang/' . $file) && $file != '.' && $file != '..') {
+                if (is_dir(EVO_CORE_PATH . 'lang/' . $file) && $file != '.' && $file != '..') {
                     $langs[] = $file;
                 }
             }
@@ -411,9 +385,8 @@ class InstallEvo
 
     public function composerUpdate()
     {
-        $projectRoot = dirname(__DIR__);
-        $composerBin = $projectRoot . '/core/vendor/bin/composer';
-        $workingDir  = $projectRoot . '/core';
+        $composerBin = EVO_CORE_PATH . 'vendor/bin/composer';
+        $workingDir  = EVO_CORE_PATH;
         $cmd = sprintf(
             'php %s update --no-interaction --prefer-dist --working-dir=%s',
             escapeshellarg($composerBin),
@@ -691,7 +664,7 @@ class InstallEvo
         if (is_dir($modulePath) && is_readable($modulePath)) {
             $d = dir($modulePath);
             while (false !== ($tplfile = $d->read())) {
-                if (substr($tplfile, -4) != '.tpl') {
+                if (!str_ends_with($tplfile, '.tpl')) {
                     continue;
                 }
                 $params = parse_docblock($modulePath, $tplfile);

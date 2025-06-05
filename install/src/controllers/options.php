@@ -15,7 +15,7 @@ switch($installMode){
         $database_collation = $db_config['collation'];
         $database_connection_charset = $db_config['charset'];
         if (@$conn = mysqli_connect($db_config['host'], $db_config['username'], $db_config['password'], '', isset($db_config['port']) ? $db_config['port'] : null)) {
-            if (@mysqli_query($conn, 'USE ' . $db_config['database'])) {
+            if (@mysqli_query($conn, 'USE `' . mysqli_real_escape_string($conn, $db_config['database']) . '`')) {
                 if (!$rs = mysqli_query($conn, "show session variables like 'collation_database'")) {
                     $rs = mysqli_query($conn, "show session variables like 'collation_server'");
                 }
