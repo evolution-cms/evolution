@@ -1186,7 +1186,7 @@ $_lang["yourinfo_username"] = 'Zalogowany jako:';
 $_lang["a17_error_reporting_title"] = 'Poziom wykrywania błędów PHP';
 $_lang["a17_error_reporting_msg"] = 'Ustaw poziom wykrywania błędów PHP.';
 $_lang["a17_error_reporting_opt0"] = 'Ignoruj wszystko';
-$_lang["a17_error_reporting_opt1"] = 'Ignoruj ostrzeżenia niskiego poziomu (<a href="https://www.google.com/search?q=E_DEPRECATED+E_STRICT" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT</a>)';
+$_lang["a17_error_reporting_opt1"] = 'Ignoruj ostrzeżenia niskiego poziomu (<a href="https://www.google.com/search?q=E_DEPRECATED+E_NOTICE" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED</a>)';
 $_lang["a17_error_reporting_opt2"] = 'Wykrywaj wszystkie błędy poza E_NOTICE';
 $_lang["a17_error_reporting_opt99"] = 'Wykrywaj wszystko';
 

@@ -1306,7 +1306,7 @@ $_lang["yourinfo_username"] = 'Вы ўвайшлі як:';
 $_lang["a17_error_reporting_title"] = 'Узровень выяўлення памылак у PHP';
 $_lang["a17_error_reporting_msg"] = 'Настройце ўзровень выяўлення памылак у PHP.';
 $_lang["a17_error_reporting_opt0"] = 'Ігнараваць усе';
-$_lang["a17_error_reporting_opt1"] = 'Ігнараваць папярэджанні пра дробны ўзровень увагі (<a href="https://www.google.com/search?q=E_DEPRECATED+E_STRICT" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT</a>)';
+$_lang["a17_error_reporting_opt1"] = 'Ігнараваць папярэджанні пра дробны ўзровень увагі (<a href="https://www.google.com/search?q=E_DEPRECATED+E_NOTICE" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED</a>)';
 $_lang["a17_error_reporting_opt2"] = 'Выявіць усе памылкі, акрамя E_NOTICE і E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt99"] = 'Вызначыць усе, акрамя E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt199"] = 'Выявіць усе';

@@ -1208,7 +1208,7 @@ $_lang["yourinfo_username"] = 'Вы авторизованы как:';
 $_lang["a17_error_reporting_title"] = 'Обнаружение уровня ошибки РНР';
 $_lang["a17_error_reporting_msg"] = 'Набор обнаружения уровня ошибок РНР';
 $_lang["a17_error_reporting_opt0"] = 'Игнорировать все';
-$_lang["a17_error_reporting_opt1"] = 'Игнорировать предупреждения о незначительных ошибках(<a href="https://www.google.com/search?q=E_DEPRECATED+E_STRICT" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT</a>)';
+$_lang["a17_error_reporting_opt1"] = 'Игнорировать предупреждения о незначительных ошибках(<a href="https://www.google.com/search?q=E_DEPRECATED+E_NOTICE" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED</a>)';
 $_lang["a17_error_reporting_opt2"] = 'Обнаружить все ошибки кроме E_NOTICE and E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt99"] = 'Обнаружить все кроме E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt199"] = 'Обнаружить все';

@@ -1064,7 +1064,7 @@ $_lang["yourinfo_username"] = 'Connecté sous le nom:';
 $_lang["a17_error_reporting_title"] = 'Niveau de rapport d\'erreurs PHP';
 $_lang["a17_error_reporting_msg"] = 'Fixe le niveau de rapport d\'erreurs PHP.';
 $_lang["a17_error_reporting_opt0"] = 'Tout ignorer';
-$_lang["a17_error_reporting_opt1"] = 'Ignorer les erreurs de faible niveau (<a href="https://www.google.com/search?q=E_DEPRECATED+E_STRICT" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT</a>)';
+$_lang["a17_error_reporting_opt1"] = 'Ignorer les erreurs de faible niveau (<a href="https://www.google.com/search?q=E_DEPRECATED+E_NOTICE" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED</a>)';
 $_lang["a17_error_reporting_opt2"] = 'Détection des toutes les erreurs sauf E_NOTICE and E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt99"] = 'Détection des toutes les erreurs sauf E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt199"] = 'Tout détecter';

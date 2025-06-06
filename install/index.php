@@ -2,7 +2,7 @@
 /**
  * Evolution CMS Installer
  */
-error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED);
+error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 $base_path = dirname(__DIR__) . '/';
 
 if (is_file($base_path . 'assets/cache/siteManager.php')) {
