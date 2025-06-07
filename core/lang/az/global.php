@@ -1321,7 +1321,7 @@ $_lang["yourinfo_username"] = 'Siz daxil olmusunuz:';
 $_lang["a17_error_reporting_title"] = 'PHP səhv aşkarlama səviyyəsi';
 $_lang["a17_error_reporting_msg"] = 'PHP səhvlərinin aşkarlama səviyyəsini təyin edin.';
 $_lang["a17_error_reporting_opt0"] = 'Bütün səhvləri görməzlikdən gəl';
-$_lang["a17_error_reporting_opt1"] = 'Yüngül xəbərdarlıqları nəzərə alma (<a href="https://www.google.com/search?q=E_DEPRECATED+E_STRICT" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT</a>)';
+$_lang["a17_error_reporting_opt1"] = 'Yüngül xəbərdarlıqları nəzərə alma (<a href="https://www.google.com/search?q=E_DEPRECATED+E_NOTICE" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED</a>)';
 $_lang["a17_error_reporting_opt2"] = 'E_NOTICE və E_USER_DEPRECATED istisna olmaqla bütün səhvləri aşkarlayın';
 $_lang["a17_error_reporting_opt99"] = 'E_USER_DEPRECATED istisna olmaqla bütün səhvləri aşkarlayın';
 $_lang["a17_error_reporting_opt199"] = 'Bütün səhvləri aşkarlayın';

@@ -100,7 +100,7 @@ class ExceptionHandler
      */
     public function phpError($nr, $text, $file, $line)
     {
-        if (error_reporting() == 0 || $nr == 0 || error_reporting() !== E_ALL & ~E_DEPRECATED & ~E_NOTICE & ~E_STRICT) {
+        if (error_reporting() == 0 || $nr == 0 || error_reporting() !== E_ALL & ~E_DEPRECATED & ~E_NOTICE) {
             return true;
         }
         if ($this->container->stopOnNotice == false) {
@@ -119,7 +119,6 @@ class ExceptionHandler
                     $isError = false;
                     $msg = 'PHP Minor Problem (this message show logged in only)';
                     break;
-                case E_STRICT:
                 case E_DEPRECATED:
                     if ($this->container->error_reporting <= 1) {
                         return true;
@@ -219,7 +218,6 @@ class ExceptionHandler
             E_USER_ERROR => "USER ERROR",
             E_USER_WARNING => "USER WARNING",
             E_USER_NOTICE => "USER NOTICE",
-            E_STRICT => "STRICT NOTICE",
             E_RECOVERABLE_ERROR => "RECOVERABLE ERROR",
             E_DEPRECATED => "DEPRECATED",
             E_USER_DEPRECATED => "USER DEPRECATED"
@@ -350,7 +348,6 @@ class ExceptionHandler
         switch ($nr) {
             case E_DEPRECATED :
             case E_USER_DEPRECATED :
-            case E_STRICT :
             case E_NOTICE :
             case E_USER_NOTICE :
                 $error_level = 2;

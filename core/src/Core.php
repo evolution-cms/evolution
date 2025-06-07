@@ -1841,7 +1841,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $detected = true;
         } elseif ($this->getConfig('error_reporting') === 2 && ($error & ~E_NOTICE & ~E_USER_DEPRECATED)) {
             $detected = true;
-        } elseif ($this->getConfig('error_reporting') === 1 && ($error & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT)) {
+        } elseif ($this->getConfig('error_reporting') === 1 && ($error & ~E_NOTICE & ~E_DEPRECATED)) {
             $detected = true;
         }
 

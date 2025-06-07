@@ -1182,7 +1182,7 @@ $_lang["yourinfo_username"] = 'Sie sind angemeldet als:';
 $_lang["a17_error_reporting_title"] = 'PHP-Warnungen/Fehler';
 $_lang["a17_error_reporting_msg"] = 'PHP-Warnungen/Fehler mit dieser Stufe erkennen.';
 $_lang["a17_error_reporting_opt0"] = 'Alle PHP-Warnungen/Fehler ignorieren';
-$_lang["a17_error_reporting_opt1"] = 'Geringfügige PHP-Warnungen ignorieren (<a href="https://www.google.com/search?q=E_DEPRECATED+E_STRICT" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT</a>)';
+$_lang["a17_error_reporting_opt1"] = 'Geringfügige PHP-Warnungen ignorieren (<a href="https://www.google.com/search?q=E_DEPRECATED+E_NOTICE" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED</a>)';
 $_lang["a17_error_reporting_opt2"] = 'Alle PHP-Warnungen/Fehler außer E_NOTICE erkennen';
 $_lang["a17_error_reporting_opt99"] = 'Alle PHP-Warnungen/Fehler erkennen';
 

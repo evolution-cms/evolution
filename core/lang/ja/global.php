@@ -1220,7 +1220,7 @@ $_lang["yourinfo_username"] = 'ログイン名';
 $_lang["a17_error_reporting_title"] = 'PHPエラーの検出レベル';
 $_lang["a17_error_reporting_msg"] = 'PHPエラーの検出レベルを設定します。';
 $_lang["a17_error_reporting_opt0"] = '全て無視する';
-$_lang["a17_error_reporting_opt1"] = '通知レベルの軽度の警告を無視する(<a href="https://www.google.com/search?hl=ja&q=E_DEPRECATED+E_STRICT" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT</a>)';
+$_lang["a17_error_reporting_opt1"] = '通知レベルの軽度の警告を無視する(<a href="https://www.google.com/search?hl=ja&q=E_DEPRECATED+E_NOTICE" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED</a>)';
 $_lang["a17_error_reporting_opt2"] = '~E_NOTICE 以外の全てのエラーを検出';
 $_lang["a17_error_reporting_opt99"] = '~E_NOTICE & ~E_USER_DEPRECATED 以外の全てのエラーを検出';
 $_lang["a17_error_reporting_opt199"] = '全て検出する';
