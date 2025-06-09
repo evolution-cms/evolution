@@ -69,7 +69,7 @@ if (!function_exists('install_sessionCheck')) {
 if (!function_exists('csrfNonce')) {
     function csrfNonce()
     {
-        return $GLOBALS['csrfNonce'] ?? $GLOBALS['csrfNonce'] = bin2hex(openssl_random_pseudo_bytes(16));
+        return $GLOBALS['csrfNonce'] ?? $GLOBALS['csrfNonce'] = bin2hex(random_bytes(16));
     }
 }
 
