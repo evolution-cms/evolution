@@ -66,6 +66,13 @@ if (!function_exists('install_sessionCheck')) {
     }
 }
 
+if (!function_exists('csrfNonce')) {
+    function csrfNonce()
+    {
+        return $GLOBALS['csrfNonce'] ?? $GLOBALS['csrfNonce'] = bin2hex(openssl_random_pseudo_bytes(16));
+    }
+}
+
 if (!function_exists('parse')) {
     /**
      * @param  string  $src
@@ -107,6 +114,7 @@ if (!function_exists('ph')) {
         $ph['footer1'] = $_lang['modx_footer1'];
         $ph['footer2'] = $_lang['modx_footer2'];
         $ph['current_year'] = date('Y');
+        $ph['csrf_nonce'] = csrfNonce();
 
         return $ph;
     }

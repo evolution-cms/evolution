@@ -332,7 +332,7 @@ class InstallEvo
             try {
                 $this->dbh->query('CREATE DATABASE "' . $this->database . '" ENCODING \'' . $this->database_charset . '\';');
                 if ($this->dbh->errorCode() > 0) {
-                    echo '<span id="database_fail" style="color:#FF0000;">' . print_r($this->dbh->errorInfo(), true) . '</span>';
+                    echo '<span id="database_fail">' . print_r($this->dbh->errorInfo(), true) . '</span>';
                 }
                 $error = -1;
             } catch (Exception $exception) {

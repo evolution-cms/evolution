@@ -29,17 +29,14 @@
 
     <h2>[%optional_items%]</h2>
     <p>[%optional_items_note%]</p>
-
-
-
-            <h4>[%checkbox_select_options%]</h4>
-            <p class="actions">
-            <a class="toggle_check_all" href="#">[%all%]</a>
-            <a class="toggle_check_none" href="#">[%none%]</a>
-            <a class="toggle_check_toggle" href="#">[%toggle%]</a>
-            </p>
-            <br class="clear" />
-    <div id="installChoices">
+    <h4>[%checkbox_select_options%]</h4>
+    <p class="actions">
+        <a class="toggle_check_all" href="#">[%all%]</a>
+        <a class="toggle_check_none" href="#">[%none%]</a>
+        <a class="toggle_check_toggle" href="#">[%toggle%]</a>
+    </p>
+    <br class="clear" />
+    <div id="installChoices" class="my-3">
         <div class="templates">[+templates+]</div>
         <div class="tvs">[+tvs+]</div>
         <div class="chunks">[+chunks+]</div>
@@ -48,30 +45,51 @@
         <div class="snippets">[+snippets+]</div>
     </div>
     <p class="buttonlinks">
-    <a href="javascript:document.getElementById('install_form').action='index.php?action=[+action+]';document.getElementById('install_form').submit();" class="prev" title="[%btnback_value%]"><span>[%btnback_value%]</span></a>
-    <a href="javascript:document.getElementById('install_form').submit();" title="[%btnnext_value%]"><span>[%btnnext_value%]</span></a>
+        <button type="button" class="prev" title="[%btnback_value%]"><span>[%btnback_value%]</span></button>
+        <button type="button" class="next" title="[%btnnext_value%]"><span>[%btnnext_value%]</span></button>
     </p>
 
 </form>
-<script type="text/javascript">
-    (function($){
-        $('#installChoices').find('h3').each(function(){
-         $(this).append($("<span/>").addClass("actions").html($('p.actions').html()));
-        });  
-        $('.actions').on('click','a', function(e){
-            e.preventDefault();
-            var a = $(this);
-            var i = $('input:checkbox.toggle:not(:disabled)');
-            var inCh = $('#installChoices').find(a.parent());
-            if (inCh.length) i = inCh.closest("div").find(i);
-            switch (true) {
-                case a.is('.toggle_check_all'):     i.prop('checked', true); break;
-                case a.is('.toggle_check_none'):    i.prop('checked', false); break;
-                case a.is('.toggle_check_toggle'):  i.prop('checked', function(){ return !$(this).prop('checked');}); break;
-            }
-        });
+<script type="text/javascript" nonce="[+csrf_nonce+]">
+  document.querySelector('.buttonlinks .prev').onclick = () => {
+    document.getElementById('install_form').action = 'index.php?action=[+action+]';
+    document.getElementById('install_form').submit();
+  }
+  document.querySelector('.buttonlinks .next').onclick = () => {
+    document.getElementById('install_form').submit();
+  }
 
+  document.querySelectorAll('#installChoices h3').forEach(function (h3) {
+    const span = document.createElement('span');
+    h3.append(span);
+    span.classList.add('actions');
+    span.innerHTML = document.querySelector('p.actions').innerHTML;
+  });
+  document.querySelector('#installChoices').parentNode.addEventListener('click', function (e) {
+    const a = e.target.closest('a');
+    if (!a || !a.classList.contains('toggle_check_all') &&
+      !a.classList.contains('toggle_check_none') &&
+      !a.classList.contains('toggle_check_toggle')) {
+      return;
+    }
 
-    })(jQuery);
-    
+    e.preventDefault();
+
+    let checkboxes = Array.from(document.querySelectorAll('input[type=checkbox].toggle:not(:disabled)'));
+
+    if (this.contains(a.parentElement)) {
+      const container = a.parentElement.closest('div');
+      if (container) {
+        checkboxes = Array.from(container.querySelectorAll('input[type=checkbox].toggle:not(:disabled)'));
+      }
+    }
+
+    if (a.classList.contains('toggle_check_all')) {
+      checkboxes.forEach(cb => cb.checked = true);
+    } else if (a.classList.contains('toggle_check_none')) {
+      checkboxes.forEach(cb => cb.checked = false);
+    } else if (a.classList.contains('toggle_check_toggle')) {
+      checkboxes.forEach(cb => cb.checked = !cb.checked);
+    }
+  });
 </script>

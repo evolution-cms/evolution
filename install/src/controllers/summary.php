@@ -273,8 +273,8 @@ echo '<p>&nbsp;</p>';
 
 $nextAction = $errors > 0 ? 'summary' : 'install';
 $nextButton = $errors > 0 ? $_lang['retry'] : $_lang['install'];
-$nextVisibility = $errors > 0 || isset($_POST['chkagree']) ? 'visible' : 'hidden';
-$agreeToggle = $errors > 0 ? '' : ' onclick="if(document.getElementById(\'chkagree\').checked){document.getElementById(\'nextbutton\').style.visibility=\'visible\';}else{document.getElementById(\'nextbutton\').style.visibility=\'hidden\';}"';
+$nextVisibility = $errors > 0 || isset($_POST['chkagree']) ? '' : 'hidden';
+$agreeToggle = $errors > 0 ? 'disabled' : '';
 ?>
 <form name="install" id="install_form" action="index.php?action=<?php echo $nextAction ?>" method="post">
     <div>
@@ -315,15 +315,29 @@ $agreeToggle = $errors > 0 ? '' : ' onclick="if(document.getElementById(\'chkagr
         ?>
     </div>
     <h2><?php echo $_lang['agree_to_terms']; ?></h2>
-    <p>
-        <input type="checkbox" value="1" id="chkagree" name="chkagree" style="line-height:18px" <?php echo isset($_POST['chkagree']) ? 'checked="checked" ' : ""; ?><?php echo $agreeToggle; ?>/>
-        <label for="chkagree" style="display:inline;float:none;line-height:18px;"> <?php echo $_lang['iagree_box'] ?> </label>
+    <p class="agreeHolder">
+        <input type="checkbox" value="1" id="chkagree" name="chkagree"
+            <?php echo isset($_POST['chkagree']) ? 'checked="checked" ' : ''; ?><?php echo $agreeToggle; ?>/>
+        <label for="chkagree"> <?php echo $_lang['iagree_box'] ?> </label>
     </p>
     <p class="buttonlinks">
-        <a href="javascript:document.getElementById('install_form').action='index.php?action=options&language=<?php echo $install_language ?>';document.getElementById('install_form').submit();"
-           class="prev" title="<?php echo $_lang['btnback_value'] ?>"><span><?php echo $_lang['btnback_value'] ?></span></a>
-        <a id="nextbutton" href="javascript:document.getElementById('install_form').submit();"
-           title="<?php echo $nextButton ?>"
-           style="visibility:<?php echo $nextVisibility; ?>"><span><?php echo $nextButton ?></span></a>
+        <a class="prev" title="<?php echo $_lang['btnback_value'] ?>"><span><?php echo $_lang['btnback_value'] ?></span></a>
+        <a id="nextbutton" title="<?php echo $nextButton ?>" <?php echo $nextVisibility; ?>><span><?php echo $nextButton ?></span></a>
     </p>
+    <script type="text/javascript" nonce="<?=csrfNonce()?>">
+      document.querySelector('.buttonlinks .prev').onclick = () => {
+        document.getElementById('install_form').action='index.php?action=options&language=<?php echo $install_language ?>';
+        document.getElementById('install_form').submit();
+      }
+      document.querySelector('.buttonlinks #nextbutton').onclick = () => {
+        document.getElementById('install_form').submit();
+      }
+      document.querySelector('#chkagree').onclick = () => {
+        if (document.getElementById('chkagree').checked) {
+          document.getElementById('nextbutton').removeAttribute('hidden')
+        } else{
+          document.getElementById('nextbutton').setAttribute('hidden', 'hidden');
+        }
+      }
+    </script>
 </form>

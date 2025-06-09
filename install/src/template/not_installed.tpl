@@ -5,7 +5,7 @@
 <title>Evolution CMS is not installed!</title>
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,300" rel="stylesheet" type="text/css">
-<style type="text/css">
+<style nonce="[+csrf_nonce+]">
 *{margin:0;padding:0}
 body{margin:50px;background:#eee;}
 .install{padding:10px;border:2px solid #f22;border-radius:10px;background:#ffe8b7;margin:0 auto;font:1.5em 'Open Sans',serif;font-weight:300;text-align:center;}

@@ -118,7 +118,7 @@ $_lang["installing_demo_site"] = 'Demo sayt quraşdırılır: ';
 $_lang["language_code"] = 'az';
 $_lang["loading"] = 'Yüklənir...';
 $_lang["modules"] = 'Modullar';
-$_lang["modx_footer1"] = '&copy; 2005 - [+current_year+] <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> Məzmun İdarəetmə Çərçivəsi (CMF) layihəsi. Bütün hüquqlar qorunur. Evolution CMS GNU GPL altında lisenziyalaşdırılıb.';
+$_lang["modx_footer1"] = '&copy; 2005 - [+current_year+] <a href="https://evo.im/" target="_blank">Evolution CMS</a> Məzmun İdarəetmə Çərçivəsi (CMF) layihəsi. Bütün hüquqlar qorunur. Evolution CMS GNU GPL altında lisenziyalaşdırılıb.';
 $_lang["modx_footer2"] = 'Evolution CMS pulsuz proqram təminatıdır. Bizi yaradıcı olmağa və Evolution CMS-i istədiyiniz şəkildə istifadə etməyə təşviq edirik. Yalnız dəyişiklik edərkən və dəyişdirilmiş EVO-nu yaymağa qərar verdikdə, mənbə kodunu pulsuz saxladığınızdan əmin olun!';
 $_lang["modx_install"] = 'Evolution CMS &raquo; Quraşdırma';
 $_lang["modx_requires_php"] = ', və Evolution CMS PHP [+min_version+] və ya daha sonrakı versiyasını tələb edir';

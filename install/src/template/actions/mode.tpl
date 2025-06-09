@@ -14,8 +14,8 @@
 	<div>
 		<input type="hidden" value="[+install_language+]" name="language" />
 	</div>
-	<h2 style="margin:1em 0">[%installation_mode%]</h2>
-	<div style="overflow:hidden;[+displayNew+]">
+	<h2 class="my-3" nonce="[+csrf_nonce+]">[%installation_mode%]</h2>
+	<div class="ovh" [+displayNew+]>
 		<div class="installImg"><img src="img/install_new.png" alt="new install" /></div>
 		<div class="installDetails">
 			<h3><input type="radio" name="installmode" id="installmode1" value="0" [+checkedNew+] />
@@ -24,16 +24,16 @@
 			<p><strong>[%installation_install_new_note%]</strong></p>
 		</div>
 	</div>
-	<div style="overflow:hidden;[+displayUpg+]">
+	<div class="ovh" [+displayUpg+]>
 		<div class="installImg"><img src="img/install_upg.png" alt="upgrade existing install" /></div>
 		<div class="installDetails">
 			<h3><input type="radio" name="installmode" id="installmode2" value="1" [+disabledUpg+] [+checkedUpg+] />
 			<label for="installmode2" class="nofloat">[%installation_upgrade_existing%]</label></h3>
 			<p>[%installation_upgrade_existing_note%]</p>
 		</div>
-		<hr style="overflow:hidden;[+displayUpg+]" />
+		<hr class="ovh" [+displayUpg+]>
 	</div>
-	<div style="overflow:hidden;[+displayAdvUpg+]">
+	<div class="ovh" [+displayAdvUpg+]>
 		<div class="installImg"><img src="img/install_adv.png" alt="advanced Evolution CMS upgrade" /></div>
 		<div class="installDetails">
 			<h3><input type="radio" name="installmode" id="installmode3" value="2" [+disabledAdvUpg+] [+checkedAdvUpg+] />
@@ -43,7 +43,20 @@
 	</div>
 
     <p class="buttonlinks">
-        <a href="javascript:document.getElementById('install_form').action='index.php?action=language';document.getElementById('install_form').submit();" class="prev" title="[%btnback_value%]"><span>[%btnback_value%]</span></a>
-        <a style="display:inline;" href="javascript:if(document.getElementById('installmode2').checked){document.getElementById('install_form').action='index.php?action=options';}document.getElementById('install_form').submit();" title="[%btnnext_value%]"><span>[%btnnext_value%]</span></a>
+        <button type="button" class="prev" title="[%btnback_value%]"><span>[%btnback_value%]</span></button>
+        <button type="button" class="next" title="[%btnnext_value%]"><span>[%btnnext_value%]</span></button>
     </p>
+
+	<script type="text/javascript" nonce="[+csrf_nonce+]">
+		document.querySelector('.buttonlinks .prev').onclick = () => {
+			document.getElementById('install_form').action='index.php?action=language';
+			document.getElementById('install_form').submit();
+		}
+		document.querySelector('.buttonlinks .next').onclick = () => {
+			if (document.getElementById('installmode2').checked) {
+				document.getElementById('install_form').action='index.php?action=options';
+			}
+			document.getElementById('install_form').submit();
+		}
+	</script>
 </form>
