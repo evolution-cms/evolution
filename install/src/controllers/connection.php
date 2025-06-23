@@ -68,9 +68,9 @@ $ph['database_name'] = isset($_POST['database_name']) ? strip_tags($_POST['datab
 $ph['tableprefix'] = isset($_POST['tableprefix']) ? strip_tags($_POST['tableprefix']) : $table_prefix;
 $ph['selected_set_character_set'] = isset($database_connection_method) && $database_connection_method === 'SET CHARACTER SET' ? 'selected' : '';
 $ph['selected_set_names'] = isset($database_connection_method) && $database_connection_method === 'SET NAMES' ? 'selected' : '';
-$ph['show#connection_method'] = (($installMode == 0) || ($installMode == 2)) ? 'block' : 'none';
+$ph['show#connection_method'] = (($installMode == 0) || ($installMode == 2)) ? '' : 'hidden';
 $ph['database_collation'] = isset($_POST['database_collation']) ? $_POST['database_collation'] : $database_collation;
-$ph['show#AUH'] = ($installMode == 0) ? 'block' : 'none';
+$ph['show#AUH'] = ($installMode == 0) ? '' : 'hidden';
 $ph['cmsadmin'] = isset($_POST['cmsadmin']) ? strip_tags($_POST['cmsadmin']) : 'admin';
 $ph['cmsadminemail'] = isset($_POST['cmsadminemail']) ? strip_tags($_POST['cmsadminemail']) : '';
 $ph['cmspassword'] = isset($_POST['cmspassword']) ? strip_tags($_POST['cmspassword']) : '';

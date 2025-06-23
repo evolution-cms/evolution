@@ -55,7 +55,7 @@ try {
     echo $output;
     exit();
 } catch (Exception $e) {
-    echo $output . '<span id="database_fail" style="color:#FF0000;">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
+    echo $output . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
     exit();
 }
 echo $output;

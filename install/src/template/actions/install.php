@@ -329,53 +329,44 @@
     <p><?=$_lang['to_log_into_content_manager']?></p>
     <?php if ($installMode === 0) : ?>
         <p>
-            <img src="img/ico_info.png" width="40" height="42" align="left" style="margin-right:10px;" />
-            <?=$_lang['installation_note']?>
+            <img src="img/ico_info.png" width="40" height="42" class="mx-2"/>
+            <?= $_lang['installation_note'] ?>
         </p>
     <?php else : ?>
         <p>
-            <img src="img/ico_info.png" width="40" height="42" align="left" style="margin-right:10px;" />
-            <?=$_lang['upgrade_note']?>
+            <img src="img/ico_info.png" width="40" height="42" class="mx-2"/>
+            <?= $_lang['upgrade_note'] ?>
         </p>
     <?php endif; ?>
 
     <form name="install" id="install_form" action="index.php?action=options" method="post">
-            <?php if ($errors === 0) : ?>
-                <?php if (is_writable(dirname(__DIR__, 2))) : ?>
-                    <span id="removeinstall" style="float:left;cursor:pointer;color:#505050;line-height:18px;"
-                          onclick="var chk=document.install.rminstaller; if(chk) chk.checked=!chk.checked;">
-                      <input type="checkbox" name="rminstaller"
-                             onclick="event.cancelBubble=true;" <?=(empty($errors) ? 'checked="checked"' : '') ?>
-                             style="cursor:default;"
-                      />
-                        <?=$_lang['remove_install_folder_auto'] ?>
-                </span>
-                <?php else : ?>
-                    <span id="removeinstall" style="float:left;color:#505050;line-height:18px;">
-                    <?=$_lang['remove_install_folder_manual'] ?>
-                </span>
-                <?php endif; ?>
+        <?php if ($errors === 0) : ?>
+            <?php if (is_writable(dirname(__DIR__, 2))) : ?>
+                <label id="removeinstall" class="clickable">
+                    <input type="checkbox" name="rminstaller" <?= (empty($errors) ? 'checked="checked"' : '') ?>/>
+                    <?= $_lang['remove_install_folder_auto'] ?>
+                </label>
+            <?php else : ?>
+                <span id="removeinstall"><?= $_lang['remove_install_folder_manual'] ?></span>
             <?php endif; ?>
+        <?php endif; ?>
         <p class="buttonlinks">
-            <a href="javascript:closepage();" title="<?=$_lang['btnclose_value'] ?>">
-                <span><?=$_lang['btnclose_value'] ?></span>
+            <a href="javascript:closepage();" title="<?= $_lang['btnclose_value'] ?>">
+                <span><?= $_lang['btnclose_value'] ?></span>
             </a>
         </p>
         <br/>
-        </form>
-        <br/>
-        <script type="text/javascript">
-            /* <![CDATA[ */
-            function closepage() {
-                var chk = document.install.rminstaller;
-                if (chk && chk.checked) {
-                    // remove install folder and files
-                    window.location.href = "../<?=MGR_DIR;?>/processors/remove_installer.processor.php?rminstall=1";
-                }
-                else {
-                    window.location.href = "../<?=MGR_DIR;?>/";
-                }
-            }
-            /* ]]> */
-        </script>
+    </form>
+    <br/>
+    <script type="text/javascript" nonce="<?= csrfNonce(); ?>">
+      function closepage() {
+        var chk = document.install.rminstaller;
+        if (chk && chk.checked) {
+          // remove install folder and files
+          window.location.href = "../<?=MGR_DIR;?>/processors/remove_installer.processor.php?rminstall=1";
+        } else {
+          window.location.href = "../<?=MGR_DIR;?>/";
+        }
+      }
+    </script>
 <?php endif; ?>

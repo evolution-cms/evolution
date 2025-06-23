@@ -28,6 +28,11 @@ if (! defined('EVO_CORE_PATH')) {
 require_once 'src/lang.php';
 require_once 'src/functions.php';
 
+$nonce = csrfNonce();
+header("content-security-policy: default-src 'self' 'nonce-$nonce';"
+    . " script-src 'self' 'nonce-$nonce'; style-src 'self' 'nonce-$nonce';"
+    . " frame-ancestors 'none';");
+
 if (empty($_GET['s'])) {
     require_once '../' . MGR_DIR . '/includes/version.inc.php';
 

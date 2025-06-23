@@ -116,7 +116,7 @@ $_lang["installing_demo_site"] = 'Instalowanie strony demo: ';
 $_lang["language_code"] = 'pl';
 $_lang["loading"] = 'Ładowanie...';
 $_lang["modules"] = 'Moduły';
-$_lang["modx_footer1"] = '&copy; 2005 - [+current_year+] <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a>. Wszystkie prawa zastrzeżone. Evolution CMS działa na licencji GNU GPL.';
+$_lang["modx_footer1"] = '&copy; 2005 - [+current_year+] <a href="https://evo.im/" target="_blank">Evolution CMS</a>. Wszystkie prawa zastrzeżone. Evolution CMS działa na licencji GNU GPL.';
 $_lang["modx_footer2"] = 'EVO jest wolnym oprogramowaniem. Zachęcamy Cię, abyś kreatywnie wykorzystywał EVO w jakikolwiek sposób, który uznasz za przydatny. Prosimy jedynie, abyś pozostawił kod źródłowy otwartym i darmowym w przypadku gdy zdecydujesz się na redystrybucję EVO w zmodyfikowanej przez siebie wersji.';
 $_lang["modx_install"] = 'EVO &raquo; Instalacja';
 $_lang["modx_requires_php"] = ', i EVO wymagają PHP [+min_version+] lub nowszego';

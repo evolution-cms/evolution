@@ -39,11 +39,11 @@
     </p>
     <!-- connection test action/status message -->
     <div class="clickHere">
-        &rarr; <a id="servertest" href="javascript:;">[%connection_screen_server_test_connection%]</a>
+        &rarr; <button id="servertest">[%connection_screen_server_test_connection%]</button>
     </div>
     <div class="status" id="serverstatus"></div>
     <!-- end connection test action/status message -->
-    <div id="setCollation" style="padding-top:2em;">
+    <div id="setCollation" class="pt-5">
         <div id="collationMask">
             <h3>[%connection_screen_database_connection_information%]</h3>
             <p>[%connection_screen_database_connection_note%]</p>
@@ -57,7 +57,7 @@
                 <input type="text" id="tableprefix" value="[+tableprefix+]" name="tableprefix" />
                 <small class="is-invalid">[%alert_table_prefixes%]</small>
             </p>
-            <p class="labelHolder" style="display:[+show#connection_method+]">
+            <p class="labelHolder" [+show#connection_method+]>
                 <label for="database_connection_method">[%connection_screen_connection_method%]</label>
                 <span id="connection_method" name="connection_method">
                     <select id="database_connection_method" name="database_connection_method">
@@ -75,12 +75,12 @@
                 </span>
             </p>
             <div class="clickHere">
-                &rarr; <a id="databasetest" href="javascript:;">[%connection_screen_database_test_connection%]</a>
+                &rarr; <button id="databasetest">[%connection_screen_database_test_connection%]</button>
             </div>
             <div class="status" id="databasestatus">&nbsp;</div>
         </div>
     </div>
-    <div id="AUH" style="display:[+show#AUH+];margin-top:1.5em;">
+    <div id="AUH" class="mt-4" [+show#AUH+]>
         <div id="AUHMask">
             <h2>[%connection_screen_defaults%]</h2>
             <h3>[%connection_screen_default_admin_user%]</h3>
@@ -104,7 +104,7 @@
                 <input type="password" id="cmspasswordconfirm" name="cmspasswordconfirm" value="[+cmspasswordconfirm+]" />
                 <small class="is-invalid">[%alert_enter_adminconfirm%]</small>
             </p>
-            <h3 style="margin-top:2em">[%default_language%]</h3>
+            <h3 class="mt-5">[%default_language%]</h3>
             <p>[%default_language_description%]</p>
             <p class="labelHolder">
                 <label for="managerlanguage_select">&nbsp;</label>
@@ -115,11 +115,11 @@
         </div>
     </div>
     <p class="buttonlinks">
-        <a href="javascript:;" id="prevlink" title="[%btnback_value%]" class="prev"><span>[%btnback_value%]</span></a>
-        <a href="javascript:;" id="nextlink" title="[%btnnext_value%]" style="display:none;"><span>[%btnnext_value%]</span></a>
+        <button type="button" id="prevlink" title="[%btnback_value%]" class="prev"><span>[%btnback_value%]</span></button>
+        <button type="button" id="nextlink" title="[%btnnext_value%]"><span>[%btnnext_value%]</span></button>
     </p>
 </form>
-<script>
+<script type="text/javascript" nonce="[+csrf_nonce+]">
   var form = document.install;
   var language = '[+install_language+]';
   var installMode = parseInt('[+installMode+]');
@@ -203,6 +203,7 @@
 
     document.getElementById('nextlink').style.display = 'inline-block';
   });
+  document.getElementById('nextlink').style.display = 'none';
 
   document.getElementById('setCollation').style.backgroundColor = '#ffff00';
   document.getElementById('setCollation').style.display = 'none';
@@ -239,12 +240,12 @@
       form.cmsadmin.focus();
       return false;
     }
-    if (form.cmspassword && form.cmspassword.value === '') {
+    if (!form.cmspassword?.value) {
       form.cmspassword.parentElement.classList.add('has-error');
       form.cmspassword.focus();
       return false;
     }
-    if (form.cmspasswordconfirm && form.cmspasswordconfirm.value !== form.cmspasswordconfirm.value) {
+    if (form.cmspasswordconfirm?.value !== form.cmspassword?.value) {
       form.cmspasswordconfirm.parentElement.classList.add('has-error');
       form.cmspasswordconfirm.focus();
       return false;

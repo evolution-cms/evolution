@@ -17,8 +17,8 @@ if (is_file(EVO_CORE_PATH . 'config/database/connections/default.php')) { // Inc
 }
 
 $ph['moduleName'] = $moduleName;
-$ph['displayNew'] = ($upgradeable != 0) ? 'display:none;' : '';
-$ph['displayUpg'] = ($upgradeable == 0) ? 'display:none;' : '';
+$ph['displayNew'] = ($upgradeable !== 0) ? 'hidden' : '';
+$ph['displayUpg'] = ($upgradeable === 0) ? 'hidden' : '';
 $ph['displayAdvUpg'] = $ph['displayUpg'];
 $ph['checkedNew'] = !$upgradeable ? 'checked' : '';
 $ph['checkedUpg'] = (isset($_POST['installmode']) && $_POST['installmode'] == 1 || $upgradeable == 1) ? 'checked' : '';
@@ -26,6 +26,7 @@ $ph['checkedAdvUpg'] = (isset($_POST['installmode']) && $_POST['installmode'] ==
 $ph['install_language'] = $install_language;
 $ph['disabledUpg'] = ($upgradeable != 1) ? 'disabled' : '';
 $ph['disabledAdvUpg'] = ($upgradeable == 0) ? 'disabled' : '';
+$ph['csrf_nonce'] = csrfNonce();
 
 $tpl = file_get_contents(dirname(__DIR__) . '/template/actions/mode.tpl');
 $content = parse($tpl, $ph);

@@ -114,7 +114,7 @@ $_lang["installing_demo_site"] = 'Asennetaan demo sivustoa: ';
 $_lang["language_code"] = 'fi';
 $_lang["loading"] = 'Ladataan...';
 $_lang["modules"] = 'Moduulit';
-$_lang["modx_footer1"] = '&copy; 2005 - [+current_year+] <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> Content Mangement Framework (CMF). Kaikki oikeudet pidätetään. Evolution CMS on lisensoitu GNU GPL lisenssillä.';
+$_lang["modx_footer1"] = '&copy; 2005 - [+current_year+] <a href="https://evo.im/" target="_blank">Evolution CMS</a> Content Mangement Framework (CMF). Kaikki oikeudet pidätetään. Evolution CMS on lisensoitu GNU GPL lisenssillä.';
 $_lang["modx_footer2"] = 'MODX on ilmainen ohjelmisto. Kehoitamme sinua olemaan luova ja käyttämään MODX järjestelmää siten, miten sinä sen parhaaksi näet. Jos teet muutoksia järjestelmään ja päätät jakaa muokattua MODX järjestelmää eteenpäin, muista pitää muokattu lähdekoodi vapaasti saatavilla!';
 $_lang["modx_install"] = 'MODX &raquo; Asennus';
 $_lang["modx_requires_php"] = ', ja MODX vaatii PHP:stä version [+min_version+] tai uudemman';

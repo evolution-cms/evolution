@@ -25,17 +25,17 @@ try {
             if ($result->errorCode() == 0) {
                 $data = $result->fetch();
                 if ($data['setting'] != $database_charset) {
-                    echo $output . '<span id="database_fail" style="color:#FF0000;">' . sprintf($_lang['status_failed_database_collation_does_not_match'], $data['setting']) . '</span>';
+                    echo $output . '<span id="database_fail">' . sprintf($_lang['status_failed_database_collation_does_not_match'], $data['setting']) . '</span>';
                     exit();
                 }
                 $result = $dbh->query("SELECT COUNT(*) FROM {$tableprefix}site_content");
 
                 if ($dbh->errorCode() == 0) {
-                    echo $output . '<span id="database_fail" style="color:#FF0000;">' . $_lang['status_failed_table_prefix_already_in_use'] . '</span>';
+                    echo $output . '<span id="database_fail">' . $_lang['status_failed_table_prefix_already_in_use'] . '</span>';
                     exit();
                 }
             } else {
-                echo $output . '<span id="database_fail" style="color:#FF0000;">' . $_lang['status_failed'] . ' ' . print_r($result->errorInfo(), true) . '</span>';
+                echo $output . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . print_r($result->errorInfo(), true) . '</span>';
                 exit();
             }
             break;
@@ -44,14 +44,14 @@ try {
             if ($result->errorCode() == 0) {
                 $data = $result->fetch();
                 if ($data['Value'] != $database_collation) {
-                    echo $output . '<span id="database_fail" style="color:#FF0000;">' . sprintf($_lang['status_failed_database_collation_does_not_match'], $data['1']) . '</span>';
+                    echo $output . '<span id="database_fail">' . sprintf($_lang['status_failed_database_collation_does_not_match'], $data['1']) . '</span>';
                     exit();
                 }
 
                 $result = $dbh->query("SELECT COUNT(*) FROM {$tableprefix}site_content");
 
                 if ($dbh->errorCode() == 0) {
-                    echo $output . '<span id="database_fail" style="color:#FF0000;">' . $_lang['status_failed_table_prefix_already_in_use'] . '</span>';
+                    echo $output . '<span id="database_fail">' . $_lang['status_failed_table_prefix_already_in_use'] . '</span>';
                     exit();
                 }
                 $result = $dbh->query("SELECT SCHEMA_NAME
@@ -60,12 +60,12 @@ try {
                 if ($dbh->errorCode() == 0) {
                     $data = $result->fetch();
                     if (isset($data['SCHEMA_NAME']) && $data['SCHEMA_NAME'] == $pwd) {
-                        echo $output . '<span id="database_pass" style="color:#80c000;"> ' . $_lang['status_passed'] . '</span>';
+                        echo $output . '<span id="database_pass"> ' . $_lang['status_passed'] . '</span>';
                         exit();
                     }
                 }
             } else {
-                echo $output . '<span id="database_fail" style="color:#FF0000;">' . $_lang['status_failed'] . ' ' . print_r($result->errorInfo(), true) . '</span>';
+                echo $output . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . print_r($result->errorInfo(), true) . '</span>';
                 exit();
             }
             break;
@@ -73,7 +73,7 @@ try {
 
 } catch (PDOException $e) {
     if (!stristr($e->getMessage(), 'database "' . $pwd . '" does not exist') && !stristr($e->getMessage(), 'Unknown database \'' . $database_name . '\'') && !stristr($e->getMessage(), 'Base table or view not found')) {
-        echo $output . '<span id="database_fail" style="color:#FF0000;">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
+        echo $output . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
         exit();
     }
 }
@@ -86,7 +86,7 @@ try {
                 $dbh->query('CREATE DATABASE "' . $database_name . '" ENCODING \'' . $database_charset . '\';');
                 if ($dbh->errorCode() > 0) {
                     if (stristr($dbh->errorInfo()[2], 'already exists') === false) {
-                        $output .= '<span id="database_fail" style="color:#FF0000;">' . $_lang['status_failed_could_not_create_database'] . ' ' . print_r($dbh->errorInfo(), true) . '</span>';
+                        $output .= '<span id="database_fail">' . $_lang['status_failed_could_not_create_database'] . ' ' . print_r($dbh->errorInfo(), true) . '</span>';
                     }
                 }
             } catch (Exception $exception) {
@@ -97,21 +97,21 @@ try {
         case 'mysql':
             $query = 'CREATE DATABASE IF NOT EXISTS `' . $database_name . '` CHARACTER SET ' . $database_charset . ' COLLATE ' . $database_collation . ";";
             if (!$dbh->query($query)) {
-                $output .= '<span id="database_fail" style="color:#FF0000;">' . $_lang['status_failed_could_not_create_database'] . '</span>';
+                $output .= '<span id="database_fail">' . $_lang['status_failed_could_not_create_database'] . '</span>';
                 echo $output;
                 exit();
             } else {
-                $output .= '<span id="database_pass" style="color:#80c000;">' . $_lang['status_passed_database_created'] . '</span>';
+                $output .= '<span id="database_pass">' . $_lang['status_passed_database_created'] . '</span>';
                 echo $output;
                 exit();
             }
             break;
     }
 
-    echo $output . '<span id="database_pass" style="color:#80c000;"> ' . $_lang['status_passed'] . '</span>';
+    echo $output . '<span id="database_pass"> ' . $_lang['status_passed'] . '</span>';
     exit();
 } catch (PDOException $e) {
-    echo $output . '<span id="database_fail" style="color:#FF0000;">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
+    echo $output . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
 }
 
 echo $output;
