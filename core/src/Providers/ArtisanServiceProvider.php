@@ -72,6 +72,7 @@ class ArtisanServiceProvider extends ServiceProvider
         'InstallPackageAutoload' => 'command.packages.installautoload',
         'UpdateTree' => 'command.updatetree',
         'SiteUpdate' => 'command.siteupdate',
+        'TranslationsSync' => 'command.translations.sync',
         'Extras' => 'command.extras',
         'RouteList' => 'command.route.list',
     ];
@@ -452,6 +453,19 @@ class ArtisanServiceProvider extends ServiceProvider
             return new Console\SiteUpdateCommand();
         });
     }
+
+    /**
+     * Register the command.
+     *
+     * @return void
+     */
+    protected function registerTranslationsSyncCommand()
+    {
+        $this->app->singleton('command.translations.sync', function () {
+            return new \EvolutionCMS\Console\TranslationsSyncCommand();
+        });
+    }
+
     /**
      * Register the command.
      *
