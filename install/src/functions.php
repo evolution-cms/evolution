@@ -114,6 +114,7 @@ if (!function_exists('ph')) {
         $ph['footer1'] = $_lang['modx_footer1'];
         $ph['footer2'] = $_lang['modx_footer2'];
         $ph['current_year'] = date('Y');
+        $ph['vendor_link_tag'] = '<a href="https://evo.im/">Evolution CMS</a>';
         $ph['csrf_nonce'] = csrfNonce();
 
         return $ph;

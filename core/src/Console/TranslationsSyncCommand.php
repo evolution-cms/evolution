@@ -11,6 +11,7 @@ class TranslationsSyncCommand extends Command
         'manager/includes/lang/country/([a-z]{2})_country.inc.php' => '_country_lang',
         'manager/includes/lang/errormsg/([a-z]{2}).inc.php' => '_lang',
         'install/src/lang/([a-z]{2}).inc.php' => '_lang',
+        'assets/modules/store/installer/lang/([a-z]{2}).inc.php' => '_lang',
     ];
 
     protected $userPathPatterns = [
@@ -20,6 +21,7 @@ class TranslationsSyncCommand extends Command
     protected $signature = 'translations:sync 
                             {--core : Sync core translation files} 
                             {--base=en : Default language code}
+                            {--missing=empty : Missing translations handling, empty|copy)}
                             {--sort : Sort keys}
                             {--write : Write missing keys to translation files}';
 
@@ -50,7 +52,7 @@ class TranslationsSyncCommand extends Command
     public function handle()
     {
         $patterns = $this->option('core') ? $this->corePathPatterns : $this->userPathPatterns;
-        $baseLanguage = strtolower($this->option('base'));
+        $baseLanguage = $this->option('base') ? strtolower($this->option('base')) : 'en';
         $writeMode = $this->option('write');
 
         if ($this->output->isVerbose()) {
@@ -99,7 +101,7 @@ class TranslationsSyncCommand extends Command
                 $this->info("Processing: {$fileInfo['relativePath']} ({$fileInfo['language']})");
             }
 
-            $this->processTranslationFile($fileInfo, $baseLanguage, $writeMode);
+            $this->processTranslationFile($fileInfo, $writeMode);
             $bar->advance();
         }
 
@@ -252,7 +254,7 @@ class TranslationsSyncCommand extends Command
     /**
      * Process individual translation file
      */
-    protected function processTranslationFile(array $fileInfo, string $baseLanguage, bool $writeMode): void
+    protected function processTranslationFile(array $fileInfo, bool $writeMode): void
     {
         $filePath = $fileInfo['file'];
         $language = $fileInfo['language'];
@@ -287,14 +289,17 @@ class TranslationsSyncCommand extends Command
         $baseTranslations = ${$arrayName} ?? [];
 
         // Compare and sync
-        $this->syncTranslations($translations, $baseTranslations, $filePath, $arrayName, $writeMode);
+        $this->syncTranslations($translations, $baseTranslations, $fileInfo, $writeMode);
     }
 
     /**
      * Sync translations with base language
      */
-    protected function syncTranslations(array $translations, array $baseTranslations, string $filePath, string $arrayName, bool $writeMode): void
+    protected function syncTranslations(array $translations, array $baseTranslations, array $fileInfo, bool $writeMode): void
     {
+        $filePath = $fileInfo['file'];
+        $language = $fileInfo['language'];
+        $arrayName = $fileInfo['arrayName'];
         $missingKeys = array_diff_key($baseTranslations, $translations);
         $extraKeys = array_diff_key($translations, $baseTranslations);
 
@@ -315,7 +320,7 @@ class TranslationsSyncCommand extends Command
             }
 
             if ($writeMode) {
-                $this->writeMissingKeys($filePath, $arrayName, $translations, $missingKeys);
+                $this->writeMissingKeys($filePath, $arrayName, $translations, $missingKeys, $language);
             }
         }
 
@@ -332,17 +337,18 @@ class TranslationsSyncCommand extends Command
     /**
      * Write missing keys to translation file
      */
-    protected function writeMissingKeys(string $filePath, string $arrayName, array $translations, array $missingKeys): void
+    protected function writeMissingKeys(string $filePath, string $arrayName, array $translations, array $missingKeys, string $language): void
     {
         try {
             // Add missing keys with empty string values
+            $isCopyMissingMode = $this->option('missing') === 'copy';
             foreach ($missingKeys as $key => $value) {
-                $translations[$key] = '';
+                $translations[$key] = $isCopyMissingMode ? $value : '';
             }
 
             // Read existing file content to preserve comments
             $existingContent = file_get_contents($filePath);
-            $header = $this->extractOrGenerateHeader($existingContent, $filePath);
+            $header = $this->extractOrGenerateHeader($existingContent, $filePath, $language);
 
             if ($this->option('sort')) {
                 ksort($translations, SORT_FLAG_CASE | SORT_NATURAL);
@@ -374,10 +380,11 @@ class TranslationsSyncCommand extends Command
     /**
      * Extract existing header comment or generate new one with @date placeholder
      */
-    protected function extractOrGenerateHeader(string $content, string $filePath): string
+    protected function extractOrGenerateHeader(string $content, string $filePath, string $languageCode): string
     {
         // Remove opening PHP tag to work with the content
         $content = preg_replace('/^\s*<\?php\s*/', '', $content);
+        $now = date('Y-m-d H:i:s');
 
         // Try to match existing comment block
         if (preg_match('/^\s*(\/\*\*.*?\*\/)\s*/s', $content, $matches)) {
@@ -386,24 +393,32 @@ class TranslationsSyncCommand extends Command
             // Check if @date already exists in the comment
             if (str_contains($existingComment, '@date')) {
                 // Replace everything from @date to end of line with "@date " + current timestamp
-                $updatedComment = preg_replace('/@date.*$/m', '@date ' . date('Y-m-d H:i:s'), $existingComment);
+                $updatedComment = preg_replace('/@date.*$/m', "@date $now", $existingComment);
                 return $updatedComment . "\n\n";
             } else {
                 // Add @date line before the closing comment
                 $updatedComment = preg_replace(
                     '/(\s*\*\/)$/',
-                    " * Updated: @date " . date('Y-m-d H:i:s') . "\n$1",
+                    " * @date $now\n$1",
                     $existingComment
                 );
                 return $updatedComment . "\n\n";
             }
         }
 
-        // No existing comment found, generate new one with @date placeholder
+        $subpackage = explode('/', trim(str_replace(['\\', EVO_BASE_PATH], ['/', ''], $filePath), '/'))[0];
+        $versionData = include EVO_CORE_PATH . 'factory/version.php';
+        $version = preg_replace('/\.[0-9-_a-z]+?$/', '.x', $versionData['version']);
+        $language = class_exists(\Locale::class) ? \Locale::getDisplayLanguage($languageCode, 'en') : $languageCode;
+
         $header = "/**\n";
-        $header .= " * " . basename($filePath) . " language file\n";
-        $header .= " * Generated by translations:sync command on @date " . date('Y-m-d H:i:s') . "\n";
-        $header .= " */\n\n";
+        $header .= " * Evolution CMS " . basename($filePath) . " language file\n *\n";
+        $header .= " * @author Evolution CMS Team\n";
+        $header .= " * @version $version\n";
+        $header .= " * @date $now\n *\n";
+        $header .= " * @language $language\n * @package Evolution CMS\n * @subpackage $subpackage\n";
+        $header .= " * Please commit your language changes here: https://github.com/evolution-cms/evolution\n";
+        $header .= " */\n";
 
         return $header;
     }
@@ -434,6 +449,6 @@ class TranslationsSyncCommand extends Command
 
     protected function getOptions()
     {
-        return ['core', 'base', 'write', 'sort'];
+        return ['core', 'base', 'missing', 'write', 'sort'];
     }
 }
