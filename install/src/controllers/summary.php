@@ -264,8 +264,8 @@ if ($errors > 0) {
     } else {
         echo $_lang['error'] . $_lang['please_correct_error'] . $_lang['and_try_again'];
     }
-
-    echo $_lang['visit_forum'];
+    echo str_replace('[+support_forum_link_tag+]',
+        '<a href="https://forum.evo.im/" target="_blank">Evolution CMS Forum</a>', $_lang['visit_forum']);
     echo '</p>';
 }
 
@@ -318,7 +318,11 @@ $agreeToggle = $errors > 0 ? 'disabled' : '';
     <p class="agreeHolder">
         <input type="checkbox" value="1" id="chkagree" name="chkagree"
             <?php echo isset($_POST['chkagree']) ? 'checked="checked" ' : ''; ?><?php echo $agreeToggle; ?>/>
-        <label for="chkagree"> <?php echo $_lang['iagree_box'] ?> </label>
+        <label for="chkagree"> <?php echo str_replace(['[+license_file_link_tag+]','[+license_link_tag+]'],
+                ['<a href="../assets/docs/license.txt" target="_blank">Evolution CMS license (GNU GPL v3)</a>',
+                    '<a href="https://www.gnu.org/licenses/translations.html" target="_blank">GNU.org</a>,
+                     <a href="https://wikipedia.org/wiki/GNU_General_Public_License" target="_blank">Wikipedia</a>'],
+                $_lang['iagree_box']) ?> </label>
     </p>
     <p class="buttonlinks">
         <a class="prev" title="<?php echo $_lang['btnback_value'] ?>"><span><?php echo $_lang['btnback_value'] ?></span></a>
