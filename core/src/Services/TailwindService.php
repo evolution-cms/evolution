@@ -29,18 +29,17 @@ class TailwindService
     {
         $base   = EVO_BASE_PATH . $package . '/';
         $input  = $base . 'tailwind.css';
-        $config = $base . 'tailwind.config.js';
         $output = $base . "{$this->buildDir}tailwind.min.css";
 
         if (!$forceRebuild && is_file($output)) {
             $hash = Cache::get("tw:{$package}");
-            $cur  = md5_file($input) . md5_file($config);
+            $cur  = md5_file($input);
             if ($hash === $cur) {
                 return "/{$package}/{$this->buildDir}tailwind.min.css";
             }
         }
 
-        if (!is_file($input) || !is_file($config)) {
+        if (!is_file($input)) {
             throw new RuntimeException("Tailwind sources not found for «{$package}».");
         }
 
@@ -54,7 +53,6 @@ class TailwindService
 
         $proc = new Process([
             $this->binary,
-            '-c', $config,
             '-i', $input,
             '-o', $output,
             '--minify',
@@ -65,7 +63,7 @@ class TailwindService
             throw new RuntimeException('Tailwind build failed: ' . $proc->getErrorOutput());
         }
 
-        $hash = md5_file($input) . md5_file($config);
+        $hash = md5_file($input);
         Cache::put("tw:{$package}", $hash, $this->ttl);
 
         return "/{$package}/{$this->buildDir}tailwind.min.css";

@@ -410,59 +410,75 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     /**
      * Redirect
      *
-     * @param string $url
-     * @param int $count_attempts
-     * @param string $type $type
-     * @param string $responseCode
+     * @param string $url Target URL for redirection
+     * @param int $count_attempts Number of redirect attempts (to prevent loops)
+     * @param string $type Redirect type: REDIRECT_REFRESH, REDIRECT_META, REDIRECT_HEADER (default)
+     * @param string|int $responseCode HTTP 30x response code
      * @return bool|null
      * @global string $base_url
      * @global string $site_url
      */
-    public function sendRedirect($url, $count_attempts = 0, $type = '', $responseCode = '')
+    public function sendRedirect(string $url, int $count_attempts = 0, string $type = '', string|int $responseCode = ''): ?bool
     {
-        $header = '';
-        if (empty ($url)) {
+        if (empty($url)) {
             return false;
         }
-        if ($count_attempts == 1) {
-            // append the redirect count string to the url
-            $currentNumberOfRedirects = isset ($_REQUEST['err']) ? $_REQUEST['err'] : 0;
+
+        // Prevent redirect loops
+        if ($count_attempts === 1) {
+            $currentNumberOfRedirects = isset($_REQUEST['err']) ? (int)$_REQUEST['err'] : 0;
+
             if ($currentNumberOfRedirects > 3) {
                 $this->getService('ExceptionHandler')->messageQuit(
                     'Redirection attempt failed - please ensure the document you\'re trying to redirect to exists.' .
-                    '<p>Redirection URL: <i>' . $url . '</i></p>'
+                    '<p>Redirection URL: <i>' . htmlspecialchars($url) . '</i></p>'
                 );
-            } else {
-                $currentNumberOfRedirects += 1;
-                if (Str::contains($url, '?')) {
-                    $url .= "&err=$currentNumberOfRedirects";
-                } else {
-                    $url .= "?err=$currentNumberOfRedirects";
-                }
             }
+
+            $currentNumberOfRedirects++;
+            $url .= (str_contains($url, '?') ? '&' : '?') . "err=$currentNumberOfRedirects";
         }
+
+        // Define redirect header
+        $header = '';
         if ($type === 'REDIRECT_REFRESH') {
             $header = 'Refresh: 0;URL=' . $url;
         } elseif ($type === 'REDIRECT_META') {
-            $header = '<META HTTP-EQUIV="Refresh" CONTENT="0; URL=' . $url . '" />';
-            echo $header;
+            echo '<META HTTP-EQUIV="Refresh" CONTENT="0; URL=' . htmlspecialchars($url) . '" />';
             exit;
-        } elseif ($type === 'REDIRECT_HEADER' || empty ($type)) {
-            // check if url has /$base_url
-            if (substr($url, 0, strlen(MODX_BASE_URL)) == MODX_BASE_URL) {
-                // append $site_url to make it work with Location:
-                $url = MODX_SITE_URL . substr($url, strlen(MODX_BASE_URL));
+        } else { // default: REDIRECT_HEADER
+            if (str_contains($url, "\n") || str_contains($url, "\r")) {
+                $this->getService('ExceptionHandler')->messageQuit('No newline allowed in redirect URL.');
             }
-            if (!Str::contains($url, "\n")) {
-                $header = 'Location: ' . $url;
-            } else {
-                $this->getService('ExceptionHandler')->messageQuit('No newline allowed in redirect url.');
+
+            if (!str_starts_with($url, 'http://') && !str_starts_with($url, 'https://')) {
+                $url = rtrim(EVO_SITE_URL, '/') . '/' . ltrim($url, '/');
             }
-        }
-        if ($responseCode && (Str::contains($responseCode, '30'))) {
-            header($responseCode);
+
+            $header = 'Location: ' . $url;
         }
 
+        // Handle HTTP response code
+        $responseCodes = [
+            300 => 'Multiple Choices',
+            301 => 'Moved Permanently',
+            302 => 'Found',
+            303 => 'See Other',
+            304 => 'Not Modified',
+            305 => 'Use Proxy',
+            306 => 'Switch Proxy',
+            307 => 'Temporary Redirect',
+            308 => 'Permanent Redirect',
+        ];
+
+        $code = (int)$responseCode;
+        if (!isset($responseCodes[$code])) {
+            $code = 302;
+        }
+
+        header('HTTP/1.1 ' . $code . ' ' . $responseCodes[$code]);
+
+        // Set redirection header if applicable
         if (!empty($header)) {
             header($header);
         }
