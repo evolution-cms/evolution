@@ -61,4 +61,9 @@ class BladeDirective
     {
         return '<?php endif; ?>';
     }
+
+    public static function evoConfig(string $name = '', string $default = ''): string
+    {
+        return '<?php echo evo()->getConfig(' . $name . ', ' . $default . ');?>';
+    }
 }
