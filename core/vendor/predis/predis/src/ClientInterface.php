@@ -47,6 +47,7 @@ use Predis\Command\Container\Search\FTCURSOR;
 use Predis\Command\Container\XGROUP;
 use Predis\Command\Container\XINFO;
 use Predis\Command\FactoryInterface;
+use Predis\Command\Redis\VADD;
 use Predis\Configuration\OptionsInterface;
 use Predis\Connection\ConnectionInterface;
 use Predis\Response\Status;
@@ -294,18 +295,22 @@ use Predis\Response\Status;
  * @method array             tsqueryindex(string ...$filterExpression)
  * @method array             tsrange(string $key, $fromTimestamp, $toTimestamp, ?RangeArguments $arguments = null)
  * @method array             tsrevrange(string $key, $fromTimestamp, $toTimestamp, ?RangeArguments $arguments = null)
+ * @method int               xack(string $key, string $group, string ...$id)
  * @method string            xadd(string $key, array $dictionary, string $id = '*', array $options = null)
  * @method array             xautoclaim(string $key, string $group, string $consumer, int $minIdleTime, string $start, ?int $count = null, bool $justId = false)
+ * @method array             xclaim(string $key, string $group, string $consumer, int $minIdleTime, string|array $ids, ?int $idle = null, ?int $time = null, ?int $retryCount = null, bool $force = false, bool $justId = false, ?string $lastId = null)
  * @method int               xdel(string $key, string ...$id)
  * @method int               xlen(string $key)
+ * @method array             xpending(string $key, string $group, ?int $minIdleTime = null, ?string $start = null, ?string $end = null, ?int $count = null, ?string $consumer = null)
  * @method array             xrevrange(string $key, string $end, string $start, ?int $count = null)
  * @method array             xrange(string $key, string $start, string $end, ?int $count = null)
  * @method array|null        xread(int $count = null, int $block = null, array $streams = null, string ...$id)
  * @method array             xreadgroup(string $group, string $consumer, ?int $count = null, ?int $blockMs = null, bool $noAck = false, string ...$keyOrId)
+ * @method Status            xsetid(string $key, string $lastId, ?int $entriesAdded = null, ?string $maxDeleteId = null)
  * @method string            xtrim(string $key, array|string $strategy, string $threshold, array $options = null)
  * @method int               zadd(string $key, array $membersAndScoresDictionary)
  * @method int               zcard(string $key)
- * @method string            zcount(string $key, int|string $min, int|string $max)
+ * @method int               zcount(string $key, int|string $min, int|string $max)
  * @method array             zdiff(array $keys, bool $withScores = false)
  * @method int               zdiffstore(string $destination, array $keys)
  * @method string            zincrby(string $key, int $increment, string $member)
@@ -346,6 +351,17 @@ use Predis\Response\Status;
  * @method mixed             multi()
  * @method mixed             unwatch()
  * @method array             unsubscribe(string ...$channels)
+ * @method bool              vadd(string $key, string|array $vector, string $elem, int $dim = null, bool $cas = false, string $quant = VADD::QUANT_DEFAULT, int $bef = null, string|array $attributes = null, int $numlinks = null)
+ * @method int               vcard(string $key)
+ * @method int               vdim(string $key)
+ * @method array             vemb(string $key, string $elem, bool $raw = false)
+ * @method string|array|null vgetattr(string $key, string $elem, bool $asJson = false)
+ * @method array|null        vinfo(string $key)
+ * @method array|null        vlinks(string $key, string $elem, bool $withScores = false)
+ * @method string|array|null vrandmember(string $key, int $count = null)
+ * @method bool              vrem(string $key, string $elem)
+ * @method array             vsim(string $key, string|array $vectorOrElem, bool $isElem = false, bool $withScores = false, int $count = null, int $ef = null, string $filter = null, int $filterEf = null, bool $truth = false, bool $noThread = false)
+ * @method bool              vsetattr(string $key, string $elem, string|array $attributes)
  * @method array             waitaof(int $numLocal, int $numReplicas, int $timeout)
  * @method mixed             watch(string[]|string $keyOrKeys)
  * @method mixed             eval(string $script, int $numkeys, string ...$keyOrArg = null)

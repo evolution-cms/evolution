@@ -59,8 +59,6 @@ class StreamConnection extends AbstractConnection
     public function __construct(ParametersInterface $parameters, ?StreamFactoryInterface $factory = null)
     {
         parent::__construct($parameters);
-        $this->parameters->conn_uid = spl_object_hash($this);
-
         $this->streamFactory = $factory ?? new StreamFactory();
     }
 
@@ -145,7 +143,7 @@ class StreamConnection extends AbstractConnection
         $stream = $this->getResource();
 
         if ($stream->eof()) {
-            $this->onStreamError(new RuntimeException('Stream is already at the end'), '');
+            $this->onStreamError(new RuntimeException('', 1), 'Stream is already at the end');
         }
 
         try {

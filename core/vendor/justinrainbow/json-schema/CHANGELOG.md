@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.4.2] - 2025-06-03
+### Fixed
+- Fix objects are non-unique despite key order ([#819](https://github.com/jsonrainbow/json-schema/pull/819))
+- Id's not being resolved and id property affects sibling ref which it should not do ([#828](https://github.com/jsonrainbow/json-schema/pull/828)) 
+
+### Changed
+- Added extra breaking change to UPDATE-6.0.md regarding BaseConstraint::addError signature change ([#823](https://github.com/jsonrainbow/json-schema/pull/823))
+- Update constraint class to PHP 7.2 language level ([#824](https://github.com/jsonrainbow/json-schema/pull/824))
+- Update base constraint class to PHP 7.2 language level ([#826](https://github.com/jsonrainbow/json-schema/pull/826))
+
+### Added
+- Introduce 32 bits CI workflow on latest php version ([#825](https://github.com/jsonrainbow/json-schema/pull/825))
+
 ## [6.4.1] - 2025-04-04
 ### Fixed
 - Fix support for 32bits PHP ([#817](https://github.com/jsonrainbow/json-schema/pull/817))

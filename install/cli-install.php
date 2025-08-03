@@ -179,8 +179,8 @@ class InstallEvo
         $this->checkCmsAdminEmail();
         $this->checkCmsPassword();
         $this->checkLanguage();
-        $this->realInstall();
         $this->composerUpdate();
+        $this->realInstall();
         $this->checkRemoveInstall();
         $this->removeInstall();
         echo "\033[1;33;44mNow you use {$this->version}\033[0m" . PHP_EOL;
@@ -383,97 +383,47 @@ class InstallEvo
         }
     }
 
-    public function composerInstall()
-    {
-        $composerBin = EVO_CORE_PATH . 'vendor/bin/composer';
-
-        if (is_file($composerBin)) {
-            success("✔ Using local Composer");
-            $this->runComposerCommand('install');
-        } else {
-            warning("⚠ Local Composer not found: {$composerBin} Please run composer install manually.");
-        }
-    }
-
     public function composerUpdate()
     {
         $composerBin = EVO_CORE_PATH . 'vendor/bin/composer';
-
-        if (is_file($composerBin)) {
-            success("✔ Running composer:update");
-            $this->runComposerCommand('update');
-        } else {
-            warning("⚠ Local Composer not found: {$composerBin} Please run composer update manually.");
-        }
-    }
-
-    public function checkAndWait($command)
-    {
-        $criticalFiles = [
-            'vendor/autoload.php',
-            'vendor/symfony/finder/Comparator/NumberComparator.php',
-            'vendor/symfony/polyfill-mbstring/bootstrap.php',
-            'vendor/symfony/deprecation-contracts/function.php',
-        ];
-
-        foreach ($criticalFiles as $file) {
-            $fullPath = EVO_CORE_PATH . $file;
-            $tries = 0;
-
-            while (!is_file($fullPath) && $tries < 20) {
-                $tries++;
-                info("⏳ Waiting for {$file}... try {$tries}");
-                usleep(3000000);
-            }
-
-            if (!is_file($fullPath)) {
-                error("✖ Required file missing after composer command: {$file}");
-                warning('⚠ Please run "composer ' . $command . '" manually.');
-                exit(1);
-            }
-        }
-    }
-
-    protected function runComposerCommand($command)
-    {
-        $disabled = array_map('trim', explode(',', ini_get('disable_functions') ?: ''));
-        $composerBin = EVO_CORE_PATH . 'vendor/bin/composer';
         $workingDir  = EVO_CORE_PATH;
-
         $cmd = sprintf(
-            'php %s %s --no-interaction --prefer-dist --working-dir=%s',
+            'php %s update --no-interaction --prefer-dist --working-dir=%s',
             escapeshellarg($composerBin),
-            $command,
             escapeshellarg($workingDir)
         );
 
+        if (!is_file($composerBin)) {
+            warning("⚠ Local Composer not found: {$composerBin} Please perform 'composer install' or 'composer update' manually.");
+            return;
+        }
+
+        success("✔ Usage local Composer");
+        info("  Running: {$cmd}");
+
+        $disabled = array_map('trim', explode(',', ini_get('disable_functions') ?: ''));
+
         $exitCode = null;
+        if (!in_array('passthru', $disabled, true)) {
+            passthru($cmd, $exitCode);
+        } elseif (!in_array('exec', $disabled, true)) {
+            exec($cmd . ' 2>&1', $out, $exitCode);
+            echo implode(PHP_EOL, $out), PHP_EOL;
+        } elseif (!in_array('shell_exec', $disabled, true)) {
+            $output   = shell_exec($cmd . ' 2>&1');
+            $exitCode = (is_string($output) && $output !== '') ? 0 : 1;
+            echo $output;
+        } else {
+            warning('⚠ The passthru/exec/shell_exec functions are disabled in php.ini.');
+            warning('⚠ Run "composer update" manually.');
+            return;
+        }
 
-        try {
-            if (!in_array('passthru', $disabled, true)) {
-                passthru($cmd, $exitCode);
-            } elseif (!in_array('exec', $disabled, true)) {
-                exec($cmd . ' 2>&1', $out, $exitCode);
-                echo implode(PHP_EOL, $out), PHP_EOL;
-            } elseif (!in_array('shell_exec', $disabled, true)) {
-                $output = shell_exec($cmd . ' 2>&1');
-                echo $output;
-                $exitCode = (is_string($output) && $output !== '') ? 0 : 1;
-            } else {
-                warning('⚠ passthru/exec/shell_exec are disabled in php.ini');
-                warning('⚠ Please run "composer ' . $command . '" manually.');
-                return;
-            }
-
-            $this->checkAndWait($command);
-
-            if ($exitCode === 0) {
-                success("✔ Composer {$command} finished successfully.");
-            } else {
-                error("✖ Composer {$command} failed with code {$exitCode}.");
-            }
-        } catch (\Throwable $e) {
-            error("✖ Exception while executing Composer {$command}: " . $e->getMessage());
+        if ($exitCode === 0) {
+            success('✔ Dependencies updated successfully.');
+        } else {
+            error("✖ Composer finished with the code {$exitCode}.");
+            warning('⚠ Make sure you have execute permissions and try "composer update" manually.');
         }
     }
 

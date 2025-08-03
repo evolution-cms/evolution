@@ -853,7 +853,8 @@ final class Styles
 
         preg_match_all("/\n+/", $content, $matches);
 
-        $width *= count($matches[0] ?? []) + 1; // @phpstan-ignore-line
+        // @phpstan-ignore-next-line
+        $width *= count($matches[0] ?? []) + 1;
         $width += mb_strlen($matches[0][0] ?? '', 'UTF-8');
 
         if ($length <= $width) {

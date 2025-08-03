@@ -83,8 +83,8 @@ class StartSession
                         : $this->manager->defaultRouteBlockLockSeconds();
 
         $lock = $this->cache($this->manager->blockDriver())
-                    ->lock('session:'.$session->getId(), $lockFor)
-                    ->betweenBlockedAttemptsSleepFor(50);
+            ->lock('session:'.$session->getId(), $lockFor)
+            ->betweenBlockedAttemptsSleepFor(50);
 
         try {
             $lock->block(
@@ -224,7 +224,7 @@ class StartSession
                 $this->getCookieExpirationDate(),
                 $config['path'],
                 $config['domain'],
-                $config['secure'] ?? false,
+                $config['secure'],
                 $config['http_only'] ?? true,
                 false,
                 $config['same_site'] ?? null,
