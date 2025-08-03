@@ -60,7 +60,7 @@ class FileStore implements Store, LockProvider
     /**
      * Retrieve an item from the cache by key.
      *
-     * @param  string  $key
+     * @param  string|array  $key
      * @return mixed
      */
     public function get($key)
@@ -248,11 +248,7 @@ class FileStore implements Store, LockProvider
     public function forget($key)
     {
         if ($this->files->exists($file = $this->path($key))) {
-            return tap($this->files->delete($file), function ($forgotten) use ($key) {
-                if ($forgotten && $this->files->exists($file = $this->path("illuminate:cache:flexible:created:{$key}"))) {
-                    $this->files->delete($file);
-                }
-            });
+            return $this->files->delete($file);
         }
 
         return false;
@@ -382,19 +378,6 @@ class FileStore implements Store, LockProvider
     public function getDirectory()
     {
         return $this->directory;
-    }
-
-    /**
-     * Set the working directory of the cache.
-     *
-     * @param  string  $directory
-     * @return $this
-     */
-    public function setDirectory($directory)
-    {
-        $this->directory = $directory;
-
-        return $this;
     }
 
     /**

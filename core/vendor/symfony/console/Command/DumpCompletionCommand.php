@@ -27,6 +27,16 @@ use Symfony\Component\Process\Process;
 #[AsCommand(name: 'completion', description: 'Dump the shell completion script')]
 final class DumpCompletionCommand extends Command
 {
+    /**
+     * @deprecated since Symfony 6.1
+     */
+    protected static $defaultName = 'completion';
+
+    /**
+     * @deprecated since Symfony 6.1
+     */
+    protected static $defaultDescription = 'Dump the shell completion script';
+
     private array $supportedShells;
 
     protected function configure(): void
@@ -35,7 +45,7 @@ final class DumpCompletionCommand extends Command
         $commandName = basename($fullCommand);
         $fullCommand = @realpath($fullCommand) ?: $fullCommand;
 
-        $shell = self::guessShell();
+        $shell = $this->guessShell();
         [$rcFile, $completionFile] = match ($shell) {
             'fish' => ['~/.config/fish/config.fish', "/etc/fish/completions/$commandName.fish"],
             'zsh' => ['~/.zshrc', '$fpath[1]/_'.$commandName],

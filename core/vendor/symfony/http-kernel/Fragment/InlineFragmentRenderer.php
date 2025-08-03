@@ -27,10 +27,13 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class InlineFragmentRenderer extends RoutableFragmentRenderer
 {
-    public function __construct(
-        private HttpKernelInterface $kernel,
-        private ?EventDispatcherInterface $dispatcher = null,
-    ) {
+    private HttpKernelInterface $kernel;
+    private ?EventDispatcherInterface $dispatcher;
+
+    public function __construct(HttpKernelInterface $kernel, ?EventDispatcherInterface $dispatcher = null)
+    {
+        $this->kernel = $kernel;
+        $this->dispatcher = $dispatcher;
     }
 
     /**
@@ -100,7 +103,10 @@ class InlineFragmentRenderer extends RoutableFragmentRenderer
         }
     }
 
-    protected function createSubRequest(string $uri, Request $request): Request
+    /**
+     * @return Request
+     */
+    protected function createSubRequest(string $uri, Request $request)
     {
         $cookies = $request->cookies->all();
         $server = $request->server->all();

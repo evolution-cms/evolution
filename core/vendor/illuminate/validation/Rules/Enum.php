@@ -2,7 +2,6 @@
 
 namespace Illuminate\Validation\Rules;
 
-use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Contracts\Validation\ValidatorAwareRule;
 use Illuminate\Support\Arr;
@@ -16,7 +15,7 @@ class Enum implements Rule, ValidatorAwareRule
     /**
      * The type of the enum.
      *
-     * @var class-string
+     * @var string
      */
     protected $type;
 
@@ -44,7 +43,7 @@ class Enum implements Rule, ValidatorAwareRule
     /**
      * Create a new rule instance.
      *
-     * @param  class-string  $type
+     * @param  string  $type
      * @return void
      */
     public function __construct($type)
@@ -81,12 +80,12 @@ class Enum implements Rule, ValidatorAwareRule
     /**
      * Specify the cases that should be considered valid.
      *
-     * @param  \UnitEnum[]|\UnitEnum|\Illuminate\Contracts\Support\Arrayable<array-key, \UnitEnum>  $values
+     * @param  \UnitEnum[]|\UnitEnum  $values
      * @return $this
      */
     public function only($values)
     {
-        $this->only = $values instanceof Arrayable ? $values->toArray() : Arr::wrap($values);
+        $this->only = Arr::wrap($values);
 
         return $this;
     }
@@ -94,12 +93,12 @@ class Enum implements Rule, ValidatorAwareRule
     /**
      * Specify the cases that should be considered invalid.
      *
-     * @param  \UnitEnum[]|\UnitEnum|\Illuminate\Contracts\Support\Arrayable<array-key, \UnitEnum>  $values
+     * @param  \UnitEnum[]|\UnitEnum  $values
      * @return $this
      */
     public function except($values)
     {
-        $this->except = $values instanceof Arrayable ? $values->toArray() : Arr::wrap($values);
+        $this->except = Arr::wrap($values);
 
         return $this;
     }

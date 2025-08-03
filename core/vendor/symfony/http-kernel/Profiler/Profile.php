@@ -20,6 +20,8 @@ use Symfony\Component\HttpKernel\DataCollector\DataCollectorInterface;
  */
 class Profile
 {
+    private string $token;
+
     /**
      * @var DataCollectorInterface[]
      */
@@ -38,12 +40,15 @@ class Profile
      */
     private array $children = [];
 
-    public function __construct(
-        private string $token,
-    ) {
+    public function __construct(string $token)
+    {
+        $this->token = $token;
     }
 
-    public function setToken(string $token): void
+    /**
+     * @return void
+     */
+    public function setToken(string $token)
     {
         $this->token = $token;
     }
@@ -58,8 +63,10 @@ class Profile
 
     /**
      * Sets the parent token.
+     *
+     * @return void
      */
-    public function setParent(self $parent): void
+    public function setParent(self $parent)
     {
         $this->parent = $parent;
     }
@@ -88,7 +95,10 @@ class Profile
         return $this->ip;
     }
 
-    public function setIp(?string $ip): void
+    /**
+     * @return void
+     */
+    public function setIp(?string $ip)
     {
         $this->ip = $ip;
     }
@@ -101,7 +111,10 @@ class Profile
         return $this->method;
     }
 
-    public function setMethod(string $method): void
+    /**
+     * @return void
+     */
+    public function setMethod(string $method)
     {
         $this->method = $method;
     }
@@ -114,7 +127,10 @@ class Profile
         return $this->url;
     }
 
-    public function setUrl(?string $url): void
+    /**
+     * @return void
+     */
+    public function setUrl(?string $url)
     {
         $this->url = $url;
     }
@@ -124,12 +140,18 @@ class Profile
         return $this->time ?? 0;
     }
 
-    public function setTime(int $time): void
+    /**
+     * @return void
+     */
+    public function setTime(int $time)
     {
         $this->time = $time;
     }
 
-    public function setStatusCode(int $statusCode): void
+    /**
+     * @return void
+     */
+    public function setStatusCode(int $statusCode)
     {
         $this->statusCode = $statusCode;
     }
@@ -169,8 +191,10 @@ class Profile
      * Sets children profiler.
      *
      * @param Profile[] $children
+     *
+     * @return void
      */
-    public function setChildren(array $children): void
+    public function setChildren(array $children)
     {
         $this->children = [];
         foreach ($children as $child) {
@@ -180,8 +204,10 @@ class Profile
 
     /**
      * Adds the child token.
+     *
+     * @return void
      */
-    public function addChild(self $child): void
+    public function addChild(self $child)
     {
         $this->children[] = $child;
         $child->setParent($this);
@@ -226,8 +252,10 @@ class Profile
      * Sets the Collectors associated with this profile.
      *
      * @param DataCollectorInterface[] $collectors
+     *
+     * @return void
      */
-    public function setCollectors(array $collectors): void
+    public function setCollectors(array $collectors)
     {
         $this->collectors = [];
         foreach ($collectors as $collector) {
@@ -237,8 +265,10 @@ class Profile
 
     /**
      * Adds a Collector.
+     *
+     * @return void
      */
-    public function addCollector(DataCollectorInterface $collector): void
+    public function addCollector(DataCollectorInterface $collector)
     {
         $this->collectors[$collector->getName()] = $collector;
     }

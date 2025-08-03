@@ -7,23 +7,23 @@ use Closure;
 interface Pipeline
 {
     /**
-     * Set the object being sent through the pipeline.
+     * Set the traveler object being sent on the pipeline.
      *
-     * @param  mixed  $passable
+     * @param  mixed  $traveler
      * @return $this
      */
-    public function send($passable);
+    public function send($traveler);
 
     /**
-     * Set the array of pipes.
+     * Set the stops of the pipeline.
      *
-     * @param  array|mixed  $pipes
+     * @param  dynamic|array  $stops
      * @return $this
      */
-    public function through($pipes);
+    public function through($stops);
 
     /**
-     * Set the method to call on the pipes.
+     * Set the method to call on the stops.
      *
      * @param  string  $method
      * @return $this

@@ -69,11 +69,10 @@ class BusServiceProvider extends ServiceProvider implements DeferrableProvider
             ];
 
             if (! empty($config['key']) && ! empty($config['secret'])) {
-                $dynamoConfig['credentials'] = Arr::only($config, ['key', 'secret']);
-
-                if (! empty($config['token'])) {
-                    $dynamoConfig['credentials']['token'] = $config['token'];
-                }
+                $dynamoConfig['credentials'] = Arr::only(
+                    $config,
+                    ['key', 'secret', 'token']
+                );
             }
 
             return new DynamoBatchRepository(

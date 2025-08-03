@@ -15,11 +15,12 @@ use Symfony\Component\Routing\Exception\InvalidArgumentException;
 
 class Alias
 {
+    private string $id;
     private array $deprecation = [];
 
-    public function __construct(
-        private string $id,
-    ) {
+    public function __construct(string $id)
+    {
+        $this->id = $id;
     }
 
     public function withId(string $id): static

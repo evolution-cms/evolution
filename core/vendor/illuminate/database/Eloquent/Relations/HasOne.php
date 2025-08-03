@@ -4,24 +4,22 @@ namespace Illuminate\Database\Eloquent\Relations;
 
 use Illuminate\Contracts\Database\Eloquent\SupportsPartialRelations;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Concerns\CanBeOneOfMany;
 use Illuminate\Database\Eloquent\Relations\Concerns\ComparesRelatedModels;
 use Illuminate\Database\Eloquent\Relations\Concerns\SupportsDefaultModels;
 use Illuminate\Database\Query\JoinClause;
 
-/**
- * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
- * @template TDeclaringModel of \Illuminate\Database\Eloquent\Model
- *
- * @extends \Illuminate\Database\Eloquent\Relations\HasOneOrMany<TRelatedModel, TDeclaringModel, ?TRelatedModel>
- */
 class HasOne extends HasOneOrMany implements SupportsPartialRelations
 {
     use ComparesRelatedModels, CanBeOneOfMany, SupportsDefaultModels;
 
-    /** @inheritDoc */
+    /**
+     * Get the results of the relationship.
+     *
+     * @return mixed
+     */
     public function getResults()
     {
         if (is_null($this->getParentKey())) {
@@ -31,7 +29,13 @@ class HasOne extends HasOneOrMany implements SupportsPartialRelations
         return $this->query->first() ?: $this->getDefaultFor($this->parent);
     }
 
-    /** @inheritDoc */
+    /**
+     * Initialize the relation on a set of models.
+     *
+     * @param  array  $models
+     * @param  string  $relation
+     * @return array
+     */
     public function initRelation(array $models, $relation)
     {
         foreach ($models as $model) {
@@ -41,13 +45,29 @@ class HasOne extends HasOneOrMany implements SupportsPartialRelations
         return $models;
     }
 
-    /** @inheritDoc */
-    public function match(array $models, EloquentCollection $results, $relation)
+    /**
+     * Match the eagerly loaded results to their parents.
+     *
+     * @param  array  $models
+     * @param  \Illuminate\Database\Eloquent\Collection  $results
+     * @param  string  $relation
+     * @return array
+     */
+    public function match(array $models, Collection $results, $relation)
     {
         return $this->matchOne($models, $results, $relation);
     }
 
-    /** @inheritDoc */
+    /**
+     * Add the constraints for an internal relationship existence query.
+     *
+     * Essentially, these queries compare on column names like "whereColumn".
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $parentQuery
+     * @param  array|mixed  $columns
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function getRelationExistenceQuery(Builder $query, Builder $parentQuery, $columns = ['*'])
     {
         if ($this->isOneOfMany()) {
@@ -60,7 +80,7 @@ class HasOne extends HasOneOrMany implements SupportsPartialRelations
     /**
      * Add constraints for inner join subselect for one of many relationships.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<TRelatedModel>  $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @param  string|null  $column
      * @param  string|null  $aggregate
      * @return void
@@ -94,22 +114,21 @@ class HasOne extends HasOneOrMany implements SupportsPartialRelations
     /**
      * Make a new related instance for the given model.
      *
-     * @param  TDeclaringModel  $parent
-     * @return TRelatedModel
+     * @param  \Illuminate\Database\Eloquent\Model  $parent
+     * @return \Illuminate\Database\Eloquent\Model
      */
     public function newRelatedInstanceFor(Model $parent)
     {
-        return tap($this->related->newInstance(), function ($instance) use ($parent) {
-            $instance->setAttribute($this->getForeignKeyName(), $parent->{$this->localKey});
-            $this->applyInverseRelationToModel($instance, $parent);
-        });
+        return $this->related->newInstance()->setAttribute(
+            $this->getForeignKeyName(), $parent->{$this->localKey}
+        );
     }
 
     /**
      * Get the value of the model's foreign key.
      *
-     * @param  TRelatedModel  $model
-     * @return int|string
+     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @return mixed
      */
     protected function getRelatedKeyFrom(Model $model)
     {

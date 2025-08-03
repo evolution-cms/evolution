@@ -14,22 +14,13 @@ abstract class MigrationsEvent implements MigrationEventContract
     public $method;
 
     /**
-     * The options provided when the migration method was invoked.
-     *
-     * @var array<string, mixed>
-     */
-    public $options;
-
-    /**
      * Create a new event instance.
      *
      * @param  string  $method
-     * @param  array<string, mixed>  $options
      * @return void
      */
-    public function __construct($method, array $options = [])
+    public function __construct($method)
     {
         $this->method = $method;
-        $this->options = $options;
     }
 }

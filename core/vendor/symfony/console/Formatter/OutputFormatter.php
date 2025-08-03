@@ -24,6 +24,7 @@ use function Symfony\Component\String\b;
  */
 class OutputFormatter implements WrappableOutputFormatterInterface
 {
+    private bool $decorated;
     private array $styles = [];
     private OutputFormatterStyleStack $styleStack;
 
@@ -67,10 +68,10 @@ class OutputFormatter implements WrappableOutputFormatterInterface
      *
      * @param OutputFormatterStyleInterface[] $styles Array of "name => FormatterStyle" instances
      */
-    public function __construct(
-        private bool $decorated = false,
-        array $styles = [],
-    ) {
+    public function __construct(bool $decorated = false, array $styles = [])
+    {
+        $this->decorated = $decorated;
+
         $this->setStyle('error', new OutputFormatterStyle('white', 'red'));
         $this->setStyle('info', new OutputFormatterStyle('green'));
         $this->setStyle('comment', new OutputFormatterStyle('yellow'));
@@ -83,7 +84,10 @@ class OutputFormatter implements WrappableOutputFormatterInterface
         $this->styleStack = new OutputFormatterStyleStack();
     }
 
-    public function setDecorated(bool $decorated): void
+    /**
+     * @return void
+     */
+    public function setDecorated(bool $decorated)
     {
         $this->decorated = $decorated;
     }
@@ -93,7 +97,10 @@ class OutputFormatter implements WrappableOutputFormatterInterface
         return $this->decorated;
     }
 
-    public function setStyle(string $name, OutputFormatterStyleInterface $style): void
+    /**
+     * @return void
+     */
+    public function setStyle(string $name, OutputFormatterStyleInterface $style)
     {
         $this->styles[strtolower($name)] = $style;
     }
@@ -117,7 +124,10 @@ class OutputFormatter implements WrappableOutputFormatterInterface
         return $this->formatAndWrap($message, 0);
     }
 
-    public function formatAndWrap(?string $message, int $width): string
+    /**
+     * @return string
+     */
+    public function formatAndWrap(?string $message, int $width)
     {
         if (null === $message) {
             return '';

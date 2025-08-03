@@ -50,7 +50,10 @@ return [
 EOF;
     }
 
-    public function addExpressionLanguageProvider(ExpressionFunctionProviderInterface $provider): void
+    /**
+     * @return void
+     */
+    public function addExpressionLanguageProvider(ExpressionFunctionProviderInterface $provider)
     {
         $this->expressionLanguageProviders[] = $provider;
     }

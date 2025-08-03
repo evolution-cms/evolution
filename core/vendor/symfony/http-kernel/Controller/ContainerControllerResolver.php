@@ -23,10 +23,12 @@ use Symfony\Component\DependencyInjection\Container;
  */
 class ContainerControllerResolver extends ControllerResolver
 {
-    public function __construct(
-        protected ContainerInterface $container,
-        ?LoggerInterface $logger = null,
-    ) {
+    protected $container;
+
+    public function __construct(ContainerInterface $container, ?LoggerInterface $logger = null)
+    {
+        $this->container = $container;
+
         parent::__construct($logger);
     }
 

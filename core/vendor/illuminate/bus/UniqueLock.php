@@ -64,12 +64,12 @@ class UniqueLock
      * @param  mixed  $job
      * @return string
      */
-    public static function getKey($job)
+    protected function getKey($job)
     {
         $uniqueId = method_exists($job, 'uniqueId')
                     ? $job->uniqueId()
                     : ($job->uniqueId ?? '');
 
-        return 'laravel_unique_job:'.get_class($job).':'.$uniqueId;
+        return 'laravel_unique_job:'.get_class($job).$uniqueId;
     }
 }

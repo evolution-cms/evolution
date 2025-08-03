@@ -171,7 +171,7 @@ trait ResponseTrait
     /**
      * Throws the response in a HttpResponseException instance.
      *
-     * @return never
+     * @return void
      *
      * @throws \Illuminate\Http\Exceptions\HttpResponseException
      */

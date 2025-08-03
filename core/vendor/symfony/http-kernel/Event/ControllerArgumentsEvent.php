@@ -29,15 +29,11 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 final class ControllerArgumentsEvent extends KernelEvent
 {
     private ControllerEvent $controllerEvent;
+    private array $arguments;
     private array $namedArguments;
 
-    public function __construct(
-        HttpKernelInterface $kernel,
-        callable|ControllerEvent $controller,
-        private array $arguments,
-        Request $request,
-        ?int $requestType,
-    ) {
+    public function __construct(HttpKernelInterface $kernel, callable|ControllerEvent $controller, array $arguments, Request $request, ?int $requestType)
+    {
         parent::__construct($kernel, $request, $requestType);
 
         if (!$controller instanceof ControllerEvent) {
@@ -45,6 +41,7 @@ final class ControllerArgumentsEvent extends KernelEvent
         }
 
         $this->controllerEvent = $controller;
+        $this->arguments = $arguments;
     }
 
     public function getController(): callable

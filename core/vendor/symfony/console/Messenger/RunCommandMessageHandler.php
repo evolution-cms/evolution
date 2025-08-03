@@ -24,9 +24,8 @@ use Symfony\Component\Messenger\Exception\UnrecoverableExceptionInterface;
  */
 final class RunCommandMessageHandler
 {
-    public function __construct(
-        private readonly Application $application,
-    ) {
+    public function __construct(private readonly Application $application)
+    {
     }
 
     public function __invoke(RunCommandMessage $message): RunCommandContext

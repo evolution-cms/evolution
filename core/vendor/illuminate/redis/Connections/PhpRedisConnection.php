@@ -4,8 +4,7 @@ namespace Illuminate\Redis\Connections;
 
 use Closure;
 use Illuminate\Contracts\Redis\Connection as ConnectionContract;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
+use Redis;
 use RedisException;
 
 /**
@@ -129,7 +128,7 @@ class PhpRedisConnection extends Connection implements ConnectionContract
         if (count($dictionary) === 1) {
             $dictionary = $dictionary[0];
         } else {
-            $input = new Collection($dictionary);
+            $input = collect($dictionary);
 
             $dictionary = $input->nth(2)->combine($input->nth(2, 1))->toArray();
         }
@@ -531,8 +530,12 @@ class PhpRedisConnection extends Connection implements ConnectionContract
         try {
             return parent::command($method, $parameters);
         } catch (RedisException $e) {
-            if (Str::contains($e->getMessage(), ['went away', 'socket', 'read error on connection', 'Connection lost'])) {
-                $this->client = $this->connector ? call_user_func($this->connector) : $this->client;
+            foreach (['went away', 'socket', 'read error on connection', 'Connection lost'] as $errorMessage) {
+                if (str_contains($e->getMessage(), $errorMessage)) {
+                    $this->client = $this->connector ? call_user_func($this->connector) : $this->client;
+
+                    break;
+                }
             }
 
             throw $e;

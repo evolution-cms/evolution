@@ -26,7 +26,10 @@ class Ssi extends AbstractSurrogate
         return 'ssi';
     }
 
-    public function addSurrogateControl(Response $response): void
+    /**
+     * @return void
+     */
+    public function addSurrogateControl(Response $response)
     {
         if (str_contains($response->getContent(), '<!--#include')) {
             $response->headers->set('Surrogate-Control', 'content="SSI/1.0"');
@@ -41,12 +44,12 @@ class Ssi extends AbstractSurrogate
     public function process(Request $request, Response $response): Response
     {
         $type = $response->headers->get('Content-Type');
-        if (!$type) {
+        if (empty($type)) {
             $type = 'text/html';
         }
 
         $parts = explode(';', $type);
-        if (!\in_array($parts[0], $this->contentTypes, true)) {
+        if (!\in_array($parts[0], $this->contentTypes)) {
             return $response;
         }
 

@@ -3,22 +3,14 @@
 namespace Illuminate\Database\Eloquent\Relations;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithDictionary;
-use Illuminate\Database\Eloquent\Relations\Concerns\SupportsInverseRelations;
 use Illuminate\Database\UniqueConstraintViolationException;
 
-/**
- * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
- * @template TDeclaringModel of \Illuminate\Database\Eloquent\Model
- * @template TResult
- *
- * @extends \Illuminate\Database\Eloquent\Relations\Relation<TRelatedModel, TDeclaringModel, TResult>
- */
 abstract class HasOneOrMany extends Relation
 {
-    use InteractsWithDictionary, SupportsInverseRelations;
+    use InteractsWithDictionary;
 
     /**
      * The foreign key of the parent model.
@@ -37,8 +29,8 @@ abstract class HasOneOrMany extends Relation
     /**
      * Create a new has one or many relationship instance.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<TRelatedModel>  $query
-     * @param  TDeclaringModel  $parent
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  \Illuminate\Database\Eloquent\Model  $parent
      * @param  string  $foreignKey
      * @param  string  $localKey
      * @return void
@@ -55,13 +47,12 @@ abstract class HasOneOrMany extends Relation
      * Create and return an un-saved instance of the related model.
      *
      * @param  array  $attributes
-     * @return TRelatedModel
+     * @return \Illuminate\Database\Eloquent\Model
      */
     public function make(array $attributes = [])
     {
         return tap($this->related->newInstance($attributes), function ($instance) {
             $this->setForeignAttributesForCreate($instance);
-            $this->applyInverseRelationToModel($instance);
         });
     }
 
@@ -69,7 +60,7 @@ abstract class HasOneOrMany extends Relation
      * Create and return an un-saved instance of the related models.
      *
      * @param  iterable  $records
-     * @return \Illuminate\Database\Eloquent\Collection<int, TRelatedModel>
+     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function makeMany($records)
     {
@@ -98,7 +89,12 @@ abstract class HasOneOrMany extends Relation
         }
     }
 
-    /** @inheritDoc */
+    /**
+     * Set the constraints for an eager load of the relation.
+     *
+     * @param  array  $models
+     * @return void
+     */
     public function addEagerConstraints(array $models)
     {
         $whereIn = $this->whereInMethod($this->parent, $this->localKey);
@@ -114,12 +110,12 @@ abstract class HasOneOrMany extends Relation
     /**
      * Match the eagerly loaded results to their single parents.
      *
-     * @param  array<int, TDeclaringModel>  $models
-     * @param  \Illuminate\Database\Eloquent\Collection<int, TRelatedModel>  $results
+     * @param  array  $models
+     * @param  \Illuminate\Database\Eloquent\Collection  $results
      * @param  string  $relation
-     * @return array<int, TDeclaringModel>
+     * @return array
      */
-    public function matchOne(array $models, EloquentCollection $results, $relation)
+    public function matchOne(array $models, Collection $results, $relation)
     {
         return $this->matchOneOrMany($models, $results, $relation, 'one');
     }
@@ -127,12 +123,12 @@ abstract class HasOneOrMany extends Relation
     /**
      * Match the eagerly loaded results to their many parents.
      *
-     * @param  array<int, TDeclaringModel>  $models
-     * @param  \Illuminate\Database\Eloquent\Collection<int, TRelatedModel>  $results
+     * @param  array  $models
+     * @param  \Illuminate\Database\Eloquent\Collection  $results
      * @param  string  $relation
-     * @return array<int, TDeclaringModel>
+     * @return array
      */
-    public function matchMany(array $models, EloquentCollection $results, $relation)
+    public function matchMany(array $models, Collection $results, $relation)
     {
         return $this->matchOneOrMany($models, $results, $relation, 'many');
     }
@@ -140,13 +136,13 @@ abstract class HasOneOrMany extends Relation
     /**
      * Match the eagerly loaded results to their many parents.
      *
-     * @param  array<int, TDeclaringModel>  $models
-     * @param  \Illuminate\Database\Eloquent\Collection<int, TRelatedModel>  $results
+     * @param  array  $models
+     * @param  \Illuminate\Database\Eloquent\Collection  $results
      * @param  string  $relation
      * @param  string  $type
-     * @return array<int, TDeclaringModel>
+     * @return array
      */
-    protected function matchOneOrMany(array $models, EloquentCollection $results, $relation, $type)
+    protected function matchOneOrMany(array $models, Collection $results, $relation, $type)
     {
         $dictionary = $this->buildDictionary($results);
 
@@ -155,13 +151,9 @@ abstract class HasOneOrMany extends Relation
         // matching very convenient and easy work. Then we'll just return them.
         foreach ($models as $model) {
             if (isset($dictionary[$key = $this->getDictionaryKey($model->getAttribute($this->localKey))])) {
-                $related = $this->getRelationValue($dictionary, $key, $type);
-                $model->setRelation($relation, $related);
-
-                // Apply the inverse relation if we have one...
-                $type === 'one'
-                    ? $this->applyInverseRelationToModel($related, $model)
-                    : $this->applyInverseRelationToCollection($related, $model);
+                $model->setRelation(
+                    $relation, $this->getRelationValue($dictionary, $key, $type)
+                );
             }
         }
 
@@ -186,10 +178,10 @@ abstract class HasOneOrMany extends Relation
     /**
      * Build model dictionary keyed by the relation's foreign key.
      *
-     * @param  \Illuminate\Database\Eloquent\Collection<int, TRelatedModel>  $results
-     * @return array<array<int, TRelatedModel>>
+     * @param  \Illuminate\Database\Eloquent\Collection  $results
+     * @return array
      */
-    protected function buildDictionary(EloquentCollection $results)
+    protected function buildDictionary(Collection $results)
     {
         $foreign = $this->getForeignKeyName();
 
@@ -203,7 +195,7 @@ abstract class HasOneOrMany extends Relation
      *
      * @param  mixed  $id
      * @param  array  $columns
-     * @return ($id is (\Illuminate\Contracts\Support\Arrayable<array-key, mixed>|array<mixed>) ? \Illuminate\Database\Eloquent\Collection<int, TRelatedModel> : TRelatedModel)
+     * @return \Illuminate\Support\Collection|\Illuminate\Database\Eloquent\Model
      */
     public function findOrNew($id, $columns = ['*'])
     {
@@ -221,7 +213,7 @@ abstract class HasOneOrMany extends Relation
      *
      * @param  array  $attributes
      * @param  array  $values
-     * @return TRelatedModel
+     * @return \Illuminate\Database\Eloquent\Model
      */
     public function firstOrNew(array $attributes = [], array $values = [])
     {
@@ -239,7 +231,7 @@ abstract class HasOneOrMany extends Relation
      *
      * @param  array  $attributes
      * @param  array  $values
-     * @return TRelatedModel
+     * @return \Illuminate\Database\Eloquent\Model
      */
     public function firstOrCreate(array $attributes = [], array $values = [])
     {
@@ -255,7 +247,7 @@ abstract class HasOneOrMany extends Relation
      *
      * @param  array  $attributes
      * @param  array  $values
-     * @return TRelatedModel
+     * @return \Illuminate\Database\Eloquent\Model
      */
     public function createOrFirst(array $attributes = [], array $values = [])
     {
@@ -271,7 +263,7 @@ abstract class HasOneOrMany extends Relation
      *
      * @param  array  $attributes
      * @param  array  $values
-     * @return TRelatedModel
+     * @return \Illuminate\Database\Eloquent\Model
      */
     public function updateOrCreate(array $attributes, array $values = [])
     {
@@ -283,31 +275,10 @@ abstract class HasOneOrMany extends Relation
     }
 
     /**
-     * Insert new records or update the existing ones.
-     *
-     * @param  array  $values
-     * @param  array|string  $uniqueBy
-     * @param  array|null  $update
-     * @return int
-     */
-    public function upsert(array $values, $uniqueBy, $update = null)
-    {
-        if (! empty($values) && ! is_array(reset($values))) {
-            $values = [$values];
-        }
-
-        foreach ($values as $key => $value) {
-            $values[$key][$this->getForeignKeyName()] = $this->getParentKey();
-        }
-
-        return $this->getQuery()->upsert($values, $uniqueBy, $update);
-    }
-
-    /**
      * Attach a model instance to the parent model.
      *
-     * @param  TRelatedModel  $model
-     * @return TRelatedModel|false
+     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @return \Illuminate\Database\Eloquent\Model|false
      */
     public function save(Model $model)
     {
@@ -319,8 +290,8 @@ abstract class HasOneOrMany extends Relation
     /**
      * Attach a model instance without raising any events to the parent model.
      *
-     * @param  TRelatedModel  $model
-     * @return TRelatedModel|false
+     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @return \Illuminate\Database\Eloquent\Model|false
      */
     public function saveQuietly(Model $model)
     {
@@ -332,8 +303,8 @@ abstract class HasOneOrMany extends Relation
     /**
      * Attach a collection of models to the parent instance.
      *
-     * @param  iterable<TRelatedModel>  $models
-     * @return iterable<TRelatedModel>
+     * @param  iterable  $models
+     * @return iterable
      */
     public function saveMany($models)
     {
@@ -347,8 +318,8 @@ abstract class HasOneOrMany extends Relation
     /**
      * Attach a collection of models to the parent instance without raising any events to the parent model.
      *
-     * @param  iterable<TRelatedModel>  $models
-     * @return iterable<TRelatedModel>
+     * @param  iterable  $models
+     * @return iterable
      */
     public function saveManyQuietly($models)
     {
@@ -361,7 +332,7 @@ abstract class HasOneOrMany extends Relation
      * Create a new instance of the related model.
      *
      * @param  array  $attributes
-     * @return TRelatedModel
+     * @return \Illuminate\Database\Eloquent\Model
      */
     public function create(array $attributes = [])
     {
@@ -369,8 +340,6 @@ abstract class HasOneOrMany extends Relation
             $this->setForeignAttributesForCreate($instance);
 
             $instance->save();
-
-            $this->applyInverseRelationToModel($instance);
         });
     }
 
@@ -378,7 +347,7 @@ abstract class HasOneOrMany extends Relation
      * Create a new instance of the related model without raising any events to the parent model.
      *
      * @param  array  $attributes
-     * @return TRelatedModel
+     * @return \Illuminate\Database\Eloquent\Model
      */
     public function createQuietly(array $attributes = [])
     {
@@ -389,20 +358,20 @@ abstract class HasOneOrMany extends Relation
      * Create a new instance of the related model. Allow mass-assignment.
      *
      * @param  array  $attributes
-     * @return TRelatedModel
+     * @return \Illuminate\Database\Eloquent\Model
      */
     public function forceCreate(array $attributes = [])
     {
         $attributes[$this->getForeignKeyName()] = $this->getParentKey();
 
-        return $this->applyInverseRelationToModel($this->related->forceCreate($attributes));
+        return $this->related->forceCreate($attributes);
     }
 
     /**
      * Create a new instance of the related model with mass assignment without raising model events.
      *
      * @param  array  $attributes
-     * @return TRelatedModel
+     * @return \Illuminate\Database\Eloquent\Model
      */
     public function forceCreateQuietly(array $attributes = [])
     {
@@ -413,7 +382,7 @@ abstract class HasOneOrMany extends Relation
      * Create a Collection of new instances of the related model.
      *
      * @param  iterable  $records
-     * @return \Illuminate\Database\Eloquent\Collection<int, TRelatedModel>
+     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function createMany(iterable $records)
     {
@@ -430,7 +399,7 @@ abstract class HasOneOrMany extends Relation
      * Create a Collection of new instances of the related model without raising any events to the parent model.
      *
      * @param  iterable  $records
-     * @return \Illuminate\Database\Eloquent\Collection<int, TRelatedModel>
+     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function createManyQuietly(iterable $records)
     {
@@ -440,25 +409,22 @@ abstract class HasOneOrMany extends Relation
     /**
      * Set the foreign ID for creating a related model.
      *
-     * @param  TRelatedModel  $model
+     * @param  \Illuminate\Database\Eloquent\Model  $model
      * @return void
      */
     protected function setForeignAttributesForCreate(Model $model)
     {
         $model->setAttribute($this->getForeignKeyName(), $this->getParentKey());
-
-        foreach ($this->getQuery()->pendingAttributes as $key => $value) {
-            $attributes ??= $model->getAttributes();
-
-            if (! array_key_exists($key, $attributes)) {
-                $model->setAttribute($key, $value);
-            }
-        }
-
-        $this->applyInverseRelationToModel($model);
     }
 
-    /** @inheritDoc */
+    /**
+     * Add the constraints for a relationship query.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $parentQuery
+     * @param  array|mixed  $columns
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function getRelationExistenceQuery(Builder $query, Builder $parentQuery, $columns = ['*'])
     {
         if ($query->getQuery()->from == $parentQuery->getQuery()->from) {
@@ -471,10 +437,10 @@ abstract class HasOneOrMany extends Relation
     /**
      * Add the constraints for a relationship query on the same table.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<TRelatedModel>  $query
-     * @param  \Illuminate\Database\Eloquent\Builder<TDeclaringModel>  $parentQuery
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $parentQuery
      * @param  array|mixed  $columns
-     * @return \Illuminate\Database\Eloquent\Builder<TRelatedModel>
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function getRelationExistenceQueryForSelfRelation(Builder $query, Builder $parentQuery, $columns = ['*'])
     {
@@ -485,34 +451,6 @@ abstract class HasOneOrMany extends Relation
         return $query->select($columns)->whereColumn(
             $this->getQualifiedParentKeyName(), '=', $hash.'.'.$this->getForeignKeyName()
         );
-    }
-
-    /**
-     * Alias to set the "limit" value of the query.
-     *
-     * @param  int  $value
-     * @return $this
-     */
-    public function take($value)
-    {
-        return $this->limit($value);
-    }
-
-    /**
-     * Set the "limit" value of the query.
-     *
-     * @param  int  $value
-     * @return $this
-     */
-    public function limit($value)
-    {
-        if ($this->parent->exists) {
-            $this->query->limit($value);
-        } else {
-            $this->query->groupLimit($value, $this->getExistenceCompareKey());
-        }
-
-        return $this;
     }
 
     /**

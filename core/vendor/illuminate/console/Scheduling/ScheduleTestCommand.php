@@ -76,10 +76,8 @@ class ScheduleTestCommand extends Command
         $description = sprintf(
             'Running [%s]%s',
             $command,
-            $event->runInBackground ? ' normally in background' : '',
+            $event->runInBackground ? ' in background' : '',
         );
-
-        $event->runInBackground = false;
 
         $this->components->task($description, fn () => $event->run($this->laravel));
 

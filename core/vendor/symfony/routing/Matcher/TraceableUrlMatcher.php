@@ -27,9 +27,12 @@ class TraceableUrlMatcher extends UrlMatcher
     public const ROUTE_ALMOST_MATCHES = 1;
     public const ROUTE_MATCHES = 2;
 
-    protected array $traces;
+    protected $traces;
 
-    public function getTraces(string $pathinfo): array
+    /**
+     * @return array
+     */
+    public function getTraces(string $pathinfo)
     {
         $this->traces = [];
 
@@ -41,7 +44,10 @@ class TraceableUrlMatcher extends UrlMatcher
         return $this->traces;
     }
 
-    public function getTracesForRequest(Request $request): array
+    /**
+     * @return array
+     */
+    public function getTracesForRequest(Request $request)
     {
         $this->request = $request;
         $traces = $this->getTraces($request->getPathInfo());
@@ -125,7 +131,7 @@ class TraceableUrlMatcher extends UrlMatcher
             }
 
             if ('/' !== $pathinfo && !$hasTrailingVar && $hasTrailingSlash === ($trimmedPathinfo === $pathinfo)) {
-                if ($supportsTrailingSlash && (!$requiredMethods || \in_array('GET', $requiredMethods, true))) {
+                if ($supportsTrailingSlash && (!$requiredMethods || \in_array('GET', $requiredMethods))) {
                     $this->addTrace('Route matches!', self::ROUTE_MATCHES, $name, $route);
 
                     return $this->allow = $this->allowSchemes = [];
@@ -140,7 +146,7 @@ class TraceableUrlMatcher extends UrlMatcher
                 continue;
             }
 
-            if ($requiredMethods && !\in_array($method, $requiredMethods, true)) {
+            if ($requiredMethods && !\in_array($method, $requiredMethods)) {
                 $this->allow = array_merge($this->allow, $requiredMethods);
                 $this->addTrace(\sprintf('Method "%s" does not match any of the required methods (%s)', $this->context->getMethod(), implode(', ', $requiredMethods)), self::ROUTE_ALMOST_MATCHES, $name, $route);
                 continue;

@@ -9,15 +9,11 @@ use Illuminate\Database\Events\SchemaLoaded;
 use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Database\SQLiteDatabaseDoesNotExistException;
 use Illuminate\Database\SqlServerConnection;
-use Illuminate\Support\Str;
 use PDOException;
-use RuntimeException;
-use Symfony\Component\Console\Attribute\AsCommand;
 use Throwable;
 
 use function Laravel\Prompts\confirm;
 
-#[AsCommand(name: 'migrate')]
 class MigrateCommand extends BaseCommand implements Isolatable
 {
     use ConfirmableTrait;
@@ -35,8 +31,7 @@ class MigrateCommand extends BaseCommand implements Isolatable
                 {--pretend : Dump the SQL queries that would be run}
                 {--seed : Indicates if the seed task should be re-run}
                 {--seeder= : The class name of the root seeder}
-                {--step : Force the migrations to be run so they can be rolled back individually}
-                {--graceful : Return a successful exit code even if an error occurs}';
+                {--step : Force the migrations to be run so they can be rolled back individually}';
 
     /**
      * The console command description.
@@ -85,28 +80,6 @@ class MigrateCommand extends BaseCommand implements Isolatable
             return 1;
         }
 
-        try {
-            $this->runMigrations();
-        } catch (Throwable $e) {
-            if ($this->option('graceful')) {
-                $this->components->warn($e->getMessage());
-
-                return 0;
-            }
-
-            throw $e;
-        }
-
-        return 0;
-    }
-
-    /**
-     * Run the pending migrations.
-     *
-     * @return void
-     */
-    protected function runMigrations()
-    {
         $this->migrator->usingConnection($this->option('database'), function () {
             $this->prepareDatabase();
 
@@ -129,6 +102,8 @@ class MigrateCommand extends BaseCommand implements Isolatable
                 ]);
             }
         });
+
+        return 0;
     }
 
     /**
@@ -164,7 +139,20 @@ class MigrateCommand extends BaseCommand implements Isolatable
     {
         return retry(2, fn () => $this->migrator->repositoryExists(), 0, function ($e) {
             try {
-                return $this->handleMissingDatabase($e->getPrevious());
+                if ($e->getPrevious() instanceof SQLiteDatabaseDoesNotExistException) {
+                    return $this->createMissingSqliteDatabase($e->getPrevious()->path);
+                }
+
+                $connection = $this->migrator->resolveConnection($this->option('database'));
+
+                if (
+                    $e->getPrevious() instanceof PDOException &&
+                    $e->getPrevious()->getCode() === 1049 &&
+                    $connection->getDriverName() === 'mysql') {
+                    return $this->createMissingMysqlDatabase($connection);
+                }
+
+                return false;
             } catch (Throwable) {
                 return false;
             }
@@ -172,40 +160,10 @@ class MigrateCommand extends BaseCommand implements Isolatable
     }
 
     /**
-     * Attempt to create the database if it is missing.
-     *
-     * @param  \Throwable  $e
-     * @return bool
-     */
-    protected function handleMissingDatabase(Throwable $e)
-    {
-        if ($e instanceof SQLiteDatabaseDoesNotExistException) {
-            return $this->createMissingSqliteDatabase($e->path);
-        }
-
-        $connection = $this->migrator->resolveConnection($this->option('database'));
-
-        if (! $e instanceof PDOException) {
-            return false;
-        }
-
-        if (($e->getCode() === 1049 && in_array($connection->getDriverName(), ['mysql', 'mariadb'])) ||
-            (($e->errorInfo[0] ?? null) == '08006' &&
-              $connection->getDriverName() == 'pgsql' &&
-              Str::contains($e->getMessage(), '"'.$connection->getDatabaseName().'"'))) {
-            return $this->createMissingMySqlOrPgsqlDatabase($connection);
-        }
-
-        return false;
-    }
-
-    /**
      * Create a missing SQLite database.
      *
      * @param  string  $path
      * @return bool
-     *
-     * @throws \RuntimeException
      */
     protected function createMissingSqliteDatabase($path)
     {
@@ -217,26 +175,21 @@ class MigrateCommand extends BaseCommand implements Isolatable
             return false;
         }
 
-        $this->components->warn('The SQLite database configured for this application does not exist: '.$path);
+        $this->components->warn('The SQLite database does not exist: '.$path);
 
-        if (! confirm('Would you like to create it?', default: true)) {
-            $this->components->info('Operation cancelled. No database was created.');
-
-            throw new RuntimeException('Database was not created. Aborting migration.');
+        if (! confirm('Would you like to create it?', default: false)) {
+            return false;
         }
 
         return touch($path);
     }
 
     /**
-     * Create a missing MySQL or Postgres database.
+     * Create a missing MySQL database.
      *
-     * @param  \Illuminate\Database\Connection  $connection
      * @return bool
-     *
-     * @throws \RuntimeException
      */
-    protected function createMissingMySqlOrPgsqlDatabase($connection)
+    protected function createMissingMysqlDatabase($connection)
     {
         if ($this->laravel['config']->get("database.connections.{$connection->getName()}.database") !== $connection->getDatabaseName()) {
             return false;
@@ -249,31 +202,19 @@ class MigrateCommand extends BaseCommand implements Isolatable
         if (! $this->option('force') && ! $this->option('no-interaction')) {
             $this->components->warn("The database '{$connection->getDatabaseName()}' does not exist on the '{$connection->getName()}' connection.");
 
-            if (! confirm('Would you like to create it?', default: true)) {
-                $this->components->info('Operation cancelled. No database was created.');
-
-                throw new RuntimeException('Database was not created. Aborting migration.');
+            if (! confirm('Would you like to create it?', default: false)) {
+                return false;
             }
         }
+
         try {
-            $this->laravel['config']->set(
-                "database.connections.{$connection->getName()}.database",
-                match ($connection->getDriverName()) {
-                    'mysql', 'mariadb' => null,
-                    'pgsql' => 'postgres',
-                },
-            );
+            $this->laravel['config']->set("database.connections.{$connection->getName()}.database", null);
 
             $this->laravel['db']->purge();
 
             $freshConnection = $this->migrator->resolveConnection($this->option('database'));
 
-            return tap($freshConnection->unprepared(
-                match ($connection->getDriverName()) {
-                    'mysql', 'mariadb' => "CREATE DATABASE IF NOT EXISTS `{$connection->getDatabaseName()}`",
-                    'pgsql' => 'CREATE DATABASE "'.$connection->getDatabaseName().'"',
-                }
-            ), function () {
+            return tap($freshConnection->unprepared("CREATE DATABASE IF NOT EXISTS `{$connection->getDatabaseName()}`"), function () {
                 $this->laravel['db']->purge();
             });
         } finally {

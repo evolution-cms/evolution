@@ -42,7 +42,17 @@ class UrlGenerator implements UrlGeneratorInterface, ConfigurableRequirementsInt
         '%2A' => '*',
     ];
 
-    protected ?bool $strictRequirements = true;
+    protected $routes;
+    protected $context;
+
+    /**
+     * @var bool|null
+     */
+    protected $strictRequirements = true;
+
+    protected $logger;
+
+    private ?string $defaultLocale;
 
     /**
      * This array defines the characters (besides alphanumeric ones) that will not be percent-encoded in the path segment of the generated URL.
@@ -52,7 +62,7 @@ class UrlGenerator implements UrlGeneratorInterface, ConfigurableRequirementsInt
      * "?" and "#" (would be interpreted wrongly as query and fragment identifier),
      * "'" and """ (are used as delimiters in HTML).
      */
-    protected array $decodedChars = [
+    protected $decodedChars = [
         // the slash can be used to designate a hierarchical structure and we want allow using it with this meaning
         // some webservers don't allow the slash in encoded form in the path for security reasons anyway
         // see http://stackoverflow.com/questions/4069002/http-400-if-2f-part-of-get-url-in-jboss
@@ -73,15 +83,18 @@ class UrlGenerator implements UrlGeneratorInterface, ConfigurableRequirementsInt
         '%7C' => '|',
     ];
 
-    public function __construct(
-        protected RouteCollection $routes,
-        protected RequestContext $context,
-        protected ?LoggerInterface $logger = null,
-        private ?string $defaultLocale = null,
-    ) {
+    public function __construct(RouteCollection $routes, RequestContext $context, ?LoggerInterface $logger = null, ?string $defaultLocale = null)
+    {
+        $this->routes = $routes;
+        $this->context = $context;
+        $this->logger = $logger;
+        $this->defaultLocale = $defaultLocale;
     }
 
-    public function setContext(RequestContext $context): void
+    /**
+     * @return void
+     */
+    public function setContext(RequestContext $context)
     {
         $this->context = $context;
     }
@@ -91,7 +104,10 @@ class UrlGenerator implements UrlGeneratorInterface, ConfigurableRequirementsInt
         return $this->context;
     }
 
-    public function setStrictRequirements(?bool $enabled): void
+    /**
+     * @return void
+     */
+    public function setStrictRequirements(?bool $enabled)
     {
         $this->strictRequirements = $enabled;
     }
@@ -266,7 +282,7 @@ class UrlGenerator implements UrlGeneratorInterface, ConfigurableRequirementsInt
                 if ($vars = get_object_vars($v)) {
                     array_walk_recursive($vars, $caster);
                     $v = $vars;
-                } elseif ($v instanceof \Stringable) {
+                } elseif (method_exists($v, '__toString')) {
                     $v = (string) $v;
                 }
             }

@@ -29,8 +29,6 @@ if (!defined('IN_MANAGER_MODE')) {
 */
 
 $artisan = new EvolutionCMS\Console(evo(), evo()->events, evo()->version());
-//$modx = evolutionCMS();
-//$artisan = new EvolutionCMS\Console($modx, $modx['events'], $modx->version());
 
 $status = $artisan->run(
     $input = new Symfony\Component\Console\Input\ArgvInput,

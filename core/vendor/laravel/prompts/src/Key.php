@@ -8,13 +8,9 @@ class Key
 
     const SHIFT_UP = "\e[1;2A";
 
-    const PAGE_UP = "\e[5~";
-
     const DOWN = "\e[B";
 
     const SHIFT_DOWN = "\e[1;2B";
-
-    const PAGE_DOWN = "\e[6~";
 
     const RIGHT = "\e[C";
 
@@ -103,14 +99,6 @@ class Key
      */
     public static function oneOf(array $keys, string $match): ?string
     {
-        foreach ($keys as $key) {
-            if (is_array($key) && static::oneOf($key, $match) !== null) {
-                return $match;
-            } elseif ($key === $match) {
-                return $match;
-            }
-        }
-
-        return null;
+        return collect($keys)->flatten()->contains($match) ? $match : null;
     }
 }

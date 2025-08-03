@@ -4,9 +4,8 @@ namespace Illuminate\Validation\Rules;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Traits\Conditionable;
-use Stringable;
 
-class Unique implements Stringable
+class Unique
 {
     use Conditionable, DatabaseRule;
 

@@ -7,9 +7,8 @@ use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Support\MessageBag as MessageBagContract;
 use Illuminate\Contracts\Support\MessageProvider;
 use JsonSerializable;
-use Stringable;
 
-class MessageBag implements Jsonable, JsonSerializable, MessageBagContract, MessageProvider, Stringable
+class MessageBag implements Jsonable, JsonSerializable, MessageBagContract, MessageProvider
 {
     /**
      * All of the registered messages.
@@ -223,12 +222,15 @@ class MessageBag implements Jsonable, JsonSerializable, MessageBagContract, Mess
      */
     protected function getMessagesForWildcardKey($key, $format)
     {
-        return (new Collection($this->messages))
-            ->filter(fn ($messages, $messageKey) => Str::is($key, $messageKey))
-            ->map(function ($messages, $messageKey) use ($format) {
-                return $this->transform($messages, $this->checkFormat($format), $messageKey);
-            })
-            ->all();
+        return collect($this->messages)
+                ->filter(function ($messages, $messageKey) use ($key) {
+                    return Str::is($key, $messageKey);
+                })
+                ->map(function ($messages, $messageKey) use ($format) {
+                    return $this->transform(
+                        $messages, $this->checkFormat($format), $messageKey
+                    );
+                })->all();
     }
 
     /**
@@ -288,7 +290,7 @@ class MessageBag implements Jsonable, JsonSerializable, MessageBagContract, Mess
             return (array) $messages;
         }
 
-        return (new Collection((array) $messages))
+        return collect((array) $messages)
             ->map(function ($message) use ($format, $messageKey) {
                 // We will simply spin through the given messages and transform each one
                 // replacing the :message place holder with the real message allowing

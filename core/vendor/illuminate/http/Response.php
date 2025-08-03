@@ -38,15 +38,6 @@ class Response extends SymfonyResponse
     }
 
     /**
-     * Get the response content.
-     */
-    #[\Override]
-    public function getContent(): string|false
-    {
-        return transform(parent::getContent(), fn ($content) => $content, '');
-    }
-
-    /**
      * Set the content on the response.
      *
      * @param  mixed  $content
@@ -54,7 +45,6 @@ class Response extends SymfonyResponse
      *
      * @throws \InvalidArgumentException
      */
-    #[\Override]
     public function setContent(mixed $content): static
     {
         $this->original = $content;
@@ -103,7 +93,7 @@ class Response extends SymfonyResponse
      * Morph the given content into JSON.
      *
      * @param  mixed  $content
-     * @return string|false
+     * @return string
      */
     protected function morphToJson($content)
     {

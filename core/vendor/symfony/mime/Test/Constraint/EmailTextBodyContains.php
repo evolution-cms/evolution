@@ -17,9 +17,11 @@ use Symfony\Component\Mime\RawMessage;
 
 final class EmailTextBodyContains extends Constraint
 {
-    public function __construct(
-        private string $expectedText,
-    ) {
+    private string $expectedText;
+
+    public function __construct(string $expectedText)
+    {
+        $this->expectedText = $expectedText;
     }
 
     public function toString(): string

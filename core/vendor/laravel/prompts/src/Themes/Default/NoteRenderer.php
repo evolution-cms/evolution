@@ -11,53 +11,44 @@ class NoteRenderer extends Renderer
      */
     public function __invoke(Note $note): string
     {
-        $lines = explode(PHP_EOL, $note->message);
+        $lines = collect(explode(PHP_EOL, $note->message));
 
         switch ($note->type) {
             case 'intro':
             case 'outro':
-                $lines = array_map(fn ($line) => " {$line} ", $lines);
-                $longest = max(array_map(fn ($line) => strlen($line), $lines));
+                $lines = $lines->map(fn ($line) => " {$line} ");
+                $longest = $lines->map(fn ($line) => strlen($line))->max();
 
-                foreach ($lines as $line) {
-                    $line = str_pad($line, $longest, ' ');
-                    $this->line(" {$this->bgCyan($this->black($line))}");
-                }
+                $lines
+                    ->each(function ($line) use ($longest) {
+                        $line = str_pad($line, $longest, ' ');
+                        $this->line(" {$this->bgCyan($this->black($line))}");
+                    });
 
                 return $this;
 
             case 'warning':
-                foreach ($lines as $line) {
-                    $this->line($this->yellow(" {$line}"));
-                }
+                $lines->each(fn ($line) => $this->line($this->yellow(" {$line}")));
 
                 return $this;
 
             case 'error':
-                foreach ($lines as $line) {
-                    $this->line($this->red(" {$line}"));
-                }
+                $lines->each(fn ($line) => $this->line($this->red(" {$line}")));
 
                 return $this;
 
             case 'alert':
-                foreach ($lines as $line) {
-                    $this->line(" {$this->bgRed($this->white(" {$line} "))}");
-                }
+                $lines->each(fn ($line) => $this->line(" {$this->bgRed($this->white(" {$line} "))}"));
 
                 return $this;
 
             case 'info':
-                foreach ($lines as $line) {
-                    $this->line($this->green(" {$line}"));
-                }
+                $lines->each(fn ($line) => $this->line($this->green(" {$line}")));
 
                 return $this;
 
             default:
-                foreach ($lines as $line) {
-                    $this->line(" {$line}");
-                }
+                $lines->each(fn ($line) => $this->line(" {$line}"));
 
                 return $this;
         }

@@ -18,11 +18,6 @@ class Line extends Component
             'fgColor' => 'white',
             'title' => 'info',
         ],
-        'success' => [
-            'bgColor' => 'green',
-            'fgColor' => 'white',
-            'title' => 'success',
-        ],
         'warn' => [
             'bgColor' => 'yellow',
             'fgColor' => 'black',

@@ -409,7 +409,7 @@ class InstallEvo
             exec($cmd . ' 2>&1', $out, $exitCode);
             echo implode(PHP_EOL, $out), PHP_EOL;
         } elseif (!in_array('shell_exec', $disabled, true)) {
-            $output   = shell_exec($cmd . ' 2>&1');
+            $output = shell_exec($cmd . ' 2>&1');
             $exitCode = (is_string($output) && $output !== '') ? 0 : 1;
             echo $output;
         } else {
@@ -812,6 +812,15 @@ class InstallEvo
             }
             if (file_exists(EVO_BASE_PATH . 'composer.lock')) {
                 unlink(EVO_BASE_PATH . 'composer.lock');
+            }
+            if (file_exists(EVO_BASE_PATH . 'ng.inx')) {
+                unlink(EVO_BASE_PATH . 'ng.inx');
+            }
+            if (file_exists(EVO_BASE_PATH . 'config.php.example')) {
+                unlink(EVO_BASE_PATH . 'config.php.example');
+            }
+            if (file_exists(EVO_BASE_PATH . 'robots.txt') && file_exists(EVO_BASE_PATH . 'sample-robots.txt')) {
+                unlink(EVO_BASE_PATH . 'sample-robots.txt');
             }
             success('✔ Install folder deleted!');
         }
