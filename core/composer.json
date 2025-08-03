@@ -57,7 +57,7 @@
     "illuminate/translation": "10.*",
     "illuminate/validation": "10.*",
     "illuminate/view": "10.*",
-    "james-heinrich/phpthumb": "1.*",
+    "james-heinrich/phpthumb": "*",
     "league/flysystem": "^3",
     "lib-iconv": "*",
     "lib-libxml": "*",
@@ -87,6 +87,9 @@
     }
   },
   "extra": {
+    "platform-packages": {
+      "evolutioncms/evolution": "3.2.6"
+    },
     "merge-plugin": {
       "include": [
         "custom/composer.json"
