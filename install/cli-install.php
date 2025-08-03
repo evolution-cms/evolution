@@ -385,23 +385,22 @@ class InstallEvo
 
     public function composerUpdate()
     {
+        $disabled = array_map('trim', explode(',', ini_get('disable_functions') ?: ''));
         $composerBin = EVO_CORE_PATH . 'vendor/bin/composer';
         $workingDir  = EVO_CORE_PATH;
-        $cmd = sprintf(
-            'php %s update --no-interaction --prefer-dist --working-dir=%s',
-            escapeshellarg($composerBin),
-            escapeshellarg($workingDir)
-        );
 
         if (!is_file($composerBin)) {
             warning("⚠ Local Composer not found: {$composerBin} Please perform 'composer install' or 'composer update' manually.");
             return;
         }
 
-        success("✔ Usage local Composer");
-        info("  Running: {$cmd}");
+        success("✔ Running composer update");
 
-        $disabled = array_map('trim', explode(',', ini_get('disable_functions') ?: ''));
+        $cmd = sprintf(
+            'php %s update --no-interaction --prefer-dist --working-dir=%s',
+            escapeshellarg($composerBin),
+            escapeshellarg($workingDir)
+        );
 
         $exitCode = null;
         if (!in_array('passthru', $disabled, true)) {
@@ -414,7 +413,7 @@ class InstallEvo
             $exitCode = (is_string($output) && $output !== '') ? 0 : 1;
             echo $output;
         } else {
-            warning('⚠ The passthru/exec/shell_exec functions are disabled in php.ini.');
+            info('- The passthru/exec/shell_exec functions are disabled in php.ini.');
             warning('⚠ Run "composer update" manually.');
             return;
         }
@@ -446,7 +445,7 @@ class InstallEvo
         $confph['connection_charset'] = $this->database_charset;
         $confph['connection_collation'] = $this->database_collation;
         $confph['connection_method'] = 'SET CHARACTER SET';
-        $confph['dbase'] = str_replace('`', '', $this->database);
+        $confph['dbase'] = str_replace('', '', $this->database);
         $confph['table_prefix'] = $this->tablePrefix;
         $confph['lastInstallTime'] = time();
         $confph['database_engine'] = '';
