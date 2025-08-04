@@ -1,6 +1,17 @@
 This file shows the changes in recent releases of Evolution CMS. The most current release is usually the
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
+Evolution CMS 3.2.7 (Aug 4, 2025)
+* [GitHub: 10ad67b] - Add Core up to Laravel 11. (Seiger)
+* [GitHub: d746b49] - Add Specified Evolution CMS version via platform-packages to check module compatibility. (Seiger)
+* [GitHub: 8316dd8] - Add Directive @evoConfig(). (Seiger)
+* [GitHub: c187865] - Add Tailwind CSS v4 with Build command without Node.js. (Seiger)
+* [GitHub: 5a3272b] - Add CSP via nonce and removed jQuery dependency in the web installer. (elcreator)
+* [GitHub: 8be64dc] - Add Command for missing translation keys. (elcreator)
+* [GitHub: 1588ec7] - Fix Core Method sendRedirect(). (Seiger)
+* [GitHub: af8c774] - Fix Installation failure when DB name contains dash. (elcreator)
+* [GitHub: 0071423] - Fix CLI EVO installer. (Seiger)
+
 Evolution CMS 3.2.6 (May 25, 2025)
 * [GitHub: c6db1d0] - Add Implemented automatic detection of foreign key dependency handling for database backup. (Seiger)
 * [GitHub: 4e1078c] - Add EVO_ define configs. (Seiger)
