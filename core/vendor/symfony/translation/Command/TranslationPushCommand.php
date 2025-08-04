@@ -34,18 +34,12 @@ final class TranslationPushCommand extends Command
 {
     use TranslationTrait;
 
-    private TranslationProviderCollection $providers;
-    private TranslationReaderInterface $reader;
-    private array $transPaths;
-    private array $enabledLocales;
-
-    public function __construct(TranslationProviderCollection $providers, TranslationReaderInterface $reader, array $transPaths = [], array $enabledLocales = [])
-    {
-        $this->providers = $providers;
-        $this->reader = $reader;
-        $this->transPaths = $transPaths;
-        $this->enabledLocales = $enabledLocales;
-
+    public function __construct(
+        private TranslationProviderCollection $providers,
+        private TranslationReaderInterface $reader,
+        private array $transPaths = [],
+        private array $enabledLocales = [],
+    ) {
         parent::__construct();
     }
 
@@ -60,7 +54,7 @@ final class TranslationPushCommand extends Command
         if ($input->mustSuggestOptionValuesFor('domains')) {
             $provider = $this->providers->get($input->getArgument('provider'));
 
-            if ($provider && method_exists($provider, 'getDomains')) {
+            if (method_exists($provider, 'getDomains')) {
                 $domains = $provider->getDomains();
                 $suggestions->suggestValues($domains);
             }

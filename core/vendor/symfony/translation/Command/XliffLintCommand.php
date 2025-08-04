@@ -39,21 +39,20 @@ class XliffLintCommand extends Command
     private bool $displayCorrectFiles;
     private ?\Closure $directoryIteratorProvider;
     private ?\Closure $isReadableProvider;
-    private bool $requireStrictFileNames;
 
-    public function __construct(?string $name = null, ?callable $directoryIteratorProvider = null, ?callable $isReadableProvider = null, bool $requireStrictFileNames = true)
-    {
+    public function __construct(
+        ?string $name = null,
+        ?callable $directoryIteratorProvider = null,
+        ?callable $isReadableProvider = null,
+        private bool $requireStrictFileNames = true,
+    ) {
         parent::__construct($name);
 
         $this->directoryIteratorProvider = null === $directoryIteratorProvider ? null : $directoryIteratorProvider(...);
         $this->isReadableProvider = null === $isReadableProvider ? null : $isReadableProvider(...);
-        $this->requireStrictFileNames = $requireStrictFileNames;
     }
 
-    /**
-     * @return void
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->addArgument('filename', InputArgument::IS_ARRAY, 'A file, a directory or "-" for reading from STDIN')
@@ -73,6 +72,9 @@ You can also validate the syntax of a file:
 Or of a whole directory:
 
   <info>php %command.full_name% dirname</info>
+
+The <info>--format</info> option specifies the format of the command output:
+
   <info>php %command.full_name% dirname --format=json</info>
 
 EOF
@@ -278,6 +280,7 @@ EOF
         }
     }
 
+    /** @return string[] */
     private function getAvailableFormatOptions(): array
     {
         return ['txt', 'json', 'github'];

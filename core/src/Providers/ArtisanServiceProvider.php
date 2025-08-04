@@ -98,9 +98,9 @@ class ArtisanServiceProvider extends ServiceProvider
             $this->commands, $this->devCommands
         );
 
-        if (IN_INSTALL_MODE) {
+        /*if (IN_INSTALL_MODE) {
             unset($hereCommands['Migrate']);
-        }
+        }*/
 
         $this->registerCommands($hereCommands);
         $this->app->singleton('Console', function ($app) {
