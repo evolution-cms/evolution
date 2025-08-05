@@ -65,11 +65,14 @@ class TailwindBuildCommand extends Command
 
         /* -------------------- core/vendor/<vendor>/<pkg>/css -------------------- */
         $root = EVO_CORE_PATH . 'vendor';
-        if (is_dir($root)) {
-            foreach (scandir($root) as $vendor) {
+        if (is_dir($root) && ($vendors = scandir($root))) {
+            foreach ($vendors as $vendor) {
                 if ($vendor[0] === '.') continue;
                 $vendorPath = "{$root}/{$vendor}";
-                foreach (scandir($vendorPath) as $pkg) {
+                if (!is_dir($vendorPath)) continue;
+                $packages = scandir($vendorPath);
+                if (!is_array($packages)) continue;
+                foreach ($packages as $pkg) {
                     if ($pkg[0] === '.') continue;
                     $base = "{$vendorPath}/{$pkg}/";
 
