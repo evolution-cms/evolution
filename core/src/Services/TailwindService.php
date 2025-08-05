@@ -21,26 +21,24 @@ class TailwindService
     /**
      * Build CSS or return cached file.
      *
-     * @param  string $package       Relative package path (e.g. packages/sSeo)
+     * @param  string $input         Relative package file of style (e.g. packages/sSeo/css/tailwind.css)
      * @param  bool   $forceRebuild  Ignore cache
      * @return string                Public URL to compiled CSS
      */
-    public function compile(string $package, bool $forceRebuild = false): string
+    public function compile(string $input, bool $forceRebuild = false): string
     {
-        $base   = EVO_BASE_PATH . $package . '/';
-        $input  = $base . 'tailwind.css';
-        $output = $base . "{$this->buildDir}tailwind.min.css";
+        $output = str_replace('.css', '.min.css', $input);
 
         if (!$forceRebuild && is_file($output)) {
-            $hash = Cache::get("tw:{$package}");
+            $hash = Cache::get("tw:{$input}");
             $cur  = md5_file($input);
             if ($hash === $cur) {
-                return "/{$package}/{$this->buildDir}tailwind.min.css";
+                return str_replace(EVO_BASE_PATH, '/', $output);
             }
         }
 
         if (!is_file($input)) {
-            throw new RuntimeException("Tailwind sources not found for «{$package}».");
+            throw new RuntimeException("Tailwind sources not found for «{$input}».");
         }
 
         $this->ensureBinary();
@@ -48,7 +46,7 @@ class TailwindService
         if (!is_dir(dirname($output))
             && !mkdir(dirname($output), 0775, true)
             && !is_dir(dirname($output))) {
-            throw new RuntimeException("Cannot create build dir for «{$package}».");
+            throw new RuntimeException("Cannot create build dir for «{$input}».");
         }
 
         $tmpPath = EVO_CORE_PATH . 'storage/tmp';
@@ -68,9 +66,9 @@ class TailwindService
         }
 
         $hash = md5_file($input);
-        Cache::put("tw:{$package}", $hash, $this->ttl);
+        Cache::put("tw:{$input}", $hash, $this->ttl);
 
-        return "/{$package}/{$this->buildDir}tailwind.min.css";
+        return str_replace(EVO_BASE_PATH, '/', $output);
     }
 
     /**
@@ -86,8 +84,8 @@ class TailwindService
 
         // Determine a platform (basic)
         [$os, $arch] = $this->detectPlatform(); // linux/macos/windows | x64/arm64
-        $ext   = $os === 'windows' ? '.exe' : '';
-        $url   = sprintf(
+        $ext = $os === 'windows' ? '.exe' : '';
+        $url = sprintf(
             'https://github.com/tailwindlabs/tailwindcss/releases/latest/download/'
             .'tailwindcss-%s-%s%s',
             $os, $arch, $ext

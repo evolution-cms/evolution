@@ -29,11 +29,16 @@ class TailwindBuildCommand extends Command
         $compiler = app(TailwindService::class);
 
         foreach ($packages as $pkg) {
-            try {
-                $url = $compiler->compile($pkg, $force);
-                $this->info("✔ {$pkg}: built → {$url}");
-            } catch (\Throwable $e) {
-                $this->error("✖ {$pkg}: " . $e->getMessage());
+            $styles = glob(EVO_BASE_PATH . $pkg . '/*tailwind.css');
+            if (!empty($styles)) {
+                foreach ($styles as $style) {
+                    try {
+                        $url = $compiler->compile($style, $force);
+                        $this->info("✔ {$pkg}: built → {$url}");
+                    } catch (\Throwable $e) {
+                        $this->error("✖ {$pkg}: " . $e->getMessage());
+                    }
+                }
             }
         }
 
@@ -55,7 +60,7 @@ class TailwindBuildCommand extends Command
                 if ($dir[0] === '.') continue;
 
                 $base = "{$root}/{$dir}/";
-                if (is_file($base.'tailwind.css')) {
+                if (is_file($base . 'tailwind.css')) {
                     $pretty = $this->guessPrettyName(realpath($base));
                     $labels[] = $pretty;
                     $map[strtolower($pretty)] = "assets/{$dir}";
