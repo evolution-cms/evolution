@@ -51,12 +51,16 @@ class TailwindService
             throw new RuntimeException("Cannot create build dir for «{$package}».");
         }
 
-        $proc = new Process([
-            $this->binary,
-            '-i', $input,
-            '-o', $output,
-            '--minify',
-        ]);
+        $tmpPath = EVO_CORE_PATH . 'storage/tmp';
+        if (!is_dir($tmpPath)) {
+            mkdir($tmpPath, 0775, true);
+        }
+
+        $proc = new Process(
+            [$this->binary, '-i', $input, '-o', $output, '--minify'],
+            null,
+            ['TMPDIR' => $tmpPath] + $_ENV
+        );
         $proc->run();
 
         if (!$proc->isSuccessful()) {
