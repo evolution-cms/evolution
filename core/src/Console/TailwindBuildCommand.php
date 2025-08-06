@@ -112,7 +112,8 @@ class TailwindBuildCommand extends Command
         }
 
         /* -------------------- css/ (frontend) -------------------- */
-        if (is_file(EVO_BASE_PATH . 'css/tailwind.css')) {
+        $styles = glob(EVO_BASE_PATH . 'css/*tailwind.css');
+        if (count($styles)) {
             $labels[] = 'frontend';
             $map['frontend'] = 'css';
         }
