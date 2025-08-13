@@ -10,7 +10,7 @@
     "core"
   ],
   "homepage": "https://evo.im/",
-  "license": "GPL-2.0-or-later",
+  "license": "GPL-3.0-or-later",
   "authors": [
     {
       "name": "Dmytro Lukianenko",
@@ -26,7 +26,7 @@
     }
   ],
   "require": {
-    "php": ">=8.2",
+    "php": "^8.2",
     "composer/composer": "*",
     "dmitry-suffi/redis-session-handler": "*",
     "doctrine/dbal": "3.*",
@@ -87,9 +87,6 @@
     }
   },
   "extra": {
-    "platform-packages": {
-      "evolutioncms/evolution": "3.2.7"
-    },
     "merge-plugin": {
       "include": [
         "custom/composer.json"
@@ -100,6 +97,12 @@
       "merge-extra": true,
       "merge-scripts": false
     }
+  },
+  "conflict": {
+    "evolutioncms/evolution": "*"
+  },
+  "replace": {
+    "evolutioncms/evolution": "3.2.7"
   },
   "autoload": {
     "psr-4": {
@@ -128,7 +131,17 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "scripts": {
-    "upd": "composer update --lock --ansi",
+    "sync-replace": "php functions/sync-replace-version.php",
+    "upd": [
+      "@sync-replace",
+      "composer update --lock --ansi"
+    ],
+    "pre-install-cmd": [
+      "@sync-replace"
+    ],
+    "pre-update-cmd": [
+      "@sync-replace"
+    ],
     "post-autoload-dump": [
       "@php artisan package:discover"
     ]
