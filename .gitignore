@@ -41,6 +41,7 @@
 # Composer
 /composer.phar
 
+/vendor
 !/vendor/index.html
 
 # IDE Helper
@@ -54,6 +55,7 @@ npm-debug.log
 
 #docker
 /docker/nginx/logs/*
+/.env
 
 # System
 ftpsync.settings
