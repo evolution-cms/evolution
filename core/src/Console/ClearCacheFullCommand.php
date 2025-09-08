@@ -33,7 +33,7 @@ class ClearCacheFullCommand extends Command
             @unlink($packagesPath);
         }
 
-        EvolutionCMS()->clearCache('full');
+        evo()->clearCache('full');
         $this->info('Cache clear');
     }
 }

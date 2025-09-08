@@ -109,7 +109,7 @@ class AuthServices
                 $matchPassword = false;
 
                 // check user password - local authentication
-                $hashType = EvolutionCMS()->getManagerApi()->getHashType($this->user->password);
+                $hashType = evo()->getManagerApi()->getHashType($this->user->password);
 
                 if ($hashType == 'phpass') {
                     $matchPassword = login($this->user->username, $value, $this->user->password);

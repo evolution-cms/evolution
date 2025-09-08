@@ -71,7 +71,7 @@ class Menu implements MenuInterface
      */
     public function drawSub($parentid, $level)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         $output = '';
 

@@ -30,8 +30,7 @@ class Cache
      */
     public function __construct()
     {
-        $modx = evolutionCMS();
-        $this->request_time = $_SERVER['REQUEST_TIME'] + $modx->getConfig('server_offset_time');
+        $this->request_time = $_SERVER['REQUEST_TIME'] + evo()->getConfig('server_offset_time');
     }
 
     /**
@@ -180,7 +179,7 @@ class Cache
         $content .= '$recent_update=\'' . $this->request_time . '\';' . "\n";
         $content .= '$cacheRefreshTime=\'' . $cacheRefreshTime . '\';' . "\n";
 
-        $filename = evolutionCMS()->getSitePublishingFilePath();
+        $filename = evo()->getSitePublishingFilePath();
         if (!$handle = fopen($filename, 'w')) {
             exit("Cannot open file ({$filename}");
         }
@@ -198,8 +197,6 @@ class Cache
      */
     public function getCacheRefreshTime()
     {
-        $modx = evolutionCMS();
-
         // update publish time file
         $timesArr = array();
 

@@ -39,7 +39,7 @@ class ActiveUser extends Eloquent\Model
     public function scopeLocked(Eloquent\Builder $builder, $action, $id = null, $userId = null)
     {
         if ($userId === null) {
-            $userId = evolutionCMS()->getLoginUserID();
+            $userId = evo()->getLoginUserID();
         }
 
         $builder = $builder->where('action', '=', (int)$action)

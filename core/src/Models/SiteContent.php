@@ -306,7 +306,7 @@ class SiteContent extends Eloquent\Model
      */
     public function getNodeNameAttribute()
     {
-        $key = evolutionCMS()->getConfig('resource_tree_node_name', 'pagetitle');
+        $key = evo()->getConfig('resource_tree_node_name', 'pagetitle');
         if (mb_strtolower($key) === 'nodename') {
             $key = 'pagetitle';
         }
@@ -364,7 +364,7 @@ class SiteContent extends Eloquent\Model
 
     public static function getLockedElements()
     {
-        return evolutionCMS()->getLockedElements(7);
+        return evo()->getLockedElements(7);
     }
 
     /**
@@ -2117,7 +2117,7 @@ class SiteContent extends Eloquent\Model
 
     public function scopeTvFilter($query, $filters = '', $outerSep = ';', $innerSep = ':')
     {
-        $prefix = EvolutionCMS()->getDatabase()->getConfig('prefix');
+        $prefix = evo()->getDatabase()->getConfig('prefix');
         $filters = explode($outerSep, trim($filters));
         foreach ($filters as $filter) {
             if (empty($filter)) break;
@@ -2174,7 +2174,7 @@ class SiteContent extends Eloquent\Model
 
     public function scopeTvOrderBy($query, $orderBy = '', $sep = ':')
     {
-        $prefix = EvolutionCMS()->getDatabase()->getConfig('prefix');
+        $prefix = evo()->getDatabase()->getConfig('prefix');
         $orderBy = explode(',', trim($orderBy));
         foreach ($orderBy as $parts) {
             if (empty(trim($parts))) return;

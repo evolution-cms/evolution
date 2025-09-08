@@ -30,7 +30,7 @@ class DeleteUser extends AbstractController implements ManagerTheme\PageControll
     public function process() : bool
     {
         if($_GET['id'] == evo()->getLoginUserID()){
-            EvolutionCMS()->webAlertAndQuit(Lang::get('global.delete_yourself'));
+            evo()->webAlertAndQuit(Lang::get('global.delete_yourself'));
         }
         $user = Models\UserAttribute::query()->where('internalKey', $_GET['id'])->first();
         if($user->role == 1){
