@@ -459,11 +459,12 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
      * Resolve the given type from the container.
      *
      * (Overriding Container::make)
+     * @template TClass of object
      *
-     * @param string $abstract
+     * @param string|class-string<TClass> $abstract
      * @param array $parameters
-     * @return mixed
-     */
+     * @return ($abstract is class-string<TClass> ? \Closure(): TClass : \Closure(): mixed)
+    */
     public function make($abstract, array $parameters = [])
     {
         $abstract = $this->getAlias($abstract);

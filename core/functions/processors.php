@@ -14,7 +14,7 @@ if (!function_exists('evalModule')) {
      */
     function evalModule($moduleCode, $params)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         $modx->event->params = &$params; // store params inside event object
         if (is_array($params)) {
             extract($params, EXTR_SKIP);
@@ -109,7 +109,7 @@ if (!function_exists('login')) {
      */
     function login($username, $givenPassword, $dbasePassword)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         return $modx->getPasswordHash()->CheckPassword($givenPassword, $dbasePassword);
     }
@@ -125,7 +125,7 @@ if (!function_exists('loginV1')) {
      */
     function loginV1($internalKey, $givenPassword, $dbasePassword, $username)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         $user_algo = $modx->getManagerApi()->getV1UserHashAlgorithm($internalKey);
 
@@ -158,7 +158,7 @@ if (!function_exists('loginMD5')) {
      */
     function loginMD5($internalKey, $givenPassword, $dbasePassword, $username)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         if ($dbasePassword != md5($givenPassword)) {
             return false;
@@ -176,7 +176,7 @@ if (!function_exists('updateNewHash')) {
      */
     function updateNewHash($username, $password)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         $field = array();
         $field['password'] = $modx->getPasswordHash()->HashPassword($password);
@@ -191,7 +191,6 @@ if (!function_exists('saveUserGroupAccessPermissons')) {
      */
     function saveUserGroupAccessPermissons()
     {
-        $modx = evolutionCMS();
         global $id, $newid;
         global $use_udperms;
 
@@ -272,7 +271,6 @@ if (!function_exists('getEventIdByName')) {
      */
     function getEventIdByName($name)
     {
-        $modx = evolutionCMS();
         static $eventIds = array();
 
         if (isset($eventIds[$name])) {
@@ -290,7 +288,6 @@ if (!function_exists('saveTemplateAccess')) {
      */
     function saveTemplateAccess($id)
     {
-        $modx = evolutionCMS();
         if ($_POST['tvsDirty'] == 1) {
             $newAssignedTvs = isset($_POST['assignedTv']) ? $_POST['assignedTv'] : '';
 
@@ -327,7 +324,6 @@ if (!function_exists('saveTemplateVarAccess')) {
      */
     function saveTemplateVarAccess($id)
     {
-        $modx = evolutionCMS();
         $templates = isset($_POST['template']) ? $_POST['template'] : []; // get muli-templates based on S.BRENNAN mod
 
         $siteTmlvarTemplates = EvolutionCMS\Models\SiteTmplvarTemplate::where('tmplvarid', '=', $id)->get();
@@ -358,7 +354,6 @@ if (!function_exists('saveVarRoles')) {
      */
     function saveVarRoles($id)
     {
-        $modx = evolutionCMS();
         $roles = isset($_POST['role']) ? $_POST['role'] : [];
 
         $exists = EvolutionCMS\Models\UserRoleVar::where('tmplvarid', '=', $id)->get();
@@ -383,7 +378,7 @@ if (!function_exists('saveVarRoles')) {
 if (!function_exists('saveDocumentAccessPermissons')) {
     function saveDocumentAccessPermissons($id)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         $docgroups = isset($_POST['docgroups']) ? $_POST['docgroups'] : '';
 
@@ -414,7 +409,7 @@ if (!function_exists('sendMailMessageForUser')) {
      */
     function sendMailMessageForUser($email, $uid, $pwd, $ufn, $message, $url)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         global $_lang;
         global $emailsubject, $emailsender;
         $message = sprintf($message, $uid, $pwd); // use old method

@@ -154,7 +154,7 @@ class ExceptionHandler
      * @param string $text
      * @param string $line
      * @param string $output
-     * @return bool
+     * @return void|bool
      */
     public function messageQuit(
         $msg = 'unspecified error',
@@ -182,7 +182,9 @@ class ExceptionHandler
         $table = array();
 
         if (isset($_SERVER['HTTP_HOST'])) {
-            $request_uri = "http://" . $_SERVER['HTTP_HOST'] . ($_SERVER["SERVER_PORT"] == 80 ? "" : (":" . $_SERVER["SERVER_PORT"])) . $_SERVER['REQUEST_URI'];
+            $request_uri = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] .
+                (in_array((int)$_SERVER['SERVER_PORT'], [80, (int)HTTPS_PORT]) ? '' : (':' . $_SERVER['SERVER_PORT'])) .
+                $_SERVER['REQUEST_URI'];
             $request_uri = $this->container->getPhpCompat()->htmlspecialchars($request_uri, ENT_QUOTES,
                 $this->container->getConfig('modx_charset'));
         } else {

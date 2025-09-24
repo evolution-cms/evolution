@@ -47,7 +47,7 @@ class Phx
     {
         $modx = get_by_key($args, 0);
         if (! $modx instanceof Core) {
-            $modx = evolutionCMS();
+            $modx = evo();
         }
 
         $this->modx = $modx;

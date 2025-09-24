@@ -134,7 +134,7 @@ if (!isset($_SERVER['DOCUMENT_ROOT']) || empty($_SERVER['DOCUMENT_ROOT'])) {
 }
 
 // initiate the content manager class
-$modx = evolutionCMS();
+$modx = evo();
 $modx->mstart = $mstart;
 $modx->sid = session_id();
 

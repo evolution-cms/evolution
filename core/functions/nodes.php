@@ -10,7 +10,7 @@ if (!function_exists('makeHTML')) {
      */
     function makeHTML($indent, $parent, $expandAll, $hereid = '')
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         global $icons, $_style, $_lang, $opened, $opened2, $closed2, $modx_textdir;
 
         $output = '';
@@ -552,7 +552,7 @@ if (!function_exists('getNodeTitle')) {
      */
     function getNodeTitle($nodeNameSource, $row)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         switch ($nodeNameSource) {
             case 'menutitle':
@@ -638,7 +638,7 @@ if (!function_exists('_htmlentities')) {
      */
     function _htmlentities($array)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         $array = json_encode($array, JSON_UNESCAPED_UNICODE);
         $array = htmlentities($array, ENT_COMPAT, $modx->getConfig('modx_charset'));

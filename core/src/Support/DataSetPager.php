@@ -103,7 +103,7 @@ class DataSetPager implements DataSetPagerInterface
 
     public function render()
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         global $_PAGE;
 
         $isDataset = $this->ds instanceof \Illuminate\Database\Eloquent\Builder;

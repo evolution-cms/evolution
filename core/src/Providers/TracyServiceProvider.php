@@ -43,7 +43,7 @@ class TracyServiceProvider extends ServiceProvider
 
     protected function logPath(): string
     {
-        return evolutionCMS()->storagePath() . '/logs';
+        return evo()->storagePath() . '/logs';
     }
 
     protected function isTracyHandler(): bool

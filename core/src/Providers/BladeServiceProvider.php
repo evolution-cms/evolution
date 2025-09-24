@@ -14,11 +14,11 @@ class BladeServiceProvider extends BaseServiceProvider
             }
         }
         Blade::if('auth', function () {
-            return EvolutionCMS()->getLoginUserID() !== false;
+            return evo()->getLoginUserID() !== false;
         });
 
         Blade::if('guest', function () {
-            return EvolutionCMS()->getLoginUserID() === false;
+            return evo()->getLoginUserID() === false;
         });
     }
 }

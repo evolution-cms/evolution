@@ -119,17 +119,17 @@ class SiteModule extends Eloquent\Model
 
     public function scopeLockedView(Eloquent\Builder $builder)
     {
-        return evolutionCMS()->getLoginUserID('mgr') !== 1 ?
+        return evo()->getLoginUserID('mgr') !== 1 ?
             $builder->where('locked', '=', 0) : $builder;
     }
 
     public function scopeWithoutProtected(Eloquent\Builder $builder)
     {
-        if ($_SESSION['mgrRole'] != 1 && evolutionCMS()->getConfig('use_udperms')) {
+        if ($_SESSION['mgrRole'] != 1 && evo()->getConfig('use_udperms')) {
             $builder->leftJoin('site_module_access', 'site_module_access.module', '=', 'site_modules.id')
                 ->leftJoin('member_groups', 'member_groups.user_group', '=', 'site_module_access.usergroup')
                 ->whereNull('site_module_access.usergroup')
-                ->orWhere('member_groups.member', '=', (int)evolutionCMS()->getLoginUserID('mgr'));
+                ->orWhere('member_groups.member', '=', (int)evo()->getLoginUserID('mgr'));
         }
 
         return $builder;
@@ -137,7 +137,7 @@ class SiteModule extends Eloquent\Model
 
     public static function getLockedElements()
     {
-        return evolutionCMS()->getLockedElements(6);
+        return evo()->getLockedElements(6);
     }
 
     public function getIsAlreadyEditAttribute()

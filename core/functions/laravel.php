@@ -55,7 +55,7 @@ if (! function_exists('base_path')) {
      */
     function base_path($path = '')
     {
-        return evolutionCMS()->basePath().($path ? DIRECTORY_SEPARATOR.$path : $path);
+        return evo()->basePath() . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 }
 
@@ -68,7 +68,7 @@ if (! function_exists('public_path')) {
      */
     function public_path($path = '')
     {
-        return evolutionCMS()->publicPath().($path ? DIRECTORY_SEPARATOR.$path : $path);
+        return evo()->publicPath() . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 }
 
@@ -81,7 +81,7 @@ if (! function_exists('resource_path')) {
      */
     function resource_path($path = '')
     {
-        return evolutionCMS()->publicPath().($path ? DIRECTORY_SEPARATOR.$path : $path);
+        return evo()->publicPath() . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 }
 
@@ -134,10 +134,10 @@ if (! function_exists('app')) {
     function app($abstract = null, array $parameters = [])
     {
         if (is_null($abstract)) {
-            return evolutionCMS();
+            return evo();
         }
 
-        return evolutionCMS()->make($abstract, $parameters);
+        return evo()->make($abstract, $parameters);
     }
 }
 

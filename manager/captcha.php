@@ -24,7 +24,7 @@ if (!empty($config['root']) && file_exists($config['root']. '/index.php')) {
     exit;
 }
 
-$modx = EvolutionCMS();
+$modx = evo();
 
 $modx->documentMethod = 'id';
 $modx->documentIdentifier = isset($_REQUEST['id']) ? (int)$_REQUEST['id'] : 1;
