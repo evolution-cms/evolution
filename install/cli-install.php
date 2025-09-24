@@ -46,9 +46,9 @@ class InstallEvo
             $tmp = array_map('trim', explode('=', $arg));
             if (count($tmp) === 2) {
                 $k = ltrim($tmp[0], '-');
-
-                $cli_variables[$k] = $tmp[1];
-                if (isset($this->{$k})) {
+                
+                // Check if property exists and set it
+                if (property_exists($this, $k)) {
                     $this->{$k} = $tmp[1];
                 }
             }
@@ -189,67 +189,85 @@ class InstallEvo
     public function checkDatabaseType()
     {
         $dbTypes = ['pgsql', 'mysql'];
-        while (!in_array($this->databaseType, $dbTypes)) {
-            $this->databaseType = $this->choice(
-                'Please choose your database type:',
-                $dbTypes
-            );
+        if (!in_array($this->databaseType, $dbTypes)) {
+            while (!in_array($this->databaseType, $dbTypes)) {
+                $this->databaseType = $this->choice(
+                    'Please choose your database type:',
+                    $dbTypes
+                );
+            }
         }
     }
 
     public function checkDatabaseServer()
     {
-        while ($this->databaseServer === '') {
-            $this->databaseServer = $this->ask('Please enter database server:', 'localhost');
+        if ($this->databaseServer === '') {
+            while ($this->databaseServer === '') {
+                $this->databaseServer = $this->ask('Please enter database server:', 'localhost');
+            }
         }
     }
 
     public function checkDatabase()
     {
-        while ($this->database === '') {
-            $this->database = $this->ask('Please enter database:', '');
+        if ($this->database === '') {
+            while ($this->database === '') {
+                $this->database = $this->ask('Please enter database:', '');
+            }
         }
     }
 
     public function checkDatabaseUser()
     {
-        while ($this->databaseUser === '') {
-            $this->databaseUser = $this->ask('Please enter database user:', '');
+        if ($this->databaseUser === '') {
+            while ($this->databaseUser === '') {
+                $this->databaseUser = $this->ask('Please enter database user:', '');
+            }
         }
     }
 
     public function checkDatabasePassword()
     {
-        while ($this->databasePassword === '') {
-            $this->databasePassword = $this->ask('Please enter database password:', '');
+        if ($this->databasePassword === '') {
+            while ($this->databasePassword === '') {
+                $this->databasePassword = $this->ask('Please enter database password:', '');
+            }
         }
     }
 
     public function checkTablePrefix()
     {
-        while ($this->tablePrefix === '') {
-            $this->tablePrefix = $this->ask('Please enter table_prefix:', 'evo_');
+        if ($this->tablePrefix === '') {
+            while ($this->tablePrefix === '') {
+                $this->tablePrefix = $this->ask('Please enter table_prefix:', 'evo_');
+            }
         }
     }
 
     public function checkCmsAdmin()
     {
-        while ($this->cmsAdmin === '') {
-            $this->cmsAdmin = $this->ask('Please enter you login for access to manager:', '');
+        if ($this->cmsAdmin === '') {
+            while ($this->cmsAdmin === '') {
+                $this->cmsAdmin = $this->ask('Please enter you login for access to manager:', '');
+            }
         }
     }
 
     public function checkCmsAdminEmail()
     {
-        while ($this->cmsAdminEmail === '') {
-            $this->cmsAdminEmail = $this->ask('Please enter you email:', '');
+        if ($this->cmsAdminEmail === '') {
+            while ($this->cmsAdminEmail === '') {
+                $this->cmsAdminEmail = $this->ask('Please enter you email:', '');
+            }
         }
     }
 
     public function checkCmsPassword()
     {
-        while ($this->cmsPassword === '') {
-            $this->cmsPassword = $this->ask('Please enter you password for access to manager:', '');
+        if ($this->cmsPassword === '') {
+            while ($this->cmsPassword === '') {
+                $this->cmsPassword = $this->ask('Please enter you password for access to manager:', '');
+            }
         }
     }
 
@@ -305,6 +323,12 @@ class InstallEvo
             $this->dbh = false;
         }
         if ($this->dbh === false) {
+            // In CLI mode, don't reset values and restart - just exit with error
+            if (defined('MODX_CLI') && MODX_CLI) {
+                error('✖ Database connection failed. Please check your database settings and try again.');
+                exit(1);
+            }
+            // For interactive mode, reset values and restart
             $this->databaseType = '';
             $this->databaseServer = '';
             $this->databaseUser = '';
@@ -361,6 +385,12 @@ class InstallEvo
             }
         }
         if ($this->dbh === false) {
+            // In CLI mode, don't reset values and restart - just exit with error
+            if (defined('MODX_CLI') && MODX_CLI) {
+                error('✖ Database connection failed. Please check your database settings and try again.');
+                exit(1);
+            }
+            // For interactive mode, reset values and restart
             $this->database = '';
             $this->checkDatabase();
             $this->checkConnectToDatabaseWithBase();
@@ -375,6 +405,12 @@ class InstallEvo
             $result = $this->dbh->query("SELECT COUNT(*) FROM {$this->tablePrefix}site_content");
             if ($result !== false) {
                 error('✖ Table prefix already exists');
+                // In CLI mode, exit with error instead of asking user
+                if (defined('MODX_CLI') && MODX_CLI) {
+                    error('✖ Table prefix already exists. Please choose a different prefix or remove existing tables.');
+                    exit(1);
+                }
+                // For interactive mode, reset and ask user
                 $this->tablePrefix = '';
                 $this->checkTablePrefix();
                 $this->checkIssetTablePrefix();
