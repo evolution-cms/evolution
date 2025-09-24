@@ -1,0 +1,64 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.*.yml
+
+# Documentation
+README.md
+*.md
+docs/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# Node.js (if any)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# PHP
+.phpunit.result.cache
+phpunit.xml
+
+# Environment files
+.env
+.env.*
+
+# Backup files
+*.bak
+*.backup
+*.sql
+
+# Cache directories
+core/storage/cache/*
+core/storage/logs/*
+core/storage/sessions/*
+assets/cache/*
+!core/storage/.gitkeep
+!assets/cache/.gitkeep
+
+# Vendor (will be installed during build)
+# core/vendor/
+# vendor/
