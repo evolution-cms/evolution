@@ -1,6 +1,15 @@
-FROM php:8.4-apache
+FROM php:8.2-apache
 
-# System deps and PHP extensions
+# Install system dependencies first
+RUN apt-get update && apt-get install -y \
+        ca-certificates \
+        curl \
+        gnupg \
+        lsb-release \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install required system packages and development libraries
 RUN apt-get update && apt-get install -y \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
@@ -9,11 +18,21 @@ RUN apt-get update && apt-get install -y \
         libpq-dev \
         libxml2-dev \
         libicu-dev \
+        libonig-dev \
+        libcurl4-openssl-dev \
+        pkg-config \
+        libssl-dev \
         unzip \
         git \
         netcat-openbsd \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+        wget \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Configure and install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-configure intl \
+    && docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
     && docker-php-ext-install -j$(nproc) \
         gd \
         mysqli \
@@ -29,26 +48,36 @@ RUN apt-get update && apt-get install -y \
         iconv \
         intl \
         opcache \
+        curl \
+        fileinfo \
+        exif \
     && a2enmod rewrite \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && a2enmod headers
 
 # Composer (use official image for better security)
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# App files
+# Set working directory
 WORKDIR /var/www/html
+
+# Copy application files (excluding lock files via .dockerignore)
 COPY . /var/www/html
+
+# Install composer dependencies (update to get latest compatible versions)
+RUN if [ -f composer.json ]; then \
+        composer update --no-dev --prefer-dist --no-interaction --optimize-autoloader || true; \
+    fi \
+    && if [ -f core/composer.json ]; then \
+        cd core && composer update --no-dev --prefer-dist --no-interaction --optimize-autoloader && cd ..; \
+    fi
 
 # PHP configuration
 COPY docker/php.ini /usr/local/etc/php/conf.d/40-custom.ini
 
-# Build-time Composer optimisation (root if needed, then core)
-RUN if [ -f composer.json ]; then composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader; fi \
-    && if [ -f core/composer.json ]; then cd core && composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader && cd - >/dev/null; fi
-
-# Permissions (safe defaults; override in runtime if needed)
-RUN chown -R www-data:www-data storage core/storage assets \
+# Create necessary directories and set permissions
+RUN mkdir -p storage core/storage assets/cache assets/export assets/files assets/images \
+    && chown -R www-data:www-data storage core/storage assets \
+    && chmod -R 755 storage core/storage assets \
     || true
 
 ENV APACHE_DOCUMENT_ROOT=/var/www/html

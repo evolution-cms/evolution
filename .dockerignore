@@ -4,10 +4,9 @@
 .gitattributes
 
 # Docker
-Dockerfile
+Dockerfile*
 .dockerignore
-docker-compose.yml
-docker-compose.*.yml
+docker-compose*
 
 # Documentation
 README.md
@@ -19,46 +18,45 @@ docs/
 .vscode/
 *.swp
 *.swo
+*~
 
-# OS
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
 # Logs
 *.log
 logs/
 
-# Temporary files
+# Cache and temporary files
+.cache/
 tmp/
 temp/
 .tmp/
 
-# Node.js (if any)
+# Node modules (if any)
 node_modules/
-npm-debug.log
-yarn-error.log
+npm-debug.log*
 
-# PHP
+# Vendor directories (will be rebuilt in container)
+vendor/
+core/vendor/
+
+# Lock files (problematic for Docker builds)
+composer.lock
+core/composer.lock
+
+# Test files
+tests/
+phpunit.xml*
 .phpunit.result.cache
-phpunit.xml
 
-# Environment files
-.env
-.env.*
-
-# Backup files
-*.bak
-*.backup
-*.sql
-
-# Cache directories
-core/storage/cache/*
-core/storage/logs/*
-core/storage/sessions/*
-assets/cache/*
-!core/storage/.gitkeep
-!assets/cache/.gitkeep
-
-# Vendor (will be installed during build)
-# core/vendor/
-# vendor/
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
