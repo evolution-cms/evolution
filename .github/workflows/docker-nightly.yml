@@ -1,0 +1,48 @@
+name: Publish nightly to Docker Hub
+
+on:
+  push:
+    branches: [ nightly ]          # збірка на кожен пуш у nightly
+  workflow_dispatch: {}            # можливість стартувати вручну
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: dmi3yy/evolution-cms
+          tags: |
+            type=raw,value=nightly
+            type=raw,value=nightly-{{date 'YYYYMMDD'}}
+            type=sha,format=short
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile          # якщо Dockerfile не в корені — зміни шлях
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # build-args: |            # якщо треба, додай аргументи збірки
+          #   APP_ENV=production
