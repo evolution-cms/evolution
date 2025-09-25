@@ -95,8 +95,12 @@ if [ "$EVO_AUTO_INSTALL" = "true" ] && [ ! -f "/var/www/html/config.php" ]; then
       if [ -n "$EVO_MAIN_PACKAGE_NAME" ]; then
         echo "📦 Creating main package: $EVO_MAIN_PACKAGE_NAME"
         php artisan package:create "$EVO_MAIN_PACKAGE_NAME"
-        # Write PHP namespace string with proper escaping and trailing backslash
-        echo "<?php return 'EvolutionCMS\\\\$EVO_MAIN_PACKAGE_NAME\\\\Controllers\\\\'; ?>" > custom/config/cms/settings/ControllerNamespace.php
+        # Normalize package name to StudlyCase (first letter uppercase)
+        EVO_MAIN_PACKAGE_STUDLY=$(printf "%s" "$EVO_MAIN_PACKAGE_NAME" | awk '{print toupper(substr($0,1,1)) substr($0,2)}')
+        # Write exact PHP string with double quotes and escaped backslashes
+        cat > custom/config/cms/settings/ControllerNamespace.php <<PHP
+<?php return "EvolutionCMS\\\\$EVO_MAIN_PACKAGE_STUDLY\\\\Controllers\\\\";
+PHP
       fi
       
       # Install TinyMCE5 if enabled
