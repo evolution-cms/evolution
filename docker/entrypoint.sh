@@ -95,7 +95,8 @@ if [ "$EVO_AUTO_INSTALL" = "true" ] && [ ! -f "/var/www/html/config.php" ]; then
       if [ -n "$EVO_MAIN_PACKAGE_NAME" ]; then
         echo "📦 Creating main package: $EVO_MAIN_PACKAGE_NAME"
         php artisan package:create "$EVO_MAIN_PACKAGE_NAME"
-        echo "<?php return \"EvolutionCMS\\\\$EVO_MAIN_PACKAGE_NAME\\\\Controllers\\\\\"; ?>" > custom/config/cms/settings/ControllerNamespace.php
+        # Write PHP namespace string with proper escaping and trailing backslash
+        echo "<?php return 'EvolutionCMS\\\\$EVO_MAIN_PACKAGE_NAME\\\\Controllers\\\\'; ?>" > custom/config/cms/settings/ControllerNamespace.php
       fi
       
       # Install TinyMCE5 if enabled
