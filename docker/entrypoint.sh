@@ -58,7 +58,7 @@ if [ "$EVO_AUTO_INSTALL" = "true" ] && [ ! -f "/var/www/html/config.php" ]; then
     # Map database type
     case "$DB_CONNECTION" in
       "pgsql"|"postgresql")
-        DB_TYPE="postgresql"
+        DB_TYPE="pgsql"
         ;;
       "mysql"|"mariadb")
         DB_TYPE="mysql"
