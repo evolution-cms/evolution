@@ -6266,7 +6266,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     /**
      * @param $backtrace
      * @return string
-     * @deprecated
+     * @deprecated since EVO 3.2.7
+     * @TODO: will be delete EVO 3.5
      */
     public function get_backtrace($backtrace)
     {
@@ -6316,15 +6317,17 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     /**
      * @param $size
      * @return string
-     * @deprecated
+     * @deprecated since EVO 3.2.7
+     * @TODO: will be delete EVO 3.5
      */
     public function nicesize($size)
     {
-        return nicesize($size);
+        return niceSize($size);
     }
 
     /**
-     * @deprecated use UrlProcessor::getHiddenIdFromAlias()
+     * @deprecated since EVO 3.2.7, use UrlProcessor::getHiddenIdFromAlias()
+     * @TODO: will be delete EVO 3.5
      */
     public function getHiddenIdFromAlias($parentid, $alias)
     {
@@ -6332,7 +6335,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     }
 
     /**
-     * @deprecated use UrlProcessor::getIdFromAlias()
+     * @deprecated since EVO 3.2.7, use UrlProcessor::getIdFromAlias()
+     * @TODO: will be delete EVO 3.5
      */
     public function getIdFromAlias($alias)
     {

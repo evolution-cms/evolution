@@ -160,7 +160,7 @@ if(!function_exists('ls')) {
             echo '<tr>';
             echo '<td>' . $dirs_array[$i]['text'] . '</td>';
             echo '<td class="text-nowrap">' . evolutionCMS()->toDateFormat($dirs_array[$i]['stats']['9']) . '</td>';
-            echo '<td class="text-right">' . nicesize($dirs_array[$i]['stats']['7']) . '</td>';
+            echo '<td class="text-right">' . niceSize($dirs_array[$i]['stats']['7']) . '</td>';
             echo '<td class="actions text-right">';
             echo $dirs_array[$i]['rename'];
             echo $dirs_array[$i]['delete'];
@@ -175,8 +175,8 @@ if(!function_exists('ls')) {
             $filesizes += $files_array[$i]['stats']['7'];
             echo '<tr ' . markRow($files_array[$i]['file'], get_by_key($_REQUEST, 'path'), get_by_key($_REQUEST, 'mode')) . '>';
             echo '<td>' . $files_array[$i]['text'] . '</td>';
-            echo '<td class="text-nowrap">' . evolutionCMS()->toDateFormat($files_array[$i]['stats']['9']) . '</td>';
-            echo '<td class="text-right">' . nicesize($files_array[$i]['stats']['7']) . '</td>';
+            echo '<td class="text-nowrap">' . evo()->toDateFormat($files_array[$i]['stats']['9']) . '</td>';
+            echo '<td class="text-right">' . niceSize($files_array[$i]['stats']['7']) . '</td>';
             echo '<td class="actions text-right">';
             echo $files_array[$i]['unzip'];
             echo $files_array[$i]['view'];
@@ -425,7 +425,7 @@ if(!function_exists('fileupload')) {
             if ($userfile['error'] == 0) {
                 $img = (strpos($userfile['type'],
                         'image') !== false) ? '<br /><img src="' . $path . '" height="75" />' : '';
-                $msg .= "<p>" . $_lang['files_file_type'] . $userfile['type'] . ", " . nicesize(filesize($userfile['tmp_name'])) . $img . '</p>';
+                $msg .= "<p>" . $_lang['files_file_type'] . $userfile['type'] . ", " . niceSize(filesize($userfile['tmp_name'])) . $img . '</p>';
             }
 
             $userfilename = $userfile['tmp_name'];

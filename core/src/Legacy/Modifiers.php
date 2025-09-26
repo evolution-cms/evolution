@@ -1246,8 +1246,8 @@ class Modifiers implements ModifiersInterface
                 return $arr[$idx];
             case 'getimage':
                 return $this->includeMdfFile('getimage');
-            case 'nicesize':
-                return nicesize($value);
+            case 'niceSize':
+                return niceSize($value);
             case 'googlemap':
             case 'googlemaps':
                 if (empty($opt)) {

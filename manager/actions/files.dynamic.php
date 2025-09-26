@@ -435,7 +435,7 @@ if (substr($webstart_path, 0, 1) == '/') {
                 <?php
                 echo $_lang['files_directories'] . ': <b>' . $folders . '</b> ';
                 echo $_lang['files_files'] . ': <b>' . $files . '</b> ';
-                echo $_lang['files_data'] . ': <b><span dir="ltr">' . nicesize($filesizes) . '</span></b> ';
+                echo $_lang['files_data'] . ': <b><span dir="ltr">' . niceSize($filesizes) . '</span></b> ';
                 echo $_lang['files_dirwritable'] . ' <b>' . (is_writable($startpath) == 1 ? $_lang['yes'] . '.' : $_lang['no']) . '.</b>'
                 ?>
             </p>

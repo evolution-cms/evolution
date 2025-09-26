@@ -119,23 +119,23 @@ if (!function_exists('is_cli')) {
     }
 }
 
-if (!function_exists('nicesize')) {
+if (!function_exists('niceSize')) {
     /**
      * Format file size in human-readable format.
      *
      * Converts bytes to appropriate unit (B, KB, MB, GB, TB) with proper rounding.
      * Uses modern ISO/IEC 80000 standard formatting with uppercase units.
      *
-     * @param int $size File size in bytes
+     * @param int|float $size File size in bytes
      * @return string Formatted file size with unit
      *
      * @example
-     * nicesize(1024); // "1 KB"
-     * nicesize(1048576); // "1 MB"
-     * nicesize(1536); // "1.5 KB"
-     * nicesize(0); // "0 B"
+     * niceSize(1024); // "1 KB"
+     * niceSize(1048576); // "1 MB"
+     * niceSize(1536); // "1.5 KB"
+     * niceSize(0); // "0 B"
      */
-    function nicesize($size)
+    function niceSize($size)
     {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
         $unitIndex = 0;
@@ -146,6 +146,17 @@ if (!function_exists('nicesize')) {
         }
 
         return round($size, 2) . ' ' . $units[$unitIndex];
+    }
+}
+
+if (!function_exists('nicesize')) {
+    /**
+     * @deprecated since EVO 3.2.7, use niceSize()
+     * @TODO: will be delete EVO 3.5
+     */
+    function nicesize($size)
+    {
+        return niceSize($size);
     }
 }
 
