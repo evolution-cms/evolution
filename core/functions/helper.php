@@ -121,21 +121,31 @@ if (!function_exists('is_cli')) {
 
 if (!function_exists('nicesize')) {
     /**
-     * @param $size
-     * @return string
+     * Format file size in human-readable format.
+     *
+     * Converts bytes to appropriate unit (B, KB, MB, GB, TB) with proper rounding.
+     * Uses modern ISO/IEC 80000 standard formatting with uppercase units.
+     *
+     * @param int $size File size in bytes
+     * @return string Formatted file size with unit
+     *
+     * @example
+     * nicesize(1024); // "1 KB"
+     * nicesize(1048576); // "1 MB"
+     * nicesize(1536); // "1.5 KB"
+     * nicesize(0); // "0 B"
      */
     function nicesize($size)
     {
-        $sizes = array('Tb' => 1099511627776, 'Gb' => 1073741824, 'Mb' => 1048576, 'Kb' => 1024, 'b' => 1);
-        $precisions = count($sizes) - 1;
-        foreach ($sizes as $unit => $bytes) {
-            if ($size >= $bytes) {
-                return number_format($size / $bytes, $precisions).' '.$unit;
-            }
-            $precisions--;
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $unitIndex = 0;
+
+        while ($size >= 1024 && $unitIndex < count($units) - 1) {
+            $size /= 1024;
+            $unitIndex++;
         }
 
-        return '0 b';
+        return round($size, 2) . ' ' . $units[$unitIndex];
     }
 }
 
