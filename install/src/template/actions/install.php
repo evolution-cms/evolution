@@ -351,9 +351,9 @@
             <?php endif; ?>
         <?php endif; ?>
         <p class="buttonlinks">
-            <a href="javascript:closepage();" title="<?= $_lang['btnclose_value'] ?>">
+            <button type="button" id="closepage" nonce="<?= csrfNonce(); ?>" title="<?= $_lang['btnclose_value'] ?>">
                 <span><?= $_lang['btnclose_value'] ?></span>
-            </a>
+            </button>
         </p>
         <br/>
     </form>
@@ -368,5 +368,6 @@
           window.location.href = "../<?=MGR_DIR;?>/";
         }
       }
+      document.getElementById('closepage').onclick = closepage;
     </script>
 <?php endif; ?>
