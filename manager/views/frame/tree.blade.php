@@ -24,9 +24,6 @@
         {{--@if(evo()->getConfig('use_browser') && evo()->hasPermission('assets_files'))
             <a class="treeButton" id="treeMenu_openfiles" title="{{ ManagerTheme::getLexicon('files_management') }}&#013;{{ ManagerTheme::getLexicon('em_button_shift') }}"><i class="{{ $_style['icon_files'] }}"></i></a>
         @endif --}}
-        {{-- @if(evo()->hasPermission('edit_template') || evo()->hasPermission('edit_snippet') || evo()->hasPermission('edit_chunk') || evo()->hasPermission('edit_plugin'))
-            <a class="treeButton" id="treeMenu_openelements" title="{{ ManagerTheme::getLexicon('element_management') }}&#013;{{ ManagerTheme::getLexicon('em_button_shift') }}"><i class="{{ $_style['icon_elements'] }}"></i></a>
-        @endif --}}
         @if(evo()->hasPermission('empty_trash'))
             <a class="treeButton treeButtonDisabled" id="treeMenu_emptytrash" title="{{ ManagerTheme::getLexicon('empty_recycle_bin_empty') }}"><i class="{{ $_style['icon_trash'] }}"></i></a>
         @endif
