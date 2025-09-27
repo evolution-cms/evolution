@@ -446,30 +446,6 @@
 
     <script type="text/javascript">
         if (document.getElementById('treeMenu')) {
-            @if (evo()->hasPermission('edit_template') ||
-                evo()->hasPermission('edit_snippet') ||
-                evo()->hasPermission('edit_chunk') ||
-                evo()->hasPermission('edit_plugin'))
-
-            document.getElementById('treeMenu_openelements').onclick = function(e) {
-                e.preventDefault();
-                if (modx.config.global_tabs && !e.shiftKey) {
-                    modx.tabs({
-                        url: '{{ MODX_MANAGER_URL }}index.php?a=76',
-                        title: '{{ ManagerTheme::getLexicon('elements') }}'
-                    });
-                } else {
-                    var randomNum = '{{ ManagerTheme::getLexicon('elements') }}';
-                    if (e.shiftKey) {
-                        randomNum += ' #' + Math.floor((Math.random() * 999999) + 1);
-                    }
-                    modx.openWindow({
-                        url: '{{ MODX_MANAGER_URL }}index.php?a=76',
-                        title: randomNum
-                    });
-                }
-            };
-            @endif
             @if (evo()->getConfig('use_browser') && evo()->hasPermission('assets_images'))
 
             document.getElementById('treeMenu_openimages').onclick = function(e) {
