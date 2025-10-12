@@ -11,7 +11,7 @@ if (!function_exists('ProcessTVCommand')) {
      */
     function ProcessTVCommand($value, $name = '', $docid = '', $src = 'docform', $tvsArray = array())
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         $docid = (int)$docid;
         if (!$docid) {
             $docid = $modx->documentIdentifier;
@@ -186,7 +186,7 @@ if (!function_exists('parseTvValues')) {
             return $param;
         }
 
-        $modx = evolutionCMS();
+        $modx = evo();
         if (is_array($modx->documentObject)) {
             $tvsArray = array_merge($tvsArray, $modx->documentObject);
         }
@@ -224,7 +224,7 @@ if (!function_exists('getTVDisplayFormat')) {
     function getTVDisplayFormat($name, $value, $format, $paramstring = '', $tvtype = '', $docid = '', $sep = '')
     {
 
-        $modx = evolutionCMS();
+        $modx = evo();
         $o = '';
 
         // process any TV commands in value
@@ -593,7 +593,7 @@ if (!function_exists('parseInput')) {
      */
     function parseInput($src, $delim = '||', $type = 'string', $columns = true)
     { // type can be: string, array
-        $modx = evolutionCMS();
+        $modx = evo();
         if ($modx->getDatabase()->isResult($src)) {
             // must be a recordset
             $rows = array();
@@ -667,7 +667,7 @@ if (!function_exists('renderFormElement')) {
         $content = null
     )
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         if ($content === null) {
             global $content;
         }
@@ -974,7 +974,7 @@ if (!function_exists('ParseIntputOptions')) {
      */
     function ParseIntputOptions($v)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         if (is_array($v)) {
             return $v;
         }

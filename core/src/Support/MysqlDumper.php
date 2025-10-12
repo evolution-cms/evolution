@@ -75,7 +75,7 @@ class MysqlDumper implements MysqlDumperInterface
      */
     public function createDump($callBack)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         $createtable = array();
         $dataBaseConfig = $modx->db->getConfig();
 
@@ -246,7 +246,7 @@ class MysqlDumper implements MysqlDumperInterface
      */
     public function result2Array($numinarray = 0, $resource)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         $array = array();
         while ($row = $modx->getDatabase()->getRow($resource, 'num')) {
             $array[] = $row[$numinarray];
@@ -270,7 +270,7 @@ class MysqlDumper implements MysqlDumperInterface
      */
     public function loadObjectList($key = '', $resource)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         $array = array();
         while ($row = $modx->getDatabase()->getRow($resource, 'object')) {
             if ($key) {

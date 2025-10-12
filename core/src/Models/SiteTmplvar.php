@@ -141,13 +141,13 @@ class SiteTmplvar extends Eloquent\Model
 
     public function scopeLockedView(Eloquent\Builder $builder)
     {
-        return evolutionCMS()->getLoginUserID('mgr') !== 1 ?
+        return evo()->getLoginUserID('mgr') !== 1 ?
             $builder->where('locked', '=', 0) : $builder;
     }
 
     public static function getLockedElements()
     {
-        return evolutionCMS()->getLockedElements(2);
+        return evo()->getLockedElements(2);
     }
 
     public function getIsAlreadyEditAttribute()

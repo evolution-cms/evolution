@@ -5,11 +5,11 @@ class ConfigService
 {
     public function get($config = '', $default = null)
     {
-        return EvolutionCMS()->getConfig($config, $default);
+        return evo()->getConfig($config, $default);
     }
     public function set($name, $value)
     {
-        EvolutionCMS()->setConfig($name, $value);
+        evo()->setConfig($name, $value);
     }
 
 }

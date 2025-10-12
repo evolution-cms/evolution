@@ -47,7 +47,7 @@ class SiteUpdateCommand extends Command
 
     public function startUpdate()
     {
-        $evo = EvolutionCMS();
+        $evo = evo();
         $updateRepository = $evo->getConfig('UpgradeRepository');
         if ($updateRepository == '') {
             $updateRepository = 'evolution-cms/evolution';
@@ -120,8 +120,8 @@ class SiteUpdateCommand extends Command
                 closedir($handle);
             }
 
-            SELF::moveFiles($temp_dir . '/' . $dir, MODX_BASE_PATH);
-            SELF::rmdirs($temp_dir);
+            self::moveFiles($temp_dir . '/' . $dir, MODX_BASE_PATH);
+            self::rmdirs($temp_dir);
 
             $ch = curl_init();
             $url = 'https://api.github.com/repos/' . $updateRepository . '/releases';
@@ -160,7 +160,7 @@ class SiteUpdateCommand extends Command
                     $file = str_replace('{core}', EVO_CORE_PATH, $file);
                     if (file_exists($file)) {
                         if (is_dir($file)) {
-                            SELF::rmdirs($file);
+                            self::rmdirs($file);
                         } else {
                             unlink($file);
                         }

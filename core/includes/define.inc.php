@@ -32,7 +32,8 @@ if (!defined('SESSION_COOKIE_NAME')) {
 }
 
 /**
- * @deprecated use EVO_CLASS
+ * @deprecated since EVO 3.2.6, use EVO_CLASS
+ * @TODO: will be delete EVO 3.5
  */
 if (!defined('MODX_CLASS')) {
     define('MODX_CLASS', env('MODX_CLASS', '\DocumentParser'));

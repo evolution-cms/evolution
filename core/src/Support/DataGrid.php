@@ -102,7 +102,6 @@ class DataGrid implements DataGridInterface
 
     public function render()
     {
-        $modx = evolutionCMS();
         $columnHeaderStyle = ($this->columnHeaderStyle) ? "style='" . $this->columnHeaderStyle . "'" : '';
         $columnHeaderClass = ($this->columnHeaderClass) ? "class='" . $this->columnHeaderClass . "'" : "";
         $cssStyle = ($this->cssStyle) ? "style='" . $this->cssStyle . "'" : '';
@@ -320,7 +319,7 @@ class DataGrid implements DataGridInterface
                     $value = strtotime($value);
                 }
 
-                $value = EvolutionCMS()->toDateFormat($value);
+                $value = evo()->toDateFormat($value);
                 break;
 
             case "boolean":

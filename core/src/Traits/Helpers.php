@@ -21,7 +21,7 @@ trait Helpers
     public function now() : Carbon
     {
         return Carbon::now()->addSeconds(
-            evolutionCMS()->getConfig('server_offset_time')
+            evo()->getConfig('server_offset_time')
         );
     }
 

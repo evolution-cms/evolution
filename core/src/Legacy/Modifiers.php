@@ -63,7 +63,7 @@ class Modifiers implements ModifiersInterface
      */
     public function __construct()
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         if (function_exists('mb_internal_encoding')) {
             mb_internal_encoding($modx->getConfig('modx_charset'));
         }
@@ -78,7 +78,7 @@ class Modifiers implements ModifiersInterface
      */
     public function phxFilter($key, $value, $modifiers)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         if (substr($modifiers, 0, 3) !== 'id(') {
             $value = $this->parseDocumentSource($value);
         }
@@ -191,7 +191,7 @@ class Modifiers implements ModifiersInterface
 
     public function splitEachModifiers($modifiers)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         $cmd = '';
         $bt = '';
@@ -263,7 +263,6 @@ class Modifiers implements ModifiersInterface
 
     public function parsePhx($key, $value, $modifiers)
     {
-        $modx = evolutionCMS();
         $lastKey = '';
         $cacheKey = md5('parsePhx#' . $key . '#' . $value . '#' . print_r($modifiers, true));
         if (isset($this->tmpCache[$cacheKey])) {
@@ -282,7 +281,7 @@ class Modifiers implements ModifiersInterface
             $modifiers[] = array('cmd' => 'else', 'opt' => '0');
         }
 
-        foreach ($modifiers as $i => $a) {
+        foreach ($modifiers as $a) {
             $value = $this->Filter($key, $value, $a['cmd'], $a['opt']);
         }
         $this->tmpCache[$cacheKey] = $value;
@@ -293,7 +292,7 @@ class Modifiers implements ModifiersInterface
     // Parser: modifier detection and eXtended processing if needed
     public function Filter($key, $value, $cmd, $opt = '')
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         if ($key === 'documentObject') {
             $value = $modx->documentIdentifier;
@@ -344,7 +343,7 @@ class Modifiers implements ModifiersInterface
 
     public function getValueFromPreset($key, $value, $cmd, $opt)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         if ($this->isEmpty($cmd, $value)) {
             return '';
@@ -856,7 +855,7 @@ class Modifiers implements ModifiersInterface
                         // https://www.php.net/manual/en/class.intldateformatter.php
                         // https://www.php.net/manual/en/datetime.createfromformat.php
                         $formatter = new IntlDateFormatter(
-                            evolutionCMS()->getConfig('manager_language'),
+                            evo()->getConfig('manager_language'),
                             IntlDateFormatter::MEDIUM,
                             IntlDateFormatter::MEDIUM,
                             null,
@@ -1247,8 +1246,8 @@ class Modifiers implements ModifiersInterface
                 return $arr[$idx];
             case 'getimage':
                 return $this->includeMdfFile('getimage');
-            case 'nicesize':
-                return nicesize($value);
+            case 'niceSize':
+                return niceSize($value);
             case 'googlemap':
             case 'googlemaps':
                 if (empty($opt)) {
@@ -1306,7 +1305,7 @@ class Modifiers implements ModifiersInterface
 
     public function includeMdfFile($cmd)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         $key = $this->key;
         $value = $this->value;
         $opt = $this->opt;
@@ -1316,7 +1315,7 @@ class Modifiers implements ModifiersInterface
 
     public function getValueFromElement($key, $value, $cmd, $opt)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         if (isset($modx->snippetCache[$this->elmName])) {
             $php = $modx->snippetCache[$this->elmName];
         } else {
@@ -1412,7 +1411,7 @@ class Modifiers implements ModifiersInterface
 
     public function parseDocumentSource($content = '')
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         if (strpos($content, '[') === false && strpos($content, '{') === false) {
             return $content;
@@ -1455,7 +1454,7 @@ class Modifiers implements ModifiersInterface
 
     public function getDocumentObject($target = '', $field = 'pagetitle')
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         $target = trim($target);
         if (empty($target)) {
@@ -1510,7 +1509,7 @@ class Modifiers implements ModifiersInterface
     //mbstring
     public function substr($str, $s, $l = null)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         if (is_null($l)) {
             $l = $this->strlen($str);
         }
@@ -1527,7 +1526,7 @@ class Modifiers implements ModifiersInterface
 
     public function strpos($haystack, $needle, $offset = 0)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         if (function_exists('mb_strpos')) {
             return mb_strpos($haystack, $needle, $offset, $modx->getConfig('modx_charset'));
         }
@@ -1537,7 +1536,7 @@ class Modifiers implements ModifiersInterface
 
     public function strlen($str)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         if (function_exists('mb_strlen')) {
             return mb_strlen(str_replace("\r\n", "\n", $str), $modx->getConfig('modx_charset'));
         }
@@ -1612,7 +1611,7 @@ class Modifiers implements ModifiersInterface
 
     public function strip_tags($value, $params = '')
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         if (stripos($params, 'style') === false && stripos($value, '</style>') !== false) {
             $value = preg_replace('@<style.*?>.*?</style>@is', '', $value);

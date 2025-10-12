@@ -120,7 +120,7 @@ class SitePlugin extends Eloquent\Model
 
     public function scopeLockedView(Eloquent\Builder $builder)
     {
-        return evolutionCMS()->getLoginUserID('mgr') !== 1 ?
+        return evo()->getLoginUserID('mgr') !== 1 ?
             $builder->where('locked', '=', 0) : $builder;
     }
 
@@ -140,7 +140,7 @@ class SitePlugin extends Eloquent\Model
 
     public static function getLockedElements()
     {
-        return evolutionCMS()->getLockedElements(5);
+        return evo()->getLockedElements(5);
     }
 
     public function getIsAlreadyEditAttribute()

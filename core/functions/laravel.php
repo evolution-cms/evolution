@@ -5,7 +5,7 @@ use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Support\Facades\Date;
 
-if (! function_exists('app_path')) {
+if (!function_exists('app_path')) {
     /**
      * Get the path to the application folder.
      *
@@ -14,11 +14,11 @@ if (! function_exists('app_path')) {
      */
     function app_path($path = '')
     {
-        return app('path').($path ? DIRECTORY_SEPARATOR.$path : $path);
+        return app('path') . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 }
 
-if (! function_exists('config_path')) {
+if (!function_exists('config_path')) {
     /**
      * Get the configuration path.
      *
@@ -33,7 +33,7 @@ if (! function_exists('config_path')) {
     }
 }
 
-if (! function_exists('storage_path'))
+if (!function_exists('storage_path'))
 {
     /**
      * Get the path to the storage folder.
@@ -42,11 +42,11 @@ if (! function_exists('storage_path'))
      */
     function storage_path($path = '')
     {
-        return app('path.storage').($path ? '/'.$path : $path);
+        return rtrim(app('path.storage'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $path;
     }
 }
 
-if (! function_exists('base_path')) {
+if (!function_exists('base_path')) {
     /**
      * Get the path to the base of the install.
      *
@@ -55,11 +55,11 @@ if (! function_exists('base_path')) {
      */
     function base_path($path = '')
     {
-        return evolutionCMS()->basePath().($path ? DIRECTORY_SEPARATOR.$path : $path);
+        return evo()->basePath() . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 }
 
-if (! function_exists('public_path')) {
+if (!function_exists('public_path')) {
     /**
      * Get the path to the base of the install with assets.
      *
@@ -68,11 +68,11 @@ if (! function_exists('public_path')) {
      */
     function public_path($path = '')
     {
-        return evolutionCMS()->publicPath().($path ? DIRECTORY_SEPARATOR.$path : $path);
+        return evo()->publicPath() . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 }
 
-if (! function_exists('resource_path')) {
+if (!function_exists('resource_path')) {
     /**
      * Get the path to the base of the install with assets.
      *
@@ -81,7 +81,7 @@ if (! function_exists('resource_path')) {
      */
     function resource_path($path = '')
     {
-        return evolutionCMS()->publicPath().($path ? DIRECTORY_SEPARATOR.$path : $path);
+        return evo()->publicPath() . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 }
 
@@ -95,11 +95,11 @@ if (!function_exists('asset')) {
     function asset($path = '')
     {
         $path = 'assets/' . $path;
-        return MODX_SITE_URL . ltrim(($path ? DIRECTORY_SEPARATOR . $path : $path), '/');
+        return EVO_SITE_URL . ltrim(($path ? DIRECTORY_SEPARATOR . $path : $path), '/');
     }
 }
 
-if (! function_exists('config')) {
+if (!function_exists('config')) {
     /**
      * Get / set the specified configuration value.
      *
@@ -123,7 +123,7 @@ if (! function_exists('config')) {
     }
 }
 
-if (! function_exists('app')) {
+if (!function_exists('app')) {
     /**
      * Get the available container instance.
      *
@@ -134,15 +134,15 @@ if (! function_exists('app')) {
     function app($abstract = null, array $parameters = [])
     {
         if (is_null($abstract)) {
-            return evolutionCMS();
+            return evo();
         }
 
-        return evolutionCMS()->make($abstract, $parameters);
+        return evo()->make($abstract, $parameters);
     }
 }
 
 
-if (! function_exists('back')) {
+if (!function_exists('back')) {
     /**
      * Create a new redirect response to the previous location.
      *
@@ -157,7 +157,7 @@ if (! function_exists('back')) {
     }
 }
 
-if (! function_exists('cookie')) {
+if (!function_exists('cookie')) {
     /**
      * Create a new cookie instance.
      *
@@ -184,7 +184,7 @@ if (! function_exists('cookie')) {
     }
 }
 
-if (! function_exists('csrf_field')) {
+if (!function_exists('csrf_field')) {
     /**
      * Generate a CSRF token form field.
      *
@@ -196,7 +196,7 @@ if (! function_exists('csrf_field')) {
     }
 }
 
-if (! function_exists('csrf_token')) {
+if (!function_exists('csrf_token')) {
     /**
      * Get the CSRF token value.
      *
@@ -217,7 +217,7 @@ if (! function_exists('csrf_token')) {
     }
 }
 
-if (! function_exists('now')) {
+if (!function_exists('now')) {
     /**
      * Create a new Carbon instance for the current time.
      *
@@ -230,7 +230,7 @@ if (! function_exists('now')) {
     }
 }
 
-if (! function_exists('old')) {
+if (!function_exists('old')) {
     /**
      * Retrieve an old input item.
      *
@@ -244,7 +244,7 @@ if (! function_exists('old')) {
     }
 }
 
-if (! function_exists('redirect')) {
+if (!function_exists('redirect')) {
     /**
      * Get an instance of the redirector.
      *
@@ -264,7 +264,7 @@ if (! function_exists('redirect')) {
     }
 }
 
-if (! function_exists('request')) {
+if (!function_exists('request')) {
     /**
      * Get an instance of the current request or an input item from the request.
      *
@@ -288,7 +288,7 @@ if (! function_exists('request')) {
     }
 }
 
-if (! function_exists('response')) {
+if (!function_exists('response')) {
     /**
      * Return a new response from the application.
      *
@@ -309,19 +309,35 @@ if (! function_exists('response')) {
     }
 }
 
-if (! function_exists('route')) {
+if (!function_exists('route')) {
     /**
      * Generate the URL to a named route.
      *
-     * @param  array|string  $name
-     * @param  mixed  $parameters
-     * @param  bool  $absolute
-     * @return string
+     * This function automatically handles friendly URL suffixes based on route middleware.
+     * Routes with 'mgr' middleware or parameters will not receive the friendly_url_suffix.
+     * Frontend routes will continue to receive the configured suffix (e.g., .html).
+     *
+     * @param  array|string  $name Route name
+     * @param  mixed  $parameters Route parameters (if any, suffix is automatically disabled)
+     * @param  bool  $absolute Whether to generate absolute URL
+     * @return string Generated URL with appropriate suffix handling
      */
     function route($name, $parameters = [], $absolute = true)
     {
-        $suffix = count($parameters) ? '' : evo()->getConfig('friendly_url_suffix', '');
-        $url = app('url')->route($name, $parameters, $absolute).$suffix;
+        static $mgrRoutes = null;
+
+        if ($mgrRoutes === null) {
+            $mgrRoutes = [];
+            foreach (app('router')->getRoutes() as $route) {
+                if ($route->getName() && in_array('mgr', $route->gatherMiddleware())) {
+                    $mgrRoutes[] = $route->getName();
+                }
+            }
+        }
+
+        $suffix = (in_array($name, $mgrRoutes) || count($parameters)) ? '' : evo()->getConfig('friendly_url_suffix', '');
+        $url = app('url')->route($name, $parameters, $absolute) . $suffix;
+
         if (evo()->getConfig('server_protocol', 'https') == 'https') {
             $url = str_ireplace('http://', 'https://', $url);
         }
@@ -329,7 +345,7 @@ if (! function_exists('route')) {
     }
 }
 
-if (! function_exists('session')) {
+if (!function_exists('session')) {
     /**
      * Get / set the specified session value.
      *
@@ -353,7 +369,7 @@ if (! function_exists('session')) {
     }
 }
 
-if (! function_exists('today')) {
+if (!function_exists('today')) {
     /**
      * Create a new Carbon instance for the current date.
      *
@@ -366,7 +382,7 @@ if (! function_exists('today')) {
     }
 }
 
-if (! function_exists('trans')) {
+if (!function_exists('trans')) {
     /**
      * Translate the given message.
      *
@@ -386,7 +402,7 @@ if (! function_exists('trans')) {
 }
 
 
-if (! function_exists('trans_choice')) {
+if (!function_exists('trans_choice')) {
     /**
      * Translates the given message based on a count.
      *
@@ -402,7 +418,7 @@ if (! function_exists('trans_choice')) {
     }
 }
 
-if (! function_exists('__')) {
+if (!function_exists('__')) {
     /**
      * Translate the given message.
      *
@@ -422,7 +438,7 @@ if (! function_exists('__')) {
 }
 
 
-if (! function_exists('validator')) {
+if (!function_exists('validator')) {
     /**
      * Create a new Validator instance.
      *
@@ -444,7 +460,7 @@ if (! function_exists('validator')) {
     }
 }
 
-if (! function_exists('database_path')) {
+if (!function_exists('database_path')) {
     /**
      * Get the database path.
      *
@@ -457,7 +473,7 @@ if (! function_exists('database_path')) {
     }
 }
 
-if (! function_exists('url')) {
+if (!function_exists('url')) {
     /**
      * Create an URL for the given document identifier. The url prefix and postfix are used, when “friendly_url” is active.
      *
@@ -473,7 +489,7 @@ if (! function_exists('url')) {
     }
 }
 
-if (! function_exists('cache')) {
+if (!function_exists('cache')) {
     /**
      * Get / set the specified cache value.
      *
@@ -506,7 +522,7 @@ if (! function_exists('cache')) {
     }
 }
 
-if (! function_exists('view')) {
+if (!function_exists('view')) {
     /**
      * Get the evaluated view contents for the given view.
      *

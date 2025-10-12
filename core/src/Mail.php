@@ -28,7 +28,7 @@ class Mail extends PHPMailer
     public function init($modx = null)
     {
         if ($modx === null) {
-            $modx = evolutionCMS();
+            $modx = evo();
         }
         $this->modx = $modx;
         $this->PluginDir = MODX_MANAGER_PATH . 'includes/controls/phpmailer/';

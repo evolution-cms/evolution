@@ -183,7 +183,7 @@ class DocBlock
         foreach ($parsed as $key => $val) {
             if (is_array($val)) {
                 foreach ($val as $key2 => $val2) {
-                    $val2 = evolutionCMS()->parseText($val2, $ph);
+                    $val2 = evo()->parseText($val2, $ph);
                     if (preg_match($regexUrl, $val2, $url)) {
                         $val2 = preg_replace($regexUrl, "<a href=\"{$url[0]}\" target=\"_blank\">{$url[0]}</a> ", $val2);
                     }
@@ -193,7 +193,7 @@ class DocBlock
                     $parsed[$key][$key2] = $val2;
                 }
             } else {
-                $val = evolutionCMS()->parseText($val, $ph);
+                $val = evo()->parseText($val, $ph);
                 if (preg_match($regexUrl, $val, $url)) {
                     $val = preg_replace($regexUrl, "<a href=\"{$url[0]}\" target=\"_blank\">{$url[0]}</a> ", $val);
                 }

@@ -6,7 +6,7 @@
  *      - SESSION_COOKIE_PATH
  *      - SESSION_COOKIE_DOMAIN
  *      - SESSION_COOKIE_NAME
- *      - MODX_CLASS
+ *      - EVO_CLASS
  *      - EVO_CORE_PATH
  *      - MODX_SITE_HOSTNAMES
  *      - MGR_DIR

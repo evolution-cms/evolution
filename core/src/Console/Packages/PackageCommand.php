@@ -55,7 +55,7 @@ class PackageCommand extends Command
     public function __construct()
     {
         parent::__construct();
-        $this->evo = EvolutionCMS();
+        $this->evo = evo();
         $this->load_dir = $this->evo->getConfig('rb_base_dir');
     }
 

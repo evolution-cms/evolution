@@ -2,14 +2,14 @@
 if( ! defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true) {
     die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the EVO Content Manager instead of accessing this file directly.");
 }
-if (!EvolutionCMS()->hasPermission('file_manager')) {
-    EvolutionCMS()->webAlertAndQuit($_lang["error_no_privileges"]);
+if (!evo()->hasPermission('file_manager')) {
+    evo()->webAlertAndQuit($_lang["error_no_privileges"]);
 }
 $token_check = checkToken();
 $newToken = makeToken();
 
 // settings
-$theme_image_path = MODX_MANAGER_URL . 'media/style/' . EvolutionCMS()->getConfig('manager_theme') . '/images/';
+$theme_image_path = MODX_MANAGER_URL . 'media/style/' . evo()->getConfig('manager_theme') . '/images/';
 $excludes = array(
         '.',
         '..',
@@ -35,26 +35,26 @@ $protected_path[] = MODX_MANAGER_PATH;
 $protected_path[] = MODX_BASE_PATH . 'temp/backup';
 $protected_path[] = MODX_BASE_PATH . 'assets/backup';
 
-if (!EvolutionCMS()->hasPermission('save_plugin')) {
+if (!evo()->hasPermission('save_plugin')) {
     $protected_path[] = MODX_BASE_PATH . 'assets/plugins';
 }
-if (!EvolutionCMS()->hasPermission('save_snippet')) {
+if (!evo()->hasPermission('save_snippet')) {
     $protected_path[] = MODX_BASE_PATH . 'assets/snippets';
 }
-if (!EvolutionCMS()->hasPermission('save_template')) {
+if (!evo()->hasPermission('save_template')) {
     $protected_path[] = MODX_BASE_PATH . 'assets/templates';
 }
-if (!EvolutionCMS()->hasPermission('save_module')) {
+if (!evo()->hasPermission('save_module')) {
     $protected_path[] = MODX_BASE_PATH . 'assets/modules';
 }
-if (!EvolutionCMS()->hasPermission('empty_cache')) {
+if (!evo()->hasPermission('empty_cache')) {
     $protected_path[] = MODX_BASE_PATH . 'assets/cache';
 }
-if (!EvolutionCMS()->hasPermission('import_static')) {
+if (!evo()->hasPermission('import_static')) {
     $protected_path[] = MODX_BASE_PATH . 'temp/import';
     $protected_path[] = MODX_BASE_PATH . 'assets/import';
 }
-if (!EvolutionCMS()->hasPermission('export_static')) {
+if (!evo()->hasPermission('export_static')) {
     $protected_path[] = MODX_BASE_PATH . 'temp/export';
     $protected_path[] = MODX_BASE_PATH . 'assets/export';
 }
@@ -65,17 +65,18 @@ if (!EvolutionCMS()->hasPermission('export_static')) {
 // Mod added by Raymond
 $enablefileunzip = true;
 $enablefiledownload = true;
-$newfolderaccessmode = octdec(evolutionCMS()->getConfig('new_folder_permissions', '0777'));
-$new_file_permissions = octdec(evolutionCMS()->getConfig('new_file_permissions', '0666'));
+$newfolderaccessmode = octdec(evo()->getConfig('new_folder_permissions', '0777'));
+$new_file_permissions = octdec(evo()->getConfig('new_file_permissions', '0666'));
 // End Mod -  by Raymond
 // make arrays from the file upload settings
-$upload_files = explode(',', evolutionCMS()->getConfig('upload_files', ''));
-$upload_images = explode(',', evolutionCMS()->getConfig('upload_images', ''));
-$upload_media = explode(',', evolutionCMS()->getConfig('upload_media', ''));
+$upload_files = explode(',', evo()->getConfig('upload_files', ''));
+$upload_images = explode(',', evo()->getConfig('upload_images', ''));
+$upload_media = explode(',', evo()->getConfig('upload_media', ''));
 // now merge them
 $uploadablefiles = array_merge($upload_files, $upload_images, $upload_media);
 $uploadablefiles = add_dot($uploadablefiles);
-$filemanager_path = evolutionCMS()->getConfig('filemanager_path', MODX_BASE_PATH);
+$upload_maxsize = evo()->getConfig('upload_maxsize');
+$filemanager_path = evo()->getConfig('filemanager_path', MODX_BASE_PATH);
 
 // end settings
 
@@ -89,7 +90,7 @@ if (isset($_REQUEST['path']) && !empty($_REQUEST['path'])) {
 $startpath = rtrim($startpath, '/');
 
 if (!is_readable($startpath)) {
-    EvolutionCMS()->webAlertAndQuit($_lang["not_readable_dir"]);
+    evo()->webAlertAndQuit($_lang["not_readable_dir"]);
 }
 
 // Raymond: get web start path for showing pictures
@@ -240,7 +241,7 @@ if (substr($webstart_path, 0, 1) == '/') {
             }
 
             if (in_array($startpath, $protected_path)) {
-                EvolutionCMS()->webAlertAndQuit($_lang["files.dynamic.php2"]);
+                evo()->webAlertAndQuit($_lang["files.dynamic.php2"]);
             }
 
             $tpl = '<i class="[+image+] FilesTopFolder"></i>[+subject+]';
@@ -285,7 +286,7 @@ if (substr($webstart_path, 0, 1) == '/') {
         </div>
         <?php // check to see user isn't trying to move below the document_root
         if (substr(strtolower(str_replace('//', '/', $startpath . "/")), 0, $len) != strtolower(str_replace('//', '/', $filemanager_path . '/'))) {
-            EvolutionCMS()->webAlertAndQuit($_lang["files_access_denied"]);
+            evo()->webAlertAndQuit($_lang["files_access_denied"]);
         }
 
         // Unzip .zip files - by Raymond
@@ -434,7 +435,7 @@ if (substr($webstart_path, 0, 1) == '/') {
                 <?php
                 echo $_lang['files_directories'] . ': <b>' . $folders . '</b> ';
                 echo $_lang['files_files'] . ': <b>' . $files . '</b> ';
-                echo $_lang['files_data'] . ': <b><span dir="ltr">' . nicesize($filesizes) . '</span></b> ';
+                echo $_lang['files_data'] . ': <b><span dir="ltr">' . niceSize($filesizes) . '</span></b> ';
                 echo $_lang['files_dirwritable'] . ' <b>' . (is_writable($startpath) == 1 ? $_lang['yes'] . '.' : $_lang['no']) . '.</b>'
                 ?>
             </p>
@@ -445,7 +446,7 @@ if (substr($webstart_path, 0, 1) == '/') {
                 ?>
 
                 <form name="upload" enctype="multipart/form-data" action="index.php" method="post">
-                    <input type="hidden" name="MAX_FILE_SIZE" value="<?= isset($upload_maxsize) ? $upload_maxsize : 3145728 ?>">
+                    <input type="hidden" name="MAX_FILE_SIZE" value="<?= $upload_maxsize ?? 5000000 ?>">
                     <input type="hidden" name="a" value="31">
                     <input type="hidden" name="path" value="<?= $startpath ?>">
 
@@ -480,7 +481,7 @@ if (get_by_key($_REQUEST, 'mode') == "edit" || get_by_key($_REQUEST, 'mode') == 
         // Log the change
         logFileChange('view', $filename);
         if ($buffer === false) {
-            EvolutionCMS()->webAlertAndQuit("Error opening file for reading.");
+            evo()->webAlertAndQuit("Error opening file for reading.");
         }
         ?>
         <form action="index.php" method="post" name="editFile">
@@ -514,7 +515,7 @@ if (get_by_key($_REQUEST, 'mode') == "edit" || get_by_key($_REQUEST, 'mode') == 
         default:
             $contentType = 'htmlmixed';
     };
-    $evtOut = EvolutionCMS()->invokeEvent('OnRichTextEditorInit', array(
+    $evtOut = evo()->invokeEvent('OnRichTextEditorInit', array(
             'editor' => 'Codemirror',
             'elements' => array(
                     'content',
