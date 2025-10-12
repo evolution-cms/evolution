@@ -45,6 +45,75 @@ if [ -n "$DB_HOST" ] && [ "$DB_HOST" != "localhost" ]; then
   timeout 30 sh -c 'until nc -z $0 $1; do sleep 1; done' "$DB_HOST" "${DB_PORT:-5432}" || echo "Database wait timeout"
 fi
 
+# Git Sync Project Files
+if [ -n "$PROJECT_GIT_REPO" ] && [ -n "$PROJECT_GIT_TOKEN" ]; then
+  echo "🔄 Syncing project files from Git..."
+  
+  # Set default branch
+  PROJECT_GIT_BRANCH="${PROJECT_GIT_BRANCH:-main}"
+  
+  # Prepare Git URL with token
+  GIT_URL_WITH_TOKEN=$(echo "$PROJECT_GIT_REPO" | sed "s|https://|https://${PROJECT_GIT_TOKEN}@|")
+  
+  # Configure Git
+  git config --global user.email "${GIT_USER_EMAIL:-evo@localhost}"
+  git config --global user.name "${GIT_USER_NAME:-Evolution CMS}"
+  git config --global --add safe.directory /var/www/html
+  
+  cd /var/www/html
+  
+  # Check if already initialized
+  if [ ! -d ".git" ]; then
+    echo "📥 Initializing Git repository..."
+    
+    # Initialize Git and add remote
+    git init
+    git remote add origin "$GIT_URL_WITH_TOKEN"
+    
+    # Fetch from remote
+    git fetch origin "$PROJECT_GIT_BRANCH"
+    
+    # Create tracking branch
+    git checkout -b "$PROJECT_GIT_BRANCH"
+    git branch --set-upstream-to=origin/"$PROJECT_GIT_BRANCH" "$PROJECT_GIT_BRANCH"
+    
+    # Strategy: keep local files, merge with Git
+    # This allows existing files to stay, Git files to be added
+    echo "🔀 Merging with remote repository..."
+    git merge origin/"$PROJECT_GIT_BRANCH" --allow-unrelated-histories --no-edit || {
+      echo "⚠️  Merge conflicts detected, keeping local files"
+      git merge --abort 2>/dev/null || true
+    }
+    
+    echo "✅ Git repository initialized"
+  else
+    echo "🔄 Pulling latest changes from Git..."
+    
+    # Make sure we're on the right branch
+    git checkout "$PROJECT_GIT_BRANCH" 2>/dev/null || git checkout -b "$PROJECT_GIT_BRANCH"
+    
+    # Stash any local changes
+    git stash push -m "Auto-stash before pull" 2>/dev/null || true
+    
+    # Pull latest changes
+    git pull origin "$PROJECT_GIT_BRANCH" --no-edit || {
+      echo "⚠️  Pull failed, trying reset..."
+      git fetch origin "$PROJECT_GIT_BRANCH"
+      git reset --hard origin/"$PROJECT_GIT_BRANCH"
+    }
+    
+    # Restore stashed changes if any
+    git stash pop 2>/dev/null || true
+    
+    echo "✅ Git sync completed"
+  fi
+  
+  # Set proper permissions
+  chown -R www-data:www-data /var/www/html 2>/dev/null || true
+  
+  echo "✅ Project files synced successfully!"
+fi
+
 # Function to create database config file from ENV variables
 create_db_config() {
   echo "📝 Creating database configuration file..."
