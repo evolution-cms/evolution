@@ -228,14 +228,6 @@ if [ "$EVO_AUTO_INSTALL" = "true" ] && [ ! -f "/var/www/html/config.php" ]; then
         # Create .install file for update mode
         echo $(date +%s) > /var/www/html/core/.install
         chmod 644 /var/www/html/core/.install
-        
-        # Update composer packages for update mode
-        cd /var/www/html/core/
-        if [ -f "custom/composer.json" ]; then
-          echo "🔄 Updating composer autoload for custom packages..."
-          composer dump-autoload -o
-          php artisan package:discover
-        fi
       else
         echo "✅ Evolution CMS installed successfully!"
         
@@ -252,14 +244,6 @@ if [ "$EVO_AUTO_INSTALL" = "true" ] && [ ! -f "/var/www/html/config.php" ]; then
           cat > custom/config/cms/settings/ControllerNamespace.php <<PHP
 <?php return "EvolutionCMS\\\\$EVO_MAIN_PACKAGE_STUDLY\\\\Controllers\\\\";
 PHP
-          
-          echo "🔄 Updating composer autoload..."
-          composer dump-autoload -o
-          
-          echo "🔍 Discovering packages..."
-          php artisan package:discover
-          
-          echo "✅ Package setup completed"
         fi
         
         # Install TinyMCE5 if enabled
