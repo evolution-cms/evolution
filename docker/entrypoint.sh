@@ -46,14 +46,14 @@ if [ -n "$DB_HOST" ] && [ "$DB_HOST" != "localhost" ]; then
 fi
 
 # Git Sync Project Files
-if [ -n "$PROJECT_GIT_REPO" ] && [ -n "$PROJECT_GIT_TOKEN" ]; then
+if [ -n "$GIT_REPO" ] && [ -n "$GIT_TOKEN" ]; then
   echo "🔄 Syncing project files from Git..."
   
   # Set default branch
-  PROJECT_GIT_BRANCH="${PROJECT_GIT_BRANCH:-main}"
+  GIT_BRANCH="${GIT_BRANCH:-main}"
   
   # Prepare Git URL with token
-  GIT_URL_WITH_TOKEN=$(echo "$PROJECT_GIT_REPO" | sed "s|https://|https://${PROJECT_GIT_TOKEN}@|")
+  GIT_URL_WITH_TOKEN=$(echo "$GIT_REPO" | sed "s|https://|https://${GIT_TOKEN}@|")
   
   # Configure Git
   git config --global user.email "${GIT_USER_EMAIL:-evo@localhost}"
@@ -71,16 +71,16 @@ if [ -n "$PROJECT_GIT_REPO" ] && [ -n "$PROJECT_GIT_TOKEN" ]; then
     git remote add origin "$GIT_URL_WITH_TOKEN"
     
     # Fetch from remote
-    git fetch origin "$PROJECT_GIT_BRANCH"
+    git fetch origin "$GIT_BRANCH"
     
     # Create tracking branch
-    git checkout -b "$PROJECT_GIT_BRANCH"
-    git branch --set-upstream-to=origin/"$PROJECT_GIT_BRANCH" "$PROJECT_GIT_BRANCH"
+    git checkout -b "$GIT_BRANCH"
+    git branch --set-upstream-to=origin/"$GIT_BRANCH" "$GIT_BRANCH"
     
     # Strategy: keep local files, merge with Git
     # This allows existing files to stay, Git files to be added
     echo "🔀 Merging with remote repository..."
-    git merge origin/"$PROJECT_GIT_BRANCH" --allow-unrelated-histories --no-edit || {
+    git merge origin/"$GIT_BRANCH" --allow-unrelated-histories --no-edit || {
       echo "⚠️  Merge conflicts detected, keeping local files"
       git merge --abort 2>/dev/null || true
     }
@@ -90,16 +90,16 @@ if [ -n "$PROJECT_GIT_REPO" ] && [ -n "$PROJECT_GIT_TOKEN" ]; then
     echo "🔄 Pulling latest changes from Git..."
     
     # Make sure we're on the right branch
-    git checkout "$PROJECT_GIT_BRANCH" 2>/dev/null || git checkout -b "$PROJECT_GIT_BRANCH"
+    git checkout "$GIT_BRANCH" 2>/dev/null || git checkout -b "$GIT_BRANCH"
     
     # Stash any local changes
     git stash push -m "Auto-stash before pull" 2>/dev/null || true
     
     # Pull latest changes
-    git pull origin "$PROJECT_GIT_BRANCH" --no-edit || {
+    git pull origin "$GIT_BRANCH" --no-edit || {
       echo "⚠️  Pull failed, trying reset..."
-      git fetch origin "$PROJECT_GIT_BRANCH"
-      git reset --hard origin/"$PROJECT_GIT_BRANCH"
+      git fetch origin "$GIT_BRANCH"
+      git reset --hard origin/"$GIT_BRANCH"
     }
     
     # Restore stashed changes if any
