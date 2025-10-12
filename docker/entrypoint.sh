@@ -132,7 +132,7 @@ if [ "$EVO_AUTO_INSTALL" = "true" ] && [ ! -f "/var/www/html/config.php" ]; then
         ;;
     esac
     
-    # For update mode (typeInstall=2), create config file first
+    # For update mode (typeInstall=2), create database config file first
     if [ "${EVO_INSTALL_TYPE}" = "2" ]; then
       create_db_config
     fi

@@ -1,9 +1,7 @@
 name: Publish nightly to Docker Hub
 
 on:
-  push:
-    branches: [ nightly ]          # збірка на кожен пуш у nightly
-  workflow_dispatch: {}            # можливість стартувати вручну
+  workflow_dispatch: {}            # тільки ручний запуск
 
 jobs:
   build-and-push:
