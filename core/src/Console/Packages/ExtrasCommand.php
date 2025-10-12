@@ -132,7 +132,7 @@ class ExtrasCommand extends Command
      */
     public function workWithExtras()
     {
-        $version = $this->getPackages('https://api.github.com/orgs/evolution-cms-extras/repos');
+        $version = $this->getPackages(['https://api.github.com/orgs/evolution-cms-extras/repos', 'https://api.github.com/users/Seiger/repos']);
         switch ($version) {
             case 'Current and updated';
                 $this->version = '*';
@@ -177,13 +177,39 @@ class ExtrasCommand extends Command
 
     }
 
-    public function getPackages($url)
+    public function getPackages($urlOrArray)
     {
         $packageForChose = [];
-        $fullPackage = $this->getGithubInfo($url);
-        if(!is_array($fullPackage)){
-            echo 'The limit that is provided for free use of github has been exceeded. Please try later.';
-            exit();
+        
+        // Convert string to array with single element
+        if (is_string($urlOrArray)) {
+            $urlOrArray = [$urlOrArray];
+        }
+        
+        // Check if it's array of URLs or array of repos
+        if (isset($urlOrArray[0]) && is_string($urlOrArray[0])) {
+            // Array of URLs - get packages from multiple sources
+            $fullPackage = [];
+            foreach ($urlOrArray as $url) {
+                $repos = $this->getGithubInfo($url);
+                if (!is_array($repos)) {
+                    echo 'The limit that is provided for free use of github has been exceeded. Please try later.';
+                    exit();
+                }
+                
+                // Filter Seiger repos: only those starting with 's' + uppercase letter
+                if (strpos($url, 'Seiger') !== false) {
+                    $repos = array_filter($repos, function($repo) {
+                        return preg_match('/^s[A-Z]/', $repo['name'] ?? '');
+                    });
+                }
+                
+                // Merge repos
+                $fullPackage = array_merge($fullPackage, $repos);
+            }
+        } else {
+            // Already processed array of repos
+            $fullPackage = $urlOrArray;
         }
         foreach ($fullPackage as $key => $package) {
             $packageForChose[$key] = $package['name'];
