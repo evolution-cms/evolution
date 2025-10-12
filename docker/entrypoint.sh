@@ -269,8 +269,7 @@ PHP
       # Install extras packages if specified
       if [ -n "$EVO_EXTRAS" ]; then
         echo "📦 Installing extras packages..."
-        IFS=',' read -ra PACKAGES <<< "$EVO_EXTRAS"
-        for package in "${PACKAGES[@]}"; do
+        echo "$EVO_EXTRAS" | tr ',' '\n' | while IFS= read -r package; do
           # Trim whitespace
           package=$(echo "$package" | xargs)
           if [ -n "$package" ]; then
