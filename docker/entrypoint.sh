@@ -262,11 +262,23 @@ PHP
           echo "✅ Package setup completed"
         fi
         
-        # Install TinyMCE5 if enabled
-        if [ "$EVO_INSTALL_TINYMCE" = "true" ]; then
-          echo "📝 Installing TinyMCE5..."
-          php artisan extras extras TinyMCE5 master || echo "⚠️  TinyMCE5 installation failed"
-          echo '<?php return "TinyMCE5"; ?>' > custom/config/cms/settings/which_editor.php || true
+        # Install extras packages if specified
+        if [ -n "$EVO_EXTRAS" ]; then
+          echo "📦 Installing extras packages..."
+          IFS=',' read -ra PACKAGES <<< "$EVO_EXTRAS"
+          for package in "${PACKAGES[@]}"; do
+            # Trim whitespace
+            package=$(echo "$package" | xargs)
+            if [ -n "$package" ]; then
+              echo "📝 Installing $package..."
+              php artisan extras extras "$package" "Current and updated" "$package" || echo "⚠️  $package installation failed"
+            fi
+          done
+          
+          # Set TinyMCE5 as default editor if it was installed
+          if echo "$EVO_EXTRAS" | grep -qi "TinyMCE5"; then
+            echo '<?php return "TinyMCE5"; ?>' > custom/config/cms/settings/which_editor.php || true
+          fi
         fi
         
         echo "🎉 Evolution CMS setup completed!"
