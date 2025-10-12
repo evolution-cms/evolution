@@ -156,6 +156,10 @@ if [ "$EVO_AUTO_INSTALL" = "true" ] && [ ! -f "/var/www/html/config.php" ]; then
     if [ $? -eq 0 ]; then
       if [ "${EVO_INSTALL_TYPE}" = "2" ]; then
         echo "✅ Evolution CMS updated successfully!"
+        
+        # Create .install file for update mode
+        echo $(date +%s) > /var/www/html/core/.install
+        chmod 644 /var/www/html/core/.install
       else
         echo "✅ Evolution CMS installed successfully!"
         
