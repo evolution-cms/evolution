@@ -73,16 +73,15 @@ if [ -n "$GIT_REPO" ] && [ -n "$GIT_TOKEN" ]; then
     # Fetch from remote
     git fetch origin "$GIT_BRANCH"
     
-    # Create tracking branch
-    git checkout -b "$GIT_BRANCH"
-    git branch --set-upstream-to=origin/"$GIT_BRANCH" "$GIT_BRANCH"
-    
-    # Strategy: keep local files, merge with Git
-    # This allows existing files to stay, Git files to be added
-    echo "🔀 Merging with remote repository..."
-    git merge origin/"$GIT_BRANCH" --allow-unrelated-histories --no-edit || {
-      echo "⚠️  Merge conflicts detected, keeping local files"
-      git merge --abort 2>/dev/null || true
+    # Create tracking branch directly from remote
+    git checkout -b "$GIT_BRANCH" origin/"$GIT_BRANCH" 2>/dev/null || {
+      # If checkout fails (empty repo), create branch and merge
+      git checkout -b "$GIT_BRANCH"
+      echo "🔀 Merging with remote repository..."
+      git merge origin/"$GIT_BRANCH" --allow-unrelated-histories --no-edit || {
+        echo "⚠️  Merge conflicts detected, keeping local files"
+        git merge --abort 2>/dev/null || true
+      }
     }
     
     echo "✅ Git repository initialized"
