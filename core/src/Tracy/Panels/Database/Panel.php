@@ -43,7 +43,7 @@ class Panel extends AbstractPanel
      * @param string $driver
      * @return $this
      */
-    public function logQuery($sql, $bindings = [], $time = 0, $name = null, PDO $pdo = null, $driver = 'mysql')
+    public function logQuery($sql, $bindings = [], $time = 0, $name = null, ?PDO $pdo = null, $driver = 'mysql')
     {
         $this->counter++;
         $this->totalTime += $time;
