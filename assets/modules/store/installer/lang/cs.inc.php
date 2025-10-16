@@ -89,7 +89,7 @@ $_lang["failed"] = 'SELHALO!';
 $_lang["help"] = 'Nápověda!';
 $_lang["help_link"] = 'http://www.modxcms.cz/forums/';
 $_lang["help_title"] = 'Pomoc při instalaci využitím MODx diskuse';
-$_lang["iagree_box"] = 'Souhlasím s podmínkami <a href="../assets/docs/license.txt" target="_blank">MODx licence</a>. Pro překlady GPL verze 2 licence, navštivte prosím <a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-translations.html" target="_blank">stránku GNU Operating System</a>.';
+$_lang["iagree_box"] = 'Souhlasím s podmínkami <a href="../assets/docs/license.txt" target="_blank">MODx licence</a>. Pro překlady GPL verze 2 licence, navštivte prosím <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank">stránku GNU Operating System</a>.';
 $_lang["install"] = 'Instalovat';
 $_lang["install_overwrite"] = 'Instalovat/Přepsat';
 $_lang["install_results"] = 'Výsledky instalace';

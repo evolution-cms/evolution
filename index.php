@@ -4,8 +4,8 @@
 	Evolution CMS Content Management System and PHP Application Framework ("EVO")
 	Managed and maintained by Dmytro Lukianenko and the	EVO community
 *************************************************************************
-	EVO is an opensource PHP/MySQL content management system and content
-	management framework that is flexible, adaptable, supports XHTML/CSS
+	EVO is an opensource PHP/MySQL or PostgreSQL content management system and content
+	management framework based on Laravel that is flexible, adaptable, supports XHTML/CSS
 	layouts, and works with most web browsers.
 
 	EVO is distributed under the GNU General Public License
@@ -16,7 +16,7 @@
 
 	EVO is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
+	the Free Software Foundation; either version 3 of the License, or
 	(at your option) any later version.
 
 	EVO is distributed in the hope that it will be useful,

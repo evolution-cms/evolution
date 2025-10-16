@@ -87,7 +87,7 @@ $_lang["failed"] = 'FAILED!';
 $_lang["help"] = 'Help!';
 $_lang["help_link"] = 'http://forums.modx.com/';
 $_lang["help_title"] = 'Installation assistance in the MODX forums';
-$_lang["iagree_box"] = 'I agree to the terms of <a href="../assets/docs/license.txt" target="_blank">the MODX license</a>. For translations of the GPL version 2 license, please visit the <a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-translations.html" target="_blank">GNU Operating System website</a>.';
+$_lang["iagree_box"] = 'I agree to the terms of <a href="../assets/docs/license.txt" target="_blank">the MODX license</a>. For translations of the GPL version 2 license, please visit the <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank">GNU Operating System website</a>.';
 $_lang["install"] = 'Install';
 $_lang["install_overwrite"] = 'Install/Overwrite';
 $_lang["install_results"] = 'Install results';
