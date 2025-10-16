@@ -21,7 +21,7 @@ Initially inspired by **Etomite 0.6**, then it has been **MODX Evolution 0.7 - 1
 
 ## License
 
-**Evolution CMS** is distributed under the **GPL license** and is now run by a professional team of developers from all over the world. Visit the Forums for more information.
+**Evolution CMS** is distributed under the **GPL v3 license** and is now run by a professional team of developers from all over the world. Visit the Forums for more information.
 
 ## Features
 

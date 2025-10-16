@@ -92,7 +92,7 @@ $_lang["failed"] = 'MISSLYCKADES!';
 $_lang["help"] = 'Hjälp!';
 $_lang["help_link"] = 'http://modxcms.com/forums/';
 $_lang["help_title"] = 'Installationshjälp i MODx forum';
-$_lang["iagree_box"] = 'Jag godkänner <a href="../assets/docs/license.txt" target="_blank">licensvillkoren för MODx</a>.<br />Om du vill läsa en översättning av GPL-licensen, version 2, hittar du den på <a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-translations.html" target="_blank">operativsystemet GNUs webbplats</a>.';
+$_lang["iagree_box"] = 'Jag godkänner <a href="../assets/docs/license.txt" target="_blank">licensvillkoren för MODx</a>.<br />Om du vill läsa en översättning av GPL-licensen, hittar du den på <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank">operativsystemet GNUs webbplats</a>.';
 $_lang["install"] = 'Installera';
 $_lang["install_overwrite"] = 'Installera/skriv över';
 $_lang["install_results"] = 'Installationsresultat';
