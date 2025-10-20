@@ -40,7 +40,7 @@ abstract class AbstractPanel implements IBarPanel, TracyPanel
      *
      * @param Template $template
      */
-    public function __construct(Template $template = null)
+    public function __construct(?Template $template = null)
     {
         $this->template = $template ?: new Template;
     }
@@ -51,7 +51,7 @@ abstract class AbstractPanel implements IBarPanel, TracyPanel
      * @param CoreInterface $evolution
      * @return $this
      */
-    public function setEvolutionCMS(CoreInterface $evolution = null)
+    public function setEvolutionCMS(?CoreInterface $evolution = null)
     {
         if ($evolution !== null) {
             $this->evolution = $evolution;

@@ -160,6 +160,40 @@ if (!function_exists('nicesize')) {
     }
 }
 
+if (!function_exists('niceEta')) {
+    /**
+     * Format ETA seconds into human-readable format.
+     *
+     * Converts seconds into a user-friendly time format:
+     * - Less than 60 seconds: "45s"
+     * - Less than 1 hour: "5m 30s"
+     * - 1 hour or more: "2h 15m"
+     *
+     * @param float $seconds Number of seconds to format
+     * @return string Human-readable time format
+     *
+     * @example
+     * niceEta(45.5);     // "46s"
+     * niceEta(150);      // "2m 30s"
+     * niceEta(3600);     // "1h 0m"
+     * niceEta(8100);     // "2h 15m"
+     */
+    function niceEta(float $seconds): string
+    {
+        if ($seconds < 60) {
+            return sprintf('%.0fs', $seconds);
+        } elseif ($seconds < 3600) {
+            $minutes = floor($seconds / 60);
+            $remainingSeconds = $seconds % 60;
+            return sprintf('%.0fm %.0fs', $minutes, $remainingSeconds);
+        } else {
+            $hours = floor($seconds / 3600);
+            $minutes = floor(($seconds % 3600) / 60);
+            return sprintf('%.0fh %.0fm', $hours, $minutes);
+        }
+    }
+}
+
 if (!function_exists('data_is_json')) {
     /**
      * @param $string
