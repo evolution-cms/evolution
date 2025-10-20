@@ -92,7 +92,7 @@ $_lang["failed"] = 'NIE POWIODŁO SIĘ!';
 $_lang["help"] = 'Pomoc!';
 $_lang["help_link"] = 'http://modxcms.com/forums/';
 $_lang["help_title"] = 'Pomoc dotyczącą instalacji można uzyskać na forum MODxa';
-$_lang["iagree_box"] = 'Akceptuję warunki <a href=\"../assets/docs/license.txt\" target=\"_blank\">licencji MODxa</a>. Tłumaczenia licencji GPL w wersji 2 znajdziesz <a href=\"http://www.gnu.org/licenses/old-licenses/gpl-2.0-translations.html\" target=\"_blank\">na stronie GNU Operating System</a>.';
+$_lang["iagree_box"] = 'Akceptuję warunki <a href=\"../assets/docs/license.txt\" target=\"_blank\">licencji MODxa</a>. Tłumaczenia licencji GPL w wersji 2 znajdziesz <a href=\"https://www.gnu.org/licenses/gpl-3.0.html\" target=\"_blank\">na stronie GNU Operating System</a>.';
 $_lang["install"] = 'Instaluj';
 $_lang["install_overwrite"] = 'Instaluj/Nadpisz: ';
 $_lang["install_results"] = 'Wyniki instalacji';
