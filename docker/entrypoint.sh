@@ -346,6 +346,7 @@ PHP
             
             if [ -n "$package_version" ]; then
               echo "📝 Installing $package_name version $package_version..."
+              # Pass version as-is (supports: dev-main, dev-dev, v1.0.4, 1.0.4, etc)
               php artisan extras extras "$package_name" "$package_version" "$package_name" || echo "⚠️  $package_name:$package_version installation failed"
             else
               echo "📝 Installing $package_name (latest version)..."
@@ -382,7 +383,23 @@ PHP
       # Run migrations after all packages are installed
       cd /var/www/html/core/
       echo "🔄 Running database migrations..."
+      
+      # Clear caches to ensure fresh state
+      php artisan cache:clear 2>&1 || true
+      
+      # Discover packages again to ensure all ServiceProviders are loaded
+      php artisan package:discover --ansi 2>&1
+      
+      # Run all migrations with verbose output
       php artisan migrate --force 2>&1
+      
+      # If sTask is installed, run its migrations explicitly
+      if echo "$EVO_EXTRAS" | grep -qi "sTask"; then
+        echo "🔄 Running sTask migrations..."
+        if [ -d "vendor/seiger/stask/database/migrations" ]; then
+          php artisan migrate --path=vendor/seiger/stask/database/migrations --force 2>&1 || echo "⚠️  sTask migrations skipped or already ran"
+        fi
+      fi
       
       # Note: Package seeders run automatically via ServiceProvider after migrations
       # through MigrationsEnded event
