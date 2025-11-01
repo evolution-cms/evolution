@@ -55,7 +55,7 @@ if (!function_exists('base_path')) {
      */
     function base_path($path = '')
     {
-        return evo()->basePath() . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return rtrim(evo()->basePath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $path;
     }
 }
 
@@ -68,7 +68,7 @@ if (!function_exists('public_path')) {
      */
     function public_path($path = '')
     {
-        return evo()->publicPath() . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return rtrim(evo()->publicPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $path;
     }
 }
 
@@ -81,7 +81,7 @@ if (!function_exists('resource_path')) {
      */
     function resource_path($path = '')
     {
-        return evo()->publicPath() . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return rtrim(evo()->publicPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $path;
     }
 }
 
