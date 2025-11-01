@@ -391,10 +391,132 @@ PHP
       echo "📤 Publishing package assets..."
       php artisan vendor:publish --all --force --ansi 2>&1 || echo "⚠️  Some assets may not have published"
       
-      # Run all migrations (standard Laravel way - automatically finds all package migrations)
-      # ServiceProviders can hook into MigrationsEnded event to run their seeders
-      echo "🔄 Running database migrations..."
+      # Run core migrations first
+      echo "🔄 Running core migrations..."
       php artisan migrate --force --ansi 2>&1 || echo "⚠️  Some migrations may have failed"
+      
+      # ==========================================
+      # TEMPORARY: Run package migrations manually
+      # TODO: Remove when Evolution CMS auto-discovery is fully implemented
+      # ==========================================
+      echo "🔄 Running package migrations..."
+      
+      # Find and copy migrations from installed packages (support multiple structures)
+      # Structure 1: /migrations (Evolution CMS example-package style)
+      find vendor -type f -path "*/migrations/*.php" ! -path "*/core/database/migrations/*" 2>/dev/null | sort | while read -r migration_file; do
+        if [ -f "$migration_file" ]; then
+          migration_name=$(basename "$migration_file")
+          echo "   📝 Found migration: $migration_name"
+          cp "$migration_file" "/var/www/html/core/database/migrations/$migration_name" 2>/dev/null || true
+        fi
+      done
+      
+      # Structure 2: /src/Database/Migrations (Laravel package style)
+      find vendor -type f -path "*/src/Database/Migrations/*.php" 2>/dev/null | sort | while read -r migration_file; do
+        if [ -f "$migration_file" ]; then
+          migration_name=$(basename "$migration_file")
+          echo "   📝 Found migration: $migration_name"
+          cp "$migration_file" "/var/www/html/core/database/migrations/$migration_name" 2>/dev/null || true
+        fi
+      done
+      
+      # Structure 3: /database/migrations (standard Laravel package style)
+      find vendor -type f -path "*/database/migrations/*.php" ! -path "*/core/database/migrations/*" 2>/dev/null | sort | while read -r migration_file; do
+        if [ -f "$migration_file" ]; then
+          migration_name=$(basename "$migration_file")
+          echo "   📝 Found migration: $migration_name"
+          cp "$migration_file" "/var/www/html/core/database/migrations/$migration_name" 2>/dev/null || true
+        fi
+      done
+      
+      # Run migrations again to catch package migrations
+      php artisan migrate --force --ansi 2>&1 || echo "⚠️  Some package migrations may have failed"
+      
+      echo "✅ Migrations completed"
+      # ==========================================
+      
+      # ==========================================
+      # TEMPORARY: Run package seeders manually
+      # TODO: Remove when Evolution CMS auto-discovery is fully implemented
+      # ==========================================
+      echo "🌱 Running package seeders..."
+      
+      # Find and run all seeders from installed packages (support multiple structures)
+      # Combine all possible seeder locations
+      (
+        # Structure 1: /seeders (Evolution CMS example-package style)
+        find vendor -type f -path "*/seeders/*Seeder.php" 2>/dev/null
+        # Structure 2: /src/Database/Seeders (Laravel package style)
+        find vendor -type f -path "*/src/Database/Seeders/*Seeder.php" 2>/dev/null
+        # Structure 3: /database/seeders (standard Laravel package style)
+        find vendor -type f -path "*/database/seeders/*Seeder.php" 2>/dev/null
+      ) | while read -r seeder_file; do
+        if [ -f "$seeder_file" ]; then
+          # Extract namespace and class name from the file
+          namespace=$(grep -E "^namespace " "$seeder_file" | head -1 | awk '{print $2}' | tr -d ';')
+          classname=$(grep -E "^class " "$seeder_file" | head -1 | awk '{print $2}')
+          
+          if [ -n "$namespace" ] && [ -n "$classname" ]; then
+            full_class="${namespace}\\${classname}"
+            echo "   🌱 Seeding: $full_class"
+            php artisan db:seed --class="$full_class" --force --ansi 2>&1 | grep -v "Nothing to seed" || true
+          fi
+        fi
+      done
+      
+      echo "✅ Seeders completed"
+      # ==========================================
+      
+      # ==========================================
+      # Register ServiceProviders AFTER migrations and seeders
+      # TODO: Remove when Evolution CMS auto-discovery is fully implemented
+      # ==========================================
+      echo "📋 Registering package ServiceProviders..."
+      
+      # Find all installed packages and register their ServiceProviders
+      if [ -f "composer.lock" ]; then
+        # Extract packages with ServiceProviders from composer.lock
+        php -r "
+          \$lock = json_decode(file_get_contents('composer.lock'), true);
+          \$providers = [];
+          foreach (\$lock['packages'] as \$package) {
+            if (isset(\$package['extra']['laravel']['providers'])) {
+              foreach (\$package['extra']['laravel']['providers'] as \$provider) {
+                \$providers[] = \$provider;
+              }
+            }
+          }
+          if (!empty(\$providers)) {
+            \$config = \"<?php\\nreturn [\\n\";
+            foreach (\$providers as \$provider) {
+              \$config .= \"    '\" . \$provider . \"',\\n\";
+            }
+            \$config .= \"];\\n\";
+            @mkdir('custom/config/app', 0755, true);
+            file_put_contents('custom/config/app/providers.php', \$config);
+            echo \"✅ Registered \" . count(\$providers) . \" ServiceProvider(s) for web runtime\\n\";
+          }
+        "
+      fi
+      # ==========================================
+      
+      # ==========================================
+      # Setup Laravel Scheduler cron job
+      # This is universal for ALL packages that use Laravel scheduler
+      # ==========================================
+      echo "🕐 Setting up Laravel Scheduler..."
+      
+      # Create cron job for Laravel scheduler (runs every minute)
+      cat > /etc/cron.d/laravel-scheduler <<EOF
+# Laravel Scheduler - runs all scheduled tasks from packages
+* * * * * www-data cd /var/www/html/core && php artisan schedule:run >> /dev/null 2>&1
+EOF
+      
+      # Set proper permissions for cron file
+      chmod 0644 /etc/cron.d/laravel-scheduler
+      
+      echo "✅ Laravel Scheduler configured"
+      # ==========================================
       
       echo "🎉 Evolution CMS setup completed!"
       
