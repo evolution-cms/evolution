@@ -335,49 +335,56 @@ PHP
       
       # Install extras packages if specified
       if [ -n "$EVO_EXTRAS" ]; then
-        echo "📦 Installing extras packages..."
+        echo "📦 Installing extras packages via Composer..."
+        
+        # Convert package list to composer require format
+        COMPOSER_PACKAGES=""
         echo "$EVO_EXTRAS" | tr ',' '\n' | while IFS= read -r package_spec; do
-          # Trim whitespace
           package_spec=$(echo "$package_spec" | xargs)
           if [ -n "$package_spec" ]; then
-            # Parse package name and version (format: package:version or just package)
+            # Parse package name and version
             package_name=$(echo "$package_spec" | cut -d':' -f1)
             package_version=$(echo "$package_spec" | cut -d':' -f2 -s)
             
+            # Map package names to composer package names
+            case "$package_name" in
+              "TinyMCE5"|"tinymce5")
+                composer_package="evolution-cms-extras/tinymce5"
+                ;;
+              "sTask"|"stask")
+                composer_package="seiger/stask"
+                ;;
+              *)
+                # Try to find package by name (could be full composer name)
+                composer_package="$package_name"
+                ;;
+            esac
+            
+            # Build version constraint
             if [ -n "$package_version" ]; then
-              # Convert Composer branch format (dev-main -> main, dev-dev -> dev)
-              # Keep version tags as-is (v1.0.4, 1.0.4)
-              extras_version="$package_version"
-              if echo "$package_version" | grep -q "^dev-"; then
-                # Remove 'dev-' prefix for extras command
-                extras_version=$(echo "$package_version" | sed 's/^dev-//')
-              fi
-              
-              echo "📝 Installing $package_name version $extras_version..."
-              php artisan extras extras "$package_name" "$extras_version" "$package_name" || echo "⚠️  $package_name:$extras_version installation failed"
+              echo "📝 Installing $composer_package:$package_version..."
+              composer require "$composer_package:$package_version" --no-interaction --prefer-dist || echo "⚠️  Failed to install $composer_package:$package_version"
             else
-              echo "📝 Installing $package_name (latest version)..."
-              php artisan extras extras "$package_name" "Current and updated" "$package_name" || echo "⚠️  $package_name installation failed"
+              echo "📝 Installing $composer_package (latest)..."
+              composer require "$composer_package" --no-interaction --prefer-dist || echo "⚠️  Failed to install $composer_package"
             fi
           fi
         done
         
-        # Update composer autoload after installing packages
-        echo "🔄 Updating composer autoload..."
+        # Standard Laravel package setup
+        echo "🔄 Updating autoload and discovering packages..."
         composer dump-autoload -o
-        php artisan package:discover
+        php artisan package:discover --ansi
         
-        # Set TinyMCE5 as default editor if it was installed
+        # Set TinyMCE5 as default editor if installed
         if echo "$EVO_EXTRAS" | grep -qi "TinyMCE5"; then
+          echo "⚙️  Setting TinyMCE5 as default editor..."
+          mkdir -p custom/config/cms/settings/
           echo '<?php return "TinyMCE5"; ?>' > custom/config/cms/settings/which_editor.php || true
         fi
         
-        # Publish sTask assets if it was installed
+        # Setup cron for sTask if installed
         if echo "$EVO_EXTRAS" | grep -qi "sTask"; then
-          echo "📤 Publishing sTask assets..."
-          php artisan vendor:publish --tag=stask --force 2>&1 || echo "⚠️  sTask publish failed or not needed"
-          
-          # Setup cron job for sTask scheduled tasks
           echo "⏰ Setting up cron job for sTask..."
           echo "* * * * * cd /var/www/html/core && /usr/local/bin/php artisan schedule:run >> /var/log/cron.log 2>&1" > /etc/cron.d/stask-scheduler
           chmod 0644 /etc/cron.d/stask-scheduler
@@ -387,29 +394,37 @@ PHP
         fi
       fi
       
-      # Run migrations after all packages are installed
+      # Standard Laravel package post-installation
       cd /var/www/html/core/
-      echo "🔄 Running database migrations..."
       
-      # Clear caches to ensure fresh state
-      php artisan cache:clear 2>&1 || true
-      
-      # Discover packages again to ensure all ServiceProviders are loaded
-      php artisan package:discover --ansi 2>&1
-      
-      # Run all migrations with verbose output
-      php artisan migrate --force 2>&1
-      
-      # If sTask is installed, run its migrations explicitly
-      if echo "$EVO_EXTRAS" | grep -qi "sTask"; then
-        echo "🔄 Running sTask migrations..."
-        if [ -d "vendor/seiger/stask/database/migrations" ]; then
-          php artisan migrate --path=vendor/seiger/stask/database/migrations --force 2>&1 || echo "⚠️  sTask migrations skipped or already ran"
-        fi
+      # Publish all vendor assets (standard Laravel way)
+      if [ -n "$EVO_EXTRAS" ]; then
+        echo "📤 Publishing package assets..."
+        php artisan vendor:publish --all --force --ansi 2>&1 || echo "⚠️  Some assets may not have published"
       fi
       
-      # Note: Package seeders run automatically via ServiceProvider after migrations
-      # through MigrationsEnded event
+      # Run all migrations (standard Laravel way - automatically finds all package migrations)
+      echo "🔄 Running database migrations..."
+      php artisan migrate --force --ansi 2>&1 || echo "⚠️  Some migrations may have failed"
+      
+      # Run package-specific seeders only if not already seeded (standard Laravel way)
+      # Check if specific package permissions already exist before running seeder
+      if echo "$EVO_EXTRAS" | grep -qi "sTask"; then
+        # Check if sTask permissions group already exists
+        TABLE_PREFIX="${EVO_TABLE_PREFIX:-evo_}"
+        if [ "$DB_CONNECTION" = "pgsql" ]; then
+          STASK_GROUP_EXISTS=$(PGPASSWORD="$DB_PASSWORD" psql -h "$DB_HOST" -p "${DB_PORT:-5432}" -U "$DB_USERNAME" -d "$DB_DATABASE" -t -c "SELECT COUNT(*) FROM ${TABLE_PREFIX}permissions_groups WHERE name = 'sTask';" 2>/dev/null | xargs || echo "0")
+        else
+          STASK_GROUP_EXISTS=$(mysql -h "$DB_HOST" -P "${DB_PORT:-3306}" -u "$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" -sN -e "SELECT COUNT(*) FROM ${TABLE_PREFIX}permissions_groups WHERE name = 'sTask';" 2>/dev/null || echo "0")
+        fi
+        
+        if [ "$STASK_GROUP_EXISTS" = "0" ] || [ -z "$STASK_GROUP_EXISTS" ]; then
+          echo "🌱 Running sTask permissions seeder..."
+          php artisan db:seed --class="Seiger\\sTask\\Database\\Seeders\\STaskPermissionsSeeder" --force --ansi 2>&1 || echo "⚠️  sTask seeder may have failed"
+        else
+          echo "⏭️  Skipping sTask seeder (already seeded)"
+        fi
+      fi
       
       echo "🎉 Evolution CMS setup completed!"
       
