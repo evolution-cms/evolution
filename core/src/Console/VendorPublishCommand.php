@@ -6,7 +6,7 @@ use League\Flysystem\MountManager;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\ServiceProvider;
 use League\Flysystem\Filesystem as Flysystem;
-use League\Flysystem\Adapter\Local as LocalAdapter;
+use League\Flysystem\Local\LocalFilesystemAdapter;
 
 /**
  * @see: https://github.com/laravel-zero/foundation/blob/5.6/src/Illuminate/Foundation/Console/VendorPublishCommand.php
@@ -211,8 +211,8 @@ class VendorPublishCommand extends Command
     {
         $this->moveManagedFiles(
             new MountManager([
-                'from' => new Flysystem(new LocalAdapter($from)),
-                'to' => new Flysystem(new LocalAdapter($to)),
+                'from' => new Flysystem(new LocalFilesystemAdapter($from)),
+                'to' => new Flysystem(new LocalFilesystemAdapter($to)),
             ])
         );
         $this->status($from, $to, 'Directory');
@@ -226,13 +226,15 @@ class VendorPublishCommand extends Command
     protected function moveManagedFiles($manager)
     {
         foreach ($manager->listContents('from://', true) as $file) {
-            if($file['type'] !== 'file') {
+            if (!$file->isFile()) {
                 continue;
             }
-            if (! $manager->has('to://'.$file['path']) || $this->option('force')) {
-                $manager->put(
-                    'to://'.$file['path']
-                    , $manager->read('from://'.$file['path'])
+            // В Flysystem v3 MountManager path() включає префікс монтування, видаляємо його
+            $path = str_replace('from://', '', $file->path());
+            if (!$manager->fileExists('to://'.$path) || $this->option('force')) {
+                $manager->write(
+                    'to://'.$path,
+                    $manager->read('from://'.$path)
                 );
             }
         }

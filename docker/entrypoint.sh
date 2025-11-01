@@ -382,49 +382,19 @@ PHP
           mkdir -p custom/config/cms/settings/
           echo '<?php return "TinyMCE5"; ?>' > custom/config/cms/settings/which_editor.php || true
         fi
-        
-        # Setup cron for sTask if installed
-        if echo "$EVO_EXTRAS" | grep -qi "sTask"; then
-          echo "⏰ Setting up cron job for sTask..."
-          echo "* * * * * cd /var/www/html/core && /usr/local/bin/php artisan schedule:run >> /var/log/cron.log 2>&1" > /etc/cron.d/stask-scheduler
-          chmod 0644 /etc/cron.d/stask-scheduler
-          crontab /etc/cron.d/stask-scheduler
-          touch /var/log/cron.log
-          echo "✅ Cron job configured"
-        fi
       fi
       
-      # Standard Laravel package post-installation
+      # Standard Laravel package post-installation (for ALL packages, not just EVO_EXTRAS)
       cd /var/www/html/core/
       
-      # Publish all vendor assets (standard Laravel way)
-      if [ -n "$EVO_EXTRAS" ]; then
-        echo "📤 Publishing package assets..."
-        php artisan vendor:publish --all --force --ansi 2>&1 || echo "⚠️  Some assets may not have published"
-      fi
+      # Publish vendor assets (standard Laravel way - system installs packages, not packages themselves)
+      echo "📤 Publishing package assets..."
+      php artisan vendor:publish --all --force --ansi 2>&1 || echo "⚠️  Some assets may not have published"
       
       # Run all migrations (standard Laravel way - automatically finds all package migrations)
+      # ServiceProviders can hook into MigrationsEnded event to run their seeders
       echo "🔄 Running database migrations..."
       php artisan migrate --force --ansi 2>&1 || echo "⚠️  Some migrations may have failed"
-      
-      # Run package-specific seeders only if not already seeded (standard Laravel way)
-      # Check if specific package permissions already exist before running seeder
-      if echo "$EVO_EXTRAS" | grep -qi "sTask"; then
-        # Check if sTask permissions group already exists
-        TABLE_PREFIX="${EVO_TABLE_PREFIX:-evo_}"
-        if [ "$DB_CONNECTION" = "pgsql" ]; then
-          STASK_GROUP_EXISTS=$(PGPASSWORD="$DB_PASSWORD" psql -h "$DB_HOST" -p "${DB_PORT:-5432}" -U "$DB_USERNAME" -d "$DB_DATABASE" -t -c "SELECT COUNT(*) FROM ${TABLE_PREFIX}permissions_groups WHERE name = 'sTask';" 2>/dev/null | xargs || echo "0")
-        else
-          STASK_GROUP_EXISTS=$(mysql -h "$DB_HOST" -P "${DB_PORT:-3306}" -u "$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" -sN -e "SELECT COUNT(*) FROM ${TABLE_PREFIX}permissions_groups WHERE name = 'sTask';" 2>/dev/null || echo "0")
-        fi
-        
-        if [ "$STASK_GROUP_EXISTS" = "0" ] || [ -z "$STASK_GROUP_EXISTS" ]; then
-          echo "🌱 Running sTask permissions seeder..."
-          php artisan db:seed --class="Seiger\\sTask\\Database\\Seeders\\STaskPermissionsSeeder" --force --ansi 2>&1 || echo "⚠️  sTask seeder may have failed"
-        else
-          echo "⏭️  Skipping sTask seeder (already seeded)"
-        fi
-      fi
       
       echo "🎉 Evolution CMS setup completed!"
       
@@ -446,11 +416,9 @@ else
   fi
 fi
 
-# Start cron daemon if sTask is installed
-if [ -f "/etc/cron.d/stask-scheduler" ]; then
-  echo "🕐 Starting cron daemon for sTask..."
-  service cron start
-fi
+# Start cron daemon
+echo "🕐 Starting cron daemon..."
+service cron start || true
 
 echo "🎬 Starting Apache server..."
 exec "$@"
