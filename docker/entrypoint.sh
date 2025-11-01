@@ -401,7 +401,7 @@ PHP
       # ==========================================
       echo "🔄 Running package migrations..."
       
-      # Find and copy migrations from installed packages (support multiple structures)
+      # Find and copy migrations from installed packages (support standard structures)
       # Structure 1: /migrations (Evolution CMS example-package style)
       find vendor -type f -path "*/migrations/*.php" ! -path "*/core/database/migrations/*" 2>/dev/null | sort | while read -r migration_file; do
         if [ -f "$migration_file" ]; then
@@ -411,7 +411,7 @@ PHP
         fi
       done
       
-      # Structure 2: /src/Database/Migrations (Laravel package style)
+      # Structure 2: /src/Database/Migrations (Laravel package standard)
       find vendor -type f -path "*/src/Database/Migrations/*.php" 2>/dev/null | sort | while read -r migration_file; do
         if [ -f "$migration_file" ]; then
           migration_name=$(basename "$migration_file")
@@ -420,7 +420,7 @@ PHP
         fi
       done
       
-      # Structure 3: /database/migrations (standard Laravel package style)
+      # Structure 3: /database/migrations (Laravel app standard)
       find vendor -type f -path "*/database/migrations/*.php" ! -path "*/core/database/migrations/*" 2>/dev/null | sort | while read -r migration_file; do
         if [ -f "$migration_file" ]; then
           migration_name=$(basename "$migration_file")
@@ -441,17 +441,22 @@ PHP
       # ==========================================
       echo "🌱 Running package seeders..."
       
-      # Find and run all seeders from installed packages (support multiple structures)
+      # Find and run all seeders from installed packages (support standard structures)
       # Combine all possible seeder locations
       (
         # Structure 1: /seeders (Evolution CMS example-package style)
         find vendor -type f -path "*/seeders/*Seeder.php" 2>/dev/null
-        # Structure 2: /src/Database/Seeders (Laravel package style)
+        # Structure 2: /src/Database/Seeders (Laravel package standard)
         find vendor -type f -path "*/src/Database/Seeders/*Seeder.php" 2>/dev/null
-        # Structure 3: /database/seeders (standard Laravel package style)
+        # Structure 3: /database/seeders (Laravel app standard)
         find vendor -type f -path "*/database/seeders/*Seeder.php" 2>/dev/null
       ) | while read -r seeder_file; do
         if [ -f "$seeder_file" ]; then
+          # Skip base Laravel Seeder class
+          if echo "$seeder_file" | grep -q "illuminate/database/Seeder.php"; then
+            continue
+          fi
+          
           # Extract namespace and class name from the file
           namespace=$(grep -E "^namespace " "$seeder_file" | head -1 | awk '{print $2}' | tr -d ';')
           classname=$(grep -E "^class " "$seeder_file" | head -1 | awk '{print $2}')
@@ -465,39 +470,6 @@ PHP
       done
       
       echo "✅ Seeders completed"
-      # ==========================================
-      
-      # ==========================================
-      # Register ServiceProviders AFTER migrations and seeders
-      # TODO: Remove when Evolution CMS auto-discovery is fully implemented
-      # ==========================================
-      echo "📋 Registering package ServiceProviders..."
-      
-      # Find all installed packages and register their ServiceProviders
-      if [ -f "composer.lock" ]; then
-        # Extract packages with ServiceProviders from composer.lock
-        php -r "
-          \$lock = json_decode(file_get_contents('composer.lock'), true);
-          \$providers = [];
-          foreach (\$lock['packages'] as \$package) {
-            if (isset(\$package['extra']['laravel']['providers'])) {
-              foreach (\$package['extra']['laravel']['providers'] as \$provider) {
-                \$providers[] = \$provider;
-              }
-            }
-          }
-          if (!empty(\$providers)) {
-            \$config = \"<?php\\nreturn [\\n\";
-            foreach (\$providers as \$provider) {
-              \$config .= \"    '\" . \$provider . \"',\\n\";
-            }
-            \$config .= \"];\\n\";
-            @mkdir('custom/config/app', 0755, true);
-            file_put_contents('custom/config/app/providers.php', \$config);
-            echo \"✅ Registered \" . count(\$providers) . \" ServiceProvider(s) for web runtime\\n\";
-          }
-        "
-      fi
       # ==========================================
       
       # ==========================================
