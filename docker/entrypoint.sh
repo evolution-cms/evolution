@@ -336,14 +336,28 @@ PHP
       # Install extras packages if specified
       if [ -n "$EVO_EXTRAS" ]; then
         echo "📦 Installing extras packages..."
-        echo "$EVO_EXTRAS" | tr ',' '\n' | while IFS= read -r package; do
+        echo "$EVO_EXTRAS" | tr ',' '\n' | while IFS= read -r package_spec; do
           # Trim whitespace
-          package=$(echo "$package" | xargs)
-          if [ -n "$package" ]; then
-            echo "📝 Installing $package..."
-            php artisan extras extras "$package" "Current and updated" "$package" || echo "⚠️  $package installation failed"
+          package_spec=$(echo "$package_spec" | xargs)
+          if [ -n "$package_spec" ]; then
+            # Parse package name and version (format: package:version or just package)
+            package_name=$(echo "$package_spec" | cut -d':' -f1)
+            package_version=$(echo "$package_spec" | cut -d':' -f2 -s)
+            
+            if [ -n "$package_version" ]; then
+              echo "📝 Installing $package_name version $package_version..."
+              php artisan extras extras "$package_name" "$package_version" "$package_name" || echo "⚠️  $package_name:$package_version installation failed"
+            else
+              echo "📝 Installing $package_name (latest version)..."
+              php artisan extras extras "$package_name" "Current and updated" "$package_name" || echo "⚠️  $package_name installation failed"
+            fi
           fi
         done
+        
+        # Update composer autoload after installing packages
+        echo "🔄 Updating composer autoload..."
+        composer dump-autoload -o
+        php artisan package:discover
         
         # Set TinyMCE5 as default editor if it was installed
         if echo "$EVO_EXTRAS" | grep -qi "TinyMCE5"; then
@@ -370,12 +384,8 @@ PHP
       echo "🔄 Running database migrations..."
       php artisan migrate --force 2>&1
       
-      # Run sTask seeder only if sTask package is installed
-      if echo "$EVO_EXTRAS" | grep -qi "sTask"; then
-        echo "🌱 Running sTask seeder..."
-        echo "   📊 DB_PREFIX: ${DB_PREFIX:-not set}, EVO_TABLE_PREFIX: ${EVO_TABLE_PREFIX:-not set}"
-        php artisan db:seed --class="Seiger\sTask\Database\Seeders\STaskPermissionsSeeder" --force 2>&1
-      fi
+      # Note: Package seeders run automatically via ServiceProvider after migrations
+      # through MigrationsEnded event
       
       echo "🎉 Evolution CMS setup completed!"
       

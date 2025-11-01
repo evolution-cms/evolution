@@ -74,10 +74,14 @@ class InstallPackageRequireCommand extends Command
     public function runComposer()
     {
         putenv('COMPOSER_HOME=' . EVO_CORE_PATH . 'composer');
-        $input = new ArrayInput(array('command' => 'update'));
+        $input = new ArrayInput(array('command' => 'update', '--optimize-autoloader' => true));
         $application = new Application();
         $application->setAutoExit(false);
         $application->run($input);
+        
+        // Explicitly run dump-autoload to ensure new package classes are discoverable
+        $dumpInput = new ArrayInput(array('command' => 'dump-autoload', '--optimize' => true));
+        $application->run($dumpInput);
 
     }
 
