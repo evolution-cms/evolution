@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+# Set Apache ServerName to suppress warning
+echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
 # Runtime PHP configuration overrides
 if [ -n "$PHP_DISPLAY_ERRORS" ]; then
   if [ "$PHP_DISPLAY_ERRORS" = "1" ] || [ "$PHP_DISPLAY_ERRORS" = "On" ]; then
@@ -176,8 +179,67 @@ EOF
   echo "✅ Database configuration file created"
 }
 
+# Function to detect if database has Evolution CMS tables
+# Returns: 1 for fresh install, 2 for update
+detect_install_type() {
+  echo "🔍 Detecting installation type..." >&2
+  
+  # Map database type
+  case "$DB_CONNECTION" in
+    "pgsql"|"postgresql")
+      DB_TYPE="pgsql"
+      DB_PORT_DEFAULT="5432"
+      ;;
+    "mysql"|"mariadb")
+      DB_TYPE="mysql"
+      DB_PORT_DEFAULT="3306"
+      ;;
+    *)
+      DB_TYPE="mysql"
+      DB_PORT_DEFAULT="3306"
+      ;;
+  esac
+  
+  # Use default port if not set
+  DB_PORT="${DB_PORT:-$DB_PORT_DEFAULT}"
+  TABLE_PREFIX="${EVO_TABLE_PREFIX:-evo_}"
+  
+  # Check if database has tables with our prefix
+  echo "   🔎 Checking for tables with prefix: '${TABLE_PREFIX}'" >&2
+  echo "   🔎 Database: ${DB_DATABASE} on ${DB_HOST}:${DB_PORT}" >&2
+  
+  if [ "$DB_TYPE" = "pgsql" ]; then
+    # PostgreSQL check
+    TABLE_COUNT=$(PGPASSWORD="$DB_PASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USERNAME" -d "$DB_DATABASE" -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_name LIKE '${TABLE_PREFIX}%';" 2>&1 | xargs)
+  else
+    # MySQL/MariaDB check
+    TABLE_COUNT=$(mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USERNAME" -p"$DB_PASSWORD" "$DB_DATABASE" -sN -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '$DB_DATABASE' AND table_name LIKE '${TABLE_PREFIX}%';" 2>&1)
+  fi
+  
+  echo "   🔎 Query result: TABLE_COUNT='${TABLE_COUNT}'" >&2
+  
+  # Ensure TABLE_COUNT is a number
+  if [ -z "$TABLE_COUNT" ]; then
+    echo "   ⚠️  TABLE_COUNT is empty, defaulting to 0" >&2
+    TABLE_COUNT=0
+  fi
+  
+  # If we have tables, it's an update, otherwise it's a fresh install
+  if [ "$TABLE_COUNT" -gt 0 ]; then
+    echo "📊 Found $TABLE_COUNT tables with prefix '${TABLE_PREFIX}' - this is an UPDATE" >&2
+    echo "2"
+  else
+    echo "📦 No existing tables found - this is a FRESH INSTALL" >&2
+    echo "1"
+  fi
+}
+
 # Auto-install Evolution CMS if not already installed
-if [ "$EVO_AUTO_INSTALL" = "true" ] && [ ! -f "/var/www/html/config.php" ]; then
+echo "🔍 Checking installation status..."
+echo "   EVO_AUTO_INSTALL: ${EVO_AUTO_INSTALL}"
+echo "   config.php exists: $([ -f /var/www/html/config.php ] && echo 'yes' || echo 'no')"
+
+if ([ "$EVO_AUTO_INSTALL" = "true" ] || [ "$EVO_AUTO_INSTALL" = "1" ]) && [ ! -f "/var/www/html/config.php" ]; then
   echo "🚀 Evolution CMS not found, starting auto-installation..."
   
   # Check if install directory exists
@@ -200,14 +262,19 @@ if [ "$EVO_AUTO_INSTALL" = "true" ] && [ ! -f "/var/www/html/config.php" ]; then
         ;;
     esac
     
+    # Automatically detect install type based on database state
+    # Function outputs diagnostics to stderr and returns 1 or 2 to stdout
+    INSTALL_TYPE=$(detect_install_type | tr -d '\n\r ')
+    echo "   📋 INSTALL_TYPE detected: '${INSTALL_TYPE}' (expecting 1 or 2)"
+    
     # For update mode (typeInstall=2), create database config file first
-    if [ "${EVO_INSTALL_TYPE}" = "2" ]; then
+    if [ "${INSTALL_TYPE}" = "2" ]; then
       create_db_config
     fi
     
     # Run CLI installer
     php cli-install.php \
-      --typeInstall="${EVO_INSTALL_TYPE}" \
+      --typeInstall="${INSTALL_TYPE}" \
       --databaseType="${DB_TYPE}" \
       --databaseServer="${DB_HOST}" \
       --databasePort="${DB_PORT}" \
@@ -222,7 +289,7 @@ if [ "$EVO_AUTO_INSTALL" = "true" ] && [ ! -f "/var/www/html/config.php" ]; then
       --removeInstall="${EVO_REMOVE_INSTALL}"
     
     if [ $? -eq 0 ]; then
-      if [ "${EVO_INSTALL_TYPE}" = "2" ]; then
+      if [ "${INSTALL_TYPE}" = "2" ]; then
         echo "✅ Evolution CMS updated successfully!"
         
         # Create .install file for update mode
@@ -282,11 +349,33 @@ PHP
         if echo "$EVO_EXTRAS" | grep -qi "TinyMCE5"; then
           echo '<?php return "TinyMCE5"; ?>' > custom/config/cms/settings/which_editor.php || true
         fi
+        
+        # Publish sTask assets if it was installed
+        if echo "$EVO_EXTRAS" | grep -qi "sTask"; then
+          echo "📤 Publishing sTask assets..."
+          php artisan vendor:publish --tag=stask --force 2>&1 || echo "⚠️  sTask publish failed or not needed"
+          
+          # Setup cron job for sTask scheduled tasks
+          echo "⏰ Setting up cron job for sTask..."
+          echo "* * * * * cd /var/www/html/core && /usr/local/bin/php artisan schedule:run >> /var/log/cron.log 2>&1" > /etc/cron.d/stask-scheduler
+          chmod 0644 /etc/cron.d/stask-scheduler
+          crontab /etc/cron.d/stask-scheduler
+          touch /var/log/cron.log
+          echo "✅ Cron job configured"
+        fi
       fi
       
-      # Run migrations after extras installation (extras may add their own migrations)
+      # Run migrations after all packages are installed
+      cd /var/www/html/core/
       echo "🔄 Running database migrations..."
-      php artisan migrate --force || echo "⚠️  Migrations failed or not needed"
+      php artisan migrate --force 2>&1
+      
+      # Run sTask seeder only if sTask package is installed
+      if echo "$EVO_EXTRAS" | grep -qi "sTask"; then
+        echo "🌱 Running sTask seeder..."
+        echo "   📊 DB_PREFIX: ${DB_PREFIX:-not set}, EVO_TABLE_PREFIX: ${EVO_TABLE_PREFIX:-not set}"
+        php artisan db:seed --class="Seiger\sTask\Database\Seeders\STaskPermissionsSeeder" --force 2>&1
+      fi
       
       echo "🎉 Evolution CMS setup completed!"
       
@@ -303,9 +392,18 @@ PHP
 else
   if [ -f "/var/www/html/config.php" ]; then
     echo "✅ Evolution CMS already installed, skipping auto-install"
+  else
+    echo "⏭️  Auto-install is disabled (EVO_AUTO_INSTALL=${EVO_AUTO_INSTALL})"
   fi
 fi
 
+# Start cron daemon if sTask is installed
+if [ -f "/etc/cron.d/stask-scheduler" ]; then
+  echo "🕐 Starting cron daemon for sTask..."
+  service cron start
+fi
+
+echo "🎬 Starting Apache server..."
 exec "$@"
 
 

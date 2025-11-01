@@ -1,4 +1,4 @@
-FROM php:8.2-apache
+FROM php:8.3-apache
 
 # Install system dependencies first
 RUN apt-get update && apt-get install -y \
@@ -26,6 +26,9 @@ RUN apt-get update && apt-get install -y \
         git \
         netcat-openbsd \
         wget \
+        cron \
+        postgresql-client \
+        default-mysql-client \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -91,8 +94,7 @@ ENV DB_CONNECTION=pgsql \
     DB_PASSWORD=secret
 
 # Evolution CMS installation variables
-ENV EVO_INSTALL_TYPE=1 \
-    EVO_ADMIN_LOGIN=admin \
+ENV EVO_ADMIN_LOGIN=admin \
     EVO_ADMIN_EMAIL=admin@example.com \
     EVO_ADMIN_PASSWORD=admin123 \
     EVO_LANGUAGE=en \
