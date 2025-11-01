@@ -345,9 +345,16 @@ PHP
             package_version=$(echo "$package_spec" | cut -d':' -f2 -s)
             
             if [ -n "$package_version" ]; then
-              echo "📝 Installing $package_name version $package_version..."
-              # Pass version as-is (supports: dev-main, dev-dev, v1.0.4, 1.0.4, etc)
-              php artisan extras extras "$package_name" "$package_version" "$package_name" || echo "⚠️  $package_name:$package_version installation failed"
+              # Convert Composer branch format (dev-main -> main, dev-dev -> dev)
+              # Keep version tags as-is (v1.0.4, 1.0.4)
+              extras_version="$package_version"
+              if echo "$package_version" | grep -q "^dev-"; then
+                # Remove 'dev-' prefix for extras command
+                extras_version=$(echo "$package_version" | sed 's/^dev-//')
+              fi
+              
+              echo "📝 Installing $package_name version $extras_version..."
+              php artisan extras extras "$package_name" "$extras_version" "$package_name" || echo "⚠️  $package_name:$extras_version installation failed"
             else
               echo "📝 Installing $package_name (latest version)..."
               php artisan extras extras "$package_name" "Current and updated" "$package_name" || echo "⚠️  $package_name installation failed"
