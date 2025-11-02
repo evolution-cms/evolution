@@ -387,7 +387,41 @@ PHP
       # Standard Laravel package post-installation (for ALL packages, not just EVO_EXTRAS)
       cd /var/www/html/core/
       
-      # Publish vendor assets (standard Laravel way - system installs packages, not packages themselves)
+      # Execute post-autoload-dump scripts from ALL vendor packages
+      echo "🔄 Running package post-autoload scripts..."
+      find vendor -name "composer.json" -type f 2>/dev/null | while read -r composer_file; do
+        # Extract post-autoload-dump commands from composer.json
+        post_scripts=$(php -r "
+          \$json = json_decode(file_get_contents('$composer_file'), true);
+          if (isset(\$json['scripts']['post-autoload-dump'])) {
+            \$scripts = \$json['scripts']['post-autoload-dump'];
+            if (is_array(\$scripts)) {
+              foreach (\$scripts as \$script) {
+                if (strpos(\$script, '@php artisan') === 0) {
+                  echo substr(\$script, 5) . PHP_EOL;
+                }
+              }
+            } elseif (strpos(\$scripts, '@php artisan') === 0) {
+              echo substr(\$scripts, 5) . PHP_EOL;
+            }
+          }
+        " 2>/dev/null)
+        
+        # Execute each artisan command found
+        if [ -n "$post_scripts" ]; then
+          package_name=$(dirname "$composer_file")
+          echo "   📦 Package: $package_name"
+          echo "$post_scripts" | while read -r cmd; do
+            if [ -n "$cmd" ]; then
+              echo "   ▶️  Running: $cmd"
+              php $cmd --ansi 2>&1 | sed 's/^/      /' || true
+            fi
+          done
+        fi
+      done
+      echo "✅ Package scripts completed"
+      
+      # Publish vendor assets (standard Laravel way)
       echo "📤 Publishing package assets..."
       php artisan vendor:publish --all --force --ansi 2>&1 || echo "⚠️  Some assets may not have published"
       
