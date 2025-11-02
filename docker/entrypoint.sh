@@ -337,6 +337,12 @@ PHP
       if [ -n "$EVO_EXTRAS" ]; then
         echo "📦 Installing extras packages via Composer..."
         
+        # Initialize custom/composer.json if it doesn't exist
+        if [ ! -f "custom/composer.json" ]; then
+          echo '{"name":"evolutioncms/custom","require":{},"autoload":{"psr-4":{}}}' > custom/composer.json
+          echo "📝 Created custom/composer.json"
+        fi
+
         # Convert package list to composer require format
         COMPOSER_PACKAGES=""
         echo "$EVO_EXTRAS" | tr ',' '\n' | while IFS= read -r package_spec; do
@@ -345,7 +351,7 @@ PHP
             # Parse package name and version
             package_name=$(echo "$package_spec" | cut -d':' -f1)
             package_version=$(echo "$package_spec" | cut -d':' -f2 -s)
-            
+
             # Map package names to composer package names
             case "$package_name" in
               "TinyMCE5"|"tinymce5")
@@ -359,22 +365,56 @@ PHP
                 composer_package="$package_name"
                 ;;
             esac
-            
+
             # Build version constraint
             if [ -n "$package_version" ]; then
               echo "📝 Installing $composer_package:$package_version..."
-              composer require "$composer_package:$package_version" --no-interaction --prefer-dist || echo "⚠️  Failed to install $composer_package:$package_version"
+              composer require "$composer_package:$package_version" --no-interaction --prefer-dist && \
+              php -r "
+                \$file = 'custom/composer.json';
+                \$data = json_decode(file_get_contents(\$file), true);
+                \$data['require']['$composer_package'] = '$package_version';
+                file_put_contents(\$file, json_encode(\$data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+              " || echo "⚠️  Failed to install $composer_package:$package_version"
             else
               echo "📝 Installing $composer_package (latest)..."
-              composer require "$composer_package" --no-interaction --prefer-dist || echo "⚠️  Failed to install $composer_package"
+              composer require "$composer_package" --no-interaction --prefer-dist && \
+              php -r "
+                \$file = 'custom/composer.json';
+                \$lock = json_decode(file_get_contents('composer.lock'), true);
+                \$version = '*';
+                foreach (\$lock['packages'] as \$pkg) {
+                  if (\$pkg['name'] === '$composer_package') {
+                    \$version = \$pkg['version'];
+                    break;
+                  }
+                }
+                \$data = json_decode(file_get_contents(\$file), true);
+                \$data['require']['$composer_package'] = \$version;
+                file_put_contents(\$file, json_encode(\$data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+              " || echo "⚠️  Failed to install $composer_package"
             fi
           fi
         done
-        
+
         # Standard Laravel package setup
-        echo "🔄 Updating autoload and discovering packages..."
+        echo "🔄 Running package discovery..."
         composer dump-autoload -o
         php artisan package:discover --ansi
+
+        # Verify providers were created
+        if [ -d "custom/config/app/providers" ]; then
+          provider_count=$(find custom/config/app/providers -name "*.php" 2>/dev/null | wc -l | xargs)
+          echo "✅ Discovered $provider_count service providers"
+          if [ "$provider_count" -gt 0 ]; then
+            echo "   📋 Providers:"
+            find custom/config/app/providers -name "*.php" 2>/dev/null | while read -r f; do
+              echo "      - $(basename "$f" .php)"
+            done
+          fi
+        else
+          echo "⚠️  No providers directory found - package:discover may have failed"
+        fi
         
         # Set TinyMCE5 as default editor if installed
         if echo "$EVO_EXTRAS" | grep -qi "TinyMCE5"; then
