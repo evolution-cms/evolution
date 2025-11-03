@@ -238,8 +238,8 @@
         $feedData[$section] = $output;
     }
 
-    $ph['evo_security_notices_content'] = $feedData['evo_security_notices_content'];
-    $ph['evo_news_content'] = $feedData['evo_news_content'];
+    $ph['evo_security_notices_content'] = $feedData['evo_security_notices_content'] ?? '';
+    $ph['evo_news_content'] = $feedData['evo_news_content'] ?? '';
 
     $ph['theme'] = evo()->getConfig('manager_theme');
     $ph['site_name'] = evo()->getPhpCompat()->entities(evo()->getConfig('site_name'));
