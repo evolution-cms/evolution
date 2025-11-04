@@ -1,0 +1,97 @@
+services:
+  # PostgreSQL with pgvector extension
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: evolution_postgres
+    environment:
+      POSTGRES_DB: evolution
+      POSTGRES_USER: evo
+      POSTGRES_PASSWORD: secret
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U evo -d evolution"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - evolution
+
+  # Adminer - Database management tool
+  adminer:
+    image: adminer:latest
+    container_name: evolution_adminer
+    ports:
+      - "8082:8080"
+    networks:
+      - evolution
+    restart: unless-stopped
+
+  # Evolution CMS
+  evolution:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: evolution_cms
+    environment:
+      # Database configuration
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: evolution
+      DB_USERNAME: evo
+      DB_PASSWORD: secret
+      
+      # Evolution CMS setup
+      EVO_AUTO_INSTALL: "true"
+      EVO_ADMIN_LOGIN: admin
+      EVO_ADMIN_EMAIL: admin@evo.im
+      EVO_ADMIN_PASSWORD: admin
+      EVO_LANGUAGE: uk
+      EVO_REMOVE_INSTALL: "n"
+      EVO_TABLE_PREFIX: evo_
+      EVO_MAIN_PACKAGE_NAME: main
+      
+      # PHP settings
+      PHP_DISPLAY_ERRORS: "On"
+      PHP_MEMORY_LIMIT: 512M
+      PHP_MAX_EXECUTION_TIME: 120
+      
+      # Optional: Install extras (uncomment if needed)
+      EVO_EXTRAS: "TinyMCE5,sTask:dev-main"
+
+    ports:
+      - "8081:80"
+    volumes:
+      # Mount source code for development
+      - ./core/custom:/var/www/html/core/custom
+      - ./assets:/var/www/html/assets
+      - ./views:/var/www/html/views
+      - ./packages:/var/www/html/packages
+      
+      # Persistent storage
+      - evolution_storage:/var/www/html/core/storage
+      - evolution_cache:/var/www/html/assets/cache
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - evolution
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  evolution_storage:
+    driver: local
+  evolution_cache:
+    driver: local
+
+networks:
+  evolution:
+    driver: bridge
+

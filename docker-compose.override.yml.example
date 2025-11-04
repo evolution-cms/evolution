@@ -1,0 +1,51 @@
+# docker-compose.override.yml
+# 
+# Copy this file to docker-compose.override.yml to customize your local setup
+# This file is automatically loaded by docker-compose and overrides values from docker-compose.yml
+# 
+# Copy: cp docker-compose.override.yml.example docker-compose.override.yml
+
+version: '3.8'
+
+services:
+  evolution:
+    # Uncomment to change port
+    # ports:
+    #   - "8888:80"
+    
+    # Uncomment to add more environment variables
+    # environment:
+    #   PHP_MEMORY_LIMIT: 1024M
+    #   PHP_MAX_EXECUTION_TIME: 300
+    #   EVO_EXTRAS: "TinyMCE5,sTask"
+    
+    # Uncomment to mount additional volumes
+    # volumes:
+    #   - ./my-custom-code:/var/www/html/custom
+    
+  postgres:
+    # Uncomment to change PostgreSQL port
+    # ports:
+    #   - "5433:5432"
+    
+    # Uncomment to customize PostgreSQL settings
+    # environment:
+    #   POSTGRES_PASSWORD: my_secure_password
+    #   POSTGRES_DB: my_custom_db
+    
+    # Uncomment to add custom PostgreSQL config
+    # volumes:
+    #   - ./docker/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+    #   - ./docker/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+
+# Uncomment to add more services (e.g., Redis, Memcached)
+# services:
+#   redis:
+#     image: redis:alpine
+#     container_name: evolution_redis
+#     ports:
+#       - "6379:6379"
+#     networks:
+#       - evolution
+#     restart: unless-stopped
+
