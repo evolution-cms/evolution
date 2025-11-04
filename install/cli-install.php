@@ -317,7 +317,9 @@ class InstallEvo
     public function checkConnectToDatabase()
     {
         try {
-            $this->dbh = new PDO($this->databaseType . ':host=' . $this->databaseServer, $this->databaseUser, $this->databasePassword);
+            // For PostgreSQL, connect to 'postgres' database initially to avoid connection issues
+            $dbname = ($this->databaseType === 'pgsql') ? ';dbname=postgres' : '';
+            $this->dbh = new PDO($this->databaseType . ':host=' . $this->databaseServer . $dbname, $this->databaseUser, $this->databasePassword);
         } catch (PDOException $e) {
             error('✖ ' . $e->getMessage());
             $this->dbh = false;

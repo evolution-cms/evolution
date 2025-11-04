@@ -448,45 +448,51 @@
         if (document.getElementById('treeMenu')) {
             @if (evo()->getConfig('use_browser') && evo()->hasPermission('assets_images'))
 
-            document.getElementById('treeMenu_openimages').onclick = function(e) {
-                e.preventDefault();
-                if (modx.config.global_tabs && !e.shiftKey) {
-                    modx.tabs({
-                        url: '{{ MODX_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?filemanager=media/browser/{{ $modx->getConfig('which_browser') }}/browse.php&type=images',
-                        title: '{{ ManagerTheme::getLexicon('images_management') }}'
-                    });
-                } else {
-                    var randomNum = '{{ ManagerTheme::getLexicon('files_files') }}';
-                    if (e.shiftKey) {
-                        randomNum += ' #' + Math.floor((Math.random() * 999999) + 1);
+            var treeMenuOpenImages = document.getElementById('treeMenu_openimages');
+            if (treeMenuOpenImages) {
+                treeMenuOpenImages.onclick = function(e) {
+                    e.preventDefault();
+                    if (modx.config.global_tabs && !e.shiftKey) {
+                        modx.tabs({
+                            url: '{{ MODX_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?filemanager=media/browser/{{ $modx->getConfig('which_browser') }}/browse.php&type=images',
+                            title: '{{ ManagerTheme::getLexicon('images_management') }}'
+                        });
+                    } else {
+                        var randomNum = '{{ ManagerTheme::getLexicon('files_files') }}';
+                        if (e.shiftKey) {
+                            randomNum += ' #' + Math.floor((Math.random() * 999999) + 1);
+                        }
+                        modx.openWindow({
+                            url: '{{ MODX_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?&type=images',
+                            title: randomNum
+                        });
                     }
-                    modx.openWindow({
-                        url: '{{ MODX_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?&type=images',
-                        title: randomNum
-                    });
-                }
-            };
+                };
+            }
             @endif
             @if (evo()->getConfig('use_browser') && evo()->hasPermission('assets_files'))
 
-            document.getElementById('treeMenu_openfiles').onclick = function(e) {
-                e.preventDefault();
-                if (modx.config.global_tabs && !e.shiftKey) {
-                    modx.tabs({
-                        url: '{{ MODX_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?filemanager=media/browser/{{ $modx->getConfig('which_browser') }}/browse.php&type=files',
-                        title: '{{ ManagerTheme::getLexicon('files_files') }}'
-                    });
-                } else {
-                    var randomNum = '{{ ManagerTheme::getLexicon('files_files') }}';
-                    if (e.shiftKey) {
-                        randomNum += ' #' + Math.floor((Math.random() * 999999) + 1);
+            var treeMenuOpenFiles = document.getElementById('treeMenu_openfiles');
+            if (treeMenuOpenFiles) {
+                treeMenuOpenFiles.onclick = function(e) {
+                    e.preventDefault();
+                    if (modx.config.global_tabs && !e.shiftKey) {
+                        modx.tabs({
+                            url: '{{ MODX_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?filemanager=media/browser/{{ $modx->getConfig('which_browser') }}/browse.php&type=files',
+                            title: '{{ ManagerTheme::getLexicon('files_files') }}'
+                        });
+                    } else {
+                        var randomNum = '{{ ManagerTheme::getLexicon('files_files') }}';
+                        if (e.shiftKey) {
+                            randomNum += ' #' + Math.floor((Math.random() * 999999) + 1);
+                        }
+                        modx.openWindow({
+                            url: '{{ MODX_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?&type=files',
+                            title: randomNum
+                        });
                     }
-                    modx.openWindow({
-                        url: '{{ MODX_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?&type=files',
-                        title: randomNum
-                    });
-                }
-            };
+                };
+            }
             @endif
 
         }

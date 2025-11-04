@@ -67,13 +67,13 @@ services:
     ports:
       - "80:80"
     volumes:
-      # Mount source code for development
-      - ./core/custom:/var/www/html/core/custom
-      - ./assets:/var/www/html/assets
-      - ./views:/var/www/html/views
-      - ./packages:/var/www/html/packages
+      # Mount entire project for development
+      - .:/var/www/html
       
-      # Persistent storage
+      # Exclude vendor from local mount (keep container version)
+      - evolution_vendor:/var/www/html/core/vendor
+      
+      # Persistent storage (override specific folders)
       - evolution_storage:/var/www/html/core/storage
       - evolution_cache:/var/www/html/assets/cache
     depends_on:
@@ -85,6 +85,8 @@ services:
 
 volumes:
   postgres_data:
+    driver: local
+  evolution_vendor:
     driver: local
   evolution_storage:
     driver: local
