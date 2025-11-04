@@ -3,60 +3,67 @@
 .gitignore
 .gitattributes
 
-# Docker
-Dockerfile*
-.dockerignore
-docker-compose*
-
 # Documentation
-README.md
 *.md
-docs/
+!README.md
+DOCKER.md
+AGENTS.md
 
 # IDE
-.idea/
-.vscode/
+.idea
+.vscode
 *.swp
 *.swo
 *~
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Logs
-*.log
-logs/
-
-# Cache and temporary files
-.cache/
-tmp/
-temp/
-.tmp/
-
-# Node modules (if any)
-node_modules/
-npm-debug.log*
-
-# Vendor directories (will be rebuilt in container)
-vendor/
-core/vendor/
-
-# Lock files (problematic for Docker builds)
+# Composer lock files (will be regenerated)
 composer.lock
 core/composer.lock
+core/custom/composer.lock
+
+# Node modules
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Environment files
+.env
+.env.*
+core/.env
+core/custom/.env
+
+# Docker files
+docker-compose*.yml
+.dockerignore
+Dockerfile
+
+# Storage and cache
+core/storage/logs/*
+core/storage/cache/*
+core/storage/sessions/*
+core/storage/blade/*
+assets/cache/*
+storage/*
+
+# Vendor directories (will be installed during build)
+vendor
+core/vendor
+core/custom/vendor
+
+# OS files
+.DS_Store
+Thumbs.db
 
 # Test files
-tests/
-phpunit.xml*
+tests
+phpunit.xml
 .phpunit.result.cache
 
-# CI/CD
-.github/
-.gitlab-ci.yml
-.travis.yml
+# Build artifacts
+*.tar
+*.tar.gz
+*.zip
+
+# Config files that should be generated
+config.php
+core/config/database/connections/default.php
