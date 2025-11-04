@@ -26,7 +26,7 @@ services:
     image: adminer:latest
     container_name: evolution_adminer
     ports:
-      - "8082:8080"
+      - "8080:8080"
     networks:
       - evolution
     restart: unless-stopped
@@ -65,7 +65,7 @@ services:
       EVO_EXTRAS: "TinyMCE5,sTask:dev-main"
 
     ports:
-      - "8081:80"
+      - "80:80"
     volumes:
       # Mount source code for development
       - ./core/custom:/var/www/html/core/custom
