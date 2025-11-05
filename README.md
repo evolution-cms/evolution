@@ -17,7 +17,7 @@
 
 ## History
 
-Initially inspired by **Etomite 0.6**, then it has been **MODX Evolution 0.7 - 1.0.8** is an ongoing project written by *Raymond Irving* and a core team of contributors **MODX**, and now its **Evolution CMS** maintained by *Dmytro Lukianenko* and a core team of contributors at the **Evolution CMS Project**.
+Initially inspired by **Etomite 0.6**, then it has been **MODX Evolution 0.7 - 1.0.8** is an ongoing project written by *Raymond Irving* and a core team of contributors **MODX**, and now its **Evolution CMS** maintained by *Dmytro Lukianenko*, *Serhii Korneliuk* and a core team of contributors at the **Evolution CMS Project**.
 
 ## License
 
@@ -35,7 +35,7 @@ Most significant, though, is **Evolution CMS's** ability to empower you to quick
 
 ## Install
 You can use the single click installer: [Evolution CMS Installer](https://github.com/evolution-cms/installer)
-Evolution CMS 3.2.x requires **PHP >= 8.2**
+Evolution CMS 3.3.x requires **PHP >= 8.3**
 
 ## Docker
 
