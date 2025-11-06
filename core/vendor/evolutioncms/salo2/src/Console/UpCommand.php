@@ -21,12 +21,14 @@ class UpCommand extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
     public function handle()
     {
-        passthru('./core/vendor/bin/salo up -d');
-
+        passthru('./core/vendor/bin/salo up -d', $resultCode);
+        if ($resultCode !== 0) {
+            return Command::FAILURE;
+        }
         $this->info('Salo scaffolding run successfully.');
         return Command::SUCCESS;
     }

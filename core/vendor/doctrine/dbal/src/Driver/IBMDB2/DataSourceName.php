@@ -11,7 +11,7 @@ use function sprintf;
 use function strpos;
 
 /**
- * IBM DB2 DSN
+ * Db2 DSN
  */
 final class DataSourceName
 {

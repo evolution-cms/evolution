@@ -18,7 +18,7 @@ use function preg_match;
 use function version_compare;
 
 /**
- * Abstract base implementation of the {@see Driver} interface for IBM DB2 based drivers.
+ * Abstract base implementation of the {@see Driver} interface for Db2 based drivers.
  */
 abstract class AbstractDB2Driver implements VersionAwarePlatformDriver
 {
@@ -66,17 +66,17 @@ abstract class AbstractDB2Driver implements VersionAwarePlatformDriver
         Deprecation::trigger(
             'doctrine/dbal',
             'https://github.com/doctrine/dbal/pull/5156',
-            'IBM DB2 < 11.1 support is deprecated and will be removed in DBAL 4.'
-                . ' Consider upgrading to IBM DB2 11.1 or later.',
+            'Db2 < 11.1 support is deprecated and will be removed in DBAL 4.'
+                . ' Consider upgrading to Db2 11.1 or later.',
         );
 
         return $this->getDatabasePlatform();
     }
 
     /**
-     * Detects IBM DB2 server version
+     * Detects Db2 server version
      *
-     * @param string $versionString Version string as returned by IBM DB2 server, i.e. 'DB2/LINUXX8664 11.5.8.0'
+     * @param string $versionString Version string as returned by Db2 server, i.e. 'DB2/LINUXX8664 11.5.8.0'
      *
      * @throws DBALException
      */

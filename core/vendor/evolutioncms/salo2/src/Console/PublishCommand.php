@@ -21,13 +21,13 @@ class PublishCommand extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
     public function handle()
     {
         $this->call('vendor:publish', ['--tag' => 'salo']);
 
-        file_put_contents(
+        return file_put_contents(
             $this->laravel->basePath('docker-compose.yml'),
             str_replace(
                 [
@@ -38,6 +38,6 @@ class PublishCommand extends Command
                 ],
                 file_get_contents($this->laravel->basePath('docker-compose.yml'))
             )
-        );
+        ) ? Command::SUCCESS : Command::FAILURE;
     }
 }
