@@ -24,7 +24,7 @@
 #mainloader.show {opacity: 0.75; visibility: visible; -webkit-transition-duration: 0.1s; transition-duration: 0.1s}
 #mainloader::before {display: none;}
 .evo__logo {font-size: 3.5em;position: fixed; top: 40%; left: 50%;}
-.evo__logo::before {content: ""; display: block; position: absolute; z-index: 1; left: 50%; top: 50%; width: 120px; height: 120px; border-radius: 50%; transform: translate(-50%, -50%) rotate(0deg); animation: rotateLogo 2s linear infinite; box-shadow: 5px 5px 0 0 rgb(234, 132, 82), 14px -7px 0 0 rgba(111, 163, 219, 0.7), -7px 11px 0 0 rgba(112, 193, 92, 0.74), -11px -7px 0 0 rgba(147, 205, 99, 0.78);}
+.evo__logo::before {content: ""; display: block; position: absolute; z-index: 1; left: 50%; top: 50%; width: 120px; height: 120px; border-radius: 50%; transform: translate(-50%, -50%) rotate(0deg); animation: rotateLogo 2s linear infinite; box-shadow: 5px 5px 0 0 #FFD700, 14px -7px 0 0 rgba(111, 163, 219, 0.7), -7px 11px 0 0 rgba(112, 193, 92, 0.74), -11px -7px 0 0 rgba(147, 205, 99, 0.78);}
 @keyframes rotateLogo {to {transform: translate(-50%, -50%) rotate(360deg)}}
 .sidebar-closed #tree {width: 0 !important;}
 .sidebar-closed #main, .sidebar-closed #resizer { left: 0 !important; }
