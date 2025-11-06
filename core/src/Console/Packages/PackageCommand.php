@@ -4,6 +4,36 @@ use Illuminate\Console\Command;
 use \EvolutionCMS;
 use Illuminate\Support\Facades\File;
 
+/**
+ * PackageCommand - Discover and register ServiceProviders from custom packages
+ *
+ * This command scans composer.json files and generates provider config files
+ * in core/custom/config/app/providers/ directory.
+ *
+ * Provider Priority System:
+ * -------------------------
+ * Providers can specify load priority in their composer.json:
+ *
+ * "extra": {
+ *     "laravel": {
+ *         "providers": ["Vendor\\Package\\SomeServiceProvider"],
+ *         "priority": {
+ *             "Vendor\\Package\\SomeServiceProvider": 1
+ *         }
+ *     }
+ * }
+ *
+ * Priority 1-999: Creates file with prefix (e.g., 001_SomeServiceProvider.php)
+ * Priority 0 (or not specified): Creates file without prefix
+ *
+ * Files are loaded in alphabetical order, so:
+ * - 001_sLangServiceProvider.php loads first (priority: 1)
+ * - 050_SomeOtherProvider.php loads second (priority: 50)
+ * - sCommerceServiceProvider.php loads third (priority: 0 or not specified)
+ * - etc.
+ *
+ * @package EvolutionCMS\Console\Packages
+ */
 class PackageCommand extends Command
 {
     /**
@@ -80,7 +110,7 @@ class PackageCommand extends Command
         if (count($this->require) > 0) {
             $this->loadRequire();
         }
-        unlink(EVO_CORE_PATH.'storage/bootstrap/services.php');
+        unlink(EVO_CORE_PATH . 'storage/bootstrap/services.php');
     }
 
     /**
@@ -90,8 +120,13 @@ class PackageCommand extends Command
     {
         $data = json_decode(file_get_contents($composer), true);
         if (isset($data['extra']['laravel']['providers'])) {
+            // Get priorities if defined (default to empty array if not present)
+            $priorities = $data['extra']['laravel']['priority'] ?? [];
+
             foreach ($data['extra']['laravel']['providers'] as $value) {
-                $this->process($value);
+                // Get priority for this provider (default 0 if not specified)
+                $priority = $priorities[$value] ?? 0;
+                $this->process($value, $priority);
             }
         }
         if (isset($data['require'])) {
@@ -123,8 +158,13 @@ class PackageCommand extends Command
     {
         $data = json_decode(file_get_contents($composer), true);
         if (isset($data['extra']['laravel']['providers']) && is_array($data['extra']['laravel']['providers'])) {
+            // Get priorities if defined (default to empty array if not present)
+            $priorities = $data['extra']['laravel']['priority'] ?? [];
+
             foreach ($data['extra']['laravel']['providers'] as $value) {
-                $this->process($value);
+                // Get priority for this provider (default 0 if not specified)
+                $priority = $priorities[$value] ?? 0;
+                $this->process($value, $priority);
             }
         }
         if (isset($data['extra']['laravel']['files'])) {
@@ -135,15 +175,43 @@ class PackageCommand extends Command
     }
 
     /**
-     * @param string $value
+     * Generate provider config file with optional priority prefix
+     *
+     * @param string $value Provider class name
+     * @param int $priority Priority (1-999), used for load order. Lower numbers load first.
      */
-    protected function process(string $value)
+    protected function process(string $value, int $priority = 0)
     {
         $arrNamespace = explode('\\', $value);
-        $fileName = end($arrNamespace) . '.php';
-        $fileContent = "<?php \nreturn " . $value . "::class;";
+        $className = end($arrNamespace);
+
+        // Add priority prefix if specified (001_, 002_, ..., 999_)
+        if ($priority > 0 && $priority < 1000) {
+            $prefix = str_pad($priority, 3, '0', STR_PAD_LEFT) . '_';
+            $fileName = $prefix . $className . '.php';
+            $fileContent = "<?php\n// Priority {$priority} - loads before other providers\nreturn " . $value . "::class;";
+
+            // Remove old files with different prefixes for the same provider
+            $patterns = [
+                $this->configDir . $className . '.php',                    // without prefix
+                $this->configDir . '*_' . $className . '.php',             // with any prefix
+            ];
+
+            foreach ($patterns as $pattern) {
+                foreach (glob($pattern) as $oldFile) {
+                    if ($oldFile !== $this->configDir . $fileName) {
+                        @unlink($oldFile);
+                        $this->getOutput()->write('<comment>Removed old ' . basename($oldFile) . ' (using priority prefix)</comment>');
+                    }
+                }
+            }
+        } else {
+            $fileName = $className . '.php';
+            $fileContent = "<?php \nreturn " . $value . "::class;";
+        }
+
         if (file_put_contents($this->configDir . $fileName, $fileContent)) {
-            $this->getOutput()->write('<info>' . $value . '</info>');
+            $this->getOutput()->write('<info>' . $value . ($priority > 0 ? " (priority: {$priority})" : '') . '</info>');
         } else {
             $this->getOutput()->write('<error>Error create config for: ' . $value . '</error>');
         }
