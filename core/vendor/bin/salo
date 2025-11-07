@@ -7,7 +7,7 @@ if [ -z "$selfArg" ]; then
     selfArg="$0"
 fi
 
-self=$(realpath $selfArg 2> /dev/null)
+self=$(realpath "$selfArg" 2> /dev/null)
 if [ -z "$self" ]; then
     self="$selfArg"
 fi
@@ -23,7 +23,7 @@ if [ -d /proc/cygdrive ]; then
     esac
 fi
 
-export COMPOSER_RUNTIME_BIN_DIR=$(cd "${self%[/\\]*}" > /dev/null; pwd)
+export COMPOSER_RUNTIME_BIN_DIR="$(cd "${self%[/\\]*}" > /dev/null; pwd)"
 
 # If bash is sourcing this file, we have to source the target as well
 bashSource="$BASH_SOURCE"
@@ -34,4 +34,4 @@ if [ -n "$bashSource" ]; then
     fi
 fi
 
-"${dir}/salo" "$@"
+exec "${dir}/salo" "$@"

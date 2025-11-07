@@ -9,6 +9,9 @@ declare(strict_types=1);
 
 namespace Tracy;
 
+use function array_slice, count;
+use const PHP_OUTPUT_HANDLER_FINAL;
+
 
 /**
  * Debugger for outputs.
@@ -41,7 +44,7 @@ final class OutputDebugger
 
 
 	/** @internal */
-	public function handler(string $s, int $phase): ?string
+	public function handler(string $s, int $phase): string
 	{
 		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 		if (isset($trace[0]['file'], $trace[0]['line'])) {
@@ -57,7 +60,7 @@ final class OutputDebugger
 
 		return $phase === PHP_OUTPUT_HANDLER_FINAL
 			? $this->renderHtml()
-			: null;
+			: '';
 	}
 
 

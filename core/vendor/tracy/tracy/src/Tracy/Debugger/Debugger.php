@@ -10,6 +10,8 @@ declare(strict_types=1);
 namespace Tracy;
 
 use ErrorException;
+use function in_array, is_bool, is_int, is_string;
+use const PHP_VERSION;
 
 
 /**
@@ -17,7 +19,7 @@ use ErrorException;
  */
 class Debugger
 {
-	public const Version = '2.10.10';
+	public const Version = '2.11.0';
 
 	/** server modes for Debugger::enable() */
 	public const
@@ -284,7 +286,12 @@ class Debugger
 	{
 		$error = error_get_last();
 		if (in_array($error['type'] ?? null, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE, E_RECOVERABLE_ERROR, E_USER_ERROR], true)) {
-			self::exceptionHandler(new ErrorException($error['message'], 0, $error['type'], $error['file'], $error['line']));
+			$e = new ErrorException($error['message'], 0, $error['type'], $error['file'], $error['line']);
+			if (!empty($error['trace'])) {
+				(new \ReflectionClass(\Exception::class))->getProperty('trace')->setValue($e, $error['trace']);
+			}
+			self::exceptionHandler($e);
+
 		} elseif (($error['type'] ?? null) === E_COMPILE_WARNING) {
 			error_clear_last();
 			self::errorHandler($error['type'], $error['message'], $error['file'], $error['line']);
@@ -312,9 +319,7 @@ class Debugger
 		self::$reserved = null;
 		self::$obStatus = ob_get_status(true);
 
-		if (!headers_sent()) {
-			http_response_code(isset($_SERVER['HTTP_USER_AGENT']) && str_contains($_SERVER['HTTP_USER_AGENT'], 'MSIE ') ? 503 : 500);
-		}
+		@http_response_code(isset($_SERVER['HTTP_USER_AGENT']) && str_contains($_SERVER['HTTP_USER_AGENT'], 'MSIE ') ? 503 : 500); // may not have an effect
 
 		Helpers::improveException($exception);
 		self::removeOutputBuffers(true);
@@ -408,7 +413,7 @@ class Debugger
 			self::$bar = new Bar;
 			self::$bar->addPanel($info = new DefaultBarPanel('info'), 'Tracy:info');
 			$info->cpuUsage = self::$cpuUsage;
-			self::$bar->addPanel(new DefaultBarPanel('errors'), 'Tracy:errors'); // filled by errorHandler()
+			self::$bar->addPanel(new DefaultBarPanel('warnings'), 'Tracy:warnings'); // filled by errorHandler()
 		}
 
 		return self::$bar;
@@ -436,13 +441,14 @@ class Debugger
 	/** @internal */
 	public static function getStrategy(): ProductionStrategy|DevelopmentStrategy
 	{
-		if (empty(self::$strategy[self::$productionMode])) {
-			self::$strategy[self::$productionMode] = self::$productionMode
+		$mode = (bool) self::$productionMode;
+		if (empty(self::$strategy[$mode])) {
+			self::$strategy[$mode] = $mode
 				? new ProductionStrategy
 				: new DevelopmentStrategy(self::getBar(), self::getBlueScreen(), new DeferredContent(self::getSessionStorage()));
 		}
 
-		return self::$strategy[self::$productionMode];
+		return self::$strategy[$mode];
 	}
 
 
@@ -520,6 +526,7 @@ class Debugger
 	{
 		static $time = [];
 		$now = hrtime(true);
+		$name ??= '';
 		$delta = isset($time[$name]) ? $now - $time[$name] : 0;
 		$time[$name] = $now;
 		return $delta / 1e9;

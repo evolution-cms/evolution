@@ -48,7 +48,7 @@ composer require tracy/tracy
 
 Alternatively, you can download the whole package or [tracy.phar](https://github.com/nette/tracy/releases) file.
 
-Tracy is compatible with PHP 8.0 to 8.4.
+Tracy is compatible with PHP 8.2 to 8.5.
 
  <!---->
 
@@ -456,5 +456,6 @@ This is a list of unofficial integrations to other frameworks and CMS:
 - [Slim Framework](https://github.com/runcmf/runtracy)
 - Symfony framework: [kutny/tracy-bundle](https://github.com/kutny/tracy-bundle), [VasekPurchart/Tracy-Blue-Screen-Bundle](https://github.com/VasekPurchart/Tracy-Blue-Screen-Bundle)
 - [Wordpress](https://github.com/ktstudio/WP-Tracy)
+- [Joomla! CMS](https://n3t.bitbucket.io/extension/n3t-debug/)
 
 ... feel free to be famous, create an integration for your favourite platform!
