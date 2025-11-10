@@ -202,7 +202,7 @@ if (!function_exists('data_is_json')) {
      */
     function data_is_json($string, $returnData = false)
     {
-        $json = json_decode($string, true);
+        $json = json_decode($string ?? '', true);
         if (json_last_error() != JSON_ERROR_NONE) {
             return false;
         }

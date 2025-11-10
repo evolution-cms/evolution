@@ -30,14 +30,12 @@ class TailwindBuildCommand extends Command
 
         foreach ($packages as $pkg) {
             $styles = glob(EVO_BASE_PATH . $pkg . '/*tailwind.css');
-            if (!empty($styles)) {
-                foreach ($styles as $style) {
-                    try {
-                        $url = $compiler->compile($style, $force);
-                        $this->info("✔ {$pkg}: built → {$url}");
-                    } catch (\Throwable $e) {
-                        $this->error("✖ {$pkg}: " . $e->getMessage());
-                    }
+            foreach ($styles as $style) {
+                try {
+                    $url = $compiler->compile($style, $force);
+                    $this->info("✔ {$pkg}: built → {$url}");
+                } catch (\Throwable $e) {
+                    $this->error("✖ {$pkg}: " . $e->getMessage());
                 }
             }
         }
