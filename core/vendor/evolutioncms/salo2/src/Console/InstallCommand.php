@@ -9,7 +9,10 @@ class InstallCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'salo:install {--with= : The services that should be included in the installation}';
+    protected $signature = 'salo:install
+      {--runtime= : The PHP runtime (name of folder with Dockerfile, php.ini etc. for deploying Evolution app)}
+      {--with= : The services that should be included in the installation}
+    ';
 
     /**
      * The console command description.
@@ -21,7 +24,7 @@ class InstallCommand extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
     public function handle()
     {
@@ -33,10 +36,11 @@ class InstallCommand extends Command
             $services = $this->gatherServicesWithSymfonyMenu();
         }
 
-        $this->buildDockerCompose($services);
-        $this->replaceEnvVariables($services);
-
-        $this->info('Salo scaffolding installed successfully.');
+        if ($this->buildDockerCompose($services) && $this->replaceEnvVariables($services)) {
+            $this->info('Salo scaffolding installed successfully.');
+            return Command::SUCCESS;
+        }
+        return Command::FAILURE;
     }
 
     /**
@@ -62,7 +66,7 @@ class InstallCommand extends Command
      * Build the Docker Compose file.
      *
      * @param array $services
-     * @return void
+     * @return int|false
      */
     protected function buildDockerCompose(array $services)
     {
@@ -95,31 +99,41 @@ class InstallCommand extends Command
                 return $collection->prepend('volumes:');
             })->implode("\n");
 
+        $evoRuntime = $this->option('runtime') ?: '8.3';
+        $evoImage = $this->evoImage($evoRuntime);
+        $evoPorts = $this->evoPorts($evoRuntime);
+
         $dockerCompose = file_get_contents(__DIR__ . '/../../stubs/docker-compose.stub');
 
         $dockerCompose = str_replace('{{depends}}', empty($depends) ? '' : '        ' . $depends, $dockerCompose);
         $dockerCompose = str_replace('{{defaultDB}}', $defaultDB, $dockerCompose);
         $dockerCompose = str_replace('{{services}}', $stubs, $dockerCompose);
         $dockerCompose = str_replace('{{volumes}}', $volumes, $dockerCompose);
+        $dockerCompose = str_replace('{{evoRuntime}}', $evoRuntime, $dockerCompose);
+        $dockerCompose = str_replace('{{evoImage}}', $evoImage, $dockerCompose);
+        $dockerCompose = str_replace('{{evoPorts}}', $evoPorts, $dockerCompose);
 
         // Remove empty lines...
         $dockerCompose = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $dockerCompose);
 
-        file_put_contents($this->laravel->publicPath('docker-compose.yml'), $dockerCompose);
+        return file_put_contents($this->laravel->publicPath('docker-compose.yml'), $dockerCompose);
     }
 
     /**
      * Replace the Host environment variables in the app's .env file.
      *
      * @param array $services
-     * @return void
+     * @return int|false
      */
     protected function replaceEnvVariables(array $services)
     {
         if (file_exists(evo()->basePath('custom/.env'))) {
             $environment = file_get_contents(evo()->basePath('custom/.env'));
-        } else {
+        } elseif (file_exists(evo()->basePath('custom/.env.docker.example'))) {
             $environment = file_get_contents(evo()->basePath('custom/.env.docker.example'));
+        } else {
+            $this->error('Either custom/.env or custom/.env.docker.example should exist');
+            return Command::FAILURE;
         }
 
         if (in_array('pgsql', $services)) {
@@ -143,6 +157,28 @@ class InstallCommand extends Command
             $environment .= "\nMEILISEARCH_HOST=http://meilisearch:7700\n";
         }
 
-        file_put_contents(evo()->publicPath('.env'), $environment);
+        return file_put_contents(evo()->publicPath('.env'), $environment);
+    }
+
+    private function evoImage($evoRuntime)
+    {
+        $dockerfileContent = file_get_contents(__DIR__ . '/../../runtimes/' . $evoRuntime . '/Dockerfile');
+        preg_match_all('/^\s*FROM\s+([^\s#]+)(?:\s+AS\s+\S+)?/mi', $dockerfileContent, $m);
+        return $m[1] ? end($m[1]) : null;
+    }
+
+    private function evoPorts($evoRuntime)
+    {
+        $portsFile = __DIR__ . '/../../runtimes/' . $evoRuntime . '/ports';
+        $portsLines = is_readable($portsFile) ? file($portsFile) : ['${APP_PORT:-80}:80'];
+        $result = "";
+        foreach ($portsLines as $portsLine) {
+            $portsLine = trim($portsLine);
+            if (empty($portsLine)) {
+                continue;
+            }
+            $result .= "            - '$portsLine'" . PHP_EOL;
+        }
+        return $result;
     }
 }

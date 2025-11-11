@@ -2,13 +2,13 @@
 services:
     evo.php:
         build:
-            context: core/vendor/evolutioncms/salo2/runtimes/8.2
+            context: core/vendor/evolutioncms/salo2/runtimes/{{evoRuntime}}
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
-        image: php:8.2-apache
+        image: {{evoImage}}
         ports:
-            - '${APP_PORT:-80}:80'
+{{evoPorts}}
         environment:
             WWWUSER: '${WWWUSER}'
             LARAVEL_SALO: 1

@@ -26,7 +26,7 @@ use function sprintf;
 use function strpos;
 
 /**
- * Provides the behavior, features and SQL dialect of the IBM DB2 database platform of the oldest supported version.
+ * Provides the behavior, features and SQL dialect of the Db2 database platform of the oldest supported version.
  */
 class DB2Platform extends AbstractPlatform
 {
@@ -104,7 +104,7 @@ class DB2Platform extends AbstractPlatform
      */
     public function getVarcharTypeDeclarationSQL(array $column)
     {
-        // for IBM DB2, the CHAR max length is less than VARCHAR default length
+        // for Db2, the CHAR max length is less than VARCHAR default length
         if (! isset($column['length']) && ! empty($column['fixed'])) {
             $column['length'] = $this->getCharMaxLength();
         }
@@ -175,7 +175,7 @@ class DB2Platform extends AbstractPlatform
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/3263',
-                'Relying on the default string column length on IBM DB2 is deprecated'
+                'Relying on the default string column length on Db2 is deprecated'
                     . ', specify the length explicitly.',
             );
         }
@@ -193,8 +193,8 @@ class DB2Platform extends AbstractPlatform
             Deprecation::trigger(
                 'doctrine/dbal',
                 'https://github.com/doctrine/dbal/issues/3263',
-                'Relying on the default binary column length on IBM DB2 is deprecated'
-                . ', specify the length explicitly.',
+                'Relying on the default binary column length on Db2 is deprecated'
+                    . ', specify the length explicitly.',
             );
         }
 
@@ -1004,9 +1004,9 @@ class DB2Platform extends AbstractPlatform
     /**
      * {@inheritDoc}
      *
-     * DB2 supports savepoints, but they work semantically different than on other vendor platforms.
+     * Db2 supports savepoints, but they work semantically different than on other vendor platforms.
      *
-     * TODO: We have to investigate how to get DB2 up and running with savepoints.
+     * TODO: We have to investigate how to get Db2 up and running with savepoints.
      */
     public function supportsSavepoints()
     {

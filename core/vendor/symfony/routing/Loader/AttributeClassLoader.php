@@ -13,7 +13,7 @@ namespace Symfony\Component\Routing\Loader;
 
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Loader\LoaderResolverInterface;
-use Symfony\Component\Config\Resource\FileResource;
+use Symfony\Component\Config\Resource\ReflectionClassResource;
 use Symfony\Component\Routing\Attribute\DeprecatedAlias;
 use Symfony\Component\Routing\Attribute\Route as RouteAttribute;
 use Symfony\Component\Routing\Exception\InvalidArgumentException;
@@ -104,7 +104,7 @@ abstract class AttributeClassLoader implements LoaderInterface
 
         $globals = $this->getGlobals($class);
         $collection = new RouteCollection();
-        $collection->addResource(new FileResource($class->getFileName()));
+        $collection->addResource(new ReflectionClassResource($class));
         if ($globals['env'] && $this->env !== $globals['env']) {
             return $collection;
         }

@@ -1,0 +1,5 @@
+@ECHO OFF
+setlocal DISABLEDELAYEDEXPANSION
+SET BIN_TARGET=%~dp0/../evolutioncms/salo2/bin/salo
+SET COMPOSER_RUNTIME_BIN_DIR=%~dp0
+bash "%BIN_TARGET%" %*

@@ -16,21 +16,21 @@
       "name": "Dmytro Lukianenko",
       "email": "dmi3yy@gmail.com",
       "homepage": "https://dmi3yy.com",
-      "role": "Developer"
+      "role": "Core Developer"
     },
     {
       "name": "Serhii Korneliuk",
       "email": "info@seigerit.com",
       "homepage": "https://seigerit.com",
-      "role": "Developer"
+      "role": "Core Developer"
     }
   ],
   "require": {
-    "php": "^8.2",
+    "php": "^8.3",
     "composer/composer": "*",
     "dmitry-suffi/redis-session-handler": "*",
     "doctrine/dbal": "3.*",
-    "dragonmantank/cron-expression": "^3.3",
+    "dragonmantank/cron-expression": "^3.6",
     "evolutioncms-services/document-manager": "1.*",
     "evolutioncms-services/user-manager": "1.*",
     "evolutioncms/salo2": "*",
@@ -40,7 +40,7 @@
     "ext-libxml": "*",
     "ext-mbstring": "*",
     "ext-SimpleXML": "*",
-    "guzzlehttp/guzzle": "^7.0.1",
+    "guzzlehttp/guzzle": "^7.10",
     "illuminate/cache": "11.*",
     "illuminate/config": "11.*",
     "illuminate/console": "11.*",
@@ -61,15 +61,15 @@
     "league/flysystem": "^3",
     "lib-iconv": "*",
     "lib-libxml": "*",
-    "phpmailer/phpmailer": "6.*",
+    "phpmailer/phpmailer": "7.*",
     "phpoption/phpoption": "*",
     "predis/predis": "*",
     "rosell-dk/webp-convert": "*",
     "simplepie/simplepie": "1.*",
-    "symfony/process": "^7.0",
-    "tracy/tracy": "2.10.*",
-    "vlucas/phpdotenv": "^5.5",
-    "wikimedia/composer-merge-plugin": "2.1"
+    "symfony/process": "7.*",
+    "tracy/tracy": "2.*",
+    "vlucas/phpdotenv": "5.*",
+    "wikimedia/composer-merge-plugin": "2.*"
   },
   "require-dev": {
     "roave/security-advisories": "dev-master"
@@ -102,7 +102,7 @@
     "evolutioncms/evolution": "*"
   },
   "replace": {
-    "evolutioncms/evolution": "3.2.7"
+    "evolutioncms/evolution": "3.3.0"
   },
   "autoload": {
     "psr-4": {

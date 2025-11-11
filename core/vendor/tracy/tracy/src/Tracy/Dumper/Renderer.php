@@ -10,6 +10,8 @@ declare(strict_types=1);
 namespace Tracy\Dumper;
 
 use Tracy\Helpers;
+use function count, htmlspecialchars, ini_set, is_array, is_bool, is_float, is_int, is_object, is_string, json_encode, str_repeat, str_replace, strlen, strrpos, substr, substr_count;
+use const JSON_HEX_AMP, JSON_HEX_APOS, JSON_UNESCAPED_SLASHES, JSON_UNESCAPED_UNICODE;
 
 
 /**
@@ -252,7 +254,7 @@ final class Renderer
 
 		$out = $span . '>' . $out . "</span>\n" . '<div' . ($collapsed ? ' class="tracy-collapsed"' : '') . '>';
 		$indent = '<span class="tracy-dump-indent">   ' . str_repeat('|  ', $depth) . '</span>';
-		$this->parents[$array->id ?? null] = $this->above[$array->id ?? null] = true;
+		$this->parents[$array->id ?? ''] = $this->above[$array->id ?? ''] = true;
 
 		foreach ($items as $info) {
 			[$k, $v, $ref] = $info + [2 => null];
@@ -268,7 +270,7 @@ final class Renderer
 			$out .= $indent . "…\n";
 		}
 
-		unset($this->parents[$array->id ?? null]);
+		unset($this->parents[$array->id ?? '']);
 		return $out . '</div>';
 	}
 
@@ -329,7 +331,7 @@ final class Renderer
 
 		$out = $span . '>' . $out . "</span>\n" . '<div' . ($collapsed ? ' class="tracy-collapsed"' : '') . '>';
 		$indent = '<span class="tracy-dump-indent">   ' . str_repeat('|  ', $depth) . '</span>';
-		$this->parents[$object->id] = $this->above[$object->id] = true;
+		$this->parents[$object->id ?? ''] = $this->above[$object->id ?? ''] = true;
 
 		foreach ($object->items as $info) {
 			[$k, $v, $type, $ref] = $info + [2 => Value::PropertyVirtual, null];
@@ -345,7 +347,7 @@ final class Renderer
 			$out .= $indent . "…\n";
 		}
 
-		unset($this->parents[$object->id]);
+		unset($this->parents[$object->id ?? '']);
 		return $out . '</div>';
 	}
 

@@ -9,6 +9,9 @@ declare(strict_types=1);
 
 namespace Tracy;
 
+use function in_array, is_string;
+use const DIRECTORY_SEPARATOR, FILE_APPEND, LOCK_EX, PHP_EOL;
+
 
 /**
  * Logger.
@@ -127,7 +130,7 @@ class Logger implements ILogger
 			];
 		}
 
-		$hash = substr(md5(serialize($data)), 0, 10);
+		$hash = substr(hash('xxh128', serialize($data)), 0, 10);
 		$dir = strtr($this->directory . '/', '\/', DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR);
 		foreach (new \DirectoryIterator($this->directory) as $file) {
 			if (strpos($file->getBasename(), $hash)) {

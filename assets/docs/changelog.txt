@@ -1,6 +1,18 @@
 This file shows the changes in recent releases of Evolution CMS. The most current release is usually the
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
+Evolution CMS 3.3.0 (Nov 07, 2025)
+* !!! Notice: minimum PHP version 8.3. !!!
+* [GitHub: 74dd478] - Add Priority registration Service Providers. (Seiger)
+* [GitHub: 8400156] - Add niceEta - Format ETA seconds into human-readable format. (Seiger)
+* [GitHub: 7858c0a] - Add Multiply Tailwind css files compile. (Seiger)
+* [GitHub: f2355a6] - Fix missing value from config. (elcreator)
+* [GitHub: d6ecb76] - Fix Ignore suffix is Manager Middleware. (Seiger)
+* [GitHub: bfef7e7] - Fix Mark nicesize() as deprecated, use niceSize() via ISO standard. (Seiger)
+* [GitHub: b3a71f2] - Fix Refactor MODX_CLASS to EVO_CLASS. (Seiger)
+* [GitHub: af8c774] - Fix Support PHP 8.4. (Seiger)
+* [GitHub: 0899f09] - Fix Logo images. (Dmi3yy)
+
 Evolution CMS 3.2.7 (Aug 4, 2025)
 * [GitHub: 10ad67b] - Add Core up to Laravel 11. (Seiger)
 * [GitHub: d746b49] - Add Specified Evolution CMS version via platform-packages to check module compatibility. (Seiger)

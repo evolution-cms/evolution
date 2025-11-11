@@ -13,7 +13,7 @@ namespace Symfony\Component\Routing\Loader;
 
 use Symfony\Component\Config\FileLocatorInterface;
 use Symfony\Component\Config\Loader\FileLoader;
-use Symfony\Component\Config\Resource\FileResource;
+use Symfony\Component\Config\Resource\ReflectionClassResource;
 use Symfony\Component\Routing\RouteCollection;
 
 /**
@@ -52,7 +52,7 @@ class AttributeFileLoader extends FileLoader
                 return null;
             }
 
-            $collection->addResource(new FileResource($path));
+            $collection->addResource(new ReflectionClassResource($refl));
             $collection->addCollection($this->loader->load($class, $type));
         }
 

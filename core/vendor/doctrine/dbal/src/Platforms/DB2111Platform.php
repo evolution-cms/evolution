@@ -7,9 +7,9 @@ use Doctrine\DBAL\Exception;
 use function sprintf;
 
 /**
- * Provides the behavior, features and SQL dialect of the IBM DB2 11.1 (11.1 GA) database platform.
+ * Provides the behavior, features and SQL dialect of the Db2 11.1 (11.1 GA) database platform.
  *
- * @deprecated This class will be merged with {@see DB2Platform} in 4.0 because support for IBM DB2
+ * @deprecated This class will be merged with {@see DB2Platform} in 4.0 because support for Db2
  *             releases prior to 11.1 will be dropped.
  *
  * @see https://www.ibm.com/docs/en/db2/11.1?topic=database-whats-new-db2-version-111-ga

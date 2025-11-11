@@ -21,7 +21,7 @@ class DownCommand extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
     public function handle()
     {

@@ -9,6 +9,9 @@ declare(strict_types=1);
 
 namespace Tracy;
 
+use function in_array, strlen;
+use const ARRAY_FILTER_USE_KEY, ENT_IGNORE;
+
 
 /**
  * Red BlueScreen.
@@ -131,7 +134,10 @@ class BlueScreen
 	{
 		if ($handle = @fopen($file, 'x')) {
 			ob_start(); // double buffer prevents sending HTTP headers in some PHP
-			ob_start(function ($buffer) use ($handle): void { fwrite($handle, $buffer); }, 4096);
+			ob_start(function ($buffer) use ($handle) {
+				fwrite($handle, $buffer);
+				return '';
+			}, 4096);
 			$this->renderTemplate($exception, __DIR__ . '/assets/page.phtml', toScreen: false);
 			ob_end_flush();
 			ob_end_clean();
@@ -483,7 +489,12 @@ class BlueScreen
 		$add = function ($obj) use (&$generators, &$fibers) {
 			if ($obj instanceof \Generator) {
 				try {
-					new \ReflectionGenerator($obj);
+					$ref = new \ReflectionGenerator($obj);
+					// Before PHP 8.4 the ReflectionGenerator cannot be constructed from closed generator.
+					// Since PHP 8.4 it can, but getTrace throws ReflectionException.
+					if (PHP_VERSION_ID >= 80400 && $ref->isClosed()) {
+						return;
+					}
 					$generators[spl_object_id($obj)] = $obj;
 				} catch (\ReflectionException) {
 				}
