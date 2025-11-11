@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.6.1] - 2025-11-07
+### Changed
+- Rename master to main ([#848](https://github.com/jsonrainbow/json-schema/pull/848))
+### Fixed
+- Don't skip ref expanding for property called enum when child of property called properties ([#851](https://github.com/jsonrainbow/json-schema/pull/851))
+
 ## [6.6.0] - 2025-10-10
 ### Added
 - Add lint check for class autoloading PSR compliance ([#845](https://github.com/jsonrainbow/json-schema/pull/845))

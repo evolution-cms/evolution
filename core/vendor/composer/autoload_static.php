@@ -18,17 +18,18 @@ class ComposerStaticInitfacb702495127c53b6aa7bcb6294d866
         '72579e7bd17821bb1321b87411366eae' => __DIR__ . '/..' . '/illuminate/support/helpers.php',
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         'e69f7f6ee287b969198c3c9d6777bd38' => __DIR__ . '/..' . '/symfony/polyfill-intl-normalizer/bootstrap.php',
+        '06a34129a50df3d9257ee706cf3c875b' => __DIR__ . '/..' . '/illuminate/filesystem/functions.php',
         '8825ede83f2f289127722d4e842cf7e8' => __DIR__ . '/..' . '/symfony/polyfill-intl-grapheme/bootstrap.php',
         'b6b991a57620e2fb6b2f66f03fe9ddc2' => __DIR__ . '/..' . '/symfony/string/Resources/functions.php',
-        '06a34129a50df3d9257ee706cf3c875b' => __DIR__ . '/..' . '/illuminate/filesystem/functions.php',
         'f598d06aa772fa33d905e87be6398fb1' => __DIR__ . '/..' . '/symfony/polyfill-intl-idn/bootstrap.php',
+        'ef65a1626449d89d0811cf9befce46f0' => __DIR__ . '/..' . '/illuminate/events/functions.php',
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
         '667aeda72477189d0494fecd327c3641' => __DIR__ . '/..' . '/symfony/var-dumper/Resources/functions/dump.php',
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
-        'ef65a1626449d89d0811cf9befce46f0' => __DIR__ . '/..' . '/illuminate/events/functions.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         '47e1160838b5e5a10346ac4084b58c23' => __DIR__ . '/..' . '/laravel/prompts/src/helpers.php',
         '35a6ad97d21e794e7e22a17d806652e4' => __DIR__ . '/..' . '/nunomaduro/termwind/src/Functions.php',
+        '29ffe97919493792170d47eb03a68da9' => __DIR__ . '/..' . '/blade-ui-kit/blade-icons/src/helpers.php',
         'ad155f8f1cf0d418fe49e248db8c661b' => __DIR__ . '/..' . '/react/promise/src/functions_include.php',
         '0d59ee240a4cd96ddbb4ff164fccea4d' => __DIR__ . '/..' . '/symfony/polyfill-php73/bootstrap.php',
         '23c18046f52bef3eea034657bafda50f' => __DIR__ . '/..' . '/symfony/polyfill-php81/bootstrap.php',
@@ -57,6 +58,7 @@ class ComposerStaticInitfacb702495127c53b6aa7bcb6294d866
         's' => 
         array (
             'suffi\\RedisSessionHandler\\' => 26,
+            'secondnetwork\\TablerIcons\\' => 26,
         ),
         'W' => 
         array (
@@ -211,6 +213,7 @@ class ComposerStaticInitfacb702495127c53b6aa7bcb6294d866
         'B' => 
         array (
             'Brick\\Math\\' => 11,
+            'BladeUI\\Icons\\' => 14,
         ),
     );
 
@@ -222,6 +225,10 @@ class ComposerStaticInitfacb702495127c53b6aa7bcb6294d866
         'suffi\\RedisSessionHandler\\' => 
         array (
             0 => __DIR__ . '/..' . '/dmitry-suffi/redis-session-handler/src',
+        ),
+        'secondnetwork\\TablerIcons\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/secondnetwork/blade-tabler-icons/src',
         ),
         'Wikimedia\\Composer\\Merge\\V2\\' => 
         array (
@@ -663,6 +670,10 @@ class ComposerStaticInitfacb702495127c53b6aa7bcb6294d866
         array (
             0 => __DIR__ . '/..' . '/brick/math/src',
         ),
+        'BladeUI\\Icons\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/blade-ui-kit/blade-icons/src',
+        ),
     );
 
     public static $prefixesPsr0 = array (
@@ -677,6 +688,18 @@ class ComposerStaticInitfacb702495127c53b6aa7bcb6294d866
 
     public static $classMap = array (
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
+        'BladeUI\\Icons\\BladeIconsServiceProvider' => __DIR__ . '/..' . '/blade-ui-kit/blade-icons/src/BladeIconsServiceProvider.php',
+        'BladeUI\\Icons\\Components\\Icon' => __DIR__ . '/..' . '/blade-ui-kit/blade-icons/src/Components/Icon.php',
+        'BladeUI\\Icons\\Components\\Svg' => __DIR__ . '/..' . '/blade-ui-kit/blade-icons/src/Components/Svg.php',
+        'BladeUI\\Icons\\Concerns\\RendersAttributes' => __DIR__ . '/..' . '/blade-ui-kit/blade-icons/src/Concerns/RendersAttributes.php',
+        'BladeUI\\Icons\\Console\\CacheCommand' => __DIR__ . '/..' . '/blade-ui-kit/blade-icons/src/Console/CacheCommand.php',
+        'BladeUI\\Icons\\Console\\ClearCommand' => __DIR__ . '/..' . '/blade-ui-kit/blade-icons/src/Console/ClearCommand.php',
+        'BladeUI\\Icons\\Exceptions\\CannotRegisterIconSet' => __DIR__ . '/..' . '/blade-ui-kit/blade-icons/src/Exceptions/CannotRegisterIconSet.php',
+        'BladeUI\\Icons\\Exceptions\\SvgNotFound' => __DIR__ . '/..' . '/blade-ui-kit/blade-icons/src/Exceptions/SvgNotFound.php',
+        'BladeUI\\Icons\\Factory' => __DIR__ . '/..' . '/blade-ui-kit/blade-icons/src/Factory.php',
+        'BladeUI\\Icons\\Generation\\IconGenerator' => __DIR__ . '/..' . '/blade-ui-kit/blade-icons/src/Generation/IconGenerator.php',
+        'BladeUI\\Icons\\IconsManifest' => __DIR__ . '/..' . '/blade-ui-kit/blade-icons/src/IconsManifest.php',
+        'BladeUI\\Icons\\Svg' => __DIR__ . '/..' . '/blade-ui-kit/blade-icons/src/Svg.php',
         'Brick\\Math\\BigDecimal' => __DIR__ . '/..' . '/brick/math/src/BigDecimal.php',
         'Brick\\Math\\BigInteger' => __DIR__ . '/..' . '/brick/math/src/BigInteger.php',
         'Brick\\Math\\BigNumber' => __DIR__ . '/..' . '/brick/math/src/BigNumber.php',
@@ -1833,6 +1856,7 @@ class ComposerStaticInitfacb702495127c53b6aa7bcb6294d866
         'EvolutionCMS\\ProviderRepository' => __DIR__ . '/../..' . '/src/ProviderRepository.php',
         'EvolutionCMS\\Providers\\ArtisanServiceProvider' => __DIR__ . '/../..' . '/src/Providers/ArtisanServiceProvider.php',
         'EvolutionCMS\\Providers\\AuthServiceProvider' => __DIR__ . '/../..' . '/src/Providers/AuthServiceProvider.php',
+        'EvolutionCMS\\Providers\\BladeIconsAdapterServiceProvider' => __DIR__ . '/../..' . '/src/Providers/BladeIconsAdapterServiceProvider.php',
         'EvolutionCMS\\Providers\\BladeServiceProvider' => __DIR__ . '/../..' . '/src/Providers/BladeServiceProvider.php',
         'EvolutionCMS\\Providers\\ComposerServiceProvider' => __DIR__ . '/../..' . '/src/Providers/ComposerServiceProvider.php',
         'EvolutionCMS\\Providers\\ConfigServiceProvider' => __DIR__ . '/../..' . '/src/Providers/ConfigServiceProvider.php',
@@ -5042,6 +5066,7 @@ class ComposerStaticInitfacb702495127c53b6aa7bcb6294d866
         'Wikimedia\\Composer\\Merge\\V2\\NestedArray' => __DIR__ . '/..' . '/wikimedia/composer-merge-plugin/src/NestedArray.php',
         'Wikimedia\\Composer\\Merge\\V2\\PluginState' => __DIR__ . '/..' . '/wikimedia/composer-merge-plugin/src/PluginState.php',
         'Wikimedia\\Composer\\Merge\\V2\\StabilityFlags' => __DIR__ . '/..' . '/wikimedia/composer-merge-plugin/src/StabilityFlags.php',
+        'secondnetwork\\TablerIcons\\BladeTablerIconsServiceProvider' => __DIR__ . '/..' . '/secondnetwork/blade-tabler-icons/src/BladeTablerIconsServiceProvider.php',
         'suffi\\RedisSessionHandler\\RedisSessionHandler' => __DIR__ . '/..' . '/dmitry-suffi/redis-session-handler/src/RedisSessionHandler.php',
         'voku\\helper\\ASCII' => __DIR__ . '/..' . '/voku/portable-ascii/src/voku/helper/ASCII.php',
     );
