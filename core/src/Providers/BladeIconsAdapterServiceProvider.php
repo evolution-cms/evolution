@@ -31,7 +31,7 @@ class BladeIconsAdapterServiceProvider extends ServiceProvider
 
     private function registerConfig(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/../../vendor/blade-ui-kit/blade-icons/config/blade-icons.php', 'blade-icons');
+        $this->mergeConfigFrom(__DIR__ . '/../../../core/config/blade-icons.php', 'blade-icons');
     }
 
     private function registerFactory(): void
@@ -85,7 +85,7 @@ class BladeIconsAdapterServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__ . '/../../vendor/blade-ui-kit/blade-icons/config/blade-icons.php' => $this->app->configPath('blade-icons.php'),
+                __DIR__ . '/../../../core/config/blade-icons.php' => $this->app->configPath('blade-icons.php'),
             ], 'blade-icons-config');
         }
     }
