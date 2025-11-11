@@ -8,6 +8,7 @@ $baseDir = dirname($vendorDir);
 return array(
     'voku\\' => array($vendorDir . '/voku/portable-ascii/src/voku'),
     'suffi\\RedisSessionHandler\\' => array($vendorDir . '/dmitry-suffi/redis-session-handler/src'),
+    'secondnetwork\\TablerIcons\\' => array($vendorDir . '/secondnetwork/blade-tabler-icons/src'),
     'Wikimedia\\Composer\\Merge\\V2\\' => array($vendorDir . '/wikimedia/composer-merge-plugin/src'),
     'WebPConvert\\' => array($vendorDir . '/rosell-dk/webp-convert/src'),
     'Tracy\\' => array($vendorDir . '/tracy/tracy/src'),
@@ -117,4 +118,5 @@ return array(
     'Carbon\\Doctrine\\' => array($vendorDir . '/carbonphp/carbon-doctrine-types/src/Carbon/Doctrine'),
     'Carbon\\' => array($vendorDir . '/nesbot/carbon/src/Carbon'),
     'Brick\\Math\\' => array($vendorDir . '/brick/math/src'),
+    'BladeUI\\Icons\\' => array($vendorDir . '/blade-ui-kit/blade-icons/src'),
 );

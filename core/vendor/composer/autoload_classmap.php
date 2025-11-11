@@ -7,6 +7,18 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Attribute' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
+    'BladeUI\\Icons\\BladeIconsServiceProvider' => $vendorDir . '/blade-ui-kit/blade-icons/src/BladeIconsServiceProvider.php',
+    'BladeUI\\Icons\\Components\\Icon' => $vendorDir . '/blade-ui-kit/blade-icons/src/Components/Icon.php',
+    'BladeUI\\Icons\\Components\\Svg' => $vendorDir . '/blade-ui-kit/blade-icons/src/Components/Svg.php',
+    'BladeUI\\Icons\\Concerns\\RendersAttributes' => $vendorDir . '/blade-ui-kit/blade-icons/src/Concerns/RendersAttributes.php',
+    'BladeUI\\Icons\\Console\\CacheCommand' => $vendorDir . '/blade-ui-kit/blade-icons/src/Console/CacheCommand.php',
+    'BladeUI\\Icons\\Console\\ClearCommand' => $vendorDir . '/blade-ui-kit/blade-icons/src/Console/ClearCommand.php',
+    'BladeUI\\Icons\\Exceptions\\CannotRegisterIconSet' => $vendorDir . '/blade-ui-kit/blade-icons/src/Exceptions/CannotRegisterIconSet.php',
+    'BladeUI\\Icons\\Exceptions\\SvgNotFound' => $vendorDir . '/blade-ui-kit/blade-icons/src/Exceptions/SvgNotFound.php',
+    'BladeUI\\Icons\\Factory' => $vendorDir . '/blade-ui-kit/blade-icons/src/Factory.php',
+    'BladeUI\\Icons\\Generation\\IconGenerator' => $vendorDir . '/blade-ui-kit/blade-icons/src/Generation/IconGenerator.php',
+    'BladeUI\\Icons\\IconsManifest' => $vendorDir . '/blade-ui-kit/blade-icons/src/IconsManifest.php',
+    'BladeUI\\Icons\\Svg' => $vendorDir . '/blade-ui-kit/blade-icons/src/Svg.php',
     'Brick\\Math\\BigDecimal' => $vendorDir . '/brick/math/src/BigDecimal.php',
     'Brick\\Math\\BigInteger' => $vendorDir . '/brick/math/src/BigInteger.php',
     'Brick\\Math\\BigNumber' => $vendorDir . '/brick/math/src/BigNumber.php',
@@ -4372,6 +4384,7 @@ return array(
     'Wikimedia\\Composer\\Merge\\V2\\NestedArray' => $vendorDir . '/wikimedia/composer-merge-plugin/src/NestedArray.php',
     'Wikimedia\\Composer\\Merge\\V2\\PluginState' => $vendorDir . '/wikimedia/composer-merge-plugin/src/PluginState.php',
     'Wikimedia\\Composer\\Merge\\V2\\StabilityFlags' => $vendorDir . '/wikimedia/composer-merge-plugin/src/StabilityFlags.php',
+    'secondnetwork\\TablerIcons\\BladeTablerIconsServiceProvider' => $vendorDir . '/secondnetwork/blade-tabler-icons/src/BladeTablerIconsServiceProvider.php',
     'suffi\\RedisSessionHandler\\RedisSessionHandler' => $vendorDir . '/dmitry-suffi/redis-session-handler/src/RedisSessionHandler.php',
     'voku\\helper\\ASCII' => $vendorDir . '/voku/portable-ascii/src/voku/helper/ASCII.php',
 );
