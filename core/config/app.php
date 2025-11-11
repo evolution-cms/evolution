@@ -70,7 +70,9 @@
         'Fix_Phx' => EvolutionCMS\Providers\PhxServiceProvider::class,
         'Fix_ModResource' => EvolutionCMS\Providers\ModResourceServiceProvider::class,
         'Fix_ModUsers' => EvolutionCMS\Providers\ModUsersServiceProvider::class,
-        'Fix_Fs' => EvolutionCMS\Providers\FsServiceProvider::class
+        'Fix_Fs' => EvolutionCMS\Providers\FsServiceProvider::class,
+        'Blade_Icons' => EvolutionCMS\Providers\BladeIconsAdapterServiceProvider::class,
+        'Blade_Tabler' => secondnetwork\TablerIcons\BladeTablerIconsServiceProvider::class,
     ],
 
     'aliases' => [
