@@ -63,9 +63,6 @@ https://forum.evo.im
 Download:
 https://github.com/evolution-cms/evolution/releases
 
-Previous Releases:
-https://modx.com/download/evolution/previous-releases.html
-
 Extras / Add-ons:
 https://extras.evo.im
 

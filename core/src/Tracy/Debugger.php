@@ -4,7 +4,7 @@ use Tracy\Debugger as BaseDebugger;
 
 class Debugger extends BaseDebugger
 {
-    public static function enable($mode = null, string $logDirectory = null, $email = null): void
+    public static function enable($mode = null, string|null $logDirectory = null, $email = null): void
     {
         parent::enable($mode, $logDirectory, $email);
 
