@@ -1693,7 +1693,7 @@ class SqlFormatter
      * @param \PDO $pdo
      * @return string
      */
-    public static function prepare($sql, array $bindings = [], PDO $pdo = null)
+    public static function prepare($sql, array $bindings = [], PDO|null $pdo = null)
     {
         // insert new lines
         $sql = " $sql ";
