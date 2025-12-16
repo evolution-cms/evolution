@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 class RedisStore extends TaggableStore implements LockProvider
 {
     use RetrievesMultipleKeys {
+        many as private manyAlias;
         putMany as private putManyAlias;
     }
 
@@ -51,7 +52,6 @@ class RedisStore extends TaggableStore implements LockProvider
      * @param  \Illuminate\Contracts\Redis\Factory  $redis
      * @param  string  $prefix
      * @param  string  $connection
-     * @return void
      */
     public function __construct(Redis $redis, $prefix = '', $connection = 'default')
     {
@@ -92,6 +92,11 @@ class RedisStore extends TaggableStore implements LockProvider
         $results = [];
 
         $connection = $this->connection();
+
+        // PredisClusterConnection does not support reading multiple values if the keys hash differently...
+        if ($connection instanceof PredisClusterConnection) {
+            return $this->manyAlias($keys);
+        }
 
         $values = $connection->mget(array_map(function ($key) {
             return $this->prefix.$key;
@@ -141,7 +146,7 @@ class RedisStore extends TaggableStore implements LockProvider
         $serializedValues = [];
 
         foreach ($values as $key => $value) {
-            $serializedValues[$this->prefix.$key] = $this->serialize($value);
+            $serializedValues[$this->prefix.$key] = $this->connectionAwareSerialize($value, $connection);
         }
 
         $connection->multi();
@@ -287,7 +292,7 @@ class RedisStore extends TaggableStore implements LockProvider
     /**
      * Begin executing a new tags operation.
      *
-     * @param  array|mixed  $names
+     * @param  mixed  $names
      * @return \Illuminate\Cache\RedisTaggedCache
      */
     public function tags($names)
@@ -325,10 +330,16 @@ class RedisStore extends TaggableStore implements LockProvider
             $cursor = $defaultCursorValue;
 
             do {
-                [$cursor, $tagsChunk] = $connection->scan(
+                $scanResult = $connection->scan(
                     $cursor,
                     ['match' => $prefix.'tag:*:entries', 'count' => $chunkSize]
                 );
+
+                if (! is_array($scanResult)) {
+                    break;
+                }
+
+                [$cursor, $tagsChunk] = $scanResult;
 
                 if (! is_array($tagsChunk)) {
                     break;
@@ -463,7 +474,7 @@ class RedisStore extends TaggableStore implements LockProvider
      */
     protected function shouldBeStoredWithoutSerialization($value): bool
     {
-        return is_numeric($value) && ! in_array($value, [INF, -INF]) && ! is_nan($value);
+        return is_numeric($value) && is_finite($value);
     }
 
     /**

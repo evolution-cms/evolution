@@ -12,8 +12,12 @@
 
 namespace Predis\Command\Redis;
 
-use Predis\Command\Command as RedisCommand;
+use Predis\Command\PrefixableCommand as RedisCommand;
 
+/**
+ * @deprecated Public API will be changed in the next major version.
+ * XREADGROUP_CLAIM API will be used instead.
+ */
 class XREADGROUP extends RedisCommand
 {
     public function getId()
@@ -41,5 +45,35 @@ class XREADGROUP extends RedisCommand
         $keyOrIds = array_slice($arguments, 5);
 
         parent::setArguments(array_merge($processedArguments, $keyOrIds));
+    }
+
+    public function parseResponse($data)
+    {
+        if (!is_array($data) || $data === array_values($data)) {
+            return $data;
+        }
+
+        // Relay
+        $result = [];
+        foreach ($data as $key => $value) {
+            $group = [$key, $value];
+            $result[] = $group;
+        }
+
+        return $result;
+    }
+
+    public function prefixKeys($prefix)
+    {
+        $arguments = $this->getArguments();
+        $keyIdsStartingIndex = array_search('STREAMS', $arguments) + 1;
+        $keysAndIdsCount = count($arguments) - $keyIdsStartingIndex;
+        $keysCount = $keysAndIdsCount / 2;
+
+        for ($i = $keyIdsStartingIndex; $i < $keyIdsStartingIndex + $keysCount; $i++) {
+            $arguments[$i] = $prefix . $arguments[$i];
+        }
+
+        parent::setRawArguments($arguments);
     }
 }

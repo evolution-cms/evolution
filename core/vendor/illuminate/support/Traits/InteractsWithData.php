@@ -8,12 +8,14 @@ use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
 use stdClass;
 
+use function Illuminate\Support\enum_value;
+
 trait InteractsWithData
 {
     /**
      * Retrieve all data from the instance.
      *
-     * @param  array|mixed|null  $keys
+     * @param  mixed  $keys
      * @return array
      */
     abstract public function all($keys = null);
@@ -267,7 +269,7 @@ trait InteractsWithData
      */
     public function integer($key, $default = 0)
     {
-        return intval($this->data($key, $default));
+        return (int) $this->data($key, $default);
     }
 
     /**
@@ -279,7 +281,7 @@ trait InteractsWithData
      */
     public function float($key, $default = 0.0)
     {
-        return floatval($this->data($key, $default));
+        return (float) $this->data($key, $default);
     }
 
     /**
@@ -287,13 +289,15 @@ trait InteractsWithData
      *
      * @param  string  $key
      * @param  string|null  $format
-     * @param  string|null  $tz
+     * @param  \UnitEnum|string|null  $tz
      * @return \Illuminate\Support\Carbon|null
      *
      * @throws \Carbon\Exceptions\InvalidFormatException
      */
     public function date($key, $format = null, $tz = null)
     {
+        $tz = enum_value($tz);
+
         if ($this->isNotFilled($key)) {
             return null;
         }
@@ -312,15 +316,16 @@ trait InteractsWithData
      *
      * @param  string  $key
      * @param  class-string<TEnum>  $enumClass
+     * @param  TEnum|null  $default
      * @return TEnum|null
      */
-    public function enum($key, $enumClass)
+    public function enum($key, $enumClass, $default = null)
     {
         if ($this->isNotFilled($key) || ! $this->isBackedEnum($enumClass)) {
-            return null;
+            return value($default);
         }
 
-        return $enumClass::tryFrom($this->data($key));
+        return $enumClass::tryFrom($this->data($key)) ?: value($default);
     }
 
     /**
@@ -338,9 +343,10 @@ trait InteractsWithData
             return [];
         }
 
-        return $this->collect($key)->map(function ($value) use ($enumClass) {
-            return $enumClass::tryFrom($value);
-        })->filter()->all();
+        return $this->collect($key)
+            ->map(fn ($value) => $enumClass::tryFrom($value))
+            ->filter()
+            ->all();
     }
 
     /**
@@ -379,7 +385,7 @@ trait InteractsWithData
     /**
      * Get a subset containing the provided keys with values from the instance data.
      *
-     * @param  array|mixed  $keys
+     * @param  mixed  $keys
      * @return array
      */
     public function only($keys)
@@ -404,7 +410,7 @@ trait InteractsWithData
     /**
      * Get all of the data except for a specified array of items.
      *
-     * @param  array|mixed  $keys
+     * @param  mixed  $keys
      * @return array
      */
     public function except($keys)
