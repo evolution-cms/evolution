@@ -211,19 +211,8 @@
         'evolutioncms/evolution' => array(
             'dev_requirement' => false,
             'replaced' => array(
-                0 => '3.5.0',
+                0 => '3.3.0',
             ),
-        ),
-        'evolutioncms/salo2' => array(
-            'pretty_version' => 'dev-master',
-            'version' => 'dev-master',
-            'reference' => '91b06c16957359947892a18352c97c104c333f54',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../evolutioncms/salo2',
-            'aliases' => array(
-                0 => '1.x-dev',
-            ),
-            'dev_requirement' => false,
         ),
         'fruitcake/php-cors' => array(
             'pretty_version' => 'v1.4.0',

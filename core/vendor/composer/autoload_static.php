@@ -25,14 +25,14 @@ class ComposerStaticInitfacb702495127c53b6aa7bcb6294d866
         '8825ede83f2f289127722d4e842cf7e8' => __DIR__ . '/..' . '/symfony/polyfill-intl-grapheme/bootstrap.php',
         'b6b991a57620e2fb6b2f66f03fe9ddc2' => __DIR__ . '/..' . '/symfony/string/Resources/functions.php',
         'f598d06aa772fa33d905e87be6398fb1' => __DIR__ . '/..' . '/symfony/polyfill-intl-idn/bootstrap.php',
-        'ef65a1626449d89d0811cf9befce46f0' => __DIR__ . '/..' . '/illuminate/events/functions.php',
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
         '667aeda72477189d0494fecd327c3641' => __DIR__ . '/..' . '/symfony/var-dumper/Resources/functions/dump.php',
+        'ef65a1626449d89d0811cf9befce46f0' => __DIR__ . '/..' . '/illuminate/events/functions.php',
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
+        '29ffe97919493792170d47eb03a68da9' => __DIR__ . '/..' . '/blade-ui-kit/blade-icons/src/helpers.php',
         '47e1160838b5e5a10346ac4084b58c23' => __DIR__ . '/..' . '/laravel/prompts/src/helpers.php',
         '35a6ad97d21e794e7e22a17d806652e4' => __DIR__ . '/..' . '/nunomaduro/termwind/src/Functions.php',
-        '29ffe97919493792170d47eb03a68da9' => __DIR__ . '/..' . '/blade-ui-kit/blade-icons/src/helpers.php',
         'ad155f8f1cf0d418fe49e248db8c661b' => __DIR__ . '/..' . '/react/promise/src/functions_include.php',
         '0d59ee240a4cd96ddbb4ff164fccea4d' => __DIR__ . '/..' . '/symfony/polyfill-php73/bootstrap.php',
         '23c18046f52bef3eea034657bafda50f' => __DIR__ . '/..' . '/symfony/polyfill-php81/bootstrap.php',
@@ -186,7 +186,6 @@ class ComposerStaticInitfacb702495127c53b6aa7bcb6294d866
         array (
             'ExecWithFallback\\' => 17,
             'EvolutionCMS\\UserManager\\' => 25,
-            'EvolutionCMS\\Salo\\' => 18,
             'EvolutionCMS\\DocumentManager\\' => 29,
             'EvolutionCMS\\' => 13,
             'Egulias\\EmailValidator\\' => 23,
@@ -591,10 +590,6 @@ class ComposerStaticInitfacb702495127c53b6aa7bcb6294d866
         'EvolutionCMS\\UserManager\\' => 
         array (
             0 => __DIR__ . '/..' . '/evolutioncms-services/user-manager/src',
-        ),
-        'EvolutionCMS\\Salo\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/evolutioncms/salo2/src',
         ),
         'EvolutionCMS\\DocumentManager\\' => 
         array (
@@ -1909,12 +1904,6 @@ class ComposerStaticInitfacb702495127c53b6aa7bcb6294d866
         'EvolutionCMS\\Providers\\TemplateProcessorServiceProvider' => __DIR__ . '/../..' . '/src/Providers/TemplateProcessorServiceProvider.php',
         'EvolutionCMS\\Providers\\TracyServiceProvider' => __DIR__ . '/../..' . '/src/Providers/TracyServiceProvider.php',
         'EvolutionCMS\\Providers\\UrlProcessorServiceProvider' => __DIR__ . '/../..' . '/src/Providers/UrlProcessorServiceProvider.php',
-        'EvolutionCMS\\Salo\\Console\\BuildCommand' => __DIR__ . '/..' . '/evolutioncms/salo2/src/Console/BuildCommand.php',
-        'EvolutionCMS\\Salo\\Console\\DownCommand' => __DIR__ . '/..' . '/evolutioncms/salo2/src/Console/DownCommand.php',
-        'EvolutionCMS\\Salo\\Console\\InstallCommand' => __DIR__ . '/..' . '/evolutioncms/salo2/src/Console/InstallCommand.php',
-        'EvolutionCMS\\Salo\\Console\\PublishCommand' => __DIR__ . '/..' . '/evolutioncms/salo2/src/Console/PublishCommand.php',
-        'EvolutionCMS\\Salo\\Console\\UpCommand' => __DIR__ . '/..' . '/evolutioncms/salo2/src/Console/UpCommand.php',
-        'EvolutionCMS\\Salo\\SaloServiceProvider' => __DIR__ . '/..' . '/evolutioncms/salo2/src/SaloServiceProvider.php',
         'EvolutionCMS\\ServiceProvider' => __DIR__ . '/../..' . '/src/ServiceProvider.php',
         'EvolutionCMS\\Services\\AuthServices' => __DIR__ . '/../..' . '/src/Services/AuthServices.php',
         'EvolutionCMS\\Services\\ConfigService' => __DIR__ . '/../..' . '/src/Services/ConfigService.php',

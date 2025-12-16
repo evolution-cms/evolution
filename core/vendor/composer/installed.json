@@ -1558,63 +1558,6 @@
             "install-path": "../evolutioncms-services/user-manager"
         },
         {
-            "name": "evolutioncms/salo2",
-            "version": "dev-master",
-            "version_normalized": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/evolution-cms/salo2.git",
-                "reference": "91b06c16957359947892a18352c97c104c333f54"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/evolution-cms/salo2/zipball/91b06c16957359947892a18352c97c104c333f54",
-                "reference": "91b06c16957359947892a18352c97c104c333f54",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/console": "^10.0|^11.0|^12.0",
-                "illuminate/contracts": "^10.0|^11.0|^12.0",
-                "illuminate/support": "^10.0|^11.0|^12.0",
-                "php": "^7.3|^8.0"
-            },
-            "time": "2025-11-06T23:25:11+00:00",
-            "default-branch": true,
-            "bin": [
-                "bin/salo"
-            ],
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "EvolutionCMS\\Salo\\SaloServiceProvider"
-                    ]
-                },
-                "branch-alias": {
-                    "dev-master": "1.x-dev"
-                }
-            },
-            "installation-source": "dist",
-            "autoload": {
-                "psr-4": {
-                    "EvolutionCMS\\Salo\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Evocms Docker files for running a basic evo application.",
-            "keywords": [
-                "docker",
-                "evo"
-            ],
-            "support": {
-                "source": "https://github.com/evolution-cms/salo2/tree/master"
-            },
-            "install-path": "../evolutioncms/salo2"
-        },
-        {
             "name": "fruitcake/php-cors",
             "version": "v1.4.0",
             "version_normalized": "1.4.0.0",

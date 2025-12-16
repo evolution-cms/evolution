@@ -4,7 +4,7 @@
     "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
     "This file is @generated automatically"
   ],
-  "content-hash": "bbf6033f42d2175e43594094b6b3b8d5",
+  "content-hash": "d57b9ed317fedfc049958aedab4c99af",
   "packages": [
     {
       "name": "blade-ui-kit/blade-icons",
@@ -1499,60 +1499,6 @@
         "source": "https://github.com/evolution-cms/UserManager/tree/1.0.14"
       },
       "time": "2021-11-17T09:44:48+00:00"
-    },
-    {
-      "name": "evolutioncms/salo2",
-      "version": "dev-master",
-      "source": {
-        "type": "git",
-        "url": "https://github.com/evolution-cms/salo2.git",
-        "reference": "91b06c16957359947892a18352c97c104c333f54"
-      },
-      "dist": {
-        "type": "zip",
-        "url": "https://api.github.com/repos/evolution-cms/salo2/zipball/91b06c16957359947892a18352c97c104c333f54",
-        "reference": "91b06c16957359947892a18352c97c104c333f54",
-        "shasum": ""
-      },
-      "require": {
-        "illuminate/console": "^10.0|^11.0|^12.0",
-        "illuminate/contracts": "^10.0|^11.0|^12.0",
-        "illuminate/support": "^10.0|^11.0|^12.0",
-        "php": "^7.3|^8.0"
-      },
-      "default-branch": true,
-      "bin": [
-        "bin/salo"
-      ],
-      "type": "library",
-      "extra": {
-        "laravel": {
-          "providers": [
-            "EvolutionCMS\\Salo\\SaloServiceProvider"
-          ]
-        },
-        "branch-alias": {
-          "dev-master": "1.x-dev"
-        }
-      },
-      "autoload": {
-        "psr-4": {
-          "EvolutionCMS\\Salo\\": "src/"
-        }
-      },
-      "notification-url": "https://packagist.org/downloads/",
-      "license": [
-        "MIT"
-      ],
-      "description": "Evocms Docker files for running a basic evo application.",
-      "keywords": [
-        "docker",
-        "evo"
-      ],
-      "support": {
-        "source": "https://github.com/evolution-cms/salo2/tree/master"
-      },
-      "time": "2025-11-06T23:25:11+00:00"
     },
     {
       "name": "fruitcake/php-cors",

@@ -97,7 +97,6 @@ return array(
     'FileUtil\\' => array($vendorDir . '/rosell-dk/file-util/src'),
     'ExecWithFallback\\' => array($vendorDir . '/rosell-dk/exec-with-fallback/src'),
     'EvolutionCMS\\UserManager\\' => array($vendorDir . '/evolutioncms-services/user-manager/src'),
-    'EvolutionCMS\\Salo\\' => array($vendorDir . '/evolutioncms/salo2/src'),
     'EvolutionCMS\\DocumentManager\\' => array($vendorDir . '/evolutioncms-services/document-manager/src'),
     'EvolutionCMS\\' => array($baseDir . '/src'),
     'Egulias\\EmailValidator\\' => array($vendorDir . '/egulias/email-validator/src'),
