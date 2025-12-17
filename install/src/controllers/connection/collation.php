@@ -3,6 +3,7 @@ $method = strip_tags($_POST['method']);
 $host = strip_tags($_POST['host']);
 $uid = strip_tags($_POST['uid']);
 $pwd = strip_tags($_POST['pwd']);
+$database_name = isset($_POST['database_name']) ? strip_tags($_POST['database_name']) : '';
 
 try {
     $dbh = new PDO($method . ':host=' . $host, $uid, $pwd);
@@ -21,13 +22,33 @@ try {
             foreach ($dbh->query($sql) as $row) {
                 $_[$row[0]] = '';
             }
+
+            $database_actual_collation = '';
+            if (!empty($database_name)) {
+                try {
+                    $dbh_database = new PDO($method . ':host=' . $host . ';dbname=' . $database_name, $uid, $pwd);
+                    $result = $dbh_database->query("SHOW VARIABLES LIKE 'collation_database'");
+                    if ($result && $result->errorCode() == 0) {
+                        $data = $result->fetch();
+                        if ($data && isset($data['Value'])) {
+                            $database_actual_collation = $data['Value'];
+                            if (!isset($_[$database_actual_collation])) {
+                                $_[$database_actual_collation] = '';
+                            }
+                        }
+                    }
+                } catch (PDOException $e) {
+                    //
+                }
+            }
+
             $database_collation = isset($_POST['database_collation']) ? htmlentities($_POST['database_collation']) : '';
             $recommend_collation = $_lang['recommend_collation'];
 
             if (isset($_[$recommend_collation])) {
                 $_[$recommend_collation] = ' selected';
-            } elseif (isset($_['utf8mb4_general_ci'])) {
-                $_['utf8mb4_general_ci'] = ' selected';
+            } elseif (!empty($database_actual_collation) && isset($_[$database_actual_collation])) {
+                $_[$database_actual_collation] = ' selected';
             } elseif (isset($_['utf8mb4_general_ci'])) {
                 $_['utf8mb4_general_ci'] = ' selected';
             } elseif (!empty($database_collation) && isset($_[$database_collation])) {

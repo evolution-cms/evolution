@@ -40,12 +40,24 @@ try {
             }
             break;
         case 'mysql':
-            $result = $dbh->query("show variables like 'collation_database'");
+            $result = $dbh->query("SHOW VARIABLES LIKE 'collation_database'");
             if ($result->errorCode() == 0) {
                 $data = $result->fetch();
-                if ($data['Value'] != $database_collation) {
-                    echo $output . '<span id="database_fail">' . sprintf($_lang['status_failed_database_collation_does_not_match'], $data['1']) . '</span>';
-                    exit();
+                $database_actual_collation = $data['Value'];
+
+                $collation_check = $dbh->query("SHOW COLLATION WHERE Collation = " . $dbh->quote($database_collation));
+                $collation_available = false;
+                if ($collation_check && $collation_check->rowCount() > 0) {
+                    $collation_available = true;
+                }
+
+                if ($database_actual_collation != $database_collation) {
+                    if (!$collation_available && !empty($database_actual_collation)) {
+                        $database_collation = $database_actual_collation;
+                    } else {
+                        echo $output . '<span id="database_fail">' . sprintf($_lang['status_failed_database_collation_does_not_match'], $database_actual_collation) . '</span>';
+                        exit();
+                    }
                 }
 
                 $result = $dbh->query("SELECT COUNT(*) FROM {$tableprefix}site_content");
@@ -54,9 +66,7 @@ try {
                     echo $output . '<span id="database_fail">' . $_lang['status_failed_table_prefix_already_in_use'] . '</span>';
                     exit();
                 }
-                $result = $dbh->query("SELECT SCHEMA_NAME
-                      FROM INFORMATION_SCHEMA.SCHEMATA
-                     WHERE SCHEMA_NAME = '" . $pwd . "'");
+                $result = $dbh->query("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '" . $pwd . "'");
                 if ($dbh->errorCode() == 0) {
                     $data = $result->fetch();
                     if (isset($data['SCHEMA_NAME']) && $data['SCHEMA_NAME'] == $pwd) {

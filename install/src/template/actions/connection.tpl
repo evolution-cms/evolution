@@ -120,235 +120,236 @@
     </p>
 </form>
 <script type="text/javascript" nonce="[+csrf_nonce+]">
-  var form = document.install;
-  var language = '[+install_language+]';
-  var installMode = parseInt('[+installMode+]');
+    var form = document.install;
+    var language = '[+install_language+]';
+    var installMode = parseInt('[+installMode+]');
 
-  document.querySelectorAll('[name]').forEach(function(el) {
-    el.onkeyup = function() {
-      if (this.value === '') {
-        this.parentElement.classList.add('has-error');
-      } else {
-        this.parentElement.classList.remove('has-error')
-      }
-    };
-    el.onchange = function() {
-      if (this.value === '') {
-        this.parentElement.classList.add('has-error');
-      } else {
-        this.parentElement.classList.remove('has-error')
-      }
-    };
-  });
-
-  // get collation from the database server
-  document.getElementById('servertest').addEventListener('click', function(e) {
-    e.preventDefault();
-
-    if (form.databasehost.value === '') {
-      form.databasehost.parentElement.classList.add('has-error');
-      form.databasehost.focus();
-      return false;
-    }
-
-    if (form.databaseloginname.value === '') {
-      form.databaseloginname.parentElement.classList.add('has-error');
-      form.databaseloginname.focus();
-      return false;
-    }
-
-    var url = 'index.php?s=1&action=connection/collation';
-
-    new Ajax(url, {
-      data: {
-        q: url,
-        host: form.databasehost.value,
-        method: form.database_type.value,
-        uid: form.databaseloginname.value,
-        pwd: form.databaseloginpassword.value,
-        language: language
-      },
-      success: testServer
-    });
-  });
-
-  // database test
-  document.getElementById('databasetest').addEventListener('click', function(e) {
-    e.preventDefault();
-
-    if (form.database_name.value === '') {
-      form.database_name.parentElement.classList.add('has-error');
-      form.database_name.focus();
-      return false;
-    }
-
-    var url = 'index.php?s=1&action=connection/databasetest';
-
-    new Ajax(url, {
-      data: {
-        q: url,
-        host: form.databasehost.value,
-        method: form.database_type.value,
-        uid: form.databaseloginname.value,
-        pwd: form.databaseloginpassword.value,
-        database_name: form.database_name.value,
-        tableprefix: form.tableprefix.value,
-        database_collation: form.database_collation.value,
-        database_connection_method: form.database_connection_method.value,
-        language: language,
-        installMode: installMode
-      },
-      success: setDefaults
+    document.querySelectorAll('[name]').forEach(function(el) {
+        el.onkeyup = function() {
+            if (this.value === '') {
+                this.parentElement.classList.add('has-error');
+            } else {
+                this.parentElement.classList.remove('has-error')
+            }
+        };
+        el.onchange = function() {
+            if (this.value === '') {
+                this.parentElement.classList.add('has-error');
+            } else {
+                this.parentElement.classList.remove('has-error')
+            }
+        };
     });
 
-    document.getElementById('nextlink').style.display = 'inline-block';
-  });
-  document.getElementById('nextlink').style.display = 'none';
+    // get collation from the database server
+    document.getElementById('servertest').addEventListener('click', function(e) {
+        e.preventDefault();
 
-  document.getElementById('setCollation').style.backgroundColor = '#ffff00';
-  document.getElementById('setCollation').style.display = 'none';
-
-  if ((installMode === 0 || installMode === 2) && document.getElementById('AUH')) {
-    document.getElementById('AUH').style.display = 'none';
-    document.getElementById('AUH').style.backgroundColor = '#ffff00';
-  }
-
-  document.getElementById('prevlink').addEventListener('click', function(e) {
-    form.action = 'index.php?action=mode';
-    form.submit();
-  });
-
-  document.getElementById('nextlink').addEventListener('click', function(e) {
-    var alpha = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    if (alpha.indexOf(form.tableprefix.value.charAt(0), 0) === -1) {
-      form.tableprefix.parentElement.classList.add('has-error');
-      form.tableprefix.focus();
-      return false;
-    }
-    var dbs = document.getElementById('databasestatus');
-    var dbsv = dbs.innerHTML;
-    if (dbsv.length === 0 || dbsv === '&nbsp;') {
-      alert('[%alert_database_test_connection%]');
-      return false;
-    }
-    if (dbsv.indexOf('failed') >= 0) {
-      alert('[%alert_database_test_connection_failed%]');
-      return false;
-    }
-    if (form.cmsadmin && form.cmsadmin.value === '') {
-      form.cmsadmin.parentElement.classList.add('has-error');
-      form.cmsadmin.focus();
-      return false;
-    }
-    if (!form.cmspassword?.value) {
-      form.cmspassword.parentElement.classList.add('has-error');
-      form.cmspassword.focus();
-      return false;
-    }
-    if (form.cmspasswordconfirm?.value !== form.cmspassword?.value) {
-      form.cmspasswordconfirm.parentElement.classList.add('has-error');
-      form.cmspasswordconfirm.focus();
-      return false;
-    }
-    form.action = 'index.php?action=options';
-    form.submit();
-  });
-
-  function testServer()
-  {
-    if (arguments[0]) {
-      document.getElementById('collation').innerHTML = arguments[0];
-    }
-    // get the server test status as soon as collation received
-    var url = 'index.php?s=1&action=connection/servertest';
-
-    new Ajax(url, {
-      data: {
-        q: url,
-        host: form.databasehost.value,
-        method: form.database_type.value,
-        uid: form.databaseloginname.value,
-        pwd: form.databaseloginpassword.value,
-        language: language
-      },
-      success: setColor
-    });
-  }
-
-  function setDefaults()
-  {
-    if (arguments[0]) {
-      document.getElementById('databasestatus').innerHTML = arguments[0];
-    }
-    if (document.getElementById('database_pass') !== null && document.getElementById('AUH')) {
-      document.getElementById('AUH').style.display = 'block';
-      document.getElementById('AUHMask').style.opacity = '1';
-      window.setTimeout(function() {
-        document.getElementById('AUH').style.backgroundColor = '#ffffff';
-      }, 1000);
-    }
-  }
-
-  function setColor()
-  {
-    if (arguments[0]) {
-      document.getElementById('serverstatus').innerHTML = arguments[0];
-    }
-    var col = document.getElementById('database_collation');
-    var ss = document.getElementById('serverstatus');
-    var ssv = ss.innerHTML;
-    if (document.getElementById('server_pass') !== null) {
-
-
-      document.getElementById('setCollation').style.display = 'block';
-      document.getElementById('collationMask').style.opacity = '1';
-      document.getElementById('database_collation').style.backgroundColor = '#9CCD00';
-      document.getElementById('database_collation').style.borderWidth = '1px';
-      document.getElementById('database_collation').style.fontWeight = 'bold';
-      window.setTimeout(function() {
-        document.getElementById('setCollation').style.backgroundColor = '#ffffff';
-      }, 1000);
-      document.getElementById('database_name').focus();
-    } else {
-      document.getElementById('setCollation').style.display = 'none';
-      document.getElementById('collationMask').style.opacity = '0';
-    }
-  }
-
-  function objToQueryString(obj)
-  {
-    return '?' +
-        Object.keys(obj).map(function(key) {
-          return encodeURIComponent(key) + '=' +
-              encodeURIComponent(obj[key]);
-        }).join('&');
-  }
-
-  var Ajax = (function() {
-    return (function() {
-      var url = arguments[0] && arguments[0][0] || '';
-      var data = arguments[0] && arguments[0][1] || {};
-      if (url) {
-        if (typeof data.data === 'object') {
-          data.data = objToQueryString(data.data);
+        if (form.databasehost.value === '') {
+            form.databasehost.parentElement.classList.add('has-error');
+            form.databasehost.focus();
+            return false;
         }
 
-        var xhr = new XMLHttpRequest();
-        xhr.open('post', url, true);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-        xhr.setRequestHeader('X-REQUESTED-WITH', 'XMLHttpRequest');
-        xhr.onreadystatechange = function() {
-          if (this.readyState === 4) {
-            if (typeof data.update !== 'undefined') {
-              data.update.innerHTML = this.response;
+        if (form.databaseloginname.value === '') {
+            form.databaseloginname.parentElement.classList.add('has-error');
+            form.databaseloginname.focus();
+            return false;
+        }
+
+        var url = 'index.php?s=1&action=connection/collation';
+
+        new Ajax(url, {
+            data: {
+                q: url,
+                host: form.databasehost.value,
+                method: form.database_type.value,
+                uid: form.databaseloginname.value,
+                pwd: form.databaseloginpassword.value,
+                database_name: form.database_name.value,
+                language: language
+            },
+            success: testServer
+        });
+    });
+
+    // database test
+    document.getElementById('databasetest').addEventListener('click', function(e) {
+        e.preventDefault();
+
+        if (form.database_name.value === '') {
+            form.database_name.parentElement.classList.add('has-error');
+            form.database_name.focus();
+            return false;
+        }
+
+        var url = 'index.php?s=1&action=connection/databasetest';
+
+        new Ajax(url, {
+            data: {
+                q: url,
+                host: form.databasehost.value,
+                method: form.database_type.value,
+                uid: form.databaseloginname.value,
+                pwd: form.databaseloginpassword.value,
+                database_name: form.database_name.value,
+                tableprefix: form.tableprefix.value,
+                database_collation: form.database_collation.value,
+                database_connection_method: form.database_connection_method.value,
+                language: language,
+                installMode: installMode
+            },
+            success: setDefaults
+        });
+
+        document.getElementById('nextlink').style.display = 'inline-block';
+    });
+    document.getElementById('nextlink').style.display = 'none';
+
+    document.getElementById('setCollation').style.backgroundColor = '#ffff00';
+    document.getElementById('setCollation').style.display = 'none';
+
+    if ((installMode === 0 || installMode === 2) && document.getElementById('AUH')) {
+        document.getElementById('AUH').style.display = 'none';
+        document.getElementById('AUH').style.backgroundColor = '#ffff00';
+    }
+
+    document.getElementById('prevlink').addEventListener('click', function(e) {
+        form.action = 'index.php?action=mode';
+        form.submit();
+    });
+
+    document.getElementById('nextlink').addEventListener('click', function(e) {
+        var alpha = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        if (alpha.indexOf(form.tableprefix.value.charAt(0), 0) === -1) {
+            form.tableprefix.parentElement.classList.add('has-error');
+            form.tableprefix.focus();
+            return false;
+        }
+        var dbs = document.getElementById('databasestatus');
+        var dbsv = dbs.innerHTML;
+        if (dbsv.length === 0 || dbsv === '&nbsp;') {
+            alert('[%alert_database_test_connection%]');
+            return false;
+        }
+        if (dbsv.indexOf('failed') >= 0) {
+            alert('[%alert_database_test_connection_failed%]');
+            return false;
+        }
+        if (form.cmsadmin && form.cmsadmin.value === '') {
+            form.cmsadmin.parentElement.classList.add('has-error');
+            form.cmsadmin.focus();
+            return false;
+        }
+        if (!form.cmspassword?.value) {
+            form.cmspassword.parentElement.classList.add('has-error');
+            form.cmspassword.focus();
+            return false;
+        }
+        if (form.cmspasswordconfirm?.value !== form.cmspassword?.value) {
+            form.cmspasswordconfirm.parentElement.classList.add('has-error');
+            form.cmspasswordconfirm.focus();
+            return false;
+        }
+        form.action = 'index.php?action=options';
+        form.submit();
+    });
+
+    function testServer()
+    {
+        if (arguments[0]) {
+            document.getElementById('collation').innerHTML = arguments[0];
+        }
+        // get the server test status as soon as collation received
+        var url = 'index.php?s=1&action=connection/servertest';
+
+        new Ajax(url, {
+            data: {
+                q: url,
+                host: form.databasehost.value,
+                method: form.database_type.value,
+                uid: form.databaseloginname.value,
+                pwd: form.databaseloginpassword.value,
+                language: language
+            },
+            success: setColor
+        });
+    }
+
+    function setDefaults()
+    {
+        if (arguments[0]) {
+            document.getElementById('databasestatus').innerHTML = arguments[0];
+        }
+        if (document.getElementById('database_pass') !== null && document.getElementById('AUH')) {
+            document.getElementById('AUH').style.display = 'block';
+            document.getElementById('AUHMask').style.opacity = '1';
+            window.setTimeout(function() {
+                document.getElementById('AUH').style.backgroundColor = '#ffffff';
+            }, 1000);
+        }
+    }
+
+    function setColor()
+    {
+        if (arguments[0]) {
+            document.getElementById('serverstatus').innerHTML = arguments[0];
+        }
+        var col = document.getElementById('database_collation');
+        var ss = document.getElementById('serverstatus');
+        var ssv = ss.innerHTML;
+        if (document.getElementById('server_pass') !== null) {
+
+
+            document.getElementById('setCollation').style.display = 'block';
+            document.getElementById('collationMask').style.opacity = '1';
+            document.getElementById('database_collation').style.backgroundColor = '#9CCD00';
+            document.getElementById('database_collation').style.borderWidth = '1px';
+            document.getElementById('database_collation').style.fontWeight = 'bold';
+            window.setTimeout(function() {
+                document.getElementById('setCollation').style.backgroundColor = '#ffffff';
+            }, 1000);
+            document.getElementById('database_name').focus();
+        } else {
+            document.getElementById('setCollation').style.display = 'none';
+            document.getElementById('collationMask').style.opacity = '0';
+        }
+    }
+
+    function objToQueryString(obj)
+    {
+        return '?' +
+            Object.keys(obj).map(function(key) {
+                return encodeURIComponent(key) + '=' +
+                    encodeURIComponent(obj[key]);
+            }).join('&');
+    }
+
+    var Ajax = (function() {
+        return (function() {
+            var url = arguments[0] && arguments[0][0] || '';
+            var data = arguments[0] && arguments[0][1] || {};
+            if (url) {
+                if (typeof data.data === 'object') {
+                    data.data = objToQueryString(data.data);
+                }
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('post', url, true);
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+                xhr.setRequestHeader('X-REQUESTED-WITH', 'XMLHttpRequest');
+                xhr.onreadystatechange = function() {
+                    if (this.readyState === 4) {
+                        if (typeof data.update !== 'undefined') {
+                            data.update.innerHTML = this.response;
+                        }
+                        if (typeof data.success === 'function') {
+                            data.success(this.response);
+                        }
+                    }
+                };
+                xhr.send(data.data);
             }
-            if (typeof data.success === 'function') {
-              data.success(this.response);
-            }
-          }
-        };
-        xhr.send(data.data);
-      }
-    })(arguments);
-  });
+        })(arguments);
+    });
 </script>
