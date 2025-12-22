@@ -8,10 +8,14 @@
             margin: 0 auto 0.5rem auto;
         }
         .widgets .card-header svg {
-            width: 1em;
-            height: 1em;
+            width: 18px;
+            height: 18px;
             vertical-align: middle;
             margin-right: 0.25em;
+        }
+        .widgets .card-header i {
+            font-size: 18px;
+            line-height: 18px;
         }
     </style>
     <?php /*include_once evolutionCMS()->get('ManagerTheme')->getFileProcessor("actions/welcome.static.php");*/
@@ -38,6 +42,10 @@
     $_style['icon_lock'] = svg('tabler-lock')->toHtml();
     $_style['icon_logout'] = svg('tabler-logout')->toHtml();
     $_style['icon_home'] = svg('tabler-home')->toHtml();
+    $_style['icon_users'] = svg('tabler-users')->toHtml();
+    $_style['icon_pencil'] = svg('tabler-pencil')->toHtml();
+    $_style['icon_rss'] = svg('tabler-rss')->toHtml();
+    $_style['icon_alert_triangle'] = svg('tabler-alert-triangle')->toHtml();
 
     // set placeholders
     $ph = $_lang;
@@ -424,7 +432,7 @@
         'menuindex' => '20',
         'id' => 'onlineinfo',
         'cols' => 'col-lg-6',
-        'icon' => 'fa-user',
+        'icon' => 'tabler-users',
         'title' => '[%onlineusers_title%]',
         'body' => '<div class="userstable">[+OnlineInfo+]</div>',
         'hide' => '0',
@@ -433,7 +441,7 @@
         'menuindex' => '30',
         'id' => 'recent_widget',
         'cols' => 'col-sm-12',
-        'icon' => 'fa-pencil-square-o',
+        'icon' => 'tabler-pencil',
         'title' => '[%activity_title%]',
         'body' => '<div class="widget-stage">[+RecentInfo+]</div>',
         'hide' => '0',
@@ -443,7 +451,7 @@
             'menuindex' => '40',
             'id' => 'news',
             'cols' => 'col-sm-6',
-            'icon' => 'fa-rss',
+            'icon' => 'tabler-rss',
             'title' => '[%modx_news_title%]',
             'body' => '<div style="max-height:200px;overflow-y: scroll;padding: 1rem .5rem">[+evo_news_content+]</div>',
             'hide' => '0',
@@ -454,7 +462,7 @@
             'menuindex' => '50',
             'id' => 'security',
             'cols' => 'col-sm-6',
-            'icon' => 'fa-exclamation-triangle',
+            'icon' => 'tabler-alert-triangle',
             'title' => '[%security_notices_title%]',
             'body' => '<div style="max-height:200px;overflow-y: scroll;padding: 1rem .5rem">[+evo_security_notices_content+]</div>',
             'hide' => '0',
