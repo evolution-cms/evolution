@@ -19,7 +19,7 @@ trait PDOConnect
         string $username,
         #[SensitiveParameter]
         string $password,
-        array $options
+        array $options,
     ): PDO {
         if (PHP_VERSION_ID < 80400) {
             return new PDO($dsn, $username, $password, $options);

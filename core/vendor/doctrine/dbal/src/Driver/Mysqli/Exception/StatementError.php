@@ -9,8 +9,6 @@ use mysqli_sql_exception;
 use mysqli_stmt;
 use ReflectionProperty;
 
-use const PHP_VERSION_ID;
-
 /** @internal */
 final class StatementError extends AbstractException
 {
@@ -22,10 +20,7 @@ final class StatementError extends AbstractException
     public static function upcast(mysqli_sql_exception $exception): self
     {
         $p = new ReflectionProperty(mysqli_sql_exception::class, 'sqlstate');
-        if (PHP_VERSION_ID < 80100) {
-            $p->setAccessible(true);
-        }
 
-        return new self($exception->getMessage(), $p->getValue($exception), (int) $exception->getCode(), $exception);
+        return new self($exception->getMessage(), $p->getValue($exception), $exception->getCode(), $exception);
     }
 }

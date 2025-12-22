@@ -1,8 +1,8 @@
 <?php
 
-namespace Doctrine\DBAL\Exception;
+declare(strict_types=1);
 
-use InvalidArgumentException;
+namespace Doctrine\DBAL\Exception;
 
 class MalformedDsnException extends InvalidArgumentException
 {

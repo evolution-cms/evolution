@@ -14,12 +14,10 @@ use function implode;
 
 final class SQLServerSelectSQLBuilder implements SelectSQLBuilder
 {
-    private SQLServerPlatform $platform;
-
     /** @internal The SQL builder should be instantiated only by database platforms. */
-    public function __construct(SQLServerPlatform $platform)
-    {
-        $this->platform = $platform;
+    public function __construct(
+        private readonly SQLServerPlatform $platform,
+    ) {
     }
 
     public function buildSQL(SelectQuery $query): string

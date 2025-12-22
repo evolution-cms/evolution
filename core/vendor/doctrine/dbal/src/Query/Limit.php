@@ -1,16 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Query;
 
+/** @internal */
 final class Limit
 {
-    private ?int $maxResults;
-    private int $firstResult;
-
-    public function __construct(?int $maxResults, int $firstResult)
-    {
-        $this->maxResults  = $maxResults;
-        $this->firstResult = $firstResult;
+    public function __construct(
+        private readonly ?int $maxResults,
+        private readonly int $firstResult,
+    ) {
     }
 
     public function isDefined(): bool

@@ -1,31 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Query;
 
 final class SelectQuery
 {
-    private bool $distinct;
-
-    /** @var string[] */
-    private array $columns;
-
-    /** @var string[] */
-    private array $from;
-
-    private ?string $where;
-
-    /** @var string[] */
-    private array $groupBy;
-
-    private ?string $having;
-
-    /** @var string[] */
-    private array $orderBy;
-
-    private Limit $limit;
-
-    private ?ForUpdate $forUpdate;
-
     /**
      * @internal This class should be instantiated only by {@link QueryBuilder}.
      *
@@ -35,25 +15,16 @@ final class SelectQuery
      * @param string[] $orderBy
      */
     public function __construct(
-        bool $distinct,
-        array $columns,
-        array $from,
-        ?string $where,
-        array $groupBy,
-        ?string $having,
-        array $orderBy,
-        Limit $limit,
-        ?ForUpdate $forUpdate
+        private readonly bool $distinct,
+        private readonly array $columns,
+        private readonly array $from,
+        private readonly ?string $where,
+        private readonly array $groupBy,
+        private readonly ?string $having,
+        private readonly array $orderBy,
+        private readonly Limit $limit,
+        private readonly ?ForUpdate $forUpdate,
     ) {
-        $this->distinct  = $distinct;
-        $this->columns   = $columns;
-        $this->from      = $from;
-        $this->where     = $where;
-        $this->groupBy   = $groupBy;
-        $this->having    = $having;
-        $this->orderBy   = $orderBy;
-        $this->limit     = $limit;
-        $this->forUpdate = $forUpdate;
     }
 
     public function isDistinct(): bool
