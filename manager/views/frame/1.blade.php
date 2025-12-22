@@ -448,7 +448,8 @@
         if (document.getElementById('treeMenu')) {
             @if (evo()->getConfig('use_browser') && evo()->hasPermission('assets_images'))
 
-            document.getElementById('treeMenu_openimages').onclick = function(e) {
+            var treeMenuOpenImages = document.getElementById('treeMenu_openimages');
+            if (treeMenuOpenImages) treeMenuOpenImages.onclick = function(e) {
                 e.preventDefault();
                 if (modx.config.global_tabs && !e.shiftKey) {
                     modx.tabs({
@@ -469,7 +470,8 @@
             @endif
             @if (evo()->getConfig('use_browser') && evo()->hasPermission('assets_files'))
 
-            document.getElementById('treeMenu_openfiles').onclick = function(e) {
+            var treeMenuOpenFiles = document.getElementById('treeMenu_openfiles');
+            if (treeMenuOpenFiles) treeMenuOpenFiles.onclick = function(e) {
                 e.preventDefault();
                 if (modx.config.global_tabs && !e.shiftKey) {
                     modx.tabs({
