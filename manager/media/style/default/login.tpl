@@ -194,14 +194,14 @@
         .loginbox,
         .dark .loginbox,
         .darkness .loginbox {
-            background-color: rgba(0, 0, 0, 0.85);
+            background-color: rgba(0, 0, 0, 0.75);
             transition: background ease-in-out .3s;
         }
         .loginbox.loginbox-light {
             background-color: rgba(255, 255, 255, 0.85);
         }
         .loginbox.loginbox-dark {
-            background-color: rgba(0, 0, 0, 0.85);
+            background-color: rgba(0, 0, 0, 0.75);
         }
         @media (max-width: 479px) {
             .loginbox,
