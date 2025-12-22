@@ -1,5 +1,19 @@
 @extends('manager::template.page')
 @section('content')
+    <style>
+        .widgets #welcome .wm_button a svg {
+            display: block;
+            width: 2rem;
+            height: 2rem;
+            margin: 0 auto 0.5rem auto;
+        }
+        .widgets .card-header svg {
+            width: 1em;
+            height: 1em;
+            vertical-align: middle;
+            margin-right: 0.25em;
+        }
+    </style>
     <?php /*include_once evolutionCMS()->get('ManagerTheme')->getFileProcessor("actions/welcome.static.php");*/
     unset($_SESSION['itemname'], $_SESSION['itemaction']); // clear this, because it's only set for logging purposes
 
@@ -10,55 +24,70 @@
 
     $_style = EvolutionCMS\Facades\ManagerTheme::getStyle();
 
+    // Tabler SVG overrides for dashboard icons
+    $_style['icon_user'] = svg('tabler-user-cog')->toHtml();
+    $_style['icon_web_user'] = svg('tabler-users')->toHtml();
+    $_style['icon_modules'] = svg('tabler-packages')->toHtml();
+    $_style['icon_elements'] = svg('tabler-blocks')->toHtml();
+    $_style['icon_database'] = svg('tabler-database')->toHtml();
+    $_style['icon_question_circle'] = svg('tabler-help')->toHtml();
+    $_style['icon_add'] = svg('tabler-file-plus')->toHtml();
+    $_style['icon_chain'] = svg('tabler-link')->toHtml();
+    $_style['icon_camera'] = svg('tabler-camera')->toHtml();
+    $_style['icon_folder_open'] = svg('tabler-folder-open')->toHtml();
+    $_style['icon_lock'] = svg('tabler-lock')->toHtml();
+    $_style['icon_logout'] = svg('tabler-logout')->toHtml();
+    $_style['icon_home'] = svg('tabler-home')->toHtml();
+
     // set placeholders
     $ph = $_lang;
 
     $iconTpl = evo()->getChunk('manager#welcome\WrapIcon');
     // setup icons
     if (evo()->hasPermission('new_user') || evo()->hasPermission('edit_user')) {
-        $icon = '<i class="' . $_style['icon_user'] . $_style['icon_size_2x'] . $_style['icon_size_fix'] . '" alt="[%user_management_title%]"> </i>[%user_management_title%]';
+        $icon = $_style['icon_user'] . ' [%user_management_title%]';
         $ph['SecurityIcon'] = sprintf($iconTpl, $icon, 75);
     }
     if (evo()->hasPermission('new_user') || evo()->hasPermission('edit_user')) {
-        $icon = '<i class="' . $_style['icon_web_user'] . $_style['icon_size_2x'] . $_style['icon_size_fix'] . '" alt="[%web_user_management_title%]"> </i>[%web_user_management_title%]';
+        $icon = $_style['icon_web_user'] . ' [%web_user_management_title%]';
         $ph['WebUserIcon'] = sprintf($iconTpl, $icon, 99);
     }
     if (evo()->hasPermission('new_module') || evo()->hasPermission('edit_module')) {
-        $icon = '<i class="' . $_style['icon_modules'] . $_style['icon_size_2x'] . $_style['icon_size_fix'] . '" alt="[%manage_modules%]"> </i>[%modules%]';
+        $icon = $_style['icon_modules'] . ' [%modules%]';
         $ph['ModulesIcon'] = sprintf($iconTpl, $icon, 106);
     }
     if (evo()->hasPermission('new_template') || evo()->hasPermission('edit_template') || evo()->hasPermission('new_snippet') || evo()->hasPermission('edit_snippet') || evo()->hasPermission('new_plugin') || evo()->hasPermission('edit_plugin') || evo()->hasPermission('manage_metatags')) {
-        $icon = '<i class="' . $_style['icon_elements'] . $_style['icon_size_2x'] . $_style['icon_size_fix'] . '" alt="[%element_management%]"> </i>[%elements%]';
+        $icon = $_style['icon_elements'] . ' [%elements%]';
         $ph['ResourcesIcon'] = sprintf($iconTpl, $icon, 76);
     }
     if (evo()->hasPermission('bk_manager')) {
-        $icon = '<i class="' . $_style['icon_database'] . $_style['icon_size_2x'] . $_style['icon_size_fix'] . '" alt="[%bk_manager%]"> </i>[%backup%]';
+        $icon = $_style['icon_database'] . ' [%backup%]';
         $ph['BackupIcon'] = sprintf($iconTpl, $icon, 93);
     }
     if (evo()->hasPermission('help')) {
-        $icon = '<i class="' . $_style['icon_question_circle'] . $_style['icon_size_2x'] . $_style['icon_size_fix'] . '" alt="[%help%]" /> </i>[%help%]';
+        $icon = $_style['icon_question_circle'] . ' [%help%]';
         $ph['HelpIcon'] = sprintf($iconTpl, $icon, 9);
     }
 
     if (evo()->hasPermission('new_document')) {
-        $icon = '<i class="' . $_style['icon_document'] . $_style['icon_size_2x'] . $_style['icon_size_fix'] . '"></i>[%add_resource%]';
+        $icon = $_style['icon_add'] . '[%add_resource%]';
         $ph['ResourceIcon'] = sprintf($iconTpl, $icon, 4);
-        $icon = '<i class="' . $_style['icon_chain'] . $_style['icon_size_2x'] . $_style['icon_size_fix'] . '"></i>[%add_weblink%]';
+        $icon = $_style['icon_chain'] . '[%add_weblink%]';
         $ph['WeblinkIcon'] = sprintf($iconTpl, $icon, 72);
     }
     if (evo()->hasPermission('assets_images')) {
-        $icon = '<i class="' . $_style['icon_camera'] . $_style['icon_size_2x'] . $_style['icon_size_fix'] . '"></i>[%images_management%]';
+        $icon = $_style['icon_camera'] . '[%images_management%]';
         $ph['ImagesIcon'] = sprintf($iconTpl, $icon, 72);
     }
     if (evo()->hasPermission('assets_files')) {
-        $icon = '<i class="' . $_style['icon_files'] . $_style['icon_size_2x'] . $_style['icon_size_fix'] . '"></i>[%files_management%]';
+        $icon = $_style['icon_folder_open'] . '[%files_management%]';
         $ph['FilesIcon'] = sprintf($iconTpl, $icon, 72);
     }
     if (evo()->hasPermission('change_password')) {
-        $icon = '<i class="' . $_style['icon_lock'] . $_style['icon_size_2x'] . $_style['icon_size_fix'] . '"></i>[%change_password%]';
+        $icon = $_style['icon_lock'] . '[%change_password%]';
         $ph['PasswordIcon'] = sprintf($iconTpl, $icon, 28);
     }
-    $icon = '<i class="' . $_style['icon_logout'] . $_style['icon_size_2x'] . $_style['icon_size_fix'] . '"></i>[%logout%]';
+    $icon = $_style['icon_logout'] . '[%logout%]';
     $ph['LogoutIcon'] = sprintf($iconTpl, $icon, 8);
 
     // do some config checks
@@ -277,7 +306,7 @@
         'menuindex' => '10',
         'id' => 'welcome',
         'cols' => 'col-lg-6',
-        'icon' => 'fa-home',
+        'icon' => 'tabler-home',
         'title' => '[%welcome_title%]',
         'body' =>
             '
@@ -286,21 +315,17 @@
                 ? '
                     <span class="wm_button">
                         <a target="main" href="index.php?a=4">
-                            <i class="' .
-                $_style['icon_document'] .
-                $_style['icon_size_2x'] .
-                $_style['icon_size_fix'] .
-                '"></i>
+                            ' .
+                $_style['icon_add'] .
+                '
                             <span>[%add_resource%]</span>
                         </a>
                     </span>
                     <span class="wm_button">
                         <a target="main" href="index.php?a=72">
-                            <i class="' .
+                            ' .
                 $_style['icon_chain'] .
-                $_style['icon_size_2x'] .
-                $_style['icon_size_fix'] .
-                '"></i>
+                '
                             <span>[%add_weblink%]</span>
                         </a>
                     </span>
@@ -310,11 +335,9 @@
                 ? '
                     <span class="wm_button">
                         <a target="main" href="media/browser/mcpuk/browse.php?filemanager=media/browser/mcpuk/browse.php&type=images">
-                            <i class="' .
+                            ' .
                 $_style['icon_camera'] .
-                $_style['icon_size_2x'] .
-                $_style['icon_size_fix'] .
-                '"></i>
+                '
                             <span>[%images_management%]</span>
                         </a>
                     </span>
@@ -324,11 +347,9 @@
                 ? '
                     <span class="wm_button">
                         <a target="main" href="media/browser/mcpuk/browse.php?filemanager=media/browser/mcpuk/browse.php&type=files">
-                            <i class="' .
-                $_style['icon_files'] .
-                $_style['icon_size_2x'] .
-                $_style['icon_size_fix'] .
-                '"></i>
+                            ' .
+                $_style['icon_folder_open'] .
+                '
                             <span>[%files_management%]</span>
                         </a>
                     </span>
@@ -338,11 +359,9 @@
                 ? '
                     <span class="wm_button">
                         <a target="main" href="index.php?a=93">
-                            <i class="' .
+                            ' .
                 $_style['icon_database'] .
-                $_style['icon_size_2x'] .
-                $_style['icon_size_fix'] .
-                '"></i>
+                '
                             <span>[%bk_manager%]</span>
                         </a>
                     </span>
@@ -352,11 +371,9 @@
                 ? '
                     <span class="wm_button">
                         <a target="main" href="index.php?a=28">
-                            <i class="' .
+                            ' .
                 $_style['icon_lock'] .
-                $_style['icon_size_2x'] .
-                $_style['icon_size_fix'] .
-                '"></i>
+                '
                             <span>[%change_password%]</span>
                         </a>
                     </span>
@@ -365,11 +382,9 @@
             '
                     <span class="wm_button">
                         <a target="_top" href="index.php?a=8">
-                            <i class="' .
+                            ' .
             $_style['icon_logout'] .
-            $_style['icon_size_2x'] .
-            $_style['icon_size_fix'] .
-            '"></i>
+            '
                             <span>[%logout%]</span>
                         </a>
                     </span>
@@ -464,6 +479,12 @@
     $output = '';
     foreach ($widgets as $widget) {
         if ((bool) get_by_key($widget, 'hide', false) !== true) {
+            if (isset($widget['icon']) && strpos($widget['icon'], 'tabler-') === 0) {
+                $styleKey = 'icon_' . str_replace('-', '_', substr($widget['icon'], 7));
+                $widget['icon_html'] = $_style[$styleKey] ?? '';
+            } else {
+                $widget['icon_html'] = '<i class="fa ' . ($widget['icon'] ?? '') . '"></i>';
+            }
             $output .= evo()->parseText($tpl, $widget);
         }
     }

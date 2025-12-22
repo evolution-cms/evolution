@@ -62,7 +62,18 @@
 }
 #mainMenu .nav > li.active > a {
     color: #fff;
-    background-color: rgba(255, 255, 255, 0.07);
+    background-color: transparent;
+}
+#mainMenu #nav #site::before {
+    content: none !important;
+    display: none !important;
+    background: none !important;
+}
+#mainMenu #nav #bars.active > a,
+#mainMenu #nav #bars.hover > a,
+#mainMenu.show #nav #bars.hover > a {
+    background-color: transparent;
+    color: inherit;
 }
 #mainMenu .nav > li > a,
 #mainMenu .nav .label_searchid {
@@ -113,19 +124,70 @@
     vertical-align: top;
 }
 #mainMenu #nav > li > a > .fa {
-    display: none;
+    display: inline-block;
+    font-size: 20px;
+    line-height: 20px;
+}
+#mainMenu #nav > li > a > svg {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+}
+#mainMenu .menu-icon-evo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+}
+#mainMenu .menu-icon-evo svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+}
+#mainMenu #nav > li > a,
+#mainMenu #settings > li > a {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+#mainMenu #nav > li > a > .fa,
+#mainMenu #nav > li > a > svg {
+    margin-right: 0;
+    line-height: 1;
+}
+#mainMenu #settings > li > a .username {
+    line-height: 1;
+}
+#mainMenu #settings > li > a .icon:not(.photo) {
+    margin: 0;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+#mainMenu #settings > li > a .icon:not(.photo) svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+}
+#mainMenu #nav > li > a .menu-item-text {
+    line-height: 1;
 }
 #mainMenu #nav #bars {
-    width: 3.5rem;
+    width: 2.75rem;
     text-align: center;
 }
 #mainMenu #nav #bars a {
     padding: 0;
+    justify-content: center;
 }
 #mainMenu #nav #bars .fa {
     display: inline-block;
-    min-width: 0.25rem;
-    width: 1.5rem;
+    min-width: 20px;
+    width: 20px;
     margin: 0;
     text-align: center;
     overflow: hidden;
@@ -133,8 +195,33 @@
     transition-duration: 0.15s;
 }
 .sidebar-closed #mainMenu #nav #bars .fa {
-    width: 0.25rem;
+    width: 20px;
 }
+#mainMenu #nav #bars svg {
+    display: inline-block;
+    min-width: 20px;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    text-align: center;
+    overflow: hidden;
+    -webkit-transition-duration: 0.15s;
+    transition-duration: 0.15s;
+}
+.sidebar-closed #mainMenu #nav #bars svg {
+    width: 20px;
+    height: 20px;
+}
+#mainMenu #nav #bars .icon-expand,
+#mainMenu #nav #bars .icon-collapse {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+body:not(.sidebar-closed) #bars .icon-expand { display: none !important; }
+body:not(.sidebar-closed) #bars .icon-collapse { display: inline-block !important; }
+body.sidebar-closed #bars .icon-expand { display: inline-block !important; }
+body.sidebar-closed #bars .icon-collapse { display: none !important; }
 #mainMenu #system > a > .fa {
     font-size: 1.1rem;
 }
@@ -222,10 +309,28 @@
 #mainMenu .nav > li > ul > li .fa {
     width: 1.3em;
     margin-right: 0.5em;
-    font-size: 0.875rem;
-    line-height: 0.8rem;
+    font-size: 1rem;
+    line-height: 1rem;
     text-align: center;
-    vertical-align: baseline;
+    vertical-align: middle;
+}
+#mainMenu .nav > li > ul > li > a > svg:first-child {
+    margin-right: 0.5em;
+    vertical-align: middle;
+}
+#mainMenu .nav > li > ul > li > a > svg {
+    width: 1rem;
+    height: 1rem;
+}
+#mainMenu .nav > li > ul > li .arrow svg,
+#mainMenu .nav > li > ul > li .toggle svg,
+#mainMenu .nav > li > ul > li > a .arrow svg,
+#mainMenu .nav > li > ul > li svg.toggle,
+#mainMenu .nav > li > ul > li svg.arrow,
+#mainMenu .nav > li > ul > li svg[class*="chevron"],
+#mainMenu .nav > li > ul > li svg[class*="angle"] {
+    width: 0.7em;
+    height: 0.7em;
 }
 #mainMenu .nav > li > ul > li.selected a:first-child::before,
 #main .evo-tab-row .tab.changed::before {
@@ -484,7 +589,7 @@
         top: 2.5rem;
     }
     #mainMenu #nav #site a {
-        margin-left: 9.25rem;
+        margin-left: 0;
     }
     body.lightness #mainMenu #nav #site::before {
         content: "";
@@ -535,7 +640,7 @@
         font-size: 0.875rem;
     }
     #mainMenu #nav > li > a {
-        padding: 0 1.25rem;
+        padding: 0 1rem;
     }
     #mainMenu #nav > li > a > .fa {
         display: none;
@@ -565,7 +670,7 @@
 }
 @media (max-width: 1020px) {
     #mainMenu #nav #bars {
-        width: 3rem;
+        width: 2.5rem;
     }
     .nav > li > a,
     #mainMenu .nav > li > ul > li > a,
@@ -579,7 +684,7 @@
         display: none;
     }
     #mainMenu #nav #bars {
-        width: 2.5rem;
+        width: 2.25rem;
     }
     #mainMenu .nav > li {
         position: static;
@@ -808,6 +913,9 @@
     .navbar-left #mainMenu #nav > li > a > .fa {
         display: inline-block;
     }
+    .navbar-left #mainMenu #nav > li > a > svg {
+        display: inline-block;
+    }
     .navbar-left #mainMenu #nav > li > a > .fa,
     .navbar-left #mainMenu #searchform .fa,
     .navbar-left #mainMenu #preview .fa,
@@ -815,6 +923,15 @@
     .navbar-left #mainMenu #nav > li > a > .fa,
     .navbar-left #mainMenu #system > a > .fa {
         font-size: 0.875rem;
+    }
+    .navbar-left #mainMenu #nav > li > a > svg,
+    .navbar-left #mainMenu #searchform svg,
+    .navbar-left #mainMenu #preview svg,
+    .navbar-left #mainMenu #nav > li > svg,
+    .navbar-left #mainMenu #nav > li > a > svg,
+    .navbar-left #mainMenu #system > a > svg {
+        width: 0.875rem;
+        height: 0.875rem;
     }
     .navbar-left #mainMenu .nav > li > ul,
     .navbar-left #mainMenu #settings.nav > li > ul {
@@ -885,6 +1002,9 @@
         background-size: 2.25rem;
     }
     .navbar-left #mainMenu #nav #site a i {
+        display: none;
+    }
+    .navbar-left #mainMenu #nav #site a svg {
         display: none;
     }
     .navbar-left #mainMenu #searchform input,

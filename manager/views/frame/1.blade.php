@@ -6,6 +6,53 @@ if (!function_exists('jsSvg')) {
         return json_encode(trim($svg));
     }
 }
+if (!function_exists('jsIcon')) {
+    function jsIcon($icon) {
+        if (strpos($icon, '<') === false) {
+            if (strpos($icon, 'tabler-') === 0) {
+                $icon = svg($icon)->toHtml();
+            } else {
+                $icon = '<i class="' . $icon . '"></i>';
+            }
+        }
+        return jsSvg($icon);
+    }
+}
+if (!function_exists('iconHtml')) {
+    function iconHtml($icon, $attrs = '') {
+        if (strpos($icon, '<svg') !== false) {
+            return $icon;
+        }
+        return '<i class="' . $icon . '"' . $attrs . '></i>';
+    }
+}
+
+// Tabler SVG overrides for the frame menu/tree icons
+$_style['icon_arrow_down_circle'] = svg('tabler-arrow-down')->toHtml();
+$_style['icon_arrow_up_circle'] = svg('tabler-arrow-up')->toHtml();
+$_style['icon_add'] = svg('tabler-file-plus')->toHtml();
+$_style['icon_chain'] = svg('tabler-link')->toHtml();
+$_style['icon_chain_broken'] = svg('tabler-link-plus')->toHtml();
+$_style['icon_search'] = svg('tabler-search')->toHtml();
+$_style['icon_camera'] = svg('tabler-camera')->toHtml();
+$_style['icon_files'] = svg('tabler-files')->toHtml();
+$_style['icon_desktop'] = svg('tabler-device-desktop')->toHtml();
+$_style['icon_user'] = svg('tabler-user-circle')->toHtml();
+$_style['icon_lock'] = svg('tabler-lock')->toHtml();
+$_style['icon_logout'] = svg('tabler-logout')->toHtml();
+$_style['icon_theme'] = svg('tabler-brightness')->toHtml();
+$_style['icon_cogs'] = svg('tabler-settings-cog')->toHtml();
+$_style['icon_sliders'] = svg('tabler-adjustments-horizontal')->toHtml();
+$_style['icon_calendar'] = svg('tabler-calendar')->toHtml();
+$_style['icon_info_triangle'] = svg('tabler-info-triangle')->toHtml();
+$_style['icon_user_secret'] = svg('tabler-timeline-event-exclamation')->toHtml();
+$_style['icon_info_circle'] = svg('tabler-info-circle')->toHtml();
+$_style['icon_question_circle'] = svg('tabler-help-circle')->toHtml();
+$_style['icon_home'] = svg('tabler-home')->toHtml();
+$_style['icon_expand'] = svg('tabler-arrows-maximize')->toHtml();
+$_style['icon_compress'] = svg('tabler-arrows-minimize')->toHtml();
+$_style['icon_trash'] = svg('tabler-trash-x')->toHtml();
+$_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
 @endphp
 <!DOCTYPE html>
 <html dir="{{ManagerTheme::getTextDir()}}" lang="{{ManagerTheme::getLang()}}" xml:lang="{{ManagerTheme::getLang()}}">
@@ -25,6 +72,23 @@ if (!function_exists('jsSvg')) {
         #tree{width:{{$MODX_widthSideBar}}rem}
         #main,#resizer{left:{{$MODX_widthSideBar}}rem}
         .ios #main{-webkit-overflow-scrolling:touch;overflow-y:scroll;}
+        #mainMenu #nav #bars .icon-expand,
+        #mainMenu #nav #bars .icon-collapse{display:inline-block;}
+        body:not(.sidebar-closed) #bars .icon-expand{display:none!important;}
+        body:not(.sidebar-closed) #bars .icon-collapse{display:inline-block!important;}
+        body.sidebar-closed #bars .icon-expand{display:inline-block!important;}
+        body.sidebar-closed #bars .icon-collapse{display:none!important;}
+        #mainMenu .nav > li > ul > li.dropdown-toggle > a > svg.toggle,
+        #mainMenu .nav > li > ul > li.dropdown-toggle > a > svg[class*="chevron"],
+        #mainMenu .nav > li > ul > li.dropdown-toggle > a > svg[class*="angle"]{
+            position:absolute!important;
+            top:50%!important;
+            right:.75rem!important;
+            transform:translateY(-50%)!important;
+            width:.9em!important;
+            height:.9em!important;
+            opacity:.6!important;
+        }
     </style>
     <script>
         if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
@@ -86,9 +150,9 @@ if (!function_exists('jsSvg')) {
                 actions_pencil: '{!!addslashes($_style['icon_pencil'])!!}',
                 actions_plus: '{!!addslashes($_style['icon_plus'])!!}',
                 actions_reply: '{!!addslashes($_style['icon_reply'])!!}',
-                collapse_tree: {!! jsSvg($_style['icon_tabler_arrow_up']) !!},
+                collapse_tree: {!! jsIcon($_style['icon_arrow_up_circle']) !!},
                 email: '{!!addslashes('<i class="' . $_style['icon_mail'] . '"></i>')!!}',
-                expand_tree: {!! jsSvg($_style['icon_tabler_arrow_down']) !!},
+                expand_tree: {!! jsIcon($_style['icon_arrow_down_circle']) !!},
                 icon_angle_left: '{!!addslashes($_style['icon_angle_left'])!!}',
                 icon_angle_right: '{!!addslashes($_style['icon_angle_right'])!!}',
                 icon_chunk: '{!!addslashes($_style['icon_chunk'])!!}',
@@ -101,16 +165,16 @@ if (!function_exists('jsSvg')) {
                 icon_refresh: '{!!addslashes($_style['icon_refresh'])!!}',
                 icon_spin: '{!!addslashes($_style['icon_spin'])!!}',
                 icon_template: '{!!addslashes($_style['icon_template'])!!}',
-                icon_trash: '{!!addslashes('<i class="' . $_style['icon_trash'] . '"></i>')!!}',
-                icon_trash_alt: '{!!addslashes('<i class="' . $_style['icon_trash_alt'] . '"></i>')!!}',
+                icon_trash: {!! jsIcon($_style['icon_trash']) !!},
+                icon_trash_alt: {!! jsIcon($_style['icon_trash_alt']) !!},
                 icon_tv: '{!!addslashes($_style['icon_tv'])!!}',
                 icons_external_link: '{!!addslashes('<i class="' . $_style['icon_external_link'] . '"></i>')!!}',
-                icons_working: '{!!addslashes('<i class="' . $_style['icon_info_triangle'] . '"></i>')!!}',
+                icons_working: {!! jsIcon($_style['icon_info_triangle']) !!},
                 tree_folder: '{!!addslashes('<i class="' . $_style['icon_folder'] . '"></i>')!!}',
                 tree_folder_secure: '{!!addslashes('<i class="' . $_style['icon_folder'] . '"></i>')!!}',
                 tree_folderopen: '{!!addslashes('<i class="' . $_style['icon_folder_open'] . '"></i>')!!}',
                 tree_folderopen_secure: '{!!addslashes('<i class="' . $_style['icon_folder_open'] . '"></i>')!!}',
-                tree_info: '{!!addslashes('<i class="' . $_style['icon_info_circle'] . '"></i>')!!}',
+                tree_info: {!! jsIcon($_style['icon_info_circle']) !!},
                 tree_minusnode: '{!!addslashes('<i class="' . $_style['icon_angle_down'] . '"></i>')!!}',
                 tree_plusnode: '{!!addslashes('<i class="' . $_style['icon_angle_right'] . '"></i>')!!}',
                 tree_preview_resource: '{!!addslashes('<i class="' . $_style['icon_eye'] . '"></i>')!!}'
@@ -180,7 +244,7 @@ if (!function_exists('jsSvg')) {
                         <li id="searchform">
                             <form action="index.php?a=71" method="post" target="main">
                                 <input type="hidden" value="Search" name="submitok" />
-                                <label for="searchid" class="label_searchid">{!! $_style['icon_tabler_search'] !!}</label>
+                                <label for="searchid" class="label_searchid">{!! $_style['icon_search'] !!}</label>
                                 <input type="text" id="searchid" name="searchid" size="25" />
                                 <div class="mask"></div>
                             </form>
@@ -188,32 +252,32 @@ if (!function_exists('jsSvg')) {
                         @if (evo()->getConfig('show_newresource_btn') && evo()->hasPermission('new_document'))
                             <li id="newresource" class="dropdown newresource">
                                 <a href="javascript:;" class="dropdown-toggle" onclick="return false;" title="{{ManagerTheme::getLexicon('add_resource')}}">
-                                    {!! $_style['icon_tabler_file_plus'] !!}
+                                    {!! $_style['icon_add'] !!}
                                 </a>
                                 <ul class="dropdown-menu">
                                     @if (evo()->hasPermission('new_document'))
                                         <li>
                                             <a onclick="" href="index.php?a=4" target="main">
-                                                {!! $_style['icon_tabler_file_plus'] !!} {{ManagerTheme::getLexicon('add_resource')}}
+                                                {!! $_style['icon_add'] !!} {{ManagerTheme::getLexicon('add_resource')}}
                                             </a>
                                         </li>
                                         <li>
                                             <a onclick="" href="index.php?a=72" target="main">
-                                                {!! $_style['icon_tabler_link'] !!} {{ManagerTheme::getLexicon('add_weblink')}}
+                                                {!! iconHtml($_style['icon_chain']) !!} {{ManagerTheme::getLexicon('add_weblink')}}
                                             </a>
                                         </li>
                                     @endif
                                     @if (evo()->getConfig('use_browser') && evo()->hasPermission('assets_images'))
                                         <li>
                                             <a onclick="" href="media/browser/{{evo()->getConfig('which_browser')}}/browse.php?&type=images" target="main">
-                                                {!! $_style['icon_tabler_camera'] !!} {{ManagerTheme::getLexicon('images_management')}}
+                                                {!! $_style['icon_camera'] !!} {{ManagerTheme::getLexicon('images_management')}}
                                             </a>
                                         </li>
                                     @endif
                                     @if (evo()->getConfig('use_browser') && evo()->hasPermission('assets_files'))
                                         <li>
                                             <a onclick="" href="media/browser/{{$modx->getConfig('which_browser')}}/browse.php?&type=files" target="main">
-                                                {!! $_style['icon_tabler_files'] !!} {{ManagerTheme::getLexicon('files_management')}}
+                                                {!! $_style['icon_files'] !!} {{ManagerTheme::getLexicon('files_management')}}
                                             </a>
                                         </li>
                                     @endif
@@ -222,36 +286,36 @@ if (!function_exists('jsSvg')) {
                         @endif
                         <li id="preview">
                             <a href="../" target="_blank" title="{{ManagerTheme::getLexicon('preview')}}">
-                                {!! $_style['icon_tabler_device_desktop'] !!}
+                                {!! $_style['icon_desktop'] !!}
                             </a>
                         </li>
                         <li id="account" class="dropdown account">
                             <a href="javascript:;" class="dropdown-toggle" onclick="return false;">
-                                <span class="username">{{entities($user['username'], evo()->getConfig('modx_charset'))}}</span>
                                 @if ($user['photo'])
                                     <span class="icon photo" style="background-image: url({!!MODX_SITE_URL . entities($user['photo'], evo()->getConfig('modx_charset'))!!});"></span>
                                 @else
-                                    <span class="icon">{!! $_style['icon_tabler_user_circle'] !!}</span>
+                                    <span class="icon">{!! $_style['icon_user'] !!}</span>
                                 @endif
+                                <span class="username">{{entities($user['username'], evo()->getConfig('modx_charset'))}}</span>
                             </a>
                             <ul class="dropdown-menu">
                                 @if (evo()->hasPermission('change_password'))
                                     <li>
                                         <a onclick="" href="index.php?a=28" target="main">
-                                            {!! $_style['icon_tabler_lock'] !!} {{ManagerTheme::getLexicon('change_password')}}
+                                            {!! $_style['icon_lock'] !!} {{ManagerTheme::getLexicon('change_password')}}
                                         </a>
                                     </li>
                                 @endif
                                 <li>
                                     <a href="index.php?a=8">
-                                        {!! $_style['icon_tabler_logout'] !!} {{ManagerTheme::getLexicon('logout')}}
+                                        {!! $_style['icon_logout'] !!} {{ManagerTheme::getLexicon('logout')}}
                                     </a>
                                 </li>
                             </ul>
                         </li>
                         <li id="theme">
                             <a id="treeMenu_theme_dark" onclick="modx.tree.toggleTheme(event)" title="{{ManagerTheme::getLexicon('manager_theme_mode_title')}}">
-                                {!! $_style['icon_tabler_brightness'] !!}
+                                {!! $_style['icon_theme'] !!}
                             </a>
                         </li>
                         @if (
@@ -262,46 +326,46 @@ if (!function_exists('jsSvg')) {
                         )
                             <li id="system" class="dropdown">
                                 <a href="javascript:;" class="dropdown-toggle" title="{{ManagerTheme::getLexicon('system')}}" onclick="return false;">
-                                    {!! $_style['icon_tabler_settings_cog'] !!}
+                                    {!! $_style['icon_cogs'] !!}
                                 </a>
                                 <ul class="dropdown-menu">
                                     @if (evo()->hasPermission('settings'))
                                         <li>
                                             <a href="index.php?a=17" target="main">
-                                                {!! $_style['icon_tabler_adjustments_horizontal'] !!} {{ManagerTheme::getLexicon('edit_settings')}}
+                                                {!! $_style['icon_sliders'] !!} {{ManagerTheme::getLexicon('edit_settings')}}
                                             </a>
                                         </li>
                                     @endif
                                     @if (evo()->hasPermission('view_eventlog'))
                                         <li>
                                             <a href="index.php?a=70" target="main">
-                                                {!! $_style['icon_tabler_calendar'] !!} {{ManagerTheme::getLexicon('site_schedule')}}
+                                                {!! $_style['icon_calendar'] !!} {{ManagerTheme::getLexicon('site_schedule')}}
                                             </a>
                                         </li>
                                     @endif
                                     @if (evo()->hasPermission('view_eventlog'))
                                         <li>
                                             <a href="index.php?a=114" target="main">
-                                                {!! $_style['icon_tabler_info_triangle'] !!} {{ManagerTheme::getLexicon('eventlog_viewer')}}
+                                                {!! $_style['icon_info_triangle'] !!} {{ManagerTheme::getLexicon('eventlog_viewer')}}
                                             </a>
                                         </li>
                                     @endif
                                     @if (evo()->hasPermission('logs'))
                                         <li>
                                             <a href="index.php?a=13" target="main">
-                                                {!! $_style['icon_tabler_timeline_event_exclamation'] !!} {{ManagerTheme::getLexicon('view_logging')}}
+                                                {!! $_style['icon_user_secret'] !!} {{ManagerTheme::getLexicon('view_logging')}}
                                             </a>
                                         </li>
                                         <li>
                                             <a href="index.php?a=53" target="main">
-                                                {!! $_style['icon_tabler_info_circle'] !!} {{ManagerTheme::getLexicon('view_sysinfo')}}
+                                                {!! $_style['icon_info_circle'] !!} {{ManagerTheme::getLexicon('view_sysinfo')}}
                                             </a>
                                         </li>
                                     @endif
                                     @if (evo()->hasPermission('help'))
                                         <li>
                                             <a href="index.php?a=9" target="main">
-                                                {!! $_style['icon_tabler_help_circle'] !!} {{ManagerTheme::getLexicon('help')}}
+                                                {!! $_style['icon_question_circle'] !!} {{ManagerTheme::getLexicon('help')}}
                                             </a>
                                         </li>
                                     @endif
@@ -315,7 +379,7 @@ if (!function_exists('jsSvg')) {
                         @if (evo()->getConfig('show_fullscreen_btn'))
                             <li id="fullscreen">
                                 <a href="javascript:;" onclick="toggleFullScreen();" id="toggleFullScreen" title="{{ManagerTheme::getLexicon('toggle_fullscreen')}}">
-                                    {!! $_style['icon_tabler_arrows_maximize'] !!}
+                                    {!! $_style['icon_expand'] !!}
                                 </a>
                             </li>
                         @endif
@@ -330,7 +394,8 @@ if (!function_exists('jsSvg')) {
             <div class="tab-row-container evo-tab-row">
                 <div class="tab-row">
                     <h2 id="evo-tab-home" class="tab selected" data-target="evo-tab-page-home" style="display:none!important;">
-                        <i class="{{$_style['icon_home']}}"></i></h2>
+                        {!! iconHtml($_style['icon_home']) !!}
+                    </h2>
                 </div>
             </div>
             <div id="evo-tab-page-home" class="evo-tab-page show iframe-scroller">
@@ -409,6 +474,33 @@ if (!function_exists('jsSvg')) {
         </form>
     </div>
     <?php
+    $__contextIconBackup = [
+        'icon_document' => $_style['icon_document'],
+        'icon_edit' => $_style['icon_edit'],
+        'icon_move' => $_style['icon_move'],
+        'icon_clone' => $_style['icon_clone'],
+        'icon_sort_num_asc' => $_style['icon_sort_num_asc'],
+        'icon_check' => $_style['icon_check'],
+        'icon_close' => $_style['icon_close'],
+        'icon_trash' => $_style['icon_trash'],
+        'icon_undo' => $_style['icon_undo'],
+        'icon_chain' => $_style['icon_chain'],
+        'icon_info' => $_style['icon_info'],
+        'icon_eye' => $_style['icon_eye'],
+    ];
+    $_style['icon_document'] = svg('tabler-file-plus')->toHtml();
+    $_style['icon_edit'] = svg('tabler-file-pencil')->toHtml();
+    $_style['icon_move'] = svg('tabler-replace')->toHtml();
+    $_style['icon_clone'] = svg('tabler-copy')->toHtml();
+    $_style['icon_sort_num_asc'] = svg('tabler-sort-ascending-letters')->toHtml();
+    $_style['icon_check'] = svg('tabler-check')->toHtml();
+    $_style['icon_close'] = svg('tabler-x')->toHtml();
+    $_style['icon_trash'] = svg('tabler-trash')->toHtml();
+    $_style['icon_undo'] = svg('tabler-arrow-back-up')->toHtml();
+    $_style['icon_chain'] = svg('tabler-link')->toHtml();
+    $_style['icon_info'] = svg('tabler-info-square-rounded')->toHtml();
+    $_style['icon_eye'] = svg('tabler-eye')->toHtml();
+
     if (!function_exists('constructLink')) {
         /**
          * @param string $action
@@ -420,7 +512,7 @@ if (!function_exists('jsSvg')) {
         {
             if ((bool) $allowed) {
                 echo '<div class="menuLink" id="item' . $action . '" onclick="modx.tree.menuHandler(' . $action . ');">';
-                echo '<i class="' . $img . '"></i> ' . $text . '</div>';
+                echo iconHtml($img) . ' ' . $text . '</div>';
             }
         }
     }
@@ -452,6 +544,12 @@ if (!function_exists('jsSvg')) {
         ?>
 
     </div>
+
+    <?php
+    foreach ($__contextIconBackup as $__key => $__value) {
+        $_style[$__key] = $__value;
+    }
+    ?>
 
     <script type="text/javascript">
         if (document.getElementById('treeMenu')) {
@@ -526,8 +624,10 @@ if (!function_exists('jsSvg')) {
             }
 
             $('#toggleFullScreen').click(function() {
-                var icon = $(this).find('i');
-                icon.toggleClass('{{ $_style['icon_expand'] }} {{ $_style['icon_compress'] }}');
+                var $toggle = $(this);
+                var isExpanded = $toggle.data('expanded') === true;
+                $toggle.html(isExpanded ? {!! jsIcon($_style['icon_expand']) !!} : {!! jsIcon($_style['icon_compress']) !!});
+                $toggle.data('expanded', !isExpanded);
             });
         </script>
     @endif
@@ -666,8 +766,8 @@ if (!function_exists('jsSvg')) {
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h3 data-toggle="collapse" data-target=".alinkcolors"><i
-                                class="togglearrow {{ $_style['icon_chevron_right'] }}" aria-hidden="true"></i> <i
-                                class="{{ $_style['icon_chain'] }}" aria-hidden="true"></i> Links Color</h3> <a
+                                class="togglearrow {{ $_style['icon_chevron_right'] }}" aria-hidden="true"></i>
+                        {!! iconHtml($_style['icon_chain'], ' aria-hidden="true"') !!} Links Color</h3> <a
                             title="{{ ManagerTheme::getLexicon('reset') }}" href="javascript:;"
                             onclick="cleanLocalStorageReloadMain('my_evo_alinkcolor')"
                             class="pull-right resetcolor btn btn-secondary"><i
