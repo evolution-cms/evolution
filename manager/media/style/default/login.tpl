@@ -6,10 +6,15 @@
     <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width">
     <link rel="icon" type="image/ico" href="[+favicon+]">
-
+    <meta name="theme-color" content="#0d47a1" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <style>
         /* [FONTS] */
         html { font-size: 16px }
+        body {
+            background-color: #0d47a1; /* initial color */
+        }
         @media (max-width: 900px) {
             html { font-size: 16px; }
         }
@@ -40,7 +45,7 @@
         html[lang="th"] body { font-family: "Sukhumvit Set", "Helvetica Neue", Helvetica, Arial, sans-serif; }
         /* For Arabic Font */
         html[lang="fa"] body { font-family: Tahoma, Arial, sans-serif; }
-        body { background-color: #fafafa; color: #444; }
+        body { background-color: #0d47a1; color: #444; }
         body.drag *, body.drag::after { cursor: grabbing !important; cursor: -moz-grabbing !important; cursor: -webkit-grabbing !important; cursor: -moz-grab !important; -moz-user-select: none !important; -webkit-user-select: none !important; user-select: none !important }
         body.drag::after { bottom: 0; content: ""; left: 0; position: fixed; right: 0; top: 0; z-index: 999 }
         body, ul, li { padding: 0; margin: 0; }
@@ -60,6 +65,8 @@
         a.text-muted:focus, a.text-muted:hover { color: #4b5257 !important }
 
         /* [ FORMS ] */
+        #username, #password, #FMP-email { border-radius: 20px!important; }
+        #password {margin-bottom: 24px; }
         legend { font-size: 1em; }
         label { cursor: pointer; display: inline-block; margin-bottom: .5em }
         label:not([for]) { cursor: default }
@@ -138,7 +145,7 @@
             min-height: 1px;
             height: auto;
         }
-        body,body.lightness,body.light,body.dark,body.darkness {background: #2a313b url('[+login_bg+]') no-repeat fixed center !important;background-size: cover !important;margin:0px;
+        body,body.lightness,body.light,body.dark,body.darkness {background: #000 url('[+login_bg+]') no-repeat fixed center !important;background-size: cover !important;margin:0px;
         }
         @media (max-width: 479px) {
             body,body.lightness,body.light,body.dark,body.darkness {background-image: none !important;}
@@ -351,6 +358,7 @@
         }
         #submitButton {
             float: right;
+            border-radius: 20px;
         }
         /* onManagerLoginFormRender */
 
