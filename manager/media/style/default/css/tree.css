@@ -4,7 +4,7 @@
 #treeloader .fa { font-size: 1em; }
 #treeloader.visible { opacity: 0.7; visibility: visible; -webkit-transition-duration: 0s; transition-duration: 0s }
 .treeframebody { height: 100%; min-height: calc(100% + 1px); background-color: #fafafa; border-right: 1px solid #cfd2d6; }
-#treeMenu { display: flex; align-items: center; gap: 0.4rem; width: 100%; height: 1.875rem; margin-top: -1px; padding: 0 0.4rem; background-color: #dfdfdf; border-bottom: 1px solid #cfd2d6 }
+#treeMenu { display: flex; align-items: center; gap: 0.4rem; width: 100%; height: 1.875rem; padding: 0 0.4rem; background-color: #dfdfdf; border-bottom: 1px solid #cfd2d6 }
 #treeMenu .treeButton { display: inline-flex; align-items: center; justify-content: flex-start; flex: 0 0 auto; cursor: pointer; height: 1.875rem; padding: 0 0.35rem; white-space: nowrap; text-align: left; vertical-align: middle; -webkit-transition-duration: 0.15s; transition-duration: 0.15s }
 #treeMenu .treeButton:hover:not(.disabled) { background-color: rgba(255, 255, 255, .5); cursor: pointer; -webkit-transition-duration: 0s; transition-duration: 0s }
 #treeMenu .treeButton:not(.disabled):active { background-color: #d5d5d5 }

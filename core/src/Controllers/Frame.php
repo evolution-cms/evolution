@@ -323,7 +323,7 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
             $svg = file_get_contents($path);
             if ($svg !== false) {
                 $svg = preg_replace('/<\\?xml.*?\\?>/i', '', $svg);
-                return '<span class="menu-icon-evo">' . trim($svg) . '</span>';
+                return '<span class="icon menu-icon-evo" aria-hidden="true">' . trim($svg) . '</span>';
             }
         }
 
