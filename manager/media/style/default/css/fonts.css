@@ -1,3 +1,56 @@
+/* Roboto Font */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 300;
+  src: url('../fonts/roboto/roboto-v19-latin-300.eot'); /* IE9 Compat Modes */
+  src: local(''),
+       url('../fonts/roboto/roboto-v19-latin-300.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('../fonts/roboto/roboto-v19-latin-300.woff2') format('woff2'), /* Super Modern Browsers */
+       url('../fonts/roboto/roboto-v19-latin-300.woff') format('woff'), /* Modern Browsers */
+       url('../fonts/roboto/roboto-v19-latin-300.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('../fonts/roboto/roboto-v19-latin-300.svg#Roboto') format('svg'); /* Legacy iOS */
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  src: url('../fonts/roboto/roboto-v19-latin-regular.eot'); /* IE9 Compat Modes */
+  src: local(''),
+       url('../fonts/roboto/roboto-v19-latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('../fonts/roboto/roboto-v19-latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
+       url('../fonts/roboto/roboto-v19-latin-regular.woff') format('woff'), /* Modern Browsers */
+       url('../fonts/roboto/roboto-v19-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('../fonts/roboto/roboto-v19-latin-regular.svg#Roboto') format('svg'); /* Legacy iOS */
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 500;
+  src: url('../fonts/roboto/roboto-v19-latin-500.eot'); /* IE9 Compat Modes */
+  src: local(''),
+       url('../fonts/roboto/roboto-v19-latin-500.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('../fonts/roboto/roboto-v19-latin-500.woff2') format('woff2'), /* Super Modern Browsers */
+       url('../fonts/roboto/roboto-v19-latin-500.woff') format('woff'), /* Modern Browsers */
+       url('../fonts/roboto/roboto-v19-latin-500.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('../fonts/roboto/roboto-v19-latin-500.svg#Roboto') format('svg'); /* Legacy iOS */
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  src: url('../fonts/roboto/roboto-v19-latin-700.eot'); /* IE9 Compat Modes */
+  src: local(''),
+       url('../fonts/roboto/roboto-v19-latin-700.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('../fonts/roboto/roboto-v19-latin-700.woff2') format('woff2'), /* Super Modern Browsers */
+       url('../fonts/roboto/roboto-v19-latin-700.woff') format('woff'), /* Modern Browsers */
+       url('../fonts/roboto/roboto-v19-latin-700.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('../fonts/roboto/roboto-v19-latin-700.svg#Roboto') format('svg'); /* Legacy iOS */
+}
+
 html { font-size: 16px }
 @media (max-width: 900px) {
 html { font-size: 16px; }
@@ -8,7 +61,7 @@ html { font-size: 16px; }
 @supports (-webkit-overflow-scrolling: touch) {
     html, body { -webkit-overflow-scrolling: touch; overflow: auto; height: 100%; /* ios iframe scroll jumping to top fix */ }
 }
-body { font-weight: normal; font-style: normal; font-size: 0.8125rem; line-height: 1.5; font-family: sans-serif; -webkit-font-smoothing: subpixel-antialiased }
+body { font-weight: normal; font-style: normal; font-size: 0.8125rem; line-height: 1.5; font-family: 'Roboto', sans-serif; -webkit-font-smoothing: subpixel-antialiased }
 /* For Arabic Font */
 html[lang="ar"] body, html[lang="ary"] body, html[lang="azb"] body, html[lang="fa-IR"] body, html[lang="haz"] body, html[lang="ps"] body, html[lang="ur"] body { font-family: Tahoma, Arial, sans-serif; }
 /* For Chinese Font */
@@ -37,7 +90,7 @@ ul { margin-left: 1rem; margin-right: 1rem; }
 li { list-style: none }
 img { max-width: 100%; height: auto }
 .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
-margin-bottom: .5rem; font-family: inherit; font-weight: 500; line-height: 1.1; color: inherit }
+margin-bottom: .5rem; font-family: 'Roboto', sans-serif; font-weight: 500; line-height: 1.1; color: inherit }
 .h1, h1 { font-size: 1.75rem }
 .h2, h2 { font-size: 1.5rem }
 .h3, h3 { font-size: 1.25rem }
