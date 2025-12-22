@@ -43,7 +43,7 @@ $tpl = '<tr>
 </tr>';
 
 $btntpl['edit'] = '<a title="[%edit_resource%]" href="index.php?a=27&amp;id=[+id+]" target="main">' . $_style['icon_edit'] . '</a> ';
-$btntpl['preview_btn'] = '<a [+preview_disabled+]" title="[%preview_resource%]" target="_blank" href="../index.php?&amp;id=[+id+]">' . $_style['icon_eye'] . '</a> ';
+$btntpl['preview_btn'] = '<a class="[+preview_disabled+]" title="[%preview_resource%]" target="_blank" href="../index.php?&amp;id=[+id+]">' . $_style['icon_eye'] . '</a> ';
 
 $output = array();
 foreach ($contents->get()->toArray() as $ph) {

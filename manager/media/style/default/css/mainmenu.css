@@ -138,8 +138,13 @@
     align-items: center;
     justify-content: center;
     width: 20px;
-    height: 20px;
+    height: 20px !important;
     pointer-events: none;
+    vertical-align: middle;
+    align-self: center;
+}
+#mainMenu #nav #site a .icon.menu-icon-evo {
+    margin: 0;
 }
 #mainMenu .menu-icon-evo svg {
     width: 20px;
@@ -998,6 +1003,9 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
     .navbar-left #mainMenu .nav > li > a .icon {
         margin-top: 0;
         margin-left: 0;
+    }
+    .navbar-left #mainMenu .menu-icon-evo {
+        height: auto !important;
     }
     .navbar-left #mainMenu #nav #bars {
         width: 100%;
