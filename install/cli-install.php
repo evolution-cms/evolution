@@ -8,7 +8,7 @@ define('EVO_BASE_PATH', $base_path);
 define('EVO_SITE_URL', '/');
 define('EVO_CORE_PATH', $base_path . 'core/');
 define('IN_INSTALL_MODE', true);
-define('MODX_CLI', true);
+define('EVO_CLI', true);
 require_once EVO_BASE_PATH . 'install/src/functions.php';
 /**
  * EVO Cli Installer/Updater
