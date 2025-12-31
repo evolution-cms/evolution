@@ -448,6 +448,12 @@ class Phx
                     case "md5":
                         $output = md5($output);
                         break;
+                    case 'inarray':
+                    case 'in_array':
+                    case 'in':
+                        $modifier_value[$i] = explode(',', $modifier_value[$i]);
+                        $condition[] = (int)(in_array($output, $modifier_value[$i]) !== false);
+                        break;
                     case "userinfo":
                         if ($output == "&_PHX_INTERNAL_&") {
                             $output = $this->user["id"];
