@@ -104,8 +104,8 @@ if (!defined('IN_MANAGER_MODE')) {
 if (!defined('MODX_API_MODE')) {
     define('MODX_API_MODE', false);
 }
-if (!defined('MODX_CLI')) {
-    define('MODX_CLI', false);
+if (!defined('EVO_CLI')) {
+    define('EVO_CLI', false);
 }
 
 // Initiate a new document parser
@@ -130,6 +130,6 @@ if (is_cli()) {
 }
 
 // Execute the parser if index.php was not included
-if (!MODX_API_MODE && !MODX_CLI) {
+if (!MODX_API_MODE && !EVO_CLI) {
     evo()->processRoutes();
 }
