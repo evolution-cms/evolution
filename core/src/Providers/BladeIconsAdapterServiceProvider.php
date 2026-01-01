@@ -1,6 +1,4 @@
-<?php
-
-namespace EvolutionCMS\Providers;
+<?php namespace EvolutionCMS\Providers;
 
 use BladeUI\Icons\Factory;
 use BladeUI\Icons\IconsManifest;
@@ -31,7 +29,7 @@ class BladeIconsAdapterServiceProvider extends ServiceProvider
 
     private function registerConfig(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/../../../core/config/blade-icons.php', 'blade-icons');
+        $this->mergeConfigFrom(EVO_CORE_PATH . 'config/blade-icons.php', 'blade-icons');
     }
 
     private function registerFactory(): void
@@ -77,6 +75,10 @@ class BladeIconsAdapterServiceProvider extends ServiceProvider
     {
         // Register icon component without Application type-hint
         $this->callAfterResolving(ViewFactory::class, function ($view) {
+            if (!is_file($this->manifestPath())) {
+                return;
+            }
+
             $this->app->make(Factory::class)->registerComponents();
         });
     }
@@ -85,7 +87,7 @@ class BladeIconsAdapterServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__ . '/../../../core/config/blade-icons.php' => $this->app->configPath('blade-icons.php'),
+                EVO_CORE_PATH . 'config/blade-icons.php' => $this->app->configPath('blade-icons.php'),
             ], 'blade-icons-config');
         }
     }
@@ -95,4 +97,3 @@ class BladeIconsAdapterServiceProvider extends ServiceProvider
         return $this->app->bootstrapPath('cache/blade-icons.php');
     }
 }
-

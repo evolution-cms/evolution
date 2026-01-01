@@ -1,7 +1,4 @@
-<?php
-
-return [
-
+<?php return [
     /*
     |--------------------------------------------------------------------------
     | Icons Sets
@@ -12,7 +9,6 @@ return [
     | set and a combination from the options below.
     |
     */
-
     'sets' => [
         // Custom icon sets can be defined here
     ],
@@ -28,7 +24,6 @@ return [
     | Default size: inline-block w-5 h-5 (Tailwind)
     |
     */
-
     'class' => 'inline-block',
 
     /*
@@ -45,7 +40,6 @@ return [
     | - stroke: currentColor (inherits text color)
     |
     */
-
     'attributes' => [
         'width' => 20,
         'height' => 20,
@@ -64,7 +58,6 @@ return [
     | reference any icon from any configured set.
     |
     */
-
     'fallback' => '',
 
     /*
@@ -76,9 +69,7 @@ return [
     | settings related to Blade Components.
     |
     */
-
     'components' => [
-
         /*
         |----------------------------------------------------------------------
         | Disable Components
@@ -89,7 +80,6 @@ return [
         | when working with large icon libraries.
         |
         */
-
         'disabled' => false,
 
         /*
@@ -101,10 +91,6 @@ return [
         | for the default Icon class component.
         |
         */
-
         'default' => 'icon',
-
     ],
-
 ];
-

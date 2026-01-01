@@ -106,7 +106,7 @@
     'manager_theme_mode' => '3',
     'login_form_position' => 'left',
     'login_form_style' => 'dark',
-    'manager_menu_position' => 'top',
+    'manager_menu_position' => 'left',
     'tinymce4_skin' => 'lightgray',
     'manager_login_startup' => 0,
     'base_url' => '/',
