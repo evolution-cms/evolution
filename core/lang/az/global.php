@@ -1054,10 +1054,10 @@ $_lang["manage_document_permissions"] = 'Sənəd icazələrini idarə et';
 $_lang["manage_module_permissions"] = 'Modul icazələrini idarə et';
 $_lang["manage_tv_permissions"] = 'TV icazələrini idarə et';
 
-$_lang["rss_url_news_default"] = 'https://github.com/evocms-community/evolution/releases.atom';
+$_lang["rss_url_news_default"] = 'https://feeds.feedburner.com/evocms-release-news';
 $_lang["rss_url_news_message"] = 'Evolution CMS Xəbərlər Lentinin URL ünvanını daxil edin.';
 $_lang["rss_url_news_title"] = 'RSS Xəbərlər Lenti';
-$_lang["rss_url_security_default"] = 'https://github.com/extras-evolution/security-fix/releases.atom';
+$_lang["rss_url_security_default"] = 'https://feeds.feedburner.com/evocms-security-news';
 $_lang["rss_url_security_message"] = 'Evolution CMS Təhlükəsizlik Lentinin URL ünvanını daxil edin.';
 $_lang["rss_url_security_title"] = 'RSS Təhlükəsizlik Xəbər Lenti';
 

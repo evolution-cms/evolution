@@ -110,7 +110,7 @@ $_lang["installing_demo_site"] = 'Instalovat ukázkový portál: ';
 $_lang["language_code"] = 'cs';	// for html element e.g. <html xml:lang="en" lang="en">
 $_lang["loading"] = 'Načítám...';
 $_lang["modules"] = 'Moduly';
-$_lang["modx_footer1"] = '&copy; 2005 - 2025 the <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> Content Management Framework (CMF) projekt. Všechna práva vyhrazena. Evolution CMS je licencován pod GNU GPL.';
+$_lang["modx_footer1"] = '&copy; 2004 - 2026 the <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> Content Management Framework (CMF) projekt. Všechna práva vyhrazena. Evolution CMS je licencován pod GNU GPL.';
 $_lang["modx_footer2"] = 'MODx je free software. Doporučujeme Vám být kreativní a používat MODx jak jen uznáte za vhodné. Pouze se ujistěte, že pokud uděláte nějaké změny a budete chtít upravený MODx distribuovat dál, musí být zdrojové kódy volně přístupné!!';
 $_lang["modx_install"] = 'MODx &raquo; Instalace';
 $_lang["modx_requires_php"] = ', a MODx vyžaduje PHP 4.2.0 nebo novější';

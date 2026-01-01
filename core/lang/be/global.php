@@ -1035,10 +1035,10 @@ $_lang["manage_document_permissions"] = 'Кіраванне дазволамі �
 $_lang["manage_module_permissions"] = 'Кіраванне дазволамі модуля';
 $_lang["manage_tv_permissions"] = 'Кіраванне дазволамі ТБ';
 
-$_lang["rss_url_news_default"] = 'https://github.com/evocms-community/evolution/releases.atom';
+$_lang["rss_url_news_default"] = 'https://feeds.feedburner.com/evocms-release-news';
 $_lang["rss_url_news_message"] = 'Увядзіце URL для стужкі навін Evolution CMS.';
 $_lang["rss_url_news_title"] = 'RSS-стужка навін';
-$_lang["rss_url_security_default"] = 'https://github.com/extras-evolution/security-fix/releases.atom';
+$_lang["rss_url_security_default"] = 'https://feeds.feedburner.com/evocms-security-news';
 $_lang["rss_url_security_message"] = 'Увядзіце URL для стужкі бяспекі Evolution CMS.';
 $_lang["rss_url_security_title"] = 'Канал бяспекі RSS';
 

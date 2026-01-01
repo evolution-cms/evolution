@@ -181,7 +181,7 @@
             'name' => 'auto_template_logic',
             'label' => __('global.defaulttemplate_logic_title'),
             'small' => '[(auto_template_logic)]',
-            'value' => $settings['auto_template_logic'],
+            'value' => $settings['auto_template_logic'] ?? 'sibling',
             'options' => [
                 'system' => __('global.defaulttemplate_logic_system_message'),
                 'parent' => __('global.defaulttemplate_logic_parent_message'),

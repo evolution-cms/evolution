@@ -33,7 +33,7 @@
 
 **************************************************************************
 	Based on MODX Evolution CMS and Application Framework
-	Copyright 2005 and forever thereafter by Raymond Irving & Ryan Thrash.
+	Copyright 2004 and forever thereafter by Raymond Irving & Ryan Thrash.
 	All rights reserved.
 
 	MODX Evolution is originally based on Etomite by Alex Butter
