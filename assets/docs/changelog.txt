@@ -2,7 +2,7 @@ This file shows the changes in recent releases of Evolution CMS. The most curren
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
 Evolution CMS 3.5.1 (Jan 02, 2026)
-* [GitHub: ] - [ADD] Performance optimization: cache dotenv to speed up bootstrap. (Seiger)
+* [GitHub: 3ce16e5] - [ADD] Performance optimization: cache dotenv to speed up bootstrap. (Seiger)
 * [GitHub: f0ba72a] - [FIX] Dates. (Seiger)
 * [GitHub: cc2fb6b] - [FIX] Fixes #2164: speed up TTFB performance. (Seiger)
 * [GitHub: 0eea7ad] - [FIX] style typo error (Dmi3yy)
