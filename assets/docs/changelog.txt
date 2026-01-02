@@ -1,6 +1,36 @@
 This file shows the changes in recent releases of Evolution CMS. The most current release is usually the
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
+Evolution CMS 3.5.1 (Jan 02, 2026)
+* [GitHub: f0ba72a86] - [FIX] Dates. (Serhii Korneliuk)
+* [GitHub: cc2fb6b9d] - [FIX] Fixes #2164: speed up TTFB performance. (Serhii Korneliuk)
+* [GitHub: 0eea7ad3b] - [FIX] style typo error (Dmi3yy)
+* [GitHub: 0c141c2ce] - [FIX] Phx inarray (Dmi3yy)
+
+Evolution CMS 3.5.0 (Dec 25, 2025)
+* [GitHub:#ff5dfb9e6] - Update logo animation color (Dmi3yy)
+* [GitHub:#a8d63c5a1] - [UPD] Logo  (Dmi3yy)
+* [GitHub:#368863dd7] - [FIX] Helper data_is_json() for PHP 8.4. (Serhii Korneliuk)
+* [GitHub:#a4a36cd50] - [ADD] Blade icons (Dmi3yy)
+* [GitHub:#60f2d9be7] - [FIX] Tracy Debug for PHP 8.4. (Serhii Korneliuk)
+* [GitHub:#4f7bc49bc] - [FIX] SqlFormatter for PHP 8.4. (Serhii Korneliuk)
+* [GitHub:#c00ff21a2] - [FIX] Refactor support collations. (Serhii Korneliuk)
+* [GitHub:#456642666] - [UPD] Core to Laravel 12. (Serhii Korneliuk)
+* [GitHub:#d5337c275] - [DEL] Salo 2. (Serhii Korneliuk)
+* [GitHub:#02f122adf] - [FIX] DB Collation on WEB installer. (Serhii Korneliuk)
+* [GitHub:#d78638980] - [UPD] Evolution 3.5 new background (Dmi3yy)
+* [GitHub:#77a0cc400] - [UPD] login style (Dmi3yy)
+* [GitHub:#0302954b3] - [UPD] Font to roboto (Dmi3yy)
+* [GitHub:#344a84169] - [FIX] Console error in tree (Dmi3yy)
+* [GitHub:#c2bfdd262] - [FIX] Style in tree (Dmi3yy)
+* [GitHub:#510d42bac] - [UPD] update main icons to tabler (Dmi3yy)
+* [GitHub:#623355364] - [UPD] update left menu (Dmi3yy)
+* [GitHub:#6440598b0] - [UPD] update dashboard (Dmi3yy)
+* [GitHub:#5b9109304] - [ADD] Initial Migration. (Serhii Korneliuk)
+* [GitHub:#dfa70bc3b] - [ADD] Initial Seed. (Serhii Korneliuk)
+* [GitHub:#37b625b04] - [FIX] Warning EVO_INSTALL_TIME. (Serhii Korneliuk)
+* [GitHub:#76cf43272] - [ADD] Admin User seed. (Serhii Korneliuk)
+
 Evolution CMS 3.3.0 (Nov 07, 2025)
 * !!! Notice: minimum PHP version 8.3. !!!
 * [GitHub: 74dd478] - Add Priority registration Service Providers. (Seiger)
