@@ -2,7 +2,7 @@
 /*
 *************************************************************************
 	Evolution CMS Content Management System and PHP Application Framework ("EVO")
-	Managed and maintained by Dmytro Lukianenko and the	EVO community
+	Managed and maintained by Dmytro Lukianenko, Serhii Korneliuk and the EVO community
 *************************************************************************
 	EVO is an opensource PHP/MySQL content management system and content
 	management framework that is flexible, adaptable, supports XHTML/CSS
@@ -41,30 +41,32 @@
 */
 
 /**
- * Initialize Document Parsing
- * -----------------------------
+ * Front controller for Evolution CMS.
+ *
+ * Bootstraps the core (`core/bootstrap.php`), defines request-mode constants, and dispatches the request.
  */
-if (!isset($_SERVER['REQUEST_TIME_FLOAT'])) {
-    $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
-}
+$_SERVER['REQUEST_TIME_FLOAT'] ??= microtime(true);
 $mstart = memory_get_usage();
 
 $config = [
     'core' => __DIR__ . '/core',
-    'manager' => __DIR__ . '/manager',
     'root' => __DIR__
 ];
 
-if (file_exists(__DIR__ . '/config.php')) {
-    $config = array_merge($config, require __DIR__ . '/config.php');
+$configPath = __DIR__ . '/config.php';
+if (is_file($configPath)) {
+    $config = array_replace($config, require $configPath);
 }
-if (!defined('IN_INSTALL_MODE') && !file_exists($config['core'] . '/.install')) {
+unset($configPath);
+
+$installMarkerPath = $config['core'] . '/.install';
+if (!defined('IN_INSTALL_MODE') && !is_file($installMarkerPath)) {
     header('HTTP/1.1 503 Service Temporarily Unavailable');
     header('Status: 503 Service Temporarily Unavailable');
     header('Retry-After: 3600');
 
     $path = __DIR__ . '/install/src/template/not_installed.tpl';
-    if (file_exists($path)) {
+    if (is_file($path)) {
         readfile($path);
     } else {
         echo '<h3>Unable to load configuration settings</h3>';
@@ -78,7 +80,7 @@ if (!defined('IN_INSTALL_MODE')) {
     define('IN_INSTALL_MODE', false);
 }
 if (IN_INSTALL_MODE) {
-// set some settings, and address some IE issues
+    // Set some settings, and address some IE issues.
     @ini_set('url_rewriter.tags', '');
     @ini_set('session.use_trans_sid', 0);
     @ini_set('session.use_only_cookies', 1);
@@ -86,7 +88,7 @@ if (IN_INSTALL_MODE) {
 
 require $config['core'] . '/bootstrap.php';
 
-if (IN_INSTALL_MODE == false) {
+if (IN_INSTALL_MODE === false) {
     header('P3P: CP="NOI NID ADMa OUR IND UNI COM NAV"'); // header for weird cookie stuff. Blame IE.
     header('Cache-Control: private, must-revalidate');
 }
@@ -101,27 +103,44 @@ define('IN_PARSER_MODE', true);
 if (!defined('IN_MANAGER_MODE')) {
     define('IN_MANAGER_MODE', false);
 }
+/**
+ * @deprecated
+ * @since 3.5.0
+ *
+ * Use EVO_API_MODE instead.
+ *
+ * @todo [remove@3.5.3] Remove in Evolution CMS 3.5.3
+ */
 if (!defined('MODX_API_MODE')) {
     define('MODX_API_MODE', false);
+}
+/**
+ * Disables automatic request dispatching in the front controller.
+ *
+ * When enabled, this file will not call `$evo->processRoutes()`.
+ */
+if (!defined('EVO_API_MODE')) {
+    define('EVO_API_MODE', false);
 }
 if (!defined('EVO_CLI')) {
     define('EVO_CLI', false);
 }
 
 // Initiate a new document parser
-evo()->minParserPasses = 1; // min number of parser recursive loops or passes
-evo()->maxParserPasses = 10; // max number of parser recursive loops or passes
-evo()->dumpSQL = false;
-evo()->dumpSnippets = false; // feed the parser the execution start time
-evo()->dumpPlugins = false;
-evo()->mstart = $mstart;
+$evo = evo();
+$evo->minParserPasses = 1; // min number of parser recursive loops or passes
+$evo->maxParserPasses = 10; // max number of parser recursive loops or passes
+$evo->dumpSQL = false;
+$evo->dumpSnippets = false; // feed the parser the execution start time
+$evo->dumpPlugins = false;
+$evo->mstart = $mstart;
 
 // Debugging mode:
-evo()->stopOnNotice = false;
+$evo->stopOnNotice = false;
 
 // Don't show PHP errors to the public
 if (!isset($_SESSION['mgrValidated']) || !$_SESSION['mgrValidated']) {
-    @ini_set("display_errors", "0");
+    @ini_set('display_errors', '0');
 }
 
 if (is_cli()) {
@@ -130,6 +149,8 @@ if (is_cli()) {
 }
 
 // Execute the parser if index.php was not included
-if (!MODX_API_MODE && !EVO_CLI) {
-    evo()->processRoutes();
+if (!EVO_API_MODE && !EVO_CLI && (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE === false)) {
+    $evo->processRoutes();
 }
+
+unset($evo, $installMarkerPath);

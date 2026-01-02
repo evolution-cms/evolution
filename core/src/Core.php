@@ -49,7 +49,7 @@ use HelperProcessor;
 class Core extends AbstractLaravel implements Interfaces\CoreInterface
 {
     use Traits\Settings {
-        getSettings as loadConfig;
+        Traits\Settings::getSettings as loadConfig;
     }
     use Traits\Path, Traits\Helpers;
 
@@ -6107,14 +6107,15 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      */
     public function getUserSettings()
     {
+        $id = $this->getLoginUserID();
+        $mgrid = $this->isFrontend() ? $this->getLoginUserID('mgr') : false;
+        if (!$id && !$mgrid) {
+            return [];
+        }
 
         $this->getDatabase();
-        //if (!$this->getDatabase()->getDriver()->isConnected()) {
-        //   $this->getDatabase()->connect();
-        //}
-        // load user setting if user is logged in
         $usrSettings = array();
-        if ($id = $this->getLoginUserID()) {
+        if ($id) {
             $usrType = $this->getLoginUserType();
             if (isset ($usrType) && $usrType === 'manager') {
                 $usrType = 'mgr';
@@ -6125,15 +6126,9 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 $this->invokeEvent("OnBeforeManagerPageInit");
             }
 
-            if ($usrType === 'web') {
-                $usrSettings = Models\UserSetting::where('user', '=', $id)->get()
-                    ->pluck('setting_value', 'setting_name')
-                    ->toArray();
-            } else {
-                $usrSettings = Models\UserSetting::where('user', '=', $id)->get()
-                    ->pluck('setting_value', 'setting_name')
-                    ->toArray();
-            }
+            $usrSettings = Models\UserSetting::where('user', '=', $id)->get()
+                ->pluck('setting_value', 'setting_name')
+                ->toArray();
 
             $which_browser_default = get_by_key(
                 $this->configGlobal,
@@ -6149,7 +6144,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 $_SESSION[$usrType . 'UsrConfigSet'] = $usrSettings;
             } // store user settings in session
         }
-        if ($this->isFrontend() && $mgrid = $this->getLoginUserID('mgr')) {
+        if ($mgrid) {
             $musrSettings = Models\UserSetting::where('user', '=', $mgrid)->get()
                 ->pluck('setting_value', 'setting_name')
                 ->toArray();
@@ -6159,6 +6154,11 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 $usrSettings = array_merge($musrSettings, $usrSettings);
             }
         }
+
+        if (empty($usrSettings)) {
+            return [];
+        }
+
         // save global values before overwriting/merging array
         foreach ($usrSettings as $param => $value) {
             if ($this->getConfig($param) !== null) {
