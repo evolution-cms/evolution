@@ -2,16 +2,31 @@
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
+/**
+ * Seeds permission groups and permissions for a fresh installation.
+ *
+ * Safety: this seeder is idempotent and will not overwrite existing permission definitions.
+ * If `permissions_groups` or `permissions` already contain any rows, it does nothing.
+ */
 class UserPermissionsTableSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Execute the database seeder.
      *
-     * @return void
+     * Seeds permission groups and permissions only when both tables are empty.
      */
     public function run(): void
     {
+        if (!Schema::hasTable('permissions_groups') || !Schema::hasTable('permissions')) {
+            return;
+        }
+
+        if (DB::table('permissions_groups')->count() > 0 || DB::table('permissions')->count() > 0) {
+            return;
+        }
+
         // Insert permission groups
         $insertArray = [
             ['id' => 1, 'name' => 'General', 'lang_key' => 'page_data_general'],
@@ -29,7 +44,6 @@ class UserPermissionsTableSeeder extends Seeder
             ['id' => 13, 'name' => 'Events Log Management', 'lang_key' => 'role_eventlog_management'],
             ['id' => 14, 'name' => 'Config Management', 'lang_key' => 'role_config_management'],
         ];
-        DB::table('permissions_groups')->delete();
         DB::table('permissions_groups')->insert($insertArray);
 
         // Insert permissions - General
@@ -105,7 +119,6 @@ class UserPermissionsTableSeeder extends Seeder
                 'group_id' => 1
             ],
         ];
-        DB::table('permissions')->delete();
         DB::table('permissions')->insert($insertArray);
 
         // Insert permissions - Content Management

@@ -2,18 +2,29 @@
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
+/**
+ * Seeds baseline system settings for a fresh installation.
+ *
+ * Safety:
+ * - Does not delete existing settings.
+ * - Uses insert-or-ignore semantics (primary key: `setting_name`) so existing values are preserved.
+ */
 class SystemSettingsTableSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Execute the database seeder.
      *
-     * @return void
+     * Inserts baseline settings using insert-or-ignore semantics so existing values are preserved.
      */
     public function run(): void
     {
-        DB::table('system_settings')->delete();
-        DB::table('system_settings')->insert([
+        if (!Schema::hasTable('system_settings')) {
+            return;
+        }
+
+        DB::table('system_settings')->insertOrIgnore([
             [
                 'setting_name' => 'settings_version',
                 'setting_value' => '',

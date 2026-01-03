@@ -1,7 +1,7 @@
 <?php namespace EvolutionCMS;
 
-use EvolutionCMS\Interfaces\CoreInterface;
 use EvolutionCMS\Models\SiteTemplate;
+use Illuminate\Support\Facades\Log;
 
 class TemplateProcessor
 {
@@ -26,7 +26,11 @@ class TemplateProcessor
             if($doc['template'] === 0) {
                 $templateAlias = '_blank';
             } else {
-                $templateAlias = SiteTemplate::select('templatealias')->find($doc['template'])->templatealias;
+                $tpl = SiteTemplate::select('templatealias')->find((int)$doc['template']);
+                $templateAlias = (string)($tpl ? $tpl->templatealias : '');
+                if ($templateAlias === '') {
+                    $templateAlias = '_blank';
+                }
             }
         }
 
@@ -92,7 +96,29 @@ class TemplateProcessor
      */
     public function getTemplateCodeFromDB($templateID)
     {
-        return SiteTemplate::findOrFail($templateID)->content;
+        $templateId = (int)$templateID;
+        $tpl = SiteTemplate::query()->find($templateId);
+        if ($tpl) {
+            return (string)$tpl->content;
+        }
+
+        Log::warning('Missing SiteTemplate. Inline template fallback was used.', [
+            'template_id' => $templateId,
+            'request_uri' => $_SERVER['REQUEST_URI'] ?? null,
+        ]);
+
+        return $this->inlineTemplate($templateId);
+    }
+
+    private function inlineTemplate(?int $expectedId = null): string
+    {
+        $msg = $expectedId ? "Expected template ID={$expectedId} is missing." : "Template is missing.";
+        return '<!doctype html><html><head><meta charset="utf-8"><title>Template missing</title></head><body>'
+            . '<h1>Template missing</h1>'
+            . '<p>' . htmlspecialchars($msg, ENT_QUOTES) . '</p>'
+            . '<p>Please assign a valid template in Manager (System Configuration / document template).</p>'
+            . '<hr><div>[*content*]</div>'
+            . '</body></html>';
     }
 
     /**

@@ -2,17 +2,31 @@
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
+/**
+ * Seeds the `system_eventnames` table for a fresh installation.
+ *
+ * Safety: this seeder is idempotent and will not duplicate/overwrite existing rows.
+ * If the `system_eventnames` table already contains any rows, it does nothing.
+ */
 class SystemEventnamesTableSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Execute the database seeder.
      *
-     * @return void
+     * Inserts the default system event names only when the `system_eventnames` table is empty.
      */
     public function run(): void
     {
-        DB::table('system_eventnames')->delete();
+        if (!Schema::hasTable('system_eventnames')) {
+            return;
+        }
+
+        if (DB::table('system_eventnames')->count() > 0) {
+            return;
+        }
+
         DB::table('system_eventnames')->insert([
             [
                 'name'      => 'OnDocPublished',

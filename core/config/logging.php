@@ -13,7 +13,6 @@ return [
     | one of the channels defined in the "channels" configuration array.
     |
     */
-
     'default' => env('LOG_CHANNEL', 'daily'),
 
     /*
@@ -30,19 +29,16 @@ return [
     |                    "custom", "stack"
     |
     */
-
     'channels' => [
         'stack' => [
             'driver' => 'stack',
             'channels' => ['single'],
         ],
-
         'single' => [
             'driver' => 'single',
             'path' => EVO_STORAGE_PATH . 'logs/evo.log',
             'level' => 'debug',
         ],
-
         'daily' => [
             'driver' => 'daily',
             'name' => env('APP_NAME', 'evo'),
@@ -51,7 +47,6 @@ return [
             'days' => env('LOG_DAILY_DAYS', 14),
             'replace_placeholders' => true,
         ],
-
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),
@@ -59,7 +54,6 @@ return [
             'emoji' => ':boom:',
             'level' => 'critical',
         ],
-
         'stderr' => [
             'driver' => 'monolog',
             'handler' => StreamHandler::class,
@@ -67,12 +61,10 @@ return [
                 'stream' => 'php://stderr',
             ],
         ],
-
         'syslog' => [
             'driver' => 'syslog',
             'level' => 'debug',
         ],
-
         'errorlog' => [
             'driver' => 'errorlog',
             'level' => 'debug',

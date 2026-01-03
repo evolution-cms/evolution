@@ -182,7 +182,7 @@ class ExceptionHandler
         $table = array();
 
         if (isset($_SERVER['HTTP_HOST'])) {
-            $request_uri = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] .
+            $request_uri = ($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . $_SERVER['HTTP_HOST'] .
                 (in_array((int)$_SERVER['SERVER_PORT'], [80, (int)HTTPS_PORT]) ? '' : (':' . $_SERVER['SERVER_PORT'])) .
                 $_SERVER['REQUEST_URI'];
             $request_uri = $this->container->getPhpCompat()->htmlspecialchars($request_uri, ENT_QUOTES,

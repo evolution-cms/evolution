@@ -1,6 +1,4 @@
-<?php
-
-return [
+<?php return [
     'default' => 'default',
     'redis' => [
         'client' => env('REDIS_CLIENT', 'phpredis'),

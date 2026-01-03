@@ -4,8 +4,21 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Seeds the initial administrator user (if missing).
+ *
+ * Safety:
+ * - Does not delete or overwrite existing users.
+ * - Creates the user only if a user with the configured username does not exist.
+ * - Creates `user_attributes` only if missing for the user.
+ */
 class AdminUserTableSeeder extends Seeder
 {
+    /**
+     * Execute the database seeder.
+     *
+     * Creates the admin user (and its attributes) only if the user does not already exist.
+     */
     public function run(): void
     {
         if (!Schema::hasTable('users') || !Schema::hasTable('user_attributes')) {

@@ -19,6 +19,7 @@ use EvolutionCMS\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use PHPMailer\PHPMailer\Exception;
@@ -126,6 +127,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     public $loadedjscripts = [];
     public $documentMap = [];
     public $forwards = 3;
+    protected $forwardTargets = [];
     public $error_reporting = 1;
     public $dumpPlugins = false;
     public $pluginsCode;
@@ -486,14 +488,17 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         exit(0);
     }
 
-    /**
-     * Forward to another page
-     *
-     * @param int|string $id
-     * @param string $responseCode
-     */
     public function sendForward($id, $responseCode = '')
     {
+        $targetKey = is_scalar($id) ? (string)$id : gettype($id);
+        $this->forwardTargets[$targetKey] = ($this->forwardTargets[$targetKey] ?? 0) + 1;
+
+        $isSelfForward = ($this->documentMethod === 'id' && (string)$this->documentIdentifier === (string)$id);
+        $isRepeatedTarget = $this->forwardTargets[$targetKey] > 1;
+        if ($isSelfForward || $isRepeatedTarget) {
+            $this->handleForwardLoop($id, $responseCode, $isSelfForward ? 'self_forward' : 'repeated_target');
+        }
+
         if ($this->forwards > 0) {
             $this->forwards = $this->forwards - 1;
             $this->documentIdentifier = $id;
@@ -508,6 +513,71 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $this->getService('ExceptionHandler')->messageQuit("Internal Server Error id={$id}");
         header('HTTP/1.0 500 Internal Server Error');
         die('<h1>ERROR: Too many forward attempts!</h1><p>The request could not be completed due to too many unsuccessful forward attempts.</p>');
+    }
+
+    /**
+     * Stops execution when a forward loop is detected, logs an error, and returns a minimal raw response.
+     *
+     * This is intentionally only invoked when a loop is detected (self-forward or repeated target) to avoid adding
+     * DB overhead on normal requests.
+     *
+     * @param mixed $target
+     * @param string $responseCode
+     * @param string $loopType
+     * @return never
+     */
+    protected function handleForwardLoop($target, string $responseCode = '', string $loopType = 'unknown')
+    {
+        $status = 500;
+        if ($responseCode !== '' && preg_match('/\\b(\\d{3})\\b/', $responseCode, $m)) {
+            $status = (int)$m[1];
+            header($responseCode);
+        } else {
+            header('HTTP/1.0 500 Internal Server Error');
+        }
+        header('Content-Type: text/html; charset=UTF-8');
+
+        $docInfo = null;
+        if (is_scalar($target) && ctype_digit((string)$target)) {
+            try {
+                $doc = SiteContent::select('id', 'deleted', 'published')->where('id', (int)$target)->first();
+                if ($doc === null) {
+                    $docInfo = ['status' => 'missing'];
+                } else {
+                    $docInfo = [
+                        'status' => ((int)$doc->deleted === 1) ? 'deleted' : 'exists',
+                        'deleted' => (int)$doc->deleted,
+                        'published' => (int)$doc->published,
+                    ];
+                }
+            } catch (\Throwable $e) {
+                $docInfo = ['status' => 'unknown', 'error' => $e->getMessage()];
+            }
+        }
+
+        Log::warning('Forward loop detected', [
+            'loop_type' => $loopType,
+            'request_uri' => $_SERVER['REQUEST_URI'] ?? null,
+            'document_method' => $this->documentMethod ?? null,
+            'document_identifier' => $this->documentIdentifier ?? null,
+            'target' => $target,
+            'target_attempts' => $this->forwardTargets[is_scalar($target) ? (string)$target : gettype($target)] ?? null,
+            'forwards_remaining' => $this->forwards,
+            'response' => $responseCode,
+            'error_page' => (int)$this->getConfig('error_page', 0),
+            'unauthorized_page' => (int)$this->getConfig('unauthorized_page', 0),
+            'site_start' => (int)$this->getConfig('site_start', 0),
+            'target_doc' => $docInfo,
+        ]);
+
+        echo '<h1>ERROR: Forward loop detected</h1>';
+        echo '<p>The request could not be completed due to an internal forward loop.</p>';
+        echo '<p>Status: ' . (int)$status . '</p>';
+        echo '<p>Target: ' . htmlspecialchars(is_scalar($target) ? (string)$target : gettype($target), ENT_QUOTES) . '</p>';
+        if (is_array($docInfo)) {
+            echo '<p>Target document: ' . htmlspecialchars((string)($docInfo['status'] ?? 'unknown'), ENT_QUOTES) . '</p>';
+        }
+        exit;
     }
 
     /**
@@ -2560,7 +2630,9 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 }
                 $documentObject = array_merge($documentObject, $tmplvars);
 
-                $documentObject['templatealias'] = SiteTemplate::select('templatealias')->where('id', $documentObject['template'])->first()->templatealias;
+                $templateId = (int)$documentObject['template'];
+                $tplAlias = SiteTemplate::whereKey($templateId)->value('templatealias');
+                $documentObject['templatealias'] = (string)($tplAlias ?? '');
             }
             $out = $this->invokeEvent(
                 'OnAfterLoadDocumentObject'

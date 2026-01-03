@@ -2,17 +2,31 @@
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
+/**
+ * Seeds default user roles and their role-permission mappings for a fresh installation.
+ *
+ * Safety: this seeder is idempotent and will not overwrite existing roles/permissions.
+ * If `user_roles` or `role_permissions` already contain any rows, it does nothing.
+ */
 class UserRolesTableSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Execute the database seeder.
      *
-     * @return void
+     * Seeds default roles and role-permission mappings only when both tables are empty.
      */
     public function run(): void
     {
-        DB::table('user_roles')->delete();
+        if (!Schema::hasTable('user_roles') || !Schema::hasTable('role_permissions')) {
+            return;
+        }
+
+        if (DB::table('user_roles')->count() > 0 || DB::table('role_permissions')->count() > 0) {
+            return;
+        }
+
         DB::table('user_roles')->insert([
             [
                 'name'        => 'Administrator',

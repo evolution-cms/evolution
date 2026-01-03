@@ -3,17 +3,31 @@
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use EvolutionCMS\Models\SiteContent;
+use Illuminate\Support\Facades\Schema;
 
+/**
+ * Seeds an initial "install success" document for a fresh installation.
+ *
+ * Safety: this seeder is idempotent and will not overwrite existing site content.
+ * If the `site_content` table already contains any rows, it does nothing.
+ */
 class SiteContentTableSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Execute the database seeder.
      *
-     * @return void
+     * Inserts the default "install success" document only when the `site_content` table is empty.
      */
     public function run(): void
     {
-        DB::table('site_content')->delete();
+        if (!Schema::hasTable('site_content')) {
+            return;
+        }
+
+        if (DB::table('site_content')->count() > 0) {
+            return;
+        }
+
         $resource = SiteContent::create(
             [
                 'type'            => 'document',
