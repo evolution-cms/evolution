@@ -125,7 +125,7 @@ if($modx->getManagerApi()->hasFormValues()) {
 }
 
 // include the country list language file
-$_country_lang = array();
+$_country_lang = [];
 if($manager_language != "english" && file_exists(MODX_MANAGER_PATH . "includes/lang/country/" . $manager_language . "_country.inc.php")) {
 	include_once MODX_MANAGER_PATH . "includes/lang/country/" . $manager_language . "_country.inc.php";
 } else {
@@ -254,7 +254,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 <form name="userform" method="post" action="index.php">
 	<?php
 	// invoke OnWUsrFormPrerender event
-	$evtOut = $modx->invokeEvent("OnWUsrFormPrerender", array("id" => $user));
+	$evtOut = $modx->invokeEvent("OnWUsrFormPrerender", ["id" => $user]);
 	if(is_array($evtOut)) {
 		echo implode("", $evtOut);
 	}
@@ -1041,7 +1041,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 			<?php
 			if($modx->getConfig('use_udperms')) {
 
-			$groupsarray = array();
+			$groupsarray = [];
 
 			if($modx->getManagerApi()->action == '88') { // only do this bit if the user is being edited
 				$groupsarray = \EvolutionCMS\Models\MemberGroup::query()->where('member', $user)->pluck('user_group')->toArray();
@@ -1065,9 +1065,9 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 			</div>
 			<?php
 			// invoke OnWUsrFormRender event
-			$evtOut = $modx->invokeEvent("OnWUsrFormRender", array(
+			$evtOut = $modx->invokeEvent("OnWUsrFormRender", [
 				"id" => $user
-			));
+			]);
 			if(is_array($evtOut)) {
 				echo implode("", $evtOut);
 			}

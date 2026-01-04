@@ -130,7 +130,7 @@ class Plugin extends AbstractController implements ManagerTheme\PageControllerIn
     protected function parameterDocBlockList()
     {
         $out = '';
-        $internal = array();
+        $internal = [];
         if (isset($this->object->plugincode)) {
             $snippetcode = $this->object->plugincode;
             $parsed = $this->managerTheme->getCore()->parseDocBlockFromString($snippetcode);

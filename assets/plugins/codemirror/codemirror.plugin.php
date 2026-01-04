@@ -130,10 +130,10 @@ switch($modx->event->name) {
     case 'OnTVFormRender':
 		$tvMode = true;
 		// $limitedHeight = true; // No limited height since MODX 1.2
-		$elements = array(
+		$elements = [
 			$textarea_name,
 			'properties'
-		);
+		];
 		$mode = 'application/x-httpd-php-open';
 		$rte = ($prte ? $prte : 'none');
 		$lang = "php";
@@ -331,7 +331,7 @@ HEREDOC;
 }
 
 if(!$tvMode) {
-	$elements = array($textarea_name);
+	$elements = [$textarea_name];
 }
 
 if(('none' == $rte) && $mode && $elements !== NULL) {

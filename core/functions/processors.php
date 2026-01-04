@@ -67,7 +67,7 @@ if (!function_exists('allChildren')) {
      */
     function allChildren($currDocID)
     {
-        $children = array();
+        $children = [];
         $found = collect();
 
         $docs = EvolutionCMS\Models\SiteContent::withTrashed()
@@ -178,7 +178,7 @@ if (!function_exists('updateNewHash')) {
     {
         $modx = evo();
 
-        $field = array();
+        $field = [];
         $field['password'] = $modx->getPasswordHash()->HashPassword($password);
         \EvolutionCMS\Models\User::where('username', $username)->update($field);
 
@@ -206,10 +206,10 @@ if (!function_exists('saveUserGroupAccessPermissons')) {
 
             if (is_array($usrgroups)) {
                 foreach ($usrgroups as $value) {
-                    \EvolutionCMS\Models\SiteModuleAccess::create(array(
+                    \EvolutionCMS\Models\SiteModuleAccess::create([
                         'module' => (int)$id,
                         'usergroup' => stripslashes($value),
-                    ));
+                    ]);
 
                 }
             }
@@ -222,7 +222,7 @@ if (!function_exists('saveEventListeners')) {
     function saveEventListeners($id, $sysevents, $mode)
     {
         // save selected system events
-        $formEventList = array();
+        $formEventList = [];
         foreach ($sysevents as $evtId) {
             if (!preg_match('@^[1-9][0-9]*$@', $evtId)) {
                 $evtId = getEventIdByName($evtId);
@@ -239,17 +239,17 @@ if (!function_exists('saveEventListeners')) {
                 $priority = isset($prevPriority) ? $prevPriority : 1;
             }
             $priority = (int)$priority;
-            $formEventList[] = array('pluginid' => $id, 'evtid' => $evtId, 'priority' => $priority);
+            $formEventList[] = ['pluginid' => $id, 'evtid' => $evtId, 'priority' => $priority];
         }
 
-        $evtids = array();
+        $evtids = [];
         foreach ($formEventList as $eventInfo) {
             \EvolutionCMS\Models\SitePluginEvent::query()->updateOrCreate(['pluginid' => $eventInfo['pluginid'], 'evtid' => $eventInfo['evtid']], ['priority' => $eventInfo['priority']]);
             $evtids[] = $eventInfo['evtid'];
         }
         $pluginEvents = \EvolutionCMS\Models\SitePluginEvent::query()->where('pluginid', $id)->get();
 
-        $del = array();
+        $del = [];
         foreach ($pluginEvents->toArray() as $row) {
             if (!in_array($row['evtid'], $evtids)) {
                 $del[] = $row['evtid'];
@@ -271,7 +271,7 @@ if (!function_exists('getEventIdByName')) {
      */
     function getEventIdByName($name)
     {
-        static $eventIds = array();
+        static $eventIds = [];
 
         if (isset($eventIds[$name])) {
             return $eventIds[$name];
@@ -293,7 +293,7 @@ if (!function_exists('saveTemplateAccess')) {
 
             // Preserve rankings of already assigned TVs
             $templates = SiteTmplvarTemplate::query()->where('templateid', $id)->get();
-            $ranksArr = array();
+            $ranksArr = [];
             $highest = 0;
             foreach ($templates->toArray() as $row) {
                 $ranksArr[$row['tmplvarid']] = $row['rank'];
@@ -308,11 +308,11 @@ if (!function_exists('saveTemplateAccess')) {
                 if (!$id || !$tvid) {
                     continue;
                 }    // Dont link zeros
-                SiteTmplvarTemplate::create(array(
+                SiteTmplvarTemplate::create([
                     'templateid' => $id,
                     'tmplvarid' => $tvid,
                     'rank' => isset($ranksArr[$tvid]) ? $ranksArr[$tvid] : $highest += 1 // append TVs to rank
-                ));
+                ]);
             }
         }
     }
@@ -424,12 +424,12 @@ if (!function_exists('sendMailMessageForUser')) {
         }
         // replace placeholders
         $message = str_replace(
-            array('[+uid+]', '[+pwd+]', '[+ufn+]', '[+sname+]', '[+saddr+]', '[+semail+]', '[+surl+]', '[+u_first_name+]', '[+u_last_name+]', '[+u_middle_name+]')
-            , array($uid, $pwd, $ufn, $modx->getPhpCompat()->entities($modx->getConfig('site_name')), $emailsender, $emailsender, $url, $first_name, $last_name, $middle_name)
+            ['[+uid+]', '[+pwd+]', '[+ufn+]', '[+sname+]', '[+saddr+]', '[+semail+]', '[+surl+]', '[+u_first_name+]', '[+u_last_name+]', '[+u_middle_name+]']
+            , [$uid, $pwd, $ufn, $modx->getPhpCompat()->entities($modx->getConfig('site_name')), $emailsender, $emailsender, $url, $first_name, $last_name, $middle_name]
             , $message
         );
 
-        $param = array();
+        $param = [];
         $param['from'] = $modx->getConfig('site_name') . '<' . $emailsender . '>';
         $param['subject'] = $emailsubject;
         $param['body'] = $message;

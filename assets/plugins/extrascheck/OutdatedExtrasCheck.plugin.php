@@ -47,7 +47,7 @@ switch (true)
             $modx->setPlaceholder('button_pl_config', $button);
 
             $wdgTitle = $checkOutdated->parseTemplate('@CODE:EVO [+evo_cms_version+] - [+title+]');
-            $widgets['xtraCheck'] = array(
+            $widgets['xtraCheck'] = [
                 'menuindex' => '0',
                 'id'        => 'xtraCheck' . $checkOutdated->getPluginId() . '',
                 'cols'      => 'col-lg-12',
@@ -57,7 +57,7 @@ switch (true)
                 'title'     => '' . $wdgTitle . ' ' . $button . '',
                 'body'      => '<div class="card-body">' . $out . '</div>',
                 'hide'      => '0'
-            );
+            ];
             $modx->event->setOutput(serialize($widgets));
         }
         break;

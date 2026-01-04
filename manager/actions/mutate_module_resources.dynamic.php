@@ -48,11 +48,11 @@ switch ($_REQUEST['op']) {
             }
             \EvolutionCMS\Models\SiteModuleDepobj::query()->where('module', $id)->whereIn('resource', $opids)->where('type', $type)->delete();
             foreach ($opids as $opid) {
-                \EvolutionCMS\Models\SiteModuleDepobj::create(array(
+                \EvolutionCMS\Models\SiteModuleDepobj::create([
                     'module' => $id,
                     'resource' => $opid,
                     'type' => $type,
-                ));
+                ]);
             }
         }
         break;
@@ -63,8 +63,8 @@ switch ($_REQUEST['op']) {
         // get resources that needs to be removed
         $ds = \EvolutionCMS\Models\SiteModule::query()->whereIn('id', $opids)->get();
         // loop through resources and look for plugins and snippets
-        $plids = array();
-        $snids = array();
+        $plids = [];
+        $snids = [];
         foreach ($ds->toArray() as $row) {
             if ($row['type'] == '30') {
                 $plids[$i] = $row['resource'];
@@ -78,10 +78,10 @@ switch ($_REQUEST['op']) {
         // reset moduleguid for deleted resources
         if (($cp = count($plids)) || ($cs = count($snids))) {
             if ($cp) {
-                \EvolutionCMS\Models\SitePlugin::query()->whereIn('id', $plids)->where('moduleguid', $guid)->update(array('moduleguid' => ''));
+                \EvolutionCMS\Models\SitePlugin::query()->whereIn('id', $plids)->where('moduleguid', $guid)->update(['moduleguid' => '']);
             }
             if ($cs) {
-                \EvolutionCMS\Models\SitePlugin::query()->whereIn('id', $plids)->where('moduleguid', $snids)->update(array('moduleguid' => ''));
+                \EvolutionCMS\Models\SitePlugin::query()->whereIn('id', $plids)->where('moduleguid', $snids)->update(['moduleguid' => '']);
             }
             // reset cache
             EvolutionCMS()->clearCache('full');

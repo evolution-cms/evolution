@@ -14,9 +14,9 @@
 
 class image_imagick extends image {
 
-    static $MIMES = array(
+    static array $MIMES = [
         //'tif' => "image/tiff"
-    );
+    ];
 
 
     // ABSTRACT PUBLIC METHODS
@@ -250,7 +250,7 @@ class image_imagick extends image {
 
     // INHERIT METHODS
 
-    public function output($type="jpeg", array $options=array()) {
+    public function output($type="jpeg", array $options=[]) {
         $type = strtolower($type);
         try {
             $this->image->setImageFormat($type);
@@ -289,7 +289,7 @@ class image_imagick extends image {
 
     // OWN METHODS
 
-    protected function optimize_jpeg(array $options=array()) {
+    protected function optimize_jpeg(array $options=[]) {
         $quality = isset($options['quality']) ? $options['quality'] : self::DEFAULT_JPEG_QUALITY;
         try {
             $this->image->setImageCompression(Imagick::COMPRESSION_JPEG);

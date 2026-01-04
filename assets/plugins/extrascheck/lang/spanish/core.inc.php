@@ -11,7 +11,7 @@
 //
 //   GNU General Public License (GPL - http://www.gnu.org/copyleft/gpl.html)
 //
-$_lang = array();
+$_lang = [];
 $_lang['title'] = 'Comprobación de compatibilidad de extras';
 $_lang['outdated'] = 'está <b> obsoleto</b>';
 $_lang['isoutdated'] = 'está <b> obsoleto</b> y ya no es compatible con';

@@ -11,7 +11,7 @@ class Menu implements MenuInterface
     /**
      * @var array
      */
-    public $defaults = array();
+    public $defaults = [];
     /**
      * @var
      */
@@ -26,7 +26,7 @@ class Menu implements MenuInterface
      * @param array $setting
      * @param bool $show
      */
-    public function build($menu, $setting = array(), $show = true)
+    public function build($menu, $setting = [], $show = true)
     {
         $this->defaults['outerClass'] = 'nav';
         $this->defaults['parentClass'] = 'dropdown';
@@ -50,7 +50,7 @@ class Menu implements MenuInterface
      */
     public function structurise($menu)
     {
-        $new = array();
+        $new = [];
         foreach ($menu as $key => $row) {
             $data[$key] = $row[9];
         }
@@ -77,7 +77,7 @@ class Menu implements MenuInterface
 
         if (isset($this->menu[$parentid])) {
 
-            $ph = array();
+            $ph = [];
             $countChild = 0;
             $itemTpl = '
 			<li id="[+id+]" class="[+li_class+]"><a href="[+href+]" alt="[+alt+]" target="[+target+]" onclick="[+onclick+]"[+a_class+] [+LinkAttr+]>[+itemName+]</a>[+DrawSub+]</li>';
@@ -129,7 +129,7 @@ class Menu implements MenuInterface
                 $output .= $modx->parseText($itemTpl, $ph);
             }
 
-            $ph = array();
+            $ph = [];
             if ($countChild > 0) {
                 $ph['id'] = $level == 0 ? $this->defaults['outerClass'] : '';
                 $ph['class'] = $level == 0 ? $this->defaults['outerClass'] : $this->defaults['innerClass'];

@@ -78,10 +78,10 @@ class UrlProcessor
             $url = ($dir !== '' ? $dir . '/' : '') . $pre . $alias . $suff;
         }
 
-        $evtOut = $this->core->invokeEvent('OnMakeDocUrl', array(
+        $evtOut = $this->core->invokeEvent('OnMakeDocUrl', [
             'id' => $id,
             'url' => $url
-        ));
+        ]);
 
         if (\is_array($evtOut) && \count($evtOut) > 0) {
             $url = array_pop($evtOut);
@@ -402,13 +402,13 @@ class UrlProcessor
             return null;
         }
 
-        $this->aliasListing[$id] = array(
+        $this->aliasListing[$id] = [
             'id' => $query->getKey(),
             'alias' => $query->alias === '' ? $query->getKey() : $query->alias,
             'parent' => $query->parent,
             'isfolder' => $query->isfolder,
             'alias_visible' => $query->alias_visible,
-        );
+        ];
 
         if ($query->parent <= 0) {
             return $this->aliasListing[$id];
@@ -628,10 +628,10 @@ class UrlProcessor
             $url = $host . $virtualDir . $url;
         }
 
-        $evtOut = $this->core->invokeEvent('OnMakeDocUrl', array(
+        $evtOut = $this->core->invokeEvent('OnMakeDocUrl', [
             'id' => $id,
             'url' => $url
-        ));
+        ]);
 
         if (is_array($evtOut) && $evtOut) {
             $url = array_pop($evtOut);

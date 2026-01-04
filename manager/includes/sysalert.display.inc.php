@@ -15,7 +15,7 @@ for ($i = 0; $i < $limit; $i++) {
 }
 // reset message queque
 unset($_SESSION['SystemAlertMsgQueque']);
-$_SESSION['SystemAlertMsgQueque'] = array();
+$_SESSION['SystemAlertMsgQueque'] = [];
 $SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
 if ($sysMsgs != '') : ?>

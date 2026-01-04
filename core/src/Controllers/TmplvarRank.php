@@ -68,7 +68,7 @@ class TmplvarRank extends AbstractController implements ManagerTheme\PageControl
                     $key = $reset ? 0 : $key;
                     $id = ltrim($item, 'item_');
                     SiteTmplvar::where('id', $id)
-                        ->update(array('rank' => $key));
+                        ->update(['rank' => $key]);
                 }
                 $updated = true;
             }

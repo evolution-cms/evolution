@@ -2,7 +2,7 @@
 /**
  * Common transliteration table
  */
-return array(
+return [
     ' ' => '-',
     ',' => '-',
     '?' => '-',
@@ -345,4 +345,4 @@ return array(
     'Э' => 'EH',
     'Ю' => 'JU',
     'Я' => 'JA',
-);
+];

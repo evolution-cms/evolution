@@ -34,7 +34,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
 } else {
 
     //lang
-    $_lang = array();
+    $_lang = [];
     $plugin_path = MODX_BASE_PATH . "assets/plugins/updater/";
     include($plugin_path . 'lang/en.php');
     if (file_exists($plugin_path . 'lang/' . $modx->config['manager_language'] . '.php')) {
@@ -72,14 +72,14 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
             $output = '<div class="card-body">
                 <small style="color:red;font-size:10px">' . $errorsMessage . '</small></div>';
 
-            $widgets['updater'] = array(
+            $widgets['updater'] = [
                 'menuindex' => '1',
                 'id' => 'updater',
                 'cols' => 'col-sm-12',
                 'icon' => 'fa-exclamation-triangle',
                 'title' => $_lang['system_update'],
                 'body' => $output
-            );
+            ];
             $e->output(serialize($widgets));
             return;
         }
@@ -129,14 +129,14 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
             <small style="color:red;font-size:10px">' . $errorsMessage . '</small>
                     </div>' . $updateButton;
             // Add widget to end as is always displayed for commits
-            $widgets['updater'] = array(
+            $widgets['updater'] = [
                 'menuindex' => '1000',
                 'id' => 'updater',
                 'cols' => 'col-sm-12',
                 'icon' => 'fa-exclamation-triangle',
                 'title' => $_lang['system_update'],
                 'body' => $output
-            );
+            ];
             $e->output(serialize($widgets));
         } else {
             // Create directory 'assets/cache/updater'
@@ -159,7 +159,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                 curl_setopt($ch, CURLOPT_URL, $url);
                 curl_setopt($ch, CURLOPT_REFERER, $url);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, array('User-Agent: updateNotify widget'));
+                curl_setopt($ch, CURLOPT_HTTPHEADER, ['User-Agent: updateNotify widget']);
                 $info = curl_exec($ch);
                 curl_close($ch);
                 if (substr($info, 0, 1) != '[') {
@@ -223,14 +223,14 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                     <small style="color:red;font-size:10px">' . $errorsMessage . '</small>
                     <br><br><small style="font-size:10px"> ' . $_lang['help_donate_msg'] . '</small></div>';
 
-                $widgets['updater'] = array(
+                $widgets['updater'] = [
                     'menuindex' => '1',
                     'id' => 'updater',
                     'cols' => 'col-sm-12',
                     'icon' => 'fa-exclamation-triangle',
                     'title' => $_lang['system_update'],
                     'body' => $output
-                );
+                ];
 
                 $e->output(serialize($widgets));
             }

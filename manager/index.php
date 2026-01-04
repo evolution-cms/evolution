@@ -144,7 +144,7 @@ $modx->sid = session_id();
 
 // Initialize System Alert Message Queque
 if (!isset($_SESSION['SystemAlertMsgQueque'])) {
-    $_SESSION['SystemAlertMsgQueque'] = array();
+    $_SESSION['SystemAlertMsgQueque'] = [];
 }
 $SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 

@@ -2,7 +2,7 @@
 /**
  * Russian transliteration table
  */
-return array(
+return [
     '…' => '',
     '—' => '-',
     '(' => '',
@@ -339,4 +339,4 @@ return array(
     'ї' => 'i',
     'Ґ' => 'g',
     'ґ' => 'e',
-);
+];

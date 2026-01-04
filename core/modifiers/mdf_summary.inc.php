@@ -10,7 +10,7 @@ $content = $modx->getModifiers()->parseDocumentSource($value);
 
 $content = strip_tags($content);
 
-$content = str_replace(array("\r\n","\r","\n","\t",'&nbsp;'),' ',$content);
+$content = str_replace(["\r\n","\r","\n","\t",'&nbsp;'],' ',$content);
 if(preg_match('/\s+/',$content))
     $content = preg_replace('/\s+/',' ',$content);
 $content = trim($content);

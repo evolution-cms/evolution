@@ -59,17 +59,17 @@ $name = EvolutionCMS\Models\SiteTmplvar::findOrFail($id)->name;
 $_SESSION['itemname'] = $name;
 
 // invoke OnBeforeTVFormDelete event
-EvolutionCMS()->invokeEvent("OnBeforeTVFormDelete", array(
+EvolutionCMS()->invokeEvent("OnBeforeTVFormDelete", [
 	"id" => $id
-));
+]);
 
 // delete variable
 EvolutionCMS\Models\SiteTmplvar::destroy($id);
 
 // invoke OnTVFormDelete event
-EvolutionCMS()->invokeEvent("OnTVFormDelete", array(
+EvolutionCMS()->invokeEvent("OnTVFormDelete", [
 	"id" => $id
-));
+]);
 
 // empty cache
 EvolutionCMS()->clearCache('full');

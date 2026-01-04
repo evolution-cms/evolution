@@ -10,18 +10,18 @@ if(!function_exists('import_sql')) {
         global $e;
 
         $rs = null;
-        if ($modx->getLockedElements() !== array()) {
+        if ($modx->getLockedElements() !== []) {
             $modx->webAlertAndQuit("At least one Resource is still locked or edited right now by any user. Remove locks or ask users to log out before proceeding.");
         }
 
         $settings = getSettings();
 
         if (strpos($source, "\r") !== false) {
-            $source = str_replace(array(
+            $source = str_replace([
                 "\r\n",
                 "\n",
                 "\r"
-            ), "\n", $source);
+            ], "\n", $source);
         }
         $sql_array = preg_split('@;[ \t]*\n@', $source);
         foreach ($sql_array as $sql_entry) {
@@ -118,7 +118,7 @@ if(!function_exists('getSettings')) {
 
         $rs = $modx->getDatabase()->select('setting_name, setting_value', $tbl_system_settings);
 
-        $settings = array();
+        $settings = [];
         while ($row = $modx->getDatabase()->getRow($rs)) {
             switch ($row['setting_name']) {
                 case 'rb_base_dir':
@@ -144,7 +144,7 @@ if(!function_exists('restoreSettings')) {
         $tbl_system_settings = $modx->getDatabase()->getFullTableName('system_settings');
 
         foreach ($settings as $k => $v) {
-            $modx->getDatabase()->update(array('setting_value' => $v), $tbl_system_settings, "setting_name='{$k}'");
+            $modx->getDatabase()->update(['setting_value' => $v], $tbl_system_settings, "setting_name='{$k}'");
         }
     }
 }
@@ -155,7 +155,7 @@ if(!function_exists('parsePlaceholder')) {
      * @param array $ph
      * @return string
      */
-    function parsePlaceholder($tpl = '', $ph = array())
+    function parsePlaceholder($tpl = '', $ph = [])
     {
         if (empty($ph) || empty($tpl)) {
             return $tpl;

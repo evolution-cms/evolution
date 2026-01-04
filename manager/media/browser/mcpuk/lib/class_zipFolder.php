@@ -23,7 +23,7 @@ class zipFolder {
 
         $this->ignored = is_array($ignored)
             ? $ignored
-            : ($ignored ? array($ignored) : array());
+            : ($ignored ? [$ignored] : []);
 
         if ($this->zip->open($file, ZIPARCHIVE::CREATE) !== TRUE)
             throw new Exception("cannot open <$file>\n");

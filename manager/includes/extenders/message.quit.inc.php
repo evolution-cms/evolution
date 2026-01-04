@@ -39,7 +39,7 @@ if(!empty($query)) {
 
 if($text!='') {
 
-	$errortype = array (
+	$errortype = [ 
 		E_ERROR          => "Error",
 		E_WARNING        => "Warning",
 		E_PARSE          => "Parsing Error",
@@ -51,7 +51,7 @@ if($text!='') {
 		E_USER_ERROR      => "User Error",
 		E_USER_WARNING    => "User Warning",
 		E_USER_NOTICE    => "User Notice",
-	);
+	];
 
 	$parsedMessageString .= "<tr><td>&nbsp;</td></tr><tr><td colspan='3'><b>PHP error debug</b></td></tr>";
 

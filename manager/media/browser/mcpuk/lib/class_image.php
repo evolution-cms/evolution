@@ -33,7 +33,7 @@ abstract class image {
 
 /** Driver specific options
   * @var array */
-    protected $options = array();
+    protected array $options = [];
 
 
 /** Magic method which allows read-only access to all protected or private
@@ -57,7 +57,7 @@ abstract class image {
   * @param mixed $image
   * @param array $options */
 
-    public function __construct($image, array $options=array()) {
+    public function __construct($image, array $options=[]) {
         $this->image = $this->width = $this->height = null;
         $imageDetails = $this->buildImage($image);
 
@@ -75,7 +75,7 @@ abstract class image {
   * @param mixed $image
   * @return object */
 
-    final static function factory($driver, $image, array $options=array()) {
+    final static function factory($driver, $image, array $options=[]) {
         $class = "image_$driver";
         return new $class($image, $options);
     }
@@ -86,7 +86,7 @@ abstract class image {
   * @param array $drivers
   * @return string */
 
-    final static function getDriver(array $drivers=array('gd')) {
+    final static function getDriver(array $drivers=['gd']) {
         foreach ($drivers as $driver) {
             if (!preg_match('/^[a-z0-9\_]+$/i', $driver))
                 continue;
@@ -120,7 +120,7 @@ abstract class image {
         } else
             $img = $this->getImage($image, $width, $height);
         return ($img !== false)
-            ? array($img, $width, $height)
+            ? [$img, $width, $height]
             : false;
     }
 
@@ -212,7 +212,7 @@ abstract class image {
   * @param string $type
   * @param array $options
   * @return bool */
-    abstract public function output($type='jpeg', array $options=array());
+    abstract public function output($type='jpeg', array $options=[]);
 
 /** This method should create a blank image with selected size. Should returns
   * resource or object related to the created image, which will be passed to

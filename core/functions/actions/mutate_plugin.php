@@ -20,6 +20,6 @@ if (!function_exists('echoEventRows')) {
                 '</div>' .
         '</div>';
 
-        $evtnames = array();
+        $evtnames = [];
     }
 }

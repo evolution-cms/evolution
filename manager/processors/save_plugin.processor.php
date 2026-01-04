@@ -13,17 +13,17 @@ if (isset($_GET['disabled'])) {
     try {
         $plugin = EvolutionCMS\Models\SitePlugin::findOrFail($id);
         // invoke OnBeforeChunkFormSave event
-        $modx->invokeEvent("OnBeforePluginFormSave", array(
+        $modx->invokeEvent("OnBeforePluginFormSave", [
             "mode" => "upd",
             "id" => $id
-        ));
+        ]);
         $_SESSION['itemname'] = $plugin->name;
         $plugin->update(['disabled' => $disabled]);
         // invoke OnChunkFormSave event
-        $modx->invokeEvent("OnPluginFormSave", array(
+        $modx->invokeEvent("OnPluginFormSave", [
             "mode" => "upd",
             "id" => $id
-        ));
+        ]);
     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
         $modx->webAlertAndQuit($_lang["error_no_id"]);
     }
@@ -44,7 +44,7 @@ $plugincode = $_POST['post'];
 $properties = $_POST['properties'];
 $disabled = isset($_POST['disabled']) && $_POST['disabled'] == 'on' ? '1' : '0';
 $moduleguid = $_POST['moduleguid'];
-$sysevents = !empty($_POST['sysevents']) ? $_POST['sysevents'] : array();
+$sysevents = !empty($_POST['sysevents']) ? $_POST['sysevents'] : [];
 $parse_docblock = isset($_POST['parse_docblock']) && $_POST['parse_docblock'] == '1' ? '1' : '0';
 $currentdate = time() + $modx->config['server_offset_time'];
 
@@ -80,15 +80,15 @@ if ($parse_docblock) {
     }
 }
 
-$eventIds = array();
+$eventIds = [];
 switch ($_POST['mode']) {
     case '101':
 
         // invoke OnBeforePluginFormSave event
-        $modx->invokeEvent('OnBeforePluginFormSave', array(
+        $modx->invokeEvent('OnBeforePluginFormSave', [
             'mode' => 'new',
             'id' => $id
-        ));
+        ]);
 
         // disallow duplicate names for active plugins
         if ($disabled == '0') {
@@ -100,7 +100,7 @@ switch ($_POST['mode']) {
         }
 
         //do stuff to save the new plugin
-        $newid = \EvolutionCMS\Models\SitePlugin::query()->insertGetId(array(
+        $newid = \EvolutionCMS\Models\SitePlugin::query()->insertGetId([
             'name' => $name,
             'description' => $description,
             'plugincode' => $plugincode,
@@ -111,16 +111,16 @@ switch ($_POST['mode']) {
             'category' => $categoryid,
             'createdon' => $currentdate,
             'editedon' => $currentdate
-        ));
+        ]);
 
         // save event listeners
         saveEventListeners($newid, $sysevents, $_POST['mode']);
 
         // invoke OnPluginFormSave event
-        $modx->invokeEvent('OnPluginFormSave', array(
+        $modx->invokeEvent('OnPluginFormSave', [
             'mode' => 'new',
             'id' => $newid
-        ));
+        ]);
 
         // Set the item name for logger
         $_SESSION['itemname'] = $name;
@@ -141,10 +141,10 @@ switch ($_POST['mode']) {
     case '102':
 
         // invoke OnBeforePluginFormSave event
-        $modx->invokeEvent('OnBeforePluginFormSave', array(
+        $modx->invokeEvent('OnBeforePluginFormSave', [
             'mode' => 'upd',
             'id' => $id
-        ));
+        ]);
 
         // disallow duplicate names for active plugins
         if ($disabled == '0') {
@@ -156,7 +156,7 @@ switch ($_POST['mode']) {
         }
 
         //do stuff to save the edited plugin
-        $newid = \EvolutionCMS\Models\SitePlugin::query()->find($id)->update(array(
+        $newid = \EvolutionCMS\Models\SitePlugin::query()->find($id)->update([
             'name' => $name,
             'description' => $description,
             'plugincode' => $plugincode,
@@ -166,16 +166,16 @@ switch ($_POST['mode']) {
             'properties' => $properties,
             'category' => $categoryid,
             'editedon' => $currentdate
-        ));
+        ]);
 
         // save event listeners
         saveEventListeners($id, $sysevents, $_POST['mode']);
 
         // invoke OnPluginFormSave event
-        $modx->invokeEvent('OnPluginFormSave', array(
+        $modx->invokeEvent('OnPluginFormSave', [
             'mode' => 'upd',
             'id' => $id
-        ));
+        ]);
 
         // Set the item name for logger
         $_SESSION['itemname'] = $name;

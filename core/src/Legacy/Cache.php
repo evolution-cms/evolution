@@ -9,19 +9,19 @@ class Cache
 {
     public $cachePath;
     public $showReport;
-    public $deletedfiles = array();
+    public $deletedfiles = [];
     /**
      * @var array
      */
-    public $aliases = array();
+    public $aliases = [];
     /**
      * @var array
      */
-    public $parents = array();
+    public $parents = [];
     /**
      * @var array
      */
-    public $aliasVisible = array();
+    public $aliasVisible = [];
     public $request_time;
     public $cacheRefreshTime;
 
@@ -58,8 +58,8 @@ class Cache
         if ($s === '') {
             return $s;
         }
-        $q1 = array("\\", "'");
-        $q2 = array("\\\\", "\\'");
+        $q1 = ["\\", "'"];
+        $q2 = ["\\\\", "\\'"];
 
         return str_replace($q1, $q2, $s);
     }
@@ -70,8 +70,8 @@ class Cache
      */
     public function escapeDoubleQuotes($s)
     {
-        $q1 = array("\\", "\"", "\r", "\n", "\$");
-        $q2 = array("\\\\", "\\\"", "\\r", "\\n", "\\$");
+        $q1 = ["\\", "\"", "\r", "\n", "\$"];
+        $q2 = ["\\\\", "\\\"", "\\r", "\\n", "\\$"];
         return str_replace($q1, $q2, ($s ?? ''));
     }
 
@@ -121,7 +121,7 @@ class Cache
         Models\UserSetting::query()->whereIn('setting_name', ['password', 'password_confirmation', 'clearPassword'])->delete();
         $files = glob(realpath($this->cachePath) . '/*.pageCache.php');
         $filesincache = count($files);
-        $deletedfiles = array();
+        $deletedfiles = [];
         while ($file = array_shift($files)) {
             $name = basename($file);
             clearstatcache();
@@ -198,7 +198,7 @@ class Cache
     public function getCacheRefreshTime()
     {
         // update publish time file
-        $timesArr = array();
+        $timesArr = [];
 
         $minpub = Models\SiteContent::query()
             ->where('pub_date', '>', $this->request_time)->min('pub_date');
@@ -240,7 +240,7 @@ class Cache
 
         // get settings
         $systemSettings = Models\SystemSetting::all();
-        $config = array();
+        $config = [];
         $content .= '$c=&$this->config;';
         foreach ($systemSettings as $systemSetting) {
             $content .= '$c[\'' . $systemSetting->setting_name . '\']="' . $this->escapeDoubleQuotes($systemSetting->setting_value) . '";';
@@ -362,10 +362,10 @@ class Cache
             ->orderBy('system_eventnames.name', 'ASC')
             ->orderBy('site_plugin_events.priority', 'ASC')->get();
         $content .= '$e=&$this->pluginEvent;';
-        $events = array();
+        $events = [];
         foreach ($systemEvents->toArray() as $row) {
             if (!isset($events[$row['evtname']])) {
-                $events[$row['evtname']] = array();
+                $events[$row['evtname']] = [];
             }
             $events[$row['evtname']][] = $row['pname'];
         }
@@ -417,9 +417,9 @@ class Cache
         $chars = explode(' ', '( ) ; , = { } ? :');
         foreach ($tokens as $i => $token) {
             if (is_string($token)) {
-                if (in_array($token, array('=', ':'))) {
+                if (in_array($token, ['=', ':'])) {
                     $_ = trim($_);
-                } elseif (in_array($token, array('(', '{')) && in_array($prev_token, array(T_IF, T_ELSE, T_ELSEIF))) {
+                } elseif (in_array($token, ['(', '{']) && in_array($prev_token, [T_IF, T_ELSE, T_ELSEIF])) {
                     $_ = trim($_);
                 }
                 $_ .= $token;
@@ -442,7 +442,7 @@ class Cache
                     $lastChar = substr($_, -1);
                     if (!in_array($lastChar, $chars)) {// ,320,327,288,284,289
                         if (!in_array($prev_token,
-                            array(T_FOREACH, T_WHILE, T_FOR, T_BOOLEAN_AND, T_BOOLEAN_OR, T_DOUBLE_ARROW))) {
+                            [T_FOREACH, T_WHILE, T_FOR, T_BOOLEAN_AND, T_BOOLEAN_OR, T_DOUBLE_ARROW])) {
                             $_ .= ' ';
                         }
                     }
@@ -465,8 +465,8 @@ class Cache
                     $_ .= $text;
             }
         }
-        $source = preg_replace(array('@^<\?php@i', '|\s+|', '|<!--|', '|-->|', '|-->\s+<!--|'),
-            array('', ' ', "\n" . '<!--', '-->' . "\n", '-->' . "\n" . '<!--'), $_);
+        $source = preg_replace(['@^<\?php@i', '|\s+|', '|<!--|', '|-->|', '|-->\s+<!--|'],
+            ['', ' ', "\n" . '<!--', '-->' . "\n", '-->' . "\n" . '<!--'], $_);
         $source = trim($source);
 
         return $source;

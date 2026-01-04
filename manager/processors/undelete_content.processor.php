@@ -51,10 +51,10 @@ DB::table($site_content_table)
         'deletedon' => 0]);
 
 EvolutionCMS()->invokeEvent("OnDocFormUnDelete",
-    array(
+    [
         "id" => $id,
         "children" => $children
-    ));
+    ]);
 
 // Set the item name for logger
 $_SESSION['itemname'] = $document->pagetitle;

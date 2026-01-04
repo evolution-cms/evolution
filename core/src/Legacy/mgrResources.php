@@ -10,19 +10,19 @@ class mgrResources
     /**
      * @var array
      */
-    public $types = array();
+    public $types = [];
     /**
      * @var array
      */
-    public $items = array();
+    public $items = [];
     /**
      * @var array
      */
-    public $categories = array();
+    public $categories = [];
     /**
      * @var array
      */
-    public $itemsPerCategory = array();
+    public $itemsPerCategory = [];
 
     /**
      * mgrResources constructor.
@@ -39,37 +39,37 @@ class mgrResources
      */
     public function setTypes()
     {
-        $this->types['site_templates'] = array(
+        $this->types['site_templates'] = [
             'title' => ManagerTheme::getLexicon('manage_templates'),
-            'actions' => array('edit' => array(16, 'edit_template'), 'duplicate' => array(96, 'new_template'), 'remove' => array(21, 'delete_template')),
-            'permissions' => array('new_template', 'edit_template'),
+            'actions' => ['edit' => [16, 'edit_template'], 'duplicate' => [96, 'new_template'], 'remove' => [21, 'delete_template']],
+            'permissions' => ['new_template', 'edit_template'],
             'name' => 'templatename'
-        );
-        $this->types['site_tmplvars'] = array(
+        ];
+        $this->types['site_tmplvars'] = [
             'title' => ManagerTheme::getLexicon('tmplvars'),
-            'actions' => array('edit' => array(301, 'edit_template'), 'duplicate' => array(304, 'edit_template'), 'remove' => array(303, 'edit_template')),
-            'permissions' => array('new_template', 'edit_template'),
-        );
-        $this->types['site_htmlsnippets'] = array(
+            'actions' => ['edit' => [301, 'edit_template'], 'duplicate' => [304, 'edit_template'], 'remove' => [303, 'edit_template']],
+            'permissions' => ['new_template', 'edit_template'],
+        ];
+        $this->types['site_htmlsnippets'] = [
             'title' => ManagerTheme::getLexicon('manage_htmlsnippets'),
-            'actions' => array('edit' => array(78, 'edit_chunk'), 'duplicate' => array(97, 'new_chunk'), 'remove' => array(80, 'delete_chunk')),
-            'permissions' => array('new_chunk', 'edit_chunk'),
-        );
-        $this->types['site_snippets'] = array(
+            'actions' => ['edit' => [78, 'edit_chunk'], 'duplicate' => [97, 'new_chunk'], 'remove' => [80, 'delete_chunk']],
+            'permissions' => ['new_chunk', 'edit_chunk'],
+        ];
+        $this->types['site_snippets'] = [
             'title' => ManagerTheme::getLexicon('manage_snippets'),
-            'actions' => array('edit' => array(22, 'edit_snippet'), 'duplicate' => array(98, 'new_snippet'), 'remove' => array(25, 'delete_snippet')),
-            'permissions' => array('new_snippet', 'edit_snippet'),
-        );
-        $this->types['site_plugins'] = array(
+            'actions' => ['edit' => [22, 'edit_snippet'], 'duplicate' => [98, 'new_snippet'], 'remove' => [25, 'delete_snippet']],
+            'permissions' => ['new_snippet', 'edit_snippet'],
+        ];
+        $this->types['site_plugins'] = [
             'title' => ManagerTheme::getLexicon('manage_plugins'),
-            'actions' => array('edit' => array(102, 'edit_plugin'), 'duplicate' => array(105, 'new_plugin'), 'remove' => array(104, 'delete_plugin')),
-            'permissions' => array('new_plugin', 'edit_plugin'),
-        );
-        $this->types['site_modules'] = array(
+            'actions' => ['edit' => [102, 'edit_plugin'], 'duplicate' => [105, 'new_plugin'], 'remove' => [104, 'delete_plugin']],
+            'permissions' => ['new_plugin', 'edit_plugin'],
+        ];
+        $this->types['site_modules'] = [
             'title' => ManagerTheme::getLexicon('manage_modules'),
-            'actions' => array('edit' => array(108, 'edit_module'), 'duplicate' => array(111, 'new_module'), 'remove' => array(110, 'delete_module')),
-            'permissions' => array('new_module', 'edit_module'),
-        );
+            'actions' => ['edit' => [108, 'edit_module'], 'duplicate' => [111, 'new_module'], 'remove' => [110, 'delete_module']],
+            'permissions' => ['new_module', 'edit_module'],
+        ];
     }
 
     /**
@@ -95,12 +95,12 @@ class mgrResources
         $modx = evo();
         global $_lang;
 
-        $allowed = array(
+        $allowed = [
             'site_htmlsnippets',
             'site_snippets',
             'site_plugins',
             'site_modules'
-        );
+        ];
         $pluginsql = !empty($resourceTable) && in_array($resourceTable, $allowed) ? $resourceTable . '.disabled, ' : '';
 
         $tvsql = '';
@@ -124,7 +124,7 @@ class mgrResources
 
         if ($limit < 1) return false;
 
-        $result = array();
+        $result = [];
         while ($row = $modx->getDatabase()->getRow($rs)) {
             $result[] = $row;
         }

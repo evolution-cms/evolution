@@ -2,7 +2,7 @@
 /**
  * UTF-8 lowercase transliteration table
  */
-return array(
+return [
 // File/path punctuation (usually not wanted, but might be wanted in some cases)
     '/' => '',
 // Generally unwanted punctuation
@@ -94,4 +94,4 @@ return array(
     'Ǫ' => 'ǫ', 'Ǭ' => 'ǭ', 'Ǯ' => 'ǯ', 'Ǳ' => 'ǳ', 'ǲ' => 'ǳ', 'Ǵ' => 'ǵ', 'Ǻ' => 'ǻ', 'Ǽ' => 'ǽ',
     'Ǿ' => 'ǿ', 'Ȁ' => 'ȁ', 'Ȃ' => 'ȃ', 'Ȅ' => 'ȅ', 'Ȇ' => 'ȇ', 'Ȉ' => 'ȉ', 'Ȋ' => 'ȋ', 'Ȍ' => 'ȍ',
     'Ȏ' => 'ȏ', 'Ȑ' => 'ȑ', 'Ȓ' => 'ȓ', 'Ȕ' => 'ȕ', 'Ȗ' => 'ȗ'
-);
+];

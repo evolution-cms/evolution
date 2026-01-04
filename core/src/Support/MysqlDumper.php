@@ -76,7 +76,7 @@ class MysqlDumper implements MysqlDumperInterface
     public function createDump($callBack)
     {
         $modx = evo();
-        $createtable = array();
+        $createtable = [];
         $dataBaseConfig = $modx->db->getConfig();
 
         $databaseName = $dataBaseConfig['database'];
@@ -176,18 +176,18 @@ class MysqlDumper implements MysqlDumperInterface
                 while ($arr = $modx->getDatabase()->getRow($result)) {
                     //формируем блок значений
                     $insertdump = "(";
-                    if (!is_array($arr)) $arr = array();
+                    if (!is_array($arr)) $arr = [];
 
                     foreach ($arr as $key => $value) {
                         if (is_null($value)) {
                             $value = 'NULL';
                         } else {
                             $value = addslashes($value);
-                            $value = str_replace(array(
+                            $value = str_replace([
                                 "\r\n",
                                 "\r",
                                 "\n"
-                            ), '\\n', $value);
+                            ], '\\n', $value);
                             $value = "'{$value}'";
                         }
                         $insertdump .= $value . ',';
@@ -247,7 +247,7 @@ class MysqlDumper implements MysqlDumperInterface
     public function result2Array($numinarray = 0, $resource)
     {
         $modx = evo();
-        $array = array();
+        $array = [];
         while ($row = $modx->getDatabase()->getRow($resource, 'num')) {
             $array[] = $row[$numinarray];
         }
@@ -271,7 +271,7 @@ class MysqlDumper implements MysqlDumperInterface
     public function loadObjectList($key = '', $resource)
     {
         $modx = evo();
-        $array = array();
+        $array = [];
         while ($row = $modx->getDatabase()->getRow($resource, 'object')) {
             if ($key) {
                 $array[$row->$key] = $row;
@@ -291,7 +291,7 @@ class MysqlDumper implements MysqlDumperInterface
     {
         $array = null;
         if (is_object($obj)) {
-            $array = array();
+            $array = [];
             foreach (get_object_vars($obj) as $key => $value) {
                 if (is_object($value)) {
                     $array[$key] = $this->object2Array($value);

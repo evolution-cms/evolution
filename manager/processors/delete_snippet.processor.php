@@ -17,18 +17,18 @@ $_SESSION['itemname'] = $name;
 
 // invoke OnBeforeSnipFormDelete event
 EvolutionCMS()->invokeEvent("OnBeforeSnipFormDelete",
-	array(
+	[
 		"id"	=> $id
-	));
+	]);
 
 // delete the snippet.
 EvolutionCMS\Models\SiteSnippet::destroy($id);
 
 // invoke OnSnipFormDelete event
 EvolutionCMS()->invokeEvent("OnSnipFormDelete",
-	array(
+	[
 		"id"	=> $id
-	));
+	]);
 
 // empty cache
 EvolutionCMS()->clearCache('full');

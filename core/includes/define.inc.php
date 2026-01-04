@@ -94,7 +94,7 @@ if (!defined('MODX_BASE_PATH') || !defined('MODX_BASE_URL')) {
     if ($separator !== '') {
         $items = explode('/' . $separator, $script_name);
     } else {
-        $items = array($script_name);
+        $items = [$script_name];
     }
     unset($script_name);
 
@@ -155,7 +155,7 @@ if (!defined('EVO_BASE_PATH') || !defined('EVO_BASE_URL')) {
     if ($separator !== '') {
         $items = explode('/' . $separator, $script_name);
     } else {
-        $items = array($script_name);
+        $items = [$script_name];
     }
     unset($script_name);
 

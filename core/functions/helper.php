@@ -247,7 +247,7 @@ if (!function_exists('rename_key_arr')) {
 
         $InsertPrefix = ($prefix !== '') ? $prefix . $addPS : '';
         $InsertSuffix = ($suffix !== '') ? $addPS . $suffix : '';
-        $out = array();
+        $out = [];
         foreach ($data as $key => $item) {
             $key = $InsertPrefix . $key;
             $val = null;
@@ -290,7 +290,7 @@ if (!function_exists('replace_array')) {
                 $out = str_replace(array_keys($chars), array_values($chars), $data);
                 break;
             case is_array($data):
-                $out = array();
+                $out = [];
                 foreach ($data as $key => $val) {
                     $key = $withKey ? replace_array($key, $chars) : $key;
                     $out[$key] = replace_array($val, $chars);

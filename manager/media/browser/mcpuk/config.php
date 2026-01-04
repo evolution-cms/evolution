@@ -17,7 +17,7 @@
 // See http://kcfinder.sunhater.com/install for setting descriptions
 
 $modx = evolutionCMS();
-$_CONFIG = array(
+$_CONFIG = [
     'disabled' => false,
     'denyZipDownload' => EvolutionCMS()->getConfig('denyZipDownload'),
     'denyExtensionRename' => EvolutionCMS()->getConfig('denyExtensionRename'),
@@ -32,26 +32,26 @@ $_CONFIG = array(
     'maxfilesize'         => (int)EvolutionCMS()->getConfig('upload_maxsize'),
     'noThumbnailsRecreation' => EvolutionCMS()->getConfig('noThumbnailsRecreation'),
 
-    'access' => array(
+    'access' => [
 
-        'files' => array(
+        'files' => [
             'upload' => true,
             'delete' => true,
             'copy' => true,
             'move' => true,
             'rename' => true
-        ),
+        ],
 
-        'dirs' => array(
+        'dirs' => [
             'create' => true,
             'delete' => true,
             'rename' => true
-        )
-    ),
+        ]
+    ],
 
     'deniedExts' => "exe com msi bat php phps phtml php3 php4 cgi pl",
 
-    'types' => array(
+    'types' => [
 
         // CKEditor & FCKEditor types
         'files'  => str_replace(',', ' ', EvolutionCMS()->getConfig('upload_files')),
@@ -61,19 +61,19 @@ $_CONFIG = array(
         'file'   => str_replace(',', ' ', EvolutionCMS()->getConfig('upload_files')),
         'media'  => str_replace(',', ' ', EvolutionCMS()->getConfig('upload_media')),
         'image'  => str_replace(',', ' ', EvolutionCMS()->getConfig('upload_images')),
-    ),
-    'dirnameChangeChars' => array(
+    ],
+    'dirnameChangeChars' => [
         ' ' => "_",
         ':' => "."
-    ),
+    ],
     'mime_magic' => "",
 
     'maxImageWidth' => EvolutionCMS()->getConfig('maxImageWidth'),
     'maxImageHeight' => EvolutionCMS()->getConfig('maxImageHeight'),
-    'clientResize'   => EvolutionCMS()->getConfig('clientResize') && EvolutionCMS()->getConfig('maxImageWidth') && EvolutionCMS()->getConfig('maxImageHeight') ? array('maxWidth'  => EvolutionCMS()->getConfig('maxImageWidth'),
+    'clientResize'   => EvolutionCMS()->getConfig('clientResize') && EvolutionCMS()->getConfig('maxImageWidth') && EvolutionCMS()->getConfig('maxImageHeight') ? ['maxWidth'  => EvolutionCMS()->getConfig('maxImageWidth'),
                                                                                                                                             'maxHeight' => EvolutionCMS()->getConfig('maxImageHeight'),
                                                                                                                                             'quality'   => EvolutionCMS()->getConfig('jpegQuality') / 100
-    ) : array(),
+    ] : [],
 
     'thumbWidth' => EvolutionCMS()->getConfig('thumbWidth'),
     'thumbHeight' => EvolutionCMS()->getConfig('thumbHeight'),
@@ -95,7 +95,7 @@ $_CONFIG = array(
 
     //'_sessionDomain' => ".mysite.com",
     //'_sessionPath' => "/my/path",
-);
+];
 
 EvolutionCMS()->invokeEvent('OnFileBrowserInit', [
     'config' => &$_CONFIG,

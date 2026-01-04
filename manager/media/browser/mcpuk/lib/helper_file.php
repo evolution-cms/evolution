@@ -14,7 +14,7 @@
 
 class file {
 
-    static $MIME = array(
+    static array $MIME = [
         'ai'    => 'application/postscript',
         'aif'   => 'audio/x-aiff',
         'aifc'  => 'audio/x-aiff',
@@ -98,7 +98,7 @@ class file {
         'xml'   => 'text/xml',
         'xsl'   => 'text/xml',
         'zip'   => 'application/x-zip'
-    );
+    ];
 
   /** Checks if the given file is really writable. The standard PHP function
     * is_writable() does not work properly on Windows servers.

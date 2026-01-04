@@ -12,15 +12,15 @@ class ModuleCategoriesManager extends Categories
     /**
      * @var array
      */
-    public $params = array();
+    public $params = [];
     /**
      * @var array
      */
-    public $translations = array();
+    public $translations = [];
     /**
      * @var array
      */
-    public $new_translations = array();
+    public $new_translations = [];
 
 
     /**
@@ -88,7 +88,7 @@ class ModuleCategoriesManager extends Categories
      * @param string $view_name
      * @param array $data
      */
-    public function renderView($view_name, $data = array())
+    public function renderView($view_name, $data = [])
     {
         global $_lang, $_style;
 
@@ -113,9 +113,9 @@ class ModuleCategoriesManager extends Categories
     public function updateElement($element, $element_id, $category_id)
     {
 
-        $_update = array(
+        $_update = [
             'category' => (int)$category_id
-        );
+        ];
         switch ($element) {
             case 'templates':
                 SiteTemplate::where('id', $element_id)->update($_update);

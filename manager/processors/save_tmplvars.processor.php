@@ -42,10 +42,10 @@ switch ($_POST['mode']) {
     case '300':
 
         // invoke OnBeforeTVFormSave event
-        $modx->invokeEvent("OnBeforeTVFormSave", array(
+        $modx->invokeEvent("OnBeforeTVFormSave", [
             "mode" => "new",
             "id" => $id
-        ));
+        ]);
 
         // disallow duplicate names for new tvs
         if (EvolutionCMS\Models\SiteTmplvar::where('name', '=', $name)->first()) {
@@ -53,14 +53,14 @@ switch ($_POST['mode']) {
             $modx->webAlertAndQuit(sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $name), "index.php?a=300");
         }
         // disallow reserved names
-        if (in_array($name, array('id', 'type', 'contentType', 'pagetitle', 'longtitle', 'description', 'alias', 'link_attributes', 'published', 'pub_date', 'unpub_date', 'parent', 'isfolder', 'introtext', 'content', 'richtext', 'template', 'menuindex', 'searchable', 'cacheable', 'createdby', 'createdon', 'editedby', 'editedon', 'deleted', 'deletedon', 'deletedby', 'publishedon', 'publishedby', 'menutitle', 'hide_from_tree', 'privateweb', 'privatemgr', 'content_dispo', 'hidemenu', 'alias_visible', 'id', 'oldusername', 'oldemail', 'newusername', 'fullname', 'first_name', 'middle_name', 'last_name', 'verified', 'newpassword', 'newpasswordcheck', 'passwordgenmethod', 'passwordnotifymethod', 'specifiedpassword', 'confirmpassword', 'email', 'phone', 'mobilephone', 'fax', 'dob', 'country', 'street', 'city', 'state', 'zip', 'gender', 'photo', 'comment', 'role', 'failedlogincount', 'blocked', 'blockeduntil', 'blockedafter', 'user_groups', 'mode', 'blockedmode', 'stay', 'save', 'theme_refresher', 'username'))) {
+        if (in_array($name, ['id', 'type', 'contentType', 'pagetitle', 'longtitle', 'description', 'alias', 'link_attributes', 'published', 'pub_date', 'unpub_date', 'parent', 'isfolder', 'introtext', 'content', 'richtext', 'template', 'menuindex', 'searchable', 'cacheable', 'createdby', 'createdon', 'editedby', 'editedon', 'deleted', 'deletedon', 'deletedby', 'publishedon', 'publishedby', 'menutitle', 'hide_from_tree', 'privateweb', 'privatemgr', 'content_dispo', 'hidemenu', 'alias_visible', 'id', 'oldusername', 'oldemail', 'newusername', 'fullname', 'first_name', 'middle_name', 'last_name', 'verified', 'newpassword', 'newpasswordcheck', 'passwordgenmethod', 'passwordnotifymethod', 'specifiedpassword', 'confirmpassword', 'email', 'phone', 'mobilephone', 'fax', 'dob', 'country', 'street', 'city', 'state', 'zip', 'gender', 'photo', 'comment', 'role', 'failedlogincount', 'blocked', 'blockeduntil', 'blockedafter', 'user_groups', 'mode', 'blockedmode', 'stay', 'save', 'theme_refresher', 'username'])) {
             $_POST['name'] = '';
             $modx->getManagerApi()->saveFormValues(300);
             $modx->webAlertAndQuit(sprintf($_lang['reserved_name_warning'], $_lang['tv'], $name), "index.php?a=300");
         }
 
         // Add new TV
-        $field = array(
+        $field = [
             'name' => $name,
             'description' => $description,
             'caption' => $caption,
@@ -75,7 +75,7 @@ switch ($_POST['mode']) {
             'createdon' => $currentdate,
             'editedon' => $currentdate,
             'properties' => $properties
-        );
+        ];
         $tmplVar= EvolutionCMS\Models\SiteTmplvar::create($field);
         $newid = $tmplVar->getKey();
 
@@ -85,10 +85,10 @@ switch ($_POST['mode']) {
         saveVarRoles($newid);
 
         // invoke OnTVFormSave event
-        $modx->invokeEvent("OnTVFormSave", array(
+        $modx->invokeEvent("OnTVFormSave", [
             "mode" => "new",
             "id" => $newid
-        ));
+        ]);
 
         // Set the item name for logger
         $_SESSION['itemname'] = $caption;
@@ -108,10 +108,10 @@ switch ($_POST['mode']) {
         break;
     case '301':
         // invoke OnBeforeTVFormSave event
-        $modx->invokeEvent("OnBeforeTVFormSave", array(
+        $modx->invokeEvent("OnBeforeTVFormSave", [
             "mode" => "upd",
             "id" => $id
-        ));
+        ]);
 
         // disallow duplicate names for tvs
         if (EvolutionCMS\Models\SiteTmplvar::where('name', '=', $name)->where('id', '!=', $id)->first()) {
@@ -119,13 +119,13 @@ switch ($_POST['mode']) {
             $modx->webAlertAndQuit(sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $name), "index.php?a=301&id={$id}");
         }
         // disallow reserved names
-        if (in_array($name, array('id', 'type', 'contentType', 'pagetitle', 'longtitle', 'description', 'alias', 'link_attributes', 'published', 'pub_date', 'unpub_date', 'parent', 'isfolder', 'introtext', 'content', 'richtext', 'template', 'menuindex', 'searchable', 'cacheable', 'createdby', 'createdon', 'editedby', 'editedon', 'deleted', 'deletedon', 'deletedby', 'publishedon', 'publishedby', 'menutitle', 'hide_from_tree', 'privateweb', 'privatemgr', 'content_dispo', 'hidemenu', 'alias_visible', 'id', 'oldusername', 'oldemail', 'newusername', 'fullname', 'first_name', 'middle_name', 'last_name', 'verified', 'newpassword', 'newpasswordcheck', 'passwordgenmethod', 'passwordnotifymethod', 'specifiedpassword', 'confirmpassword', 'email', 'phone', 'mobilephone', 'fax', 'dob', 'country', 'street', 'city', 'state', 'zip', 'gender', 'photo', 'comment', 'role', 'failedlogincount', 'blocked', 'blockeduntil', 'blockedafter', 'user_groups', 'mode', 'blockedmode', 'stay', 'save', 'theme_refresher', 'username'))) {
+        if (in_array($name, ['id', 'type', 'contentType', 'pagetitle', 'longtitle', 'description', 'alias', 'link_attributes', 'published', 'pub_date', 'unpub_date', 'parent', 'isfolder', 'introtext', 'content', 'richtext', 'template', 'menuindex', 'searchable', 'cacheable', 'createdby', 'createdon', 'editedby', 'editedon', 'deleted', 'deletedon', 'deletedby', 'publishedon', 'publishedby', 'menutitle', 'hide_from_tree', 'privateweb', 'privatemgr', 'content_dispo', 'hidemenu', 'alias_visible', 'id', 'oldusername', 'oldemail', 'newusername', 'fullname', 'first_name', 'middle_name', 'last_name', 'verified', 'newpassword', 'newpasswordcheck', 'passwordgenmethod', 'passwordnotifymethod', 'specifiedpassword', 'confirmpassword', 'email', 'phone', 'mobilephone', 'fax', 'dob', 'country', 'street', 'city', 'state', 'zip', 'gender', 'photo', 'comment', 'role', 'failedlogincount', 'blocked', 'blockeduntil', 'blockedafter', 'user_groups', 'mode', 'blockedmode', 'stay', 'save', 'theme_refresher', 'username'])) {
             $modx->getManagerApi()->saveFormValues(300);
             $modx->webAlertAndQuit(sprintf($_lang['reserved_name_warning'], $_lang['tv'], $name), "index.php?a=301&id={$id}");
         }
 
         // update TV
-        $field = array(
+        $field = [
             'name' => $name,
             'description' => $description,
             'caption' => $caption,
@@ -139,7 +139,7 @@ switch ($_POST['mode']) {
             'category' => $categoryid,
             'editedon' => $currentdate,
             'properties' => $properties
-        );
+        ];
         $tmplVar = EvolutionCMS\Models\SiteTmplvar::findOrFail($id);
         $tmplVar->update($field);
 
@@ -149,10 +149,10 @@ switch ($_POST['mode']) {
         saveVarRoles($id);
 
         // invoke OnTVFormSave event
-        $modx->invokeEvent("OnTVFormSave", array(
+        $modx->invokeEvent("OnTVFormSave", [
             "mode" => "upd",
             "id" => $id
-        ));
+        ]);
 
         // Set the item name for logger
         $_SESSION['itemname'] = $caption;

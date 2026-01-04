@@ -16,7 +16,7 @@ class ServiceProvider extends BaseServiceProvider
      */
     protected function loadSnippetsFrom($path, $namespace = '')
     {
-        $found = $this->app->findElements('snippet', $path, array('php'));
+        $found = $this->app->findElements('snippet', $path, ['php']);
         foreach ($found as $name => $code) {
             $this->addSnippet($name, $code, $namespace);
         }
@@ -31,7 +31,7 @@ class ServiceProvider extends BaseServiceProvider
      */
     protected function loadChunksFrom($path, $namespace = '')
     {
-        $found = $this->app->findElements('chunk', $path, array('tpl', 'html'));
+        $found = $this->app->findElements('chunk', $path, ['tpl', 'html']);
         foreach ($found as $name => $code) {
             $this->addChunk($name, $code, $namespace);
         }

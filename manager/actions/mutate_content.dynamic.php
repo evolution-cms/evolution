@@ -10,7 +10,7 @@ $pg = isset($_REQUEST['page']) ? '&page=' . (int) $_REQUEST['page'] : '';
 $add_path = $sd . $sb . $pg;
 /*******************/
 global $content, $richtexteditorIds, $richtexteditorOptions;
-$richtexteditorIds = array();
+$richtexteditorIds = [];
 $defaultContentType = 'document';
 // check permissions
 switch($modx->getManagerApi()->action) {
@@ -90,7 +90,7 @@ if(!empty ($id)) {
     $modx->documentObject = &$content;
     $_SESSION['itemname'] = $content['pagetitle'];
 } else {
-    $content = array();
+    $content = [];
     $content['contentType'] = $_REQUEST['contentType'] ?? $defaultContentType;
 
     if(isset($_REQUEST['newtemplate'])) {
@@ -504,10 +504,10 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
     <form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php" onsubmit="documentDirty=false;">
         <?php
         // invoke OnDocFormPrerender event
-        $evtOut = $modx->invokeEvent('OnDocFormPrerender', array(
+        $evtOut = $modx->invokeEvent('OnDocFormPrerender', [
             'id' => $id,
             'template' => $content['template']
-        ));
+        ]);
 
         if(is_array($evtOut)) {
             echo implode('', $evtOut);
@@ -552,7 +552,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
             // breadcrumbs
             if($modx->getConfig('use_breadcrumbs')) {
                 $out = '';
-                $temp = array();
+                $temp = [];
                 $title = isset($content['pagetitle']) ? $content['pagetitle'] : $_lang['create_resource_title'];
 
                 if(isset($_REQUEST['id']) && $content['parent'] != 0) {
@@ -593,9 +593,9 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 
                     <!-- General -->
                     <?php
-                    $evtOut = $modx->invokeEvent('OnDocFormTemplateRender', array(
+                    $evtOut = $modx->invokeEvent('OnDocFormTemplateRender', [
                         'id' => $id
-                    ));
+                    ]);
 
                     $group_tvs = $modx->getConfig('group_tvs');
                     $templateVariables = '';
@@ -1361,7 +1361,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                     /*******************************
                      * Document Access Permissions */
                     if($modx->getConfig('use_udperms') && $modx->hasAnyPermissions(['manage_groups', 'manage_document_permissions'])) {
-                        $groupsarray = array();
+                        $groupsarray = [];
                         $sql = '';
 
                         $userGroups = array_unique(\EvolutionCMS\Models\MemberGroup::query()
@@ -1398,13 +1398,13 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                         }
 
                         // Setup Basic attributes for each Input box
-                        $inputAttributes = array(
+                        $inputAttributes = [
                             'type' => 'checkbox',
                             'class' => 'checkbox',
                             'name' => 'docgroups[]',
                             'onclick' => 'makePublic(false);',
-                        );
-                        $permissions = array(); // New Permissions array list (this contains the HTML)
+                        ];
+                        $permissions = []; // New Permissions array list (this contains the HTML)
                         $permissions_yes = 0; // count permissions the current mgr user has
                         $permissions_no = 0; // count permissions the current mgr user doesn't have
 
@@ -1435,7 +1435,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                 unset($inputAttributes['disabled']);
                             }
                             // Create attribute string list
-                            $inputString = array();
+                            $inputString = [];
                             foreach($inputAttributes as $k => $v) $inputString[] = $k . '="' . $v . '"';
 
                             // Make the <input> HTML
@@ -1497,10 +1497,10 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                     <?php
 
                     // invoke OnDocFormRender event
-                    $evtOut = $modx->invokeEvent('OnDocFormRender', array(
+                    $evtOut = $modx->invokeEvent('OnDocFormRender', [
                         'id' => $id,
                         'template' => (int)get_by_key($content, 'template', 0, 'is_scalar')
-                    ));
+                    ]);
 
                     if(is_array($evtOut)) {
                         echo implode('', $evtOut);
@@ -1519,11 +1519,11 @@ if((! empty($content['richtext']) || $modx->getManagerApi()->action == '4' || $m
     if(is_array($richtexteditorIds)) {
         foreach($richtexteditorIds as $editor => $elements) {
             // invoke OnRichTextEditorInit event
-            $evtOut = $modx->invokeEvent('OnRichTextEditorInit', array(
+            $evtOut = $modx->invokeEvent('OnRichTextEditorInit', [
                 'editor' => $editor,
                 'elements' => $elements,
                 'options' => $richtexteditorOptions[$editor]
-            ));
+            ]);
             if(is_array($evtOut)) {
                 echo implode('', $evtOut);
             }
