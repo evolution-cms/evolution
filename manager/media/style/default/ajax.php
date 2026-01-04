@@ -71,11 +71,11 @@ if (isset($action)) {
                     }
 
                     // setup sorting
-                    $sortParams = array(
+                    $sortParams = [
                         'tree_sortby',
                         'tree_sortdir',
                         'tree_nodename'
-                    );
+                    ];
                     foreach ($sortParams as $param) {
                         if (isset($_REQUEST[$param])) {
                             $_SESSION[$param] = $_REQUEST[$param];
@@ -89,11 +89,11 @@ if (isset($action)) {
                     if (isset($_SESSION['openedArray'])) {
                         $opened = array_filter(array_map('intval', explode('|', $_SESSION['openedArray'])));
                     } else {
-                        $opened = array();
+                        $opened = [];
                     }
 
-                    $opened2 = array();
-                    $closed2 = array();
+                    $opened2 = [];
+                    $closed2 = [];
 
                     //makeHTML($indent, $parent, $expandAll, $hereid);
                     echo makeHTML($indent, $parent, $expandAll, $hereid);
@@ -351,31 +351,31 @@ if (isset($action)) {
                         if (!is_null($snippet)) {
                             $row = $snippet->toArray();
 
-                            $contextmenu = array(
-                                'header' => array(
+                            $contextmenu = [
+                                'header' => [
                                     'innerHTML' => '<i class="' . $_style['icon_code'] . '"></i> ' . entities($row['name'], EvolutionCMS()->getConfig('modx_charset'))
-                                ),
-                                'item' => array(
+                                ],
+                                'item' => [
                                     'innerHTML' => '<i class="' . $_style['icon_edit'] . '"></i> ' . $_lang['edit'],
                                     'url' => "index.php?a=22&id=" . $row['id']
-                                )
-                            );
+                                ]
+                            ];
                             if (!empty($row['description'])) {
                                 $contextmenu['seperator'] = '';
-                                $contextmenu['description'] = array(
+                                $contextmenu['description'] = [
                                     'innerHTML' => '<i class="' . $_style['icon_info'] . '"></i> ' . entities($row['description'], EvolutionCMS()->getConfig('modx_charset'))
-                                );
+                                ];
                             }
                         } else {
-                            $contextmenu = array(
-                                'header' => array(
+                            $contextmenu = [
+                                'header' => [
                                     'innerHTML' => '<i class="' . $_style['icon_code'] . '"></i> ' . entities($name, EvolutionCMS()->getConfig('modx_charset'))
-                                ),
-                                'item' => array(
+                                ],
+                                'item' => [
                                     'innerHTML' => '<i class="' . $_style['icon_add'] . '"></i> ' . $_lang['new_snippet'],
                                     'url' => "index.php?a=23&itemname=" . entities($name, EvolutionCMS()->getConfig('modx_charset'))
-                                )
-                            );
+                                ]
+                            ];
                         }
 
                         break;
@@ -386,31 +386,31 @@ if (isset($action)) {
 
                         if (!is_null($chunk)) {
                             $row = $chunk->toArray();
-                            $contextmenu = array(
-                                'header' => array(
+                            $contextmenu = [
+                                'header' => [
                                     'innerHTML' => '<i class="' . $_style['icon_chunk'] . '"></i> ' . entities($row['name'], EvolutionCMS()->getConfig('modx_charset'))
-                                ),
-                                'item' => array(
+                                ],
+                                'item' => [
                                     'innerHTML' => '<i class="' . $_style['icon_edit'] . '"></i> ' . $_lang['edit'],
                                     'url' => "index.php?a=78&id=" . $row['id']
-                                )
-                            );
+                                ]
+                            ];
                             if (!empty($row['description'])) {
                                 $contextmenu['seperator'] = '';
-                                $contextmenu['description'] = array(
+                                $contextmenu['description'] = [
                                     'innerHTML' => '<i class="' . $_style['icon_info'] . '"></i> ' . entities($row['description'], EvolutionCMS()->getConfig('modx_charset'))
-                                );
+                                ];
                             }
                         } else {
-                            $contextmenu = array(
-                                'header' => array(
+                            $contextmenu = [
+                                'header' => [
                                     'innerHTML' => '<i class="' . $_style['icon_chunk'] . '"></i> ' . entities($name, EvolutionCMS()->getConfig('modx_charset'))
-                                ),
-                                'item' => array(
+                                ],
+                                'item' => [
                                     'innerHTML' => '<i class="' . $_style['icon_add'] . '"></i> ' . $_lang['new_htmlsnippet'],
                                     'url' => "index.php?a=77&itemname=" . entities($name, EvolutionCMS()->getConfig('modx_charset'))
-                                )
-                            );
+                                ]
+                            ];
                         }
 
                         break;
@@ -421,20 +421,20 @@ if (isset($action)) {
 
                         if (!is_null($chunk)) {
                             $row = $chunk->toArray();
-                            $contextmenu = array(
-                                'header' => array(
+                            $contextmenu = [
+                                'header' => [
                                     'innerText' => entities($row['name'], EvolutionCMS()->getConfig('modx_charset'))
-                                ),
-                                'item' => array(
+                                ],
+                                'item' => [
                                     'innerHTML' => '<i class="' . $_style['icon_edit'] . '"></i> ' . $_lang['edit'],
                                     'url' => "index.php?a=78&id=" . $row['id']
-                                )
-                            );
+                                ]
+                            ];
                             if (!empty($row['description'])) {
                                 $contextmenu['seperator'] = '';
-                                $contextmenu['description'] = array(
+                                $contextmenu['description'] = [
                                     'innerHTML' => '<i class="' . $_style['icon_info'] . '"></i> ' . entities($row['description'], EvolutionCMS()->getConfig('modx_charset'))
-                                );
+                                ];
                             }
                         } else {
 
@@ -442,35 +442,35 @@ if (isset($action)) {
 
                             if (!is_null($snippet)) {
                                 $row = $snippets->toArray();
-                                $contextmenu = array(
-                                    'header' => array(
+                                $contextmenu = [
+                                    'header' => [
                                         'innerHTML' => '<i class="' . $_style['icon_code'] . '"></i> ' . entities($row['name'], EvolutionCMS()->getConfig('modx_charset'))
-                                    ),
-                                    'item' => array(
+                                    ],
+                                    'item' => [
                                         'innerHTML' => '<i class="' . $_style['icon_edit'] . '"></i> ' . $_lang['edit'],
                                         'url' => "index.php?a=22&id=" . $row['id']
-                                    )
-                                );
+                                    ]
+                                ];
                                 if (!empty($row['description'])) {
                                     $contextmenu['seperator'] = '';
-                                    $contextmenu['description'] = array(
+                                    $contextmenu['description'] = [
                                         'innerHTML' => '<i class="' . $_style['icon_info'] . '"></i> ' . entities($row['description'], EvolutionCMS()->getConfig('modx_charset'))
-                                    );
+                                    ];
                                 }
                             } else {
-                                $contextmenu = array(
-                                    'header' => array(
+                                $contextmenu = [
+                                    'header' => [
                                         'innerHTML' => '<i class="' . $_style['icon_code'] . '"></i> ' . entities($name, EvolutionCMS()->getConfig('modx_charset'))
-                                    ),
-                                    'item' => array(
+                                    ],
+                                    'item' => [
                                         'innerHTML' => '<i class="' . $_style['icon_add'] . '"></i> ' . $_lang['new_htmlsnippet'],
                                         'url' => "index.php?a=77&itemname=" . entities($name, EvolutionCMS()->getConfig('modx_charset'))
-                                    ),
-                                    'item2' => array(
+                                    ],
+                                    'item2' => [
                                         'innerHTML' => '<i class="' . $_style['icon_add'] . '"></i> ' . $_lang['new_snippet'],
                                         'url' => "index.php?a=23&itemname=" . entities($name, EvolutionCMS()->getConfig('modx_charset'))
-                                    )
-                                );
+                                    ]
+                                ];
                             }
                         }
 
@@ -479,7 +479,7 @@ if (isset($action)) {
                     case 'Placeholder' :
                     case 'Tv' :
                     {
-                        $default_field = array(
+                        $default_field = [
                             'id',
                             'type',
                             'contentType',
@@ -518,7 +518,7 @@ if (isset($action)) {
                             'content_dispo',
                             'hidemenu',
                             'alias_visible'
-                        );
+                        ];
 
                         if (in_array($name, $default_field)) {
                             return;
@@ -528,31 +528,31 @@ if (isset($action)) {
 
                         if (!is_null($tv)) {
                             $row = $tv->toArray();
-                            $contextmenu = array(
-                                'header' => array(
+                            $contextmenu = [
+                                'header' => [
                                     'innerHTML' => '<i class="' . $_style['icon_tv'] . '"></i> ' . entities($row['name'], EvolutionCMS()->getConfig('modx_charset'))
-                                ),
-                                'item' => array(
+                                ],
+                                'item' => [
                                     'innerHTML' => '<i class="' . $_style['icon_edit'] . '"></i> ' . $_lang['edit'],
                                     'url' => "index.php?a=301&id=" . $row['id']
-                                )
-                            );
+                                ]
+                            ];
                             if (!empty($row['description'])) {
                                 $contextmenu['seperator'] = '';
-                                $contextmenu['description'] = array(
+                                $contextmenu['description'] = [
                                     'innerHTML' => '<i class="' . $_style['icon_info'] . '"></i> ' . entities($row['description'], EvolutionCMS()->getConfig('modx_charset'))
-                                );
+                                ];
                             }
                         } else {
-                            $contextmenu = array(
-                                'header' => array(
+                            $contextmenu = [
+                                'header' => [
                                     'innerHTML' => '<i class="' . $_style['icon_tv'] . '"></i> ' . entities($name, EvolutionCMS()->getConfig('modx_charset'))
-                                ),
-                                'item' => array(
+                                ],
+                                'item' => [
                                     'innerHTML' => '<i class="' . $_style['icon_add'] . '"></i> ' . $_lang['new_tmplvars'],
                                     'url' => "index.php?a=300&itemname=" . entities($name, EvolutionCMS()->getConfig('modx_charset'))
-                                )
-                            );
+                                ]
+                            ];
                         }
 
                         break;
@@ -567,7 +567,7 @@ if (isset($action)) {
 
         case 'movedocument' :
         {
-            $json = array();
+            $json = [];
 
             if (EvolutionCMS()->hasPermission('new_document') && EvolutionCMS()->hasPermission('edit_document') && EvolutionCMS()->hasPermission('save_document')) {
                 $id = !empty($_REQUEST['id']) ? (int)$_REQUEST['id'] : '';
@@ -602,7 +602,7 @@ if (isset($action)) {
                         if (!empty(EvolutionCMS()->config['tree_show_protected']) && $role != 1) {
                             $docs = \EvolutionCMS\Models\DocumentGroup::query()->whereIn('document', [$id, $parent, $parentOld]);
                             if ($docs->count() > 0) {
-                                $document_groups = array();
+                                $document_groups = [];
                                 foreach ($docs->get()->toArray() as $row) {
                                     $document_groups[$row['document']]['groups'][] = $row['document_group'];
                                 }

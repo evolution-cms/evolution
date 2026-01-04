@@ -10,7 +10,7 @@
  * Filename:       /install/lang.php
  */
 
-$_lang = array();
+$_lang = [];
 
 #default fallback language file - english
 $install_language = 'en';

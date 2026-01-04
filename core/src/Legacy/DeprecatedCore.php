@@ -140,7 +140,7 @@ class DeprecatedCore implements DeprecatedCoreInterface
      */
     public function getUserData()
     {
-        $client = array();
+        $client = [];
         $client['ip'] = $_SERVER['REMOTE_ADDR'];
         $client['ua'] = $_SERVER['HTTP_USER_AGENT'];
 
@@ -218,7 +218,7 @@ class DeprecatedCore implements DeprecatedCoreInterface
     public function userLoggedIn()
     {
         $modx = evo();
-        $userdetails = array();
+        $userdetails = [];
         if ($modx->isFrontend() && isset ($_SESSION['webValidated'])) {
             // web user
             $userdetails['loggedIn'] = true;
@@ -255,7 +255,7 @@ class DeprecatedCore implements DeprecatedCoreInterface
     {
         //  function to retrieve form results into an associative array
         $modx = evo();
-        $results = array();
+        $results = [];
         $method = strtoupper($method);
         if ($method == "") {
             $method = $REQUEST_METHOD;

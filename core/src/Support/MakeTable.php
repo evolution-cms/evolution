@@ -79,7 +79,7 @@ class MakeTable implements MakeTableInterface
     /**
      * @var array
      */
-    public $excludeFields = array();
+    public $excludeFields = [];
     /**
      * @var int
      */
@@ -91,15 +91,15 @@ class MakeTable implements MakeTableInterface
     /**
      * @var array
      */
-    public $columnWidths = array();
+    public $columnWidths = [];
     /**
      * @var array
      */
-    public $selectedValues = array();
+    public $selectedValues = [];
     /**
      * @var array
      */
-    public $fieldHeaders = array();
+    public $fieldHeaders = [];
     /**
      * @var string
      */
@@ -422,7 +422,7 @@ class MakeTable implements MakeTableInterface
      * for each column.
      * @return string
      */
-    public function create($fieldsArray, $fieldHeadersArray = array(), $linkpage = "")
+    public function create($fieldsArray, $fieldHeadersArray = [], $linkpage = "")
     {
         global $_lang;
         $table = '';

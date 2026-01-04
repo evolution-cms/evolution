@@ -123,7 +123,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 <form name="mutate" method="post" action="index.php" id="mutate" class="module">
     <?php
     // invoke OnModFormPrerender event
-    $evtOut = $modx->invokeEvent('OnModFormPrerender', array('id' => $id));
+    $evtOut = $modx->invokeEvent('OnModFormPrerender', ['id' => $id]);
     if (is_array($evtOut)) {
         echo implode('', $evtOut);
     }
@@ -132,7 +132,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
     $modulecode = isset($content['modulecode']) ? $content['modulecode'] : '';
     $docBlock = $modx->parseDocBlockFromString($modulecode);
     $docBlockList = $modx->convertDocBlockIntoList($docBlock);
-    $internal = array();
+    $internal = [];
     ?>
     <input type="hidden" name="a" value="109">
     <input type="hidden" name="id" value="<?= (isset($content['id'])) ? $content['id'] : "" ?>">
@@ -423,7 +423,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                     $membergroupNames = \EvolutionCMS\Models\MembergroupName::query()->select('name', 'id')->get();
                     $notPublic = false;
                     foreach ($membergroupNames->toArray() as $row) {
-                        $groupsarray = is_numeric($id) && $id > 0 ? $groupsarray : array();
+                        $groupsarray = is_numeric($id) && $id > 0 ? $groupsarray : [];
                         $checked = in_array($row['id'], $groupsarray);
                         if ($checked) {
                             $notPublic = true;
@@ -449,7 +449,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
         <input type="submit" name="save" style="display:none;">
         <?php
         // invoke OnModFormRender event
-        $evtOut = $modx->invokeEvent('OnModFormRender', array('id' => $id));
+        $evtOut = $modx->invokeEvent('OnModFormRender', ['id' => $id]);
         if (is_array($evtOut)) {
             echo implode('', $evtOut);
         }

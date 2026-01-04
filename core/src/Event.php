@@ -11,7 +11,7 @@ class Event implements Interfaces\EventInterface
     public $_output;
     public $activated = false;
     public $activePlugin = '';
-    public $params = array();
+    public $params = [];
     /**
      * @var null|Event
      */

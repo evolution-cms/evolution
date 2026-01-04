@@ -36,7 +36,7 @@ if(!$udperms->checkPermissions()) {
 }
 
 // update the document
-\EvolutionCMS\Models\SiteContent::query()->find($id)->update(array(
+\EvolutionCMS\Models\SiteContent::query()->find($id)->update([
     'published'   => 0,
     'pub_date'    => 0,
     'unpub_date'  => 0,
@@ -44,10 +44,10 @@ if(!$udperms->checkPermissions()) {
     'editedon'    => time(),
     'publishedby' => 0,
     'publishedon' => 0,
-));
+]);
 
 // invoke OnDocUnPublished  event
-EvolutionCMS()->invokeEvent("OnDocUnPublished",array("docid"=>$id));
+EvolutionCMS()->invokeEvent("OnDocUnPublished", ["docid"=>$id]);
 
 // Set the item name for logger
 $_SESSION['itemname'] = $content['pagetitle'];

@@ -10,13 +10,13 @@ $newToken = makeToken();
 
 // settings
 $theme_image_path = MODX_MANAGER_URL . 'media/style/' . evo()->getConfig('manager_theme') . '/images/';
-$excludes = array(
+$excludes = [
         '.',
         '..',
         '.svn',
         '.git',
         '.idea'
-);
+];
 $alias_suffix = (!empty($friendly_url_suffix)) ? ',' . ltrim($friendly_url_suffix, '.') : '';
 $editablefiles = explode(',', 'txt,php,tpl,less,sass,scss,shtml,html,htm,xml,js,css,pageCache,htaccess,json,ini' . $alias_suffix);
 $inlineviewablefiles = explode(',', 'txt,php,tpl,less,sass,scss,html,htm,xml,js,css,pageCache,htaccess,json,ini' . $alias_suffix);
@@ -26,7 +26,7 @@ $editablefiles = add_dot($editablefiles);
 $inlineviewablefiles = add_dot($inlineviewablefiles);
 $viewablefiles = add_dot($viewablefiles);
 
-$protected_path = array();
+$protected_path = [];
 /* jp only
 if($_SESSION['mgrRole']!=1)
 {
@@ -208,7 +208,7 @@ if (substr($webstart_path, 0, 1) == '/') {
                 $href = 'a=2';
             }
             if (is_writable($startpath)) {
-                $ph = array();
+                $ph = [];
                 $ph['style_path'] = $theme_image_path;
                 $tpl = '<a class="btn btn-secondary" href="[+href+]" onclick="return getFolderName(this);"><i class="[+image+]"></i><span>[+subject+]</span></a>';
                 $ph['image'] = $_style['icon_folder_open'];
@@ -245,7 +245,7 @@ if (substr($webstart_path, 0, 1) == '/') {
             }
 
             $tpl = '<i class="[+image+] FilesTopFolder"></i>[+subject+]';
-            $ph = array();
+            $ph = [];
             $ph['style_path'] = $theme_image_path;
             // To Top Level with folder icon to the left
             if ($startpath == $filemanager_path || $startpath . '/' == $filemanager_path) {
@@ -366,12 +366,12 @@ if (substr($webstart_path, 0, 1) == '/') {
             if (get_by_key($_REQUEST, 'mode') == 'renameFolder') {
                 $old_umask = umask(0);
                 $dirname = $_REQUEST['path'] . '/' . $_REQUEST['dirname'];
-                $newDirname = str_replace(array(
+                $newDirname = str_replace([
                         '..\\',
                         '../',
                         '\\',
                         '/'
-                ), '', $_REQUEST['newDirname']);
+                ], '', $_REQUEST['newDirname']);
 
                 if (preg_match('@(\\\\|\/|\:|\;|\,|\*|\?|\"|\<|\>|\||\?)@', $newDirname) !== 0) {
                     echo $_lang['files.dynamic.php3'];
@@ -385,12 +385,12 @@ if (substr($webstart_path, 0, 1) == '/') {
                 $old_umask = umask(0);
                 $path = dirname($_REQUEST['path']);
                 $filename = $_REQUEST['path'];
-                $newFilename = str_replace(array(
+                $newFilename = str_replace([
                         '..\\',
                         '../',
                         '\\',
                         '/'
-                ), '', $_REQUEST['newFilename']);
+                ], '', $_REQUEST['newFilename']);
 
                 if (!checkExtension($newFilename)) {
                     echo '<span class="warning"><b>' . $_lang['files_filetype_notok'] . '</b></span><br /><br />';
@@ -515,14 +515,14 @@ if (get_by_key($_REQUEST, 'mode') == "edit" || get_by_key($_REQUEST, 'mode') == 
         default:
             $contentType = 'htmlmixed';
     };
-    $evtOut = evo()->invokeEvent('OnRichTextEditorInit', array(
+    $evtOut = evo()->invokeEvent('OnRichTextEditorInit', [
             'editor' => 'Codemirror',
-            'elements' => array(
+            'elements' => [
                     'content',
-            ),
+            ],
             'contentType' => $contentType,
             'readOnly' => $_REQUEST['mode'] == 'edit' ? false : true
-    ));
+    ]);
     if (is_array($evtOut)) {
         echo implode('', $evtOut);
     }

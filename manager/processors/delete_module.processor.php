@@ -17,9 +17,9 @@ $_SESSION['itemname'] = $name;
 
 // invoke OnBeforeModFormDelete event
 EvolutionCMS()->invokeEvent("OnBeforeModFormDelete",
-	array(
+	[
 		"id"	=> $id
-	));
+	]);
 
 // delete the module.
 EvolutionCMS\Models\SiteModule::destroy($id);
@@ -30,9 +30,9 @@ EvolutionCMS\Models\SiteModuleAccess::where('module',$id)->delete();
 
 // invoke OnModFormDelete event
 EvolutionCMS()->invokeEvent("OnModFormDelete",
-	array(
+	[
 		"id"	=> $id
-	));
+	]);
 
 // empty cache
 EvolutionCMS()->clearCache('full');

@@ -18,7 +18,7 @@ try {
         case 'mysql':
             $output = '<select id="database_collation" name="database_collation">';
             $sql = 'SHOW COLLATION';
-            $_ = array();
+            $_ = [];
             foreach ($dbh->query($sql) as $row) {
                 $_[$row[0]] = '';
             }

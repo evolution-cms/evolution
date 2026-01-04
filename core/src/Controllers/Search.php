@@ -487,13 +487,13 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
 
     protected function highlightingCoincidence($text, $search)
     {
-        $regexp = '!(' . str_replace(array(
+        $regexp = '!(' . str_replace([
                 '(',
                 ')'
-            ), array(
+            ], [
                 '\(',
                 '\)'
-            ), entities(trim($search), $this->managerTheme->getCore()
+            ], entities(trim($search), $this->managerTheme->getCore()
                 ->getConfig('modx_charset'))) . ')!isu';
 
         return preg_replace($regexp, '<span class="text-danger">$1</span>', entities($text, $this->managerTheme->getCore()

@@ -295,22 +295,22 @@ $agreeToggle = $errors > 0 ? 'disabled' : '';
         <input type="hidden" value="1" name="options_selected"/>
         <input type="hidden" value="<?php echo $_POST['installdata'] ?? '' ?>" name="installdata"/>
         <?php
-        $templates = isset ($_POST['template']) ? $_POST['template'] : array();
+        $templates = isset ($_POST['template']) ? $_POST['template'] : [];
         foreach ($templates as $i => $template) echo '<input type="hidden" name="template[]" value="' . $template . '" />';
 
-        $tvs = isset ($_POST['tv']) ? $_POST['tv'] : array();
+        $tvs = isset ($_POST['tv']) ? $_POST['tv'] : [];
         foreach ($tvs as $i => $tv) echo '<input type="hidden" name="tv[]" value="' . $tv . '" />';
 
-        $chunks = isset ($_POST['chunk']) ? $_POST['chunk'] : array();
+        $chunks = isset ($_POST['chunk']) ? $_POST['chunk'] : [];
         foreach ($chunks as $i => $chunk) echo '<input type="hidden" name="chunk[]" value="' . $chunk . '" />';
 
-        $snippets = isset ($_POST['snippet']) ? $_POST['snippet'] : array();
+        $snippets = isset ($_POST['snippet']) ? $_POST['snippet'] : [];
         foreach ($snippets as $i => $snippet) echo '<input type="hidden" name="snippet[]" value="' . $snippet . '" />';
 
-        $plugins = isset ($_POST['plugin']) ? $_POST['plugin'] : array();
+        $plugins = isset ($_POST['plugin']) ? $_POST['plugin'] : [];
         foreach ($plugins as $i => $plugin) echo '<input type="hidden" name="plugin[]" value="' . $plugin . '" />';
 
-        $modules = isset ($_POST['module']) ? $_POST['module'] : array();
+        $modules = isset ($_POST['module']) ? $_POST['module'] : [];
         foreach ($modules as $i => $module) echo '<input type="hidden" name="module[]" value="' . $module . '" />';
         ?>
     </div>

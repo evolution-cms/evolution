@@ -19,7 +19,7 @@ class LogHandler
      *
      * @var array
      */
-    public $entry = array();
+    public $entry = [];
     protected static $actions = [];
 
 

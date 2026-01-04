@@ -6,7 +6,7 @@ if(!function_exists('parseText')) {
      * @param array $ph
      * @return string
      */
-    function parseText($tpl = '', $ph = array())
+    function parseText($tpl = '', $ph = [])
     {
         if (empty($ph) || empty($tpl)) {
             return $tpl;

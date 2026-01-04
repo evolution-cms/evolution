@@ -27,7 +27,7 @@ class CheckOutdated
      * @param string $pluginName
      * @param array $lang
      */
-    public function __construct($modx, $pluginName, $lang = array())
+    public function __construct($modx, $pluginName, $lang = [])
     {
         $this->modx = $modx;
         $this->pluginName = $pluginName;
@@ -54,7 +54,7 @@ class CheckOutdated
             $data = json_decode($data, true);
         }
 
-        return \is_array($data) ? $data : array();
+        return \is_array($data) ? $data : [];
     }
 
     /**
@@ -92,7 +92,7 @@ class CheckOutdated
             if (version_compare($currentVersion, $minVersion, 'lt')) {
                 $out .= $this->parseTemplate(
                     $tpl,
-                    array(
+                    [
                         'name' => $snippet->name,
                         'replaced' => $replaced,
                         'isSecurity' => $isSecurity,
@@ -100,7 +100,7 @@ class CheckOutdated
                         'currentVersion' => $currentVersion,
                         'extrasID' => $this->getExtrasId(),
                         'extrasURL' => $this->getExtrasUrl($snippet->name)
-                    )
+                    ]
                 );
             }
 
@@ -144,7 +144,7 @@ class CheckOutdated
             if (version_compare($currentVersion, $minVersion, 'lt')) {
                 $out .= $this->parseTemplate(
                     $tpl,
-                    array(
+                    [
                         'name' => $plugin->name,
                         'replaced' => $replaced,
                         'isSecurity' => $isSecurity,
@@ -152,7 +152,7 @@ class CheckOutdated
                         'currentVersion' => $currentVersion,
                         'extrasID' => $this->getExtrasId(),
                         'extrasURL' => $this->getExtrasUrl($plugin->name)
-                    )
+                    ]
                 );
             }
         }
@@ -194,7 +194,7 @@ class CheckOutdated
                 if (version_compare($currentVersion, $minVersion, 'lt')) {
                     $out .= $this->parseTemplate(
                         $tpl,
-                        array(
+                        [
                             'name' => $module->name,
                             'replaced' => $replaced,
                             'isSecurity' => $isSecurity,
@@ -202,7 +202,7 @@ class CheckOutdated
                             'currentVersion' => $currentVersion,
                             'extrasID' => $this->getExtrasId(),
                             'extrasURL' => $this->getExtrasUrl($module->name)
-                        )
+                        ]
                     );
                 }
             }
@@ -216,7 +216,7 @@ class CheckOutdated
      * @param array $options
      * @return string
      */
-    public function file($path, $options = array())
+    public function file($path, $options = [])
     {
         $out = '';
         if (file_exists(MODX_BASE_PATH . $path)) {
@@ -241,7 +241,7 @@ class CheckOutdated
      * @param array $options
      * @return string
      */
-    public function theme($theme, $options = array())
+    public function theme($theme, $options = [])
     {
         $out = '';
         if (file_exists(MODX_MANAGER_PATH . 'media/style/' . $theme)) {
@@ -257,11 +257,11 @@ class CheckOutdated
 
             $out = $this->parseTemplate(
                 $tpl,
-                array(
+                [
                     'theme' => $theme,
                     'isSecurity' => $isSecurity,
                     'path' => MODX_MANAGER_PATH . 'media/style/'
-                )
+                ]
             );
         }
 
@@ -288,10 +288,10 @@ class CheckOutdated
 
             $out = $this->parseTemplate(
                 $tpl,
-                array(
+                [
                     'extrasID' => $this->getExtrasId(),
                     'oldUrl' => $options['old']
-                )
+                ]
             );
         }
 
@@ -361,7 +361,7 @@ class CheckOutdated
     {
         $button = '';
         if ($this->modx->hasPermission('edit_plugin')) {
-            $popup = array(
+            $popup = [
                 'url' => MODX_MANAGER_URL . '?a=102&id=' . $this->getPluginId() . '&tab=1',
                 'title1' => $title,
                 'icon' => 'fa-cog',
@@ -374,7 +374,7 @@ class CheckOutdated
                 'hover' => 0,
                 'overlay' => 1,
                 'overlayclose' => 1
-            );
+            ];
 
             $button = '<a ' .
                     'data-toggle="tooltip" ' .
@@ -395,7 +395,7 @@ class CheckOutdated
     /**
      * @param array $lexicon
      */
-    public function setLang($lexicon = array())
+    public function setLang($lexicon = [])
     {
         $lang = $this->modx->getConfig('manager_language');
         if (file_exists( __DIR__ .  '/lang/'.$lang.'/core.inc.php')){
@@ -424,7 +424,7 @@ class CheckOutdated
      */
     public function process($type, $item, $options)
     {
-        $available = array('rss', 'file', 'theme', 'snippet', 'plugin', 'module');
+        $available = ['rss', 'file', 'theme', 'snippet', 'plugin', 'module'];
 
         if (\in_array($type, $available) && method_exists($this, $type)) {
             $out = $this->{$type}($item, $options);
@@ -437,12 +437,12 @@ class CheckOutdated
      * @param array $data
      * @return string
      */
-    public function parseTemplate($tpl, $data = array())
+    public function parseTemplate($tpl, $data = [])
     {
         return $this->tpl->parseChunk(
             ($tpl),
             array_merge(
-                array('evo_cms_version' => $this->modx->getVersionData('version')),
+                ['evo_cms_version' => $this->modx->getVersionData('version')],
                 $data,
                 $this->lang
             ),

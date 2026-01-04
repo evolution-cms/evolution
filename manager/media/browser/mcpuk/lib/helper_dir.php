@@ -45,7 +45,7 @@ class dir {
     * @return mixed */
 
     static function prune($dir, $firstFailExit=true, array $failed=null) {
-        if ($failed === null) $failed = array();
+        if ($failed === null) $failed = [];
         $files = self::content($dir);
         if ($files === false) {
             if ($firstFailExit)
@@ -89,13 +89,13 @@ class dir {
 
     static function content($dir, array $options=null) {
 
-        $defaultOptions = array(
+        $defaultOptions = [
             'types' => "all",   // Allowed: "all" or possible return values
                                 // of filetype(), or an array with them
             'addPath' => true,  // Whether to add directory path to filenames
             'pattern' => '/./', // Regular expression pattern for filename
             'followLinks' => true
-        );
+        ];
 
         if (!is_dir($dir) || !is_readable($dir))
             return false;
@@ -115,7 +115,7 @@ class dir {
             if (!isset($options[$key]))
                 $options[$key] = $val;
 
-        $files = array();
+        $files = [];
         while (($file = @readdir($dh)) !== false) {
             $type = filetype("$dir/$file");
 
@@ -141,7 +141,7 @@ class dir {
                 $files[] = $options['addPath'] ? "$dir/$file" : $file;
         }
         closedir($dh);
-        usort($files, array("dir", "fileSort"));
+        usort($files, ["dir", "fileSort"]);
         return $files;
     }
 

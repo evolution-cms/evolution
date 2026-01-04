@@ -12,8 +12,8 @@ if(!function_exists('array_unique_multi')) {
             return array_unique($array);
         }
 
-        $ret = array();
-        $checkValues = array(); // contains the unique key Values
+        $ret = [];
+        $checkValues = []; // contains the unique key Values
         foreach ($array as $key => $current) {
             if (in_array($current[$checkKey], $checkValues)) {
                 continue;
@@ -35,14 +35,14 @@ if(!function_exists('record_sort')) {
      */
     function record_sort($array, $key)
     {
-        $hash = array();
+        $hash = [];
         foreach ($array as $k => $v) {
             $hash[$k] = $v[$key];
         }
 
         natsort($hash);
 
-        $records = array();
+        $records = [];
         foreach ($hash as $k => $row) {
             $records[$k] = $array[$k];
         }

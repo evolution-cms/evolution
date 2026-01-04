@@ -11,7 +11,7 @@ class DocBlock
      */
     public function parseFromFile($element_dir, $filename)
     {
-        $params = array();
+        $params = [];
         $fullpath = $element_dir . '/' . $filename;
         if (is_readable($fullpath)) {
             $tpl = @fopen($fullpath, "r");
@@ -21,7 +21,7 @@ class DocBlock
                 $name_found = false;
                 $description_found = false;
                 $docblock_end_found = false;
-                $arrayParams = array('author', 'documentation', 'reportissues', 'link');
+                $arrayParams = ['author', 'documentation', 'reportissues', 'link'];
 
                 while (!feof($tpl)) {
                     $line = fgets($tpl);
@@ -41,7 +41,7 @@ class DocBlock
                     if (!empty($param)) {
                         if (in_array($param, $arrayParams)) {
                             if (!isset($params[$param])) {
-                                $params[$param] = array();
+                                $params[$param] = [];
                             }
                             $params[$param][] = $val;
                         } else {
@@ -63,7 +63,7 @@ class DocBlock
      */
     public function parseFromString($string)
     {
-        $params = array();
+        $params = [];
         if (!empty($string)) {
             $string = str_replace(['\r\n',"\n"], '\n', $string);
             $exp = explode('\n', $string);
@@ -71,7 +71,7 @@ class DocBlock
             $name_found = false;
             $description_found = false;
             $docblock_end_found = false;
-            $arrayParams = array('author', 'documentation', 'reportissues', 'link');
+            $arrayParams = ['author', 'documentation', 'reportissues', 'link'];
 
             foreach ($exp as $line) {
                 $r = $this->parseLine($line, $docblock_start_found, $name_found, $description_found, $docblock_end_found);
@@ -90,7 +90,7 @@ class DocBlock
                 if (!empty($param)) {
                     if (in_array($param, $arrayParams)) {
                         if (!isset($params[$param])) {
-                            $params[$param] = array();
+                            $params[$param] = [];
                         }
                         $params[$param][] = $val;
                     } else {
@@ -154,14 +154,14 @@ class DocBlock
                 $docblock_end_found = true;
             }
         }
-        return array(
+        return [
             'docblock_start_found' => $docblock_start_found,
             'name_found' => $name_found,
             'description_found' => $description_found,
             'docblock_end_found' => $docblock_end_found,
             'param' => $param,
             'val' => $val
-        );
+        ];
     }
 
     /**
@@ -175,7 +175,7 @@ class DocBlock
         global $_lang;
 
         // Replace special placeholders & make URLs + Emails clickable
-        $ph = array('site_url' => MODX_SITE_URL);
+        $ph = ['site_url' => MODX_SITE_URL];
         $regexUrl = "/((http|https|ftp|ftps)\:\/\/[^\/]+(\/[^\s]+[^,.?!:;\s])?)/";
         $regexEmail = '#([0-9a-z]([-_.]?[0-9a-z])*@[0-9a-z]([-.]?[0-9a-z])*\\.[a-wyz][a-z](fo|g|l|m|mes|o|op|pa|ro|seum|t|u|v|z)?)#i';
         $emailSubject = isset($parsed['name']) ? '?subject=' . $parsed['name'] : '';
@@ -204,12 +204,12 @@ class DocBlock
             }
         }
 
-        $arrayParams = array(
+        $arrayParams = [
             'documentation' => $_lang['documentation'],
             'reportissues' => $_lang['report_issues'],
             'link' => $_lang['further_info'],
             'author' => $_lang['author_infos']
-        );
+        ];
 
         $nl = "\n";
         $list = isset($parsed['logo']) ? '<img src="' . MODX_BASE_URL . ltrim($parsed['logo'], "/") . '" style="float:right;max-width:100px;height:auto;" />' . $nl : '';

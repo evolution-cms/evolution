@@ -26,11 +26,11 @@ if(!function_exists('determineIcon')) {
     {
         $_style = ManagerTheme::getStyle();
 
-        $icons = array(
+        $icons = [
             'default' => $_style['icon_file'],
             'edit'    => $_style['icon_edit'],
             'view'    => $_style['icon_eye']
-        );
+        ];
         $icon = $icons['default'];
         if ($file == $selFile) {
             $icon = isset($icons[$mode]) ? $icons[$mode] : $icons['default'];
@@ -49,11 +49,11 @@ if(!function_exists('markRow')) {
      */
     function markRow($file, $selFile, $mode)
     {
-        $classNames = array(
+        $classNames = [
             'default' => '',
             'edit'    => 'editRow',
             'view'    => 'viewRow'
-        );
+        ];
         if ($file == $selFile) {
             $class = isset($classNames[$mode]) ? $classNames[$mode] : $classNames['default'];
 
@@ -78,8 +78,8 @@ if(!function_exists('ls')) {
         $dircounter = 0;
         $filecounter = 0;
         $filesizes = 0;
-        $dirs_array = array();
-        $files_array = array();
+        $dirs_array = [];
+        $files_array = [];
         $curpath = str_replace('//', '/', $curpath . '/');
 
         if (!is_dir($curpath)) {
@@ -402,17 +402,17 @@ if(!function_exists('fileupload')) {
             if (empty($_FILES['userfile']['tmp_name'][$i])) {
                 continue;
             }
-            $userfile = array();
+            $userfile = [];
 
             $userfile['tmp_name'] = $_FILES['userfile']['tmp_name'][$i];
             $userfile['error'] = $_FILES['userfile']['error'][$i];
             $name = $_FILES['userfile']['name'][$i];
             if ($modx->getConfig('clean_uploaded_filename') == 1) {
                 $nameparts = explode('.', $name);
-                $nameparts = array_map(array(
+                $nameparts = array_map([
                     $modx,
                     'stripAlias'
-                ), $nameparts, array('file_manager'));
+                ], $nameparts, ['file_manager']);
                 $name = implode('.', $nameparts);
             }
             $userfile['name'] = $name;
@@ -444,10 +444,10 @@ if(!function_exists('fileupload')) {
                         $msg .= '<p><span class="success">' . $_lang['files_upload_ok'] . '</span></p><hr/>';
 
                         // invoke OnFileManagerUpload event
-                        $modx->invokeEvent('OnFileManagerUpload', array(
+                        $modx->invokeEvent('OnFileManagerUpload', [
                             'filepath' => $_POST['path'],
                             'filename' => $userfile['name']
-                        ));
+                        ]);
                         // Log the change
                         logFileChange('upload', $_POST['path'] . '/' . $userfile['name']);
                     } else {

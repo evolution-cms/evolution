@@ -59,7 +59,7 @@ class SiteUpdateCommand extends Command
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_REFERER, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('User-Agent: updateNotify widget'));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['User-Agent: updateNotify widget']);
         $info = curl_exec($ch);
         curl_close($ch);
         if (substr($info, 0, 1) != '[') {
@@ -130,7 +130,7 @@ class SiteUpdateCommand extends Command
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_REFERER, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array("User-Agent: updateNotify widget"));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ["User-Agent: updateNotify widget"]);
             $releases = curl_exec($ch);
             curl_close($ch);
 
@@ -168,7 +168,7 @@ class SiteUpdateCommand extends Command
                 }
             }
             putenv('COMPOSER_HOME=' . EVO_CORE_PATH . 'composer');
-            $input = new ArrayInput(array('command' => 'update'));
+            $input = new ArrayInput(['command' => 'update']);
             $application = new Application();
             $application->setAutoExit(false);
             $application->run($input);

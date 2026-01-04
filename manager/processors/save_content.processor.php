@@ -222,13 +222,13 @@ foreach ($tvs->toArray() as $row) {
         case 'url':
             $tmplvar = $_POST["tv" . $row['id']];
             if ($_POST["tv" . $row['id'] . '_prefix'] != '--') {
-                $tmplvar = str_replace(array (
+                $tmplvar = str_replace([ 
                     "feed://",
                     "ftp://",
                     "http://",
                     "https://",
                     "mailto:"
-                ), "", $tmplvar);
+                ], "", $tmplvar);
                 $tmplvar = $_POST["tv" . $row['id'] . '_prefix'] . $tmplvar;
             }
         break;
@@ -251,10 +251,10 @@ foreach ($tvs->toArray() as $row) {
     }
     // save value if it was modified
     if (!empty($tmplvar) && $tmplvar != $row['default_text']) {
-        $tmplvars[$row['id']] = array (
+        $tmplvars[$row['id']] = [ 
             $row['id'],
             $tmplvar
-        );
+        ];
     } else {
         // Mark the variable for deletion
         $tmplvars[$row['name']] = $row['id'];
@@ -346,10 +346,10 @@ switch ($actionToTake) {
                 $id = '';
             }
 
-        $modx->invokeEvent("OnBeforeDocFormSave", array (
+        $modx->invokeEvent("OnBeforeDocFormSave", [ 
             "mode" => "new",
             "id" => $id
-        ));
+        ]);
 
         $parentDeleted = $parentId > 0 && empty(\EvolutionCMS\Models\SiteContent::find($parentId));
         if ($parentDeleted) {
@@ -380,12 +380,12 @@ switch ($actionToTake) {
 
         $key = \EvolutionCMS\Models\SiteContent::withTrashed()->create($resourceArray)->getKey();
 
-        $tvChanges = array();
+        $tvChanges = [];
         foreach ($tmplvars as $field => $value) {
             if (is_array($value)) {
                 $tvId = $value[0];
                 $tvVal = $value[1];
-                \EvolutionCMS\Models\SiteTmplvarContentvalue::query()->create(array('tmplvarid' => $tvId, 'contentid' => $key, 'value' => $tvVal));
+                \EvolutionCMS\Models\SiteTmplvarContentvalue::query()->create(['tmplvarid' => $tvId, 'contentid' => $key, 'value' => $tvVal]);
             }
         }
 
@@ -445,15 +445,15 @@ switch ($actionToTake) {
 
         // update parent folder status
         if ($resourceArray['parent'] != 0) {
-            $fields = array('isfolder' => 1);
+            $fields = ['isfolder' => 1];
             \EvolutionCMS\Models\SiteContent::withTrashed()->where('id',$resourceArray['parent'])->update(['isfolder'=>1]);
         }
 
         // invoke OnDocFormSave event
-        $modx->invokeEvent("OnDocFormSave", array (
+        $modx->invokeEvent("OnDocFormSave", [ 
             "mode" => "new",
             "id" => $key
-        ));
+        ]);
 
         // secure web documents - flag as private
         include MODX_MANAGER_PATH . "includes/secure_web_documents.inc.php";
@@ -550,10 +550,10 @@ switch ($actionToTake) {
             $resourceArray['publishedby'] = $publishedby;
 
             // invoke OnBeforeDocFormSave event
-            $modx->invokeEvent("OnBeforeDocFormSave", array (
+            $modx->invokeEvent("OnBeforeDocFormSave", [ 
                 "mode" => "upd",
                 "id" => $id
-            ));
+            ]);
             $parentDeleted = $parentId > 0 && empty(\EvolutionCMS\Models\SiteContent::find($parentId));
             if ($parentDeleted) {
                 $resourceArray['deleted'] = 1;
@@ -566,13 +566,13 @@ switch ($actionToTake) {
 
             // update template variables
             $tvs = \EvolutionCMS\Models\SiteTmplvarContentvalue::select('id', 'tmplvarid')->where('contentid', $id)->get();
-            $tvIds = array ();
+            $tvIds = [];
             foreach ($tvs as $tv) {
                 $tvIds[$tv->tmplvarid] = $tv->id;
             }
-            $tvDeletions = array();
-            $tvChanges = array();
-            $tvAdded = array();
+            $tvDeletions = [];
+            $tvChanges = [];
+            $tvAdded = [];
 
             foreach ($tmplvars as $field => $value) {
 
@@ -582,9 +582,9 @@ switch ($actionToTake) {
                     $tvId = $value[0];
                     $tvVal = $value[1];
                     if (isset($tvIds[$tvId])) {
-                        \EvolutionCMS\Models\SiteTmplvarContentvalue::query()->find($tvIds[$tvId])->update(array('tmplvarid' => $tvId, 'contentid' => $id, 'value' => $tvVal));
+                        \EvolutionCMS\Models\SiteTmplvarContentvalue::query()->find($tvIds[$tvId])->update(['tmplvarid' => $tvId, 'contentid' => $id, 'value' => $tvVal]);
                     } else {
-                        \EvolutionCMS\Models\SiteTmplvarContentvalue::query()->create(array('tmplvarid' => $tvId, 'contentid' => $id, 'value' => $tvVal));
+                        \EvolutionCMS\Models\SiteTmplvarContentvalue::query()->create(['tmplvarid' => $tvId, 'contentid' => $id, 'value' => $tvVal]);
                     }
                 }
             }
@@ -595,7 +595,7 @@ switch ($actionToTake) {
 
             // set document permissions
             if ($modx->getConfig('use_udperms') == 1 && $modx->hasAnyPermissions(['manage_groups', 'manage_document_permissions']) && is_array($document_groups)) {
-                $new_groups = array();
+                $new_groups = [];
                 // process the new input
                 foreach ($document_groups as $value_pair) {
                     [$group, $link_id] = explode(',', $value_pair); // @see actions/mutate_content.dynamic.php @ line 1138 (permissions list)
@@ -608,14 +608,14 @@ switch ($actionToTake) {
                 $documentGroups = \EvolutionCMS\Models\DocumentGroup::select('id','document_group')
                     ->where('document', $id)->get();
 
-                $old_groups = array();
+                $old_groups = [];
                 foreach ($documentGroups as $documentGroup) {
                     if (in_array($documentGroup->document_group, $docgrp) || $modx->hasPermission('manage_groups')) {
                         $old_groups[$documentGroup->document_group] = $documentGroup->id;
                     }
                 }
                 // update the permissions in the database
-                $insertions = $deletions = array();
+                $insertions = $deletions = [];
                 foreach ($new_groups as $group => $link_id) {
                     if (in_array($group, $docgrp) || $modx->hasPermission('manage_groups')) {
                         if (array_key_exists($group, $old_groups)) {
@@ -663,10 +663,10 @@ switch ($actionToTake) {
 
 
             // invoke OnDocFormSave event
-            $modx->invokeEvent("OnDocFormSave", array (
+            $modx->invokeEvent("OnDocFormSave", [ 
                 "mode" => "upd",
                 "id" => $id
-            ));
+            ]);
 
             // secure web documents - flag as private
             include MODX_MANAGER_PATH . "includes/secure_web_documents.inc.php";

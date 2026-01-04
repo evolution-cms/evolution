@@ -49,18 +49,18 @@ $name = EvolutionCMS\Models\SiteTemplate::where('id',$id)->first()->templatename
 $_SESSION['itemname'] = $name;
 
 // invoke OnBeforeTempFormDelete event
-EvolutionCMS()->invokeEvent("OnBeforeTempFormDelete", array(
+EvolutionCMS()->invokeEvent("OnBeforeTempFormDelete", [
     "id" => $id
-));
+]);
 
 // delete the document.
 EvolutionCMS\Models\SiteTemplate::where('id', $id)->delete();
 
 EvolutionCMS\Models\SiteTmplvarTemplate::where('templateid',$id)->delete();
 // invoke OnTempFormDelete event
-EvolutionCMS()->invokeEvent("OnTempFormDelete", array(
+EvolutionCMS()->invokeEvent("OnTempFormDelete", [
     "id" => $id
-));
+]);
 
 // empty cache
 EvolutionCMS()->clearCache('full');

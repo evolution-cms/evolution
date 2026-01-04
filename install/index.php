@@ -49,26 +49,26 @@ if (empty($_GET['s'])) {
     $moduleSQLResetFile = 'stubs/sql/setup.data.reset.sql';
 
     // chunks - array : name, description, type - 0:file or 1:content, file or content
-    $moduleChunks = array();
+    $moduleChunks = [];
 
     // templates - array : name, description, type - 0:file or 1:content, file or content
-    $moduleTemplates = array();
+    $moduleTemplates = [];
 
     // snippets - array : name, description, type - 0:file or 1:content, file or content,properties
-    $moduleSnippets = array();
+    $moduleSnippets = [];
 
     // plugins - array : name, description, type - 0:file or 1:content, file or content,properties, events,guid
-    $modulePlugins = array();
+    $modulePlugins = [];
 
     // modules - array : name, description, type - 0:file or 1:content, file or content,properties, guid
-    $moduleModules = array();
+    $moduleModules = [];
 
     // templates - array : name, description, type - 0:file or 1:content, file or content,properties
-    $moduleTemplates = array();
+    $moduleTemplates = [];
 
     // template variables - array : name, description, type - 0:file or 1:content, file or content,properties
-    $moduleTVs = array();
-    $moduleDependencies = array(); // module depedencies - array : module, table, column, type, name
+    $moduleTVs = [];
+    $moduleDependencies = []; // module depedencies - array : module, table, column, type, name
 
     $errors = 0;
 

@@ -138,14 +138,14 @@
             //	$rowRegularClass = 'gridItem';
             //	$rowAlternateClass = 'gridAltItem';
             $tableClass = 'table data nowrap';
-            $columnHeaderClass = array(
+            $columnHeaderClass = [
                 'text-center',
                 'text-left',
                 'text-center',
                 'text-center',
                 'text-center',
                 'text-center'
-            );
+            ];
             $table = new \EvolutionCMS\Support\MakeTable();
             $table->setTableClass($tableClass);
             $table->setColumnHeaderClass($columnHeaderClass);
@@ -154,25 +154,25 @@
             //	evo()->getMakeTable()->setRowAlternateClass($rowAlternateClass);
 
             // Table header
-            $listTableHeader = array(
+            $listTableHeader = [
                 'docid'     => ManagerTheme::getLexicon('id'),
                 'title'     => ManagerTheme::getLexicon('resource_title'),
                 'createdon' => ManagerTheme::getLexicon('createdon'),
                 'pub_date'  => ManagerTheme::getLexicon('page_data_publishdate'),
                 'status'    => ManagerTheme::getLexicon('page_data_status'),
                 'edit'      => ManagerTheme::getLexicon('mgrlog_action'),
-            );
-            $tbWidth = array(
+            ];
+            $tbWidth = [
                 '1%',
                 '',
                 '1%',
                 '1%',
                 '1%',
                 '1%'
-            );
+            ];
             $table->setColumnWidths($tbWidth);
 
-            $icons = array(
+            $icons = [
                 'text/plain'               => '<i class="' . $_style['icon_document'] . '"></i>',
                 'text/html'                => '<i class="' . $_style['icon_document'] . '"></i>',
                 'text/xml'                 => '<i class="' . $_style['icon_code_file'] . '"></i>',
@@ -185,9 +185,9 @@
                 'application/rss+xml'      => '<i class="' . $_style['icon_code_file'] . '"></i>',
                 'application/vnd.ms-word'  => '<i class="' . $_style['icon_word'] . '"></i>',
                 'application/vnd.ms-excel' => '<i class="' . $_style['icon_excel'] . '"></i>',
-            );
+            ];
 
-            $listDocs = array();
+            $listDocs = [];
             foreach ($resource as $k => $children) {
 
                 switch ($children['id']) {
@@ -236,7 +236,7 @@
                     ? '<a onclick="return confirm(\'' . ManagerTheme::getLexicon('confirm_delete_resource') . '\')" href="index.php?a=6&id=' . $children['id'] . $add_path . '" title="' . ManagerTheme::getLexicon('delete_resource') . '"><i class="' . $_style['icon_trash'] . '"></i></a>'
                     : '<a onclick="return confirm(\'' . ManagerTheme::getLexicon('confirm_undelete') . '\')" href="index.php?a=63&id=' . $children['id'] . $add_path . '" title="' . ManagerTheme::getLexicon('undelete_resource') . '"><i class="' . $_style['icon_undo'] . '"></i></a>';
 
-                $listDocs[] = array(
+                $listDocs[] = [
                     'docid'     => '<div class="text-right">' . $children['id'] . '</div>',
                     'title'     => $title,
                     'createdon' => '<div class="text-right">' . (evo()->toDateFormat($children['createdon'] + evo()->timestamp(0),
@@ -247,7 +247,7 @@
                     'edit'      => '<div class="actions text-center text-nowrap">' . (evo()->hasPermission('edit_document') ? '<a href="index.php?a=27&id=' . $children['id'] . $add_path . '" title="' . ManagerTheme::getLexicon('edit') . '"><i class="' . $_style['icon_edit'] . '"></i></a>
                     <a href="index.php?a=51&id=' . $children['id'] . $add_path . '" title="' . ManagerTheme::getLexicon('move') . '"><i
                     class="' . $_style['icon_move'] . '"></i></a>' . $icon_pub_unpub : '') . (evo()->hasPermission('delete_document') ? $icon_del_undel : '') . '</div>'
-                );
+                ];
             }
 
             $table->createPagingNavigation($numRecords, 'a=3&id=' . $content['id'] . '&dir=' . $dir . '&sort=' . $sort);

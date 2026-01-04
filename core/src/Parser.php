@@ -36,7 +36,7 @@ class Parser
 
     protected $bladeEnabled = true;
 
-    protected $templateData = array();
+    protected $templateData = [];
 
     public $phx;
 
@@ -126,7 +126,7 @@ class Parser
      */
     protected function cleanPath ($path)
     {
-        return preg_replace(array('/\.*[\/|\\\]/i', '/[\/|\\\]+/i'), array('/', '/'), $path);
+        return preg_replace(['/\.*[\/|\\\]/i', '/[\/|\\\]+/i'], ['/', '/'], $path);
     }
 
     public function getTemplateExtension ()
@@ -157,7 +157,7 @@ class Parser
      * @param array $data
      * @return $this
      */
-    public function setTemplateData ($data = array())
+    public function setTemplateData ($data = [])
     {
         if (is_array($data)) {
             $this->templateData = $data;
@@ -170,7 +170,7 @@ class Parser
      * @param array $data
      * @return array
      */
-    public function getTemplateData ($data = array())
+    public function getTemplateData ($data = [])
     {
         $plh = array_merge($this->modx->getDataForView(), $this->templateData);
         $plh['data'] = $data;
@@ -392,10 +392,10 @@ class Parser
         }
         $m->documentContent = $tpl;
         if ($events) {
-            $m->invokeEvent("OnLoadWebDocument", array(
+            $m->invokeEvent("OnLoadWebDocument", [
                 'source'   => 'DLTemplate',
                 'mainModx' => $this->modx,
-            ));
+            ]);
         }
 
         return $this->parseDocumentSource($m->documentContent, $m);
@@ -430,7 +430,7 @@ class Parser
      * @param bool $parseDocumentSource render html template via Core::parseDocumentSource()
      * @return string html template with data without placeholders
      */
-    public function parseChunk ($name, $data = array(), $parseDocumentSource = false, $disablePHx = false)
+    public function parseChunk ($name, $data = [], $parseDocumentSource = false, $disablePHx = false)
     {
         $out = $this->getChunk($name);
         $twig = strpos($name, '@T_') === 0 && $this->twigEnabled;
@@ -455,7 +455,7 @@ class Parser
                     if (is_null($this->phx) || !($this->phx instanceof Phx)) {
                         $this->phx = $this->createPHx(0, 1000);
                     }
-                    $this->phx->placeholders = array();
+                    $this->phx->placeholders = [];
                     $this->setPHxPlaceholders($data);
                     $out = $this->phx->Parse($out);
                 }
@@ -568,7 +568,7 @@ class Parser
         for ($i = 1; $i <= $modx->maxParserPasses; $i++) {
             $html = $out;
             if (preg_match('/\[\!(.*)\!\]/us', $out)) {
-                $out = str_replace(array('[!', '!]'), array('[[', ']]'), $out);
+                $out = str_replace(['[!', '!]'], ['[[', ']]'], $out);
             }
             if ($i <= $modx->minParserPasses || $out != $html) {
                 $out = $modx->parseDocumentSource($out);

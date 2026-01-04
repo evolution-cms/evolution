@@ -205,7 +205,7 @@ class ManagerTheme implements ManagerThemeInterface
 
     protected function loadLang($lang = 'english')
     {
-        $_lang = array();
+        $_lang = [];
         $modx_lang_attribute = $this->getLang();
         $modx_manager_charset = $this->getCharset();
         $modx_textdir = $this->getTextDir();
@@ -468,7 +468,7 @@ class ManagerTheme implements ManagerThemeInterface
     public function getActionId()
     {
         // OK, let's retrieve the action directive from the request
-        $option = array('min_range' => 1, 'max_range' => 2000);
+        $option = ['min_range' => 1, 'max_range' => 2000];
         if (isset($_GET['a']) && isset($_POST['a'])) {
             $this->alertAndQuit('error_double_action');
         } elseif (isset($_GET['a'])) {
@@ -788,11 +788,11 @@ class ManagerTheme implements ManagerThemeInterface
 
         if (!file_exists($this->getThemeDir() . $minCssName) && is_writable($this->getThemeDir() . 'css')) {
             $files = $this->getCssFiles();
-            $evtOut = $this->getCore()->invokeEvent('OnBeforeMinifyCss', array(
+            $evtOut = $this->getCore()->invokeEvent('OnBeforeMinifyCss', [
                 'files' => $files,
                 'source' => 'manager',
                 'theme' => $this->getTheme()
-            ));
+            ]);
             switch (true) {
                 case empty($evtOut):
                 case \is_array($evtOut) && count($evtOut) === 0:
@@ -830,7 +830,7 @@ class ManagerTheme implements ManagerThemeInterface
     public function getThemeStyle(): string
     {
         $default = 'dark';
-        $modes = array('', 'lightness', 'light', 'dark', 'darkness');
+        $modes = ['', 'lightness', 'light', 'dark', 'darkness'];
 
         $cookie = (int)get_by_key($_COOKIE, 'MODX_themeMode', 0, function ($val) use ($modes) {
             return (int)$val > 0 && (int)$val <= \count($modes);
@@ -886,7 +886,7 @@ class ManagerTheme implements ManagerThemeInterface
                 <p>' . \Lang::get('global.forgot_password_email_instructions') . '</p>
                 <p><small>' . \Lang::get('global.forgot_password_email_fine_print') . '</small></p>';
 
-        $param = array();
+        $param = [];
         $param['from'] = $this->getCore()->getConfig('site_name') . '<' . $this->getCore()->getConfig('emailsender') . '>';
         $param['to'] = $email;
         $param['subject'] = \Lang::get('global.password_change_request');
