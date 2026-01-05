@@ -12,7 +12,6 @@
 namespace Symfony\Component\VarDumper\Caster;
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Uid\TimeBasedUidInterface;
 use Symfony\Component\Uid\Ulid;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Component\VarDumper\Cloner\Stub;
@@ -21,7 +20,7 @@ use Symfony\Component\VarExporter\Internal\LazyObjectState;
 /**
  * @final
  *
- * @internal
+ * @internal since Symfony 7.3
  */
 class SymfonyCaster
 {
@@ -103,7 +102,8 @@ class SymfonyCaster
         $a[Caster::PREFIX_VIRTUAL.'toBase58'] = $uuid->toBase58();
         $a[Caster::PREFIX_VIRTUAL.'toBase32'] = $uuid->toBase32();
 
-        if ($uuid instanceof TimeBasedUidInterface) {
+        // symfony/uid >= 5.3
+        if (method_exists($uuid, 'getDateTime')) {
             $a[Caster::PREFIX_VIRTUAL.'time'] = $uuid->getDateTime()->format('Y-m-d H:i:s.u \U\T\C');
         }
 
@@ -115,7 +115,8 @@ class SymfonyCaster
         $a[Caster::PREFIX_VIRTUAL.'toBase58'] = $ulid->toBase58();
         $a[Caster::PREFIX_VIRTUAL.'toRfc4122'] = $ulid->toRfc4122();
 
-        if ($ulid instanceof TimeBasedUidInterface) {
+        // symfony/uid >= 5.3
+        if (method_exists($ulid, 'getDateTime')) {
             $a[Caster::PREFIX_VIRTUAL.'time'] = $ulid->getDateTime()->format('Y-m-d H:i:s.v \U\T\C');
         }
 

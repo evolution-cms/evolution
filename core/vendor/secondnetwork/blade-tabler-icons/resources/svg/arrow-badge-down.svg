@@ -11,5 +11,5 @@
   class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-badge-down"
 >
   <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-  <path d="M17 13v-6l-5 4l-5 -4v6l5 4z" />
+  <path d="M17 13v-6l-5 4l-5 -4v6l5 4l5 -4" />
 </svg>

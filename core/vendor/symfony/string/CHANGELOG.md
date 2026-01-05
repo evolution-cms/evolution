@@ -1,11 +1,6 @@
 CHANGELOG
 =========
 
-8.0
----
-
- * Replace `__sleep/wakeup()` by `__(un)serialize()` on string implementations
-
 7.4
 ---
 

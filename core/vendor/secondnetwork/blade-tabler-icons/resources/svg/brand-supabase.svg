@@ -11,5 +11,5 @@
   class="icon icon-tabler icons-tabler-outline icon-tabler-brand-supabase"
 >
   <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-  <path d="M4 14h8v7l8 -11h-8v-7z" />
+  <path d="M4 14h8v7l8 -11h-8v-7l-8 11" />
 </svg>

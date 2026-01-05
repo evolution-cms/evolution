@@ -11,11 +11,11 @@
   class="icon icon-tabler icons-tabler-outline icon-tabler-topology-star-ring"
 >
   <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-  <path d="M14 20a2 2 0 1 0 -4 0a2 2 0 0 0 4 0z" />
-  <path d="M14 4a2 2 0 1 0 -4 0a2 2 0 0 0 4 0z" />
-  <path d="M6 12a2 2 0 1 0 -4 0a2 2 0 0 0 4 0z" />
-  <path d="M22 12a2 2 0 1 0 -4 0a2 2 0 0 0 4 0z" />
-  <path d="M14 12a2 2 0 1 0 -4 0a2 2 0 0 0 4 0z" />
+  <path d="M14 20a2 2 0 1 0 -4 0a2 2 0 0 0 4 0" />
+  <path d="M14 4a2 2 0 1 0 -4 0a2 2 0 0 0 4 0" />
+  <path d="M6 12a2 2 0 1 0 -4 0a2 2 0 0 0 4 0" />
+  <path d="M22 12a2 2 0 1 0 -4 0a2 2 0 0 0 4 0" />
+  <path d="M14 12a2 2 0 1 0 -4 0a2 2 0 0 0 4 0" />
   <path d="M6 12h4" />
   <path d="M14 12h4" />
   <path d="M13.5 5.5l5 5" />

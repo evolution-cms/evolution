@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.6.4] - 2025-12-19
+### Changed
+- ci: Run workflows against 5.x.x branches ([#859](https://github.com/jsonrainbow/json-schema/pull/859))
+### Fixed
+- UriValidator: Allow `file:/` and `file:///` ([#856](https://github.com/jsonrainbow/json-schema/discussions/856))
+- Fix .php-cs-fixer.dist.php export-ignore ([#861](https://github.com/jsonrainbow/json-schema/discussions/861))
+
 ## [6.6.3] - 2025-12-02
 ### Changed
 - Restricted `mark-mabe/php-enum` dependency to `^4.4` due to lower versions emitting a warning on PHP 8 ([#854](https://github.com/jsonrainbow/json-schema/pull/854))

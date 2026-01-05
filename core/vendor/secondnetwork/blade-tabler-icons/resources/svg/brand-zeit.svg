@@ -11,5 +11,5 @@
   class="icon icon-tabler icons-tabler-outline icon-tabler-brand-zeit"
 >
   <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-  <path d="M3 20h18l-9 -16z" />
+  <path d="M3 20h18l-9 -16l-9 16" />
 </svg>

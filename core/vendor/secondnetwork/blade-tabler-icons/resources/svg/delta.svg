@@ -11,5 +11,5 @@
   class="icon icon-tabler icons-tabler-outline icon-tabler-delta"
 >
   <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-  <path d="M4 20h16l-8 -16z" />
+  <path d="M4 20h16l-8 -16l-8 16" />
 </svg>

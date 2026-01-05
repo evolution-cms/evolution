@@ -869,7 +869,7 @@ class DebugClassLoader
 
                 $constant = new \ReflectionClassConstant($definingClass, $constantName);
 
-                if ($constantType = $constant->getType()) {
+                if (\PHP_VERSION_ID >= 80300 && $constantType = $constant->getType()) {
                     if ($constantType instanceof \ReflectionNamedType) {
                         $n = $constantType->getName();
                     } else {
