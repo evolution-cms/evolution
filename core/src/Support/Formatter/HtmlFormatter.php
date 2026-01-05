@@ -18,22 +18,22 @@ class HtmlFormatter
         $att = '#ff0000';
         $val = '#8000ff';
         $com = '#34803a';
-        $find = array(
+        $find = [
             '~(\s[a-z].*?=)~',                    // Highlight the attributes
             '~(&lt;\!--.*?--&gt;)~s',            // Hightlight comments
             '~(&quot;[a-zA-Z0-9\/].*?&quot;)~',    // Highlight the values
             '~(&lt;[a-z].*?&gt;)~',                // Highlight the beginning of the opening tag
             '~(&lt;/[a-z].*?&gt;)~',            // Highlight the closing tag
             '~(&amp;.*?;)~',                    // Stylize HTML entities
-        );
-        $replace = array(
+        ];
+        $replace = [
             '<span style="color:' . $att . ';">$1</span>',
             '<span style="color:' . $com . ';">$1</span>',
             '<span style="color:' . $val . ';">$1</span>',
             '<span style="color:' . $tag . ';">$1</span>',
             '<span style="color:' . $tag . ';">$1</span>',
             '<span style="font-style:italic;">$1</span>',
-        );
+        ];
         if ($decode) {
             $string = htmlentities($string);
         }

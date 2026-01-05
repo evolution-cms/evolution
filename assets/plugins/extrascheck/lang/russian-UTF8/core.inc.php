@@ -11,7 +11,7 @@
 //
 //   GNU General Public License (GPL - http://www.gnu.org/copyleft/gpl.html)
 //
-$_lang = array();
+$_lang = [];
 
 $_lang['title'] = 'Проверка совместимости дополнений';
 $_lang['outdated'] = '<b>устаревший</b>';

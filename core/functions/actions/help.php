@@ -12,7 +12,7 @@ if(!function_exists('createList')) {
         $links = '';
         foreach ($linkArr as $row) {
             if (!is_array($row['link'])) {
-                $row['link'] = array($row['link']);
+                $row['link'] = [$row['link']];
             }
             foreach ($row['link'] as $link) {
                 $links .= $links != '' ? '<br/>' : '';

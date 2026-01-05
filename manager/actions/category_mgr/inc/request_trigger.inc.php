@@ -143,10 +143,10 @@ if( isset( $_POST[$cm->get('request_key')]['sort']['submit'] ) )
 
     foreach( $categories as $category_id => $_data  )
     {
-        $data = array(
+        $data = [
             'category' => urldecode( $_data['category'] ),
             'rank'     => $_data['rank']
-        );
+        ];
 
         if( $cm->updateCategory( $category_id, $data ) )
         {
@@ -204,10 +204,10 @@ if( isset( $_POST[$cm->get('request_key')]['edit']['submit'] ) )
             continue;
         }
 
-        $data = array(
+        $data = [
             'category' => trim( html_entity_decode( $_data['category'] ) ),
             'rank'     => $_data['rank']
-        );
+        ];
 
         if( $cm->updateCategory( $category_id, $data ) )
         {

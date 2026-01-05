@@ -2030,7 +2030,7 @@ class SiteContent extends Eloquent\Model
      * @param array $models
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function newCollection(array $models = array())
+    public function newCollection(array $models = [])
     {
         return new Collection($models);
     }
@@ -2082,7 +2082,7 @@ class SiteContent extends Eloquent\Model
         return $query;
     }
 
-    public function scopeWithTVs($query, $tvList = array(), $sep = ':', $tree = false)
+    public function scopeWithTVs($query, $tvList = [], $sep = ':', $tree = false)
     {
         $main_table = 'site_content';
         if($tree){
@@ -2225,13 +2225,13 @@ class SiteContent extends Eloquent\Model
     }
 
     //return tvs array [$docid => tvs array()]
-    public static function getTvList($docs, $tvList = array())
+    public static function getTvList($docs, $tvList = [])
     {
-        $docsTV = array();
+        $docsTV = [];
         if (empty($docs)) {
-            return array();
+            return [];
         } else if (empty($tvList)) {
-            return array();
+            return [];
         } else {
             $ids = $docs->pluck('id')->toArray();
             $tvs = SiteTmplvar::whereIn('name', $tvList)->get();
@@ -2248,13 +2248,13 @@ class SiteContent extends Eloquent\Model
             foreach ($ids as $docid) {
                 foreach ($tvIds as $tvid => $tvname) {
                     if (empty($docsTV[$docid][$tvid])) {
-                        $docsTV[$docid][$tvid] = array('tmplvarid' => $tvid, 'contentid' => $docid, 'value' => $tvNames[$tvIds [$tvid]]);
+                        $docsTV[$docid][$tvid] = ['tmplvarid' => $tvid, 'contentid' => $docid, 'value' => $tvNames[$tvIds [$tvid]]];
                     }
                 }
             }
         }
         if (!empty($docsTV)) {
-            $tmp = array();
+            $tmp = [];
             foreach ($docsTV as $docid => $tvs) {
                 foreach ($tvs as $tvid => $tv) {
                     $tmp[$docid][$tvIds[$tvid]] = $tv['value'];
@@ -2266,16 +2266,16 @@ class SiteContent extends Eloquent\Model
     }
 
     //return docs array with tvs
-    public static function tvList($docs, $tvList = array())
+    public static function tvList($docs, $tvList = [])
     {
         if (empty($docs)) {
-            return array();
+            return [];
         } else {
             $docsTV = static::getTvList($docs, $tvList);
             $docs = $docs->toArray();
             $tmp = $docs;
             foreach ($docs as $key => $doc) {
-                $tmp[$key]['tvs'] = !empty($docsTV[$doc['id']]) ? $docsTV[$doc['id']] : array();
+                $tmp[$key]['tvs'] = !empty($docsTV[$doc['id']]) ? $docsTV[$doc['id']] : [];
             }
             $docs = $tmp;
             unset($tmp);

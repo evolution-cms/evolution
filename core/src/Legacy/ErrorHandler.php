@@ -11,7 +11,7 @@ class ErrorHandler
     /**
      * @var array
      */
-    public $errors = array();
+    public $errors = [];
     /**
      * @var string
      */
@@ -25,7 +25,7 @@ class ErrorHandler
 
         $_lang = $this->includeLang('errormsg');
 
-        $this->errors = array(
+        $this->errors = [
             0  => $_lang["No errors occured."],
             1  => $_lang["An error occured!"],
             2  => $_lang["Document's ID not passed in request!"],
@@ -53,7 +53,7 @@ class ErrorHandler
             903 => $_lang["You are blocked and cannot log in!"],
             904 => $_lang["You are blocked and cannot log in! Please try again later."],
             905 => $_lang["The security code you entered didn't validate! Please try to login again!"]
-        );
+        ];
     }
 
     /**
@@ -63,7 +63,7 @@ class ErrorHandler
     public function includeLang($context = 'common')
     {
         $modx = evolutionCMS();
-        $_lang = array();
+        $_lang = [];
 
         $context = trim($context, '/');
         if (strpos($context, '..') !== false) {
@@ -81,7 +81,7 @@ class ErrorHandler
             include_once($lang_path.$manager_language."/global.php");
         }
 
-        return is_array($_lang) ? $_lang : array();
+        return is_array($_lang) ? $_lang : [];
     }
 
     /**

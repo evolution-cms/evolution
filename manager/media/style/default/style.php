@@ -209,8 +209,8 @@ switch ($action) {
 
 $disabled = ($action == '19' || $action == '300' || $action == '77' || $action == '23' || $action == '101' || $action == '4' || $action == '72' || $action == '87' || $action == '11' || $action == '107' || $action == '38') ? ' disabled' : '';
 
-$_style['actionbuttons'] = array(
-    'dynamic' => array(
+$_style['actionbuttons'] = [
+    'dynamic' => [
         'document' => '<div id="actions">
 			<div class="btn-group">
 			' . (isset($_REQUEST['id']) ? '
@@ -360,8 +360,8 @@ $_style['actionbuttons'] = array(
 				</a>
 			</div>
 		</div>',
-    ),
-    'static' => array(
+    ],
+    'static' => [
         'document' => '<div id="actions">
 			<div class="btn-group">' .
             ($addnew ? '
@@ -396,5 +396,5 @@ $_style['actionbuttons'] = array(
 				</a>
 			</div>
 		</div>',
-    ),
-);
+    ],
+];

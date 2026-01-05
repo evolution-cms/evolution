@@ -118,9 +118,9 @@ if (isset($data) && count($data) > 0) {
         $oldtemplate = (int) $data['old_template'];
         $reset = $data['reset_template'];
         if ($reset == 1) {
-            \EvolutionCMS\Models\SiteContent::where('type', 'document')->update(array('template' => $newtemplate));
+            \EvolutionCMS\Models\SiteContent::where('type', 'document')->update(['template' => $newtemplate]);
         } else if ($reset == 2) {
-            \EvolutionCMS\Models\SiteContent::where('template', $oldtemplate)->update(array('template' => $newtemplate));
+            \EvolutionCMS\Models\SiteContent::where('template', $oldtemplate)->update(['template' => $newtemplate]);
         }
     }
 

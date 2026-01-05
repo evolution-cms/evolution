@@ -15,26 +15,26 @@ use EvolutionCMS\Core;
  */
 class Phx
 {
-    public $placeholders = array();
+    public $placeholders = [];
     public $name = 'PHx';
     public $version = '2.2.0';
-    public $user = array();
-    public $cache = array(
-        'cm' => array(),
-        'ui' => array(),
-        'mo' => array()
-    );
-    public $safetags = array(
-        array('~(?<![\[]|^\^)\[(?=[^\+\*\(\[]|$)~s', '~(?<=[^\+\*\)\]]|^)\](?=[^\]]|$)~s'),
-        array('&_PHX_INTERNAL_091_&', '&_PHX_INTERNAL_093_&'),
-        array('[', ']')
-    );
-    public $console = array();
+    public $user = [];
+    public $cache = [
+        'cm' => [],
+        'ui' => [],
+        'mo' => []
+    ];
+    public $safetags = [
+        ['~(?<![\[]|^\^)\[(?=[^\+\*\(\[]|$)~s', '~(?<=[^\+\*\)\]]|^)\](?=[^\]]|$)~s'],
+        ['&_PHX_INTERNAL_091_&', '&_PHX_INTERNAL_093_&'],
+        ['[', ']']
+    ];
+    public $console = [];
     public $debug = false;
     public $debugLog = false;
     public $curPass = 0;
     public $maxPasses = 50;
-    public $swapSnippetCache = array();
+    public $swapSnippetCache = [];
     protected $modx = null;
 
     /**
@@ -134,8 +134,8 @@ class Phx
         if (preg_match_all('~(?<!(?:then|else)=`){{([^:\+{}]+)([^{}]*?)}}~s', $template, $matches)) {
             $this->Log('MODX Chunks -> Merging all chunk tags');
             $count = count($matches[0]);
-            $var_search = array();
-            $var_replace = array();
+            $var_search = [];
+            $var_replace = [];
             for ($i = 0; $i < $count; $i++) {
                 $var_search[] = $matches[0][$i];
                 $input = $matches[1][$i];
@@ -150,8 +150,8 @@ class Phx
         //if ( preg_match_all('~\[(\[|!)([^\[]*?)(!|\])\]~s',$template, $matches)) {
         if (preg_match_all('~(?<!(?:then|else)=`)\[(\[)([^\[]*?)(\])\]~s', $template, $matches)) {
             $count = count($matches[0]);
-            $var_search = array();
-            $var_replace = array();
+            $var_search = [];
+            $var_replace = [];
 
             // for each detected snippet
             for ($i = 0; $i < $count; $i++) {
@@ -178,8 +178,8 @@ class Phx
             //$matches[4] // Type (end character)
 
             $count = count($matches[0]);
-            $var_search = array();
-            $var_replace = array();
+            $var_search = [];
+            $var_replace = [];
             for ($i = 0; $i < $count; $i++) {
                 $input = $matches[2][$i];
                 $modifiers = $matches[3][$i];
@@ -246,7 +246,7 @@ class Phx
             $modifier_cmd = $matches[1]; // modifier command
             $modifier_value = $matches[2]; // modifier value
             $count = count($modifier_cmd);
-            $condition = array();
+            $condition = [];
             for ($i = 0; $i < $count; $i++) {
                 $output = trim($output);
                 $this->Log("  |--- Modifier = '" . $modifier_cmd[$i] . "'");
@@ -298,7 +298,7 @@ class Phx
                         if ($output == "&_PHX_INTERNAL_&") {
                             $output = $this->user["id"];
                         }
-                        $grps = ($this->strlen($modifier_value[$i]) > 0) ? explode(",", $modifier_value[$i]) : array();
+                        $grps = ($this->strlen($modifier_value[$i]) > 0) ? explode(",", $modifier_value[$i]) : [];
                         $condition[] = intval($this->isMemberOfWebGroupByUserId($output, $grps));
                         break;
                     case "or":
@@ -332,7 +332,7 @@ class Phx
                         break;
                     case "select":
                         $raw = explode("&", $modifier_value[$i]);
-                        $map = array();
+                        $map = [];
                         $count = count($raw);
                         for ($m = 0; $m < $count; $m++) {
                             $mi = explode("=", $raw[$m]);
@@ -372,7 +372,7 @@ class Phx
                         break;
                     case "esc":
                         $output = preg_replace("/&amp;(#[0-9]+|[a-z]+);/i", "&$1;", e($output));
-                        $output = str_replace(array("[", "]", "`"), array("&#91;", "&#93;", "&#96;"), $output);
+                        $output = str_replace(["[", "]", "`"], ["&#91;", "&#93;", "&#96;"], $output);
                         break;
                     case "strip":
                         $output = preg_replace("~([\n\r\t\s]+)~", " ", $output);
@@ -464,7 +464,7 @@ class Phx
                         if ($output == "&_PHX_INTERNAL_&") {
                             $output = $this->user["id"];
                         }
-                        $grps = ($this->strlen($modifier_value[$i]) > 0) ? explode(",", $modifier_value[$i]) : array();
+                        $grps = ($this->strlen($modifier_value[$i]) > 0) ? explode(",", $modifier_value[$i]) : [];
                         $output = intval($this->isMemberOfWebGroupByUserId($output, $grps));
                         break;
 
@@ -500,11 +500,11 @@ class Phx
                             }
                         }
                         if (!empty($snippet)) {
-                            $output = $this->modx->runSnippet($snippetName, array(
+                            $output = $this->modx->runSnippet($snippetName, [
                                 'input'   => $output,
                                 'output'  => $output,
                                 'options' => $modifier_value[$i]
-                            ));
+                            ]);
                         } else {
                             $output = '';
                         }
@@ -539,7 +539,7 @@ class Phx
         $out = '';
         if (!empty($this->console)) {
             $console = implode("\n", $this->console);
-            $this->console = array();
+            $this->console = [];
 
             $out = '<pre style="overflow: auto;">' . $console . '</pre>';
         }
@@ -640,7 +640,7 @@ class Phx
      * @param array $groupNames
      * @return bool
      */
-    public function isMemberOfWebGroupByUserId($userid = 0, $groupNames = array())
+    public function isMemberOfWebGroupByUserId($userid = 0, $groupNames = [])
     {
         $userid = (int)$userid;
         // if $groupNames is not an array return false

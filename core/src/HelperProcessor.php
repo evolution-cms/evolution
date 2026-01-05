@@ -66,8 +66,8 @@ class HelperProcessor
 
         $path_parts = pathinfo($input);
         $ext = strtolower($path_parts['extension']);
-        $options = 'f=' . (in_array($ext, array('png', 'gif', 'jpeg')) ? $ext : 'jpg&q=85') . '&' .
-            strtr($options, array(',' => '&', '_' => '=', '{' => '[', '}' => ']'));
+        $options = 'f=' . (in_array($ext, ['png', 'gif', 'jpeg']) ? $ext : 'jpg&q=85') . '&' .
+            strtr($options, [',' => '&', '_' => '=', '{' => '[', '}' => ']']);
 
         parse_str($options, $params);
 

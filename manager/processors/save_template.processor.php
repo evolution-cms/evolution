@@ -59,10 +59,10 @@ switch ($_POST['mode']) {
     case '19':
 
         // invoke OnBeforeTempFormSave event
-        EvolutionCMS()->invokeEvent("OnBeforeTempFormSave", array(
+        EvolutionCMS()->invokeEvent("OnBeforeTempFormSave", [
             "mode" => "new",
             "id" => $id
-        ));
+        ]);
 
         // disallow duplicate names for new templates
         $count = \EvolutionCMS\Models\SiteTemplate::where('templatename', $templatename)->count();
@@ -82,7 +82,7 @@ switch ($_POST['mode']) {
             EvolutionCMS()->webAlertAndQuit(sprintf($_lang["duplicate_template_alias_found"], $docid, $templatealias), "index.php?a=19");
         }
         //do stuff to save the new doc
-        $newid = \EvolutionCMS\Models\SiteTemplate::query()->insertGetId(array(
+        $newid = \EvolutionCMS\Models\SiteTemplate::query()->insertGetId([
             'templatename' => $templatename,
             'templatealias' => $templatealias,
             'description' => $description,
@@ -92,13 +92,13 @@ switch ($_POST['mode']) {
             'category' => $categoryid,
             'createdon' => $currentdate,
             'editedon' => $currentdate
-        ));
+        ]);
 
         // invoke OnTempFormSave event
-        EvolutionCMS()->invokeEvent("OnTempFormSave", array(
+        EvolutionCMS()->invokeEvent("OnTempFormSave", [
             "mode" => "new",
             "id" => $newid
-        ));
+        ]);
         // Set new assigned Tvs
         saveTemplateAccess($newid);
 
@@ -126,10 +126,10 @@ switch ($_POST['mode']) {
     case '16':
 
         // invoke OnBeforeTempFormSave event
-        EvolutionCMS()->invokeEvent("OnBeforeTempFormSave", array(
+        EvolutionCMS()->invokeEvent("OnBeforeTempFormSave", [
             "mode" => "upd",
             "id" => $id
-        ));
+        ]);
 
         // disallow duplicate names for templates
         $count = \EvolutionCMS\Models\SiteTemplate::where('templatename', $templatename)->where('id', '!=', $id)->count();
@@ -149,7 +149,7 @@ switch ($_POST['mode']) {
             EvolutionCMS()->webAlertAndQuit(sprintf($_lang["duplicate_template_alias_found"], $docid, $templatealias), "index.php?a=16&id={$id}");
         }
         //do stuff to save the edited doc
-        \EvolutionCMS\Models\SiteTemplate::find($id)->update(array(
+        \EvolutionCMS\Models\SiteTemplate::find($id)->update([
             'templatename' => $templatename,
             'templatealias' => $templatealias,
             'description' => $description,
@@ -158,7 +158,7 @@ switch ($_POST['mode']) {
             'selectable' => $selectable,
             'category' => $categoryid,
             'editedon' => $currentdate
-        ));
+        ]);
         // Set new assigned Tvs
         saveTemplateAccess($id);
 
@@ -167,10 +167,10 @@ switch ($_POST['mode']) {
         }
 
         // invoke OnTempFormSave event
-        EvolutionCMS()->invokeEvent("OnTempFormSave", array(
+        EvolutionCMS()->invokeEvent("OnTempFormSave", [
             "mode" => "upd",
             "id" => $id
-        ));
+        ]);
 
         // Set the item name for logger
         $_SESSION['itemname'] = $templatename;

@@ -10,15 +10,15 @@ class Modifiers implements ModifiersInterface
     /**
      * @var array
      */
-    public $placeholders = array();
+    public $placeholders = [];
     /**
      * @var array
      */
-    public $vars = array();
+    public $vars = [];
     /**
      * @var array
      */
-    public $tmpCache = array();
+    public $tmpCache = [];
     /**
      * @var
      */
@@ -30,7 +30,7 @@ class Modifiers implements ModifiersInterface
     /**
      * @var array
      */
-    public $condition = array();
+    public $condition = [];
     /**
      * @var string
      */
@@ -56,7 +56,7 @@ class Modifiers implements ModifiersInterface
     /**
      * @var array
      */
-    public $documentObject = array();
+    public $documentObject = [];
 
     /**
      * MODIFIERS constructor.
@@ -85,17 +85,17 @@ class Modifiers implements ModifiersInterface
         $this->srcValue = $value;
         $modifiers = trim($modifiers);
         $modifiers = ':' . trim($modifiers, ':');
-        $modifiers = str_replace(array("\r\n", "\r"), "\n", $modifiers);
+        $modifiers = str_replace(["\r\n", "\r"], "\n", $modifiers);
         $modifiers = $this->splitEachModifiers($modifiers);
 
-        $this->placeholders = array();
+        $this->placeholders = [];
         $this->placeholders['phx'] = '';
         $this->placeholders['dummy'] = '';
-        $this->condition = array();
-        $this->vars = array();
+        $this->condition = [];
+        $this->vars = [];
         $this->vars['name'] = &$key;
         $value = $this->parsePhx($key, $value, $modifiers);
-        $this->vars = array();
+        $this->vars = [];
 
         return $value;
     }
@@ -108,7 +108,7 @@ class Modifiers implements ModifiersInterface
     public function _getDelim($mode, $modifiers)
     {
         $c = substr($modifiers, 0, 1);
-        if (!in_array($c, array('"', "'", '`'))) {
+        if (!in_array($c, ['"', "'", '`'])) {
             return false;
         }
 
@@ -195,7 +195,7 @@ class Modifiers implements ModifiersInterface
 
         $cmd = '';
         $bt = '';
-        $result = array();
+        $result = [];
         while ($bt !== $modifiers) {
             $bt = $modifiers;
             $c = substr($modifiers, 0, 1);
@@ -214,12 +214,12 @@ class Modifiers implements ModifiersInterface
                 $opt = $this->_getOpt($c, $delim, $modifiers);
                 $modifiers = trim($this->_getRemainModifiers($c, $delim, $modifiers));
 
-                $result[] = array('cmd' => trim($match[1]), 'opt' => $opt, 'debuginfo' => $debuginfo);
+                $result[] = ['cmd' => trim($match[1]), 'opt' => $opt, 'debuginfo' => $debuginfo];
                 $cmd = '';
-            } elseif (in_array($c, array('+', '-', '*', '/')) && preg_match('@^[0-9]+@', $modifiers,
+            } elseif (in_array($c, ['+', '-', '*', '/']) && preg_match('@^[0-9]+@', $modifiers,
                     $match)) { // :+3, :-3, :*3 ...
                 $modifiers = substr($modifiers, strlen($match[0]));
-                $result[] = array('cmd' => 'math', 'opt' => '%s' . $c . $match[0]);
+                $result[] = ['cmd' => 'math', 'opt' => '%s' . $c . $match[0]];
                 $cmd = '';
             } elseif ($c === '(' || $c === '=') {
                 $modifiers = $m1 = trim($modifiers);
@@ -228,20 +228,20 @@ class Modifiers implements ModifiersInterface
                 $modifiers = trim($this->_getRemainModifiers($c, $delim, $modifiers));
                 $debuginfo = "#i=1 #c=[{$c}] #delim=[{$delim}] #m1=[{$m1}] remainMdf=[{$modifiers}]";
 
-                $result[] = array('cmd' => trim($cmd), 'opt' => $opt, 'debuginfo' => $debuginfo);
+                $result[] = ['cmd' => trim($cmd), 'opt' => $opt, 'debuginfo' => $debuginfo];
 
                 $cmd = '';
             } elseif ($c == ':') {
                 $debuginfo = "#i=2 #c=[{$c}] #m=[{$modifiers}]";
                 if ($cmd !== '') {
-                    $result[] = array('cmd' => trim($cmd), 'opt' => '', 'debuginfo' => $debuginfo);
+                    $result[] = ['cmd' => trim($cmd), 'opt' => '', 'debuginfo' => $debuginfo];
                 }
 
                 $cmd = '';
             } elseif (trim($modifiers) == '' && trim($cmd) !== '') {
                 $debuginfo = "#i=3 #c=[{$c}] #m=[{$modifiers}]";
                 $cmd .= $c;
-                $result[] = array('cmd' => trim($cmd), 'opt' => '', 'debuginfo' => $debuginfo);
+                $result[] = ['cmd' => trim($cmd), 'opt' => '', 'debuginfo' => $debuginfo];
 
                 break;
             } else {
@@ -250,7 +250,7 @@ class Modifiers implements ModifiersInterface
         }
 
         if (empty($result)) {
-            return array();
+            return [];
         }
 
         foreach ($result as $i => $a) {
@@ -277,8 +277,8 @@ class Modifiers implements ModifiersInterface
         }
         $_ = explode(',', $this->condModifiers);
         if (in_array($lastKey, $_)) {
-            $modifiers[] = array('cmd' => 'then', 'opt' => '1');
-            $modifiers[] = array('cmd' => 'else', 'opt' => '0');
+            $modifiers[] = ['cmd' => 'then', 'opt' => '1'];
+            $modifiers[] = ['cmd' => 'else', 'opt' => '0'];
         }
 
         foreach ($modifiers as $a) {
@@ -504,7 +504,7 @@ class Modifiers implements ModifiersInterface
             case 'select':
             case 'switch':
                 $raw = explode('&', $opt);
-                $map = array();
+                $map = [];
                 $c = count($raw);
                 for ($m = 0; $m < $c; $m++) {
                     $mi = explode('=', $raw[$m], 2);
@@ -530,7 +530,7 @@ class Modifiers implements ModifiersInterface
                 $value = preg_replace('/&amp;(#[0-9]+|[a-z]+);/i', '&$1;',
                     htmlspecialchars($value, ENT_QUOTES, $modx->getConfig('modx_charset')));
 
-                return str_replace(array('[', ']', '`'), array('&#91;', '&#93;', '&#96;'), $value);
+                return str_replace(['[', ']', '`'], ['&#91;', '&#93;', '&#96;'], $value);
             case 'sql_escape':
             case 'encode_js':
                 return $modx->getDatabase()->escape($value);
@@ -541,7 +541,7 @@ class Modifiers implements ModifiersInterface
                 return preg_replace('/&amp;(#[0-9]+|[a-z]+);/i', '&$1;',
                     htmlspecialchars($value, ENT_QUOTES, $modx->getConfig('modx_charset')));
             case 'spam_protect':
-                return str_replace(array('@', '.'), array('&#64;', '&#46;'), $value);
+                return str_replace(['@', '.'], ['&#64;', '&#46;'], $value);
             case 'strip':
                 if ($opt === '') {
                     $opt = ' ';
@@ -549,12 +549,12 @@ class Modifiers implements ModifiersInterface
 
                 return preg_replace('/[\n\r\t\s]+/', $opt, $value);
             case 'strip_linefeeds':
-                return str_replace(array("\n", "\r"), '', $value);
+                return str_replace(["\n", "\r"], '', $value);
             case 'notags':
             case 'strip_tags':
             case 'remove_html':
                 if ($opt !== '') {
-                    $param = array();
+                    $param = [];
                     foreach (explode(',', $opt) as $v) {
                         $v = trim($v, '</> ');
                         $param[] = "<{$v}>";
@@ -664,7 +664,7 @@ class Modifiers implements ModifiersInterface
             case 'wrap_text':
                 $width = preg_match('/^[1-9][0-9]*$/', $opt) ? $opt : 70;
                 if ($modx->getConfig('manager_language') === 'japanese-utf8') {
-                    $chunk = array();
+                    $chunk = [];
                     $bt = '';
                     while ($bt != $value) {
                         $bt = $value;
@@ -739,14 +739,14 @@ class Modifiers implements ModifiersInterface
             case 'replace_to':
             case 'tpl':
                 if ($value !== '') {
-                    return str_replace(array('[+value+]', '[+output+]', '{value}', '%s'), $value, $opt);
+                    return str_replace(['[+value+]', '[+output+]', '{value}', '%s'], $value, $opt);
                 }
                 break;
             case 'eachtpl':
                 $value = explode('||', $value);
-                $_ = array();
+                $_ = [];
                 foreach ($value as $v) {
-                    $_[] = str_replace(array('[+value+]', '[+output+]', '{value}', '%s'), $v, $opt);
+                    $_[] = str_replace(['[+value+]', '[+output+]', '{value}', '%s'], $v, $opt);
                 }
 
                 return implode("\n", $_);
@@ -798,7 +798,7 @@ class Modifiers implements ModifiersInterface
                 return boolval($value);
             case 'nl2lf':
                 if ($value !== '') {
-                    return str_replace(array("\r\n", "\n", "\r"), '\n', $value);
+                    return str_replace(["\r\n", "\n", "\r"], '\n', $value);
                 }
                 break;
             case 'br2nl':
@@ -902,7 +902,7 @@ class Modifiers implements ModifiersInterface
                 if (empty($value)) {
                     $value = '0';
                 }
-                $filter = str_replace(array('[+value+]', '[+output+]', '{value}', '%s'), '?', $opt);
+                $filter = str_replace(['[+value+]', '[+output+]', '{value}', '%s'], '?', $opt);
                 $filter = preg_replace('@([a-zA-Z\n\r\t\s])@', '', $filter);
                 if (strpos($filter, '?') === false) {
                     $filter = "?{$filter}";
@@ -1014,7 +1014,7 @@ class Modifiers implements ModifiersInterface
                     $opt = 'page';
                 }
                 $_ = explode(',', $opt);
-                $where = array();
+                $where = [];
                 foreach ($_ as $opt) {
                     switch (trim($opt)) {
                         case 'page';
@@ -1044,7 +1044,7 @@ class Modifiers implements ModifiersInterface
                 }
                 $where = implode(' AND ', $where);
                 $children = $modx->getDocumentChildren($value, $published, '0', 'id', $where);
-                $result = array();
+                $result = [];
                 foreach ((array)$children as $child) {
                     $result[] = $child['id'];
                 }
@@ -1395,15 +1395,15 @@ class Modifiers implements ModifiersInterface
             }
             ob_end_clean();
         } elseif ($html !== false && isset($value) && $value !== '') {
-            $html = str_replace(array($self, '[+value+]'), $value, $html);
-            $value = str_replace(array('[+options+]', '[+param+]'), $opt, $html);
+            $html = str_replace([$self, '[+value+]'], $value, $html);
+            $value = str_replace(['[+options+]', '[+param+]'], $opt, $html);
         } else {
             return false;
         }
 
         if ($php === false && $html === false && $value !== ''
             && (strpos($cmd, '[+value+]') !== false || strpos($cmd, $self) !== false)) {
-            $value = str_replace(array('[+value+]', $self), $value, $cmd);
+            $value = str_replace(['[+value+]', $self], $value, $cmd);
         }
 
         return $value;
@@ -1434,7 +1434,7 @@ class Modifiers implements ModifiersInterface
                 $content = $modx->mergeChunkContent($content);
             }
             if (strpos($content, '[!') !== false) {
-                $content = str_replace(array('[!', '!]'), array('[[', ']]'), $content);
+                $content = str_replace(['[!', '!]'], ['[[', ']]'], $content);
             }
             if (strpos($content, '[[') !== false) {
                 $content = $modx->evalSnippets($content);
@@ -1515,7 +1515,7 @@ class Modifiers implements ModifiersInterface
         }
         if (function_exists('mb_substr')) {
             if (strpos($str, "\r") !== false) {
-                $str = str_replace(array("\r\n", "\r"), "\n", $str);
+                $str = str_replace(["\r\n", "\r"], "\n", $str);
             }
 
             return mb_substr($str, $s, $l, $modx->getConfig('modx_charset'));

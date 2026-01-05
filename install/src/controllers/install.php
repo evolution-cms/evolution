@@ -44,7 +44,7 @@ $adminname = strip_tags($_POST['cmsadmin']);
 $adminemail = strip_tags($_POST['cmsadminemail']);
 $adminpass = strip_tags($_POST['cmspassword']);
 $managerlanguage = $_POST['managerlanguage'];
-$custom_placeholders = array();
+$custom_placeholders = [];
 
 // set session name variable
 if (!isset($site_sessionname)) {
@@ -88,7 +88,7 @@ try {
 
     if ($installLevel === 1) {
         // write the config.inc.php file if new installation
-        $confph = array();
+        $confph = [];
         $confph['database_server'] = $database_server;
         $confph['database_type'] = $database_type;
         $confph['user_name'] = $database_user;
@@ -198,7 +198,7 @@ try {
 
         if ($installMode == 0) {
             seed('install');
-            $field = array();
+            $field = [];
             $field['password'] = evo()->getPasswordHash()->HashPassword($adminpass);
             $field['username'] = $adminname;
             $managerUser = EvolutionCMS\Models\User::create($field);
@@ -249,7 +249,7 @@ try {
         }
     }
 
-    $installDataLevel = array();
+    $installDataLevel = [];
     $errorData = false;
     // Install Templates
     if ($installLevel === 5 && (isset($_POST['template']) || $installData)) {
@@ -258,16 +258,16 @@ try {
             if (!is_array($moduleTemplate)) {
                 continue;
             }
-            $installDataLevel['templates'][$moduleTemplate[0]] = array(
-                'data' => array(
+            $installDataLevel['templates'][$moduleTemplate[0]] = [
+                'data' => [
                     'desc' => $moduleTemplate[1],
                     'category' => $moduleTemplate[4],
                     'locked' => $moduleTemplate[5],
                     'file' => $moduleTemplate[3],
                     'id' => $moduleTemplate[7],
-                ),
+                ],
                 'type' => '', // update, create
-            );
+            ];
             $installSample = in_array('sample', $moduleTemplate[6]) && $installData === 1;
             if ($installSample || in_array($k, $selTemplates)) {
                 $name = $moduleTemplate[0];
@@ -320,7 +320,7 @@ try {
     if ($installLevel === 5 && $errorData === false && (isset($_POST['tv']) || $installData)) {
         $selTVs = $_POST['tv'] ?? [];
         foreach ($moduleTVs as $k => $moduleTV) {
-            $templateVariablesData = array(
+            $templateVariablesData = [
                 'name' => $moduleTV[0],
                 'desc' => $moduleTV[2],
                 'caption' => $moduleTV[1],
@@ -333,7 +333,7 @@ try {
                 'output_widget' => $moduleTV[6],
                 'output_widget_params' => $moduleTV[7],
                 'assignments' => $moduleTV[9]
-            );
+            ];
             $installDataLevel['tvs'][$moduleTV[0]] = [
                 'data' => $templateVariablesData,
                 'type' => '', // update, create
@@ -368,16 +368,16 @@ try {
             if (!is_array($moduleChunk)) {
                 continue;
             }
-            $installDataLevel['chunks'][$moduleChunk[0]] = array(
-                'data' => array(
+            $installDataLevel['chunks'][$moduleChunk[0]] = [
+                'data' => [
                     'desc' => $moduleChunk[1],
                     'category' => $moduleChunk[3],
                     'overwrite' => $moduleChunk[4],
                     'file' => $moduleChunk[2],
                     'installset' => $moduleChunk[5]
-                ),
+                ],
                 'type' => '', // update, create, overwrite, skip
-            );
+            ];
             $installSample = in_array('sample', $moduleChunk[5]) && $installData == 1;
             $count_new_name = 0;
             if ($installSample || in_array($k, $selChunks)) {
@@ -431,17 +431,17 @@ try {
             if (!is_array($moduleModule)) {
                 continue;
             }
-            $installDataLevel['modules'][$moduleModule[0]] = array(
-                'data' => array(
+            $installDataLevel['modules'][$moduleModule[0]] = [
+                'data' => [
                     'desc' => $moduleModule[1],
                     'category' => $moduleModule[6],
                     'file' => $moduleModule[2],
                     'guid' => $moduleModule[4],
                     'props' => $moduleModule[3],
                     'shared' => $moduleModule[5],
-                ),
+                ],
                 'type' => '', // update, create
-            );
+            ];
             $installSample = in_array('sample', $moduleModule[7]) && $installData == 1;
             if ($installSample || in_array($k, $selModules)) {
                 $name = $moduleModule[0];
@@ -452,9 +452,9 @@ try {
                 $shared = $moduleModule[5];
                 $category = $moduleModule[6];
                 if (!file_exists($filecontent)) {
-                    $installDataLevel['modules'][$moduleModule[0]]['error'] = array(
+                    $installDataLevel['modules'][$moduleModule[0]]['error'] = [
                         'type' => 'file_not_found'
-                    );
+                    ];
                 } else {
                     // Create the category if it does not already exist
                     $category = getCreateDbCategory($category);
@@ -492,8 +492,8 @@ try {
             if (!is_array($modulePlugin)) {
                 continue;
             }
-            $installDataLevel['plugins'][$modulePlugin[0]] = array(
-                'data' => array(
+            $installDataLevel['plugins'][$modulePlugin[0]] = [
+                'data' => [
                     'desc' => $modulePlugin[1],
                     'file' => $modulePlugin[2],
                     'category' => $modulePlugin[6],
@@ -501,9 +501,9 @@ try {
                     'disabled' => $modulePlugin[9],
                     'events' => explode(',', $modulePlugin[4]),
                     'props' => $modulePlugin[3]
-                ),
+                ],
                 'type' => '', // update, create
-            );
+            ];
 
             $installSample = is_array($modulePlugin[8]) && in_array('sample', $modulePlugin[8]) && $installData == 1;
 
@@ -523,9 +523,9 @@ try {
                     $leg_names = preg_split('/\s*,\s*/', $modulePlugin[7]);
                 }
                 if (!file_exists($filecontent)) {
-                    $installDataLevel['plugins'][$modulePlugin[0]]['error'] = array(
+                    $installDataLevel['plugins'][$modulePlugin[0]]['error'] = [
                         'type' => 'file_not_found'
-                    );
+                    ];
                 } else {
                     // disable legacy versions based on legacy_names provided
                     if (!empty($leg_names)) {
@@ -629,15 +629,15 @@ try {
             if (!is_array($moduleSnippet)) {
                 continue;
             }
-            $installDataLevel['snippets'][$moduleSnippet[0]] = array(
-                'data' => array(
+            $installDataLevel['snippets'][$moduleSnippet[0]] = [
+                'data' => [
                     'desc' => $moduleSnippet[1],
                     'category' => $moduleSnippet[4],
                     'props' => $moduleSnippet[3],
                     'file' => $moduleSnippet[2]
-                ),
+                ],
                 'type' => '', // update, create, skip
-            );
+            ];
             $installSample = in_array('sample', $moduleSnippet[5]) && $installData == 1;
             if ($installSample || in_array($k, $selSnips)) {
                 $name = $moduleSnippet[0];
@@ -646,9 +646,9 @@ try {
                 $properties = $moduleSnippet[3];
                 $category = $moduleSnippet[4];
                 if (!file_exists($filecontent)) {
-                    $installDataLevel['snippets'][$moduleSnippet[0]]['error'] = array(
+                    $installDataLevel['snippets'][$moduleSnippet[0]]['error'] = [
                         'type' => 'file_not_found'
-                    );
+                    ];
                 } else {
                     // Create the category if it does not already exist
                     $category = getCreateDbCategory($category);
@@ -680,18 +680,18 @@ try {
 
     // Install demo-site
     if ($installLevel === 5 && $errorData === false && ($installData && $moduleSQLDataFile)) {
-        $installDataLevel['demo'] = array();
+        $installDataLevel['demo'] = [];
         $sqlParser->process($moduleSQLDataFile);
         // display database results
         if ($sqlParser->installFailed === true) {
             $errors += 1;
             $sqlErrors = count($sqlParser->mysqlErrors);
-            $installDataLevel['demo']['error'] = array();
+            $installDataLevel['demo']['error'] = [];
             for ($i = 0; $i < $sqlErrors; $i++) {
-                $installDataLevel['demo']['error'][] = array(
+                $installDataLevel['demo']['error'][] = [
                     'content' => $sqlParser->mysqlErrors[$i]['error'],
                     'sql' => $sqlParser->mysqlErrors[$i]['sql']
-                );
+                ];
             }
             $errorData = true;
         } else {
@@ -712,7 +712,7 @@ try {
 
     $errorInstall = false;
     if ($installLevel === 6) {
-        $installDependencyLevel = array();
+        $installDependencyLevel = [];
 
         // Install Dependencies
         foreach ($moduleDependencies as $dependency) {

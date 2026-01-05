@@ -437,7 +437,7 @@ class InstallEvo
 
     public function writeConfig()
     {
-        $confph = array();
+        $confph = [];
         $confph['database_server'] = $this->databaseServer;
         $confph['database_type'] = $this->databaseType;
         $confph['user_name'] = $this->databaseUser;
@@ -505,7 +505,7 @@ class InstallEvo
         $_POST['database_type'] = $this->databaseType; // костиль для адекватної міграції
         Console::call('migrate', ['--path' => '../install/stubs/migrations', '--force' => true]);
         seed('install');
-        $field = array();
+        $field = [];
         $field['password'] = $this->evo->getPasswordHash()->HashPassword($this->cmsPassword);
         $field['username'] = $this->cmsAdmin;
         $managerUser = EvolutionCMS\Models\User::create($field);
@@ -539,7 +539,7 @@ class InstallEvo
                 $params = parse_docblock($pluginPath, $tplfile);
                 if (is_array($params) && count($params) > 0) {
                     $description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
-                    $mp[] = array(
+                    $mp[] = [
                         $params['name'],
                         $description,
                         "$pluginPath/{$params['filename']}",
@@ -550,7 +550,7 @@ class InstallEvo
                         $params['legacy_names'] ?? "",
                         array_key_exists('installset', $params) ? preg_split("/\s*,\s*/", $params['installset']) : false,
                         $params['disabled'] ?? 0
-                    );
+                    ];
                 }
             }
             $d->close();
@@ -669,7 +669,7 @@ class InstallEvo
                 $params = parse_docblock($modulePath, $tplfile);
                 if (is_array($params) && count($params) > 0) {
                     $description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
-                    $mm[] = array(
+                    $mm[] = [
                         $params['name'],
                         $description,
                         "$modulePath/{$params['filename']}",
@@ -678,7 +678,7 @@ class InstallEvo
                         $params['shareparams'] ?? 0,
                         $params['modx_category'] ?? "",
                         array_key_exists('installset', $params) ? preg_split("/\s*,\s*/", $params['installset']) : false
-                    );
+                    ];
                 }
                 if ((int)$params['shareparams'] || !empty($params['dependencies'])) {
                     $dependencies = explode(',', $params['dependencies']);
@@ -686,60 +686,60 @@ class InstallEvo
                         $dependency = explode(':', $dependency);
                         switch (trim($dependency[0])) {
                             case 'template':
-                                $mdp[] = array(
+                                $mdp[] = [
                                     'module' => $params['name'],
                                     'table' => 'templates',
                                     'column' => 'templatename',
                                     'type' => 50,
                                     'name' => trim($dependency[1])
-                                );
+                                ];
                                 break;
                             case 'tv':
                             case 'tmplvar':
-                                $mdp[] = array(
+                                $mdp[] = [
                                     'module' => $params['name'],
                                     'table' => 'tmplvars',
                                     'column' => 'name',
                                     'type' => 60,
                                     'name' => trim($dependency[1])
-                                );
+                                ];
                                 break;
                             case 'chunk':
                             case 'htmlsnippet':
-                                $mdp[] = array(
+                                $mdp[] = [
                                     'module' => $params['name'],
                                     'table' => 'htmlsnippets',
                                     'column' => 'name',
                                     'type' => 10,
                                     'name' => trim($dependency[1])
-                                );
+                                ];
                                 break;
                             case 'snippet':
-                                $mdp[] = array(
+                                $mdp[] = [
                                     'module' => $params['name'],
                                     'table' => 'snippets',
                                     'column' => 'name',
                                     'type' => 40,
                                     'name' => trim($dependency[1])
-                                );
+                                ];
                                 break;
                             case 'plugin':
-                                $mdp[] = array(
+                                $mdp[] = [
                                     'module' => $params['name'],
                                     'table' => 'plugins',
                                     'column' => 'name',
                                     'type' => 30,
                                     'name' => trim($dependency[1])
-                                );
+                                ];
                                 break;
                             case 'resource':
-                                $mdp[] = array(
+                                $mdp[] = [
                                     'module' => $params['name'],
                                     'table' => 'content',
                                     'column' => 'pagetitle',
                                     'type' => 20,
                                     'name' => trim($dependency[1])
-                                );
+                                ];
                                 break;
                         }
                     }

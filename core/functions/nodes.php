@@ -161,18 +161,18 @@ if (!function_exists('makeHTML')) {
                 if ($rowLock['sid'] == $modx->sid) {
                     $title = $modx->parseText(
                         $_lang['lock_element_editing']
-                        , array(
+                        , [
                             'element_type' => $_lang['lock_element_type_7'],
                             'lasthit_df' => $rowLock['lasthit_df']
-                        )
+                        ]
                     );
                     $lockedByUser = '<span title="' . $title . '" class="editResource"><i class="' . $_style['icon_eye'] . '"></i></span>';
                 } else {
-                    $title = $modx->parseText($_lang['lock_element_locked_by'], array(
+                    $title = $modx->parseText($_lang['lock_element_locked_by'], [
                         'element_type' => $_lang['lock_element_type_7'],
                         'username' => $rowLock['username'],
                         'lasthit_df' => $rowLock['lasthit_df']
-                    ));
+                    ]);
                     if ($modx->hasPermission('remove_locks')) {
                         $lockedByUser = '<span onclick="modx.tree.unlockElement(7, ' . $row['id'] . ', this);return false;" title="' . $title . '" class="lockedResource"><i class="' . $_style['icon_lock'] . '"></i></span>';
                     } else {
@@ -202,7 +202,7 @@ if (!function_exists('makeHTML')) {
             $title = $modx->getPhpCompat()->htmlspecialchars($title);
             $title = str_replace('[+lf+]', ' &#13;', $title);   // replace line-breaks with empty space as fall-back
 
-            $data = array(
+            $data = [
                 'id' => $row['id'],
                 'pagetitle' => $row['pagetitle'],
                 'longtitle' => $row['longtitle'],
@@ -244,7 +244,7 @@ if (!function_exists('makeHTML')) {
                 'isPrivate' => 0,
                 'roles' => ($row['roles'] ? $row['roles'] : ''),
                 'nomove' => 0
-            );
+            ];
 
             $ph = $data;
             $ph['nodetitle_esc'] = addslashes($nodetitle);
@@ -281,9 +281,9 @@ if (!function_exists('makeHTML')) {
                 $ph['icon'] = $icon;
 
                 // invoke OnManagerNodePrerender event
-                $prenode = $modx->invokeEvent('OnManagerNodePrerender', array('ph' => $ph));
+                $prenode = $modx->invokeEvent('OnManagerNodePrerender', ['ph' => $ph]);
                 if (is_array($prenode)) {
-                    $phnew = array();
+                    $phnew = [];
                     foreach ($prenode as $pnode) {
                         $pnode = unserialize($pnode);
                         foreach ($pnode as $k => $v) {
@@ -336,12 +336,12 @@ if (!function_exists('makeHTML')) {
                         }
 
                         // invoke OnManagerNodePrerender event
-                        $prenode = $modx->invokeEvent('OnManagerNodePrerender', array(
+                        $prenode = $modx->invokeEvent('OnManagerNodePrerender', [
                             'ph' => $ph,
                             'opened' => '1'
-                        ));
+                        ]);
                         if (is_array($prenode)) {
-                            $phnew = array();
+                            $phnew = [];
                             foreach ($prenode as $pnode) {
                                 $pnode = unserialize($pnode);
                                 foreach ($pnode as $k => $v) {
@@ -379,12 +379,12 @@ if (!function_exists('makeHTML')) {
                         }
 
                         // invoke OnManagerNodePrerender event
-                        $prenode = $modx->invokeEvent('OnManagerNodePrerender', array(
+                        $prenode = $modx->invokeEvent('OnManagerNodePrerender', [
                             'ph' => $ph,
                             'opened' => '0'
-                        ));
+                        ]);
                         if (is_array($prenode)) {
-                            $phnew = array();
+                            $phnew = [];
                             foreach ($prenode as $pnode) {
                                 $pnode = unserialize($pnode);
                                 foreach ($pnode as $k => $v) {
@@ -421,12 +421,12 @@ if (!function_exists('makeHTML')) {
                         }
 
                         // invoke OnManagerNodePrerender event
-                        $prenode = $modx->invokeEvent('OnManagerNodePrerender', array(
+                        $prenode = $modx->invokeEvent('OnManagerNodePrerender', [
                             'ph' => $ph,
                             'opened' => '1'
-                        ));
+                        ]);
                         if (is_array($prenode)) {
-                            $phnew = array();
+                            $phnew = [];
                             foreach ($prenode as $pnode) {
                                 $pnode = unserialize($pnode);
                                 foreach ($pnode as $k => $v) {
@@ -471,12 +471,12 @@ if (!function_exists('makeHTML')) {
                         }
 
                         // invoke OnManagerNodePrerender event
-                        $prenode = $modx->invokeEvent('OnManagerNodePrerender', array(
+                        $prenode = $modx->invokeEvent('OnManagerNodePrerender', [
                             'ph' => $ph,
                             'opened' => '0'
-                        ));
+                        ]);
                         if (is_array($prenode)) {
-                            $phnew = array();
+                            $phnew = [];
                             foreach ($prenode as $pnode) {
                                 $pnode = unserialize($pnode);
                                 foreach ($pnode as $k => $v) {
@@ -527,7 +527,7 @@ if (!function_exists('getIconInfo')) {
      */
     function getIconInfo($_style)
     {
-        return array(
+        return [
             'text/plain' => '<i class="' . $_style['icon_document'] . '"></i>',
             'text/html' => '<i class="' . $_style['icon_document'] . '"></i>',
             'text/xml' => '<i class="' . $_style['icon_code_file'] . '"></i>',
@@ -540,7 +540,7 @@ if (!function_exists('getIconInfo')) {
             'application/rss+xml' => '<i class="' . $_style['icon_code_file'] . '"></i>',
             'application/vnd.ms-word' => '<i class="' . $_style['icon_word'] . '"></i>',
             'application/vnd.ms-excel' => '<i class="' . $_style['icon_excel'] . '"></i>',
-        );
+        ];
     }
 }
 
@@ -589,11 +589,11 @@ if (!function_exists('getNodeTitle')) {
             default:
                 $nodetitle = $row['pagetitle'];
         }
-        $nodetitle = $modx->getPhpCompat()->htmlspecialchars(str_replace(array(
+        $nodetitle = $modx->getPhpCompat()->htmlspecialchars(str_replace([
             "\r\n",
             "\n",
             "\r"
-        ), ' ', $nodetitle), ENT_COMPAT);
+        ], ' ', $nodetitle), ENT_COMPAT);
 
         return $nodetitle;
     }

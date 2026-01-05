@@ -74,7 +74,7 @@ class InstallPackageRequireCommand extends Command
     public function runComposer()
     {
         putenv('COMPOSER_HOME=' . EVO_CORE_PATH . 'composer');
-        $input = new ArrayInput(array('command' => 'update'));
+        $input = new ArrayInput(['command' => 'update']);
         $application = new Application();
         $application->setAutoExit(false);
         $application->run($input);

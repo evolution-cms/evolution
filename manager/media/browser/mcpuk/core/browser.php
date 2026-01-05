@@ -62,10 +62,10 @@ class browser extends uploader
         $this->thumbsTypeDir = "$thumbsDir/{$this->type}";
 
         // Remove temporary zip downloads if exists
-        $files = dir::content($this->config['uploadDir'], array(
+        $files = dir::content($this->config['uploadDir'], [
             'types'   => "file",
             'pattern' => '/^.*\.zip$/i'
-        ));
+        ]);
 
         if (is_array($files) && count($files)) {
             $time = time();
@@ -100,13 +100,13 @@ class browser extends uploader
         $method = "act_$act";
         if ($this->config['disabled']) {
             $message = $this->label("You don't have permissions to browse server.");
-            if (in_array($act, array("browser", "upload")) ||
+            if (in_array($act, ["browser", "upload"]) ||
                 (substr($act, 0, 8) == "download")
             ) {
                 $this->backMsg($message);
             } else {
                 header("Content-Type: text/plain; charset={$this->charset}");
-                die(json_encode(array('error' => $message)));
+                die(json_encode(['error' => $message]));
             }
         }
 
@@ -126,7 +126,7 @@ class browser extends uploader
             header("Content-Type: text/html; charset={$this->charset}");
         } elseif (
             (substr($act, 0, 8) != "download") &&
-            !in_array($act, array("thumb", "upload"))
+            !in_array($act, ["thumb", "upload"])
         ) {
             header("Content-Type: text/plain; charset={$this->charset}");
         }
@@ -164,11 +164,11 @@ class browser extends uploader
         }
         $files = $this->getFiles($this->session['dir']);
         $dirWritable = dir::isWritable("{$this->config['uploadDir']}/{$this->session['dir']}");
-        $data = array(
+        $data = [
             'tree'        => &$tree,
             'files'       => &$files,
             'dirWritable' => $dirWritable
-        );
+        ];
 
         return json_encode($data);
     }
@@ -197,7 +197,7 @@ class browser extends uploader
                 $this->sendDefaultThumb($file);
             }
             list($tmp, $tmp, $type) = getimagesize($file);
-            if (in_array($type, array(IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG)) &&
+            if (in_array($type, [IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG]) &&
                 ($image->width <= $this->config['thumbWidth']) &&
                 ($image->height <= $this->config['thumbHeight'])
             ) {
@@ -218,7 +218,7 @@ class browser extends uploader
      */
     protected function act_expand()
     {
-        return json_encode(array('dirs' => $this->getDirs($this->postDir())));
+        return json_encode(['dirs' => $this->getDirs($this->postDir())]);
     }
 
     /**
@@ -230,10 +230,10 @@ class browser extends uploader
         $this->session['dir'] = $this->type . "/" . $this->post['dir'];
         $dirWritable = dir::isWritable("{$this->config['uploadDir']}/{$this->session['dir']}");
 
-        return json_encode(array(
+        return json_encode([
             'files'       => $this->getFiles($this->session['dir']),
             'dirWritable' => $dirWritable
-        ));
+        ]);
     }
 
     /**
@@ -263,7 +263,7 @@ class browser extends uploader
             $this->errorMsg("A file or folder with that name already exists.");
         }
         if (!@mkdir("$dir/$newDir", $this->config['dirPerms'])) {
-            $this->errorMsg("Cannot create {dir} folder.", array('dir' => $newDir));
+            $this->errorMsg("Cannot create {dir} folder.", ['dir' => $newDir]);
         }
 
         return true;
@@ -283,11 +283,11 @@ class browser extends uploader
 
         $dir = $this->postDir();
         $newName = $this->normalizeDirname(trim($this->post['newName']));
-        $evtOut = $this->modx->invokeEvent('OnBeforeFileBrowserRename', array(
+        $evtOut = $this->modx->invokeEvent('OnBeforeFileBrowserRename', [
             'element' => 'dir',
             'filepath' => realpath($dir),
             'newname' => &$newName
-        ));
+        ]);
         if (!strlen($newName)) {
             $this->errorMsg("Please enter new folder name.");
         }
@@ -308,12 +308,12 @@ class browser extends uploader
             @rename($thumbDir, dirname($thumbDir) . "/$newName");
         }
 
-        $this->modx->invokeEvent('OnFileBrowserRename', array(
+        $this->modx->invokeEvent('OnFileBrowserRename', [
             'element' => 'dir',
             'filepath' => realpath($dir),
             'newname' => $newName
-        ));
-        return json_encode(array('name' => $newName));
+        ]);
+        return json_encode(['name' => $newName]);
     }
 
     /**
@@ -334,27 +334,27 @@ class browser extends uploader
             $this->errorMsg("Cannot delete the folder.");
         }
 
-        $evtOut = $this->modx->invokeEvent('OnBeforeFileBrowserDelete', array(
+        $evtOut = $this->modx->invokeEvent('OnBeforeFileBrowserDelete', [
             'element'  => 'dir',
             'filepath' => realpath($dir)
-        ));
+        ]);
         if (is_array($evtOut) && !empty($evtOut)) {
-            die(json_encode(array('error' => $evtOut)));
+            die(json_encode(['error' => $evtOut]));
         }
 
         $result = !dir::prune($dir, false);
         if (is_array($result) && count($result)) {
             $this->errorMsg("Failed to delete {count} files/folders.",
-                array('count' => count($result)));
+                ['count' => count($result)]);
         }
         $thumbDir = "$this->thumbsTypeDir/{$this->post['dir']}";
         if (is_dir($thumbDir)) {
             dir::prune($thumbDir);
         }
-        $this->modx->invokeEvent('OnFileBrowserDelete', array(
+        $this->modx->invokeEvent('OnFileBrowserDelete', [
             'element'  => 'dir',
             'filepath' => realpath($dir)
-        ));
+        ]);
 
         return true;
     }
@@ -364,7 +364,7 @@ class browser extends uploader
      */
     protected function act_upload()
     {
-        $response = array('success' => false, 'message' => $this->label("Unknown error."));
+        $response = ['success' => false, 'message' => $this->label("Unknown error.")];
         if (!$this->config['access']['files']['upload'] ||
             !isset($this->post['dir'])
         ) {
@@ -435,12 +435,12 @@ class browser extends uploader
         }
 
         $newName = $this->normalizeFilename(trim($this->post['newName']));
-        $evtOut = $this->modx->invokeEvent('OnBeforeFileBrowserRename', array(
+        $evtOut = $this->modx->invokeEvent('OnBeforeFileBrowserRename', [
             'element' => 'file',
             'filepath' => $dir,
             'filename' => $this->post['file'],
             'newname' => &$newName
-        ));
+        ]);
         if (!strlen($newName)) {
             $this->errorMsg("Please enter new file name.");
         }
@@ -465,12 +465,12 @@ class browser extends uploader
         if (!@rename($file, $newName)) {
             $this->errorMsg("Unknown error.");
         }
-        $this->modx->invokeEvent('OnFileBrowserRename', array(
+        $this->modx->invokeEvent('OnFileBrowserRename', [
             'element' => 'file',
             'filepath' => $dir,
             'filename' => $this->post['file'],
             'newname' => $_newName
-        ));
+        ]);
         $thumbDir = "{$this->thumbsTypeDir}/{$this->post['dir']}";
         $thumbFile = "$thumbDir/{$this->post['file']}";
 
@@ -495,17 +495,17 @@ class browser extends uploader
             (false === ($file = "$dir/{$this->post['file']}")) ||
             !file_exists($file) || !is_readable($file) || !file::isWritable($file)
         ) {
-            $this->errorMsg("Cannot delete '{file}'.", array('file' => basename($file)));
+            $this->errorMsg("Cannot delete '{file}'.", ['file' => basename($file)]);
         }
 
-        $evtOut = $this->modx->invokeEvent('OnBeforeFileBrowserDelete', array(
+        $evtOut = $this->modx->invokeEvent('OnBeforeFileBrowserDelete', [
             'element'  => 'file',
             'filename' => $this->post['file'],
             'filepath' => realpath($dir)
-        ));
+        ]);
 
         if (is_array($evtOut) && !empty($evtOut)) {
-            die(json_encode(array('error' => $evtOut)));
+            die(json_encode(['error' => $evtOut]));
         }
 
         @unlink($file);
@@ -515,11 +515,11 @@ class browser extends uploader
             @unlink($thumb);
         }
 
-        $this->modx->invokeEvent('OnFileBrowserDelete', array(
+        $this->modx->invokeEvent('OnFileBrowserDelete', [
             'element'  => 'file',
             'filename' => $this->post['file'],
             'filepath' => realpath($dir)
-        ));
+        ]);
 
         return true;
     }
@@ -539,7 +539,7 @@ class browser extends uploader
             $this->errorMsg("Unknown error.");
         }
 
-        $error = array();
+        $error = [];
         foreach ($this->post['files'] as $file) {
             $file = path::normalize($file);
             if (substr($file, 0, 1) == ".") {
@@ -552,13 +552,13 @@ class browser extends uploader
             }
             $path = "{$this->config['uploadDir']}/$file";
             $base = basename($file);
-            $replace = array('file' => $base);
+            $replace = ['file' => $base];
             $ext = file::getExtension($base);
-            $evtOut = $this->modx->invokeEvent('OnBeforeFileBrowserCopy', array(
+            $evtOut = $this->modx->invokeEvent('OnBeforeFileBrowserCopy', [
                 'oldpath'  => $path,
                 'filename' => $base,
                 'newpath' => realpath($dir)
-            ));
+            ]);
             if (is_array($evtOut) && !empty($evtOut)) {
                 $error[] = implode("\n", $evtOut);
             } elseif (!file_exists($path)) {
@@ -577,11 +577,11 @@ class browser extends uploader
                 if (function_exists("chmod")) {
                     @chmod("$dir/$base", $this->config['filePerms']);
                 }
-                $this->modx->invokeEvent('OnFileBrowserCopy', array(
+                $this->modx->invokeEvent('OnFileBrowserCopy', [
                     'oldpath'  => $path,
                     'filename' => $base,
                     'newpath' => realpath($dir)
-                ));
+                ]);
                 $fromThumb = "{$this->thumbsDir}/$file";
                 if (is_file($fromThumb) && is_readable($fromThumb)) {
                     $toThumb = "{$this->thumbsTypeDir}/{$this->post['dir']}";
@@ -594,7 +594,7 @@ class browser extends uploader
             }
         }
         if (count($error)) {
-            return json_encode(array('error' => $error));
+            return json_encode(['error' => $error]);
         }
 
         return true;
@@ -615,7 +615,7 @@ class browser extends uploader
             $this->errorMsg("Unknown error.");
         }
 
-        $error = array();
+        $error = [];
         foreach ($this->post['files'] as $file) {
             $file = path::normalize($file);
             if (substr($file, 0, 1) == ".") {
@@ -628,13 +628,13 @@ class browser extends uploader
             }
             $path = "{$this->config['uploadDir']}/$file";
             $base = basename($file);
-            $replace = array('file' => $base);
+            $replace = ['file' => $base];
             $ext = file::getExtension($base);
-            $evtOut = $this->modx->invokeEvent('OnBeforeFileBrowserMove', array(
+            $evtOut = $this->modx->invokeEvent('OnBeforeFileBrowserMove', [
                 'oldpath'  => $path,
                 'filename' => $base,
                 'newpath' => realpath($dir)
-            ));
+            ]);
             if (is_array($evtOut) && !empty($evtOut)) {
                 $error[] = implode("\n", $evtOut);
             } elseif (!file_exists($path)) {
@@ -662,15 +662,15 @@ class browser extends uploader
                     $toThumb .= "/$base";
                     @rename($fromThumb, $toThumb);
                 }
-                $this->modx->invokeEvent('OnFileBrowserMove', array(
+                $this->modx->invokeEvent('OnFileBrowserMove', [
                     'oldpath'  => $path,
                     'filename' => $base,
                     'newpath' => realpath($dir)
-                ));
+                ]);
             }
         }
         if (count($error)) {
-            return json_encode(array('error' => $error));
+            return json_encode(['error' => $error]);
         }
 
         return true;
@@ -689,7 +689,7 @@ class browser extends uploader
             $this->errorMsg("Unknown error.");
         }
 
-        $error = array();
+        $error = [];
         foreach ($this->post['files'] as $file) {
             $file = path::normalize($file);
             if (substr($file, 0, 1) == ".") {
@@ -703,15 +703,15 @@ class browser extends uploader
             $path = "{$this->config['uploadDir']}/$file";
             $base = basename($file);
             $filepath = str_replace('/' . $base, '', $path);
-            $replace = array('file' => $base);
+            $replace = ['file' => $base];
             if (!is_file($path)) {
                 $error[] = $this->label("The file '{file}' does not exist.", $replace);
             } else {
-                $evtOut = $this->modx->invokeEvent('OnBeforeFileBrowserDelete', array(
+                $evtOut = $this->modx->invokeEvent('OnBeforeFileBrowserDelete', [
                     'element'  => 'file',
                     'filename' => $base,
                     'filepath' => $filepath
-                ));
+                ]);
 
                 if (is_array($evtOut) && !empty($evtOut)) {
                     $error[] = implode("\n", $evtOut);
@@ -719,11 +719,11 @@ class browser extends uploader
                     if (!@unlink($path)) {
                         $error[] = $this->label("Cannot delete '{file}'.", $replace);
                     } else {
-                        $this->modx->invokeEvent('OnFileBrowserDelete', array(
+                        $this->modx->invokeEvent('OnFileBrowserDelete', [
                             'element'  => 'file',
                             'filename' => $base,
                             'filepath' => $filepath
-                        ));
+                        ]);
                         $thumb = "{$this->thumbsDir}/$file";
                         if (is_file($thumb)) {
                             @unlink($thumb);
@@ -733,7 +733,7 @@ class browser extends uploader
             }
         }
         if (count($error)) {
-            return json_encode(array('error' => $error));
+            return json_encode(['error' => $error]);
         }
 
         return true;
@@ -776,7 +776,7 @@ class browser extends uploader
             $this->errorMsg("Unknown error.");
         }
 
-        $zipFiles = array();
+        $zipFiles = [];
         foreach ($this->post['files'] as $file) {
             $file = path::normalize($file);
             if ((substr($file, 0, 1) == ".") || (strpos($file, '/') !== false)) {
@@ -822,7 +822,7 @@ class browser extends uploader
             $this->errorMsg("Unknown error.");
         }
 
-        $zipFiles = array();
+        $zipFiles = [];
         foreach ($this->post['files'] as $file) {
             $file = path::normalize($file);
             if ((substr($file, 0, 1) == ".")) {
@@ -868,7 +868,7 @@ class browser extends uploader
      */
     protected function moveUploadFile($file, $dir)
     {
-        $response = array('success' => false, 'message' => $this->label('Unknown error.'));
+        $response = ['success' => false, 'message' => $this->label('Unknown error.')];
         $message = $this->checkUploadedFile($file);
 
         if ($message !== true) {
@@ -880,10 +880,10 @@ class browser extends uploader
             return $response;
         }
 
-        $evtOut = $this->modx->invokeEvent('OnBeforeFileBrowserUpload', array(
+        $evtOut = $this->modx->invokeEvent('OnBeforeFileBrowserUpload', [
             'file'     => &$file,
             'filepath' => realpath($dir)
-        ));
+        ]);
 
         if (is_array($evtOut) && !empty($evtOut)) {
             $response['message'] = $evtOut;
@@ -906,10 +906,10 @@ class browser extends uploader
             chmod($target, $this->config['filePerms']);
         }
 
-        $this->modx->invokeEvent('OnFileBrowserUpload', array(
+        $this->modx->invokeEvent('OnFileBrowserUpload', [
             'filepath' => realpath($dir),
             'filename' => str_replace("/", "", str_replace($dir, "", realpath($target)))
-        ));
+        ]);
 
         $this->makeThumb($target);
         $response['success'] = true;
@@ -942,8 +942,8 @@ class browser extends uploader
     {
         $thumbDir = "{$this->config['uploadDir']}/{$this->config['thumbsDir']}/$dir";
         $dir = "{$this->config['uploadDir']}/$dir";
-        $return = array();
-        $files = dir::content($dir, array('types' => "file"));
+        $return = [];
+        $files = dir::content($dir, ['types' => "file"]);
         if ($files === false) {
             return $return;
         }
@@ -952,7 +952,7 @@ class browser extends uploader
             $ext = file::getExtension($file);
             $smallThumb = false;
             $preview = false;
-            if (in_array(strtolower($ext), array('png', 'jpg', 'gif', 'jpeg', 'webp'))) {
+            if (in_array(strtolower($ext), ['png', 'jpg', 'gif', 'jpeg', 'webp'])) {
                 $size = @getimagesize($file);
                 if (is_array($size) && count($size)) {
                     $preview = true;
@@ -984,7 +984,7 @@ class browser extends uploader
             $bigIcon = file_exists("themes/{$this->config['theme']}/img/files/big/$ext.png");
             $smallIcon = file_exists("themes/{$this->config['theme']}/img/files/small/$ext.png");
             $thumb = file_exists("$thumbDir/$name");
-            $return[] = array(
+            $return[] = [
                 'name'       => stripcslashes($name),
                 'size'       => $stat['size'],
                 'mtime'      => $stat['mtime'],
@@ -996,7 +996,7 @@ class browser extends uploader
                 'thumb'      => $thumb,
                 'smallThumb' => $smallThumb,
                 'preview'    => $preview
-            );
+            ];
         }
 
         return $return;
@@ -1088,8 +1088,8 @@ class browser extends uploader
      */
     protected function getDirs($dir)
     {
-        $dirs = dir::content($dir, array('types' => "dir"));
-        $return = array();
+        $dirs = dir::content($dir, ['types' => "dir"]);
+        $return = [];
         if (is_array($dirs)) {
             $writable = dir::isWritable($dir);
             foreach ($dirs as $cdir) {
@@ -1120,13 +1120,13 @@ class browser extends uploader
         $hasDirs = !empty($dirs);
 
         $writable = dir::isWritable($dir);
-        $info = array(
+        $info = [
             'name'      => stripslashes(basename($dir)),
             'readable'  => is_readable($dir),
             'writable'  => $writable,
             'removable' => $removable && $writable && dir::isWritable(dirname($dir)),
             'hasDirs'   => $hasDirs
-        );
+        ];
 
         if ($dir == "{$this->config['uploadDir']}/{$this->session['dir']}") {
             $info['current'] = true;
@@ -1143,7 +1143,7 @@ class browser extends uploader
     protected function output($data = null, $template = null)
     {
         if (!is_array($data)) {
-            $data = array();
+            $data = [];
         }
         if ($template === null) {
             $template = $this->action;
@@ -1173,14 +1173,14 @@ class browser extends uploader
      */
     protected function errorMsg($message, array $data = null)
     {
-        if (in_array($this->action, array("thumb", "upload", "download", "downloadDir"))) {
+        if (in_array($this->action, ["thumb", "upload", "download", "downloadDir"])) {
             die($this->label($message, $data));
         }
         if (($this->action === null) || ($this->action == "browser")) {
             $this->backMsg($message, $data);
         } else {
             $message = $this->label($message, $data);
-            die(json_encode(array('error' => $message)));
+            die(json_encode(['error' => $message]));
         }
     }
 }

@@ -7,7 +7,7 @@ if(!EvolutionCMS()->hasPermission('category_manager')) {
 	EvolutionCMS()->webAlertAndQuit($_lang["error_no_privileges"]);
 }
 
-$_module_params = array(
+$_module_params = [
 	'module_version'   => '1.0.0',
 	'module_params'    => '',
 	'module_id'        => get_by_key($_GET, 'id', 0),
@@ -21,8 +21,8 @@ $_module_params = array(
 	'languages_dir'    => realpath( __DIR__ ) . DIRECTORY_SEPARATOR . 'category_mgr' . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR,
 	'views_dir'        => realpath( __DIR__ ) . DIRECTORY_SEPARATOR . 'category_mgr' . DIRECTORY_SEPARATOR . 'skin' . DIRECTORY_SEPARATOR,
 	'request_key'      => 'module_categories_manager',
-	'messages'         => array()
-);
+	'messages'         => []
+];
 
 $cm = new EvolutionCMS\Legacy\ModuleCategoriesManager();
 

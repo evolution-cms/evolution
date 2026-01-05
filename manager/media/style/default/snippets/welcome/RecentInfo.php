@@ -45,7 +45,7 @@ $tpl = '<tr>
 $btntpl['edit'] = '<a title="[%edit_resource%]" href="index.php?a=27&amp;id=[+id+]" target="main">' . $_style['icon_edit'] . '</a> ';
 $btntpl['preview_btn'] = '<a class="[+preview_disabled+]" title="[%preview_resource%]" target="_blank" href="../index.php?&amp;id=[+id+]">' . $_style['icon_eye'] . '</a> ';
 
-$output = array();
+$output = [];
 foreach ($contents->get()->toArray() as $ph) {
     $docid = $ph['id'];
     $_ = evo()->getUserInfo($ph['editedby']);
@@ -68,13 +68,13 @@ foreach ($contents->get()->toArray() as $ph) {
     }
 
     $preview_disabled = ($ph['deleted'] == 1) ? 'disabled' : '';
-    $ph['preview_btn'] = str_replace(array(
+    $ph['preview_btn'] = str_replace([
         '[+id+]',
         '[+preview_disabled+]'
-    ), array(
+    ], [
         $docid,
         $preview_disabled
-    ), $btntpl['preview_btn']);
+    ], $btntpl['preview_btn']);
 
     if (evo()->hasPermission('delete_document')) {
         if ($ph['deleted'] == 0) {

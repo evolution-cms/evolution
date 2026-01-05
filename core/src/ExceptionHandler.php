@@ -166,7 +166,7 @@ class ExceptionHandler
         $text = '',
         $line = '',
         $output = '',
-        $backtrace = array()
+        $backtrace = []
     )
     {
         if (0 < $this->container->messageQuitCount) {
@@ -177,9 +177,9 @@ class ExceptionHandler
         $MakeTable->setTableClass('grid');
         $MakeTable->setRowRegularClass('gridItem');
         $MakeTable->setRowAlternateClass('gridAltItem');
-        $MakeTable->setColumnWidths(array('100px'));
+        $MakeTable->setColumnWidths(['100px']);
 
-        $table = array();
+        $table = [];
 
         if (isset($_SERVER['HTTP_HOST'])) {
             $request_uri = ($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . $_SERVER['HTTP_HOST'] .
@@ -208,7 +208,7 @@ class ExceptionHandler
             $str .= '<pre style="font-weight:bold;border:1px solid #ccc;padding:8px;color:#333;background-color:#ffffcd;margin-bottom:15px;">SQL &gt; <span id="sqlHolder">' . $query . '</span></pre>';
         }
 
-        $errortype = array(
+        $errortype = [
             E_ERROR => "ERROR",
             E_WARNING => "WARNING",
             E_PARSE => "PARSING ERROR",
@@ -223,7 +223,7 @@ class ExceptionHandler
             E_RECOVERABLE_ERROR => "RECOVERABLE ERROR",
             E_DEPRECATED => "DEPRECATED",
             E_USER_DEPRECATED => "USER DEPRECATED"
-        );
+        ];
 
         if (!empty($nr) || !empty($file)) {
             if ($text != '') {
@@ -233,34 +233,34 @@ class ExceptionHandler
                 $str .= '<pre style="font-weight:bold;border:1px solid #ccc;padding:8px;color:#333;background-color:#ffffcd;margin-bottom:15px;">' . $output . '</pre>';
             }
             if ($nr !== '') {
-                $table[] = array('ErrorType[num]', $errortype [$nr] . "[" . $nr . "]");
+                $table[] = ['ErrorType[num]', $errortype [$nr] . "[" . $nr . "]"];
             }
             if ($file) {
-                $table[] = array('File', $file);
+                $table[] = ['File', $file];
             }
             if ($line) {
-                $table[] = array('Line', $line);
+                $table[] = ['Line', $line];
             }
 
         }
 
         if ($source != '') {
-            $table[] = array("Source", $source);
+            $table[] = ["Source", $source];
         }
 
         if (!empty($this->currentSnippet)) {
-            $table[] = array('Current Snippet', $this->currentSnippet);
+            $table[] = ['Current Snippet', $this->currentSnippet];
         }
 
         if (!empty($this->event->activePlugin)) {
-            $table[] = array('Current Plugin', $this->event->activePlugin . '(' . $this->event->name . ')');
+            $table[] = ['Current Plugin', $this->event->activePlugin . '(' . $this->event->name . ')'];
         }
 
-        $str .= $MakeTable->create($table, array('Error information', ''));
+        $str .= $MakeTable->create($table, ['Error information', '']);
         $str .= "<br />";
 
-        $table = array();
-        $table[] = array('REQUEST_URI', $request_uri);
+        $table = [];
+        $table[] = ['REQUEST_URI', $request_uri];
 
         if ($this->container->getManagerApi()->action) {
             $actionName = Legacy\LogHandler::getAction($this->container->getManagerApi()->action);
@@ -268,35 +268,35 @@ class ExceptionHandler
                 $actionName = ' - ' . $actionName;
             }
 
-            $table[] = array('Manager action', $this->container->getManagerApi()->action . $actionName);
+            $table[] = ['Manager action', $this->container->getManagerApi()->action . $actionName];
         }
 
         if (preg_match('~^[1-9][0-9]*$~', $this->container->documentIdentifier)) {
             $resource = $this->container->getDocumentObject('id', $this->container->documentIdentifier);
             $url = $this->container->makeUrl($this->container->documentIdentifier, '', '', 'full');
-            $table[] = array(
+            $table[] = [
                 'Resource',
                 '[' . $this->container->documentIdentifier . '] <a href="' . $url . '" target="_blank">' . $resource['pagetitle'] . '</a>'
-            );
+            ];
         }
-        $table[] = array('Referer', $referer);
-        $table[] = array('User Agent', $ua);
+        $table[] = ['Referer', $referer];
+        $table[] = ['User Agent', $ua];
         if (isset($_SERVER['REMOTE_ADDR'])) {
-            $table[] = array('IP', $_SERVER['REMOTE_ADDR']);
+            $table[] = ['IP', $_SERVER['REMOTE_ADDR']];
         }
-        $table[] = array(
+        $table[] = [
             'Current time',
             date("Y-m-d H:i:s", $_SERVER['REQUEST_TIME'] + $this->container->getConfig('server_offset_time'))
-        );
-        $str .= $MakeTable->create($table, array('Basic info', ''));
+        ];
+        $str .= $MakeTable->create($table, ['Basic info', '']);
         $str .= "<br />";
 
-        $table = array();
-        $table[] = array('MySQL', '[^qt^] ([^q^] Requests)');
-        $table[] = array('PHP', '[^p^]');
-        $table[] = array('Total', '[^t^]');
-        $table[] = array('Memory', '[^m^]');
-        $str .= $MakeTable->create($table, array('Benchmarks', ''));
+        $table = [];
+        $table[] = ['MySQL', '[^qt^] ([^q^] Requests)'];
+        $table[] = ['PHP', '[^p^]'];
+        $table[] = ['Total', '[^t^]'];
+        $table[] = ['Memory', '[^m^]'];
+        $str .= $MakeTable->create($table, ['Benchmarks', '']);
         $str .= "<br />";
 
         $totalTime = ($this->container->getMicroTime() - $this->container->tstart);
@@ -313,8 +313,8 @@ class ExceptionHandler
         $phpTime = sprintf("%2.4f s", $phpTime);
 
         $str = str_replace(
-            array('[^q^]', '[^qt^]', '[^p^]', '[^t^]', '[^m^]')
-            , array($queries, $queryTime, $phpTime, $totalTime, $total_mem)
+            ['[^q^]', '[^qt^]', '[^p^]', '[^t^]', '[^m^]']
+            , [$queries, $queryTime, $phpTime, $totalTime, $total_mem]
             , $str
         );
 
@@ -477,7 +477,7 @@ class ExceptionHandler
             }
             $tmp = 1;
             $_ = (!empty($val['args'])) ? count($val['args']) : 0;
-            $args = array_pad(array(), $_, '$var');
+            $args = array_pad([], $_, '$var');
             $args = implode(", ", $args);
             $modx = &$this;
             $args = preg_replace_callback('/\$var/', function () use ($modx, &$tmp, $val) {
@@ -554,16 +554,16 @@ class ExceptionHandler
         $MakeTable->setTableClass('grid');
         $MakeTable->setRowRegularClass('gridItem');
         $MakeTable->setRowAlternateClass('gridAltItem');
-        $table = array();
+        $table = [];
 
         foreach ($backtrace as $line) {
-            $table[] = array(implode("<br />", [
+            $table[] = [implode("<br />", [
                 "<strong>" . $line['func'] . "</strong>(" . $line['args'] . ")",
                 $line['path'] . " on line " . $line['line'],
-            ]));
+            ])];
         }
 
-        return $MakeTable->create($table, array('Backtrace'));
+        return $MakeTable->create($table, ['Backtrace']);
     }
 
     /**

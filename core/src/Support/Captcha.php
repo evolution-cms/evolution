@@ -78,7 +78,7 @@ class Captcha implements CaptchaInterface
 
     public function drawText() {
         $dir = dir($this->dir_font);
-        $fontstmp = array();
+        $fontstmp = [];
         while (false !== ($file = $dir->read())) {
             if(substr($file, -4) == '.ttf') {
                 $fontstmp[] = $this->dir_font.$file;

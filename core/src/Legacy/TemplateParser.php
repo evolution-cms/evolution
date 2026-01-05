@@ -8,7 +8,7 @@ Class TemplateParser
      * @param array $data
      * @return string
      */
-    public function output($config = array(), $data = array()) {
+    public function output($config = [], $data = []) {
         $modx = evolutionCMS();
 
         $output = '';
@@ -23,7 +23,7 @@ Class TemplateParser
 			ORDER BY t1.tab ASC, t1.rank ASC');
 
             if($modx->getDatabase()->getRecordCount($sql)) {
-                $tabs = array();
+                $tabs = [];
                 while($row = $modx->getDatabase()->getRow($sql)) {
                     if(!$row['value'] && !empty($data[$row['name']])) {
                         $row['value'] = $data[$row['name']];

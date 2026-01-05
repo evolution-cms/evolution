@@ -2,9 +2,9 @@
 
 class CSSMinify
 {
-    private $cssPath = array();
+    private $cssPath = [];
 
-    public function __construct($cssFilesPath = array())
+    public function __construct($cssFilesPath = [])
     {
         if (is_array($cssFilesPath) && !empty($cssFilesPath)) {
             $this->cssPath = $cssFilesPath;
@@ -18,7 +18,7 @@ class CSSMinify
 
     public function minify()
     {
-        $allCss = array();
+        $allCss = [];
         if (empty($this->cssPath)) {
             echo "No CSS was added";
             exit;
@@ -34,7 +34,7 @@ class CSSMinify
             $filename = basename($css);
             $css = file_get_contents($css);
             $css = preg_replace("/\s{2,}/", "", $css);
-            $css = str_replace(array("\n", ', ', ': ', '; ', ' > ', ' }', '} ', ';}', '{ ', ' {'), array('', ',', ':', ';', '>', '}', '}', '}', '{', '{'), $css);
+            $css = str_replace(["\n", ', ', ': ', '; ', ' > ', ' }', '} ', ';}', '{ ', ' {'], ['', ',', ':', ';', '>', '}', '}', '}', '{', '{'], $css);
             $css = preg_replace('/\/\*.*?\*\//s', '', $css);
 
             $allCss[] = '/* ' . $filename . ' */' . "\n" . $css;

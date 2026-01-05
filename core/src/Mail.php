@@ -283,7 +283,7 @@ class Mail extends PHPMailer
         } else {
             $name = '';
         }
-        return array($name, $address);
+        return [$name, $address];
     }
 
     /**

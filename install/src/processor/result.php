@@ -28,8 +28,8 @@ if (is_dir($templatePath) && is_readable($templatePath)) {
         $params = parse_docblock($templatePath, $tplfile);
         if (is_array($params) && (count($params) > 0)) {
             $description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
-            $mt[] = array
-            (
+            $mt[] = [
+            
                 $params['name'],
                 $description,
                 // Don't think this is gonna be used ... but adding it just in case 'type'
@@ -40,7 +40,7 @@ if (is_dir($templatePath) && is_readable($templatePath)) {
                 array_key_exists('installset', $params) ? preg_split("/\s*,\s*/", $params['installset']) : false,
                 isset($params['save_sql_id_as']) ? $params['save_sql_id_as'] : null
                 // Nessecary to fix template-ID for demo-site
-            );
+            ];
         }
     }
     $d->close();
@@ -57,7 +57,7 @@ if (is_dir($tvPath) && is_readable($tvPath)) {
         $params = parse_docblock($tvPath, $tplfile);
         if (is_array($params) && (count($params) > 0)) {
             $description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
-            $mtv[] = array(
+            $mtv[] = [
                 $params['name'],
                 $params['caption'],
                 $description,
@@ -76,7 +76,7 @@ if (is_dir($tvPath) && is_readable($tvPath)) {
                 $params['lock_tv'],
                 /* value should be 1 or 0 */
                 array_key_exists('installset', $params) ? preg_split("/\s*,\s*/", $params['installset']) : false
-            );
+            ];
         }
     }
     $d->close();
@@ -92,14 +92,14 @@ if (is_dir($chunkPath) && is_readable($chunkPath)) {
         }
         $params = parse_docblock($chunkPath, $tplfile);
         if (is_array($params) && count($params) > 0) {
-            $mc[] = array(
+            $mc[] = [
                 $params['name'],
                 $params['description'],
                 "$chunkPath/{$params['filename']}",
                 $params['modx_category'],
                 array_key_exists('overwrite', $params) ? $params['overwrite'] : 'true',
                 array_key_exists('installset', $params) ? preg_split("/\s*,\s*/", $params['installset']) : false
-            );
+            ];
         }
     }
     $d->close();
@@ -116,14 +116,14 @@ if (is_dir($snippetPath) && is_readable($snippetPath)) {
         $params = parse_docblock($snippetPath, $tplfile);
         if (is_array($params) && count($params) > 0) {
             $description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
-            $ms[] = array(
+            $ms[] = [
                 $params['name'],
                 $description,
                 "$snippetPath/{$params['filename']}",
                 $params['properties'],
                 $params['modx_category'],
                 array_key_exists('installset', $params) ? preg_split("/\s*,\s*/", $params['installset']) : false
-            );
+            ];
         }
     }
     $d->close();
@@ -140,7 +140,7 @@ if (is_dir($pluginPath) && is_readable($pluginPath)) {
         $params = parse_docblock($pluginPath, $tplfile);
         if (is_array($params) && count($params) > 0) {
             $description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
-            $mp[] = array(
+            $mp[] = [
                 $params['name'],
                 $description,
                 "$pluginPath/{$params['filename']}",
@@ -151,7 +151,7 @@ if (is_dir($pluginPath) && is_readable($pluginPath)) {
                 $params['legacy_names'] ?? '',
                 array_key_exists('installset', $params) ? preg_split("/\s*,\s*/", $params['installset']) : false,
                 $params['disabled'] ?? 0
-            );
+            ];
         }
     }
     $d->close();
@@ -169,7 +169,7 @@ if (is_dir($modulePath) && is_readable($modulePath)) {
         $params = parse_docblock($modulePath, $tplfile);
         if (is_array($params) && count($params) > 0) {
             $description = empty($params['version']) ? $params['description'] : "<strong>{$params['version']}</strong> {$params['description']}";
-            $mm[] = array(
+            $mm[] = [
                 $params['name'],
                 $description,
                 "$modulePath/{$params['filename']}",
@@ -178,7 +178,7 @@ if (is_dir($modulePath) && is_readable($modulePath)) {
                 (int)$params['shareparams'],
                 $params['modx_category'],
                 array_key_exists('installset', $params) ? preg_split("/\s*,\s*/", $params['installset']) : false
-            );
+            ];
         }
         if ((int)$params['shareparams'] || !empty($params['dependencies'])) {
             $dependencies = explode(',', $params['dependencies']);
@@ -186,60 +186,60 @@ if (is_dir($modulePath) && is_readable($modulePath)) {
                 $dependency = explode(':', $dependency);
                 switch (trim($dependency[0])) {
                     case 'template':
-                        $mdp[] = array(
+                        $mdp[] = [
                             'module' => $params['name'],
                             'table'  => 'templates',
                             'column' => 'templatename',
                             'type'   => 50,
                             'name'   => trim($dependency[1])
-                        );
+                        ];
                         break;
                     case 'tv':
                     case 'tmplvar':
-                        $mdp[] = array(
+                        $mdp[] = [
                             'module' => $params['name'],
                             'table'  => 'tmplvars',
                             'column' => 'name',
                             'type'   => 60,
                             'name'   => trim($dependency[1])
-                        );
+                        ];
                         break;
                     case 'chunk':
                     case 'htmlsnippet':
-                        $mdp[] = array(
+                        $mdp[] = [
                             'module' => $params['name'],
                             'table'  => 'htmlsnippets',
                             'column' => 'name',
                             'type'   => 10,
                             'name'   => trim($dependency[1])
-                        );
+                        ];
                         break;
                     case 'snippet':
-                        $mdp[] = array(
+                        $mdp[] = [
                             'module' => $params['name'],
                             'table'  => 'snippets',
                             'column' => 'name',
                             'type'   => 40,
                             'name'   => trim($dependency[1])
-                        );
+                        ];
                         break;
                     case 'plugin':
-                        $mdp[] = array(
+                        $mdp[] = [
                             'module' => $params['name'],
                             'table'  => 'plugins',
                             'column' => 'name',
                             'type'   => 30,
                             'name'   => trim($dependency[1])
-                        );
+                        ];
                         break;
                     case 'resource':
-                        $mdp[] = array(
+                        $mdp[] = [
                             'module' => $params['name'],
                             'table'  => 'content',
                             'column' => 'pagetitle',
                             'type'   => 20,
                             'name'   => trim($dependency[1])
-                        );
+                        ];
                         break;
                 }
             }

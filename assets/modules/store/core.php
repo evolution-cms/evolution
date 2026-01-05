@@ -44,7 +44,7 @@ case 'install_file':
 		}
 	} else {
 		$extension = pathinfo($_FILES['install_file']['name'], PATHINFO_EXTENSION);
-		if( !in_array($extension, array('zip'))) {
+		if( !in_array($extension, ['zip'])) {
 			die('Only ZIP-Files allowed');
 		}
 		if (!move_uploaded_file($_FILES['install_file']['tmp_name'], MODX_BASE_PATH."assets/cache/store/temp.zip")) {
@@ -154,7 +154,7 @@ case 'install_file':
 
 default:
 	//prepare list of snippets
-	$types = array('snippets','plugins','modules');
+	$types = ['snippets','plugins','modules'];
     $snippets = \EvolutionCMS\Models\SiteSnippet::query()->get();
     foreach ($snippets as $snippet){
         $PACK[$value][$snippet->name]= $Store->get_version($snippet->description) ;

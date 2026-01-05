@@ -2,7 +2,7 @@
 $userID = abs($modx->getLoginUserID('web'));
 $modx->qs_hash = md5($modx->qs_hash."^{$userID}^");
 
-$groupNames = ($this->strlen($opt) > 0 ) ? explode(',',$opt) : array();
+$groupNames = ($this->strlen($opt) > 0 ) ? explode(',',$opt) : [];
 
 // if $groupNames is not an array return false
 if(!is_array($groupNames)) return 0;

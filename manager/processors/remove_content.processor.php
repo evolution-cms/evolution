@@ -10,9 +10,9 @@ $ids = \EvolutionCMS\Models\SiteContent::query()->withTrashed()->where('deleted'
 
 // invoke OnBeforeEmptyTrash event
 EvolutionCMS()->invokeEvent("OnBeforeEmptyTrash",
-						array(
+						[
 							"ids"=>$ids
-						));
+						]);
 
 // remove the document groups link.
 \EvolutionCMS\Models\DocumentGroup::query()->whereIn('document', $ids)->delete();
@@ -25,9 +25,9 @@ EvolutionCMS()->invokeEvent("OnBeforeEmptyTrash",
 
 	// invoke OnEmptyTrash event
 	EvolutionCMS()->invokeEvent("OnEmptyTrash",
-						array(
+						[
 							"ids"=>$ids
-						));
+						]);
 
 	// empty cache
 	EvolutionCMS()->clearCache('full');

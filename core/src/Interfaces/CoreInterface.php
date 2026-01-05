@@ -21,7 +21,7 @@ interface CoreInterface extends ApplicationContract
      * @param string $namespace
      * @param array defaultParams
      */
-    public function addSnippet($name, $phpCode, $namespace = '#', array $defaultParams = array());
+    public function addSnippet($name, $phpCode, $namespace = '#', array $defaultParams = []);
 
     /**
      * @param string $name

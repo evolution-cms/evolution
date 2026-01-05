@@ -16,10 +16,10 @@ chdir(".."); // For compatibility
 chdir("..");
 require "lib/helper_httpCache.php";
 require "lib/helper_dir.php";
-$files = dir::content("js/browser", array(
+$files = dir::content("js/browser", [
     'types' => "file",
     'pattern' => '/^.*\.js$/'
-));
+]);
 
 foreach ($files as $file) {
     $fmtime = filemtime($file);

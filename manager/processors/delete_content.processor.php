@@ -37,10 +37,10 @@ $children = $document->getAllChildren($document);
 
 // invoke OnBeforeDocFormDelete event
 EvolutionCMS()->invokeEvent("OnBeforeDocFormDelete",
-    array(
+    [
         "id" => $id,
         "children" => $children
-    ));
+    ]);
 
 $documentDeleteIds = $children;
 array_unshift($documentDeleteIds, $id);
@@ -72,10 +72,10 @@ DB::table($site_content_table)
 
 // invoke OnDocFormDelete event
 EvolutionCMS()->invokeEvent("OnDocFormDelete",
-    array(
+    [
         "id" => $id,
         "children" => $children
-    ));
+    ]);
 
 // Set the item name for logger
 $_SESSION['itemname'] = $document->pagetitle;

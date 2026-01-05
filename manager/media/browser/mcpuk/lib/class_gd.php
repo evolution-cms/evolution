@@ -77,7 +77,7 @@ class gd {
             (preg_match('/^[1-9][0-9]*$/', $width) !== false) &&
             (preg_match('/^[1-9][0-9]*$/', $height) !== false)
         )
-            ? array($image, $width, $height)
+            ? [$image, $width, $height]
             : false;
 
         if (($return !== false) && isset($type))
@@ -182,7 +182,7 @@ class gd {
         } else
             $width = $height = $bigger_size;
 
-        return array($width, $height);
+        return [$width, $height];
     }
 
   /** Resize image. Returns TRUE on success or FALSE on failure
@@ -194,7 +194,7 @@ class gd {
         if (!$width) $width = 1;
         if (!$height) $height = 1;
         return (
-            (false !== ($img = new gd(array($width, $height)))) &&
+            (false !== ($img = new gd([$width, $height]))) &&
             $img->imagecopyresampled($this) &&
             (false !== ($this->image = $img->get_image())) &&
             (false !== ($this->width = $img->get_width())) &&
