@@ -6,17 +6,34 @@ $pwd = strip_tags($_POST['pwd']);
 $database_name = isset($_POST['database_name']) ? strip_tags($_POST['database_name']) : '';
 
 try {
-    $dbh = new PDO($method . ':host=' . $host, $uid, $pwd);
+    $dsn = $method . ':host=' . $host;
     $output = '<select id="database_collation" name="database_collation">';
 
     switch ($method) {
         case 'pgsql':
-            $output = '<select id="database_collation" name="database_collation">';
-            $output .= '<option value="utf8mb4_general_ci" selected>utf8mb4_general_ci</option>';
-            $output .= '</optgroup></select>';
+            $dbh = new PDO($dsn . ";dbname=postgres", $uid, $pwd);
+            $sql = "SELECT collname FROM pg_collation ORDER BY collname";
+            $_ = [];
+
+            try {
+                foreach ($dbh->query($sql) as $row) {
+                    $_[$row['collname']] = '';
+                }
+
+                // Add options
+                foreach (array_keys($_) as $collation) {
+                    $selected = ($collation === 'en_US.utf8') ? ' selected' : '';
+                    $output .= '<option value="' . htmlspecialchars($collation) . '"' . $selected . '>' . htmlspecialchars($collation) . '</option>';
+                }
+            } catch (PDOException $e) {
+                // Fallback to common collations if query fails
+                $output .= '<option value="en_US.utf8" selected>en_US.utf8</option>';
+                $output .= '<option value="C.UTF-8">C.UTF-8</option>';
+            }
+            $output .= '</select>';
             break;
         case 'mysql':
-            $output = '<select id="database_collation" name="database_collation">';
+            $dbh = new PDO($dsn, $uid, $pwd);
             $sql = 'SHOW COLLATION';
             $_ = [];
             foreach ($dbh->query($sql) as $row) {
@@ -26,7 +43,7 @@ try {
             $database_actual_collation = '';
             if (!empty($database_name)) {
                 try {
-                    $dbh_database = new PDO($method . ':host=' . $host . ';dbname=' . $database_name, $uid, $pwd);
+                    $dbh_database = new PDO($dsn, $uid, $pwd);
                     $result = $dbh_database->query("SHOW VARIABLES LIKE 'collation_database'");
                     if ($result && $result->errorCode() == 0) {
                         $data = $result->fetch();
