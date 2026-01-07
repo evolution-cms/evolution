@@ -11,11 +11,18 @@ $output = $_lang['status_checking_database'];
 $h = explode(':', $host, 2);
 $database_collation = $_POST['database_collation'];
 $database_connection_method = $_POST['database_connection_method'];
-$database_charset = substr($database_collation, 0, strpos($database_collation, '_'));
 
 if ($method == 'pgsql') {
-    if ($database_charset == 'utf8mb4') $database_charset = 'utf8';
-    $database_charset = mb_strtoupper($database_charset);
+    if (strpos($database_collation, '.') !== false) {
+        $database_charset = substr($database_collation, strpos($database_collation, '.') + 1);
+    } else {
+        $database_charset = 'UTF8';
+    }
+
+    $database_charset = str_replace('utf8', 'UTF8', $database_charset);
+    $database_charset = str_replace('UTF-8', 'UTF8', $database_charset);
+} else {
+    $database_charset = substr($database_collation, 0, strpos($database_collation, '_'));
 }
 try {
     $dbh = new PDO($method . ':host=' . $host . ';dbname=' . $database_name, $uid, $pwd);
@@ -82,18 +89,21 @@ try {
     }
 
 } catch (PDOException $e) {
-    if (!stristr($e->getMessage(), 'database "' . $pwd . '" does not exist') && !stristr($e->getMessage(), 'Unknown database \'' . $database_name . '\'') && !stristr($e->getMessage(), 'Base table or view not found')) {
+    if (!stristr($e->getMessage(), 'database "' . $database_name . '" does not exist') && !stristr($e->getMessage(), 'Unknown database \'' . $database_name . '\'') && !stristr($e->getMessage(), 'Base table or view not found')) {
         echo $output . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
         exit();
     }
 }
 
 try {
-    $dbh = new PDO($method . ':host=' . $host . ';', $uid, $pwd);
+    $dbh = new PDO($method . ':host=' . $host . ($method === 'pgsql' ? ';dbname=postgres' : ''), $uid, $pwd);
     switch ($method) {
         case 'pgsql':
             try {
-                $dbh->query('CREATE DATABASE "' . $database_name . '" ENCODING \'' . $database_charset . '\';');
+                $dbh->query(sprintf(
+                    "CREATE DATABASE %s WITH ENCODING '%s' LC_COLLATE '%s' LC_CTYPE '%s' TEMPLATE template0",
+                    $database_name, $database_charset, $database_collation, $database_collation
+                ));
                 if ($dbh->errorCode() > 0) {
                     if (stristr($dbh->errorInfo()[2], 'already exists') === false) {
                         $output .= '<span id="database_fail">' . $_lang['status_failed_could_not_create_database'] . ' ' . print_r($dbh->errorInfo(), true) . '</span>';
