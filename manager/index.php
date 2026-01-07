@@ -2,7 +2,7 @@
 /*
 *************************************************************************
 	Evolution CMS Content Management System and PHP Application Framework ("EVO")
-	Managed and maintained by Dmytro Lukianenko and the	EVO community
+	Managed and maintained by Dmytro Lukianenko, Serhii Korneliuk and the EVO community
 *************************************************************************
 	EVO is an opensource PHP/MySQL content management system and content
 	management framework that is flexible, adaptable, supports XHTML/CSS
