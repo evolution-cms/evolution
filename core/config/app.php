@@ -41,6 +41,7 @@
         'Laravel_Redis' => Illuminate\Redis\RedisServiceProvider::class,
         'Laravel_Lang' => Illuminate\Translation\TranslationServiceProvider::class,
         'Laravel_Validator' => Illuminate\Validation\ValidationServiceProvider::class,
+        'Evolution_LogContext' => EvolutionCMS\Providers\LogContextServiceProvider::class,
         'Evolution_Auth' => EvolutionCMS\Providers\AuthServiceProvider::class,
         'Evolution_Observers' => EvolutionCMS\Providers\ObserversServiceProvider::class,
         'Evolution_Pagination' => EvolutionCMS\Providers\PaginationServiceProvider::class,

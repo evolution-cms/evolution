@@ -34,14 +34,14 @@
         ],
         'public' => [
             'driver' => 'local',
-            'root' => MODX_BASE_PATH,
-            'url' => MODX_SITE_URL,
+            'root' => EVO_BASE_PATH,
+            'url' => EVO_SITE_URL,
             'visibility' => 'public',
         ],
         'manager' => [
             'driver' => 'local',
-            'root' => MODX_MANAGER_PATH,
-            'url' => MODX_SITE_URL,
+            'root' => EVO_MANAGER_PATH,
+            'url' => EVO_SITE_URL,
             'visibility' => 'public',
         ],
     ],

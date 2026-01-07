@@ -32,7 +32,7 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single'],
+            'channels' => ['daily'],
         ],
         'single' => [
             'driver' => 'single',
@@ -50,9 +50,10 @@ return [
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),
-            'username' => 'EVO Log',
-            'emoji' => ':boom:',
-            'level' => 'critical',
+            'username' => env('LOG_SLACK_USERNAME', 'Evo Log'),
+            'emoji' => env('LOG_SLACK_EMOJI', ':boom:'),
+            'level' => env('LOG_LEVEL', 'critical'),
+            'replace_placeholders' => true,
         ],
         'stderr' => [
             'driver' => 'monolog',
@@ -63,11 +64,17 @@ return [
         ],
         'syslog' => [
             'driver' => 'syslog',
-            'level' => 'debug',
+            'level' => env('LOG_LEVEL', 'debug'),
+            'facility' => env('LOG_SYSLOG_FACILITY', LOG_USER),
+            'replace_placeholders' => true,
         ],
         'errorlog' => [
             'driver' => 'errorlog',
             'level' => 'debug',
+        ],
+        'deprecations' => [
+            'driver' => 'single',
+            'path' => EVO_STORAGE_PATH . 'deprecation.log',
         ],
     ],
 ];
