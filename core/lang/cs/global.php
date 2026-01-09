@@ -4,7 +4,7 @@
  *
  * @version 1.0.15
  * @date 2014/02/24
- * @author modxcms.cz
+ * @author Evolution CMS Team
  *
  * @language Czech
  * @package modx

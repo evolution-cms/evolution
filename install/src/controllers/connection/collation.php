@@ -91,10 +91,6 @@ try {
             break;
     }
     echo $output;
-    exit();
 } catch (Exception $e) {
     echo $output . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
-    exit();
 }
-echo $output;
-exit;

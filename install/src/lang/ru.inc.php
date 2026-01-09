@@ -1,17 +1,12 @@
 <?php
 /**
- * Evolution CMS ru.inc.php language file
- *
  * @author Evolution CMS Team
- * @version 3.2.x
- * @date 2025-06-26 03:02:25
- *
- * @language Russian
  * @package Evolution CMS
  * @subpackage install
- * Please commit your language changes here: https://github.com/evolution-cms/evolution
+ * @date 2026-01-05 18:00:00
  */
-$_lang = array (
+
+$_lang = [
   'agree_to_terms' => 'Согласиться с условиями лицензии и приступить к установке',
   'alert_database_test_connection' => 'Вы должны создать базу данных или выбрать базу данных для проверки!',
   'alert_database_test_connection_failed' => 'Неудачная проверка выбранной базы данных!',
@@ -34,8 +29,8 @@ $_lang = array (
   'cant_write_config_file' => 'Программа установки не смогла записать файл конфигурации. Скопируйте вышеперечисленное в файл ',
   'cant_write_config_file_note' => 'Как только вы это сделаете, вы можете войти в панель управления, перейдя в браузере по адресу Адрес_Вашего_Сайта/[+MGR_DIR+]/.',
   'checkbox_select_options' => 'Параметры выбора флажков:',
-  'checking_iconv' => 'Проверка доступности <code>iconv</code>: ',
-  'checking_iconv_note' => 'Необходимо установить/включить расширение iconv. Пожалуйста, обратитесь к администратору сервера, чтобы сделать это.',
+  'checking_extensions' => 'Проверка доступности <code>[+extensions+]</code>: ',
+  'missing_mandatory_extension' => 'Необходимо установить/включить расширение [+missing_extension+]. Пожалуйста, обратитесь к администратору сервера, чтобы сделать это.',
   'checking_if_cache_exist' => 'Проверка существования папок <code>/assets/cache</code> и <code>/assets/cache/rss</code>: ',
   'checking_if_cache_file2_writable' => 'Проверка возможности записи в файл <code>/assets/cache/sitePublishing.idx.php</code>: ',
   'checking_if_cache_file_writable' => 'Проверка возможности записи в файл <code>/assets/cache/siteCache.idx.php</code>: ',
@@ -43,8 +38,8 @@ $_lang = array (
   'checking_if_config_exist_and_writable' => 'Проверка существования и возможности записи в файл <code>/[+MGR_DIR+]/includes/config.inc.php</code>: ',
   'checking_if_export_exists' => 'Проверка существования папки <code>/assets/export</code>: ',
   'checking_if_export_writable' => 'Проверка возможности записи в папку <code>/assets/export</code>: ',
-  'checking_if_images_exist' => 'Проверка существования папок <code>/assets/images</code>, <code>/assets/files</code>,  <code>/assets/backup</code> и <code>/assets/.thumbs</code>: ',
-  'checking_if_images_writable' => 'Проверка возможности записи в папки <code>/assets/images</code>, <code>/assets/files</code>,  <code>/assets/backup</code> и <code>/assets/.thumbs</code>: ',
+  'checking_if_images_exist' => 'Проверка существования папок <code>/assets/images</code>, <code>/assets/files</code>, <code>/assets/flash</code> и <code>/assets/media</code>: ',
+  'checking_if_images_writable' => 'Проверка возможности записи в папки <code>/assets/images</code>, <code>/assets/files</code>, <code>/assets/flash</code> и <code>/assets/media</code>: ',
   'checking_mysql_strict_mode' => 'Проверка MySQL на строгий режим strict sql_mode: ',
   'checking_mysql_version' => 'Проверка версии MySQL: ',
   'checking_pgsql_version' => 'Проверка версии PostgreSQL: ',
@@ -59,7 +54,7 @@ $_lang = array (
   'connection_screen_collation' => 'Сопоставление:',
   'connection_screen_connection_method' => 'Метод сопоставления:',
   'connection_screen_database_connection_information' => 'Параметры базы данных',
-  'connection_screen_database_connection_note' => 'Введите имя базы данных, созданной для Evolution CMS. Если у вас еще нет базы данных, то программа установки попытается создать базу данных для вас. В зависимости от конфигурации MySQL или прав пользователя базы данных процесс может завершиться неудачей.',
+  'connection_screen_database_connection_note' => 'Введите имя базы данных, созданной для Evolution CMS. Если у вас еще нет базы данных, то программа установки попытается создать базу данных для вас. В зависимости от конфигурации [+database_type+] или прав пользователя базы данных процесс может завершиться неудачей.',
   'connection_screen_database_host' => 'Хост базы данных:',
   'connection_screen_database_info' => 'Информация базы данных',
   'connection_screen_database_login' => 'Имя пользователя:',
@@ -89,37 +84,37 @@ $_lang = array (
   'depedency_create' => 'Зависимости созданы ',
   'depedency_update' => 'Зависимости обновлены',
   'during_execution_of_sql' => ' во время выполнения SQL запроса ',
-  'encoding' => 'iso-8859-1',
+  'encoding' => 'utf-8',
   'error' => 'ошибки',
   'errors' => 'ошибок',
   'failed' => 'ОШИБКА!',
   'guid_set' => 'GUID ключ',
   'help' => 'Помощь!',
-  'help_link' => 'https://evo.im/forums.html',
+  'help_link' => 'https://forum.evo.im',
   'help_title' => 'Помощь в установке на форумах Evolution CMS',
-  'iagree_box' => 'Я согласен с условиями [+license_file_link_tag+]. С русским переводом текста лицензии можно познакомиться на странице Википедии GNU General Public License.',
+  'iagree_box' => 'Я согласен с условиями [+license_file_link_tag+]. С русским переводом текста лицензии можно познакомиться на странице [+license_link_tag+].',
   'install' => 'Установить',
   'installation_error_occured' => 'Следующая ошибка возникла во время установки',
   'installation_install_new_copy' => 'Установить новую копию ',
   'installation_install_new_note' => 'Внимание, выбор этого варианта может перезаписать данные в вашей базе данных.',
   'installation_mode' => 'Режим установки',
   'installation_new_installation' => 'Новая установка',
-  'installation_note' => '<strong>Внимание:</strong> После входа в панель управления вы должны отредактировать и сохранить системную конфигурацию Evolution CMS, прежде чем смотреть сайт, выбрав <b>Инструменты</strong> -> Конфигурация в панели управления.',
+  'installation_note' => '<strong>Внимание:</strong> После входа в панель управления вы должны отредактировать и сохранить системную конфигурацию Evolution CMS, прежде чем смотреть сайт, выбрав <strong>Инструменты</strong> -> Конфигурация в панели управления.',
   'installation_successful' => 'Установка успешно завершена!',
   'installation_upgrade_advanced' => 'Расширенное обновление установки',
-  'installation_upgrade_advanced_note' => 'Для расширенного управления базой данных с различным набором символов.<br /><strong>Вы должны знать полное название вашей базы данных, имя пользователя, пароль, детали подключения и таблицу сопоставления.</strong>',
+  'installation_upgrade_advanced_note' => 'Для расширенного управления базой данных с различным набором символов.<br /><b>Вы должны знать полное название вашей базы данных, имя пользователя, пароль, детали подключения и таблицу сопоставления.</b>',
   'installation_upgrade_existing' => 'Обновление существующей установки',
   'installation_upgrade_existing_note' => 'Обновление ваших файлов и базы данных.',
   'installed' => 'Установлен',
-  'installing_demo_site' => 'Установка примера веб-сайта: ',
+  'installing_demo_site' => 'Установка контента: ',
   'install_overwrite' => 'Установить/Переписать',
   'install_results' => 'Результаты установки',
   'install_update' => 'Установить/Обновить',
   'language_code' => 'ru',
   'loading' => 'Загружается...',
   'modules' => 'Модули',
-  'modx_footer1' => '&copy; 2004 - [+current_year+] [+vendor_link_tag+] Content Mangement Framework (CMF) project. Все права защищены. Evolution CMS лицензирован GNU GPL.',
-  'modx_footer2' => 'Evolution CMS &mdash; свободное программное обеспечение. Мы поощряем вас быть творческими и использовать Evolution CMS как вы считаете целесообразным. Если вы внесете изменения и решите распространять ваш измененный вариант Evolution CMS, то должны сохранять и распространять исходный код бесплатно.',
+  'modx_footer1' => '&copy; 2004-[+current_year+] проект [+vendor_link_tag+] Content Management Framework (CMF). Все права защищены. Evolution CMS лицензируется в соответствии с GNU GPL.',
+  'modx_footer2' => 'Evolution CMS — это свободное программное обеспечение. Мы призываем вас подходить к делу творчески и использовать Evolution CMS так, как вы считаете нужным. Просто убедитесь, что если вы вносите изменения и решаете распространять свою модифицированную версию Evolution CMS, вы сохраняете исходный код бесплатным!',
   'modx_install' => 'Evolution CMS &raquo; Установка',
   'modx_requires_php' => ', а Evolution CMS необходим PHP [+min_version+] или более поздний',
   'mysql_5051' => ' версия MySQL - 5.0.51!',
@@ -132,7 +127,7 @@ $_lang = array (
   'ok' => 'OK!',
   'optional_items' => 'Дополнительные элементы',
   'optional_items_note' => 'Пожалуйста, выберите параметры установки и нажмите кнопку `Установить`:',
-  'php_security_notice' => '<legend>Уведомление безопасности</legend><p>Несмотря на то, что Evolution CMS будет работать на вашей версии PHP, использовать его c этой версией PHP крайне не рекомендуется. Ваша версия PHP уязвима из-за многочисленных брешей в защите. Обновите PHP до версии 5.6 или более поздней для безопасности вашего сайта.</p>',
+  'php_security_notice' => '<legend>Уведомление безопасности</legend><p>Несмотря на то, что Evolution CMS будет работать на вашей версии PHP, использовать его c этой версией PHP крайне не рекомендуется. Ваша версия PHP уязвима из-за многочисленных брешей в защите. Обновите PHP до версии [+min_version+] или более поздней для безопасности вашего сайта.</p>',
   'please_correct_error' => '. Исправьте эту ошибку',
   'please_correct_errors' => '. Исправьте эти ошибки',
   'plugins' => 'Плагины',
@@ -143,12 +138,12 @@ $_lang = array (
   'recommend_setting_change_validate_referer_confirmation' => 'Изменить установку: <em>Проверять заголовки HTTP_REFERER?</em>',
   'recommend_setting_change_validate_referer_description' => 'Ваш сайт не настроен на проверку серверных заголовков HTTP_REFERER во входящих запросах в систему управления. Мы настоятельно рекомендуем включить этот параметр, чтобы снизить риск CSRF (Cross Site Request Forgery - подделка межсайтовых запросов) атак.',
   'remove_install_folder_auto' => 'Удалить папку и файлы программы установки с моего сайта <br />&nbsp;(Для выполнения этой операции необходимы права на запись в папку install).',
-  'remove_install_folder_manual' => 'Пожалуйста, удалите папку &quot;<strong>install</strong>&quot; прежде чем войти в панель управления.',
+  'remove_install_folder_manual' => 'Пожалуйста, удалите папку &quot;<b>install</b>&quot; прежде чем войти в панель управления.',
   'resetting_database' => 'Обновить базу данных демо-сайта: ',
   'retry' => 'Повторить',
   'running_database_updates' => 'Обновление базы данных: ',
-  'sample_web_site' => 'Пример веб-сайта',
-  'sample_web_site_note' => 'Осторожно! Установка этого параметра <strong>перепишет</strong> существующие ресурсы и элементы.',
+  'sample_web_site' => 'Демо контент',
+  'sample_web_site_note' => 'Осторожно! Установка этого параметра <b>перепишет</b> существующие ресурсы и элементы.',
   'session_problem' => 'Была обнаружена проблема в сессии сервера. Свяжитесь, пожалуйста, с администратором сервера для ее устранения.',
   'session_problem_try_again' => 'Повторить?',
   'setup_cannot_continue' => 'К сожалению, установка не может быть продолжена из-за ',
@@ -172,7 +167,7 @@ $_lang = array (
   'status_failed' => 'ошибка!',
   'status_failed_could_not_create_database' => 'ошибка - не удается создать базу данных',
   'status_failed_database_collation_does_not_match' => 'ошибка - сопоставление базы данных не соответствует; используйте SET NAMES или выберите %s',
-  'status_failed_mysqli' => 'ошибка - расширение mysqli для php не установлено',
+  'missing_recommended_extension' => 'расширение [+missing_extension+] для php не установлено',
   'status_failed_table_prefix_already_in_use' => 'ошибка - префикс таблицы уже используется!',
   'status_passed' => 'успех - база данных выбрана',
   'status_passed_database_created' => 'успех - база данных создана',
@@ -206,4 +201,4 @@ $_lang = array (
   'writing_config_file' => 'Запись конфигурационного файла: ',
   'yes' => 'Да',
   'you_running_php' => ' - вы используете PHP ',
-);
+];

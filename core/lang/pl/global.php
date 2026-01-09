@@ -376,7 +376,7 @@ $_lang["guid"] = 'GUID';
 $_lang["help"] = 'Pomoc';
 $_lang["help_donate_msg"] = 'Kup kawę dla programistów Evolution CMS. <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> Zostań fanem Evolution CMS już dziś! ❤️ Ko-fi pozwala wspierać twórców, których kochasz, bez żadnych opłat.';
 $_lang["help_donate_title"] = 'Dla rozwoju Evolution CMS';
-$_lang["help_msg"] = '<p>Możesz uzyskać darmową pomoc poprzez <a href="http://forums.modx.com/" target="_blank">odwiedzenie Forum EVO</a>. Istnieje również wciąż rozwijana <a href="http://evolution-docs.com" target="_blank">Dokumentacja i Instrukcje dla EVO</a>, dotyczące praktycznie wszystkich aspektów pracy z EVO.</p><p>Planujemy również usługę wsparcia komercyjnego dla EVO. <a href="mailto:dmi3yy@evo.im?subject=EVO Commercial Support Inquiry">Zainteresowanych prosimy o kontakt mailowy</a>.</p>';
+$_lang["help_msg"] = '<p>Możesz uzyskać darmową pomoc poprzez <a href="https://forum.evo.im/" target="_blank">odwiedzenie Forum EVO</a>. Istnieje również wciąż rozwijana <a href="http://evolution-docs.com" target="_blank">Dokumentacja i Instrukcje dla EVO</a>, dotyczące praktycznie wszystkich aspektów pracy z EVO.</p><p>Planujemy również usługę wsparcia komercyjnego dla EVO. <a href="mailto:dmi3yy@evo.im?subject=EVO Commercial Support Inquiry">Zainteresowanych prosimy o kontakt mailowy</a>.</p>';
 $_lang["help_title"] = 'Pomoc';
 $_lang["hide_tree"] = 'Ukryj drzewo';
 $_lang["home"] = 'Start';

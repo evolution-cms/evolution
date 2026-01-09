@@ -1,17 +1,12 @@
 <?php
 /**
- * Evolution CMS it.inc.php language file
- *
  * @author Evolution CMS Team
- * @version 3.2.x
- * @date 2025-06-26 03:02:25
- *
- * @language Italian
  * @package Evolution CMS
  * @subpackage install
- * Please commit your language changes here: https://github.com/evolution-cms/evolution
+ * @date 2026-01-05 18:00:00
  */
-$_lang = array (
+
+$_lang = [
   'agree_to_terms' => 'Vi preghiamo di accettare le Condizioni di Licenza per procedere con l\'Installazione',
   'alert_database_test_connection' => 'Occorre creare il database o verificare la connessione ad un database esistente!',
   'alert_database_test_connection_failed' => 'La verifica della connessione al database ha avuto esito negativo!',
@@ -32,10 +27,10 @@ $_lang = array (
   'btnclose_value' => 'Chiudi',
   'btnnext_value' => 'Avanti',
   'cant_write_config_file' => 'EVO non ha potuto salvare il file di configurazione. Vi preghiamo di copiare il seguente testo nel file ',
-  'cant_write_config_file_note' => 'Una volta completata l\'operazione potrete accedere a EVO inserendo nel browser l\'indirizzo vostrosito.it/[+MGR_DIR+]/.',
+  'cant_write_config_file_note' => 'Una volta fatto ciò, è possibile accedere al pannello di Amministrazione di Evolution CMS puntando il browser a YourSiteName.com/[+MGR_DIR+]/.',
   'checkbox_select_options' => 'Opzioni Checkbox:',
-  'checking_iconv' => 'Controllo se l\'estensione <code>iconv</code> &eacute; disponibile: ',
-  'checking_iconv_note' => 'E\' importante installare/abilitare l\'estensione iconv. Contattate il vostro hosting provider se non sapete come fare.',
+  'checking_extensions' => 'Controllo se l\'estensione <code>[+extensions+]</code> &eacute; disponibile: ',
+  'missing_mandatory_extension' => 'E\' importante installare/abilitare l\'estensione [+missing_extension+]. Contattate il vostro hosting provider se non sapete come fare.',
   'checking_if_cache_exist' => 'Verifico se esistono le directories <code>/assets/cache</code> e <code>/assets/cache/rss</code> : ',
   'checking_if_cache_file2_writable' => 'Controllo i permessi di scrittura sul file <code>/assets/cache/sitePublishing.idx.php</code> : ',
   'checking_if_cache_file_writable' => 'Controllo i permessi di scrittura sul file <code>/assets/cache/siteCache.idx.php</code> : ',
@@ -59,7 +54,7 @@ $_lang = array (
   'connection_screen_collation' => 'Collation:',
   'connection_screen_connection_method' => 'Tipo di connessione:',
   'connection_screen_database_connection_information' => 'Informazioni sul Database',
-  'connection_screen_database_connection_note' => 'Inserite il nome del database da usare o che volete creare per questa installazione EVO. Se il database non esiste, il programma di installazione prover&agrave; a crearlo. Questa operazione potrebbe non riuscire in funzione della vostra configurazione di MySQL.',
+  'connection_screen_database_connection_note' => 'Inserite il nome del database da usare o che volete creare per questa installazione EVO. Se il database non esiste, il programma di installazione prover&agrave; a crearlo. Questa operazione potrebbe non riuscire in funzione della vostra configurazione di [+database_type+].',
   'connection_screen_database_host' => 'Server del Database:',
   'connection_screen_database_info' => 'Informazioni sul Database',
   'connection_screen_database_login' => 'Nome utente del Database:',
@@ -85,7 +80,7 @@ $_lang = array (
   'database_use_failed' => 'Impossibile selezionare il Database!',
   'database_use_failed_note' => 'Vi preghiamo di controllare i permessi dell\'utente specificato e riprovare.',
   'default_language' => 'Lingua di default per il Manager',
-  'default_language_description' => 'Questa &eacute; la lingua che verr&agrave; usata nel Manager di EVO.',
+  'default_language_description' => 'Questa è la lingua che userà di default nell\'area di amministrazione di Evolution CMS.',
   'depedency_create' => 'Dipendenza creata',
   'depedency_update' => 'Dipendenza aggiornata',
   'during_execution_of_sql' => ' durante l\'esecuzione del comando SQL ',
@@ -95,9 +90,9 @@ $_lang = array (
   'failed' => 'FALLITA!',
   'guid_set' => 'GUID impostata',
   'help' => 'Aiuto!',
-  'help_link' => 'http://forums.modx.com/',
+  'help_link' => 'https://forum.evo.im',
   'help_title' => 'Assistenza per l\'installazione nei forums EVO',
-  'iagree_box' => 'Accetto i termini della [+license_file_link_tag+]. Per una traduzione della licenza GPL versione 2, vi preghiamo di visitare il sito [+license_link_tag+].',
+  'iagree_box' => 'Accetto i termini della [+license_file_link_tag+]. Per una traduzione della licenza GPL versione 3, vi preghiamo di visitare il sito [+license_link_tag+].',
   'install' => 'Installazione',
   'installation_error_occured' => 'Si sono verificati i seguenti errori durante l\'installazione',
   'installation_install_new_copy' => 'Installare una nuova copia di ',
@@ -122,7 +117,7 @@ $_lang = array (
   'modx_footer2' => 'EVO &eacute; un software libero. Vi incoraggiamo ad essere creativi e usare EVO come vi pare. Se fate delle modifiche al codice e decidete di ridistribuire il vostro EVO modificato, dovrete distribuire gratuitamente il codice sorgente!',
   'modx_install' => 'EVO &raquo; Installazione',
   'modx_requires_php' => ', e EVO richiede PHP [+min_version+] o successivo',
-  'mysql_5051' => ' la versione di MySQL &eacute; 5.0.51!',
+  'mysql_5051' => ' Attenzione: la versione del server MySQL è 5.0.51',
   'mysql_5051_warning' => 'Ci sono dei problemi noti con MySQL 5.0.51. Vi consigliamo di aggiornarlo prima di continuare.',
   'mysql_old_version' => 'When you use version oldest then 5.7.6 engine will be MyISAM in newest version use engine InnoDB.<br> We recommend that you update your MySQL',
   'mysql_version_is' => ' La vostra versione di MySQL &eacute;: ',
@@ -132,7 +127,7 @@ $_lang = array (
   'ok' => 'OK!',
   'optional_items' => 'Componenti Opzionali',
   'optional_items_note' => 'Vi preghiamo di scegliere le opzioni di installazione e fare click su Installazione:',
-  'php_security_notice' => '<legend>Avviso di Sicurezza</legend><p>Anche se EVO funziona con la vostra versione di EVO, vi suggeriamo di non farlo. La vostra versione di EVO ha numerosi problemi di sicurezza. Un aggiornamento a PHP versione 5.6 o successiva corregger&agrave; questi problemi. Vi raccomandiamo di farlo per garantire la sicurezza del vostro sito web.</p>',
+  'php_security_notice' => '<legend>Avviso di Sicurezza</legend><p>Anche se Evolution CMS funziona sulla vostra versione di PHP, l\'uso di Evolution CMS con questa versione non è raccomandato. La vostra versione di PHP è vulnerabile a molti buchi di sicurezza. Aggiornare a PHP versione [+min_version+] o superiore, che chiude questi buchi. E\' raccomandato l\'aggiornamento, per la sicurezza del vostro sito.</p>',
   'please_correct_error' => '. Vi preghiamo di correggere l\'errore',
   'please_correct_errors' => '. Vi preghiamo di correggere gli errori',
   'plugins' => 'Plugins',
@@ -172,7 +167,7 @@ $_lang = array (
   'status_failed' => 'fallita!',
   'status_failed_could_not_create_database' => 'fallita - impossibile creare il database',
   'status_failed_database_collation_does_not_match' => 'fallita - problemi con la collation del database; usate SET NAMES o scegliete %s',
-  'status_failed_mysqli' => 'error - mysqli extension for PHP is not installed!',
+  'missing_recommended_extension' => '[+missing_extension+] extension for PHP is not installed!',
   'status_failed_table_prefix_already_in_use' => 'fallita - il prefisso scelto per le tabelle &eacute; gi&agrave; in uso!',
   'status_passed' => 'successo - il database &eacute; stato selezionato',
   'status_passed_database_created' => 'successo - il database &eacute; stato creato',
@@ -181,7 +176,7 @@ $_lang = array (
   'strict_mode_error' => 'Alcune funzionalit&agrave; di EVO potrebbero non funzionare se STRICT_TRANS_TABLES sql_mode &eacute; abilitato. Potete configurare MySQL dal file my.cnf o contattando un amministratore di sistema.',
   'summary_setup_check' => 'EVO ha effettuato dei controlli per verificare che tutto sia pronto per l\'installazione.',
   'system_configuration' => 'Configurazione di Sistema',
-  'system_configuration_validate_referer_description' => 'L\'opzione di <strong>Validazione degli headers HTTP_REFERER</strong> &eacute; consigliata e vi può proteggere da attacchi CSRF, ma in qualche caso può impedire l\'accesso al Manager.',
+  'system_configuration_validate_referer_description' => 'L\'impostazione <strong>Validate HTTP_REFERER headers</strong> è raccomandata e può proteggere il sito da attacchi CSRF, ma in alcune configurazioni server può rendere inaccessibile il manager.',
   'table_prefix_already_inuse' => ' - Il prefisso selezionato per le Tabelle &eacute; gi&agrave; in uso in questo database!',
   'table_prefix_already_inuse_note' => 'EVO non ha potuto proseguire con l\'installazione nel database selezionato poich&eacute; contiene gi&agrave; delle tabelle con il prefisso indicato. Vi preghiamo di scegliere un nuovo prefisso per le tabelle ed eseguire nuovamente il programma di installazione.',
   'table_prefix_not_exist' => ' - Il prefisso selezionato per le tabelle non esiste in questo database!',
@@ -206,4 +201,4 @@ $_lang = array (
   'writing_config_file' => 'Scrittura del file di configurazione: ',
   'yes' => 'Si',
   'you_running_php' => ' - State eseguendo PHP ',
-);
+];

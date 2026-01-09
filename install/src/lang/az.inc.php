@@ -1,17 +1,12 @@
 <?php
 /**
- * Evolution CMS az.inc.php language file
- *
  * @author Evolution CMS Team
- * @version 3.2.x
- * @date 2025-06-26 03:02:25
- *
- * @language Azerbaijani
  * @package Evolution CMS
  * @subpackage install
- * Please commit your language changes here: https://github.com/evolution-cms/evolution
+ * @date 2026-01-05 18:00:00
  */
-$_lang = array (
+
+$_lang = [
   'agree_to_terms' => 'Lisenziya Şərtləri ilə razılaşın və quraşdırmanı tamamlayın',
   'alert_database_test_connection' => 'Məlumat bazasını yaratmalı və ya məlumat bazasının seçimini test etməlisiniz!',
   'alert_database_test_connection_failed' => 'Məlumat bazası seçiminizin testi uğursuz oldu!',
@@ -34,8 +29,8 @@ $_lang = array (
   'cant_write_config_file' => 'Evolution CMS konfiqurasiya faylını yaza bilmir. Aşağıdakı mətnləri fayla köçürün',
   'cant_write_config_file_note' => 'Bu tamamlandıqdan sonra Evolution CMS Admin-ə daxil ola bilərsiniz, brauzerinizi YourSiteName.com/[+MGR_DIR+]/ ünvanına yönəldin.',
   'checkbox_select_options' => 'Checkbox seçim variantları:',
-  'checking_iconv' => '<code>iconv</code> genişlənməsinin mövcudluğunu yoxlayır: ',
-  'checking_iconv_note' => 'iconv genişlənməsinin quraşdırılması və aktivləşdirilməsi vacibdir. Əgər bunu necə edəcəyinizi bilmirsinizsə, host provayderinizlə əlaqə saxlayın.',
+  'checking_extensions' => '<code>[+extensions+]</code> genişlənməsinin mövcudluğunu yoxlayır: ',
+  'missing_mandatory_extension' => '[+missing_extension+] genişlənməsinin quraşdırılması və aktivləşdirilməsi vacibdir. Əgər bunu necə edəcəyinizi bilmirsinizsə, host provayderinizlə əlaqə saxlayın.',
   'checking_if_cache_exist' => '<code>/assets/cache</code> və <code>/assets/cache/rss</code> qovluqlarının mövcudluğunu yoxlayır: ',
   'checking_if_cache_file2_writable' => '<code>/assets/cache/sitePublishing.idx.php</code> faylının yazıla bilən olub-olmadığını yoxlayır: ',
   'checking_if_cache_file_writable' => '<code>/assets/cache/siteCache.idx.php</code> faylının yazıla bilən olub-olmadığını yoxlayır: ',
@@ -59,7 +54,7 @@ $_lang = array (
   'connection_screen_collation' => 'Collation:',
   'connection_screen_connection_method' => 'Bağlantı metodu:',
   'connection_screen_database_connection_information' => 'Məlumat bazası məlumatları',
-  'connection_screen_database_connection_note' => 'Bu Evolution CMS quraşdırması üçün istifadə edəcəyiniz və ya yaratmaq istədiyiniz məlumat bazasının adını daxil edin. Əgər heç bir məlumat bazası yoxdursa, quraşdırıcı onu yaratmağa cəhd edəcək. Bu, MySQL istifadəçi icazələrinə görə uğursuz ola bilər.',
+  'connection_screen_database_connection_note' => 'Bu Evolution CMS quraşdırması üçün istifadə edəcəyiniz və ya yaratmaq istədiyiniz məlumat bazasının adını daxil edin. Əgər heç bir məlumat bazası yoxdursa, quraşdırıcı onu yaratmağa cəhd edəcək. Bu, [+database_type+] istifadəçi icazələrinə görə uğursuz ola bilər.',
   'connection_screen_database_host' => 'Məlumat bazası hostu:',
   'connection_screen_database_info' => 'Məlumat bazası məlumatları',
   'connection_screen_database_login' => 'Məlumat bazası giriş adı:',
@@ -95,9 +90,9 @@ $_lang = array (
   'failed' => 'UĞURSUZ OLDU!',
   'guid_set' => 'GUID təyin edildi',
   'help' => 'Yardım!',
-  'help_link' => 'https://forum.evo.im/',
+  'help_link' => 'https://forum.evo.im',
   'help_title' => 'Evolution CMS forumlarında quraşdırma yardımı',
-  'iagree_box' => 'Mən [+license_file_link_tag+] şərtləri ilə razıyam. GPL versiya 2 lisenziyasının tərcümələri üçün [+license_link_tag+] baxın.',
+  'iagree_box' => 'Mən [+license_file_link_tag+] şərtləri ilə razıyam. GPL versiya 3 lisenziyasının tərcümələri üçün [+license_link_tag+] baxın.',
   'install' => 'Quraşdır',
   'installation_error_occured' => 'Quraşdırma zamanı aşağıdakı xətalar baş verdi',
   'installation_install_new_copy' => 'Yeni bir nüsxə quraşdırın ',
@@ -172,7 +167,7 @@ $_lang = array (
   'status_failed' => 'uğursuz!',
   'status_failed_could_not_create_database' => 'uğursuz - verilənlər bazası yaradıla bilmədi',
   'status_failed_database_collation_does_not_match' => 'uğursuz - verilənlər bazası qarışdırılması uyğunsuzdur; SET NAMES istifadə edin və ya %s seçin',
-  'status_failed_mysqli' => 'xəta - PHP üçün mysqli uzantısı quraşdırılmayıb!',
+  'missing_recommended_extension' => 'PHP üçün [+missing_extension+] uzantısı quraşdırılmayıb!',
   'status_failed_table_prefix_already_in_use' => 'uğursuz - cədvəl prefiksi artıq istifadə olunur!',
   'status_passed' => 'keçdi - verilənlər bazası seçildi',
   'status_passed_database_created' => 'keçdi - verilənlər bazası yaradıldı',
@@ -206,4 +201,4 @@ $_lang = array (
   'writing_config_file' => 'Konfiqurasiya faylı yazılır: ',
   'yes' => 'Bəli',
   'you_running_php' => ' - Siz PHP üzərində işləyirsiniz ',
-);
+];

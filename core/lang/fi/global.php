@@ -354,7 +354,7 @@ $_lang["guid"] = 'GUID';
 $_lang["help"] = 'Ohjeet';
 $_lang["help_donate_msg"] = 'Osta kahvia Evolution CMS -kehittäjille. <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> Ryhdy Evolution CMS:n faniksi jo tänään! ❤️ Ko-fi antaa sinun tukea rakastamiamme tekijöitä ilman lahjoitusmaksuja.';
 $_lang["help_donate_title"] = 'Evolution CMS:n kehittämiseen';
-$_lang["help_msg"] = '<p>Ongelmatilanteissa tutustu <a href="http://forums.modx.com" target="_blank">MODX:n keskustelufoorumeihin</a>. Lisäksi kannattaa tutustua <a href="http://rtfm.modx.com/evolution/1.0" target="_blank">MODX:n ohjeisiin ja oppaisiin</a> sekä <a href="http://wiki.modx.com/index.php/Main_Page" target="_blank">MODX Wikiin</a>.</p><p>Suunnitteilla on myös kaupallisen MODX-tuen tarjoaminen - ota <a href="mailto:hello@modx.com?subject=MODX Commercial Support Inquiry">yhteyttä</a>, jos olet kiinnostunut.</p>';
+$_lang["help_msg"] = '<p>Ongelmatilanteissa tutustu <a href="https://forum.evo.im" target="_blank">MODX:n keskustelufoorumeihin</a>. Lisäksi kannattaa tutustua <a href="http://rtfm.modx.com/evolution/1.0" target="_blank">MODX:n ohjeisiin ja oppaisiin</a> sekä <a href="http://wiki.modx.com/index.php/Main_Page" target="_blank">MODX Wikiin</a>.</p><p>Suunnitteilla on myös kaupallisen MODX-tuen tarjoaminen - ota <a href="mailto:hello@modx.com?subject=MODX Commercial Support Inquiry">yhteyttä</a>, jos olet kiinnostunut.</p>';
 $_lang["help_title"] = 'Ohjeet';
 $_lang["hide_tree"] = 'Piilota sivukartta';
 $_lang["home"] = 'Alkuun';

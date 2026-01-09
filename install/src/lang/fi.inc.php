@@ -1,17 +1,12 @@
 <?php
 /**
- * Evolution CMS fi.inc.php language file
- *
  * @author Evolution CMS Team
- * @version 3.2.x
- * @date 2025-06-26 03:02:25
- *
- * @language Finnish
  * @package Evolution CMS
  * @subpackage install
- * Please commit your language changes here: https://github.com/evolution-cms/evolution
+ * @date 2026-01-05 18:00:00
  */
-$_lang = array (
+
+$_lang = [
   'agree_to_terms' => 'Hyväksy lisenssi ehdot ja asenna',
   'alert_database_test_connection' => 'Sinun täytyy luoda tietokanta tai testata tietokantasi valintaa!',
   'alert_database_test_connection_failed' => 'Tietokannan valinnan testi epäonnistui!',
@@ -31,11 +26,11 @@ $_lang = array (
   'btnback_value' => 'Takaisin',
   'btnclose_value' => 'Sulje',
   'btnnext_value' => 'Seuraava',
-  'cant_write_config_file' => 'MODX ei voinut kirjoittaa asetukset tiedostoa. Ole hyvä ja kopioi seuraava asetustiedostoon ',
-  'cant_write_config_file_note' => 'Kun tämä on tehty, voit kirjautua MODX hallintaan osoitteessa sinunosoite.fi/[+MGR_DIR+]/.',
+  'cant_write_config_file' => 'Evolution CMS ei voinut kirjoittaa asetukset tiedostoa. Ole hyvä ja kopioi seuraava asetustiedostoon ',
+  'cant_write_config_file_note' => 'Kun tämä on tehty, voit kirjautua Evolution CMS hallintaan osoitteessa sinunosoite.fi/[+MGR_DIR+]/.',
   'checkbox_select_options' => 'Valitse valintaruuduista:',
-  'checking_iconv' => 'Checking if extension <code>iconv</code> is available: ',
-  'checking_iconv_note' => 'It is important to install/enable extension iconv. Please speak to your host if you don´t know how to enable it.',
+  'checking_extensions' => 'Checking if extension <code>[+extensions+]</code> is available: ',
+  'missing_mandatory_extension' => 'It is important to install/enable extension [+missing_extension+]. Please speak to your hosting provider if you don´t know how to enable it.',
   'checking_if_cache_exist' => 'Tarkistetaan onko kansiot <code>/assets/cache</code> ja <code>/assets/cache/rss</code> olemassa: ',
   'checking_if_cache_file2_writable' => 'Tarkistetaan voiko tiedostoon <code>/assets/cache/sitePublishing.idx.php</code> kirjoittaa: ',
   'checking_if_cache_file_writable' => 'Tarkistetaan voiko tiedostoon <code>/assets/cache/siteCache.idx.php</code> kirjoittaa: ',
@@ -50,7 +45,7 @@ $_lang = array (
   'checking_pgsql_version' => 'Checking PostgeSQL version: ',
   'checking_php_version' => 'Tarkistetaan PHP:n versio: ',
   'checking_registerglobals' => 'Tarkistetaan onko PHP:n Register_Globals asetus pois: ',
-  'checking_registerglobals_note' => 'Tämä asetus tekee sivustostasi alttiimman XSS hyökkäyksille (Cross Site Scripting). Sinun tulisi kehottaa palveluntarjoajaasi kytkemään tämä asetus pois käytöstä. Useimmiten tämän asetuksen voi kytkeä pois muokkaamalla palvelimen php.ini tiedostoa. Jos se ei ole mahdollista, voit koittaa kytkeä sen pois .htaccess tiedostossa, joka sijaitsee MODX asennuksen juuri kansiossa. Jos tämäkään ei ole mahdollista, voit viimeisenä vaihtoehtona koittaa asettaa jokaiseen MODX asennuksen sisällä olevaan kansioon muokatun php.ini tiedoston, joka yliajaa asetukset palvelimen jaetusta php.ini tiedostosta, mutta kansioita MODX asennuksessa on tosin huomattava määrä. Voit kuitenkin asentaa MODX järjestelmän tästä asetuksesta huolimatta, mutta sinua on varoitettu.',
+  'checking_registerglobals_note' => 'Tämä asetus tekee sivustostasi alttiimman XSS hyökkäyksille (Cross Site Scripting). Sinun tulisi kehottaa palveluntarjoajaasi kytkemään tämä asetus pois käytöstä. Useimmiten tämän asetuksen voi kytkeä pois muokkaamalla palvelimen php.ini tiedostoa. Jos se ei ole mahdollista, voit koittaa kytkeä sen pois .htaccess tiedostossa, joka sijaitsee Evolution CMS asennuksen juuri kansiossa. Jos tämäkään ei ole mahdollista, voit viimeisenä vaihtoehtona koittaa asettaa jokaiseen Evolution CMS asennuksen sisällä olevaan kansioon muokatun php.ini tiedoston, joka yliajaa asetukset palvelimen jaetusta php.ini tiedostosta, mutta kansioita Evolution CMS asennuksessa on tosin huomattava määrä. Voit kuitenkin asentaa Evolution CMS järjestelmän tästä asetuksesta huolimatta, mutta sinua on varoitettu.',
   'checking_sessions' => 'Tarkistetaan onko palvelinistunnot asetettu toimimaan oikein: ',
   'checking_table_prefix' => 'Tarkistetaan tietokannan taulujen etuliite `',
   'choose_language' => 'Valitse kieli',
@@ -59,7 +54,7 @@ $_lang = array (
   'connection_screen_collation' => 'Merkistö:',
   'connection_screen_connection_method' => 'Yhteystyyppi:',
   'connection_screen_database_connection_information' => 'Tietokannan yhteysasetukset',
-  'connection_screen_database_connection_note' => 'Ole hyvä ja syötä tietokannan nimi, jota MODX:n tulee käyttää. Jos tietokantaa ei ole vielä luotu, asennusohjelma yrittää luodan sen. Tämä voi epäonnistua riippuen MySQL asetuksista ja/tai tietokannan käyttäjän käyttöoikeuksista.',
+  'connection_screen_database_connection_note' => 'Ole hyvä ja syötä tietokannan nimi, jota Evolution CMS:n tulee käyttää. Jos tietokantaa ei ole vielä luotu, asennusohjelma yrittää luodan sen. Tämä voi epäonnistua riippuen [+database_type+] asetuksista ja/tai tietokannan käyttäjän käyttöoikeuksista.',
   'connection_screen_database_host' => 'Tietokantapalvelimen osoite:',
   'connection_screen_database_info' => 'Tietokannan tiedot',
   'connection_screen_database_login' => 'Käyttäjänimi:',
@@ -85,7 +80,7 @@ $_lang = array (
   'database_use_failed' => 'Tietokantaa ei voitu valita!',
   'database_use_failed_note' => 'Ole hyvä ja tarkista tietokannan käyttöoikeudet määritetylle käyttäjälle ja yritä uudelleen.',
   'default_language' => 'Kieli',
-  'default_language_description' => 'Tämä asetetaan MODX ylläpidon oletus kieleksi.',
+  'default_language_description' => 'Tämä asetetaan Evolution CMS ylläpidon oletus kieleksi.',
   'depedency_create' => 'Riippuvuus luotu',
   'depedency_update' => 'Riippuvuus päivitetty',
   'during_execution_of_sql' => ' SQL lauseen suorituksen aikana ',
@@ -95,9 +90,9 @@ $_lang = array (
   'failed' => 'EPÄONNISTUI!',
   'guid_set' => 'GUID set',
   'help' => 'Tuki',
-  'help_link' => 'http://forums.modx.com/',
-  'help_title' => 'Asennustukea MODX keskustelufoorumilla',
-  'iagree_box' => 'Hyväksyn [+license_file_link_tag+] ehdot. GPL lisenssin versio 2:en käännökset löytyvät [+license_link_tag+].',
+  'help_link' => 'https://forum.evo.im',
+  'help_title' => 'Asennustukea Evolution CMS keskustelufoorumilla',
+  'iagree_box' => 'Hyväksyn [+license_file_link_tag+] ehdot. GPL lisenssin versio 3:en käännökset löytyvät [+license_link_tag+].',
   'install' => 'Asenna',
   'installation_error_occured' => 'Asennuksen aikana tapahtui seuraavat virheet',
   'installation_install_new_copy' => 'Asenna uusi ',
@@ -118,10 +113,10 @@ $_lang = array (
   'language_code' => 'fi',
   'loading' => 'Ladataan...',
   'modules' => 'Moduulit',
-  'modx_footer1' => '&copy; 2004 - [+current_year+] [+vendor_link_tag+] Content Mangement Framework (CMF). Kaikki oikeudet pidätetään. Evolution CMS on lisensoitu GNU GPL lisenssillä.',
-  'modx_footer2' => 'MODX on ilmainen ohjelmisto. Kehoitamme sinua olemaan luova ja käyttämään MODX järjestelmää siten, miten sinä sen parhaaksi näet. Jos teet muutoksia järjestelmään ja päätät jakaa muokattua MODX järjestelmää eteenpäin, muista pitää muokattu lähdekoodi vapaasti saatavilla!',
-  'modx_install' => 'MODX &raquo; Asennus',
-  'modx_requires_php' => ', ja MODX vaatii PHP:stä version [+min_version+] tai uudemman',
+  'modx_footer1' => '&copy; 2004 - [+current_year+] [+vendor_link_tag+] Content Mangement Framework (CMF). Kaikki oikeudet pidätetään. Evolution CMS on lisensoitu GNU GPL.',
+  'modx_footer2' => 'Evolution CMS on ilmainen ohjelmisto. Kehoitamme sinua olemaan luova ja käyttämään Evolution CMS järjestelmää siten, miten sinä sen parhaaksi näet. Jos teet muutoksia järjestelmään ja päätät jakaa muokattua Evolution CMS järjestelmää eteenpäin, muista pitää muokattu lähdekoodi vapaasti saatavilla!',
+  'modx_install' => 'Evolution CMS &raquo; Asennus',
+  'modx_requires_php' => ', ja Evolution CMS vaatii PHP:stä version [+min_version+] tai uudemman',
   'mysql_5051' => ' MySQL palvelimen versio on 5.0.51!',
   'mysql_5051_warning' => 'MySQL 5.0.51 versiolla on havaittu järjestelmän toiminnassa ongelmia. On suositeltavaa, että päivität MySQL version uudempaan ennen asennuksen jatkamista.',
   'mysql_old_version' => 'When you use version oldest then 5.7.6 engine will be MyISAM in newest version use engine InnoDB.<br> We recommend that you update your MySQL',
@@ -132,7 +127,7 @@ $_lang = array (
   'ok' => 'OK!',
   'optional_items' => 'Valinnaiset kohdat',
   'optional_items_note' => 'Ole hyvä ja valitse asennuksesi lisäasetukset ja napsauta "Asenna" painiketta:',
-  'php_security_notice' => '<legend>Tietoturva huomio</legend><p> Vaikka MODX toimiikin tällä PHP versiolla, sen käyttöä ei kuitenkaan suositella. PHP versiosi on altis useille tietoturva aukoille. On suositeltavaa sivustosi tietoturvallisuuden kannalta, että päivität PHP versiosi. Ole hyvä ja päivitä PHP versioon 4.3.8 tai uudempaan, joka korjaa kyseiset tietoturva aukot.',
+  'php_security_notice' => '<legend>Tietoturva huomio</legend><p> Vaikka Evolution CMS toimiikin tällä PHP versiolla, sen käyttöä ei kuitenkaan suositella. PHP versiosi on altis useille tietoturva aukoille. On suositeltavaa sivustosi tietoturvallisuuden kannalta, että päivität PHP versiosi. Ole hyvä ja päivitä PHP versioon [+min_version+] tai uudempaan, joka korjaa kyseiset tietoturva aukot.',
   'please_correct_error' => '. Ole hyvä ja korjaa seuraava virhe',
   'please_correct_errors' => '. Ole hyvä ja korjaa seuraavat virheet',
   'plugins' => 'Liitännäiset',
@@ -141,18 +136,18 @@ $_lang = array (
   'recommend_collations_order' => 'utf8mb4_uca1400_ai_ci,utf8mb4_0900_ai_ci,utf8mb4_unicode_520_ci,utf8mb4_unicode_ci,utf8mb4_general_ci,utf8mb4_bin',
   'recommend_setting_change_title' => 'Suositeltava asetusten muutos',
   'recommend_setting_change_validate_referer_confirmation' => 'Asetuksen muutos: <em>Validoi HTTP_REFERER otsikkotieto?</em>',
-  'recommend_setting_change_validate_referer_description' => 'Sivustolla ei ole käytössä ylläpidon HTTP_REFERER tunnisteiden tarkistusta. On suositeltavaa ottaa tarkistus käyttöön CSFR-verkkohyökkäysten (Cross Site Request Forgery) estämiseksi.',
+  'recommend_setting_change_validate_referer_description' => 'Sivustoasi ei ole määritetty tarkistamaan HTTP_REFERER saapuvia pyyntöjä Manageriin. Suosittelemme ottamaan tämän asetuksen käyttöön CSRF (Cross Site Request Forgery) hyökkäyksen riskin vähentämiseksi.',
   'remove_install_folder_auto' => 'Poista asennuskansio, sekä asennustiedostot sivutilastani<br />&nbsp;(Tämä toiminto vaatii, että kansioon /install on tiedostojen sekä ko. kansion poisto-oikeudet).',
   'remove_install_folder_manual' => 'Muista poistaa &quot;<strong>install</strong>&quot; kansio ennen kuin kirjaudut järjestelmään.',
   'resetting_database' => 'Resetting database for demo-site: ',
   'retry' => 'Yritä uudelleen',
   'running_database_updates' => 'Suoritetaan tietokannan päivityksiä: ',
   'sample_web_site' => 'Demo sivusto',
-  'sample_web_site_note' => 'Ota huomioon, että tämä <strong>ylikirjoittaa</strong> olemassaolevat sivut ja resurssit.',
+  'sample_web_site_note' => 'Ota huomioon, että tämä <b style=\\"color:#CC0000\\">ylikirjoittaa</b> olemassaolevat sivut ja resurssit.',
   'session_problem' => 'Palvelinistuntojen hallinnassa havaittu ongelmia. Ole hyvä ja ota yhteyttä palvelun ylläpitäjään ongelman korjaamiseksi.',
   'session_problem_try_again' => 'Yritä uudelleen?',
   'setup_cannot_continue' => 'Valitettavasti asennusta ei voi jatkaa ylläolevista syistä ',
-  'setup_couldnt_install' => 'MODX asennus ei voinut asentaa/muokata joitain tietokannan tauluja.',
+  'setup_couldnt_install' => 'Evolution CMS asennus ei voinut asentaa/muokata joitain tietokannan tauluja.',
   'setup_database' => 'Asennus yrittää luoda tietokantaa:<br />',
   'setup_database_create_connection' => 'Luodaan yhteys tietokantaan: ',
   'setup_database_create_connection_failed' => 'Tietokantayhteys epäonnistui!',
@@ -172,13 +167,13 @@ $_lang = array (
   'status_failed' => 'epäonnistui!',
   'status_failed_could_not_create_database' => 'epäonnistui - tietokantaa ei voitu luoda',
   'status_failed_database_collation_does_not_match' => 'epäonnistui - tietokannan merkistön yhteensopivuus ongelma. Käytä "SET NAMES" tai valitse %s',
-  'status_failed_mysqli' => 'error - mysqli extension for PHP is not installed!',
+  'missing_recommended_extension' => '[+missing_extension+] extension for PHP is not installed!',
   'status_failed_table_prefix_already_in_use' => 'epäonnistui - tietokannan taulujen etuliite on jo käytössä!',
   'status_passed' => 'onnistui - tietokanta valittu',
   'status_passed_database_created' => 'onnistui - tietokanta luotu',
   'status_passed_server' => 'onnistui - merkistöt ovat nyt käytettävissä',
   'strict_mode' => ' MySQL palvelimen "strict sql_mode" asetus on päällä!',
-  'strict_mode_error' => 'Tietyt MODX:n toiminnot ei toimi oikein jos "STRICT_TRANS_TABLES sql_mode" ei kytketä pois käytöstä. Voit asettaa kyseisen MySQL asetuksen muokkaamalla my.cnf tiedostoa tai ottamalla yhteyttä palveluntarjoajaasi.',
+  'strict_mode_error' => 'Tietyt Evolution CMS:n toiminnot ei toimi oikein jos "STRICT_TRANS_TABLES sql_mode" ei kytketä pois käytöstä. Voit asettaa kyseisen MySQL asetuksen muokkaamalla my.cnf tiedostoa tai ottamalla yhteyttä palveluntarjoajaasi.',
   'summary_setup_check' => 'Asennus on tarkistanut erinäiset tiedot tarkastaakseen, että kaikki on kunnossa asennusta varten.',
   'system_configuration' => 'Järjestelmän asetukset',
   'system_configuration_validate_referer_description' => '<strong>Validoi HTTP_REFERER otsikkotieto</strong> asetuksen käyttöä suositellaan. Se suojaa sivustoasi CSRF-hyökkäyksiltä, mutta se saattaa joissain palvelinkonfiguraatioissa estää pääsyn sivustosi ylläpitoon.',
@@ -202,8 +197,8 @@ $_lang = array (
   'warning' => 'VAROITUS!',
   'welcome_message_start' => 'Valitse aluksi suoritettavan asennuksen tyyppi:',
   'welcome_message_text' => 'Tämä ohjelma ohjaa sinut suorittamaan järjestelmän asennuksen.',
-  'welcome_message_welcome' => 'Tervetuloa MODX asennusohjelmaan.',
+  'welcome_message_welcome' => 'Tervetuloa Evolution CMS asennusohjelmaan.',
   'writing_config_file' => 'Kirjoitetaan asetuksia tiedostoon: ',
   'yes' => 'Kyllä',
   'you_running_php' => ' - Käytössä on PHP versio ',
-);
+];

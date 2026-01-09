@@ -1,17 +1,12 @@
 <?php
 /**
- * Evolution CMS nn.inc.php language file
- *
  * @author Evolution CMS Team
- * @version 3.2.x
- * @date 2025-06-26 03:02:25
- *
- * @language Norwegian Nynorsk
  * @package Evolution CMS
  * @subpackage install
- * Please commit your language changes here: https://github.com/evolution-cms/evolution
+ * @date 2026-01-05 18:00:00
  */
-$_lang = array (
+
+$_lang = [
   'agree_to_terms' => 'Agree to the License Terms and Install',
   'alert_database_test_connection' => 'Du m&aring; opprette din database eller teste valget av database!',
   'alert_database_test_connection_failed' => 'Testen p&aring; valg av database mislyktes!',
@@ -31,11 +26,11 @@ $_lang = array (
   'btnback_value' => 'Tilbake',
   'btnclose_value' => 'Lukk',
   'btnnext_value' => 'Neste',
-  'cant_write_config_file' => 'MODX kunne ikke skrive konfigurasjonsfilen. Kopier f&oslash;lgende til filen ',
-  'cant_write_config_file_note' => 'N&aring;r det er klart kan du logge inn i MODX administrasjonskontoen ved &aring; g&aring; til adressen DittDomene.xx/[+MGR_DIR+]/ i din nettleser.',
+  'cant_write_config_file' => 'Evolution CMS kunne ikke skrive konfigurasjonsfilen. Kopier f&oslash;lgende til filen ',
+  'cant_write_config_file_note' => 'N&aring;r det er klart kan du logge inn i Evolution CMS administrasjonskontoen ved &aring; g&aring; til adressen DittDomene.xx/[+MGR_DIR+]/ i din nettleser.',
   'checkbox_select_options' => 'Alternativ for kryssbokser:',
-  'checking_iconv' => 'Checking if extension <code>iconv</code> is available: ',
-  'checking_iconv_note' => 'It is important to install/enable extension iconv. Please speak to your host if you don´t know how to enable it.',
+  'checking_extensions' => 'Checking if extension <code>[+extensions+]</code> is available: ',
+  'missing_mandatory_extension' => 'It is important to install/enable extension [+missing_extension+]. Please speak to your hosting provider if you don´t know how to enable it.',
   'checking_if_cache_exist' => 'Kontrollerer at katalogen <code>assets/cache</code> eksisterer: ',
   'checking_if_cache_file2_writable' => 'Kontrollerer at filen <code>assets/cache/sitePublishing.idx.php</code> er skrivbar: ',
   'checking_if_cache_file_writable' => 'Kontrollerer at filen <code>assets/cache/siteCache.idx.php</code> er skrivbar: ',
@@ -50,7 +45,7 @@ $_lang = array (
   'checking_pgsql_version' => 'Checking PostgeSQL version: ',
   'checking_php_version' => 'Kontrollerer PHP-versjon: ',
   'checking_registerglobals' => 'Kontrollerar att Register_Globals är inaktiverad: ',
-  'checking_registerglobals_note' => 'Denne konfigurasjonen gj&oslash;r din nettside betydelig mer s&aring;rbar for webkodeinjeksjon (Cross Site Scripting - XSS). Du b&oslash;r kontakte din webhost og be om &aring; f&aring; inaktivert denne instillingen. Vanligvis lar det seg gj&oslash;re p&aring; tre f&oslash;lgende m&aring;ter: modifisering av den globale php.ini-filen, tillegg av regler i en .htaccess-fil i roten p&aring; din MODX-installasjon eller gjennom &aring; legge til en tilpasset php.ini-fil (som tilsidesetter den globale filen) i alla kataloger i din installasjon (og det finns masser av dem). Du kan fremdeles installere MODX, men ta denne advarselen p&aring; alvor.',
+  'checking_registerglobals_note' => 'Denne konfigurasjonen gj&oslash;r din nettside betydelig mer s&aring;rbar for webkodeinjeksjon (Cross Site Scripting - XSS). Du b&oslash;r kontakte din webhost og be om &aring; f&aring; inaktivert denne instillingen. Vanligvis lar det seg gj&oslash;re p&aring; tre f&oslash;lgende m&aring;ter: modifisering av den globale php.ini-filen, tillegg av regler i en .htaccess-fil i roten p&aring; din Evolution CMS-installasjon eller gjennom &aring; legge til en tilpasset php.ini-fil (som tilsidesetter den globale filen) i alla kataloger i din installasjon (og det finns masser av dem). Du kan fremdeles installere Evolution CMS, men ta denne advarselen p&aring; alvor.',
   'checking_sessions' => 'Kontrollerer at sesjoner er korrekt konfigurert: ',
   'checking_table_prefix' => 'Kontrollerer tabellprefixet `',
   'choose_language' => 'Velg språk',
@@ -59,7 +54,7 @@ $_lang = array (
   'connection_screen_collation' => 'Kollasjonering:',
   'connection_screen_connection_method' => 'Tilkoblingsmetode:',
   'connection_screen_database_connection_information' => 'Databaseopplysninger',
-  'connection_screen_database_connection_note' => 'Angi navnet p&aring; databasen som ble opprettet for MODX. Om det ikke finnes en database fra f&oslash;r, kommer installasjonsprogrammet til &aring; pr&oslash;ve &aring; opprette en for deg. Dette kan mislykkes avhengig av MySQL-konfigurasjonen eller databasens tilgangsrettigheter for ditt domene/installasjon.',
+  'connection_screen_database_connection_note' => 'Angi navnet p&aring; databasen som ble opprettet for Evolution CMS. Om det ikke finnes en database fra f&oslash;r, kommer installasjonsprogrammet til &aring; pr&oslash;ve &aring; opprette en for deg. Dette kan mislykkes avhengig av [+database_type+]-konfigurasjonen eller databasens tilgangsrettigheter for ditt domene/installasjon.',
   'connection_screen_database_host' => 'Databasevert:',
   'connection_screen_database_info' => 'Databaseopplysninger',
   'connection_screen_database_login' => 'Databasens inloggingsnavn:',
@@ -85,7 +80,7 @@ $_lang = array (
   'database_use_failed' => 'Databasen kunne ikke velges!',
   'database_use_failed_note' => 'Kontrollér databasens tilkoblingsrettigheter for den oppgitte brukeren og fors&oslash;k igjen.',
   'default_language' => 'Default Manager Language',
-  'default_language_description' => 'This is the default language that will be used in the MODX Manager back end control panel.',
+  'default_language_description' => 'This is the default language that will be used in the Evolution CMS Manager back end control panel.',
   'depedency_create' => 'Depedency created',
   'depedency_update' => 'Depedency updated',
   'during_execution_of_sql' => ' under kj&oslash;ringen av SQL-sp&oslash;rringen ',
@@ -95,9 +90,9 @@ $_lang = array (
   'failed' => 'mislyktes!',
   'guid_set' => 'GUID set',
   'help' => 'Hjelp!',
-  'help_link' => 'http://forums.modx.com/',
-  'help_title' => 'Installation assistance in the MODX forums',
-  'iagree_box' => 'Jeg aksepterer vilk&aring;rene i denne lisensen [+license_file_link_tag+].',
+  'help_link' => 'https://forum.evo.im',
+  'help_title' => 'Installation assistance in the Evolution CMS forums',
+  'iagree_box' => 'Jeg aksepterer vilk&aring;rene i denne lisensen [+license_file_link_tag+]. For translations of the GPL version 3 license, please visit the [+license_link_tag+].',
   'install' => 'Installér',
   'installation_error_occured' => 'F&oslash;lgande feil oppsto under installasjonen',
   'installation_install_new_copy' => 'Installer en ny kopi av ',
@@ -119,9 +114,9 @@ $_lang = array (
   'loading' => 'Henter...',
   'modules' => 'Moduler',
   'modx_footer1' => '&copy; 2004 - [+current_year+] the [+vendor_link_tag+] Content Mangement Framework (CMF) project. Med enerett. Evolution CMS er lisensiert under GNU GPL.',
-  'modx_footer2' => 'MODX er fri programvare. Vi oppmuntrer deg til &aring; v&aelig;re kreativ og bruke MODX p&aring; hvilken m&aring;te du vil. V&aelig;r bare n&oslash;ye med &aring; beholde kildekoden fri om du gj&oslash;r endringer og siden velger &aring; omdistribuere din modifiserte versjon av MODX.',
-  'modx_install' => 'MODX &raquo; Installasjon',
-  'modx_requires_php' => ', og MODX krever PHP [+min_version+] eller senere.',
+  'modx_footer2' => 'Evolution CMS er fri programvare. Vi oppmuntrer deg til &aring; v&aelig;re kreativ og bruke Evolution CMS p&aring; hvilken m&aring;te du vil. V&aelig;r bare n&oslash;ye med &aring; beholde kildekoden fri om du gj&oslash;r endringer og siden velger &aring; omdistribuere din modifiserte versjon av Evolution CMS.',
+  'modx_install' => 'Evolution CMS &raquo; Installasjon',
+  'modx_requires_php' => ', og Evolution CMS krever PHP [+min_version+] eller senere.',
   'mysql_5051' => ' MySQL server versjon er 5.0.51!',
   'mysql_5051_warning' => 'Det er kjente problemer med MySQL 5.0.51. Det anbefales at du oppgraderer f&oslash;r du fortsetter.',
   'mysql_old_version' => 'When you use version oldest then 5.7.6 engine will be MyISAM in newest version use engine InnoDB.<br> We recommend that you update your MySQL',
@@ -132,7 +127,7 @@ $_lang = array (
   'ok' => 'OK!',
   'optional_items' => 'Valgbare alternativ',
   'optional_items_note' => 'Velg dine installasjonsalternativ og klikk Installér:',
-  'php_security_notice' => '<legend>Sikkerhetsmelding</legend><p>Selv om MODX kommer til &aring; fungere p&aring; din PHP-versjon, s&aring; anbefales det ikke &aring; bruke MODX med den versjonen. Din PHP-versjon er s&aring;rbar for en rekke sikkerhetshull. Oppgrader til PHP-versjon 4.3.8 eller senere, der disse sikkerhetshullene er tettet. Det anbefales at du oppgraderer til denne versjonen for &aring; beskytte ditt nettsted.</p>',
+  'php_security_notice' => '<legend>Sikkerhetsmelding</legend><p>Selv om Evolution CMS kommer til &aring; fungere p&aring; din PHP-versjon, s&aring; anbefales det ikke &aring; bruke Evolution CMS med den versjonen. Din PHP-versjon er s&aring;rbar for en rekke sikkerhetshull. Oppgrader til PHP-versjon [+min_version+] eller senere, der disse sikkerhetshullene er tettet. Det anbefales at du oppgraderer til denne versjonen for &aring; beskytte ditt nettsted.</p>',
   'please_correct_error' => '. Korrigér feilen',
   'please_correct_errors' => '. Korrigér feilen',
   'plugins' => 'Plugins',
@@ -152,7 +147,7 @@ $_lang = array (
   'session_problem' => 'A problem was detected with your server sessions. Please consult your server admin to correct this problem.',
   'session_problem_try_again' => 'Try again?',
   'setup_cannot_continue' => 'Installasjonsprogrammet kan desverre ikke fortsette p&aring; grunn av ovenforst&aring;ende ',
-  'setup_couldnt_install' => 'MODX installasjonsprogramet kunne ikke legge til/endre noen tabeller i den valgte databasen.',
+  'setup_couldnt_install' => 'Evolution CMS installasjonsprogramet kunne ikke legge til/endre noen tabeller i den valgte databasen.',
   'setup_database' => 'Installasjonsprogrammet kommer n&aring; til &aring; fors&oslash;ke &aring; konfigurere databasen:<br />',
   'setup_database_create_connection' => 'Oppretter tilkobling til databasen: ',
   'setup_database_create_connection_failed' => 'Tilkoblingen til databasen mislyktes!',
@@ -172,13 +167,13 @@ $_lang = array (
   'status_failed' => 'mislyktes!',
   'status_failed_could_not_create_database' => 'mislyktes - kunne ikke opprette database',
   'status_failed_database_collation_does_not_match' => 'mislyktes - database collation ulikhet; bruk SET NAMES eller velg %s',
-  'status_failed_mysqli' => 'error - mysqli extension for PHP is not installed!',
+  'missing_recommended_extension' => '[+missing_extension+] extension for PHP is not installed!',
   'status_failed_table_prefix_already_in_use' => 'mislyktes - tabellprefixet er allerede i bruk!',
   'status_passed' => 'godkjent - databasen valgt',
   'status_passed_database_created' => 'godkjent - database opprettet',
   'status_passed_server' => 'godkjent - kollasjoneringer er n&aring; tilgjengelig',
   'strict_mode' => ' MySQL serveren er i strict mode!',
-  'strict_mode_error' => 'MODX krever at strict mode er utkoblet. Du kan sette MySQL tilstanden ved &aring; endre my.cnf filen eller ved &aring; kontakte din serveradministrator.',
+  'strict_mode_error' => 'Evolution CMS krever at strict mode er utkoblet. Du kan sette MySQL tilstanden ved &aring; endre my.cnf filen eller ved &aring; kontakte din serveradministrator.',
   'summary_setup_check' => 'Installasjonsprogrammet har gjennomf&oslash;rt en del tester för &aring; kontrollere at alt er klart for &aring; starte installasjonen.',
   'system_configuration' => 'Systeminstillinger',
   'system_configuration_validate_referer_description' => 'The <strong>Validate HTTP_REFERER headers</strong> setting is recommended and can protect your site from CSRF attacks, but in some server configurations, can make your manager inaccessible.',
@@ -198,12 +193,12 @@ $_lang = array (
   'upgraded' => 'Oppgradert',
   'upgrade_note' => '<strong>Notér:</strong> F&oslash;r du begynner &aring; bruke ditt nettsted b&oslash;r du logge inn i inneholdsh&aring;ndtereren via en administrasjonskonto og kontrollere og lagre dine konfigurasjonsinstillingar.',
   'validate_referer_title' => 'Validate HTTP_REFERER headers?',
-  'visit_forum' => ', s&aring; bes&oslash;k [+support_forum_link_tag+].',
+  'visit_forum' => ', visit [+support_forum_link_tag+].',
   'warning' => 'ADVARSEL!',
   'welcome_message_start' => 'First, choose the type of installation to perform:',
   'welcome_message_text' => 'Dette programmet vil guide deg gjennom hele installasjonen.',
-  'welcome_message_welcome' => 'Velkommen til installasjonsprogrammet for MODX.',
+  'welcome_message_welcome' => 'Velkommen til installasjonsprogrammet for Evolution CMS.',
   'writing_config_file' => 'Skriver konfigurasjonsfil: ',
   'yes' => 'Ja',
   'you_running_php' => ' - Du k&oslash;rer PHP ',
-);
+];

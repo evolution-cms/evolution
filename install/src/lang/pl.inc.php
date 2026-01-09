@@ -1,17 +1,12 @@
 <?php
 /**
- * Evolution CMS pl.inc.php language file
- *
  * @author Evolution CMS Team
- * @version 3.2.x
- * @date 2025-06-26 03:02:25
- *
- * @language Polish
  * @package Evolution CMS
  * @subpackage install
- * Please commit your language changes here: https://github.com/evolution-cms/evolution
+ * @date 2026-01-05 18:00:00
  */
-$_lang = array (
+
+$_lang = [
   'agree_to_terms' => 'Akceptuję warunki umowy licencyjnej',
   'alert_database_test_connection' => 'Musisz utworzyć nową bazę danych lub sprawdzić czy wybrana przez Ciebie nazwa bazy jest poprawna!',
   'alert_database_test_connection_failed' => 'Test połączenia z wybraną bazą danych nie powiódł się!',
@@ -32,10 +27,10 @@ $_lang = array (
   'btnclose_value' => 'Zamknij',
   'btnnext_value' => 'Dalej',
   'cant_write_config_file' => 'EVO nie może zapisać pliku konfiguracyjnego. Skopiuj następujący kod do pliku',
-  'cant_write_config_file_note' => 'Po zakończeniu instalacji będziesz mógł zalogować się do EVO Admin pod adresem: twojadomena.com/[+MGR_DIR+]/',
+  'cant_write_config_file_note' => 'Po zakończeniu instalacji będziesz mógł zalogować się do Menedżera Evolution CMSa znajdującego się pod adresem: TwojaNazwaDomeny.com/[+MGR_DIR+]/',
   'checkbox_select_options' => 'Zaznacz wybrane opcje: ',
-  'checking_iconv' => 'Sprawdzanie czy rozszerzenie <code>iconv</code> jest dostępne: ',
-  'checking_iconv_note' => 'Ważne jest zainstalowanie/włączenie rozszerzenia iconv. Skontaktuj się się z hostingiem jeśli nie wiesz jak włączyć iconv.',
+  'checking_extensions' => 'Sprawdzanie czy rozszerzenie <code>[+extensions+]</code> jest dostępne: ',
+  'missing_mandatory_extension' => 'Ważne jest zainstalowanie/włączenie rozszerzenia iconv. Skontaktuj się się z hostingiem jeśli nie wiesz jak włączyć [+missing_extension+].',
   'checking_if_cache_exist' => 'Sprawdzanie, czy istnieją foldery <code>/assets/cache</code> oraz <code>/assets/cache/rss</code>: ',
   'checking_if_cache_file2_writable' => 'Sprawdzanie, czy plik <code>/assets/cache/sitePublishing.idx.php</code> jest zapisywalny: ',
   'checking_if_cache_file_writable' => 'Sprawdzanie, czy plik <code>/assets/cache/siteCache.idx.php</code> jest zapisywalny: ',
@@ -50,7 +45,7 @@ $_lang = array (
   'checking_pgsql_version' => 'Checking PostgeSQL version: ',
   'checking_php_version' => 'Sprawdzanie wersji PHP: ',
   'checking_registerglobals' => 'Sprawdzanie, czy zmienne globalne (Register_Globals) są wyłączone: ',
-  'checking_registerglobals_note' => 'Taka konfiguracja powoduje, że Twoja strona jest znacznie bardziej podatna na ataki typu Cross Site Scripting (XSS). Powinieneś wyłączyć tę opcję na serwerze. Są trzy podstawowe sposoby, aby to zrobić: można zmodyfikować główny plik php.ini, dodać regułę w pliku .htaccess znajdującym się w głównym folderze EVO lub dodać własny plik php.ini w każdym z folderów EVO (a jest ich sporo) z ustawieniami nadpisującymi ustawienia globalne. W dalszym ciągu możesz zainstalować EVO - pamiętaj jednak, że zostałeś ostrzeżony.',
+  'checking_registerglobals_note' => 'Taka konfiguracja powoduje, że Twoja strona jest znacznie bardziej podatna na ataki typu Cross Site Scripting (XSS). Powinieneś wyłączyć tę opcję na serwerze. Są trzy podstawowe sposoby, aby to zrobić: można zmodyfikować główny plik php.ini, dodać regułę w pliku .htaccess znajdującym się w głównym folderze, w którym zainstalowany został Evolution CMS lub dodać własny plik php.ini w każdym z folderów Evolution CMSa (a jest ich sporo) z ustawieniami nadpisującymi ustawienia globalne. Jeśli nie zmienisz tych ustawień, będziesz mógł w dalszym ciągu zainstalować Evolution CMSa - pamiętaj jednak, że zostałeś ostrzeżony!',
   'checking_sessions' => 'Sprawdzanie, czy obsługa sesji jest skonfigurowana poprawnie: ',
   'checking_table_prefix' => 'Sprawdzanie prefiksu tabeli `',
   'choose_language' => 'Wybierz język',
@@ -59,7 +54,7 @@ $_lang = array (
   'connection_screen_collation' => 'System porównań (collation): ',
   'connection_screen_connection_method' => 'Metoda połączenia: ',
   'connection_screen_database_connection_information' => 'Informacje o bazie danych',
-  'connection_screen_database_connection_note' => 'Wybierz nazwę bazy danych, którą chcesz użyć dla tej instalacji EVO. Jeśli baza danych nie istnieje, instalator podejmie próbę utworzenia jej. Utworzenie nowej bazy danych może się nie powieść, jeśli użytkownik MySQL nie ma wystarczających uprawnień.',
+  'connection_screen_database_connection_note' => 'Wybierz nazwę bazy danych, którą chcesz użyć dla tej instalacji EVO. Jeśli baza danych nie istnieje, instalator podejmie próbę utworzenia jej. Utworzenie nowej bazy danych może się nie powieść, jeśli użytkownik [+database_type+] nie ma wystarczających uprawnień.',
   'connection_screen_database_host' => 'Host bazy danych:',
   'connection_screen_database_info' => 'Informacje o bazie danych',
   'connection_screen_database_login' => 'Nazwa użytkownika bazy: ',
@@ -95,16 +90,16 @@ $_lang = array (
   'failed' => 'NIE POWIODŁO SIĘ!',
   'guid_set' => 'GUID ustawiony',
   'help' => 'Pomoc!',
-  'help_link' => 'https://forum.evo.im/',
-  'help_title' => 'Wsparcie przy instalacji EVO',
-  'iagree_box' => 'Akceptuję warunki [+license_file_link_tag+]. Tłumaczenia licencji GPL w wersji 2 znajdziesz na stronie [+license_link_tag+].',
+  'help_link' => 'https://forum.evo.im',
+  'help_title' => 'Pomoc dotyczącą instalacji można uzyskać na forum Evolution CMSa',
+  'iagree_box' => 'Akceptuję warunki [+license_file_link_tag+]. Tłumaczenia licencji GPL w wersji 3 znajdziesz [+license_link_tag+].',
   'install' => 'Instaluj',
   'installation_error_occured' => 'Podczas instalacji wystąpił następujący błąd',
   'installation_install_new_copy' => 'Zainstaluj nową kopię ',
   'installation_install_new_note' => 'Wybór tej opcji może spowodować nadpisanie danych w wybranej bazie danych.',
   'installation_mode' => 'Typ instalacji',
   'installation_new_installation' => 'Nowa instalacja',
-  'installation_note' => '<strong>Uwaga:</strong> Zanim zaczniesz przeglądać zasoby swojej strony zaloguj się do Menedżera i zapisz konfigurację. Wybierz zakładkę: <b>Ustawienia</strong> -> Konfiguracja systemu.',
+  'installation_note' => '<strong>Uwaga:</strong> Zanim zaczniesz przeglądać zasoby swojej strony zaloguj się do Menedżera i zapisz konfigurację. Do modułu konfiguracji systemu w Menedżerze Evolution CMSa dostaniesz się wybierając zakładkę: <strong>Narzędzia</strong> -> Konfiguracja systemu.',
   'installation_successful' => 'Instalacja zakończona pomyślnie!',
   'installation_upgrade_advanced' => 'Zaawansowany tryb aktualizacji',
   'installation_upgrade_advanced_note' => 'Tryb dla użytkowników zaawansowanych. Wybierz go, jeśli przenosisz instalację do bazy danych z innym kodowaniem znaków.<br /><strong>Będziesz potrzebował pełnej nazwy bazy danych, nazwy użytkownika oraz jego hasła, jak również szczegółów dotyczących połączenia i systemu porównań.</strong>',
@@ -118,8 +113,8 @@ $_lang = array (
   'language_code' => 'pl',
   'loading' => 'Ładowanie...',
   'modules' => 'Moduły',
-  'modx_footer1' => '&copy; 2004 - [+current_year+] [+vendor_link_tag+]. Wszystkie prawa zastrzeżone. Evolution CMS działa na licencji GNU GPL.',
-  'modx_footer2' => 'EVO jest wolnym oprogramowaniem. Zachęcamy Cię, abyś kreatywnie wykorzystywał EVO w jakikolwiek sposób, który uznasz za przydatny. Prosimy jedynie, abyś pozostawił kod źródłowy otwartym i darmowym w przypadku gdy zdecydujesz się na redystrybucję EVO w zmodyfikowanej przez siebie wersji.',
+  'modx_footer1' => '&copy; 2004 - [+current_year+] [+vendor_link_tag+] Content Management Framework (CMF) project. Wszystkie prawa zastrzeżone. Evolution CMS jest objęty licencją GNU GPL.',
+  'modx_footer2' => 'Evolution CMS jest wolnym oprogramowaniem. Zachęcamy Cię, abyś kreatywnie wykorzystywał Evolution CMSa w jakikolwiek sposób, który uznasz za przydatny. Prosimy jedynie, abyś pozostawił kod źródłowy otwartym i darmowym w przypadku gdy zdecydujesz się na redystrybucję Evolution CMSa w zmodyfikowanej przez siebie wersji!',
   'modx_install' => 'EVO &raquo; Instalacja',
   'modx_requires_php' => ', i EVO wymagają PHP [+min_version+] lub nowszego',
   'mysql_5051' => ' MySQL w wersji 5.0.51!',
@@ -132,7 +127,7 @@ $_lang = array (
   'ok' => 'OK!',
   'optional_items' => 'Komponenty opcjonalne',
   'optional_items_note' => 'Wybierz opcje instalacji, a następnie kliknij przycisk `Instaluj`: ',
-  'php_security_notice' => '<legend>Informacja dotycząca bezpieczeństwa</legend><p>EVO będzie działać na tej wersji PHP, jednak nie jest ona zalecana. Używana przez Ciebie wersja PHP posiada wiele błędów związanych z bezpieczeństwem. Zaktualizuj PHP do wersji 5.6 lub nowszej, w której błędy bezpieczeństwa nie występują. Zalecamy zmianę wersji PHP na wyższą, ze względu na bezpieczeństwo Twojej strony internetowej.</p>',
+  'php_security_notice' => '<legend>Informacja dotycząca bezpieczeństwa</legend><p>Co prawda Evolution CMS będzie działał na Twojej wersji PHP, jednak używanie Evolution CMSa z tą akurat wersją nie jest zalecane. Używana przez Ciebie wersja PHP posiada wiele błędów związanych z bezpieczeństwem. Zaktualizuj PHP do wersji [+min_version+] lub nowszej, w której wyżej wymienione błędy nie występują. Zalecamy aktualizację ze względu na bezpieczeństwo Twojej strony internetowej.</p>',
   'please_correct_error' => '. Proszę popraw błąd',
   'please_correct_errors' => '. Proszę popraw błędy',
   'plugins' => 'Pluginy',
@@ -172,7 +167,7 @@ $_lang = array (
   'status_failed' => 'BŁĄD!',
   'status_failed_could_not_create_database' => 'BŁĄD! - nie można utworzyć bazy danych',
   'status_failed_database_collation_does_not_match' => 'BŁĄD! - niezgodność systemów porównań; użyj SET NAMES lub wybierz %s',
-  'status_failed_mysqli' => 'Błąd - rozszerzenie mysqli dla PHP nie jest zainstalowane!',
+  'missing_recommended_extension' => 'rozszerzenie [+missing_extension+] dla PHP nie jest zainstalowane!',
   'status_failed_table_prefix_already_in_use' => 'BŁĄD! - wybrany prefiks tabeli jest już wykorzystywany!',
   'status_passed' => 'OK - baza danych została wybrana',
   'status_passed_database_created' => 'OK - baza danych utworzona',
@@ -206,4 +201,4 @@ $_lang = array (
   'writing_config_file' => 'Zapisywanie pliku konfiguracyjnego: ',
   'yes' => 'Tak',
   'you_running_php' => '- włączone PHP',
-);
+];

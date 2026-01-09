@@ -111,7 +111,7 @@ $_lang["modules"] = 'モジュール';
 $_lang["modx_footer1"] = '&copy; 2004 - 2026 the <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> Content Management Framework (CMF) project. All rights reserved. Evolution CMS is licensed under the GNU GPL.';
 $_lang["modx_footer2"] = 'MODx is free software.  We encourage you to be creative and make use of MODx in any way you see fit. Just make sure that if you do make changes and decide to redistribute your modified MODx, that you keep the source code free!';
 $_lang["modx_install"] = 'MODx &raquo; インストール';
-$_lang["modx_requires_php"] = ', PHP5.0.0以上を推奨します(4.3.8以上であれば動作しますがセキュリティ面に問題があります)';
+$_lang["modx_requires_php"] = ', PHP5.0.0以上を推奨します([+min_version+]以上であれば動作しますがセキュリティ面に問題があります)';
 $_lang["mysql_5051"] = ' MySQL server version is 5.0.51!';
 $_lang["mysql_5051_warning"] = 'MySQL 5.0.51には不具合が確認されています。MySQLのアップデートをおすすめします。';
 $_lang["mysql_version_is"] = ' Version ';
@@ -121,7 +121,7 @@ $_lang["not_found"] = '見つかりません';
 $_lang["ok"] = '問題なし';
 $_lang["optional_items"] = 'インストールオプションの選択';
 $_lang["optional_items_note"] = 'オプションを選択してください:<br /><br />初めてMODxを試す人は、全てチェックを入れましょう。<br />※日本チームより：「サンプルサイト」は内容が古く、検証も不十分です。興味がある場合のみ、参考程度にお試しください。';
-$_lang["php_security_notice"] = '<legend>セキュリティ警告</legend><p>このサーバ上で稼働しているPHPには重大な問題があります。MODxの稼働自体には問題はありませんが、このバージョンのPHPには報告されている脆弱性がいくつか存在し、MODxに限らずさまざまなPHPアプリを通じて多数の攻撃にさらされてきました。バージョン4.3.8より古いPHPは深刻な脆弱性を抱えています。この機会にPHPのアップデートをおすすめします。</p>';
+$_lang["php_security_notice"] = '<legend>セキュリティ警告</legend><p>このサーバ上で稼働しているPHPには重大な問題があります。MODxの稼働自体には問題はありませんが、このバージョンのPHPには報告されている脆弱性がいくつか存在し、MODxに限らずさまざまなPHPアプリを通じて多数の攻撃にさらされてきました。バージョン[+min_version+]より古いPHPは深刻な脆弱性を抱えています。この機会にPHPのアップデートをおすすめします。</p>';
 $_lang["please_correct_error"] = 'があります。';
 $_lang["please_correct_errors"] = 'があります。'; //Plural form
 $_lang["plugins"] = 'プラグイン';

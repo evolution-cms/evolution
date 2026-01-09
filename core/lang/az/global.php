@@ -761,7 +761,7 @@ $_lang["guid"] = 'GUID';
 $_lang["help"] = 'Kömək';
 $_lang["help_donate_msg"] = 'Evolution CMS tərtibatçıları üçün qəhvə alın <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a>. Bu gün Evolution CMS ❤️ dəstəkçisi olun!';
 $_lang["help_donate_title"] = 'Evolution CMS-in inkişafı üçün';
-$_lang["help_msg"] = '<p>Pulsuz icma dəstəyini <a href="http://forums.modx.com/" target="_blank">Evolution CMS Forumlarında</a> əldə edə bilərsiniz. Həmçinin, <a href="http://evolution-docs.com" target="_blank">Evolution CMS sənədləri və təlimatları</a> mövcuddur.</p><p>Biz Evolution CMS üçün kommersiya dəstək xidmətləri təklif etməyi planlaşdırırıq. Əgər maraqlanırsınızsa, <a href="mailto:dmi3yy@evo.im?subject=Evolution CMS Commercial Support Inquiry">bizimlə əlaqə saxlayın</a>.</p>';
+$_lang["help_msg"] = '<p>Pulsuz icma dəstəyini <a href="https://forum.evo.im/" target="_blank">Evolution CMS Forumlarında</a> əldə edə bilərsiniz. Həmçinin, <a href="http://evolution-docs.com" target="_blank">Evolution CMS sənədləri və təlimatları</a> mövcuddur.</p><p>Biz Evolution CMS üçün kommersiya dəstək xidmətləri təklif etməyi planlaşdırırıq. Əgər maraqlanırsınızsa, <a href="mailto:dmi3yy@evo.im?subject=Evolution CMS Commercial Support Inquiry">bizimlə əlaqə saxlayın</a>.</p>';
 $_lang["help_title"] = 'Kömək';
 $_lang["hide_tree"] = 'Sayt ağacını gizlət';
 $_lang["home"] = 'İdarəetmə paneli';

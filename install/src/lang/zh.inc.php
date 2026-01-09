@@ -1,17 +1,12 @@
 <?php
 /**
- * Evolution CMS zh.inc.php language file
- *
  * @author Evolution CMS Team
- * @version 3.2.x
- * @date 2025-06-26 03:02:25
- *
- * @language Chinese
  * @package Evolution CMS
  * @subpackage install
- * Please commit your language changes here: https://github.com/evolution-cms/evolution
+ * @date 2026-01-05 18:00:00
  */
-$_lang = array (
+
+$_lang = [
   'agree_to_terms' => 'Agree to the License Terms and Install',
   'alert_database_test_connection' => 'You need to create your database or test the selection of your database!',
   'alert_database_test_connection_failed' => 'The test of your database selection has failed!',
@@ -34,8 +29,8 @@ $_lang = array (
   'cant_write_config_file' => 'Evolution CMS couldn\'t write the config file. Please copy the following into the file ',
   'cant_write_config_file_note' => 'Once that\'s been done, you can log into Evolution CMS Admin by pointing your browser at YourSiteName.com/[+MGR_DIR+]/.',
   'checkbox_select_options' => 'Checkbox select options:',
-  'checking_iconv' => 'Checking if extension <code>iconv</code> is available: ',
-  'checking_iconv_note' => 'It is important to install/enable extension iconv. Please speak to your host if you don´t know how to enable it.',
+  'checking_extensions' => 'Checking if extension <code>[+extensions+]</code> is available: ',
+  'missing_mandatory_extension' => 'It is important to install/enable extension [+missing_extension+]. Please speak to your hosting provider if you don´t know how to enable it.',
   'checking_if_cache_exist' => 'Checking if <code>/assets/cache</code> and <code>/assets/cache/rss</code> directories exist: ',
   'checking_if_cache_file2_writable' => 'Checking if <code>/assets/cache/sitePublishing.idx.php</code> file is writable: ',
   'checking_if_cache_file_writable' => 'Checking if <code>/assets/cache/siteCache.idx.php</code> file is writable: ',
@@ -50,7 +45,7 @@ $_lang = array (
   'checking_pgsql_version' => 'Checking PostgeSQL version: ',
   'checking_php_version' => 'Checking PHP version: ',
   'checking_registerglobals' => 'Checking if Register_Globals is off: ',
-  'checking_registerglobals_note' => 'This configuration makes your site much more susceptible to Cross Site Scripting (XSS) attacks. You should speak to your host about disabling this setting, usually by one of three ways: modifying the global php.ini file, adding rules to a .htaccess file in the root of your Evolution CMS install, or adding custom php.ini override files in every directory on your install (and there\'s a lot of them). You will still be able to install Evolution CMS, but consider yourself warned.',
+  'checking_registerglobals_note' => 'This configuration makes your site much more susceptible to Cross Site Scripting (XSS) attacks. You should speak to your hosting provider about disabling this setting, usually by one of three ways: modifying the global php.ini file, adding rules to a .htaccess file in the root of your Evolution CMS install, or adding custom php.ini override files in every directory on your install (and there\'s a lot of them). You will still be able to install Evolution CMS, but consider yourself warned.',
   'checking_sessions' => 'Checking if sessions are properly configured: ',
   'checking_table_prefix' => 'Checking table prefix `',
   'choose_language' => 'Choose language',
@@ -59,7 +54,7 @@ $_lang = array (
   'connection_screen_collation' => 'Collation:',
   'connection_screen_connection_method' => 'Connection method:',
   'connection_screen_database_connection_information' => 'Database information',
-  'connection_screen_database_connection_note' => 'Enter the database name to use or which you wish to create for this Evolution CMS install. If no database exists, the installer will attempt to create one. This may fail depending on the MySQL user permissions.',
+  'connection_screen_database_connection_note' => 'Enter the database name to use or which you wish to create for this Evolution CMS install. If no database exists, the installer will attempt to create one. This may fail depending on the [+database_type+] user permissions.',
   'connection_screen_database_host' => 'Database host:',
   'connection_screen_database_info' => 'Database Information',
   'connection_screen_database_login' => 'Database login name:',
@@ -95,9 +90,9 @@ $_lang = array (
   'failed' => 'FAILED!',
   'guid_set' => 'GUID set',
   'help' => 'Help!',
-  'help_link' => 'http://forums.modx.com/',
+  'help_link' => 'https://forum.evo.im',
   'help_title' => 'Installation assistance in the Evolution CMS forums',
-  'iagree_box' => 'I agree to the terms of [+license_file_link_tag+]. For translations of the GPL version 2 license, please visit the [+license_link_tag+].',
+  'iagree_box' => 'I agree to the terms of [+license_file_link_tag+]. For translations of the GPL version 3 license, please visit the [+license_link_tag+].',
   'install' => 'Install',
   'installation_error_occured' => 'The following errors had occurred during installation',
   'installation_install_new_copy' => 'Install a new copy of ',
@@ -172,7 +167,7 @@ $_lang = array (
   'status_failed' => 'failed!',
   'status_failed_could_not_create_database' => 'failed - could not create database',
   'status_failed_database_collation_does_not_match' => 'failed - database collation mismatch; use SET NAMES or choose %s',
-  'status_failed_mysqli' => 'error - mysqli extension for PHP is not installed!',
+  'missing_recommended_extension' => '[+missing_extension+] extension for PHP is not installed!',
   'status_failed_table_prefix_already_in_use' => 'failed - table prefix already in use!',
   'status_passed' => 'passed - database selected',
   'status_passed_database_created' => 'passed - database created',
@@ -206,4 +201,4 @@ $_lang = array (
   'writing_config_file' => 'Writing configuration file: ',
   'yes' => 'Yes',
   'you_running_php' => ' - You are running on PHP ',
-);
+];

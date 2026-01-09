@@ -1,17 +1,12 @@
 <?php
 /**
- * Evolution CMS nl.inc.php language file
- *
  * @author Evolution CMS Team
- * @version 3.2.x
- * @date 2025-06-26 03:02:25
- *
- * @language Dutch
  * @package Evolution CMS
  * @subpackage install
- * Please commit your language changes here: https://github.com/evolution-cms/evolution
+ * @date 2026-01-05 18:00:00
  */
-$_lang = array (
+
+$_lang = [
   'agree_to_terms' => 'Ik ga akkoord met de voorwaarden',
   'alert_database_test_connection' => 'U moet een database aanmaken of test de selectie van uw database!',
   'alert_database_test_connection_failed' => 'De test van uw database selectie is mislukt!',
@@ -34,8 +29,8 @@ $_lang = array (
   'cant_write_config_file' => 'Config bestand kan niet worden aangemaakt. Plak het volgende in het config bestand.',
   'cant_write_config_file_note' => 'Zodra het is gebeurd kunt u inloggen door via uw browser te gaan naar uw-domeinnaam.nl/[+MGR_DIR+]/.',
   'checkbox_select_options' => 'Checkbox opties:',
-  'checking_iconv' => 'Bekijken of extensie <code>iconv</code> beschikbaar is: ',
-  'checking_iconv_note' => 'Heb is belangrijk om de extentie iconv te installeren of aan te zetten. Ga na bij uw hostingpartij om deze aan te zetten mocht u hier geen kaas van hebben gegeten.',
+  'checking_extensions' => 'Bekijken of extensie <code>[+extensions+]</code> beschikbaar is: ',
+  'missing_mandatory_extension' => 'Heb is belangrijk om de extentie [+missing_extension+] te installeren of aan te zetten. Ga na bij uw hostingpartij om deze aan te zetten mocht u hier geen kaas van hebben gegeten.',
   'checking_if_cache_exist' => 'Nakijken of <code>/assets/cache</code> en <code>/assets/cache/rss</code> mappen bestaan: ',
   'checking_if_cache_file2_writable' => 'Nakijken of <code>/assets/cache/sitePublishing.idx.php</code> bestand schrijfbaar is: ',
   'checking_if_cache_file_writable' => 'Nakijken of <code>/assets/cache/siteCache.idx.php</code> bestand schrijfbaar is:',
@@ -55,11 +50,11 @@ $_lang = array (
   'checking_table_prefix' => 'Controleren tabel voorvoegsel `',
   'choose_language' => 'Selecteer een taal',
   'chunks' => 'Chunks',
-  'config_permissions_note' => 'Voor nieuwe Linux / Unix installaties, maak een leeg bestand met de naam <code>config.inc.php</code> in de <code>/[+ MGR_DIR +]/includes/</code> map met permissie ingesteld op 0666.',
+  'config_permissions_note' => 'Voor nieuwe Linux / Unix installaties, maak een leeg bestand met de naam <code>config.inc.php</code> in de <code>/[+MGR_DIR+]/includes/</code> map met permissie ingesteld op 0666.',
   'connection_screen_collation' => 'Collatie:',
   'connection_screen_connection_method' => 'Connectie methode:',
   'connection_screen_database_connection_information' => 'Database informatie',
-  'connection_screen_database_connection_note' => 'Voer de databasenaam in die u wilt gebruiken of die u wilt maken voor deze EVO-installatie. Als er geen database bestaat, probeert het installatieprogramma er een te maken. Dit kan mislukken afhankelijk van de MySQL-gebruikersrechten.',
+  'connection_screen_database_connection_note' => 'Voer de databasenaam in die u wilt gebruiken of die u wilt maken voor deze EVO-installatie. Als er geen database bestaat, probeert het installatieprogramma er een te maken. Dit kan mislukken afhankelijk van de [+database_type+]-gebruikersrechten.',
   'connection_screen_database_host' => 'Database host:',
   'connection_screen_database_info' => 'Database Informatie',
   'connection_screen_database_login' => 'Database inlognaam:',
@@ -95,9 +90,9 @@ $_lang = array (
   'failed' => 'MISLUKT!',
   'guid_set' => 'GUID set',
   'help' => 'Help!',
-  'help_link' => 'https://evo.im/forums.html',
+  'help_link' => 'https://forum.evo.im',
   'help_title' => 'Installatiehulp in de EVO forums',
-  'iagree_box' => 'Ik ga akkoord met [+license_file_link_tag+]. Voor vertalingen van de GPL versie 2 licensetie bezoek de [+license_link_tag+].',
+  'iagree_box' => 'Ik ga akkoord met [+license_file_link_tag+]. Voor vertalingen van de GPL versie 3 licensetie bezoek de [+license_link_tag+].',
   'install' => 'Installeer',
   'installation_error_occured' => 'De volgende fouten hebben plaatsgevonden tijdens de installatie',
   'installation_install_new_copy' => 'Installeer een nieuwe kopie van ',
@@ -172,7 +167,7 @@ $_lang = array (
   'status_failed' => 'mislukt!',
   'status_failed_could_not_create_database' => 'mislukt - kan database niet aanmaken',
   'status_failed_database_collation_does_not_match' => 'mislukt - database coalitie klopt niet; gebruik SET NAMES of kies% s',
-  'status_failed_mysqli' => 'error - mysqli extension for PHP is not installed!',
+  'missing_recommended_extension' => '[+missing_extension+] extension for PHP is not installed!',
   'status_failed_table_prefix_already_in_use' => 'mislukt - tabel prefix is al in gebruik!',
   'status_passed' => 'gelukt - database geselecteerd',
   'status_passed_database_created' => 'gelukt - database is aangemaakt',
@@ -206,4 +201,4 @@ $_lang = array (
   'writing_config_file' => 'Configuratiebestand aanmaken:',
   'yes' => 'Ja',
   'you_running_php' => '- U werkt met PHP',
-);
+];

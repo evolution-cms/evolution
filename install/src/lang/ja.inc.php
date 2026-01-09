@@ -1,17 +1,12 @@
 <?php
 /**
- * Evolution CMS ja.inc.php language file
- *
  * @author Evolution CMS Team
- * @version 3.2.x
- * @date 2025-06-26 03:02:25
- *
- * @language Japanese
  * @package Evolution CMS
  * @subpackage install
- * Please commit your language changes here: https://github.com/evolution-cms/evolution
+ * @date 2026-01-05 18:00:00
  */
-$_lang = array (
+
+$_lang = [
   'agree_to_terms' => 'ライセンスが規定する諸条件を確認しインストールを実行してください',
   'alert_database_test_connection' => 'データベースを作成、またはデータベースの接続テストを行う必要があります',
   'alert_database_test_connection_failed' => 'データベースに接続できません。',
@@ -34,8 +29,8 @@ $_lang = array (
   'cant_write_config_file' => '設定ファイルを生成できませんでした。以下をコピーしてconfig.inc.phpに反映してください ',
   'cant_write_config_file_note' => 'それが終われば、ブラウザでYourSiteName.com/[+MGR_DIR+]/にアクセスするとログインできます。',
   'checkbox_select_options' => '拡張機能の選択:',
-  'checking_iconv' => '拡張機能 <code>iconv</code> を利用可能かどうか確認してください: ',
-  'checking_iconv_note' => '拡張機能 iconvをインストール/有効にすることは重要です。有効にする方法がわからない場合は、ホストに訪ねてください。',
+  'checking_extensions' => '拡張機能 <code>[+extensions+]</code> を利用可能かどうか確認してください: ',
+  'missing_mandatory_extension' => '拡張機能 [+missing_extension+]をインストール/有効にすることは重要です。有効にする方法がわからない場合は、ホストに訪ねてください。',
   'checking_if_cache_exist' => '<code>/assets/cache</code>ディレクトリの存在チェック(なければ転送に失敗しています): ',
   'checking_if_cache_file2_writable' => 'ファイル<code>/assets/cache/sitePublishing.idx.php</code>の書き込み属性(606などに設定): ',
   'checking_if_cache_file_writable' => 'ファイル<code>/assets/cache/siteCache.idx.php</code>の書き込み属性(606などに設定): ',
@@ -43,9 +38,9 @@ $_lang = array (
   'checking_if_config_exist_and_writable' => '<code>/[+MGR_DIR+]/includes/config.inc.php</code> が存在し書き込み可能かどうか確認してください: ',
   'checking_if_export_exists' => '<code>/assets/export</code>ディレクトリの存在(なければ転送に失敗しています): ',
   'checking_if_export_writable' => '<code>/assets/export</code>ディレクトリの書き込み属性(707などに設定): ',
-  'checking_if_images_exist' => '<code>/assets/images</code>,<code>/assets/files</code>,<code>/assets/backup</code>,<code>/assets/.thumbs</code>ディレクトリの存在(なければ転送に失敗しています): ',
-  'checking_if_images_writable' => '<code>/assets/images</code>,<code>/assets/files</code>,<code>/assets/backup</code>,<code>/assets/.thumbs</code>ディレクトリの書き込み属性(707などに設定): ',
-  'checking_mysql_strict_mode' => 'Checking MySQL for strict sql_mode: ',
+  'checking_if_images_exist' => '<code>/assets/images</code>,<code>/assets/files</code>,<code>/assets/flash</code>, <code>/assets/media</code>,<code>/assets/backup</code>,<code>/assets/.thumbs</code>ディレクトリの存在(なければ転送に失敗しています): ',
+  'checking_if_images_writable' => '<code>/assets/images</code>,<code>/assets/files</code>,<code>/assets/flash</code>, <code>/assets/media</code>,<code>/assets/backup</code>,<code>/assets/.thumbs</code>ディレクトリの書き込み属性(707などに設定): ',
+  'checking_mysql_strict_mode' => 'MySQLのストリクトモードをチェック: ',
   'checking_mysql_version' => 'MySQLのバージョン: ',
   'checking_pgsql_version' => 'Checking PostgreSQL version: ',
   'checking_php_version' => 'PHPのバージョンチェック: ',
@@ -59,7 +54,7 @@ $_lang = array (
   'connection_screen_collation' => '照合順序(エンコード指定含む):<br />※utf8_general_ciを<br />おすすめします',
   'connection_screen_connection_method' => '接続時の文字セットの扱い:',
   'connection_screen_database_connection_information' => 'データベース設定',
-  'connection_screen_database_connection_note' => 'データベース名を入力してください。データベース作成権限がある場合は、ここで指定した名前でデータベースが作成されます。<br />文字セットの扱いは「SET CHARACTER SET」、接続照合順序は「utf8_general_ci」をおすすめします。<br />※MySQL4.1未満ではこれらのエンコード設定を無視して日本語を扱います。',
+  'connection_screen_database_connection_note' => 'データベース名を入力してください。データベース作成権限がある場合は、ここで指定した名前でデータベースが作成されます。<br />文字セットの扱いは「SET CHARACTER SET」、接続照合順序は「utf8_general_ci」をおすすめします。<br />※[+database_type+]4.1未満ではこれらのエンコード設定を無視して日本語を扱います。',
   'connection_screen_database_host' => 'データベースホスト名:',
   'connection_screen_database_info' => 'データベース設定',
   'connection_screen_database_login' => 'データベース接続ログイン名:',
@@ -75,7 +70,7 @@ $_lang = array (
   'connection_screen_default_admin_password_confirm' => 'パスワード(確認入力):',
   'connection_screen_default_admin_user' => 'デフォルトの管理アカウント作成',
   'connection_screen_server_connection_information' => 'データベースホストへの接続',
-  'connection_screen_server_connection_note' => 'データベースサーバのホスト名・ログイン名・パスワードを入力し、「ここをクリック」をクリックし接続テストをしてください。<br />ポート番号を指定する場合は「ホスト名:ポート番号」とします(例：localhost:3306)。<br />※MODX本体はMySQL4.0.2以上をサポートしますが、MySQL4.1未満ではAjaxSearchなど同梱アドオンの一部の機能が制限されます。ご注意ください。<br />※通常の運用ではWebサーバがデータベースサーバを兼ねるためホスト名は「localhost」となりますが、さくらインターネット・ロリポップ・エックスサーバーなどメジャーなレンタルサーバでは専用のサーバを指定するケースが多いです。ご確認ください。',
+  'connection_screen_server_connection_note' => 'データベースサーバのホスト名・ログイン名・パスワードを入力し、「ここをクリック」をクリックし接続テストをしてください。<br />ポート番号を指定する場合は「ホスト名:ポート番号」とします(例：localhost:3306)。<br />※Evolution CMS本体はMySQL4.0.2以上をサポートしますが、MySQL4.1未満ではAjaxSearchなど同梱アドオンの一部の機能が制限されます。ご注意ください。<br />※通常の運用ではWebサーバがデータベースサーバを兼ねるためホスト名は<a href="http://www.google.com/search?q=localhost&lr=lang_ja" target="_blank">「localhost」</a>となりますが、さくらインターネット・ロリポップ・エックスサーバーなどメジャーなレンタルサーバでは専用のサーバを指定するケースが多いです。ご確認ください。',
   'connection_screen_server_test_connection' => 'ここをクリックして、接続テストを行ってください。',
   'connection_screen_table_prefix' => 'Tableプリフィクス:',
   'creating_database_connection' => 'データベース接続: ',
@@ -94,14 +89,14 @@ $_lang = array (
   'errors' => 'エラー',
   'failed' => '確認してください',
   'guid_set' => 'GUID set',
-  'help' => 'Help!',
-  'help_link' => 'http://modxcms-jp.com/howto/rserver.html',
-  'help_title' => 'インストールで困ったらココをチェック(MODXフォーラム)',
-  'iagree_box' => '<strong>[+license_file_link_tag+]で規定される諸条件に同意します。</strong></p><p>GPL2ライセンスの日本語訳はこちらにあります。 この翻訳には法的効力はないため、<b>厳密な法的検証が必要な場合</strong>は必ず英語の原文をご確認ください。',
+  'help' => 'ヘルプ',
+  'help_link' => 'https://forum.evo.im',
+  'help_title' => 'インストールで困ったらココをチェック(Evolution CMSフォーラム)',
+  'iagree_box' => '<b>[+license_file_link_tag+]で規定される諸条件に同意します。</b></p><p>[+license_link_tag+]この翻訳には法的効力はないため、<b>厳密な法的検証が必要な場合</b>は必ず英語の原文をご確認ください。',
   'install' => 'インストール',
-  'installation_error_occured' => 'インストール中に以下のエラーが発生しました。',
+  'installation_error_occured' => '<span style="font-weight:bold;color:red;">インストール中に以下のエラーが発生しました。</span>',
   'installation_install_new_copy' => '新規インストール - ',
-  'installation_install_new_note' => 'すでにMODXをインストールしている場合はデータを上書きします。<br />※Tableプリフィクスが異なる場合を除く',
+  'installation_install_new_note' => 'すでにEvolution CMSをインストールしている場合はデータを上書きします。<br />※Tableプリフィクスが異なる場合を除く',
   'installation_mode' => 'インストールの選択',
   'installation_new_installation' => '新規インストール',
   'installation_note' => '<strong>はじめに:</strong>管理画面にログインできたら、まずは管理画面右上のヘルプをご確認ください。',
@@ -109,7 +104,7 @@ $_lang = array (
   'installation_upgrade_advanced' => 'カスタムアップデート<br /><small>(データベース設定をアップデートできます)</small>',
   'installation_upgrade_advanced_note' => 'データベース設定の変更を伴うアップデート(MySQL4→MySQL5など)が必要な場合はこちらを選んでください。config.inc.phpのデータベース接続情報一式を更新します。<br />',
   'installation_upgrade_existing' => '通常アップデート',
-  'installation_upgrade_existing_note' => 'ファイルとデータベースをアップデートします。',
+  'installation_upgrade_existing_note' => '通常のアップデートはこのオプションを。コアファイル・リソースファイルの両方とデータベースをアップデートします。<br />【注意】データベースのバックアップはお済みですか？まだの場合は今からでも バックアップマネージャー でどうぞ。',
   'installed' => 'インストールしました',
   'installing_demo_site' => 'サンプルサイトのインストール: ',
   'install_overwrite' => 'インストール - ',
@@ -121,7 +116,7 @@ $_lang = array (
   'modx_footer1' => '&copy; 2004 - [+current_year+] the [+vendor_link_tag+] Content Management Framework (CMF) project. All rights reserved. Evolution CMS は GPL に基づいて使用が許諾されます。',
   'modx_footer2' => 'Evo はフリーソフトウェアです。私たちはあなたが創造的であり、あなたが適当であると思われる方法で EVO を利用することを奨励します。変更を加えて、変更した EVO を再配布する場合は、必ずソースコードフリーを保持してください。',
   'modx_install' => 'EVO &raquo; インストール',
-  'modx_requires_php' => 'EVOの動作にはPHP [+min_version+]以上が必要です。',
+  'modx_requires_php' => ', Evo 以上を推奨します([+min_version+] 以上であれば動作しますがセキュリティ面に問題があります)',
   'mysql_5051' => ' MySQLサーバーのバージョンは 5.0.51!',
   'mysql_5051_warning' => 'MySQL 5.0.51には不具合が確認されています。MySQLのアップデートをおすすめします。',
   'mysql_old_version' => 'When you use version oldest then 5.7.6 engine will be MyISAM in newest version use engine InnoDB.<br> We recommend that you update your MySQL',
@@ -131,8 +126,8 @@ $_lang = array (
   'not_found' => '見つかりません',
   'ok' => '問題なし',
   'optional_items' => 'インストールオプションの選択',
-  'optional_items_note' => 'オプションを選択してください:<br /><br />初めてMODXを試す人は、全てチェックを入れましょう。<br />※日本チームより：「サンプルサイト」は内容が古く、検証も不十分です。興味がある場合のみ、参考程度にお試しください。',
-  'php_security_notice' => '<legend>セキュリティ警告</legend><p>このサーバ上で稼働しているPHPには重大な問題があります。MODXの稼働自体には問題はありませんが、このバージョンのPHPには報告されている脆弱性がいくつか存在し、MODXに限らずさまざまなPHPアプリを通じて多数の攻撃にさらされてきました。バージョン4.3.8より古いPHPは深刻な脆弱性を抱えています。この機会にPHPのアップデートをおすすめします。</p>',
+  'optional_items_note' => 'オプションを選択してください:<br /><br />初めてEvolution CMSを試す人は、全てチェックを入れましょう。<br />※日本チームより：「サンプルサイト」は内容が古く、検証も不十分です。興味がある場合のみ、参考程度にお試しください。',
+  'php_security_notice' => '<legend>セキュリティ警告</legend><p>このサーバ上で稼働しているPHPには重大な問題があります。Evolution CMSの稼働自体には問題はありませんが、このバージョンのPHPには報告されている脆弱性がいくつか存在し、Evolution CMSに限らずさまざまなPHPアプリを通じて多数の攻撃にさらされてきました。バージョン[+min_version+]より古いPHPは深刻な脆弱性を抱えています。この機会にPHPのアップデートをおすすめします。</p>',
   'please_correct_error' => 'があります。',
   'please_correct_errors' => 'があります。',
   'plugins' => 'プラグイン',
@@ -148,7 +143,7 @@ $_lang = array (
   'retry' => '再チェック',
   'running_database_updates' => '実行中のデータベースのアップデート: ',
   'sample_web_site' => 'サンプルサイト',
-  'sample_web_site_note' => '<span style="font-style:normal;">※このサンプルサイトは内容が古く検証も不十分なので、現状ではMODXの仕組みの理解にはあまり役立ちません。テスト目的のダミーコンテンツなどとして、必要に応じてお試しください。</span>',
+  'sample_web_site_note' => '<span style="font-style:normal;">※このサンプルサイトは内容が古く検証も不十分なので、現状ではEvolution CMSの仕組みの理解にはあまり役立ちません。テスト目的のダミーコンテンツなどとして、必要に応じてお試しください。</span>',
   'session_problem' => 'サーバー接続に問題が発生しました。問題修正のために、サーバー管理者へ相談してください。',
   'session_problem_try_again' => '再試行しますか？',
   'setup_cannot_continue' => '上記理由のため、セットアップを継続できません。',
@@ -158,7 +153,7 @@ $_lang = array (
   'setup_database_create_connection_failed' => 'データベース接続に失敗しました!',
   'setup_database_create_connection_failed_note' => 'データベースのログイン情報を確認して再試行してください。',
   'setup_database_creating_tables' => '必要なテーブルの作成: ',
-  'setup_database_creation' => 'Creating database `',
+  'setup_database_creation' => 'データベースを作成中 `',
   'setup_database_creation_failed' => 'データベース作成に失敗しました',
   'setup_database_creation_failed_note' => ' - データベースを作成できませんでした',
   'setup_database_creation_failed_note2' => '指定の名前のデータベースが見つからなかったためデータベースの作成を試みましたが、作成できませんでした。ホスティング会社がデータベースの作成を許可していないようです。ホスティング会社の手順に従ってデータベースを作成し、セットアップを再開してください。',
@@ -172,7 +167,7 @@ $_lang = array (
   'status_failed' => '接続できません',
   'status_failed_could_not_create_database' => 'データベースを作成できません',
   'status_failed_database_collation_does_not_match' => '問題があります - データベース側の照合順序のデフォルト値が「%s」になっています。phpMyAdminが利用できる場合は、該当データベースの「操作」タブで照合順序のデフォルト値を変更してください。',
-  'status_failed_mysqli' => 'エラー -  PHP用のmysqli拡張モジュールがインストールされていません。',
+  'missing_recommended_extension' => 'PHP用の[+missing_extension+]拡張モジュールがインストールされていません。',
   'status_failed_table_prefix_already_in_use' => '接続できません - このTableプリフィクスはすでに使われています。異なるTableプリフィクスを指定するか、phpMyAdminなどを利用し関連Tableを削除してください。',
   'status_passed' => '問題ありません',
   'status_passed_database_created' => 'データベースを作成できます',
@@ -188,7 +183,7 @@ $_lang = array (
   'table_prefix_not_exist_note' => 'アップグレードに指定したプレフィックスを持つ既存のテーブルが含まれていないため、セットアップは選択したデータベースにインストールできませんでした。既存のテーブルプレフィックスを選択して、もう一度セットアップを実行してください。',
   'templates' => 'テンプレート',
   'toggle' => '選択状態を反転',
-  'to_log_into_content_manager' => '管理画面 ([+MGR_DIR+]/index.php) にログインするために「Close」ボタンをクリックしてください。',
+  'to_log_into_content_manager' => 'おつかれさまでした。「インストール終了」ボタンをクリックすると、管理画面のログインページ([+MGR_DIR+]/index.php)にアクセスします。',
   'tvs' => 'テンプレート変数',
   'unable_install_chunk' => 'チャンクをインストールできません',
   'unable_install_module' => 'モジュールをインストールできません',
@@ -198,7 +193,7 @@ $_lang = array (
   'upgraded' => 'アップデートしました',
   'upgrade_note' => '<strong>注意:</strong>管理画面に無事にログインできたら、リソース(旧称・ドキュメント)および各種設定を日本語を含めて編集・保存し、文字化けが起きないかどうかを必ず確認してください。また管理画面内の「イベントログ」を開き、エラーの有無をご確認ください。',
   'validate_referer_title' => 'HTTP_REFERERヘッダを検証しますか？',
-  'visit_forum' => ' [+support_forum_link_tag+]',
+  'visit_forum' => ', visit [+support_forum_link_tag+]',
   'warning' => '注意 ',
   'welcome_message_start' => 'インストールの種別を選択してください。',
   'welcome_message_text' => '心踊る、未知の領域へようこそ。ガイドに従ってインストールを進めましょう。EVOのインストールは簡単。インストーラの説明に従って、次へ次へと進めてください。<br /><br />このインストーラの手順に従うことにより、他のCMSとのデータベースの共有設定(Tableプリフィクス)や、サンプルコンテンツ及び、推奨される拡張機能のインストールを個別に選択できます。何も選択せずシンプルにコアのみをインストールすることもできます。また、すでに運用中のEVOをアップデートしたり、データベースの設定を変更することもできます。',
@@ -206,4 +201,4 @@ $_lang = array (
   'writing_config_file' => 'config.inc.phpへの書き込み(設定情報): ',
   'yes' => 'はい',
   'you_running_php' => ' - PHP上で動いています ',
-);
+];
