@@ -357,7 +357,8 @@ class TranslationsSyncCommand extends Command
             // Generate the PHP file content
             $content = "<?php\n";
             $content .= $header;
-            $content .= "\${$arrayName} = " . var_export($translations, true) . ";\n";
+            $content .= "\${$arrayName} = [" . substr(trim(var_export($translations, true)),
+                strlen('array ('), -strlen(')')) . "];\n";
 
             // Write to file
             if (file_put_contents($filePath, $content) !== false) {
@@ -399,7 +400,7 @@ class TranslationsSyncCommand extends Command
                 // Add @date line before the closing comment
                 $updatedComment = preg_replace(
                     '/(\s*\*\/)$/',
-                    " * @date $now\n$1",
+                    "\n * @date $now$1",
                     $existingComment
                 );
                 return $updatedComment . "\n\n";

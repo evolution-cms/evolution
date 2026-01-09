@@ -357,7 +357,7 @@ $_lang["guid"] = 'GUID';
 $_lang["help"] = 'Aide';
 $_lang["help_donate_msg"] = 'Achetez du café pour les développeurs du CMS Evolution. <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> Devenez fan d\'Evolution CMS dès aujourd\'hui! ❤️ Ko-fi vous permet de soutenir les créateurs que vous aimez sans aucun frais de don.';
 $_lang["help_donate_title"] = 'Pour le développement du CMS Evolution';
-$_lang["help_msg"] = '<p>Vous pouvez obtenir de l\'aide en <a href="http://forums.modx.com" target="_blank">consultant les forums de MODX</a>. Il existe également <a href="http://rtfm.modx.com/evolution/1.0" target="_blank">une documentation et des guides pour MODX</a> qui abordent tous les aspects de l\'utilisation de MODX.</p><p>De plus, nous proposerons bientôt des offres de support commercial. Veuillez <a href="mailto:hello@modx.com?subject=MODX Commercial Support Inquiry">nous envoyer un email si vous êtes intéressés</a>.';
+$_lang["help_msg"] = '<p>Vous pouvez obtenir de l\'aide en <a href="https://forum.evo.im" target="_blank">consultant les forums de MODX</a>. Il existe également <a href="http://rtfm.modx.com/evolution/1.0" target="_blank">une documentation et des guides pour MODX</a> qui abordent tous les aspects de l\'utilisation de MODX.</p><p>De plus, nous proposerons bientôt des offres de support commercial. Veuillez <a href="mailto:hello@modx.com?subject=MODX Commercial Support Inquiry">nous envoyer un email si vous êtes intéressés</a>.';
 $_lang["help_title"] = 'Aide';
 $_lang["hide_tree"] = 'Cacher l\'Arbre du Site';
 $_lang["home"] = 'Accueil';

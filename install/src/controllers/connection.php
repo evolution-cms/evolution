@@ -1,5 +1,6 @@
 <?php
 $installMode = isset($_POST['installmode']) ? (int)$_POST['installmode'] : 0;
+$dbTypes = ['mysql' => 'MySQL', 'pgsql' => 'PostgreSQL'];
 
 // Determine upgradeability
 $upgradeable = 0;
@@ -7,6 +8,7 @@ if ($installMode === 0) {
     $database_name = '';
     $database_server = 'localhost';
     $table_prefix = base_convert(mt_rand(10, 20), 10, 36) . substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyz'), mt_rand(0, 33), 3) . '_';
+    $database_type = 'mysql'; // Default for new install
 } else {
     $database_name = '';
 
@@ -15,6 +17,7 @@ if ($installMode === 0) {
     } else {
         // Include the file so we can test its validity
         $db_config = include_once EVO_CORE_PATH . 'config/database/connections/default.php';
+        $database_type = $db_config['driver'];
         $database_server = $db_config['host'];
         $database_collation = $db_config['collation'];
         $database_connection_method = $db_config['method'];
@@ -24,12 +27,29 @@ if ($installMode === 0) {
         // We need to have all connection settings - but prefix may be empty so we have to ignore it
         if (isset($db_config['database'])) {
             $database_name = trim($db_config['database'], '`');
-            try {
-                $conn = mysqli_connect($db_config['host'], $db_config['username'], $db_config['password'],'', isset($db_config['port']) ? $db_config['port'] : null);
-                $result = mysqli_select_db($conn, $database_name);
-            } catch (Exception $e) {
-                $conn = false;
-                $result = false;
+            $conn = false;
+            $result = false;
+            if ($database_type === 'mysql') {
+                try {
+                    $conn = mysqli_connect($db_config['host'], $db_config['username'], $db_config['password'], '', isset($db_config['port']) ? $db_config['port'] : null);
+                    $result = mysqli_select_db($conn, $database_name);
+                } catch (Exception $e) {
+                    $conn = false;
+                    $result = false;
+                }
+            } elseif ($database_type === 'pgsql') {
+                if (isset($db_config['unix_socket']) && !empty($db_config['unix_socket'])) {
+                    $dsn = "pgsql:unix_socket={$db_config['unix_socket']};dbname={$database_name}";
+                } else {
+                    $dsn = "pgsql:host={$db_config['host']};port={$db_config['port']};dbname={$database_name}";
+                }
+                try {
+                    $conn = new PDO($dsn, $db_config['username'], $db_config['password']);
+                    $result = true;
+                } catch (PDOException $e) {
+                    $conn = false;
+                    $result = false;
+                }
             }
             if (!$conn || !$result) {
                 $upgradeable = (isset($_POST['installmode']) && $_POST['installmode'] === 'new') ? 0 : 2;
@@ -37,33 +57,64 @@ if ($installMode === 0) {
                 $upgradeable = 1;
             }
         } else {
-            $upgradable = 2;
+            $upgradeable = 2;
         }
     }
 }
 
 // check the database collation if not specified in the configuration
 if ($upgradeable && (! isset($database_connection_charset) || empty($database_connection_charset))) {
-    if (!$rs = mysqli_query($conn, "show session variables like 'collation_database'")) {
-        $rs = mysqli_query($conn, "show session variables like 'collation_server'");
+    if ($database_type === 'mysql') {
+        if (!$rs = mysqli_query($conn, "show session variables like 'collation_database'")) {
+            $rs = mysqli_query($conn, "show session variables like 'collation_server'");
+        }
+        if ($rs && $collation = mysqli_fetch_row($rs)) {
+            $database_collation = $collation[1];
+        }
+        if (empty($database_collation)) {
+            $database_collation = 'utf8mb4_general_ci';
+        }
+        $database_charset = substr($database_collation, 0, strpos($database_collation, '_'));
+        $database_connection_charset = $database_charset;
+    } elseif ($database_type === 'pgsql') {
+        try {
+            $sql = "SELECT datcollate FROM pg_database WHERE datname = current_database()";
+            $stmt = $conn->query($sql);
+            if ($stmt && $row = $stmt->fetch(PDO::FETCH_NUM)) {
+                $database_collation = trim($row[0]);
+            }
+        } catch (PDOException $e) {
+            // Ignore errors and use config value or fallback
+        }
+        if (empty($database_collation)) {
+            $database_collation = 'en_US.utf8';
+        }
+        $pos = strpos($database_collation, '.');
+        $database_charset = ($pos !== false) ? substr($database_collation, $pos + 1) : 'utf8';
+        $database_connection_charset = $database_charset;
     }
-    if ($rs && $collation = mysqli_fetch_row($rs)) {
-        $database_collation = $collation[1];
-    }
-    if (empty($database_collation)) {
-        $database_collation = 'utf8mb4_general_ci';
-    }
-    $database_charset = substr($database_collation, 0, strpos($database_collation, '_'));
-    $database_connection_charset = $database_charset;
 } else {
-    $database_collation = 'utf8mb4_general_ci';
+    if ($database_type === 'mysql') {
+        $database_collation = 'utf8mb4_general_ci';
+    } elseif ($database_type === 'pgsql') {
+        $database_collation = 'en_US.utf8';
+    }
 }
 
 // determine the database connection method if not specified in the configuration
 if ($upgradeable && (!isset($database_connection_method) || empty($database_connection_method))) {
-    $database_connection_method = 'SET CHARACTER SET';
+    if ($database_type === 'mysql') {
+        $database_connection_method = 'SET CHARACTER SET';
+    } elseif ($database_type === 'pgsql') {
+        $database_connection_method = 'SET client_encoding';
+    }
 }
-
+$ph['databaseTypeOptions'] = '';
+foreach ($dbTypes as $dbType => $dbTypeName) {
+    $selectedOptionDbType = $dbType === $database_type ? ' selected="selected"' : '';
+    $ph['databaseTypeOptions'] .= "<option value=\"{$dbType}\" $selectedOptionDbType>{$dbTypeName}</option>\n";
+}
+$ph['database_type'] = $dbTypes[$database_type];
 $ph['database_name'] = isset($_POST['database_name']) ? strip_tags($_POST['database_name']) : $database_name;
 $ph['tableprefix'] = isset($_POST['tableprefix']) ? strip_tags($_POST['tableprefix']) : $table_prefix;
 $ph['selected_set_character_set'] = isset($database_connection_method) && $database_connection_method === 'SET CHARACTER SET' ? 'selected' : '';

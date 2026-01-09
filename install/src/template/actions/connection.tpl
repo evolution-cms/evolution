@@ -19,8 +19,7 @@
     <p class="labelHolder">
         <label for="database_type">[%connection_screen_database_type%]</label>
         <select id="database_type" name="database_type">
-            <option value="mysql">MySQL</option>
-            <option value="pgsql">PostgreSQL</option>
+            [+databaseTypeOptions+]
         </select>
     </p>
     <p class="labelHolder">

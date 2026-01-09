@@ -36,7 +36,7 @@ $_lang["checking_if_cache_exist"] = 'Checking if <span class="mono">/assets/cach
 $_lang["checking_if_cache_file_writable"] = 'Checking if <span class="mono">/assets/cache/siteCache.idx.php</span> file is writable: ';
 $_lang["checking_if_cache_file2_writable"] = 'Checking if <span class="mono">/assets/cache/sitePublishing.idx.php</span> file is writable: ';
 $_lang["checking_if_cache_writable"] = 'Checking if <span class="mono">/assets/cache</span> and <span class="mono">/assets/cache/rss</span> directories are writable: ';
-$_lang["checking_if_config_exist_and_writable"] = 'Checking if <span class="mono">/core/config/database/connections/default.php</span> exists and is writable: ';
+$_lang["checking_if_config_exist_and_writable"] = 'Checking if <span class="mono">'.MGR_DIR.'/includes/config.inc.php</span> exists and is writable: ';
 $_lang["checking_if_export_exists"] = 'Checking if <span class="mono">/assets/export</span> directory exists: ';
 $_lang["checking_if_export_writable"] = 'Checking if <span class="mono">/assets/export</span> directory is writable: ';
 $_lang["checking_if_images_exist"] = 'Checking if <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> and <span class="mono">/assets/media</span> directories exists: ';
@@ -121,7 +121,7 @@ $_lang["not_found"] = 'not found';
 $_lang["ok"] = 'OK!';
 $_lang["optional_items"] = 'Optional Items';
 $_lang["optional_items_note"] = 'Please choose your installation options and click Install:';
-$_lang["php_security_notice"] = '<legend>Security notice</legend><p>While MODX will work on your PHP version, usage of MODX on this version is not recommended. Your version of PHP is vulnerable to numerous security holes. Please upgrade to PHP version is 4.3.8 or higher, which patches these holes. It is recommended you upgrade to this version for the security of your own website.</p>';
+$_lang["php_security_notice"] = '<legend>Security notice</legend><p>While MODX will work on your PHP version, usage of MODX on this version is not recommended. Your version of PHP is vulnerable to numerous security holes. Please upgrade to PHP version is [+min_version+] or higher, which patches these holes. It is recommended you upgrade to this version for the security of your own website.</p>';
 $_lang["please_correct_error"] = '. Please correct the error';
 $_lang["please_correct_errors"] = '. Please correct the errors';
 $_lang["plugins"] = 'Plugins';

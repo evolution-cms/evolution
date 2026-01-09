@@ -45,7 +45,7 @@ echo '<h3>' . $_lang['summary_setup_check'] . '</h3>';
 $errors = 0;
 
 // check PHP version
-define('PHP_MIN_VERSION', '8.1.0');
+define('PHP_MIN_VERSION', '8.3.0');
 $phpMinVersion = PHP_MIN_VERSION; // Maybe not necessary. For backward compatibility
 echo '<p>' . $_lang['checking_php_version'];
 // -1 if left is less, 0 if equal, +1 if left is higher
@@ -57,15 +57,44 @@ if (version_compare(phpversion(), PHP_MIN_VERSION) < 0) {
     echo '<span class="ok">' . $_lang['ok'] . '</span></p>';
 }
 
-// check if iconv is available
-echo '<p>' . $_lang['checking_iconv'];
-$iconv = (int)function_exists('iconv');
-if ($iconv == '0') {
-    echo '<span class="notok">' . $_lang['failed'] . '</span></p><p><strong>' . $_lang['checking_iconv_note'] . '</strong></p>';
-    $errors++;
-} else {
-    echo '<span class="ok">' . $_lang['ok'] . '</span></p>';
+$required_extensions = [
+    'ctype' => false,
+    'dom' => true,
+    'fileinfo' => true,
+    'filter' => true,
+    'hash' => true,
+    'json' => true,
+    'libxml' => true,
+    'mbstring' => false,
+    'openssl' => true,
+    'pcre' => true,
+    'reflection' => false, // optional composer requires justinrainbow/json-schema -> marc-mabe/php-enum -> ext-reflection
+    'session' => true,
+    'simplexml' => false, // broken updater functionality
+    'tokenizer' => true, // Laravel requirement without polyfill
+    'xml' => true,
+    'xmlreader' => true,
+];
+
+$loaded_extensions = get_loaded_extensions();
+
+foreach ($required_extensions as $ext_name => $is_mandatory) {
+    echo '<p>' . str_replace('[+extensions+]', $ext_name, $_lang['checking_extensions']);
+    if (!in_array($ext_name, $loaded_extensions)) {
+        if ($is_mandatory) {
+            echo '<span class="notok">' . $_lang['failed'] . '</span></p>';
+            $errors++;
+        } else {
+            echo '<span class="ok">' . $_lang['not_found'] . '</span></p>';
+        }
+        echo '<p><strong>' . str_replace('[+missing_extension+]', $ext_name,
+            $is_mandatory ? $_lang['missing_mandatory_extension'] : $_lang['missing_recommended_extension']
+        ) . '</strong></p>';
+    } else {
+        echo '<span class="ok">' . $_lang['ok'] . '</span></p>';
+    }
 }
+
 // check sessions
 echo '<p>' . $_lang['checking_sessions'];
 if ($_SESSION['test'] != 1) {
@@ -265,7 +294,7 @@ if ($errors > 0) {
         echo $_lang['error'] . $_lang['please_correct_error'] . $_lang['and_try_again'];
     }
     echo str_replace('[+support_forum_link_tag+]',
-        '<a href="https://forum.evo.im/" target="_blank">Evolution CMS Forum</a>', $_lang['visit_forum']);
+        '<a href="' . $_lang['help_link'] . '" target="_blank">' . $_lang['help_title'] . '</a>', $_lang['visit_forum']);
     echo '</p>';
 }
 

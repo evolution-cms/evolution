@@ -375,7 +375,7 @@ $_lang["guid"] = 'GUID';
 $_lang["help"] = 'Help';
 $_lang["help_donate_msg"] = 'Koop koffie voor de ontwikkelaars van Evolution CMS. <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> Word vandaag nog fan van Evolution CMS! ❤️ Met Ko-fi kun je de makers van wie je houdt steunen zonder donatiekosten.';
 $_lang["help_donate_title"] = 'Voor de ontwikkeling van Evolution CMS';
-$_lang["help_msg"] = '<p>U kunt ondersteuning verkrijgen door <a href="http://forums.modx.com/" target="_blank">de EVO-forums te bezoeken</a> of bekijk de <a href="http://evolution-docs.com" target="_blank">EVO documentatie site.</a></p>';
+$_lang["help_msg"] = '<p>U kunt ondersteuning verkrijgen door <a href="https://forum.evo.im/" target="_blank">de EVO-forums te bezoeken</a> of bekijk de <a href="http://evolution-docs.com" target="_blank">EVO documentatie site.</a></p>';
 $_lang["help_title"] = 'Help';
 $_lang["hide_tree"] = 'Website boomstructuur verbergen';
 $_lang["home"] = 'Start';

@@ -39,7 +39,7 @@ $_lang["checking_if_cache_exist"] = 'Перевірка наявності па�
 $_lang["checking_if_cache_file_writable"] = 'Перевірка можливості запису у файл <span class="mono">/assets/cache/siteCache.idx.php</span>: ';
 $_lang["checking_if_cache_file2_writable"] = 'Перевірка можливості запису у файл <span class="mono">/assets/cache/sitePublishing.idx.php</span>: ';
 $_lang["checking_if_cache_writable"] = 'Перевірка можливості запису у папки <span class="mono">/assets/cache</span> та <span class="mono">/assets/cache/rss</span>: ';
-$_lang["checking_if_config_exist_and_writable"] = 'Перевірка наявності та можливості запису у файл <span class="mono">/core/config/database/connections/default.php</span>: ';
+$_lang["checking_if_config_exist_and_writable"] = 'Перевірка наявності та можливості запису у файл <span class="mono">'.MGR_DIR.'/includes/config.inc.php</span>: ';
 $_lang["checking_if_export_exists"] = 'Перевірка наявності папки <span class="mono">/assets/export</span>: ';
 $_lang["checking_if_export_writable"] = 'Перевірка можливості запису у папку <span class="mono">/assets/export</span>: ';
 $_lang["checking_if_images_exist"] = 'Перевірка наявності папок <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> та <span class="mono">/assets/media</span>: ';
@@ -124,7 +124,7 @@ $_lang["not_found"] = 'не знайдено';
 $_lang["ok"] = 'OK!';
 $_lang["optional_items"] = 'Додаткові елементи';
 $_lang["optional_items_note"] = 'Будь ласка, виберіть параметри встановлення та натисніть кнопку `Встановити`:';
-$_lang["php_security_notice"] = '<legend>Повідомлення безпеки</legend><p>Незважаючи на те, що MODX буде працювати на вашій версії PHP, використовувати його з цією версією PHP не рекомендується. Ваша версія PHP уразлива через численні проломи в захисті. Обновіть PHP до версії 4.3.8 або пізнішої безпеки для вашого сайту.</p>';
+$_lang["php_security_notice"] = '<legend>Повідомлення безпеки</legend><p>Незважаючи на те, що MODX буде працювати на вашій версії PHP, використовувати його з цією версією PHP не рекомендується. Ваша версія PHP уразлива через численні проломи в захисті. Обновіть PHP до версії [+min_version+] або пізнішої безпеки для вашого сайту.</p>';
 $_lang["please_correct_error"] = '. Виправте цю помилку';
 $_lang["please_correct_errors"] = '. Виправте ці помилки';
 $_lang["plugins"] = 'Плагіни';

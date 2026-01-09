@@ -1,17 +1,12 @@
 <?php
 /**
- * Evolution CMS fr.inc.php language file
- *
  * @author Evolution CMS Team
- * @version 3.2.x
- * @date 2025-06-26 03:02:25
- *
- * @language French
  * @package Evolution CMS
  * @subpackage install
- * Please commit your language changes here: https://github.com/evolution-cms/evolution
+ * @date 2026-01-05 18:00:00
  */
-$_lang = array (
+
+$_lang = [
   'agree_to_terms' => 'Acceptation des termes d\'utilisation et installation',
   'alert_database_test_connection' => 'Vous devez créer votre base de données ou tester la sélection de votre base de données!',
   'alert_database_test_connection_failed' => 'Le test de sélection de votre base de données a échoué!',
@@ -31,11 +26,11 @@ $_lang = array (
   'btnback_value' => 'Précédent',
   'btnclose_value' => 'Fermer',
   'btnnext_value' => 'Suivant',
-  'cant_write_config_file' => 'MODX n\'a pas pu écrire le fichier de configuration. Veuillez copier/coller ceci dans le fichier ',
-  'cant_write_config_file_note' => 'Une fois l\'opération effectuée, vous pouvez vous connecter à l\'interface d\'administration de MODX en utilisant l\'adresse  VotreSite.com/[+MGR_DIR+]/.',
+  'cant_write_config_file' => 'Evolution CMS n\'a pas pu écrire le fichier de configuration. Veuillez copier/coller ceci dans le fichier ',
+  'cant_write_config_file_note' => 'Une fois l\'opération effectuée, vous pouvez vous connecter à l\'interface d\'administration de Evolution CMS en utilisant l\'adresse  VotreSite.com/[+MGR_DIR+]/.',
   'checkbox_select_options' => 'Cochez pour sélectionner les options:',
-  'checking_iconv' => 'Checking if extension <code>iconv</code> is available: ',
-  'checking_iconv_note' => 'It is important to install/enable extension iconv. Please speak to your host if you don´t know how to enable it.',
+  'checking_extensions' => 'Checking if extension <code>[+extensions+]</code> is available: ',
+  'missing_mandatory_extension' => 'It is important to install/enable extension [+missing_extension+]. Please speak to your hosting provider if you don´t know how to enable it.',
   'checking_if_cache_exist' => 'Vérification de l\'existence du répertoire <code>assets/cache</code>: ',
   'checking_if_cache_file2_writable' => 'Vérification des droits en écriture du fichier <code>assets/cache/sitePublishing.idx.php</code>: ',
   'checking_if_cache_file_writable' => 'Vérification des droits en écriture du fichier <code>assets/cache/siteCache.idx.php</code>: ',
@@ -44,13 +39,13 @@ $_lang = array (
   'checking_if_export_exists' => 'Vérification de l\'existence du répertoire <code>assets/export</code>: ',
   'checking_if_export_writable' => 'Vérification des droits en écriture du répertoire <code>assets/export</code>: ',
   'checking_if_images_exist' => 'Vérification de l\'existence du répertoire <code>assets/images</code>: ',
-  'checking_if_images_writable' => 'Vérification des droits en écriture des répertoires <code>/assets/images</code>, <code>/assets/files</code>,  <code>/assets/backup</code> et <code>/assets/.thumbs</code>: ',
+  'checking_if_images_writable' => 'Vérification des droits en écriture des répertoires <code>/assets/images</code>, <code>/assets/files</code>, <code>/assets/flash</code>, <code>/assets/media</code>, <code>/assets/backup</code> et <code>/assets/.thumbs</code>: ',
   'checking_mysql_strict_mode' => 'Vérification du mode strict MySQL: ',
   'checking_mysql_version' => 'Vérification de la version MySQL: ',
   'checking_pgsql_version' => 'Checking PostgeSQL version: ',
   'checking_php_version' => 'Vérification de la version PHP: ',
   'checking_registerglobals' => 'Vérification que Register_Globals est sur off: ',
-  'checking_registerglobals_note' => 'Cette configuration rend votre site vulnérable aux attaques XCSS (Cross Site Scripting). Consultez votre hébergeur sur la marche à suivre pour désactiver ce réglage, en général par l\'une de ces trois solutions: modifier le fichier php.ini global, ajouter des règles dans le fichier .htaccess à la racine de votre installation MODX, ou ajouter un fichier php.ini personnalisé pour neutraliser l\'ensemble des fichiers dans chacun des répertoires de votre installation (et il y en a beaucoup). Vous pouvez continuez l\\installation de MODX, mais considérez vous comme averti.',
+  'checking_registerglobals_note' => 'Cette configuration rend votre site vulnérable aux attaques XSS (Cross Site Scripting). Consultez votre hébergeur sur la marche à suivre pour désactiver ce réglage, en général par l\'une de ces trois solutions: modifier le fichier php.ini global, ajouter des règles dans le fichier .htaccess à la racine de votre installation Evolution CMS, ou ajouter un fichier php.ini personnalisé pour neutraliser l\'ensemble des fichiers dans chacun des répertoires de votre installation (et il y en a beaucoup). Vous pouvez continuez l\\installation de Evolution CMS, mais considérez vous comme averti.',
   'checking_sessions' => 'Vérifications des paramètres de sessions: ',
   'checking_table_prefix' => 'Vérification du préfixe de table `',
   'choose_language' => 'Choisissez la langue',
@@ -59,7 +54,7 @@ $_lang = array (
   'connection_screen_collation' => 'Collation:',
   'connection_screen_connection_method' => 'Méthode de connexion:',
   'connection_screen_database_connection_information' => 'Informations base de données',
-  'connection_screen_database_connection_note' => 'Veuillez saisir le nom de la base de données créée pour MODX. Si la base est inexistante, le programme d\'installation tentera de la créer pour vous. Cette opération est susceptible d\'échouer en fonction des autorisations de l\'utilisateur MySQL.',
+  'connection_screen_database_connection_note' => 'Veuillez saisir le nom de la base de données créée pour Evolution CMS. Si la base est inexistante, le programme d\'installation tentera de la créer pour vous. Cette opération est susceptible d\'échouer en fonction des autorisations de l\'utilisateur [+database_type+].',
   'connection_screen_database_host' => 'Serveur hébergeant la base:',
   'connection_screen_database_info' => 'Informations de la base de données',
   'connection_screen_database_login' => 'Identifiant utilisateur de la base:',
@@ -85,7 +80,7 @@ $_lang = array (
   'database_use_failed' => 'Impossible d\'accéder à la base de données!',
   'database_use_failed_note' => 'Veuillez vérifier les droits d\'accès utilisateur à la base de données et réessayez.',
   'default_language' => 'Langue par défaut du Gestionnaire',
-  'default_language_description' => 'Ceci est la langue par défaut qui sera utilisée dans l\'interface d\'administration de votre Gestionnaire de Contenu MODX.',
+  'default_language_description' => 'Ceci est la langue par défaut qui sera utilisée dans l\'interface d\'administration de votre Gestionnaire de Contenu Evolution CMS.',
   'depedency_create' => 'Dépendance créée',
   'depedency_update' => 'Dépendance mise à jour',
   'during_execution_of_sql' => ' lors de l\'exécution de la requête SQL ',
@@ -95,16 +90,16 @@ $_lang = array (
   'failed' => 'ECHEC!',
   'guid_set' => 'GUID sauvé',
   'help' => 'Aide!',
-  'help_link' => 'http://forums.modx.com/',
-  'help_title' => 'Aide à l\'installation sur les forums de MODX',
-  'iagree_box' => 'J\'accepte les termes de [+license_file_link_tag+]. Pour consulter une traduction de la licence GPL version 2, visitez le [+license_link_tag+].',
+  'help_link' => 'https://forum.evo.im',
+  'help_title' => 'Aide à l\'installation sur les forums de Evolution CMS',
+  'iagree_box' => 'J\'accepte les termes de [+license_file_link_tag+]. Pour consulter une traduction de la licence GPL version 3, visitez le [+license_link_tag+].',
   'install' => 'Installation',
   'installation_error_occured' => 'Les erreurs suivantes se sont produites au cours de l\'installation',
   'installation_install_new_copy' => 'Installation d\'une nouvelle copie de ',
   'installation_install_new_note' => 'Attention, cette option est susceptible d\'écraser les données de la base.',
   'installation_mode' => 'Type d\'installation',
   'installation_new_installation' => 'Nouvelle installation',
-  'installation_note' => '<strong>NOTE:</strong> Après vous être connecté au Gestionnaire, vous devez éditer et sauvegarder les paramètres de configuration système avant de visiter le site en sélectionnant <b>Outils</strong> -> Configuration dans le Gestionnaire MODX.',
+  'installation_note' => '<strong>NOTE:</strong> Après vous être connecté au Gestionnaire, vous devez éditer et sauvegarder les paramètres de configuration système avant de visiter le site en sélectionnant <b>Outils</strong> -> Configuration dans le Gestionnaire Evolution CMS.',
   'installation_successful' => 'Installation réalisée avec succès!',
   'installation_upgrade_advanced' => 'Mise à jour avancée',
   'installation_upgrade_advanced_note' => 'Destiné aux administrateurs avancés ou à la migration vers un serveur de base de données disposant d\'un encodage différent. <strong>Vous devez disposer du nom complet de la base de données, de l\'identifiant utilisateur, du mot de passe et des détails de connexion/collation.</strong>',
@@ -119,9 +114,9 @@ $_lang = array (
   'loading' => 'Chargement...',
   'modules' => 'Modules',
   'modx_footer1' => '&copy; 2004 - [+current_year+] le projet de Framework de Gestion de Contenu [+vendor_link_tag+]. Tous droits réservés. Evolution CMS est publié sous la licence GNU GPL.',
-  'modx_footer2' => 'MODX est un logiciel libre. Nous vous encourageons à être créatifs et à utiliser MODX comme bon il vous semble. Votre seule obligation est de redistribuer sous licence libre votre version modifiée de MODX.',
-  'modx_install' => 'MODX &raquo; Installation',
-  'modx_requires_php' => ', alors que MODX requiert PHP [+min_version+] ou supérieure',
+  'modx_footer2' => 'Evolution CMS est un logiciel libre. Nous vous encourageons à être créatifs et à utiliser Evolution CMS comme bon il vous semble. Votre seule obligation est de redistribuer sous licence libre votre version modifiée de Evolution CMS.',
+  'modx_install' => 'Evolution CMS &raquo; Installation',
+  'modx_requires_php' => ', alors que Evolution CMS requiert PHP [+min_version+] ou supérieure',
   'mysql_5051' => ' la version serveur de MySQL est 5.0.51!',
   'mysql_5051_warning' => 'Il existe plusieurs problèmes avec la version MySQL 5.0.51. Il est recommandé de mettre à jour votre version de MySQL avant de continuer.',
   'mysql_old_version' => 'When you use version oldest then 5.7.6 engine will be MyISAM in newest version use engine InnoDB.<br> We recommend that you update your MySQL',
@@ -132,7 +127,7 @@ $_lang = array (
   'ok' => 'OK!',
   'optional_items' => 'Options d\'installation',
   'optional_items_note' => 'Sélectionnez les options d\'installation et cliquez sur «Installer»:',
-  'php_security_notice' => '<legend>Avertissement sécurité</legend><p>Bien que MODX fonctionne avec votre version de PHP, nous n\'en recommandons pas l\'utilisation. Votre version de PHP comporte de nombreuses failles de sécurité. Veuillez mettre à jour PHP vers une version 4.3.8 ou supérieure, afin de corriger ces failles. Cette mise à jour est recommandée pour la sécurité de votre propre site internet.</p>',
+  'php_security_notice' => '<legend>Avertissement sécurité</legend><p>Bien que Evolution CMS fonctionne avec votre version de PHP, nous n\'en recommandons pas l\'utilisation. Votre version de PHP comporte de nombreuses failles de sécurité. Veuillez mettre à jour PHP vers une version [+min_version+] ou supérieure, afin de corriger ces failles. Cette mise à jour est recommandée pour la sécurité de votre propre site internet.</p>',
   'please_correct_error' => '. Veuillez corriger l\'erreur',
   'please_correct_errors' => '. Veuillez corriger les erreurs',
   'plugins' => 'Plugins',
@@ -172,13 +167,13 @@ $_lang = array (
   'status_failed' => 'échec!',
   'status_failed_could_not_create_database' => 'échec - impossible de créer la base de données',
   'status_failed_database_collation_does_not_match' => 'échec - collation différente; utilisez SET NAMES ou choisir %s',
-  'status_failed_mysqli' => 'error - mysqli extension for PHP is not installed!',
+  'missing_recommended_extension' => '[+missing_extension+] extension for PHP is not installed!',
   'status_failed_table_prefix_already_in_use' => 'échec - préfixe de table déjà utilisé!',
   'status_passed' => 'succès - base sélectionnée',
   'status_passed_database_created' => 'succès - base créée',
   'status_passed_server' => 'succès - collations maintenant disponibles',
   'strict_mode' => ' MySQL est configuré en mode strict!',
-  'strict_mode_error' => 'MODX nécessite que le mode strict de MySQL soit désactivé. Vous pouvez changer le mode strict en éditant le fichier my.cnf de MySQL ou alors contacter l\'administrateur de votre serveur.',
+  'strict_mode_error' => 'Evolution CMS nécessite que le mode strict de MySQL soit désactivé. Vous pouvez changer le mode strict en éditant le fichier my.cnf de MySQL ou alors contacter l\'administrateur de votre serveur.',
   'summary_setup_check' => 'Le programme d\'installation a effectué une série de vérifications afin de déterminer si tout est prêt pour démarrer l\'installation.',
   'system_configuration' => 'Configuration Système ',
   'system_configuration_validate_referer_description' => 'L\'<strong>autorisation des entêtes HTTP_REFERER</strong> est recommandée et peut protéger votre site d\'attaques CSRF, mais avec certaines configurations serveurs peut rendre votre manager inaccessible.',
@@ -202,8 +197,8 @@ $_lang = array (
   'warning' => 'ATTENTION!',
   'welcome_message_start' => 'Pour commencer, choisissez le type d\'installation à réaliser:',
   'welcome_message_text' => 'Ce programme vous guidera tout au long du processus d\'installation.',
-  'welcome_message_welcome' => 'Bienvenue dans le programme d\'installation de MODX.',
+  'welcome_message_welcome' => 'Bienvenue dans le programme d\'installation de Evolution CMS.',
   'writing_config_file' => 'Écriture des fichiers de configuration: ',
   'yes' => 'Oui',
   'you_running_php' => ' - Vous utilisez PHP ',
-);
+];

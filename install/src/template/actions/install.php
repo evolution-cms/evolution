@@ -77,7 +77,7 @@
         <?php for ($i = 0; $i < $sqlErrors; $i++) : ?>
             <em><?=$sqlParser->mysqlErrors[$i]["error"]?></em>
             <?=$_lang['during_execution_of_sql'];?>
-            <span class="mono"><?=strip_tags($sqlParser->mysqlErrors[$i]["sql"])?></span>
+            <code><?=strip_tags($sqlParser->mysqlErrors[$i]["sql"])?></code>
             <hr />
         <?php endfor; ?>
         <p><?=$_lang['some_tables_not_updated']?></p>
@@ -91,7 +91,7 @@
         <p>
             <?=$_lang['writing_config_file']?> <span class="notok"><?=$_lang['failed']?></span>
         </p>
-        <p><?=$_lang['cant_write_config_file']?> <span class="mono">/core/config/database/connections/default.php</span></p>
+        <p><?=$_lang['cant_write_config_file']?> <code>/core/config/database/connections/default.php</code></p>
         <textarea style="width:400px; height:160px;"><?=$configString?></textarea>
         <p><?=$_lang['cant_write_config_file_note']?></p>
     <?php else : ?>
@@ -289,7 +289,7 @@
             <?php foreach($installDataLevel['demo']['error'] as $error): ?>
                 <em><?=$error['content']?></em>
                 <?=$_lang['during_execution_of_sql']?>
-                <span class="mono"><?=htmlspecialchars($error['sql'])?></span>
+                <code><?=htmlspecialchars($error['sql'])?></code>
                 <hr />
             <?php endforeach; ?>
             <p><?=$_lang['some_tables_not_updated']?></p>

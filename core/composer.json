@@ -102,7 +102,7 @@
         "evolutioncms/evolution": "*"
     },
     "replace": {
-        "evolutioncms/evolution": "3.5.0"
+        "evolutioncms/evolution": "3.5.3"
     },
     "autoload": {
         "psr-4": {
