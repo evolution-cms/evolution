@@ -108,13 +108,14 @@ class mgrResources
         if ($resourceTable === 'site_tmplvars') {
             $tvsql = 'site_tmplvars.caption, ';
             $tvjoin = 'LEFT JOIN ' . $modx->getDatabase()->getFullTableName('site_tmplvar_templates') . ' AS stt ON site_tmplvars.id=stt.tmplvarid GROUP BY site_tmplvars.id,reltpl';
-            $sttfield = 'IF(stt.templateid,1,0) AS reltpl,';
+            // SQLite-safe replacement for MySQL IF
+            $sttfield = 'CASE WHEN stt.templateid IS NULL THEN 0 ELSE 1 END AS reltpl,';
         } else $sttfield = '';
 
         $selectableTemplates = $resourceTable === 'site_templates' ? "{$resourceTable}.selectable, " : "";
 
         $rs = $modx->getDatabase()->select(
-            "{$sttfield} {$pluginsql} {$tvsql} {$resourceTable}.{$nameField} as name, {$resourceTable}.id, {$resourceTable}.description, {$resourceTable}.locked, {$selectableTemplates}IF(isnull(categories.category),'{$_lang['no_category']}',categories.category) as category, categories.id as catid",
+            "{$sttfield} {$pluginsql} {$tvsql} {$resourceTable}.{$nameField} as name, {$resourceTable}.id, {$resourceTable}.description, {$resourceTable}.locked, {$selectableTemplates}CASE WHEN categories.category IS NULL THEN '{$_lang['no_category']}' ELSE categories.category END as category, categories.id as catid",
             $modx->getDatabase()->getFullTableName($resourceTable) . " AS {$resourceTable}
 	            LEFT JOIN " . $modx->getDatabase()->getFullTableName('categories') . " AS categories ON {$resourceTable}.category = categories.id {$tvjoin}",
             "",
