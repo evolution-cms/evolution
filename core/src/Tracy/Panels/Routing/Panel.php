@@ -20,7 +20,7 @@ class Panel extends AbstractPanel
         if ($this->hasEvolutionCMS() === true) {
 
             if ($this->evolution->isBackend()) {
-                $action = Arr::get($_REQUEST, 'a');
+                $action = Arr::get($_REQUEST ?? [], 'a');
                 if ($action !== null) {
                     $rows['route'] = 'action: ' . $action;
                 } else {
@@ -52,8 +52,8 @@ class Panel extends AbstractPanel
                 }
             }
         } else {
-            $rows['uri'] = empty(Arr::get($_SERVER, 'HTTP_HOST')) === true ?
-                404 : Arr::get($_SERVER, 'REQUEST_URI');
+            $rows['uri'] = empty(Arr::get($_SERVER ?? [], 'HTTP_HOST')) === true ?
+                404 : Arr::get($_SERVER ?? [], 'REQUEST_URI');
         }
         return compact('rows');
     }

@@ -1774,7 +1774,7 @@ class SiteContent extends Eloquent\Model
      *
      * @return Builder
      */
-    private function buildSiblingQuery(Builder $builder, $id, callable $positionCallback = null)
+    private function buildSiblingQuery(Builder $builder, $id, ?callable $positionCallback = null)
     {
         $parentIdColumn = $this->getParentIdColumn();
         $positionColumn = $this->getPositionColumn();
@@ -1896,12 +1896,12 @@ class SiteContent extends Eloquent\Model
      * Saves models from the given attributes array.
      *
      * @param array $tree
-     * @param SiteContent $parent
+     * @param SiteContent|null $parent
      *
      * @return Collection
      * @throws Throwable
      */
-    public static function createFromArray(array $tree, SiteContent $parent = null)
+    public static function createFromArray(array $tree, ?SiteContent $parent = null)
     {
         $entities = [];
 
@@ -2158,10 +2158,13 @@ class SiteContent extends Eloquent\Model
                 case ($cast == 'UNSIGNED'):
                 case ($cast == 'SIGNED'):
                 case (strpos($cast, 'DECIMAL') !== false):
+                    $numericCast = (in_array(evo()->getDatabase()->getConfig('driver'), ['sqlite', 'sqlite3'], true))
+                        ? 'INTEGER'
+                        : $cast;
                     if ($type == 'tvd') {
-                        $query = $query->whereRaw("CAST(IFNULL(`" . $prefix . "tv_" . $tvname . "`.`value`, `" . $prefix . "tvd_" . $tvname . "`.`default_text`) AS " . $cast . " ) " . $op . " " . $value);
+                        $query = $query->whereRaw("CAST(IFNULL(`" . $prefix . "tv_" . $tvname . "`.`value`, `" . $prefix . "tvd_" . $tvname . "`.`default_text`) AS " . $numericCast . " ) " . $op . " " . $value);
                     } else {
-                        $query = $query->whereRaw("CAST(`" . $prefix . 'tv_' . $tvname . "`.`value` AS " . $cast . " ) " . $op . " " . $value);
+                        $query = $query->whereRaw("CAST(`" . $prefix . 'tv_' . $tvname . "`.`value` AS " . $numericCast . " ) " . $op . " " . $value);
                     }
                     break;
                 default:
@@ -2182,6 +2185,11 @@ class SiteContent extends Eloquent\Model
             $tvname = $part[0];
             $sortDir = !empty($part[1]) ? $part[1] : 'desc';
             $cast = !empty($part[2]) ? $part[2] : '';
+            $driver = evo()->getDatabase()->getConfig('driver');
+            $castType = $cast;
+            if (in_array($driver, ['sqlite', 'sqlite3'], true) && $castType !== '') {
+                $castType = 'INTEGER';
+            }
             $withDefaults = false;
             if (strpos($tvname, $sep) !== false) {
                 list($tvname, $withDefaults) = explode($sep, $tvname, 2);
@@ -2192,13 +2200,13 @@ class SiteContent extends Eloquent\Model
                 $field = DB::Raw("IFNULL(`" . $prefix . "tv_" . $tvname . "`.`value`, `" . $prefix . "tvd_" . $tvname . "`.`default_text`)");
             }
             switch (true) {
-                case ($cast == 'UNSIGNED'):
-                case ($cast == 'SIGNED'):
-                case (strpos($cast, 'DECIMAL') !== false):
+                case ($castType == 'UNSIGNED'):
+                case ($castType == 'SIGNED'):
+                case (strpos($castType, 'DECIMAL') !== false):
                     if ($withDefaults === false) {
-                        $query = $query->orderByRaw("CAST(`" . $prefix . 'tv_' . $tvname . "`.`value` AS " . $cast . ") " . $sortDir);
+                        $query = $query->orderByRaw("CAST(`" . $prefix . 'tv_' . $tvname . "`.`value` AS " . $castType . ") " . $sortDir);
                     } else {
-                        $query = $query->orderByRaw("CAST(IFNULL(`" . $prefix . "tv_" . $tvname . "`.`value`, `" . $prefix . "tvd_" . $tvname . "`.`default_text`) AS " . $cast . ") " . $sortDir);
+                        $query = $query->orderByRaw("CAST(IFNULL(`" . $prefix . "tv_" . $tvname . "`.`value`, `" . $prefix . "tvd_" . $tvname . "`.`default_text`) AS " . $castType . ") " . $sortDir);
                     }
                     break;
                 default:
@@ -2285,7 +2293,7 @@ class SiteContent extends Eloquent\Model
 
     public function scopeOrderByDate($query, $sortDir = 'desc')
     {
-        return $query->orderByRaw('IF(pub_date!=0,pub_date,createdon) ' . $sortDir);
+        return $query->orderByRaw('CASE WHEN pub_date != 0 THEN pub_date ELSE createdon END ' . $sortDir);
     }
 
     public function scopeTagsData($query, $tagsData, $sep = ':', $tagSeparator = ',')
