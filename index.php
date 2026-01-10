@@ -25,7 +25,7 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with EVO (located in "/assets/docs/"); if not, write to the Free Software
+	along with EVO (located in "/assets/docs/license.txt"); if not, write to the Free Software
 	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1335, USA
 
 	For more information on EVO please visit https://evo.im/

@@ -6,9 +6,13 @@ switch($installMode){
     case 2:
         $database_collation = isset($_POST['database_collation']) ? $_POST['database_collation'] : 'utf8mb4_general_ci';
         $database_type = isset($_POST['database_type']) ? $_POST['database_type'] : 'mysql';
-        $_POST['database_connection_charset'] = getDatabaseCharset($database_collation, $database_type);;
-        $_SESSION['databaseloginpassword'] = $_POST['databaseloginpassword'];
-        $_SESSION['databaseloginname'] = $_POST['databaseloginname'];
+        $_POST['database_connection_charset'] = getDatabaseCharset($database_collation, $database_type);
+        if (!isset($_SESSION['databaseloginpassword']) && isset($_POST['databaseloginpassword'])) {
+            $_SESSION['databaseloginpassword'] = $_POST['databaseloginpassword'];
+        }
+        if (!isset($_SESSION['databaseloginname']) && isset($_POST['databaseloginname'])) {
+            $_SESSION['databaseloginname'] = $_POST['databaseloginname'];
+        }
         break;
     case 1:
         $db_config = include_once EVO_CORE_PATH . 'config/database/connections/default.php';

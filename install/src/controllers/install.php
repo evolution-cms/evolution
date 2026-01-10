@@ -172,7 +172,9 @@ try {
         define('IN_MANAGER_MODE', true);
         define('IN_INSTALL_MODE', true);
         define('MODX_BASE_PATH', dirname(dirname(dirname(__DIR__))) . '/');
-        define('MODX_SITE_URL', $_SERVER['HTTP_HOST'] . '/');
+        define('SESSION_COOKIE_NAME', session_name());
+        require_once(MODX_BASE_PATH . 'core/functions/helper.php');
+        require_once(MODX_BASE_PATH . 'core/includes/define.inc.php');
 
         if (file_exists(MODX_BASE_PATH.'core/storage/bootstrap/services.php')) {
             unlink(MODX_BASE_PATH.'core/storage/bootstrap/services.php');
@@ -767,7 +769,7 @@ try {
 
 } catch (PDOException $e) {
     if (!stristr($e->getMessage(), 'database "' . $_POST['database_name'] . '" does not exist') && !stristr($e->getMessage(), 'Unknown database \'' . $_POST['database_name'] . '\'')) {
-        echo $output . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
+        echo ($output ?? '') . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
         exit();
     }
 }

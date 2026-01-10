@@ -31,9 +31,6 @@
 /assets/site/*
 !/assets/site/index.html
 
-# Core
-/core/.install
-
 # Manager
 /manager/includes/config.inc.php
 /manager/media/style/default/css/styles.min.css
@@ -47,7 +44,6 @@
 # IDE Helper
 modx_evolution.IDEhelper.php
 _ide_helper.php
-.phpstorm.meta.php
 
 #node.JS
 /node_modules
@@ -55,21 +51,12 @@ npm-debug.log
 
 #docker
 /docker/nginx/logs/*
-/.env
 
 # System
 ftpsync.settings
 Thumbs.db
 Desktop.ini
-.DS_Store
 
-.idea
-.vagrant
-.rocketeer
-**/.htaccess
-
-# except do not ignore .gitignore
+# all dotfiles and dotfolders except do not ignore .gitignore
+**/.*
 !.gitignore
-
-# dev
-.vscode/

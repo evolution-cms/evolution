@@ -3,6 +3,7 @@
 <head>
 <meta charset="[+encoding+]">
 <title>[+pagetitle+]</title>
+<base href="../install/">
 <meta name="robots" content="noindex, nofollow">
 <link rel="stylesheet" href="style.css" type="text/css" media="screen" nonce="[+csrf_nonce+]">
 </head>

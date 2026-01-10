@@ -10,9 +10,13 @@ AddDefaultCharset utf-8
 #Options +FollowSymlinks
 RewriteEngine On
 
-# Block access to the contents of the Git directory
-RewriteCond %{REQUEST_URI} ^\/(.git|.hg|.idea|README.md)
-RewriteRule .* - [L,R=404]
+# Prevent directory listing
+Options -Indexes
+
+# Allow .well-known directory (for SSL, domain verification, etc.) blocking other dotfiles and dotfolders at any level
+RewriteRule ^\.well-known/ - [L]
+RewriteCond %{REQUEST_URI} (^|/)\. [NC]
+RewriteRule .* - [F,L]
 
 RewriteBase /
 
