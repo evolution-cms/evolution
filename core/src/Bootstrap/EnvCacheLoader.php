@@ -70,15 +70,19 @@ final class EnvCacheLoader
     private static function detectEnvPathAndMtime(string $projectRoot): array
     {
         $coreCustomEnv = $projectRoot . '/core/custom/.env';
-        $mtime = @filemtime($coreCustomEnv);
-        if ($mtime !== false) {
-            return [$coreCustomEnv, $mtime];
+        if (is_file($coreCustomEnv)) {
+            $mtime = @filemtime($coreCustomEnv);
+            if ($mtime !== false) {
+                return [$coreCustomEnv, $mtime];
+            }
         }
 
         $rootEnv = $projectRoot . '/.env';
-        $mtime = @filemtime($rootEnv);
-        if ($mtime !== false) {
-            return [$rootEnv, $mtime];
+        if (is_file($rootEnv)) {
+            $mtime = @filemtime($rootEnv);
+            if ($mtime !== false) {
+                return [$rootEnv, $mtime];
+            }
         }
 
         return [null, null];
