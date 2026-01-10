@@ -55,5 +55,5 @@ to { transform: rotate(360deg) }
 /* darkness */
 .darkness { letter-spacing: .021em; }
 .darkness #mainloader { background-color: rgba(0, 0, 0, 0.1); }
-.darkness, .darkness #frameset, .darkness #main, .darkness .table  { background-color: #282c34; color: #bdbdbd; }
+.darkness, .darkness #frameset, .darkness #main, .darkness .table  { background-color: #17191e; color: #bdbdbd; }
 .darkness > form { background-color: #202329 }

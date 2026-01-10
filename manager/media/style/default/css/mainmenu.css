@@ -2,8 +2,8 @@
 #mainMenu {
     background-color: #2b323a;
     color: #8b9298;
-    -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    /*-webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);*/
+    /*box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);*/
 }
 #mainMenu.show {
     overflow: visible;
@@ -805,8 +805,8 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
 }
 /* darkness */
 .darkness #mainMenu {
-    -webkit-box-shadow: 0 0.25rem 0.25rem rgba(0, 0, 0, 0.3);
-    box-shadow: 0 0.25rem 0.25rem rgba(0, 0, 0, 0.3);
+    /*-webkit-box-shadow: 0 0.25rem 0.25rem rgba(0, 0, 0, 0.3);*/
+    /*box-shadow: 0 0.25rem 0.25rem rgba(0, 0, 0, 0.3);*/
 }
 .darkness #mainMenu {
     background-color: #202329;
@@ -1068,8 +1068,8 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
     }
     /* theme modes */
     .navbar-left.lightness #mainMenu {
-        -webkit-box-shadow: 0 2px 0 1px rgba(0, 0, 0, 0.15);
-        box-shadow: 0 2px 0 1px rgba(0, 0, 0, 0.15);
+        /*-webkit-box-shadow: 0 2px 0 1px rgba(0, 0, 0, 0.15);*/
+        /*box-shadow: 0 2px 0 1px rgba(0, 0, 0, 0.15);*/
     }
     .navbar-left.lightness #mainMenu .nav > li {
         /*border-bottom-color: rgba(0,0,0,0.05);*/
@@ -1078,8 +1078,8 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
         background-color: #f3f3f3;
     }
     .navbar-left.dark #mainMenu {
-        -webkit-box-shadow: 0 2px 0 1px rgba(255, 255, 255, 0.07);
-        box-shadow: 0 2px 0 1px rgba(255, 255, 255, 0.07);
+        /*-webkit-box-shadow: 0 2px 0 1px rgba(255, 255, 255, 0.07);*/
+        /*box-shadow: 0 2px 0 1px rgba(255, 255, 255, 0.07);*/
         background-color: #17191e;
     }
     .navbar-left.dark #mainMenu .nav > li > a,
@@ -1087,8 +1087,8 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
         color: #dcd9e3;
     }
     .navbar-left.darkness #mainMenu {
-        -webkit-box-shadow: 0 2px 0 1px rgba(255, 255, 255, 0.07);
-        box-shadow: 0 2px 0 1px rgba(255, 255, 255, 0.07);
+        /*-webkit-box-shadow: 0 2px 0 1px rgba(255, 255, 255, 0.07);*/
+        /*box-shadow: 0 2px 0 1px rgba(255, 255, 255, 0.07);*/
         background-color: #17191e;
     }
     .navbar-left.light #mainMenu #nav #site a::before,
@@ -1097,7 +1097,7 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
         background-image: url("../images/misc/logo-navbar-left-white.png");
     }
     .navbar-left.lightness #mainMenu #settings {
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        border-top: 0px solid rgba(0, 0, 0, 0.1);
     }
 }
 @media (min-width: 1200px) {

@@ -334,7 +334,7 @@ ul.sortableList li.ghost { z-index: 2; box-shadow: 0 0.25rem 1.5rem rgba(0, 0, 0
 /* darkness */
 .darkness { background-color: #282c34; color: #aaa }
 .darkness .container-body { background-color: #282c34; }
-.darkness > .container-body, .darkness .page { background-color: #282c34; }
+.darkness > .container-body, .darkness .page { background-color: #17191e; }
 .darkness .sectionBody .tab-page, .darkness .tab-page { background-color: #282c34; box-shadow: none; }
 .darkness .widgets .card, .darkness h1, .darkness .element-edit-message, .darkness #ManageFiles .breadcrumbs { background-color: #202329; }
 .darkness #edit-info.element-edit-message, .darkness #add-info.element-edit-message, .darkness #sort-info.element-edit-message, .darkness #categorize-info.element-edit-message { background-color: #282c34; }
