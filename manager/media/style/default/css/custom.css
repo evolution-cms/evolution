@@ -232,7 +232,7 @@ ul.breadcrumbs span::after { margin-left: 2em; font-family: 'Font Awesome 5 Free
 
 .widgets #welcome .wm_button a .fa { display: inline-block; }
 
-.widgets #welcome .wm_button a .fa + span { display: block; padding: .5em 0; line-height: 1em; font-size: .7rem; word-wrap:normal; }
+.widgets #welcome .wm_button a span { display: block; padding: .5em 0; line-height: 1.1; font-size: 12px; word-break: normal; overflow-wrap: normal; hyphens: none; }
 
 .widgets #recent_widget .table.data tbody tr:not(:hover) { background-color: #fff }
 .widgets #recent_widget .table.data tbody tr:nth-child(4n+1):not(:hover) { background-color: #f6f8f8 }
