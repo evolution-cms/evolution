@@ -370,14 +370,11 @@ class ManagerApi implements ManagerApiInterface
             }
 
             foreach ($settings as $key => $val) {
-                $f = [];
-                $f['user'] = $_SESSION['mgrInternalKey'];
-                $f['setting_name'] = '_LAST_' . $key;
-                $f['setting_value'] = $val;
-                $f = $modx->getDatabase()->escape($f);
-                $f = "(`" . implode("`, `", array_keys($f)) . "`) VALUES('" . implode("', '", array_values($f)) . "')";
-                $f .= " ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)";
-                $modx->getDatabase()->insert($f, $modx->getDatabase()->getFullTableName('user_settings'));
+                $data = [
+                    'user' => $_SESSION['mgrInternalKey'],
+                    'setting_name' => '_LAST_' . $key,
+                ];
+                UserSetting::query()->updateOrCreate($data, ['setting_value' => $val]);
             }
         }
     }
