@@ -1,5 +1,5 @@
 <?php
-$method = strip_tags($_POST['method']);
+$method = strip_tags($_POST['database_type']);
 $host = strip_tags($_POST['host']);
 $uid = strip_tags($_POST['uid']);
 $pwd = strip_tags($_POST['pwd']);

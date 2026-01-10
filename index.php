@@ -82,8 +82,10 @@ if (!defined('IN_INSTALL_MODE')) {
 if (IN_INSTALL_MODE) {
     // Set some settings, and address some IE issues.
     @ini_set('url_rewriter.tags', '');
-    @ini_set('session.use_trans_sid', 0);
-    @ini_set('session.use_only_cookies', 1);
+    if (session_status() === PHP_SESSION_NONE) {
+        ini_set('session.use_trans_sid', 0);
+        ini_set('session.use_only_cookies', 1);
+    }
 }
 
 require $config['core'] . '/bootstrap.php';

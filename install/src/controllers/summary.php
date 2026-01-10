@@ -311,7 +311,7 @@ $agreeToggle = $errors > 0 ? 'disabled' : '';
         <input type="hidden" value="<?php echo $manager_language ?>" name="managerlanguage"/>
         <input type="hidden" value="<?php echo $installMode ?>" name="installmode"/>
         <input type="hidden" value="<?php echo trim($dbase, '`'); ?>" name="database_name"/>
-        <input type="hidden" value="<?php echo trim($database_type, '`'); ?>" name="database_type"/>
+        <input type="hidden" value="<?php echo $database_type ?>" name="database_type"/>
         <input type="hidden" value="<?php echo $table_prefix ?>" name="tableprefix"/>
         <input type="hidden" value="<?php echo $database_collation ?>" name="database_collation"/>
         <input type="hidden" value="<?php echo $database_connection_charset ?>" name="database_connection_charset"/>

@@ -162,7 +162,7 @@
             data: {
                 q: url,
                 host: form.databasehost.value,
-                method: form.database_type.value,
+                database_type: form.database_type.value,
                 uid: form.databaseloginname.value,
                 pwd: form.databaseloginpassword.value,
                 database_name: form.database_name.value,
@@ -188,7 +188,7 @@
             data: {
                 q: url,
                 host: form.databasehost.value,
-                method: form.database_type.value,
+                database_type: form.database_type.value,
                 uid: form.databaseloginname.value,
                 pwd: form.databaseloginpassword.value,
                 database_name: form.database_name.value,
@@ -266,7 +266,7 @@
             data: {
                 q: url,
                 host: form.databasehost.value,
-                method: form.database_type.value,
+                database_type: form.database_type.value,
                 uid: form.databaseloginname.value,
                 pwd: form.databaseloginpassword.value,
                 language: language
