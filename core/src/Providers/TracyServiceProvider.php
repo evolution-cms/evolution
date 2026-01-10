@@ -5,7 +5,7 @@ use EvolutionCMS\Tracy\Debugger;
 use EvolutionCMS\Interfaces\TracyPanel;
 use Tracy\IBarPanel;
 
-if (session_status() == PHP_SESSION_NONE) {
+if (session_status() == PHP_SESSION_NONE && (!defined('EVO_LARAVEL_SESSION') || !EVO_LARAVEL_SESSION)) {
     session_start();
 }
 

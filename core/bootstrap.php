@@ -30,6 +30,12 @@ if (file_exists(__DIR__ . '/custom/define.php')) {
 }
 require_once __DIR__ . '/includes/define.inc.php';
 
+if (!defined('EVO_LARAVEL_SESSION')) {
+    define('EVO_LARAVEL_SESSION', (bool)env('EVO_LARAVEL_SESSION', true));
+}
+
+require_once __DIR__ . '/functions/session_proxy.php';
+
 require_once __DIR__ . '/includes/legacy.inc.php';
 
 require_once __DIR__ . '/includes/protect.inc.php'; // harden it

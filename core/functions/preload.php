@@ -95,6 +95,11 @@ if (!function_exists('startCMSSession')) {
             return;
         }
 
+        if (defined('EVO_LARAVEL_SESSION') && EVO_LARAVEL_SESSION) {
+            EvoSessionProxy::earlyInit();
+            return;
+        }
+
         session_name(SESSION_COOKIE_NAME);
         removeInvalidCmsSessionIds(SESSION_COOKIE_NAME);
         session_cache_limiter('');
