@@ -209,7 +209,7 @@ final class EnvCacheLoader
     {
         try {
             ksort($vars, SORT_STRING);
-            $php = "<?php\nreturn " . self::exportShortArray($vars) . ";\n";
+            $php = "<?php return " . self::exportShortArray($vars) . ";\n";
 
             $tmpPath = $cachePath . '.tmp';
             if (@file_put_contents($tmpPath, $php, LOCK_EX) === false) {
