@@ -27,10 +27,11 @@ class DropWebuserGroupTables extends Migration
     {
         Schema::create('web_groups', function(Blueprint $table)
         {
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
             $table->integer('id', true);
             $table->integer('webgroup')->default(0);
             $table->integer('webuser')->default(0);
-            $table->unique(['webgroup','webuser'], 'ix_group_user');
+            $table->unique(['webgroup','webuser'], "{$indexPrefix}_ix_group_user");
         });
 
         Schema::create('webgroup_access', function(Blueprint $table)

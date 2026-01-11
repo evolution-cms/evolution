@@ -14,13 +14,12 @@ class CreateUserValues extends Migration
     public function up()
     {
         Schema::create('user_values', function (Blueprint $table) {
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
             $table->bigIncrements('id');
-            $table->integer('tmplvarid')->default(0);
-            $table->integer('userid')->default(0);
+            $table->integer('tmplvarid')->default(0)->index("{$indexPrefix}_tmplvarid_idx");
+            $table->integer('userid')->default(0)->index("{$indexPrefix}_userid_idx");
             $table->mediumText('value')->nullable();
-            $table->index('tmplvarid');
-            $table->index('userid');
-            $table->unique(['tmplvarid','userid']);
+            $table->unique(['tmplvarid','userid'], "{$indexPrefix}_tmplvarid_userid");
         });
     }
 

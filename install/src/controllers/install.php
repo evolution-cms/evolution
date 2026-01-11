@@ -36,8 +36,7 @@ $database_type = strip_tags($_POST['database_type']);
 $database_user = $_SESSION['databaseloginname'];
 $database_password = $_SESSION['databaseloginpassword'];
 $database_collation = strip_tags($_POST['database_collation']);
-$database_charset = substr($database_collation, 0, strpos($database_collation, '_'));
-$database_connection_charset = $_POST['database_connection_charset'];
+$database_charset = $database_connection_charset = $_POST['database_connection_charset'];
 $database_connection_method = $_POST['database_connection_method'];
 $dbase = '`' . strip_tags($_POST['database_name']) . '`';
 $adminname = strip_tags($_POST['cmsadmin']);
@@ -82,10 +81,6 @@ try {
         $installLevel = 1;
     }
     // select database
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
-
     if ($installLevel === 1) {
         // write the config.inc.php file if new installation
         $confph = [];
@@ -104,7 +99,6 @@ try {
         switch ($database_type) {
             case 'pgsql':
                 $confph['database_port'] = '5432';
-                $confph['connection_charset'] = 'utf8';
                 break;
             case 'mysql':
                 $confph['database_port'] = '3306';
@@ -122,7 +116,9 @@ try {
         $filename = EVO_CORE_PATH . 'config/database/connections/default.php';
         $configFileFailed = false;
 
-        @chmod($filename, 0777);
+        if (file_exists($filename)) {
+            @chmod($filename, 0777);
+        }
 
         if (@!$handle = fopen($filename, 'w')) {
             $configFileFailed = true;
@@ -176,7 +172,9 @@ try {
         define('IN_MANAGER_MODE', true);
         define('IN_INSTALL_MODE', true);
         define('MODX_BASE_PATH', dirname(dirname(dirname(__DIR__))) . '/');
-        define('MODX_SITE_URL', $_SERVER['HTTP_HOST'] . '/');
+        define('SESSION_COOKIE_NAME', session_name());
+        require_once(MODX_BASE_PATH . 'core/functions/helper.php');
+        require_once(MODX_BASE_PATH . 'core/includes/define.inc.php');
 
         if (file_exists(MODX_BASE_PATH.'core/storage/bootstrap/services.php')) {
             unlink(MODX_BASE_PATH.'core/storage/bootstrap/services.php');
@@ -185,7 +183,14 @@ try {
         include(MODX_BASE_PATH . '/index.php');
 
         if ($installMode != 0 && $database_type == 'pgsql') {
-            $result = \DB::table('migrations_install')->select('id')->orderBy('id', 'DESC')->first();
+            try {
+                $result = \DB::table('migrations_install')->select('id')->orderBy('id', 'DESC')->first();
+            } catch (\PDOException $exception) {
+                $result = null;
+                if (!str_contains($exception->getMessage(), 'SQLSTATE[42P01]')) {
+                    throw $exception;
+                }
+            }
             if (!is_null($result)) {
                 $new_id = $result->id;
                 $new_id++;
@@ -764,7 +769,7 @@ try {
 
 } catch (PDOException $e) {
     if (!stristr($e->getMessage(), 'database "' . $_POST['database_name'] . '" does not exist') && !stristr($e->getMessage(), 'Unknown database \'' . $_POST['database_name'] . '\'')) {
-        echo $output . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
+        echo ($output ?? '') . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
         exit();
     }
 }

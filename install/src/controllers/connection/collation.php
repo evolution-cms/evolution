@@ -1,15 +1,15 @@
 <?php
-$method = strip_tags($_POST['method']);
+$driver = strip_tags($_POST['database_type']);
 $host = strip_tags($_POST['host']);
 $uid = strip_tags($_POST['uid']);
 $pwd = strip_tags($_POST['pwd']);
 $database_name = isset($_POST['database_name']) ? strip_tags($_POST['database_name']) : '';
 
 try {
-    $dsn = $method . ':host=' . $host;
+    $dsn = $driver . ':host=' . $host;
     $output = '<select id="database_collation" name="database_collation">';
 
-    switch ($method) {
+    switch ($driver) {
         case 'pgsql':
             $dbh = new PDO($dsn . ";dbname=postgres", $uid, $pwd);
             $sql = "SELECT collname FROM pg_collation ORDER BY collname";

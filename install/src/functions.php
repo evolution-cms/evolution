@@ -33,6 +33,32 @@ if (!function_exists('getLangOptions')) {
     }
 }
 
+if (!function_exists('getDatabaseCharset')) {
+    function getDatabaseCharset($database_collation, $driver): string {
+        if ($driver === 'pgsql') {
+            // "en_US.UTF-8", "C.UTF-8", "en_US.utf8", "en-US-x-icu", "fr_FR.iso88591", "ja_JP.eucjp"
+            if (strpos($database_collation, '.') !== false) {
+                $database_charset = substr($database_collation, strpos($database_collation, '.') + 1);
+            } else {
+                // Default for C, POSIX, ICU or unknown collations
+                $database_charset = 'UTF8';
+            }
+            $database_charset = str_ireplace(['utf-8', 'utf8'], 'UTF8', $database_charset);
+        } else {
+            // MySQL 5.7 & 8.0: "utf8mb4_general_ci", "utf8_unicode_ci", "latin1_swedish_ci"
+            // MySQL 8.0+: "utf8mb4_0900_ai_ci" (with version number)
+            $first_underscore_pos = strpos($database_collation, '_');
+            if ($first_underscore_pos !== false) {
+                $database_charset = substr($database_collation, 0, $first_underscore_pos);
+            } else {
+                // Fallback if no underscore found (shouldn't happen with valid collations)
+                $database_charset = 'utf8mb4';
+            }
+        }
+        return $database_charset;
+    }
+}
+
 if (!function_exists('install_sessionCheck')) {
     function install_sessionCheck()
     {

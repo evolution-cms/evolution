@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Str;
-
 if (!defined('HTTPS_PORT')) {
     define('HTTPS_PORT', env('HTTPS_PORT', '443')); //$https_port
 }
@@ -104,7 +102,7 @@ if (!defined('MODX_BASE_PATH') || !defined('MODX_BASE_URL')) {
 
     $url = implode($separator, $items);
 
-    $base_url = Str::finish(implode($separator, $items), '/');
+    $base_url = rtrim(implode($separator, $items), '/') . '/';
     unset($separator);
 
     reset($items);
@@ -113,10 +111,10 @@ if (!defined('MODX_BASE_PATH') || !defined('MODX_BASE_URL')) {
         array_pop($items);
     }
 
-    $base_path = Str::finish(
+    $base_path = rtrim(
         str_replace('\\', '/', implode(MGR_DIR, $items))
         , '/'
-    );
+    ) . '/';
 
     if (!defined('MODX_BASE_PATH')) {
         define('MODX_BASE_PATH', env('MODX_BASE_PATH', $base_path));
@@ -165,7 +163,7 @@ if (!defined('EVO_BASE_PATH') || !defined('EVO_BASE_URL')) {
 
     $url = implode($separator, $items);
 
-    $base_url = Str::finish(implode($separator, $items), '/');
+    $base_url = rtrim(implode($separator, $items), '/') . '/';
     unset($separator);
 
     reset($items);
@@ -174,10 +172,10 @@ if (!defined('EVO_BASE_PATH') || !defined('EVO_BASE_URL')) {
         array_pop($items);
     }
 
-    $base_path = Str::finish(
+    $base_path = rtrim(
         str_replace('\\', '/', implode(MGR_DIR, $items))
         , '/'
-    );
+    ) . '/';
 
     if (!defined('EVO_BASE_PATH')) {
         define('EVO_BASE_PATH', env('EVO_BASE_PATH', $base_path));

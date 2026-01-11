@@ -1,5 +1,5 @@
 <?php
-$method = strip_tags($_POST['method']);
+$driver = strip_tags($_POST['database_type']);
 $host = strip_tags($_POST['host']);
 $uid = strip_tags($_POST['uid']);
 $pwd = strip_tags($_POST['pwd']);
@@ -12,21 +12,10 @@ $h = explode(':', $host, 2);
 $database_collation = $_POST['database_collation'];
 $database_connection_method = $_POST['database_connection_method'];
 
-if ($method == 'pgsql') {
-    if (strpos($database_collation, '.') !== false) {
-        $database_charset = substr($database_collation, strpos($database_collation, '.') + 1);
-    } else {
-        $database_charset = 'UTF8';
-    }
-
-    $database_charset = str_replace('utf8', 'UTF8', $database_charset);
-    $database_charset = str_replace('UTF-8', 'UTF8', $database_charset);
-} else {
-    $database_charset = substr($database_collation, 0, strpos($database_collation, '_'));
-}
+$database_charset = getDatabaseCharset($database_collation, $driver);
 try {
-    $dbh = new PDO($method . ':host=' . $host . ';dbname=' . $database_name, $uid, $pwd);
-    switch ($method) {
+    $dbh = new PDO($driver . ':host=' . $host . ';dbname=' . $database_name, $uid, $pwd);
+    switch ($driver) {
         case 'pgsql':
             $result = $dbh->query("SELECT * FROM pg_settings WHERE name='client_encoding'");
             if ($result->errorCode() == 0) {
@@ -35,7 +24,11 @@ try {
                     echo $output . '<span id="database_fail">' . sprintf($_lang['status_failed_database_collation_does_not_match'], $data['setting']) . '</span>';
                     exit();
                 }
-                $result = $dbh->query("SELECT COUNT(*) FROM {$tableprefix}site_content");
+                try {
+                    $result = $dbh->query("SELECT COUNT(*) FROM {$tableprefix}site_content");
+                } catch (PDOException $e) {
+                    // no table is expected
+                }
 
                 if ($dbh->errorCode() == 0) {
                     echo $output . '<span id="database_fail">' . $_lang['status_failed_table_prefix_already_in_use'] . '</span>';
@@ -96,23 +89,22 @@ try {
 }
 
 try {
-    $dbh = new PDO($method . ':host=' . $host . ($method === 'pgsql' ? ';dbname=postgres' : ''), $uid, $pwd);
-    switch ($method) {
+    $dbh = new PDO($driver . ':host=' . $host . ($driver === 'pgsql' ? ';dbname=postgres' : ''), $uid, $pwd);
+    switch ($driver) {
         case 'pgsql':
             try {
                 $dbh->query(sprintf(
                     "CREATE DATABASE %s WITH ENCODING '%s' LC_COLLATE '%s' LC_CTYPE '%s' TEMPLATE template0",
                     $database_name, $database_charset, $database_collation, $database_collation
                 ));
-                if ($dbh->errorCode() > 0) {
-                    if (stristr($dbh->errorInfo()[2], 'already exists') === false) {
-                        $output .= '<span id="database_fail">' . $_lang['status_failed_could_not_create_database'] . ' ' . print_r($dbh->errorInfo(), true) . '</span>';
-                    }
-                }
-            } catch (Exception $exception) {
-                echo $exception->getMessage();
+            } catch (PDOException $e) {
+                // there is no "create database if not exists" in PostgreSQL
             }
-
+            if ($dbh->errorCode() > 0) {
+                if (stristr($dbh->errorInfo()[2], 'already exists') === false) {
+                    $output .= '<span id="database_fail">' . $_lang['status_failed_could_not_create_database'] . ' ' . print_r($dbh->errorInfo(), true) . '</span>';
+                }
+            }
             break;
         case 'mysql':
             $query = 'CREATE DATABASE IF NOT EXISTS `' . $database_name . '` CHARACTER SET ' . $database_charset . ' COLLATE ' . $database_collation . ";";

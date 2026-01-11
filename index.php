@@ -25,7 +25,7 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with EVO (located in "/assets/docs/"); if not, write to the Free Software
+	along with EVO (located in "/assets/docs/license.txt"); if not, write to the Free Software
 	Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1335, USA
 
 	For more information on EVO please visit https://evo.im/
@@ -82,8 +82,10 @@ if (!defined('IN_INSTALL_MODE')) {
 if (IN_INSTALL_MODE) {
     // Set some settings, and address some IE issues.
     @ini_set('url_rewriter.tags', '');
-    @ini_set('session.use_trans_sid', 0);
-    @ini_set('session.use_only_cookies', 1);
+    if (session_status() === PHP_SESSION_NONE) {
+        ini_set('session.use_trans_sid', 0);
+        ini_set('session.use_only_cookies', 1);
+    }
 }
 
 require $config['core'] . '/bootstrap.php';

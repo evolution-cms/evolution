@@ -68,9 +68,9 @@ class SystemInfo extends AbstractController implements ManagerTheme\PageControll
     {
         switch ($this->database->getConfig()['driver']) {
             case 'pgsql':
-                $result = $this->database->query("SELECT * FROM pg_settings WHERE name = 'lc_collate'");
-                $charset = $this->database->getRow($result, 'num');
-                return $charset[1];
+                $res = $this->database->query("SELECT datcollate FROM pg_database WHERE datname = current_database()");
+                $collation = $this->database->getRow($res, 'num');
+                return $collation[0];
                 break;
             case 'mysql':
                 $res = $this->database->query("show variables like 'collation_database'");

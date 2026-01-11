@@ -27,8 +27,9 @@ class DropManagerUserTables extends Migration
     {
         Schema::create('user_attributes', function(Blueprint $table)
         {
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
             $table->integer('id', true);
-            $table->integer('internalKey')->default(0)->index('userid');
+            $table->integer('internalKey')->default(0)->index("{$indexPrefix}_userid");
             $table->string('fullname', 100)->default('');
             $table->integer('role')->default(0);
             $table->string('email', 100)->default('');
@@ -59,15 +60,17 @@ class DropManagerUserTables extends Migration
 
         Schema::create('manager_users', function(Blueprint $table)
         {
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
             $table->integer('id', true);
-            $table->string('username', 100)->default('')->unique('username');
+            $table->string('username', 100)->default('')->unique("{$indexPrefix}_username_index");
             $table->string('password', 100)->default('');
         });
 
         Schema::create('web_user_settings', function(Blueprint $table)
         {
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
             $table->integer('webuser')->index('webuserid');
-            $table->string('setting_name', 50)->default('')->index();
+            $table->string('setting_name', 50)->default('')->index("{$indexPrefix}_setting_name_index");
             $table->text('setting_value', 65535)->nullable();
             $table->primary(['webuser','setting_name']);
         });

@@ -29,6 +29,7 @@ return new class extends Migration
         |--------------------------------------------------------------------------
         */
         $this->createTableIfMissing('users', function (Blueprint $table) {
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
             $table->comment('Users authentication table - stores login credentials and authentication tokens');
             $table->increments('id');
             $table->string('username')->default('');
@@ -38,14 +39,15 @@ return new class extends Migration
             $table->string('access_token')->nullable();
             $table->timestamp('valid_to')->nullable();
             $table->string('verified_key')->nullable();
-            $table->unique('username', 'users_username_unique');
+            $table->unique('username', "{$indexPrefix}_ix_username_unique");
         });
 
         $this->createTableIfMissing('user_attributes', function(Blueprint $table)
         {
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
             $table->comment('Users profile data - stores extended user information, personal details, and activity tracking');
             $table->increments('id');
-            $table->unsignedInteger('internalKey')->default(0)->index('user_attributes_internalkey_index');
+            $table->unsignedInteger('internalKey')->default(0)->index("{$indexPrefix}_internalkey_index");
             $table->string('fullname')->default('');
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
@@ -95,26 +97,27 @@ return new class extends Migration
 
         $this->createTableIfMissing('user_settings', function(Blueprint $table)
         {
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
             $table->comment('User preferences and settings - stores user-specific configuration options');
-            $table->unsignedInteger('user')->index();
-            $table->string('setting_name', 50)->default('')->index('setting_name');
+            $table->unsignedInteger('user')->index("{$indexPrefix}_user");
+            $table->string('setting_name', 50)->default('')->index("{$indexPrefix}_setting_name");
             $table->longText('setting_value')->nullable();
             $table->primary(['user','setting_name']);
         });
 
         $this->createTableIfMissing('user_values', function (Blueprint $table) {
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
             $table->comment('Template variable values for web users - stores custom field values for individual users');
             $table->increments('id');
-            $table->unsignedInteger('tmplvarid')->default(0);
-            $table->unsignedInteger('userid')->default(0);
+            $table->unsignedInteger('tmplvarid')->default(0)->index("{$indexPrefix}_tmplvarid_idx");
+            $table->unsignedInteger('userid')->default(0)->index("{$indexPrefix}_userid_idx");
             $table->mediumText('value')->nullable();
-            $table->index('tmplvarid');
-            $table->index('userid');
-            $table->unique(['tmplvarid','userid']);
+            $table->unique(['tmplvarid','userid'], "{$indexPrefix}_tmplvarid_userid");
         });
 
         $this->createTableIfMissing('active_user_locks', function(Blueprint $table)
         {
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
             $table->comment('Resource editing locks - tracks which users are currently editing specific resources (documents, templates, etc.)');
             $table->increments('id');
             $table->string('sid', 32)->default('');
@@ -122,7 +125,7 @@ return new class extends Migration
             $table->unsignedInteger('elementType')->default(0);
             $table->unsignedInteger('elementId')->default(0);
             $table->unsignedInteger('lasthit')->default(0);
-            $table->unique(['elementType','elementId','sid'], 'ix_element_id');
+            $table->unique(['elementType','elementId','sid'], "{$indexPrefix}_ix_element_id");
         });
 
         $this->createTableIfMissing('active_user_sessions', function(Blueprint $table)
@@ -165,18 +168,20 @@ return new class extends Migration
         */
         $this->createTableIfMissing('document_groups', function(Blueprint $table)
         {
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
             $table->comment('Document group assignments - many-to-many relationship between documents and document groups');
             $table->increments('id');
-            $table->unsignedInteger('document_group')->default(0)->index('document_group');
-            $table->unsignedInteger('document')->default(0)->index('document');
-            $table->unique(['document_group','document'], 'ix_dg_id');
+            $table->unsignedInteger('document_group')->default(0)->index("{$indexPrefix}_document_group");
+            $table->unsignedInteger('document')->default(0)->index("{$indexPrefix}_document");
+            $table->unique(['document_group','document'], "{$indexPrefix}_ix_dg_id");
         });
 
         $this->createTableIfMissing('documentgroup_names', function(Blueprint $table)
         {
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
             $table->comment('Document group definitions - defines document groups for access control and organization');
             $table->increments('id');
-            $table->string('name')->default('')->unique('name');
+            $table->string('name')->default('')->unique("{$indexPrefix}_name");
             $table->unsignedInteger('private_memgroup')->nullable()->default(0)->comment('determine whether the document group is private to manager users');
             $table->unsignedInteger('private_webgroup')->nullable()->default(0)->comment('determines whether the document is private to web users');
         });
@@ -188,12 +193,13 @@ return new class extends Migration
         */
         $this->createTableIfMissing('event_log', function(Blueprint $table)
         {
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
             $table->comment('System event log - records all system events, errors, warnings, and informational messages');
             $table->increments('id');
             $table->unsignedInteger('eventid')->nullable()->default(0);
             $table->unsignedInteger('createdon')->default(0);
             $table->unsignedInteger('type')->default(1)->comment('1- information, 2 - warning, 3- error');
-            $table->unsignedInteger('user')->default(0)->index()->comment('link to user table');
+            $table->unsignedInteger('user')->default(0)->index("{$indexPrefix}_user")->comment('link to user table');
             $table->unsignedInteger('usertype')->default(0)->comment('0 - manager, 1 - web');
             $table->string('source', 128)->default('');
             $table->longText('description')->nullable();
@@ -221,11 +227,12 @@ return new class extends Migration
         */
         $this->createTableIfMissing('member_groups', function(Blueprint $table)
         {
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
             $table->comment('User group memberships - many-to-many relationship between web users and member groups');
             $table->increments('id');
             $table->unsignedInteger('user_group')->default(0);
             $table->unsignedInteger('member')->default(0);
-            $table->unique(['user_group','member'], 'ix_group_member');
+            $table->unique(['user_group','member'], "{$indexPrefix}_ix_group_member");
         });
 
         $this->createTableIfMissing('membergroup_access', function(Blueprint $table)
@@ -239,9 +246,10 @@ return new class extends Migration
 
         $this->createTableIfMissing('membergroup_names', function(Blueprint $table)
         {
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
             $table->comment('Member group definitions - defines user groups for access control');
             $table->increments('id');
-            $table->string('name', 245)->default('')->unique();
+            $table->string('name', 245)->default('')->unique("{$indexPrefix}_name");
         });
 
         /*
@@ -286,6 +294,7 @@ return new class extends Migration
         */
         $this->createTableIfMissing('site_content', function(Blueprint $table) use ($isMySql)
         {
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
             $table->comment('Site content (documents) - main table storing all site pages, documents, and content resources');
             $table->increments('id');
             $table->string('type', 20)->default('document')->index('typeidx');
@@ -293,12 +302,12 @@ return new class extends Migration
             $table->string('pagetitle')->default('');
             $table->string('longtitle')->default('');
             $table->string('description')->default('');
-            $table->string('alias', 245)->nullable()->default('')->index('aliasidx');
+            $table->string('alias', 245)->nullable()->default('')->index("{$indexPrefix}_aliasidx");
             $table->string('link_attributes')->default('')->comment('Link attriubtes');
             $table->unsignedInteger('published')->default(0);
             $table->unsignedInteger('pub_date')->default(0);
             $table->unsignedInteger('unpub_date')->default(0);
-            $table->unsignedInteger('parent')->default(0)->index('parent');
+            $table->unsignedInteger('parent')->default(0)->index("{$indexPrefix}_parent");
             $table->unsignedInteger('isfolder')->default(0);
             $table->text('introtext')->nullable()->comment('Used to provide quick summary of the document');
             $table->longText('content')->nullable();
@@ -324,13 +333,13 @@ return new class extends Migration
             $table->boolean('hidemenu')->default(0)->comment('Hide document from menu');
             $table->unsignedInteger('alias_visible')->default(1);
 
-            $table->index(['pub_date', 'unpub_date', 'published'], 'pub_unpub_published');
-            $table->index(['pub_date', 'unpub_date'], 'pub_unpub');
-            $table->index(['unpub_date'], 'unpub');
-            $table->index(['pub_date'], 'pub');
-            $table->index('template', 'content_template_idx');
-            $table->index('createdby', 'content_createdby_idx');
-            $table->index('editedby', 'content_editedby_idx');
+            $table->index(['pub_date', 'unpub_date', 'published'], "{$indexPrefix}_pub_unpub_published_idx");
+            $table->index(['pub_date', 'unpub_date'], "{$indexPrefix}_pub_unpub_idx");
+            $table->index(['unpub_date'], "{$indexPrefix}_unpub_idx");
+            $table->index(['pub_date'], "{$indexPrefix}_pub_idx");
+            $table->index('template', "{$indexPrefix}_template_idx");
+            $table->index('createdby', "{$indexPrefix}_createdby_idx");
+            $table->index('editedby', "{$indexPrefix}_editedby_idx");
 
             if ($isMySql) {
                 $table->fullText(['pagetitle', 'description', 'content'], 'content_ft_idx');
@@ -338,6 +347,7 @@ return new class extends Migration
         });
 
         $this->createTableIfMissing('site_content_closure', function (Blueprint $table) {
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
             $table->comment('Content hierarchy closure table - stores hierarchical relationships between documents for efficient tree queries');
             $table->increments('closure_id');
             $table->unsignedInteger('ancestor');
@@ -347,7 +357,7 @@ return new class extends Migration
             $table->index('ancestor', 'closure_ancestor_idx');
             $table->index('descendant', 'closure_descendant_idx');
             $table->index('depth', 'closure_depth_idx');
-            $table->unique(['ancestor', 'descendant'], 'closure_unique_path');
+            $table->unique(['ancestor', 'descendant'], "{$indexPrefix}_ix_unique_path");
         });
 
         /*
@@ -496,6 +506,7 @@ return new class extends Migration
         */
         $this->createTableIfMissing('site_tmplvars', function(Blueprint $table)
         {
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
             $table->comment('Template variables (TVs) - defines custom fields that can be attached to templates and have values per document');
             $table->increments('id');
             $table->string('type', 50)->default('');
@@ -506,7 +517,7 @@ return new class extends Migration
             $table->unsignedInteger('category')->default(0)->comment('category id');
             $table->boolean('locked')->default(0);
             $table->text('elements')->nullable();
-            $table->unsignedInteger('rank')->default(0)->index('indx_rank');
+            $table->unsignedInteger('rank')->default(0)->index("{$indexPrefix}_indx_rank");
             $table->string('display', 32)->nullable()->comment('Display Control');
             $table->text('display_params')->nullable()->comment('Display Control Properties');
             $table->text('default_text')->nullable();
@@ -525,15 +536,16 @@ return new class extends Migration
 
         $this->createTableIfMissing('site_tmplvar_contentvalues', function(Blueprint $table) use ($isMySql)
         {
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
             $table->comment('Template variable values - stores the actual values of template variables for each document');
             $table->increments('id');
-            $table->unsignedInteger('tmplvarid')->default(0)->index('idx_tmplvarid')->comment('Template Variable id');
-            $table->unsignedInteger('contentid')->default(0)->index('idx_id')->comment('Site Content Id');
+            $table->unsignedInteger('tmplvarid')->default(0)->index("{$indexPrefix}_idx_tmplvarid")->comment('Template Variable id');
+            $table->unsignedInteger('contentid')->default(0)->index("{$indexPrefix}_idx_id")->comment('Site Content Id');
             $table->mediumText('value')->nullable();
-            $table->unique(['tmplvarid','contentid'], 'ix_tvid_contentid');
+            $table->unique(['tmplvarid','contentid'], "{$indexPrefix}_ix_tvid_contentid");
 
             if ($isMySql) {
-                $table->fullText(['value'], 'content_ft_idx');
+                $table->fullText(['value'], "{$indexPrefix}_ix_content_ft");
             }
         });
 

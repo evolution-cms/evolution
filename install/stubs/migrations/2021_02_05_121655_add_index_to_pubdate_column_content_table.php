@@ -14,10 +14,11 @@ class AddIndexToPubdateColumnContentTable extends Migration
     public function up()
     {
         Schema::table('site_content', function (Blueprint $table) {
-            $table->index(['pub_date', 'unpub_date', 'published'], 'pub_unpub_published');
-            $table->index(['pub_date', 'unpub_date'], 'pub_unpub');
-            $table->index(['unpub_date'], 'unpub');
-            $table->index(['pub_date'], 'pub');
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
+            $table->index(['pub_date', 'unpub_date', 'published'], "{$indexPrefix}_pub_unpub_published_idx");
+            $table->index(['pub_date', 'unpub_date'], "{$indexPrefix}_pub_unpub_idx");
+            $table->index(['unpub_date'], "{$indexPrefix}_unpub_idx");
+            $table->index(['pub_date'], "{$indexPrefix}_pub_idx");
         });
     }
 
@@ -29,7 +30,9 @@ class AddIndexToPubdateColumnContentTable extends Migration
     public function down()
     {
         Schema::table('site_content', function (Blueprint $table) {
-            $table->dropIndex(['pub_unpub_published', 'pub_unpub', 'unpub', 'pub']);
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
+            $table->dropIndex(["{$indexPrefix}_pub_unpub_published_idx", "{$indexPrefix}_pub_unpub_idx",
+                "{$indexPrefix}_unpub_idx", "{$indexPrefix}_pub_idx"]);
         });
     }
 }
