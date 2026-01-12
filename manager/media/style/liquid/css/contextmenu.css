@@ -1,0 +1,14 @@
+/* contextmenu */
+#mx_contextmenu, #contextmenu, .nu-context-menu, .contextMenu { display: block !important; position: absolute; overflow: hidden; top: 0; max-width: 25rem; width: auto !important; height: auto; padding: 0.25rem 0; visibility: hidden; opacity: 0; z-index: 10000; background: #fff; font-size: 0.9em; border: none; border-radius: 0.25rem; -webkit-box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3); box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3); transition: opacity 0s, visibility 0s; transform: translateZ(0) }
+#mx_contextmenu .fa, #contextmenu .fa, .nu-context-menu .fa, .contextMenu .fa { width: 1.3em; font-size: 0.9rem; text-align: center; }
+#mx_contextmenu.show, #contextmenu.show, .nu-context-menu.active, .contextMenu { visibility: visible; opacity: 1; transition: opacity 0.1s, visibility 0.1s; }
+#mx_contextmenu > div, #contextmenu > div, .nu-context-menu ul li, .contextMenu > div { padding: 0.5em 2em 0.5em 1em; }
+#mx_contextmenu #nameHolder, #contextmenu .menuHeader, .nu-context-menu-title { color: #1377c5; padding: 0.75em 1em; }
+#mx_contextmenu .menuLink, #contextmenu .menuLink, .nu-context-menu ul li, .contextMenu > div { cursor: pointer; }
+#mx_contextmenu .menuLink:hover, #contextmenu .menuLink:hover, .nu-context-menu ul li:hover, .contextMenu > div:hover { background-color: #1976d2; color: #fff; }
+#mx_contextmenu .seperator, #contextmenu .seperator, .nu-context-menu ul hr, .contextMenu .cntxMnuSeparator { height: 1px; background-color: rgba(0, 0, 0, 0.07) !important; margin: 0.25em 0; padding: 0; cursor: default; }
+.nu-context-menu ul { margin: 0; padding: 0; }
+.contextMenu .cntxMnuItem { white-space: nowrap }
+/* modes theme */
+/* darkness */
+.darkness #mx_contextmenu, .darkness #contextmenu, .darkness .nu-context-menu, .darkness .contextMenu { background-color: #343942; color: inherit; }

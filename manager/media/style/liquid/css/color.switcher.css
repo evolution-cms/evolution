@@ -1,0 +1,73 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+.evocp-box { position: fixed; width: 300px; min-height: 100%; top: 35px; right: -300px; color: #444; z-index: 10; transition: 0.5s cubic-bezier(1, 1.48, 0.76, 0.95) right, box-shadow .5s; }
+.evocp-icon { position: absolute; bottom:60px; width: 34px; height: 29px; vertical-align: middle; line-height: 28px; left: -34px; background: #fafafa; box-shadow: -3px 0 2px 1px rgba(0, 0, 0, 0.1); border-radius: 50% 0 0 50%; text-align: center; font-size: 17px; cursor: pointer; z-index: 10; -webkit-animation: colorchange 15s infinite alternate; }
+.dark .evocp-icon { background: #2f323a; border: 1px solid #2f323a; border-right: 0; -webkit-animation: colorchange 15s infinite alternate; }
+i.evocpicon:hover { -webkit-transform: rotate(30deg); -moz-transform: rotate(30deg); -ms-transform: rotate(30deg); -o-transform: rotate(30deg); transform: rotate(30deg); }
+@keyframes colorchange {
+0% { color: #b45f06; }
+10% { color: #38761d; }
+20% { color: #134f5c; }
+30% { color: #0b5394; }
+40% { color: #351c75; }
+50% { color: #741b47; }
+60% { color: blue; }
+70% { color: #2980b9; }
+80% { color: #f1c40f; }
+90% { color: #2980b9; }
+100% { color: #900;}
+}
+@-webkit-keyframes colorchange /* Safari and Chrome - necessary duplicate */ {
+0% { color: #b45f06; }
+10% { color: #38761d; }
+20% { color: #134f5c; }
+30% { color: #0b5394; }
+40% { color: #351c75; }
+50% { color: #741b47; }
+60% { color: blue; }
+70% { color: #2980b9; }
+80% { color: #f1c40f; }
+90% { color: #2980b9; }
+100% { color: #900; }
+}
+.evocp-box .evocp-frame { position: absolute; width: 100%; height: 100%; top: 0; right: 0; background: #fafafa; text-align: center; font-weight: 700; color: #444; padding: 0 0 20px 0; }
+.dark .evocp-box .evocp-frame { color: #dedede; background: #202329; border-top: 1px solid #2f323a; }
+.evocp-box .evocp-menuHColors, .evocp-box .evocp-menuColors, .evocp-box .evocp-bgmcolors, .evocp-box .evocp-colors, .evocp-box .evocp-alinkcolors { margin: 10px; overflow: hidden; }
+.evocp-box .evocp-menuHColor, .evocp-box .evocp-menuColor, .evocp-box .evocp-bgmcolor, .evocp-box .evocp-color, .evocp-box .evocp-alinkcolor { position: relative; float: left; margin: 2px; height: 31px; width: 31px; max-height: 31px; max-width: 31px; background: #2f323a; color: transparent; overflow: hidden; cursor: pointer; border: 1px solid #646b7b; border-radius: 50%; }
+.evocp-box .evocp-custom-colors, .evocp-box .evocp-custom-colors { clear: both; padding-top: 20px; }
+.evocp-box input[name="evocpCustomalinkcolor"], .evocp-box input[name="evocpCustommenuColor"], .evocp-box input[name="evocpCustommenuHColor"], .evocp-box input[name="evocpCustombgmColor"], .evocp-box input[name="evocpCustomTXColor"] { margin: 10px 0 0 -4px; cursor: pointer; height: 30px; width: 30px; border-radius: 50%; border: none; outline: none; background: transparent; padding: 0; }
+.appear-it { right: 0; box-shadow: -3px 0 4px 1px rgba(0, 0, 0, 0.1); }
+.evocp-frame h2 { font-size: 1.0rem; line-height: 1.6rem; border-bottom: 1px solid #dedede; padding-top: 4px; /* -webkit-animation: colorchange 20s infinite alternate;*/ }
+.dark .evocp-frame h2 { background-color: #2f323a; border-bottom: 1px solid #dedede; }
+.evocp-frame .panel-heading h3 { cursor: pointer; display: inline-block; font-size: 0.8rem; line-height: 1.1rem; margin-top: 9px; }
+.evocp-frame .panel-heading h3:hover { color: #000; }
+.dark .evocp-frame h3:hover { color: #fff; }
+.evocp-frame .panel { margin-bottom: 2px; }
+.evocp-frame .panel-heading { text-align: left; border-top: 1px solid #dedede; border-bottom: 1px solid #dedede; background-color: #f2f2f2; padding: 0 0 0 8px; text-transform: uppercase; }
+.dark .evocp-frame .panel-heading { background-color: #2f323a; border-color: #3e4144; }
+.evocp-frame .panel-heading .btn { margin-top: 2px }
+.dark .evocp-frame .panel-heading .btn { background-color: #2f323a; border-color: #3e4144; color: #fafafa; }
+.dark .evocp-frame .panel-heading .btn:hover { background-color: #1a1c21; }
+.dark .evocp-frame h2 { border-color: #3e4144; }
+.evocp-frame .panel-heading .togglearrow { width: 10px; font-size: 10px; color: #bbb; margin-right: 2px; margin-top: -5px; }
+.evocp-box .evocp-menuHColor.colorSelected:before, .evocp-box .evocp-menuColor.colorSelected:before, .evocp-box .evocp-bgmcolor.colorSelected:before, .evocp-box .evocp-color.colorSelected:before, .evocp-box .evocp-alinkcolor.colorSelected:before { font-family: 'Font Awesome 5 Free'; content: "\f1fc"; display: inline-block; padding-top: 3px; vertical-align: middle; color: #fff; }
+.evocp-box .evocp-menuHColor.evocp_light.colorSelected:before, .evocp-box .evocp-menuColor.evocp_light.colorSelected:before, .evocp-box .evocp-bgmcolor.evocp_light.colorSelected:before, .evocp-box .evocp-color.evocp_light.colorSelected:before, .evocp-box .evocp-alinkcolor.evocp_light.colorSelected:before { color: #444 !important; }
+.dark .evocp-box .btn-secondary { background-color: #2f323a; border-color: #3e4144; color: #fafafa; }
+/*fix for mainmenu*/
+/*
+#mainMenu.show .nav > li.dropdown.hover > a {
+    background-color: #fff;
+    color: #666!important;
+}
+/* color picker*/
+.sp-picker-container { width: 200px; border-left: 0 !important; }
+.sp-container { width: 300px; background: #f2f2f2; border: 1px solid #dedede; }
+.dark .sp-container { background: #2f323a; border: 1px solid #3e4144; }
+.evo-cp-replacer, .sp-replacer.sp-light { padding: 2px; background: #f2f2f2; border-color: #dedede; margin: 3px auto; }
+.dark .evo-cp-replacer, .dark .sp-replacer.sp-light { background: #2f323a; border-color: #3e4144; }
+.sp-dd { margin-top: 4px; color: #666; }
+.dark .sp-dd { color: #bcbec0; }
+.sp-preview { height: 25px; width: 25px; max-height: 25px; max-width: 25px; overflow: hidden; cursor: pointer; border-radius: 50%; border: 0px solid #2f323a; }
+/* navbar left */
+.navbar-left .evocp-box {
+  top: 0;
+}

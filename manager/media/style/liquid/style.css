@@ -1,0 +1,8 @@
+@import "../common/bootstrap/css/bootstrap.min.css?v=4.0.0-alpha.5";
+@import "../common/font-awesome/css/font-awesome.min.css?v=4.7.0";
+@import "css/fonts.css?v=1.3.5";
+@import "css/forms.css?v=1.3.5";
+@import "css/custom.css?v=1.3.5";
+@import "css/tabpane.css";
+@import "css/contextmenu.css";
+@import "css/main.css";

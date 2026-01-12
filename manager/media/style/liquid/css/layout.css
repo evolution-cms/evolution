@@ -1,0 +1,29 @@
+.layout { display: table; table-layout: fixed; height: 100%; width: 100% }
+.layout > .layout-row { display: table-row; vertical-align: top; height: 100% }
+.layout > .layout-row > .layout-cell { display: table-cell; vertical-align: top; height: 100% }
+.layout > .layout-row > .layout-cell.layout-container, .layout > .layout-row > .layout-cell .layout-container, .layout > .layout-row > .layout-cell.padded-container, .layout > .layout-row > .layout-cell .padded-container { padding: 1rem 1rem 0 1rem }
+.layout > .layout-row > .layout-cell.layout-container .container-flush, .layout > .layout-row > .layout-cell .layout-container .container-flush, .layout > .layout-row > .layout-cell.padded-container .container-flush, .layout > .layout-row > .layout-cell .padded-container .container-flush { padding-top: 0 }
+.layout > .layout-row > .layout-cell .layout-relative { position: relative; height: 100% }
+.layout > .layout-row > .layout-cell .layout-absolute { position: absolute; height: 100%; width: 100% }
+.layout > .layout-row > .layout-cell.min-size { width: 0 }
+.layout > .layout-row > .layout-cell.min-height { height: 0 }
+.layout > .layout-row > .layout-cell.center { text-align: center }
+.layout > .layout-row > .layout-cell.middle { vertical-align: middle }
+.layout > .layout-row > .layout-cell.layout-container, .layout > .layout-row > .layout-cell .layout-container, .layout > .layout-row > .layout-cell.padded-container, .layout > .layout-row > .layout-cell .padded-container { padding: 1rem 1rem 0 1rem }
+.layout > .layout-row > .layout-cell.layout-container .container-flush, .layout > .layout-row > .layout-cell .layout-container .container-flush, .layout > .layout-row > .layout-cell.padded-container .container-flush, .layout > .layout-row > .layout-cell .padded-container .container-flush { padding-top: 0 }
+.layout > .layout-row > .layout-cell .layout-relative { position: relative; height: 100% }
+.layout > .layout-row > .layout-cell .layout-absolute { position: absolute; height: 100%; width: 100% }
+.layout > .layout-row > .layout-cell.min-size { width: 0 }
+.layout > .layout-row > .layout-cell.min-height { height: 0 }
+.layout > .layout-row > .layout-cell.center { text-align: center }
+.layout > .layout-row > .layout-cell.middle { vertical-align: middle }
+.layout > .layout-row.min-size { height: 0 }
+.layout > .layout-cell { display: table-cell; vertical-align: top; height: 100% }
+.layout > .layout-cell.layout-container, .layout > .layout-cell .layout-container, .layout > .layout-cell.padded-container, .layout > .layout-cell .padded-container { padding: 1rem 1rem 0 1rem }
+.layout > .layout-cell.layout-container .container-flush, .layout > .layout-cell .layout-container .container-flush, .layout > .layout-cell.padded-container .container-flush, .layout > .layout-cell .padded-container .container-flush { padding-top: 0 }
+.layout > .layout-cell .layout-relative { position: relative; height: 100% }
+.layout > .layout-cell .layout-absolute { position: absolute; height: 100%; width: 100% }
+.layout > .layout-cell.min-size { width: 0 }
+.layout > .layout-cell.min-height { height: 0 }
+.layout > .layout-cell.center { text-align: center }
+.layout > .layout-cell.middle { vertical-align: middle }

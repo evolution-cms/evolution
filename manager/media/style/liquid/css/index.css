@@ -1,0 +1,59 @@
+@supports (-webkit-overflow-scrolling: touch) {
+    html, body { -webkit-overflow-scrolling: touch; overflow: auto; height: 100%; /* ios iframe scroll jumping to top fix */ }
+}
+#frameset { position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; }
+#mainMenu, #tree, #main { position: absolute; }
+#mainMenu { top: 0; left: 0; width: 100%; height: 2.2rem; z-index: 100; }
+#tree { left: 0; top: 2.2rem; bottom: 0; width: 25rem; max-width: 100%; overflow: hidden; z-index: 2; }
+#main { left: 25rem; top: 2.2rem; right: 0; bottom: 0; z-index: 1; }
+#main #mainframe { display: block; position: absolute; width: 100%; height: 100%; overflow: auto;}
+
+.ios #main #mainframe, .ios #main .tabframes { overflow: hidden !important; min-width: 100%!important; width: 100px!important; *width: 100%!important; }
+.ios .iframe-scroller { -webkit-overflow-scrolling: touch; overflow: auto; width:100%; height:100%; }
+.ios .evo-tab-page.iframe-scroller { height:calc(100% - 2.3em) }
+
+/* floater */
+#floater { position: fixed; z-index: 1000; opacity: 0; visibility: hidden; max-width: 20rem; padding: 1.5rem; top: 4rem; left: 2rem; border-radius: 0.25rem; background-color: #fff; -webkit-box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3); box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3); transition-duration: 0.15s }
+#floater.show { opacity: 1; visibility: visible; }
+/*resizer*/
+#resizer { position: absolute; z-index: 99; top: 2.2rem; bottom: 0; left: 25rem; width: 5px; margin-left: -1px; cursor: col-resize; background-color: transparent; transition: background-color .3s }
+#resizer:hover { background-color: rgba(0, 0, 0, 0.1); }
+#mask_resizer { position: absolute; width: 100%; height: 100%; }
+/* mainloader */
+#mainloader {position: absolute; z-index: 50000; top: 0; left: 0; width: 100%; height: 100%; text-align: center; vertical-align: middle; padding: 15% 0 0 0; background-color: rgba(255, 255, 255, 0.64); opacity: 0; visibility: hidden; -webkit-transition-duration: 0.3s; transition-duration: 0.3s }
+#mainloader.show {opacity: 0.75; visibility: visible; -webkit-transition-duration: 0.1s; transition-duration: 0.1s}
+#mainloader::before {display: none;}
+.evo__logo {font-size: 3.5em;position: fixed; top: 40%; left: 50%;}
+.evo__logo::before {content: ""; display: block; position: absolute; z-index: 1; left: 50%; top: 50%; width: 120px; height: 120px; border-radius: 50%; transform: translate(-50%, -50%) rotate(0deg); animation: rotateLogo 2s linear infinite; box-shadow: 5px 5px 0 0 #FFD700, 14px -7px 0 0 rgba(111, 163, 219, 0.7), -7px 11px 0 0 rgba(112, 193, 92, 0.74), -11px -7px 0 0 rgba(147, 205, 99, 0.78);}
+@keyframes rotateLogo {to {transform: translate(-50%, -50%) rotate(360deg)}}
+.sidebar-closed #tree {width: 0 !important;}
+.sidebar-closed #main, .sidebar-closed #resizer { left: 0 !important; }
+@media (min-width: 1200px) {
+#mainMenu { height: 2.5rem; }
+#tree, #main { top: 2.5rem; }
+}
+@media (max-width: 840px) {
+#floater { left: 0; right: 0; margin: 0 auto; }
+#resizer { display: none }
+#frameset #mask_resizer { z-index: 3 !important; opacity: 0.5; visibility: visible; background-color: #000; -webkit-transition: 0.2s; transition: 0.2s }
+.sidebar-closed #frameset #mask_resizer { opacity: 0; visibility: hidden; }
+#tree { z-index: 5; width: 100% !important; max-width: 20rem; box-shadow: 0 0 1rem rgba(0, 0, 0, 0.25); -webkit-transition: 0.25s; transition: 0.25s }
+.sidebar-closed #tree { width: auto !important; box-shadow: none; -webkit-transform: translate3d(-100%, 0, 0); transform: translate3d(-100%, 0, 0); }
+#tree .treeframebody { box-shadow: none }
+.sidebar-closed #main::after { content: ""; position: absolute; z-index: 1; left: 0; top: 6rem; bottom: 0; width: 1rem; }
+#main { left: 0 !important; }
+#main::before { content: ""; position: absolute; z-index: 9999; left: 0; top: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0); }
+.sidebar-closed #mainMenu:not(.show) + #tree + #main::before { display: none }
+}
+@keyframes rotate {
+to { transform: rotate(360deg) }
+}
+/* dark */
+.dark #frameset { background-color: #202329 }
+.dark #main { background-color: #ecf0f1 }
+.dark #mainloader { background-color: rgba(0, 0, 0, 0.1); }
+/* darkness */
+.darkness { letter-spacing: .021em; }
+.darkness #mainloader { background-color: rgba(0, 0, 0, 0.1); }
+.darkness, .darkness #frameset, .darkness #main, .darkness .table  { background-color: #282c34; color: #bdbdbd; }
+.darkness > form { background-color: #202329 }

@@ -1,0 +1,199 @@
+/* -------------------------[ Misc stuff ]--- */
+.comment { font-size: 11px; color: #999; padding: 4px 0; }
+.screen { border: 1px solid #ddd; text-align: center; }
+.even { background: #d9e7c2; }
+.odd { background: #fff; }
+/* -------------------------[ end sortable table ]--- */
+.disabledImage { width: 20px; opacity: 0.3; filter: alpha(opacity=30); }
+.disabledImage img { border: 0; }
+.editorCell { border-top: 1px solid #808080; text-align: left; vertical-align: baseline; }
+/* */
+.unpublished a, .unpublish { color: #b68282; font-style: italic; }
+.notInMenuNode { color: #39515d; text-decoration: none; }
+#treeSplitter { width: 10px; height: 100%; position: absolute; right: -10px; }
+.deleted { color: #a52a2a; text-decoration: line-through; }
+label.disabled { color: #aaa; }
+/* -------------------------[ home page main links ]--- */
+/*a.hometblink, a.hometblink:active, .hometblink { text-decoration: underline; color: #333; font-weight: 500; font-size: 12px; }
+a.hometblink:hover { text-decoration: underline; color: Gray; }*/
+.notice { width: 100%; padding: 5px; border: 1px solid #eee; background-color: #f5f5f5; color: #707070; }
+/* -------------------------[ Settings Table ]--- */
+.filelist td { border-bottom: 1px solid #c2c3cf; }
+/* -------------------------[ Welcome Page ]--- */
+/*#mainActionPages { background: #f5f5f5; }*/
+/* -------------------------[ New sortable table class ]--- */
+.sortabletable { width: 100%; border-collapse: collapse; }
+.sortabletable thead tr { color: #333; font-weight: 500; white-space: nowrap; background-color: #d2d2d2; text-align: left; }
+.sortabletable tr { background: #fff; }
+.sortabletable tr.even { background: #f7f7f7; }
+.sortabletable tbody tr:hover { background: #e9f0f3; }
+.sortabletable td, .sortabletable th { padding: 5px !important; border: 1px solid #ccc; }
+.sortabletable th { text-align: left; cursor: pointer; color: #333; }
+.sortabletable th a { text-decoration: none; color: #333; }
+.sortabletable th:active { background: #ccc; padding: 3px 4px 1px 6px; }
+/* -------------------------[ Pagination table ]--- */
+#max-display-records { margin: 10px 0; }
+fieldset.tab-page { border: 1px solid #e4e4e4 !important; }
+h2#edit_document_title { font-size: 0.9rem; color: #f5f5f5; width: 100%; border-bottom: none; padding: 5px 10px; }
+fieldset#preview h2.tab { float: right; }
+/*
+* Generic styles for all form elements
+*/
+form#mutate dt, form#mutate dd { margin-bottom: 10px; }
+form#mutate dt label, form#mutate dt h3.label { font-size: 1em; display: inline; float: left; width: 200px; color: #821517 !important; font-weight: 500; }
+form#mutate dd { margin-left: 210px; }
+form#mutate input.disabled { background-color: #f5f5f5 !important; }
+/*form#mutate select.inputBox { margin-right: 5px; }*/
+form#mutate .multitv input[type="text"] { width: 300px; }
+form#mutate .imageField { width: 50%; min-width: 300px; }
+form#mutate input[name="menuindex"] { text-align: center; width: 80px; padding-left: 0; padding-right: 0; }
+form#mutate input[name="ta"].inputBox { padding-left: 30px }
+form#mutate input[name="ta"].inputBox:focus + input[type=button], form#mutate input[name="ta"].inputBox:focus + .CodeMirror + input[type=button] { border-color: #1377c5 #1377c5 #1377c5 #bbb; }
+input[name^=tv].DatePicker, input[name*=date].DatePicker, input[name=createdon].DatePicker, input[name=editedon].DatePicker { float: left; width: auto; padding-right: 2em }
+input[name^=tv].DatePicker + a, input[name*=date].DatePicker + a { position: relative; z-index: 5; margin-top: 0.5em; margin-left: -1.5em; float: left; }
+form#mutate textarea.tv_textareamini { height: 100px; width: 300px; overflow-y: scroll; }
+form#mutate textarea.tv_textarea { height: 100px; width: 100%; overflow-y: scroll; }
+form#mutate #llock { position: relative; z-index: 5; float: left; width: 1.9rem; height: 1.9rem; margin: 0 -2rem 0 0; line-height: 2rem; cursor: pointer; text-align: center; }
+form#mutate #llock + #ta { display: block !important; padding-left: 2rem }
+form#mutate #llock + #ta + .CodeMirror { display: none !important; }
+form#mutate #plock { width: 1.4em; cursor: pointer; font-size: 14px }
+/*
+* Individual Styles for fieldset#preview
+*/
+fieldset#preview iframe { width: 100%; margin: 0 auto; border: 1px solid #f5f5f5; }
+/*
+* Individual Styles for fieldset#access_permissions
+*/
+fieldset#access_permissions dt label { width: 200px; }
+fieldset#access_permissions dd { margin-left: 210px; }
+fieldset#access_permissions dl dd ul li { list-style-type: none; }
+/* ppb:
+* Some styling for legacy mode fieldsets
+*/
+fieldset.legacy { background: #fff; padding: 10px; margin: 10px 10px 35px; border: 1px solid #e4e4e4 !important; position: relative; }
+fieldset.legacy h2 { width: 100%; background: #f5f5f5; margin: -10px -10px 1rem -10px; padding: 0 10px; border-bottom: 1px solid #e4e4e4 !important; }
+/* System Alert Box ---------------------------------------------------------- */
+.cbOverlay { background-color: #000; z-index: 50000; }
+.cbContainer { padding: 5px; background-color: white; z-index: 50000; }
+.cbBox h3 { color: #000; background: #bee860 repeat-x top; padding: 5px; font-weight: 500; }
+.cbBox p { margin: 3px; }
+.cbBox .cbButtons { text-align: center; }
+.sysAlert { width: 500px; height: 330px; white-space: nowrap; overflow: auto; }
+.phptextarea { font-family: Consolas, 'Courier New', 'Courier', monospace; }
+/* Custom */
+/* normalize some td paddings */
+#displayparams table { background: #fff; }
+#displayparams table tbody td { border-bottom: 1px dotted #d3d3d3; }
+.permissiongroups { margin: 0; }
+.permissiongroups ul { clear: both; margin: 0; padding: 0.5rem 0; }
+.permissiongroup input[type=submit], .permissiongroup input[type=button], .permissiongroups input[type=submit], .permissiongroups input[type=button] { float: left; margin: 0.3em 0.3em 0 0; }
+td#displayparams > table.displayparams { border: none; }
+/* replace warning red color in tabs */
+strong[style*='color:#EF1D1D'] { color: yellow !important; }
+.selected strong[style*='color:#ffeb00'] { color: red !important; }
+code { font-size: inherit; font-family: Consolas, 'Courier New', 'Courier', monospace; background-color: #eee; border: 1px solid #ccc; padding: 1px 2px; }
+#resourcesPane .disabledPlugin a:hover { color: #aaa; }
+/* table styles*/
+.table, #documentPane #tv_body table, #documentPane .tmplvars table, #documentPane [id*="table-"], #documentPane [id*="table-tv"] { width: 100%; }
+#documentPane .tab-page > table > tr > td:first-child, #documentPane .tab-page > table > tbody > tr > td:first-child, #documentPane .tab-page .tmplvars > table > tbody > tr > td:first-child, #tmplvarsPane .tab-page > table > tbody > tr > td:first-child, #tmplvarsPane .tab-page > table > tbody > tr > th:first-child, #chunkPane .tab-page > table > tbody > tr > td:first-child, #chunkPane .tab-page > table > tbody > tr > th:first-child, #snipetPane .tab-page > table > tbody > tr > td:first-child, #snipetPane .tab-page > table > tbody > tr > th:first-child, #pluginPane .tab-page > table > tbody > tr > td:first-child, #pluginPane .tab-page > table > tbody > tr > th:first-child, #modulePane .tab-page > table > tbody > tr > td:first-child, #modulePane .tab-page > table > tbody > tr > th:first-child, #docManagerPane .tab-page #dates > table > tbody > tr > td:first-child { width: 200px }
+#documentPane .tab-page > table > tr > td:last-child, #documentPane .tab-page .tmplvars > table > tbody > tr > td:last-child { width: inherit !important }
+#documentPane .tab-page > table > tbody > tr > td:first-child > .warning { display: inline-block; width: calc(100% - 1.1rem); }
+#documentPane .tab-page > table > tbody > tr > td:first-child > [data-tooltip] { margin-top: 0.3rem; vertical-align: top }
+.table, #webUserPane #tv_body table, #webUserPane .tmplvars table, #webUserPane [id*="table-"], #webUserPane [id*="table-tv"] { width: 100%; }
+#webUserPane .tab-page > table > tr > td:first-child, #webUserPane .tab-page > table > tbody > tr > td:first-child, #webUserPane .tab-page .tmplvars > table > tbody > tr > td:first-child, #tmplvarsPane .tab-page > table > tbody > tr > td:first-child, #tmplvarsPane .tab-page > table > tbody > tr > th:first-child, #chunkPane .tab-page > table > tbody > tr > td:first-child, #chunkPane .tab-page > table > tbody > tr > th:first-child, #snipetPane .tab-page > table > tbody > tr > td:first-child, #snipetPane .tab-page > table > tbody > tr > th:first-child, #pluginPane .tab-page > table > tbody > tr > td:first-child, #pluginPane .tab-page > table > tbody > tr > th:first-child, #modulePane .tab-page > table > tbody > tr > td:first-child, #modulePane .tab-page > table > tbody > tr > th:first-child, #docManagerPane .tab-page #dates > table > tbody > tr > td:first-child { width: 200px }
+#webUserPane .tab-page > table > tr > td:last-child, #webUserPane .tab-page .tmplvars > table > tbody > tr > td:last-child { width: inherit !important }
+#webUserPane .tab-page > table > tbody > tr > td:first-child > .warning { display: inline-block; width: calc(100% - 1.1rem); }
+#webUserPane .tab-page > table > tbody > tr > td:first-child > [data-tooltip] { margin-top: 0.3rem; vertical-align: top }
+.table--edit { margin-bottom: 1rem; }
+.table th, .table td { text-align: left; vertical-align: middle; }
+table th { font-weight: 500; }
+.table--edit th { width: 200px; color: #555; font-size: inherit; }
+.table--edit input[type="text"], .table--edit input[type="password"], .table--edit input[type="number"], .table--edit textarea, .table--edit select, .settings input[type="text"], .settings input[type="password"], .settings input[type="number"], .settings textarea, .settings select { width: 300px; }
+/* stacked table cells on small screens */
+@media (max-width: 567px) {
+#documentPane #tabGeneral > table > tbody > tr > td, #documentPane #tabGeneral .tmplvars > table > tbody > tr > td, #documentPane #tabSettings > table > tbody > tr > td, #settingsPane > .tab-page > table > tbody > tr > td, #settingsPane > .tab-page > table > tbody > tr > th {display: block !important;width: 100% !important;}
+#settingsPane > .tab-page > table > tbody > tr > th {border-bottom-width: 0;}
+#webUserPane #tabGeneral > table > tbody > tr > td, #webUserPane #tabGeneral .tmplvars > table > tbody > tr > td, #webUserPane #tabSettings > table > tbody > tr > td, #settingsPane > .tab-page > table > tbody > tr > td, #settingsPane > .tab-page > table > tbody > tr > th {display: block !important;width: 100% !important;}
+#settingsPane > .tab-page > table > tbody > tr > th {border-bottom-width: 0;}
+}
+/*
+ * MODxRE2 styles
+ * css above is original MODxRE
+ * css below is basicaly MODxRE overrides to get MODxRE2 look
+ */
+/* nav */
+.no-events { pointer-events: none; }
+/* Required for Bootstrap3 Collapse */
+.panel-title > a { font-size: 1.1em; color: #657587; display: block; padding: 3px 0; }
+.panel-title > a:hover { text-decoration: none; color: #1377c5; background: rgba(255, 255, 255, 0.27); }
+.panel-title > a > i::before { content: "\f107"; /* fa-angle-down */ }
+.panel-title > a.collapsed > i::before { content: "\f105"; /* fa-angle-right */ }
+/* category icons in manage elements */
+#site_templates, #site_tmplvars, #site_htmlsnippets, #site_snippets, #site_plugins { padding-left: 0; }
+#site_templates li, #site_tmplvars li, #site_htmlsnippets li, #site_snippets li, #site_modules li, #site_plugins li, #categories_list li { list-style: none; margin-left: -21px; }
+#site_templates li strong:before, #site_tmplvars li strong:before, #site_htmlsnippets li strong:before, #site_snippets li strong:before, #site_modules li strong:before, #site_plugins li strong:before, #categories_list li strong:before { font-family: "Font Awesome 5 Free"; font-style: normal; font-weight: normal; color: #5b6f7a; padding: 0 5px 0 5px; content: '\f105'; }
+.tab-pane ul li ul li strong:before { content: ''; }
+/* elements icons in manage elements */
+div#tabCategory.tab-page ul li ul li { padding-top: 7px; padding-bottom: 7px; }
+/*Fake tables for providing dynamic amount of cells per row*/
+.rTable { display: table; width: 100%; padding: 0; }
+.rTableRow { display: table-row; padding: 0; }
+.rTableHeading { display: table-header-group; }
+.rTableBody { display: table-row-group; }
+.rTableFoot { display: table-footer-group; }
+.lockCell, .mainCell, .btnCell, .rTableHead { display: table-cell; padding: 0; }
+.lockCell { width: 2.5em; padding-left: 10px; }
+.mainCell { width: auto; }
+.btnCell { width: 6em; text-align: right; padding-right: 1rem; }
+.mainCell > span { display: block }
+/* Manage elements general styles */
+a.man_el_name { display: block; padding: .1em 0 .1em 1.25rem; }
+a.man_el_name:hover { text-decoration: none; }
+.lockCell + .mainCell a.man_el_name { padding-left: 0 !important; }
+.lockCell + .mainCell a.man_el_name:before { display: none; }
+.elements_descr { color: #222; margin-left: 1em; font-size: 0.88em; }
+.resourceTable .panel-heading { margin: 0 -1.25rem !important; background-color: #f5f5f5; border-top: 1px dotted #dedede; border-bottom: 1px dotted #dedede; }
+.resourceTable .panel-title > a { padding: 5px 1.25rem; text-decoration: none }
+.resourceTable ul.elements { margin: 0 -1.25rem; padding: 0 0 10px 0; }
+.resourceTable ul.elements > li { padding: 0 !important; border-bottom: 1px dotted #dedede; border-left: 3px solid #fff; transition: all 0.1s ease; margin: 0 !important; }
+.resourceTable ul.elements > li:hover { background: #f9f9f9; border-left: 3px solid #1377c5; }
+.resourceTable ul.elements > li::before { display: none }
+#resourcesPane .panel-group ul { }
+ul.resourceTable .category_name { float: none; display: block; clear: both; margin-top: 20px; }
+/* Manager Elements Buttons bar*/
+ul.elements_buttonbar { list-style: none; margin: 0; padding: 0; display: table; table-layout: fixed; }
+ul.elements_buttonbar li { display: table-cell; padding: 0 !important; width: 2em; }
+ul.elements_buttonbar li a { display: block; width: 2em; padding: 4px 2px 2px 2px; margin: 1px; min-width: 22px; }
+ul.elements_buttonbar .fa { font-size: 0.875rem; padding: 1px 1px 0; }
+/* Checkbox "Icons" */
+.noicons.tab-page ul li ul li a:before, .noicons .elements_description a > i.fa:first-child { display: none !important; }
+/* View-dependent styles */
+/* List-view */
+.resourceTable.list li { }
+.sortableList > li::before { display: none }
+/* Inline-view */
+.resourceTable.inline ul.elements { margin: 0 !important; }
+.resourceTable.inline ul.elements > li { float: left; margin: 10px 10px 0 0 !important; padding: 0 !important; border: 1px dotted #dedede; }
+.resourceTable.inline ul.elements_buttonbar { margin: 0 5px 0 0 !important; }
+.resourceTable.inline a.man_el_name { padding: 5px 10px; }
+.resourceTable.inline ul.elements > li:hover { border: 1px solid #aaa }
+/* Flex-view */
+.resourceTable.flex ul.elements { -webkit-column-gap: 10px; -moz-column-gap: 10px; -o-column-gap: 10px; column-gap: 10px; }
+.resourceTable.flex ul.elements { }
+.resourceTable.flex ul.elements > li { overflow: hidden; /* fix for Firefox */
+break-inside: avoid-column; -webkit-column-break-inside: avoid; -moz-column-break-inside: avoid; -o-column-break-inside: avoid; -ms-column-break-inside: avoid; column-break-inside: avoid; page-break-inside: avoid }
+.resourceTable.flex .elements_descr { display: block; margin-left: 1.5em; }
+#content_body #which_editor { margin-top: 12px; }
+/* resource children list */
+#tabChildren .grid th, #tabChildren .grid tr > td:nth-child(5), #tabChildren .grid tr > td:nth-child(6) { text-align: center; white-space: nowrap }
+#tabChildren .grid td { text-align: right; white-space: nowrap }
+#tabChildren .grid tr > th:nth-child(2), #tabChildren .grid tr > td:nth-child(2) { text-align: left; white-space: normal }
+#tabChildren .grid tr > td:nth-child(6) a { padding: 0 .2em; font-size: 0.9rem; color: #444; }
+/* element-edit-message */
+.msg-container { padding-bottom: 10px; border-bottom: 1px solid #ededed; margin-bottom: 1rem; color: #777; }
+.btn-small { padding: 2px 4px !important; font-size: 11px !important; }
+.relative { position: relative; }
+.modx-alert { display: block; margin: 60px 10px 10px 10px; padding: 1em; }
+.modx-alert.alert-error { background-color: #ffd0d0; border: 1px solid #f00; color: #000; }
+tr.userIdle td { color: #aaa; }
+tr.userIdle td strong:before { font-family: "Font Awesome 5 Free"; font-style: normal; font-weight: normal; color: #aaa; padding: 0 5px 0 0; content: '\f017'; }
