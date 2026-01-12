@@ -1,0 +1,508 @@
+/**
+ * Dark Theme
+ * Evolution CMS Manager Theme
+ *
+ * Dark navbar with light content area
+ * Similar to DaisyUI "dark" theme (hybrid mode)
+ */
+
+/* ===== Theme Variables ===== */
+[data-theme="dark"],
+.dark {
+    /* Color Scheme */
+    color-scheme: dark;
+
+    /* Base Colors */
+    --color-base-100: #ecf0f1;
+    --color-base-200: #f9f9f9;
+    --color-base-300: #f2f2f2;
+    --color-base-content: #333333;
+
+    /* Navbar */
+    --color-navbar: #202329;
+    --color-navbar-text: #bbbbbb;
+    --color-navbar-text-hover: #ffffff;
+    --color-navbar-shadow: 0 0.25rem 0.25rem rgba(0, 0, 0, 0.3);
+    --color-navbar-left-bg: #17191e;
+    --color-navbar-left-text: #dcd9e3;
+
+    /* Dropdown */
+    --color-dropdown-bg: #343942;
+    --color-dropdown-text: #eeeeee;
+    --color-dropdown-border: rgba(0, 0, 0, 0.15);
+
+    /* Tree */
+    --color-tree-menu: rgba(0, 0, 0, 0.2);
+    --color-tree-body: #202329;
+    --color-tree-border: #2a2d33;
+    --color-tree-text: #c5c5c5;
+    --color-tree-text-muted: #b3b3b3;
+    --color-tree-title: #7cb2dc;
+    --color-tree-title-hover: #a2d4fb;
+    --color-tree-icon: #bcbec0;
+    --color-tree-button: #a9a9a9;
+    --color-tree-button-hover-bg: #2d3033;
+    --color-tree-hover-bg: rgba(255, 255, 255, 0.15);
+    --color-tree-selected-bg: rgba(0, 142, 255, 0.19);
+    --color-tree-drag-bg: rgba(255, 255, 255, 0.25);
+    --color-tree-toggle-hover: rgba(255, 255, 255, 0.19);
+
+    /* Tabs */
+    --color-tab-row: #1a1c21;
+    --color-tab-border: #2a2d33;
+    --color-tab-selected: #414550;
+    --color-tab-text: #aaaaaa;
+    --color-tab-changed: #7cb2dc;
+
+    /* Editor */
+    --color-editor-bg: #282c34;
+    --color-editor-text: #abb2bf;
+
+    /* Color Switcher */
+    --color-cp-bg: #2f323a;
+    --color-cp-border: #3e4144;
+    --color-cp-text: #dedede;
+    --color-cp-btn-text: #fafafa;
+
+    /* Widgets (light content area) */
+    --color-widget-header-text: #616a73;
+    --color-widget-header-bg: #fafafa;
+
+    /* Content Blocks */
+    --color-content-blocks-bg: #fbfbfb;
+    --color-content-blocks-border: #dbdbdb;
+
+    /* MultiTV */
+    --color-multitv-bg: #fefefe;
+
+    /* Split/Divider */
+    --color-split-border: rgba(0, 0, 0, 0.05);
+
+    /* Logo */
+    --logo-image: url("../images/misc/logo-navbar-white.png");
+}
+
+/* ===== Index/Frameset ===== */
+.dark #frameset {
+    background-color: var(--color-navbar);
+}
+
+.dark #main {
+    background-color: var(--color-base-100);
+}
+
+.dark #mainloader {
+    background-color: var(--color-overlay-light);
+}
+
+/* ===== Main Menu ===== */
+.dark #mainMenu {
+    -webkit-box-shadow: var(--color-navbar-shadow);
+    box-shadow: var(--color-navbar-shadow);
+    background-color: var(--color-navbar);
+    color: var(--color-navbar-text);
+}
+
+.dark #mainMenu .nav > li > a,
+.dark #mainMenu .nav .label_searchid {
+    color: var(--color-navbar-text);
+}
+
+.dark #mainMenu.show .nav > li.dropdown.hover > a {
+    color: var(--color-navbar-text-hover);
+    background-color: var(--color-transparent);
+}
+
+/* ===== Tree ===== */
+.dark #treeMenu {
+    background-color: var(--color-tree-menu);
+    border-bottom-color: rgba(0, 0, 0, 0.2);
+    border-right-color: var(--color-tree-border);
+}
+
+.dark #treeMenu .treeButton {
+    color: var(--color-tree-button);
+}
+
+.dark #treeMenu .treeButton:hover:not(.disabled) {
+    background-color: var(--color-tree-button-hover-bg);
+    color: var(--color-navbar-text-hover);
+}
+
+.dark #tree .treeframebody {
+    background-color: var(--color-tree-body);
+    border-color: var(--color-tree-border);
+}
+
+.dark #treeHolder .rootNode a {
+    color: var(--color-tree-text);
+}
+
+.dark #treeHolder .rootNode a:hover {
+    color: var(--color-dropdown-text);
+}
+
+/* ===== Tree Root (deprecated) ===== */
+.dark #treeRoot {
+    color: var(--color-tree-text-muted);
+}
+
+.dark #treeRoot a {
+    color: var(--color-tree-text-muted);
+}
+
+.dark #treeRoot a:hover:not(.empty),
+.dark #treeRoot a.current {
+    background-color: var(--color-tree-hover-bg);
+}
+
+.dark #treeRoot a.selected,
+.dark #treeRoot .dragenter > a {
+    background-color: var(--color-tree-selected-bg);
+}
+
+.dark #treeRoot .dragafter > a::after,
+.dark #treeRoot .dragbefore > a::before {
+    background-color: var(--color-tree-drag-bg);
+}
+
+.dark #treeRoot a .title {
+    color: var(--color-tree-title);
+}
+
+.dark #treeRoot a.hidemenu .title {
+    color: var(--color-tree-text);
+}
+
+.dark #treeRoot a.deleted .title {
+    color: var(--color-link-deleted);
+}
+
+.dark #treeRoot a.unpublished .title {
+    color: var(--color-link-unpublished);
+}
+
+.dark #treeRoot .icon:hover > .fa {
+    color: var(--color-navbar-text-hover);
+}
+
+.dark #treeRoot a .title:hover {
+    color: var(--color-tree-title-hover);
+}
+
+.dark #treeRoot a.hidemenu .title:hover {
+    color: var(--color-dropdown-text);
+}
+
+.dark #treeRoot a.unpublished .title:hover {
+    color: var(--color-link-unpublished-hover);
+}
+
+.dark #treeRoot a.deleted .title:hover {
+    color: var(--color-link-deleted-hover);
+}
+
+.dark #treeRoot .toggle:hover {
+    background-color: var(--color-tree-toggle-hover);
+}
+
+.dark #treeRoot .fa,
+.dark #treeHolder .rootNode .fa {
+    color: var(--color-tree-icon);
+}
+
+/* ===== Tree Root (new) ===== */
+.dark .treeRoot {
+    color: var(--color-tree-text-muted);
+}
+
+.dark .treeRoot a {
+    color: var(--color-tree-text-muted);
+}
+
+.dark .treeRoot a:hover:not(.empty),
+.dark .treeRoot a.current {
+    background-color: var(--color-tree-hover-bg);
+}
+
+.dark .treeRoot a.selected,
+.dark .treeRoot .dragenter > a {
+    background-color: var(--color-tree-selected-bg);
+}
+
+.dark .treeRoot .dragafter > a::after,
+.dark .treeRoot .dragbefore > a::before {
+    background-color: var(--color-tree-drag-bg);
+}
+
+.dark .treeRoot a .title {
+    color: var(--color-tree-title);
+}
+
+.dark .treeRoot a.hidemenu .title {
+    color: var(--color-tree-text);
+}
+
+.dark .treeRoot a.deleted .title {
+    color: var(--color-link-deleted);
+}
+
+.dark .treeRoot a.unpublished .title {
+    color: var(--color-link-unpublished);
+}
+
+.dark .treeRoot .icon:hover > .fa {
+    color: var(--color-navbar-text-hover);
+}
+
+.dark .treeRoot a .title:hover {
+    color: var(--color-tree-title-hover);
+}
+
+.dark .treeRoot a.hidemenu .title:hover {
+    color: var(--color-dropdown-text);
+}
+
+.dark .treeRoot a.unpublished .title:hover {
+    color: var(--color-link-unpublished-hover);
+}
+
+.dark .treeRoot a.deleted .title:hover {
+    color: var(--color-link-deleted-hover);
+}
+
+.dark .treeRoot .toggle:hover {
+    background-color: var(--color-tree-toggle-hover);
+}
+
+.dark .treeRoot .fa,
+.dark #treeHolder .rootNode .fa {
+    color: var(--color-tree-icon);
+}
+
+/* ===== Section Editor ===== */
+.dark .section-editor textarea {
+    background-color: var(--color-editor-bg);
+    color: var(--color-editor-text);
+}
+
+/* ===== Tab Pages ===== */
+.dark .tab-page,
+.dark .sectionBody .tab-page,
+.dark .tab-row .tab.selected,
+.dark .tab-row .tab.selected.hover,
+.dark .tab-row .tab.selected:before,
+.dark .tab-row .tab.selected span {
+    background-color: var(--color-base-200);
+}
+
+.dark,
+.dark .resourceTable .panel-heading {
+    background: var(--color-base-100) !important;
+}
+
+.dark .resourceTable .panel-heading:hover {
+    background: var(--color-base-100) !important;
+}
+
+.dark .multitv .list li.element a.copy,
+.dark .multitv .list li.element a.remove {
+    background: var(--color-transparent) !important;
+}
+
+.dark .multitv .list li.element {
+    background: var(--color-multitv-bg) !important;
+}
+
+.dark .split {
+    border-color: var(--color-split-border);
+}
+
+.dark hr {
+    background: var(--color-transparent);
+}
+
+/* ===== Content Blocks ===== */
+.dark .content-blocks input[type="text"],
+.dark .content-blocks input[type="password"],
+.dark .content-blocks input[type="number"],
+.dark .content-blocks textarea {
+    background-color: var(--color-content-blocks-bg) !important;
+    border-color: var(--color-content-blocks-border) !important;
+}
+
+.dark .content-blocks .controls {
+    background: var(--color-base-200) !important;
+}
+
+/* ===== Widgets ===== */
+.dark .widgets .card-header {
+    color: var(--color-widget-header-text);
+    background-color: var(--color-widget-header-bg);
+}
+
+/* ===== Manager Manager ===== */
+.dark .sectionHeader.minimizable {
+    background-color: var(--color-base-300);
+}
+
+/* ===== Tabs ===== */
+.dark .evo-popup.alert.evo-popup-iframe {
+    background-color: var(--color-base-100);
+}
+
+.dark .evo-popup-overlay {
+    background-color: var(--color-overlay-medium);
+}
+
+.dark .evo-tab-row {
+    background-color: var(--color-tab-row);
+    border-bottom: none;
+}
+
+.dark .evo-tab-row:after {
+    background-color: var(--color-tab-row);
+}
+
+.dark .evo-tab-row .tab-row .tab {
+    color: var(--color-tab-text);
+    border-color: var(--color-tab-border);
+}
+
+.dark .evo-tab-row .tab-row .tab:hover {
+    background-color: var(--color-tree-button-hover-bg);
+}
+
+.dark .evo-tab-row .tab-row .tab.changed {
+    color: var(--color-tab-changed);
+}
+
+.dark .evo-tab-row .tab-row .tab.selected {
+    background-color: var(--color-tab-selected);
+    color: var(--color-dropdown-text);
+    border-bottom: 3px solid var(--color-primary);
+}
+
+.dark .evo-tab-page,
+.dark .evo-tab-page iframe {
+    background-color: var(--color-base-100);
+}
+
+/* ===== Color Switcher ===== */
+.dark .evocp-icon {
+    background: var(--color-cp-bg);
+    border: 1px solid var(--color-cp-bg);
+    border-right: 0;
+    -webkit-animation: colorchange 15s infinite alternate;
+}
+
+.dark .evocp-box .evocp-frame {
+    color: var(--color-cp-text);
+    background: var(--color-navbar);
+    border-top: 1px solid var(--color-cp-bg);
+}
+
+.dark .evocp-frame h2 {
+    background-color: var(--color-cp-bg);
+    border-bottom: 1px solid var(--color-cp-text);
+}
+
+.dark .evocp-frame h3:hover {
+    color: var(--color-navbar-text-hover);
+}
+
+.dark .evocp-frame .panel-heading {
+    background-color: var(--color-cp-bg);
+    border-color: var(--color-cp-border);
+}
+
+.dark .evocp-frame .panel-heading .btn {
+    background-color: var(--color-cp-bg);
+    border-color: var(--color-cp-border);
+    color: var(--color-cp-btn-text);
+}
+
+.dark .evocp-frame .panel-heading .btn:hover {
+    background-color: var(--color-tab-row);
+}
+
+.dark .evocp-frame h2 {
+    border-color: var(--color-cp-border);
+}
+
+.dark .evocp-box .btn-secondary {
+    background-color: var(--color-cp-bg);
+    border-color: var(--color-cp-border);
+    color: var(--color-cp-btn-text);
+}
+
+.dark .evo-cp-replacer,
+.dark .sp-replacer.sp-light {
+    background: var(--color-cp-bg);
+    border-color: var(--color-cp-border);
+}
+
+.dark .sp-dd {
+    color: var(--color-tree-icon);
+}
+
+/* ===== Navbar Left Layout ===== */
+@media (min-width: 768px) {
+    .navbar-left.dark #mainMenu {
+        -webkit-box-shadow: 0 2px 0 1px rgba(255, 255, 255, 0.07);
+        box-shadow: 0 2px 0 1px rgba(255, 255, 255, 0.07);
+        background-color: var(--color-navbar-left-bg);
+    }
+
+    .navbar-left.dark #mainMenu .nav > li > a,
+    .navbar-left.dark #mainMenu .nav .label_searchid {
+        color: var(--color-navbar-left-text);
+    }
+
+    .navbar-left.dark #mainMenu.show .nav > li.dropdown.hover > a {
+        color: var(--color-navbar-text-hover);
+        background-color: var(--color-transparent);
+    }
+
+    .navbar-left.dark #mainMenu .nav > li > ul {
+        background-color: var(--color-dropdown-bg);
+    }
+
+    .navbar-left.dark #mainMenu .nav > li > ul > li > a:first-child,
+    .navbar-left.dark #mainMenu .nav > li > ul > li > span,
+    .navbar-left.dark #mainMenu .nav li.item-group > * {
+        color: var(--color-dropdown-text);
+    }
+
+    .navbar-left.dark #mainMenu .nav > li > ul > li > span:hover {
+        background-color: inherit;
+    }
+
+    .navbar-left.dark #mainMenu .nav li.item-group > * {
+        background-color: var(--color-transparent);
+    }
+
+    .navbar-left.dark #mainMenu .nav > li > ul > li {
+        border-bottom-color: var(--color-dropdown-border);
+    }
+
+    .navbar-left.dark #mainMenu #nav #site a::before {
+        background-image: var(--logo-image);
+    }
+}
+
+/* ===== Logo ===== */
+@media (min-width: 1200px) {
+    body.dark #mainMenu #nav #site::before {
+        content: "";
+        display: block;
+        overflow: hidden;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 9rem;
+        height: 100%;
+        background: var(--logo-image) 0 50% no-repeat;
+        background-size: 8rem;
+    }
+}

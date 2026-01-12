@@ -781,8 +781,12 @@ class ManagerTheme implements ManagerThemeInterface
     public function getCssFiles()
     {
         return [
+            // Vendor styles
             'bootstrap' => MODX_MANAGER_PATH . 'media/style/common/bootstrap/css/bootstrap.min.css',
             'font-awesome' => MODX_MANAGER_PATH . 'media/style/common/font-awesome/css/font-awesome.min.css',
+            // Theme variables (CSS custom properties)
+            'theme-variables' => $this->getThemeDir() . 'css/themes/variables.css',
+            // Core styles
             'fonts' => $this->getThemeDir() . 'css/fonts.css',
             'forms' => $this->getThemeDir() . 'css/forms.css',
             'mainmenu' => $this->getThemeDir() . 'css/mainmenu.css',
@@ -791,7 +795,12 @@ class ManagerTheme implements ManagerThemeInterface
             'tabpane' => $this->getThemeDir() . 'css/tabpane.css',
             'contextmenu' => $this->getThemeDir() . 'css/contextmenu.css',
             'index' => $this->getThemeDir() . 'css/index.css',
-            'main' => $this->getThemeDir() . 'css/main.css'
+            'main' => $this->getThemeDir() . 'css/main.css',
+            // Theme files (color schemes)
+            'theme-lightness' => $this->getThemeDir() . 'css/themes/lightness.css',
+            'theme-light' => $this->getThemeDir() . 'css/themes/light.css',
+            'theme-dark' => $this->getThemeDir() . 'css/themes/dark.css',
+            'theme-darkness' => $this->getThemeDir() . 'css/themes/darkness.css',
         ];
     }
 

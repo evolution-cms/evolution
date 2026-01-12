@@ -1,0 +1,103 @@
+/**
+ * Light Theme
+ * Evolution CMS Manager Theme
+ *
+ * Light content area with dark navbar
+ * Similar to DaisyUI "corporate" theme
+ */
+
+/* ===== Theme Variables ===== */
+[data-theme="light"],
+.light {
+    /* Color Scheme */
+    color-scheme: light;
+
+    /* Base Colors */
+    --color-base-100: #ffffff;
+    --color-base-200: #fafafa;
+    --color-base-300: #f3f3f3;
+    --color-base-content: #333333;
+
+    /* Navbar */
+    --color-navbar: #343944;
+    --color-navbar-text: #cacaca;
+    --color-navbar-text-light: #dcd9e3;
+    --color-navbar-text-hover: #ffffff;
+    --color-navbar-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
+
+    /* Tree */
+    --color-tree-menu: #dfdfdf;
+    --color-tree-body: #fafafa;
+    --color-tree-border: #cfd2d6;
+
+    /* Tabs */
+    --color-tab-row: #dfdfdf;
+    --color-tab-border: #cfd2d6;
+    --color-tab-selected: #fafafa;
+
+    /* Logo */
+    --logo-image: url("../images/misc/logo-navbar-white.png");
+}
+
+/* ===== Main Menu ===== */
+.light #mainMenu {
+    -webkit-box-shadow: var(--color-navbar-shadow);
+    box-shadow: var(--color-navbar-shadow);
+    background-color: var(--color-navbar);
+    color: var(--color-navbar-text);
+}
+
+.light #mainMenu .nav > li > a,
+.light #mainMenu .nav .label_searchid {
+    color: var(--color-navbar-text-light);
+}
+
+.light #mainMenu.show .nav > li.dropdown.hover > a {
+    color: var(--color-navbar-text-hover);
+    background-color: var(--color-transparent);
+}
+
+/* ===== Tree ===== */
+.light #treeMenu {
+    background-color: var(--color-tree-menu);
+}
+
+.light .treeframebody {
+    background-color: var(--color-tree-body);
+}
+
+/* ===== Tabs ===== */
+.light .evo-tab-row {
+    background-color: var(--color-tab-row);
+}
+
+.light .evo-tab-row .tab-row .tab.selected {
+    background-color: var(--color-tab-selected);
+}
+
+/* ===== Navbar Left Layout ===== */
+@media (min-width: 768px) {
+    .navbar-left.light .treeframebody {
+        background-color: var(--color-base-300);
+    }
+
+    .navbar-left.light #mainMenu #nav #site a::before {
+        background-image: var(--logo-image);
+    }
+}
+
+/* ===== Logo ===== */
+@media (min-width: 1200px) {
+    body.light #mainMenu #nav #site::before {
+        content: "";
+        display: block;
+        overflow: hidden;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 9rem;
+        height: 100%;
+        background: var(--logo-image) 0 50% no-repeat;
+        background-size: 8rem;
+    }
+}

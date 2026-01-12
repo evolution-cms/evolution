@@ -1,0 +1,110 @@
+/**
+ * Lightness Theme
+ * Evolution CMS Manager Theme
+ *
+ * Light theme with subtle gray accents - default theme
+ * Similar to DaisyUI "light" theme
+ */
+
+/* ===== Theme Variables ===== */
+[data-theme="lightness"],
+.lightness {
+    /* Color Scheme */
+    color-scheme: lightness;
+
+    /* Base Colors */
+    --color-base-100: #ffffff;
+    --color-base-200: #fafafa;
+    --color-base-300: #f3f3f3;
+    --color-base-content: #333333;
+
+    /* Navbar */
+    --color-navbar: #f1f1f1;
+    --color-navbar-text: #464646;
+    --color-navbar-text-hover: #ffffff;
+    --color-navbar-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    --color-navbar-left-shadow: 0 2px 0 1px rgba(0, 0, 0, 0.15);
+    --color-navbar-left-border: rgba(0, 0, 0, 0.1);
+
+    /* Tree */
+    --color-tree-menu: #e8e8e8;
+    --color-tree-body: #fafafa;
+    --color-tree-border: #cfd2d6;
+
+    /* Tabs */
+    --color-tab-row: #e8e8e8;
+    --color-tab-border: #cfd2d6;
+    --color-tab-selected: #fafafa;
+
+    /* Logo */
+    --logo-image: url("../images/misc/logo-navbar.png");
+}
+
+/* ===== Main Menu ===== */
+.lightness #mainMenu {
+    -webkit-box-shadow: var(--color-navbar-shadow);
+    box-shadow: var(--color-navbar-shadow);
+    background-color: var(--color-navbar);
+    color: var(--color-navbar-text);
+}
+
+.lightness #mainMenu .nav > li > a,
+.lightness #mainMenu .nav .label_searchid {
+    color: var(--color-navbar-text);
+}
+
+.lightness #mainMenu .nav > li.active > a {
+    color: var(--color-navbar-text-hover);
+    background: var(--color-transparent);
+}
+
+.lightness #mainMenu.show .nav > li.dropdown.hover > a {
+    color: var(--color-navbar-text-hover);
+    background-color: var(--color-transparent);
+}
+
+/* ===== Tree ===== */
+.lightness #treeMenu {
+    background-color: var(--color-tree-menu);
+}
+
+.lightness .treeframebody {
+    background-color: var(--color-tree-body);
+}
+
+/* ===== Tabs ===== */
+.lightness .evo-tab-row {
+    background-color: var(--color-tab-row);
+}
+
+.lightness .evo-tab-row .tab-row .tab.selected {
+    background-color: var(--color-tab-selected);
+}
+
+/* ===== Navbar Left Layout ===== */
+@media (min-width: 768px) {
+    .navbar-left.lightness #mainMenu {
+        -webkit-box-shadow: var(--color-navbar-left-shadow);
+        box-shadow: var(--color-navbar-left-shadow);
+    }
+
+    .navbar-left.lightness #mainMenu #settings {
+        border-top: 1px solid var(--color-navbar-left-border);
+    }
+}
+
+/* ===== Logo ===== */
+@media (min-width: 1200px) {
+    body.lightness #mainMenu #nav #site::before {
+        content: "";
+        display: block;
+        overflow: hidden;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 9rem;
+        height: 100%;
+        background: var(--logo-image) 0 50% no-repeat;
+        background-size: 8rem;
+    }
+}

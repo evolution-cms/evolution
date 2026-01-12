@@ -1,0 +1,284 @@
+/**
+ * CSS Variables System
+ * Evolution CMS Manager Theme - DaisyUI Style
+ *
+ * Global CSS custom properties (variables) for consistent theming.
+ * These are base values that can be overridden by theme files.
+ */
+
+:root {
+    /* ===== Base Typography ===== */
+    --font-family-base: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-family-mono: 'Inconsolata', 'Monaco', 'Consolas', 'Courier New', monospace;
+    --font-size-base: 0.8125rem;
+    --font-size-sm: 0.75rem;
+    --font-size-xs: 0.675rem;
+    --font-size-lg: 0.875rem;
+    --line-height-base: 1.23076923;
+
+    /* ===== Spacing Scale ===== */
+    --spacing-0: 0;
+    --spacing-1: 0.25rem;
+    --spacing-2: 0.5rem;
+    --spacing-3: 0.75rem;
+    --spacing-4: 1rem;
+    --spacing-5: 1.25rem;
+    --spacing-6: 1.5rem;
+    --spacing-8: 2rem;
+    --spacing-10: 2.5rem;
+
+    /* ===== Border Radius ===== */
+    --radius-sm: 0.1rem;
+    --radius-md: 0.25rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 1rem;
+    --radius-full: 50%;
+
+    /* ===== Shadows ===== */
+    --shadow-none: none;
+    --shadow-sm: 0 0.1rem 0.3rem rgba(0, 0, 0, 0.075);
+    --shadow-md: 0 0.25rem 1rem rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 0.5rem 2rem rgba(0, 0, 0, 0.2);
+    --shadow-xl: 0 0.5rem 3rem rgba(0, 0, 0, 0.4);
+    --shadow-inset: inset 0 -2px 0 rgba(0, 0, 0, 0.07);
+    --shadow-dropdown: 0 0.5rem 1rem rgba(0, 0, 0, 0.2);
+    --shadow-contextmenu: 0 0.5rem 2rem rgba(0, 0, 0, 0.3);
+    --shadow-popup: 0 0.2rem 2rem rgba(0, 0, 0, 0.15);
+    --shadow-popup-hover: 0 0.25rem 1rem rgba(0, 0, 0, 0.2);
+    --shadow-card: 0 0.25rem 1rem rgba(0, 0, 0, 0.07);
+    --shadow-datepicker: 0 0.3rem 1rem rgba(0, 0, 0, 0.3);
+    --shadow-floater: 0 0.25rem 2rem rgba(0, 0, 0, 0.2);
+    --shadow-resizer: -3px 0 2px 1px rgba(0, 0, 0, 0.1);
+    --shadow-cp-icon: -3px 0 2px 1px rgba(0, 0, 0, 0.1);
+    --shadow-cp-appear: -3px 0 4px 1px rgba(0, 0, 0, 0.1);
+    --shadow-sortable: 0 0.25rem 1rem rgba(0, 0, 0, 0.25);
+    --shadow-tree: 0 0 1rem rgba(0, 0, 0, 0.25);
+    --shadow-action-active: 0 0 10px rgba(184, 199, 214, 1);
+    --shadow-action-btn: 1px 1px 2px rgba(170, 170, 170, 1);
+
+    /* ===== Transitions ===== */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.25s ease;
+    --transition-slow: 0.5s ease;
+
+    /* ===== Z-Index Scale ===== */
+    --z-dropdown: 100;
+    --z-sticky: 200;
+    --z-fixed: 1000;
+    --z-modal-backdrop: 10499;
+    --z-modal: 10500;
+    --z-popover: 13000;
+
+    /* ===== Layout ===== */
+    --navbar-height: 2.2rem;
+    --navbar-height-lg: 2.5rem;
+    --sidebar-width: 25rem;
+    --tree-menu-height: 1.875rem;
+    --tab-height: 2.5rem;
+    --tab-height-evo: 1.875rem;
+
+    /* ===== Base Colors ===== */
+    --color-white: #ffffff;
+    --color-black: #000000;
+    --color-transparent: transparent;
+
+    /* ===== Text Colors ===== */
+    --color-text: #333333;
+    --color-text-secondary: #464a4c;
+    --color-text-muted: #555555;
+    --color-text-light: #777777;
+    --color-text-lighter: #888888;
+    --color-text-disabled: #aaaaaa;
+    --color-text-placeholder: #999999;
+    --color-text-hint: #bbbbbb;
+    --color-text-icon: #444444;
+
+    /* ===== Background Colors ===== */
+    --color-bg: #ffffff;
+    --color-bg-light: #fafafa;
+    --color-bg-lighter: #f9f9f9;
+    --color-bg-gray: #f3f3f3;
+    --color-bg-muted: #e8e8e8;
+    --color-bg-hover: rgba(93, 109, 202, 0.16);
+    --color-bg-active: rgba(0, 0, 0, 0.1);
+    --color-bg-overlay: rgba(0, 0, 0, 0.3);
+    --color-bg-action-active: #92aac4;
+    --color-bg-widget-btn: #646b7b;
+    --color-bg-widget-btn-hover: #373b46;
+
+    /* ===== Border Colors ===== */
+    --color-border: #d4d4d4;
+    --color-border-light: #cfd2d6;
+    --color-border-lighter: #dddddd;
+    --color-border-subtle: #e0e0e0;
+    --color-border-muted: #eeeeee;
+    --color-border-focus: #66afe9;
+    --color-border-action: #e4e4e4;
+    --color-border-dotted: #cecaca;
+    --color-border-news: #ebebeb;
+
+    /* ===== Semantic Colors ===== */
+    --color-primary: #0275d8;
+    --color-primary-dark: #1976d2;
+    --color-primary-hover: #025aa5;
+    --color-primary-active: #01549b;
+    --color-primary-content: #ffffff;
+    --color-primary-accent: #1377c5;
+    --color-primary-link: #3481bc;
+
+    --color-secondary: #6c757d;
+    --color-secondary-hover: #5a6268;
+    --color-secondary-content: #ffffff;
+
+    --color-success: #5cb85c;
+    --color-success-dark: #56ac56;
+    --color-success-hover: #449d44;
+    --color-success-active: #398439;
+    --color-success-content: #ffffff;
+
+    --color-danger: #d9534f;
+    --color-danger-hover: #c9302c;
+    --color-danger-active: #ac2925;
+    --color-danger-content: #ffffff;
+    --color-danger-trash: #d80030;
+
+    --color-warning: #f0ad4e;
+    --color-warning-hover: #ec971f;
+    --color-warning-active: #d58512;
+    --color-warning-content: #ffffff;
+    --color-warning-lock: #ffc107;
+
+    --color-info: #5bc0de;
+    --color-info-hover: #31b0d5;
+    --color-info-active: #269abc;
+    --color-info-content: #ffffff;
+
+    /* ===== State Colors ===== */
+    --color-focus: #66afe9;
+    --color-focus-ring: rgba(77, 142, 249, 0.5);
+    --color-disabled-bg: #e9ecef;
+    --color-disabled-text: #b68282;
+    --color-selected: #ffc107;
+    --color-highlight: rgba(33, 150, 243, 0.1);
+    --color-message-read: #333333;
+    --color-message-unread: #3cb371;
+
+    /* ===== Link Colors ===== */
+    --color-link: #0275d8;
+    --color-link-hover: #014c8c;
+    --color-link-deleted: #a52a2a;
+    --color-link-deleted-hover: #cc3535;
+    --color-link-unpublished: #b68282;
+    --color-link-unpublished-hover: #d09090;
+    --color-link-hidden: #404040;
+
+    /* ===== Tree Colors ===== */
+    --color-tree-bg: #fafafa;
+    --color-tree-body: #fafafa;
+    --color-tree-menu-bg: #dfdfdf;
+    --color-tree-border: #cfd2d6;
+    --color-tree-icon: #565656;
+    --color-tree-drag: #ff0044;
+
+    /* ===== Navbar Colors (Default/Light) ===== */
+    --color-navbar-bg: #2b323a;
+    --color-navbar-text: #8b9298;
+    --color-navbar-text-light: #dcd9e3;
+    --color-navbar-text-hover: #ffffff;
+    --color-navbar-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
+    /* ===== Dropdown Colors ===== */
+    --color-dropdown-bg: #ffffff;
+    --color-dropdown-text: #444444;
+    --color-dropdown-hover: #1976d2;
+    --color-dropdown-border: rgba(0, 0, 0, 0.05);
+
+    /* ===== Tab Colors ===== */
+    --color-tab-bg: #dfdfdf;
+    --color-tab-border: #cfd2d6;
+    --color-tab-selected: #fafafa;
+    --color-tab-text: rgba(0, 0, 0, 0.6);
+    --color-tab-text-selected: #444444;
+
+    /* ===== Form Colors ===== */
+    --color-input-bg: #ffffff;
+    --color-input-border: #d4d4d4;
+    --color-input-border-hover: #bbbbbb;
+    --color-input-text: #464a4c;
+    --color-input-placeholder: #999999;
+
+    /* ===== Table Colors ===== */
+    --color-table-bg: #ffffff;
+    --color-table-stripe: #f9f9f9;
+    --color-table-stripe-alt: #f6f8f8;
+    --color-table-stripe-lighter: #f7f7f7;
+    --color-table-border: #eceeef;
+    --color-table-header-bg: #ffffff;
+    --color-table-header-sort: #d2d2d2;
+    --color-table-hover: rgba(93, 109, 202, 0.16);
+    --color-table-hover-alt: #e9f0f3;
+    --color-table-hover-grid: #e9edf3;
+
+    /* ===== Card/Widget Colors ===== */
+    --color-card-bg: #ffffff;
+    --color-card-border: rgba(0, 0, 0, 0.125);
+    --color-card-header: transparent;
+    --color-card-header-text: #616a73;
+    --color-card-multitv: #fefefe;
+
+    /* ===== Alert Colors ===== */
+    --color-alert-success-bg: #5cb85c;
+    --color-alert-info-bg: #1976d2;
+    --color-alert-warning-bg: #ffe082;
+    --color-alert-warning-text: #795548;
+    --color-alert-danger-bg: #d9534f;
+
+    /* ===== Overlay Colors ===== */
+    --color-overlay-light: rgba(0, 0, 0, 0.1);
+    --color-overlay-medium: rgba(0, 0, 0, 0.3);
+    --color-overlay-dark: rgba(0, 0, 0, 0.5);
+    --color-overlay-white: rgba(255, 255, 255, 0.5);
+    --color-overlay-search: rgba(0, 0, 0, 0.65);
+
+    /* ===== Button Special Colors ===== */
+    --color-btn-default-bg: #ffffff;
+    --color-btn-default-border: #d4d4d4;
+    --color-btn-default-hover: #efefef;
+    --color-btn-default-active: #e6e6e6;
+    --color-btn-hover-border: #c3c3c3;
+    --color-btn-focus-border: #adadad;
+    --color-btn-action-gradient-end: #007571;
+
+    /* ===== Misc Colors ===== */
+    --color-scrollbar: rgba(0, 0, 0, 0.15);
+    --color-scrollbar-hover: rgba(0, 0, 0, 0.3);
+    --color-datepicker-header: #656d79;
+    --color-datepicker-selected: #3189ba;
+    --color-datepicker-today: #4caf50;
+    --color-error-status: #f44336;
+    --color-action-primary-bg: #32ab9a;
+    --color-action-primary-hover: #2b9385;
+    --color-action-primary-gradient-start: #32ab9a;
+    --color-action-primary-gradient-end: #00948e;
+    --color-contextmenu-title: #1377c5;
+    --color-contextmenu-separator: rgba(0, 0, 0, 0.07);
+    --color-help-muted: rgba(0, 0, 0, 0.15);
+    --color-help-muted-hover: rgba(0, 0, 0, 0.3);
+    --color-cp-border: #646b7b;
+    --color-cp-dd: #666666;
+    --color-tag-bg: #eaeaea;
+    --color-tag-selected: #5a5e63;
+}
+
+/* Print styles */
+@media print {
+    :root {
+        --shadow-sm: none;
+        --shadow-md: none;
+        --shadow-lg: none;
+        --shadow-xl: none;
+        --shadow-dropdown: none;
+        --shadow-contextmenu: none;
+        --shadow-popup: none;
+    }
+}
