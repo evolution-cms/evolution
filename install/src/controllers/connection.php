@@ -1,6 +1,6 @@
 <?php
 $installMode = isset($_POST['installmode']) ? (int)$_POST['installmode'] : 0;
-$dbTypes = ['mysql' => 'MySQL', 'pgsql' => 'PostgreSQL'];
+$dbTypes = ['mysql' => 'MySQL', 'pgsql' => 'PostgreSQL', 'sqlite' => 'SQLite'];
 
 // Determine upgradeability
 $upgradeable = 0;
@@ -50,6 +50,14 @@ if ($installMode === 0) {
                     $conn = false;
                     $result = false;
                 }
+            } elseif ($database_type === 'sqlite') {
+                try {
+                    $conn = new PDO('sqlite:' . $database_name);
+                    $result = true;
+                } catch (PDOException $e) {
+                    $conn = false;
+                    $result = false;
+                }
             }
             if (!$conn || !$result) {
                 $upgradeable = (isset($_POST['installmode']) && $_POST['installmode'] === 'new') ? 0 : 2;
@@ -92,12 +100,18 @@ if ($upgradeable && (! isset($database_connection_charset) || empty($database_co
         $pos = strpos($database_collation, '.');
         $database_charset = ($pos !== false) ? substr($database_collation, $pos + 1) : 'utf8';
         $database_connection_charset = $database_charset;
+    } elseif ($database_type === 'sqlite') {
+        $database_collation = 'utf8';
+        $database_charset = 'utf8';
+        $database_connection_charset = 'utf8';
     }
 } else {
     if ($database_type === 'mysql') {
         $database_collation = 'utf8mb4_general_ci';
     } elseif ($database_type === 'pgsql') {
         $database_collation = 'en_US.utf8';
+    } elseif ($database_type === 'sqlite') {
+        $database_collation = 'utf8';
     }
 }
 
@@ -107,6 +121,8 @@ if ($upgradeable && (!isset($database_connection_method) || empty($database_conn
         $database_connection_method = 'SET CHARACTER SET';
     } elseif ($database_type === 'pgsql') {
         $database_connection_method = 'SET client_encoding';
+    } elseif ($database_type === 'sqlite') {
+        $database_connection_method = '';
     }
 }
 $ph['databaseTypeOptions'] = '';

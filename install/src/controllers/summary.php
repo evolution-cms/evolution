@@ -211,13 +211,22 @@ if ($installMode == 1) {
     $database_charset = substr($database_collation, 0, strpos($database_collation, '_') - 1);
     $database_connection_charset = $_POST['database_connection_charset'];
     $database_connection_method = $_POST['database_connection_method'];
-    $dbase = '`' . strip_tags($_POST['database_name']) . '`';
+    if ($database_type === 'sqlite') {
+        $database_name = strip_tags($_POST['database_name']); // TODO: replace strip_tags with validation everywhere
+        $dbase = EVO_CORE_PATH . "database/$database_name.sqlite";
+    } else {
+        $dbase = '`' . strip_tags($_POST['database_name']) . '`';
+    }
     $table_prefix = strip_tags($_POST['tableprefix']);
 }
 echo '<p>' . $_lang['creating_database_connection'];
 $host = explode(':', $database_server, 2);
 try {
-    $dbh = new PDO($database_type . ':host=' . $database_server . ';dbname=' . $_POST['database_name'], $database_user, $database_password);
+    if ($database_type === 'sqlite') {
+        $dbh = new PDO('sqlite:' . $dbase);
+    } else {
+        $dbh = new PDO($database_type . ':host=' . $database_server . ';dbname=' . $_POST['database_name'], $database_user, $database_password);
+    }
     echo '<span class="ok">' . $_lang['ok'] . '</span></p>';
 } catch (PDOException $e) {
     $errors++;
@@ -226,7 +235,7 @@ try {
 }
 
 // check the database collation if not specified in the configuration
-if (!isset ($database_connection_charset) || empty ($database_connection_charset)) {
+if ($database_type === 'mysql' && empty ($database_connection_charset)) {
     if (!$rs = mysqli_query($conn, "show session variables like 'collation_database'")) {
         $rs = mysqli_query($conn, "show session variables like 'collation_server'");
     }

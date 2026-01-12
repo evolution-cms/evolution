@@ -14,7 +14,11 @@ $database_connection_method = $_POST['database_connection_method'];
 
 $database_charset = getDatabaseCharset($database_collation, $driver);
 try {
-    $dbh = new PDO($driver . ':host=' . $host . ';dbname=' . $database_name, $uid, $pwd);
+    if ($driver === 'sqlite') {
+        $dbh = new PDO('sqlite:' . EVO_CORE_PATH . "database/$database_name.sqlite");
+    } else {
+        $dbh = new PDO($driver . ':host=' . $host . ';dbname=' . $database_name, $uid, $pwd);
+    }
     switch ($driver) {
         case 'pgsql':
             $result = $dbh->query("SELECT * FROM pg_settings WHERE name='client_encoding'");
@@ -79,6 +83,18 @@ try {
                 exit();
             }
             break;
+        case 'sqlite':
+            try {
+                $result = $dbh->query("SELECT COUNT(*) FROM {$tableprefix}site_content");
+            } catch (PDOException $e) {
+                // no table is expected
+            }
+
+            if ($dbh->errorCode() == 0) {
+                echo $output . '<span id="database_fail">' . $_lang['status_failed_table_prefix_already_in_use'] . '</span>';
+                exit();
+            }
+            break;
     }
 
 } catch (PDOException $e) {
@@ -89,7 +105,11 @@ try {
 }
 
 try {
-    $dbh = new PDO($driver . ':host=' . $host . ($driver === 'pgsql' ? ';dbname=postgres' : ''), $uid, $pwd);
+    if ($driver === 'sqlite') {
+        $dbh = new PDO('sqlite:' . EVO_CORE_PATH . "database/$database_name.sqlite");
+    } else {
+        $dbh = new PDO($driver . ':host=' . $host . ($driver === 'pgsql' ? ';dbname=postgres' : ''), $uid, $pwd);
+    }
     switch ($driver) {
         case 'pgsql':
             try {
@@ -117,6 +137,8 @@ try {
                 echo $output;
                 exit();
             }
+            break;
+        case 'sqlite':
             break;
     }
 

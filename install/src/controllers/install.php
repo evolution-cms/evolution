@@ -71,7 +71,11 @@ $host = explode(':', $database_server, 2);
 
 global $conn;
 try {
-    $dbh = new PDO($_POST['database_type'] . ':host=' . $_POST['databasehost'] . ';dbname=' . $_POST['database_name'], $database_user, $database_password);
+    if ($_POST['database_type'] === 'sqlite') {
+        $dbh = new PDO('sqlite:' . $_POST['database_name']);
+    } else {
+        $dbh = new PDO($_POST['database_type'] . ':host=' . $_POST['databasehost'] . ';dbname=' . $_POST['database_name'], $database_user, $database_password);
+    }
 
     include dirname(__DIR__) . '/processor/result.php';
 
@@ -108,6 +112,9 @@ try {
                 } else {
                     $confph['database_engine'] = ", 'innodb'";
                 }
+                break;
+            case 'sqlite':
+                $confph['database_port'] = '';
                 break;
         }
         $configString = file_get_contents(dirname(__DIR__, 2) . '/stubs/files/config/database/connections/default.tpl');

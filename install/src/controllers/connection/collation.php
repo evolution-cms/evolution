@@ -89,6 +89,10 @@ try {
             }
             $output .= '</optgroup></select>';
             break;
+        case 'sqlite':
+            $output .= '<option value="utf8" selected>utf8</option>';
+            $output .= '</select>';
+            break;
     }
     echo $output;
 } catch (Exception $e) {

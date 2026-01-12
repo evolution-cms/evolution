@@ -57,8 +57,12 @@ class CreateSiteContentTable extends Migration {
         $prefix = DB::getTablePrefix();
         $site_content_table_name = (new \EvolutionCMS\Models\SiteContent())->getTable();
         $indexPrefix = $prefix . $site_content_table_name;
-        if(isset($_POST['database_type']) && $_POST['database_type'] != 'pgsql')
-        DB::statement('ALTER TABLE '.$prefix.$site_content_table_name." ADD FULLTEXT {$indexPrefix}_content_ft_idx(pagetitle, description, content)");
+        if (isset($_POST['database_type']) && $_POST['database_type'] === 'mysql') {
+            DB::statement(
+                'ALTER TABLE ' . $prefix . $site_content_table_name
+                . " ADD FULLTEXT {$indexPrefix}_content_ft_idx(pagetitle, description, content)"
+            );
+        }
 	}
 
 
