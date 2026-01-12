@@ -524,16 +524,16 @@ class ManagerTheme implements ManagerThemeInterface
 
         if (defined('EVO_INSTALL_TIME')) {
             if (isset($_SESSION['mgrValidated'])) {
-                if (isset($_SESSION['modx.session.created.time'])) {
-                    if ($_SESSION['modx.session.created.time'] < EVO_INSTALL_TIME) {
-                        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                            if (isset($_COOKIE[session_name()])) {
-                                session_unset();
-                                @session_destroy();
-                            }
-                            header('HTTP/1.0 307 Redirect');
-                            header('Location: ' . MODX_MANAGER_URL . 'index.php?installGoingOn=2');
+                $createdKey = 'evo.session.created.time';
+                $createdAt = $_SESSION[$createdKey] ?? null;
+                if ($createdAt !== null && $createdAt < EVO_INSTALL_TIME) {
+                    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                        if (isset($_COOKIE[session_name()])) {
+                            session_unset();
+                            @session_destroy();
                         }
+                        header('HTTP/1.0 307 Redirect');
+                        header('Location: ' . MODX_MANAGER_URL . 'index.php?installGoingOn=2');
                     }
                 }
             }

@@ -10,7 +10,7 @@ return [
      *
      * IMPORTANT! Tracy ignore the "error_reporting" EvolutionCMS setting
      */
-    'active' => false,
+    'active' => true,
     'panels' => [
         EvolutionCMS\Tracy\Panels\Database\Panel::class,
         EvolutionCMS\Tracy\Panels\Routing\Panel::class,

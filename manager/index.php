@@ -136,7 +136,7 @@ if (!isset($_SERVER['DOCUMENT_ROOT']) || empty($_SERVER['DOCUMENT_ROOT'])) {
 // initiate the content manager class
 $modx = evo();
 $modx->mstart = $mstart;
-$useLaravelSession = defined('EVO_LARAVEL_SESSION') && EVO_LARAVEL_SESSION;
+$useLaravelSession = defined('EVO_SESSION') && EVO_SESSION;
 if ($useLaravelSession) {
     \EvoSessionProxy::init();
 }

@@ -135,7 +135,7 @@ $evo->dumpSnippets = false; // feed the parser the execution start time
 $evo->dumpPlugins = false;
 $evo->mstart = $mstart;
 
-if (defined('EVO_LARAVEL_SESSION') && EVO_LARAVEL_SESSION && defined('MODX_API_MODE') && MODX_API_MODE) {
+if (defined('EVO_SESSION') && EVO_SESSION && defined('MODX_API_MODE') && MODX_API_MODE) {
     \EvoSessionProxy::init();
 }
 

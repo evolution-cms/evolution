@@ -27,8 +27,9 @@ class EvoSessionProxy
             $_SESSION = [];
         }
 
-        if (!isset($_SESSION['modx.session.created.time'])) {
-            $_SESSION['modx.session.created.time'] = $_SERVER['REQUEST_TIME'] ?? time();
+        $createdKey = 'evo.session.created.time';
+        if (!isset($_SESSION[$createdKey])) {
+            $_SESSION[$createdKey] = $_SERVER['REQUEST_TIME'] ?? time();
         }
     }
 
