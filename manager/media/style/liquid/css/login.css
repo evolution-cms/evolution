@@ -20,9 +20,9 @@
     --login-text-muted-dark: rgba(255, 255, 255, 0.7);
     --login-text-muted-light: #888;
     
-    /* Glass Effect */
-    --glass-blur: blur(24px) saturate(180%);
-    --glass-blur-mobile: blur(20px);
+    /* Glass Effect - reduced blur for Safari performance */
+    --glass-blur: blur(16px) saturate(150%);
+    --glass-blur-mobile: blur(12px);
     --glass-bg-dark: rgba(0, 0, 0, 0.4);
     --glass-bg-light: rgba(255, 255, 255, 0.15);
     --glass-border-dark: rgba(255, 255, 255, 0.1);
@@ -54,58 +54,7 @@
     --shadow-glow-green: 0 0 20px rgba(48, 209, 88, 0.4);
 }
 
-/* ===== Fonts ===== */
-@font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 300;
-    src: url('../fonts/roboto/roboto-v19-latin-300.eot');
-    src: local(''),
-         url('../fonts/roboto/roboto-v19-latin-300.eot?#iefix') format('embedded-opentype'),
-         url('../fonts/roboto/roboto-v19-latin-300.woff2') format('woff2'),
-         url('../fonts/roboto/roboto-v19-latin-300.woff') format('woff'),
-         url('../fonts/roboto/roboto-v19-latin-300.ttf') format('truetype'),
-         url('../fonts/roboto/roboto-v19-latin-300.svg#Roboto') format('svg');
-}
 
-@font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 400;
-    src: url('../fonts/roboto/roboto-v19-latin-regular.eot');
-    src: local(''),
-         url('../fonts/roboto/roboto-v19-latin-regular.eot?#iefix') format('embedded-opentype'),
-         url('../fonts/roboto/roboto-v19-latin-regular.woff2') format('woff2'),
-         url('../fonts/roboto/roboto-v19-latin-regular.woff') format('woff'),
-         url('../fonts/roboto/roboto-v19-latin-regular.ttf') format('truetype'),
-         url('../fonts/roboto/roboto-v19-latin-regular.svg#Roboto') format('svg');
-}
-
-@font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 500;
-    src: url('../fonts/roboto/roboto-v19-latin-500.eot');
-    src: local(''),
-         url('../fonts/roboto/roboto-v19-latin-500.eot?#iefix') format('embedded-opentype'),
-         url('../fonts/roboto/roboto-v19-latin-500.woff2') format('woff2'),
-         url('../fonts/roboto/roboto-v19-latin-500.woff') format('woff'),
-         url('../fonts/roboto/roboto-v19-latin-500.ttf') format('truetype'),
-         url('../fonts/roboto/roboto-v19-latin-500.svg#Roboto') format('svg');
-}
-
-@font-face {
-    font-family: 'Roboto';
-    font-style: normal;
-    font-weight: 700;
-    src: url('../fonts/roboto/roboto-v19-latin-700.eot');
-    src: local(''),
-         url('../fonts/roboto/roboto-v19-latin-700.eot?#iefix') format('embedded-opentype'),
-         url('../fonts/roboto/roboto-v19-latin-700.woff2') format('woff2'),
-         url('../fonts/roboto/roboto-v19-latin-700.woff') format('woff'),
-         url('../fonts/roboto/roboto-v19-latin-700.ttf') format('truetype'),
-         url('../fonts/roboto/roboto-v19-latin-700.svg#Roboto') format('svg');
-}
 
 /* ===== Base Styles ===== */
 html {
@@ -449,13 +398,9 @@ textarea:hover:not(:focus) {
     transition: all ease-in-out 0.2s !important;
     font-size: 1rem !important;
     color: var(--login-white) !important;
-    background-color: rgba(255, 255, 255, 0.15) !important;
+    background-color: rgba(255, 255, 255, 0.12) !important;
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    -webkit-backdrop-filter: blur(10px) saturate(150%);
-    backdrop-filter: blur(10px) saturate(150%);
-    box-shadow: 
-        inset 0 1px 1px rgba(255, 255, 255, 0.1),
-        0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .loginbox .form-control:active,
@@ -573,10 +518,8 @@ input[type=submit]:not(.btn):focus {
     color: var(--login-white) !important;
     background-color: var(--btn-success-bg) !important;
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    -webkit-backdrop-filter: var(--glass-blur-mobile);
-    backdrop-filter: var(--glass-blur-mobile);
     box-shadow: 0 4px 16px rgba(48, 209, 88, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .btn-success:hover,
@@ -805,10 +748,8 @@ input[type=submit]:not(.btn):focus {
     width: var(--checkbox-size) !important;
     height: var(--checkbox-size) !important;
     border: 1px solid var(--glass-border-light);
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.15);
     border-radius: var(--login-border-radius-checkbox);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
     transition: all 0.2s ease;
     cursor: pointer;
 }
@@ -868,10 +809,17 @@ input[type=submit]:not(.btn):focus {
         bottom: 0;
         left: 0;
         right: 0;
-        padding: 0.75rem 1rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.6rem;
         text-align: center;
         background-color: transparent;
         border-radius: 0;
+        white-space: nowrap;
+    }
+    
+    .copyrights .gpl {
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }
 
@@ -972,13 +920,9 @@ input[type=submit]:not(.btn):focus {
     padding: 0.875em 1.25em !important;
     border-radius: var(--login-border-radius) !important;
     color: var(--login-white) !important;
-    background-color: rgba(255, 255, 255, 0.15) !important;
+    background-color: rgba(255, 255, 255, 0.12) !important;
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    -webkit-backdrop-filter: blur(10px) saturate(150%);
-    backdrop-filter: blur(10px) saturate(150%);
-    box-shadow: 
-        inset 0 1px 1px rgba(255, 255, 255, 0.1),
-        0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 #FMP-email:focus,

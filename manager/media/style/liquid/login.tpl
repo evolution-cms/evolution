@@ -18,7 +18,7 @@
             background-image: url('[+login_bg+]');
         }
     </style>
-    <link rel="stylesheet" href="[+manager_theme_url+]css/login.css?v=36">
+    <link rel="stylesheet" href="[+manager_theme_url+]css/login.css?v=40">
 </head>
 <body class="[+manager_theme_style+] [+login_form_position_class+]">
 <div class="page">
