@@ -210,7 +210,7 @@ ul.breadcrumbs span::after { margin-left: 2em; font-family: 'Font Awesome 5 Free
 /* [ SEARCHBAR ] */
 .searchbar input[type=text] { max-width: 10rem }
 /* [ WIDGETS ] */
-.widgets .card { margin-bottom: 1rem; margin-right: 0.6rem; border-width: 0; border-radius: 0; background-color: #fff; -webkit-transition: box-shadow .35s; transition: box-shadow .35s; box-shadow: 0 0.1rem 0.3rem 0 rgba(0, 0, 0, 0.075); }
+.widgets .card { margin-bottom: 1rem; margin-right: 0.6rem; border-width: 0; border-radius: 10px; background-color: #fff; -webkit-transition: box-shadow .35s; transition: box-shadow .35s; box-shadow: 0 0.1rem 0.3rem 0 rgba(0, 0, 0, 0.075); }
 .widgets .card:hover { box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.07); }
 .widgets .card-header { padding: .5rem 1rem; font-size: .9rem; color: #616a73; font-weight: 400; border-radius: 0; border: none; border-bottom: 1px solid rgba(0, 0, 0, .05); text-transform: none; background-color: transparent; border-bottom: 1px solid rgba(0, 0, 0, 0.05); }
 .widgets .card-header .fa { font-size: .9rem }
@@ -232,7 +232,7 @@ ul.breadcrumbs span::after { margin-left: 2em; font-family: 'Font Awesome 5 Free
 
 .widgets #welcome .wm_button a .fa { display: inline-block; }
 
-.widgets #welcome .wm_button a .fa + span { display: block; padding: .5em 0; line-height: 1em; font-size: .7rem; word-wrap:normal; }
+.widgets #welcome .wm_button a span { display: block; padding: .5em 0; line-height: 1.1; font-size: 12px; word-break: normal; overflow-wrap: normal; hyphens: none; }
 
 .widgets #recent_widget .table.data tbody tr:not(:hover) { background-color: #fff }
 .widgets #recent_widget .table.data tbody tr:nth-child(4n+1):not(:hover) { background-color: #f6f8f8 }
@@ -348,7 +348,7 @@ ul.sortableList li.ghost { z-index: 2; box-shadow: 0 0.25rem 1.5rem rgba(0, 0, 0
 .darkness .multitv .list li.element input[type="text"], .darkness .multitv .list li.element input[type="password"], .darkness .multitv .list li.element input[type="number"], .darkness .multitv .list li.element textarea { background-color: #202329 !important; border-color: #414449 !important; }
 .darkness #displayparams { width: calc(100% + 2.5rem); max-width: calc(100% + 2.5rem); margin: 0 -1.25rem !important; }
 .darkness #content_body { margin: 0 -1.5rem; }
-.darkness .card .table.data, .darkness .table td[style="background-color:#ffffff;"] { background: #202329 !important; }
+.darkness .card .table.data, .darkness .table td[style="background-color:#ffffff;"] { background: #202329 !important; border-radius: 10px}
 .darkness .table.data, .darkness .grid { background: #282c34 !important; border: none !important }
 .darkness .table.data thead, .darkness .grid thead { background: none }
 .darkness .table.data thead th, .darkness .table.data thead td, .darkness .grid th, .darkness .grid thead td { padding: 0.75rem !important; background-color: #202329; border: none; border-bottom: 1px solid #1f5994; color: #777; text-transform: uppercase; font-size: 0.675rem; }
@@ -384,7 +384,7 @@ ul.sortableList li.ghost { z-index: 2; box-shadow: 0 0.25rem 1.5rem rgba(0, 0, 0
 .darkness .alert-danger { background-color: #612329; border-color: #612329; color: #da706d; }
 .darkness .alert-danger b { color: #f7e6e8 !important }
 .darkness .alert-info { background-color: #193048; border-color: #193048; color: #a3b3bd; }
-.darkness .alert-warning { background-color: #6c591d; border-color: #6c591d; color: #c7bd9e; }
+.darkness .alert-warning { background-color: #6c591d; border-color: #6c591d; color: #c7bd9e; border-radius: 10px;}
 .darkness .alert-success { background-color: #3d7544; border-color: #3d7544; color: #c4efc5; }
 .darkness .loginbox, .darkness .loginbox form { background-color: #202329 }
 .darkness #mainloader { background-color: transparent !important; }
@@ -509,3 +509,4 @@ ul.breadcrumbs a { color: #333; }
 #news .card-block ul li, #security .card-block ul li { padding: 0.75rem 1rem; border-bottom: 1px solid #ebebeb; }
 ul.mmTagList li { padding: 2px 8px !important; margin-bottom: 5px !important; border-radius: 3px !important; -webkit-border-radius: 3px !important; background-color: #eaeaea !important; text-decoration: none !important; }
 ul.mmTagList li.tagSelected { border-radius: 3px !important; -webkit-border-radius: 3px !important; background-color: #5a5e63 !important; }
+

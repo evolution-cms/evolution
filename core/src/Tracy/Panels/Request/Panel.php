@@ -12,10 +12,10 @@ class Panel extends AbstractPanel
     protected function getAttributes()
     {
         $rows = [
-            'server' => $_SERVER,
-            'cookies' => $_COOKIE,
-            'get' => $_GET,
-            'post' => $_POST
+            'server' => $_SERVER ?? [],
+            'cookies' => $_COOKIE ?? [],
+            'get' => $_GET ?? [],
+            'post' => $_POST ?? []
         ];
         return compact('rows');
     }

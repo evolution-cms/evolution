@@ -95,6 +95,11 @@ if (!function_exists('startCMSSession')) {
             return;
         }
 
+        if (defined('EVO_SESSION') && EVO_SESSION) {
+            EvoSessionProxy::earlyInit();
+            return;
+        }
+
         session_name(SESSION_COOKIE_NAME);
         removeInvalidCmsSessionIds(SESSION_COOKIE_NAME);
         session_cache_limiter('');
@@ -160,8 +165,9 @@ if (!function_exists('startCMSSession')) {
                 , true
             );
         }
-        if (!isset($_SESSION['modx.session.created.time'])) {
-            $_SESSION['modx.session.created.time'] = $_SERVER['REQUEST_TIME'];
+        $createdKey = 'evo.session.created.time';
+        if (!isset($_SESSION[$createdKey])) {
+            $_SESSION[$createdKey] = $_SERVER['REQUEST_TIME'] ?? time();
         }
     }
 }

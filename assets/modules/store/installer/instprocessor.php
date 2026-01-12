@@ -366,7 +366,7 @@ if (isset ($_POST['plugin']) || $installData) {
                         if ($prev_id) {
                             $prev_id = EvolutionCms()->getDatabase()->escape($prev_id);
 
-                            evo()->getDatabase()->query("INSERT IGNORE INTO `{$table_prefix}site_plugin_events` (`pluginid`, `evtid`, `priority`)
+                            evo()->getDatabase()->query("INSERT OR IGNORE INTO `{$table_prefix}site_plugin_events` (`pluginid`, `evtid`, `priority`)
                                 SELECT {$id} as 'pluginid', `se`.`id` AS `evtid`, COALESCE(`spe`.`priority`, MAX(`spe2`.`priority`) + 1, 0) AS `priority`
                                 FROM `{$table_prefix}system_eventnames` `se`
                                 LEFT JOIN `{$table_prefix}site_plugin_events` `spe` ON `spe`.`evtid` = `se`.`id` AND `spe`.`pluginid` = {$prev_id}
@@ -375,7 +375,7 @@ if (isset ($_POST['plugin']) || $installData) {
                                 GROUP BY `se`.`id`
                             ");
                         } else {
-                            evo()->getDatabase()->query("INSERT IGNORE INTO `{$table_prefix}site_plugin_events` (`pluginid`, `evtid`, `priority`) 
+                            evo()->getDatabase()->query("INSERT OR IGNORE INTO `{$table_prefix}site_plugin_events` (`pluginid`, `evtid`, `priority`) 
                                 SELECT {$id} as `pluginid`, `se`.`id` as `evtid`, COALESCE(MAX(`spe`.`priority`) + 1, 0) as `priority` 
                                 FROM `{$table_prefix}system_eventnames` `se` 
                                 LEFT JOIN `{$table_prefix}site_plugin_events` `spe` ON `spe`.`evtid` = `se`.`id` 
@@ -384,7 +384,7 @@ if (isset ($_POST['plugin']) || $installData) {
                         }
 
                         // remove existing events
-                        evo()->getDatabase()->query("DELETE `pe` FROM `{$table_prefix}site_plugin_events` `pe` LEFT JOIN `{$table_prefix}system_eventnames` `se` ON `pe`.`evtid`=`se`.`id` AND `name` IN ('{$_events}') WHERE ISNULL(`name`) AND `pluginid` = {$id}");
+                        evo()->getDatabase()->query("DELETE `pe` FROM `{$table_prefix}site_plugin_events` `pe` LEFT JOIN `{$table_prefix}system_eventnames` `se` ON `pe`.`evtid`=`se`.`id` AND `name` IN ('{$_events}') WHERE `name` IS NULL AND `pluginid` = {$id}");
                     }
                 }
             }

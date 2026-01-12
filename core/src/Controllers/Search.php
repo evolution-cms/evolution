@@ -59,6 +59,7 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
             ->select('site_content.id', 'pagetitle', 'longtitle', 'description', 'introtext', 'menutitle', 'deleted', 'published', 'isfolder', 'type');
 
         $searchfields = trim(get_by_key($_REQUEST, 'searchfields', '', 'is_scalar'));
+        $articul_id = [];
 
 
         $templateid = isset($_REQUEST['templateid']) && $_REQUEST['templateid'] !== '' ? (int)$_REQUEST['templateid'] : '';
@@ -88,7 +89,6 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
                 ->where('value', 'LIKE', '%' . $searchfields . '%');
 
             if ($tvs->count() > 0) {
-                $articul_id = [];
                 $i = 1;
                 foreach ($tvs->pluck('contentid')
                              ->toArray() as $articul) {
@@ -96,29 +96,52 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
                 }
             }
 
-            if (ctype_digit($searchfields)) {
-                $searchQuery->orWhere('site_content.id', $searchfields);
-                if (strlen($searchfields) > 3) {
-                    $searchQuery->orWhere('site_content.pagetitle', 'LIKE', '%' . $searchfields . '%');
+            $searchQuery = $searchQuery->where(function ($query) use ($searchfields, $idFromAlias, $articul_id) {
+                $hasClause = false;
+
+                if (ctype_digit($searchfields)) {
+                    $query->where('site_content.id', $searchfields);
+                    $hasClause = true;
+                    if (strlen($searchfields) > 3) {
+                        $query->orWhere('site_content.pagetitle', 'LIKE', '%' . $searchfields . '%');
+                    }
                 }
-            }
 
-            if ($idFromAlias) {
-                $searchQuery->orWhere('site_content.id', $idFromAlias);
+                if ($idFromAlias) {
+                    if ($hasClause) {
+                        $query->orWhere('site_content.id', $idFromAlias);
+                    } else {
+                        $query->where('site_content.id', $idFromAlias);
+                        $hasClause = true;
+                    }
+                }
 
-            }
+                if (!ctype_digit($searchfields)) {
+                    $condition = function ($nested) use ($searchfields) {
+                        $nested->where('pagetitle', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('longtitle', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('description', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('introtext', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('menutitle', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('alias', 'LIKE', '%' . $searchfields . '%');
+                    };
 
-            if (!ctype_digit($searchfields)) {
-                $searchQuery = $searchQuery->where(function ($query) use ($searchfields) {
-                    $query->where('pagetitle', 'LIKE', '%' . $searchfields . '%')
-                        ->orWhere('longtitle', 'LIKE', '%' . $searchfields . '%')
-                        ->orWhere('description', 'LIKE', '%' . $searchfields . '%')
-                        ->orWhere('introtext', 'LIKE', '%' . $searchfields . '%')
-                        ->orWhere('menutitle', 'LIKE', '%' . $searchfields . '%')
-                        ->orWhere('alias', 'LIKE', '%' . $searchfields . '%');
-                });
+                    if ($hasClause) {
+                        $query->orWhere($condition);
+                    } else {
+                        $query->where($condition);
+                        $hasClause = true;
+                    }
+                }
 
-            }
+                if (!empty($articul_id)) {
+                    if ($hasClause) {
+                        $query->orWhereIn('site_content.id', $articul_id);
+                    } else {
+                        $query->whereIn('site_content.id', $articul_id);
+                    }
+                }
+            });
         } elseif ($idFromAlias) {
             $searchQuery = $searchQuery->where('site_content.id', $idFromAlias);
         }
@@ -163,8 +186,10 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
             'application/vnd.ms-excel' => $this->managerTheme->getStyle('icon_excel'),
         ];
 
-        if(!empty($articul_id)){
-            $searchQuery = $searchQuery->orWhereIn('site_content.id', $articul_id);
+        if (!empty($articul_id)) {
+            $searchQuery = $searchQuery->orWhere(function ($query) use ($articul_id) {
+                $query->whereIn('site_content.id', $articul_id);
+            });
         }
 
         $searchQuery = $searchQuery->groupBy('site_content.id');
@@ -272,10 +297,12 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
 
                 $results = SiteTemplate::query()
                     ->select('id', 'templatename', 'locked')
-                    ->where('id', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('templatename', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('description', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('content', 'LIKE', '%' . $searchfields . '%');
+                    ->where(function ($query) use ($searchfields) {
+                        $query->where('id', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('templatename', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('description', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('content', 'LIKE', '%' . $searchfields . '%');
+                    });
 
                 $count = $results->count();
 
@@ -305,14 +332,16 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
 
                 $results = SiteTmplvar::query()
                     ->select('id', 'name', 'locked')
-                    ->where('id', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('name', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('description', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('type', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('elements', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('display', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('display_params', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('default_text', 'LIKE', '%' . $searchfields . '%');
+                    ->where(function ($query) use ($searchfields) {
+                        $query->where('id', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('name', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('description', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('type', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('elements', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('display', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('display_params', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('default_text', 'LIKE', '%' . $searchfields . '%');
+                    });
 
                 $count = $results->count();
 
@@ -339,10 +368,12 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
 
                 $results = SiteHtmlsnippet::query()
                     ->select('id', 'name', 'locked', 'disabled')
-                    ->where('id', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('name', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('description', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('snippet', 'LIKE', '%' . $searchfields . '%');
+                    ->where(function ($query) use ($searchfields) {
+                        $query->where('id', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('name', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('description', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('snippet', 'LIKE', '%' . $searchfields . '%');
+                    });
 
                 $count = $results->count();
 
@@ -369,12 +400,14 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
 
                 $results = SiteSnippet::query()
                     ->select('id', 'name', 'locked', 'disabled')
-                    ->where('id', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('name', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('description', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('snippet', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('properties', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('moduleguid', 'LIKE', '%' . $searchfields . '%');
+                    ->where(function ($query) use ($searchfields) {
+                        $query->where('id', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('name', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('description', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('snippet', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('properties', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('moduleguid', 'LIKE', '%' . $searchfields . '%');
+                    });
 
                 $count = $results->count();
 
@@ -401,12 +434,14 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
 
                 $results = SitePlugin::query()
                     ->select('id', 'name', 'locked', 'disabled')
-                    ->where('id', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('name', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('description', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('plugincode', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('properties', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('moduleguid', 'LIKE', '%' . $searchfields . '%');
+                    ->where(function ($query) use ($searchfields) {
+                        $query->where('id', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('name', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('description', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('plugincode', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('properties', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('moduleguid', 'LIKE', '%' . $searchfields . '%');
+                    });
 
                 $count = $results->count();
 
@@ -433,13 +468,15 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
 
                 $results = SiteModule::query()
                     ->select('id', 'name', 'locked', 'disabled')
-                    ->where('id', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('name', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('description', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('modulecode', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('properties', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('guid', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('resourcefile', 'LIKE', '%' . $searchfields . '%');
+                    ->where(function ($query) use ($searchfields) {
+                        $query->where('id', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('name', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('description', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('modulecode', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('properties', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('guid', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere('resourcefile', 'LIKE', '%' . $searchfields . '%');
+                    });
 
                 $count = $results->count();
 

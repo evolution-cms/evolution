@@ -26,6 +26,8 @@ class Database extends Manager
 
     public $config;
 
+    protected $sqlitePragmaApplied = false;
+
     public function __construct(?Container $container = null)
     {
         parent::__construct($container);
@@ -41,24 +43,30 @@ class Database extends Manager
     public function replaceFullTableName($tableName, $force = false)
     {
         $tableName = trim($tableName);
-        if ((bool) $force === true) {
-            $result = $this->getConnection()->getTablePrefix() . $tableName;
-        } elseif (strpos($tableName, '[+prefix+]') !== false) {
-            $dbase = trim($this->getConfig('database'), '`');
-            $prefix = $this->getConfig('prefix');
+        $connection = $this->getConnection();
+        $grammar = $connection->getQueryGrammar();
+        $prefix = $connection->getTablePrefix();
+        $tableWithPrefix = $tableName;
 
-            $result = preg_replace(
+        if ((bool) $force === true) {
+            return $grammar->wrapTable($prefix . $tableName);
+        }
+
+        if (strpos($tableName, '[+prefix+]') !== false) {
+            return preg_replace_callback(
                 '@\[\+prefix\+\](\w+)@',
-                '`' . $dbase . '`.`' . $prefix . '$1`',
+                static function ($matches) use ($prefix, $grammar) {
+                    return $grammar->wrapTable($prefix . $matches[1]);
+                },
                 $tableName
             );
-        } else {
-            $result = $tableName;
         }
-        if ($this->getConfig('driver') == 'pgsql') {
-            $result = str_replace('"', "'", $result);
+
+        if ($prefix !== '' && strpos($tableName, $prefix) !== 0) {
+            $tableWithPrefix = $prefix . $tableName;
         }
-        return $result;
+
+        return $grammar->wrapTable($tableWithPrefix);
     }
 
     /**
@@ -164,6 +172,8 @@ class Database extends Manager
             if (!$this->conn->getPdo() instanceof PDO) {
                 $this->conn->reconnect();
             }
+        } else {
+            $this->applySqlitePragmas($this->conn);
         }
         return $this->conn;
     }
@@ -173,7 +183,7 @@ class Database extends Manager
      */
     public function isConnected()
     {
-        return true;
+        return $this->conn instanceof Connection && $this->conn->getPdo() instanceof PDO;
     }
 
     public function insertFrom(
@@ -458,7 +468,10 @@ class Database extends Manager
      */
     public function connect()
     {
-       return $this->getConnection();
+        $this->conn = $this->getConnection();
+        $this->applySqlitePragmas($this->conn);
+
+        return $this->conn;
     }
 
     /**
@@ -691,6 +704,11 @@ class Database extends Manager
         $driver = evo()->getDatabase()->getConfig('driver');
         if (!empty($table) && is_scalar($table)) {
             switch ($driver) {
+                case 'sqlite':
+                case 'sqlite3':
+                    $tableName = $this->normalizeTableName($table);
+                    $sql = 'PRAGMA table_info(' . $tableName . ')';
+                    break;
                 case 'pgsql':
                     $sql = " SELECT * FROM information_schema.columns WHERE table_name = '" . $table . "';";
                     break;
@@ -701,6 +719,14 @@ class Database extends Manager
             if ($ds = $this->query($sql)) {
                 while ($row = $this->getRow($ds)) {
                     switch ($driver) {
+                        case 'sqlite':
+                        case 'sqlite3':
+                            $fieldName = $row['name'];
+                            $metadata[$fieldName] = [
+                                'Field' => $row['name'],
+                                'Type' => $row['type'],
+                            ];
+                            continue 2;
                         case 'pgsql':
                             $fieldName = $row['column_name'];
                             break;
@@ -773,6 +799,44 @@ class Database extends Manager
 
     public function optimize($table_name)
     {
+        $connection = DB::connection();
+        $driver = $connection->getConfig('driver');
+
+        if (in_array($driver, ['sqlite', 'sqlite3'], true)) {
+            if ($connection->getPdo()->inTransaction()) {
+                evo()->logEvent(
+                    0,
+                    1,
+                    'VACUUM skipped: active transaction detected.',
+                    'Database::optimize'
+                );
+                return;
+            }
+
+            DB::statement('VACUUM');
+            return;
+        }
+
         DB::statement('OPTIMIZE TABLE ' . $table_name);
+    }
+
+    protected function applySqlitePragmas(Connection $connection): void
+    {
+        $driver = $connection->getConfig('driver');
+        if ($this->sqlitePragmaApplied || !in_array($driver, ['sqlite', 'sqlite3'], true)) {
+            return;
+        }
+
+        $connection->statement('PRAGMA foreign_keys = ON;');
+        $connection->statement('PRAGMA busy_timeout = 5000;');
+        $this->sqlitePragmaApplied = true;
+    }
+
+    protected function normalizeTableName($table): string
+    {
+        $table = $this->replaceFullTableName($table);
+        $table = str_replace(['`', '"'], '', $table);
+
+        return '"' . $table . '"';
     }
 }

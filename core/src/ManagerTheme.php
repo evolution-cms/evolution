@@ -466,21 +466,35 @@ class ManagerTheme implements ManagerThemeInterface
     }
 
     public function getActionId()
-    {
-        // OK, let's retrieve the action directive from the request
-        $option = ['min_range' => 1, 'max_range' => 2000];
-        if (isset($_GET['a']) && isset($_POST['a'])) {
-            $this->alertAndQuit('error_double_action');
-        } elseif (isset($_GET['a'])) {
-            $action = (int)filter_input(INPUT_GET, 'a', FILTER_VALIDATE_INT, $option);
-        } elseif (isset($_POST['a'])) {
-            $action = (int)filter_input(INPUT_POST, 'a', FILTER_VALIDATE_INT, $option);
-        } else {
-            $action = null;
-        }
+{
+    // OK, let's retrieve the action directive from the request
+    // NOTE: Do NOT use filter_input() here.
+    // In embedded PHP (iOS), filter_input() may not see values
+    // injected into $_GET / $_POST by prelude code.
 
-        return $action;
+    $options = [
+        'options' => [
+            'min_range' => 1,
+            'max_range' => 2000,
+        ],
+    ];
+
+    if (isset($_GET['a']) && isset($_POST['a'])) {
+        $this->alertAndQuit('error_double_action');
     }
+
+    if (isset($_GET['a'])) {
+        $value = $_GET['a'];
+    } elseif (isset($_POST['a'])) {
+        $value = $_POST['a'];
+    } else {
+        return null;
+    }
+
+    $action = filter_var($value, FILTER_VALIDATE_INT, $options);
+
+    return ($action === false) ? 0 : (int)$action;
+}
 
     public function isAuthManager()
     {
@@ -510,16 +524,16 @@ class ManagerTheme implements ManagerThemeInterface
 
         if (defined('EVO_INSTALL_TIME')) {
             if (isset($_SESSION['mgrValidated'])) {
-                if (isset($_SESSION['modx.session.created.time'])) {
-                    if ($_SESSION['modx.session.created.time'] < EVO_INSTALL_TIME) {
-                        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                            if (isset($_COOKIE[session_name()])) {
-                                session_unset();
-                                @session_destroy();
-                            }
-                            header('HTTP/1.0 307 Redirect');
-                            header('Location: ' . MODX_MANAGER_URL . 'index.php?installGoingOn=2');
+                $createdKey = 'evo.session.created.time';
+                $createdAt = $_SESSION[$createdKey] ?? null;
+                if ($createdAt !== null && $createdAt < EVO_INSTALL_TIME) {
+                    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                        if (isset($_COOKIE[session_name()])) {
+                            session_unset();
+                            @session_destroy();
                         }
+                        header('HTTP/1.0 307 Redirect');
+                        header('Location: ' . MODX_MANAGER_URL . 'index.php?installGoingOn=2');
                     }
                 }
             }
