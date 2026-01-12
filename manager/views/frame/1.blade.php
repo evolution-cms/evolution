@@ -60,7 +60,7 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
     <title>{{evo()->getConfig('site_name')}} - (Evolution CMS Manager)</title>
     <meta http-equiv="Content-Type" content="text/html; charset={{ManagerTheme::getCharset()}}" />
     <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" />
-    <meta name="theme-color" content="#1d2023" />
+    <meta name="theme-color" content="#000" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="stylesheet" type="text/css" href="{{$css}}" />
     @if (evo()->getConfig('show_picker'))

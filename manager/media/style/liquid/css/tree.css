@@ -3,11 +3,11 @@
 #treeloader { position: absolute; display: block; overflow: hidden; right: 0.3em; top: 0.15em; opacity: 0; visibility: hidden; -webkit-transition-duration: 0.5s; transition-duration: 0.5s }
 #treeloader .fa { font-size: 1em; }
 #treeloader.visible { opacity: 0.7; visibility: visible; -webkit-transition-duration: 0s; transition-duration: 0s }
-.treeframebody { height: 100%; min-height: calc(100% + 1px); background-color: var(--color-tree-bg); border-right: 1px solid var(--color-tree-border); }
-#treeMenu { display: flex; align-items: center; gap: 0.4rem; width: 100%; height: var(--tree-menu-height); padding: 0 0.4rem; background-color: var(--color-tree-menu-bg); border-bottom: 1px solid var(--color-tree-border) }
+.treeframebody { height: calc(100% - 10px); background-color: var(--color-tree-bg); border-right: 1px solid var(--color-tree-border); }
+#treeMenu { display: flex; align-items: center; gap: 0; width: 100%; height: var(--tree-menu-height); padding: 0 0.4rem; background-color: var(--color-tree-menu-bg); border-bottom: 1px solid var(--color-tree-border) }
 #treeMenu .treeButton { display: inline-flex; align-items: center; justify-content: flex-start; flex: 0 0 auto; cursor: pointer; height: var(--tree-menu-height); padding: 0 0.35rem; white-space: nowrap; text-align: left; vertical-align: middle; -webkit-transition-duration: var(--transition-fast); transition-duration: var(--transition-fast) }
-#treeMenu .treeButton:hover:not(.disabled) { background-color: var(--color-overlay-white); cursor: pointer; -webkit-transition-duration: 0s; transition-duration: 0s }
-#treeMenu .treeButton:not(.disabled):active { background-color: #d5d5d5 }
+#treeMenu .treeButton:hover:not(.disabled) { background-color: var(--color-overlay-white); cursor: pointer; border-radius: 0.5rem; -webkit-transition-duration: 0s; transition-duration: 0s }
+#treeMenu .treeButton:not(.disabled):active { background-color: var(--color-overlay-light); border-radius: 0.5rem; }
 #treeMenu .treeButton .fa { display: block; width: 1rem; height: 1rem; margin: 0; line-height: 1rem; font-size: 1rem; }
 #treeMenu .treeButton svg { display: block; width: 18px; height: 18px; }
 #treeMenu .treeButton.disabled { color: var(--color-text-light); opacity: 0.5 }

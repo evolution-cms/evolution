@@ -2,8 +2,6 @@
 #mainMenu {
     background-color: var(--color-navbar-bg);
     color: var(--color-navbar-text);
-    -webkit-box-shadow: var(--color-navbar-shadow);
-    box-shadow: var(--color-navbar-shadow);
 }
 #mainMenu.show {
     overflow: visible;
@@ -288,10 +286,11 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
 }
 #mainMenu .nav > li > ul > li > a:first-child,
 #mainMenu .nav > li > ul > li > span {
-    display: block;
+    display: flex;
+    align-items: center;
     position: relative;
     padding: 0 2rem 0 1rem;
-    line-height: var(--navbar-height);
+    min-height: var(--navbar-height);
     color: var(--color-dropdown-text);
     text-decoration: none;
 }

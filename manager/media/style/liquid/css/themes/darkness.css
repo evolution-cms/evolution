@@ -13,9 +13,9 @@
     color-scheme: darkness;
 
     /* Base Colors */
-    --color-base-100: #282c34;
-    --color-base-200: #202329;
-    --color-base-300: #1a1c21;
+    --color-base-100: #000000;
+    --color-base-200: #0a0a0a;
+    --color-base-300: #111111;
     --color-base-content: #bdbdbd;
     --color-base-muted: #aaaaaa;
 
@@ -26,11 +26,11 @@
     --color-text-header: #b0b0b1;
 
     /* Navbar */
-    --color-navbar: #202329;
+    --color-navbar: #000000;
     --color-navbar-text: #bbbbbb;
     --color-navbar-text-hover: #ffffff;
     --color-navbar-shadow: 0 0.25rem 0.25rem rgba(0, 0, 0, 0.3);
-    --color-navbar-left-bg: #17191e;
+    --color-navbar-left-bg: #000000;
 
     /* Dropdown */
     --color-dropdown-bg: #343942;
@@ -1071,10 +1071,9 @@
 
 /* ===== Main Menu ===== */
 .darkness #mainMenu {
-    -webkit-box-shadow: var(--color-navbar-shadow);
-    box-shadow: var(--color-navbar-shadow);
     background-color: var(--color-navbar);
     color: var(--color-navbar-text);
+    border-bottom: 3px solid var(---color-base-100);
 }
 
 .darkness #mainMenu .nav > li > a,
@@ -1129,15 +1128,20 @@
     color: var(--color-search-disabled);
 }
 
-/* ===== Tree ===== */
+/* ===== Tree - Liquid Glass ===== */
 .darkness #tree .treeframebody {
-    background-color: var(--color-tree-body);
-    border-color: var(--color-tree-border);
+    background-color: rgba(28, 28, 30, 0.85);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    backdrop-filter: blur(16px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1.2rem;
+    margin: 0 10px 10px 10px;
 }
 
 .darkness #treeMenu {
-    background-color: var(--color-tree-menu);
-    border-color: var(--color-tree-border);
+    background-color: transparent;
+    border-color: rgba(255, 255, 255, 0.1);
+    border-radius: 1.2rem 1.2rem 0 0;
 }
 
 .darkness #treeMenu .treeButton {
@@ -1416,8 +1420,6 @@
 /* ===== Navbar Left Layout ===== */
 @media (min-width: 768px) {
     .navbar-left.darkness #mainMenu {
-        -webkit-box-shadow: 0 2px 0 1px rgba(255, 255, 255, 0.07);
-        box-shadow: 0 2px 0 1px rgba(255, 255, 255, 0.07);
         background-color: var(--color-navbar-left-bg);
     }
 

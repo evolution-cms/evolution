@@ -19,11 +19,11 @@
     --color-base-content: #333333;
 
     /* Navbar */
-    --color-navbar: #202329;
+    --color-navbar: #000000;
     --color-navbar-text: #bbbbbb;
     --color-navbar-text-hover: #ffffff;
     --color-navbar-shadow: 0 0.25rem 0.25rem rgba(0, 0, 0, 0.3);
-    --color-navbar-left-bg: #17191e;
+    --color-navbar-left-bg: #000000;
     --color-navbar-left-text: #dcd9e3;
 
     /* Dropdown */
@@ -115,9 +115,9 @@
 
 /* ===== Tree ===== */
 .dark #treeMenu {
-    background-color: var(--color-tree-menu);
-    border-bottom-color: rgba(0, 0, 0, 0.2);
-    border-right-color: var(--color-tree-border);
+    background-color: transparent;
+    border-color: rgba(255, 255, 255, 0.1);
+    border-radius: 1.2rem 1.2rem 0 0;
 }
 
 .dark #treeMenu .treeButton {
@@ -130,8 +130,12 @@
 }
 
 .dark #tree .treeframebody {
-    background-color: var(--color-tree-body);
-    border-color: var(--color-tree-border);
+    background-color: rgba(28, 28, 30, 0.85);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    backdrop-filter: blur(16px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1.2rem;
+    margin: 0 10px 10px 10px;
 }
 
 .dark #treeHolder .rootNode a {

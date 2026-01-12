@@ -28,9 +28,13 @@
 @keyframes rotateLogo {to {transform: translate(-50%, -50%) rotate(360deg)}}
 .sidebar-closed #tree {width: 0 !important;}
 .sidebar-closed #main, .sidebar-closed #resizer { left: 0 !important; }
+@media (min-width: 841px) {
+#mainMenu { height: calc(var(--navbar-height) + 4px); padding-bottom: 4px; box-sizing: border-box; }
+#tree, #main, #resizer { top: calc(var(--navbar-height) + 4px); }
+}
 @media (min-width: 1200px) {
-#mainMenu { height: var(--navbar-height-lg); }
-#tree, #main { top: var(--navbar-height-lg); }
+#mainMenu { height: calc(var(--navbar-height-lg) + 4px); }
+#tree, #main, #resizer { top: calc(var(--navbar-height-lg) + 4px); }
 }
 @media (max-width: 840px) {
 #floater { left: 0; right: 0; margin: 0 auto; }
