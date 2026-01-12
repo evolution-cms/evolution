@@ -140,20 +140,43 @@
         };
     });
 
+    // Toggle server credential fields based on database type
+    function toggleServerCredentials() {
+        var type = document.getElementById('database_type').value;
+        var isSqlite = (type === 'sqlite');
+        var serverFields = ['databasehost', 'databaseloginname', 'databaseloginpassword'];
+        serverFields.forEach(function(id) {
+            var el = document.getElementById(id);
+            var p = el.parentElement;
+            p.style.display = isSqlite ? 'none' : 'block';
+            if (isSqlite) {
+                p.classList.remove('has-error');
+                el.value = '';
+            }
+        });
+    }
+
+    document.getElementById('database_type').addEventListener('change', toggleServerCredentials);
+    // Initial toggle on load
+    toggleServerCredentials();
+
     // get collation from the database server
     document.getElementById('servertest').addEventListener('click', function(e) {
         e.preventDefault();
 
-        if (form.databasehost.value === '') {
-            form.databasehost.parentElement.classList.add('has-error');
-            form.databasehost.focus();
-            return false;
-        }
+        var type = form.database_type.value;
+        if (type !== 'sqlite') {
+            if (form.databasehost.value === '') {
+                form.databasehost.parentElement.classList.add('has-error');
+                form.databasehost.focus();
+                return false;
+            }
 
-        if (form.databaseloginname.value === '') {
-            form.databaseloginname.parentElement.classList.add('has-error');
-            form.databaseloginname.focus();
-            return false;
+            if (form.databaseloginname.value === '') {
+                form.databaseloginname.parentElement.classList.add('has-error');
+                form.databaseloginname.focus();
+                return false;
+            }
         }
 
         var url = 'index.php?s=1&action=connection/collation';

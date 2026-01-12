@@ -44,6 +44,8 @@ if (!function_exists('getDatabaseCharset')) {
                 $database_charset = 'UTF8';
             }
             $database_charset = str_ireplace(['utf-8', 'utf8'], 'UTF8', $database_charset);
+        } elseif ($driver === 'sqlite') {
+            $database_charset = 'utf8';
         } else {
             // MySQL 5.7 & 8.0: "utf8mb4_general_ci", "utf8_unicode_ci", "latin1_swedish_ci"
             // MySQL 8.0+: "utf8mb4_0900_ai_ci" (with version number)
@@ -70,20 +72,20 @@ if (!function_exists('install_sessionCheck')) {
                 echo '
 <html>
 <head>
-	<title>Install Problem</title>
-	<style type="text/css">
-		*{margin:0;padding:0}
-		body{margin:150px;background:#eee;}
-		.install{padding:10px;border:3px solid #ffc565;background:#ffddb4;margin:0 auto;text-align:center;}
-		p{ margin:20px 0; }
-		a{margin-top:30px;padding:5px;}
-	</style>
+    <title>Install Problem</title>
+    <style type="text/css">
+       *{margin:0;padding:0}
+       body{margin:150px;background:#eee;}
+       .install{padding:10px;border:3px solid #ffc565;background:#ffddb4;margin:0 auto;text-align:center;}
+       p{ margin:20px 0; }
+       a{margin-top:30px;padding:5px;}
+    </style>
 </head>
 <body>
-	<div class="install">
-		<p>' . $_lang["session_problem"] . '</p>
-		<p><a href="./">' . $_lang["session_problem_try_again"] . '</a></p>
-	</div>
+    <div class="install">
+       <p>' . $_lang["session_problem"] . '</p>
+       <p><a href="./">' . $_lang["session_problem_try_again"] . '</a></p>
+    </div>
 </body>
 </html>';
                 exit;

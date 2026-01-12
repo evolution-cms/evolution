@@ -15,8 +15,9 @@ class CreateManagerUsersTable extends Migration {
 	{
 		Schema::create('manager_users', function(Blueprint $table)
 		{
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
 			$table->integer('id', true);
-			$table->string('username', 100)->default('')->unique('username');
+			$table->string('username', 100)->default('')->unique("{$indexPrefix}_username");
 			$table->string('password', 100)->default('');
 		});
 	}

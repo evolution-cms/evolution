@@ -76,6 +76,16 @@ switch($installMode){
             if (!isset($database_connection_method) || empty($database_connection_method)) {
                 $database_connection_method = 'SET client_encoding';
             }
+        } elseif ($db_config['driver'] === 'sqlite') {
+            try {
+                $conn = new PDO('sqlite:' . $db_config['database']);
+                $database_collation = 'utf8';
+                $database_charset = 'utf8';
+                $database_connection_charset = 'utf8';
+                $database_connection_method = '';
+            } catch (PDOException $e) {
+                //
+            }
         }
 
         $_POST['database_name'] = $db_config['database'];

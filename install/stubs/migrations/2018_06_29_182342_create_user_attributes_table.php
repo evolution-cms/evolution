@@ -15,8 +15,9 @@ class CreateUserAttributesTable extends Migration {
 	{
 		Schema::create('user_attributes', function(Blueprint $table)
 		{
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
 			$table->integer('id', true);
-			$table->integer('internalKey')->default(0)->index("{}_userid");
+			$table->integer('internalKey')->default(0)->index("{$indexPrefix}_userid");
 			$table->string('fullname', 100)->default('');
 			$table->integer('role')->default(0);
 			$table->string('email', 100)->default('');

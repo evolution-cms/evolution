@@ -297,7 +297,7 @@ return new class extends Migration
             $indexPrefix = \DB::getTablePrefix() . $table->getTable();
             $table->comment('Site content (documents) - main table storing all site pages, documents, and content resources');
             $table->increments('id');
-            $table->string('type', 20)->default('document')->index('typeidx');
+            $table->string('type', 20)->default('document')->index("{$indexPrefix}_typeidx");
             $table->string('contentType', 50)->default('text/html');
             $table->string('pagetitle')->default('');
             $table->string('longtitle')->default('');
@@ -354,9 +354,9 @@ return new class extends Migration
             $table->unsignedInteger('descendant');
             $table->unsignedInteger('depth');
 
-            $table->index('ancestor', 'closure_ancestor_idx');
-            $table->index('descendant', 'closure_descendant_idx');
-            $table->index('depth', 'closure_depth_idx');
+            $table->index('ancestor', "{$indexPrefix}_closure_ancestor_idx");
+            $table->index('descendant', "{$indexPrefix}_closure_descendant_idx");
+            $table->index('depth', "{$indexPrefix}_closure_depth_idx");
             $table->unique(['ancestor', 'descendant'], "{$indexPrefix}_ix_unique_path");
         });
 
