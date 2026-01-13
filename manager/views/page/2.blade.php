@@ -397,34 +397,6 @@
                         </a>
                     </span>
                 </div>
-                <div class="userprofiletable card-body">
-                    <table>
-                        <tr>
-                            <td width="150">[%yourinfo_username%]</td>
-                            <td><b>' .
-            evo()->getLoginUserName() .
-            '</b></td>
-                        </tr>
-                        <tr>
-                            <td>[%yourinfo_role%]</td>
-                            <td><b>[[$_SESSION[\'mgrPermissions\'][\'name\'] ]]</b></td>
-                        </tr>
-                        <tr>
-                            <td>[%yourinfo_previous_login%]</td>
-                            <td><b>'.evo()->toDateFormat($_SESSION['mgrLastlogin']).'</b></td>
-                        </tr>
-                        <tr>
-                            <td>[%yourinfo_total_logins%]</td>
-                            <td><b>[[$_SESSION[\'mgrLogincount\']:math(\'%s+1\')]]</b></td>
-                        </tr>' .
-            (evo()->hasPermission('change_password')
-                ? '
-
-                        '
-                : '') .
-            '
-                    </table>
-                </div>
     		',
         'hide' => '0',
     ];

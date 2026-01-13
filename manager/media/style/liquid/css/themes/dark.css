@@ -130,12 +130,12 @@
 }
 
 .dark #tree .treeframebody {
-    background-color: rgba(28, 28, 30, 0.85);
-    -webkit-backdrop-filter: blur(16px) saturate(150%);
-    backdrop-filter: blur(16px) saturate(150%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 1.2rem;
-    margin: 0 10px 10px 10px;
+    background-color: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--glass-radius);
+    margin: 0 0 10px 10px;
 }
 
 .dark #treeHolder .rootNode a {
@@ -339,10 +339,89 @@
     background: var(--color-base-200) !important;
 }
 
-/* ===== Widgets ===== */
+/* ===== Widgets - Liquid Glass ===== */
+.dark .widgets .card {
+    background-color: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--glass-radius);
+    box-shadow: var(--glass-shadow);
+}
+
+.dark .widgets .card:hover {
+    box-shadow: var(--glass-shadow-hover);
+}
+
 .dark .widgets .card-header {
     color: var(--color-widget-header-text);
-    background-color: var(--color-widget-header-bg);
+    background-color: transparent;
+    border-bottom: 1px solid var(--glass-border);
+    border-radius: var(--glass-radius) var(--glass-radius) 0 0;
+}
+
+.dark .widgets .card-block {
+    background-color: transparent;
+}
+
+.dark .widgets #welcome .wm_button a:hover {
+    background-color: var(--glass-hover-bg);
+    border-radius: var(--glass-radius-sm);
+}
+
+.dark .widgets .table.data {
+    background: transparent !important;
+    margin: 1rem;
+    width: calc(100% - 2rem);
+    border-radius: var(--glass-radius-sm);
+    overflow: hidden;
+}
+
+.dark .widgets .table.data thead th,
+.dark .widgets .table.data thead td {
+    background-color: var(--glass-table-header);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.dark .widgets .table.data tbody tr {
+    background-color: var(--glass-table-row);
+    border-bottom: 1px solid var(--glass-table-border);
+    transition: background-color 0.2s ease;
+}
+
+.dark .widgets .table.data tbody tr:last-child {
+    border-bottom: none;
+}
+
+.dark .widgets .table.data tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.dark .widgets .table.data tbody tr:hover {
+    background-color: var(--glass-table-row-hover) !important;
+}
+
+.dark .widgets .table-responsive {
+    padding: 1rem;
+}
+
+.dark .widgets .table-responsive .table.data {
+    margin: 0;
+    width: 100%;
+}
+
+/* ===== Alerts - Liquid Glass ===== */
+.dark .alert {
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--glass-radius);
+    box-shadow: var(--glass-shadow);
+}
+
+.dark .alert-warning {
+    background-color: rgba(108, 89, 29, 0.85);
+    border-color: rgba(199, 189, 158, 0.3);
 }
 
 /* ===== Manager Manager ===== */

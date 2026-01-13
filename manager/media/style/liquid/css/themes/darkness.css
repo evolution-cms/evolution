@@ -54,7 +54,7 @@
     --color-tree-toggle-hover: rgba(255, 255, 255, 0.19);
 
     /* Tabs */
-    --color-tab-row: #1a1c21;
+    --color-tab-row: #000;
     --color-tab-border: #2a2d33;
     --color-tab-selected: #282c34;
     --color-tab-text: #aaaaaa;
@@ -197,8 +197,20 @@
     box-shadow: none;
 }
 
-/* ===== Widgets ===== */
-.darkness .widgets .card,
+/* ===== Widgets - Liquid Glass ===== */
+.darkness .widgets .card {
+    background-color: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--glass-radius);
+    box-shadow: var(--glass-shadow);
+}
+
+.darkness .widgets .card:hover {
+    box-shadow: var(--glass-shadow-hover);
+}
+
 .darkness h1,
 .darkness .element-edit-message,
 .darkness #ManageFiles .breadcrumbs {
@@ -221,13 +233,20 @@
 }
 
 .darkness .widgets #welcome .wm_button a:hover {
-    background-color: var(--color-welcome-hover-bg);
+    background-color: var(--glass-hover-bg);
     color: var(--color-welcome-hover-text);
+    border-radius: var(--glass-radius-sm);
 }
 
 .darkness .widgets .card-header {
     color: var(--color-text-header);
-    border-bottom: 1px solid var(--color-table-border);
+    background-color: transparent;
+    border-bottom: 1px solid var(--glass-border);
+    border-radius: var(--glass-radius) var(--glass-radius) 0 0;
+}
+
+.darkness .widgets .card-block {
+    background-color: transparent;
 }
 
 /* ===== News & Security ===== */
@@ -270,8 +289,48 @@
 /* ===== Tables ===== */
 .darkness .card .table.data,
 .darkness .table td[style="background-color:#ffffff;"] {
-    background: var(--color-base-200) !important;
-    border-radius: 10px;
+    background: transparent !important;
+}
+
+.darkness .widgets .table.data {
+    background: transparent !important;
+    margin: 1rem;
+    width: calc(100% - 2rem);
+    border-radius: var(--glass-radius-sm);
+    overflow: hidden;
+}
+
+.darkness .widgets .table.data thead th,
+.darkness .widgets .table.data thead td {
+    background-color: var(--glass-table-header);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.darkness .widgets .table.data tbody tr {
+    background-color: var(--glass-table-row);
+    border-bottom: 1px solid var(--glass-table-border);
+    transition: background-color 0.2s ease;
+}
+
+.darkness .widgets .table.data tbody tr:last-child {
+    border-bottom: none;
+}
+
+.darkness .widgets .table.data tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.darkness .widgets .table.data tbody tr:hover {
+    background-color: var(--glass-table-row-hover) !important;
+}
+
+.darkness .widgets .table-responsive {
+    padding: 1rem;
+}
+
+.darkness .widgets .table-responsive .table.data {
+    margin: 0;
+    width: 100%;
 }
 
 .darkness .table.data,
@@ -457,14 +516,18 @@
     color: var(--color-disabled-text);
 }
 
-/* ===== Alerts ===== */
+/* ===== Alerts - Liquid Glass ===== */
 .darkness .alert {
-    box-shadow: 0 0.25rem 2rem rgba(0, 0, 0, 0.15);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--glass-radius);
+    box-shadow: var(--glass-shadow);
 }
 
 .darkness .alert-danger {
-    background-color: var(--color-alert-danger-bg);
-    border-color: var(--color-alert-danger-bg);
+    background-color: rgba(97, 35, 41, 0.85);
+    border-color: rgba(218, 112, 109, 0.3);
     color: var(--color-alert-danger-text);
 }
 
@@ -473,21 +536,20 @@
 }
 
 .darkness .alert-info {
-    background-color: var(--color-alert-info-bg);
-    border-color: var(--color-alert-info-bg);
+    background-color: rgba(25, 48, 72, 0.85);
+    border-color: rgba(163, 179, 189, 0.3);
     color: var(--color-alert-info-text);
 }
 
 .darkness .alert-warning {
-    background-color: var(--color-alert-warning-bg);
-    border-color: var(--color-alert-warning-bg);
+    background-color: rgba(108, 89, 29, 0.85);
+    border-color: rgba(199, 189, 158, 0.3);
     color: var(--color-alert-warning-text);
-    border-radius: 10px;
 }
 
 .darkness .alert-success {
-    background-color: var(--color-alert-success-bg);
-    border-color: var(--color-alert-success-bg);
+    background-color: rgba(61, 117, 68, 0.85);
+    border-color: rgba(196, 239, 197, 0.3);
     color: var(--color-alert-success-text);
 }
 
@@ -1130,12 +1192,12 @@
 
 /* ===== Tree - Liquid Glass ===== */
 .darkness #tree .treeframebody {
-    background-color: rgba(28, 28, 30, 0.85);
-    -webkit-backdrop-filter: blur(16px) saturate(150%);
-    backdrop-filter: blur(16px) saturate(150%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 1.2rem;
-    margin: 0 10px 10px 10px;
+    background-color: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--glass-radius);
+    margin: 0 0 10px 10px;
 }
 
 .darkness #treeMenu {
@@ -1379,10 +1441,10 @@
     color: inherit;
 }
 
-.darkness .tab-row::after,
-.darkness .tab-row-container::after {
-    background-color: var(--color-tree-border);
-}
+/*.darkness .tab-row::after,*/
+/*.darkness .tab-row-container::after {*/
+/*    background-color: var(--color-tree-border);*/
+/*}*/
 
 .darkness .tab-row-container .tab-row {
     z-index: auto;

@@ -516,3 +516,31 @@ function SetUrl(url, width, height, alt) {
         return;
     }
 }
+
+// Hide tab-row when all tabs are hidden
+(function() {
+    function checkHiddenTabs() {
+        var tabRows = document.querySelectorAll('.tab-row, .tab-row-container');
+        tabRows.forEach(function(tabRow) {
+            var tabs = tabRow.querySelectorAll('.tab');
+            var allHidden = true;
+            tabs.forEach(function(tab) {
+                var styleAttr = tab.getAttribute('style') || '';
+                var isHidden = styleAttr.indexOf('display:none') !== -1 || 
+                               styleAttr.indexOf('display: none') !== -1 ||
+                               window.getComputedStyle(tab).display === 'none';
+                if (!isHidden) {
+                    allHidden = false;
+                }
+            });
+            if (tabs.length > 0 && allHidden) {
+                tabRow.style.display = 'none';
+                document.body.classList.add('tabs-hidden');
+            }
+        });
+    }
+    // Run after window load to ensure all styles are applied
+    window.addEventListener('load', checkHiddenTabs);
+    // Also try on DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', checkHiddenTabs);
+})();

@@ -1,6 +1,11 @@
 /* [ Tabs ] */
 .tab-row { position: relative; z-index: 1; white-space: nowrap; padding: 0 1.5rem }
 .tab-row::after, .tab-row-container::after { content: ""; position: absolute; z-index: 1; left: 0; right: 0; bottom: 0; height: 1px; background-color: var(--color-border-lighter) }
+/* Hide tab-row when all tabs inside are hidden (JS adds .tabs-hidden class to body) */
+body.tabs-hidden .tab-row,
+body.tabs-hidden .tab-row-container { display: none !important; }
+body.tabs-hidden .container-body { padding: 1.25rem !important; padding-top: 0 !important; }
+body.tabs-hidden .evo-tab-page { top: 0 !important; margin-top: 0 !important; }
 .tab-row .tab, .tab-pane > .tab-page > .tab { position: relative; display: inline-block; margin: 0; padding: 0 0.875rem; line-height: 2.7rem; height: var(--tab-height); text-transform: uppercase; border: 1px solid var(--color-transparent); border-bottom: none; cursor: pointer; -webkit-user-select: none; user-select: none; }
 .tab-row .tab, .tab-row .tab a, .tab-pane > .tab-page > .tab { color: var(--color-tab-text); font-size: var(--font-size-sm); text-decoration: none; }
 .tab-row .tab.selected { z-index: 2; border-color: var(--color-border-lighter); background-color: var(--color-white); color: var(--color-tab-text-selected); font-weight: 700 }
