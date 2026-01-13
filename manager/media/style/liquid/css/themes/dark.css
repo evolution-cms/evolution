@@ -135,7 +135,7 @@
     backdrop-filter: var(--glass-blur);
     border: 1px solid var(--glass-border);
     border-radius: var(--glass-radius);
-    margin: 0 0 10px 10px;
+    margin: 0 10px 10px 10px;
 }
 
 .dark #treeHolder .rootNode a {
