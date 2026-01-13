@@ -1390,65 +1390,6 @@
     background-color: var(--color-overlay-medium);
 }
 
-.darkness .evo-tab-row {
-    background-color: var(--color-tab-row);
-    border-bottom: none;
-}
-
-.darkness .evo-tab-row:after {
-    background-color: var(--color-tab-row);
-}
-
-.darkness .evo-tab-row .tab-row .tab {
-    color: var(--color-tab-text);
-    border-color: var(--color-tab-border);
-}
-
-.darkness .evo-tab-row .tab-row .tab:hover {
-    background-color: var(--color-base-100);
-}
-
-.darkness .evo-tab-row .tab-row .tab.changed {
-    color: var(--color-tab-changed);
-}
-
-.darkness .evo-tab-row .tab-row .tab.selected {
-    background-color: var(--color-tab-selected);
-    color: var(--color-text-light);
-    border-color: var(--color-tooltip-bg);
-    border-bottom: 3px solid var(--color-primary);
-}
-
-.darkness .sectionBody .tab-row-container,
-.darkness .tab-pane .tab-row-container,
-.darkness .tab-pane .tab-row {
-    background-color: var(--color-base-200);
-}
-
-.darkness .tab-pane .tab-pane .tab-row {
-    background-color: var(--color-base-100);
-}
-
-.darkness .tab-row .tab.selected {
-    border-color: var(--color-tree-border);
-    background-color: var(--color-base-100);
-    color: var(--color-text-light);
-}
-
-.darkness .tab-row .tab,
-.darkness .tab-row .tab a,
-.darkness .tab-pane > .tab-page > .tab {
-    color: inherit;
-}
-
-/*.darkness .tab-row::after,*/
-/*.darkness .tab-row-container::after {*/
-/*    background-color: var(--color-tree-border);*/
-/*}*/
-
-.darkness .tab-row-container .tab-row {
-    z-index: auto;
-}
 
 /* ===== Fieldsets ===== */
 .darkness .sectionBody fieldset,

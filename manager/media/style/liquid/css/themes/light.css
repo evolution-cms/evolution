@@ -66,14 +66,6 @@
     background-color: var(--color-tree-body);
 }
 
-/* ===== Tabs ===== */
-.light .evo-tab-row {
-    background-color: var(--color-tab-row);
-}
-
-.light .evo-tab-row .tab-row .tab.selected {
-    background-color: var(--color-tab-selected);
-}
 
 /* ===== Navbar Left Layout ===== */
 @media (min-width: 768px) {

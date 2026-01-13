@@ -292,11 +292,7 @@
 
 /* ===== Tab Pages ===== */
 .dark .tab-page,
-.dark .sectionBody .tab-page,
-.dark .tab-row .tab.selected,
-.dark .tab-row .tab.selected.hover,
-.dark .tab-row .tab.selected:before,
-.dark .tab-row .tab.selected span {
+.dark .sectionBody .tab-page {
     background-color: var(--color-base-200);
 }
 
@@ -436,34 +432,6 @@
 
 .dark .evo-popup-overlay {
     background-color: var(--color-overlay-medium);
-}
-
-.dark .evo-tab-row {
-    background-color: var(--color-tab-row);
-    border-bottom: none;
-}
-
-.dark .evo-tab-row:after {
-    background-color: var(--color-tab-row);
-}
-
-.dark .evo-tab-row .tab-row .tab {
-    color: var(--color-tab-text);
-    border-color: var(--color-tab-border);
-}
-
-.dark .evo-tab-row .tab-row .tab:hover {
-    background-color: var(--color-tree-button-hover-bg);
-}
-
-.dark .evo-tab-row .tab-row .tab.changed {
-    color: var(--color-tab-changed);
-}
-
-.dark .evo-tab-row .tab-row .tab.selected {
-    background-color: var(--color-tab-selected);
-    color: var(--color-dropdown-text);
-    border-bottom: 3px solid var(--color-primary);
 }
 
 .dark .evo-tab-page,

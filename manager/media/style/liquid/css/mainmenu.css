@@ -47,6 +47,9 @@
 #mainMenu #settings {
     float: right;
 }
+#mainMenu #settings > li:last-child > a {
+    padding-right: 0.75rem;
+}
 #mainMenu .nav {
     margin: 0;
     white-space: nowrap;
@@ -78,7 +81,7 @@
     display: block;
     position: relative;
     z-index: 1;
-    padding: 0 1rem;
+    padding: 0 0.5rem;
     height: var(--navbar-height);
     line-height: 2.3rem;
     text-decoration: none;
@@ -299,7 +302,7 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
     background-color: var(--color-dropdown-hover);
 }
 #mainMenu .nav > li > ul > li > span:first-child {
-    padding: 0 1rem;
+    padding: 0 0.5rem;
     text-align: center;
     font-size: var(--font-size-lg);
     color: var(--color-text-disabled);
@@ -625,6 +628,10 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
     }
     #mainMenu #nav > li > a > .fa {
         display: none;
+    }
+    #mainMenu #nav > li > a,
+    #mainMenu #settings > li > a {
+        gap: 0.4rem;
     }
     #mainMenu .nav > li > a .icon .fa {
         line-height: var(--navbar-height-lg);
