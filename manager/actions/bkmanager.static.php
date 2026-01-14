@@ -102,6 +102,18 @@ if ($mode == 'restore1') {
             exec($dump_request, $data, $data_second);
             dumpSql($tempfile_path);
             break;
+        case 'sqlite':
+        case 'sqlite3':
+            $dumper = new EvolutionCMS\Support\SqliteDumper($dbase);
+            $dumper->setDBtables($tables);
+            $dumper->setDroptables((isset($_POST['droptables']) ? true : false));
+            $dumpfinished = $dumper->createDump('dumpSql');
+            if ($dumpfinished) {
+                exit;
+            } else {
+                EvolutionCMS()->webAlertAndQuit('Unable to Backup Database');
+            }
+            break;
         default:
             $dumper = new EvolutionCMS\Support\MysqlDumper($dbase);
             $dumper->setDBtables($tables);
@@ -154,6 +166,17 @@ if ($mode == 'restore1') {
                 file_put_contents($path, $output);
                 $dumpfinished = true;
             }
+            break;
+        case 'sqlite':
+        case 'sqlite3':
+            $prefix = EvolutionCMS()->getDatabase()->getConfig('prefix');
+            $tables = EvolutionCMS\Support\SqliteDumper::listTables($prefix);
+
+            $dumper = new EvolutionCMS\Support\SqliteDumper($dbase);
+            $dumper->setDBtables($tables);
+            $dumper->setSnapshotFile($path);
+            $dumper->setDroptables(true);
+            $dumpfinished = $dumper->createDump('snapshot');
             break;
         default:
             $sql = "SHOW TABLE STATUS FROM `{$dbase}` LIKE '" . EvolutionCMS()->getDatabase()->escape(EvolutionCMS()->getDatabase()->getConfig('prefix')) . "%'";
@@ -325,6 +348,26 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                                                 EvolutionCMS()->getDatabase()->query($sql)
                                         );
                                         break;
+                                    case 'sqlite':
+                                    case 'sqlite3':
+                                        $tables = EvolutionCMS\Support\SqliteDumper::listTables($prefix);
+                                        $array = [];
+                                        $pdo = \DB::connection()->getPdo();
+                                        foreach ($tables as $tableName) {
+                                            $quotedName = '"' . str_replace('"', '""', $tableName) . '"';
+                                            $stmt = $pdo->query('SELECT COUNT(*) FROM ' . $quotedName);
+                                            $count = $stmt ? $stmt->fetchColumn() : 0;
+                                            $array[] = [
+                                                'Name' => $tableName,
+                                                'Rows' => (int) $count,
+                                                'Collation' => '-',
+                                                'Data_length' => 0,
+                                                'Data_free' => 0,
+                                                'Index_length' => 0,
+                                                'Comment' => '',
+                                            ];
+                                        }
+                                        break;
                                     default:
                                         $array = [];
                                         break;
@@ -336,8 +379,8 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                                     if (isset($db_status['tablename'])) {
                                         $db_status['Name'] = $db_status['tablename'];
                                     }
-                                    if (isset($tables)) {
-                                        $table_string = implode(',', $table);
+                                    if (isset($tables) && is_array($tables)) {
+                                        $table_string = implode(',', $tables);
                                     } else {
                                         $table_string = '';
                                     }
