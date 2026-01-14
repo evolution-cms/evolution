@@ -84,7 +84,9 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
             return;
         }
 
-        $_SESSION['updatelink'] = md5(time());
+        if (!isset($_SESSION['updatelink'])) {
+            $_SESSION['updatelink'] = md5(time());
+        }
 
         // if a GitHub commit feed
         if ($type === 'commits') {
@@ -118,7 +120,9 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                 if (($role != 1) AND ($showButton == 'AdminOnly') OR ($showButton == 'hide') OR ($errors > 0)) {
                     $updateButton .= '<td></td></tr>';
                 } else {
-                    $updateButton .= '<td><a onclick="return confirm(\'' . $_lang['are_you_sure_update'] . '\')" target="_parent" title="sha: ' . $commit . '" class="btn btn-sm btn-danger" href="' . MODX_SITE_URL . $_SESSION['updatelink'] . '&sha=' . $commit . '">' . $_lang['updateButtonCommit_txt'] . '</a></td></tr>';
+                    $updateButton .= '<td><a onclick="return confirm(\'' . $_lang['are_you_sure_update'] . '\')" target="_parent" title="sha: '
+                        . $commit . '" class="btn btn-sm btn-danger" href="' . MODX_SITE_URL . $_SESSION['updatelink']
+                        . '&sha=' . $commit . '">' . $_lang['updateButtonCommit_txt'] . '</a></td></tr>';
                 }
             }
 
@@ -214,7 +218,9 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                         $updateButton = '';
                     }
                 } else {
-                    $updateButton = '<a target="_parent" onclick="return confirm(\'' . $_lang['are_you_sure_update'] . '\')" href="' . MODX_SITE_URL . $_SESSION['updatelink'] . '" class="btn btn-sm btn-danger">' . $_lang['updateButton_txt'] . ' ' . $git['version'] . '</a><br><br>';
+                    $updateButton = '<a target="_parent" onclick="return confirm(\'' . $_lang['are_you_sure_update']
+                        . '\')" href="' . MODX_MANAGER_URL . '?' . http_build_query($_GET + ['q' => $_SESSION['updatelink']])
+                        . '" class="btn btn-sm btn-danger">' . $_lang['updateButton_txt'] . ' ' . $git['version'] . '</a><br><br>';
                 }
 
                 $output = '<div class="card-body">' . $_lang['cms_outdated_msg'] . ' <strong>' . $git['version']
@@ -237,12 +243,11 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
         }
     }
 
-    if ($e->name == 'OnPageNotFound' && isset($_GET['q'])) {
+    if (isset($_GET['q']) && $_GET['q'] === $_SESSION['updatelink']) {
         if (empty($_SESSION['mgrInternalKey']) || empty($_SESSION['updatelink'])) {
             return;
         }
-        switch ($_GET['q']) {
-            case $_SESSION['updatelink']:
+        unset($_SESSION['updatelink']);
                 $currentVersion = $modx->getVersionData();
                 $commit = isset($_GET['sha']) ? $_GET['sha'] : '';
                 if ($_SESSION['updateversion'] != $currentVersion['version'] || (isset($commit) && $type == 'commits')) {
@@ -418,7 +423,5 @@ header("Location: ' . constant('MODX_SITE_URL') . 'install/index.php?action=mode
                     }
                 }
                 die();
-                break;
-        }
     }
 }
