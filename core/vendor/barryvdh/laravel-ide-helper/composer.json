@@ -1,0 +1,91 @@
+{
+    "name": "barryvdh/laravel-ide-helper",
+    "description": "Laravel IDE Helper, generates correct PHPDocs for all Facade classes, to improve auto-completion.",
+    "license": "MIT",
+    "keywords": [
+        "laravel",
+        "autocomplete",
+        "ide",
+        "helper",
+        "phpstorm",
+        "netbeans",
+        "sublime",
+        "codeintel",
+        "phpdoc",
+        "dev"
+    ],
+    "authors": [
+        {
+            "name": "Barry vd. Heuvel",
+            "email": "barryvdh@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "ext-json": "*",
+        "barryvdh/reflection-docblock": "^2.4",
+        "composer/class-map-generator": "^1.0",
+        "illuminate/console": "^11.15 || ^12",
+        "illuminate/database": "^11.15 || ^12",
+        "illuminate/filesystem": "^11.15 || ^12",
+        "illuminate/support": "^11.15 || ^12"
+    },
+    "require-dev": {
+        "ext-pdo_sqlite": "*",
+        "friendsofphp/php-cs-fixer": "^3",
+        "illuminate/config": "^11.15 || ^12",
+        "illuminate/view": "^11.15 || ^12",
+        "mockery/mockery": "^1.4",
+        "orchestra/testbench": "^9.2 || ^10",
+        "phpunit/phpunit": "^10.5 || ^11.5.3",
+        "spatie/phpunit-snapshot-assertions": "^4 || ^5",
+        "vimeo/psalm": "^5.4",
+        "vlucas/phpdotenv": "^5"
+    },
+    "suggest": {
+        "illuminate/events": "Required for automatic helper generation (^6|^7|^8|^9|^10|^11)."
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "Barryvdh\\LaravelIdeHelper\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Barryvdh\\LaravelIdeHelper\\Tests\\": "tests"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true
+        },
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "3.5-dev"
+        },
+        "laravel": {
+            "providers": [
+                "Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "analyze": "psalm",
+        "check-style": [
+            "php-cs-fixer fix --diff --diff-format=udiff --dry-run",
+            "php-cs-fixer fix --diff --diff-format=udiff --dry-run --config=.php_cs.tests.php"
+        ],
+        "fix-style": [
+            "php-cs-fixer fix",
+            "php-cs-fixer fix --config=.php-cs-fixer.tests.php"
+        ],
+        "psalm-set-baseline": "psalm --set-baseline=psalm-baseline.xml",
+        "test": "phpunit",
+        "test-ci": "phpunit -d --without-creating-snapshots",
+        "test-regenerate": "phpunit -d --update-snapshots"
+    }
+}

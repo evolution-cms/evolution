@@ -363,7 +363,7 @@ class UrlProcessor
      * @param string|array $query
      * @return string
      */
-    public function cleanQueryString($query): string
+    public static function cleanQueryString($query): string
     {
         $out = '';
 
