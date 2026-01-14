@@ -198,7 +198,7 @@ if ($installMode == 1) {
     $database_charset = substr($database_collation, 0, strpos($database_collation, '_') - 1);
     $database_connection_charset = $db_config['charset'];
     $database_connection_method = $db_config['method'];
-    $dbase = '`' . $db_config['database'] . '`';
+    $dbase = $db_config['database'];
     $table_prefix = $db_config['prefix'];
     $database_type = $db_config['driver'];
 } else {
