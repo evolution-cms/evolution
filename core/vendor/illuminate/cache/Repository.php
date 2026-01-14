@@ -539,6 +539,25 @@ class Repository implements ArrayAccess, CacheContract
     }
 
     /**
+     * Execute a callback while holding an atomic lock on a cache mutex to prevent overlapping calls.
+     *
+     * @template TReturn
+     *
+     * @param  string  $key
+     * @param  callable(): TReturn  $callback
+     * @param  int  $lockFor
+     * @param  int  $waitFor
+     * @param  string|null  $owner
+     * @return TReturn
+     *
+     * @throws \Illuminate\Contracts\Cache\LockTimeoutException
+     */
+    public function withoutOverlapping($key, callable $callback, $lockFor = 0, $waitFor = 10, $owner = null)
+    {
+        return $this->store->lock($key, $lockFor, $owner)->block($waitFor, $callback);
+    }
+
+    /**
      * Remove an item from the cache.
      *
      * @param  \BackedEnum|\UnitEnum|array|string  $key

@@ -34,6 +34,7 @@
         "evolutioncms-services/document-manager": "1.*",
         "evolutioncms-services/user-manager": "1.*",
         "ext-dom": "*",
+        "ext-pdo": "*",
         "ext-iconv": "*",
         "ext-json": "*",
         "ext-libxml": "*",
@@ -72,7 +73,8 @@
         "secondnetwork/blade-tabler-icons": "^3.35"
     },
     "require-dev": {
-        "roave/security-advisories": "dev-master"
+        "roave/security-advisories": "dev-master",
+        "barryvdh/laravel-ide-helper": "^3.6"
     },
     "config": {
         "optimize-autoloader": true,

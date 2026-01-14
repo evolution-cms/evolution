@@ -1,6 +1,158 @@
 {
     "packages": [
         {
+            "name": "barryvdh/laravel-ide-helper",
+            "version": "v3.6.1",
+            "version_normalized": "3.6.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/barryvdh/laravel-ide-helper.git",
+                "reference": "b106f7ee85f263c4f103eca49e7bf3862c2e5e75"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/barryvdh/laravel-ide-helper/zipball/b106f7ee85f263c4f103eca49e7bf3862c2e5e75",
+                "reference": "b106f7ee85f263c4f103eca49e7bf3862c2e5e75",
+                "shasum": ""
+            },
+            "require": {
+                "barryvdh/reflection-docblock": "^2.4",
+                "composer/class-map-generator": "^1.0",
+                "ext-json": "*",
+                "illuminate/console": "^11.15 || ^12",
+                "illuminate/database": "^11.15 || ^12",
+                "illuminate/filesystem": "^11.15 || ^12",
+                "illuminate/support": "^11.15 || ^12",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "ext-pdo_sqlite": "*",
+                "friendsofphp/php-cs-fixer": "^3",
+                "illuminate/config": "^11.15 || ^12",
+                "illuminate/view": "^11.15 || ^12",
+                "mockery/mockery": "^1.4",
+                "orchestra/testbench": "^9.2 || ^10",
+                "phpunit/phpunit": "^10.5 || ^11.5.3",
+                "spatie/phpunit-snapshot-assertions": "^4 || ^5",
+                "vimeo/psalm": "^5.4",
+                "vlucas/phpdotenv": "^5"
+            },
+            "suggest": {
+                "illuminate/events": "Required for automatic helper generation (^6|^7|^8|^9|^10|^11)."
+            },
+            "time": "2025-12-10T09:11:07+00:00",
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider"
+                    ]
+                },
+                "branch-alias": {
+                    "dev-master": "3.5-dev"
+                }
+            },
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "Barryvdh\\LaravelIdeHelper\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Barry vd. Heuvel",
+                    "email": "barryvdh@gmail.com"
+                }
+            ],
+            "description": "Laravel IDE Helper, generates correct PHPDocs for all Facade classes, to improve auto-completion.",
+            "keywords": [
+                "autocomplete",
+                "codeintel",
+                "dev",
+                "helper",
+                "ide",
+                "laravel",
+                "netbeans",
+                "phpdoc",
+                "phpstorm",
+                "sublime"
+            ],
+            "support": {
+                "issues": "https://github.com/barryvdh/laravel-ide-helper/issues",
+                "source": "https://github.com/barryvdh/laravel-ide-helper/tree/v3.6.1"
+            },
+            "funding": [
+                {
+                    "url": "https://fruitcake.nl",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/barryvdh",
+                    "type": "github"
+                }
+            ],
+            "install-path": "../barryvdh/laravel-ide-helper"
+        },
+        {
+            "name": "barryvdh/reflection-docblock",
+            "version": "v2.4.0",
+            "version_normalized": "2.4.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/barryvdh/ReflectionDocBlock.git",
+                "reference": "d103774cbe7e94ddee7e4870f97f727b43fe7201"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/barryvdh/ReflectionDocBlock/zipball/d103774cbe7e94ddee7e4870f97f727b43fe7201",
+                "reference": "d103774cbe7e94ddee7e4870f97f727b43fe7201",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^8.5.14|^9"
+            },
+            "suggest": {
+                "dflydev/markdown": "~1.0",
+                "erusev/parsedown": "~1.0"
+            },
+            "time": "2025-07-17T06:07:30+00:00",
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.3.x-dev"
+                }
+            },
+            "installation-source": "dist",
+            "autoload": {
+                "psr-0": {
+                    "Barryvdh": [
+                        "src/"
+                    ]
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mike van Riel",
+                    "email": "mike.vanriel@naenius.com"
+                }
+            ],
+            "support": {
+                "source": "https://github.com/barryvdh/ReflectionDocBlock/tree/v2.4.0"
+            },
+            "install-path": "../barryvdh/reflection-docblock"
+        },
+        {
             "name": "blade-ui-kit/blade-icons",
             "version": "1.8.0",
             "version_normalized": "1.8.0.0",
@@ -2019,17 +2171,17 @@
         },
         {
             "name": "illuminate/bus",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/bus.git",
-                "reference": "4c79e1fd8c87efc4c5b202651472aa5325a171bd"
+                "reference": "4ac25fdb0a070aa1eaf18d4ae1c11a2506f38eaf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/bus/zipball/4c79e1fd8c87efc4c5b202651472aa5325a171bd",
-                "reference": "4c79e1fd8c87efc4c5b202651472aa5325a171bd",
+                "url": "https://api.github.com/repos/illuminate/bus/zipball/4ac25fdb0a070aa1eaf18d4ae1c11a2506f38eaf",
+                "reference": "4ac25fdb0a070aa1eaf18d4ae1c11a2506f38eaf",
                 "shasum": ""
             },
             "require": {
@@ -2042,7 +2194,7 @@
             "suggest": {
                 "illuminate/queue": "Required to use closures when chaining jobs (^12.0)."
             },
-            "time": "2026-01-04T17:18:13+00:00",
+            "time": "2026-01-13T14:57:47+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -2075,17 +2227,17 @@
         },
         {
             "name": "illuminate/cache",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/cache.git",
-                "reference": "303a9f60fe811c1a0d7223e97e286d44f05e3c83"
+                "reference": "61084bcacdc6df89ed660d3557cda6784ffbefa6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/cache/zipball/303a9f60fe811c1a0d7223e97e286d44f05e3c83",
-                "reference": "303a9f60fe811c1a0d7223e97e286d44f05e3c83",
+                "url": "https://api.github.com/repos/illuminate/cache/zipball/61084bcacdc6df89ed660d3557cda6784ffbefa6",
+                "reference": "61084bcacdc6df89ed660d3557cda6784ffbefa6",
                 "shasum": ""
             },
             "require": {
@@ -2107,7 +2259,7 @@
                 "illuminate/redis": "Required to use the redis cache driver (^12.0).",
                 "symfony/cache": "Required to use PSR-6 cache bridge (^7.2)."
             },
-            "time": "2026-01-02T17:40:04+00:00",
+            "time": "2026-01-09T18:38:34+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -2140,8 +2292,8 @@
         },
         {
             "name": "illuminate/collections",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/collections.git",
@@ -2203,8 +2355,8 @@
         },
         {
             "name": "illuminate/conditionable",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/conditionable.git",
@@ -2252,8 +2404,8 @@
         },
         {
             "name": "illuminate/config",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/config.git",
@@ -2303,8 +2455,8 @@
         },
         {
             "name": "illuminate/console",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/console.git",
@@ -2372,8 +2524,8 @@
         },
         {
             "name": "illuminate/container",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/container.git",
@@ -2437,8 +2589,8 @@
         },
         {
             "name": "illuminate/contracts",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/contracts.git",
@@ -2488,17 +2640,17 @@
         },
         {
             "name": "illuminate/database",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/database.git",
-                "reference": "16357c7225e5665238a07bbfd166196488b241aa"
+                "reference": "83966af0d5ea0316e1a166c127a6f0514ec815f4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/database/zipball/16357c7225e5665238a07bbfd166196488b241aa",
-                "reference": "16357c7225e5665238a07bbfd166196488b241aa",
+                "url": "https://api.github.com/repos/illuminate/database/zipball/83966af0d5ea0316e1a166c127a6f0514ec815f4",
+                "reference": "83966af0d5ea0316e1a166c127a6f0514ec815f4",
                 "shasum": ""
             },
             "require": {
@@ -2524,7 +2676,7 @@
                 "illuminate/pagination": "Required to paginate the result set (^12.0).",
                 "symfony/finder": "Required to use Eloquent model factories (^7.2)."
             },
-            "time": "2026-01-07T22:02:39+00:00",
+            "time": "2026-01-13T14:58:12+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -2563,17 +2715,17 @@
         },
         {
             "name": "illuminate/events",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/events.git",
-                "reference": "5fbf9a127cb649699071c2fe98ac1d39e4991da3"
+                "reference": "829cff84e98a840bfcd68299a3ab4611a295d838"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/events/zipball/5fbf9a127cb649699071c2fe98ac1d39e4991da3",
-                "reference": "5fbf9a127cb649699071c2fe98ac1d39e4991da3",
+                "url": "https://api.github.com/repos/illuminate/events/zipball/829cff84e98a840bfcd68299a3ab4611a295d838",
+                "reference": "829cff84e98a840bfcd68299a3ab4611a295d838",
                 "shasum": ""
             },
             "require": {
@@ -2585,7 +2737,7 @@
                 "illuminate/support": "^12.0",
                 "php": "^8.2"
             },
-            "time": "2025-12-01T15:02:02+00:00",
+            "time": "2026-01-08T15:49:00+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -2621,8 +2773,8 @@
         },
         {
             "name": "illuminate/filesystem",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/filesystem.git",
@@ -2691,17 +2843,17 @@
         },
         {
             "name": "illuminate/http",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/http.git",
-                "reference": "01c02f8b2d46b30dbf3b48457b91b9d94a0ecbbf"
+                "reference": "6e6f1779f1b5bb686a6ac3a5d431c4e5355a6e48"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/http/zipball/01c02f8b2d46b30dbf3b48457b91b9d94a0ecbbf",
-                "reference": "01c02f8b2d46b30dbf3b48457b91b9d94a0ecbbf",
+                "url": "https://api.github.com/repos/illuminate/http/zipball/6e6f1779f1b5bb686a6ac3a5d431c4e5355a6e48",
+                "reference": "6e6f1779f1b5bb686a6ac3a5d431c4e5355a6e48",
                 "shasum": ""
             },
             "require": {
@@ -2723,7 +2875,7 @@
             "suggest": {
                 "ext-gd": "Required to use Illuminate\\Http\\Testing\\FileFactory::image()."
             },
-            "time": "2026-01-07T15:02:00+00:00",
+            "time": "2026-01-12T15:12:40+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -2756,8 +2908,8 @@
         },
         {
             "name": "illuminate/log",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/log.git",
@@ -2812,8 +2964,8 @@
         },
         {
             "name": "illuminate/macroable",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/macroable.git",
@@ -2861,8 +3013,8 @@
         },
         {
             "name": "illuminate/pagination",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/pagination.git",
@@ -2914,8 +3066,8 @@
         },
         {
             "name": "illuminate/pipeline",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/pipeline.git",
@@ -2969,8 +3121,8 @@
         },
         {
             "name": "illuminate/redis",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/redis.git",
@@ -3026,8 +3178,8 @@
         },
         {
             "name": "illuminate/reflection",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/reflection.git",
@@ -3080,8 +3232,8 @@
         },
         {
             "name": "illuminate/routing",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/routing.git",
@@ -3149,17 +3301,17 @@
         },
         {
             "name": "illuminate/session",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/session.git",
-                "reference": "579a8b9a3008f2bd42d183c9d6c130e4875b063c"
+                "reference": "f0fd6a412ce15f06662ba255277eb82b1438bba8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/session/zipball/579a8b9a3008f2bd42d183c9d6c130e4875b063c",
-                "reference": "579a8b9a3008f2bd42d183c9d6c130e4875b063c",
+                "url": "https://api.github.com/repos/illuminate/session/zipball/f0fd6a412ce15f06662ba255277eb82b1438bba8",
+                "reference": "f0fd6a412ce15f06662ba255277eb82b1438bba8",
                 "shasum": ""
             },
             "require": {
@@ -3176,7 +3328,7 @@
             "suggest": {
                 "illuminate/console": "Required to use the session:table command (^12.0)."
             },
-            "time": "2026-01-01T02:49:21+00:00",
+            "time": "2026-01-11T18:19:10+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -3209,17 +3361,17 @@
         },
         {
             "name": "illuminate/support",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/support.git",
-                "reference": "14bfa6aa9a89fa6366c70d266d6d490f0a349c15"
+                "reference": "1757ae693f552f82179ebcdb0a4983a56e645f27"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/support/zipball/14bfa6aa9a89fa6366c70d266d6d490f0a349c15",
-                "reference": "14bfa6aa9a89fa6366c70d266d6d490f0a349c15",
+                "url": "https://api.github.com/repos/illuminate/support/zipball/1757ae693f552f82179ebcdb0a4983a56e645f27",
+                "reference": "1757ae693f552f82179ebcdb0a4983a56e645f27",
                 "shasum": ""
             },
             "require": {
@@ -3255,7 +3407,7 @@
                 "symfony/var-dumper": "Required to use the dd function (^7.2).",
                 "vlucas/phpdotenv": "Required to use the Env class and env helper (^5.6.1)."
             },
-            "time": "2026-01-07T14:57:38+00:00",
+            "time": "2026-01-13T14:50:24+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -3292,8 +3444,8 @@
         },
         {
             "name": "illuminate/translation",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/translation.git",
@@ -3346,8 +3498,8 @@
         },
         {
             "name": "illuminate/validation",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/validation.git",
@@ -3412,17 +3564,17 @@
         },
         {
             "name": "illuminate/view",
-            "version": "v12.46.0",
-            "version_normalized": "12.46.0.0",
+            "version": "v12.47.0",
+            "version_normalized": "12.47.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/view.git",
-                "reference": "5679156eba0dbff412985f929a63e2af4d771bef"
+                "reference": "9f137323e6d3dea6af1858a1c7e172bc0ed61acc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/view/zipball/5679156eba0dbff412985f929a63e2af4d771bef",
-                "reference": "5679156eba0dbff412985f929a63e2af4d771bef",
+                "url": "https://api.github.com/repos/illuminate/view/zipball/9f137323e6d3dea6af1858a1c7e172bc0ed61acc",
+                "reference": "9f137323e6d3dea6af1858a1c7e172bc0ed61acc",
                 "shasum": ""
             },
             "require": {
@@ -3436,7 +3588,7 @@
                 "illuminate/support": "^12.0",
                 "php": "^8.2"
             },
-            "time": "2025-12-21T23:59:24+00:00",
+            "time": "2026-01-08T18:09:27+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -3607,17 +3759,17 @@
         },
         {
             "name": "laravel/prompts",
-            "version": "v0.3.8",
-            "version_normalized": "0.3.8.0",
+            "version": "v0.3.9",
+            "version_normalized": "0.3.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/prompts.git",
-                "reference": "096748cdfb81988f60090bbb839ce3205ace0d35"
+                "reference": "5c41bf0555b7cfefaad4e66d3046675829581ac4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/prompts/zipball/096748cdfb81988f60090bbb839ce3205ace0d35",
-                "reference": "096748cdfb81988f60090bbb839ce3205ace0d35",
+                "url": "https://api.github.com/repos/laravel/prompts/zipball/5c41bf0555b7cfefaad4e66d3046675829581ac4",
+                "reference": "5c41bf0555b7cfefaad4e66d3046675829581ac4",
                 "shasum": ""
             },
             "require": {
@@ -3640,7 +3792,7 @@
             "suggest": {
                 "ext-pcntl": "Required for the spinner to be animated."
             },
-            "time": "2025-11-21T20:52:52+00:00",
+            "time": "2026-01-07T21:00:29+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -3663,23 +3815,23 @@
             "description": "Add beautiful and user-friendly forms to your command-line applications.",
             "support": {
                 "issues": "https://github.com/laravel/prompts/issues",
-                "source": "https://github.com/laravel/prompts/tree/v0.3.8"
+                "source": "https://github.com/laravel/prompts/tree/v0.3.9"
             },
             "install-path": "../laravel/prompts"
         },
         {
             "name": "laravel/serializable-closure",
-            "version": "v2.0.7",
-            "version_normalized": "2.0.7.0",
+            "version": "v2.0.8",
+            "version_normalized": "2.0.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/serializable-closure.git",
-                "reference": "cb291e4c998ac50637c7eeb58189c14f5de5b9dd"
+                "reference": "7581a4407012f5f53365e11bafc520fd7f36bc9b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/serializable-closure/zipball/cb291e4c998ac50637c7eeb58189c14f5de5b9dd",
-                "reference": "cb291e4c998ac50637c7eeb58189c14f5de5b9dd",
+                "url": "https://api.github.com/repos/laravel/serializable-closure/zipball/7581a4407012f5f53365e11bafc520fd7f36bc9b",
+                "reference": "7581a4407012f5f53365e11bafc520fd7f36bc9b",
                 "shasum": ""
             },
             "require": {
@@ -3692,7 +3844,7 @@
                 "phpstan/phpstan": "^2.0",
                 "symfony/var-dumper": "^6.2.0|^7.0.0"
             },
-            "time": "2025-11-21T20:52:36+00:00",
+            "time": "2026-01-08T16:22:46+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -4310,17 +4462,17 @@
         },
         {
             "name": "phpmailer/phpmailer",
-            "version": "v7.0.1",
-            "version_normalized": "7.0.1.0",
+            "version": "v7.0.2",
+            "version_normalized": "7.0.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPMailer/PHPMailer.git",
-                "reference": "360ae911ce62e25e11249f6140fa58939f556ebe"
+                "reference": "ebf1655bd5b99b3f97e1a3ec0a69e5f4cd7ea088"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/360ae911ce62e25e11249f6140fa58939f556ebe",
-                "reference": "360ae911ce62e25e11249f6140fa58939f556ebe",
+                "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/ebf1655bd5b99b3f97e1a3ec0a69e5f4cd7ea088",
+                "reference": "ebf1655bd5b99b3f97e1a3ec0a69e5f4cd7ea088",
                 "shasum": ""
             },
             "require": {
@@ -4351,7 +4503,7 @@
                 "symfony/polyfill-mbstring": "To support UTF-8 if the Mbstring PHP extension is not enabled (^1.2)",
                 "thenetworg/oauth2-azure": "Needed for Microsoft XOAUTH2 authentication"
             },
-            "time": "2025-11-25T07:18:09+00:00",
+            "time": "2026-01-09T18:02:33+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -4383,7 +4535,7 @@
             "description": "PHPMailer is a full-featured email creation and transfer class for PHP",
             "support": {
                 "issues": "https://github.com/PHPMailer/PHPMailer/issues",
-                "source": "https://github.com/PHPMailer/PHPMailer/tree/v7.0.1"
+                "source": "https://github.com/PHPMailer/PHPMailer/tree/v7.0.2"
             },
             "funding": [
                 {
@@ -5155,12 +5307,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "842120a67d0a2cc4f1b70f67683f4f541fec9711"
+                "reference": "28d428ca7643cd49a652e508758bbc7fc30c88c2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/842120a67d0a2cc4f1b70f67683f4f541fec9711",
-                "reference": "842120a67d0a2cc4f1b70f67683f4f541fec9711",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/28d428ca7643cd49a652e508758bbc7fc30c88c2",
+                "reference": "28d428ca7643cd49a652e508758bbc7fc30c88c2",
                 "shasum": ""
             },
             "conflict": {
@@ -5386,7 +5538,7 @@
                 "enshrined/svg-sanitize": "<0.22",
                 "erusev/parsedown": "<1.7.2",
                 "ether/logs": "<3.0.4",
-                "evolution-cms/evolution": "<=3.5",
+                "evolutioncms/evolution": "<=3.2.3",
                 "exceedone/exment": "<4.4.3|>=5,<5.0.3",
                 "exceedone/laravel-admin": "<2.2.3|==3",
                 "ezsystems/demobundle": ">=5.4,<5.4.6.1-dev",
@@ -5689,7 +5841,7 @@
                 "october/cms": "<1.0.469|==1.0.469|==1.0.471|==1.1.1",
                 "october/october": "<3.7.5",
                 "october/rain": "<1.0.472|>=1.1,<1.1.2",
-                "october/system": "<3.7.5",
+                "october/system": "<=3.7.12|>=4,<=4.0.11",
                 "oliverklee/phpunit": "<3.5.15",
                 "omeka/omeka-s": "<4.0.3",
                 "onelogin/php-saml": "<2.21.1|>=3,<3.8.1|>=4,<4.3.1",
@@ -5980,10 +6132,10 @@
                 "twbs/bootstrap": "<3.4.1|>=4,<4.3.1",
                 "twig/twig": "<3.11.2|>=3.12,<3.14.1|>=3.16,<3.19",
                 "typo3/cms": "<9.5.29|>=10,<10.4.35|>=11,<11.5.23|>=12,<12.2",
-                "typo3/cms-backend": "<4.1.14|>=4.2,<4.2.15|>=4.3,<4.3.7|>=4.4,<4.4.4|>=7,<=7.6.50|>=8,<=8.7.39|>=9,<9.5.55|>=10,<10.4.54|>=11,<11.5.48|>=12,<12.4.37|>=13,<13.4.18",
+                "typo3/cms-backend": "<4.1.14|>=4.2,<4.2.15|>=4.3,<4.3.7|>=4.4,<4.4.4|>=7,<=7.6.50|>=8,<=8.7.39|>=9,<9.5.55|>=10,<=10.4.54|>=11,<=11.5.48|>=12,<=12.4.40|>=13,<=13.4.22|>=14,<=14.0.1",
                 "typo3/cms-belog": ">=10,<=10.4.47|>=11,<=11.5.41|>=12,<=12.4.24|>=13,<=13.4.2",
                 "typo3/cms-beuser": ">=9,<9.5.55|>=10,<10.4.54|>=11,<11.5.48|>=12,<12.4.37|>=13,<13.4.18",
-                "typo3/cms-core": "<=8.7.56|>=9,<9.5.55|>=10,<10.4.54|>=11,<11.5.48|>=12,<12.4.37|>=13,<13.4.18",
+                "typo3/cms-core": "<=8.7.56|>=9,<9.5.55|>=10,<=10.4.54|>=11,<=11.5.48|>=12,<=12.4.40|>=13,<=13.4.22|>=14,<=14.0.1",
                 "typo3/cms-dashboard": ">=10,<10.4.54|>=11,<11.5.48|>=12,<12.4.37|>=13,<13.4.18",
                 "typo3/cms-extbase": "<6.2.24|>=7,<7.6.8|==8.1.1",
                 "typo3/cms-extensionmanager": ">=10,<=10.4.47|>=11,<=11.5.41|>=12,<=12.4.24|>=13,<=13.4.2",
@@ -5995,7 +6147,8 @@
                 "typo3/cms-install": "<4.1.14|>=4.2,<4.2.16|>=4.3,<4.3.9|>=4.4,<4.4.5|>=12.2,<12.4.8|==13.4.2",
                 "typo3/cms-lowlevel": ">=11,<=11.5.41",
                 "typo3/cms-recordlist": ">=11,<11.5.48",
-                "typo3/cms-recycler": ">=9,<9.5.55|>=10,<10.4.54|>=11,<11.5.48|>=12,<12.4.37|>=13,<13.4.18",
+                "typo3/cms-recycler": ">=9,<9.5.55|>=10,<=10.4.54|>=11,<=11.5.48|>=12,<=12.4.40|>=13,<=13.4.22|>=14,<=14.0.1",
+                "typo3/cms-redirects": ">=10,<=10.4.54|>=11,<=11.5.48|>=12,<=12.4.40|>=13,<=13.4.22|>=14,<=14.0.1",
                 "typo3/cms-rte-ckeditor": ">=9.5,<9.5.42|>=10,<10.4.39|>=11,<11.5.30",
                 "typo3/cms-scheduler": ">=11,<=11.5.41",
                 "typo3/cms-setup": ">=9,<=9.5.50|>=10,<=10.4.49|>=11,<=11.5.43|>=12,<=12.4.30|>=13,<=13.4.11",
@@ -6119,7 +6272,7 @@
                 "zfr/zfr-oauth2-server-module": "<0.1.2",
                 "zoujingli/thinkadmin": "<=6.1.53"
             },
-            "time": "2026-01-08T22:06:12+00:00",
+            "time": "2026-01-13T22:06:20+00:00",
             "type": "metapackage",
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -9780,6 +9933,8 @@
     ],
     "dev": true,
     "dev-package-names": [
+        "barryvdh/laravel-ide-helper",
+        "barryvdh/reflection-docblock",
         "roave/security-advisories"
     ]
 }
