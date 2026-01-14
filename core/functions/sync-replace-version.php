@@ -2,11 +2,11 @@
 
 /**
  * Sync "replace" and "conflict" in composer.json with the version from factory/version.php.
- * - replace: evolutioncms/evolution => <version from version.php>
- * - conflict: evolutioncms/evolution => *  (forbid installing a vendor package; root provides it)
+ * - replace: evolution-cms/evolution => <version from version.php>
+ * - conflict: evolution-cms/evolution => *  (forbid installing a vendor package; root provides it)
  *
  * This ensures:
- *  - Third-party packages may "require" evolutioncms/evolution with a semver range.
+ *  - Third-party packages may "require" evolution-cms/evolution with a semver range.
  *  - Host never installs/updates the real package; it either matches the provided version or fails fast.
  */
 
@@ -43,15 +43,15 @@ $composer['replace']  = $composer['replace']  ?? [];
 $composer['conflict'] = $composer['conflict'] ?? [];
 
 // Provide exact version to satisfy "^x.y.z" in third-party packages, without installing vendor package
-$composer['replace']['evolutioncms/evolution']  = $version;
+$composer['replace']['evolution-cms/evolution']  = $version;
 
 // Forbid installing the vendor package at all (host provides it)
-$composer['conflict']['evolutioncms/evolution'] = '*';
+$composer['conflict']['evolution-cms/evolution'] = '*';
 
 $new = json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL;
 if ($new !== $composerRaw) {
     file_put_contents($composerFile, $new);
-    echo "Synced composer.json: evolutioncms/evolution {$version}\n";
+    echo "Synced composer.json: evolution-cms/evolution {$version}\n";
 } else {
     echo "Evolution CMS {$version}\n";
 }

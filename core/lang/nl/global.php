@@ -10,7 +10,7 @@
  * @package evo
  * @subpackage manager
  *
- * Please commit your language changes on Transifex (https://www.transifex.com/evolutioncms/evolution/) or on GitHub (https://github.com/evolution-cms/evolution).
+ * Please commit your language changes on Transifex (https://www.transifex.com/evolution-cms/evolution/) or on GitHub (https://github.com/evolution-cms/evolution).
  */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL languages
 $modx_lang_attribute = 'nl'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1

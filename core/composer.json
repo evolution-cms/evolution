@@ -99,10 +99,10 @@
         }
     },
     "conflict": {
-        "evolutioncms/evolution": "*"
+        "evolution-cms/evolution": "*"
     },
     "replace": {
-        "evolutioncms/evolution": "3.5.3"
+        "evolution-cms/evolution": "3.5.3"
     },
     "autoload": {
         "psr-4": {

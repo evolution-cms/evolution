@@ -199,7 +199,7 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-        'evolutioncms/evolution' => array(
+        'evolution-cms/evolution' => array(
             'dev_requirement' => false,
             'replaced' => array(
                 0 => '3.5.3',
