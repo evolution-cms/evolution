@@ -132,17 +132,17 @@ class SqliteDumper
         $version = $modx->getVersionData();
         $host = $config['host'] ?? '';
 
-        $output = "#{$lf}";
-        $output .= "# " . addslashes($modx->getPhpCompat()->entities($modx->getConfig('site_name'))) . " Database Dump{$lf}";
-        $output .= "# Evolution CMS Version:{$version['version']}{$lf}";
-        $output .= "# {$lf}";
-        $output .= "# Host: {$host}{$lf}";
-        $output .= "# Generation Time: " . $modx->toDateFormat(time()) . $lf;
-        $output .= "# Server version: " . $modx->getDatabase()->getVersion() . $lf;
-        $output .= "# PHP Version: " . phpversion() . $lf;
-        $output .= "# Database: `{$this->dbname}`{$lf}";
-        $output .= "# Description: " . trim($_REQUEST['backup_title'] ?? '') . "{$lf}";
-        $output .= "#";
+        $output = "--{$lf}";
+        $output .= "-- " . addslashes($modx->getPhpCompat()->entities($modx->getConfig('site_name'))) . " Database Dump{$lf}";
+        $output .= "-- Evolution CMS Version:{$version['version']}{$lf}";
+        $output .= "-- {$lf}";
+        $output .= "-- Host: {$host}{$lf}";
+        $output .= "-- Generation Time: " . $modx->toDateFormat(time()) . $lf;
+        $output .= "-- Server version: " . $modx->getDatabase()->getVersion() . $lf;
+        $output .= "-- PHP Version: " . phpversion() . $lf;
+        $output .= "-- Database: `{$this->dbname}`{$lf}";
+        $output .= "-- Description: " . trim($_REQUEST['backup_title'] ?? '') . "{$lf}";
+        $output .= "--";
         file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
         $output = '';
 
@@ -153,9 +153,9 @@ class SqliteDumper
                 continue;
             }
 
-            $output .= "{$lf}{$lf}# --------------------------------------------------------{$lf}{$lf}";
-            $output .= "#{$lf}# Table structure for table `{$table}`{$lf}";
-            $output .= "#{$lf}{$lf}";
+            $output .= "{$lf}{$lf}-- --------------------------------------------------------{$lf}{$lf}";
+            $output .= "--{$lf}-- Table structure for table `{$table}`{$lf}";
+            $output .= "--{$lf}{$lf}";
             if ($this->isDroptables()) {
                 $output .= "PRAGMA foreign_keys = OFF;{$lf}";
                 $output .= "DROP TABLE IF EXISTS " . $this->quoteIdentifier($table) . ";{$lf}";
@@ -182,7 +182,7 @@ class SqliteDumper
                 $insertdump = '(' . implode(',', $values) . ')';
 
                 if ($insertQuerySize === 0) {
-                    $output .= "{$lf}#{$lf}# Dumping data for table `{$table}`{$lf}#{$lf}";
+                    $output .= "{$lf}--{$lf}-- Dumping data for table `{$table}`{$lf}--{$lf}";
                     $output .= $lf . 'INSERT INTO ' . $this->quoteIdentifier($table) . ' VALUES';
                 } else {
                     $output .= ',';

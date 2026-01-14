@@ -590,13 +590,16 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                                         while ($count < 11) {
                                             $line = fgets($file);
                                             foreach ($detailFields as $label) {
-                                                $fileLabel = '# ' . $label;
-                                                if (strpos($line, $fileLabel) !== false) {
-                                                    $details[$label] = htmlentities(trim(str_replace([
-                                                            $fileLabel,
-                                                            ':',
-                                                            '`'
-                                                    ], '', $line)), ENT_QUOTES, ManagerTheme::getCharset());
+                                                foreach (['# ', '-- '] as $prefix) {
+                                                    $fileLabel = $prefix . $label;
+                                                    if (strpos($line, $fileLabel) !== false) {
+                                                        $details[$label] = htmlentities(trim(str_replace([
+                                                                $fileLabel,
+                                                                ':',
+                                                                '`'
+                                                        ], '', $line)), ENT_QUOTES, ManagerTheme::getCharset());
+                                                        break;
+                                                    }
                                                 }
                                             }
                                             $count++;

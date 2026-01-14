@@ -24,13 +24,18 @@ if(!function_exists('import_sql')) {
             ], "\n", $source);
         }
         $sql_array = preg_split('@;[ \t]*\n@', $source);
+        $driver = $modx->getDatabase()->getConfig('driver');
         foreach ($sql_array as $sql_entry) {
             $sql_entry = trim($sql_entry, "\r\n; ");
             if (empty($sql_entry)) {
                 continue;
             }
 
-            $rs = $modx->getDatabase()->query($sql_entry);
+            if (in_array($driver, ['sqlite', 'sqlite3'], true)) {
+                $rs = \DB::statement($sql_entry);
+            } else {
+                $rs = $modx->getDatabase()->query($sql_entry);
+            }
 
 
         }
@@ -115,10 +120,26 @@ if(!function_exists('getSettings')) {
     {
         $modx = evolutionCMS();
         $tbl_system_settings = $modx->getDatabase()->getFullTableName('system_settings');
+        $driver = $modx->getDatabase()->getConfig('driver');
+        $settings = [];
+
+        if (in_array($driver, ['sqlite', 'sqlite3'], true)) {
+            $rows = \DB::select('SELECT setting_name, setting_value FROM ' . $tbl_system_settings);
+            foreach ($rows as $row) {
+                switch ($row->setting_name) {
+                    case 'rb_base_dir':
+                    case 'filemanager_path':
+                    case 'site_url':
+                    case 'base_url':
+                        $settings[$row->setting_name] = $row->setting_value;
+                        break;
+                }
+            }
+
+            return $settings;
+        }
 
         $rs = $modx->getDatabase()->select('setting_name, setting_value', $tbl_system_settings);
-
-        $settings = [];
         while ($row = $modx->getDatabase()->getRow($rs)) {
             switch ($row['setting_name']) {
                 case 'rb_base_dir':
@@ -142,6 +163,16 @@ if(!function_exists('restoreSettings')) {
     {
         $modx = evolutionCMS();
         $tbl_system_settings = $modx->getDatabase()->getFullTableName('system_settings');
+        $driver = $modx->getDatabase()->getConfig('driver');
+
+        if (in_array($driver, ['sqlite', 'sqlite3'], true)) {
+            foreach ($settings as $k => $v) {
+                \DB::table('system_settings')
+                    ->where('setting_name', $k)
+                    ->update(['setting_value' => $v]);
+            }
+            return;
+        }
 
         foreach ($settings as $k => $v) {
             $modx->getDatabase()->update(['setting_value' => $v], $tbl_system_settings, "setting_name='{$k}'");
