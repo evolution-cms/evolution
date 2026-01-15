@@ -74,6 +74,7 @@ $required_extensions = [
     'tokenizer' => true, // Laravel requirement without polyfill
     'xml' => true,
     'xmlreader' => true,
+    'zip' => true, // ZipArchive requirement. ext-zip is no longer bundled with PHP7.4+ so must be installed and enabled
 ];
 
 $loaded_extensions = get_loaded_extensions();
@@ -221,11 +222,13 @@ if ($installMode == 1) {
 }
 echo '<p>' . $_lang['creating_database_connection'];
 $host = explode(':', $database_server, 2);
+$pdoOptions = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
 try {
+    $dbh = null;
     if ($database_type === 'sqlite') {
-        $dbh = new PDO('sqlite:' . $dbase);
+        $dbh = new PDO('sqlite:' . $dbase, null, null, $pdoOptions);
     } else {
-        $dbh = new PDO($database_type . ':host=' . $database_server . ';dbname=' . $_POST['database_name'], $database_user, $database_password);
+        $dbh = new PDO($database_type . ':host=' . $database_server . ';dbname=' . $_POST['database_name'], $database_user, $database_password, $pdoOptions);
     }
     echo '<span class="ok">' . $_lang['ok'] . '</span></p>';
 } catch (PDOException $e) {
@@ -235,12 +238,30 @@ try {
 }
 
 // check the database collation if not specified in the configuration
-if ($database_type === 'mysql' && empty ($database_connection_charset)) {
-    if (!$rs = mysqli_query($conn, "show session variables like 'collation_database'")) {
-        $rs = mysqli_query($conn, "show session variables like 'collation_server'");
+if ($dbh && $database_type === 'mysql' && empty ($database_connection_charset)) {
+    $rs = null;
+    try {
+        $rs = $dbh->query("SHOW SESSION VARIABLES LIKE 'collation_database'");
+    } catch (PDOException $e) {
+        // try another way
     }
-    if ($rs && $collation = mysqli_fetch_row($rs)) {
-        $database_collation = $collation[1];
+    if (!$rs) {
+        try {
+            $rs = $dbh->query("SHOW SESSION VARIABLES LIKE 'collation_server'");
+        } catch (PDOException $e) {
+            // it is error now
+        }
+    }
+    if (!$rs) {
+        $errors++;
+    } else {
+        try {
+            if ($collation = $rs->fetch(PDO::FETCH_NUM)) {
+                $database_collation = $collation[1];
+            }
+        } catch (PDOException $e) {
+            // Use default collation if query fails
+        }
     }
     if (empty ($database_collation)) {
         $database_collation = 'utf8_unicode_ci';
@@ -255,29 +276,28 @@ if (!isset($database_connection_method) || empty($database_connection_method)) {
 }
 
 // check table prefix
-if ($dbh->errorCode() == 0 && $installMode == 0) {
+if ($dbh && $errors === 0) {
     echo '<p>' . $_lang['checking_table_prefix'] . $table_prefix . '`: ';
+
     try {
-        $result = $dbh->query("SELECT COUNT(*) FROM {$table_prefix}site_content");
-        if ($dbh->errorCode() == 0) {
-            echo '<span class="notok">' . $_lang['failed'] . '</span></b>' . $_lang['table_prefix_already_inuse'] . '</p>';
-            $errors++;
-            echo "<p>" . $_lang['table_prefix_already_inuse_note'] . '</p>';
-        } else {
-            echo '<span class="ok">' . $_lang['ok'] . '</span></p>';
-        }
+        $dbh->query("SELECT COUNT(*) FROM {$table_prefix}site_content");
+        $tableExists = true;
     } catch (\PDOException $exception) {
-        echo '<span class="ok">' . $_lang['ok'] . '</span></p>';
+        $tableExists = false;
     }
-} elseif ($dbh->errorCode() == 0 && $installMode == 2) {
-    echo '<p>' . $_lang['checking_table_prefix'] . $table_prefix . '`: ';
-    try {
-        $result = $dbh->query("SELECT COUNT(*) FROM {$table_prefix}site_content");
+    $isValid = ($installMode === 0) ? !$tableExists : $tableExists;
+    if ($isValid) {
         echo '<span class="ok">' . $_lang['ok'] . '</span></p>';
-    } catch (\PDOException $exception) {
-        echo '<span class="notok">' . $_lang['failed'] . '</span></b>' . $_lang['table_prefix_not_exist'] . '</p>';
+    } else {
+        echo '<span class="notok">' . $_lang['failed'] . '</span></b>';
+        if ($installMode == 0) {
+            echo $_lang['table_prefix_already_inuse'] . '</p>';
+            echo '<p>' . $_lang['table_prefix_already_inuse_note'] . '</p>';
+        } else {
+            echo $_lang['table_prefix_not_exist'] . '</p>';
+            echo '<p>' . $_lang['table_prefix_not_exist_note'] . '</p>';
+        }
         $errors++;
-        echo '<p>' . $_lang['table_prefix_not_exist_note'] . '</p>';
     }
 }
 
