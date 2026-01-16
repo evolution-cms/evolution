@@ -34,7 +34,7 @@ try {
                     // no table is expected
                 }
 
-                if ($dbh->errorCode() == 0) {
+                if ($installMode === 0 && $dbh->errorCode() == 0) {
                     echo $output . '<span id="database_fail">' . $_lang['status_failed_table_prefix_already_in_use'] . '</span>';
                     exit();
                 }
@@ -66,7 +66,7 @@ try {
 
                 $result = $dbh->query("SELECT COUNT(*) FROM {$tableprefix}site_content");
 
-                if ($dbh->errorCode() == 0) {
+                if ($installMode === 0 && $dbh->errorCode() == 0) {
                     echo $output . '<span id="database_fail">' . $_lang['status_failed_table_prefix_already_in_use'] . '</span>';
                     exit();
                 }
@@ -90,7 +90,7 @@ try {
                 // no table is expected
             }
 
-            if ($dbh->errorCode() == 0) {
+            if ($installMode === 0 && $dbh->errorCode() == 0) {
                 echo $output . '<span id="database_fail">' . $_lang['status_failed_table_prefix_already_in_use'] . '</span>';
                 exit();
             }
@@ -114,8 +114,8 @@ try {
         case 'pgsql':
             try {
                 $dbh->query(sprintf(
-                    "CREATE DATABASE %s WITH ENCODING '%s' LC_COLLATE '%s' LC_CTYPE '%s' TEMPLATE template0",
-                    $database_name, $database_charset, $database_collation, $database_collation
+                    "CREATE DATABASE \"%s\" WITH ENCODING '%s' LC_COLLATE '%s' LC_CTYPE '%s' TEMPLATE template0",
+                    str_replace('"', '""', $database_name), $database_charset, $database_collation, $database_collation
                 ));
             } catch (PDOException $e) {
                 // there is no "create database if not exists" in PostgreSQL
