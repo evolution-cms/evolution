@@ -416,7 +416,7 @@ class ExceptionHandler
 
             echo "\n", $this->renderConsoleBacktrace($backtrace);
         } else if ($this->shouldDisplay()) {
-            $version = isset($GLOBALS['modx_version']) ? $GLOBALS['modx_version'] : '';
+            $version = isset($GLOBALS['evo_version']) ? $GLOBALS['evo_version'] : '';
             $release_date = isset($GLOBALS['release_date']) ? $GLOBALS['release_date'] : '';
 
             echo '<!DOCTYPE html><html><head><title>Evolution CMS Content Manager ' . $version . ' &raquo; ' . $release_date . '</title>

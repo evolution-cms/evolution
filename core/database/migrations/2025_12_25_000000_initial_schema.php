@@ -140,7 +140,7 @@ return new class extends Migration
         $this->createTableIfMissing('active_users', function(Blueprint $table)
         {
             $table->comment('Active users tracking - monitors currently active users and their actions in the system');
-            $table->string('sid', 32)->default('')->primary();
+            $table->string('sid', 128)->default('')->primary();
             $table->unsignedInteger('internalKey')->default(0);
             $table->string('username', 50)->default('');
             $table->unsignedInteger('lasthit')->default(0);

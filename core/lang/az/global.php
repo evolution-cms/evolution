@@ -510,11 +510,11 @@ $_lang["captcha_words_default"] = 'EVO,Access,Better,BitCode,Chunk,Cache,Desc,De
 $_lang["captcha_words_message"] = 'Əgər CAPTCHA aktivdirsə, istifadə olunacaq CAPTCHA sözlərinin siyahısını daxil edin. Sözləri vergüllə ayırın. Bu sahə maksimum 255 simvol ola bilər.';
 $_lang["captcha_words_title"] = 'CAPTCHA Sözləri';
 
-$_lang["cfg_base_path"] = 'MODX_BASE_PATH';
-$_lang["cfg_base_url"] = 'MODX_BASE_URL';
-$_lang["cfg_manager_path"] = 'MODX_MANAGER_PATH';
-$_lang["cfg_manager_url"] = 'MODX_MANAGER_URL';
-$_lang["cfg_site_url"] = 'MODX_SITE_URL';
+$_lang["cfg_base_path"] = 'EVO_BASE_PATH';
+$_lang["cfg_base_url"] = 'EVO_BASE_URL';
+$_lang["cfg_manager_path"] = 'EVO_MANAGER_PATH';
+$_lang["cfg_manager_url"] = 'EVO_MANAGER_URL';
+$_lang["cfg_site_url"] = 'EVO_SITE_URL';
 
 $_lang["change_name"] = 'İstifadəçi adını dəyiş';
 $_lang["change_password"] = 'Şifrəni dəyiş';
@@ -905,7 +905,7 @@ $_lang["modx_news"] = 'Evolution CMS Xəbərləri';
 $_lang["modx_news_tab"] = 'Evolution CMS Xəbərlər';
 $_lang["modx_news_title"] = 'Evolution CMS Xəbərlər';
 $_lang["modx_security_notices"] = 'Evolution CMS Təhlükəsizlik Bildirişləri';
-$_lang["modx_version"] = 'Evolution CMS versiyası';
+$_lang["evo_version"] = 'Evolution CMS versiyası';
 
 $_lang["name"] = 'İstifadəçi adı';
 

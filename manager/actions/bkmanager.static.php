@@ -572,7 +572,7 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                                         <th width="1%"></th>
                                         <th><?= $_lang["files_filesize"] ?></th>
                                         <th><?= $_lang["description"] ?></th>
-                                        <th><?= $_lang["modx_version"] ?></th>
+                                        <th><?= $_lang["evo_version"] ?></th>
                                         <th><?= $_lang["database_name"] ?></th>
                                         <th width="1%"><?= $_lang["onlineusers_action"] ?></th>
                                     </tr>

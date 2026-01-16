@@ -493,11 +493,11 @@ $_lang["captcha_words_default"] = 'EVO,Access,Better,BitCode,Chunk,Cache,Desc,De
 $_lang["captcha_words_message"] = 'Увядзіце спіс CAPTCHA словаў для выкарыстання. Раздзяляйце словы коскамі. Максімальная даўжыня гэтага поля - 255 знакаў.';
 $_lang["captcha_words_title"] = 'CAPTCHA словы';
 
-$_lang["cfg_base_path"] = 'MODX_BASE_PATH';
-$_lang["cfg_base_url"] = 'MODX_BASE_URL';
-$_lang["cfg_manager_path"] = 'MODX_MANAGER_PATH';
-$_lang["cfg_manager_url"] = 'MODX_MANAGER_URL';
-$_lang["cfg_site_url"] = 'MODX_SITE_URL';
+$_lang["cfg_base_path"] = 'EVO_BASE_PATH';
+$_lang["cfg_base_url"] = 'EVO_BASE_URL';
+$_lang["cfg_manager_path"] = 'EVO_MANAGER_PATH';
+$_lang["cfg_manager_url"] = 'EVO_MANAGER_URL';
+$_lang["cfg_site_url"] = 'EVO_SITE_URL';
 
 $_lang["change_name"] = 'Змяніць імя карыстальніка';
 $_lang["change_password"] = 'Змяніць пароль';
@@ -885,7 +885,7 @@ $_lang["modx_news"] = 'Апавяшчэнні пра навіны Evolution CMS'
 $_lang["modx_news_tab"] = 'Навіны Evolution CMS';
 $_lang["modx_news_title"] = 'Навіны Evolution CMS';
 $_lang["modx_security_notices"] = 'Заўвагі па бяспецы Evolution CMS';
-$_lang["modx_version"] = 'Версія Evolution CMS';
+$_lang["evo_version"] = 'Версія Evolution CMS';
 
 $_lang["name"] = 'Імя карыстальніка';
 
