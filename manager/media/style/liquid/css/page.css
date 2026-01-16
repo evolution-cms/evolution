@@ -1,17 +1,20 @@
 @import "../../common/bootstrap/css/bootstrap.min.css?v=4.3.1";
 @import "../../common/font-awesome/css/font-awesome.min.css?v=5.10.2";
-@import 'fonts.css?v=1.3.5';
+
 @import "themes/variables.css";
-@import "themes/light.css";
-@import "themes/lightness.css";
-@import "themes/dark.css";
-@import "themes/darkness.css";
+
+@import "fonts.css?v=1.3.5";
 @import "forms.css?v=1.3.5";
 @import "mainmenu.css?v=1.3.5";
 @import "tree.css";
+@import "custom.css";
 @import "tabpane.css";
+@import "popups.css";
 @import "contextmenu.css";
 @import "index.css";
-@import "layout.css";
 @import "main.css";
-@import "custom.css";
+
+@import "themes/lightness.css";
+@import "themes/light.css";
+@import "themes/dark.css";
+@import "themes/darkness.css";

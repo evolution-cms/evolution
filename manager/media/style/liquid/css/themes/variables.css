@@ -8,13 +8,16 @@
 
 :root {
     /* ===== Base Typography ===== */
-    --font-family-base: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-family-base: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     --font-family-mono: 'Inconsolata', 'Monaco', 'Consolas', 'Courier New', monospace;
     --font-size-base: 0.8125rem;
     --font-size-sm: 0.75rem;
     --font-size-xs: 0.675rem;
     --font-size-lg: 0.875rem;
     --line-height-base: 1.23076923;
+
+    /* ===== Color Scheme ===== */
+    --color-scheme: light;
 
     /* ===== Spacing Scale ===== */
     --spacing-0: 0;
@@ -28,10 +31,10 @@
     --spacing-10: 2.5rem;
 
     /* ===== Border Radius ===== */
-    --radius-sm: 0.1rem;
-    --radius-md: 0.25rem;
-    --radius-lg: 0.5rem;
-    --radius-xl: 1rem;
+    --radius-sm: 0.4rem;
+    --radius-md: 0.6rem;
+    --radius-lg: 0.9rem;
+    --radius-xl: 1.2rem;
     --radius-full: 50%;
 
     /* ===== Shadows ===== */
@@ -65,13 +68,13 @@
     --glass-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.4);
     --glass-radius: 1.2rem;
     --glass-radius-sm: 0.75rem;
-    
+
     /* Glass Table Colors */
     --glass-table-header: rgba(255, 255, 255, 0.08);
     --glass-table-row: #2C2C2E;
     --glass-table-row-hover: rgba(255, 255, 255, 0.12);
     --glass-table-border: rgba(255, 255, 255, 0.05);
-    
+
     /* Glass Hover */
     --glass-hover-bg: rgba(255, 255, 255, 0.1);
 
@@ -93,8 +96,30 @@
     --navbar-height-lg: 2.5rem;
     --sidebar-width: 25rem;
     --tree-menu-height: 1.875rem;
-    --tab-height: 2.5rem;
+    --tab-height: 1.875rem;
     --tab-height-evo: 1.875rem;
+
+    /* ===== Surface Tokens ===== */
+    /* NOTE: --bg-page is defined in each theme file, not here */
+    /* because html element doesn't have theme class, only body does */
+    --bg-surface-1: var(--color-white);
+    --bg-surface-2: var(--color-bg-light);
+    --bg-toolbar: var(--color-bg);
+    --shadow-1: var(--glass-shadow);
+    --shadow-2: var(--glass-shadow-hover);
+
+    /* ===== Component Tokens ===== */
+    --tree-panel-radius: var(--glass-radius);
+    --tree-panel-shadow: var(--glass-shadow);
+    --tree-panel-margin: 0 10px 10px 10px;
+    --tree-panel-backdrop: var(--glass-blur);
+    --actions-bg: var(--bg-toolbar);
+    --actions-radius: var(--radius-lg);
+    --actions-shadow: var(--shadow-2);
+    --actions-backdrop: var(--glass-blur);
+    --tabpage-bg: var(--bg-surface-1);
+    --select-chevron: url("data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PScwIDAgMTc5MiAxNzkyJyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnPjxwYXRoIGQ9J00xMzk1IDczNnEwIDEzLTEwIDIzbC00NjYgNDY2cS0xMCAxMC0yMyAxMHQtMjMtMTBsLTQ2Ni00NjZxLTEwLTEwLTEwLTIzdDEwLTIzbDUwLTUwcTEwLTEwIDIzLTEwdDIzIDEwbDM5MyAzOTMgMzkzLTM5M3ExMC0xMCAyMy0xMHQyMyAxMGw1MCA1MHExMCAxMCAxMCAyM3onIGZpbGw9JyUyMzQ0NCcvPjwvc3ZnPg==");
+    --mainmenu-backdrop: none;
 
     /* ===== Base Colors ===== */
     --color-white: #ffffff;
@@ -111,6 +136,12 @@
     --color-text-placeholder: #999999;
     --color-text-hint: #bbbbbb;
     --color-text-icon: #444444;
+
+    /* ===== Semantic Text ===== */
+    --color-label: var(--color-text);
+    --color-secondary-label: var(--color-text-secondary);
+    --color-tertiary-label: var(--color-text-muted);
+    --color-placeholder: var(--color-text-placeholder);
 
     /* ===== Background Colors ===== */
     --color-bg: #ffffff;
@@ -136,6 +167,9 @@
     --color-border-dotted: #cecaca;
     --color-border-news: #ebebeb;
 
+    /* ===== Separators ===== */
+    --color-separator: var(--color-border-light);
+
     /* ===== Semantic Colors ===== */
     --color-primary: #0275d8;
     --color-primary-dark: #1976d2;
@@ -144,6 +178,9 @@
     --color-primary-content: #ffffff;
     --color-primary-accent: #1377c5;
     --color-primary-link: #3481bc;
+    --color-link: var(--color-primary-link);
+    --color-link-hover: #014c8c;
+    --color-accent: var(--color-primary);
 
     --color-secondary: #6c757d;
     --color-secondary-hover: #5a6268;
@@ -183,7 +220,7 @@
     --color-message-unread: #3cb371;
 
     /* ===== Link Colors ===== */
-    --color-link: #0275d8;
+    --color-link: var(--color-primary-link);
     --color-link-hover: #014c8c;
     --color-link-deleted: #a52a2a;
     --color-link-deleted-hover: #cc3535;
@@ -198,13 +235,25 @@
     --color-tree-border: #cfd2d6;
     --color-tree-icon: #565656;
     --color-tree-drag: #ff0044;
+    --color-tree-button: var(--color-text);
+    --color-tree-button-hover-bg: var(--color-overlay-white);
+    --color-tree-text: var(--color-text);
+    --color-tree-text-muted: var(--color-text-muted);
+    --color-tree-title: var(--color-link);
+    --color-tree-title-hover: var(--color-link-hover);
+    --color-tree-hover-bg: var(--color-highlight);
+    --color-tree-selected-bg: var(--color-bg-active);
+    --color-tree-drag-bg: rgba(0, 0, 0, 0.1);
+    --color-tree-toggle-hover: var(--color-overlay-white);
 
     /* ===== Navbar Colors (Default/Light) ===== */
     --color-navbar-bg: #2b323a;
     --color-navbar-text: #8b9298;
     --color-navbar-text-light: #dcd9e3;
     --color-navbar-text-hover: #ffffff;
-    --color-navbar-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --color-navbar-shadow: none;
+    --color-navbar-left-shadow: none;
+    --color-navbar-left-border: var(--color-border-light);
 
     /* ===== Dropdown Colors ===== */
     --color-dropdown-bg: #ffffff;
@@ -214,36 +263,39 @@
 
     /* ===== Tab Colors ===== */
     --color-tab-bg: #dfdfdf;
-    --color-tab-border: #cfd2d6;
+    --color-tab-border: var(--color-tree-border);
     --color-tab-selected: #fafafa;
     --color-tab-text: rgba(0, 0, 0, 0.6);
     --color-tab-text-selected: #444444;
+    --color-tab-row: var(--color-tab-bg);
+    --color-tab-changed: var(--color-primary);
+    --color-tab-border-selected: var(--color-tab-border);
 
     /* ===== Form Colors ===== */
-    --color-input-bg: #ffffff;
-    --color-input-border: #d4d4d4;
-    --color-input-border-hover: #bbbbbb;
-    --color-input-text: #464a4c;
-    --color-input-placeholder: #999999;
+    --color-input-bg: var(--bg-surface-2);
+    --color-input-border: var(--color-border);
+    --color-input-border-hover: var(--color-border-light);
+    --color-input-text: var(--color-label);
+    --color-input-placeholder: var(--color-placeholder);
 
     /* ===== Table Colors ===== */
-    --color-table-bg: #ffffff;
-    --color-table-stripe: #f9f9f9;
-    --color-table-stripe-alt: #f6f8f8;
-    --color-table-stripe-lighter: #f7f7f7;
-    --color-table-border: #eceeef;
-    --color-table-header-bg: #ffffff;
+    --color-table-bg: var(--bg-surface-1);
+    --color-table-stripe: var(--color-base-200);
+    --color-table-stripe-alt: var(--color-base-200);
+    --color-table-stripe-lighter: var(--color-base-300);
+    --color-table-border: var(--color-separator);
+    --color-table-header-bg: var(--color-base-200);
     --color-table-header-sort: #d2d2d2;
     --color-table-hover: rgba(93, 109, 202, 0.16);
     --color-table-hover-alt: #e9f0f3;
     --color-table-hover-grid: #e9edf3;
 
     /* ===== Card/Widget Colors ===== */
-    --color-card-bg: #ffffff;
-    --color-card-border: rgba(0, 0, 0, 0.125);
-    --color-card-header: transparent;
-    --color-card-header-text: #616a73;
-    --color-card-multitv: #fefefe;
+    --color-card-bg: var(--bg-surface-1);
+    --color-card-border: var(--color-separator);
+    --color-card-header: var(--bg-surface-2);
+    --color-card-header-text: var(--color-text-header);
+    --color-card-multitv: var(--bg-surface-1);
 
     /* ===== Alert Colors ===== */
     --color-alert-success-bg: #5cb85c;
@@ -260,12 +312,12 @@
     --color-overlay-search: rgba(0, 0, 0, 0.65);
 
     /* ===== Button Special Colors ===== */
-    --color-btn-default-bg: #ffffff;
-    --color-btn-default-border: #d4d4d4;
-    --color-btn-default-hover: #efefef;
-    --color-btn-default-active: #e6e6e6;
-    --color-btn-hover-border: #c3c3c3;
-    --color-btn-focus-border: #adadad;
+    --color-btn-default-bg: var(--bg-surface-2);
+    --color-btn-default-border: var(--color-border);
+    --color-btn-default-hover: var(--color-base-300);
+    --color-btn-default-active: var(--color-base-300);
+    --color-btn-hover-border: var(--color-border-light);
+    --color-btn-focus-border: var(--color-border-focus);
     --color-btn-action-gradient-end: #007571;
 
     /* ===== Misc Colors ===== */

@@ -2,94 +2,105 @@
  * Light Theme
  * Evolution CMS Manager Theme
  *
- * Light content area with dark navbar
- * Similar to DaisyUI "corporate" theme
+ * Apple-like light appearance
+ * Neutral, low-contrast surfaces
  */
 
 /* ===== Theme Variables ===== */
 [data-theme="light"],
 .light {
     /* Color Scheme */
-    color-scheme: light;
+    --color-scheme: light;
 
     /* Base Colors */
-    --color-base-100: #ffffff;
-    --color-base-200: #fafafa;
-    --color-base-300: #f3f3f3;
-    --color-base-content: #333333;
+    --color-base-100: #FFFFFF;
+    --color-base-200: #F2F2F7;
+    --color-base-300: #E5E5EA;
+    --color-base-content: #1C1C1E;
+    --color-base-muted: #6E6E73;
+
+    /* Apple-like semantic tokens (light) */
+    --color-label: #1C1C1E;
+    --color-secondary-label: #3A3A3C;
+    --color-tertiary-label: #636366;
+    --color-placeholder: #8E8E93;
+    --color-separator: #C6C6C8;
+    --color-link: #007AFF;
+    --color-link-hover: #0060DF;
+    --color-accent: #007AFF;
+    --color-success: #34C759;
+    --color-danger: #FF3B30;
+    --color-warning: #FF9500;
+    --color-selected: var(--color-accent);
+
+    /* Backgrounds */
+    --color-bg: #FFFFFF;
+    --color-bg-light: #F2F2F7;
+    --color-bg-lighter: #FFFFFF;
+    --color-bg-gray: #F2F2F7;
+    --color-bg-muted: #E5E5EA;
+
+    /* Borders */
+    --color-border: var(--color-separator);
+    --color-border-light: var(--color-separator);
+    --color-border-lighter: var(--color-separator);
+    --color-border-subtle: var(--color-separator);
+    --color-border-focus: var(--color-accent);
+    --color-border-action: var(--color-separator);
+
+    /* Links */
+    --color-primary-link: var(--color-link);
+
+    /* Primary/Secondary (semantic) */
+    --color-primary: var(--color-accent);
+    --color-primary-hover: var(--color-link-hover);
+    --color-primary-active: #0060DF;
+    --color-primary-content: #ffffff;
+    --color-primary-accent: var(--color-accent);
+
+    /* Text Colors */
+    --color-text: var(--color-label);
+    --color-text-secondary: var(--color-secondary-label);
+    --color-text-muted: var(--color-tertiary-label);
+    --color-text-light: var(--color-secondary-label);
+    --color-text-comment: var(--color-tertiary-label);
+    --color-text-header: var(--color-secondary-label);
+    --color-text-placeholder: var(--color-placeholder);
+    --color-text-icon: var(--color-label);
+
+    /* Surfaces */
+    --bg-page: var(--color-bg);
+    --bg-surface-1: var(--color-bg);
+    --bg-surface-2: var(--color-bg-light);
+    --bg-toolbar: var(--bg-page);
+
+    /* Focus */
+    --color-focus: var(--color-accent);
+    --color-focus-ring: rgba(0, 122, 255, 0.35);
 
     /* Navbar */
-    --color-navbar: #343944;
-    --color-navbar-text: #cacaca;
-    --color-navbar-text-light: #dcd9e3;
-    --color-navbar-text-hover: #ffffff;
-    --color-navbar-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
+    --color-navbar-bg: var(--bg-toolbar);
+    --color-navbar: var(--bg-toolbar);
+    --color-navbar-text: var(--color-secondary-label);
+    --color-navbar-text-light: var(--color-secondary-label);
+    --color-navbar-text-hover: var(--color-label);
 
     /* Tree */
-    --color-tree-menu: #dfdfdf;
-    --color-tree-body: #fafafa;
-    --color-tree-border: #cfd2d6;
+    --color-tree-menu-bg: var(--bg-surface-2);
+    --color-tree-bg: var(--bg-surface-1);
+    --color-tree-menu: var(--color-tree-menu-bg);
+    --color-tree-body: var(--color-tree-bg);
+    --color-tree-border: var(--color-separator);
 
     /* Tabs */
-    --color-tab-row: #dfdfdf;
-    --color-tab-border: #cfd2d6;
-    --color-tab-selected: #fafafa;
+    --color-tab-bg: var(--bg-surface-2);
+    --color-tab-row: var(--bg-surface-2);
+    --color-tab-border: var(--color-separator);
+    --color-tab-selected: var(--bg-surface-1);
+    --color-tab-text: var(--color-secondary-label);
+    --color-tab-text-selected: var(--color-label);
+    --color-tab-changed: var(--color-accent);
 
     /* Logo */
-    --logo-image: url("../images/misc/logo-navbar-white.png");
-}
-
-/* ===== Main Menu ===== */
-.light #mainMenu {
-    -webkit-box-shadow: var(--color-navbar-shadow);
-    box-shadow: var(--color-navbar-shadow);
-    background-color: var(--color-navbar);
-    color: var(--color-navbar-text);
-}
-
-.light #mainMenu .nav > li > a,
-.light #mainMenu .nav .label_searchid {
-    color: var(--color-navbar-text-light);
-}
-
-.light #mainMenu.show .nav > li.dropdown.hover > a {
-    color: var(--color-navbar-text-hover);
-    background-color: var(--color-transparent);
-}
-
-/* ===== Tree ===== */
-.light #treeMenu {
-    background-color: var(--color-tree-menu);
-}
-
-.light .treeframebody {
-    background-color: var(--color-tree-body);
-}
-
-
-/* ===== Navbar Left Layout ===== */
-@media (min-width: 768px) {
-    .navbar-left.light .treeframebody {
-        background-color: var(--color-base-300);
-    }
-
-    .navbar-left.light #mainMenu #nav #site a::before {
-        background-image: var(--logo-image);
-    }
-}
-
-/* ===== Logo ===== */
-@media (min-width: 1200px) {
-    body.light #mainMenu #nav #site::before {
-        content: "";
-        display: block;
-        overflow: hidden;
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 9rem;
-        height: 100%;
-        background: var(--logo-image) 0 50% no-repeat;
-        background-size: 8rem;
-    }
+    --logo-image: url("../images/misc/logo-navbar.png");
 }

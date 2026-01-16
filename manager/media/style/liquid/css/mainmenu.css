@@ -1,7 +1,9 @@
 /* #mainMenu */
 #mainMenu {
-    background-color: var(--color-navbar-bg);
+    background-color: var(--bg-toolbar);
     color: var(--color-navbar-text);
+    -webkit-backdrop-filter: var(--mainmenu-backdrop);
+    backdrop-filter: var(--mainmenu-backdrop);
 }
 #mainMenu.show {
     overflow: visible;
@@ -65,10 +67,13 @@
     color: var(--color-white);
     background-color: var(--color-transparent);
 }
+#mainMenu #nav #site {
+    position: relative;
+}
 #mainMenu #nav #site::before {
-    content: none !important;
-    display: none !important;
-    background: none !important;
+    content: none;
+    display: none;
+    background: none;
 }
 #mainMenu #nav #bars.active > a,
 #mainMenu #nav #bars.hover > a,
@@ -600,7 +605,19 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
     #mainMenu #nav #site a {
         margin-left: 0;
     }
-    /* Theme-specific logo styles moved to themes/*.css */
+    body[data-theme] #mainMenu #nav #site::before {
+        content: "";
+        display: block;
+        overflow: hidden;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 9rem;
+        height: 100%;
+        background: var(--logo-image) 0 50% no-repeat;
+        background-size: 8rem;
+    }
+    /* Logo driven by --logo-image token */
     #mainMenu,
     #mainMenu .nav > li > a,
     #mainMenu .nav .label_searchid,
@@ -654,6 +671,10 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
     #mainMenu .nav > li > ul > li.dropdown-toggle > a > .toggle {
         line-height: 2.4rem;
         font-size: 1rem;
+    }
+}
+@media (min-width: 768px) {
+    .navbar-left #mainMenu {
     }
 }
 @media (max-width: 1020px) {
