@@ -3,7 +3,7 @@
         'name' => 'evolutioncms/core',
         'pretty_version' => '3.5.x-dev',
         'version' => '3.5.9999999.9999999-dev',
-        'reference' => '7857ee80e6095e3c0a4d890a36083b3daee2f172',
+        'reference' => '8fcfa2a639caabb706372de4f9e2bc6d66ee0b53',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -193,7 +193,7 @@
         'evolution-cms/evolution' => array(
             'dev_requirement' => false,
             'replaced' => array(
-                0 => '3.5.1',
+                0 => '3.5.3',
             ),
         ),
         'evolutioncms-services/document-manager' => array(
@@ -217,7 +217,7 @@
         'evolutioncms/core' => array(
             'pretty_version' => '3.5.x-dev',
             'version' => '3.5.9999999.9999999-dev',
-            'reference' => '7857ee80e6095e3c0a4d890a36083b3daee2f172',
+            'reference' => '8fcfa2a639caabb706372de4f9e2bc6d66ee0b53',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -512,9 +512,9 @@
             'dev_requirement' => false,
         ),
         'laravel/prompts' => array(
-            'pretty_version' => 'v0.3.9',
-            'version' => '0.3.9.0',
-            'reference' => '5c41bf0555b7cfefaad4e66d3046675829581ac4',
+            'pretty_version' => 'v0.3.10',
+            'version' => '0.3.10.0',
+            'reference' => '360ba095ef9f51017473505191fbd4ab73e1cab3',
             'type' => 'library',
             'install_path' => __DIR__ . '/../laravel/prompts',
             'aliases' => array(),
@@ -776,7 +776,7 @@
         'roave/security-advisories' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '28d428ca7643cd49a652e508758bbc7fc30c88c2',
+            'reference' => '57ac71b06405e32e77d960bb8490683138573f04',
             'type' => 'metapackage',
             'install_path' => null,
             'aliases' => array(),
