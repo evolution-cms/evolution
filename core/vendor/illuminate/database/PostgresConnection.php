@@ -3,6 +3,7 @@
 namespace Illuminate\Database;
 
 use Exception;
+use Illuminate\Database\PDO\PostgresDriver;
 use Illuminate\Database\Query\Grammars\PostgresGrammar as QueryGrammar;
 use Illuminate\Database\Query\Processors\PostgresProcessor;
 use Illuminate\Database\Schema\Grammars\PostgresGrammar as SchemaGrammar;
@@ -12,14 +13,6 @@ use Illuminate\Filesystem\Filesystem;
 
 class PostgresConnection extends Connection
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getDriverTitle()
-    {
-        return 'PostgreSQL';
-    }
-
     /**
      * Escape a binary value for safe SQL embedding.
      *
@@ -113,5 +106,15 @@ class PostgresConnection extends Connection
     protected function getDefaultPostProcessor()
     {
         return new PostgresProcessor;
+    }
+
+    /**
+     * Get the Doctrine DBAL driver.
+     *
+     * @return \Illuminate\Database\PDO\PostgresDriver
+     */
+    protected function getDoctrineDriver()
+    {
+        return new PostgresDriver;
     }
 }

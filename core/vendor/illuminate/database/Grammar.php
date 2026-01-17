@@ -3,7 +3,6 @@
 namespace Illuminate\Database;
 
 use Illuminate\Contracts\Database\Query\Expression;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Traits\Macroable;
 use RuntimeException;
 
@@ -44,38 +43,21 @@ abstract class Grammar
      */
     public function wrapTable($table)
     {
-        if ($this->isExpression($table)) {
-            return $this->getValue($table);
+        if (! $this->isExpression($table)) {
+            return $this->wrap($this->tablePrefix.$table, true);
         }
 
-        // If the table being wrapped has an alias we'll need to separate the pieces
-        // so we can prefix the table and then wrap each of the segments on their
-        // own and then join these both back together using the "as" connector.
-        if (stripos($table, ' as ') !== false) {
-            return $this->wrapAliasedTable($table);
-        }
-
-        // If the table being wrapped has a custom schema name specified, we need to
-        // prefix the last segment as the table name then wrap each segment alone
-        // and eventually join them both back together using the dot connector.
-        if (str_contains($table, '.')) {
-            $table = substr_replace($table, '.'.$this->tablePrefix, strrpos($table, '.'), 1);
-
-            return (new Collection(explode('.', $table)))
-                ->map($this->wrapValue(...))
-                ->implode('.');
-        }
-
-        return $this->wrapValue($this->tablePrefix.$table);
+        return $this->getValue($table);
     }
 
     /**
      * Wrap a value in keyword identifiers.
      *
      * @param  \Illuminate\Contracts\Database\Query\Expression|string  $value
+     * @param  bool  $prefixAlias
      * @return string
      */
-    public function wrap($value)
+    public function wrap($value, $prefixAlias = false)
     {
         if ($this->isExpression($value)) {
             return $this->getValue($value);
@@ -85,7 +67,7 @@ abstract class Grammar
         // the pieces so we can wrap each of the segments of the expression on its
         // own, and then join these both back together using the "as" connector.
         if (stripos($value, ' as ') !== false) {
-            return $this->wrapAliasedValue($value);
+            return $this->wrapAliasedValue($value, $prefixAlias);
         }
 
         // If the given value is a JSON selector we will wrap it differently than a
@@ -102,26 +84,21 @@ abstract class Grammar
      * Wrap a value that has an alias.
      *
      * @param  string  $value
+     * @param  bool  $prefixAlias
      * @return string
      */
-    protected function wrapAliasedValue($value)
+    protected function wrapAliasedValue($value, $prefixAlias = false)
     {
         $segments = preg_split('/\s+as\s+/i', $value);
+
+        // If we are wrapping a table we need to prefix the alias with the table prefix
+        // as well in order to generate proper syntax. If this is a column of course
+        // no prefix is necessary. The condition will be true when from wrapTable.
+        if ($prefixAlias) {
+            $segments[1] = $this->tablePrefix.$segments[1];
+        }
 
         return $this->wrap($segments[0]).' as '.$this->wrapValue($segments[1]);
-    }
-
-    /**
-     * Wrap a table that has an alias.
-     *
-     * @param  string  $value
-     * @return string
-     */
-    protected function wrapAliasedTable($value)
-    {
-        $segments = preg_split('/\s+as\s+/i', $value);
-
-        return $this->wrapTable($segments[0]).' as '.$this->wrapValue($this->tablePrefix.$segments[1]);
     }
 
     /**
@@ -132,7 +109,7 @@ abstract class Grammar
      */
     protected function wrapSegments($segments)
     {
-        return (new Collection($segments))->map(function ($segment, $key) use ($segments) {
+        return collect($segments)->map(function ($segment, $key) use ($segments) {
             return $key == 0 && count($segments) > 1
                             ? $this->wrapTable($segment)
                             : $this->wrapValue($segment);

@@ -144,7 +144,7 @@ class LockableFile
      * Get an exclusive lock on the file.
      *
      * @param  bool  $block
-     * @return $this
+     * @return bool
      *
      * @throws \Illuminate\Contracts\Filesystem\LockTimeoutException
      */

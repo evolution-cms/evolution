@@ -11,9 +11,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Traits\ReflectsClosures;
 use PHPUnit\Framework\Assert as PHPUnit;
 
-/**
- * @phpstan-type RawPushType array{"payload": string, "queue": string|null, "options": array<array-key, mixed>}
- */
 class QueueFake extends QueueManager implements Fake, Queue
 {
     use ReflectsClosures;
@@ -47,13 +44,6 @@ class QueueFake extends QueueManager implements Fake, Queue
     protected $jobs = [];
 
     /**
-     * All of the payloads that have been raw pushed.
-     *
-     * @var list<RawPushType>
-     */
-    protected $rawPushes = [];
-
-    /**
      * Indicates if items should be serialized and restored when pushed to the queue.
      *
      * @var bool
@@ -73,7 +63,7 @@ class QueueFake extends QueueManager implements Fake, Queue
         parent::__construct($app);
 
         $this->jobsToFake = Collection::wrap($jobsToFake);
-        $this->jobsToBeQueued = new Collection;
+        $this->jobsToBeQueued = Collection::make();
         $this->queue = $queue;
     }
 
@@ -169,7 +159,7 @@ class QueueFake extends QueueManager implements Fake, Queue
         );
 
         PHPUnit::assertTrue(
-            (new Collection($expectedChain))->isNotEmpty(),
+            collect($expectedChain)->isNotEmpty(),
             'The expected chain can not be empty.'
         );
 
@@ -205,7 +195,7 @@ class QueueFake extends QueueManager implements Fake, Queue
      */
     protected function assertPushedWithChainOfObjects($job, $expectedChain, $callback)
     {
-        $chain = (new Collection($expectedChain))->map(fn ($job) => serialize($job))->all();
+        $chain = collect($expectedChain)->map(fn ($job) => serialize($job))->all();
 
         PHPUnit::assertTrue(
             $this->pushed($job, $callback)->filter(fn ($job) => $job->chained == $chain)->isNotEmpty(),
@@ -224,7 +214,7 @@ class QueueFake extends QueueManager implements Fake, Queue
     protected function assertPushedWithChainOfClasses($job, $expectedChain, $callback)
     {
         $matching = $this->pushed($job, $callback)->map->chained->map(function ($chain) {
-            return (new Collection($chain))->map(function ($job) {
+            return collect($chain)->map(function ($job) {
                 return get_class(unserialize($job));
             });
         })->filter(function ($chain) use ($expectedChain) {
@@ -266,7 +256,7 @@ class QueueFake extends QueueManager implements Fake, Queue
      */
     protected function isChainOfObjects($chain)
     {
-        return ! (new Collection($chain))->contains(fn ($job) => ! is_object($job));
+        return ! collect($chain)->contains(fn ($job) => ! is_object($job));
     }
 
     /**
@@ -296,7 +286,7 @@ class QueueFake extends QueueManager implements Fake, Queue
      */
     public function assertCount($expectedCount)
     {
-        $actualCount = (new Collection($this->jobs))->flatten(1)->count();
+        $actualCount = collect($this->jobs)->flatten(1)->count();
 
         PHPUnit::assertSame(
             $expectedCount, $actualCount,
@@ -311,9 +301,7 @@ class QueueFake extends QueueManager implements Fake, Queue
      */
     public function assertNothingPushed()
     {
-        $pushedJobs = implode("\n- ", array_keys($this->jobs));
-
-        PHPUnit::assertEmpty($this->jobs, "The following jobs were pushed unexpectedly:\n\n- $pushedJobs\n");
+        PHPUnit::assertEmpty($this->jobs, 'Jobs were pushed unexpectedly.');
     }
 
     /**
@@ -326,27 +314,14 @@ class QueueFake extends QueueManager implements Fake, Queue
     public function pushed($job, $callback = null)
     {
         if (! $this->hasPushed($job)) {
-            return new Collection;
+            return collect();
         }
 
         $callback = $callback ?: fn () => true;
 
-        return (new Collection($this->jobs[$job]))->filter(
+        return collect($this->jobs[$job])->filter(
             fn ($data) => $callback($data['job'], $data['queue'], $data['data'])
         )->pluck('job');
-    }
-
-    /**
-     * Get all of the raw pushes matching a truth-test callback.
-     *
-     * @param  null|\Closure(string, ?string, array): bool  $callback
-     * @return \Illuminate\Support\Collection<int, RawPushType>
-     */
-    public function pushedRaw($callback = null)
-    {
-        $callback ??= static fn () => true;
-
-        return (new Collection($this->rawPushes))->filter(fn ($data) => $callback($data['payload'], $data['queue'], $data['options']));
     }
 
     /**
@@ -379,7 +354,7 @@ class QueueFake extends QueueManager implements Fake, Queue
      */
     public function size($queue = null)
     {
-        return (new Collection($this->jobs))->flatten(1)->filter(
+        return collect($this->jobs)->flatten(1)->filter(
             fn ($job) => $job['queue'] === $queue
         )->count();
     }
@@ -459,11 +434,7 @@ class QueueFake extends QueueManager implements Fake, Queue
      */
     public function pushRaw($payload, $queue = null, array $options = [])
     {
-        $this->rawPushes[] = [
-            'payload' => $payload,
-            'queue' => $queue,
-            'options' => $options,
-        ];
+        //
     }
 
     /**
@@ -541,16 +512,6 @@ class QueueFake extends QueueManager implements Fake, Queue
     public function pushedJobs()
     {
         return $this->jobs;
-    }
-
-    /**
-     * Get the payloads that were pushed raw.
-     *
-     * @return list<RawPushType>
-     */
-    public function rawPushes()
-    {
-        return $this->rawPushes;
     }
 
     /**

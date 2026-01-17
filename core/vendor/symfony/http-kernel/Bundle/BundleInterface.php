@@ -67,5 +67,8 @@ interface BundleInterface
      */
     public function getPath(): string;
 
-    public function setContainer(?ContainerInterface $container): void;
+    /**
+     * @return void
+     */
+    public function setContainer(?ContainerInterface $container);
 }

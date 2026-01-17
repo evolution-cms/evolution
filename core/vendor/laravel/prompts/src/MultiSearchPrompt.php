@@ -3,7 +3,6 @@
 namespace Laravel\Prompts;
 
 use Closure;
-use Laravel\Prompts\Support\Utils;
 
 class MultiSearchPrompt extends Prompt
 {
@@ -141,7 +140,7 @@ class MultiSearchPrompt extends Prompt
      */
     protected function toggleAll(): void
     {
-        $allMatchesSelected = Utils::allMatch($this->matches, fn ($label, $key) => $this->isList()
+        $allMatchesSelected = collect($this->matches)->every(fn ($label, $key) => $this->isList()
             ? array_key_exists($label, $this->values)
             : array_key_exists($key, $this->values));
 

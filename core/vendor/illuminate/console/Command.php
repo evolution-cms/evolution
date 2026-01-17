@@ -9,7 +9,6 @@ use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Throwable;
 
 class Command extends SymfonyCommand
 {
@@ -45,16 +44,16 @@ class Command extends SymfonyCommand
     /**
      * The console command description.
      *
-     * @var string
+     * @var string|null
      */
-    protected $description = '';
+    protected $description;
 
     /**
      * The console command help text.
      *
      * @var string
      */
-    protected $help = '';
+    protected $help;
 
     /**
      * Indicates whether the command should be shown in the Artisan command list.
@@ -103,13 +102,13 @@ class Command extends SymfonyCommand
         // Once we have constructed the command, we'll set the description and other
         // related properties of the command. If a signature wasn't used to build
         // the command we'll set the arguments and the options on this command.
-        if (! empty($this->description)) {
-            $this->setDescription($this->description);
+        if (! isset($this->description)) {
+            $this->setDescription((string) static::getDefaultDescription());
+        } else {
+            $this->setDescription((string) $this->description);
         }
 
-        if (! empty($this->help)) {
-            $this->setHelp($this->help);
-        }
+        $this->setHelp((string) $this->help);
 
         $this->setHidden($this->isHidden());
 
@@ -167,7 +166,6 @@ class Command extends SymfonyCommand
      * @param  \Symfony\Component\Console\Output\OutputInterface  $output
      * @return int
      */
-    #[\Override]
     public function run(InputInterface $input, OutputInterface $output): int
     {
         $this->output = $output instanceof OutputStyle ? $output : $this->laravel->make(
@@ -192,9 +190,9 @@ class Command extends SymfonyCommand
      *
      * @param  \Symfony\Component\Console\Input\InputInterface  $input
      * @param  \Symfony\Component\Console\Output\OutputInterface  $output
+     * @return int
      */
-    #[\Override]
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         if ($this instanceof Isolatable && $this->option('isolated') !== false &&
             ! $this->commandIsolationMutex()->create($this)) {
@@ -211,10 +209,6 @@ class Command extends SymfonyCommand
 
         try {
             return (int) $this->laravel->call([$this, $method]);
-        } catch (ManuallyFailedException $e) {
-            $this->components->error($e->getMessage());
-
-            return static::FAILURE;
         } finally {
             if ($this instanceof Isolatable && $this->option('isolated') !== false) {
                 $this->commandIsolationMutex()->forget($this);
@@ -262,32 +256,10 @@ class Command extends SymfonyCommand
     }
 
     /**
-     * Fail the command manually.
-     *
-     * @param  \Throwable|string|null  $exception
-     * @return void
-     *
-     * @throws \Illuminate\Console\ManuallyFailedException|\Throwable
-     */
-    public function fail(Throwable|string|null $exception = null)
-    {
-        if (is_null($exception)) {
-            $exception = 'Command failed manually.';
-        }
-
-        if (is_string($exception)) {
-            $exception = new ManuallyFailedException($exception);
-        }
-
-        throw $exception;
-    }
-
-    /**
      * {@inheritdoc}
      *
      * @return bool
      */
-    #[\Override]
     public function isHidden(): bool
     {
         return $this->hidden;
@@ -296,7 +268,6 @@ class Command extends SymfonyCommand
     /**
      * {@inheritdoc}
      */
-    #[\Override]
     public function setHidden(bool $hidden = true): static
     {
         parent::setHidden($this->hidden = $hidden);

@@ -9,7 +9,6 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Database\Query\JoinLateralClause;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use RuntimeException;
 
 class Grammar extends BaseGrammar
@@ -60,17 +59,6 @@ class Grammar extends BaseGrammar
     {
         if (($query->unions || $query->havings) && $query->aggregate) {
             return $this->compileUnionAggregate($query);
-        }
-
-        // If a "group limit" is in place, we will need to compile the SQL to use a
-        // different syntax. This primarily supports limits on eager loads using
-        // Eloquent. We'll also set the columns if they have not been defined.
-        if (isset($query->groupLimit)) {
-            if (is_null($query->columns)) {
-                $query->columns = ['*'];
-            }
-
-            return $this->compileGroupLimit($query);
         }
 
         // If the query does not have any columns set, we'll set the columns to the
@@ -188,7 +176,7 @@ class Grammar extends BaseGrammar
      */
     protected function compileJoins(Builder $query, $joins)
     {
-        return (new Collection($joins))->map(function ($join) use ($query) {
+        return collect($joins)->map(function ($join) use ($query) {
             $table = $this->wrapTable($join->table);
 
             $nestedJoins = is_null($join->joins) ? '' : ' '.$this->compileJoins($query, $join->joins);
@@ -250,9 +238,9 @@ class Grammar extends BaseGrammar
      */
     protected function compileWheresToArray($query)
     {
-        return (new Collection($query->wheres))
-            ->map(fn ($where) => $where['boolean'].' '.$this->{"where{$where['type']}"}($query, $where))
-            ->all();
+        return collect($query->wheres)->map(function ($where) use ($query) {
+            return $where['boolean'].' '.$this->{"where{$where['type']}"}($query, $where);
+        })->all();
     }
 
     /**
@@ -306,24 +294,6 @@ class Grammar extends BaseGrammar
      */
     protected function whereBitwise(Builder $query, $where)
     {
-        return $this->whereBasic($query, $where);
-    }
-
-    /**
-     * Compile a "where like" clause.
-     *
-     * @param  \Illuminate\Database\Query\Builder  $query
-     * @param  array  $where
-     * @return string
-     */
-    protected function whereLike(Builder $query, $where)
-    {
-        if ($where['caseSensitive']) {
-            throw new RuntimeException('This database engine does not support case sensitive like operations.');
-        }
-
-        $where['operator'] = $where['not'] ? 'not like' : 'like';
-
         return $this->whereBasic($query, $where);
     }
 
@@ -663,37 +633,6 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile a "where JSON overlaps" clause.
-     *
-     * @param  \Illuminate\Database\Query\Builder  $query
-     * @param  array  $where
-     * @return string
-     */
-    protected function whereJsonOverlaps(Builder $query, $where)
-    {
-        $not = $where['not'] ? 'not ' : '';
-
-        return $not.$this->compileJsonOverlaps(
-            $where['column'],
-            $this->parameter($where['value'])
-        );
-    }
-
-    /**
-     * Compile a "JSON overlaps" statement into SQL.
-     *
-     * @param  string  $column
-     * @param  string  $value
-     * @return string
-     *
-     * @throws \RuntimeException
-     */
-    protected function compileJsonOverlaps($column, $value)
-    {
-        throw new RuntimeException('This database engine does not support JSON overlaps operations.');
-    }
-
-    /**
      * Prepare the binding for a "JSON contains" statement.
      *
      * @param  mixed  $binding
@@ -819,7 +758,7 @@ class Grammar extends BaseGrammar
      */
     protected function compileHavings(Builder $query)
     {
-        return 'having '.$this->removeLeadingBoolean((new Collection($query->havings))->map(function ($having) {
+        return 'having '.$this->removeLeadingBoolean(collect($query->havings)->map(function ($having) {
             return $having['boolean'].' '.$this->compileHaving($having);
         })->implode(' '));
     }
@@ -998,66 +937,6 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile a group limit clause.
-     *
-     * @param  \Illuminate\Database\Query\Builder  $query
-     * @return string
-     */
-    protected function compileGroupLimit(Builder $query)
-    {
-        $selectBindings = array_merge($query->getRawBindings()['select'], $query->getRawBindings()['order']);
-
-        $query->setBindings($selectBindings, 'select');
-        $query->setBindings([], 'order');
-
-        $limit = (int) $query->groupLimit['value'];
-        $offset = $query->offset;
-
-        if (isset($offset)) {
-            $offset = (int) $offset;
-            $limit += $offset;
-
-            $query->offset = null;
-        }
-
-        $components = $this->compileComponents($query);
-
-        $components['columns'] .= $this->compileRowNumber(
-            $query->groupLimit['column'],
-            $components['orders'] ?? ''
-        );
-
-        unset($components['orders']);
-
-        $table = $this->wrap('laravel_table');
-        $row = $this->wrap('laravel_row');
-
-        $sql = $this->concatenate($components);
-
-        $sql = 'select * from ('.$sql.') as '.$table.' where '.$row.' <= '.$limit;
-
-        if (isset($offset)) {
-            $sql .= ' and '.$row.' > '.$offset;
-        }
-
-        return $sql.' order by '.$row;
-    }
-
-    /**
-     * Compile a row number clause.
-     *
-     * @param  string  $partition
-     * @param  string  $orders
-     * @return string
-     */
-    protected function compileRowNumber($partition, $orders)
-    {
-        $over = trim('partition by '.$this->wrap($partition).' '.$orders);
-
-        return ', row_number() over ('.$over.') as '.$this->wrap('laravel_row');
-    }
-
-    /**
      * Compile the "offset" portions of the query.
      *
      * @param  \Illuminate\Database\Query\Builder  $query
@@ -1177,7 +1056,7 @@ class Grammar extends BaseGrammar
         // We need to build a list of parameter place-holders of values that are bound
         // to the query. Each insert should have the exact same number of parameter
         // bindings so we will loop through the record and parameterize them all.
-        $parameters = (new Collection($values))->map(function ($record) {
+        $parameters = collect($values)->map(function ($record) {
             return '('.$this->parameterize($record).')';
         })->implode(', ');
 
@@ -1276,7 +1155,7 @@ class Grammar extends BaseGrammar
      */
     protected function compileUpdateColumns(Builder $query, array $values)
     {
-        return (new Collection($values))->map(function ($value, $key) {
+        return collect($values)->map(function ($value, $key) {
             return $this->wrap($key).' = '.$this->parameter($value);
         })->implode(', ');
     }
@@ -1337,8 +1216,6 @@ class Grammar extends BaseGrammar
     public function prepareBindingsForUpdate(array $bindings, array $values)
     {
         $cleanBindings = Arr::except($bindings, ['select', 'join']);
-
-        $values = Arr::flatten(array_map(fn ($value) => value($value), $values));
 
         return array_values(
             array_merge($bindings['join'], $values, Arr::flatten($cleanBindings))
@@ -1431,16 +1308,6 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile a query to get the number of open connections for a database.
-     *
-     * @return string|null
-     */
-    public function compileThreadCount()
-    {
-        return null;
-    }
-
-    /**
      * Determine if the grammar supports savepoints.
      *
      * @return bool
@@ -1527,7 +1394,7 @@ class Grammar extends BaseGrammar
      */
     public function substituteBindingsIntoRawSql($sql, $bindings)
     {
-        $bindings = array_map(fn ($value) => $this->escape($value, is_resource($value) || gettype($value) === 'resource (closed)'), $bindings);
+        $bindings = array_map(fn ($value) => $this->escape($value), $bindings);
 
         $query = '';
 

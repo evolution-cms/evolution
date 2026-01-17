@@ -22,7 +22,10 @@ use Symfony\Component\DependencyInjection\Reference;
  */
 class AddMimeTypeGuesserPass implements CompilerPassInterface
 {
-    public function process(ContainerBuilder $container): void
+    /**
+     * @return void
+     */
+    public function process(ContainerBuilder $container)
     {
         if ($container->has('mime_types')) {
             $definition = $container->findDefinition('mime_types');

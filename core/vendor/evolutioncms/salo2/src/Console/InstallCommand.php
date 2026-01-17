@@ -99,7 +99,7 @@ class InstallCommand extends Command
                 return $collection->prepend('volumes:');
             })->implode("\n");
 
-        $evoRuntime = $this->option('runtime') ?: '8.2';
+        $evoRuntime = $this->option('runtime') ?: '8.3';
         $evoImage = $this->evoImage($evoRuntime);
         $evoPorts = $this->evoPorts($evoRuntime);
 

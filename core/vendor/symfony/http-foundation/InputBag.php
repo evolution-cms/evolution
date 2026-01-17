@@ -25,8 +25,6 @@ final class InputBag extends ParameterBag
      * Returns a scalar input value by name.
      *
      * @param string|int|float|bool|null $default The default value if the input key does not exist
-     *
-     * @throws BadRequestException if the input contains a non-scalar value
      */
     public function get(string $key, mixed $default = null): string|int|float|bool|null
     {
@@ -85,10 +83,6 @@ final class InputBag extends ParameterBag
      * @param ?T              $default
      *
      * @return ?T
-     *
-     * @psalm-return ($default is null ? T|null : T)
-     *
-     * @throws BadRequestException if the input cannot be converted to an enum
      */
     public function getEnum(string $key, string $class, ?\BackedEnum $default = null): ?\BackedEnum
     {
@@ -101,8 +95,6 @@ final class InputBag extends ParameterBag
 
     /**
      * Returns the parameter value converted to string.
-     *
-     * @throws BadRequestException if the input contains a non-scalar value
      */
     public function getString(string $key, string $default = ''): string
     {
@@ -110,10 +102,6 @@ final class InputBag extends ParameterBag
         return (string) $this->get($key, $default);
     }
 
-    /**
-     * @throws BadRequestException if the input value is an array and \FILTER_REQUIRE_ARRAY or \FILTER_FORCE_ARRAY is not set
-     * @throws BadRequestException if the input value is invalid and \FILTER_NULL_ON_FAILURE is not set
-     */
     public function filter(string $key, mixed $default = null, int $filter = \FILTER_DEFAULT, mixed $options = []): mixed
     {
         $value = $this->has($key) ? $this->all()[$key] : $default;
@@ -141,6 +129,12 @@ final class InputBag extends ParameterBag
             return $value;
         }
 
-        throw new BadRequestException(\sprintf('Input value "%s" is invalid and flag "FILTER_NULL_ON_FAILURE" was not set.', $key));
+        $method = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS | \DEBUG_BACKTRACE_PROVIDE_OBJECT, 2)[1];
+        $method = ($method['object'] ?? null) === $this ? $method['function'] : 'filter';
+        $hint = 'filter' === $method ? 'pass' : 'use method "filter()" with';
+
+        trigger_deprecation('symfony/http-foundation', '6.3', 'Ignoring invalid values when using "%s::%s(\'%s\')" is deprecated and will throw a "%s" in 7.0; '.$hint.' flag "FILTER_NULL_ON_FAILURE" to keep ignoring them.', $this::class, $method, $key, BadRequestException::class);
+
+        return false;
     }
 }

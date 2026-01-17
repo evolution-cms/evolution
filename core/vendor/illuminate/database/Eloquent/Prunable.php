@@ -18,7 +18,7 @@ trait Prunable
         $total = 0;
 
         $this->prunable()
-            ->when(in_array(SoftDeletes::class, class_uses_recursive(static::class)), function ($query) {
+            ->when(in_array(SoftDeletes::class, class_uses_recursive(get_class($this))), function ($query) {
                 $query->withTrashed();
             })->chunkById($chunkSize, function ($models) use (&$total) {
                 $models->each->prune();
@@ -34,7 +34,7 @@ trait Prunable
     /**
      * Get the prunable model query.
      *
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function prunable()
     {
@@ -50,7 +50,7 @@ trait Prunable
     {
         $this->pruning();
 
-        return in_array(SoftDeletes::class, class_uses_recursive(static::class))
+        return in_array(SoftDeletes::class, class_uses_recursive(get_class($this)))
                 ? $this->forceDelete()
                 : $this->delete();
     }

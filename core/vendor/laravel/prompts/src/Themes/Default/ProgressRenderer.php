@@ -27,7 +27,7 @@ class ProgressRenderer extends Renderer
                 ->box(
                     $this->dim($this->truncate($progress->label, $progress->terminal()->cols() - 6)),
                     $this->dim($filled),
-                    info: $this->fractionCompleted($progress),
+                    info: $progress->progress.'/'.$progress->total,
                 ),
 
             'error' => $this
@@ -35,7 +35,7 @@ class ProgressRenderer extends Renderer
                     $this->truncate($progress->label, $progress->terminal()->cols() - 6),
                     $this->dim($filled),
                     color: 'red',
-                    info: $this->fractionCompleted($progress),
+                    info: $progress->progress.'/'.$progress->total,
                 ),
 
             'cancel' => $this
@@ -43,7 +43,7 @@ class ProgressRenderer extends Renderer
                     $this->truncate($progress->label, $progress->terminal()->cols() - 6),
                     $this->dim($filled),
                     color: 'red',
-                    info: $this->fractionCompleted($progress),
+                    info: $progress->progress.'/'.$progress->total,
                 )
                 ->error($progress->cancelMessage),
 
@@ -51,7 +51,7 @@ class ProgressRenderer extends Renderer
                 ->box(
                     $this->cyan($this->truncate($progress->label, $progress->terminal()->cols() - 6)),
                     $this->dim($filled),
-                    info: $this->fractionCompleted($progress),
+                    info: $progress->progress.'/'.$progress->total,
                 )
                 ->when(
                     $progress->hint,
@@ -59,13 +59,5 @@ class ProgressRenderer extends Renderer
                     fn () => $this->newLine() // Space for errors
                 )
         };
-    }
-
-    /**
-     * @param  Progress<int|iterable<mixed>>  $progress
-     */
-    protected function fractionCompleted(Progress $progress): string
-    {
-        return number_format($progress->progress).' / '.number_format($progress->total);
     }
 }

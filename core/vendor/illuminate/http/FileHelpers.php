@@ -9,7 +9,7 @@ trait FileHelpers
     /**
      * The cache copy of the file's hash name.
      *
-     * @var string|null
+     * @var string
      */
     protected $hashName = null;
 

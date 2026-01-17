@@ -22,10 +22,17 @@ class Cookie
     public const SAMESITE_LAX = 'lax';
     public const SAMESITE_STRICT = 'strict';
 
-    protected int $expire;
-    protected string $path;
+    protected $name;
+    protected $value;
+    protected $domain;
+    protected $expire;
+    protected $path;
+    protected $secure;
+    protected $httpOnly;
 
+    private bool $raw;
     private ?string $sameSite = null;
+    private bool $partitioned = false;
     private bool $secureDefault = false;
 
     private const RESERVED_CHARS_LIST = "=,; \t\r\n\v\f";
@@ -68,9 +75,12 @@ class Cookie
      * @see self::__construct
      *
      * @param self::SAMESITE_*|''|null $sameSite
+     * @param bool                     $partitioned
      */
-    public static function create(string $name, ?string $value = null, int|string|\DateTimeInterface $expire = 0, ?string $path = '/', ?string $domain = null, ?bool $secure = null, bool $httpOnly = true, bool $raw = false, ?string $sameSite = self::SAMESITE_LAX, bool $partitioned = false): self
+    public static function create(string $name, ?string $value = null, int|string|\DateTimeInterface $expire = 0, ?string $path = '/', ?string $domain = null, ?bool $secure = null, bool $httpOnly = true, bool $raw = false, ?string $sameSite = self::SAMESITE_LAX /* , bool $partitioned = false */): self
     {
+        $partitioned = 9 < \func_num_args() ? func_get_arg(9) : false;
+
         return new self($name, $value, $expire, $path, $domain, $secure, $httpOnly, $raw, $sameSite, $partitioned);
     }
 
@@ -87,30 +97,27 @@ class Cookie
      *
      * @throws \InvalidArgumentException
      */
-    public function __construct(
-        protected string $name,
-        protected ?string $value = null,
-        int|string|\DateTimeInterface $expire = 0,
-        ?string $path = '/',
-        protected ?string $domain = null,
-        protected ?bool $secure = null,
-        protected bool $httpOnly = true,
-        private bool $raw = false,
-        ?string $sameSite = self::SAMESITE_LAX,
-        private bool $partitioned = false,
-    ) {
+    public function __construct(string $name, ?string $value = null, int|string|\DateTimeInterface $expire = 0, ?string $path = '/', ?string $domain = null, ?bool $secure = null, bool $httpOnly = true, bool $raw = false, ?string $sameSite = self::SAMESITE_LAX, bool $partitioned = false)
+    {
         // from PHP source code
         if ($raw && false !== strpbrk($name, self::RESERVED_CHARS_LIST)) {
             throw new \InvalidArgumentException(\sprintf('The cookie name "%s" contains invalid characters.', $name));
         }
 
-        if (!$name) {
+        if (empty($name)) {
             throw new \InvalidArgumentException('The cookie name cannot be empty.');
         }
 
+        $this->name = $name;
+        $this->value = $value;
+        $this->domain = $domain;
         $this->expire = self::expiresTimestamp($expire);
-        $this->path = $path ?: '/';
+        $this->path = empty($path) ? '/' : $path;
+        $this->secure = $secure;
+        $this->httpOnly = $httpOnly;
+        $this->raw = $raw;
         $this->sameSite = $this->withSameSite($sameSite)->sameSite;
+        $this->partitioned = $partitioned;
     }
 
     /**
@@ -336,7 +343,7 @@ class Cookie
     {
         $maxAge = $this->expire - time();
 
-        return max(0, $maxAge);
+        return 0 >= $maxAge ? 0 : $maxAge;
     }
 
     /**

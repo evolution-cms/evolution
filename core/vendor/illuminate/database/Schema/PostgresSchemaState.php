@@ -3,7 +3,6 @@
 namespace Illuminate\Database\Schema;
 
 use Illuminate\Database\Connection;
-use Illuminate\Support\Collection;
 
 class PostgresSchemaState extends SchemaState
 {
@@ -16,12 +15,12 @@ class PostgresSchemaState extends SchemaState
      */
     public function dump(Connection $connection, $path)
     {
-        $commands = new Collection([
+        $commands = collect([
             $this->baseDumpCommand().' --schema-only > '.$path,
         ]);
 
         if ($this->hasMigrationTable()) {
-            $commands->push($this->baseDumpCommand().' -t '.$this->getMigrationTable().' --data-only >> '.$path);
+            $commands->push($this->baseDumpCommand().' -t '.$this->migrationTable.' --data-only >> '.$path);
         }
 
         $commands->map(function ($command, $path) {
@@ -50,18 +49,6 @@ class PostgresSchemaState extends SchemaState
         $process->mustRun(null, array_merge($this->baseVariables($this->connection->getConfig()), [
             'LARAVEL_LOAD_PATH' => $path,
         ]));
-    }
-
-    /**
-     * Get the name of the application's migration table.
-     *
-     * @return string
-     */
-    protected function getMigrationTable(): string
-    {
-        [$schema, $table] = $this->connection->getSchemaBuilder()->parseSchemaAndTable($this->migrationTable);
-
-        return $schema.'.'.$this->connection->getTablePrefix().$table;
     }
 
     /**

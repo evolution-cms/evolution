@@ -27,9 +27,10 @@ class BufferedConsoleOutput extends ConsoleOutput
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
-    #[\Override]
-    protected function doWrite(string $message, bool $newline): void
+    protected function doWrite(string $message, bool $newline)
     {
         $this->buffer .= $message;
 
@@ -37,6 +38,6 @@ class BufferedConsoleOutput extends ConsoleOutput
             $this->buffer .= \PHP_EOL;
         }
 
-        parent::doWrite($message, $newline);
+        return parent::doWrite($message, $newline);
     }
 }

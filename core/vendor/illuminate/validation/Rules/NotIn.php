@@ -2,12 +2,11 @@
 
 namespace Illuminate\Validation\Rules;
 
+use BackedEnum;
 use Illuminate\Contracts\Support\Arrayable;
-use Stringable;
+use UnitEnum;
 
-use function Illuminate\Support\enum_value;
-
-class NotIn implements Stringable
+class NotIn
 {
     /**
      * The name of the rule.
@@ -26,7 +25,7 @@ class NotIn implements Stringable
     /**
      * Create a new "not in" rule instance.
      *
-     * @param  \Illuminate\Contracts\Support\Arrayable|\BackedEnum|\UnitEnum|array|string  $values
+     * @param  \Illuminate\Contracts\Support\Arrayable|array|string  $values
      * @return void
      */
     public function __construct($values)
@@ -46,7 +45,11 @@ class NotIn implements Stringable
     public function __toString()
     {
         $values = array_map(function ($value) {
-            $value = enum_value($value);
+            $value = match (true) {
+                $value instanceof BackedEnum => $value->value,
+                $value instanceof UnitEnum => $value->name,
+                default => $value,
+            };
 
             return '"'.str_replace('"', '""', $value).'"';
         }, $this->values);

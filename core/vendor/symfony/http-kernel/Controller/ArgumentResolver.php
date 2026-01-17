@@ -18,10 +18,10 @@ use Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolve
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver\RequestAttributeValueResolver;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver\RequestValueResolver;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver\SessionValueResolver;
+use Symfony\Component\HttpKernel\Controller\ArgumentResolver\TraceableValueResolver;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver\VariadicValueResolver;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadataFactory;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadataFactoryInterface;
-use Symfony\Component\HttpKernel\Exception\NearMissValueResolverException;
 use Symfony\Component\HttpKernel\Exception\ResolverNotFoundException;
 use Symfony\Contracts\Service\ServiceProviderInterface;
 
@@ -34,17 +34,16 @@ final class ArgumentResolver implements ArgumentResolverInterface
 {
     private ArgumentMetadataFactoryInterface $argumentMetadataFactory;
     private iterable $argumentValueResolvers;
+    private ?ContainerInterface $namedResolvers;
 
     /**
-     * @param iterable<mixed, ValueResolverInterface> $argumentValueResolvers
+     * @param iterable<mixed, ArgumentValueResolverInterface|ValueResolverInterface> $argumentValueResolvers
      */
-    public function __construct(
-        ?ArgumentMetadataFactoryInterface $argumentMetadataFactory = null,
-        iterable $argumentValueResolvers = [],
-        private ?ContainerInterface $namedResolvers = null,
-    ) {
+    public function __construct(?ArgumentMetadataFactoryInterface $argumentMetadataFactory = null, iterable $argumentValueResolvers = [], ?ContainerInterface $namedResolvers = null)
+    {
         $this->argumentMetadataFactory = $argumentMetadataFactory ?? new ArgumentMetadataFactory();
         $this->argumentValueResolvers = $argumentValueResolvers ?: self::getDefaultArgumentValueResolvers();
+        $this->namedResolvers = $namedResolvers;
     }
 
     public function getArguments(Request $request, callable $controller, ?\ReflectionFunctionAbstract $reflector = null): array
@@ -61,7 +60,7 @@ final class ArgumentResolver implements ArgumentResolverInterface
                     if ($attribute->disabled) {
                         $disabledResolvers[$attribute->resolver] = true;
                     } elseif ($resolverName) {
-                        throw new \LogicException(\sprintf('You can only pin one resolver per argument, but argument "$%s" of "%s()" has more.', $metadata->getName(), $metadata->getControllerName()));
+                        throw new \LogicException(\sprintf('You can only pin one resolver per argument, but argument "$%s" of "%s()" has more.', $metadata->getName(), $this->getPrettyName($controller)));
                     } else {
                         $resolverName = $attribute->resolver;
                     }
@@ -80,20 +79,18 @@ final class ArgumentResolver implements ArgumentResolverInterface
                 }
             }
 
-            $valueResolverExceptions = [];
             foreach ($argumentValueResolvers as $name => $resolver) {
+                if ((!$resolver instanceof ValueResolverInterface || $resolver instanceof TraceableValueResolver) && !$resolver->supports($request, $metadata)) {
+                    continue;
+                }
                 if (isset($disabledResolvers[\is_int($name) ? $resolver::class : $name])) {
                     continue;
                 }
 
-                try {
-                    $count = 0;
-                    foreach ($resolver->resolve($request, $metadata) as $argument) {
-                        ++$count;
-                        $arguments[] = $argument;
-                    }
-                } catch (NearMissValueResolverException $e) {
-                    $valueResolverExceptions[] = $e;
+                $count = 0;
+                foreach ($resolver->resolve($request, $metadata) as $argument) {
+                    ++$count;
+                    $arguments[] = $argument;
                 }
 
                 if (1 < $count && !$metadata->isVariadic()) {
@@ -104,29 +101,20 @@ final class ArgumentResolver implements ArgumentResolverInterface
                     // continue to the next controller argument
                     continue 2;
                 }
-            }
 
-            $reasons = array_map(static fn (NearMissValueResolverException $e) => $e->getMessage(), $valueResolverExceptions);
-            if (!$reasons) {
-                $reasons[] = 'Either the argument is nullable and no null value has been provided, no default value has been provided or there is a non-optional argument after this one.';
-            }
-
-            $reasonCounter = 1;
-            if (\count($reasons) > 1) {
-                foreach ($reasons as $i => $reason) {
-                    $reasons[$i] = $reasonCounter.') '.$reason;
-                    ++$reasonCounter;
+                if (!$resolver instanceof ValueResolverInterface) {
+                    throw new \InvalidArgumentException(\sprintf('"%s::resolve()" must yield at least one value.', get_debug_type($resolver)));
                 }
             }
 
-            throw new \RuntimeException(\sprintf('Controller "%s" requires the "$%s" argument that could not be resolved. '.($reasonCounter > 1 ? 'Possible reasons: ' : '').'%s', $metadata->getControllerName(), $metadata->getName(), implode(' ', $reasons)));
+            throw new \RuntimeException(\sprintf('Controller "%s" requires that you provide a value for the "$%s" argument. Either the argument is nullable and no null value has been provided, no default value has been provided or there is a non-optional argument after this one.', $this->getPrettyName($controller), $metadata->getName()));
         }
 
         return $arguments;
     }
 
     /**
-     * @return iterable<int, ValueResolverInterface>
+     * @return iterable<int, ArgumentValueResolverInterface>
      */
     public static function getDefaultArgumentValueResolvers(): iterable
     {
@@ -137,5 +125,22 @@ final class ArgumentResolver implements ArgumentResolverInterface
             new DefaultValueResolver(),
             new VariadicValueResolver(),
         ];
+    }
+
+    private function getPrettyName($controller): string
+    {
+        if (\is_array($controller)) {
+            if (\is_object($controller[0])) {
+                $controller[0] = get_debug_type($controller[0]);
+            }
+
+            return $controller[0].'::'.$controller[1];
+        }
+
+        if (\is_object($controller)) {
+            return get_debug_type($controller);
+        }
+
+        return $controller;
     }
 }

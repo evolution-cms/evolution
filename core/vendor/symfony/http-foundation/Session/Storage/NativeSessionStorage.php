@@ -31,11 +31,27 @@ class NativeSessionStorage implements SessionStorageInterface
     /**
      * @var SessionBagInterface[]
      */
-    protected array $bags = [];
-    protected bool $started = false;
-    protected bool $closed = false;
-    protected AbstractProxy|\SessionHandlerInterface $saveHandler;
-    protected MetadataBag $metadataBag;
+    protected $bags = [];
+
+    /**
+     * @var bool
+     */
+    protected $started = false;
+
+    /**
+     * @var bool
+     */
+    protected $closed = false;
+
+    /**
+     * @var AbstractProxy|\SessionHandlerInterface
+     */
+    protected $saveHandler;
+
+    /**
+     * @var MetadataBag
+     */
+    protected $metadataBag;
 
     /**
      * Depending on how you want the storage driver to behave you probably
@@ -62,16 +78,16 @@ class NativeSessionStorage implements SessionStorageInterface
      * gc_probability, "1"
      * lazy_write, "1"
      * name, "PHPSESSID"
-     * referer_check, "" (deprecated since Symfony 7.2, to be removed in Symfony 8.0)
+     * referer_check, ""
      * serialize_handler, "php"
      * use_strict_mode, "1"
      * use_cookies, "1"
-     * use_only_cookies, "1" (deprecated since Symfony 7.2, to be removed in Symfony 8.0)
-     * use_trans_sid, "0" (deprecated since Symfony 7.2, to be removed in Symfony 8.0)
-     * sid_length, "32" (@deprecated since Symfony 7.2, to be removed in 8.0)
-     * sid_bits_per_character, "5" (@deprecated since Symfony 7.2, to be removed in 8.0)
-     * trans_sid_hosts, $_SERVER['HTTP_HOST'] (deprecated since Symfony 7.2, to be removed in Symfony 8.0)
-     * trans_sid_tags, "a=href,area=href,frame=src,form=" (deprecated since Symfony 7.2, to be removed in Symfony 8.0)
+     * use_only_cookies, "1"
+     * use_trans_sid, "0"
+     * sid_length, "32"
+     * sid_bits_per_character, "5"
+     * trans_sid_hosts, $_SERVER['HTTP_HOST']
+     * trans_sid_tags, "a=href,area=href,frame=src,form="
      */
     public function __construct(array $options = [], AbstractProxy|\SessionHandlerInterface|null $handler = null, ?MetadataBag $metaBag = null)
     {
@@ -126,8 +142,8 @@ class NativeSessionStorage implements SessionStorageInterface
          * See https://php.net/session.configuration#ini.session.sid-bits-per-character
          * Allowed values are integers such as:
          * - 4 for range `a-f0-9`
-         * - 5 for range `a-v0-9` (@deprecated since Symfony 7.2, it will default to 4 and the option will be ignored in Symfony 8.0)
-         * - 6 for range `a-zA-Z0-9,-` (@deprecated since Symfony 7.2, it will default to 4 and the option will be ignored in Symfony 8.0)
+         * - 5 for range `a-v0-9`
+         * - 6 for range `a-zA-Z0-9,-`
          *
          * ---------- Part 2
          *
@@ -138,8 +154,6 @@ class NativeSessionStorage implements SessionStorageInterface
          * Where does the 250 come from?
          * - The length of Windows and Linux filenames is limited to 255 bytes. Then the max must not exceed 255.
          * - The session filename prefix is `sess_`, a 5 bytes string. Then the max must not exceed 255 - 5 = 250.
-         *
-         * This is @deprecated since Symfony 7.2, the sid length will default to 32 and the option will be ignored in Symfony 8.0.
          *
          * ---------- Conclusion
          *
@@ -169,7 +183,10 @@ class NativeSessionStorage implements SessionStorageInterface
         return $this->saveHandler->getId();
     }
 
-    public function setId(string $id): void
+    /**
+     * @return void
+     */
+    public function setId(string $id)
     {
         $this->saveHandler->setId($id);
     }
@@ -179,7 +196,10 @@ class NativeSessionStorage implements SessionStorageInterface
         return $this->saveHandler->getName();
     }
 
-    public function setName(string $name): void
+    /**
+     * @return void
+     */
+    public function setName(string $name)
     {
         $this->saveHandler->setName($name);
     }
@@ -208,7 +228,10 @@ class NativeSessionStorage implements SessionStorageInterface
         return session_regenerate_id($destroy);
     }
 
-    public function save(): void
+    /**
+     * @return void
+     */
+    public function save()
     {
         // Store a copy so we can restore the bags in case the session was not left empty
         $session = $_SESSION;
@@ -247,7 +270,10 @@ class NativeSessionStorage implements SessionStorageInterface
         $this->started = false;
     }
 
-    public function clear(): void
+    /**
+     * @return void
+     */
+    public function clear()
     {
         // clear out the bags
         foreach ($this->bags as $bag) {
@@ -261,7 +287,10 @@ class NativeSessionStorage implements SessionStorageInterface
         $this->loadSession();
     }
 
-    public function registerBag(SessionBagInterface $bag): void
+    /**
+     * @return void
+     */
+    public function registerBag(SessionBagInterface $bag)
     {
         if ($this->started) {
             throw new \LogicException('Cannot register a bag when the session is already started.');
@@ -285,8 +314,14 @@ class NativeSessionStorage implements SessionStorageInterface
         return $this->bags[$name];
     }
 
-    public function setMetadataBag(?MetadataBag $metaBag): void
+    /**
+     * @return void
+     */
+    public function setMetadataBag(?MetadataBag $metaBag = null)
     {
+        if (1 > \func_num_args()) {
+            trigger_deprecation('symfony/http-foundation', '6.2', 'Calling "%s()" without any arguments is deprecated, pass null explicitly instead.', __METHOD__);
+        }
         $this->metadataBag = $metaBag ?? new MetadataBag();
     }
 
@@ -312,8 +347,10 @@ class NativeSessionStorage implements SessionStorageInterface
      * @param array $options Session ini directives [key => value]
      *
      * @see https://php.net/session.configuration
+     *
+     * @return void
      */
-    public function setOptions(array $options): void
+    public function setOptions(array $options)
     {
         if (headers_sent() || \PHP_SESSION_ACTIVE === session_status()) {
             return;
@@ -330,10 +367,6 @@ class NativeSessionStorage implements SessionStorageInterface
         ]);
 
         foreach ($options as $key => $value) {
-            if (\in_array($key, ['referer_check', 'use_only_cookies', 'use_trans_sid', 'trans_sid_hosts', 'trans_sid_tags', 'sid_length', 'sid_bits_per_character'], true)) {
-                trigger_deprecation('symfony/http-foundation', '7.2', 'NativeSessionStorage\'s "%s" option is deprecated and will be ignored in Symfony 8.0.', $key);
-            }
-
             if (isset($validOptions[$key])) {
                 if ('cookie_secure' === $key && 'auto' === $value) {
                     continue;
@@ -359,10 +392,16 @@ class NativeSessionStorage implements SessionStorageInterface
      * @see https://php.net/sessionhandlerinterface
      * @see https://php.net/sessionhandler
      *
+     * @return void
+     *
      * @throws \InvalidArgumentException
      */
-    public function setSaveHandler(AbstractProxy|\SessionHandlerInterface|null $saveHandler): void
+    public function setSaveHandler(AbstractProxy|\SessionHandlerInterface|null $saveHandler = null)
     {
+        if (1 > \func_num_args()) {
+            trigger_deprecation('symfony/http-foundation', '6.2', 'Calling "%s()" without any arguments is deprecated, pass null explicitly instead.', __METHOD__);
+        }
+
         // Wrap $saveHandler in proxy and prevent double wrapping of proxy
         if (!$saveHandler instanceof AbstractProxy && $saveHandler instanceof \SessionHandlerInterface) {
             $saveHandler = new SessionHandlerProxy($saveHandler);
@@ -387,8 +426,10 @@ class NativeSessionStorage implements SessionStorageInterface
      * are set to (either PHP's internal, or a custom save handler set with session_set_save_handler()).
      * PHP takes the return value from the read() handler, unserializes it
      * and populates $_SESSION with the result automatically.
+     *
+     * @return void
      */
-    protected function loadSession(?array &$session = null): void
+    protected function loadSession(?array &$session = null)
     {
         if (null === $session) {
             $session = &$_SESSION;

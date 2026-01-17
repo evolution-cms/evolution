@@ -3,7 +3,6 @@
 namespace Laravel\Prompts;
 
 use Closure;
-use Laravel\Prompts\Support\Utils;
 
 class TextareaPrompt extends Prompt
 {
@@ -114,10 +113,10 @@ class TextareaPrompt extends Prompt
             return;
         }
 
-        $lines = $this->lines();
+        $lines = collect($this->lines());
 
         // Line length + 1 for the newline character
-        $lineLengths = array_map(fn ($line, $index) => mb_strlen($line) + ($index === count($lines) - 1 ? 0 : 1), $lines, range(0, count($lines) - 1));
+        $lineLengths = $lines->map(fn ($line, $index) => mb_strlen($line) + ($index === $lines->count() - 1 ? 0 : 1));
 
         $currentLineIndex = $this->currentLineIndex();
 
@@ -128,17 +127,17 @@ class TextareaPrompt extends Prompt
             return;
         }
 
-        $currentLines = array_slice($lineLengths, 0, $currentLineIndex + 1);
+        $currentLines = $lineLengths->slice(0, $currentLineIndex + 1);
 
-        $currentColumn = Utils::last($currentLines) - (array_sum($currentLines) - $this->cursorPosition);
+        $currentColumn = $currentLines->last() - ($currentLines->sum() - $this->cursorPosition);
 
-        $destinationLineLength = ($lineLengths[$currentLineIndex - 1] ?? $currentLines[0]) - 1;
+        $destinationLineLength = ($lineLengths->get($currentLineIndex - 1) ?? $currentLines->first()) - 1;
 
         $newColumn = min($destinationLineLength, $currentColumn);
 
-        $fullLines = array_slice($currentLines, 0, -2);
+        $fullLines = $currentLines->slice(0, -2);
 
-        $this->cursorPosition = array_sum($fullLines) + $newColumn;
+        $this->cursorPosition = $fullLines->sum() + $newColumn;
     }
 
     /**
@@ -146,34 +145,34 @@ class TextareaPrompt extends Prompt
      */
     protected function handleDownKey(): void
     {
-        $lines = $this->lines();
+        $lines = collect($this->lines());
 
         // Line length + 1 for the newline character
-        $lineLengths = array_map(fn ($line, $index) => mb_strlen($line) + ($index === count($lines) - 1 ? 0 : 1), $lines, range(0, count($lines) - 1));
+        $lineLengths = $lines->map(fn ($line, $index) => mb_strlen($line) + ($index === $lines->count() - 1 ? 0 : 1));
 
         $currentLineIndex = $this->currentLineIndex();
 
-        if ($currentLineIndex === count($lines) - 1) {
+        if ($currentLineIndex === $lines->count() - 1) {
             // They're already at the last line, jump them to the last position
-            $this->cursorPosition = mb_strlen(implode(PHP_EOL, $lines));
+            $this->cursorPosition = mb_strlen($lines->implode(PHP_EOL));
 
             return;
         }
 
         // Lines up to and including the current line
-        $currentLines = array_slice($lineLengths, 0, $currentLineIndex + 1);
+        $currentLines = $lineLengths->slice(0, $currentLineIndex + 1);
 
-        $currentColumn = Utils::last($currentLines) - (array_sum($currentLines) - $this->cursorPosition);
+        $currentColumn = $currentLines->last() - ($currentLines->sum() - $this->cursorPosition);
 
-        $destinationLineLength = $lineLengths[$currentLineIndex + 1] ?? Utils::last($currentLines);
+        $destinationLineLength = $lineLengths->get($currentLineIndex + 1) ?? $currentLines->last();
 
-        if ($currentLineIndex + 1 !== count($lines) - 1) {
+        if ($currentLineIndex + 1 !== $lines->count() - 1) {
             $destinationLineLength--;
         }
 
         $newColumn = min(max(0, $destinationLineLength), $currentColumn);
 
-        $this->cursorPosition = array_sum($currentLines) + $newColumn;
+        $this->cursorPosition = $currentLines->sum() + $newColumn;
     }
 
     /**
@@ -208,7 +207,7 @@ class TextareaPrompt extends Prompt
     {
         $totalLineLength = 0;
 
-        return (int) Utils::search($this->lines(), function ($line) use (&$totalLineLength) {
+        return (int) collect($this->lines())->search(function ($line) use (&$totalLineLength) {
             $totalLineLength += mb_strlen($line) + 1;
 
             return $totalLineLength > $this->cursorPosition;

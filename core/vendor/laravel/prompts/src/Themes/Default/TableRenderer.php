@@ -34,9 +34,8 @@ class TableRenderer extends Renderer
             ->setStyle($tableStyle)
             ->render();
 
-        foreach (explode(PHP_EOL, trim($buffered->content(), PHP_EOL)) as $line) {
-            $this->line(' '.$line);
-        }
+        collect(explode(PHP_EOL, trim($buffered->content(), PHP_EOL)))
+            ->each(fn ($line) => $this->line(' '.$line));
 
         return $this;
     }

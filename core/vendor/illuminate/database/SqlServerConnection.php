@@ -4,6 +4,7 @@ namespace Illuminate\Database;
 
 use Closure;
 use Exception;
+use Illuminate\Database\PDO\SqlServerDriver;
 use Illuminate\Database\Query\Grammars\SqlServerGrammar as QueryGrammar;
 use Illuminate\Database\Query\Processors\SqlServerProcessor;
 use Illuminate\Database\Schema\Grammars\SqlServerGrammar as SchemaGrammar;
@@ -14,14 +15,6 @@ use Throwable;
 
 class SqlServerConnection extends Connection
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getDriverTitle()
-    {
-        return 'SQL Server';
-    }
-
     /**
      * Execute a Closure within a transaction.
      *
@@ -145,5 +138,15 @@ class SqlServerConnection extends Connection
     protected function getDefaultPostProcessor()
     {
         return new SqlServerProcessor;
+    }
+
+    /**
+     * Get the Doctrine DBAL driver.
+     *
+     * @return \Illuminate\Database\PDO\SqlServerDriver
+     */
+    protected function getDoctrineDriver()
+    {
+        return new SqlServerDriver;
     }
 }

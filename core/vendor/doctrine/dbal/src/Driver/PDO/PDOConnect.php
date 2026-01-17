@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\PDO;
 
 use PDO;
+use SensitiveParameter;
 
 use const PHP_VERSION_ID;
 
@@ -13,8 +14,10 @@ trait PDOConnect
 {
     /** @param array<int, mixed> $options */
     private function doConnect(
+        #[SensitiveParameter]
         string $dsn,
         string $username,
+        #[SensitiveParameter]
         string $password,
         array $options
     ): PDO {

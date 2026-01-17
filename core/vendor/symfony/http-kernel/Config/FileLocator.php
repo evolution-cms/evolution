@@ -21,9 +21,12 @@ use Symfony\Component\HttpKernel\KernelInterface;
  */
 class FileLocator extends BaseFileLocator
 {
-    public function __construct(
-        private KernelInterface $kernel,
-    ) {
+    private KernelInterface $kernel;
+
+    public function __construct(KernelInterface $kernel)
+    {
+        $this->kernel = $kernel;
+
         parent::__construct();
     }
 

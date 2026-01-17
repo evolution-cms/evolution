@@ -3,19 +3,14 @@
 namespace Illuminate\Support;
 
 /**
- * @template TKey of array-key
- *
- * @template-covariant TValue
- *
- * @mixin \Illuminate\Support\Enumerable<TKey, TValue>
- * @mixin TValue
+ * @mixin \Illuminate\Support\Enumerable
  */
 class HigherOrderCollectionProxy
 {
     /**
      * The collection being operated on.
      *
-     * @var \Illuminate\Support\Enumerable<TKey, TValue>
+     * @var \Illuminate\Support\Enumerable
      */
     protected $collection;
 
@@ -29,7 +24,7 @@ class HigherOrderCollectionProxy
     /**
      * Create a new proxy instance.
      *
-     * @param  \Illuminate\Support\Enumerable<TKey, TValue>  $collection
+     * @param  \Illuminate\Support\Enumerable  $collection
      * @param  string  $method
      * @return void
      */

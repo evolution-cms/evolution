@@ -178,24 +178,10 @@ class IpUtils
     /**
      * Anonymizes an IP/IPv6.
      *
-     * Removes the last bytes of IPv4 and IPv6 addresses (1 byte for IPv4 and 8 bytes for IPv6 by default).
-     *
-     * @param int<0, 4>  $v4Bytes
-     * @param int<0, 16> $v6Bytes
+     * Removes the last byte for v4 and the last 8 bytes for v6 IPs
      */
-    public static function anonymize(string $ip/* , int $v4Bytes = 1, int $v6Bytes = 8 */): string
+    public static function anonymize(string $ip): string
     {
-        $v4Bytes = 1 < \func_num_args() ? func_get_arg(1) : 1;
-        $v6Bytes = 2 < \func_num_args() ? func_get_arg(2) : 8;
-
-        if ($v4Bytes < 0 || $v6Bytes < 0) {
-            throw new \InvalidArgumentException('Cannot anonymize less than 0 bytes.');
-        }
-
-        if ($v4Bytes > 4 || $v6Bytes > 16) {
-            throw new \InvalidArgumentException('Cannot anonymize more than 4 bytes for IPv4 and 16 bytes for IPv6.');
-        }
-
         /*
          * If the IP contains a % symbol, then it is a local-link address with scoping according to RFC 4007
          * In that case, we only care about the part before the % symbol, as the following functions, can only work with
@@ -212,23 +198,15 @@ class IpUtils
             $ip = substr($ip, 1, -1);
         }
 
-        $mappedIpV4MaskGenerator = function (string $mask, int $bytesToAnonymize) {
-            $mask .= str_repeat('ff', 4 - $bytesToAnonymize);
-            $mask .= str_repeat('00', $bytesToAnonymize);
-
-            return '::'.implode(':', str_split($mask, 4));
-        };
-
         $packedAddress = inet_pton($ip);
         if (4 === \strlen($packedAddress)) {
-            $mask = rtrim(str_repeat('255.', 4 - $v4Bytes).str_repeat('0.', $v4Bytes), '.');
+            $mask = '255.255.255.0';
         } elseif ($ip === inet_ntop($packedAddress & inet_pton('::ffff:ffff:ffff'))) {
-            $mask = $mappedIpV4MaskGenerator('ffff', $v4Bytes);
+            $mask = '::ffff:ffff:ff00';
         } elseif ($ip === inet_ntop($packedAddress & inet_pton('::ffff:ffff'))) {
-            $mask = $mappedIpV4MaskGenerator('', $v4Bytes);
+            $mask = '::ffff:ff00';
         } else {
-            $mask = str_repeat('ff', 16 - $v6Bytes).str_repeat('00', $v6Bytes);
-            $mask = implode(':', str_split($mask, 4));
+            $mask = 'ffff:ffff:ffff:ffff:0000:0000:0000:0000';
         }
         $ip = inet_ntop($packedAddress & inet_pton($mask));
 

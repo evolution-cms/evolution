@@ -20,29 +20,10 @@ class Choice extends Component
     {
         return $this->usingQuestionHelper(
             fn () => $this->output->askQuestion(
-                $this->getChoiceQuestion($question, $choices, $default)
+                (new ChoiceQuestion($question, $choices, $default))
                     ->setMaxAttempts($attempts)
                     ->setMultiselect($multiple)
             ),
         );
-    }
-
-    /**
-     * Get a ChoiceQuestion instance that handles array keys like Prompts.
-     *
-     * @param  string  $question
-     * @param  array  $choices
-     * @param  mixed  $default
-     * @return \Symfony\Component\Console\Question\ChoiceQuestion
-     */
-    protected function getChoiceQuestion($question, $choices, $default)
-    {
-        return new class($question, $choices, $default) extends ChoiceQuestion
-        {
-            protected function isAssoc(array $array): bool
-            {
-                return ! array_is_list($array);
-            }
-        };
     }
 }

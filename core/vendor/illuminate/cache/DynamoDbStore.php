@@ -7,7 +7,6 @@ use Aws\DynamoDb\Exception\DynamoDbException;
 use Illuminate\Contracts\Cache\LockProvider;
 use Illuminate\Contracts\Cache\Store;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 use Illuminate\Support\InteractsWithTime;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -69,14 +68,13 @@ class DynamoDbStore implements LockProvider, Store
      * @param  string  $prefix
      * @return void
      */
-    public function __construct(
-        DynamoDbClient $dynamo,
-        $table,
-        $keyAttribute = 'key',
-        $valueAttribute = 'value',
-        $expirationAttribute = 'expires_at',
-        $prefix = '',
-    ) {
+    public function __construct(DynamoDbClient $dynamo,
+                                $table,
+                                $keyAttribute = 'key',
+                                $valueAttribute = 'value',
+                                $expirationAttribute = 'expires_at',
+                                $prefix = '')
+    {
         $this->table = $table;
         $this->dynamo = $dynamo;
         $this->keyAttribute = $keyAttribute;
@@ -143,7 +141,7 @@ class DynamoDbStore implements LockProvider, Store
             'RequestItems' => [
                 $this->table => [
                     'ConsistentRead' => false,
-                    'Keys' => (new Collection($prefixedKeys))->map(function ($key) {
+                    'Keys' => collect($prefixedKeys)->map(function ($key) {
                         return [
                             $this->keyAttribute => [
                                 'S' => $key,
@@ -156,9 +154,9 @@ class DynamoDbStore implements LockProvider, Store
 
         $now = Carbon::now();
 
-        return array_merge((new Collection(array_flip($keys)))->map(function () {
+        return array_merge(collect(array_flip($keys))->map(function () {
             //
-        })->all(), (new Collection($response['Responses'][$this->table]))->mapWithKeys(function ($response) use ($now) {
+        })->all(), collect($response['Responses'][$this->table])->mapWithKeys(function ($response) use ($now) {
             if ($this->isExpired($response, $now)) {
                 $value = null;
             } else {
@@ -233,7 +231,7 @@ class DynamoDbStore implements LockProvider, Store
 
         $this->dynamo->batchWriteItem([
             'RequestItems' => [
-                $this->table => (new Collection($values))->map(function ($value, $key) use ($expiration) {
+                $this->table => collect($values)->map(function ($value, $key) use ($expiration) {
                     return [
                         'PutRequest' => [
                             'Item' => [
@@ -307,7 +305,7 @@ class DynamoDbStore implements LockProvider, Store
      *
      * @param  string  $key
      * @param  mixed  $value
-     * @return int|false
+     * @return int|bool
      */
     public function increment($key, $value = 1)
     {
@@ -352,7 +350,7 @@ class DynamoDbStore implements LockProvider, Store
      *
      * @param  string  $key
      * @param  mixed  $value
-     * @return int|false
+     * @return int|bool
      */
     public function decrement($key, $value = 1)
     {
@@ -533,7 +531,7 @@ class DynamoDbStore implements LockProvider, Store
      */
     public function setPrefix($prefix)
     {
-        $this->prefix = $prefix;
+        $this->prefix = ! empty($prefix) ? $prefix.':' : '';
     }
 
     /**

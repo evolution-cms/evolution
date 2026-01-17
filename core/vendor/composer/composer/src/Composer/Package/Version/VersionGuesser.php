@@ -23,7 +23,6 @@ use Composer\Util\HttpDownloader;
 use Composer\Util\Platform;
 use Composer\Util\ProcessExecutor;
 use Composer\Util\Svn as SvnUtil;
-use React\Promise\CancellablePromiseInterface;
 use Symfony\Component\Process\Process;
 
 /**
@@ -198,7 +197,7 @@ class VersionGuesser
         }
 
         if (null === $commit) {
-            $command = array_merge(['git', 'log', '--pretty=%H', '-n1', 'HEAD'], GitUtil::getNoShowSignatureFlags($this->process));
+            $command = array_merge(['git', 'rev-list', '--no-commit-header', '--format=%H', '-n1', 'HEAD'], GitUtil::getNoShowSignatureFlags($this->process));
             if (0 === $this->process->execute($command, $output, $path)) {
                 $commit = trim($output) ?: null;
             }

@@ -4,36 +4,29 @@ namespace Illuminate\Database\Eloquent;
 
 use BadMethodCallException;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphOneOrMany;
 use Illuminate\Support\Str;
-use Illuminate\Support\Stringable;
 
-/**
- * @template TIntermediateModel of \Illuminate\Database\Eloquent\Model
- * @template TDeclaringModel of \Illuminate\Database\Eloquent\Model
- * @template TLocalRelationship of \Illuminate\Database\Eloquent\Relations\HasOneOrMany<TIntermediateModel, TDeclaringModel>
- */
 class PendingHasThroughRelationship
 {
     /**
      * The root model that the relationship exists on.
      *
-     * @var TDeclaringModel
+     * @var \Illuminate\Database\Eloquent\Model
      */
     protected $rootModel;
 
     /**
      * The local relationship.
      *
-     * @var TLocalRelationship
+     * @var \Illuminate\Database\Eloquent\Relations\HasMany|\Illuminate\Database\Eloquent\Relations\HasOne
      */
     protected $localRelationship;
 
     /**
      * Create a pending has-many-through or has-one-through relationship.
      *
-     * @param  TDeclaringModel  $rootModel
-     * @param  TLocalRelationship  $localRelationship
+     * @param  \Illuminate\Database\Eloquent\Model  $rootModel
+     * @param  \Illuminate\Database\Eloquent\Relations\HasMany|\Illuminate\Database\Eloquent\Relations\HasOne  $localRelationship
      */
     public function __construct($rootModel, $localRelationship)
     {
@@ -45,22 +38,8 @@ class PendingHasThroughRelationship
     /**
      * Define the distant relationship that this model has.
      *
-     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
-     *
-     * @param  string|(callable(TIntermediateModel): (\Illuminate\Database\Eloquent\Relations\HasOne<TRelatedModel, TIntermediateModel>|\Illuminate\Database\Eloquent\Relations\HasMany<TRelatedModel, TIntermediateModel>|\Illuminate\Database\Eloquent\Relations\MorphOneOrMany<TRelatedModel, TIntermediateModel>))  $callback
-     * @return (
-     *     $callback is string
-     *     ? \Illuminate\Database\Eloquent\Relations\HasManyThrough<\Illuminate\Database\Eloquent\Model, TIntermediateModel, TDeclaringModel>|\Illuminate\Database\Eloquent\Relations\HasOneThrough<\Illuminate\Database\Eloquent\Model, TIntermediateModel, TDeclaringModel>
-     *     : (
-     *         TLocalRelationship is \Illuminate\Database\Eloquent\Relations\HasMany<TIntermediateModel, TDeclaringModel>
-     *         ? \Illuminate\Database\Eloquent\Relations\HasManyThrough<TRelatedModel, TIntermediateModel, TDeclaringModel>
-     *         : (
-     *              $callback is callable(TIntermediateModel): \Illuminate\Database\Eloquent\Relations\HasMany<TRelatedModel, TIntermediateModel>
-     *              ? \Illuminate\Database\Eloquent\Relations\HasManyThrough<TRelatedModel, TIntermediateModel, TDeclaringModel>
-     *              : \Illuminate\Database\Eloquent\Relations\HasOneThrough<TRelatedModel, TIntermediateModel, TDeclaringModel>
-     *         )
-     *     )
-     * )
+     * @param  string|(callable(\Illuminate\Database\Eloquent\Model): (\Illuminate\Database\Eloquent\Relations\HasOne|\Illuminate\Database\Eloquent\Relations\HasMany))  $callback
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough|\Illuminate\Database\Eloquent\Relations\HasOneThrough
      */
     public function has($callback)
     {
@@ -70,17 +49,8 @@ class PendingHasThroughRelationship
 
         $distantRelation = $callback($this->localRelationship->getRelated());
 
-        if ($distantRelation instanceof HasMany || $this->localRelationship instanceof HasMany) {
-            $returnedRelation = $this->rootModel->hasManyThrough(
-                $distantRelation->getRelated()::class,
-                $this->localRelationship->getRelated()::class,
-                $this->localRelationship->getForeignKeyName(),
-                $distantRelation->getForeignKeyName(),
-                $this->localRelationship->getLocalKeyName(),
-                $distantRelation->getLocalKeyName(),
-            );
-        } else {
-            $returnedRelation = $this->rootModel->hasOneThrough(
+        if ($distantRelation instanceof HasMany) {
+            return $this->rootModel->hasManyThrough(
                 $distantRelation->getRelated()::class,
                 $this->localRelationship->getRelated()::class,
                 $this->localRelationship->getForeignKeyName(),
@@ -90,11 +60,14 @@ class PendingHasThroughRelationship
             );
         }
 
-        if ($this->localRelationship instanceof MorphOneOrMany) {
-            $returnedRelation->where($this->localRelationship->getQualifiedMorphType(), $this->localRelationship->getMorphClass());
-        }
-
-        return $returnedRelation;
+        return $this->rootModel->hasOneThrough(
+            $distantRelation->getRelated()::class,
+            $this->localRelationship->getRelated()::class,
+            $this->localRelationship->getForeignKeyName(),
+            $distantRelation->getForeignKeyName(),
+            $this->localRelationship->getLocalKeyName(),
+            $distantRelation->getLocalKeyName(),
+        );
     }
 
     /**
@@ -107,7 +80,7 @@ class PendingHasThroughRelationship
     public function __call($method, $parameters)
     {
         if (Str::startsWith($method, 'has')) {
-            return $this->has((new Stringable($method))->after('has')->lcfirst()->toString());
+            return $this->has(Str::of($method)->after('has')->lcfirst()->toString());
         }
 
         throw new BadMethodCallException(sprintf(

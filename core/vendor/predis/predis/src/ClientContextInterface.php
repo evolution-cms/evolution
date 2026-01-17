@@ -19,6 +19,7 @@ use Predis\Command\Argument\Search\AlterArguments;
 use Predis\Command\Argument\Search\CreateArguments;
 use Predis\Command\Argument\Search\DropArguments;
 use Predis\Command\Argument\Search\ExplainArguments;
+use Predis\Command\Argument\Search\HybridSearch\HybridSearchQuery;
 use Predis\Command\Argument\Search\ProfileArguments;
 use Predis\Command\Argument\Search\SchemaFields\FieldInterface;
 use Predis\Command\Argument\Search\SearchArguments;
@@ -52,6 +53,8 @@ use Predis\Command\Redis\VADD;
  *
  * @method $this copy(string $source, string $destination, int $db = -1, bool $replace = false)
  * @method $this del(array|string $keys)
+ * @method $this delex(string $key, string $flag, $flagValue)
+ * @method $this digest(string $key)
  * @method $this dump($key)
  * @method $this exists($key)
  * @method $this expire($key, $seconds, string $expireOption = '')
@@ -126,6 +129,7 @@ use Predis\Command\Redis\VADD;
  * @method $this ftdictdump(string $dict)
  * @method $this ftdropindex(string $index, ?DropArguments $arguments = null)
  * @method $this ftexplain(string $index, string $query, ?ExplainArguments $arguments = null)
+ * @method $this fthybrid(string $index, HybridSearchQuery $query)
  * @method $this ftinfo(string $index)
  * @method $this ftprofile(string $index, ProfileArguments $arguments)
  * @method $this ftsearch(string $index, string $query, ?SearchArguments $arguments = null)
@@ -148,9 +152,10 @@ use Predis\Command\Redis\VADD;
  * @method $this incrbyfloat($key, $increment)
  * @method $this mget(array $keys)
  * @method $this mset(array $dictionary)
+ * @method $this msetex(array $dictionary, ?string $existModifier = null, ?string $expireResolution = null, ?int $expireTTL = null)
  * @method $this msetnx(array $dictionary)
  * @method $this psetex($key, $milliseconds, $value)
- * @method $this set($key, $value, $expireResolution = null, $expireTTL = null, $flag = null)
+ * @method $this set($key, $value, $expireResolution = null, $expireTTL = null, $flag = null, $flagValue = null)
  * @method $this setbit($key, $offset, $value)
  * @method $this setex($key, $seconds, $value)
  * @method $this setnx($key, $value)
@@ -297,6 +302,7 @@ use Predis\Command\Redis\VADD;
  * @method $this xrange(string $key, string $start, string $end, ?int $count = null)
  * @method $this xread(int $count = null, int $block = null, array $streams = null, string ...$id)
  * @method $this xreadgroup(string $group, string $consumer, ?int $count = null, ?int $blockMs = null, bool $noAck = false, string ...$keyOrId)
+ * @method $this xreadgroup_claim(string $group, string $consumer, array $keyIdDict, ?int $count = null, ?int $blockMs = null, bool $noAck = false, ?int $claim = null)
  * @method $this xsetid(string $key, string $lastId, ?int $entriesAdded = null, ?string $maxDeleteId = null)
  * @method $this xtrim(string $key, array|string $strategy, string $threshold, array $options = null)
  * @method $this zadd($key, array $membersAndScoresDictionary)

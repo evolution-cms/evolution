@@ -18,13 +18,6 @@ class ValidateSignature
     ];
 
     /**
-     * The globally ignored parameters.
-     *
-     * @var array
-     */
-    protected static $neverValidate = [];
-
-    /**
      * Specify that the URL signature is for a relative URL.
      *
      * @param  array|string  $ignore
@@ -92,19 +85,6 @@ class ValidateSignature
             $args
         );
 
-        return [$relative, array_merge($ignore, static::$neverValidate)];
-    }
-
-    /**
-     * Indicate that the given parameters should be ignored during signature validation.
-     *
-     * @param  array|string  $parameters
-     * @return void
-     */
-    public static function except($parameters)
-    {
-        static::$neverValidate = array_values(array_unique(
-            array_merge(static::$neverValidate, Arr::wrap($parameters))
-        ));
+        return [$relative, $ignore];
     }
 }

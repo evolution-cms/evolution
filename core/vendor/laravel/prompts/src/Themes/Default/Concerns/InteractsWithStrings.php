@@ -13,7 +13,9 @@ trait InteractsWithStrings
     {
         return max(
             $this->minWidth,
-            count($lines) > 0 ? max(array_map(fn ($line) => mb_strwidth($this->stripEscapeSequences($line)) + $padding, $lines)) : null
+            collect($lines)
+                ->map(fn ($line) => mb_strwidth($this->stripEscapeSequences($line)) + $padding)
+                ->max()
         );
     }
 

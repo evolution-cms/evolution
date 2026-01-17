@@ -27,25 +27,51 @@ use Symfony\Component\HttpFoundation\Session\SessionBagInterface;
  */
 class MockArraySessionStorage implements SessionStorageInterface
 {
-    protected string $id = '';
-    protected bool $started = false;
-    protected bool $closed = false;
-    protected array $data = [];
-    protected MetadataBag $metadataBag;
+    /**
+     * @var string
+     */
+    protected $id = '';
 
     /**
-     * @var SessionBagInterface[]
+     * @var string
      */
-    protected array $bags = [];
+    protected $name;
 
-    public function __construct(
-        protected string $name = 'MOCKSESSID',
-        ?MetadataBag $metaBag = null,
-    ) {
+    /**
+     * @var bool
+     */
+    protected $started = false;
+
+    /**
+     * @var bool
+     */
+    protected $closed = false;
+
+    /**
+     * @var array
+     */
+    protected $data = [];
+
+    /**
+     * @var MetadataBag
+     */
+    protected $metadataBag;
+
+    /**
+     * @var array|SessionBagInterface[]
+     */
+    protected $bags = [];
+
+    public function __construct(string $name = 'MOCKSESSID', ?MetadataBag $metaBag = null)
+    {
+        $this->name = $name;
         $this->setMetadataBag($metaBag);
     }
 
-    public function setSessionData(array $array): void
+    /**
+     * @return void
+     */
+    public function setSessionData(array $array)
     {
         $this->data = $array;
     }
@@ -56,7 +82,7 @@ class MockArraySessionStorage implements SessionStorageInterface
             return true;
         }
 
-        if (!$this->id) {
+        if (empty($this->id)) {
             $this->id = $this->generateId();
         }
 
@@ -82,7 +108,10 @@ class MockArraySessionStorage implements SessionStorageInterface
         return $this->id;
     }
 
-    public function setId(string $id): void
+    /**
+     * @return void
+     */
+    public function setId(string $id)
     {
         if ($this->started) {
             throw new \LogicException('Cannot set session ID after the session has started.');
@@ -96,12 +125,18 @@ class MockArraySessionStorage implements SessionStorageInterface
         return $this->name;
     }
 
-    public function setName(string $name): void
+    /**
+     * @return void
+     */
+    public function setName(string $name)
     {
         $this->name = $name;
     }
 
-    public function save(): void
+    /**
+     * @return void
+     */
+    public function save()
     {
         if (!$this->started || $this->closed) {
             throw new \RuntimeException('Trying to save a session that was not started yet or was already closed.');
@@ -111,7 +146,10 @@ class MockArraySessionStorage implements SessionStorageInterface
         $this->started = false;
     }
 
-    public function clear(): void
+    /**
+     * @return void
+     */
+    public function clear()
     {
         // clear out the bags
         foreach ($this->bags as $bag) {
@@ -125,7 +163,10 @@ class MockArraySessionStorage implements SessionStorageInterface
         $this->loadSession();
     }
 
-    public function registerBag(SessionBagInterface $bag): void
+    /**
+     * @return void
+     */
+    public function registerBag(SessionBagInterface $bag)
     {
         $this->bags[$bag->getName()] = $bag;
     }
@@ -148,8 +189,14 @@ class MockArraySessionStorage implements SessionStorageInterface
         return $this->started;
     }
 
-    public function setMetadataBag(?MetadataBag $bag): void
+    /**
+     * @return void
+     */
+    public function setMetadataBag(?MetadataBag $bag = null)
     {
+        if (1 > \func_num_args()) {
+            trigger_deprecation('symfony/http-foundation', '6.2', 'Calling "%s()" without any arguments is deprecated, pass null explicitly instead.', __METHOD__);
+        }
         $this->metadataBag = $bag ?? new MetadataBag();
     }
 
@@ -172,7 +219,10 @@ class MockArraySessionStorage implements SessionStorageInterface
         return bin2hex(random_bytes(16));
     }
 
-    protected function loadSession(): void
+    /**
+     * @return void
+     */
+    protected function loadSession()
     {
         $bags = array_merge($this->bags, [$this->metadataBag]);
 

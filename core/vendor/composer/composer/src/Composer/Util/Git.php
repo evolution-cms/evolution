@@ -326,7 +326,7 @@ class Git
                     $defaultUsername = null;
                     if (isset($authParts) && $authParts !== '') {
                         if (str_contains($authParts, ':')) {
-                            [$defaultUsername, ] = explode(':', $authParts, 2);
+                            [$defaultUsername] = explode(':', $authParts, 2);
                         } else {
                             $defaultUsername = $authParts;
                         }
@@ -361,7 +361,9 @@ class Git
                 $this->filesystem->removeDirectory($origCwd);
             }
 
-            $lastCommand = implode(' ', $lastCommand);
+            if (\is_array($lastCommand)) {
+                $lastCommand = implode(' ', $lastCommand);
+            }
             if (count($credentials) > 0) {
                 $lastCommand = $this->maskCredentials($lastCommand, $credentials);
                 $errorMsg = $this->maskCredentials($errorMsg, $credentials);

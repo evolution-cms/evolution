@@ -32,21 +32,6 @@ class SQLiteBuilder extends Builder
     }
 
     /**
-     * Determine if the given table exists.
-     *
-     * @param  string  $table
-     * @return bool
-     */
-    public function hasTable($table)
-    {
-        $table = $this->connection->getTablePrefix().$table;
-
-        return (bool) $this->connection->scalar(
-            $this->grammar->compileTableExists($table)
-        );
-    }
-
-    /**
      * Get the tables for the database.
      *
      * @param  bool  $withSize
@@ -68,18 +53,30 @@ class SQLiteBuilder extends Builder
     }
 
     /**
-     * Get the columns for a given table.
+     * Get all of the table names for the database.
      *
-     * @param  string  $table
+     * @deprecated Will be removed in a future Laravel version.
+     *
      * @return array
      */
-    public function getColumns($table)
+    public function getAllTables()
     {
-        $table = $this->connection->getTablePrefix().$table;
+        return $this->connection->select(
+            $this->grammar->compileGetAllTables()
+        );
+    }
 
-        return $this->connection->getPostProcessor()->processColumns(
-            $this->connection->selectFromWriteConnection($this->grammar->compileColumns($table)),
-            $this->connection->scalar($this->grammar->compileSqlCreateStatement($table))
+    /**
+     * Get all of the view names for the database.
+     *
+     * @deprecated Will be removed in a future Laravel version.
+     *
+     * @return array
+     */
+    public function getAllViews()
+    {
+        return $this->connection->select(
+            $this->grammar->compileGetAllViews()
         );
     }
 
@@ -90,12 +87,7 @@ class SQLiteBuilder extends Builder
      */
     public function dropAllTables()
     {
-        $database = $this->connection->getDatabaseName();
-
-        if ($database !== ':memory:' &&
-            ! str_contains($database, '?mode=memory') &&
-            ! str_contains($database, '&mode=memory')
-        ) {
+        if ($this->connection->getDatabaseName() !== ':memory:') {
             return $this->refreshDatabaseFile();
         }
 
@@ -122,45 +114,6 @@ class SQLiteBuilder extends Builder
         $this->connection->select($this->grammar->compileDisableWriteableSchema());
 
         $this->connection->select($this->grammar->compileRebuild());
-    }
-
-    /**
-     * Set the busy timeout.
-     *
-     * @param  int  $milliseconds
-     * @return bool
-     */
-    public function setBusyTimeout($milliseconds)
-    {
-        return $this->connection->statement(
-            $this->grammar->compileSetBusyTimeout($milliseconds)
-        );
-    }
-
-    /**
-     * Set the journal mode.
-     *
-     * @param  string  $mode
-     * @return bool
-     */
-    public function setJournalMode($mode)
-    {
-        return $this->connection->statement(
-            $this->grammar->compileSetJournalMode($mode)
-        );
-    }
-
-    /**
-     * Set the synchronous mode.
-     *
-     * @param  int  $mode
-     * @return bool
-     */
-    public function setSynchronous($mode)
-    {
-        return $this->connection->statement(
-            $this->grammar->compileSetSynchronous($mode)
-        );
     }
 
     /**

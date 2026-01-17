@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of the Carbon package.
  *
@@ -37,11 +35,7 @@ class NotACarbonClassException extends BaseInvalidArgumentException implements I
     {
         $this->className = $className;
 
-        parent::__construct(\sprintf(
-            'Given class does not implement %s: %s',
-            CarbonInterface::class,
-            $className,
-        ), $code, $previous);
+        parent::__construct(\sprintf('Given class does not implement %s: %s', CarbonInterface::class, $className), $code, $previous);
     }
 
     /**

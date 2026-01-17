@@ -17,10 +17,13 @@ use Symfony\Component\Mime\RawMessage;
 
 final class EmailHeaderSame extends Constraint
 {
-    public function __construct(
-        private string $headerName,
-        private string $expectedValue,
-    ) {
+    private string $headerName;
+    private string $expectedValue;
+
+    public function __construct(string $headerName, string $expectedValue)
+    {
+        $this->headerName = $headerName;
+        $this->expectedValue = $expectedValue;
     }
 
     public function toString(): string

@@ -41,7 +41,7 @@ class DatabaseServiceProvider extends ServiceProvider
         Model::clearBootedModels();
 
         $this->registerConnectionServices();
-        $this->registerFakerGenerator();
+        $this->registerEloquentFactory();
         $this->registerQueueableEntityResolver();
     }
 
@@ -80,11 +80,11 @@ class DatabaseServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register the Faker Generator instance in the container.
+     * Register the Eloquent factory instance in the container.
      *
      * @return void
      */
-    protected function registerFakerGenerator()
+    protected function registerEloquentFactory()
     {
         $this->app->singleton(FakerGenerator::class, function ($app, $parameters) {
             $locale = $parameters['locale'] ?? $app['config']->get('app.faker_locale', 'en_US');

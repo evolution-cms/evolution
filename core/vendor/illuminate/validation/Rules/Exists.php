@@ -3,9 +3,8 @@
 namespace Illuminate\Validation\Rules;
 
 use Illuminate\Support\Traits\Conditionable;
-use Stringable;
 
-class Exists implements Stringable
+class Exists
 {
     use Conditionable, DatabaseRule;
 
