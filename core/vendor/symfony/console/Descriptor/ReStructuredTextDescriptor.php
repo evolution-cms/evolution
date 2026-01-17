@@ -92,7 +92,7 @@ class ReStructuredTextDescriptor extends Descriptor
     protected function describeInputDefinition(InputDefinition $definition, array $options = []): void
     {
         if ($showArguments = ((bool) $definition->getArguments())) {
-            $this->write("Arguments\n".str_repeat($this->subsubsectionChar, 9));
+            $this->write("Arguments\n".str_repeat($this->subsubsectionChar, 9))."\n\n";
             foreach ($definition->getArguments() as $argument) {
                 $this->write("\n\n");
                 $this->describeInputArgument($argument);
@@ -217,7 +217,6 @@ class ReStructuredTextDescriptor extends Descriptor
     {
         $globalOptions = [
             'help',
-            'silent',
             'quiet',
             'verbose',
             'version',
@@ -227,7 +226,7 @@ class ReStructuredTextDescriptor extends Descriptor
         $nonDefaultOptions = [];
         foreach ($definition->getOptions() as $option) {
             // Skip global options.
-            if (!\in_array($option->getName(), $globalOptions, true)) {
+            if (!\in_array($option->getName(), $globalOptions)) {
                 $nonDefaultOptions[] = $option;
             }
         }

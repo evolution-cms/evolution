@@ -150,14 +150,4 @@ class BatchRepositoryFake implements BatchRepository
     {
         return $callback();
     }
-
-    /**
-     * Rollback the last database transaction for the connection.
-     *
-     * @return void
-     */
-    public function rollBack()
-    {
-        //
-    }
 }

@@ -111,7 +111,7 @@ final class CharacterStream
             $this->currentPos += $length;
         } else {
             $end = $this->currentPos + $length;
-            $end = min($end, $this->charCount);
+            $end = $end > $this->charCount ? $this->charCount : $end;
             $ret = '';
             $start = 0;
             if ($this->currentPos > 0) {

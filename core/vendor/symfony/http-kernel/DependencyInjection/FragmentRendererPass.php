@@ -25,7 +25,10 @@ use Symfony\Component\HttpKernel\Fragment\FragmentRendererInterface;
  */
 class FragmentRendererPass implements CompilerPassInterface
 {
-    public function process(ContainerBuilder $container): void
+    /**
+     * @return void
+     */
+    public function process(ContainerBuilder $container)
     {
         if (!$container->hasDefinition('fragment.handler')) {
             return;

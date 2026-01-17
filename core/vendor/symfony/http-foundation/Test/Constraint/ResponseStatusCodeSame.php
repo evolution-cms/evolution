@@ -16,10 +16,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class ResponseStatusCodeSame extends Constraint
 {
-    public function __construct(
-        private int $statusCode,
-        private readonly bool $verbose = true,
-    ) {
+    private int $statusCode;
+
+    public function __construct(int $statusCode)
+    {
+        $this->statusCode = $statusCode;
     }
 
     public function toString(): string
@@ -48,6 +49,6 @@ final class ResponseStatusCodeSame extends Constraint
      */
     protected function additionalFailureDescription($response): string
     {
-        return $this->verbose ? (string) $response : explode("\r\n\r\n", (string) $response)[0];
+        return (string) $response;
     }
 }

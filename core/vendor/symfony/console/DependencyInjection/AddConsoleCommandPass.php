@@ -11,7 +11,6 @@
 
 namespace Symfony\Component\Console\DependencyInjection;
 
-use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\LazyCommand;
 use Symfony\Component\Console\CommandLoader\ContainerCommandLoader;
@@ -30,7 +29,10 @@ use Symfony\Component\DependencyInjection\TypedReference;
  */
 class AddConsoleCommandPass implements CompilerPassInterface
 {
-    public function process(ContainerBuilder $container): void
+    /**
+     * @return void
+     */
+    public function process(ContainerBuilder $container)
     {
         $commandServices = $container->findTaggedServiceIds('console.command', true);
         $lazyCommandMap = [];
@@ -39,39 +41,22 @@ class AddConsoleCommandPass implements CompilerPassInterface
 
         foreach ($commandServices as $id => $tags) {
             $definition = $container->getDefinition($id);
+            $definition->addTag('container.no_preload');
             $class = $container->getParameterBag()->resolveValue($definition->getClass());
 
-            if (!$r = $container->getReflectionClass($class)) {
-                throw new InvalidArgumentException(\sprintf('Class "%s" used for service "%s" cannot be found.', $class, $id));
-            }
-
-            if (!$r->isSubclassOf(Command::class)) {
-                if (!$r->hasMethod('__invoke')) {
-                    throw new InvalidArgumentException(\sprintf('The service "%s" tagged "%s" must either be a subclass of "%s" or have an "__invoke()" method.', $id, 'console.command', Command::class));
+            if (isset($tags[0]['command'])) {
+                $aliases = $tags[0]['command'];
+            } else {
+                if (!$r = $container->getReflectionClass($class)) {
+                    throw new InvalidArgumentException(\sprintf('Class "%s" used for service "%s" cannot be found.', $class, $id));
                 }
-
-                $invokableRef = new Reference($id);
-                $definition = $container->register($id .= '.command', $class = Command::class)
-                    ->addMethodCall('setCode', [$invokableRef]);
-            } else {
-                $invokableRef = null;
+                if (!$r->isSubclassOf(Command::class)) {
+                    throw new InvalidArgumentException(\sprintf('The service "%s" tagged "%s" must be a subclass of "%s".', $id, 'console.command', Command::class));
+                }
+                $aliases = str_replace('%', '%%', $class::getDefaultName() ?? '');
             }
 
-            $definition->addTag('container.no_preload');
-
-            /** @var AsCommand|null $attribute */
-            $attribute = ($r->getAttributes(AsCommand::class)[0] ?? null)?->newInstance();
-
-            if (Command::class !== (new \ReflectionMethod($class, 'getDefaultName'))->class) {
-                trigger_deprecation('symfony/console', '7.3', 'Overriding "Command::getDefaultName()" in "%s" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.', $class);
-
-                $defaultName = $class::getDefaultName();
-            } else {
-                $defaultName = $attribute?->name;
-            }
-
-            $aliases = str_replace('%', '%%', $tags[0]['command'] ?? $defaultName ?? '');
-            $aliases = explode('|', $aliases);
+            $aliases = explode('|', $aliases ?? '');
             $commandName = array_shift($aliases);
 
             if ($isHidden = '' === $commandName) {
@@ -90,7 +75,6 @@ class AddConsoleCommandPass implements CompilerPassInterface
             }
 
             $description = $tags[0]['description'] ?? null;
-            $help = $tags[0]['help'] ?? null;
 
             unset($tags[0]);
             $lazyCommandMap[$commandName] = $id;
@@ -107,7 +91,6 @@ class AddConsoleCommandPass implements CompilerPassInterface
                 }
 
                 $description ??= $tag['description'] ?? null;
-                $help ??= $tag['help'] ?? null;
             }
 
             $definition->addMethodCall('setName', [$commandName]);
@@ -120,22 +103,18 @@ class AddConsoleCommandPass implements CompilerPassInterface
                 $definition->addMethodCall('setHidden', [true]);
             }
 
-            if ($help && $invokableRef) {
-                $definition->addMethodCall('setHelp', [str_replace('%', '%%', $help)]);
-            }
-
             if (!$description) {
-                if (Command::class !== (new \ReflectionMethod($class, 'getDefaultDescription'))->class) {
-                    trigger_deprecation('symfony/console', '7.3', 'Overriding "Command::getDefaultDescription()" in "%s" is deprecated and will be removed in Symfony 8.0, use the #[AsCommand] attribute instead.', $class);
-
-                    $description = $class::getDefaultDescription();
-                } else {
-                    $description = $attribute?->description;
+                if (!$r = $container->getReflectionClass($class)) {
+                    throw new InvalidArgumentException(\sprintf('Class "%s" used for service "%s" cannot be found.', $class, $id));
                 }
+                if (!$r->isSubclassOf(Command::class)) {
+                    throw new InvalidArgumentException(\sprintf('The service "%s" tagged "%s" must be a subclass of "%s".', $id, 'console.command', Command::class));
+                }
+                $description = str_replace('%', '%%', $class::getDefaultDescription() ?? '');
             }
 
             if ($description) {
-                $definition->addMethodCall('setDescription', [str_replace('%', '%%', $description)]);
+                $definition->addMethodCall('setDescription', [$description]);
 
                 $container->register('.'.$id.'.lazy', LazyCommand::class)
                     ->setArguments([$commandName, $aliases, $description, $isHidden, new ServiceClosureArgument($lazyCommandRefs[$id])]);

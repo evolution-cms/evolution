@@ -25,13 +25,16 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class SymfonyQuestionHelper extends QuestionHelper
 {
-    protected function writePrompt(OutputInterface $output, Question $question): void
+    /**
+     * @return void
+     */
+    protected function writePrompt(OutputInterface $output, Question $question)
     {
         $text = OutputFormatter::escapeTrailingBackslash($question->getQuestion());
         $default = $question->getDefault();
 
         if ($question->isMultiline()) {
-            $text .= \sprintf(' (press %s to continue)', $this->getEofShortcut());
+            $text .= \sprintf(' (press %s to continue)', $this->getEofShortcut($output));
         }
 
         switch (true) {
@@ -80,7 +83,10 @@ class SymfonyQuestionHelper extends QuestionHelper
         $output->write($prompt);
     }
 
-    protected function writeError(OutputInterface $output, \Exception $error): void
+    /**
+     * @return void
+     */
+    protected function writeError(OutputInterface $output, \Exception $error)
     {
         if ($output instanceof SymfonyStyle) {
             $output->newLine();
@@ -92,9 +98,9 @@ class SymfonyQuestionHelper extends QuestionHelper
         parent::writeError($output, $error);
     }
 
-    private function getEofShortcut(): string
+    private function getEofShortcut(OutputInterface $output): string
     {
-        if ('Windows' === \PHP_OS_FAMILY) {
+        if ('\\' === \DIRECTORY_SEPARATOR && !$output->isDecorated()) {
             return '<comment>Ctrl+Z</comment> then <comment>Enter</comment>';
         }
 

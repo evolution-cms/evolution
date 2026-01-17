@@ -11,8 +11,10 @@ use Override;
  * Calculator implementation built around the bcmath library.
  *
  * @internal
+ *
+ * @psalm-immutable
  */
-final readonly class BcMathCalculator extends Calculator
+class BcMathCalculator extends Calculator
 {
     #[Override]
     public function add(string $a, string $b) : string

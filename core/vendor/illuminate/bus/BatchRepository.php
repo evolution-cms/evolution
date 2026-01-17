@@ -4,6 +4,9 @@ namespace Illuminate\Bus;
 
 use Closure;
 
+/**
+ * @method void rollBack()
+ */
 interface BatchRepository
 {
     /**
@@ -89,11 +92,4 @@ interface BatchRepository
      * @return mixed
      */
     public function transaction(Closure $callback);
-
-    /**
-     * Rollback the last database transaction for the connection.
-     *
-     * @return void
-     */
-    public function rollBack();
 }

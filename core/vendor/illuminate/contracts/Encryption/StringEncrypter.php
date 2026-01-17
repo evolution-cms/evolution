@@ -12,7 +12,7 @@ interface StringEncrypter
      *
      * @throws \Illuminate\Contracts\Encryption\EncryptException
      */
-    public function encryptString(#[\SensitiveParameter] $value);
+    public function encryptString($value);
 
     /**
      * Decrypt the given string without unserialization.

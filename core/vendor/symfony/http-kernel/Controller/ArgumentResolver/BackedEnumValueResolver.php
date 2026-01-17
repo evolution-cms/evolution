@@ -12,6 +12,7 @@
 namespace Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -21,9 +22,33 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * leading to a 404 Not Found if the attribute value isn't a valid backing value for the enum type.
  *
  * @author Maxime Steinhausser <maxime.steinhausser@gmail.com>
+ *
+ * @final since Symfony 6.2
  */
-final class BackedEnumValueResolver implements ValueResolverInterface
+class BackedEnumValueResolver implements ArgumentValueResolverInterface, ValueResolverInterface
 {
+    /**
+     * @deprecated since Symfony 6.2, use resolve() instead
+     */
+    public function supports(Request $request, ArgumentMetadata $argument): bool
+    {
+        @trigger_deprecation('symfony/http-kernel', '6.2', 'The "%s()" method is deprecated, use "resolve()" instead.', __METHOD__);
+
+        if (!is_subclass_of($argument->getType(), \BackedEnum::class)) {
+            return false;
+        }
+
+        if ($argument->isVariadic()) {
+            // only target route path parameters, which cannot be variadic.
+            return false;
+        }
+
+        // do not support if no value can be resolved at all
+        // letting the \Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver be used
+        // or \Symfony\Component\HttpKernel\Controller\ArgumentResolver fail with a meaningful error.
+        return $request->attributes->has($argument->getName());
+    }
+
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
         if (!is_subclass_of($argument->getType(), \BackedEnum::class)) {

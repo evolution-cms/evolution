@@ -31,8 +31,10 @@ abstract class RoutableFragmentRenderer implements FragmentRendererInterface
      * Sets the fragment path that triggers the fragment listener.
      *
      * @see FragmentListener
+     *
+     * @return void
      */
-    public function setFragmentPath(string $path): void
+    public function setFragmentPath(string $path)
     {
         $this->fragmentPath = $path;
     }

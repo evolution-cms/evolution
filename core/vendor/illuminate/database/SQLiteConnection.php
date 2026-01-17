@@ -3,6 +3,7 @@
 namespace Illuminate\Database;
 
 use Exception;
+use Illuminate\Database\PDO\SQLiteDriver;
 use Illuminate\Database\Query\Grammars\SQLiteGrammar as QueryGrammar;
 use Illuminate\Database\Query\Processors\SQLiteProcessor;
 use Illuminate\Database\Schema\Grammars\SQLiteGrammar as SchemaGrammar;
@@ -25,110 +26,15 @@ class SQLiteConnection extends Connection
     {
         parent::__construct($pdo, $database, $tablePrefix, $config);
 
-        $this->configureForeignKeyConstraints();
-        $this->configureBusyTimeout();
-        $this->configureJournalMode();
-        $this->configureSynchronous();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDriverTitle()
-    {
-        return 'SQLite';
-    }
-
-    /**
-     * Enable or disable foreign key constraints if configured.
-     *
-     * @return void
-     */
-    protected function configureForeignKeyConstraints(): void
-    {
-        $enableForeignKeyConstraints = $this->getConfig('foreign_key_constraints');
+        $enableForeignKeyConstraints = $this->getForeignKeyConstraintsConfigurationValue();
 
         if ($enableForeignKeyConstraints === null) {
             return;
         }
 
-        $schemaBuilder = $this->getSchemaBuilder();
-
-        try {
-            $enableForeignKeyConstraints
-                ? $schemaBuilder->enableForeignKeyConstraints()
-                : $schemaBuilder->disableForeignKeyConstraints();
-        } catch (QueryException $e) {
-            if (! $e->getPrevious() instanceof SQLiteDatabaseDoesNotExistException) {
-                throw $e;
-            }
-        }
-    }
-
-    /**
-     * Set the busy timeout if configured.
-     *
-     * @return void
-     */
-    protected function configureBusyTimeout(): void
-    {
-        $milliseconds = $this->getConfig('busy_timeout');
-
-        if ($milliseconds === null) {
-            return;
-        }
-
-        try {
-            $this->getSchemaBuilder()->setBusyTimeout($milliseconds);
-        } catch (QueryException $e) {
-            if (! $e->getPrevious() instanceof SQLiteDatabaseDoesNotExistException) {
-                throw $e;
-            }
-        }
-    }
-
-    /**
-     * Set the journal mode if configured.
-     *
-     * @return void
-     */
-    protected function configureJournalMode(): void
-    {
-        $mode = $this->getConfig('journal_mode');
-
-        if ($mode === null) {
-            return;
-        }
-
-        try {
-            $this->getSchemaBuilder()->setJournalMode($mode);
-        } catch (QueryException $e) {
-            if (! $e->getPrevious() instanceof SQLiteDatabaseDoesNotExistException) {
-                throw $e;
-            }
-        }
-    }
-
-    /**
-     * Set the synchronous mode if configured.
-     *
-     * @return void
-     */
-    protected function configureSynchronous(): void
-    {
-        $mode = $this->getConfig('synchronous');
-
-        if ($mode === null) {
-            return;
-        }
-
-        try {
-            $this->getSchemaBuilder()->setSynchronous($mode);
-        } catch (QueryException $e) {
-            if (! $e->getPrevious() instanceof SQLiteDatabaseDoesNotExistException) {
-                throw $e;
-            }
-        }
+        $enableForeignKeyConstraints
+            ? $this->getSchemaBuilder()->enableForeignKeyConstraints()
+            : $this->getSchemaBuilder()->disableForeignKeyConstraints();
     }
 
     /**
@@ -214,5 +120,25 @@ class SQLiteConnection extends Connection
     protected function getDefaultPostProcessor()
     {
         return new SQLiteProcessor;
+    }
+
+    /**
+     * Get the Doctrine DBAL driver.
+     *
+     * @return \Illuminate\Database\PDO\SQLiteDriver
+     */
+    protected function getDoctrineDriver()
+    {
+        return new SQLiteDriver;
+    }
+
+    /**
+     * Get the database connection foreign key constraints configuration option.
+     *
+     * @return bool|null
+     */
+    protected function getForeignKeyConstraintsConfigurationValue()
+    {
+        return $this->getConfig('foreign_key_constraints');
     }
 }

@@ -99,7 +99,7 @@ final class Node
     /**
      * Gets the previous sibling from the node.
      */
-    public function getPreviousSibling(): ?static
+    public function getPreviousSibling(): static|null
     {
         $node = $this->node;
 
@@ -125,7 +125,7 @@ final class Node
     /**
      * Gets the next sibling from the node.
      */
-    public function getNextSibling(): ?static
+    public function getNextSibling(): static|null
     {
         $node = $this->node;
 

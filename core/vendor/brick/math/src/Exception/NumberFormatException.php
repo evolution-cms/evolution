@@ -7,11 +7,8 @@ namespace Brick\Math\Exception;
 /**
  * Exception thrown when attempting to create a number from a string with an invalid format.
  */
-final class NumberFormatException extends MathException
+class NumberFormatException extends MathException
 {
-    /**
-     * @pure
-     */
     public static function invalidFormat(string $value) : self
     {
         return new self(\sprintf(
@@ -23,7 +20,7 @@ final class NumberFormatException extends MathException
     /**
      * @param string $char The failing character.
      *
-     * @pure
+     * @psalm-pure
      */
     public static function charNotInAlphabet(string $char) : self
     {

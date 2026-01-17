@@ -2,21 +2,14 @@
 
 namespace Illuminate\Database\Eloquent\Relations;
 
+use BackedEnum;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Concerns\ComparesRelatedModels;
 use Illuminate\Database\Eloquent\Relations\Concerns\InteractsWithDictionary;
 use Illuminate\Database\Eloquent\Relations\Concerns\SupportsDefaultModels;
 
-use function Illuminate\Support\enum_value;
-
-/**
- * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
- * @template TDeclaringModel of \Illuminate\Database\Eloquent\Model
- *
- * @extends \Illuminate\Database\Eloquent\Relations\Relation<TRelatedModel, TDeclaringModel, ?TRelatedModel>
- */
 class BelongsTo extends Relation
 {
     use ComparesRelatedModels,
@@ -26,7 +19,7 @@ class BelongsTo extends Relation
     /**
      * The child model instance of the relation.
      *
-     * @var TDeclaringModel
+     * @var \Illuminate\Database\Eloquent\Model
      */
     protected $child;
 
@@ -54,8 +47,8 @@ class BelongsTo extends Relation
     /**
      * Create a new belongs to relationship instance.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<TRelatedModel>  $query
-     * @param  TDeclaringModel  $child
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  \Illuminate\Database\Eloquent\Model  $child
      * @param  string  $foreignKey
      * @param  string  $ownerKey
      * @param  string  $relationName
@@ -75,7 +68,11 @@ class BelongsTo extends Relation
         parent::__construct($query, $child);
     }
 
-    /** @inheritDoc */
+    /**
+     * Get the results of the relationship.
+     *
+     * @return mixed
+     */
     public function getResults()
     {
         if (is_null($this->getForeignKeyFrom($this->child))) {
@@ -96,19 +93,24 @@ class BelongsTo extends Relation
             // For belongs to relationships, which are essentially the inverse of has one
             // or has many relationships, we need to actually query on the primary key
             // of the related models matching on the foreign key that's on a parent.
-            $key = $this->getQualifiedOwnerKeyName();
+            $table = $this->related->getTable();
 
-            $this->query->where($key, '=', $this->getForeignKeyFrom($this->child));
+            $this->query->where($table.'.'.$this->ownerKey, '=', $this->getForeignKeyFrom($this->child));
         }
     }
 
-    /** @inheritDoc */
+    /**
+     * Set the constraints for an eager load of the relation.
+     *
+     * @param  array  $models
+     * @return void
+     */
     public function addEagerConstraints(array $models)
     {
         // We'll grab the primary key name of the related models since it could be set to
         // a non-standard name and not "id". We will then construct the constraint for
         // our eagerly loading query so it returns the proper models from execution.
-        $key = $this->getQualifiedOwnerKeyName();
+        $key = $this->related->getTable().'.'.$this->ownerKey;
 
         $whereIn = $this->whereInMethod($this->related, $this->ownerKey);
 
@@ -118,7 +120,7 @@ class BelongsTo extends Relation
     /**
      * Gather the keys from an array of related models.
      *
-     * @param  array<int, TDeclaringModel>  $models
+     * @param  array  $models
      * @return array
      */
     protected function getEagerModelKeys(array $models)
@@ -139,7 +141,13 @@ class BelongsTo extends Relation
         return array_values(array_unique($keys));
     }
 
-    /** @inheritDoc */
+    /**
+     * Initialize the relation on a set of models.
+     *
+     * @param  array  $models
+     * @param  string  $relation
+     * @return array
+     */
     public function initRelation(array $models, $relation)
     {
         foreach ($models as $model) {
@@ -149,8 +157,15 @@ class BelongsTo extends Relation
         return $models;
     }
 
-    /** @inheritDoc */
-    public function match(array $models, EloquentCollection $results, $relation)
+    /**
+     * Match the eagerly loaded results to their parents.
+     *
+     * @param  array  $models
+     * @param  \Illuminate\Database\Eloquent\Collection  $results
+     * @param  string  $relation
+     * @return array
+     */
+    public function match(array $models, Collection $results, $relation)
     {
         // First we will get to build a dictionary of the child models by their primary
         // key of the relationship, then we can easily match the children back onto
@@ -180,8 +195,8 @@ class BelongsTo extends Relation
     /**
      * Associate the model instance to the given parent.
      *
-     * @param  TRelatedModel|int|string|null  $model
-     * @return TDeclaringModel
+     * @param  \Illuminate\Database\Eloquent\Model|int|string|null  $model
+     * @return \Illuminate\Database\Eloquent\Model
      */
     public function associate($model)
     {
@@ -201,7 +216,7 @@ class BelongsTo extends Relation
     /**
      * Dissociate previously associated model from the given parent.
      *
-     * @return TDeclaringModel
+     * @return \Illuminate\Database\Eloquent\Model
      */
     public function dissociate()
     {
@@ -213,7 +228,7 @@ class BelongsTo extends Relation
     /**
      * Alias of "dissociate" method.
      *
-     * @return TDeclaringModel
+     * @return \Illuminate\Database\Eloquent\Model
      */
     public function disassociate()
     {
@@ -221,18 +236,13 @@ class BelongsTo extends Relation
     }
 
     /**
-     * Touch all of the related models for the relationship.
+     * Add the constraints for a relationship query.
      *
-     * @return void
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $parentQuery
+     * @param  array|mixed  $columns
+     * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function touch()
-    {
-        if (! is_null($this->getParentKey())) {
-            parent::touch();
-        }
-    }
-
-    /** @inheritDoc */
     public function getRelationExistenceQuery(Builder $query, Builder $parentQuery, $columns = ['*'])
     {
         if ($parentQuery->getQuery()->from == $query->getQuery()->from) {
@@ -247,10 +257,10 @@ class BelongsTo extends Relation
     /**
      * Add the constraints for a relationship query on the same table.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<TRelatedModel>  $query
-     * @param  \Illuminate\Database\Eloquent\Builder<TDeclaringModel>  $parentQuery
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  \Illuminate\Database\Eloquent\Builder  $parentQuery
      * @param  array|mixed  $columns
-     * @return \Illuminate\Database\Eloquent\Builder<TRelatedModel>
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function getRelationExistenceQueryForSelfRelation(Builder $query, Builder $parentQuery, $columns = ['*'])
     {
@@ -279,8 +289,8 @@ class BelongsTo extends Relation
     /**
      * Make a new related instance for the given model.
      *
-     * @param  TDeclaringModel  $parent
-     * @return TRelatedModel
+     * @param  \Illuminate\Database\Eloquent\Model  $parent
+     * @return \Illuminate\Database\Eloquent\Model
      */
     protected function newRelatedInstanceFor(Model $parent)
     {
@@ -290,7 +300,7 @@ class BelongsTo extends Relation
     /**
      * Get the child of the relationship.
      *
-     * @return TDeclaringModel
+     * @return \Illuminate\Database\Eloquent\Model
      */
     public function getChild()
     {
@@ -348,10 +358,10 @@ class BelongsTo extends Relation
     }
 
     /**
-     * Get the value of the model's foreign key.
+     * Get the value of the model's associated key.
      *
-     * @param  TRelatedModel  $model
-     * @return int|string
+     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @return mixed
      */
     protected function getRelatedKeyFrom(Model $model)
     {
@@ -361,14 +371,14 @@ class BelongsTo extends Relation
     /**
      * Get the value of the model's foreign key.
      *
-     * @param  TDeclaringModel  $model
+     * @param  \Illuminate\Database\Eloquent\Model  $model
      * @return mixed
      */
     protected function getForeignKeyFrom(Model $model)
     {
         $foreignKey = $model->{$this->foreignKey};
 
-        return enum_value($foreignKey);
+        return $foreignKey instanceof BackedEnum ? $foreignKey->value : $foreignKey;
     }
 
     /**

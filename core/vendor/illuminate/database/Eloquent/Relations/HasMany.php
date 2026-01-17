@@ -2,39 +2,30 @@
 
 namespace Illuminate\Database\Eloquent\Relations;
 
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Collection;
 
-/**
- * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
- * @template TDeclaringModel of \Illuminate\Database\Eloquent\Model
- *
- * @extends \Illuminate\Database\Eloquent\Relations\HasOneOrMany<TRelatedModel, TDeclaringModel, \Illuminate\Database\Eloquent\Collection<int, TRelatedModel>>
- */
 class HasMany extends HasOneOrMany
 {
     /**
      * Convert the relationship to a "has one" relationship.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne<TRelatedModel, TDeclaringModel>
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function one()
     {
-        return HasOne::noConstraints(fn () => tap(
-            new HasOne(
-                $this->getQuery(),
-                $this->parent,
-                $this->foreignKey,
-                $this->localKey
-            ),
-            function ($hasOne) {
-                if ($inverse = $this->getInverseRelationship()) {
-                    $hasOne->inverse($inverse);
-                }
-            }
+        return HasOne::noConstraints(fn () => new HasOne(
+            $this->getQuery(),
+            $this->parent,
+            $this->foreignKey,
+            $this->localKey
         ));
     }
 
-    /** @inheritDoc */
+    /**
+     * Get the results of the relationship.
+     *
+     * @return mixed
+     */
     public function getResults()
     {
         return ! is_null($this->getParentKey())
@@ -42,7 +33,13 @@ class HasMany extends HasOneOrMany
                 : $this->related->newCollection();
     }
 
-    /** @inheritDoc */
+    /**
+     * Initialize the relation on a set of models.
+     *
+     * @param  array  $models
+     * @param  string  $relation
+     * @return array
+     */
     public function initRelation(array $models, $relation)
     {
         foreach ($models as $model) {
@@ -52,8 +49,15 @@ class HasMany extends HasOneOrMany
         return $models;
     }
 
-    /** @inheritDoc */
-    public function match(array $models, EloquentCollection $results, $relation)
+    /**
+     * Match the eagerly loaded results to their parents.
+     *
+     * @param  array  $models
+     * @param  \Illuminate\Database\Eloquent\Collection  $results
+     * @param  string  $relation
+     * @return array
+     */
+    public function match(array $models, Collection $results, $relation)
     {
         return $this->matchMany($models, $results, $relation);
     }

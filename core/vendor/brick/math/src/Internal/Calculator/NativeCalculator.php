@@ -11,8 +11,10 @@ use Override;
  * Calculator implementation using only native PHP code.
  *
  * @internal
+ *
+ * @psalm-immutable
  */
-final readonly class NativeCalculator extends Calculator
+class NativeCalculator extends Calculator
 {
     /**
      * The max number of digits the platform can natively add, subtract, multiply or divide without overflow.
@@ -22,10 +24,9 @@ final readonly class NativeCalculator extends Calculator
      * Example: 32-bit: max number 1,999,999,999 (9 digits + carry)
      *          64-bit: max number 1,999,999,999,999,999,999 (18 digits + carry)
      */
-    private int $maxDigits;
+    private readonly int $maxDigits;
 
     /**
-     * @pure
      * @codeCoverageIgnore
      */
     public function __construct()
@@ -33,6 +34,7 @@ final readonly class NativeCalculator extends Calculator
         $this->maxDigits = match (PHP_INT_SIZE) {
             4 => 9,
             8 => 18,
+            default => throw new \RuntimeException('The platform is not 32-bit or 64-bit as expected.')
         };
     }
 
@@ -40,8 +42,8 @@ final readonly class NativeCalculator extends Calculator
     public function add(string $a, string $b) : string
     {
         /**
-         * @var numeric-string $a
-         * @var numeric-string $b
+         * @psalm-var numeric-string $a
+         * @psalm-var numeric-string $b
          */
         $result = $a + $b;
 
@@ -78,8 +80,8 @@ final readonly class NativeCalculator extends Calculator
     public function mul(string $a, string $b) : string
     {
         /**
-         * @var numeric-string $a
-         * @var numeric-string $b
+         * @psalm-var numeric-string $a
+         * @psalm-var numeric-string $b
          */
         $result = $a * $b;
 
@@ -149,11 +151,11 @@ final readonly class NativeCalculator extends Calculator
             return [$this->neg($a), '0'];
         }
 
-        /** @var numeric-string $a */
+        /** @psalm-var numeric-string $a */
         $na = $a * 1; // cast to number
 
         if (is_int($na)) {
-            /** @var numeric-string $b */
+            /** @psalm-var numeric-string $b */
             $nb = $b * 1;
 
             if (is_int($nb)) {
@@ -200,6 +202,7 @@ final readonly class NativeCalculator extends Calculator
 
         $aa = $this->mul($a, $a);
 
+        /** @psalm-suppress PossiblyInvalidArgument We're sure that $e / 2 is an int now */
         $result = $this->pow($aa, $e / 2);
 
         if ($odd === 1) {
@@ -275,8 +278,6 @@ final readonly class NativeCalculator extends Calculator
 
     /**
      * Performs the addition of two non-signed large integers.
-     *
-     * @pure
      */
     private function doAdd(string $a, string $b) : string
     {
@@ -290,13 +291,14 @@ final readonly class NativeCalculator extends Calculator
 
             if ($i < 0) {
                 $blockLength += $i;
+                /** @psalm-suppress LoopInvalidation */
                 $i = 0;
             }
 
-            /** @var numeric-string $blockA */
+            /** @psalm-var numeric-string $blockA */
             $blockA = \substr($a, $i, $blockLength);
 
-            /** @var numeric-string $blockB */
+            /** @psalm-var numeric-string $blockB */
             $blockB = \substr($b, $i, $blockLength);
 
             $sum = (string) ($blockA + $blockB + $carry);
@@ -328,8 +330,6 @@ final readonly class NativeCalculator extends Calculator
 
     /**
      * Performs the subtraction of two non-signed large integers.
-     *
-     * @pure
      */
     private function doSub(string $a, string $b) : string
     {
@@ -360,13 +360,14 @@ final readonly class NativeCalculator extends Calculator
 
             if ($i < 0) {
                 $blockLength += $i;
+                /** @psalm-suppress LoopInvalidation */
                 $i = 0;
             }
 
-            /** @var numeric-string $blockA */
+            /** @psalm-var numeric-string $blockA */
             $blockA = \substr($a, $i, $blockLength);
 
-            /** @var numeric-string $blockB */
+            /** @psalm-var numeric-string $blockB */
             $blockB = \substr($b, $i, $blockLength);
 
             $sum = $blockA - $blockB - $carry;
@@ -406,8 +407,6 @@ final readonly class NativeCalculator extends Calculator
 
     /**
      * Performs the multiplication of two non-signed large integers.
-     *
-     * @pure
      */
     private function doMul(string $a, string $b) : string
     {
@@ -424,6 +423,7 @@ final readonly class NativeCalculator extends Calculator
 
             if ($i < 0) {
                 $blockALength += $i;
+                /** @psalm-suppress LoopInvalidation */
                 $i = 0;
             }
 
@@ -437,6 +437,7 @@ final readonly class NativeCalculator extends Calculator
 
                 if ($j < 0) {
                     $blockBLength += $j;
+                    /** @psalm-suppress LoopInvalidation */
                     $j = 0;
                 }
 
@@ -479,8 +480,6 @@ final readonly class NativeCalculator extends Calculator
      * Performs the division of two non-signed large integers.
      *
      * @return string[] The quotient and remainder.
-     *
-     * @pure
      */
     private function doDiv(string $a, string $b) : array
     {
@@ -499,7 +498,7 @@ final readonly class NativeCalculator extends Calculator
         $r = $a; // remainder
         $z = $y; // focus length, always $y or $y+1
 
-        /** @var numeric-string $b */
+        /** @psalm-var numeric-string $b */
         $nb = $b * 1; // cast to number
         // performance optimization in cases where the remainder will never cause int overflow
         if (is_int(($nb - 1) * 10 + 9)) {
@@ -507,7 +506,7 @@ final readonly class NativeCalculator extends Calculator
 
             for ($i = $z - 1; $i < $x; $i++) {
                 $n = $r * 10 + (int) $a[$i];
-                /** @var int $nb */
+                /** @psalm-var int $nb */
                 $q .= \intdiv($n, $nb);
                 $r = $n % $nb;
             }
@@ -554,9 +553,7 @@ final readonly class NativeCalculator extends Calculator
     /**
      * Compares two non-signed large numbers.
      *
-     * @return -1|0|1
-     *
-     * @pure
+     * @psalm-return -1|0|1
      */
     private function doCmp(string $a, string $b) : int
     {
@@ -578,8 +575,6 @@ final readonly class NativeCalculator extends Calculator
      * The numbers must only consist of digits, without leading minus sign.
      *
      * @return array{string, string, int}
-     *
-     * @pure
      */
     private function pad(string $a, string $b) : array
     {

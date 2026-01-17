@@ -2,11 +2,12 @@
 
 namespace Illuminate\Database\Console;
 
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Table;
 use Illuminate\Database\ConnectionResolverInterface;
-use Illuminate\Database\Schema\Builder;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Number;
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 use function Laravel\Prompts\select;
@@ -38,40 +39,36 @@ class TableCommand extends DatabaseInspectionCommand
      */
     public function handle(ConnectionResolverInterface $connections)
     {
-        $connection = $connections->connection($this->input->getOption('database'));
-        $schema = $connection->getSchemaBuilder();
-        $tables = (new Collection($schema->getTables()))
-            ->keyBy(fn ($table) => $table['schema'] ? $table['schema'].'.'.$table['name'] : $table['name'])
-            ->all();
-
-        $tableName = $this->argument('table') ?: select(
-            'Which table would you like to inspect?',
-            array_keys($tables)
-        );
-
-        $table = $tables[$tableName] ?? Arr::first($tables, fn ($table) => $table['name'] === $tableName);
-
-        if (! $table) {
-            $this->components->warn("Table [{$tableName}] doesn't exist.");
-
+        if (! $this->ensureDependenciesExist()) {
             return 1;
         }
 
-        $tableName = ($table['schema'] ? $table['schema'].'.' : '').$this->withoutTablePrefix($connection, $table['name']);
+        $connection = $connections->connection($this->input->getOption('database'));
 
-        $columns = $this->columns($schema, $tableName);
-        $indexes = $this->indexes($schema, $tableName);
-        $foreignKeys = $this->foreignKeys($schema, $tableName);
+        $schema = $connection->getDoctrineSchemaManager();
+
+        $this->registerTypeMappings($connection->getDoctrineConnection()->getDatabasePlatform());
+
+        $table = $this->argument('table') ?: select(
+            'Which table would you like to inspect?',
+            collect($schema->listTables())->flatMap(fn (Table $table) => [$table->getName()])->toArray()
+        );
+
+        if (! $schema->tablesExist([$table])) {
+            return $this->components->warn("Table [{$table}] doesn't exist.");
+        }
+
+        $table = $schema->introspectTable($table);
+
+        $columns = $this->columns($table);
+        $indexes = $this->indexes($table);
+        $foreignKeys = $this->foreignKeys($table);
 
         $data = [
             'table' => [
-                'schema' => $table['schema'],
-                'name' => $table['name'],
-                'columns' => count($columns),
-                'size' => $table['size'],
-                'comment' => $table['comment'],
-                'collation' => $table['collation'],
-                'engine' => $table['engine'],
+                'name' => $table->getName(),
+                'columns' => $columns->count(),
+                'size' => $this->getTableSize($connection, $table->getName()),
             ],
             'columns' => $columns,
             'indexes' => $indexes,
@@ -86,49 +83,46 @@ class TableCommand extends DatabaseInspectionCommand
     /**
      * Get the information regarding the table's columns.
      *
-     * @param  \Illuminate\Database\Schema\Builder  $schema
-     * @param  string  $table
+     * @param  \Doctrine\DBAL\Schema\Table  $table
      * @return \Illuminate\Support\Collection
      */
-    protected function columns(Builder $schema, string $table)
+    protected function columns(Table $table)
     {
-        return (new Collection($schema->getColumns($table)))->map(fn ($column) => [
-            'column' => $column['name'],
+        return collect($table->getColumns())->map(fn (Column $column) => [
+            'column' => $column->getName(),
             'attributes' => $this->getAttributesForColumn($column),
-            'default' => $column['default'],
-            'type' => $column['type'],
+            'default' => $column->getDefault(),
+            'type' => $column->getType()->getName(),
         ]);
     }
 
     /**
      * Get the attributes for a table column.
      *
-     * @param  array  $column
+     * @param  \Doctrine\DBAL\Schema\Column  $column
      * @return \Illuminate\Support\Collection
      */
-    protected function getAttributesForColumn($column)
+    protected function getAttributesForColumn(Column $column)
     {
-        return (new Collection([
-            $column['type_name'],
-            $column['generation'] ? $column['generation']['type'] : null,
-            $column['auto_increment'] ? 'autoincrement' : null,
-            $column['nullable'] ? 'nullable' : null,
-            $column['collation'],
-        ]))->filter();
+        return collect([
+            $column->getAutoincrement() ? 'autoincrement' : null,
+            'type' => $column->getType()->getName(),
+            $column->getUnsigned() ? 'unsigned' : null,
+            ! $column->getNotNull() ? 'nullable' : null,
+        ])->filter();
     }
 
     /**
      * Get the information regarding the table's indexes.
      *
-     * @param  \Illuminate\Database\Schema\Builder  $schema
-     * @param  string  $table
+     * @param  \Doctrine\DBAL\Schema\Table  $table
      * @return \Illuminate\Support\Collection
      */
-    protected function indexes(Builder $schema, string $table)
+    protected function indexes(Table $table)
     {
-        return (new Collection($schema->getIndexes($table)))->map(fn ($index) => [
-            'name' => $index['name'],
-            'columns' => new Collection($index['columns']),
+        return collect($table->getIndexes())->map(fn (Index $index) => [
+            'name' => $index->getName(),
+            'columns' => collect($index->getColumns()),
             'attributes' => $this->getAttributesForIndex($index),
         ]);
     }
@@ -136,36 +130,34 @@ class TableCommand extends DatabaseInspectionCommand
     /**
      * Get the attributes for a table index.
      *
-     * @param  array  $index
+     * @param  \Doctrine\DBAL\Schema\Index  $index
      * @return \Illuminate\Support\Collection
      */
-    protected function getAttributesForIndex($index)
+    protected function getAttributesForIndex(Index $index)
     {
-        return (new Collection([
-            $index['type'],
-            count($index['columns']) > 1 ? 'compound' : null,
-            $index['unique'] && ! $index['primary'] ? 'unique' : null,
-            $index['primary'] ? 'primary' : null,
-        ]))->filter();
+        return collect([
+            'compound' => count($index->getColumns()) > 1,
+            'unique' => $index->isUnique(),
+            'primary' => $index->isPrimary(),
+        ])->filter()->keys()->map(fn ($attribute) => Str::lower($attribute));
     }
 
     /**
      * Get the information regarding the table's foreign keys.
      *
-     * @param  \Illuminate\Database\Schema\Builder  $schema
-     * @param  string  $table
+     * @param  \Doctrine\DBAL\Schema\Table  $table
      * @return \Illuminate\Support\Collection
      */
-    protected function foreignKeys(Builder $schema, string $table)
+    protected function foreignKeys(Table $table)
     {
-        return (new Collection($schema->getForeignKeys($table)))->map(fn ($foreignKey) => [
-            'name' => $foreignKey['name'],
-            'columns' => new Collection($foreignKey['columns']),
-            'foreign_schema' => $foreignKey['foreign_schema'],
-            'foreign_table' => $foreignKey['foreign_table'],
-            'foreign_columns' => new Collection($foreignKey['foreign_columns']),
-            'on_update' => $foreignKey['on_update'],
-            'on_delete' => $foreignKey['on_delete'],
+        return collect($table->getForeignKeys())->map(fn (ForeignKeyConstraint $foreignKey) => [
+            'name' => $foreignKey->getName(),
+            'local_table' => $table->getName(),
+            'local_columns' => collect($foreignKey->getLocalColumns()),
+            'foreign_table' => $foreignKey->getForeignTableName(),
+            'foreign_columns' => collect($foreignKey->getForeignColumns()),
+            'on_update' => Str::lower(rescue(fn () => $foreignKey->getOption('onUpdate'), 'N/A')),
+            'on_delete' => Str::lower(rescue(fn () => $foreignKey->getOption('onDelete'), 'N/A')),
         ]);
     }
 
@@ -205,19 +197,11 @@ class TableCommand extends DatabaseInspectionCommand
 
         $this->newLine();
 
-        $this->components->twoColumnDetail('<fg=green;options=bold>'.($table['schema'] ? $table['schema'].'.'.$table['name'] : $table['name']).'</>', $table['comment'] ? '<fg=gray>'.$table['comment'].'</>' : null);
+        $this->components->twoColumnDetail('<fg=green;options=bold>'.$table['name'].'</>');
         $this->components->twoColumnDetail('Columns', $table['columns']);
 
-        if (! is_null($table['size'])) {
-            $this->components->twoColumnDetail('Size', Number::fileSize($table['size'], 2));
-        }
-
-        if ($table['engine']) {
-            $this->components->twoColumnDetail('Engine', $table['engine']);
-        }
-
-        if ($table['collation']) {
-            $this->components->twoColumnDetail('Collation', $table['collation']);
+        if ($size = $table['size']) {
+            $this->components->twoColumnDetail('Size', number_format($size / 1024 / 1024, 2).'MiB');
         }
 
         $this->newLine();
@@ -228,7 +212,7 @@ class TableCommand extends DatabaseInspectionCommand
             $columns->each(function ($column) {
                 $this->components->twoColumnDetail(
                     $column['column'].' <fg=gray>'.$column['attributes']->implode(', ').'</>',
-                    (! is_null($column['default']) ? '<fg=gray>'.$column['default'].'</> ' : '').$column['type']
+                    (! is_null($column['default']) ? '<fg=gray>'.$column['default'].'</> ' : '').''.$column['type'].''
                 );
             });
 
@@ -253,7 +237,7 @@ class TableCommand extends DatabaseInspectionCommand
 
             $foreignKeys->each(function ($foreignKey) {
                 $this->components->twoColumnDetail(
-                    $foreignKey['name'].' <fg=gray;options=bold>'.$foreignKey['columns']->implode(', ').' references '.$foreignKey['foreign_columns']->implode(', ').' on '.$foreignKey['foreign_table'].'</>',
+                    $foreignKey['name'].' <fg=gray;options=bold>'.$foreignKey['local_columns']->implode(', ').' references '.$foreignKey['foreign_columns']->implode(', ').' on '.$foreignKey['foreign_table'].'</>',
                     $foreignKey['on_update'].' / '.$foreignKey['on_delete'],
                 );
             });

@@ -11,7 +11,7 @@
 
 namespace Symfony\Component\Routing\Loader;
 
-use Symfony\Component\Config\Resource\GlobResource;
+use Symfony\Component\Config\Resource\DirectoryResource;
 use Symfony\Component\Routing\RouteCollection;
 
 /**
@@ -33,7 +33,7 @@ class AttributeDirectoryLoader extends AttributeFileLoader
         }
 
         $collection = new RouteCollection();
-        $collection->addResource(new GlobResource($dir, '/*.php', true));
+        $collection->addResource(new DirectoryResource($dir, '/\.php$/'));
         $files = iterator_to_array(new \RecursiveIteratorIterator(
             new \RecursiveCallbackFilterIterator(
                 new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::FOLLOW_SYMLINKS),
@@ -67,7 +67,11 @@ class AttributeDirectoryLoader extends AttributeFileLoader
             return false;
         }
 
-        if ('attribute' === $type) {
+        if (\in_array($type, ['annotation', 'attribute'], true)) {
+            if ('annotation' === $type) {
+                trigger_deprecation('symfony/routing', '6.4', 'The "annotation" route type is deprecated, use the "attribute" route type instead.');
+            }
+
             return true;
         }
 
@@ -81,4 +85,8 @@ class AttributeDirectoryLoader extends AttributeFileLoader
             return false;
         }
     }
+}
+
+if (!class_exists(AnnotationDirectoryLoader::class, false)) {
+    class_alias(AttributeDirectoryLoader::class, AnnotationDirectoryLoader::class);
 }

@@ -306,14 +306,14 @@ trait CompilesConditionals
     }
 
     /**
-     * Compile a boolean value into a raw true / false value for embedding into HTML attributes or JavaScript.
+     * Compile a selected block into valid PHP.
      *
-     * @param  bool  $condition
+     * @param  string  $condition
      * @return string
      */
-    protected function compileBool($condition)
+    protected function compileSelected($condition)
     {
-        return "<?php echo ($condition ? 'true' : 'false'); ?>";
+        return "<?php if{$condition}: echo 'selected'; endif; ?>";
     }
 
     /**
@@ -358,17 +358,6 @@ trait CompilesConditionals
     protected function compileReadonly($condition)
     {
         return "<?php if{$condition}: echo 'readonly'; endif; ?>";
-    }
-
-    /**
-     * Compile a selected block into valid PHP.
-     *
-     * @param  string  $condition
-     * @return string
-     */
-    protected function compileSelected($condition)
-    {
-        return "<?php if{$condition}: echo 'selected'; endif; ?>";
     }
 
     /**

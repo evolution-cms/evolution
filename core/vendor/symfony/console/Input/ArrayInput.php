@@ -25,10 +25,12 @@ use Symfony\Component\Console\Exception\InvalidOptionException;
  */
 class ArrayInput extends Input
 {
-    public function __construct(
-        private array $parameters,
-        ?InputDefinition $definition = null,
-    ) {
+    private array $parameters;
+
+    public function __construct(array $parameters, ?InputDefinition $definition = null)
+    {
+        $this->parameters = $parameters;
+
         parent::__construct($definition);
     }
 
@@ -111,7 +113,10 @@ class ArrayInput extends Input
         return implode(' ', $params);
     }
 
-    protected function parse(): void
+    /**
+     * @return void
+     */
+    protected function parse()
     {
         foreach ($this->parameters as $key => $value) {
             if ('--' === $key) {

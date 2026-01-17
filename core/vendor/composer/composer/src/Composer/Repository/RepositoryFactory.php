@@ -99,10 +99,6 @@ class RepositoryFactory
         return self::createRepos($rm, $config->getRepositories());
     }
 
-    /**
-     * @param  EventDispatcher   $eventDispatcher
-     * @param  HttpDownloader    $httpDownloader
-     */
     public static function manager(IOInterface $io, Config $config, ?HttpDownloader $httpDownloader = null, ?EventDispatcher $eventDispatcher = null, ?ProcessExecutor $process = null): RepositoryManager
     {
         if ($httpDownloader === null) {
@@ -158,7 +154,7 @@ class RepositoryFactory
                 throw new \UnexpectedValueException('"repositories" should be an array of repository definitions, only a single repository was given');
             }
             if (!is_array($repo)) {
-                throw new \UnexpectedValueException('Repository "'.$index.'" ('.json_encode($repo).') should be an array, '.gettype($repo).' given');
+                throw new \UnexpectedValueException('Repository "'.$index.'" ('.json_encode($repo).') should be an array, '.get_debug_type($repo).' given');
             }
             if (!isset($repo['type'])) {
                 throw new \UnexpectedValueException('Repository "'.$index.'" ('.json_encode($repo).') must have a type defined');

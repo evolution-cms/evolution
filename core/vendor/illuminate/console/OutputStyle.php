@@ -52,7 +52,6 @@ class OutputStyle extends SymfonyStyle implements NewLineAware
     /**
      * {@inheritdoc}
      */
-    #[\Override]
     public function askQuestion(Question $question): mixed
     {
         try {
@@ -65,8 +64,7 @@ class OutputStyle extends SymfonyStyle implements NewLineAware
     /**
      * {@inheritdoc}
      */
-    #[\Override]
-    public function write(string|iterable $messages, bool $newline = false, int $options = 0): void
+    public function write(string|iterable $messages, bool $newline = false, int $options = 0)
     {
         $this->newLinesWritten = $this->trailingNewLineCount($messages) + (int) $newline;
         $this->newLineWritten = $this->newLinesWritten > 0;
@@ -76,23 +74,23 @@ class OutputStyle extends SymfonyStyle implements NewLineAware
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
-    #[\Override]
-    public function writeln(string|iterable $messages, int $type = self::OUTPUT_NORMAL): void
+    public function writeln(string|iterable $messages, int $type = self::OUTPUT_NORMAL)
     {
-        if ($this->output->getVerbosity() >= $type) {
-            $this->newLinesWritten = $this->trailingNewLineCount($messages) + 1;
-            $this->newLineWritten = true;
-        }
+        $this->newLinesWritten = $this->trailingNewLineCount($messages) + 1;
+        $this->newLineWritten = true;
 
         parent::writeln($messages, $type);
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
-    #[\Override]
-    public function newLine(int $count = 1): void
+    public function newLine(int $count = 1)
     {
         $this->newLinesWritten += $count;
         $this->newLineWritten = $this->newLinesWritten > 0;

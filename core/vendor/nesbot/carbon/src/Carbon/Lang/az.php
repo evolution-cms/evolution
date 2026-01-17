@@ -18,30 +18,29 @@
  * - Orxan
  * - Şəhriyar İmanov
  * - Baran Şengül
- * - Novruz Rahimov
  */
 return [
     'year' => ':count il',
-    'a_year' => '{1}bir il|[-Inf,Inf]:count il',
+    'a_year' => '{1}bir il|]1,Inf[:count il',
     'y' => ':count il',
     'month' => ':count ay',
-    'a_month' => '{1}bir ay|[-Inf,Inf]:count ay',
+    'a_month' => '{1}bir ay|]1,Inf[:count ay',
     'm' => ':count ay',
     'week' => ':count həftə',
-    'a_week' => '{1}bir həftə|[-Inf,Inf]:count həftə',
+    'a_week' => '{1}bir həftə|]1,Inf[:count həftə',
     'w' => ':count h.',
     'day' => ':count gün',
-    'a_day' => '{1}bir gün|[-Inf,Inf]:count gün',
+    'a_day' => '{1}bir gün|]1,Inf[:count gün',
     'd' => ':count g.',
     'hour' => ':count saat',
-    'a_hour' => '{1}bir saat|[-Inf,Inf]:count saat',
-    'h' => ':count s.',
-    'minute' => ':count dəqiqə',
-    'a_minute' => '{1}bir dəqiqə|[-Inf,Inf]:count dəqiqə',
-    'min' => ':count d.',
-    'second' => ':count saniyə',
-    'a_second' => '{1}birneçə saniyə|[-Inf,Inf]:count saniyə',
-    's' => ':count san.',
+    'a_hour' => '{1}bir saat|]1,Inf[:count saat',
+    'h' => ':count saat',
+    'minute' => ':count d.',
+    'a_minute' => '{1}bir dəqiqə|]1,Inf[:count dəqiqə',
+    'min' => ':count dəqiqə',
+    'second' => ':count san.',
+    'a_second' => '{1}birneçə saniyə|]1,Inf[:count saniyə',
+    's' => ':count saniyə',
     'ago' => ':time əvvəl',
     'from_now' => ':time sonra',
     'after' => ':time sonra',
@@ -74,7 +73,7 @@ return [
         'lastWeek' => '[keçən həftə] dddd [saat] LT',
         'sameElse' => 'L',
     ],
-    'ordinal' => static function ($number) {
+    'ordinal' => function ($number) {
         if ($number === 0) { // special case for zero
             return "$number-ıncı";
         }
@@ -104,7 +103,7 @@ return [
 
         return $number.($suffixes[$lastDigit] ?? $suffixes[$number % 100 - $lastDigit] ?? $suffixes[$number >= 100 ? 100 : -1] ?? '');
     },
-    'meridiem' => static function ($hour) {
+    'meridiem' => function ($hour) {
         if ($hour < 4) {
             return 'gecə';
         }

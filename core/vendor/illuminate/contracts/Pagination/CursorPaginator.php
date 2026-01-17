@@ -2,11 +2,6 @@
 
 namespace Illuminate\Contracts\Pagination;
 
-/**
- * @template TKey of array-key
- *
- * @template-covariant TValue
- */
 interface CursorPaginator
 {
     /**
@@ -58,7 +53,7 @@ interface CursorPaginator
     /**
      * Get all of the items being paginated.
      *
-     * @return array<TKey, TValue>
+     * @return array
      */
     public function items();
 

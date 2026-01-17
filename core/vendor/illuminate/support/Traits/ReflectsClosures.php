@@ -3,7 +3,6 @@
 namespace Illuminate\Support\Traits;
 
 use Closure;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Reflector;
 use ReflectionFunction;
 use RuntimeException;
@@ -47,7 +46,7 @@ trait ReflectsClosures
     {
         $reflection = new ReflectionFunction($closure);
 
-        $types = (new Collection($reflection->getParameters()))->mapWithKeys(function ($parameter) {
+        $types = collect($reflection->getParameters())->mapWithKeys(function ($parameter) {
             if ($parameter->isVariadic()) {
                 return [$parameter->getName() => null];
             }
@@ -78,7 +77,7 @@ trait ReflectsClosures
     {
         $reflection = new ReflectionFunction($closure);
 
-        return (new Collection($reflection->getParameters()))->mapWithKeys(function ($parameter) {
+        return collect($reflection->getParameters())->mapWithKeys(function ($parameter) {
             if ($parameter->isVariadic()) {
                 return [$parameter->getName() => null];
             }

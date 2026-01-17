@@ -120,4 +120,17 @@ class Processor
     {
         return $results;
     }
+
+    /**
+     * Process the results of a column listing query.
+     *
+     * @deprecated Will be removed in a future Laravel version.
+     *
+     * @param  array  $results
+     * @return array
+     */
+    public function processColumnListing($results)
+    {
+        return $results;
+    }
 }

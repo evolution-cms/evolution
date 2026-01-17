@@ -18,8 +18,6 @@ interface Lock
      * @param  int  $seconds
      * @param  callable|null  $callback
      * @return mixed
-     *
-     * @throws \Illuminate\Contracts\Cache\LockTimeoutException
      */
     public function block($seconds, $callback = null);
 

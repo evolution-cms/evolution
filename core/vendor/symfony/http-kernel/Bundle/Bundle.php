@@ -24,12 +24,15 @@ use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
  */
 abstract class Bundle implements BundleInterface
 {
-    protected string $name;
-    protected ExtensionInterface|false|null $extension = null;
-    protected string $path;
-    protected ?ContainerInterface $container;
-
+    protected $name;
+    protected $extension;
+    protected $path;
     private string $namespace;
+
+    /**
+     * @var ContainerInterface|null
+     */
+    protected $container;
 
     /**
      * @return void

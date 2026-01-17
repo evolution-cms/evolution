@@ -7,7 +7,7 @@ interface HasMiddleware
     /**
      * Get the middleware that should be assigned to the controller.
      *
-     * @return array<int,\Illuminate\Routing\Controllers\Middleware|\Closure|string>
+     * @return \Illuminate\Routing\Controllers\Middleware|array
      */
     public static function middleware();
 }

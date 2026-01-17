@@ -30,12 +30,11 @@ class NestedRules
      * @param  string  $attribute
      * @param  mixed  $value
      * @param  mixed  $data
-     * @param  mixed  $context
      * @return \stdClass
      */
-    public function compile($attribute, $value, $data = null, $context = null)
+    public function compile($attribute, $value, $data = null)
     {
-        $rules = call_user_func($this->callback, $value, $attribute, $data, $context);
+        $rules = call_user_func($this->callback, $value, $attribute, $data);
 
         $parser = new ValidationRuleParser(
             Arr::undot(Arr::wrap($data))

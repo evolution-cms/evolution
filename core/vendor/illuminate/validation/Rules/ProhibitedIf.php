@@ -4,9 +4,8 @@ namespace Illuminate\Validation\Rules;
 
 use Closure;
 use InvalidArgumentException;
-use Stringable;
 
-class ProhibitedIf implements Stringable
+class ProhibitedIf
 {
     /**
      * The condition that validates the attribute.

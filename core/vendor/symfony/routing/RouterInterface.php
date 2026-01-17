@@ -28,6 +28,8 @@ interface RouterInterface extends UrlMatcherInterface, UrlGeneratorInterface
      *
      * WARNING: This method should never be used at runtime as it is SLOW.
      *          You might use it in a cache warmer though.
+     *
+     * @return RouteCollection
      */
-    public function getRouteCollection(): RouteCollection;
+    public function getRouteCollection();
 }

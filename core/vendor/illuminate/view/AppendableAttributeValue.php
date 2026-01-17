@@ -2,9 +2,7 @@
 
 namespace Illuminate\View;
 
-use Stringable;
-
-class AppendableAttributeValue implements Stringable
+class AppendableAttributeValue
 {
     /**
      * The attribute value.

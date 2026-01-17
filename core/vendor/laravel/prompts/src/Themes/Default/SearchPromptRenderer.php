@@ -106,21 +106,22 @@ class SearchPromptRenderer extends Renderer implements Scrolling
             return $this->gray('  '.($prompt->state === 'searching' ? 'Searching...' : 'No results.'));
         }
 
-        return implode(PHP_EOL, $this->scrollbar(
-            array_values(array_map(function ($label, $key) use ($prompt) {
-                $label = $this->truncate($label, $prompt->terminal()->cols() - 10);
+        return $this->scrollbar(
+            collect($prompt->visible())
+                ->map(fn ($label) => $this->truncate($label, $prompt->terminal()->cols() - 10))
+                ->map(function ($label, $key) use ($prompt) {
+                    $index = array_search($key, array_keys($prompt->matches()));
 
-                $index = array_search($key, array_keys($prompt->matches()));
-
-                return $prompt->highlighted === $index
-                    ? "{$this->cyan('›')} {$label}  "
-                    : "  {$this->dim($label)}  ";
-            }, $visible = $prompt->visible(), array_keys($visible))),
+                    return $prompt->highlighted === $index
+                        ? "{$this->cyan('›')} {$label}  "
+                        : "  {$this->dim($label)}  ";
+                })
+                ->values(),
             $prompt->firstVisible,
             $prompt->scroll,
             count($prompt->matches()),
             min($this->longest($prompt->matches(), padding: 4), $prompt->terminal()->cols() - 6)
-        ));
+        )->implode(PHP_EOL);
     }
 
     /**

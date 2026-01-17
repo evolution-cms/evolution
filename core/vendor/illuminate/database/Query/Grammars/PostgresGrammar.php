@@ -5,7 +5,6 @@ namespace Illuminate\Database\Query\Grammars;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinLateralClause;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class PostgresGrammar extends Grammar
@@ -24,13 +23,6 @@ class PostgresGrammar extends Grammar
     ];
 
     /**
-     * The Postgres grammar specific custom operators.
-     *
-     * @var array
-     */
-    protected static $customOperators = [];
-
-    /**
      * The grammar specific bitwise operators.
      *
      * @var array
@@ -38,13 +30,6 @@ class PostgresGrammar extends Grammar
     protected $bitwiseOperators = [
         '~', '&', '|', '#', '<<', '>>', '<<=', '>>=',
     ];
-
-    /**
-     * Indicates if the cascade option should be used when truncating.
-     *
-     * @var bool
-     */
-    protected static $cascadeTruncate = true;
 
     /**
      * Compile a basic where clause.
@@ -81,22 +66,6 @@ class PostgresGrammar extends Grammar
         $operator = str_replace('?', '??', $where['operator']);
 
         return '('.$this->wrap($where['column']).' '.$operator.' '.$value.')::bool';
-    }
-
-    /**
-     * Compile a "where like" clause.
-     *
-     * @param  \Illuminate\Database\Query\Builder  $query
-     * @param  array  $where
-     * @return string
-     */
-    protected function whereLike(Builder $query, $where)
-    {
-        $where['operator'] = $where['not'] ? 'not ' : '';
-
-        $where['operator'] .= $where['caseSensitive'] ? 'like' : 'ilike';
-
-        return $this->whereBasic($query, $where);
     }
 
     /**
@@ -157,7 +126,7 @@ class PostgresGrammar extends Grammar
             $language = 'english';
         }
 
-        $columns = (new Collection($where['columns']))->map(function ($column) use ($language) {
+        $columns = collect($where['columns'])->map(function ($column) use ($language) {
             return "to_tsvector('{$language}', {$this->wrap($column)})";
         })->implode(' || ');
 
@@ -406,7 +375,7 @@ class PostgresGrammar extends Grammar
      */
     protected function compileUpdateColumns(Builder $query, array $values)
     {
-        return (new Collection($values))->map(function ($value, $key) {
+        return collect($values)->map(function ($value, $key) {
             $column = last(explode('.', $key));
 
             if ($this->isJsonSelector($key)) {
@@ -432,7 +401,7 @@ class PostgresGrammar extends Grammar
 
         $sql .= ' on conflict ('.$this->columnize($uniqueBy).') do update set ';
 
-        $columns = (new Collection($update))->map(function ($value, $key) {
+        $columns = collect($update)->map(function ($value, $key) {
             return is_numeric($key)
                 ? $this->wrap($value).' = '.$this->wrapValue('excluded').'.'.$this->wrap($value)
                 : $this->wrap($key).' = '.$this->parameter($value);
@@ -493,9 +462,9 @@ class PostgresGrammar extends Grammar
             // When using Postgres, updates with joins list the joined tables in the from
             // clause, which is different than other systems like MySQL. Here, we will
             // compile out the tables that are joined and add them to a from clause.
-            $froms = (new Collection($query->joins))
-                ->map(fn ($join) => $this->wrapTable($join->table))
-                ->all();
+            $froms = collect($query->joins)->map(function ($join) {
+                return $this->wrapTable($join->table);
+            })->all();
 
             if (count($froms) > 0) {
                 $from = ' from '.implode(', ', $froms);
@@ -566,13 +535,11 @@ class PostgresGrammar extends Grammar
      */
     public function prepareBindingsForUpdateFrom(array $bindings, array $values)
     {
-        $values = (new Collection($values))
-            ->map(function ($value, $column) {
-                return is_array($value) || ($this->isJsonSelector($column) && ! $this->isExpression($value))
-                    ? json_encode($value)
-                    : $value;
-            })
-            ->all();
+        $values = collect($values)->map(function ($value, $column) {
+            return is_array($value) || ($this->isJsonSelector($column) && ! $this->isExpression($value))
+                ? json_encode($value)
+                : $value;
+        })->all();
 
         $bindingsWithoutWhere = Arr::except($bindings, ['select', 'where']);
 
@@ -610,7 +577,7 @@ class PostgresGrammar extends Grammar
      */
     public function prepareBindingsForUpdate(array $bindings, array $values)
     {
-        $values = (new Collection($values))->map(function ($value, $column) {
+        $values = collect($values)->map(function ($value, $column) {
             return is_array($value) || ($this->isJsonSelector($column) && ! $this->isExpression($value))
                 ? json_encode($value)
                 : $value;
@@ -663,17 +630,7 @@ class PostgresGrammar extends Grammar
      */
     public function compileTruncate(Builder $query)
     {
-        return ['truncate '.$this->wrapTable($query->from).' restart identity'.(static::$cascadeTruncate ? ' cascade' : '') => []];
-    }
-
-    /**
-     * Compile a query to get the number of open connections for a database.
-     *
-     * @return string
-     */
-    public function compileThreadCount()
-    {
-        return 'select count(*) as "Value" from pg_stat_activity';
+        return ['truncate '.$this->wrapTable($query->from).' restart identity cascade' => []];
     }
 
     /**
@@ -736,15 +693,13 @@ class PostgresGrammar extends Grammar
     {
         $quote = func_num_args() === 2 ? func_get_arg(1) : "'";
 
-        return (new Collection($path))
-            ->map(fn ($attribute) => $this->parseJsonPathArrayKeys($attribute))
-            ->collapse()
-            ->map(function ($attribute) use ($quote) {
-                return filter_var($attribute, FILTER_VALIDATE_INT) !== false
-                    ? $attribute
-                    : $quote.$attribute.$quote;
-            })
-            ->all();
+        return collect($path)->map(function ($attribute) {
+            return $this->parseJsonPathArrayKeys($attribute);
+        })->collapse()->map(function ($attribute) use ($quote) {
+            return filter_var($attribute, FILTER_VALIDATE_INT) !== false
+                        ? $attribute
+                        : $quote.$attribute.$quote;
+        })->all();
     }
 
     /**
@@ -760,7 +715,7 @@ class PostgresGrammar extends Grammar
 
             preg_match_all('/\[([^\]]+)\]/', $parts[0], $keys);
 
-            return (new Collection([$key]))
+            return collect([$key])
                 ->merge($keys[1])
                 ->diff('')
                 ->values()
@@ -790,39 +745,5 @@ class PostgresGrammar extends Grammar
         }
 
         return $query;
-    }
-
-    /**
-     * Get the Postgres grammar specific operators.
-     *
-     * @return array
-     */
-    public function getOperators()
-    {
-        return array_values(array_unique(array_merge(parent::getOperators(), static::$customOperators)));
-    }
-
-    /**
-     * Set any Postgres grammar specific custom operators.
-     *
-     * @param  array  $operators
-     * @return void
-     */
-    public static function customOperators(array $operators)
-    {
-        static::$customOperators = array_values(
-            array_merge(static::$customOperators, array_filter(array_filter($operators, 'is_string')))
-        );
-    }
-
-    /**
-     * Enable or disable the "cascade" option when compiling the truncate statement.
-     *
-     * @param  bool  $value
-     * @return void
-     */
-    public static function cascadeOnTrucate(bool $value = true)
-    {
-        static::$cascadeTruncate = $value;
     }
 }

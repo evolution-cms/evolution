@@ -25,8 +25,10 @@ interface SessionBagInterface
 
     /**
      * Initializes the Bag.
+     *
+     * @return void
      */
-    public function initialize(array &$array): void;
+    public function initialize(array &$array);
 
     /**
      * Gets the storage key for this bag.

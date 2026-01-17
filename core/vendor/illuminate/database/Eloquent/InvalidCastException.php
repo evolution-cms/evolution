@@ -33,7 +33,7 @@ class InvalidCastException extends RuntimeException
      * @param  object  $model
      * @param  string  $column
      * @param  string  $castType
-     * @return void
+     * @return static
      */
     public function __construct($model, $column, $castType)
     {

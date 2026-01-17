@@ -225,7 +225,7 @@ class Locker
      * Returns the platform requirements stored in the lock file
      *
      * @param  bool                     $withDevReqs if true, the platform requirements from the require-dev block are also returned
-     * @return \Composer\Package\Link[]
+     * @return Link[]
      */
     public function getPlatformRequirements(bool $withDevReqs = false): array
     {
@@ -554,7 +554,7 @@ class Locker
                 case 'git':
                     GitUtil::cleanEnv();
 
-                    $command = array_merge(['git', 'log', '-n1', '--pretty=%ct', (string) $sourceRef], GitUtil::getNoShowSignatureFlags($this->process));
+                    $command = array_merge(['git', 'rev-list', '--no-commit-header', '-n1', '--format=%ct', (string) $sourceRef], GitUtil::getNoShowSignatureFlags($this->process));
                     if (0 === $this->process->execute($command, $output, $path) && Preg::isMatch('{^\s*\d+\s*$}', $output)) {
                         $datetime = new \DateTime('@'.trim($output), new \DateTimeZone('UTC'));
                     }

@@ -19,7 +19,7 @@ interface UserProvider
      * @param  string  $token
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
-    public function retrieveByToken($identifier, #[\SensitiveParameter] $token);
+    public function retrieveByToken($identifier, $token);
 
     /**
      * Update the "remember me" token for the given user in storage.
@@ -28,7 +28,7 @@ interface UserProvider
      * @param  string  $token
      * @return void
      */
-    public function updateRememberToken(Authenticatable $user, #[\SensitiveParameter] $token);
+    public function updateRememberToken(Authenticatable $user, $token);
 
     /**
      * Retrieve a user by the given credentials.
@@ -36,7 +36,7 @@ interface UserProvider
      * @param  array  $credentials
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
      */
-    public function retrieveByCredentials(#[\SensitiveParameter] array $credentials);
+    public function retrieveByCredentials(array $credentials);
 
     /**
      * Validate a user against the given credentials.
@@ -45,15 +45,5 @@ interface UserProvider
      * @param  array  $credentials
      * @return bool
      */
-    public function validateCredentials(Authenticatable $user, #[\SensitiveParameter] array $credentials);
-
-    /**
-     * Rehash the user's password if required and supported.
-     *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
-     * @param  array  $credentials
-     * @param  bool  $force
-     * @return void
-     */
-    public function rehashPasswordIfRequired(Authenticatable $user, #[\SensitiveParameter] array $credentials, bool $force = false);
+    public function validateCredentials(Authenticatable $user, array $credentials);
 }

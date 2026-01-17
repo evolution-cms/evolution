@@ -4,7 +4,6 @@ namespace Illuminate\Routing;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class RedirectController extends Controller
@@ -18,7 +17,7 @@ class RedirectController extends Controller
      */
     public function __invoke(Request $request, UrlGenerator $url)
     {
-        $parameters = new Collection($request->route()->parameters());
+        $parameters = collect($request->route()->parameters());
 
         $status = $parameters->get('status');
 

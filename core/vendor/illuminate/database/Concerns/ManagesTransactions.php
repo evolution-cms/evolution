@@ -10,13 +10,11 @@ use Throwable;
 trait ManagesTransactions
 {
     /**
-     * @template TReturn of mixed
-     *
      * Execute a Closure within a transaction.
      *
-     * @param  (\Closure(static): TReturn)  $callback
+     * @param  \Closure  $callback
      * @param  int  $attempts
-     * @return TReturn
+     * @return mixed
      *
      * @throws \Throwable
      */

@@ -4,9 +4,8 @@ namespace Illuminate\Validation\Rules;
 
 use Closure;
 use InvalidArgumentException;
-use Stringable;
 
-class ExcludeIf implements Stringable
+class ExcludeIf
 {
     /**
      * The condition that validates the attribute.

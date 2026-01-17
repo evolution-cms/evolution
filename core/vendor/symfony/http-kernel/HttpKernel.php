@@ -51,19 +51,19 @@ class_exists(KernelEvents::class);
  */
 class HttpKernel implements HttpKernelInterface, TerminableInterface
 {
-    protected RequestStack $requestStack;
+    protected $dispatcher;
+    protected $resolver;
+    protected $requestStack;
     private ArgumentResolverInterface $argumentResolver;
-    private bool $terminating = false;
+    private bool $handleAllThrowables;
 
-    public function __construct(
-        protected EventDispatcherInterface $dispatcher,
-        protected ControllerResolverInterface $resolver,
-        ?RequestStack $requestStack = null,
-        ?ArgumentResolverInterface $argumentResolver = null,
-        private bool $handleAllThrowables = false,
-    ) {
+    public function __construct(EventDispatcherInterface $dispatcher, ControllerResolverInterface $resolver, ?RequestStack $requestStack = null, ?ArgumentResolverInterface $argumentResolver = null, bool $handleAllThrowables = false)
+    {
+        $this->dispatcher = $dispatcher;
+        $this->resolver = $resolver;
         $this->requestStack = $requestStack ?? new RequestStack();
         $this->argumentResolver = $argumentResolver ?? new ArgumentResolver();
+        $this->handleAllThrowables = $handleAllThrowables;
     }
 
     public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true): Response
@@ -107,14 +107,12 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
         }
     }
 
-    public function terminate(Request $request, Response $response): void
+    /**
+     * @return void
+     */
+    public function terminate(Request $request, Response $response)
     {
-        try {
-            $this->terminating = true;
-            $this->dispatcher->dispatch(new TerminateEvent($this, $request, $response), KernelEvents::TERMINATE);
-        } finally {
-            $this->terminating = false;
-        }
+        $this->dispatcher->dispatch(new TerminateEvent($this, $request, $response), KernelEvents::TERMINATE);
     }
 
     /**
@@ -237,7 +235,7 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
      */
     private function handleThrowable(\Throwable $e, Request $request, int $type): Response
     {
-        $event = new ExceptionEvent($this, $request, $type, $e, isKernelTerminating: $this->terminating);
+        $event = new ExceptionEvent($this, $request, $type, $e);
         $this->dispatcher->dispatch($event, KernelEvents::EXCEPTION);
 
         // a listener might have replaced the exception

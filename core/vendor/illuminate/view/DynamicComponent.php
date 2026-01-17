@@ -3,7 +3,6 @@
 namespace Illuminate\View;
 
 use Illuminate\Container\Container;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\View\Compilers\ComponentTagCompiler;
 
@@ -49,7 +48,7 @@ class DynamicComponent extends Component
     public function render()
     {
         $template = <<<'EOF'
-<?php extract((new \Illuminate\Support\Collection($attributes->getAttributes()))->mapWithKeys(function ($value, $key) { return [Illuminate\Support\Str::camel(str_replace([':', '.'], ' ', $key)) => $value]; })->all(), EXTR_SKIP); ?>
+<?php extract(collect($attributes->getAttributes())->mapWithKeys(function ($value, $key) { return [Illuminate\Support\Str::camel(str_replace([':', '.'], ' ', $key)) => $value]; })->all(), EXTR_SKIP); ?>
 {{ props }}
 <x-{{ component }} {{ bindings }} {{ attributes }}>
 {{ slots }}
@@ -94,7 +93,7 @@ EOF;
             return '';
         }
 
-        return '@props('.'[\''.implode('\',\'', (new Collection($bindings))->map(function ($dataKey) {
+        return '@props('.'[\''.implode('\',\'', collect($bindings)->map(function ($dataKey) {
             return Str::camel($dataKey);
         })->all()).'\']'.')';
     }
@@ -107,9 +106,9 @@ EOF;
      */
     protected function compileBindings(array $bindings)
     {
-        return (new Collection($bindings))
-            ->map(fn ($key) => ':'.$key.'="$'.Str::camel(str_replace([':', '.'], ' ', $key)).'"')
-            ->implode(' ');
+        return collect($bindings)->map(function ($key) {
+            return ':'.$key.'="$'.Str::camel(str_replace([':', '.'], ' ', $key)).'"';
+        })->implode(' ');
     }
 
     /**
@@ -120,10 +119,9 @@ EOF;
      */
     protected function compileSlots(array $slots)
     {
-        return (new Collection($slots))
-            ->map(fn ($slot, $name) => $name === '__default' ? null : '<x-slot name="'.$name.'" '.((string) $slot->attributes).'>{{ $'.$name.' }}</x-slot>')
-            ->filter()
-            ->implode(PHP_EOL);
+        return collect($slots)->map(function ($slot, $name) {
+            return $name === '__default' ? null : '<x-slot name="'.$name.'" '.((string) $slot->attributes).'>{{ $'.$name.' }}</x-slot>';
+        })->filter()->implode(PHP_EOL);
     }
 
     /**

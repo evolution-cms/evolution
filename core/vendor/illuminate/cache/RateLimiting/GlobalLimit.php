@@ -8,11 +8,11 @@ class GlobalLimit extends Limit
      * Create a new limit instance.
      *
      * @param  int  $maxAttempts
-     * @param  int  $decaySeconds
+     * @param  int  $decayMinutes
      * @return void
      */
-    public function __construct(int $maxAttempts, int $decaySeconds = 60)
+    public function __construct(int $maxAttempts, int $decayMinutes = 1)
     {
-        parent::__construct('', $maxAttempts, $decaySeconds);
+        parent::__construct('', $maxAttempts, $decayMinutes);
     }
 }

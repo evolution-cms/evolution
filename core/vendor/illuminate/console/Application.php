@@ -8,9 +8,7 @@ use Illuminate\Contracts\Console\Application as ApplicationContract;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\ProcessUtils;
-use ReflectionClass;
 use Symfony\Component\Console\Application as SymfonyApplication;
-use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -18,9 +16,7 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
-
-use function Illuminate\Support\artisan_binary;
-use function Illuminate\Support\php_binary;
+use Symfony\Component\Process\PhpExecutableFinder;
 
 class Application extends SymfonyApplication implements ApplicationContract
 {
@@ -48,7 +44,7 @@ class Application extends SymfonyApplication implements ApplicationContract
     /**
      * The console application bootstrappers.
      *
-     * @var array<array-key, \Closure($this): void>
+     * @var array
      */
     protected static $bootstrappers = [];
 
@@ -88,7 +84,7 @@ class Application extends SymfonyApplication implements ApplicationContract
      */
     public static function phpBinary()
     {
-        return ProcessUtils::escapeArgument(php_binary());
+        return ProcessUtils::escapeArgument((new PhpExecutableFinder)->find(false));
     }
 
     /**
@@ -98,7 +94,7 @@ class Application extends SymfonyApplication implements ApplicationContract
      */
     public static function artisanBinary()
     {
-        return ProcessUtils::escapeArgument(artisan_binary());
+        return ProcessUtils::escapeArgument(defined('ARTISAN_BINARY') ? ARTISAN_BINARY : 'artisan');
     }
 
     /**
@@ -115,7 +111,7 @@ class Application extends SymfonyApplication implements ApplicationContract
     /**
      * Register a console "starting" bootstrapper.
      *
-     * @param  \Closure($this): void  $callback
+     * @param  \Closure  $callback
      * @return void
      */
     public static function starting(Closure $callback)
@@ -207,27 +203,12 @@ class Application extends SymfonyApplication implements ApplicationContract
     }
 
     /**
-     * Add an array of commands to the console.
-     *
-     * @param  array<int, \Symfony\Component\Console\Command\Command>  $commands
-     * @return void
-     */
-    #[\Override]
-    public function addCommands(array $commands): void
-    {
-        foreach ($commands as $command) {
-            $this->add($command);
-        }
-    }
-
-    /**
      * Add a command to the console.
      *
      * @param  \Symfony\Component\Console\Command\Command  $command
-     * @return \Symfony\Component\Console\Command\Command|null
+     * @return \Symfony\Component\Console\Command\Command
      */
-    #[\Override]
-    public function add(SymfonyCommand $command): ?SymfonyCommand
+    public function add(SymfonyCommand $command)
     {
         if ($command instanceof Command) {
             $command->setLaravel($this->laravel);
@@ -255,18 +236,12 @@ class Application extends SymfonyApplication implements ApplicationContract
      */
     public function resolve($command)
     {
-        if (is_subclass_of($command, SymfonyCommand::class)) {
-            $attribute = (new ReflectionClass($command))->getAttributes(AsCommand::class);
-
-            $commandName = ! empty($attribute) ? $attribute[0]->newInstance()->name : null;
-
-            if (! is_null($commandName)) {
-                foreach (explode('|', $commandName) as $name) {
-                    $this->commandMap[$name] = $command;
-                }
-
-                return null;
+        if (is_subclass_of($command, SymfonyCommand::class) && ($commandName = $command::getDefaultName())) {
+            foreach (explode('|', $commandName) as $name) {
+                $this->commandMap[$name] = $command;
             }
+
+            return null;
         }
 
         if ($command instanceof Command) {
@@ -312,7 +287,6 @@ class Application extends SymfonyApplication implements ApplicationContract
      *
      * @return \Symfony\Component\Console\Input\InputDefinition
      */
-    #[\Override]
     protected function getDefaultInputDefinition(): InputDefinition
     {
         return tap(parent::getDefaultInputDefinition(), function ($definition) {
