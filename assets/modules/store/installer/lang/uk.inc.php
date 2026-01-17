@@ -54,7 +54,6 @@ $_lang["checking_table_prefix"] = 'Перевірка префікса табл�
 $_lang["chunks"] = 'Чанки';
 $_lang["config_permissions_note"] = 'Для нової Linux/Unix‑інсталяції створіть порожній файл <span class="mono">config.inc.php</span> у папці <span class="mono">/manager/includes/</span> з правами 0666.';
 $_lang["connection_screen_collation"] = 'Порівняння:';
-$_lang["connection_screen_connection_method"] = 'Метод підключення:';
 $_lang["connection_screen_database_connection_information"] = 'Параметри бази даних';
 $_lang["connection_screen_database_connection_note"] = 'Введіть ім’я бази даних, створеної для MODX. Якщо бази даних ще немає, програма встановлення спробує створити її. Залежно від конфігурації MySQL або прав користувача це може не вдатися.';
 $_lang["connection_screen_database_host"] = 'Хост бази даних:';

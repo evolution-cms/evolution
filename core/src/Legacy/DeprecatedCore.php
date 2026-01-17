@@ -20,7 +20,7 @@ class DeprecatedCore implements DeprecatedCoreInterface
      * @deprecated
      *
      * @param $sql
-     * @return bool|\mysqli_result|resource
+     * @return bool|\PDOStatement
      */
     public function dbQuery($sql)
     {

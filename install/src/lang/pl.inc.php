@@ -52,7 +52,6 @@ $_lang = [
   'chunks' => 'Chunki',
   'config_permissions_note' => 'Dla nowych instalacji na systemach Linux/Unix utwórz pusty plik o nazwie <code>config.inc.php</code> w folderze <code>/[+MGR_DIR+]/includes/</code> i ustaw dla niego prawa dostępu na 0666.',
   'connection_screen_collation' => 'System porównań (collation): ',
-  'connection_screen_connection_method' => 'Metoda połączenia: ',
   'connection_screen_database_connection_information' => 'Informacje o bazie danych',
   'connection_screen_database_connection_note' => 'Wybierz nazwę bazy danych, którą chcesz użyć dla tej instalacji EVO. Jeśli baza danych nie istnieje, instalator podejmie próbę utworzenia jej. Utworzenie nowej bazy danych może się nie powieść, jeśli użytkownik [+database_type+] nie ma wystarczających uprawnień.',
   'connection_screen_database_host' => 'Host bazy danych:',

@@ -1,10 +1,13 @@
 <?php
 // Determine upgradeability
-$isNew = true;
 $isConnectable = false;
-if (is_file(EVO_CORE_PATH . 'config/database/connections/default.php')) { // Include the file so we can test its validity
+$installMode = isset($_POST['installmode']) ? (int)$_POST['installmode'] : 0;
+
+if (!is_file(EVO_CORE_PATH . 'config/database/connections/default.php')) {
+    $isNew = true;
+} else {
+    $isNew = false;
     $db_config = include_once EVO_CORE_PATH . 'config/database/connections/default.php';
-    // We need to have all connection settings - tho prefix may be empty, so we have to ignore it
     if (isset($db_config['database'])) {
         try {
             $pdoOptions = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
@@ -14,9 +17,8 @@ if (is_file(EVO_CORE_PATH . 'config/database/connections/default.php')) { // Inc
         } catch (PDOException $e) {
             $isConnectable = false;
         }
-        $isNew = isset($_POST['installmode']) && $_POST['installmode'] === 'new';
     } else {
-        $isNew = true;
+        $isConnectable = false;
     }
 }
 
@@ -25,8 +27,8 @@ $ph['displayNew'] = !$isNew ? 'hidden' : '';
 $ph['displayUpg'] = $isNew ? 'hidden' : '';
 $ph['displayAdvUpg'] = $ph['displayUpg'];
 $ph['checkedNew'] = $isNew ? 'checked' : '';
-$ph['checkedUpg'] = (!$isNew && $isConnectable) || (isset($_POST['installmode']) && $_POST['installmode'] == 1) ? 'checked' : '';
-$ph['checkedAdvUpg'] = (!$isNew && !$isConnectable) || (isset($_POST['installmode']) && $_POST['installmode'] == 2) ? 'checked' : '';
+$ph['checkedUpg'] = ((!$isNew && $isConnectable) || ($installMode === 1)) ? 'checked' : '';
+$ph['checkedAdvUpg'] = ((!$isNew && !$isConnectable) || ($installMode === 2)) ? 'checked' : '';
 $ph['install_language'] = $install_language;
 $ph['disabledUpg'] = !$isConnectable ? 'disabled' : '';
 $ph['disabledAdvUpg'] = '';

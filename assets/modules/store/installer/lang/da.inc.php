@@ -52,7 +52,6 @@ $_lang["checking_table_prefix"] = 'Kontrollerer database tabellernes præfiks `'
 $_lang["chunks"] = 'Chunks';
 $_lang["config_permissions_note"] = 'Ved nyinstallation under Linux eller Unix, skal du oprette en tom fil, med navnet <span class="mono">config.inc.php</span> i <span class="mono">/'.MGR_DIR.'/includes/</span> mappen, med filrettighederne indstillet til 0666.';
 $_lang["connection_screen_collation"] = 'Collation:';
-$_lang["connection_screen_connection_method"] = 'Connection\'s metode:';
 $_lang["connection_screen_database_connection_information"] = 'Database information';
 $_lang["connection_screen_database_connection_note"] = 'Indtast navnet på databasen der skal bruges, eller som der skal oprettes til denne MODx installation. Hvis der ikke er oprettet en database, vil installationen forsøge at oprette den. Dette kan dog ikke altid gennemføres pga. brugerrettighederne i den pågældende database.';
 $_lang["connection_screen_database_host"] = 'Database host:';

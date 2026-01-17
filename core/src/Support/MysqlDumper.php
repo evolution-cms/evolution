@@ -241,7 +241,7 @@ class MysqlDumper implements MysqlDumperInterface
 
     /**
      * @param int $numinarray
-     * @param \mysqli_result $resource
+     * @param \PDOStatement $resource
      * @return array
      */
     public function result2Array($numinarray = 0, $resource)
@@ -265,7 +265,7 @@ class MysqlDumper implements MysqlDumperInterface
 
     /**
      * @param string $key
-     * @param \mysqli_result $resource
+     * @param \PDOStatement $resource
      * @return array
      */
     public function loadObjectList($key = '', $resource)

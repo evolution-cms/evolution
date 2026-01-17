@@ -51,7 +51,6 @@ $_lang["checking_table_prefix"] = 'Vérification du préfixe de table `';
 $_lang["chunks"] = 'Chunks';
 $_lang["config_permissions_note"] = 'Lors des installations Linux/Unix, veuillez créer un nouveau fichier nommé <span class=\"mono\">config.inc.php</span> dans le répertoire <span class=\"mono\">'.MGR_DIR.'/includes/</span> avec les droits d\'accès 0666.';
 $_lang["connection_screen_collation"] = 'Collation:';
-$_lang["connection_screen_connection_method"] = 'Méthode de connexion:';
 $_lang["connection_screen_database_connection_information"] = 'Informations base de données';
 $_lang["connection_screen_database_connection_note"] = 'Veuillez saisir le nom de la base de données créée pour MODx. Si la base est inexistante, le programme d\'installation tentera de la créer pour vous. Cette opération est susceptible d\'échouer en fonction des autorisations de l\'utilisateur MySQL.';
 $_lang["connection_screen_database_host"] = 'Serveur hébergeant la base:';

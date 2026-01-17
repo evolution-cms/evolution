@@ -70,7 +70,9 @@ class Database extends Manager
     }
 
     /**
-     * {@inheritDoc}
+     * @param string $sql
+     * @param bool $watchError
+     * @return false|PDOStatement
      */
     public function query($sql, $watchError = true)
     {
@@ -78,6 +80,7 @@ class Database extends Manager
             $start = microtime(true);
             $pdo = \DB::connection()->getPdo();
             $out = [];
+            // @todo remove as it is not used and $out->execute() can't be called directly on regular array $out
             if (\is_array($sql)) {
                 foreach ($sql as $query) {
                     $out[] = $pdo->prepare($this->replaceFullTableName($query));
@@ -95,6 +98,7 @@ class Database extends Manager
                 evo()->getService('ExceptionHandler')->messageQuit($exception->getMessage());
             }
         }
+        return false;
     }
 
     /**
@@ -142,7 +146,6 @@ class Database extends Manager
     /**
      * @param  string  $sql
      * @return PDOStatement|bool
-     * @throws Exceptions\ConnectException
      */
     public function prepare($sql)
     {
@@ -169,7 +172,7 @@ class Database extends Manager
     {
         if (!$this->isConnected()) {
             $this->connect();
-            if (!$this->conn->getPdo() instanceof PDO) {
+            if (!$this->conn->getPdo() instanceof \PDO) {
                 $this->conn->reconnect();
             }
         } else {
@@ -183,7 +186,7 @@ class Database extends Manager
      */
     public function isConnected()
     {
-        return $this->conn instanceof Connection && $this->conn->getPdo() instanceof PDO;
+        return $this->conn instanceof Connection && $this->conn->getPdo() instanceof \PDO;
     }
 
     public function insertFrom(
@@ -211,7 +214,7 @@ class Database extends Manager
     }
 
     /**
-     * {@inheritDoc}
+     * @todo remove in 3.5.7 as it extends parent functionality with non-existing in the current project classes
      */
     public function setDebug($flag)
     {
@@ -270,7 +273,7 @@ class Database extends Manager
 
     /**
      * @param  PDOStatement  $result
-     * {@inheritDoc}
+     * @return mixed
      */
     public function getRow($result, $mode = 'assoc')
     {
@@ -479,7 +482,7 @@ class Database extends Manager
      * @param  string  $where
      * @param  string  $orderBy
      * @param  string  $limit
-     * @return bool|mysqli_result
+     * @return bool
      */
     public function delete($from, $where = '', $orderBy = '', $limit = '')
     {
@@ -518,7 +521,7 @@ class Database extends Manager
 
     /**
      * @param $name
-     * @param  \mysqli_result|string  $dsq
+     * @param  \PDOStatement|string  $dsq
      * @return array
      */
     public function getColumn($name, $dsq)
@@ -538,7 +541,7 @@ class Database extends Manager
     }
 
     /**
-     * @param  \mysqli_result|string  $dsq
+     * @param  \PDOStatement|string  $dsq
      * @return array
      */
     public function getColumnNames($dsq): array
@@ -656,7 +659,7 @@ class Database extends Manager
      * @param  array|string  $fields
      * @param $table
      * @param  string  $where
-     * @return bool|mysqli_result
+     * @return false|PDOStatement
      */
     public function update($fields, $table, $where = "")
     {

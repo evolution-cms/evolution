@@ -32,7 +32,7 @@
                 <?=$_lang['setup_database_creation_failed_note']?>
             </p>
             <pre>
-                database charset = <?=$database_charset?>
+                database charset = <?=$database_connection_charset?>
                 database collation = <?=$database_collation?>
             </pre>
             <p><?=$_lang['setup_database_creation_failed_note2']?></p>

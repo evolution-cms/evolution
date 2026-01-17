@@ -1,4 +1,5 @@
-<?php use EvolutionCMS\Facades\Console;
+<?php
+use EvolutionCMS\Facades\Console;
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -28,21 +29,23 @@ global $errors;
 @set_time_limit(300); // used @ to prevent warning when using safe mode?
 
 $installMode = (int)$_POST['installmode'];
-$installData = (int)!empty($_POST['installdata']);
+$installData = $_POST['installdata'] == '1' ? 1 : 0;
 
 // get db info from post
-$database_server = strip_tags($_POST['databasehost']);
-$database_type = strip_tags($_POST['database_type']);
-$database_user = $_SESSION['databaseloginname'];
-$database_password = $_SESSION['databaseloginpassword'];
-$database_collation = strip_tags($_POST['database_collation']);
-$database_charset = $database_connection_charset = $_POST['database_connection_charset'];
-$database_connection_method = $_POST['database_connection_method'];
-$dbase = '`' . strip_tags($_POST['database_name']) . '`';
-$adminname = strip_tags($_POST['cmsadmin']);
-$adminemail = strip_tags($_POST['cmsadminemail']);
-$adminpass = strip_tags($_POST['cmspassword']);
-$managerlanguage = $_POST['managerlanguage'];
+$database_type = validateDbType($_POST['database_type']);
+$database_server = validateDbHost($_POST['databasehost'], $database_type);
+$database_user = $_SESSION['databaseloginname'] ?? '';
+$database_password = $_SESSION['databaseloginpassword'] ?? '';
+$database_collation = validateDbCollation($_POST['database_collation']);
+$database_connection_charset = validateDbCollation($_POST['database_connection_charset']);
+$dbase = validateDbName($_POST['database_name']);
+if ($installMode !== 1) {
+    $adminname = validateAdminUsername($_POST['cmsadmin']);
+    $adminemail = validateAdminEmail($_POST['cmsadminemail']);
+    $adminpass = validateAdminPassword($_POST['cmspassword']);
+    $adminpassconfirm = validateAdminPassword($_POST['cmspasswordconfirm']);
+    $managerlanguage = validateLangCode($_POST['managerlanguage']);
+}
 $custom_placeholders = [];
 
 // set session name variable
@@ -71,10 +74,10 @@ $host = explode(':', $database_server, 2);
 
 global $conn;
 try {
-    if ($_POST['database_type'] === 'sqlite') {
-        $dbh = new PDO('sqlite:' . $_POST['database_name']);
+    if ($database_type === 'sqlite') {
+        $dbh = new PDO('sqlite:' . $dbase);
     } else {
-        $dbh = new PDO($_POST['database_type'] . ':host=' . $_POST['databasehost'] . ';dbname=' . $_POST['database_name'], $database_user, $database_password);
+        $dbh = new PDO($database_type . ':host=' . $database_server . ';dbname=' . $dbase, $database_user, $database_password);
     }
 
     include dirname(__DIR__) . '/processor/result.php';
@@ -88,17 +91,16 @@ try {
     if ($installLevel === 1) {
         // write the config.inc.php file if new installation
         $confph = [];
-        $confph['database_server'] = $database_server;
-        $confph['database_type'] = $database_type;
-        $confph['user_name'] = $database_user;
-        $confph['password'] = $database_password;
-        $confph['connection_charset'] = $database_connection_charset;
-        $confph['connection_collation'] = $database_collation;
-        $confph['connection_method'] = $database_connection_method;
-        $confph['dbase'] = str_replace('`', '', $dbase);
-        $confph['table_prefix'] = strip_tags($_POST['tableprefix']);
+        $confph['database_server'] = addslashes($database_server);
+        $confph['database_type'] = addslashes($database_type);
+        $confph['user_name'] = addslashes($database_user);
+        $confph['password'] = addslashes($database_password);
+        $confph['connection_charset'] = addslashes($database_connection_charset);
+        $confph['connection_collation'] = addslashes($database_collation);
+        $confph['dbase'] = addslashes($dbase);
+        $confph['table_prefix'] = addslashes($_POST['tableprefix'] ?? '');
         $confph['lastInstallTime'] = time();
-        $confph['site_sessionname'] = $site_sessionname;
+        $confph['site_sessionname'] = addslashes($site_sessionname);
         $confph['database_engine'] = '';
         switch ($database_type) {
             case 'pgsql':
@@ -265,7 +267,7 @@ try {
     $errorData = false;
     // Install Templates
     if ($installLevel === 5 && (isset($_POST['template']) || $installData)) {
-        $selTemplates = $_POST['template'] ?? [];
+        $selTemplates = array_filter((array)($_POST['template'] ?? []), 'is_numeric');
         foreach ($moduleTemplates as $k => $moduleTemplate) {
             if (!is_array($moduleTemplate)) {
                 continue;
@@ -330,7 +332,7 @@ try {
 
     // Install Template Variables
     if ($installLevel === 5 && $errorData === false && (isset($_POST['tv']) || $installData)) {
-        $selTVs = $_POST['tv'] ?? [];
+        $selTVs = array_filter((array)($_POST['tv'] ?? []), 'is_numeric');
         foreach ($moduleTVs as $k => $moduleTV) {
             $templateVariablesData = [
                 'name' => $moduleTV[0],
@@ -375,7 +377,7 @@ try {
 
     // Install Chunks
     if ($installLevel === 5 && $errorData === false && (isset ($_POST['chunk']) || $installData)) {
-        $selChunks = $_POST['chunk'] ?? [];
+        $selChunks = array_filter((array)($_POST['chunk'] ?? []), 'is_numeric');
         foreach ($moduleChunks as $k => $moduleChunk) {
             if (!is_array($moduleChunk)) {
                 continue;
@@ -438,7 +440,7 @@ try {
 
     // Install Modules
     if ($installLevel === 5 && $errorData === false && (isset ($_POST['module']) || $installData)) {
-        $selModules = $_POST['module'] ?? [];
+        $selModules = array_filter((array)($_POST['module'] ?? []), 'is_numeric');
         foreach ($moduleModules as $k => $moduleModule) {
             if (!is_array($moduleModule)) {
                 continue;
@@ -499,7 +501,7 @@ try {
     }
     // Install Plugins
     if ($installLevel === 5 && $errorData === false && (isset ($_POST['plugin']) || $installData)) {
-        $selPlugs = $_POST['plugin'] ?? [];
+        $selPlugs = array_filter((array)($_POST['plugin'] ?? []), 'is_numeric');
         foreach ($modulePlugins as $k => $modulePlugin) {
             if (!is_array($modulePlugin)) {
                 continue;
@@ -636,7 +638,7 @@ try {
 
     // Install Snippets
     if ($installLevel === 5 && $errorData === false && (isset ($_POST['snippet']) || $installData)) {
-        $selSnips = $_POST['snippet'] ?? [];
+        $selSnips = array_filter((array)($_POST['snippet'] ?? []), 'is_numeric');
         foreach ($moduleSnippets as $k => $moduleSnippet) {
             if (!is_array($moduleSnippet)) {
                 continue;
@@ -673,10 +675,10 @@ try {
                         $snippetRecord = $snippetRecord->first();
                         $installDataLevel['snippets'][$moduleSnippet[0]]['type'] = 'update';
 
-                        $props = propUpdate($properties, $row['properties']);
+                        $props = propUpdate($properties, $snippetRecord->properties);
                         $snippetRecord->snippet = $snippet;
-                        $snippetRecord->description = $props;
-                        $snippetRecord->properties = $name;
+                        $snippetRecord->description = $desc;
+                        $snippetRecord->properties = $props;
                         $snippetRecord->save();
                     } else {
                         $installDataLevel['snippets'][$moduleSnippet[0]]['type'] = 'create';
@@ -709,11 +711,11 @@ try {
         } else {
             $installLevel = 6;
             $sql = "SELECT id FROM `" . table_prefix('site_templates') . "` WHERE templatename='Evolution CMS startup - Bootstrap'";
-            $rs = mysqli_query($sqlParser->conn, $sql);
-            if (mysqli_num_rows($rs)) {
-                $row = mysqli_fetch_assoc($rs);
+            $stmt = $sqlParser->conn->query($sql);
+            if ($stmt->rowCount()) {
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
                 $sql = "UPDATE `" . table_prefix('site_content') . "` SET template=" . (int)$row['id'] . " WHERE template=4";
-                mysqli_query($sqlParser->conn, $sql);
+                $sqlParser->conn->exec($sql);
             }
         }
     }
@@ -768,14 +770,16 @@ try {
 
     if ($installLevel === 7) {
         if (file_exists(MODX_BASE_PATH.'assets/cache/installProc.inc.php')) {
-            @chmod(MODX_BASE_PATH.'assets/cache/installProc.inc.php', 0755);
             unlink(MODX_BASE_PATH.'assets/cache/installProc.inc.php');
+        }
+        if (file_exists($base_path.'install.session.php')) {
+            unlink($base_path.'install.session.php');
         }
         file_put_contents(EVO_CORE_PATH . '.install', time());
     }
 
 } catch (PDOException $e) {
-    if (!stristr($e->getMessage(), 'database "' . $_POST['database_name'] . '" does not exist') && !stristr($e->getMessage(), 'Unknown database \'' . $_POST['database_name'] . '\'')) {
+    if (!stristr($e->getMessage(), 'database "' . $dbase . '" does not exist') && !stristr($e->getMessage(), 'Unknown database \'' . $dbase . '\'')) {
         echo ($output ?? '') . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
         exit();
     }

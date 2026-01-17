@@ -12,7 +12,6 @@
     <input type="hidden" value="[+install_language+]" name="language" />
     <input type="hidden" value="1" name="chkagree" [+checkedChkagree+] />
     <input type="hidden" value="[+installMode+]" name="installmode" />
-    <input type="hidden" value="[+database_connection_method+]" name="database_connection_method" />
     <h2>[%connection_screen_database_info%]</h2>
     <h3>[%connection_screen_server_connection_information%]</h3>
     <p>[%connection_screen_server_connection_note%]</p>
@@ -55,15 +54,6 @@
                 <label for="tableprefix">[%connection_screen_table_prefix%]</label>
                 <input type="text" id="tableprefix" value="[+tableprefix+]" name="tableprefix" />
                 <small class="is-invalid">[%alert_table_prefixes%]</small>
-            </p>
-            <p class="labelHolder" [+show#connection_method+]>
-                <label for="database_connection_method">[%connection_screen_connection_method%]</label>
-                <span id="connection_method" name="connection_method">
-                    <select id="database_connection_method" name="database_connection_method">
-                        <option value="SET CHARACTER SET" [+selected_set_character_set+]>SET CHARACTER SET</option>
-                        <option value="SET NAMES" [+selected_set_names+]>SET NAMES</option>
-                    </select>
-                </span>
             </p>
             <p class="labelHolder">
                 <label for="database_collation">[%connection_screen_collation%]</label>
@@ -217,7 +207,6 @@
                 database_name: form.database_name.value,
                 tableprefix: form.tableprefix.value,
                 database_collation: form.database_collation.value,
-                database_connection_method: form.database_connection_method.value,
                 language: language,
                 installMode: installMode
             },
@@ -263,9 +252,14 @@
             form.cmsadmin.focus();
             return false;
         }
-        if (!form.cmspassword?.value) {
+        if (form.cmspassword?.value?.length < 8) {
             form.cmspassword.parentElement.classList.add('has-error');
             form.cmspassword.focus();
+            return false;
+        }
+        if (form.cmspasswordconfirm?.value?.length < 8) {
+            form.cmspasswordconfirm.parentElement.classList.add('has-error');
+            form.cmspasswordconfirm.focus();
             return false;
         }
         if (form.cmspasswordconfirm?.value !== form.cmspassword?.value) {

@@ -28,6 +28,59 @@ if (! defined('EVO_CORE_PATH')) {
 require_once 'src/lang.php';
 require_once 'src/functions.php';
 
+// Start session
+session_start();
+
+// Get current IP, session ID, and current time
+$ip = $_SERVER['REMOTE_ADDR'];
+$sid = session_id();
+$current_time = time();
+
+// Get session GC max lifetime
+$maxlifetime = (int) ini_get('session.gc_maxlifetime');
+if ($maxlifetime <= 0) {
+    $maxlifetime = 1440; // Default to 24 minutes if not set
+}
+
+// Define lock file path
+$lockfile = $base_path . 'install.session.php';
+
+// Ensure cache directory exists
+$cache_dir = EVO_CORE_PATH . 'storage/cache/';
+if (!is_dir($cache_dir)) {
+    mkdir($cache_dir, 0755, true);
+}
+
+if (file_exists($lockfile)) {
+    include $lockfile; // Loads $install_session, $install_ip, $install_timestamp
+
+    if ($sid === $install_session && $ip === $install_ip) {
+        // Update timestamp and rewrite lock file
+        $install_timestamp = $current_time;
+        $content = "<?php\n\$install_session = '" . addslashes($sid) . "';\n\$install_ip = '" . addslashes($ip) . "';\n\$install_timestamp = " . $install_timestamp . ";\n";
+        file_put_contents($lockfile, $content);
+        // Proceed with installation
+    } else {
+        // Check if lock has expired
+        if ($current_time > $install_timestamp + $maxlifetime) {
+            // Expired, remove lock and create new
+            @unlink($lockfile);
+            $content = "<?php\n\$install_session = '" . addslashes($sid) . "';\n\$install_ip = '" . addslashes($ip) . "';\n\$install_timestamp = " . $current_time . ";\n";
+            file_put_contents($lockfile, $content);
+            // Proceed
+        } else {
+            // Block access
+            header('HTTP/1.1 404 Not Found');
+            exit;
+        }
+    }
+} else {
+    // Create new lock file
+    $content = "<?php\n\$install_session = '" . addslashes($sid) . "';\n\$install_ip = '" . addslashes($ip) . "';\n\$install_timestamp = " . $current_time . ";\n";
+    file_put_contents($lockfile, $content);
+    // Proceed
+}
+
 $nonce = csrfNonce();
 header("content-security-policy: default-src 'self' 'nonce-$nonce';"
     . " script-src 'self' 'nonce-$nonce'; style-src 'self' 'nonce-$nonce';"
@@ -36,8 +89,6 @@ header("content-security-policy: default-src 'self' 'nonce-$nonce';"
 if (empty($_GET['s'])) {
     require_once '../' . MGR_DIR . '/includes/version.inc.php';
 
-    // start session
-    session_start();
     $_SESSION['test'] = 1;
     install_sessionCheck();
 
