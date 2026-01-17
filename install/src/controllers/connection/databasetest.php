@@ -1,16 +1,15 @@
 <?php
-$driver = strip_tags($_POST['database_type']);
-$host = strip_tags($_POST['host']);
-$uid = strip_tags($_POST['uid']);
-$pwd = strip_tags($_POST['pwd']);
-$tableprefix = strip_tags($_POST['tableprefix']);
-$database_name = strip_tags($_POST['database_name']);
-$installMode = $_POST['installMode'];
+$driver = validateDbType($_POST['database_type']);
+$host = validateDbHost($_POST['host'], $driver);
+$uid = validateDbUser($_POST['uid'], $driver);
+$pwd = validateDbPassword($_POST['pwd'], $driver);
+$tableprefix = validateTablePrefix($_POST['tableprefix']);
+$database_name = validateDbName($_POST['database_name']);
+$installMode = (int)$_POST['installMode'];
 
 $output = $_lang['status_checking_database'];
 $h = explode(':', $host, 2);
 $database_collation = $_POST['database_collation'];
-$database_connection_method = $_POST['database_connection_method'];
 
 $database_charset = getDatabaseCharset($database_collation, $driver);
 try {

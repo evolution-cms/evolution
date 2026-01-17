@@ -52,7 +52,6 @@ $_lang = [
   'chunks' => 'Chunky',
   'config_permissions_note' => 'Pro nové instalace na Linux/Unix vytvořte prosím prázdný soubor s názvem <code>config.inc.php</code> v adresáři <code>/[+MGR_DIR+]/includes/</code> a nastavte oprávnění souboru na 0666.',
   'connection_screen_collation' => 'Porovnání:',
-  'connection_screen_connection_method' => 'Způsob připojení:',
   'connection_screen_database_connection_information' => 'Informace o databázi',
   'connection_screen_database_connection_note' => 'Zadejte název databáze, kterou chcete použít nebo kterou chcete vytvořit pro tuto instalaci systému Evolution CMS. Pokud databáze neexistuje pokusí se ji instalátor vytvořit. Toto se nemusí povést v závislosti na nastavení [+database_type+] nebo na uživatelských právech pro vaši doménu/instalaci.',
   'connection_screen_database_host' => 'Hostitel databáze:',

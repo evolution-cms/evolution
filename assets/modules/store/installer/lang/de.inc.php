@@ -51,7 +51,6 @@
 	$_lang["chunks"] = 'Chunks';
 	$_lang["config_permissions_note"] = 'Für neue Linux/Unix Installationen bitt eine leere Datei <span class="mono">config.inc.php</span> im Ordner <span class="mono">'.MGR_DIR.'/includes/</span> anlegen und die Dateirechte auf 0666 setzen.';
 	$_lang["connection_screen_collation"] = 'Kollation:';
-	$_lang["connection_screen_connection_method"] = 'Verbindungsmethode:';
 	$_lang["connection_screen_database_connection_information"] = 'Datenbankinformationen';
 	$_lang["connection_screen_database_connection_note"] = 'Bitte geben Sie den Namen der Datenbank an, die Sie für MODx nutzen wollen. Falls die Datenbank nicht existiert, wird MODx versuchen sie zu erstellen. Dies kann fehlschlagen, falls Sie nicht die nötigen Rechte besitzen. Bei vielen Web-Hosting-Angeboten sind die Datenbanken bereits eingerichtet oder können in der Administrationsoberfläche des Web-Hosting-Angebots erstellt werden. Notieren Sie diesen Namen und geben Sie ihn hier ein.';
 	$_lang["connection_screen_database_host"] = 'Datenbank-Host:';

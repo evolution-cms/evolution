@@ -52,7 +52,6 @@ $_lang = [
   'chunks' => 'Chunks',
   'config_permissions_note' => 'Per nuove installazioni su Linux/Unix, vi preghiamo di creare un file vuoto <code>config.inc.php</code> nella directory <code>/[+MGR_DIR+]/includes/</code> con i permessi di scrittura a 0666.',
   'connection_screen_collation' => 'Collation:',
-  'connection_screen_connection_method' => 'Tipo di connessione:',
   'connection_screen_database_connection_information' => 'Informazioni sul Database',
   'connection_screen_database_connection_note' => 'Inserite il nome del database da usare o che volete creare per questa installazione EVO. Se il database non esiste, il programma di installazione prover&agrave; a crearlo. Questa operazione potrebbe non riuscire in funzione della vostra configurazione di [+database_type+].',
   'connection_screen_database_host' => 'Server del Database:',

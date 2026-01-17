@@ -52,7 +52,6 @@ $_lang = [
   'chunks' => 'چانکها',
   'config_permissions_note' => 'برای نصب جدید روی لینوکس/یونیکس, لطفا یک فایل خالی به نام <code>config.inc.php</code> در دایرکتوری <code>[+MGR_DIR+]/includes/</code> ایجاد کنید که سطح دسترسی به آن 0666 تنظیم شده باشد.',
   'connection_screen_collation' => 'تطبیق(Collation):',
-  'connection_screen_connection_method' => 'روش اتصال:',
   'connection_screen_database_connection_information' => 'اطلاعات پایگاه داده',
   'connection_screen_database_connection_note' => 'لطفا نام کاربری پایگاه داده ای را که برای مدایکس ساخته اید بدهید.اگر پایگاه داده ای وجود نداشت برنامه شما را برای ایجاد پایگاه داده مطلع می کند. ممکن است به دلیل تنظیمات پایگاه داده این عمل با مشکل روبرو شود.',
   'connection_screen_database_host' => 'نوع میزبانی پایگاه داده:',

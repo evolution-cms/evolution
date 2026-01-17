@@ -56,7 +56,6 @@ $_lang["checking_table_prefix"] = 'Kontrollerar tabellprefixet `';
 $_lang["chunks"] = 'Chunks';
 $_lang["config_permissions_note"] = 'För nya installationer i Linux/Unix-miljö måste en tom fil med namnet <span class="mono">config.inc.php</span> skapas i katalogen <span class="mono">/'.MGR_DIR.'/includes/</span> med åtkomsträttigheterna satta till 0666.';
 $_lang["connection_screen_collation"] = 'Kollationering:';
-$_lang["connection_screen_connection_method"] = 'Anslutningsmetod:';
 $_lang["connection_screen_database_connection_information"] = 'Databasuppgifter';
 $_lang["connection_screen_database_connection_note"] = 'Ange namnet på den databas som ska användas eller som du vill skapa för denna MODx-installation. Om det inte finns någon databas kommer installationsprogrammet att försöka skapa en. Det här kan misslyckas beroende på hur MySQLs åtkomsträttigheter är konfigurerade.';
 $_lang["connection_screen_database_host"] = 'Databasens värd:';

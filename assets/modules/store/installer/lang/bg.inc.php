@@ -51,7 +51,6 @@ $_lang["chunks"] = 'Чънкове';
 $_lang["config_permissions_note"] = 'За нови Linux/Unix инсталации, моля, създайте празен файл с име <span class=\"mono\">config.inc.php</span> в директорията <span class=\"mono\">'.MGR_DIR.'/includes/</span> и задайте права на файла 0666.';
 $_lang["connection_screen_collation"] = 'Колация:';
 $_lang["connection_screen_connection_information"] = 'Информация за връзката';
-$_lang["connection_screen_connection_method"] = 'Начин на свързване - метод:';
 $_lang["connection_screen_database_connection_information"] = 'Информация за БД';
 $_lang["connection_screen_database_connection_note"] = 'Моля, въведете името на БД, създадена за MODX. В случай, че няма такава БД, инсталаторът ще се опита да я създаде. Създаването може да е неуспешно, тъй като зависи от конфигурацията на MySQL или правата за достъп до БД на потребителя.';
 $_lang["connection_screen_database_host"] = 'Хостване на БД:';

@@ -52,7 +52,6 @@ $_lang = [
   'chunks' => 'Chunks',
   'config_permissions_note' => 'Para novas instalações de Linux/Unix, crie um arquivo vazio chamado <code>config.inc.php</code> no diretório <code>[+MGR_DIR+]/includes/</code> com as permissões de 0666.',
   'connection_screen_collation' => 'Collation:',
-  'connection_screen_connection_method' => 'Método de conexão:',
   'connection_screen_database_connection_information' => 'Informação da Base de Dados.',
   'connection_screen_database_connection_note' => 'Entre com o nome da base de dados que você criou para o Evolution CMS. Se você ainda não criou uma base de dados, a instalação irá tentar criar uma base para você. Isto pode falhar dependendo das configurações [+database_type+] das permissões de usuário de seu domínio/instalação.',
   'connection_screen_database_host' => 'Servidor da Base de Dados:',

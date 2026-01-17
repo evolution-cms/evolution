@@ -56,7 +56,6 @@ $_lang["checking_table_prefix"] = 'Sprawdzanie prefiksu tabeli `';
 $_lang["chunks"] = 'Chunki';
 $_lang["config_permissions_note"] = 'Dla nowych instalacji na systemach Linux/Unix utwórz pusty plik o nazwie <span class="mono">config.inc.php</span> w folderze <span class="mono">/'.MGR_DIR.'/includes/</span> i ustaw dla niego prawa dostępu na 0666.';
 $_lang["connection_screen_collation"] = 'System porównań (collation): ';
-$_lang["connection_screen_connection_method"] = 'Metoda połączenia: ';
 $_lang["connection_screen_database_connection_information"] = 'Informacje o bazie danych';
 $_lang["connection_screen_database_connection_note"] = 'Wybierz nazwę bazy danych, którą chcesz użyć dla tej instalacji MODxa. Jeśli baza danych nie istnieje, instalator podejmie próbę utworzenia jej. Utworzenie nowej bazy danych może się nie powieść, jeśli użytkownik MySQL nie ma wystarczających uprawnień.';
 $_lang["connection_screen_database_host"] = 'Host bazy danych:';

@@ -967,12 +967,12 @@ if (!function_exists('renderFormElement')) {
     } // end renderFormElement function
 }
 
-if (!function_exists('ParseIntputOptions')) {
+if (!function_exists('ParseInputOptions')) {
     /**
-     * @param string|array|mysqli_result $v
+     * @param string|array $v
      * @return array
      */
-    function ParseIntputOptions($v)
+    function ParseInputOptions($v): array
     {
         $modx = evo();
         if (is_array($v)) {
@@ -989,5 +989,18 @@ if (!function_exists('ParseIntputOptions')) {
         }
 
         return $a;
+    }
+}
+if (!function_exists('ParseIntputOptions')) {
+    /**
+     * @param $v
+     * @return array
+     * @todo [remove@3.7] Remove in Evolution CMS 3.7
+     * @deprecated
+     * @since 3.5.0
+     */
+    function ParseIntputOptions($v)
+    {
+        return ParseInputOptions($v);
     }
 }

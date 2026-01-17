@@ -2,11 +2,20 @@
 
 namespace EvolutionCMS\Providers;
 
-use Illuminate\Contracts\Session\Session;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Route;
 use Illuminate\Session\SessionServiceProvider as IlluminateSessionServiceProvider;
 use Illuminate\Session\SessionManager;
 
+/**
+ * @deprecated
+ * @since 3.5.0
+ *
+ * Class is not used. Session restore is not needed at the core level and may be implemented in the user snippets
+ *
+ * @todo [remove@3.7] Remove in Evolution CMS 3.7
+ * @property \DocumentParser $app
+ */
 class SessionServiceProvider extends IlluminateSessionServiceProvider
 {
     /**

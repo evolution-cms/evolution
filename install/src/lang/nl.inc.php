@@ -52,7 +52,6 @@ $_lang = [
   'chunks' => 'Chunks',
   'config_permissions_note' => 'Voor nieuwe Linux / Unix installaties, maak een leeg bestand met de naam <code>config.inc.php</code> in de <code>/[+MGR_DIR+]/includes/</code> map met permissie ingesteld op 0666.',
   'connection_screen_collation' => 'Collatie:',
-  'connection_screen_connection_method' => 'Connectie methode:',
   'connection_screen_database_connection_information' => 'Database informatie',
   'connection_screen_database_connection_note' => 'Voer de databasenaam in die u wilt gebruiken of die u wilt maken voor deze EVO-installatie. Als er geen database bestaat, probeert het installatieprogramma er een te maken. Dit kan mislukken afhankelijk van de [+database_type+]-gebruikersrechten.',
   'connection_screen_database_host' => 'Database host:',

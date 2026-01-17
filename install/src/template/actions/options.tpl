@@ -18,7 +18,6 @@
         <input type="hidden" value="[+database_type+]" name="database_type" />
         <input type="hidden" value="[+database_collation+]" name="database_collation" />
         <input type="hidden" value="[+database_connection_charset+]" name="database_connection_charset" />
-        <input type="hidden" value="[+database_connection_method+]" name="database_connection_method" />
         <input type="hidden" value="[+databasehost+]" name="databasehost" />
         <input type="hidden" value="[+cmsadmin+]" name="cmsadmin" />
         <input type="hidden" value="[+cmsadminemail+]" name="cmsadminemail" />

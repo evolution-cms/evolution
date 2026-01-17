@@ -52,7 +52,6 @@ $_lang = [
   'chunks' => 'Чънкове',
   'config_permissions_note' => 'За нови Linux/Unix инсталации, моля, създайте празен файл с име <code>config.inc.php</code> в директорията <code>[+MGR_DIR+]/includes/</code> и задайте права на файла 0666.',
   'connection_screen_collation' => 'Колация:',
-  'connection_screen_connection_method' => 'Начин на свързване - метод:',
   'connection_screen_database_connection_information' => 'Информация за БД',
   'connection_screen_database_connection_note' => 'Моля, въведете името на БД, създадена за Evolution CMS. В случай, че няма такава БД, инсталаторът ще се опита да я създаде. Създаването може да е неуспешно, тъй като зависи от конфигурацията на [+database_type+] или правата за достъп до БД на потребителя.',
   'connection_screen_database_host' => 'Хостване на БД:',

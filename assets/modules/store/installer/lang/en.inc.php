@@ -51,7 +51,6 @@ $_lang["checking_table_prefix"] = 'Checking table prefix `';
 $_lang["chunks"] = 'Chunks';
 $_lang["config_permissions_note"] = 'For new Linux/Unix installs, please create a blank file named <span class="mono">config.inc.php</span> in the <span class="mono">/manager/includes/</span> directory with file permissions set to 0666.';
 $_lang["connection_screen_collation"] = 'Collation:';
-$_lang["connection_screen_connection_method"] = 'Connection method:';
 $_lang["connection_screen_database_connection_information"] = 'Database information';
 $_lang["connection_screen_database_connection_note"] = 'Enter the database name to use or which you wish to create for this MODX install. If no database exists, the installer will attempt to create one. This may fail depending on the MySQL user permissions.';
 $_lang["connection_screen_database_host"] = 'Database host:';

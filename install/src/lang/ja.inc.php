@@ -52,7 +52,6 @@ $_lang = [
   'chunks' => 'チャンク',
   'config_permissions_note' => 'Linux / Unixを新規にインストールする場合は、<code>/[+MGR_DIR+]/includes/</code> ディレクトリ内に<code>config.inc.php</code> という名前の空のファイルを作成してください。ファイルのパーミッションは0666に設定してください。',
   'connection_screen_collation' => '照合順序(エンコード指定含む):<br />※utf8_general_ciを<br />おすすめします',
-  'connection_screen_connection_method' => '接続時の文字セットの扱い:',
   'connection_screen_database_connection_information' => 'データベース設定',
   'connection_screen_database_connection_note' => 'データベース名を入力してください。データベース作成権限がある場合は、ここで指定した名前でデータベースが作成されます。<br />文字セットの扱いは「SET CHARACTER SET」、接続照合順序は「utf8_general_ci」をおすすめします。<br />※[+database_type+]4.1未満ではこれらのエンコード設定を無視して日本語を扱います。',
   'connection_screen_database_host' => 'データベースホスト名:',

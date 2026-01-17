@@ -53,7 +53,6 @@ $_lang["checking_table_prefix"] = 'Kontrola prefixů tabulek `';
 $_lang["chunks"] = 'Chunky';
 $_lang["config_permissions_note"] = 'V nových instalacích Linux/Unix vytvořte prázdná soubor s názvem <span class="mono">config.inc.php</span> v adresáři <span class="mono">/'.MGR_DIR.'/includes/</span> s atributy 0666.';
 $_lang["connection_screen_collation"] = 'Porovnání:';
-$_lang["connection_screen_connection_method"] = 'Způsob připojení:';
 $_lang["connection_screen_database_connection_information"] = 'Informace o databázi';
 $_lang["connection_screen_database_connection_note"] = 'Zadejte název databáze, kterou chcete použít nebo kterou chcete vytvořit pro tuto instalaci systému MODx. Pokud databáze neexistuje pokusí se ji instalátor vytvořit. Toto se nemusí povést v závislosti na nastavení MySQL nebo na uživatelských právech pro vaši doménu/instalaci.';
 $_lang["connection_screen_database_host"] = 'Hostitel databáze:';
