@@ -196,29 +196,25 @@ if ($installMode == 1) {
     $database_user = $db_config['username'];
     $database_password = $db_config['password'];
     $database_collation = $db_config['collation'];
-    $database_charset = substr($database_collation, 0, strpos($database_collation, '_') - 1);
     $database_connection_charset = $db_config['charset'];
-    $database_connection_method = $db_config['method'];
     $dbase = $db_config['database'];
     $table_prefix = $db_config['prefix'];
     $database_type = $db_config['driver'];
 } else {
     // get db info from post
-    $database_type = strip_tags($_POST['database_type']);
-    $database_server = strip_tags($_POST['databasehost']);
+    $database_type = validateDbType($_POST['database_type']);
+    $database_server = validateDbHost($_POST['databasehost'], $database_type);
     $database_user = $_SESSION['databaseloginname'];
     $database_password = $_SESSION['databaseloginpassword'];
-    $database_collation = strip_tags($_POST['database_collation']);
-    $database_charset = substr($database_collation, 0, strpos($database_collation, '_') - 1);
-    $database_connection_charset = $_POST['database_connection_charset'];
-    $database_connection_method = $_POST['database_connection_method'];
+    $database_collation = validateDbCollation($_POST['database_collation']);
+    $database_connection_charset = validateDbCollation($_POST['database_connection_charset']);
     if ($database_type === 'sqlite') {
-        $database_name = strip_tags($_POST['database_name']); // TODO: replace strip_tags with validation everywhere
+        $database_name = validateDbName($_POST['database_name']); // TODO: replace strip_tags with validation everywhere
         $dbase = EVO_CORE_PATH . "database/$database_name.sqlite";
     } else {
-        $dbase = '`' . strip_tags($_POST['database_name']) . '`';
+        $dbase = validateDbName($_POST['database_name']);
     }
-    $table_prefix = strip_tags($_POST['tableprefix']);
+    $table_prefix = validateTablePrefix($_POST['tableprefix']);
 }
 echo '<p>' . $_lang['creating_database_connection'];
 $host = explode(':', $database_server, 2);
@@ -228,7 +224,12 @@ try {
     if ($database_type === 'sqlite') {
         $dbh = new PDO('sqlite:' . $dbase, null, null, $pdoOptions);
     } else {
-        $dbh = new PDO($database_type . ':host=' . $database_server . ';dbname=' . $_POST['database_name'], $database_user, $database_password, $pdoOptions);
+        if (count($host) === 1) {
+            $dsn = $database_type . ':host=' . $host[0] . ';dbname=' . $dbase;
+        } else {
+            $dsn = $database_type . ':host=' . $host[0] . ';port=' . $host[1] . ';dbname=' . $dbase;
+        }
+        $dbh = new PDO($dsn, $database_user, $database_password, $pdoOptions);
     }
     echo '<span class="ok">' . $_lang['ok'] . '</span></p>';
 } catch (PDOException $e) {
@@ -263,16 +264,12 @@ if ($dbh && $database_type === 'mysql' && empty ($database_connection_charset)) 
             // Use default collation if query fails
         }
     }
+
     if (empty ($database_collation)) {
         $database_collation = 'utf8_unicode_ci';
     }
     $database_charset = substr($database_collation, 0, strpos($database_collation, '_') - 1);
     $database_connection_charset = $database_charset;
-}
-
-// determine the database connection method if not specified in the configuration
-if (!isset($database_connection_method) || empty($database_connection_method)) {
-    $database_connection_method = 'SET CHARACTER SET';
 }
 
 // check table prefix
@@ -336,40 +333,46 @@ $agreeToggle = $errors > 0 ? 'disabled' : '';
 ?>
 <form name="install" id="install_form" action="index.php?action=<?php echo $nextAction ?>" method="post">
     <div>
-        <input type="hidden" value="<?php echo $install_language ?>" name="language"/>
-        <input type="hidden" value="<?php echo $manager_language ?>" name="managerlanguage"/>
-        <input type="hidden" value="<?php echo $installMode ?>" name="installmode"/>
-        <input type="hidden" value="<?php echo trim($dbase, '`'); ?>" name="database_name"/>
-        <input type="hidden" value="<?php echo $database_type ?>" name="database_type"/>
-        <input type="hidden" value="<?php echo $table_prefix ?>" name="tableprefix"/>
-        <input type="hidden" value="<?php echo $database_collation ?>" name="database_collation"/>
-        <input type="hidden" value="<?php echo $database_connection_charset ?>" name="database_connection_charset"/>
-        <input type="hidden" value="<?php echo $database_connection_method ?>" name="database_connection_method"/>
-        <input type="hidden" value="<?php echo $database_server ?>" name="databasehost"/>
-        <input type="hidden" value="<?php echo strip_tags($_POST['cmsadmin']) ?>" name="cmsadmin"/>
-        <input type="hidden" value="<?php echo strip_tags($_POST['cmsadminemail']) ?>" name="cmsadminemail"/>
-        <input type="hidden" value="<?php echo strip_tags($_POST['cmspassword']) ?>" name="cmspassword"/>
-        <input type="hidden" value="<?php echo strip_tags($_POST['cmspasswordconfirm']) ?>" name="cmspasswordconfirm"/>
+        <input type="hidden" value="<?php echo escapeHtmlAttribute($install_language) ?>" name="language"/>
+        <input type="hidden" value="<?php echo escapeHtmlAttribute($manager_language) ?>" name="managerlanguage"/>
+        <input type="hidden" value="<?php echo escapeHtmlAttribute($installMode) ?>" name="installmode"/>
+        <input type="hidden" value="<?php echo escapeHtmlAttribute(trim($dbase, '` ')) ?>" name="database_name"/>
+        <input type="hidden" value="<?php echo escapeHtmlAttribute($database_type) ?>" name="database_type"/>
+        <input type="hidden" value="<?php echo escapeHtmlAttribute($table_prefix) ?>" name="tableprefix"/>
+        <input type="hidden" value="<?php echo escapeHtmlAttribute($database_collation) ?>" name="database_collation"/>
+        <input type="hidden" value="<?php echo escapeHtmlAttribute($database_connection_charset) ?>" name="database_connection_charset"/>
+        <input type="hidden" value="<?php echo escapeHtmlAttribute($database_server) ?>" name="databasehost"/>
+        <input type="hidden" value="<?php echo escapeHtmlAttribute($_POST['cmsadmin']) ?>" name="cmsadmin"/>
+        <input type="hidden" value="<?php echo escapeHtmlAttribute($_POST['cmsadminemail']) ?>" name="cmsadminemail"/>
+        <input type="hidden" value="<?php echo escapeHtmlAttribute($_POST['cmspassword']) ?>" name="cmspassword"/>
+        <input type="hidden" value="<?php echo escapeHtmlAttribute($_POST['cmspasswordconfirm']) ?>" name="cmspasswordconfirm"/>
         <input type="hidden" value="1" name="options_selected"/>
-        <input type="hidden" value="<?php echo $_POST['installdata'] ?? '' ?>" name="installdata"/>
+        <input type="hidden" value="<?php echo htmlspecialchars($_POST['installdata'] ?? '')
+        ?>" name="installdata"/>
         <?php
         $templates = isset ($_POST['template']) ? $_POST['template'] : [];
-        foreach ($templates as $i => $template) echo '<input type="hidden" name="template[]" value="' . $template . '" />';
+        foreach ($templates as $i => $template) echo '<input type="hidden" name="template[]" value="'
+            . escapeHtmlAttribute($template) . '" />';
 
         $tvs = isset ($_POST['tv']) ? $_POST['tv'] : [];
-        foreach ($tvs as $i => $tv) echo '<input type="hidden" name="tv[]" value="' . $tv . '" />';
+        foreach ($tvs as $i => $tv) echo '<input type="hidden" name="tv[]" value="'
+            . escapeHtmlAttribute($tv) . '" />';
 
         $chunks = isset ($_POST['chunk']) ? $_POST['chunk'] : [];
-        foreach ($chunks as $i => $chunk) echo '<input type="hidden" name="chunk[]" value="' . $chunk . '" />';
+        foreach ($chunks as $i => $chunk) echo '<input type="hidden" name="chunk[]" value="'
+            . escapeHtmlAttribute($chunk) . '" />';
 
         $snippets = isset ($_POST['snippet']) ? $_POST['snippet'] : [];
-        foreach ($snippets as $i => $snippet) echo '<input type="hidden" name="snippet[]" value="' . $snippet . '" />';
+        foreach ($snippets as $i => $snippet) echo '<input type="hidden" name="snippet[]" value="'
+            . escapeHtmlAttribute($snippet) . '" />';
 
         $plugins = isset ($_POST['plugin']) ? $_POST['plugin'] : [];
-        foreach ($plugins as $i => $plugin) echo '<input type="hidden" name="plugin[]" value="' . $plugin . '" />';
+        foreach ($plugins as $i => $plugin) echo '<input type="hidden" name="plugin[]" value="'
+            . escapeHtmlAttribute($plugin) . '" />';
 
         $modules = isset ($_POST['module']) ? $_POST['module'] : [];
-        foreach ($modules as $i => $module) echo '<input type="hidden" name="module[]" value="' . $module . '" />';
+        foreach ($modules as $i => $module) echo '<input type="hidden" name="module[]" value="'
+            . escapeHtmlAttribute($module) . '" />';
         ?>
     </div>
     <h2><?php echo $_lang['agree_to_terms']; ?></h2>
@@ -387,19 +390,20 @@ $agreeToggle = $errors > 0 ? 'disabled' : '';
         <a id="nextbutton" title="<?php echo $nextButton ?>" <?php echo $nextVisibility; ?>><span><?php echo $nextButton ?></span></a>
     </p>
     <script type="text/javascript" nonce="<?=csrfNonce()?>">
-      document.querySelector('.buttonlinks .prev').onclick = () => {
-        document.getElementById('install_form').action='index.php?action=options&language=<?php echo $install_language ?>';
-        document.getElementById('install_form').submit();
-      }
-      document.querySelector('.buttonlinks #nextbutton').onclick = () => {
-        document.getElementById('install_form').submit();
-      }
-      document.querySelector('#chkagree').onclick = () => {
-        if (document.getElementById('chkagree').checked) {
-          document.getElementById('nextbutton').removeAttribute('hidden')
-        } else{
-          document.getElementById('nextbutton').setAttribute('hidden', 'hidden');
+        document.querySelector('.buttonlinks .prev').onclick = () => {
+            document.getElementById('install_form').action='index.php?action=options&language=<?php
+                echo escapeHtmlAttribute($install_language) ?>';
+            document.getElementById('install_form').submit();
         }
-      }
+        document.querySelector('.buttonlinks #nextbutton').onclick = () => {
+            document.getElementById('install_form').submit();
+        }
+        document.querySelector('#chkagree').onclick = () => {
+            if (document.getElementById('chkagree').checked) {
+                document.getElementById('nextbutton').removeAttribute('hidden')
+            } else{
+                document.getElementById('nextbutton').setAttribute('hidden', 'hidden');
+            }
+        }
     </script>
 </form>

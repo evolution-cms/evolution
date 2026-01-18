@@ -52,7 +52,6 @@ $_lang = [
   'chunks' => 'Chunks',
   'config_permissions_note' => 'For new Linux/Unix installs, please create a blank file named <code>config.inc.php</code> in the <code>/[+MGR_DIR+]/includes/</code> directory with file permissions set to 0666.',
   'connection_screen_collation' => 'Collation:',
-  'connection_screen_connection_method' => 'Connection method:',
   'connection_screen_database_connection_information' => 'Database information',
   'connection_screen_database_connection_note' => 'Enter the database name to use or which you wish to create for this Evolution CMS install. If no database exists, the installer will attempt to create one. This may fail depending on the [+database_type+] user permissions.',
   'connection_screen_database_host' => 'Database host:',

@@ -1,8 +1,8 @@
 <?php
-$method = strip_tags($_POST['database_type']);
-$host = strip_tags($_POST['host']);
-$uid = strip_tags($_POST['uid']);
-$pwd = strip_tags($_POST['pwd']);
+$method = validateDbType($_POST['database_type']);
+$host = validateDbHost($_POST['host'], $method);
+$uid = validateDbUser($_POST['uid'], $method);
+$pwd = validateDbPassword($_POST['pwd'], $method);
 
 $output = $_lang['status_connecting'];
 try {

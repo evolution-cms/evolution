@@ -52,7 +52,6 @@ $_lang = [
   'chunks' => 'HTML-palaset',
   'config_permissions_note' => 'Jos olet asentamassa järjestelmää Linux / Unix palvelimeen, luo kansioon <code>[+MGR_DIR+]/includes/</code> tyhjä tiedosto nimeltä <code>config.inc.php</code> ja aseta tiedostoon 0666 oikeudet.',
   'connection_screen_collation' => 'Merkistö:',
-  'connection_screen_connection_method' => 'Yhteystyyppi:',
   'connection_screen_database_connection_information' => 'Tietokannan yhteysasetukset',
   'connection_screen_database_connection_note' => 'Ole hyvä ja syötä tietokannan nimi, jota Evolution CMS:n tulee käyttää. Jos tietokantaa ei ole vielä luotu, asennusohjelma yrittää luodan sen. Tämä voi epäonnistua riippuen [+database_type+] asetuksista ja/tai tietokannan käyttäjän käyttöoikeuksista.',
   'connection_screen_database_host' => 'Tietokantapalvelimen osoite:',

@@ -2,14 +2,22 @@
 $installMode = isset($_POST['installmode']) ? (int)$_POST['installmode'] : 0;
 $dbTypes = ['mysql' => 'MySQL', 'pgsql' => 'PostgreSQL', 'sqlite' => 'SQLite'];
 
+// Early validation for new installs
+if ($installMode === 0) {
+    $database_type = isset($_POST['database_type']) ? validateDbType($_POST['database_type']) :
+        (isset($_SESSION['databasetype']) ? $_SESSION['databasetype'] : array_key_first($dbTypes));
+    $database_name = isset($_POST['database_name']) ? validateDbName($_POST['database_name']) : '';
+    $database_host = isset($_POST['databasehost']) ? validateDbHost($_POST['databasehost'], $database_type) : 'localhost';
+    $databaseloginname = isset($_SESSION['databaseloginname']) ? $_SESSION['databaseloginname'] : '';
+    $databaseloginpassword = isset($_SESSION['databaseloginpassword']) ? $_SESSION['databaseloginpassword'] : '';
+    $table_prefix = isset($_POST['tableprefix']) ? validateTablePrefix($_POST['tableprefix']) :
+        base_convert(mt_rand(10, 20), 10, 36) . substr(str_shuffle(
+            '0123456789abcdefghijklmnopqrstuvwxyz'), mt_rand(0, 33), 3) . '_';
+}
+
 // Determine upgradeability
 $upgradeable = 0;
-if ($installMode === 0) {
-    $database_name = '';
-    $database_server = 'localhost';
-    $table_prefix = base_convert(mt_rand(10, 20), 10, 36) . substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyz'), mt_rand(0, 33), 3) . '_';
-    $database_type = 'mysql'; // Default for new install
-} else {
+if ($installMode !== 0) {
     $database_name = '';
 
     if (!is_file(EVO_CORE_PATH . 'config/database/connections/default.php')) {
@@ -18,9 +26,8 @@ if ($installMode === 0) {
         // Include the file so we can test its validity
         $db_config = include_once EVO_CORE_PATH . 'config/database/connections/default.php';
         $database_type = $db_config['driver'];
-        $database_server = $db_config['host'];
+        $database_host = $db_config['host'];
         $database_collation = $db_config['collation'];
-        $database_connection_method = $db_config['method'];
         $database_connection_charset = $db_config['charset'];
         $table_prefix = $db_config['prefix'];
 
@@ -31,9 +38,13 @@ if ($installMode === 0) {
             $result = false;
             if ($database_type === 'mysql') {
                 try {
-                    $conn = mysqli_connect($db_config['host'], $db_config['username'], $db_config['password'], '', isset($db_config['port']) ? $db_config['port'] : null);
-                    $result = mysqli_select_db($conn, $database_name);
-                } catch (Exception $e) {
+                    $port = isset($db_config['port']) ? ';port=' . $db_config['port'] : '';
+                    $dsn = "mysql:host={$db_config['host']}{$port}";
+                    $conn = new PDO($dsn, $db_config['username'], $db_config['password']);
+                    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                    $conn->exec("USE `$database_name`");
+                    $result = true;
+                } catch (PDOException $e) {
                     $conn = false;
                     $result = false;
                 }
@@ -73,12 +84,19 @@ if ($installMode === 0) {
 // check the database collation if not specified in the configuration
 if ($upgradeable && (! isset($database_connection_charset) || empty($database_connection_charset))) {
     if ($database_type === 'mysql') {
-        if (!$rs = mysqli_query($conn, "show session variables like 'collation_database'")) {
-            $rs = mysqli_query($conn, "show session variables like 'collation_server'");
+
+        try {
+            $collation = $conn->query("SHOW SESSION VARIABLES LIKE 'collation_database'")->fetch(PDO::FETCH_NUM);
+            if (!$collation) {
+                $collation = $conn->query("SHOW SESSION VARIABLES LIKE 'collation_server'")->fetch(PDO::FETCH_NUM);
+            }
+            if ($collation) {
+                $database_collation = $collation[1];
+            }
+        } catch (PDOException $e) {
+            // Use default if query fails
         }
-        if ($rs && $collation = mysqli_fetch_row($rs)) {
-            $database_collation = $collation[1];
-        }
+
         if (empty($database_collation)) {
             $database_collation = 'utf8mb4_general_ci';
         }
@@ -115,42 +133,28 @@ if ($upgradeable && (! isset($database_connection_charset) || empty($database_co
     }
 }
 
-// determine the database connection method if not specified in the configuration
-if ($upgradeable && (!isset($database_connection_method) || empty($database_connection_method))) {
-    if ($database_type === 'mysql') {
-        $database_connection_method = 'SET CHARACTER SET';
-    } elseif ($database_type === 'pgsql') {
-        $database_connection_method = 'SET client_encoding';
-    } elseif ($database_type === 'sqlite') {
-        $database_connection_method = '';
-    }
-}
 $ph['databaseTypeOptions'] = '';
 foreach ($dbTypes as $dbType => $dbTypeName) {
     $selectedOptionDbType = $dbType === $database_type ? ' selected="selected"' : '';
     $ph['databaseTypeOptions'] .= "<option value=\"{$dbType}\" $selectedOptionDbType>{$dbTypeName}</option>\n";
 }
-$ph['database_type'] = $dbTypes[$database_type];
-$ph['database_name'] = isset($_POST['database_name']) ? strip_tags($_POST['database_name']) : $database_name;
-$ph['tableprefix'] = isset($_POST['tableprefix']) ? strip_tags($_POST['tableprefix']) : $table_prefix;
-$ph['selected_set_character_set'] = isset($database_connection_method) && $database_connection_method === 'SET CHARACTER SET' ? 'selected' : '';
-$ph['selected_set_names'] = isset($database_connection_method) && $database_connection_method === 'SET NAMES' ? 'selected' : '';
-$ph['show#connection_method'] = (($installMode == 0) || ($installMode == 2)) ? '' : 'hidden';
-$ph['database_collation'] = isset($_POST['database_collation']) ? $_POST['database_collation'] : $database_collation;
+$ph['database_type'] = escapeHtmlAttribute($dbTypes[$database_type]);
+$ph['database_name'] = escapeHtmlAttribute(isset($_POST['database_name']) ? $_POST['database_name'] : $database_name);
+$ph['tableprefix'] = escapeHtmlAttribute(isset($_POST['tableprefix']) ? $_POST['tableprefix'] : $table_prefix);
+$ph['database_collation'] = escapeHtmlAttribute(isset($_POST['database_collation']) ? $_POST['database_collation'] : $database_collation);
 $ph['show#AUH'] = ($installMode == 0) ? '' : 'hidden';
-$ph['cmsadmin'] = isset($_POST['cmsadmin']) ? strip_tags($_POST['cmsadmin']) : 'admin';
-$ph['cmsadminemail'] = isset($_POST['cmsadminemail']) ? strip_tags($_POST['cmsadminemail']) : '';
-$ph['cmspassword'] = isset($_POST['cmspassword']) ? strip_tags($_POST['cmspassword']) : '';
-$ph['cmspasswordconfirm'] = isset($_POST['cmspasswordconfirm']) ? strip_tags($_POST['cmspasswordconfirm']) : '';
+$ph['cmsadmin'] = escapeHtmlAttribute(isset($_POST['cmsadmin']) ? $_POST['cmsadmin'] : 'admin');
+$ph['cmsadminemail'] = escapeHtmlAttribute(isset($_POST['cmsadminemail']) ? $_POST['cmsadminemail'] : '');
+$ph['cmspassword'] = escapeHtmlAttribute(isset($_POST['cmspassword']) ? $_POST['cmspassword'] : '');
+$ph['cmspasswordconfirm'] = escapeHtmlAttribute(isset($_POST['cmspasswordconfirm']) ? $_POST['cmspasswordconfirm'] : '');
 $ph['managerLangs'] = getLangs($install_language);
-$ph['install_language'] = $install_language;
-$ph['installMode'] = $installMode;
+$ph['install_language'] = escapeHtmlAttribute($install_language);
+$ph['installMode'] = escapeHtmlAttribute($installMode);
 $ph['checkedChkagree'] = isset($_POST['chkagree']) ? 'checked' : '';
-$ph['database_connection_method'] = isset($database_connection_method) ? $database_connection_method : '';
-$ph['databasehost'] = isset($_POST['databasehost']) ? $_POST['databasehost'] : $database_server;
-$ph['databaseloginname'] = isset($_SESSION['databaseloginname']) ? $_SESSION['databaseloginname'] : '';
-$ph['databaseloginpassword'] = isset($_SESSION['databaseloginpassword']) ? $_SESSION['databaseloginpassword'] : '';
-$ph['MGR_DIR'] = MGR_DIR;
+$ph['databasehost'] = escapeHtmlAttribute(isset($_POST['databasehost']) ? $_POST['databasehost'] : $database_host);
+$ph['databaseloginname'] = escapeHtmlAttribute(isset($_SESSION['databaseloginname']) ? $_SESSION['databaseloginname'] : '');
+$ph['databaseloginpassword'] = escapeHtmlAttribute(isset($_SESSION['databaseloginpassword']) ? $_SESSION['databaseloginpassword'] : '');
+$ph['MGR_DIR'] = escapeHtmlAttribute(MGR_DIR);
 
 $content = file_get_contents(dirname(__DIR__) . '/template/actions/connection.tpl');
 $content = parse($content, $_lang, '[%', '%]');

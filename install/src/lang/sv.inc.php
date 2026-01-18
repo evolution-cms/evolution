@@ -52,7 +52,6 @@ $_lang = [
   'chunks' => 'Chunks',
   'config_permissions_note' => 'För nya installationer i Linux/Unix-miljö måste en tom fil med namnet <code>config.inc.php</code> skapas i katalogen <code>/[+MGR_DIR+]/includes/</code> med åtkomsträttigheterna satta till 0666.',
   'connection_screen_collation' => 'Kollationering:',
-  'connection_screen_connection_method' => 'Anslutningsmetod:',
   'connection_screen_database_connection_information' => 'Databasuppgifter',
   'connection_screen_database_connection_note' => 'Ange namnet på den databas som ska användas eller som du vill skapa för denna Evolution CMS-installation. Om det inte finns någon databas kommer installationsprogrammet att försöka skapa en. Det här kan misslyckas beroende på hur [+database_type+]s åtkomsträttigheter är konfigurerade.',
   'connection_screen_database_host' => 'Databasens värd:',

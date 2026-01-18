@@ -54,7 +54,6 @@ $_lang["chunks"] = 'Chunks';
 $_lang["config_permissions_note"] = 'For nye installasjoner i Linux/Unix-milj&oslash; m&aring; en tom fil med navnet <span class="mono">config.inc.php</span> opprettes i katalogen <span class="mono">'.MGR_DIR.'/includes/</span> med skriverrettighetene satt til 666.';
 $_lang["connection_screen_collation"] = 'Kollasjonering:';
 $_lang["connection_screen_connection_information"] = 'Tilkoblingsopplysninger';
-$_lang["connection_screen_connection_method"] = 'Tilkoblingsmetode:';
 $_lang["connection_screen_database_connection_information"] = 'Databaseopplysninger';
 $_lang["connection_screen_database_connection_note"] = 'Angi navnet p&aring; databasen som ble opprettet for MODx. Om det ikke finnes en database fra f&oslash;r, kommer installasjonsprogrammet til &aring; pr&oslash;ve &aring; opprette en for deg. Dette kan mislykkes avhengig av MySQL-konfigurasjonen eller databasens tilgangsrettigheter for ditt domene/installasjon.';
 $_lang["connection_screen_database_host"] = 'Databasevert:';

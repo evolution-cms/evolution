@@ -1,9 +1,9 @@
 <?php
-$driver = strip_tags($_POST['database_type']);
-$host = strip_tags($_POST['host']);
-$uid = strip_tags($_POST['uid']);
-$pwd = strip_tags($_POST['pwd']);
-$database_name = isset($_POST['database_name']) ? strip_tags($_POST['database_name']) : '';
+$driver = validateDbType($_POST['database_type']);
+$host = validateDbHost($_POST['host'], $driver);
+$uid = validateDbUser($_POST['uid'], $driver);
+$pwd = validateDbPassword($_POST['pwd'], $driver);
+$database_name = isset($_POST['database_name']) && $_POST['database_name'] !== '' ? validateDbName($_POST['database_name']) : '';
 
 try {
     $dsn = $driver . ':host=' . $host;
@@ -23,7 +23,7 @@ try {
                 // Add options
                 foreach (array_keys($_) as $collation) {
                     $selected = ($collation === 'en_US.utf8') ? ' selected' : '';
-                    $output .= '<option value="' . htmlspecialchars($collation) . '"' . $selected . '>' . htmlspecialchars($collation) . '</option>';
+                    $output .= '<option value="' . escapeHtmlAttribute($collation) . '"' . $selected . '>' . htmlspecialchars($collation) . '</option>';
                 }
             } catch (PDOException $e) {
                 // Fallback to common collations if query fails

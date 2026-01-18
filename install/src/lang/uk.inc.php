@@ -52,7 +52,6 @@ $_lang = [
     'chunks' => 'Чанки',
   'config_permissions_note' => 'Для нової Linux/Unix‑інсталяції створіть порожній файл <code>config.inc.php</code> у папці <code>/[+MGR_DIR+]/includes/</code> з правами 0666.',
   'connection_screen_collation' => 'Порівняння:',
-  'connection_screen_connection_method' => 'Метод підключення:',
   'connection_screen_database_connection_information' => 'Параметри бази даних',
   'connection_screen_database_connection_note' => 'Введіть ім’я бази даних, створеної для Evolution CMS. Якщо бази даних ще немає, програма встановлення спробує створити її. Залежно від конфігурації [+database_type+] або прав користувача це може не вдатися.',
     'connection_screen_database_host' => 'Хост бази даних:',

@@ -7,4 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'SimplePie' => array($vendorDir . '/simplepie/simplepie/library'),
+    'Barryvdh' => array($vendorDir . '/barryvdh/reflection-docblock/src'),
 );
