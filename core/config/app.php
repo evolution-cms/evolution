@@ -55,7 +55,6 @@
         'Evolution_phpass' => EvolutionCMS\Providers\PasswordHashServiceProvider::class,
         'Evolution_PHPCOMPAT' => EvolutionCMS\Providers\PhpCompatServiceProvider::class,
         'Evolution_DocBlock' => EvolutionCMS\Providers\DocBlockServiceProvider::class,
-        'Evolution_IdeHelper' => EvolutionCMS\Providers\IdeHelperServiceProvider::class,
         'Evolution_ManagerTheme' => EvolutionCMS\Providers\ManagerThemeServiceProvider::class,
         'Evolution_UrlProcessor' => EvolutionCMS\Providers\UrlProcessorServiceProvider::class,
         'Evolution_TemplateProcessor' => EvolutionCMS\Providers\TemplateProcessorServiceProvider::class,

@@ -6,6 +6,7 @@ use \EvolutionCMS\Models\User;
 
 class AuthServices
 {
+    /** @var User */
     public $user;
 
     public function __construct()
@@ -51,8 +52,6 @@ class AuthServices
 
     /**
      * Determine if the current user is a guest.
-     *
-     * @return bool
      */
     public function id()
     {
@@ -138,7 +137,7 @@ class AuthServices
 
     public function loginUsingId($userId, $remember = false)
     {
-        return UserManager::loginById(['id' => $userId, 'rememberme' => $remember]);
+        return \UserManager::loginById(['id' => $userId, 'rememberme' => $remember]);
     }
 
 }

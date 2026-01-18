@@ -244,7 +244,7 @@ class MysqlDumper implements MysqlDumperInterface
      * @param \PDOStatement $resource
      * @return array
      */
-    public function result2Array($numinarray = 0, $resource)
+    public function result2Array($numinarray, $resource)
     {
         $modx = evo();
         $array = [];
@@ -268,7 +268,7 @@ class MysqlDumper implements MysqlDumperInterface
      * @param \PDOStatement $resource
      * @return array
      */
-    public function loadObjectList($key = '', $resource)
+    public function loadObjectList($key, $resource)
     {
         $modx = evo();
         $array = [];

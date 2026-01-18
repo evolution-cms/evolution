@@ -59,14 +59,18 @@ if (version_compare(phpversion(), PHP_MIN_VERSION) < 0) {
 
 $required_extensions = [
     'ctype' => false,
-    'dom' => true,
-    'fileinfo' => true,
-    'filter' => true,
-    'hash' => true,
+    'dom' => true, // DOMDocument in Symfony Loader
+    'fileinfo' => true, // league/flysystem-local
+    'filter' => true, // illuminate/pagination, illuminate/support, phpmailer
+    'hash' => true, // illuminate/routing, phpmailer
+    'iconv' => true, // page alias transliteration
     'json' => true,
     'libxml' => true,
     'mbstring' => false,
-    'openssl' => true,
+    'openssl' => true, // composer/ca-bundle
+    'pdo_mysql' => false,
+    'pdo_pgsql' => false,
+    'pdo_sqlite' => false,
     'pcre' => true,
     'reflection' => false, // optional composer requires justinrainbow/json-schema -> marc-mabe/php-enum -> ext-reflection
     'session' => true,
@@ -197,9 +201,9 @@ if ($installMode == 1) {
     $database_password = $db_config['password'];
     $database_collation = $db_config['collation'];
     $database_connection_charset = $db_config['charset'];
-    $dbase = $db_config['database'];
-    $table_prefix = $db_config['prefix'];
     $database_type = $db_config['driver'];
+    $database_name = $database_type === 'sqlite' ? sqliteDbPathToName($db_config['database']) : $db_config['database'];
+    $table_prefix = $db_config['prefix'];
 } else {
     // get db info from post
     $database_type = validateDbType($_POST['database_type']);
@@ -208,12 +212,7 @@ if ($installMode == 1) {
     $database_password = $_SESSION['databaseloginpassword'];
     $database_collation = validateDbCollation($_POST['database_collation']);
     $database_connection_charset = validateDbCollation($_POST['database_connection_charset']);
-    if ($database_type === 'sqlite') {
-        $database_name = validateDbName($_POST['database_name']); // TODO: replace strip_tags with validation everywhere
-        $dbase = EVO_CORE_PATH . "database/$database_name.sqlite";
-    } else {
-        $dbase = validateDbName($_POST['database_name']);
-    }
+    $database_name = validateDbName($_POST['database_name']);
     $table_prefix = validateTablePrefix($_POST['tableprefix']);
 }
 echo '<p>' . $_lang['creating_database_connection'];
@@ -222,12 +221,12 @@ $pdoOptions = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
 try {
     $dbh = null;
     if ($database_type === 'sqlite') {
-        $dbh = new PDO('sqlite:' . $dbase, null, null, $pdoOptions);
+        $dbh = new PDO('sqlite:' . sqliteDbNameToPath($database_name), null, null, $pdoOptions);
     } else {
         if (count($host) === 1) {
-            $dsn = $database_type . ':host=' . $host[0] . ';dbname=' . $dbase;
+            $dsn = $database_type . ':host=' . $host[0] . ';dbname=' . $database_name;
         } else {
-            $dsn = $database_type . ':host=' . $host[0] . ';port=' . $host[1] . ';dbname=' . $dbase;
+            $dsn = $database_type . ':host=' . $host[0] . ';port=' . $host[1] . ';dbname=' . $database_name;
         }
         $dbh = new PDO($dsn, $database_user, $database_password, $pdoOptions);
     }
@@ -336,7 +335,7 @@ $agreeToggle = $errors > 0 ? 'disabled' : '';
         <input type="hidden" value="<?php echo escapeHtmlAttribute($install_language) ?>" name="language"/>
         <input type="hidden" value="<?php echo escapeHtmlAttribute($manager_language) ?>" name="managerlanguage"/>
         <input type="hidden" value="<?php echo escapeHtmlAttribute($installMode) ?>" name="installmode"/>
-        <input type="hidden" value="<?php echo escapeHtmlAttribute(trim($dbase, '` ')) ?>" name="database_name"/>
+        <input type="hidden" value="<?php echo escapeHtmlAttribute(trim($database_name, '` ')) ?>" name="database_name"/>
         <input type="hidden" value="<?php echo escapeHtmlAttribute($database_type) ?>" name="database_type"/>
         <input type="hidden" value="<?php echo escapeHtmlAttribute($table_prefix) ?>" name="tableprefix"/>
         <input type="hidden" value="<?php echo escapeHtmlAttribute($database_collation) ?>" name="database_collation"/>

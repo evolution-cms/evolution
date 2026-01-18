@@ -87,7 +87,7 @@ class ExceptionHandler
      * @param string $text Error message
      * @param string $file File where the error was detected
      * @param string $line Line number within $file
-     * @return boolean
+     * @return void
      * @deprecated
      * PHP error handler set by http://www.php.net/manual/en/function.set-error-handler.php
      *

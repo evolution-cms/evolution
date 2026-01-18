@@ -70,6 +70,15 @@ function dbConnect(string $driver, string $host, $db, ?string $user = null, ?str
     return $dbh;
 }
 
+function sqliteDbNameToPath(string $name) {
+    return EVO_CORE_PATH . 'database' . DIRECTORY_SEPARATOR . "$name.sqlite";
+}
+
+function sqliteDbPathToName(string $path) {
+    return str_replace('.sqlite', '',
+        str_replace(EVO_CORE_PATH . 'database' . DIRECTORY_SEPARATOR, '', $path));
+}
+
 function install_sessionCheck()
 {
     global $_lang;
@@ -277,7 +286,7 @@ function ph()
  */
 function get_installmode()
 {
-    global $base_path, $database_server, $database_user, $database_password, $dbase, $table_prefix;
+    global $base_path, $database_server, $database_user, $database_password, $database_name, $table_prefix;
 
     $conf_path = "{$base_path}manager/includes/config.inc.php";
     if (!is_file($conf_path)) {
@@ -287,7 +296,7 @@ function get_installmode()
     } else {
         include_once("{$base_path}manager/includes/config.inc.php");
 
-        if (!isset($dbase) || empty($dbase)) {
+        if (!isset($database_name) || empty($database_name)) {
             $installmode = 0;
         } else {
             $host = explode(':', $database_server, 2);
@@ -301,19 +310,18 @@ function get_installmode()
                 $_SESSION['database_user'] = $database_user;
                 $_SESSION['database_password'] = $database_password;
 
-                $dbase = trim($dbase, '`');
+                $database_name = trim($database_name, '` ');
 
-                $rs = $conn->exec("USE `$dbase`");
+                $rs = $conn->exec("USE `$database_name`");
             } catch (PDOException $e) {
                 $rs = false;
             }
 
             if ($rs !== false) {
-                $_SESSION['dbase'] = $dbase;
                 $_SESSION['table_prefix'] = $table_prefix;
                 $_SESSION['database_collation'] = 'utf8mb4_general_ci';
 
-                $tbl_system_settings = "`{$dbase}`.`{$table_prefix}system_settings`";
+                $tbl_system_settings = "`{$database_name}`.`{$table_prefix}system_settings`";
 
                 try {
                     $stmt = $conn->query("SELECT setting_value FROM {$tbl_system_settings} WHERE setting_name='settings_version'");

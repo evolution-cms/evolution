@@ -31,6 +31,7 @@ class Mail extends PHPMailer
             $modx = evo();
         }
         $this->modx = $modx;
+        // TODO: fix location
         $this->PluginDir = MODX_MANAGER_PATH . 'includes/controls/phpmailer/';
 
         switch ($modx->getConfig('email_method')) {
@@ -102,8 +103,10 @@ class Mail extends PHPMailer
             mb_language($this->mb_language);
             mb_internal_encoding($modx->getConfig('modx_charset'));
         }
+        // TODO: fix config location
         $exconf = MODX_MANAGER_PATH . 'includes/controls/phpmailer/config.inc.php';
         if (is_file($exconf)) {
+            // @ignore include.fileNotFound
             include($exconf);
         }
 

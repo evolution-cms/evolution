@@ -33,7 +33,8 @@ if ($installMode !== 0) {
 
         // We need to have all connection settings - but prefix may be empty so we have to ignore it
         if (isset($db_config['database'])) {
-            $database_name = trim($db_config['database'], '`');
+            $database_name = $database_type === 'sqlite' ? sqliteDbPathToName($db_config['database']) :
+                trim($db_config['database'], '` ');
             $conn = false;
             $result = false;
             if ($database_type === 'mysql') {
@@ -63,7 +64,7 @@ if ($installMode !== 0) {
                 }
             } elseif ($database_type === 'sqlite') {
                 try {
-                    $conn = new PDO('sqlite:' . $database_name);
+                    $conn = new PDO('sqlite:' . sqliteDbNameToPath($database_name));
                     $result = true;
                 } catch (PDOException $e) {
                     $conn = false;
