@@ -13,7 +13,7 @@ class ConfigServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton('ConfigService', function ($app) {
-            return new ConfigService($app);
+            return new ConfigService();
         });
     }
 }

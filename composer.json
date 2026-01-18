@@ -41,5 +41,11 @@
     "ext-readline": "*"
   },
   "minimum-stability": "dev",
-  "prefer-stable": true
+  "prefer-stable": true,
+  "require-dev": {
+    "phpstan/phpstan": "^2.1"
+  },
+  "scripts": {
+    "analyze": "vendor/bin/phpstan --memory-limit=512M"
+  }
 }

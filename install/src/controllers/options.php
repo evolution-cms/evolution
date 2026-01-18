@@ -33,6 +33,7 @@ switch($installMode){
         $db_config = include_once EVO_CORE_PATH . 'config/database/connections/default.php';
         $database_collation = $db_config['collation'];
         $database_connection_charset = $db_config['charset'];
+        $database_name = $db_config['driver'] === 'sqlite' ? sqliteDbPathToName($db_config['database']) : $db_config['database'];
         if ($db_config['driver'] === 'mysql') {
             try {
                 $dsn = sprintf(
@@ -115,7 +116,6 @@ switch($installMode){
                 //
             }
         }
-        $_POST['database_name'] = $db_config['database'];
         $_POST['tableprefix'] = $db_config['prefix'];
         $_POST['database_connection_charset'] = $database_connection_charset;
         $_POST['databasehost'] = $db_config['host'];
@@ -130,7 +130,7 @@ switch($installMode){
 $ph['install_language'] = escapeHtmlAttribute($install_language);
 $ph['manager_language'] = escapeHtmlAttribute($manager_language);
 $ph['installMode'] = escapeHtmlAttribute($installMode);
-$ph['database_name'] = escapeHtmlAttribute(trim($_POST['database_name']));
+$ph['database_name'] = escapeHtmlAttribute($database_name);
 $ph['tableprefix'] = escapeHtmlAttribute($_POST['tableprefix']);
 $ph['database_type'] = escapeHtmlAttribute($_POST['database_type']);
 $ph['database_collation'] = escapeHtmlAttribute($_POST['database_collation']);

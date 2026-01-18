@@ -75,6 +75,7 @@ class ErrorHandler
         } else {
             $lang_path = EVO_CORE_PATH . 'lang/{$context}/';
         }
+        // @ignore includeOnce.fileNotFound
         include_once($lang_path . 'en/global.php');
         $manager_language = $modx->getConfig('manager_language');
         if (is_file($lang_path.$manager_language."/global.php")) {
@@ -114,7 +115,7 @@ class ErrorHandler
         <html>
         <head>
             <title>Evolution CMS :: Error</title>
-            <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx_manager_charset; ?>">
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
             <script>
                 function showError() {
                     alert("<?php echo $this->errormessage; ?>");

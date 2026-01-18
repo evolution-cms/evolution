@@ -38,7 +38,7 @@ $database_user = $_SESSION['databaseloginname'] ?? '';
 $database_password = $_SESSION['databaseloginpassword'] ?? '';
 $database_collation = validateDbCollation($_POST['database_collation']);
 $database_connection_charset = validateDbCollation($_POST['database_connection_charset']);
-$dbase = validateDbName($_POST['database_name']);
+$database_name = validateDbName($_POST['database_name']);
 if ($installMode !== 1) {
     $adminname = validateAdminUsername($_POST['cmsadmin']);
     $adminemail = validateAdminEmail($_POST['cmsadminemail']);
@@ -75,9 +75,9 @@ $host = explode(':', $database_server, 2);
 global $conn;
 try {
     if ($database_type === 'sqlite') {
-        $dbh = new PDO('sqlite:' . $dbase);
+        $dbh = new PDO('sqlite:' . sqliteDbNameToPath($database_name));
     } else {
-        $dbh = new PDO($database_type . ':host=' . $database_server . ';dbname=' . $dbase, $database_user, $database_password);
+        $dbh = new PDO($database_type . ':host=' . $database_server . ';dbname=' . $database_name, $database_user, $database_password);
     }
 
     include dirname(__DIR__) . '/processor/result.php';
@@ -97,7 +97,8 @@ try {
         $confph['password'] = addslashes($database_password);
         $confph['connection_charset'] = addslashes($database_connection_charset);
         $confph['connection_collation'] = addslashes($database_collation);
-        $confph['dbase'] = addslashes($dbase);
+        $confph['database_name'] = addslashes(
+            $database_type === 'sqlite' ? sqliteDbNameToPath($database_name) : $database_name);
         $confph['table_prefix'] = addslashes($_POST['tableprefix'] ?? '');
         $confph['lastInstallTime'] = time();
         $confph['site_sessionname'] = addslashes($site_sessionname);
@@ -154,7 +155,7 @@ try {
             try {
                 $siteContent = \EvolutionCMS\Models\SiteContent::query()->count();
                 $errors += 1;
-            }catch (PDOException $exception){
+            } catch (PDOException $exception) {
                 $installLevel = 3;
             }
         } else {
@@ -779,7 +780,8 @@ try {
     }
 
 } catch (PDOException $e) {
-    if (!stristr($e->getMessage(), 'database "' . $dbase . '" does not exist') && !stristr($e->getMessage(), 'Unknown database \'' . $dbase . '\'')) {
+    if (!stristr($e->getMessage(), 'database "' . $database_name . '" does not exist') &&
+        !stristr($e->getMessage(), 'Unknown database \'' . $database_name . '\'')) {
         echo ($output ?? '') . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
         exit();
     }
