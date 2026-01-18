@@ -440,13 +440,13 @@ class Database extends Manager
 
     /**
      * {@inheritDoc}
-     * @throws Exceptions\TooManyLoopsException
+     * @throws \RuntimeException
      */
     public function escape($data, $safeCount = 0)
     {
         $safeCount++;
         if ($this->safeLoopCount < $safeCount) {
-            throw new Exceptions\TooManyLoopsException("Too many loops '{$safeCount}'");
+            throw new \RuntimeException("Too many loops '{$safeCount}'");
         }
         if (\is_array($data)) {
             if (\count($data) === 0) {

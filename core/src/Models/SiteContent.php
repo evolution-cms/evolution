@@ -1220,7 +1220,7 @@ class SiteContent extends Eloquent\Model
     public function removeChildren($from, $to = null, $forceDelete = false)
     {
         if (!is_numeric($from) || ($to !== null && !is_numeric($to))) {
-            throw new InvalidArgumentException('`from` and `to` are the position boundaries. They must be of type int.');
+            throw new \InvalidArgumentException('`from` and `to` are the position boundaries. They must be of type int.');
         }
 
         if (!$this->exists) {
@@ -1863,7 +1863,7 @@ class SiteContent extends Eloquent\Model
     public static function getRoots(array $columns = ['*'])
     {
         /**
-         * @var Entity $instance
+         * @var \Entity $instance
          */
         $instance = new static;
 
@@ -1942,7 +1942,7 @@ class SiteContent extends Eloquent\Model
         }
 
         if ($this->getKey() === $parentId) {
-            throw new InvalidArgumentException('Target entity is equal to the sender.');
+            throw new \InvalidArgumentException('Target entity is equal to the sender.');
         }
 
         $this->parent = $parentId;
@@ -2197,7 +2197,7 @@ class SiteContent extends Eloquent\Model
             }
             $field = 'tv_' . $tvname . ".value";
             if ($withDefaults === true) {
-                $field = DB::Raw("IFNULL(`" . $prefix . "tv_" . $tvname . "`.`value`, `" . $prefix . "tvd_" . $tvname . "`.`default_text`)");
+                $field = \DB::Raw("IFNULL(`" . $prefix . "tv_" . $tvname . "`.`value`, `" . $prefix . "tvd_" . $tvname . "`.`default_text`)");
             }
             switch (true) {
                 case ($castType == 'UNSIGNED'):

@@ -3,7 +3,6 @@
 use EvolutionCMS\Interfaces\ModifiersInterface;
 use EvolutionCMS\Models\SiteTemplate;
 use EvolutionCMS\Support\DataGrid;
-use IntlDateFormatter;
 
 class Modifiers implements ModifiersInterface
 {
@@ -659,7 +658,9 @@ class Modifiers implements ModifiersInterface
                 if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
                     return $this->includeMdfFile('wordwrap');
                 } else {
-                    return preg_replace("@(\b\w+\b)@e", "wordwrap('\\1',\$wrapat,' ',1)", $value);
+                    return preg_replace_callback("@(\b\w+\b)@", function($matches) use ($wrapat) {
+                        return wordwrap($matches[1], $wrapat, ' ', 1);
+                    }, $value);
                 }
             case 'wrap_text':
                 $width = preg_match('/^[1-9][0-9]*$/', $opt) ? $opt : 70;
@@ -791,7 +792,7 @@ class Modifiers implements ModifiersInterface
             case 'money_format':
                 setlocale(LC_MONETARY, setlocale(LC_TIME, 0));
                 if ($value !== '') {
-                    return money_format($opt, (double)$value);
+                    return $this->money_format($opt, (double)$value);
                 }
                 break;
             case 'tobool':
@@ -854,10 +855,10 @@ class Modifiers implements ModifiersInterface
                     if (extension_loaded('intl')) {
                         // https://www.php.net/manual/en/class.intldateformatter.php
                         // https://www.php.net/manual/en/datetime.createfromformat.php
-                        $formatter = new IntlDateFormatter(
+                        $formatter = new \IntlDateFormatter(
                             evo()->getConfig('manager_language'),
-                            IntlDateFormatter::MEDIUM,
-                            IntlDateFormatter::MEDIUM,
+                            \IntlDateFormatter::MEDIUM,
+                            \IntlDateFormatter::MEDIUM,
                             null,
                             null,
                             $opt
@@ -1621,5 +1622,109 @@ class Modifiers implements ModifiersInterface
         }
 
         return trim(strip_tags($value, $params));
+    }
+
+
+    /**
+     * money_format() polyfill for PHP 8.0+ - format a number as a currency string
+     *
+     * Provides a replacement for the deprecated money_format function.
+     * Note: This implementation covers common use cases but may not be 100%
+     * compatible with all edge cases of the original C-based function.
+     *
+     * @param string $format The format specification
+     * @param double $number The number to be formatted
+     * @return string The formatted string
+     */
+    function money_format($format, $number)
+    {
+        $locale_info = localeconv();
+
+        // Parse the format string
+        $regex = '/%([\^+(!-]*)([#\d]+)?(\.(\d+))?([in%])/';
+
+        return preg_replace_callback($regex, function ($matches) use ($number, $locale_info) {
+            $flags = $matches[1] ?? '';
+            $width = $matches[2] ?? '';
+            $left_precision = $matches[4] ?? null;
+            $conversion = $matches[5];
+
+            // Handle literal %
+            if ($conversion === '%') {
+                return '%';
+            }
+
+            // Get currency symbol and formatting info
+            $currency_symbol = $locale_info['currency_symbol'] ?? '$';
+            $decimal_point = $locale_info['mon_decimal_point'] ?: $locale_info['decimal_point'];
+            $thousands_sep = $locale_info['mon_thousands_sep'] ?: $locale_info['thousands_sep'];
+            $frac_digits = $locale_info['frac_digits'] ?? 2;
+
+            // Handle left precision (digits before decimal)
+            if ($left_precision !== null) {
+                $frac_digits = (int)$left_precision;
+            }
+
+            // Format the number
+            $formatted = number_format(
+                abs($number),
+                $frac_digits,
+                $decimal_point,
+                $thousands_sep
+            );
+
+            // Handle negative numbers
+            $sign = '';
+            if ($number < 0) {
+                if (str_contains($flags, '(')) {
+                    // Use parentheses for negative
+                    $formatted = '(' . $formatted . ')';
+                } else {
+                    $sign = '-';
+                }
+            } elseif (str_contains($flags, '+')) {
+                // Always show sign for positive numbers
+                $sign = '+';
+            }
+
+            // Apply conversion type
+            if ($conversion === 'i') {
+                // International currency format
+                $currency = $locale_info['int_curr_symbol'] ?? 'USD ';
+                $result = $currency . $sign . $formatted;
+            } else {
+                // National currency format
+                $p_cs_precedes = $locale_info['p_cs_precedes'] ?? 1;
+                $n_cs_precedes = $locale_info['n_cs_precedes'] ?? 1;
+                $p_sep_by_space = $locale_info['p_sep_by_space'] ?? 0;
+                $n_sep_by_space = $locale_info['n_sep_by_space'] ?? 0;
+
+                $cs_precedes = $number >= 0 ? $p_cs_precedes : $n_cs_precedes;
+                $sep_by_space = $number >= 0 ? $p_sep_by_space : $n_sep_by_space;
+
+                $space = $sep_by_space ? ' ' : '';
+
+                // Suppress currency symbol if ^ flag is present
+                if (str_contains($flags, '^')) {
+                    $result = $sign . $formatted;
+                } elseif ($cs_precedes) {
+                    $result = $currency_symbol . $space . $sign . $formatted;
+                } else {
+                    $result = $sign . $formatted . $space . $currency_symbol;
+                }
+            }
+
+            // Apply width and padding
+            if ($width !== '') {
+                $width = (int)$width;
+                if (str_contains($flags, '-')) {
+                    $result = str_pad($result, $width, ' ');
+                } else {
+                    $result = str_pad($result, $width, ' ', STR_PAD_LEFT);
+                }
+            }
+
+            return $result;
+        }, $format);
     }
 }

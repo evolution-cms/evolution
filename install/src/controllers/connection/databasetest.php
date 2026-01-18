@@ -14,7 +14,7 @@ $database_collation = $_POST['database_collation'];
 $database_charset = getDatabaseCharset($database_collation, $driver);
 try {
     if ($driver === 'sqlite') {
-        $dbh = new PDO('sqlite:' . EVO_CORE_PATH . "database/$database_name.sqlite");
+        $dbh = new PDO('sqlite:' . sqliteDbNameToPath($database_name));
     } else {
         $dbh = new PDO($driver . ':host=' . $host . ';dbname=' . $database_name, $uid, $pwd);
     }
@@ -105,7 +105,7 @@ try {
 
 try {
     if ($driver === 'sqlite') {
-        $dbh = new PDO('sqlite:' . EVO_CORE_PATH . "database/$database_name.sqlite");
+        $dbh = new PDO('sqlite:' . sqliteDbNameToPath($database_name));
     } else {
         $dbh = new PDO($driver . ':host=' . $host . ($driver === 'pgsql' ? ';dbname=postgres' : ''), $uid, $pwd);
     }
