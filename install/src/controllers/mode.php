@@ -11,8 +11,12 @@ if (!is_file(EVO_CORE_PATH . 'config/database/connections/default.php')) {
     if (isset($db_config['database'])) {
         try {
             $pdoOptions = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
-            $dbh = new PDO($db_config['driver'] . ':host=' . $db_config['host'] . ';dbname='
-                . $db_config['database'], $db_config['username'], $db_config['password'], $pdoOptions);
+            if ($db_config['driver'] === 'sqlite') {
+                $dbh = new PDO('sqlite:' . $db_config['database']);
+            } else {
+                $dbh = new PDO($db_config['driver'] . ':host=' . $db_config['host'] . ';dbname='
+                    . $db_config['database'], $db_config['username'], $db_config['password'], $pdoOptions);
+            }
             $isConnectable = true;
         } catch (PDOException $e) {
             $isConnectable = false;
