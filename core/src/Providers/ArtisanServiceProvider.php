@@ -60,7 +60,7 @@ class ArtisanServiceProvider extends ServiceProvider
         'ScheduleRun' => ScheduleRunCommand::class,
         'ScheduleClearCache' => ScheduleClearCacheCommand::class,
         'ScheduleTest' => ScheduleTestCommand::class,
-        'ScheduleWork' => ScheduleWorkCommand::class,
+        'ScheduleWork' => 'command.schedule.work',
         'ViewClear' => 'command.view.clear',
         'ListsDoc' => 'command.lists.doc',
         'ListsTv' => 'command.lists.tv',
@@ -312,7 +312,9 @@ class ArtisanServiceProvider extends ServiceProvider
      */
     protected function registerScheduleWorkCommand()
     {
-        $this->app->singleton(ScheduleWorkCommand::class);
+        $this->app->singleton('command.schedule.work', function () {
+            return new ScheduleWorkCommand();
+        });
     }
 
     /**
