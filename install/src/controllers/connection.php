@@ -1,4 +1,5 @@
 <?php
+// step 2 part 2
 $installMode = isset($_POST['installmode']) ? (int)$_POST['installmode'] : 0;
 $dbTypes = ['mysql' => 'MySQL', 'pgsql' => 'PostgreSQL', 'sqlite' => 'SQLite'];
 
@@ -72,7 +73,7 @@ if ($installMode !== 0) {
                 }
             }
             if (!$conn || !$result) {
-                $upgradeable = (isset($_POST['installmode']) && $_POST['installmode'] === 'new') ? 0 : 2;
+                $upgradeable = ($installMode === 0) ? 0 : 2;
             } else {
                 $upgradeable = 1;
             }
@@ -143,7 +144,7 @@ $ph['database_type'] = escapeHtmlAttribute($dbTypes[$database_type]);
 $ph['database_name'] = escapeHtmlAttribute(isset($_POST['database_name']) ? $_POST['database_name'] : $database_name);
 $ph['tableprefix'] = escapeHtmlAttribute(isset($_POST['tableprefix']) ? $_POST['tableprefix'] : $table_prefix);
 $ph['database_collation'] = escapeHtmlAttribute(isset($_POST['database_collation']) ? $_POST['database_collation'] : $database_collation);
-$ph['show#AUH'] = ($installMode == 0) ? '' : 'hidden';
+$ph['show#AUH'] = ($installMode === 0) ? '' : 'hidden';
 $ph['cmsadmin'] = escapeHtmlAttribute(isset($_POST['cmsadmin']) ? $_POST['cmsadmin'] : 'admin');
 $ph['cmsadminemail'] = escapeHtmlAttribute(isset($_POST['cmsadminemail']) ? $_POST['cmsadminemail'] : '');
 $ph['cmspassword'] = escapeHtmlAttribute(isset($_POST['cmspassword']) ? $_POST['cmspassword'] : '');

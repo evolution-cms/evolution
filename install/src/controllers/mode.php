@@ -1,4 +1,5 @@
 <?php
+// step 2 part 1
 // Determine upgradeability
 $isConnectable = false;
 $installMode = isset($_POST['installmode']) ? (int)$_POST['installmode'] : 0;

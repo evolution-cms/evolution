@@ -138,7 +138,11 @@ if (empty($_GET['s'])) {
     if (! file_exists($controller)) {
         die("Invalid install action attempted. [action={$action}]");
     }
-    require $controller;
+    try {
+        require $controller;
+    } catch (Exception $e) {
+        echo $e->getMessage();
+    }
 
     $ph['content'] = ob_get_contents();
     ob_end_clean();

@@ -1,10 +1,14 @@
 <?php
-$driver = validateDbType($_POST['database_type']);
-$host = validateDbHost($_POST['host'], $driver);
-$uid = validateDbUser($_POST['uid'], $driver);
-$pwd = validateDbPassword($_POST['pwd'], $driver);
-$database_name = isset($_POST['database_name']) && $_POST['database_name'] !== '' ? validateDbName($_POST['database_name']) : '';
-
+try {
+    $driver = validateDbType($_POST['database_type']);
+    $host = validateDbHost($_POST['host'], $driver);
+    $uid = validateDbUser($_POST['uid'], $driver);
+    $pwd = validateDbPassword($_POST['pwd'], $driver);
+    $database_name = isset($_POST['database_name']) && $_POST['database_name'] !== ''
+        ? validateDbName($_POST['database_name']) : '';
+} catch (Throwable $e) {
+    echo '<span id="database_fail">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
+}
 try {
     $dsn = $driver . ':host=' . $host;
     $output = '<select id="database_collation" name="database_collation">';

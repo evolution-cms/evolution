@@ -1,4 +1,5 @@
 <?php
+// step 3
 const DB_CONNECTION_CONFIG_FILE = EVO_CORE_PATH . 'config/database/connections/default.php';
 $installMode = isset($_POST['installmode']) ? (int)$_POST['installmode'] : (is_readable(DB_CONNECTION_CONFIG_FILE) ? 1 : 0);
 

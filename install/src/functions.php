@@ -259,13 +259,19 @@ function validateLangCode($langCode)
  */
 function ph()
 {
-    global $_lang, $moduleName, $moduleVersion, $evo_textdir, $evo_release_date;
+    global $_lang, $base_path, $moduleVersion, $evo_textdir, $evo_release_date;
     $ph = [];
 
     if (isset($_SESSION['installmode'])) {
         $installmode = $_SESSION['installmode'];
     } else {
-        $installmode = get_installmode();
+        $installmode = isset($_POST['installmode']) ? (int)$_POST['installmode'] : 0;
+        if (file_exists("{$base_path}manager/includes/config.inc.php")) { ?>
+            Backup and delete the file `manager/includes/config.inc.php` then <a href="<?= htmlspecialchars($_SERVER['REQUEST_URI'],
+                ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">reload the page</a>
+            <?php exit();
+        }
+        // @deprecated get_installmode(); wants config.inc.php
     }
 
     $ph['pagetitle'] = $_lang['modx_install'];
@@ -282,6 +288,7 @@ function ph()
 }
 
 /**
+ * @deprecated config.inc.php was split to Laravel configs
  * @return int
  */
 function get_installmode()
