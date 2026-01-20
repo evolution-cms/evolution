@@ -3,7 +3,6 @@
 use EvolutionCMS\Legacy\Phx;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\View\FileViewFinder;
-use Twig_Loader_Filesystem;
 
 /**
  */
@@ -24,13 +23,6 @@ class Parser
     protected $templatePath = 'assets/templates/';
 
     protected $templateExtension = 'html';
-
-    /**
-     * @var null|Twig_Environment twig object
-     */
-    protected $twig;
-
-    protected $twigEnabled = false;
 
     public $blade;
 
@@ -107,9 +99,6 @@ class Parser
 
         if (!empty($path)) {
             $this->templatePath = $path;
-            if ($this->twig) {
-                $this->twig->setLoader(new Twig_Loader_Filesystem(MODX_BASE_PATH . $path));
-            }
             if ($this->blade) {
                 $filesystem = new Filesystem;
                 $viewFinder = new FileViewFinder($filesystem, [MODX_BASE_PATH . $path]);
@@ -223,23 +212,8 @@ class Parser
                 $this->setTemplateExtension('blade.php');
             }
             switch ($mode) {
-                case '@T_FILE':
-                    if ($subTmp != '' && $this->twigEnabled) {
-                        $real = realpath(MODX_BASE_PATH . $this->templatePath);
-                        $path = realpath(MODX_BASE_PATH . $this->templatePath . $this->cleanPath($subTmp) . '.' . $this->templateExtension);
-                        if (basename($path, '.' . $this->templateExtension) !== '' &&
-                            0 === strpos($path, $real) &&
-                            file_exists($path)
-                        ) {
-                            $tpl = $this->twig->loadTemplate($this->cleanPath($subTmp) . '.' . $this->templateExtension);
-                        }
-                    }
-                    break;
                 case '@T_CODE':
-                    if ($this->twigEnabled) {
-                        $tpl = $tmp[3];
-                        $tpl = $this->twig->createTemplate($tpl);
-                    }
+                case '@T_FILE':
                     break;
                 case '@B_FILE':
                     if ($subTmp != '' && $this->bladeEnabled) {
@@ -433,14 +407,8 @@ class Parser
     public function parseChunk ($name, $data = [], $parseDocumentSource = false, $disablePHx = false)
     {
         $out = $this->getChunk($name);
-        $twig = strpos($name, '@T_') === 0 && $this->twigEnabled;
         $blade = strpos($name, '@B_') === 0 && $this->bladeEnabled;
         switch (true) {
-            case $twig:
-                if (!empty($out)) {
-                    $out = $out->render($this->getTemplateData($data));
-                }
-                break;
             case $blade:
                 if (!empty($out)) {
                     $out = $out->with($this->getTemplateData($data))->render();
@@ -461,7 +429,7 @@ class Parser
                 }
                 break;
         }
-        if ($parseDocumentSource && !$twig && !$blade) {
+        if ($parseDocumentSource && !$blade) {
             $out = $this->parseDocumentSource($out);
         }
 
@@ -484,14 +452,6 @@ class Parser
             }
         } else {
             $this->phx->setPHxVariable($keypath, $value);
-        }
-    }
-
-    public function loadTwig ()
-    {
-        if (is_null($this->twig) && isset($this->modx->twig)) {
-            $this->twig = clone $this->modx->twig;
-            $this->twigEnabled = true;
         }
     }
 

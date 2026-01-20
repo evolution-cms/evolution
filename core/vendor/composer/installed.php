@@ -3,31 +3,13 @@
         'name' => 'evolutioncms/core',
         'pretty_version' => '3.5.x-dev',
         'version' => '3.5.9999999.9999999-dev',
-        'reference' => '7857ee80e6095e3c0a4d890a36083b3daee2f172',
+        'reference' => 'f03b1f35c7b505a02a789a2e3aa5e7109b93d499',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
         'dev' => true,
     ),
     'versions' => array(
-        'barryvdh/laravel-ide-helper' => array(
-            'pretty_version' => 'v3.6.1',
-            'version' => '3.6.1.0',
-            'reference' => 'b106f7ee85f263c4f103eca49e7bf3862c2e5e75',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../barryvdh/laravel-ide-helper',
-            'aliases' => array(),
-            'dev_requirement' => true,
-        ),
-        'barryvdh/reflection-docblock' => array(
-            'pretty_version' => 'v2.4.0',
-            'version' => '2.4.0.0',
-            'reference' => 'd103774cbe7e94ddee7e4870f97f727b43fe7201',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../barryvdh/reflection-docblock',
-            'aliases' => array(),
-            'dev_requirement' => true,
-        ),
         'blade-ui-kit/blade-icons' => array(
             'pretty_version' => '1.8.0',
             'version' => '1.8.0.0',
@@ -193,7 +175,7 @@
         'evolution-cms/evolution' => array(
             'dev_requirement' => false,
             'replaced' => array(
-                0 => '3.5.1',
+                0 => '3.5.3',
             ),
         ),
         'evolutioncms-services/document-manager' => array(
@@ -217,7 +199,7 @@
         'evolutioncms/core' => array(
             'pretty_version' => '3.5.x-dev',
             'version' => '3.5.9999999.9999999-dev',
-            'reference' => '7857ee80e6095e3c0a4d890a36083b3daee2f172',
+            'reference' => 'f03b1f35c7b505a02a789a2e3aa5e7109b93d499',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -512,9 +494,9 @@
             'dev_requirement' => false,
         ),
         'laravel/prompts' => array(
-            'pretty_version' => 'v0.3.9',
-            'version' => '0.3.9.0',
-            'reference' => '5c41bf0555b7cfefaad4e66d3046675829581ac4',
+            'pretty_version' => 'v0.3.10',
+            'version' => '0.3.10.0',
+            'reference' => '360ba095ef9f51017473505191fbd4ab73e1cab3',
             'type' => 'library',
             'install_path' => __DIR__ . '/../laravel/prompts',
             'aliases' => array(),
@@ -776,7 +758,7 @@
         'roave/security-advisories' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '28d428ca7643cd49a652e508758bbc7fc30c88c2',
+            'reference' => '57ac71b06405e32e77d960bb8490683138573f04',
             'type' => 'metapackage',
             'install_path' => null,
             'aliases' => array(),

@@ -1,55 +1,4 @@
-/* Roboto Font */
-@font-face {
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 300;
-  src: url('../fonts/roboto/roboto-v19-latin-300.eot'); /* IE9 Compat Modes */
-  src: local(''),
-       url('../fonts/roboto/roboto-v19-latin-300.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-       url('../fonts/roboto/roboto-v19-latin-300.woff2') format('woff2'), /* Super Modern Browsers */
-       url('../fonts/roboto/roboto-v19-latin-300.woff') format('woff'), /* Modern Browsers */
-       url('../fonts/roboto/roboto-v19-latin-300.ttf') format('truetype'), /* Safari, Android, iOS */
-       url('../fonts/roboto/roboto-v19-latin-300.svg#Roboto') format('svg'); /* Legacy iOS */
-}
-
-@font-face {
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 400;
-  src: url('../fonts/roboto/roboto-v19-latin-regular.eot'); /* IE9 Compat Modes */
-  src: local(''),
-       url('../fonts/roboto/roboto-v19-latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-       url('../fonts/roboto/roboto-v19-latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
-       url('../fonts/roboto/roboto-v19-latin-regular.woff') format('woff'), /* Modern Browsers */
-       url('../fonts/roboto/roboto-v19-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
-       url('../fonts/roboto/roboto-v19-latin-regular.svg#Roboto') format('svg'); /* Legacy iOS */
-}
-
-@font-face {
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 500;
-  src: url('../fonts/roboto/roboto-v19-latin-500.eot'); /* IE9 Compat Modes */
-  src: local(''),
-       url('../fonts/roboto/roboto-v19-latin-500.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-       url('../fonts/roboto/roboto-v19-latin-500.woff2') format('woff2'), /* Super Modern Browsers */
-       url('../fonts/roboto/roboto-v19-latin-500.woff') format('woff'), /* Modern Browsers */
-       url('../fonts/roboto/roboto-v19-latin-500.ttf') format('truetype'), /* Safari, Android, iOS */
-       url('../fonts/roboto/roboto-v19-latin-500.svg#Roboto') format('svg'); /* Legacy iOS */
-}
-
-@font-face {
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 700;
-  src: url('../fonts/roboto/roboto-v19-latin-700.eot'); /* IE9 Compat Modes */
-  src: local(''),
-       url('../fonts/roboto/roboto-v19-latin-700.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-       url('../fonts/roboto/roboto-v19-latin-700.woff2') format('woff2'), /* Super Modern Browsers */
-       url('../fonts/roboto/roboto-v19-latin-700.woff') format('woff'), /* Modern Browsers */
-       url('../fonts/roboto/roboto-v19-latin-700.ttf') format('truetype'), /* Safari, Android, iOS */
-       url('../fonts/roboto/roboto-v19-latin-700.svg#Roboto') format('svg'); /* Legacy iOS */
-}
+/* System fonts only (Roboto files removed) */
 
 html { font-size: 16px }
 @media (max-width: 900px) {
@@ -82,7 +31,7 @@ html[lang="ko-KR"] body { font-family: "Apple SD Gothic Neo", "Malgun Gothic", "
 html[lang="th"] body { font-family: "Sukhumvit Set", "Helvetica Neue", Helvetica, Arial, sans-serif; }
 /* For Arabic Font */
 html[lang="fa"] body { font-family: Tahoma, Arial, sans-serif; }
-body { background-color: var(--color-bg-light); color: var(--color-text-icon); }
+body { background-color: var(--bg-page); color: var(--color-text-icon); }
 body.drag *, body.drag::after { cursor: grabbing !important; cursor: -moz-grabbing !important; cursor: -webkit-grabbing !important; cursor: -moz-grab !important; -moz-user-select: none !important; -webkit-user-select: none !important; user-select: none !important }
 body.drag::after { bottom: 0; content: ""; left: 0; position: fixed; right: 0; top: 0; z-index: 999 }
 body, ul, li { padding: 0; margin: 0; }
@@ -136,7 +85,7 @@ a.text-warning:focus, a.text-warning:hover { color: var(--color-warning-hover) !
 .text-danger { color: var(--color-danger) !important }
 a.text-danger:focus, a.text-danger:hover { color: var(--color-danger-hover) !important }
 .text-gray-dark { color: var(--color-text-secondary) !important }
-a.text-gray-dark:focus, a.text-gray-dark:hover { color: var(--color-black) !important }
+a.text-gray-dark:focus, a.text-gray-dark:hover { color: var(--color-text) !important }
 .text-hide { font: 0/0 a; color: var(--color-transparent); text-shadow: none; background-color: var(--color-transparent); border: 0 }
 .hide { display: none !important }
 .show { display: block !important }
@@ -145,21 +94,17 @@ a.text-gray-dark:focus, a.text-gray-dark:hover { color: var(--color-black) !impo
 .clear { clear: both; }
 /* custom */
 #loadingmask { display: none !important; }
-.fa > .fa-lock { position: relative; float: left; width: auto !important; margin-top: -1em; font-size: 0.7em !important; color: var(--color-warning-lock) !important; -webkit-text-stroke: 1px rgba(0, 0, 0, 0.39); text-stroke: 1px rgba(0, 0, 0, 0.39); }
+.fa > .fa-lock { position: relative; float: left; width: auto !important; margin-top: -1em; font-size: 0.7em !important; color: var(--color-warning-lock) !important; -webkit-text-stroke: 1px var(--color-text-stroke); text-stroke: 1px var(--color-text-stroke); }
 .rotate180 { -webkit-transform: rotate(180deg); -moz-transform: rotate(180deg); -ms-transform: rotate(180deg); -o-transform: rotate(180deg); transform: rotate(180deg); }
 .disabledPlugin, .disabledPlugin a { color: var(--color-disabled-text); font-style: italic; }
-h1 { font-size: 1.5em; line-height: 1.5rem; padding: 0.8rem; margin: 0; }
+h1 { font-size: 1.5em; line-height: 1.5rem; padding: 0.8rem 0.25rem; margin: 0; }
 h1 .fa { margin-right: 0.25em; color: var(--color-primary-accent); }
 h1 .help { margin: 0 0 0 0.25em; color: var(--color-help-muted); font-size: 0.8em; cursor: pointer }
 h1 .help:hover { color: var(--color-help-muted-hover); }
 h1 small { margin-left: 0.5em; line-height: 1em }
-.split { height: 0; font-size: 0; clear: both; padding: 0; border-top: 1px dotted var(--color-overlay-light) }
+.split { height: 0; font-size: 0; clear: both; padding: 0; border-top: 1px solid var(--color-border-dotted) }
 #previewIframe { width: 100%; height: 400px; }
 .messageRead { color: var(--color-message-read); }
 .messageUnread { color: var(--color-message-unread); font-weight: 500; }
 .element-edit-message { display: none }
 .element-edit-message p:last-child, .element-edit-message-tab p:last-child { margin-bottom: 0 }
-/* modes theme */
-/* darkness */
-.darkness h1 .help { color: var(--color-primary-dark); opacity: .5; }
-.darkness h1 .help:hover { opacity: 1; }

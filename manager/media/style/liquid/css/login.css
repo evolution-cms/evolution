@@ -6,7 +6,7 @@
 /* ===== CSS Variables for Login ===== */
 :root {
     /* Typography */
-    --login-font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --login-font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     --login-font-size: 0.8125rem;
     --login-line-height: 1.5;
     

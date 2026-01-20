@@ -52,7 +52,6 @@ $_lang = [
   'chunks' => 'Chunks',
   'config_permissions_note' => 'Für neue Linux/Unix-Installationen erstellen Sie bitte eine leere Datei namens <code>config.inc.php</code> im Verzeichnis <code>/[+MGR_DIR+]/includes/</code> mit auf 0666 gesetzten Dateiberechtigungen.',
   'connection_screen_collation' => 'Kollation:',
-  'connection_screen_connection_method' => 'Verbindungsmethode:',
   'connection_screen_database_connection_information' => 'Datenbankinformationen',
   'connection_screen_database_connection_note' => 'Bitte geben Sie den Namen der Datenbank an, die Sie für Evolution CMS nutzen wollen. Falls die Datenbank nicht existiert, wird Evolution CMS versuchen sie zu erstellen. Dies kann fehlschlagen, falls Sie nicht die nötigen Rechte besitzen. Bei vielen Web-Hosting-Angeboten sind die Datenbanken bereits eingerichtet oder können in der Administrationsoberfläche des Web-Hosting-Angebots erstellt werden. Notieren Sie diesen Namen und geben Sie ihn hier ein.',
   'connection_screen_database_host' => 'Datenbank-Host:',

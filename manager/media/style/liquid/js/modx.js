@@ -13,6 +13,9 @@
             if (!localStorage.getItem('MODX_widthSideBar')) {
                 localStorage.setItem('MODX_widthSideBar', this.config.tree_width);
             }
+            if (navigator.appVersion.indexOf('Win') !== -1) {
+                d.documentElement.classList.add('win');
+            }
             //this.tree.init();
             this.mainmenu.init();
             var href = modx.normalizeUrl(w.location.href);
@@ -83,6 +86,13 @@
                         }
                     }
                     if (!a.classList.contains('dropdown-toggle') && !a.closest('ul').classList.contains('dropdown-menu')) {
+                        if (a.id === 'treeMenu_theme_dark' || a.closest('#theme')) {
+                            var themeItem = a.closest('.nav > li');
+                            if (themeItem) {
+                                themeItem.classList.remove('active');
+                            }
+                            return;
+                        }
                         mm.querySelectorAll('.nav li.active').forEach(function (el) {
                             el.classList.remove('active');
                         });
@@ -419,52 +429,6 @@
                     if (!w.main || !w.main.document) return;
                     var row = w.main.document.querySelector('.tab-pane > .tab-row');
                     if (row) this.build(row);
-                    // Check if all tabs are hidden and hide tab-row
-                    this.checkHiddenTabs();
-                },
-                checkHiddenTabs: function () {
-                    var self = this;
-                    var tabRows = d.querySelectorAll('.tab-row, .tab-row-container, .evo-tab-row');
-                    tabRows.forEach(function(tabRow) {
-                        var tabs = tabRow.querySelectorAll('.tab');
-                        var allHidden = true;
-                        tabs.forEach(function(tab) {
-                            var styleAttr = tab.getAttribute('style') || '';
-                            var isHidden = styleAttr.indexOf('display:none') !== -1 || 
-                                           styleAttr.indexOf('display: none') !== -1;
-                            if (!isHidden) {
-                                allHidden = false;
-                            }
-                        });
-                        if (tabs.length > 0 && allHidden) {
-                            tabRow.style.display = 'none';
-                            d.body.classList.add('tabs-hidden');
-                            // Also add class and styles to iframe body
-                            if (w.main && w.main.document && w.main.document.body) {
-                                w.main.document.body.classList.add('tabs-hidden');
-                                self.injectIframeStyles(w.main.document);
-                            }
-                        }
-                    });
-                },
-                showTabRow: function () {
-                    // Remove tabs-hidden class and show tab-row when visible tabs exist
-                    d.body.classList.remove('tabs-hidden');
-                    if (w.main && w.main.document && w.main.document.body) {
-                        w.main.document.body.classList.remove('tabs-hidden');
-                    }
-                    var tabRows = d.querySelectorAll('.tab-row, .tab-row-container, .evo-tab-row');
-                    tabRows.forEach(function(tabRow) {
-                        tabRow.style.display = '';
-                    });
-                },
-                injectIframeStyles: function (iframeDoc) {
-                    if (!iframeDoc.getElementById('tabs-hidden-styles')) {
-                        var style = iframeDoc.createElement('style');
-                        style.id = 'tabs-hidden-styles';
-                        style.textContent = 'body.tabs-hidden .container-body { padding-top: 0 !important; margin-top: 1px !important; } body.tabs-hidden { margin: 0 !important; padding: 0 !important; }';
-                        iframeDoc.head.appendChild(style);
-                    }
                 },
                 build: function (row) {
                     var rowContainer = d.createElement('div'),
@@ -571,10 +535,16 @@
                 }
             },
             work: function () {
-                d.getElementById('mainloader').classList.add('show');
+                var loader = d.getElementById('mainloader');
+                if (loader) {
+                    loader.classList.add('show');
+                }
             },
             stopWork: function () {
-                d.getElementById('mainloader').classList.remove('show');
+                var loader = d.getElementById('mainloader');
+                if (loader) {
+                    loader.classList.remove('show');
+                }
             },
             scrollWork: function () {
                 var a = w.main.frameElement.contentWindow,
@@ -1460,7 +1430,7 @@
             },
             getFolderState: function () {
                 var a;
-                if (modx.openedArray !== [0]) {
+                if (modx.openedArray.length > 0) {
                     a = '&opened=';
                     for (var key in modx.openedArray) {
                         if (modx.openedArray[key]) {
@@ -1662,8 +1632,6 @@
                     this.txt = modx.title(this.title);
                     this.tab.innerHTML = '<span class="tab-title" title="' + this.txt + '">' + this.icon + this.title + '</span><span class="tab-close">×</span>';
                     this.row.appendChild(this.tab);
-                    // Show tab-row when new tab is added
-                    modx.main.tabRow.showTabRow();
                     this.tab.onclick = function (e) {
                         s.select.call(s, e, this);
                     };
@@ -1766,8 +1734,6 @@
                         this.page.parentNode.removeChild(this.page);
                         this.row.removeChild(this.tab);
                         modx.tabs.selected.show();
-                        // Check if all tabs are hidden after closing
-                        modx.main.tabRow.checkHiddenTabs();
                     }
                     modx.main.stopWork();
                 },
@@ -2321,19 +2287,19 @@
         dragging: function (a, b) {
             this.dragging.init = function (a, b) {
                 var c = {
-                        resize: !1,
-                        minWidth: 50,
-                        minHeight: 50,
-                        wrap: document,
-                        opacity: '0.65',
-                        classDrag: 'drag',
-                        classResize: 'resize',
-                        handler: '',
-                        onstart: function (e, obj) { },
-                        onstop: function (e, obj) { },
-                        ondrag: function (e, obj) { },
-                        onresize: function (e, obj) { }
-                    },
+                    resize: !1,
+                    minWidth: 50,
+                    minHeight: 50,
+                    wrap: document,
+                    opacity: '0.65',
+                    classDrag: 'drag',
+                    classResize: 'resize',
+                    handler: '',
+                    onstart: function (e, obj) { },
+                    onstop: function (e, obj) { },
+                    ondrag: function (e, obj) { },
+                    onresize: function (e, obj) { }
+                },
                     f = {
                         x: 0,
                         y: 0,

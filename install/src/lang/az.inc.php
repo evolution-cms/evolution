@@ -52,7 +52,6 @@ $_lang = [
   'chunks' => 'Chunklar',
   'config_permissions_note' => 'Yeni Linux/Unix quraşdırmaları üçün, xahiş edirik <code>config.inc.php</code> adlı boş bir fayl yaradın və <code>/[+MGR_DIR+]/includes/</code> qovluğunda fayl icazələrini 0666 olaraq təyin edin.',
   'connection_screen_collation' => 'Collation:',
-  'connection_screen_connection_method' => 'Bağlantı metodu:',
   'connection_screen_database_connection_information' => 'Məlumat bazası məlumatları',
   'connection_screen_database_connection_note' => 'Bu Evolution CMS quraşdırması üçün istifadə edəcəyiniz və ya yaratmaq istədiyiniz məlumat bazasının adını daxil edin. Əgər heç bir məlumat bazası yoxdursa, quraşdırıcı onu yaratmağa cəhd edəcək. Bu, [+database_type+] istifadəçi icazələrinə görə uğursuz ola bilər.',
   'connection_screen_database_host' => 'Məlumat bazası hostu:',

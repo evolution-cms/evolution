@@ -54,7 +54,6 @@ $_lang["config_permissions_note"] = 'For new Linux/Unix installs, please create 
 $_lang["connection_screen_character_set"] = 'חיבור ערכת תווים:';
 $_lang["connection_screen_collation"] = 'אוסף נתונים:';
 $_lang["connection_screen_connection_information"] = 'מידע התחברות';
-$_lang["connection_screen_connection_method"] = 'שיטת התחברות:';
 $_lang["connection_screen_database_connection_information"] = 'מידע אודות מסד הנתונים';
 $_lang["connection_screen_database_connection_note"] = 'נא להזין את שם מסד הנתונים שנוצר עבור MODX. אם אין עדיין מסד נתונים, תוכנת ההתקנה תנסה ליצור מסד נתונים עבורך. תהליך זה עלול להיכשל בהתאם לתצורת MySQL   או הרשאות משתמש עבור שם המתחם /התקנה.';
 $_lang["connection_screen_database_host"] = 'שרת מסד הנתונים:';

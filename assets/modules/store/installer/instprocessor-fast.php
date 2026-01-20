@@ -1,4 +1,16 @@
 <?php
+/**
+ * @deprecated
+ * @since 3.5.0
+ *
+ * Module seems broken, SqlParser public function __construct($host, $user, $password, $db, $prefix='modx_', $adminname,
+ * $adminemail, $adminpass, $connection_charset= 'utf8', $managerlanguage='english',
+ * $connection_method = 'SET CHARACTER SET', $auto_template_logic = 'parent') {
+ * is called here with missing parameters (see line 129)
+ * new SqlParser('', '', '', $databaseConfig['charset'], \Lang::getLocale(), $databaseConfig['method'], 'sibling')
+ *
+ * @todo [remove@3.7] Remove in Evolution CMS 3.7
+ */
 if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true || !evo()->hasPermission('exec_module')) {
     die('<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the EVO Content Manager instead of accessing this file directly.');
 }

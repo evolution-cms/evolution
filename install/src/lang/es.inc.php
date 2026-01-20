@@ -52,7 +52,6 @@ $_lang = [
   'chunks' => 'Chunks',
   'config_permissions_note' => 'Para instalaciones nuevas en servidores Linux/Unix, favpr de crear un archivo nuevo en blanco llamado <code>config.inc.php</code> en el directorio <code>[+MGR_DIR+]/includes/</code> con los permisos de archivo configurados a 0666.',
   'connection_screen_collation' => 'Compaginación:',
-  'connection_screen_connection_method' => 'Método de Conexión:',
   'connection_screen_database_connection_information' => 'Información de la base de datos',
   'connection_screen_database_connection_note' => 'Favor de escribir el nombre de la base de datos creada para Evo.  Si no existe una base de datos todavía, el instalador tratará de crear una para ti.  Esto puede fallar dependiendo de la configuración de [+database_type+] o de los permisos del usuario de bases de datos para tu dominio/instalación.',
   'connection_screen_database_host' => 'Servidor de base de datos:',

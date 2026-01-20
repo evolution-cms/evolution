@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInite622e0b71483b0756b2e75b7f641f906
+class ComposerStaticInit539683dacc793cf60122504ca93f815d
 {
     public static $files = array (
         '662a729f963d39afe703c9d9b7ab4a8c' => __DIR__ . '/..' . '/symfony/polyfill-php83/bootstrap.php',
@@ -1977,7 +1977,6 @@ class ComposerStaticInite622e0b71483b0756b2e75b7f641f906
         'EvolutionCMS\\Providers\\ExceptionHandlerServiceProvider' => __DIR__ . '/../..' . '/src/Providers/ExceptionHandlerServiceProvider.php',
         'EvolutionCMS\\Providers\\FsServiceProvider' => __DIR__ . '/../..' . '/src/Providers/FsServiceProvider.php',
         'EvolutionCMS\\Providers\\HelperProcessorServiceProvider' => __DIR__ . '/../..' . '/src/Providers/HelperProcessorServiceProvider.php',
-        'EvolutionCMS\\Providers\\IdeHelperServiceProvider' => __DIR__ . '/../..' . '/src/Providers/IdeHelperServiceProvider.php',
         'EvolutionCMS\\Providers\\LogContextServiceProvider' => __DIR__ . '/../..' . '/src/Providers/LogContextServiceProvider.php',
         'EvolutionCMS\\Providers\\MailServiceProvider' => __DIR__ . '/../..' . '/src/Providers/MailServiceProvider.php',
         'EvolutionCMS\\Providers\\MakeTableServiceProvider' => __DIR__ . '/../..' . '/src/Providers/MakeTableServiceProvider.php',
@@ -3241,6 +3240,7 @@ class ComposerStaticInite622e0b71483b0756b2e75b7f641f906
         'Laravel\\Prompts\\Exceptions\\NonInteractiveValidationException' => __DIR__ . '/..' . '/laravel/prompts/src/Exceptions/NonInteractiveValidationException.php',
         'Laravel\\Prompts\\FormBuilder' => __DIR__ . '/..' . '/laravel/prompts/src/FormBuilder.php',
         'Laravel\\Prompts\\FormStep' => __DIR__ . '/..' . '/laravel/prompts/src/FormStep.php',
+        'Laravel\\Prompts\\Grid' => __DIR__ . '/..' . '/laravel/prompts/src/Grid.php',
         'Laravel\\Prompts\\Key' => __DIR__ . '/..' . '/laravel/prompts/src/Key.php',
         'Laravel\\Prompts\\MultiSearchPrompt' => __DIR__ . '/..' . '/laravel/prompts/src/MultiSearchPrompt.php',
         'Laravel\\Prompts\\MultiSelectPrompt' => __DIR__ . '/..' . '/laravel/prompts/src/MultiSelectPrompt.php',
@@ -3267,6 +3267,7 @@ class ComposerStaticInite622e0b71483b0756b2e75b7f641f906
         'Laravel\\Prompts\\Themes\\Default\\Concerns\\DrawsScrollbars' => __DIR__ . '/..' . '/laravel/prompts/src/Themes/Default/Concerns/DrawsScrollbars.php',
         'Laravel\\Prompts\\Themes\\Default\\Concerns\\InteractsWithStrings' => __DIR__ . '/..' . '/laravel/prompts/src/Themes/Default/Concerns/InteractsWithStrings.php',
         'Laravel\\Prompts\\Themes\\Default\\ConfirmPromptRenderer' => __DIR__ . '/..' . '/laravel/prompts/src/Themes/Default/ConfirmPromptRenderer.php',
+        'Laravel\\Prompts\\Themes\\Default\\GridRenderer' => __DIR__ . '/..' . '/laravel/prompts/src/Themes/Default/GridRenderer.php',
         'Laravel\\Prompts\\Themes\\Default\\MultiSearchPromptRenderer' => __DIR__ . '/..' . '/laravel/prompts/src/Themes/Default/MultiSearchPromptRenderer.php',
         'Laravel\\Prompts\\Themes\\Default\\MultiSelectPromptRenderer' => __DIR__ . '/..' . '/laravel/prompts/src/Themes/Default/MultiSelectPromptRenderer.php',
         'Laravel\\Prompts\\Themes\\Default\\NoteRenderer' => __DIR__ . '/..' . '/laravel/prompts/src/Themes/Default/NoteRenderer.php',
@@ -5272,10 +5273,10 @@ class ComposerStaticInite622e0b71483b0756b2e75b7f641f906
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInite622e0b71483b0756b2e75b7f641f906::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInite622e0b71483b0756b2e75b7f641f906::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInite622e0b71483b0756b2e75b7f641f906::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInite622e0b71483b0756b2e75b7f641f906::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit539683dacc793cf60122504ca93f815d::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit539683dacc793cf60122504ca93f815d::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit539683dacc793cf60122504ca93f815d::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit539683dacc793cf60122504ca93f815d::$classMap;
 
         }, null, ClassLoader::class);
     }

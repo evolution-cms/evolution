@@ -39,7 +39,7 @@ i.evocpicon:hover { -webkit-transform: rotate(30deg); -moz-transform: rotate(30d
 .evocp-frame h2 { font-size: 1.0rem; line-height: 1.6rem; border-bottom: 1px solid var(--color-border-lighter); padding-top: 4px; /* -webkit-animation: colorchange 20s infinite alternate;*/ }
 /* dark theme overrides moved to themes/dark.css */
 .evocp-frame .panel-heading h3 { cursor: pointer; display: inline-block; font-size: 0.8rem; line-height: 1.1rem; margin-top: 9px; }
-.evocp-frame .panel-heading h3:hover { color: var(--color-black); }
+.evocp-frame .panel-heading h3:hover { color: var(--color-text); }
 /* dark theme overrides moved to themes/dark.css */
 .evocp-frame .panel { margin-bottom: 2px; }
 .evocp-frame .panel-heading { text-align: left; border-top: 1px solid var(--color-border-lighter); border-bottom: 1px solid var(--color-border-lighter); background-color: var(--color-bg-gray); padding: 0 0 0 8px; text-transform: uppercase; }

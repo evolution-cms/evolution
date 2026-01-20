@@ -1,0 +1,537 @@
+/* [ Action Buttons ] */
+/* new style */
+#actions {
+    padding: 0.5rem 0;
+    position: fixed;
+    top: 0;
+    right: 10px;
+    text-align: right;
+    z-index: var(--z-fixed);
+    border-radius: 0 0 var(--actions-radius) var(--actions-radius);
+    border: none;
+    box-shadow: var(--actions-shadow);
+    -webkit-backdrop-filter: var(--actions-backdrop);
+    backdrop-filter: var(--actions-backdrop);
+}
+
+#actions .btn-group {
+    margin: 0
+}
+
+#actions .btn-group>.btn-group {
+    display: block
+}
+
+#actions .btn-group .btn,
+#actions .btn-group .form-control {
+    font-size: .6772rem;
+    height: 2.4em;
+    line-height: 1.4
+}
+
+#actions .btn-group .btn .fa,
+#_actions .btn-group .btn .fa {
+    display: none;
+    width: 1em;
+    font-size: 1em;
+    text-align: center
+}
+
+#actions .btn-group .btn-group #Button1 {
+    min-width: 100%;
+    text-align: left;
+    float: right;
+}
+
+#actions .btn-group .btn-success {
+    box-shadow: var(--shadow-inset);
+}
+
+#actions .btn-group .btn-success:hover {
+    box-shadow: var(--shadow-none)
+}
+
+#actions .btn-group .plus {
+    z-index: 2;
+    float: right;
+    margin: -2.4em 0 0 0;
+    width: 2rem;
+    padding-left: 0;
+    padding-right: 0;
+    text-align: center;
+    cursor: default;
+}
+
+#actions .btn-group .plus::before {
+    content: "\f107";
+    font-weight: 900;
+    font-family: 'Font Awesome 5 Free'
+}
+
+#actions .btn-group .show .plus::before {
+    content: "\f106";
+}
+
+#actions .btn-group select#stay {
+    display: block;
+    position: relative;
+    z-index: -1;
+    clear: both;
+    width: auto;
+    height: 0;
+    margin: -100% 0 -2rem 0;
+    font-size: var(--font-size-xs);
+    opacity: 0;
+    visibility: hidden;
+}
+
+#actions .btn-group .dropdown-menu {
+    display: none;
+    position: absolute;
+    z-index: -1;
+    left: auto;
+    right: 0;
+    top: 100%;
+    width: 100%;
+    min-width: 2rem;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    font-size: .6772rem;
+    background-color: var(--bg-surface-1);
+    border-top: none;
+    border-radius: 0 0 var(--actions-radius) var(--actions-radius);
+    overflow: hidden;
+}
+
+#actions .btn-group .show>.dropdown-menu {
+    display: block
+}
+
+#actions .btn-group .dropdown-menu>span {
+    display: block;
+    margin: 0;
+    text-align: left;
+    border: none;
+    border-top: 1px solid var(--color-border-subtle)
+}
+
+#actions .btn-group .dropdown-menu>span:first-child {
+    border-color: var(--color-transparent)
+}
+
+#actions .btn-group .dropdown-menu>span:hover {
+    background-color: var(--color-btn-default-active);
+}
+
+#actions .btn-group .dropdown-toggle::after {
+    margin: 0;
+    border-width: 0.4em;
+    transition-duration: var(--transition-normal)
+}
+
+#actions .btn-group .show .dropdown-toggle::after {
+    transform: rotate(180deg)
+}
+
+#actions .dropdown-toggle:after {
+    display: none !important;
+}
+
+#_actions .btn-group .input-group-btn .btn {
+    margin-left: .1875rem
+}
+
+#_actions .btn-group .form-control,
+#_actions .btn-group .btn {
+    border-radius: var(--radius-sm)
+}
+
+@media (max-width: 840px) {
+    #actions {
+        right: 0
+    }
+
+    #actions .btn-group .btn span,
+    #actions .btn-group select#stay,
+    #_actions .btn-group .btn span {
+        display: none
+    }
+
+    #actions .btn-group .btn .fa,
+    #_actions .btn-group .btn .fa {
+        display: inline-block
+    }
+
+    #actions .btn-group .dropdown-menu {
+        width: 2rem
+    }
+
+    #actions .btn-group .dropdown-menu span {
+        padding-left: 0;
+        padding-right: 0;
+        text-align: center
+    }
+
+    #_actions .btn-group .input-group-btn .btn {
+        margin-left: -1px
+    }
+
+    #_actions .btn-group .form-control,
+    #_actions .btn-group .btn {
+        border-radius: 0
+    }
+
+    #_actions .btn-group .form-control:first-child {
+        border-top-left-radius: var(--radius-sm);
+        border-bottom-left-radius: var(--radius-sm);
+    }
+
+    #_actions .btn-group .btn:last-child {
+        border-top-right-radius: var(--radius-sm);
+        border-bottom-right-radius: var(--radius-sm);
+    }
+}
+
+/* old style */
+#actions .actionButtons {
+    float: left;
+    min-height: 32px
+}
+
+#actions .actionButtons li {
+    position: relative;
+    float: left;
+    margin-right: 3px;
+    border: none
+}
+
+#actions .actionButtons li a,
+#actions .actionButtons .plus {
+    float: left;
+    padding: 0 10px !important;
+    height: 32px;
+    line-height: 30px;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+#actions .actionButtons li:last-child {
+    margin: 0
+}
+
+#actions .actionButtons #Button1 a {
+    width: 100%;
+    text-align: left;
+}
+
+#actions .actionButtons .plus {
+    overflow: hidden;
+    float: right;
+    margin: -32px 0 0 0;
+    width: 35px;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0 !important;
+    text-align: center;
+    cursor: default;
+    font: normal normal normal 0/30px 'Font Awesome 5 Free'
+}
+
+#actions .actionButtons .plus::before {
+    content: "\f107";
+    font-size: 14px
+}
+
+#actions .actionButtons .show .plus::before {
+    content: "\f106";
+}
+
+#actions .actionButtons .dropdown-menu {
+    display: none;
+    position: absolute;
+    z-index: -1;
+    left: auto;
+    right: 0;
+    top: 100%;
+    width: 100%;
+    min-width: 35px;
+    margin: -2px 0 0;
+    padding: 2px 0 0;
+    text-align: left;
+    font-size: 1em;
+    background-color: var(--bg-surface-1);
+    border: 1px solid var(--color-action-primary-bg);
+    border-top: none;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    overflow: hidden;
+}
+
+#actions .actionButtons .show>.dropdown-menu {
+    display: block
+}
+
+#actions .actionButtons .dropdown-menu>span {
+    display: block;
+    padding: 0 10px;
+    height: 32px;
+    line-height: 30px;
+    border: none;
+    border-top: 1px solid var(--color-bg-gray);
+    cursor: pointer;
+}
+
+#actions .actionButtons .dropdown-menu>span:hover {
+    background-color: var(--color-bg-lighter);
+}
+
+#actions .actionButtons select#stay {
+    display: block;
+    position: relative;
+    z-index: -1;
+    clear: both;
+    width: auto;
+    height: 0;
+    padding: 0 10px;
+    margin: -100% 0 -32px 0;
+    font-size: 1em;
+    opacity: 0;
+    visibility: hidden;
+}
+
+#actions .actionButtons #Button1 a,
+#actions .actionButtons .plus {
+    color: var(--color-white);
+    border-color: var(--color-action-primary-bg);
+    background: var(--color-action-primary-bg) linear-gradient(var(--color-action-primary-gradient-start), var(--color-action-primary-gradient-end));
+}
+
+#actions .actionButtons #Button1 a:hover,
+#actions .actionButtons .plus:hover {
+    background: var(--color-action-primary-hover) linear-gradient(var(--color-action-primary-hover), var(--color-btn-action-gradient-end));
+    border-color: var(--color-action-primary-hover);
+}
+
+#actions .actionButtons #Button1 a:active,
+#actions .actionButtons .plus:active {
+    background: var(--color-action-primary-bg);
+    border-color: var(--color-action-primary-bg);
+}
+
+@media (max-width: 900px) {
+
+    #actions .actionButtons li a,
+    #actions .actionButtons .dropdown-menu span {
+        font-size: 0
+    }
+
+    #actions .actionButtons li a .fa,
+    #actions .actionButtons .dropdown-menu span .fa {
+        display: inline-block;
+        font-size: 14px;
+        line-height: 30px
+    }
+
+    #actions .actionButtons .dropdown-menu {
+        width: 35px
+    }
+
+    #actions .actionButtons #Button1 a {
+        margin: 0;
+        width: auto
+    }
+
+    #actions .actionButtons .plus {
+        margin: 0 0 0 -2px
+    }
+
+    #actions .actionButtons select#stay {
+        display: none
+    }
+}
+
+/* actionButtons in content ( old style ) */
+.actionButtons {
+    margin: 0;
+    padding: 0;
+    background: none;
+    width: auto;
+    white-space: nowrap;
+}
+
+.actionButtons li {
+    float: left;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.actionButtons li:before,
+.mmTagList li:before,
+.rTable li:before,
+.tab-pane ul li ul li:before,
+.dashboard li:before,
+div#idShowHideSocialBox.sectionBody>div.btn-group.ope>ul.dropdown-menu>li:before,
+.sectionBody .multitv .list li:before {
+    display: none;
+    content: '';
+}
+
+.actionButtons img {
+    vertical-align: top;
+    margin-top: 1px;
+    opacity: 0.3;
+}
+
+.actionButtons:hover img {
+    opacity: 1;
+}
+
+.actionButtons a:hover {
+    border-color: var(--color-text-placeholder);
+    -webkit-box-shadow: var(--shadow-action-btn);
+    box-shadow: var(--shadow-action-btn);
+    -webkit-transition: .3s ease;
+    transition: .3s ease;
+    background: -moz-linear-gradient(var(--color-white), var(--color-bg-gray));
+    background: -webkit-gradient(linear, 0 0, 0 100%, from(var(--color-white)), to(var(--color-bg-gray)));
+    background: -o-linear-gradient(var(--color-white), var(--color-bg-gray));
+    text-decoration: none !important;
+}
+
+.actionButtons a:active {
+    background: var(--color-bg-action-active) bottom left;
+    -webkit-box-shadow: var(--shadow-action-active);
+    box-shadow: var(--shadow-action-active);
+}
+
+.actionButtons a {
+    float: left;
+    padding: 5px 10px;
+    height: 32px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.actionButtons a,
+.actionButtons li.primary a,
+.actionButtons a.primary,
+.actionButtons a.default {
+    text-shadow: none;
+    background: var(--bg-surface-1);
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border-action);
+    border-radius: var(--radius-sm);
+    /*box-shadow: 0 0 0 1px var(--color-border-light);*/
+    box-shadow: none;
+    transition: none;
+}
+
+.actionButtons a:hover {
+    background: var(--color-link-hover);
+    box-shadow: none;
+    border-color: var(--color-link-hover);
+    color: var(--color-white) !important;
+    transition: none;
+}
+
+.actionButtons a:active {
+    background-color: var(--color-datepicker-selected);
+    border-color: var(--color-datepicker-selected);
+}
+
+.actionButtons li.primary a,
+.actionButtons a.primary {
+    color: var(--color-white);
+    border-color: var(--color-action-primary-bg);
+    background: var(--color-action-primary-bg) linear-gradient(var(--color-action-primary-gradient-start), var(--color-action-primary-gradient-end));
+}
+
+.actionButtons li.primary a:hover,
+.actionButtons a.primary:hover {
+    background: var(--color-action-primary-hover) linear-gradient(var(--color-action-primary-hover), var(--color-btn-action-gradient-end));
+    border-color: var(--color-action-primary-hover);
+}
+
+.actionButtons li.primary a:active,
+.actionButtons a.primary:active {
+    background: var(--color-action-primary-bg);
+    border-color: var(--color-action-primary-bg);
+}
+
+.actionButtons img {
+    display: none;
+}
+
+#treePane .actionButtons img {
+    display: inline;
+}
+
+.actionButtons--tableheader .fa {
+    font-size: 14px;
+}
+
+.sectionBody .actionButtons {
+    padding-top: 0;
+    min-height: 40px;
+}
+
+.sectionBody .actionButtons li {
+    margin-right: 10px;
+}
+
+.sectionBody .actionButtons a {
+    display: inline-block;
+    padding: 9px 10px;
+    line-height: 1;
+}
+
+table.actionButtons {
+    margin-top: 1rem;
+    margin-bottom: 10px;
+}
+
+table.actionButtons img {
+    display: inline-block;
+}
+
+table.actionButtons .searchtext {
+    padding: 5px;
+    height: 24px;
+    width: 150px;
+}
+
+.actionButtons .fa {
+    display: none;
+    text-align: center;
+    font-size: 1em;
+    line-height: 1em;
+    width: 1.1em;
+    vertical-align: initial
+}
+
+.actionButtons .fa,
+.actionButtons--eit .fa {
+    display: inline-block;
+}
+
+.optionsTitle .fa {
+    display: inline-block;
+}
+
+@media (max-width: 900px) {
+    .actionButtons a {
+        display: inline-block;
+        padding: 6px 10px
+    }
+
+    .tab-page .actionButtons a {
+        margin-top: 0 !important
+    }
+
+    .actionButtons a span {
+        display: none;
+    }
+
+    .actionButtons a .fa {
+        display: inline-block;
+    }
+}

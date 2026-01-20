@@ -51,7 +51,6 @@ $_lang["checking_table_prefix"] = 'Tarkistetaan tietokannan taulujen etuliite `'
 $_lang["chunks"] = 'HTML-palaset';
 $_lang["config_permissions_note"] = 'Jos olet asentamassa järjestelmää Linux / Unix palvelimeen, luo kansioon <span class=\"mono\">'.MGR_DIR.'/includes/</span> tyhjä tiedosto nimeltä <span class=\"mono\">config.inc.php</span> ja aseta tiedostoon 0666 oikeudet.';
 $_lang["connection_screen_collation"] = 'Merkistö:';
-$_lang["connection_screen_connection_method"] = 'Yhteystyyppi:';
 $_lang["connection_screen_database_connection_information"] = 'Tietokannan yhteysasetukset';
 $_lang["connection_screen_database_connection_note"] = 'Ole hyvä ja syötä tietokannan nimi, jota MODx:n tulee käyttää. Jos tietokantaa ei ole vielä luotu, asennusohjelma yrittää luodan sen. Tämä voi epäonnistua riippuen MySQL asetuksista ja/tai tietokannan käyttäjän käyttöoikeuksista.';
 $_lang["connection_screen_database_host"] = 'Tietokantapalvelimen osoite:';

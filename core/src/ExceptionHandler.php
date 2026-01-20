@@ -2,12 +2,11 @@
 
 use Illuminate\View\ViewException;
 use Illuminate\Contracts\Container\Container;
-use AgelxNash\Modx\Evo\Database\Exceptions\ConnectException;
+use Illuminate\Database\LostConnectionException;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Exception\InvalidOptionException;
 use Symfony\Component\Console\Exception\RuntimeException;
-use Symfony\Component\ErrorHandler\Error\FatalError;
 use Symfony\Component\ErrorHandler\Error\FatalError as FatalErrorException;
 use EvolutionCMS\Providers\TracyServiceProvider;
 
@@ -88,7 +87,7 @@ class ExceptionHandler
      * @param string $text Error message
      * @param string $file File where the error was detected
      * @param string $line Line number within $file
-     * @return boolean
+     * @return void
      * @deprecated
      * PHP error handler set by http://www.php.net/manual/en/function.set-error-handler.php
      *
@@ -599,7 +598,7 @@ class ExceptionHandler
     public function handleException(\Throwable $exception)
     {
         if (
-            $exception instanceof ConnectException ||
+            ($exception instanceof LostConnectionException) ||
             ($exception instanceof \PDOException && $exception->getCode() === 1045)
         ) {
             $this->container->getDatabase()->disconnect();

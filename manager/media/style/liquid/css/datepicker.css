@@ -1,0 +1,97 @@
+/* [ DATEPICKER ] */
+.dp_container {
+    position: absolute;
+    z-index: 500;
+}
+
+.dp_cal {
+    overflow: hidden;
+    width: 220px;
+    margin: 0.25rem 0;
+    background-color: var(--bg-surface-1);
+    border-radius: var(--radius-md);
+    -webkit-box-shadow: var(--shadow-datepicker);
+    box-shadow: var(--shadow-datepicker);
+}
+
+.dp_cal p {
+    position: relative;
+    margin: 10px;
+}
+
+.dp_cal select {
+    font-size: 1em;
+    margin: 2px 3px;
+    width: auto !important
+}
+
+.dp_cal select option {
+    padding: 1px 3px
+}
+
+.dp_cal table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%
+}
+
+.dp_cal td.dp_roll {
+    background-color: var(--color-table-hover);
+    color: var(--color-text) !important
+}
+
+.dp_cal th,
+.dp_cal td {
+    font-size: 1em;
+    padding: 0.5em 0 !important;
+    text-align: center !important;
+    width: 14.2857%;
+    cursor: default
+}
+
+.dp_cal tbody th {
+    background-color: var(--color-datepicker-header);
+    color: var(--color-white);
+}
+
+.dp_cal tbody td:nth-child(6),
+.dp_cal tbody td:nth-child(7) {
+    color: indianred
+}
+
+.dp_cal .dp_empty {
+    background-color: var(--color-bg-lighter)
+}
+
+.dp_cal .dp_hide {
+    visibility: hidden
+}
+
+.dp_cal .dp_today {
+    background-color: var(--color-datepicker-today);
+    color: var(--color-white) !important
+}
+
+.dp_cal .dp_selected {
+    background-color: var(--color-datepicker-selected);
+    color: var(--color-white) !important
+}
+
+.dp_cal input {
+    width: 68% !important
+}
+
+.dp_cal button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0 !important;
+    width: 30% !important
+}
+
+/* datepicker icon clear */
+.clearDate {
+    position: relative;
+    margin: 0.5rem 0 0 -1.5rem;
+    z-index: 10;
+}

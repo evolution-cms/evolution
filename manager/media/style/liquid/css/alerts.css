@@ -1,0 +1,122 @@
+/* [ ALERTS ] */
+.alert {
+    padding: 1rem;
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-lg);
+    background-color: var(--bg-surface-1);
+    color: var(--color-text);
+}
+
+.alert a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+.alert hr {
+    border-top-color: currentColor;
+    opacity: 0.15;
+}
+
+.alert.alert-warning {
+    background-color: var(--color-alert-warning-bg);
+    color: var(--color-alert-warning-text);
+    border-color: var(--color-card-border);
+}
+
+.alert.alert-info {
+    background-color: var(--color-alert-info-bg);
+    color: var(--color-alert-info-text);
+    border-color: var(--color-card-border);
+}
+
+.alert.alert-success {
+    background-color: var(--color-alert-success-bg);
+    color: var(--color-alert-success-text);
+    border-color: var(--color-card-border);
+}
+
+.alert.alert-danger,
+.alert.alert-error {
+    background-color: var(--color-alert-danger-bg);
+    color: var(--color-alert-danger-text);
+    border-color: var(--color-card-border);
+}
+
+.element-edit-message-tab:not(.alert) {
+    padding: 1rem;
+    border: 1px solid var(--color-card-border);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-alert-info-bg);
+    color: var(--color-alert-info-text);
+}
+
+.element-edit-message-tab:not(.alert) a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+.modx-alert {
+    display: block;
+    margin: 60px 10px 10px 10px;
+    padding: 1em;
+}
+
+.modx-alert.alert-error {
+    background-color: var(--color-alert-danger-bg);
+    border: 1px solid var(--color-danger);
+    color: var(--color-alert-danger-text);
+}
+
+.modx-alert.alert-warning {
+    background-color: var(--color-alert-warning-bg);
+    border: 1px solid var(--color-warning);
+    color: var(--color-alert-warning-text);
+}
+
+.modx-alert.alert-info {
+    background-color: var(--color-alert-info-bg);
+    border: 1px solid var(--color-accent);
+    color: var(--color-alert-info-text);
+}
+
+/* System Alert Box */
+.cbOverlay {
+    background-color: var(--color-black);
+    z-index: 50000;
+}
+
+.cbContainer {
+    padding: 5px;
+    background-color: var(--color-table-bg);
+    z-index: 50000;
+}
+
+.cbBox h3 {
+    color: var(--color-label);
+    background: var(--color-warning) repeat-x top;
+    padding: 5px;
+    font-weight: 500;
+}
+
+.cbBox p {
+    margin: 3px;
+}
+
+.cbBox .cbButtons {
+    text-align: center;
+}
+
+.sysAlert {
+    width: 500px;
+    height: 330px;
+    white-space: nowrap;
+    overflow: auto;
+}
+
+.notice {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid var(--color-border-muted);
+    background-color: var(--color-bg-gray);
+    color: var(--color-text-muted);
+}

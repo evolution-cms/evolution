@@ -6,14 +6,14 @@
     display: none;
     position: absolute;
     z-index: var(--z-modal);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-popup);
     
     &.animation {
         transition: all 0.25s ease;
     }
     
     &:hover {
-        box-shadow: var(--shadow-xl);
+        box-shadow: var(--shadow-popup-hover);
     }
     
     .close {
@@ -25,9 +25,9 @@
     &.alert {
         margin: 0;
         height: 100%;
-        border-color: var(--color-overlay-light);
-        background-color: var(--color-white);
-        color: var(--color-tab-text-selected);
+        border-color: var(--color-border-subtle);
+        background-color: var(--bg-surface-1);
+        color: var(--color-text);
         border-radius: var(--radius-sm);
     }
     
@@ -40,7 +40,7 @@
     }
     
     &.alert-success {
-        border-color: var(--color-overlay-light);
+        border-color: var(--color-border-subtle);
         background-color: var(--color-success);
         color: var(--color-white);
         
@@ -48,7 +48,7 @@
     }
     
     &.alert-info {
-        border-color: var(--color-overlay-light);
+        border-color: var(--color-border-subtle);
         background-color: var(--color-primary-dark);
         color: var(--color-white);
         
@@ -56,15 +56,15 @@
     }
     
     &.alert-warning {
-        border-color: var(--color-overlay-light);
+        border-color: var(--color-border-subtle);
         background-color: var(--color-alert-warning-bg);
         color: var(--color-alert-warning-text);
         
-        hr { border-color: var(--color-overlay-light); }
+        hr { border-color: var(--color-border-subtle); }
     }
     
     &.alert-danger {
-        border-color: var(--color-overlay-light);
+        border-color: var(--color-border-subtle);
         background-color: var(--color-danger);
         color: var(--color-white);
         

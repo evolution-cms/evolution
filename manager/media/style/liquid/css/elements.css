@@ -1,0 +1,218 @@
+/* [ MANAGE ELEMENTS ] */
+/* category icons in manage elements */
+#site_templates,
+#site_tmplvars,
+#site_htmlsnippets,
+#site_snippets,
+#site_plugins {
+    padding-left: 0;
+}
+
+#site_templates li,
+#site_tmplvars li,
+#site_htmlsnippets li,
+#site_snippets li,
+#site_modules li,
+#site_plugins li,
+#categories_list li {
+    list-style: none;
+    margin-left: -21px;
+}
+
+#site_templates li strong:before,
+#site_tmplvars li strong:before,
+#site_htmlsnippets li strong:before,
+#site_snippets li strong:before,
+#site_modules li strong:before,
+#site_plugins li strong:before,
+#categories_list li strong:before {
+    font-family: "Font Awesome 5 Free";
+    font-style: normal;
+    font-weight: normal;
+    color: var(--color-text-muted);
+    padding: 0 5px 0 5px;
+    content: '\f105';
+}
+
+.tab-pane ul li ul li strong:before {
+    content: '';
+}
+
+/* elements icons in manage elements */
+div#tabCategory.tab-page ul li ul li {
+    padding-top: 7px;
+    padding-bottom: 7px;
+}
+
+/* Manage elements general styles */
+a.man_el_name {
+    display: block;
+    padding: .1em 0 .1em 1.25rem;
+}
+
+a.man_el_name:hover {
+    text-decoration: none;
+}
+
+.lockCell+.mainCell a.man_el_name {
+    padding-left: 0 !important;
+}
+
+.lockCell+.mainCell a.man_el_name:before {
+    display: none;
+}
+
+.elements_descr {
+    color: var(--color-text-muted);
+    margin-left: 1em;
+    font-size: 0.88em;
+}
+
+.resourceTable .panel-heading {
+    margin: 0 -1.25rem !important;
+    background-color: var(--color-bg-gray);
+    border-top: 1px solid var(--color-separator);
+    border-bottom: 1px solid var(--color-separator);
+}
+
+.resourceTable .panel-title>a {
+    padding: 5px 1.25rem;
+    text-decoration: none
+}
+
+.resourceTable ul.elements {
+    margin: 0 -1.25rem;
+    padding: 0 0 10px 0;
+}
+
+.resourceTable ul.elements>li {
+    padding: 0 !important;
+    border-bottom: 1px solid var(--color-separator);
+    border-left: 3px solid var(--color-table-bg);
+    transition: all 0.1s ease;
+    margin: 0 !important;
+}
+
+.resourceTable ul.elements>li:hover {
+    background: var(--color-bg-lighter);
+    border-left: 3px solid var(--color-link-hover);
+}
+
+.resourceTable ul.elements>li::before {
+    display: none
+}
+
+ul.resourceTable .category_name {
+    float: none;
+    display: block;
+    clear: both;
+    margin-top: 20px;
+}
+
+/* Manager Elements Buttons bar*/
+ul.elements_buttonbar {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: table;
+    table-layout: fixed;
+}
+
+ul.elements_buttonbar li {
+    display: table-cell;
+    padding: 0 !important;
+    width: 2em;
+}
+
+ul.elements_buttonbar li a {
+    display: block;
+    width: 2em;
+    padding: 4px 2px 2px 2px;
+    margin: 1px;
+    min-width: 22px;
+}
+
+ul.elements_buttonbar .fa {
+    font-size: var(--font-size-lg);
+    padding: 1px 1px 0;
+}
+
+/* Checkbox "Icons" */
+.noicons.tab-page ul li ul li a:before,
+.noicons .elements_description a>i.fa:first-child {
+    display: none !important;
+}
+
+/* View-dependent styles */
+/* List-view */
+.sortableList>li::before {
+    display: none
+}
+
+/* Inline-view */
+.resourceTable.inline ul.elements {
+    margin: 0 !important;
+}
+
+.resourceTable.inline ul.elements>li {
+    float: left;
+    margin: 10px 10px 0 0 !important;
+    padding: 0 !important;
+    border: 1px solid var(--color-separator);
+}
+
+.resourceTable.inline ul.elements_buttonbar {
+    margin: 0 5px 0 0 !important;
+}
+
+.resourceTable.inline a.man_el_name {
+    padding: 5px 10px;
+}
+
+.resourceTable.inline ul.elements>li:hover {
+    border: 1px solid var(--color-border);
+}
+
+/* Flex-view */
+.resourceTable.flex ul.elements {
+    -webkit-column-gap: 10px;
+    -moz-column-gap: 10px;
+    -o-column-gap: 10px;
+    column-gap: 10px;
+}
+
+.resourceTable.flex ul.elements>li {
+    overflow: hidden;
+    /* fix for Firefox */
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+}
+
+.resourceTable.flex .elements_descr {
+    display: block;
+    margin-left: 1.5em;
+}
+
+#tabChildren .grid th,
+#tabChildren .grid tr>td:nth-child(5),
+#tabChildren .grid tr>td:nth-child(6) {
+    text-align: center;
+    white-space: nowrap
+}
+
+#tabChildren .grid td {
+    text-align: right;
+    white-space: nowrap
+}
+
+#tabChildren .grid tr>th:nth-child(2),
+#tabChildren .grid tr>td:nth-child(2) {
+    text-align: left;
+    white-space: normal
+}
+
+#tabChildren .grid tr>td:nth-child(6) a {
+    padding: 0 .2em;
+    font-size: 0.9rem;
+    color: var(--color-tab-text-selected);
+}

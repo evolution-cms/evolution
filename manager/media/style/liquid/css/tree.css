@@ -3,29 +3,31 @@
 #treeloader { position: absolute; display: block; overflow: hidden; right: 0.3em; top: 0.15em; opacity: 0; visibility: hidden; -webkit-transition-duration: 0.5s; transition-duration: 0.5s }
 #treeloader .fa { font-size: 1em; }
 #treeloader.visible { opacity: 0.7; visibility: visible; -webkit-transition-duration: 0s; transition-duration: 0s }
-.treeframebody { height: calc(100% - 10px); background-color: var(--color-tree-bg); border-right: 1px solid var(--color-tree-border); }
-#treeMenu { display: flex; align-items: center; gap: 0; width: 100%; height: var(--tree-menu-height); padding: 0 0.4rem; background-color: var(--color-tree-menu-bg); border-bottom: 1px solid var(--color-tree-border) }
+.treeframebody { height: calc(100% - 10px); background-color: var(--color-tree-bg); border: 1px solid var(--color-tree-border); border-radius: var(--tree-panel-radius); overflow: hidden; margin: var(--tree-panel-margin); box-shadow: var(--tree-panel-shadow); -webkit-backdrop-filter: var(--tree-panel-backdrop); backdrop-filter: var(--tree-panel-backdrop); }
+#treeMenu { display: flex; align-items: center; gap: 0; width: 100%; height: var(--tree-menu-height); padding: 0 0.4rem; border-bottom: 1px solid var(--color-tree-border); color: var(--color-tree-button); }
 #treeMenu .treeButton { display: inline-flex; align-items: center; justify-content: flex-start; flex: 0 0 auto; cursor: pointer; height: var(--tree-menu-height); padding: 0 0.35rem; white-space: nowrap; text-align: left; vertical-align: middle; -webkit-transition-duration: var(--transition-fast); transition-duration: var(--transition-fast) }
-#treeMenu .treeButton:hover:not(.disabled) { background-color: var(--color-overlay-white); cursor: pointer; border-radius: 0.5rem; -webkit-transition-duration: 0s; transition-duration: 0s }
-#treeMenu .treeButton:not(.disabled):active { background-color: var(--color-overlay-light); border-radius: 0.5rem; }
+#treeMenu .treeButton:hover:not(.disabled) { background-color: var(--color-tree-button-hover-bg); cursor: pointer; border-radius: var(--radius-sm); -webkit-transition-duration: 0s; transition-duration: 0s }
+#treeMenu .treeButton:not(.disabled):active { background-color: var(--color-tree-hover-bg); border-radius: var(--radius-sm); }
 #treeMenu .treeButton .fa { display: block; width: 1rem; height: 1rem; margin: 0; line-height: 1rem; font-size: 1rem; }
 #treeMenu .treeButton svg { display: block; width: 18px; height: 18px; }
 #treeMenu .treeButton.disabled { color: var(--color-text-light); opacity: 0.5 }
 #treeHolder { position: relative; z-index: 1; cursor: default; overflow: auto; height: 100%; max-height: calc(100% - 30px); white-space: nowrap; padding-bottom:10px; }
 #treeHolder .rootNode { position: relative; }
-#treeHolder .rootNode a { display: block; overflow: hidden; padding: 1em 1em 0.5em 1.25em; text-overflow: ellipsis; color: var(--color-text); cursor: pointer; -webkit-transition-duration: var(--transition-fast); transition-duration: var(--transition-fast); font-weight: bold }
+#treeHolder .rootNode a { display: block; overflow: hidden; padding: 1em 1em 0.5em 1.25em; text-overflow: ellipsis; color: var(--color-tree-text); cursor: pointer; -webkit-transition-duration: var(--transition-fast); transition-duration: var(--transition-fast); font-weight: bold }
 #treeHolder .rootNode a .fa { margin-right: 0.5em }
 #treeHolder .rootNode .icon { display: none; }
 /* @deprecated start */
-#treeRoot { float: left; width: 100%; color: var(--color-text); }
-#treeRoot a { display: block; clear: both; overflow: hidden; text-decoration: none; padding-top: 0.1em; padding-bottom: 0.1em; padding-left: 2.5em !important; padding-right: 0; font-size: 1em; text-overflow: ellipsis; color: var(--color-text); cursor: default; -webkit-transition-duration: var(--transition-fast); transition-duration: var(--transition-fast) }
-#treeRoot a:hover:not(.empty), #treeRoot a.current { background-color: var(--color-highlight) }
+#treeRoot { float: left; width: 100%; color: var(--color-tree-text); }
+#treeRoot a { display: block; clear: both; overflow: hidden; text-decoration: none; padding-top: 0.1em; padding-bottom: 0.1em; padding-left: 2.5em !important; padding-right: 0; font-size: 1em; text-overflow: ellipsis; color: var(--color-tree-text); cursor: default; -webkit-transition-duration: var(--transition-fast); transition-duration: var(--transition-fast) }
+#treeRoot a:hover:not(.empty), #treeRoot a.current { background-color: var(--color-tree-hover-bg); }
 #treeRoot a small { margin: 0 0.8em 0 0.2em }
-#treeRoot a.selected, #treeRoot .dragenter > a { background-color: var(--color-bg-active); }
-#treeRoot a .title { padding: 0 0.2em; color: var(--color-link); cursor: pointer; -webkit-transition-duration: var(--transition-fast); transition-duration: var(--transition-fast) }
+#treeRoot a.selected, #treeRoot .dragenter > a { background-color: var(--color-tree-selected-bg); }
+#treeRoot a .title { padding: 0 0.2em; color: var(--color-tree-title); cursor: pointer; -webkit-transition-duration: var(--transition-fast); transition-duration: var(--transition-fast) }
+#treeRoot a .title:hover { color: var(--color-tree-title-hover); }
 #treeRoot a.deleted .title { color: var(--color-link-deleted); text-decoration: line-through; }
 #treeRoot a.unpublished .title { color: var(--color-link-unpublished); font-style: italic; }
 #treeRoot a.hidemenu .title { color: var(--color-link-hidden); }
+#treeRoot a.hidemenu .title:hover { color: var(--color-tree-title-hover); }
 #treeRoot a.protected { position: relative; opacity: .5; background-color: var(--color-transparent) !important; }
 #treeRoot a .lockedResource { cursor: pointer; }
 #treeRoot a .editResource { margin-left: 0.2em }
@@ -36,9 +38,9 @@
 #treeRoot .dragbefore > a .indent::before { bottom: auto; top: -0.5em; }
 #treeRoot .empty { color: var(--color-text-disabled); cursor: default; }
 #treeRoot .icon { cursor: pointer; -webkit-transition-duration: var(--transition-fast); transition-duration: var(--transition-fast) }
-#treeRoot .icon:hover > .fa { color: var(--color-black) }
+#treeRoot .icon:hover > .fa { color: var(--color-tree-title-hover) }
 #treeRoot .toggle { float: left; margin: 1px 0.2em 1px -1.5em; width: 1.3em; height: 1.3em; line-height: 1.4em; text-align: center; vertical-align: top; cursor: pointer; border-radius: var(--radius-full); -webkit-transition-duration: var(--transition-fast); transition-duration: var(--transition-fast) }
-#treeRoot .toggle:hover { background-color: var(--color-overlay-white); }
+#treeRoot .toggle:hover { background-color: var(--color-tree-toggle-hover); }
 #treeRoot .toggle .fa { margin: 0; width: auto; }
 #treeRoot .fa, #treeHolder .rootNode .fa { margin-right: 1px; width: 1em; font-size: 1.08em; text-align: center; color: var(--color-tree-icon); -webkit-transition-duration: var(--transition-fast); transition-duration: var(--transition-fast) }
 #treeRoot a[data-private="1"] .icon::after { position: relative; float: left; margin: .5em -1em 0 0; content: "\f023"; font-family: 'Font Awesome 5 Free'; font-size: 0.75em; color: var(--color-danger); font-weight:600;}
@@ -47,15 +49,17 @@
 #treeRoot .fa-link { margin-right: 0; font-size: 0.8em }
 #treeRoot #binFull { display: none }
 /* @deprecated end */
-.treeRoot { float: left; width: 100%; color: var(--color-text); }
-.treeRoot a { display: block; clear: both; overflow: hidden; text-decoration: none; padding-top: 0.1em; padding-bottom: 0.1em; padding-left: 2.5em !important; padding-right: 0; font-size: 1em; text-overflow: ellipsis; color: var(--color-text); cursor: default; -webkit-transition-duration: var(--transition-fast); transition-duration: var(--transition-fast) }
-.treeRoot a:hover:not(.empty), .treeRoot a.current { background-color: var(--color-highlight) }
+.treeRoot { float: left; width: 100%; color: var(--color-tree-text); }
+.treeRoot a { display: block; clear: both; overflow: hidden; text-decoration: none; padding-top: 0.1em; padding-bottom: 0.1em; padding-left: 2.5em !important; padding-right: 0; font-size: 1em; text-overflow: ellipsis; color: var(--color-tree-text); cursor: default; -webkit-transition-duration: var(--transition-fast); transition-duration: var(--transition-fast) }
+.treeRoot a:hover:not(.empty), .treeRoot a.current { background-color: var(--color-tree-hover-bg); }
 .treeRoot a small { margin: 0 0.8em 0 0.2em }
-.treeRoot a.selected, .treeRoot .dragenter > a { background-color: var(--color-bg-active); }
-.treeRoot a .title { padding: 0 0.2em; color: var(--color-link); cursor: pointer; -webkit-transition-duration: var(--transition-fast); transition-duration: var(--transition-fast) }
+.treeRoot a.selected, .treeRoot .dragenter > a { background-color: var(--color-tree-selected-bg); }
+.treeRoot a .title { padding: 0 0.2em; color: var(--color-tree-title); cursor: pointer; -webkit-transition-duration: var(--transition-fast); transition-duration: var(--transition-fast) }
+.treeRoot a .title:hover { color: var(--color-tree-title-hover); }
 .treeRoot a.deleted .title { color: var(--color-link-deleted); text-decoration: line-through; }
 .treeRoot a.unpublished .title { color: var(--color-link-unpublished); font-style: italic; }
 .treeRoot a.hidemenu .title { color: var(--color-link-hidden); }
+.treeRoot a.hidemenu .title:hover { color: var(--color-tree-title-hover); }
 .treeRoot a.protected { position: relative; opacity: .5; background-color: var(--color-transparent) !important; }
 .treeRoot a .lockedResource { cursor: pointer; }
 .treeRoot a .editResource { margin-left: 0.2em }
@@ -66,9 +70,9 @@
 .treeRoot .dragbefore > a .indent::before { bottom: auto; top: -0.5em; }
 .treeRoot .empty { color: var(--color-text-disabled); cursor: default; }
 .treeRoot .icon { cursor: pointer; -webkit-transition-duration: var(--transition-fast); transition-duration: var(--transition-fast) }
-.treeRoot .icon:hover > .fa { color: var(--color-black) }
+.treeRoot .icon:hover > .fa { color: var(--color-tree-title-hover) }
 .treeRoot .toggle { float: left; margin: 1px 0.2em 1px -1.5em; width: 1.3em; height: 1.3em; line-height: 1.4em; text-align: center; vertical-align: top; cursor: pointer; border-radius: var(--radius-full); -webkit-transition-duration: var(--transition-fast); transition-duration: var(--transition-fast) }
-.treeRoot .toggle:hover { background-color: var(--color-overlay-white); }
+.treeRoot .toggle:hover { background-color: var(--color-tree-toggle-hover); }
 .treeRoot .toggle .fa { margin: 0; width: auto; }
 .treeRoot .fa, #treeHolder .rootNode .fa { margin-right: 1px; width: 1em; font-size: 1.08em; text-align: center; color: var(--color-tree-icon); -webkit-transition-duration: var(--transition-fast); transition-duration: var(--transition-fast) }
 .treeRoot a[data-private="1"] .icon::after { position: relative; float: left; margin: .5em -1em 0 0; content: "\f023"; font-family: 'Font Awesome 5 Free'; font-size: 0.75em; color: var(--color-danger); font-weight:600;}

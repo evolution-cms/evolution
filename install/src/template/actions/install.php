@@ -19,7 +19,7 @@
 <?php else : ?>
     <p><?=$_lang['setup_database_create_connection']?> <span class="ok"><?=$_lang['ok']?></span></p>
     <?php if (isset($selectDatabase) && $selectDatabase === false) : ?>
-        <p><?=rtrim($_lang['setup_database_selection'], '`')?> <strong><?=trim($dbase, '`')?></strong>:
+        <p><?=rtrim($_lang['setup_database_selection'], '`')?> <strong><?=trim($database_name, '` ')?></strong>:
             <span class="notok" style='color:#707070'>
                 <?=$_lang['setup_database_selection_failed']?>
             </span>
@@ -27,24 +27,24 @@
         </p>
         <?php if (isset($createDatabase) && $createDatabase === false) : ?>
             <p>
-                <?=rtrim($_lang['setup_database_creation'], '`')?> <strong><?=trim($dbase, '`')?></strong>:
+                <?=rtrim($_lang['setup_database_creation'], '`')?> <strong><?=trim($database_name, '` ')?></strong>:
                 <span class="notok"><?=$_lang['setup_database_creation_failed']?></span>
                 <?=$_lang['setup_database_creation_failed_note']?>
             </p>
             <pre>
-                database charset = <?=$database_charset?>
+                database charset = <?=$database_connection_charset?>
                 database collation = <?=$database_collation?>
             </pre>
             <p><?=$_lang['setup_database_creation_failed_note2']?></p>
         <?php else : ?>
             <p>
-                <?=rtrim($_lang['setup_database_creation'], '`')?> <strong><?=trim($dbase, '`')?></strong>:
+                <?=rtrim($_lang['setup_database_creation'], '`')?> <strong><?=trim($database_name, '` ')?></strong>:
                 <span class="ok"><?=$_lang['ok']?></span>
             </p>
         <?php endif; ?>
     <?php else : ?>
         <p>
-            <?=rtrim($_lang['setup_database_selection'], '`')?> <strong><?=trim($dbase, '`')?></strong>:
+            <?=rtrim($_lang['setup_database_selection'], '`')?> <strong><?=trim($database_name, '` ')?></strong>:
             <span class="ok"><?=$_lang['ok']?></span>
         </p>
     <?php endif; ?>

@@ -52,7 +52,6 @@ $_lang = [
   'chunks' => 'מיני תבניות',
   'config_permissions_note' => 'עבור התקנות לינוקס/יוניקס חדשות, אנא צרו קובץ ריק בשם <code>config.inc.php</code> בספרייה <code>[+MGR_DIR+]/includes/</code> עם הרשאות 0666.',
   'connection_screen_collation' => 'אוסף נתונים:',
-  'connection_screen_connection_method' => 'שיטת התחברות:',
   'connection_screen_database_connection_information' => 'מידע אודות מסד הנתונים',
   'connection_screen_database_connection_note' => 'נא להזין את שם מסד הנתונים שנוצר עבור Evolution CMS. אם אין עדיין מסד נתונים, תוכנת ההתקנה תנסה ליצור מסד נתונים עבורך. תהליך זה עלול להיכשל בהתאם לתצורת [+database_type+]   או הרשאות משתמש עבור שם המתחם /התקנה.',
   'connection_screen_database_host' => 'שרת מסד הנתונים:',

@@ -1,8 +1,8 @@
 <?php namespace EvolutionCMS;
 
-use AgelxNash\Modx\Evo\Database\Exceptions\InvalidFieldException;
-use AgelxNash\Modx\Evo\Database\Exceptions\TableNotDefinedException;
-use AgelxNash\Modx\Evo\Database\Exceptions\UnknownFetchTypeException;
+use EvolutionCMS\Exceptions\InvalidFieldException;
+use EvolutionCMS\Exceptions\TableNotDefinedException;
+use EvolutionCMS\Exceptions\UnknownFetchTypeException;
 use Carbon\Carbon;
 use EvolutionCMS\Models\ActiveUser;
 use EvolutionCMS\Models\ActiveUserLock;
@@ -27,7 +27,6 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use TemplateProcessor;
 use UrlProcessor;
-use HelperProcessor;
 
 /**
  * @see: https://github.com/laravel/framework/blob/5.6/src/Illuminate/Foundation/Bootstrap/LoadConfiguration.php
@@ -3645,12 +3644,6 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @param string $msg Message to be logged
      * @param string $source source of the event (module, snippet name, etc.)
      *                       Default: Parser
-     * @throws \AgelxNash\Modx\Evo\Database\Exceptions\Exception
-     * @throws \AgelxNash\Modx\Evo\Database\Exceptions\GetDataException
-     * @throws InvalidFieldException
-     * @throws TableNotDefinedException
-     * @throws \AgelxNash\Modx\Evo\Database\Exceptions\TooManyLoopsException
-     * @throws Exception
      */
     public function logEvent($evtid, $type, $msg, $source = 'Parser')
     {
@@ -4189,7 +4182,6 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @return boolean|array
      * @throws InvalidFieldException
      * @throws TableNotDefinedException
-     * @throws \AgelxNash\Modx\Evo\Database\Exceptions\Exception
      */
     public function getPageInfo($pageid = -1, $active = 1, $fields = 'site_content.id, site_content.pagetitle, site_content.description, site_content.alias', $checkAccess = true)
     {
@@ -4242,7 +4234,6 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @return boolean|array
      * @throws InvalidFieldException
      * @throws TableNotDefinedException
-     * @throws \AgelxNash\Modx\Evo\Database\Exceptions\Exception
      */
     public function getParent($pid = -1, $active = 1, $fields = 'id, pagetitle, description, alias, parent', $checkAccess = true)
     {
@@ -4270,7 +4261,6 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @return int
      * @throws InvalidFieldException
      * @throws TableNotDefinedException
-     * @throws \AgelxNash\Modx\Evo\Database\Exceptions\Exception
      */
     public function getSnippetId()
     {

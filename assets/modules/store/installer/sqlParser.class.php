@@ -1,4 +1,12 @@
 <?php
+/**
+ * @deprecated
+ * @since 3.5.0
+ *
+ * There are no valid calls of this class in the CMS
+ *
+ * @todo [remove@3.7] Remove in Evolution CMS 3.7
+ */
 // MySQL Dump Parser
 // SNUFFKIN/ Alex 2004
 error_reporting(E_ALL & ~E_NOTICE);
@@ -6,7 +14,7 @@ class SqlParser {
     var $host, $dbname, $prefix, $user, $password, $mysqlErrors;
     var $conn, $installFailed, $sitename, $adminname, $adminemail, $adminpass, $managerlanguage;
     var $mode, $fileManagerPath, $imgPath, $imgUrl;
-    var $connection_charset, $connection_method;
+    var $connection_charset;
     public $database_collation;
 
     public function __construct() {
@@ -17,7 +25,6 @@ class SqlParser {
         $fileManagerPath = MODX_BASE_PATH . MGR_DIR . '/';
         $connection_charset= 'utf8';
         $managerlanguage='en';
-        $connection_method = 'SET CHARACTER SET';
         $auto_template_logic = 'sibling';
         $this->adminname = $adminname;
         $this->adminemail = $adminemail;
@@ -25,7 +32,6 @@ class SqlParser {
         $this->imgUrl = $imgUrl;
         $this->fileManagerPath = $fileManagerPath;
         $this->connection_charset = $connection_charset;
-        $this->connection_method = $connection_method;
         $this->ignoreDuplicateErrors = false;
         $this->managerlanguage = $managerlanguage;
         $this->autoTemplateLogic = $auto_template_logic;
