@@ -1,0 +1,54 @@
+/* [ GRID STYLE ] */
+.grid {
+    width: 100%;
+    background-color: var(--bg-surface-1) !important;
+    border: 1px solid var(--color-border-subtle);
+    border-collapse: collapse;
+}
+
+.grid thead,
+.grid tfoot {
+    background-color: var(--color-bg-muted)
+}
+
+.grid th,
+.grid td {
+    padding: 0.375rem !important;
+    border: 1px solid var(--color-border-lighter)
+}
+
+.gridHeader,
+.grid th {
+    color: var(--color-text);
+    font-weight: 500;
+    white-space: nowrap;
+    background-color: var(--color-bg-muted);
+    text-align: left;
+}
+
+.grid>tbody>tr:nth-child(2n)>td {
+    background-color: var(--color-table-stripe)
+}
+
+.gridItem {
+    background-color: var(--bg-surface-1);
+    padding: 3px;
+}
+
+.gridAltItem {
+    background-color: var(--color-table-stripe-lighter);
+    padding: 3px;
+}
+
+.grid tbody tr:hover td {
+    background: var(--color-table-hover-grid);
+}
+
+.grid a {
+    text-decoration: none;
+}
+
+.grid img {
+    vertical-align: middle;
+    padding-right: 4px;
+}

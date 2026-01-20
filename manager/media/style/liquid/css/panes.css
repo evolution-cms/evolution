@@ -1,0 +1,169 @@
+/* [ PANES ] */
+/* Styles for specific manager panes */
+
+#documentPane #tv_body table,
+#documentPane .tmplvars table,
+#documentPane [id*="table-"],
+#documentPane [id*="table-tv"],
+#webUserPane #tv_body table,
+#webUserPane .tmplvars table,
+#webUserPane [id*="table-"],
+#webUserPane [id*="table-tv"] {
+    width: 100%;
+}
+
+#documentPane .tab-page>table>tr>td:first-child,
+#documentPane .tab-page>table>tbody>tr>td:first-child,
+#documentPane .tab-page .tmplvars>table>tbody>tr>td:first-child,
+#tmplvarsPane .tab-page>table>tbody>tr>td:first-child,
+#tmplvarsPane .tab-page>table>tbody>tr>th:first-child,
+#chunkPane .tab-page>table>tbody>tr>td:first-child,
+#chunkPane .tab-page>table>tbody>tr>th:first-child,
+#snipetPane .tab-page>table>tbody>tr>td:first-child,
+#snipetPane .tab-page>table>tbody>tr>th:first-child,
+#pluginPane .tab-page>table>tbody>tr>td:first-child,
+#pluginPane .tab-page>table>tbody>tr>th:first-child,
+#modulePane .tab-page>table>tbody>tr>td:first-child,
+#modulePane .tab-page>table>tbody>tr>th:first-child,
+#docManagerPane .tab-page #dates>table>tbody>tr>td:first-child,
+#webUserPane .tab-page>table>tr>td:first-child,
+#webUserPane .tab-page>table>tbody>tr>td:first-child,
+#webUserPane .tab-page .tmplvars>table>tbody>tr>td:first-child {
+    width: 200px
+}
+
+#documentPane .tab-page>table>tr>td:last-child,
+#documentPane .tab-page .tmplvars>table>tbody>tr>td:last-child,
+#webUserPane .tab-page>table>tr>td:last-child,
+#webUserPane .tab-page .tmplvars>table>tbody>tr>td:last-child {
+    width: inherit !important
+}
+
+#documentPane .tab-page>table>tbody>tr>td:first-child>.warning,
+#webUserPane .tab-page>table>tbody>tr>td:first-child>.warning {
+    display: inline-block;
+    width: calc(100% - 1.1rem);
+}
+
+#documentPane .tab-page>table>tbody>tr>td:first-child>[data-tooltip],
+#webUserPane .tab-page>table>tbody>tr>td:first-child>[data-tooltip] {
+    margin-top: 0.3rem;
+    vertical-align: top
+}
+
+.table--edit {
+    margin-bottom: 1rem;
+}
+
+.table--edit th {
+    width: 200px;
+    color: var(--color-text-muted);
+    font-size: inherit;
+}
+
+.table--edit input[type="text"],
+.table--edit input[type="password"],
+.table--edit input[type="number"],
+.table--edit textarea,
+.table--edit select,
+.settings input[type="text"],
+.settings input[type="password"],
+.settings input[type="number"],
+.settings textarea,
+.settings select {
+    width: 300px;
+}
+
+/* stacked table cells on small screens */
+@media (max-width: 567px) {
+
+    #documentPane #tabGeneral>table>tbody>tr>td,
+    #documentPane #tabGeneral .tmplvars>table>tbody>tr>td,
+    #documentPane #tabSettings>table>tbody>tr>td,
+    #settingsPane>.tab-page>table>tbody>tr>td,
+    #settingsPane>.tab-page>table>tbody>tr>th,
+    #webUserPane #tabGeneral>table>tbody>tr>td,
+    #webUserPane #tabGeneral .tmplvars>table>tbody>tr>td,
+    #webUserPane #tabSettings>table>tbody>tr>td {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    #settingsPane>.tab-page>table>tbody>tr>th {
+        border-bottom-width: 0;
+    }
+}
+
+/*
+* Individual Styles for fieldset#access_permissions
+*/
+fieldset#access_permissions dt label {
+    width: 200px;
+}
+
+fieldset#access_permissions dd {
+    margin-left: 210px;
+}
+
+fieldset#access_permissions dl dd ul li {
+    list-style-type: none;
+}
+
+/* ppb:
+* Some styling for legacy mode fieldsets
+*/
+fieldset.legacy {
+    background: var(--color-table-bg);
+    padding: 10px;
+    margin: 10px 10px 35px;
+    border: 1px solid var(--color-separator) !important;
+    position: relative;
+}
+
+fieldset.legacy h2 {
+    width: 100%;
+    background: var(--color-bg-gray);
+    margin: -10px -10px 1rem -10px;
+    padding: 0 10px;
+    border-bottom: 1px solid var(--color-separator) !important;
+}
+
+#displayparams table {
+    background: var(--color-table-bg);
+}
+
+#displayparams table tbody td {
+    border-bottom: 1px dotted var(--color-separator);
+}
+
+td#displayparams>table.displayparams {
+    border: none;
+}
+
+.permissiongroups {
+    margin: 0;
+}
+
+.permissiongroups ul {
+    clear: both;
+    margin: 0;
+    padding: 0.5rem 0;
+}
+
+.permissiongroup input[type=submit],
+.permissiongroup input[type=button],
+.permissiongroups input[type=submit],
+.permissiongroups input[type=button] {
+    float: left;
+    margin: 0.3em 0.3em 0 0;
+}
+
+fieldset#preview iframe {
+    width: 100%;
+    margin: 0 auto;
+    border: 1px solid var(--color-separator);
+}
+
+fieldset#preview h2.tab {
+    float: right;
+}

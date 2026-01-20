@@ -84,6 +84,13 @@
     --color-navbar-text: var(--color-secondary-label);
     --color-navbar-text-light: var(--color-secondary-label);
     --color-navbar-text-hover: var(--color-label);
+    --color-navbar-left-bg: var(--bg-toolbar);
+    --color-navbar-left-border: var(--color-separator);
+    --color-navbar-search-bg: var(--color-overlay-light);
+    --color-navbar-search-bg-focus: var(--bg-surface-1);
+    --color-navbar-search-border: var(--color-border-light);
+    --color-navbar-search-border-focus: var(--color-border-focus);
+    --color-navbar-search-text: var(--color-label);
 
     /* Tree */
     --color-tree-menu-bg: var(--bg-surface-2);
@@ -100,6 +107,19 @@
     --color-tab-text: var(--color-secondary-label);
     --color-tab-text-selected: var(--color-label);
     --color-tab-changed: var(--color-accent);
+
+    /* Alerts */
+    --color-alert-danger-bg: #FFEBEB;
+    --color-alert-danger-text: #D32F2F;
+    --color-alert-info-bg: #E3F2FD;
+    --color-alert-info-text: #1976D2;
+    --color-alert-warning-bg: #FFF9E6;
+    --color-alert-warning-text: #7A5B00;
+    --color-alert-success-bg: #E8F5E9;
+    --color-alert-success-text: #2E7D32;
+
+    /* Navbar Active Variable */
+    --color-navbar-active-text: var(--color-accent);
 
     /* Logo */
     --logo-image: url("../images/misc/logo-navbar.png");

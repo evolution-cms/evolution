@@ -1,60 +1,321 @@
 @supports (-webkit-overflow-scrolling: touch) {
-    html, body { -webkit-overflow-scrolling: touch; overflow: auto; height: 100%; /* ios iframe scroll jumping to top fix */ }
+
+    html,
+    body {
+        -webkit-overflow-scrolling: touch;
+        overflow: auto;
+        height: 100%;
+        /* ios iframe scroll jumping to top fix */
+    }
 }
-html, body {
+
+html,
+body {
     background-color: var(--bg-page);
     color: var(--color-label);
     color-scheme: var(--color-scheme, light);
 }
-#frameset, #main { background-color: var(--bg-page); }
-#frameset { position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; }
-#mainMenu, #tree, #main { position: absolute; }
-#mainMenu { top: 0; left: 0; width: 100%; height: var(--navbar-height); z-index: var(--z-dropdown); }
-#tree { left: 0; top: var(--navbar-height); bottom: 0; width: var(--sidebar-width); max-width: 100%; overflow: hidden; z-index: 2; }
-#main { left: var(--sidebar-width); top: var(--navbar-height); right: 0; bottom: 0; z-index: 1; }
-#main #mainframe { display: block; position: absolute; width: 100%; height: 100%; overflow: auto;}
 
-.ios #main #mainframe, .ios #main .tabframes { overflow: hidden !important; min-width: 100%!important; width: 100px!important; *width: 100%!important; }
-.ios .iframe-scroller { -webkit-overflow-scrolling: touch; overflow: auto; width:100%; height:100%; }
-.ios .evo-tab-page.iframe-scroller { height:calc(100% - 2.3em) }
+#frameset,
+#main {
+    background-color: var(--bg-page);
+}
+
+#frameset {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+}
+
+#mainMenu,
+#tree,
+#main {
+    position: absolute;
+}
+
+#mainMenu {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: var(--navbar-height);
+    z-index: var(--z-dropdown);
+}
+
+#tree {
+    left: 0;
+    top: var(--navbar-height);
+    bottom: 0;
+    width: var(--sidebar-width);
+    max-width: 100%;
+    overflow: hidden;
+    z-index: 2;
+}
+
+#main {
+    left: var(--sidebar-width);
+    top: var(--navbar-height);
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    margin-left: 10px;
+}
+
+#main #mainframe {
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: var(--bg-page);
+}
+
+#main .tabframes,
+#main .iframe-scroller {
+    background-color: var(--bg-page);
+}
+
+.ios #main #mainframe,
+.ios #main .tabframes {
+    overflow: hidden !important;
+    min-width: 100% !important;
+    width: 100px !important;
+}
+
+.ios .iframe-scroller {
+    -webkit-overflow-scrolling: touch;
+    overflow: auto;
+    width: 100%;
+    height: 100%;
+}
+
+.ios .evo-tab-page.iframe-scroller {
+    height: calc(100% - 2.3em)
+}
 
 /* floater */
-#floater { position: fixed; z-index: var(--z-fixed); opacity: 0; visibility: hidden; max-width: 20rem; padding: 1.5rem; top: 4rem; left: 2rem; border-radius: var(--radius-md); background-color: var(--color-white); -webkit-box-shadow: var(--shadow-lg); box-shadow: var(--shadow-lg); transition-duration: var(--transition-fast) }
-#floater.show { opacity: 1; visibility: visible; }
+#floater {
+    position: fixed;
+    z-index: var(--z-fixed);
+    opacity: 0;
+    visibility: hidden;
+    max-width: 20rem;
+    padding: 1.5rem;
+    top: 4rem;
+    left: 2rem;
+    border-radius: var(--radius-lg);
+    background-color: var(--color-dropdown-bg);
+    color: var(--color-text);
+    border: 1px solid var(--color-dropdown-border);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    -webkit-box-shadow: var(--shadow-floater);
+    box-shadow: var(--shadow-floater);
+    transition-duration: var(--transition-fast)
+}
+
+#floater.show {
+    opacity: 1;
+    visibility: visible;
+}
+
 /*resizer*/
-#resizer { position: absolute; z-index: 99; top: var(--navbar-height); bottom: 0; left: var(--sidebar-width); width: 5px; margin-left: -1px; cursor: col-resize; background-color: var(--color-transparent); transition: background-color .3s }
-#resizer:hover { background-color: var(--color-overlay-light); }
-#mask_resizer { position: absolute; width: 100%; height: 100%; }
+#resizer {
+    position: absolute;
+    z-index: 99;
+    top: var(--navbar-height);
+    bottom: 0;
+    left: var(--sidebar-width);
+    width: 5px;
+    margin-left: -1px;
+    cursor: col-resize;
+    background-color: var(--color-transparent);
+    transition: background-color .3s
+}
+
+#resizer:hover {
+    background-color: var(--color-overlay-subtle);
+}
+
+#mask_resizer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
 /* mainloader */
-#mainloader {position: absolute; z-index: 50000; top: 0; left: 0; width: 100%; height: 100%; text-align: center; vertical-align: middle; padding: 15% 0 0 0; background-color: rgba(255, 255, 255, 0.64); opacity: 0; visibility: hidden; -webkit-transition-duration: 0.3s; transition-duration: 0.3s }
-#mainloader.show {opacity: 0.75; visibility: visible; -webkit-transition-duration: 0.1s; transition-duration: 0.1s}
-#mainloader::before {display: none;}
-.evo__logo {font-size: 3.5em;position: fixed; top: 40%; left: 50%;}
-.evo__logo::before {content: ""; display: block; position: absolute; z-index: 1; left: 50%; top: 50%; width: 120px; height: 120px; border-radius: var(--radius-full); transform: translate(-50%, -50%) rotate(0deg); animation: rotateLogo 2s linear infinite; box-shadow: 5px 5px 0 0 var(--color-selected), 14px -7px 0 0 rgba(111, 163, 219, 0.7), -7px 11px 0 0 rgba(112, 193, 92, 0.74), -11px -7px 0 0 rgba(147, 205, 99, 0.78);}
-@keyframes rotateLogo {to {transform: translate(-50%, -50%) rotate(360deg)}}
-.sidebar-closed #tree {width: 0 !important;}
-.sidebar-closed #main, .sidebar-closed #resizer { left: 0 !important; }
+#mainloader {
+    position: absolute;
+    z-index: 50000;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    vertical-align: middle;
+    padding: 15% 0 0 0;
+    background-color: var(--bg-page);
+    opacity: 0;
+    visibility: hidden;
+    -webkit-transition-duration: 0.3s;
+    transition-duration: 0.3s
+}
+
+#mainloader.show {
+    opacity: 1;
+    visibility: visible;
+    -webkit-transition-duration: 0.1s;
+    transition-duration: 0.1s
+}
+
+#mainloader::before {
+    display: none;
+}
+
+.evo__logo {
+    font-size: 3.5em;
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: 300;
+    letter-spacing: 0.08em;
+}
+
+.evo__logo::before {
+    content: "";
+    display: block;
+    position: absolute;
+    z-index: 1;
+    left: 50%;
+    top: 50%;
+    width: 120px;
+    height: 120px;
+    border-radius: var(--radius-full);
+    transform: translate(-50%, -50%) rotate(0deg);
+    animation: rotateLogo 2s linear infinite;
+    box-shadow: 5px 5px 0 0 var(--color-logo-yellow), var(--shadow-logo-accent-1), var(--shadow-logo-accent-2), var(--shadow-logo-accent-3);
+}
+
+@keyframes rotateLogo {
+    to {
+        transform: translate(-50%, -50%) rotate(360deg)
+    }
+}
+
+.sidebar-closed #tree {
+    width: 0 !important;
+}
+
+.sidebar-closed #main,
+.sidebar-closed #resizer {
+    left: 0 !important;
+}
+
 @media (min-width: 841px) {
-#mainMenu { height: calc(var(--navbar-height) + 4px); padding-bottom: 4px; box-sizing: border-box; }
-#tree, #main, #resizer { top: calc(var(--navbar-height) + 4px); }
+    #mainMenu {
+        height: calc(var(--navbar-height) + 4px);
+        padding-bottom: 4px;
+        box-sizing: border-box;
+    }
+
+    #tree,
+    #main,
+    #resizer {
+        top: calc(var(--navbar-height) + 4px);
+    }
 }
+
 @media (min-width: 1200px) {
-#mainMenu { height: calc(var(--navbar-height-lg) + 4px); }
-#tree, #main, #resizer { top: calc(var(--navbar-height-lg) + 4px); }
+    #mainMenu {
+        height: calc(var(--navbar-height-lg) + 4px);
+    }
+
+    #tree,
+    #main,
+    #resizer {
+        top: calc(var(--navbar-height-lg) + 4px);
+    }
 }
+
 @media (max-width: 840px) {
-#floater { left: 0; right: 0; margin: 0 auto; }
-#resizer { display: none }
-#frameset #mask_resizer { z-index: 3 !important; opacity: 0.5; visibility: visible; background-color: var(--color-black); -webkit-transition: 0.2s; transition: 0.2s }
-.sidebar-closed #frameset #mask_resizer { opacity: 0; visibility: hidden; }
-#tree { z-index: 5; width: 100% !important; max-width: 20rem; -webkit-transition: 0.25s; transition: 0.25s }
-.sidebar-closed #tree { width: auto !important; box-shadow: none; -webkit-transform: translate3d(-100%, 0, 0); transform: translate3d(-100%, 0, 0); }
-#tree .treeframebody { box-shadow: none }
-.sidebar-closed #main::after { content: ""; position: absolute; z-index: 1; left: 0; top: 6rem; bottom: 0; width: 1rem; }
-#main { left: 0 !important; }
-#main::before { content: ""; position: absolute; z-index: 9999; left: 0; top: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0); }
-.sidebar-closed #mainMenu:not(.show) + #tree + #main::before { display: none }
+    #floater {
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+    }
+
+    #resizer {
+        display: none
+    }
+
+    #frameset #mask_resizer {
+        z-index: 3 !important;
+        opacity: 0.5;
+        visibility: visible;
+        background-color: var(--color-black);
+        -webkit-transition: 0.2s;
+        transition: 0.2s
+    }
+
+    .sidebar-closed #frameset #mask_resizer {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    #tree {
+        z-index: 5;
+        width: 100% !important;
+        max-width: 20rem;
+        -webkit-transition: 0.25s;
+        transition: 0.25s
+    }
+
+    .sidebar-closed #tree {
+        width: auto !important;
+        box-shadow: none;
+        -webkit-transform: translate3d(-100%, 0, 0);
+        transform: translate3d(-100%, 0, 0);
+    }
+
+    #tree .treeframebody {
+        box-shadow: none
+    }
+
+    .sidebar-closed #main::after {
+        content: "";
+        position: absolute;
+        z-index: 1;
+        left: 0;
+        top: 6rem;
+        bottom: 0;
+        width: 1rem;
+    }
+
+    #main {
+        left: 0 !important;
+    }
+
+    #main::before {
+        content: "";
+        position: absolute;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--color-transparent);
+    }
+
+    .sidebar-closed #mainMenu:not(.show)+#tree+#main::before {
+        display: none
+    }
 }
+
 @keyframes rotate {
-to { transform: rotate(360deg) }
+    to {
+        transform: rotate(360deg)
+    }
 }

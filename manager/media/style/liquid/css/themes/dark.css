@@ -69,16 +69,21 @@
     --color-bg-lighter: #3A3A3C;
     --color-bg-gray: #1C1C1E;
     --color-bg-muted: #2C2C2E;
+    --color-overlay-subtle: rgba(255, 255, 255, 0.06);
 
     /* Surfaces */
     --bg-page: var(--color-bg);
     --bg-surface-1: var(--color-base-100);
     --bg-surface-2: var(--color-base-200);
     --bg-toolbar: var(--bg-page);
+    --tabpage-bg: var(--bg-page);
 
-    /* Focus */
+    /* State Colors */
     --color-focus: var(--color-accent);
     --color-focus-ring: rgba(10, 132, 255, 0.35);
+    --color-disabled-bg: rgba(255, 255, 255, 0.05);
+    --color-disabled-text: var(--color-tertiary-label);
+    --color-selected: var(--color-accent);
 
     /* Navbar */
     --color-navbar-bg: var(--bg-toolbar);
@@ -87,11 +92,17 @@
     --color-navbar-text-light: var(--color-secondary-label);
     --color-navbar-text-hover: var(--color-label);
     --color-navbar-left-bg: var(--bg-toolbar);
+    --color-navbar-search-bg: var(--color-overlay-subtle);
+    --color-navbar-search-bg-focus: var(--bg-surface-1);
+    --color-navbar-search-border: var(--color-border-light);
+    --color-navbar-search-border-focus: var(--color-border-focus);
+    --color-navbar-search-text: var(--color-label);
 
     /* Dropdown */
-    --color-dropdown-bg: #3A3A3C;
+    --color-dropdown-bg: rgba(44, 44, 46, 0.92);
     --color-dropdown-text: var(--color-label);
-    --color-dropdown-border: rgba(0, 0, 0, 0.15);
+    --color-dropdown-hover: rgba(255, 255, 255, 0.08);
+    --color-dropdown-border: rgba(255, 255, 255, 0.06);
 
     /* Tree */
     --color-tree-menu-bg: var(--bg-surface-1);
@@ -149,15 +160,17 @@
     --color-table-hover-grid: var(--glass-table-row-hover);
 
     /* Alerts */
-    --color-alert-danger-bg: #70343a;
-    --color-alert-danger-text: #e18b87;
-    --color-alert-danger-bold: #f7e6e8;
-    --color-alert-info-bg: #223a52;
-    --color-alert-info-text: #b2c3cd;
-    --color-alert-warning-bg: #7a6625;
-    --color-alert-warning-text: #d1c7a8;
-    --color-alert-success-bg: #45824c;
-    --color-alert-success-text: #c8f2c9;
+    --color-alert-danger-bg: rgba(255, 69, 58, 0.15);
+    --color-alert-danger-text: #FF453A;
+    --color-alert-info-bg: rgba(10, 132, 255, 0.15);
+    --color-alert-info-text: #0A84FF;
+    --color-alert-warning-bg: rgba(255, 159, 10, 0.15);
+    --color-alert-warning-text: #FF9F0A;
+    --color-alert-success-bg: rgba(50, 215, 75, 0.15);
+    --color-alert-success-text: #32D74B;
+
+    /* Navbar active */
+    --color-navbar-active-text: #ffffff;
 
     /* Buttons */
     --color-btn-primary: var(--color-accent);
@@ -171,6 +184,7 @@
     --color-btn-danger: var(--color-danger);
     --color-btn-danger-hover: #FF6A61;
     --color-btn-danger-border-hover: #FF6A61;
+    --color-danger-light: var(--color-btn-danger-hover);
     --color-btn-warning: var(--color-warning);
     --color-btn-warning-hover: #FFB340;
     --color-btn-warning-border-hover: #FFB340;
@@ -185,7 +199,7 @@
     --color-btn-default-active: #545456;
 
     /* Checkbox/Radio */
-    --color-checkbox-checked: var(--color-accent);
+    --color-checkbox-checked: #ffc107;
 
     /* Editor */
     --color-editor-bg: #2b2f36;

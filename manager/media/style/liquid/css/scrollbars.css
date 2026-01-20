@@ -1,0 +1,33 @@
+/* Scrollbar Styles - Windows only */
+.win {
+    scrollbar-gutter: stable;
+}
+
+.win ::-webkit-scrollbar,
+.win *::-webkit-scrollbar,
+.win ::-webkit-scrollbar-thumb,
+.win *::-webkit-scrollbar-thumb {
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: var(--color-transparent);
+    border-radius: var(--radius-lg);
+    border: none;
+}
+
+.win ::-webkit-scrollbar-thumb,
+.win *::-webkit-scrollbar-thumb,
+.win :hover::-webkit-scrollbar-thumb,
+.win *:hover::-webkit-scrollbar-thumb {
+    background-color: var(--color-scrollbar);
+    box-shadow: none;
+}
+
+.win ::-webkit-scrollbar-thumb:hover,
+.win *::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-scrollbar-hover);
+}
+
+.win ::-webkit-scrollbar-corner,
+.win *::-webkit-scrollbar-corner {
+    background-color: var(--color-transparent);
+}

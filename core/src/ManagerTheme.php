@@ -781,28 +781,17 @@ class ManagerTheme implements ManagerThemeInterface
 
     public function getCssFiles()
     {
-        return [
-            // Vendor styles
-            'bootstrap' => MODX_MANAGER_PATH . 'media/style/common/bootstrap/css/bootstrap.min.css',
-            'font-awesome' => MODX_MANAGER_PATH . 'media/style/common/font-awesome/css/font-awesome.min.css',
-            // Theme variables (CSS custom properties)
-            'theme-variables' => $this->getThemeDir() . 'css/themes/variables.css',
-            // Core styles
-            'fonts' => $this->getThemeDir() . 'css/fonts.css',
-            'forms' => $this->getThemeDir() . 'css/forms.css',
-            'mainmenu' => $this->getThemeDir() . 'css/mainmenu.css',
-            'tree' => $this->getThemeDir() . 'css/tree.css',
-            'custom' => $this->getThemeDir() . 'css/custom.css',
-            'tabpane' => $this->getThemeDir() . 'css/tabpane.css',
-            'contextmenu' => $this->getThemeDir() . 'css/contextmenu.css',
-            'index' => $this->getThemeDir() . 'css/index.css',
-            'main' => $this->getThemeDir() . 'css/main.css',
-            // Theme files (color schemes)
-            'theme-lightness' => $this->getThemeDir() . 'css/themes/lightness.css',
-            'theme-light' => $this->getThemeDir() . 'css/themes/light.css',
-            'theme-dark' => $this->getThemeDir() . 'css/themes/dark.css',
-            'theme-darkness' => $this->getThemeDir() . 'css/themes/darkness.css',
-        ];
+        $listFile = $this->getThemeDir() . 'CSSMinify.php';
+        if (!is_file($listFile)) {
+            return [];
+        }
+
+        $files = include $listFile;
+        if (!is_array($files)) {
+            return [];
+        }
+
+        return $files;
     }
 
     public function css()
@@ -810,35 +799,36 @@ class ManagerTheme implements ManagerThemeInterface
         $css = $this->getThemeUrl() . 'style.css';
         $minCssName = 'css/styles.min.css';
 
-        if (!file_exists($this->getThemeDir() . $minCssName) && is_writable($this->getThemeDir() . 'css')) {
+        $minCssPath = $this->getThemeDir() . $minCssName;
+        if (!file_exists($minCssPath) && is_writable($this->getThemeDir() . 'css')) {
             $files = $this->getCssFiles();
-            $evtOut = $this->getCore()->invokeEvent('OnBeforeMinifyCss', [
-                'files' => $files,
-                'source' => 'manager',
-                'theme' => $this->getTheme()
-            ]);
-            switch (true) {
-                case empty($evtOut):
-                case \is_array($evtOut) && count($evtOut) === 0:
-                    break;
-                case \is_array($evtOut) && count($evtOut) === 1:
-                    $files = $evtOut[0];
-                    break;
-                default:
-                    $this->getCore()->webAlertAndQuit(
-                        sprintf($this->getLexicon('invalid_event_response'), 'OnBeforeMinifyManagerCss')
-                    );
+            if (!empty($files)) {
+                $evtOut = $this->getCore()->invokeEvent('OnBeforeMinifyCss', [
+                    'files' => $files,
+                    'source' => 'manager',
+                    'theme' => $this->getTheme()
+                ]);
+                switch (true) {
+                    case empty($evtOut):
+                    case \is_array($evtOut) && count($evtOut) === 0:
+                        break;
+                    case \is_array($evtOut) && count($evtOut) === 1:
+                        $files = $evtOut[0];
+                        break;
+                    default:
+                        $this->getCore()->webAlertAndQuit(
+                            sprintf($this->getLexicon('invalid_event_response'), 'OnBeforeMinifyManagerCss')
+                        );
+                }
             }
 
-            $minifier = new \EvolutionCMS\Support\Formatter\CSSMinify($files);
-            $css = $minifier->minify();
-            file_put_contents(
-                $this->getThemeDir() . $minCssName,
-                $css
-            );
-
+            if (!empty($files)) {
+                $minifier = new \EvolutionCMS\Support\Formatter\CSSMinify($files);
+                $css = $minifier->minify();
+                file_put_contents($minCssPath, $css);
+            }
         }
-        if (file_exists($this->getThemeDir() . $minCssName)) {
+        if (file_exists($minCssPath)) {
             $css = $this->getThemeUrl() . $minCssName;
         }
 

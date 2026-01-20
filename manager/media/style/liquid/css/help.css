@@ -1,0 +1,25 @@
+/* STYLES FOR PAGE HELP */
+#helpPane h1 {
+    margin-bottom: 1em;
+    padding: .5rem;
+    font-size: .8rem;
+    border-bottom: 1px solid var(--color-border-subtle);
+}
+
+#helpPane li:not(:first-child)>strong {
+    margin-top: 1.4em;
+}
+
+#helpPane li>strong {
+    display: block;
+    font-size: 14px;
+}
+
+#helpPane pre {
+    border: 1px solid var(--color-border-subtle);
+    padding: 1em;
+}
+
+#helpPane .tab-page>img:first-of-type {
+    margin-bottom: 1rem;
+}

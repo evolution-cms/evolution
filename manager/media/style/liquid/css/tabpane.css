@@ -24,7 +24,7 @@ body.tabs-hidden .tab-row-container {
     display: none !important;
 }
 
-body.tabs-hidden .container-body {
+body.tabs-hidden .container-body:not(.container-body-widgets) {
     padding: 1.25rem !important;
     padding-top: 0 !important;
 }
@@ -156,7 +156,7 @@ body.tabs-hidden .evo-tab-page {
     line-height: var(--tab-height);
     padding: 0 0.75rem;
     text-transform: none;
-    font-weight: 500;
+    font-weight: normal;
 }
 
 .tab-row-container:not(.evo-tab-row) .tab:hover {
@@ -168,7 +168,7 @@ body.tabs-hidden .evo-tab-page {
     background: var(--color-tab-selected);
     border-color: var(--color-tab-border);
     color: var(--color-tab-text-selected);
-    font-weight: 600;
+    font-weight: normal;
 }
 
 /* tab-page */
@@ -214,7 +214,7 @@ body.tabs-hidden .evo-tab-page {
     padding: 0;
     border: 0;
     border-radius: 0;
-    box-shadow: var(--shadow-1)
+    box-shadow: var(--shadow-none)
 }
 
 .tab-page .tab-header,
@@ -260,7 +260,7 @@ body.tabs-hidden .evo-tab-page {
 .tab-page>.tab-body .tab-header+.tab-body,
 .tab-page .sectionHeader+.sectionBody {
     padding-top: 1em;
-    border-top: 1px solid var(--color-overlay-light);
+    border-top: 1px solid var(--color-separator);
 }
 
 .tab-page>.tab-body::after {
@@ -387,11 +387,11 @@ body.tabs-hidden .evo-tab-page {
     padding: 0;
     border: 0;
     border-radius: 0;
-    box-shadow: var(--shadow-1)
+    box-shadow: var(--shadow-none)
 }
 
 .sectionBody>.tab-pane>.tab-page {
-    padding: 0.25rem;
+    padding: 1.25rem;
 }
 
 .tab-page>table {
@@ -428,10 +428,9 @@ body.tabs-hidden .evo-tab-page {
     padding: 5px 1rem;
     background: var(--bg-surface-1);
     border: 1px solid var(--color-separator);
-    -webkit-box-shadow: 1px 1px 3px var(--color-border-light);
-    box-shadow: 1px 1px 3px var(--color-border-light);
-    -webkit-border-radius: 3px;
-    border-radius: 3px;
+    -webkit-box-shadow: var(--shadow-none);
+    box-shadow: var(--shadow-none);
+    border-radius: var(--radius-sm);
 }
 
 .sectionBody fieldset h3 {
@@ -447,7 +446,7 @@ body.tabs-hidden .evo-tab-page {
     margin: 0 1rem;
     padding: 5px 3px 5px;
     font-weight: 500;
-    text-shadow: 0 1px 0 var(--color-white);
+    text-shadow: none;
 }
 
 .showHideVisible+.sectionBody {
@@ -492,7 +491,7 @@ body.tabs-hidden .evo-tab-page {
     display: none;
     position: absolute;
     z-index: var(--z-modal);
-    box-shadow: 0 0.2rem 2rem var(--color-overlay-light);
+    box-shadow: var(--shadow-popup);
 }
 
 .evo-popup.animation {
@@ -501,20 +500,20 @@ body.tabs-hidden .evo-tab-page {
 }
 
 .evo-popup:hover {
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-popup-hover);
 }
 
 .evo-popup.alert {
     margin: 0;
     height: 100%;
-    border-color: var(--color-overlay-light);
-    background-color: var(--color-white);
-    color: var(--color-tab-text-selected);
-    border-radius: .15rem;
+    border-color: var(--color-border-subtle);
+    background-color: var(--bg-surface-1);
+    color: var(--color-text);
+    border-radius: var(--radius-sm);
 }
 
 .evo-popup.alert-dark {
-    background-color: #202329;
+    background-color: var(--glass-bg);
     color: var(--color-border-light);
 }
 
@@ -528,7 +527,7 @@ body.tabs-hidden .evo-tab-page {
 }
 
 .evo-popup.alert-success {
-    border-color: var(--color-overlay-light);
+    border-color: var(--color-border-subtle);
     background-color: var(--color-success);
     color: var(--color-white);
 }
@@ -538,7 +537,7 @@ body.tabs-hidden .evo-tab-page {
 }
 
 .evo-popup.alert-info {
-    border-color: var(--color-overlay-light);
+    border-color: var(--color-border-subtle);
     background-color: var(--color-primary-dark);
     color: var(--color-white);
 }
@@ -548,17 +547,17 @@ body.tabs-hidden .evo-tab-page {
 }
 
 .evo-popup.alert-warning {
-    border-color: var(--color-overlay-light);
+    border-color: var(--color-border-subtle);
     background-color: var(--color-alert-warning-bg);
     color: var(--color-alert-warning-text);
 }
 
 .evo-popup.alert-warning hr {
-    border-color: var(--color-overlay-light);
+    border-color: var(--color-border-subtle);
 }
 
 .evo-popup.alert-danger {
-    border-color: var(--color-overlay-light);
+    border-color: var(--color-border-subtle);
     background-color: var(--color-danger);
     color: var(--color-white);
 }
@@ -596,7 +595,7 @@ body.tabs-hidden .evo-tab-page {
     height: 1.5rem;
     line-height: 1.4rem;
     color: var(--color-white);
-    background-color: #e5a2a0;
+    background-color: var(--color-danger-light);
     text-align: center;
     font-weight: 100;
 }
@@ -782,7 +781,6 @@ body.tabs-hidden .evo-tab-page {
 .tab-row-container.evo-tab-row .tab.selected {
     background: var(--color-tab-selected);
     border-color: var(--color-tab-border-selected);
-    border-bottom: none;
     color: var(--color-tab-text-selected);
 }
 
@@ -816,7 +814,7 @@ body.tabs-hidden .evo-tab-page {
     justify-content: center;
     margin-left: 0.5rem;
     padding: 0.2em;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     color: var(--color-text-muted);
     font-size: 0.9em;
     font-weight: 300;
