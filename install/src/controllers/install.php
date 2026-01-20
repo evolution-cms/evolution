@@ -91,7 +91,7 @@ try {
     }
     // select database
     if ($installLevel === 1) {
-        // write the config.inc.php file if new installation
+        // write the core/config/database/connections/default.php file if new installation
         $confph = [];
         $confph['database_server'] = addslashes($database_server);
         $confph['database_type'] = addslashes($database_type);

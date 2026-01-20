@@ -266,11 +266,6 @@ function ph()
         $installmode = $_SESSION['installmode'];
     } else {
         $installmode = isset($_POST['installmode']) ? (int)$_POST['installmode'] : 0;
-        if (file_exists("{$base_path}manager/includes/config.inc.php")) { ?>
-            Backup and delete the file `manager/includes/config.inc.php` then <a href="<?= htmlspecialchars($_SERVER['REQUEST_URI'],
-                ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">reload the page</a>
-            <?php exit();
-        }
         // @deprecated get_installmode(); wants config.inc.php
     }
 

@@ -178,22 +178,6 @@ if (!is_writable("../assets/export")) {
     echo '<span class="ok">' . $_lang['ok'] . '</span></p>';
 }
 
-// config.inc.php writable?
-echo '<p>' . $_lang['checking_if_config_exist_and_writable'];
-$tmp = '../' . MGR_DIR . '/includes/config.inc.php';
-if (!is_file($tmp)) {
-    f_owc($tmp, "<?php //EVO configuration file ?>", 0666);
-} else {
-    @chmod($tmp, 0666);
-}
-$isWriteable = is_writable($tmp);
-if (!$isWriteable) {
-    $errors++;
-    echo '<span class="notok">' . $_lang['failed'] . '</span></p><p><strong>' . $_lang['config_permissions_note'] . '</strong></p>';
-} else {
-    echo '<span class="ok">' . $_lang['ok'] . '</span></p>';
-}
-
 // connect to the database
 if ($installMode == 1) {
     $db_config = include_once EVO_CORE_PATH . 'config/database/connections/default.php';
