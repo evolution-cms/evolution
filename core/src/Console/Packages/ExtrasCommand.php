@@ -64,6 +64,10 @@ class ExtrasCommand extends Command
      * @var array
      */
     public $tags = [];
+    /**
+     * @var array
+     */
+    public $branches = [];
 
     /**
      * @var string
@@ -138,7 +142,8 @@ class ExtrasCommand extends Command
                 $this->version = '*';
                 break;
             default:
-                $this->version = $version;
+                $defaultBranch = $this->fullPackage[$this->selectPackage]['default_branch'] ?? '';
+                $this->version = $this->normalizeComposerVersion($version, $this->branches, $defaultBranch);
                 break;
         }
         $url = 'https://raw.githubusercontent.com/' . $this->fullPackage[$this->selectPackage]['full_name'] . '/' . $this->fullPackage[$this->selectPackage]['default_branch'] . '/composer.json';
@@ -163,10 +168,10 @@ class ExtrasCommand extends Command
         $version = $this->getPackages('https://api.github.com/orgs/evolution-cms-packages/repos');
         switch ($version) {
             case 'Current and updated';
-                if (count($this->tags) > 2) {
-                    $this->version = $this->tags[2];
+                if (!empty($this->tags)) {
+                    $this->version = $this->tags[0];
                 } else {
-                    $this->version = $this->tags[1];
+                    $this->version = $this->fullPackage[$this->selectPackage]['default_branch'] ?? '';
                 }
                 break;
             default:
@@ -233,7 +238,7 @@ class ExtrasCommand extends Command
             $packageForChose[$name] = $label;
             $this->fullPackage[$name] = $package;
         }
-        $packageArg = $this->argument('packageName');
+        [$packageArg, $versionArg] = $this->parsePackageArguments();
         if (!is_null($packageArg) && array_key_exists($packageArg, $packageForChose)) {
             $this->selectPackage = $packageArg;
         } else {
@@ -246,24 +251,62 @@ class ExtrasCommand extends Command
             echo 'The limit that is provided for free use of github has been exceeded. Please try later.';
             exit();
         }
-        $getTags[] = 'Current and updated';
+        $tags = [];
         foreach ($tagsInfo as $tag) {
-            $getTags[] = $tag['name'];
-        }
-        $getTags = array_slice($getTags, 0, 4);
-        $getTags[] = $this->fullPackage[$this->selectPackage]['default_branch'];
-        $this->tags = $getTags;
-        $versionArg = $this->argument('versionPackage');
-        if (!is_null($versionArg) && in_array($versionArg, $getTags, true)) {
-            return $versionArg;
-        }
-        if (is_null($versionArg)) {
-            if (isset($tagsInfo[0]['name']) && is_string($tagsInfo[0]['name'])) {
-                return $tagsInfo[0]['name'];
+            if (!is_array($tag)) {
+                continue;
             }
-            return $this->fullPackage[$this->selectPackage]['default_branch'];
+            $name = $tag['name'] ?? '';
+            if (is_string($name) && $name !== '') {
+                $tags[] = $name;
+            }
         }
-        return $this->choice('Select version', $getTags);
+        $tags = array_values(array_unique($tags));
+
+        $branches = [];
+        $branchesUrl = $this->fullPackage[$this->selectPackage]['branches_url'] ?? '';
+        if (is_string($branchesUrl) && $branchesUrl !== '') {
+            $branchesUrl = str_replace('{/branch}', '', $branchesUrl);
+            $branchesInfo = $this->getGithubInfo($branchesUrl);
+            if (is_array($branchesInfo)) {
+                foreach ($branchesInfo as $branch) {
+                    if (!is_array($branch)) {
+                        continue;
+                    }
+                    $name = $branch['name'] ?? '';
+                    if (is_string($name) && $name !== '') {
+                        $branches[] = $name;
+                    }
+                }
+            }
+        }
+        $defaultBranch = $this->fullPackage[$this->selectPackage]['default_branch'] ?? '';
+        if (is_string($defaultBranch) && $defaultBranch !== '' && !in_array($defaultBranch, $branches, true)) {
+            $branches[] = $defaultBranch;
+        }
+        $branches = array_values(array_unique($branches));
+
+        $this->tags = $tags;
+        $this->branches = $branches;
+
+        $versionChoices = ['Current and updated' => 'Current and updated'];
+        foreach ($tags as $tag) {
+            $versionChoices[$tag] = $tag . ' (tag)';
+        }
+        foreach ($branches as $branch) {
+            $versionChoices[$branch] = $branch . ' (branch)';
+        }
+        if (!is_null($versionArg)) {
+            if (is_string($versionArg)) {
+                $versionArg = trim($versionArg);
+                if ($versionArg !== '') {
+                    return $versionArg;
+                }
+            } else {
+                return $versionArg;
+            }
+        }
+        return $this->choice('Select version', $versionChoices);
 
     }
 
@@ -359,6 +402,69 @@ class ExtrasCommand extends Command
             $command .= ' ' . escapeshellarg($arg);
         }
         passthru($command);
+    }
+
+    protected function normalizeComposerVersion($version, array $branches = [], $defaultBranch = '')
+    {
+        if (!is_string($version)) {
+            return $version;
+        }
+        $version = trim($version);
+        if ($version === '') {
+            return $version;
+        }
+        if (strpos($version, '|') !== false) {
+            $parts = explode('|', $version);
+            $normalized = [];
+            foreach ($parts as $part) {
+                $part = trim($part);
+                if ($part === '') {
+                    continue;
+                }
+                $normalized[] = $this->normalizeSingleVersion($part, $branches, $defaultBranch);
+            }
+            return implode('|', $normalized);
+        }
+        return $this->normalizeSingleVersion($version, $branches, $defaultBranch);
+    }
+
+    protected function normalizeSingleVersion($version, array $branches = [], $defaultBranch = '')
+    {
+        if ($version === '' || strpos($version, 'dev-') === 0 || $version === '*') {
+            return $version;
+        }
+        if ($defaultBranch !== '' && $version === $defaultBranch) {
+            return 'dev-' . $version;
+        }
+        if (in_array($version, $branches, true)) {
+            return 'dev-' . $version;
+        }
+        return $version;
+    }
+
+    protected function parsePackageArguments()
+    {
+        $packageArg = $this->argument('packageName');
+        $versionArg = $this->argument('versionPackage');
+
+        if (is_string($packageArg)) {
+            $packageArg = trim($packageArg);
+        }
+        if (is_string($versionArg)) {
+            $versionArg = trim($versionArg);
+        }
+        if (is_string($packageArg) && $versionArg === null) {
+            $atPos = strrpos($packageArg, '@');
+            if ($atPos !== false) {
+                $maybePackage = substr($packageArg, 0, $atPos);
+                $maybeVersion = substr($packageArg, $atPos + 1);
+                if ($maybePackage !== '' && $maybeVersion !== '') {
+                    $packageArg = $maybePackage;
+                    $versionArg = $maybeVersion;
+                }
+            }
+        }
+        return [$packageArg, $versionArg];
     }
 
     public function getGithubFile($url)

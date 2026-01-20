@@ -776,6 +776,15 @@ try {
         if (file_exists($base_path.'install.session.php')) {
             unlink($base_path.'install.session.php');
         }
+        $bootstrapDir = EVO_STORAGE_PATH . 'bootstrap/';
+        $siteCacheFile = $bootstrapDir . 'siteCache.idx.php';
+        if (file_exists($siteCacheFile)) {
+            unlink($siteCacheFile);
+        }
+        $sitePublishingFile = $bootstrapDir . 'sitePublishing.idx.php';
+        if (file_exists($sitePublishingFile)) {
+            unlink($sitePublishingFile);
+        }
         file_put_contents(EVO_CORE_PATH . '.install', time());
     }
 
