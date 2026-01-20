@@ -170,6 +170,7 @@ class ExtrasCommand extends Command
             }
             $description = trim((string) ($package['description'] ?? ''));
             $version = $this->getLatestReleaseTag($package);
+            $versions = $this->getPackageVersions($package);
             $defaultBranch = $package['default_branch'] ?? '';
             if (!is_string($version)) {
                 $version = '';
@@ -178,6 +179,7 @@ class ExtrasCommand extends Command
             $packages[] = [
                 'name' => $name,
                 'version' => $version,
+                'versions' => $versions,
                 'description' => $description,
                 'defaultInstallMode' => $defaultMode,
                 'defaultBranch' => is_string($defaultBranch) ? $defaultBranch : '',
@@ -432,6 +434,34 @@ class ExtrasCommand extends Command
         }
         $tag = $releaseInfo['tag_name'] ?? $releaseInfo['name'] ?? '';
         return is_string($tag) ? trim($tag) : '';
+    }
+
+    protected function getPackageVersions(array $package): array
+    {
+        $tagsUrl = $package['tags_url'] ?? '';
+        if (!is_string($tagsUrl) || $tagsUrl === '') {
+            return [];
+        }
+        $tagsInfo = $this->getGithubInfo($tagsUrl);
+        if (!is_array($tagsInfo) || isset($tagsInfo['message'])) {
+            return [];
+        }
+        $versions = [];
+        foreach ($tagsInfo as $tag) {
+            $name = $tag['name'] ?? '';
+            if (!is_string($name)) {
+                continue;
+            }
+            $name = trim($name);
+            if ($name === '') {
+                continue;
+            }
+            $versions[] = $name;
+        }
+        if (count($versions) > 6) {
+            $versions = array_slice($versions, 0, 6);
+        }
+        return array_values(array_unique($versions));
     }
 
     protected function runPostInstallSteps($packageName)
