@@ -7,12 +7,19 @@ use Illuminate\Support\Facades\File;
 
 class ExtrasCommand extends Command
 {
+    private const EXTRAS_REPO_SOURCES = [
+        'https://api.github.com/users/Seiger/repos',
+        'https://api.github.com/orgs/evolution-cms-extras/repos',
+    ];
+    private const PACKAGES_REPO_SOURCES = [
+        'https://api.github.com/orgs/evolution-cms-packages/repos',
+    ];
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'extras {typePackage?} {packageName?} {versionPackage?} {namePackage?}';
+    protected $signature = 'extras {typePackage?} {packageName?} {versionPackage?} {namePackage?} {--list : List available extras} {--json : Output list as JSON}';
 
     /**
      * The console command description.
@@ -105,6 +112,10 @@ class ExtrasCommand extends Command
      */
     public function handle()
     {
+        if ($this->isListMode()) {
+            $this->outputExtrasList();
+            return;
+        }
         if (!is_dir($this->configDir)) {
             mkdir($this->configDir, 0775, true);
         }
@@ -131,12 +142,115 @@ class ExtrasCommand extends Command
 
     }
 
+    protected function isListMode(): bool
+    {
+        $type = $this->argument('typePackage');
+        if (is_string($type) && strtolower($type) === 'list') {
+            return true;
+        }
+        if ($this->option('list')) {
+            return true;
+        }
+        return (bool) $this->option('json');
+    }
+
+    protected function outputExtrasList(): void
+    {
+        $repos = $this->collectRepos(self::EXTRAS_REPO_SOURCES);
+        if ($repos === null) {
+            $this->renderExtrasListError('Unable to fetch extras list from GitHub.');
+            return;
+        }
+
+        $packages = [];
+        foreach ($repos as $package) {
+            $name = $package['name'] ?? '';
+            if (!is_string($name) || $name === '') {
+                continue;
+            }
+            $description = trim((string) ($package['description'] ?? ''));
+            $version = $this->getLatestReleaseTag($package);
+            $defaultBranch = $package['default_branch'] ?? '';
+            if (!is_string($version)) {
+                $version = '';
+            }
+            $defaultMode = $version !== '' ? 'latest-release' : 'default-branch';
+            $packages[] = [
+                'name' => $name,
+                'version' => $version,
+                'description' => $description,
+                'defaultInstallMode' => $defaultMode,
+                'defaultBranch' => is_string($defaultBranch) ? $defaultBranch : '',
+            ];
+        }
+
+        if ($this->option('json')) {
+            $payload = [
+                'ok' => true,
+                'type' => 'extras',
+                'packages' => $packages,
+            ];
+            $this->getOutput()->writeln(json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            return;
+        }
+
+        foreach ($packages as $pkg) {
+            $label = $pkg['name'];
+            if ($pkg['version'] !== '') {
+                $label .= ' (' . $pkg['version'] . ')';
+            }
+            if ($pkg['description'] !== '') {
+                $label .= ' - ' . $pkg['description'];
+            }
+            $this->line($label);
+        }
+    }
+
+    protected function renderExtrasListError(string $message): void
+    {
+        if ($this->option('json')) {
+            $payload = [
+                'ok' => false,
+                'error' => $message,
+            ];
+            $this->getOutput()->writeln(json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            return;
+        }
+        $this->getOutput()->writeln('<error>' . $message . '</error>');
+    }
+
+    protected function collectRepos(array $sources): ?array
+    {
+        $fullPackage = [];
+        foreach ($sources as $url) {
+            $repos = $this->getGithubInfo($url);
+            if (!is_array($repos) || isset($repos['message'])) {
+                return null;
+            }
+
+            if (strpos($url, 'Seiger') !== false) {
+                $repos = array_filter($repos, function ($repo) {
+                    return preg_match('/^s[A-Z]/', $repo['name'] ?? '');
+                });
+            }
+
+            $fullPackage = array_merge($fullPackage, $repos);
+        }
+
+        return $fullPackage;
+    }
+
     /**
      *
      */
     public function workWithExtras()
     {
-        $version = $this->getPackages(['https://api.github.com/users/Seiger/repos','https://api.github.com/orgs/evolution-cms-extras/repos']);
+        $repos = $this->collectRepos(self::EXTRAS_REPO_SOURCES);
+        if ($repos === null) {
+            echo 'The limit that is provided for free use of github has been exceeded. Please try later.';
+            exit();
+        }
+        $version = $this->getPackages($repos);
         switch ($version) {
             case 'Current and updated';
                 $this->version = '*';
@@ -165,7 +279,12 @@ class ExtrasCommand extends Command
      */
     public function workWithPackage()
     {
-        $version = $this->getPackages('https://api.github.com/orgs/evolution-cms-packages/repos');
+        $repos = $this->collectRepos(self::PACKAGES_REPO_SOURCES);
+        if ($repos === null) {
+            echo 'The limit that is provided for free use of github has been exceeded. Please try later.';
+            exit();
+        }
+        $version = $this->getPackages($repos);
         switch ($version) {
             case 'Current and updated';
                 if (!empty($this->tags)) {
@@ -183,40 +302,9 @@ class ExtrasCommand extends Command
 
     }
 
-    public function getPackages($urlOrArray)
+    public function getPackages(array $fullPackage)
     {
         $packageForChose = [];
-
-        // Convert string to array with single element
-        if (is_string($urlOrArray)) {
-            $urlOrArray = [$urlOrArray];
-        }
-
-        // Check if it's array of URLs or array of repos
-        if (isset($urlOrArray[0]) && is_string($urlOrArray[0])) {
-            // Array of URLs - get packages from multiple sources
-            $fullPackage = [];
-            foreach ($urlOrArray as $url) {
-                $repos = $this->getGithubInfo($url);
-                if (!is_array($repos)) {
-                    echo 'The limit that is provided for free use of github has been exceeded. Please try later.';
-                    exit();
-                }
-
-                // Filter Seiger repos: only those starting with 's' + uppercase letter
-                if (strpos($url, 'Seiger') !== false) {
-                    $repos = array_filter($repos, function($repo) {
-                        return preg_match('/^s[A-Z]/', $repo['name'] ?? '');
-                    });
-                }
-
-                // Merge repos
-                $fullPackage = array_merge($fullPackage, $repos);
-            }
-        } else {
-            // Already processed array of repos
-            $fullPackage = $urlOrArray;
-        }
         foreach ($fullPackage as $package) {
             $name = $package['name'] ?? '';
             if ($name === '') {
@@ -464,6 +552,7 @@ class ExtrasCommand extends Command
                 }
             }
         }
+
         return [$packageArg, $versionArg];
     }
 
