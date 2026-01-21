@@ -25,10 +25,12 @@ browser.initClipboard = function() {
         });
     };
     resize();
+    browser.fitParentIFrame();
     $('#clipboard').css('display', 'block');
     $(window).unbind();
     $(window).resize(function() {
         browser.resize();
+        browser.fitParentIFrame();
         resize();
     });
 };

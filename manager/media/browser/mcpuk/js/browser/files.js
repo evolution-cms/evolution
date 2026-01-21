@@ -161,9 +161,16 @@ browser.returnFile = function(file) {
     var fileURL = file.substr
         ? file : browser.assetsURL + '/' + browser.dir + '/' + file.data('name');
     fileURL = _.escapeDirs(fileURL);
+    var win = window.opener ? window.opener : window.parent;
+    var hasTinyMCE = false;
+
+    try {
+        hasTinyMCE = !!(win && win.tinymce && win.tinymce.activeEditor);
+    } catch (e) {
+        hasTinyMCE = false;
+    }
 
     if (this.opener.TinyMCE4) {
-        var win = window.opener ? window.opener : window.parent;
         win.tinymceCallBackURL = fileURL;
         $(win.document).find('#' + this.opener.TinyMCE4).val(fileURL);
         win.tinyMCE.activeEditor.windowManager.close();
@@ -176,7 +183,7 @@ browser.returnFile = function(file) {
         window.opener.SetUrl(fileURL) ;
         window.close() ;
 
-    } else if (this.opener.TinyMCE) {
+    } else if (this.opener.TinyMCE && (typeof tinyMCEPopup !== 'undefined')) {
         var win = tinyMCEPopup.getWindowArg('window');
         win.document.getElementById(tinyMCEPopup.getWindowArg('input')).value = fileURL;
         if (win.getImageData) win.getImageData();
@@ -187,6 +194,20 @@ browser.returnFile = function(file) {
                 win.ImageDialog.showPreviewImage(fileURL);
         }
         tinyMCEPopup.close();
+
+    } else if (hasTinyMCE) {
+        win.tinymceCallBackURL = fileURL;
+        try {
+            if (win.tinymce.activeEditor.windowManager &&
+                win.tinymce.activeEditor.windowManager.close
+            )
+                win.tinymce.activeEditor.windowManager.close();
+            else if (win.console && win.console.warn)
+                win.console.warn("TinyMCE windowManager.close is unavailable.");
+        } catch (err) {
+            if (win.console && win.console.warn)
+                win.console.warn("TinyMCE windowManager.close failed.", err);
+        }
 
     } else if (this.opener.callBack) {
 
