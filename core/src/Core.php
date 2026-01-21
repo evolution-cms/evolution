@@ -4776,10 +4776,15 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
         foreach ($docs as $doc) {
             $docid = $doc['id'];
-
-            $rs = $this->db->select("{$fields}, IF(tvc.value!='',tvc.value,tv.default_text) as value ", "[+prefix+]site_tmplvars tv
-                        INNER JOIN [+prefix+]site_tmplvar_templates tvtpl ON tvtpl.tmplvarid = tv.id
-                        LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='{$docid}'", "{$query} AND tvtpl.templateid = '{$doc['template']}'", ($tvsort ? "{$tvsort} {$tvsortdir}" : ""));
+            $rs = $this->db->select("{$fields}, IF(tvc.value!='',tvc.value,tv.default_text) as value ",
+                $this->db->getFullTableName('site_tmplvars') . " tv
+                        INNER JOIN " . $this->db->getFullTableName('site_tmplvar_templates')
+                . " tvtpl ON tvtpl.tmplvarid = tv.id
+                        LEFT JOIN " . $this->db->getFullTableName('site_tmplvar_contentvalues')
+                . " tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='{$docid}'",
+                "{$query} AND tvtpl.templateid = '{$doc['template']}'",
+                ($tvsort ? "{$tvsort} {$tvsortdir}" : "")
+            );
             $tvs = $this->db->makeArray($rs);
 
             // get default/built-in template variables
