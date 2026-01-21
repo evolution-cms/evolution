@@ -28,9 +28,6 @@
 /assets/import/*
 !/assets/import/index.html
 
-/assets/site/*
-!/assets/site/index.html
-
 # Manager
 /manager/includes/config.inc.php
 /manager/media/style/default/css/styles.min.css
