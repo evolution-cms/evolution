@@ -63,17 +63,30 @@ try {
                     }
                 }
 
-                $result = $dbh->query("SELECT COUNT(*) FROM {$tableprefix}site_content");
-
+                try {
+                    $dbh->query("SELECT COUNT(*) FROM {$tableprefix}site_content");
+                } catch (PDOException $e) {
+                    // no table is expected for new installation
+                    if ($e->getCode() !== '42S02') {
+                        throw $e;
+                    }
+                }
                 if ($installMode === 0 && $dbh->errorCode() == 0) {
                     echo $output . '<span id="database_fail">' . $_lang['status_failed_table_prefix_already_in_use'] . '</span>';
                     exit();
                 }
-                $result = $dbh->query("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '" . $pwd . "'");
+                $result = $dbh->query('SELECT SCHEMA_NAME, DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME '
+                  . 'FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ' . $dbh->quote($database_name));
                 if ($dbh->errorCode() == 0) {
                     $data = $result->fetch();
-                    if (isset($data['SCHEMA_NAME']) && $data['SCHEMA_NAME'] == $pwd) {
-                        echo $output . '<span id="database_pass"> ' . $_lang['status_passed'] . '</span>';
+                    if (isset($data['SCHEMA_NAME']) && $data['SCHEMA_NAME'] === $database_name) {
+                        if ($data['DEFAULT_CHARACTER_SET_NAME'] === $database_charset
+                        && $data['DEFAULT_COLLATION_NAME'] === $database_collation) {
+                            echo $output . '<span id="database_pass"> ' . $_lang['status_passed'] . '</span>';
+                        } else {
+                            echo $output . '<span id="database_fail">' . sprintf($_lang['status_failed_database_collation_does_not_match'],
+                                $data['DEFAULT_COLLATION_NAME']) . '</span>';
+                        }
                         exit();
                     }
                 }
@@ -129,17 +142,14 @@ try {
             }
             break;
         case 'mysql':
-            $query = 'CREATE DATABASE IF NOT EXISTS `' . $database_name . '` CHARACTER SET ' . $database_charset . ' COLLATE ' . $database_collation . ";";
-            if (!$dbh->query($query)) {
-                $output .= '<span id="database_fail">' . $_lang['status_failed_could_not_create_database'] . '</span>';
-                echo $output;
-                exit();
-            } else {
-                $output .= '<span id="database_pass">' . $_lang['status_passed_database_created'] . '</span>';
-                echo $output;
-                exit();
+            $query = 'CREATE DATABASE IF NOT EXISTS `' . $database_name . '` CHARACTER SET ' . $database_charset .
+                ' COLLATE ' . $database_collation . ";";
+            try {
+                $dbh->query($query);
+                die('<span id="database_pass">' . $_lang['status_passed_database_created'] . '</span>');
+            } catch (PDOException $e) {
+                die('<span id="database_fail">' . $_lang['status_failed_could_not_create_database'] . '</span>');
             }
-            break;
         case 'sqlite':
             break;
     }
