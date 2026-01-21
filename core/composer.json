@@ -1,7 +1,8 @@
 {
-    "name": "evolutioncms/core",
+    "name": "evolution-cms/evolution",
     "type": "project",
-    "description": "Evolution CMS is a Content Management System, ex MODX Evolution",
+    "version": "3.5.3",
+    "description": "Welcome to the Evolution CMS. The world’s fastest, most customizable Open Source PHP CMS. Your creative vision, no restrictions, no compromise.",
     "keywords": [
         "content",
         "CMS",
@@ -107,12 +108,6 @@
             "merge-extra": true,
             "merge-scripts": false
         }
-    },
-    "conflict": {
-        "evolution-cms/evolution": "*"
-    },
-    "replace": {
-        "evolution-cms/evolution": "3.5.3"
     },
     "autoload": {
         "psr-4": {

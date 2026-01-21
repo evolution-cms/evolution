@@ -45,6 +45,12 @@ if ($maxlifetime <= 0) {
 // Define lock file path
 $lockfile = $base_path . 'install.session.php';
 
+if (file_exists("{$base_path}manager/includes/config.inc.php")) { ?>
+    Backup and delete the file `manager/includes/config.inc.php` then <a href="<?= htmlspecialchars($_SERVER['REQUEST_URI'],
+        ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" onclick="location.reload(true)">reload the page</a>
+    <?php exit();
+}
+
 // Ensure cache directory exists
 $cache_dir = EVO_CORE_PATH . 'storage/cache/';
 if (!is_dir($cache_dir)) {
@@ -138,7 +144,11 @@ if (empty($_GET['s'])) {
     if (! file_exists($controller)) {
         die("Invalid install action attempted. [action={$action}]");
     }
-    require $controller;
+    try {
+        require $controller;
+    } catch (Exception $e) {
+        echo $e->getMessage();
+    }
 
     $ph['content'] = ob_get_contents();
     ob_end_clean();

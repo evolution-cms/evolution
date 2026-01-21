@@ -13,6 +13,12 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::table('active_user_locks', function (Blueprint $table) {
+            $table->string('sid', 128)->change();
+        });
+        Schema::table('active_user_sessions', function (Blueprint $table) {
+            $table->string('sid', 128)->change();
+        });
         Schema::table('active_users', function (Blueprint $table) {
             $table->string('sid', 128)->change();
         });
@@ -25,6 +31,12 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('active_user_locks', function (Blueprint $table) {
+            $table->string('sid', 32)->change();
+        });
+        Schema::table('active_user_sessions', function (Blueprint $table) {
+            $table->string('sid', 32)->change();
+        });
         Schema::table('active_users', function (Blueprint $table) {
             $table->string('sid', 32)->change();
         });

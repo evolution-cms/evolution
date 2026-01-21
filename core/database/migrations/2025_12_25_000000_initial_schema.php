@@ -120,7 +120,7 @@ return new class extends Migration
             $indexPrefix = \DB::getTablePrefix() . $table->getTable();
             $table->comment('Resource editing locks - tracks which users are currently editing specific resources (documents, templates, etc.)');
             $table->increments('id');
-            $table->string('sid', 32)->default('');
+            $table->string('sid', 128)->default('');
             $table->unsignedInteger('internalKey')->default(0);
             $table->unsignedInteger('elementType')->default(0);
             $table->unsignedInteger('elementId')->default(0);
@@ -131,7 +131,7 @@ return new class extends Migration
         $this->createTableIfMissing('active_user_sessions', function(Blueprint $table)
         {
             $table->comment('Active user sessions - tracks currently logged-in users with session IDs and IP addresses');
-            $table->string('sid', 32)->default('')->primary();
+            $table->string('sid', 128)->default('')->primary();
             $table->unsignedInteger('internalKey')->default(0);
             $table->unsignedInteger('lasthit')->default(0);
             $table->ipAddress('ip')->default('');

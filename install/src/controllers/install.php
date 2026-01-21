@@ -1,4 +1,5 @@
 <?php
+// step 5
 use EvolutionCMS\Facades\Console;
 
 ini_set('display_errors', 1);
@@ -74,10 +75,11 @@ $host = explode(':', $database_server, 2);
 
 global $conn;
 try {
+    $pdoOptions = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
     if ($database_type === 'sqlite') {
         $dbh = new PDO('sqlite:' . sqliteDbNameToPath($database_name));
     } else {
-        $dbh = new PDO($database_type . ':host=' . $database_server . ';dbname=' . $database_name, $database_user, $database_password);
+        $dbh = new PDO($database_type . ':host=' . $database_server . ';dbname=' . $database_name, $database_user, $database_password, $pdoOptions);
     }
 
     include dirname(__DIR__) . '/processor/result.php';
@@ -89,7 +91,7 @@ try {
     }
     // select database
     if ($installLevel === 1) {
-        // write the config.inc.php file if new installation
+        // write the core/config/database/connections/default.php file if new installation
         $confph = [];
         $confph['database_server'] = addslashes($database_server);
         $confph['database_type'] = addslashes($database_type);
