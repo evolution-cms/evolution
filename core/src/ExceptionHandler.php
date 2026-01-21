@@ -181,9 +181,11 @@ class ExceptionHandler
         $table = [];
 
         if (isset($_SERVER['HTTP_HOST'])) {
-            $request_uri = ($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . $_SERVER['HTTP_HOST'] .
-                (in_array((int)$_SERVER['SERVER_PORT'], [80, (int)HTTPS_PORT]) ? '' : (':' . $_SERVER['SERVER_PORT'])) .
-                $_SERVER['REQUEST_URI'];
+            $request_uri = ($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . $_SERVER['HTTP_HOST'];
+            if (!in_array((int)$_SERVER['SERVER_PORT'], [80, (int)HTTPS_PORT]) && !str_contains($_SERVER['HTTP_HOST'], ':')) {
+                $request_uri .= ':' . $_SERVER['SERVER_PORT'];
+            }
+            $request_uri .= $_SERVER['REQUEST_URI'];
             $request_uri = $this->container->getPhpCompat()->htmlspecialchars($request_uri, ENT_QUOTES,
                 $this->container->getConfig('modx_charset'));
         } else {
@@ -271,8 +273,14 @@ class ExceptionHandler
         }
 
         if (preg_match('~^[1-9][0-9]*$~', $this->container->documentIdentifier)) {
-            $resource = $this->container->getDocumentObject('id', $this->container->documentIdentifier);
-            $url = $this->container->makeUrl($this->container->documentIdentifier, '', '', 'full');
+            try {
+                $resource = $this->container->getDocumentObject('id', $this->container->documentIdentifier);
+                $url = $this->container->makeUrl($this->container->documentIdentifier, '', '', 'full');
+            } catch (\Exception $e) {
+                // DB or connection may be failed, but we still should proceed with original error processing
+                $resource['pagetitle'] = '';
+                $url = '#';
+            }
             $table[] = [
                 'Resource',
                 '[' . $this->container->documentIdentifier . '] <a href="' . $url . '" target="_blank">' . $resource['pagetitle'] . '</a>'
@@ -357,8 +365,12 @@ class ExceptionHandler
                 $error_level = 3;
         }
 
-        if ($this->container->getDatabase()->getConnection()->getDatabaseName()) {
-            $this->container->logEvent(0, $error_level, $str, $source);
+        try {
+            if ($this->container->getDatabase()->getConnection()->getDatabaseName()) {
+                $this->container->logEvent(0, $error_level, $str, $source);
+            }
+        } catch (\Exception $e) {
+            // DB or connection may be failed, but we still should proceed with original error processing
         }
 
         if ($error_level === 2 && $this->container->error_reporting < 99) {
@@ -418,7 +430,7 @@ class ExceptionHandler
             $version = isset($GLOBALS['evo_version']) ? $GLOBALS['evo_version'] : '';
             $release_date = isset($GLOBALS['release_date']) ? $GLOBALS['release_date'] : '';
 
-            echo '<!DOCTYPE html><html><head><title>Evolution CMS Content Manager ' . $version . ' &raquo; ' . $release_date . '</title>
+            echo '<!DOCTYPE html><html><head><title>Evolution CMS ' . $version . ' &raquo; ' . $release_date . '</title>
                  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
                  <link rel="stylesheet" type="text/css" href="' . MODX_MANAGER_URL . 'media/style/' . $this->container->getConfig('manager_theme',
                     'default') . '/style.css" />

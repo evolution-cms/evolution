@@ -300,6 +300,7 @@ function removeFolder($path)
     $it = new RecursiveDirectoryIterator($dir);
     $files = new RecursiveIteratorIterator($it, RecursiveIteratorIterator::CHILD_FIRST);
     foreach ($files as $file) {
+        set_time_limit(30);
         if ($file->getFilename() === "." || $file->getFilename() === "..") {
             continue;
         }
@@ -318,6 +319,7 @@ function copyFolder($src, $dest)
     $dest = realpath($dest);
     $objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path), RecursiveIteratorIterator::SELF_FIRST);
     foreach ($objects as $name => $object) {
+        set_time_limit(30);
         $startsAt = substr(dirname($name), strlen($path));
         mmkDir($dest . $startsAt);
         if ($object->isDir()) {
