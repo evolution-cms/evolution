@@ -57,6 +57,9 @@ ftpsync.settings
 Thumbs.db
 Desktop.ini
 
+# SQLite database
+/core/database/*.sqlite
+
 # all dotfiles and dotfolders except do not ignore .gitignore
 **/.*
 !.gitignore

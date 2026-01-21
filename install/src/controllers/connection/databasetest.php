@@ -101,6 +101,9 @@ try {
         echo $output . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
         exit();
     }
+} catch (Throwable $e) {
+    echo $output . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
+    exit();
 }
 
 try {
@@ -143,8 +146,7 @@ try {
 
     echo $output . '<span id="database_pass"> ' . $_lang['status_passed'] . '</span>';
     exit();
-} catch (PDOException $e) {
+} catch (Throwable $e) {
     echo $output . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
+    exit();
 }
-
-echo $output;
