@@ -509,4 +509,4 @@ ul.breadcrumbs a { color: #333; }
 #news .card-block ul li, #security .card-block ul li { padding: 0.75rem 1rem; border-bottom: 1px solid #ebebeb; }
 ul.mmTagList li { padding: 2px 8px !important; margin-bottom: 5px !important; border-radius: 3px !important; -webkit-border-radius: 3px !important; background-color: #eaeaea !important; text-decoration: none !important; }
 ul.mmTagList li.tagSelected { border-radius: 3px !important; -webkit-border-radius: 3px !important; background-color: #5a5e63 !important; }
-
+.tox-promotion {display: none !important; }

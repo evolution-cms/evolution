@@ -199,3 +199,4 @@ code {
     border: 1px solid var(--color-separator);
     padding: 1px 2px;
 }
+.tox-promotion {display: none !important; }
