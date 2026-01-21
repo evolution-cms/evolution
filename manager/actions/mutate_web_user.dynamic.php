@@ -816,6 +816,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                         <td><select name="manager_theme" class="inputBox" onChange="documentDirty=true;document.userform.theme_refresher.value = Date.parse(new Date());">
                                 <option value=""></option>
                                 <?php
+                                $themeNames = [];
                                 $dir = dir("media/style/");
                                 while($file = $dir->read()) {
                                     if($file != "." && $file != ".." && is_dir("media/style/$file") && substr($file, 0, 1) != '.') {
@@ -823,14 +824,28 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                                         if($themename === 'common') {
                                             continue;
                                         }
-                                        $attr = 'value="' . $themename . '" ';
-                                        if(isset($usersettings['manager_theme']) && $themename == $usersettings['manager_theme']) {
-                                            $attr .= 'selected="selected" ';
-                                        }
-                                        echo "\t\t<option " . rtrim($attr) . '>' . ucwords(str_replace("_", " ", $themename)) . "</option>\n";
+                                        $themeNames[] = $themename;
                                     }
                                 }
                                 $dir->close();
+                                natcasesort($themeNames);
+                                $orderedThemes = [];
+                                if (in_array('default', $themeNames, true)) {
+                                    $orderedThemes[] = 'default';
+                                }
+                                foreach ($themeNames as $name) {
+                                    if ($name === 'default') {
+                                        continue;
+                                    }
+                                    $orderedThemes[] = $name;
+                                }
+                                foreach ($orderedThemes as $themename) {
+                                    $attr = 'value="' . $themename . '" ';
+                                    if(isset($usersettings['manager_theme']) && $themename == $usersettings['manager_theme']) {
+                                        $attr .= 'selected="selected" ';
+                                    }
+                                    echo "\t\t<option " . rtrim($attr) . '>' . ucwords(str_replace("_", " ", $themename)) . "</option>\n";
+                                }
                                 ?>
                             </select>
                             <input type="hidden" name="theme_refresher" value=""></td>
