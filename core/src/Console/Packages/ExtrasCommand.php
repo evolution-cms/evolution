@@ -9,6 +9,8 @@ class ExtrasCommand extends Command
 {
     private const DEFAULT_EXTRAS_CATALOG_URL = 'https://evo.im/extras.json';
     private const EXTRAS_REPO_SOURCES = [
+        'https://api.github.com/orgs/evolution-cms/repos',
+        'https://api.github.com/users/Dmi3yy/repos',
         'https://api.github.com/users/Seiger/repos',
         'https://api.github.com/orgs/evolution-cms-extras/repos',
     ];
@@ -219,16 +221,37 @@ class ExtrasCommand extends Command
                 return null;
             }
 
-            if (strpos($url, 'Seiger') !== false) {
-                $repos = array_filter($repos, function ($repo) {
-                    return preg_match('/^s[A-Z]/', $repo['name'] ?? '');
-                });
-            }
+            $repos = $this->filterReposForSource($repos, $url);
 
             $fullPackage = array_merge($fullPackage, $repos);
         }
 
         return $fullPackage;
+    }
+
+    protected function filterReposForSource(array $repos, string $url): array
+    {
+        if (strpos($url, '/orgs/evolution-cms/repos') !== false) {
+            return $this->filterReposByPrefix($repos, '/^e[A-Z]/');
+        }
+        if (strpos($url, '/users/Dmi3yy/repos') !== false) {
+            return $this->filterReposByPrefix($repos, '/^d[A-Z]/');
+        }
+        if (strpos($url, '/users/Seiger/repos') !== false) {
+            return $this->filterReposByPrefix($repos, '/^s[A-Z]/');
+        }
+        if (strpos($url, '/orgs/evolution-cms-extras/repos') !== false) {
+            return array_slice($repos, 0, 4);
+        }
+        return $repos;
+    }
+
+    protected function filterReposByPrefix(array $repos, string $pattern): array
+    {
+        $filtered = array_filter($repos, function ($repo) use ($pattern) {
+            return preg_match($pattern, $repo['name'] ?? '');
+        });
+        return array_values($filtered);
     }
 
     /**
