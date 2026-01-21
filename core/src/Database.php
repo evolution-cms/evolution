@@ -35,41 +35,6 @@ class Database extends Manager
     }
 
     /**
-     * @param $tableName
-     * @param  bool  $force
-     * @return null|string|string[]
-     * @throws Exceptions\TableNotDefinedException
-     */
-    public function replaceFullTableName($tableName, $force = false)
-    {
-        $tableName = trim($tableName);
-        $connection = $this->getConnection();
-        $grammar = $connection->getQueryGrammar();
-        $prefix = $connection->getTablePrefix();
-        $tableWithPrefix = $tableName;
-
-        if ((bool) $force === true) {
-            return $grammar->wrapTable($prefix . $tableName);
-        }
-
-        if (strpos($tableName, '[+prefix+]') !== false) {
-            return preg_replace_callback(
-                '@\[\+prefix\+\](\w+)@',
-                static function ($matches) use ($prefix, $grammar) {
-                    return $grammar->wrapTable($prefix . $matches[1]);
-                },
-                $tableName
-            );
-        }
-
-        if ($prefix !== '' && strpos($tableName, $prefix) !== 0) {
-            $tableWithPrefix = $prefix . $tableName;
-        }
-
-        return $grammar->wrapTable($tableWithPrefix);
-    }
-
-    /**
      * @param string $sql
      * @param bool $watchError
      * @return false|PDOStatement
@@ -83,10 +48,10 @@ class Database extends Manager
             // @todo remove as it is not used and $out->execute() can't be called directly on regular array $out
             if (\is_array($sql)) {
                 foreach ($sql as $query) {
-                    $out[] = $pdo->prepare($this->replaceFullTableName($query));
+                    $out[] = $pdo->prepare($query);
                 }
             } else {
-                $out = $pdo->prepare($this->replaceFullTableName($sql));
+                $out = $pdo->prepare($sql);
             }
             $out->execute();
             \DB::connection()->logQuery($sql, [], (microtime(true) - $start));
@@ -491,7 +456,6 @@ class Database extends Manager
         if (!$from) {
             evo()->getService('ExceptionHandler')->messageQuit("Empty \$from parameters in DBAPI::delete().");
         } else {
-            $from = $this->replaceFullTableName($from);
             $where = trim($where);
             $orderBy = trim($orderBy);
             $limit = trim($limit);
@@ -606,7 +570,6 @@ class Database extends Manager
         if (!$intotable) {
             evo()->getService('ExceptionHandler')->messageQuit("Empty \$intotable parameters in DBAPI::insert().");
         } else {
-            $intotable = $this->replaceFullTableName($intotable);
             if (!is_array($fields)) {
                 $this->query("INSERT INTO {$intotable} {$fields}");
             } else {
@@ -623,7 +586,6 @@ class Database extends Manager
                     }
                     $this->query("INSERT INTO {$intotable} {$fields}");
                 } else {
-                    $fromtable = $this->replaceFullTableName($fromtable);
                     $fields = "(" . implode(",", array_keys($fields)) . ")";
                     $where = trim($where);
                     $limit = trim($limit);
@@ -667,7 +629,6 @@ class Database extends Manager
         if (!$table) {
             evo()->getService('ExceptionHandler')->messageQuit('Empty ' . $table . ' parameter in DBAPI::update().');
         } else {
-            $table = $this->replaceFullTableName($table);
             if (is_array($fields)) {
                 foreach ($fields as $key => $value) {
                     if ($value === null || strtolower($value) === 'null') {
@@ -709,8 +670,8 @@ class Database extends Manager
             switch ($driver) {
                 case 'sqlite':
                 case 'sqlite3':
-                    $tableName = $this->normalizeTableName($table);
-                    $sql = 'PRAGMA table_info(' . $tableName . ')';
+                    $tableName = trim($table, '\'"` ');
+                    $sql = 'PRAGMA table_info(\'' . $tableName . '\')';
                     break;
                 case 'pgsql':
                     $sql = " SELECT * FROM information_schema.columns WHERE table_name = '" . $table . "';";
@@ -833,13 +794,5 @@ class Database extends Manager
         $connection->statement('PRAGMA foreign_keys = ON;');
         $connection->statement('PRAGMA busy_timeout = 5000;');
         $this->sqlitePragmaApplied = true;
-    }
-
-    protected function normalizeTableName($table): string
-    {
-        $table = $this->replaceFullTableName($table);
-        $table = str_replace(['`', '"'], '', $table);
-
-        return '"' . $table . '"';
     }
 }
