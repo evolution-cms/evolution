@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\File;
 
 class ExtrasCommand extends Command
 {
+    private const DEFAULT_EXTRAS_CATALOG_URL = 'https://evo.im/extras.json';
     private const EXTRAS_REPO_SOURCES = [
         'https://api.github.com/users/Seiger/repos',
         'https://api.github.com/orgs/evolution-cms-extras/repos',
@@ -94,6 +95,10 @@ class ExtrasCommand extends Command
      * @var string
      */
     protected $file = 'https://github.com/evolution-cms/evoPackage/archive/master.zip';
+    /**
+     * @var string
+     */
+    protected $catalogError = '';
 
     /**
      * PackageCommand constructor.
@@ -156,34 +161,18 @@ class ExtrasCommand extends Command
 
     protected function outputExtrasList(): void
     {
-        $repos = $this->collectRepos(self::EXTRAS_REPO_SOURCES);
-        if ($repos === null) {
-            $this->renderExtrasListError('Unable to fetch extras list from GitHub.');
-            return;
-        }
-
-        $packages = [];
-        foreach ($repos as $package) {
-            $name = $package['name'] ?? '';
-            if (!is_string($name) || $name === '') {
-                continue;
+        $catalog = $this->loadExtrasCatalog();
+        if ($catalog === null) {
+            $repos = $this->collectRepos(self::EXTRAS_REPO_SOURCES);
+            if ($repos === null) {
+                $message = $this->catalogError !== '' ? $this->catalogError : 'Extras catalog unavailable.';
+                $message .= ' GitHub fallback failed.';
+                $this->renderExtrasListError($message);
+                return;
             }
-            $description = trim((string) ($package['description'] ?? ''));
-            $version = $this->getLatestReleaseTag($package);
-            $versions = $this->getPackageVersions($package);
-            $defaultBranch = $package['default_branch'] ?? '';
-            if (!is_string($version)) {
-                $version = '';
-            }
-            $defaultMode = $version !== '' ? 'latest-release' : 'default-branch';
-            $packages[] = [
-                'name' => $name,
-                'version' => $version,
-                'versions' => $versions,
-                'description' => $description,
-                'defaultInstallMode' => $defaultMode,
-                'defaultBranch' => is_string($defaultBranch) ? $defaultBranch : '',
-            ];
+            $packages = $this->buildExtrasListPackagesFromRepos($repos);
+        } else {
+            $packages = $this->buildExtrasListPackages($catalog['packages'] ?? []);
         }
 
         if ($this->option('json')) {
@@ -247,12 +236,39 @@ class ExtrasCommand extends Command
      */
     public function workWithExtras()
     {
-        $repos = $this->collectRepos(self::EXTRAS_REPO_SOURCES);
-        if ($repos === null) {
-            echo 'The limit that is provided for free use of github has been exceeded. Please try later.';
-            exit();
+        $catalog = $this->loadExtrasCatalog();
+        if ($catalog === null) {
+            $repos = $this->collectRepos(self::EXTRAS_REPO_SOURCES);
+            if ($repos === null) {
+                $message = $this->catalogError !== '' ? $this->catalogError : 'Extras catalog unavailable.';
+                echo $message . ' GitHub fallback failed.';
+                exit();
+            }
+            $version = $this->getPackages($repos);
+            switch ($version) {
+                case 'Current and updated';
+                    $this->version = '*';
+                    break;
+                default:
+                    $defaultBranch = $this->fullPackage[$this->selectPackage]['default_branch'] ?? '';
+                    $this->version = $this->normalizeComposerVersion($version, $this->branches, $defaultBranch);
+                    break;
+            }
+            $url = 'https://raw.githubusercontent.com/' . $this->fullPackage[$this->selectPackage]['full_name'] . '/' . $this->fullPackage[$this->selectPackage]['default_branch'] . '/composer.json';
+            $gitInfo = $this->getGithubInfo($url);
+            if (!is_array($gitInfo)) {
+                echo 'The limit that is provided for free use of github has been exceeded. Please try later.';
+                exit();
+            }
+            if (isset($gitInfo['name'])) {
+                $this->call("package:installrequire", ['key' => $gitInfo['name'], 'value' => $this->version]);
+                $this->runPostInstallSteps($gitInfo['name']);
+            } else {
+                echo 'No composer.json file';
+            }
+            return;
         }
-        $version = $this->getPackages($repos);
+        $version = $this->getPackagesFromCatalog($catalog['packages'] ?? []);
         switch ($version) {
             case 'Current and updated';
                 $this->version = '*';
@@ -262,18 +278,13 @@ class ExtrasCommand extends Command
                 $this->version = $this->normalizeComposerVersion($version, $this->branches, $defaultBranch);
                 break;
         }
-        $url = 'https://raw.githubusercontent.com/' . $this->fullPackage[$this->selectPackage]['full_name'] . '/' . $this->fullPackage[$this->selectPackage]['default_branch'] . '/composer.json';
-        $gitInfo = $this->getGithubInfo($url);
-        if(!is_array($gitInfo)){
-            echo 'The limit that is provided for free use of github has been exceeded. Please try later.';
+        $composerName = $this->fullPackage[$this->selectPackage]['composer_name'] ?? '';
+        if (!is_string($composerName) || $composerName === '') {
+            echo 'Composer package name is unavailable in extras catalog.';
             exit();
         }
-        if (isset($gitInfo['name'])) {
-            $this->call("package:installrequire", ['key' => $gitInfo['name'], 'value' => $this->version]);
-            $this->runPostInstallSteps($gitInfo['name']);
-        } else {
-            echo 'No composer.json file';
-        }
+        $this->call("package:installrequire", ['key' => $composerName, 'value' => $this->version]);
+        $this->runPostInstallSteps($composerName);
     }
 
     /**
@@ -398,6 +409,150 @@ class ExtrasCommand extends Command
         }
         return $this->choice('Select version', $versionChoices);
 
+    }
+
+    protected function getPackagesFromCatalog(array $packages)
+    {
+        $packageForChose = [];
+        $this->fullPackage = [];
+        foreach ($packages as $package) {
+            if (!is_array($package)) {
+                continue;
+            }
+            $name = $package['name'] ?? '';
+            if (!is_string($name) || $name === '') {
+                continue;
+            }
+            $latestRelease = $package['latest_release'] ?? '';
+            $description = trim((string) ($package['description'] ?? ''));
+            if (!is_string($latestRelease)) {
+                $latestRelease = '';
+            }
+            if ($latestRelease !== '') {
+                $label = '<fg=blue>' . $latestRelease . '</>';
+                if ($description !== '') {
+                    $label .= ' - ' . $description;
+                }
+            } else {
+                $label = $description !== '' ? $description : '';
+            }
+            if ($label === '') {
+                $label = $name;
+            }
+            $packageForChose[$name] = $label;
+            $this->fullPackage[$name] = $package;
+        }
+        [$packageArg, $versionArg] = $this->parsePackageArguments();
+        if (!is_null($packageArg) && array_key_exists($packageArg, $packageForChose)) {
+            $this->selectPackage = $packageArg;
+        } else {
+            $this->selectPackage = $this->choice('Select package', $packageForChose);
+        }
+
+        $tags = $this->fullPackage[$this->selectPackage]['tags'] ?? [];
+        $branches = $this->fullPackage[$this->selectPackage]['branches'] ?? [];
+
+        if (!is_array($tags)) {
+            $tags = [];
+        }
+        if (!is_array($branches)) {
+            $branches = [];
+        }
+        $tags = array_values(array_unique(array_filter($tags, 'is_string')));
+        $branches = array_values(array_unique(array_filter($branches, 'is_string')));
+
+        $defaultBranch = $this->fullPackage[$this->selectPackage]['default_branch'] ?? '';
+        if (is_string($defaultBranch) && $defaultBranch !== '' && !in_array($defaultBranch, $branches, true)) {
+            $branches[] = $defaultBranch;
+        }
+
+        $this->tags = $tags;
+        $this->branches = $branches;
+
+        $versionChoices = ['Current and updated' => 'Current and updated'];
+        foreach ($tags as $tag) {
+            $versionChoices[$tag] = $tag . ' (tag)';
+        }
+        foreach ($branches as $branch) {
+            $versionChoices[$branch] = $branch . ' (branch)';
+        }
+        if (!is_null($versionArg)) {
+            if (is_string($versionArg)) {
+                $versionArg = trim($versionArg);
+                if ($versionArg !== '') {
+                    return $versionArg;
+                }
+            } else {
+                return $versionArg;
+            }
+        }
+        return $this->choice('Select version', $versionChoices);
+    }
+
+    protected function buildExtrasListPackages(array $packages): array
+    {
+        $list = [];
+        foreach ($packages as $package) {
+            if (!is_array($package)) {
+                continue;
+            }
+            $name = $package['name'] ?? '';
+            if (!is_string($name) || $name === '') {
+                continue;
+            }
+            $description = trim((string) ($package['description'] ?? ''));
+            $latestRelease = $package['latest_release'] ?? '';
+            if (!is_string($latestRelease)) {
+                $latestRelease = '';
+            }
+            $tags = $package['tags'] ?? [];
+            if (!is_array($tags)) {
+                $tags = [];
+            }
+            $versions = array_values(array_unique(array_filter($tags, 'is_string')));
+            if (count($versions) > 6) {
+                $versions = array_slice($versions, 0, 6);
+            }
+            $defaultBranch = $package['default_branch'] ?? '';
+            $defaultMode = $latestRelease !== '' ? 'latest-release' : 'default-branch';
+            $list[] = [
+                'name' => $name,
+                'version' => $latestRelease,
+                'versions' => $versions,
+                'description' => $description,
+                'defaultInstallMode' => $defaultMode,
+                'defaultBranch' => is_string($defaultBranch) ? $defaultBranch : '',
+            ];
+        }
+        return $list;
+    }
+
+    protected function buildExtrasListPackagesFromRepos(array $repos): array
+    {
+        $packages = [];
+        foreach ($repos as $package) {
+            $name = $package['name'] ?? '';
+            if (!is_string($name) || $name === '') {
+                continue;
+            }
+            $description = trim((string) ($package['description'] ?? ''));
+            $version = $this->getLatestReleaseTag($package);
+            $versions = $this->getPackageVersions($package);
+            $defaultBranch = $package['default_branch'] ?? '';
+            if (!is_string($version)) {
+                $version = '';
+            }
+            $defaultMode = $version !== '' ? 'latest-release' : 'default-branch';
+            $packages[] = [
+                'name' => $name,
+                'version' => $version,
+                'versions' => $versions,
+                'description' => $description,
+                'defaultInstallMode' => $defaultMode,
+                'defaultBranch' => is_string($defaultBranch) ? $defaultBranch : '',
+            ];
+        }
+        return $packages;
     }
 
     public function getGithubInfo($url)
@@ -666,5 +821,177 @@ class ExtrasCommand extends Command
         } else {
             $this->enterName('This package name already used. Please enter other name.' . "\n");
         }
+    }
+
+    protected function loadExtrasCatalog(): ?array
+    {
+        $this->catalogError = '';
+        $path = $this->getEnvValue('EXTRAS_CATALOG_PATH');
+        if ($path !== '' && file_exists($path)) {
+            $raw = @file_get_contents($path);
+            $catalog = $this->decodeExtrasCatalog($raw);
+            if ($catalog !== null) {
+                return $catalog;
+            }
+            $this->catalogError = 'Invalid extras catalog at EXTRAS_CATALOG_PATH.';
+            return null;
+        }
+
+        $cacheDir = EVO_CORE_PATH . 'custom/cache';
+        $cacheDir = rtrim($cacheDir, '/\\');
+        if (!File::isDirectory($cacheDir)) {
+            File::makeDirectory($cacheDir, 0755, true);
+        }
+        $cachePath = $cacheDir . '/extras.catalog.json';
+        $metaPath = $cacheDir . '/extras.catalog.meta.json';
+
+        $url = $this->getEnvValue('EXTRAS_CATALOG_URL');
+        if ($url === '') {
+            $url = self::DEFAULT_EXTRAS_CATALOG_URL;
+        }
+        if ($url !== '') {
+            $catalog = $this->fetchCatalogFromUrl($url, $cachePath, $metaPath);
+            if ($catalog !== null) {
+                return $catalog;
+            }
+        }
+
+        if (file_exists($cachePath)) {
+            $raw = @file_get_contents($cachePath);
+            $catalog = $this->decodeExtrasCatalog($raw);
+            if ($catalog !== null) {
+                return $catalog;
+            }
+        }
+
+        if ($this->catalogError === '') {
+            $this->catalogError = 'Extras catalog unavailable.';
+        }
+        return null;
+    }
+
+    protected function fetchCatalogFromUrl(string $url, string $cachePath, string $metaPath): ?array
+    {
+        $headers = ['User-Agent: EvolutionCMS'];
+        $meta = $this->readJsonFile($metaPath);
+        if (!empty($meta['etag'])) {
+            $headers[] = 'If-None-Match: ' . $meta['etag'];
+        }
+        if (!empty($meta['last_modified'])) {
+            $headers[] = 'If-Modified-Since: ' . $meta['last_modified'];
+        }
+        $context = stream_context_create([
+            'http' => [
+                'method' => 'GET',
+                'header' => implode("\r\n", $headers),
+                'timeout' => 20,
+                'ignore_errors' => true,
+            ],
+        ]);
+
+        $result = @file_get_contents($url, false, $context);
+        if ($result === false && empty($http_response_header)) {
+            $this->catalogError = 'Unable to download extras catalog.';
+            return null;
+        }
+        $headersOut = $http_response_header ?? [];
+        $status = $this->parseStatusCode($headersOut);
+
+        if ($status === 304) {
+            if (file_exists($cachePath)) {
+                $raw = @file_get_contents($cachePath);
+                $catalog = $this->decodeExtrasCatalog($raw);
+                if ($catalog !== null) {
+                    return $catalog;
+                }
+            }
+            $this->catalogError = 'Extras catalog cache is missing or invalid.';
+            return null;
+        }
+
+        if ($status < 200 || $status >= 300) {
+            $this->catalogError = 'Unable to download extras catalog.';
+            return null;
+        }
+
+        $catalog = $this->decodeExtrasCatalog($result);
+        if ($catalog === null) {
+            $this->catalogError = 'Invalid extras catalog JSON.';
+            return null;
+        }
+
+        File::put($cachePath, $result);
+        $meta = [
+            'url' => $url,
+            'etag' => $this->extractHeaderValue($headersOut, 'ETag'),
+            'last_modified' => $this->extractHeaderValue($headersOut, 'Last-Modified'),
+            'fetched_at' => date('c'),
+        ];
+        File::put($metaPath, json_encode($meta, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+
+        return $catalog;
+    }
+
+    protected function decodeExtrasCatalog($raw): ?array
+    {
+        if (!is_string($raw) || trim($raw) === '') {
+            return null;
+        }
+        $data = json_decode($raw, true);
+        if (!is_array($data)) {
+            return null;
+        }
+        if (($data['type'] ?? '') !== 'extras') {
+            return null;
+        }
+        if (!isset($data['packages']) || !is_array($data['packages'])) {
+            return null;
+        }
+        return $data;
+    }
+
+    protected function readJsonFile(string $path): array
+    {
+        if (!file_exists($path)) {
+            return [];
+        }
+        $raw = file_get_contents($path);
+        $data = json_decode((string) $raw, true);
+        return is_array($data) ? $data : [];
+    }
+
+    protected function parseStatusCode(array $headers): int
+    {
+        foreach ($headers as $header) {
+            if (preg_match('#^HTTP/\\S+\\s+(\\d{3})#', $header, $matches)) {
+                return (int) $matches[1];
+            }
+        }
+        return 0;
+    }
+
+    protected function extractHeaderValue(array $headers, string $name): string
+    {
+        $needle = strtolower($name);
+        foreach ($headers as $header) {
+            $pos = strpos($header, ':');
+            if ($pos === false) {
+                continue;
+            }
+            $headerName = strtolower(trim(substr($header, 0, $pos)));
+            if ($headerName === $needle) {
+                return trim(substr($header, $pos + 1));
+            }
+        }
+        return '';
+    }
+
+    protected function getEnvValue(string $key): string
+    {
+        $value = getenv($key);
+        if ($value === false && function_exists('env')) {
+            $value = env($key);
+        }
+        return is_string($value) ? trim($value) : '';
     }
 }
