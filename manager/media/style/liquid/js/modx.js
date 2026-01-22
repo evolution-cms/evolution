@@ -9,6 +9,111 @@
         thememodes: ['', 'lightness', 'light', 'dark', 'darkness'],
         tabsTimer: 0,
         popupTimer: 0,
+        tabsStorageKey: 'EVO_Tabs',
+        tabsStore: function () {
+            if (!modx.config.global_tabs || !w.localStorage) {
+                return;
+            }
+            try {
+                var row = d.querySelector('.evo-tab-row .tab-row') || (d.getElementsByClassName('evo-tab-row')[0] && d.getElementsByClassName('evo-tab-row')[0].firstElementChild);
+                if (!row) {
+                    return;
+                }
+                var tabs = [],
+                    items = row.querySelectorAll('h2.tab');
+                var getTabUrl = function (tab) {
+                    if (!tab) {
+                        return '';
+                    }
+                    var url = (tab.dataset && tab.dataset.url) ? tab.dataset.url : '';
+                    if (!url && tab.dataset && tab.dataset.target) {
+                        var page = d.getElementById(tab.dataset.target);
+                        if (page && page.firstElementChild) {
+                            url = page.firstElementChild.getAttribute('src') || '';
+                        }
+                    }
+                    if (!url && tab.id) {
+                        var pageId = tab.id.replace('evo-tab-', 'evo-tab-page-');
+                        var pageEl = d.getElementById(pageId);
+                        if (pageEl && pageEl.firstElementChild) {
+                            url = pageEl.firstElementChild.getAttribute('src') || '';
+                        }
+                    }
+                    return url;
+                };
+                for (var i = 0; i < items.length; i++) {
+                    var tab = items[i];
+                    if (tab.id === 'evo-tab-home') {
+                        continue;
+                    }
+                    var url = getTabUrl(tab);
+                    if (!url) {
+                        continue;
+                    }
+                    var title = (tab.dataset && tab.dataset.title) ? tab.dataset.title : '';
+                    if (!title) {
+                        var titleEl = tab.querySelector('.tab-title');
+                        title = titleEl ? titleEl.innerHTML : '';
+                    }
+                    tabs.push({
+                        url: modx.normalizeUrl(url),
+                        title: title
+                    });
+                }
+                var selected = row.querySelector('h2.tab.selected'),
+                    activeUrl = getTabUrl(selected);
+                if (!activeUrl) {
+                    activeUrl = localStorage.getItem('page_url') || '';
+                }
+                if (tabs.length || activeUrl) {
+                    localStorage.setItem(modx.tabsStorageKey, JSON.stringify({
+                        active: modx.normalizeUrl(activeUrl),
+                        tabs: tabs
+                    }));
+                } else {
+                    localStorage.removeItem(modx.tabsStorageKey);
+                }
+            } catch (e) { }
+        },
+        tabsRestore: function () {
+            if (!modx.config.global_tabs || !w.localStorage) {
+                return false;
+            }
+            var raw = localStorage.getItem(modx.tabsStorageKey);
+            if (!raw) {
+                return false;
+            }
+            try {
+                var data = JSON.parse(raw);
+            } catch (e) {
+                localStorage.removeItem(modx.tabsStorageKey);
+                return false;
+            }
+            if (!data || ((!data.tabs || !data.tabs.length) && !data.active)) {
+                return false;
+            }
+            if (data.tabs && data.tabs.length) {
+                for (var i = 0; i < data.tabs.length; i++) {
+                    var tab = data.tabs[i];
+                    if (tab && tab.url) {
+                        modx.tabs({ url: tab.url, title: tab.title || 'blank', reload: 0, restoring: true });
+                    }
+                }
+            }
+            if (data.active) {
+                modx.tabs({ url: data.active, title: 'blank', restoring: true, activate: true });
+            }
+            return true;
+        },
+        isModuleUrl: function (href) {
+            if (!href) {
+                return false;
+            }
+            if (modx.getActionFromUrl(href) || modx.main.getQueryVariable('filemanager', href)) {
+                return false;
+            }
+            return !/\?/.test(href);
+        },
         init: function () {
             if (!localStorage.getItem('MODX_widthSideBar')) {
                 localStorage.setItem('MODX_widthSideBar', this.config.tree_width);
@@ -18,19 +123,15 @@
             }
             //this.tree.init();
             this.mainmenu.init();
-            var href = modx.normalizeUrl(w.location.href);
+            var href = modx.normalizeUrl(w.location.href),
+                startupUrl = '',
+                openOnLoad = false;
             if (href) {
                 if (modx.getActionFromUrl(href, 2)) {
                     w.history.replaceState(null, d.title, modx.MODX_MANAGER_URL);
-                } else if (modx.getActionFromUrl(href) || modx.main.getQueryVariable('filemanager', href) || /^modules\//.test(href)) {
-                    var url = modx.main.getQueryVariable('filemanager', href) ? modx.MODX_MANAGER_URL + modx.main.getQueryVariable('filemanager', href) + href : href;
-                    if (modx.config.global_tabs) {
-                        modx.tabs({ url: url, title: 'blank' });
-                    } else if (w.main) {
-                        w.main.frameElement.src = url;
-                    } else {
-                        modx.openWindow(url);
-                    }
+                } else if (modx.getActionFromUrl(href) || modx.main.getQueryVariable('filemanager', href) || modx.isModuleUrl(href)) {
+                    startupUrl = modx.main.getQueryVariable('filemanager', href) ? modx.MODX_MANAGER_URL + modx.main.getQueryVariable('filemanager', href) + href : href;
+                    openOnLoad = true;
                 }
             }
             this.resizer.init();
@@ -41,7 +142,19 @@
             d.addEventListener('click', this.hideDropDown, false);
             if (modx.config.global_tabs) {
                 d.addEventListener('click', this.tabs, false);
-                this.tabs({ url: '?a=2', reload: 0 });
+                var restored = modx.tabsRestore();
+                if (!restored) {
+                    this.tabs({ url: '?a=2', reload: 0 });
+                }
+                if (openOnLoad) {
+                    modx.tabs({ url: startupUrl, title: 'blank' });
+                }
+            } else if (openOnLoad) {
+                if (w.main) {
+                    w.main.frameElement.src = startupUrl;
+                } else {
+                    modx.openWindow(startupUrl);
+                }
             }
         },
         mainmenu: {
@@ -1556,6 +1669,8 @@
                 this.closeactions = [6, 61, 62, 63, 94];
                 this.saveAndCloseActions = [75, 86, 99, 106];
                 this.reload = typeof a.reload !== 'undefined' ? a.reload : 1;
+                this.restoring = !!a.restoring;
+                this.activate = !!a.activate;
                 this.action = modx.getActionFromUrl(a.url);
                 this.getTab = modx.main.getQueryVariable('tab', a.url);
                 this.uid = modx.getActionFromUrl(a.url, 2) ? 'home' : modx.urlToUid(a.url);
@@ -1604,13 +1719,14 @@
                     var s = this;
                     modx.main.work();
                     modx.tabs.selected = this.row.querySelector('.selected');
-                    if (modx.tabs.selected) {
+                    var keepSelected = this.restoring && !this.activate && modx.tabs.selected;
+                    if (!keepSelected && modx.tabs.selected) {
                         d.getElementById(modx.tabs.selected.id.replace('tab', 'tab-page')).classList.remove('show');
                         modx.tabs.selected.classList.remove('selected');
                     }
                     this.page = d.createElement('div');
                     this.page.id = 'evo-tab-page-' + this.uid;
-                    this.page.className = 'evo-tab-page iframe-scroller show';
+                    this.page.className = 'evo-tab-page iframe-scroller' + (keepSelected ? '' : ' show');
                     if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
                         this.page.innerHTML = '<iframe class="tabframes" src="' + this.url + '" name="' + this.name + '" width="100%" height="100%" scrolling="no" frameborder="0"></iframe>';
                     } else {
@@ -1624,13 +1740,15 @@
                     };
                     this.tab = d.createElement('h2');
                     this.tab.id = 'evo-tab-' + this.uid;
-                    this.tab.className = 'tab selected';
+                    this.tab.className = 'tab' + (keepSelected ? '' : ' selected');
                     this.icon = '';
                     if (!/<i/.test(this.title)) {
                         this.icon = '<i class="' + modx.setTypeIcon(this.action) + '"></i>';
                     }
                     this.txt = modx.title(this.title);
                     this.tab.innerHTML = '<span class="tab-title" title="' + this.txt + '">' + this.icon + this.title + '</span><span class="tab-close">×</span>';
+                    this.tab.dataset.url = this.url;
+                    this.tab.dataset.title = this.title;
                     this.row.appendChild(this.tab);
                     this.tab.onclick = function (e) {
                         s.select.call(s, e, this);
@@ -1644,10 +1762,13 @@
                     this.page.close = function (e) {
                         s.close.call(s, e);
                     };
+                    modx.tabsStore();
                 },
                 onload: function (e) {
                     var s = this;
+                    var prevMain = w.main;
                     w.main = e.target.contentWindow || e.target.defaultView;
+                    var tabWindow = w.main;
                     this.url = modx.normalizeUrl(w.main.location.href) || modx.normalizeUrl(w.location.href);
                     this.olduid = this.uid;
                     this.uid = modx.urlToUid(this.url);
@@ -1686,16 +1807,23 @@
                             }
                             this.page.id = 'evo-tab-page-' + this.uid;
                             this.tab.id = 'evo-tab-' + this.uid;
+                            this.tab.dataset.url = this.url;
+                            this.tab.dataset.title = this.title;
                             this.tab.classList.remove('changed');
-                            this.show();
-                            modx.main.onload(e);
-                            w.main.document.addEventListener('click', function a(e) {
+                            var allowShow = !(this.restoring && !this.activate && (!this.tab || !this.tab.classList.contains('selected')));
+                            if (allowShow) {
+                                this.show();
+                                modx.main.onload(e);
+                            } else if (prevMain) {
+                                w.main = prevMain;
+                            }
+                            tabWindow.document.addEventListener('click', function a(e) {
                                 if (typeof e.view.documentDirty !== 'undefined' && e.view.documentDirty && !s.tab.classList.contains('changed')) {
                                     s.tab.classList.add('changed');
                                     this.removeEventListener(e.type, a, false);
                                 }
                             }, false);
-                            w.main.document.addEventListener('keyup', function a(e) {
+                            tabWindow.document.addEventListener('keyup', function a(e) {
                                 if (e.view && e.view.documentDirty && !s.tab.classList.contains('changed')) {
                                     s.tab.classList.add('changed');
                                     this.removeEventListener(e.type, a, false);
@@ -1722,6 +1850,7 @@
                         modx.tree.setItemToChange();
                         modx.main.tabRow.scroll(this.row, this.tab, 350);
                     }
+                    modx.tabsStore();
                 },
                 close: function (e) {
                     var documentDirty = this.page.firstElementChild.contentWindow.documentDirty;
@@ -1735,6 +1864,7 @@
                         this.row.removeChild(this.tab);
                         modx.tabs.selected.show();
                     }
+                    modx.tabsStore();
                     modx.main.stopWork();
                 },
                 select: function (e) {
@@ -2257,6 +2387,9 @@
                 }
                 if (modx.main.getQueryVariable('type', a)) {
                     b += '&type=' + modx.main.getQueryVariable('type', a);
+                }
+                if (!b && a) {
+                    b = '&url=' + a;
                 }
                 b = modx.toHash(b);
             }
