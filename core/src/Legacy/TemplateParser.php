@@ -12,7 +12,7 @@ Class TemplateParser
         $modx = evolutionCMS();
 
         $output = '';
-        $action = !empty($config['action']) ? $config['action'] : (!empty($_REQUEST['a']) ? $_REQUEST['a'] : '');
+        $action = !empty($config['action']) ? $config['action'] : (!empty($_REQUEST['a']) ? (int)$_REQUEST['a'] : '');
         $tab = isset($config['tab']) ? ' AND tab IN(' . $config['tab'] . ')' : '';
 
         if($action) {

@@ -799,6 +799,7 @@ try {
 }
 include_once dirname(__DIR__) . '/template/actions/install.php';
 
-function table_prefix($table_name = '') {
-    return $_POST['tableprefix'] . $table_name;
+function table_prefix($table_name = ''): string {
+    $table_prefix = validateTablePrefix($_POST['table_prefix'] ?? \DB::getTablePrefix());
+    return $table_prefix . $table_name;
 }

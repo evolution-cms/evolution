@@ -524,16 +524,12 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
 
     protected function highlightingCoincidence($text, $search)
     {
-        $regexp = '!(' . str_replace([
-                '(',
-                ')'
-            ], [
-                '\(',
-                '\)'
-            ], entities(trim($search), $this->managerTheme->getCore()
-                ->getConfig('modx_charset'))) . ')!isu';
-
-        return preg_replace($regexp, '<span class="text-danger">$1</span>', entities($text, $this->managerTheme->getCore()
-            ->getConfig('modx_charset')));
+        $escapedSearch = preg_quote(entities(trim($search), $this->managerTheme->getCore()->getConfig('modx_charset')),
+            '!');
+        return preg_replace(
+            '!(' . $escapedSearch . ')!isu',
+            '<span class="text-danger">$1</span>',
+            entities($text, $this->managerTheme->getCore()->getConfig('modx_charset'))
+        );
     }
 }
