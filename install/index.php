@@ -137,9 +137,7 @@ if (empty($_GET['s'])) {
     $ph['install_language'] = $install_language;
 
     ob_start();
-    $action = isset($_GET['action']) ? trim(strip_tags($_GET['action'])) : 'language';
-    str_replace('.', '', $action);
-
+    $action = isset($_GET['action']) ? preg_replace('/[^a-z\/]/', '', $_GET['action']) : 'language';
     $controller = 'src/controllers/' . $action . '.php';
     if (! file_exists($controller)) {
         die("Invalid install action attempted. [action={$action}]");
@@ -155,8 +153,7 @@ if (empty($_GET['s'])) {
     $tpl = file_get_contents('src/template/install.tpl');
     echo parse($tpl, $ph);
 } else {
-    $action = isset($_GET['action']) && is_scalar($_GET['action']) ? trim($_GET['action']) : 'language';
-    str_replace('.', '', $action);
+    $action = isset($_GET['action']) ? preg_replace('/[^a-z\/]/', '', $_GET['action']) : 'language';
     $controller = 'src/controllers/' . $action . '.php';
     if (! file_exists($controller)) {
         die("Invalid install action attempted. [action={$action}]");
