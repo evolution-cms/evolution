@@ -43,7 +43,7 @@ $errors= 0;
 
 // get post back status
 $isPostBack = (count($_POST));
-$action = isset($_GET['action']) ? trim(strip_tags($_GET['action'])) : 'load';
+$action = isset($_GET['action']) && in_array($_GET['action'], ['load', 'options', 'install']) ? $_GET['action'] : 'load';
 
 ob_start();
 echo '<!DOCTYPE html>
@@ -52,9 +52,7 @@ echo '<!DOCTYPE html>
 <link rel="stylesheet" href="' . MODX_SITE_URL . 'assets/modules/store/installer/style.css" type="text/css" media="screen" /></head>
 <body><div id="contentarea"><div class="container_12"><br>';
 
-if (!@include($modulePath.'/action.' . $action . '.php')) {
-	die ('Invalid install action attempted. [action=' . $action . ']');
-}
+include($modulePath . '/action.' . $action . '.php');
 
 echo "</div><!-- // content --></div><!-- // contentarea --><br /></body></html>";
 ob_end_flush();

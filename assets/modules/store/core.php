@@ -113,7 +113,7 @@ case 'install_file':
 <body><div id="contentarea"><div class="container_12"><br>';
 
 
-            $strError .= '<h2>Error installation</h2><br><br><p>Before install '.$_GET['name'].'<br> Please install this packages: <br>'.implode('<br>', $arr_dependencies).'</p>';
+            $strError .= '<h2>Error installation</h2><br><br><p>Before install '. htmlspecialchars($_GET['name']).'<br> Please install this packages: <br>'.implode('<br>', $arr_dependencies).'</p>';
 
             $strError .= "</div><!-- // content --></div><!-- // contentarea --><br /></body></html>";
         }
