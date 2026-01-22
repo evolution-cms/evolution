@@ -161,7 +161,7 @@ class SystemSettings extends AbstractController implements ManagerTheme\PageCont
      */
     protected function parameterThemes(): array
     {
-        $themes = [];
+        $themeNames = [];
         $dir = dir(MODX_MANAGER_PATH . 'media/style/');
         while ($file = $dir->read()) {
             if (strpos($file, '.') === 0 || $file === 'common') {
@@ -171,9 +171,21 @@ class SystemSettings extends AbstractController implements ManagerTheme\PageCont
                 continue;
             }
 
-            $themes[$file] = $file;
+            $themeNames[] = $file;
         }
         $dir->close();
+
+        natcasesort($themeNames);
+        $themes = [];
+        if (in_array('default', $themeNames, true)) {
+            $themes['default'] = 'default';
+        }
+        foreach ($themeNames as $name) {
+            if ($name === 'default') {
+                continue;
+            }
+            $themes[$name] = $name;
+        }
 
         return $themes;
     }

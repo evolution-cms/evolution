@@ -27,6 +27,7 @@
     }
 
     $_style = EvolutionCMS\Facades\ManagerTheme::getStyle();
+    $which_browser = evo()->getConfig('which_browser');
 
     // Tabler SVG overrides for dashboard icons
     $_style['icon_user'] = svg('tabler-user-cog')->toHtml();
@@ -342,7 +343,7 @@
             (evo()->hasPermission('assets_images')
                 ? '
                     <span class="wm_button">
-                        <a target="main" href="media/browser/mcpuk/browse.php?filemanager=media/browser/mcpuk/browse.php&type=images">
+                        <a target="main" href="media/browser/' . $which_browser . '/browse.php?filemanager=media/browser/' . $which_browser . '/browse.php&type=images">
                             ' .
                 $_style['icon_camera'] .
                 '
@@ -354,7 +355,7 @@
             (evo()->hasPermission('assets_files')
                 ? '
                     <span class="wm_button">
-                        <a target="main" href="media/browser/mcpuk/browse.php?filemanager=media/browser/mcpuk/browse.php&type=files">
+                        <a target="main" href="media/browser/' . $which_browser . '/browse.php?filemanager=media/browser/' . $which_browser . '/browse.php&type=files">
                             ' .
                 $_style['icon_folder_open'] .
                 '
