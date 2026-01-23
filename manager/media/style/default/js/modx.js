@@ -1845,7 +1845,34 @@
                         modx.tabs.selected = this.tab.classList.contains('selected') ? this.tab.previousElementSibling : this.row.querySelector('.selected');
                         this.page.parentNode.removeChild(this.page);
                         this.row.removeChild(this.tab);
-                        modx.tabs.selected.show();
+                        if (modx.tabs.selected) {
+                            if (typeof modx.tabs.selected.show === 'function') {
+                                modx.tabs.selected.show();
+                            } else {
+                                var url = (modx.tabs.selected.dataset && modx.tabs.selected.dataset.url) ? modx.tabs.selected.dataset.url : '';
+                                if (!url && modx.tabs.selected.dataset && modx.tabs.selected.dataset.target) {
+                                    var page = d.getElementById(modx.tabs.selected.dataset.target);
+                                    if (page && page.firstElementChild) {
+                                        url = page.firstElementChild.getAttribute('src') || '';
+                                    }
+                                }
+                                if (!url && modx.tabs.selected.id) {
+                                    var pageId = modx.tabs.selected.id.replace('evo-tab-', 'evo-tab-page-');
+                                    var pageEl = d.getElementById(pageId);
+                                    if (pageEl && pageEl.firstElementChild) {
+                                        url = pageEl.firstElementChild.getAttribute('src') || '';
+                                    }
+                                }
+                                if (url) {
+                                    var title = (modx.tabs.selected.dataset && modx.tabs.selected.dataset.title) ? modx.tabs.selected.dataset.title : '';
+                                    if (!title) {
+                                        var titleEl = modx.tabs.selected.querySelector('.tab-title');
+                                        title = titleEl ? titleEl.innerHTML : 'blank';
+                                    }
+                                    modx.tabs({ url: url, title: title, reload: 0 });
+                                }
+                            }
+                        }
                     }
                     modx.tabsStore();
                     modx.main.stopWork();
