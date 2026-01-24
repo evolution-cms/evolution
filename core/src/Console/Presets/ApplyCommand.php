@@ -24,7 +24,7 @@ class ApplyCommand extends Command
         $dryRun = (bool) $this->option('dry-run');
         $preset = $this->option('preset') ?: $this->env('EVO_PRESET_NAME', '');
         $skipComposer = (bool) $this->option('no-composer');
-        $runSeed = $this->shouldRunSeed();
+        $runSeed = $this->shouldRunSeed((bool) $this->option('force'));
 
         $sourceRoot = rtrim($this->normalizePath($sourceRoot), '/');
         $targetRoot = rtrim($this->normalizePath($targetRoot), '/');
@@ -291,10 +291,7 @@ class ApplyCommand extends Command
         }
 
         $corePath = rtrim($targetRoot, '/') . '/core';
-        $cmd = [$php, $artisan, 'db:seed', '--class=' . $class];
-        if ($force) {
-            $cmd[] = '--force';
-        }
+        $cmd = [$php, $artisan, 'db:seed', '--class=' . $class, '--force'];
 
         $process = new Process($cmd, $corePath, null, null, null);
         $process->run(function ($type, $buffer) {
@@ -306,9 +303,23 @@ class ApplyCommand extends Command
         }
     }
 
-    private function shouldRunSeed(): bool
+    private function shouldRunSeed(bool $force): bool
     {
-        return true;
+        if ($force) {
+            return true;
+        }
+
+        while (true) {
+            $answer = strtolower(trim((string) $this->ask('Run preset seeders now? [Y/n]', 'y')));
+            if ($answer === '' || $answer === 'y' || $answer === 'yes') {
+                return true;
+            }
+            if ($answer === 'n' || $answer === 'no') {
+                return false;
+            }
+
+            $this->warn('Please answer y or n.');
+        }
     }
 
     private function ensureServicesCacheFile(string $targetRoot): void
