@@ -30,8 +30,12 @@ if (!defined('SESSION_COOKIE_NAME')) {
 }
 
 /**
- * @deprecated since EVO 3.2.6, use EVO_CLASS
- * @TODO: will be delete EVO 3.5
+ * @deprecated
+ * @since 3.2.6
+ *
+ * Use EVO_CLASS instead.
+ *
+ * @todo [remove@3.5] Remove in Evolution CMS 3.5
  */
 if (!defined('MODX_CLASS')) {
     define('MODX_CLASS', env('MODX_CLASS', '\DocumentParser'));
@@ -41,7 +45,12 @@ if (!defined('EVO_CLASS')) {
 }
 
 /**
- * @deprecated use EVO_SITE_HOSTNAMES
+ * @deprecated
+ * @since 3.2.6
+ *
+ * Use EVO_SITE_HOSTNAMES instead.
+ *
+ * @todo [remove@3.5] Remove in Evolution CMS 3.5
  */
 if (!defined('MODX_SITE_HOSTNAMES')) {
     define('MODX_SITE_HOSTNAMES', env('MODX_SITE_HOSTNAMES', ''));
@@ -63,7 +72,12 @@ if (!defined('EVO_STORAGE_PATH')) {
 }
 
 /**
- * @deprecated use EVO_BASE_PATH
+ * @deprecated
+ * @since 3.2.6
+ *
+ * Use EVO_BASE_PATH instead.
+ *
+ * @todo [remove@3.5] Remove in Evolution CMS 3.5
  */
 if (!defined('MODX_BASE_PATH') || !defined('MODX_BASE_URL')) {
     // automatically assign base_path and base_url
@@ -189,7 +203,10 @@ if (!defined('EVO_BASE_PATH') || !defined('EVO_BASE_URL')) {
 }
 
 /**
- * @deprecated use EVO_BASE_PATH
+ * @deprecated
+ * @since 3.2.6
+ *
+ * @todo [remove@3.5] Remove in Evolution CMS 3.5
  */
 if (!preg_match('/\/$/', MODX_BASE_PATH)) {
     throw new RuntimeException('Please, use trailing slash at the end of MODX_BASE_PATH');
@@ -198,15 +215,17 @@ if (!preg_match('/\/$/', EVO_BASE_PATH)) {
     throw new RuntimeException('Please, use trailing slash at the end of EVO_BASE_PATH');
 }
 
-/**
- * @deprecated use EVO_BASE_URL
- */
 if (!preg_match('/\/$/', EVO_BASE_URL)) {
     throw new RuntimeException('Please, use trailing slash at the end of EVO_BASE_URL');
 }
 
 /**
- * @deprecated use EVO_MANAGER_PATH
+ * @deprecated
+ * @since 3.2.6
+ *
+ * Use EVO_MANAGER_PATH instead.
+ *
+ * @todo [remove@3.5] Remove in Evolution CMS 3.5
  */
 if (!defined('MODX_MANAGER_PATH')) {
     define('MODX_MANAGER_PATH', env('MODX_MANAGER_PATH', MODX_BASE_PATH . MGR_DIR . '/'));
@@ -216,7 +235,12 @@ if (!defined('EVO_MANAGER_PATH')) {
 }
 
 /**
- * @deprecated use EVO_SITE_URL
+ * @deprecated
+ * @since 3.2.6
+ *
+ * Use EVO_SITE_URL instead.
+ *
+ * @todo [remove@3.5] Remove in Evolution CMS 3.5
  */
 if (!defined('MODX_SITE_URL')) {
     // check for valid hostnames
@@ -312,7 +336,10 @@ if (!defined('EVO_SITE_URL')) {
 }
 
 /**
- * @deprecated use EVO_SITE_URL
+ * @deprecated
+ * @since 3.2.6
+ *
+ * @todo [remove@3.5] Remove in Evolution CMS 3.5
  */
 if (!preg_match('/\/$/', MODX_SITE_URL)) {
     throw new RuntimeException('Please, use trailing slash at the end of MODX_SITE_URL');
@@ -322,7 +349,12 @@ if (!preg_match('/\/$/', EVO_SITE_URL)) {
 }
 
 /**
- * @deprecated use EVO_MANAGER_URL
+ * @deprecated
+ * @since 3.2.6
+ *
+ * Use EVO_MANAGER_URL instead.
+ *
+ * @todo [remove@3.5] Remove in Evolution CMS 3.5
  */
 if (!defined('MODX_MANAGER_URL')) {
     define('MODX_MANAGER_URL', env('MODX_MANAGER_URL', MODX_SITE_URL . MGR_DIR . '/'));
@@ -332,7 +364,12 @@ if (!defined('EVO_MANAGER_URL')) {
 }
 
 /**
- * @deprecated use EVO_SANITIZE_SEED
+ * @deprecated
+ * @since 3.2.6
+ *
+ * Use EVO_SANITIZE_SEED instead.
+ *
+ * @todo [remove@3.5] Remove in Evolution CMS 3.5
  */
 if (!defined('MODX_SANITIZE_SEED')) {
     define('MODX_SANITIZE_SEED', 'sanitize_seed_' . base_convert(md5(__FILE__), 16, 36));
@@ -343,7 +380,12 @@ if (!defined('EVO_SANITIZE_SEED')) {
 
 if (is_cli()) {
     /**
-     * @deprecated use EVO_CLI
+     * @deprecated
+     * @since 3.2.6
+     *
+     * Use EVO_CLI instead.
+     *
+     * @todo [remove@3.5] Remove in Evolution CMS 3.5
      */
     if (!defined('MODX_CLI')) {
         define('MODX_CLI', true);
@@ -353,7 +395,12 @@ if (is_cli()) {
     }
 
     /**
-     * @deprecated use EVO_BASE_PATH
+     * @deprecated
+     * @since 3.2.6
+     *
+     * Use EVO_BASE_PATH instead.
+     *
+     * @todo [remove@3.5] Remove in Evolution CMS 3.5
      */
     if (!(defined('MODX_BASE_PATH') || defined('MODX_BASE_URL'))) {
         throw new RuntimeException('Please, define MODX_BASE_PATH and MODX_BASE_URL on cli mode');
@@ -363,7 +410,12 @@ if (is_cli()) {
     }
 
     /**
-     * @deprecated use EVO_SITE_URL
+     * @deprecated
+     * @since 3.2.6
+     *
+     * Use EVO_SITE_URL instead.
+     *
+     * @todo [remove@3.5] Remove in Evolution CMS 3.5
      */
     if (!defined('MODX_SITE_URL')) {
         throw new RuntimeException('Please, define MODX_SITE_URL on cli mode');
