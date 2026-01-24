@@ -13,8 +13,6 @@ class ApplyCommand extends Command
 
     protected $description = 'Apply preset project-layer to an Evolution CMS install.';
 
-    private bool $autoloadRefreshed = false;
-
     public function handle(): int
     {
         $sourceRoot = $this->option('source') ?: getcwd();
@@ -273,35 +271,39 @@ class ApplyCommand extends Command
     private function runPresetSeeder(string $preset, bool $force, string $targetRoot): void
     {
         $class = 'EvolutionCMS\\' . $this->studly($preset) . '\\Seeders\\HomeTemplateSeeder';
-        if (!class_exists($class)) {
-            $this->refreshAutoload($targetRoot);
-        }
-        if (!class_exists($class)) {
+        $seederPath = rtrim($targetRoot, '/') . '/core/custom/packages/' . $preset . '/src/Seeders/HomeTemplateSeeder.php';
+        if (!is_file($seederPath)) {
             $this->warn("Preset seeder not found: {$class}");
             return;
         }
 
         $this->line("Running preset seeder: {$class}");
-        $args = ['--class' => $class];
+        $php = PHP_BINARY ?: $this->findBinary('php');
+        if ($php === '') {
+            $this->warn('PHP binary not found. Skipping preset seeder.');
+            return;
+        }
+
+        $artisan = rtrim($targetRoot, '/') . '/core/artisan';
+        if (!is_file($artisan)) {
+            $this->warn('Artisan not found. Skipping preset seeder.');
+            return;
+        }
+
+        $corePath = rtrim($targetRoot, '/') . '/core';
+        $cmd = [$php, $artisan, 'db:seed', '--class=' . $class];
         if ($force) {
-            $args['--force'] = true;
-        }
-        $this->call('db:seed', $args);
-    }
-
-    private function refreshAutoload(string $targetRoot): void
-    {
-        if ($this->autoloadRefreshed) {
-            return;
+            $cmd[] = '--force';
         }
 
-        $autoload = rtrim($targetRoot, '/') . '/core/vendor/autoload.php';
-        if (!is_file($autoload)) {
-            return;
-        }
+        $process = new Process($cmd, $corePath, null, null, null);
+        $process->run(function ($type, $buffer) {
+            $this->output->write($buffer);
+        });
 
-        require $autoload;
-        $this->autoloadRefreshed = true;
+        if (!$process->isSuccessful()) {
+            $this->warn('Preset seeder failed.');
+        }
     }
 
     private function shouldRunSeed(): bool
