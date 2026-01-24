@@ -9,9 +9,11 @@ use Symfony\Component\Process\Process;
 
 class ApplyCommand extends Command
 {
-    protected $signature = 'preset:apply {--path= : Target Evo install path} {--source= : Preset source path} {--from= : Git repo URL or local path to preset} {--ref= : Git branch/tag (optional)} {--keep : Keep cloned preset directory} {--preset= : Preset name (auto-detect when omitted)} {--delete : Delete files not present in source} {--dry-run : Show actions without changing files} {--force : Run preset seeders without prompt} {--seed : Run preset seeders without prompt} {--no-seed : Skip preset seeders} {--no-composer : Skip composer dump-autoload}';
+    protected $signature = 'preset:apply {--path= : Target Evo install path} {--source= : Preset source path} {--from= : Git repo URL or local path to preset} {--ref= : Git branch/tag (optional)} {--keep : Keep cloned preset directory} {--preset= : Preset name (auto-detect when omitted)} {--delete : Delete files not present in source} {--dry-run : Show actions without changing files} {--force : Run preset seeders without prompt} {--no-composer : Skip composer dump-autoload}';
 
     protected $description = 'Apply preset project-layer to an Evolution CMS install.';
+
+    private bool $autoloadRefreshed = false;
 
     public function handle(): int
     {
@@ -85,7 +87,7 @@ class ApplyCommand extends Command
             $this->ensureServicesCacheFile($targetRoot);
             $this->call('package:discover');
             if ($runSeed) {
-                $this->runPresetSeeder($preset, (bool) $this->option('force'));
+                $this->runPresetSeeder($preset, (bool) $this->option('force'), $targetRoot);
             }
             $this->call('cache:clear-full');
 
@@ -268,9 +270,12 @@ class ApplyCommand extends Command
         }
     }
 
-    private function runPresetSeeder(string $preset, bool $force): void
+    private function runPresetSeeder(string $preset, bool $force, string $targetRoot): void
     {
         $class = 'EvolutionCMS\\' . $this->studly($preset) . '\\Seeders\\HomeTemplateSeeder';
+        if (!class_exists($class)) {
+            $this->refreshAutoload($targetRoot);
+        }
         if (!class_exists($class)) {
             $this->warn("Preset seeder not found: {$class}");
             return;
@@ -284,17 +289,24 @@ class ApplyCommand extends Command
         $this->call('db:seed', $args);
     }
 
+    private function refreshAutoload(string $targetRoot): void
+    {
+        if ($this->autoloadRefreshed) {
+            return;
+        }
+
+        $autoload = rtrim($targetRoot, '/') . '/core/vendor/autoload.php';
+        if (!is_file($autoload)) {
+            return;
+        }
+
+        require $autoload;
+        $this->autoloadRefreshed = true;
+    }
+
     private function shouldRunSeed(): bool
     {
         if ((bool) $this->option('force')) {
-            return true;
-        }
-
-        if ((bool) $this->option('no-seed')) {
-            return false;
-        }
-
-        if ((bool) $this->option('seed')) {
             return true;
         }
 

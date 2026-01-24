@@ -11,8 +11,6 @@ class InstallCommand extends Command
         {--path= : Target Evo install path}
         {--preset= : Preset name (optional override)}
         {--force : Run preset seeders without prompt}
-        {--seed : Run preset seeders without prompt}
-        {--no-seed : Skip preset seeders}
         {--no-composer : Skip composer dump-autoload}
         {--delete : Delete files not present in source}
         {--dry-run : Show actions without changing files}';
@@ -52,14 +50,6 @@ class InstallCommand extends Command
 
         if ((bool) $this->option('force')) {
             $args['--force'] = true;
-        }
-
-        if ((bool) $this->option('no-seed')) {
-            $args['--no-seed'] = true;
-        } elseif ((bool) $this->option('seed')) {
-            $args['--seed'] = true;
-        } else {
-            $args['--seed'] = true;
         }
 
         if ((bool) $this->option('no-composer')) {
