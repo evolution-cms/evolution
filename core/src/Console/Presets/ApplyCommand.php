@@ -306,11 +306,7 @@ class ApplyCommand extends Command
 
     private function shouldRunSeed(): bool
     {
-        if ((bool) $this->option('force')) {
-            return true;
-        }
-
-        return $this->confirm('Run preset seeders now?', false);
+        return true;
     }
 
     private function ensureServicesCacheFile(string $targetRoot): void
