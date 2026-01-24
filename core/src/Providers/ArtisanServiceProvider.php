@@ -24,6 +24,8 @@ use Illuminate\Database\Console\Migrations\MigrateMakeCommand;
 use EvolutionCMS\Console\ClearCompiledCommand;
 use EvolutionCMS\Console\VendorPublishCommand;
 use EvolutionCMS\Console\ViewClearCommand;
+use EvolutionCMS\Console\Presets\ApplyCommand;
+use EvolutionCMS\Console\Presets\InstallCommand;
 use EvolutionCMS\Console\Lists;
 use EvolutionCMS\Console\Packages;
 
@@ -75,6 +77,8 @@ class ArtisanServiceProvider extends ServiceProvider
         'TranslationsSync' => 'command.translations.sync',
         'Extras' => 'command.extras',
         'RouteList' => 'command.route.list',
+        'PresetApply' => 'command.preset.apply',
+        'PresetInstall' => 'command.preset.install',
     ];
 
     /**
@@ -410,6 +414,31 @@ class ArtisanServiceProvider extends ServiceProvider
             return new Packages\RunPackageConsoleCommand();
         });
     }
+
+    /**
+     * Register the preset apply command.
+     *
+     * @return void
+     */
+    protected function registerPresetApplyCommand()
+    {
+        $this->app->singleton('command.preset.apply', function () {
+            return new ApplyCommand();
+        });
+    }
+
+    /**
+     * Register the preset install command.
+     *
+     * @return void
+     */
+    protected function registerPresetInstallCommand()
+    {
+        $this->app->singleton('command.preset.install', function () {
+            return new InstallCommand();
+        });
+    }
+
     /**
      * Register the command.
      *

@@ -9,7 +9,7 @@ use Symfony\Component\Process\Process;
 
 class ApplyCommand extends Command
 {
-    protected $signature = 'preset:apply {--path= : Target Evo install path} {--source= : Preset source path} {--from= : Git repo URL or local path to preset} {--ref= : Git branch/tag (optional)} {--keep : Keep cloned preset directory} {--preset= : Preset name (auto-detect when omitted)} {--delete : Delete files not present in source} {--dry-run : Show actions without changing files} {--force : Run preset seeders without prompt} {--no-composer : Skip composer dump-autoload}';
+    protected $signature = 'preset:apply {--path= : Target Evo install path} {--source= : Preset source path} {--from= : Git repo URL or local path to preset} {--ref= : Git branch/tag (optional)} {--keep : Keep cloned preset directory} {--preset= : Preset name (auto-detect when omitted)} {--delete : Delete files not present in source} {--dry-run : Show actions without changing files} {--force : Run preset seeders without prompt} {--seed : Run preset seeders without prompt} {--no-seed : Skip preset seeders} {--no-composer : Skip composer dump-autoload}';
 
     protected $description = 'Apply preset project-layer to an Evolution CMS install.';
 
@@ -287,6 +287,14 @@ class ApplyCommand extends Command
     private function shouldRunSeed(): bool
     {
         if ((bool) $this->option('force')) {
+            return true;
+        }
+
+        if ((bool) $this->option('no-seed')) {
+            return false;
+        }
+
+        if ((bool) $this->option('seed')) {
             return true;
         }
 
