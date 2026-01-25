@@ -221,6 +221,9 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
     public function initialize()
     {
+        if (defined('EVO_SESSION') && EVO_SESSION) {
+            \EvoSessionProxy::init();
+        }
 
         if ($this->isLoggedIn('mgr')) {
             ini_set('display_errors', 1);
