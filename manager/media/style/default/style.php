@@ -136,7 +136,6 @@ $_style['icon_web_user_access'] = 'fa fa-male';
 $_style['icon_word'] = 'fa fa-file-word-o';
 $_style['icon_wrench'] = 'fa fa-wrench';
 
-$_style['tx'] = $style_path . 'misc/_tx_.gif';
 
 // actions buttons templates
 $action = isset($_REQUEST['a']) ? $_REQUEST['a'] : '';
