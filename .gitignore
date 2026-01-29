@@ -60,3 +60,5 @@ Desktop.ini
 # all dotfiles and dotfolders except do not ignore .gitignore
 **/.*
 !.gitignore
+/core/vendor/
+/database.sqlite
