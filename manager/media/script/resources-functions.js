@@ -1,33 +1,119 @@
+function toArray(list) {
+  return Array.prototype.slice.call(list || []);
+}
+
+function qs(root, selector) {
+  if (selector === undefined) {
+    selector = root;
+    root = document;
+  }
+  return root ? root.querySelector(selector) : null;
+}
+
+function qsa(root, selector) {
+  if (selector === undefined) {
+    selector = root;
+    root = document;
+  }
+  return root ? toArray(root.querySelectorAll(selector)) : [];
+}
+
+function matchesSelector(el, selector) {
+  if (!el || el.nodeType !== 1) return false;
+  var proto = Element.prototype;
+  var fn = proto.matches || proto.msMatchesSelector || proto.webkitMatchesSelector;
+  return fn ? fn.call(el, selector) : false;
+}
+
+function closest(el, selector) {
+  var current = el;
+  while (current && current.nodeType === 1) {
+    if (matchesSelector(current, selector)) return current;
+    current = current.parentElement;
+  }
+  return null;
+}
+
+function setHidden(el, hidden) {
+  if (!el) return;
+  el.classList.toggle('hide', !!hidden);
+}
+
+function toggleHidden(el) {
+  if (!el) return;
+  var isHidden = el.classList.contains('hide') || window.getComputedStyle(el).display === 'none';
+  if (isHidden) {
+    el.classList.remove('hide');
+    el.style.display = '';
+  } else {
+    el.classList.add('hide');
+  }
+}
+
+function fadeTo(el, opacity) {
+  if (!el) return;
+  el.style.transition = 'opacity 0.1s';
+  el.style.opacity = opacity;
+}
+
+function fadeOut(el) {
+  if (!el) return;
+  el.style.transition = 'opacity 0.2s';
+  el.style.opacity = '0';
+  window.setTimeout(function() {
+    el.classList.add('hide');
+  }, 200);
+}
+
+function fetchText(url, onDone) {
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', url, true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState !== 4) return;
+    if (xhr.status >= 200 && xhr.status < 300) {
+      onDone(xhr.responseText);
+    } else {
+      alert(xhr.responseText || ('Request failed: ' + xhr.status));
+    }
+  };
+  xhr.send(null);
+}
+
 function unlockElement(type, id, domEl) {
   var msg = trans.msg.replace('[+id+]', id).replace('[+element_type+]', trans['type' + type]);
-  if (confirm(msg) == true) {
-    jQuery.get('index.php?a=67&type=' + type + '&id=' + id, function(data) {
-      if (data == 1) {
-        jQuery(domEl).fadeOut();
-      } else alert(data);
+  if (confirm(msg) === true) {
+    fetchText('index.php?a=67&type=' + type + '&id=' + id, function(data) {
+      if (String(data).trim() === '1') {
+        fadeOut(domEl);
+      } else {
+        alert(data);
+      }
     });
   }
 }
 
 function actionDisableElement(t) {
-  let $t = $(t),
-      $row = $(t).closest('.rTableRow'),
-      $title = $('.rTableRowTitle', $row),
-      $icon = $('i', $t);
-  $row.fadeTo(100, .5);
+  var btn = t;
+  if (!btn) return;
+  var row = closest(btn, '.rTableRow');
+  var title = row ? row.querySelector('.rTableRowTitle') : null;
+  var icon = btn.querySelector('i');
+  fadeTo(row, 0.5);
 
-  jQuery.get($t.data('disabled') ? $t.data('enable-href') : $t.data('disable-href'), function() {
-    $row.fadeTo(100, 1);
-    if ($t.data('disabled')) {
-      $t.data('disabled', 0);
-      $t.attr('title', $t.data('disable-title'));
-      $icon.attr('class', $t.data('disable-icon'));
-      $title.removeClass('disabledPlugin');
+  var isDisabled = btn.dataset.disabled === '1' || btn.dataset.disabled === 'true';
+  var url = isDisabled ? btn.dataset.enableHref : btn.dataset.disableHref;
+  fetchText(url, function() {
+    fadeTo(row, 1);
+    if (isDisabled) {
+      btn.dataset.disabled = '0';
+      if (btn.dataset.disableTitle) btn.setAttribute('title', btn.dataset.disableTitle);
+      if (icon && btn.dataset.disableIcon) icon.className = btn.dataset.disableIcon;
+      if (title) title.classList.remove('disabledPlugin');
     } else {
-      $t.data('disabled', 1);
-      $t.attr('title', $t.data('enable-title'));
-      $icon.attr('class', $t.data('enable-icon'));
-      $title.addClass('disabledPlugin');
+      btn.dataset.disabled = '1';
+      if (btn.dataset.enableTitle) btn.setAttribute('title', btn.dataset.enableTitle);
+      if (icon && btn.dataset.enableIcon) icon.className = btn.dataset.enableIcon;
+      if (title) title.classList.add('disabledPlugin');
     }
   });
 }
@@ -36,273 +122,229 @@ function actionDisableElement(t) {
 var version = 1;
 
 function initViews(pre, helppre, target) {
-  jQuery('#' + helppre + '-help').click(function() {
-    jQuery('#' + helppre + '-info').toggle(400);
+  var help = document.getElementById(helppre + '-help');
+  var info = document.getElementById(helppre + '-info');
+  if (!help || !info) return;
+  help.addEventListener('click', function() {
+    toggleHidden(info);
   });
 }
 
 function setColumnCount(targetEl, count) {
-  targetEl.find('.panel-collapse > ul').css({
-    '-moz-column-count': count,
-    '-webkit-column-count': count,
-    'column-count': count
+  if (!targetEl) return;
+  qsa(targetEl, '.panel-collapse > ul').forEach(function(el) {
+    el.style.MozColumnCount = count;
+    el.style.WebkitColumnCount = count;
+    el.style.columnCount = count;
   });
 }
 
 function getViewOpts(form) {
-  viewOpts = {};
-  // Options
-  viewOpts.cb_buttons = form.find('input:checkbox[name=cb_buttons]').is(':checked');
-  viewOpts.cb_description = form.find('input:checkbox[name=cb_description]').is(':checked');
-  viewOpts.cb_icons = form.find('input:checkbox[name=cb_icons]').is(':checked');
-  viewOpts.cb_all = form.find('input:checkbox[name=cb_all]').is(':checked');
+  var viewOpts = {};
+  var cbButtons = qs(form, 'input:checkbox[name=cb_buttons]');
+  var cbDescription = qs(form, 'input:checkbox[name=cb_description]');
+  var cbIcons = qs(form, 'input:checkbox[name=cb_icons]');
+  var cbAll = qs(form, 'input:checkbox[name=cb_all]');
 
-  // Views
-  viewOpts.view = form.find('input[name=view]:checked').val();
-  viewOpts.columns = form.find('input[name=columns]').val();
+  viewOpts.cb_buttons = !!(cbButtons && cbButtons.checked);
+  viewOpts.cb_description = !!(cbDescription && cbDescription.checked);
+  viewOpts.cb_icons = !!(cbIcons && cbIcons.checked);
+  viewOpts.cb_all = !!(cbAll && cbAll.checked);
 
-  viewOpts.fontsize = form.find('input[name=fontsize]').val();
+  var viewRadio = qs(form, 'input[name=view]:checked');
+  viewOpts.view = viewRadio ? viewRadio.value : 'list';
+
+  var columns = qs(form, 'input[name=columns]');
+  var fontsize = qs(form, 'input[name=fontsize]');
+  viewOpts.columns = columns ? parseInt(columns.value, 10) : 0;
+  viewOpts.fontsize = fontsize ? parseInt(fontsize.value, 10) : 10;
 
   return viewOpts;
 }
 
 function setView(viewOpts, targetEl, target) {
-  // Options
-  if (viewOpts.cb_buttons) {
-    targetEl.find('.btnCell').show();
-  } else {
-    targetEl.find('.btnCell').hide();
-  }
-  if (viewOpts.cb_description) {
-    targetEl.find('span.elements_descr').show();
-  } else {
-    targetEl.find('span.elements_descr').hide();
-  }
-  if (viewOpts.cb_icons) {
-    targetEl.removeClass('noicons');
-  } else {
-    targetEl.addClass('noicons');
-  }
+  if (!targetEl) return;
 
-  // Views
+  qsa(targetEl, '.btnCell').forEach(function(el) {
+    setHidden(el, !viewOpts.cb_buttons);
+  });
+  qsa(targetEl, 'span.elements_descr').forEach(function(el) {
+    setHidden(el, !viewOpts.cb_description);
+  });
+  targetEl.classList.toggle('noicons', !viewOpts.cb_icons);
+
   switch (viewOpts.view) {
     case 'inline':
-      targetEl.removeClass('flex list');
-      targetEl.addClass('inline');
+      targetEl.classList.remove('flex');
+      targetEl.classList.remove('list');
+      targetEl.classList.add('inline');
       setColumnCount(targetEl, 1);
       break;
     case 'flex':
-      targetEl.removeClass('inline list');
-      targetEl.addClass('flex');
-      setColumnCount(targetEl, viewOpts.columns);
+      targetEl.classList.remove('inline');
+      targetEl.classList.remove('list');
+      targetEl.classList.add('flex');
+      setColumnCount(targetEl, viewOpts.columns || 1);
       break;
     case 'list':
     default:
-      targetEl.removeClass('flex inline');
-      targetEl.addClass('list');
+      targetEl.classList.remove('flex');
+      targetEl.classList.remove('inline');
+      targetEl.classList.add('list');
       setColumnCount(targetEl, 1);
       break;
   }
 
-  // Set font-size
-  targetEl.css('font-size', viewOpts.fontsize / 10 + 'em');
+  targetEl.style.fontSize = viewOpts.fontsize / 10 + 'em';
 
-  // Save view-options to localStorage
-  viewOpts.version = version; // Provides version of options-obj to allow easy resetting of localStorage on future updates
+  viewOpts.version = version;
   localStorage.setItem('MODX_mgrResources_' + target, JSON.stringify(viewOpts));
-
-  // console.log('save', viewOpts);
 }
 
 function setAllViews(viewOpts) {
-  jQuery('.switchForm').each(function() {
-    var form = jQuery(this);
-    var target = form.data('target');
-    var targetEl = jQuery('#' + target);
+  qsa('.switchForm').forEach(function(form) {
+    var target = form.dataset.target;
+    var targetEl = document.getElementById(target);
     setView(viewOpts, targetEl, target);
     setViewOptions(form, viewOpts);
   });
 }
 
 function setViewOptions(form, viewOpts) {
-  form.find('input:checkbox[name=cb_buttons]').attr('checked', viewOpts.cb_buttons).prop('checked', viewOpts.cb_buttons);
-  form.find('input:checkbox[name=cb_description]').attr('checked', viewOpts.cb_description).prop('checked', viewOpts.cb_description);
-  form.find('input:checkbox[name=cb_icons]').attr('checked', viewOpts.cb_icons).prop('checked', viewOpts.cb_icons);
-  form.find('input:radio[name=view][value=' + viewOpts.view + ']').attr('checked', true).prop('checked', true);
-  form.find('input[name=columns]').val(viewOpts.columns);
-  form.find('input[name=fontsize]').val(viewOpts.fontsize);
-  form.find('input:checkbox[name=cb_all]').attr('checked', viewOpts.cb_all).prop('checked', viewOpts.cb_all);
+  var cbButtons = qs(form, 'input:checkbox[name=cb_buttons]');
+  var cbDescription = qs(form, 'input:checkbox[name=cb_description]');
+  var cbIcons = qs(form, 'input:checkbox[name=cb_icons]');
+  var cbAll = qs(form, 'input:checkbox[name=cb_all]');
+  var viewRadio = qs(form, 'input:radio[name=view][value=' + viewOpts.view + ']');
+  var columns = qs(form, 'input[name=columns]');
+  var fontsize = qs(form, 'input[name=fontsize]');
+
+  if (cbButtons) cbButtons.checked = !!viewOpts.cb_buttons;
+  if (cbDescription) cbDescription.checked = !!viewOpts.cb_description;
+  if (cbIcons) cbIcons.checked = !!viewOpts.cb_icons;
+  if (viewRadio) viewRadio.checked = true;
+  if (columns) columns.value = viewOpts.columns;
+  if (fontsize) fontsize.value = viewOpts.fontsize;
+  if (cbAll) cbAll.checked = !!viewOpts.cb_all;
 }
 
 function setViewDefaultOptions(form) {
-  var viewOpts = {};
-  viewOpts.cb_buttons = 1;
-  viewOpts.cb_description = 1;
-  viewOpts.cb_icons = 1;
-  viewOpts.view = 'list';
-  viewOpts.columns = 3;
-  viewOpts.fontsize = 10;
-  viewOpts.cb_all = true;
+  var viewOpts = {
+    cb_buttons: 1,
+    cb_description: 1,
+    cb_icons: 1,
+    view: 'list',
+    columns: 3,
+    fontsize: 10,
+    cb_all: true
+  };
   setViewOptions(form, viewOpts);
 }
 
-// Add switch-view functionality
-jQuery(document).ready(function() {
-  jQuery('.switchForm').each(function() {
-    var form = jQuery(this);
-    var target = form.data('target');
-    var targetEl = jQuery('#' + target);
-
-    form.change(function() {
-      var viewOpts = getViewOpts(form);
-      if (form.find('input:checkbox[name=cb_all]').is(':checked')) {
-        // Set view in all tabs
-        setAllViews(viewOpts);
-      } else {
-        // Set view in single tab
-        setView(viewOpts, targetEl, target);
+function bindFilterElementsForm(root) {
+  qsa(root || document, '.filterElements-form').forEach(function(el) {
+    el.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.keyCode === 13) {
+        e.preventDefault();
       }
     });
+  });
+}
 
-    // Get parameters from localStorage
-    var viewOpts = JSON.parse(localStorage.getItem('MODX_mgrResources_' + target));
+// Add switch-view functionality
+document.addEventListener('DOMContentLoaded', function() {
+  qsa('.switchForm').forEach(function(form) {
+    var target = form.dataset.target;
+    var targetEl = document.getElementById(target);
 
-    // console.log('load', viewOpts.version, '==', version);
-    // console.log(viewOpts);
+    function applyView() {
+      var viewOpts = getViewOpts(form);
+      if (viewOpts.cb_all) {
+        setAllViews(viewOpts);
+      } else {
+        setView(viewOpts, targetEl, target);
+      }
+    }
 
-    // Set views - if version is different, defaults will be set up
+    form.addEventListener('change', applyView);
+
+    var viewOpts = null;
+    try {
+      viewOpts = JSON.parse(localStorage.getItem('MODX_mgrResources_' + target));
+    } catch (err) {
+      viewOpts = null;
+    }
+
     if (viewOpts && viewOpts.version == version) {
       setViewOptions(form, viewOpts);
     } else {
       setViewDefaultOptions(form);
     }
 
-    // Now restore settings
-    form.trigger('change');
+    applyView();
 
-    // Add reset-button
-    form.find('.btn_reset').click(function(e) {
-      e.preventDefault();
-      setViewDefaultOptions(form);
-      form.trigger('change');
-    });
+    var resetBtn = qs(form, '.btn_reset');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        setViewDefaultOptions(form);
+        applyView();
+      });
+    }
 
-    // Prevent sending form
-    form.submit(function(e) {
+    form.addEventListener('submit', function(e) {
       e.preventDefault();
     });
   });
 
-  // Add switchForm-toggle
-  jQuery('.switchform-btn').each(function() {
-    jQuery(this).click(function() {
-      var target = jQuery(this).data('target');
-      jQuery('#' + target).toggle(400);
+  qsa('.switchform-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var target = btn.dataset.target;
+      var targetEl = target ? document.getElementById(target) : null;
+      if (targetEl) {
+        toggleHidden(targetEl);
+      }
     });
   });
 
-  // jQuery(function() {
-  //   var context = jQuery('#resourcesPane').nuContextMenu({
-  //     hideAfterClick: true,
-  //     items: '.man_el_name',
-  //     callback: function(action, element) {
-  //       var el = jQuery(element);
-  //       var name = el.text().trim();
-  //       var cm = el.closest('.man_el_name');
-  //       mgrResAction(name, action, cm.data('type'), cm.data('id'), cm.data('catid'));
-  //     },
-  //     menu: [
-  //       {name: 'create', title: mraTrans.create_new, icon: 'plus'},
-  //       {name: 'edit', title: mraTrans.edit, icon: 'edit'},
-  //       {name: 'duplicate', title: mraTrans.duplicate, icon: 'clone'},
-  //       {name: 'void'},
-  //       {name: 'remove', title: mraTrans.remove, icon: 'trash'}
-  //     ]
-  //   });
-  // });
-  //
-  // function mgrResAction(name, action, type, id, catid) {
-  //   var actionIds, deleteMsg;
-  //
-  //   switch (type) {
-  //     case 'site_templates' :
-  //       actionsIds = {'create': 19, 'edit': 16, 'duplicate': 96, 'remove': 21};
-  //       deleteMsg = mraTrans.confirm_delete_template;
-  //       break;
-  //     case 'site_tmplvars' :
-  //       actionsIds = {'create': 300, 'edit': 301, 'duplicate': 304, 'remove': 303};
-  //       deleteMsg = mraTrans.confirm_delete_tmplvars;
-  //       break;
-  //     case 'site_htmlsnippets' :
-  //       actionsIds = {'create': 77, 'edit': 78, 'duplicate': 97, 'remove': 80};
-  //       deleteMsg = mraTrans.confirm_delete_htmlsnippet;
-  //       break;
-  //     case 'site_snippets' :
-  //       actionsIds = {'create': 23, 'edit': 22, 'duplicate': 98, 'remove': 25};
-  //       deleteMsg = mraTrans.confirm_delete_snippet;
-  //       break;
-  //     case 'site_plugins' :
-  //       actionsIds = {'create': 101, 'edit': 102, 'duplicate': 105, 'remove': 104};
-  //       deleteMsg = mraTrans.confirm_delete_plugin;
-  //       break;
-  //     case 'site_modules' :
-  //       actionsIds = {'create': 107, 'edit': 108, 'duplicate': 111, 'remove': 110};
-  //       deleteMsg = mraTrans.confirm_delete_module;
-  //       break;
-  //     default :
-  //       alert('Unknown type');
-  //       return;
-  //   }
-  //
-  //   // Actions that need confirmation
-  //   var confirmMsg = false;
-  //   switch (action) {
-  //     case 'create' :
-  //       id = false;
-  //       break;
-  //     case 'edit' :
-  //       break;
-  //     case 'duplicate' :
-  //       confirmMsg = mraTrans.confirm_duplicate_record;
-  //       break;
-  //     case 'remove' :
-  //       confirmMsg = deleteMsg;
-  //       break;
-  //   }
-  //
-  //   if (confirmMsg) {
-  //     confirmMsg += ' \n \n ' + name; // + " ("+id+")"
-  //     var r = confirm(confirmMsg);
-  //     if (r != true) return;
-  //   }
-  //
-  //   var target = 'index.php?a=' + actionsIds[action] + (id ? '&id=' + id : '') + (catid ? '&catid=' + catid : '');
-  //
-  //   if (top.main) top.main.document.location.href = target;
-  //   else document.location.href = target;
-  // }
+  bindFilterElementsForm();
 });
 
 function initQuicksearch(inputId, listId) {
-  jQuery('#' + inputId).quicksearch('#' + listId + ' ul.elements > li', {
-    selector: '.man_el_name',
-    'show': function() { jQuery(this).removeClass('hide'); },
-    'hide': function() { jQuery(this).addClass('hide'); },
-    'bind': 'keyup',
-    'onAfter': function() {
-      jQuery('#' + listId).find('.panel-collapse').each(function() {
-        var parentLI = jQuery(this);
-        var totalLI = jQuery(this).find('ul.elements > li').length;
-        var hiddenLI = jQuery(this).find('ul.elements > li.hide').length;
-        if (hiddenLI == totalLI) { parentLI.prev('.panel-heading').addClass('hide'); } else { parentLI.prev('.panel-heading').removeClass('hide'); }
-      });
-    }
-  });
-  jQuery('.filterElements-form').keydown(function(e) {
-    if (e.keyCode == 13) {
-      e.preventDefault();
-    }
-  });
+  var input = document.getElementById(inputId);
+  var list = document.getElementById(listId);
+  if (!input || !list) return;
+  if (input.dataset.quicksearchBound === 'true') return;
+  input.dataset.quicksearchBound = 'true';
+
+  var panelCollapses = qsa(list, '.panel-collapse');
+
+  function applyFilter() {
+    var term = input.value.trim().toLowerCase();
+    var items = qsa(list, 'ul.elements > li');
+
+    items.forEach(function(item) {
+      var nameEl = qs(item, '.man_el_name');
+      var text = nameEl ? nameEl.textContent : item.textContent;
+      var match = term === '' || (text && text.toLowerCase().indexOf(term) !== -1);
+      setHidden(item, !match);
+    });
+
+    panelCollapses.forEach(function(panel) {
+      var total = qsa(panel, 'ul.elements > li').length;
+      var hidden = qsa(panel, 'ul.elements > li.hide').length;
+      var heading = panel.previousElementSibling;
+      if (heading && heading.classList) {
+        heading.classList.toggle('hide', hidden === total && total !== 0);
+      }
+    });
+  }
+
+  input.addEventListener('input', applyFilter);
+  input.addEventListener('keyup', applyFilter);
+  applyFilter();
+
+  bindFilterElementsForm();
 }
 
 var storageKey = 'MODX_mgrResources';
@@ -327,6 +369,24 @@ try {
     elementsInTreeParams = {'cat_collapsed': {}};
   }
 
+  function setCollapseState(el, show) {
+    if (!el) return;
+    el.classList.toggle('in', !!show);
+  }
+
+  function getPanelGroupItems(panelGroup) {
+    var toggles = [];
+    var collapses = [];
+    toArray(panelGroup.children).forEach(function(panel) {
+      if (!panel.classList || !panel.classList.contains('panel')) return;
+      var toggle = panel.querySelector('.accordion-toggle');
+      var collapse = panel.querySelector('.panel-collapse');
+      if (toggle) toggles.push(toggle);
+      if (collapse) collapses.push(collapse);
+    });
+    return {toggles: toggles, collapses: collapses};
+  }
+
   // Remember collapsed categories functions
   function setRememberCollapsedCategories(obj) {
     obj = obj == null ? elementsInTreeParams.cat_collapsed : obj;
@@ -341,22 +401,24 @@ try {
         if (state == null) {
           continue;
         }
-        var collapseItem = jQuery('#collapse' + type + category);
-        var toggleItem = jQuery('#toggle' + type + category);
+        var collapseItem = document.getElementById('collapse' + type + category);
+        var toggleItem = document.getElementById('toggle' + type + category);
         if (state == 0) {
           // Collapsed
-          collapseItem.collapse('hide');
-          toggleItem.addClass('collapsed');
+          setCollapseState(collapseItem, false);
+          if (toggleItem) toggleItem.classList.add('collapsed');
         } else {
           // Open
-          collapseItem.collapse('show');
-          toggleItem.removeClass('collapsed');
+          setCollapseState(collapseItem, true);
+          if (toggleItem) toggleItem.classList.remove('collapsed');
         }
       }
     }
     // Avoid first category collapse-flicker on reload
     setTimeout(function() {
-      jQuery('.panel-group').removeClass('no-transition');
+      qsa('.panel-group').forEach(function(el) {
+        el.classList.remove('no-transition');
+      });
     }, 50);
   }
 
@@ -371,41 +433,43 @@ try {
     localStorage.setItem(storageKey, jsonString);
   }
 
-  jQuery(document).ready(function() {
-
-    jQuery('.filterElements-form').keydown(function(e) {
-      if (e.keyCode == 13) e.preventDefault();
-    });
+  document.addEventListener('DOMContentLoaded', function() {
+    bindFilterElementsForm();
 
     // Shift-Mouseclick opens/collapsed all categories
-    jQuery('.accordion-toggle').click(function(e) {
-      e.preventDefault();
-      var thisItemCollapsed = jQuery(this).hasClass('collapsed');
-      if (e.shiftKey) {
-        // Shift-key pressed
-        var toggleItems = jQuery(this).closest('.panel-group').find('> .panel .accordion-toggle');
-        var collapseItems = jQuery(this).closest('.panel-group').find('> .panel > .panel-collapse');
-        if (thisItemCollapsed) {
-          toggleItems.removeClass('collapsed');
-          collapseItems.collapse('show');
+    qsa('.accordion-toggle').forEach(function(toggle) {
+      toggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        var thisItemCollapsed = toggle.classList.contains('collapsed');
+        var panelGroup = closest(toggle, '.panel-group');
+        if (e.shiftKey && panelGroup) {
+          var items = getPanelGroupItems(panelGroup);
+          if (thisItemCollapsed) {
+            items.toggles.forEach(function(el) { el.classList.remove('collapsed'); });
+            items.collapses.forEach(function(el) { setCollapseState(el, true); });
+          } else {
+            items.toggles.forEach(function(el) { el.classList.add('collapsed'); });
+            items.collapses.forEach(function(el) { setCollapseState(el, false); });
+          }
+          // Save states to localStorage
+          items.toggles.forEach(function(el) {
+            var state = el.classList.contains('collapsed') ? 1 : 0;
+            setLastCollapsedCategory(el.dataset.cattype, el.dataset.catid, state);
+          });
+          writeElementsInTreeParamsToStorage();
         } else {
-          toggleItems.addClass('collapsed');
-          collapseItems.collapse('hide');
+          toggle.classList.toggle('collapsed');
+          var targetSelector = toggle.getAttribute('href');
+          if (targetSelector) {
+            var collapseItem = document.querySelector(targetSelector);
+            setCollapseState(collapseItem, thisItemCollapsed);
+          }
+          // Save state to localStorage
+          var state = thisItemCollapsed ? 0 : 1;
+          setLastCollapsedCategory(toggle.dataset.cattype, toggle.dataset.catid, state);
+          writeElementsInTreeParamsToStorage();
         }
-        // Save states to localStorage
-        toggleItems.each(function() {
-          state = jQuery(this).hasClass('collapsed') ? 1 : 0;
-          setLastCollapsedCategory(jQuery(this).data('cattype'), jQuery(this).data('catid'), state);
-        });
-        writeElementsInTreeParamsToStorage();
-      } else {
-        jQuery(this).toggleClass('collapsed');
-        jQuery(jQuery(this).attr('href')).collapse('toggle');
-        // Save state to localStorage
-        state = thisItemCollapsed ? 0 : 1;
-        setLastCollapsedCategory(jQuery(this).data('cattype'), jQuery(this).data('catid'), state);
-        writeElementsInTreeParamsToStorage();
-      }
+      });
     });
 
     setRememberCollapsedCategories();

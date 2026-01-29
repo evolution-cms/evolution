@@ -12,11 +12,6 @@
     @endif
     <link rel="stylesheet" type="text/css" href="{{ ManagerTheme::css() }}"/>
     <script type="text/javascript" src="media/script/tabpane.js"></script>
-    <script type="text/javascript" src="{{ EvolutionCMS()->getConfig('mgr_jquery_path') }}"></script>
-    @if (EvolutionCMS()->getConfig('show_picker') === true)
-        <script src="{{ ManagerTheme::getThemeUrl() }}/js/color.switcher.js" type="text/javascript"></script>
-    @endif
-
     {!! ManagerTheme::getMainFrameHeaderHTMLBlock() !!}
 
     <script type="text/javascript">
@@ -52,4 +47,4 @@
     {!! EvolutionCMS()->getRegisteredClientStartupScripts() !!}
 </head>
 
-<body class="{{ ManagerTheme::getTextDir() }} {{ ManagerTheme::getThemeStyle() }}" data-evocp="color">
+<body class="{{ ManagerTheme::getTextDir() }} {{ ManagerTheme::getThemeStyle() }}">

@@ -44,47 +44,47 @@
     </form>
     @push('scripts.bot')
         <script>
-            (function($) {
-                $('input:radio').change(function() {
+            function toggleRows(selector, show) {
+                document.querySelectorAll(selector).forEach(function(el) {
+                    el.style.display = show ? '' : 'none';
+                });
+            }
+
+            document.querySelectorAll('input[type="radio"]').forEach(function(el) {
+                el.addEventListener('change', function() {
                     documentDirty = true;
                 });
-                $('#furlRowOn').change(function() {
-                    $('.furlRow').fadeIn();
-                });
-                $('#furlRowOff').change(function() {
-                    $('.furlRow').fadeOut();
-                });
-                $('#udPermsOn').change(function() {
-                    $('.udPerms').slideDown();
-                });
-                $('#udPermsOff').change(function() {
-                    $('.udPerms').slideUp();
-                });
-                $('#editorRowOn').change(function() {
-                    $('.editorRow').slideDown();
-                });
-                $('#editorRowOff').change(function() {
-                    $('.editorRow').slideUp();
-                });
-                $('#rbRowOn').change(function() {
-                    $('.rbRow').fadeIn();
-                });
-                $('#rbRowOff').change(function() {
-                    $('.rbRow').fadeOut();
-                });
-                $('#useSmtp').change(function() {
-                    $('.smtpRow').fadeIn();
-                });
-                $('#useMail').change(function() {
-                    $('.smtpRow').fadeOut();
-                });
-                $('#captchaOn').change(function() {
-                    $('.captchaRow').fadeIn();
-                });
-                $('#captchaOff').change(function() {
-                    $('.captchaRow').fadeOut();
-                });
-            })(jQuery);
+            });
+
+            var furlRowOn = document.getElementById('furlRowOn');
+            var furlRowOff = document.getElementById('furlRowOff');
+            if (furlRowOn) furlRowOn.addEventListener('change', function() { toggleRows('.furlRow', true); });
+            if (furlRowOff) furlRowOff.addEventListener('change', function() { toggleRows('.furlRow', false); });
+
+            var udPermsOn = document.getElementById('udPermsOn');
+            var udPermsOff = document.getElementById('udPermsOff');
+            if (udPermsOn) udPermsOn.addEventListener('change', function() { toggleRows('.udPerms', true); });
+            if (udPermsOff) udPermsOff.addEventListener('change', function() { toggleRows('.udPerms', false); });
+
+            var editorRowOn = document.getElementById('editorRowOn');
+            var editorRowOff = document.getElementById('editorRowOff');
+            if (editorRowOn) editorRowOn.addEventListener('change', function() { toggleRows('.editorRow', true); });
+            if (editorRowOff) editorRowOff.addEventListener('change', function() { toggleRows('.editorRow', false); });
+
+            var rbRowOn = document.getElementById('rbRowOn');
+            var rbRowOff = document.getElementById('rbRowOff');
+            if (rbRowOn) rbRowOn.addEventListener('change', function() { toggleRows('.rbRow', true); });
+            if (rbRowOff) rbRowOff.addEventListener('change', function() { toggleRows('.rbRow', false); });
+
+            var useSmtp = document.getElementById('useSmtp');
+            var useMail = document.getElementById('useMail');
+            if (useSmtp) useSmtp.addEventListener('change', function() { toggleRows('.smtpRow', true); });
+            if (useMail) useMail.addEventListener('change', function() { toggleRows('.smtpRow', false); });
+
+            var captchaOn = document.getElementById('captchaOn');
+            var captchaOff = document.getElementById('captchaOff');
+            if (captchaOn) captchaOn.addEventListener('change', function() { toggleRows('.captchaRow', true); });
+            if (captchaOff) captchaOff.addEventListener('change', function() { toggleRows('.captchaRow', false); });
 
             function setChangesChunkProcessor(item) {
                 item = item || document.querySelector('[name="chunk_processor"]:checked');

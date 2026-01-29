@@ -11,12 +11,14 @@
         };
         xhr.send("action=setsetting&key=_hide_configcheck_" + key + "&value=1");
     }
-    (function($) {
-        $("[data-toggle='collapse']").click(function(e) {
-            if(e.target.tagName === "A") return;
-            if($(this).data("target")) {
-                $($(this).data("target")).toggleClass("in")
-            }
+    document.addEventListener('click', function(e) {
+        var toggle = e.target.closest('[data-toggle="collapse"]');
+        if (!toggle) return;
+        if (e.target.tagName === "A") return;
+        var target = toggle.getAttribute('data-target');
+        if (!target) return;
+        document.querySelectorAll(target).forEach(function(el) {
+            el.classList.toggle('in');
         });
-    })(jQuery);
+    });
 </script>

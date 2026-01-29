@@ -63,10 +63,6 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
     <meta name="theme-color" content="#000" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="stylesheet" type="text/css" href="{{$css}}" />
-    @if (evo()->getConfig('show_picker'))
-        <link rel="stylesheet" href="media/style/common/spectrum/spectrum.css" />
-        <link rel="stylesheet" type="text/css" href="{{ManagerTheme::getThemeUrl()}}css/color.switcher.css" />
-    @endif
     <link rel="icon" type="image/ico" href="{{ManagerTheme::getStyle('favicon')}}" />
     <style>
         #tree{width:{{$MODX_widthSideBar}}rem}
@@ -95,7 +91,6 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
             document.documentElement.className += ' ios';
         }
     </script>
-    <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
     <script>
         // GLOBAL variable modx
         var modx = {
@@ -219,11 +214,6 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
         ?>
     </script>
     <script src="{{ManagerTheme::getThemeUrl()}}js/modx.js?v={{evo()->getVersionData('version')}}"></script>
-    @if ($modx->getConfig('show_picker'))
-        <script src="media/script/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
-        <script src="media/script/spectrum/spectrum.evo.min.js" type="text/javascript"></script>
-        <script src="{{ManagerTheme::getThemeUrl()}}js/color.switcher.js" type="text/javascript"></script>
-    @endif
     <?php
     // invoke OnManagerTopPrerender event
     $evtOut = $modx->invokeEvent('OnManagerTopPrerender', $_REQUEST);
@@ -238,8 +228,8 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
     <div id="mainMenu" class="dropdown">
         <div class="container">
             <div class="row">
-                <div class="cell" data-evocp="bgmColor">{!!$menu!!}</div>
-                <div class="cell" data-evocp="bgmColor">
+                <div class="cell">{!!$menu!!}</div>
+                <div class="cell">
                     <ul id="settings" class="nav">
                         <li id="searchform">
                             <form action="index.php?a=71" method="post" target="main">
@@ -623,224 +613,17 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
                 }
             }
 
-            $('#toggleFullScreen').click(function() {
-                var $toggle = $(this);
-                var isExpanded = $toggle.data('expanded') === true;
-                $toggle.html(isExpanded ? {!! jsIcon($_style['icon_expand']) !!} : {!! jsIcon($_style['icon_compress']) !!});
-                $toggle.data('expanded', !isExpanded);
-            });
+            var toggleFullScreenBtn = document.getElementById('toggleFullScreen');
+            if (toggleFullScreenBtn) {
+                toggleFullScreenBtn.addEventListener('click', function() {
+                    var isExpanded = toggleFullScreenBtn.getAttribute('data-expanded') === 'true';
+                    toggleFullScreenBtn.innerHTML = isExpanded ? {!! jsIcon($_style['icon_expand']) !!} : {!! jsIcon($_style['icon_compress']) !!};
+                    toggleFullScreenBtn.setAttribute('data-expanded', (!isExpanded).toString());
+                });
+            }
         </script>
     @endif
     {!! evo()->invokeEvent('OnManagerFrameLoader', ['action' => ManagerTheme::getActionId()]) !!}
 </div>
-@if (evo()->getConfig('show_picker'))
-    <div class="evocp-box">
-        <div class="evocp-icon"><i class="evocpicon {{ $_style['icon_brush'] }}" aria-hidden="true"></i></div>
-        <div class="evocp-frame">
-            <h2>COLOR SWITCHER</h2>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 data-toggle="collapse" data-target=".bgmcolors"><i
-                                class="togglearrow {{ $_style['icon_chevron_down'] }}" aria-hidden="true"></i> <i
-                                class="{{ $_style['icon_bars'] }}" aria-hidden="true"></i> Menu Background</h3><a
-                            title="{{ ManagerTheme::getLexicon('reset') }}" href="javascript:;"
-                            onclick="cleanLocalStorageReloadAll('my_evo_bgmcolor')"
-                            class="pull-right resetcolor btn btn-secondary"><i
-                                class="{{ $_style['icon_refresh'] }}"></i></a>
-                </div>
-                <div class="panel-body collapse in bgmcolors">
-                    <div class="evocp-bgmcolors">
-                        <div class="evocp-bgmcolor">#000</div>
-                        <div class="evocp-bgmcolor">#222</div>
-                        <div class="evocp-bgmcolor">#333</div>
-                        <div class="evocp-bgmcolor">#444</div>
-                        <div class="evocp-bgmcolor">#555</div>
-                        <div class="evocp-bgmcolor">#777</div>
-                        <div class="evocp-bgmcolor">#888</div>
-                        <div class="evocp-bgmcolor">#0f243e</div>
-                        <div class="evocp-bgmcolor">#548dd4</div>
-                        <div class="evocp-bgmcolor">#134f5c</div>
-                        <div class="evocp-bgmcolor">#0b5394</div>
-                        <div class="evocp-bgmcolor">#351c75</div>
-                        <div class="evocp-bgmcolor">#741b47</div>
-                        <div class="evocp-bgmcolor">#900</div>
-                    </div>
-                    <input type="color" class="color" id="bgmPicker" name="evocpCustombgmColor"
-                           value="#cf2626" placeholder="color code...">
-                </div>
-            </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 span data-toggle="collapse" data-target=".menuColors"><i
-                                class="togglearrow {{ $_style['icon_chevron_right'] }}" aria-hidden="true"></i> <i
-                                class="{{ $_style['icon_bars'] }}" aria-hidden="true"></i> Menu links</h3> <a
-                            title="{{ ManagerTheme::getLexicon('reset') }}" href="javascript:;"
-                            onclick="cleanLocalStorageReloadMain('my_evo_menuColor')"
-                            class="pull-right resetcolor btn btn-secondary"><i
-                                class="{{ $_style['icon_refresh'] }}"></i></a>
-                </div>
-                <div class="panel-body collapse menuColors">
-                    <div class="evocp-menuColors">
-                        <div class="evocp-menuColor">#000</div>
-                        <div class="evocp-menuColor">#222</div>
-                        <div class="evocp-menuColor">#555</div>
-                        <div class="evocp-menuColor">#666</div>
-                        <div class="evocp-menuColor evocp_light">#dedede</div>
-                        <div class="evocp-menuColor evocp_light">#fafafa</div>
-                        <div class="evocp-menuColor evocp_light">#fff</div>
-                        <div class="evocp-menuColor">#b45f06</div>
-                        <div class="evocp-menuColor">#38761d</div>
-                        <div class="evocp-menuColor">#134f5c</div>
-                        <div class="evocp-menuColor">#0b5394</div>
-                        <div class="evocp-menuColor">#351c75</div>
-                        <div class="evocp-menuColor">#741b47</div>
-                        <div class="evocp-menuColor">#9d2661</div>
-                    </div>
-                    <input class="color" type="color" id="menucolorPicker" name="evocpCustommenuColor"
-                           value="#cf2626" placeholder="color code...">
-                </div>
-            </div>
-
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 data-toggle="collapse" data-target=".menuHColors"><i
-                                class="togglearrow {{ $_style['icon_chevron_right'] }}" aria-hidden="true"></i> <i
-                                class="{{ $_style['icon_bars'] }}" aria-hidden="true"></i> Menu links:hover </h3><a
-                            title="{{ ManagerTheme::getLexicon('reset') }}" href="javascript:;"
-                            onclick="cleanLocalStorageReloadMain('my_evo_menuHColor')"
-                            class="pull-right resetcolor btn btn-secondary"><i
-                                class="{{ $_style['icon_refresh'] }}"></i></a>
-                </div>
-                <div class="panel-body collapse menuHColors">
-                    <div class="evocp-menuHColors">
-                        <div class="evocp-menuHColor">#000</div>
-                        <div class="evocp-menuHColor">#222</div>
-                        <div class="evocp-menuHColor">#555</div>
-                        <div class="evocp-menuHColor">#666</div>
-                        <div class="evocp-menuHColor evocp_light">#dedede</div>
-                        <div class="evocp-menuHColor evocp_light">#fafafa</div>
-                        <div class="evocp-menuHColor evocp_light">#fff</div>
-                        <div class="evocp-menuHColor">#b45f06</div>
-                        <div class="evocp-menuHColor">#38761d</div>
-                        <div class="evocp-menuHColor">#134f5c</div>
-                        <div class="evocp-menuHColor">#0b5394</div>
-                        <div class="evocp-menuHColor">#351c75</div>
-                        <div class="evocp-menuHColor">#741b47</div>
-                        <div class="evocp-menuHColor">#9d2661</div>
-                    </div>
-                    <input class="color" type="color" id="menuHcolorPicker" name="evocpCustommenuHColor"
-                           value="#cf2626" placeholder="color code...">
-                </div>
-            </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 data-toggle="collapse" data-target=".cpcolors"><i
-                                class="togglearrow {{ $_style['icon_chevron_right'] }}" aria-hidden="true"></i> <i
-                                class="{{ $_style['icon_font'] }}" aria-hidden="true"></i> Text color </h3><a
-                            title="{{ ManagerTheme::getLexicon('reset') }}" href="javascript:;"
-                            onclick="cleanLocalStorageReloadMain('my_evo_color')"
-                            class="pull-right resetcolor btn btn-secondary"><i
-                                class="{{ $_style['icon_refresh'] }}"></i></a>
-                </div>
-                <div class="panel-body collapse cpcolors">
-                    <div class="evocp-colors">
-                        <div class="evocp-color">#000</div>
-                        <div class="evocp-color">#222</div>
-                        <div class="evocp-color">#333</div>
-                        <div class="evocp-color">#444</div>
-                        <div class="evocp-color">#555</div>
-                        <div class="evocp-color">#777</div>
-                        <div class="evocp-color">#888</div>
-                        <div class="evocp-color">#b45f06</div>
-                        <div class="evocp-color">#38761d</div>
-                        <div class="evocp-color">#134f5c</div>
-                        <div class="evocp-color">#0b5394</div>
-                        <div class="evocp-color">#351c75</div>
-                        <div class="evocp-color">#741b47</div>
-                        <div class="evocp-color">#9d2661</div>
-                    </div>
-                    <input class="color" type="color" id="textcolorPicker" name="textcolorPicker"
-                           value="#cf2626" placeholder="color code...">
-                </div>
-            </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 data-toggle="collapse" data-target=".alinkcolors"><i
-                                class="togglearrow {{ $_style['icon_chevron_right'] }}" aria-hidden="true"></i>
-                        {!! iconHtml($_style['icon_chain'], ' aria-hidden="true"') !!} Links Color</h3> <a
-                            title="{{ ManagerTheme::getLexicon('reset') }}" href="javascript:;"
-                            onclick="cleanLocalStorageReloadMain('my_evo_alinkcolor')"
-                            class="pull-right resetcolor btn btn-secondary"><i
-                                class="{{ $_style['icon_refresh'] }}"></i></a>
-                </div>
-                <div class="panel-body collapse alinkcolors">
-                    <div class="evocp-alinkcolors">
-                        <div class="evocp-alinkcolor">#000</div>
-                        <div class="evocp-alinkcolor">#222</div>
-                        <div class="evocp-alinkcolor">#555</div>
-                        <div class="evocp-alinkcolor">#666</div>
-                        <div class="evocp-alinkcolor">#dedede</div>
-                        <div class="evocp-alinkcolor">#fafafa</div>
-                        <div class="evocp-alinkcolor">#fff</div>
-                        <div class="evocp-alinkcolor">#b45f06</div>
-                        <div class="evocp-alinkcolor">#38761d</div>
-                        <div class="evocp-alinkcolor">#134f5c</div>
-                        <div class="evocp-alinkcolor">#0b5394</div>
-                        <div class="evocp-alinkcolor">#351c75</div>
-                        <div class="evocp-alinkcolor">#741b47</div>
-                        <div class="evocp-alinkcolor">#9d2661</div>
-                    </div>
-                    <input class="color" type="color" id="linkcolorPicker" name="alinkcolorPicker"
-                           value="#cf2626" placeholder="color code...">
-                </div>
-            </div>
-            <hr />
-            <input type="reset"
-                   onclick="cleanLocalStorageReloadAll('my_evo_alinkcolor,my_evo_menuColor,my_evo_menuHColor,my_evo_bgmcolor,my_evo_color')"
-                   class="btn btn-secondary" value="{{ ManagerTheme::getLexicon('reset') }}">
-        </div>
-    </div>
-    <script>
-        $("#bgmPicker").spectrum({
-            showButtons: false,
-            preferredFormat: "hex3",
-            containerClassName: 'bgmPicker',
-            showInput: true,
-            allowEmpty: true
-        });
-        $("#menucolorPicker").spectrum({
-            showButtons: false,
-            preferredFormat: "hex3",
-            containerClassName: 'menucolorPicker',
-            replacerClassName: 'evo-cp-replacer',
-            showInput: true,
-            allowEmpty: true
-        });
-        $("#menuHcolorPicker").spectrum({
-            showButtons: false,
-            preferredFormat: "hex3",
-            containerClassName: 'menuHcolorPicker',
-            replacerClassName: 'evo-cp-replacer',
-            showInput: true,
-            allowEmpty: true
-        });
-        $("#textcolorPicker").spectrum({
-            showButtons: false,
-            preferredFormat: "hex3",
-            containerClassName: 'textcolorPicker',
-            replacerClassName: 'evo-cp-replacer',
-            showInput: true,
-            allowEmpty: true
-        });
-        $("#linkcolorPicker").spectrum({
-            showButtons: false,
-            preferredFormat: "hex3",
-            containerClassName: 'linkcolorPicker',
-            replacerClassName: 'evo-cp-replacer',
-            showInput: true,
-            allowEmpty: true
-        });
-    </script>
-@endif
 </body>
 </html>
