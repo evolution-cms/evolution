@@ -442,7 +442,7 @@ if (!function_exists('getTVDisplayFormat')) {
                     }
                 }
 
-                $modx->regClientStartupScript(MODX_MANAGER_URL . 'media/script/bin/viewport.js'
+                $modx->regClientStartupScript(MODX_MANAGER_URL . 'media/script/viewport.js'
                     , [
                         'name' => 'viewport',
                         'version' => '0',
