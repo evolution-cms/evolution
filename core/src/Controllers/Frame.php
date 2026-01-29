@@ -318,7 +318,7 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
 
     protected function evoLogoIcon(): string
     {
-        $path = MODX_MANAGER_PATH . 'media/style/common/images/misc/logo-evo.svg';
+        $path = $this->managerTheme->getThemeDir() . 'images/misc/logo-evo.svg';
         if (is_file($path)) {
             $svg = file_get_contents($path);
             if ($svg !== false) {

@@ -1,4 +1,3 @@
-@import "../../../../style/common/font-awesome/css/font-awesome.min.css?v=5.10.2";
 body { background: #fff; }
 input { margin: 0; }
 input[type="radio"], input[type="checkbox"], label { cursor: pointer; }

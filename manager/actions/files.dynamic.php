@@ -68,6 +68,7 @@ $uploadablefiles = add_dot($uploadablefiles);
 $upload_maxsize = evo()->getConfig('upload_maxsize');
 $filemanager_path = rtrim(str_replace('\\', '/', realpath(evo()->getConfig('filemanager_path', MODX_BASE_PATH))), '/');
 $base_path = rtrim(str_replace('\\', '/', realpath(MODX_BASE_PATH)), '/');
+$len = strlen($filemanager_path);
 // end settings
 // get the current work directory
 $requested_path = ltrim(isset($_REQUEST['path']) ? $_REQUEST['path'] : '', '/');
