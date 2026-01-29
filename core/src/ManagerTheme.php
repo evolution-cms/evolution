@@ -572,7 +572,7 @@ class ManagerTheme implements ManagerThemeInterface
     public function getTemplate($name, $config = null)
     {
         if (!empty($config) && empty($this->getCore()->getConfig($config))) {
-            $this->getCore()->setConfig($config, MODX_MANAGER_PATH . 'media/style/common/' . $name . '.tpl');
+            $this->getCore()->setConfig($config, MODX_MANAGER_PATH . 'media/style/default/' . $name . '.tpl');
         }
 
         $target = $this->getCore()->getConfig($config);
@@ -594,7 +594,7 @@ class ManagerTheme implements ManagerThemeInterface
                 $target = $this->getThemeDir() . 'html/' . $name . '.html';
                 $content = file_get_contents($target);
             } else {
-                $target = MODX_MANAGER_PATH . 'media/style/common/' . $name . '.tpl';
+                $target = MODX_MANAGER_PATH . 'media/style/default/' . $name . '.tpl';
                 $content = file_get_contents($target);
             }
         }
