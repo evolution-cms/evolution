@@ -285,7 +285,7 @@ ul.sortableList li { position: relative; z-index: 1; float: left; clear: both; m
     border: 1px solid #ccc; line-height: 1.23076923; background-color: #fff; -webkit-transform: translate3d(0, 0, 0); transform: translate3d(0, 0, 0); box-shadow: none; transition: color .3s, box-shadow .3s, transform .3s, z-index .3s step-end; }
 ul.sortableList li.ghost { z-index: 2; box-shadow: 0 0.25rem 1.5rem rgba(0, 0, 0, 0.15); transition: color .3s, box-shadow .3s, transform 0s, z-index 0s; }
 /* [ TOOLTIPS ] */
-.evo-tooltip, .custom-tip { position: fixed; z-index: 13000; width: 13rem; margin: 1rem; padding: 0.9rem 1rem; font-size: 0.75rem; line-height: 1.5; font-family: 'Roboto', sans-serif; text-align: left; color: #333; background-color: #fff; visibility: hidden; transition-duration: .3s; transform: translate3d(1rem, 0, 0); -webkit-box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.15); box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.15); }
+.evo-tooltip, .custom-tip { position: fixed; z-index: 13000; width: 13rem; margin: 1rem; padding: 0.9rem 1rem; font-size: 0.75rem; line-height: 1.5; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; text-align: left; color: #333; background-color: #fff; visibility: hidden; transition-duration: .3s; transform: translate3d(1rem, 0, 0); -webkit-box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.15); box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.15); }
 .evo-tooltip { opacity: 0; content: attr(data-tooltip); }
 .evo-tooltip.show { opacity: 1; visibility: visible; transform: translate3d(0, 0, 0); }
 [data-tooltip] { cursor: help }
