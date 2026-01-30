@@ -1,0 +1,37 @@
+# Top-level EditorConfig file
+# Ensures consistent coding styles across editors and IDEs
+root = true
+
+# Global defaults
+[*]
+charset = utf-8                 # Standard encoding for PHP, JS, HTML, etc.
+end_of_line = lf                # Unix-style line endings (Git-friendly)
+insert_final_newline = true     # POSIX-compliant files, cleaner diffs
+trim_trailing_whitespace = true # Avoids noisy diffs and accidental spaces
+indent_style = space            # Spaces over tabs (PSR-12, JS, CSS)
+indent_size = 4                 # Default: PHP / Laravel standard
+
+# Markdown
+# Trailing spaces can be meaningful (line breaks)
+[*.md]
+trim_trailing_whitespace = false
+
+# YAML
+# YAML ecosystem (CI, Docker, GitHub Actions) uses 2 spaces by convention
+[*.{yml,yaml}]
+indent_size = 2
+
+# Front-end ecosystem
+# Prettier / Tailwind / JS community standard = 2 spaces
+[*.{js,jsx,ts,tsx,css,scss,less,json}]
+indent_size = 2
+
+# Blade templates (Laravel / Livewire)
+# Kept at 4 spaces to align with PHP and PSR-12 style
+[*.blade.php]
+indent_size = 4
+
+# HTML / Vue templates
+# Front-end oriented, commonly formatted with 2 spaces
+[*.{html,vue}]
+indent_size = 2

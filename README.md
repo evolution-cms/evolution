@@ -37,6 +37,42 @@ Most significant, though, is **Evolution CMS's** ability to empower you to quick
 You can use the single click installer: [Evolution CMS Installer](https://github.com/evolution-cms/installer)
 Evolution CMS 3.5.x requires **PHP >= 8.3**. Recommend **PHP >= 8.4**.
 
+## Manager UI (MaryUI + Tailwind + daisyUI)
+
+### Requirements
+- Node.js (LTS).
+- Composer 2.x.
+
+### Composer (MaryUI + Livewire)
+Add a local path repository for MaryUI in `core/composer.json` (from `5.0.x/core`):
+```
+"repositories": {
+  "robsontenorio/mary": {
+    "type": "path",
+    "url": "../mary-main",
+    "options": { "symlink": true }
+  }
+}
+```
+Then install (run inside `core` folder):
+```
+composer require robsontenorio/mary livewire/livewire
+```
+
+### Node deps (Tailwind v4 + daisyUI)
+From the repo root (`5.0.x`):
+```
+npm i -D tailwindcss@^4 daisyui@latest @tailwindcss/typography
+```
+
+### Build manager CSS
+```
+php core/artisan tailwind:build theme:default --force
+```
+Entry file: `manager/media/style/default/css/tailwind.css`  
+Output: `manager/media/style/default/css/tailwind.min.css`  
+Themes: `themes: all` (daisyUI), custom themes will be added later.
+
 ## References
 
 Official Website:
