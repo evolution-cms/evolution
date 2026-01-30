@@ -76,5 +76,11 @@ return [
             'driver' => 'single',
             'path' => EVO_STORAGE_PATH . 'deprecation.log',
         ],
+        'manager_compat' => [
+            'driver' => 'single',
+            'path' => EVO_STORAGE_PATH . 'logs/manager-compat.log',
+            'level' => 'warning',
+            'replace_placeholders' => true,
+        ],
     ],
 ];

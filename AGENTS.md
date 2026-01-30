@@ -19,9 +19,48 @@ Evolution CMS (Evo) is a MODX Evolution legacy CMS modernized with a Laravel 12 
 - `php core/artisan tailwind:build theme:default --force` builds manager Tailwind CSS.
 - For MaryUI/Livewire local dev, add path repos in `core/composer.json` and run `composer require robsontenorio/mary livewire/livewire` (see `README.md`).
 
+## EVO 5 Major Strategy (break-first)
+- Goal: standard Laravel/MaryUI manager + clean core; we optimize for correctness, speed, and maintainability first.
+- Compatibility work is **evidence-driven**: only after inventory + confirmed breakage; no “just in case” proxies.
+- Legacy removal: if something is 100% dead, delete it; if a real case appears later, add a minimal adapter/proxy.
+- Any compat layer must be isolated (`core/src/Legacy` or a dedicated compat namespace) and documented in `BREAKING_CHANGES.md` + `DEPRECATIONS.md`.
+- Deprecated usage must be logged before expanding compatibility so we can prioritize by real impact.
+
+## Baseline Invariants (non-negotiable for 5.0)
+- Frame + iframe architecture stays: tree + main + resizer + mainframe are always present and functional.
+- Critical DOM IDs must exist: `#mainMenu`, `#tree`, `#main`, `#resizer`, `#mainframe`, `#actions`, `#Button1`, `#mx_contextmenu`.
+- Manager auth/ACL/i18n cannot be bypassed: `hasPermission`, `$_SESSION['mgrRole']`, `manager_language`, `$_lang`/lexicon.
+- `/manager/api/*` must remain protected (auth + CSRF for state changes + validation + JSON-only).
+- Deprecated usage is always logged (no compat/proxy work without evidence).
+
+## Release Gate (minimum)
+- PHPStan (`composer run analyze`) + Tailwind build for manager.
+- Smoke scenarios: login, frame shell load, iframe navigation, tree actions, save hotkey.
+- Contract-test for critical DOM IDs (`#mainMenu`, `#tree`, `#main`, `#resizer`, `#mainframe`, `#actions`, `#Button1`, `#mx_contextmenu`).
+- Doc-sync rule: any code change that affects behavior/contracts/routing/flows/deps must include matching doc updates in PRD/SPEC/TASKS/TESTS/BREAKING_CHANGES/DEPRECATIONS/COMPAT_LOGGING/README. A PR without doc updates is not ready.
+
+## Doc Impact Checklist (required)
+- Routing/entrypoints changed → update `PRD.md`, `SPEC.md`, `TASKS.md`, `BREAKING_CHANGES.md`.
+- DOM IDs / JS hooks changed → update `SPEC.md` (NORMATIVE DOM/JS) + `TESTS.md` (Contract Test).
+- Compat/proxy/adapter added/changed → update `DEPRECATIONS.md` + `COMPAT_LOGGING.md`.
+- Build/deps changed (composer/node/tailwind) → update `README.md` + `AGENTS.md` build commands.
+- Security changes (/manager/api or iframe allowlist) → update `SPEC.md` (NORMATIVE security) + `TASKS.md` security stream.
+
+## Doc-sync Playbook (control scenarios)
+- Routing change (`/manager/*`, entrypoints) → update `PRD.md` (Scope/Routing), `SPEC.md` (Routing), `TASKS.md` (Routing streams), `BREAKING_CHANGES.md` (status=done).
+- DOM/JS contract change (IDs/hooks) → update `SPEC.md` (NORMATIVE DOM/JS) + `TESTS.md` (Contract Test IDs).
+- API surface change (`/manager/api/*`) → update `SPEC.md` (Security requirements) + `TASKS.md` (Security stream) + `BREAKING_CHANGES.md` if breaking.
+- Theme system change (sync, storage keys) → update `SPEC.md` (Theme sync) + `TESTS.md` if behavior changes.
+- Icon system change (MaryUI vs style.php) → update `PRD.md` + `BREAKING_CHANGES.md`.
+
 ## Ecosystem Packages & Integration (Workspace)
 - This repo is part of a local workspace in `../` with Evo packages used via Composer path repos and `vendor:publish`.
-- Key local packages: `eTinyMCE`, `eCodemirror`, `eFilemanager`, `ePasskeys`, `sLang`, `sGallery`, `sSettings`, `sSeo`, `sOffers`, `sTask`, `sCommerce`, `example-package`, `evoDemo`, `mary-main`, `livewire`.
+- Key local packages: `eTinyMCE`, `eCodemirror`, `eFilemanager`, `ePasskeys`, `sLang`, `sGallery`, `sSettings`, `sSeo`, `sOffers`, `sTask`, `sCommerce`, `example-package`, `evoDemo`, `mary`, `livewire`.
+- Local paths used in this workspace:
+  - `mary` (MaryUI): `../mary`
+  - `paper.mary-ui.com`: `../paper.mary-ui.com`
+  - `multifields` (workspace): `../multifields-master`
+  - `templatesedit3` (workspace): `../templatesedit3-3.1.x`
 
 ## Coding Style & Naming Conventions
 - Follow PSR-12-like PHP style, 4-space indentation, and existing namespace conventions.
@@ -33,3 +72,10 @@ There is no automated test suite in this repo. Run PHPStan and perform manual sm
 ## Commit & Pull Request Guidelines
 - Commit messages use short tags: `[FIX]`, `[UPD]`, `[DEL]` + description.
 - PRs should include scope, test steps, linked issues (if any), and screenshots for UI changes.
+
+## Docs Index
+- `PRD.md` — product requirements and scope
+- `SPEC.md` — technical specification
+- `TASKS.md` — execution plan
+- `TESTS.md` — smoke checklist + contract test
+- `BREAKING_CHANGES.md` — major change log
