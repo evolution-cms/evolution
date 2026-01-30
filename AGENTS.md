@@ -1,33 +1,35 @@
 # Repository Guidelines
 
+## Architecture Overview
+Evolution CMS (Evo) is a MODX Evolution legacy CMS modernized with a Laravel 12 runtime. Legacy parser/API behavior lives in `core/includes`, `core/functions`, and `core/src/Legacy`; modern services and app layers live in `core/src` with Illuminate components. The manager UI is Livewire + MaryUI (daisyUI + Tailwind v4) and ships from `manager/`.
+
 ## Project Structure & Module Organization
-- `core/` holds the PHP framework and CMS runtime. Main source lives in `core/src/`, with legacy code isolated in `core/src/Legacy`.
-- `manager/` contains the admin UI and its assets, including Tailwind entry/output files under `manager/media/style/<theme>/css`.
-- `views/` contains front-end templates.
-- `assets/` contains public assets and package-specific resources.
-- `install/` contains the installer and setup controllers.
-- Repo root includes the front controller `index.php`, a configuration template `config.php.example`, and a local dev DB `database.sqlite`.
+- `core/` Laravel runtime + Evo services. Key dirs: `core/src` (modern services), `core/src/Legacy` (compat layer), `core/includes` (legacy bootstrap/defines), `core/functions` (parser/actions/helpers), `core/config` (Laravel-style config), `core/custom` (project overrides; see `core/custom/*.example`), `core/database` (migrations/seeders), `core/storage` (cache/logs).
+- `assets/` MODX-era ecosystem and public files: `assets/snippets`, `assets/plugins`, `assets/modules`, `assets/tvs`, `assets/templates`, plus `assets/js`, `assets/css`, `assets/images`, `assets/files`.
+- `manager/` admin panel UI and assets; Tailwind entry/output at `manager/media/style/<theme>/css`. Manager integrations publish assets under `manager/media`.
+- `install/` installer UI/controllers and environment checks.
+- `views/` Blade templates for front-end; `index.php` is the front controller. Local config is `config.php` (copy from `config.php.example`).
+
+## Specs & Legacy Documentation
+- Product specs live in `PRD.md`, `SPEC.md`, and `TASKS.md` in the repo root. If you maintain a dedicated test plan, place it in `TESTS.md` alongside them.
+- Legacy documentation for MODX/Evo APIs, events, snippets, TVs, and components is in `../docs` (see `../docs/en`, `../docs/ru`, `../docs/ua`).
 
 ## Build, Test, and Development Commands
-- `composer install` installs PHP dependencies for the project.
-- `composer run analyze` runs PHPStan static analysis (configured for `core/src`).
-- `npm i -D tailwindcss@^4 daisyui@latest @tailwindcss/typography` installs manager UI build tooling.
-- `php core/artisan tailwind:build theme:default --force` builds manager Tailwind CSS into `manager/media/style/default/css/tailwind.min.css`.
-- Runtime: serve the repo root with PHP 8.3+ and point your web server to `index.php`.
+- `composer install` installs PHP dependencies; `composer run analyze` runs PHPStan.
+- `php core/artisan tailwind:build theme:default --force` builds manager Tailwind CSS.
+- For MaryUI/Livewire local dev, add path repos in `core/composer.json` and run `composer require robsontenorio/mary livewire/livewire` (see `README.md`).
+
+## Ecosystem Packages & Integration (Workspace)
+- This repo is part of a local workspace in `../` with Evo packages used via Composer path repos and `vendor:publish`.
+- Key local packages: `eTinyMCE`, `eCodemirror`, `eFilemanager`, `ePasskeys`, `sLang`, `sGallery`, `sSettings`, `sSeo`, `sOffers`, `sTask`, `sCommerce`, `example-package`, `evoDemo`, `mary-main`, `livewire`.
 
 ## Coding Style & Naming Conventions
-- Follow the existing PHP style: namespaces, 4-space indentation, and PSR-12-like formatting.
-- Use PascalCase for classes and camelCase for methods/properties, matching `core/src` conventions.
+- Follow PSR-12-like PHP style, 4-space indentation, and existing namespace conventions.
 - Keep new framework code in `core/src`; touch `core/src/Legacy` only when maintaining legacy behavior.
 
 ## Testing Guidelines
-- There is no automated test suite in this repository.
-- Run `composer run analyze` before shipping changes and perform manual smoke tests for installer, manager UI, and front-end flows relevant to your change.
+There is no automated test suite in this repo. Run PHPStan and perform manual smoke tests for installer, manager UI, and any affected modules or legacy flows.
 
 ## Commit & Pull Request Guidelines
-- Commit messages follow a short bracketed tag + description pattern, e.g. `[FIX] handle empty theme`, `[UPD] styles`, `[DEL] remove unused files`.
-- PRs should include a concise summary, explicit test steps, linked issues (if any), and screenshots for UI changes (manager or views).
-
-## Configuration & Security Tips
-- Copy `config.php.example` to `config.php` for local configuration; never commit secrets.
-- Treat `database.sqlite` as local-only data; avoid committing production or sensitive databases.
+- Commit messages use short tags: `[FIX]`, `[UPD]`, `[DEL]` + description.
+- PRs should include scope, test steps, linked issues (if any), and screenshots for UI changes.

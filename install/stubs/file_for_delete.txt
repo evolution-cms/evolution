@@ -1,9 +1,0 @@
-{core}src/Services/Users
-{core}src/Services/Documents
-{core}src/Services/UserManager.php
-{core}src/Services/DocumentManager.php
-{core}src/Providers/DocumentManagerServiceProvider.php
-{core}src/Providers/UserManagerServiceProvider.php
-{core}src/Facades/DocumentManager.php
-{core}src/Facades/UserManager.php
-{core}src/Interfaces/ServiceInterface.php

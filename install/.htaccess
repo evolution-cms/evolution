@@ -1,3 +1,0 @@
-<IfModule mod_headers.c>
-    Header always unset Content-Security-Policy
-</IfModule>
