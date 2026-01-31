@@ -141,10 +141,10 @@ function setColumnCount(targetEl, count) {
 
 function getViewOpts(form) {
   var viewOpts = {};
-  var cbButtons = qs(form, 'input:checkbox[name=cb_buttons]');
-  var cbDescription = qs(form, 'input:checkbox[name=cb_description]');
-  var cbIcons = qs(form, 'input:checkbox[name=cb_icons]');
-  var cbAll = qs(form, 'input:checkbox[name=cb_all]');
+  var cbButtons = qs(form, 'input[type="checkbox"][name="cb_buttons"]');
+  var cbDescription = qs(form, 'input[type="checkbox"][name="cb_description"]');
+  var cbIcons = qs(form, 'input[type="checkbox"][name="cb_icons"]');
+  var cbAll = qs(form, 'input[type="checkbox"][name="cb_all"]');
 
   viewOpts.cb_buttons = !!(cbButtons && cbButtons.checked);
   viewOpts.cb_description = !!(cbDescription && cbDescription.checked);
@@ -211,11 +211,11 @@ function setAllViews(viewOpts) {
 }
 
 function setViewOptions(form, viewOpts) {
-  var cbButtons = qs(form, 'input:checkbox[name=cb_buttons]');
-  var cbDescription = qs(form, 'input:checkbox[name=cb_description]');
-  var cbIcons = qs(form, 'input:checkbox[name=cb_icons]');
-  var cbAll = qs(form, 'input:checkbox[name=cb_all]');
-  var viewRadio = qs(form, 'input:radio[name=view][value=' + viewOpts.view + ']');
+  var cbButtons = qs(form, 'input[type="checkbox"][name="cb_buttons"]');
+  var cbDescription = qs(form, 'input[type="checkbox"][name="cb_description"]');
+  var cbIcons = qs(form, 'input[type="checkbox"][name="cb_icons"]');
+  var cbAll = qs(form, 'input[type="checkbox"][name="cb_all"]');
+  var viewRadio = qs(form, 'input[type="radio"][name="view"][value="' + viewOpts.view + '"]');
   var columns = qs(form, 'input[name=columns]');
   var fontsize = qs(form, 'input[name=fontsize]');
 

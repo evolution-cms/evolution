@@ -31,6 +31,12 @@
         }
 
         $html = '';
+        $togglePatterns = [
+            '~<svg[^>]*\\bclass=[\"\'][^\"\']*\\btoggle\\b[^\"\']*[\"\'][^>]*>.*?</svg>~is',
+            '~<i[^>]*\\bclass=[\"\'][^\"\']*\\btoggle\\b[^\"\']*[\"\'][^>]*>.*?</i>~is',
+            '~<span[^>]*\\bclass=[\"\'][^\"\']*\\btoggle\\b[^\"\']*[\"\'][^>]*>.*?</span>~is',
+        ];
+
         foreach ($menuGrouped[$parentId] as $item) {
             $id = (string) ($item[0] ?? '');
             if ($id !== '' && in_array($id, $skip, true)) {
@@ -45,24 +51,49 @@
 
             $hasChildren = isset($menuGrouped[$id]);
             $liClass = trim(($hasChildren ? 'dropdown ' : '') . $extraClass);
+            if ($level > 0) {
+                $liClass = trim($liClass . ' w-max !w-max');
+            }
             $liAttrs = ($id !== '' ? ' id="' . htmlspecialchars($id, ENT_QUOTES, 'UTF-8') . '"' : '')
                 . ($liClass !== '' ? ' class="' . htmlspecialchars($liClass, ENT_QUOTES, 'UTF-8') . '"' : '');
 
             if ($hasChildren) {
                 $summaryAttrs = $title !== '' ? ' title="' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '"' : '';
-                $summaryClass = ' class="flex items-center gap-2 w-full list-none' . ($level > 0 ? ' pr-1 [&::after]:hidden' : '') . '"';
-                $caret = '';
-                if ($level > 0) {
-                    $caret = '<span class="ml-auto opacity-60">' . svg('tabler-chevron-right', 'h-4 w-4')->toHtml() . '</span>';
+                $summaryClass = $level > 0
+                    ? ' class="flex items-center gap-2 w-max !w-max list-none pr-1 whitespace-nowrap [&::after]:hidden"'
+                    : ' class="flex items-center gap-2 w-full list-none pr-1 [&::after]:hidden"';
+                $caretIcon = $level > 0
+                    ? svg('tabler-chevron-right', 'h-3.5 w-3.5 text-base-content/70')->toHtml()
+                    : '';
+                $caret = $level > 0
+                    ? '<span class="ml-2 shrink-0 opacity-80" data-menu-caret>' . $caretIcon . '</span>'
+                    : '';
+                $label = preg_replace($togglePatterns, '', $itemName);
+                $summaryTitle = trim(preg_replace('/\\s+/', ' ', strip_tags($label)));
+                $summaryData = '';
+                $summaryData .= ' data-menu-level="' . $level . '"';
+                if ($href !== '') {
+                    $summaryData .= ' data-menu-href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '"';
                 }
-                $summaryInner = '<span class="flex items-center gap-2 flex-1">' . $itemName . '</span>' . $caret;
+                if ($target !== '') {
+                    $summaryData .= ' data-menu-target="' . htmlspecialchars($target, ENT_QUOTES, 'UTF-8') . '"';
+                }
+                if ($onclick !== '') {
+                    $summaryData .= ' data-menu-onclick="' . htmlspecialchars($onclick, ENT_QUOTES, 'UTF-8') . '"';
+                }
+                if ($summaryTitle !== '') {
+                    $summaryData .= ' data-menu-title="' . htmlspecialchars($summaryTitle, ENT_QUOTES, 'UTF-8') . '"';
+                }
+                $labelAttr = $level > 0 ? ' data-menu-link' : '';
+                $summaryInner = '<span class="flex items-center gap-2 flex-1"' . $labelAttr . '>' . $label . '</span>' . $caret;
                 $childHtml = $renderMenu($id, $level + 1, $skip);
-                $submenuClass = 'menu menu-sm bg-base-100 rounded-box w-max min-w-max p-2 mt-2 shadow';
-                $html .= '<li' . $liAttrs . '><details><summary' . $summaryAttrs . $summaryClass . '>'
+                $submenuClass = 'menu menu-sm bg-base-100 rounded-box w-max !w-max min-w-max max-w-none !max-w-none p-2 mt-2 shadow';
+                $html .= '<li' . $liAttrs . '><details><summary' . $summaryAttrs . $summaryClass . $summaryData . '>'
                     . $summaryInner . '</summary><ul class="' . $submenuClass . '">' . $childHtml . '</ul></details></li>';
                 continue;
             }
 
+            $itemName = preg_replace($togglePatterns, '', $itemName);
             $linkAttrs = '';
             if ($href !== '') {
                 $linkAttrs .= ' href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '"';
@@ -77,7 +108,71 @@
                 $linkAttrs .= ' onclick="' . htmlspecialchars($onclick, ENT_QUOTES, 'UTF-8') . '"';
             }
 
-            $html .= '<li' . $liAttrs . '><a' . $linkAttrs . '>' . $itemName . '</a></li>';
+            $optionalHtml = '';
+            if (isset($item[11]) && !empty($item[11])) {
+                $optionalItems = $item[11];
+                if (is_array($optionalItems)) {
+                    if (!array_is_list($optionalItems)) {
+                        $optionalItems = array_values($optionalItems);
+                    }
+                } else {
+                    $optionalItems = [$optionalItems];
+                }
+
+                foreach ($optionalItems as $opt) {
+                    if (!is_array($opt) || count($opt) < 6) {
+                        continue;
+                    }
+                    [$tag, $optHref, $optClass, $optOnclick, $optTitle, $optInner] = $opt;
+                    $tag = in_array($tag, ['a', 'button'], true) ? $tag : 'a';
+                    $btnClass = $id === 'refresh_site'
+                        ? trim('btn btn-warning btn-xs px-1.5 h-5 min-h-0 ml-2 ' . $optClass)
+                        : trim('btn btn-ghost btn-xs px-1.5 h-5 min-h-0 ml-2 ' . $optClass);
+                    $btnAttrs = ' class="' . htmlspecialchars($btnClass, ENT_QUOTES, 'UTF-8') . '"';
+                    $optHref = $id === 'refresh_site' ? 'javascript:;' : $optHref;
+                    $optOnclick = $id === 'refresh_site'
+                        ? "document.getElementById('clearCacheModal').showModal(); return false;"
+                        : $optOnclick;
+                    if ($tag === 'a') {
+                        $btnAttrs .= ' href="' . htmlspecialchars($optHref, ENT_QUOTES, 'UTF-8') . '"';
+                    }
+                    if (!empty($optTitle)) {
+                        $btnAttrs .= ' title="' . htmlspecialchars($optTitle, ENT_QUOTES, 'UTF-8') . '"';
+                    }
+                    if (!empty($optOnclick)) {
+                        $btnAttrs .= ' onclick="' . htmlspecialchars($optOnclick, ENT_QUOTES, 'UTF-8') . '"';
+                    }
+                    $optionalHtml .= '<' . $tag . $btnAttrs . '>' . $optInner . '</' . $tag . '>';
+                }
+            }
+
+            $needsToggle = $level > 0 && strpos($extraClass, 'dropdown-toggle') !== false;
+            $toggleHtml = $needsToggle
+                ? '<span class="toggle ml-2 shrink-0 opacity-80">' . svg('tabler-chevron-right', 'h-3.5 w-3.5 text-base-content/70')->toHtml() . '</span>'
+                : '';
+
+            if ($optionalHtml !== '') {
+                $liClass = trim($liClass);
+                $liAttrs = ($id !== '' ? ' id="' . htmlspecialchars($id, ENT_QUOTES, 'UTF-8') . '"' : '')
+                    . ($liClass !== '' ? ' class="' . htmlspecialchars($liClass, ENT_QUOTES, 'UTF-8') . '"' : '');
+                $linkClass = $level > 0 ? 'w-max !w-max whitespace-nowrap' : 'flex-1';
+                if ($needsToggle) {
+                    $linkClass = trim('flex items-center gap-2 ' . $linkClass);
+                }
+                $linkAttrs .= ' class="' . $linkClass . '"';
+                $wrapperClass = $level > 0 ? 'flex items-center gap-2 w-max !w-max' : 'flex items-center gap-2 w-full';
+                $html .= '<li' . $liAttrs . '><div class="' . $wrapperClass . '">'
+                    . '<a' . $linkAttrs . '><span class="flex items-center gap-2">' . $itemName . '</span>' . $toggleHtml . '</a>' . $optionalHtml . '</div></li>';
+            } else {
+                $linkClass = $level > 0 ? 'w-max !w-max whitespace-nowrap' : '';
+                if ($needsToggle) {
+                    $linkClass = trim('flex items-center gap-2 ' . $linkClass);
+                }
+                if ($linkClass !== '') {
+                    $linkAttrs = rtrim($linkAttrs) . ' class="' . $linkClass . '"';
+                }
+                $html .= '<li' . $liAttrs . '><a' . $linkAttrs . '><span class="flex items-center gap-2">' . $itemName . '</span>' . $toggleHtml . '</a></li>';
+            }
         }
 
         return $html;
@@ -369,7 +464,7 @@
                             @endif
                             @php
                                 $style = evo()->getConfig('settings_version') !== evo()->getVersionData('version') ? 'style="color:#ffff8a;"' : '';
-                                echo '<li><span class="dropdown-item" title="' . evo()->getPhpCompat()->entities(evo()->getConfig('site_name')) . ' &ndash; ' . evo()->getVersionData('full_appname') . '" ' . $style . '>' . evo()->getVersionData('branch') . ' ' . evo()->getConfig('settings_version') . '</span></li>';
+                                echo '<li><span class="block w-full text-xs text-right opacity-70 px-2 py-1" title="' . evo()->getPhpCompat()->entities(evo()->getConfig('site_name')) . ' &ndash; ' . evo()->getVersionData('full_appname') . '" ' . $style . '>' . evo()->getVersionData('branch') . ' ' . evo()->getConfig('settings_version') . '</span></li>';
                             @endphp
                         </ul>
                     </details>
@@ -382,4 +477,20 @@
             </div>
         </x-slot:actions>
     </x-mary-nav>
+
+    @php
+        $refreshTitle = ManagerTheme::getLexicon('refresh_site');
+        $refreshTitleJs = json_encode($refreshTitle, JSON_UNESCAPED_UNICODE);
+        $refreshAction = "if (window.modx && modx.config && modx.config.global_tabs && typeof modx.tabs === 'function') { modx.tabs({ url: 'index.php?a=26', title: " . $refreshTitleJs . " }); } else if (window.main && window.main !== window) { window.main.location.href = 'index.php?a=26'; } else { window.location.href = 'index.php?a=26'; } document.getElementById('clearCacheModal').close();";
+    @endphp
+    <x-mary-modal id="clearCacheModal" :title="$refreshTitle" class="backdrop-blur">
+        <p class="text-sm opacity-80">{{ ManagerTheme::getLexicon('refresh_title') }}</p>
+
+        <x-slot:actions>
+            <form method="dialog">
+                <x-mary-button class="btn-ghost" type="submit" label="{{ ManagerTheme::getLexicon('cancel') }}" />
+            </form>
+            <x-mary-button class="btn-warning" label="{{ $refreshTitle }}" onclick="{{ $refreshAction }}" />
+        </x-slot:actions>
+    </x-mary-modal>
 </div>

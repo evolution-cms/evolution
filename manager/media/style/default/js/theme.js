@@ -193,6 +193,59 @@
       return
     }
 
+    const isNoopHref = (href) => {
+      if (!href) {
+        return true
+      }
+      const normalized = href.trim().toLowerCase()
+      return normalized === "#" || normalized === "javascript:;" || normalized.startsWith("javascript:")
+    }
+
+    const runInlineHandler = (code, context, event) => {
+      if (!code) {
+        return true
+      }
+      try {
+        const fn = new Function("event", code)
+        const result = fn.call(context, event)
+        if (result === false) {
+          return false
+        }
+      } catch (error) {
+        return true
+      }
+      return true
+    }
+
+    const openTarget = (href, target, title) => {
+      if (!href) {
+        return
+      }
+      const safeTitle = title || "blank"
+      if (!target || target === "main" || target === "mainframe") {
+        if (window.modx && modx.config && modx.config.global_tabs && typeof modx.tabs === "function") {
+          modx.tabs({ url: href, title: safeTitle })
+          return
+        }
+        if (window.main && window.main !== window) {
+          window.main.location.href = href
+          return
+        }
+        window.location.href = href
+        return
+      }
+      if (target === "_blank") {
+        window.open(href, "_blank")
+        return
+      }
+      const frame = window.frames[target]
+      if (frame) {
+        frame.location.href = href
+        return
+      }
+      window.open(href, target)
+    }
+
     const closeOthers = (current) => {
       menu.querySelectorAll("details[open]").forEach((openDetail) => {
         if (!current) {
@@ -218,6 +271,67 @@
     }, true)
 
     menu.addEventListener("click", (event) => {
+      const summary = event.target.closest("summary")
+      if (summary && summary.dataset && summary.dataset.menuLevel && summary.dataset.menuLevel !== "0") {
+        const isCaret = event.target.closest("[data-menu-caret]")
+        const isLink = event.target.closest("[data-menu-link]")
+        if (!isCaret && !isLink) {
+          event.preventDefault()
+          event.stopPropagation()
+          return
+        }
+      }
+
+      const caret = event.target.closest("[data-menu-caret]")
+      if (caret) {
+        const details = caret.closest("details")
+        if (details) {
+          event.preventDefault()
+          event.stopPropagation()
+          const willOpen = !details.open
+          details.open = willOpen
+          if (willOpen) {
+            closeOthers(details)
+          }
+        }
+        return
+      }
+
+      const link = event.target.closest("[data-menu-link]")
+      if (link) {
+        const summary = link.closest("summary")
+        if (!summary) {
+          return
+        }
+
+        const href = summary.dataset.menuHref || ""
+        const onclick = summary.dataset.menuOnclick || ""
+        const target = summary.dataset.menuTarget || ""
+        const title = summary.dataset.menuTitle || ""
+
+        if (isNoopHref(href) && !onclick) {
+          return
+        }
+
+        event.preventDefault()
+        event.stopPropagation()
+
+        if (!runInlineHandler(onclick, summary, event)) {
+          return
+        }
+
+        if (!isNoopHref(href)) {
+          openTarget(href, target, title)
+        }
+
+        const details = summary.closest("details")
+        if (details) {
+          details.open = false
+        }
+        closeOthers(null)
+        return
+      }
+
       const action = event.target.closest("details[open] a, details[open] button")
       if (!action || action.closest("summary")) {
         return

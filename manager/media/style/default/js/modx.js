@@ -189,7 +189,7 @@
                         if (a.offsetParent.id) {
                             d.getElementById(a.offsetParent.id.substr(7)).classList.add('selected');
                         }
-                        if ((modx.isMobile || w.innerWidth < modx.minWidth) && e.target.classList.contains('toggle')) {
+                        if ((modx.isMobile || w.innerWidth < modx.minWidth) && e.target.closest('.toggle')) {
                             a.parentNode.classList.add('selected');
                             e.stopPropagation();
                             e.preventDefault();
@@ -232,7 +232,7 @@
                             ul = this.offsetParent;
                         } else {
                             ul = d.createElement('ul');
-                            ul.className = 'sub-menu dropdown-menu';
+                            ul.className = 'sub-menu dropdown-menu menu menu-sm bg-base-100 rounded-box w-max min-w-max max-w-none whitespace-nowrap p-2 shadow';
                             this.parentNode.parentNode.appendChild(ul);
                         }
                         timer = setTimeout(function () {
@@ -246,7 +246,7 @@
                                         self.parentNode.classList.add('selected');
                                     } else {
                                         self.onclick = function (e) {
-                                            if (e.target.classList.contains('toggle')) {
+                                            if (e.target.closest('.toggle')) {
                                                 self.parentNode.classList.add('selected');
                                             }
                                         };

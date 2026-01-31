@@ -74,6 +74,7 @@
         'Blade_Icons' => EvolutionCMS\Providers\BladeIconsAdapterServiceProvider::class,
         'Blade_Tabler' => secondnetwork\TablerIcons\BladeTablerIconsServiceProvider::class,
         'Mary_UI' => Mary\MaryServiceProvider::class,
+        'Mary_Icons' => EvolutionCMS\Providers\MaryIconsServiceProvider::class,
     ],
 
     'aliases' => [

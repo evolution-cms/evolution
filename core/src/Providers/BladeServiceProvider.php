@@ -2,11 +2,14 @@
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
+use EvolutionCMS\View\Components\MaryIcon;
 
 class BladeServiceProvider extends ServiceProvider
 {
     public function boot()
     {
+        Blade::component('mary-icon', MaryIcon::class);
+
         Blade::directive('evoConfig', function ($expression) {
             $expression = $expression ?: "''";
             return "<?php echo e(evo()->getConfig($expression)); ?>";
