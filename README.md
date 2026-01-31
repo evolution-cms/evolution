@@ -44,19 +44,21 @@ Evolution CMS 3.5.x requires **PHP >= 8.3**. Recommend **PHP >= 8.4**.
 - Composer 2.x.
 
 ### Composer (MaryUI + Livewire)
-Add a local path repository for MaryUI in `core/composer.json` (from `5.0.x/core`):
-```
-"repositories": {
-  "robsontenorio/mary": {
-    "type": "path",
-    "url": "../mary-main",
-    "options": { "symlink": true }
-  }
-}
-```
-Then install (run inside `core` folder):
+Install from Packagist (run inside `core` folder):
 ```
 composer require robsontenorio/mary livewire/livewire
+```
+
+Optional: local workspace dev (path repos). Add to `core/composer.json`:
+```
+"repositories": [
+  { "type": "path", "url": "../../mary", "options": { "symlink": true } },
+  { "type": "path", "url": "../../livewire", "options": { "symlink": true } }
+]
+```
+Then run (inside `core`):
+```
+composer update robsontenorio/mary livewire/livewire
 ```
 
 ### Node deps (Tailwind v4 + daisyUI)

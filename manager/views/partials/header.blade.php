@@ -11,6 +11,7 @@
         {!! Tracy\Debugger::renderLoader() !!}
     @endif
     <link rel="stylesheet" type="text/css" href="{{ ManagerTheme::css() }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ ManagerTheme::getThemeUrl() }}css/tailwind.min.css?v={{evo()->getVersionData('version')}}"/>
     <script type="text/javascript" src="media/script/tabpane.js"></script>
     {!! ManagerTheme::getMainFrameHeaderHTMLBlock() !!}
 

@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+@plugin "daisyui" {
+  themes: all;
+}
+
+@source "../../../../views/**/*.blade.php";
+@source "../../../../media/style/default/*.tpl";
+@source "../../../../core/vendor/robsontenorio/mary/src/View/Components/**/*.php";

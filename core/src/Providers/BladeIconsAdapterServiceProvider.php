@@ -75,11 +75,23 @@ class BladeIconsAdapterServiceProvider extends ServiceProvider
     {
         // Register icon component without Application type-hint
         $this->callAfterResolving(ViewFactory::class, function ($view) {
-            if (!is_file($this->manifestPath())) {
-                return;
+            $factory = $this->app->make(Factory::class);
+            $manifestPath = $this->manifestPath();
+
+            if (!is_file($manifestPath)) {
+                $manifestDir = dirname($manifestPath);
+                if (!is_dir($manifestDir)) {
+                    @mkdir($manifestDir, 0775, true);
+                }
+
+                try {
+                    $this->app->make(IconsManifest::class)->write($factory->all());
+                } catch (\Throwable $e) {
+                    return;
+                }
             }
 
-            $this->app->make(Factory::class)->registerComponents();
+            $factory->registerComponents();
         });
     }
 

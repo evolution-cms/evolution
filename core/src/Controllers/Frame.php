@@ -267,6 +267,7 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
                 ],
                 false
             );
+        $this->parameters['menuItems'] = $this->sitemenu;
     }
 
     protected function svgIcon(string $name, array $attrs = []): string

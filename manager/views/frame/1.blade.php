@@ -62,7 +62,7 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
     <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" />
     <meta name="theme-color" content="#000" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <link rel="stylesheet" type="text/css" href="{{$css}}" />
+    <link rel="stylesheet" type="text/css" href="{{ManagerTheme::getThemeUrl()}}css/tailwind.min.css?v={{evo()->getVersionData('version')}}" />
     <link rel="icon" type="image/ico" href="{{ManagerTheme::getStyle('favicon')}}" />
     <style>
         #tree{width:{{$MODX_widthSideBar}}rem}
@@ -74,17 +74,6 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
         body:not(.sidebar-closed) #bars .icon-collapse{display:inline-block!important;}
         body.sidebar-closed #bars .icon-expand{display:inline-block!important;}
         body.sidebar-closed #bars .icon-collapse{display:none!important;}
-        #mainMenu .nav > li > ul > li.dropdown-toggle > a > svg.toggle,
-        #mainMenu .nav > li > ul > li.dropdown-toggle > a > svg[class*="chevron"],
-        #mainMenu .nav > li > ul > li.dropdown-toggle > a > svg[class*="angle"]{
-            position:absolute!important;
-            top:50%!important;
-            right:.75rem!important;
-            transform:translateY(-50%)!important;
-            width:.9em!important;
-            height:.9em!important;
-            opacity:.6!important;
-        }
     </style>
     <script>
         if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
@@ -214,6 +203,7 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
         ?>
     </script>
     <script src="{{ManagerTheme::getThemeUrl()}}js/modx.js?v={{evo()->getVersionData('version')}}"></script>
+    <script src="{{ManagerTheme::getThemeUrl()}}js/theme.js?v={{evo()->getVersionData('version')}}"></script>
     <?php
     // invoke OnManagerTopPrerender event
     $evtOut = $modx->invokeEvent('OnManagerTopPrerender', $_REQUEST);
@@ -225,159 +215,7 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
 <body class="{{$body_class}}">
 <input type="hidden" name="sessToken" id="sessTokenInput" value="{{isset($_SESSION['mgrToken']) ? $_SESSION['mgrToken'] : ''}}" />
 <div id="frameset">
-    <div id="mainMenu" class="dropdown">
-        <div class="container">
-            <div class="row">
-                <div class="cell">{!!$menu!!}</div>
-                <div class="cell">
-                    <ul id="settings" class="nav">
-                        <li id="searchform">
-                            <form action="index.php?a=71" method="post" target="main">
-                                <input type="hidden" value="Search" name="submitok" />
-                                <label for="searchid" class="label_searchid">{!! $_style['icon_search'] !!}</label>
-                                <input type="text" id="searchid" name="searchid" size="25" />
-                                <div class="mask"></div>
-                            </form>
-                        </li>
-                        @if (evo()->getConfig('show_newresource_btn') && evo()->hasPermission('new_document'))
-                            <li id="newresource" class="dropdown newresource">
-                                <a href="javascript:;" class="dropdown-toggle" onclick="return false;" title="{{ManagerTheme::getLexicon('add_resource')}}">
-                                    {!! $_style['icon_add'] !!}
-                                </a>
-                                <ul class="dropdown-menu">
-                                    @if (evo()->hasPermission('new_document'))
-                                        <li>
-                                            <a onclick="" href="index.php?a=4" target="main">
-                                                {!! $_style['icon_add'] !!} {{ManagerTheme::getLexicon('add_resource')}}
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a onclick="" href="index.php?a=72" target="main">
-                                                {!! iconHtml($_style['icon_chain']) !!} {{ManagerTheme::getLexicon('add_weblink')}}
-                                            </a>
-                                        </li>
-                                    @endif
-                                    @if (evo()->getConfig('use_browser') && evo()->hasPermission('assets_images'))
-                                        <li>
-                                            <a onclick="" href="media/browser/{{evo()->getConfig('which_browser')}}/browse.php?&type=images" target="main">
-                                                {!! $_style['icon_camera'] !!} {{ManagerTheme::getLexicon('images_management')}}
-                                            </a>
-                                        </li>
-                                    @endif
-                                    @if (evo()->getConfig('use_browser') && evo()->hasPermission('assets_files'))
-                                        <li>
-                                            <a onclick="" href="media/browser/{{$modx->getConfig('which_browser')}}/browse.php?&type=files" target="main">
-                                                {!! $_style['icon_files'] !!} {{ManagerTheme::getLexicon('files_management')}}
-                                            </a>
-                                        </li>
-                                    @endif
-                                </ul>
-                            </li>
-                        @endif
-                        <li id="preview">
-                            <a href="../" target="_blank" title="{{ManagerTheme::getLexicon('preview')}}">
-                                {!! $_style['icon_desktop'] !!}
-                            </a>
-                        </li>
-                        <li id="account" class="dropdown account">
-                            <a href="javascript:;" class="dropdown-toggle" onclick="return false;">
-                                @if ($user['photo'])
-                                    <span class="icon photo" style="background-image: url({!!MODX_SITE_URL . entities($user['photo'], evo()->getConfig('modx_charset'))!!});"></span>
-                                @else
-                                    <span class="icon">{!! $_style['icon_user'] !!}</span>
-                                @endif
-                                <span class="username">{{entities($user['username'], evo()->getConfig('modx_charset'))}}</span>
-                            </a>
-                            <ul class="dropdown-menu">
-                                @if (evo()->hasPermission('change_password'))
-                                    <li>
-                                        <a onclick="" href="index.php?a=28" target="main">
-                                            {!! $_style['icon_lock'] !!} {{ManagerTheme::getLexicon('change_password')}}
-                                        </a>
-                                    </li>
-                                @endif
-                                <li>
-                                    <a href="index.php?a=8">
-                                        {!! $_style['icon_logout'] !!} {{ManagerTheme::getLexicon('logout')}}
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li id="theme">
-                            <a id="treeMenu_theme_dark" onclick="modx.tree.toggleTheme(event)" title="{{ManagerTheme::getLexicon('manager_theme_mode_title')}}">
-                                {!! $_style['icon_theme'] !!}
-                            </a>
-                        </li>
-                        @if (
-                            evo()->hasPermission('settings') ||
-                            evo()->hasPermission('view_eventlog') ||
-                            evo()->hasPermission('logs') ||
-                            evo()->hasPermission('help')
-                        )
-                            <li id="system" class="dropdown">
-                                <a href="javascript:;" class="dropdown-toggle" title="{{ManagerTheme::getLexicon('system')}}" onclick="return false;">
-                                    {!! $_style['icon_cogs'] !!}
-                                </a>
-                                <ul class="dropdown-menu">
-                                    @if (evo()->hasPermission('settings'))
-                                        <li>
-                                            <a href="index.php?a=17" target="main">
-                                                {!! $_style['icon_sliders'] !!} {{ManagerTheme::getLexicon('edit_settings')}}
-                                            </a>
-                                        </li>
-                                    @endif
-                                    @if (evo()->hasPermission('view_eventlog'))
-                                        <li>
-                                            <a href="index.php?a=70" target="main">
-                                                {!! $_style['icon_calendar'] !!} {{ManagerTheme::getLexicon('site_schedule')}}
-                                            </a>
-                                        </li>
-                                    @endif
-                                    @if (evo()->hasPermission('view_eventlog'))
-                                        <li>
-                                            <a href="index.php?a=114" target="main">
-                                                {!! $_style['icon_info_triangle'] !!} {{ManagerTheme::getLexicon('eventlog_viewer')}}
-                                            </a>
-                                        </li>
-                                    @endif
-                                    @if (evo()->hasPermission('logs'))
-                                        <li>
-                                            <a href="index.php?a=13" target="main">
-                                                {!! $_style['icon_user_secret'] !!} {{ManagerTheme::getLexicon('view_logging')}}
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="index.php?a=53" target="main">
-                                                {!! $_style['icon_info_circle'] !!} {{ManagerTheme::getLexicon('view_sysinfo')}}
-                                            </a>
-                                        </li>
-                                    @endif
-                                    @if (evo()->hasPermission('help'))
-                                        <li>
-                                            <a href="index.php?a=9" target="main">
-                                                {!! $_style['icon_question_circle'] !!} {{ManagerTheme::getLexicon('help')}}
-                                            </a>
-                                        </li>
-                                    @endif
-                                    @php
-                                        $style = evo()->getConfig('settings_version') !== evo()->getVersionData('version') ? 'style="color:#ffff8a;"' : '';
-                                        echo '<li><span class="dropdown-item" title="' . evo()->getPhpCompat()->entities(evo()->getConfig('site_name')) . ' &ndash; ' . evo()->getVersionData('full_appname') . '" ' . $style . '>' . evo()->getVersionData('branch') . ' ' . evo()->getConfig('settings_version') . '</span></li>';
-                                    @endphp
-                                </ul>
-                            </li>
-                        @endif
-                        @if (evo()->getConfig('show_fullscreen_btn'))
-                            <li id="fullscreen">
-                                <a href="javascript:;" onclick="toggleFullScreen();" id="toggleFullScreen" title="{{ManagerTheme::getLexicon('toggle_fullscreen')}}">
-                                    {!! $_style['icon_expand'] !!}
-                                </a>
-                            </li>
-                        @endif
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <x-manager::topbar :menu-items="$menuItems" :user="$user" :icons="$_style" />
     <div id="tree">@include('manager::frame.tree')</div>
     <div id="main">
         @if (evo()->getConfig('global_tabs'))

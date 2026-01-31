@@ -5,6 +5,7 @@ module.exports = {
     content: [
         './manager/**/*.{php,html,tpl}',
         './packages/**/resources/views/**/*.blade.php',
+        './core/vendor/robsontenorio/mary/src/View/Components/**/*.php',
     ],
     theme: {
         extend: {
@@ -19,5 +20,9 @@ module.exports = {
     plugins: [
         require('@tailwindcss/forms'),
         require('@tailwindcss/typography'),
+        require('daisyui'),
     ],
+    daisyui: {
+        themes: 'all',
+    },
 };
