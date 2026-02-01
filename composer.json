@@ -46,6 +46,6 @@
     "phpstan/phpstan": "^2.1"
   },
   "scripts": {
-    "analyze": "vendor/bin/phpstan --memory-limit=512M"
+    "analyze": "@php -d xdebug.mode=off vendor/bin/phpstan --memory-limit=512M"
   }
 }
