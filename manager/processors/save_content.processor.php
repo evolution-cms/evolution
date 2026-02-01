@@ -74,8 +74,8 @@ if ($modx->getConfig('friendly_urls')) {
                 $tempAlias = $alias;
 
                 while (\EvolutionCMS\Models\SiteContent::withTrashed()
-                    ->where('id', '<>', $id)
-                    ->where('alias', $tempAlias)->count() > 0) {
+                        ->where('id', '<>', $id)
+                        ->where('alias', $tempAlias)->count() > 0) {
                     $tempAlias = $alias;
                     $tempAlias .= $cnt;
                     $cnt++;
@@ -222,7 +222,7 @@ foreach ($tvs->toArray() as $row) {
         case 'url':
             $tmplvar = $_POST["tv" . $row['id']];
             if ($_POST["tv" . $row['id'] . '_prefix'] != '--') {
-                $tmplvar = str_replace([ 
+                $tmplvar = str_replace([
                     "feed://",
                     "ftp://",
                     "http://",
@@ -231,10 +231,10 @@ foreach ($tvs->toArray() as $row) {
                 ], "", $tmplvar);
                 $tmplvar = $_POST["tv" . $row['id'] . '_prefix'] . $tmplvar;
             }
-        break;
+            break;
         case 'file':
             $tmplvar = $_POST["tv" . $row['id']];
-        break;
+            break;
         default:
             $tmp = get_by_key($_POST, 'tv' . $row['id']);
             if (is_array($tmp)) {
@@ -247,11 +247,11 @@ foreach ($tvs->toArray() as $row) {
             } else {
                 $tmplvar = $tmp;
             }
-        break;
+            break;
     }
     // save value if it was modified
     if (!empty($tmplvar) && $tmplvar != $row['default_text']) {
-        $tmplvars[$row['id']] = [ 
+        $tmplvars[$row['id']] = [
             $row['id'],
             $tmplvar
         ];
@@ -322,12 +322,12 @@ $resourceArray = [
 ];
 
 switch ($actionToTake) {
-        case 'new' :
-            $resourceArray['createdby'] = $modx->getLoginUserID('mgr');
-            $resourceArray['createdon'] = $currentdate;
-            // invoke OnBeforeDocFormSave event
-            switch($modx->config['docid_incrmnt_method'])
-            {
+    case 'new' :
+        $resourceArray['createdby'] = $modx->getLoginUserID('mgr');
+        $resourceArray['createdon'] = $currentdate;
+        // invoke OnBeforeDocFormSave event
+        switch($modx->config['docid_incrmnt_method'])
+        {
             case '1':
                 $id = \EvolutionCMS\Models\SiteContent::withTrashed()
                     ->leftJoin('site_content as t1', function ($join) {
@@ -340,13 +340,13 @@ switch ($actionToTake) {
             case '2':
                 $id = \EvolutionCMS\Models\SiteContent::max('id');
                 $id++;
-            break;
+                break;
 
             default:
                 $id = '';
-            }
+        }
 
-        $modx->invokeEvent("OnBeforeDocFormSave", [ 
+        $modx->invokeEvent("OnBeforeDocFormSave", [
             "mode" => "new",
             "id" => $id
         ]);
@@ -450,7 +450,7 @@ switch ($actionToTake) {
         }
 
         // invoke OnDocFormSave event
-        $modx->invokeEvent("OnDocFormSave", [ 
+        $modx->invokeEvent("OnDocFormSave", [
             "mode" => "new",
             "id" => $key
         ]);
@@ -476,239 +476,226 @@ switch ($actionToTake) {
             // document
             if ($_POST['mode'] == "4")
                 $a = ($_POST['stay'] == '2') ? "27&id=$key" : "4&pid=$parentId";
-            $header = "Location: index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'];
+            $redirectUrl = "index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'];
         } else {
-            $header = "Location: index.php?a=3&id=$key&r=1";
+            $redirectUrl = "index.php?a=3&id=$key&r=1";
         }
-
-        if (headers_sent()) {
-            $header = str_replace('Location: ','',$header);
-            echo "<script>document.location.href='$header';</script>\n";
-        } else {
-            header($header);
-        }
-
-
+        evo()->sendRedirect($redirectUrl, 0, headers_sent() ? 'REDIRECT_SCRIPT' : '');
         break;
-        case 'edit' :
-            // get the document's current parent
-            $oldparent = $existingDocument['parent'];
-            $doctype = $existingDocument['type'];
+    case 'edit' :
+        // get the document's current parent
+        $oldparent = $existingDocument['parent'];
+        $doctype = $existingDocument['type'];
 
-            if ($id == $modx->getConfig('site_start') && $published == 0) {
-                $modx->getManagerApi()->saveFormValues(27);
-                $modx->webAlertAndQuit("Document is linked to site_start variable and cannot be unpublished!");
-            }
-            $today = $modx->timestamp((int)get_by_key($_SERVER, 'REQUEST_TIME', 0));
-            if ($id == $modx->getConfig('site_start') && ($pub_date > $today || $unpub_date != "0")) {
-                $modx->getManagerApi()->saveFormValues(27);
-                $modx->webAlertAndQuit("Document is linked to site_start variable and cannot have publish or unpublish dates set!");
-            }
-            if ($parent == $id) {
-                $modx->getManagerApi()->saveFormValues(27);
-                $modx->webAlertAndQuit("Document can not be it's own parent!");
-            }
+        if ($id == $modx->getConfig('site_start') && $published == 0) {
+            $modx->getManagerApi()->saveFormValues(27);
+            $modx->webAlertAndQuit("Document is linked to site_start variable and cannot be unpublished!");
+        }
+        $today = $modx->timestamp((int)get_by_key($_SERVER, 'REQUEST_TIME', 0));
+        if ($id == $modx->getConfig('site_start') && ($pub_date > $today || $unpub_date != "0")) {
+            $modx->getManagerApi()->saveFormValues(27);
+            $modx->webAlertAndQuit("Document is linked to site_start variable and cannot have publish or unpublish dates set!");
+        }
+        if ($parent == $id) {
+            $modx->getManagerApi()->saveFormValues(27);
+            $modx->webAlertAndQuit("Document can not be it's own parent!");
+        }
 
-            $parents = $modx->getParentIds($parent);
-            if (in_array($id, $parents)) {
-                $modx->webAlertAndQuit("Document descendant can not be it's parent!");
-            }
+        $parents = $modx->getParentIds($parent);
+        if (in_array($id, $parents)) {
+            $modx->webAlertAndQuit("Document descendant can not be it's parent!");
+        }
 
-            // check to see document is a folder
-            $child = \EvolutionCMS\Models\SiteContent::withTrashed()->select('id')->where('parent', $id)->first();
-            if (!is_null($child)) {
-                $resourceArray['isfolder'] = 1;
-            }
+        // check to see document is a folder
+        $child = \EvolutionCMS\Models\SiteContent::withTrashed()->select('id')->where('parent', $id)->first();
+        if (!is_null($child)) {
+            $resourceArray['isfolder'] = 1;
+        }
 
-            // set publishedon and publishedby
-            $was_published = $existingDocument['published'];
+        // set publishedon and publishedby
+        $was_published = $existingDocument['published'];
 
-            // keep original publish state, if change is not permitted
-            if (!$modx->hasPermission('publish_document')) {
-                $published = $was_published;
-                $pub_date = 'pub_date';
-                $unpub_date = 'unpub_date';
-            }
+        // keep original publish state, if change is not permitted
+        if (!$modx->hasPermission('publish_document')) {
+            $published = $was_published;
+            $pub_date = 'pub_date';
+            $unpub_date = 'unpub_date';
+        }
 
-            // if it was changed from unpublished to published
-            if (!$was_published && $published) {
-                $publishedon = $currentdate;
-                $publishedby = $modx->getLoginUserID('mgr');
-                }elseif ((!empty($pub_date)&& $pub_date<=$currentdate && $published)) {
-                $publishedon = $pub_date;
-                $publishedby = $modx->getLoginUserID('mgr');
-                   }elseif ($was_published && !$published) {
-                $publishedon = 0;
-                $publishedby = 0;
+        // if it was changed from unpublished to published
+        if (!$was_published && $published) {
+            $publishedon = $currentdate;
+            $publishedby = $modx->getLoginUserID('mgr');
+        }elseif ((!empty($pub_date)&& $pub_date<=$currentdate && $published)) {
+            $publishedon = $pub_date;
+            $publishedby = $modx->getLoginUserID('mgr');
+        }elseif ($was_published && !$published) {
+            $publishedon = 0;
+            $publishedby = 0;
+        } else {
+            $publishedon = $existingDocument['publishedon'];
+            $publishedby = $existingDocument['publishedby'];
+        }
+
+        $resourceArray['pub_date'] = $pub_date;
+        $resourceArray['publishedon'] = $publishedon;
+        $resourceArray['publishedby'] = $publishedby;
+
+        // invoke OnBeforeDocFormSave event
+        $modx->invokeEvent("OnBeforeDocFormSave", [
+            "mode" => "upd",
+            "id" => $id
+        ]);
+        $parentDeleted = $parentId > 0 && empty(\EvolutionCMS\Models\SiteContent::find($parentId));
+        if ($parentDeleted) {
+            $resourceArray['deleted'] = 1;
+        }
+        $resource = \EvolutionCMS\Models\SiteContent::withTrashed()->find($id);
+        foreach($resourceArray as $key=>$value){
+            $resource->{$key} = $value;
+        }
+        $resource->save();
+
+        // update template variables
+        $tvs = \EvolutionCMS\Models\SiteTmplvarContentvalue::select('id', 'tmplvarid')->where('contentid', $id)->get();
+        $tvIds = [];
+        foreach ($tvs as $tv) {
+            $tvIds[$tv->tmplvarid] = $tv->id;
+        }
+        $tvDeletions = [];
+        $tvChanges = [];
+        $tvAdded = [];
+
+        foreach ($tmplvars as $field => $value) {
+
+            if (!is_array($value)) {
+                if (isset($tvIds[$value])) $tvDeletions[] = $tvIds[$value];
             } else {
-                $publishedon = $existingDocument['publishedon'];
-                $publishedby = $existingDocument['publishedby'];
-            }
-
-            $resourceArray['pub_date'] = $pub_date;
-            $resourceArray['publishedon'] = $publishedon;
-            $resourceArray['publishedby'] = $publishedby;
-
-            // invoke OnBeforeDocFormSave event
-            $modx->invokeEvent("OnBeforeDocFormSave", [ 
-                "mode" => "upd",
-                "id" => $id
-            ]);
-            $parentDeleted = $parentId > 0 && empty(\EvolutionCMS\Models\SiteContent::find($parentId));
-            if ($parentDeleted) {
-                $resourceArray['deleted'] = 1;
-            }
-            $resource = \EvolutionCMS\Models\SiteContent::withTrashed()->find($id);
-            foreach($resourceArray as $key=>$value){
-                $resource->{$key} = $value;
-            }
-            $resource->save();
-
-            // update template variables
-            $tvs = \EvolutionCMS\Models\SiteTmplvarContentvalue::select('id', 'tmplvarid')->where('contentid', $id)->get();
-            $tvIds = [];
-            foreach ($tvs as $tv) {
-                $tvIds[$tv->tmplvarid] = $tv->id;
-            }
-            $tvDeletions = [];
-            $tvChanges = [];
-            $tvAdded = [];
-
-            foreach ($tmplvars as $field => $value) {
-
-                if (!is_array($value)) {
-                    if (isset($tvIds[$value])) $tvDeletions[] = $tvIds[$value];
+                $tvId = $value[0];
+                $tvVal = $value[1];
+                if (isset($tvIds[$tvId])) {
+                    \EvolutionCMS\Models\SiteTmplvarContentvalue::query()->find($tvIds[$tvId])->update(['tmplvarid' => $tvId, 'contentid' => $id, 'value' => $tvVal]);
                 } else {
-                    $tvId = $value[0];
-                    $tvVal = $value[1];
-                    if (isset($tvIds[$tvId])) {
-                        \EvolutionCMS\Models\SiteTmplvarContentvalue::query()->find($tvIds[$tvId])->update(['tmplvarid' => $tvId, 'contentid' => $id, 'value' => $tvVal]);
-                    } else {
-                        \EvolutionCMS\Models\SiteTmplvarContentvalue::query()->create(['tmplvarid' => $tvId, 'contentid' => $id, 'value' => $tvVal]);
-                    }
+                    \EvolutionCMS\Models\SiteTmplvarContentvalue::query()->create(['tmplvarid' => $tvId, 'contentid' => $id, 'value' => $tvVal]);
+                }
+            }
+        }
+
+        if (!empty($tvDeletions)) {
+            \EvolutionCMS\Models\SiteTmplvarContentvalue::query()->whereIn('id', $tvDeletions)->delete();
+        }
+
+        // set document permissions
+        if ($modx->getConfig('use_udperms') == 1 && $modx->hasAnyPermissions(['manage_groups', 'manage_document_permissions']) && is_array($document_groups)) {
+            $new_groups = [];
+            // process the new input
+            foreach ($document_groups as $value_pair) {
+                [$group, $link_id] = explode(',', $value_pair); // @see actions/mutate_content.dynamic.php @ line 1138 (permissions list)
+                if (in_array($group, $docgrp) || $modx->hasPermission('manage_groups')) {
+                    $new_groups[$group] = $link_id;
                 }
             }
 
-            if (!empty($tvDeletions)) {
-                \EvolutionCMS\Models\SiteTmplvarContentvalue::query()->whereIn('id', $tvDeletions)->delete();
-            }
+            // grab the current set of permissions on this document the user can access
+            $documentGroups = \EvolutionCMS\Models\DocumentGroup::select('id','document_group')
+                ->where('document', $id)->get();
 
-            // set document permissions
-            if ($modx->getConfig('use_udperms') == 1 && $modx->hasAnyPermissions(['manage_groups', 'manage_document_permissions']) && is_array($document_groups)) {
-                $new_groups = [];
-                // process the new input
-                foreach ($document_groups as $value_pair) {
-                    [$group, $link_id] = explode(',', $value_pair); // @see actions/mutate_content.dynamic.php @ line 1138 (permissions list)
-                    if (in_array($group, $docgrp) || $modx->hasPermission('manage_groups')) {
-                        $new_groups[$group] = $link_id;
-                    }
-                }
-
-                // grab the current set of permissions on this document the user can access
-                $documentGroups = \EvolutionCMS\Models\DocumentGroup::select('id','document_group')
-                    ->where('document', $id)->get();
-
-                $old_groups = [];
-                foreach ($documentGroups as $documentGroup) {
-                    if (in_array($documentGroup->document_group, $docgrp) || $modx->hasPermission('manage_groups')) {
-                        $old_groups[$documentGroup->document_group] = $documentGroup->id;
-                    }
-                }
-                // update the permissions in the database
-                $insertions = $deletions = [];
-                foreach ($new_groups as $group => $link_id) {
-                    if (in_array($group, $docgrp) || $modx->hasPermission('manage_groups')) {
-                        if (array_key_exists($group, $old_groups)) {
-                            unset($old_groups[$group]);
-                            continue;
-                        } elseif ($link_id == 'new') {
-                            $insertions[] = ['document_group' => (int) $group, 'document' => $id];
-                        }
-                    }
-                }
-                if (!empty($insertions)) {
-                    \EvolutionCMS\Models\DocumentGroup::query()->insert($insertions);
-                }
-                if (!$modx->hasPermission('manage_groups')) {
-                    $remainingGroups = \EvolutionCMS\Models\DocumentGroup::select('document_groups.document_group')->whereNotIn('id',
-                        $old_groups)->where('document_groups.document', $id)->pluck('document_group')->toArray();
-                    if (!empty($docgrp) && !array_intersect($docgrp, $remainingGroups)) {
-                        $modx->webAlertAndQuit($_lang["resource_permissions_error"], "index.php?a=27&id={$id}");
-                    }
-                }
-                if (!empty($old_groups)) {
-                    \EvolutionCMS\Models\DocumentGroup::query()->whereIn('id', $old_groups)->delete();
-                }
-                // necessary to remove all permissions as document is public
-                if ((isset($_POST['chkalldocs']) && $_POST['chkalldocs'] == 'on')) {
-                    \EvolutionCMS\Models\DocumentGroup::query()->where('document', $id)->delete();
+            $old_groups = [];
+            foreach ($documentGroups as $documentGroup) {
+                if (in_array($documentGroup->document_group, $docgrp) || $modx->hasPermission('manage_groups')) {
+                    $old_groups[$documentGroup->document_group] = $documentGroup->id;
                 }
             }
-
-            // do the parent stuff
-            if ($resourceArray['parent'] != 0) {
-                $parent = \EvolutionCMS\Models\SiteContent::withTrashed()->find($_REQUEST['parent']);
-                $parent->isfolder = 1;
-                $parent->save();
-            }
-
-            // finished moving the document, now check to see if the old_parent should no longer be a folder
-            $countChildOldParent = \EvolutionCMS\Models\SiteContent::withTrashed()->where('parent', $oldparent)->count();
-
-            if ($countChildOldParent == 0) {
-                $oldParent = \EvolutionCMS\Models\SiteContent::withTrashed()->find($oldparent);
-                $oldParent->isfolder = 0;
-                $oldParent->save();
-            }
-
-
-            // invoke OnDocFormSave event
-            $modx->invokeEvent("OnDocFormSave", [ 
-                "mode" => "upd",
-                "id" => $id
-            ]);
-
-            // secure web documents - flag as private
-            include MODX_MANAGER_PATH . "includes/secure_web_documents.inc.php";
-            secureWebDocument($id);
-            secureMgrDocument($id);
-
-
-            // Set the item name for logger
-            $_SESSION['itemname'] = $no_esc_pagetitle;
-
-            if ($syncsite == 1) {
-                // empty cache
-                $modx->clearCache('full');
-            }
-
-            if ($_POST['refresh_preview'] == '1')
-                $header = "Location: ".MODX_SITE_URL."index.php?id=$id&z=manprev";
-            else {
-                if ($_POST['stay'] != '2' && $id > 0) {
-                    $modx->unlockElement(7, $id);
-                }
-                if ($_POST['stay'] != '') {
-                    $id = $_REQUEST['id'];
-                    if ($type == "reference") {
-                        // weblink
-                        $a = ($_POST['stay'] == '2') ? "27&id=$id" : "72&pid=$parentId";
-                    } else {
-                        // document
-                        $a = ($_POST['stay'] == '2') ? "27&id=$id" : "4&pid=$parentId";
+            // update the permissions in the database
+            $insertions = $deletions = [];
+            foreach ($new_groups as $group => $link_id) {
+                if (in_array($group, $docgrp) || $modx->hasPermission('manage_groups')) {
+                    if (array_key_exists($group, $old_groups)) {
+                        unset($old_groups[$group]);
+                        continue;
+                    } elseif ($link_id == 'new') {
+                        $insertions[] = ['document_group' => (int) $group, 'document' => $id];
                     }
-                    $header = "Location: index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'].$add_path;
+                }
+            }
+            if (!empty($insertions)) {
+                \EvolutionCMS\Models\DocumentGroup::query()->insert($insertions);
+            }
+            if (!$modx->hasPermission('manage_groups')) {
+                $remainingGroups = \EvolutionCMS\Models\DocumentGroup::select('document_groups.document_group')->whereNotIn('id',
+                    $old_groups)->where('document_groups.document', $id)->pluck('document_group')->toArray();
+                if (!empty($docgrp) && !array_intersect($docgrp, $remainingGroups)) {
+                    $modx->webAlertAndQuit($_lang["resource_permissions_error"], "index.php?a=27&id={$id}");
+                }
+            }
+            if (!empty($old_groups)) {
+                \EvolutionCMS\Models\DocumentGroup::query()->whereIn('id', $old_groups)->delete();
+            }
+            // necessary to remove all permissions as document is public
+            if ((isset($_POST['chkalldocs']) && $_POST['chkalldocs'] == 'on')) {
+                \EvolutionCMS\Models\DocumentGroup::query()->where('document', $id)->delete();
+            }
+        }
+
+        // do the parent stuff
+        if ($resourceArray['parent'] != 0) {
+            $parent = \EvolutionCMS\Models\SiteContent::withTrashed()->find($_REQUEST['parent']);
+            $parent->isfolder = 1;
+            $parent->save();
+        }
+
+        // finished moving the document, now check to see if the old_parent should no longer be a folder
+        $countChildOldParent = \EvolutionCMS\Models\SiteContent::withTrashed()->where('parent', $oldparent)->count();
+
+        if ($countChildOldParent == 0) {
+            $oldParent = \EvolutionCMS\Models\SiteContent::withTrashed()->find($oldparent);
+            $oldParent->isfolder = 0;
+            $oldParent->save();
+        }
+
+
+        // invoke OnDocFormSave event
+        $modx->invokeEvent("OnDocFormSave", [
+            "mode" => "upd",
+            "id" => $id
+        ]);
+
+        // secure web documents - flag as private
+        include MODX_MANAGER_PATH . "includes/secure_web_documents.inc.php";
+        secureWebDocument($id);
+        secureMgrDocument($id);
+
+
+        // Set the item name for logger
+        $_SESSION['itemname'] = $no_esc_pagetitle;
+
+        if ($syncsite == 1) {
+            // empty cache
+            $modx->clearCache('full');
+        }
+
+        if ($_POST['refresh_preview'] == '1')
+            $redirectUrl = EVO_SITE_URL . "index.php?id=$id&z=manprev";
+        else {
+            if ($_POST['stay'] != '2' && $id > 0) {
+                $modx->unlockElement(7, $id);
+            }
+            if ($_POST['stay'] != '') {
+                $id = $_REQUEST['id'];
+                if ($type == "reference") {
+                    // weblink
+                    $a = ($_POST['stay'] == '2') ? "27&id=$id" : "72&pid=$parentId";
                 } else {
-                    $header = "Location: index.php?a=3&id=$id&r=1".$add_path;
+                    // document
+                    $a = ($_POST['stay'] == '2') ? "27&id=$id" : "4&pid=$parentId";
                 }
-            }
-            if (headers_sent()) {
-                $header = str_replace('Location: ','',$header);
-                echo "<script>document.location.href='$header';</script>\n";
+                $redirectUrl = "index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'] . $add_path;
             } else {
-                header($header);
+                $redirectUrl = "index.php?a=3&id=$id&r=1" . $add_path;
             }
-            break;
-        default :
-            $modx->webAlertAndQuit("No operation set in request.");
+        }
+        evo()->sendRedirect($redirectUrl, 0, headers_sent() ? 'REDIRECT_SCRIPT' : '');
+        break;
+    default :
+        $modx->webAlertAndQuit("No operation set in request.");
 }
