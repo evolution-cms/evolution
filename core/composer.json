@@ -83,6 +83,13 @@
         "wikimedia/composer-merge-plugin": "2.*",
         "secondnetwork/blade-tabler-icons": "^3.35"
     },
+    "replace": {
+        "symfony/polyfill-php73": "1.99",
+        "symfony/polyfill-php80": "1.99",
+        "symfony/polyfill-php81": "1.99",
+        "symfony/polyfill-php82": "1.99",
+        "symfony/polyfill-php83": "1.99"
+    },
     "require-dev": {
         "roave/security-advisories": "dev-master",
         "mockery/mockery": "^1.6",
