@@ -15,16 +15,52 @@ $__iconBackup = [
     'icon_sort' => $_style['icon_sort'],
     'icon_sort_num_asc' => $_style['icon_sort_num_asc'],
     'icon_trash' => $_style['icon_trash'],
+    'icon_sitemap' => $_style['icon_sitemap'],
+    'icon_cog' => $_style['icon_cog'],
 ];
 $_style['icon_arrow_down_circle'] = svg('tabler-arrow-down')->toHtml();
 $_style['icon_arrow_up_circle'] = svg('tabler-arrow-up')->toHtml();
 $_style['icon_add'] = svg('tabler-file-plus')->toHtml();
 $_style['icon_chain_broken'] = svg('tabler-link-plus')->toHtml();
-$_style['icon_refresh'] = svg('tabler-refresh')->toHtml();
+$_style['icon_refresh'] = svg('tabler-refresh', '', ['width' => 18, 'height' => 18, 'class' => 'tree-refresh-icon'])->toHtml();
 $_style['icon_sort'] = svg('tabler-caret-up-down')->toHtml();
 $_style['icon_sort_num_asc'] = svg('tabler-sort-ascending-letters')->toHtml();
 $_style['icon_trash'] = svg('tabler-trash')->toHtml();
+$_style['icon_sitemap'] = svg('tabler-sitemap', '', ['width' => 16, 'height' => 16])->toHtml();
+$_style['icon_cog'] = svg('tabler-refresh', '', ['width' => 14, 'height' => 14])->toHtml();
 @endphp
+
+<style>
+    @keyframes tree-spin { to { transform: rotate(360deg); } }
+    #treeMenu .tree-refresh-icon.is-spinning { animation: tree-spin 1s linear infinite; }
+    #treeloader .tree-loader-icon svg { animation: tree-spin 1s linear infinite; }
+    #treeHolder .treeRoot a.node,
+    #treeHolder .rootNode a.node {
+        border-radius: 0.25rem;
+        transition: background-color 0.12s ease;
+        cursor: pointer;
+    }
+    #treeHolder .rootNode {
+        margin-bottom: 0.25rem;
+    }
+    #treeHolder .rootNode a.node:hover {
+        background-color: transparent;
+    }
+    #treeHolder .node-title-text {
+        color: var(--color-primary);
+    }
+    #treeHolder .treeRoot a.node:hover,
+    #treeHolder .rootNode a.node:hover {
+        background-color: var(--color-base-200);
+    }
+    #treeHolder .treeRoot a.node.current {
+        background-color: var(--color-base-300);
+    }
+    #treeHolder .treeRoot svg,
+    #treeHolder .rootNode svg {
+        display: block;
+    }
+</style>
 
 <div class="treeframebody">
     <div id="treeMenu">
@@ -51,7 +87,7 @@ $_style['icon_trash'] = svg('tabler-trash')->toHtml();
         {{-- <a class="treeButton" id="treeMenu_theme_dark" onclick="modx.tree.toggleTheme(event)" title="{{ ManagerTheme::getLexicon('manager_theme_mode_title') }}"><i class="{{ $_style['icon_theme'] }}"></i></a> --}}
     </div>
 
-    <div id="treeHolder">
+    <div id="treeHolder" class="relative" style="font-size:0.8rem;padding:0.25rem 0.75rem;">
         <?php
             $evtOut = evo()->invokeEvent('OnManagerTreePrerender', $_REQUEST);
             if (is_array($evtOut)) {
@@ -60,8 +96,8 @@ $_style['icon_trash'] = svg('tabler-trash')->toHtml();
             $siteName = evo()->getPhpCompat()->entities(evo()->getConfig('site_name'));
         ?>
 
-        <div id="node0" class="rootNode"><a class="node" onclick="modx.tree.treeAction(event, 0)" data-id="0" data-title-esc="{{ $siteName }}"><span class="icon"><i class="{{ $_style['icon_sitemap'] }}"></i></span><span class="title">{{ $siteName }}</span></a>
-            <div id="treeloader"><i class="{{ $_style['icon_cog'] }} {{ $_style['icon_spin'] }}"></i></div>
+        <div id="node0" class="rootNode"><a class="node" onclick="modx.tree.treeAction(event, 0)" data-id="0" data-title-esc="{{ $siteName }}" style="display:flex;align-items:center;gap:0.15rem;padding:0.1rem 0.25rem;line-height:1.3;font-weight:600;width:100%;min-width:0;"><span class="icon" style="display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:1rem;height:1rem;margin-right:0.15rem;">{!! $_style['icon_sitemap'] !!}</span><span class="title" style="display:inline-flex;align-items:center;gap:0.15rem;flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $siteName }}</span></a>
+            <div id="treeloader" style="position:absolute; right:0.5rem; top:0.2rem; opacity:0; visibility:hidden; pointer-events:none;"><span class="tree-loader-icon" style="display:inline-flex;align-items:center;justify-content:center;">{!! $_style['icon_cog'] !!}</span></div>
         </div>
         <div id="treeRoot0" class="treeRoot"></div>
 

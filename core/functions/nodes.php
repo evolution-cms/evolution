@@ -1,5 +1,33 @@
 <?php
 
+if (!function_exists('treeSvg')) {
+    /**
+     * Render a Tabler SVG icon for tree UI.
+     *
+     * @param string $name
+     * @param string $class
+     * @param array $attributes
+     * @return string
+     */
+    function treeSvg($name, $class = '', array $attributes = [])
+    {
+        return svg('tabler-' . $name, $class, $attributes)->toHtml();
+    }
+}
+
+if (!function_exists('treeSvgData')) {
+    /**
+     * Encode SVG for safe data-attribute usage.
+     *
+     * @param string $svg
+     * @return string
+     */
+    function treeSvgData($svg)
+    {
+        return 'b64:' . base64_encode($svg);
+    }
+}
+
 if (!function_exists('makeHTML')) {
     /**
      * @param int $indent
@@ -17,9 +45,9 @@ if (!function_exists('makeHTML')) {
 
         // setup spacer
         $level = 0;
-        $spacer = '<span class="indent">';
+        $spacer = '<span class="indent" style="display:inline-flex;align-items:center;flex:0 0 auto;">';
         for ($i = 2; $i <= $indent; $i++) {
-            $spacer .= '<i></i>';
+            $spacer .= '<i style="display:inline-block;width:1.25rem;height:1rem;flex:0 0 auto;"></i>';
             $level++;
         }
         $spacer .= '</span>';
@@ -107,7 +135,7 @@ if (!function_exists('makeHTML')) {
 
 
         if ($result->count() == 0) {
-            $output .= '<div><a class="empty">' . $spacer . '<i class="' . $_style['icon_ban'] . '"></i>&nbsp;<span class="empty">' . $_lang['empty_folder'] . '</span></a></div>';
+            $output .= '<div><a class="empty">' . $spacer . treeSvg('info-circle') . '&nbsp;<span class="empty">' . $_lang['empty_folder'] . '</span></a></div>';
         }
 
         if ($_SESSION['tree_nodename'] === 'default') {
@@ -144,14 +172,14 @@ if (!function_exists('makeHTML')) {
             }
 
             if ($row['type'] === 'reference') {
-                $weblinkDisplay = '&nbsp;<i class="' . $_style['icon_chain'] . '"></i>';
+                $weblinkDisplay = '<span class="weblink-icon" style="display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:0.9rem;height:0.9rem;">' . treeSvg('link', '', ['width' => 14, 'height' => 14]) . '</span>';
             } else {
                 $weblinkDisplay = '';
             }
             if ($modx_textdir) {
-                $pageIdDisplay = '<small>(&rlm;' . $row['id'] . ')</small>';
+                $pageIdDisplay = '<small style="margin-left:0.25rem;flex:0 0 auto;">(&rlm;' . $row['id'] . ')</small>';
             } else {
-                $pageIdDisplay = '<small>(' . $row['id'] . ')</small>';
+                $pageIdDisplay = '<small style="margin-left:0.25rem;flex:0 0 auto;">(' . $row['id'] . ')</small>';
             }
 
             // Prepare displaying user-locks
@@ -166,7 +194,7 @@ if (!function_exists('makeHTML')) {
                             'lasthit_df' => $rowLock['lasthit_df']
                         ]
                     );
-                    $lockedByUser = '<span title="' . $title . '" class="editResource"><i class="' . $_style['icon_eye'] . '"></i></span>';
+                    $lockedByUser = '<span title="' . $title . '" class="editResource" style="display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:1rem;height:1rem;margin-right:0.15rem;">' . treeSvg('eye', '', ['width' => 16, 'height' => 16]) . '</span>';
                 } else {
                     $title = $modx->parseText($_lang['lock_element_locked_by'], [
                         'element_type' => $_lang['lock_element_type_7'],
@@ -174,9 +202,9 @@ if (!function_exists('makeHTML')) {
                         'lasthit_df' => $rowLock['lasthit_df']
                     ]);
                     if ($modx->hasPermission('remove_locks')) {
-                        $lockedByUser = '<span onclick="modx.tree.unlockElement(7, ' . $row['id'] . ', this);return false;" title="' . $title . '" class="lockedResource"><i class="' . $_style['icon_lock'] . '"></i></span>';
+                        $lockedByUser = '<span onclick="modx.tree.unlockElement(7, ' . $row['id'] . ', this);return false;" title="' . $title . '" class="lockedResource" style="display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:1rem;height:1rem;margin-right:0.15rem;">' . treeSvg('lock', '', ['width' => 16, 'height' => 16]) . '</span>';
                     } else {
-                        $lockedByUser = '<span title="' . $title . '" class="lockedResource"><i class="' . $_style['icon_lock'] . '"></i></span>';
+                        $lockedByUser = '<span title="' . $title . '" class="lockedResource" style="display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:1rem;height:1rem;margin-right:0.15rem;">' . treeSvg('lock', '', ['width' => 16, 'height' => 16]) . '</span>';
                     }
                 }
             }
@@ -201,6 +229,16 @@ if (!function_exists('makeHTML')) {
             $title .= '[+lf+]' . $_lang['page_data_cacheable'] . ': ' . ($row['cacheable'] == 0 ? $_lang['no'] : $_lang['yes']);
             $title = $modx->getPhpCompat()->htmlspecialchars($title);
             $title = str_replace('[+lf+]', ' &#13;', $title);   // replace line-breaks with empty space as fall-back
+
+            $treePlusnode = treeSvg('chevron-right', '', ['width' => 12, 'height' => 12]);
+            $treeMinusnode = treeSvg('chevron-down', '', ['width' => 12, 'height' => 12]);
+            $folderOpenIcon = treeSvg('folder-open', '', ['width' => 16, 'height' => 16]);
+            $folderCloseIcon = treeSvg('folder', '', ['width' => 16, 'height' => 16]);
+            $iconAttrCharset = $modx->getConfig('modx_charset');
+            $treePlusnodeData = treeSvgData($treePlusnode);
+            $treeMinusnodeData = treeSvgData($treeMinusnode);
+            $folderOpenIconData = treeSvgData($folderOpenIcon);
+            $folderCloseIconData = treeSvgData($folderCloseIcon);
 
             $data = [
                 'id' => $row['id'],
@@ -234,10 +272,14 @@ if (!function_exists('makeHTML')) {
                 'showChildren' => 1,
                 'openFolder' => 1,
                 'contextmenu' => '',
-                'tree_minusnode' => '<i class=\'' . $_style['icon_angle_down'] . '\'></i>',
-                'tree_plusnode' => '<i class=\'' . $_style['icon_angle_right'] . '\'></i>',
-                'icon_folder_open' => '<i class=\'' . $_style['icon_folder_open'] . '\'></i>',
-                'icon_folder_close' => '<i class=\'' . $_style['icon_folder'] . '\'></i>',
+                'tree_minusnode' => $treeMinusnode,
+                'tree_plusnode' => $treePlusnode,
+                'tree_minusnode_attr' => htmlspecialchars($treeMinusnodeData, ENT_QUOTES, $iconAttrCharset),
+                'tree_plusnode_attr' => htmlspecialchars($treePlusnodeData, ENT_QUOTES, $iconAttrCharset),
+                'icon_folder_open' => $folderOpenIcon,
+                'icon_folder_close' => $folderCloseIcon,
+                'icon_folder_open_attr' => htmlspecialchars($folderOpenIconData, ENT_QUOTES, $iconAttrCharset),
+                'icon_folder_close_attr' => htmlspecialchars($folderCloseIconData, ENT_QUOTES, $iconAttrCharset),
                 'spacer' => $spacer,
                 'subMenuState' => '',
                 'level' => $level,
@@ -257,25 +299,25 @@ if (!function_exists('makeHTML')) {
                 switch ($row['id']) {
                     case $modx->getConfig('site_start') :
                         $ph['nomove'] = 1;
-                        $icon = '<i class="' . $_style['icon_home'] . '"></i>';
+                        $icon = treeSvg('home');
                         break;
                     case $modx->getConfig('error_page') :
                         $ph['nomove'] = 1;
-                        $icon = '<i class="' . $_style['icon_info_triangle'] . '"></i>';
+                        $icon = treeSvg('info-triangle');
                         break;
                     case $modx->getConfig('site_unavailable_page') :
                         $ph['nomove'] = 1;
-                        $icon = '<i class="' . $_style['icon_clock'] . '"></i>';
+                        $icon = treeSvg('clock');
                         break;
                     case $modx->getConfig('unauthorized_page') :
                         $ph['nomove'] = 1;
-                        $icon = '<i class="' . $_style['icon_info'] . '"></i>';
+                        $icon = treeSvg('info-circle');
                         break;
                     default:
                         if (isset($icons[$row['contentType']])) {
                             $icon = $icons[$row['contentType']];
                         } else {
-                            $icon = '<i class="' . $_style['icon_document'] . '"></i>';
+                            $icon = treeSvg('file', '', ['width' => 16, 'height' => 16]);
                         }
                 }
                 $ph['icon'] = $icon;
@@ -528,18 +570,18 @@ if (!function_exists('getIconInfo')) {
     function getIconInfo($_style)
     {
         return [
-            'text/plain' => '<i class="' . $_style['icon_document'] . '"></i>',
-            'text/html' => '<i class="' . $_style['icon_document'] . '"></i>',
-            'text/xml' => '<i class="' . $_style['icon_code_file'] . '"></i>',
-            'text/css' => '<i class="' . $_style['icon_code_file'] . '"></i>',
-            'text/javascript' => '<i class="' . $_style['icon_code_file'] . '"></i>',
-            'image/gif' => '<i class="' . $_style['icon_image'] . '"></i>',
-            'image/jpg' => '<i class="' . $_style['icon_image'] . '"></i>',
-            'image/png' => '<i class="' . $_style['icon_image'] . '"></i>',
-            'application/pdf' => '<i class="' . $_style['icon_pdf'] . '"></i>',
-            'application/rss+xml' => '<i class="' . $_style['icon_code_file'] . '"></i>',
-            'application/vnd.ms-word' => '<i class="' . $_style['icon_word'] . '"></i>',
-            'application/vnd.ms-excel' => '<i class="' . $_style['icon_excel'] . '"></i>',
+            'text/plain' => treeSvg('file-text', '', ['width' => 16, 'height' => 16]),
+            'text/html' => treeSvg('file-text', '', ['width' => 16, 'height' => 16]),
+            'text/xml' => treeSvg('file-code', '', ['width' => 16, 'height' => 16]),
+            'text/css' => treeSvg('file-code', '', ['width' => 16, 'height' => 16]),
+            'text/javascript' => treeSvg('file-code', '', ['width' => 16, 'height' => 16]),
+            'image/gif' => treeSvg('photo', '', ['width' => 16, 'height' => 16]),
+            'image/jpg' => treeSvg('photo', '', ['width' => 16, 'height' => 16]),
+            'image/png' => treeSvg('photo', '', ['width' => 16, 'height' => 16]),
+            'application/pdf' => treeSvg('file', '', ['width' => 16, 'height' => 16]),
+            'application/rss+xml' => treeSvg('file-code', '', ['width' => 16, 'height' => 16]),
+            'application/vnd.ms-word' => treeSvg('file', '', ['width' => 16, 'height' => 16]),
+            'application/vnd.ms-excel' => treeSvg('file', '', ['width' => 16, 'height' => 16]),
         ];
     }
 }
@@ -656,6 +698,7 @@ if (!function_exists('getTplSingleNode')) {
         return '<div id="node[+id+]"><a class="[+treeNodeClass+]"
         onclick="modx.tree.treeAction(event,[+id+]);"
         oncontextmenu="modx.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');"
+        style="display:flex;align-items:center;gap:0.15rem;padding:0.15rem 0.25rem;line-height:1.35;width:100%;min-width:0;"
         data-id="[+id+]"
         data-title-esc="[+nodetitle_esc+]"
         data-published="[+published+]"
@@ -669,12 +712,18 @@ if (!function_exists('getTplSingleNode')) {
         data-treepageclick="[+tree_page_click+]"
         [+contextmenu+]
         >[+spacer+]<span
+        class="tree-toggle-spacer"
+        style="display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:0.75rem;height:0.75rem;margin-right:0.15rem;"></span><span
         class="icon"
+        style="display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:1rem;height:1rem;margin-right:0.15rem;"
         onclick="modx.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');return false;"
         oncontextmenu="this.onclick(event);return false;"
         >[+icon+]</span>[+lockedByUser+]<span
         class="title"
-        title="[+title+]">[+nodetitleDisplay+][+weblinkDisplay+]</span>[+pageIdDisplay+]</a></div>';
+        title="[+title+]"
+        style="display:flex;align-items:center;gap:0.15rem;flex:1 1 auto;min-width:0;"><span
+        class="node-title-text"
+        style="display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">[+nodetitleDisplay+]</span>[+weblinkDisplay+][+pageIdDisplay+]</span></a></div>';
     }
 }
 
@@ -687,6 +736,7 @@ if (!function_exists('getTplFolderNode')) {
         return '<div id="node[+id+]"><a class="[+treeNodeClass+]"
         onclick="modx.tree.treeAction(event,[+id+]);"
         oncontextmenu="modx.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');"
+        style="display:flex;align-items:center;gap:0.15rem;padding:0.15rem 0.25rem;line-height:1.35;width:100%;min-width:0;"
         data-id="[+id+]"
         data-title-esc="[+nodetitle_esc+]"
         data-published="[+published+]"
@@ -697,10 +747,10 @@ if (!function_exists('getTplFolderNode')) {
         data-roles="[+roles+]"
         data-nomove="[+nomove+]"
         data-level="[+level+]"
-        data-icon-expanded="[+tree_plusnode+]"
-        data-icon-collapsed="[+tree_minusnode+]"
-        data-icon-folder-open="[+icon_folder_open+]"
-        data-icon-folder-close="[+icon_folder_close+]"
+        data-icon-expanded="[+tree_plusnode_attr+]"
+        data-icon-collapsed="[+tree_minusnode_attr+]"
+        data-icon-folder-open="[+icon_folder_open_attr+]"
+        data-icon-folder-close="[+icon_folder_close_attr+]"
         data-treepageclick="[+tree_page_click+]"
         data-showchildren="[+showChildren+]"
         data-openfolder="[+openFolder+]"
@@ -708,16 +758,21 @@ if (!function_exists('getTplFolderNode')) {
         data-expandall="[+expandAll+]"
         [+contextmenu+]
         >[+spacer+]<span
-        class="toggle"
+        class="tree-toggle"
+        style="display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:0.75rem;height:0.75rem;margin-right:0.15rem;opacity:0.7;"
         onclick="modx.tree.toggleNode(event, [+id+]);"
         oncontextmenu="this.onclick(event);"
         >[+icon_node_toggle+]</span><span
         class="icon"
+        style="display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:1rem;height:1rem;margin-right:0.15rem;"
         onclick="modx.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');return false;"
         oncontextmenu="this.onclick(event);return false;"
         >[+icon+]</span>[+lockedByUser+]<span
         class="title"
-        title="[+title+]">[+nodetitleDisplay+][+weblinkDisplay+]</span>[+pageIdDisplay+]</a><div>';
+        title="[+title+]"
+        style="display:flex;align-items:center;gap:0.15rem;flex:1 1 auto;min-width:0;"><span
+        class="node-title-text"
+        style="display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">[+nodetitleDisplay+]</span>[+weblinkDisplay+][+pageIdDisplay+]</span></a><div>';
     }
 }
 if (!function_exists('getTplFolderNodeNotChildren')) {
@@ -729,6 +784,7 @@ if (!function_exists('getTplFolderNodeNotChildren')) {
         return '<div id="node[+id+]"><a class="[+treeNodeClass+]"
         onclick="modx.tree.treeAction(event,[+id+]);"
         oncontextmenu="modx.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');"
+        style="display:flex;align-items:center;gap:0.15rem;padding:0.15rem 0.25rem;line-height:1.35;width:100%;min-width:0;"
         data-id="[+id+]"
         data-title-esc="[+nodetitle_esc+]"
         data-published="[+published+]"
@@ -739,10 +795,10 @@ if (!function_exists('getTplFolderNodeNotChildren')) {
         data-roles="[+roles+]"
         data-nomove="[+nomove+]"
         data-level="[+level+]"
-        data-icon-expanded="[+tree_plusnode+]"
-        data-icon-collapsed="[+tree_minusnode+]"
-        data-icon-folder-open="[+icon_folder_open+]"
-        data-icon-folder-close="[+icon_folder_close+]"
+        data-icon-expanded="[+tree_plusnode_attr+]"
+        data-icon-collapsed="[+tree_minusnode_attr+]"
+        data-icon-folder-open="[+icon_folder_open_attr+]"
+        data-icon-folder-close="[+icon_folder_close_attr+]"
         data-treepageclick="[+tree_page_click+]"
         data-showchildren="[+showChildren+]"
         data-openfolder="[+openFolder+]"
@@ -750,11 +806,17 @@ if (!function_exists('getTplFolderNodeNotChildren')) {
         data-expandall="[+expandAll+]"
         [+contextmenu+]
         >[+spacer+]<span
+        class="tree-toggle-spacer"
+        style="display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:0.75rem;height:0.75rem;margin-right:0.15rem;"></span><span
         class="icon"
+        style="display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:1rem;height:1rem;margin-right:0.15rem;"
         onclick="modx.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');return false;"
         oncontextmenu="this.onclick(event);return false;"
         >[+icon+]</span>[+lockedByUser+]<span
         class="title"
-        title="[+title+]">[+nodetitleDisplay+][+weblinkDisplay+]</span>[+pageIdDisplay+]</a><div>';
+        title="[+title+]"
+        style="display:flex;align-items:center;gap:0.15rem;flex:1 1 auto;min-width:0;"><span
+        class="node-title-text"
+        style="display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">[+nodetitleDisplay+]</span>[+weblinkDisplay+][+pageIdDisplay+]</span></a><div>';
     }
 }

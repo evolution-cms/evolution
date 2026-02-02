@@ -358,6 +358,13 @@ ul.sortableList li.ghost { z-index: 2; box-shadow: 0 0.25rem 1.5rem rgba(0, 0, 0
 .darkness .sortabletable thead tr, .darkness .sortabletable th:active { background-color: #202329 }
 .darkness .table tbody tr, .darkness .grid tbody tr, .darkness table.table.table--edit > tbody > tr { background: none !important; }
 .darkness .table > tbody > tr > td, .darkness .grid > tbody > tr > td { background: none; border: none !important; border-bottom: 1px solid #2b2e34 !important; color: inherit; }
+.theme-item.active {
+    background-color: hsl(var(--b2));
+    box-shadow: inset 0 0 0 1px hsl(var(--bc) / 0.2);
+}
+.theme-item.active .grid {
+    box-shadow: 0 0 0 1px hsl(var(--bc) / 0.2), 0 0 0 3px hsl(var(--p) / 0.15);
+}
 .darkness .table > tbody > tr:nth-child(2n), .darkness .grid > tbody > tr:nth-child(2n) { background-color: #252930 !important; }
 .darkness .table.data tr > td:first-child, .darkness .table.data tr > th:first-child, .darkness .grid tr > td:first-child, .darkness .grid > tr > th:first-child { padding-left: 1.25rem !important; }
 .darkness .table.data tr > td:last-child, .darkness .table.data tr > th:last-child, .darkness .grid tr > td:last-child, .darkness .grid > tr > th:last-child { padding-right: 1.25rem !important; }

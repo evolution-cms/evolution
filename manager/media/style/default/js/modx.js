@@ -248,7 +248,7 @@
                             var parentWidth = parent && parent.offsetWidth ? parent.offsetWidth : self.offsetWidth;
                             ul.style.position = 'absolute';
                             ul.style.left = Math.round(parentWidth + 4) + 'px';
-                            ul.style.top = Math.round(self.offsetTop + 21) + 'px';
+                            ul.style.top = Math.round(self.offsetTop + 22) + 'px';
                             if (self.classList.contains('dropdown-toggle')) {
                                 if (ul.id === 'parent_' + self.id) {
                                     if (modx.isMobile) {
@@ -699,7 +699,12 @@
                 }
                 modx.resizer.mask = d.createElement('div');
                 modx.resizer.mask.id = 'mask_resizer';
-                modx.resizer.mask.style.zIndex = modx.resizer.oldZIndex;
+                modx.resizer.mask.style.position = 'fixed';
+                modx.resizer.mask.style.inset = '0';
+                modx.resizer.mask.style.cursor = 'col-resize';
+                modx.resizer.mask.style.background = 'transparent';
+                modx.resizer.mask.style.pointerEvents = 'auto';
+                modx.resizer.mask.style.zIndex = 100000;
                 d.getElementById(modx.resizer.id).onmousedown = modx.resizer.onMouseDown;
                 d.getElementById(modx.resizer.id).onmouseup = modx.resizer.mask.onmouseup = modx.resizer.onMouseUp;
                 if (modx.isMobile) {
@@ -774,6 +779,7 @@
                     modx.resizer.dragElement.style.background = modx.resizer.background;
                     localStorage.setItem('MODX_widthSideBar', modx.resizer.dragElement.offsetLeft > 0 ? modx.resizer.dragElement.offsetLeft : 0);
                     d.body.appendChild(modx.resizer.mask);
+                    modx.resizer.mask.onmousemove = modx.resizer.onMouseMove;
                     d.onmousemove = modx.resizer.onMouseMove;
                     d.body.focus();
                     d.body.classList.add('resizer_move');
@@ -1110,23 +1116,44 @@
                     }
                 }
             },
+            decodeIcon: function (value) {
+                if (!value) return '';
+                if (value.indexOf('b64:') === 0) {
+                    try {
+                        return w.atob(value.slice(4));
+                    } catch (e) {
+                        return '';
+                    }
+                }
+                return value;
+            },
             toggleNode: function (e, id) {
                 e = e || w.event;
                 if (e.ctrlKey) return;
                 e.stopPropagation();
                 var el = d.getElementById('node' + id).firstChild;
                 let rpcNode = el.nextSibling;
-                var toggle = el.querySelector('.toggle'),
-                    icon = el.querySelector('.icon');
+                var toggle = el.querySelector('.tree-toggle'),
+                    icon = el.querySelector('.icon'),
+                    iconCollapsed = this.decodeIcon(el.dataset.iconCollapsed),
+                    iconExpanded = this.decodeIcon(el.dataset.iconExpanded),
+                    iconFolderOpen = this.decodeIcon(el.dataset.iconFolderOpen),
+                    iconFolderClose = this.decodeIcon(el.dataset.iconFolderClose);
                 if (rpcNode.innerHTML === '') {
-                    if (toggle) toggle.innerHTML = el.dataset.iconCollapsed;
-                    icon.innerHTML = el.dataset.iconFolderOpen;
+                    if (toggle) toggle.innerHTML = iconCollapsed;
+                    icon.innerHTML = iconFolderOpen;
                     var rpcNodeText = rpcNode.innerHTML,
                         loadText = modx.lang.loading_doc_tree;
                     modx.openedArray[id] = 1;
                     if (rpcNodeText === '' || rpcNodeText.indexOf(loadText) > 0) {
                         var folderState = this.getFolderState();
-                        d.getElementById('treeloader').classList.add('visible');
+                        var loader = d.getElementById('treeloader');
+                        if (loader) {
+                            loader.style.opacity = '0.7';
+                            loader.style.visibility = 'visible';
+                        }
+                        var refreshIcon = d.querySelector('#treeMenu_refreshtree .tree-refresh-icon');
+                        if (refreshIcon) refreshIcon.classList.add('is-spinning');
                         modx.post(modx.MODX_MANAGER_URL + 'media/style/' + modx.config.theme + '/ajax.php', 'a=1&f=nodes&indent=' + el.dataset.indent + '&parent=' + id + '&expandAll=' + el.dataset.expandall + folderState, function (r) {
                             modx.tree.rpcLoadData(r, rpcNode);
                             modx.tree.draggable();
@@ -1134,8 +1161,8 @@
                     }
                     this.saveFolderState();
                 } else {
-                    if (toggle) toggle.innerHTML = el.dataset.iconExpanded;
-                    icon.innerHTML = el.dataset.iconFolderClose;
+                    if (toggle) toggle.innerHTML = iconExpanded;
+                    icon.innerHTML = iconFolderClose;
                     delete modx.openedArray[id];
                     rpcNode.style.overflow = 'hidden';
                     modx.animate(rpcNode.firstChild, {
@@ -1167,7 +1194,13 @@
                                 marginTop: 0
                             }, 64);
                         }
-                        d.getElementById('treeloader').classList.remove('visible');
+                        var loader = d.getElementById('treeloader');
+                        if (loader) {
+                            loader.style.opacity = '0';
+                            loader.style.visibility = 'hidden';
+                        }
+                        var refreshIcon = d.querySelector('#treeMenu_refreshtree .tree-refresh-icon');
+                        if (refreshIcon) refreshIcon.classList.remove('is-spinning');
                     } else {
                         el = d.getElementById('loginfrm');
                         if (el) {
@@ -1382,6 +1415,11 @@
                 el.style.left = a + (modx.config.textdir === 'rtl' ? '-190' : '') + 'px';
                 el.style.top = b + 'px';
                 el.classList.add('show');
+                if (el.id === 'mx_contextmenu' || el.id === 'contextmenu') {
+                    el.style.visibility = 'visible';
+                    el.style.opacity = '1';
+                    el.style.pointerEvents = 'auto';
+                }
             },
             menuHandler: function (a) {
                 switch (a) {
@@ -1483,7 +1521,13 @@
             restoreTree: function () {
                 //console.log('modx.tree.restoreTree()');
                 let _this = this;
-                d.getElementById('treeloader').classList.add('visible');
+                var loader = d.getElementById('treeloader');
+                if (loader) {
+                    loader.style.opacity = '0.7';
+                    loader.style.visibility = 'visible';
+                }
+                var refreshIcon = d.querySelector('#treeMenu_refreshtree .tree-refresh-icon');
+                if (refreshIcon) refreshIcon.classList.add('is-spinning');
                 d.querySelectorAll('.treeRoot').forEach(function (element) {
                     _this.setItemToChange();
                     let rpcNode = d.getElementById(element.id);
@@ -1495,7 +1539,13 @@
                 });
             },
             expandTree: function () {
-                d.getElementById('treeloader').classList.add('visible');
+                var loader = d.getElementById('treeloader');
+                if (loader) {
+                    loader.style.opacity = '0.7';
+                    loader.style.visibility = 'visible';
+                }
+                var refreshIcon = d.querySelector('#treeMenu_refreshtree .tree-refresh-icon');
+                if (refreshIcon) refreshIcon.classList.add('is-spinning');
                 let _this = this;
                 d.querySelectorAll('.treeRoot').forEach(function (element) {
                     let rpcNode = d.getElementById(element.id);
@@ -1508,7 +1558,13 @@
                 });
             },
             collapseTree: function () {
-                d.getElementById('treeloader').classList.add('visible');
+                var loader = d.getElementById('treeloader');
+                if (loader) {
+                    loader.style.opacity = '0.7';
+                    loader.style.visibility = 'visible';
+                }
+                var refreshIcon = d.querySelector('#treeMenu_refreshtree .tree-refresh-icon');
+                if (refreshIcon) refreshIcon.classList.add('is-spinning');
                 let _this = this;
                 d.querySelectorAll('.treeRoot').forEach(function (element) {
                     let rpcNode = d.getElementById(element.id);
@@ -1523,7 +1579,13 @@
             },
             updateTree: function () {
                 let a = d.sortFrm;
-                d.getElementById('treeloader').classList.add('visible');
+                var loader = d.getElementById('treeloader');
+                if (loader) {
+                    loader.style.opacity = '0.7';
+                    loader.style.visibility = 'visible';
+                }
+                var refreshIcon = d.querySelector('#treeMenu_refreshtree .tree-refresh-icon');
+                if (refreshIcon) refreshIcon.classList.add('is-spinning');
                 let _this = this;
                 d.querySelectorAll('.treeRoot').forEach(function (element) {
                     let rpcNode = d.getElementById(element.id);
@@ -2327,12 +2389,22 @@
                 for (i = 0; i < els.length; i++) {
                     if (n !== els[i]) {
                         els[i].classList.remove('show');
+                        if (els[i].id === 'mx_contextmenu' || els[i].id === 'contextmenu') {
+                            els[i].style.visibility = 'hidden';
+                            els[i].style.opacity = '0';
+                            els[i].style.pointerEvents = 'none';
+                        }
                     }
                 }
                 els = w.main && w.main.document.querySelectorAll('.dropdown.show') || [];
                 for (i = 0; i < els.length; i++) {
                     if (n !== els[i]) {
                         els[i].classList.remove('show');
+                        if (els[i].id === 'mx_contextmenu' || els[i].id === 'contextmenu') {
+                            els[i].style.visibility = 'hidden';
+                            els[i].style.opacity = '0';
+                            els[i].style.pointerEvents = 'none';
+                        }
                     }
                 }
             }

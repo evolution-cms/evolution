@@ -61,12 +61,13 @@
                 $summaryAttrs = $title !== '' ? ' title="' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '"' : '';
                 $summaryClass = $level > 0
                     ? ' class="flex items-center gap-2 w-full list-none pr-1 whitespace-nowrap [&::after]:hidden"'
-                    : ' class="flex items-center gap-2 w-full list-none pr-1 [&::after]:hidden"';
+                    : ' class="flex items-center gap-2 w-full list-none pr-2 [&::after]:hidden"';
                 $caretIcon = $level > 0
                     ? svg('tabler-chevron-right', 'h-3.5 w-3.5 text-base-content/70')->toHtml()
                     : '';
                 $caret = $level > 0
-                    ? '<span class="menu-caret ml-auto pl-2 shrink-0 opacity-70" data-menu-caret aria-hidden="true">' . $caretIcon . '</span>'
+                    ? '<span class="menu-caret ml-auto pl-2 shrink-0 opacity-70" data-menu-caret aria-hidden="true">'
+                        . $caretIcon . '</span>'
                     : '';
                 $label = preg_replace($togglePatterns, '', $itemName);
                 $summaryTitle = trim(preg_replace('/\\s+/', ' ', strip_tags($label)));
@@ -126,7 +127,7 @@
                     [$tag, $optHref, $optClass, $optOnclick, $optTitle, $optInner] = $opt;
                     $tag = in_array($tag, ['a', 'button'], true) ? $tag : 'a';
                     $btnClass = $id === 'refresh_site'
-                        ? trim('btn btn-warning btn-xs px-1.5 h-5 min-h-0 ml-2 ' . $optClass)
+                        ? trim('btn btn-primary btn-xs px-1.5 h-5 min-h-0 ml-2 ' . $optClass)
                         : trim('btn btn-ghost btn-xs px-1.5 h-5 min-h-0 ml-2 ' . $optClass);
                     $btnAttrs = ' class="' . htmlspecialchars($btnClass, ENT_QUOTES, 'UTF-8') . '"';
                     $optHref = $id === 'refresh_site' ? 'javascript:;' : $optHref;
@@ -192,6 +193,8 @@
         'bumblebee',
         'emerald',
         'corporate',
+        'evolight',
+        'evolightness',
         'retro',
         'cyberpunk',
         'valentine',
@@ -224,6 +227,8 @@
         'dim',
         'sunset',
         'abyss',
+        'evodark',
+        'evodarkness',
     ];
     sort($lightThemes, SORT_NATURAL | SORT_FLAG_CASE);
     sort($darkThemes, SORT_NATURAL | SORT_FLAG_CASE);
@@ -284,7 +289,7 @@
             </div>
         </x-slot:brand>
         <x-slot:actions class="ml-auto">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center">
                 <div id="searchform" class="relative">
                     <form action="index.php?a=71" method="post" target="main" class="flex items-center gap-2">
                         <input type="hidden" value="Search" name="submitok" />

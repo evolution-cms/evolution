@@ -83,6 +83,7 @@ $_style['icon_circle'] = svg('tabler-circle')->toHtml();
         body:not(.sidebar-closed) #bars .icon-collapse{display:inline-block!important;}
         body.sidebar-closed #bars .icon-expand{display:inline-block!important;}
         body.sidebar-closed #bars .icon-collapse{display:none!important;}
+        body.resizer_move iframe{pointer-events:none;user-select:none;}
 
         #mainloader {
             position: absolute;
@@ -111,11 +112,12 @@ $_style['icon_circle'] = svg('tabler-circle')->toHtml();
             display: none;
         }
         .evo__logo {
-            font-size: 3.5em;
-            font-weight: 300;
             position: fixed;
             top: 40%;
             left: 50%;
+            width: 60px;
+            height: 60px;
+            transform: translate(-50%, -50%);
         }
         .evo__logo::before {
             content: "";
@@ -124,15 +126,15 @@ $_style['icon_circle'] = svg('tabler-circle')->toHtml();
             z-index: 1;
             left: 50%;
             top: 50%;
-            width: 120px;
-            height: 120px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             transform: translate(-50%, -50%) rotate(0deg);
             animation: rotateLogo 2s linear infinite;
-            box-shadow: 5px 5px 0 0 #FFD700,
-                14px -7px 0 0 rgba(111, 163, 219, 0.7),
-                -7px 11px 0 0 rgba(112, 193, 92, 0.74),
-                -11px -7px 0 0 rgba(147, 205, 99, 0.78);
+            box-shadow: 2.5px 2.5px 0 0 #FFD700,
+                7px -3.5px 0 0 rgba(111, 163, 219, 0.7),
+                -3.5px 5.5px 0 0 rgba(112, 193, 92, 0.74),
+                -5.5px -3.5px 0 0 rgba(147, 205, 99, 0.78);
         }
         @keyframes rotateLogo {
             to { transform: translate(-50%, -50%) rotate(360deg); }
@@ -304,7 +306,7 @@ $_style['icon_circle'] = svg('tabler-circle')->toHtml();
                 document.getElementsByClassName("tabframes").setAttribute("scrolling", "no");
             }
         </script>
-        <div id="mainloader"><div class="evo__logo">EVO</div></div>
+        <div id="mainloader"><div class="evo__logo" role="img" aria-label="Loading"></div></div>
     </div>
     <div id="resizer"></div>
     <div id="searchresult"></div>
@@ -403,38 +405,40 @@ $_style['icon_circle'] = svg('tabler-circle')->toHtml();
         function constructLink($action, $img, $text, $allowed)
         {
             if ((bool) $allowed) {
-                echo '<div class="menuLink" id="item' . $action . '" onclick="modx.tree.menuHandler(' . $action . ');">';
-                echo iconHtml($img) . ' ' . $text . '</div>';
+                echo '<li class="menuLink" id="item' . $action . '"><a href="javascript:;" class="flex items-center gap-2 min-w-0" style="width:100%;max-width:100%;overflow:hidden;" onclick="modx.tree.menuHandler(' . $action . ');">';
+                echo iconHtml($img) . '<span class="flex-1 min-w-0" style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' . $text . '</span></a></li>';
             }
         }
     }
     ?><!-- Contextual Menu Popup Code -->
-    <div id="mx_contextmenu" class="dropdown" onselectstart="return false;" style="display:none !important;">
-        <div id="nameHolder">&nbsp;</div>
-        <?php
-        constructLink(3, $_style['icon_document'], ManagerTheme::getLexicon('create_resource_here'), evo()->hasPermission('new_document')); // new Resource
-        constructLink(2, $_style['icon_edit'], ManagerTheme::getLexicon('edit_resource'), evo()->hasPermission('edit_document')); // edit
-        constructLink(5, $_style['icon_move'], ManagerTheme::getLexicon('move_resource'), evo()->hasPermission('save_document')); // move
-        constructLink(7, $_style['icon_clone'], ManagerTheme::getLexicon('resource_duplicate'), evo()->hasPermission('new_document')); // duplicate
-        constructLink(11, $_style['icon_sort_num_asc'], ManagerTheme::getLexicon('sort_menuindex'), !!(evo()->hasPermission('edit_document') && $modx->hasPermission('save_document'))); // sort menu index
-        ?>
-        <div class="seperator"></div>
-        <?php
-        constructLink(9, $_style['icon_check'], ManagerTheme::getLexicon('publish_resource'), evo()->hasPermission('publish_document')); // publish
-        constructLink(10, $_style['icon_close'], ManagerTheme::getLexicon('unpublish_resource'), evo()->hasPermission('publish_document')); // unpublish
-        constructLink(4, $_style['icon_trash'], ManagerTheme::getLexicon('delete_resource'), evo()->hasPermission('delete_document')); // delete
-        constructLink(8, $_style['icon_undo'], ManagerTheme::getLexicon('undelete_resource'), evo()->hasPermission('delete_document')); // undelete
-        ?>
-        <div class="seperator"></div>
-        <?php
-        constructLink(6, $_style['icon_chain'], ManagerTheme::getLexicon('create_weblink_here'), evo()->hasPermission('new_document')); // new Weblink
-        ?>
-        <div class="seperator"></div>
-        <?php
-        constructLink(1, $_style['icon_info'], ManagerTheme::getLexicon('resource_overview'), evo()->hasPermission('view_document')); // view
-        constructLink(12, $_style['icon_eye'], ManagerTheme::getLexicon('preview_resource'), 1); // preview
-        ?>
-
+    <div id="mx_contextmenu" class="dropdown dropdown-content bg-base-300 rounded-box shadow" onselectstart="return false;" style="visibility:hidden; opacity:0; pointer-events:none; z-index:20000; max-width:80vw;">
+        <ul class="menu menu-sm p-1" style="width:100%;max-width:100%;">
+            <li id="nameHolder" class="menu-title px-2 text-xs text-base-content/70">&nbsp;</li>
+            <li class="seperator my-1 h-px bg-base-content/10"></li>
+            <?php
+            constructLink(3, $_style['icon_document'], ManagerTheme::getLexicon('create_resource_here'), evo()->hasPermission('new_document')); // new Resource
+            constructLink(2, $_style['icon_edit'], ManagerTheme::getLexicon('edit_resource'), evo()->hasPermission('edit_document')); // edit
+            constructLink(5, $_style['icon_move'], ManagerTheme::getLexicon('move_resource'), evo()->hasPermission('save_document')); // move
+            constructLink(7, $_style['icon_clone'], ManagerTheme::getLexicon('resource_duplicate'), evo()->hasPermission('new_document')); // duplicate
+            constructLink(11, $_style['icon_sort_num_asc'], ManagerTheme::getLexicon('sort_menuindex'), !!(evo()->hasPermission('edit_document') && $modx->hasPermission('save_document'))); // sort menu index
+            ?>
+            <li class="seperator my-1 h-px bg-base-content/10"></li>
+            <?php
+            constructLink(9, $_style['icon_check'], ManagerTheme::getLexicon('publish_resource'), evo()->hasPermission('publish_document')); // publish
+            constructLink(10, $_style['icon_close'], ManagerTheme::getLexicon('unpublish_resource'), evo()->hasPermission('publish_document')); // unpublish
+            constructLink(4, $_style['icon_trash'], ManagerTheme::getLexicon('delete_resource'), evo()->hasPermission('delete_document')); // delete
+            constructLink(8, $_style['icon_undo'], ManagerTheme::getLexicon('undelete_resource'), evo()->hasPermission('delete_document')); // undelete
+            ?>
+            <li class="seperator my-1 h-px bg-base-content/10"></li>
+            <?php
+            constructLink(6, $_style['icon_chain'], ManagerTheme::getLexicon('create_weblink_here'), evo()->hasPermission('new_document')); // new Weblink
+            ?>
+            <li class="seperator my-1 h-px bg-base-content/10"></li>
+            <?php
+            constructLink(1, $_style['icon_info'], ManagerTheme::getLexicon('resource_overview'), evo()->hasPermission('view_document')); // view
+            constructLink(12, $_style['icon_eye'], ManagerTheme::getLexicon('preview_resource'), 1); // preview
+            ?>
+        </ul>
     </div>
 
     <?php

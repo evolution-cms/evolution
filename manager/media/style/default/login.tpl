@@ -488,8 +488,8 @@
         #mainloader {position: absolute; z-index: 50000; top: 0; left: 0; width: 100%; height: 100%; text-align: center; vertical-align: middle; padding: 15% 0 0 0; background-color: rgba(255, 255, 255, 0.64); opacity: 0; visibility: hidden; -webkit-transition-duration: 0.3s; transition-duration: 0.3s }
         #mainloader.show {opacity: 0.75; visibility: visible; -webkit-transition-duration: 0.1s; transition-duration: 0.1s}
         #mainloader::before {display: none;}
-        .evo__logo {font-size: 3.5em;position: fixed; top: 40%; left: 50%;}
-        .evo__logo::before {content: ""; display: block; position: absolute; z-index: 1; left: 50%; top: 50%; width: 120px; height: 120px; border-radius: 50%; transform: translate(-50%, -50%) rotate(0deg); animation: rotateLogo 2s linear infinite; box-shadow: 5px 5px 0 0 rgb(234, 132, 82), 14px -7px 0 0 rgba(111, 163, 219, 0.7), -7px 11px 0 0 rgba(112, 193, 92, 0.74), -11px -7px 0 0 rgba(147, 205, 99, 0.78);}
+        .evo__logo {position: fixed; top: 40%; left: 50%; width: 60px; height: 60px; transform: translate(-50%, -50%);}
+        .evo__logo::before {content: ""; display: block; position: absolute; z-index: 1; left: 50%; top: 50%; width: 60px; height: 60px; border-radius: 50%; transform: translate(-50%, -50%) rotate(0deg); animation: rotateLogo 2s linear infinite; box-shadow: 2.5px 2.5px 0 0 rgb(234, 132, 82), 7px -3.5px 0 0 rgba(111, 163, 219, 0.7), -3.5px 5.5px 0 0 rgba(112, 193, 92, 0.74), -5.5px -3.5px 0 0 rgba(147, 205, 99, 0.78);}
         @keyframes rotateLogo {to {transform: translate(-50%, -50%) rotate(360deg)}}
         /* loginbox keyframes */
 
@@ -606,7 +606,7 @@
 </div>
 
 <!-- loader -->
-<div id="mainloader"><div class="evo__logo">EVO</div></div>
+<div id="mainloader"><div class="evo__logo" role="img" aria-label="Loading"></div></div>
 
 <!-- script -->
 <script>
