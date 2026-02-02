@@ -10,8 +10,9 @@
     @if(class_exists(Tracy\Debugger::class) && EvolutionCMS()->get('config')->get('tracy.active'))
         {!! Tracy\Debugger::renderLoader() !!}
     @endif
-    <link rel="stylesheet" type="text/css" href="{{ ManagerTheme::css() }}"/>
+{{--    <link rel="stylesheet" type="text/css" href="{{ ManagerTheme::css() }}"/>--}}
     <link rel="stylesheet" type="text/css" href="{{ ManagerTheme::getThemeUrl() }}css/tailwind.min.css?v={{evo()->getVersionData('version')}}"/>
+    <script src="{{ManagerTheme::getThemeUrl()}}js/theme.js?v={{evo()->getVersionData('version')}}"></script>
     <script type="text/javascript" src="media/script/tabpane.js"></script>
     {!! ManagerTheme::getMainFrameHeaderHTMLBlock() !!}
 

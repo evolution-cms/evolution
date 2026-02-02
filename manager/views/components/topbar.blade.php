@@ -243,7 +243,31 @@
     data-evo-theme-default="light"
     data-evo-mode-default="light"
 >
-    <x-mary-nav full-width class="bg-base-200 shadow-sm">
+    <style>
+        #mainMenu .evo-topbar-nav > div { padding-top: 0; padding-bottom: 0; }
+        #mainMenu .evo-topbar-nav .btn-ghost {
+            border-color: transparent;
+        }
+        #mainMenu .evo-topbar-nav .btn-ghost:hover,
+        #mainMenu .evo-topbar-nav .btn-ghost:focus-visible,
+        #mainMenu .evo-topbar-nav .menu li > *:hover,
+        #mainMenu .evo-topbar-nav .menu li > *:focus-visible {
+            background-color: oklch(var(--bc) / 0.12);
+            border-color: transparent;
+        }
+        #mainMenu .evo-topbar-nav .btn-ghost:active,
+        #mainMenu .evo-topbar-nav .menu li > *:active {
+            background-color: oklch(var(--bc) / 0.16);
+            border-color: transparent;
+        }
+        #mainMenu .theme-item.active {
+            background-color: oklch(var(--b2));
+            border: 1px solid oklch(var(--bc) / 0.18);
+            color: oklch(var(--bc));
+            font-weight: 600;
+        }
+    </style>
+    <x-mary-nav full-width class="bg-base-200 shadow-sm evo-topbar-nav">
         <x-slot:brand>
             <div class="flex items-center gap-3">
                 <div class="flex items-center">

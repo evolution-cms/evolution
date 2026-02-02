@@ -1,248 +1,271 @@
 @extends('manager::template.page')
 @section('content')
-    <style>
-        .widgets #welcome .wm_button a svg {
-            display: block;
-            width: 2rem;
-            height: 2rem;
-            margin: 0 auto 0.5rem auto;
-        }
-        .widgets .card-header svg {
-            width: 18px;
-            height: 18px;
-            vertical-align: middle;
-            margin-right: 0.25em;
-        }
-        .widgets .card-header i {
-            font-size: 18px;
-            line-height: 18px;
-        }
-    </style>
-    <?php /*include_once evolutionCMS()->get('ManagerTheme')->getFileProcessor("actions/welcome.static.php");*/
-    unset($_SESSION['itemname'], $_SESSION['itemaction']); // clear this, because it's only set for logging purposes
+@php
+    unset($_SESSION['itemname'], $_SESSION['itemaction']);
 
     if (evo()->hasPermission('settings') && evo()->getConfig('settings_version') !== evo()->getVersionData('version')) {
-        // seems to be a new install - send the user to the configuration page
         exit('<script type="text/javascript">document.location.href="index.php?a=17";</script>');
     }
 
     $_style = EvolutionCMS\Facades\ManagerTheme::getStyle();
     $which_browser = evo()->getConfig('which_browser');
 
-    // Tabler SVG overrides for dashboard icons
-    $_style['icon_user'] = svg('tabler-user-cog')->toHtml();
-    $_style['icon_web_user'] = svg('tabler-users')->toHtml();
-    $_style['icon_modules'] = svg('tabler-packages')->toHtml();
-    $_style['icon_elements'] = svg('tabler-blocks')->toHtml();
-    $_style['icon_database'] = svg('tabler-database')->toHtml();
-    $_style['icon_question_circle'] = svg('tabler-help')->toHtml();
-    $_style['icon_add'] = svg('tabler-file-plus')->toHtml();
-    $_style['icon_chain'] = svg('tabler-link')->toHtml();
-    $_style['icon_camera'] = svg('tabler-camera')->toHtml();
-    $_style['icon_folder_open'] = svg('tabler-folder-open')->toHtml();
-    $_style['icon_lock'] = svg('tabler-lock')->toHtml();
-    $_style['icon_logout'] = svg('tabler-logout')->toHtml();
-    $_style['icon_home'] = svg('tabler-home')->toHtml();
-    $_style['icon_users'] = svg('tabler-users')->toHtml();
-    $_style['icon_pencil'] = svg('tabler-pencil')->toHtml();
-    $_style['icon_rss'] = svg('tabler-rss')->toHtml();
-    $_style['icon_alert_triangle'] = svg('tabler-alert-triangle')->toHtml();
+    $icons = [
+        'home' => svg('tabler-home')->toHtml(),
+        'users' => svg('tabler-users')->toHtml(),
+        'pencil' => svg('tabler-pencil')->toHtml(),
+        'rss' => svg('tabler-rss')->toHtml(),
+        'alert' => svg('tabler-alert-triangle')->toHtml(),
+        'add' => svg('tabler-file-plus')->toHtml(),
+        'link' => svg('tabler-link')->toHtml(),
+        'camera' => svg('tabler-camera')->toHtml(),
+        'folder' => svg('tabler-folder-open')->toHtml(),
+        'database' => svg('tabler-database')->toHtml(),
+        'lock' => svg('tabler-lock')->toHtml(),
+        'logout' => svg('tabler-logout')->toHtml(),
+        'edit' => svg('tabler-file-pencil')->toHtml(),
+        'eye' => svg('tabler-eye')->toHtml(),
+        'trash' => svg('tabler-trash')->toHtml(),
+        'undo' => svg('tabler-arrow-back-up')->toHtml(),
+        'check' => svg('tabler-check')->toHtml(),
+        'close' => svg('tabler-x')->toHtml(),
+        'info' => svg('tabler-info-square-rounded')->toHtml(),
+        'world' => svg('tabler-world')->toHtml(),
+    ];
 
-    // set placeholders
-    $ph = $_lang;
-
-    $iconTpl = evo()->getChunk('manager#welcome\WrapIcon');
-    // setup icons
-    if (evo()->hasPermission('new_user') || evo()->hasPermission('edit_user')) {
-        $icon = $_style['icon_user'] . ' [%user_management_title%]';
-        $ph['SecurityIcon'] = sprintf($iconTpl, $icon, 75);
-    }
-    if (evo()->hasPermission('new_user') || evo()->hasPermission('edit_user')) {
-        $icon = $_style['icon_web_user'] . ' [%web_user_management_title%]';
-        $ph['WebUserIcon'] = sprintf($iconTpl, $icon, 99);
-    }
-    if (evo()->hasPermission('new_module') || evo()->hasPermission('edit_module')) {
-        $icon = $_style['icon_modules'] . ' [%modules%]';
-        $ph['ModulesIcon'] = sprintf($iconTpl, $icon, 106);
-    }
-    if (evo()->hasPermission('new_template') || evo()->hasPermission('edit_template') || evo()->hasPermission('new_snippet') || evo()->hasPermission('edit_snippet') || evo()->hasPermission('new_plugin') || evo()->hasPermission('edit_plugin') || evo()->hasPermission('manage_metatags')) {
-        $icon = $_style['icon_elements'] . ' [%elements%]';
-        $ph['ResourcesIcon'] = sprintf($iconTpl, $icon, 76);
-    }
-    if (evo()->hasPermission('bk_manager')) {
-        $icon = $_style['icon_database'] . ' [%backup%]';
-        $ph['BackupIcon'] = sprintf($iconTpl, $icon, 93);
-    }
-    if (evo()->hasPermission('help')) {
-        $icon = $_style['icon_question_circle'] . ' [%help%]';
-        $ph['HelpIcon'] = sprintf($iconTpl, $icon, 9);
-    }
-
+    $quickActions = [];
     if (evo()->hasPermission('new_document')) {
-        $icon = $_style['icon_add'] . '[%add_resource%]';
-        $ph['ResourceIcon'] = sprintf($iconTpl, $icon, 4);
-        $icon = $_style['icon_chain'] . '[%add_weblink%]';
-        $ph['WeblinkIcon'] = sprintf($iconTpl, $icon, 72);
+        $quickActions[] = ['label' => $_lang['add_resource'], 'href' => 'index.php?a=4', 'target' => 'main', 'icon' => $icons['add']];
+        $quickActions[] = ['label' => $_lang['add_weblink'], 'href' => 'index.php?a=72', 'target' => 'main', 'icon' => $icons['link']];
     }
     if (evo()->hasPermission('assets_images')) {
-        $icon = $_style['icon_camera'] . '[%images_management%]';
-        $ph['ImagesIcon'] = sprintf($iconTpl, $icon, 72);
+        $quickActions[] = [
+            'label' => $_lang['images_management'],
+            'href' => 'media/browser/' . $which_browser . '/browse.php?filemanager=media/browser/' . $which_browser . '/browse.php&type=images',
+            'target' => 'main',
+            'icon' => $icons['camera']
+        ];
     }
     if (evo()->hasPermission('assets_files')) {
-        $icon = $_style['icon_folder_open'] . '[%files_management%]';
-        $ph['FilesIcon'] = sprintf($iconTpl, $icon, 72);
+        $quickActions[] = [
+            'label' => $_lang['files_management'],
+            'href' => 'media/browser/' . $which_browser . '/browse.php?filemanager=media/browser/' . $which_browser . '/browse.php&type=files',
+            'target' => 'main',
+            'icon' => $icons['folder']
+        ];
+    }
+    if (evo()->hasPermission('bk_manager')) {
+        $quickActions[] = ['label' => $_lang['bk_manager'], 'href' => 'index.php?a=93', 'target' => 'main', 'icon' => $icons['database']];
     }
     if (evo()->hasPermission('change_password')) {
-        $icon = $_style['icon_lock'] . '[%change_password%]';
-        $ph['PasswordIcon'] = sprintf($iconTpl, $icon, 28);
+        $quickActions[] = ['label' => $_lang['change_password'], 'href' => 'index.php?a=28', 'target' => 'main', 'icon' => $icons['lock']];
     }
-    $icon = $_style['icon_logout'] . '[%logout%]';
-    $ph['LogoutIcon'] = sprintf($iconTpl, $icon, 8);
+    $quickActions[] = ['label' => $_lang['logout'], 'href' => 'index.php?a=8', 'target' => '_top', 'icon' => $icons['logout']];
 
-    // do some config checks
+    $configDisplay = false;
+    $configCheckResults = '';
     if (evo()->getConfig('warning_visibility') || $_SESSION['mgrRole'] == 1) {
         include_once MODX_MANAGER_PATH . 'includes/config_check.inc.php';
         if ($config_check_results != $_lang['configcheck_ok']) {
-            $ph['config_check_results'] = $config_check_results;
-            $ph['config_display'] = 'block';
-        } else {
-            $ph['config_display'] = 'none';
+            $configCheckResults = $config_check_results;
+            $configDisplay = true;
         }
-    } else {
-        $ph['config_display'] = 'none';
     }
 
-    // Check logout-reminder
+    $logoutReminderMsg = '';
+    $showLogoutReminder = false;
     if (isset($_SESSION['show_logout_reminder'])) {
-        switch ($_SESSION['show_logout_reminder']['type']) {
-            case 'logout_reminder':
-                $date = evo()->toDateFormat($_SESSION['show_logout_reminder']['lastHit'], 'dateOnly');
-                $ph['logout_reminder_msg'] = str_replace('[+date+]', $date, $_lang['logout_reminder_msg']);
-                break;
+        if ($_SESSION['show_logout_reminder']['type'] === 'logout_reminder') {
+            $date = evo()->toDateFormat($_SESSION['show_logout_reminder']['lastHit'], 'dateOnly');
+            $logoutReminderMsg = str_replace('[+date+]', $date, $_lang['logout_reminder_msg']);
         }
-        $ph['show_logout_reminder'] = 'block';
+        $showLogoutReminder = true;
         unset($_SESSION['show_logout_reminder']);
-    } else {
-        $ph['show_logout_reminder'] = 'none';
     }
 
-    // Check multiple sessions
+    $showMultipleSessions = false;
+    $multipleSessionsMsg = '';
 
-    $ph['show_multiple_sessions'] = 'none';
-
-    $ph['RecentInfo'] = evo()->getChunk('manager#welcome\RecentInfo');
-
-    $tpl = '
-    <table class="table data">
-    	<tr>
-    		<td width="150">[%yourinfo_username%]</td>
-    		<td><b>[+username+]</b></td>
-    	</tr>
-    	<tr>
-    		<td>[%yourinfo_role%]</td>
-    		<td><b>[+role+]</b></td>
-    	</tr>
-    	<tr>
-    		<td>[%yourinfo_previous_login%]</td>
-    		<td><b>[+lastlogin+]</b></td>
-    	</tr>
-    	<tr>
-    		<td>[%yourinfo_total_logins%]</td>
-    		<td><b>[+logincount+]</b></td>
-    	</tr>
-    </table>';
-
-    $ph['UserInfo'] = evo()->parseText($tpl, [
-        'username' => evo()->getLoginUserName(),
-        'role' => $_SESSION['mgrPermissions']['name'],
-        'lastlogin' => evo()->toDateFormat(evo()->timestamp($_SESSION['mgrLastlogin'])),
-        'logincount' => $_SESSION['mgrLogincount'] + 1,
-    ]);
+    $onlineRows = [];
+    $onlineNow = '';
+    $onlineMessage = '';
 
     $activeUsers = \EvolutionCMS\Models\ActiveUserSession::query()
         ->join('active_users', 'active_users.sid', '=', 'active_user_sessions.sid')
         ->where('active_users.action', '<>', 8)
         ->orderBy('username', 'ASC')
         ->orderBy('active_users.sid', 'ASC');
-    if ($activeUsers->count() < 1) {
-        $html = '<p>[%no_active_users_found%]</p>';
-    } else {
+
+    if ($activeUsers->count() > 0) {
         $now = evo()->now()->unix();
         if (extension_loaded('intl')) {
-            // https://www.php.net/manual/en/class.intldateformatter.php
-            // https://www.php.net/manual/en/datetime.createfromformat.php
             $formatter = new IntlDateFormatter(evolutionCMS()->getConfig('manager_language'), IntlDateFormatter::MEDIUM, IntlDateFormatter::MEDIUM, null, null, 'HH:mm:ss');
-            $ph['now'] = $formatter->format($now);
+            $onlineNow = $formatter->format($now);
         } else {
-            $ph['now'] = date('H:i:s', $now);
+            $onlineNow = date('H:i:s', $now);
         }
-        $timetocheck = $now - 60 * 20; //+$server_offset_time;
-        $html = '
-    	<div class="card-body">
-    		[%onlineusers_message%]
-    		<b>[+now+]</b>):
-    	</div>
-    	<div class="table-responsive">
-    	<table class="table data">
-    	<thead>
-    		<tr>
-    			<th>[%onlineusers_user%]</th>
-    			<th>ID</th>
-    			<th>[%onlineusers_ipaddress%]</th>
-    			<th>[%onlineusers_lasthit%]</th>
-    			<th>[%onlineusers_action%]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-    		</tr>
-    	</thead>
-    	<tbody>';
+        $onlineMessage = $_lang['onlineusers_message'];
+        $timetocheck = $now - 60 * 20;
 
-        $userList = [];
         $userCount = [];
-        // Create userlist with session-count first before output
+        $userList = [];
         foreach ($activeUsers->get()->toArray() as $activeUser) {
             $userCount[$activeUser['internalKey']] = isset($userCount[$activeUser['internalKey']]) ? $userCount[$activeUser['internalKey']] + 1 : 1;
 
-            $idle = ($activeUser['lasthit'] + evo()->getConfig('server_offset_time')) < $timetocheck ? ' class="userIdle"' : '';
-            $webicon = $activeUser['internalKey'] < 0 ? '<i class="[&icon_globe&]"></i>' : '';
+            $isIdle = ($activeUser['lasthit'] + evo()->getConfig('server_offset_time')) < $timetocheck;
             $ip = $activeUser['ip'] === '::1' ? '127.0.0.1' : $activeUser['ip'];
             $currentaction = EvolutionCMS\Legacy\LogHandler::getAction($activeUser['action'], $activeUser['id']);
             if ($activeUser['action'] == 112 && $activeUser['id'] == 0) {
-                $managerLog = EvolutionCMS\Models\ManagerLog::where('internalKey', $activeUser['internalKey'])->where('action', $activeUser['action'])->orderByDesc('timestamp')->first();
+                $managerLog = EvolutionCMS\Models\ManagerLog::where('internalKey', $activeUser['internalKey'])
+                    ->where('action', $activeUser['action'])
+                    ->orderByDesc('timestamp')
+                    ->first();
                 if ($managerLog) {
                     $currentaction = $managerLog->itemname . ' - ' . str_replace($managerLog->itemname, '', $managerLog->message);
                 }
             }
             if (extension_loaded('intl')) {
-                $formatter = new IntlDateFormatter(evo()->getConfig('manager_language'), IntlDateFormatter::MEDIUM, IntlDateFormatter::MEDIUM, null, null, 'HH:mm:ss');
+                $formatter = new IntlDateFormatter(evolutionCMS()->getConfig('manager_language'), IntlDateFormatter::MEDIUM, IntlDateFormatter::MEDIUM, null, null, 'HH:mm:ss');
                 $lasthit = $formatter->format(evo()->timestamp($activeUser['lasthit']));
             } else {
                 $lasthit = date('H:i:s', evo()->timestamp($activeUser['lasthit']));
             }
-            $userList[] = [$idle, '', $activeUser['username'], $webicon, abs($activeUser['internalKey']), $ip, $lasthit, $currentaction];
+            $userList[] = [
+                'idle' => $isIdle,
+                'username' => $activeUser['username'],
+                'is_web' => $activeUser['internalKey'] < 0,
+                'id' => abs($activeUser['internalKey']),
+                'ip' => $ip,
+                'lasthit' => $lasthit,
+                'action' => $currentaction,
+                'internalKey' => $activeUser['internalKey']
+            ];
         }
+
         foreach ($userList as $params) {
-            $params[1] = $userCount[$params[4]] > 1 ? ' class="userMultipleSessions"' : '';
-            $html .= "\n\t\t" . vsprintf('<tr%s><td><strong%s>%s</strong></td><td>%s%s</td><td>%s</td><td>%s</td><td>%s</td></tr>', $params);
+            $params['multi'] = $userCount[$params['internalKey']] > 1;
+            $onlineRows[] = $params;
         }
-
-        $html .= '
-    	</tbody>
-    	</table>
-    </div>
-    ';
     }
-    $ph['OnlineInfo'] = $html;
 
-    // Include rss feeds for important forum topics
-    // Here you can set the urls to retrieve the RSS from. Add a $urls line following the numbering progress in the square brackets.
+    $recentItems = [];
+    $recentQuery = \EvolutionCMS\Models\SiteContent::query()
+        ->leftJoin('site_templates', 'site_content.template', '=', 'site_templates.id')
+        ->select('site_content.*', 'site_templates.templatename')
+        ->orderBy('editedon', 'DESC')
+        ->limit(10);
+
+    $notSetHtml = '<span class="italic text-base-content/60">' . htmlspecialchars($_lang['not_set'], ENT_QUOTES, 'UTF-8') . '</span>';
+
+    if ($recentQuery->count() > 0) {
+        foreach ($recentQuery->get()->toArray() as $ph) {
+            $docid = $ph['id'];
+            $_ = evo()->getUserInfo($ph['editedby']);
+            $username = isset($_['username']) ? $_['username'] : '';
+
+            if ($ph['deleted'] == 1) {
+                $statusClass = 'text-error';
+            } elseif ($ph['published'] == 0) {
+                $statusClass = 'text-warning';
+            } else {
+                $statusClass = 'text-base-content';
+            }
+
+            $actions = [];
+            if (evo()->hasPermission('edit_document')) {
+                $actions[] = [
+                    'title' => $_lang['edit_resource'],
+                    'href' => 'index.php?a=27&id=' . $docid,
+                    'target' => 'main',
+                    'icon' => $icons['edit']
+                ];
+            }
+
+            $previewDisabled = ($ph['deleted'] == 1);
+            $actions[] = [
+                'title' => $_lang['preview_resource'],
+                'href' => '../index.php?&id=' . $docid,
+                'target' => '_blank',
+                'icon' => $icons['eye'],
+                'disabled' => $previewDisabled
+            ];
+
+            if (evo()->hasPermission('delete_document')) {
+                if ($ph['deleted'] == 0) {
+                    $actions[] = [
+                        'title' => $_lang['delete_resource'],
+                        'href' => 'index.php?a=6&id=' . $docid,
+                        'target' => 'main',
+                        'icon' => $icons['trash'],
+                        'confirm' => $_lang['confirm_delete_record']
+                    ];
+                } else {
+                    $actions[] = [
+                        'title' => $_lang['undelete_resource'],
+                        'href' => 'index.php?a=63&id=' . $docid,
+                        'target' => 'main',
+                        'icon' => $icons['undo'],
+                        'confirm' => $_lang['confirm_undelete']
+                    ];
+                }
+            }
+
+            if ($ph['deleted'] == 1 && $ph['published'] == 0) {
+                $publish = ['disabled' => true, 'icon' => $icons['check']];
+            } elseif ($ph['deleted'] == 1 && $ph['published'] == 1) {
+                $publish = ['disabled' => true, 'icon' => $icons['close']];
+            } elseif ($ph['deleted'] == 0 && $ph['published'] == 0) {
+                $publish = ['href' => 'index.php?a=61&id=' . $docid, 'icon' => $icons['check']];
+            } else {
+                $publish = ['href' => 'index.php?a=62&id=' . $docid, 'icon' => $icons['close']];
+            }
+
+            $actions[] = [
+                'title' => $ph['published'] == 1 ? $_lang['unpublish_resource'] : $_lang['publish_resource'],
+                'href' => $publish['href'] ?? '#',
+                'target' => 'main',
+                'icon' => $publish['icon'],
+                'disabled' => $publish['disabled'] ?? false
+            ];
+
+            $actions[] = [
+                'title' => $_lang['resource_overview'],
+                'href' => '#',
+                'target' => '',
+                'icon' => $icons['info'],
+                'noop' => true
+            ];
+
+            $recentItems[] = [
+                'id' => $docid,
+                'title' => $ph['pagetitle'],
+                'title_url' => 'index.php?a=3&id=' . $docid,
+                'status_class' => $statusClass,
+                'edit_date' => evo()->toDateFormat(evo()->timestamp($ph['editedon'])),
+                'username' => $username,
+                'actions' => $actions,
+                'details' => [
+                    'longtitle' => $ph['longtitle'] !== '' ? htmlspecialchars($ph['longtitle'], ENT_QUOTES, 'UTF-8') : $notSetHtml,
+                    'description' => $ph['description'] !== '' ? htmlspecialchars($ph['description'], ENT_QUOTES, 'UTF-8') : $notSetHtml,
+                    'introtext' => $ph['introtext'] !== '' ? htmlspecialchars($ph['introtext'], ENT_QUOTES, 'UTF-8') : $notSetHtml,
+                    'doctype' => $ph['type'] == 'reference' ? $_lang['weblink'] : $_lang['resource'],
+                    'alias' => $ph['alias'] !== '' ? htmlspecialchars($ph['alias'], ENT_QUOTES, 'UTF-8') : $notSetHtml,
+                    'cacheable' => $ph['cacheable'] == 1 ? $_lang['yes'] : $_lang['no'],
+                    'hidemenu' => $ph['hidemenu'] == 1 ? $_lang['no'] : $_lang['yes'],
+                    'template' => $ph['templatename'] ? htmlspecialchars($ph['templatename'], ENT_QUOTES, 'UTF-8') : $notSetHtml,
+                ]
+            ];
+        }
+    }
+
+    $rssNewsItems = [];
+    $rssSecurityItems = [];
 
     $urls['evo_news_content'] = evo()->getConfig('rss_url_news');
     $urls['evo_security_notices_content'] = evo()->getConfig('rss_url_security');
 
-    // How many items per Feed?
     $itemsNumber = 3;
-    $feedData = [];
 
-    // create Feed
     $feed = new \SimplePie\SimplePie();
     $feedCache = evolutionCMS()->getCachePath() . 'rss/';
     \Illuminate\Support\Facades\File::ensureDirectoryExists($feedCache);
@@ -251,15 +274,12 @@
         if (empty($url)) {
             continue;
         }
-        $output = '';
         $feed->set_feed_url($url);
         $feed->init();
         $items = $feed->get_items(0, $itemsNumber);
         if (empty($items)) {
-            $feedData[$section] = 'Failed to retrieve ' . $url;
             continue;
         }
-        $output = '<ul>';
         foreach ($items as $item) {
             $href = $item->get_link();
             $title = $item->get_title();
@@ -268,17 +288,22 @@
             $description = strip_tags($item->get_content());
             if (strlen($description) > 199) {
                 $description = \Illuminate\Support\Str::words($description, 15, '...');
-                $description .= '<br />Read <a href="' . $href . '" target="_blank">more</a>.';
             }
-            $output .= '<li><a href="' . $href . '" target="_blank">' . $title . '</a> - <b>' . $pubdate . '</b><br />' . $description . '</li>';
+            $payload = [
+                'title' => $title,
+                'href' => $href,
+                'pubdate' => $pubdate,
+                'description' => $description,
+            ];
+            if ($section === 'evo_security_notices_content') {
+                $rssSecurityItems[] = $payload;
+            } else {
+                $rssNewsItems[] = $payload;
+            }
         }
-        $output .= '</ul>';
-        $feedData[$section] = $output;
     }
 
-    $ph['evo_security_notices_content'] = $feedData['evo_security_notices_content'] ?? '';
-    $ph['evo_news_content'] = $feedData['evo_news_content'] ?? '';
-
+    $ph = $_lang;
     $ph['theme'] = evo()->getConfig('manager_theme');
     $ph['site_name'] = evo()->getPhpCompat()->entities(evo()->getConfig('site_name'));
     $ph['home'] = $_lang['home'];
@@ -293,183 +318,378 @@
     $ph['activity_title'] = $_lang['activity_title'];
     $ph['info'] = $_lang['info'];
     $ph['yourinfo_title'] = $_lang['yourinfo_title'];
-
     $ph['modx_security_notices'] = $_lang['security_notices_tab'];
     $ph['modx_security_notices_title'] = $_lang['security_notices_title'];
     $ph['modx_news'] = $_lang['modx_news_tab'];
     $ph['modx_news_title'] = $_lang['modx_news_title'];
-
     evo()->toPlaceholders($ph);
 
     $script = evo()->getChunk('manager#welcome\StartUpScript');
     evo()->regClientScript($script);
 
-    // invoke event OnManagerWelcomePrerender
+    $welcomePrerender = '';
     $evtOut = evo()->invokeEvent('OnManagerWelcomePrerender');
     if (is_array($evtOut)) {
-        $output = implode('', $evtOut);
-        $ph['OnManagerWelcomePrerender'] = $output;
+        $welcomePrerender = implode('', $evtOut);
     }
 
-    $widgets['welcome'] = [
-        'menuindex' => '10',
-        'id' => 'welcome',
-        'cols' => 'col-lg-6',
-        'icon' => 'tabler-home',
-        'title' => '[%welcome_title%]',
-        'body' =>
-            '
-                <div class="wm_buttons card-body">' .
-            (evo()->hasPermission('new_document')
-                ? '
-                    <span class="wm_button">
-                        <a target="main" href="index.php?a=4">
-                            ' .
-                $_style['icon_add'] .
-                '
-                            <span>[%add_resource%]</span>
-                        </a>
-                    </span>
-                    <span class="wm_button">
-                        <a target="main" href="index.php?a=72">
-                            ' .
-                $_style['icon_chain'] .
-                '
-                            <span>[%add_weblink%]</span>
-                        </a>
-                    </span>
-                    '
-                : '') .
-            (evo()->hasPermission('assets_images')
-                ? '
-                    <span class="wm_button">
-                        <a target="main" href="media/browser/' . $which_browser . '/browse.php?filemanager=media/browser/' . $which_browser . '/browse.php&type=images">
-                            ' .
-                $_style['icon_camera'] .
-                '
-                            <span>[%images_management%]</span>
-                        </a>
-                    </span>
-                    '
-                : '') .
-            (evo()->hasPermission('assets_files')
-                ? '
-                    <span class="wm_button">
-                        <a target="main" href="media/browser/' . $which_browser . '/browse.php?filemanager=media/browser/' . $which_browser . '/browse.php&type=files">
-                            ' .
-                $_style['icon_folder_open'] .
-                '
-                            <span>[%files_management%]</span>
-                        </a>
-                    </span>
-                    '
-                : '') .
-            (evo()->hasPermission('bk_manager')
-                ? '
-                    <span class="wm_button">
-                        <a target="main" href="index.php?a=93">
-                            ' .
-                $_style['icon_database'] .
-                '
-                            <span>[%bk_manager%]</span>
-                        </a>
-                    </span>
-                    '
-                : '') .
-            (evo()->hasPermission('change_password')
-                ? '
-                    <span class="wm_button">
-                        <a target="main" href="index.php?a=28">
-                            ' .
-                $_style['icon_lock'] .
-                '
-                            <span>[%change_password%]</span>
-                        </a>
-                    </span>
-                    '
-                : '') .
-            '
-                    <span class="wm_button">
-                        <a target="_top" href="index.php?a=8">
-                            ' .
-            $_style['icon_logout'] .
-            '
-                            <span>[%logout%]</span>
-                        </a>
-                    </span>
-                </div>
-    		',
-        'hide' => '0',
-    ];
-    $widgets['onlineinfo'] = [
-        'menuindex' => '20',
-        'id' => 'onlineinfo',
-        'cols' => 'col-lg-6',
-        'icon' => 'tabler-users',
-        'title' => '[%onlineusers_title%]',
-        'body' => '<div class="userstable">[+OnlineInfo+]</div>',
-        'hide' => '0',
-    ];
-    $widgets['recentinfo'] = [
-        'menuindex' => '30',
-        'id' => 'recent_widget',
-        'cols' => 'col-sm-12',
-        'icon' => 'tabler-pencil',
-        'title' => '[%activity_title%]',
-        'body' => '<div class="widget-stage">[+RecentInfo+]</div>',
-        'hide' => '0',
+    $welcomeRender = '';
+    $evtOut = evo()->invokeEvent('OnManagerWelcomeRender');
+    if (is_array($evtOut)) {
+        $welcomeRender = implode('', $evtOut);
+    }
+    $stripLegacyContainer = static function (string $html): string {
+        if ($html === '') {
+            return $html;
+        }
+        return preg_replace_callback('/class=(["\'])(.*?)\1/', static function ($matches) {
+            $classes = preg_split('/\s+/', trim($matches[2]));
+            $classes = array_values(array_filter($classes, static function ($class) {
+                return $class !== 'container' && $class !== 'container-body';
+            }));
+            if (count($classes) === 0) {
+                return '';
+            }
+            return 'class="' . implode(' ', $classes) . '"';
+        }, $html);
+    };
+    $welcomePrerender = $stripLegacyContainer($welcomePrerender);
+    $welcomeRender = $stripLegacyContainer($welcomeRender);
+
+    $legacyWidgetsForEvent = [
+        [
+            'menuindex' => '10',
+            'id' => 'welcome',
+            'cols' => 'col-lg-6',
+            'icon' => 'tabler-home',
+            'title' => $_lang['welcome_title'],
+            'body' => '',
+            'hide' => '0',
+        ],
+        [
+            'menuindex' => '20',
+            'id' => 'onlineinfo',
+            'cols' => 'col-lg-6',
+            'icon' => 'tabler-users',
+            'title' => $_lang['onlineusers_title'],
+            'body' => '',
+            'hide' => '0',
+        ],
+        [
+            'menuindex' => '30',
+            'id' => 'recent_widget',
+            'cols' => 'col-sm-12',
+            'icon' => 'tabler-pencil',
+            'title' => $_lang['activity_title'],
+            'body' => '',
+            'hide' => '0',
+        ],
     ];
     if (evo()->getConfig('rss_url_news')) {
-        $widgets['news'] = [
+        $legacyWidgetsForEvent[] = [
             'menuindex' => '40',
             'id' => 'news',
             'cols' => 'col-sm-6',
             'icon' => 'tabler-rss',
-            'title' => '[%modx_news_title%]',
-            'body' => '<div style="max-height:200px;overflow-y: scroll;padding: 1rem .5rem">[+evo_news_content+]</div>',
+            'title' => $_lang['modx_news_title'],
+            'body' => '',
             'hide' => '0',
         ];
     }
     if (evo()->getConfig('rss_url_security')) {
-        $widgets['security'] = [
+        $legacyWidgetsForEvent[] = [
             'menuindex' => '50',
             'id' => 'security',
             'cols' => 'col-sm-6',
             'icon' => 'tabler-alert-triangle',
-            'title' => '[%security_notices_title%]',
-            'body' => '<div style="max-height:200px;overflow-y: scroll;padding: 1rem .5rem">[+evo_security_notices_content+]</div>',
+            'title' => $_lang['security_notices_title'],
+            'body' => '',
             'hide' => '0',
         ];
     }
 
-    // invoke OnManagerWelcomeHome event
-    $sitewidgets = evo()->invokeEvent('OnManagerWelcomeHome', ['widgets' => $widgets]);
+    $customWidgets = [];
+    $sitewidgets = evo()->invokeEvent('OnManagerWelcomeHome', ['widgets' => $legacyWidgetsForEvent]);
     if (is_array($sitewidgets)) {
-        $newwidgets = [];
         foreach ($sitewidgets as $widget) {
-            $newwidgets = array_merge($newwidgets, unserialize($widget));
-        }
-        $widgets = count($newwidgets) > 0 ? $newwidgets : $widgets;
-    }
-
-    usort($widgets, function ($a, $b) {
-        return $a['menuindex'] - $b['menuindex'];
-    });
-
-    $tpl = evo()->getChunk('manager#welcome\Widget');
-    $output = '';
-    foreach ($widgets as $widget) {
-        if ((bool) get_by_key($widget, 'hide', false) !== true) {
-            if (isset($widget['icon']) && strpos($widget['icon'], 'tabler-') === 0) {
-                $styleKey = 'icon_' . str_replace('-', '_', substr($widget['icon'], 7));
-                $widget['icon_html'] = $_style[$styleKey] ?? '';
-            } else {
-                $widget['icon_html'] = '<i class="fa ' . ($widget['icon'] ?? '') . '"></i>';
-            }
-            $output .= evo()->parseText($tpl, $widget);
+            $customWidgets = array_merge($customWidgets, unserialize($widget));
         }
     }
-    $ph['widgets'] = $output;
-    ?>
-    {!! ManagerTheme::makeTemplate('welcome', 'manager_welcome_tpl', $ph, false) !!}
+    if (count($customWidgets) > 1) {
+        usort($customWidgets, function ($a, $b) {
+            return ($a['menuindex'] ?? 0) <=> ($b['menuindex'] ?? 0);
+        });
+    }
+@endphp
+
+<div class="drawer-content w-full mx-auto min-h-full bg-base-100 p-5 lg:px-5 lg:py-5 space-y-4">
+    {!! $welcomePrerender !!}
+
+        @if($showLogoutReminder && $logoutReminderMsg)
+            <div class="alert alert-warning">
+                <span class="text-warning [&_svg]:h-5 [&_svg]:w-5">{!! $icons['alert'] !!}</span>
+                <div class="text-sm">{!! $logoutReminderMsg !!}</div>
+            </div>
+        @endif
+
+        @if($showMultipleSessions && $multipleSessionsMsg)
+            <div class="alert alert-warning">
+                <span class="text-warning [&_svg]:h-5 [&_svg]:w-5">{!! $icons['alert'] !!}</span>
+                <div class="text-sm">{!! $multipleSessionsMsg !!}</div>
+            </div>
+        @endif
+
+        @if($configDisplay && $configCheckResults)
+            <div class="alert alert-warning">
+                <span class="text-warning [&_svg]:h-5 [&_svg]:w-5">{!! $icons['alert'] !!}</span>
+                <div class="text-sm">{!! $configCheckResults !!}</div>
+            </div>
+        @endif
+
+        @if(count($customWidgets) > 0)
+            <div class="grid grid-cols-12 gap-4">
+                @php
+                    $widgetIndex = 0;
+                @endphp
+                @foreach($customWidgets as $widget)
+                    @if((bool) ($widget['hide'] ?? false) === true)
+                        @continue
+                    @endif
+                    @php
+                        $widgetIndex++;
+                        if ($widgetIndex === 3) {
+                            $colSpan = 'col-span-12';
+                        } else {
+                            $colSpan = 'col-span-12 lg:col-span-6';
+                        }
+                        if (isset($widget['icon']) && strpos($widget['icon'], 'tabler-') === 0) {
+                            $iconHtml = svg($widget['icon'])->toHtml();
+                        } else {
+                            $iconHtml = isset($widget['icon']) ? '<i class="fa ' . $widget['icon'] . '"></i>' : '';
+                        }
+                        $titleHtml = $widget['title'] ?? '';
+                    @endphp
+                    <div class="{{ $colSpan }}">
+                        <x-mary-card separator class="bg-base-200" body-class="pt-3">
+                            <x-slot:title>
+                                @if($iconHtml !== '')
+                                    <span class="inline-flex items-center gap-2">
+                                        {!! $iconHtml !!}
+                                        <span>{!! $titleHtml !!}</span>
+                                    </span>
+                                @else
+                                    {!! $titleHtml !!}
+                                @endif
+                            </x-slot:title>
+                            {!! $widget['body'] ?? '' !!}
+                        </x-mary-card>
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <div class="grid grid-cols-12 gap-4">
+                <div class="col-span-12 lg:col-span-6">
+                    <x-mary-card separator class="bg-base-200" body-class="pt-3">
+                    <x-slot:title>
+                        <span class="inline-flex items-center gap-2">
+                            {!! $icons['home'] !!}
+                            <span>{{ $_lang['welcome_title'] }}</span>
+                        </span>
+                    </x-slot:title>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                        @foreach($quickActions as $action)
+                            <a
+                                class="btn btn-ghost btn-sm h-auto py-3 flex flex-col items-center gap-2 text-center"
+                                href="{{ $action['href'] }}"
+                                target="{{ $action['target'] }}"
+                            >
+                                <span class="text-primary [&_svg]:h-5 [&_svg]:w-5">{!! $action['icon'] !!}</span>
+                                <span class="text-xs leading-tight">{{ $action['label'] }}</span>
+                            </a>
+                        @endforeach
+                    </div>
+                    </x-mary-card>
+                </div>
+
+                <div class="col-span-12 lg:col-span-6">
+                    <x-mary-card separator class="bg-base-200" body-class="pt-3">
+                    <x-slot:title>
+                        <span class="inline-flex items-center gap-2">
+                            {!! $icons['users'] !!}
+                            <span>{{ $_lang['onlineusers_title'] }}</span>
+                        </span>
+                    </x-slot:title>
+                    @if(count($onlineRows) === 0)
+                        <div class="text-sm text-base-content/60">{{ $_lang['no_active_users_found'] }}</div>
+                    @else
+                        <div class="text-xs text-base-content/60 mb-2">{!! $onlineMessage !!} <span class="font-semibold">{{ $onlineNow }}</span>):</div>
+                        <div class="overflow-x-auto">
+                            <table class="table table-sm">
+                                <thead class="text-xs text-base-content/60">
+                                    <tr>
+                                        <th>{{ $_lang['onlineusers_user'] }}</th>
+                                        <th>ID</th>
+                                        <th>{{ $_lang['onlineusers_ipaddress'] }}</th>
+                                        <th>{{ $_lang['onlineusers_lasthit'] }}</th>
+                                        <th>{{ $_lang['onlineusers_action'] }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($onlineRows as $row)
+                                        @php
+                                            $rowClass = $row['idle'] ? 'text-base-content/60' : '';
+                                            $rowClass = $row['multi'] ? trim($rowClass . ' font-semibold') : $rowClass;
+                                        @endphp
+                                        <tr class="{{ $rowClass }}">
+                                            <td class="whitespace-nowrap">
+                                                <span class="inline-flex items-center gap-1">
+                                                    {{ $row['username'] }}
+                                                </span>
+                                            </td>
+                                            <td class="text-xs text-base-content/70 whitespace-nowrap">
+                                                <span class="inline-flex items-center gap-1">
+                                                    @if($row['is_web'])
+                                                        <span class="text-primary [&_svg]:h-3.5 [&_svg]:w-3.5">{!! $icons['world'] !!}</span>
+                                                    @endif
+                                                    {{ $row['id'] }}
+                                                </span>
+                                            </td>
+                                            <td class="text-xs text-base-content/70 whitespace-nowrap">{{ $row['ip'] }}</td>
+                                            <td class="text-xs text-base-content/70 whitespace-nowrap">{{ $row['lasthit'] }}</td>
+                                            <td class="text-xs max-w-[280px]">
+                                                <span class="block truncate">{{ $row['action'] }}</span>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                    </x-mary-card>
+                </div>
+
+                <div class="col-span-12">
+                    <x-mary-card separator class="bg-base-200" body-class="pt-3">
+                        <x-slot:title>
+                            <span class="inline-flex items-center gap-2">
+                                {!! $icons['pencil'] !!}
+                                <span>{{ $_lang['activity_title'] }}</span>
+                            </span>
+                        </x-slot:title>
+                        @if(count($recentItems) === 0)
+                            <div class="text-sm text-base-content/60">{{ $_lang['no_activity_message'] }}</div>
+                        @else
+                            <div class="space-y-2">
+                                @foreach($recentItems as $item)
+                                    <div class="collapse collapse-arrow bg-base-100 border border-base-content/10">
+                                        <input type="checkbox" />
+                                        <div class="collapse-title font-semibold">
+                                            <div class="flex flex-wrap items-center gap-2 w-full">
+                                                <span class="badge badge-sm">{{ $item['id'] }}</span>
+                                                <a
+                                                    class="flex-1 min-w-0 truncate {{ $item['status_class'] }}"
+                                                    title="{{ $_lang['edit_resource'] }}"
+                                                    href="{{ $item['title_url'] }}"
+                                                    target="main"
+                                                    onclick="event.stopPropagation();"
+                                                >
+                                                    {{ $item['title'] }}
+                                                </a>
+                                                <span class="text-xs text-base-content/60 whitespace-nowrap">{{ $item['edit_date'] }}</span>
+                                                <span class="text-xs text-base-content/60 whitespace-nowrap">{{ $item['username'] }}</span>
+                                                <span class="flex items-center gap-1">
+                                                    @foreach($item['actions'] as $action)
+                                                        @php
+                                                            $disabled = $action['disabled'] ?? false;
+                                                            $isNoop = $action['noop'] ?? false;
+                                                            $confirm = $action['confirm'] ?? '';
+                                                            $btnClass = $disabled ? 'btn-disabled' : '';
+                                                            $href = $isNoop ? '#' : ($action['href'] ?? '#');
+                                                            $onclick = 'event.stopPropagation();';
+                                                            if ($disabled || $isNoop) {
+                                                                $onclick .= 'return false;';
+                                                            } elseif ($confirm) {
+                                                                $onclick .= 'return confirm(' . json_encode($confirm) . ');';
+                                                            }
+                                                        @endphp
+                                                        <a
+                                                            class="btn btn-ghost btn-xs {{ $btnClass }}"
+                                                            title="{{ $action['title'] }}"
+                                                            href="{{ $href }}"
+                                                            target="{{ $action['target'] ?? '' }}"
+                                                            onclick="{{ $onclick }}"
+                                                        >
+                                                            <span class="[&_svg]:h-4 [&_svg]:w-4">{!! $action['icon'] !!}</span>
+                                                        </a>
+                                                    @endforeach
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="collapse-content text-sm">
+                                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                                <div><span class="font-semibold">{{ $_lang['long_title'] }}</span>: {!! $item['details']['longtitle'] !!}</div>
+                                                <div><span class="font-semibold">{{ $_lang['description'] }}</span>: {!! $item['details']['description'] !!}</div>
+                                                <div><span class="font-semibold">{{ $_lang['resource_summary'] }}</span>: {!! $item['details']['introtext'] !!}</div>
+                                                <div><span class="font-semibold">{{ $_lang['type'] }}</span>: {{ $item['details']['doctype'] }}</div>
+                                                <div><span class="font-semibold">{{ $_lang['resource_alias'] }}</span>: {!! $item['details']['alias'] !!}</div>
+                                                <div><span class="font-semibold">{{ $_lang['page_data_cacheable'] }}</span>: {{ $item['details']['cacheable'] }}</div>
+                                                <div><span class="font-semibold">{{ $_lang['resource_opt_show_menu'] }}</span>: {{ $item['details']['hidemenu'] }}</div>
+                                                <div><span class="font-semibold">{{ $_lang['page_data_template'] }}</span>: {!! $item['details']['template'] !!}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </x-mary-card>
+                </div>
+
+                @if(count($rssNewsItems) > 0)
+                    <div class="col-span-12 lg:col-span-6">
+                        <x-mary-card separator class="bg-base-200" body-class="pt-3">
+                        <x-slot:title>
+                            <span class="inline-flex items-center gap-2">
+                                {!! $icons['rss'] !!}
+                                <span>{{ $_lang['modx_news_title'] }}</span>
+                            </span>
+                        </x-slot:title>
+                        <div class="space-y-3 max-h-[240px] overflow-y-auto pr-1">
+                            @foreach($rssNewsItems as $item)
+                                <div class="text-sm">
+                                    <a class="font-semibold" href="{{ $item['href'] }}" target="_blank">{{ $item['title'] }}</a>
+                                    <div class="text-xs text-base-content/60">{{ $item['pubdate'] }}</div>
+                                    <div class="text-xs text-base-content/70">{{ $item['description'] }}</div>
+                                </div>
+                            @endforeach
+                        </div>
+                        </x-mary-card>
+                    </div>
+                @endif
+
+                @if(count($rssSecurityItems) > 0)
+                    <div class="col-span-12 lg:col-span-6">
+                        <x-mary-card separator class="bg-base-200" body-class="pt-3">
+                        <x-slot:title>
+                            <span class="inline-flex items-center gap-2">
+                                {!! $icons['alert'] !!}
+                                <span>{{ $_lang['security_notices_title'] }}</span>
+                            </span>
+                        </x-slot:title>
+                        <div class="space-y-3 max-h-[240px] overflow-y-auto pr-1">
+                            @foreach($rssSecurityItems as $item)
+                                <div class="text-sm">
+                                    <a class="font-semibold" href="{{ $item['href'] }}" target="_blank">{{ $item['title'] }}</a>
+                                    <div class="text-xs text-base-content/60">{{ $item['pubdate'] }}</div>
+                                    <div class="text-xs text-base-content/70">{{ $item['description'] }}</div>
+                                </div>
+                            @endforeach
+                        </div>
+                        </x-mary-card>
+                    </div>
+                @endif
+            </div>
+        @endif
+
+    {!! $welcomeRender !!}
+</div>
 @endsection

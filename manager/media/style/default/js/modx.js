@@ -1926,11 +1926,11 @@
                         modx.tabs.selected = this.tab.classList.contains('selected') ? this.tab.previousElementSibling : this.row.querySelector('.selected');
                         this.page.parentNode.removeChild(this.page);
                         this.row.removeChild(this.tab);
-                        if (modx.tabs.selected) {
-                            if (typeof modx.tabs.selected.show === 'function') {
-                                modx.tabs.selected.show();
-                            } else {
-                                var url = (modx.tabs.selected.dataset && modx.tabs.selected.dataset.url) ? modx.tabs.selected.dataset.url : '';
+                    if (modx.tabs.selected) {
+                        if (typeof modx.tabs.selected.show === 'function') {
+                            modx.tabs.selected.show();
+                        } else {
+                            var url = (modx.tabs.selected.dataset && modx.tabs.selected.dataset.url) ? modx.tabs.selected.dataset.url : '';
                                 if (!url && modx.tabs.selected.dataset && modx.tabs.selected.dataset.target) {
                                     var page = d.getElementById(modx.tabs.selected.dataset.target);
                                     if (page && page.firstElementChild) {
@@ -1954,6 +1954,10 @@
                                 }
                             }
                         }
+                    }
+                    var remainingTabs = this.row.querySelectorAll('h2.tab:not(#evo-tab-home)');
+                    if (!remainingTabs.length) {
+                        modx.tabs({ url: '?a=2', reload: 0 });
                     }
                     modx.tabsStore();
                     modx.main.stopWork();

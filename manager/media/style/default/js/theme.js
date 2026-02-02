@@ -73,6 +73,18 @@
     body.classList.toggle("darkness", dark)
   }
 
+  const isTop = window === window.top
+  const postThemeToIframe = () => {
+    if (!isTop) {
+      return
+    }
+    const frame = document.getElementById("mainframe")
+    if (!frame || !frame.contentWindow) {
+      return
+    }
+    frame.contentWindow.postMessage({ type: "evo:theme", theme: currentTheme, mode: currentMode }, window.location.origin)
+  }
+
   const applyTheme = (theme, mode) => {
     if (theme) {
       currentTheme = theme
@@ -98,6 +110,7 @@
     updateToggle()
     updateDropdown()
     updateThemeGroups()
+    postThemeToIframe()
   }
 
   const updateToggle = () => {
@@ -123,9 +136,11 @@
     document.querySelectorAll("[data-evo-theme]").forEach((item) => {
       const theme = item.getAttribute("data-evo-theme")
       if (theme === currentTheme) {
-        item.classList.add("active")
+        item.classList.add("active", "btn-active")
+        item.setAttribute("aria-current", "true")
       } else {
-        item.classList.remove("active")
+        item.classList.remove("active", "btn-active")
+        item.removeAttribute("aria-current")
       }
     })
   }
@@ -368,6 +383,15 @@
     applyTheme(currentTheme, currentMode)
     bindDropdowns()
     syncShellVars()
+
+    if (isTop) {
+      const frame = document.getElementById("mainframe")
+      if (frame) {
+        frame.addEventListener("load", () => {
+          postThemeToIframe()
+        })
+      }
+    }
   }
 
   const syncShellVars = () => {
@@ -396,6 +420,30 @@
   } else {
     bindUi()
   }
+
+  window.addEventListener("message", (event) => {
+    if (event.origin !== window.location.origin) {
+      return
+    }
+    if (isTop) {
+      return
+    }
+    const data = event.data || {}
+    if (data.type === "evo:theme") {
+      applyTheme(data.theme, data.mode)
+    }
+  })
+
+  window.addEventListener("storage", (event) => {
+    if (!event || !event.key) {
+      return
+    }
+    if (event.key === THEME_KEY || event.key === MODE_KEY || event.key === THEME_LIGHT_KEY || event.key === THEME_DARK_KEY) {
+      const storedTheme = readStorage(THEME_KEY, currentTheme)
+      const storedMode = readStorage(MODE_KEY, currentMode)
+      applyTheme(storedTheme, storedMode)
+    }
+  })
 
   window.addEventListener("resize", syncShellVars)
 })()
