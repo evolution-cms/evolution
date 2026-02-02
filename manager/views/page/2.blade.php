@@ -656,8 +656,10 @@
                         <div class="space-y-3 max-h-[240px] overflow-y-auto pr-1">
                             @foreach($rssNewsItems as $item)
                                 <div class="text-sm">
-                                    <a class="font-semibold" href="{{ $item['href'] }}" target="_blank">{{ $item['title'] }}</a>
-                                    <div class="text-xs text-base-content/60">{{ $item['pubdate'] }}</div>
+                                    <div class="flex items-baseline gap-2">
+                                        <a class="font-semibold min-w-0 flex-1" href="{{ $item['href'] }}" target="_blank">{{ $item['title'] }}</a>
+                                        <div class="text-xs text-base-content/60 whitespace-nowrap text-right">{{ $item['pubdate'] }}</div>
+                                    </div>
                                     <div class="text-xs text-base-content/70">{{ $item['description'] }}</div>
                                 </div>
                             @endforeach
@@ -678,8 +680,10 @@
                         <div class="space-y-3 max-h-[240px] overflow-y-auto pr-1">
                             @foreach($rssSecurityItems as $item)
                                 <div class="text-sm">
-                                    <a class="font-semibold" href="{{ $item['href'] }}" target="_blank">{{ $item['title'] }}</a>
-                                    <div class="text-xs text-base-content/60">{{ $item['pubdate'] }}</div>
+                                    <div class="flex items-baseline gap-2">
+                                        <a class="font-semibold min-w-0 flex-1" href="{{ $item['href'] }}" target="_blank">{{ $item['title'] }}</a>
+                                        <div class="text-xs text-base-content/60 whitespace-nowrap text-right">{{ $item['pubdate'] }}</div>
+                                    </div>
                                     <div class="text-xs text-base-content/70">{{ $item['description'] }}</div>
                                 </div>
                             @endforeach
