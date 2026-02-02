@@ -233,12 +233,14 @@ class VendorPublishCommand extends Command
      * @param  string  $to
      * @return void
      */
-    protected function publishItem($from, $to)
+    protected function publishItem($from, $to): void
     {
         if ($this->files->isFile($from)) {
-            return $this->publishFile($from, $to);
+            $this->publishFile($from, $to);
+            return;
         } elseif ($this->files->isDirectory($from)) {
-            return $this->publishDirectory($from, $to);
+            $this->publishDirectory($from, $to);
+            return;
         }
 
         $this->components->error("Can't locate path: <{$from}>");

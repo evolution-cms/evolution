@@ -83,11 +83,23 @@
         "wikimedia/composer-merge-plugin": "2.*",
         "secondnetwork/blade-tabler-icons": "^3.35"
     },
+    "replace": {
+        "symfony/polyfill-php73": "1.99",
+        "symfony/polyfill-php80": "1.99",
+        "symfony/polyfill-php81": "1.99",
+        "symfony/polyfill-php82": "1.99",
+        "symfony/polyfill-php83": "1.99"
+    },
     "require-dev": {
-        "roave/security-advisories": "dev-master"
+        "roave/security-advisories": "dev-master",
+        "mockery/mockery": "^1.6",
+        "pestphp/pest": "^4.3"
     },
     "config": {
         "optimize-autoloader": true,
+        "platform": {
+            "php": "8.3"
+        },
         "preferred-install": "dist",
         "prestissimo": {
             "maxConnections": 6,
@@ -95,7 +107,8 @@
         },
         "vendor-dir": "vendor",
         "allow-plugins": {
-            "wikimedia/composer-merge-plugin": true
+            "wikimedia/composer-merge-plugin": true,
+            "pestphp/pest-plugin": true
         }
     },
     "extra": {
@@ -134,13 +147,21 @@
             "functions/utils.php"
         ]
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "scripts": {
-        "sync-replace": "php functions/sync-replace-version.php",
+        "sync-replace": "@php functions/sync-replace-version.php",
+        "test": "vendor/bin/pest",
+        "optimize": "@composer install --no-dev && @composer dump-autoload -o --no-dev --classmap-authoritative",
+        "optimize-dev": "@composer install && @composer dump-autoload -o --classmap-authoritative",
         "upd": [
             "@sync-replace",
-            "composer update --lock --ansi"
+            "@composer update --lock --ansi"
         ],
         "pre-install-cmd": [
             "@sync-replace"

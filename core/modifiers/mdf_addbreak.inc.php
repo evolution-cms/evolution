@@ -1,5 +1,5 @@
 <?php
-$text = $modx->getModifiers()->parseDocumentSource($value);
+$text = evo()->getModifiers()->parseDocumentSource($value);
 $text = str_replace(["\r\n","\r"],"\n",$text);
 
 $blockElms  = 'br,table,tbody,tr,td,th,thead,tfoot,caption,colgroup,div';

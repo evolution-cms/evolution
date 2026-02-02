@@ -19,7 +19,9 @@ use function str_pad;
 use function str_repeat;
 use function strlen;
 use function substr;
+use function trigger_error;
 
+use const E_USER_DEPRECATED;
 use const STR_PAD_LEFT;
 
 /**
@@ -225,14 +227,14 @@ final readonly class BigDecimal extends BigNumber
      *
      * @param BigNumber|int|float|string $that         The divisor.
      * @param int|null                   $scale        The desired scale, or null to use the scale of this number.
-     * @param RoundingMode               $roundingMode An optional rounding mode, defaults to UNNECESSARY.
+     * @param RoundingMode               $roundingMode An optional rounding mode, defaults to Unnecessary.
      *
-     * @throws InvalidArgumentException If the scale or rounding mode is invalid.
+     * @throws InvalidArgumentException If the scale is invalid.
      * @throws MathException            If the number is invalid, is zero, or rounding was necessary.
      *
      * @pure
      */
-    public function dividedBy(BigNumber|int|float|string $that, ?int $scale = null, RoundingMode $roundingMode = RoundingMode::UNNECESSARY): BigDecimal
+    public function dividedBy(BigNumber|int|float|string $that, ?int $scale = null, RoundingMode $roundingMode = RoundingMode::Unnecessary): BigDecimal
     {
         $that = BigDecimal::of($that);
 
@@ -263,6 +265,28 @@ final readonly class BigDecimal extends BigNumber
      *
      * The scale of the result is automatically calculated to fit all the fraction digits.
      *
+     * @deprecated Will be removed in 0.15. Use dividedByExact() instead.
+     *
+     * @param BigNumber|int|float|string $that The divisor. Must be convertible to a BigDecimal.
+     *
+     * @throws MathException If the divisor is not a valid number, is not convertible to a BigDecimal, is zero,
+     *                       or the result yields an infinite number of digits.
+     */
+    public function exactlyDividedBy(BigNumber|int|float|string $that): BigDecimal
+    {
+        trigger_error(
+            'BigDecimal::exactlyDividedBy() is deprecated and will be removed in 0.15. Use dividedByExact() instead.',
+            E_USER_DEPRECATED,
+        );
+
+        return $this->dividedByExact($that);
+    }
+
+    /**
+     * Returns the exact result of the division of this number by the given one.
+     *
+     * The scale of the result is automatically calculated to fit all the fraction digits.
+     *
      * @param BigNumber|int|float|string $that The divisor. Must be convertible to a BigDecimal.
      *
      * @throws MathException If the divisor is not a valid number, is not convertible to a BigDecimal, is zero,
@@ -270,7 +294,7 @@ final readonly class BigDecimal extends BigNumber
      *
      * @pure
      */
-    public function exactlyDividedBy(BigNumber|int|float|string $that): BigDecimal
+    public function dividedByExact(BigNumber|int|float|string $that): BigDecimal
     {
         $that = BigDecimal::of($that);
 
@@ -311,14 +335,22 @@ final readonly class BigDecimal extends BigNumber
      * @param BigNumber|int|float|string $min The minimum. Must be convertible to a BigDecimal.
      * @param BigNumber|int|float|string $max The maximum. Must be convertible to a BigDecimal.
      *
-     * @throws MathException If min/max are not convertible to a BigDecimal.
+     * @throws MathException            If min/max are not convertible to a BigDecimal.
+     * @throws InvalidArgumentException If min is greater than max.
      */
     public function clamp(BigNumber|int|float|string $min, BigNumber|int|float|string $max): BigDecimal
     {
+        $min = BigDecimal::of($min);
+        $max = BigDecimal::of($max);
+
+        if ($min->isGreaterThan($max)) {
+            throw new InvalidArgumentException('Minimum value must be less than or equal to maximum value.');
+        }
+
         if ($this->isLessThan($min)) {
-            return BigDecimal::of($min);
+            return $min;
         } elseif ($this->isGreaterThan($max)) {
-            return BigDecimal::of($max);
+            return $max;
         }
 
         return $this;
@@ -660,10 +692,15 @@ final readonly class BigDecimal extends BigNumber
      *
      * Example: `-123.456` => `-123`.
      *
-     * @pure
+     * @deprecated Will be removed in 0.15 and re-introduced as returning BigInteger in 0.16.
      */
     public function getIntegralPart(): string
     {
+        trigger_error(
+            'BigDecimal::getIntegralPart() is deprecated and will be removed in 0.15. It will be re-introduced as returning BigInteger in 0.16.',
+            E_USER_DEPRECATED,
+        );
+
         if ($this->scale === 0) {
             return $this->value;
         }
@@ -680,10 +717,15 @@ final readonly class BigDecimal extends BigNumber
      *
      * Examples: `-123.456` => '456', `123` => ''.
      *
-     * @pure
+     * @deprecated Will be removed in 0.15 and re-introduced as returning BigDecimal with a different meaning in 0.16.
      */
     public function getFractionalPart(): string
     {
+        trigger_error(
+            'BigDecimal::getFractionalPart() is deprecated and will be removed in 0.15. It will be re-introduced as returning BigDecimal with a different meaning in 0.16.',
+            E_USER_DEPRECATED,
+        );
+
         if ($this->scale === 0) {
             return '';
         }
@@ -700,7 +742,13 @@ final readonly class BigDecimal extends BigNumber
      */
     public function hasNonZeroFractionalPart(): bool
     {
-        return $this->getFractionalPart() !== str_repeat('0', $this->scale);
+        if ($this->scale === 0) {
+            return false;
+        }
+
+        $value = $this->getUnscaledValueWithLeadingZeros();
+
+        return substr($value, -$this->scale) !== str_repeat('0', $this->scale);
     }
 
     #[Override]
@@ -727,7 +775,7 @@ final readonly class BigDecimal extends BigNumber
     }
 
     #[Override]
-    public function toScale(int $scale, RoundingMode $roundingMode = RoundingMode::UNNECESSARY): BigDecimal
+    public function toScale(int $scale, RoundingMode $roundingMode = RoundingMode::Unnecessary): BigDecimal
     {
         if ($scale === $this->scale) {
             return $this;

@@ -2,6 +2,50 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.14.3](https://github.com/brick/math/releases/tag/0.14.3) - 2026-02-01
+
+✨ **New features**
+
+- New method: `BigInteger::lcm()`
+- New method: `BigInteger::lcmAll()`
+- New method: `BigRational::toRepeatingDecimalString()`
+
+🐛 **Bug fixes**
+
+- `BigInteger::gcdAll()` / `gcdMultiple()` could return a negative result when used with a single negative number
+
+## [0.14.2](https://github.com/brick/math/releases/tag/0.14.2) - 2026-01-30
+
+🗑️ **Deprecations**
+
+- **Passing `float` values to `of()` or arithmetic methods is deprecated** and will be removed in 0.15; cast to string explicitly to preserve the previous behaviour (#105)
+- **Accessing `RoundingMode` enum cases through upper snake case (e.g. `HALF_UP`) is deprecated**, use the pascal case version (e.g. `HalfUp`) instead
+- Method `BigInteger::gcdMultiple()` is deprecated, use `gcdAll()` instead
+- Method `BigDecimal::exactlyDividedBy()` is deprecated, use `dividedByExact()` instead
+- Method `BigDecimal::getIntegralPart()` is deprecated (will be removed in 0.15, and re-introduced as returning `BigInteger` in 0.16)
+- Method `BigDecimal::getFractionalPart()` is deprecated (will be removed in 0.15, and re-introduced as returning `BigDecimal` with a different meaning in 0.16)
+- Method `BigRational::nd()` is deprecated, use `ofFraction()` instead
+- Method `BigRational::quotient()` is deprecated, use `getIntegralPart()` instead
+- Method `BigRational::remainder()` is deprecated, use `$number->getNumerator()->remainder($number->getDenominator())` instead
+- Method `BigRational::quotientAndRemainder()` is deprecated, use `$number->getNumerator()->quotientAndRemainder($number->getDenominator())` instead
+
+✨ **New features**
+
+- New method: `BigInteger::gcdAll()` (replaces `gcdMultiple()`)
+- New method: `BigRational::clamp()`
+- New method: `BigRational::ofFraction()` (replaces `nd()`)
+- New method: `BigRational::getIntegralPart()` (replaces `quotient()`)
+- New method: `BigRational::getFractionalPart()`
+
+👌 **Improvements**
+
+- `BigInteger::modInverse()` now accepts `BigNumber|int|float|string` instead of just `BigInteger`
+- `BigInteger::gcdMultiple()` now accepts `BigNumber|int|float|string` instead of just `BigInteger`
+
+🐛 **Bug fixes**
+
+- `BigInteger::clamp()` and `BigDecimal::clamp()` now throw an exception on inverted bounds, instead of returning an incorrect result
+
 ## [0.14.1](https://github.com/brick/math/releases/tag/0.14.1) - 2025-11-24
 
 ✨ **New features**
@@ -520,4 +564,3 @@ Added `BigDecimal::divideAndRemainder()`
 ## [0.1.0](https://github.com/brick/math/releases/tag/0.1.0) - 2014-08-31
 
 First beta release.
-

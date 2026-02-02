@@ -75,7 +75,7 @@ class ErrorHandler
         } else {
             $lang_path = EVO_CORE_PATH . 'lang/{$context}/';
         }
-        // @ignore includeOnce.fileNotFound
+        // @phpstan-ignore-next-line includeOnce.fileNotFound
         include_once($lang_path . 'en/global.php');
         $manager_language = $modx->getConfig('manager_language');
         if (is_file($lang_path.$manager_language."/global.php")) {

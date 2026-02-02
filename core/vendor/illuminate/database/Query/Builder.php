@@ -292,8 +292,6 @@ class Builder implements BuilderContract
         foreach ($columns as $as => $column) {
             if (is_string($as) && $this->isQueryable($column)) {
                 $this->selectSub($column, $as);
-            } elseif (is_string($as) && $this->grammar->isExpression($column)) {
-                $this->selectExpression($column, $as);
             } else {
                 $this->columns[] = $column;
             }
@@ -463,8 +461,6 @@ class Builder implements BuilderContract
                 }
 
                 $this->selectSub($column, $as);
-            } elseif (is_string($as) && $this->grammar->isExpression($column)) {
-                $this->selectExpression($column, $as);
             } else {
                 if (is_array($this->columns) && in_array($column, $this->columns, true)) {
                     continue;
@@ -1543,6 +1539,13 @@ class Builder implements BuilderContract
     public function whereBetweenColumns($column, array $values, $boolean = 'and', $not = false)
     {
         $type = 'betweenColumns';
+
+        if ($this->isQueryable($column)) {
+            [$sub, $bindings] = $this->createSub($column);
+
+            return $this->addBinding($bindings, 'where')
+                ->whereBetweenColumns(new Expression('('.$sub.')'), $values, $boolean, $not);
+        }
 
         $this->wheres[] = compact('type', 'column', 'values', 'boolean', 'not');
 

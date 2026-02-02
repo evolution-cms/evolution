@@ -37,32 +37,32 @@ class ManagerTheme implements ManagerThemeInterface
         /** frame management - show the requested frame */
         1 => Controllers\Frame::class,
         /** show the homepage */
-        2,
+        2 => null,
         /** document data */
-        3,
+        3 => null,
         /** content management */
-        85,
-        27,
-        4,
-        5,
-        6,
-        63,
+        85 => null,
+        27 => null,
+        4 => null,
+        5 => null,
+        6 => null,
+        63 => null,
         51 => Controllers\MoveDocument::class,
         52 => Controllers\MoveDocument::class,
-        61,
-        62,
-        56,
+        61 => null,
+        62 => null,
+        56 => null,
         /** show the wait page - gives the tree time to refresh (hopefully) */
-        7,
+        7 => null,
         /** let the user log out */
         8 => Controllers\Users\LogInOut::class,
         0 => Controllers\Users\LogInOut::class,
         /** user management */
-        87,
-        88,
+        87 => null,
+        88 => null,
         89 => Controllers\Users\EditOrNewUser::class,
         90 => Controllers\Users\DeleteUser::class,
-        32,
+        32 => null,
         28 => Controllers\Password::class,
         34 => ChangePassword::class,
         /** role management */
@@ -72,77 +72,77 @@ class ManagerTheme implements ManagerThemeInterface
         135 => Permission::class,
         136 => PermissionsGroups::class,
         /** category management */
-        120,
-        121,
+        120 => null,
+        121 => null,
         /** template management */
         16 => Controllers\Template::class,
         19 => Controllers\Template::class,
-        20,
-        21,
-        96,
-        117,
+        20 => null,
+        21 => null,
+        96 => null,
+        117 => null,
         /** snippet management */
         22 => Controllers\Snippet::class,
         23 => Controllers\Snippet::class,
-        24,
-        25,
-        98,
+        24 => null,
+        25 => null,
+        98 => null,
         /** htmlsnippet management */
         78 => Controllers\Chunk::class,
         77 => Controllers\Chunk::class,
-        79,
-        80,
-        97,
+        79 => null,
+        80 => null,
+        97 => null,
         /** @deprecated show the credits page */
         18 => Controllers\Help::class,
         /** empty cache & synchronisation */
         26 => Controllers\RefreshSite::class,
         /** Module management */
         106 => Controllers\Modules::class,
-        107,
-        108,
-        109,
-        110,
-        111,
-        112,
-        113,
+        107 => null,
+        108 => null,
+        109 => null,
+        110 => null,
+        111 => null,
+        112 => null,
+        113 => null,
         /** plugin management */
         100 => Controllers\PluginPriority::class,
         101 => Controllers\Plugin::class,
         102 => Controllers\Plugin::class,
-        103,
-        104,
-        105,
-        119,
+        103 => null,
+        104 => null,
+        105 => null,
+        119 => null,
         /** view phpinfo */
         200 => Controllers\Phpinfo::class,
         /** @deprecated errorpage */
         29 => Controllers\EventLog::class,
         /** file manager */
-        31,
+        31 => null,
         /** access permissions */
         91 => Controllers\WebAccessPermissions::class,
         /** access groups processor */
-        92,
+        92 => null,
         /** settings editor */
         17 => Controllers\SystemSettings::class,
-        118,
+        118 => null,
         /** save settings */
-        30,
+        30 => null,
         /** system information */
         53 => Controllers\SystemInfo::class,
         /** optimise table */
-        54,
+        54 => null,
         /** view logging */
-        13,
+        13 => null,
         /** empty logs */
-        55,
+        55 => null,
         /** calls test page    */
-        999,
+        999 => null,
         /** Empty recycle bin */
-        64,
+        64 => null,
         /** Remove locks */
-        67,
+        67 => null,
         /** Site schedule */
         70 => Controllers\SiteSchedule::class,
         /** Search */
@@ -150,18 +150,18 @@ class ManagerTheme implements ManagerThemeInterface
         /** @deprecated About */
         59 => Controllers\Help::class,
         /** Add weblink */
-        72,
+        72 => null,
         /** User management */
-        99,
+        99 => null,
         86 => RoleManagment::class,
         /** template/ snippet management */
         76 => Controllers\Resources::class,
         /** Resource Selector  */
-        84,
+        84 => null,
         /** Backup Manager */
-        93,
+        93 => null,
         /** Duplicate Document */
-        94,
+        94 => null,
         /** Update Tree for Closure Table */
         95 => Controllers\UpdateTree::class,
         /** Help */
@@ -169,15 +169,15 @@ class ManagerTheme implements ManagerThemeInterface
         /** Template Variables - Based on Apodigm's Docvars */
         300 => Controllers\Tmplvar::class,
         301 => Controllers\Tmplvar::class,
-        302,
-        303,
-        304,
+        302 => null,
+        303 => null,
+        304 => null,
         305 => Controllers\TmplvarRank::class,
         /** Event viewer: show event message log */
         114 => Controllers\EventLog::class,
         115 => Controllers\EventLogDetails::class,
-        116,
-        501
+        116 => null,
+        501 => null
     ];
 
     public function __construct(CoreInterface $core, string $theme)
@@ -374,7 +374,11 @@ class ManagerTheme implements ManagerThemeInterface
 
     public function findController($action)
     {
-        return $action === null ? null : get_by_key($this->actions, $action, $action);
+        if (is_null($action)) {
+            return null;
+        }
+        $actionController = get_by_key($this->actions, $action);
+        return is_null($actionController) ? $action : $actionController;
     }
 
     public function setRequest()
@@ -505,7 +509,7 @@ class ManagerTheme implements ManagerThemeInterface
         }
 
         if (is_file(MODX_BASE_PATH . 'assets/cache/installProc.inc.php')) {
-            // @ignore includeOnce.fileNotFound
+            // @phpstan-ignore-next-line includeOnce.fileNotFound
             include_once(MODX_BASE_PATH . 'assets/cache/installProc.inc.php');
             if (isset($installStartTime)) {
                 if ((time() - $installStartTime) > 5 * 60) { // if install flag older than 5 minutes, discard

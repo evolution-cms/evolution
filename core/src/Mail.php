@@ -106,7 +106,7 @@ class Mail extends PHPMailer
         // TODO: fix config location
         $exconf = MODX_MANAGER_PATH . 'includes/controls/phpmailer/config.inc.php';
         if (is_file($exconf)) {
-            // @ignore include.fileNotFound
+            // @phpstan-ignore-next-line include.fileNotFound
             include($exconf);
         }
 

@@ -26,9 +26,10 @@ use function str_contains;
 use function str_repeat;
 use function strlen;
 use function substr;
+use function trigger_error;
 
+use const E_USER_DEPRECATED;
 use const FILTER_VALIDATE_INT;
-
 use const PREG_UNMATCHED_AS_NULL;
 
 /**
@@ -72,7 +73,7 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
      *
      * - BigNumber instances are returned as is
      * - integer numbers are returned as BigInteger
-     * - floating point numbers are converted to a string then parsed as such
+     * - floating point numbers are converted to a string then parsed as such (deprecated, will be removed in 0.15)
      * - strings containing a `/` character are returned as BigRational
      * - strings containing a `.` character or using an exponential notation are returned as BigDecimal
      * - strings containing only digits with an optional leading `+` or `-` sign are returned as BigInteger
@@ -368,14 +369,14 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
      * Converts this number to a BigDecimal with the given scale, using rounding if necessary.
      *
      * @param int          $scale        The scale of the resulting `BigDecimal`.
-     * @param RoundingMode $roundingMode An optional rounding mode, defaults to UNNECESSARY.
+     * @param RoundingMode $roundingMode An optional rounding mode, defaults to Unnecessary.
      *
      * @throws RoundingNecessaryException If this number cannot be converted to the given scale without rounding.
-     *                                    This only applies when RoundingMode::UNNECESSARY is used.
+     *                                    This only applies when RoundingMode::Unnecessary is used.
      *
      * @pure
      */
-    abstract public function toScale(int $scale, RoundingMode $roundingMode = RoundingMode::UNNECESSARY): BigDecimal;
+    abstract public function toScale(int $scale, RoundingMode $roundingMode = RoundingMode::Unnecessary): BigDecimal;
 
     /**
      * Returns the exact value of this number as a native integer.
@@ -480,6 +481,13 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
         }
 
         if (is_float($value)) {
+            // @phpstan-ignore-next-line
+            trigger_error(
+                'Passing floats to BigNumber::of() and arithmetic methods is deprecated and will be removed in 0.15. ' .
+                'Cast the float to string explicitly to preserve the previous behaviour.',
+                E_USER_DEPRECATED,
+            );
+
             if (is_nan($value)) {
                 $value = 'NAN';
             } else {

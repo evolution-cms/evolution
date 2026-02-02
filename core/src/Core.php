@@ -416,7 +416,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      *
      * @param string $url Target URL for redirection
      * @param int $count_attempts Number of redirect attempts (to prevent loops)
-     * @param string $type Redirect type: REDIRECT_REFRESH, REDIRECT_META, REDIRECT_HEADER (default)
+     * @param string $type Redirect type: REDIRECT_REFRESH, REDIRECT_META, REDIRECT_SCRIPT, REDIRECT_HEADER (default)
      * @param string|int $responseCode HTTP 30x response code
      * @return bool|null
      * @global string $base_url
@@ -443,22 +443,32 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $url .= (str_contains($url, '?') ? '&' : '?') . "err=$currentNumberOfRedirects";
         }
 
+        // Only allow redirects to the same domain or relative paths to prevent open redirect vulnerability
+        $parsed_url = parse_url($url);
+        if (isset($parsed_url['scheme'])) {
+            if (!in_array(strtolower($parsed_url['scheme']), ['http', 'https']) || $parsed_url['host'] !==
+                parse_url(EVO_SITE_URL)['host']) {
+                $this->getService('ExceptionHandler')->messageQuit(
+                    'External or invalid redirect not allowed: <i>' . htmlspecialchars($url) . '</i>'
+                );
+            }
+        }
+
+        // Fix: Prevent header injection by checking for newlines in all redirect types
+        if (str_contains($url, "\n") || str_contains($url, "\r")) {
+            $this->getService('ExceptionHandler')->messageQuit('No newline allowed in redirect URL.');
+        }
+
         // Define redirect header
-        $header = '';
         if ($type === 'REDIRECT_REFRESH') {
             $header = 'Refresh: 0;URL=' . $url;
+        } elseif ($type === 'REDIRECT_SCRIPT') {
+            echo '<script>document.location.href = ' . json_encode($url) . ';</script>' . "\n";
+            exit;
         } elseif ($type === 'REDIRECT_META') {
             echo '<META HTTP-EQUIV="Refresh" CONTENT="0; URL=' . htmlspecialchars($url) . '" />';
             exit;
         } else { // default: REDIRECT_HEADER
-            if (str_contains($url, "\n") || str_contains($url, "\r")) {
-                $this->getService('ExceptionHandler')->messageQuit('No newline allowed in redirect URL.');
-            }
-
-            if (!str_starts_with($url, 'http://') && !str_starts_with($url, 'https://')) {
-                $url = rtrim(EVO_SITE_URL, '/') . '/' . ltrim($url, '/');
-            }
-
             $header = 'Location: ' . $url;
         }
 
