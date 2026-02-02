@@ -367,6 +367,25 @@
     })
     applyTheme(currentTheme, currentMode)
     bindDropdowns()
+    syncShellVars()
+  }
+
+  const syncShellVars = () => {
+    const menuEl = getMenu()
+    if (menuEl) {
+      const height = menuEl.offsetHeight
+      if (height) {
+        root.style.setProperty("--evo-topbar-h", `${height}px`)
+      }
+    }
+
+    const tabRow = document.querySelector(".evo-tab-row")
+    if (tabRow) {
+      const height = tabRow.offsetHeight
+      if (height) {
+        root.style.setProperty("--evo-tabbar-h", `${height}px`)
+      }
+    }
   }
 
   root.setAttribute("data-theme", currentTheme)
@@ -377,4 +396,6 @@
   } else {
     bindUi()
   }
+
+  window.addEventListener("resize", syncShellVars)
 })()

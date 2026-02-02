@@ -189,7 +189,7 @@
                         if (a.offsetParent.id) {
                             d.getElementById(a.offsetParent.id.substr(7)).classList.add('selected');
                         }
-                        if ((modx.isMobile || w.innerWidth < modx.minWidth) && e.target.closest('.toggle')) {
+                        if ((modx.isMobile || w.innerWidth < modx.minWidth) && e.target.closest('[data-menu-caret]')) {
                             a.parentNode.classList.add('selected');
                             e.stopPropagation();
                             e.preventDefault();
@@ -232,25 +232,35 @@
                             ul = this.offsetParent;
                         } else {
                             ul = d.createElement('ul');
-                            ul.className = 'sub-menu dropdown-menu menu menu-sm bg-base-100 rounded-box w-max min-w-max max-w-none whitespace-nowrap p-2 shadow';
                             this.parentNode.parentNode.appendChild(ul);
                         }
+                        ul.classList.add('sub-menu', 'dropdown-menu', 'menu', 'menu-sm', 'bg-base-300', 'rounded-box', 'w-max', 'min-w-max', 'max-w-none', 'whitespace-nowrap', 'p-2', 'shadow');
                         timer = setTimeout(function () {
-                            if (d.querySelector('.nav .sub-menu.show')) {
-                                d.querySelector('.nav .sub-menu.show').classList.remove('show');
+                            var activeSub = d.querySelector('.nav .sub-menu.show');
+                            if (activeSub) {
+                                activeSub.classList.remove('show');
+                                activeSub.style.display = 'none';
                             }
-                            ul.style.left = self.offsetWidth + 'px';
+                            if (!self.classList.contains('dropdown-toggle')) {
+                                return;
+                            }
+                            var parent = self.offsetParent || self.parentNode;
+                            var parentWidth = parent && parent.offsetWidth ? parent.offsetWidth : self.offsetWidth;
+                            ul.style.position = 'absolute';
+                            ul.style.left = Math.round(parentWidth + 4) + 'px';
+                            ul.style.top = Math.round(self.offsetTop + 21) + 'px';
                             if (self.classList.contains('dropdown-toggle')) {
                                 if (ul.id === 'parent_' + self.id) {
                                     if (modx.isMobile) {
                                         self.parentNode.classList.add('selected');
                                     } else {
                                         self.onclick = function (e) {
-                                            if (e.target.closest('.toggle')) {
+                                            if (e.target.closest('[data-menu-caret]')) {
                                                 self.parentNode.classList.add('selected');
                                             }
                                         };
                                     }
+                                    ul.style.display = 'block';
                                     ul.classList.add('show');
                                 } else {
                                     ul.classList.remove('show');
@@ -266,6 +276,7 @@
                                                 }
                                                 ul.id = 'parent_' + self.id;
                                                 ul.innerHTML = data;
+                                                ul.style.display = 'block';
                                                 var id = w.location.hash.substr(2).replace(/=/g, '_').replace(/&/g, '__');
                                                 var el = d.getElementById(id);
                                                 if (el) {
@@ -1706,6 +1717,7 @@
                     if (!keepSelected && modx.tabs.selected) {
                         d.getElementById(modx.tabs.selected.id.replace('tab', 'tab-page')).classList.remove('show');
                         modx.tabs.selected.classList.remove('selected');
+                        modx.tabs.selected.classList.remove('tab-active');
                     }
                     this.page = d.createElement('div');
                     this.page.id = 'evo-tab-page-' + this.uid;
@@ -1723,15 +1735,19 @@
                     };
                     this.tab = d.createElement('h2');
                     this.tab.id = 'evo-tab-' + this.uid;
-                    this.tab.className = 'tab' + (keepSelected ? '' : ' selected');
+                    this.tab.className = 'tab' + (keepSelected ? '' : ' selected tab-active');
                     this.icon = '';
-                    if (!/<i/.test(this.title)) {
-                        this.icon = '<i class="' + modx.setTypeIcon(this.action) + '"></i>';
+                    if (!/<i|<svg/.test(this.title)) {
+                        this.icon = modx.setTypeIcon(this.action) || '';
+                        if (this.icon && this.icon.indexOf('<') === -1) {
+                            this.icon = '<i class="' + this.icon + '"></i>';
+                        }
                     }
                     this.txt = modx.title(this.title);
-                    this.tab.innerHTML = '<span class="tab-title" title="' + this.txt + '">' + this.icon + this.title + '</span><span class="tab-close">×</span>';
+                    this.tab.innerHTML = '<span class="tab-title flex items-center gap-2" title="' + this.txt + '">' + this.icon + this.title + '</span><button type="button" class="tab-close btn btn-ghost btn-xs ml-1" aria-label="Close">×</button>';
                     this.tab.dataset.url = this.url;
                     this.tab.dataset.title = this.title;
+                    this.tab.setAttribute('role', 'tab');
                     this.row.appendChild(this.tab);
                     this.tab.onclick = function (e) {
                         s.select.call(s, e, this);
@@ -1786,7 +1802,8 @@
                             this.title = w.main.document.body.querySelectorAll('h1')[0] && w.main.document.body.querySelectorAll('h1')[0].innerHTML || this.title;
                             this.txt = modx.title(this.title);
                             if (this.title && this.uid !== 'home') {
-                                this.tab.innerHTML = '<span class="tab-title" title="' + this.txt + '">' + this.title + '</span><span class="tab-close">×</span>';
+                                var iconHtml = this.icon || '';
+                                this.tab.innerHTML = '<span class="tab-title flex items-center gap-2" title="' + this.txt + '">' + iconHtml + this.title + '</span><button type="button" class="tab-close btn btn-ghost btn-xs ml-1" aria-label="Close">×</button>';
                             }
                             this.page.id = 'evo-tab-page-' + this.uid;
                             this.tab.id = 'evo-tab-' + this.uid;
@@ -1820,9 +1837,11 @@
                     if (modx.tabs.selected && modx.tabs.selected !== this.tab) {
                         d.getElementById(modx.tabs.selected.id.replace('tab', 'tab-page')).classList.remove('show');
                         modx.tabs.selected.classList.remove('selected');
+                        modx.tabs.selected.classList.remove('tab-active');
                     }
                     this.page.classList.add('show');
                     this.tab.classList.add('selected');
+                    this.tab.classList.add('tab-active');
                     modx.title(this.txt);
                     modx.tabs.selected = this.tab;
                     w.main = this.page.firstElementChild.contentWindow;
@@ -1878,7 +1897,7 @@
                     modx.main.stopWork();
                 },
                 select: function (e) {
-                    if (e.target.className === 'tab-close') {
+                    if (e.target.closest && e.target.closest('.tab-close')) {
                         this.close(e);
                     } else if (modx.tabs.selected === this.tab) {
                         var s = this;

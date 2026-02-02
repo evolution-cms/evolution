@@ -7,3 +7,147 @@
 @source "../../../../views/**/*.blade.php";
 @source "../../../../media/style/default/*.tpl";
 @source "../../../../core/vendor/robsontenorio/mary/src/View/Components/**/*.php";
+
+@layer base {
+  :root {
+    --evo-topbar-h: 3.5rem;
+    --evo-tabbar-h: 2.5rem;
+  }
+
+  #frameset {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background-color: oklch(var(--b1));
+  }
+
+  #mainMenu {
+    position: absolute;
+    inset: 0 auto auto 0;
+    right: 0;
+    z-index: 100;
+  }
+
+  #tree {
+    position: absolute;
+    left: 0;
+    top: var(--evo-topbar-h);
+    bottom: 0;
+    overflow: hidden;
+    background-color: oklch(var(--b2));
+    border-right: 1px solid oklch(var(--bc) / 0.1);
+  }
+
+  #main {
+    position: absolute;
+    right: 0;
+    top: var(--evo-topbar-h);
+    bottom: 0;
+    overflow: hidden;
+    background-color: oklch(var(--b1));
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  #tree .treeframebody {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  #tree #treeMenu {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-bottom: 1px solid oklch(var(--bc) / 0.1);
+  }
+
+  #tree #treeMenu .treeButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+  }
+
+  #tree #treeMenu .treeButton:hover {
+    background-color: oklch(var(--bc) / 0.08);
+  }
+
+  #tree #treeHolder {
+    flex: 1 1 auto;
+    overflow: auto;
+    padding: 0.25rem 0;
+  }
+
+  /* Temporarily hide legacy tree overlays while rebuilding tree UI. */
+  #floater,
+  #mx_contextmenu {
+    display: none;
+  }
+
+  #resizer {
+    position: absolute;
+    top: var(--evo-topbar-h);
+    bottom: 0;
+    width: 4px;
+    margin-left: -1px;
+    cursor: col-resize;
+    transition: background-color 0.2s ease;
+  }
+
+  #resizer:hover {
+    background-color: oklch(var(--bc) / 0.1);
+  }
+
+  .sidebar-closed #tree {
+    width: 0 !important;
+  }
+
+  .sidebar-closed #main,
+  .sidebar-closed #resizer {
+    left: 0 !important;
+  }
+
+  #main > .iframe-scroller {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  #main #mainframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .evo-tab-row {
+    position: relative;
+    z-index: 2;
+    flex: 0 0 auto;
+  }
+
+  .evo-tab-page {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: none;
+  }
+
+  .evo-tab-page.show {
+    display: block;
+  }
+
+  .evo-tab-page iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+}

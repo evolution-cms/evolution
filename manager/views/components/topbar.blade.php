@@ -52,7 +52,7 @@
             $hasChildren = isset($menuGrouped[$id]);
             $liClass = trim(($hasChildren ? 'dropdown ' : '') . $extraClass);
             if ($level > 0) {
-                $liClass = trim($liClass . ' w-max !w-max');
+                $liClass = trim($liClass . ' w-full');
             }
             $liAttrs = ($id !== '' ? ' id="' . htmlspecialchars($id, ENT_QUOTES, 'UTF-8') . '"' : '')
                 . ($liClass !== '' ? ' class="' . htmlspecialchars($liClass, ENT_QUOTES, 'UTF-8') . '"' : '');
@@ -60,13 +60,13 @@
             if ($hasChildren) {
                 $summaryAttrs = $title !== '' ? ' title="' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '"' : '';
                 $summaryClass = $level > 0
-                    ? ' class="flex items-center gap-2 w-max !w-max list-none pr-1 whitespace-nowrap [&::after]:hidden"'
+                    ? ' class="flex items-center gap-2 w-full list-none pr-1 whitespace-nowrap [&::after]:hidden"'
                     : ' class="flex items-center gap-2 w-full list-none pr-1 [&::after]:hidden"';
                 $caretIcon = $level > 0
                     ? svg('tabler-chevron-right', 'h-3.5 w-3.5 text-base-content/70')->toHtml()
                     : '';
                 $caret = $level > 0
-                    ? '<span class="ml-2 shrink-0 opacity-80" data-menu-caret>' . $caretIcon . '</span>'
+                    ? '<span class="menu-caret ml-auto pl-2 shrink-0 opacity-70" data-menu-caret aria-hidden="true">' . $caretIcon . '</span>'
                     : '';
                 $label = preg_replace($togglePatterns, '', $itemName);
                 $summaryTitle = trim(preg_replace('/\\s+/', ' ', strip_tags($label)));
@@ -87,7 +87,7 @@
                 $labelAttr = $level > 0 ? ' data-menu-link' : '';
                 $summaryInner = '<span class="flex items-center gap-2 flex-1"' . $labelAttr . '>' . $label . '</span>' . $caret;
                 $childHtml = $renderMenu($id, $level + 1, $skip);
-                $submenuClass = 'menu menu-sm bg-base-100 rounded-box w-max !w-max min-w-max max-w-none !max-w-none p-2 mt-2 shadow';
+                $submenuClass = 'menu menu-sm bg-base-300 rounded-box w-max !w-max min-w-max max-w-none !max-w-none p-2 mt-3 shadow';
                 $html .= '<li' . $liAttrs . '><details><summary' . $summaryAttrs . $summaryClass . $summaryData . '>'
                     . $summaryInner . '</summary><ul class="' . $submenuClass . '">' . $childHtml . '</ul></details></li>';
                 continue;
@@ -148,30 +148,30 @@
 
             $needsToggle = $level > 0 && strpos($extraClass, 'dropdown-toggle') !== false;
             $toggleHtml = $needsToggle
-                ? '<span class="toggle ml-2 shrink-0 opacity-80">' . svg('tabler-chevron-right', 'h-3.5 w-3.5 text-base-content/70')->toHtml() . '</span>'
+                ? '<span class="menu-caret ml-auto pl-2 shrink-0 opacity-70" data-menu-caret aria-hidden="true">' . svg('tabler-chevron-right', 'h-3.5 w-3.5 text-base-content/70')->toHtml() . '</span>'
                 : '';
 
             if ($optionalHtml !== '') {
                 $liClass = trim($liClass);
                 $liAttrs = ($id !== '' ? ' id="' . htmlspecialchars($id, ENT_QUOTES, 'UTF-8') . '"' : '')
                     . ($liClass !== '' ? ' class="' . htmlspecialchars($liClass, ENT_QUOTES, 'UTF-8') . '"' : '');
-                $linkClass = $level > 0 ? 'w-max !w-max whitespace-nowrap' : 'flex-1';
+                $linkClass = $level > 0 ? 'w-full whitespace-nowrap' : 'flex-1';
                 if ($needsToggle) {
-                    $linkClass = trim('flex items-center gap-2 ' . $linkClass);
+                    $linkClass = trim('flex items-center gap-2 w-full ' . $linkClass);
                 }
                 $linkAttrs .= ' class="' . $linkClass . '"';
-                $wrapperClass = $level > 0 ? 'flex items-center gap-2 w-max !w-max' : 'flex items-center gap-2 w-full';
+                $wrapperClass = $level > 0 ? 'flex items-center gap-2 w-full' : 'flex items-center gap-2 w-full';
                 $html .= '<li' . $liAttrs . '><div class="' . $wrapperClass . '">'
-                    . '<a' . $linkAttrs . '><span class="flex items-center gap-2">' . $itemName . '</span>' . $toggleHtml . '</a>' . $optionalHtml . '</div></li>';
+                    . '<a' . $linkAttrs . '><span class="flex items-center gap-2 flex-1">' . $itemName . '</span>' . $toggleHtml . '</a>' . $optionalHtml . '</div></li>';
             } else {
-                $linkClass = $level > 0 ? 'w-max !w-max whitespace-nowrap' : '';
+                $linkClass = $level > 0 ? 'w-full whitespace-nowrap' : '';
                 if ($needsToggle) {
-                    $linkClass = trim('flex items-center gap-2 ' . $linkClass);
+                    $linkClass = trim('flex items-center gap-2 w-full ' . $linkClass);
                 }
                 if ($linkClass !== '') {
                     $linkAttrs = rtrim($linkAttrs) . ' class="' . $linkClass . '"';
                 }
-                $html .= '<li' . $liAttrs . '><a' . $linkAttrs . '><span class="flex items-center gap-2">' . $itemName . '</span>' . $toggleHtml . '</a></li>';
+                $html .= '<li' . $liAttrs . '><a' . $linkAttrs . '><span class="flex items-center gap-2 flex-1">' . $itemName . '</span>' . $toggleHtml . '</a></li>';
             }
         }
 
@@ -300,7 +300,7 @@
                         <summary id="newresource" class="btn btn-ghost btn-sm" title="{{ ManagerTheme::getLexicon('add_resource') }}">
                             {!! $icons['icon_add'] !!}
                         </summary>
-                        <ul class="menu menu-sm bg-base-100 rounded-box w-max min-w-max p-2 shadow dropdown-content right-0">
+                        <ul class="menu menu-sm bg-base-300 rounded-box w-max min-w-max p-2 mt-3 shadow dropdown-content right-0">
                             @if (evo()->hasPermission('new_document'))
                                 <li>
                                     <a href="index.php?a=4" target="main">
@@ -340,7 +340,7 @@
                         </span>
                         <span class="text-sm">{{ entities($user['username'], evo()->getConfig('modx_charset')) }}</span>
                     </summary>
-                    <ul class="menu menu-sm bg-base-100 rounded-box w-max min-w-max p-2 shadow dropdown-content right-0">
+                    <ul class="menu menu-sm bg-base-300 rounded-box w-max min-w-max p-2 mt-3 shadow dropdown-content right-0">
                         @if (evo()->hasPermission('change_password'))
                             <li>
                                 <a href="index.php?a=28" target="main">
@@ -421,7 +421,7 @@
                         <summary id="system" class="btn btn-ghost btn-sm" title="{{ ManagerTheme::getLexicon('system') }}">
                             {!! $icons['icon_cogs'] !!}
                         </summary>
-                        <ul class="menu menu-sm bg-base-100 rounded-box w-max min-w-max p-2 shadow dropdown-content right-0">
+                        <ul class="menu menu-sm bg-base-300 rounded-box w-max min-w-max p-2 mt-3 shadow dropdown-content right-0">
                             @if (evo()->hasPermission('settings'))
                                 <li>
                                     <a href="index.php?a=17" target="main">

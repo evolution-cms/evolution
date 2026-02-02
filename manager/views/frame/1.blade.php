@@ -53,6 +53,15 @@ $_style['icon_expand'] = svg('tabler-arrows-maximize')->toHtml();
 $_style['icon_compress'] = svg('tabler-arrows-minimize')->toHtml();
 $_style['icon_trash'] = svg('tabler-trash-x')->toHtml();
 $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
+$_style['icon_elements'] = svg('tabler-blocks')->toHtml();
+$_style['icon_template'] = svg('tabler-template')->toHtml();
+$_style['icon_tv'] = svg('tabler-adjustments-horizontal')->toHtml();
+$_style['icon_chunk'] = svg('tabler-brackets')->toHtml();
+$_style['icon_code'] = svg('tabler-code')->toHtml();
+$_style['icon_plugin'] = svg('tabler-plug')->toHtml();
+$_style['icon_element'] = svg('tabler-puzzle')->toHtml();
+$_style['icon_edit'] = svg('tabler-edit')->toHtml();
+$_style['icon_circle'] = svg('tabler-circle')->toHtml();
 @endphp
 <!DOCTYPE html>
 <html dir="{{ManagerTheme::getTextDir()}}" lang="{{ManagerTheme::getLang()}}" xml:lang="{{ManagerTheme::getLang()}}">
@@ -74,6 +83,61 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
         body:not(.sidebar-closed) #bars .icon-collapse{display:inline-block!important;}
         body.sidebar-closed #bars .icon-expand{display:inline-block!important;}
         body.sidebar-closed #bars .icon-collapse{display:none!important;}
+
+        #mainloader {
+            position: absolute;
+            z-index: 50000;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            vertical-align: middle;
+            padding: 15% 0 0 0;
+            background-color: transparent;
+            opacity: 0;
+            visibility: hidden;
+            -webkit-transition-duration: 0.3s;
+            transition-duration: 0.3s;
+        }
+        #mainloader.show {
+            opacity: 0.75;
+            visibility: visible;
+            -webkit-transition-duration: 0.1s;
+            transition-duration: 0.1s;
+            background-color: transparent !important;
+        }
+        #mainloader::before {
+            display: none;
+        }
+        .evo__logo {
+            font-size: 3.5em;
+            font-weight: 300;
+            position: fixed;
+            top: 40%;
+            left: 50%;
+        }
+        .evo__logo::before {
+            content: "";
+            display: block;
+            position: absolute;
+            z-index: 1;
+            left: 50%;
+            top: 50%;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%) rotate(0deg);
+            animation: rotateLogo 2s linear infinite;
+            box-shadow: 5px 5px 0 0 #FFD700,
+                14px -7px 0 0 rgba(111, 163, 219, 0.7),
+                -7px 11px 0 0 rgba(112, 193, 92, 0.74),
+                -11px -7px 0 0 rgba(147, 205, 99, 0.78);
+        }
+        @keyframes rotateLogo {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
     </style>
     <script>
         if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
@@ -139,19 +203,19 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
                 expand_tree: {!! jsIcon($_style['icon_arrow_down_circle']) !!},
                 icon_angle_left: '{!!addslashes($_style['icon_angle_left'])!!}',
                 icon_angle_right: '{!!addslashes($_style['icon_angle_right'])!!}',
-                icon_chunk: '{!!addslashes($_style['icon_chunk'])!!}',
-                icon_circle: '{!!addslashes($_style['icon_circle'])!!}',
-                icon_code: '{!!addslashes($_style['icon_code'])!!}',
-                icon_edit: '{!!addslashes($_style['icon_edit'])!!}',
-                icon_element: '{!!addslashes($_style['icon_elements'])!!}',
+                icon_chunk: {!! jsIcon($_style['icon_chunk']) !!},
+                icon_circle: {!! jsIcon($_style['icon_circle']) !!},
+                icon_code: {!! jsIcon($_style['icon_code']) !!},
+                icon_edit: {!! jsIcon($_style['icon_edit']) !!},
+                icon_element: {!! jsIcon($_style['icon_elements']) !!},
                 icon_folder: '{!!addslashes('<i class="' . $_style['icon_folder'] . '"></i>')!!}',
-                icon_plugin: '{!!addslashes($_style['icon_plugin'])!!}',
+                icon_plugin: {!! jsIcon($_style['icon_plugin']) !!},
                 icon_refresh: '{!!addslashes($_style['icon_refresh'])!!}',
                 icon_spin: '{!!addslashes($_style['icon_spin'])!!}',
-                icon_template: '{!!addslashes($_style['icon_template'])!!}',
+                icon_template: {!! jsIcon($_style['icon_template']) !!},
                 icon_trash: {!! jsIcon($_style['icon_trash']) !!},
                 icon_trash_alt: {!! jsIcon($_style['icon_trash_alt']) !!},
-                icon_tv: '{!!addslashes($_style['icon_tv'])!!}',
+                icon_tv: {!! jsIcon($_style['icon_tv']) !!},
                 icons_external_link: '{!!addslashes('<i class="' . $_style['icon_external_link'] . '"></i>')!!}',
                 icons_working: {!! jsIcon($_style['icon_info_triangle']) !!},
                 tree_folder: '{!!addslashes('<i class="' . $_style['icon_folder'] . '"></i>')!!}',
@@ -220,8 +284,8 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
     <div id="main">
         @if (evo()->getConfig('global_tabs'))
             <div class="tab-row-container evo-tab-row">
-                <div class="tab-row">
-                    <h2 id="evo-tab-home" class="tab selected" data-target="evo-tab-page-home" style="display:none!important;">
+                <div class="tab-row tabs tabs-border w-full overflow-x-auto scrollbar-hide flex-nowrap" role="tablist">
+                    <h2 id="evo-tab-home" class="tab tab-active selected" role="tab" data-target="evo-tab-page-home" style="display:none!important;">
                         {!! iconHtml($_style['icon_home']) !!}
                     </h2>
                 </div>
@@ -256,7 +320,7 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
                 }
             }
         @endphp
-        <form name="sortFrm" id="sortFrm">
+        <form name="sortFrm" id="sortFrm" style="display:none;">
             <div class="form-group">
                 <input type="hidden" name="dt" value="{{isset($_REQUEST['dt']) ? htmlspecialchars($_REQUEST['dt']) : ''}}" />
                 <label>{{ManagerTheme::getLexicon('sort_tree')}}</label>
@@ -345,7 +409,7 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
         }
     }
     ?><!-- Contextual Menu Popup Code -->
-    <div id="mx_contextmenu" class="dropdown" onselectstart="return false;">
+    <div id="mx_contextmenu" class="dropdown" onselectstart="return false;" style="display:none !important;">
         <div id="nameHolder">&nbsp;</div>
         <?php
         constructLink(3, $_style['icon_document'], ManagerTheme::getLexicon('create_resource_here'), evo()->hasPermission('new_document')); // new Resource
