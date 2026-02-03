@@ -81,6 +81,23 @@
     if (count($templatename)) {
         $templatename = $templatename[0]['templatename'];
     }
+    $notSetHtml = '<span class="italic text-base-content/60">' . ManagerTheme::getLexicon('not_set') . '</span>';
+    $lockIcon = svg('tabler-lock')->toHtml();
+    $publishedBadge = $content['published'] == 0
+        ? '<span class="badge badge-warning badge-sm">' . ManagerTheme::getLexicon('page_data_unpublished') . '</span>'
+        : '<span class="badge badge-success badge-sm">' . ManagerTheme::getLexicon('page_data_published') . '</span>';
+    $webAccessBadge = $content['privateweb'] == 0
+        ? '<span class="badge badge-ghost badge-sm">' . ManagerTheme::getLexicon('public') . '</span>'
+        : '<span class="badge badge-error badge-sm inline-flex items-center gap-1">' . $lockIcon . ManagerTheme::getLexicon('private') . '</span>';
+    $mgrAccessBadge = $content['privatemgr'] == 0
+        ? '<span class="badge badge-ghost badge-sm">' . ManagerTheme::getLexicon('public') . '</span>'
+        : '<span class="badge badge-error badge-sm inline-flex items-center gap-1">' . $lockIcon . ManagerTheme::getLexicon('private') . '</span>';
+    $createdByLabel = $createdbyname
+        ? '<span class="text-base-content/60">(' . entities($createdbyname, evo()->getConfig('modx_charset')) . ')</span>'
+        : '<span class="text-base-content/60">(' . ManagerTheme::getLexicon('not_set') . ')</span>';
+    $editedByLabel = $editedbyname
+        ? '<span class="text-base-content/60">(' . entities($editedbyname, evo()->getConfig('modx_charset')) . ')</span>'
+        : '<span class="text-base-content/60">(' . ManagerTheme::getLexicon('not_set') . ')</span>';
 
     // Set the item name for logger
     $_SESSION['itemname'] = $content['pagetitle'];
@@ -299,158 +316,211 @@
     </script>
     <script type="text/javascript" src="media/script/tablesort.js"></script>
 
-    <h1>
-        <i class="{{ $_style['icon_info'] }}"></i>
-        {{ entities(iconv_substr($content['pagetitle'], 0, 50, evo()->getConfig('modx_charset')), evo()->getConfig('modx_charset')) }}
-        @if(iconv_strlen($content['pagetitle'], evo()->getConfig('modx_charset')) > 50)
-            ...
-        @endif
-        <small>({{ (int)$_REQUEST['id'] }})</small>
-    </h1>
-
-    {!! $_style['actionbuttons']['static']['document'] !!}
-
-    <div class="tab-pane" id="childPane">
-        <script type="text/javascript">
-            docSettings = new WebFXTabPane(document.getElementById("childPane"), @if(evo()->getConfig('remember_last_tab')) true
-            @else false @endif);
-        </script>
-
-        <!-- General -->
-        <div class="tab-page" id="tabdocGeneral">
-            <h2 class="tab">{{ ManagerTheme::getLexicon('settings_general') }}</h2>
-            <script type="text/javascript">docSettings.addTabPage(document.getElementById("tabdocGeneral"));</script>
-            <div class="container container-body">
-                <table>
-                    <tr>
-                        <td colspan="2"><b>{{ ManagerTheme::getLexicon('page_data_general') }}</b></td>
-                    </tr>
-                    <tr>
-                        <td width="200" valign="top">{{ ManagerTheme::getLexicon('resource_title') }}:</td>
-                        <td><b><?= entities($content['pagetitle']) ?></b></td>
-                    </tr>
-                    <tr>
-                        <td width="200" valign="top">{{ ManagerTheme::getLexicon('long_title') }}:</td>
-                        <td>
-                            <small><?= $content['longtitle'] != '' ? entities($content['longtitle'],
-                                    evo()->getConfig('modx_charset')) : "(<i>" . ManagerTheme::getLexicon('not_set') . "</i>)" ?>
-                            </small>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td valign="top">{{ ManagerTheme::getLexicon('resource_description') }}:</td>
-                        <td><?= $content['description'] != '' ? entities($content['description'],
-                                evo()->getConfig('modx_charset')) : "(<i>" . ManagerTheme::getLexicon('not_set') . "</i>)" ?>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td valign="top">{{ ManagerTheme::getLexicon('resource_summary') }}:</td>
-                        <td><?= $content['introtext'] != '' ? entities($content['introtext'],
-                                evo()->getConfig('modx_charset')) : "(<i>" . ManagerTheme::getLexicon('not_set') . "</i>)" ?>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td valign="top">{{ ManagerTheme::getLexicon('type') }}:</td>
-                        <td><?= $content['type'] == 'reference' ? ManagerTheme::getLexicon('weblink') : ManagerTheme::getLexicon('resource') ?></td>
-                    </tr>
-                    <tr>
-                        <td valign="top">{{ ManagerTheme::getLexicon('resource_alias') }}:</td>
-                        <td><?= $content['alias'] != '' ? entities($content['alias'], evo()->getConfig('modx_charset')) : "(<i>" . ManagerTheme::getLexicon('not_set') . "</i>)" ?></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">&nbsp;</td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><b>{{ManagerTheme::getLexicon('page_data_changes')}}</b></td>
-                    </tr>
-                    <tr>
-                        <td>{{ManagerTheme::getLexicon('page_data_created')}}:</td>
-                        <td>{{evo()->toDateFormat($content['createdon'] + evo()->timestamp(0))}}
-                            @if($createdbyname)
-                                (<b>{{$createdbyname}}</b>)
-                            @else
-                                (<i>{{ManagerTheme::getLexicon('not_set')}}</i>)
-                            @endif
-                        </td>
-                    </tr>
-                    <?php if($editedbyname != '') { ?>
-                    <tr>
-                        <td>{{ManagerTheme::getLexicon('page_data_edited')}}:</td>
-                        <td><?= evo()->toDateFormat($content['editedon'] + evo()->timestamp(0)) ?>
-                            (<b><?= entities($editedbyname, evo()->getConfig('modx_charset')) ?></b>)
-                        </td>
-                    </tr>
-                    <?php } ?>
-                    <tr>
-                        <td colspan="2">&nbsp;</td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><b>{{ ManagerTheme::getLexicon('page_data_status') }}</b></td>
-                    </tr>
-                    <tr>
-                        <td>{{ ManagerTheme::getLexicon('page_data_status') }}:</td>
-                        <td><?= $content['published'] == 0 ? '<span class="unpublishedDoc">' . ManagerTheme::getLexicon('page_data_unpublished') . '</span>' : '<span class="publisheddoc">' . ManagerTheme::getLexicon('page_data_published') . '</span>' ?></td>
-                    </tr>
-                    <tr>
-                        <td>{{ ManagerTheme::getLexicon('page_data_publishdate') }}:</td>
-                        <td><?= $content['pub_date'] == 0 ? "(<i>" . ManagerTheme::getLexicon('not_set') . "</i>)" : evo()->toDateFormat($content['pub_date']) ?></td>
-                    </tr>
-                    <tr>
-                        <td>{{ ManagerTheme::getLexicon('page_data_unpublishdate') }}:</td>
-                        <td><?= $content['unpub_date'] == 0 ? "(<i>" . ManagerTheme::getLexicon('not_set') . "</i>)" : evo()->toDateFormat($content['unpub_date']) ?></td>
-                    </tr>
-                    <tr>
-                        <td>{{ ManagerTheme::getLexicon('page_data_cacheable') }}:</td>
-                        <td><?= $content['cacheable'] == 0 ? ManagerTheme::getLexicon('no') : ManagerTheme::getLexicon('yes') ?></td>
-                    </tr>
-                    <tr>
-                        <td>{{ ManagerTheme::getLexicon('page_data_searchable') }}:</td>
-                        <td><?= $content['searchable'] == 0 ? ManagerTheme::getLexicon('no') : ManagerTheme::getLexicon('yes') ?></td>
-                    </tr>
-                    <tr>
-                        <td>{{ ManagerTheme::getLexicon('resource_opt_menu_index') }}:</td>
-                        <td><?= entities($content['menuindex'], evo()->getConfig('modx_charset')) ?></td>
-                    </tr>
-                    <tr>
-                        <td>{{ ManagerTheme::getLexicon('resource_opt_show_menu') }}:</td>
-                        <td><?= $content['hidemenu'] == 1 ? ManagerTheme::getLexicon('no') : ManagerTheme::getLexicon('yes') ?></td>
-                    </tr>
-                    <tr>
-                        <td>{{ ManagerTheme::getLexicon('page_data_web_access') }}:</td>
-                        <td><?= $content['privateweb'] == 0 ? ManagerTheme::getLexicon('public') : '<b style="color: #821517">' . ManagerTheme::getLexicon('private') . '</b><i class="' . $_style['icon_lock'] . '"></i>' ?></td>
-                    </tr>
-                    <tr>
-                        <td>{{ ManagerTheme::getLexicon('page_data_mgr_access') }}:</td>
-                        <td><?= $content['privatemgr'] == 0 ? ManagerTheme::getLexicon('public') : '<b style="color: #821517">' . ManagerTheme::getLexicon('private') . '</b><i class="' . $_style['icon_lock'] . '"></i>' ?></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">&nbsp;</td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><b>{{ ManagerTheme::getLexicon('page_data_markup') }}</b></td>
-                    </tr>
-                    <tr>
-                        <td>{{ ManagerTheme::getLexicon('page_data_template') }}:</td>
-                        <td><?= $content['template'] == 0 ? "(<i>" . ManagerTheme::getLexicon('not_set') . "</i>)" : entities($templatename,
-                                evo()->getConfig('modx_charset')) ?></td>
-                    </tr>
-                    <tr>
-                        <td>{{ ManagerTheme::getLexicon('page_data_editor') }}:</td>
-                        <td><?= $content['richtext'] == 0 ? ManagerTheme::getLexicon('no') : ManagerTheme::getLexicon('yes') ?></td>
-                    </tr>
-                    <tr>
-                        <td>{{ ManagerTheme::getLexicon('page_data_folder') }}:</td>
-                        <td><?= $content['isfolder'] == 0 ? ManagerTheme::getLexicon('no') : ManagerTheme::getLexicon('yes') ?></td>
-                    </tr>
-                </table>
+    <div class="drawer-content w-full mx-auto min-h-full bg-base-100 p-5 lg:px-5 lg:py-5 space-y-4">
+    <x-mary-card class="bg-base-200" body-class="pt-3">
+        <x-slot:title>
+            <span class="inline-flex items-center gap-2">
+                {!! svg('tabler-info-circle')->toHtml() !!}
+                <span>{{ entities(iconv_substr($content['pagetitle'], 0, 50, evo()->getConfig('modx_charset')), evo()->getConfig('modx_charset')) }}</span>
+                @if(iconv_strlen($content['pagetitle'], evo()->getConfig('modx_charset')) > 50)
+                    <span>...</span>
+                @endif
+                <span class="badge badge-ghost badge-sm">#{{ (int)$_REQUEST['id'] }}</span>
+            </span>
+        </x-slot:title>
+        <x-slot:menu class="ml-auto">
+            <div class="flex flex-col items-end gap-2">
+                <div id="actions" class="flex flex-wrap justify-end gap-2">
+                    @if(evo()->hasPermission('new_document'))
+                        <x-mary-button class="btn-xs btn-success btn-square" onclick="actions.new();" tooltip="{{ $_lang['create_resource_here'] }}">
+                            <span class="[&_svg]:h-4 [&_svg]:w-4">{!! svg('tabler-file-plus')->toHtml() !!}</span>
+                        </x-mary-button>
+                        <x-mary-button class="btn-xs btn-info btn-square" onclick="actions.newlink();" tooltip="{{ $_lang['create_weblink_here'] }}">
+                            <span class="[&_svg]:h-4 [&_svg]:w-4">{!! svg('tabler-link')->toHtml() !!}</span>
+                        </x-mary-button>
+                    @endif
+                    <x-mary-button id="Button1" class="btn-xs btn-primary gap-2" onclick="actions.edit();" tooltip="{{ $_lang['edit'] }}">
+                        <span class="[&_svg]:h-4 [&_svg]:w-4">{!! svg('tabler-pencil')->toHtml() !!}</span>
+                        <span>{{ $_lang['edit'] }}</span>
+                    </x-mary-button>
+                    <x-mary-button id="Button2" class="btn-xs btn-secondary btn-square" onclick="actions.move();" tooltip="{{ $_lang['move'] }}">
+                        <span class="[&_svg]:h-4 [&_svg]:w-4">{!! svg('tabler-arrows-move')->toHtml() !!}</span>
+                    </x-mary-button>
+                    <x-mary-button id="Button6" class="btn-xs btn-accent btn-square" onclick="actions.duplicate();" tooltip="{{ $_lang['duplicate'] }}">
+                        <span class="[&_svg]:h-4 [&_svg]:w-4">{!! svg('tabler-copy')->toHtml() !!}</span>
+                    </x-mary-button>
+                    <x-mary-button id="Button3" class="btn-xs btn-error btn-square" onclick="actions.delete();" tooltip="{{ $_lang['delete'] }}">
+                        <span class="[&_svg]:h-4 [&_svg]:w-4">{!! svg('tabler-trash')->toHtml() !!}</span>
+                    </x-mary-button>
+                    <x-mary-button id="Button4" class="btn-xs btn-ghost btn-square" onclick="actions.view();" tooltip="{{ $_lang['preview'] }}">
+                        <span class="[&_svg]:h-4 [&_svg]:w-4">{!! svg('tabler-eye')->toHtml() !!}</span>
+                    </x-mary-button>
+                </div>
             </div>
-        </div><!-- end tab-page -->
+        </x-slot:menu>
+        @php
+            $typeValue = $content['type'] == 'reference' ? ManagerTheme::getLexicon('weblink') : ManagerTheme::getLexicon('resource');
+            $templateValue = $content['template'] == 0 ? ManagerTheme::getLexicon('not_set') : entities($templatename, evo()->getConfig('modx_charset'));
+            $templateClass = $content['template'] == 0 ? 'text-base-content/60 italic' : 'text-info';
+            $publishedLabel = $content['published'] == 0 ? ManagerTheme::getLexicon('page_data_unpublished') : ManagerTheme::getLexicon('page_data_published');
+            $publishedClass = $content['published'] == 0 ? 'text-warning' : 'text-success';
+        @endphp
+        <div class="flex flex-wrap items-center gap-2 text-xs">
+            <span class="text-base-content/60">{{ ManagerTheme::getLexicon('type') }}:</span>
+            <span class="text-info">{{ $typeValue }}</span>
+            <span class="opacity-50">•</span>
+            <span class="text-base-content/60">{{ ManagerTheme::getLexicon('page_data_template') }}:</span>
+            <span class="{{ $templateClass }}">{{ $templateValue }}</span>
+            <span class="opacity-50">•</span>
+            <span class="text-base-content/60">{{ ManagerTheme::getLexicon('page_data_status') }}:</span>
+            <span class="{{ $publishedClass }}">{{ $publishedLabel }}</span>
+        </div>
+    </x-mary-card>
+
+    @php
+        $docTabs = [
+            ['name' => 'doc-general', 'label' => ManagerTheme::getLexicon('settings_general')],
+        ];
+        if ($content['isfolder']) {
+            $docTabs[] = ['name' => 'doc-children', 'label' => ManagerTheme::getLexicon('view_child_resources_in_container')];
+        }
+        $requestedTabIndex = (int) (is_numeric(get_by_key($_GET, 'tab')) ? $_GET['tab'] : 0);
+        $requestedTabIndex = max(0, min($requestedTabIndex, count($docTabs) - 1));
+        $selectedTabName = $docTabs[$requestedTabIndex]['name'] ?? $docTabs[0]['name'];
+    @endphp
+
+    <div data-doc-tabs>
+        <div class="bg-primary/5 rounded w-fit p-2 flex flex-wrap gap-1" role="tablist">
+            @foreach($docTabs as $index => $tab)
+                @php
+                    $isActive = $tab['name'] === $selectedTabName;
+                @endphp
+                <button
+                    type="button"
+                    class="tab font-semibold {{ $isActive ? 'bg-primary rounded !text-white tab-active' : '' }}"
+                    data-doc-tab="{{ $tab['name'] }}"
+                    data-doc-index="{{ $index }}"
+                    role="tab"
+                    aria-selected="{{ $isActive ? 'true' : 'false' }}"
+                >
+                    {{ $tab['label'] }}
+                </button>
+            @endforeach
+        </div>
+
+        <div class="mt-4">
+            <div class="{{ $selectedTabName === 'doc-general' ? '' : 'hidden' }}" data-doc-panel="doc-general">
+                <div class="space-y-4">
+                    <x-mary-card separator class="bg-base-200" body-class="pt-3">
+                        <x-slot:title>{{ ManagerTheme::getLexicon('page_data_general') }}</x-slot:title>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                            <div>
+                                <div class="text-xs text-base-content/60">{{ ManagerTheme::getLexicon('resource_title') }}</div>
+                                <div class="font-semibold">{{ entities($content['pagetitle']) }}</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-base-content/60">{{ ManagerTheme::getLexicon('long_title') }}</div>
+                                <div>{!! $content['longtitle'] != '' ? entities($content['longtitle'], evo()->getConfig('modx_charset')) : $notSetHtml !!}</div>
+                            </div>
+                            <div class="md:col-span-2">
+                                <div class="text-xs text-base-content/60">{{ ManagerTheme::getLexicon('resource_description') }}</div>
+                                <div>{!! $content['description'] != '' ? entities($content['description'], evo()->getConfig('modx_charset')) : $notSetHtml !!}</div>
+                            </div>
+                            <div class="md:col-span-2">
+                                <div class="text-xs text-base-content/60">{{ ManagerTheme::getLexicon('resource_summary') }}</div>
+                                <div>{!! $content['introtext'] != '' ? entities($content['introtext'], evo()->getConfig('modx_charset')) : $notSetHtml !!}</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-base-content/60">{{ ManagerTheme::getLexicon('type') }}</div>
+                                <div>{{ $content['type'] == 'reference' ? ManagerTheme::getLexicon('weblink') : ManagerTheme::getLexicon('resource') }}</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-base-content/60">{{ ManagerTheme::getLexicon('resource_alias') }}</div>
+                                <div>{!! $content['alias'] != '' ? entities($content['alias'], evo()->getConfig('modx_charset')) : $notSetHtml !!}</div>
+                            </div>
+                        </div>
+                    </x-mary-card>
+
+                    <x-mary-card separator class="bg-base-200" body-class="pt-3">
+                        <x-slot:title>{{ ManagerTheme::getLexicon('page_data_changes') }}</x-slot:title>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                            <div>
+                                <div class="text-xs text-base-content/60">{{ ManagerTheme::getLexicon('page_data_created') }}</div>
+                                <div>{{ evo()->toDateFormat($content['createdon'] + evo()->timestamp(0)) }} {!! $createdByLabel !!}</div>
+                            </div>
+                            @if($editedbyname)
+                                <div>
+                                    <div class="text-xs text-base-content/60">{{ ManagerTheme::getLexicon('page_data_edited') }}</div>
+                                    <div>{{ evo()->toDateFormat($content['editedon'] + evo()->timestamp(0)) }} {!! $editedByLabel !!}</div>
+                                </div>
+                            @endif
+                        </div>
+                    </x-mary-card>
+
+                    <x-mary-card separator class="bg-base-200" body-class="pt-3">
+                        <x-slot:title>{{ ManagerTheme::getLexicon('page_data_status') }}</x-slot:title>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                            <div>
+                                <div class="text-xs text-base-content/60">{{ ManagerTheme::getLexicon('page_data_status') }}</div>
+                                <div>{!! $publishedBadge !!}</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-base-content/60">{{ ManagerTheme::getLexicon('page_data_publishdate') }}</div>
+                                <div>{!! $content['pub_date'] == 0 ? $notSetHtml : evo()->toDateFormat($content['pub_date']) !!}</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-base-content/60">{{ ManagerTheme::getLexicon('page_data_unpublishdate') }}</div>
+                                <div>{!! $content['unpub_date'] == 0 ? $notSetHtml : evo()->toDateFormat($content['unpub_date']) !!}</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-base-content/60">{{ ManagerTheme::getLexicon('page_data_cacheable') }}</div>
+                                <div><span class="badge badge-ghost badge-sm">{{ $content['cacheable'] == 0 ? ManagerTheme::getLexicon('no') : ManagerTheme::getLexicon('yes') }}</span></div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-base-content/60">{{ ManagerTheme::getLexicon('page_data_searchable') }}</div>
+                                <div><span class="badge badge-ghost badge-sm">{{ $content['searchable'] == 0 ? ManagerTheme::getLexicon('no') : ManagerTheme::getLexicon('yes') }}</span></div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-base-content/60">{{ ManagerTheme::getLexicon('resource_opt_menu_index') }}</div>
+                                <div>{{ entities($content['menuindex'], evo()->getConfig('modx_charset')) }}</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-base-content/60">{{ ManagerTheme::getLexicon('resource_opt_show_menu') }}</div>
+                                <div><span class="badge badge-ghost badge-sm">{{ $content['hidemenu'] == 1 ? ManagerTheme::getLexicon('no') : ManagerTheme::getLexicon('yes') }}</span></div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-base-content/60">{{ ManagerTheme::getLexicon('page_data_web_access') }}</div>
+                                <div>{!! $webAccessBadge !!}</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-base-content/60">{{ ManagerTheme::getLexicon('page_data_mgr_access') }}</div>
+                                <div>{!! $mgrAccessBadge !!}</div>
+                            </div>
+                        </div>
+                    </x-mary-card>
+
+                    <x-mary-card separator class="bg-base-200" body-class="pt-3">
+                        <x-slot:title>{{ ManagerTheme::getLexicon('page_data_markup') }}</x-slot:title>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                            <div>
+                                <div class="text-xs text-base-content/60">{{ ManagerTheme::getLexicon('page_data_template') }}</div>
+                                <div>{!! $content['template'] == 0 ? $notSetHtml : entities($templatename, evo()->getConfig('modx_charset')) !!}</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-base-content/60">{{ ManagerTheme::getLexicon('page_data_editor') }}</div>
+                                <div><span class="badge badge-ghost badge-sm">{{ $content['richtext'] == 0 ? ManagerTheme::getLexicon('no') : ManagerTheme::getLexicon('yes') }}</span></div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-base-content/60">{{ ManagerTheme::getLexicon('page_data_folder') }}</div>
+                                <div><span class="badge badge-ghost badge-sm">{{ $content['isfolder'] == 0 ? ManagerTheme::getLexicon('no') : ManagerTheme::getLexicon('yes') }}</span></div>
+                            </div>
+                        </div>
+                    </x-mary-card>
+                </div>
+            </div>
 
         @if($content['isfolder'])
-            <!-- View Children -->
-            <div class="tab-page" id="tabChildren">
-                <h2 class="tab">{{ ManagerTheme::getLexicon('view_child_resources_in_container') }}</h2>
-                <script type="text/javascript">docSettings.addTabPage(document.getElementById("tabChildren"));</script>
+            <div class="{{ $selectedTabName === 'doc-children' ? '' : 'hidden' }}" data-doc-panel="doc-children">
                 <div class="container container-body">
                     <div class="form-group clearfix">
                         @if($numRecords > 0)
@@ -480,15 +550,53 @@
                         <div class="table-responsive">{!! $children_output !!}</div>
                     </div>
                 </div>
-            </div><!-- end tab-page -->
+            </div>
         @endif
-    </div><!-- end documentPane -->
+        </div>
+    </div>
 
-    @if(is_numeric(get_by_key($_GET, 'tab')))
-        <script type="text/javascript">
-            docSettings.setSelectedIndex({{ $_GET['tab'] }});
-        </script>
-    @endif
+    <script>
+        (function () {
+            var tabsRoot = document.querySelector('[data-doc-tabs]');
+            if (!tabsRoot) return;
+            var buttons = tabsRoot.querySelectorAll('[data-doc-tab]');
+            var panels = tabsRoot.querySelectorAll('[data-doc-panel]');
+            if (!buttons.length || !panels.length) return;
+
+            function selectTab(targetName, targetIndex) {
+                buttons.forEach(function (btn) {
+                    var isActive = btn.getAttribute('data-doc-tab') === targetName;
+                    btn.classList.toggle('bg-primary', isActive);
+                    btn.classList.toggle('rounded', isActive);
+                    btn.classList.toggle('tab-active', isActive);
+                    if (isActive) {
+                        btn.classList.add('!text-white');
+                    } else {
+                        btn.classList.remove('!text-white');
+                    }
+                    btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                });
+                panels.forEach(function (panel) {
+                    panel.classList.toggle('hidden', panel.getAttribute('data-doc-panel') !== targetName);
+                });
+                if (typeof targetIndex === 'number') {
+                    try {
+                        var url = new URL(window.location.href);
+                        url.searchParams.set('tab', String(targetIndex));
+                        history.replaceState(null, '', url.toString());
+                    } catch (e) {}
+                }
+            }
+
+            buttons.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var name = btn.getAttribute('data-doc-tab');
+                    var index = parseInt(btn.getAttribute('data-doc-index'), 10);
+                    selectTab(name, isNaN(index) ? null : index);
+                });
+            });
+        })();
+    </script>
 
     @if(!empty($show_preview))
         <div class="sectionHeader">{{ ManagerTheme::getLexicon('preview') }}</div>
@@ -496,4 +604,5 @@
             <iframe src="{{ MODX_SITE_URL }}index.php?id={{ $id }}&z=manprev" frameborder="0" border="0" id="previewIframe"></iframe>
         </div>
     @endif
+    </div>
 @endsection

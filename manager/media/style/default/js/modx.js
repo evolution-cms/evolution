@@ -1798,15 +1798,14 @@
                     this.tab = d.createElement('h2');
                     this.tab.id = 'evo-tab-' + this.uid;
                     this.tab.className = 'tab' + (keepSelected ? '' : ' selected tab-active');
-                    this.icon = '';
-                    if (!/<i|<svg/.test(this.title)) {
-                        this.icon = modx.setTypeIcon(this.action) || '';
-                        if (this.icon && this.icon.indexOf('<') === -1) {
-                            this.icon = '<i class="' + this.icon + '"></i>';
-                        }
+                    this.icon = modx.setTypeIcon(this.action) || '';
+                    if (this.icon && this.icon.indexOf('<') === -1) {
+                        this.icon = '<i class="' + this.icon + '"></i>';
                     }
                     this.txt = modx.title(this.title);
-                    this.tab.innerHTML = '<span class="tab-title flex items-center gap-2" title="' + this.txt + '">' + this.icon + this.title + '</span><button type="button" class="tab-close btn btn-ghost btn-xs ml-1" aria-label="Close">×</button>';
+                    var tabLabel = modx.tabTitle(this.title, 20);
+                    var tabTitleAttr = modx.escapeAttr(modx.stripTags(this.title));
+                    this.tab.innerHTML = '<span class="tab-title flex items-center gap-2" title="' + tabTitleAttr + '">' + this.icon + tabLabel + '</span><button type="button" class="tab-close btn btn-ghost btn-xs ml-1" aria-label="Close">×</button>';
                     this.tab.dataset.url = this.url;
                     this.tab.dataset.title = this.title;
                     this.tab.setAttribute('role', 'tab');
@@ -1864,8 +1863,13 @@
                             this.title = w.main.document.body.querySelectorAll('h1')[0] && w.main.document.body.querySelectorAll('h1')[0].innerHTML || this.title;
                             this.txt = modx.title(this.title);
                             if (this.title && this.uid !== 'home') {
-                                var iconHtml = this.icon || '';
-                                this.tab.innerHTML = '<span class="tab-title flex items-center gap-2" title="' + this.txt + '">' + iconHtml + this.title + '</span><button type="button" class="tab-close btn btn-ghost btn-xs ml-1" aria-label="Close">×</button>';
+                                var iconHtml = this.icon || modx.setTypeIcon(this.action) || '';
+                                if (iconHtml && iconHtml.indexOf('<') === -1) {
+                                    iconHtml = '<i class="' + iconHtml + '"></i>';
+                                }
+                                var onloadTabLabel = modx.tabTitle(this.title, 20);
+                                var onloadTabTitleAttr = modx.escapeAttr(modx.stripTags(this.title));
+                                this.tab.innerHTML = '<span class="tab-title flex items-center gap-2" title="' + onloadTabTitleAttr + '">' + iconHtml + onloadTabLabel + '</span><button type="button" class="tab-close btn btn-ghost btn-xs ml-1" aria-label="Close">×</button>';
                             }
                             this.page.id = 'evo-tab-page-' + this.uid;
                             this.tab.id = 'evo-tab-' + this.uid;
@@ -2344,6 +2348,28 @@
                 content: m,
                 wrap: 'body'
             });
+        },
+        stripTags: function (t) {
+            return t && t.replace(/<\/?[^>]+>/g, ' ').replace(/[\n\t\r]/g, ' ').replace(/\s+/g, ' ').trim() || '';
+        },
+        escapeAttr: function (t) {
+            return (t || '')
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        },
+        truncateText: function (t, limit) {
+            if (!t || !limit || t.length <= limit) {
+                return t || '';
+            }
+            if (limit <= 3) {
+                return t.slice(0, limit);
+            }
+            return t.slice(0, limit - 3).trim() + '...';
+        },
+        tabTitle: function (t, limit) {
+            return this.truncateText(this.stripTags(t), limit || 20);
         },
         title: function (t) {
             t = t && t.replace(/<\/?[^>]+>/g, ' ').replace(/[\n\t\r]/g, '').trim() || '';
