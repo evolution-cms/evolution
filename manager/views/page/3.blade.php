@@ -331,30 +331,34 @@
         <x-slot:menu class="ml-auto">
             <div class="flex flex-col items-end gap-2">
                 <div id="actions" class="flex flex-wrap justify-end gap-2">
-                    @if(evo()->hasPermission('new_document'))
-                        <x-mary-button class="btn-xs btn-success btn-square" onclick="actions.new();" tooltip="{{ $_lang['create_resource_here'] }}">
-                            <span class="[&_svg]:h-4 [&_svg]:w-4">{!! svg('tabler-file-plus')->toHtml() !!}</span>
-                        </x-mary-button>
-                        <x-mary-button class="btn-xs btn-info btn-square" onclick="actions.newlink();" tooltip="{{ $_lang['create_weblink_here'] }}">
-                            <span class="[&_svg]:h-4 [&_svg]:w-4">{!! svg('tabler-link')->toHtml() !!}</span>
-                        </x-mary-button>
-                    @endif
+                    <div class="join">
+                        @if(evo()->hasPermission('new_document'))
+                            <x-mary-button class="btn-xs btn-ghost btn-square join-item bg-base-200/60" onclick="actions.new();" tooltip="{{ $_lang['create_resource_here'] }}">
+                                <span class="text-success [&_svg]:h-4 [&_svg]:w-4">{!! svg('tabler-file-plus')->toHtml() !!}</span>
+                            </x-mary-button>
+                            <x-mary-button class="btn-xs btn-ghost btn-square join-item bg-base-200/60" onclick="actions.newlink();" tooltip="{{ $_lang['create_weblink_here'] }}">
+                                <span class="text-info [&_svg]:h-4 [&_svg]:w-4">{!! svg('tabler-link')->toHtml() !!}</span>
+                            </x-mary-button>
+                        @endif
+                    </div>
                     <x-mary-button id="Button1" class="btn-xs btn-primary gap-2" onclick="actions.edit();" tooltip="{{ $_lang['edit'] }}">
                         <span class="[&_svg]:h-4 [&_svg]:w-4">{!! svg('tabler-pencil')->toHtml() !!}</span>
                         <span>{{ $_lang['edit'] }}</span>
                     </x-mary-button>
-                    <x-mary-button id="Button2" class="btn-xs btn-secondary btn-square" onclick="actions.move();" tooltip="{{ $_lang['move'] }}">
-                        <span class="[&_svg]:h-4 [&_svg]:w-4">{!! svg('tabler-arrows-move')->toHtml() !!}</span>
-                    </x-mary-button>
-                    <x-mary-button id="Button6" class="btn-xs btn-accent btn-square" onclick="actions.duplicate();" tooltip="{{ $_lang['duplicate'] }}">
-                        <span class="[&_svg]:h-4 [&_svg]:w-4">{!! svg('tabler-copy')->toHtml() !!}</span>
-                    </x-mary-button>
-                    <x-mary-button id="Button3" class="btn-xs btn-error btn-square" onclick="actions.delete();" tooltip="{{ $_lang['delete'] }}">
-                        <span class="[&_svg]:h-4 [&_svg]:w-4">{!! svg('tabler-trash')->toHtml() !!}</span>
-                    </x-mary-button>
-                    <x-mary-button id="Button4" class="btn-xs btn-ghost btn-square" onclick="actions.view();" tooltip="{{ $_lang['preview'] }}">
-                        <span class="[&_svg]:h-4 [&_svg]:w-4">{!! svg('tabler-eye')->toHtml() !!}</span>
-                    </x-mary-button>
+                    <div class="join">
+                        <x-mary-button id="Button2" class="btn-xs btn-ghost btn-square join-item bg-base-200/60" onclick="actions.move();" tooltip="{{ $_lang['move'] }}">
+                            <span class="text-secondary [&_svg]:h-4 [&_svg]:w-4">{!! svg('tabler-arrows-move')->toHtml() !!}</span>
+                        </x-mary-button>
+                        <x-mary-button id="Button6" class="btn-xs btn-ghost btn-square join-item bg-base-200/60" onclick="actions.duplicate();" tooltip="{{ $_lang['duplicate'] }}">
+                            <span class="text-accent [&_svg]:h-4 [&_svg]:w-4">{!! svg('tabler-copy')->toHtml() !!}</span>
+                        </x-mary-button>
+                        <x-mary-button id="Button3" class="btn-xs btn-ghost btn-square join-item bg-base-200/60" onclick="actions.delete();" tooltip="{{ $_lang['delete'] }}">
+                            <span class="text-error [&_svg]:h-4 [&_svg]:w-4">{!! svg('tabler-trash')->toHtml() !!}</span>
+                        </x-mary-button>
+                        <x-mary-button id="Button4" class="btn-xs btn-ghost btn-square join-item bg-base-200/60" onclick="actions.view();" tooltip="{{ $_lang['preview'] }}">
+                            <span class="text-base-content/70 [&_svg]:h-4 [&_svg]:w-4">{!! svg('tabler-eye')->toHtml() !!}</span>
+                        </x-mary-button>
+                    </div>
                 </div>
             </div>
         </x-slot:menu>
@@ -390,14 +394,14 @@
     @endphp
 
     <div data-doc-tabs>
-        <div class="bg-primary/5 rounded w-fit p-2 flex flex-wrap gap-1" role="tablist">
+        <div class="tabs tabs-box bg-primary/5 rounded-box w-fit p-1" role="tablist">
             @foreach($docTabs as $index => $tab)
                 @php
                     $isActive = $tab['name'] === $selectedTabName;
                 @endphp
                 <button
                     type="button"
-                    class="tab font-semibold {{ $isActive ? 'bg-primary rounded !text-white tab-active' : '' }}"
+                    class="tab font-semibold {{ $isActive ? 'bg-primary rounded-box !text-white tab-active' : '' }}"
                     data-doc-tab="{{ $tab['name'] }}"
                     data-doc-index="{{ $index }}"
                     role="tab"
