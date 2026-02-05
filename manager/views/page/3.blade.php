@@ -149,85 +149,63 @@
             $childs = $childs->orderBy($sort, $dir)->offset($pg * MAX_DISPLAY_RECORDS_NUM)->limit(MAX_DISPLAY_RECORDS_NUM)->get();
             $resource = $childs->toArray();
 
-            // CSS style for table
-            //	$tableClass = 'grid';
-            //	$rowHeaderClass = 'gridHeader';
-            //	$rowRegularClass = 'gridItem';
-            //	$rowAlternateClass = 'gridAltItem';
-            $tableClass = 'table data nowrap';
-            $columnHeaderClass = [
-                'text-center',
-                'text-left',
-                'text-center',
-                'text-center',
-                'text-center',
-                'text-center'
-            ];
             $table = new \EvolutionCMS\Support\MakeTable();
-            $table->setTableClass($tableClass);
-            $table->setColumnHeaderClass($columnHeaderClass);
-            //	evo()->getMakeTable()->setRowHeaderClass($rowHeaderClass);
-            //	evo()->getMakeTable()->setRowRegularClass($rowRegularClass);
-            //	evo()->getMakeTable()->setRowAlternateClass($rowAlternateClass);
-
-            // Table header
-            $listTableHeader = [
-                'docid'     => ManagerTheme::getLexicon('id'),
-                'title'     => ManagerTheme::getLexicon('resource_title'),
-                'createdon' => ManagerTheme::getLexicon('createdon'),
-                'pub_date'  => ManagerTheme::getLexicon('page_data_publishdate'),
-                'status'    => ManagerTheme::getLexicon('page_data_status'),
-                'edit'      => ManagerTheme::getLexicon('mgrlog_action'),
+            $childrenTableHeaders = [
+                ['key' => 'id', 'label' => ManagerTheme::getLexicon('id'), 'class' => 'text-right text-xs text-base-content/70 w-16'],
+                ['key' => 'title', 'label' => ManagerTheme::getLexicon('resource_title'), 'class' => 'min-w-[240px]'],
+                ['key' => 'createdon', 'label' => ManagerTheme::getLexicon('createdon'), 'class' => 'text-right text-xs text-base-content/70 whitespace-nowrap'],
+                ['key' => 'pub_date', 'label' => ManagerTheme::getLexicon('page_data_publishdate'), 'class' => 'text-right text-xs text-base-content/70 whitespace-nowrap'],
+                ['key' => 'status', 'label' => ManagerTheme::getLexicon('page_data_status'), 'class' => 'text-center whitespace-nowrap'],
+                ['key' => 'actions', 'label' => ManagerTheme::getLexicon('mgrlog_action'), 'class' => 'text-center whitespace-nowrap'],
             ];
-            $tbWidth = [
-                '1%',
-                '',
-                '1%',
-                '1%',
-                '1%',
-                '1%'
-            ];
-            $table->setColumnWidths($tbWidth);
 
+            $iconBaseClass = 'text-base-content/70 shrink-0 [&_svg]:h-4 [&_svg]:w-4';
             $icons = [
-                'text/plain'               => '<i class="' . $_style['icon_document'] . '"></i>',
-                'text/html'                => '<i class="' . $_style['icon_document'] . '"></i>',
-                'text/xml'                 => '<i class="' . $_style['icon_code_file'] . '"></i>',
-                'text/css'                 => '<i class="' . $_style['icon_code_file'] . '"></i>',
-                'text/javascript'          => '<i class="' . $_style['icon_code_file'] . '"></i>',
-                'image/gif'                => '<i class="' . $_style['icon_image'] . '"></i>',
-                'image/jpg'                => '<i class="' . $_style['icon_image'] . '"></i>',
-                'image/png'                => '<i class="' . $_style['icon_image'] . '"></i>',
-                'application/pdf'          => '<i class="' . $_style['icon_pdf'] . '"></i>',
-                'application/rss+xml'      => '<i class="' . $_style['icon_code_file'] . '"></i>',
-                'application/vnd.ms-word'  => '<i class="' . $_style['icon_word'] . '"></i>',
-                'application/vnd.ms-excel' => '<i class="' . $_style['icon_excel'] . '"></i>',
+                'text/plain'               => '<span class="' . $iconBaseClass . '">' . svg('tabler-file-text')->toHtml() . '</span>',
+                'text/html'                => '<span class="' . $iconBaseClass . '">' . svg('tabler-file-text')->toHtml() . '</span>',
+                'text/xml'                 => '<span class="' . $iconBaseClass . '">' . svg('tabler-file-code')->toHtml() . '</span>',
+                'text/css'                 => '<span class="' . $iconBaseClass . '">' . svg('tabler-file-code')->toHtml() . '</span>',
+                'text/javascript'          => '<span class="' . $iconBaseClass . '">' . svg('tabler-file-code')->toHtml() . '</span>',
+                'image/gif'                => '<span class="' . $iconBaseClass . '">' . svg('tabler-photo')->toHtml() . '</span>',
+                'image/jpg'                => '<span class="' . $iconBaseClass . '">' . svg('tabler-photo')->toHtml() . '</span>',
+                'image/png'                => '<span class="' . $iconBaseClass . '">' . svg('tabler-photo')->toHtml() . '</span>',
+                'application/pdf'          => '<span class="' . $iconBaseClass . '">' . svg('tabler-file-type-pdf')->toHtml() . '</span>',
+                'application/rss+xml'      => '<span class="' . $iconBaseClass . '">' . svg('tabler-rss')->toHtml() . '</span>',
+                'application/vnd.ms-word'  => '<span class="' . $iconBaseClass . '">' . svg('tabler-file-type-doc')->toHtml() . '</span>',
+                'application/vnd.ms-excel' => '<span class="' . $iconBaseClass . '">' . svg('tabler-file-type-xls')->toHtml() . '</span>',
             ];
+            $iconFolderOpen = '<span class="' . $iconBaseClass . '">' . svg('tabler-folder-open')->toHtml() . '</span>';
+            $iconFolder = '<span class="' . $iconBaseClass . '">' . svg('tabler-folder-filled')->toHtml() . '</span>';
+            $iconFile = '<span class="' . $iconBaseClass . '">' . svg('tabler-file')->toHtml() . '</span>';
+            $iconHome = '<span class="' . $iconBaseClass . '">' . svg('tabler-home')->toHtml() . '</span>';
+            $iconInfoTriangle = '<span class="' . $iconBaseClass . '">' . svg('tabler-alert-triangle')->toHtml() . '</span>';
+            $iconClock = '<span class="' . $iconBaseClass . '">' . svg('tabler-clock')->toHtml() . '</span>';
+            $iconInfo = '<span class="' . $iconBaseClass . '">' . svg('tabler-info-circle')->toHtml() . '</span>';
 
-            $listDocs = [];
+            $childrenTableRows = [];
             foreach ($resource as $k => $children) {
 
                 switch ($children['id']) {
                     case evo()->getConfig('site_start')            :
-                        $icon = '<i class="' . $_style['icon_home'] . '"></i>';
+                        $icon = $iconHome;
                         break;
                     case evo()->getConfig('error_page')            :
-                        $icon = '<i class="' . $_style['icon_info_triangle'] . '"></i>';
+                        $icon = $iconInfoTriangle;
                         break;
                     case evo()->getConfig('site_unavailable_page') :
-                        $icon = '<i class="' . $_style['icon_clock'] . '"></i>';
+                        $icon = $iconClock;
                         break;
                     case evo()->getConfig('unauthorized_page')     :
-                        $icon = '<i class="' . $_style['icon_info'] . '"></i>';
+                        $icon = $iconInfo;
                         break;
                     default:
                         if ($children['isfolder']) {
-                            $icon = '<i class="' . $_style['icon_folder'] . '"></i>';
+                            $icon = $iconFolder;
                         } else {
                             if (isset($icons[$children['contentType']])) {
                                 $icon = $icons[$children['contentType']];
                             } else {
-                                $icon = '<i class="' . $_style['icon_document'] . '"></i>';
+                                $icon = $iconFile;
                             }
                         }
                 }
@@ -236,42 +214,49 @@
 
                 // дописуємо в заголовок клас для неопублікованих плюс по всім посиланням зворотній шлях
                 // для збереження сортування
-                $class = ($children['deleted'] ? 'text-danger text-decoration-through' : (!$children['published'] ? ' font-italic text-muted' : ' publish'));
+                $class = ($children['deleted'] ? 'text-error line-through' : (!$children['published'] ? ' italic text-base-content/60' : ' text-base-content'));
                 if (evo()->hasPermission('edit_document')) {
-                    $title = '<span class="doc-item' . $private . '">' . $icon . '<a href="index.php?a=27&id=' . $children['id'] . $add_path . '">' . '<span class="' . $class . '">' . entities($children['pagetitle'],
-                            evo()->getConfig('modx_charset')) . '</span></a></span>';
+                    $title = '<div class="flex items-center gap-2 min-w-0"><span class="shrink-0">' . $icon . '</span><a class="flex-1 min-w-0 truncate block" href="index.php?a=27&id=' . $children['id'] . $add_path . '"><span class="' . $class . '">' . entities($children['pagetitle'],
+                            evo()->getConfig('modx_charset')) . '</span></a></div>';
                 } else {
-                    $title = '<span class="doc-item' . $private . '">' . $icon . '<span class="' . $class . '">' . entities($children['pagetitle'],
-                            evo()->getConfig('modx_charset')) . '</span></span>';
+                    $title = '<div class="flex items-center gap-2 min-w-0"><span class="shrink-0">' . $icon . '</span><span class="flex-1 min-w-0 truncate block ' . $class . '">' . entities($children['pagetitle'],
+                            evo()->getConfig('modx_charset')) . '</span></div>';
                 }
 
                 $icon_pub_unpub = (!$children['published'])
-                    ? '<a href="index.php?a=61&id=' . $children['id'] . $add_path . '" title="' . ManagerTheme::getLexicon('publish_resource') . '"><i class="' . $_style['icon_check'] . '"></i></a>'
-                    : '<a href="index.php?a=62&id=' . $children['id'] . $add_path . '" title="' . ManagerTheme::getLexicon('unpublish_resource') . '"><i class="' . $_style['icon_close'] . '" ></i></a>';
+                    ? '<a class="btn btn-ghost btn-xs btn-square" href="index.php?a=61&id=' . $children['id'] . $add_path . '" title="' . ManagerTheme::getLexicon('publish_resource') . '"><span class="text-success [&_svg]:h-4 [&_svg]:w-4">' . svg('tabler-check')->toHtml() . '</span></a>'
+                    : '<a class="btn btn-ghost btn-xs btn-square" href="index.php?a=62&id=' . $children['id'] . $add_path . '" title="' . ManagerTheme::getLexicon('unpublish_resource') . '"><span class="text-warning [&_svg]:h-4 [&_svg]:w-4">' . svg('tabler-x')->toHtml() . '</span></a>';
 
                 $icon_del_undel = (!$children['deleted'])
-                    ? '<a onclick="return confirm(\'' . ManagerTheme::getLexicon('confirm_delete_resource') . '\')" href="index.php?a=6&id=' . $children['id'] . $add_path . '" title="' . ManagerTheme::getLexicon('delete_resource') . '"><i class="' . $_style['icon_trash'] . '"></i></a>'
-                    : '<a onclick="return confirm(\'' . ManagerTheme::getLexicon('confirm_undelete') . '\')" href="index.php?a=63&id=' . $children['id'] . $add_path . '" title="' . ManagerTheme::getLexicon('undelete_resource') . '"><i class="' . $_style['icon_undo'] . '"></i></a>';
+                    ? '<a class="btn btn-ghost btn-xs btn-square" onclick="return confirm(\'' . ManagerTheme::getLexicon('confirm_delete_resource') . '\')" href="index.php?a=6&id=' . $children['id'] . $add_path . '" title="' . ManagerTheme::getLexicon('delete_resource') . '"><span class="text-error [&_svg]:h-4 [&_svg]:w-4">' . svg('tabler-trash')->toHtml() . '</span></a>'
+                    : '<a class="btn btn-ghost btn-xs btn-square" onclick="return confirm(\'' . ManagerTheme::getLexicon('confirm_undelete') . '\')" href="index.php?a=63&id=' . $children['id'] . $add_path . '" title="' . ManagerTheme::getLexicon('undelete_resource') . '"><span class="text-info [&_svg]:h-4 [&_svg]:w-4">' . svg('tabler-restore')->toHtml() . '</span></a>';
 
-                $listDocs[] = [
-                    'docid'     => '<div class="text-right">' . $children['id'] . '</div>',
-                    'title'     => $title,
-                    'createdon' => '<div class="text-right">' . (evo()->toDateFormat($children['createdon'] + evo()->timestamp(0),
-                            'dateOnly')) . '</div>',
-                    'pub_date'  => '<div class="text-right">' . ($children['pub_date'] ? (evo()->toDateFormat($children['pub_date'] + evo()->timestamp(0),
-                            'dateOnly')) : '') . '</div>',
-                    'status'    => '<div class="text-nowrap">' . ($children['published'] == 0 ? '<span class="unpublishedDoc">' . ManagerTheme::getLexicon('page_data_unpublished') . '</span>' : '<span class="publishedDoc">' . ManagerTheme::getLexicon('page_data_published') . '</span>') . '</div>',
-                    'edit'      => '<div class="actions text-center text-nowrap">' . (evo()->hasPermission('edit_document') ? '<a href="index.php?a=27&id=' . $children['id'] . $add_path . '" title="' . ManagerTheme::getLexicon('edit') . '"><i class="' . $_style['icon_edit'] . '"></i></a>
-                    <a href="index.php?a=51&id=' . $children['id'] . $add_path . '" title="' . ManagerTheme::getLexicon('move') . '"><i
-                    class="' . $_style['icon_move'] . '"></i></a>' . $icon_pub_unpub : '') . (evo()->hasPermission('delete_document') ? $icon_del_undel : '') . '</div>'
+                $childrenTableRows[] = [
+                    'id'        => $children['id'],
+                    'title'     => new \Illuminate\Support\HtmlString($title),
+                    'createdon' => evo()->toDateFormat($children['createdon'] + evo()->timestamp(0), 'dateOnly'),
+                    'pub_date'  => $children['pub_date'] ? evo()->toDateFormat($children['pub_date'] + evo()->timestamp(0), 'dateOnly') : '',
+                    'status'    => new \Illuminate\Support\HtmlString($children['published'] == 0
+                        ? '<span class="badge badge-warning badge-sm">' . ManagerTheme::getLexicon('page_data_unpublished') . '</span>'
+                        : '<span class="badge badge-success badge-sm">' . ManagerTheme::getLexicon('page_data_published') . '</span>'),
+                    'actions'   => new \Illuminate\Support\HtmlString('<div class="flex items-center justify-center gap-1 text-nowrap">' . (evo()->hasPermission('edit_document') ? '<a class="btn btn-ghost btn-xs btn-square" href="index.php?a=27&id=' . $children['id'] . $add_path . '" title="' . ManagerTheme::getLexicon('edit') . '"><span class="text-primary [&_svg]:h-4 [&_svg]:w-4">' . svg('tabler-pencil')->toHtml() . '</span></a>
+                    <a class="btn btn-ghost btn-xs btn-square" href="index.php?a=51&id=' . $children['id'] . $add_path . '" title="' . ManagerTheme::getLexicon('move') . '"><span class="text-secondary [&_svg]:h-4 [&_svg]:w-4">' . svg('tabler-arrows-move')->toHtml() . '</span></a>' . $icon_pub_unpub : '') . (evo()->hasPermission('delete_document') ? $icon_del_undel : '') . '</div>'),
                 ];
             }
 
             $table->createPagingNavigation($numRecords, 'a=3&id=' . $content['id'] . '&dir=' . $dir . '&sort=' . $sort);
-            $children_output = $table->create($listDocs, $listTableHeader, 'index.php?a=3&id=' . $content['id']);
+            $childrenPageNav = '';
+            if (!empty($table->pageNav)) {
+                $childrenPageNav = $table->pageNav;
+                $childrenPageNav = str_replace('class="currentPage"', 'class="btn btn-sm btn-primary"', $childrenPageNav);
+                $childrenPageNav = preg_replace('/<a(?![^>]*class=)/', '<a class="btn btn-sm btn-ghost"', $childrenPageNav);
+                $childrenPageNav = str_replace('<li', '<li class="join-item"', $childrenPageNav);
+            }
         } else {
             // No Child documents
-            $children_output = '<div class="container"><p>' . ManagerTheme::getLexicon('resources_in_container_no') . '</p></div>';
+            $childrenTableRows = [];
+            $childrenTableHeaders = [];
+            $childrenPageNav = '';
             $add_path = '';
         }
     }
@@ -525,35 +510,46 @@
 
         @if($content['isfolder'])
             <div class="{{ $selectedTabName === 'doc-children' ? '' : 'hidden' }}" data-doc-panel="doc-children">
-                <div class="container container-body">
-                    <div class="form-group clearfix">
+                <x-mary-card separator class="bg-base-200" body-class="pt-3">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
                         @if($numRecords > 0)
-                            <div class="float-xs-left">
-                                <span class="publishedDoc">{{ $numRecords }} {{ ManagerTheme::getLexicon('resources_in_container') }} (<strong>{{ entities($content['pagetitle'], evo()->getConfig('modx_charset')) }}</strong>)</span>
+                            <div class="text-sm text-base-content/70">
+                                {{ $numRecords }} {{ ManagerTheme::getLexicon('resources_in_container') }}
+                                <span class="text-base-content/60">({{ entities($content['pagetitle'], evo()->getConfig('modx_charset')) }})</span>
                             </div>
                         @endif
-                        <div class="float-right">
-                            @if($numRecords > 0)
-                                <select size="1" name="sort" class="form-control form-control-sm"
+                        @if($numRecords > 0)
+                            <div class="flex flex-wrap items-center gap-2">
+                                <select size="1" name="sort" class="select select-sm"
                                         onchange="document.location='index.php?a=3&id={{ $id }}&dir={{ $dir }}&sort=' + this.options[this.selectedIndex].value">
                                     @foreach($filter_sort as $key => $val)
                                         <option value="{{ $key }}"
                                                 @if($key == $sort) selected @endif>{{ $val }}</option>
                                     @endforeach
                                 </select>
-                                <select size="1" name="dir" class="form-control form-control-sm"
+                                <select size="1" name="dir" class="select select-sm"
                                         onchange="document.location='index.php?a=3&id={{ $id }}&sort={{ $sort }}&dir=' + this.options[this.selectedIndex].value">
                                     @foreach($filter_dir as $key => $val)
                                         <option value="{{ $key }}" @if($key == $dir) selected @endif>{{ $val }}</option>
                                     @endforeach
                                 </select>
-                            @endif
+                            </div>
+                        @endif
+                    </div>
+                    <div class="mt-3">
+                        <x-mary-table
+                            :headers="$childrenTableHeaders"
+                            :rows="$childrenTableRows"
+                            show-empty-text
+                            :empty-text="ManagerTheme::getLexicon('resources_in_container_no')"
+                        />
+                    </div>
+                    @if(!empty($childrenPageNav))
+                        <div class="mt-3 flex justify-end">
+                            <ul class="join">{!! $childrenPageNav !!}</ul>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="table-responsive">{!! $children_output !!}</div>
-                    </div>
-                </div>
+                    @endif
+                </x-mary-card>
             </div>
         @endif
         </div>
