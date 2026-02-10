@@ -97,9 +97,6 @@
     },
     "config": {
         "optimize-autoloader": true,
-        "platform": {
-            "php": "8.3"
-        },
         "preferred-install": "dist",
         "prestissimo": {
             "maxConnections": 6,
