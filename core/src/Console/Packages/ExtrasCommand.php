@@ -103,6 +103,11 @@ class ExtrasCommand extends Command
     protected $catalogError = '';
 
     /**
+     * @var array|null
+     */
+    protected $extrasCatalogPackages = null;
+
+    /**
      * PackageCommand constructor.
      */
     public function __construct()
@@ -678,7 +683,12 @@ class ExtrasCommand extends Command
         }
 
         $providers = [];
-        foreach (array_keys($requires) as $dependency) {
+        $visited = [$packageName => true];
+        $queue = array_keys($requires);
+        $catalogPackages = $this->getExtrasCatalogPackages();
+        $useCatalog = $catalogPackages !== [];
+        while ($queue !== []) {
+            $dependency = array_pop($queue);
             if (!is_string($dependency)) {
                 continue;
             }
@@ -686,19 +696,33 @@ class ExtrasCommand extends Command
             if (!$this->isComposerDependencyName($dependency)) {
                 continue;
             }
-            if ($dependency === $packageName) {
+            if (isset($visited[$dependency])) {
                 continue;
             }
+            $visited[$dependency] = true;
 
             $depComposer = $this->getPackageComposer($dependency);
             if (!$depComposer) {
                 continue;
             }
-            if (!$this->isEvoPackageType($depComposer['type'] ?? null)) {
+            if ($useCatalog) {
+                if (!isset($catalogPackages[strtolower($dependency)])) {
+                    continue;
+                }
+            } elseif (!$this->isEvoPackageType($depComposer['type'] ?? null)) {
                 continue;
             }
 
             $providers = array_merge($providers, $this->extractProviders($depComposer));
+
+            $depRequires = $depComposer['require'] ?? [];
+            if (is_array($depRequires) && $depRequires !== []) {
+                foreach (array_keys($depRequires) as $childDependency) {
+                    if (is_string($childDependency)) {
+                        $queue[] = $childDependency;
+                    }
+                }
+            }
         }
 
         $providers = array_filter($providers, 'is_string');
@@ -745,6 +769,47 @@ class ExtrasCommand extends Command
             return false;
         }
         return true;
+    }
+
+    protected function isExtrasCatalogPackage(string $packageName): bool
+    {
+        if ($packageName === '') {
+            return false;
+        }
+        $packages = $this->getExtrasCatalogPackages();
+        return isset($packages[strtolower($packageName)]);
+    }
+
+    protected function getExtrasCatalogPackages(): array
+    {
+        if ($this->extrasCatalogPackages !== null) {
+            return $this->extrasCatalogPackages;
+        }
+
+        $catalog = $this->loadExtrasCatalog();
+        if ($catalog === null) {
+            $this->extrasCatalogPackages = [];
+            return $this->extrasCatalogPackages;
+        }
+
+        $packages = [];
+        foreach ($catalog['packages'] ?? [] as $pkg) {
+            if (!is_array($pkg)) {
+                continue;
+            }
+            $composerName = $pkg['composer_name'] ?? '';
+            if (is_string($composerName) && $composerName !== '') {
+                $packages[strtolower($composerName)] = true;
+                continue;
+            }
+            $fullName = $pkg['full_name'] ?? '';
+            if (is_string($fullName) && $fullName !== '') {
+                $packages[strtolower($fullName)] = true;
+            }
+        }
+
+        $this->extrasCatalogPackages = $packages;
+        return $this->extrasCatalogPackages;
     }
 
     protected function getPackageComposerPath($packageName)
