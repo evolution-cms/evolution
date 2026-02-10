@@ -648,7 +648,9 @@ class ExtrasCommand extends Command
             return;
         }
         $providers = $this->getPackageProviders($packageName);
-        foreach ($providers as $provider) {
+        $dependencyProviders = $this->getDependencyProviders($packageName);
+        $allProviders = array_values(array_unique(array_merge($providers, $dependencyProviders)));
+        foreach ($allProviders as $provider) {
             $this->runArtisanCommand(['vendor:publish', '--provider=' . $provider]);
         }
         $this->runArtisanCommand(['migrate', '--force']);
@@ -656,20 +658,93 @@ class ExtrasCommand extends Command
 
     protected function getPackageProviders($packageName)
     {
+        $composer = $this->getPackageComposer($packageName);
+        if (!$composer) {
+            return [];
+        }
+        return $this->extractProviders($composer);
+    }
+
+    protected function getDependencyProviders($packageName)
+    {
+        $composer = $this->getPackageComposer($packageName);
+        if (!$composer) {
+            return [];
+        }
+
+        $requires = $composer['require'] ?? [];
+        if (!is_array($requires) || $requires === []) {
+            return [];
+        }
+
+        $providers = [];
+        foreach (array_keys($requires) as $dependency) {
+            if (!is_string($dependency)) {
+                continue;
+            }
+            $dependency = trim($dependency);
+            if (!$this->isComposerDependencyName($dependency)) {
+                continue;
+            }
+            if ($dependency === $packageName) {
+                continue;
+            }
+
+            $depComposer = $this->getPackageComposer($dependency);
+            if (!$depComposer) {
+                continue;
+            }
+            if (!$this->isEvoPackageType($depComposer['type'] ?? null)) {
+                continue;
+            }
+
+            $providers = array_merge($providers, $this->extractProviders($depComposer));
+        }
+
+        $providers = array_filter($providers, 'is_string');
+        return array_values(array_unique($providers));
+    }
+
+    protected function getPackageComposer($packageName)
+    {
         $composerPath = $this->getPackageComposerPath($packageName);
         if ($composerPath === '' || !file_exists($composerPath)) {
-            return [];
+            return null;
         }
         $raw = file_get_contents($composerPath);
         $composer = json_decode($raw, true);
         if (!is_array($composer)) {
-            return [];
+            return null;
         }
+        return $composer;
+    }
+
+    protected function extractProviders(array $composer): array
+    {
         $laravelProviders = $composer['extra']['laravel']['providers'] ?? [];
         $evolutionProviders = $composer['extra']['evolution']['providers'] ?? [];
         $providers = array_merge((array) $laravelProviders, (array) $evolutionProviders);
         $providers = array_filter($providers, 'is_string');
         return array_values(array_unique($providers));
+    }
+
+    protected function isEvoPackageType($type): bool
+    {
+        if (!is_string($type) || $type === '') {
+            return false;
+        }
+        return str_starts_with($type, 'evolutioncms-') || str_starts_with($type, 'evolution-cms-');
+    }
+
+    protected function isComposerDependencyName(string $name): bool
+    {
+        if ($name === '' || $name === 'php' || $name === 'composer-plugin-api') {
+            return false;
+        }
+        if (str_starts_with($name, 'ext-') || str_starts_with($name, 'lib-')) {
+            return false;
+        }
+        return true;
     }
 
     protected function getPackageComposerPath($packageName)
