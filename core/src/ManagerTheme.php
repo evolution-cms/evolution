@@ -406,7 +406,7 @@ class ManagerTheme implements ManagerThemeInterface
 
         Route::middleware('mgr')
             ->namespace('\\EvolutionCMS\\Controllers')
-            ->group(MODX_MANAGER_PATH . '/routes.php');
+            ->group(EVO_MANAGER_PATH . '/routes.php');
 
         $routes = $evo->router->getRoutes();
         $routes->refreshNameLookups();

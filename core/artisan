@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-define('MODX_API_MODE', true);
+if (!defined('EVO_API_MODE')) define('EVO_API_MODE', true);
 
 require __DIR__ . '/bootstrap.php';
 

@@ -13,33 +13,33 @@ if (!function_exists('evo')) {
             define('EVO_CLASS', '\DocumentParser');
         }
 
-        global $modx;
-        if ($modx === null) {
+        global $evo;
+        if ($evo === null) {
             try {
                 $obj = new ReflectionClass(EVO_CLASS);
-                $modx = $obj->newInstanceWithoutConstructor()->getInstance();
+                $evo = $obj->newInstanceWithoutConstructor()->getInstance();
             } catch (ReflectionException $exception) {
                 echo $exception->getMessage();
                 exit($exception->getCode());
             }
         }
 
-        if (IN_MANAGER_MODE == true && IN_INSTALL_MODE == false  && MODX_API_MODE != true) {
+        if (IN_MANAGER_MODE == true && IN_INSTALL_MODE == false  && EVO_API_MODE != true) {
             // attempt to foil some simple types of CSRF attacks
-            if ((int)$modx->getConfig('validate_referer') !== 0) {
+            if ((int)$evo->getConfig('validate_referer') !== 0) {
                 if (isset($_SERVER['HTTP_REFERER'])) {
 
                     $referer = $_SERVER['HTTP_REFERER'];
 
                     if (!empty($referer)) {
-                        if (!preg_match('/^' . preg_quote(MODX_SITE_URL, '/') . '/i', $referer)) {
-                            $modx->webAlertAndQuit(
+                        if (!preg_match('/^' . preg_quote(EVO_SITE_URL, '/') . '/i', $referer)) {
+                            $evo->webAlertAndQuit(
                                 "A possible CSRF attempt was detected from referer: {$referer}.",
                                 "/" . MGR_DIR . "/index.php"
                             );
                         }
                     } else {
-                        $modx->webAlertAndQuit(
+                        $evo->webAlertAndQuit(
                             "A possible CSRF attempt was detected. No referer was provided by the client.",
                             "/" . MGR_DIR . "/index.php"
                         );
@@ -47,7 +47,7 @@ if (!function_exists('evo')) {
                 } else {
 
                     if (mb_strtoupper($_SERVER['REQUEST_METHOD']) !== 'GET') {
-                        $modx->webAlertAndQuit(
+                        $evo->webAlertAndQuit(
                             "A possible CSRF attempt was detected. No referer was provided by the server.",
                             "/" . MGR_DIR . "/index.php"
                         );
@@ -57,7 +57,7 @@ if (!function_exists('evo')) {
             }
         }
 
-        return $modx;
+        return $evo;
     }
 }
 
@@ -110,7 +110,7 @@ if (!function_exists('startCMSSession')) {
         }
         session_set_cookie_params(
             0
-            , $session_cookie_path ? $session_cookie_path : MODX_BASE_URL
+            , $session_cookie_path ? $session_cookie_path : EVO_BASE_URL
             , $session_cookie_domain ? $session_cookie_domain : ''
             , $secure
             , true
@@ -159,7 +159,7 @@ if (!function_exists('startCMSSession')) {
                 session_name()
                 , session_id()
                 , (int)$_SESSION[$key] ? $_SERVER['REQUEST_TIME'] + (int)$_SESSION[$key] : 0
-                , $session_cookie_path ? $session_cookie_path : MODX_BASE_URL
+                , $session_cookie_path ? $session_cookie_path : EVO_BASE_URL
                 , $session_cookie_domain ? $session_cookie_domain : ''
                 , $secure
                 , true
@@ -251,7 +251,7 @@ if (!function_exists('getSanitizedValue')) {
             }
             $sanitizedBracket = str_replace(
                 '#',
-                MODX_SANITIZE_SEED,
+                EVO_SANITIZE_SEED,
                 sprintf('#%s#%s#', substr($bracket, 0, 1), substr($bracket, 1, 1))
             );
             $value = str_replace($bracket, $sanitizedBracket, $value);
@@ -269,10 +269,10 @@ if (!function_exists('removeSanitizeSeed')) {
      */
     function removeSanitizeSeed($string = '')
     {
-        if (!$string || strpos($string, MODX_SANITIZE_SEED) === false) {
+        if (!$string || strpos($string, EVO_SANITIZE_SEED) === false) {
             return $string;
         }
 
-        return str_replace(MODX_SANITIZE_SEED, '', $string);
+        return str_replace(EVO_SANITIZE_SEED, '', $string);
     }
 }
