@@ -107,15 +107,15 @@ class Cache
     }
 
     /**
-     * @param null|DocumentParser $modx
+     * @param null|DocumentParser $evo
      */
-    public function emptyCache($modx = null)
+    public function emptyCache($evo = null)
     {
-        if (!($modx instanceof Interfaces\CoreInterface)) {
-            $modx = $GLOBALS['modx'];
+        if (!($evo instanceof Interfaces\CoreInterface)) {
+            $evo = $GLOBALS['evo'];
         }
         if (!isset($this->cachePath)) {
-            $modx->getService('ExceptionHandler')->messageQuit("Cache path not set.");
+            $evo->getService('ExceptionHandler')->messageQuit("Cache path not set.");
         }
         \Illuminate\Support\Facades\Cache::flush();
         Models\UserSetting::query()->whereIn('setting_name', ['password', 'password_confirmation', 'clearPassword'])->delete();
@@ -141,7 +141,7 @@ class Cache
             }
         }
 
-        $this->buildCache($modx);
+        $this->buildCache($evo);
 
         $this->publishTimeConfig();
 
@@ -229,10 +229,10 @@ class Cache
 
     /**
      * build siteCache file
-     * @param Interfaces\CoreInterface $modx
+     * @param Interfaces\CoreInterface $evo
      * @return boolean success
      */
-    public function buildCache($modx)
+    public function buildCache($evo)
     {
         $content = "<?php\n";
 
@@ -317,12 +317,12 @@ class Cache
                     $content .= '$s[\'' . $row['name'] . '\']=\'return false;\';';
                 } else {
                     $value = trim($row['snippet']);
-                    if ($modx->getConfig('minifyphp_incache')) {
+                    if ($evo->getConfig('minifyphp_incache')) {
                         $value = $this->php_strip_whitespace($value);
                     }
                     $content .= '$s[\'' . $row['name'] . '\']=\'' . $this->escapeSingleQuotes($value) . '\';';
-                    $properties = $modx->parseProperties($row['properties']);
-                    $sharedproperties = $modx->parseProperties($row['sharedproperties']);
+                    $properties = $evo->parseProperties($row['properties']);
+                    $sharedproperties = $evo->parseProperties($row['sharedproperties']);
                     $properties = array_merge($sharedproperties, $properties);
                     if (0 < count($properties)) {
                         $content .= '$s[\'' . $row['name'] . 'Props\']=\'' . $this->escapeSingleQuotes(json_encode($properties)) . '\';';
@@ -339,13 +339,13 @@ class Cache
             $content .= '$p=&$this->pluginCache;';
             foreach ($plugins->toArray() as $row) {
                 $value = trim($row['plugincode']);
-                if ($modx->getConfig('minifyphp_incache')) {
+                if ($evo->getConfig('minifyphp_incache')) {
                     $value = $this->php_strip_whitespace($value);
                 }
                 $content .= '$p[\'' . $row['name'] . '\']=\'' . $this->escapeSingleQuotes($value) . '\';';
                 if ($row['properties'] != '' || $row['sharedproperties'] != '') {
-                    $properties = $modx->parseProperties($row['properties']);
-                    $sharedproperties = $modx->parseProperties($row['sharedproperties']);
+                    $properties = $evo->parseProperties($row['properties']);
+                    $sharedproperties = $evo->parseProperties($row['sharedproperties']);
                     $properties = array_merge($sharedproperties, $properties);
                     if (0 < count($properties)) {
                         $content .= '$p[\'' . $row['name'] . 'Props\']=\'' . $this->escapeSingleQuotes(json_encode($properties)) . '\';';
@@ -378,10 +378,10 @@ class Cache
         $content .= "\n";
 
         // close and write the file
-        $filename = $modx->getSiteCacheFilePath();
+        $filename = $evo->getSiteCacheFilePath();
 
         // invoke OnBeforeCacheUpdate event
-        $modx->invokeEvent('OnBeforeCacheUpdate');
+        $evo->invokeEvent('OnBeforeCacheUpdate');
 
         if (@file_put_contents($filename, $content) === false) {
             exit("Cannot write $filename! Make sure file or its directory is writable!");
@@ -392,7 +392,7 @@ class Cache
         }
 
         // invoke OnCacheUpdate event
-        $modx->invokeEvent('OnCacheUpdate');
+        $evo->invokeEvent('OnCacheUpdate');
 
         return true;
     }
