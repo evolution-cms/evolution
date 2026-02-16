@@ -65,11 +65,11 @@ if (!defined('IN_INSTALL_MODE')) {
     define('IN_INSTALL_MODE', false);
 }
 
-if (!defined('MODX_API_MODE')) {
-    define('MODX_API_MODE', false);
+if (!defined('EVO_API_MODE')) {
+    define('EVO_API_MODE', false);
 }
 
-if (! defined('IN_PARSER_MODE')) {
+if (!defined('IN_PARSER_MODE')) {
     define('IN_PARSER_MODE', false);
 }
 
@@ -110,11 +110,10 @@ header('Pragma: no-cache');
 header('X-UA-Compatible: IE=edge;FF=3;OtherUA=4');
 header('X-XSS-Protection: 0');
 
-// check PHP version. EVO is compatible with php 5 (5.6.0+)
-$php_ver_comp = version_compare(phpversion(), "7.1.3");
+$php_ver_comp = version_compare(phpversion(), "8.3");
 // -1 if left is less, 0 if equal, +1 if left is higher
 if ($php_ver_comp < 0) {
-    echo 'Evolution CMS is compatible with PHP version 7.1.3 and higher. This server is using version ' . phpversion() . '. Please upgrade your PHP installation!';
+    echo 'Evolution CMS is compatible with PHP version 8.3 and higher. This server is using version ' . phpversion() . '. Please upgrade your PHP installation!';
     exit;
 }
 
@@ -134,15 +133,15 @@ if (!isset($_SERVER['DOCUMENT_ROOT']) || empty($_SERVER['DOCUMENT_ROOT'])) {
 }
 
 // initiate the content manager class
-$modx = evo();
-$modx->mstart = $mstart;
+$evo = evo();
+$evo->mstart = $mstart;
 $useLaravelSession = defined('EVO_SESSION') && EVO_SESSION;
 if ($useLaravelSession) {
     \EvoSessionProxy::init();
 }
-$modx->sid = session_id();
+$evo->sid = session_id();
 
-//$settings = $modx->allConfig();
+//$settings = $evo->allConfig();
 //extract($settings, EXTR_OVERWRITE);
 
 
@@ -161,6 +160,6 @@ header('Content-Type: text/html; charset=' . ManagerTheme::getCharset());
 $action = 0;
 
 // Update table active_user_sessions
-$modx->updateValidatedUserSession();
+$evo->updateValidatedUserSession();
 
 ManagerTheme::handleRoute();

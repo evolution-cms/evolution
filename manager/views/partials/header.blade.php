@@ -22,7 +22,7 @@
             var evo = {};
         }
         if (!evo.config) {
-          evo.config = {};
+            evo.config = {};
         }
         var actions,
             actionStay = [],
