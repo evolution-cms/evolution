@@ -21,7 +21,147 @@ $ThisUser = isset($ThisUser) ? $ThisUser : '';
 $version = isset($version) ? $version : 'evolution-cms/evolution';
 $type = isset($type) ? $type : 'tags';
 $showButton = isset($showButton) ? $showButton : 'AdminOnly';
+$supportLink = isset($supportLink) ? trim((string)$supportLink) : '';
+if ($supportLink === '') {
+    $supportLink = 'https://evo.im/support.html';
+}
 $result = '';
+
+if (!function_exists('updaterParseSemver')) {
+    function updaterParseSemver($versionString)
+    {
+        $match = [];
+        if (preg_match('/(\d+)\.(\d+)\.(\d+)/', (string)$versionString, $match)) {
+            return [(int)$match[1], (int)$match[2], (int)$match[3]];
+        }
+
+        $numbers = [];
+        preg_match_all('/\d+/', (string)$versionString, $numbers);
+        $parts = isset($numbers[0]) ? $numbers[0] : [];
+
+        return [
+            isset($parts[0]) ? (int)$parts[0] : 0,
+            isset($parts[1]) ? (int)$parts[1] : 0,
+            isset($parts[2]) ? (int)$parts[2] : 0,
+        ];
+    }
+}
+
+if (!function_exists('updaterGetSeverity')) {
+    function updaterGetSeverity($currentVersion, $latestVersion)
+    {
+        $current = updaterParseSemver($currentVersion);
+        $latest = updaterParseSemver($latestVersion);
+
+        if ($latest[0] > $current[0]) {
+            return 'critical';
+        }
+        if ($latest[1] > $current[1]) {
+            return 'warning';
+        }
+        if ($latest[2] > $current[2]) {
+            return 'info';
+        }
+
+        return 'info';
+    }
+}
+
+if (!function_exists('updaterBuildHideKey')) {
+    function updaterBuildHideKey($latestVersionRaw, $userId)
+    {
+        $versionPart = preg_replace('/[^A-Za-z0-9]+/', '_', strtolower((string)$latestVersionRaw));
+        $versionPart = trim((string)$versionPart, '_');
+        if ($versionPart === '') {
+            $versionPart = 'version';
+        }
+
+        return '_hide_updater_notice_until_' . $versionPart . '_u_' . (int)$userId;
+    }
+}
+
+if (!function_exists('updaterBuildReleaseUrls')) {
+    function updaterBuildReleaseUrls($repository, $latestVersionRaw)
+    {
+        $repo = trim((string)$repository);
+        $latest = trim((string)$latestVersionRaw);
+        $base = 'https://github.com/' . $repo . '/releases';
+        $urls = [];
+
+        if ($latest !== '') {
+            $urls[] = $base . '/tag/' . rawurlencode($latest);
+            if (strpos($latest, 'v') !== 0) {
+                $urls[] = $base . '/tag/' . rawurlencode('v' . $latest);
+            }
+        }
+        $urls[] = $base;
+
+        return array_values(array_unique($urls));
+    }
+}
+
+if (!function_exists('updaterFetchReleasePublishedAt')) {
+    function updaterFetchReleasePublishedAt($repository, $versionRaw)
+    {
+        $repo = trim((string)$repository);
+        $version = trim((string)$versionRaw);
+
+        if ($repo === '' || $version === '') {
+            return '';
+        }
+
+        $tags = [$version];
+        if (strpos($version, 'v') === 0) {
+            $withoutPrefix = substr($version, 1);
+            if ($withoutPrefix !== '') {
+                $tags[] = $withoutPrefix;
+            }
+        } else {
+            $tags[] = 'v' . $version;
+        }
+
+        foreach (array_unique($tags) as $tag) {
+            $url = 'https://api.github.com/repos/' . $repo . '/releases/tags/' . rawurlencode($tag);
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_HEADER, false);
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_REFERER, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['User-Agent: updateNotify widget']);
+            $response = curl_exec($ch);
+            curl_close($ch);
+
+            if (!is_string($response) || $response === '' || strpos(ltrim($response), '{') !== 0) {
+                continue;
+            }
+
+            $release = json_decode($response, true);
+            if (isset($release['published_at']) && $release['published_at'] !== '') {
+                return (string)$release['published_at'];
+            }
+        }
+
+        return '';
+    }
+}
+
+if (!function_exists('updaterFormatReleaseDate')) {
+    function updaterFormatReleaseDate($dateValue)
+    {
+        $raw = trim((string)$dateValue);
+        if ($raw === '') {
+            return '';
+        }
+
+        $timestamp = strtotime($raw);
+        if ($timestamp === false) {
+            return $raw;
+        }
+
+        return date('d.m.Y', $timestamp);
+    }
+}
 
 if ($role != 1 && $wdgVisibility == 'AdminOnly') {
 
@@ -154,7 +294,9 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
             $arrayVersion = explode('.', $currentVersion['version']);
             $currentMajorVersion = array_shift($arrayVersion);
 
-            if (!file_exists(MODX_BASE_PATH . 'assets/cache/updater/check_' . date("d") . '.json')) {
+            $cacheFile = MODX_BASE_PATH . 'assets/cache/updater/check_' . date("d") . '.json';
+
+            if (!file_exists($cacheFile)) {
                 $ch = curl_init();
                 $url = 'https://api.github.com/repos/' . $version . '/' . $type;
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -172,27 +314,41 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                 $info = json_decode($info, true);
 
                 foreach ($info as $key => $val) {
-                    $arrayVersion = explode('.', $val['name']);
+                    $candidateVersion = '';
+                    if (isset($val['name']) && $val['name'] !== '') {
+                        $candidateVersion = $val['name'];
+                    } elseif (isset($val['tag_name']) && $val['tag_name'] !== '') {
+                        $candidateVersion = $val['tag_name'];
+                    }
+
+                    if ($candidateVersion === '') {
+                        continue;
+                    }
+
+                    $arrayVersion = explode('.', $candidateVersion);
                     if ($currentMajorVersion == array_shift($arrayVersion)) {
 
-                        $git['version'] = $val['name'];
+                        $git['version'] = $candidateVersion;
+                        if (isset($val['published_at']) && $val['published_at'] !== '') {
+                            $git['published_at'] = $val['published_at'];
+                        }
 
-                        if (strpos($val['name'], 'alpha')) {
-                            $git['alpha'] = $val['name'];
+                        if (strpos($candidateVersion, 'alpha')) {
+                            $git['alpha'] = $candidateVersion;
                             continue;
-                        } elseif (strpos($val['name'], 'beta')) {
-                            $git['beta'] = $val['name'];
+                        } elseif (strpos($candidateVersion, 'beta')) {
+                            $git['beta'] = $candidateVersion;
                             continue;
                         } else {
-                            $git['stable'] = $val['name'];
+                            $git['stable'] = $candidateVersion;
                             break;
                         }
                     }
                 }
 
-                file_put_contents(MODX_BASE_PATH . 'assets/cache/updater/check_' . date("d") . '.json', json_encode($git));
+                file_put_contents($cacheFile, json_encode($git));
             } else {
-                $git = file_get_contents(MODX_BASE_PATH . 'assets/cache/updater/check_' . date("d") . '.json');
+                $git = file_get_contents($cacheFile);
                 $git = json_decode($git, true);
             }
 
@@ -203,46 +359,146 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                     }
                 }
             }
+            if (isset($git['version']) && (!isset($git['published_at']) || $git['published_at'] === '')) {
+                $fallbackPublishedAt = updaterFetchReleasePublishedAt($version, $git['version']);
+                if ($fallbackPublishedAt !== '') {
+                    $git['published_at'] = $fallbackPublishedAt;
+                    file_put_contents($cacheFile, json_encode($git));
+                }
+            }
+
             if (isset($git['version'])) {
                 $_SESSION['updateversion'] = $git['version'];
             } else {
                 $git['version'] = $currentVersion['version'];
             }
             if (version_compare($git['version'], $currentVersion['version'], '>') && $git['version'] != '') {
-                // get manager role
-                $role = $_SESSION['mgrRole'];
-                if (file_exists(MODX_BASE_PATH.'core/custom/composer.json') OR ($role != 1) AND ($showButton == 'AdminOnly') OR ($showButton == 'hide') OR ($errors > 0)) {
-                    if (file_exists(MODX_BASE_PATH.'core/custom/composer.json')) {
-                        $updateButton = '<div class="alert alert-danger" role="alert">'.$_lang['artisan_update'].'</div>';
-                    } else {
-                        $updateButton = '';
+                $currentVersionString = (string)$currentVersion['version'];
+                $latestVersionRaw = (string)$git['version'];
+                $hideKey = updaterBuildHideKey($latestVersionRaw, $internalKey);
+                $hideUntil = (int)$modx->getConfig($hideKey);
+
+                if ($hideUntil <= time()) {
+                    $severity = updaterGetSeverity($currentVersionString, $latestVersionRaw);
+                    $severityAlertClass = 'alert-info';
+
+                    if ($severity === 'critical') {
+                        $severityAlertClass = 'alert-danger';
+                    } elseif ($severity === 'warning') {
+                        $severityAlertClass = 'alert-warning';
                     }
-                } else {
-                    $updateButton = '<a target="_parent" onclick="return confirm(\'' . $_lang['are_you_sure_update']
-                        . '\')" href="' . MODX_MANAGER_URL . '?' . http_build_query($_GET + ['q' => $_SESSION['updatelink']])
-                        . '" class="btn btn-sm btn-danger">' . $_lang['updateButton_txt'] . ' ' . $git['version'] . '</a><br><br>';
+
+                    $releaseUrls = updaterBuildReleaseUrls($version, $latestVersionRaw);
+                    $releaseUrl = reset($releaseUrls);
+                    $releaseFallbackUrl = end($releaseUrls);
+                    $safeReleaseUrl = htmlspecialchars((string)$releaseUrl, ENT_QUOTES, 'UTF-8');
+                    $safeFallbackUrl = htmlspecialchars((string)$releaseFallbackUrl, ENT_QUOTES, 'UTF-8');
+
+                    $currentReleaseDate = updaterFormatReleaseDate(isset($currentVersion['release_date']) ? (string)$currentVersion['release_date'] : '');
+                    $latestReleaseDate = updaterFormatReleaseDate(isset($git['published_at']) ? (string)$git['published_at'] : '');
+
+                    $currentWithDate = $currentVersionString;
+                    if ($currentReleaseDate !== '') {
+                        $currentWithDate .= ' (' . $currentReleaseDate . ')';
+                    }
+
+                    $latestWithDate = $latestVersionRaw;
+                    if ($latestReleaseDate !== '') {
+                        $latestWithDate .= ' (' . $latestReleaseDate . ')';
+                    }
+
+                    $safeCurrentWithDate = htmlspecialchars($currentWithDate, ENT_QUOTES, 'UTF-8');
+                    $safeLatestWithDate = htmlspecialchars($latestWithDate, ENT_QUOTES, 'UTF-8');
+
+
+                    $supportUrl = $supportLink;
+                    $safeSupportUrl = htmlspecialchars($supportUrl, ENT_QUOTES, 'UTF-8');
+
+                    $hideUntilValue = strtotime('tomorrow');
+                    if ($hideUntilValue === false) {
+                        $hideUntilValue = time() + 86400;
+                    }
+                    $csrfToken = isset($_SESSION['_token']) ? (string)$_SESSION['_token'] : '';
+                    $hideAction = 'return window.updaterHideForDay('
+                        . json_encode($hideKey) . ','
+                        . json_encode($csrfToken) . ','
+                        . (int)$hideUntilValue . ', this);';
+                    $safeHideAction = htmlspecialchars($hideAction, ENT_QUOTES, 'UTF-8');
+                    $hideTodayHtml = '<div style="margin-top:8px;font-size:12px;">'
+                        . '<a href="#" onclick="' . $safeHideAction . '" style="color:#6c757d;text-decoration:underline;">'
+                        . htmlspecialchars($_lang['updater_action_hide_today'], ENT_QUOTES, 'UTF-8')
+                        . '</a>'
+                        . '</div>';
+
+                    $supportButtonHtml = '<a class="btn btn-sm btn-warning" href="' . $safeSupportUrl . '" target="_blank" rel="noopener noreferrer">'
+                        . '<i class="fa fa-envelope"></i> ' . htmlspecialchars($_lang['updater_action_support'], ENT_QUOTES, 'UTF-8') . '</a>';
+
+                    $releaseButtonsHtml = '<div style="margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">'
+                        . '<a class="btn btn-xs btn-primary" href="' . $safeReleaseUrl . '" target="_blank" rel="noopener noreferrer">'
+                        . '<i class="fa fa-external-link"></i> ' . htmlspecialchars($_lang['updater_action_release'], ENT_QUOTES, 'UTF-8')
+                        . '</a>'
+                        . '<a href="' . $safeFallbackUrl . '" target="_blank" rel="noopener noreferrer" style="font-size:12px;text-decoration:underline;color:#0d6efd;">'
+                        . '<i class="fa fa-list"></i> ' . htmlspecialchars($_lang['updater_action_release_all'], ENT_QUOTES, 'UTF-8')
+                        . '</a>'
+                        . '</div>';
+
+                    $cliCommand = 'cd core && ' . $_lang['updater_cli_command'];
+                    $safeCliCommand = htmlspecialchars($cliCommand, ENT_QUOTES, 'UTF-8');
+
+                    $output = '<div class="card-body" data-updater-hide-root="1">'
+                        . '<div class="alert ' . $severityAlertClass . '" role="alert" style="margin-bottom:12px;">'
+                        . '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">'
+                        . '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">'
+                        . '<strong style="color:#dc3545;">' . $safeCurrentWithDate . '</strong>'
+                        . '<i class="fa fa-arrow-right" aria-hidden="true"></i>'
+                        . '<strong style="color:#28a745;">' . $safeLatestWithDate . '</strong>'
+                        . '</div>'
+                        . $releaseButtonsHtml
+                        . '</div>'
+                        . '</div>'
+
+                        . '<div style="margin:0 0 12px 0;">'
+                        . '<p style="margin:0 0 8px 0;"><i class="fa fa-check-circle"></i> '
+                        . htmlspecialchars($_lang['updater_notice_text_1'], ENT_QUOTES, 'UTF-8') . '</p>'
+                        . '<p style="margin:0 0 8px 0;"><i class="fa fa-database"></i> '
+                        . htmlspecialchars($_lang['updater_notice_text_2'], ENT_QUOTES, 'UTF-8')
+                        . '<span style="display:block;margin-top:4px;color:#dc3545;font-weight:600;">'
+                        . htmlspecialchars($_lang['updater_notice_backup_warning'], ENT_QUOTES, 'UTF-8')
+                        . '</span></p>'
+                        . '<p style="margin:0;"><i class="fa fa-user"></i> '
+                        . htmlspecialchars($_lang['updater_notice_text_3'], ENT_QUOTES, 'UTF-8') . '</p>'
+                        . '</div>'
+
+                        . '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">'
+                        . '<a class="btn btn-sm btn-success" href="#" onclick="var panel=document.getElementById(\'updater-cli-panel\');if(panel){panel.style.display=(panel.style.display===\'block\'?\'none\':\'block\');}return false;">'
+                        . '<i class="fa fa-terminal"></i> ' . htmlspecialchars($_lang['updater_cli_summary'], ENT_QUOTES, 'UTF-8')
+                        . '</a>'
+                        . $supportButtonHtml
+                        . '<span data-updater-action-slot="update"></span>'
+                        . '</div>'
+                        . '<div id="updater-cli-panel" style="display:none;margin-top:12px;padding:8px;border:1px dashed #bdbdbd;border-radius:6px;">'
+                        . '<div style="margin-bottom:6px;">' . htmlspecialchars($_lang['updater_cli_intro'], ENT_QUOTES, 'UTF-8') . '</div>'
+                        . '<code style="display:block;padding:8px;background:rgba(127,127,127,0.12);border:1px solid rgba(127,127,127,0.35);border-radius:4px;color:inherit;">' . $safeCliCommand . '</code>'
+                        . '</div>'
+                        . ($errorsMessage !== '' ? '<small style="color:red;font-size:10px;display:block;">' . $errorsMessage . '</small>' : '')
+                        . $hideTodayHtml
+                        . '<script>(function(){if(window.updaterHideForDay){return;}window.updaterHideForDay=function(hideKey,token,untilTs,trigger){var xhr=new XMLHttpRequest();xhr.open("POST","index.php?a=118",true);xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded; charset=UTF-8");xhr.onload=function(){if(xhr.readyState!==4){return;}var root=null;if(trigger&&trigger.closest){root=trigger.closest("[data-updater-hide-root]");}if(!root){root=document.getElementById("updater");}if(root){root.style.display="none";}};var payload="action=setsetting&key="+encodeURIComponent(hideKey)+"&value="+encodeURIComponent(String(untilTs));if(token){payload+="&_token="+encodeURIComponent(token);}xhr.send(payload);return false;};})();</script>'
+                        . '</div>';
+
+                    $widgets['updater'] = [
+                        'menuindex' => '1',
+                        'id' => 'updater',
+                        'cols' => 'col-sm-12',
+                        'icon' => 'fa-exclamation-triangle',
+                        'title' => $_lang['updater_widget_title'],
+                        'body' => $output
+                    ];
+
+                    $e->output(serialize($widgets));
                 }
-
-                $output = '<div class="card-body">' . $_lang['cms_outdated_msg'] . ' <strong>' . $git['version']
-                    . '</strong><br><br>' . $updateButton . '
-                    <small style="color:red;font-size:10px"> ' . $_lang['bkp_before_msg'] . '</small>
-                    <small style="color:red;font-size:10px">' . $errorsMessage . '</small>
-                    <br><br><small style="font-size:10px"> ' . $_lang['help_donate_msg'] . '</small></div>';
-
-                $widgets['updater'] = [
-                    'menuindex' => '1',
-                    'id' => 'updater',
-                    'cols' => 'col-sm-12',
-                    'icon' => 'fa-exclamation-triangle',
-                    'title' => $_lang['system_update'],
-                    'body' => $output
-                ];
-
-                $e->output(serialize($widgets));
             }
         }
     }
-
     if (isset($_GET['q']) && $_GET['q'] === $_SESSION['updatelink']) {
         if (empty($_SESSION['mgrInternalKey']) || empty($_SESSION['updatelink'])) {
             return;
