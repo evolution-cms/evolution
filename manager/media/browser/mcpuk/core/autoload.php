@@ -22,7 +22,7 @@
 define('IN_MANAGER_MODE', true);
 define('MODX_API_MODE', true);
 include_once(__DIR__."/../../../../../index.php");
-$mpdx = EvolutionCMS();
+$modx = EvolutionCMS();
 
 if(!isset($_SESSION['mgrValidated'])) {
         die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the EVO Content Manager instead of accessing this file directly.");
@@ -146,3 +146,4 @@ new SessionSaveHandler();
 
 
 // PUT YOUR ADDITIONAL CODE HERE
+
