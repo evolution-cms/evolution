@@ -35,8 +35,8 @@ class HelperProcessor
         $newFolderAccessMode = empty($new) ? 0777 : octdec($newFolderAccessMode);
 
         $defaultCacheFolder = 'assets/cache/';
-        $cacheFolder = isset($cacheFolder) ? $cacheFolder : $defaultCacheFolder . 'images';
-        $phpThumbNoImagePath = isset($phpThumbNoImagePath) ? $phpThumbNoImagePath : 'assets/images/';
+        $cacheFolder = $defaultCacheFolder . 'images';
+        $phpThumbNoImagePath = 'assets/images/';
 
         /**
          * @see: https://github.com/kalessil/phpinspectionsea/blob/master/docs/probable-bugs.md#mkdir-race-condition
