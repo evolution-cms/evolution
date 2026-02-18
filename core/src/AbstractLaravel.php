@@ -14,6 +14,7 @@ use Illuminate\Config\Repository;
 use Symfony\Component\Finder\Finder;
 use Illuminate\Log\LogServiceProvider;
 
+/** @phpstan-consistent-constructor */
 abstract class AbstractLaravel extends Container implements ApplicationContract
 {
     /**

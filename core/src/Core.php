@@ -29,6 +29,7 @@ use TemplateProcessor;
 use UrlProcessor;
 
 /**
+ * @phpstan-consistent-constructor
  * @see: https://github.com/laravel/framework/blob/5.6/src/Illuminate/Foundation/Bootstrap/LoadConfiguration.php
  * @property Mail $mail
  *      $this->loadExtension('MODxMailer');
@@ -6638,7 +6639,9 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     {}
 
     public function hasDebugModeEnabled()
-    {}
+    {
+        return false;
+    }
 
     public function getFallbackLocale()
     {}

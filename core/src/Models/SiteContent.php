@@ -170,6 +170,10 @@ class SiteContent extends Eloquent\Model
         'alias_visible' => 'int',
     ];
 
+    /*
+     * @phpstan-consistent-constructor
+     * @param  array<string, mixed>  $attributes
+     */
     public function __construct(array $attributes = [])
     {
         $position = $this->getPositionColumn();

@@ -38,4 +38,5 @@ class Helper extends \EvolutionCMS\Facades\HelperProcessor {}
 class UserManager extends \EvolutionCMS\UserManager\Facades\UserManager {}
 class DocumentManager extends \EvolutionCMS\DocumentManager\Facades\DocumentManager {}
 class Tailwind extends \EvolutionCMS\Facades\Tailwind {}
+class DLTemplate extends \EvolutionCMS\Parser {}
 }

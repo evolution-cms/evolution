@@ -51,7 +51,7 @@ class HelperProcessor
         }
 
         if (empty($input) || !file_exists(MODX_BASE_PATH . $input)) {
-            $input = isset($noImage) ? $noImage : $phpThumbNoImagePath . 'noimage.png';
+            $input = $phpThumbNoImagePath . 'noimage.png';
         }
 
         /**
