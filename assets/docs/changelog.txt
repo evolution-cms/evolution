@@ -1,6 +1,16 @@
 This file shows the changes in recent releases of Evolution CMS. The most current release is usually the
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
+Evolution CMS 3.5.3 (Feb 19, 2026)
+* [GitHub: 032c5dd] - [ADD] Automatic register alias config file for custom packages. (Seiger)
+* [GitHub: e46ec54] - [ADD] Laravel session compatibility layer through EvoSessionProxy and middleware integration. (Dmi3yy)
+* [GitHub: 6ded2cb] - [ADD] Initialize Laravel session support in manager via EvoSessionProxy. (Dmi3yy)
+* [GitHub: 8541461] - [ADD] SQLite to the web installer. (Elcreator)
+* [GitHub: b3db5ce] - [ADD] Init new theme liquid. (Dmi3yy)
+* [GitHub: 243020b] - [ADD] Introduce refined tab and popup styles, update theme variables, and adjust menu padding for improved UI consistency. (Dmi3yy)
+* [GitHub: 7857ee8] - [ADD] Add SqliteDumper class and integrate SQLite backup support into database management actions. (Dmi3yy)
+* [GitHub: 60da28d] - [ADD] Preset install command. (Dmi3yy)
+
 Evolution CMS 3.5.1 (Jan 02, 2026)
 * [GitHub: 3ce16e5] - [ADD] Performance optimization: cache dotenv to speed up bootstrap. (Seiger)
 * [GitHub: f0ba72a] - [FIX] Dates. (Seiger)
