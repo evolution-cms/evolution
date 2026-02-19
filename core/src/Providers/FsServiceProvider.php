@@ -3,6 +3,10 @@
 use EvolutionCMS\ServiceProvider;
 use Helpers\FS;
 
+/**
+ * @deprecated
+ * @TODO: remove in 3.7
+ */
 class FsServiceProvider extends ServiceProvider
 {
     /**
@@ -13,6 +17,7 @@ class FsServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind('FS', function ($modx) {
+            /* @phpstan-ignore-next-line class.notFound */
             return FS::getInstance();
         });
 

@@ -35,8 +35,8 @@ class HelperProcessor
         $newFolderAccessMode = empty($new) ? 0777 : octdec($newFolderAccessMode);
 
         $defaultCacheFolder = 'assets/cache/';
-        $cacheFolder = isset($cacheFolder) ? $cacheFolder : $defaultCacheFolder . 'images';
-        $phpThumbNoImagePath = isset($phpThumbNoImagePath) ? $phpThumbNoImagePath : 'assets/images/';
+        $cacheFolder = $defaultCacheFolder . 'images';
+        $phpThumbNoImagePath = 'assets/images/';
 
         /**
          * @see: https://github.com/kalessil/phpinspectionsea/blob/master/docs/probable-bugs.md#mkdir-race-condition
@@ -51,7 +51,7 @@ class HelperProcessor
         }
 
         if (empty($input) || !file_exists(MODX_BASE_PATH . $input)) {
-            $input = isset($noImage) ? $noImage : $phpThumbNoImagePath . 'noimage.png';
+            $input = $phpThumbNoImagePath . 'noimage.png';
         }
 
         /**

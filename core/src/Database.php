@@ -185,7 +185,9 @@ class Database extends Manager
     {
         parent::setDebug($flag);
         $driver = $this->getDriver();
+        /* @phpstan-ignore-next-line class.notFound deprecated */
         if ($driver instanceof Drivers\IlluminateDriver) {
+            /* @phpstan-ignore-next-line method.notFound deprecated */
             if ($this->isDebug()) {
                 $driver->getConnect()->enableQueryLog();
             } else {

@@ -57,7 +57,7 @@ abstract class AbstractPanel implements IBarPanel, TracyPanel
             $this->evolution = $evolution;
         }
 
-        if ($this->hasEvolutionCMS() === true && $this->hasSubscribeMethod()) {
+        if ($this->hasEvolutionCMS() && method_exists($this, 'subscribe')) {
             $this->subscribe();
         }
 
@@ -83,9 +83,11 @@ abstract class AbstractPanel implements IBarPanel, TracyPanel
     }
 
     /**
+     * @return bool
+     *@deprecated
+     * @TODO: remove in 3.7
      * has subscribe method
      *
-     * @return bool
      */
     protected function hasSubscribeMethod() : bool
     {

@@ -3,6 +3,10 @@
 use EvolutionCMS\ServiceProvider;
 use modUsers;
 
+/**
+ * @deprecated
+ * @TODO: remove in 3.7
+ */
 class ModUsersServiceProvider extends ServiceProvider
 {
     /**
@@ -13,6 +17,7 @@ class ModUsersServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind('modUsers', function ($modx) {
+            /* @phpstan-ignore-next-line class.notFound */
             return new modUsers($modx);
         });
 
