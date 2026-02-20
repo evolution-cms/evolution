@@ -138,7 +138,7 @@ if (!isset($_SERVER['DOCUMENT_ROOT']) || empty($_SERVER['DOCUMENT_ROOT'])) {
  *
  * Use $evo or/and evo() instead.
  *
- * @todo [remove@5.x] Remove in Evolution CMS 5.x
+ * @todo [remove@3.7] Remove in Evolution CMS 3.7
  */
 $GLOBALS['modx'] = $modx = evo();
 // Initiate a new document parser
