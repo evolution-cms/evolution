@@ -41,6 +41,13 @@
         )) !!};
         evo.EVO_MANAGER_URL = '{{EVO_MANAGER_URL}}';
         evo.config.which_browser = '{{evo()->getConfig('which_browser')}}';
+        // ============================================
+        // @deprecated
+        // @since 3.5.2
+        // Use evo.EVO_MANAGER_URL instead.
+        // @todo [remove@3.7] Remove in Evolution CMS 3.7
+        // ============================================
+        evo.MODX_MANAGER_URL = '{{EVO_MANAGER_URL}}';
     </script>
     <script src="media/script/main.js"></script>
     @if (get_by_key($_REQUEST, 'r', '', 'is_numeric'))
