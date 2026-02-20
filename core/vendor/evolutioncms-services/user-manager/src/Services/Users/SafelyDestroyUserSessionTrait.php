@@ -21,7 +21,7 @@ trait SafelyDestroyUserSessionTrait
 
     protected function safelyDestroyUserSession()
     {
-        if (defined('NO_SESSION')) {
+        if (defined('NO_SESSION') && !(defined('IN_MANAGER_MODE') && IN_MANAGER_MODE)) {
             return;
         }
 
