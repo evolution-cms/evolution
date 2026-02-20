@@ -46,7 +46,10 @@ final class EnvCacheLoader
 
         $cachePath = $projectRoot . '/core/storage/cache/env.php';
 
-        $cacheMtime = @filemtime($cachePath);
+        $cacheMtime = false;
+        if (is_file($cachePath)) {
+            $cacheMtime = @filemtime($cachePath);
+        }
         if ($cacheMtime !== false && $cacheMtime >= $envMtime) {
             $cached = self::loadCacheArray($cachePath);
             if (is_array($cached)) {
