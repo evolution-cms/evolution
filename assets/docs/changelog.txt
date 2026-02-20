@@ -1,6 +1,12 @@
 This file shows the changes in recent releases of Evolution CMS. The most current release is usually the
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
+Evolution CMS 3.5.4 (Feb 20, 2026)
+* [1dc4453] - [REF] Mark $modx as Deprecated. (Seiger)
+* [1aaf916] - [FIX] Reverted prefix placeholder support and fixed login issue. (Elcreator)
+* [236b1ec] - [FIX] Reverted inability to login if NO_SESSION is set. (Elcreator)
+* [5e4704f] - [FIX] MCPUK via evo.EVO_MANAGER_URL. (Seiger)
+
 Evolution CMS 3.5.3 (Feb 19, 2026)
 * [GitHub: 032c5dd] - [ADD] Automatic register alias config file for custom packages. (Seiger)
 * [GitHub: e46ec54] - [ADD] Laravel session compatibility layer through EvoSessionProxy and middleware integration. (Dmi3yy)
