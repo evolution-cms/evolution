@@ -128,8 +128,17 @@ if (!defined('EVO_CLI')) {
     define('EVO_CLI', false);
 }
 
+/**
+ * @deprecated
+ * @since 3.5.3
+ *
+ * Use $evo or/and evo() instead.
+ *
+ * @todo [remove@5.x] Remove in Evolution CMS 5.x
+ */
+$GLOBALS['modx'] = $modx = evo();
 // Initiate a new document parser
-$GLOBALS['evo'] = $GLOBALS['modx'] = $evo = $modx = evo();
+$GLOBALS['evo'] = $evo = evo();
 $evo->minParserPasses = 1; // min number of parser recursive loops or passes
 $evo->maxParserPasses = 10; // max number of parser recursive loops or passes
 $evo->dumpSQL = false;

@@ -132,8 +132,17 @@ if (!isset($_SERVER['DOCUMENT_ROOT']) || empty($_SERVER['DOCUMENT_ROOT'])) {
         ) . "/";
 }
 
-// initiate the content manager class
-$evo = evo();
+/**
+ * @deprecated
+ * @since 3.5.3
+ *
+ * Use $evo or/and evo() instead.
+ *
+ * @todo [remove@5.x] Remove in Evolution CMS 5.x
+ */
+$GLOBALS['modx'] = $modx = evo();
+// Initiate a new document parser
+$GLOBALS['evo'] = $evo = evo();
 $evo->mstart = $mstart;
 $useLaravelSession = defined('EVO_SESSION') && EVO_SESSION;
 if ($useLaravelSession) {
