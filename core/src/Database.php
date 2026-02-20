@@ -36,6 +36,27 @@ class Database extends Manager
 
     /**
      * @param string $sql
+     * @return null|string|string[]
+     */
+    public function replacePrefixPlaceholderInTableName($sql)
+    {
+        if (str_contains($sql, '[+prefix+]')) {
+            $connection = $this->getConnection();
+            $grammar = $connection->getQueryGrammar();
+            return preg_replace_callback(
+                '@\[\+prefix\+\](\w+)@',
+                static function ($matches) use ($grammar) {
+                    return $grammar->wrapTable($matches[1]);
+                },
+                $sql
+            );
+        }
+
+        return $sql;
+    }
+
+    /**
+     * @param string $sql
      * @param bool $watchError
      * @return false|PDOStatement
      */
@@ -154,6 +175,11 @@ class Database extends Manager
         return $this->conn instanceof Connection && $this->conn->getPdo() instanceof \PDO;
     }
 
+    /**
+     * @deprecated
+     * @since 1.4
+     * @todo [remove@3.7] Remove in Evolution CMS 3.7
+     */
     public function insertFrom(
         $fields,
         $table,
@@ -316,7 +342,7 @@ class Database extends Manager
         if (\is_array($data) && $hasArray === true) {
             $tmp = [];
             foreach ($data as $table) {
-                $tmp[] = $table;
+                $tmp[] = $this->replacePrefixPlaceholderInTableName($table);
             }
             $data = implode(' ', $tmp);
         }
@@ -324,7 +350,7 @@ class Database extends Manager
             throw new Exceptions\TableNotDefinedException($data);
         }
 
-        return $data;
+        return $this->replacePrefixPlaceholderInTableName($data);
     }
 
     /**
@@ -458,6 +484,7 @@ class Database extends Manager
         if (!$from) {
             evo()->getService('ExceptionHandler')->messageQuit("Empty \$from parameters in DBAPI::delete().");
         } else {
+            $from = $this->replacePrefixPlaceholderInTableName($from);
             $where = trim($where);
             $orderBy = trim($orderBy);
             $limit = trim($limit);
@@ -572,6 +599,7 @@ class Database extends Manager
         if (!$intotable) {
             evo()->getService('ExceptionHandler')->messageQuit("Empty \$intotable parameters in DBAPI::insert().");
         } else {
+            $intotable = $this->replacePrefixPlaceholderInTableName($intotable);
             if (!is_array($fields)) {
                 $this->query("INSERT INTO {$intotable} {$fields}");
             } else {
@@ -631,6 +659,7 @@ class Database extends Manager
         if (!$table) {
             evo()->getService('ExceptionHandler')->messageQuit('Empty ' . $table . ' parameter in DBAPI::update().');
         } else {
+            $table = $this->replacePrefixPlaceholderInTableName($table);
             if (is_array($fields)) {
                 foreach ($fields as $key => $value) {
                     if ($value === null || strtolower($value) === 'null') {
@@ -669,6 +698,7 @@ class Database extends Manager
         $metadata = [];
         $driver = evo()->getDatabase()->getConfig('driver');
         if (!empty($table) && is_scalar($table)) {
+            $table = $this->replacePrefixPlaceholderInTableName($table);
             switch ($driver) {
                 case 'sqlite':
                 case 'sqlite3':
