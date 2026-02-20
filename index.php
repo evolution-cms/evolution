@@ -129,7 +129,7 @@ if (!defined('EVO_CLI')) {
 }
 
 // Initiate a new document parser
-$evo = evo();
+$GLOBALS['evo'] = $GLOBALS['modx'] = $evo = $modx = evo();
 $evo->minParserPasses = 1; // min number of parser recursive loops or passes
 $evo->maxParserPasses = 10; // max number of parser recursive loops or passes
 $evo->dumpSQL = false;
