@@ -63,6 +63,7 @@ function getCategory($category = '')
  */
 function getCategories()
 {
+    $resourceArray = [];
     $categories = Category::orderBy('category', 'ASC')->get()->toArray();
     foreach ($categories as $row) {
         $row['category'] = stripslashes($row['category']);
