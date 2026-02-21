@@ -25,31 +25,31 @@ $inlineviewablefiles = add_dot($inlineviewablefiles);
 $viewablefiles = add_dot($viewablefiles);
 $protected_path = [];
 /* jp only if($_SESSION['mgrRole']!=1) { */
-$protected_path[] = str_replace('\\', '/', MODX_MANAGER_PATH);
-$protected_path[] = str_replace('\\', '/', MODX_BASE_PATH . 'temp/backup');
-$protected_path[] = str_replace('\\', '/', MODX_BASE_PATH . 'assets/backup');
+$protected_path[] = str_replace('\\', '/', EVO_MANAGER_PATH);
+$protected_path[] = str_replace('\\', '/', EVO_BASE_PATH . 'temp/backup');
+$protected_path[] = str_replace('\\', '/', EVO_BASE_PATH . 'assets/backup');
 if (!evo()->hasPermission('save_plugin')) {
-    $protected_path[] = str_replace('\\', '/', MODX_BASE_PATH . 'assets/plugins');
+    $protected_path[] = str_replace('\\', '/', EVO_BASE_PATH . 'assets/plugins');
 }
 if (!evo()->hasPermission('save_snippet')) {
-    $protected_path[] = str_replace('\\', '/', MODX_BASE_PATH . 'assets/snippets');
+    $protected_path[] = str_replace('\\', '/', EVO_BASE_PATH . 'assets/snippets');
 }
 if (!evo()->hasPermission('save_template')) {
-    $protected_path[] = str_replace('\\', '/', MODX_BASE_PATH . 'assets/templates');
+    $protected_path[] = str_replace('\\', '/', EVO_BASE_PATH . 'assets/templates');
 }
 if (!evo()->hasPermission('save_module')) {
-    $protected_path[] = str_replace('\\', '/', MODX_BASE_PATH . 'assets/modules');
+    $protected_path[] = str_replace('\\', '/', EVO_BASE_PATH . 'assets/modules');
 }
 if (!evo()->hasPermission('empty_cache')) {
-    $protected_path[] = str_replace('\\', '/', MODX_BASE_PATH . 'assets/cache');
+    $protected_path[] = str_replace('\\', '/', EVO_BASE_PATH . 'assets/cache');
 }
 if (!evo()->hasPermission('import_static')) {
-    $protected_path[] = str_replace('\\', '/', MODX_BASE_PATH . 'temp/import');
-    $protected_path[] = str_replace('\\', '/', MODX_BASE_PATH . 'assets/import');
+    $protected_path[] = str_replace('\\', '/', EVO_BASE_PATH . 'temp/import');
+    $protected_path[] = str_replace('\\', '/', EVO_BASE_PATH . 'assets/import');
 }
 if (!evo()->hasPermission('export_static')) {
-    $protected_path[] = str_replace('\\', '/', MODX_BASE_PATH . 'temp/export');
-    $protected_path[] = str_replace('\\', '/', MODX_BASE_PATH . 'assets/export');
+    $protected_path[] = str_replace('\\', '/', EVO_BASE_PATH . 'temp/export');
+    $protected_path[] = str_replace('\\', '/', EVO_BASE_PATH . 'assets/export');
 }
 /* } */
 // Mod added by Raymond
@@ -66,8 +66,8 @@ $upload_media = explode(',', evo()->getConfig('upload_media', ''));
 $uploadablefiles = array_merge($upload_files, $upload_images, $upload_media);
 $uploadablefiles = add_dot($uploadablefiles);
 $upload_maxsize = evo()->getConfig('upload_maxsize');
-$filemanager_path = rtrim(str_replace('\\', '/', realpath(evo()->getConfig('filemanager_path', MODX_BASE_PATH))), '/');
-$base_path = rtrim(str_replace('\\', '/', realpath(MODX_BASE_PATH)), '/');
+$filemanager_path = rtrim(str_replace('\\', '/', realpath(evo()->getConfig('filemanager_path', EVO_BASE_PATH))), '/');
+$base_path = rtrim(str_replace('\\', '/', realpath(EVO_BASE_PATH)), '/');
 // end settings
 // get the current work directory
 $requested_path = ltrim(isset($_REQUEST['path']) ? $_REQUEST['path'] : '', '/');
@@ -454,7 +454,8 @@ $relative_path = ltrim(substr($startpath, strlen($filemanager_path)), '/');
                 }
             }
         } // End New Folder - Raymond
-        if (strlen(MODX_BASE_PATH) < strlen($filemanager_path)) {
+        $len = 0;
+        if (strlen(EVO_BASE_PATH) < strlen($filemanager_path)) {
             $len--;
         }
         ?>

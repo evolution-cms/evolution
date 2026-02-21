@@ -1,5 +1,5 @@
 {
-  "name": "evolutioncms/custom",
+  "name": "evolution-cms/custom",
   "require": {
     "barryvdh/laravel-ide-helper": "~2.4"
   },

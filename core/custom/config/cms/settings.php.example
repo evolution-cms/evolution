@@ -1,7 +1,7 @@
 <?php
 /**
  * replace system settings
- * $modx->getConfig('site_name');
+ * $evo()->getConfig('site_name');
  */
 return [
     'site_name' => 'test'
