@@ -1,8 +1,8 @@
 <?php return array(
     'root' => array(
         'name' => 'evolution-cms/evolution',
-        'pretty_version' => '3.5.3',
-        'version' => '3.5.3.0',
+        'pretty_version' => '3.5.4',
+        'version' => '3.5.4.0',
         'reference' => null,
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
@@ -173,8 +173,8 @@
             'dev_requirement' => false,
         ),
         'evolution-cms/evolution' => array(
-            'pretty_version' => '3.5.3',
-            'version' => '3.5.3.0',
+            'pretty_version' => '3.5.4',
+            'version' => '3.5.4.0',
             'reference' => null,
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',

@@ -88,6 +88,7 @@ class ArtisanServiceProvider extends ServiceProvider
      */
     protected $devCommands = [
         'VendorPublish' => 'command.vendor.publish',
+        'ListsDeprecated' => 'command.lists.deprecated',
         'MigrateMake' => 'command.migrate.make',
     ];
 
@@ -342,6 +343,18 @@ class ArtisanServiceProvider extends ServiceProvider
     {
         $this->app->singleton('command.view.clear', function ($app) {
             return new ViewClearCommand($app['files']);
+        });
+    }
+
+    /**
+     * Register the command.
+     *
+     * @return void
+     */
+    protected function registerListsDeprecatedCommand()
+    {
+        $this->app->singleton('command.lists.deprecated', function () {
+            return new Lists\DeprecatedCommand;
         });
     }
 

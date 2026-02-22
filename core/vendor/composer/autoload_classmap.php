@@ -1091,6 +1091,7 @@ return array(
     'EvolutionCMS\\Console' => $baseDir . '/src/Console.php',
     'EvolutionCMS\\Console\\ClearCacheFullCommand' => $baseDir . '/src/Console/ClearCacheFullCommand.php',
     'EvolutionCMS\\Console\\ClearCompiledCommand' => $baseDir . '/src/Console/ClearCompiledCommand.php',
+    'EvolutionCMS\\Console\\Lists\\DeprecatedCommand' => $baseDir . '/src/Console/Lists/DeprecatedCommand.php',
     'EvolutionCMS\\Console\\Lists\\DocCommand' => $baseDir . '/src/Console/Lists/DocCommand.php',
     'EvolutionCMS\\Console\\Lists\\TemplateCommand' => $baseDir . '/src/Console/Lists/TemplateCommand.php',
     'EvolutionCMS\\Console\\Lists\\TvCommand' => $baseDir . '/src/Console/Lists/TvCommand.php',
