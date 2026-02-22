@@ -627,9 +627,9 @@
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;');
         xhr.onload = function() {
             if (this.readyState === 4) {
-                var header = this.response.substr(0, 9);
+                var header = this.response.slice(0, 9);
                 if (header.toLowerCase() === 'location:') {
-                    window.location = this.response.substr(10);
+                    window.location = this.response.slice(10);
                 } else {
                     var cimg = document.getElementById('captcha_image');
                     if (cimg) cimg.src = 'captcha.php?rand=' + Math.random();

@@ -11,14 +11,12 @@ beforeEach(function () {
     // Mock the Laravel application
     $this->app = Mockery::mock(Application::class);
 
-    // Mock the evo() function by setting up global $modx
-    if (!defined('EVO_CLASS')) {
-        define('EVO_CLASS', 'Tests\\Mocks\\MockDocumentParser');
-    }
-
-    global $modx;
-    $modx = Mockery::mock(MockDocumentParser::class);
-    $this->modx = $modx;
+    // Mock the evo() function by setting up global $evo directly.
+    // evo() caches its return value in global $evo; by pre-setting it
+    // the EVO_CLASS constant path is never reached.
+    global $evo;
+    $evo = Mockery::mock(MockDocumentParser::class);
+    $this->modx = $evo;
 
     // Create the command instance
     $this->command = new ClearCacheFullCommand();
@@ -32,6 +30,8 @@ beforeEach(function () {
 });
 
 afterEach(function () {
+    global $evo;
+    $evo = null;
     Mockery::close();
 });
 
