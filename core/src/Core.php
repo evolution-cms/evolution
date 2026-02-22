@@ -217,7 +217,6 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         parent::__construct();
 
         $this->initialize();
-
     }
 
     public function initialize()
@@ -1208,7 +1207,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $content = str_replace(';}}', ';}' . $spacer . '}', $content);
         }
         if ($left === '{{' && Str::contains($content, '{{}}')) {
-            $content = str_replace('{{}}', sprintf('{%$1s{}%$1s}', $spacer), $content);
+            $content = str_replace('{{}}', sprintf('{%s{}%s}', $spacer, $spacer), $content);
         }
         if ($left === '[[' && Str::contains($content, ']]]]')) {
             $content = str_replace(']]]]', ']]' . $spacer . ']]', $content);
@@ -1349,7 +1348,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             if ($context) {
                 $value = $this->_contextValue("{$key}@{$context}", $this->documentObject['parent']);
             } else {
-                $value = isset($ph[$key]) ? $ph[$key] : '';
+                $value = $ph[$key] ?? '';
             }
 
             if (is_array($value)) {
@@ -5460,7 +5459,6 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $version = isset($options['version']) ? $options['version'] : '0';
         $plaintext = isset($options['plaintext']) ? $options['plaintext'] : false;
         $key = !empty($name) ? $name : $src;
-        unset($overwritepos); // probably unnecessary--just making sure
 
         $useThisVer = true;
         if (isset($this->loadedjscripts[$key])) { // a matching script was found
@@ -6325,10 +6323,12 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @param string $file File where the error was detected
      * @param string $line Line number within $file
      * @return boolean
-     * @deprecated
+     * @since 1.4
+     * @todo [remove@3.7] Remove in Evolution CMS 3.7
      */
     public function phpError($nr, $text, $file, $line)
     {
+        /* @phpstan-ignore-next-line return.missing deprecated */
         $this->getService('ExceptionHandler')->phpError($nr, $text, $file, $line);
     }
 
@@ -6635,8 +6635,14 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     public function maintenanceMode()
     {}
 
+    /**
+     * @param $callback
+     * @return \Illuminate\Contracts\Foundation\Application|\DocumentParser
+     */
     public function terminating($callback)
-    {}
+    {
+        return evo();
+    }
 
     public function hasDebugModeEnabled()
     {
