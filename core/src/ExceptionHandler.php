@@ -1,4 +1,5 @@
-<?php namespace EvolutionCMS;
+<?php
+namespace EvolutionCMS;
 
 use Illuminate\View\ViewException;
 use Illuminate\Contracts\Container\Container;
@@ -36,11 +37,26 @@ class ExceptionHandler
         }
     }
 
+    /**
+     * @var bool
+     */
+    protected $registered = false;
+
     protected function registerHandlers(): void
     {
         register_shutdown_function([$this, 'handleShutdown']);
         set_exception_handler([$this, 'handleException']);
         set_error_handler([$this, 'phpError']);
+        $this->registered = true;
+    }
+
+    public function restoreHandlers(): void
+    {
+        if ($this->registered) {
+            restore_exception_handler();
+            restore_error_handler();
+            $this->registered = false;
+        }
     }
 
     /**
@@ -67,7 +83,9 @@ class ExceptionHandler
     protected function fatalExceptionFromError(array $error, $traceOffset = null): FatalErrorException
     {
         return new FatalErrorException(
-            $error['message'], $error['type'], $error
+            $error['message'],
+            $error['type'],
+            $error
         );
     }
 
@@ -166,8 +184,7 @@ class ExceptionHandler
         $line = '',
         $output = '',
         $backtrace = []
-    )
-    {
+    ) {
         if (0 < $this->container->messageQuitCount) {
             return;
         }
@@ -182,19 +199,28 @@ class ExceptionHandler
 
         if (isset($_SERVER['HTTP_HOST'])) {
             $request_uri = ($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . $_SERVER['HTTP_HOST'];
-            if (!in_array((int)$_SERVER['SERVER_PORT'], [80, (int)HTTPS_PORT]) && !str_contains($_SERVER['HTTP_HOST'], ':')) {
+            if (!in_array((int) $_SERVER['SERVER_PORT'], [80, (int) HTTPS_PORT]) && !str_contains($_SERVER['HTTP_HOST'], ':')) {
                 $request_uri .= ':' . $_SERVER['SERVER_PORT'];
             }
             $request_uri .= $_SERVER['REQUEST_URI'];
-            $request_uri = $this->container->getPhpCompat()->htmlspecialchars($request_uri, ENT_QUOTES,
-                $this->container->getConfig('modx_charset'));
+            $request_uri = $this->container->getPhpCompat()->htmlspecialchars(
+                $request_uri,
+                ENT_QUOTES,
+                $this->container->getConfig('modx_charset')
+            );
         } else {
             $request_uri = '';
         }
-        $ua = $this->container->getPhpCompat()->htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES,
-            $this->container->getConfig('modx_charset'));
-        $referer = $this->container->getPhpCompat()->htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES,
-            $this->container->getConfig('modx_charset'));
+        $ua = $this->container->getPhpCompat()->htmlspecialchars(
+            $_SERVER['HTTP_USER_AGENT'],
+            ENT_QUOTES,
+            $this->container->getConfig('modx_charset')
+        );
+        $referer = $this->container->getPhpCompat()->htmlspecialchars(
+            $_SERVER['HTTP_REFERER'],
+            ENT_QUOTES,
+            $this->container->getConfig('modx_charset')
+        );
         if ($is_error) {
             $str = '<h2 style="color:red">&laquo; Evolution CMS Parse Error &raquo;</h2>';
             if ($msg != 'PHP Parse Error') {
@@ -205,7 +231,7 @@ class ExceptionHandler
             $str .= '<h3 style="color:#003399">' . $msg . '</h3>';
         }
 
-        if (!empty ($query)) {
+        if (!empty($query)) {
             $str .= '<pre style="font-weight:bold;border:1px solid #ccc;padding:8px;color:#333;background-color:#ffffcd;margin-bottom:15px;">SQL &gt; <span id="sqlHolder">' . $query . '</span></pre>';
         }
 
@@ -234,7 +260,7 @@ class ExceptionHandler
                 $str .= '<pre style="font-weight:bold;border:1px solid #ccc;padding:8px;color:#333;background-color:#ffffcd;margin-bottom:15px;">' . $output . '</pre>';
             }
             if ($nr !== '') {
-                $table[] = ['ErrorType[num]', $errortype [$nr] . "[" . $nr . "]"];
+                $table[] = ['ErrorType[num]', $errortype[$nr] . "[" . $nr . "]"];
             }
             if ($file) {
                 $table[] = ['File', $file];
@@ -314,15 +340,17 @@ class ExceptionHandler
 
         $queryTime = $this->container->queryTime;
         $phpTime = $totalTime - $queryTime;
-        $queries = isset ($this->container->executedQueries) ? $this->container->executedQueries : 0;
+        $queries = isset($this->container->executedQueries) ? $this->container->executedQueries : 0;
         $queryTime = sprintf("%2.4f s", $queryTime);
         $totalTime = sprintf("%2.4f s", $totalTime);
         $phpTime = sprintf("%2.4f s", $phpTime);
 
         $str = str_replace(
             ['[^q^]', '[^qt^]', '[^p^]', '[^t^]', '[^m^]']
-            , [$queries, $queryTime, $phpTime, $totalTime, $total_mem]
-            , $str
+            ,
+            [$queries, $queryTime, $phpTime, $totalTime, $total_mem]
+            ,
+            $str
         );
 
         $php_errormsg = error_get_last();
@@ -355,10 +383,10 @@ class ExceptionHandler
             $source .= $actionName;
         }
         switch ($nr) {
-            case E_DEPRECATED :
-            case E_USER_DEPRECATED :
-            case E_NOTICE :
-            case E_USER_NOTICE :
+            case E_DEPRECATED:
+            case E_USER_DEPRECATED:
+            case E_NOTICE:
+            case E_USER_NOTICE:
                 $error_level = 2;
                 break;
             default:
@@ -391,7 +419,7 @@ class ExceptionHandler
         if (is_cli()) {
             echo $msg, "\n\n";
 
-            if (!empty ($query)) {
+            if (!empty($query)) {
                 echo 'SQL: ', $query, "\n";
             }
 
@@ -403,7 +431,7 @@ class ExceptionHandler
                     echo $output, "\n";
                 }
                 if ($nr !== '') {
-                    echo 'ErrorType[num]: ', $errortype [$nr] . "[$nr]", "\n";
+                    echo 'ErrorType[num]: ', $errortype[$nr] . "[$nr]", "\n";
                 }
                 if ($file) {
                     echo 'File: ', $file, "\n";
@@ -432,8 +460,10 @@ class ExceptionHandler
 
             echo '<!DOCTYPE html><html><head><title>Evolution CMS ' . $version . ' &raquo; ' . $release_date . '</title>
                  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-                 <link rel="stylesheet" type="text/css" href="' . MODX_MANAGER_URL . 'media/style/' . $this->container->getConfig('manager_theme',
-                    'default') . '/style.css" />
+                 <link rel="stylesheet" type="text/css" href="' . MODX_MANAGER_URL . 'media/style/' . $this->container->getConfig(
+                        'manager_theme',
+                        'default'
+                    ) . '/style.css" />
                  <style type="text/css">body { padding:10px; } td {font:inherit;}</style>
                  </head><body>
                  ' . $str . '</body></html>';
@@ -475,7 +505,7 @@ class ExceptionHandler
                     $path = substr($path, strlen(MODX_BASE_PATH));
                 }
             } else {
-                $path ='';
+                $path = '';
             }
 
             switch (get_by_key($val, 'type')) {
@@ -494,39 +524,35 @@ class ExceptionHandler
             $args = preg_replace_callback('/\$var/', function () use ($modx, &$tmp, $val) {
                 $arg = $val['args'][$tmp - 1];
                 switch (true) {
-                    case $arg === null:
-                    {
+                    case $arg === null: {
                         $out = 'NULL';
                         break;
                     }
-                    case is_numeric($arg):
-                    {
+                    case is_numeric($arg): {
                         $out = $arg;
                         break;
                     }
-                    case is_scalar($arg):
-                    {
-                        $out = strlen($arg) > 20 ? 'string $var' . $tmp : ("'" . $this->container->getPhpCompat()->htmlspecialchars(str_replace("'",
-                                "\\'", $arg)) . "'");
+                    case is_scalar($arg): {
+                        $out = strlen($arg) > 20 ? 'string $var' . $tmp : ("'" . $this->container->getPhpCompat()->htmlspecialchars(str_replace(
+                            "'",
+                            "\\'",
+                            $arg
+                        )) . "'");
                         break;
                     }
-                    case is_bool($arg):
-                    {
+                    case is_bool($arg): {
                         $out = $arg ? 'TRUE' : 'FALSE';
                         break;
                     }
-                    case is_array($arg):
-                    {
+                    case is_array($arg): {
                         $out = 'array $var' . $tmp;
                         break;
                     }
-                    case is_object($arg):
-                    {
+                    case is_object($arg): {
                         $out = get_class($arg) . ' $var' . $tmp;
                         break;
                     }
-                    default:
-                    {
+                    default: {
                         $out = '$var' . $tmp;
                     }
                 }
@@ -568,10 +594,12 @@ class ExceptionHandler
         $table = [];
 
         foreach ($backtrace as $line) {
-            $table[] = [implode("<br />", [
-                "<strong>" . $line['func'] . "</strong>(" . $line['args'] . ")",
-                $line['path'] . " on line " . $line['line'],
-            ])];
+            $table[] = [
+                implode("<br />", [
+                    "<strong>" . $line['func'] . "</strong>(" . $line['args'] . ")",
+                    $line['path'] . " on line " . $line['line'],
+                ])
+            ];
         }
 
         return $MakeTable->create($table, ['Backtrace']);
@@ -616,12 +644,14 @@ class ExceptionHandler
             $this->container->getDatabase()->disconnect();
         }
 
-        if (is_cli() && (
-            $exception instanceof RuntimeException ||
-            $exception instanceof InvalidArgumentException ||
-            $exception instanceof InvalidOptionException ||
-            $exception instanceof CommandNotFoundException
-        )) {
+        if (
+            is_cli() && (
+                $exception instanceof RuntimeException ||
+                $exception instanceof InvalidArgumentException ||
+                $exception instanceof InvalidOptionException ||
+                $exception instanceof CommandNotFoundException
+            )
+        ) {
             echo $exception->getMessage();
             exit;
         }
