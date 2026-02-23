@@ -1768,6 +1768,7 @@ class ComposerStaticInitfdccd243149f99737a399aeb0b60fe7d
         'EvolutionCMS\\Console' => __DIR__ . '/../..' . '/src/Console.php',
         'EvolutionCMS\\Console\\ClearCacheFullCommand' => __DIR__ . '/../..' . '/src/Console/ClearCacheFullCommand.php',
         'EvolutionCMS\\Console\\ClearCompiledCommand' => __DIR__ . '/../..' . '/src/Console/ClearCompiledCommand.php',
+        'EvolutionCMS\\Console\\Lists\\DeprecatedCommand' => __DIR__ . '/../..' . '/src/Console/Lists/DeprecatedCommand.php',
         'EvolutionCMS\\Console\\Lists\\DocCommand' => __DIR__ . '/../..' . '/src/Console/Lists/DocCommand.php',
         'EvolutionCMS\\Console\\Lists\\TemplateCommand' => __DIR__ . '/../..' . '/src/Console/Lists/TemplateCommand.php',
         'EvolutionCMS\\Console\\Lists\\TvCommand' => __DIR__ . '/../..' . '/src/Console/Lists/TvCommand.php',
