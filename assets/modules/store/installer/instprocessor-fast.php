@@ -1,13 +1,12 @@
 <?php
 /**
- * @deprecated
- * @since 3.5.0
+ * @deprecated 3.5.0
  *
  * Module seems broken, SqlParser public function __construct($host, $user, $password, $db, $prefix='modx_', $adminname,
  * $adminemail, $adminpass, $connection_charset= 'utf8', $managerlanguage='english',
  * $connection_method = 'SET CHARACTER SET', $auto_template_logic = 'parent') {
  * is called here with missing parameters (see line 129)
- * new SqlParser('', '', '', $databaseConfig['charset'], \Lang::getLocale(), $databaseConfig['method'], 'sibling')
+ * new SqlParser('', '', '', $databaseConfig['charset'], \Lang::getLocale(), $databaseConfig['driver'], 'sibling')
  *
  * @todo [remove@3.7] Remove in Evolution CMS 3.7
  */
@@ -126,7 +125,7 @@ include "{$setupPath}/setup.info.php";
 include "sqlParser.class.php";
 
 $databaseConfig = evo()->app['config']['database']['connections']['default'];
-$sqlParser = new SqlParser('', '', '', $databaseConfig['charset'], \Lang::getLocale(), $databaseConfig['method'], 'sibling');
+$sqlParser = new SqlParser();
 $sqlParser->mode = "upd";
 $sqlParser->ignoreDuplicateErrors = true;
 
@@ -147,8 +146,6 @@ if (count($moduleTemplates) > 0) {
 
             // Strip the first comment up top
             $template = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', file_get_contents($filecontent), 1);
-            $template = $template;
-
             // See if the template already exists
             $template = \EvolutionCMS\Models\SiteTemplate::where('templatename', $name)->first();
 

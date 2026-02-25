@@ -11,7 +11,7 @@
 // SNUFFKIN/ Alex 2004
 error_reporting(E_ALL & ~E_NOTICE);
 class SqlParser {
-    var $host, $dbname, $prefix, $user, $password, $mysqlErrors;
+    var $host, $dbname, $prefix, $user, $password, $mysqlErrors, $ignoreDuplicateErrors, $autoTemplateLogic;
     var $conn, $installFailed, $sitename, $adminname, $adminemail, $adminpass, $managerlanguage;
     var $mode, $fileManagerPath, $imgPath, $imgUrl;
     var $connection_charset;
