@@ -450,6 +450,19 @@
 
         <div class="split my-1"></div>
 
+        @include('manager::form.input', [
+            'name' => 'html_comment',
+            'label' => __('global.html_comment_title'),
+            'small' => '[(html_comment)]',
+            'value' => $settings['html_comment'] ?? '',
+            'attributes' => 'onchange="documentDirty=true;" maxlength="255" placeholder="snippets,chunks,tvs,snippetParams"',
+            'comment' => (isset($disabledSettings['html_comment']) ? __('global.setting_from_file') . '<br>' : '') .
+                __('global.html_comment_message'),
+            'disabled' => $disabledSettings['html_comment'] ?? null
+        ])
+
+        <div class="split my-1"></div>
+
         @include('manager::form.radio', [
             'name' => 'minifyphp_incache',
             'label' => __('global.minifyphp_incache_title'),

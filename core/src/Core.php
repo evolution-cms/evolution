@@ -189,6 +189,21 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     private $context = '';
 
     /**
+     * @param string $type One of: chunks, tvs, snippets, snippetParams
+     * @return bool
+     */
+    public function isHtmlCommentNeeded($type)
+    {
+        $htmlComment = $this->getConfig('html_comment', '');
+        if (empty($htmlComment)) {
+            return false;
+        }
+        $types = array_map('trim', explode(',', $htmlComment));
+
+        return in_array($type, $types, true);
+    }
+
+    /**
      * @throws \Exception
      */
     public function __construct()
@@ -1360,6 +1375,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 $value = $this->applyFilter($value, $modifiers, $key);
             }
 
+            if ($this->isHtmlCommentNeeded('tvs')) {
+                $value = "<!-- tv $key\n-->" . $value . "<!--\n/tv $key -->";
+            }
+
             if (Str::contains($content, $s)) {
                 $content = str_replace($s, $value, $content);
             } elseif ($this->debug) {
@@ -1606,6 +1625,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
             if ($modifiers !== false) {
                 $value = $this->applyFilter($value, $modifiers, $key);
+            }
+
+            if ($this->isHtmlCommentNeeded('chunks')) {
+                $value = "<!-- chunk $key\n-->" . $value . "<!--\n/chunk $key -->";
             }
 
             $s = &$matches[0][$i];
@@ -1973,12 +1996,12 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         // Related to https://github.com/modxcms/evolution/issues/1130
         $lock_file_path = MODX_BASE_PATH . 'assets/cache/lock_' . str_replace(' ','-',strtolower($this->event->activePlugin)) . '.pageCache.php';
         if($this->isBackend()) {
-            if(is_file($lock_file_path)) {
-                $msg = sprintf("Plugin parse error, Temporarily disabled '%s'.", $this->event->activePlugin);
-                $this->logEvent(0, 3, $msg, $msg);
-                return;
-            }
-            elseif(stripos($this->event->activePlugin,'ElementsInTree')===false) touch($lock_file_path);
+        if(is_file($lock_file_path)) {
+            $msg = sprintf("Plugin parse error, Temporarily disabled '%s'.", $this->event->activePlugin);
+            $this->logEvent(0, 3, $msg, $msg);
+            return;
+        }
+        elseif(stripos($this->event->activePlugin,'ElementsInTree')===false) touch($lock_file_path);
         }*/
         ob_start();
         eval ($pluginCode);
@@ -2208,6 +2231,12 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $this->currentSnippet = '';
         if ($modifiers !== false) {
             $value = $this->applyFilter($value, $modifiers, $key);
+        }
+
+        if ($this->isHtmlCommentNeeded('snippets')) {
+            $value = '<!-- snippet ' . str_replace('-->', '-- >',
+            $this->isHtmlCommentNeeded('snippetParams') ? $piece : '')
+                . "\n-->$value<!--\n/snippet {$snippetObject['name']} -->";
         }
 
         if ($this->dumpSnippets) {

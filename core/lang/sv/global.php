@@ -1167,6 +1167,8 @@ $_lang["docid_incrmnt_method_2"] = 'Högsta ID + 1';
 $_lang["cache_type_title"] = 'Document caching type';
 $_lang["cache_type_1"] = 'Cache is based only on document id (standard)';
 $_lang["cache_type_2"] = 'Cache is based on document id and $_GET parameters';
+$_lang["html_comment_title"] = 'HTML-kommentar';
+$_lang["html_comment_message"] = 'Kommaseparerad lista över elementtyper som ska omslutas med HTML-kommentarer i sidkällan: <b>snippets</b>, <b>chunks</b>, <b>tvs</b>, <b>snippetParams</b>';
 $_lang["seostrict_title"] = 'Use SEO Strict URLs';
 $_lang["seostrict_message"] = 'Enforces the use of strict URLs to prevent duplicate content if needed';
 
