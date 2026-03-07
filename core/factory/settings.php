@@ -94,6 +94,7 @@
     'datetime_format' => 'dd-mm-YYYY',
     'enable_cache' => '1',
     'cache_type' => '1',
+    'html_comment' => '',
     'server_protocol' => 'http',
     'settings_version' => 0,
     'server_offset_time' => 0,

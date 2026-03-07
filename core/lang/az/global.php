@@ -1404,6 +1404,8 @@ $_lang["disabled_at_login"] = 'Giriş zamanı deaktiv edilir';
 $_lang["cache_type_title"] = 'Sənəd keşi növü';
 $_lang["cache_type_1"] = 'Keş yalnız Resurs ID-si əsasında aparılır (standart)';
 $_lang["cache_type_2"] = 'Keş Resurs ID-si və $_GET parametrləri əsasında aparılır';
+$_lang["html_comment_title"] = 'HTML şərhi';
+$_lang["html_comment_message"] = 'Səhifə mənbəyindəki HTML şərhlərə bürünmək üçün vergüllə ayrılmış element növlərinin siyahısı: <b>snippets</b>, <b>chunks</b>, <b>tvs</b>, <b>snippetParams</b>';
 $_lang["seostrict_title"] = 'SEO Sərt URL-lərdən istifadə et';
 $_lang["seostrict_message"] = 'Dublikat məzmunun qarşısını almaq üçün sərt URL-lərdən istifadəni məcbur edir (lazım gələrsə).';
 

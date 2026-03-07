@@ -86,6 +86,10 @@ class SystemSettingsTableSeeder extends Seeder
                 'setting_value' => '2',
             ],
             [
+                'setting_name' => 'html_comment',
+                'setting_value' => '',
+            ],
+            [
                 'setting_name' => 'failed_login_attempts',
                 'setting_value' => '3',
             ],

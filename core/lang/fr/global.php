@@ -1137,6 +1137,8 @@ $_lang["docid_incrmnt_method_2"] = 'Plus grand ID + 1';
 $_lang["cache_type_title"] = 'Type de cache des documents';
 $_lang["cache_type_1"] = 'Le cache est basé sur l\'ID du document (standard)';
 $_lang["cache_type_2"] = 'Le cache est basé sur l\'ID du document et les paramètres $_GET';
+$_lang["html_comment_title"] = 'Commentaire HTML';
+$_lang["html_comment_message"] = 'Liste séparée par des virgules des types d\'éléments à envelopper avec des commentaires HTML dans le code source de la page : <b>snippets</b>, <b>chunks</b>, <b>tvs</b>, <b>snippetParams</b>';
 $_lang["seostrict_title"] = 'Utiliser le format "SEO Strict" pour les URLs';
 $_lang["seostrict_message"] = 'Forcer le format "SEO Strict" pour les URLs afin d\'éviter les contenus dupliqués';
 
