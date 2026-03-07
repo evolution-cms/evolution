@@ -1,0 +1,134 @@
+publiccodeYmlVersion: "0.5.0"
+
+name: Evolution CMS
+
+url: "https://github.com/evolution-cms/evolution"
+landingURL: "https://evo.im/"
+
+platforms:
+  - web
+
+categories:
+  - content-management
+  - website-builder
+
+developmentStatus: stable
+softwareType: standalone/web
+
+softwareVersion: "3.5.4"
+releaseDate: "2026-02-20"
+
+isBasedOn:
+  - "https://github.com/modxcms/evolution"
+
+organisation:
+  name: "Evolution CMS Community"
+  uri: "https://evo.im/"
+
+intendedAudience:
+  scope:
+    - culture
+    - education
+    - environment
+    - government
+    - local-authorities
+    - society
+    - sport
+    - tourism
+    - transportation
+    - welfare
+
+description:
+  en:
+    shortDescription: "Open-source PHP content management system and web application framework."
+    longDescription: |
+      Evolution CMS is an open-source content management system and web application framework written in PHP.
+
+      The project originates from MODX Evolution (2004) and has been continuously developed by an international community.  
+      The 3.5 series is based on Laravel 12 and PHP 8.3+.
+
+      The system provides flexible content modeling, granular permissions, and multi-site architecture.  
+      It supports multilingual websites and is suitable for public sector portals, intranets, and institutional websites.
+
+      Evolution CMS is distributed under the GPL-3.0-or-later license.
+
+    features:
+      - "Flexible content modeling"
+      - "Granular permission system"
+      - "Multi-site architecture"
+      - "Multi-language support"
+      - "SEO-friendly URLs"
+      - "Extensible via plugins and extensions"
+      - "Docker deployment support"
+
+  uk:
+    shortDescription: "Open-source система керування контентом на PHP."
+    longDescription: |
+      Evolution CMS — це система керування контентом з відкритим кодом, написана на PHP.
+
+      Проєкт розвивається міжнародною спільнотою та базується на Laravel 12 і PHP 8.3+.
+
+legal:
+  license: "GPL-3.0-or-later"
+  mainCopyrightOwner: "Evolution CMS Community"
+
+maintenance:
+  type: community
+  contacts:
+    - name: "Dmytro Lukianenko"
+      affiliation: "Maintainer"
+      email: "dmi3yy@gmail.com"
+    - name: "Serhii Korneliuk"
+      affiliation: "Maintainer"
+      email: "info@seigerit.com"
+    - name: "Artur Kyryliuk"
+      affiliation: "Core Team"
+      email: "mail@artur.work"
+
+localisation:
+  localisationReady: true
+  availableLanguages:
+    - uk
+    - en
+    - az
+    - be
+    - bg
+    - cs
+    - da
+    - de
+    - es
+    - fa
+    - fi
+    - fr
+    - he
+    - it
+    - ja
+    - nl
+    - nn
+    - pl
+    - pt
+    - sv
+    - zh
+
+dependsOn:
+  open:
+    - name: "PHP"
+      versionMin: "8.3"
+      optional: false
+    - name: "Laravel"
+      versionMin: "12.0"
+      optional: true
+    - name: "MySQL"
+      versionMin: "8.0"
+      optional: true
+    - name: "MariaDB"
+      versionMin: "10.6"
+      optional: true
+    - name: "PostgreSQL"
+      versionMin: "12.0"
+      optional: true
+    - name: "SQLite"
+      versionMin: "3.35.0"
+      optional: true
+
+roadmap: "https://github.com/evolution-cms/evolution/issues"
