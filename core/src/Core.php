@@ -1991,23 +1991,30 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         if (is_array($params)) {
             extract($params, EXTR_SKIP);
         }
-        /* if uncomment incorrect work plugin, cant understend where use this code and for what?
-        // This code will avoid further execution of plugins in case they cause a fatal-error. clearCache() will delete those locks to allow execution of locked plugins again.
-        // Related to https://github.com/modxcms/evolution/issues/1130
-        $lock_file_path = MODX_BASE_PATH . 'assets/cache/lock_' . str_replace(' ','-',strtolower($this->event->activePlugin)) . '.pageCache.php';
-        if($this->isBackend()) {
-        if(is_file($lock_file_path)) {
-            $msg = sprintf("Plugin parse error, Temporarily disabled '%s'.", $this->event->activePlugin);
-            $this->logEvent(0, 3, $msg, $msg);
+        ob_start();
+        try {
+            eval($pluginCode);
+        } catch (\Error $e) {
+            ob_end_clean();
+            $pluginName = $modx->event->activePlugin;
+            SitePlugin::where('name', $pluginName)->update(['disabled' => 1]);
+            unset($modx->pluginCache[$pluginName], $modx->pluginCache[$pluginName . 'Props']);
+            $errMsg = sprintf(
+                'Plugin "%s" caused a fatal Error and has been disabled: [%s] %s in %s on line %d',
+                $pluginName,
+                get_class($e),
+                $e->getMessage(),
+                $e->getFile(),
+                $e->getLine()
+            );
+            $modx->logEvent(0, 3, $errMsg, 'Plugin: ' . $pluginName);
+            if ($modx->isBackend()) {
+                $modx->event->alert($errMsg);
+            }
+            unset($modx->event->params);
             return;
         }
-        elseif(stripos($this->event->activePlugin,'ElementsInTree')===false) touch($lock_file_path);
-        }*/
-        ob_start();
-        eval ($pluginCode);
         $msg = ob_get_clean();
-        // When reached here, no fatal error occured so the lock should be removed.
-        /*if(is_file($lock_file_path)) unlink($lock_file_path);*/
         $error_info = error_get_last();
 
         if ((0 < $this->getConfig('error_reporting')) && $msg && $error_info !== null && $this->detectError($error_info['type'])) {
