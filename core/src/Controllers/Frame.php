@@ -330,7 +330,7 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
         return $this->menuIcon('icon_tachometer');
     }
 
-    protected function moduleIconHtml(string $icon): string
+    protected function moduleIconHtml(string $icon = ''): string
     {
         if ($icon === '') {
             return $this->svgIcon('box');

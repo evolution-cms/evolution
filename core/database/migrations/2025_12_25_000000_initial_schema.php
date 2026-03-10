@@ -358,6 +358,7 @@ return new class extends Migration
             $table->index('descendant', "{$indexPrefix}_closure_descendant_idx");
             $table->index('depth', "{$indexPrefix}_closure_depth_idx");
             $table->unique(['ancestor', 'descendant'], "{$indexPrefix}_ix_unique_path");
+            $table->index(['descendant', 'ancestor'], "{$indexPrefix}_closure_desc_anc_idx");
         });
 
         /*

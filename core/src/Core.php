@@ -557,7 +557,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     {
         $status = 500;
         if ($responseCode !== '' && preg_match('/\\b(\\d{3})\\b/', $responseCode, $m)) {
-            $status = (int) $m[1];
+            $status = (int)$m[1];
             header($responseCode);
         } else {
             header('HTTP/1.0 500 Internal Server Error');
@@ -567,14 +567,14 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $docInfo = null;
         if (is_scalar($target) && ctype_digit((string) $target)) {
             try {
-                $doc = SiteContent::select('id', 'deleted', 'published')->where('id', (int) $target)->first();
+                $doc = SiteContent::select('id', 'deleted', 'published')->where('id', (int)$target)->first();
                 if ($doc === null) {
                     $docInfo = ['status' => 'missing'];
                 } else {
                     $docInfo = [
-                        'status' => ((int) $doc->deleted === 1) ? 'deleted' : 'exists',
-                        'deleted' => (int) $doc->deleted,
-                        'published' => (int) $doc->published,
+                        'status' => ((int)$doc->deleted === 1) ? 'deleted' : 'exists',
+                        'deleted' => (int)$doc->deleted,
+                        'published' => (int)$doc->published,
                     ];
                 }
             } catch (\Throwable $e) {
@@ -588,7 +588,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             'document_method' => $this->documentMethod ?? null,
             'document_identifier' => $this->documentIdentifier ?? null,
             'target' => $target,
-            'target_attempts' => $this->forwardTargets[is_scalar($target) ? (string) $target : gettype($target)] ?? null,
+            'target_attempts' => $this->forwardTargets[is_scalar($target) ? (string)$target : gettype($target)] ?? null,
             'forwards_remaining' => $this->forwards,
             'response' => $responseCode,
             'error_page' => (int) $this->getConfig('error_page', 0),
@@ -597,12 +597,43 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             'target_doc' => $docInfo,
         ]);
 
+        $errorPageId = (int)$this->getConfig('error_page', 0);
+        if (
+            $errorPageId > 0
+            && (string)$errorPageId !== (string)$target
+            && (string)$errorPageId !== (string)($this->documentIdentifier ?? '')
+            && (($this->forwardTargets[(string)$errorPageId] ?? 0) === 0)
+        ) {
+            try {
+                $this->forwardTargets[(string)$errorPageId] = 1;
+                header('HTTP/1.0 404 Not Found', true, 404);
+                $this->documentIdentifier = $errorPageId;
+                $this->documentMethod = 'id';
+                $this->prepareResponse();
+                exit;
+            } catch (\Throwable $e) {
+                Log::warning('Forward loop fallback to error_page failed', [
+                    'loop_type' => $loopType,
+                    'request_uri' => $_SERVER['REQUEST_URI'] ?? null,
+                    'target' => $target,
+                    'error_page' => $errorPageId,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        if (file_exists(EVO_BASE_PATH . 'views/' . (int)$status . '.html')) {
+            header('HTTP/1.0 404 Not Found', true, (int)$status);
+            echo file_get_contents(EVO_BASE_PATH . 'views/' . (int)$status . '.html');
+            exit;
+        }
+
         echo '<h1>ERROR: Forward loop detected</h1>';
         echo '<p>The request could not be completed due to an internal forward loop.</p>';
-        echo '<p>Status: ' . (int) $status . '</p>';
-        echo '<p>Target: ' . htmlspecialchars(is_scalar($target) ? (string) $target : gettype($target), ENT_QUOTES) . '</p>';
+        echo '<p>Status: ' . $status . '</p>';
+        echo '<p>Target: ' . htmlspecialchars(is_scalar($target) ? (string)$target : gettype($target), ENT_QUOTES) . '</p>';
         if (is_array($docInfo)) {
-            echo '<p>Target document: ' . htmlspecialchars((string) ($docInfo['status'] ?? 'unknown'), ENT_QUOTES) . '</p>';
+            echo '<p>Target document: ' . htmlspecialchars((string)($docInfo['status'] ?? 'unknown'), ENT_QUOTES) . '</p>';
         }
         exit;
     }
