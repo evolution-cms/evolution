@@ -109,10 +109,14 @@
             if (!href) {
                 return false;
             }
+            href = modx.normalizeUrl(href);
+            if (!href) {
+                return false;
+            }
             if (modx.getActionFromUrl(href) || modx.main.getQueryVariable('filemanager', href)) {
                 return false;
             }
-            return !/\?/.test(href);
+            return true;
         },
         init: function () {
             if (!localStorage.getItem('MODX_widthSideBar')) {
@@ -1692,7 +1696,7 @@
                             this.tab.show = function (e) {
                                 s.show.call(s, e);
                             };
-                            modx.tabs.selected = this.tab;
+                            this.show();
                         }
                     } else {
                         this.show();
@@ -2398,8 +2402,7 @@
         urlToUid: function (a) {
             var b = '',
                 c;
-            a = a.split('?');
-            a = a[1] || a[0];
+            a = modx.normalizeUrl(a);
             if (a) {
                 c = modx.getActionFromUrl(a);
                 if (c) {
