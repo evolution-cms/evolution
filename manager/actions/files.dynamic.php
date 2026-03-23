@@ -66,7 +66,8 @@ $upload_media = explode(',', evo()->getConfig('upload_media', ''));
 $uploadablefiles = array_merge($upload_files, $upload_images, $upload_media);
 $uploadablefiles = add_dot($uploadablefiles);
 $upload_maxsize = evo()->getConfig('upload_maxsize');
-$filemanager_path = rtrim(str_replace('\\', '/', realpath(evo()->getConfig('filemanager_path', EVO_BASE_PATH))), '/');
+$filemanager_path = rtrim(str_replace('\\', '/',
+    realpath(evo()->getConfig('filemanager_path')) ?: realpath(EVO_BASE_PATH)), '/');
 $base_path = rtrim(str_replace('\\', '/', realpath(EVO_BASE_PATH)), '/');
 // end settings
 // get the current work directory

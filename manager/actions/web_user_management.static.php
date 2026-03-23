@@ -128,7 +128,7 @@ if ($numRecords > 0) {
             'role' => $el['name'] ?: ManagerTheme::getLexicon('no_user_role'),
             'user_prevlogin' => $el['thislogin'] ? $modx->toDateFormat($el['thislogin']) : '-',
             'user_logincount' => $el['logincount'],
-            'user_block' => $el['blocked'] ? ManagerTheme::getLexicon('yes').' <i class="fa fa-question-circle help" data-toggle="tooltip" data-placement="top" title="'.$blocked_title.'"></i>' : '-',
+            'user_block' => $el['blocked'] ? ManagerTheme::getLexicon('yes').' <i class="fa fa-question-circle help" data-tooltip="'.htmlspecialchars($blocked_title, ENT_QUOTES, ManagerTheme::getCharset()).'"></i>' : '-',
         ];
     }
 
@@ -186,8 +186,6 @@ if ($numRecords > 0) {
             document.querySelector('.element-edit-message').classList.toggle('show')
         }
 
-        // bootstrap tooltip
-        //document.querySelector('[data-toggle="tooltip"]').tooltip()
     });
 </script>
 

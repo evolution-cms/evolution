@@ -122,29 +122,29 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
                 textdir: '{{ManagerTheme::getTextDir()}}',
                 global_tabs: {{(int)evo()->getConfig('global_tabs')}}
             },
-            lang: {
-                already_deleted: "{{ManagerTheme::getLexicon('already_deleted')}}",
-                cm_unknown_error: "{{ManagerTheme::getLexicon('cm_unknown_error')}}",
-                collapse_tree: "{{ManagerTheme::getLexicon('collapse_tree')}}",
-                confirm_delete_resource: "{{ManagerTheme::getLexicon('confirm_delete_resource')}}",
-                confirm_empty_trash: "{{ManagerTheme::getLexicon('confirm_empty_trash')}}",
-                confirm_publish: "{{ManagerTheme::getLexicon('confirm_publish')}}",
-                confirm_remove_locks: "{{ManagerTheme::getLexicon('confirm_remove_locks')}}",
-                confirm_resource_duplicate: "{{ManagerTheme::getLexicon('confirm_resource_duplicate')}}",
-                confirm_undelete: "{{ManagerTheme::getLexicon('confirm_undelete')}}",
-                confirm_unpublish: "{{ManagerTheme::getLexicon('confirm_unpublish')}}",
-                empty_recycle_bin: "{{ManagerTheme::getLexicon('empty_recycle_bin')}}",
-                empty_recycle_bin_empty: "{{ManagerTheme::getLexicon('empty_recycle_bin_empty')}}",
-                error_no_privileges: "{{ManagerTheme::getLexicon('error_no_privileges')}}",
-                expand_tree: "{{ManagerTheme::getLexicon('expand_tree')}}",
-                loading_doc_tree: "{{ManagerTheme::getLexicon('loading_doc_tree')}}",
-                loading_menu: "{{ManagerTheme::getLexicon('loading_menu')}}",
-                not_deleted: "{{ManagerTheme::getLexicon('not_deleted')}}",
-                unable_set_link: "{{ManagerTheme::getLexicon('unable_set_link')}}",
-                unable_set_parent: "{{ManagerTheme::getLexicon('unable_set_parent')}}",
-                working: "{{ManagerTheme::getLexicon('working')}}",
-                paging_prev: "{{ManagerTheme::getLexicon('paging_prev')}}"
-            },
+            lang: {!! js_json([
+                'already_deleted' => ManagerTheme::getLexicon('already_deleted'),
+                'cm_unknown_error' => ManagerTheme::getLexicon('cm_unknown_error'),
+                'collapse_tree' => ManagerTheme::getLexicon('collapse_tree'),
+                'confirm_delete_resource' => ManagerTheme::getLexicon('confirm_delete_resource'),
+                'confirm_empty_trash' => ManagerTheme::getLexicon('confirm_empty_trash'),
+                'confirm_publish' => ManagerTheme::getLexicon('confirm_publish'),
+                'confirm_remove_locks' => ManagerTheme::getLexicon('confirm_remove_locks'),
+                'confirm_resource_duplicate' => ManagerTheme::getLexicon('confirm_resource_duplicate'),
+                'confirm_undelete' => ManagerTheme::getLexicon('confirm_undelete'),
+                'confirm_unpublish' => ManagerTheme::getLexicon('confirm_unpublish'),
+                'empty_recycle_bin' => ManagerTheme::getLexicon('empty_recycle_bin'),
+                'empty_recycle_bin_empty' => ManagerTheme::getLexicon('empty_recycle_bin_empty'),
+                'error_no_privileges' => ManagerTheme::getLexicon('error_no_privileges'),
+                'expand_tree' => ManagerTheme::getLexicon('expand_tree'),
+                'loading_doc_tree' => ManagerTheme::getLexicon('loading_doc_tree'),
+                'loading_menu' => ManagerTheme::getLexicon('loading_menu'),
+                'not_deleted' => ManagerTheme::getLexicon('not_deleted'),
+                'unable_set_link' => ManagerTheme::getLexicon('unable_set_link'),
+                'unable_set_parent' => ManagerTheme::getLexicon('unable_set_parent'),
+                'working' => ManagerTheme::getLexicon('working'),
+                'paging_prev' => ManagerTheme::getLexicon('paging_prev'),
+            ]) !!},
             style: {
                 actions_file: '{!!addslashes($_style['icon_file'])!!}',
                 actions_pencil: '{!!addslashes($_style['icon_pencil'])!!}',
@@ -218,6 +218,7 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
         echo (empty($opened) ? '' : 'modx.openedArray[' . implode("] = 1;\n		modx.openedArray[", $opened) . '] = 1;') . "\n";
         ?>
     </script>
+    <script src="media/script/main-target-link-helper.js?v={{evo()->getVersionData('version')}}"></script>
     <script src="{{ManagerTheme::getThemeUrl()}}js/modx.js?v={{evo()->getVersionData('version')}}"></script>
     @if ($modx->getConfig('show_picker'))
         <script src="media/script/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>

@@ -112,11 +112,11 @@
 
         if ($_SESSION['mgrRole'] != 1) {
             if (is_array($_SESSION['mgrDocgroups']) && count($_SESSION['mgrDocgroups']) > 0) {
-                $childs = $resources->where(function ($q) {
+                $childs = $childs->where(function ($q) {
                     $q->where('site_content.privatemgr', 0)->orWhereIn('document_groups.document_group', $_SESSION['mgrDocgroups']);
                 });
             } else {
-                $childs = $resources->where('site_content.privatemgr', 0);
+                $childs = $childs->where('site_content.privatemgr', 0);
             }
         }
 
