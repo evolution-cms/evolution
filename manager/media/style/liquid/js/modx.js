@@ -1480,6 +1480,32 @@
                 el = d.querySelector('#node' + a + '>.node');
                 if (el) el.classList.add('selected');
             },
+            getSortMenuIndexTarget: function () {
+                var node = d.querySelector('#tree .current')
+                    || d.querySelector('.treeRoot .selected')
+                    || d.querySelector('.treeRoot .node')
+                    || d.querySelector('#node0 > .node');
+                var trigger = d.getElementById('treeMenu_sortingindex');
+                var fallbackTitle = trigger ? trigger.getAttribute('title') : 'Sort menu index';
+
+                if (!node) {
+                    return { id: 0, title: fallbackTitle };
+                }
+
+                var id = node.dataset.id || node.parentNode.id.replace('node', '');
+                var title = node.dataset.titleEsc
+                    || (node.querySelector('.title') ? node.querySelector('.title').textContent : '')
+                    || fallbackTitle;
+
+                return { id: id, title: title };
+            },
+            openSortMenuIndex: function () {
+                var target = this.getSortMenuIndexTarget();
+                this.itemToChange = target.id;
+                this.selectedObjectName = target.title;
+                this.setSelected(target.id);
+                modx.tabs({ url: modx.MODX_MANAGER_URL + '?a=56&id=' + target.id, title: target.title + '<small>(' + target.id + ')</small>' });
+            },
             setItemToChange: function () {
                 var a = w.main.document && (w.main.document.URL || modx.normalizeUrl(w.main.document.location.href)),
                     b = modx.getActionFromUrl(a);
