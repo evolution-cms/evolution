@@ -29,6 +29,33 @@ if (!defined('SESSION_COOKIE_NAME')) {
     define('SESSION_COOKIE_NAME', env('SESSION_COOKIE_NAME', genEvoSessionName())); // $site_sessionname
 }
 
+$resolveBootConstant = static function (string $canonicalName, ?string $legacyName, $default = null) {
+    if (defined($canonicalName)) {
+        return constant($canonicalName);
+    }
+
+    if ($legacyName !== null && defined($legacyName)) {
+        return constant($legacyName);
+    }
+
+    $value = $default;
+    if ($legacyName !== null) {
+        $value = env($legacyName, $value);
+    }
+
+    return env($canonicalName, $value);
+};
+
+$defineBootConstant = static function (string $canonicalName, ?string $legacyName, $default = null) use ($resolveBootConstant): void {
+    if (!defined($canonicalName)) {
+        define($canonicalName, $resolveBootConstant($canonicalName, $legacyName, $default));
+    }
+
+    if ($legacyName !== null && !defined($legacyName)) {
+        define($legacyName, constant($canonicalName));
+    }
+};
+
 /**
  * @deprecated
  * @since 3.2.6
@@ -37,12 +64,7 @@ if (!defined('SESSION_COOKIE_NAME')) {
  *
  * @todo [remove@3.5] Remove in Evolution CMS 3.5
  */
-if (!defined('MODX_CLASS')) {
-    define('MODX_CLASS', env('MODX_CLASS', '\DocumentParser'));
-}
-if (!defined('EVO_CLASS')) {
-    define('EVO_CLASS', env('EVO_CLASS', '\DocumentParser'));
-}
+$defineBootConstant('EVO_CLASS', 'MODX_CLASS', '\DocumentParser');
 
 /**
  * @deprecated
@@ -52,12 +74,7 @@ if (!defined('EVO_CLASS')) {
  *
  * @todo [remove@3.5] Remove in Evolution CMS 3.5
  */
-if (!defined('MODX_SITE_HOSTNAMES')) {
-    define('MODX_SITE_HOSTNAMES', env('MODX_SITE_HOSTNAMES', ''));
-}
-if (!defined('EVO_SITE_HOSTNAMES')) {
-    define('EVO_SITE_HOSTNAMES', env('EVO_SITE_HOSTNAMES', ''));
-}
+$defineBootConstant('EVO_SITE_HOSTNAMES', 'MODX_SITE_HOSTNAMES', '');
 
 if (!defined('MGR_DIR')) {
     define('MGR_DIR', env('MGR_DIR', 'manager'));
@@ -79,7 +96,7 @@ if (!defined('EVO_STORAGE_PATH')) {
  *
  * @todo [remove@3.5] Remove in Evolution CMS 3.5
  */
-if (!defined('MODX_BASE_PATH') || !defined('MODX_BASE_URL')) {
+if (!defined('MODX_BASE_PATH') || !defined('MODX_BASE_URL') || !defined('EVO_BASE_PATH') || !defined('EVO_BASE_URL')) {
     // automatically assign base_path and base_url
     $script_name = str_replace(
         '\\',
@@ -129,78 +146,11 @@ if (!defined('MODX_BASE_PATH') || !defined('MODX_BASE_URL')) {
         str_replace('\\', '/', implode(MGR_DIR, $items))
         , '/'
     ) . '/';
-
-    if (!defined('MODX_BASE_PATH')) {
-        define('MODX_BASE_PATH', env('MODX_BASE_PATH', $base_path));
-    }
-    unset($base_path);
-
-    if (!defined('MODX_BASE_URL')) {
-        define('MODX_BASE_URL', env('MODX_BASE_URL', $base_url));
-    }
-    unset($base_url);
 }
-if (!defined('EVO_BASE_PATH') || !defined('EVO_BASE_URL')) {
-    // automatically assign base_path and base_url
-    $script_name = str_replace(
-        '\\',
-        '/',
-        dirname(
-            get_by_key(
-                $_SERVER,
-                ($_SERVER['PHP_SELF'] !== $_SERVER['SCRIPT_NAME'] && ('undefined' === php_sapi_name() || is_cli())) ?
-                    'PHP_SELF' : 'SCRIPT_NAME'
-            )
-        )
-    );
 
-    if (substr($script_name, -1 - strlen(MGR_DIR)) === '/' . MGR_DIR ||
-        strpos($script_name, '/' . MGR_DIR . '/') !== false
-    ) {
-        $separator = MGR_DIR;
-    } elseif (strpos($script_name, '/assets/') !== false) {
-        $separator = 'assets';
-    } else {
-        $separator = '';
-    }
-
-    if ($separator !== '') {
-        $items = explode('/' . $separator, $script_name);
-    } else {
-        $items = [$script_name];
-    }
-    unset($script_name);
-
-    if (count($items) > 1) {
-        array_pop($items);
-    }
-
-    $url = implode($separator, $items);
-
-    $base_url = rtrim(implode($separator, $items), '/') . '/';
-    unset($separator);
-
-    reset($items);
-    $items = explode(MGR_DIR, str_replace('\\', '/', dirname(__DIR__, 2)));
-    if (count($items) > 1) {
-        array_pop($items);
-    }
-
-    $base_path = rtrim(
-        str_replace('\\', '/', implode(MGR_DIR, $items))
-        , '/'
-    ) . '/';
-
-    if (!defined('EVO_BASE_PATH')) {
-        define('EVO_BASE_PATH', env('EVO_BASE_PATH', $base_path));
-    }
-    unset($base_path);
-
-    if (!defined('EVO_BASE_URL')) {
-        define('EVO_BASE_URL', env('EVO_BASE_URL', $base_url));
-    }
-    unset($base_url);
-}
+$defineBootConstant('EVO_BASE_PATH', 'MODX_BASE_PATH', $base_path ?? null);
+$defineBootConstant('EVO_BASE_URL', 'MODX_BASE_URL', $base_url ?? null);
+unset($base_path, $base_url);
 
 /**
  * @deprecated
@@ -227,12 +177,7 @@ if (!preg_match('/\/$/', EVO_BASE_URL)) {
  *
  * @todo [remove@3.5] Remove in Evolution CMS 3.5
  */
-if (!defined('MODX_MANAGER_PATH')) {
-    define('MODX_MANAGER_PATH', env('MODX_MANAGER_PATH', MODX_BASE_PATH . MGR_DIR . '/'));
-}
-if (!defined('EVO_MANAGER_PATH')) {
-    define('EVO_MANAGER_PATH', env('EVO_MANAGER_PATH', EVO_BASE_PATH . MGR_DIR . '/'));
-}
+$defineBootConstant('EVO_MANAGER_PATH', 'MODX_MANAGER_PATH', EVO_BASE_PATH . MGR_DIR . '/');
 
 /**
  * @deprecated
@@ -242,53 +187,7 @@ if (!defined('EVO_MANAGER_PATH')) {
  *
  * @todo [remove@3.5] Remove in Evolution CMS 3.5
  */
-if (!defined('MODX_SITE_URL')) {
-    // check for valid hostnames
-    $site_hostname = 'localhost';
-    if (!is_cli()) {
-        $site_hostname = str_replace(
-            ':' . $_SERVER['SERVER_PORT'],
-            '',
-            get_by_key($_SERVER, 'HTTP_HOST', $site_hostname)
-        );
-    }
-    $site_hostnames = explode(',', MODX_SITE_HOSTNAMES);
-    if (!empty($site_hostnames[0]) && !in_array($site_hostname, $site_hostnames)) {
-        $site_hostname = $site_hostnames[0];
-    }
-    unset($site_hostnames);
-
-    if (!isset($_SERVER['SERVER_PORT'])) {
-        $_SERVER['SERVER_PORT'] = 80;
-    }
-
-    // assign site_url
-    if ((isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) === 'on') ||
-        $_SERVER['SERVER_PORT'] == HTTPS_PORT ||
-        (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
-    ) {
-        $site_url = 'https://' . $site_hostname;
-    } else {
-        $site_url = 'http://' . $site_hostname;
-    }
-    unset($site_hostname);
-
-    if ($_SERVER['SERVER_PORT'] !== 80) { // remove port from HTTP_HOST
-        $site_url = str_replace(':' . $_SERVER['SERVER_PORT'], '', $site_url);
-    }
-
-    if (!in_array((int)$_SERVER['SERVER_PORT'], [80, (int)HTTPS_PORT], true) &&
-        strtolower(get_by_key($_SERVER, 'HTTPS', 'off'))
-    ) {
-        $site_url .= ':' . $_SERVER['SERVER_PORT'];
-    }
-
-    $site_url .= MODX_BASE_URL;
-
-    define('MODX_SITE_URL', env('MODX_SITE_URL', $site_url));
-    unset($site_url);
-}
-if (!defined('EVO_SITE_URL')) {
+if (!defined('MODX_SITE_URL') || !defined('EVO_SITE_URL')) {
     // check for valid hostnames
     $site_hostname = 'localhost';
     if (!is_cli()) {
@@ -330,10 +229,9 @@ if (!defined('EVO_SITE_URL')) {
     }
 
     $site_url .= EVO_BASE_URL;
-
-    define('EVO_SITE_URL', env('EVO_SITE_URL', $site_url));
-    unset($site_url);
 }
+$defineBootConstant('EVO_SITE_URL', 'MODX_SITE_URL', $site_url ?? null);
+unset($site_url);
 
 /**
  * @deprecated
@@ -356,12 +254,7 @@ if (!preg_match('/\/$/', EVO_SITE_URL)) {
  *
  * @todo [remove@3.5] Remove in Evolution CMS 3.5
  */
-if (!defined('MODX_MANAGER_URL')) {
-    define('MODX_MANAGER_URL', env('MODX_MANAGER_URL', MODX_SITE_URL . MGR_DIR . '/'));
-}
-if (!defined('EVO_MANAGER_URL')) {
-    define('EVO_MANAGER_URL', env('EVO_MANAGER_URL', EVO_SITE_URL . MGR_DIR . '/'));
-}
+$defineBootConstant('EVO_MANAGER_URL', 'MODX_MANAGER_URL', EVO_SITE_URL . MGR_DIR . '/');
 
 /**
  * @deprecated
@@ -371,12 +264,7 @@ if (!defined('EVO_MANAGER_URL')) {
  *
  * @todo [remove@3.5] Remove in Evolution CMS 3.5
  */
-if (!defined('MODX_SANITIZE_SEED')) {
-    define('MODX_SANITIZE_SEED', 'sanitize_seed_' . base_convert(md5(__FILE__), 16, 36));
-}
-if (!defined('EVO_SANITIZE_SEED')) {
-    define('EVO_SANITIZE_SEED', 'sanitize_seed_' . base_convert(md5(__FILE__), 16, 36));
-}
+$defineBootConstant('EVO_SANITIZE_SEED', 'MODX_SANITIZE_SEED', 'sanitize_seed_' . base_convert(md5(__FILE__), 16, 36));
 
 if (is_cli()) {
     /**
@@ -387,12 +275,7 @@ if (is_cli()) {
      *
      * @todo [remove@3.5] Remove in Evolution CMS 3.5
      */
-    if (!defined('MODX_CLI')) {
-        define('MODX_CLI', true);
-    }
-    if (!defined('EVO_CLI')) {
-        define('EVO_CLI', true);
-    }
+    $defineBootConstant('EVO_CLI', 'MODX_CLI', true);
 
     /**
      * @deprecated

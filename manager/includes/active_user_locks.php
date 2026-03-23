@@ -5,7 +5,7 @@
  * This page is requested by several actions to keep elements/resources locked
  */
 define('IN_MANAGER_MODE', true);
-define('MODX_API_MODE', true);
+define('EVO_API_MODE', true);
 include_once('../../index.php');
 
 EvolutionCMS()->invokeEvent('OnManagerPageInit');

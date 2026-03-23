@@ -9,6 +9,7 @@ defined('EVO_SITE_URL') || define('EVO_SITE_URL', '/');
 defined('EVO_CORE_PATH') || define('EVO_CORE_PATH', $base_path . 'core/');
 defined('IN_INSTALL_MODE') || define('IN_INSTALL_MODE', true);
 defined('EVO_CLI') || define('EVO_CLI', true);
+
 require_once EVO_BASE_PATH . 'install/src/functions.php';
 /**
  * EVO Cli Installer/Updater

@@ -106,6 +106,14 @@ if (!defined('IN_MANAGER_MODE')) {
     define('IN_MANAGER_MODE', false);
 }
 /**
+ * Disables automatic request dispatching in the front controller.
+ *
+ * When enabled, this file will not call `$evo->processRoutes()`.
+ */
+if (!defined('EVO_API_MODE')) {
+    define('EVO_API_MODE', false);
+}
+/**
  * @deprecated
  * @since 3.5.0
  *
@@ -114,15 +122,7 @@ if (!defined('IN_MANAGER_MODE')) {
  * @todo [remove@3.5.3] Remove in Evolution CMS 3.5.3
  */
 if (!defined('MODX_API_MODE')) {
-    define('MODX_API_MODE', false);
-}
-/**
- * Disables automatic request dispatching in the front controller.
- *
- * When enabled, this file will not call `$evo->processRoutes()`.
- */
-if (!defined('EVO_API_MODE')) {
-    define('EVO_API_MODE', false);
+    define('MODX_API_MODE', EVO_API_MODE);
 }
 if (!defined('EVO_CLI')) {
     define('EVO_CLI', false);
