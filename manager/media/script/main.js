@@ -20,7 +20,7 @@ evo.tooltips = function (a) {
                 return;
             }
             var x = e.clientX, y = e.clientY;
-            b.innerHTML = (this.dataset && this.dataset.tooltip ? (this.dataset.tooltip[0] === '#' ? document.querySelector(this.dataset.tooltip).innerHTML : this.dataset.tooltip) : this.innerHTML);
+            b.innerHTML = evoTooltipHelper.getTooltipContent(this, document.querySelector.bind(document)) || this.innerHTML;
             if (x + b.offsetWidth + (c * 2) > window.innerWidth) {
                 b.style.left = Math.round(x - b.offsetWidth - (c * 2)) + 'px';
                 b.classList.add('evo-tooltip-right');
@@ -314,7 +314,7 @@ function document_onload() {
             this.parentNode.classList.toggle('show');
         };
     }
-    evo.tooltips('[data-tooltip]');
+    evo.tooltips('[data-tooltip], [data-toggle="tooltip"][title]');
     //evo.collapse('.panel-heading', 'panel-collapse');
 
     if (document.forms.length && document.forms.mutate && window.frameElement.parentNode.parentNode.classList.contains('evo-popup')) {
