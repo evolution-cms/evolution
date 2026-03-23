@@ -1,5 +1,5 @@
 <?php
-define('MODX_API_MODE', true);
+define('EVO_API_MODE', true);
 
 if (file_exists(__DIR__ . '/config.php')) {
     $config = require __DIR__ . '/config.php';

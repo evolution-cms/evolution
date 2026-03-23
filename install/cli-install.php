@@ -3,7 +3,7 @@
 use EvolutionCMS\Facades\Console;
 
 $base_path = dirname(__DIR__) . '/';
-define('MODX_API_MODE', true);
+define('EVO_API_MODE', true);
 define('EVO_BASE_PATH', $base_path);
 define('EVO_SITE_URL', '/');
 define('EVO_CORE_PATH', $base_path . 'core/');
