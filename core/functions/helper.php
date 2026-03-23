@@ -218,6 +218,25 @@ if (!function_exists('data_is_json')) {
     }
 }
 
+if (!function_exists('js_json')) {
+    /**
+     * Encode data for direct embedding into JavaScript.
+     *
+     * Uses JSON output instead of HTML escaping so translated strings keep
+     * their literal apostrophes and quotes inside JS payloads.
+     *
+     * @param mixed $value
+     * @param int $options
+     * @return string
+     */
+    function js_json($value, int $options = 0): string
+    {
+        $json = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | $options);
+
+        return $json === false ? 'null' : $json;
+    }
+}
+
 if (!function_exists('is_ajax')) {
     /**
      * @return bool
