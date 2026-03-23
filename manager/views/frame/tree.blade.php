@@ -37,7 +37,7 @@ $_style['icon_trash'] = svg('tabler-trash')->toHtml();
         <a class="treeButton" id="treeMenu_refreshtree" onclick="modx.tree.restoreTree();" title="{{ ManagerTheme::getLexicon('refresh_tree') }}">{!! $_style['icon_refresh'] !!}</a>
         <a class="treeButton" id="treeMenu_sortingtree" onclick="modx.tree.showSorter(event);" title="{{ ManagerTheme::getLexicon('sort_tree') }}">{!! $_style['icon_sort'] !!}</a>
         @if(evo()->hasPermission('edit_document') && evo()->hasPermission('save_document'))
-            <a class="treeButton" id="treeMenu_sortingindex" onclick="modx.tabs({url: '{{ MODX_MANAGER_URL }}?a=56&id=0', title: '{{ ManagerTheme::getLexicon('sort_menuindex') }}'});" title="{{ ManagerTheme::getLexicon('sort_menuindex') }}">{!! $_style['icon_sort_num_asc'] !!}</a>
+            <a class="treeButton" id="treeMenu_sortingindex" onclick="modx.tree.openSortMenuIndex();" title="{{ ManagerTheme::getLexicon('sort_menuindex') }}">{!! $_style['icon_sort_num_asc'] !!}</a>
         @endif
         {{-- @if(evo()->getConfig('use_browser') && evo()->hasPermission('assets_images'))
             <a class="treeButton" id="treeMenu_openimages" title="{{ ManagerTheme::getLexicon('images_management') }}&#013;{{ ManagerTheme::getLexicon('em_button_shift') }}"><i class="{{ $_style['icon_camera'] }}"></i></a>
