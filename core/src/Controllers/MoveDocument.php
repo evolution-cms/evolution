@@ -3,6 +3,7 @@
 use EvolutionCMS\Interfaces\ManagerTheme;
 use EvolutionCMS\Models;
 use EvolutionCMS\Legacy\Permissions;
+use EvolutionCMS\Support\MoveDocumentTargetGuard;
 use Exception;
 
 class MoveDocument extends AbstractController implements ManagerTheme\PageControllerInterface
@@ -80,7 +81,7 @@ class MoveDocument extends AbstractController implements ManagerTheme\PageContro
         }
         if ($newParentID > 0) {
             $parentDocument = $this->getDocument($newParentID);
-            if ($parentDocument->deleted) {
+            if (MoveDocumentTargetGuard::blocksParent($parentDocument)) {
                 $this->managerTheme->alertAndQuit('error_parent_deleted');
             };
             $children = allChildren($document->getKey());

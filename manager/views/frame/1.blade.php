@@ -136,6 +136,7 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
                 empty_recycle_bin: "{{ManagerTheme::getLexicon('empty_recycle_bin')}}",
                 empty_recycle_bin_empty: "{{ManagerTheme::getLexicon('empty_recycle_bin_empty')}}",
                 error_no_privileges: "{{ManagerTheme::getLexicon('error_no_privileges')}}",
+                error_parent_deleted: "{{ManagerTheme::getLexicon('error_parent_deleted')}}",
                 expand_tree: "{{ManagerTheme::getLexicon('expand_tree')}}",
                 loading_doc_tree: "{{ManagerTheme::getLexicon('loading_doc_tree')}}",
                 loading_menu: "{{ManagerTheme::getLexicon('loading_menu')}}",
@@ -218,6 +219,7 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
         echo (empty($opened) ? '' : 'modx.openedArray[' . implode("] = 1;\n		modx.openedArray[", $opened) . '] = 1;') . "\n";
         ?>
     </script>
+    <script src="media/script/tree-drop-guard-helper.js?v={{evo()->getVersionData('version')}}"></script>
     <script src="{{ManagerTheme::getThemeUrl()}}js/modx.js?v={{evo()->getVersionData('version')}}"></script>
     @if ($modx->getConfig('show_picker'))
         <script src="media/script/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
