@@ -44,9 +44,9 @@ class Mail extends PHPMailer
                 $this->SMTPAutoTLS = $modx->getConfig('smtp_autotls') === '0' ? false : true;
                 $this->Username = $modx->getConfig('smtp_username');
                 if ($modx['config']->has('cms.settings.smtppw')) {
-                    $this->Password = $modx['config']->get('cms.settings.smtppw');
+                    $this->Password = (string) $modx['config']->get('cms.settings.smtppw');
                 } else {
-                    $this->Password = $modx->getConfig('smtppw');
+                    $this->Password = (string) $modx->getConfig('smtppw');
                     if (10 < strlen($this->Password)) {
                         $this->Password = substr($this->Password, 0, -7);
                         $this->Password = str_replace('%', '=', $this->Password);
