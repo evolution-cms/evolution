@@ -3,12 +3,12 @@
 use EvolutionCMS\Facades\Console;
 
 $base_path = dirname(__DIR__) . '/';
-define('MODX_API_MODE', true);
-define('EVO_BASE_PATH', $base_path);
-define('EVO_SITE_URL', '/');
-define('EVO_CORE_PATH', $base_path . 'core/');
-define('IN_INSTALL_MODE', true);
-define('EVO_CLI', true);
+defined('MODX_API_MODE') || define('MODX_API_MODE', true);
+defined('EVO_BASE_PATH') || define('EVO_BASE_PATH', $base_path);
+defined('EVO_SITE_URL') || define('EVO_SITE_URL', '/');
+defined('EVO_CORE_PATH') || define('EVO_CORE_PATH', $base_path . 'core/');
+defined('IN_INSTALL_MODE') || define('IN_INSTALL_MODE', true);
+defined('EVO_CLI') || define('EVO_CLI', true);
 require_once EVO_BASE_PATH . 'install/src/functions.php';
 /**
  * EVO Cli Installer/Updater
@@ -16,8 +16,15 @@ require_once EVO_BASE_PATH . 'install/src/functions.php';
  * php cli-install.php --typeInstall=2 --removeInstall=y
  **/
 
-$install = new InstallEvo($argv);
-$install->start();
+function runCliInstall(array $argv): void
+{
+    $install = new InstallEvo($argv);
+    $install->start();
+}
+
+if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) {
+    runCliInstall($argv);
+}
 
 class InstallEvo
 {
@@ -445,7 +452,9 @@ class InstallEvo
         $confph['connection_charset'] = $this->database_charset;
         $confph['connection_collation'] = $this->database_collation;
         $confph['connection_method'] = 'SET CHARACTER SET';
-        $confph['dbase'] = str_replace('', '', $this->database);
+        $confph['database_name'] = $this->databaseType === 'sqlite'
+            ? sqliteDbNameToPath($this->database)
+            : $this->database;
         $confph['table_prefix'] = $this->tablePrefix;
         $confph['lastInstallTime'] = time();
         $confph['database_engine'] = '';
@@ -464,13 +473,15 @@ class InstallEvo
                 }
                 break;
         }
-        $configString = file_get_contents('stubs/files/config/database/connections/default.tpl');
+        $configString = file_get_contents(__DIR__ . '/stubs/files/config/database/connections/default.tpl');
         $configString = parse($configString, $confph);
 
         $filename = EVO_CORE_PATH . 'config/database/connections/default.php';
         $configFileFailed = false;
 
-        @chmod($filename, 0777);
+        if (file_exists($filename)) {
+            @chmod($filename, 0777);
+        }
 
         if (!$handle = fopen($filename, 'w')) {
             $configFileFailed = true;
@@ -827,4 +838,6 @@ class InstallEvo
     }
 }
 
-exit();
+if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) {
+    exit();
+}
