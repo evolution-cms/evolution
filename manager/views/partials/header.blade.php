@@ -49,6 +49,7 @@
         // ============================================
         evo.MODX_MANAGER_URL = '{{EVO_MANAGER_URL}}';
     </script>
+    <script src="media/script/tooltip-helper.js"></script>
     <script src="media/script/main.js"></script>
     @if (get_by_key($_REQUEST, 'r', '', 'is_numeric'))
         <script>doRefresh({{ $_REQUEST['r'] }});</script>
