@@ -100,8 +100,10 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
         // GLOBAL variable modx
         var modx = {
             MGR_DIR: '{{MGR_DIR}}',
-            MODX_SITE_URL: '{{MODX_SITE_URL}}',
-            MODX_MANAGER_URL: '{{MODX_MANAGER_URL}}',
+            EVO_SITE_URL: '{{EVO_SITE_URL}}',
+            EVO_MANAGER_URL: '{{EVO_MANAGER_URL}}',
+            MODX_SITE_URL: '{{EVO_SITE_URL}}',
+            MODX_MANAGER_URL: '{{EVO_MANAGER_URL}}',
             user: {
                 role: {{(int)$user['role']}},
                 username: '{{$user['username']}}',
@@ -292,7 +294,7 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
                         <li id="account" class="dropdown account">
                             <a href="javascript:;" class="dropdown-toggle" onclick="return false;">
                                 @if ($user['photo'])
-                                    <span class="icon photo" style="background-image: url({!!MODX_SITE_URL . entities($user['photo'], evo()->getConfig('modx_charset'))!!});"></span>
+                                    <span class="icon photo" style="background-image: url({!!EVO_SITE_URL . entities($user['photo'], evo()->getConfig('modx_charset'))!!});"></span>
                                 @else
                                     <span class="icon">{!! $_style['icon_user'] !!}</span>
                                 @endif
@@ -560,7 +562,7 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
                 e.preventDefault();
                 if (modx.config.global_tabs && !e.shiftKey) {
                     modx.tabs({
-                        url: '{{ MODX_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?filemanager=media/browser/{{ $modx->getConfig('which_browser') }}/browse.php&type=images',
+                        url: '{{ EVO_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?filemanager=media/browser/{{ $modx->getConfig('which_browser') }}/browse.php&type=images',
                         title: '{{ ManagerTheme::getLexicon('images_management') }}'
                     });
                 } else {
@@ -569,7 +571,7 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
                         randomNum += ' #' + Math.floor((Math.random() * 999999) + 1);
                     }
                     modx.openWindow({
-                        url: '{{ MODX_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?&type=images',
+                        url: '{{ EVO_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?&type=images',
                         title: randomNum
                     });
                 }
@@ -582,7 +584,7 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
                 e.preventDefault();
                 if (modx.config.global_tabs && !e.shiftKey) {
                     modx.tabs({
-                        url: '{{ MODX_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?filemanager=media/browser/{{ $modx->getConfig('which_browser') }}/browse.php&type=files',
+                        url: '{{ EVO_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?filemanager=media/browser/{{ $modx->getConfig('which_browser') }}/browse.php&type=files',
                         title: '{{ ManagerTheme::getLexicon('files_files') }}'
                     });
                 } else {
@@ -591,7 +593,7 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
                         randomNum += ' #' + Math.floor((Math.random() * 999999) + 1);
                     }
                     modx.openWindow({
-                        url: '{{ MODX_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?&type=files',
+                        url: '{{ EVO_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?&type=files',
                         title: randomNum
                     });
                 }

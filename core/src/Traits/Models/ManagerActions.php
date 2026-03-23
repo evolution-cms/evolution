@@ -27,6 +27,6 @@ trait ManagerActions
                 $out = '#';
         }
 
-        return ($full ? MODX_MANAGER_URL : '') . $out;
+        return ($full ? EVO_MANAGER_URL : '') . $out;
     }
 }

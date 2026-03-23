@@ -126,16 +126,16 @@ trait Settings
         }
 
         // store base_url and base_path inside config array
-        $this->setConfig('base_url', MODX_BASE_URL);
-        $this->setConfig('base_path', MODX_BASE_PATH);
-        $this->setConfig('site_url', MODX_SITE_URL);
-        $this->setConfig('site_manager_path', MODX_MANAGER_PATH);
+        $this->setConfig('base_url', EVO_BASE_URL);
+        $this->setConfig('base_path', EVO_BASE_PATH);
+        $this->setConfig('site_url', EVO_SITE_URL);
+        $this->setConfig('site_manager_path', EVO_MANAGER_PATH);
         $this->error_reporting = $this->getConfig('error_reporting');
         $this->setConfig(
             'filemanager_path',
             str_replace(
                 '[(base_path)]',
-                MODX_BASE_PATH,
+                EVO_BASE_PATH,
                 $this->getConfig('filemanager_path')
             )
         );
@@ -143,7 +143,7 @@ trait Settings
             'snapshot_path',
             str_replace(
                 '[(base_path)]',
-                MODX_BASE_PATH,
+                EVO_BASE_PATH,
                 $this->getConfig('snapshot_path')
             )
         );
@@ -151,7 +151,7 @@ trait Settings
             'rb_base_dir',
             str_replace(
                 '[(base_path)]',
-                MODX_BASE_PATH,
+                EVO_BASE_PATH,
                 $this->getConfig('rb_base_dir')
             )
         );
