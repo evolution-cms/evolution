@@ -1930,8 +1930,9 @@
             if (modx.config.global_tabs) {
                 if (typeof a.currentTarget !== 'undefined') {
                     var e = a;
-                    if (e.button === 0 && e.target && (e.target.tagName === 'A' && e.target.target === 'main' || (e.target.parentNode && e.target.parentNode.tagName === 'A' && e.target.parentNode.target === 'main'))) {
-                        a = e.target.tagName === 'A' && e.target || e.target.parentNode.tagName === 'A' && e.target.parentNode;
+                    var link = modxMainTargetLinkHelper.getMainTargetLink(e);
+                    if (link) {
+                        a = link;
                         if (e.shiftKey) {
                             modx.openWindow({ url: a.href });
                         } else {
