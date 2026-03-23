@@ -977,12 +977,8 @@
                         indent.innerHTML += '<i></i>';
                     }
                     if (this.nextSibling) {
-                        if (this.nextSibling.innerHTML) {
-                            this.nextSibling.appendChild(el);
-                        } else {
-                            el.parentNode.removeChild(el);
-                        }
-                        els = this.parentNode.lastChild.children;
+                        const dropResult = modxTreeDropHelper.moveNodeIntoFolder(this, el);
+                        els = dropResult.children;
                         for (i = 0; i < els.length; i++) {
                             menuindex[i] = els[i].id.substr(4);
                         }
