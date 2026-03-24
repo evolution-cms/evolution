@@ -360,6 +360,10 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
 
     protected function menuSite()
     {
+        if (!$this->managerTheme->getCore()->hasPermission('home')) {
+            return $this;
+        }
+
         $this->sitemenu['site'] = [
             'site',
             'main',
