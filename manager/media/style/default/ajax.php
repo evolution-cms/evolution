@@ -1,6 +1,7 @@
 <?php
 
 use EvolutionCMS\Models\SiteContent;
+use EvolutionCMS\Support\MoveDocumentTargetGuard;
 
 define('IN_MANAGER_MODE', true);  // we use this to make sure files are accessed through
 define('EVO_API_MODE', true);
@@ -594,7 +595,8 @@ if (isset($action)) {
                             $parent = $eventParent;
                         }
                     }
-                    $parentDeleted = $parent > 0 && empty(SiteContent::find($parent));
+                    $parentDocument = $parent > 0 ? SiteContent::withTrashed()->find($parent) : null;
+                    $parentDeleted = $parent > 0 && MoveDocumentTargetGuard::blocksParent($parentDocument);
                     if ($parentDeleted) {
                         $json['errors'] = $_lang['error_parent_deleted'];
                     } elseif (empty($json['errors'])) {

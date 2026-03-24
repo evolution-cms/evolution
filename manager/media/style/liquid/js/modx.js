@@ -923,8 +923,14 @@
                 e.dataTransfer.dropEffect = 'all';
                 e.dataTransfer.setData('text', this.id.substr(4));
             },
+            isBlockedDropTarget: function (target) {
+                return !!(w.modxTreeDropGuardHelper && !w.modxTreeDropGuardHelper.canDropIntoTarget(target));
+            },
             ondragenter: function (e) {
-                if (d.getElementById('node' + modx.tree.itemToChange) === (this.parentNode.closest('#node' + modx.tree.itemToChange) || this.parentNode)) {
+                if (
+                    d.getElementById('node' + modx.tree.itemToChange) === (this.parentNode.closest('#node' + modx.tree.itemToChange) || this.parentNode)
+                    || modx.tree.isBlockedDropTarget(this)
+                ) {
                     this.parentNode.className = '';
                     e.dataTransfer.effectAllowed = 'none';
                     e.dataTransfer.dropEffect = 'none';
@@ -938,7 +944,12 @@
                 e.preventDefault();
             },
             ondragover: function (e) {
-                if (modx.tree.drag) {
+                if (modx.tree.isBlockedDropTarget(this)) {
+                    this.parentNode.className = '';
+                    e.dataTransfer.effectAllowed = 'none';
+                    e.dataTransfer.dropEffect = 'none';
+                    modx.tree.drag = false;
+                } else if (modx.tree.drag) {
                     var a = e.clientY;
                     var b = parseInt(this.getBoundingClientRect().top);
                     var c = a - b;
@@ -977,6 +988,15 @@
                 e.preventDefault();
             },
             ondrop: function (e) {
+                if (modx.tree.isBlockedDropTarget(this)) {
+                    this.parentNode.removeAttribute('class');
+                    this.parentNode.removeAttribute('draggable');
+                    modx.alert(modx.lang.error_parent_deleted);
+                    modx.tree.restoreTree();
+                    e.preventDefault();
+                    return;
+                }
+
                 let el = d.getElementById('node' + modx.tree.itemToChange);
                 let els = null;
                 let id = modx.tree.itemToChange;
