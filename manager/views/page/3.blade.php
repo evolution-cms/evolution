@@ -57,7 +57,7 @@
         'cancel'    => 'index.php?' . ($id == 0 ? 'a=2' : 'a=3&r=1&id=' . $id . $add_path),
         'move'      => 'index.php?id=' . $_REQUEST['id'] . '&a=51',
         'duplicate' => 'index.php?id=' . $_REQUEST['id'] . '&a=94',
-        'view'      => evo()->getConfig('friendly_urls') ? UrlProcessor::makeUrl($id) : MODX_SITE_URL . 'index.php?id=' . $id,
+        'view'      => evo()->getConfig('friendly_urls') ? UrlProcessor::makeUrl($id) : EVO_SITE_URL . 'index.php?id=' . $id,
     ];
 
     /**
@@ -493,7 +493,7 @@
     @if(!empty($show_preview))
         <div class="sectionHeader">{{ ManagerTheme::getLexicon('preview') }}</div>
         <div class="sectionBody" id="lyr2">
-            <iframe src="{{ MODX_SITE_URL }}index.php?id={{ $id }}&z=manprev" frameborder="0" border="0" id="previewIframe"></iframe>
+            <iframe src="{{ EVO_SITE_URL }}index.php?id={{ $id }}&z=manprev" frameborder="0" border="0" id="previewIframe"></iframe>
         </div>
     @endif
 @endsection

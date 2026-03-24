@@ -184,8 +184,8 @@ class ManagerTheme implements ManagerThemeInterface
     {
         $this->core = $core;
 
-        $this->getCore()['view']->addNamespace('manager', MODX_MANAGER_PATH . '/media/style/' . $theme . '/views/');
-        $this->getCore()['view']->addNamespace('manager', MODX_MANAGER_PATH . '/views/');
+        $this->getCore()['view']->addNamespace('manager', EVO_MANAGER_PATH . '/media/style/' . $theme . '/views/');
+        $this->getCore()['view']->addNamespace('manager', EVO_MANAGER_PATH . '/views/');
 
         $this->theme = $theme;
 
@@ -317,12 +317,12 @@ class ManagerTheme implements ManagerThemeInterface
      */
     public function getThemeDir($full = true): string
     {
-        return ($full ? MODX_MANAGER_PATH : '') . 'media/style/' . $this->getTheme() . '/';
+        return ($full ? EVO_MANAGER_PATH : '') . 'media/style/' . $this->getTheme() . '/';
     }
 
     public function getThemeUrl(): string
     {
-        return MODX_MANAGER_URL . $this->getThemeDir(false);
+        return EVO_MANAGER_URL . $this->getThemeDir(false);
     }
 
     /**
@@ -363,10 +363,10 @@ class ManagerTheme implements ManagerThemeInterface
             $theme = $this->getTheme();
         }
 
-        if (is_file(MODX_MANAGER_PATH . '/media/style/' . $theme . '/' . $filepath)) {
-            $element = MODX_MANAGER_PATH . '/media/style/' . $theme . '/' . $filepath;
+        if (is_file(EVO_MANAGER_PATH . '/media/style/' . $theme . '/' . $filepath)) {
+            $element = EVO_MANAGER_PATH . '/media/style/' . $theme . '/' . $filepath;
         } else {
-            $element = MODX_MANAGER_PATH . ltrim($filepath, '/');
+            $element = EVO_MANAGER_PATH . ltrim($filepath, '/');
         }
 
         return $element;

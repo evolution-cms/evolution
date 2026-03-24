@@ -77,7 +77,7 @@ trait Path
      */
     public function publicPath($path = '')
     {
-        return MODX_BASE_PATH . $path;
+        return EVO_BASE_PATH . $path;
     }
 
     /**
@@ -184,7 +184,7 @@ trait Path
      */
     public function getManagerUrl()
     {
-        return MODX_MANAGER_URL;
+        return EVO_MANAGER_URL;
     }
 
     /**

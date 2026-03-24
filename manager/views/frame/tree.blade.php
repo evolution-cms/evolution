@@ -31,13 +31,13 @@ $_style['icon_trash'] = svg('tabler-trash')->toHtml();
         <a class="treeButton" id="treeMenu_expandtree" onclick="modx.tree.expandTree();" title="{{ ManagerTheme::getLexicon('expand_tree') }}">{!! $_style['icon_arrow_down_circle'] !!}</a>
         <a class="treeButton" id="treeMenu_collapsetree" onclick="modx.tree.collapseTree();" title="{{ ManagerTheme::getLexicon('collapse_tree') }}">{!! $_style['icon_arrow_up_circle'] !!}</a>
         @if(evo()->hasPermission('new_document'))
-            <a class="treeButton" id="treeMenu_addresource" onclick="modx.tabs({url:'{{ MODX_MANAGER_URL }}?a=4', title: '{{ ManagerTheme::getLexicon('add_resource') }}'});" title="{{ ManagerTheme::getLexicon('add_resource') }}">{!! $_style['icon_add'] !!}</a>
-            <a class="treeButton" id="treeMenu_addweblink" onclick="modx.tabs({url:'{{ MODX_MANAGER_URL }}?a=72', title: '{{ ManagerTheme::getLexicon('add_weblink') }}'});" title="{{ ManagerTheme::getLexicon('add_weblink') }}">{!! $_style['icon_chain_broken'] !!}</a>
+            <a class="treeButton" id="treeMenu_addresource" onclick="modx.tabs({url:'{{ EVO_MANAGER_URL }}?a=4', title: '{{ ManagerTheme::getLexicon('add_resource') }}'});" title="{{ ManagerTheme::getLexicon('add_resource') }}">{!! $_style['icon_add'] !!}</a>
+            <a class="treeButton" id="treeMenu_addweblink" onclick="modx.tabs({url:'{{ EVO_MANAGER_URL }}?a=72', title: '{{ ManagerTheme::getLexicon('add_weblink') }}'});" title="{{ ManagerTheme::getLexicon('add_weblink') }}">{!! $_style['icon_chain_broken'] !!}</a>
         @endif
         <a class="treeButton" id="treeMenu_refreshtree" onclick="modx.tree.restoreTree();" title="{{ ManagerTheme::getLexicon('refresh_tree') }}">{!! $_style['icon_refresh'] !!}</a>
         <a class="treeButton" id="treeMenu_sortingtree" onclick="modx.tree.showSorter(event);" title="{{ ManagerTheme::getLexicon('sort_tree') }}">{!! $_style['icon_sort'] !!}</a>
         @if(evo()->hasPermission('edit_document') && evo()->hasPermission('save_document'))
-            <a class="treeButton" id="treeMenu_sortingindex" onclick="modx.tree.openSortMenuIndex();" title="{{ ManagerTheme::getLexicon('sort_menuindex') }}">{!! $_style['icon_sort_num_asc'] !!}</a>
+            <a class="treeButton" id="treeMenu_sortingindex" onclick="modx.tabs({url: '{{ EVO_MANAGER_URL }}?a=56&id=0', title: '{{ ManagerTheme::getLexicon('sort_menuindex') }}'});" title="{{ ManagerTheme::getLexicon('sort_menuindex') }}">{!! $_style['icon_sort_num_asc'] !!}</a>
         @endif
         {{-- @if(evo()->getConfig('use_browser') && evo()->hasPermission('assets_images'))
             <a class="treeButton" id="treeMenu_openimages" title="{{ ManagerTheme::getLexicon('images_management') }}&#013;{{ ManagerTheme::getLexicon('em_button_shift') }}"><i class="{{ $_style['icon_camera'] }}"></i></a>

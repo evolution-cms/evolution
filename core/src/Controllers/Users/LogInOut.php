@@ -50,7 +50,7 @@ class LogInOut extends AbstractController implements ManagerTheme\PageController
             session_destroy();
         }
         // show login screen
-        header('Location: ' . MODX_MANAGER_URL);
+        header('Location: ' . EVO_MANAGER_URL);
         exit();
     }
 
@@ -105,7 +105,7 @@ class LogInOut extends AbstractController implements ManagerTheme\PageController
                 header($header);
             }
         } else {
-            $header = 'Location: ' . MODX_MANAGER_URL;
+            $header = 'Location: ' . EVO_MANAGER_URL;
             if ($ajax === 1) {
                 echo $header;
             } else {
@@ -124,7 +124,7 @@ class LogInOut extends AbstractController implements ManagerTheme\PageController
             exit();
         }
 
-        header('Location: ' . MODX_MANAGER_URL.'#?a=28');
+        header('Location: ' . EVO_MANAGER_URL . '#?a=28');
         exit();
     }
 
