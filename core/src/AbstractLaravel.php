@@ -196,9 +196,26 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
             ksort($files, SORT_NATURAL);
 
             foreach ($files as $key => $path) {
-                $config->set($key, require $path);
+                try {
+                    $config->set($key, require $path);
+                } catch (\ParseError $exception) {
+                    if (!$this->isCustomConfigPath($path)) {
+                        throw $exception;
+                    }
+
+                    error_log(sprintf(
+                        '[EvolutionCMS] Skipped invalid custom config file "%s": %s',
+                        $path,
+                        $exception->getMessage()
+                    ));
+                }
             }
         }
+    }
+
+    protected function isCustomConfigPath(string $path): bool
+    {
+        return str_contains(str_replace('\\', '/', $path), '/custom/config/');
     }
 
     /**
