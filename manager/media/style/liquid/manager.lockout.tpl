@@ -37,7 +37,7 @@
 
 			<!-- actions -->
 			<div class="form-group form-group--actions">
-				<input type="button" class="btn btn-default" value="[%home%]" onclick="return gotoHome();" />
+				<input type="button" class="btn btn-default" value="[%site%]" onclick="return gotoHome();" />
 				<input type="button" class="btn btn-success" value="[%logout%]" onclick="return doLogout();" />
 			</div>
 
