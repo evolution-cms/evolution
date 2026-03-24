@@ -5,7 +5,7 @@
  * This page is requested every 10min to keep the session alive and kicking
  */
 define('IN_MANAGER_MODE', true);
-define('MODX_API_MODE', true);
+define('EVO_API_MODE', true);
 include_once('../../index.php');
 if (defined('EVO_SESSION') && EVO_SESSION) {
     \EvoSessionProxy::init();

@@ -6,8 +6,8 @@ use Tests\Mocks\MockDocumentParser;
 if (!defined('IN_INSTALL_MODE')) {
     define('IN_INSTALL_MODE', false);
 }
-if (!defined('MODX_API_MODE')) {
-    define('MODX_API_MODE', true);
+if (!defined('EVO_API_MODE')) {
+    define('EVO_API_MODE', true);
 }
 if (!defined('IN_MANAGER_MODE')) {
     define('IN_MANAGER_MODE', false);

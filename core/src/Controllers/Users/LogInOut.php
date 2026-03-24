@@ -43,6 +43,12 @@ class LogInOut extends AbstractController implements ManagerTheme\PageController
     public function logout()
     {
         \UserManager::logout();
+        // Destroy the session entirely so the old SID cannot be reused when the next user logs in
+        // on the same browser, which would cause a duplicate PRIMARY KEY violation in active_users.
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_unset();
+            session_destroy();
+        }
         // show login screen
         header('Location: ' . MODX_MANAGER_URL);
         exit();

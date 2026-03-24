@@ -1106,7 +1106,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
     public function setConditional()
     {
-        if (!empty($_POST) || (defined('MODX_API_MODE') && MODX_API_MODE) || $this->getLoginUserID('mgr') || !$this->useConditional || empty($this->recentUpdate)) {
+        if (!empty($_POST) || (defined('EVO_API_MODE') && EVO_API_MODE) || $this->getLoginUserID('mgr') || !$this->useConditional || empty($this->recentUpdate)) {
             return;
         }
         $last_modified = gmdate('D, d M Y H:i:s T', $this->recentUpdate);

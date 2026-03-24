@@ -4,7 +4,7 @@ use EvolutionCMS\Models\SiteContent;
 use EvolutionCMS\Support\MoveDocumentTargetGuard;
 
 define('IN_MANAGER_MODE', true);  // we use this to make sure files are accessed through
-define('MODX_API_MODE', true);
+define('EVO_API_MODE', true);
 
 if (file_exists(dirname(__DIR__, 3) . '/config.php')) {
     $config = require dirname(__DIR__) . '/config.php';

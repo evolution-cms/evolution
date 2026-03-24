@@ -37,7 +37,7 @@ $_style['icon_trash'] = svg('tabler-trash')->toHtml();
         <a class="treeButton" id="treeMenu_refreshtree" onclick="modx.tree.restoreTree();" title="{{ ManagerTheme::getLexicon('refresh_tree') }}">{!! $_style['icon_refresh'] !!}</a>
         <a class="treeButton" id="treeMenu_sortingtree" onclick="modx.tree.showSorter(event);" title="{{ ManagerTheme::getLexicon('sort_tree') }}">{!! $_style['icon_sort'] !!}</a>
         @if(evo()->hasPermission('edit_document') && evo()->hasPermission('save_document'))
-            <a class="treeButton" id="treeMenu_sortingindex" onclick="modx.tabs({url: '{{ MODX_MANAGER_URL }}?a=56&id=0', title: '{{ ManagerTheme::getLexicon('sort_menuindex') }}'});" title="{{ ManagerTheme::getLexicon('sort_menuindex') }}">{!! $_style['icon_sort_num_asc'] !!}</a>
+            <a class="treeButton" id="treeMenu_sortingindex" onclick="modx.tree.openSortMenuIndex();" title="{{ ManagerTheme::getLexicon('sort_menuindex') }}">{!! $_style['icon_sort_num_asc'] !!}</a>
         @endif
         {{-- @if(evo()->getConfig('use_browser') && evo()->hasPermission('assets_images'))
             <a class="treeButton" id="treeMenu_openimages" title="{{ ManagerTheme::getLexicon('images_management') }}&#013;{{ ManagerTheme::getLexicon('em_button_shift') }}"><i class="{{ $_style['icon_camera'] }}"></i></a>
@@ -57,10 +57,12 @@ $_style['icon_trash'] = svg('tabler-trash')->toHtml();
             if (is_array($evtOut)) {
                 echo implode("\n", $evtOut);
             }
-            $siteName = evo()->getPhpCompat()->entities(evo()->getConfig('site_name'));
+            $siteName = evo()->getConfig('site_name');
         ?>
 
-        <div id="node0" class="rootNode"><a class="node" onclick="modx.tree.treeAction(event, 0)" data-id="0" data-title-esc="{{ $siteName }}"><span class="icon"><i class="{{ $_style['icon_sitemap'] }}"></i></span><span class="title">{{ $siteName }}</span></a>
+        <div id="node0" class="rootNode"><a class="node" onclick="modx.tree.treeAction(event, 0)" data-id="0"
+            data-title-esc="{{ $siteName }}"><span class="icon"><i
+            class="{{ $_style['icon_sitemap'] }}"></i></span><span class="title">{{ $siteName }}</span></a>
             <div id="treeloader"><i class="{{ $_style['icon_cog'] }} {{ $_style['icon_spin'] }}"></i></div>
         </div>
         <div id="treeRoot0" class="treeRoot"></div>
