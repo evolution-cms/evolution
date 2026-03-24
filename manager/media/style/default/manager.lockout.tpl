@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>[(site_name)] (Evolution CMS Manager Login)</title>
+	<title>[+site_name_text+] (Evolution CMS Manager Login)</title>
 	<meta http-equiv="content-type" content="text/html; charset=[+modx_charset+]">
 	<meta name="robots" content="noindex, nofollow">
 	<meta name="viewport" content="width=device-width">
@@ -273,13 +273,13 @@
 
 			<!-- logo -->
 			<div class="form-group form-group--logo text-center">
-				<a class="logo" href="../" title="[(site_name)]">
-					<img src="[+login_logo+]" alt="[(site_name)]" id="logo">
+				<a class="logo" href="../" title="[+site_name_attr+]">
+					<img src="[+login_logo+]" alt="[+site_name_attr+]" id="logo">
 				</a>
 			</div>
 
 			<div class="text-muted">
-				<h2>[(site_name)]</h2>
+				<h2>[+site_name_text+]</h2>
 
 				[%manager_lockout_message%]
 			</div>

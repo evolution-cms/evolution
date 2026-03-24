@@ -638,6 +638,8 @@ class ManagerTheme implements ManagerThemeInterface
             'manager_theme_url' => $this->getThemeUrl(),
             'manager_theme_style' => $this->getThemeStyle(),
             'manager_path' => MGR_DIR,
+            'site_name_text' => e((string)$this->getCore()->getConfig('site_name')),
+            'site_name_attr' => htmlspecialchars((string)$this->getCore()->getConfig('site_name'), ENT_QUOTES, $this->getCharset()),
         ];
 
         // set login logo image

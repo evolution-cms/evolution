@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>[(site_name)] (Evolution CMS Manager Login)</title>
+    <title>[+site_name_text+] (Evolution CMS Manager Login)</title>
     <meta http-equiv="content-type" content="text/html; charset=[(modx_charset)]" />
     <meta name="robots" content="noindex, nofollow" />
     <meta name="viewport" content="width=device-width">
@@ -63,8 +63,8 @@
         [+OnManagerLoginFormPrerender+]
         <fieldset>
             <div class="text-center">
-                <a class="logo" href="../" title="[(site_name)]">
-                    <img src="media/style/[(manager_theme)]/images/misc/login-logo.png" alt="[(site_name)]" id="logo" />
+                <a class="logo" href="../" title="[+site_name_attr+]">
+                    <img src="media/style/[(manager_theme)]/images/misc/login-logo.png" alt="[+site_name_attr+]" id="logo" />
                 </a>
             </div>
             <label for="username">[%username%]</label>
