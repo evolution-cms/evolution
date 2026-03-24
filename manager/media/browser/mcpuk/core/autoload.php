@@ -20,7 +20,7 @@
   *        It's recommended to use constants instead.
   */
 define('IN_MANAGER_MODE', true);
-define('MODX_API_MODE', true);
+define('EVO_API_MODE', true);
 include_once(__DIR__."/../../../../../index.php");
 $modx = EvolutionCMS();
 

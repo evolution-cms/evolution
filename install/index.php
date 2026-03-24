@@ -15,8 +15,11 @@ if (! defined('MGR_DIR')) {
         die('MGR_DIR is not defined');
     }
 }
+if (!defined('EVO_MANAGER_PATH')) {
+    define('EVO_MANAGER_PATH', $base_path . MGR_DIR . '/');
+}
 if (!defined('MODX_MANAGER_PATH')) {
-    define('MODX_MANAGER_PATH', $base_path . MGR_DIR . '/');
+    define('MODX_MANAGER_PATH', EVO_MANAGER_PATH);
 }
 if (! defined('EVO_CORE_PATH')) {
     if (is_dir($base_path . 'core')) {

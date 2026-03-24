@@ -48,7 +48,7 @@ class Resources extends AbstractResources implements ManagerTheme\PageController
         return array_merge(compact('tabs'), parent::getParameters($params), compact('activeTab'));
     }
 
-    protected function makeTab($tabClass, int $index = null) :? ManagerTheme\TabControllerInterface
+    protected function makeTab($tabClass, ?int $index = null) :? ManagerTheme\TabControllerInterface
     {
         $tabController = null;
         if (class_exists($tabClass) &&

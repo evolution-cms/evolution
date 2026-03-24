@@ -906,8 +906,14 @@
                 e.dataTransfer.dropEffect = 'all';
                 e.dataTransfer.setData('text', this.id.substr(4));
             },
+            isBlockedDropTarget: function (target) {
+                return !!(w.modxTreeDropGuardHelper && !w.modxTreeDropGuardHelper.canDropIntoTarget(target));
+            },
             ondragenter: function (e) {
-                if (d.getElementById('node' + modx.tree.itemToChange) === (this.parentNode.closest('#node' + modx.tree.itemToChange) || this.parentNode)) {
+                if (
+                    d.getElementById('node' + modx.tree.itemToChange) === (this.parentNode.closest('#node' + modx.tree.itemToChange) || this.parentNode)
+                    || modx.tree.isBlockedDropTarget(this)
+                ) {
                     this.parentNode.className = '';
                     e.dataTransfer.effectAllowed = 'none';
                     e.dataTransfer.dropEffect = 'none';
@@ -921,7 +927,12 @@
                 e.preventDefault();
             },
             ondragover: function (e) {
-                if (modx.tree.drag) {
+                if (modx.tree.isBlockedDropTarget(this)) {
+                    this.parentNode.className = '';
+                    e.dataTransfer.effectAllowed = 'none';
+                    e.dataTransfer.dropEffect = 'none';
+                    modx.tree.drag = false;
+                } else if (modx.tree.drag) {
                     var a = e.clientY;
                     var b = parseInt(this.getBoundingClientRect().top);
                     var c = a - b;
@@ -960,6 +971,15 @@
                 e.preventDefault();
             },
             ondrop: function (e) {
+                if (modx.tree.isBlockedDropTarget(this)) {
+                    this.parentNode.removeAttribute('class');
+                    this.parentNode.removeAttribute('draggable');
+                    modx.alert(modx.lang.error_parent_deleted);
+                    modx.tree.restoreTree();
+                    e.preventDefault();
+                    return;
+                }
+
                 let el = d.getElementById('node' + modx.tree.itemToChange);
                 let els = null;
                 let id = modx.tree.itemToChange;
@@ -977,12 +997,8 @@
                         indent.innerHTML += '<i></i>';
                     }
                     if (this.nextSibling) {
-                        if (this.nextSibling.innerHTML) {
-                            this.nextSibling.appendChild(el);
-                        } else {
-                            el.parentNode.removeChild(el);
-                        }
-                        els = this.parentNode.lastChild.children;
+                        const dropResult = modxTreeDropHelper.moveNodeIntoFolder(this, el);
+                        els = dropResult.children;
                         for (i = 0; i < els.length; i++) {
                             menuindex[i] = els[i].id.substr(4);
                         }
@@ -1463,6 +1479,32 @@
                 el = d.querySelector('#node' + a + '>.node');
                 if (el) el.classList.add('selected');
             },
+            getSortMenuIndexTarget: function () {
+                var node = d.querySelector('#tree .current')
+                    || d.querySelector('.treeRoot .selected')
+                    || d.querySelector('.treeRoot .node')
+                    || d.querySelector('#node0 > .node');
+                var trigger = d.getElementById('treeMenu_sortingindex');
+                var fallbackTitle = trigger ? trigger.getAttribute('title') : 'Sort menu index';
+
+                if (!node) {
+                    return { id: 0, title: fallbackTitle };
+                }
+
+                var id = node.dataset.id || node.parentNode.id.replace('node', '');
+                var title = node.dataset.titleEsc
+                    || (node.querySelector('.title') ? node.querySelector('.title').textContent : '')
+                    || fallbackTitle;
+
+                return { id: id, title: title };
+            },
+            openSortMenuIndex: function () {
+                var target = this.getSortMenuIndexTarget();
+                this.itemToChange = target.id;
+                this.selectedObjectName = target.title;
+                this.setSelected(target.id);
+                modx.tabs({ url: modx.MODX_MANAGER_URL + '?a=56&id=' + target.id, title: target.title + '<small>(' + target.id + ')</small>' });
+            },
             setItemToChange: function () {
                 var a = w.main.document && (w.main.document.URL || modx.normalizeUrl(w.main.document.location.href)),
                     b = modx.getActionFromUrl(a);
@@ -1913,8 +1955,9 @@
             if (modx.config.global_tabs) {
                 if (typeof a.currentTarget !== 'undefined') {
                     var e = a;
-                    if (e.button === 0 && e.target && (e.target.tagName === 'A' && e.target.target === 'main' || (e.target.parentNode && e.target.parentNode.tagName === 'A' && e.target.parentNode.target === 'main'))) {
-                        a = e.target.tagName === 'A' && e.target || e.target.parentNode.tagName === 'A' && e.target.parentNode;
+                    var link = modxMainTargetLinkHelper.getMainTargetLink(e);
+                    if (link) {
+                        a = link;
                         if (e.shiftKey) {
                             modx.openWindow({ url: a.href });
                         } else {
