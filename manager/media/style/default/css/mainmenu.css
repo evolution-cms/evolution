@@ -769,6 +769,13 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
     color: #fff;
     background-color: transparent;
 }
+.lightness #mainMenu #settings > #theme > a:hover,
+.lightness #mainMenu #settings > #theme > a:focus,
+.lightness #mainMenu #settings > #theme > a:active,
+.lightness #mainMenu.show #settings > #theme.hover > a {
+    color: #2f2f2f;
+    background-color: transparent;
+}
 /* light */
 .light #mainMenu {
     -webkit-box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
