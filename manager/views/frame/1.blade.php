@@ -222,6 +222,7 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
         ?>
     </script>
     <script src="media/script/tree-drop-guard-helper.js?v={{evo()->getVersionData('version')}}"></script>
+    <script src="media/script/main-target-link-helper.js?v={{evo()->getVersionData('version')}}"></script>
     <script src="{{ManagerTheme::getThemeUrl()}}js/modx.js?v={{evo()->getVersionData('version')}}"></script>
     @if ($modx->getConfig('show_picker'))
         <script src="media/script/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
