@@ -36,11 +36,11 @@ $_lang["access_permissions_no_resources_in_group"] = 'Немає ресурсі�
 $_lang["access_permissions_no_users_in_group"] = 'Немає користувачів.';
 $_lang["access_permissions_off"] = '<span class="warning">Права доступу не активовані.</span> Це означає, що ніякі зміни не вступлять в силу, до тих пір поки ви не зміните налаштування.';
 $_lang["access_permissions_resource_groups"] = 'Групи ресурсів';
-$_lang["access_permissions_resources_in_group"] = '<b>ресурсів в групі:</b> ';
+$_lang["access_permissions_resources_in_group"] = '<b>Ресурси в групі:</b> ';
 $_lang["access_permissions_resources_tab"] = 'Тут ви можете побачити всі групи ресурсів. Також, тут ви можете створити, перейменувати, видалити групу, переглянути ресурси в групі. Для додавання або видалення ресурсу з групи перейдіть в редагування ресурсу.';
 $_lang["access_permissions_user_groups"] = 'Групи користувачів';
 $_lang["access_permissions_user_message"] = 'Тут ви можете вибрати, до якої групи користувачів належить цей користувач:';
-$_lang["access_permissions_users_in_group"] = 'Користувачів в групі:';
+$_lang["access_permissions_users_in_group"] = 'Користувачі в групі:';
 $_lang["access_permissions_users_tab"] = 'Тут ви можете побачити всі групи користувачів. Також, тут ви можете створити, перейменувати, видалити групу, переглянути членів групи. Щоб додати або видалити користувача з групи редагуйте користувача безпосередньо. Менеджери завжди мають доступ до всіх ресурсів.';
 $_lang["account_email"] = 'E-mail облікового запису';
 $_lang["actioncomplete"] = '<b>Дія успішно завершена</b><br />Будь ласка, зачекайте, поки Evolution CMS зробить очистку.';
