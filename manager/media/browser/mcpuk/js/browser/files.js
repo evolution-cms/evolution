@@ -195,20 +195,6 @@ browser.returnFile = function(file) {
         }
         tinyMCEPopup.close();
 
-    } else if (hasTinyMCE) {
-        win.tinymceCallBackURL = fileURL;
-        try {
-            if (win.tinymce.activeEditor.windowManager &&
-                win.tinymce.activeEditor.windowManager.close
-            )
-                win.tinymce.activeEditor.windowManager.close();
-            else if (win.console && win.console.warn)
-                win.console.warn("TinyMCE windowManager.close is unavailable.");
-        } catch (err) {
-            if (win.console && win.console.warn)
-                win.console.warn("TinyMCE windowManager.close failed.", err);
-        }
-
     } else if (this.opener.callBack) {
 
         if (window.opener && window.opener.KCFinder) {
@@ -234,6 +220,20 @@ browser.returnFile = function(file) {
             if (button.hasClass('selected'))
                 this.maximize(button);
             this.opener.callBackMultiple([fileURL]);
+        }
+
+    } else if (hasTinyMCE) {
+        win.tinymceCallBackURL = fileURL;
+        try {
+            if (win.tinymce.activeEditor.windowManager &&
+                win.tinymce.activeEditor.windowManager.close
+            )
+                win.tinymce.activeEditor.windowManager.close();
+            else if (win.console && win.console.warn)
+                win.console.warn("TinyMCE windowManager.close is unavailable.");
+        } catch (err) {
+            if (win.console && win.console.warn)
+                win.console.warn("TinyMCE windowManager.close failed.", err);
         }
 
     }
