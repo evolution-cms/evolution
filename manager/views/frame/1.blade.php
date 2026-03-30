@@ -53,11 +53,12 @@ $_style['icon_expand'] = svg('tabler-arrows-maximize')->toHtml();
 $_style['icon_compress'] = svg('tabler-arrows-minimize')->toHtml();
 $_style['icon_trash'] = svg('tabler-trash-x')->toHtml();
 $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
+$managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
 @endphp
 <!DOCTYPE html>
 <html dir="{{ManagerTheme::getTextDir()}}" lang="{{ManagerTheme::getLang()}}" xml:lang="{{ManagerTheme::getLang()}}">
 <head>
-    <title>{{evo()->getConfig('site_name')}} - (Evolution CMS Manager)</title>
+    <title>{!! $managerTitle !!}</title>
     <meta http-equiv="Content-Type" content="text/html; charset={{ManagerTheme::getCharset()}}" />
     <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" />
     <meta name="theme-color" content="#000" />
@@ -108,7 +109,7 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
                 groups: {!!json_encode(evo()->getUserDocGroups())!!}
             },
             config: {
-                manager_title: '{{evo()->getConfig('site_name')}} - (Evolution CMS Manager)',
+                manager_title: {!! json_encode($managerTitle, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!},
                 menu_height: {{(int)evo()->getConfig('manager_menu_height')}},
                 tree_width: {{(int)$MODX_widthSideBar}},
                 tree_min_width: {{(int)$tree_min_width}},
