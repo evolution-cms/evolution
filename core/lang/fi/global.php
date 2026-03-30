@@ -1224,4 +1224,11 @@ $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to acces
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
 
+$_lang["file_groups_saved"] = 'Käyttöoikeudet tallennettu.';
+$_lang["file_groups_edit"] = 'Muokkaa käyttöoikeuksia';
+$_lang["files_groups"] = 'Resurssiryhmät:';
+$_lang["access_permissions_file_message"] = 'Valitse mihin Resurssiryhmiin tämä tiedosto kuuluu:';
+$_lang["access_permissions_dir_message"] = 'Valitse mihin Resurssiryhmiin tämä hakemisto kuuluu:';
+$_lang["all_file_groups"] = 'Kaikki resurssiryhmät (Julkinen)';
+
 return $_lang;

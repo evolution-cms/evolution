@@ -1497,4 +1497,11 @@ $_lang["indexing_is_allowed"] = 'Індексацію дозволено';
 $_lang["indexing_is_prohibited"] = 'Індексацію заборонено';
 $_lang["setting_from_file"] = '<strong class="text-danger">Значение параметра задано в core/custom/config/cms/settings</strong>';
 
+$_lang["file_groups_saved"] = 'Права доступу збережено.';
+$_lang["file_groups_edit"] = 'Редагувати права доступу';
+$_lang["files_groups"] = 'Групи ресурсів:';
+$_lang["access_permissions_file_message"] = 'Виберіть, до яких Груп ресурсів належить цей файл:';
+$_lang["access_permissions_dir_message"] = 'Виберіть, до яких Груп ресурсів належить цей каталог:';
+$_lang["all_file_groups"] = 'Всі групи ресурсів (Публічні)';
+
 return $_lang;

@@ -134,7 +134,13 @@ if(!function_exists('ls')) {
 
                 $dirs_array[$dircounter]['rename'] = is_writable($curpath) ? '<a href="javascript:renameFolder(\''
                     . urlencode($file) . '\');"><i class="' . $_style['icon_i_cursor'] . '" title="' . $_lang['rename']
-                    . '"></i></a> ' : '';
+                    . '"></i></a>' : '';
+
+                $dirs_array[$dircounter]['groups'] = ($showFileGroups ?? false)
+                    ? '<a href="index.php?a=31&mode=groups&path=' . urlencode($rel_newpath) . '"><i class="'
+                    . (!empty($fileGroupsMap[$rel_newpath]) ? $_style['icon_lock'] : $_style['icon_unlock'])
+                    . '" title="' . $_lang['file_groups_edit'] . '"></i></a>'
+                    : '';
 
                 // increment the counter
                 $dircounter++;
@@ -186,6 +192,12 @@ if(!function_exists('ls')) {
                     : '<span class="disabled"><i class="' . $_style['icon_trash'] . '" title="'
                     . $_lang['file_delete_file'] . '"></i></span>';
 
+                $files_array[$filecounter]['groups'] = ($showFileGroups ?? false)
+                    ? '<a href="index.php?a=31&mode=groups&path=' . urlencode($rel_newpath) . '"><i class="'
+                    . (!empty($fileGroupsMap[$rel_newpath]) ? $_style['icon_lock'] : $_style['icon_unlock'])
+                    . '" title="' . $_lang['file_groups_edit'] . '"></i></a>'
+                    : '';
+
                 // increment the counter
                 $filecounter++;
             }
@@ -201,7 +213,11 @@ if(!function_exists('ls')) {
             echo '<td class="text-nowrap">' . evolutionCMS()->toDateFormat($dirs_array[$i]['stats']['9']) . '</td>';
             echo '<td class="text-right">' . niceSize($dirs_array[$i]['stats']['7']) . '</td>';
             echo '<td class="actions text-right">';
+            echo '<span class="disabled"><i class="' . $_style['icon_eye'] . '"></i></span>';
+            echo '<span class="disabled"><i class="' . $_style['icon_edit'] . '"></i></span>';
+            echo '<span class="disabled"><i class="' . $_style['icon_clone'] . '"></i></span>';
             echo $dirs_array[$i]['rename'];
+            echo $dirs_array[$i]['groups'] ?? '';
             echo $dirs_array[$i]['delete'];
             echo '</td>';
             echo '</tr>';
@@ -222,6 +238,7 @@ if(!function_exists('ls')) {
             echo $files_array[$i]['edit'];
             echo $files_array[$i]['duplicate'];
             echo $files_array[$i]['rename'];
+            echo $files_array[$i]['groups'] ?? '';
             echo $files_array[$i]['delete'];
             echo '</td>';
             echo '</tr>';
@@ -439,7 +456,8 @@ if(!function_exists('fileupload')) {
     function fileupload()
     {
         $modx = evolutionCMS();
-        $filemanager_path = rtrim(str_replace('\\', '/', realpath(evolutionCMS()->getConfig('filemanager_path', MODX_BASE_PATH))), '/'); // Canonicalize base path
+        $filemanager_path = rtrim(str_replace('\\', '/', realpath(evolutionCMS()
+            ->getConfig('filemanager_path', EVO_BASE_PATH))), '/'); // Canonicalize base path
         $requested_path = ltrim($_REQUEST['path'] ?? '', '/');
         $startpath = str_replace('\\', '/', realpath($filemanager_path . '/' . $requested_path));
         $startpath = rtrim($startpath, '/');
@@ -450,6 +468,15 @@ if(!function_exists('fileupload')) {
         $new_file_permissions = octdec(evolutionCMS()->getConfig('new_file_permissions', '0666'));
         global $_lang, $uploadablefiles;
         $msg = '';
+        $dirGroupIds = [];
+        if (evolutionCMS()->getConfig('use_udperms')) {
+            $fmPath = rtrim(str_replace('\\', '/', realpath(evolutionCMS()
+                ->getConfig('filemanager_path', EVO_BASE_PATH))), '/');
+            $dirRel = ltrim(substr($startpath, strlen($fmPath)), '/');
+            $dirGroupIds = \EvolutionCMS\Models\FileGroup::query()
+                ->where('file', $dirRel)->pluck('document_group')->toArray();
+        }
+        $inheritInserts = [];
         foreach ($_FILES['userfile']['name'] as $i => $name) {
             if (empty($_FILES['userfile']['tmp_name'][$i])) {
                 continue;
@@ -475,7 +502,7 @@ if(!function_exists('fileupload')) {
 
             // this seems to be an upload action.
             $rel_path = ltrim(substr($startpath, strlen($filemanager_path)), '/');
-            $path = MODX_SITE_URL . ($rel_path ? $rel_path . '/' : '') . $userfile['name'];
+            $path = EVO_SITE_URL . ($rel_path ? $rel_path . '/' : '') . $userfile['name'];
             $msg .= htmlspecialchars($path, ENT_QUOTES, 'UTF-8');
             if ($userfile['error'] == 0) {
                 $img = (strpos($userfile['type'],'image') !== false) ? '<br /><img src="'
@@ -507,6 +534,13 @@ if(!function_exists('fileupload')) {
                         ]);
                         // Log the change
                         logFileChange('upload', $targetFile);
+                        // Inherit groups from parent directory
+                        if (!empty($dirGroupIds)) {
+                            $fileRel = ltrim(substr($targetFile, strlen($filemanager_path)), '/');
+                            foreach ($dirGroupIds as $gid) {
+                                $inheritInserts[] = ['document_group' => $gid, 'file' => $fileRel];
+                            }
+                        }
                     } else {
                         $msg .= '<p><span class="warning">' . $_lang['files_upload_copyfailed'] . '</span> '
                             . $_lang["files_upload_permissions_error"] . '</p>';
@@ -538,6 +572,10 @@ if(!function_exists('fileupload')) {
             }
         }
 
+        if (!empty($inheritInserts)) {
+            \EvolutionCMS\Models\FileGroup::query()->insertOrIgnore($inheritInserts);
+        }
+
         return $msg . '<br/>';
     }
 }
@@ -550,7 +588,8 @@ if(!function_exists('textsave')) {
     {
         global $_lang;
 
-        $filemanager_path = rtrim(str_replace('\\', '/', realpath(evolutionCMS()->getConfig('filemanager_path', MODX_BASE_PATH))), '/');
+        $filemanager_path = rtrim(str_replace('\\', '/', realpath(evolutionCMS()
+            ->getConfig('filemanager_path', EVO_BASE_PATH))), '/');
         $requested_path = ltrim($_POST['path'] ?? '', '/');
         $filename = str_replace('\\', '/', realpath($filemanager_path . '/' . $requested_path));
         if (strpos($filename, $filemanager_path) !== 0 || !is_file($filename)) {
@@ -580,7 +619,8 @@ if(!function_exists('delete_file')) {
     {
         global $_lang;
 
-        $filemanager_path = rtrim(str_replace('\\', '/', realpath(evolutionCMS()->getConfig('filemanager_path', MODX_BASE_PATH))), '/');
+        $filemanager_path = rtrim(str_replace('\\', '/', realpath(evolutionCMS()
+            ->getConfig('filemanager_path', EVO_BASE_PATH))), '/');
         $requested_path = ltrim($_REQUEST['path'] ?? '', '/');
         $file = str_replace('\\', '/', realpath($filemanager_path . '/' . $requested_path));
         if (strpos($file, $filemanager_path) !== 0 || !is_file($file)) {
@@ -592,6 +632,12 @@ if(!function_exists('delete_file')) {
             $msg .= '<span class="warning"><b>' . $_lang['file_not_deleted'] . '</b></span><br /><br />';
         } else {
             $msg .= '<span class="success"><b>' . $_lang['file_deleted'] . '</b></span><br /><br />';
+            if (evolutionCMS()->getConfig('use_udperms')) {
+                $fmPath = rtrim(str_replace('\\', '/', realpath(evolutionCMS()
+                    ->getConfig('filemanager_path', EVO_BASE_PATH))), '/');
+                $fileRel = ltrim(substr($file, strlen($fmPath)), '/');
+                \EvolutionCMS\Models\FileGroup::query()->where('file', $fileRel)->delete();
+            }
         }
 
         // Log the change

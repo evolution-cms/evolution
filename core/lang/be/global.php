@@ -1586,4 +1586,11 @@ $_lang["setting_from_file"] = '<strong class="text-danger">Значэнне па
 $_lang['disable'] = 'Адключыць';
 $_lang['enable'] = 'Уключыць';
 
+$_lang["file_groups_saved"] = 'Правы доступу захаваны.';
+$_lang["file_groups_edit"] = 'Рэдагаваць правы доступу';
+$_lang["files_groups"] = 'Групы рэсурсаў:';
+$_lang["access_permissions_file_message"] = 'Выберыце, да якіх Груп рэсурсаў належыць гэты файл:';
+$_lang["access_permissions_dir_message"] = 'Выберыце, да якіх Груп рэсурсаў належыць гэты каталог:';
+$_lang["all_file_groups"] = 'Усе групы рэсурсаў (Публічныя)';
+
 return $_lang;

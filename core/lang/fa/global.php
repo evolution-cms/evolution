@@ -1225,4 +1225,10 @@ $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to acces
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
 
+$_lang["file_groups_saved"] = 'مجوزهای دسترسی ذخیره شد.';
+$_lang["file_groups_edit"] = 'ویرایش مجوزهای دسترسی';
+$_lang["files_groups"] = 'گروه‌های منابع:';
+$_lang["access_permissions_file_message"] = 'انتخاب کنید این فایل به کدام گروه‌های منابع تعلق دارد:';
+$_lang["access_permissions_dir_message"] = 'انتخاب کنید این پوشه به کدام گروه‌های منابع تعلق دارد:';
+$_lang["all_file_groups"] = 'همه گروه‌های منابع (عمومی)';
 return $_lang;

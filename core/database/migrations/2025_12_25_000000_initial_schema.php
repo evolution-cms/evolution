@@ -186,6 +186,15 @@ return new class extends Migration
             $table->unsignedInteger('private_webgroup')->nullable()->default(0)->comment('determines whether the document is private to web users');
         });
 
+        $this->createTableIfMissing('file_groups', function(Blueprint $table)
+        {
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
+            $table->integer('id', true);
+            $table->integer('document_group')->default(0)->index("{$indexPrefix}_document_group");
+            $table->string('file', 255)->default('')->index("{$indexPrefix}_file");
+            $table->unique(['document_group', 'file'], "{$indexPrefix}_ix_fg_id");
+        });
+
         /*
         |--------------------------------------------------------------------------
         | The log's tables structure
@@ -620,6 +629,7 @@ return new class extends Migration
         */
         Schema::dropIfExists('document_groups');
         Schema::dropIfExists('documentgroup_names');
+        Schema::dropIfExists('file_groups');
 
         /*
         |--------------------------------------------------------------------------

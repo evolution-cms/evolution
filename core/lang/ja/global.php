@@ -1507,4 +1507,11 @@ $_lang["tmplvar_roles_access_msg"] = 'このテンプレート変数へアクセ
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
 
+$_lang["file_groups_saved"] = 'アクセス権限を保存しました。';
+$_lang["file_groups_edit"] = 'アクセス権限を編集';
+$_lang["files_groups"] = 'リソースグループ：';
+$_lang["access_permissions_file_message"] = 'このファイルが属するリソースグループを選択してください：';
+$_lang["access_permissions_dir_message"] = 'このディレクトリが属するリソースグループを選択してください：';
+$_lang["all_file_groups"] = 'すべてのリソースグループ（公開）';
+
 return $_lang;

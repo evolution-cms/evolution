@@ -163,7 +163,8 @@ class browser extends uploader
             unset($tree['dirs']);
         }
         $files = $this->getFiles($this->session['dir']);
-        $dirWritable = dir::isWritable("{$this->config['uploadDir']}/{$this->session['dir']}");
+        $dirWritable = dir::isWritable("{$this->config['uploadDir']}/{$this->session['dir']}") &&
+            $this->isWriteAllowed($this->removeTypeFromPath($this->session['dir']));
         $data = [
             'tree'        => &$tree,
             'files'       => &$files,
@@ -228,7 +229,8 @@ class browser extends uploader
     {
         $this->postDir(); // Just for existing check
         $this->session['dir'] = $this->type . "/" . $this->post['dir'];
-        $dirWritable = dir::isWritable("{$this->config['uploadDir']}/{$this->session['dir']}");
+        $dirWritable = dir::isWritable("{$this->config['uploadDir']}/{$this->session['dir']}") &&
+            $this->isWriteAllowed($this->post['dir']);
 
         return json_encode([
             'files'       => $this->getFiles($this->session['dir']),
@@ -246,6 +248,10 @@ class browser extends uploader
             !isset($this->post['newDir'])
         ) {
             $this->errorMsg("Unknown error.");
+        }
+
+        if (!$this->isWriteAllowed($this->post['dir'])) {
+            $this->errorMsg("You don't have permissions to write to this folder.");
         }
 
         $dir = $this->postDir();
@@ -279,6 +285,10 @@ class browser extends uploader
             !isset($this->post['newName'])
         ) {
             $this->errorMsg("Unknown error.");
+        }
+
+        if (!$this->isStrictWriteAllowed($this->post['dir'])) {
+            $this->errorMsg("You don't have permissions to write to this folder.");
         }
 
         $dir = $this->postDir();
@@ -328,6 +338,10 @@ class browser extends uploader
             $this->errorMsg("Unknown error.");
         }
 
+        if (!$this->isStrictWriteAllowed($this->post['dir'])) {
+            $this->errorMsg("You don't have permissions to write to this folder.");
+        }
+
         $dir = $this->postDir();
 
         if (!dir::isWritable($dir)) {
@@ -368,6 +382,10 @@ class browser extends uploader
         if (!$this->config['access']['files']['upload'] ||
             !isset($this->post['dir'])
         ) {
+            return json_encode($response);
+        }
+        if (!$this->isWriteAllowed($this->post['dir'])) {
+            $response['message'] = $this->label("You don't have permissions to write to this folder.");
             return json_encode($response);
         }
         $dir = $this->postDir();
@@ -413,6 +431,9 @@ class browser extends uploader
      */
     protected function act_rename()
     {
+        if (isset($this->post['dir']) && !$this->isWriteAllowed($this->post['dir'])) {
+            $this->errorMsg("You don't have permissions to write to this folder.");
+        }
         $dir = $this->postDir();
         if (!$this->config['access']['files']['rename'] ||
             !isset($this->post['dir']) ||
@@ -486,6 +507,9 @@ class browser extends uploader
      */
     protected function act_delete()
     {
+        if (isset($this->post['dir']) && !$this->isWriteAllowed($this->post['dir'])) {
+            $this->errorMsg("You don't have permissions to write to this folder.");
+        }
         $dir = $this->postDir();
 
         if (!$this->config['access']['files']['delete'] ||
@@ -529,6 +553,9 @@ class browser extends uploader
      */
     protected function act_cp_cbd()
     {
+        if (isset($this->post['dir']) && !$this->isWriteAllowed($this->post['dir'])) {
+            $this->errorMsg("You don't have permissions to write to this folder.");
+        }
         $dir = $this->postDir();
         if (!$this->config['access']['files']['copy'] ||
             !isset($this->post['dir']) ||
@@ -605,6 +632,9 @@ class browser extends uploader
      */
     protected function act_mv_cbd()
     {
+        if (isset($this->post['dir']) && !$this->isWriteAllowed($this->post['dir'])) {
+            $this->errorMsg("You don't have permissions to write to this folder.");
+        }
         $dir = $this->postDir();
         if (!$this->config['access']['files']['move'] ||
             !isset($this->post['dir']) ||
@@ -624,6 +654,11 @@ class browser extends uploader
             $type = explode("/", $file);
             $type = $type[0];
             if ($type != $this->type) {
+                continue;
+            }
+            $srcRelDir = $this->removeTypeFromPath(dirname($file));
+            if (!$this->isWriteAllowed($srcRelDir)) {
+                $error[] = basename($file) . ": " . $this->label("You don't have permissions to write to this folder.");
                 continue;
             }
             $path = "{$this->config['uploadDir']}/$file";
@@ -698,6 +733,11 @@ class browser extends uploader
             $type = explode("/", $file);
             $type = $type[0];
             if ($type != $this->type) {
+                continue;
+            }
+            $srcRelDir = $this->removeTypeFromPath(dirname($file));
+            if (!$this->isWriteAllowed($srcRelDir)) {
+                $error[] = basename($file) . ": " . $this->label("You don't have permissions to write to this folder.");
                 continue;
             }
             $path = "{$this->config['uploadDir']}/$file";
@@ -947,6 +987,7 @@ class browser extends uploader
         if ($files === false) {
             return $return;
         }
+        $files = $this->filterAccessiblePaths($files);
 
         foreach ($files as $file) {
             $ext = file::getExtension($file);
@@ -1091,6 +1132,7 @@ class browser extends uploader
         $dirs = dir::content($dir, ['types' => "dir"]);
         $return = [];
         if (is_array($dirs)) {
+            $dirs = $this->filterAccessiblePaths($dirs);
             $writable = dir::isWritable($dir);
             foreach ($dirs as $cdir) {
                 $info = $this->getDirInfo($cdir);
@@ -1165,6 +1207,169 @@ class browser extends uploader
         }
 
         return "";
+    }
+
+    /**
+     * Convert an absolute filesystem path to a path relative to filemanager_path,
+     * as stored in the file_groups table. Returns '' if the path is outside the root.
+     *
+     * @param string $absPath
+     * @return string
+     */
+    protected function getFileGroupsRelPath(string $absPath): string
+    {
+        $fmPath = rtrim(str_replace('\\', '/', realpath(
+            $this->modx->getConfig('filemanager_path', EVO_BASE_PATH)) ?: ''), '/');
+        $absPath = rtrim(str_replace('\\', '/', realpath($absPath) ?: $absPath), '/');
+        if ($fmPath === '' || strpos($absPath, $fmPath) !== 0) {
+            return '';
+        }
+        return ltrim(substr($absPath, strlen($fmPath)), '/');
+    }
+
+    /**
+     * Filter a list of absolute paths to only those accessible to the current manager user.
+     * Paths with no file_groups rows are public (accessible to all).
+     * Paths restricted to specific groups are only accessible if the user belongs to one.
+     * Admins (mgrRole == 1) always see everything.
+     *
+     * @param string[] $absPaths
+     * @return string[]
+     */
+    protected function filterAccessiblePaths(array $absPaths): array
+    {
+        if (!$this->modx->getConfig('use_udperms')) {
+            return $absPaths;
+        }
+        if (isset($_SESSION['mgrRole']) && (int)$_SESSION['mgrRole'] === 1) {
+            return $absPaths;
+        }
+
+        $userGroups = array_map('intval', (array)($_SESSION['mgrDocgroups'] ?? []));
+
+        // For each item, collect its relative path and all ancestor relative paths
+        $allRelPaths = [];
+        $itemAncestors = []; // abs path → ordered ancestor rel paths (root → item)
+        foreach ($absPaths as $ap) {
+            $rel = $this->getFileGroupsRelPath($ap);
+            if ($rel === '') {
+                $itemAncestors[$ap] = [];
+                continue;
+            }
+            $acc = '';
+            $ancestors = [];
+            foreach (explode('/', $rel) as $part) {
+                $acc = $acc !== '' ? $acc . '/' . $part : $part;
+                $ancestors[] = $acc;
+                $allRelPaths[] = $acc;
+            }
+            $itemAncestors[$ap] = $ancestors;
+        }
+
+        if (empty($allRelPaths)) {
+            return $absPaths;
+        }
+
+        $restricted = \EvolutionCMS\Models\FileGroup::query()
+            ->whereIn('file', array_unique($allRelPaths))
+            ->get()
+            ->groupBy('file');
+
+        $result = [];
+        foreach ($absPaths as $ap) {
+            $ancestors = $itemAncestors[$ap] ?? [];
+            if (empty($ancestors)) {
+                $result[] = $ap; // rel path unknown, let through
+                continue;
+            }
+            $allowed = true;
+            foreach ($ancestors as $checkPath) {
+                if (!isset($restricted[$checkPath]) || $restricted[$checkPath]->isEmpty()) {
+                    continue; // public at this level
+                }
+                $levelGroupIds = $restricted[$checkPath]->pluck('document_group')->toArray();
+                if (empty($userGroups) || empty(array_intersect($levelGroupIds, $userGroups))) {
+                    $allowed = false;
+                    break;
+                }
+            }
+            if ($allowed) {
+                $result[] = $ap;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Check if the current manager user has write access to the given directory.
+     *
+     * Admins (mgrRole == 1) and users with the 'file_manager' permission may write anywhere.
+     * For all other managers, access is granted when use_udperms is enabled and either
+     * the directory has no file_groups restrictions (public) or the user belongs to one
+     * of the groups assigned to that directory.
+     *
+     * @param string $relDir  Path relative to typeDir, without leading slash
+     * @return bool
+     */
+    protected function isWriteAllowed($relDir)
+    {
+        if (isset($_SESSION['mgrRole']) && (int)$_SESSION['mgrRole'] === 1) {
+            return true;
+        }
+        if ($this->modx->hasPermission('file_manager')) {
+            return true;
+        }
+        if (!$this->modx->getConfig('use_udperms')) {
+            return false;
+        }
+
+        $relDir = trim($relDir, '/');
+        $absPath = $this->typeDir . ($relDir !== '' ? '/' . $relDir : '');
+        $relPath = $this->getFileGroupsRelPath($absPath);
+        if ($relPath === '') {
+            return false;
+        }
+
+        // Build the path and all ancestor paths to check
+        $pathsToCheck = [];
+        $acc = '';
+        foreach (explode('/', $relPath) as $part) {
+            $acc = $acc !== '' ? $acc . '/' . $part : $part;
+            $pathsToCheck[] = $acc;
+        }
+
+        $rows = \EvolutionCMS\Models\FileGroup::query()
+            ->whereIn('file', $pathsToCheck)
+            ->get()
+            ->groupBy('file');
+
+        $userGroups = array_map('intval', (array)($_SESSION['mgrDocgroups'] ?? []));
+
+        // Every level that has restrictions must allow the user
+        foreach ($pathsToCheck as $checkPath) {
+            if (!isset($rows[$checkPath]) || $rows[$checkPath]->isEmpty()) {
+                continue; // public at this level
+            }
+            $levelGroupIds = $rows[$checkPath]->pluck('document_group')->toArray();
+            if (empty($userGroups) || empty(array_intersect($levelGroupIds, $userGroups))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Like isWriteAllowed(), but also requires the path to be strictly inside
+     * the type directory (i.e. at least one segment deep), preventing structural
+     * changes to the type root itself.
+     *
+     * @param string $relDir  Path relative to typeDir
+     * @return bool
+     */
+    protected function isStrictWriteAllowed($relDir)
+    {
+        $relDir = trim($relDir, '/');
+        return $relDir !== '' && $this->isWriteAllowed($relDir);
     }
 
     /**
