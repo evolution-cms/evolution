@@ -1,4 +1,6 @@
 <?php
+use EvolutionCMS\Support\FileManagerAccess;
+
 if(!function_exists('add_dot')) {
     /**
      * @param array $array
@@ -12,6 +14,108 @@ if(!function_exists('add_dot')) {
         }
 
         return $array;
+    }
+}
+
+if(!function_exists('fileManagerUserGroupIds')) {
+    /**
+     * @return int[]
+     */
+    function fileManagerUserGroupIds()
+    {
+        if (!evolutionCMS()->getConfig('use_udperms')) {
+            return [];
+        }
+
+        if (isset($_SESSION['mgrRole']) && (int)$_SESSION['mgrRole'] === 1) {
+            return [];
+        }
+
+        return array_values(array_unique(array_map('intval', (array)($_SESSION['mgrDocgroups'] ?? []))));
+    }
+}
+
+if(!function_exists('fileManagerRestrictionMap')) {
+    /**
+     * @param string[] $relativePaths
+     * @return array<string, int[]>
+     */
+    function fileManagerRestrictionMap(array $relativePaths)
+    {
+        if (!evolutionCMS()->getConfig('use_udperms')) {
+            return [];
+        }
+
+        if (isset($_SESSION['mgrRole']) && (int)$_SESSION['mgrRole'] === 1) {
+            return [];
+        }
+
+        return FileManagerAccess::loadRestrictions($relativePaths);
+    }
+}
+
+if(!function_exists('fileManagerIsAccessible')) {
+    /**
+     * @param string $relativePath
+     * @param int[]|null $userGroups
+     * @param array<string, int[]>|null $restrictionMap
+     * @return bool
+     */
+    function fileManagerIsAccessible($relativePath, array $userGroups = null, array $restrictionMap = null)
+    {
+        if (!evolutionCMS()->getConfig('use_udperms')) {
+            return true;
+        }
+
+        if (isset($_SESSION['mgrRole']) && (int)$_SESSION['mgrRole'] === 1) {
+            return true;
+        }
+
+        return FileManagerAccess::isAccessible(
+            $relativePath,
+            $userGroups ?? fileManagerUserGroupIds(),
+            $restrictionMap ?? fileManagerRestrictionMap([$relativePath])
+        );
+    }
+}
+
+if(!function_exists('fileManagerCanModifyExistingPath')) {
+    /**
+     * @param string $relativePath
+     * @param int[]|null $userGroups
+     * @param array<string, int[]>|null $restrictionMap
+     * @return bool
+     */
+    function fileManagerCanModifyExistingPath($relativePath, array $userGroups = null, array $restrictionMap = null)
+    {
+        if (!evolutionCMS()->getConfig('use_udperms')) {
+            return true;
+        }
+
+        if (isset($_SESSION['mgrRole']) && (int)$_SESSION['mgrRole'] === 1) {
+            return true;
+        }
+
+        return FileManagerAccess::canModifyExistingPath(
+            $relativePath,
+            $userGroups ?? fileManagerUserGroupIds(),
+            $restrictionMap ?? fileManagerRestrictionMap([$relativePath])
+        );
+    }
+}
+
+if(!function_exists('fileManagerEffectiveGroupIds')) {
+    /**
+     * @param string $relativePath
+     * @param array<string, int[]>|null $restrictionMap
+     * @return int[]
+     */
+    function fileManagerEffectiveGroupIds($relativePath, array $restrictionMap = null)
+    {
+        return FileManagerAccess::effectiveGroupIds(
+            $relativePath,
+            $restrictionMap ?? fileManagerRestrictionMap([$relativePath])
+        );
     }
 }
 
@@ -84,6 +188,15 @@ if(!function_exists('ls')) {
         $filesizes = 0;
         $dirs_array = [];
         $files_array = [];
+        $currentRelPath = ltrim(substr(rtrim($curpath, '/'), strlen($filemanager_path)), '/');
+        $currentDirAccessible = fileManagerIsAccessible($currentRelPath, $userGroups ?? [], $fileGroupsMap ?? []);
+        $currentDirWritable = $currentDirAccessible && is_writable($curpath);
+        $docGroupNamesById = [];
+        if (!empty($allDocGroups)) {
+            foreach ($allDocGroups as $group) {
+                $docGroupNamesById[(int)$group->id] = $group->name;
+            }
+        }
 
         if (!is_dir($curpath)) {
             echo 'Invalid path "', htmlspecialchars($curpath, ENT_QUOTES, 'UTF-8'), '"<br />';
@@ -100,6 +213,16 @@ if(!function_exists('ls')) {
             }
             $rel_newpath = ltrim(substr($newpath, strlen($filemanager_path)), '/');
             $rel_web = ltrim(substr($newpath, strlen($base_path)), '/');
+            if (!fileManagerIsAccessible($rel_newpath, $userGroups ?? [], $fileGroupsMap ?? [])) {
+                continue;
+            }
+            $effectiveGroupNames = array_map(
+                static fn ($groupId) => $docGroupNamesById[$groupId] ?? (string)$groupId,
+                fileManagerEffectiveGroupIds($rel_newpath, $fileGroupsMap ?? [])
+            );
+            $groupSuffix = empty($effectiveGroupNames)
+                ? ''
+                : ' <small class="text-muted">- ' . htmlspecialchars(implode(', ', $effectiveGroupNames), ENT_QUOTES, 'UTF-8') . '</small>';
             if (is_dir($newpath)) {
                 $dirs_array[$dircounter]['dir'] = $newpath;
                 $dirs_array[$dircounter]['stats'] = lstat($newpath);
@@ -108,7 +231,7 @@ if(!function_exists('ls')) {
                 } elseif (!in_array($file, $excludes) && !in_array($newpath, $protected_path)) {
                     $dirs_array[$dircounter]['text'] = '<i class="' . $_style['icon_folder'] . ' FilesFolder"></i> '
                         . '<a href="index.php?a=31&mode=drill&path=' . urlencode($rel_newpath) . '"><b>'
-                        . htmlspecialchars($file, ENT_QUOTES, 'UTF-8') . '</b></a>';
+                        . htmlspecialchars($file, ENT_QUOTES, 'UTF-8') . '</b></a>' . $groupSuffix;
 
                     $dfiles = scandir($newpath);
                     foreach ($dfiles as $i => $infile) {
@@ -120,19 +243,25 @@ if(!function_exists('ls')) {
                         }
                     }
                     $file_exists = (0 < count($dfiles)) ? 'file_exists' : '';
+                    $canModifyDir = $currentDirWritable
+                        && fileManagerCanModifyExistingPath($rel_newpath, $userGroups ?? [], $fileGroupsMap ?? [])
+                        && is_writable($newpath);
 
-                    $dirs_array[$dircounter]['delete'] = is_writable($curpath) ? '<a href="javascript: deleteFolder(\''
+                    $dirs_array[$dircounter]['delete'] = $canModifyDir ? '<a href="javascript: deleteFolder(\''
                         . urlencode($file) . '\',\'' . $file_exists . '\');"><i class="' . $_style['icon_trash']
                         . '" title="' . $_lang['file_delete_folder'] . '"></i></a>' : '';
                 } else {
                     $dirs_array[$dircounter]['text'] = '<span><i class="' . $_style['icon_folder']
                         . ' FilesDeletedFolder"></i> ' . htmlspecialchars($file, ENT_QUOTES, 'UTF-8')
+                        . $groupSuffix
                         . '</span>';
-                    $dirs_array[$dircounter]['delete'] = is_writable($curpath) ? '<span class="disabled"><i class="'
+                    $dirs_array[$dircounter]['delete'] = $currentDirWritable ? '<span class="disabled"><i class="'
                         . $_style['icon_trash'] . '" title="' . $_lang['file_delete_folder'] . '"></i></span>' : '';
                 }
 
-                $dirs_array[$dircounter]['rename'] = is_writable($curpath) ? '<a href="javascript:renameFolder(\''
+                $dirs_array[$dircounter]['rename'] = ($currentDirWritable
+                    && fileManagerCanModifyExistingPath($rel_newpath, $userGroups ?? [], $fileGroupsMap ?? [])
+                    && is_writable($newpath)) ? '<a href="javascript:renameFolder(\''
                     . urlencode($file) . '\');"><i class="' . $_style['icon_i_cursor'] . '" title="' . $_lang['rename']
                     . '"></i></a>' : '';
 
@@ -150,7 +279,10 @@ if(!function_exists('ls')) {
                 $files_array[$filecounter]['stats'] = lstat($newpath);
                 $files_array[$filecounter]['text'] = determineIcon($rel_newpath, get_by_key($_REQUEST, 'path', ''),
                         get_by_key($_REQUEST, 'mode', '')) . ' ' . htmlspecialchars($file, ENT_QUOTES,
-                        'UTF-8');
+                        'UTF-8') . $groupSuffix;
+                $canModifyFile = $currentDirWritable
+                    && fileManagerCanModifyExistingPath($rel_newpath, $userGroups ?? [], $fileGroupsMap ?? [])
+                    && is_writable($newpath);
                 $files_array[$filecounter]['view'] = in_array($type, $viewablefiles)
                     ? '<a href="javascript:;" onclick="viewfile(\'../' . addslashes($rel_web) . '\');"><i class="' . $_style['icon_eye'] . '" title="'
                     . $_lang['files_viewfile'] . '"></i></a>'
@@ -169,24 +301,22 @@ if(!function_exists('ls')) {
                     . $_style['icon_archive'] . '" title="' . $_lang['file_download_unzip'] . '"></i></a>'
                     : '';
                 $files_array[$filecounter]['edit'] = (in_array($type,
-                        $editablefiles) && is_writable($curpath) && is_writable($newpath))
+                        $editablefiles) && $canModifyFile)
                     ? '<a href="index.php?a=31&mode=edit&path=' . urlencode($rel_newpath) . '#file_editfile"><i class="'
                     . $_style['icon_edit'] . '" title="' . $_lang['files_editfile'] . '"></i></a>'
                     : '<span class="disabled"><i class="' . $_style['icon_edit'] . '" title="' . $_lang['files_editfile']
                     . '"></i></span>';
-                $files_array[$filecounter]['duplicate'] = (in_array($type, $editablefiles) && is_writable($curpath)
-                    && is_writable($newpath))
+                $files_array[$filecounter]['duplicate'] = (in_array($type, $editablefiles) && $canModifyFile)
                     ? '<a href="javascript:duplicateFile(\'' . urlencode($file) . '\');"><i class="' . $_style['icon_clone']
                     . '" title="' . $_lang['duplicate'] . '"></i></a>'
                     : '<span class="disabled"><i class="' . $_style['icon_clone'] . '" align="absmiddle" title="'
                     . $_lang['duplicate'] . '"></i></span>';
-                $files_array[$filecounter]['rename'] = (in_array($type, $editablefiles) && is_writable($curpath)
-                    && is_writable($newpath))
+                $files_array[$filecounter]['rename'] = (in_array($type, $editablefiles) && $canModifyFile)
                     ? '<a href="javascript:renameFile(\'' . urlencode($file) . '\');"><i class="'
                     . $_style['icon_i_cursor'] . '" align="absmiddle" title="' . $_lang['rename'] . '"></i></a>'
                     : '<span class="disabled"><i class="' . $_style['icon_i_cursor'] . '" align="absmiddle" title="'
                     . $_lang['rename'] . '"></i></span>';
-                $files_array[$filecounter]['delete'] = is_writable($curpath) && is_writable($newpath)
+                $files_array[$filecounter]['delete'] = $canModifyFile
                     ? '<a href="javascript:deleteFile(\'' . urlencode($file) . '\');"><i class="'
                     . $_style['icon_trash'] . '" title="' . $_lang['file_delete_file'] . '"></i></a>'
                     : '<span class="disabled"><i class="' . $_style['icon_trash'] . '" title="'
@@ -465,16 +595,16 @@ if(!function_exists('fileupload')) {
         if (strpos($startpath, $filemanager_path) !== 0 || !is_dir($startpath)) {
             return '<p><span class="warning">Invalid path.</span></p>';
         }
+        $dirRel = ltrim(substr($startpath, strlen($filemanager_path)), '/');
+        if (!fileManagerIsAccessible($dirRel) || !is_writable($startpath)) {
+            return '<p><span class="warning">' . $_lang['files_access_denied'] . '</span></p>';
+        }
         $new_file_permissions = octdec(evolutionCMS()->getConfig('new_file_permissions', '0666'));
         global $_lang, $uploadablefiles;
         $msg = '';
         $dirGroupIds = [];
         if (evolutionCMS()->getConfig('use_udperms')) {
-            $fmPath = rtrim(str_replace('\\', '/', realpath(evolutionCMS()
-                ->getConfig('filemanager_path', EVO_BASE_PATH))), '/');
-            $dirRel = ltrim(substr($startpath, strlen($fmPath)), '/');
-            $dirGroupIds = \EvolutionCMS\Models\FileGroup::query()
-                ->where('file', $dirRel)->pluck('document_group')->toArray();
+            $dirGroupIds = fileManagerEffectiveGroupIds($dirRel);
         }
         $inheritInserts = [];
         foreach ($_FILES['userfile']['name'] as $i => $name) {
@@ -595,6 +725,10 @@ if(!function_exists('textsave')) {
         if (strpos($filename, $filemanager_path) !== 0 || !is_file($filename)) {
             return '<span class="warning"><b>Invalid path.</b></span><br /><br />';
         }
+        $fileRel = ltrim(substr($filename, strlen($filemanager_path)), '/');
+        if (!fileManagerCanModifyExistingPath($fileRel) || !is_writable($filename)) {
+            return '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+        }
         $content = $_POST['content'];
 
         // Write $content to our opened file.
@@ -626,6 +760,10 @@ if(!function_exists('delete_file')) {
         if (strpos($file, $filemanager_path) !== 0 || !is_file($file)) {
             return '<span class="warning"><b>Invalid path.</b></span><br /><br />';
         }
+        $fileRel = ltrim(substr($file, strlen($filemanager_path)), '/');
+        if (!fileManagerCanModifyExistingPath($fileRel) || !is_writable($file)) {
+            return '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+        }
         $msg = sprintf($_lang['deleting_file'], str_replace('\\', '/', $file));
 
         if (!evolutionCMS()->hasPermission('file_manager') || !@unlink($file)) {
@@ -633,9 +771,6 @@ if(!function_exists('delete_file')) {
         } else {
             $msg .= '<span class="success"><b>' . $_lang['file_deleted'] . '</b></span><br /><br />';
             if (evolutionCMS()->getConfig('use_udperms')) {
-                $fmPath = rtrim(str_replace('\\', '/', realpath(evolutionCMS()
-                    ->getConfig('filemanager_path', EVO_BASE_PATH))), '/');
-                $fileRel = ltrim(substr($file, strlen($fmPath)), '/');
                 \EvolutionCMS\Models\FileGroup::query()->where('file', $fileRel)->delete();
             }
         }

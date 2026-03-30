@@ -1133,13 +1133,11 @@ class browser extends uploader
         $return = [];
         if (is_array($dirs)) {
             $dirs = $this->filterAccessiblePaths($dirs);
-            $writable = dir::isWritable($dir);
             foreach ($dirs as $cdir) {
                 $info = $this->getDirInfo($cdir);
                 if ($info === false) {
                     continue;
                 }
-                $info['removable'] = $writable && $info['writable'];
                 $return[] = $info;
             }
         }
@@ -1161,12 +1159,15 @@ class browser extends uploader
         $dirs  = glob($dir.'/*',GLOB_ONLYDIR);
         $hasDirs = !empty($dirs);
 
-        $writable = dir::isWritable($dir);
+        $relativePath = $this->getFileGroupsRelPath($dir);
+        $writable = dir::isWritable($dir) && $this->isWriteAllowed($this->removeTypeFromPath($relativePath));
         $info = [
             'name'      => stripslashes(basename($dir)),
             'readable'  => is_readable($dir),
             'writable'  => $writable,
-            'removable' => $removable && $writable && dir::isWritable(dirname($dir)),
+            'removable' => $writable
+                && dir::isWritable(dirname($dir))
+                && $this->isStrictWriteAllowed($this->removeTypeFromPath($relativePath)),
             'hasDirs'   => $hasDirs
         ];
 
@@ -1218,13 +1219,10 @@ class browser extends uploader
      */
     protected function getFileGroupsRelPath(string $absPath): string
     {
-        $fmPath = rtrim(str_replace('\\', '/', realpath(
-            $this->modx->getConfig('filemanager_path', EVO_BASE_PATH)) ?: ''), '/');
-        $absPath = rtrim(str_replace('\\', '/', realpath($absPath) ?: $absPath), '/');
-        if ($fmPath === '' || strpos($absPath, $fmPath) !== 0) {
-            return '';
-        }
-        return ltrim(substr($absPath, strlen($fmPath)), '/');
+        return \EvolutionCMS\Support\FileManagerAccess::getRelativePath(
+            $this->modx->getConfig('filemanager_path', EVO_BASE_PATH),
+            $absPath
+        );
     }
 
     /**
@@ -1246,54 +1244,20 @@ class browser extends uploader
         }
 
         $userGroups = array_map('intval', (array)($_SESSION['mgrDocgroups'] ?? []));
-
-        // For each item, collect its relative path and all ancestor relative paths
-        $allRelPaths = [];
-        $itemAncestors = []; // abs path → ordered ancestor rel paths (root → item)
+        $itemRelativePaths = [];
         foreach ($absPaths as $ap) {
-            $rel = $this->getFileGroupsRelPath($ap);
-            if ($rel === '') {
-                $itemAncestors[$ap] = [];
-                continue;
-            }
-            $acc = '';
-            $ancestors = [];
-            foreach (explode('/', $rel) as $part) {
-                $acc = $acc !== '' ? $acc . '/' . $part : $part;
-                $ancestors[] = $acc;
-                $allRelPaths[] = $acc;
-            }
-            $itemAncestors[$ap] = $ancestors;
+            $itemRelativePaths[$ap] = $this->getFileGroupsRelPath($ap);
         }
-
-        if (empty($allRelPaths)) {
-            return $absPaths;
-        }
-
-        $restricted = \EvolutionCMS\Models\FileGroup::query()
-            ->whereIn('file', array_unique($allRelPaths))
-            ->get()
-            ->groupBy('file');
+        $restricted = \EvolutionCMS\Support\FileManagerAccess::loadRestrictions(array_values($itemRelativePaths));
 
         $result = [];
         foreach ($absPaths as $ap) {
-            $ancestors = $itemAncestors[$ap] ?? [];
-            if (empty($ancestors)) {
+            $relativePath = $itemRelativePaths[$ap] ?? '';
+            if ($relativePath === '') {
                 $result[] = $ap; // rel path unknown, let through
                 continue;
             }
-            $allowed = true;
-            foreach ($ancestors as $checkPath) {
-                if (!isset($restricted[$checkPath]) || $restricted[$checkPath]->isEmpty()) {
-                    continue; // public at this level
-                }
-                $levelGroupIds = $restricted[$checkPath]->pluck('document_group')->toArray();
-                if (empty($userGroups) || empty(array_intersect($levelGroupIds, $userGroups))) {
-                    $allowed = false;
-                    break;
-                }
-            }
-            if ($allowed) {
+            if (\EvolutionCMS\Support\FileManagerAccess::isAccessible($relativePath, $userGroups, $restricted)) {
                 $result[] = $ap;
             }
         }
@@ -1329,33 +1293,10 @@ class browser extends uploader
         if ($relPath === '') {
             return true;
         }
-
-        // Build the path and all ancestor paths to check
-        $pathsToCheck = [];
-        $acc = '';
-        foreach (explode('/', $relPath) as $part) {
-            $acc = $acc !== '' ? $acc . '/' . $part : $part;
-            $pathsToCheck[] = $acc;
-        }
-
-        $rows = \EvolutionCMS\Models\FileGroup::query()
-            ->whereIn('file', $pathsToCheck)
-            ->get()
-            ->groupBy('file');
-
         $userGroups = array_map('intval', (array)($_SESSION['mgrDocgroups'] ?? []));
+        $rows = \EvolutionCMS\Support\FileManagerAccess::loadRestrictions([$relPath]);
 
-        // Every level that has restrictions must allow the user
-        foreach ($pathsToCheck as $checkPath) {
-            if (!isset($rows[$checkPath]) || $rows[$checkPath]->isEmpty()) {
-                continue; // public at this level
-            }
-            $levelGroupIds = $rows[$checkPath]->pluck('document_group')->toArray();
-            if (empty($userGroups) || empty(array_intersect($levelGroupIds, $userGroups))) {
-                return false;
-            }
-        }
-        return true;
+        return \EvolutionCMS\Support\FileManagerAccess::isAccessible($relPath, $userGroups, $rows);
     }
 
     /**
@@ -1369,7 +1310,9 @@ class browser extends uploader
     protected function isStrictWriteAllowed($relDir)
     {
         $relDir = trim($relDir, '/');
-        return $relDir !== '' && $this->isWriteAllowed($relDir);
+        return $relDir !== ''
+            && !\EvolutionCMS\Support\FileManagerAccess::isTopLevelPath($this->getFileGroupsRelPath($this->typeDir . '/' . $relDir))
+            && $this->isWriteAllowed($relDir);
     }
 
     /**
