@@ -39,7 +39,8 @@ browser.initSettings = function() {
 
     $.each(shows, function(i, val) {
         var checked = (_.kuki.get('show' + val) == 'on') ? 'checked' : '';
-        $('#show input[name="' + val + '"]').get(0).checked = checked;
+        var el = $('#show input[name="' + val + '"]').get(0);
+        if (el) el.checked = checked;
     });
 
     if (!this.orders.length) {
@@ -57,8 +58,10 @@ browser.initSettings = function() {
     if (!_.kuki.isSet('orderDesc'))
         _.kuki.set('orderDesc', 'off');
 
-    $('#order input[value="' + _.kuki.get('order') + '"]').get(0).checked = true;
-    $('#order input[name="desc"]').get(0).checked = (_.kuki.get('orderDesc') == 'on');
+    var orderEl = $('#order input[value="' + _.kuki.get('order') + '"]').get(0);
+    if (orderEl) orderEl.checked = true;
+    var descEl = $('#order input[name="desc"]').get(0);
+    if (descEl) descEl.checked = (_.kuki.get('orderDesc') == 'on');
 
     $('#order input[type="radio"]').click(function() {
         _.kuki.set('order', $(this).get(0).value);
@@ -78,7 +81,8 @@ browser.initSettings = function() {
         $('#show input').each(function() { this.disabled = true; });
     }
 
-    $('#view input[value="' + _.kuki.get('view') + '"]').get(0).checked = true;
+    var viewEl = $('#view input[value="' + _.kuki.get('view') + '"]').get(0);
+    if (viewEl) viewEl.checked = true;
 
     $('#view input').click(function() {
         var view = $(this).attr('value');
@@ -89,8 +93,8 @@ browser.initSettings = function() {
                 $('#show input').each(function() { this.disabled = true; });
             } else {
                 $.each(browser.shows, function(i, val) {
-                    $('#show input[name="' + val + '"]').get(0).checked =
-                        (_.kuki.get('show' + val) == "on");
+                    var showEl = $('#show input[name="' + val + '"]').get(0);
+                    if (showEl) showEl.checked = (_.kuki.get('show' + val) == "on");
                 });
                 $('#show input').each(function() { this.disabled = false; });
             }

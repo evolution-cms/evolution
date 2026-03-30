@@ -1320,14 +1320,14 @@ class browser extends uploader
             return true;
         }
         if (!$this->modx->getConfig('use_udperms')) {
-            return false;
+            return true;
         }
 
         $relDir = trim($relDir, '/');
         $absPath = $this->typeDir . ($relDir !== '' ? '/' . $relDir : '');
         $relPath = $this->getFileGroupsRelPath($absPath);
         if ($relPath === '') {
-            return false;
+            return true;
         }
 
         // Build the path and all ancestor paths to check
