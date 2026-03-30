@@ -320,7 +320,7 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
                         </li>
                         <li id="theme">
                             <a id="treeMenu_theme_dark" onclick="modx.tree.toggleTheme(event)" title="{{ManagerTheme::getLexicon('manager_theme_mode_title')}}">
-                                {!! $_style['icon_theme'] !!}
+                                <span class="icon">{!! $_style['icon_theme'] !!}</span>
                             </a>
                         </li>
                         @if (
