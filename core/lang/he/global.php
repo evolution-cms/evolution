@@ -1225,4 +1225,11 @@ $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to acces
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
 
+$_lang["file_groups_saved"] = 'הרשאות גישה נשמרו.';
+$_lang["file_groups_edit"] = 'ערוך הרשאות גישה';
+$_lang["files_groups"] = 'קבוצות משאבים:';
+$_lang["access_permissions_file_message"] = 'בחר לאילו קבוצות משאבים שייך קובץ זה:';
+$_lang["access_permissions_dir_message"] = 'בחר לאילו קבוצות משאבים שייכת תיקייה זו:';
+$_lang["all_file_groups"] = 'כל קבוצות המשאבים (ציבורי)';
+
 return $_lang;

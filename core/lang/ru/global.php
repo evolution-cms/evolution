@@ -1497,4 +1497,11 @@ $_lang["tmplvar_roles_access_msg"] = 'Укажите роли, которые м
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Значение параметра задано в core/custom/config/cms/settings</strong>';
 
+$_lang["file_groups_saved"] = 'Права доступа сохранены.';
+$_lang["file_groups_edit"] = 'Редактировать права доступа';
+$_lang["files_groups"] = 'Группы ресурсов:';
+$_lang["access_permissions_file_message"] = 'Выберите, к каким Группам ресурсов относится этот файл:';
+$_lang["access_permissions_dir_message"] = 'Выберите, к каким Группам ресурсов относится эта директория:';
+$_lang["all_file_groups"] = 'Все группы ресурсов (Публичные)';
+
 return $_lang;

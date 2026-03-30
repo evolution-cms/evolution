@@ -1601,4 +1601,11 @@ $_lang["setting_from_file"] = '<strong class="text-danger">Parametr dəyəri cor
 $_lang['disable'] = 'Deaktiv et';
 $_lang['enable'] = 'Aktiv et';
 
+$_lang["file_groups_saved"] = 'Giriş icazələri saxlanıldı.';
+$_lang["file_groups_edit"] = 'Giriş icazələrini redaktə et';
+$_lang["files_groups"] = 'Resurs Qrupları:';
+$_lang["access_permissions_file_message"] = 'Bu faylın hansı Resurs Qruplarına aid olduğunu seçin:';
+$_lang["access_permissions_dir_message"] = 'Bu qovluğun hansı Resurs Qruplarına aid olduğunu seçin:';
+$_lang["all_file_groups"] = 'Bütün Resurs Qrupları (İctimai)';
+
 return $_lang;

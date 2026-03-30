@@ -257,18 +257,9 @@ function validateLangCode($langCode)
 /**
  * @return array
  */
-function ph()
+function ph($_lang, $moduleVersion, $evo_textdir, $evo_release_date)
 {
-    global $_lang, $base_path, $moduleVersion, $evo_textdir, $evo_release_date;
     $ph = [];
-
-    if (isset($_SESSION['installmode'])) {
-        $installmode = $_SESSION['installmode'];
-    } else {
-        $installmode = isset($_POST['installmode']) ? (int)$_POST['installmode'] : 0;
-        // @deprecated get_installmode(); wants config.inc.php
-    }
-
     $ph['pagetitle'] = $_lang['modx_install'];
     $ph['textdir'] = $evo_textdir ? ' id="rtl"' : '';
     $ph['version'] = $moduleVersion;

@@ -34,4 +34,9 @@ class DocumentgroupName extends Eloquent\Model
         return $this->belongsToMany(SiteContent::class, 'document_groups', 'document_group', 'document')
             ->withTrashed();
     }
+
+    public function fileGroups(): Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(FileGroup::class, 'document_group');
+    }
 }

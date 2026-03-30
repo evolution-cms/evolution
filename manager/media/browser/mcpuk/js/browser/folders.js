@@ -92,6 +92,40 @@ browser.buildTree = function(root, path) {
     return html;
 };
 
+browser.updateDirSubtreePaths = function(dir, oldPath, newPath) {
+    var node = dir.parent();
+    var descendants = node.children('a').first().add(node.find('div.folders a'));
+
+    descendants.each(function() {
+        var link = $(this);
+        var path = link.data('path');
+
+        if (!path || (path !== oldPath && path.indexOf(oldPath + '/') !== 0))
+            return;
+
+        var nextPath = newPath + path.substr(oldPath.length);
+        link.data('path', nextPath);
+        link.attr('href', 'kcdir:/' + _.escapeDirs(nextPath));
+    });
+
+    if (browser.dir === oldPath)
+        browser.dir = newPath;
+    else if (browser.dir.indexOf(oldPath + '/') === 0)
+        browser.dir = newPath + browser.dir.substr(oldPath.length);
+
+    if (browser.clipboard && browser.clipboard.length) {
+        $.each(browser.clipboard, function(i, item) {
+            if (!item.dir)
+                return;
+
+            if (item.dir === oldPath)
+                item.dir = newPath;
+            else if (item.dir.indexOf(oldPath + '/') === 0)
+                item.dir = newPath + item.dir.substr(oldPath.length);
+        });
+    }
+};
+
 browser.expandDir = function(dir) {
     var path = dir.data('path');
     if (dir.children('.brace').hasClass('opened')) {
@@ -190,10 +224,19 @@ browser.changeDir = function(dir) {
 };
 
 browser.statusDir = function() {
-    for (var i = 0, size = 0; i < this.files.length; i++)
-        size += parseInt(this.files[i].size);
+    for (var i = 0, size = 0, files = 0, dirs = 0; i < this.files.length; i++) {
+        if (this.files[i].isDir)
+            dirs++;
+        else {
+            files++;
+            size += parseInt(this.files[i].size);
+        }
+    }
     size = this.humanSize(size);
-    $('#fileinfo').html(this.files.length + ' ' + this.label("files") + ' (' + size + ')');
+    if (dirs)
+        $('#fileinfo').html(dirs + ' ' + this.label("folders") + ', ' + files + ' ' + this.label("files") + ' (' + size + ')');
+    else
+        $('#fileinfo').html(files + ' ' + this.label("files") + ' (' + size + ')');
 };
 
 browser.menuDir = function(dir, e) {
@@ -298,12 +341,11 @@ browser.menuDir = function(dir, e) {
                     browser.alert(browser.label("Unknown error."));
                     return;
                 }
-                var currentDir = (data.path == browser.dir);
+                var oldPath = data.path;
+                var newPath = _.dirname(oldPath) + '/' + dt.name;
                 dir.children('span.folder').html(_.htmlData(dt.name));
                 dir.data('name', dt.name);
-                dir.data('path', _.dirname(data.path) + '/' + dt.name);
-                if (currentDir)
-                    browser.dir = dir.data('path');
+                browser.updateDirSubtreePaths(dir, oldPath, newPath);
             },
             true
         );

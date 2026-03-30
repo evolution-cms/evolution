@@ -1226,4 +1226,11 @@ $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to acces
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
 
+$_lang["file_groups_saved"] = '访问权限已保存。';
+$_lang["file_groups_edit"] = '编辑访问权限';
+$_lang["files_groups"] = '资源组：';
+$_lang["access_permissions_file_message"] = '选择此文件所属的资源组：';
+$_lang["access_permissions_dir_message"] = '选择此目录所属的资源组：';
+$_lang["all_file_groups"] = '所有资源组（公开）';
+
 return $_lang;
