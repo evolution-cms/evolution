@@ -96,7 +96,7 @@ header("content-security-policy: default-src 'self' 'nonce-$nonce';"
     . " frame-ancestors 'none';");
 
 if (empty($_GET['s'])) {
-    require_once '../' . MGR_DIR . '/includes/version.inc.php';
+    require_once $base_path . MGR_DIR . '/includes/version.inc.php';
 
     $_SESSION['test'] = 1;
     install_sessionCheck();
@@ -135,13 +135,13 @@ if (empty($_GET['s'])) {
     // get post back status
     $isPostBack = count($_POST);
 
-    $ph = ph();
+    $ph = ph($_lang, $moduleVersion, $evo_textdir ?? false, $evo_release_date);
     $ph = array_merge($ph, $_lang);
     $ph['install_language'] = $install_language;
 
     ob_start();
     $action = isset($_GET['action']) ? preg_replace('/[^a-z\/]/', '', $_GET['action']) : 'language';
-    $controller = 'src/controllers/' . $action . '.php';
+    $controller = __DIR__ . '/src/controllers/' . $action . '.php';
     if (! file_exists($controller)) {
         die("Invalid install action attempted. [action={$action}]");
     }
@@ -153,11 +153,11 @@ if (empty($_GET['s'])) {
 
     $ph['content'] = ob_get_contents();
     ob_end_clean();
-    $tpl = file_get_contents('src/template/install.tpl');
+    $tpl = file_get_contents(__DIR__ . '/src/template/install.tpl');
     echo parse($tpl, $ph);
 } else {
     $action = isset($_GET['action']) ? preg_replace('/[^a-z\/]/', '', $_GET['action']) : 'language';
-    $controller = 'src/controllers/' . $action . '.php';
+    $controller = __DIR__ . '/src/controllers/' . $action . '.php';
     if (! file_exists($controller)) {
         die("Invalid install action attempted. [action={$action}]");
     }

@@ -38,6 +38,25 @@ final class KcfinderAclUiSourceTest extends TestCase
         self::assertStringContainsString('if (viewEl) viewEl.checked = true;', $settingsSource);
     }
 
+    public function testUploaderScriptUsesFilePaneDropzoneAndSkipsFolderTiles(): void
+    {
+        $source = (string) file_get_contents(dirname(__DIR__, 4) . '/manager/media/browser/mcpuk/js/browser/uploader.js');
+
+        self::assertStringContainsString('browser.initFilesDropGuards();', $source);
+        self::assertStringContainsString('browser.initFilesDropzone();', $source);
+        self::assertStringContainsString("browser.bindDropListeners(document, '_filesDropGuardHandlers'", $source);
+        self::assertStringContainsString("browser.bindDropListeners(filesPane, '_filesDropzoneHandlers'", $source);
+        self::assertStringContainsString('browser.preventExternalFileDropDefault = function(evt)', $source);
+        self::assertStringContainsString('browser.extractDroppedFiles = function(evt)', $source);
+        self::assertStringContainsString('var files = FileAPI.getFiles(evt) || [];', $source);
+        self::assertStringContainsString('return dataTransfer.files;', $source);
+        self::assertStringContainsString("if (typeof types.contains === 'function')", $source);
+        self::assertStringContainsString("browser.isFilesDropzoneElement = function(target)", $source);
+        self::assertStringContainsString("browser.isFilesDropTarget = function(target)", $source);
+        self::assertStringContainsString("$(target).closest('.file', '#files')", $source);
+        self::assertStringContainsString("!file.length || !file.data('isDir')", $source);
+    }
+
     public function testFolderTileAssetsExistForBothThemes(): void
     {
         self::assertFileExists(dirname(__DIR__, 4) . '/manager/media/browser/mcpuk/themes/evo/img/files/big/folder.png');
