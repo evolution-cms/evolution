@@ -224,10 +224,19 @@ browser.changeDir = function(dir) {
 };
 
 browser.statusDir = function() {
-    for (var i = 0, size = 0; i < this.files.length; i++)
-        size += parseInt(this.files[i].size);
+    for (var i = 0, size = 0, files = 0, dirs = 0; i < this.files.length; i++) {
+        if (this.files[i].isDir)
+            dirs++;
+        else {
+            files++;
+            size += parseInt(this.files[i].size);
+        }
+    }
     size = this.humanSize(size);
-    $('#fileinfo').html(this.files.length + ' ' + this.label("files") + ' (' + size + ')');
+    if (dirs)
+        $('#fileinfo').html(dirs + ' ' + this.label("folders") + ', ' + files + ' ' + this.label("files") + ' (' + size + ')');
+    else
+        $('#fileinfo').html(files + ' ' + this.label("files") + ' (' + size + ')');
 };
 
 browser.menuDir = function(dir, e) {

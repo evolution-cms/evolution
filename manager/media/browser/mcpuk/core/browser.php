@@ -162,7 +162,7 @@ class browser extends uploader
         if (!is_array($tree['dirs']) || !count($tree['dirs'])) {
             unset($tree['dirs']);
         }
-        $files = $this->getFiles($this->session['dir']);
+        $files = $this->getEntries($this->session['dir']);
         $dirWritable = dir::isWritable("{$this->config['uploadDir']}/{$this->session['dir']}") &&
             $this->isWriteAllowed($this->removeTypeFromPath($this->session['dir']));
         $data = [
@@ -233,7 +233,7 @@ class browser extends uploader
             $this->isWriteAllowed($this->post['dir']);
 
         return json_encode([
-            'files'       => $this->getFiles($this->session['dir']),
+            'files'       => $this->getEntries($this->session['dir']),
             'dirWritable' => $dirWritable
         ]);
     }
@@ -1045,6 +1045,36 @@ class browser extends uploader
 
     /**
      * @param $dir
+     * @return array
+     */
+    protected function getEntries($dir)
+    {
+        $entries = [];
+
+        foreach ($this->getDirs("{$this->config['uploadDir']}/$dir") as $folder) {
+            $entries[] = [
+                'name'      => $folder['name'],
+                'size'      => 0,
+                'mtime'     => 0,
+                'date'      => '',
+                'readable'  => $folder['readable'],
+                'writable'  => $folder['writable'],
+                'removable' => $folder['removable'],
+                'hasDirs'   => $folder['hasDirs'],
+                'isDir'     => true
+            ];
+        }
+
+        foreach ($this->getFiles($dir) as $file) {
+            $file['isDir'] = false;
+            $entries[] = $file;
+        }
+
+        return $entries;
+    }
+
+    /**
+     * @param $dir
      * @param int $index
      * @return array|bool
      */
@@ -1267,10 +1297,9 @@ class browser extends uploader
     /**
      * Check if the current manager user has write access to the given directory.
      *
-     * Admins (mgrRole == 1) and users with the 'file_manager' permission may write anywhere.
-     * For all other managers, access is granted when use_udperms is enabled and either
-     * the directory has no file_groups restrictions (public) or the user belongs to one
-     * of the groups assigned to that directory.
+     * Admins (mgrRole == 1) may write anywhere.
+     * For all other managers, access is granted when use_udperms is disabled or
+     * the path is effectively accessible through its direct/inherited file groups.
      *
      * @param string $relDir  Path relative to typeDir, without leading slash
      * @return bool
@@ -1278,9 +1307,6 @@ class browser extends uploader
     protected function isWriteAllowed($relDir)
     {
         if (isset($_SESSION['mgrRole']) && (int)$_SESSION['mgrRole'] === 1) {
-            return true;
-        }
-        if ($this->modx->hasPermission('file_manager')) {
             return true;
         }
         if (!$this->modx->getConfig('use_udperms')) {

@@ -269,26 +269,33 @@ $currentPathWritable = is_writable($startpath) && fileManagerIsAccessible($relat
                         $fullGroupsPath = str_replace('\\', '/', realpath($filemanager_path . '/' . $groupsTargetPath) ?: ($filemanager_path . '/' . $groupsTargetPath));
                         if (strpos($fullGroupsPath, $filemanager_path) !== 0) {
                             echo '<span class="warning"><b>Invalid path.</b></span><br /><br />';
+                        } elseif (!fileManagerIsAccessible($groupsTargetPath, $userGroups)) {
+                            echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
                         } else {
                             $submittedGroups = isset($_POST['docgroups']) ? (array)$_POST['docgroups'] : [];
                             $chkAllFiles = isset($_POST['chkallfiles']) && $_POST['chkallfiles'] === 'on';
+                            $canManageAllGroups = evo()->hasPermission('manage_groups');
+                            $existingFG = \EvolutionCMS\Models\FileGroup::query()->where('file', $groupsTargetPath)->get();
+                            $existingGroupIds = $existingFG->pluck('document_group')->map(static fn ($groupId) => (int)$groupId)->all();
+                            $manageableExistingGroups = $canManageAllGroups
+                                ? $existingGroupIds
+                                : array_values(array_intersect($existingGroupIds, $userGroups));
 
-                            if ($chkAllFiles) {
-                                // Make public: remove all group entries for this path
+                            if (!$canManageAllGroups && count($manageableExistingGroups) !== count($existingGroupIds)) {
+                                echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+                            } elseif ($chkAllFiles && !$canManageAllGroups) {
+                                echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+                            } elseif ($chkAllFiles) {
+                                // Make public: only full group managers may remove all restrictions
                                 \EvolutionCMS\Models\FileGroup::query()->where('file', $groupsTargetPath)->delete();
                             } else {
-                                // Load existing entries
-                                $existingFG = \EvolutionCMS\Models\FileGroup::query()->where('file', $groupsTargetPath)->get();
-                                $existingGroupIds = $existingFG->pluck('document_group')->toArray();
-
                                 // Determine which group IDs are submitted
                                 $submittedGroupIds = [];
                                 $insertRows = [];
                                 foreach ($submittedGroups as $val) {
                                     $parts = explode(',', $val);
                                     $gid = (int)$parts[0];
-                                    // Permission check: non-admin users can only manage their own groups
-                                    if (!evo()->hasPermission('manage_groups') && !in_array($gid, $userGroups)) {
+                                    if (!$canManageAllGroups && !in_array($gid, $userGroups)) {
                                         continue;
                                     }
                                     $submittedGroupIds[] = $gid;
@@ -297,9 +304,8 @@ $currentPathWritable = is_writable($startpath) && fileManagerIsAccessible($relat
                                     }
                                 }
 
-                                // Delete removed groups (only those the user can manage)
-                                $manageableGroups = evo()->hasPermission('manage_groups') ? $existingGroupIds : array_intersect($existingGroupIds, $userGroups);
-                                $toDelete = array_diff($manageableGroups, $submittedGroupIds);
+                                // Delete removed groups only from the set the current user manages
+                                $toDelete = array_diff($manageableExistingGroups, $submittedGroupIds);
                                 if (!empty($toDelete)) {
                                     \EvolutionCMS\Models\FileGroup::query()->where('file', $groupsTargetPath)
                                         ->whereIn('document_group', $toDelete)
@@ -676,6 +682,9 @@ $currentPathWritable = is_writable($startpath) && fileManagerIsAccessible($relat
         if ($showFileGroups) {
             // Load groups for this specific path
             $groupsTargetPath = $requested_path;
+            if (!fileManagerIsAccessible($groupsTargetPath, $userGroups, $fileGroupsMap)) {
+                evo()->webAlertAndQuit($_lang["files_access_denied"]);
+            }
             $existingFileGroups = \EvolutionCMS\Models\FileGroup::query()->where('file', $groupsTargetPath)->get();
             $directGroupIds = $existingFileGroups->pluck('document_group')->map(static fn ($groupId) => (int)$groupId)->all();
             $effectiveGroupIds = fileManagerEffectiveGroupIds($groupsTargetPath, $fileGroupsMap);
@@ -685,6 +694,8 @@ $currentPathWritable = is_writable($startpath) && fileManagerIsAccessible($relat
             $directGroupNames = empty($directGroupIds)
                 ? [$_lang['all_file_groups']]
                 : $allDocGroups->whereIn('id', $directGroupIds)->pluck('name')->toArray();
+            $canManageAllGroups = evo()->hasPermission('manage_groups');
+            $canEditPathAcl = $canManageAllGroups || empty(array_diff($directGroupIds, $userGroups));
             $groupsarray = [];
             foreach ($existingFileGroups as $efg) {
                 $groupsarray[] = $efg->document_group . ',' . $efg->id;
@@ -720,7 +731,7 @@ $currentPathWritable = is_writable($startpath) && fileManagerIsAccessible($relat
                 foreach ($inputAttributes as $k => $v) $inputString[] = $k . '="' . $v . '"';
                 $permissions[] = '<li><input ' . implode(' ', $inputString) . ' /><label for="' . $inputId . '">' . htmlspecialchars($row['name'], ENT_QUOTES) . '</label></li>';
             }
-            if (!empty($permissions)) {
+            if (!empty($permissions) && $canManageAllGroups) {
                 array_unshift($permissions, '<li><input type="checkbox" class="checkbox" name="chkallfiles" id="fgroupall"' . (empty($notPublic) ? ' checked="checked"' : '') . ' onclick="makeFilesPublic(true);" /><label for="fgroupall" class="warning">' . $_lang['all_file_groups'] . '</label></li>');
             }
             ?>
@@ -754,7 +765,9 @@ $currentPathWritable = is_writable($startpath) && fileManagerIsAccessible($relat
                 <p><?= is_dir($fullpath) ? $_lang['access_permissions_dir_message'] : $_lang['access_permissions_file_message'] ?></p>
                 <p><strong>Effective access:</strong> <?= htmlspecialchars(implode(', ', $effectiveGroupNames), ENT_QUOTES) ?></p>
                 <p><strong>Direct groups:</strong> <?= htmlspecialchars(implode(', ', $directGroupNames), ENT_QUOTES) ?></p>
-                <?php if (!empty($permissions)) { ?>
+                <?php if (!$canEditPathAcl) { ?>
+                <p><em><?= $_lang['files_access_denied'] ?></em></p>
+                <?php } elseif (!empty($permissions)) { ?>
                 <ul><?= implode("\n", $permissions) ?></ul>
                 <?php } else { ?>
                 <p><em><?= $_lang['access_permissions_off'] ?></em></p>

@@ -276,6 +276,9 @@ browser.orderFiles = function(callBack, selected) {
         var a1, b1, arr;
         if (!order) order = 'name';
 
+        if (!!a.isDir != !!b.isDir)
+            return a.isDir ? -1 : 1;
+
         if (order == 'date') {
             a1 = a.mtime;
             b1 = b.mtime;
