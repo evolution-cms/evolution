@@ -44,8 +44,8 @@ class dir {
     * @param array $failed
     * @return mixed */
 
-    static function prune($dir, $firstFailExit=true, array $failed=null) {
-        if ($failed === null) $failed = [];
+    static function prune(string $dir, bool $firstFailExit=true, array $failed=[]): mixed
+    {
         $files = self::content($dir);
         if ($files === false) {
             if ($firstFailExit)
@@ -85,9 +85,10 @@ class dir {
     * or FALSE on failure
     * @param string $dir
     * @param array $options
-    * @return mixed */
+    * @return array|false
+   */
 
-    static function content($dir, array $options=null) {
+    static function content(string $dir, array $options=[]) {
 
         $defaultOptions = [
             'types' => "all",   // Allowed: "all" or possible return values
@@ -107,13 +108,7 @@ class dir {
         $dh = @opendir($dir);
         if ($dh === false)
             return false;
-
-        if ($options === null)
-            $options = $defaultOptions;
-
-        foreach ($defaultOptions as $key => $val)
-            if (!isset($options[$key]))
-                $options[$key] = $val;
+        $options = $options + $defaultOptions;
 
         $files = [];
         while (($file = @readdir($dh)) !== false) {

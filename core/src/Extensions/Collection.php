@@ -118,7 +118,7 @@ class Collection extends EloquentCollection
     public function getChildrenOf($position)
     {
         if (!$this->hasChildren($position)) {
-            return new static();
+            return new self();
         }
 
         return $this->getChildAt($position)->children;
@@ -146,7 +146,7 @@ class Collection extends EloquentCollection
     {
         $items = $this->items;
 
-        return new static($this->makeTree($items));
+        return new self($this->makeTree($items));
     }
 
     /**
@@ -159,7 +159,7 @@ class Collection extends EloquentCollection
     {
         $items = $this->items;
 
-        return new static($this->makeTreeParent($items, $parent));
+        return new self($this->makeTreeParent($items, $parent));
     }
 
     /**

@@ -509,7 +509,6 @@ class ManagerTheme implements ManagerThemeInterface
         }
 
         if (is_file(MODX_BASE_PATH . 'assets/cache/installProc.inc.php')) {
-            // @phpstan-ignore-next-line includeOnce.fileNotFound
             include_once(MODX_BASE_PATH . 'assets/cache/installProc.inc.php');
             if (isset($installStartTime)) {
                 if ((time() - $installStartTime) > 5 * 60) { // if install flag older than 5 minutes, discard
