@@ -6699,8 +6699,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     final public function __clone()
     {}
 
-    public function maintenanceMode()
-    {}
+    public function maintenanceMode(): \Illuminate\Contracts\Foundation\MaintenanceMode
+    {
+        return new MaintenanceMode();
+    }
 
     /**
      * @param $callback

@@ -1869,7 +1869,7 @@ class SiteContent extends Eloquent\Model
         /**
          * @var \Entity $instance
          */
-        $instance = new static;
+        $instance = new self();
 
         return $instance->whereNull($instance->getParentIdColumn())->get($columns);
     }
@@ -1915,7 +1915,7 @@ class SiteContent extends Eloquent\Model
             /**
              * @var Entity $entity
              */
-            $entity = new static($item);
+            $entity = new self($item);
             $entity->parent = $parent ? $parent->getKey() : null;
             $entity->save();
 
