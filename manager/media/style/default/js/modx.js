@@ -1642,7 +1642,7 @@
             resizeTree: function () { }
         },
         removeLocks: function () {
-            if (confirm(modx.lang.confirm_remove_locks) === true) {
+            if (confirm(modx.lang.confirm_remove_locks.replace(/\\n/g, '\n')) === true) {
                 //w.main.location.href = modx.MODX_MANAGER_URL + '?a=67'
                 modx.get(modx.MODX_MANAGER_URL + '?a=67', function () {
                     modx.tree.restoreTree();
