@@ -10,7 +10,7 @@
   stroke-linejoin="round"
   class="icon icon-tabler icons-tabler-outline icon-tabler-medal-2"
 >
-  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
   <path d="M9 3h6l3 7l-6 2l-6 -2l3 -7" />
   <path d="M12 12l-3 -9" />
   <path d="M15 11l-3 -8" />

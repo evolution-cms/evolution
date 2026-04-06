@@ -1,21 +1,8 @@
 <?php
 
-use EvolutionCMS\Controllers\Search;
-use EvolutionCMS\Interfaces\ManagerThemeInterface;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Schema\Blueprint;
-
-class SearchTestHarness extends Search
-{
-    public function __construct(ManagerThemeInterface $managerTheme, array $data = [])
-    {
-    }
-
-    public function exposeApplyContainsConditionGroup($query, array $columns, string $search): void
-    {
-        $this->ciLikeConditions($query, $columns, $search);
-    }
-}
+use Tests\Unit\Controllers\SearchTestHarness;
 
 beforeEach(function () {
     $this->capsule = new Capsule();
@@ -44,6 +31,10 @@ beforeEach(function () {
 
 afterEach(function () {
     Capsule::connection()->disconnect();
+    // Reset the global IoC container so it doesn't leak a plain Container
+    // (created by Container::getInstance() ??= new static during schema ops)
+    // into subsequent tests that rely on Core::getInstance().
+    \Illuminate\Container\Container::setInstance(null);
 });
 
 test('sqlite text searches remain case-insensitive for manager search queries', function () {

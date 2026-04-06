@@ -8,6 +8,19 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Tests\Mocks\MockDocumentParser;
 
 beforeEach(function () {
+    if (!defined('EVO_CLASS')) {
+        define('EVO_CLASS', MockDocumentParser::class);
+    }
+    if (!defined('IN_MANAGER_MODE')) {
+        define('IN_MANAGER_MODE', false);
+    }
+    if (!defined('IN_INSTALL_MODE')) {
+        define('IN_INSTALL_MODE', false);
+    }
+    if (!defined('EVO_API_MODE')) {
+        define('EVO_API_MODE', true);
+    }
+
     // Mock the Laravel application
     $this->app = Mockery::mock(Application::class);
 

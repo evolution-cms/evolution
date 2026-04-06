@@ -1160,13 +1160,9 @@ class Container implements ArrayAccess, ContainerContract
         // new instance of this class, injecting the created dependencies in.
         try {
             $instances = $this->resolveDependencies($dependencies);
-        } catch (BindingResolutionException $e) {
+        } finally {
             array_pop($this->buildStack);
-
-            throw $e;
         }
-
-        array_pop($this->buildStack);
 
         $this->fireAfterResolvingAttributeCallbacks(
             $reflector->getAttributes(), $instance = new $concrete(...$instances)
@@ -1236,9 +1232,9 @@ class Container implements ArrayAccess, ContainerContract
             // If the class is null, it means the dependency is a string or some other
             // primitive type which we can not resolve since it is not a class and
             // we will just bomb out with an error since we have no-where to go.
-            $result ??= is_null(Util::getParameterClassName($dependency))
+            $result ??= is_null($className = Util::getParameterClassName($dependency))
                 ? $this->resolvePrimitive($dependency)
-                : $this->resolveClass($dependency);
+                : $this->resolveClass($dependency, $className);
 
             $this->fireAfterResolvingAttributeCallbacks($dependency->getAttributes(), $result);
 
@@ -1321,9 +1317,9 @@ class Container implements ArrayAccess, ContainerContract
      *
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
-    protected function resolveClass(ReflectionParameter $parameter)
+    protected function resolveClass(ReflectionParameter $parameter, ?string $className = null)
     {
-        $className = Util::getParameterClassName($parameter);
+        $className ??= Util::getParameterClassName($parameter);
 
         // First we will check if a default value has been defined for the parameter.
         // If it has, and no explicit binding exists, we should return it to avoid

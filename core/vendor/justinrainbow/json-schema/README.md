@@ -5,16 +5,17 @@
 [![Total Downloads](https://poser.pugx.org/justinrainbow/json-schema/downloads)](https://packagist.org/packages/justinrainbow/json-schema/stats)
 ![Supported Dialects](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fphp-justinrainbow-json-schema%2Fsupported_versions.json)
 
-A PHP Implementation for validating `JSON` Structures against a given `Schema` with support for `Schemas` of Draft-3, 
-Draft-4 or Draft-6. 
+A PHP Implementation for validating `JSON` Structures against a given `Schema` with support for `Schemas` of Draft-3,
+Draft-4, Draft-6 or Draft-7.
 
-Features of newer Drafts might not be supported. See [Table of All Versions of Everything](https://json-schema.org/specification-links.html#table-of-all-versions-of-everything) to get an overview 
+Features of newer Drafts might not be supported. See [Table of All Versions of Everything](https://json-schema.org/specification-links.html#table-of-all-versions-of-everything) to get an overview
 of all existing Drafts. See [json-schema](http://json-schema.org/) for more details about the JSON Schema specification
 
 # Compliance
 ![Draft 3](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fphp-justinrainbow-json-schema%2Fcompliance%2Fdraft3.json)
 ![Draft 4](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fphp-justinrainbow-json-schema%2Fcompliance%2Fdraft4.json)
 ![Draft 6](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fphp-justinrainbow-json-schema%2Fcompliance%2Fdraft6.json)
+![Draft 7](https://img.shields.io/endpoint?url=https%3A%2F%2Fbowtie.report%2Fbadges%2Fphp-justinrainbow-json-schema%2Fcompliance%2Fdraft7.json)
 
 
 ## Installation
@@ -37,17 +38,17 @@ composer require justinrainbow/json-schema
 
 For a complete reference see [Understanding JSON Schema](https://json-schema.org/understanding-json-schema/).
 
-__Note:__ features of Drafts newer than Draft-4 might not be supported!
+__Note:__ Not all drafts might be supported, check the [Bowtie report](https://bowtie.report/#/implementations/php-justinrainbow-json-schema) on the current state of draft implementations.
 
 ### Basic usage
 
 ```php
 <?php
 
-$data = json_decode(file_get_contents('data.json'));
+$data = json_decode(file_get_contents('data.json'), false);
 
 // Validate
-$validator = new JsonSchema\Validator;
+$validator = new JsonSchema\Validator();
 $validator->validate($data, (object)['$ref' => 'file://' . realpath('schema.json')]);
 
 if ($validator->isValid()) {
@@ -207,7 +208,7 @@ third argument to `Validator::validate()`, or can be provided as the third argum
 | `Constraint::CHECK_MODE_EXCEPTIONS`             | Throw an exception immediately if validation fails              |
 | `Constraint::CHECK_MODE_DISABLE_FORMAT`         | Do not validate "format" constraints                            |
 | `Constraint::CHECK_MODE_VALIDATE_SCHEMA`        | Validate the schema as well as the provided document            |
-| `Constraint::CHECK_MODE_STRICT` [^3]            | Validate the scheme using strict mode using the specified draft | 
+| `Constraint::CHECK_MODE_STRICT` [^3]            | Validate the scheme using strict mode using the specified draft |
 
 [^1]: Please note that using `CHECK_MODE_COERCE_TYPES` or `CHECK_MODE_APPLY_DEFAULTS` will modify your
 original data.

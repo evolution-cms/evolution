@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2025 Till Krüss
+ * (c) 2021-2026 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,6 +19,7 @@ use Predis\Connection\Resource\Exception\StreamInitException;
 use Predis\Protocol\Parser\ParserStrategyResolver;
 use Predis\Protocol\Parser\Strategy\ParserStrategyInterface;
 use Predis\Protocol\ProtocolException;
+use Predis\TimeoutException;
 
 /**
  * Base class with the common logic used by connection classes to communicate
@@ -155,6 +156,20 @@ abstract class AbstractConnection implements NodeConnectionInterface
     {
         CommunicationException::handle(
             new ConnectionException($this, "$message [{$this->getParameters()}]", $code)
+        );
+    }
+
+    /**
+     * Helper method to handle timeout errors.
+     *
+     * @param  int                    $code
+     * @return void
+     * @throws CommunicationException
+     */
+    protected function onTimeoutError(int $code = 0): void
+    {
+        CommunicationException::handle(
+            new TimeoutException($this, $code)
         );
     }
 

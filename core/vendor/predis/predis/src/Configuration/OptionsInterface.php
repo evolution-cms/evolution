@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2025 Till Krüss
+ * (c) 2021-2026 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,15 +17,16 @@ use Predis\Connection\FactoryInterface;
 use Predis\Connection\ParametersInterface;
 
 /**
- * @property callable                  $aggregate   Custom aggregate connection initializer
- * @property callable                  $cluster     Aggregate connection initializer for clustering
- * @property FactoryInterface          $connections Connection factory for creating new connections
- * @property bool                      $exceptions  Toggles exceptions in client for -ERR responses
- * @property ProcessorInterface        $prefix      Key prefixing strategy using the supplied string as prefix
- * @property FactoryInterface          $commands    Command factory for creating Redis commands
- * @property array|ParametersInterface $parameters  Parameters associated with connection.
- * @property callable                  $replication Aggregate connection initializer for replication
- * @property int                       $readTimeout Timeout in milliseconds between read operations on reading from multiple connections.
+ * @property callable                  $aggregate       Custom aggregate connection initializer
+ * @property callable                  $cluster         Aggregate connection initializer for clustering
+ * @property FactoryInterface          $connections     Connection factory for creating new connections
+ * @property bool                      $exceptions      Toggles exceptions in client for -ERR responses
+ * @property ProcessorInterface        $prefix          Key prefixing strategy using the supplied string as prefix
+ * @property FactoryInterface          $commands        Command factory for creating Redis commands
+ * @property array|ParametersInterface $parameters      Parameters associated with connection.
+ * @property callable                  $replication     Aggregate connection initializer for replication
+ * @property int                       $readTimeout     Timeout in milliseconds between read operations on reading from multiple connections.
+ * @property string|string[]           $upstream_driver Upstream driver info for CLIENT SETINFO.
  */
 interface OptionsInterface
 {
