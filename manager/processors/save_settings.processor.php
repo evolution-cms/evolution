@@ -2,6 +2,7 @@
 if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true) {
     die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the EVO Content Manager instead of accessing this file directly.");
 }
+
 if (!$modx->hasPermission('settings')) {
     $modx->webAlertAndQuit($_lang["error_no_privileges"]);
 }
@@ -42,9 +43,6 @@ if (file_exists(MODX_MANAGER_PATH . 'media/style/' . $modx->getConfig('manager_t
     unlink(MODX_MANAGER_PATH . 'media/style/' . $modx->getConfig('manager_theme') . '/css/styles.min.css');
 }
 
-$data['filemanager_path'] = str_replace('[(base_path)]', MODX_BASE_PATH, $data['filemanager_path']);
-$data['rb_base_dir'] = str_replace('[(base_path)]', MODX_BASE_PATH, $data['rb_base_dir']);
-
 if (isset($data) && count($data) > 0) {
     if (isset($data['manager_language'])) {
         $lang_path = EVO_CORE_PATH . 'lang/' . $data['manager_language'] . '/global.php';
@@ -78,8 +76,10 @@ if (isset($data) && count($data) > 0) {
                 $k = '';
                 break;
             case 'rb_base_dir':
-            case 'rb_base_url':
             case 'filemanager_path':
+                $v = \EvolutionCMS\Support\SystemSettingPathNormalizer::normalizeStorageValue($k, $v, MODX_BASE_PATH);
+                break;
+            case 'rb_base_url':
                 $v = trim($v);
                 $v = rtrim($v, '/') . '/';
                 break;
