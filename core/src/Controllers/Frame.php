@@ -132,7 +132,7 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
 
         foreach ($unlockTranslations as $key => $value) {
             $unlockTranslations[$key] = iconv(
-                $this->managerTheme->getCore()->getConfig('modx_charset'),
+                $this->managerTheme->getCore()->getConfig('evo_charset'),
                 'utf-8',
                 $value
             );
@@ -347,7 +347,7 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
             $this->menuBarsIcon(),
             'javascript:;',
             $this->managerTheme->getLexicon('home'),
-            'modx.resizer.toggle(); return false;',
+            'evo.resizer.toggle(); return false;',
             ' return false;',
             '',
             0,
@@ -823,7 +823,7 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
                     // href
                     'btn btn-secondary',
                     // class or btn-success
-                    "modx.popup({url:'index.php?a=26', title:'" . $this->managerTheme->getLexicon('refresh_site') . "', icon: 'fa-recycle', iframe: 'ajax', selector: '.tab-page>.container', position: 'right top', width: 'auto', maxheight: '50%%', wrap: 'body' })",
+                    "evo.popup({url:'index.php?a=26', title:'" . $this->managerTheme->getLexicon('refresh_site') . "', icon: 'fa-recycle', iframe: 'ajax', selector: '.tab-page>.container', position: 'right top', width: 'auto', maxheight: '50%%', wrap: 'body' })",
                     // onclick
                     $this->managerTheme->getLexicon('refresh_site'),
                     // title
@@ -888,7 +888,7 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
             'remove_locks',
             'tools',
             $this->menuIcon('icon_hourglass') . $this->managerTheme->getLexicon('remove_locks'),
-            'javascript:modx.removeLocks();',
+            'javascript:evo.removeLocks();',
             $this->managerTheme->getLexicon('remove_locks'),
             '',
             'remove_locks',
