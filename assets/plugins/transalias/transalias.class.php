@@ -10,6 +10,48 @@
  */
 class TransAlias {
     /**
+     * Resolve the transliteration table from the active manager language when
+     * we have a safe built-in mapping, otherwise keep the configured fallback.
+     *
+     * @param string $fallbackTable
+     * @param string|null $managerLanguage
+     * @return string
+     */
+    function resolveTableName($fallbackTable, $managerLanguage = null) {
+        $fallbackTable = is_string($fallbackTable) && $fallbackTable !== '' ? $fallbackTable : 'common';
+
+        if (!is_string($managerLanguage) || trim($managerLanguage) === '') {
+            return $fallbackTable;
+        }
+
+        $normalizedLanguage = strtolower(str_replace('_', '-', trim($managerLanguage)));
+        $baseLanguage = explode('-', $normalizedLanguage)[0];
+
+        $tableMap = [
+            'az' => 'common',
+            'be' => 'russian',
+            'bg' => 'russian',
+            'cs' => 'czech',
+            'da' => 'common',
+            'de' => 'german',
+            'en' => 'common',
+            'es' => 'common',
+            'fi' => 'common',
+            'fr' => 'common',
+            'it' => 'common',
+            'nl' => 'dutch',
+            'nn' => 'common',
+            'pl' => 'common',
+            'pt' => 'common',
+            'ru' => 'russian',
+            'sv' => 'common',
+            'uk' => 'russian',
+        ];
+
+        return $tableMap[$baseLanguage] ?? $fallbackTable;
+    }
+
+    /**
      * name of the file to use for transliteration (without .php)
      * also used as array key
      *
