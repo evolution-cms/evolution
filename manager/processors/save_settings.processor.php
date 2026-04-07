@@ -2,6 +2,7 @@
 if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true) {
     die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the EVO Content Manager instead of accessing this file directly.");
 }
+
 if (!$modx->hasPermission('settings')) {
     $modx->webAlertAndQuit($_lang["error_no_privileges"]);
 }
@@ -78,8 +79,10 @@ if (isset($data) && count($data) > 0) {
                 $k = '';
                 break;
             case 'rb_base_dir':
-            case 'rb_base_url':
             case 'filemanager_path':
+                $v = \EvolutionCMS\Support\SystemSettingPathNormalizer::normalizeStorageValue($k, $v, EVO_BASE_PATH);
+                break;
+            case 'rb_base_url':
                 $v = trim($v);
                 $v = rtrim($v, '/') . '/';
                 break;
