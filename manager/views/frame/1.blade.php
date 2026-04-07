@@ -70,8 +70,8 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
     @endif
     <link rel="icon" type="image/ico" href="{{ManagerTheme::getStyle('favicon')}}" />
     <style>
-        #tree{width:{{$MODX_widthSideBar}}rem}
-        #main,#resizer{left:{{$MODX_widthSideBar}}rem}
+        #tree{width:{{$EVO_widthSideBar}}rem}
+        #main,#resizer{left:{{$EVO_widthSideBar}}rem}
         .ios #main{-webkit-overflow-scrolling:touch;overflow-y:scroll;}
         #mainMenu #nav #bars .icon-expand,
         #mainMenu #nav #bars .icon-collapse{display:inline-block;}
@@ -98,8 +98,8 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
     </script>
     <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
     <script>
-        // GLOBAL variable modx
-        var modx = {
+        // GLOBAL variable evo
+        var evo = {
             MGR_DIR: '{{MGR_DIR}}',
             EVO_SITE_URL: '{{EVO_SITE_URL}}',
             EVO_MANAGER_URL: '{{EVO_MANAGER_URL}}',
@@ -113,7 +113,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
             config: {
                 manager_title: {!! json_encode($managerTitle, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!},
                 menu_height: {{(int)evo()->getConfig('manager_menu_height')}},
-                tree_width: {{(int)$MODX_widthSideBar}},
+                tree_width: {{(int)$EVO_widthSideBar}},
                 tree_min_width: {{(int)$tree_min_width}},
                 session_timeout: {{(int)evo()->getConfig('session_timeout')}},
                 site_start: {{(int)evo()->getConfig('site_start')}},
@@ -219,12 +219,12 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
         };
         <?php
         $opened = array_filter(array_map('intval', explode('|', isset($_SESSION['openedArray']) && is_scalar($_SESSION['openedArray']) ? $_SESSION['openedArray'] : '')));
-        echo (empty($opened) ? '' : 'modx.openedArray[' . implode("] = 1;\n		modx.openedArray[", $opened) . '] = 1;') . "\n";
+        echo (empty($opened) ? '' : 'evo.openedArray[' . implode("] = 1;\n		evo.openedArray[", $opened) . '] = 1;') . "\n";
         ?>
     </script>
     <script src="media/script/tree-drop-guard-helper.js?v={{evo()->getVersionData('version')}}"></script>
     <script src="media/script/main-target-link-helper.js?v={{evo()->getVersionData('version')}}"></script>
-    <script src="{{ManagerTheme::getThemeUrl()}}js/modx.js?v={{evo()->getVersionData('version')}}"></script>
+    <script src="{{ManagerTheme::getThemeUrl()}}js/evo.js?v={{evo()->getVersionData('version')}}"></script>
     @if ($modx->getConfig('show_picker'))
         <script src="media/script/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
         <script src="media/script/spectrum/spectrum.evo.min.js" type="text/javascript"></script>
@@ -320,7 +320,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                             </ul>
                         </li>
                         <li id="theme">
-                            <a id="treeMenu_theme_dark" onclick="modx.tree.toggleTheme(event)" title="{{ManagerTheme::getLexicon('manager_theme_mode_title')}}">
+                            <a id="treeMenu_theme_dark" onclick="evo.tree.toggleTheme(event)" title="{{ManagerTheme::getLexicon('manager_theme_mode_title')}}">
                                 <span class="icon">{!! $_style['icon_theme'] !!}</span>
                             </a>
                         </li>
@@ -405,11 +405,11 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                 </div>
             </div>
             <div id="evo-tab-page-home" class="evo-tab-page show iframe-scroller">
-                <iframe id="mainframe" src="index.php?a={{$initMainframeAction}}" scrolling="auto" frameborder="0" onload="modx.main.onload(event);"></iframe>
+                <iframe id="mainframe" src="index.php?a={{$initMainframeAction}}" scrolling="auto" frameborder="0" onload="evo.main.onload(event);"></iframe>
             </div>
         @else
             <div class="iframe-scroller">
-                <iframe id="mainframe" name="main" src="index.php?a={{$initMainframeAction}}" scrolling="auto" frameborder="0" onload="modx.main.onload(event);"></iframe>
+                <iframe id="mainframe" name="main" src="index.php?a={{$initMainframeAction}}" scrolling="auto" frameborder="0" onload="evo.main.onload(event);"></iframe>
             </div>
         @endif
         <script>
@@ -475,7 +475,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                 </label>
             </div>
             <div class="text-center">
-                <a href="javascript:;" class="btn btn-primary" onclick="modx.tree.updateTree();modx.tree.showSorter(event);" title="{{ManagerTheme::getLexicon('sort_tree')}}">{{ManagerTheme::getLexicon('sort_tree')}}</a>
+                <a href="javascript:;" class="btn btn-primary" onclick="evo.tree.updateTree();evo.tree.showSorter(event);" title="{{ManagerTheme::getLexicon('sort_tree')}}">{{ManagerTheme::getLexicon('sort_tree')}}</a>
             </div>
         </form>
     </div>
@@ -517,7 +517,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
         function constructLink($action, $img, $text, $allowed)
         {
             if ((bool) $allowed) {
-                echo '<div class="menuLink" id="item' . $action . '" onclick="modx.tree.menuHandler(' . $action . ');">';
+                echo '<div class="menuLink" id="item' . $action . '" onclick="evo.tree.menuHandler(' . $action . ');">';
                 echo iconHtml($img) . ' ' . $text . '</div>';
             }
         }
@@ -564,8 +564,8 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
             var treeMenuOpenImages = document.getElementById('treeMenu_openimages');
             if (treeMenuOpenImages) treeMenuOpenImages.onclick = function(e) {
                 e.preventDefault();
-                if (modx.config.global_tabs && !e.shiftKey) {
-                    modx.tabs({
+                if (evo.config.global_tabs && !e.shiftKey) {
+                    evo.tabs({
                         url: '{{ EVO_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?filemanager=media/browser/{{ $modx->getConfig('which_browser') }}/browse.php&type=images',
                         title: '{{ ManagerTheme::getLexicon('images_management') }}'
                     });
@@ -574,7 +574,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                     if (e.shiftKey) {
                         randomNum += ' #' + Math.floor((Math.random() * 999999) + 1);
                     }
-                    modx.openWindow({
+                    evo.openWindow({
                         url: '{{ EVO_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?&type=images',
                         title: randomNum
                     });
@@ -586,8 +586,8 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
             var treeMenuOpenFiles = document.getElementById('treeMenu_openfiles');
             if (treeMenuOpenFiles) treeMenuOpenFiles.onclick = function(e) {
                 e.preventDefault();
-                if (modx.config.global_tabs && !e.shiftKey) {
-                    modx.tabs({
+                if (evo.config.global_tabs && !e.shiftKey) {
+                    evo.tabs({
                         url: '{{ EVO_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?filemanager=media/browser/{{ $modx->getConfig('which_browser') }}/browse.php&type=files',
                         title: '{{ ManagerTheme::getLexicon('files_files') }}'
                     });
@@ -596,7 +596,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                     if (e.shiftKey) {
                         randomNum += ' #' + Math.floor((Math.random() * 999999) + 1);
                     }
-                    modx.openWindow({
+                    evo.openWindow({
                         url: '{{ EVO_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?&type=files',
                         title: randomNum
                     });

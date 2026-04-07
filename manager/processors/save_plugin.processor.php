@@ -54,7 +54,7 @@ if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
 } elseif (empty($_POST['newcategory']) && $_POST['categoryid'] <= 0) {
     $categoryid = 0;
 } else {
-    include_once(MODX_MANAGER_PATH . 'includes/categories.inc.php');
+    include_once(EVO_MANAGER_PATH . 'includes/categories.inc.php');
     $categoryid = getCategory($_POST['newcategory']);
 }
 
@@ -75,7 +75,7 @@ if ($parse_docblock) {
         $description = $version . trim(preg_replace('/(<b>.+?)+(<\/b>)/i', '', $description));
     }
     if (isset($parsed['modx_category'])) {
-        include_once(MODX_MANAGER_PATH . 'includes/categories.inc.php');
+        include_once(EVO_MANAGER_PATH . 'includes/categories.inc.php');
         $categoryid = getCategory($parsed['modx_category']);
     }
 }

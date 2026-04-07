@@ -51,7 +51,7 @@ $content = array_merge($content, $_POST);
 // Add lock-element JS-Script
 $lockElementId = $id;
 $lockElementType = 6;
-require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
+require_once(EVO_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 ?>
 <script src="media/script/element-properties.js"></script>
 <script type="text/javascript">
@@ -198,7 +198,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                             <select name="categoryid" class="form-control" onchange="documentDirty=true;">
                                 <option>&nbsp;</option>
                                 <?php
-                                include_once(MODX_MANAGER_PATH . 'includes/categories.inc.php');
+                                include_once(EVO_MANAGER_PATH . 'includes/categories.inc.php');
                                 foreach (getCategories() as $n => $v) {
                                     echo "\t\t\t" . '<option value="' . $v['id'] . '"' . ((isset($content['category']) && $content['category'] == $v['id']) ? ' selected="selected"' : '') . '>' . $modx->getPhpCompat()->htmlspecialchars($v['category']) . "</option>\n";
                                 }

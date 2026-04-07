@@ -101,7 +101,7 @@
 
     // do some config checks
     if (evo()->getConfig('warning_visibility') || $_SESSION['mgrRole'] == 1) {
-        include_once MODX_MANAGER_PATH . 'includes/config_check.inc.php';
+        include_once EVO_MANAGER_PATH . 'includes/config_check.inc.php';
         if ($config_check_results != $_lang['configcheck_ok']) {
             $ph['config_check_results'] = $config_check_results;
             $ph['config_display'] = 'block';

@@ -15,7 +15,7 @@ if($id == 0) {
 $siteContents = EvolutionCMS\Models\SiteContent::select('id', 'pagetitle','introtext')->where('template',$id)->where('deleted',0)->get();
 $limit = $siteContents->count();
 if($limit > 0) {
-    include MODX_MANAGER_PATH . "includes/header.inc.php";
+    include EVO_MANAGER_PATH . "includes/header.inc.php";
     ?>
 
     <h1><?php echo $_lang['manage_templates']; ?></h1>
@@ -36,7 +36,7 @@ if($limit > 0) {
         </div>
     </div>
     <?php
-    include_once MODX_MANAGER_PATH . "includes/footer.inc.php";
+    include_once EVO_MANAGER_PATH . "includes/footer.inc.php";
     exit;
 }
 $default_template = $modx->getConfig('default_template');

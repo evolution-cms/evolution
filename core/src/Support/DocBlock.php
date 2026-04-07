@@ -175,7 +175,7 @@ class DocBlock
         global $_lang;
 
         // Replace special placeholders & make URLs + Emails clickable
-        $ph = ['site_url' => MODX_SITE_URL];
+        $ph = ['site_url' => EVO_SITE_URL];
         $regexUrl = "/((http|https|ftp|ftps)\:\/\/[^\/]+(\/[^\s]+[^,.?!:;\s])?)/";
         $regexEmail = '#([0-9a-z]([-_.]?[0-9a-z])*@[0-9a-z]([-.]?[0-9a-z])*\\.[a-wyz][a-z](fo|g|l|m|mes|o|op|pa|ro|seum|t|u|v|z)?)#i';
         $emailSubject = isset($parsed['name']) ? '?subject=' . $parsed['name'] : '';
@@ -212,7 +212,7 @@ class DocBlock
         ];
 
         $nl = "\n";
-        $list = isset($parsed['logo']) ? '<img src="' . MODX_BASE_URL . ltrim($parsed['logo'], "/") . '" style="float:right;max-width:100px;height:auto;" />' . $nl : '';
+        $list = isset($parsed['logo']) ? '<img src="' . EVO_BASE_URL . ltrim($parsed['logo'], "/") . '" style="float:right;max-width:100px;height:auto;" />' . $nl : '';
         $list .= '<p>' . $nl;
         $list .= isset($parsed['name']) ? '<strong>' . $parsed['name'] . '</strong><br/>' . $nl : '';
         $list .= isset($parsed['description']) ? $parsed['description'] . $nl : '';

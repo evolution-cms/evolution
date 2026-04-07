@@ -460,7 +460,7 @@ class ExceptionHandler
 
             echo '<!DOCTYPE html><html><head><title>Evolution CMS ' . $version . ' &raquo; ' . $release_date . '</title>
                  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-                 <link rel="stylesheet" type="text/css" href="' . MODX_MANAGER_URL . 'media/style/' . $this->container->getConfig(
+                 <link rel="stylesheet" type="text/css" href="' . EVO_MANAGER_URL . 'media/style/' . $this->container->getConfig(
                         'manager_theme',
                         'default'
                     ) . '/style.css" />
@@ -501,8 +501,8 @@ class ExceptionHandler
 
             if (isset($val['file'])) {
                 $path = str_replace('\\', '/', $val['file']);
-                if (strpos($path, MODX_BASE_PATH) === 0) {
-                    $path = substr($path, strlen(MODX_BASE_PATH));
+                if (strpos($path, EVO_BASE_PATH) === 0) {
+                    $path = substr($path, strlen(EVO_BASE_PATH));
                 }
             } else {
                 $path = '';

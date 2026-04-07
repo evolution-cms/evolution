@@ -8,7 +8,7 @@ if (!evo()->hasPermission('file_manager')) {
 $token_check = checkToken();
 $newToken = makeToken();
 // settings
-$theme_image_path = MODX_MANAGER_URL . 'media/style/' . evo()->getConfig('manager_theme') . '/images/';
+$theme_image_path = EVO_MANAGER_URL . 'media/style/' . evo()->getConfig('manager_theme') . '/images/';
 $excludes = [
     '.',
     '..',
@@ -18,7 +18,7 @@ $excludes = [
 ];
 $alias_suffix = (!empty($friendly_url_suffix)) ? ',' . ltrim($friendly_url_suffix, '.') : '';
 $editablefiles = explode(',', 'txt,php,tpl,less,sass,scss,shtml,html,htm,xml,js,css,pageCache,htaccess,json,ini' . $alias_suffix);
-$inlineviewablefiles = explode(',', 'txt,php,tpl,less,sass,scss,html,htm,xml,js,css,pageCache,htaccess,json,ini' . $alias_suffix);
+$inlineviewablefiles = explode(',', 'log,txt,php,tpl,less,sass,scss,html,htm,xml,js,css,pageCache,htaccess,json,ini' . $alias_suffix);
 $viewablefiles = explode(',', 'jpg,gif,png,ico');
 $editablefiles = add_dot($editablefiles);
 $inlineviewablefiles = add_dot($inlineviewablefiles);

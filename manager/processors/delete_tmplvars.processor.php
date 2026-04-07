@@ -18,7 +18,7 @@ if(!$forced) {
     $siteTmlvarTemplates = EvolutionCMS\Models\SiteTmplvarContentvalue::with('resource')->where('tmplvarid', '=', $id)->get();
     $count = $siteTmlvarTemplates->count();
     if($count > 0) {
-		include_once MODX_MANAGER_PATH . "includes/header.inc.php";
+		include_once EVO_MANAGER_PATH . "includes/header.inc.php";
 		?>
 		<script>
 			var actions = {
@@ -49,7 +49,7 @@ if(!$forced) {
 			</div>
 		</div>
 		<?php
-		include_once MODX_MANAGER_PATH . "includes/footer.inc.php";
+		include_once EVO_MANAGER_PATH . "includes/footer.inc.php";
 		exit;
 	}
 }

@@ -92,7 +92,7 @@ if (!function_exists('ProcessTVCommand')) {
 
             case 'DIRECTORY' :
                 $files = [];
-                $path = rtrim(MODX_BASE_PATH . $param, '/') . '/';
+                $path = rtrim(EVO_BASE_PATH . $param, '/') . '/';
                 if (!is_dir(rtrim($path, '/'))) {
                     die($path);
                     break;
@@ -392,7 +392,7 @@ if (!function_exists('getTVDisplayFormat')) {
                 $w = $params['w'] ? $params['w'] : '100%';
                 $h = $params['h'] ? $params['h'] : '400px';
                 $richtexteditor = $params['edt'] ? $params['edt'] : '';
-                $o = '<div class="MODX_RichTextWidget"><textarea id="' . $id . '" name="' . $id . '" style="width:' . $w . '; height:' . $h . ';">';
+                $o = '<div class="EVO_RichTextWidget"><textarea id="' . $id . '" name="' . $id . '" style="width:' . $w . '; height:' . $h . ';">';
 
                 $o .= $modx->getPhpCompat()->htmlspecialchars($value);
                 $o .= '</textarea></div>';
@@ -442,7 +442,7 @@ if (!function_exists('getTVDisplayFormat')) {
                     }
                 }
 
-                $modx->regClientStartupScript(MODX_MANAGER_URL . 'media/script/bin/viewport.js'
+                $modx->regClientStartupScript(EVO_MANAGER_URL . 'media/script/bin/viewport.js'
                     , [
                         'name' => 'viewport',
                         'version' => '0',
@@ -517,14 +517,14 @@ if (!function_exists('getTVDisplayFormat')) {
                 $widget_output = '';
                 /* If we are loading a file */
                 if (strpos($params['output'], '@FILE') === 0) {
-                    $file_name = MODX_BASE_PATH . trim(substr($params['output'], 6));
+                    $file_name = EVO_BASE_PATH . trim(substr($params['output'], 6));
                     if (!is_file($file_name)) {
                         $widget_output = $file_name . ' does not exist';
                     } else {
                         $widget_output = file_get_contents($file_name);
                     }
                 } elseif (strpos($params['output'], '@INCLUDE') === 0) {
-                    $file_name = MODX_BASE_PATH . trim(substr($params['output'], 9));
+                    $file_name = EVO_BASE_PATH . trim(substr($params['output'], 9));
                     if (!is_file($file_name)) {
                         $widget_output = $file_name . ' does not exist';
                     } else {
@@ -893,14 +893,14 @@ if (!function_exists('renderFormElement')) {
                     $custom_output = '';
                     /* If we are loading a file */
                     if (strpos($field_elements, '@FILE') === 0) {
-                        $file_name = MODX_BASE_PATH . trim(substr($field_elements, 6));
+                        $file_name = EVO_BASE_PATH . trim(substr($field_elements, 6));
                         if (!file_exists($file_name)) {
                             $custom_output = $file_name . ' does not exist';
                         } else {
                             $custom_output = file_get_contents($file_name);
                         }
                     } elseif (strpos($field_elements, '@INCLUDE') === 0) {
-                        $file_name = MODX_BASE_PATH . trim(substr($field_elements, 9));
+                        $file_name = EVO_BASE_PATH . trim(substr($field_elements, 9));
                         if (!file_exists($file_name)) {
                             $custom_output = $file_name . ' does not exist';
                         } else {
@@ -942,7 +942,7 @@ if (!function_exists('renderFormElement')) {
             } // end switch statement
         } else {
             $custom = explode(':', $field_type);
-            $file_name = MODX_BASE_PATH.'assets/tvs/'.$custom['1'].'/'.$custom['1'].'.customtv.php';
+            $file_name = EVO_BASE_PATH.'assets/tvs/'.$custom['1'].'/'.$custom['1'].'.customtv.php';
             if (!is_file($file_name)) {
                 $custom_output = $file_name . ' does not exist';
             } else {

@@ -101,7 +101,7 @@ class Parser
             $this->templatePath = $path;
             if ($this->blade) {
                 $filesystem = new Filesystem;
-                $viewFinder = new FileViewFinder($filesystem, [MODX_BASE_PATH . $path]);
+                $viewFinder = new FileViewFinder($filesystem, [EVO_BASE_PATH . $path]);
                 $this->blade->setFinder($viewFinder);
             }
         }
@@ -231,8 +231,8 @@ class Parser
                     break;
                 case '@FILE':
                     if ($subTmp != '') {
-                        $real = realpath(MODX_BASE_PATH . $this->templatePath);
-                        $path = realpath(MODX_BASE_PATH . $this->templatePath . $this->cleanPath($subTmp) . '.' . $this->templateExtension);
+                        $real = realpath(EVO_BASE_PATH . $this->templatePath);
+                        $path = realpath(EVO_BASE_PATH . $this->templatePath . $this->cleanPath($subTmp) . '.' . $this->templateExtension);
                         if (basename($path, '.' . $this->templateExtension) !== '' &&
                             0 === strpos($path, $real) &&
                             file_exists($path)

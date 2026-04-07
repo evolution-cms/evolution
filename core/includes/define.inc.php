@@ -29,52 +29,9 @@ if (!defined('SESSION_COOKIE_NAME')) {
     define('SESSION_COOKIE_NAME', env('SESSION_COOKIE_NAME', genEvoSessionName())); // $site_sessionname
 }
 
-$resolveBootConstant = static function (string $canonicalName, ?string $legacyName, $default = null) {
-    if (defined($canonicalName)) {
-        return constant($canonicalName);
-    }
+define('EVO_CLASS', '\DocumentParser');
 
-    if ($legacyName !== null && defined($legacyName)) {
-        return constant($legacyName);
-    }
-
-    $value = $default;
-    if ($legacyName !== null) {
-        $value = env($legacyName, $value);
-    }
-
-    return env($canonicalName, $value);
-};
-
-$defineBootConstant = static function (string $canonicalName, ?string $legacyName, $default = null) use ($resolveBootConstant): void {
-    if (!defined($canonicalName)) {
-        define($canonicalName, $resolveBootConstant($canonicalName, $legacyName, $default));
-    }
-
-    if ($legacyName !== null && !defined($legacyName)) {
-        define($legacyName, constant($canonicalName));
-    }
-};
-
-/**
- * @deprecated
- * @since 3.2.6
- *
- * Use EVO_CLASS instead.
- *
- * @todo [remove@3.5] Remove in Evolution CMS 3.5
- */
-$defineBootConstant('EVO_CLASS', 'MODX_CLASS', '\DocumentParser');
-
-/**
- * @deprecated
- * @since 3.2.6
- *
- * Use EVO_SITE_HOSTNAMES instead.
- *
- * @todo [remove@3.5] Remove in Evolution CMS 3.5
- */
-$defineBootConstant('EVO_SITE_HOSTNAMES', 'MODX_SITE_HOSTNAMES', '');
+define('EVO_SITE_HOSTNAMES', '');
 
 if (!defined('MGR_DIR')) {
     define('MGR_DIR', env('MGR_DIR', 'manager'));
@@ -88,15 +45,7 @@ if (!defined('EVO_STORAGE_PATH')) {
     define('EVO_STORAGE_PATH', env('EVO_STORAGE_PATH', EVO_CORE_PATH . 'storage/'));
 }
 
-/**
- * @deprecated
- * @since 3.2.6
- *
- * Use EVO_BASE_PATH instead.
- *
- * @todo [remove@3.5] Remove in Evolution CMS 3.5
- */
-if (!defined('MODX_BASE_PATH') || !defined('MODX_BASE_URL') || !defined('EVO_BASE_PATH') || !defined('EVO_BASE_URL')) {
+if (!defined('EVO_BASE_PATH') || !defined('EVO_BASE_URL')) {
     // automatically assign base_path and base_url
     $script_name = str_replace(
         '\\',
@@ -148,19 +97,14 @@ if (!defined('MODX_BASE_PATH') || !defined('MODX_BASE_URL') || !defined('EVO_BAS
     ) . '/';
 }
 
-$defineBootConstant('EVO_BASE_PATH', 'MODX_BASE_PATH', $base_path ?? null);
-$defineBootConstant('EVO_BASE_URL', 'MODX_BASE_URL', $base_url ?? null);
+if (!defined('EVO_CORE_PATH')) {
+
+    define('EVO_CORE_PATH', $config['core'] . '/');
+}
+define('EVO_BASE_PATH', $base_path ?? null);
+define('EVO_BASE_URL', $base_url ?? null);
 unset($base_path, $base_url);
 
-/**
- * @deprecated
- * @since 3.2.6
- *
- * @todo [remove@3.5] Remove in Evolution CMS 3.5
- */
-if (!preg_match('/\/$/', MODX_BASE_PATH)) {
-    throw new RuntimeException('Please, use trailing slash at the end of MODX_BASE_PATH');
-}
 if (!preg_match('/\/$/', EVO_BASE_PATH)) {
     throw new RuntimeException('Please, use trailing slash at the end of EVO_BASE_PATH');
 }
@@ -169,25 +113,9 @@ if (!preg_match('/\/$/', EVO_BASE_URL)) {
     throw new RuntimeException('Please, use trailing slash at the end of EVO_BASE_URL');
 }
 
-/**
- * @deprecated
- * @since 3.2.6
- *
- * Use EVO_MANAGER_PATH instead.
- *
- * @todo [remove@3.5] Remove in Evolution CMS 3.5
- */
-$defineBootConstant('EVO_MANAGER_PATH', 'MODX_MANAGER_PATH', EVO_BASE_PATH . MGR_DIR . '/');
+define('EVO_MANAGER_PATH', EVO_BASE_PATH . MGR_DIR . '/');
 
-/**
- * @deprecated
- * @since 3.2.6
- *
- * Use EVO_SITE_URL instead.
- *
- * @todo [remove@3.5] Remove in Evolution CMS 3.5
- */
-if (!defined('MODX_SITE_URL') || !defined('EVO_SITE_URL')) {
+if (!defined('EVO_SITE_URL')) {
     // check for valid hostnames
     $site_hostname = 'localhost';
     if (!is_cli()) {
@@ -230,79 +158,24 @@ if (!defined('MODX_SITE_URL') || !defined('EVO_SITE_URL')) {
 
     $site_url .= EVO_BASE_URL;
 }
-$defineBootConstant('EVO_SITE_URL', 'MODX_SITE_URL', $site_url ?? null);
+define('EVO_SITE_URL', $site_url ?? null);
 unset($site_url);
 
-/**
- * @deprecated
- * @since 3.2.6
- *
- * @todo [remove@3.5] Remove in Evolution CMS 3.5
- */
-if (!preg_match('/\/$/', MODX_SITE_URL)) {
-    throw new RuntimeException('Please, use trailing slash at the end of MODX_SITE_URL');
-}
 if (!preg_match('/\/$/', EVO_SITE_URL)) {
     throw new RuntimeException('Please, use trailing slash at the end of EVO_SITE_URL');
 }
 
-/**
- * @deprecated
- * @since 3.2.6
- *
- * Use EVO_MANAGER_URL instead.
- *
- * @todo [remove@3.5] Remove in Evolution CMS 3.5
- */
-$defineBootConstant('EVO_MANAGER_URL', 'MODX_MANAGER_URL', EVO_SITE_URL . MGR_DIR . '/');
+define('EVO_MANAGER_URL', EVO_SITE_URL . MGR_DIR . '/');
 
-/**
- * @deprecated
- * @since 3.2.6
- *
- * Use EVO_SANITIZE_SEED instead.
- *
- * @todo [remove@3.5] Remove in Evolution CMS 3.5
- */
-$defineBootConstant('EVO_SANITIZE_SEED', 'MODX_SANITIZE_SEED', 'sanitize_seed_' . base_convert(md5(__FILE__), 16, 36));
+define('EVO_SANITIZE_SEED', 'sanitize_seed_' . base_convert(md5(__FILE__), 16, 36));
 
 if (is_cli()) {
-    /**
-     * @deprecated
-     * @since 3.2.6
-     *
-     * Use EVO_CLI instead.
-     *
-     * @todo [remove@3.5] Remove in Evolution CMS 3.5
-     */
-    $defineBootConstant('EVO_CLI', 'MODX_CLI', true);
+    define('EVO_CLI', true);
 
-    /**
-     * @deprecated
-     * @since 3.2.6
-     *
-     * Use EVO_BASE_PATH instead.
-     *
-     * @todo [remove@3.5] Remove in Evolution CMS 3.5
-     */
-    if (!(defined('MODX_BASE_PATH') || defined('MODX_BASE_URL'))) {
-        throw new RuntimeException('Please, define MODX_BASE_PATH and MODX_BASE_URL on cli mode');
-    }
     if (!(defined('EVO_BASE_PATH') || defined('EVO_BASE_URL'))) {
         throw new RuntimeException('Please, define EVO_BASE_PATH and EVO_BASE_URL on cli mode');
     }
 
-    /**
-     * @deprecated
-     * @since 3.2.6
-     *
-     * Use EVO_SITE_URL instead.
-     *
-     * @todo [remove@3.5] Remove in Evolution CMS 3.5
-     */
-    if (!defined('MODX_SITE_URL')) {
-        throw new RuntimeException('Please, define MODX_SITE_URL on cli mode');
-    }
     if (!defined('EVO_SITE_URL')) {
         throw new RuntimeException('Please, define EVO_SITE_URL on cli mode');
     }

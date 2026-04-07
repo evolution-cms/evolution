@@ -772,8 +772,8 @@ try {
     }
 
     if ($installLevel === 7) {
-        if (file_exists(MODX_BASE_PATH.'assets/cache/installProc.inc.php')) {
-            unlink(MODX_BASE_PATH.'assets/cache/installProc.inc.php');
+        if (file_exists(EVO_BASE_PATH.'assets/cache/installProc.inc.php')) {
+            unlink(EVO_BASE_PATH.'assets/cache/installProc.inc.php');
         }
         if (file_exists($base_path.'install.session.php')) {
             unlink($base_path.'install.session.php');

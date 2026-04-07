@@ -108,7 +108,7 @@ class TransAlias {
         $additionalEncodings = ['-' => '%2D', '.' => '%2E', '_' => '%5F'];
         $tvname = str_replace(array_keys($additionalEncodings), array_values($additionalEncodings), rawurlencode($tv));
         if(array_key_exists('tv'.$tvname, $_POST)) {
-            include_once MODX_MANAGER_PATH . 'includes/tmplvars.commands.inc.php';
+            include_once EVO_MANAGER_PATH . 'includes/tmplvars.commands.inc.php';
             $val = $_POST['tv'.$tvname];
             $id = $_POST['id'];
             if($val == '@INHERIT' && empty($_POST['id']) && !empty($_POST['parent'])) {

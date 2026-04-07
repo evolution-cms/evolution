@@ -43,6 +43,9 @@ if (file_exists(EVO_MANAGER_PATH . 'media/style/' . $modx->getConfig('manager_th
     unlink(EVO_MANAGER_PATH . 'media/style/' . $modx->getConfig('manager_theme') . '/css/styles.min.css');
 }
 
+$data['filemanager_path'] = str_replace('[(base_path)]', EVO_BASE_PATH, $data['filemanager_path']);
+$data['rb_base_dir'] = str_replace('[(base_path)]', EVO_BASE_PATH, $data['rb_base_dir']);
+
 if (isset($data) && count($data) > 0) {
     if (isset($data['manager_language'])) {
         $lang_path = EVO_CORE_PATH . 'lang/' . $data['manager_language'] . '/global.php';

@@ -437,10 +437,10 @@ class Modifiers implements ModifiersInterface
                 } else {
                     $path = $opt;
                 }
-                if (strpos($path, MODX_MANAGER_PATH) !== false) {
+                if (strpos($path, EVO_MANAGER_PATH) !== false) {
                     exit('Can not read core path');
                 }
-                if (strpos($path, MODX_BASE_PATH) === false) {
+                if (strpos($path, EVO_BASE_PATH) === false) {
                     $path = ltrim($path, '/');
                 }
                 $this->condition[] = (int)($cmd($path) !== false);
@@ -1121,7 +1121,7 @@ class Modifiers implements ModifiersInterface
                     return $value;
                 }
                 $value = realpath($value);
-                if (strpos($value, MODX_MANAGER_PATH) !== false) {
+                if (strpos($value, EVO_MANAGER_PATH) !== false) {
                     exit('Can not read core file');
                 }
                 $ext = strtolower(substr($value, -4));
@@ -1139,7 +1139,7 @@ class Modifiers implements ModifiersInterface
                 }
                 $filename = $value;
 
-                $site_url = MODX_SITE_URL;
+                $site_url = EVO_SITE_URL;
                 if (strpos($filename, $site_url) === 0) {
                     $filename = substr($filename, 0, strlen($site_url));
                 }
@@ -1150,7 +1150,7 @@ class Modifiers implements ModifiersInterface
                     $opt .= '/';
                 }
 
-                $filename = MODX_BASE_PATH . $opt . $filename;
+                $filename = EVO_BASE_PATH . $opt . $filename;
 
                 if (is_file($filename)) {
                     clearstatcache();
@@ -1311,7 +1311,7 @@ class Modifiers implements ModifiersInterface
         $value = $this->value;
         $opt = $this->opt;
 
-        return include(MODX_MANAGER_PATH . "includes/extenders/modifiers/mdf_{$cmd}.inc.php");
+        return include(EVO_MANAGER_PATH . "includes/extenders/modifiers/mdf_{$cmd}.inc.php");
     }
 
     public function getValueFromElement($key, $value, $cmd, $opt)
@@ -1331,13 +1331,13 @@ class Modifiers implements ModifiersInterface
                 $row = $modx->getDatabase()->getRow($result);
                 $php = $row['snippet'];
             } elseif ($total == 0) {
-                $assets_path = MODX_BASE_PATH . 'assets/';
+                $assets_path = EVO_BASE_PATH . 'assets/';
                 if (is_file($assets_path . "modifiers/mdf_{$cmd}.inc.php")) {
                     $modifiers_path = $assets_path . "modifiers/mdf_{$cmd}.inc.php";
                 } elseif (is_file($assets_path . "plugins/phx/modifiers/{$cmd}.phx.php")) {
                     $modifiers_path = $assets_path . "plugins/phx/modifiers/{$cmd}.phx.php";
-                } elseif (is_file(MODX_MANAGER_PATH . "includes/extenders/modifiers/mdf_{$cmd}.inc.php")) {
-                    $modifiers_path = MODX_MANAGER_PATH . "includes/extenders/modifiers/mdf_{$cmd}.inc.php";
+                } elseif (is_file(EVO_MANAGER_PATH . "includes/extenders/modifiers/mdf_{$cmd}.inc.php")) {
+                    $modifiers_path = EVO_MANAGER_PATH . "includes/extenders/modifiers/mdf_{$cmd}.inc.php";
                 } else {
                     $modifiers_path = false;
                 }

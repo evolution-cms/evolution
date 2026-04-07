@@ -28,7 +28,7 @@ if (!empty($_GET['a']) && $_GET['a'] == 2) {
 }
 
 // Favicon
-$_style['favicon'] = (file_exists(MODX_BASE_PATH . 'favicon.ico') ? MODX_SITE_URL . 'favicon.ico' : 'media/style/' . ManagerTheme::getTheme() . '/images/favicon.ico');
+$_style['favicon'] = (file_exists(EVO_BASE_PATH . 'favicon.ico') ? EVO_SITE_URL . 'favicon.ico' : 'media/style/' . ManagerTheme::getTheme() . '/images/favicon.ico');
 
 // Icons
 $_style['icon_size_2x'] = ' fa-2x';

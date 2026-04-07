@@ -74,7 +74,7 @@ class TracyServiceProvider extends ServiceProvider
     {
         $errorTpl = $this->app['config']->get('tracy.error.500');
         if ($errorTpl !== null) {
-            Debugger::$errorTemplate = MODX_BASE_PATH . $errorTpl;
+            Debugger::$errorTemplate = EVO_BASE_PATH . $errorTpl;
         }
     }
 

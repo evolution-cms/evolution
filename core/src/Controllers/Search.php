@@ -72,8 +72,8 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
             $url = $_REQUEST['url'];
             $friendly_url_suffix = $this->managerTheme->getCore()
                 ->getConfig('friendly_url_suffix');
-            $base_url = MODX_BASE_URL;
-            $site_url = MODX_SITE_URL;
+            $base_url = EVO_BASE_URL;
+            $site_url = EVO_SITE_URL;
             $url = preg_replace('@' . $friendly_url_suffix . '$@', '', $url);
             if ($url[0] === '/') {
                 $url = preg_replace('@^' . $base_url . '@', '', $url);

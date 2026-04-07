@@ -17,11 +17,11 @@
  * @author      Many others
  * @lastupdate  31/03/2015
  */
-if(!defined('MODX_BASE_PATH')){die('What are you doing? Get out of here!');}
+if(!defined('EVO_BASE_PATH')){die('What are you doing? Get out of here!');}
 //Initialize parameters
 if (!isset ($alias)) { return ; }
 if (!isset ($plugin_dir) ) { $plugin_dir = 'transalias'; }
-if (!isset ($plugin_path) ) { $plugin_path = MODX_BASE_PATH.'assets/plugins/'.$plugin_dir; }
+if (!isset ($plugin_path) ) { $plugin_path = EVO_BASE_PATH.'assets/plugins/'.$plugin_dir; }
 if (!isset ($table_name)) { $table_name = 'common'; }
 if (!isset ($char_restrict)) { $char_restrict = 'lowercase alphanumeric'; }
 if (!isset ($remove_periods)) { $remove_periods = 'No'; }

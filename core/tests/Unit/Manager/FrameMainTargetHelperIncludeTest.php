@@ -5,7 +5,7 @@ test('manager frame loads main target link helper before modx js', function () {
 
     $treeHelper = 'media/script/tree-drop-guard-helper.js?v={{evo()->getVersionData(\'version\')}}';
     $mainTargetHelper = 'media/script/main-target-link-helper.js?v={{evo()->getVersionData(\'version\')}}';
-    $modxScript = '{{ManagerTheme::getThemeUrl()}}js/modx.js?v={{evo()->getVersionData(\'version\')}}';
+    $modxScript = '{{ManagerTheme::getThemeUrl()}}js/evo.js?v={{evo()->getVersionData(\'version\')}}';
 
     expect(str_contains($template, $treeHelper))->toBeTrue();
     expect(str_contains($template, $mainTargetHelper))->toBeTrue();

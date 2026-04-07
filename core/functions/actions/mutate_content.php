@@ -140,7 +140,7 @@ if (! function_exists('ProcessTVCommand')) {
 
                 case 'DIRECTORY' :
                     $files = [];
-                    $path = MODX_BASE_PATH . $param;
+                    $path = EVO_BASE_PATH . $param;
                     if (substr($path, -1, 1) != '/') {
                         $path .= '/';
                     }
@@ -430,7 +430,7 @@ if (! function_exists('getTVDisplayFormat')) {
                 $w = $params['w'] ? $params['w'] : '100%';
                 $h = $params['h'] ? $params['h'] : '400px';
                 $richtexteditor = $params['edt'] ? $params['edt'] : "";
-                $o = '<div class="MODX_RichTextWidget"><textarea id="' . $id . '" name="' . $id . '" style="width:' . $w . '; height:' . $h . ';">';
+                $o = '<div class="EVO_RichTextWidget"><textarea id="' . $id . '" name="' . $id . '" style="width:' . $w . '; height:' . $h . ';">';
                 $o .= $modx->getPhpCompat()->htmlspecialchars($value);
                 $o .= '</textarea></div>';
                 $replace_richtext = [$id];
@@ -482,7 +482,7 @@ if (! function_exists('getTVDisplayFormat')) {
                     }
                 }
 
-                $modx->regClientStartupScript(MODX_MANAGER_URL . "media/script/bin/viewport.js", [
+                $modx->regClientStartupScript(EVO_MANAGER_URL . "media/script/bin/viewport.js", [
                     'name'      => 'viewport',
                     'version'   => '0',
                     'plaintext' => false
@@ -551,14 +551,14 @@ if (! function_exists('getTVDisplayFormat')) {
                 $o = '';
                 /* If we are loading a file */
                 if (substr($params['output'], 0, 5) == "@FILE") {
-                    $file_name = MODX_BASE_PATH . trim(substr($params['output'], 6));
+                    $file_name = EVO_BASE_PATH . trim(substr($params['output'], 6));
                     if (!file_exists($file_name)) {
                         $widget_output = $file_name . ' does not exist';
                     } else {
                         $widget_output = file_get_contents($file_name);
                     }
                 } elseif (substr($params['output'], 0, 8) == '@INCLUDE') {
-                    $file_name = MODX_BASE_PATH . trim(substr($params['output'], 9));
+                    $file_name = EVO_BASE_PATH . trim(substr($params['output'], 9));
                     if (!file_exists($file_name)) {
                         $widget_output = $file_name . ' does not exist';
                     } else {
@@ -909,14 +909,14 @@ if (! function_exists('renderFormElement')) {
                     $custom_output = '';
                     /* If we are loading a file */
                     if (substr($field_elements, 0, 5) == "@FILE") {
-                        $file_name = MODX_BASE_PATH . trim(substr($field_elements, 6));
+                        $file_name = EVO_BASE_PATH . trim(substr($field_elements, 6));
                         if (!file_exists($file_name)) {
                             $custom_output = $file_name . ' does not exist';
                         } else {
                             $custom_output = file_get_contents($file_name);
                         }
                     } elseif (substr($field_elements, 0, 8) == '@INCLUDE') {
-                        $file_name = MODX_BASE_PATH . trim(substr($field_elements, 9));
+                        $file_name = EVO_BASE_PATH . trim(substr($field_elements, 9));
                         if (!file_exists($file_name)) {
                             $custom_output = $file_name . ' does not exist';
                         } else {
@@ -960,7 +960,7 @@ if (! function_exists('renderFormElement')) {
         } else {
             $custom = explode(":", $field_type);
             $custom_output = '';
-            $file_name = MODX_BASE_PATH . 'assets/tvs/' . $custom['1'] . '/' . $custom['1'] . '.customtv.php';
+            $file_name = EVO_BASE_PATH . 'assets/tvs/' . $custom['1'] . '/' . $custom['1'] . '.customtv.php';
             if (!file_exists($file_name)) {
                 $custom_output = $file_name . ' does not exist';
             } else {

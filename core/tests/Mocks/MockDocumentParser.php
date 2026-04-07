@@ -88,12 +88,12 @@ class MockDocumentParser
     {
         $paths = [
             'path' => defined('EVO_CORE_PATH') ? EVO_CORE_PATH : null,
-            'path.base' => defined('MODX_BASE_PATH') ? MODX_BASE_PATH : null,
+            'path.base' => defined('EVO_BASE_PATH') ? EVO_BASE_PATH : null,
             'path.storage' => defined('EVO_STORAGE_PATH') ? EVO_STORAGE_PATH : null,
             'path.config' => defined('EVO_CORE_PATH') ? EVO_CORE_PATH . 'config' . DIRECTORY_SEPARATOR : null,
-            'path.public' => defined('MODX_BASE_PATH') ? MODX_BASE_PATH : null,
-            'path.database' => defined('MODX_BASE_PATH') ? MODX_BASE_PATH . 'database' . DIRECTORY_SEPARATOR : null,
-            'path.resources' => defined('MODX_BASE_PATH') ? MODX_BASE_PATH . 'resources' . DIRECTORY_SEPARATOR : null,
+            'path.public' => defined('EVO_BASE_PATH') ? EVO_BASE_PATH : null,
+            'path.database' => defined('EVO_BASE_PATH') ? EVO_BASE_PATH . 'database' . DIRECTORY_SEPARATOR : null,
+            'path.resources' => defined('EVO_BASE_PATH') ? EVO_BASE_PATH . 'resources' . DIRECTORY_SEPARATOR : null,
             'path.bootstrap' => defined('EVO_CORE_PATH') ? EVO_CORE_PATH . 'bootstrap' . DIRECTORY_SEPARATOR : null,
             'path.lang' => defined('EVO_CORE_PATH') ? EVO_CORE_PATH . 'lang' . DIRECTORY_SEPARATOR : null,
         ];
@@ -114,13 +114,13 @@ class MockDocumentParser
      */
     public function publicPath(string $path = ''): string
     {
-        $base = defined('MODX_BASE_PATH') ? MODX_BASE_PATH : '';
+        $base = defined('EVO_BASE_PATH') ? EVO_BASE_PATH : '';
         return rtrim($base, DIRECTORY_SEPARATOR) . ($path ? DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR) : '');
     }
 
     public function basePath(string $path = ''): string
     {
-        $base = defined('MODX_BASE_PATH') ? MODX_BASE_PATH : '';
+        $base = defined('EVO_BASE_PATH') ? EVO_BASE_PATH : '';
         return rtrim($base, DIRECTORY_SEPARATOR) . ($path ? DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR) : '');
     }
 

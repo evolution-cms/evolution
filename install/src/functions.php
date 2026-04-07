@@ -801,7 +801,7 @@ function removeDocblock($code, $type)
         default:
             return $cleaned;
     };
-    if (substr(trim($cleaned), 0, $count) == $include . ' MODX_BASE_PATH.\'assets/' . $elm_name . '/') {
+    if (substr(trim($cleaned), 0, $count) == $include . ' EVO_BASE_PATH.\'assets/' . $elm_name . '/') {
         return $cleaned;
     }
 

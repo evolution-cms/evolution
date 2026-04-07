@@ -219,7 +219,7 @@ class CheckOutdated
     public function file($path, $options = [])
     {
         $out = '';
-        if (file_exists(MODX_BASE_PATH . $path)) {
+        if (file_exists(EVO_BASE_PATH . $path)) {
             $isSecurity = !empty($options['security']);
 
             $tpl = isset($options['template']) ? $options['template'] :
@@ -244,7 +244,7 @@ class CheckOutdated
     public function theme($theme, $options = [])
     {
         $out = '';
-        if (file_exists(MODX_MANAGER_PATH . 'media/style/' . $theme)) {
+        if (file_exists(EVO_MANAGER_PATH . 'media/style/' . $theme)) {
             $isSecurity = !empty($options['security']);
 
             $tpl = isset($options['template']) ? $options['template'] :
@@ -260,7 +260,7 @@ class CheckOutdated
                 [
                     'theme' => $theme,
                     'isSecurity' => $isSecurity,
-                    'path' => MODX_MANAGER_PATH . 'media/style/'
+                    'path' => EVO_MANAGER_PATH . 'media/style/'
                 ]
             );
         }
@@ -362,7 +362,7 @@ class CheckOutdated
         $button = '';
         if ($this->modx->hasPermission('edit_plugin')) {
             $popup = [
-                'url' => MODX_MANAGER_URL . '?a=102&id=' . $this->getPluginId() . '&tab=1',
+                'url' => EVO_MANAGER_URL . '?a=102&id=' . $this->getPluginId() . '&tab=1',
                 'title1' => $title,
                 'icon' => 'fa-cog',
                 'iframe' => 'iframe',

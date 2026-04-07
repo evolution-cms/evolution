@@ -1,7 +1,7 @@
 {
     "name": "evolution-cms/evolution",
     "type": "project",
-    "version": "3.5.4",
+    "version": "3.5.5",
     "description": "Welcome to the Evolution CMS. The world’s fastest, most customizable Open Source PHP CMS. Your creative vision, no restrictions, no compromise.",
     "keywords": [
         "content",

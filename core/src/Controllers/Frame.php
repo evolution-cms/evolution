@@ -89,20 +89,20 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
         $tree_width = $this->managerTheme->getCore()->getConfig('manager_tree_width');
         $this->parameters['tree_min_width'] = 0;
 
-        if (isset($_COOKIE['MODX_widthSideBar'])) {
-            $MODX_widthSideBar = $_COOKIE['MODX_widthSideBar'];
+        if (isset($_COOKIE['EVO_widthSideBar'])) {
+            $EVO_widthSideBar = $_COOKIE['EVO_widthSideBar'];
         } else {
-            $MODX_widthSideBar = $tree_width;
+            $EVO_widthSideBar = $tree_width;
         }
-        $this->parameters['MODX_widthSideBar'] = $MODX_widthSideBar;
+        $this->parameters['EVO_widthSideBar'] = $EVO_widthSideBar;
 
-        if (!$MODX_widthSideBar) {
+        if (!$EVO_widthSideBar) {
             $body_class .= 'sidebar-closed';
         }
 
         $theme_modes = ['', 'lightness', 'light', 'dark', 'darkness'];
-        if (isset($_COOKIE['MODX_themeMode']) && !empty($theme_modes[$_COOKIE['MODX_themeMode']])) {
-            $body_class .= ' ' . $theme_modes[$_COOKIE['MODX_themeMode']];
+        if (isset($_COOKIE['EVO_themeMode']) && !empty($theme_modes[$_COOKIE['EVO_themeMode']])) {
+            $body_class .= ' ' . $theme_modes[$_COOKIE['EVO_themeMode']];
         } elseif (!empty($theme_modes[$this->managerTheme->getCore()->getConfig('manager_theme_mode')])) {
             $body_class .= ' ' . $theme_modes[$this->managerTheme->getCore()->getConfig('manager_theme_mode')];
         }
