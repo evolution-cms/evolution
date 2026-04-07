@@ -4,6 +4,7 @@ const ANSI_BOLD_GREEN = "\033[1;32m";
 const ANSI_BOLD_RED = "\033[1;31m";
 const ANSI_BOLD_YELLOW = "\033[1;33m";
 const ANSI_RESET = "\033[0m";
+const ADMIN_PASSWORD_MIN_LENGTH = 8;
 /**
  * @param  string  $install_language
  * @return string
@@ -32,6 +33,11 @@ function getLangOptions($install_language = 'en')
 
 function escapeHtmlAttribute($unescaped) {
     return htmlspecialchars($unescaped, ENT_QUOTES, 'UTF-8');
+}
+
+function adminPasswordMinLengthMessage(): string
+{
+    return sprintf('Admin password should have at least %d characters', ADMIN_PASSWORD_MIN_LENGTH);
 }
 
 function getDatabaseCharset($database_collation, $driver): string
@@ -240,8 +246,8 @@ function validateAdminEmail($email)
 function validateAdminPassword($password)
 {
     $password = trim($password);
-    if (strlen($password) < 8) {
-        throw new InvalidArgumentException('Admin password should have at least 8 characters');
+    if (strlen($password) < ADMIN_PASSWORD_MIN_LENGTH) {
+        throw new InvalidArgumentException(adminPasswordMinLengthMessage());
     }
     return $password;
 }
