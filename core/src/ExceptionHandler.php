@@ -206,7 +206,7 @@ class ExceptionHandler
             $request_uri = $this->container->getPhpCompat()->htmlspecialchars(
                 $request_uri,
                 ENT_QUOTES,
-                $this->container->getConfig('modx_charset')
+                $this->container->getConfig('evo_charset')
             );
         } else {
             $request_uri = '';
@@ -214,12 +214,12 @@ class ExceptionHandler
         $ua = $this->container->getPhpCompat()->htmlspecialchars(
             $_SERVER['HTTP_USER_AGENT'],
             ENT_QUOTES,
-            $this->container->getConfig('modx_charset')
+            $this->container->getConfig('evo_charset')
         );
         $referer = $this->container->getPhpCompat()->htmlspecialchars(
             $_SERVER['HTTP_REFERER'],
             ENT_QUOTES,
-            $this->container->getConfig('modx_charset')
+            $this->container->getConfig('evo_charset')
         );
         if ($is_error) {
             $str = '<h2 style="color:red">&laquo; Evolution CMS Parse Error &raquo;</h2>';

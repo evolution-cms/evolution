@@ -46,9 +46,9 @@
         // @since 3.5.2
         // Use evo.EVO_MANAGER_URL instead.
         // @todo [remove@3.7] Remove in Evolution CMS 3.7
-        // ============================================
         evo.MODX_MANAGER_URL = '{{EVO_MANAGER_URL}}';
-        evo.EVO_MANAGER_URL = '{{EVO_MANAGER_URL}}';
+        if (!modx) { var modx = evo; }
+        // ============================================
     </script>
     <script src="media/script/tooltip-helper.js"></script>
     <script src="media/script/main.js"></script>

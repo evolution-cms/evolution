@@ -3,7 +3,7 @@
 test('tree sort button uses contextual JS handler instead of hardcoded root id', function () {
     $template = file_get_contents(dirname(__DIR__, 3) . '/manager/views/frame/tree.blade.php');
 
-    expect($template)->toContain("onclick=\"modx.tree.openSortMenuIndex();\"")
+    expect($template)->toContain("onclick=\"evo.tree.openSortMenuIndex();\"")
         ->and($template)->not->toContain('?a=56&id=0');
 });
 

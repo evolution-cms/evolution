@@ -174,7 +174,7 @@ if (!function_exists('makeHTML')) {
                         'lasthit_df' => $rowLock['lasthit_df']
                     ]);
                     if ($modx->hasPermission('remove_locks')) {
-                        $lockedByUser = '<span onclick="modx.tree.unlockElement(7, ' . $row['id'] . ', this);return false;" title="' . $title . '" class="lockedResource"><i class="' . $_style['icon_lock'] . '"></i></span>';
+                        $lockedByUser = '<span onclick="evo.tree.unlockElement(7, ' . $row['id'] . ', this);return false;" title="' . $title . '" class="lockedResource"><i class="' . $_style['icon_lock'] . '"></i></span>';
                     } else {
                         $lockedByUser = '<span title="' . $title . '" class="lockedResource"><i class="' . $_style['icon_lock'] . '"></i></span>';
                     }
@@ -654,8 +654,8 @@ if (!function_exists('getTplSingleNode')) {
     function getTplSingleNode()
     {
         return '<div id="node[+id+]"><a class="[+treeNodeClass+]"
-        onclick="modx.tree.treeAction(event,[+id+]);"
-        oncontextmenu="modx.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');"
+        onclick="evo.tree.treeAction(event,[+id+]);"
+        oncontextmenu="evo.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');"
         data-id="[+id+]"
         data-title-esc="[+nodetitle_esc+]"
         data-published="[+published+]"
@@ -670,7 +670,7 @@ if (!function_exists('getTplSingleNode')) {
         [+contextmenu+]
         >[+spacer+]<span
         class="icon"
-        onclick="modx.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');return false;"
+        onclick="evo.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');return false;"
         oncontextmenu="this.onclick(event);return false;"
         >[+icon+]</span>[+lockedByUser+]<span
         class="title"
@@ -685,8 +685,8 @@ if (!function_exists('getTplFolderNode')) {
     function getTplFolderNode()
     {
         return '<div id="node[+id+]"><a class="[+treeNodeClass+]"
-        onclick="modx.tree.treeAction(event,[+id+]);"
-        oncontextmenu="modx.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');"
+        onclick="evo.tree.treeAction(event,[+id+]);"
+        oncontextmenu="evo.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');"
         data-id="[+id+]"
         data-title-esc="[+nodetitle_esc+]"
         data-published="[+published+]"
@@ -709,11 +709,11 @@ if (!function_exists('getTplFolderNode')) {
         [+contextmenu+]
         >[+spacer+]<span
         class="toggle"
-        onclick="modx.tree.toggleNode(event, [+id+]);"
+        onclick="evo.tree.toggleNode(event, [+id+]);"
         oncontextmenu="this.onclick(event);"
         >[+icon_node_toggle+]</span><span
         class="icon"
-        onclick="modx.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');return false;"
+        onclick="evo.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');return false;"
         oncontextmenu="this.onclick(event);return false;"
         >[+icon+]</span>[+lockedByUser+]<span
         class="title"
@@ -727,8 +727,8 @@ if (!function_exists('getTplFolderNodeNotChildren')) {
     function getTplFolderNodeNotChildren()
     {
         return '<div id="node[+id+]"><a class="[+treeNodeClass+]"
-        onclick="modx.tree.treeAction(event,[+id+]);"
-        oncontextmenu="modx.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');"
+        onclick="evo.tree.treeAction(event,[+id+]);"
+        oncontextmenu="evo.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');"
         data-id="[+id+]"
         data-title-esc="[+nodetitle_esc+]"
         data-published="[+published+]"
@@ -751,7 +751,7 @@ if (!function_exists('getTplFolderNodeNotChildren')) {
         [+contextmenu+]
         >[+spacer+]<span
         class="icon"
-        onclick="modx.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');return false;"
+        onclick="evo.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');return false;"
         oncontextmenu="this.onclick(event);return false;"
         >[+icon+]</span>[+lockedByUser+]<span
         class="title"

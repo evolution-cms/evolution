@@ -250,7 +250,7 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
             $templates[] = [
                 'value' => $row['id'],
                 'title' => htmlspecialchars($row['templatename'], ENT_QUOTES, $this->managerTheme->getCore()
-                        ->getConfig('modx_charset')) . ' (' . $row['id'] . ')',
+                        ->getConfig('evo_charset')) . ' (' . $row['id'] . ')',
                 'selected' => $row['id'] == $templateid ? ' selected' : ''
             ];
         }
@@ -552,12 +552,12 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
 
     protected function highlightingCoincidence($text, $search)
     {
-        $escapedSearch = preg_quote(entities(trim($search), $this->managerTheme->getCore()->getConfig('modx_charset')),
+        $escapedSearch = preg_quote(entities(trim($search), $this->managerTheme->getCore()->getConfig('evo_charset')),
             '!');
         return preg_replace(
             '!(' . $escapedSearch . ')!isu',
             '<span class="text-danger">$1</span>',
-            entities($text, $this->managerTheme->getCore()->getConfig('modx_charset'))
+            entities($text, $this->managerTheme->getCore()->getConfig('evo_charset'))
         );
     }
 }

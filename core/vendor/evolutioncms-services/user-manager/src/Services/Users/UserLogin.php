@@ -341,7 +341,7 @@ class UserLogin implements UserServiceInterface
     {
 
         if (isset($this->userData['rememberme']) && $this->userData['rememberme'] == 1) {
-            $_SESSION['modx.' . $this->context . '.session.cookie.lifetime'] = (int)EvolutionCMS()->getConfig('session.cookie.lifetime');
+            $_SESSION['evo.' . $this->context . '.session.cookie.lifetime'] = (int)EvolutionCMS()->getConfig('session.cookie.lifetime');
 
             // Set a cookie separate from the session cookie with the username in it.
             // Are we using secure connection? If so, make sure the cookie is secure
@@ -354,7 +354,7 @@ class UserLogin implements UserServiceInterface
                 setcookie('modx_remember_manager', $_SESSION[$this->context . 'Shortname'], time() + 60 * 60 * 24 * 365, EVO_BASE_URL, NULL, $secure, true);
             }
         } else {
-            $_SESSION['modx.' .$this->context . '.session.cookie.lifetime'] = 0;
+            $_SESSION['evo.' .$this->context . '.session.cookie.lifetime'] = 0;
 
             // Remove the Remember Me cookie
             setcookie('modx_remember_manager', '', time() - 3600, EVO_BASE_URL);

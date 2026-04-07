@@ -69,7 +69,7 @@ abstract class AbstractResources extends AbstractController
 
         foreach ($out as &$value) {
             $value = iconv(
-                $this->managerTheme->getCore()->getConfig('modx_charset', 'utf-8')
+                $this->managerTheme->getCore()->getConfig('evo_charset', 'utf-8')
                 , 'utf-8'
                 , $value
             );

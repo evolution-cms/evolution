@@ -628,7 +628,7 @@ class ManagerTheme implements ManagerThemeInterface
     public function getTemplatePlaceholders(): array
     {
         $plh = [
-            'modx_charset' => $this->getCharset(),
+            'evo_charset' => $this->getCharset(),
             'favicon' => (file_exists(EVO_BASE_PATH . 'favicon.ico') ? EVO_SITE_URL : $this->getThemeUrl() . 'images/') . 'favicon.ico',
             'homeurl' => $this->getCore()->makeUrl($this->getManagerStartupPageId()),
             'logouturl' => EVO_MANAGER_URL . 'index.php?a=8',
@@ -674,7 +674,7 @@ class ManagerTheme implements ManagerThemeInterface
     public function renderLoginPage()
     {
         $plh = [
-            'remember_me' => isset($_COOKIE['modx_remember_manager']) ? 'checked="checked"' : ''
+            'remember_me' => isset($_COOKIE['evo_remember_manager']) ? 'checked="checked"' : ''
         ];
 
         // invoke OnManagerLoginFormPrerender event
@@ -709,8 +709,8 @@ class ManagerTheme implements ManagerThemeInterface
 
         // login info
         $uid = '';
-        if (isset($_COOKIE['modx_remember_manager'])) {
-            $uid = preg_replace('/[^a-zA-Z0-9\-_@\.]*/', '', $_COOKIE['modx_remember_manager']);
+        if (isset($_COOKIE['evo_remember_manager'])) {
+            $uid = preg_replace('/[^a-zA-Z0-9\-_@\.]*/', '', $_COOKIE['evo_remember_manager']);
         }
         $plh['uid'] = $uid;
 

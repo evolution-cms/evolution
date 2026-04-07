@@ -39,7 +39,7 @@
 !/vendor/index.html
 
 # IDE Helper
-modx_evolution.IDEhelper.php
+evo_evolution.IDEhelper.php
 _ide_helper.php
 
 #node.JS

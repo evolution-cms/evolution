@@ -521,7 +521,7 @@ $_lang["change_password"] = 'Şifrəni dəyiş';
 $_lang["change_password_confirm"] = 'Şifrəni təsdiqlə';
 $_lang["change_password_message"] = 'Zəhmət olmasa, yeni şifrənizi daxil edin və təsdiqləmək üçün bir daha yazın. Şifrəniz ən azı 6 simvol uzunluğunda olmalıdır.';
 $_lang["change_password_new"] = 'Yeni şifrə';
-$_lang["charset_message"] = '[(modx_charset)] sistem dəyişəni üçün standart simvol kodlaşdırmasını seçin. Bu, İdarəçi interfeysinə təsir etməyəcək.';
+$_lang["charset_message"] = '[(evo_charset)] sistem dəyişəni üçün standart simvol kodlaşdırmasını seçin. Bu, İdarəçi interfeysinə təsir etməyəcək.';
 $_lang["charset_title"] = 'Simvol kodlaşdırması';
 
 $_lang["cleaningup"] = 'Təmizlənir';
