@@ -180,3 +180,39 @@ if (is_cli()) {
         throw new RuntimeException('Please, define EVO_SITE_URL on cli mode');
     }
 }
+
+/**
+ * @deprecated
+ * @since 3.5.5
+ *
+ * This block defines constants that will be permanently deleted. Please replace them in your code with appropriate options.
+ *
+ * @todo [remove@3.7] Remove in Evolution CMS 3.7
+ */
+if (!defined('MODX_CLASS')) {
+    define('MODX_CLASS', EVO_CLASS);
+}
+if (!defined('MODX_SITE_HOSTNAMES')) {
+    define('MODX_SITE_HOSTNAMES', EVO_SITE_HOSTNAMES);
+}
+if (!defined('MODX_BASE_PATH')) {
+    define('MODX_BASE_PATH', EVO_BASE_PATH);
+}
+if (!defined('MODX_BASE_URL')) {
+    define('MODX_BASE_URL', EVO_BASE_URL);
+}
+if (!defined('MODX_MANAGER_PATH')) {
+    define('MODX_MANAGER_PATH', EVO_MANAGER_PATH);
+}
+if (!defined('MODX_SITE_URL')) {
+    define('MODX_SITE_URL', EVO_SITE_URL);
+}
+if (!defined('MODX_MANAGER_URL')) {
+    define('MODX_MANAGER_URL', EVO_MANAGER_URL);
+}
+if (!defined('MODX_SANITIZE_SEED')) {
+    define('MODX_SANITIZE_SEED', EVO_SANITIZE_SEED);
+}
+if (!defined('MODX_CLI')) {
+    define('MODX_CLI', EVO_CLI);
+}

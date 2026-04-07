@@ -10,11 +10,18 @@ use Symfony\Component\Console\Input\ArrayInput;
 class SiteUpdateCommand extends Command
 {
     /**
+     * Default GitHub repository used for core updates when no custom repository is configured.
+     */
+    protected const DEFAULT_UPGRADE_REPOSITORY = 'evolution-cms/evolution';
+
+    /**
      * The console command name.
      *
      * @var string
      */
-    protected $signature = 'make:site {command_site=update} {version=null}';
+    protected $signature = 'make:site
+                            {command_site=update : Update action to run. Keep "update" for normal core updates}
+                            {version=null : Optional tag, branch or commit hash. Examples: 3.5.4, 3.5.x, 922ece660}';
     /**
      * The console command description.
      *
@@ -22,6 +29,35 @@ class SiteUpdateCommand extends Command
      */
     protected $description = 'Update site';
 
+    /**
+     * Additional help shown by the Artisan help command.
+     *
+     * @var string
+     */
+    protected $help = <<<'HELP'
+Downloads and applies an Evolution CMS core update package from GitHub.
+
+If no version is provided, the command installs the latest stable tag
+available for the current major version.
+
+You can also request a specific ref manually:
+
+  php artisan make:site
+    Update to the latest stable tag for the current major version.
+
+  php artisan make:site update 3.5.4
+    Update to a specific release tag.
+
+  php artisan make:site update 3.5.x
+    Update to the current HEAD of the 3.5.x branch.
+
+  php artisan make:site update 922ece66071acecaea9afb8486791738acc6de5e
+    Update to a specific commit.
+HELP;
+
+    /**
+     * Create a new site update command instance.
+     */
     public function __construct()
     {
         parent::__construct();
@@ -45,13 +81,19 @@ class SiteUpdateCommand extends Command
         }
     }
 
+    /**
+     * Download, unpack and apply the requested Evolution CMS update package.
+     *
+     * When no explicit version/ref is provided, the command falls back to the latest
+     * stable tag for the current major version reported by GitHub.
+     *
+     * @since 3.5.5 Added support for branch and commit refs in manual update requests.
+     * @return void
+     */
     public function startUpdate()
     {
         $evo = evo();
-        $updateRepository = $evo->getConfig('UpgradeRepository');
-        if ($updateRepository == '') {
-            $updateRepository = 'evolution-cms/evolution';
-        }
+        $updateRepository = $this->resolveUpdateRepository();
         $ch = curl_init();
         $url = 'https://api.github.com/repos/' . $updateRepository . '/tags';
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -86,7 +128,7 @@ class SiteUpdateCommand extends Command
                 }
             }
         }
-        $git['version'] = $this->argument('version');
+        $git['version'] = $this->normalizeRequestedVersion($this->argument('version'));
 
         if ($git['version'] == 'null') {
             if (isset($git['stable'])) {
@@ -96,7 +138,7 @@ class SiteUpdateCommand extends Command
             }
         }
         if ($git['version'] != '') {
-            $url = 'https://github.com/evolution-cms/evolution/archive/' . $git['version'] . '.zip';
+            $url = $this->buildArchiveUrl($updateRepository, $git['version']);
             $this->line('<fg=green>Start download Evolution CMS</>');
             $url = file_get_contents($url);
             $file = EVO_BASE_PATH . 'new_version.zip';
@@ -187,6 +229,103 @@ class SiteUpdateCommand extends Command
         }
     }
 
+    /**
+     * Resolve the GitHub repository used as the update source.
+     *
+     * @since 3.5.5
+     * @return string Repository slug in the "vendor/repository" format.
+     */
+    protected function resolveUpdateRepository(): string
+    {
+        $updateRepository = (string) evo()->getConfig('UpgradeRepository');
+
+        return $updateRepository !== '' ? trim($updateRepository, '/') : self::DEFAULT_UPGRADE_REPOSITORY;
+    }
+
+    /**
+     * Normalize the optional version/ref argument passed to the command.
+     *
+     * Empty values are converted to the legacy "null" marker expected by the existing logic.
+     *
+     * @since 3.5.5
+     * @param mixed $version Raw version argument from Artisan input.
+     * @return string Normalized ref name or the "null" placeholder.
+     */
+    protected function normalizeRequestedVersion($version): string
+    {
+        if ($version === null) {
+            return 'null';
+        }
+
+        $version = trim((string) $version);
+
+        return $version === '' ? 'null' : $version;
+    }
+
+    /**
+     * Build a codeload archive URL for a Git tag, branch or commit hash.
+     *
+     * Semantic versions are treated as tags, hex hashes as commits, and all other refs
+     * are resolved as branch names.
+     *
+     * @since 3.5.5
+     * @param string $repository Repository slug in the "vendor/repository" format.
+     * @param string $ref Tag, branch or commit hash to download.
+     * @return string Download URL for the requested archive.
+     */
+    protected function buildArchiveUrl(string $repository, string $ref): string
+    {
+        $repository = trim($repository, '/');
+        $ref = trim($ref);
+
+        if ($this->isSemanticVersionTag($ref)) {
+            return sprintf('https://codeload.github.com/%s/zip/refs/tags/%s', $repository, rawurlencode($ref));
+        }
+
+        if ($this->isCommitHash($ref)) {
+            return sprintf('https://codeload.github.com/%s/zip/%s', $repository, rawurlencode($ref));
+        }
+
+        return sprintf(
+            'https://codeload.github.com/%s/zip/refs/heads/%s',
+            $repository,
+            str_replace('%2F', '/', rawurlencode($ref))
+        );
+    }
+
+    /**
+     * Determine whether the given ref looks like a semantic-version tag.
+     *
+     * @since 3.5.5
+     * @param string $ref Candidate ref name.
+     * @return bool True when the ref matches the expected release-tag pattern.
+     */
+    protected function isSemanticVersionTag(string $ref): bool
+    {
+        return preg_match('/^\d+\.\d+\.\d+(?:[-+][A-Za-z0-9\.-]+)?$/', $ref) === 1;
+    }
+
+    /**
+     * Determine whether the given ref looks like a Git commit hash.
+     *
+     * @since 3.5.5
+     * @param string $ref Candidate ref name.
+     * @return bool True when the ref is a 7-40 character hexadecimal hash.
+     */
+    protected function isCommitHash(string $ref): bool
+    {
+        return preg_match('/^[0-9a-f]{7,40}$/i', $ref) === 1;
+    }
+
+    /**
+     * Recursively move files from the extracted update archive into the site root.
+     *
+     * Destination directories are created on demand. Existing writable files are replaced.
+     *
+     * @param string $src Absolute path to the extracted source directory.
+     * @param string $dest Absolute path to the destination root.
+     * @return void
+     */
     static public function moveFiles($src, $dest)
     {
         $path = realpath($src);
@@ -205,6 +344,12 @@ class SiteUpdateCommand extends Command
         }
     }
 
+    /**
+     * Recursively delete a directory and all of its contents.
+     *
+     * @param string $dir Absolute path to the directory being removed.
+     * @return void
+     */
     static public function rmdirs($dir)
     {
         if (is_dir($dir)) {
@@ -221,6 +366,13 @@ class SiteUpdateCommand extends Command
         }
     }
 
+    /**
+     * Create a directory when it does not already exist.
+     *
+     * @param string $folder Absolute path to the directory.
+     * @param int $perm Octal permissions passed to mkdir().
+     * @return void
+     */
     static public function mmkDir($folder, $perm = 0777)
     {
         if (!is_dir($folder)) {
