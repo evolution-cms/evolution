@@ -60,7 +60,7 @@
 .treeRoot a.unpublished .title { color: var(--color-link-unpublished); font-style: italic; }
 .treeRoot a.hidemenu .title { color: var(--color-link-hidden); }
 .treeRoot a.hidemenu .title:hover { color: var(--color-tree-title-hover); }
-.treeRoot a.protected { position: relative; opacity: .5; background-color: var(--color-transparent) !important; }
+.treeRoot a.protected { position: relative; background-color: var(--color-transparent) !important; }
 .treeRoot a .lockedResource { cursor: pointer; }
 .treeRoot a .editResource { margin-left: 0.2em }
 .treeRoot .indent { position: relative; z-index: -1; float: left; height: 1.5em; }

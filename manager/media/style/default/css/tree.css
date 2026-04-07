@@ -56,7 +56,7 @@
 .treeRoot a.deleted .title { color: #a52a2a; text-decoration: line-through; }
 .treeRoot a.unpublished .title { color: #b68282; font-style: italic; }
 .treeRoot a.hidemenu .title { color: #404040; }
-.treeRoot a.protected { position: relative; opacity: .5; background-color: transparent !important; }
+.treeRoot a.protected { position: relative; background-color: transparent !important; }
 .treeRoot a .lockedResource { cursor: pointer; }
 .treeRoot a .editResource { margin-left: 0.2em }
 .treeRoot .indent { position: relative; z-index: -1; float: left; height: 1.5em; }
