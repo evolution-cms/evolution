@@ -213,6 +213,3 @@ if (!defined('MODX_MANAGER_URL')) {
 if (!defined('MODX_SANITIZE_SEED')) {
     define('MODX_SANITIZE_SEED', EVO_SANITIZE_SEED);
 }
-if (!defined('MODX_CLI')) {
-    define('MODX_CLI', EVO_CLI);
-}
