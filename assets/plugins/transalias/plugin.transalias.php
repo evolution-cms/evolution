@@ -42,7 +42,8 @@ if(!empty($override_tv)) {
 $e =& $modx->event;
 switch ($e->name ) {
     case 'OnStripAlias':
-        if ($trans->loadTable($table_name, $remove_periods)) {
+        $resolved_table_name = $trans->resolveTableName($table_name, $manager_language ?? null);
+        if ($trans->loadTable($resolved_table_name, $remove_periods)) {
             $output = $trans->stripAlias($alias,$char_restrict,$word_separator);
             $e->output($output);
             $e->stopPropagation();

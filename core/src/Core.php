@@ -6453,7 +6453,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     public function stripAlias($alias)
     {
         // let add-ons overwrite the default behavior
-        $results = $this->invokeEvent('OnStripAlias', ['alias' => $alias]);
+        $results = $this->invokeEvent('OnStripAlias', [
+            'alias' => $alias,
+            'manager_language' => $this->getConfig('manager_language'),
+        ]);
         if (!empty($results)) {
             // if multiple plugins are registered, only the last one is used
             return end($results);
