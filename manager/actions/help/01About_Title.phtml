@@ -18,17 +18,6 @@ $downloadLinks = [
         ],
 ];
 
-$translationLinks = [
-        0 => [
-                'title' => 'Evolution CMS',
-                'link' => 'https://www.transifex.com/evolutioncms/evolution/'
-        ],
-        1 => [
-                'title' => $_lang["extras"],
-                'link' => 'https://www.transifex.com/evolutioncms/extras/'
-        ],
-];
-
 echo $logo; ?>
 
 <div class="sectionHeader"><?php echo $_lang['about_title']; ?></div><div class="sectionBody">
@@ -40,5 +29,3 @@ echo $logo; ?>
 <div class="sectionHeader"><?php echo $_lang['help_donate_title']; ?></div><div class="sectionBody">
     <?php echo $_lang['help_donate_msg']; ?>
 </div>
-
-<?php echo createList($_lang['help_translating_title'], $translationLinks);?>
