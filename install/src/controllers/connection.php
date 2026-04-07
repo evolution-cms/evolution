@@ -149,6 +149,7 @@ $ph['cmsadmin'] = escapeHtmlAttribute(isset($_POST['cmsadmin']) ? $_POST['cmsadm
 $ph['cmsadminemail'] = escapeHtmlAttribute(isset($_POST['cmsadminemail']) ? $_POST['cmsadminemail'] : '');
 $ph['cmspassword'] = escapeHtmlAttribute(isset($_POST['cmspassword']) ? $_POST['cmspassword'] : '');
 $ph['cmspasswordconfirm'] = escapeHtmlAttribute(isset($_POST['cmspasswordconfirm']) ? $_POST['cmspasswordconfirm'] : '');
+$ph['adminPasswordMinLengthMessage'] = escapeHtmlAttribute(adminPasswordMinLengthMessage());
 $ph['managerLangs'] = getLangs($install_language);
 $ph['install_language'] = escapeHtmlAttribute($install_language);
 $ph['installMode'] = escapeHtmlAttribute($installMode);
