@@ -2008,6 +2008,7 @@ class ComposerStaticInitfdccd243149f99737a399aeb0b60fe7d
         'EvolutionCMS\\Support\\MysqlDumper' => __DIR__ . '/../..' . '/src/Support/MysqlDumper.php',
         'EvolutionCMS\\Support\\Paginate' => __DIR__ . '/../..' . '/src/Support/Paginate.php',
         'EvolutionCMS\\Support\\SqliteDumper' => __DIR__ . '/../..' . '/src/Support/SqliteDumper.php',
+        'EvolutionCMS\\Support\\SystemSettingPathNormalizer' => __DIR__ . '/../..' . '/src/Support/SystemSettingPathNormalizer.php',
         'EvolutionCMS\\TemplateProcessor' => __DIR__ . '/../..' . '/src/TemplateProcessor.php',
         'EvolutionCMS\\Tracy\\Debugger' => __DIR__ . '/../..' . '/src/Tracy/Debugger.php',
         'EvolutionCMS\\Tracy\\Panels\\AbstractPanel' => __DIR__ . '/../..' . '/src/Tracy/Panels/AbstractPanel.php',

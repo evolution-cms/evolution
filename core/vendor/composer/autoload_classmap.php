@@ -1331,6 +1331,7 @@ return array(
     'EvolutionCMS\\Support\\MysqlDumper' => $baseDir . '/src/Support/MysqlDumper.php',
     'EvolutionCMS\\Support\\Paginate' => $baseDir . '/src/Support/Paginate.php',
     'EvolutionCMS\\Support\\SqliteDumper' => $baseDir . '/src/Support/SqliteDumper.php',
+    'EvolutionCMS\\Support\\SystemSettingPathNormalizer' => $baseDir . '/src/Support/SystemSettingPathNormalizer.php',
     'EvolutionCMS\\TemplateProcessor' => $baseDir . '/src/TemplateProcessor.php',
     'EvolutionCMS\\Tracy\\Debugger' => $baseDir . '/src/Tracy/Debugger.php',
     'EvolutionCMS\\Tracy\\Panels\\AbstractPanel' => $baseDir . '/src/Tracy/Panels/AbstractPanel.php',
