@@ -200,6 +200,13 @@
                         }
                     }
                     if (!a.classList.contains('dropdown-toggle') && !a.closest('ul').classList.contains('dropdown-menu')) {
+                        if (a.id === 'treeMenu_theme_dark' || a.closest('#theme')) {
+                            var themeItem = a.closest('.nav > li');
+                            if (themeItem) {
+                                themeItem.classList.remove('active');
+                            }
+                            return;
+                        }
                         mm.querySelectorAll('.nav li.active').forEach(function (el) {
                             el.classList.remove('active');
                         });
