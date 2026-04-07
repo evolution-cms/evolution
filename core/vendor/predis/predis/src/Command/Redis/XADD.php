@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2025 Till Krüss
+ * (c) 2021-2026 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -41,6 +41,20 @@ class XADD extends RedisCommand
             $args[] = 'NOMKSTREAM';
         }
 
+        if (isset($options['trimming'])) {
+            $args[] = strtoupper($options['trimming']);
+        }
+
+        // IDMPAUTO or IDMP options (mutually exclusive)
+        if (isset($options['idmpauto'])) {
+            $args[] = 'IDMPAUTO';
+            $args[] = $options['idmpauto'];
+        } elseif (isset($options['idmp']) && is_array($options['idmp'])) {
+            $args[] = 'IDMP';
+            $args[] = $options['idmp'][0]; // pid
+            $args[] = $options['idmp'][1]; // iid
+        }
+
         if (isset($options['trim']) && is_array($options['trim'])) {
             array_push($args, ...$options['trim']);
 
@@ -48,10 +62,6 @@ class XADD extends RedisCommand
                 $args[] = 'LIMIT';
                 $args[] = $options['limit'];
             }
-        }
-
-        if (isset($options['trimming'])) {
-            $args[] = strtoupper($options['trimming']);
         }
 
         // ID, default to * to let Redis set it

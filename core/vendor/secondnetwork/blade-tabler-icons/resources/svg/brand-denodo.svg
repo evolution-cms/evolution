@@ -10,7 +10,7 @@
   stroke-linejoin="round"
   class="icon icon-tabler icons-tabler-outline icon-tabler-brand-denodo"
 >
-  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
   <path d="M11 11h2v2h-2l0 -2" />
   <path d="M3.634 15.634l1.732 -1l1 1.732l-1.732 1l-1 -1.732" />
   <path d="M11 19h2v2h-2l0 -2" />

@@ -1,11 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Tracy (https://tracy.nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
-
-declare(strict_types=1);
 
 namespace Tracy\Dumper;
 
@@ -38,7 +36,11 @@ final class Renderer
 
 	/** @var Value[]|null */
 	private ?array $snapshotSelection = null;
+
+	/** @var true[] */
 	private array $parents = [];
+
+	/** @var true[] */
 	private array $above = [];
 
 
@@ -92,6 +94,7 @@ final class Renderer
 	}
 
 
+	/** @param array<string, string>  $colors */
 	public function renderAsText(\stdClass $model, array $colors = []): string
 	{
 		try {
@@ -104,7 +107,7 @@ final class Renderer
 
 		$s = $colors ? Helpers::htmlToAnsi($s, $colors) : Helpers::htmlToText($s);
 		$s = str_replace('…', '...', $s);
-		$s .= substr($s, -1) === "\n" ? '' : "\n";
+		$s .= str_ends_with($s, "\n") ? '' : "\n";
 
 		if ($this->sourceLocation && ([$file, $line] = $model->location)) {
 			$s .= "in $file:$line\n";
@@ -140,7 +143,7 @@ final class Renderer
 			$indent = '<span class="tracy-dump-indent">   ' . str_repeat('|  ', $depth - 1) . ' </span>';
 			return '<span class="tracy-dump-string">'
 				. "<span class='tracy-dump-lq'>'</span>"
-				. (is_string($str) ? Helpers::escapeHtml($str) : str_replace("\n", "\n" . $indent, $str->value))
+				. (is_string($str) ? Helpers::escapeHtml($str) : str_replace("\n", "\n" . $indent, (string) $str->value))
 				. "<span>'</span>"
 				. '</span>';
 
@@ -159,7 +162,7 @@ final class Renderer
 				. ($title ? 'tracy-dump-private' : $classes[$keyType]) . '"' . $title . '>'
 				. (is_string($str)
 					? Helpers::escapeHtml($str)
-					: "<span class='tracy-dump-lq'>'</span>" . str_replace("\n", "\n" . $indent, $str->value) . "<span>'</span>")
+					: "<span class='tracy-dump-lq'>'</span>" . str_replace("\n", "\n" . $indent, (string) $str->value) . "<span>'</span>")
 				. '</span>';
 
 		} elseif (is_string($str)) {
@@ -174,7 +177,7 @@ final class Renderer
 
 		} else {
 			$unit = $str->type === Value::TypeStringHtml ? 'characters' : 'bytes';
-			$count = substr_count($str->value, "\n");
+			$count = substr_count((string) $str->value, "\n");
 			if ($count) {
 				$collapsed = $indent1 = $toggle = null;
 				$indent = '<span class="tracy-dump-indent"> </span>';
@@ -190,7 +193,7 @@ final class Renderer
 					. '" title="' . $str->length . ' ' . $unit . '">'
 					. $indent1
 					. '<span' . ($count ? ' class="tracy-dump-lq"' : '') . ">'</span>"
-					. str_replace("\n", "\n" . $indent, $str->value)
+					. str_replace("\n", "\n" . $indent, (string) $str->value)
 					. "<span>'</span>"
 					. ($depth ? "\n" : '')
 					. '</div>';
@@ -207,6 +210,7 @@ final class Renderer
 	}
 
 
+	/** @param mixed[]|Value  $array */
 	private function renderArray(array|Value $array, int $depth): string
 	{
 		$out = '<span class="tracy-dump-array">array</span> (';
@@ -263,7 +267,7 @@ final class Renderer
 				. ' => '
 				. ($ref && $this->hash ? '<span class="tracy-dump-hash">&' . $ref . '</span> ' : '')
 				. ($tmp = $this->renderVar($v, $depth + 1))
-				. (substr($tmp, -6) === '</div>' ? '' : "\n");
+				. (str_ends_with($tmp, '</div>') ? '' : "\n");
 		}
 
 		if ($count > count($items)) {
@@ -289,11 +293,12 @@ final class Renderer
 			);
 		}
 
-		$pos = strrpos($object->value, '\\');
+		$name = (string) $object->value;
+		$pos = strrpos($name, '\\');
 		$out = '<span class="tracy-dump-object"' . $editorAttributes . '>'
 			. ($pos
-				? Helpers::escapeHtml(substr($object->value, 0, $pos + 1)) . '<b>' . Helpers::escapeHtml(substr($object->value, $pos + 1)) . '</b>'
-				: Helpers::escapeHtml($object->value))
+				? Helpers::escapeHtml(substr($name, 0, $pos + 1)) . '<b>' . Helpers::escapeHtml(substr($name, $pos + 1)) . '</b>'
+				: Helpers::escapeHtml($name))
 			. '</span>'
 			. ($object->id && $this->hash ? ' <span class="tracy-dump-hash">#' . $object->id . '</span>' : '');
 
@@ -340,7 +345,7 @@ final class Renderer
 				. ': '
 				. ($ref && $this->hash ? '<span class="tracy-dump-hash">&' . $ref . '</span> ' : '')
 				. ($tmp = $this->renderVar($v, $depth + 1))
-				. (substr($tmp, -6) === '</div>' ? '' : "\n");
+				. (str_ends_with($tmp, '</div>') ? '' : "\n");
 		}
 
 		if ($object->length > count($object->items)) {
@@ -354,8 +359,8 @@ final class Renderer
 
 	private function renderResource(Value $resource, int $depth): string
 	{
-		$out = '<span class="tracy-dump-resource">' . Helpers::escapeHtml($resource->value) . '</span> '
-			. ($this->hash ? '<span class="tracy-dump-hash">@' . substr($resource->id, 1) . '</span>' : '');
+		$out = '<span class="tracy-dump-resource">' . Helpers::escapeHtml((string) $resource->value) . '</span> '
+			. ($this->hash ? '<span class="tracy-dump-hash">@' . substr((string) $resource->id, 1) . '</span>' : '');
 
 		if (!$resource->items) {
 			return $out;
@@ -377,7 +382,7 @@ final class Renderer
 					. $this->renderVar($k, $depth + 1, Value::PropertyVirtual)
 					. ': '
 					. ($tmp = $this->renderVar($v, $depth + 1))
-					. (substr($tmp, -6) === '</div>' ? '' : "\n");
+					. (str_ends_with($tmp, '</div>') ? '' : "\n");
 			}
 
 			return $out . '</div>';

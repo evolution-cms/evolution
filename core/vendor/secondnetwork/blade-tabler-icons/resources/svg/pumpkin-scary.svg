@@ -10,7 +10,7 @@
   stroke-linejoin="round"
   class="icon icon-tabler icons-tabler-outline icon-tabler-pumpkin-scary"
 >
-  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
   <path d="M9 15l1.5 1l1.5 -1l1.5 1l1.5 -1" />
   <path d="M10 11h.01" />
   <path d="M14 11h.01" />

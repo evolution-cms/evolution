@@ -4,13 +4,15 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2025 Till Krüss
+ * (c) 2021-2026 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
 namespace Predis\Connection;
+
+use Predis\Retry\Retry;
 
 /**
  * Interface defining a container for connection parameters.
@@ -35,9 +37,11 @@ namespace Predis\Connection;
  * @property bool   $async_connect      Performs the connect() operation asynchronously.
  * @property bool   $tcp_nodelay        Toggles the Nagle's algorithm for coalescing.
  * @property bool   $client_info        Whether to set LIB-NAME and LIB-VER when connecting.
+ * @property Retry  $retry              Retry configuration
  * @property bool   $cache              (Relay only) Whether to use in-memory caching.
  * @property string $serializer         (Relay only) Serializer used for data serialization.
  * @property string $compression        (Relay only) Algorithm used for data compression.
+ * @method   bool   isDisabledRetry()   Specify if custom retry configuration was provided.
  */
 interface ParametersInterface
 {

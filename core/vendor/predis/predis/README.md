@@ -114,6 +114,40 @@ The connection schemes [`redis`](http://www.iana.org/assignments/uri-schemes/pro
 also supported, with the difference that URI strings containing these schemes are parsed following
 the rules described on their respective IANA provisional registration documents.
 
+Since Redis 8.6, you can authenticate a client using the Subject CN from its TLS client certificate (mTLS).
+When this is enabled on the server, the client is authenticated during the TLS handshake, so you don’t need
+to send an AUTH command.
+
+To use this, configure:
+
+- a CA certificate used to verify the server certificate (cafile),
+- a client certificate (local_cert) signed by a CA trusted by the Redis server for client authentication,
+- the corresponding private key (local_pk).
+
+Make sure:
+
+- the Redis server certificate is signed by a CA trusted by the client, and
+- the client certificate is signed by a CA trusted by the Redis server (mTLS).
+
+```php
+// Named array of connection parameters:
+$client = new Predis\Client([
+    'scheme' => 'tls',
+    'ssl' => [
+        'cafile'      => 'ca.pem',          // CA used to verify the server certificate
+        'local_cert'  => 'client.crt',      // client certificate (Subject CN maps to ACL user)
+        'local_pk'    => 'client.key',      // client private key
+        'verify_peer' => true,
+    ],
+]);
+
+// ACL user must exist and match the certificate Subject CN (example: CN=CN_NAME).
+// Enable the user and grant permissions as needed:
+$client->acl->setUser('CN_NAME', 'on', '>clientpass', 'allcommands', 'allkeys')
+
+echo $client->acl->whoami() // CN_NAME
+```
+
 The actual list of supported connection parameters can vary depending on each connection backend so
 it is recommended to refer to their specific documentation or implementation for details.
 
@@ -509,6 +543,43 @@ $client = new Predis\Client('tcp://127.0.0.1', [
 For a more in-depth insight on how to create new connection backends you can refer to the actual
 implementation of the standard connection classes available in the `Predis\Connection` namespace.
 
+### Retry exceptions
+
+You can enable automatic retry that is disabled by default, to be able to reduce the amount of
+false-positives in case of network issues. By default, we're retrying on any connection,
+timeout or socket initialization exception, but you can update the list of retry
+exceptions. For now `EqualBackoff` and `ExponentialBackoff` strategies are available,
+but you may provide your custom one. Retry may be configured with any type of communication
+(standalone node, cluster, pipeline, transaction, replication). Here's an example of
+configuration:
+
+```php
+// Standalone client
+$client = new Predis\Client([
+    'retry' => new \Predis\Retry\Retry(
+        new \Predis\Retry\Strategy\ExponentialBackoff(1000, 10000), // Base and cap configuration in microseconds
+        3                                                           // Number of retries
+    ),
+]);
+
+// Cluster configuration
+$options = [
+    'parameters' => [
+        'retry' => new \Predis\Retry\Retry(new \Predis\Retry\Strategy\ExponentialBackoff(1000, 10000), 3),
+    ],
+];
+
+$client = new Predis\Client(['tcp://host:port', 'tcp://host:port', 'tcp://host:port'], $options);
+
+$retry = new \Predis\Retry\Retry(
+    new \Predis\Retry\Strategy\ExponentialBackoff(1000, 10000),
+    3
+);
+
+// Update a list of exceptions to catch
+$retry->updateCatchableExceptions([Exception::class]);
+```
+
 ## RESP3 ##
 
 ### Connection ###
@@ -593,7 +664,7 @@ $client = new Predis\Client(['read_write_timeout' => 0, 'protocol' => 3]);
 // Create push notifications consumer.
 // Provides callback where current consumer subscribes to few channels before
 // enter the loop.
-$push = $client->push(static function (ClientInterface $client) {
+$push = $client->push(function (ClientInterface $client) {
     $response = $client->subscribe('channel', 'control');
     $status = ($response[2] === 1) ? 'OK' : 'FAILED';
     echo "Channel subscription status: {$status}\n";

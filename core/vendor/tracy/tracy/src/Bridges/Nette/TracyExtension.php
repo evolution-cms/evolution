@@ -1,11 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Tracy (https://tracy.nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
-
-declare(strict_types=1);
 
 namespace Tracy\Bridges\Nette;
 
@@ -25,8 +23,8 @@ class TracyExtension extends Nette\DI\CompilerExtension
 
 
 	public function __construct(
-		private bool $debugMode = false,
-		private bool $cliMode = false,
+		private readonly bool $debugMode = false,
+		private readonly bool $cliMode = false,
 	) {
 	}
 
@@ -79,6 +77,9 @@ class TracyExtension extends Nette\DI\CompilerExtension
 
 	public function afterCompile(Nette\PhpGenerator\ClassType $class): void
 	{
+		$config = $this->config;
+		\assert($config instanceof \stdClass);
+
 		$initialize = $this->initialization ?? new Nette\PhpGenerator\Closure;
 		$initialize->addBody('if (!Tracy\Debugger::isEnabled()) { return; }');
 
@@ -93,7 +94,7 @@ class TracyExtension extends Nette\DI\CompilerExtension
 			$initialize->addBody('Tracy\Debugger::setLogger($logger);');
 		}
 
-		$options = (array) $this->config;
+		$options = (array) $config;
 		unset($options['bar'], $options['blueScreen'], $options['netteMailer']);
 
 		foreach (['logSeverity', 'strictMode', 'scream'] as $key) {
@@ -105,7 +106,11 @@ class TracyExtension extends Nette\DI\CompilerExtension
 		foreach ($options as $key => $value) {
 			if ($value !== null) {
 				$tbl = [
-					'keysToHide' => 'array_push(Tracy\Debugger::getBlueScreen()->keysToHide, ... ?)',
+					'keysToHide' => <<<'XX'
+						$keysToHide = ?;
+						array_push(Tracy\Debugger::$keysToHide, ...$keysToHide);
+						array_push(Tracy\Debugger::getBlueScreen()->keysToHide, ...$keysToHide);
+						XX,
 					'fromEmail' => 'if ($logger instanceof Tracy\Logger) $logger->fromEmail = ?',
 					'emailSnooze' => 'if ($logger instanceof Tracy\Logger) $logger->emailSnooze = ?',
 				];
@@ -116,9 +121,9 @@ class TracyExtension extends Nette\DI\CompilerExtension
 			}
 		}
 
-		if ($this->config->netteMailer && $builder->getByType(Nette\Mail\IMailer::class)) {
+		if ($config->netteMailer && $builder->getByType(Nette\Mail\IMailer::class)) {
 			$params = [];
-			$params['fromEmail'] = $this->config->fromEmail;
+			$params['fromEmail'] = $config->fromEmail;
 			if (class_exists(Nette\Http\Request::class)) {
 				$params['host'] = new Statement('$this->getByType(?, false)\?->getUrl()->getHost()', [Nette\Http\Request::class]);
 			}
@@ -129,8 +134,8 @@ class TracyExtension extends Nette\DI\CompilerExtension
 		}
 
 		if ($this->debugMode) {
-			foreach ($this->config->bar as $item) {
-				if (is_string($item) && substr($item, 0, 1) === '@') {
+			foreach ($config->bar as $item) {
+				if (is_string($item) && str_starts_with($item, '@')) {
 					$item = new Statement(['@' . $builder::THIS_CONTAINER, 'getService'], [substr($item, 1)]);
 				} elseif (is_string($item)) {
 					$item = new Statement($item);
@@ -152,7 +157,7 @@ class TracyExtension extends Nette\DI\CompilerExtension
 			}
 		}
 
-		foreach ($this->config->blueScreen as $item) {
+		foreach ($config->blueScreen as $item) {
 			$initialize->addBody($builder->formatPhp(
 				'$this->getService(?)->addPanel(?);',
 				Nette\DI\Helpers::filterArguments([$this->prefix('blueScreen'), $item]),
@@ -175,7 +180,8 @@ class TracyExtension extends Nette\DI\CompilerExtension
 	private function parseErrorSeverity(string|array $value): int
 	{
 		$value = implode('|', (array) $value);
-		$res = (int) @parse_ini_string('e = ' . $value)['e']; // @ may fail
+		$ini = @parse_ini_string('e = ' . $value); // @ may fail
+		$res = (int) ($ini['e'] ?? 0);
 		if (!$res) {
 			throw new Nette\InvalidStateException("Syntax error in expression '$value'");
 		}

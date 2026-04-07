@@ -1,11 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Tracy (https://tracy.nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
-
-declare(strict_types=1);
 
 namespace Tracy;
 
@@ -40,7 +38,7 @@ final class CodeHighlighter
 				$out .= implode('', $closeTags);
 			}
 
-			preg_replace_callback('#</?(\w+)[^>]*>#', function ($m) use (&$openTags, &$closeTags) {
+			preg_replace_callback('#</?(\w+)[^>]*>#', function ($m) use (&$openTags, &$closeTags): string {
 				if ($m[0][1] === '/') {
 					array_pop($openTags);
 					array_shift($closeTags);
@@ -48,6 +46,8 @@ final class CodeHighlighter
 					$openTags[] = $m[0];
 					array_unshift($closeTags, "</$m[1]>");
 				}
+
+				return '';
 			}, $lines[$n]);
 
 			if ($n === $line) {

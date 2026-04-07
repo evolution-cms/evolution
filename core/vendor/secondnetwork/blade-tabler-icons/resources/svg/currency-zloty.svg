@@ -10,7 +10,7 @@
   stroke-linejoin="round"
   class="icon icon-tabler icons-tabler-outline icon-tabler-currency-zloty"
 >
-  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
   <path d="M12 18h-7l7 -7h-7" />
   <path d="M17 18v-13" />
   <path d="M14 14.5l6 -3.5" />

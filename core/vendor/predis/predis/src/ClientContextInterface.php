@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2025 Till Krüss
+ * (c) 2021-2026 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -42,6 +42,7 @@ use Predis\Command\CommandInterface;
 use Predis\Command\Container\ACL;
 use Predis\Command\Container\CLIENT;
 use Predis\Command\Container\FUNCTIONS;
+use Predis\Command\Container\HOTKEYS;
 use Predis\Command\Container\Json\JSONDEBUG;
 use Predis\Command\Container\Search\FTCONFIG;
 use Predis\Command\Container\Search\FTCURSOR;
@@ -272,7 +273,7 @@ use Predis\Command\Redis\VADD;
  * @method $this topklist(string $key, bool $withCount = false)
  * @method $this topkquery(string $key, ...$items)
  * @method $this topkreserve(string $key, int $topK, int $width = 8, int $depth = 7, float $decay = 0.9)
- * @method $this tsadd(string $key, int $timestamp, float $value, ?AddArguments $arguments = null)
+ * @method $this tsadd(string $key, int $timestamp, string|float $value, ?AddArguments $arguments = null)
  * @method $this tsalter(string $key, ?TSAlterArguments $arguments = null)
  * @method $this tscreate(string $key, ?TSCreateArguments $arguments = null)
  * @method $this tscreaterule(string $sourceKey, string $destKey, string $aggregator, int $bucketDuration, int $alignTimestamp = 0)
@@ -294,6 +295,7 @@ use Predis\Command\Redis\VADD;
  * @method $this xadd(string $key, array $dictionary, string $id = '*', array $options = null)
  * @method $this xautoclaim(string $key, string $group, string $consumer, int $minIdleTime, string $start, ?int $count = null, bool $justId = false)
  * @method $this xclaim(string $key, string $group, string $consumer, int $minIdleTime, string|array $ids, ?int $idle = null, ?int $time = null, ?int $retryCount = null, bool $force = false, bool $justId = false, ?string $lastId = null)
+ * @method $this xcfgset(string $key, ?int $duration = null, ?int $maxsize = null)
  * @method $this xdel(string $key, string ...$id)
  * @method $this xdelex(string $key, string $mode, array $ids)
  * @method $this xlen(string $key)
@@ -355,6 +357,7 @@ use Predis\Command\Redis\VADD;
  * @method $this vinfo(string $key)
  * @method $this vlinks(string $key, string $elem, bool $withScores = false)
  * @method $this vrandmember(string $key, int $count = null)
+ * @method $this vrange(string $key, string $start, string $end, int $count = null)
  * @method $this vrem(string $key, string $elem)
  * @method $this vsetattr(string $key, string $elem, string|array $attributes)
  * @method $this vsim(string $key, string|array $vectorOrElem, bool $isElem = false, bool $withScores = false, int $count = null, float $epsilon = null, int $ef = null, string $filter = null, int $filterEf = null, bool $truth = false, bool $noThread = false)
@@ -394,6 +397,7 @@ use Predis\Command\Redis\VADD;
  *
  * Container commands
  * @property CLIENT    $client
+ * @property HOTKEYS   $hotkeys
  * @property FUNCTIONS $function
  * @property FTCONFIG  $ftconfig
  * @property FTCURSOR  $ftcursor

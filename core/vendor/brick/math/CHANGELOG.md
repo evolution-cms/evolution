@@ -2,6 +2,74 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.14.8](https://github.com/brick/math/releases/tag/0.14.8) - 2026-02-10
+
+🗑️ **Deprecations**
+
+- Method `BigInteger::testBit()` is deprecated, use `isBitSet()` instead
+
+✨ **New features**
+
+- New method: `BigInteger::isBitSet()` (replaces `testBit()`)
+- New method: `BigNumber::toString()` (alias of magic method `__toString()`)
+
+👌 **Improvements**
+
+- Performance optimization of `BigRational` comparison methods
+- More exceptions have been documented with `@throws` annotations
+
+## [0.14.7](https://github.com/brick/math/releases/tag/0.14.7) - 2026-02-07
+
+✨ **New features**
+
+- `clamp()` is now available on the base `BigNumber` class
+
+👌 **Improvements**
+
+- Improved `@throws` exception documentation
+
+## [0.14.6](https://github.com/brick/math/releases/tag/0.14.6) - 2026-02-05
+
+🗑️ **Deprecations**
+
+- Not passing a `$scale` to `BigDecimal::dividedBy()` is deprecated; **`$scale` will be required in 0.15**
+
+👌 **Improvements**
+
+- `BigRational::toFloat()` never returns `NAN` anymore
+
+## [0.14.5](https://github.com/brick/math/releases/tag/0.14.5) - 2026-02-03
+
+🗑️ **Deprecations**
+
+- Not passing a rounding mode to `BigInteger::sqrt()` and `BigDecimal::sqrt()` triggers a deprecation notice: **the default rounding mode will change from `Down` to `Unnecessary` in 0.15**
+
+✨ **New features**
+
+- `BigInteger::sqrt()` and `BigDecimal::sqrt()` now support rounding
+- `abs()` and `negated()` methods are now available on the base `BigNumber` class
+
+👌 **Improvements**
+
+- Alphabet is now checked for duplicate characters in `BigInteger::(from|to)ArbitraryBase()`
+- `BigNumber::ofNullable()` is now marked as `@pure`
+
+## [0.14.4](https://github.com/brick/math/releases/tag/0.14.4) - 2026-02-02
+
+🗑️ **Deprecations**
+
+- Passing a negative modulus to `BigInteger::mod()` is deprecated to align with Euclidean modulo semantics; it will throw `NegativeNumberException` in 0.15
+- Method `BigDecimal::stripTrailingZeros()` is deprecated, use `strippedOfTrailingZeros()` instead
+
+✨ **New features**
+
+- `BigInteger::modPow()` now accepts negative bases
+- New method: `BigDecimal::strippedOfTrailingZeros()` (replaces `stripTrailingZeros()`)
+
+👌 **Improvements**
+
+- `clamp()` methods are now marked as `@pure`
+
 ## [0.14.3](https://github.com/brick/math/releases/tag/0.14.3) - 2026-02-01
 
 ✨ **New features**

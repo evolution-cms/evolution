@@ -1,5 +1,7 @@
 <?php
 
+namespace Tests\Unit;
+
 use EvolutionCMS\ManagerTheme;
 use EvolutionCMS\Traits\Models\ManagerActions;
 use EvolutionCMS\Traits\Path;
@@ -72,7 +74,7 @@ final class ManagerPathConstantUsageTest extends TestCase
 
     public function testManagerThemePathHelpersUseEvoManagerConstants(): void
     {
-        $theme = (new ReflectionClass(ManagerTheme::class))->newInstanceWithoutConstructor();
+        $theme = (new \ReflectionClass(ManagerTheme::class))->newInstanceWithoutConstructor();
         $setter = \Closure::bind(function (string $themeName): void {
             $this->theme = $themeName;
         }, $theme, ManagerTheme::class);

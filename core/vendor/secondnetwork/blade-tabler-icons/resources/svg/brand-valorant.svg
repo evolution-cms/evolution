@@ -10,7 +10,7 @@
   stroke-linejoin="round"
   class="icon icon-tabler icons-tabler-outline icon-tabler-brand-valorant"
 >
-  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
   <path d="M14.5 14h4.5l2 -2v-6l-6.5 8" />
   <path d="M9 19h5l-11 -13v6l6 7" />
 </svg>

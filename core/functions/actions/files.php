@@ -61,7 +61,7 @@ if(!function_exists('fileManagerIsAccessible')) {
      * @param array<string, int[]>|null $restrictionMap
      * @return bool
      */
-    function fileManagerIsAccessible($relativePath, array $userGroups = null, array $restrictionMap = null)
+    function fileManagerIsAccessible($relativePath, ?array $userGroups = null, ?array $restrictionMap = null)
     {
         if (!evolutionCMS()->getConfig('use_udperms')) {
             return true;
@@ -86,7 +86,7 @@ if(!function_exists('fileManagerCanModifyExistingPath')) {
      * @param array<string, int[]>|null $restrictionMap
      * @return bool
      */
-    function fileManagerCanModifyExistingPath($relativePath, array $userGroups = null, array $restrictionMap = null)
+    function fileManagerCanModifyExistingPath($relativePath, ?array $userGroups = null, ?array $restrictionMap = null)
     {
         if (!evolutionCMS()->getConfig('use_udperms')) {
             return true;
@@ -110,7 +110,7 @@ if(!function_exists('fileManagerEffectiveGroupIds')) {
      * @param array<string, int[]>|null $restrictionMap
      * @return int[]
      */
-    function fileManagerEffectiveGroupIds($relativePath, array $restrictionMap = null)
+    function fileManagerEffectiveGroupIds($relativePath, ?array $restrictionMap = null)
     {
         return FileManagerAccess::effectiveGroupIds(
             $relativePath,
