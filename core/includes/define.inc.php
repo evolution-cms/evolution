@@ -97,12 +97,10 @@ if (!defined('EVO_BASE_PATH') || !defined('EVO_BASE_URL')) {
     ) . '/';
 }
 
-if (!defined('EVO_CORE_PATH')) {
+if (!defined('EVO_CORE_PATH')) { define('EVO_CORE_PATH', $config['core'] . '/'); }
+if (!defined('EVO_BASE_PATH')) { define('EVO_BASE_PATH', $base_path ?? null); }
+if (!defined('EVO_BASE_URL')) { define('EVO_BASE_URL', $base_url ?? null); }
 
-    define('EVO_CORE_PATH', $config['core'] . '/');
-}
-define('EVO_BASE_PATH', $base_path ?? null);
-define('EVO_BASE_URL', $base_url ?? null);
 unset($base_path, $base_url);
 
 if (!preg_match('/\/$/', EVO_BASE_PATH)) {
@@ -158,7 +156,7 @@ if (!defined('EVO_SITE_URL')) {
 
     $site_url .= EVO_BASE_URL;
 }
-define('EVO_SITE_URL', $site_url ?? null);
+if (!defined('EVO_SITE_URL')) { define('EVO_SITE_URL', $site_url ?? null); }
 unset($site_url);
 
 if (!preg_match('/\/$/', EVO_SITE_URL)) {
@@ -166,11 +164,10 @@ if (!preg_match('/\/$/', EVO_SITE_URL)) {
 }
 
 define('EVO_MANAGER_URL', EVO_SITE_URL . MGR_DIR . '/');
-
 define('EVO_SANITIZE_SEED', 'sanitize_seed_' . base_convert(md5(__FILE__), 16, 36));
 
 if (is_cli()) {
-    define('EVO_CLI', true);
+    if (!defined('EVO_CLI')) { define('EVO_CLI', true); }
 
     if (!(defined('EVO_BASE_PATH') || defined('EVO_BASE_URL'))) {
         throw new RuntimeException('Please, define EVO_BASE_PATH and EVO_BASE_URL on cli mode');
