@@ -18,4 +18,4 @@
  */
 
 
-require MODX_BASE_PATH.'assets/plugins/updater/plugin.updater.php';
+require EVO_BASE_PATH.'assets/plugins/updater/plugin.updater.php';

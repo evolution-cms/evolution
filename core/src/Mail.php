@@ -32,7 +32,7 @@ class Mail extends PHPMailer
         }
         $this->modx = $modx;
         // TODO: fix location
-        $this->PluginDir = MODX_MANAGER_PATH . 'includes/controls/phpmailer/';
+        $this->PluginDir = EVO_MANAGER_PATH . 'includes/controls/phpmailer/';
 
         switch ($modx->getConfig('email_method')) {
             case 'smtp':
@@ -108,7 +108,7 @@ class Mail extends PHPMailer
             mb_internal_encoding($modx->getConfig('modx_charset'));
         }
         // TODO: fix config location
-        $exconf = MODX_MANAGER_PATH . 'includes/controls/phpmailer/config.inc.php';
+        $exconf = EVO_MANAGER_PATH . 'includes/controls/phpmailer/config.inc.php';
         if (is_file($exconf)) {
             // @phpstan-ignore-next-line include.fileNotFound
             include($exconf);

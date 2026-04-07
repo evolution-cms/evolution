@@ -99,12 +99,12 @@ class SiteUpdateCommand extends Command
             $url = 'https://github.com/evolution-cms/evolution/archive/' . $git['version'] . '.zip';
             $this->line('<fg=green>Start download Evolution CMS</>');
             $url = file_get_contents($url);
-            $file = MODX_BASE_PATH . 'new_version.zip';
+            $file = EVO_BASE_PATH . 'new_version.zip';
 
             file_put_contents($file, $url);
             $this->line('<fg=green>Start unpacking Evolution CMS</>');
 
-            $temp_dir = MODX_BASE_PATH . '_temp' . md5(time());
+            $temp_dir = EVO_BASE_PATH . '_temp' . md5(time());
             //run unzip and install
 
             $zip = new \ZipArchive;
@@ -120,7 +120,7 @@ class SiteUpdateCommand extends Command
                 closedir($handle);
             }
 
-            self::moveFiles($temp_dir . '/' . $dir, MODX_BASE_PATH);
+            self::moveFiles($temp_dir . '/' . $dir, EVO_BASE_PATH);
             self::rmdirs($temp_dir);
 
             $ch = curl_init();
@@ -153,7 +153,7 @@ class SiteUpdateCommand extends Command
                 }
             }
 
-            $delete_file = MODX_BASE_PATH . 'install/stubs/file_for_delete.txt';
+            $delete_file = EVO_BASE_PATH . 'install/stubs/file_for_delete.txt';
             if (file_exists($delete_file)) {
                 $files = explode("\n", file_get_contents($delete_file));
                 foreach ($files as $file) {
@@ -176,7 +176,7 @@ class SiteUpdateCommand extends Command
             exec('php  ../install/cli-install.php --typeInstall=2 --removeInstall=y');
 
             $this->line('<fg=green>Remove Install Directory</>');
-            self::rmdirs(MODX_BASE_PATH . 'install');
+            self::rmdirs(EVO_BASE_PATH . 'install');
 
             $this->line('<fg=green>Run Composer update</>');
             exec('composer update');

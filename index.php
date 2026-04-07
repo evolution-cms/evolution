@@ -113,16 +113,8 @@ if (!defined('IN_MANAGER_MODE')) {
 if (!defined('EVO_API_MODE')) {
     define('EVO_API_MODE', false);
 }
-/**
- * @deprecated
- * @since 3.5.0
- *
- * Use EVO_API_MODE instead.
- *
- * @todo [remove@3.5.3] Remove in Evolution CMS 3.5.3
- */
-if (!defined('MODX_API_MODE')) {
-    define('MODX_API_MODE', EVO_API_MODE);
+if (!defined('EVO_CORE_PATH')) {
+    define('EVO_CORE_PATH', $config['core'] . '/');
 }
 if (!defined('EVO_CLI')) {
     define('EVO_CLI', false);

@@ -15,7 +15,7 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true || !evo()->hasPermis
 }
 
 error_reporting(E_ALL & ~E_NOTICE);
-define('MGR', MODX_BASE_PATH . MGR_DIR);
+define('MGR', EVO_BASE_PATH . MGR_DIR);
 $moduleurl = 'assets/modules/store/installer/index.php';
 $modulePath = __DIR__;
 $self = $modulePath . '/index.php';
@@ -33,7 +33,7 @@ if (!isset($evo_release_date)) {
     $evo_release_date = '';
 }
 if (!isset($installPath)) {
-    $installPath = MODX_BASE_PATH . 'assets/cache/store/install/install';
+    $installPath = EVO_BASE_PATH . 'assets/cache/store/install/install';
 }
 
 $_SESSION['test'] = 1;

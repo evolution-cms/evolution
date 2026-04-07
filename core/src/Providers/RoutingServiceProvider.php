@@ -28,7 +28,7 @@ class RoutingServiceProvider extends IlluminateRoutingServiceProvider
 
         if ($this->app->isBackend()) {
             $this->app->resolving('url', function($urlGenerator, $app) {
-                $urlGenerator->forceRootUrl(MODX_MANAGER_URL);
+                $urlGenerator->forceRootUrl(EVO_MANAGER_URL);
             });
         }
     }

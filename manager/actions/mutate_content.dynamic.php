@@ -145,7 +145,7 @@ if(isset ($_POST['which_editor'])) {
 // Add lock-element JS-Script
 $lockElementId = $id;
 $lockElementType = 7;
-require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
+require_once(EVO_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 
 $isReferenceResource = ($content['type'] === 'reference' || $modx->getManagerApi()->action == '72');
 $isDocumentResource = !$isReferenceResource;
@@ -198,7 +198,7 @@ $isDocumentResource = !$isReferenceResource;
           }
         },
         view: function() {
-          var previewUrl = '<?= $modx->getConfig('friendly_urls') ? UrlProcessor::makeUrl($id) : MODX_SITE_URL . 'index.php?id=' . $id ?>';
+          var previewUrl = '<?= $modx->getConfig('friendly_urls') ? UrlProcessor::makeUrl($id) : EVO_SITE_URL . 'index.php?id=' . $id ?>';
           if (getSelectedResourceType() === 'reference') {
             var linkField = document.getElementById('weblink-content');
             var rawUrl = linkField ? linkField.value.trim() : '';

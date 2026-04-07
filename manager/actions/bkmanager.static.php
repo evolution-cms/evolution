@@ -9,10 +9,10 @@ if (!EvolutionCMS()->hasPermission('bk_manager')) {
 $dbase = EvolutionCMS()->getDatabase()->getConfig('database');
 
 if (!EvolutionCMS()->getConfig('snapshot_path')) {
-    if (is_dir(MODX_BASE_PATH . 'temp/backup/')) {
-        EvolutionCMS()->setConfig('snapshot_path', MODX_BASE_PATH . 'temp/backup/');
+    if (is_dir(EVO_BASE_PATH . 'temp/backup/')) {
+        EvolutionCMS()->setConfig('snapshot_path', EVO_BASE_PATH . 'temp/backup/');
     } else {
-        EvolutionCMS()->setConfig('snapshot_path', MODX_BASE_PATH . 'assets/backup/');
+        EvolutionCMS()->setConfig('snapshot_path', EVO_BASE_PATH . 'assets/backup/');
     }
 }
 
@@ -40,7 +40,7 @@ if ($mode == 'restore1') {
     } else {
         switch ($driver) {
             case 'pgsql':
-                $tempfile_path = MODX_BASE_PATH . 'assets/backup/temp.php';
+                $tempfile_path = EVO_BASE_PATH . 'assets/backup/temp.php';
                 file_put_contents($tempfile_path,  file_get_contents($_FILES['sqlfile']['tmp_name']));
 
                 $dump_request = 'PGPASSWORD="'.EvolutionCMS()->getDatabase()->getConfig('password').'" psql --host '.EvolutionCMS()->getDatabase()->getConfig('host').' --username ' . EvolutionCMS()->getDatabase()->getConfig('username') . ' --dbname ' . $dbase . ' < '.$tempfile_path;
@@ -90,7 +90,7 @@ if ($mode == 'restore1') {
     @set_time_limit(120); // set timeout limit to 2 minutes
     switch ($driver) {
         case 'pgsql':
-            $tempfile_path = MODX_BASE_PATH . 'assets/backup/temp.php';
+            $tempfile_path = EVO_BASE_PATH . 'assets/backup/temp.php';
             $clean = '';
             if ($_POST['droptables'] == 'on') {
                 $clean = '--clean';
@@ -211,7 +211,7 @@ if ($mode == 'restore1') {
         EvolutionCMS()->webAlertAndQuit('Unable to Backup Database');
     }
 } else {
-    include_once MODX_MANAGER_PATH . "includes/header.inc.php";  // start normal header
+    include_once EVO_MANAGER_PATH . "includes/header.inc.php";  // start normal header
 }
 
 if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
@@ -648,7 +648,7 @@ if (is_numeric($tab)) {
     echo '<script type="text/javascript">tpDBM.setSelectedIndex( ' . $_GET['tab'] . ' );</script>';
 }
 
-include_once MODX_MANAGER_PATH . "includes/footer.inc.php"; // send footer
+include_once EVO_MANAGER_PATH . "includes/footer.inc.php"; // send footer
 ?>
 
 <?php

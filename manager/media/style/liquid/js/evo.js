@@ -1,7 +1,7 @@
 (function (w, d, u) {
     'use strict';
-    modx.tree_parent = modx.tree_parent || 0;
-    modx.extended({
+    evo.tree_parent = evo.tree_parent || 0;
+    evo.extended({
         frameset: 'frameset',
         minWidth: 840,
         isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -11,7 +11,7 @@
         popupTimer: 0,
         tabsStorageKey: 'EVO_Tabs',
         tabsStore: function () {
-            if (!modx.config.global_tabs || !w.localStorage) {
+            if (!evo.config.global_tabs || !w.localStorage) {
                 return;
             }
             try {
@@ -56,7 +56,7 @@
                         title = titleEl ? titleEl.innerHTML : '';
                     }
                     tabs.push({
-                        url: modx.normalizeUrl(url),
+                        url: evo.normalizeUrl(url),
                         title: title
                     });
                 }
@@ -66,27 +66,27 @@
                     activeUrl = localStorage.getItem('page_url') || '';
                 }
                 if (tabs.length || activeUrl) {
-                    localStorage.setItem(modx.tabsStorageKey, JSON.stringify({
-                        active: modx.normalizeUrl(activeUrl),
+                    localStorage.setItem(evo.tabsStorageKey, JSON.stringify({
+                        active: evo.normalizeUrl(activeUrl),
                         tabs: tabs
                     }));
                 } else {
-                    localStorage.removeItem(modx.tabsStorageKey);
+                    localStorage.removeItem(evo.tabsStorageKey);
                 }
             } catch (e) { }
         },
         tabsRestore: function () {
-            if (!modx.config.global_tabs || !w.localStorage) {
+            if (!evo.config.global_tabs || !w.localStorage) {
                 return false;
             }
-            var raw = localStorage.getItem(modx.tabsStorageKey);
+            var raw = localStorage.getItem(evo.tabsStorageKey);
             if (!raw) {
                 return false;
             }
             try {
                 var data = JSON.parse(raw);
             } catch (e) {
-                localStorage.removeItem(modx.tabsStorageKey);
+                localStorage.removeItem(evo.tabsStorageKey);
                 return false;
             }
             if (!data || ((!data.tabs || !data.tabs.length) && !data.active)) {
@@ -96,12 +96,12 @@
                 for (var i = 0; i < data.tabs.length; i++) {
                     var tab = data.tabs[i];
                     if (tab && tab.url) {
-                        modx.tabs({ url: tab.url, title: tab.title || 'blank', reload: 0, restoring: true });
+                        evo.tabs({ url: tab.url, title: tab.title || 'blank', reload: 0, restoring: true });
                     }
                 }
             }
             if (data.active) {
-                modx.tabs({ url: data.active, title: 'blank', restoring: true, activate: true });
+                evo.tabs({ url: data.active, title: 'blank', restoring: true, activate: true });
             }
             return true;
         },
@@ -109,32 +109,32 @@
             if (!href) {
                 return false;
             }
-            href = modx.normalizeUrl(href);
+            href = evo.normalizeUrl(href);
             if (!href) {
                 return false;
             }
-            if (modx.getActionFromUrl(href) || modx.main.getQueryVariable('filemanager', href)) {
+            if (evo.getActionFromUrl(href) || evo.main.getQueryVariable('filemanager', href)) {
                 return false;
             }
             return true;
         },
         init: function () {
-            if (!localStorage.getItem('MODX_widthSideBar')) {
-                localStorage.setItem('MODX_widthSideBar', this.config.tree_width);
+            if (!localStorage.getItem('EVO_widthSideBar')) {
+                localStorage.setItem('EVO_widthSideBar', this.config.tree_width);
             }
             if (navigator.appVersion.indexOf('Win') !== -1) {
                 d.documentElement.classList.add('win');
             }
             //this.tree.init();
             this.mainmenu.init();
-            var href = modx.normalizeUrl(w.location.href),
+            var href = evo.normalizeUrl(w.location.href),
                 startupUrl = '',
                 openOnLoad = false;
             if (href) {
-                if (modx.getActionFromUrl(href, 2)) {
-                    w.history.replaceState(null, d.title, modx.MODX_MANAGER_URL);
-                } else if (modx.getActionFromUrl(href) || modx.main.getQueryVariable('filemanager', href) || modx.isModuleUrl(href)) {
-                    startupUrl = modx.main.getQueryVariable('filemanager', href) ? modx.MODX_MANAGER_URL + modx.main.getQueryVariable('filemanager', href) + href : href;
+                if (evo.getActionFromUrl(href, 2)) {
+                    w.history.replaceState(null, d.title, evo.EVO_MANAGER_URL);
+                } else if (evo.getActionFromUrl(href) || evo.main.getQueryVariable('filemanager', href) || evo.isModuleUrl(href)) {
+                    startupUrl = evo.main.getQueryVariable('filemanager', href) ? evo.EVO_MANAGER_URL + evo.main.getQueryVariable('filemanager', href) + href : href;
                     openOnLoad = true;
                 }
             }
@@ -144,20 +144,20 @@
                 w.setInterval(this.keepMeAlive, 1000 * 60 * this.config.session_timeout);
             }
             d.addEventListener('click', this.hideDropDown, false);
-            if (modx.config.global_tabs) {
+            if (evo.config.global_tabs) {
                 d.addEventListener('click', this.tabs, false);
-                var restored = modx.tabsRestore();
+                var restored = evo.tabsRestore();
                 if (!restored) {
                     this.tabs({ url: '?a=2', reload: 0 });
                 }
                 if (openOnLoad) {
-                    modx.tabs({ url: startupUrl, title: 'blank' });
+                    evo.tabs({ url: startupUrl, title: 'blank' });
                 }
             } else if (openOnLoad) {
                 if (w.main) {
                     w.main.frameElement.src = startupUrl;
                 } else {
-                    modx.openWindow(startupUrl);
+                    evo.openWindow(startupUrl);
                 }
             }
         },
@@ -171,7 +171,7 @@
                         return;
                     }
                     if (a.classList.contains('dropdown-toggle')) {
-                        if (mm.classList.contains('show') && (a.classList.contains('selected') || !modx.isMobile && a.parentElement.classList.contains('hover'))) {
+                        if (mm.classList.contains('show') && (a.classList.contains('selected') || !evo.isMobile && a.parentElement.classList.contains('hover'))) {
                             a.classList.remove('selected');
                             mm.classList.remove('show');
                         } else {
@@ -183,7 +183,7 @@
                         }
                         e.stopPropagation();
                         e.target.dataset.toggle = '#mainMenu';
-                        modx.hideDropDown(e);
+                        evo.hideDropDown(e);
                     }
                     if (a.closest('ul').classList.contains('dropdown-menu') && !a.closest('li').classList.contains('dropdown-back')) {
                         mm.querySelectorAll('.nav > .active').forEach(function (el) {
@@ -196,7 +196,7 @@
                         if (a.offsetParent.id) {
                             d.getElementById(a.offsetParent.id.substr(7)).classList.add('selected');
                         }
-                        if ((modx.isMobile || w.innerWidth < modx.minWidth) && e.target.classList.contains('toggle')) {
+                        if ((evo.isMobile || w.innerWidth < evo.minWidth) && e.target.classList.contains('toggle')) {
                             a.parentNode.classList.add('selected');
                             e.stopPropagation();
                             e.preventDefault();
@@ -218,7 +218,7 @@
                 });
                 mm.addEventListener('click', function (e) {
                     let li = e.target.closest('.nav li');
-                    if (li && modx.isMobile) {
+                    if (li && evo.isMobile) {
                         mm.querySelectorAll('.nav ul.selected').forEach(function (el) {
                             el.classList.remove('selected');
                         });
@@ -256,7 +256,7 @@
                             ul.style.left = self.offsetWidth + 'px';
                             if (self.classList.contains('dropdown-toggle')) {
                                 if (ul.id === 'parent_' + self.id) {
-                                    if (modx.isMobile) {
+                                    if (evo.isMobile) {
                                         self.parentNode.classList.add('selected');
                                     } else {
                                         self.onclick = function (e) {
@@ -273,10 +273,10 @@
                                     });
                                     timer = setTimeout(function () {
                                         var href = self.firstElementChild.href && self.firstElementChild.target === 'main' ? self.firstElementChild.href.split('?')[1] + '&elements=' + self.id : '';
-                                        modx.post(modx.MODX_MANAGER_URL + 'media/style/' + modx.config.theme + '/ajax.php', href, function (data) {
+                                        evo.post(evo.EVO_MANAGER_URL + 'media/style/' + evo.config.theme + '/ajax.php', href, function (data) {
                                             if (data) {
-                                                if (modx.isMobile || w.innerWidth < modx.minWidth) {
-                                                    data = '<li class="dropdown-back"><span class="dropdown-item"><i class="fa fa-arrow-left"></i>' + modx.lang.paging_prev + '</span></li>' + data;
+                                                if (evo.isMobile || w.innerWidth < evo.minWidth) {
+                                                    data = '<li class="dropdown-back"><span class="dropdown-item"><i class="fa fa-arrow-left"></i>' + evo.lang.paging_prev + '</span></li>' + data;
                                                 }
                                                 ul.id = 'parent_' + self.id;
                                                 ul.innerHTML = data;
@@ -307,7 +307,7 @@
                                                     };
                                                 }
                                                 ul.classList.add('show');
-                                                if (modx.isMobile) {
+                                                if (evo.isMobile) {
                                                     if (e.target.classList.contains('dropdown-toggle')) {
                                                         self.parentNode.classList.add('selected');
                                                     }
@@ -319,7 +319,7 @@
                                                     };
                                                 }
                                                 setTimeout(function () {
-                                                    modx.mainmenu.search(href, ul);
+                                                    evo.mainmenu.search(href, ul);
                                                 }, 200);
                                             }
                                         });
@@ -344,7 +344,7 @@
                     index = -1,
                     el = null;
                 if (input) {
-                    if (!modx.isMobile) {
+                    if (!evo.isMobile) {
                         input.focus();
                     }
                     input.onkeyup = function (e) {
@@ -352,7 +352,7 @@
                             d.body.click();
                             //w.main.location.href = ul.querySelector('.item.hover').firstChild.href;
                             el = ul.querySelector('.item.hover').firstChild;
-                            modx.tabs({ url: el.href, title: el.innerHTML });
+                            evo.tabs({ url: el.href, title: el.innerHTML });
                         } else if (e.keyCode === 38 || e.keyCode === 40) {
                             input.selectionStart = input.value.length;
                             items = ul.querySelectorAll('.item');
@@ -376,7 +376,7 @@
                                 }
                             }
                         } else {
-                            modx.post(modx.MODX_MANAGER_URL + 'media/style/' + modx.config.theme + '/ajax.php', href + '&filter=' + input.value, function (data) {
+                            evo.post(evo.EVO_MANAGER_URL + 'media/style/' + evo.config.theme + '/ajax.php', href + '&filter=' + input.value, function (data) {
                                 index = -1;
                                 ul.querySelectorAll('.item').forEach(function (el) {
                                     el.parentNode.removeChild(el);
@@ -414,13 +414,13 @@
                     d.body.appendChild(this.result);
                 }
                 this.loader = d.createElement('i');
-                this.loader.className = modx.style.icon_refresh + modx.style.icon_spin;
+                this.loader.className = evo.style.icon_refresh + evo.style.icon_spin;
                 this.input.parentNode.appendChild(this.loader);
-                if (modx.config.global_tabs) {
+                if (evo.config.global_tabs) {
                     this.input.parentNode.onsubmit = function (e) {
                         e.preventDefault();
                         this.target = 'mainsearch';
-                        modx.tabs({ url: this.action, title: 'Search', name: 'mainsearch' });
+                        evo.tabs({ url: this.action, title: 'Search', name: 'mainsearch' });
                         this.submit();
                     };
                 }
@@ -431,7 +431,7 @@
                     if (s.input.value.length !== '' && s.input.value.length > 2) {
                         s.timer = setTimeout(function () {
                             s.loader.style.display = 'block';
-                            modx.get(modx.MODX_MANAGER_URL + '?a=71&ajax=1&submitok=Search&searchid=' + s.input.value, function (data) {
+                            evo.get(evo.EVO_MANAGER_URL + '?a=71&ajax=1&submitok=Search&searchid=' + s.input.value, function (data) {
                                 s.loader.style.display = 'none';
                                 s.results = data.querySelector('.ajaxSearchResults');
                                 if (s.results && s.results.innerHTML !== '') {
@@ -441,7 +441,7 @@
                                         var t = e.target,
                                             p = t.parentNode;
                                         if (t.tagName === 'I') {
-                                            modx.openWindow({
+                                            evo.openWindow({
                                                 title: p.innerText,
                                                 id: p.id,
                                                 url: p.href
@@ -454,7 +454,7 @@
                                                 var el = s.result.querySelector('.selected');
                                                 if (el) el.className = '';
                                                 a.className = 'selected';
-                                                if (modx.isMobile) s.close();
+                                                if (evo.isMobile) s.close();
                                             }
                                         }
                                     };
@@ -467,7 +467,7 @@
                         s.empty();
                     }
                 };
-                if (modx.isMobile) {
+                if (evo.isMobile) {
                     this.input.onblur = this.close;
                 }
                 this.input.onfocus = this.open;
@@ -479,16 +479,16 @@
                 this.mask.onmouseleave = this.close;
             },
             open: function () {
-                if (modx.search.results) {
-                    modx.search.result.classList.add('open');
+                if (evo.search.results) {
+                    evo.search.result.classList.add('open');
                 }
             },
             close: function () {
-                modx.search.result.classList.remove('open');
+                evo.search.result.classList.remove('open');
             },
             empty: function () {
-                modx.search.result.classList.remove('open');
-                modx.search.result.innerHTML = '';
+                evo.search.result.classList.remove('open');
+                evo.search.result.innerHTML = '';
             }
         },
         main: {
@@ -497,29 +497,29 @@
             as: null,
             onload: function (e) {
                 w.main = e.target.contentWindow || e.target.defaultView;
-                modx.main.tabRow.init();
-                modx.main.stopWork();
-                modx.main.scrollWork();
-                w.main.document.addEventListener('click', modx.hideDropDown, false);
-                w.main.document.addEventListener('contextmenu', modx.main.oncontextmenu, false);
-                if (modx.config.global_tabs) {
-                    w.main.document.addEventListener('click', modx.tabs, false);
+                evo.main.tabRow.init();
+                evo.main.stopWork();
+                evo.main.scrollWork();
+                w.main.document.addEventListener('click', evo.hideDropDown, false);
+                w.main.document.addEventListener('contextmenu', evo.main.oncontextmenu, false);
+                if (evo.config.global_tabs) {
+                    w.main.document.addEventListener('click', evo.tabs, false);
                 }
-                var url = modx.normalizeUrl(w.main.location.href);
-                w.history.replaceState(null, d.title, modx.getActionFromUrl(url, 2) ? modx.MODX_MANAGER_URL : '#' + url);
-                setTimeout('modx.tree.restoreTree()', 100);
+                var url = evo.normalizeUrl(w.main.location.href);
+                w.history.replaceState(null, d.title, evo.getActionFromUrl(url, 2) ? evo.EVO_MANAGER_URL : '#' + url);
+                setTimeout('evo.tree.restoreTree()', 100);
             },
             oncontextmenu: function (e) {
                 if (e.ctrlKey) return;
                 var el = e.target;
-                if (modx.user.role === 1 && /modxtv|modxplaceholder|modxattributevalue|modxchunk|modxsnippet|modxsnippetnocache/i.test(el.className)) {
+                if (evo.user.role === 1 && /modxtv|modxplaceholder|modxattributevalue|modxchunk|modxsnippet|modxsnippetnocache/i.test(el.className)) {
                     var id = Date.now(),
                         name = el.innerText.replace(/[\[|\]|{|}|\*||\#|\+|?|\!|&|=|`|:]/g, ''),
-                        type = el.className.replace(/cm-modx/, ''),
+                        type = el.className.replace(/cm-evo/, ''),
                         n = !!name.replace(/^\d+$/, '');
                     if (name && n) {
                         e.preventDefault();
-                        modx.post(modx.MODX_MANAGER_URL + 'media/style/' + modx.config.theme + '/ajax.php', {
+                        evo.post(evo.EVO_MANAGER_URL + 'media/style/' + evo.config.theme + '/ajax.php', {
                             a: 'modxTagHelper',
                             name: name,
                             type: type
@@ -528,13 +528,13 @@
                                 r = JSON.parse(r);
                                 for (var k in r) {
                                     if (r.hasOwnProperty(k) && r[k].url) {
-                                        r[k]['onclick'] = 'if(event.shiftKey){modx.openWindow({url:\'' + r[k].url + '\'})}else{modx.popup({url:\'' + r[k].url + '\',title:\'' + r.header.innerHTML + '\',width:\'95%\',height:\'95%\',margin:0,hide:0,hover:0,overlay:1,overlayclose:0,position:\'center elements\',animation:0,icon:\'none\'})}';
+                                        r[k]['onclick'] = 'if(event.shiftKey){evo.openWindow({url:\'' + r[k].url + '\'})}else{evo.popup({url:\'' + r[k].url + '\',title:\'' + r.header.innerHTML + '\',width:\'95%\',height:\'95%\',margin:0,hide:0,hover:0,overlay:1,overlayclose:0,position:\'center elements\',animation:0,icon:\'none\'})}';
                                     }
                                 }
                                 r = JSON.stringify(r);
                                 el.id = 'node' + id;
                                 el.dataset.contextmenu = r;
-                                modx.tree.showPopup(e, id, name);
+                                evo.tree.showPopup(e, id, name);
                             }
                         });
                     }
@@ -554,34 +554,34 @@
                     row.parentNode.insertBefore(rowContainer, row);
                     rowContainer.appendChild(row);
                     var p = d.createElement('i');
-                    p.className = modx.style.icon_angle_left + ' prev disable';
+                    p.className = evo.style.icon_angle_left + ' prev disable';
                     p.onclick = function (e) {
                         e.stopPropagation();
                         e.preventDefault();
                         var sel = row.querySelector('.selected');
                         if (sel.previousSibling) {
                             sel.previousSibling.click();
-                            modx.main.tabRow.scroll(row);
+                            evo.main.tabRow.scroll(row);
                         }
                     };
                     rowContainer.appendChild(p);
                     var n = d.createElement('i');
-                    n.className = modx.style.icon_angle_right + ' next disable';
+                    n.className = evo.style.icon_angle_right + ' next disable';
                     n.onclick = function (e) {
                         e.stopPropagation();
                         e.preventDefault();
                         var sel = row.querySelector('.selected');
                         if (sel.nextSibling) {
                             sel.nextSibling.click();
-                            modx.main.tabRow.scroll(row);
+                            evo.main.tabRow.scroll(row);
                         }
                     };
                     rowContainer.appendChild(n);
                     setTimeout(function () {
                         sel = row.querySelector('.selected');
-                        modx.main.tabRow.scroll(row, sel);
+                        evo.main.tabRow.scroll(row, sel);
                         w.main.addEventListener('resize', function () {
-                            modx.main.tabRow.scroll(row);
+                            evo.main.tabRow.scroll(row);
                         }, false);
                         if (sel) {
                             if (sel.previousSibling) p.classList.remove('disable');
@@ -601,7 +601,7 @@
                             } else {
                                 this.parentNode.querySelector('i.next').classList.add('disable');
                             }
-                            modx.main.tabRow.scroll(this, sel);
+                            evo.main.tabRow.scroll(this, sel);
                         }
                     };
                 },
@@ -614,12 +614,12 @@
                         c += elms[i].offsetWidth;
                     }
                     if (row.scrollLeft > sel.offsetLeft) {
-                        modx.animate(row, {
+                        evo.animate(row, {
                             scrollLeft: sel.offsetLeft - (sel.previousSibling ? 30 : 1)
                         }, a);
                     }
                     if (sel.offsetLeft + sel.offsetWidth > row.offsetWidth + row.scrollLeft) {
-                        modx.animate(row, {
+                        evo.animate(row, {
                             scrollLeft: sel.offsetLeft - row.offsetWidth + sel.offsetWidth + (sel.nextSibling ? 30 : 0)
                         }, a);
                     }
@@ -665,10 +665,10 @@
             },
             scrollWork: function () {
                 var a = w.main.frameElement.contentWindow,
-                    b = modx.normalizeUrl(a.location.href),
+                    b = evo.normalizeUrl(a.location.href),
                     c = localStorage.getItem('page_y') || 0,
                     f = localStorage.getItem('page_url') || b;
-                if (((modx.getActionFromUrl(f) === modx.getActionFromUrl(b)) && (modx.main.getQueryVariable('id', f) && modx.main.getQueryVariable('id', f) === modx.main.getQueryVariable('id', b))) || (f === b)) {
+                if (((evo.getActionFromUrl(f) === evo.getActionFromUrl(b)) && (evo.main.getQueryVariable('id', f) && evo.main.getQueryVariable('id', f) === evo.main.getQueryVariable('id', b))) || (f === b)) {
                     a.scrollTo(0, c);
                 }
                 a.addEventListener('scroll', function () {
@@ -698,23 +698,23 @@
             dragElement: null,
             oldZIndex: 99,
             newZIndex: 999,
-            left: modx.config.tree_width,
+            left: evo.config.tree_width,
             id: 'resizer',
             switcher: 'hideMenu',
             background: 'rgba(0, 0, 0, 0.1)',
             mask: null,
             init: function () {
-                if (!d.getElementById(modx.resizer.id)) {
+                if (!d.getElementById(evo.resizer.id)) {
                     return;
                 }
-                modx.resizer.mask = d.createElement('div');
-                modx.resizer.mask.id = 'mask_resizer';
-                modx.resizer.mask.style.zIndex = modx.resizer.oldZIndex;
-                d.getElementById(modx.resizer.id).onmousedown = modx.resizer.onMouseDown;
-                d.getElementById(modx.resizer.id).onmouseup = modx.resizer.mask.onmouseup = modx.resizer.onMouseUp;
-                if (modx.isMobile) {
+                evo.resizer.mask = d.createElement('div');
+                evo.resizer.mask.id = 'mask_resizer';
+                evo.resizer.mask.style.zIndex = evo.resizer.oldZIndex;
+                d.getElementById(evo.resizer.id).onmousedown = evo.resizer.onMouseDown;
+                d.getElementById(evo.resizer.id).onmouseup = evo.resizer.mask.onmouseup = evo.resizer.onMouseUp;
+                if (evo.isMobile) {
                     var x, y, tree = d.getElementById('tree'), h = tree.offsetWidth;
-                    d.getElementById('frameset').appendChild(modx.resizer.mask);
+                    d.getElementById('frameset').appendChild(evo.resizer.mask);
                     w.addEventListener('touchstart', function (e) {
                         if (!/tab|tab\-row|tab\-row\-container/.test(e.target.className || e.target.offsetParent.className)) {
                             x = e.changedTouches[0].clientX;
@@ -732,9 +732,9 @@
                         var touch = e.changedTouches[0];
                         tree.style.transition = 'none';
                         tree.style.WebkitTransition = 'none';
-                        modx.resizer.mask.style.transition = 'none';
-                        modx.resizer.mask.style.WebkitTransition = 'none';
-                        modx.resizer.mask.style.visibility = 'visible';
+                        evo.resizer.mask.style.transition = 'none';
+                        evo.resizer.mask.style.WebkitTransition = 'none';
+                        evo.resizer.mask.style.visibility = 'visible';
                         var ax = touch.clientX - x;
                         var ay = touch.clientY - y;
                         if (Math.abs(ax) > Math.abs(ay) && this.swipe) {
@@ -742,7 +742,7 @@
                                 if (Math.abs(ax) > h) ax = -h;
                                 tree.style.transform = 'translate3d(' + ax + 'px, 0, 0)';
                                 tree.style.WebkitTransform = 'translate3d(' + ax + 'px, 0, 0)';
-                                modx.resizer.mask.style.opacity = (0.5 - 0.5 / -h * ax).toFixed(2);
+                                evo.resizer.mask.style.opacity = (0.5 - 0.5 / -h * ax).toFixed(2);
                                 if (Math.abs(ax) > h / 3) {
                                     this.swipe = 'left';
                                 } else {
@@ -752,7 +752,7 @@
                                 if (Math.abs(ax) > h) ax = h;
                                 tree.style.transform = 'translate3d(' + -(h - ax) + 'px, 0, 0)';
                                 tree.style.WebkitTransform = 'translate3d(' + -(h - ax) + 'px, 0, 0)';
-                                modx.resizer.mask.style.opacity = (0.5 / h * ax).toFixed(2);
+                                evo.resizer.mask.style.opacity = (0.5 / h * ax).toFixed(2);
                                 if (Math.abs(ax) > h / 3) {
                                     this.swipe = 'right';
                                 } else {
@@ -764,33 +764,33 @@
                     w.addEventListener('touchend', function () {
                         if (this.swipe === 'left') {
                             d.body.classList.add('sidebar-closed');
-                            modx.resizer.setWidth(0);
+                            evo.resizer.setWidth(0);
                         }
                         if (this.swipe === 'right') {
                             d.body.classList.remove('sidebar-closed');
-                            modx.resizer.setWidth(h);
+                            evo.resizer.setWidth(h);
                         }
                         tree.style.cssText = '';
-                        modx.resizer.mask.style.cssText = '';
+                        evo.resizer.mask.style.cssText = '';
                     }, false);
                 }
             },
             onMouseDown: function (e) {
                 e = e || w.event;
-                modx.resizer.dragElement = e.target !== null ? e.target : e.srcElement;
-                if ((e.buttons === 1 || e.button === 0) && modx.resizer.dragElement.id === modx.resizer.id) {
-                    modx.resizer.oldZIndex = modx.resizer.dragElement.style.zIndex;
-                    modx.resizer.dragElement.style.zIndex = modx.resizer.newZIndex;
-                    modx.resizer.dragElement.style.background = modx.resizer.background;
-                    localStorage.setItem('MODX_widthSideBar', modx.resizer.dragElement.offsetLeft > 0 ? modx.resizer.dragElement.offsetLeft : 0);
-                    d.body.appendChild(modx.resizer.mask);
-                    d.onmousemove = modx.resizer.onMouseMove;
+                evo.resizer.dragElement = e.target !== null ? e.target : e.srcElement;
+                if ((e.buttons === 1 || e.button === 0) && evo.resizer.dragElement.id === evo.resizer.id) {
+                    evo.resizer.oldZIndex = evo.resizer.dragElement.style.zIndex;
+                    evo.resizer.dragElement.style.zIndex = evo.resizer.newZIndex;
+                    evo.resizer.dragElement.style.background = evo.resizer.background;
+                    localStorage.setItem('EVO_widthSideBar', evo.resizer.dragElement.offsetLeft > 0 ? evo.resizer.dragElement.offsetLeft : 0);
+                    d.body.appendChild(evo.resizer.mask);
+                    d.onmousemove = evo.resizer.onMouseMove;
                     d.body.focus();
                     d.body.classList.add('resizer_move');
                     d.onselectstart = function () {
                         return false;
                     };
-                    modx.resizer.dragElement.ondragstart = function () {
+                    evo.resizer.dragElement.ondragstart = function () {
                         return false;
                     };
                     return false;
@@ -799,68 +799,68 @@
             onMouseMove: function (e) {
                 e = e || w.event;
                 if (e.clientX > 0) {
-                    modx.resizer.left = e.clientX;
+                    evo.resizer.left = e.clientX;
                 } else {
-                    modx.resizer.left = 0;
+                    evo.resizer.left = 0;
                 }
-                modx.resizer.dragElement.style.left = modx.pxToRem(modx.resizer.left) + 'rem';
-                d.getElementById('tree').style.width = modx.pxToRem(modx.resizer.left) + 'rem';
-                d.getElementById('main').style.left = modx.pxToRem(modx.resizer.left) + 'rem';
+                evo.resizer.dragElement.style.left = evo.pxToRem(evo.resizer.left) + 'rem';
+                d.getElementById('tree').style.width = evo.pxToRem(evo.resizer.left) + 'rem';
+                d.getElementById('main').style.left = evo.pxToRem(evo.resizer.left) + 'rem';
                 if (e.clientX < -2 || e.clientY < -2) {
-                    modx.resizer.onMouseUp(e);
+                    evo.resizer.onMouseUp(e);
                 }
             },
             onMouseUp: function (e) {
-                if (modx.resizer.dragElement !== null && e.button === 0 && modx.resizer.dragElement.id === modx.resizer.id) {
+                if (evo.resizer.dragElement !== null && e.button === 0 && evo.resizer.dragElement.id === evo.resizer.id) {
                     if (e.clientX > 0) {
                         d.body.classList.remove('sidebar-closed');
-                        modx.resizer.left = e.clientX;
+                        evo.resizer.left = e.clientX;
                     } else {
                         d.body.classList.add('sidebar-closed');
-                        modx.resizer.left = 0;
+                        evo.resizer.left = 0;
                     }
-                    d.cookie = 'MODX_widthSideBar=' + modx.pxToRem(modx.resizer.left);
-                    modx.resizer.dragElement.style.zIndex = modx.resizer.oldZIndex;
-                    modx.resizer.dragElement.style.background = '';
-                    modx.resizer.dragElement.ondragstart = null;
-                    modx.resizer.dragElement = null;
+                    d.cookie = 'EVO_widthSideBar=' + evo.pxToRem(evo.resizer.left);
+                    evo.resizer.dragElement.style.zIndex = evo.resizer.oldZIndex;
+                    evo.resizer.dragElement.style.background = '';
+                    evo.resizer.dragElement.ondragstart = null;
+                    evo.resizer.dragElement = null;
                     d.body.classList.remove('resizer_move');
-                    d.body.removeChild(modx.resizer.mask);
+                    d.body.removeChild(evo.resizer.mask);
                     d.onmousemove = null;
                     d.onselectstart = null;
                 }
             },
             toggle: function () {
-                if (modx.isMobile || w.innerWidth <= modx.minWidth) {
+                if (evo.isMobile || w.innerWidth <= evo.minWidth) {
                     if (d.body.classList.contains('sidebar-closed')) {
                         d.body.classList.remove('sidebar-closed');
-                        localStorage.setItem('MODX_widthSideBar', 0);
-                        d.cookie = 'MODX_widthSideBar=' + modx.pxToRem(parseInt(d.getElementById('tree').offsetWidth));
+                        localStorage.setItem('EVO_widthSideBar', 0);
+                        d.cookie = 'EVO_widthSideBar=' + evo.pxToRem(parseInt(d.getElementById('tree').offsetWidth));
                     } else {
-                        localStorage.setItem('MODX_widthSideBar', parseInt(d.getElementById('tree').offsetWidth));
+                        localStorage.setItem('EVO_widthSideBar', parseInt(d.getElementById('tree').offsetWidth));
                         d.body.classList.add('sidebar-closed');
-                        d.cookie = 'MODX_widthSideBar=0';
+                        d.cookie = 'EVO_widthSideBar=0';
                     }
                 } else {
-                    var p = d.getElementById('tree').offsetWidth !== 0 ? 0 : parseInt(localStorage.getItem('MODX_widthSideBar')) ? parseInt(localStorage.getItem('MODX_widthSideBar')) : modx.config.tree_width;
-                    modx.resizer.setWidth(p);
+                    var p = d.getElementById('tree').offsetWidth !== 0 ? 0 : parseInt(localStorage.getItem('EVO_widthSideBar')) ? parseInt(localStorage.getItem('EVO_widthSideBar')) : evo.config.tree_width;
+                    evo.resizer.setWidth(p);
                 }
             },
             setWidth: function (a) {
                 if (a > 0) {
-                    localStorage.setItem('MODX_widthSideBar', 0);
+                    localStorage.setItem('EVO_widthSideBar', 0);
                     d.body.classList.remove('sidebar-closed');
                 } else {
-                    localStorage.setItem('MODX_widthSideBar', parseInt(d.getElementById('tree').offsetWidth));
+                    localStorage.setItem('EVO_widthSideBar', parseInt(d.getElementById('tree').offsetWidth));
                     d.body.classList.add('sidebar-closed');
                 }
-                d.cookie = 'MODX_widthSideBar=' + modx.pxToRem(a);
-                d.getElementById('tree').style.width = modx.pxToRem(a) + 'rem';
-                d.getElementById('resizer').style.left = modx.pxToRem(a) + 'rem';
-                d.getElementById('main').style.left = modx.pxToRem(a) + 'rem';
+                d.cookie = 'EVO_widthSideBar=' + evo.pxToRem(a);
+                d.getElementById('tree').style.width = evo.pxToRem(a) + 'rem';
+                d.getElementById('resizer').style.left = evo.pxToRem(a) + 'rem';
+                d.getElementById('main').style.left = evo.pxToRem(a) + 'rem';
             },
             setDefaultWidth: function () {
-                modx.resizer.setWidth(modx.remToPx(modx.config.tree_width));
+                evo.resizer.setWidth(evo.remToPx(evo.config.tree_width));
             }
         },
         tree: {
@@ -877,7 +877,7 @@
                 this.restoreTree();
             },
             draggable: function () {
-                if (modx.permission.dragndropdocintree) {
+                if (evo.permission.dragndropdocintree) {
                     var els = d.querySelectorAll('.treeRoot a:not(.empty)');
                     for (var i = 0; i < els.length; i++) {
                         var el = els[i];
@@ -899,17 +899,17 @@
                     var checked_group = false;
                     if (roles != '') {
                         checked_group = roles.split(',').map(Number).filter(function (role) {
-                            return ~modx.user.groups.indexOf(parseInt(role));
+                            return ~evo.user.groups.indexOf(parseInt(role));
                         }).length;
                     } else {
                         checked_group = true;
                     }
-                    var draggable = roles && modx.user.role !== 1 ? checked_group : true;
-                    modx.tree.itemToChange = this.dataset.id || this.parentNode.id.replace('node', '');
-                    modx.tree.selectedObjectName = this.dataset.titleEsc;
+                    var draggable = roles && evo.user.role !== 1 ? checked_group : true;
+                    evo.tree.itemToChange = this.dataset.id || this.parentNode.id.replace('node', '');
+                    evo.tree.selectedObjectName = this.dataset.titleEsc;
                     if (draggable) {
                         this.parentNode.draggable = true;
-                        this.parentNode.ondragstart = modx.tree.ondragstart;
+                        this.parentNode.ondragstart = evo.tree.ondragstart;
                     } else {
                         this.parentNode.draggable = false;
                         this.parentNode.ondragstart = function () {
@@ -928,28 +928,28 @@
             },
             ondragenter: function (e) {
                 if (
-                    d.getElementById('node' + modx.tree.itemToChange) === (this.parentNode.closest('#node' + modx.tree.itemToChange) || this.parentNode)
-                    || modx.tree.isBlockedDropTarget(this)
+                    d.getElementById('node' + evo.tree.itemToChange) === (this.parentNode.closest('#node' + evo.tree.itemToChange) || this.parentNode)
+                    || evo.tree.isBlockedDropTarget(this)
                 ) {
                     this.parentNode.className = '';
                     e.dataTransfer.effectAllowed = 'none';
                     e.dataTransfer.dropEffect = 'none';
-                    modx.tree.drag = false;
+                    evo.tree.drag = false;
                 } else {
                     this.parentNode.className = 'dragenter';
                     e.dataTransfer.effectAllowed = 'copy';
                     e.dataTransfer.dropEffect = 'copy';
-                    modx.tree.drag = true;
+                    evo.tree.drag = true;
                 }
                 e.preventDefault();
             },
             ondragover: function (e) {
-                if (modx.tree.isBlockedDropTarget(this)) {
+                if (evo.tree.isBlockedDropTarget(this)) {
                     this.parentNode.className = '';
                     e.dataTransfer.effectAllowed = 'none';
                     e.dataTransfer.dropEffect = 'none';
-                    modx.tree.drag = false;
-                } else if (modx.tree.drag) {
+                    evo.tree.drag = false;
+                } else if (evo.tree.drag) {
                     var a = e.clientY;
                     var b = parseInt(this.getBoundingClientRect().top);
                     var c = a - b;
@@ -978,7 +978,7 @@
                 } else {
                     e.dataTransfer.effectAllowed = 'none';
                     e.dataTransfer.dropEffect = 'none';
-                    modx.tree.drag = false;
+                    evo.tree.drag = false;
                 }
                 e.preventDefault();
             },
@@ -988,18 +988,18 @@
                 e.preventDefault();
             },
             ondrop: function (e) {
-                if (modx.tree.isBlockedDropTarget(this)) {
+                if (evo.tree.isBlockedDropTarget(this)) {
                     this.parentNode.removeAttribute('class');
                     this.parentNode.removeAttribute('draggable');
-                    modx.alert(modx.lang.error_parent_deleted);
-                    modx.tree.restoreTree();
+                    evo.alert(evo.lang.error_parent_deleted);
+                    evo.tree.restoreTree();
                     e.preventDefault();
                     return;
                 }
 
-                let el = d.getElementById('node' + modx.tree.itemToChange);
+                let el = d.getElementById('node' + evo.tree.itemToChange);
                 let els = null;
-                let id = modx.tree.itemToChange;
+                let id = evo.tree.itemToChange;
                 let parent = 0;
                 let menuindex = [];
                 let level = 0;
@@ -1021,9 +1021,9 @@
                         }
                     } else {
                         el.parentNode.removeChild(el);
-                        d.querySelector('#node' + parent + ' .icon').innerHTML = parseInt(this.dataset.private) ? modx.style.tree_folder_secure : modx.style.tree_folder;
+                        d.querySelector('#node' + parent + ' .icon').innerHTML = parseInt(this.dataset.private) ? evo.style.tree_folder_secure : evo.style.tree_folder;
                     }
-                    modx.tree.ondragupdate(this, id, parent, menuindex);
+                    evo.tree.ondragupdate(this, id, parent, menuindex);
                 }
                 if (this.parentNode.classList.contains('dragafter')) {
                     parent = /node/.test(this.parentNode.parentNode.parentNode.id) ? parseInt(this.parentNode.parentNode.parentNode.id.substr(4)) : 0;
@@ -1039,7 +1039,7 @@
                     for (i = 0; i < els.length; i++) {
                         menuindex[i] = els[i].id.substr(4);
                     }
-                    modx.tree.ondragupdate(this, id, parent, menuindex);
+                    evo.tree.ondragupdate(this, id, parent, menuindex);
                 }
                 if (this.parentNode.classList.contains('dragbefore')) {
                     parent = /node/.test(this.parentNode.parentNode.parentNode.id) ? parseInt(this.parentNode.parentNode.parentNode.id.substr(4)) : 0;
@@ -1055,7 +1055,7 @@
                     for (i = 0; i < els.length; i++) {
                         menuindex[i] = els[i].id.substr(4);
                     }
-                    modx.tree.ondragupdate(this, id, parent, menuindex);
+                    evo.tree.ondragupdate(this, id, parent, menuindex);
                 }
                 this.parentNode.removeAttribute('class');
                 this.parentNode.removeAttribute('draggable');
@@ -1063,35 +1063,35 @@
             },
             ondragupdate: function (a, id, parent, menuindex) {
                 if (d.querySelector('#node' + id + ' > a').dataset.nomove == 1) {
-                    alert(modx.lang.error_no_privileges);
-                    modx.tree.restoreTree();
+                    alert(evo.lang.error_no_privileges);
+                    evo.tree.restoreTree();
                     return;
                 }
                 let roles = a.dataset.roles + (!a.parentNode.parentNode.classList.contains('treeRoot') ? a.parentNode.parentNode.previousSibling.dataset.roles : '');
                 let checked_group = false;
                 if (roles != '') {
                     checked_group = roles.split(',').map(Number).filter(function (role) {
-                        return ~modx.user.groups.indexOf(parseInt(role));
+                        return ~evo.user.groups.indexOf(parseInt(role));
                     }).length;
                 } else {
                     let checked_group = true;
                 }
-                if (!(roles && modx.user.role !== 1 ? checked_group : true)) {
-                    alert(modx.lang.error_no_privileges);
-                    modx.tree.restoreTree();
+                if (!(roles && evo.user.role !== 1 ? checked_group : true)) {
+                    alert(evo.lang.error_no_privileges);
+                    evo.tree.restoreTree();
                     return;
                 }
-                modx.post(modx.MODX_MANAGER_URL + 'media/style/' + modx.config.theme + '/ajax.php', {
+                evo.post(evo.EVO_MANAGER_URL + 'media/style/' + evo.config.theme + '/ajax.php', {
                     a: 'movedocument',
                     id: id,
                     parent: parent,
                     menuindex: menuindex
                 }, function (r) {
-                    if (r && r.errors) modx.alert(r.errors);
-                    modx.tree.restoreTree();
+                    if (r && r.errors) evo.alert(r.errors);
+                    evo.tree.restoreTree();
                 }, 'json');
-                var b = modx.normalizeUrl(w.main.frameElement.contentWindow.location.href);
-                if (modx.getActionFromUrl(b, 27) && parseInt(modx.main.getQueryVariable('id', b)) === parseInt(id)) {
+                var b = evo.normalizeUrl(w.main.frameElement.contentWindow.location.href);
+                if (evo.getActionFromUrl(b, 27) && parseInt(evo.main.getQueryVariable('id', b)) === parseInt(id)) {
                     var index = menuindex.indexOf(id),
                         elMenuIndex = w.main.document.querySelector('#documentPane input[name=menuindex]'),
                         elParent = w.main.document.querySelector('#documentPane input[name=parent]'),
@@ -1105,23 +1105,23 @@
             },
             toggleTheme: function () {
                 var a, b = 1, myCodeMirrors = w.main.myCodeMirrors, key;
-                if (typeof localStorage['MODX_themeMode'] === 'undefined') {
-                    localStorage['MODX_themeMode'] = modx.config.theme_mode;
+                if (typeof localStorage['EVO_themeMode'] === 'undefined') {
+                    localStorage['EVO_themeMode'] = evo.config.theme_mode;
                 }
-                if (modx.thememodes[parseInt(localStorage['MODX_themeMode']) + 1]) {
-                    b = parseInt(localStorage['MODX_themeMode']) + 1;
+                if (evo.thememodes[parseInt(localStorage['EVO_themeMode']) + 1]) {
+                    b = parseInt(localStorage['EVO_themeMode']) + 1;
                 }
-                a = modx.thememodes[b];
-                for (key in modx.thememodes) {
-                    if (modx.thememodes[key]) {
-                        d.body.classList.remove(modx.thememodes[key]);
-                        w.main.document.body.classList.remove(modx.thememodes[key]);
+                a = evo.thememodes[b];
+                for (key in evo.thememodes) {
+                    if (evo.thememodes[key]) {
+                        d.body.classList.remove(evo.thememodes[key]);
+                        w.main.document.body.classList.remove(evo.thememodes[key]);
                     }
                 }
                 d.body.classList.add(a);
                 w.main.document.body.classList.add(a);
-                d.cookie = 'MODX_themeMode=' + b;
-                localStorage['MODX_themeMode'] = b;
+                d.cookie = 'EVO_themeMode=' + b;
+                localStorage['EVO_themeMode'] = b;
                 if (typeof myCodeMirrors !== 'undefined') {
                     for (key in myCodeMirrors) {
                         if (myCodeMirrors.hasOwnProperty(key)) {
@@ -1148,23 +1148,23 @@
                     if (toggle) toggle.innerHTML = el.dataset.iconCollapsed;
                     icon.innerHTML = el.dataset.iconFolderOpen;
                     var rpcNodeText = rpcNode.innerHTML,
-                        loadText = modx.lang.loading_doc_tree;
-                    modx.openedArray[id] = 1;
+                        loadText = evo.lang.loading_doc_tree;
+                    evo.openedArray[id] = 1;
                     if (rpcNodeText === '' || rpcNodeText.indexOf(loadText) > 0) {
                         var folderState = this.getFolderState();
                         d.getElementById('treeloader').classList.add('visible');
-                        modx.post(modx.MODX_MANAGER_URL + 'media/style/' + modx.config.theme + '/ajax.php', 'a=1&f=nodes&indent=' + el.dataset.indent + '&parent=' + id + '&expandAll=' + el.dataset.expandall + folderState, function (r) {
-                            modx.tree.rpcLoadData(r, rpcNode);
-                            modx.tree.draggable();
+                        evo.post(evo.EVO_MANAGER_URL + 'media/style/' + evo.config.theme + '/ajax.php', 'a=1&f=nodes&indent=' + el.dataset.indent + '&parent=' + id + '&expandAll=' + el.dataset.expandall + folderState, function (r) {
+                            evo.tree.rpcLoadData(r, rpcNode);
+                            evo.tree.draggable();
                         });
                     }
                     this.saveFolderState();
                 } else {
                     if (toggle) toggle.innerHTML = el.dataset.iconExpanded;
                     icon.innerHTML = el.dataset.iconFolderClose;
-                    delete modx.openedArray[id];
+                    delete evo.openedArray[id];
                     rpcNode.style.overflow = 'hidden';
-                    modx.animate(rpcNode.firstChild, {
+                    evo.animate(rpcNode.firstChild, {
                         marginTop: -rpcNode.offsetHeight
                     }, 64, function () {
                         this.parentNode.innerHTML = '';
@@ -1189,7 +1189,7 @@
                         } else {
                             rpcNode.style.overflow = 'hidden';
                             rpcNode.firstElementChild.style.marginTop = -rpcNode.offsetHeight + 'px';
-                            modx.animate(rpcNode.firstChild, {
+                            evo.animate(rpcNode.firstChild, {
                                 marginTop: 0
                             }, 64);
                         }
@@ -1198,7 +1198,7 @@
                         el = d.getElementById('loginfrm');
                         if (el) {
                             rpcNode.parentNode.removeChild(rpcNode);
-                            w.location.href = modx.MODX_MANAGER_URL;
+                            w.location.href = evo.EVO_MANAGER_URL;
                         }
                     }
                 }
@@ -1215,7 +1215,7 @@
                         this.setSelectedByContext(id);
                         w.main.setMoveValue(id, title);
                     } catch (oException) {
-                        alert(modx.lang.unable_set_parent);
+                        alert(evo.lang.unable_set_parent);
                     }
                 }
                 if (tree.ca === 'open' || tree.ca === '') {
@@ -1238,11 +1238,11 @@
                     if (href) {
                         if (e.shiftKey) {
                             w.getSelection().removeAllRanges();
-                            modx.openWindow(href);
+                            evo.openWindow(href);
                             this.restoreTree();
                         } else {
-                            modx.tabs({ url: modx.MODX_MANAGER_URL + href, title: title + '<small>(' + id + ')</small>' });
-                            if (modx.isMobile && w.innerWidth < modx.minWidth) modx.resizer.toggle();
+                            evo.tabs({ url: evo.EVO_MANAGER_URL + href, title: title + '<small>(' + id + ')</small>' });
+                            if (evo.isMobile && w.innerWidth < evo.minWidth) evo.resizer.toggle();
                         }
                     }
                     this.itemToChange = id;
@@ -1253,7 +1253,7 @@
                         this.setSelectedByContext(id);
                         w.main.setParent(id, title);
                     } catch (oException) {
-                        alert(modx.lang.unable_set_parent);
+                        alert(evo.lang.unable_set_parent);
                     }
                 }
                 if (tree.ca === 'link') {
@@ -1261,7 +1261,7 @@
                         this.setSelectedByContext(id);
                         w.main.setLink(id);
                     } catch (oException) {
-                        alert(modx.lang.unable_set_link);
+                        alert(evo.lang.unable_set_link);
                     }
                 }
                 e.preventDefault();
@@ -1279,11 +1279,11 @@
                 if (el) {
                     if (el.dataset.contextmenu) {
                         e.target.dataset.toggle = '#contextmenu';
-                        modx.hideDropDown(e);
+                        evo.hideDropDown(e);
                         this.ctx = d.createElement('div');
                         this.ctx.id = 'contextmenu';
                         this.ctx.className = 'dropdown-menu';
-                        d.getElementById(modx.frameset).appendChild(this.ctx);
+                        d.getElementById(evo.frameset).appendChild(this.ctx);
                         this.setSelectedByContext(id);
                         var dataJson = JSON.parse(el.dataset.contextmenu);
                         for (var key in dataJson) {
@@ -1337,7 +1337,7 @@
                         el = el.firstChild;
                         var ctx = d.getElementById('mx_contextmenu');
                         e.target.dataset.toggle = '#mx_contextmenu';
-                        modx.hideDropDown(e);
+                        evo.hideDropDown(e);
                         this.setSelectedByContext(id);
                         var i4 = d.getElementById('item4'),
                             i5 = d.getElementById('item5'),
@@ -1345,7 +1345,7 @@
                             i9 = d.getElementById('item9'),
                             i10 = d.getElementById('item10'),
                             i11 = d.getElementById('item11');
-                        if (modx.permission.publish_document === 1) {
+                        if (evo.permission.publish_document === 1) {
                             i9.style.display = 'block';
                             i10.style.display = 'block';
                             if (parseInt(el.dataset.published) === 1) {
@@ -1356,7 +1356,7 @@
                         } else if (i5) {
                             i5.style.display = 'none';
                         }
-                        if (modx.permission.delete_document === 1) {
+                        if (evo.permission.delete_document === 1) {
                             i4.style.display = 'block';
                             i8.style.display = 'block';
                             if (parseInt(el.dataset.deleted) === 1) {
@@ -1390,7 +1390,7 @@
                         if (ctx.classList.contains('show')) {
                             ctx.classList.remove('show');
                             setTimeout(function () {
-                                modx.tree.dopopup(ctx, x + 10, y);
+                                evo.tree.dopopup(ctx, x + 10, y);
                             }, 100);
                         } else {
                             this.dopopup(ctx, x + 10, y);
@@ -1405,7 +1405,7 @@
                 }
                 var f = d.getElementById('nameHolder');
                 f.innerHTML = this.selectedObjectName;
-                el.style.left = a + (modx.config.textdir === 'rtl' ? '-190' : '') + 'px';
+                el.style.left = a + (evo.config.textdir === 'rtl' ? '-190' : '') + 'px';
                 el.style.top = b + 'px';
                 el.classList.add('show');
             },
@@ -1413,65 +1413,65 @@
                 switch (a) {
                     case 1:
                         this.setActiveFromContextMenu(this.itemToChange);
-                        modx.tabs({ url: modx.MODX_MANAGER_URL + '?a=3&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                        evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=3&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
                         break;
                     case 2:
                         this.setActiveFromContextMenu(this.itemToChange);
-                        modx.tabs({ url: modx.MODX_MANAGER_URL + '?a=27&r=1&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                        evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=27&r=1&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
                         break;
                     case 3:
-                        modx.tabs({ url: modx.MODX_MANAGER_URL + '?a=4&pid=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                        evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=4&pid=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
                         break;
                     case 4:
                         if (this.selectedObjectDeleted) {
-                            alert('"' + this.selectedObjectName + '" ' + modx.lang.already_deleted);
-                        } else if (confirm('"' + this.selectedObjectName + '"\n\n' + modx.lang.confirm_delete_resource) === true) {
-                            modx.tabs({ url: modx.MODX_MANAGER_URL + '?a=6&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                            alert('"' + this.selectedObjectName + '" ' + evo.lang.already_deleted);
+                        } else if (confirm('"' + this.selectedObjectName + '"\n\n' + evo.lang.confirm_delete_resource) === true) {
+                            evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=6&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
                         }
                         break;
                     case 5:
                         this.setActiveFromContextMenu(this.itemToChange);
-                        modx.tabs({ url: modx.MODX_MANAGER_URL + '?a=51&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                        evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=51&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
                         break;
                     case 6:
-                        modx.tabs({ url: modx.MODX_MANAGER_URL + '?a=72&pid=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                        evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=72&pid=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
                         break;
                     case 7:
-                        if (confirm(modx.lang.confirm_resource_duplicate) === true) {
-                            modx.tabs({ url: modx.MODX_MANAGER_URL + '?a=94&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                        if (confirm(evo.lang.confirm_resource_duplicate) === true) {
+                            evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=94&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
                         }
                         break;
                     case 8:
                         if (d.getElementById('node' + this.itemToChange).firstChild.dataset.deleted) {
-                            if (confirm('"' + this.selectedObjectName + '" ' + modx.lang.confirm_undelete) === true) {
-                                modx.tabs({ url: modx.MODX_MANAGER_URL + '?a=63&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                            if (confirm('"' + this.selectedObjectName + '" ' + evo.lang.confirm_undelete) === true) {
+                                evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=63&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
                             }
                         } else {
-                            alert('"' + this.selectedObjectName + '"' + modx.lang.not_deleted);
+                            alert('"' + this.selectedObjectName + '"' + evo.lang.not_deleted);
                         }
                         break;
                     case 9:
-                        if (confirm('"' + this.selectedObjectName + '" ' + modx.lang.confirm_publish) === true) {
-                            modx.tabs({ url: modx.MODX_MANAGER_URL + '?a=61&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                        if (confirm('"' + this.selectedObjectName + '" ' + evo.lang.confirm_publish) === true) {
+                            evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=61&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
                         }
                         break;
                     case 10:
-                        if (this.itemToChange !== modx.config.site_start) {
-                            if (confirm('"' + this.selectedObjectName + '" ' + modx.lang.confirm_unpublish) === true) {
-                                modx.tabs({ url: modx.MODX_MANAGER_URL + '?a=62&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                        if (this.itemToChange !== evo.config.site_start) {
+                            if (confirm('"' + this.selectedObjectName + '" ' + evo.lang.confirm_unpublish) === true) {
+                                evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=62&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
                             }
                         } else {
-                            modx.alert('Document is linked to site_start variable and cannot be unpublished!');
+                            evo.alert('Document is linked to site_start variable and cannot be unpublished!');
                         }
                         break;
                     case 11:
-                        modx.tabs({ url: modx.MODX_MANAGER_URL + '?a=56&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                        evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=56&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
                         break;
                     case 12:
                         w.open(d.getElementById('node' + this.itemToChange).firstChild.dataset.href, 'previeWin');
                         break;
                     default:
-                        modx.alert('Unknown operation command.');
+                        evo.alert('Unknown operation command.');
                 }
             },
             setSelected: function (a) {
@@ -1520,29 +1520,29 @@
                 this.itemToChange = target.id;
                 this.selectedObjectName = target.title;
                 this.setSelected(target.id);
-                modx.tabs({ url: modx.MODX_MANAGER_URL + '?a=56&id=' + target.id, title: target.title + '<small>(' + target.id + ')</small>' });
+                evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=56&id=' + target.id, title: target.title + '<small>(' + target.id + ')</small>' });
             },
             setItemToChange: function () {
-                var a = w.main.document && (w.main.document.URL || modx.normalizeUrl(w.main.document.location.href)),
-                    b = modx.getActionFromUrl(a);
-                if (a && modx.typesactions[b]) {
-                    this.itemToChange = (modx.typesactions[b] === 7 ? '' : modx.typesactions[b] + '_') + parseInt(modx.main.getQueryVariable('id', a));
+                var a = w.main.document && (w.main.document.URL || evo.normalizeUrl(w.main.document.location.href)),
+                    b = evo.getActionFromUrl(a);
+                if (a && evo.typesactions[b]) {
+                    this.itemToChange = (evo.typesactions[b] === 7 ? '' : evo.typesactions[b] + '_') + parseInt(evo.main.getQueryVariable('id', a));
                 } else {
                     this.itemToChange = '';
                 }
                 this.setSelected(this.itemToChange);
             },
             restoreTree: function () {
-                //console.log('modx.tree.restoreTree()');
+                //console.log('evo.tree.restoreTree()');
                 let _this = this;
                 d.getElementById('treeloader').classList.add('visible');
                 d.querySelectorAll('.treeRoot').forEach(function (element) {
                     _this.setItemToChange();
                     let rpcNode = d.getElementById(element.id);
                     let parent = element.id.replace('treeRoot', '');
-                    modx.post(modx.MODX_MANAGER_URL + 'media/style/' + modx.config.theme + '/ajax.php', 'a=1&f=nodes&indent=1&parent=' + parent + '&expandAll=2&id=' + _this.itemToChange, function (r) {
-                        modx.tree.rpcLoadData(r, rpcNode);
-                        modx.tree.draggable();
+                    evo.post(evo.EVO_MANAGER_URL + 'media/style/' + evo.config.theme + '/ajax.php', 'a=1&f=nodes&indent=1&parent=' + parent + '&expandAll=2&id=' + _this.itemToChange, function (r) {
+                        evo.tree.rpcLoadData(r, rpcNode);
+                        evo.tree.draggable();
                     });
                 });
             },
@@ -1552,10 +1552,10 @@
                 d.querySelectorAll('.treeRoot').forEach(function (element) {
                     let rpcNode = d.getElementById(element.id);
                     let parent = element.id.replace('treeRoot', '');
-                    modx.post(modx.MODX_MANAGER_URL + 'media/style/' + modx.config.theme + '/ajax.php', 'a=1&f=nodes&indent=1&parent=' + parent + '&expandAll=1&id=' + _this.itemToChange, function (r) {
-                        modx.tree.rpcLoadData(r, rpcNode);
-                        modx.tree.saveFolderState();
-                        modx.tree.draggable();
+                    evo.post(evo.EVO_MANAGER_URL + 'media/style/' + evo.config.theme + '/ajax.php', 'a=1&f=nodes&indent=1&parent=' + parent + '&expandAll=1&id=' + _this.itemToChange, function (r) {
+                        evo.tree.rpcLoadData(r, rpcNode);
+                        evo.tree.saveFolderState();
+                        evo.tree.draggable();
                     });
                 });
             },
@@ -1565,11 +1565,11 @@
                 d.querySelectorAll('.treeRoot').forEach(function (element) {
                     let rpcNode = d.getElementById(element.id);
                     let parent = element.id.replace('treeRoot', '');
-                    modx.post(modx.MODX_MANAGER_URL + 'media/style/' + modx.config.theme + '/ajax.php', 'a=1&f=nodes&indent=1&parent=' + parent + '&expandAll=0&id=' + _this.itemToChange, function (r) {
-                        modx.openedArray = [];
-                        modx.tree.saveFolderState();
-                        modx.tree.rpcLoadData(r, rpcNode);
-                        modx.tree.draggable();
+                    evo.post(evo.EVO_MANAGER_URL + 'media/style/' + evo.config.theme + '/ajax.php', 'a=1&f=nodes&indent=1&parent=' + parent + '&expandAll=0&id=' + _this.itemToChange, function (r) {
+                        evo.openedArray = [];
+                        evo.tree.saveFolderState();
+                        evo.tree.rpcLoadData(r, rpcNode);
+                        evo.tree.draggable();
                     });
                 });
             },
@@ -1581,18 +1581,18 @@
                     let rpcNode = d.getElementById(element.id);
                     let parent = element.id.replace('treeRoot', '');
                     let b = 'a=1&f=nodes&indent=1&parent=' + parent + '&expandAll=2&dt=' + a.dt.value + '&tree_sortby=' + a.sortby.value + '&tree_sortdir=' + a.sortdir.value + '&tree_nodename=' + a.nodename.value + '&id=' + _this.itemToChange + '&showonlyfolders=' + a.showonlyfolders.value;
-                    modx.post(modx.MODX_MANAGER_URL + 'media/style/' + modx.config.theme + '/ajax.php', b, function (r) {
-                        modx.tree.rpcLoadData(r, rpcNode);
-                        modx.tree.draggable();
+                    evo.post(evo.EVO_MANAGER_URL + 'media/style/' + evo.config.theme + '/ajax.php', b, function (r) {
+                        evo.tree.rpcLoadData(r, rpcNode);
+                        evo.tree.draggable();
                     });
                 });
             },
             getFolderState: function () {
                 var a;
-                if (modx.openedArray.length > 0) {
+                if (evo.openedArray.length > 0) {
                     a = '&opened=';
-                    for (var key in modx.openedArray) {
-                        if (modx.openedArray[key]) {
+                    for (var key in evo.openedArray) {
+                        if (evo.openedArray[key]) {
                             a += key + '|';
                         }
                     }
@@ -1602,7 +1602,7 @@
                 return a;
             },
             saveFolderState: function () {
-                modx.post(modx.MODX_MANAGER_URL + 'media/style/' + modx.config.theme + '/ajax.php', 'a=1&f=nodes&savestateonly=1' + this.getFolderState());
+                evo.post(evo.EVO_MANAGER_URL + 'media/style/' + evo.config.theme + '/ajax.php', 'a=1&f=nodes&savestateonly=1' + this.getFolderState());
             },
             showSorter: function (e) {
                 e = e || w.event;
@@ -1614,11 +1614,11 @@
                 };
             },
             emptyTrash: function () {
-                if (confirm(modx.lang.confirm_empty_trash) === true) {
-                    modx.get(modx.MODX_MANAGER_URL + '?a=64', function () {
-                        modx.tabsClose(modx.tree.deleted);
-                        modx.tree.deleted = [];
-                        modx.tree.restoreTree();
+                if (confirm(evo.lang.confirm_empty_trash) === true) {
+                    evo.get(evo.EVO_MANAGER_URL + '?a=64', function () {
+                        evo.tabsClose(evo.tree.deleted);
+                        evo.tree.deleted = [];
+                        evo.tree.restoreTree();
                     });
                 }
             },
@@ -1626,28 +1626,28 @@
                 var el = d.getElementById('treeMenu_emptytrash');
                 if (el) {
                     if (a) {
-                        el.title = modx.lang.empty_recycle_bin;
+                        el.title = evo.lang.empty_recycle_bin;
                         el.classList.remove('disabled');
-                        el.innerHTML = modx.style.icon_trash;
+                        el.innerHTML = evo.style.icon_trash;
                         el.onclick = function () {
-                            modx.tree.emptyTrash();
+                            evo.tree.emptyTrash();
                         };
                         var els = d.getElementById('tree').querySelectorAll('.deleted');
                         for (var i = 0; i < els.length; i++) {
-                            this.deleted[els[i].dataset.id] = 'evo-tab-page-' + modx.urlToUid('a=27&id=' + els[i].dataset.id);
+                            this.deleted[els[i].dataset.id] = 'evo-tab-page-' + evo.urlToUid('a=27&id=' + els[i].dataset.id);
                         }
                     } else {
-                        el.title = modx.lang.empty_recycle_bin_empty;
+                        el.title = evo.lang.empty_recycle_bin_empty;
                         el.classList.add('disabled');
-                        el.innerHTML = modx.style.icon_trash_alt;
+                        el.innerHTML = evo.style.icon_trash_alt;
                         el.onclick = null;
                     }
                 }
             },
             unlockElement: function (a, b, c) {
-                var m = modx.lockedElementsTranslation.msg.replace('[+id+]', b).replace('[+element_type+]', modx.lockedElementsTranslation['type' + a]);
+                var m = evo.lockedElementsTranslation.msg.replace('[+id+]', b).replace('[+element_type+]', evo.lockedElementsTranslation['type' + a]);
                 if (confirm(m) === true) {
-                    modx.get(modx.MODX_MANAGER_URL + '?a=67&type=' + a + '&id=' + b, function (r) {
+                    evo.get(evo.EVO_MANAGER_URL + '?a=67&type=' + a + '&id=' + b, function (r) {
                         if (parseInt(r) === 1) {
                             c.parentNode.removeChild(c);
                         } else {
@@ -1659,17 +1659,17 @@
             resizeTree: function () { }
         },
         removeLocks: function () {
-            if (confirm(modx.lang.confirm_remove_locks.replace(/\\n/g, '\n')) === true) {
-                //w.main.location.href = modx.MODX_MANAGER_URL + '?a=67'
-                modx.get(modx.MODX_MANAGER_URL + '?a=67', function () {
-                    modx.tree.restoreTree();
+            if (confirm(evo.lang.confirm_remove_locks.replace(/\\n/g, '\n')) === true) {
+                //w.main.location.href = evo.EVO_MANAGER_URL + '?a=67'
+                evo.get(evo.EVO_MANAGER_URL + '?a=67', function () {
+                    evo.tree.restoreTree();
                 });
             }
         },
         keepMeAlive: function () {
-            modx.get('includes/session_keepalive.php?tok=' + d.getElementById('sessTokenInput').value + '&o=' + Math.random(), function (r) {
+            evo.get('includes/session_keepalive.php?tok=' + d.getElementById('sessTokenInput').value + '&o=' + Math.random(), function (r) {
                 r = JSON.parse(r);
-                if (r.status !== 'ok') w.location.href = modx.MODX_MANAGER_URL + '?a=8';
+                if (r.status !== 'ok') w.location.href = evo.EVO_MANAGER_URL + '?a=8';
             });
         },
         openWindow: function (a) {
@@ -1692,7 +1692,7 @@
             }
         },
         tabsClose: function (a) {
-            if (modx.config.global_tabs && a) {
+            if (evo.config.global_tabs && a) {
                 for (var k in a) {
                     if (a.hasOwnProperty(k)) {
                         var el = d.getElementById(a[k]);
@@ -1707,7 +1707,7 @@
         tabs: function (a) {
             function Tabs(a) {
                 var s = this;
-                this.url = a.url.replace(new RegExp(modx.MODX_MANAGER_URL, 'g'), '');
+                this.url = a.url.replace(new RegExp(evo.EVO_MANAGER_URL, 'g'), '');
                 this.title = a.title || '';
                 this.name = a.name || '';
                 this.timer = null;
@@ -1717,9 +1717,9 @@
                 this.reload = typeof a.reload !== 'undefined' ? a.reload : 1;
                 this.restoring = !!a.restoring;
                 this.activate = !!a.activate;
-                this.action = modx.getActionFromUrl(a.url);
-                this.getTab = modx.main.getQueryVariable('tab', a.url);
-                this.uid = modx.getActionFromUrl(a.url, 2) ? 'home' : modx.urlToUid(a.url);
+                this.action = evo.getActionFromUrl(a.url);
+                this.getTab = evo.main.getQueryVariable('tab', a.url);
+                this.uid = evo.getActionFromUrl(a.url, 2) ? 'home' : evo.urlToUid(a.url);
                 this.page = d.getElementById('evo-tab-page-' + this.uid);
                 this.row = d.getElementsByClassName('evo-tab-row')[0].firstElementChild;
                 this.tab = d.getElementById('evo-tab-' + this.uid);
@@ -1744,16 +1744,16 @@
                         this.show();
                         if (~this.closeactions.indexOf(this.action)) {
                             this.setDocPublished();
-                            modx.get(this.url, function (r) {
-                                /__alertQuit\(\)/.test(r) && modx.alert(r.match(/\<body\>(.*?)\<\/body\>/s)[0]);
-                                modx.tree.restoreTree();
+                            evo.get(this.url, function (r) {
+                                /__alertQuit\(\)/.test(r) && evo.alert(r.match(/\<body\>(.*?)\<\/body\>/s)[0]);
+                                evo.tree.restoreTree();
                             });
                         }
                     }
                 } else if (~this.closeactions.indexOf(this.action)) {
-                    modx.get(this.url, function (r) {
-                        /__alertQuit\(\)/.test(r) && modx.alert(r.match(/\<body\>(.*?)\<\/body\>/s)[0]);
-                        modx.tree.restoreTree();
+                    evo.get(this.url, function (r) {
+                        /__alertQuit\(\)/.test(r) && evo.alert(r.match(/\<body\>(.*?)\<\/body\>/s)[0]);
+                        evo.tree.restoreTree();
                     });
                 } else {
                     this.create();
@@ -1763,12 +1763,12 @@
             Tabs.prototype = {
                 create: function () {
                     var s = this;
-                    modx.main.work();
-                    modx.tabs.selected = this.row.querySelector('.selected');
-                    var keepSelected = this.restoring && !this.activate && modx.tabs.selected;
-                    if (!keepSelected && modx.tabs.selected) {
-                        d.getElementById(modx.tabs.selected.id.replace('tab', 'tab-page')).classList.remove('show');
-                        modx.tabs.selected.classList.remove('selected');
+                    evo.main.work();
+                    evo.tabs.selected = this.row.querySelector('.selected');
+                    var keepSelected = this.restoring && !this.activate && evo.tabs.selected;
+                    if (!keepSelected && evo.tabs.selected) {
+                        d.getElementById(evo.tabs.selected.id.replace('tab', 'tab-page')).classList.remove('show');
+                        evo.tabs.selected.classList.remove('selected');
                     }
                     this.page = d.createElement('div');
                     this.page.id = 'evo-tab-page-' + this.uid;
@@ -1789,9 +1789,9 @@
                     this.tab.className = 'tab' + (keepSelected ? '' : ' selected');
                     this.icon = '';
                     if (!/<i/.test(this.title)) {
-                        this.icon = '<i class="' + modx.setTypeIcon(this.action) + '"></i>';
+                        this.icon = '<i class="' + evo.setTypeIcon(this.action) + '"></i>';
                     }
-                    this.txt = modx.title(this.title);
+                    this.txt = evo.title(this.title);
                     this.tab.innerHTML = '<span class="tab-title" title="' + this.txt + '">' + this.icon + this.title + '</span><span class="tab-close">×</span>';
                     this.tab.dataset.url = this.url;
                     this.tab.dataset.title = this.title;
@@ -1808,46 +1808,46 @@
                     this.page.close = function (e) {
                         s.close.call(s, e);
                     };
-                    modx.tabsStore();
+                    evo.tabsStore();
                 },
                 onload: function (e) {
                     var s = this;
                     var prevMain = w.main;
                     w.main = e.target.contentWindow || e.target.defaultView;
                     var tabWindow = w.main;
-                    this.url = modx.normalizeUrl(w.main.location.href) || modx.normalizeUrl(w.location.href);
+                    this.url = evo.normalizeUrl(w.main.location.href) || evo.normalizeUrl(w.location.href);
                     this.olduid = this.uid;
-                    this.uid = modx.urlToUid(this.url);
+                    this.uid = evo.urlToUid(this.url);
                     if (!!w.main.__alertQuit) {
                         w.main.alert = function (a) { };
                         var message = w.main.document.body.innerHTML;
                         w.main.document.body.style.display = 'none';
-                        history.pushState(null, d.title, modx.getActionFromUrl(this.url, 2) ? modx.MODX_MANAGER_URL : '#' + this.url);
+                        history.pushState(null, d.title, evo.getActionFromUrl(this.url, 2) ? evo.EVO_MANAGER_URL : '#' + this.url);
                         w.onpopstate = function () {
                             history.go(1);
                         };
-                        modx.alert(message);
-                        modx.getLockedElements(modx.getActionFromUrl(this.url), modx.main.getQueryVariable('id', this.url), function (data) {
-                            if (!!data || ~s.closeactions.indexOf(modx.getActionFromUrl(s.url))) {
+                        evo.alert(message);
+                        evo.getLockedElements(evo.getActionFromUrl(this.url), evo.main.getQueryVariable('id', this.url), function (data) {
+                            if (!!data || ~s.closeactions.indexOf(evo.getActionFromUrl(s.url))) {
                                 s.page.close();
-                                modx.tree.restoreTree();
+                                evo.tree.restoreTree();
                             } else {
-                                w.main.location.href = modx.MODX_MANAGER_URL + s.url;
-                                w.history.replaceState(null, d.title, modx.getActionFromUrl(s.url, 2) ? modx.MODX_MANAGER_URL : '#' + s.url);
+                                w.main.location.href = evo.EVO_MANAGER_URL + s.url;
+                                w.history.replaceState(null, d.title, evo.getActionFromUrl(s.url, 2) ? evo.EVO_MANAGER_URL : '#' + s.url);
                             }
                         });
                     } else {
-                        if (modx.getActionFromUrl(this.url, 2) || (~this.saveAndCloseActions.indexOf(modx.getActionFromUrl(this.url)) && parseInt(modx.main.getQueryVariable('r', this.url)))) {
+                        if (evo.getActionFromUrl(this.url, 2) || (~this.saveAndCloseActions.indexOf(evo.getActionFromUrl(this.url)) && parseInt(evo.main.getQueryVariable('r', this.url)))) {
                             this.close(e);
                         } else if (this.olduid !== this.uid && d.getElementById('evo-tab-' + this.uid)) {
                             this.close(e);
                             d.getElementById('evo-tab-' + this.uid).show();
-                            if (parseInt(modx.main.getQueryVariable('r', this.url)) === 2) {
+                            if (parseInt(evo.main.getQueryVariable('r', this.url)) === 2) {
                                 w.main.location.href = this.url;
                             }
                         } else {
                             this.title = w.main.document.body.querySelectorAll('h1')[0] && w.main.document.body.querySelectorAll('h1')[0].innerHTML || this.title;
-                            this.txt = modx.title(this.title);
+                            this.txt = evo.title(this.title);
                             if (this.title && this.uid !== 'home') {
                                 this.tab.innerHTML = '<span class="tab-title" title="' + this.txt + '">' + this.title + '</span><span class="tab-close">×</span>';
                             }
@@ -1859,7 +1859,7 @@
                             var allowShow = !(this.restoring && !this.activate && (!this.tab || !this.tab.classList.contains('selected')));
                             if (allowShow) {
                                 this.show();
-                                modx.main.onload(e);
+                                evo.main.onload(e);
                             } else if (prevMain) {
                                 w.main = prevMain;
                             }
@@ -1879,71 +1879,71 @@
                     }
                 },
                 show: function () {
-                    modx.tabs.selected = this.row.querySelector('.selected');
-                    if (modx.tabs.selected && modx.tabs.selected !== this.tab) {
-                        d.getElementById(modx.tabs.selected.id.replace('tab', 'tab-page')).classList.remove('show');
-                        modx.tabs.selected.classList.remove('selected');
+                    evo.tabs.selected = this.row.querySelector('.selected');
+                    if (evo.tabs.selected && evo.tabs.selected !== this.tab) {
+                        d.getElementById(evo.tabs.selected.id.replace('tab', 'tab-page')).classList.remove('show');
+                        evo.tabs.selected.classList.remove('selected');
                     }
                     this.page.classList.add('show');
                     this.tab.classList.add('selected');
-                    modx.title(this.txt);
-                    modx.tabs.selected = this.tab;
+                    evo.title(this.txt);
+                    evo.tabs.selected = this.tab;
                     w.main = this.page.firstElementChild.contentWindow;
                     if (this.getTab && this.action === 76 && !~w.main.frameElement.contentDocument.location.href.indexOf(this.url)) {
                         w.main.frameElement.src = this.url;
                     } else {
-                        w.history.replaceState(null, w.main.document.title, modx.getActionFromUrl(this.url, 2) ? modx.MODX_MANAGER_URL : '#' + this.url);
-                        modx.tree.setItemToChange();
-                        modx.main.tabRow.scroll(this.row, this.tab, 350);
+                        w.history.replaceState(null, w.main.document.title, evo.getActionFromUrl(this.url, 2) ? evo.EVO_MANAGER_URL : '#' + this.url);
+                        evo.tree.setItemToChange();
+                        evo.main.tabRow.scroll(this.row, this.tab, 350);
                     }
-                    modx.tabsStore();
+                    evo.tabsStore();
                 },
                 close: function (e) {
                     var documentDirty = this.page.firstElementChild.contentWindow.documentDirty;
                     var checkDirt = !!this.page.firstElementChild.contentWindow.checkDirt;
                     if (documentDirty && checkDirt && confirm(this.page.firstElementChild.contentWindow.checkDirt(e)) || !documentDirty) {
-                        if (modx.tabs.selected === this.tab) {
+                        if (evo.tabs.selected === this.tab) {
                             tree.ca = 'open';
                         }
-                        modx.tabs.selected = this.tab.classList.contains('selected') ? this.tab.previousElementSibling : this.row.querySelector('.selected');
+                        evo.tabs.selected = this.tab.classList.contains('selected') ? this.tab.previousElementSibling : this.row.querySelector('.selected');
                         this.page.parentNode.removeChild(this.page);
                         this.row.removeChild(this.tab);
-                        if (modx.tabs.selected) {
-                            if (typeof modx.tabs.selected.show === 'function') {
-                                modx.tabs.selected.show();
+                        if (evo.tabs.selected) {
+                            if (typeof evo.tabs.selected.show === 'function') {
+                                evo.tabs.selected.show();
                             } else {
-                                var url = (modx.tabs.selected.dataset && modx.tabs.selected.dataset.url) ? modx.tabs.selected.dataset.url : '';
-                                if (!url && modx.tabs.selected.dataset && modx.tabs.selected.dataset.target) {
-                                    var page = d.getElementById(modx.tabs.selected.dataset.target);
+                                var url = (evo.tabs.selected.dataset && evo.tabs.selected.dataset.url) ? evo.tabs.selected.dataset.url : '';
+                                if (!url && evo.tabs.selected.dataset && evo.tabs.selected.dataset.target) {
+                                    var page = d.getElementById(evo.tabs.selected.dataset.target);
                                     if (page && page.firstElementChild) {
                                         url = page.firstElementChild.getAttribute('src') || '';
                                     }
                                 }
-                                if (!url && modx.tabs.selected.id) {
-                                    var pageId = modx.tabs.selected.id.replace('evo-tab-', 'evo-tab-page-');
+                                if (!url && evo.tabs.selected.id) {
+                                    var pageId = evo.tabs.selected.id.replace('evo-tab-', 'evo-tab-page-');
                                     var pageEl = d.getElementById(pageId);
                                     if (pageEl && pageEl.firstElementChild) {
                                         url = pageEl.firstElementChild.getAttribute('src') || '';
                                     }
                                 }
                                 if (url) {
-                                    var title = (modx.tabs.selected.dataset && modx.tabs.selected.dataset.title) ? modx.tabs.selected.dataset.title : '';
+                                    var title = (evo.tabs.selected.dataset && evo.tabs.selected.dataset.title) ? evo.tabs.selected.dataset.title : '';
                                     if (!title) {
-                                        var titleEl = modx.tabs.selected.querySelector('.tab-title');
+                                        var titleEl = evo.tabs.selected.querySelector('.tab-title');
                                         title = titleEl ? titleEl.innerHTML : 'blank';
                                     }
-                                    modx.tabs({ url: url, title: title, reload: 0 });
+                                    evo.tabs({ url: url, title: title, reload: 0 });
                                 }
                             }
                         }
                     }
-                    modx.tabsStore();
-                    modx.main.stopWork();
+                    evo.tabsStore();
+                    evo.main.stopWork();
                 },
                 select: function (e) {
                     if (e.target.className === 'tab-close') {
                         this.close(e);
-                    } else if (modx.tabs.selected === this.tab) {
+                    } else if (evo.tabs.selected === this.tab) {
                         var s = this;
                         if (this.timer) {
                             clearTimeout(this.timer);
@@ -1964,21 +1964,21 @@
                         el.checked = this.action === 61;
                         w.main.document.getElementsByName('published')[0].value = +el.checked;
                     }
-                    if (modx.getActionFromUrl(modx.normalizeUrl(w.main.location.href), 3)) {
+                    if (evo.getActionFromUrl(evo.normalizeUrl(w.main.location.href), 3)) {
                         w.main.location.reload();
                     }
                 }
             };
-            if (modx.config.global_tabs) {
+            if (evo.config.global_tabs) {
                 if (typeof a.currentTarget !== 'undefined') {
                     var e = a;
                     var link = modxMainTargetLinkHelper.getMainTargetLink(e);
                     if (link) {
                         a = link;
                         if (e.shiftKey) {
-                            modx.openWindow({ url: a.href });
+                            evo.openWindow({ url: a.href });
                         } else {
-                            modx.tabs({ url: a.href, title: a.innerHTML });
+                            evo.tabs({ url: a.href, title: a.innerHTML });
                         }
                         e.preventDefault();
                     }
@@ -1989,7 +1989,7 @@
                 if (w.main) {
                     w.main.frameElement.src = a.url;
                 } else {
-                    modx.openWindow(a.url);
+                    evo.openWindow(a.url);
                 }
             }
         },
@@ -2080,7 +2080,7 @@
                             o.el.onclick = o.close;
                         }
                         if (o.draggable) {
-                            modx.dragging(o.el, { wrap: o.wrap, resize: o.resize });
+                            evo.dragging(o.el, { wrap: o.wrap, resize: o.resize });
                         }
                         o.el.classList.add('show');
                     },
@@ -2169,12 +2169,12 @@
                 }
                 o.timer = 0;
                 o.position = o.position.split(' ');
-                if (modx.popupLastIndex) {
-                    o.zIndex = modx.popupLastIndex++;
+                if (evo.popupLastIndex) {
+                    o.zIndex = evo.popupLastIndex++;
                 } else {
-                    modx.popupLastIndex = o.zIndex;
+                    evo.popupLastIndex = o.zIndex;
                 }
-                o.uid = a.url ? modx.urlToUid(a.url) : modx.toHash(a);
+                o.uid = a.url ? evo.urlToUid(a.url) : evo.toHash(a);
                 o.className = 'evo-popup';
                 if (typeof o.wrap === 'string') {
                     o.wrap = d.querySelector(o.wrap);
@@ -2239,7 +2239,7 @@
                         o.draggable = 1;
                         if (o.iframe === 'iframe') {
                             o.resize = 1;
-                            o.uid = modx.urlToUid(a.url);
+                            o.uid = evo.urlToUid(a.url);
                             o.el.className += ' ' + o.addclass + ' ' + o.className + '-iframe';
                             o.el.id = 'evo-popup-' + o.uid;
                             d.getElementById('mainloader').className = 'show';
@@ -2251,14 +2251,14 @@
                             o.frame.onload = function (e) {
                                 e.target.contentWindow.opener = o.w;
                                 a.url = e.target.contentWindow.location.href;
-                                o.uid = modx.urlToUid(a.url);
+                                o.uid = evo.urlToUid(a.url);
                                 o.event = e;
                                 if (!!e.target.contentWindow.__alertQuit) {
-                                    modx.alert(e.target.contentWindow.document.body.querySelector('p').innerHTML);
+                                    evo.alert(e.target.contentWindow.document.body.querySelector('p').innerHTML);
                                     e.target.contentWindow.document.body.innerHTML = '';
                                     e.target.contentWindow.alert = function () { };
                                 } else {
-                                    if (modx.getActionFromUrl(a.url, 2) || o.wrap.querySelectorAll('#evo-popup-' + o.uid).length > 1) {
+                                    if (evo.getActionFromUrl(a.url, 2) || o.wrap.querySelectorAll('#evo-popup-' + o.uid).length > 1) {
                                         o.el.close();
                                     } else {
                                         if (e.target.contentDocument.querySelectorAll('h1')[0]) {
@@ -2271,11 +2271,11 @@
                                         }
                                         e.target.offsetParent.offsetParent.id = 'evo-popup-' + o.uid;
                                         e.target.offsetParent.offsetParent.classList.remove('changed');
-                                        //modx.main.onload(e);
+                                        //evo.main.onload(e);
                                     }
                                 }
                                 e.target.contentWindow.close = o.close;
-                                modx.main.stopWork();
+                                evo.main.stopWork();
                             };
                             o.el.lastChild.appendChild(o.frame);
                             o.show();
@@ -2316,7 +2316,7 @@
             }
         },
         alert: function (m, t) {
-            modx.popup({
+            evo.popup({
                 type: t || 'warning',
                 title: 'Evolution CMS :: Alert',
                 position: 'top center alertQuit',
@@ -2351,11 +2351,11 @@
         hideDropDown: function (e) {
             e = e || w.event || w.main.event;
             if (tree.ca === 'open' || tree.ca === '') {
-                modx.tree.setSelectedByContext();
+                evo.tree.setSelectedByContext();
             }
-            if (modx.tree.ctx !== null) {
-                d.getElementById(modx.frameset).removeChild(modx.tree.ctx);
-                modx.tree.ctx = null;
+            if (evo.tree.ctx !== null) {
+                d.getElementById(evo.frameset).removeChild(evo.tree.ctx);
+                evo.tree.ctx = null;
             }
             if (!/dropdown\-item/.test(e.target.className)
                 //&& !(e && ("click" === e.type && /form|label|input|textarea|select/i.test(e.target.tagName)))
@@ -2445,48 +2445,48 @@
         urlToUid: function (a) {
             var b = '',
                 c;
-            a = modx.normalizeUrl(a);
+            a = evo.normalizeUrl(a);
             if (a) {
-                c = modx.getActionFromUrl(a);
+                c = evo.getActionFromUrl(a);
                 if (c) {
-                    if (modx.typesactions[c]) {
-                        b += '&type=' + modx.typesactions[c];
+                    if (evo.typesactions[c]) {
+                        b += '&type=' + evo.typesactions[c];
                     } else {
                         b += '&a=' + c;
                     }
                 }
-                if (modx.main.getQueryVariable('id', a)) {
-                    b += '&id=' + modx.main.getQueryVariable('id', a);
+                if (evo.main.getQueryVariable('id', a)) {
+                    b += '&id=' + evo.main.getQueryVariable('id', a);
                 }
-                if (modx.main.getQueryVariable('type', a)) {
-                    b += '&type=' + modx.main.getQueryVariable('type', a);
+                if (evo.main.getQueryVariable('type', a)) {
+                    b += '&type=' + evo.main.getQueryVariable('type', a);
                 }
                 if (!b && a) {
                     b = '&url=' + a;
                 }
-                b = modx.toHash(b);
+                b = evo.toHash(b);
             }
             return b;
         },
         getActionFromUrl: function (a, b) {
             if (typeof b !== 'undefined') {
-                return parseInt(modx.main.getQueryVariable('a', a)) === parseInt(b);
+                return parseInt(evo.main.getQueryVariable('a', a)) === parseInt(b);
             } else {
-                return parseInt(modx.main.getQueryVariable('a', a));
+                return parseInt(evo.main.getQueryVariable('a', a));
             }
         },
         normalizeUrl(url) {
-            url = url.replace(new RegExp(modx.MODX_MANAGER_URL, 'g'), '');
+            url = url.replace(new RegExp(evo.EVO_MANAGER_URL, 'g'), '');
             url = url.replace(/^index\.php/, '');
             url = url.replace(/^#/, '');
             return url;
         },
         getLockedElements: function (a, b, c) {
-            if (modx.typesactions[a] && b) {
-                modx.post(modx.MODX_MANAGER_URL + 'media/style/' + modx.config.theme + '/ajax.php', {
+            if (evo.typesactions[a] && b) {
+                evo.post(evo.EVO_MANAGER_URL + 'media/style/' + evo.config.theme + '/ajax.php', {
                     a: 'getLockedElements',
-                    id: modx.main.getQueryVariable('id', modx.normalizeUrl(w.main.location.href)),
-                    type: modx.typesactions[modx.getActionFromUrl(modx.normalizeUrl(w.main.location.href))]
+                    id: evo.main.getQueryVariable('id', evo.normalizeUrl(w.main.location.href)),
+                    type: evo.typesactions[evo.getActionFromUrl(evo.normalizeUrl(w.main.location.href))]
                 }, c);
             }
         },
@@ -2521,7 +2521,7 @@
                         handlerHeight: a.offsetHeight,
                         borders: document.createElement('div')
                     },
-                    s = modx.extend(this, c, b, f);
+                    s = evo.extend(this, c, b, f);
                 this.el = a;
                 this.borders.className = 'border-outline';
                 this.borders.innerHTML = '<i class="bo-left"></i><i class="bo-top"></i><i class="bo-right"></i><i class="bo-bottom"></i>';
@@ -2687,28 +2687,28 @@
             var b = '';
             switch (this.typesactions[a]) {
                 case 1:
-                    b = modx.style.icon_template;
+                    b = evo.style.icon_template;
                     break;
                 case 2:
-                    b = modx.style.icon_tv;
+                    b = evo.style.icon_tv;
                     break;
                 case 3:
-                    b = modx.style.icon_chunk;
+                    b = evo.style.icon_chunk;
                     break;
                 case 4:
-                    b = modx.style.icon_code;
+                    b = evo.style.icon_code;
                     break;
                 case 5:
-                    b = modx.style.icon_plugin;
+                    b = evo.style.icon_plugin;
                     break;
                 case 6:
-                    b = modx.style.icon_element;
+                    b = evo.style.icon_element;
                     break;
                 case 7:
-                    b = modx.style.icon_edit;
+                    b = evo.style.icon_edit;
                     break;
                 default:
-                    b = modx.style.icon_circle;
+                    b = evo.style.icon_circle;
             }
             return b;
         },
@@ -2768,40 +2768,40 @@
     });
     w.mainMenu = {};
     w.mainMenu.stopWork = function () {
-        modx.main.stopWork();
+        evo.main.stopWork();
     };
     w.mainMenu.work = function () {
-        modx.main.work();
+        evo.main.work();
     };
     w.mainMenu.reloadtree = function () {
         //console.log('mainMenu.reloadtree()');
-        if (modx.plugins.ElementsInTree) {
+        if (evo.plugins.ElementsInTree) {
             setTimeout('reloadElementsInTree()', 50);
         }
-        if (modx.config.global_tabs) {
-            setTimeout('modx.tree.restoreTree()', 100);
+        if (evo.config.global_tabs) {
+            setTimeout('evo.tree.restoreTree()', 100);
         }
     };
     w.mainMenu.startrefresh = function (a) {
         //console.log('mainMenu.startrefresh(' + a + ')');////
         if (a === 1) {
-            //setTimeout('modx.tree.restoreTree()', 50)
+            //setTimeout('evo.tree.restoreTree()', 50)
         }
         if (a === 2) {
-            //modx.tree.restoreTree();
+            //evo.tree.restoreTree();
         }
         if (a === 9) {
-            modx.tree.restoreTree();
+            evo.tree.restoreTree();
         }
         if (a === 10) {
-            w.location.href = modx.MODX_MANAGER_URL;
+            w.location.href = evo.EVO_MANAGER_URL;
         }
     };
     w.mainMenu.hideTreeFrame = function () {
-        modx.resizer.setWidth(0);
+        evo.resizer.setWidth(0);
     };
     w.mainMenu.defaultTreeFrame = function () {
-        modx.resizer.setDefaultWidth();
+        evo.resizer.setDefaultWidth();
     };
     w.tree = {};
     w.tree.ca = 'open';
@@ -2809,24 +2809,24 @@
     w.tree.saveFolderState = function () { };
     w.tree.updateTree = function () {
         //console.log('tree.updateTree()');
-        modx.tree.updateTree();
+        evo.tree.updateTree();
     };
     w.tree.restoreTree = function () {
         //console.log('tree.restoreTree()');
-        modx.tree.restoreTree();
+        evo.tree.restoreTree();
     };
     w.tree.resizeTree = function () {
         //console.log('tree.resizeTree() off')
     };
     w.onbeforeunload = function () {
         var a = w.main.frameElement.contentWindow,
-            url = modx.normalizeUrl(a.location.href);
-        if (modx.getActionFromUrl(url, 27)) {
-            modx.get(modx.MODX_MANAGER_URL + '?a=67&type=7&id=' + modx.main.getQueryVariable('id', url));
+            url = evo.normalizeUrl(a.location.href);
+        if (evo.getActionFromUrl(url, 27)) {
+            evo.get(evo.EVO_MANAGER_URL + '?a=67&type=7&id=' + evo.main.getQueryVariable('id', url));
         }
     };
     d.addEventListener('DOMContentLoaded', function () {
-        modx.init();
+        evo.init();
     });
 })(window, document, undefined);
 

@@ -15,13 +15,13 @@ $managedEnvNames = [
     'EVO_MANAGER_PATH',
     'EVO_SITE_URL',
     'EVO_MANAGER_URL',
-    'MODX_CLASS',
-    'MODX_SITE_HOSTNAMES',
-    'MODX_BASE_PATH',
-    'MODX_BASE_URL',
-    'MODX_MANAGER_PATH',
-    'MODX_SITE_URL',
-    'MODX_MANAGER_URL',
+    'EVO_CLASS',
+    'EVO_SITE_HOSTNAMES',
+    'EVO_BASE_PATH',
+    'EVO_BASE_URL',
+    'EVO_MANAGER_PATH',
+    'EVO_SITE_URL',
+    'EVO_MANAGER_URL',
 ];
 
 foreach ($managedEnvNames as $name) {
@@ -58,13 +58,13 @@ foreach ([
     'EVO_MANAGER_PATH',
     'EVO_SITE_URL',
     'EVO_MANAGER_URL',
-    'MODX_CLASS',
-    'MODX_SITE_HOSTNAMES',
-    'MODX_BASE_PATH',
-    'MODX_BASE_URL',
-    'MODX_MANAGER_PATH',
-    'MODX_SITE_URL',
-    'MODX_MANAGER_URL',
+    'EVO_CLASS',
+    'EVO_SITE_HOSTNAMES',
+    'EVO_BASE_PATH',
+    'EVO_BASE_URL',
+    'EVO_MANAGER_PATH',
+    'EVO_SITE_URL',
+    'EVO_MANAGER_URL',
 ] as $name) {
     $constants[$name] = defined($name) ? constant($name) : null;
 }
@@ -96,31 +96,31 @@ test('evo bootstrap constants publish modx aliases', function () {
         'EVO_MANAGER_URL' => 'https://example.test/evo/manager/',
     ]);
 
-    expect($constants['MODX_CLASS'])->toBe($constants['EVO_CLASS'])
-        ->and($constants['MODX_SITE_HOSTNAMES'])->toBe($constants['EVO_SITE_HOSTNAMES'])
-        ->and($constants['MODX_BASE_PATH'])->toBe($constants['EVO_BASE_PATH'])
-        ->and($constants['MODX_BASE_URL'])->toBe($constants['EVO_BASE_URL'])
-        ->and($constants['MODX_MANAGER_PATH'])->toBe($constants['EVO_MANAGER_PATH'])
-        ->and($constants['MODX_SITE_URL'])->toBe($constants['EVO_SITE_URL'])
-        ->and($constants['MODX_MANAGER_URL'])->toBe($constants['EVO_MANAGER_URL']);
+    expect($constants['EVO_CLASS'])->toBe($constants['EVO_CLASS'])
+        ->and($constants['EVO_SITE_HOSTNAMES'])->toBe($constants['EVO_SITE_HOSTNAMES'])
+        ->and($constants['EVO_BASE_PATH'])->toBe($constants['EVO_BASE_PATH'])
+        ->and($constants['EVO_BASE_URL'])->toBe($constants['EVO_BASE_URL'])
+        ->and($constants['EVO_MANAGER_PATH'])->toBe($constants['EVO_MANAGER_PATH'])
+        ->and($constants['EVO_SITE_URL'])->toBe($constants['EVO_SITE_URL'])
+        ->and($constants['EVO_MANAGER_URL'])->toBe($constants['EVO_MANAGER_URL']);
 });
 
 test('legacy modx bootstrap env still hydrates evo constants', function () {
     $constants = loadBootConstantsInFreshProcess([
-        'MODX_CLASS' => '\\DocumentParser',
-        'MODX_SITE_HOSTNAMES' => 'legacy.example.test',
-        'MODX_BASE_PATH' => '/tmp/legacy-evo/',
-        'MODX_BASE_URL' => '/legacy-evo/',
-        'MODX_MANAGER_PATH' => '/tmp/legacy-evo/manager/',
-        'MODX_SITE_URL' => 'https://legacy.example.test/legacy-evo/',
-        'MODX_MANAGER_URL' => 'https://legacy.example.test/legacy-evo/manager/',
+        'EVO_CLASS' => '\\DocumentParser',
+        'EVO_SITE_HOSTNAMES' => 'legacy.example.test',
+        'EVO_BASE_PATH' => '/tmp/legacy-evo/',
+        'EVO_BASE_URL' => '/legacy-evo/',
+        'EVO_MANAGER_PATH' => '/tmp/legacy-evo/manager/',
+        'EVO_SITE_URL' => 'https://legacy.example.test/legacy-evo/',
+        'EVO_MANAGER_URL' => 'https://legacy.example.test/legacy-evo/manager/',
     ]);
 
-    expect($constants['EVO_CLASS'])->toBe($constants['MODX_CLASS'])
-        ->and($constants['EVO_SITE_HOSTNAMES'])->toBe($constants['MODX_SITE_HOSTNAMES'])
-        ->and($constants['EVO_BASE_PATH'])->toBe($constants['MODX_BASE_PATH'])
-        ->and($constants['EVO_BASE_URL'])->toBe($constants['MODX_BASE_URL'])
-        ->and($constants['EVO_MANAGER_PATH'])->toBe($constants['MODX_MANAGER_PATH'])
-        ->and($constants['EVO_SITE_URL'])->toBe($constants['MODX_SITE_URL'])
-        ->and($constants['EVO_MANAGER_URL'])->toBe($constants['MODX_MANAGER_URL']);
+    expect($constants['EVO_CLASS'])->toBe($constants['EVO_CLASS'])
+        ->and($constants['EVO_SITE_HOSTNAMES'])->toBe($constants['EVO_SITE_HOSTNAMES'])
+        ->and($constants['EVO_BASE_PATH'])->toBe($constants['EVO_BASE_PATH'])
+        ->and($constants['EVO_BASE_URL'])->toBe($constants['EVO_BASE_URL'])
+        ->and($constants['EVO_MANAGER_PATH'])->toBe($constants['EVO_MANAGER_PATH'])
+        ->and($constants['EVO_SITE_URL'])->toBe($constants['EVO_SITE_URL'])
+        ->and($constants['EVO_MANAGER_URL'])->toBe($constants['EVO_MANAGER_URL']);
 });

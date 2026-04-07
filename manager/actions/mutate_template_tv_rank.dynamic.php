@@ -10,7 +10,7 @@ $id = isset($_REQUEST['id']) ? (int)$_REQUEST['id'] : 0;
 $reset = isset($_POST['reset']) && $_POST['reset'] == 'true' ? 1 : 0;
 
 
-$siteURL = MODX_SITE_URL;
+$siteURL = EVO_SITE_URL;
 
 $updateMsg = '';
 $templatename = '';

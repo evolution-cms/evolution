@@ -12,9 +12,9 @@ $data = $_POST + $defaultSettings;
 unset($_POST);
 
 if ($data['friendly_urls'] === '1' && strpos($_SERVER['SERVER_SOFTWARE'], 'IIS') === false) {
-    $htaccess = MODX_BASE_PATH . '.htaccess';
-    $sample_htaccess = MODX_BASE_PATH . 'ht.access';
-    $dir = '/' . trim(MODX_BASE_URL, '/');
+    $htaccess = EVO_BASE_PATH . '.htaccess';
+    $sample_htaccess = EVO_BASE_PATH . 'ht.access';
+    $dir = '/' . trim(EVO_BASE_URL, '/');
     if (is_file($htaccess)) {
         $_ = file_get_contents($htaccess);
         if (strpos($_, 'RewriteBase') === false) {
@@ -28,7 +28,7 @@ if ($data['friendly_urls'] === '1' && strpos($_SERVER['SERVER_SOFTWARE'], 'IIS')
     } elseif (is_file($sample_htaccess)) {
         if (!@rename($sample_htaccess, $htaccess)) {
             $warnings[] = $_lang["settings_friendlyurls_alert"];
-        } elseif (MODX_BASE_URL !== '/') {
+        } elseif (EVO_BASE_URL !== '/') {
             $_ = file_get_contents($htaccess);
             $_ = preg_replace('@RewriteBase.+@', "RewriteBase {$dir}", $_);
             if (!@file_put_contents($htaccess, $_)) {
@@ -38,12 +38,12 @@ if ($data['friendly_urls'] === '1' && strpos($_SERVER['SERVER_SOFTWARE'], 'IIS')
     }
 }
 
-if (file_exists(MODX_MANAGER_PATH . 'media/style/' . $modx->getConfig('manager_theme') . '/css/styles.min.css')) {
-    unlink(MODX_MANAGER_PATH . 'media/style/' . $modx->getConfig('manager_theme') . '/css/styles.min.css');
+if (file_exists(EVO_MANAGER_PATH . 'media/style/' . $modx->getConfig('manager_theme') . '/css/styles.min.css')) {
+    unlink(EVO_MANAGER_PATH . 'media/style/' . $modx->getConfig('manager_theme') . '/css/styles.min.css');
 }
 
-$data['filemanager_path'] = str_replace('[(base_path)]', MODX_BASE_PATH, $data['filemanager_path']);
-$data['rb_base_dir'] = str_replace('[(base_path)]', MODX_BASE_PATH, $data['rb_base_dir']);
+$data['filemanager_path'] = str_replace('[(base_path)]', EVO_BASE_PATH, $data['filemanager_path']);
+$data['rb_base_dir'] = str_replace('[(base_path)]', EVO_BASE_PATH, $data['rb_base_dir']);
 
 if (isset($data) && count($data) > 0) {
     if (isset($data['manager_language'])) {

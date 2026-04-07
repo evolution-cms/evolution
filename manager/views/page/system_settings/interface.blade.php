@@ -98,7 +98,7 @@
                                         </div>
                                         <div class="col-md-4 text-right">
                                             <img name="login_logo" style="max-height: 48px" src="' .
-                ($settings['login_logo'] ? MODX_SITE_URL . $settings['login_logo'] : '') .
+                ($settings['login_logo'] ? EVO_SITE_URL . $settings['login_logo'] : '') .
                 '" />
                                         </div>',
             'comment' =>
@@ -134,7 +134,7 @@
                                         </div>
                                         <div class="col-md-4 text-right">
                                             <img name="login_bg" style="max-height: 48px" src="' .
-                ($settings['login_bg'] ? MODX_SITE_URL . $settings['login_bg'] : '') .
+                ($settings['login_bg'] ? EVO_SITE_URL . $settings['login_bg'] : '') .
                 '" />
                                         </div>',
             'comment' =>

@@ -457,7 +457,7 @@ switch ($actionToTake) {
         ]);
 
         // secure web documents - flag as private
-        include MODX_MANAGER_PATH . "includes/secure_web_documents.inc.php";
+        include EVO_MANAGER_PATH . "includes/secure_web_documents.inc.php";
         secureWebDocument($key);
         secureMgrDocument($key);
 
@@ -661,7 +661,7 @@ switch ($actionToTake) {
         ]);
 
         // secure web documents - flag as private
-        include MODX_MANAGER_PATH . "includes/secure_web_documents.inc.php";
+        include EVO_MANAGER_PATH . "includes/secure_web_documents.inc.php";
         secureWebDocument($id);
         secureMgrDocument($id);
 

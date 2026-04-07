@@ -109,7 +109,7 @@ function setView(viewOpts, targetEl, target) {
 
   // Save view-options to localStorage
   viewOpts.version = version; // Provides version of options-obj to allow easy resetting of localStorage on future updates
-  localStorage.setItem('MODX_mgrResources_' + target, JSON.stringify(viewOpts));
+  localStorage.setItem('EVO_mgrResources_' + target, JSON.stringify(viewOpts));
 
   // console.log('save', viewOpts);
 }
@@ -165,7 +165,7 @@ jQuery(document).ready(function() {
     });
 
     // Get parameters from localStorage
-    var viewOpts = JSON.parse(localStorage.getItem('MODX_mgrResources_' + target));
+    var viewOpts = JSON.parse(localStorage.getItem('EVO_mgrResources_' + target));
 
     // console.log('load', viewOpts.version, '==', version);
     // console.log(viewOpts);
@@ -305,7 +305,7 @@ function initQuicksearch(inputId, listId) {
   });
 }
 
-var storageKey = 'MODX_mgrResources';
+var storageKey = 'EVO_mgrResources';
 
 // localStorage reset :
 // localStorage.removeItem(storageKey);

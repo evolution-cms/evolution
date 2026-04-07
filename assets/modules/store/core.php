@@ -25,7 +25,7 @@ case 'install2_step':
 
 case 'install':
 case 'install_file':
-	if (is_dir(MODX_BASE_PATH . 'assets/cache/store/')) $Store->removeFolder(MODX_BASE_PATH . 'assets/cache/store/');
+	if (is_dir(EVO_BASE_PATH . 'assets/cache/store/')) $Store->removeFolder(EVO_BASE_PATH . 'assets/cache/store/');
 	$id = (int) $_REQUEST['cid'];
 	@mkdir("../assets/cache/store", 0777);
 	@mkdir("../assets/cache/store/tmp_install", 0777);
@@ -39,7 +39,7 @@ case 'install_file':
 			$url = "https://extras.evo.im/get.php?get=file&cid=" .$id;
 		}
 
-		if (!$Store->downloadFile($url ,MODX_BASE_PATH."assets/cache/store/temp.zip")){
+		if (!$Store->downloadFile($url ,EVO_BASE_PATH."assets/cache/store/temp.zip")){
 			$Store->quit();
 		}
 	} else {
@@ -47,18 +47,18 @@ case 'install_file':
 		if( !in_array($extension, ['zip'])) {
 			die('Only ZIP-Files allowed');
 		}
-		if (!move_uploaded_file($_FILES['install_file']['tmp_name'], MODX_BASE_PATH."assets/cache/store/temp.zip")) {
+		if (!move_uploaded_file($_FILES['install_file']['tmp_name'], EVO_BASE_PATH."assets/cache/store/temp.zip")) {
 			die('Uploaded File could not be moved to assets/cache/store/');
 		}
 		$msg = $Store->lang['install_file_success'];
 	}
 
 	$zip = new ZipArchive;
-	$res = $zip->open(MODX_BASE_PATH."assets/cache/store/temp.zip");
+	$res = $zip->open(EVO_BASE_PATH."assets/cache/store/temp.zip");
 	if ($res === TRUE) {
 
 		// echo 'Archive open';
-		$zip->extractTo(MODX_BASE_PATH."assets/cache/store/tmp_install");
+		$zip->extractTo(EVO_BASE_PATH."assets/cache/store/tmp_install");
 		$zip->close();
 		$handle = opendir('../assets/cache/store/tmp_install');
 		if ($handle) {
@@ -109,7 +109,7 @@ case 'install_file':
             $strError =  '<!DOCTYPE html>
 <html><head><title>Install</title>
 <meta http-equiv="Content-Type" content="text/html; charset="utf-8" />
-<link rel="stylesheet" href="'.MODX_SITE_URL.'assets/modules/store/installer/style.css" type="text/css" media="screen" /></head>
+<link rel="stylesheet" href="'.EVO_SITE_URL.'assets/modules/store/installer/style.css" type="text/css" media="screen" /></head>
 <body><div id="contentarea"><div class="container_12"><br>';
 
 
@@ -143,7 +143,7 @@ case 'install_file':
 
 	}
 
-	$Store->removeFolder(MODX_BASE_PATH.'assets/cache/store/');
+	$Store->removeFolder(EVO_BASE_PATH.'assets/cache/store/');
 	if($action == 'install') {
 		die('[{"result":"true"}]');
 	} else {
@@ -159,19 +159,19 @@ default:
     foreach ($snippets as $snippet){
         $PACK[$value][$snippet->name]= $Store->get_version($snippet->description) ;
     }
-    $PACK['snippets_writable']  = is_writable(MODX_BASE_PATH.'assets/snippets');
+    $PACK['snippets_writable']  = is_writable(EVO_BASE_PATH.'assets/snippets');
 
     $plugins = \EvolutionCMS\Models\SitePlugin::query()->get();
     foreach ($plugins as $plugin){
         $PACK[$value][$plugin->name]= $Store->get_version($plugin->description) ;
     }
-    $PACK['plugins_writable']  = is_writable(MODX_BASE_PATH.'assets/plugins');
+    $PACK['plugins_writable']  = is_writable(EVO_BASE_PATH.'assets/plugins');
 
     $modules = \EvolutionCMS\Models\SiteModule::query()->get();
     foreach ($modules as $module){
         $PACK[$value][$module->name]= $Store->get_version($module->description) ;
     }
-    $PACK['modules_writable']  = is_writable(MODX_BASE_PATH.'assets/modules');
+    $PACK['modules_writable']  = is_writable(EVO_BASE_PATH.'assets/modules');
 
 
 	$Store->lang['user_email'] = $_SESSION['mgrEmail'];

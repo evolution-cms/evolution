@@ -249,7 +249,7 @@ class Tmplvar extends AbstractController implements ManagerTheme\PageControllerI
         ];
 
         $finder = Finder\Finder::create()
-            ->in(MODX_BASE_PATH . 'assets/tvs')
+            ->in(EVO_BASE_PATH . 'assets/tvs')
             ->depth(0)
             ->notName('/^index\.html$/')
             ->sortByName();
@@ -260,7 +260,7 @@ class Tmplvar extends AbstractController implements ManagerTheme\PageControllerI
             $customTvs['custom_tv:' . $filename] = $filename;
             $propertiesFile = 'assets/tvs/' . $filename . '/' . $filename . '.properties.php';
             if (Storage::exists($propertiesFile)) {
-                $cfg = require MODX_BASE_PATH . $propertiesFile;
+                $cfg = require EVO_BASE_PATH . $propertiesFile;
                 if (is_array($cfg)) {
                     $this->defaultProperties['custom_tv:' . $filename] = $cfg;
                 }

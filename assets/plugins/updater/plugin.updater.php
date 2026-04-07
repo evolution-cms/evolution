@@ -4,7 +4,7 @@
 — auto backup system files
 — rollback option for updater
 */
-if (!defined('MODX_BASE_PATH')) {
+if (!defined('EVO_BASE_PATH')) {
     die('What are you doing? Get out of here!');
 }
 if (empty($_SESSION['mgrInternalKey'])) {
@@ -175,7 +175,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
 
     //lang
     $_lang = [];
-    $plugin_path = MODX_BASE_PATH . "assets/plugins/updater/";
+    $plugin_path = EVO_BASE_PATH . "assets/plugins/updater/";
     include($plugin_path . 'lang/en.php');
     if (file_exists($plugin_path . 'lang/' . $modx->config['manager_language'] . '.php')) {
         include($plugin_path . 'lang/' . $modx->config['manager_language'] . '.php');
@@ -183,7 +183,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
 
     $e = &$modx->Event;
     if ($e->name == 'OnSiteRefresh') {
-        array_map("unlink", glob(MODX_BASE_PATH . 'assets/cache/updater/*.json'));
+        array_map("unlink", glob(EVO_BASE_PATH . 'assets/cache/updater/*.json'));
     }
 
     if ($e->name == 'OnManagerWelcomeHome') {
@@ -202,7 +202,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
             $errorsMessage .= '-' . $_lang['error_openssl'] . '<br>';
             $errors += 1;
         }
-        if (!is_writable(MODX_BASE_PATH . 'assets/')) {
+        if (!is_writable(EVO_BASE_PATH . 'assets/')) {
             $errorsMessage .= '-' . $_lang['error_overwrite'] . '<br>';
             $errors += 1;
         }
@@ -261,7 +261,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                     $updateButton .= '<td></td></tr>';
                 } else {
                     $updateButton .= '<td><a onclick="return confirm(\'' . $_lang['are_you_sure_update'] . '\')" target="_parent" title="sha: '
-                        . $commit . '" class="btn btn-sm btn-danger" href="' . MODX_SITE_URL . $_SESSION['updatelink']
+                        . $commit . '" class="btn btn-sm btn-danger" href="' . EVO_SITE_URL . $_SESSION['updatelink']
                         . '&sha=' . $commit . '">' . $_lang['updateButtonCommit_txt'] . '</a></td></tr>';
                 }
             }
@@ -284,8 +284,8 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
             $e->output(serialize($widgets));
         } else {
             // Create directory 'assets/cache/updater'
-            if (!file_exists(MODX_BASE_PATH . 'assets/cache/updater')) {
-                mkdir(MODX_BASE_PATH . 'assets/cache/updater', intval($modx->config['new_folder_permissions'], 8), true);
+            if (!file_exists(EVO_BASE_PATH . 'assets/cache/updater')) {
+                mkdir(EVO_BASE_PATH . 'assets/cache/updater', intval($modx->config['new_folder_permissions'], 8), true);
             }
 
             $output = '';
@@ -294,7 +294,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
             $arrayVersion = explode('.', $currentVersion['version']);
             $currentMajorVersion = array_shift($arrayVersion);
 
-            $cacheFile = MODX_BASE_PATH . 'assets/cache/updater/check_' . date("d") . '.json';
+            $cacheFile = EVO_BASE_PATH . 'assets/cache/updater/check_' . date("d") . '.json';
 
             if (!file_exists($cacheFile)) {
                 $ch = curl_init();
@@ -507,7 +507,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                 $currentVersion = $modx->getVersionData();
                 $commit = isset($_GET['sha']) ? $_GET['sha'] : '';
                 if ($_SESSION['updateversion'] != $currentVersion['version'] || (isset($commit) && $type == 'commits')) {
-                    file_put_contents(MODX_BASE_PATH . 'update.php', '<?php
+                    file_put_contents(EVO_BASE_PATH . 'update.php', '<?php
 function downloadFile($url, $path)
 {
     $newfname = $path;
@@ -661,9 +661,9 @@ if (substr($releases, 0, 1) == "[") {
     }
 }
 unlink(__DIR__ . "/update.php");
-header("Location: ' . constant('MODX_SITE_URL') . 'install/index.php?action=mode");');
+header("Location: ' . constant('EVO_SITE_URL') . 'install/index.php?action=mode");');
                     if ($result === false) {
-                        echo 'Update failed: cannot write to ' . MODX_BASE_PATH . 'update.php';
+                        echo 'Update failed: cannot write to ' . EVO_BASE_PATH . 'update.php';
                     } else {
                         if ($type == 'commits') {
                             $versionGet = $commit;
@@ -676,7 +676,7 @@ header("Location: ' . constant('MODX_SITE_URL') . 'install/index.php?action=mode
                           <p>Downloading version: <strong>' . $versionText . '</strong>.</p>
                           <p>You will be redirected to the update wizard shortly.</p>
                           <p>Please wait...</p>
-                          <script>window.location = "' . MODX_SITE_URL . 'update.php?version=' . $versionGet . '";</script>
+                          <script>window.location = "' . EVO_SITE_URL . 'update.php?version=' . $versionGet . '";</script>
                           </body></html>';
                     }
                 }

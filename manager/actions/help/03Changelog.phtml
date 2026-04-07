@@ -7,7 +7,7 @@ if( ! defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true) {
 <div class="sectionHeader">Changelog</div>
 <div class="sectionBody">
 <?php
-	$changeLog = MODX_BASE_PATH . 'assets/docs/changelog.txt';
+	$changeLog = EVO_BASE_PATH . 'assets/docs/changelog.txt';
 	if(is_readable($changeLog))
 		echo str_replace("\n",'<br>',file_get_contents($changeLog));
 ?>

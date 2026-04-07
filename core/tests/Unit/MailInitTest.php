@@ -3,8 +3,8 @@
 use EvolutionCMS\Mail;
 
 beforeEach(function () {
-    if (!defined('MODX_MANAGER_PATH')) {
-        define('MODX_MANAGER_PATH', sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'evolution-manager' . DIRECTORY_SEPARATOR);
+    if (!defined('EVO_MANAGER_PATH')) {
+        define('EVO_MANAGER_PATH', sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'evolution-manager' . DIRECTORY_SEPARATOR);
     }
 });
 

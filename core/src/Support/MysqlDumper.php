@@ -89,7 +89,7 @@ class MysqlDumper implements MysqlDumperInterface
 
         // Set line feed
         $lf = "\n";
-        $tempfile_path = MODX_BASE_PATH . 'assets/backup/temp.php';
+        $tempfile_path = EVO_BASE_PATH . 'assets/backup/temp.php';
 
         foreach ($tables as $tblval) {
             $result = $modx->getDatabase()->query("SHOW CREATE TABLE `{$tblval}`");
