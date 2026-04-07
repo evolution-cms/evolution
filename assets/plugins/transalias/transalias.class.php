@@ -19,8 +19,13 @@ class TransAlias {
      */
     function resolveTableName($fallbackTable, $managerLanguage = null) {
         $fallbackTable = is_string($fallbackTable) && $fallbackTable !== '' ? $fallbackTable : 'common';
+        $genericTables = ['common', 'utf8', 'utf8lowercase'];
 
         if (!is_string($managerLanguage) || trim($managerLanguage) === '') {
+            return $fallbackTable;
+        }
+
+        if (!in_array($fallbackTable, $genericTables, true)) {
             return $fallbackTable;
         }
 

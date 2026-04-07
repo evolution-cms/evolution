@@ -20,6 +20,7 @@ final class TransAliasManagerLanguageTest extends TestCase
         self::assertSame('common', $transAlias->resolveTableName('utf8lowercase', 'en'));
         self::assertSame('common', $transAlias->resolveTableName('utf8lowercase', 'fr'));
         self::assertSame('utf8lowercase', $transAlias->resolveTableName('utf8lowercase', 'ja'));
+        self::assertSame('german', $transAlias->resolveTableName('german', 'ru'));
     }
 
     public function testCorePassesManagerLanguageIntoStripAliasPluginEvent(): void
