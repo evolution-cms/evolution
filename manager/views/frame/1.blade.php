@@ -122,6 +122,10 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
                 textdir: '{{ManagerTheme::getTextDir()}}',
                 global_tabs: {{(int)evo()->getConfig('global_tabs')}}
             },
+            tree: {
+                itemToChange: '',
+                selectedObjectName: null
+            },
             lang: {
                 already_deleted: "{{ManagerTheme::getLexicon('already_deleted')}}",
                 cm_unknown_error: "{{ManagerTheme::getLexicon('cm_unknown_error')}}",
