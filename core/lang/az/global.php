@@ -16,7 +16,7 @@
 $modx_lang_attribute = 'az'; // Menecer HTML/XML Dil Atributu, bax: http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
 
-$_lang["about_msg"] = 'Evolution CMS, <a href="https://evo-cms.com/" target="_blank">PHP Tətbiq Çərçivəsi və Məzmun İdarəetmə Sistemi</a> olub, <a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU GPL</a> lisenziyası altında yayımlanır.';
+$_lang["about_msg"] = 'Evolution CMS, <a href="https://evo.im/" target="_blank">PHP Tətbiq Çərçivəsi və Məzmun İdarəetmə Sistemi</a> olub, <a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU GPL</a> lisenziyası altında yayımlanır.';
 $_lang["about_title"] = 'Evolution CMS haqqında';
 
 // günlər
@@ -280,7 +280,7 @@ $_lang["role_create_doc"] = 'Yeni resurs yarat';
 $_lang["role_create_plugin"] = 'Yeni Plaqin yarat';
 $_lang["role_create_snippet"] = 'Yeni Snippet yarat';
 $_lang["role_create_template"] = 'Yeni şablon yarat';
-$_lang["role_credits"] = 'Kreditlər səhifəsinə bax';
+$_lang["role_widget_online_info"] = 'Onlayn istifadəçilər vidcetinə bax';
 $_lang["role_delete_chunk"] = 'Chunk sil';
 $_lang["role_delete_doc"] = 'Resurs sil';
 $_lang["role_delete_eventlog"] = 'Hadisə jurnalını sil';
@@ -312,7 +312,7 @@ $_lang["role_frames"] = 'Menecer çərçivələrini tələb et';
 $_lang["role_help"] = 'Kömək səhifələrinə baxış';
 $_lang["role_home"] = 'Menecerin giriş səhifəsinə keçid';
 $_lang["role_import_static"] = 'HTML idxalı';
-$_lang["role_logout"] = 'Menecerdən çıxış';
+$_lang["role_widget_recent_info"] = 'Son redaktə olunan/yaradılan resurslar vidcetinə bax';
 $_lang["role_list_module"] = 'Modulların siyahısı';
 $_lang["role_manage_metatags"] = 'Saytın META teqlərini və açar sözlərini idarə et';
 $_lang["role_management_msg"] = 'Redaktə etmək istədiyiniz rolu seçin.';
