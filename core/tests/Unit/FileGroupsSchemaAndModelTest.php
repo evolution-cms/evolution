@@ -4,10 +4,15 @@ use EvolutionCMS\Models\FileGroup;
 
 test('file groups migration owns the file_groups table definition', function () {
     $dedicatedMigration = (string) file_get_contents(dirname(__DIR__, 2) . '/database/migrations/2026_03_29_000000_create_file_groups_table.php');
+    $stubMigration = (string) file_get_contents(dirname(__DIR__, 3) . '/install/stubs/migrations/2026_03_29_000000_create_file_groups_table.php');
     $initialSchemaMigration = (string) file_get_contents(dirname(__DIR__, 2) . '/database/migrations/2025_12_25_000000_initial_schema.php');
 
     expect($dedicatedMigration)->toContain("Schema::create('file_groups'")
+        ->and($dedicatedMigration)->toContain("Schema::hasTable('file_groups')")
+        ->and($dedicatedMigration)->toContain("Schema::dropIfExists('file_groups')")
         ->and($dedicatedMigration)->toContain("\$table->unique(['document_group', 'file']")
+        ->and($stubMigration)->toContain("Schema::hasTable('file_groups')")
+        ->and($stubMigration)->toContain("Schema::dropIfExists('file_groups')")
         ->and($initialSchemaMigration)->not->toContain("createTableIfMissing('file_groups'");
 });
 

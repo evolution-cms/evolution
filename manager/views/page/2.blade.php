@@ -130,7 +130,9 @@
 
     $ph['show_multiple_sessions'] = 'none';
 
-    $ph['RecentInfo'] = evo()->getChunk('manager#welcome\RecentInfo');
+    if (evo()->hasPermission('widget_recent_info')) {
+        $ph['RecentInfo'] = evo()->getChunk('manager#welcome\RecentInfo');
+    }
 
     $tpl = '
     <table class="table data">
@@ -158,26 +160,33 @@
         'lastlogin' => evo()->toDateFormat(evo()->timestamp($_SESSION['mgrLastlogin'])),
         'logincount' => $_SESSION['mgrLogincount'] + 1,
     ]);
-
-    $activeUsers = \EvolutionCMS\Models\ActiveUserSession::query()
-        ->join('active_users', 'active_users.sid', '=', 'active_user_sessions.sid')
-        ->where('active_users.action', '<>', 8)
-        ->orderBy('username', 'ASC')
-        ->orderBy('active_users.sid', 'ASC');
-    if ($activeUsers->count() < 1) {
-        $html = '<p>[%no_active_users_found%]</p>';
-    } else {
-        $now = evo()->now()->unix();
-        if (extension_loaded('intl')) {
-            // https://www.php.net/manual/en/class.intldateformatter.php
-            // https://www.php.net/manual/en/datetime.createfromformat.php
-            $formatter = new IntlDateFormatter(evolutionCMS()->getConfig('manager_language'), IntlDateFormatter::MEDIUM, IntlDateFormatter::MEDIUM, null, null, 'HH:mm:ss');
-            $ph['now'] = $formatter->format($now);
+    if (evo()->hasPermission('widget_online_info')) {
+        $activeUsers = \EvolutionCMS\Models\ActiveUserSession::query()
+            ->join('active_users', 'active_users.sid', '=', 'active_user_sessions.sid')
+            ->where('active_users.action', '<>', 8)
+            ->orderBy('username', 'ASC')
+            ->orderBy('active_users.sid', 'ASC');
+        if ($activeUsers->count() < 1) {
+            $html = '<p>[%no_active_users_found%]</p>';
         } else {
-            $ph['now'] = date('H:i:s', $now);
-        }
-        $timetocheck = $now - 60 * 20; //+$server_offset_time;
-        $html = '
+            $now = evo()->now()->unix();
+            if (extension_loaded('intl')) {
+                // https://www.php.net/manual/en/class.intldateformatter.php
+                // https://www.php.net/manual/en/datetime.createfromformat.php
+                $formatter = new IntlDateFormatter(
+                    evolutionCMS()->getConfig('manager_language'),
+                    IntlDateFormatter::MEDIUM,
+                    IntlDateFormatter::MEDIUM,
+                    null,
+                    null,
+                    'HH:mm:ss'
+                );
+                $ph['now'] = $formatter->format($now);
+            } else {
+                $ph['now'] = date('H:i:s', $now);
+            }
+            $timetocheck = $now - 60 * 20; //+$server_offset_time;
+            $html = '
     	<div class="card-body">
     		[%onlineusers_message%]
     		<b>[+now+]</b>):
@@ -195,43 +204,73 @@
     	</thead>
     	<tbody>';
 
-        $userList = [];
-        $userCount = [];
-        // Create userlist with session-count first before output
-        foreach ($activeUsers->get()->toArray() as $activeUser) {
-            $userCount[$activeUser['internalKey']] = isset($userCount[$activeUser['internalKey']]) ? $userCount[$activeUser['internalKey']] + 1 : 1;
+            $userList = [];
+            $userCount = [];
+            // Create userlist with session-count first before output
+            foreach ($activeUsers->get()->toArray() as $activeUser) {
+                $userCount[$activeUser['internalKey']] = isset($userCount[$activeUser['internalKey']])
+                    ? $userCount[$activeUser['internalKey']] + 1 :
+                    1;
 
-            $idle = ($activeUser['lasthit'] + evo()->getConfig('server_offset_time')) < $timetocheck ? ' class="userIdle"' : '';
-            $webicon = $activeUser['internalKey'] < 0 ? '<i class="[&icon_globe&]"></i>' : '';
-            $ip = $activeUser['ip'] === '::1' ? '127.0.0.1' : $activeUser['ip'];
-            $currentaction = EvolutionCMS\Legacy\LogHandler::getAction($activeUser['action'], $activeUser['id']);
-            if ($activeUser['action'] == 112 && $activeUser['id'] == 0) {
-                $managerLog = EvolutionCMS\Models\ManagerLog::where('internalKey', $activeUser['internalKey'])->where('action', $activeUser['action'])->orderByDesc('timestamp')->first();
-                if ($managerLog) {
-                    $currentaction = $managerLog->itemname . ' - ' . str_replace($managerLog->itemname, '', $managerLog->message);
+                $idle = ($activeUser['lasthit'] + evo()->getConfig('server_offset_time')) < $timetocheck
+                    ? ' class="userIdle"'
+                    : '';
+                $webicon = $activeUser['internalKey'] < 0 ? '<i class="[&icon_globe&]"></i>' : '';
+                $ip = $activeUser['ip'] === '::1' ? '127.0.0.1' : $activeUser['ip'];
+                $currentaction = EvolutionCMS\Legacy\LogHandler::getAction($activeUser['action'], $activeUser['id']);
+                if ($activeUser['action'] == 112 && $activeUser['id'] == 0) {
+                    $managerLog = EvolutionCMS\Models\ManagerLog::where(
+                        'internalKey',
+                        $activeUser['internalKey']
+                    )->where('action', $activeUser['action'])->orderByDesc('timestamp')->first();
+                    if ($managerLog) {
+                        $currentaction = $managerLog->itemname . ' - ' . str_replace(
+                                $managerLog->itemname,
+                                '',
+                                $managerLog->message
+                            );
+                    }
                 }
+                if (extension_loaded('intl')) {
+                    $formatter = new IntlDateFormatter(
+                        evo()->getConfig('manager_language'),
+                        IntlDateFormatter::MEDIUM,
+                        IntlDateFormatter::MEDIUM,
+                        null,
+                        null,
+                        'HH:mm:ss'
+                    );
+                    $lasthit = $formatter->format(evo()->timestamp($activeUser['lasthit']));
+                } else {
+                    $lasthit = date('H:i:s', evo()->timestamp($activeUser['lasthit']));
+                }
+                $userList[] = [
+                    $idle,
+                    '',
+                    $activeUser['username'],
+                    $webicon,
+                    abs($activeUser['internalKey']),
+                    $ip,
+                    $lasthit,
+                    $currentaction
+                ];
             }
-            if (extension_loaded('intl')) {
-                $formatter = new IntlDateFormatter(evo()->getConfig('manager_language'), IntlDateFormatter::MEDIUM, IntlDateFormatter::MEDIUM, null, null, 'HH:mm:ss');
-                $lasthit = $formatter->format(evo()->timestamp($activeUser['lasthit']));
-            } else {
-                $lasthit = date('H:i:s', evo()->timestamp($activeUser['lasthit']));
+            foreach ($userList as $params) {
+                $params[1] = $userCount[$params[4]] > 1 ? ' class="userMultipleSessions"' : '';
+                $html .= "\n\t\t" . vsprintf(
+                        '<tr%s><td><strong%s>%s</strong></td><td>%s%s</td><td>%s</td><td>%s</td><td>%s</td></tr>',
+                        $params
+                    );
             }
-            $userList[] = [$idle, '', $activeUser['username'], $webicon, abs($activeUser['internalKey']), $ip, $lasthit, $currentaction];
-        }
-        foreach ($userList as $params) {
-            $params[1] = $userCount[$params[4]] > 1 ? ' class="userMultipleSessions"' : '';
-            $html .= "\n\t\t" . vsprintf('<tr%s><td><strong%s>%s</strong></td><td>%s%s</td><td>%s</td><td>%s</td><td>%s</td></tr>', $params);
-        }
 
-        $html .= '
+            $html .= '
     	</tbody>
     	</table>
     </div>
     ';
+        }
+        $ph['OnlineInfo'] = $html;
     }
-    $ph['OnlineInfo'] = $html;
-
     // Include rss feeds for important forum topics
     // Here you can set the urls to retrieve the RSS from. Add a $urls line following the numbering progress in the square brackets.
 
@@ -401,24 +440,28 @@
     		',
         'hide' => '0',
     ];
-    $widgets['onlineinfo'] = [
-        'menuindex' => '20',
-        'id' => 'onlineinfo',
-        'cols' => 'col-lg-6',
-        'icon' => 'tabler-users',
-        'title' => '[%onlineusers_title%]',
-        'body' => '<div class="userstable">[+OnlineInfo+]</div>',
-        'hide' => '0',
-    ];
-    $widgets['recentinfo'] = [
-        'menuindex' => '30',
-        'id' => 'recent_widget',
-        'cols' => 'col-sm-12',
-        'icon' => 'tabler-pencil',
-        'title' => '[%activity_title%]',
-        'body' => '<div class="widget-stage">[+RecentInfo+]</div>',
-        'hide' => '0',
-    ];
+    if (evo()->hasPermission('widget_online_info')) {
+        $widgets['onlineinfo'] = [
+            'menuindex' => '20',
+            'id' => 'onlineinfo',
+            'cols' => 'col-lg-6',
+            'icon' => 'tabler-users',
+            'title' => '[%onlineusers_title%]',
+            'body' => '<div class="userstable">[+OnlineInfo+]</div>',
+            'hide' => '0',
+        ];
+    }
+    if (evo()->hasPermission('widget_recent_info')) {
+        $widgets['recentinfo'] = [
+            'menuindex' => '30',
+            'id' => 'recent_widget',
+            'cols' => 'col-sm-12',
+            'icon' => 'tabler-pencil',
+            'title' => '[%activity_title%]',
+            'body' => '<div class="widget-stage">[+RecentInfo+]</div>',
+            'hide' => '0',
+        ];
+    }
     if (evo()->getConfig('rss_url_news')) {
         $widgets['news'] = [
             'menuindex' => '40',

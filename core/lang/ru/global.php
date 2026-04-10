@@ -16,7 +16,7 @@
 $modx_lang_attribute = 'ru'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
 
-$_lang["about_msg"] = 'Evolution CMS - это <a href="http://rtfm.modx.com/evolution/1.0/getting-started/what-is-modx" target="_blank">PHP Application Framework и Content Management System</a>, распространяемая по лицензии <a href="../assets/docs/license.txt">GNU GPL</a>.';
+$_lang["about_msg"] = 'Evolution CMS - это <a href="https://evo.im/" target="_blank">PHP Application Framework и Content Management System</a>, распространяемая по лицензии <a href="../assets/docs/license.txt">GNU GPL</a>.';
 $_lang["about_title"] = 'Об Evolution CMS';
 $_lang["access_permission_denied"] = 'У вас недостаточно прав для просмотра данного ресурса.';
 $_lang["access_permission_parent_denied"] = 'У вас недостаточно прав для создания ресурса в данном разделе';
@@ -788,7 +788,7 @@ $_lang["role_create_doc"] = 'Создание новых ресурсов';
 $_lang["role_create_plugin"] = 'Создание новых плагинов';
 $_lang["role_create_snippet"] = 'Создание новых сниппетов';
 $_lang["role_create_template"] = 'Создание новых шаблонов';
-$_lang["role_credits"] = 'Просмотр списка разработчиков';
+$_lang["role_widget_online_info"] = 'Просмотр виджета «Пользователи онлайн»';
 $_lang["role_delete_chunk"] = 'Удаление чанков';
 $_lang["role_delete_doc"] = 'Удаление ресурсов';
 $_lang["role_delete_eventlog"] = 'Удаление протокола событий';
@@ -820,7 +820,7 @@ $_lang["role_frames"] = 'Запрос менеджерских фреймов';
 $_lang["role_help"] = 'Просмотр страниц помощи';
 $_lang["role_home"] = 'Запрос входной страницы менеджера';
 $_lang["role_import_static"] = 'Импорт HTML';
-$_lang["role_logout"] = 'Выход из системы управления';
+$_lang["role_widget_recent_info"] = 'Просмотр виджета «Недавно созданные/отредактированные ресурсы»';
 $_lang["role_list_module"] = 'Просмотр списка модулей';
 $_lang["role_manage_metatags"] = 'META-теги и ключевые слова';
 $_lang["role_management_msg"] = '<b>Роль</b> - это набор прав совершать определённые действия. Роли назначаются пользователям. Типичные роли:</p> <ul> <li><b>Администраторы сайта</b> - управляют пользователями и общими настройками;</li> <li><b>Разработчики</b> - пишут код и, соответственно, имеют набор прав на создание / редактирование / удаление <i>модулей</i>, <i>плагинов</i>, <i>сниппетов</i>, <i>чанков</i>, <i>параметров (TV)</i>;</li> <li><b>Дизайнеры</b> - отвечают за внешний вид и вёрстку страниц сайта, имеют набор прав на создание / редактирование / удаление <i>шаблонов</i> и <i>чанков</i>;</li> <li><b>Редакторы</b> - отвечают за содержание страниц сайта, создают, редактируют и удаляют ресурсы;</li> <li><b>Корректоры</b> - читают и корректируют ресурсы, но не имеют прав на их создание и удаление;</li> <li><b>Главный редактор</b> - принимает решение о публикации новых ресурсов, управляет расписанием публикации.</li> </ul><br /><p>Выберите роль для редактирования или создайте новую роль.';
