@@ -6,6 +6,10 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateFileGroupsTable extends Migration {
     public function up() {
+        if (Schema::hasTable('file_groups')) {
+            return;
+        }
+
         Schema::create('file_groups', function(Blueprint $table) {
             $indexPrefix = \DB::getTablePrefix() . $table->getTable();
             $table->integer('id', true);
@@ -15,6 +19,6 @@ class CreateFileGroupsTable extends Migration {
         });
     }
     public function down() {
-        Schema::drop('file_groups');
+        Schema::dropIfExists('file_groups');
     }
 }
