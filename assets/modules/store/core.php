@@ -176,31 +176,19 @@ case 'console_readme':
 	exit();
 
 default:
-	//prepare list of snippets
-	$types = ['snippets','plugins','modules'];
-    $snippets = \EvolutionCMS\Models\SiteSnippet::query()->get();
-    foreach ($snippets as $snippet){
-        $PACK[$value][$snippet->name]= $Store->get_version($snippet->description) ;
-    }
-    $PACK['snippets_writable']  = is_writable(EVO_BASE_PATH.'assets/snippets');
-
-    $plugins = \EvolutionCMS\Models\SitePlugin::query()->get();
-    foreach ($plugins as $plugin){
-        $PACK[$value][$plugin->name]= $Store->get_version($plugin->description) ;
-    }
-    $PACK['plugins_writable']  = is_writable(EVO_BASE_PATH.'assets/plugins');
-
-    $modules = \EvolutionCMS\Models\SiteModule::query()->get();
-    foreach ($modules as $module){
-        $PACK[$value][$module->name]= $Store->get_version($module->description) ;
-    }
-    $PACK['modules_writable']  = is_writable(EVO_BASE_PATH.'assets/modules');
+	$legacyInstalled = $Store->getLegacyInstalledState();
+	$installedState = [
+		'legacy_by_type' => $legacyInstalled['by_type'],
+		'legacy_items' => $legacyInstalled['items'],
+		'console_by_composer' => $Store->getConsoleInstalledState(),
+	];
 
 
 	$Store->lang['user_email'] = $_SESSION['mgrEmail'];
 	$Store->lang['hash'] = isset($_SESSION['STORE_USER']) ? stripslashes( $_SESSION['STORE_USER'] ) : '';
 	$Store->lang['lang'] = $Store->language;
-	$Store->lang['_type'] = json_encode($PACK);
+	$Store->lang['_type'] = json_encode($legacyInstalled['by_type'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+	$Store->lang['installed_state'] = json_encode($installedState, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 	$Store->lang['v'] = $version;
 	$Store->lang['project_path'] = rtrim(EVO_BASE_PATH, '/\\');
 	$Store->lang['core_path'] = defined('EVO_CORE_PATH')
@@ -347,6 +335,7 @@ class Store{
 		}
 
 		$items = [];
+		$consoleInstalled = $this->getConsoleInstalledState();
 		foreach ($data['packages'] as $package) {
 			if (!is_array($package)) {
 				continue;
@@ -365,9 +354,19 @@ class Store{
 			$displayVersion = $installVersion !== '' ? $installVersion : 'main';
 			$fullName = isset($package['full_name']) ? trim((string) $package['full_name']) : '';
 			$author = '';
+			$composerKey = strtolower($composerName);
 			if ($fullName !== '' && strpos($fullName, '/') !== false) {
 				$author = explode('/', $fullName)[0];
 			}
+			$installedVersion = '';
+			$rawInstalledVersion = '';
+			$isInstalled = false;
+			if (isset($consoleInstalled[$composerKey])) {
+				$isInstalled = !empty($consoleInstalled[$composerKey]['is_installed']);
+				$installedVersion = isset($consoleInstalled[$composerKey]['version']) ? (string) $consoleInstalled[$composerKey]['version'] : '';
+				$rawInstalledVersion = isset($consoleInstalled[$composerKey]['raw_version']) ? (string) $consoleInstalled[$composerKey]['raw_version'] : '';
+			}
+			$statusClass = $this->resolveConsoleStatusClass($installedVersion, $displayVersion, $defaultBranch);
 
 			$versionOptions = [];
 			$stableTags = [];
@@ -416,13 +415,17 @@ class Store{
 				'title' => $name,
 				'name' => $name,
 				'name_in_modx' => $name,
+				'composer_name' => $composerName,
 				'description' => isset($package['description']) ? trim((string) $package['description']) : '',
 				'type' => 'package',
 				'install_method' => 'console-extra',
 				'install_target' => $name,
 				'install_command' => '',
 				'version' => $displayVersion,
-				'current_version' => '',
+				'current_version' => $installedVersion,
+				'raw_current_version' => $rawInstalledVersion,
+				'is_installed' => $isInstalled ? 1 : 0,
+				'cls' => $statusClass,
 				'downloads' => '',
 				'author' => $author,
 				'date' => '',
@@ -516,6 +519,159 @@ class Store{
 		return $repo;
 	}
 
+	public function getLegacyInstalledState() {
+		$byType = [
+			'snippets' => [],
+			'plugins' => [],
+			'modules' => [],
+		];
+		$items = [];
+
+		$snippets = \EvolutionCMS\Models\SiteSnippet::query()->get();
+		foreach ($snippets as $snippet) {
+			$version = $this->get_version($snippet->description);
+			$byType['snippets'][$snippet->name] = $version;
+			$items[] = [
+				'type' => 'snippets',
+				'name' => $snippet->name,
+				'version' => $version,
+				'is_installed' => 1,
+			];
+		}
+		$byType['snippets_writable'] = is_writable(EVO_BASE_PATH . 'assets/snippets');
+
+		$plugins = \EvolutionCMS\Models\SitePlugin::query()->get();
+		foreach ($plugins as $plugin) {
+			$version = $this->get_version($plugin->description);
+			$byType['plugins'][$plugin->name] = $version;
+			$items[] = [
+				'type' => 'plugins',
+				'name' => $plugin->name,
+				'version' => $version,
+				'is_installed' => 1,
+			];
+		}
+		$byType['plugins_writable'] = is_writable(EVO_BASE_PATH . 'assets/plugins');
+
+		$modules = \EvolutionCMS\Models\SiteModule::query()->get();
+		foreach ($modules as $module) {
+			$version = $this->get_version($module->description);
+			$byType['modules'][$module->name] = $version;
+			$items[] = [
+				'type' => 'modules',
+				'name' => $module->name,
+				'version' => $version,
+				'is_installed' => 1,
+			];
+		}
+		$byType['modules_writable'] = is_writable(EVO_BASE_PATH . 'assets/modules');
+
+		return [
+			'by_type' => $byType,
+			'items' => $items,
+		];
+	}
+
+	public function getConsoleInstalledState() {
+		static $state = null;
+		if ($state !== null) {
+			return $state;
+		}
+
+		$state = [];
+		if (!class_exists('\\Composer\\InstalledVersions')) {
+			return $state;
+		}
+
+		try {
+			foreach (\Composer\InstalledVersions::getInstalledPackages() as $packageName) {
+				if (!is_string($packageName) || $packageName === '') {
+					continue;
+				}
+
+				$key = strtolower($packageName);
+				$prettyVersion = '';
+				try {
+					$prettyVersion = (string) \Composer\InstalledVersions::getPrettyVersion($packageName);
+				} catch (\Throwable $exception) {
+					$prettyVersion = '';
+				}
+
+				$state[$key] = [
+					'is_installed' => true,
+					'raw_version' => $prettyVersion,
+					'version' => $this->normalizeInstalledComposerVersion($prettyVersion),
+				];
+			}
+		} catch (\Throwable $exception) {
+			return [];
+		}
+
+		return $state;
+	}
+
+	private function normalizeInstalledComposerVersion($version) {
+		$version = trim((string) $version);
+		if ($version === '') {
+			return '';
+		}
+
+		if (strpos($version, 'dev-') === 0) {
+			return substr($version, 4);
+		}
+
+		return $version;
+	}
+
+	private function resolveConsoleStatusClass($installedVersion, $catalogVersion, $defaultBranch = '') {
+		$installedVersion = trim((string) $installedVersion);
+		$catalogVersion = trim((string) $catalogVersion);
+		$defaultBranch = trim((string) $defaultBranch);
+
+		if ($installedVersion === '') {
+			return 'pack_install';
+		}
+
+		$normalizedInstalled = $this->normalizeComparableVersion($installedVersion, $defaultBranch);
+		$normalizedCatalog = $this->normalizeComparableVersion($catalogVersion, $defaultBranch);
+
+		if ($normalizedInstalled !== '' && $normalizedCatalog !== '' && $normalizedInstalled === $normalizedCatalog) {
+			return 'pack_reinstall';
+		}
+
+		if ($this->isComparableSemver($normalizedInstalled) && $this->isComparableSemver($normalizedCatalog)) {
+			return version_compare($normalizedInstalled, $normalizedCatalog, '<') ? 'pack_update' : 'pack_reinstall';
+		}
+
+		return 'pack_reinstall';
+	}
+
+	private function normalizeComparableVersion($version, $defaultBranch = '') {
+		$version = trim((string) $version);
+		$defaultBranch = trim((string) $defaultBranch);
+		if ($version === '') {
+			return '';
+		}
+
+		if (strpos($version, 'dev-') === 0) {
+			$version = substr($version, 4);
+		}
+
+		if ($defaultBranch !== '' && $version === $defaultBranch) {
+			return $defaultBranch;
+		}
+
+		if (preg_match('/^v(\d+\.\d+\.\d+(?:[-+][A-Za-z0-9.\-]+)?)$/', $version, $matches)) {
+			return $matches[1];
+		}
+
+		return $version;
+	}
+
+	private function isComparableSemver($version) {
+		return (bool) preg_match('/^\d+\.\d+\.\d+(?:[-+][A-Za-z0-9.\-]+)?$/', (string) $version);
+	}
+
 	private function sanitizeRefName($ref) {
 		$ref = trim((string) $ref);
 		if ($ref === '') {
@@ -541,6 +697,28 @@ class Store{
 	}
 
 	private function renderMarkdownHtml($markdown, $repoUrl = '', $branch = 'main') {
+		$markdown = str_replace(["\r\n", "\r"], "\n", (string) $markdown);
+		$markdown = preg_replace("/\n{3,}/", "\n\n", $markdown);
+
+		if (class_exists('\\Illuminate\\Support\\Str')) {
+			try {
+				$html = (string) \Illuminate\Support\Str::markdown($markdown, [
+					'html_input' => 'allow',
+					'allow_unsafe_links' => false,
+					'max_nesting_level' => 20,
+				]);
+
+				if (trim($html) !== '') {
+					return $this->postProcessRenderedMarkdownHtml($html, $repoUrl, $branch);
+				}
+			} catch (\Throwable $exception) {
+			}
+		}
+
+		return $this->renderMarkdownHtmlFallback($markdown, $repoUrl, $branch);
+	}
+
+	private function renderMarkdownHtmlFallback($markdown, $repoUrl = '', $branch = 'main') {
 		$markdown = str_replace(["\r\n", "\r"], "\n", (string) $markdown);
 		$markdown = preg_replace("/\n{3,}/", "\n\n", $markdown);
 
@@ -682,6 +860,52 @@ class Store{
 		$flushIndentedCode();
 
 		return implode("\n", $html);
+	}
+
+	private function postProcessRenderedMarkdownHtml($html, $repoUrl = '', $branch = 'main') {
+		$html = trim((string) $html);
+		if ($html === '' || !class_exists('\\DOMDocument')) {
+			return $html;
+		}
+
+		$previous = libxml_use_internal_errors(true);
+		$document = new \DOMDocument('1.0', 'UTF-8');
+		$loaded = $document->loadHTML('<?xml encoding="utf-8" ?>' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+		if (!$loaded) {
+			libxml_clear_errors();
+			libxml_use_internal_errors($previous);
+			return $html;
+		}
+
+		$images = $document->getElementsByTagName('img');
+		for ($index = $images->length - 1; $index >= 0; $index--) {
+			$image = $images->item($index);
+			if ($image instanceof \DOMElement && $image->hasAttribute('src')) {
+				$image->setAttribute('src', $this->resolveMarkdownUrl($image->getAttribute('src'), $repoUrl, $branch, true));
+			}
+		}
+
+		$links = $document->getElementsByTagName('a');
+		for ($index = $links->length - 1; $index >= 0; $index--) {
+			$link = $links->item($index);
+			if (!($link instanceof \DOMElement) || !$link->hasAttribute('href')) {
+				continue;
+			}
+
+			$resolvedHref = $this->resolveMarkdownUrl($link->getAttribute('href'), $repoUrl, $branch, false);
+			$link->setAttribute('href', $resolvedHref);
+
+			if (!preg_match('~^#~', $resolvedHref)) {
+				$link->setAttribute('target', '_blank');
+				$link->setAttribute('rel', 'noopener');
+			}
+		}
+
+		$result = $document->saveHTML();
+		libxml_clear_errors();
+		libxml_use_internal_errors($previous);
+
+		return preg_replace('/^<\\?xml.+?\\?>/i', '', (string) $result);
 	}
 
 	private function renderMarkdownInline($text, $repoUrl = '', $branch = 'main') {
