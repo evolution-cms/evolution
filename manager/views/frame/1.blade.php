@@ -125,6 +125,10 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                 textdir: '{{ManagerTheme::getTextDir()}}',
                 global_tabs: {{(int)evo()->getConfig('global_tabs')}}
             },
+            tree: {
+                itemToChange: '',
+                selectedObjectName: null
+            },
             lang: {!! js_json([
                 'already_deleted' => ManagerTheme::getLexicon('already_deleted'),
                 'cm_unknown_error' => ManagerTheme::getLexicon('cm_unknown_error'),
