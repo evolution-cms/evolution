@@ -225,6 +225,9 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
         $opened = array_filter(array_map('intval', explode('|', isset($_SESSION['openedArray']) && is_scalar($_SESSION['openedArray']) ? $_SESSION['openedArray'] : '')));
         echo (empty($opened) ? '' : 'evo.openedArray[' . implode("] = 1;\n		evo.openedArray[", $opened) . '] = 1;') . "\n";
         ?>
+        // Legacy aliases for manager plugins that still read parent.modx.tree / parent.tree.
+        window.modx = evo;
+        window.tree = evo.tree;
     </script>
     <script src="media/script/tree-drop-guard-helper.js?v={{evo()->getVersionData('version')}}"></script>
     <script src="media/script/main-target-link-helper.js?v={{evo()->getVersionData('version')}}"></script>
