@@ -111,7 +111,10 @@ if (!defined('IN_MANAGER_MODE')) {
  * When enabled, this file will not call `$evo->processRoutes()`.
  */
 if (!defined('EVO_API_MODE')) {
-    define('EVO_API_MODE', false);
+    define('EVO_API_MODE', defined('MODX_API_MODE') ? (bool)MODX_API_MODE : false);
+}
+if (!defined('MODX_API_MODE')) {
+    define('MODX_API_MODE', EVO_API_MODE);
 }
 if (!defined('EVO_CORE_PATH')) {
     define('EVO_CORE_PATH', $config['core'] . '/');
