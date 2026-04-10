@@ -17,7 +17,7 @@ function link(){
 
 function store_search(val){
 	$('.item_list .catalog_item').each(function(){
-		var search_name = $(this).find('h3').html();
+		var search_name = $(this).find('h3').text() || '';
 		search_name = search_name.toLowerCase();
 		if ( search_name.indexOf( val.toLowerCase() ) < 0 ) {
 			$(this).hide();
@@ -136,6 +136,10 @@ store = {
 			store.install(this);
 			return false;
 		});
+		$('.item-delete').live('click', function(){
+			store.previewLegacyDelete(this);
+			return false;
+		});
 		$('.item-more').live('click', function(){
 			store.showItemMore(this);
 			return false;
@@ -248,7 +252,13 @@ store = {
 
 		if ($(elm).attr('data-method') == "package"){
 			var install_url = link() + "&action=install&cid="+$(elm).attr('data-id')+"&name="+$(elm).attr('data-name')+"&dependencies="+$(elm).attr('data-dependencies')+"&file="+file;
-			$.fancybox.open({href : install_url, type: 'iframe'});
+			$.fancybox.open({
+				href : install_url,
+				type: 'iframe',
+				afterClose: function(){
+					store.refreshInstalledState();
+				}
+			});
 		} else {
 			$('.item_list .catalog_item').addClass('blocked');
 			$(elm).closest('.catalog_item').find('.loader').show();
@@ -262,14 +272,14 @@ store = {
 					el.closest('.catalog_item').find('.loader').hide();
                     if (data.result == 'error') {
                         $.fancybox.open(data.data);
-                    } else {
+					} else {
                         el.css('display', 'block').animate({opacity: 1}, 500, function () {
                             el.delay(2000).animate({opacity: 0}, 3000, function () {
                                 el.css('display', 'none')
                             });
                         });
+						store.refreshInstalledState();
                     }
-					el.closest('.catalog_item').addClass('is-installed');
 
 					$('.item_list .catalog_item').removeClass('blocked');
 				}
@@ -278,6 +288,458 @@ store = {
 
 		}
 
+	},
+	previewLegacyDelete: function(elm){
+		var $button = $(elm);
+		var $card = $button.closest('.catalog_item');
+		var installedVersion = $.trim($button.attr('data-current-version') || '');
+		var fileValue = store.resolveLegacyInstalledFileValue($card, installedVersion);
+
+		store.openPopup(
+			$('[name="delete_preview_title"]').val() || 'Delete package',
+			'<div class="store-popup-shell ' + store.getPopupThemeClass() + '"><div class="store-popup-empty">' + store.escapeHtml($('[name="delete_preview_loading"]').val() || 'Preparing delete preview...') + '</div></div>',
+			'wide'
+		);
+
+		$.ajax({
+			url: link() + '&action=legacy_delete_preview',
+			cache: false,
+			dataType: 'json',
+			type: 'post',
+			data: {
+				cid: $button.attr('data-id') || '',
+				file: fileValue,
+				name: $button.attr('data-title') || '',
+				version: installedVersion
+			},
+			success: function(response){
+				if (!response || !response.ok) {
+					store.openPopup(
+						$('[name="delete_preview_title"]').val() || 'Delete package',
+						'<div class="store-popup-shell ' + store.getPopupThemeClass() + '"><div class="store-popup-empty">' + store.escapeHtml((response && response.message) || ($('[name="delete_preview_error"]').val() || 'Unable to delete this package.')) + '</div></div>',
+						'wide'
+					);
+					return;
+				}
+
+				store.openPopup(
+					($('[name="delete_preview_title"]').val() || 'Delete package') + ': ' + ($button.attr('data-title') || ''),
+					store.buildLegacyDeletePopupContent(response),
+					'wide',
+					function(){
+						store.bindLegacyDeletePopup();
+					}
+				);
+			},
+			error: function(){
+				store.openPopup(
+					$('[name="delete_preview_title"]').val() || 'Delete package',
+					'<div class="store-popup-shell ' + store.getPopupThemeClass() + '"><div class="store-popup-empty">' + store.escapeHtml($('[name="delete_preview_error"]').val() || 'Unable to delete this package.') + '</div></div>',
+					'wide'
+				);
+			}
+		});
+	},
+	resolveLegacyInstalledFileValue: function($card, installedVersion){
+		var $select = $card.find('[name="link"]').first();
+		var normalizedInstalled = $.trim(String(installedVersion || ''));
+		var value = '';
+
+		if ($select.length && normalizedInstalled) {
+			$select.find('option').each(function(){
+				var $option = $(this);
+				var optionText = $.trim($option.text() || '');
+				var optionValue = $.trim($option.val() || '');
+				if (optionText === normalizedInstalled || optionValue === normalizedInstalled) {
+					value = optionValue;
+					return false;
+				}
+			});
+		}
+
+		if (!value && $select.length) {
+			value = $.trim($select.val() || '');
+		}
+
+		return value;
+	},
+	buildLegacyDeletePopupContent: function(response){
+		var html = '<div class="store-popup-shell store-popup-shell-delete ' + store.getPopupThemeClass() + '" data-delete-token="' + store.escapeHtml(response.token || '') + '">';
+		html += '<p class="store-delete-intro">' + store.escapeHtml($('[name="delete_preview_intro"]').val() || 'Select what should be removed from files and manager records for this legacy package.') + '</p>';
+
+		if ((!response.files || !response.files.length) && !store.hasLegacyDeleteDbEntries(response.db || {})) {
+			html += '<div class="store-popup-empty">' + store.escapeHtml($('[name="delete_preview_empty"]').val() || 'Nothing from this package was found for deletion.') + '</div>';
+		} else {
+			html += store.buildLegacyDeleteDbSection(response.db || {});
+			html += store.buildLegacyDeleteFileSection(response.files || []);
+			html += '<div class="store-delete-actions">';
+			html += '<button type="button" class="btn btn-default store-delete-cancel">' + store.escapeHtml($('[name="delete_preview_cancel"]').val() || 'Cancel') + '</button>';
+			html += '<button type="button" class="btn btn-danger store-delete-confirm">' + store.escapeHtml($('[name="delete_preview_confirm"]').val() || 'Delete selected') + '</button>';
+			html += '</div>';
+		}
+
+		html += '</div>';
+		return html;
+	},
+	buildLegacyDeleteFileSection: function(files){
+		if (!files || !files.length) {
+			return '';
+		}
+
+		files = $.grep(files, function(entry){
+			return !store.isLegacyDeleteIgnoredPath(entry && entry.label ? entry.label : '');
+		});
+
+		if (!files.length) {
+			return '';
+		}
+
+		var groups = {};
+		$.each(files, function(index, entry){
+			var group = entry.group || 'files';
+			if (!groups[group]) {
+				groups[group] = [];
+			}
+			groups[group].push(entry);
+		});
+
+		var orderedGroups = [];
+		var preferredOrder = ['snippets', 'modules', 'plugins', 'tvs', 'files'];
+
+		$.each(preferredOrder, function(index, group){
+			if (groups[group] && groups[group].length) {
+				orderedGroups.push({
+					name: group,
+					entries: groups[group]
+				});
+				delete groups[group];
+			}
+		});
+
+		$.each(Object.keys(groups).sort(function(a, b){
+			return a.localeCompare(b);
+		}), function(index, group){
+			orderedGroups.push({
+				name: group,
+				entries: groups[group]
+			});
+		});
+
+		var html = '<div class="store-delete-section"><h3>' + store.escapeHtml($('[name="delete_preview_files_label"]').val() || 'Files') + '</h3>';
+		$.each(orderedGroups, function(index, groupData){
+			var group = groupData.name;
+			var entries = groupData.entries || [];
+			html += '<div class="store-delete-group">';
+			html += '<h4>' + store.escapeHtml(store.getLegacyDeleteGroupLabel(group)) + '</h4>';
+			if (store.isLegacyDeleteFlatGroup(group)) {
+				html += '<div class="store-delete-checklist">';
+				$.each(entries, function(index, entry){
+					html += store.buildLegacyDeleteCheckbox(entry.key, entry.label, '', []);
+				});
+				html += '</div>';
+			} else {
+				html += store.buildLegacyDeleteFileTree(entries);
+			}
+			html += '</div>';
+		});
+		html += '</div>';
+		return html;
+	},
+	isLegacyDeleteFlatGroup: function(group){
+		return $.inArray(group, ['plugins', 'snippets', 'modules', 'tvs']) !== -1;
+	},
+	isLegacyDeleteIgnoredPath: function(path){
+		var normalized = String(path || '').replace(/\\/g, '/').replace(/^\/+/, '');
+		if (!normalized) {
+			return false;
+		}
+
+		if (normalized === 'assets/images' || normalized.indexOf('assets/images/') === 0) {
+			return true;
+		}
+
+		var segments = normalized.split('/');
+		for (var i = 0; i < segments.length; i++) {
+			if ((segments[i] || '').toLowerCase() === '.htaccess') {
+				return true;
+			}
+		}
+
+		return false;
+	},
+	buildLegacyDeleteFileTree: function(entries){
+		var root = {};
+
+		$.each(entries || [], function(index, entry){
+			if (store.isLegacyDeleteIgnoredPath(entry && entry.label ? entry.label : '')) {
+				return;
+			}
+			var path = String(entry.label || '').split('/');
+			var cursor = root;
+			$.each(path, function(segmentIndex, segment){
+				if (!segment) {
+					return;
+				}
+				if (!cursor[segment]) {
+					cursor[segment] = {
+						name: segment,
+						children: {}
+					};
+				}
+				if (segmentIndex === path.length - 1) {
+					cursor[segment].entry = entry;
+				}
+				cursor = cursor[segment].children;
+			});
+		});
+
+		return '<div class="store-delete-tree">' + store.renderLegacyDeleteTreeNodes(root, 0) + '</div>';
+	},
+	renderLegacyDeleteTreeNodes: function(nodes, depth){
+		var html = '';
+		var names = Object.keys(nodes || {}).sort(function(a, b){
+			return a.localeCompare(b);
+		});
+
+		$.each(names, function(index, name){
+			var node = nodes[name];
+			var hasChildren = node && node.children && Object.keys(node.children).length > 0;
+			var hasEntry = node && node.entry;
+
+			if (hasEntry) {
+				html += '<div class="store-delete-tree-entry">';
+				html += store.buildLegacyDeleteCheckbox(node.entry.key, node.entry.label, '', node.entry.children || []);
+				if (hasChildren) {
+					html += '<div class="store-delete-tree-children">';
+					html += store.renderLegacyDeleteTreeNodes(node.children, depth + 1);
+					html += '</div>';
+				}
+				html += '</div>';
+				return;
+			}
+
+			html += '<details class="store-delete-tree-folder" open>';
+			html += '<summary>' + store.escapeHtml(name) + '</summary>';
+			html += '<div class="store-delete-tree-children">';
+			if (hasEntry) {
+				html += store.buildLegacyDeleteCheckbox(node.entry.key, node.entry.label, '', node.entry.children || []);
+			}
+			if (hasChildren) {
+				html += store.renderLegacyDeleteTreeNodes(node.children, depth + 1);
+			}
+			html += '</div></details>';
+		});
+
+		return html;
+	},
+	buildLegacyDeleteDbSection: function(groups){
+		if (!store.hasLegacyDeleteDbEntries(groups)) {
+			return '';
+		}
+
+		var html = '<div class="store-delete-section"><h3>' + store.escapeHtml($('[name="delete_preview_components_label"]').val() || 'Components') + '</h3>';
+		$.each(groups, function(group, entries){
+			if (!entries || !entries.length) {
+				return;
+			}
+			html += '<div class="store-delete-group">';
+			html += '<h4>' + store.escapeHtml(store.getLegacyDeleteGroupLabel(group)) + '</h4>';
+			html += '<div class="store-delete-checklist">';
+			$.each(entries, function(index, entry){
+				html += store.buildLegacyDeleteCheckbox(entry.key, entry.label, entry.meta || entry.version || '', []);
+			});
+			html += '</div></div>';
+		});
+		html += '</div>';
+		return html;
+	},
+	buildLegacyDeleteCheckbox: function(key, label, meta, children){
+		var hasChildren = children && children.length;
+		var html = '<label class="store-delete-check' + (hasChildren ? ' store-delete-check-parent' : '') + '">';
+		html += '<input type="checkbox" class="store-delete-checkbox" value="' + store.escapeHtml(key) + '" checked="checked">';
+		html += '<span class="store-delete-check-body">';
+		html += '<span class="store-delete-check-mainline">';
+		html += '<span class="store-delete-check-label">' + store.escapeHtml(label) + '</span>';
+		if (meta) {
+			html += '<span class="store-delete-check-meta">' + store.escapeHtml(meta) + '</span>';
+		}
+		html += '</span>';
+		if (hasChildren) {
+			html += '<details class="store-delete-check-details">';
+			html += '<summary>' + store.escapeHtml('files (' + children.length + ')') + '</summary>';
+			html += '<div class="store-delete-check-files">';
+			$.each(children, function(index, child){
+				html += '<label class="store-delete-check store-delete-check-child">';
+				html += '<input type="checkbox" class="store-delete-checkbox store-delete-checkbox-child" value="' + store.escapeHtml(child.key || '') + '" checked="checked">';
+				html += '<span class="store-delete-check-body">';
+				html += '<span class="store-delete-check-mainline">';
+				html += '<span class="store-delete-check-file">' + store.escapeHtml(child.label || '') + '</span>';
+				html += '</span></span></label>';
+			});
+			html += '</div></details>';
+		}
+		html += '</span></label>';
+		return html;
+	},
+	hasLegacyDeleteDbEntries: function(groups){
+		var found = false;
+		$.each(groups || {}, function(group, entries){
+			if (entries && entries.length) {
+				found = true;
+				return false;
+			}
+		});
+		return found;
+	},
+	getLegacyDeleteGroupLabel: function(group){
+		var labels = {
+			files: 'Files',
+			plugins: 'Plugins',
+			snippets: 'Snippets',
+			modules: 'Modules',
+			chunks: 'Chunks',
+			templates: 'Templates',
+			tvs: 'TVs'
+		};
+		return labels[group] || group;
+	},
+	bindLegacyDeletePopup: function(){
+		var $popup = store.getActivePopup();
+		if (!$popup.length) {
+			return;
+		}
+
+		$popup.find('.store-delete-check-parent > .store-delete-checkbox').off('change.storeDeleteParent').on('change.storeDeleteParent', function(){
+			var checked = $(this).is(':checked');
+			var $parent = $(this).closest('.store-delete-check-parent');
+			$parent.find('.store-delete-checkbox-child').prop('checked', checked);
+		});
+
+		$popup.find('.store-delete-checkbox-child').off('change.storeDeleteChild').on('change.storeDeleteChild', function(){
+			var $details = $(this).closest('.store-delete-check-details');
+			var $parent = $details.closest('.store-delete-check-parent');
+			var $children = $details.find('.store-delete-checkbox-child');
+			var $checked = $children.filter(':checked');
+			$parent.children('.store-delete-checkbox').prop('checked', $children.length > 0 && $checked.length === $children.length);
+		});
+
+		$popup.find('.store-delete-cancel').off('click').on('click', function(){
+			store.closeActivePopup();
+		});
+
+		$popup.find('.store-delete-confirm').off('click').on('click', function(){
+			store.runLegacyDelete($(this));
+		});
+	},
+	runLegacyDelete: function($button){
+		var $popup = store.getActivePopup();
+		if (!$popup.length) {
+			return;
+		}
+
+		var token = $popup.find('.store-popup-shell-delete').attr('data-delete-token') || '';
+		var selection = [];
+		$popup.find('.store-delete-checkbox:checked').each(function(){
+			selection.push($(this).val());
+		});
+
+		if (!selection.length) {
+			return;
+		}
+
+		$button.prop('disabled', true);
+		$.ajax({
+			url: link() + '&action=legacy_delete_run',
+			cache: false,
+			dataType: 'json',
+			type: 'post',
+			data: {
+				token: token,
+				selection: selection
+			},
+			success: function(response){
+				if (!response || !response.ok) {
+					alert((response && response.message) || ($('[name="delete_preview_error"]').val() || 'Unable to delete this package.'));
+					$button.prop('disabled', false);
+					return;
+				}
+
+				store.closeActivePopup();
+				store.refreshInstalledState();
+			},
+			error: function(){
+				alert($('[name="delete_preview_error"]').val() || 'Unable to delete this package.');
+				$button.prop('disabled', false);
+			}
+		});
+	},
+	closeActivePopup: function(){
+		var $popup = store.getActivePopup();
+		if (!$popup.length) {
+			store.cleanupPopupArtifacts();
+			return;
+		}
+
+		var $close = $popup.find('.evo-popup-close, .close').first();
+		if ($close.length) {
+			$close.trigger('click');
+			setTimeout(store.cleanupPopupArtifacts, 60);
+			return;
+		}
+
+		$popup.remove();
+		store.cleanupPopupArtifacts();
+	},
+	cleanupPopupArtifacts: function(){
+		var cleanDoc = function(doc){
+			if (!doc) {
+				return;
+			}
+			var $doc = $(doc);
+			if (!$doc.find('.evo-popup:visible').length) {
+				$doc.find('.evo-popup-overlay').remove();
+				$doc.find('.evo-popup:hidden').remove();
+			}
+		};
+
+		try { cleanDoc(document); } catch (e) {}
+		try { if (window.parent && window.parent.document) cleanDoc(window.parent.document); } catch (e) {}
+	},
+	refreshInstalledState: function(callback){
+		$.ajax({
+			url: link() + '&action=refresh_installed_state',
+			cache: false,
+			dataType: 'json',
+			type: 'get',
+			success: function(response){
+				if (!response || !response.ok || !response.installed_state) {
+					if (typeof callback === 'function') {
+						callback(false);
+					}
+					return;
+				}
+
+				store.installedState = response.installed_state;
+				$('[name="installed_state"]').val(JSON.stringify(response.installed_state));
+				store.buildInstalledCatalog();
+				store.renderInstalledCategory(store.installedCatalog.length);
+
+				if ($('[name=parent]').val() === 'installed-extras') {
+					store.update_list(store.installedCatalog, 'list');
+				} else {
+					store.renderCurrentList();
+				}
+
+				if (typeof callback === 'function') {
+					callback(true);
+				}
+			},
+			error: function(){
+				if (typeof callback === 'function') {
+					callback(false);
+				}
+			}
+		});
 	},
 
 	query:function(action,param,callback){
@@ -558,6 +1020,16 @@ store = {
 			.attr('data-repo-full-name', array.repo_full_name || '')
 			.attr('data-readme-branch', array.readme_branch || '');
 
+		$out.find('.item-delete')
+			.attr('data-title', array.title || '')
+			.attr('data-type', array.type || '')
+			.attr('data-id', array.id || '')
+			.attr('data-current-version', array.current_version || '')
+			.attr('data-source-kind', array.source_kind || '')
+			.attr('data-source-url', array.source_url || '')
+			.attr('aria-label', $('[name="delete_label"]').val() || 'delete')
+			.attr('title', $('[name="delete_label"]').val() || 'delete');
+
 		if ((array.source_kind || '') === 'console') {
 			$out.find('.item-more').html('<i class="fa fa-book"></i> readme');
 		}
@@ -567,6 +1039,10 @@ store = {
 				.text($('[name="reinstall_label"]').val() || 'Reinstall')
 				.removeClass('btn-success')
 				.addClass('btn-primary');
+		}
+
+		if ((array.source_kind || '') === 'legacy' && array.is_installed) {
+			$out.children().first().addClass('has-legacy-delete');
 		}
 
 		return $out.html();
@@ -753,6 +1229,9 @@ store = {
 		var width = size === 'wide' ? '78%' : '680px';
 		var height = size === 'wide' ? 'auto' : '250px';
 		var popupType = store.isDarkTheme() ? 'dark' : 'default';
+
+		store.closeActivePopup();
+		store.cleanupPopupArtifacts();
 
 		var popupInstance = window.parent.evo.popup({
 			title: title,
@@ -1152,6 +1631,15 @@ store = {
 		var sortedList = store.sortList(store.currentList);
 		$('.item_list').html( store.parse_list( sortedList , $('.tpl #tpl_'+tpl).html() , tpl ) );
 		store.syncSelectDisplays();
+		store.applyCurrentSearchFilter();
+	},
+	applyCurrentSearchFilter: function(){
+		var value = $('#store_search').val() || '';
+		if (value === '') {
+			$('.item_list .catalog_item').show();
+			return;
+		}
+		store_search(value);
 	},
 	ensureSelectDisplay: function($select){
 		if (!$select || !$select.length) {
@@ -1239,13 +1727,15 @@ store = {
 		if (!array.cls) {
 			array.cls = 'pack_install';
 		}
+		array.cls = 'pack_install';
 		array.state_class = '';
 		array.title_state_html = '';
 		array.install_state_html = '';
 		array.catalog_version = array.catalog_version || array.version || '';
-		array.installed_state = parseInt(array.installed_state || 0, 10) ? 1 : 0;
-		array.current_version = array.current_version || '';
-		array.is_installed = parseInt(array.is_installed || 0, 10) ? 1 : 0;
+		array.installed_state = 0;
+		array.current_version = '';
+		array.raw_current_version = '';
+		array.is_installed = 0;
 
 		if ((array.install_method || '') === 'console-extra' || (array.source_kind || '') === 'console') {
 			array = store.applyConsoleInstalledState(array);
