@@ -28,7 +28,7 @@ if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
 } elseif (empty($_POST['newcategory']) && $_POST['categoryid'] <= 0) {
     $categoryid = 0;
 } else {
-    include_once(MODX_MANAGER_PATH . 'includes/categories.inc.php');
+    include_once(EVO_MANAGER_PATH . 'includes/categories.inc.php');
     $categoryid = checkCategory($_POST['newcategory']);
     if (!$categoryid) {
         $categoryid = newCategory($_POST['newcategory']);

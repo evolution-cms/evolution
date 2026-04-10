@@ -8,7 +8,7 @@ if (!evo()->hasPermission('file_manager')) {
 $token_check = checkToken();
 $newToken = makeToken();
 // settings
-$theme_image_path = MODX_MANAGER_URL . 'media/style/' . evo()->getConfig('manager_theme') . '/images/';
+$theme_image_path = EVO_MANAGER_URL . 'media/style/' . evo()->getConfig('manager_theme') . '/images/';
 $excludes = [
     '.',
     '..',
@@ -18,7 +18,7 @@ $excludes = [
 ];
 $alias_suffix = (!empty($friendly_url_suffix)) ? ',' . ltrim($friendly_url_suffix, '.') : '';
 $editablefiles = explode(',', 'txt,php,tpl,less,sass,scss,shtml,html,htm,xml,js,css,pageCache,htaccess,json,ini' . $alias_suffix);
-$inlineviewablefiles = explode(',', 'txt,php,tpl,less,sass,scss,html,htm,xml,js,css,pageCache,htaccess,json,ini' . $alias_suffix);
+$inlineviewablefiles = explode(',', 'log,txt,php,tpl,less,sass,scss,html,htm,xml,js,css,pageCache,htaccess,json,ini' . $alias_suffix);
 $viewablefiles = explode(',', 'jpg,gif,png,ico');
 $editablefiles = add_dot($editablefiles);
 $inlineviewablefiles = add_dot($inlineviewablefiles);
@@ -87,6 +87,40 @@ if ($startpath === false || strpos($startpath, $filemanager_path) !== 0 || !is_r
 }
 // Raymond: get web start path for showing pictures
 $relative_path = ltrim(substr($startpath, strlen($filemanager_path)), '/');
+
+// Resource Groups support for files
+$fileAccessEnabled = evo()->getConfig('use_udperms');
+$showFileGroups = $fileAccessEnabled && evo()->hasAnyPermissions(['manage_groups', 'manage_document_permissions']);
+$allDocGroups = [];
+$userGroups = fileManagerUserGroupIds();
+$fileGroupsMap = [];
+if ($fileAccessEnabled) {
+    $scanPaths = [$relative_path];
+    if ($requested_path !== '') {
+        $acc = '';
+        foreach (explode('/', $requested_path) as $part) {
+            $acc = $acc !== '' ? $acc . '/' . $part : $part;
+            $scanPaths[] = $acc;
+        }
+    }
+    $scanItems = @scandir($startpath);
+    if ($scanItems) {
+        foreach ($scanItems as $scanItem) {
+            if ($scanItem === '.' || $scanItem === '..') {
+                continue;
+            }
+            $scanPaths[] = ltrim(substr(str_replace('\\', '/', $startpath . '/' . $scanItem), strlen($filemanager_path)), '/');
+        }
+    }
+    $fileGroupsMap = fileManagerRestrictionMap(array_unique(array_filter($scanPaths, static fn ($path) => $path !== null)));
+}
+if ($relative_path !== '' && !fileManagerIsAccessible($relative_path, $userGroups, $fileGroupsMap)) {
+    evo()->webAlertAndQuit($_lang["files_access_denied"]);
+}
+if ($showFileGroups) {
+    $allDocGroups = \EvolutionCMS\Models\DocumentgroupName::orderBy('name')->get();
+}
+$currentPathWritable = is_writable($startpath) && fileManagerIsAccessible($relative_path, $userGroups, $fileGroupsMap);
 ?>
     <script type="text/javascript">
         var current_path = '<?= addslashes($relative_path) ?>';
@@ -173,13 +207,18 @@ $relative_path = ltrim(substr($startpath, strlen($filemanager_path)), '/');
                     <i class="<?= $_style["icon_save"] ?>"></i><span><?= $_lang['save'] ?></span>
                 </a>
             <?php endif ?>
+            <?php if (in_array(get_by_key($_REQUEST, 'mode'), ['groups', 'savegroups'])) : ?>
+                <a class="btn btn-success" href="javascript:;" onclick="documentDirty=false;document.fileGroupsForm.submit();">
+                    <i class="<?= $_style["icon_save"] ?>"></i><span><?= $_lang['save'] ?></span>
+                </a>
+            <?php endif ?>
             <?php
             if (isset($_GET['mode']) && $_GET['mode'] !== 'drill') {
                 $href = 'a=31&path=' . urlencode($_REQUEST['path']);
             } else {
                 $href = 'a=2';
             }
-            if (is_writable($startpath)) {
+            if ($currentPathWritable) {
                 $ph = [];
                 $ph['style_path'] = $theme_image_path;
                 $tpl = '<a class="btn btn-secondary" href="[+href+]" onclick="return getFolderName(this);"><i class="[+image+]"></i><span>[+subject+]</span></a>';
@@ -219,6 +258,69 @@ $relative_path = ltrim(substr($startpath, strlen($filemanager_path)), '/');
             } elseif (get_by_key($_REQUEST, 'mode') == 'delete') {
                 if ($token_check) {
                     echo delete_file();
+                } else {
+                    echo '<span class="warning"><b>Invalid token</b></span><br /><br />';
+                }
+            } elseif (get_by_key($_POST, 'mode') == 'savegroups') {
+                if ($token_check) {
+                    if ($showFileGroups) {
+                        $groupsTargetPath = ltrim($_POST['groupspath'] ?? $_POST['path'] ?? '', '/');
+                        // Validate path is within filemanager_path
+                        $fullGroupsPath = str_replace('\\', '/', realpath($filemanager_path . '/' . $groupsTargetPath) ?: ($filemanager_path . '/' . $groupsTargetPath));
+                        if (strpos($fullGroupsPath, $filemanager_path) !== 0) {
+                            echo '<span class="warning"><b>Invalid path.</b></span><br /><br />';
+                        } elseif (!fileManagerIsAccessible($groupsTargetPath, $userGroups)) {
+                            echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+                        } else {
+                            $submittedGroups = isset($_POST['docgroups']) ? (array)$_POST['docgroups'] : [];
+                            $chkAllFiles = isset($_POST['chkallfiles']) && $_POST['chkallfiles'] === 'on';
+                            $canManageAllGroups = evo()->hasPermission('manage_groups');
+                            $existingFG = \EvolutionCMS\Models\FileGroup::query()->where('file', $groupsTargetPath)->get();
+                            $existingGroupIds = $existingFG->pluck('document_group')->map(static fn ($groupId) => (int)$groupId)->all();
+                            $manageableExistingGroups = $canManageAllGroups
+                                ? $existingGroupIds
+                                : array_values(array_intersect($existingGroupIds, $userGroups));
+
+                            if (!$canManageAllGroups && count($manageableExistingGroups) !== count($existingGroupIds)) {
+                                echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+                            } elseif ($chkAllFiles && !$canManageAllGroups) {
+                                echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+                            } elseif ($chkAllFiles) {
+                                // Make public: only full group managers may remove all restrictions
+                                \EvolutionCMS\Models\FileGroup::query()->where('file', $groupsTargetPath)->delete();
+                            } else {
+                                // Determine which group IDs are submitted
+                                $submittedGroupIds = [];
+                                $insertRows = [];
+                                foreach ($submittedGroups as $val) {
+                                    $parts = explode(',', $val);
+                                    $gid = (int)$parts[0];
+                                    if (!$canManageAllGroups && !in_array($gid, $userGroups)) {
+                                        continue;
+                                    }
+                                    $submittedGroupIds[] = $gid;
+                                    if (!in_array($gid, $existingGroupIds)) {
+                                        $insertRows[] = ['document_group' => $gid, 'file' => $groupsTargetPath];
+                                    }
+                                }
+
+                                // Delete removed groups only from the set the current user manages
+                                $toDelete = array_diff($manageableExistingGroups, $submittedGroupIds);
+                                if (!empty($toDelete)) {
+                                    \EvolutionCMS\Models\FileGroup::query()->where('file', $groupsTargetPath)
+                                        ->whereIn('document_group', $toDelete)
+                                        ->delete();
+                                }
+
+                                // Insert new entries
+                                if (!empty($insertRows)) {
+                                    \EvolutionCMS\Models\FileGroup::query()->insertOrIgnore($insertRows);
+                                }
+                            }
+                            echo '<span class="success"><b>' . $_lang['file_groups_saved'] . '</b></span><br /><br />';
+                            $_REQUEST['mode'] = 'groups';
+                        }
+                    }
                 } else {
                     echo '<span class="warning"><b>Invalid token</b></span><br /><br />';
                 }
@@ -302,7 +404,7 @@ $relative_path = ltrim(substr($startpath, strlen($filemanager_path)), '/');
         }
 
         // Unzip .zip files - by Raymond, with safe_unzip
-        if ($enablefileunzip && get_by_key($_REQUEST, 'mode') == 'unzip' && is_writable($startpath)) {
+        if ($enablefileunzip && get_by_key($_REQUEST, 'mode') == 'unzip' && $currentPathWritable) {
             if ($token_check) {
                 $zipfile = str_replace('\\', '/', realpath($startpath . '/' . $_REQUEST['file']));
                 if (strpos($zipfile, $filemanager_path) !== 0) {
@@ -313,6 +415,26 @@ $relative_path = ltrim(substr($startpath, strlen($filemanager_path)), '/');
                         echo '<span class="warning"><b>' . $_lang['file_unzip_fail'] . '</b></span><br /><br />';
                     } else {
                         echo '<span class="success"><b>' . $_lang['file_unzip'] . '</b></span><br /><br />';
+                        if ($showFileGroups) {
+                            $dirRelPath = $relative_path;
+                            $dirGroupIds = fileManagerEffectiveGroupIds($dirRelPath, $fileGroupsMap);
+                            if (!empty($dirGroupIds)) {
+                                $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($startpath, RecursiveDirectoryIterator::SKIP_DOTS));
+                                $insertRows = [];
+                                foreach ($iterator as $f) {
+                                    if ($f->isFile()) {
+                                        $fp = str_replace('\\', '/', $f->getPathname());
+                                        $relP = ltrim(substr($fp, strlen($filemanager_path)), '/');
+                                        foreach ($dirGroupIds as $gid) {
+                                            $insertRows[] = ['document_group' => $gid, 'file' => $relP];
+                                        }
+                                    }
+                                }
+                                if (!empty($insertRows)) {
+                                    \EvolutionCMS\Models\FileGroup::query()->insertOrIgnore($insertRows);
+                                }
+                            }
+                        }
                     }
                 }
             } else {
@@ -321,7 +443,7 @@ $relative_path = ltrim(substr($startpath, strlen($filemanager_path)), '/');
         }
         // End Unzip - Raymond
         // New Folder & Delete Folder option - Raymond
-        if (is_writable($startpath)) {
+        if ($currentPathWritable) {
             // Delete Folder
             if (get_by_key($_REQUEST, 'mode') == 'deletefolder') {
                 if ($token_check) {
@@ -329,10 +451,18 @@ $relative_path = ltrim(substr($startpath, strlen($filemanager_path)), '/');
                     $folder = str_replace('\\', '/', realpath($filemanager_path . '/' . $requested_folderpath));
                     if (strpos($folder, $filemanager_path) !== 0 || !is_dir($folder)) {
                         echo '<span class="warning"><b>Invalid path.</b></span><br /><br />';
+                    } elseif (!fileManagerCanModifyExistingPath($requested_folderpath, $userGroups, $fileGroupsMap) || !is_writable($folder)) {
+                        echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
                     } elseif (!@rrmdir($folder)) {
                         echo '<span class="warning"><b>' . $_lang['file_folder_not_deleted'] . '</b></span><br /><br />';
                     } else {
                         echo '<span class="success"><b>' . $_lang['file_folder_deleted'] . '</b></span><br /><br />';
+                        if ($showFileGroups) {
+                            $delRelPath = ltrim(substr($folder, strlen($filemanager_path)), '/');
+                            \EvolutionCMS\Models\FileGroup::query()->where('file', $delRelPath)
+                                ->orWhere('file', 'like', $delRelPath . '/%')
+                                ->delete();
+                        }
                     }
                 } else {
                     echo '<span class="warning"><b>Invalid token</b></span><br /><br />';
@@ -344,7 +474,9 @@ $relative_path = ltrim(substr($startpath, strlen($filemanager_path)), '/');
                     $old_umask = umask(0);
                     $foldername = str_replace([ '..\\', '../', '\\', '/' ], '', $_REQUEST['name']);
                     $newdir = $startpath . '/' . $foldername;
-                    if (!mkdirs($newdir, 0777)) {
+                    if (!$currentPathWritable) {
+                        echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+                    } elseif (!mkdirs($newdir, 0777)) {
                         echo '<span class="warning"><b>', $_lang['file_folder_not_created'], '</b></span><br /><br />';
                     } else {
                         if (!@chmod($newdir, $newfolderaccessmode)) {
@@ -363,7 +495,9 @@ $relative_path = ltrim(substr($startpath, strlen($filemanager_path)), '/');
                 if ($token_check) {
                     $old_umask = umask(0);
                     $filename = str_replace([ '..\\', '../', '\\', '/' ], '', $_REQUEST['name']);
-                    if (!checkExtension($filename)) {
+                    if (!$currentPathWritable) {
+                        echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+                    } elseif (!checkExtension($filename)) {
                         echo '<span class="warning"><b>' . $_lang['files_filetype_notok'] . '</b></span><br /><br />';
                     } elseif (preg_match('@(\\\\|\/|\:|\;|\,|\*|\?|\"|\<|\>|\||\?)@', $filename) !== 0) {
                         echo $_lang['files.dynamic.php3'];
@@ -388,6 +522,8 @@ $relative_path = ltrim(substr($startpath, strlen($filemanager_path)), '/');
                     $filename = str_replace('\\', '/', realpath($filemanager_path . '/' . $requested_file));
                     if (strpos($filename, $filemanager_path) !== 0 || !is_file($filename)) {
                         echo '<span class="warning"><b>Invalid path.</b></span><br /><br />';
+                    } elseif (!fileManagerCanModifyExistingPath($requested_file, $userGroups, $fileGroupsMap) || !is_writable($filename)) {
+                        echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
                     } else {
                         $newFilename = str_replace([ '..\\', '../', '\\', '/' ], '', $_REQUEST['newFilename']);
                         if (!checkExtension($newFilename)) {
@@ -415,12 +551,27 @@ $relative_path = ltrim(substr($startpath, strlen($filemanager_path)), '/');
                     $dirname = str_replace('\\', '/', realpath($filemanager_path . '/' . $requested_dir . '/' . $_REQUEST['dirname']));
                     if (strpos($dirname, $filemanager_path) !== 0 || !is_dir($dirname)) {
                         echo '<span class="warning"><b>Invalid path.</b></span><br /><br />';
+                    } elseif (!fileManagerCanModifyExistingPath(trim($requested_dir . '/' . $_REQUEST['dirname'], '/'), $userGroups, $fileGroupsMap) || !is_writable($dirname)) {
+                        echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
                     } else {
                         $newDirname = str_replace([ '..\\', '../', '\\', '/' ], '', $_REQUEST['newDirname']);
                         if (preg_match('@(\\\\|\/|\:|\;|\,|\*|\?|\"|\<|\>|\||\?)@', $newDirname) !== 0) {
                             echo $_lang['files.dynamic.php3'];
                         } else if (!rename($dirname, dirname($dirname) . '/' . $newDirname)) {
                             echo '<span class="warning"><b>', $_lang['file_folder_not_created'], '</b></span><br /><br />';
+                        } else {
+                            if ($showFileGroups) {
+                                $oldRelPath = ltrim(substr($dirname, strlen($filemanager_path)), '/');
+                                $newRelPath = ltrim(substr(dirname($dirname) . '/' . $newDirname, strlen($filemanager_path)), '/');
+                                \EvolutionCMS\Models\FileGroup::query()->where('file', $oldRelPath)
+                                    ->update(['file' => $newRelPath]);
+                                $oldPrefix = $oldRelPath . '/';
+                                $newPrefix = $newRelPath . '/';
+                                $affected = \EvolutionCMS\Models\FileGroup::query()->where('file', 'like', $oldPrefix . '%')->get();
+                                foreach ($affected as $fg) {
+                                    $fg->update(['file' => $newPrefix . substr($fg->file, strlen($oldPrefix))]);
+                                }
+                            }
                         }
                         umask($old_umask);
                     }
@@ -436,6 +587,8 @@ $relative_path = ltrim(substr($startpath, strlen($filemanager_path)), '/');
                     $filename = str_replace('\\', '/', realpath($filemanager_path . '/' . $requested_file));
                     if (strpos($filename, $filemanager_path) !== 0 || !is_file($filename)) {
                         echo '<span class="warning"><b>Invalid path.</b></span><br /><br />';
+                    } elseif (!fileManagerCanModifyExistingPath($requested_file, $userGroups, $fileGroupsMap) || !is_writable($filename)) {
+                        echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
                     } else {
                         $path = dirname($filename);
                         $newFilename = str_replace([ '..\\', '../', '\\', '/' ], '', $_REQUEST['newFilename']);
@@ -446,6 +599,13 @@ $relative_path = ltrim(substr($startpath, strlen($filemanager_path)), '/');
                         } else {
                             if (!rename($filename, $path . '/' . $newFilename)) {
                                 echo $_lang['files.dynamic.php5'];
+                            } else {
+                                if ($showFileGroups) {
+                                    $oldRelPath = ltrim(substr($filename, strlen($filemanager_path)), '/');
+                                    $newRelPath = ltrim(substr($path . '/' . $newFilename, strlen($filemanager_path)), '/');
+                                    \EvolutionCMS\Models\FileGroup::query()->where('file', $oldRelPath)
+                                        ->update(['file' => $newRelPath]);
+                                }
                             }
                             umask($old_umask);
                         }
@@ -471,7 +631,7 @@ $relative_path = ltrim(substr($startpath, strlen($filemanager_path)), '/');
                     <th class="sortable" style="width: 1%;" class="text-nowrap"><?= $_lang['files_fileoptions'] ?></th>
                 </tr>
                 </thead>
-                <?php extract(ls($startpath, compact('len', 'editablefiles', 'enablefileunzip', 'inlineviewablefiles', 'uploadablefiles', 'enablefiledownload', 'viewablefiles', 'protected_path', 'excludes', 'filemanager_path', 'base_path')), EXTR_OVERWRITE);
+                <?php extract(ls($startpath, compact('len', 'editablefiles', 'enablefileunzip', 'inlineviewablefiles', 'uploadablefiles', 'enablefiledownload', 'viewablefiles', 'protected_path', 'excludes', 'filemanager_path', 'base_path', 'showFileGroups', 'fileGroupsMap', 'allDocGroups')), EXTR_OVERWRITE);
                 echo "\n\n\n";
                 if ($folders == 0 && $files == 0) { echo '<tr><td colspan="4"><i class="' . $_style['icon_folder'] . ' FilesDeletedFolder"></i> <span style="color:#888;cursor:default;"> ' . $_lang['files_directory_is_empty'] . ' </span></td></tr>'; }
                 ?>
@@ -482,10 +642,20 @@ $relative_path = ltrim(substr($startpath, strlen($filemanager_path)), '/');
                 <?php echo $_lang['files_directories'] . ': <b>' . $folders . '</b> ';
                 echo $_lang['files_files'] . ': <b>' . $files . '</b> ';
                 echo $_lang['files_data'] . ': <b><span dir="ltr">' . niceSize($filesizes) . '</span></b> ';
-                echo $_lang['files_dirwritable'] . ' <b>' . (is_writable($startpath) == 1 ? $_lang['yes'] : $_lang['no']) . '.</b>'
+                echo $_lang['files_dirwritable'] . ' <b>' . ($currentPathWritable ? $_lang['yes'] : $_lang['no']) . '.</b>';
+                if ($showFileGroups) {
+                    $effectiveGroupIds = fileManagerEffectiveGroupIds($requested_path, $fileGroupsMap);
+                    if (empty($effectiveGroupIds)) {
+                        $groupLabel = $_lang['all_file_groups'];
+                    } else {
+                        $groupNames = $allDocGroups->whereIn('id', $effectiveGroupIds)->pluck('name')->toArray();
+                        $groupLabel = implode(', ', $groupNames);
+                    }
+                    echo '<br>' . $_lang['files_groups'] . ' <b>' . htmlspecialchars($groupLabel, ENT_QUOTES) . '</b>';
+                }
                 ?>
             </p>
-            <?php if (((@ini_get("file_uploads") == true) || get_cfg_var("file_uploads") == 1) && is_writable($startpath)) {
+            <?php if (((@ini_get("file_uploads") == true) || get_cfg_var("file_uploads") == 1) && $currentPathWritable) {
                 @ini_set("upload_max_filesize", $upload_maxsize ?? 0); // modified by raymond ?>
                 <form name="upload" enctype="multipart/form-data" action="index.php" method="post">
                     <input type="hidden" name="MAX_FILE_SIZE" value="<?= $upload_maxsize ?? 5000000 ?>">
@@ -505,6 +675,110 @@ $relative_path = ltrim(substr($startpath, strlen($filemanager_path)), '/');
             <div id="imageviewer"></div>
         </div>
     </div>
+<?php if (in_array(get_by_key($_REQUEST, 'mode'), ['groups', 'savegroups'])) { ?>
+    <div class="section" id="file_groups_section">
+        <div class="navbar navbar-editor"><?= $_lang['access_permissions'] ?>: <?= htmlspecialchars($requested_path ?: '/', ENT_QUOTES) ?></div>
+        <?php
+        if ($showFileGroups) {
+            // Load groups for this specific path
+            $groupsTargetPath = $requested_path;
+            if (!fileManagerIsAccessible($groupsTargetPath, $userGroups, $fileGroupsMap)) {
+                evo()->webAlertAndQuit($_lang["files_access_denied"]);
+            }
+            $existingFileGroups = \EvolutionCMS\Models\FileGroup::query()->where('file', $groupsTargetPath)->get();
+            $directGroupIds = $existingFileGroups->pluck('document_group')->map(static fn ($groupId) => (int)$groupId)->all();
+            $effectiveGroupIds = fileManagerEffectiveGroupIds($groupsTargetPath, $fileGroupsMap);
+            $effectiveGroupNames = empty($effectiveGroupIds)
+                ? [$_lang['all_file_groups']]
+                : $allDocGroups->whereIn('id', $effectiveGroupIds)->pluck('name')->toArray();
+            $directGroupNames = empty($directGroupIds)
+                ? [$_lang['all_file_groups']]
+                : $allDocGroups->whereIn('id', $directGroupIds)->pluck('name')->toArray();
+            $canManageAllGroups = evo()->hasPermission('manage_groups');
+            $canEditPathAcl = $canManageAllGroups || empty(array_diff($directGroupIds, $userGroups));
+            $groupsarray = [];
+            foreach ($existingFileGroups as $efg) {
+                $groupsarray[] = $efg->document_group . ',' . $efg->id;
+            }
+            // Retain POST state on re-display after failed save
+            if (isset($_POST['docgroups'])) {
+                $groupsarray = array_merge($groupsarray, $_POST['docgroups']);
+            }
+            $notPublic = !empty($groupsarray);
+
+            // Build permissions list
+            $permissions = [];
+            $inputAttributes = [
+                'type' => 'checkbox',
+                'class' => 'checkbox',
+                'name' => 'docgroups[]',
+                'onclick' => 'makeFilesPublic(false);',
+            ];
+            foreach ($allDocGroups as $group) {
+                $row = $group->toArray();
+                $existingEntry = $existingFileGroups->where('document_group', $row['id'])->first();
+                $linkId = $existingEntry ? $existingEntry->id : 'new';
+                $inputValue = $row['id'] . ',' . $linkId;
+                $inputId = 'fgroup-' . $row['id'];
+                $checked = in_array($row['id'] . ',' . $linkId, $groupsarray)
+                    || in_array($row['id'] . ',new', $groupsarray);
+                $inputAttributes['id'] = $inputId;
+                $inputAttributes['value'] = $inputValue;
+                if ($checked) { $inputAttributes['checked'] = 'checked'; } else { unset($inputAttributes['checked']); }
+                $disabled = !(in_array($row['id'], $userGroups) || evo()->hasPermission('manage_groups'));
+                if ($disabled) { $inputAttributes['disabled'] = 'disabled'; } else { unset($inputAttributes['disabled']); }
+                $inputString = [];
+                foreach ($inputAttributes as $k => $v) $inputString[] = $k . '="' . $v . '"';
+                $permissions[] = '<li><input ' . implode(' ', $inputString) . ' /><label for="' . $inputId . '">' . htmlspecialchars($row['name'], ENT_QUOTES) . '</label></li>';
+            }
+            if (!empty($permissions) && $canManageAllGroups) {
+                array_unshift($permissions, '<li><input type="checkbox" class="checkbox" name="chkallfiles" id="fgroupall"' . (empty($notPublic) ? ' checked="checked"' : '') . ' onclick="makeFilesPublic(true);" /><label for="fgroupall" class="warning">' . $_lang['all_file_groups'] . '</label></li>');
+            }
+            ?>
+            <form action="index.php" method="post" name="fileGroupsForm">
+                <input type="hidden" name="a" value="31">
+                <input type="hidden" name="mode" value="savegroups">
+                <input type="hidden" name="groupspath" value="<?= htmlspecialchars($groupsTargetPath, ENT_QUOTES) ?>">
+                <input type="hidden" name="path" value="<?= htmlspecialchars($requested_path, ENT_QUOTES) ?>">
+                <input type="hidden" name="token" value="<?= $newToken ?>">
+                <script type="text/javascript">
+                /* <![CDATA[ */
+                function makeFilesPublic(b) {
+                    var notPublic = false;
+                    var f = document.forms['fileGroupsForm'];
+                    var chkpub = f['chkallfiles'];
+                    var chks = f['docgroups[]'];
+                    if (!chks && chkpub) { chkpub.checked = true; return false; }
+                    else if (!b && chkpub) {
+                        if (!chks.length) notPublic = chks.checked;
+                        else for (var i = 0; i < chks.length; i++) if (chks[i].checked) notPublic = true;
+                        chkpub.checked = !notPublic;
+                    } else {
+                        if (!chks.length) chks.checked = b ? false : chks.checked;
+                        else for (var i = 0; i < chks.length; i++) if (b) chks[i].checked = false;
+                        chkpub.checked = true;
+                    }
+                }
+                /* ]]> */
+                </script>
+                <div class="container">
+                <p><?= is_dir($fullpath) ? $_lang['access_permissions_dir_message'] : $_lang['access_permissions_file_message'] ?></p>
+                <p><strong>Effective access:</strong> <?= htmlspecialchars(implode(', ', $effectiveGroupNames), ENT_QUOTES) ?></p>
+                <p><strong>Direct groups:</strong> <?= htmlspecialchars(implode(', ', $directGroupNames), ENT_QUOTES) ?></p>
+                <?php if (!$canEditPathAcl) { ?>
+                <p><em><?= $_lang['files_access_denied'] ?></em></p>
+                <?php } elseif (!empty($permissions)) { ?>
+                <ul><?= implode("\n", $permissions) ?></ul>
+                <?php } else { ?>
+                <p><em><?= $_lang['access_permissions_off'] ?></em></p>
+                <?php } ?>
+                </div>
+            </form>
+            <?php
+        }
+        ?>
+    </div>
+<?php } ?>
 <?php if (get_by_key($_REQUEST, 'mode') == "edit" || get_by_key($_REQUEST, 'mode') == "view") { ?>
     <div class="section" id="file_editfile">
         <div class="navbar navbar-editor"><?= $_REQUEST['mode'] == "edit" ? $_lang['files_editfile'] : $_lang['files_viewfile'] ?></div>
@@ -513,6 +787,9 @@ $relative_path = ltrim(substr($startpath, strlen($filemanager_path)), '/');
         $filename = str_replace('\\', '/', realpath($filemanager_path . '/' . $requested_path));
         if (strpos($filename, $filemanager_path) !== 0 || !is_file($filename)) {
             evo()->webAlertAndQuit("Invalid path.");
+        }
+        if (!fileManagerIsAccessible($requested_path, $userGroups, $fileGroupsMap)) {
+            evo()->webAlertAndQuit($_lang["files_access_denied"]);
         }
         $buffer = file_get_contents($filename);
         // Log the change

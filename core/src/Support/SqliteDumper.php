@@ -127,7 +127,7 @@ class SqliteDumper
         $pdo = \DB::connection()->getPdo();
 
         $lf = "\n";
-        $tempfile_path = MODX_BASE_PATH . 'assets/backup/temp.php';
+        $tempfile_path = EVO_BASE_PATH . 'assets/backup/temp.php';
 
         $version = $modx->getVersionData();
         $host = $config['host'] ?? '';

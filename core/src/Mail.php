@@ -32,7 +32,7 @@ class Mail extends PHPMailer
         }
         $this->modx = $modx;
         // TODO: fix location
-        $this->PluginDir = MODX_MANAGER_PATH . 'includes/controls/phpmailer/';
+        $this->PluginDir = EVO_MANAGER_PATH . 'includes/controls/phpmailer/';
 
         switch ($modx->getConfig('email_method')) {
             case 'smtp':
@@ -44,7 +44,7 @@ class Mail extends PHPMailer
                 $this->SMTPAutoTLS = $modx->getConfig('smtp_autotls') === '0' ? false : true;
                 $this->Username = $modx->getConfig('smtp_username');
                 if ($modx['config']->has('cms.settings.smtppw')) {
-                    $this->Password = $modx['config']->get('cms.settings.smtppw');
+                    $this->Password = (string)$modx['config']->get('cms.settings.smtppw');
                 } else {
                     $this->Password = $modx->getConfig('smtppw') ?? '';
                     /**
@@ -76,7 +76,7 @@ class Mail extends PHPMailer
             if (substr($modx->getConfig('manager_language'), 0, 8) === 'japanese') {
                 $mail_charset = 'jis';
             } else {
-                $mail_charset = $modx->getConfig('modx_charset');
+                $mail_charset = $modx->getConfig('evo_charset');
             }
         }
 
@@ -105,10 +105,10 @@ class Mail extends PHPMailer
         }
         if (extension_loaded('mbstring')) {
             mb_language($this->mb_language);
-            mb_internal_encoding($modx->getConfig('modx_charset'));
+            mb_internal_encoding($modx->getConfig('evo_charset'));
         }
         // TODO: fix config location
-        $exconf = MODX_MANAGER_PATH . 'includes/controls/phpmailer/config.inc.php';
+        $exconf = EVO_MANAGER_PATH . 'includes/controls/phpmailer/config.inc.php';
         if (is_file($exconf)) {
             // @phpstan-ignore-next-line include.fileNotFound
             include($exconf);
@@ -166,7 +166,7 @@ class Mail extends PHPMailer
 
         switch ($this->CharSet) {
             case 'ISO-2022-JP':
-                $body = mb_convert_encoding($body, 'JIS', $this->modx->getConfig('modx_charset'));
+                $body = mb_convert_encoding($body, 'JIS', $this->modx->getConfig('evo_charset'));
                 if (ini_get('safe_mode')) {
                     $mode = 'normal';
                 } else {
@@ -252,7 +252,7 @@ class Mail extends PHPMailer
             $msg = $this->Lang('instantiate') . "<br />\n";
             $msg .= "{$this->Subject}<br />\n";
             $msg .= "{$this->FromName}&lt;{$this->From}&gt;<br />\n";
-            $msg .= mb_convert_encoding($body, $this->modx->getConfig('modx_charset'), $this->CharSet);
+            $msg .= mb_convert_encoding($body, $this->modx->getConfig('evo_charset'), $this->CharSet);
             $this->SetError($msg);
 
             return false;

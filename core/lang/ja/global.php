@@ -797,7 +797,7 @@ $_lang["role_create_doc"] = 'リソースを作成';
 $_lang["role_create_plugin"] = 'プラグインを作成';
 $_lang["role_create_snippet"] = 'スニペットを作成';
 $_lang["role_create_template"] = 'テンプレートを作成';
-$_lang["role_credits"] = '著作権表示/謝辞を表示';
+$_lang["role_widget_online_info"] = 'ウィジェット「オンラインユーザー」を表示';
 $_lang["role_delete_chunk"] = 'チャンクを削除';
 $_lang["role_delete_doc"] = 'リソースを削除';
 $_lang["role_delete_eventlog"] = 'イベントログを削除';
@@ -829,7 +829,7 @@ $_lang["role_frames"] = '管理画面へのアクセス(全域)';
 $_lang["role_help"] = 'ヘルプページを表示';
 $_lang["role_home"] = '管理画面ホームへのアクセス';
 $_lang["role_import_static"] = '静的HTMLファイルをインポート';
-$_lang["role_logout"] = '管理画面をログアウト';
+$_lang["role_widget_recent_info"] = 'ウィジェット「最近編集したリソース」を表示';
 $_lang["role_list_module"] = 'モジュール一覧';
 $_lang["role_manage_metatags"] = 'サイト全体METAタグとキーワードの管理';
 $_lang["role_management_msg"] = 'ロール(役割)ごとに、利用可能な機能を選択・設定します。ロールは役割・役職のようなもので、たとえば、部長・一般社員・アルバイトの3者の異なる権限をシステム的に表現しています。EVOでは、管理画面にアクセスする全てのユーザが何らかのロール(役割)を持ちます。';
@@ -1506,5 +1506,12 @@ $_lang["role_tv_msg"] = '以下のテンプレート変数にこのロールが�
 $_lang["tmplvar_roles_access_msg"] = 'このテンプレート変数へアクセス/処理を許可されているロールを選択';
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
+
+$_lang["file_groups_saved"] = 'アクセス権限を保存しました。';
+$_lang["file_groups_edit"] = 'アクセス権限を編集';
+$_lang["files_groups"] = 'リソースグループ：';
+$_lang["access_permissions_file_message"] = 'このファイルが属するリソースグループを選択してください：';
+$_lang["access_permissions_dir_message"] = 'このディレクトリが属するリソースグループを選択してください：';
+$_lang["all_file_groups"] = 'すべてのリソースグループ（公開）';
 
 return $_lang;

@@ -86,12 +86,12 @@
             <p class="labelHolder">
                 <label for="cmspassword">[%connection_screen_default_admin_password%]</label>
                 <input type="password" id="cmspassword" name="cmspassword" value="[+cmspassword+]" />
-                <small class="is-invalid">[%alert_enter_adminpassword%]</small>
+                <small class="is-invalid" data-default="[%alert_enter_adminpassword%]" data-minlength="[+adminPasswordMinLengthMessage+]">[%alert_enter_adminpassword%]</small>
             </p>
             <p class="labelHolder">
                 <label for="cmspasswordconfirm">[%connection_screen_default_admin_password_confirm%]</label>
                 <input type="password" id="cmspasswordconfirm" name="cmspasswordconfirm" value="[+cmspasswordconfirm+]" />
-                <small class="is-invalid">[%alert_enter_adminconfirm%]</small>
+                <small class="is-invalid" data-default="[%alert_enter_adminconfirm%]" data-minlength="[+adminPasswordMinLengthMessage+]">[%alert_enter_adminconfirm%]</small>
             </p>
             <h3 class="mt-5">[%default_language%]</h3>
             <p>[%default_language_description%]</p>
@@ -113,19 +113,40 @@
     var language = '[+install_language+]';
     var installMode = parseInt('[+installMode+]');
 
+    function resetFieldMessage(input) {
+        var help = input?.parentElement?.querySelector('.is-invalid');
+        if (help?.dataset?.default) {
+            help.textContent = help.dataset.default;
+        }
+    }
+
+    function setFieldErrorMessage(input, messageType) {
+        var help = input?.parentElement?.querySelector('.is-invalid');
+        if (help?.dataset?.[messageType]) {
+            help.textContent = help.dataset[messageType];
+        }
+        input.parentElement.classList.add('has-error');
+        input.focus();
+        return false;
+    }
+
     document.querySelectorAll('[name]').forEach(function(el) {
         el.onkeyup = function() {
             if (this.value === '') {
                 this.parentElement.classList.add('has-error');
+                resetFieldMessage(this);
             } else {
-                this.parentElement.classList.remove('has-error')
+                this.parentElement.classList.remove('has-error');
+                resetFieldMessage(this);
             }
         };
         el.onchange = function() {
             if (this.value === '') {
                 this.parentElement.classList.add('has-error');
+                resetFieldMessage(this);
             } else {
-                this.parentElement.classList.remove('has-error')
+                this.parentElement.classList.remove('has-error');
+                resetFieldMessage(this);
             }
         };
     });
@@ -253,19 +274,13 @@
             return false;
         }
         if (form.cmspassword?.value?.length < 8) {
-            form.cmspassword.parentElement.classList.add('has-error');
-            form.cmspassword.focus();
-            return false;
+            return setFieldErrorMessage(form.cmspassword, 'minlength');
         }
         if (form.cmspasswordconfirm?.value?.length < 8) {
-            form.cmspasswordconfirm.parentElement.classList.add('has-error');
-            form.cmspasswordconfirm.focus();
-            return false;
+            return setFieldErrorMessage(form.cmspasswordconfirm, 'minlength');
         }
         if (form.cmspasswordconfirm?.value !== form.cmspassword?.value) {
-            form.cmspasswordconfirm.parentElement.classList.add('has-error');
-            form.cmspasswordconfirm.focus();
-            return false;
+            return setFieldErrorMessage(form.cmspasswordconfirm, 'default');
         }
         form.action = 'index.php?action=options';
         form.submit();

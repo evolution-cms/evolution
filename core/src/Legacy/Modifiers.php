@@ -64,7 +64,7 @@ class Modifiers implements ModifiersInterface
     {
         $modx = evo();
         if (function_exists('mb_internal_encoding')) {
-            mb_internal_encoding($modx->getConfig('modx_charset'));
+            mb_internal_encoding($modx->getConfig('evo_charset'));
         }
         $this->condModifiers = '=,is,eq,equals,ne,neq,notequals,isnot,isnt,not,%,isempty,isnotempty,isntempty,>=,gte,eg,gte,greaterthan,>,gt,isgreaterthan,isgt,lowerthan,<,lt,<=,lte,islte,islowerthan,islt,el,find,in,inarray,in_array,fnmatch,wcard,wcard_match,wildcard,wildcard_match,is_file,is_dir,file_exists,is_readable,is_writable,is_image,regex,preg,preg_match,memberof,mo,isinrole,ir';
     }
@@ -437,10 +437,10 @@ class Modifiers implements ModifiersInterface
                 } else {
                     $path = $opt;
                 }
-                if (strpos($path, MODX_MANAGER_PATH) !== false) {
+                if (strpos($path, EVO_MANAGER_PATH) !== false) {
                     exit('Can not read core path');
                 }
-                if (strpos($path, MODX_BASE_PATH) === false) {
+                if (strpos($path, EVO_BASE_PATH) === false) {
                     $path = ltrim($path, '/');
                 }
                 $this->condition[] = (int)($cmd($path) !== false);
@@ -519,15 +519,15 @@ class Modifiers implements ModifiersInterface
             #####  Encode / Decode / Hash / Escape
             case 'htmlent':
             case 'htmlentities':
-                return htmlentities($value, ENT_QUOTES, $modx->getConfig('modx_charset'));
+                return htmlentities($value, ENT_QUOTES, $modx->getConfig('evo_charset'));
             case 'html_entity_decode':
             case 'decode_html':
             case 'html_decode':
-                return html_entity_decode($value, ENT_QUOTES, $modx->getConfig('modx_charset'));
+                return html_entity_decode($value, ENT_QUOTES, $modx->getConfig('evo_charset'));
             case 'esc':
             case 'escape':
                 $value = preg_replace('/&amp;(#[0-9]+|[a-z]+);/i', '&$1;',
-                    htmlspecialchars($value, ENT_QUOTES, $modx->getConfig('modx_charset')));
+                    htmlspecialchars($value, ENT_QUOTES, $modx->getConfig('evo_charset')));
 
                 return str_replace(['[', ']', '`'], ['&#91;', '&#93;', '&#96;'], $value);
             case 'sql_escape':
@@ -538,7 +538,7 @@ class Modifiers implements ModifiersInterface
             case 'encode_html':
             case 'html_encode':
                 return preg_replace('/&amp;(#[0-9]+|[a-z]+);/i', '&$1;',
-                    htmlspecialchars($value, ENT_QUOTES, $modx->getConfig('modx_charset')));
+                    htmlspecialchars($value, ENT_QUOTES, $modx->getConfig('evo_charset')));
             case 'spam_protect':
                 return str_replace(['@', '.'], ['&#64;', '&#46;'], $value);
             case 'strip':
@@ -615,13 +615,13 @@ class Modifiers implements ModifiersInterface
                     $opt = 'VKas';
                 }
 
-                return mb_convert_kana($value, $opt, $modx->getConfig('modx_charset'));
+                return mb_convert_kana($value, $opt, $modx->getConfig('evo_charset'));
             case 'hanzen':
                 if (empty($opt)) {
                     $opt = 'VKAS';
                 }
 
-                return mb_convert_kana($value, $opt, $modx->getConfig('modx_charset'));
+                return mb_convert_kana($value, $opt, $modx->getConfig('evo_charset'));
             case 'str_shuffle':
             case 'shuffle':
                 return $this->str_shuffle($value);
@@ -1121,7 +1121,7 @@ class Modifiers implements ModifiersInterface
                     return $value;
                 }
                 $value = realpath($value);
-                if (strpos($value, MODX_MANAGER_PATH) !== false) {
+                if (strpos($value, EVO_MANAGER_PATH) !== false) {
                     exit('Can not read core file');
                 }
                 $ext = strtolower(substr($value, -4));
@@ -1139,7 +1139,7 @@ class Modifiers implements ModifiersInterface
                 }
                 $filename = $value;
 
-                $site_url = MODX_SITE_URL;
+                $site_url = EVO_SITE_URL;
                 if (strpos($filename, $site_url) === 0) {
                     $filename = substr($filename, 0, strlen($site_url));
                 }
@@ -1150,7 +1150,7 @@ class Modifiers implements ModifiersInterface
                     $opt .= '/';
                 }
 
-                $filename = MODX_BASE_PATH . $opt . $filename;
+                $filename = EVO_BASE_PATH . $opt . $filename;
 
                 if (is_file($filename)) {
                     clearstatcache();
@@ -1311,7 +1311,7 @@ class Modifiers implements ModifiersInterface
         $value = $this->value;
         $opt = $this->opt;
 
-        return include(MODX_MANAGER_PATH . "includes/extenders/modifiers/mdf_{$cmd}.inc.php");
+        return include(EVO_MANAGER_PATH . "includes/extenders/modifiers/mdf_{$cmd}.inc.php");
     }
 
     public function getValueFromElement($key, $value, $cmd, $opt)
@@ -1331,13 +1331,13 @@ class Modifiers implements ModifiersInterface
                 $row = $modx->getDatabase()->getRow($result);
                 $php = $row['snippet'];
             } elseif ($total == 0) {
-                $assets_path = MODX_BASE_PATH . 'assets/';
+                $assets_path = EVO_BASE_PATH . 'assets/';
                 if (is_file($assets_path . "modifiers/mdf_{$cmd}.inc.php")) {
                     $modifiers_path = $assets_path . "modifiers/mdf_{$cmd}.inc.php";
                 } elseif (is_file($assets_path . "plugins/phx/modifiers/{$cmd}.phx.php")) {
                     $modifiers_path = $assets_path . "plugins/phx/modifiers/{$cmd}.phx.php";
-                } elseif (is_file(MODX_MANAGER_PATH . "includes/extenders/modifiers/mdf_{$cmd}.inc.php")) {
-                    $modifiers_path = MODX_MANAGER_PATH . "includes/extenders/modifiers/mdf_{$cmd}.inc.php";
+                } elseif (is_file(EVO_MANAGER_PATH . "includes/extenders/modifiers/mdf_{$cmd}.inc.php")) {
+                    $modifiers_path = EVO_MANAGER_PATH . "includes/extenders/modifiers/mdf_{$cmd}.inc.php";
                 } else {
                     $modifiers_path = false;
                 }
@@ -1519,7 +1519,7 @@ class Modifiers implements ModifiersInterface
                 $str = str_replace(["\r\n", "\r"], "\n", $str);
             }
 
-            return mb_substr($str, $s, $l, $modx->getConfig('modx_charset'));
+            return mb_substr($str, $s, $l, $modx->getConfig('evo_charset'));
         }
 
         return substr($str, $s, $l);
@@ -1529,7 +1529,7 @@ class Modifiers implements ModifiersInterface
     {
         $modx = evo();
         if (function_exists('mb_strpos')) {
-            return mb_strpos($haystack, $needle, $offset, $modx->getConfig('modx_charset'));
+            return mb_strpos($haystack, $needle, $offset, $modx->getConfig('evo_charset'));
         }
 
         return strpos($haystack, $needle, $offset);
@@ -1539,7 +1539,7 @@ class Modifiers implements ModifiersInterface
     {
         $modx = evo();
         if (function_exists('mb_strlen')) {
-            return mb_strlen(str_replace("\r\n", "\n", $str), $modx->getConfig('modx_charset'));
+            return mb_strlen(str_replace("\r\n", "\n", $str), $modx->getConfig('evo_charset'));
         }
 
         return strlen($str);

@@ -180,19 +180,19 @@ try {
                 }
             }
         }
-        define('MODX_API_MODE', true);
+        define('EVO_API_MODE', true);
         define('IN_MANAGER_MODE', true);
         define('IN_INSTALL_MODE', true);
-        define('MODX_BASE_PATH', dirname(dirname(dirname(__DIR__))) . '/');
+        define('EVO_BASE_PATH', dirname(dirname(dirname(__DIR__))) . '/');
         define('SESSION_COOKIE_NAME', session_name());
-        require_once(MODX_BASE_PATH . 'core/functions/helper.php');
-        require_once(MODX_BASE_PATH . 'core/includes/define.inc.php');
+        require_once(EVO_BASE_PATH . 'core/functions/helper.php');
+        require_once(EVO_BASE_PATH . 'core/includes/define.inc.php');
 
-        if (file_exists(MODX_BASE_PATH.'core/storage/bootstrap/services.php')) {
-            unlink(MODX_BASE_PATH.'core/storage/bootstrap/services.php');
+        if (file_exists(EVO_BASE_PATH.'core/storage/bootstrap/services.php')) {
+            unlink(EVO_BASE_PATH.'core/storage/bootstrap/services.php');
         }
 
-        include(MODX_BASE_PATH . '/index.php');
+        include(EVO_BASE_PATH . '/index.php');
 
         if ($installMode != 0 && $database_type == 'pgsql') {
             try {
@@ -211,7 +211,7 @@ try {
             }
         }
 
-        Console::call('migrate', ['--path' => MODX_BASE_PATH . 'install/stubs/migrations', '--realpath' => true, '--force' => true]);
+        Console::call('migrate', ['--path' => EVO_BASE_PATH . 'install/stubs/migrations', '--realpath' => true, '--force' => true]);
 
         if ($installMode == 0) {
             seed('install');
@@ -772,8 +772,8 @@ try {
     }
 
     if ($installLevel === 7) {
-        if (file_exists(MODX_BASE_PATH.'assets/cache/installProc.inc.php')) {
-            unlink(MODX_BASE_PATH.'assets/cache/installProc.inc.php');
+        if (file_exists(EVO_BASE_PATH.'assets/cache/installProc.inc.php')) {
+            unlink(EVO_BASE_PATH.'assets/cache/installProc.inc.php');
         }
         if (file_exists($base_path.'install.session.php')) {
             unlink($base_path.'install.session.php');

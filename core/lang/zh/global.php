@@ -719,7 +719,7 @@ $_lang["role_create_doc"] = '建立新文档';
 $_lang["role_create_plugin"] = '建立新的插件';
 $_lang["role_create_snippet"] = '建立新的切片snippets';
 $_lang["role_create_template"] = '建立新的站点模板';
-$_lang["role_credits"] = '查看信用';
+$_lang["role_widget_online_info"] = '查看“在线用户”小部件';
 $_lang["role_delete_chunk"] = 'Delete Chunks';
 $_lang["role_delete_doc"] = '删除文档';
 $_lang["role_delete_eventlog"] = '删除事件日志';
@@ -750,7 +750,7 @@ $_lang["role_frames"] = '管理请求框架';
 $_lang["role_help"] = '查看帮助文件';
 $_lang["role_home"] = '管理主页面';
 $_lang["role_import_static"] = 'Import HTML';
-$_lang["role_logout"] = '退出管理';
+$_lang["role_widget_recent_info"] = '查看“Recently edited/created Resources”小部件';
 $_lang["role_manage_metatags"] = '管理站点的META标签和关键词';
 $_lang["role_management_msg"] = '在这里你可以选择一需要编辑的角色。';
 $_lang["role_management_title"] = '角色管理';
@@ -1225,5 +1225,12 @@ $_lang["role_tv_msg"] = 'The Variables assigned to this Role are listed below.';
 $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to access/process this Template Variable';
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
+
+$_lang["file_groups_saved"] = '访问权限已保存。';
+$_lang["file_groups_edit"] = '编辑访问权限';
+$_lang["files_groups"] = '资源组：';
+$_lang["access_permissions_file_message"] = '选择此文件所属的资源组：';
+$_lang["access_permissions_dir_message"] = '选择此目录所属的资源组：';
+$_lang["all_file_groups"] = '所有资源组（公开）';
 
 return $_lang;

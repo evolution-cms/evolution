@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2025 Till Krüss
+ * (c) 2021-2026 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -34,7 +34,7 @@ class RelayConsumer extends Consumer
 
         $command = $this->client->createCommand('subscribe', [
             $channels,
-            function ($relay, $channel, $message) use ($callback) {
+            static function ($relay, $channel, $message) use ($callback) {
                 $callback((object) [
                     'kind' => is_null($message) ? self::SUBSCRIBE : self::MESSAGE,
                     'channel' => $channel,
@@ -63,7 +63,7 @@ class RelayConsumer extends Consumer
 
         $command = $this->client->createCommand('psubscribe', [
             $patterns,
-            function ($relay, $pattern, $channel, $message) use ($callback) {
+            static function ($relay, $pattern, $channel, $message) use ($callback) {
                 $callback((object) [
                     'kind' => is_null($message) ? self::PSUBSCRIBE : self::PMESSAGE,
                     'pattern' => $pattern,

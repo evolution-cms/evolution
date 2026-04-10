@@ -2,7 +2,7 @@
 global $SystemAlertMsgQueque;
 // display system alert window if messages are available
 if (count($SystemAlertMsgQueque ?? []) > 0) {
-    include MODX_MANAGER_PATH . 'includes/sysalert.display.inc.php';
+    include EVO_MANAGER_PATH . 'includes/sysalert.display.inc.php';
 }
 ?>
 @stack('scripts.bot')

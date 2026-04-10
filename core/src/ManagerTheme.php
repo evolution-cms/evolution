@@ -184,8 +184,8 @@ class ManagerTheme implements ManagerThemeInterface
     {
         $this->core = $core;
 
-        $this->getCore()['view']->addNamespace('manager', MODX_MANAGER_PATH . '/media/style/' . $theme . '/views/');
-        $this->getCore()['view']->addNamespace('manager', MODX_MANAGER_PATH . '/views/');
+        $this->getCore()['view']->addNamespace('manager', EVO_MANAGER_PATH . '/media/style/' . $theme . '/views/');
+        $this->getCore()['view']->addNamespace('manager', EVO_MANAGER_PATH . '/views/');
 
         $this->theme = $theme;
 
@@ -317,12 +317,12 @@ class ManagerTheme implements ManagerThemeInterface
      */
     public function getThemeDir($full = true): string
     {
-        return ($full ? MODX_MANAGER_PATH : '') . 'media/style/' . $this->getTheme() . '/';
+        return ($full ? EVO_MANAGER_PATH : '') . 'media/style/' . $this->getTheme() . '/';
     }
 
     public function getThemeUrl(): string
     {
-        return MODX_MANAGER_URL . $this->getThemeDir(false);
+        return EVO_MANAGER_URL . $this->getThemeDir(false);
     }
 
     /**
@@ -363,10 +363,10 @@ class ManagerTheme implements ManagerThemeInterface
             $theme = $this->getTheme();
         }
 
-        if (is_file(MODX_MANAGER_PATH . '/media/style/' . $theme . '/' . $filepath)) {
-            $element = MODX_MANAGER_PATH . '/media/style/' . $theme . '/' . $filepath;
+        if (is_file(EVO_MANAGER_PATH . '/media/style/' . $theme . '/' . $filepath)) {
+            $element = EVO_MANAGER_PATH . '/media/style/' . $theme . '/' . $filepath;
         } else {
-            $element = MODX_MANAGER_PATH . ltrim($filepath, '/');
+            $element = EVO_MANAGER_PATH . ltrim($filepath, '/');
         }
 
         return $element;
@@ -508,14 +508,13 @@ class ManagerTheme implements ManagerThemeInterface
             @session_destroy();
         }
 
-        if (is_file(MODX_BASE_PATH . 'assets/cache/installProc.inc.php')) {
-            // @phpstan-ignore-next-line includeOnce.fileNotFound
-            include_once(MODX_BASE_PATH . 'assets/cache/installProc.inc.php');
+        if (is_file(EVO_BASE_PATH . 'assets/cache/installProc.inc.php')) {
+            include_once(EVO_BASE_PATH . 'assets/cache/installProc.inc.php');
             if (isset($installStartTime)) {
                 if ((time() - $installStartTime) > 5 * 60) { // if install flag older than 5 minutes, discard
                     unset($installStartTime);
-                    @ chmod(MODX_BASE_PATH . 'assets/cache/installProc.inc.php', 0755);
-                    unlink(MODX_BASE_PATH . 'assets/cache/installProc.inc.php');
+                    @ chmod(EVO_BASE_PATH . 'assets/cache/installProc.inc.php', 0755);
+                    unlink(EVO_BASE_PATH . 'assets/cache/installProc.inc.php');
                 } else {
                     if ($_SERVER['REQUEST_METHOD'] != 'POST') {
                         if (isset($_COOKIE[session_name()])) {
@@ -538,7 +537,7 @@ class ManagerTheme implements ManagerThemeInterface
                             @session_destroy();
                         }
                         header('HTTP/1.0 307 Redirect');
-                        header('Location: ' . MODX_MANAGER_URL . 'index.php?installGoingOn=2');
+                        header('Location: ' . EVO_MANAGER_URL . 'index.php?installGoingOn=2');
                     }
                 }
             }
@@ -576,17 +575,17 @@ class ManagerTheme implements ManagerThemeInterface
     public function getTemplate($name, $config = null)
     {
         if (!empty($config) && empty($this->getCore()->getConfig($config))) {
-            $this->getCore()->setConfig($config, MODX_MANAGER_PATH . 'media/style/common/' . $name . '.tpl');
+            $this->getCore()->setConfig($config, EVO_MANAGER_PATH . 'media/style/common/' . $name . '.tpl');
         }
 
         $target = $this->getCore()->getConfig($config);
-        $target = str_replace('[+base_path+]', MODX_BASE_PATH, $target);
+        $target = str_replace('[+base_path+]', EVO_BASE_PATH, $target);
         $target = $this->getCore()->mergeSettingsContent($target);
 
         $content = $this->getCore()->getChunk($target);
         if (empty($content)) {
-            if (is_file(MODX_BASE_PATH . $target)) {
-                $target = MODX_BASE_PATH . $target;
+            if (is_file(EVO_BASE_PATH . $target)) {
+                $target = EVO_BASE_PATH . $target;
                 $content = file_get_contents($target);
             } elseif (is_file($this->getThemeDir() . $name . '.tpl')) {
                 $target = $this->getThemeDir() . $name . '.tpl';
@@ -598,7 +597,7 @@ class ManagerTheme implements ManagerThemeInterface
                 $target = $this->getThemeDir() . 'html/' . $name . '.html';
                 $content = file_get_contents($target);
             } else {
-                $target = MODX_MANAGER_PATH . 'media/style/common/' . $name . '.tpl';
+                $target = EVO_MANAGER_PATH . 'media/style/common/' . $name . '.tpl';
                 $content = file_get_contents($target);
             }
         }
@@ -629,15 +628,17 @@ class ManagerTheme implements ManagerThemeInterface
     public function getTemplatePlaceholders(): array
     {
         $plh = [
-            'modx_charset' => $this->getCharset(),
-            'favicon' => (file_exists(MODX_BASE_PATH . 'favicon.ico') ? MODX_SITE_URL : $this->getThemeUrl() . 'images/') . 'favicon.ico',
+            'evo_charset' => $this->getCharset(),
+            'favicon' => (file_exists(EVO_BASE_PATH . 'favicon.ico') ? EVO_SITE_URL : $this->getThemeUrl() . 'images/') . 'favicon.ico',
             'homeurl' => $this->getCore()->makeUrl($this->getManagerStartupPageId()),
-            'logouturl' => MODX_MANAGER_URL . 'index.php?a=8',
+            'logouturl' => EVO_MANAGER_URL . 'index.php?a=8',
             'year' => date('Y'),
             'theme' => $this->getTheme(),
             'manager_theme_url' => $this->getThemeUrl(),
             'manager_theme_style' => $this->getThemeStyle(),
             'manager_path' => MGR_DIR,
+            'site_name_text' => e((string)$this->getCore()->getConfig('site_name')),
+            'site_name_attr' => htmlspecialchars((string)$this->getCore()->getConfig('site_name'), ENT_QUOTES, $this->getCharset()),
         ];
 
         // set login logo image
@@ -646,7 +647,7 @@ class ManagerTheme implements ManagerThemeInterface
             if (substr($logo, 0, 4) === "http") {
                 $plh['login_logo'] = $logo;
             } else {
-                $plh['login_logo'] = MODX_SITE_URL . $logo;
+                $plh['login_logo'] = EVO_SITE_URL . $logo;
             }
         } else {
             $plh['login_logo'] = $this->getThemeUrl() . 'images/login/default/login-logo.png';
@@ -658,10 +659,10 @@ class ManagerTheme implements ManagerThemeInterface
             if (substr($background, 0, 4) === "http") {
                 $plh['login_bg'] = $background;
             } else {
-                $plh['login_bg'] = MODX_SITE_URL . $background;
+                $plh['login_bg'] = EVO_SITE_URL . $background;
             }
 
-            $plh['login_bg'] = MODX_SITE_URL . $background;
+            $plh['login_bg'] = EVO_SITE_URL . $background;
         } else {
             $plh['login_bg'] = $this->getThemeUrl() . 'images/login/default/login-background.jpg';
         }
@@ -673,7 +674,7 @@ class ManagerTheme implements ManagerThemeInterface
     public function renderLoginPage()
     {
         $plh = [
-            'remember_me' => isset($_COOKIE['modx_remember_manager']) ? 'checked="checked"' : ''
+            'remember_me' => isset($_COOKIE['evo_remember_manager']) ? 'checked="checked"' : ''
         ];
 
         // invoke OnManagerLoginFormPrerender event
@@ -702,14 +703,14 @@ class ManagerTheme implements ManagerThemeInterface
 
         if ($this->getCore()->getConfig('use_captcha')) {
             $plh['login_captcha_message'] = $this->getLexicon("login_captcha_message");
-            $plh['captcha_image'] = '<a href="' . MODX_MANAGER_URL . '" class="loginCaptcha"><img id="captcha_image" src="' . MODX_MANAGER_URL . 'captcha.php?rand=' . rand() . '" alt="' . $this->getLexicon('login_captcha_message') . '" /></a>';
+            $plh['captcha_image'] = '<a href="' . EVO_MANAGER_URL . '" class="loginCaptcha"><img id="captcha_image" src="' . EVO_MANAGER_URL . 'captcha.php?rand=' . rand() . '" alt="' . $this->getLexicon('login_captcha_message') . '" /></a>';
             $plh['captcha_input'] = '<label>' . $this->getLexicon('captcha_code') . '</label><input type="text" name="captcha_code" tabindex="3" value="" />';
         }
 
         // login info
         $uid = '';
-        if (isset($_COOKIE['modx_remember_manager'])) {
-            $uid = preg_replace('/[^a-zA-Z0-9\-_@\.]*/', '', $_COOKIE['modx_remember_manager']);
+        if (isset($_COOKIE['evo_remember_manager'])) {
+            $uid = preg_replace('/[^a-zA-Z0-9\-_@\.]*/', '', $_COOKIE['evo_remember_manager']);
         }
         $plh['uid'] = $uid;
 
@@ -850,7 +851,7 @@ class ManagerTheme implements ManagerThemeInterface
         $default = 'dark';
         $modes = ['', 'lightness', 'light', 'dark', 'darkness'];
 
-        $cookie = (int)get_by_key($_COOKIE, 'MODX_themeMode', 0, function ($val) use ($modes) {
+        $cookie = (int)get_by_key($_COOKIE, 'EVO_themeMode', 0, function ($val) use ($modes) {
             return (int)$val > 0 && (int)$val <= \count($modes);
         });
         $system = $this->getCore()->getConfig('manager_theme_mode');
@@ -900,7 +901,7 @@ class ManagerTheme implements ManagerThemeInterface
     public function sendRepairMail($email, $hash, $mode)
     {
         $body = '
-                <p>' . \Lang::get('global.forgot_password_email_intro') . ' <a href="' . MODX_MANAGER_URL . '?a=0&hash=' . $hash . '&mode=' . $mode . '">' . \Lang::get('global.forgot_password_email_link') . '</a></p>
+                <p>' . \Lang::get('global.forgot_password_email_intro') . ' <a href="' . EVO_MANAGER_URL . '?a=0&hash=' . $hash . '&mode=' . $mode . '">' . \Lang::get('global.forgot_password_email_link') . '</a></p>
                 <p>' . \Lang::get('global.forgot_password_email_instructions') . '</p>
                 <p><small>' . \Lang::get('global.forgot_password_email_fine_print') . '</small></p>';
 

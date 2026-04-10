@@ -769,7 +769,7 @@ $_lang["role_create_doc"] = 'Crea nuove Risorse';
 $_lang["role_create_plugin"] = 'Crea un nuovo Plugin';
 $_lang["role_create_snippet"] = 'Crea nuovi Snippets';
 $_lang["role_create_template"] = 'Crea nuovi Templates del sito';
-$_lang["role_credits"] = 'Visualizza i crediti';
+$_lang["role_widget_online_info"] = 'Visualizza il widget Utenti online';
 $_lang["role_delete_chunk"] = 'Cancella Chunk';
 $_lang["role_delete_doc"] = 'Elimina Risorse';
 $_lang["role_delete_eventlog"] = 'Cancella Log degli Eventi';
@@ -801,7 +801,7 @@ $_lang["role_frames"] = 'Visualizza i frames del Manager EVO';
 $_lang["role_help"] = 'Visualizza le pagine di aiuto';
 $_lang["role_home"] = 'Visualizza la pagina introduttiva del Manager EVO';
 $_lang["role_import_static"] = 'Importa HTML';
-$_lang["role_logout"] = 'Esci dal Manager EVO';
+$_lang["role_widget_recent_info"] = 'Visualizza il widget Risorse modificate o create di recente';
 $_lang["role_manage_metatags"] = 'Gestione META tag e parole chiave';
 $_lang["role_management_msg"] = 'Qui potete scegliere il Ruolo da modificare o creare un nuovo Ruolo.';
 $_lang["role_management_title"] = 'Gestione Ruoli';
@@ -1470,5 +1470,12 @@ $_lang["role_tv_msg"] = 'The Variables assigned to this Role are listed below.';
 $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to access/process this Template Variable';
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
+
+$_lang["file_groups_saved"] = 'Permessi di accesso salvati.';
+$_lang["file_groups_edit"] = 'Modifica i permessi di accesso';
+$_lang["files_groups"] = 'Gruppi di risorse:';
+$_lang["access_permissions_file_message"] = 'Seleziona a quali Gruppi di risorse appartiene questo file:';
+$_lang["access_permissions_dir_message"] = 'Seleziona a quali Gruppi di risorse appartiene questa directory:';
+$_lang["all_file_groups"] = 'Tutti i gruppi di risorse (Pubblico)';
 
 return $_lang;

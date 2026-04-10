@@ -328,7 +328,7 @@ class Database extends Manager
             $data = '*';
         }
 
-        return $data;
+        return $this->replacePrefixPlaceholderInTableName($data);
     }
 
     /**

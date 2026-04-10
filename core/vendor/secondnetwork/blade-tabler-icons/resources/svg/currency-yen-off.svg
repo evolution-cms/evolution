@@ -10,7 +10,7 @@
   stroke-linejoin="round"
   class="icon icon-tabler icons-tabler-outline icon-tabler-currency-yen-off"
 >
-  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
   <path d="M12 19v-7m5 -7l-3.328 4.66" />
   <path d="M8 17h8" />
   <path d="M8 13h5" />

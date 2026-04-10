@@ -89,7 +89,7 @@ class MysqlDumper implements MysqlDumperInterface
 
         // Set line feed
         $lf = "\n";
-        $tempfile_path = MODX_BASE_PATH . 'assets/backup/temp.php';
+        $tempfile_path = EVO_BASE_PATH . 'assets/backup/temp.php';
 
         foreach ($tables as $tblval) {
             $result = $modx->getDatabase()->query("SHOW CREATE TABLE `{$tblval}`");
@@ -159,9 +159,7 @@ class MysqlDumper implements MysqlDumperInterface
 
             $tableSize = $tableSizes[$tblval];
 
-            $parts = round($tableSize/5);
-            $parts = !empty($parts)?$parts:1;
-            $rowByOneQuery = round($rowCount/$parts);
+            $rowByOneQuery = $this->calculateRowBatchSize((int) $rowCount, (int) $tableSize);
 
             $total = intval(($rowCount - 1) / $rowByOneQuery) + 1;
 
@@ -385,5 +383,13 @@ class MysqlDumper implements MysqlDumperInterface
         }
 
         $sorted[] = $table;
+    }
+
+    private function calculateRowBatchSize(int $rowCount, int $tableSize): int
+    {
+        $parts = (int) round($tableSize / 5);
+        $parts = max(1, $parts);
+
+        return max(1, (int) ceil($rowCount / $parts));
     }
 }

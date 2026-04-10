@@ -10,6 +10,53 @@
  */
 class TransAlias {
     /**
+     * Resolve the transliteration table from the active manager language when
+     * we have a safe built-in mapping, otherwise keep the configured fallback.
+     *
+     * @param string $fallbackTable
+     * @param string|null $managerLanguage
+     * @return string
+     */
+    function resolveTableName($fallbackTable, $managerLanguage = null) {
+        $fallbackTable = is_string($fallbackTable) && $fallbackTable !== '' ? $fallbackTable : 'common';
+        $genericTables = ['common', 'utf8', 'utf8lowercase'];
+
+        if (!is_string($managerLanguage) || trim($managerLanguage) === '') {
+            return $fallbackTable;
+        }
+
+        if (!in_array($fallbackTable, $genericTables, true)) {
+            return $fallbackTable;
+        }
+
+        $normalizedLanguage = strtolower(str_replace('_', '-', trim($managerLanguage)));
+        $baseLanguage = explode('-', $normalizedLanguage)[0];
+
+        $tableMap = [
+            'az' => 'common',
+            'be' => 'russian',
+            'bg' => 'russian',
+            'cs' => 'czech',
+            'da' => 'common',
+            'de' => 'german',
+            'en' => 'common',
+            'es' => 'common',
+            'fi' => 'common',
+            'fr' => 'common',
+            'it' => 'common',
+            'nl' => 'dutch',
+            'nn' => 'common',
+            'pl' => 'common',
+            'pt' => 'common',
+            'ru' => 'russian',
+            'sv' => 'common',
+            'uk' => 'russian',
+        ];
+
+        return $tableMap[$baseLanguage] ?? $fallbackTable;
+    }
+
+    /**
      * name of the file to use for transliteration (without .php)
      * also used as array key
      *
@@ -108,7 +155,7 @@ class TransAlias {
         $additionalEncodings = ['-' => '%2D', '.' => '%2E', '_' => '%5F'];
         $tvname = str_replace(array_keys($additionalEncodings), array_values($additionalEncodings), rawurlencode($tv));
         if(array_key_exists('tv'.$tvname, $_POST)) {
-            include_once MODX_MANAGER_PATH . 'includes/tmplvars.commands.inc.php';
+            include_once EVO_MANAGER_PATH . 'includes/tmplvars.commands.inc.php';
             $val = $_POST['tv'.$tvname];
             $id = $_POST['id'];
             if($val == '@INHERIT' && empty($_POST['id']) && !empty($_POST['parent'])) {

@@ -15,7 +15,7 @@ if ($id==0) {
 $name = \EvolutionCMS\Models\Category::find($id)->category;
 $_SESSION['itemname'] = $name;
 
-include_once(MODX_MANAGER_PATH.'includes/categories.inc.php');
+include_once(EVO_MANAGER_PATH.'includes/categories.inc.php');
 deleteCategory($id);
 
 // finished emptying cache - redirect

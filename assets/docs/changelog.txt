@@ -1,6 +1,18 @@
 This file shows the changes in recent releases of Evolution CMS. The most current release is usually the
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
+Evolution CMS 3.5.5 (Apr 07, 2026)
+* [d027f4d] - [REF] Finalized the MODX_* to EVO_* compatibility transition and prepared legacy constants for removal. (Seiger)
+* [8b0e83a] - [ADD] Added resource group ACL management for the file and image managers. (Artur Kyryliuk)
+* [dd7e331] - [ADD] Added `deprecated:list` command to find code marked for removal by semantic version. (Artur Kyryliuk)
+* [550cf13] - [FIX] TransAlias now uses the current manager language for alias transliteration. (middle:Duck)
+* [01e4267] - [FIX] Preserved explicit TransAlias table overrides when custom table settings are used. (middle:Duck)
+* [d4dfcb9] - [FIX] Preserved portable path settings when saving system configuration. (middle:Duck)
+* [6f77af6] - [FIX] Prioritized KCFinder callbacks over TinyMCE fallback in the file browser flow. (middle:Duck)
+* [a6ff481] - [FIX] Prevented moving documents into deleted resources from the manager tree. (middle:Duck)
+* [63f3bd5] - [FIX] Resolved an internal forward loop that could break request processing. (Seiger)
+* [44ab3f4] - [REF] Updated Composer dependencies, improved tests, and fixed multiple PHP 8.4 deprecation warnings. (Artur Kyryliuk)
+
 Evolution CMS 3.5.4 (Feb 20, 2026)
 * [1dc4453] - [REF] Mark $modx as Deprecated. (Seiger)
 * [1aaf916] - [FIX] Reverted prefix placeholder support and fixed login issue. (Elcreator)

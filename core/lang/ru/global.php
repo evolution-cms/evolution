@@ -16,7 +16,7 @@
 $modx_lang_attribute = 'ru'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
 
-$_lang["about_msg"] = 'Evolution CMS - это <a href="http://rtfm.modx.com/evolution/1.0/getting-started/what-is-modx" target="_blank">PHP Application Framework и Content Management System</a>, распространяемая по лицензии <a href="../assets/docs/license.txt">GNU GPL</a>.';
+$_lang["about_msg"] = 'Evolution CMS - это <a href="https://evo.im/" target="_blank">PHP Application Framework и Content Management System</a>, распространяемая по лицензии <a href="../assets/docs/license.txt">GNU GPL</a>.';
 $_lang["about_title"] = 'Об Evolution CMS';
 $_lang["access_permission_denied"] = 'У вас недостаточно прав для просмотра данного ресурса.';
 $_lang["access_permission_parent_denied"] = 'У вас недостаточно прав для создания ресурса в данном разделе';
@@ -36,11 +36,11 @@ $_lang["access_permissions_no_resources_in_group"] = 'Нет ресурсов.';
 $_lang["access_permissions_no_users_in_group"] = 'Нет пользователей.';
 $_lang["access_permissions_off"] = '<span class="warning">Права доступа не активированы.</span> Это означает, что никакие изменения не вступят в силу, до тех пор пока вы не измените настройки.';
 $_lang["access_permissions_resource_groups"] = 'Группы ресурсов';
-$_lang["access_permissions_resources_in_group"] = '<b>ресурсов в группе:</b> ';
+$_lang["access_permissions_resources_in_group"] = '<b>Ресурсы в группе:</b> ';
 $_lang["access_permissions_resources_tab"] = 'Здесь вы можете увидеть все группы ресурсов. Также, здесь вы можете создать, переименовать, удалить группу, просмотреть ресурсы в группе. Для добавления или удаления ресурса из группы редактируйте ресурс непосредственно.';
 $_lang["access_permissions_user_groups"] = 'Группы пользователей';
 $_lang["access_permissions_user_message"] = 'Здесь вы можете выбрать, к какой пользовательской группе принадлежит этот пользователь:';
-$_lang["access_permissions_users_in_group"] = 'Пользователей в группе:';
+$_lang["access_permissions_users_in_group"] = 'Пользователи в группе:';
 $_lang["access_permissions_users_tab"] = 'Здесь вы можете увидеть все группы пользователей. Также, здесь вы можете создать, переименовать, удалить группу, просмотреть членов группы. Для добавления или удаления пользователя из группы редактируйте пользователя непосредственно. Менеджеры всегда имеют доступ ко всем ресурсам.';
 $_lang["account_email"] = 'E-mail учетной записи';
 $_lang["actioncomplete"] = '<b>Действие успешно завершено</b><br />Пожалуйста, подождите, пока Evolution CMS произведет очистку.';
@@ -70,7 +70,7 @@ $_lang["allow_mgr_access_message"] = 'Выберите этот параметр
 $_lang["already_deleted"] = 'уже удален.';
 $_lang["attachment"] = 'Прикрепленное';
 $_lang["author_infos"] = 'Информация об авторах';
-$_lang["automatic_alias_message"] = 'Выберите \'Да\' для того, чтобы система автоматически генерировала псевдонимы на основе заголовков страниц (для транслитерации русских символов настройте плагин TransAlias).';
+$_lang["automatic_alias_message"] = 'Выберите \'Да\' для того, чтобы система автоматически генерировала псевдонимы на основе заголовков страниц.';
 $_lang["automatic_alias_title"] = 'Автоматически генерировать псевдоним:';
 $_lang["backup"] = 'Бэкап';
 $_lang["bk_manager"] = 'Резервное копирование';
@@ -788,7 +788,7 @@ $_lang["role_create_doc"] = 'Создание новых ресурсов';
 $_lang["role_create_plugin"] = 'Создание новых плагинов';
 $_lang["role_create_snippet"] = 'Создание новых сниппетов';
 $_lang["role_create_template"] = 'Создание новых шаблонов';
-$_lang["role_credits"] = 'Просмотр списка разработчиков';
+$_lang["role_widget_online_info"] = 'Просмотр виджета «Пользователи онлайн»';
 $_lang["role_delete_chunk"] = 'Удаление чанков';
 $_lang["role_delete_doc"] = 'Удаление ресурсов';
 $_lang["role_delete_eventlog"] = 'Удаление протокола событий';
@@ -820,7 +820,7 @@ $_lang["role_frames"] = 'Запрос менеджерских фреймов';
 $_lang["role_help"] = 'Просмотр страниц помощи';
 $_lang["role_home"] = 'Запрос входной страницы менеджера';
 $_lang["role_import_static"] = 'Импорт HTML';
-$_lang["role_logout"] = 'Выход из системы управления';
+$_lang["role_widget_recent_info"] = 'Просмотр виджета «Недавно созданные/отредактированные ресурсы»';
 $_lang["role_list_module"] = 'Просмотр списка модулей';
 $_lang["role_manage_metatags"] = 'META-теги и ключевые слова';
 $_lang["role_management_msg"] = '<b>Роль</b> - это набор прав совершать определённые действия. Роли назначаются пользователям. Типичные роли:</p> <ul> <li><b>Администраторы сайта</b> - управляют пользователями и общими настройками;</li> <li><b>Разработчики</b> - пишут код и, соответственно, имеют набор прав на создание / редактирование / удаление <i>модулей</i>, <i>плагинов</i>, <i>сниппетов</i>, <i>чанков</i>, <i>параметров (TV)</i>;</li> <li><b>Дизайнеры</b> - отвечают за внешний вид и вёрстку страниц сайта, имеют набор прав на создание / редактирование / удаление <i>шаблонов</i> и <i>чанков</i>;</li> <li><b>Редакторы</b> - отвечают за содержание страниц сайта, создают, редактируют и удаляют ресурсы;</li> <li><b>Корректоры</b> - читают и корректируют ресурсы, но не имеют прав на их создание и удаление;</li> <li><b>Главный редактор</b> - принимает решение о публикации новых ресурсов, управляет расписанием публикации.</li> </ul><br /><p>Выберите роль для редактирования или создайте новую роль.';
@@ -1496,5 +1496,12 @@ $_lang["role_tv_msg"] = 'Ниже выводятся параметры, наз�
 $_lang["tmplvar_roles_access_msg"] = 'Укажите роли, которые могут использовать этот Параметр (TV)';
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Значение параметра задано в core/custom/config/cms/settings</strong>';
+
+$_lang["file_groups_saved"] = 'Права доступа сохранены.';
+$_lang["file_groups_edit"] = 'Редактировать права доступа';
+$_lang["files_groups"] = 'Группы ресурсов:';
+$_lang["access_permissions_file_message"] = 'Выберите, к каким Группам ресурсов относится этот файл:';
+$_lang["access_permissions_dir_message"] = 'Выберите, к каким Группам ресурсов относится эта директория:';
+$_lang["all_file_groups"] = 'Все группы ресурсов (Публичные)';
 
 return $_lang;

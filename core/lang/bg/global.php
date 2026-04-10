@@ -718,7 +718,7 @@ $_lang["role_create_doc"] = 'Създаване на нови документи
 $_lang["role_create_plugin"] = 'Създаване на нови плъгини';
 $_lang["role_create_snippet"] = 'Създаване на нови снипети';
 $_lang["role_create_template"] = 'Създаване на нови шаблони за сайта';
-$_lang["role_credits"] = 'Преглед на страницата със заслугите';
+$_lang["role_widget_online_info"] = 'Преглед на уиджета „Активни потребители“';
 $_lang["role_delete_chunk"] = 'Изтриване на чънкове';
 $_lang["role_delete_doc"] = 'Изтриване на документи';
 $_lang["role_delete_eventlog"] = 'Изтриване на Дневника на събитията';
@@ -749,7 +749,7 @@ $_lang["role_frames"] = 'Викане на мениджъра';
 $_lang["role_help"] = 'Преглед на страниците Помощ';
 $_lang["role_home"] = 'Викане на началната страница на мениджъра';
 $_lang["role_import_static"] = 'Импорт на HTML';
-$_lang["role_logout"] = 'Изход от мениджъра';
+$_lang["role_widget_recent_info"] = 'Преглед на уиджета „Наскоро редактирани/създадени документи“';
 $_lang["role_manage_metatags"] = 'Управление на META тагове и ключови думи на сайта';
 $_lang["role_management_msg"] = 'Тук можете да изберете коя роля да редактирате.';
 $_lang["role_management_title"] = 'Роли';
@@ -1224,5 +1224,12 @@ $_lang["role_tv_msg"] = 'The Variables assigned to this Role are listed below.';
 $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to access/process this Template Variable';
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
+
+$_lang["file_groups_saved"] = 'Правата за достъп са запазени.';
+$_lang["file_groups_edit"] = 'Редактиране на правата за достъп';
+$_lang["files_groups"] = 'Групи ресурси:';
+$_lang["access_permissions_file_message"] = 'Изберете към кои Групи ресурси принадлежи този файл:';
+$_lang["access_permissions_dir_message"] = 'Изберете към кои Групи ресурси принадлежи тази директория:';
+$_lang["all_file_groups"] = 'Всички групи ресурси (Публични)';
 
 return $_lang;

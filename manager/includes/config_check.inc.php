@@ -110,15 +110,15 @@ if (!function_exists('checkSiteCache')) {
     function checkSiteCache() {
         $modx = evolutionCMS();
         $checked= true;
-        if (file_exists(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php')) {
-            $checked= @include_once (MODX_BASE_PATH . 'assets/cache/siteCache.idx.php');
+        if (file_exists(EVO_BASE_PATH . 'assets/cache/siteCache.idx.php')) {
+            $checked= @include_once (EVO_BASE_PATH . 'assets/cache/siteCache.idx.php');
         }
 
         return $checked;
     }
 }
 
-if (!is_writable(MODX_BASE_PATH . "assets/cache/")) {
+if (!is_writable(EVO_BASE_PATH . "assets/cache/")) {
     $warnings[] = [$_lang['configcheck_cache']];
 }
 
@@ -126,15 +126,15 @@ if (!checkSiteCache()) {
     $warnings[]= [$lang['configcheck_sitecache_integrity']];
 }
 
-if (!is_writable(MODX_BASE_PATH . "assets/images/")) {
+if (!is_writable(EVO_BASE_PATH . "assets/images/")) {
     $warnings[] = [$_lang['configcheck_images']];
 }
 
-if(strpos(EvolutionCMS()->config['rb_base_dir'], MODX_BASE_PATH) !==0 && strpos(EvolutionCMS()->config['rb_base_dir'], '[(base_path)]') !==0) {
+if(strpos(EvolutionCMS()->config['rb_base_dir'], EVO_BASE_PATH) !==0 && strpos(EvolutionCMS()->config['rb_base_dir'], '[(base_path)]') !==0) {
     $warnings[] = [$_lang['configcheck_rb_base_dir']];
 }
 
-if(strpos(EvolutionCMS()->config['filemanager_path'], MODX_BASE_PATH) !==0 && strpos(EvolutionCMS()->config['rb_base_dir'], '[(base_path)]assets/') !==0) {
+if(strpos(EvolutionCMS()->config['filemanager_path'], EVO_BASE_PATH) !==0 && strpos(EvolutionCMS()->config['rb_base_dir'], '[(base_path)]assets/') !==0) {
     $warnings[] = [$_lang['configcheck_filemanager_path']];
 }
 

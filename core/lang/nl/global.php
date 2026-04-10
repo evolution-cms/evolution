@@ -757,7 +757,7 @@ $_lang["role_create_doc"] = 'Nieuwe Pagina\'s maken';
 $_lang["role_create_plugin"] = 'Nieuwe Plug-ins maken';
 $_lang["role_create_snippet"] = 'Nieuwe Snippets maken';
 $_lang["role_create_template"] = 'Nieuwe website Templates maken';
-$_lang["role_credits"] = 'Dankwoord weergeven';
+$_lang["role_widget_online_info"] = 'Widget Gebruikers online weergeven';
 $_lang["role_delete_chunk"] = 'Chunks verwijderen';
 $_lang["role_delete_doc"] = 'Pagina\'s verwijderen';
 $_lang["role_delete_eventlog"] = 'Verwijder logboek (events)';
@@ -789,7 +789,7 @@ $_lang["role_frames"] = 'Verzoek om Content Management Systeem venster';
 $_lang["role_help"] = 'Help Pagina\'s weergeven';
 $_lang["role_home"] = 'Verzoek om Content Management Systeem Intropagina';
 $_lang["role_import_static"] = 'Importeer HTML';
-$_lang["role_logout"] = 'Afmelden uit de beheerder';
+$_lang["role_widget_recent_info"] = 'Widget Recent gemaakte/bewerkte Pagina\'s weergeven';
 $_lang["role_manage_metatags"] = 'Beheer \'META tags\' en keywords';
 $_lang["role_management_msg"] = 'Hier kunt u kiezen welke Rol u wenst te wijzigen.';
 $_lang["role_management_title"] = 'Rollen';
@@ -1421,5 +1421,12 @@ $_lang["role_tv_msg"] = 'The Variables assigned to this Role are listed below.';
 $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to access/process this Template Variable';
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
+
+$_lang["file_groups_saved"] = 'Toegangsrechten opgeslagen.';
+$_lang["file_groups_edit"] = 'Toegangsrechten bewerken';
+$_lang["files_groups"] = 'Resourcegroepen:';
+$_lang["access_permissions_file_message"] = 'Selecteer tot welke Resourcegroepen dit bestand behoort:';
+$_lang["access_permissions_dir_message"] = 'Selecteer tot welke Resourcegroepen deze map behoort:';
+$_lang["all_file_groups"] = 'Alle resourcegroepen (Openbaar)';
 
 return $_lang;

@@ -46,7 +46,7 @@ class Captcha implements CaptchaInterface
     public function __construct($w=200, $h=80) {
         /* create session to set word for verification */
         $this->setVeriword();
-        $this->dir_font = MODX_BASE_PATH . 'assets/' . $this->dir_font;
+        $this->dir_font = EVO_BASE_PATH . 'assets/' . $this->dir_font;
         $this->im_width         = $w;
         $this->im_height        = $h;
     }
@@ -134,7 +134,7 @@ class Captcha implements CaptchaInterface
     public function drawImage() {
 
         /* pick one background image randomly from image directory */
-        $img_file       = MODX_BASE_PATH . 'assets/' . $this->dir_noise."noise".rand(1,4).".jpg";
+        $img_file       = EVO_BASE_PATH . 'assets/' . $this->dir_noise."noise".rand(1,4).".jpg";
 
         /* create "noise" background image from your image stock*/
         $noise_img      = @imagecreatefromjpeg ($img_file);

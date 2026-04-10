@@ -3,12 +3,12 @@
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
     <title>Evolution CMS Store</title>
     <link rel="stylesheet" type="text/css" href="media/style/[+manager_theme+]/style.css" />
-    <link rel="stylesheet" type="text/css" href="[+site_url+]/assets/modules/store/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="[+site_url+]/assets/modules/store/css/style.css?v=[+v+]-legacyfix1" />
     <!--- <link rel="stylesheet" type="text/css" href="media/style/[+manager_theme+]/store.css" /> -->
     <link rel="stylesheet" href="media/style/common/font-awesome/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="[+site_url+]/assets/modules/store/js/fancybox/jquery.fancybox.css" media="screen" />
     <script src="[+site_url+]/assets/modules/store/js/jquery.min.js" type="text/javascript"></script>
-    <script src="[+site_url+]/assets/modules/store/js/store.js?v=1.0.1" type="text/javascript"></script>
+    <script src="[+site_url+]/assets/modules/store/js/store.js?v=1.0.16" type="text/javascript"></script>
     <script type="text/javascript" src="[+site_url+]/assets/modules/store/js/fancybox/jquery.mousewheel-3.0.6.pack.js"></script>
     <script type="text/javascript" src="[+site_url+]/assets/modules/store/js/fancybox/jquery.fancybox.pack.js"></script>
     [+onManagerMainFrameHeaderHTMLBlock+]
@@ -24,8 +24,33 @@
       </span>
     </h1>
     <div id="actions" style="display:none">
-        <span class="warning">[+version_evailble+]: <span class="new_version">0.2</span> (<a href="javascript:store.update()">[+update+]</a>)</span>
+        <span class="warning">[+version_evailble+]: <span class="new_version">0.2.0</span> (<a href="javascript:store.update()">[+update+]</a>)</span>
     </div>
+    <input type="hidden" name="console_category_label" value="[+console_category+]">
+    <input type="hidden" name="console_install_title" value="[+console_install_title+]">
+    <input type="hidden" name="console_install_intro" value="[+console_install_intro+]">
+    <input type="hidden" name="console_install_step_open_core" value="[+console_install_step_open_core+]">
+    <input type="hidden" name="console_install_step_run_artisan" value="[+console_install_step_run_artisan+]">
+    <input type="hidden" name="console_install_command_label" value="[+console_install_command_label+]">
+    <input type="hidden" name="console_install_note" value="[+console_install_note+]">
+    <input type="hidden" name="console_install_source_label" value="[+console_install_source_label+]">
+    <input type="hidden" name="source_label_legacy" value="[+source_label_legacy+]">
+    <input type="hidden" name="source_label_console" value="[+source_label_console+]">
+    <input type="hidden" name="popup_version" value="[+popup_version+]">
+    <input type="hidden" name="popup_updated" value="[+popup_updated+]">
+    <input type="hidden" name="popup_author" value="[+popup_author+]">
+    <input type="hidden" name="popup_downloads" value="[+popup_downloads+]">
+    <input type="hidden" name="popup_source" value="[+popup_source+]">
+    <input type="hidden" name="popup_readme" value="[+popup_readme+]">
+    <input type="hidden" name="popup_open_repo" value="[+popup_open_repo+]">
+    <input type="hidden" name="popup_loading" value="[+popup_loading+]">
+    <input type="hidden" name="popup_readme_missing" value="[+popup_readme_missing+]">
+    <input type="hidden" name="popup_copy_command" value="[+popup_copy_command+]">
+    <input type="hidden" name="popup_copied" value="[+popup_copied+]">
+    <input type="hidden" name="dev_badge" value="[+dev_badge+]">
+    <input type="hidden" name="dev_package_warning" value="[+dev_package_warning+]">
+    <input type="hidden" name="console_project_path" value="[+project_path+]">
+    <input type="hidden" name="console_core_path" value="[+core_path+]">
     <div class="wrapper">
         <div class="container-fluid">
             <div class="row">
@@ -95,7 +120,7 @@
                             </ul>
                         </div>
                         <p>
-                            Copyright 2017 - 2020
+                            Copyright 2017 - 2026
                             <br>
                             <a href="https://evo.im/" target="_blank">Bumkaka &amp; Dmi3yy</a>
                         </p>
@@ -127,16 +152,22 @@
 				</span>
                                 <input id="store_search" class="form-control" onkeyup="store_search( $(this).val() )" placeholder="[+search+]" type="text" name="store_search" value="">
 				<span class="input-group-btn">
-			    		<button id="list-btn" type="button" class="btn btn-secondary bt-active"><i class="fa fa-list" aria-hidden="true"></i></button>
+					<button id="list-btn" type="button" class="btn btn-secondary bt-active"><i class="fa fa-list" aria-hidden="true"></i></button>
 				</span>
 				<span class="input-group-btn">
 					<button id="3col-btn" type="button" class="btn btn-secondary"><i class="fa fa-th" aria-hidden="true"></i></button>
 				</span>
-				<span class="input-group-btn">
-					<button id="2col-btn" type="button" class="btn btn-secondary"><i class="fa fa-th-large" aria-hidden="true"></i></button>
+				<span class="input-group-btn store-select-wrap store-sort-wrap">
+                                    <span class="store-select-display"></span>
+                                    <select id="store_sort" name="store_sort" title="[+sort_by+]">
+                                        <option value="default" selected="">[+sort_default+]</option>
+                                        <option value="title_asc">[+sort_title_asc+]</option>
+                                        <option value="title_desc">[+sort_title_desc+]</option>
+                                        <option value="downloads_asc">[+sort_downloads_asc+]</option>
+                                        <option value="downloads_desc">[+sort_downloads_desc+]</option>
+                                    </select>
 				</span>
                             </div>
-
                         </div>
 
                         <div class="item_list row">
@@ -164,7 +195,7 @@
         <textarea type="hidden" name="hash">[+hash+]</textarea>
         <div id="tpl_category">
             <li>
-                <a href="#" class="row.category" data-id="%id%" data-tpl="%tpl%">%title%</a><span> &nbsp;<small>(%count%) </small></span>
+                <a href="#" class="row.category" data-id="%id%" data-tpl="%tpl%" %source_attr%>%title%</a><span> &nbsp;<small>(%count%) </small></span>
             </li>
         </div>
         <div id="tpl_category2">
@@ -173,32 +204,33 @@
             </li>
         </div>
         <div id="tpl_list">
-            <div class="col-sm-4 catalog_item %cls% item-%title% type-%type% deprecated-%deprecated%">
+            <div class="col-sm-4 catalog_item %cls% catalog-source-%source_kind% item-%title% type-%type% deprecated-%deprecated%">
                 <div class="item_content">
                     <div class="info_block">
                         <div id="catalog_img" class="catalog_thumb">
+                            <span class="sourcebadge">%source_label%</span>
                             <span class="typesbadge">%type%</span>
                             <img class="img-fluid" src="" alt="">
                         </div>
                         <div class="catalog_info">
                             <a class="row-category">
-                                <h3>%title%</h3>
+                                <h3>%title%<span class="package-dev-badge %dev_badge_class%">%dev_badge%</span></h3>
                             </a>
                             <span class="descript">%description%</span>
                             <div class="info_extras">
-                                <button class="btn btn-sm btn-secondary pull-right" onclick="window.parent.modx.popup({content:'<h2>%title% %version%</h2><h3>%type%</h3><p>%description%</p><span class=\'fa fa-refresh\'></span> version: <strong>%version%</strong><br/><span class=\'fa fa-clock-o\'></span> Updated: <strong>%date%</strong><br/><span class=\'fa fa-user\'> </span> Author: <strong>%author%</strong><br/><span class=\'fa fa-download\'> </span>  Downloads:  <strong>%downloads%</strong>',type:'default',width:'400px',height:'400px',hide:0,hover:0,overlay:0,overlayclose:1})"><i class="fa fa-info"></i> more</button>
+                                <button type="button" class="btn btn-sm btn-secondary pull-right item-more"><i class="fa fa-info"></i> [+more+]</button>
                             </div>
                             <div class="install_extras">
-                                <a href="#" class="btn btn-success item-install" data-url="%url%" data-id="%id%" data-name="%title%" data-method="%type%" data-dependencies="%dependencies%">[+install+]</a>
-                                <a href="#" class="btn btn-primary item-reinstall" data-text="[+alert_overwrite+]" data-url="%url%" data-id="%id%" data-name="%title%" data-method="%type%">[+reinstall+] <i class="curr">[+installed+]</i></a>
-                                <a href="#" class="btn btn-primary item-update" data-text="[+alert_overwrite+]" data-url="%url%" data-id="%id%" data-name="%title%" data-method="%type%">[+update+] <i class="curr">[+installed+] - %current_version%</i></a>
-                                <select name="link"></select>
+                                <a href="#" class="btn btn-success item-install" data-url="%url%" data-source-url="%source_url%" data-id="%id%" data-name="%title%" data-package="%install_target%" data-method="%install_method%" data-command="%install_command%" data-dependencies="%dependencies%">[+install+]</a>
+                                <a href="#" class="btn btn-primary item-reinstall" data-text="[+alert_overwrite+]" data-url="%url%" data-source-url="%source_url%" data-id="%id%" data-name="%title%" data-package="%install_target%" data-method="%install_method%" data-command="%install_command%">[+reinstall+] <i class="curr">[+installed+]</i></a>
+                                <a href="#" class="btn btn-primary item-update" data-text="[+alert_overwrite+]" data-url="%url%" data-source-url="%source_url%" data-id="%id%" data-name="%title%" data-package="%install_target%" data-method="%install_method%" data-command="%install_command%">[+update+] <i class="curr">[+installed+] - %current_version%</i></a>
+                                <span class="store-select-wrap store-version-wrap"><span class="store-select-display"></span><select name="link"></select></span>
                             </div>
                         </div>
                     </div>
                     <div class="info">
                         <span class="version"><strong>%version%</strong></span>
-                        <span class="download"><strong>%downloads%</strong></span>
+                        <span class="download %download_class%"><strong>%downloads%</strong></span>
                     </div>
                     <div class="blocked_item"></div>
                     <div class="informer loader"></div>
@@ -229,7 +261,7 @@
                         <span class="descript">%description%</span>
                         <br>
                         <a href="#" class="item-install" data-url="%url%" data-id="%id%" data-name="%title%" data-method="%type%">[+install+]</a>
-                        <select name="link"></select>
+                        <span class="store-select-wrap store-version-wrap"><span class="store-select-display"></span><select name="link"></select></span>
                     </div>
                 </div>
                 <div class="blocked_item"></div>
@@ -275,50 +307,30 @@
             // Get layout
             var ExtraLayout;
             var xtras_layout = localStorage.getItem('xtras_layout');
-            if (xtras_layout == '2columns') {
-                set2columns();
-            }
-            if (xtras_layout == '3columns') {
+            if (xtras_layout == '2columns' || xtras_layout == '3columns') {
                 set3columns();
             }
             if (xtras_layout == 'liststyle') {
                 setList();
             }
             //columns
-            function set2columns() {
-                $('.catalog_item').removeClass('col-sm-4');
-                $('.catalog_item').removeClass('col-sm-12');
-                $('.catalog_item').addClass('col-sm-6');
-                $('#3col-btn').removeClass('bt-active');
-                $('#list-btn').removeClass('bt-active');
-                $('#2col-btn').addClass('bt-active');
-                $('.catalog_item').removeClass('liststyle');
-            }
-
-            $("#2col-btn").click(function() {
-                set2columns();
-                localStorage.setItem('xtras_layout', '2columns');
-            });
-
             function set3columns() {
                 $('.catalog_item').removeClass('col-sm-6');
                 $('.catalog_item').removeClass('col-sm-12');
                 $('.catalog_item').addClass('col-sm-4');
-                $('#2col-btn').removeClass('bt-active');
                 $('#list-btn').removeClass('bt-active');
                 $('#3col-btn').addClass('bt-active');
                 $('.catalog_item').removeClass('liststyle');
+                localStorage.setItem('xtras_layout', '3columns');
             }
             $("#3col-btn").click(function() {
                 set3columns();
-                localStorage.setItem('xtras_layout', '3columns');
             });
 
             function setList() {
                 $('.catalog_item').removeClass('col-sm-6');
                 $('.catalog_item').addClass('col-sm-12');
                 $('.catalog_item').addClass('liststyle');
-                $('#2col-btn').removeClass('bt-active');
                 $('#3col-btn').removeClass('bt-active');
                 $('#list-btn').addClass('bt-active');
             }

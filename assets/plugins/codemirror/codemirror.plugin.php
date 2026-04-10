@@ -40,8 +40,8 @@ $historyEventDelay = (isset($historyEventDelay) ? $historyEventDelay : 1250);
 $fontSize = (isset($fontSize) ? 'font-size:' . $fontSize . 'px !important;' : '');
 $lineHeight = (isset($lineHeight) ? 'line-height:' . $lineHeight . ' !important;' : '');
 
-if (!empty($_COOKIE['MODX_themeMode'])) {
-    if ($_COOKIE['MODX_themeMode'] == 3 || $_COOKIE['MODX_themeMode'] == 4) {
+if (!empty($_COOKIE['EVO_themeMode'])) {
+    if ($_COOKIE['EVO_themeMode'] == 3 || $_COOKIE['EVO_themeMode'] == 4) {
         $theme = $darktheme;
     }
 } elseif ($modx->config['manager_theme_mode'] == 3 || $modx->config['manager_theme_mode'] == 4) {

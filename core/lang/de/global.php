@@ -767,7 +767,7 @@ $_lang["role_create_doc"] = 'Neue Ressourcen erstellen';
 $_lang["role_create_plugin"] = 'Neue Plugins erstellen';
 $_lang["role_create_snippet"] = 'Neue Snippets erstellen';
 $_lang["role_create_template"] = 'Neue Templates erstellen';
-$_lang["role_credits"] = 'Danksagungen';
+$_lang["role_widget_online_info"] = 'Widget „Folgende Benutzer sind online“ anzeigen';
 $_lang["role_delete_chunk"] = 'Chunks löschen';
 $_lang["role_delete_doc"] = 'Ressourcen löschen';
 $_lang["role_delete_eventlog"] = 'Ereignisprotokoll löschen';
@@ -799,7 +799,7 @@ $_lang["role_frames"] = 'Manager-Frames ermitteln';
 $_lang["role_help"] = 'Anzeigen der Hilfeseiten';
 $_lang["role_home"] = 'Manager Startseite ermitteln';
 $_lang["role_import_static"] = 'HTML importieren';
-$_lang["role_logout"] = 'Abmeldung aus dem MODX-Manager';
+$_lang["role_widget_recent_info"] = 'Widget „Kürzlich bearbeitete oder erstellte Ressourcen“ anzeigen';
 $_lang["role_manage_metatags"] = 'Meta-Tags und Schlüsselwörter verwalten';
 $_lang["role_management_msg"] = 'Hier können Sie eine Rolle zum Bearbeiten wählen.';
 $_lang["role_management_title"] = 'Rollen';
@@ -1451,5 +1451,12 @@ $_lang["role_tv_msg"] = 'The Variables assigned to this Role are listed below.';
 $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to access/process this Template Variable';
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
+
+$_lang["file_groups_saved"] = 'Zugriffsberechtigungen gespeichert.';
+$_lang["file_groups_edit"] = 'Zugriffsberechtigungen bearbeiten';
+$_lang["files_groups"] = 'Ressourcengruppen:';
+$_lang["access_permissions_file_message"] = 'Wählen Sie aus, zu welchen Ressourcengruppen diese Datei gehört:';
+$_lang["access_permissions_dir_message"] = 'Wählen Sie aus, zu welchen Ressourcengruppen dieses Verzeichnis gehört:';
+$_lang["all_file_groups"] = 'Alle Ressourcengruppen (Öffentlich)';
 
 return $_lang;

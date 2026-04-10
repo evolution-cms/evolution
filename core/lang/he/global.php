@@ -718,7 +718,7 @@ $_lang["role_create_doc"] = 'צור מסמכים חדשים';
 $_lang["role_create_plugin"] = 'צור התקנים חדשים';
 $_lang["role_create_snippet"] = 'צור קטעי קוד חדשים';
 $_lang["role_create_template"] = 'צור תבניות עיצוב חדשות';
-$_lang["role_credits"] = 'הצג קרדיטים';
+$_lang["role_widget_online_info"] = 'הצג את הווידג׳ט משתמשים מחוברים';
 $_lang["role_delete_chunk"] = 'מחק מיני תבניות';
 $_lang["role_delete_doc"] = 'מחק מסמכים';
 $_lang["role_delete_eventlog"] = 'מחק לוגים';
@@ -749,7 +749,7 @@ $_lang["role_frames"] = 'Request manager frames';
 $_lang["role_help"] = 'הצג דפי עזרה';
 $_lang["role_home"] = 'Request manager intro page';
 $_lang["role_import_static"] = 'Import HTML';
-$_lang["role_logout"] = 'התנתק ממערכת הניהול';
+$_lang["role_widget_recent_info"] = 'הצג את הווידג׳ט מסמכים שנערכו/נוצרו לאחרונה';
 $_lang["role_manage_metatags"] = 'Manage site META tags and keywords';
 $_lang["role_management_msg"] = 'Choose the role you wish to edit.';
 $_lang["role_management_title"] = 'תפקידים';
@@ -1224,5 +1224,12 @@ $_lang["role_tv_msg"] = 'The Variables assigned to this Role are listed below.';
 $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to access/process this Template Variable';
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
+
+$_lang["file_groups_saved"] = 'הרשאות גישה נשמרו.';
+$_lang["file_groups_edit"] = 'ערוך הרשאות גישה';
+$_lang["files_groups"] = 'קבוצות משאבים:';
+$_lang["access_permissions_file_message"] = 'בחר לאילו קבוצות משאבים שייך קובץ זה:';
+$_lang["access_permissions_dir_message"] = 'בחר לאילו קבוצות משאבים שייכת תיקייה זו:';
+$_lang["all_file_groups"] = 'כל קבוצות המשאבים (ציבורי)';
 
 return $_lang;

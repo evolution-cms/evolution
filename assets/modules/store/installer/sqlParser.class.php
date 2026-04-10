@@ -20,9 +20,9 @@ class SqlParser {
     public function __construct() {
         $adminname = $_SESSION['mgrShortname'];
         $adminemail = $_SESSION['mgrEmail'];
-        $imgPath = MODX_BASE_PATH . 'assets/images/';
-        $imgUrl = MODX_SITE_URL . 'assets/images/';
-        $fileManagerPath = MODX_BASE_PATH . MGR_DIR . '/';
+        $imgPath = EVO_BASE_PATH . 'assets/images/';
+        $imgUrl = EVO_SITE_URL . 'assets/images/';
+        $fileManagerPath = EVO_BASE_PATH . MGR_DIR . '/';
         $connection_charset= 'utf8';
         $managerlanguage='en';
         $auto_template_logic = 'sibling';

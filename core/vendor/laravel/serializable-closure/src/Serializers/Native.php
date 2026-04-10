@@ -255,7 +255,7 @@ class Native implements Serializable
             $instance = $data;
             $reflection = new ReflectionObject($instance);
 
-            if (! $reflection->isUserDefined()) {
+            if (! $reflection->isUserDefined() || $reflection->hasMethod('__serialize')) {
                 $storage[$instance] = $data;
 
                 return;
@@ -269,7 +269,7 @@ class Native implements Serializable
                 }
 
                 foreach ($reflection->getProperties() as $property) {
-                    if ($property->isStatic() || ! $property->getDeclaringClass()->isUserDefined()) {
+                    if ($property->isStatic() || ! $property->getDeclaringClass()->isUserDefined() || static::isVirtualProperty($property)) {
                         continue;
                     }
 
@@ -367,7 +367,7 @@ class Native implements Serializable
                 }
 
                 foreach ($reflection->getProperties() as $property) {
-                    if ($property->isStatic() || ! $property->getDeclaringClass()->isUserDefined()) {
+                    if ($property->isStatic() || ! $property->getDeclaringClass()->isUserDefined() || static::isVirtualProperty($property)) {
                         continue;
                     }
 
@@ -473,7 +473,7 @@ class Native implements Serializable
 
             $reflection = new ReflectionObject($data);
 
-            if (! $reflection->isUserDefined()) {
+            if (! $reflection->isUserDefined() || $reflection->hasMethod('__serialize')) {
                 $this->scope[$instance] = $data;
 
                 return;
@@ -487,7 +487,7 @@ class Native implements Serializable
                 }
 
                 foreach ($reflection->getProperties() as $property) {
-                    if ($property->isStatic() || ! $property->getDeclaringClass()->isUserDefined() || $this->isVirtualProperty($property)) {
+                    if ($property->isStatic() || ! $property->getDeclaringClass()->isUserDefined() || static::isVirtualProperty($property)) {
                         continue;
                     }
 
@@ -513,7 +513,7 @@ class Native implements Serializable
      * @param  \ReflectionProperty  $property
      * @return bool
      */
-    protected function isVirtualProperty(ReflectionProperty $property): bool
+    protected static function isVirtualProperty(ReflectionProperty $property): bool
     {
         return method_exists($property, 'isVirtual') && $property->isVirtual();
     }

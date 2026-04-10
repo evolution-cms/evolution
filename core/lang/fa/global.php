@@ -718,7 +718,7 @@ $_lang["role_create_doc"] = 'ایجاد پرونده جدید';
 $_lang["role_create_plugin"] = 'ایجاد پلاگین جدید';
 $_lang["role_create_snippet"] = 'ایجاد اسنیپت جدید';
 $_lang["role_create_template"] = 'ایجاد قالبهای جدید وبگاه';
-$_lang["role_credits"] = 'نمایش جزییات';
+$_lang["role_widget_online_info"] = 'مشاهده ویجت کاربران حاضر در وبگاه یا سایت شما';
 $_lang["role_delete_chunk"] = 'حذف چانک';
 $_lang["role_delete_doc"] = 'حذف پرونده ها';
 $_lang["role_delete_eventlog"] = 'حذف آمار فعالیت';
@@ -749,7 +749,7 @@ $_lang["role_frames"] = 'درخواست فریم های مدیریت';
 $_lang["role_help"] = 'مشاهده ی صفحات راهنما';
 $_lang["role_home"] = 'درخواست صفحه ی مقدمه ی مدیریت';
 $_lang["role_import_static"] = 'واردسازی HTML';
-$_lang["role_logout"] = 'خروج از مدیریت';
+$_lang["role_widget_recent_info"] = 'مشاهده ویجت پرونده هایی که به تازگی ایجاد / ویرایش شده اند';
 $_lang["role_manage_metatags"] = 'مدیریت کلمات شاخص و کلیدی وبگاه';
 $_lang["role_management_msg"] = 'در اینجا شما میتوانید نقش مورد نظر خود را برای ویرایش انتخاب کنید.';
 $_lang["role_management_title"] = 'نقش ها';
@@ -1225,4 +1225,10 @@ $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to acces
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
 
+$_lang["file_groups_saved"] = 'مجوزهای دسترسی ذخیره شد.';
+$_lang["file_groups_edit"] = 'ویرایش مجوزهای دسترسی';
+$_lang["files_groups"] = 'گروه‌های منابع:';
+$_lang["access_permissions_file_message"] = 'انتخاب کنید این فایل به کدام گروه‌های منابع تعلق دارد:';
+$_lang["access_permissions_dir_message"] = 'انتخاب کنید این پوشه به کدام گروه‌های منابع تعلق دارد:';
+$_lang["all_file_groups"] = 'همه گروه‌های منابع (عمومی)';
 return $_lang;

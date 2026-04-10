@@ -719,7 +719,7 @@ $_lang["role_create_doc"] = 'Skapa nya resurser';
 $_lang["role_create_plugin"] = 'Skapa nya plugins';
 $_lang["role_create_snippet"] = 'Skapa nya snippets';
 $_lang["role_create_template"] = 'Skapa nya mallar';
-$_lang["role_credits"] = 'Visa erkännandesidan';
+$_lang["role_widget_online_info"] = 'Visa widget Inloggade användare';
 $_lang["role_delete_chunk"] = 'Ta bort chunks';
 $_lang["role_delete_doc"] = 'Ta bort resurser';
 $_lang["role_delete_eventlog"] = 'Ta bort händelselogg';
@@ -750,7 +750,7 @@ $_lang["role_frames"] = 'Ladda innehållshanteraren';
 $_lang["role_help"] = 'Visa hjälpsidor';
 $_lang["role_home"] = 'Ladda introduktionssidan';
 $_lang["role_import_static"] = 'Importera HTML';
-$_lang["role_logout"] = 'Logga ut från innehållshanteraren';
+$_lang["role_widget_recent_info"] = 'Visa widget Nyligen skapade/redigerade resurser';
 $_lang["role_manage_metatags"] = 'Hantera webbplatsens META-taggar och nyckelord';
 $_lang["role_management_msg"] = 'Skapa en ny roll eller välja en redan befintlig för redigering.';
 $_lang["role_management_title"] = 'Roller';
@@ -1224,5 +1224,12 @@ $_lang["role_tv_msg"] = 'The Variables assigned to this Role are listed below.';
 $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to access/process this Template Variable';
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
+
+$_lang["file_groups_saved"] = 'Åtkomstbehörigheter sparade.';
+$_lang["file_groups_edit"] = 'Redigera åtkomstbehörigheter';
+$_lang["files_groups"] = 'Resursgrupper:';
+$_lang["access_permissions_file_message"] = 'Välj vilka Resursgrupper den här filen tillhör:';
+$_lang["access_permissions_dir_message"] = 'Välj vilka Resursgrupper den här katalogen tillhör:';
+$_lang["all_file_groups"] = 'Alla resursgrupper (Offentliga)';
 
 return $_lang;

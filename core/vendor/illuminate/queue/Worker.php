@@ -816,7 +816,7 @@ class Worker
      */
     public function memoryExceeded($memoryLimit)
     {
-        return $memoryLimit > 0 && (memory_get_usage(true) / 1024 / 1024) >= $memoryLimit;
+        return ((int) $memoryLimit) > 0 && (memory_get_usage(true) / 1024 / 1024) >= ((int) $memoryLimit);
     }
 
     /**
@@ -882,7 +882,7 @@ class Worker
     public function sleep($seconds)
     {
         if ($seconds < 1) {
-            usleep($seconds * 1000000);
+            usleep($seconds * 1_000_000);
         } else {
             sleep($seconds);
         }

@@ -18,6 +18,30 @@ class MySqlGrammar extends Grammar
     protected $operators = ['sounds like'];
 
     /**
+     * Compile a select query into SQL.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @return string
+     */
+    public function compileSelect(Builder $query)
+    {
+        $sql = parent::compileSelect($query);
+
+        if ($query->timeout === null) {
+            return $sql;
+        }
+
+        $milliseconds = $query->timeout * 1000;
+
+        return preg_replace(
+            '/^select\b/i',
+            'select /*+ MAX_EXECUTION_TIME('.$milliseconds.') */',
+            $sql,
+            1
+        );
+    }
+
+    /**
      * Compile a "where like" clause.
      *
      * @param  \Illuminate\Database\Query\Builder  $query
@@ -31,6 +55,18 @@ class MySqlGrammar extends Grammar
         $where['operator'] .= $where['caseSensitive'] ? 'like binary' : 'like';
 
         return $this->whereBasic($query, $where);
+    }
+
+    /**
+     * Compile a "where null safe equals" clause.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  array  $where
+     * @return string
+     */
+    protected function whereNullSafeEquals(Builder $query, $where)
+    {
+        return $this->wrap($where['column']).' <=> '.$this->parameter($where['value']);
     }
 
     /**

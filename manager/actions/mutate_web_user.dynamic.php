@@ -126,10 +126,10 @@ if($modx->getManagerApi()->hasFormValues()) {
 
 // include the country list language file
 $_country_lang = [];
-if($manager_language != "english" && file_exists(MODX_MANAGER_PATH . "includes/lang/country/" . $manager_language . "_country.inc.php")) {
-	include_once MODX_MANAGER_PATH . "includes/lang/country/" . $manager_language . "_country.inc.php";
+if($manager_language != "english" && file_exists(EVO_MANAGER_PATH . "includes/lang/country/" . $manager_language . "_country.inc.php")) {
+	include_once EVO_MANAGER_PATH . "includes/lang/country/" . $manager_language . "_country.inc.php";
 } else {
-	include_once MODX_MANAGER_PATH . "includes/lang/country/en_country.inc.php";
+	include_once EVO_MANAGER_PATH . "includes/lang/country/en_country.inc.php";
 }
 asort($_country_lang);
 
@@ -353,7 +353,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                     </tr>
 
 					<tr>
-						<td><?php echo $_lang['user_email']; ?>:</td>
+						<td><span class="warning">*</span> <?php echo $_lang['user_email']; ?>:</td>
 						<td><input type="text" name="email" class="inputBox" value="<?php echo isset($_POST['email']) ? $_POST['email'] : $userdata['email']; ?>" onChange="documentDirty=true;" />
 							<input type="hidden" name="oldemail" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(!empty($userdata['oldemail']) ? $userdata['oldemail'] : $userdata['email']); ?>" /></td>
 					</tr>
@@ -1034,13 +1034,13 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                         $out = '';
                             if (isset($_POST['photo'])) {
                                 if((strpos($_POST['photo'], "http://") === false)){
-                                    $out = MODX_SITE_URL;
+                                    $out = EVO_SITE_URL;
                                 }
                                 $out.=$_POST['photo'];
                             }else {
                                 if(!empty($userdata['photo'])){
                                     if((strpos($userdata['photo'], "http://") === false)){
-                                    $out = MODX_SITE_URL;
+                                    $out = EVO_SITE_URL;
                                 }
                                 $out.=$userdata['photo'];
 

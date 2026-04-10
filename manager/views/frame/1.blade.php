@@ -53,11 +53,12 @@ $_style['icon_expand'] = svg('tabler-arrows-maximize')->toHtml();
 $_style['icon_compress'] = svg('tabler-arrows-minimize')->toHtml();
 $_style['icon_trash'] = svg('tabler-trash-x')->toHtml();
 $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
+$managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
 @endphp
 <!DOCTYPE html>
 <html dir="{{ManagerTheme::getTextDir()}}" lang="{{ManagerTheme::getLang()}}" xml:lang="{{ManagerTheme::getLang()}}">
 <head>
-    <title>{{evo()->getConfig('site_name')}} - (Evolution CMS Manager)</title>
+    <title>{!! $managerTitle !!}</title>
     <meta http-equiv="Content-Type" content="text/html; charset={{ManagerTheme::getCharset()}}" />
     <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" />
     <meta name="theme-color" content="#000" />
@@ -69,8 +70,8 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
     @endif
     <link rel="icon" type="image/ico" href="{{ManagerTheme::getStyle('favicon')}}" />
     <style>
-        #tree{width:{{$MODX_widthSideBar}}rem}
-        #main,#resizer{left:{{$MODX_widthSideBar}}rem}
+        #tree{width:{{$EVO_widthSideBar}}rem}
+        #main,#resizer{left:{{$EVO_widthSideBar}}rem}
         .ios #main{-webkit-overflow-scrolling:touch;overflow-y:scroll;}
         #mainMenu #nav #bars .icon-expand,
         #mainMenu #nav #bars .icon-collapse{display:inline-block;}
@@ -97,20 +98,22 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
     </script>
     <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
     <script>
-        // GLOBAL variable modx
-        var modx = {
+        // GLOBAL variable evo
+        var evo = {
             MGR_DIR: '{{MGR_DIR}}',
-            MODX_SITE_URL: '{{MODX_SITE_URL}}',
-            MODX_MANAGER_URL: '{{MODX_MANAGER_URL}}',
+            EVO_SITE_URL: '{{EVO_SITE_URL}}',
+            EVO_MANAGER_URL: '{{EVO_MANAGER_URL}}',
+            MODX_SITE_URL: '{{EVO_SITE_URL}}',
+            MODX_MANAGER_URL: '{{EVO_MANAGER_URL}}',
             user: {
                 role: {{(int)$user['role']}},
                 username: '{{$user['username']}}',
                 groups: {!!json_encode(evo()->getUserDocGroups())!!}
             },
             config: {
-                manager_title: '{{evo()->getConfig('site_name')}} - (Evolution CMS Manager)',
+                manager_title: {!! json_encode($managerTitle, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!},
                 menu_height: {{(int)evo()->getConfig('manager_menu_height')}},
-                tree_width: {{(int)$MODX_widthSideBar}},
+                tree_width: {{(int)$EVO_widthSideBar}},
                 tree_min_width: {{(int)$tree_min_width}},
                 session_timeout: {{(int)evo()->getConfig('session_timeout')}},
                 site_start: {{(int)evo()->getConfig('site_start')}},
@@ -126,29 +129,30 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
                 itemToChange: '',
                 selectedObjectName: null
             },
-            lang: {
-                already_deleted: "{{ManagerTheme::getLexicon('already_deleted')}}",
-                cm_unknown_error: "{{ManagerTheme::getLexicon('cm_unknown_error')}}",
-                collapse_tree: "{{ManagerTheme::getLexicon('collapse_tree')}}",
-                confirm_delete_resource: "{{ManagerTheme::getLexicon('confirm_delete_resource')}}",
-                confirm_empty_trash: "{{ManagerTheme::getLexicon('confirm_empty_trash')}}",
-                confirm_publish: "{{ManagerTheme::getLexicon('confirm_publish')}}",
-                confirm_remove_locks: "{{ManagerTheme::getLexicon('confirm_remove_locks')}}",
-                confirm_resource_duplicate: "{{ManagerTheme::getLexicon('confirm_resource_duplicate')}}",
-                confirm_undelete: "{{ManagerTheme::getLexicon('confirm_undelete')}}",
-                confirm_unpublish: "{{ManagerTheme::getLexicon('confirm_unpublish')}}",
-                empty_recycle_bin: "{{ManagerTheme::getLexicon('empty_recycle_bin')}}",
-                empty_recycle_bin_empty: "{{ManagerTheme::getLexicon('empty_recycle_bin_empty')}}",
-                error_no_privileges: "{{ManagerTheme::getLexicon('error_no_privileges')}}",
-                expand_tree: "{{ManagerTheme::getLexicon('expand_tree')}}",
-                loading_doc_tree: "{{ManagerTheme::getLexicon('loading_doc_tree')}}",
-                loading_menu: "{{ManagerTheme::getLexicon('loading_menu')}}",
-                not_deleted: "{{ManagerTheme::getLexicon('not_deleted')}}",
-                unable_set_link: "{{ManagerTheme::getLexicon('unable_set_link')}}",
-                unable_set_parent: "{{ManagerTheme::getLexicon('unable_set_parent')}}",
-                working: "{{ManagerTheme::getLexicon('working')}}",
-                paging_prev: "{{ManagerTheme::getLexicon('paging_prev')}}"
-            },
+            lang: {!! js_json([
+                'already_deleted' => ManagerTheme::getLexicon('already_deleted'),
+                'cm_unknown_error' => ManagerTheme::getLexicon('cm_unknown_error'),
+                'collapse_tree' => ManagerTheme::getLexicon('collapse_tree'),
+                'confirm_delete_resource' => ManagerTheme::getLexicon('confirm_delete_resource'),
+                'confirm_empty_trash' => ManagerTheme::getLexicon('confirm_empty_trash'),
+                'confirm_publish' => ManagerTheme::getLexicon('confirm_publish'),
+                'confirm_remove_locks' => ManagerTheme::getLexicon('confirm_remove_locks'),
+                'confirm_resource_duplicate' => ManagerTheme::getLexicon('confirm_resource_duplicate'),
+                'confirm_undelete' => ManagerTheme::getLexicon('confirm_undelete'),
+                'confirm_unpublish' => ManagerTheme::getLexicon('confirm_unpublish'),
+                'empty_recycle_bin' => ManagerTheme::getLexicon('empty_recycle_bin'),
+                'empty_recycle_bin_empty' => ManagerTheme::getLexicon('empty_recycle_bin_empty'),
+                'error_no_privileges' => ManagerTheme::getLexicon('error_no_privileges'),
+                'error_parent_deleted' => ManagerTheme::getLexicon('error_parent_deleted'),
+                'expand_tree' => ManagerTheme::getLexicon('expand_tree'),
+                'loading_doc_tree' => ManagerTheme::getLexicon('loading_doc_tree'),
+                'loading_menu' => ManagerTheme::getLexicon('loading_menu'),
+                'not_deleted' => ManagerTheme::getLexicon('not_deleted'),
+                'unable_set_link' => ManagerTheme::getLexicon('unable_set_link'),
+                'unable_set_parent' => ManagerTheme::getLexicon('unable_set_parent'),
+                'working' => ManagerTheme::getLexicon('working'),
+                'paging_prev' => ManagerTheme::getLexicon('paging_prev'),
+            ]) !!},
             style: {
                 actions_file: '{!!addslashes($_style['icon_file'])!!}',
                 actions_pencil: '{!!addslashes($_style['icon_pencil'])!!}',
@@ -219,10 +223,12 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
         };
         <?php
         $opened = array_filter(array_map('intval', explode('|', isset($_SESSION['openedArray']) && is_scalar($_SESSION['openedArray']) ? $_SESSION['openedArray'] : '')));
-        echo (empty($opened) ? '' : 'modx.openedArray[' . implode("] = 1;\n		modx.openedArray[", $opened) . '] = 1;') . "\n";
+        echo (empty($opened) ? '' : 'evo.openedArray[' . implode("] = 1;\n		evo.openedArray[", $opened) . '] = 1;') . "\n";
         ?>
     </script>
-    <script src="{{ManagerTheme::getThemeUrl()}}js/modx.js?v={{evo()->getVersionData('version')}}"></script>
+    <script src="media/script/tree-drop-guard-helper.js?v={{evo()->getVersionData('version')}}"></script>
+    <script src="media/script/main-target-link-helper.js?v={{evo()->getVersionData('version')}}"></script>
+    <script src="{{ManagerTheme::getThemeUrl()}}js/evo.js?v={{evo()->getVersionData('version')}}"></script>
     @if ($modx->getConfig('show_picker'))
         <script src="media/script/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
         <script src="media/script/spectrum/spectrum.evo.min.js" type="text/javascript"></script>
@@ -296,7 +302,7 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
                         <li id="account" class="dropdown account">
                             <a href="javascript:;" class="dropdown-toggle" onclick="return false;">
                                 @if ($user['photo'])
-                                    <span class="icon photo" style="background-image: url({!!MODX_SITE_URL . entities($user['photo'], evo()->getConfig('modx_charset'))!!});"></span>
+                                    <span class="icon photo" style="background-image: url({!!EVO_SITE_URL . entities($user['photo'], evo()->getConfig('modx_charset'))!!});"></span>
                                 @else
                                     <span class="icon">{!! $_style['icon_user'] !!}</span>
                                 @endif
@@ -318,8 +324,8 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
                             </ul>
                         </li>
                         <li id="theme">
-                            <a id="treeMenu_theme_dark" onclick="modx.tree.toggleTheme(event)" title="{{ManagerTheme::getLexicon('manager_theme_mode_title')}}">
-                                {!! $_style['icon_theme'] !!}
+                            <a id="treeMenu_theme_dark" onclick="evo.tree.toggleTheme(event)" title="{{ManagerTheme::getLexicon('manager_theme_mode_title')}}">
+                                <span class="icon">{!! $_style['icon_theme'] !!}</span>
                             </a>
                         </li>
                         @if (
@@ -403,11 +409,11 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
                 </div>
             </div>
             <div id="evo-tab-page-home" class="evo-tab-page show iframe-scroller">
-                <iframe id="mainframe" src="index.php?a={{$initMainframeAction}}" scrolling="auto" frameborder="0" onload="modx.main.onload(event);"></iframe>
+                <iframe id="mainframe" src="index.php?a={{$initMainframeAction}}" scrolling="auto" frameborder="0" onload="evo.main.onload(event);"></iframe>
             </div>
         @else
             <div class="iframe-scroller">
-                <iframe id="mainframe" name="main" src="index.php?a={{$initMainframeAction}}" scrolling="auto" frameborder="0" onload="modx.main.onload(event);"></iframe>
+                <iframe id="mainframe" name="main" src="index.php?a={{$initMainframeAction}}" scrolling="auto" frameborder="0" onload="evo.main.onload(event);"></iframe>
             </div>
         @endif
         <script>
@@ -473,7 +479,7 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
                 </label>
             </div>
             <div class="text-center">
-                <a href="javascript:;" class="btn btn-primary" onclick="modx.tree.updateTree();modx.tree.showSorter(event);" title="{{ManagerTheme::getLexicon('sort_tree')}}">{{ManagerTheme::getLexicon('sort_tree')}}</a>
+                <a href="javascript:;" class="btn btn-primary" onclick="evo.tree.updateTree();evo.tree.showSorter(event);" title="{{ManagerTheme::getLexicon('sort_tree')}}">{{ManagerTheme::getLexicon('sort_tree')}}</a>
             </div>
         </form>
     </div>
@@ -515,7 +521,7 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
         function constructLink($action, $img, $text, $allowed)
         {
             if ((bool) $allowed) {
-                echo '<div class="menuLink" id="item' . $action . '" onclick="modx.tree.menuHandler(' . $action . ');">';
+                echo '<div class="menuLink" id="item' . $action . '" onclick="evo.tree.menuHandler(' . $action . ');">';
                 echo iconHtml($img) . ' ' . $text . '</div>';
             }
         }
@@ -562,9 +568,9 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
             var treeMenuOpenImages = document.getElementById('treeMenu_openimages');
             if (treeMenuOpenImages) treeMenuOpenImages.onclick = function(e) {
                 e.preventDefault();
-                if (modx.config.global_tabs && !e.shiftKey) {
-                    modx.tabs({
-                        url: '{{ MODX_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?filemanager=media/browser/{{ $modx->getConfig('which_browser') }}/browse.php&type=images',
+                if (evo.config.global_tabs && !e.shiftKey) {
+                    evo.tabs({
+                        url: '{{ EVO_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?filemanager=media/browser/{{ $modx->getConfig('which_browser') }}/browse.php&type=images',
                         title: '{{ ManagerTheme::getLexicon('images_management') }}'
                     });
                 } else {
@@ -572,8 +578,8 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
                     if (e.shiftKey) {
                         randomNum += ' #' + Math.floor((Math.random() * 999999) + 1);
                     }
-                    modx.openWindow({
-                        url: '{{ MODX_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?&type=images',
+                    evo.openWindow({
+                        url: '{{ EVO_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?&type=images',
                         title: randomNum
                     });
                 }
@@ -584,9 +590,9 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
             var treeMenuOpenFiles = document.getElementById('treeMenu_openfiles');
             if (treeMenuOpenFiles) treeMenuOpenFiles.onclick = function(e) {
                 e.preventDefault();
-                if (modx.config.global_tabs && !e.shiftKey) {
-                    modx.tabs({
-                        url: '{{ MODX_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?filemanager=media/browser/{{ $modx->getConfig('which_browser') }}/browse.php&type=files',
+                if (evo.config.global_tabs && !e.shiftKey) {
+                    evo.tabs({
+                        url: '{{ EVO_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?filemanager=media/browser/{{ $modx->getConfig('which_browser') }}/browse.php&type=files',
                         title: '{{ ManagerTheme::getLexicon('files_files') }}'
                     });
                 } else {
@@ -594,8 +600,8 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
                     if (e.shiftKey) {
                         randomNum += ' #' + Math.floor((Math.random() * 999999) + 1);
                     }
-                    modx.openWindow({
-                        url: '{{ MODX_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?&type=files',
+                    evo.openWindow({
+                        url: '{{ EVO_MANAGER_URL }}media/browser/{{ evo()->getConfig('which_browser') }}/browse.php?&type=files',
                         title: randomNum
                     });
                 }

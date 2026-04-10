@@ -89,20 +89,20 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
         $tree_width = $this->managerTheme->getCore()->getConfig('manager_tree_width');
         $this->parameters['tree_min_width'] = 0;
 
-        if (isset($_COOKIE['MODX_widthSideBar'])) {
-            $MODX_widthSideBar = $_COOKIE['MODX_widthSideBar'];
+        if (isset($_COOKIE['EVO_widthSideBar'])) {
+            $EVO_widthSideBar = $_COOKIE['EVO_widthSideBar'];
         } else {
-            $MODX_widthSideBar = $tree_width;
+            $EVO_widthSideBar = $tree_width;
         }
-        $this->parameters['MODX_widthSideBar'] = $MODX_widthSideBar;
+        $this->parameters['EVO_widthSideBar'] = $EVO_widthSideBar;
 
-        if (!$MODX_widthSideBar) {
+        if (!$EVO_widthSideBar) {
             $body_class .= 'sidebar-closed';
         }
 
         $theme_modes = ['', 'lightness', 'light', 'dark', 'darkness'];
-        if (isset($_COOKIE['MODX_themeMode']) && !empty($theme_modes[$_COOKIE['MODX_themeMode']])) {
-            $body_class .= ' ' . $theme_modes[$_COOKIE['MODX_themeMode']];
+        if (isset($_COOKIE['EVO_themeMode']) && !empty($theme_modes[$_COOKIE['EVO_themeMode']])) {
+            $body_class .= ' ' . $theme_modes[$_COOKIE['EVO_themeMode']];
         } elseif (!empty($theme_modes[$this->managerTheme->getCore()->getConfig('manager_theme_mode')])) {
             $body_class .= ' ' . $theme_modes[$this->managerTheme->getCore()->getConfig('manager_theme_mode')];
         }
@@ -132,7 +132,7 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
 
         foreach ($unlockTranslations as $key => $value) {
             $unlockTranslations[$key] = iconv(
-                $this->managerTheme->getCore()->getConfig('modx_charset'),
+                $this->managerTheme->getCore()->getConfig('evo_charset'),
                 'utf-8',
                 $value
             );
@@ -318,7 +318,7 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
 
     protected function evoLogoIcon(): string
     {
-        $path = MODX_MANAGER_PATH . 'media/style/common/images/misc/logo-evo.svg';
+        $path = EVO_MANAGER_PATH . 'media/style/common/images/misc/logo-evo.svg';
         if (is_file($path)) {
             $svg = file_get_contents($path);
             if ($svg !== false) {
@@ -347,7 +347,7 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
             $this->menuBarsIcon(),
             'javascript:;',
             $this->managerTheme->getLexicon('home'),
-            'modx.resizer.toggle(); return false;',
+            'evo.resizer.toggle(); return false;',
             ' return false;',
             '',
             0,
@@ -823,7 +823,7 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
                     // href
                     'btn btn-secondary',
                     // class or btn-success
-                    "modx.popup({url:'index.php?a=26', title:'" . $this->managerTheme->getLexicon('refresh_site') . "', icon: 'fa-recycle', iframe: 'ajax', selector: '.tab-page>.container', position: 'right top', width: 'auto', maxheight: '50%%', wrap: 'body' })",
+                    "evo.popup({url:'index.php?a=26', title:'" . $this->managerTheme->getLexicon('refresh_site') . "', icon: 'fa-recycle', iframe: 'ajax', selector: '.tab-page>.container', position: 'right top', width: 'auto', maxheight: '50%%', wrap: 'body' })",
                     // onclick
                     $this->managerTheme->getLexicon('refresh_site'),
                     // title
@@ -888,7 +888,7 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
             'remove_locks',
             'tools',
             $this->menuIcon('icon_hourglass') . $this->managerTheme->getLexicon('remove_locks'),
-            'javascript:modx.removeLocks();',
+            'javascript:evo.removeLocks();',
             $this->managerTheme->getLexicon('remove_locks'),
             '',
             'remove_locks',

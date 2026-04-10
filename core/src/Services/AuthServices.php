@@ -87,7 +87,7 @@ class AuthServices
      */
     public function viaRemember()
     {
-        return isset($_COOKIE['modx_remember_manager']);
+        return isset($_COOKIE['evo_remember_manager']);
     }
 
     public function attempt($checked = [])

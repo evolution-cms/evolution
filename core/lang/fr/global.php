@@ -721,7 +721,7 @@ $_lang["role_create_doc"] = 'Créer de nouvelles Ressources';
 $_lang["role_create_plugin"] = 'Créer de nouveaux Plugins';
 $_lang["role_create_snippet"] = 'Créer de nouveaux Snippets';
 $_lang["role_create_template"] = 'Créer de nouveaux Modèles';
-$_lang["role_credits"] = 'Accès aux crédits';
+$_lang["role_widget_online_info"] = 'Voir le widget Utilisateurs en ligne';
 $_lang["role_delete_chunk"] = 'Supprimer des Chunks';
 $_lang["role_delete_doc"] = 'Supprimer des Ressources';
 $_lang["role_delete_eventlog"] = 'Supprimer l\'historique des événements';
@@ -752,7 +752,7 @@ $_lang["role_frames"] = 'Accès aux cadres du Gestionnaire';
 $_lang["role_help"] = 'Accès aux pages d\'aide';
 $_lang["role_home"] = 'Accès à la page d\'introduction du gestionnaire';
 $_lang["role_import_static"] = 'Importation HTML';
-$_lang["role_logout"] = 'Déconnexion du Gestionnaire';
+$_lang["role_widget_recent_info"] = 'Voir le widget Ressources éditées/créées récemment';
 $_lang["role_manage_metatags"] = 'Gérer les balises META et les mots-clés du site';
 $_lang["role_management_msg"] = 'Choisissez le rôle que vous souhaitez modifier.';
 $_lang["role_management_title"] = 'Gestion des rôles';
@@ -1195,4 +1195,10 @@ $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to acces
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
 
+$_lang["file_groups_saved"] = 'Permissions d\'accès enregistrées.';
+$_lang["file_groups_edit"] = 'Modifier les permissions d\'accès';
+$_lang["files_groups"] = 'Groupes de ressources :';
+$_lang["access_permissions_file_message"] = 'Sélectionnez les Groupes de ressources auxquels appartient ce fichier :';
+$_lang["access_permissions_dir_message"] = 'Sélectionnez les Groupes de ressources auxquels appartient ce répertoire :';
+$_lang["all_file_groups"] = 'Tous les groupes de ressources (Public)';
 return $_lang;

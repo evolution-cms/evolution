@@ -38,7 +38,8 @@
     "php": "^8.3",
     "ext-pdo": "*",
     "ext-json": "*",
-    "ext-readline": "*"
+    "ext-readline": "*",
+    "ext-zip": "*"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,

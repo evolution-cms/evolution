@@ -56,4 +56,4 @@ if (substr($content["modulecode"], 0, 5) === '<?php') {
     $content["modulecode"] = substr($content["modulecode"], 5);
 }
 echo evalModule($content["modulecode"], $parameter);
-include MODX_MANAGER_PATH . "includes/sysalert.display.inc.php";
+include EVO_MANAGER_PATH . "includes/sysalert.display.inc.php";

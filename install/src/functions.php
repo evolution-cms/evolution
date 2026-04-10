@@ -4,6 +4,7 @@ const ANSI_BOLD_GREEN = "\033[1;32m";
 const ANSI_BOLD_RED = "\033[1;31m";
 const ANSI_BOLD_YELLOW = "\033[1;33m";
 const ANSI_RESET = "\033[0m";
+const ADMIN_PASSWORD_MIN_LENGTH = 8;
 /**
  * @param  string  $install_language
  * @return string
@@ -32,6 +33,11 @@ function getLangOptions($install_language = 'en')
 
 function escapeHtmlAttribute($unescaped) {
     return htmlspecialchars($unescaped, ENT_QUOTES, 'UTF-8');
+}
+
+function adminPasswordMinLengthMessage(): string
+{
+    return sprintf('Admin password should have at least %d characters', ADMIN_PASSWORD_MIN_LENGTH);
 }
 
 function getDatabaseCharset($database_collation, $driver): string
@@ -240,8 +246,8 @@ function validateAdminEmail($email)
 function validateAdminPassword($password)
 {
     $password = trim($password);
-    if (strlen($password) < 8) {
-        throw new InvalidArgumentException('Admin password should have at least 8 characters');
+    if (strlen($password) < ADMIN_PASSWORD_MIN_LENGTH) {
+        throw new InvalidArgumentException(adminPasswordMinLengthMessage());
     }
     return $password;
 }
@@ -257,18 +263,9 @@ function validateLangCode($langCode)
 /**
  * @return array
  */
-function ph()
+function ph($_lang, $moduleVersion, $evo_textdir, $evo_release_date)
 {
-    global $_lang, $base_path, $moduleVersion, $evo_textdir, $evo_release_date;
     $ph = [];
-
-    if (isset($_SESSION['installmode'])) {
-        $installmode = $_SESSION['installmode'];
-    } else {
-        $installmode = isset($_POST['installmode']) ? (int)$_POST['installmode'] : 0;
-        // @deprecated get_installmode(); wants config.inc.php
-    }
-
     $ph['pagetitle'] = $_lang['modx_install'];
     $ph['textdir'] = $evo_textdir ? ' id="rtl"' : '';
     $ph['version'] = $moduleVersion;
@@ -810,7 +807,7 @@ function removeDocblock($code, $type)
         default:
             return $cleaned;
     };
-    if (substr(trim($cleaned), 0, $count) == $include . ' MODX_BASE_PATH.\'assets/' . $elm_name . '/') {
+    if (substr(trim($cleaned), 0, $count) == $include . ' EVO_BASE_PATH.\'assets/' . $elm_name . '/') {
         return $cleaned;
     }
 
@@ -853,34 +850,36 @@ function removeFolder($path)
  * @param  mixed  $default
  * @return mixed
  */
-function env($key, $default = null)
-{
-    $value = getenv($key);
+if (!function_exists('env')) {
+    function env($key, $default = null)
+    {
+        $value = getenv($key);
 
-    if ($value === false) {
-        return value($default);
+        if ($value === false) {
+            return value($default);
+        }
+
+        switch (strtolower($value)) {
+            case 'true':
+            case '(true)':
+                return true;
+            case 'false':
+            case '(false)':
+                return false;
+            case 'empty':
+            case '(empty)':
+                return '';
+            case 'null':
+            case '(null)':
+                return;
+        }
+
+        if (($valueLength = strlen($value)) > 1 && $value[0] === '"' && $value[$valueLength - 1] === '"') {
+            return substr($value, 1, -1);
+        }
+
+        return $value;
     }
-
-    switch (strtolower($value)) {
-        case 'true':
-        case '(true)':
-            return true;
-        case 'false':
-        case '(false)':
-            return false;
-        case 'empty':
-        case '(empty)':
-            return '';
-        case 'null':
-        case '(null)':
-            return;
-    }
-
-    if (($valueLength = strlen($value)) > 1 && $value[0] === '"' && $value[$valueLength - 1] === '"') {
-        return substr($value, 1, -1);
-    }
-
-    return $value;
 }
 
 /**
@@ -889,9 +888,11 @@ function env($key, $default = null)
  * @param  mixed  $value
  * @return mixed
  */
-function value($value)
-{
-    return $value instanceof Closure ? $value() : $value;
+if (!function_exists('value')) {
+    function value($value)
+    {
+        return $value instanceof Closure ? $value() : $value;
+    }
 }
 
 function seed($folder = 'install')

@@ -19,7 +19,7 @@ $_SESSION['SystemAlertMsgQueque'] = [];
 $SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
 if ($sysMsgs != '') : ?>
-    <link rel="stylesheet" type="text/css" href="<?=MODX_MANAGER_URL;?>media/style/<?=ManagerTheme::getTheme();?>/style.css" />
+    <link rel="stylesheet" type="text/css" href="<?=EVO_MANAGER_URL;?>media/style/<?=ManagerTheme::getTheme();?>/style.css" />
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         if (parent.modx) {

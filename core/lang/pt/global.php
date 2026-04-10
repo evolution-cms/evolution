@@ -718,7 +718,7 @@ $_lang["role_create_doc"] = 'Criar novos Documentos';
 $_lang["role_create_plugin"] = 'Criar novos Plugins';
 $_lang["role_create_snippet"] = 'Criar novos Snippets';
 $_lang["role_create_template"] = 'Criar novos Templates para o site';
-$_lang["role_credits"] = 'Ver créditos';
+$_lang["role_widget_online_info"] = 'Ver widget Utilizadores ligados (Online)';
 $_lang["role_delete_chunk"] = 'Delete Chunks';
 $_lang["role_delete_doc"] = 'Apagar documentos';
 $_lang["role_delete_eventlog"] = 'Apagar registo de eventos (logs)';
@@ -749,7 +749,7 @@ $_lang["role_frames"] = 'Pedir áreas (frames) do Interface de Gestão';
 $_lang["role_help"] = 'Ver páginas de ajuda';
 $_lang["role_home"] = 'Pedir página de início do Interface de Gestão';
 $_lang["role_import_static"] = 'Importar HTML';
-$_lang["role_logout"] = 'Sair do Interface de Gestão';
+$_lang["role_widget_recent_info"] = 'Ver widget Documentos editados/criados recentemente';
 $_lang["role_manage_metatags"] = 'Gerir etiquetas (tags) META e palavras-chave do site';
 $_lang["role_management_msg"] = 'Aqui pode escolher qual o perfil que deseja alterar.';
 $_lang["role_management_title"] = 'Perfis';
@@ -1224,5 +1224,12 @@ $_lang["role_tv_msg"] = 'The Variables assigned to this Role are listed below.';
 $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to access/process this Template Variable';
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
+
+$_lang["file_groups_saved"] = 'Permissões de acesso salvas.';
+$_lang["file_groups_edit"] = 'Editar permissões de acesso';
+$_lang["files_groups"] = 'Grupos de recursos:';
+$_lang["access_permissions_file_message"] = 'Selecione a quais Grupos de recursos este arquivo pertence:';
+$_lang["access_permissions_dir_message"] = 'Selecione a quais Grupos de recursos este diretório pertence:';
+$_lang["all_file_groups"] = 'Todos os grupos de recursos (Público)';
 
 return $_lang;

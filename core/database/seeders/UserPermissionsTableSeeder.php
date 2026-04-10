@@ -63,10 +63,10 @@ class UserPermissionsTableSeeder extends Seeder
                 'group_id' => 1
             ],
             [
-                'name'     => 'Log out of the manager',
-                'lang_key' => 'role_logout',
-                'key'      => 'logout',
-                'disabled' => 1,
+                'name'     => 'View widget Recently edited/created Resources',
+                'lang_key' => 'role_widget_recent_info',
+                'key'      => 'widget_recent_info',
+                'disabled' => 0,
                 'group_id' => 1
             ],
             [
@@ -98,10 +98,10 @@ class UserPermissionsTableSeeder extends Seeder
                 'group_id' => 1
             ],
             [
-                'name'     => 'View credits',
-                'lang_key' => 'role_credits',
-                'key'      => 'credits',
-                'disabled' => 1,
+                'name'     => 'View widget Online users',
+                'lang_key' => 'role_widget_online_info',
+                'key'      => 'widget_online_info',
+                'disabled' => 0,
                 'group_id' => 1
             ],
             [

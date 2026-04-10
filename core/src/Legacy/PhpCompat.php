@@ -28,7 +28,7 @@ class PhpCompat implements PhpCompatInterface
             }
         } elseif ($str !== '') {
             if ($encode !== '') {
-                $encode = evo()->getConfig('modx_charset');
+                $encode = evo()->getConfig('evo_charset');
             }
             $ent_str = htmlspecialchars(($str ?? ''), $flags, $encode);
 
@@ -50,6 +50,6 @@ class PhpCompat implements PhpCompatInterface
 
     public function entities($data)
     {
-        return entities($data, evo()->getConfig('modx_charset', 'UTF-8'));
+        return entities($data, evo()->getConfig('evo_charset', 'UTF-8'));
     }
 }

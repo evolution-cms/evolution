@@ -770,7 +770,7 @@ $_lang["role_create_doc"] = 'Tworzenie nowych dokumentów';
 $_lang["role_create_plugin"] = 'Utwórz nowe wtyczki';
 $_lang["role_create_snippet"] = 'Tworzenie snippetów';
 $_lang["role_create_template"] = 'Tworzenie nowych szablonów';
-$_lang["role_credits"] = 'Pokazuj stronę \'Zasłużeni\'';
+$_lang["role_widget_online_info"] = 'Wyświetl widżet Zalogowani użytkownicy';
 $_lang["role_delete_chunk"] = 'Usuwanie chunków';
 $_lang["role_delete_doc"] = 'Usuwanie dokumentów';
 $_lang["role_delete_eventlog"] = 'Czyszczenie dziennika zdarzeń';
@@ -802,7 +802,7 @@ $_lang["role_frames"] = 'Pokaż ramki menedżera';
 $_lang["role_help"] = 'Przeglądanie stron pomocy';
 $_lang["role_home"] = 'Pokaż stronę wprowadzającą menedżera';
 $_lang["role_import_static"] = 'Import HTML';
-$_lang["role_logout"] = 'Wylogowanie z menedżera';
+$_lang["role_widget_recent_info"] = 'Wyświetl widżet Ostatnio edytowane dokumenty';
 $_lang["role_manage_metatags"] = 'Zarządzaj META tagami i słowami kluczowymi witryny';
 $_lang["role_management_msg"] = 'Tutaj możesz wybrać, którą rolę chcesz edytować.';
 $_lang["role_management_title"] = 'Zarządzanie rolami';
@@ -1456,5 +1456,12 @@ $_lang["role_tv_msg"] = 'The Variables assigned to this Role are listed below.';
 $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to access/process this Template Variable';
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
+
+$_lang["file_groups_saved"] = 'Uprawnienia dostępu zapisane.';
+$_lang["file_groups_edit"] = 'Edytuj uprawnienia dostępu';
+$_lang["files_groups"] = 'Grupy zasobów:';
+$_lang["access_permissions_file_message"] = 'Wybierz, do których Grup zasobów należy ten plik:';
+$_lang["access_permissions_dir_message"] = 'Wybierz, do których Grup zasobów należy ten katalog:';
+$_lang["all_file_groups"] = 'Wszystkie grupy zasobów (Publiczne)';
 
 return $_lang;

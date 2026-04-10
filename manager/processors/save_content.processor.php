@@ -55,10 +55,11 @@ if (trim($no_esc_pagetitle) == "") {
 }
 
 
-$actionToTake = "new";
-if ($_POST['mode'] == '73' || $_POST['mode'] == '27') {
-    $actionToTake = "edit";
-}
+$actionToTake = ((int)$id > 0 || $_POST['mode'] == '73' || $_POST['mode'] == '27') ? "edit" : "new";
+$newResourceAction = ($type == "reference") ? "72" : "4";
+$editResourceAction = "27";
+$newResourceRedirect = "index.php?a={$newResourceAction}";
+$editResourceRedirect = "index.php?a={$editResourceAction}&id={$id}";
 
 // friendly url alias checks
 if ($modx->getConfig('friendly_urls')) {
@@ -115,11 +116,11 @@ if ($modx->getConfig('friendly_urls')) {
         $docid = $docid->first();
         if (!is_null($docid)) {
             if ($actionToTake == 'edit') {
-                $modx->getManagerApi()->saveFormValues(27);
-                $modx->webAlertAndQuit(sprintf($_lang["duplicate_alias_found"], $docid->id, $alias), "index.php?a=27&id={$id}");
+                $modx->getManagerApi()->saveFormValues($editResourceAction);
+                $modx->webAlertAndQuit(sprintf($_lang["duplicate_alias_found"], $docid->id, $alias), $editResourceRedirect);
             } else {
-                $modx->getManagerApi()->saveFormValues(4);
-                $modx->webAlertAndQuit(sprintf($_lang["duplicate_alias_found"], $docid->id, $alias), "index.php?a=4");
+                $modx->getManagerApi()->saveFormValues($newResourceAction);
+                $modx->webAlertAndQuit(sprintf($_lang["duplicate_alias_found"], $docid->id, $alias), $newResourceRedirect);
             }
         }
     }
@@ -134,11 +135,11 @@ if ($modx->getConfig('friendly_urls')) {
             ->first();
         if (!is_null($docid)) {
             if ($actionToTake == 'edit') {
-                $modx->getManagerApi()->saveFormValues(27);
-                $modx->webAlertAndQuit(sprintf($_lang["duplicate_alias_found"], $docid->id, $alias), "index.php?a=27&id={$id}");
+                $modx->getManagerApi()->saveFormValues($editResourceAction);
+                $modx->webAlertAndQuit(sprintf($_lang["duplicate_alias_found"], $docid->id, $alias), $editResourceRedirect);
             } else {
-                $modx->getManagerApi()->saveFormValues(4);
-                $modx->webAlertAndQuit(sprintf($_lang["duplicate_alias_found"], $docid->id, $alias), "index.php?a=4");
+                $modx->getManagerApi()->saveFormValues($newResourceAction);
+                $modx->webAlertAndQuit(sprintf($_lang["duplicate_alias_found"], $docid->id, $alias), $newResourceRedirect);
             }
         }
     }
@@ -190,11 +191,11 @@ if($_SESSION['mgrRole'] != 1 && is_array($document_groups)) {
 
         if($count == 0) {
             if ($actionToTake == 'edit') {
-                $modx->getManagerApi()->saveFormValues(27);
-                $modx->webAlertAndQuit($_lang["resource_permissions_error"], "index.php?a=27&id={$id}");
+                $modx->getManagerApi()->saveFormValues($editResourceAction);
+                $modx->webAlertAndQuit($_lang["resource_permissions_error"], $editResourceRedirect);
             } else {
-                $modx->getManagerApi()->saveFormValues(4);
-                $modx->webAlertAndQuit($_lang["resource_permissions_error"], "index.php?a=4");
+                $modx->getManagerApi()->saveFormValues($newResourceAction);
+                $modx->webAlertAndQuit($_lang["resource_permissions_error"], $newResourceRedirect);
             }
         }
     }
@@ -282,11 +283,11 @@ if ($modx->getConfig('use_udperms') == 1) {
 
         if (!$udperms->checkPermissions()) {
             if ($actionToTake == 'edit') {
-                $modx->getManagerApi()->saveFormValues(27);
-                $modx->webAlertAndQuit($_lang['access_permission_parent_denied'], "index.php?a=27&id={$id}");
+                $modx->getManagerApi()->saveFormValues($editResourceAction);
+                $modx->webAlertAndQuit($_lang['access_permission_parent_denied'], $editResourceRedirect);
             } else {
-                $modx->getManagerApi()->saveFormValues(4);
-                $modx->webAlertAndQuit($_lang['access_permission_parent_denied'], "index.php?a=4");
+                $modx->getManagerApi()->saveFormValues($newResourceAction);
+                $modx->webAlertAndQuit($_lang['access_permission_parent_denied'], $newResourceRedirect);
             }
         }
     }
@@ -456,7 +457,7 @@ switch ($actionToTake) {
         ]);
 
         // secure web documents - flag as private
-        include MODX_MANAGER_PATH . "includes/secure_web_documents.inc.php";
+        include EVO_MANAGER_PATH . "includes/secure_web_documents.inc.php";
         secureWebDocument($key);
         secureMgrDocument($key);
 
@@ -470,12 +471,11 @@ switch ($actionToTake) {
 
         // redirect/stay options
         if ($_POST['stay'] != '') {
-            // weblink
-            if ($_POST['mode'] == "72")
+            if ($type == "reference") {
                 $a = ($_POST['stay'] == '2') ? "27&id=$key" : "72&pid=$parentId";
-            // document
-            if ($_POST['mode'] == "4")
+            } else {
                 $a = ($_POST['stay'] == '2') ? "27&id=$key" : "4&pid=$parentId";
+            }
             $redirectUrl = "index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'];
         } else {
             $redirectUrl = "index.php?a=3&id=$key&r=1";
@@ -661,7 +661,7 @@ switch ($actionToTake) {
         ]);
 
         // secure web documents - flag as private
-        include MODX_MANAGER_PATH . "includes/secure_web_documents.inc.php";
+        include EVO_MANAGER_PATH . "includes/secure_web_documents.inc.php";
         secureWebDocument($id);
         secureMgrDocument($id);
 

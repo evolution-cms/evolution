@@ -22,15 +22,24 @@ browser.initFiles = function() {
     $('.file').unbind();
     $('.file').click(function(e) {
         _.unselect();
-        browser.selectFile($(this), e);
+        if ($(this).data('isDir'))
+            browser.openDir($(this));
+        else
+            browser.selectFile($(this), e);
     });
     $('.file').rightClick(function(e) {
         _.unselect();
-        browser.menuFile($(this), e);
+        if ($(this).data('isDir'))
+            browser.menuFolder($(this), e);
+        else
+            browser.menuFile($(this), e);
     });
     $('.file').dblclick(function() {
         _.unselect();
-        browser.returnFile($(this));
+        if ($(this).data('isDir'))
+            browser.openDir($(this));
+        else
+            browser.returnFile($(this));
     });
     $('.selectThis').click(function() {
         _.unselect();
@@ -63,20 +72,24 @@ browser.showFiles = function(callBack, selected) {
             stamp = _.md5(stamp.join('|'));
             if (_.kuki.get('view') == 'list') {
                 if (!i) html += '<table summary="list">';
-                var icon = _.getFileExtension(file.name);
-                if (file.thumb)
-                    icon = '.image';
-                else if (!icon.length || !file.smallIcon)
-                    icon = '.';
+                var icon = file.isDir ? 'folder' : _.getFileExtension(file.name);
+                if (!file.isDir) {
+                    if (file.thumb)
+                        icon = '.image';
+                    else if (!icon.length || !file.smallIcon)
+                        icon = '.';
+                }
                 icon = 'themes/' + browser.theme + '/img/files/small/' + icon + '.png';
                 html += '<tr class="file">' +
                     '<td class="name" style="background-image:url(' + icon + ')">' + _.htmlData(file.name) + '</td>' +
                     '<td class="time">' + file.date + '</td>' +
-                    '<td class="size">' + browser.humanSize(file.size) + '</td>' +
+                    '<td class="size">' + (file.isDir ? '' : browser.humanSize(file.size)) + '</td>' +
                 '</tr>';
                 if (i == browser.files.length - 1) html += '</table>';
             } else {
-                if (file.thumb)
+                if (file.isDir)
+                    var icon = 'themes/' + browser.theme + '/img/files/big/folder.png';
+                else if (file.thumb)
                     var icon = browser.baseGetData('thumb') + '&file=' + encodeURIComponent(file.name) + '&dir=' + encodeURIComponent(browser.dir) + '&stamp=' + stamp;
                 else if (file.smallThumb || _.getFileExtension(file.name) === 'svg') {
                     var icon = browser.siteURL + browser.assetsURL + '/' + browser.dir + '/' + file.name;
@@ -90,8 +103,8 @@ browser.showFiles = function(callBack, selected) {
                     '<div class="lazy thumb ' + (file.thumb ? '' : 'skipthumb') + '" data-src="' + icon + '"></div>' +
                     '<div class="name">' + _.htmlData(file.name) + '</div>' +
                     '<div class="time">' + file.date + '</div>' +
-                    '<div class="size">' + browser.humanSize(file.size) + '</div>' +
-                    '<div class="selectThis">' + "+" + '</div>' +
+                    '<div class="size">' + (file.isDir ? '' : browser.humanSize(file.size)) + '</div>' +
+                    '<div class="selectThis">' + (file.isDir ? '' : '+') + '</div>' +
                 '</div>';
             }
         });
@@ -140,6 +153,33 @@ browser.selectFile = function(file, e) {
     }
 };
 
+browser.openDir = function(file) {
+    var name = file.data('name');
+    var path = browser.dir.length ? browser.dir + '/' + name : name;
+    var dir = $('#folders a[href="kcdir:/' + _.escapeDirs(path) + '"]');
+
+    if (!dir.get(0))
+        return false;
+
+    browser.changeDir(dir);
+    return true;
+};
+
+browser.menuFolder = function(file, e) {
+    var name = file.data('name');
+    var path = browser.dir.length ? browser.dir + '/' + name : name;
+    var dir = $('#folders a[href="kcdir:/' + _.escapeDirs(path) + '"]');
+
+    if (!dir.get(0))
+        return browser.openDir(file);
+
+    $('.file').removeClass('selected');
+    file.addClass('selected');
+    $('#fileinfo').html(name);
+    browser.menuDir(dir, e);
+    return true;
+};
+
 browser.selectAll = function(e) {
     if ((!e.ctrlKey && !e.metaKey) || ((e.keyCode != 65) && (e.keyCode != 97)))
         return false;
@@ -149,7 +189,8 @@ browser.selectAll = function(e) {
         $.each(files, function(i, file) {
             if (!$(file).hasClass('selected'))
                 $(file).addClass('selected');
-            size += parseInt($(file).data('size'));
+            if (!$(file).data('isDir'))
+                size += parseInt($(file).data('size'));
         });
         size = this.humanSize(size);
         $('#fileinfo').html(files.length + ' ' + this.label("selected files") + ' (' + size + ')');
@@ -195,20 +236,6 @@ browser.returnFile = function(file) {
         }
         tinyMCEPopup.close();
 
-    } else if (hasTinyMCE) {
-        win.tinymceCallBackURL = fileURL;
-        try {
-            if (win.tinymce.activeEditor.windowManager &&
-                win.tinymce.activeEditor.windowManager.close
-            )
-                win.tinymce.activeEditor.windowManager.close();
-            else if (win.console && win.console.warn)
-                win.console.warn("TinyMCE windowManager.close is unavailable.");
-        } catch (err) {
-            if (win.console && win.console.warn)
-                win.console.warn("TinyMCE windowManager.close failed.", err);
-        }
-
     } else if (this.opener.callBack) {
 
         if (window.opener && window.opener.KCFinder) {
@@ -236,6 +263,20 @@ browser.returnFile = function(file) {
             this.opener.callBackMultiple([fileURL]);
         }
 
+    } else if (hasTinyMCE) {
+        win.tinymceCallBackURL = fileURL;
+        try {
+            if (win.tinymce.activeEditor.windowManager &&
+                win.tinymce.activeEditor.windowManager.close
+            )
+                win.tinymce.activeEditor.windowManager.close();
+            else if (win.console && win.console.warn)
+                win.console.warn("TinyMCE windowManager.close is unavailable.");
+        } catch (err) {
+            if (win.console && win.console.warn)
+                win.console.warn("TinyMCE windowManager.close failed.", err);
+        }
+
     }
 };
 
@@ -243,6 +284,8 @@ browser.returnFiles = function(files) {
     if (this.opener.callBackMultiple && files.length) {
         var rfiles = [];
         $.each(files, function(i, file) {
+            if ($(file).data('isDir'))
+                return;
             rfiles[i] = browser.assetsURL + '/' + browser.dir + '/' + $(file).data('name');
             rfiles[i] = _.escapeDirs(rfiles[i]);
         });
@@ -256,7 +299,7 @@ browser.returnThumbnails = function(files) {
         var rfiles = [];
         var j = 0;
         $.each(files, function(i, file) {
-            if ($(file).data('thumb')) {
+            if (!$(file).data('isDir') && $(file).data('thumb')) {
                 rfiles[j] = browser.thumbsURL + '/' + browser.dir + '/' + $(file).data('name');
                 rfiles[j] = _.escapeDirs(rfiles[j++]);
             }
@@ -268,6 +311,10 @@ browser.returnThumbnails = function(files) {
 
 browser.menuFile = function(file, e) {
     var data = file.data();
+    if (data.isDir) {
+        browser.openDir(file);
+        return;
+    }
     var path = this.dir + '/' + data.name;
     var files = $('.file.selected').get();
     var html = '';

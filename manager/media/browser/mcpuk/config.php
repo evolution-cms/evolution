@@ -25,7 +25,7 @@ $_CONFIG = [
     'theme' => "evo",
     'uploadURL'           => rtrim(EvolutionCMS()->getConfig('rb_base_url'), '/'),
     'uploadDir'           => rtrim(EvolutionCMS()->getConfig('rb_base_dir'), '/'),
-    'siteURL' => MODX_SITE_URL,
+    'siteURL'             => EVO_SITE_URL,
     'assetsURL'           => rtrim(EvolutionCMS()->getConfig('rb_base_url'), '/'),
     'dirPerms'            => intval(EvolutionCMS()->getConfig('new_folder_permissions'), 8),
     'filePerms'           => intval(EvolutionCMS()->getConfig('new_file_permissions'), 8),
@@ -87,7 +87,7 @@ $_CONFIG = [
 
     // THE FOLLOWING SETTINGS CANNOT BE OVERRIDED WITH SESSION CONFIGURATION
     '_check4htaccess' => false,
-    '_tinyMCEPath' => MODX_BASE_URL . "assets/plugins/tinymce/tiny_mce",
+    '_tinyMCEPath' => EVO_BASE_URL . "assets/plugins/tinymce/tiny_mce",
 
     '_sessionVar' => &$_SESSION['KCFINDER'],
     //'_sessionLifetime' => 30,

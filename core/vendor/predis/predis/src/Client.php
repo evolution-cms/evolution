@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2025 Till Krüss
+ * (c) 2021-2026 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -22,6 +22,7 @@ use Predis\Command\RawCommand;
 use Predis\Command\ScriptCommand;
 use Predis\Configuration\Options;
 use Predis\Configuration\OptionsInterface;
+use Predis\Connection\AggregateConnectionInterface;
 use Predis\Connection\ConnectionInterface;
 use Predis\Connection\Parameters;
 use Predis\Connection\ParametersInterface;
@@ -41,6 +42,7 @@ use Predis\Response\ServerException;
 use Predis\Transaction\MultiExec as MultiExecTransaction;
 use ReturnTypeWillChange;
 use RuntimeException;
+use Throwable;
 use Traversable;
 
 /**
@@ -54,7 +56,7 @@ use Traversable;
  */
 class Client implements ClientInterface, IteratorAggregate
 {
-    public const VERSION = '3.3.0';
+    public const VERSION = '3.4.2';
 
     /** @var OptionsInterface */
     private $options;
@@ -90,9 +92,8 @@ class Client implements ClientInterface, IteratorAggregate
             return new Options($options);
         } elseif ($options instanceof OptionsInterface) {
             return $options;
-        } else {
-            throw new InvalidArgumentException('Invalid type for client options');
         }
+        throw new InvalidArgumentException('Invalid type for client options');
     }
 
     /**
@@ -138,11 +139,10 @@ class Client implements ClientInterface, IteratorAggregate
                 return $initializer($parameters, true);
             } elseif ($options->defined('aggregate') && $initializer = $options->aggregate) {
                 return $initializer($parameters, false);
-            } else {
-                throw new InvalidArgumentException(
-                    'Array of connection parameters requires `cluster`, `replication` or `aggregate` client option'
-                );
             }
+            throw new InvalidArgumentException(
+                'Array of connection parameters requires `cluster`, `replication` or `aggregate` client option'
+            );
         }
 
         if (is_callable($parameters)) {
@@ -376,11 +376,24 @@ class Client implements ClientInterface, IteratorAggregate
 
     /**
      * {@inheritdoc}
+     * @throws Throwable
      */
     public function executeCommand(CommandInterface $command)
     {
-        $response = $this->connection->executeCommand($command);
         $parameters = $this->connection->getParameters();
+
+        if ($this->connection instanceof AggregateConnectionInterface || $this->connection instanceof RelayConnection) {
+            $response = $this->connection->executeCommand($command);
+        } else {
+            $response = $parameters->retry->callWithRetry(
+                function () use ($command) {
+                    return $this->connection->executeCommand($command);
+                },
+                function () {
+                    $this->connection->disconnect();
+                }
+            );
+        }
 
         if ($response instanceof ResponseInterface) {
             if ($response instanceof ErrorResponseInterface) {

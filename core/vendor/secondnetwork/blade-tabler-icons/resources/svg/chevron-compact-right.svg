@@ -10,6 +10,6 @@
   stroke-linejoin="round"
   class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-compact-right"
 >
-  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
   <path d="M11 4l3 8l-3 8" />
 </svg>

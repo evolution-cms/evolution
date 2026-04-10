@@ -45,12 +45,16 @@ class LogInOut extends AbstractController implements ManagerTheme\PageController
         \UserManager::logout();
         // Destroy the session entirely so the old SID cannot be reused when the next user logs in
         // on the same browser, which would cause a duplicate PRIMARY KEY violation in active_users.
+
+        $sessionName = session()->driver()->getName() ?? 'evo_session';
+        setcookie($sessionName, '', time() - 3600, '/');
+
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_unset();
             session_destroy();
         }
         // show login screen
-        header('Location: ' . MODX_MANAGER_URL);
+        header('Location: ' . EVO_MANAGER_URL);
         exit();
     }
 
@@ -105,7 +109,7 @@ class LogInOut extends AbstractController implements ManagerTheme\PageController
                 header($header);
             }
         } else {
-            $header = 'Location: ' . MODX_MANAGER_URL;
+            $header = 'Location: ' . EVO_MANAGER_URL;
             if ($ajax === 1) {
                 echo $header;
             } else {
@@ -124,7 +128,7 @@ class LogInOut extends AbstractController implements ManagerTheme\PageController
             exit();
         }
 
-        header('Location: ' . MODX_MANAGER_URL.'#?a=28');
+        header('Location: ' . EVO_MANAGER_URL . '#?a=28');
         exit();
     }
 

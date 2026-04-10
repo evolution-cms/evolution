@@ -1,6 +1,6 @@
 <?php return [
-    'version' => '3.5.5', // Current version number
-    'release_date' => 'Mar 4, 2026', // Date of release
-    'branch' => 'Evolution CMS', // Codebase name
-    'full_appname' => 'Evolution CMS 3.5.5 (Mar 4, 2026)'
+    'version' => '3.5.6',
+    'release_date' => 'Apr 7, 2026',
+    'branch' => 'Evolution CMS',
+    'full_appname' => 'Evolution CMS 3.5.6 (Apr 7, 2026)'
 ];

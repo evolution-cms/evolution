@@ -6,7 +6,7 @@
   fill="currentColor"
   class="icon icon-tabler icons-tabler-filled icon-tabler-sunset-2"
 >
-  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
   <path d="M4 12a1 1 0 0 1 0 2h-1a1 1 0 0 1 0 -2z" />
   <path d="M21 12a1 1 0 0 1 0 2h-1a1 1 0 0 1 0 -2z" />
   <path d="M6.307 5.893l.7 .7a1 1 0 0 1 -1.414 1.414l-.7 -.7a1 1 0 0 1 1.414 -1.414" />

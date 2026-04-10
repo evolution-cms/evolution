@@ -1,5 +1,5 @@
 <?php
-$_lang["about_msg"] = 'Evolution CMS - гэта <a href="https://evo-cms.com/" target="_blank">PHP-прылажэнне і сістэма кіравання кантэнтам</a>, якая дзейнічае пад ліцэнзіяй <a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU GPL.</a>';
+$_lang["about_msg"] = 'Evolution CMS - гэта <a href="https://evo.im/" target="_blank">PHP-прылажэнне і сістэма кіравання кантэнтам</a>, якая дзейнічае пад ліцэнзіяй <a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU GPL.</a>';
 $_lang["about_title"] = 'Аб Evolution CMS';
 
 // days
@@ -263,7 +263,7 @@ $_lang["role_create_doc"] = 'Стварыце новыя рэсурсы';
 $_lang["role_create_plugin"] = 'Стварыце новыя плагіны';
 $_lang["role_create_snippet"] = 'Стварыце новыя сніпеты';
 $_lang["role_create_template"] = 'Стварэнне новых шаблонаў сайта';
-$_lang["role_credits"] = 'Прагляд крэдытаў';
+$_lang["role_widget_online_info"] = 'Прагляд віджэта «Онлайн-карыстальнікі»';
 $_lang["role_delete_chunk"] = 'Выдаліць чанкі';
 $_lang["role_delete_doc"] = 'Выдаліць рэсурсы';
 $_lang["role_delete_eventlog"] = 'Выдаліць журнал падзей';
@@ -295,7 +295,7 @@ $_lang["role_frames"] = 'Менеджэр запытаў кадраў';
 $_lang["role_help"] = 'Прагляд старонкі даведкі';
 $_lang["role_home"] = 'Уводная старонка менеджэра запытаў';
 $_lang["role_import_static"] = 'Імпарт HTML';
-$_lang["role_logout"] = 'Выйсці з дыспетчара';
+$_lang["role_widget_recent_info"] = 'Прагляд віджэта «Нядаўна рэдагаваныя/створаныя рэсурсы»';
 $_lang["role_list_module"] = 'Модуль спісу';
 $_lang["role_manage_metatags"] = 'Кіруйце мета-тэгамі і ключавымі словамі сайта';
 $_lang["role_management_msg"] = 'Выберыце ролю, якую хочаце змяніць.';
@@ -504,7 +504,7 @@ $_lang["change_password"] = 'Змяніць пароль';
 $_lang["change_password_confirm"] = 'Пацвердзіце пароль';
 $_lang["change_password_message"] = 'Калі ласка, увядзіце новы пароль, а затым увядзіце яго яшчэ раз для пацверджання. Ваш пароль павінен быць не менш за 6 сімвалаў.';
 $_lang["change_password_new"] = 'Новы пароль';
-$_lang["charset_message"] = 'Выберыце кодавку для сімвалаў па змаўчанні для сістэмнай зменнай [(modx_charset)]. Гэта не ўплывае на кіраванне.';
+$_lang["charset_message"] = 'Выберыце кодавку для сімвалаў па змаўчанні для сістэмнай зменнай [(evo_charset)]. Гэта не ўплывае на кіраванне.';
 $_lang["charset_title"] = 'Кодавка сімвалаў';
 
 $_lang["cleaningup"] = 'Ачысціць';
@@ -1585,5 +1585,12 @@ $_lang["key_desc"] = 'Ключ для праверанага дазволу';
 $_lang["setting_from_file"] = '<strong class="text-danger">Значэнне параметра вызначана ў core/custom/config/cms/settings</strong>';
 $_lang['disable'] = 'Адключыць';
 $_lang['enable'] = 'Уключыць';
+
+$_lang["file_groups_saved"] = 'Правы доступу захаваны.';
+$_lang["file_groups_edit"] = 'Рэдагаваць правы доступу';
+$_lang["files_groups"] = 'Групы рэсурсаў:';
+$_lang["access_permissions_file_message"] = 'Выберыце, да якіх Груп рэсурсаў належыць гэты файл:';
+$_lang["access_permissions_dir_message"] = 'Выберыце, да якіх Груп рэсурсаў належыць гэты каталог:';
+$_lang["all_file_groups"] = 'Усе групы рэсурсаў (Публічныя)';
 
 return $_lang;

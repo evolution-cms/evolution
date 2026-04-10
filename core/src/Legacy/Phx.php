@@ -61,7 +61,7 @@ class Phx
 
         $this->modx->setPlaceholder("phx", "&_PHX_INTERNAL_&");
         if (function_exists('mb_internal_encoding')) {
-            mb_internal_encoding($this->modx->config['modx_charset']);
+            mb_internal_encoding($this->modx->config['evo_charset']);
         }
     }
 
@@ -365,10 +365,10 @@ class Phx
                         break;
                     case "htmlent":
                     case "htmlentities":
-                        $output = htmlentities($output, ENT_QUOTES, $this->modx->config['modx_charset']);
+                        $output = htmlentities($output, ENT_QUOTES, $this->modx->config['evo_charset']);
                         break;
                     case "html_entity_decode":
-                        $output = html_entity_decode($output, ENT_QUOTES, $this->modx->config['modx_charset']);
+                        $output = html_entity_decode($output, ENT_QUOTES, $this->modx->config['evo_charset']);
                         break;
                     case "esc":
                         $output = preg_replace("/&amp;(#[0-9]+|[a-z]+);/i", "&$1;", e($output));

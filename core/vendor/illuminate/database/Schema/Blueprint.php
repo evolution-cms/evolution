@@ -97,7 +97,7 @@ class Blueprint
      *
      * @param  \Illuminate\Database\Connection  $connection
      * @param  string  $table
-     * @param  \Closure|null  $callback
+     * @param  (\Closure(self): void)|null  $callback
      */
     public function __construct(Connection $connection, $table, ?Closure $callback = null)
     {
@@ -1519,6 +1519,17 @@ class Blueprint
     }
 
     /**
+     * Create a new tsvector column on the table.
+     *
+     * @param  string  $column
+     * @return \Illuminate\Database\Schema\ColumnDefinition
+     */
+    public function tsvector($column)
+    {
+        return $this->addColumn('tsvector', $column);
+    }
+
+    /**
      * Add the proper columns for a polymorphic table.
      *
      * @param  string  $name
@@ -1819,7 +1830,7 @@ class Blueprint
      * Add the columns from the callback after the given column.
      *
      * @param  string  $column
-     * @param  \Closure  $callback
+     * @param  (\Closure(self): void)  $callback
      * @return void
      */
     public function after($column, Closure $callback)

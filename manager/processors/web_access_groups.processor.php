@@ -111,7 +111,7 @@ switch ($operation) {
 
 // secure web documents - flag as private
 if ($updategroupaccess == true) {
-    include MODX_MANAGER_PATH . "includes/secure_web_documents.inc.php";
+    include EVO_MANAGER_PATH . "includes/secure_web_documents.inc.php";
     if ($context) {
         secureWebDocument();
     } else {

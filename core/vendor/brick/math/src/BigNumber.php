@@ -61,7 +61,7 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
         '/^' .
         '(?<sign>[\-\+])?' .
         '(?<numerator>[0-9]+)' .
-        '\/?' .
+        '\/' .
         '(?<denominator>[0-9]+)' .
         '$/';
 
@@ -110,8 +110,10 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
      * @throws NumberFormatException      If the format of the number is not valid.
      * @throws DivisionByZeroException    If the value represents a rational number with a denominator of zero.
      * @throws RoundingNecessaryException If the value cannot be converted to an instance of the subclass without rounding.
+     *
+     * @pure
      */
-    public static function ofNullable(BigNumber|int|float|string|null $value): ?static
+    final public static function ofNullable(BigNumber|int|float|string|null $value): ?static
     {
         if (is_null($value)) {
             return null;
@@ -123,11 +125,15 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
     /**
      * Returns the minimum of the given values.
      *
-     * @param BigNumber|int|float|string ...$values The numbers to compare. All the numbers need to be convertible
-     *                                              to an instance of the class this method is called on.
+     * If several values are equal and minimal, the first one is returned.
+     * This can affect the concrete return type when calling this method on BigNumber.
+     *
+     * @param BigNumber|int|float|string ...$values The numbers to compare. All the numbers must be convertible to an
+     *                                              instance of the class this method is called on.
      *
      * @throws InvalidArgumentException If no values are given.
-     * @throws MathException            If an argument is not valid.
+     * @throws MathException            If a number is not valid, or is not convertible to an instance of the class
+     *                                  this method is called on.
      *
      * @pure
      */
@@ -153,11 +159,15 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
     /**
      * Returns the maximum of the given values.
      *
-     * @param BigNumber|int|float|string ...$values The numbers to compare. All the numbers need to be convertible
-     *                                              to an instance of the class this method is called on.
+     * If several values are equal and maximal, the first one is returned.
+     * This can affect the concrete return type when calling this method on BigNumber.
+     *
+     * @param BigNumber|int|float|string ...$values The numbers to compare. All the numbers must be convertible to an
+     *                                              instance of the class this method is called on.
      *
      * @throws InvalidArgumentException If no values are given.
-     * @throws MathException            If an argument is not valid.
+     * @throws MathException            If a number is not valid, or is not convertible to an instance of the class
+     *                                  this method is called on.
      *
      * @pure
      */
@@ -189,11 +199,12 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
      * When called on BigInteger, BigDecimal, or BigRational, sum() requires that all values can be converted to that
      * specific subclass, and returns a result of the same type.
      *
-     * @param BigNumber|int|float|string ...$values The values to add. All values must be convertible to the class on
-     *                                              which this method is called.
+     * @param BigNumber|int|float|string ...$values The numbers to add. All the numbers must be convertible to an
+     *                                              instance of the class this method is called on.
      *
      * @throws InvalidArgumentException If no values are given.
-     * @throws MathException            If an argument is not valid.
+     * @throws MathException            If a number is not valid, or is not convertible to an instance of the class
+     *                                  this method is called on.
      *
      * @pure
      */
@@ -219,6 +230,8 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
     /**
      * Checks if this number is equal to the given one.
      *
+     * @throws MathException If the given number is not valid.
+     *
      * @pure
      */
     final public function isEqualTo(BigNumber|int|float|string $that): bool
@@ -227,7 +240,9 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
     }
 
     /**
-     * Checks if this number is strictly lower than the given one.
+     * Checks if this number is strictly less than the given one.
+     *
+     * @throws MathException If the given number is not valid.
      *
      * @pure
      */
@@ -237,7 +252,9 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
     }
 
     /**
-     * Checks if this number is lower than or equal to the given one.
+     * Checks if this number is less than or equal to the given one.
+     *
+     * @throws MathException If the given number is not valid.
      *
      * @pure
      */
@@ -249,6 +266,8 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
     /**
      * Checks if this number is strictly greater than the given one.
      *
+     * @throws MathException If the given number is not valid.
+     *
      * @pure
      */
     final public function isGreaterThan(BigNumber|int|float|string $that): bool
@@ -258,6 +277,8 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
 
     /**
      * Checks if this number is greater than or equal to the given one.
+     *
+     * @throws MathException If the given number is not valid.
      *
      * @pure
      */
@@ -317,6 +338,23 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
     }
 
     /**
+     * Returns the absolute value of this number.
+     *
+     * @pure
+     */
+    final public function abs(): static
+    {
+        return $this->isNegative() ? $this->negated() : $this;
+    }
+
+    /**
+     * Returns the negated value of this number.
+     *
+     * @pure
+     */
+    abstract public function negated(): static;
+
+    /**
      * Returns the sign of this number.
      *
      * Returns -1 if the number is negative, 0 if zero, 1 if positive.
@@ -339,6 +377,41 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
      * @pure
      */
     abstract public function compareTo(BigNumber|int|float|string $that): int;
+
+    /**
+     * Limits (clamps) this number between the given minimum and maximum values.
+     *
+     * If the number is lower than $min, returns $min.
+     * If the number is greater than $max, returns $max.
+     * Otherwise, returns this number unchanged.
+     *
+     * @param BigNumber|int|float|string $min The minimum. Must be convertible to an instance of the class this method is called on.
+     * @param BigNumber|int|float|string $max The maximum. Must be convertible to an instance of the class this method is called on.
+     *
+     * @throws MathException            If min/max are not convertible to an instance of the class this method is called on.
+     * @throws InvalidArgumentException If min is greater than max.
+     *
+     * @pure
+     */
+    final public function clamp(BigNumber|int|float|string $min, BigNumber|int|float|string $max): static
+    {
+        $min = static::of($min);
+        $max = static::of($max);
+
+        if ($min->isGreaterThan($max)) {
+            throw new InvalidArgumentException('Minimum value must be less than or equal to maximum value.');
+        }
+
+        if ($this->isLessThan($min)) {
+            return $min;
+        }
+
+        if ($this->isGreaterThan($max)) {
+            return $max;
+        }
+
+        return $this;
+    }
 
     /**
      * Converts this number to a BigInteger.
@@ -368,11 +441,12 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
     /**
      * Converts this number to a BigDecimal with the given scale, using rounding if necessary.
      *
-     * @param int          $scale        The scale of the resulting `BigDecimal`.
+     * @param int          $scale        The scale of the resulting `BigDecimal`. Must be non-negative.
      * @param RoundingMode $roundingMode An optional rounding mode, defaults to Unnecessary.
      *
-     * @throws RoundingNecessaryException If this number cannot be converted to the given scale without rounding.
-     *                                    This only applies when RoundingMode::Unnecessary is used.
+     * @throws InvalidArgumentException   If the scale is negative.
+     * @throws RoundingNecessaryException If RoundingMode::Unnecessary is used, and this number cannot be converted to
+     *                                    the given scale without rounding.
      *
      * @pure
      */
@@ -398,26 +472,35 @@ abstract readonly class BigNumber implements JsonSerializable, Stringable
      *
      * If the number is greater than the largest representable floating point number, positive infinity is returned.
      * If the number is less than the smallest representable floating point number, negative infinity is returned.
+     * This method never returns NaN.
      *
      * @pure
      */
     abstract public function toFloat(): float;
 
-    #[Override]
-    final public function jsonSerialize(): string
-    {
-        return $this->__toString();
-    }
-
     /**
      * Returns a string representation of this number.
      *
-     * The output of this method can be parsed by the `of()` factory method;
-     * this will yield an object equal to this one, without any information loss.
+     * The output of this method can be parsed by the `of()` factory method; this will yield an object equal to this
+     * one, but possibly of a different type if instantiated through `BigNumber::of()`.
      *
      * @pure
      */
-    abstract public function __toString(): string;
+    abstract public function toString(): string;
+
+    #[Override]
+    final public function jsonSerialize(): string
+    {
+        return $this->toString();
+    }
+
+    /**
+     * @pure
+     */
+    final public function __toString(): string
+    {
+        return $this->toString();
+    }
 
     /**
      * Overridden by subclasses to convert a BigNumber to an instance of the subclass.

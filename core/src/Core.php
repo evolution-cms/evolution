@@ -379,7 +379,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     /**
      * Loads an extension from the extenders folder.
      * You can load any extension creating a boot file:
-     * MODX_MANAGER_PATH."includes/extenders/ex_{$extname}.inc.php"
+     * EVO_MANAGER_PATH."includes/extenders/ex_{$extname}.inc.php"
      * $extname - extension name in lowercase
      *
      * @param $extname
@@ -404,7 +404,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         }
         if (!$out && $flag) {
             $extname = trim(str_replace(['..', '/', '\\'], '', strtolower($extname)));
-            $filename = MODX_MANAGER_PATH . "includes/extenders/ex_{$extname}.inc.php";
+            $filename = EVO_MANAGER_PATH . "includes/extenders/ex_{$extname}.inc.php";
             $out = is_file($filename) ? include $filename : false;
         }
         if ($out && !in_array($extname, $this->extensions)) {
@@ -1106,7 +1106,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
     public function setConditional()
     {
-        if (!empty($_POST) || (defined('MODX_API_MODE') && MODX_API_MODE) || $this->getLoginUserID('mgr') || !$this->useConditional || empty($this->recentUpdate)) {
+        if (!empty($_POST) || (defined('EVO_API_MODE') && EVO_API_MODE) || $this->getLoginUserID('mgr') || !$this->useConditional || empty($this->recentUpdate)) {
             return;
         }
         $last_modified = gmdate('D, d M Y H:i:s T', $this->recentUpdate);
@@ -1561,12 +1561,12 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $ph = array_merge(
                 $this->allConfig(),
                 [
-                    'base_url' => MODX_BASE_URL,
-                    'base_path' => MODX_BASE_PATH,
-                    'site_url' => MODX_SITE_URL,
-                    'valid_hostnames' => MODX_SITE_HOSTNAMES,
-                    'site_manager_url' => MODX_MANAGER_URL,
-                    'site_manager_path' => MODX_MANAGER_PATH
+                    'base_url' => EVO_BASE_URL,
+                    'base_path' => EVO_BASE_PATH,
+                    'site_url' => EVO_SITE_URL,
+                    'valid_hostnames' => EVO_SITE_HOSTNAMES,
+                    'site_manager_url' => EVO_MANAGER_URL,
+                    'site_manager_path' => EVO_MANAGER_PATH
                 ]
             );
         }
@@ -3024,7 +3024,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $k = array_keys($_GET);
         unset($_GET[$k[0]], $_REQUEST[$k[0]]);
         // remove 404,405 entry
-        $qp = parse_url(str_replace(MODX_SITE_URL, '', substr($url, 4)));
+        $qp = parse_url(str_replace(EVO_SITE_URL, '', substr($url, 4)));
         $_SERVER['QUERY_STRING'] = $qp['query'];
         if ($qp['query']) {
             parse_str($qp['query'], $qv);
@@ -3032,7 +3032,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 $_REQUEST[$n] = $_GET[$n] = $v;
             }
         }
-        $_SERVER['PHP_SELF'] = MODX_BASE_URL . $qp['path'];
+        $_SERVER['PHP_SELF'] = EVO_BASE_URL . $qp['path'];
         $this->q = $qp['path'];
     }
 
@@ -3369,12 +3369,12 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $style = '';
         if (IN_MANAGER_MODE) {
             $path = 'media/style/' . $this->getConfig('manager_theme') . '/';
-            if (is_file(MODX_MANAGER_PATH . $path . '/css/styles.min.css')) {
+            if (is_file(EVO_MANAGER_PATH . $path . '/css/styles.min.css')) {
                 $file_name = '/css/styles.min.css';
             } else {
                 $file_name = 'style.css';
             }
-            $style = '<link rel="stylesheet" type="text/css" href="' . MODX_MANAGER_URL . $path . $file_name . '?v=' . Arr::get($GLOBALS, 'lastInstallTime', time()) . '"/>';
+            $style = '<link rel="stylesheet" type="text/css" href="' . EVO_MANAGER_URL . $path . $file_name . '?v=' . Arr::get($GLOBALS, 'lastInstallTime', time()) . '"/>';
         }
 
         ob_get_clean();
@@ -3870,8 +3870,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $files = [];
         }
         foreach ($files as $f) {
-            if (file_exists(MODX_BASE_PATH . $f) && is_file(MODX_BASE_PATH . $f) && is_readable(MODX_BASE_PATH . $f)) {
-                $mail->AddAttachment(MODX_BASE_PATH . $f);
+            if (file_exists(EVO_BASE_PATH . $f) && is_file(EVO_BASE_PATH . $f) && is_readable(EVO_BASE_PATH . $f)) {
+                $mail->AddAttachment(EVO_BASE_PATH . $f);
             }
         }
 
@@ -4681,7 +4681,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             case 'CODE':
                 break;
             case 'FILE':
-                $template = file_get_contents(MODX_BASE_PATH . $template);
+                $template = file_get_contents(EVO_BASE_PATH . $template);
                 break;
             case 'CHUNK':
                 $template = $this->getChunk($template);
@@ -6184,8 +6184,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
         $search_path = ['assets/tvs/', 'assets/chunks/', 'assets/templates/', $this->getConfig('rb_base_url') . 'files/', ''];
         foreach ($search_path as $path) {
-            $file_path = MODX_BASE_PATH . $path . $str;
-            if (strpos($file_path, MODX_MANAGER_PATH) === 0) {
+            $file_path = EVO_BASE_PATH . $path . $str;
+            if (strpos($file_path, EVO_MANAGER_PATH) === 0) {
                 return $errorMsg;
             }
 
@@ -6321,11 +6321,11 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $this->config = array_merge($this->config, $usrSettings);
         $this->setConfig(
             'filemanager_path',
-            str_replace('[(base_path)]', MODX_BASE_PATH, $this->getConfig('filemanager_path'))
+            str_replace('[(base_path)]', EVO_BASE_PATH, $this->getConfig('filemanager_path'))
         );
         $this->setConfig(
             'rb_base_dir',
-            str_replace('[(base_path)]', MODX_BASE_PATH, $this->getConfig('rb_base_dir'))
+            str_replace('[(base_path)]', EVO_BASE_PATH, $this->getConfig('rb_base_dir'))
         );
 
         return $usrSettings;
@@ -6453,7 +6453,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     public function stripAlias($alias)
     {
         // let add-ons overwrite the default behavior
-        $results = $this->invokeEvent('OnStripAlias', ['alias' => $alias]);
+        $results = $this->invokeEvent('OnStripAlias', [
+            'alias' => $alias,
+            'manager_language' => $this->getConfig('manager_language'),
+        ]);
         if (!empty($results)) {
             // if multiple plugins are registered, only the last one is used
             return end($results);
@@ -6517,14 +6520,14 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
         $tpl_dir = 'assets/templates/';
 
-        if (strpos($str, MODX_MANAGER_PATH) === 0) {
+        if (strpos($str, EVO_MANAGER_PATH) === 0) {
             return false;
         }
 
-        if (is_file(MODX_BASE_PATH . $str)) {
-            $file_path = MODX_BASE_PATH . $str;
-        } elseif (is_file(MODX_BASE_PATH . "{$tpl_dir}{$str}")) {
-            $file_path = MODX_BASE_PATH . $tpl_dir . $str;
+        if (is_file(EVO_BASE_PATH . $str)) {
+            $file_path = EVO_BASE_PATH . $str;
+        } elseif (is_file(EVO_BASE_PATH . "{$tpl_dir}{$str}")) {
+            $file_path = EVO_BASE_PATH . $tpl_dir . $str;
         } else {
             return false;
         }
@@ -6699,8 +6702,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     final public function __clone()
     {}
 
-    public function maintenanceMode()
-    {}
+    public function maintenanceMode(): \Illuminate\Contracts\Foundation\MaintenanceMode
+    {
+        return new MaintenanceMode();
+    }
 
     /**
      * @param $callback

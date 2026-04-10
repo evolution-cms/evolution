@@ -762,11 +762,18 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
     color: #464646;
 }
 .lightness #mainMenu .nav > li.active > a {
-    color: #fff;
+    color: #464646;
     background: transparent;
 }
 .lightness #mainMenu.show .nav > li.dropdown.hover > a {
-    color: #fff;
+    color: #464646;
+    background-color: transparent;
+}
+.lightness #mainMenu #settings > #theme > a:hover,
+.lightness #mainMenu #settings > #theme > a:focus,
+.lightness #mainMenu #settings > #theme > a:active,
+.lightness #mainMenu.show #settings > #theme.hover > a {
+    color: #2f2f2f;
     background-color: transparent;
 }
 /* light */

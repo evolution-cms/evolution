@@ -30,6 +30,10 @@ function store_search(val){
 store = {
 	categories:{},
 	types:{},
+	currentList:[],
+	currentTemplate:'list',
+	consoleCatalog:[],
+	allCategoryId:null,
 	extend:function(obj1){
 		hash = '';
 		if ($('[name="hash"]').val() != '') {
@@ -97,17 +101,21 @@ store = {
 		});
 	},
 	init:function(){
+		store.syncTheme();
+		store.observeParentTheme();
 		store.query('start',{'user':'1'},function(data){
 			store.category = data.allcategory;
 			store.catalog = data.category;
 			store.update_category(data.category);
 			/*Show firdt category*/
 			var id = $('.category_list').find('li').first().find('a').attr('data-id');
+			store.allCategoryId = id;
 			$('[name=parent]').val(id);
 			store.update_list( store.category[id] );
+			store.loadConsoleCatalog();
 
 			var version = $('.version').html();
-			if (data.version != version && version != '0.1.3') {
+			if (data.version != version && version != '0.2.0') {
 					$('.new_version').html(data.version);
 					$('#actions').show();
 			}
@@ -128,6 +136,10 @@ store = {
 			store.install(this);
 			return false;
 		});
+		$('.item-more').live('click', function(){
+			store.showItemMore(this);
+			return false;
+		});
 
 		$('.item-install2').live('click',function(){
 			tpl = '<li data-id="'+$(this).attr('data-id')+'">'+$(this).parent().find('.row-category').text()+'<a href="#">X</a></li>';
@@ -136,6 +148,10 @@ store = {
 		});
 
 		$('.category_list a').live('click',function(){
+			if ($(this).attr('data-source') === 'console') {
+				store.update_list(store.consoleCatalog, 'list');
+				return false;
+			}
 			$('[name=parent]').val($(this).attr('data-id'));
 			//store.get_list({}, store.update_list );
 
@@ -149,8 +165,21 @@ store = {
 			return false;
 		});
 
-		$('.item_header :input').change(function(){
-			store.get_list({}, store.update_list );
+		$('#store_sort').change(function(){
+			store.renderCurrentList();
+		});
+		$(document).on('change', '.store-select-wrap select', function(){
+			store.syncSelectDisplay($(this).closest('.store-select-wrap'));
+		});
+
+		$(window).on('focus', function(){
+			store.syncTheme();
+		});
+
+		$(document).on('visibilitychange', function(){
+			if (!document.hidden) {
+				store.syncTheme();
+			}
 		});
 
 		var file;
@@ -197,6 +226,10 @@ store = {
         });
 	},
 	install:function(elm){
+		if ($(elm).attr('data-method') == 'console-extra') {
+			store.showConsoleInstallHelp(elm);
+			return false;
+		}
 
 		var el = $(elm).closest('.catalog_item').find('.informer');
 		var file = $(elm).closest('.catalog_item').find('[name="link"]').val();
@@ -270,12 +303,70 @@ store = {
 	update_category: function(data){
 		$('.category_list').html( '<ul>' +store.parse_list1( data , $('.tpl #tpl_category').html() ) + '</ul>' );
 	},
+	loadConsoleCatalog: function(){
+		$.ajax({
+			url: link() + '&action=console_catalog',
+			cache: false,
+			dataType: 'json',
+			type: 'get',
+			success: function(data){
+				if (!data || !data.ok || !$.isArray(data.items) || data.items.length === 0) {
+					return;
+				}
+				store.consoleCatalog = data.items;
+				store.mergeConsoleIntoAll();
+				store.renderConsoleCategory(data.items.length);
+			}
+		});
+	},
+	mergeConsoleIntoAll: function(){
+		if (!store.allCategoryId || !store.consoleCatalog.length) {
+			return;
+		}
+
+		var existingAll = store.toArray(store.category[store.allCategoryId]);
+		store.category[store.allCategoryId] = store.consoleCatalog.concat(existingAll);
+
+		var firstCategory = $('.category_list ul li').first();
+		if (firstCategory.length) {
+			firstCategory.find('small').text('(' + store.category[store.allCategoryId].length + ')');
+		}
+
+		if ($('[name=parent]').val() == store.allCategoryId) {
+			store.update_list(store.category[store.allCategoryId]);
+		}
+	},
+	renderConsoleCategory: function(count){
+		var label = $('[name="console_category_label"]').val() || 'Console extras';
+		var html = store.parse($('.tpl #tpl_category').html(), {
+			id: 'console-extras',
+			tpl: '',
+			title: label,
+			count: count,
+			source_attr: 'data-source="console"'
+		});
+		html = html.replace('<li>', '<li class="console-category-item">');
+		var list = $('.category_list ul');
+		if (!list.length) {
+			$('.category_list').html('<ul>' + html + '</ul>');
+			return;
+		}
+		list.find('.console-category-item').remove();
+		var first = list.children('li').first();
+		if (first.length) {
+			first.after(html);
+			return;
+		}
+		list.append(html);
+	},
 	update_list: function(data,tpl){
 		tpl = tpl || 'list';
-		$('.item_list').html( store.parse_list( data , $('.tpl #tpl_'+tpl).html() ,tpl) );
+		store.currentList = store.toArray(data);
+		store.currentTemplate = tpl;
+		store.renderCurrentList();
 	},
 	updateUserPack: function(data){
-		$('.item_list').html( store.parse_list( data , $('.tpl #tpl_list').html() ) + '<div class="loader"></div>' );
+		store.update_list(data, 'list');
 	},
 	updateUserCategory:function(data){
 		if (data) {
@@ -310,29 +401,81 @@ store = {
 	},
 	parse_list_item: function(str,array,tpl){
 		tpl = tpl || 'list';
+		array = $.extend(true, {}, array || {});
 		array.cls = 'pack_install';
+		array.install_method = array.install_method || array.type;
+		array.install_command = array.install_command || '';
+		array.source_kind = array.source_kind || (array.install_method === 'console-extra' ? 'console' : 'legacy');
+		array.source_label = array.source_label || (array.source_kind === 'console'
+			? ($('[name="source_label_console"]').val() || 'Console')
+			: ($('[name="source_label_legacy"]').val() || 'Legacy'));
+		array.install_target = array.install_target || array.title || array.name || '';
+		array.source_url = array.source_url || '';
+		array.repo_full_name = array.repo_full_name || '';
+		array.readme_branch = array.readme_branch || '';
+		array.is_dev_package = String(array.is_dev_package || '0');
+		array.dev_badge = array.is_dev_package === '1' ? ($('[name="dev_badge"]').val() || 'DEV') : '';
+		array.dev_badge_class = array.is_dev_package === '1' ? '' : 'hidden';
+		array.download_class = array.downloads ? '' : 'hidden';
+		array.popup_downloads = array.downloads ? '<br/><span class=\'fa fa-download\'> </span> Downloads: <strong>' + store.escapeHtml(array.downloads) + '</strong>' : '';
 		array.zip = array.url == ''?'zip':'github';
 
 		array.version = array.version || '';
 		array.date = array.date || '';
 
 		if ($.isPlainObject(array.url)){
-			options =[];
+			var $str = $(str);
+			var versions = (array.url && array.url.fieldValue) ? array.url.fieldValue : [];
+			var isConsole = (array.source_kind || '') === 'console';
+			var firstOptionLabel = '';
 
-			versions = array.url.fieldValue;
-			$.each(versions,function(key,value){
-				options.push('<option value="'+value.file+'">'+value.version+'</option>');
-				if (!array.version) array.version = value.version;
-				if (!array.date) array.date = value.date;
-				$str = $(str);
-				$str.find('[name=link]').append( options.join(''));
-
-			});
-			$str.find('option').first().prop('selected',true);
-			if (versions.length == 1){
-				$str.find('[name=link]').hide();
+			if (isConsole) {
+				var options = [];
+				$.each(versions,function(key,value){
+					var optionLabel = value.version || array.version || value.file || '';
+					var selected = key === 0 ? ' selected="selected"' : '';
+					options.push('<option value="'+store.escapeHtml(value.file)+'"'+selected+'>'+store.escapeHtml(optionLabel)+'</option>');
+					if (firstOptionLabel === '') firstOptionLabel = optionLabel;
+					if (!array.version) array.version = optionLabel;
+					if (!array.date) array.date = value.date;
+				});
+				if (!options.length && array.version) {
+					options.push('<option value="'+store.escapeHtml(array.version)+'" selected="selected">'+store.escapeHtml(array.version)+'</option>');
+					firstOptionLabel = array.version;
+				}
+				$str.find('[name=link]').html(options.join(''));
+			} else {
+				var legacyOptions = [];
+				var versionCount = 0;
+				$.each(versions,function(key,value){
+					var optionValue = value && value.file ? value.file : '';
+					var optionLabel = (value && value.version) ? value.version : (array.version || optionValue || '');
+					var selected = versionCount === 0 ? ' selected="selected"' : '';
+					legacyOptions.push('<option value="'+store.escapeHtml(optionValue)+'"'+selected+'>'+store.escapeHtml(optionLabel)+'</option>');
+					if (firstOptionLabel === '') firstOptionLabel = optionLabel;
+					if (!array.version) array.version = optionLabel;
+					if (!array.date && value) array.date = value.date;
+					versionCount++;
+				});
+				if (!legacyOptions.length && array.version) {
+					legacyOptions.push('<option value="'+store.escapeHtml(array.version)+'" selected="selected">'+store.escapeHtml(array.version)+'</option>');
+					firstOptionLabel = array.version;
+					versionCount = 1;
+				}
+				$str.find('[name=link]').html(legacyOptions.join(''));
+				$str.find('option').first().prop('selected', true).attr('selected', 'selected');
+				if (versionCount === 0){
+					$str.find('[name=link]').attr('data-hide-display', '1');
+				} else {
+					$str.find('[name=link]').removeAttr('data-hide-display');
+				}
 			}
 
+			if (firstOptionLabel !== '') {
+				$str.find('.store-select-display').first().text(firstOptionLabel);
+			}
+
+			array.url = '';
 			str = $str.wrapAll('<div></div>').parent().html();
 
 		}
@@ -360,8 +503,540 @@ store = {
 		});
 		img = array.image;
 		if (tpl =='cart') img = array.cartimage;
-		if (array.image) out = $('<div id="tmpl">'+out+'</div>').find('img').attr('src', img).closest('#tmpl').html();
-		return out;
+		var $out = $('<div id="tmpl">' + out + '</div>');
+		if (array.image) {
+			$out.find('img').attr('src', img);
+		}
+
+		$out.find('.item-more')
+			.attr('data-title', array.title || '')
+			.attr('data-type', array.type || '')
+			.attr('data-version', array.version || '')
+			.attr('data-date', array.date || '')
+			.attr('data-author', array.author || '')
+			.attr('data-downloads', array.downloads || '')
+			.attr('data-source-url', array.source_url || '')
+			.attr('data-source-kind', array.source_kind || '')
+			.attr('data-source-label', array.source_label || '')
+			.attr('data-description', array.description || '')
+			.attr('data-repo-full-name', array.repo_full_name || '')
+			.attr('data-readme-branch', array.readme_branch || '');
+
+		return $out.html();
+	},
+	showConsoleInstallHelp: function(elm){
+		var name = $(elm).attr('data-name') || '';
+		var packageName = $(elm).attr('data-package') || name;
+		var selectedVersion = $(elm).closest('.catalog_item').find('[name="link"]').val() || '';
+		var command = $(elm).attr('data-command') || '';
+		var sourceUrl = $(elm).attr('data-source-url') || $(elm).attr('data-url') || '';
+		var corePath = $('[name="console_core_path"]').val() || '';
+		var title = $('[name="console_install_title"]').val() || 'Install via console';
+		var intro = $('[name="console_install_intro"]').val() || '';
+		var openCoreLabel = $('[name="console_install_step_open_core"]').val() || '';
+		var runArtisanLabel = $('[name="console_install_step_run_artisan"]').val() || '';
+		var sourceLabel = $('[name="console_install_source_label"]').val() || 'Source';
+		var copyLabel = $('[name="popup_copy_command"]').val() || 'Copy command';
+		if (packageName !== '') {
+			command = 'php artisan extras extras "' + packageName + (selectedVersion ? '@' + selectedVersion : '') + '"';
+		}
+
+		var html = ''
+			+ '<div class="store-popup-shell store-popup-shell-install store-popup-shell-console ' + store.getPopupThemeClass() + '">'
+			+ '<p class="store-popup-description store-popup-install-description">' + store.escapeHtml(intro) + '</p>'
+			+ '<div class="store-install-card">'
+			+ '<div class="store-install-step">'
+			+ '<div class="store-install-card-head">'
+			+ '<span class="store-install-card-label">' + store.escapeHtml(openCoreLabel) + '</span>'
+			+ '<button type="button" class="store-copy-button" data-copy-command="' + store.escapeHtml('cd ' + corePath) + '" aria-label="' + store.escapeHtml(copyLabel) + '"><i class="fa fa-copy"></i></button>'
+			+ '</div>'
+			+ '<div class="store-install-command">' + store.escapeHtml('cd ' + corePath) + '</div>'
+			+ '</div>'
+			+ '<div class="store-install-step">'
+			+ '<div class="store-install-card-head">'
+			+ '<span class="store-install-card-label">' + store.escapeHtml(runArtisanLabel) + '</span>'
+			+ '<button type="button" class="store-copy-button" data-copy-command="' + store.escapeHtml(command) + '" aria-label="' + store.escapeHtml(copyLabel) + '"><i class="fa fa-copy"></i></button>'
+			+ '</div>'
+			+ '<div class="store-install-command">' + store.escapeHtml(command) + '</div>'
+			+ '</div>'
+			+ '</div>';
+
+		if (sourceUrl !== '') {
+			html += '<p class="store-popup-source"><strong>' + store.escapeHtml(sourceLabel) + ':</strong> <a href="' + store.escapeHtml(sourceUrl) + '" target="_blank" rel="noopener">' + store.escapeHtml(sourceUrl) + '</a></p>';
+		}
+
+		html += '</div>';
+
+		store.openPopup(title + ': ' + name, html, 'wide', function(){
+			store.bindPopupCopyButtons();
+		});
+	},
+	showItemMore: function(elm){
+		var $button = $(elm);
+		var title = $button.attr('data-title') || '';
+		var sourceKind = $button.attr('data-source-kind') || 'legacy';
+
+		if (sourceKind === 'console' && $button.attr('data-repo-full-name')) {
+			store.fetchConsoleReadme(
+				$button.attr('data-repo-full-name'),
+				$button.attr('data-readme-branch'),
+				$button.attr('data-source-url'),
+				function(response){
+		store.openPopup(title, store.buildConsolePopupContent($button, response), 'wide');
+				}
+			);
+			return;
+		}
+
+		store.openPopup(title, store.buildLegacyPopupContent($button), 'wide');
+	},
+	fetchConsoleReadme: function(repo, branch, sourceUrl, callback){
+		$.ajax({
+			url: link() + '&action=console_readme',
+			cache: false,
+			dataType: 'json',
+			type: 'get',
+			data: {
+				repo: repo || '',
+				branch: branch || '',
+				source_url: sourceUrl || ''
+			},
+			success: function(data){
+				callback(data || {});
+			},
+			error: function(){
+				callback({
+					ok: false,
+					html: '',
+					message: $('[name="popup_readme_missing"]').val() || 'README.md was not found for this package yet.',
+					repo_url: sourceUrl || ''
+				});
+			}
+		});
+	},
+	buildLegacyPopupContent: function($button){
+		var html = '<div class="store-popup-shell store-popup-shell-console ' + store.getPopupThemeClass() + '">';
+		html += store.buildPopupLead($button);
+		html += store.buildPopupMeta($button);
+		html += store.buildPopupSource($button.attr('data-source-url'));
+		html += '</div>';
+		return html;
+	},
+	buildConsolePopupContent: function($button, response){
+		var readmeLabel = $('[name="popup_readme"]').val() || 'README';
+		var openRepoLabel = $('[name="popup_open_repo"]').val() || 'Open repository';
+		var sourceUrl = response && response.repo_url ? response.repo_url : ($button.attr('data-source-url') || '');
+		var html = '<div class="store-popup-shell store-popup-shell-console ' + store.getPopupThemeClass() + '">';
+		html += store.buildPopupLead($button);
+		html += store.buildPopupMeta($button);
+		html += store.buildPopupSource(sourceUrl);
+
+		if (sourceUrl !== '') {
+			html += '<p class="store-popup-actions"><a href="' + store.escapeHtml(sourceUrl) + '" target="_blank" rel="noopener">' + store.escapeHtml(openRepoLabel) + '</a></p>';
+		}
+
+		html += '<div class="store-popup-section">';
+		html += '<h3>' + store.escapeHtml(readmeLabel) + '</h3>';
+		if (response && response.ok && response.html) {
+			html += '<div class="store-popup-readme">' + response.html + '</div>';
+		} else {
+			html += '<div class="store-popup-empty">' + store.escapeHtml((response && response.message) || ($('[name="popup_readme_missing"]').val() || 'README.md was not found for this package yet.')) + '</div>';
+		}
+		html += '</div></div>';
+		return html;
+	},
+	buildPopupLead: function($button){
+		var description = $button.attr('data-description') || '';
+		var type = $button.attr('data-type') || '';
+		var sourceLabel = $button.attr('data-source-label') || '';
+		var html = '<div class="store-popup-lead">';
+		if (sourceLabel !== '' || type !== '') {
+			html += '<div class="store-popup-badges">';
+			if (sourceLabel !== '') {
+				html += '<span class="store-popup-badge store-popup-badge-source">' + store.escapeHtml(sourceLabel) + '</span>';
+			}
+			if (type !== '') {
+				html += '<span class="store-popup-badge store-popup-badge-type">' + store.escapeHtml(type) + '</span>';
+			}
+			html += '</div>';
+		}
+		if (description !== '') {
+			html += '<p class="store-popup-description">' + store.escapeHtml(description) + '</p>';
+		}
+		html += '</div>';
+		return html;
+	},
+	buildPopupMeta: function($button){
+		var versionLabel = $('[name="popup_version"]').val() || 'Version';
+		var updatedLabel = $('[name="popup_updated"]').val() || 'Updated';
+		var authorLabel = $('[name="popup_author"]').val() || 'Author';
+		var downloadsLabel = $('[name="popup_downloads"]').val() || 'Downloads';
+		var $selectedOption = $button.closest('.catalog_item').find('[name="link"] option:selected');
+		var selectedVersion = $.trim($selectedOption.text() || '') || $.trim($button.closest('.catalog_item').find('[name="link"]').val() || '');
+		var versionValue = selectedVersion || $button.attr('data-version') || '';
+		var html = '<div class="store-popup-meta">';
+
+		html += store.buildMetaItem('fa-refresh', versionLabel, versionValue);
+		html += store.buildMetaItem('fa-clock-o', updatedLabel, $button.attr('data-date') || '');
+		html += store.buildMetaItem('fa-user', authorLabel, $button.attr('data-author') || '');
+		html += store.buildMetaItem('fa-download', downloadsLabel, $button.attr('data-downloads') || '');
+		html += '</div>';
+
+		return html;
+	},
+	buildMetaItem: function(iconClass, label, value){
+		if (!value) {
+			return '';
+		}
+
+		return ''
+			+ '<div class="store-popup-meta-item">'
+			+ '<i class="fa ' + store.escapeHtml(iconClass) + '" aria-hidden="true"></i>'
+			+ '<span class="store-popup-meta-label">' + store.escapeHtml(label) + ':</span>'
+			+ '<strong>' + store.escapeHtml(value) + '</strong>'
+			+ '</div>';
+	},
+	buildPopupSource: function(sourceUrl){
+		var label = $('[name="popup_source"]').val() || 'Source';
+		if (!sourceUrl) {
+			return '';
+		}
+
+		return '<p class="store-popup-source"><strong>' + store.escapeHtml(label) + ':</strong> <a href="' + store.escapeHtml(sourceUrl) + '" target="_blank" rel="noopener">' + store.escapeHtml(sourceUrl) + '</a></p>';
+	},
+	openPopup: function(title, content, size, onOpen){
+		var width = size === 'wide' ? '78%' : '680px';
+		var height = size === 'wide' ? 'auto' : '250px';
+		var popupType = store.isDarkTheme() ? 'dark' : 'default';
+
+		var popupInstance = window.parent.evo.popup({
+			title: title,
+			content: content,
+			type: popupType,
+			width: width,
+			height: height,
+			maxheight: '82%',
+			hide: 0,
+			hover: 0,
+			overlay: 1,
+			overlayclose: 1,
+			showclose: 1,
+			position: 'top center',
+			margin: '10px',
+			wrap: document.body
+		});
+
+		store._activePopupUid = popupInstance && popupInstance.uid ? popupInstance.uid : null;
+		store._activePopupDoc = popupInstance && popupInstance.wrap && popupInstance.wrap.ownerDocument
+			? popupInstance.wrap.ownerDocument
+			: document;
+
+		store.schedulePopupStabilization(size, onOpen);
+	},
+	schedulePopupStabilization: function(size, onOpen){
+		store.stopPopupStabilization();
+
+		var didOpen = false;
+		var stabilize = function(){
+			var $popup = store.getActivePopup();
+			if (!$popup.length) {
+				if (didOpen) {
+					store.stopPopupStabilization();
+				}
+				return;
+			}
+
+			store.decorateActivePopup(size);
+			store.recenterActivePopup();
+
+			if (!didOpen && typeof onOpen === 'function') {
+				didOpen = true;
+				onOpen();
+			}
+		};
+
+		setTimeout(stabilize, 20);
+		setTimeout(stabilize, 80);
+		setTimeout(stabilize, 180);
+		setTimeout(stabilize, 360);
+		setTimeout(stabilize, 720);
+
+		setTimeout(function(){
+			var $popup = store.getActivePopup();
+			if (!$popup.length || !window.MutationObserver) {
+				return;
+			}
+
+			var contentNode = $popup.find('.evo-popup-content').get(0) || $popup.get(0);
+			if (!contentNode) {
+				return;
+			}
+
+			store._popupStabilizeObserver = new MutationObserver(function(){
+				stabilize();
+			});
+			store._popupStabilizeObserver.observe(contentNode, {
+				childList: true,
+				subtree: true
+			});
+
+			$popup.find('img').each(function(){
+				if (!this.complete) {
+					$(this).one('load error', stabilize);
+				}
+			});
+		}, 40);
+
+		store._popupStabilizeTimeout = setTimeout(function(){
+			store.stopPopupStabilization();
+		}, 1500);
+	},
+	stopPopupStabilization: function(){
+		if (store._popupStabilizeInterval) {
+			clearInterval(store._popupStabilizeInterval);
+			store._popupStabilizeInterval = null;
+		}
+		if (store._popupStabilizeTimeout) {
+			clearTimeout(store._popupStabilizeTimeout);
+			store._popupStabilizeTimeout = null;
+		}
+		if (store._popupStabilizeObserver) {
+			store._popupStabilizeObserver.disconnect();
+			store._popupStabilizeObserver = null;
+		}
+		store._activePopupUid = null;
+		store._activePopupDoc = null;
+	},
+	getActivePopup: function(){
+		if (store._activePopupUid) {
+			var activeDoc = store._activePopupDoc || document;
+			var activePopup = activeDoc.getElementById('evo-popup-' + store._activePopupUid);
+			if (activePopup && $(activePopup).is(':visible')) {
+				return $(activePopup);
+			}
+		}
+
+		var $localPopup = $(document).find('.evo-popup:visible').last();
+		if ($localPopup.length) {
+			return $localPopup;
+		}
+
+		if (window.parent && window.parent.document) {
+			return $(window.parent.document).find('.evo-popup:visible').last();
+		}
+
+		return $();
+	},
+	decorateActivePopup: function(size){
+		var $popup = store.getActivePopup();
+		if (!$popup.length) {
+			return;
+		}
+
+		$popup.removeClass('store-popup-os-mac store-popup-os-win store-popup-size-wide store-popup-size-compact');
+		$popup.addClass(size === 'wide' ? 'store-popup-size-wide' : 'store-popup-size-compact');
+		$popup.addClass(store.isMacPlatform() ? 'store-popup-os-mac' : 'store-popup-os-win');
+		if (size === 'wide') {
+			var popupEl = $popup.get(0);
+			var contentEl = $popup.find('.evo-popup-content').get(0);
+			var frameBounds = store.getPopupFrameBounds($popup);
+			var viewportHeight = frameBounds.height || document.documentElement.clientHeight || 0;
+			if (popupEl) {
+				popupEl.style.height = 'auto';
+				popupEl.style.maxHeight = Math.max(420, viewportHeight - 20) + 'px';
+			}
+			if (contentEl) {
+				contentEl.style.height = 'auto';
+				contentEl.style.maxHeight = Math.max(360, viewportHeight - 80) + 'px';
+				contentEl.style.overflowX = 'hidden';
+				contentEl.style.overflowY = 'auto';
+			}
+		} else {
+			var compactPopupEl = $popup.get(0);
+			var compactContentEl = $popup.find('.evo-popup-content').get(0);
+			if (compactPopupEl) {
+				compactPopupEl.style.height = '';
+				compactPopupEl.style.maxHeight = '';
+			}
+			if (compactContentEl) {
+				compactContentEl.style.height = '';
+				compactContentEl.style.maxHeight = '';
+				compactContentEl.style.overflowX = '';
+				compactContentEl.style.overflowY = '';
+			}
+		}
+		store.applyActivePopupTheme($popup);
+	},
+	getPopupFrameBounds: function($popup){
+		var popupDoc = $popup && $popup.length ? $popup.get(0).ownerDocument : document;
+		var popupWindow = popupDoc.defaultView || window;
+		var bounds = {
+			top: 0,
+			left: 0,
+			width: popupWindow.innerWidth || popupDoc.documentElement.clientWidth || 0,
+			height: popupWindow.innerHeight || popupDoc.documentElement.clientHeight || 0
+		};
+
+		if (popupDoc === document) {
+			return bounds;
+		}
+
+		try {
+			if (window.frameElement && window.frameElement.getBoundingClientRect) {
+				var rect = window.frameElement.getBoundingClientRect();
+				if (rect && rect.width && rect.height) {
+					bounds.top = Math.round(rect.top);
+					bounds.left = Math.round(rect.left);
+					bounds.width = Math.round(rect.width);
+					bounds.height = Math.round(rect.height);
+				}
+			}
+		} catch (e) {}
+
+		return bounds;
+	},
+	applyActivePopupTheme: function($popup){
+		if (!$popup || !$popup.length) {
+			return;
+		}
+
+		var isDark = store.isDarkTheme();
+		$popup.removeClass('alert-dark alert-default');
+		$popup.addClass(isDark ? 'alert-dark' : 'alert-default');
+		$popup.find('.evo-popup-content')
+			.removeClass('store-popup-content-theme-dark store-popup-content-theme-light')
+			.addClass(isDark ? 'store-popup-content-theme-dark' : 'store-popup-content-theme-light');
+		$popup.find('.store-popup-shell')
+			.removeClass('store-popup-theme-dark store-popup-theme-light')
+			.addClass(isDark ? 'store-popup-theme-dark' : 'store-popup-theme-light');
+	},
+	recenterActivePopup: function(){
+		var $popup = store.getActivePopup();
+		if (!$popup.length) {
+			return;
+		}
+
+		var popup = $popup.get(0);
+		var frameBounds = store.getPopupFrameBounds($popup);
+		var popupWidth = popup.offsetWidth || 0;
+		var left = frameBounds.left + Math.max(10, Math.round((frameBounds.width - popupWidth) / 2));
+		popup.style.top = (frameBounds.top + 10) + 'px';
+		popup.style.left = left + 'px';
+		popup.style.bottom = 'auto';
+		popup.style.right = 'auto';
+		popup.style.marginTop = '0';
+		popup.style.marginBottom = '0';
+		popup.style.transform = 'none';
+	},
+	isDarkTheme: function(){
+		return $('body').hasClass('darkness');
+	},
+	isMacPlatform: function(){
+		var platform = '';
+		try {
+			platform = (window.parent && window.parent.navigator ? window.parent.navigator.platform : window.navigator.platform) || '';
+		} catch (e) {
+			platform = window.navigator.platform || '';
+		}
+		return /Mac/i.test(platform);
+	},
+	getPopupThemeClass: function(){
+		return store.isDarkTheme() ? 'store-popup-theme-dark' : 'store-popup-theme-light';
+	},
+	bindPopupCopyButtons: function(){
+		var parentDoc = window.parent && window.parent.document ? window.parent.document : document;
+		var copiedLabel = $('[name="popup_copied"]').val() || 'Copied';
+		var copyLabel = $('[name="popup_copy_command"]').val() || 'Copy command';
+		var $doc = window.parent && window.parent.jQuery
+			? window.parent.jQuery(parentDoc)
+			: $(parentDoc);
+
+		$doc.off('click.storecopy', '.store-copy-button').on('click.storecopy', '.store-copy-button', function(event){
+			event.preventDefault();
+			event.stopPropagation();
+			var button = this;
+			var text = $(button).attr('data-copy-command') || '';
+			if (!text) {
+				return false;
+			}
+
+			store.copyText(text, function(success){
+				if (!success) {
+					return;
+				}
+
+				var $button = $(button);
+				$button.addClass('is-copied').attr('aria-label', copiedLabel).html('<i class="fa fa-check"></i>');
+				setTimeout(function(){
+					$button.removeClass('is-copied')
+						.attr('aria-label', copyLabel)
+						.html('<i class="fa fa-copy"></i>');
+				}, 3000);
+			});
+
+			return false;
+		});
+	},
+	copyText: function(text, callback){
+		var done = function(result){
+			if (typeof callback === 'function') {
+				callback(result);
+			}
+		};
+
+		try {
+			var clipboard = null;
+			if (window.navigator && window.navigator.clipboard && window.navigator.clipboard.writeText) {
+				clipboard = window.navigator.clipboard;
+			} else if (window.parent && window.parent.navigator && window.parent.navigator.clipboard && window.parent.navigator.clipboard.writeText) {
+				clipboard = window.parent.navigator.clipboard;
+			}
+			if (clipboard) {
+				clipboard.writeText(text).then(function(){
+					done(true);
+				}).catch(function(){
+					done(store.copyTextFallback(text));
+				});
+				return;
+			}
+		} catch (e) {}
+
+		done(store.copyTextFallback(text));
+	},
+	copyTextFallback: function(text){
+		var tryCopyInDocument = function(targetDoc){
+			try {
+				var textarea = targetDoc.createElement('textarea');
+				textarea.value = text;
+				textarea.setAttribute('readonly', 'readonly');
+				textarea.style.position = 'fixed';
+				textarea.style.top = '0';
+				textarea.style.left = '0';
+				textarea.style.opacity = '0';
+				textarea.style.pointerEvents = 'none';
+				targetDoc.body.appendChild(textarea);
+				textarea.focus();
+				textarea.select();
+				textarea.setSelectionRange(0, textarea.value.length);
+				var ok = targetDoc.execCommand('copy');
+				targetDoc.body.removeChild(textarea);
+				return ok;
+			} catch (e) {
+				return false;
+			}
+		};
+
+		try {
+			if (tryCopyInDocument(document)) {
+				return true;
+			}
+			if (window.parent && window.parent.document && tryCopyInDocument(window.parent.document)) {
+				return true;
+			}
+			return false;
+		} catch (e) {
+			return false;
+		}
 	},
 	parse: function(str,array){
 		var out = str.replace(/%\w+%/g, function(placeholder) {
@@ -369,6 +1044,197 @@ store = {
 		});
 		if (array.image) out = $('<div id="tmpl">'+out+'</div>').find('img').attr('src',array.image).closest('#tmpl').html();
 		return out;
+	},
+	syncTheme: function(){
+		var themeClass = '';
+		try {
+			if (window.parent && window.parent.document && window.parent.document.body && window.parent.document.body.classList.contains('darkness')) {
+				themeClass = 'darkness';
+			}
+		} catch (e) {}
+
+		if (!themeClass) {
+			try {
+				var rawMode = window.localStorage ? window.localStorage.getItem('EVO_themeMode') : null;
+				if (String(rawMode) === '4') {
+					themeClass = 'darkness';
+				}
+			} catch (e) {}
+		}
+
+		store.applyThemeClass(themeClass);
+	},
+	applyThemeClass: function(themeClass){
+		$('body').removeClass('lightness light dark darkness');
+
+		if (themeClass) {
+			$('body').addClass(themeClass);
+		}
+
+		store.applyActivePopupTheme(store.getActivePopup());
+	},
+	observeParentTheme: function(){
+		if (store._themeObserverReady) {
+			return;
+		}
+
+		store._themeObserverReady = true;
+
+		try {
+			if (!window.parent || !window.parent.document || !window.parent.document.body || !window.MutationObserver) {
+				return;
+			}
+
+			var target = window.parent.document.body;
+			var observer = new MutationObserver(function(){
+				store.syncTheme();
+			});
+
+			observer.observe(target, {
+				attributes: true,
+				attributeFilter: ['class']
+			});
+
+			store._themeObserver = observer;
+		} catch (e) {}
+	},
+	renderCurrentList: function(){
+		var tpl = store.currentTemplate || 'list';
+		var sortedList = store.sortList(store.currentList);
+		$('.item_list').html( store.parse_list( sortedList , $('.tpl #tpl_'+tpl).html() , tpl ) );
+		store.syncSelectDisplays();
+	},
+	ensureSelectDisplay: function($select){
+		if (!$select || !$select.length) {
+			return $();
+		}
+
+		var $wrap;
+		if ($select.attr('id') === 'store_sort') {
+			$wrap = $select.closest('.store-sort-wrap');
+			if (!$wrap.length) {
+				$select.wrap('<span class="input-group-btn store-select-wrap store-sort-wrap"></span>');
+				$wrap = $select.parent();
+			}
+			if (!$wrap.hasClass('store-select-wrap')) {
+				$wrap.addClass('store-select-wrap');
+			}
+		} else {
+			$wrap = $select.closest('.store-version-wrap');
+			if (!$wrap.length) {
+				$select.wrap('<span class="store-select-wrap store-version-wrap"></span>');
+				$wrap = $select.parent();
+			}
+		}
+
+		if (!$wrap.find('.store-select-display').length) {
+			$select.before('<span class="store-select-display"></span>');
+		}
+
+		return $wrap;
+	},
+	syncSelectDisplay: function($wrap){
+		if (!$wrap || !$wrap.length) {
+			return;
+		}
+
+		var $select = $wrap.find('select').first();
+		var $display = $wrap.find('.store-select-display').first();
+		if (!$select.length || !$display.length) {
+			return;
+		}
+
+		if ($select.attr('id') !== 'store_sort' && $select.attr('data-hide-display') === '1') {
+			$wrap.hide();
+			return;
+		}
+
+		$wrap.show();
+
+		var text = $.trim($select.find('option:selected').text() || '');
+		if (!text) {
+			text = $.trim($select.find('option').first().text() || '');
+		}
+		$display.text(text);
+		$wrap.toggleClass('store-select-empty', text === '');
+	},
+	syncSelectDisplays: function(context){
+		var $root = context ? $(context) : $(document);
+		$root.find('select[name="link"], #store_sort').each(function(){
+			var $wrap = store.ensureSelectDisplay($(this));
+			store.syncSelectDisplay($wrap);
+		});
+	},
+	sortList: function(data){
+		var items = store.toArray(data);
+		var mode = $('#store_sort').val() || 'default';
+
+		if (mode === 'default') {
+			return items;
+		}
+
+		items.sort(function(a, b){
+			var titleA = store.normalizeTitle(a);
+			var titleB = store.normalizeTitle(b);
+			var downloadsA = store.normalizeDownloads(a);
+			var downloadsB = store.normalizeDownloads(b);
+
+			if (mode === 'title_asc') {
+				return titleA.localeCompare(titleB);
+			}
+			if (mode === 'title_desc') {
+				return titleB.localeCompare(titleA);
+			}
+			if (mode === 'downloads_asc') {
+				if (downloadsA === downloadsB) {
+					return titleA.localeCompare(titleB);
+				}
+				return downloadsA - downloadsB;
+			}
+			if (mode === 'downloads_desc') {
+				if (downloadsA === downloadsB) {
+					return titleA.localeCompare(titleB);
+				}
+				return downloadsB - downloadsA;
+			}
+
+			return 0;
+		});
+
+		return items;
+	},
+	toArray: function(data){
+		if (!data) {
+			return [];
+		}
+		if ($.isArray(data)) {
+			return data.slice();
+		}
+
+		var items = [];
+		$.each(data, function(key, value){
+			items.push(value);
+		});
+		return items;
+	},
+	normalizeTitle: function(item){
+		return String(item.title || item.name_in_modx || item.name || '').toLowerCase();
+	},
+	normalizeDownloads: function(item){
+		var raw = String(item.downloads || '0').replace(/[^\d.-]/g, '');
+		var value = parseInt(raw, 10);
+		return isNaN(value) ? 0 : value;
+	},
+	isStableVersion: function(value){
+		return /^v?\d+\.\d+\.\d+(?:[-+][A-Za-z0-9.-]+)?$/.test(String(value || '').trim());
+	},
+	escapeHtml: function(value){
+		return String(value || '')
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#39;');
 	},
 	is_array: function(inputArray) {
             return inputArray && !(inputArray.propertyIsEnumerable('length')) && typeof inputArray === 'object' && typeof inputArray.length === 'number';
