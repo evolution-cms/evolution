@@ -927,18 +927,11 @@ store = {
 
 		var items = store.toArray(store.category[store.allCategoryId]);
 		var installed = [];
-		var representedLegacy = {};
 		$.each(items, function(index, item){
 			var prepared = store.applyInstalledStateToItem(item);
 			if (prepared.is_installed) {
 				installed.push(prepared);
-				if ((prepared.source_kind || (prepared.install_method === 'console-extra' ? 'console' : 'legacy')) !== 'console') {
-					representedLegacy[store.getLegacyInstalledKey(prepared)] = true;
-				}
 			}
-		});
-		$.each(store.buildSyntheticLegacyInstalledItems(representedLegacy), function(index, item){
-			installed.push(item);
 		});
 		installed.sort(function(a, b){
 			var titleA = store.normalizeTitle(a);
@@ -958,61 +951,6 @@ store = {
 			return versionA.localeCompare(versionB);
 		});
 		store.installedCatalog = installed;
-	},
-	buildSyntheticLegacyInstalledItems: function(representedLegacy){
-		var legacyItems = (store.installedState && store.installedState.legacy_items) || [];
-		var synthetic = [];
-		var sourceLabel = $('[name="source_label_legacy"]').val() || 'Legacy';
-
-		$.each(legacyItems, function(index, item){
-			var normalizedType = store.normalizeLegacyLookupType(item.type);
-			var name = $.trim(String((item && item.name) || ''));
-			var version = $.trim(String((item && item.version) || ''));
-			var key;
-
-			if (!normalizedType || !name) {
-				return;
-			}
-
-			key = normalizedType + '::' + name.toLowerCase();
-			if (representedLegacy[key]) {
-				return;
-			}
-
-			representedLegacy[key] = true;
-			synthetic.push({
-				id: '',
-				title: name,
-				name: name,
-				name_in_modx: name,
-				description: '',
-				type: store.getLegacyDisplayType(normalizedType),
-				install_method: store.getLegacyDisplayType(normalizedType),
-				install_target: name,
-				source_kind: 'legacy',
-				source_label: sourceLabel,
-				is_installed: 1,
-				installed_state: 1,
-				current_version: version,
-				version: version,
-				catalog_version: version,
-				cls: 'pack_reinstall',
-				state_class: 'is-installed',
-				url: '',
-				dependencies: '',
-				downloads: '',
-				source_url: '',
-				repo_full_name: '',
-				readme_branch: '',
-				install_hidden_class: 'hidden',
-				version_hidden_class: 'hidden',
-				more_hidden_class: 'hidden',
-				delete_hidden_class: 'hidden',
-				synthetic_installed_only: 1
-			});
-		});
-
-		return synthetic;
 	},
 	renderInstalledCategory: function(count){
 		var label = $('[name="installed_category_label"]').val() || 'Installed';
