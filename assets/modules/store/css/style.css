@@ -126,33 +126,53 @@ body {
 .store-catalog-loading-state {
   min-height: 280px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 18px;
   border: 1px dashed rgba(122, 144, 167, 0.35);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.04);
   color: #8aa4bd;
   font-size: 18px;
   font-weight: 600;
+  padding: 32px 24px;
 }
 
-.store-catalog-loading-spinner {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  border: 3px solid rgba(122, 144, 167, 0.25);
-  border-top-color: #4ea1ff;
-  animation: storeCatalogSpin 0.8s linear infinite;
+.store-catalog-mainloader {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .store-catalog-loading-text {
   letter-spacing: 0.01em;
+  color: inherit;
 }
 
-@keyframes storeCatalogSpin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.store-catalog-mainloader .evo__logo {
+  font-size: 3.5em;
+  position: relative;
+  top: auto;
+  left: auto;
+}
+
+.store-catalog-mainloader .evo__logo::before {
+  content: "";
+  display: block;
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 50%;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) rotate(0deg);
+  animation: rotateLogo 2s linear infinite;
+  box-shadow: 5px 5px 0 0 #FFD700, 14px -7px 0 0 rgba(111, 163, 219, 0.7), -7px 11px 0 0 rgba(112, 193, 92, 0.74), -11px -7px 0 0 rgba(147, 205, 99, 0.78);
 }
 
 .informer div {

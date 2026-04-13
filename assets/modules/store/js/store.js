@@ -911,7 +911,7 @@ store = {
 		var html = ''
 			+ '<div class="col-sm-12 store-catalog-loading-col">'
 			+ '<div class="store-catalog-loading-state">'
-			+ '<span class="store-catalog-loading-spinner"></span>'
+			+ '<div class="store-catalog-mainloader" aria-hidden="true"><div class="evo__logo">EVO</div></div>'
 			+ '<span class="store-catalog-loading-text">' + store.escapeHtml(label) + '</span>'
 			+ '</div>'
 			+ '</div>';
