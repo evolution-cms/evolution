@@ -161,6 +161,77 @@ body {
   margin: 6px 20px 6px 0px;
 }
 
+.store-system-health {
+  margin: 8px 0 14px;
+}
+
+.store-system-health-card {
+  border: 1px solid #2d5f89;
+  background: rgba(36, 48, 61, 0.55);
+  padding: 10px 12px;
+}
+
+.store-system-health-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.store-system-health-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 6px 10px;
+  border: 1px solid rgba(114, 163, 214, 0.35);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.store-system-health-label {
+  font-weight: 700;
+}
+
+.store-system-health-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.store-system-health-meta {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.store-system-health-item.state-healthy .store-system-health-badge {
+  background: rgba(56, 184, 109, 0.18);
+  color: #7de5a7;
+}
+
+.store-system-health-item.state-degraded .store-system-health-badge,
+.store-system-health-item.state-unknown .store-system-health-badge {
+  background: rgba(255, 193, 7, 0.18);
+  color: #ffd86a;
+}
+
+.store-system-health-item.state-unhealthy .store-system-health-badge {
+  background: rgba(215, 72, 72, 0.18);
+  color: #ff8d8d;
+}
+
+.store-system-health-loading,
+.store-system-health-unavailable {
+  padding: 10px 12px;
+  border: 1px dashed rgba(114, 163, 214, 0.35);
+  opacity: 0.9;
+}
+
 .info span {
   color: #ccc;
 }
@@ -544,6 +615,10 @@ nav ul li {
   display: inline-flex !important;
 }
 
+.catalog_item.has-console-delete .info_extras .item-delete {
+  display: inline-flex !important;
+}
+
 .info_extras .item-delete:hover,
 .info_extras .item-delete:focus {
   background: #b43740;
@@ -645,21 +720,38 @@ nav ul li {
 
 .cont2 {
   padding-right: 10px;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 .list-tools {
   margin-bottom: 15px;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .list-tools .input-group {
   display: flex;
   align-items: stretch;
   gap: 8px;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .list-tools .form-control {
   flex: 1 1 auto;
   min-width: 0;
+}
+
+.list-tools .input-group > * {
+  min-width: 0;
+}
+
+.list-tools .input-group-btn,
+.list-tools .btn,
+.list-tools button:not(.btn) {
+  flex: 0 0 auto;
 }
 
 .store-sort-wrap {
@@ -668,6 +760,7 @@ nav ul li {
   white-space: nowrap;
   position: relative;
   margin-left: auto;
+  flex: 0 0 auto;
   width: 118px;
   max-width: 118px;
 }
@@ -779,6 +872,12 @@ input#store_search:focus {
   max-width: 100%;
 }
 
+.store-popup-shell-task {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
 .store-popup-shell-delete {
   padding-top: 0;
 }
@@ -885,6 +984,82 @@ input#store_search:focus {
   max-width: 100%;
   overflow-wrap: anywhere;
   word-break: break-word;
+}
+
+.store-task-note-muted {
+  opacity: 0.75;
+}
+
+.store-task-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.store-task-elapsed-value {
+  font-variant-numeric: tabular-nums;
+}
+
+.store-task-status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+}
+
+.store-task-health-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.store-task-health-inline-modal {
+  margin-bottom: 14px;
+}
+
+.store-task-warning-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 14px 0 0;
+}
+
+.store-task-warning-item {
+  padding: 10px 12px;
+  border: 1px solid rgba(214, 157, 18, 0.35);
+  border-radius: 6px;
+  background: rgba(214, 157, 18, 0.08);
+}
+
+.store-task-log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.store-task-log-row {
+  display: block;
+  align-items: start;
+  padding: 0;
+}
+
+.store-task-log-step {
+  display: none;
+}
+
+.store-task-log-message {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: #d8dee6;
+}
+
+.store-task-log-row.is-success .store-task-log-message {
+  color: #7de5a7;
+}
+
+.store-task-log-row.is-error .store-task-log-message {
+  color: #ff9a9a;
 }
 
 .store-popup-actions a,
@@ -1279,8 +1454,9 @@ input#store_search:focus {
 }
 
 .evo-popup .evo-popup-header {
-  padding: 8px 56px 12px 0;
-  margin: 0 0 8px;
+  box-sizing: border-box;
+  padding: 14px 56px 14px 0;
+  margin: 0 0 10px;
   font-size: 17px;
   font-weight: 700;
   line-height: 1.35;
@@ -1288,10 +1464,25 @@ input#store_search:focus {
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
-  position: relative;
-  left: -16px;
   border-bottom: 0 !important;
   box-shadow: none !important;
+}
+
+.evo-popup .evo-popup-header > * {
+  margin: 0 !important;
+  padding: 0 !important;
+  position: static !important;
+  left: auto !important;
+  transform: none !important;
+}
+
+.evo-popup .evo-popup-title,
+.evo-popup .evo-popup-header-title,
+.evo-popup .modal-title,
+.evo-popup .popup-title {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  text-indent: 0 !important;
 }
 
 .evo-popup .evo-popup-header small,
@@ -1363,6 +1554,11 @@ input#store_search:focus {
   border-color: #d5dde6;
 }
 
+.store-popup-theme-light .store-system-health-card {
+  background: #f7f9fb;
+  border-color: #d5dde6;
+}
+
 .store-popup-theme-light .store-install-card {
   background: transparent;
 }
@@ -1413,6 +1609,16 @@ input#store_search:focus {
 
 .store-popup-theme-light .store-delete-group h4 {
   color: #28323c;
+}
+
+.store-popup-theme-light .store-system-health-item {
+  background: #fff;
+  border-color: #d9e3ef;
+}
+
+.store-popup-theme-light .store-system-health-meta,
+.store-popup-theme-light .store-task-note-muted {
+  color: #5d6976;
 }
 
 .store-popup-theme-light .store-delete-check {
@@ -1850,6 +2056,30 @@ body.darkness {
   border-radius: 0 0 6px 0;
   text-transform: uppercase;
   letter-spacing: .04em;
+}
+
+.store-title-source-chip {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 10px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  line-height: 1.6;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  vertical-align: middle;
+}
+
+.store-title-source-legacy {
+  background: rgba(148, 163, 184, 0.18);
+  color: #cbd5e1;
+}
+
+.store-title-source-console {
+  background: rgba(34, 197, 94, 0.16);
+  color: #86efac;
 }
 
 .catalog-source-legacy .sourcebadge {

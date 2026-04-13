@@ -1,52 +1,26 @@
 <h2><?php
-if( ! defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true || ! $modx->hasPermission('exec_module')) {
+if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true || !$modx->hasPermission('exec_module')) {
     die('<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the EVO Content Manager instead of accessing this file directly.');
 }
 
-echo $_lang['install_results']?></h2>
+echo $_lang['install_results'];
+?></h2>
 <?php
 
+// Use the same modernized processor as fast install, but keep the full
+// options flow by honoring selected checkbox payload from action.options.php.
+include 'instprocessor-fast.php';
 
-//ob_start();
-include "instprocessor.php";
-//$content = ob_get_contents();
-//ob_end_clean();
-//echo $content;
-
+$installSucceeded = ($errors == 0);
 ?>
-<form name="install" id="install_form" action="index.php?action=options" method="post">
-<?php
-if ($errors == 0) {
-	// check if install folder is removeable
-    if (is_writable("../install")) { ?>
-<span id="removeinstall" style="float:left;cursor:pointer;color:#505050;line-height:18px;" onclick="var chk=document.install.rminstaller; if(chk) chk.checked=!chk.checked;"><input type="checkbox" name="rminstaller" onclick="event.cancelBubble=true;" <?php echo (empty ($errors) ? 'checked="checked"' : '') ?> style="cursor:default;" /><?php echo $_lang['remove_install_folder_auto'] ?></span>
-<?php
-    } else {
-?>
+<?php if (!$installSucceeded) { ?>
+<p class="buttonlinks">
+    <a href="javascript:closeInstallerResults();" title="<?php echo $_lang['btnclose_value']; ?>"><span><?php echo $_lang['btnclose_value']; ?></span></a>
+</p>
+<?php } ?>
 
-<?php
-    }
-}
-?>
-    <p class="buttonlinks">
-        <a href="javascript:closeInstallerResults();" title="<?php echo $_lang['btnclose_value']?>"><span><?php echo $_lang['btnclose_value']?></span></a>
-    </p>
-	<br />
-</form>
-<br />
 <script type="text/javascript">
 /* <![CDATA[ */
-function closepage(){
-	var chk = document.install.rminstaller;
-	if(chk && chk.checked) {
-		// remove install folder and files
-		window.location.href = "../<?php echo MGR_DIR;?>/processors/remove_installer.processor.php?rminstall=1";
-	}
-	else {
-		window.location.href = "index.php?a=2";
-	}
-}
-
 var installerResultsRefreshed = false;
 
 function findStoreHostWindow() {
@@ -87,7 +61,6 @@ function refreshInstallerResultsState() {
             top.mainMenu.reloadtree();
         }
     } catch (e) {}
-
 }
 
 function closeInstallerResults() {
@@ -103,10 +76,19 @@ function closeInstallerResults() {
     try {
         if (parent && parent.$ && parent.$.fancybox) {
             parent.$.fancybox.close();
+            return;
         }
+    } catch (e) {}
+
+    try {
+        window.close();
     } catch (e) {}
 }
 
-window.setTimeout(refreshInstallerResultsState, 50);
+refreshInstallerResultsState();
+
+<?php if ($installSucceeded) { ?>
+window.setTimeout(closeInstallerResults, 400);
+<?php } ?>
 /* ]]> */
 </script>

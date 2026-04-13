@@ -35,6 +35,25 @@ store = {
 	currentList:[],
 	currentTemplate:'list',
 	consoleCatalog:[],
+	systemTaskHealth:{
+		scheduler:null,
+		worker:null
+	},
+	systemTaskUiFlags:{
+		can_view:0,
+		can_manage_packages:0,
+		can_site_update:0
+	},
+	systemTaskPollTimer:null,
+	systemTaskPollInFlight:false,
+	systemTaskLastPollAt:0,
+	systemTaskTerminal:false,
+	systemTaskElapsedTimer:null,
+	systemTaskPollTaskId:0,
+	systemTaskPollTaskTitle:'',
+	systemTaskPollToken:0,
+	systemTaskRefreshTaskId:0,
+	systemTaskWarnings:[],
 	allCategoryId:null,
 	extend:function(obj1){
 		hash = '';
@@ -131,13 +150,22 @@ store = {
 
 		store.types =  eval('('+$('[name="types"]').val()+')');
 		store.installedState = store.parseInstalledState();
+		store.systemTaskUiFlags = store.parseSystemTaskUiFlags();
 
 		$('a.item-install').live('click',function(){
 			store.install(this);
 			return false;
 		});
 		$('.item-delete').live('click', function(){
+			if (($(this).attr('data-source-kind') || '') === 'console') {
+				store.handleConsoleUninstall(this);
+				return false;
+			}
 			store.previewLegacyDelete(this);
+			return false;
+		});
+		$('.store-task-start').live('click', function(){
+			store.queueConsoleInstallTask(this);
 			return false;
 		});
 		$('.item-more').live('click', function(){
@@ -235,9 +263,11 @@ store = {
 	},
 	install:function(elm, skipConfirm){
 		if ($(elm).attr('data-method') == 'console-extra') {
-			store.showConsoleInstallHelp(elm);
+			store.handleConsoleInstall(elm);
 			return false;
 		}
+
+		store.resetSystemTaskUiState();
 
 		var installedState = parseInt($(elm).attr('data-installed-state') || '0', 10);
 		if (!skipConfirm && installedState && !confirm($(elm).attr('data-text'))) {
@@ -290,13 +320,21 @@ store = {
 
 	},
 	previewLegacyDelete: function(elm){
+		store.resetSystemTaskUiState();
+
 		var $button = $(elm);
 		var $card = $button.closest('.catalog_item');
 		var installedVersion = $.trim($button.attr('data-current-version') || '');
 		var fileValue = store.resolveLegacyInstalledFileValue($card, installedVersion);
 
+		var legacyDeleteTitle = ($('[name="delete_label"]').val() || 'Delete') + ': ' + ($button.attr('data-title') || '');
+		var legacySourceLabel = $button.attr('data-source-label') || ($('[name="source_label_legacy"]').val() || 'Legacy');
+		if (legacySourceLabel) {
+			legacyDeleteTitle += ' (' + legacySourceLabel + ')';
+		}
+
 		store.openPopup(
-			$('[name="delete_preview_title"]').val() || 'Delete package',
+			legacyDeleteTitle,
 			'<div class="store-popup-shell ' + store.getPopupThemeClass() + '"><div class="store-popup-empty">' + store.escapeHtml($('[name="delete_preview_loading"]').val() || 'Preparing delete preview...') + '</div></div>',
 			'wide'
 		);
@@ -315,7 +353,7 @@ store = {
 			success: function(response){
 				if (!response || !response.ok) {
 					store.openPopup(
-						$('[name="delete_preview_title"]').val() || 'Delete package',
+						legacyDeleteTitle,
 						'<div class="store-popup-shell ' + store.getPopupThemeClass() + '"><div class="store-popup-empty">' + store.escapeHtml((response && response.message) || ($('[name="delete_preview_error"]').val() || 'Unable to delete this package.')) + '</div></div>',
 						'wide'
 					);
@@ -323,7 +361,7 @@ store = {
 				}
 
 				store.openPopup(
-					($('[name="delete_preview_title"]').val() || 'Delete package') + ': ' + ($button.attr('data-title') || ''),
+					legacyDeleteTitle,
 					store.buildLegacyDeletePopupContent(response),
 					'wide',
 					function(){
@@ -333,7 +371,7 @@ store = {
 			},
 			error: function(){
 				store.openPopup(
-					$('[name="delete_preview_title"]').val() || 'Delete package',
+					legacyDeleteTitle,
 					'<div class="store-popup-shell ' + store.getPopupThemeClass() + '"><div class="store-popup-empty">' + store.escapeHtml($('[name="delete_preview_error"]').val() || 'Unable to delete this package.') + '</div></div>',
 					'wide'
 				);
@@ -676,19 +714,34 @@ store = {
 	closeActivePopup: function(){
 		var $popup = store.getActivePopup();
 		if (!$popup.length) {
+			store.resetSystemTaskUiState();
 			store.cleanupPopupArtifacts();
 			return;
 		}
 
 		var $close = $popup.find('.evo-popup-close, .close').first();
 		if ($close.length) {
+			store.resetSystemTaskUiState();
 			$close.trigger('click');
 			setTimeout(store.cleanupPopupArtifacts, 60);
 			return;
 		}
 
+		store.resetSystemTaskUiState();
 		$popup.remove();
 		store.cleanupPopupArtifacts();
+	},
+	resetSystemTaskUiState: function(){
+		store.stopSystemTaskPolling();
+		store.stopSystemTaskElapsedTimer();
+		store.systemTaskPollToken++;
+		store.systemTaskPollInFlight = false;
+		store.systemTaskLastPollAt = 0;
+		store.systemTaskTerminal = false;
+		store.systemTaskPollTaskId = 0;
+		store.systemTaskPollTaskTitle = '';
+		store.systemTaskRefreshTaskId = 0;
+		store.systemTaskWarnings = [];
 	},
 	cleanupPopupArtifacts: function(){
 		var cleanDoc = function(doc){
@@ -740,6 +793,40 @@ store = {
 				}
 			}
 		});
+	},
+	loadSystemTaskHealth: function(callback){
+		if (!store.canViewSystemTasks()) {
+			store.systemTaskHealth.scheduler = null;
+			store.systemTaskHealth.worker = null;
+			if (typeof callback === 'function') {
+				callback(false);
+			}
+			return;
+		}
+
+		$.ajax({
+			url: link() + '&action=system_task_health',
+			cache: false,
+			dataType: 'json',
+			type: 'get'
+		}).done(function(response){
+			var ok = !!(response && response.ok);
+			store.systemTaskHealth.scheduler = ok ? (response.scheduler || null) : null;
+			store.systemTaskHealth.worker = ok ? (response.worker || null) : null;
+			if (typeof callback === 'function') {
+				callback(ok);
+			}
+		}).fail(function(){
+			store.systemTaskHealth.scheduler = null;
+			store.systemTaskHealth.worker = null;
+			if (typeof callback === 'function') {
+				callback(false);
+			}
+		});
+	},
+	getSystemTaskHealthStatus: function(type){
+		var health = store.systemTaskHealth && store.systemTaskHealth[type] ? store.systemTaskHealth[type] : null;
+		return health && health.status ? String(health.status).toLowerCase() : 'unknown';
 	},
 
 	query:function(action,param,callback){
@@ -840,13 +927,92 @@ store = {
 
 		var items = store.toArray(store.category[store.allCategoryId]);
 		var installed = [];
+		var representedLegacy = {};
 		$.each(items, function(index, item){
 			var prepared = store.applyInstalledStateToItem(item);
 			if (prepared.is_installed) {
 				installed.push(prepared);
+				if ((prepared.source_kind || (prepared.install_method === 'console-extra' ? 'console' : 'legacy')) !== 'console') {
+					representedLegacy[store.getLegacyInstalledKey(prepared)] = true;
+				}
 			}
 		});
+		$.each(store.buildSyntheticLegacyInstalledItems(representedLegacy), function(index, item){
+			installed.push(item);
+		});
+		installed.sort(function(a, b){
+			var titleA = store.normalizeTitle(a);
+			var titleB = store.normalizeTitle(b);
+			if (titleA !== titleB) {
+				return titleA.localeCompare(titleB);
+			}
+
+			var kindA = (a.source_kind || (a.install_method === 'console-extra' ? 'console' : 'legacy'));
+			var kindB = (b.source_kind || (b.install_method === 'console-extra' ? 'console' : 'legacy'));
+			if (kindA !== kindB) {
+				return kindA === 'legacy' ? -1 : 1;
+			}
+
+			var versionA = String(a.current_version || a.version || '');
+			var versionB = String(b.current_version || b.version || '');
+			return versionA.localeCompare(versionB);
+		});
 		store.installedCatalog = installed;
+	},
+	buildSyntheticLegacyInstalledItems: function(representedLegacy){
+		var legacyItems = (store.installedState && store.installedState.legacy_items) || [];
+		var synthetic = [];
+		var sourceLabel = $('[name="source_label_legacy"]').val() || 'Legacy';
+
+		$.each(legacyItems, function(index, item){
+			var normalizedType = store.normalizeLegacyLookupType(item.type);
+			var name = $.trim(String((item && item.name) || ''));
+			var version = $.trim(String((item && item.version) || ''));
+			var key;
+
+			if (!normalizedType || !name) {
+				return;
+			}
+
+			key = normalizedType + '::' + name.toLowerCase();
+			if (representedLegacy[key]) {
+				return;
+			}
+
+			representedLegacy[key] = true;
+			synthetic.push({
+				id: '',
+				title: name,
+				name: name,
+				name_in_modx: name,
+				description: '',
+				type: store.getLegacyDisplayType(normalizedType),
+				install_method: store.getLegacyDisplayType(normalizedType),
+				install_target: name,
+				source_kind: 'legacy',
+				source_label: sourceLabel,
+				is_installed: 1,
+				installed_state: 1,
+				current_version: version,
+				version: version,
+				catalog_version: version,
+				cls: 'pack_reinstall',
+				state_class: 'is-installed',
+				url: '',
+				dependencies: '',
+				downloads: '',
+				source_url: '',
+				repo_full_name: '',
+				readme_branch: '',
+				install_hidden_class: 'hidden',
+				version_hidden_class: 'hidden',
+				more_hidden_class: 'hidden',
+				delete_hidden_class: 'hidden',
+				synthetic_installed_only: 1
+			});
+		});
+
+		return synthetic;
 	},
 	renderInstalledCategory: function(count){
 		var label = $('[name="installed_category_label"]').val() || 'Installed';
@@ -924,9 +1090,15 @@ store = {
 		array.install_command = array.install_command || '';
 		array.source_kind = array.source_kind || (array.install_method === 'console-extra' ? 'console' : 'legacy');
 		array.source_label = array.source_label || (array.source_kind === 'console'
-			? ($('[name="source_label_console"]').val() || 'Console')
+			? ($('[name="source_label_console"]').val() || '')
 			: ($('[name="source_label_legacy"]').val() || 'Legacy'));
+		array.source_label_class = array.source_label ? '' : 'hidden';
 		array.install_target = array.install_target || array.title || array.name || '';
+		array.title_source_html = array.title_source_html || '';
+		array.install_hidden_class = array.install_hidden_class || '';
+		array.version_hidden_class = array.version_hidden_class || '';
+		array.more_hidden_class = array.more_hidden_class || '';
+		array.delete_hidden_class = array.delete_hidden_class || '';
 		array.source_url = array.source_url || '';
 		array.repo_full_name = array.repo_full_name || '';
 		array.readme_branch = array.readme_branch || '';
@@ -1022,6 +1194,7 @@ store = {
 
 		$out.find('.item-delete')
 			.attr('data-title', array.title || '')
+			.attr('data-display-title', array.title || '')
 			.attr('data-type', array.type || '')
 			.attr('data-id', array.id || '')
 			.attr('data-current-version', array.current_version || '')
@@ -1045,26 +1218,90 @@ store = {
 			$out.children().first().addClass('has-legacy-delete');
 		}
 
+		if ((array.source_kind || '') === 'console' && array.is_installed && store.canManageSystemPackages()) {
+			$out.children().first().addClass('has-console-delete');
+		}
+
 		return $out.html();
 	},
 	showConsoleInstallHelp: function(elm){
+		var target = elm;
+		store.loadSystemTaskHealth(function(){
+			store.showConsoleInstallHelpPopup(target);
+		});
+	},
+	handleConsoleInstall: function(elm){
+		var target = elm;
+		store.loadSystemTaskHealth(function(){
+			if (store.canQueueSystemTaskInstall()) {
+				store.queueConsoleInstallFromElement(target);
+				return;
+			}
+			store.showConsoleInstallHelpPopup(target);
+		});
+	},
+	handleConsoleUninstall: function(elm){
+		var target = elm;
+		if (!confirm($('[name="console_uninstall_confirm"]').val() || 'Remove this console package from Composer?')) {
+			return;
+		}
+
+		store.loadSystemTaskHealth(function(){
+			if (store.canQueueSystemTaskInstall()) {
+				store.queueConsoleUninstallFromElement(target);
+				return;
+			}
+			store.showConsoleUninstallHelpPopup(target);
+		});
+	},
+	showConsoleInstallHelpPopup: function(elm){
 		var name = $(elm).attr('data-name') || '';
 		var packageName = $(elm).attr('data-package') || name;
+		var catalogItemId = $(elm).attr('data-id') || '';
 		var selectedVersion = $(elm).closest('.catalog_item').find('[name="link"]').val() || '';
 		var command = $(elm).attr('data-command') || '';
 		var sourceUrl = $(elm).attr('data-source-url') || $(elm).attr('data-url') || '';
 		var corePath = $('[name="console_core_path"]').val() || '';
 		var title = $('[name="console_install_title"]').val() || 'Install via console';
+		var intro = $('[name="console_install_intro"]').val() || '';
+		var manualLabel = $('[name="console_install_manual_label"]').val() || 'Manual console install';
+		var autoLabel = $('[name="console_install_auto_label"]').val() || 'Automatic install via scheduler';
+		var autoReadyLabel = $('[name="console_install_auto_ready"]').val() || '';
+		var autoDisabledLabel = $('[name="console_install_auto_disabled"]').val() || '';
+		var autoPermissionLabel = $('[name="console_install_auto_permission"]').val() || '';
+		var schedulerIntroLabel = $('[name="console_install_scheduler_intro"]').val() || '';
+		var schedulerLocalCommandLabel = $('[name="console_install_scheduler_command_local"]').val() || 'php artisan schedule:work';
+		var schedulerServerTemplate = $('[name="console_install_scheduler_command_server"]').val() || '* * * * * cd {core_path} && php artisan schedule:run >/dev/null 2>&1';
+		var autoWarningLabel = $('[name="console_install_auto_warning"]').val() || '';
 		var openCoreLabel = $('[name="console_install_step_open_core"]').val() || '';
 		var runArtisanLabel = $('[name="console_install_step_run_artisan"]').val() || '';
 		var sourceLabel = $('[name="console_install_source_label"]').val() || 'Source';
 		var copyLabel = $('[name="popup_copy_command"]').val() || 'Copy command';
+		var queueLabel = $('[name="system_task_queue_install"]').val() || 'Queue install';
+		var warningLabel = $('[name="system_task_modal_warning"]').val() || 'Warning';
+		var schedulerServerCommand = schedulerServerTemplate.replace('{core_path}', corePath);
+		var schedulerStatus = store.getSystemTaskHealthStatus('scheduler');
+		var workerStatus = store.getSystemTaskHealthStatus('worker');
+		var automaticAvailable = store.canQueueSystemTaskInstall();
+		var showPermissionWarning = !store.canManageSystemPackages();
+		var showSchedulerCommands = !automaticAvailable;
+		var showAutoWarning = automaticAvailable && (schedulerStatus === 'degraded' || workerStatus === 'degraded' || workerStatus === 'unhealthy' || workerStatus === 'unknown');
+		var isLocalRuntime = store.isLocalRuntime();
+		var schedulerRuntimeLabel = isLocalRuntime
+			? ($('[name="console_install_scheduler_local"]').val() || 'Local')
+			: ($('[name="console_install_scheduler_server"]').val() || 'Server');
+		var schedulerRuntimeCommand = isLocalRuntime
+			? ('cd ' + corePath + ' && ' + schedulerLocalCommandLabel)
+			: schedulerServerCommand;
 		if (packageName !== '') {
 			command = 'php artisan extras extras "' + packageName + (selectedVersion ? '@' + selectedVersion : '') + '"';
 		}
 
 		var html = ''
 			+ '<div class="store-popup-shell store-popup-shell-install store-popup-shell-console ' + store.getPopupThemeClass() + '">'
+			+ '<p class="store-popup-note">' + store.escapeHtml(intro) + '</p>'
+			+ '<div class="store-popup-section">'
+			+ '<h3>' + store.escapeHtml(manualLabel) + '</h3>'
 			+ '<div class="store-install-card">'
 			+ '<div class="store-install-step">'
 			+ '<div class="store-install-card-head">'
@@ -1080,7 +1317,39 @@ store = {
 			+ '</div>'
 			+ '<div class="store-install-command">' + store.escapeHtml(command) + '</div>'
 			+ '</div>'
-			+ '</div>';
+			+ '</div>'
+			+ '</div>'
+			+ '<div class="store-popup-section">'
+			+ '<h3>' + store.escapeHtml(autoLabel) + '</h3>';
+
+		if (showPermissionWarning) {
+			html += '<div class="store-task-warning-list"><div class="store-task-warning-item"><strong>' + store.escapeHtml(warningLabel) + ':</strong> <span>' + store.escapeHtml(autoPermissionLabel) + '</span></div></div>';
+		} else if (automaticAvailable) {
+			html += '<p class="store-popup-note store-task-note-muted">' + store.escapeHtml(autoReadyLabel) + '</p>';
+			if (showAutoWarning) {
+				html += '<div class="store-task-warning-list"><div class="store-task-warning-item"><strong>' + store.escapeHtml(warningLabel) + ':</strong> <span>' + store.escapeHtml(autoWarningLabel) + '</span></div></div>';
+			}
+			html += '<div class="store-task-actions">'
+				+ '<button type="button" class="btn btn-primary store-task-start" data-task-type="console_install" data-catalog-item-id="' + store.escapeHtml(catalogItemId) + '" data-version="' + store.escapeHtml(selectedVersion || '') + '" data-title="' + store.escapeHtml(name) + '"><i class="fa fa-play"></i> ' + store.escapeHtml(queueLabel) + '</button>'
+				+ '</div>';
+		} else {
+			html += '<p class="store-popup-note store-task-note-muted">' + store.escapeHtml(autoDisabledLabel) + '</p>';
+		}
+
+		if (showSchedulerCommands) {
+			html += '<p class="store-popup-note store-task-note-muted">' + store.escapeHtml(schedulerIntroLabel) + '</p>'
+				+ '<div class="store-install-card">'
+				+ '<div class="store-install-step">'
+				+ '<div class="store-install-card-head">'
+				+ '<span class="store-install-card-label">' + store.escapeHtml(schedulerRuntimeLabel) + '</span>'
+				+ '<button type="button" class="store-copy-button" data-copy-command="' + store.escapeHtml(schedulerRuntimeCommand) + '" aria-label="' + store.escapeHtml(copyLabel) + '"><i class="fa fa-copy"></i></button>'
+				+ '</div>'
+				+ '<div class="store-install-command">' + store.escapeHtml(schedulerRuntimeCommand) + '</div>'
+				+ '</div>'
+				+ '</div>';
+		}
+
+		html += '</div>';
 
 		if (sourceUrl !== '') {
 			html += '<p class="store-popup-source"><strong>' + store.escapeHtml(sourceLabel) + ':</strong> <a href="' + store.escapeHtml(sourceUrl) + '" target="_blank" rel="noopener">' + store.escapeHtml(sourceUrl) + '</a></p>';
@@ -1092,7 +1361,495 @@ store = {
 			store.bindPopupCopyButtons();
 		});
 	},
+	showConsoleUninstallHelpPopup: function(elm){
+		var name = $(elm).attr('data-title') || $(elm).closest('.catalog_item').find('h3').text() || '';
+		var corePath = $('[name="console_core_path"]').val() || '';
+		var isLocalRuntime = store.isLocalRuntime();
+		var schedulerCommand = isLocalRuntime
+			? ('cd ' + corePath + ' && ' + ($('[name="console_install_scheduler_command_local"]').val() || 'php artisan schedule:work'))
+			: (($('[name="console_install_scheduler_command_server"]').val() || '* * * * * cd {core_path} && php artisan schedule:run >/dev/null 2>&1').replace('{core_path}', corePath));
+		var runtimeLabel = isLocalRuntime
+			? ($('[name="console_install_scheduler_local"]').val() || 'Local')
+			: ($('[name="console_install_scheduler_server"]').val() || 'Server');
+		var copyLabel = $('[name="popup_copy_command"]').val() || 'Copy command';
+		var html = ''
+			+ '<div class="store-popup-shell store-popup-shell-console ' + store.getPopupThemeClass() + '">'
+			+ '<p class="store-popup-note">' + store.escapeHtml($('[name="console_uninstall_intro"]').val() || '') + '</p>'
+			+ '<p class="store-popup-note store-task-note-muted">' + store.escapeHtml($('[name="console_uninstall_scheduler_intro"]').val() || '') + '</p>'
+			+ '<div class="store-install-card">'
+			+ '<div class="store-install-step">'
+			+ '<div class="store-install-card-head">'
+			+ '<span class="store-install-card-label">' + store.escapeHtml(runtimeLabel) + '</span>'
+			+ '<button type="button" class="store-copy-button" data-copy-command="' + store.escapeHtml(schedulerCommand) + '" aria-label="' + store.escapeHtml(copyLabel) + '"><i class="fa fa-copy"></i></button>'
+			+ '</div>'
+			+ '<div class="store-install-command">' + store.escapeHtml(schedulerCommand) + '</div>'
+			+ '</div>'
+			+ '</div>'
+			+ '</div>';
+
+		store.openPopup(($('[name="delete_label"]').val() || 'Delete') + ': ' + name, html, 'compact', function(){
+			store.bindPopupCopyButtons();
+		});
+	},
+	queueConsoleInstallFromElement: function(elm){
+		var $elm = $(elm);
+		var catalogItemId = $.trim($elm.attr('data-id') || '');
+		var version = $.trim($elm.closest('.catalog_item').find('[name="link"]').val() || '');
+		var title = $.trim($elm.attr('data-name') || '');
+		var sourceLabel = $.trim($elm.attr('data-source-label') || ($('[name="source_label_console"]').val() || ''));
+		store.queueSystemTaskRequest('console_install', catalogItemId, version, title, sourceLabel);
+	},
+	queueConsoleUninstallFromElement: function(elm){
+		var $elm = $(elm);
+		var catalogItemId = $.trim($elm.attr('data-id') || '');
+		var version = $.trim($elm.attr('data-current-version') || '');
+		var title = $.trim($elm.attr('data-display-title') || $elm.attr('data-title') || '');
+		var sourceLabel = $.trim($elm.attr('data-source-label') || ($('[name="source_label_console"]').val() || ''));
+		store.queueSystemTaskRequest('console_uninstall', catalogItemId, version, title, sourceLabel);
+	},
+	queueSystemTaskRequest: function(taskType, catalogItemId, version, title, sourceLabel){
+		var popupTitle = store.getSystemTaskActionTitle(taskType, title, sourceLabel);
+		if (!store.canManageSystemPackages()) {
+			store.openPopup(
+				popupTitle,
+				'<div class="store-popup-shell ' + store.getPopupThemeClass() + '"><div class="store-popup-empty">' + store.escapeHtml($('[name="system_task_modal_queue_error"]').val() || 'Unable to queue this system task.') + '</div></div>',
+				'compact'
+			);
+			return;
+		}
+
+		if (!store.canQueueSystemTaskInstall()) {
+			store.openPopup(
+				popupTitle,
+				'<div class="store-popup-shell ' + store.getPopupThemeClass() + '"><div class="store-popup-empty">' + store.escapeHtml($('[name="console_install_auto_disabled"]').val() || 'Automatic install is not available right now. Start the scheduler first.') + '</div></div>',
+				'compact'
+			);
+			return;
+		}
+
+		store.stopSystemTaskPolling();
+		store.stopSystemTaskElapsedTimer();
+		store.systemTaskPollToken++;
+
+		$.ajax({
+			url: link() + '&action=system_task_create',
+			cache: false,
+			dataType: 'json',
+			type: 'post',
+			data: {
+				type: taskType,
+				catalog_item_id: catalogItemId,
+				version: version
+			},
+			success: function(response){
+				if (!response || !response.ok || !response.task) {
+					store.openPopup(
+						popupTitle,
+						'<div class="store-popup-shell ' + store.getPopupThemeClass() + '"><div class="store-popup-empty">' + store.escapeHtml((response && response.message) || ($('[name="system_task_modal_queue_error"]').val() || 'Unable to queue this system task.')) + '</div></div>',
+						'compact'
+					);
+					return;
+				}
+
+				if (sourceLabel && !response.task.source_label) {
+					response.task.source_label = sourceLabel;
+				}
+				store.openSystemTaskPopup(response.task, title, response.warnings || []);
+			},
+			error: function(){
+				store.openPopup(
+					popupTitle,
+					'<div class="store-popup-shell ' + store.getPopupThemeClass() + '"><div class="store-popup-empty">' + store.escapeHtml($('[name="system_task_modal_queue_error"]').val() || 'Unable to queue this system task.') + '</div></div>',
+					'compact'
+				);
+			}
+		});
+	},
+	queueConsoleInstallTask: function(button){
+		var $button = $(button);
+		var catalogItemId = $.trim($button.attr('data-catalog-item-id') || '');
+		var version = $.trim($button.attr('data-version') || '');
+		var title = $.trim($button.attr('data-title') || '');
+		$button.prop('disabled', true).addClass('disabled');
+		store.queueSystemTaskRequest('console_install', catalogItemId, version, title);
+	},
+	openSystemTaskPopup: function(task, title, warnings){
+		store.stopSystemTaskPolling();
+		store.stopSystemTaskElapsedTimer();
+		store.systemTaskPollToken++;
+		var resolvedTitle = title || task.display_title || task.target || '';
+		var initialized = false;
+		var initializePopup = function(){
+			if (initialized) {
+				return;
+			}
+			initialized = true;
+			store.systemTaskPollToken++;
+			store.systemTaskPollTaskId = parseInt(task.id || 0, 10) || 0;
+			store.systemTaskPollTaskTitle = resolvedTitle;
+			store.systemTaskRefreshTaskId = 0;
+			store.systemTaskWarnings = $.isArray(warnings) ? warnings : [];
+			store.setActivePopupTitle(store.getSystemTaskActionTitle(task.type, store.systemTaskPollTaskTitle, task.source_label || ''));
+			store.renderSystemTaskPopupState(task, task);
+			store.startSystemTaskPolling();
+			store.startSystemTaskElapsedTimer();
+		};
+
+		store.openPopup(
+			store.getSystemTaskActionTitle(task.type, resolvedTitle, task.source_label || ''),
+			store.buildSystemTaskPopupContent(task, task),
+			'wide',
+			function(){
+				initializePopup();
+			}
+		);
+
+		setTimeout(function(){
+			initializePopup();
+		}, 80);
+		setTimeout(function(){
+			if (store.systemTaskPollTaskId && !store.systemTaskPollInFlight && !store.systemTaskPollTimer && !store.systemTaskTerminal) {
+				store.pollSystemTask();
+			}
+		}, 400);
+	},
+	buildSystemTaskPopupContent: function(task, result){
+		var elapsedBase = task.created_at || task.started_at || task.updated_at || '';
+		var elapsedEnd = task.finished_at || '';
+		var html = '<div class="store-popup-shell store-popup-shell-task ' + store.getPopupThemeClass() + '">';
+		html += '<div class="store-task-note-area" data-role="task-note-area"></div>';
+		html += '<div class="store-task-warning-list" data-role="task-warnings"></div>';
+		html += '<div class="store-task-status-grid">';
+		html += store.buildSystemTaskLiveMetaItem('fa-tasks', $('[name="system_task_modal_status"]').val() || 'Status', 'task-status');
+		html += store.buildSystemTaskLiveMetaItem('fa-list-ol', $('[name="system_task_modal_step"]').val() || 'Step', 'task-step');
+		html += store.buildSystemTaskLiveMetaItem('fa-bar-chart', $('[name="system_task_modal_progress"]').val() || 'Progress', 'task-progress');
+		html += ''
+			+ '<div class="store-popup-meta-item">'
+			+ '<i class="fa fa-clock-o" aria-hidden="true"></i>'
+			+ '<span class="store-popup-meta-label">' + store.escapeHtml($('[name="system_task_modal_elapsed"]').val() || 'Elapsed') + ':</span>'
+			+ '<strong class="store-task-elapsed-value" data-started-at="' + store.escapeHtml(elapsedBase) + '" data-finished-at="' + store.escapeHtml(elapsedEnd) + '">' + store.escapeHtml(store.formatElapsedTime(elapsedBase, elapsedEnd)) + '</strong>'
+			+ '</div>';
+		html += '</div>';
+		html += '<div class="store-popup-section store-task-logs-section" data-role="task-logs-section" style="display:none">';
+		html += '<h3>' + store.escapeHtml($('[name="system_task_modal_logs"]').val() || 'Logs') + '</h3>';
+		html += '<div class="store-task-log-list" data-role="task-logs"></div>';
+		html += '</div>';
+
+		html += '</div>';
+		return html;
+	},
+	getSystemTaskActionTitle: function(taskType, title, sourceLabel){
+		var normalizedType = $.trim(String(taskType || '')).toLowerCase();
+		var baseTitle = normalizedType === 'console_uninstall'
+			? ($('[name="delete_label"]').val() || 'Delete')
+			: ($('[name="install"]').val() || 'Install');
+		var suffix = '';
+		if (normalizedType === 'console_uninstall' && sourceLabel) {
+			suffix = ' (' + sourceLabel + ')';
+		}
+		return baseTitle + (title ? ': ' + title : '') + suffix;
+	},
+	setActivePopupTitle: function(title){
+		var $popup = store.getActivePopup();
+		if (!$popup.length) {
+			return;
+		}
+
+		$popup.find('.evo-popup-header, .evo-popup-title, .evo-popup-header-title, .modal-title, .popup-title').first().text(title || '');
+	},
+	buildSystemTaskLiveMetaItem: function(iconClass, label, role){
+		return ''
+			+ '<div class="store-popup-meta-item">'
+			+ '<i class="fa ' + store.escapeHtml(iconClass) + '" aria-hidden="true"></i>'
+			+ '<span class="store-popup-meta-label">' + store.escapeHtml(label) + ':</span>'
+			+ '<strong data-role="' + store.escapeHtml(role) + '"></strong>'
+			+ '</div>';
+	},
+	renderSystemTaskPopupState: function(task, result){
+		var $popup = store.getActivePopup();
+		if (!$popup.length) {
+			return;
+		}
+
+		var $shell = $popup.find('.store-popup-shell-task');
+		if (!$shell.length) {
+			return;
+		}
+
+		var progress = parseInt(task.progress || 0, 10);
+		if (isNaN(progress)) {
+			progress = 0;
+		}
+		var currentElapsedBase = $shell.find('.store-task-elapsed-value').attr('data-started-at') || '';
+		var elapsedBase = currentElapsedBase || task.created_at || task.started_at || task.updated_at || '';
+		var elapsedEnd = task.finished_at || '';
+		var logs = [];
+		var warningsHtml = '';
+		var logsHtml = '';
+		var noteHtml = '';
+		var schedulerHealth = (task && task.scheduler_health) ? task.scheduler_health : null;
+		var workerHealth = (task && task.worker_health) ? task.worker_health : null;
+		var schedulerStatus = schedulerHealth && schedulerHealth.status ? String(schedulerHealth.status).toLowerCase() : 'unknown';
+		var workerStatus = workerHealth && workerHealth.status ? String(workerHealth.status).toLowerCase() : 'unknown';
+
+		if (result && $.isArray(result.logs)) {
+			logs = result.logs;
+		} else if (task && $.isArray(task.logs)) {
+			logs = task.logs;
+		}
+
+		store.setActivePopupTitle(store.getSystemTaskActionTitle(task.type, store.systemTaskPollTaskTitle || task.display_title || task.target || '', task.source_label || ''));
+
+		$shell.find('[data-role="task-status"]').text(task.status || '');
+		$shell.find('[data-role="task-step"]').text(task.step || '');
+		$shell.find('[data-role="task-progress"]').text(String(progress) + '%');
+		$shell.find('.store-task-elapsed-value')
+			.attr('data-started-at', elapsedBase)
+			.attr('data-finished-at', elapsedEnd)
+			.text(store.formatElapsedTime(elapsedBase, elapsedEnd));
+
+		if ((task.type || '') === 'console_uninstall') {
+			noteHtml = '<p class="store-popup-note store-task-note-muted">' + store.escapeHtml($('[name="system_task_modal_uninstall_note"]').val() || '') + '</p>';
+		}
+		if (
+			$.inArray((task.status || ''), ['queued', 'picked', 'running']) >= 0
+			&& (
+				schedulerStatus === 'unhealthy'
+				|| (store.isLocalRuntime() && workerStatus !== 'healthy')
+			)
+		) {
+			noteHtml += '<p class="store-popup-note store-task-note-muted">' + store.escapeHtml($('[name="console_install_auto_disabled"]').val() || 'Automatic install is not available right now. Start the scheduler first.') + '</p>';
+		}
+		$shell.find('[data-role="task-note-area"]').html(noteHtml).toggle(!!noteHtml);
+
+		var shouldShowWarnings = (task.type || '') === 'console_install'
+			&& $.inArray((task.status || ''), ['queued', 'picked', 'running']) >= 0;
+
+		if (shouldShowWarnings && store.systemTaskWarnings && store.systemTaskWarnings.length) {
+			$.each(store.systemTaskWarnings, function(index, warning){
+				warningsHtml += '<div class="store-task-warning-item">';
+				warningsHtml += '<strong>' + store.escapeHtml($('[name="system_task_modal_warning"]').val() || 'Warning') + ':</strong> ';
+				warningsHtml += '<span>' + store.escapeHtml((warning && warning.message) || '') + '</span>';
+				warningsHtml += '</div>';
+			});
+		}
+		$shell.find('[data-role="task-warnings"]').html(warningsHtml).toggle(!!warningsHtml);
+
+		if (!logs.length && (task.status || '') === 'failed') {
+			logs = [{
+				step: task.step || 'failed',
+				message: $.trim((task.message || '') + ((task.error_code || '') ? ' [' + task.error_code + ']' : ''))
+			}];
+		}
+
+		$.each(logs, function(index, log){
+			var rowClass = '';
+			if ((log.level || '') === 'error') {
+				rowClass = ' is-error';
+			} else if ((log.step || '') === 'completed' || ((task.status || '') === 'succeeded' && index === logs.length - 1)) {
+				rowClass = ' is-success';
+			}
+			logsHtml += '<div class="store-task-log-row' + rowClass + '">';
+			logsHtml += '<span class="store-task-log-message">' + store.escapeHtml(log.message || '') + '</span>';
+			logsHtml += '</div>';
+		});
+		$shell.find('[data-role="task-logs"]').html(logsHtml);
+		$shell.find('[data-role="task-logs-section"]').toggle(logs.length > 0);
+
+		store.recenterActivePopup();
+	},
+	startSystemTaskPolling: function(){
+		store.stopSystemTaskPolling();
+		if (!store.systemTaskPollTaskId) {
+			return;
+		}
+		store.systemTaskTerminal = false;
+		store.pollSystemTask();
+	},
+	stopSystemTaskPolling: function(){
+		if (store.systemTaskPollTimer) {
+			clearTimeout(store.systemTaskPollTimer);
+			store.systemTaskPollTimer = null;
+		}
+		store.systemTaskPollInFlight = false;
+		store.stopSystemTaskElapsedTimer();
+	},
+	scheduleNextSystemTaskPoll: function(delayMs){
+		if (!store.systemTaskPollTaskId) {
+			return;
+		}
+		if (store.systemTaskPollTimer) {
+			clearTimeout(store.systemTaskPollTimer);
+			store.systemTaskPollTimer = null;
+		}
+		store.systemTaskPollTimer = setTimeout(function(){
+			store.systemTaskPollTimer = null;
+			store.pollSystemTask();
+		}, Math.max(0, parseInt(delayMs || 0, 10) || 0));
+	},
+	pollSystemTask: function(){
+		if (!store.systemTaskPollTaskId) {
+			return;
+		}
+		if (store.systemTaskPollInFlight) {
+			store.scheduleNextSystemTaskPoll(1000);
+			return;
+		}
+		store.systemTaskPollInFlight = true;
+		store.systemTaskLastPollAt = Date.now();
+		var pollToken = store.systemTaskPollToken;
+		$.ajax({
+			url: link() + '&action=system_task_result',
+			cache: false,
+			dataType: 'json',
+			type: 'get',
+			data: {
+				task_id: store.systemTaskPollTaskId
+			},
+			success: function(response){
+				store.systemTaskPollInFlight = false;
+				if (pollToken !== store.systemTaskPollToken) {
+					return;
+				}
+				if (!response || !response.ok || !response.task) {
+					if (response && response.message) {
+						store.renderSystemTaskPopupState({
+							type: '',
+							target: store.systemTaskPollTaskTitle || '',
+							display_title: store.systemTaskPollTaskTitle || '',
+							status: 'failed',
+							step: 'failed',
+							progress: 100,
+							message: response.message,
+							error_code: response.error_code || 'TASK_RESULT_UNAVAILABLE',
+							finished_at: new Date().toISOString(),
+							logs: [{
+								step: 'failed',
+								message: response.message + (response.error_code ? ' [' + response.error_code + ']' : '')
+							}]
+						}, null);
+						store.systemTaskTerminal = true;
+						store.stopSystemTaskPolling();
+						return;
+					}
+					store.scheduleNextSystemTaskPoll(10000);
+					return;
+				}
+
+				var task = response.task;
+				store.systemTaskLastPollAt = Date.now();
+				store.renderSystemTaskPopupState(task, task);
+				if (
+					task
+					&& task.can_refresh_state
+					&& parseInt(task.id || 0, 10) > 0
+					&& store.systemTaskRefreshTaskId !== parseInt(task.id || 0, 10)
+				) {
+					store.systemTaskRefreshTaskId = parseInt(task.id || 0, 10);
+					store.refreshInstalledState();
+				}
+
+				if (task && $.inArray(task.status, ['finished', 'succeeded', 'failed']) >= 0) {
+					store.systemTaskTerminal = true;
+					store.stopSystemTaskPolling();
+					return;
+				}
+				store.scheduleNextSystemTaskPoll(10000);
+			},
+			error: function(){
+				store.systemTaskPollInFlight = false;
+				store.systemTaskLastPollAt = Date.now();
+				if (pollToken !== store.systemTaskPollToken) {
+					return;
+				}
+				store.scheduleNextSystemTaskPoll(10000);
+			}
+		});
+	},
+	startSystemTaskElapsedTimer: function(){
+		store.stopSystemTaskElapsedTimer();
+		store.updateSystemTaskElapsed();
+		store.systemTaskElapsedTimer = setInterval(function(){
+			if (!store.getActivePopup().length) {
+				store.stopSystemTaskElapsedTimer();
+				return;
+			}
+			store.updateSystemTaskElapsed();
+			if (
+				store.systemTaskPollTaskId
+				&& !store.systemTaskTerminal
+				&& !store.systemTaskPollInFlight
+				&& !store.systemTaskPollTimer
+				&& (!store.systemTaskLastPollAt || (Date.now() - store.systemTaskLastPollAt) >= 10000)
+			) {
+				store.scheduleNextSystemTaskPoll(0);
+			}
+		}, 1000);
+	},
+	stopSystemTaskElapsedTimer: function(){
+		if (store.systemTaskElapsedTimer) {
+			clearInterval(store.systemTaskElapsedTimer);
+			store.systemTaskElapsedTimer = null;
+		}
+	},
+	updateSystemTaskElapsed: function(){
+		var $popup = store.getActivePopup();
+		if (!$popup.length) {
+			return;
+		}
+
+		$popup.find('.store-task-elapsed-value').each(function(){
+			var $value = $(this);
+			$value.text(store.formatElapsedTime($value.attr('data-started-at') || '', $value.attr('data-finished-at') || ''));
+		});
+	},
+	formatElapsedTime: function(startedAt, finishedAt){
+		var startedTimestamp = store.parseDateToTimestamp(startedAt);
+		if (!startedTimestamp) {
+			return '00:00';
+		}
+
+		var endTimestamp = store.parseDateToTimestamp(finishedAt);
+		if (!endTimestamp) {
+			endTimestamp = Date.now();
+		}
+
+		var totalSeconds = Math.max(0, Math.floor((endTimestamp - startedTimestamp) / 1000));
+		var hours = Math.floor(totalSeconds / 3600);
+		var minutes = Math.floor((totalSeconds % 3600) / 60);
+		var seconds = totalSeconds % 60;
+
+		if (hours > 0) {
+			return store.padNumber(hours) + ':' + store.padNumber(minutes) + ':' + store.padNumber(seconds);
+		}
+
+		return store.padNumber(minutes) + ':' + store.padNumber(seconds);
+	},
+	parseDateToTimestamp: function(value){
+		var stringValue = $.trim(value || '');
+		if (!stringValue) {
+			return 0;
+		}
+
+		var timestamp = Date.parse(stringValue);
+		if (!isNaN(timestamp)) {
+			return timestamp;
+		}
+
+		timestamp = Date.parse(stringValue.replace(' ', 'T'));
+		return isNaN(timestamp) ? 0 : timestamp;
+	},
+	padNumber: function(number){
+		number = parseInt(number, 10) || 0;
+		return number < 10 ? '0' + number : String(number);
+	},
+	isLocalRuntime: function(){
+		var host = (window.location && window.location.hostname ? window.location.hostname : '').toLowerCase();
+		return host === 'localhost' || host === '127.0.0.1' || host === '::1';
+	},
 	showItemMore: function(elm){
+		store.resetSystemTaskUiState();
+
 		var $button = $(elm);
 		var title = $button.attr('data-title') || '';
 		var sourceKind = $button.attr('data-source-kind') || 'legacy';
@@ -1722,6 +2479,48 @@ store = {
 			};
 		}
 	},
+	parseSystemTaskUiFlags: function(){
+		var raw = $('[name="system_task_ui_flags"]').val() || '';
+		if (!raw) {
+			return {
+				can_view: 0,
+				can_manage_packages: 0,
+				can_site_update: 0
+			};
+		}
+
+		try {
+			var parsed = JSON.parse(raw);
+			return {
+				can_view: parsed && parsed.can_view ? 1 : 0,
+				can_manage_packages: parsed && parsed.can_manage_packages ? 1 : 0,
+				can_site_update: parsed && parsed.can_site_update ? 1 : 0
+			};
+		} catch (error) {
+			return {
+				can_view: 0,
+				can_manage_packages: 0,
+				can_site_update: 0
+			};
+		}
+	},
+	canViewSystemTasks: function(){
+		return !!(store.systemTaskUiFlags && parseInt(store.systemTaskUiFlags.can_view || 0, 10));
+	},
+	canManageSystemPackages: function(){
+		return !!(store.systemTaskUiFlags && parseInt(store.systemTaskUiFlags.can_manage_packages || 0, 10));
+	},
+	canQueueSystemTaskInstall: function(){
+		var schedulerStatus = store.getSystemTaskHealthStatus('scheduler');
+		var workerStatus = store.getSystemTaskHealthStatus('worker');
+		if (!store.canManageSystemPackages() || schedulerStatus !== 'healthy') {
+			return false;
+		}
+		if (store.isLocalRuntime()) {
+			return workerStatus === 'healthy';
+		}
+		return true;
+	},
 	applyInstalledStateToItem: function(item){
 		var array = $.extend(true, {}, item || {});
 		if (!array.cls) {
@@ -1761,13 +2560,8 @@ store = {
 	},
 	applyLegacyInstalledState: function(array){
 		var normalizedType = store.normalizeLegacyType(array.type);
-		var legacyMap = (store.installedState && store.installedState.legacy_by_type) || store.types || {};
 		var itemName = array.name_in_modx || array.title || array.name || '';
-		var installedVersion = '';
-
-		if (normalizedType && legacyMap[normalizedType] && legacyMap[normalizedType][itemName]) {
-			installedVersion = legacyMap[normalizedType][itemName];
-		}
+		var installedVersion = store.findLegacyInstalledVersionByTypeAndName(normalizedType, itemName);
 
 		if (!installedVersion) {
 			installedVersion = store.findLegacyInstalledVersionByName(itemName);
@@ -1817,7 +2611,7 @@ store = {
 		return array;
 	},
 	findLegacyInstalledVersionByName: function(name){
-		var target = String(name || '');
+		var target = String(name || '').toLowerCase();
 		if (!target) {
 			return '';
 		}
@@ -1825,7 +2619,7 @@ store = {
 		var items = (store.installedState && store.installedState.legacy_items) || [];
 		var foundVersion = '';
 		$.each(items, function(index, item){
-			if ((item.name || '') === target) {
+			if (String((item && item.name) || '').toLowerCase() === target) {
 				foundVersion = item.version || '';
 				return false;
 			}
@@ -1833,7 +2627,7 @@ store = {
 		return foundVersion;
 	},
 	hasLegacyInstalledName: function(name){
-		var target = String(name || '');
+		var target = String(name || '').toLowerCase();
 		if (!target) {
 			return false;
 		}
@@ -1841,12 +2635,59 @@ store = {
 		var items = (store.installedState && store.installedState.legacy_items) || [];
 		var found = false;
 		$.each(items, function(index, item){
-			if ((item.name || '') === target) {
+			if (String((item && item.name) || '').toLowerCase() === target) {
 				found = true;
 				return false;
 			}
 		});
 		return found;
+	},
+	findLegacyInstalledVersionByTypeAndName: function(type, name){
+		var normalizedType = store.normalizeLegacyLookupType(type);
+		var target = $.trim(String(name || '')).toLowerCase();
+		var items = (store.installedState && store.installedState.legacy_items) || [];
+		var foundVersion = '';
+
+		if (!normalizedType || !target) {
+			return '';
+		}
+
+		$.each(items, function(index, item){
+			if (store.normalizeLegacyLookupType(item.type) !== normalizedType) {
+				return;
+			}
+			if (String((item && item.name) || '').toLowerCase() !== target) {
+				return;
+			}
+			foundVersion = item.version || '';
+			return false;
+		});
+
+		return foundVersion;
+	},
+	getLegacyInstalledKey: function(item){
+		var normalizedType = store.normalizeLegacyLookupType(item.type);
+		var name = $.trim(String(item.name_in_modx || item.name || item.title || ''));
+
+		if (!normalizedType || !name) {
+			return '';
+		}
+
+		return normalizedType + '::' + name.toLowerCase();
+	},
+	normalizeLegacyLookupType: function(type){
+		type = String(type || '').toLowerCase();
+		if (type === 'snippet' || type === 'snippets') return 'snippets';
+		if (type === 'plugin' || type === 'plugins') return 'plugins';
+		if (type === 'module' || type === 'modules') return 'modules';
+		return '';
+	},
+	getLegacyDisplayType: function(type){
+		type = store.normalizeLegacyLookupType(type);
+		if (type === 'snippets') return 'snippet';
+		if (type === 'plugins') return 'plugin';
+		if (type === 'modules') return 'module';
+		return 'package';
 	},
 	normalizeLegacyType: function(type){
 		type = String(type || '');

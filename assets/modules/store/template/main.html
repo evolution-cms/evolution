@@ -3,12 +3,12 @@
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
     <title>Evolution CMS Store</title>
     <link rel="stylesheet" type="text/css" href="media/style/[+manager_theme+]/style.css" />
-    <link rel="stylesheet" type="text/css" href="[+site_url+]/assets/modules/store/css/style.css?v=[+v+]-legacydelete1" />
+    <link rel="stylesheet" type="text/css" href="[+site_url+]/assets/modules/store/css/style.css?v=[+v+]-legacydelete1-taskui15" />
     <!--- <link rel="stylesheet" type="text/css" href="media/style/[+manager_theme+]/store.css" /> -->
     <link rel="stylesheet" href="media/style/common/font-awesome/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="[+site_url+]/assets/modules/store/js/fancybox/jquery.fancybox.css" media="screen" />
     <script src="[+site_url+]/assets/modules/store/js/jquery.min.js" type="text/javascript"></script>
-    <script src="[+site_url+]/assets/modules/store/js/store.js?v=1.0.21" type="text/javascript"></script>
+    <script src="[+site_url+]/assets/modules/store/js/store.js?v=1.0.48" type="text/javascript"></script>
     <script type="text/javascript" src="[+site_url+]/assets/modules/store/js/fancybox/jquery.mousewheel-3.0.6.pack.js"></script>
     <script type="text/javascript" src="[+site_url+]/assets/modules/store/js/fancybox/jquery.fancybox.pack.js"></script>
     [+onManagerMainFrameHeaderHTMLBlock+]
@@ -31,6 +31,17 @@
     <input type="hidden" name="reinstall_label" value="[+reinstall+]">
     <input type="hidden" name="console_install_title" value="[+console_install_title+]">
     <input type="hidden" name="console_install_intro" value="[+console_install_intro+]">
+    <input type="hidden" name="console_install_manual_label" value="[+console_install_manual_label+]">
+    <input type="hidden" name="console_install_auto_label" value="[+console_install_auto_label+]">
+    <input type="hidden" name="console_install_auto_ready" value="[+console_install_auto_ready+]">
+    <input type="hidden" name="console_install_auto_disabled" value="[+console_install_auto_disabled+]">
+    <input type="hidden" name="console_install_auto_permission" value="[+console_install_auto_permission+]">
+    <input type="hidden" name="console_install_scheduler_intro" value="[+console_install_scheduler_intro+]">
+    <input type="hidden" name="console_install_scheduler_local" value="[+console_install_scheduler_local+]">
+    <input type="hidden" name="console_install_scheduler_server" value="[+console_install_scheduler_server+]">
+    <input type="hidden" name="console_install_scheduler_command_local" value="[+console_install_scheduler_command_local+]">
+    <input type="hidden" name="console_install_scheduler_command_server" value="[+console_install_scheduler_command_server+]">
+    <input type="hidden" name="console_install_auto_warning" value="[+console_install_auto_warning+]">
     <input type="hidden" name="console_install_step_open_core" value="[+console_install_step_open_core+]">
     <input type="hidden" name="console_install_step_run_artisan" value="[+console_install_step_run_artisan+]">
     <input type="hidden" name="console_install_command_label" value="[+console_install_command_label+]">
@@ -49,6 +60,22 @@
     <input type="hidden" name="popup_readme_missing" value="[+popup_readme_missing+]">
     <input type="hidden" name="popup_copy_command" value="[+popup_copy_command+]">
     <input type="hidden" name="popup_copied" value="[+popup_copied+]">
+    <input type="hidden" name="system_task_queue_install" value="[+system_task_queue_install+]">
+    <input type="hidden" name="system_task_modal_intro" value="[+system_task_modal_intro+]">
+    <input type="hidden" name="system_task_modal_warning" value="[+system_task_modal_warning+]">
+    <input type="hidden" name="system_task_modal_status" value="[+system_task_modal_status+]">
+    <input type="hidden" name="system_task_modal_step" value="[+system_task_modal_step+]">
+    <input type="hidden" name="system_task_modal_progress" value="[+system_task_modal_progress+]">
+    <input type="hidden" name="system_task_modal_elapsed" value="[+system_task_modal_elapsed+]">
+    <input type="hidden" name="system_task_modal_logs" value="[+system_task_modal_logs+]">
+    <input type="hidden" name="system_task_modal_close" value="[+system_task_modal_close+]">
+    <input type="hidden" name="system_task_modal_queue_error" value="[+system_task_modal_queue_error+]">
+    <input type="hidden" name="system_task_modal_queued_note" value="[+system_task_modal_queued_note+]">
+    <input type="hidden" name="system_task_modal_uninstall_note" value="[+system_task_modal_uninstall_note+]">
+    <input type="hidden" name="console_uninstall_intro" value="[+console_uninstall_intro+]">
+    <input type="hidden" name="console_uninstall_scheduler_intro" value="[+console_uninstall_scheduler_intro+]">
+    <input type="hidden" name="console_uninstall_confirm" value="[+console_uninstall_confirm+]">
+    <input type="hidden" name="system_task_ui_flags" value='[+system_task_ui_flags+]'>
     <input type="hidden" name="delete_label" value="[+delete+]">
     <input type="hidden" name="delete_preview_title" value="[+delete_preview_title+]">
     <input type="hidden" name="delete_preview_intro" value="[+delete_preview_intro+]">
@@ -222,23 +249,23 @@
                 <div class="item_content">
                     <div class="info_block">
                         <div id="catalog_img" class="catalog_thumb">
-                            <span class="sourcebadge">%source_label%</span>
+                            <span class="sourcebadge %source_label_class%">%source_label%</span>
                             <span class="typesbadge">%type%</span>
                             <img class="img-fluid" src="" alt="">
                         </div>
                         <div class="catalog_info">
                             <a class="row-category">
-                                <h3>%title%<span class="package-dev-badge %dev_badge_class%">%dev_badge%</span>%title_state_html%</h3>
+                                <h3>%title%<span class="store-title-source-chip store-title-source-%source_kind% %source_label_class%">%source_label%</span><span class="package-dev-badge %dev_badge_class%">%dev_badge%</span>%title_state_html%</h3>
                             </a>
                             <span class="descript">%description%</span>
                             <div class="info_extras">
                                 <span class="item-downloads %download_class%"><i class="fa fa-download"></i><span class="item-downloads-value">%downloads%</span></span>
-                                <button type="button" class="btn btn-sm btn-secondary pull-right item-more"><i class="fa fa-info"></i> [+more+]</button>
-                                <button type="button" class="btn btn-sm btn-danger pull-right item-delete" aria-label="[+delete+]" title="[+delete+]"><i class="fa fa-trash"></i></button>
+                                <button type="button" class="btn btn-sm btn-secondary pull-right item-more %more_hidden_class%"><i class="fa fa-info"></i> [+more+]</button>
+                                <button type="button" class="btn btn-sm btn-danger pull-right item-delete %delete_hidden_class%" aria-label="[+delete+]" title="[+delete+]"><i class="fa fa-trash"></i></button>
                             </div>
                             <div class="install_extras">
-                                <a href="#" class="btn btn-success item-install" data-text="[+alert_overwrite+]" data-url="%url%" data-source-url="%source_url%" data-id="%id%" data-name="%title%" data-package="%install_target%" data-method="%install_method%" data-command="%install_command%" data-dependencies="%dependencies%" data-installed-state="%installed_state%">[+install+]</a>
-                                <span class="store-select-wrap store-version-wrap"><span class="store-select-display"></span><select name="link"></select></span>
+                                <a href="#" class="btn btn-success item-install %install_hidden_class%" data-text="[+alert_overwrite+]" data-url="%url%" data-source-url="%source_url%" data-id="%id%" data-name="%title%" data-package="%install_target%" data-method="%install_method%" data-command="%install_command%" data-dependencies="%dependencies%" data-installed-state="%installed_state%">[+install+]</a>
+                                <span class="store-select-wrap store-version-wrap %version_hidden_class%"><span class="store-select-display"></span><select name="link"></select></span>
                             </div>
                         </div>
                     </div>

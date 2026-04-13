@@ -1,6 +1,9 @@
 <?php
 define('MGR', EVO_BASE_PATH . MGR_DIR);
 
+$modx = evo();
+$GLOBALS['modx'] = $modx;
+
 evo()->invokeEvent('OnManagerPageInit');
 if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true || !evo()->hasPermission('exec_module')) {
 	die('<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the EVO Content Manager instead of accessing this file directly.');
