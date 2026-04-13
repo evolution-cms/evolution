@@ -1066,6 +1066,10 @@ input#store_search:focus {
   color: #7de5a7;
 }
 
+.store-task-log-row.is-warning .store-task-log-message {
+  color: #e7c36b;
+}
+
 .store-task-log-row.is-error .store-task-log-message {
   color: #ff9a9a;
 }
@@ -1600,6 +1604,14 @@ input#store_search:focus {
 
 .store-popup-theme-light .store-task-log-row.is-error .store-task-log-message {
   color: #b94a48;
+}
+
+.store-popup-theme-light .store-task-log-row.is-warning .store-task-log-message {
+  color: #9a6a00;
+}
+
+.store-task-note-actions {
+  margin-top: 12px;
 }
 
 .store-popup-theme-light .store-popup-shell code,

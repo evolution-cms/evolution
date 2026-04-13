@@ -54,6 +54,7 @@ store = {
 	systemTaskPollToken:0,
 	systemTaskRefreshTaskId:0,
 	systemTaskRefreshPermissionsTaskId:0,
+	systemTaskCancelInFlight:false,
 	systemTaskWarnings:[],
 	allCategoryId:null,
 	extend:function(obj1){
@@ -171,6 +172,10 @@ store = {
 		});
 		$('.item-more').live('click', function(){
 			store.showItemMore(this);
+			return false;
+		});
+		$('.store-task-cancel-queued').live('click', function(){
+			store.cancelQueuedSystemTask($(this).attr('data-task-id'));
 			return false;
 		});
 
@@ -743,6 +748,7 @@ store = {
 		store.systemTaskPollTaskTitle = '';
 		store.systemTaskRefreshTaskId = 0;
 		store.systemTaskRefreshPermissionsTaskId = 0;
+		store.systemTaskCancelInFlight = false;
 		store.systemTaskWarnings = [];
 	},
 	cleanupPopupArtifacts: function(){
@@ -1589,8 +1595,7 @@ store = {
 		var noteHtml = '';
 		var schedulerHealth = (task && task.scheduler_health) ? task.scheduler_health : null;
 		var workerHealth = (task && task.worker_health) ? task.worker_health : null;
-		var schedulerStatus = schedulerHealth && schedulerHealth.status ? String(schedulerHealth.status).toLowerCase() : 'unknown';
-		var workerStatus = workerHealth && workerHealth.status ? String(workerHealth.status).toLowerCase() : 'unknown';
+		var queuedStaleState = store.getQueuedStaleState(task, schedulerHealth, workerHealth);
 
 		if (result && $.isArray(result.logs)) {
 			logs = result.logs;
@@ -1611,14 +1616,13 @@ store = {
 		if ((task.type || '') === 'console_uninstall') {
 			noteHtml = '<p class="store-popup-note store-task-note-muted">' + store.escapeHtml($('[name="system_task_modal_uninstall_note"]').val() || '') + '</p>';
 		}
-		if (
-			$.inArray((task.status || ''), ['queued', 'picked', 'running']) >= 0
-			&& (
-				schedulerStatus === 'unhealthy'
-				|| (store.isLocalRuntime() && workerStatus !== 'healthy')
-			)
-		) {
-			noteHtml += '<p class="store-popup-note store-task-note-muted">' + store.escapeHtml($('[name="console_install_auto_disabled"]').val() || 'Automatic install is not available right now. Start the scheduler first.') + '</p>';
+		if (queuedStaleState.is_stale) {
+			noteHtml += '<div class="store-popup-note store-task-note-muted">';
+			noteHtml += store.escapeHtml(queuedStaleState.message);
+			noteHtml += '<div class="store-task-note-actions">';
+			noteHtml += '<button type="button" class="btn btn-warning btn-sm store-task-cancel-queued" data-task-id="' + store.escapeHtml(String(task.id || '')) + '">' + store.escapeHtml($('[name="system_task_modal_cancel_queued"]').val() || 'Cancel queued task') + '</button>';
+			noteHtml += '</div>';
+			noteHtml += '</div>';
 		}
 		$shell.find('[data-role="task-note-area"]').html(noteHtml).toggle(!!noteHtml);
 
@@ -1642,10 +1646,20 @@ store = {
 			}];
 		}
 
+		if (queuedStaleState.is_stale) {
+			logs = logs.concat([{
+				level: 'warning',
+				step: 'stalled',
+				message: queuedStaleState.message
+			}]);
+		}
+
 		$.each(logs, function(index, log){
 			var rowClass = '';
 			if ((log.level || '') === 'error') {
 				rowClass = ' is-error';
+			} else if ((log.level || '') === 'warning' || (log.step || '') === 'stalled') {
+				rowClass = ' is-warning';
 			} else if ((log.step || '') === 'completed' || ((task.status || '') === 'succeeded' && index === logs.length - 1)) {
 				rowClass = ' is-success';
 			}
@@ -1657,6 +1671,38 @@ store = {
 		$shell.find('[data-role="task-logs-section"]').toggle(logs.length > 0);
 
 		store.recenterActivePopup();
+	},
+	getQueuedStaleState: function(task, schedulerHealth, workerHealth){
+		var taskStatus = String((task && task.status) || '').toLowerCase();
+		if (taskStatus !== 'queued') {
+			return { is_stale: false, message: '' };
+		}
+
+		var createdAt = store.parseDateTime((task && task.created_at) || '');
+		if (!createdAt) {
+			return { is_stale: false, message: '' };
+		}
+
+		var queuedForSeconds = Math.max(0, Math.floor((Date.now() - createdAt) / 1000));
+		var schedulerAge = parseInt((schedulerHealth && schedulerHealth.age_seconds) || 0, 10);
+		var workerAge = parseInt((workerHealth && workerHealth.age_seconds) || 0, 10);
+		var schedulerStatus = String((schedulerHealth && schedulerHealth.status) || '').toLowerCase();
+		var workerStatus = String((workerHealth && workerHealth.status) || '').toLowerCase();
+
+		if (queuedForSeconds < 70) {
+			return { is_stale: false, message: '' };
+		}
+
+		if (schedulerAge < 70 && schedulerStatus === 'healthy' && (!store.isLocalRuntime() || workerStatus === 'healthy' || workerAge < 70)) {
+			return { is_stale: false, message: '' };
+		}
+
+		return {
+			is_stale: true,
+			message: store.isLocalRuntime()
+				? ($('[name="system_task_modal_stale_local"]').val() || 'This task has been queued for over a minute and the scheduler does not seem to be running. Start php artisan schedule:work again or cancel this queued task.')
+				: ($('[name="system_task_modal_stale_server"]').val() || 'This task has been queued for over a minute and cron or scheduler does not seem to be running. Resume cron schedule:run or cancel this queued task.')
+		};
 	},
 	startSystemTaskPolling: function(){
 		store.stopSystemTaskPolling();
@@ -1776,6 +1822,35 @@ store = {
 					return;
 				}
 				store.scheduleNextSystemTaskPoll(10000);
+			}
+		});
+	},
+	cancelQueuedSystemTask: function(taskId){
+		taskId = parseInt(taskId || 0, 10);
+		if (!taskId || store.systemTaskCancelInFlight) {
+			return;
+		}
+
+		store.systemTaskCancelInFlight = true;
+		$.ajax({
+			url: link() + '&action=system_task_cancel',
+			cache: false,
+			dataType: 'json',
+			type: 'post',
+			data: {
+				task_id: taskId
+			},
+			success: function(response){
+				store.systemTaskCancelInFlight = false;
+				if (!response || !response.ok || !response.task) {
+					return;
+				}
+				store.renderSystemTaskPopupState(response.task, response.task);
+				store.systemTaskTerminal = true;
+				store.stopSystemTaskPolling();
+			},
+			error: function(){
+				store.systemTaskCancelInFlight = false;
 			}
 		});
 	},
