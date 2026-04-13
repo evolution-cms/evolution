@@ -70,7 +70,9 @@ $create = false;
 @set_time_limit(120); // used @ to prevent warning when using safe mode?
 
 $installMode = (int)$_POST['installmode'];
-$installData = 1;
+$optionsSelected = isset($_POST['options_selected']);
+$fastInstallAll = !$optionsSelected;
+$installData = isset($_POST['installdata']) && $_POST['installdata'] == "1" ? 1 : 0;
 
 // set session name variable
 if (!isset ($site_sessionname)) {
@@ -130,96 +132,102 @@ $sqlParser->mode = "upd";
 $sqlParser->ignoreDuplicateErrors = true;
 
 // Install Templates
-if (count($moduleTemplates) > 0) {
+$selTemplates = isset($_POST['template']) && is_array($_POST['template']) ? $_POST['template'] : array();
+if (count($moduleTemplates) > 0 && ($fastInstallAll || isset($_POST['template']) || $installData)) {
     echo "<h3>" . $_lang['templates'] . ":</h3> ";
     foreach ($moduleTemplates as $k => $moduleTemplate) {
-        $name = $moduleTemplate[0];
-        $desc = $moduleTemplate[1];
-        $category = $moduleTemplate[4];
-        $locked = $moduleTemplate[5];
-        $filecontent = $moduleTemplate[3];
-        if (!file_exists($filecontent)) {
-            echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_template'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
-        } else {
-            // Create the category if it does not already exist
-            $category_id = getCreateDbCategory($category, $sqlParser);
-
-            // Strip the first comment up top
-            $template = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', file_get_contents($filecontent), 1);
-            // See if the template already exists
-            $template = \EvolutionCMS\Models\SiteTemplate::where('templatename', $name)->first();
-
-            if ($template->count() > 0) {
-                $template->content = $template;
-                $template->description = $desc;
-                $template->category = $category_id;
-                $template->locked = $locked;
-                $template->save();
-
-                echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
+        $installSample = isset($moduleTemplate[6]) && is_array($moduleTemplate[6]) && in_array('sample', $moduleTemplate[6]) && $installData == 1;
+        if ($fastInstallAll || $installSample || in_array($k, $selTemplates)) {
+            $name = $moduleTemplate[0];
+            $desc = $moduleTemplate[1];
+            $category = $moduleTemplate[4];
+            $locked = $moduleTemplate[5];
+            $filecontent = $moduleTemplate[3];
+            if (!file_exists($filecontent)) {
+                echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_template'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
             } else {
-                \EvolutionCMS\Models\SiteTemplate::create(['templatename' => $name, 'description' => $desc, 'content' => $template, 'category' => $category_id, 'locked' => $locked]);
-                echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
+                // Create the category if it does not already exist
+                $category_id = getCreateDbCategory($category, $sqlParser);
+
+                // Strip the first comment up top
+                $templateContent = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', file_get_contents($filecontent), 1);
+                $templateDbRecord = \EvolutionCMS\Models\SiteTemplate::where('templatename', $name)->first();
+
+                if (!is_null($templateDbRecord)) {
+                    $templateDbRecord->content = $templateContent;
+                    $templateDbRecord->description = $desc;
+                    $templateDbRecord->category = $category_id;
+                    $templateDbRecord->locked = $locked;
+                    $templateDbRecord->save();
+
+                    echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
+                } else {
+                    \EvolutionCMS\Models\SiteTemplate::create(['templatename' => $name, 'description' => $desc, 'content' => $templateContent, 'category' => $category_id, 'locked' => $locked]);
+                    echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
+                }
             }
         }
     }
 }
 
 // Install Template Variables
-if (count($moduleTVs) > 0) {
+$selTVs = isset($_POST['tv']) && is_array($_POST['tv']) ? $_POST['tv'] : array();
+if (count($moduleTVs) > 0 && ($fastInstallAll || isset($_POST['tv']) || $installData)) {
     echo "<h3>" . $_lang['tvs'] . ":</h3> ";
     foreach ($moduleTVs as $k => $moduleTV) {
-        $name = $moduleTV[0];
-        $caption = $moduleTV[1];
-        $desc = $moduleTV[2];
-        $input_type = $moduleTV[3];
-        $input_options = $moduleTV[4];
-        $input_default = $moduleTV[5];
-        $output_widget = $moduleTV[6];
-        $output_widget_params = $moduleTV[7];
-        $filecontent = $moduleTV[8];
-        $assignments = $moduleTV[9];
-        $category = $moduleTV[10];
-        $locked = $moduleTV[11];
+        $installSample = isset($moduleTV[12]) && is_array($moduleTV[12]) && in_array('sample', $moduleTV[12]) && $installData == 1;
+        if ($fastInstallAll || $installSample || in_array($k, $selTVs)) {
+            $name = $moduleTV[0];
+            $caption = $moduleTV[1];
+            $desc = $moduleTV[2];
+            $input_type = $moduleTV[3];
+            $input_options = $moduleTV[4];
+            $input_default = $moduleTV[5];
+            $output_widget = $moduleTV[6];
+            $output_widget_params = $moduleTV[7];
+            $filecontent = $moduleTV[8];
+            $assignments = $moduleTV[9];
+            $category = $moduleTV[10];
+            $locked = $moduleTV[11];
 
-        // Create the category if it does not already exist
-        $category = getCreateDbCategory($category, $sqlParser);
+            // Create the category if it does not already exist
+            $category = getCreateDbCategory($category, $sqlParser);
 
-        $tmplavr = \EvolutionCMS\Models\SiteTmplvar::where('name', $name);
-        if ($tmplavr->count() > 0) {
-            $insert = true;
-            foreach ($tmplavr->get()->toArray() as $row) {
-                \EvolutionCMS\Models\SiteTmplvar::query()->where('id', $row['id'])->update(['type' => $input_type, 'caption' => $caption, 'description' => $desc, 'category' => $category, 'locked' => $locked, 'elements' => $input_options, 'display' => $output_widget, 'display_params' => $output_widget_params, 'default_text' => $input_default]);
-                $insert = false;
+            $tmplavr = \EvolutionCMS\Models\SiteTmplvar::where('name', $name);
+            if ($tmplavr->count() > 0) {
+                foreach ($tmplavr->get()->toArray() as $row) {
+                    \EvolutionCMS\Models\SiteTmplvar::query()->where('id', $row['id'])->update(['type' => $input_type, 'caption' => $caption, 'description' => $desc, 'category' => $category, 'locked' => $locked, 'elements' => $input_options, 'display' => $output_widget, 'display_params' => $output_widget_params, 'default_text' => $input_default]);
+                }
+                echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
+            } else {
+                \EvolutionCMS\Models\SiteTmplvar::create(
+                    ['type' => $input_type, 'name' => $name, 'caption' => $caption, 'description' => $desc, 'category' => $category, 'locked' => $locked, 'elements' => $input_options, 'display' => $output_widget, 'display_params' => $output_widget_params, 'default_text' => $input_default]
+                );
+
+                echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
             }
-            echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
-        } else {
-            \EvolutionCMS\Models\SiteTmplvar::create(
-                ['type' => $input_type, 'name' => $name, 'caption' => $caption, 'description' => $desc, 'category' => $category, 'locked' => $locked, 'elements' => $input_options, 'display' => $output_widget, 'display_params' => $output_widget_params, 'default_text' => $input_default]
-            );
 
-            echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
-        }
+            // add template assignments
+            if (trim($assignments) != '') {
+                $assignments = explode(',', $assignments);
+                if (count($assignments) > 0) {
+                    // remove existing tv -> template assignments
+                    $templateVar = \EvolutionCMS\Models\SiteTmplvar::query()->where('name', $name)->where('description', $desc)->first();
+                    if (!is_null($templateVar)) {
+                        \EvolutionCMS\Models\SiteTmplvarTemplate::query()->where('tmplvarid', $templateVar->getKey())->delete();
 
-        // add template assignments
-        if (trim($assignments) != '') {
-            $assignments = explode(',', $assignments);
-            if (count($assignments) > 0) {
-                // remove existing tv -> template assignments
-                $templateVar = \EvolutionCMS\Models\SiteTmplvar::query()->where('name', $name)->where('description', $desc)->first();
-                if (!is_null($templateVar)) {
-                    \EvolutionCMS\Models\SiteTmplvarTemplate::query()->where('tmplvarid', $id)->delete();
+                        // add tv -> template assignments
+                        foreach ($assignments as $assignment) {
+                            $template = $assignment;
+                            $template_name = \EvolutionCMS\Models\SiteTemplate::query();
+                            if ($template != '*') {
+                                $template_name = $template_name->where('templatename', $template);
+                            }
 
-                    // add tv -> template assignments
-                    foreach ($assignments as $assignment) {
-                        $template = $assignment;
-                        $template_name = \EvolutionCMS\Models\SiteTemplate::query();
-                        if ($template != '*')
-                            $template_name = $template_name->where('templatename', $template);
-
-                        $template_name = $template_name->first();
-                        if (!is_null($ts)) {
-                            \EvolutionCMS\Models\SiteTmplvarTemplate::query()->create(['tmplvarid' => $templateVar->getKey(), 'templateid' => $template_name->getKey()]);
+                            $template_name = $template_name->first();
+                            if (!is_null($template_name)) {
+                                \EvolutionCMS\Models\SiteTmplvarTemplate::query()->create(['tmplvarid' => $templateVar->getKey(), 'templateid' => $template_name->getKey()]);
+                            }
                         }
                     }
                 }
@@ -229,86 +237,100 @@ if (count($moduleTVs) > 0) {
 }
 
 // Install Chunks
-if (count($moduleChunks) > 0) {
+$selChunks = isset($_POST['chunk']) && is_array($_POST['chunk']) ? $_POST['chunk'] : array();
+if (count($moduleChunks) > 0 && ($fastInstallAll || isset($_POST['chunk']) || $installData)) {
     echo "<h3>" . $_lang['chunks'] . ":</h3> ";
     foreach ($moduleChunks as $k => $moduleChunk) {
-        $name = $moduleChunk[0];
-        $desc = $moduleChunk[1];
-        $category = $moduleChunk[3];
-        $overwrite = $moduleChunk[4];
-        $filecontent = $moduleChunk[2];
+        $installSample = isset($moduleChunk[5]) && is_array($moduleChunk[5]) && in_array('sample', $moduleChunk[5]) && $installData == 1;
+        if ($fastInstallAll || $installSample || in_array($k, $selChunks)) {
+            $name = $moduleChunk[0];
+            $desc = $moduleChunk[1];
+            $category = $moduleChunk[3];
+            $overwrite = $moduleChunk[4];
+            $filecontent = $moduleChunk[2];
 
-        if (!file_exists($filecontent)) {
-            echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_chunk'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
-        } else {
-            // Create the category if it does not already exist
-            $category_id = getCreateDbCategory($category, $sqlParser);
+            if (!file_exists($filecontent)) {
+                echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_chunk'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
+            } else {
+                // Create the category if it does not already exist
+                $category_id = getCreateDbCategory($category, $sqlParser);
 
-            $chunk = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', file_get_contents($filecontent), 1);
-            $chunkDbRecord = \EvolutionCMS\Models\SiteHtmlsnippet::query()->where('name', $name);
-            $count_original_name = $chunkDbRecord->count();
-            if ($overwrite == 'false') {
-                $newname = $name . '-' . str_replace('.', '_', $evo_version);
-                $chunkDbRecordNew = \EvolutionCMS\Models\SiteHtmlsnippet::query()->where('name', $newname);
-                $count_new_name = $chunkDbRecordNew->count();
-            }
-            $update = $count_original_name > 0 && $overwrite == 'true';
-            if ($update) {
-                \EvolutionCMS\Models\SiteHtmlsnippet::query()->where('name', $name)->update(['snippet' => $chunk, 'description' => $desc, 'category' => $category_id]);
-
-                echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
-            } elseif ($count_new_name == 0) {
-                if ($count_original_name > 0 && $overwrite == 'false') {
-                    $name = $newname;
+                $chunk = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', file_get_contents($filecontent), 1);
+                $chunkDbRecord = \EvolutionCMS\Models\SiteHtmlsnippet::query()->where('name', $name);
+                $count_original_name = $chunkDbRecord->count();
+                $count_new_name = 0;
+                if ($overwrite == 'false') {
+                    $newname = $name . '-' . str_replace('.', '_', $evo_version);
+                    $chunkDbRecordNew = \EvolutionCMS\Models\SiteHtmlsnippet::query()->where('name', $newname);
+                    $count_new_name = $chunkDbRecordNew->count();
                 }
-                \EvolutionCMS\Models\SiteHtmlsnippet::query()->create(['name' => $name, 'snippet' => $chunk, 'description' => $desc, 'category' => $category_id]);
-                echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
+                $update = $count_original_name > 0 && $overwrite == 'true';
+                if ($update) {
+                    \EvolutionCMS\Models\SiteHtmlsnippet::query()->where('name', $name)->update(['snippet' => $chunk, 'description' => $desc, 'category' => $category_id]);
+
+                    echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
+                } elseif ($count_new_name == 0) {
+                    if ($count_original_name > 0 && $overwrite == 'false') {
+                        $name = $newname;
+                    }
+                    \EvolutionCMS\Models\SiteHtmlsnippet::query()->create(['name' => $name, 'snippet' => $chunk, 'description' => $desc, 'category' => $category_id]);
+                    echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
+                }
             }
         }
     }
 }
 
 // Install Modules
-if (count($moduleModules) > 0) {
+$selModules = isset($_POST['module']) && is_array($_POST['module']) ? $_POST['module'] : array();
+if (count($moduleModules) > 0 && ($fastInstallAll || isset($_POST['module']) || $installData)) {
     echo "<h3>" . $_lang['modules'] . ":</h3> ";
     foreach ($moduleModules as $k => $moduleModule) {
-        $name = $moduleModule[0];
-        $desc = $moduleModule[1];
-        $filecontent = $moduleModule[2];
-        $properties = $moduleModule[3];
-        $guid = $moduleModule[4];
-        $shared = $moduleModule[5];
-        $category = $moduleModule[6];
-        $icon = $moduleModule[8];
-        if (!file_exists($filecontent)) {
-            echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_module'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
-        } else {
-            // Create the category if it does not already exist
-            $category = getCreateDbCategory($category, $sqlParser);
-            $tmp = preg_split("/(\/\/)?\s*\<\?php/", file_get_contents($filecontent), 2);
-            $module = end($tmp);
-            // remove installer docblock
-            $module = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', $module, 1);
-            $moduleDb = \EvolutionCMS\Models\SiteModule::query()->where('name', $name)->first();
-            if (!is_null($moduleDb)) {
-                $properties = propUpdate($properties, $moduleDb->properties);
-                \EvolutionCMS\Models\SiteModule::query()->where('name', $name)->update(['modulecode' => $module, 'description' => $desc, 'properties' => $properties, 'enable_sharedparams' => $shared, 'icon' => $icon]);
-
-                echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
+        $installSample = isset($moduleModule[7]) && is_array($moduleModule[7]) && in_array('sample', $moduleModule[7]) && $installData == 1;
+        if ($fastInstallAll || $installSample || in_array($k, $selModules)) {
+            $name = $moduleModule[0];
+            $desc = $moduleModule[1];
+            $filecontent = $moduleModule[2];
+            $properties = $moduleModule[3];
+            $guid = $moduleModule[4];
+            $shared = $moduleModule[5];
+            $category = $moduleModule[6];
+            $icon = $moduleModule[8];
+            if (!file_exists($filecontent)) {
+                echo "<p>&nbsp;&nbsp;$name: <span class=\"notok\">" . $_lang['unable_install_module'] . " '$filecontent' " . $_lang['not_found'] . ".</span></p>";
             } else {
-                $properties = parseProperties($properties, true);
-                \EvolutionCMS\Models\SiteModule::query()->create(['name' => $name, 'guid' => $guid, 'category' => $category, 'modulecode' => $module, 'description' => $desc, 'properties' => $properties, 'enable_sharedparams' => $shared, 'icon' => $icon]);
-                echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
+                // Create the category if it does not already exist
+                $category = getCreateDbCategory($category, $sqlParser);
+                $tmp = preg_split("/(\/\/)?\s*\<\?php/", file_get_contents($filecontent), 2);
+                $module = end($tmp);
+                // remove installer docblock
+                $module = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', $module, 1);
+                $moduleDb = \EvolutionCMS\Models\SiteModule::query()->where('name', $name)->first();
+                if (!is_null($moduleDb)) {
+                    $properties = propUpdate($properties, $moduleDb->properties);
+                    \EvolutionCMS\Models\SiteModule::query()->where('name', $name)->update(['modulecode' => $module, 'description' => $desc, 'properties' => $properties, 'enable_sharedparams' => $shared, 'icon' => $icon]);
+
+                    echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['upgraded'] . "</span></p>";
+                } else {
+                    $properties = parseProperties($properties, true);
+                    \EvolutionCMS\Models\SiteModule::query()->create(['name' => $name, 'guid' => $guid, 'category' => $category, 'modulecode' => $module, 'description' => $desc, 'properties' => $properties, 'enable_sharedparams' => $shared, 'icon' => $icon]);
+                    echo "<p>&nbsp;&nbsp;$name: <span class=\"ok\">" . $_lang['installed'] . "</span></p>";
+                }
             }
         }
     }
 }
 
 // Install Plugins
-if (count($modulePlugins) > 0) {
+$selPlugs = isset($_POST['plugin']) && is_array($_POST['plugin']) ? $_POST['plugin'] : array();
+if (count($modulePlugins) > 0 && ($fastInstallAll || isset($_POST['plugin']) || $installData)) {
     echo "<h3>" . $_lang['plugins'] . ":</h3> ";
 
     foreach ($modulePlugins as $k => $modulePlugin) {
+        $installSample = isset($modulePlugin[8]) && is_array($modulePlugin[8]) && in_array('sample', $modulePlugin[8]) && $installData == 1;
+        if (!($fastInstallAll || $installSample || in_array($k, $selPlugs))) {
+            continue;
+        }
         $name = $modulePlugin[0];
         $desc = $modulePlugin[1];
         $filecontent = $modulePlugin[2];
@@ -413,10 +435,15 @@ if (count($modulePlugins) > 0) {
 }
 
 // Install Snippets
-if (count($moduleSnippets) > 0) {
+$selSnips = isset($_POST['snippet']) && is_array($_POST['snippet']) ? $_POST['snippet'] : array();
+if (count($moduleSnippets) > 0 && ($fastInstallAll || isset($_POST['snippet']) || $installData)) {
     echo "<h3>" . $_lang['snippets'] . ":</h3> ";
 
     foreach ($moduleSnippets as $k => $moduleSnippet) {
+        $installSample = isset($moduleSnippet[5]) && is_array($moduleSnippet[5]) && in_array('sample', $moduleSnippet[5]) && $installData == 1;
+        if (!($fastInstallAll || $installSample || in_array($k, $selSnips))) {
+            continue;
+        }
         $name = $moduleSnippet[0];
         $desc = $moduleSnippet[1];
         $filecontent = $moduleSnippet[2];

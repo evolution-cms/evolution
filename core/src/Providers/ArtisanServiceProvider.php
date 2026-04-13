@@ -3,6 +3,8 @@
 use EvolutionCMS\Console;
 use EvolutionCMS\Console\Scheduling\ScheduleListCommand;
 use EvolutionCMS\Console\Scheduling\ScheduleRunCommand;
+use EvolutionCMS\Console\SystemTasks\SchedulerHeartbeatCommand;
+use EvolutionCMS\Console\SystemTasks\TaskWorkerCommand;
 use Illuminate\Console\Scheduling\ScheduleClearCacheCommand;
 use Illuminate\Console\Scheduling\ScheduleFinishCommand;
 use Illuminate\Console\Scheduling\ScheduleTestCommand;
@@ -63,6 +65,8 @@ class ArtisanServiceProvider extends ServiceProvider
         'ScheduleClearCache' => ScheduleClearCacheCommand::class,
         'ScheduleTest' => ScheduleTestCommand::class,
         'ScheduleWork' => 'command.schedule.work',
+        'SystemSchedulerHeartbeat' => 'command.system.scheduler.heartbeat',
+        'SystemTaskWorker' => 'command.system.task.worker',
         'ViewClear' => 'command.view.clear',
         'ListsDoc' => 'command.lists.doc',
         'ListsTv' => 'command.lists.tv',
@@ -71,6 +75,7 @@ class ArtisanServiceProvider extends ServiceProvider
         'PackageCreate' => 'command.packages.create',
         'RunPackageConsole' => 'command.packages.runconsole',
         'InstallPackageRequire' => 'command.packages.installrequire',
+        'RemovePackageRequire' => 'command.packages.removerequire',
         'InstallPackageAutoload' => 'command.packages.installautoload',
         'UpdateTree' => 'command.updatetree',
         'SiteUpdate' => 'command.siteupdate',
@@ -469,6 +474,18 @@ class ArtisanServiceProvider extends ServiceProvider
      *
      * @return void
      */
+    protected function registerRemovePackageRequireCommand()
+    {
+        $this->app->singleton('command.packages.removerequire', function () {
+            return new Packages\RemovePackageRequireCommand();
+        });
+    }
+
+    /**
+     * Register the command.
+     *
+     * @return void
+     */
     protected function registerInstallPackageAutoloadCommand()
     {
         $this->app->singleton('command.packages.installautoload', function () {
@@ -531,6 +548,30 @@ class ArtisanServiceProvider extends ServiceProvider
     {
         $this->app->singleton('command.clear-cache-full', function () {
             return new Console\ClearCacheFullCommand();
+        });
+    }
+
+    /**
+     * Register the command.
+     *
+     * @return void
+     */
+    protected function registerSystemSchedulerHeartbeatCommand()
+    {
+        $this->app->singleton('command.system.scheduler.heartbeat', function () {
+            return new SchedulerHeartbeatCommand();
+        });
+    }
+
+    /**
+     * Register the command.
+     *
+     * @return void
+     */
+    protected function registerSystemTaskWorkerCommand()
+    {
+        $this->app->singleton('command.system.task.worker', function () {
+            return new TaskWorkerCommand();
         });
     }
 

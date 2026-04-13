@@ -41,16 +41,26 @@ class InstallPackageRequireCommand extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
     public function handle()
     {
+        $composerExisted = file_exists($this->composer);
+        $originalComposerContents = $composerExisted ? file_get_contents($this->composer) : null;
+
         $this->checkFile();
         $this->updateArray();
         $this->putComposer();
         if ($this->argument('composer_run') == 1) {
-            $this->runComposer();
+            $exitCode = $this->runComposer();
+            if ((int) $exitCode !== 0) {
+                $this->restoreComposerState($composerExisted, $originalComposerContents);
+            }
+
+            return (int) $exitCode;
         }
+
+        return self::SUCCESS;
     }
 
     public function checkFile()
@@ -77,8 +87,32 @@ class InstallPackageRequireCommand extends Command
         $input = new ArrayInput(['command' => 'update']);
         $application = new Application();
         $application->setAutoExit(false);
-        $application->run($input);
+        $originalCwd = function_exists('getcwd') ? getcwd() : false;
 
+        if (is_string($originalCwd) && $originalCwd !== '') {
+            chdir(EVO_CORE_PATH);
+        }
+
+        try {
+            return (int) $application->run($input);
+        } finally {
+            if (is_string($originalCwd) && $originalCwd !== '') {
+                chdir($originalCwd);
+            }
+        }
+
+    }
+
+    protected function restoreComposerState($composerExisted, $originalComposerContents)
+    {
+        if ($composerExisted) {
+            file_put_contents($this->composer, (string) $originalComposerContents);
+            return;
+        }
+
+        if (file_exists($this->composer)) {
+            @unlink($this->composer);
+        }
     }
 
 }
