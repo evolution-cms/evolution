@@ -119,6 +119,42 @@ body {
   opacity: 1;
 }
 
+.store-catalog-loading-col {
+  min-height: 280px;
+}
+
+.store-catalog-loading-state {
+  min-height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 1px dashed rgba(122, 144, 167, 0.35);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #8aa4bd;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.store-catalog-loading-spinner {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 3px solid rgba(122, 144, 167, 0.25);
+  border-top-color: #4ea1ff;
+  animation: storeCatalogSpin 0.8s linear infinite;
+}
+
+.store-catalog-loading-text {
+  letter-spacing: 0.01em;
+}
+
+@keyframes storeCatalogSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .informer div {
   color: black;
   font-size: 25px;
@@ -1580,14 +1616,21 @@ input#store_search:focus {
   color: #22303c;
 }
 
-.store-popup-theme-light .store-popup-readme,
-.store-popup-theme-light .store-popup-shell pre {
+.store-popup-theme-light .store-popup-readme {
   background: #f7f9fb;
   color: #22303c;
 }
 
+.store-popup-theme-light .store-popup-readme pre,
+.store-popup-theme-light .store-popup-shell pre {
+  background: #eef3f7 !important;
+  border: 1px solid #d5dde6;
+  color: #22303c !important;
+  box-shadow: none;
+}
+
 .store-popup-theme-light .store-task-log-list {
-  background: #f7f9fb;
+  background: #eef3f7;
   border-color: #d5dde6;
   box-shadow: none;
 }
@@ -1633,7 +1676,7 @@ input#store_search:focus {
 .store-popup-theme-light .store-popup-readme pre code,
 .store-popup-theme-light .store-popup-shell pre code {
   background: transparent !important;
-  color: inherit !important;
+  color: #22303c !important;
 }
 
 .store-popup-theme-light .store-copy-button {

@@ -2,6 +2,9 @@
 
 class CatalogService
 {
+    private const CONSOLE_CATALOG_URL = 'https://evo.im/extras.json';
+    private const CONSOLE_CATALOG_CACHE_TTL = 900;
+
     protected InstalledStateService $installedStateService;
     protected RemoteTransportService $remoteTransportService;
     protected array $lang;
@@ -15,19 +18,14 @@ class CatalogService
 
     public function getConsoleCatalog()
     {
-        $raw = $this->fetchRemoteBody('https://evo.im/extras.json');
-        if (!is_string($raw) || trim($raw) === '') {
-            return [];
-        }
-
-        $data = json_decode($raw, true);
-        if (!is_array($data) || !isset($data['packages']) || !is_array($data['packages'])) {
+        $packages = $this->loadConsoleCatalogPackages();
+        if ($packages === []) {
             return [];
         }
 
         $items = [];
         $consoleInstalled = $this->installedStateService->getConsoleInstalledState();
-        foreach ($data['packages'] as $package) {
+        foreach ($packages as $package) {
             if (!is_array($package)) {
                 continue;
             }
@@ -192,6 +190,78 @@ class CatalogService
     public function fetchRemoteBody($url)
     {
         return $this->remoteTransportService->fetchBody($url);
+    }
+
+    private function loadConsoleCatalogPackages(): array
+    {
+        $cachedFresh = $this->readConsoleCatalogCache(false);
+        $packages = $this->decodeConsoleCatalogPackages($cachedFresh);
+        if ($packages !== []) {
+            return $packages;
+        }
+
+        $remote = $this->fetchRemoteBody(self::CONSOLE_CATALOG_URL);
+        $packages = $this->decodeConsoleCatalogPackages($remote);
+        if ($packages !== []) {
+            $this->writeConsoleCatalogCache((string) $remote);
+            return $packages;
+        }
+
+        return $this->decodeConsoleCatalogPackages($this->readConsoleCatalogCache(true));
+    }
+
+    private function decodeConsoleCatalogPackages($raw): array
+    {
+        if (!is_string($raw) || trim($raw) === '') {
+            return [];
+        }
+
+        $data = json_decode($raw, true);
+        if (!is_array($data) || !isset($data['packages']) || !is_array($data['packages'])) {
+            return [];
+        }
+
+        return $data['packages'];
+    }
+
+    private function readConsoleCatalogCache(bool $allowStale): ?string
+    {
+        $path = $this->getConsoleCatalogCachePath();
+        if (!is_file($path)) {
+            return null;
+        }
+
+        $modifiedAt = @filemtime($path);
+        if (!$allowStale && (!$modifiedAt || ($modifiedAt + self::CONSOLE_CATALOG_CACHE_TTL) < time())) {
+            return null;
+        }
+
+        $raw = @file_get_contents($path);
+        return is_string($raw) ? $raw : null;
+    }
+
+    private function writeConsoleCatalogCache(string $raw): void
+    {
+        $directory = $this->getConsoleCatalogCacheDirectory();
+        if (!is_dir($directory)) {
+            @mkdir($directory, 0775, true);
+        }
+
+        if (!is_dir($directory)) {
+            return;
+        }
+
+        @file_put_contents($this->getConsoleCatalogCachePath(), $raw, LOCK_EX);
+    }
+
+    private function getConsoleCatalogCacheDirectory(): string
+    {
+        return rtrim(EVO_CORE_PATH, '/\\') . DIRECTORY_SEPARATOR . 'custom' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'store';
+    }
+
+    private function getConsoleCatalogCachePath(): string
+    {
+        return $this->getConsoleCatalogCacheDirectory() . DIRECTORY_SEPARATOR . 'console-catalog.json';
     }
 
     private function isStableReleaseVersion($value)

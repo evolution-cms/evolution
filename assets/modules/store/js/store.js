@@ -35,6 +35,7 @@ store = {
 	currentList:[],
 	currentTemplate:'list',
 	consoleCatalog:[],
+	catalogBootLoading:false,
 	systemTaskHealth:{
 		scheduler:null,
 		worker:null
@@ -129,14 +130,16 @@ store = {
 		store.query('start',{'user':'1'},function(data){
 			store.category = data.allcategory;
 			store.catalog = data.category;
+			store.catalogBootLoading = true;
 			store.update_category(data.category);
 			/*Show firdt category*/
 			var id = $('.category_list').find('li').first().find('a').attr('data-id');
 			store.allCategoryId = id;
 			$('[name=parent]').val(id);
-			store.buildInstalledCatalog();
-			store.update_list( store.category[id] );
-			store.loadConsoleCatalog();
+			store.startCatalogBoot();
+			store.loadConsoleCatalog(function(){
+				store.finishCatalogBoot();
+			});
 
 			var version = $('.version').html();
 			if (data.version != version && version != '0.2.0') {
@@ -191,16 +194,30 @@ store = {
 
 		$('.category_list a').live('click',function(){
 			if ($(this).attr('data-source') === 'console') {
+				$('[name=parent]').val('console-extras');
+				if (store.catalogBootLoading) {
+					store.renderCatalogLoadingState();
+					return false;
+				}
 				store.update_list(store.consoleCatalog, 'list');
 				return false;
 			}
 			if ($(this).attr('data-source') === 'installed') {
+				$('[name=parent]').val('installed-extras');
+				if (store.catalogBootLoading) {
+					store.renderCatalogLoadingState();
+					return false;
+				}
 				store.update_list(store.installedCatalog, 'list');
 				return false;
 			}
 			$('[name=parent]').val($(this).attr('data-id'));
 			//store.get_list({}, store.update_list );
 
+			if (store.catalogBootLoading) {
+				store.renderCatalogLoadingState();
+				return false;
+			}
 			store.update_list( store.category[$(this).attr('data-id')] , $(this).attr('data-tpl') );
 			return false;
 		});
@@ -871,9 +888,51 @@ store = {
 
 	update_category: function(data){
 		$('.category_list').html( '<ul>' +store.parse_list1( data , $('.tpl #tpl_category').html() ) + '</ul>' );
-		store.renderInstalledCategory(store.installedCatalog.length);
+		if (!store.catalogBootLoading) {
+			store.renderInstalledCategory(store.installedCatalog.length);
+		}
 	},
-	loadConsoleCatalog: function(){
+	startCatalogBoot: function(){
+		store.renderCatalogLoadingState();
+	},
+	finishCatalogBoot: function(){
+		store.catalogBootLoading = false;
+		if (store.consoleCatalog.length) {
+			store.renderConsoleCategory(store.consoleCatalog.length);
+		} else {
+			$('.category_list ul').find('.console-category-item').remove();
+		}
+		store.buildInstalledCatalog();
+		store.renderInstalledCategory(store.installedCatalog.length);
+		store.renderSelectedCategory();
+	},
+	renderCatalogLoadingState: function(){
+		var label = $('[name="popup_loading"]').val() || 'Loading...';
+		var html = ''
+			+ '<div class="col-sm-12 store-catalog-loading-col">'
+			+ '<div class="store-catalog-loading-state">'
+			+ '<span class="store-catalog-loading-spinner"></span>'
+			+ '<span class="store-catalog-loading-text">' + store.escapeHtml(label) + '</span>'
+			+ '</div>'
+			+ '</div>';
+		$('.item_list').html(html);
+	},
+	renderSelectedCategory: function(){
+		var parentId = $('[name=parent]').val() || store.allCategoryId;
+		if (parentId === 'console-extras') {
+			store.update_list(store.consoleCatalog, 'list');
+			return;
+		}
+		if (parentId === 'installed-extras') {
+			store.update_list(store.installedCatalog, 'list');
+			return;
+		}
+
+		var $selected = $('.category_list a[data-id="' + parentId + '"]');
+		var tpl = ($selected.attr('data-tpl') || 'list');
+		store.update_list(store.category[parentId] || [], tpl);
+	},
+	loadConsoleCatalog: function(callback){
 		$.ajax({
 			url: link() + '&action=console_catalog',
 			cache: false,
@@ -881,13 +940,21 @@ store = {
 			type: 'get',
 			success: function(data){
 				if (!data || !data.ok || !$.isArray(data.items) || data.items.length === 0) {
+					if (typeof callback === 'function') {
+						callback();
+					}
 					return;
 				}
 				store.consoleCatalog = data.items;
 				store.mergeConsoleIntoAll();
-				store.buildInstalledCatalog();
-				store.renderConsoleCategory(data.items.length);
-				store.renderInstalledCategory(store.installedCatalog.length);
+				if (typeof callback === 'function') {
+					callback();
+				}
+			},
+			error: function(){
+				if (typeof callback === 'function') {
+					callback();
+				}
 			}
 		});
 	},
@@ -904,7 +971,7 @@ store = {
 			firstCategory.find('small').text('(' + store.category[store.allCategoryId].length + ')');
 		}
 
-		if ($('[name=parent]').val() == store.allCategoryId) {
+		if (!store.catalogBootLoading && $('[name=parent]').val() == store.allCategoryId) {
 			store.update_list(store.category[store.allCategoryId]);
 		}
 	},
