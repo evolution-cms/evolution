@@ -178,6 +178,10 @@ store = {
 			store.cancelQueuedSystemTask($(this).attr('data-task-id'));
 			return false;
 		});
+		$('.store-task-open-existing').live('click', function(){
+			store.openExistingSystemTask($(this).attr('data-task-id'));
+			return false;
+		});
 
 		$('.item-install2').live('click',function(){
 			tpl = '<li data-id="'+$(this).attr('data-id')+'">'+$(this).parent().find('.row-category').text()+'<a href="#">X</a></li>';
@@ -1413,6 +1417,10 @@ store = {
 					$triggerButton.removeAttr('data-system-task-busy').prop('disabled', false).removeClass('disabled');
 				}
 				if (!response || !response.ok || !response.task) {
+					if (response && response.error_code === 'GLOBAL_LOCK_ACTIVE' && response.active_task) {
+						store.openBlockingTaskPopup(response.active_task, popupTitle);
+						return;
+					}
 					store.openPopup(
 						popupTitle,
 						'<div class="store-popup-shell ' + store.getPopupThemeClass() + '"><div class="store-popup-empty">' + store.escapeHtml((response && response.message) || ($('[name="system_task_modal_queue_error"]').val() || 'Unable to queue this system task.')) + '</div></div>',
@@ -1444,6 +1452,29 @@ store = {
 		var version = $.trim($button.attr('data-version') || '');
 		var title = $.trim($button.attr('data-title') || '');
 		store.queueSystemTaskRequest('console_install', catalogItemId, version, title);
+	},
+	openBlockingTaskPopup: function(task, popupTitle){
+		var title = popupTitle || store.getSystemTaskActionTitle(task.type, task.display_title || task.target || '', task.source_label || '');
+		var message = $('[name="system_task_modal_blocked_by_task"]').val() || 'Another task is currently blocking this action.';
+		var taskLabel = $('[name="system_task_modal_blocked_task"]').val() || 'Blocking task';
+		var html = '<div class="store-popup-shell ' + store.getPopupThemeClass() + '">';
+		html += '<div class="store-popup-empty">';
+		html += '<strong>' + store.escapeHtml(message) + '</strong>';
+		html += '<div class="store-task-blocked-summary">';
+		html += '<div><strong>' + store.escapeHtml(taskLabel) + ':</strong> ' + store.escapeHtml((task.display_title || task.target || 'Task')) + '</div>';
+		html += '<div><strong>' + store.escapeHtml($('[name="system_task_modal_status"]').val() || 'Status') + ':</strong> ' + store.escapeHtml(task.status || '') + '</div>';
+		html += '<div><strong>' + store.escapeHtml($('[name="system_task_modal_step"]').val() || 'Step') + ':</strong> ' + store.escapeHtml(task.step || '') + '</div>';
+		html += '</div>';
+		html += '<div class="store-task-note-actions">';
+		html += '<button type="button" class="btn btn-secondary btn-sm store-task-open-existing" data-task-id="' + store.escapeHtml(String(task.id || '')) + '">' + store.escapeHtml($('[name="system_task_modal_open_blocking"]').val() || 'Open blocking task') + '</button>';
+		if (task.can_cancel_queued) {
+			html += '<button type="button" class="btn btn-warning btn-sm store-task-cancel-queued" data-task-id="' + store.escapeHtml(String(task.id || '')) + '">' + store.escapeHtml($('[name="system_task_modal_skip_queued"]').val() || 'Skip queued task') + '</button>';
+		}
+		html += '</div>';
+		html += '</div>';
+		html += '</div>';
+
+		store.openPopup(title, html, 'compact');
 	},
 	refreshManagerPermissions: function(callback){
 		$.ajax({
@@ -1678,7 +1709,7 @@ store = {
 			return { is_stale: false, message: '' };
 		}
 
-		var createdAt = store.parseDateTime((task && task.created_at) || '');
+		var createdAt = store.parseDateToTimestamp((task && task.created_at) || '');
 		if (!createdAt) {
 			return { is_stale: false, message: '' };
 		}
@@ -1851,6 +1882,28 @@ store = {
 			},
 			error: function(){
 				store.systemTaskCancelInFlight = false;
+			}
+		});
+	},
+	openExistingSystemTask: function(taskId){
+		taskId = parseInt(taskId || 0, 10);
+		if (!taskId) {
+			return;
+		}
+
+		$.ajax({
+			url: link() + '&action=system_task_result',
+			cache: false,
+			dataType: 'json',
+			type: 'get',
+			data: {
+				task_id: taskId
+			},
+			success: function(response){
+				if (!response || !response.ok || !response.task) {
+					return;
+				}
+				store.openSystemTaskPopup(response.task, response.task.display_title || response.task.target || '', []);
 			}
 		});
 	},

@@ -833,11 +833,13 @@ class SystemTaskService
 
         $activeTask = $this->findActiveMutatingTask();
         if ($activeTask) {
+            $activeTaskPayload = $this->buildTaskStatusPayload($activeTask);
+            $activeTaskPayload['can_cancel_queued'] = ((string) $activeTask->status === 'queued');
             return [
                 'ok' => false,
                 'error_code' => 'GLOBAL_LOCK_ACTIVE',
                 'message' => 'Another system task is already queued or running.',
-                'active_task' => $this->buildTaskStatusPayload($activeTask),
+                'active_task' => $activeTaskPayload,
             ];
         }
 

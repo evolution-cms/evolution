@@ -1614,6 +1614,16 @@ input#store_search:focus {
   margin-top: 12px;
 }
 
+.store-task-blocked-summary {
+  margin: 12px 0;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.store-task-blocked-summary > div + div {
+  margin-top: 6px;
+}
+
 .store-popup-theme-light .store-popup-shell code,
 .store-popup-theme-light .store-popup-readme code {
   background: rgba(31, 47, 61, 0.08);
