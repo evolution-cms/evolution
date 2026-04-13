@@ -1528,6 +1528,7 @@ store = {
 			store.systemTaskWarnings = $.isArray(warnings) ? warnings : [];
 			store.setActivePopupTitle(store.getSystemTaskActionTitle(task.type, store.systemTaskPollTaskTitle, task.source_label || ''));
 			store.renderSystemTaskPopupState(task, task);
+			store.bindPopupCopyButtons();
 			store.startSystemTaskPolling();
 			store.startSystemTaskElapsedTimer();
 		};
@@ -1650,6 +1651,17 @@ store = {
 		if (queuedStaleState.is_stale) {
 			noteHtml += '<div class="store-popup-note store-task-note-muted">';
 			noteHtml += store.escapeHtml(queuedStaleState.message);
+			if (queuedStaleState.command) {
+				noteHtml += '<div class="store-install-card">';
+				noteHtml += '<div class="store-install-step">';
+				noteHtml += '<div class="store-install-card-head">';
+				noteHtml += '<span class="store-install-card-label">' + store.escapeHtml(queuedStaleState.command_label || (($('[name="console_install_scheduler_local"]').val() || 'Local'))) + '</span>';
+				noteHtml += '<button type="button" class="store-copy-button" data-copy-command="' + store.escapeHtml(queuedStaleState.command) + '" aria-label="' + store.escapeHtml($('[name="popup_copy_command"]').val() || 'Copy command') + '"><i class="fa fa-copy"></i></button>';
+				noteHtml += '</div>';
+				noteHtml += '<div class="store-install-command">' + store.escapeHtml(queuedStaleState.command) + '</div>';
+				noteHtml += '</div>';
+				noteHtml += '</div>';
+			}
 			noteHtml += '<div class="store-task-note-actions">';
 			noteHtml += '<button type="button" class="btn btn-warning btn-sm store-task-cancel-queued" data-task-id="' + store.escapeHtml(String(task.id || '')) + '">' + store.escapeHtml($('[name="system_task_modal_cancel_queued"]').val() || 'Cancel queued task') + '</button>';
 			noteHtml += '</div>';
@@ -1701,6 +1713,7 @@ store = {
 		$shell.find('[data-role="task-logs"]').html(logsHtml);
 		$shell.find('[data-role="task-logs-section"]').toggle(logs.length > 0);
 
+		store.bindPopupCopyButtons();
 		store.recenterActivePopup();
 	},
 	getQueuedStaleState: function(task, schedulerHealth, workerHealth){
@@ -1728,8 +1741,22 @@ store = {
 			return { is_stale: false, message: '' };
 		}
 
+		var corePath = $('[name="console_core_path"]').val() || '';
+		var command = '';
+		var commandLabel = '';
+		if (store.isLocalRuntime()) {
+			command = 'cd ' + corePath + ' && ' + ($('[name="console_install_scheduler_command_local"]').val() || 'php artisan schedule:work');
+			commandLabel = $('[name="console_install_scheduler_local"]').val() || 'Local';
+		} else {
+			var schedulerServerTemplate = $('[name="console_install_scheduler_command_server"]').val() || '* * * * * cd {core_path} && php artisan schedule:run >/dev/null 2>&1';
+			command = schedulerServerTemplate.replace('{core_path}', corePath);
+			commandLabel = $('[name="console_install_scheduler_server"]').val() || 'Server';
+		}
+
 		return {
 			is_stale: true,
+			command: command,
+			command_label: commandLabel,
 			message: store.isLocalRuntime()
 				? ($('[name="system_task_modal_stale_local"]').val() || 'This task has been queued for over a minute and the scheduler does not seem to be running. Start php artisan schedule:work again or cancel this queued task.')
 				: ($('[name="system_task_modal_stale_server"]').val() || 'This task has been queued for over a minute and cron or scheduler does not seem to be running. Resume cron schedule:run or cancel this queued task.')
