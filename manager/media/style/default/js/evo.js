@@ -1836,6 +1836,10 @@
                             }
                             this.page.id = 'evo-tab-page-' + this.uid;
                             this.tab.id = 'evo-tab-' + this.uid;
+                            if (this.olduid === 'home' && this.uid !== 'home') {
+                                this.tab.style.display = '';
+                                this.tab.removeAttribute('data-target');
+                            }
                             this.tab.dataset.url = this.url;
                             this.tab.dataset.title = this.title;
                             this.tab.classList.remove('changed');
