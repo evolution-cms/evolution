@@ -7,23 +7,63 @@ use Illuminate\Support\Facades\Schema;
 /**
  * Seeds permission groups and permissions for a fresh installation.
  *
- * Safety: this seeder is idempotent and will not overwrite existing permission definitions.
- * If `permissions_groups` or `permissions` already contain any rows, it does nothing.
+ * Safety: this seeder is idempotent and only repairs or upserts missing
+ * baseline permission groups and permission definitions.
  */
 class UserPermissionsTableSeeder extends Seeder
 {
+    protected function upsertPermissionGroups(array $groups): void
+    {
+        foreach ($groups as $group) {
+            DB::table('permissions_groups')->updateOrInsert(
+                ['id' => (int) $group['id']],
+                [
+                    'name' => $group['name'],
+                    'lang_key' => $group['lang_key'],
+                ]
+            );
+        }
+    }
+
+    protected function upsertPermissions(array $permissions): void
+    {
+        foreach ($permissions as $permission) {
+            $exists = DB::table('permissions')->where('key', $permission['key'])->exists();
+
+            if ($exists) {
+                DB::table('permissions')
+                    ->where('key', $permission['key'])
+                    ->update([
+                        'name' => $permission['name'],
+                        'lang_key' => $permission['lang_key'],
+                        'disabled' => $permission['disabled'],
+                        'group_id' => $permission['group_id'],
+                        'updated_at' => now(),
+                    ]);
+
+                continue;
+            }
+
+            DB::table('permissions')->insert([
+                'name' => $permission['name'],
+                'lang_key' => $permission['lang_key'],
+                'key' => $permission['key'],
+                'disabled' => $permission['disabled'],
+                'group_id' => $permission['group_id'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+    }
+
     /**
      * Execute the database seeder.
      *
-     * Seeds permission groups and permissions only when both tables are empty.
+     * Seeds permission groups and permissions and repairs missing baseline rows.
      */
     public function run(): void
     {
         if (!Schema::hasTable('permissions_groups') || !Schema::hasTable('permissions')) {
-            return;
-        }
-
-        if (DB::table('permissions_groups')->count() > 0 || DB::table('permissions')->count() > 0) {
             return;
         }
 
@@ -44,7 +84,7 @@ class UserPermissionsTableSeeder extends Seeder
             ['id' => 13, 'name' => 'Events Log Management', 'lang_key' => 'role_eventlog_management'],
             ['id' => 14, 'name' => 'Config Management', 'lang_key' => 'role_config_management'],
         ];
-        DB::table('permissions_groups')->insert($insertArray);
+        $this->upsertPermissionGroups($insertArray);
 
         // Insert permissions - General
         $insertArray = [
@@ -119,7 +159,7 @@ class UserPermissionsTableSeeder extends Seeder
                 'group_id' => 1
             ],
         ];
-        DB::table('permissions')->insert($insertArray);
+        $this->upsertPermissions($insertArray);
 
         // Insert permissions - Content Management
         $insertArray = [
@@ -194,7 +234,7 @@ class UserPermissionsTableSeeder extends Seeder
                 'group_id' => 2
             ],
         ];
-        DB::table('permissions')->insert($insertArray);
+        $this->upsertPermissions($insertArray);
 
         // Insert permissions - File Management, Category, Module, Template
         $insertArray = [
@@ -297,7 +337,7 @@ class UserPermissionsTableSeeder extends Seeder
                 'group_id' => 6
             ],
         ];
-        DB::table('permissions')->insert($insertArray);
+        $this->upsertPermissions($insertArray);
 
         // Insert permissions - Snippet, Chunk, Plugin, User, Permissions
         $insertArray = [
@@ -449,7 +489,7 @@ class UserPermissionsTableSeeder extends Seeder
                 'group_id' => 11
             ],
         ];
-        DB::table('permissions')->insert($insertArray);
+        $this->upsertPermissions($insertArray);
 
         // Insert permissions - Role, Events Log, Config
         $insertArray = [
@@ -531,6 +571,6 @@ class UserPermissionsTableSeeder extends Seeder
                 'group_id' => 14
             ],
         ];
-        DB::table('permissions')->insert($insertArray);
+        $this->upsertPermissions($insertArray);
     }
 }
