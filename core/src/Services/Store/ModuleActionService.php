@@ -128,6 +128,17 @@ class ModuleActionService
                     $store->getRequesterSnapshot(),
                     $store->isSuperAdmin()
                 ));
+
+            case 'system_task_cancel':
+                return $this->json($store->systemTaskService()->cancelQueuedTaskPayload(
+                    isset($request['task_id']) ? (int) $request['task_id'] : 0,
+                    isset($request['task_uuid']) ? (string) $request['task_uuid'] : '',
+                    $store->getRequesterSnapshot(),
+                    $store->isSuperAdmin()
+                ));
+
+            case 'refresh_manager_permissions':
+                return $this->json($store->refreshCurrentManagerPermissions());
         }
 
         return ['handled' => false];

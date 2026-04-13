@@ -1034,7 +1034,13 @@ input#store_search:focus {
 .store-task-log-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: #171b22;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
 .store-task-log-row {
@@ -1052,10 +1058,16 @@ input#store_search:focus {
   min-width: 0;
   overflow-wrap: anywhere;
   color: #d8dee6;
+  font-size: 13px;
+  line-height: 1.35;
 }
 
 .store-task-log-row.is-success .store-task-log-message {
   color: #7de5a7;
+}
+
+.store-task-log-row.is-warning .store-task-log-message {
+  color: #e7c36b;
 }
 
 .store-task-log-row.is-error .store-task-log-message {
@@ -1568,10 +1580,55 @@ input#store_search:focus {
   color: #22303c;
 }
 
-.store-popup-theme-light .store-popup-readme,
-.store-popup-theme-light .store-popup-shell pre {
+.store-popup-theme-light .store-popup-readme {
   background: #f7f9fb;
   color: #22303c;
+}
+
+.store-popup-theme-light .store-popup-readme pre,
+.store-popup-theme-light .store-popup-shell pre {
+  background: #eef3f7 !important;
+  border: 1px solid #d5dde6;
+  color: #22303c !important;
+  box-shadow: none;
+}
+
+.store-popup-theme-light .store-task-log-list {
+  background: #eef3f7;
+  border-color: #d5dde6;
+  box-shadow: none;
+}
+
+.store-popup-theme-light .store-task-log-message {
+  color: #22303c;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.store-popup-theme-light .store-task-log-row.is-success .store-task-log-message {
+  color: #237a45;
+}
+
+.store-popup-theme-light .store-task-log-row.is-error .store-task-log-message {
+  color: #b94a48;
+}
+
+.store-popup-theme-light .store-task-log-row.is-warning .store-task-log-message {
+  color: #9a6a00;
+}
+
+.store-task-note-actions {
+  margin-top: 12px;
+}
+
+.store-task-blocked-summary {
+  margin: 12px 0;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.store-task-blocked-summary > div + div {
+  margin-top: 6px;
 }
 
 .store-popup-theme-light .store-popup-shell code,
@@ -1583,7 +1640,7 @@ input#store_search:focus {
 .store-popup-theme-light .store-popup-readme pre code,
 .store-popup-theme-light .store-popup-shell pre code {
   background: transparent !important;
-  color: inherit !important;
+  color: #22303c !important;
 }
 
 .store-popup-theme-light .store-copy-button {
@@ -1678,6 +1735,10 @@ body,
 
 .wrapper {
   margin-top: 5px;
+}
+
+.store-sidebar-col {
+  padding-right: 0;
 }
 
 .loginbut {

@@ -2,6 +2,9 @@
 
 class CatalogService
 {
+    private const CONSOLE_CATALOG_URL = 'https://evo.im/extras.json';
+    private const CONSOLE_CATALOG_CACHE_TTL = 900;
+
     protected InstalledStateService $installedStateService;
     protected RemoteTransportService $remoteTransportService;
     protected array $lang;
@@ -15,19 +18,14 @@ class CatalogService
 
     public function getConsoleCatalog()
     {
-        $raw = $this->fetchRemoteBody('https://evo.im/extras.json');
-        if (!is_string($raw) || trim($raw) === '') {
-            return [];
-        }
-
-        $data = json_decode($raw, true);
-        if (!is_array($data) || !isset($data['packages']) || !is_array($data['packages'])) {
+        $packages = $this->loadConsoleCatalogPackages();
+        if ($packages === []) {
             return [];
         }
 
         $items = [];
         $consoleInstalled = $this->installedStateService->getConsoleInstalledState();
-        foreach ($data['packages'] as $package) {
+        foreach ($packages as $package) {
             if (!is_array($package)) {
                 continue;
             }
@@ -194,6 +192,78 @@ class CatalogService
         return $this->remoteTransportService->fetchBody($url);
     }
 
+    private function loadConsoleCatalogPackages(): array
+    {
+        $cachedFresh = $this->readConsoleCatalogCache(false);
+        $packages = $this->decodeConsoleCatalogPackages($cachedFresh);
+        if ($packages !== []) {
+            return $packages;
+        }
+
+        $remote = $this->fetchRemoteBody(self::CONSOLE_CATALOG_URL);
+        $packages = $this->decodeConsoleCatalogPackages($remote);
+        if ($packages !== []) {
+            $this->writeConsoleCatalogCache((string) $remote);
+            return $packages;
+        }
+
+        return $this->decodeConsoleCatalogPackages($this->readConsoleCatalogCache(true));
+    }
+
+    private function decodeConsoleCatalogPackages($raw): array
+    {
+        if (!is_string($raw) || trim($raw) === '') {
+            return [];
+        }
+
+        $data = json_decode($raw, true);
+        if (!is_array($data) || !isset($data['packages']) || !is_array($data['packages'])) {
+            return [];
+        }
+
+        return $data['packages'];
+    }
+
+    private function readConsoleCatalogCache(bool $allowStale): ?string
+    {
+        $path = $this->getConsoleCatalogCachePath();
+        if (!is_file($path)) {
+            return null;
+        }
+
+        $modifiedAt = @filemtime($path);
+        if (!$allowStale && (!$modifiedAt || ($modifiedAt + self::CONSOLE_CATALOG_CACHE_TTL) < time())) {
+            return null;
+        }
+
+        $raw = @file_get_contents($path);
+        return is_string($raw) ? $raw : null;
+    }
+
+    private function writeConsoleCatalogCache(string $raw): void
+    {
+        $directory = $this->getConsoleCatalogCacheDirectory();
+        if (!is_dir($directory)) {
+            @mkdir($directory, 0775, true);
+        }
+
+        if (!is_dir($directory)) {
+            return;
+        }
+
+        @file_put_contents($this->getConsoleCatalogCachePath(), $raw, LOCK_EX);
+    }
+
+    private function getConsoleCatalogCacheDirectory(): string
+    {
+        return rtrim(EVO_CORE_PATH, '/\\') . DIRECTORY_SEPARATOR . 'custom' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'store';
+    }
+
+    private function getConsoleCatalogCachePath(): string
+    {
+        return $this->getConsoleCatalogCacheDirectory() . DIRECTORY_SEPARATOR . 'console-catalog.json';
+    }
+
     private function isStableReleaseVersion($value)
     {
         $value = trim((string) $value);
@@ -287,6 +357,7 @@ class CatalogService
         $listType = '';
         $listItems = [];
         $indentedCode = [];
+        $rawHtmlBlock = [];
 
         $flushParagraph = function () use (&$paragraph, &$html, $repoUrl, $branch) {
             if ($paragraph === []) {
@@ -325,8 +396,28 @@ class CatalogService
             $indentedCode = [];
         };
 
+        $flushRawHtmlBlock = function () use (&$rawHtmlBlock, &$html) {
+            if ($rawHtmlBlock === []) {
+                return;
+            }
+
+            $html[] = implode("\n", $rawHtmlBlock);
+            $rawHtmlBlock = [];
+        };
+
         foreach ($lines as $line) {
             $trimmed = trim($line);
+
+            if ($rawHtmlBlock !== []) {
+                if ($trimmed === '') {
+                    $flushRawHtmlBlock();
+                } elseif (preg_match('/^\s*<\/?[a-zA-Z][^>]*>\s*$/', $line) || preg_match('/^\s*<[^>]+>.*$/', $line)) {
+                    $rawHtmlBlock[] = ltrim($line);
+                    continue;
+                } else {
+                    $flushRawHtmlBlock();
+                }
+            }
 
             if ($indentedCode !== []) {
                 if ($trimmed === '') {
@@ -345,6 +436,7 @@ class CatalogService
             if ($trimmed === '') {
                 $flushParagraph();
                 $flushList();
+                $flushRawHtmlBlock();
                 continue;
             }
 
@@ -352,7 +444,16 @@ class CatalogService
                 $flushParagraph();
                 $flushList();
                 $flushIndentedCode();
+                $flushRawHtmlBlock();
                 $html[] = $codeBlocks[$trimmed];
+                continue;
+            }
+
+            if (preg_match('/^\s*<\/?[a-zA-Z][^>]*>\s*$/', $line) || preg_match('/^\s*<[^>]+>.*$/', $line)) {
+                $flushParagraph();
+                $flushList();
+                $flushIndentedCode();
+                $rawHtmlBlock[] = ltrim($line);
                 continue;
             }
 
@@ -367,6 +468,7 @@ class CatalogService
                 $flushParagraph();
                 $flushList();
                 $flushIndentedCode();
+                $flushRawHtmlBlock();
                 $level = strlen($matches[1]);
                 $html[] = '<h' . $level . '>' . $this->renderMarkdownInline($matches[2], $repoUrl, $branch) . '</h' . $level . '>';
                 continue;
@@ -376,6 +478,7 @@ class CatalogService
                 $flushParagraph();
                 $flushList();
                 $flushIndentedCode();
+                $flushRawHtmlBlock();
                 $html[] = '<blockquote><p>' . $this->renderMarkdownInline($matches[1], $repoUrl, $branch) . '</p></blockquote>';
                 continue;
             }
@@ -383,6 +486,7 @@ class CatalogService
             if (preg_match('/^[-*+]\s+(.*)$/', $trimmed, $matches)) {
                 $flushParagraph();
                 $flushIndentedCode();
+                $flushRawHtmlBlock();
                 if ($listType !== 'ul') {
                     $flushList();
                     $listType = 'ul';
@@ -394,6 +498,7 @@ class CatalogService
             if (preg_match('/^\d+\.\s+(.*)$/', $trimmed, $matches)) {
                 $flushParagraph();
                 $flushIndentedCode();
+                $flushRawHtmlBlock();
                 if ($listType !== 'ol') {
                     $flushList();
                     $listType = 'ol';
@@ -408,8 +513,9 @@ class CatalogService
         $flushParagraph();
         $flushList();
         $flushIndentedCode();
+        $flushRawHtmlBlock();
 
-        return implode("\n", $html);
+        return $this->postProcessRenderedMarkdownHtml(implode("\n", $html), $repoUrl, $branch);
     }
 
     private function postProcessRenderedMarkdownHtml($html, $repoUrl = '', $branch = 'main')

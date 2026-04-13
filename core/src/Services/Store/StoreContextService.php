@@ -1,5 +1,8 @@
 <?php namespace EvolutionCMS\Services\Store;
 
+use EvolutionCMS\Models\RolePermissions;
+use EvolutionCMS\Models\UserRole;
+
 class StoreContextService
 {
     public function loadLanguage(string $modulePath, string $managerLanguage): array
@@ -53,6 +56,55 @@ class StoreContextService
             'can_manage_packages' => !empty($permissions['system_tasks.manage_packages']) ? 1 : 0,
             'can_site_update' => !empty($permissions['system_tasks.site_update']) ? 1 : 0,
         ];
+    }
+
+    public function refreshCurrentManagerPermissions(): array
+    {
+        if (empty($_SESSION['mgrValidated']) || empty($_SESSION['mgrRole'])) {
+            return [
+                'ok' => false,
+                'changed' => false,
+                'message' => 'Manager session is not active.',
+            ];
+        }
+
+        $before = isset($_SESSION['mgrPermissions']) && is_array($_SESSION['mgrPermissions'])
+            ? $_SESSION['mgrPermissions']
+            : [];
+
+        $_SESSION['mgrPermissions'] = $this->buildManagerPermissions((int) $_SESSION['mgrRole']);
+        $after = $_SESSION['mgrPermissions'];
+
+        return [
+            'ok' => true,
+            'changed' => $before != $after,
+        ];
+    }
+
+    protected function buildManagerPermissions(int $roleId): array
+    {
+        if ($roleId <= 0) {
+            return [];
+        }
+
+        $role = UserRole::find($roleId);
+        if (!$role) {
+            return [];
+        }
+
+        $permissions = $role->toArray();
+        $rolePermissions = RolePermissions::query()
+            ->where('role_id', $roleId)
+            ->pluck('permission')
+            ->toArray();
+
+        foreach ($rolePermissions as $permission) {
+            if (is_string($permission) && $permission !== '') {
+                $permissions[$permission] = 1;
+            }
+        }
+
+        return $permissions;
     }
 
     protected function getSystemTaskPermissions($modx): array

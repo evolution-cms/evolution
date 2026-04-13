@@ -256,6 +256,58 @@ class SystemTaskService
         ];
     }
 
+    public function cancelQueuedTaskPayload($id = 0, $uuid = '', array $requesterSnapshot = [], $isSuperAdmin = false)
+    {
+        $task = $this->findTask($id, $uuid);
+        if (!$task) {
+            return [
+                'ok' => false,
+                'error_code' => 'TASK_NOT_FOUND',
+                'message' => 'System task was not found.',
+            ];
+        }
+
+        if (!$this->canAccessTask($task, $requesterSnapshot, (bool) $isSuperAdmin)) {
+            return [
+                'ok' => false,
+                'error_code' => 'ACL_DENIED',
+                'message' => 'You do not have access to this system task.',
+            ];
+        }
+
+        if ((string) $task->status !== 'queued') {
+            return [
+                'ok' => false,
+                'error_code' => 'TASK_NOT_CANCELLABLE',
+                'message' => 'Only queued tasks can be cancelled safely.',
+                'task' => $this->buildTaskPayloadWithLogs($task),
+            ];
+        }
+
+        $now = Carbon::now();
+        $task->fill([
+            'status' => 'failed',
+            'step' => 'cancelled',
+            'message' => 'Queued task was cancelled.',
+            'error_code' => 'TASK_CANCELLED',
+            'heartbeat_at' => $now,
+            'lease_expires_at' => null,
+            'locked_by' => '',
+            'cancellation_requested_at' => $now,
+            'finished_at' => $now,
+            'updated_at' => $now,
+        ]);
+        $task->save();
+        $task = $task->fresh();
+
+        $this->appendLog($task, 'warning', 'cancelled', 'Queued task was cancelled by operator.', []);
+
+        return [
+            'ok' => true,
+            'task' => $this->buildTaskPayloadWithLogs($task),
+        ];
+    }
+
     public function acquireNextQueuedTask($lockOwner, $host = '', $pid = null, $leaseSeconds = self::DEFAULT_LEASE_SECONDS)
     {
         $candidate = SystemCliTask::query()
@@ -781,11 +833,13 @@ class SystemTaskService
 
         $activeTask = $this->findActiveMutatingTask();
         if ($activeTask) {
+            $activeTaskPayload = $this->buildTaskStatusPayload($activeTask);
+            $activeTaskPayload['can_cancel_queued'] = ((string) $activeTask->status === 'queued');
             return [
                 'ok' => false,
                 'error_code' => 'GLOBAL_LOCK_ACTIVE',
                 'message' => 'Another system task is already queued or running.',
-                'active_task' => $this->buildTaskStatusPayload($activeTask),
+                'active_task' => $activeTaskPayload,
             ];
         }
 

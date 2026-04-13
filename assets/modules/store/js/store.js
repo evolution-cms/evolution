@@ -35,6 +35,7 @@ store = {
 	currentList:[],
 	currentTemplate:'list',
 	consoleCatalog:[],
+	catalogBootLoading:false,
 	systemTaskHealth:{
 		scheduler:null,
 		worker:null
@@ -53,6 +54,8 @@ store = {
 	systemTaskPollTaskTitle:'',
 	systemTaskPollToken:0,
 	systemTaskRefreshTaskId:0,
+	systemTaskRefreshPermissionsTaskId:0,
+	systemTaskCancelInFlight:false,
 	systemTaskWarnings:[],
 	allCategoryId:null,
 	extend:function(obj1){
@@ -127,14 +130,16 @@ store = {
 		store.query('start',{'user':'1'},function(data){
 			store.category = data.allcategory;
 			store.catalog = data.category;
+			store.catalogBootLoading = true;
 			store.update_category(data.category);
 			/*Show firdt category*/
 			var id = $('.category_list').find('li').first().find('a').attr('data-id');
 			store.allCategoryId = id;
 			$('[name=parent]').val(id);
-			store.buildInstalledCatalog();
-			store.update_list( store.category[id] );
-			store.loadConsoleCatalog();
+			store.startCatalogBoot();
+			store.loadConsoleCatalog(function(){
+				store.finishCatalogBoot();
+			});
 
 			var version = $('.version').html();
 			if (data.version != version && version != '0.2.0') {
@@ -172,6 +177,14 @@ store = {
 			store.showItemMore(this);
 			return false;
 		});
+		$('.store-task-cancel-queued').live('click', function(){
+			store.cancelQueuedSystemTask($(this).attr('data-task-id'));
+			return false;
+		});
+		$('.store-task-open-existing').live('click', function(){
+			store.openExistingSystemTask($(this).attr('data-task-id'));
+			return false;
+		});
 
 		$('.item-install2').live('click',function(){
 			tpl = '<li data-id="'+$(this).attr('data-id')+'">'+$(this).parent().find('.row-category').text()+'<a href="#">X</a></li>';
@@ -181,16 +194,30 @@ store = {
 
 		$('.category_list a').live('click',function(){
 			if ($(this).attr('data-source') === 'console') {
+				$('[name=parent]').val('console-extras');
+				if (store.catalogBootLoading) {
+					store.renderCatalogLoadingState();
+					return false;
+				}
 				store.update_list(store.consoleCatalog, 'list');
 				return false;
 			}
 			if ($(this).attr('data-source') === 'installed') {
+				$('[name=parent]').val('installed-extras');
+				if (store.catalogBootLoading) {
+					store.renderCatalogLoadingState();
+					return false;
+				}
 				store.update_list(store.installedCatalog, 'list');
 				return false;
 			}
 			$('[name=parent]').val($(this).attr('data-id'));
 			//store.get_list({}, store.update_list );
 
+			if (store.catalogBootLoading) {
+				store.renderCatalogLoadingState();
+				return false;
+			}
 			store.update_list( store.category[$(this).attr('data-id')] , $(this).attr('data-tpl') );
 			return false;
 		});
@@ -741,6 +768,8 @@ store = {
 		store.systemTaskPollTaskId = 0;
 		store.systemTaskPollTaskTitle = '';
 		store.systemTaskRefreshTaskId = 0;
+		store.systemTaskRefreshPermissionsTaskId = 0;
+		store.systemTaskCancelInFlight = false;
 		store.systemTaskWarnings = [];
 	},
 	cleanupPopupArtifacts: function(){
@@ -859,9 +888,40 @@ store = {
 
 	update_category: function(data){
 		$('.category_list').html( '<ul>' +store.parse_list1( data , $('.tpl #tpl_category').html() ) + '</ul>' );
-		store.renderInstalledCategory(store.installedCatalog.length);
+		if (!store.catalogBootLoading) {
+			store.renderInstalledCategory(store.installedCatalog.length);
+		}
 	},
-	loadConsoleCatalog: function(){
+	startCatalogBoot: function(){
+		return;
+	},
+	finishCatalogBoot: function(){
+		store.catalogBootLoading = false;
+		if (store.consoleCatalog.length) {
+			store.renderConsoleCategory(store.consoleCatalog.length);
+		} else {
+			$('.category_list ul').find('.console-category-item').remove();
+		}
+		store.buildInstalledCatalog();
+		store.renderInstalledCategory(store.installedCatalog.length);
+		store.renderSelectedCategory();
+	},
+	renderSelectedCategory: function(){
+		var parentId = $('[name=parent]').val() || store.allCategoryId;
+		if (parentId === 'console-extras') {
+			store.update_list(store.consoleCatalog, 'list');
+			return;
+		}
+		if (parentId === 'installed-extras') {
+			store.update_list(store.installedCatalog, 'list');
+			return;
+		}
+
+		var $selected = $('.category_list a[data-id="' + parentId + '"]');
+		var tpl = ($selected.attr('data-tpl') || 'list');
+		store.update_list(store.category[parentId] || [], tpl);
+	},
+	loadConsoleCatalog: function(callback){
 		$.ajax({
 			url: link() + '&action=console_catalog',
 			cache: false,
@@ -869,13 +929,21 @@ store = {
 			type: 'get',
 			success: function(data){
 				if (!data || !data.ok || !$.isArray(data.items) || data.items.length === 0) {
+					if (typeof callback === 'function') {
+						callback();
+					}
 					return;
 				}
 				store.consoleCatalog = data.items;
 				store.mergeConsoleIntoAll();
-				store.buildInstalledCatalog();
-				store.renderConsoleCategory(data.items.length);
-				store.renderInstalledCategory(store.installedCatalog.length);
+				if (typeof callback === 'function') {
+					callback();
+				}
+			},
+			error: function(){
+				if (typeof callback === 'function') {
+					callback();
+				}
 			}
 		});
 	},
@@ -892,7 +960,7 @@ store = {
 			firstCategory.find('small').text('(' + store.category[store.allCategoryId].length + ')');
 		}
 
-		if ($('[name=parent]').val() == store.allCategoryId) {
+		if (!store.catalogBootLoading && $('[name=parent]').val() == store.allCategoryId) {
 			store.update_list(store.category[store.allCategoryId]);
 		}
 	},
@@ -1345,9 +1413,27 @@ store = {
 		var sourceLabel = $.trim($elm.attr('data-source-label') || ($('[name="source_label_console"]').val() || ''));
 		store.queueSystemTaskRequest('console_uninstall', catalogItemId, version, title, sourceLabel);
 	},
+	resolveSystemTaskTriggerButton: function(taskType, catalogItemId){
+		if (taskType === 'console_uninstall') {
+			return $('.catalog_item .catalog-delete-btn[data-id="' + catalogItemId + '"]').first();
+		}
+
+		return $('.catalog_item .install_btn[data-id="' + catalogItemId + '"]').first();
+	},
 	queueSystemTaskRequest: function(taskType, catalogItemId, version, title, sourceLabel){
+		var $triggerButton = store.resolveSystemTaskTriggerButton(taskType, catalogItemId);
+		if ($triggerButton.length && $triggerButton.attr('data-system-task-busy') === '1') {
+			return;
+		}
+		if ($triggerButton.length) {
+			$triggerButton.attr('data-system-task-busy', '1').prop('disabled', true).addClass('disabled');
+		}
+
 		var popupTitle = store.getSystemTaskActionTitle(taskType, title, sourceLabel);
 		if (!store.canManageSystemPackages()) {
+			if ($triggerButton.length) {
+				$triggerButton.removeAttr('data-system-task-busy').prop('disabled', false).removeClass('disabled');
+			}
 			store.openPopup(
 				popupTitle,
 				'<div class="store-popup-shell ' + store.getPopupThemeClass() + '"><div class="store-popup-empty">' + store.escapeHtml($('[name="system_task_modal_queue_error"]').val() || 'Unable to queue this system task.') + '</div></div>',
@@ -1357,6 +1443,9 @@ store = {
 		}
 
 		if (!store.canQueueSystemTaskInstall()) {
+			if ($triggerButton.length) {
+				$triggerButton.removeAttr('data-system-task-busy').prop('disabled', false).removeClass('disabled');
+			}
 			store.openPopup(
 				popupTitle,
 				'<div class="store-popup-shell ' + store.getPopupThemeClass() + '"><div class="store-popup-empty">' + store.escapeHtml($('[name="console_install_auto_disabled"]').val() || 'Automatic install is not available right now. Start the scheduler first.') + '</div></div>',
@@ -1380,7 +1469,14 @@ store = {
 				version: version
 			},
 			success: function(response){
+				if ($triggerButton.length) {
+					$triggerButton.removeAttr('data-system-task-busy').prop('disabled', false).removeClass('disabled');
+				}
 				if (!response || !response.ok || !response.task) {
+					if (response && response.error_code === 'GLOBAL_LOCK_ACTIVE' && response.active_task) {
+						store.openBlockingTaskPopup(response.active_task, popupTitle);
+						return;
+					}
 					store.openPopup(
 						popupTitle,
 						'<div class="store-popup-shell ' + store.getPopupThemeClass() + '"><div class="store-popup-empty">' + store.escapeHtml((response && response.message) || ($('[name="system_task_modal_queue_error"]').val() || 'Unable to queue this system task.')) + '</div></div>',
@@ -1395,6 +1491,9 @@ store = {
 				store.openSystemTaskPopup(response.task, title, response.warnings || []);
 			},
 			error: function(){
+				if ($triggerButton.length) {
+					$triggerButton.removeAttr('data-system-task-busy').prop('disabled', false).removeClass('disabled');
+				}
 				store.openPopup(
 					popupTitle,
 					'<div class="store-popup-shell ' + store.getPopupThemeClass() + '"><div class="store-popup-empty">' + store.escapeHtml($('[name="system_task_modal_queue_error"]').val() || 'Unable to queue this system task.') + '</div></div>',
@@ -1408,8 +1507,63 @@ store = {
 		var catalogItemId = $.trim($button.attr('data-catalog-item-id') || '');
 		var version = $.trim($button.attr('data-version') || '');
 		var title = $.trim($button.attr('data-title') || '');
-		$button.prop('disabled', true).addClass('disabled');
 		store.queueSystemTaskRequest('console_install', catalogItemId, version, title);
+	},
+	openBlockingTaskPopup: function(task, popupTitle){
+		var title = popupTitle || store.getSystemTaskActionTitle(task.type, task.display_title || task.target || '', task.source_label || '');
+		var message = $('[name="system_task_modal_blocked_by_task"]').val() || 'Another task is currently blocking this action.';
+		var taskLabel = $('[name="system_task_modal_blocked_task"]').val() || 'Blocking task';
+		var html = '<div class="store-popup-shell ' + store.getPopupThemeClass() + '">';
+		html += '<div class="store-popup-empty">';
+		html += '<strong>' + store.escapeHtml(message) + '</strong>';
+		html += '<div class="store-task-blocked-summary">';
+		html += '<div><strong>' + store.escapeHtml(taskLabel) + ':</strong> ' + store.escapeHtml((task.display_title || task.target || 'Task')) + '</div>';
+		html += '<div><strong>' + store.escapeHtml($('[name="system_task_modal_status"]').val() || 'Status') + ':</strong> ' + store.escapeHtml(task.status || '') + '</div>';
+		html += '<div><strong>' + store.escapeHtml($('[name="system_task_modal_step"]').val() || 'Step') + ':</strong> ' + store.escapeHtml(task.step || '') + '</div>';
+		html += '</div>';
+		html += '<div class="store-task-note-actions">';
+		html += '<button type="button" class="btn btn-secondary btn-sm store-task-open-existing" data-task-id="' + store.escapeHtml(String(task.id || '')) + '">' + store.escapeHtml($('[name="system_task_modal_open_blocking"]').val() || 'Open blocking task') + '</button>';
+		if (task.can_cancel_queued) {
+			html += '<button type="button" class="btn btn-warning btn-sm store-task-cancel-queued" data-task-id="' + store.escapeHtml(String(task.id || '')) + '">' + store.escapeHtml($('[name="system_task_modal_skip_queued"]').val() || 'Skip queued task') + '</button>';
+		}
+		html += '</div>';
+		html += '</div>';
+		html += '</div>';
+
+		store.openPopup(title, html, 'compact');
+	},
+	refreshManagerPermissions: function(callback){
+		$.ajax({
+			url: link() + '&action=refresh_manager_permissions',
+			cache: false,
+			dataType: 'json',
+			type: 'post',
+			success: function(response){
+				if (typeof callback === 'function') {
+					callback(response && response.ok ? response : null);
+				}
+			},
+			error: function(){
+				if (typeof callback === 'function') {
+					callback(null);
+				}
+			}
+		});
+	},
+	refreshManagerUiAfterPermissionSync: function(){
+		try {
+			if (window.top && window.top.mainMenu && typeof window.top.mainMenu.reloadtree === 'function') {
+				window.top.mainMenu.reloadtree();
+			}
+		} catch (e) {}
+
+		try {
+			if (window.top && window.top.location) {
+				setTimeout(function(){
+					window.top.location.reload();
+				}, 700);
+			}
+		} catch (e) {}
 	},
 	openSystemTaskPopup: function(task, title, warnings){
 		store.stopSystemTaskPolling();
@@ -1426,9 +1580,11 @@ store = {
 			store.systemTaskPollTaskId = parseInt(task.id || 0, 10) || 0;
 			store.systemTaskPollTaskTitle = resolvedTitle;
 			store.systemTaskRefreshTaskId = 0;
+			store.systemTaskRefreshPermissionsTaskId = 0;
 			store.systemTaskWarnings = $.isArray(warnings) ? warnings : [];
 			store.setActivePopupTitle(store.getSystemTaskActionTitle(task.type, store.systemTaskPollTaskTitle, task.source_label || ''));
 			store.renderSystemTaskPopupState(task, task);
+			store.bindPopupCopyButtons();
 			store.startSystemTaskPolling();
 			store.startSystemTaskElapsedTimer();
 		};
@@ -1527,8 +1683,7 @@ store = {
 		var noteHtml = '';
 		var schedulerHealth = (task && task.scheduler_health) ? task.scheduler_health : null;
 		var workerHealth = (task && task.worker_health) ? task.worker_health : null;
-		var schedulerStatus = schedulerHealth && schedulerHealth.status ? String(schedulerHealth.status).toLowerCase() : 'unknown';
-		var workerStatus = workerHealth && workerHealth.status ? String(workerHealth.status).toLowerCase() : 'unknown';
+		var queuedStaleState = store.getQueuedStaleState(task, schedulerHealth, workerHealth);
 
 		if (result && $.isArray(result.logs)) {
 			logs = result.logs;
@@ -1549,14 +1704,24 @@ store = {
 		if ((task.type || '') === 'console_uninstall') {
 			noteHtml = '<p class="store-popup-note store-task-note-muted">' + store.escapeHtml($('[name="system_task_modal_uninstall_note"]').val() || '') + '</p>';
 		}
-		if (
-			$.inArray((task.status || ''), ['queued', 'picked', 'running']) >= 0
-			&& (
-				schedulerStatus === 'unhealthy'
-				|| (store.isLocalRuntime() && workerStatus !== 'healthy')
-			)
-		) {
-			noteHtml += '<p class="store-popup-note store-task-note-muted">' + store.escapeHtml($('[name="console_install_auto_disabled"]').val() || 'Automatic install is not available right now. Start the scheduler first.') + '</p>';
+		if (queuedStaleState.is_stale) {
+			noteHtml += '<div class="store-popup-note store-task-note-muted">';
+			noteHtml += store.escapeHtml(queuedStaleState.message);
+			if (queuedStaleState.command) {
+				noteHtml += '<div class="store-install-card">';
+				noteHtml += '<div class="store-install-step">';
+				noteHtml += '<div class="store-install-card-head">';
+				noteHtml += '<span class="store-install-card-label">' + store.escapeHtml(queuedStaleState.command_label || (($('[name="console_install_scheduler_local"]').val() || 'Local'))) + '</span>';
+				noteHtml += '<button type="button" class="store-copy-button" data-copy-command="' + store.escapeHtml(queuedStaleState.command) + '" aria-label="' + store.escapeHtml($('[name="popup_copy_command"]').val() || 'Copy command') + '"><i class="fa fa-copy"></i></button>';
+				noteHtml += '</div>';
+				noteHtml += '<div class="store-install-command">' + store.escapeHtml(queuedStaleState.command) + '</div>';
+				noteHtml += '</div>';
+				noteHtml += '</div>';
+			}
+			noteHtml += '<div class="store-task-note-actions">';
+			noteHtml += '<button type="button" class="btn btn-warning btn-sm store-task-cancel-queued" data-task-id="' + store.escapeHtml(String(task.id || '')) + '">' + store.escapeHtml($('[name="system_task_modal_cancel_queued"]').val() || 'Cancel queued task') + '</button>';
+			noteHtml += '</div>';
+			noteHtml += '</div>';
 		}
 		$shell.find('[data-role="task-note-area"]').html(noteHtml).toggle(!!noteHtml);
 
@@ -1580,10 +1745,20 @@ store = {
 			}];
 		}
 
+		if (queuedStaleState.is_stale) {
+			logs = logs.concat([{
+				level: 'warning',
+				step: 'stalled',
+				message: queuedStaleState.message
+			}]);
+		}
+
 		$.each(logs, function(index, log){
 			var rowClass = '';
 			if ((log.level || '') === 'error') {
 				rowClass = ' is-error';
+			} else if ((log.level || '') === 'warning' || (log.step || '') === 'stalled') {
+				rowClass = ' is-warning';
 			} else if ((log.step || '') === 'completed' || ((task.status || '') === 'succeeded' && index === logs.length - 1)) {
 				rowClass = ' is-success';
 			}
@@ -1594,7 +1769,54 @@ store = {
 		$shell.find('[data-role="task-logs"]').html(logsHtml);
 		$shell.find('[data-role="task-logs-section"]').toggle(logs.length > 0);
 
+		store.bindPopupCopyButtons();
 		store.recenterActivePopup();
+	},
+	getQueuedStaleState: function(task, schedulerHealth, workerHealth){
+		var taskStatus = String((task && task.status) || '').toLowerCase();
+		if (taskStatus !== 'queued') {
+			return { is_stale: false, message: '' };
+		}
+
+		var createdAt = store.parseDateToTimestamp((task && task.created_at) || '');
+		if (!createdAt) {
+			return { is_stale: false, message: '' };
+		}
+
+		var queuedForSeconds = Math.max(0, Math.floor((Date.now() - createdAt) / 1000));
+		var schedulerAge = parseInt((schedulerHealth && schedulerHealth.age_seconds) || 0, 10);
+		var workerAge = parseInt((workerHealth && workerHealth.age_seconds) || 0, 10);
+		var schedulerStatus = String((schedulerHealth && schedulerHealth.status) || '').toLowerCase();
+		var workerStatus = String((workerHealth && workerHealth.status) || '').toLowerCase();
+
+		if (queuedForSeconds < 70) {
+			return { is_stale: false, message: '' };
+		}
+
+		if (schedulerAge < 70 && schedulerStatus === 'healthy' && (!store.isLocalRuntime() || workerStatus === 'healthy' || workerAge < 70)) {
+			return { is_stale: false, message: '' };
+		}
+
+		var corePath = $('[name="console_core_path"]').val() || '';
+		var command = '';
+		var commandLabel = '';
+		if (store.isLocalRuntime()) {
+			command = 'cd ' + corePath + ' && ' + ($('[name="console_install_scheduler_command_local"]').val() || 'php artisan schedule:work');
+			commandLabel = $('[name="console_install_scheduler_local"]').val() || 'Local';
+		} else {
+			var schedulerServerTemplate = $('[name="console_install_scheduler_command_server"]').val() || '* * * * * cd {core_path} && php artisan schedule:run >/dev/null 2>&1';
+			command = schedulerServerTemplate.replace('{core_path}', corePath);
+			commandLabel = $('[name="console_install_scheduler_server"]').val() || 'Server';
+		}
+
+		return {
+			is_stale: true,
+			command: command,
+			command_label: commandLabel,
+			message: store.isLocalRuntime()
+				? ($('[name="system_task_modal_stale_local"]').val() || 'This task has been queued for over a minute and the scheduler does not seem to be running. Start php artisan schedule:work again or cancel this queued task.')
+				: ($('[name="system_task_modal_stale_server"]').val() || 'This task has been queued for over a minute and cron or scheduler does not seem to be running. Resume cron schedule:run or cancel this queued task.')
+		};
 	},
 	startSystemTaskPolling: function(){
 		store.stopSystemTaskPolling();
@@ -1686,6 +1908,19 @@ store = {
 					store.systemTaskRefreshTaskId = parseInt(task.id || 0, 10);
 					store.refreshInstalledState();
 				}
+				if (
+					task
+					&& task.status === 'succeeded'
+					&& $.inArray(task.type, ['console_install', 'console_uninstall']) >= 0
+					&& store.systemTaskRefreshPermissionsTaskId !== parseInt(task.id || 0, 10)
+				) {
+					store.systemTaskRefreshPermissionsTaskId = parseInt(task.id || 0, 10);
+					store.refreshManagerPermissions(function(response){
+						if (response && response.ok) {
+							store.refreshManagerUiAfterPermissionSync();
+						}
+					});
+				}
 
 				if (task && $.inArray(task.status, ['finished', 'succeeded', 'failed']) >= 0) {
 					store.systemTaskTerminal = true;
@@ -1701,6 +1936,57 @@ store = {
 					return;
 				}
 				store.scheduleNextSystemTaskPoll(10000);
+			}
+		});
+	},
+	cancelQueuedSystemTask: function(taskId){
+		taskId = parseInt(taskId || 0, 10);
+		if (!taskId || store.systemTaskCancelInFlight) {
+			return;
+		}
+
+		store.systemTaskCancelInFlight = true;
+		$.ajax({
+			url: link() + '&action=system_task_cancel',
+			cache: false,
+			dataType: 'json',
+			type: 'post',
+			data: {
+				task_id: taskId
+			},
+			success: function(response){
+				store.systemTaskCancelInFlight = false;
+				if (!response || !response.ok || !response.task) {
+					return;
+				}
+				store.renderSystemTaskPopupState(response.task, response.task);
+				store.systemTaskTerminal = true;
+				store.stopSystemTaskPolling();
+			},
+			error: function(){
+				store.systemTaskCancelInFlight = false;
+			}
+		});
+	},
+	openExistingSystemTask: function(taskId){
+		taskId = parseInt(taskId || 0, 10);
+		if (!taskId) {
+			return;
+		}
+
+		$.ajax({
+			url: link() + '&action=system_task_result',
+			cache: false,
+			dataType: 'json',
+			type: 'get',
+			data: {
+				task_id: taskId
+			},
+			success: function(response){
+				if (!response || !response.ok || !response.task) {
+					return;
+				}
+				store.openSystemTaskPopup(response.task, response.task.display_title || response.task.target || '', []);
 			}
 		});
 	},
