@@ -53,6 +53,7 @@ store = {
 	systemTaskPollTaskTitle:'',
 	systemTaskPollToken:0,
 	systemTaskRefreshTaskId:0,
+	systemTaskRefreshPermissionsTaskId:0,
 	systemTaskWarnings:[],
 	allCategoryId:null,
 	extend:function(obj1){
@@ -741,6 +742,7 @@ store = {
 		store.systemTaskPollTaskId = 0;
 		store.systemTaskPollTaskTitle = '';
 		store.systemTaskRefreshTaskId = 0;
+		store.systemTaskRefreshPermissionsTaskId = 0;
 		store.systemTaskWarnings = [];
 	},
 	cleanupPopupArtifacts: function(){
@@ -1345,9 +1347,27 @@ store = {
 		var sourceLabel = $.trim($elm.attr('data-source-label') || ($('[name="source_label_console"]').val() || ''));
 		store.queueSystemTaskRequest('console_uninstall', catalogItemId, version, title, sourceLabel);
 	},
+	resolveSystemTaskTriggerButton: function(taskType, catalogItemId){
+		if (taskType === 'console_uninstall') {
+			return $('.catalog_item .catalog-delete-btn[data-id="' + catalogItemId + '"]').first();
+		}
+
+		return $('.catalog_item .install_btn[data-id="' + catalogItemId + '"]').first();
+	},
 	queueSystemTaskRequest: function(taskType, catalogItemId, version, title, sourceLabel){
+		var $triggerButton = store.resolveSystemTaskTriggerButton(taskType, catalogItemId);
+		if ($triggerButton.length && $triggerButton.attr('data-system-task-busy') === '1') {
+			return;
+		}
+		if ($triggerButton.length) {
+			$triggerButton.attr('data-system-task-busy', '1').prop('disabled', true).addClass('disabled');
+		}
+
 		var popupTitle = store.getSystemTaskActionTitle(taskType, title, sourceLabel);
 		if (!store.canManageSystemPackages()) {
+			if ($triggerButton.length) {
+				$triggerButton.removeAttr('data-system-task-busy').prop('disabled', false).removeClass('disabled');
+			}
 			store.openPopup(
 				popupTitle,
 				'<div class="store-popup-shell ' + store.getPopupThemeClass() + '"><div class="store-popup-empty">' + store.escapeHtml($('[name="system_task_modal_queue_error"]').val() || 'Unable to queue this system task.') + '</div></div>',
@@ -1357,6 +1377,9 @@ store = {
 		}
 
 		if (!store.canQueueSystemTaskInstall()) {
+			if ($triggerButton.length) {
+				$triggerButton.removeAttr('data-system-task-busy').prop('disabled', false).removeClass('disabled');
+			}
 			store.openPopup(
 				popupTitle,
 				'<div class="store-popup-shell ' + store.getPopupThemeClass() + '"><div class="store-popup-empty">' + store.escapeHtml($('[name="console_install_auto_disabled"]').val() || 'Automatic install is not available right now. Start the scheduler first.') + '</div></div>',
@@ -1380,6 +1403,9 @@ store = {
 				version: version
 			},
 			success: function(response){
+				if ($triggerButton.length) {
+					$triggerButton.removeAttr('data-system-task-busy').prop('disabled', false).removeClass('disabled');
+				}
 				if (!response || !response.ok || !response.task) {
 					store.openPopup(
 						popupTitle,
@@ -1395,6 +1421,9 @@ store = {
 				store.openSystemTaskPopup(response.task, title, response.warnings || []);
 			},
 			error: function(){
+				if ($triggerButton.length) {
+					$triggerButton.removeAttr('data-system-task-busy').prop('disabled', false).removeClass('disabled');
+				}
 				store.openPopup(
 					popupTitle,
 					'<div class="store-popup-shell ' + store.getPopupThemeClass() + '"><div class="store-popup-empty">' + store.escapeHtml($('[name="system_task_modal_queue_error"]').val() || 'Unable to queue this system task.') + '</div></div>',
@@ -1408,8 +1437,40 @@ store = {
 		var catalogItemId = $.trim($button.attr('data-catalog-item-id') || '');
 		var version = $.trim($button.attr('data-version') || '');
 		var title = $.trim($button.attr('data-title') || '');
-		$button.prop('disabled', true).addClass('disabled');
 		store.queueSystemTaskRequest('console_install', catalogItemId, version, title);
+	},
+	refreshManagerPermissions: function(callback){
+		$.ajax({
+			url: link() + '&action=refresh_manager_permissions',
+			cache: false,
+			dataType: 'json',
+			type: 'post',
+			success: function(response){
+				if (typeof callback === 'function') {
+					callback(response && response.ok ? response : null);
+				}
+			},
+			error: function(){
+				if (typeof callback === 'function') {
+					callback(null);
+				}
+			}
+		});
+	},
+	refreshManagerUiAfterPermissionSync: function(){
+		try {
+			if (window.top && window.top.mainMenu && typeof window.top.mainMenu.reloadtree === 'function') {
+				window.top.mainMenu.reloadtree();
+			}
+		} catch (e) {}
+
+		try {
+			if (window.top && window.top.location) {
+				setTimeout(function(){
+					window.top.location.reload();
+				}, 700);
+			}
+		} catch (e) {}
 	},
 	openSystemTaskPopup: function(task, title, warnings){
 		store.stopSystemTaskPolling();
@@ -1426,6 +1487,7 @@ store = {
 			store.systemTaskPollTaskId = parseInt(task.id || 0, 10) || 0;
 			store.systemTaskPollTaskTitle = resolvedTitle;
 			store.systemTaskRefreshTaskId = 0;
+			store.systemTaskRefreshPermissionsTaskId = 0;
 			store.systemTaskWarnings = $.isArray(warnings) ? warnings : [];
 			store.setActivePopupTitle(store.getSystemTaskActionTitle(task.type, store.systemTaskPollTaskTitle, task.source_label || ''));
 			store.renderSystemTaskPopupState(task, task);
@@ -1685,6 +1747,19 @@ store = {
 				) {
 					store.systemTaskRefreshTaskId = parseInt(task.id || 0, 10);
 					store.refreshInstalledState();
+				}
+				if (
+					task
+					&& task.status === 'succeeded'
+					&& $.inArray(task.type, ['console_install', 'console_uninstall']) >= 0
+					&& store.systemTaskRefreshPermissionsTaskId !== parseInt(task.id || 0, 10)
+				) {
+					store.systemTaskRefreshPermissionsTaskId = parseInt(task.id || 0, 10);
+					store.refreshManagerPermissions(function(response){
+						if (response && response.ok) {
+							store.refreshManagerUiAfterPermissionSync();
+						}
+					});
 				}
 
 				if (task && $.inArray(task.status, ['finished', 'succeeded', 'failed']) >= 0) {

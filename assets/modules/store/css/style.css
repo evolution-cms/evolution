@@ -1034,7 +1034,13 @@ input#store_search:focus {
 .store-task-log-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: #171b22;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
 .store-task-log-row {
@@ -1052,6 +1058,8 @@ input#store_search:focus {
   min-width: 0;
   overflow-wrap: anywhere;
   color: #d8dee6;
+  font-size: 13px;
+  line-height: 1.35;
 }
 
 .store-task-log-row.is-success .store-task-log-message {

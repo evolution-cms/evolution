@@ -128,6 +128,9 @@ class ModuleActionService
                     $store->getRequesterSnapshot(),
                     $store->isSuperAdmin()
                 ));
+
+            case 'refresh_manager_permissions':
+                return $this->json($store->refreshCurrentManagerPermissions());
         }
 
         return ['handled' => false];

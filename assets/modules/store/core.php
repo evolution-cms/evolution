@@ -138,6 +138,11 @@ class Store
         return $this->contextService()->getSystemTaskUiFlags();
     }
 
+    public function refreshCurrentManagerPermissions()
+    {
+        return $this->contextService()->refreshCurrentManagerPermissions();
+    }
+
     public static function parse($tpl, $fields)
     {
         $modx = EvolutionCMS();
