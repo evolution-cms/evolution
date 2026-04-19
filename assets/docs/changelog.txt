@@ -1,6 +1,26 @@
 This file shows the changes in recent releases of Evolution CMS. The most current release is usually the
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
+Evolution CMS 3.5.6 (Apr 19, 2026)
+* [2106997] - [FIX] Keep the light theme toggle out of the active state. (middle:Duck)
+* [6c1a94b] - [FIX] Prevent zero-size dump batches for small tables. (middle:Duck)
+* [8d8dcdd] - [FIX] Replace redundant roles logout and view developers list with dashboard widgets recent changes and online users view roles. (Artur Kyryliuk)
+* [1aff71a] - [FIX] Fixed semi-transparency making protected resource titles hard to read. (Artur Kyryliuk)
+* [8ca05ab] - [FIX] Keep lightness active menu items readable. (middle:Duck)
+* [9f3f064] - [FIX] Remap dashboard widget permissions during updates. (middle:Duck)
+* [d3ff323] - [FIX] Bootstrap legacy tree state for TinyMCE4 link dialogs. (middle:Duck)
+* [bb537a0] - [UPD] Guard file_groups creation in migrations. (middleDuckAi)
+* [35b4820] - [DEL] Liquid draft theme. (middle:Duck)
+* [09f072f] - [UPD] Refresh Store module for 0.2.0. (middleDuckAi)
+* [a4188e5] - [UPD] Polish Store UI follow-ups. (middleDuckAi)
+* [b42873e] - [UPD] Restore TinyMCE4 legacy API compatibility. (middleDuckAi)
+* [de3cef1] - [UPD] Add legacy Store delete flow and UI polish. (middleDuckAi)
+* [8cec37b] - [REF] Stabilize Store runtime task flows and installed-state handling. (middleDuckAi)
+* [652631c] - [UPD] Cache console catalog and unify initial load. (middleDuckAi)
+* [b361c6a] - [UPD] Align catalog loader with Evo default style. (middleDuckAi)
+* [6f019f1] - [UPD] Remove custom catalog loader and align layout. (middleDuckAi)
+* [ddfa745] - [UPD] Remove module version from title. (middleDuckAi)
+
 Evolution CMS 3.5.5 (Apr 07, 2026)
 * [d027f4d] - [REF] Finalized the MODX_* to EVO_* compatibility transition and prepared legacy constants for removal. (Seiger)
 * [8b0e83a] - [ADD] Added resource group ACL management for the file and image managers. (Artur Kyryliuk)
