@@ -86,11 +86,11 @@ $_lang["captcha_words_message"] = '你可以在这里输入一串机器码以让
 $_lang["captcha_words_title"] = '机器机密码';
 $_lang["category_heading"] = 'Category';
 $_lang["category_msg"] = 'View and edit all Elements grouped by category.';
-$_lang["cfg_base_path"] = 'MODX_BASE_PATH';
-$_lang["cfg_base_url"] = 'MODX_BASE_URL';
-$_lang["cfg_manager_path"] = 'MODX_MANAGER_PATH';
-$_lang["cfg_manager_url"] = 'MODX_MANAGER_URL';
-$_lang["cfg_site_url"] = 'MODX_SITE_URL';
+$_lang["cfg_base_path"] = 'EVO_BASE_PATH';
+$_lang["cfg_base_url"] = 'EVO_BASE_URL';
+$_lang["cfg_manager_path"] = 'EVO_MANAGER_PATH';
+$_lang["cfg_manager_url"] = 'EVO_MANAGER_URL';
+$_lang["cfg_site_url"] = 'EVO_SITE_URL';
 $_lang["change_name"] = '改变名字';
 $_lang["change_password"] = '改密码';
 $_lang["change_password_confirm"] = '重复密码';
@@ -353,7 +353,9 @@ $_lang["go"] = 'Go';
 $_lang["group_access_permissions"] = '用户组访问';
 $_lang["guid"] = 'GUID';
 $_lang["help"] = '帮助';
-$_lang["help_msg"] = '<p>你可以在这里寻求支持 <a href="https://evo.im/" target="_blank">访问中文MODX网站</a>如果你有兴趣，.';
+$_lang["help_donate_msg"] = '為 Evolution CMS 開發人員買咖啡。 <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> 立即成為 Evolution CMS 的粉絲！ ❤️ Ko-fi 讓您無需任何捐贈費用即可支持您喜愛的創作者。';
+$_lang["help_donate_title"] = '為了 Evolution CMS 的發展';
+$_lang["help_msg"] = '<p>你可以在这里寻求支持 <a href="https://evo.im/" target="_blank">访问中文EVO网站</a>如果你有兴趣，.';
 $_lang["help_title"] = '帮助';
 $_lang["hide_tree"] = '隐藏树';
 $_lang["home"] = '主页';
@@ -498,7 +500,7 @@ $_lang["modx_news"] = 'MODX News Notices';
 $_lang["modx_news_tab"] = 'MODX News';
 $_lang["modx_news_title"] = 'MODX News';
 $_lang["modx_security_notices"] = 'MODX Security Notices';
-$_lang["modx_version"] = 'MODX version';
+$_lang["evo_version"] = 'MODX version';
 $_lang["monday"] = '星期一';
 $_lang["move"] = '移动';
 $_lang["move_resource"] = '移动文档';
@@ -717,7 +719,7 @@ $_lang["role_create_doc"] = '建立新文档';
 $_lang["role_create_plugin"] = '建立新的插件';
 $_lang["role_create_snippet"] = '建立新的切片snippets';
 $_lang["role_create_template"] = '建立新的站点模板';
-$_lang["role_credits"] = '查看信用';
+$_lang["role_widget_online_info"] = '查看“在线用户”小部件';
 $_lang["role_delete_chunk"] = 'Delete Chunks';
 $_lang["role_delete_doc"] = '删除文档';
 $_lang["role_delete_eventlog"] = '删除事件日志';
@@ -748,7 +750,7 @@ $_lang["role_frames"] = '管理请求框架';
 $_lang["role_help"] = '查看帮助文件';
 $_lang["role_home"] = '管理主页面';
 $_lang["role_import_static"] = 'Import HTML';
-$_lang["role_logout"] = '退出管理';
+$_lang["role_widget_recent_info"] = '查看“Recently edited/created Resources”小部件';
 $_lang["role_manage_metatags"] = '管理站点的META标签和关键词';
 $_lang["role_management_msg"] = '在这里你可以选择一需要编辑的角色。';
 $_lang["role_management_title"] = '角色管理';
@@ -887,7 +889,7 @@ $_lang["sunday"] = '星期天';
 $_lang["sys_alert"] = '系统警报';
 $_lang["sysinfo_activity_message"] = '这个列表显示了最近有哪些文档被你的用户编辑过。';
 $_lang["sysinfo_userid"] = '用户';
-$_lang["system_email_signup"] = 'Hello [+uid+] 
+$_lang["system_email_signup"] = 'Hello [+uid+]
 
 这是你的内容管理登陆细节 [+sname+] :
 
@@ -912,7 +914,7 @@ $_lang["system_email_webreminder"] = 'Hello [+uid+]
 
 谢谢,
 网站管理员';
-$_lang["system_email_websignup"] = 'Hello [+uid+] 
+$_lang["system_email_websignup"] = 'Hello [+uid+]
 
 这是你的登陆细节 [+sname+]:
 
@@ -1093,7 +1095,7 @@ $_lang["yourinfo_username"] = '你的登陆名:';
 $_lang["a17_error_reporting_title"] = 'Detection level of PHP errors';
 $_lang["a17_error_reporting_msg"] = 'Set the detection level of the PHP errors.';
 $_lang["a17_error_reporting_opt0"] = 'Ignore all';
-$_lang["a17_error_reporting_opt1"] = 'Ignore warnings of a slight notice level (<a href="https://www.google.com/search?q=E_DEPRECATED+E_STRICT" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT</a>)';
+$_lang["a17_error_reporting_opt1"] = 'Ignore warnings of a slight notice level (<a href="https://www.google.com/search?q=E_DEPRECATED+E_NOTICE" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED</a>)';
 $_lang["a17_error_reporting_opt2"] = 'Detect all errors except E_NOTICE and E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt99"] = 'Detect all except E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt199"] = 'Detect all';
@@ -1115,7 +1117,7 @@ $_lang["bkmgr_run_sql_direct_label"] = 'Direct execute SQL commands';
 $_lang["bkmgr_run_sql_submit"] = 'Execute restore';
 $_lang["bkmgr_run_sql_result"] = 'Result';
 $_lang["bkmgr_snapshot_title"] = 'Snapshot save and recovery';
-$_lang["bkmgr_snapshot_msg"] = '<p>The contents of the database are saved in and restored from a server directory.<br />Location: [+snapshot_path+] ($modx->config[\'snapshot_path\'])</p>';
+$_lang["bkmgr_snapshot_msg"] = '<p>The contents of the database are saved in and restored from a server directory.<br />Location: [+snapshot_path+] (evo()->getConfig(\'snapshot_path\'))</p>';
 $_lang["bkmgr_snapshot_submit"] = 'Add Snapshot';
 $_lang["bkmgr_snapshot_list_title"] = 'List of snapshots';
 $_lang["bkmgr_restore_submit"] = 'Revert this data';
@@ -1166,6 +1168,8 @@ $_lang["docid_incrmnt_method_2"] = 'Maximal ID + 1';
 $_lang["cache_type_title"] = 'Document caching type';
 $_lang["cache_type_1"] = 'Cache is based only on Resource ID (standard)';
 $_lang["cache_type_2"] = 'Cache is based on Resource ID and $_GET parameters';
+$_lang["html_comment_title"] = 'HTML注释';
+$_lang["html_comment_message"] = '以逗号分隔的元素类型列表，用于在页面源代码中以HTML注释包裹：<b>snippets</b>, <b>chunks</b>, <b>tvs</b>, <b>snippetParams</b>';
 $_lang["seostrict_title"] = 'Use SEO Strict URLs';
 $_lang["seostrict_message"] = 'Enforces the use of strict URLs to prevent duplicate content (if needed)';
 
@@ -1221,5 +1225,12 @@ $_lang["role_tv_msg"] = 'The Variables assigned to this Role are listed below.';
 $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to access/process this Template Variable';
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
+
+$_lang["file_groups_saved"] = '访问权限已保存。';
+$_lang["file_groups_edit"] = '编辑访问权限';
+$_lang["files_groups"] = '资源组：';
+$_lang["access_permissions_file_message"] = '选择此文件所属的资源组：';
+$_lang["access_permissions_dir_message"] = '选择此目录所属的资源组：';
+$_lang["all_file_groups"] = '所有资源组（公开）';
 
 return $_lang;

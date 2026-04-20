@@ -20,9 +20,9 @@
   *        It's recommended to use constants instead.
   */
 define('IN_MANAGER_MODE', true);
-define('MODX_API_MODE', true);
+define('EVO_API_MODE', true);
 include_once(__DIR__."/../../../../../index.php");
-$mpdx = EvolutionCMS();
+$modx = EvolutionCMS();
 
 if(!isset($_SESSION['mgrValidated'])) {
         die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the EVO Content Manager instead of accessing this file directly.");
@@ -34,7 +34,7 @@ $_GET['langCode'] = ManagerTheme::getLang();
 function autoloadda9d06472ccb71b84928677ce2a6ca89($class) {
     static $classes = null;
     if ($classes === null) {
-        $classes = array(
+        $classes = [
             'browser' => '/browser.php',
             'dir' => '/../lib/helper_dir.php',
             'file' => '/../lib/helper_file.php',
@@ -52,7 +52,7 @@ function autoloadda9d06472ccb71b84928677ce2a6ca89($class) {
             'image_gmagick' => '/../lib/class_image_gmagick.php',
             'image_gd' => '/../lib/class_image_gd.php',
             'fastImage' => '/../lib/class_fastImage.php'
-        );
+        ];
     }
     if (isset($classes[$class])) {
         require __DIR__ . $classes[$class];
@@ -146,3 +146,4 @@ new SessionSaveHandler();
 
 
 // PUT YOUR ADDITIONAL CODE HERE
+

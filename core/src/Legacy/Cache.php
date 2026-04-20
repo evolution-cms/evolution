@@ -9,19 +9,19 @@ class Cache
 {
     public $cachePath;
     public $showReport;
-    public $deletedfiles = array();
+    public $deletedfiles = [];
     /**
      * @var array
      */
-    public $aliases = array();
+    public $aliases = [];
     /**
      * @var array
      */
-    public $parents = array();
+    public $parents = [];
     /**
      * @var array
      */
-    public $aliasVisible = array();
+    public $aliasVisible = [];
     public $request_time;
     public $cacheRefreshTime;
 
@@ -30,8 +30,7 @@ class Cache
      */
     public function __construct()
     {
-        $modx = evolutionCMS();
-        $this->request_time = $_SERVER['REQUEST_TIME'] + $modx->getConfig('server_offset_time');
+        $this->request_time = $_SERVER['REQUEST_TIME'] + evo()->getConfig('server_offset_time');
     }
 
     /**
@@ -59,8 +58,8 @@ class Cache
         if ($s === '') {
             return $s;
         }
-        $q1 = array("\\", "'");
-        $q2 = array("\\\\", "\\'");
+        $q1 = ["\\", "'"];
+        $q2 = ["\\\\", "\\'"];
 
         return str_replace($q1, $q2, $s);
     }
@@ -71,10 +70,9 @@ class Cache
      */
     public function escapeDoubleQuotes($s)
     {
-        $q1 = array("\\", "\"", "\r", "\n", "\$");
-        $q2 = array("\\\\", "\\\"", "\\r", "\\n", "\\$");
-
-        return str_replace($q1, $q2, $s);
+        $q1 = ["\\", "\"", "\r", "\n", "\$"];
+        $q2 = ["\\\\", "\\\"", "\\r", "\\n", "\\$"];
+        return str_replace($q1, $q2, ($s ?? ''));
     }
 
     /**
@@ -109,21 +107,21 @@ class Cache
     }
 
     /**
-     * @param null|DocumentParser $modx
+     * @param null|DocumentParser $evo
      */
-    public function emptyCache($modx = null)
+    public function emptyCache($evo = null)
     {
-        if (!($modx instanceof Interfaces\CoreInterface)) {
-            $modx = $GLOBALS['modx'];
+        if (!($evo instanceof Interfaces\CoreInterface)) {
+            $evo = $GLOBALS['evo'];
         }
         if (!isset($this->cachePath)) {
-            $modx->getService('ExceptionHandler')->messageQuit("Cache path not set.");
+            $evo->getService('ExceptionHandler')->messageQuit("Cache path not set.");
         }
         \Illuminate\Support\Facades\Cache::flush();
         Models\UserSetting::query()->whereIn('setting_name', ['password', 'password_confirmation', 'clearPassword'])->delete();
         $files = glob(realpath($this->cachePath) . '/*.pageCache.php');
         $filesincache = count($files);
-        $deletedfiles = array();
+        $deletedfiles = [];
         while ($file = array_shift($files)) {
             $name = basename($file);
             clearstatcache();
@@ -143,7 +141,7 @@ class Cache
             }
         }
 
-        $this->buildCache($modx);
+        $this->buildCache($evo);
 
         $this->publishTimeConfig();
 
@@ -181,7 +179,7 @@ class Cache
         $content .= '$recent_update=\'' . $this->request_time . '\';' . "\n";
         $content .= '$cacheRefreshTime=\'' . $cacheRefreshTime . '\';' . "\n";
 
-        $filename = evolutionCMS()->getSitePublishingFilePath();
+        $filename = evo()->getSitePublishingFilePath();
         if (!$handle = fopen($filename, 'w')) {
             exit("Cannot open file ({$filename}");
         }
@@ -190,7 +188,7 @@ class Cache
 
         // Write $somecontent to our opened file.
         if (fwrite($handle, $content) === false) {
-            exit("Cannot write publishing info file! Make sure the assets/cache directory is writable!");
+            exit("Cannot write publishing info file! Make sure the {$filename} and its directory is writable!");
         }
     }
 
@@ -199,10 +197,8 @@ class Cache
      */
     public function getCacheRefreshTime()
     {
-        $modx = evolutionCMS();
-
         // update publish time file
-        $timesArr = array();
+        $timesArr = [];
 
         $minpub = Models\SiteContent::query()
             ->where('pub_date', '>', $this->request_time)->min('pub_date');
@@ -233,10 +229,10 @@ class Cache
 
     /**
      * build siteCache file
-     * @param Interfaces\CoreInterface $modx
+     * @param Interfaces\CoreInterface $evo
      * @return boolean success
      */
-    public function buildCache($modx)
+    public function buildCache($evo)
     {
         $content = "<?php\n";
 
@@ -244,7 +240,7 @@ class Cache
 
         // get settings
         $systemSettings = Models\SystemSetting::all();
-        $config = array();
+        $config = [];
         $content .= '$c=&$this->config;';
         foreach ($systemSettings as $systemSetting) {
             $content .= '$c[\'' . $systemSetting->setting_name . '\']="' . $this->escapeDoubleQuotes($systemSetting->setting_value) . '";';
@@ -321,12 +317,12 @@ class Cache
                     $content .= '$s[\'' . $row['name'] . '\']=\'return false;\';';
                 } else {
                     $value = trim($row['snippet']);
-                    if ($modx->getConfig('minifyphp_incache')) {
+                    if ($evo->getConfig('minifyphp_incache')) {
                         $value = $this->php_strip_whitespace($value);
                     }
                     $content .= '$s[\'' . $row['name'] . '\']=\'' . $this->escapeSingleQuotes($value) . '\';';
-                    $properties = $modx->parseProperties($row['properties']);
-                    $sharedproperties = $modx->parseProperties($row['sharedproperties']);
+                    $properties = $evo->parseProperties($row['properties']);
+                    $sharedproperties = $evo->parseProperties($row['sharedproperties']);
                     $properties = array_merge($sharedproperties, $properties);
                     if (0 < count($properties)) {
                         $content .= '$s[\'' . $row['name'] . 'Props\']=\'' . $this->escapeSingleQuotes(json_encode($properties)) . '\';';
@@ -343,13 +339,13 @@ class Cache
             $content .= '$p=&$this->pluginCache;';
             foreach ($plugins->toArray() as $row) {
                 $value = trim($row['plugincode']);
-                if ($modx->getConfig('minifyphp_incache')) {
+                if ($evo->getConfig('minifyphp_incache')) {
                     $value = $this->php_strip_whitespace($value);
                 }
                 $content .= '$p[\'' . $row['name'] . '\']=\'' . $this->escapeSingleQuotes($value) . '\';';
                 if ($row['properties'] != '' || $row['sharedproperties'] != '') {
-                    $properties = $modx->parseProperties($row['properties']);
-                    $sharedproperties = $modx->parseProperties($row['sharedproperties']);
+                    $properties = $evo->parseProperties($row['properties']);
+                    $sharedproperties = $evo->parseProperties($row['sharedproperties']);
                     $properties = array_merge($sharedproperties, $properties);
                     if (0 < count($properties)) {
                         $content .= '$p[\'' . $row['name'] . 'Props\']=\'' . $this->escapeSingleQuotes(json_encode($properties)) . '\';';
@@ -366,10 +362,10 @@ class Cache
             ->orderBy('system_eventnames.name', 'ASC')
             ->orderBy('site_plugin_events.priority', 'ASC')->get();
         $content .= '$e=&$this->pluginEvent;';
-        $events = array();
+        $events = [];
         foreach ($systemEvents->toArray() as $row) {
             if (!isset($events[$row['evtname']])) {
-                $events[$row['evtname']] = array();
+                $events[$row['evtname']] = [];
             }
             $events[$row['evtname']][] = $row['pname'];
         }
@@ -382,10 +378,10 @@ class Cache
         $content .= "\n";
 
         // close and write the file
-        $filename = $modx->getSiteCacheFilePath();
+        $filename = $evo->getSiteCacheFilePath();
 
         // invoke OnBeforeCacheUpdate event
-        $modx->invokeEvent('OnBeforeCacheUpdate');
+        $evo->invokeEvent('OnBeforeCacheUpdate');
 
         if (@file_put_contents($filename, $content) === false) {
             exit("Cannot write $filename! Make sure file or its directory is writable!");
@@ -396,7 +392,7 @@ class Cache
         }
 
         // invoke OnCacheUpdate event
-        $modx->invokeEvent('OnCacheUpdate');
+        $evo->invokeEvent('OnCacheUpdate');
 
         return true;
     }
@@ -421,9 +417,9 @@ class Cache
         $chars = explode(' ', '( ) ; , = { } ? :');
         foreach ($tokens as $i => $token) {
             if (is_string($token)) {
-                if (in_array($token, array('=', ':'))) {
+                if (in_array($token, ['=', ':'])) {
                     $_ = trim($_);
-                } elseif (in_array($token, array('(', '{')) && in_array($prev_token, array(T_IF, T_ELSE, T_ELSEIF))) {
+                } elseif (in_array($token, ['(', '{']) && in_array($prev_token, [T_IF, T_ELSE, T_ELSEIF])) {
                     $_ = trim($_);
                 }
                 $_ .= $token;
@@ -446,7 +442,7 @@ class Cache
                     $lastChar = substr($_, -1);
                     if (!in_array($lastChar, $chars)) {// ,320,327,288,284,289
                         if (!in_array($prev_token,
-                            array(T_FOREACH, T_WHILE, T_FOR, T_BOOLEAN_AND, T_BOOLEAN_OR, T_DOUBLE_ARROW))) {
+                            [T_FOREACH, T_WHILE, T_FOR, T_BOOLEAN_AND, T_BOOLEAN_OR, T_DOUBLE_ARROW])) {
                             $_ .= ' ';
                         }
                     }
@@ -469,8 +465,8 @@ class Cache
                     $_ .= $text;
             }
         }
-        $source = preg_replace(array('@^<\?php@i', '|\s+|', '|<!--|', '|-->|', '|-->\s+<!--|'),
-            array('', ' ', "\n" . '<!--', '-->' . "\n", '-->' . "\n" . '<!--'), $_);
+        $source = preg_replace(['@^<\?php@i', '|\s+|', '|<!--|', '|-->|', '|-->\s+<!--|'],
+            ['', ' ', "\n" . '<!--', '-->' . "\n", '-->' . "\n" . '<!--'], $_);
         $source = trim($source);
 
         return $source;

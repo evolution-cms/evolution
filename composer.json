@@ -1,5 +1,5 @@
 {
-  "name": "evolutioncms/evolution",
+  "name": "evolution-cms/evolution",
   "description": "Evolution CMS is a Content Management System, ex MODX Evolution",
   "type": "project",
   "keywords": [
@@ -9,7 +9,7 @@
     "templating"
   ],
   "homepage": "https://evo.im/",
-  "license": "GPL-2.0+",
+  "license": "GPL-3.0-or-later",
   "authors": [
     {
       "name": "Dmytro Lukianenko",
@@ -35,10 +35,18 @@
     "vendor-dir": "vendor"
   },
   "require": {
-    "php": ">=8.1",
+    "php": "^8.3",
     "ext-pdo": "*",
-    "ext-json": "*"
+    "ext-json": "*",
+    "ext-readline": "*",
+    "ext-zip": "*"
   },
   "minimum-stability": "dev",
-  "prefer-stable": true
+  "prefer-stable": true,
+  "require-dev": {
+    "phpstan/phpstan": "^2.1"
+  },
+  "scripts": {
+    "analyze": "@php -d xdebug.mode=off vendor/bin/phpstan --memory-limit=512M"
+  }
 }

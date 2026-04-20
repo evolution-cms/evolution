@@ -92,11 +92,11 @@ $_lang["category_manager"] = 'カテゴリーマネージャー';
 $_lang["category_management"] = 'カテゴリーの管理';
 $_lang["manage_categories"] = 'カテゴリー管理';
 $_lang["category_msg"] = '<h3 style="font-weight:bold;">全エレメントの一覧</h3>カテゴリーでグループ化したエレメントを一覧・編集できます。不要なカテゴリーの削除もこちらで。削除されるのはカテゴリー名だけで、エレメントは「カテゴリーなし」に移動します。';
-$_lang["cfg_base_path"] = 'MODX_BASE_PATH';
-$_lang["cfg_base_url"] = 'MODX_BASE_URL';
-$_lang["cfg_manager_path"] = 'MODX_MANAGER_PATH';
-$_lang["cfg_manager_url"] = 'MODX_MANAGER_URL';
-$_lang["cfg_site_url"] = 'MODX_SITE_URL';
+$_lang["cfg_base_path"] = 'EVO_BASE_PATH';
+$_lang["cfg_base_url"] = 'EVO_BASE_URL';
+$_lang["cfg_manager_path"] = 'EVO_MANAGER_PATH';
+$_lang["cfg_manager_url"] = 'EVO_MANAGER_URL';
+$_lang["cfg_site_url"] = 'EVO_SITE_URL';
 $_lang["change_name"] = 'ログイン名を変更';
 $_lang["change_password"] = 'パスワード変更';
 $_lang["change_password_confirm"] = 'パスワードをもう一度';
@@ -382,6 +382,8 @@ $_lang["group_access_permissions"] = 'ユーザーグループのアクセス';
 $_lang['group_tvs'] = 'テンプレート変数をグループ化';
 $_lang["guid"] = 'GUID';
 $_lang["help"] = 'ヘルプ';
+$_lang["help_donate_msg"] = 'Evolution CMS 開発者のためにコーヒーを購入してください。 <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> 今すぐ Evolution CMS のファンになりましょう! ❤️ Ko-fi を使用すると、寄付金なしでお気に入りのクリエイターをサポートできます。';
+$_lang["help_donate_title"] = 'Evolution CMS の開発のために';
 $_lang["help_msg"] = '<p><a href="http://forum.modx.jp/" target="_blank">MODX日本公式フォーラム</a>でサポートを得ることができます。 また、逐次執筆が進められている<a href="http://www.evolution-docs.com/documentation/" target="_blank">EVOドキュメントとガイド（英語）</a>があり、EVO のほぼすべてに関して記されています。</p>';
 $_lang["help_title"] = 'サポート';
 $_lang["hide_tree"] = 'リソースツリーを非表示';
@@ -408,7 +410,7 @@ $_lang["update_tree_description"] = '<ul>
                    <li> - ドキュメントツリーをより便利で高速にするクロージャーテーブルのデーターベースのデザインパターンです。 </li>
                      <li> - ツリー内のデータがモデルを通さずに更新された場合、データベース内のドキュメントに誤ったリンクが発生する可能性があります。 </li>
                      <li> - この操作により site_content がモデル（保存、作成）を通して更新されず、リンク（クロージャーテーブル）が更新されない場合の問題が修正されます。 </li>
-                     <li> - この操作は CLI モード（\'php artisan closuretable: rebuild \'）でも実行可能です。</li> 
+                     <li> - この操作は CLI モード（\'php artisan closuretable: rebuild \'）でも実行可能です。</li>
                      </ul>';
 $_lang["update_tree_danger"] = '1000以上のリソースがある場合、CLIモード（\'php artisan closuretable: rebuild command\'）による操作で実行する方が良いです。';
 $_lang["update_tree_time"] = 'ツリーの再構築が終了しました。ドキュメント処理: <b>%s</b><br>インポートに <b>%s</b> 秒かかりました。';
@@ -559,7 +561,7 @@ $_lang["modx_news"] = 'EVOの最新情報';
 $_lang["modx_news_tab"] = 'EVOの最新情報';
 $_lang["modx_news_title"] = 'EVOの最新情報';
 $_lang["modx_security_notices"] = 'EVO セキュリティ情報';
-$_lang["modx_version"] = 'EVOバージョン';
+$_lang["evo_version"] = 'EVOバージョン';
 $_lang["monday"] = '月';
 $_lang["move"] = '移動';
 $_lang["move_resource"] = '移動する';
@@ -795,7 +797,7 @@ $_lang["role_create_doc"] = 'リソースを作成';
 $_lang["role_create_plugin"] = 'プラグインを作成';
 $_lang["role_create_snippet"] = 'スニペットを作成';
 $_lang["role_create_template"] = 'テンプレートを作成';
-$_lang["role_credits"] = '著作権表示/謝辞を表示';
+$_lang["role_widget_online_info"] = 'ウィジェット「オンラインユーザー」を表示';
 $_lang["role_delete_chunk"] = 'チャンクを削除';
 $_lang["role_delete_doc"] = 'リソースを削除';
 $_lang["role_delete_eventlog"] = 'イベントログを削除';
@@ -827,7 +829,7 @@ $_lang["role_frames"] = '管理画面へのアクセス(全域)';
 $_lang["role_help"] = 'ヘルプページを表示';
 $_lang["role_home"] = '管理画面ホームへのアクセス';
 $_lang["role_import_static"] = '静的HTMLファイルをインポート';
-$_lang["role_logout"] = '管理画面をログアウト';
+$_lang["role_widget_recent_info"] = 'ウィジェット「最近編集したリソース」を表示';
 $_lang["role_list_module"] = 'モジュール一覧';
 $_lang["role_manage_metatags"] = 'サイト全体METAタグとキーワードの管理';
 $_lang["role_management_msg"] = 'ロール(役割)ごとに、利用可能な機能を選択・設定します。ロールは役割・役職のようなもので、たとえば、部長・一般社員・アルバイトの3者の異なる権限をシステム的に表現しています。EVOでは、管理画面にアクセスする全てのユーザが何らかのロール(役割)を持ちます。';
@@ -1218,7 +1220,7 @@ $_lang["yourinfo_username"] = 'ログイン名';
 $_lang["a17_error_reporting_title"] = 'PHPエラーの検出レベル';
 $_lang["a17_error_reporting_msg"] = 'PHPエラーの検出レベルを設定します。';
 $_lang["a17_error_reporting_opt0"] = '全て無視する';
-$_lang["a17_error_reporting_opt1"] = '通知レベルの軽度の警告を無視する(<a href="https://www.google.com/search?hl=ja&q=E_DEPRECATED+E_STRICT" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT</a>)';
+$_lang["a17_error_reporting_opt1"] = '通知レベルの軽度の警告を無視する(<a href="https://www.google.com/search?hl=ja&q=E_DEPRECATED+E_NOTICE" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED</a>)';
 $_lang["a17_error_reporting_opt2"] = '~E_NOTICE 以外の全てのエラーを検出';
 $_lang["a17_error_reporting_opt99"] = '~E_NOTICE & ~E_USER_DEPRECATED 以外の全てのエラーを検出';
 $_lang["a17_error_reporting_opt199"] = '全て検出する';
@@ -1245,7 +1247,7 @@ $_lang["bkmgr_run_sql_direct_label"] = 'SQL文を直接実行';
 $_lang["bkmgr_run_sql_submit"] = 'リストア実行';
 $_lang["bkmgr_run_sql_result"] = '結果一覧';
 $_lang["bkmgr_snapshot_title"] = 'スナップショット';
-$_lang["bkmgr_snapshot_msg"] = '<p>データベースの内容をサーバに保存します。<br />保存先 : [+snapshot_path+] ($modx->config[\'snapshot_path\'])</p>';
+$_lang["bkmgr_snapshot_msg"] = '<p>データベースの内容をサーバに保存します。<br />保存先 : [+snapshot_path+] (evo()->getConfig(\'snapshot_path\'))</p>';
 $_lang["bkmgr_snapshot_submit"] = 'スナップショットを追加する';
 $_lang["bkmgr_snapshot_list_title"] = 'スナップショットの一覧';
 $_lang["bkmgr_restore_submit"] = 'このデータに戻す';
@@ -1305,6 +1307,8 @@ $_lang["disabled_at_login"] = 'ログイン中は無効';
 $_lang["cache_type_title"] = 'キャッシュのタイプ';
 $_lang["cache_type_1"] = 'リソースIDのみを元にしたキャッシュ（標準）';
 $_lang["cache_type_2"] = 'リソースIDと$_GETパラメータを元にしたキャッシュ';
+$_lang["html_comment_title"] = 'HTMLコメント';
+$_lang["html_comment_message"] = 'ページソース内のHTMLコメントで囲む要素タイプのカンマ区切りリスト: <b>snippets</b>, <b>chunks</b>, <b>tvs</b>, <b>snippetParams</b>';
 $_lang["seostrict_title"] = '厳密なURL（SEO Strict URLs）を使う';
 $_lang["seostrict_message"] = 'コンテンツの重複を防ぐために厳密なURLの使用を強制する（必要な場合）';
 $_lang["aliaslistingfolder_title"] = 'フォルダにのみエイリアスリスティング（AliasListing）を使用する';
@@ -1357,8 +1361,6 @@ $_lang["dp_startDay"]   = "1";
 $_lang["check_all"] = "すべて選択";
 $_lang["check_none"] = "すべて解除";
 $_lang["check_toggle"] = "選択を入れ替える";
-
-$_lang["version_notices"] = "バージョン通知";
 
 $_lang["em_button_shift"] = " (Shift +マウスクリックで複数のウィンドウを開く)";
 
@@ -1504,5 +1506,12 @@ $_lang["role_tv_msg"] = '以下のテンプレート変数にこのロールが�
 $_lang["tmplvar_roles_access_msg"] = 'このテンプレート変数へアクセス/処理を許可されているロールを選択';
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
+
+$_lang["file_groups_saved"] = 'アクセス権限を保存しました。';
+$_lang["file_groups_edit"] = 'アクセス権限を編集';
+$_lang["files_groups"] = 'リソースグループ：';
+$_lang["access_permissions_file_message"] = 'このファイルが属するリソースグループを選択してください：';
+$_lang["access_permissions_dir_message"] = 'このディレクトリが属するリソースグループを選択してください：';
+$_lang["all_file_groups"] = 'すべてのリソースグループ（公開）';
 
 return $_lang;

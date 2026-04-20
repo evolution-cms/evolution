@@ -109,7 +109,7 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
     private $partialPackagesByName = null;
     /** @var bool */
     private $displayedWarningAboutNonMatchingPackageIndex = false;
-    /** @var array{metadata: bool, query-all: bool, api-url: string|null}|null */
+    /** @var array{metadata: bool, api-url: string|null}|null */
     private $securityAdvisoryConfig = null;
 
     /**
@@ -139,8 +139,13 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
     {
         parent::__construct();
         if (!Preg::isMatch('{^[\w.]+\??://}', $repoConfig['url'])) {
-            // assume http as the default protocol
-            $repoConfig['url'] = 'http://'.$repoConfig['url'];
+            if (($localFilePath = realpath($repoConfig['url'])) !== false) {
+                // it is a local path, add file scheme
+                $repoConfig['url'] = 'file://'.$localFilePath;
+            } else {
+                // otherwise, assume http as the default protocol
+                $repoConfig['url'] = 'http://'.$repoConfig['url'];
+            }
         }
         $repoConfig['url'] = rtrim($repoConfig['url'], '/');
         if ($repoConfig['url'] === '') {
@@ -427,8 +432,7 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
 
         $uniques = [];
         foreach ($names as $name) {
-            // @phpstan-ignore-next-line
-            $uniques[substr($name, 0, strpos($name, '/'))] = true;
+            $uniques[explode('/', $name, 2)[0]] = true;
         }
 
         $vendors = array_keys($uniques);
@@ -632,6 +636,15 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
 
         $apiUrl = $this->securityAdvisoryConfig['api-url'];
 
+        // respect available-package-patterns / available-packages directives from the repo
+        if ($this->hasAvailablePackageList) {
+            foreach ($packageConstraintMap as $name => $constraint) {
+                if (!$this->lazyProvidersRepoContains(strtolower($name))) {
+                    unset($packageConstraintMap[$name]);
+                }
+            }
+        }
+
         $parser = new VersionParser();
         /**
          * @param array<mixed> $data
@@ -662,7 +675,7 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
 
                 $promises[] = $this->startCachedAsyncDownload($name, $name)
                     ->then(static function (array $spec) use (&$advisories, &$namesFound, &$packageConstraintMap, $name, $create): void {
-                        [$response, ] = $spec;
+                        [$response] = $spec;
 
                         if (!isset($response['security-advisories']) || !is_array($response['security-advisories'])) {
                             return;
@@ -670,12 +683,12 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
 
                         $namesFound[$name] = true;
                         if (count($response['security-advisories']) > 0) {
-                            $advisories[$name] = array_filter(array_map(
+                            $advisories[$name] = array_values(array_filter(array_map(
                                 static function ($data) use ($name, $create) {
                                     return $create($data, $name);
                                 },
                                 $response['security-advisories']
-                            ));
+                            )));
                         }
                         unset($packageConstraintMap[$name]);
                     });
@@ -685,30 +698,39 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
         }
 
         if ($apiUrl !== null && count($packageConstraintMap) > 0) {
-            $options = [
-                'http' => [
-                    'method' => 'POST',
-                    'header' => ['Content-type: application/x-www-form-urlencoded'],
-                    'timeout' => 10,
-                    'content' => http_build_query(['packages' => array_keys($packageConstraintMap)]),
-                ],
-            ];
+            $options = $this->options;
+            $options['http']['method'] = 'POST';
+            if (isset($options['http']['header'])) {
+                $options['http']['header'] = (array) $options['http']['header'];
+            }
+            $options['http']['header'][] = 'Content-type: application/x-www-form-urlencoded';
+            $options['http']['timeout'] = 10;
+            $options['http']['content'] = http_build_query(['packages' => array_keys($packageConstraintMap)]);
+
             $response = $this->httpDownloader->get($apiUrl, $options);
+            $warned = false;
             /** @var string $name */
             foreach ($response->decodeJson()['advisories'] as $name => $list) {
+                if (!isset($packageConstraintMap[$name])) {
+                    if (!$warned) {
+                        $this->io->writeError('<warning>'.$this->getRepoName().' returned names which were not requested in response to the security-advisories API. '.$name.' was not requested but is present in the response. Requested names were: '.implode(', ', array_keys($packageConstraintMap)).'</warning>');
+                        $warned = true;
+                    }
+                    continue;
+                }
                 if (count($list) > 0) {
-                    $advisories[$name] = array_filter(array_map(
+                    $advisories[$name] = array_values(array_filter(array_map(
                         static function ($data) use ($name, $create) {
                             return $create($data, $name);
                         },
                         $list
-                    ));
+                    )));
                 }
                 $namesFound[$name] = true;
             }
         }
 
-        return ['namesFound' => array_keys($namesFound), 'advisories' => array_filter($advisories)];
+        return ['namesFound' => array_keys($namesFound), 'advisories' => array_filter($advisories, static function ($adv): bool { return \count($adv) > 0; })];
     }
 
     public function getProviders(string $packageName)
@@ -805,7 +827,7 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
     /**
      * @param  string      $name package name
      * @param array<string, int>|null $acceptableStabilities
-     * @phpstan-param array<string, BasePackage::STABILITY_*>|null $acceptableStabilities
+     * @phpstan-param array<key-of<BasePackage::STABILITIES>, BasePackage::STABILITY_*>|null $acceptableStabilities
      * @param array<string, int>|null $stabilityFlags an array of package name => BasePackage::STABILITY_* value
      * @phpstan-param array<string, BasePackage::STABILITY_*>|null $stabilityFlags
      * @param array<string, array<string, PackageInterface>> $alreadyLoaded
@@ -975,7 +997,7 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
      * @param array<string, ConstraintInterface|null> $packageNames array of package name => ConstraintInterface|null - if a constraint is provided, only
      *                                                packages matching it will be loaded
      * @param array<string, int>|null $acceptableStabilities
-     * @phpstan-param array<string, BasePackage::STABILITY_*>|null $acceptableStabilities
+     * @phpstan-param array<key-of<BasePackage::STABILITIES>, BasePackage::STABILITY_*>|null $acceptableStabilities
      * @param array<string, int>|null $stabilityFlags an array of package name => BasePackage::STABILITY_* value
      * @phpstan-param array<string, BasePackage::STABILITY_*>|null $stabilityFlags
      * @param array<string, array<string, PackageInterface>> $alreadyLoaded
@@ -1065,6 +1087,9 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
         return ['namesFound' => $namesFound, 'packages' => $packages];
     }
 
+    /**
+     * @phpstan-return PromiseInterface<array{mixed, string}>
+     */
     private function startCachedAsyncDownload(string $fileName, ?string $packageName = null): PromiseInterface
     {
         if (null === $this->lazyProvidersUrl) {
@@ -1104,7 +1129,7 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
      * @param string $name package name (must be lowercased already)
      * @param array<string, mixed> $versionData
      * @param array<string, int>|null $acceptableStabilities
-     * @phpstan-param array<string, BasePackage::STABILITY_*>|null $acceptableStabilities
+     * @phpstan-param array<key-of<BasePackage::STABILITIES>, BasePackage::STABILITY_*>|null $acceptableStabilities
      * @param array<string, int>|null $stabilityFlags an array of package name => BasePackage::STABILITY_* value
      * @phpstan-param array<string, BasePackage::STABILITY_*>|null $stabilityFlags
      */
@@ -1239,9 +1264,11 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
             if (isset($data['security-advisories']) && is_array($data['security-advisories'])) {
                 $this->securityAdvisoryConfig = [
                     'metadata' => $data['security-advisories']['metadata'] ?? false,
-                    'api-url' => $data['security-advisories']['api-url'] ?? null,
-                    'query-all' => $data['security-advisories']['query-all'] ?? false,
+                    'api-url' => isset($data['security-advisories']['api-url']) && is_string($data['security-advisories']['api-url']) ? $this->canonicalizeUrl($data['security-advisories']['api-url']) : null,
                 ];
+                if ($this->securityAdvisoryConfig['api-url'] === null && !$this->hasAvailablePackageList) {
+                    throw new \UnexpectedValueException('Invalid security advisory configuration on '.$this->getRepoName().': If the repository does not provide a security-advisories.api-url then available-packages or available-package-patterns are required to be provided for performance reason.');
+                }
             }
         }
 
@@ -1271,12 +1298,15 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
     }
 
     /**
-     * @param non-empty-string $url
      * @return non-empty-string
      */
     private function canonicalizeUrl(string $url): string
     {
-        if ('/' === $url[0]) {
+        if (strlen($url) === 0) {
+            throw new \InvalidArgumentException('Expected a string with a value and not an empty string');
+        }
+
+        if (str_starts_with($url, '/')) {
             if (Preg::isMatch('{^[^:]++://[^/]*+}', $this->url, $matches)) {
                 return $matches[0] . $url;
             }
@@ -1416,7 +1446,7 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
 
             return $packageInstances;
         } catch (\Exception $e) {
-            throw new \RuntimeException('Could not load packages '.($packages[0]['name'] ?? json_encode($packages)).' in '.$this->getRepoName().($source ? ' from '.$source : '').': ['.get_class($e).'] '.$e->getMessage(), 0, $e);
+            throw new \RuntimeException('Could not load packages in '.$this->getRepoName().($source ? ' from '.$source : '').': ['.get_class($e).'] '.$e->getMessage(), 0, $e);
         }
     }
 
@@ -1593,6 +1623,9 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
         }
     }
 
+    /**
+     * @phpstan-return PromiseInterface<array<mixed>|true> true if the response was a 304 and the cache is fresh, otherwise it returns the decoded json
+     */
     private function asyncFetchFile(string $filename, string $cacheKey, ?string $lastModifiedTime = null): PromiseInterface
     {
         if ('' === $filename) {
@@ -1605,7 +1638,10 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
 
         if (isset($this->freshMetadataUrls[$filename]) && $lastModifiedTime) {
             // make it look like we got a 304 response
-            return \React\Promise\resolve(true);
+            /** @var PromiseInterface<true> $promise */
+            $promise = \React\Promise\resolve(true);
+
+            return $promise;
         }
 
         $httpDownloader = $this->httpDownloader;

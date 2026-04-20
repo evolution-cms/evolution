@@ -11,7 +11,7 @@ if ($id == 0) {
     EvolutionCMS()->webAlertAndQuit($_lang["error_no_id"]);
 }
 
-$children = array();
+$children = [];
 
 // check permissions on the document
 $udperms = new EvolutionCMS\Legacy\Permissions();

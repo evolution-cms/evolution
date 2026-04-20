@@ -62,7 +62,6 @@ class ResourceRegistrar
      * Create a new resource registrar instance.
      *
      * @param  \Illuminate\Routing\Router  $router
-     * @return void
      */
     public function __construct(Router $router)
     {
@@ -104,8 +103,21 @@ class ResourceRegistrar
         $resourceMethods = $this->getResourceMethods($defaults, $options);
 
         foreach ($resourceMethods as $m) {
+            $optionsForMethod = $options;
+
+            if (isset($optionsForMethod['middleware_for'][$m])) {
+                $optionsForMethod['middleware'] = $optionsForMethod['middleware_for'][$m];
+            }
+
+            if (isset($optionsForMethod['excluded_middleware_for'][$m])) {
+                $optionsForMethod['excluded_middleware'] = Router::uniqueMiddleware(array_merge(
+                    $optionsForMethod['excluded_middleware'] ?? [],
+                    $optionsForMethod['excluded_middleware_for'][$m]
+                ));
+            }
+
             $route = $this->{'addResource'.ucfirst($m)}(
-                $name, $base, $controller, $options
+                $name, $base, $controller, $optionsForMethod
             );
 
             if (isset($options['bindingFields'])) {
@@ -159,8 +171,21 @@ class ResourceRegistrar
         $resourceMethods = $this->getResourceMethods($defaults, $options);
 
         foreach ($resourceMethods as $m) {
+            $optionsForMethod = $options;
+
+            if (isset($optionsForMethod['middleware_for'][$m])) {
+                $optionsForMethod['middleware'] = $optionsForMethod['middleware_for'][$m];
+            }
+
+            if (isset($optionsForMethod['excluded_middleware_for'][$m])) {
+                $optionsForMethod['excluded_middleware'] = Router::uniqueMiddleware(array_merge(
+                    $optionsForMethod['excluded_middleware'] ?? [],
+                    $optionsForMethod['excluded_middleware_for'][$m]
+                ));
+            }
+
             $route = $this->{'addSingleton'.ucfirst($m)}(
-                $name, $controller, $options
+                $name, $controller, $optionsForMethod
             );
 
             if (isset($options['bindingFields'])) {
@@ -179,7 +204,7 @@ class ResourceRegistrar
      * @param  string  $name
      * @param  string  $controller
      * @param  array  $options
-     * @return void
+     * @return \Illuminate\Routing\Router
      */
     protected function prefixedResource($name, $controller, array $options)
     {
@@ -201,7 +226,7 @@ class ResourceRegistrar
      * @param  string  $name
      * @param  string  $controller
      * @param  array  $options
-     * @return void
+     * @return \Illuminate\Routing\Router
      */
     protected function prefixedSingleton($name, $controller, array $options)
     {
@@ -477,7 +502,6 @@ class ResourceRegistrar
      * Add the update method for a singleton route.
      *
      * @param  string  $name
-     * @param  string  $base
      * @param  string  $controller
      * @param  array  $options
      * @return \Illuminate\Routing\Route
@@ -522,8 +546,8 @@ class ResourceRegistrar
     protected function getShallowName($name, $options)
     {
         return isset($options['shallow']) && $options['shallow']
-                    ? last(explode('.', $name))
-                    : $name;
+            ? last(explode('.', $name))
+            : $name;
     }
 
     /**
@@ -708,8 +732,8 @@ class ResourceRegistrar
     {
         if (empty($verbs)) {
             return static::$verbs;
-        } else {
-            static::$verbs = array_merge(static::$verbs, $verbs);
         }
+
+        static::$verbs = array_merge(static::$verbs, $verbs);
     }
 }

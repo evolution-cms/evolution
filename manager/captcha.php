@@ -1,5 +1,5 @@
 <?php
-define('MODX_API_MODE', true);
+define('EVO_API_MODE', true);
 
 if (file_exists(__DIR__ . '/config.php')) {
     $config = require __DIR__ . '/config.php';
@@ -24,7 +24,7 @@ if (!empty($config['root']) && file_exists($config['root']. '/index.php')) {
     exit;
 }
 
-$modx = EvolutionCMS();
+$modx = evo();
 
 $modx->documentMethod = 'id';
 $modx->documentIdentifier = isset($_REQUEST['id']) ? (int)$_REQUEST['id'] : 1;

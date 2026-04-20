@@ -14,7 +14,6 @@ namespace Monolog\Handler;
 use Monolog\Level;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Formatter\LogglyFormatter;
-use function array_key_exists;
 use CurlHandle;
 use Monolog\LogRecord;
 
@@ -50,7 +49,7 @@ class LogglyHandler extends AbstractProcessingHandler
      */
     public function __construct(string $token, int|string|Level $level = Level::Debug, bool $bubble = true)
     {
-        if (!extension_loaded('curl')) {
+        if (!\extension_loaded('curl')) {
             throw new MissingExtensionException('The curl extension is needed to use the LogglyHandler');
         }
 
@@ -64,7 +63,7 @@ class LogglyHandler extends AbstractProcessingHandler
      */
     protected function getCurlHandler(string $endpoint): CurlHandle
     {
-        if (!array_key_exists($endpoint, $this->curlHandlers)) {
+        if (!\array_key_exists($endpoint, $this->curlHandlers)) {
             $this->curlHandlers[$endpoint] = $this->loadCurlHandle($endpoint);
         }
 
@@ -88,26 +87,28 @@ class LogglyHandler extends AbstractProcessingHandler
     }
 
     /**
-     * @param string[]|string $tag
+     * @param  string[]|string $tag
+     * @return $this
      */
     public function setTag(string|array $tag): self
     {
         if ('' === $tag || [] === $tag) {
             $this->tag = [];
         } else {
-            $this->tag = is_array($tag) ? $tag : [$tag];
+            $this->tag = \is_array($tag) ? $tag : [$tag];
         }
 
         return $this;
     }
 
     /**
-     * @param string[]|string $tag
+     * @param  string[]|string $tag
+     * @return $this
      */
     public function addTag(string|array $tag): self
     {
         if ('' !== $tag) {
-            $tag = is_array($tag) ? $tag : [$tag];
+            $tag = \is_array($tag) ? $tag : [$tag];
             $this->tag = array_unique(array_merge($this->tag, $tag));
         }
 
@@ -124,7 +125,7 @@ class LogglyHandler extends AbstractProcessingHandler
         $level = $this->level;
 
         $records = array_filter($records, function ($record) use ($level) {
-            return ($record->level >= $level);
+            return ($record->level->value >= $level->value);
         });
 
         if (\count($records) > 0) {
@@ -145,7 +146,7 @@ class LogglyHandler extends AbstractProcessingHandler
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-        Curl\Util::execute($ch, 5, false);
+        Curl\Util::execute($ch, 5);
     }
 
     protected function getDefaultFormatter(): FormatterInterface

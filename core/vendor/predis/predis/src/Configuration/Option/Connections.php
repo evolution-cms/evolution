@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2023 Till Krüss
+ * (c) 2021-2026 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,8 +17,8 @@ use Predis\Configuration\OptionInterface;
 use Predis\Configuration\OptionsInterface;
 use Predis\Connection\Factory;
 use Predis\Connection\FactoryInterface;
-use Predis\Connection\PhpiredisSocketConnection;
-use Predis\Connection\PhpiredisStreamConnection;
+use Predis\Connection\RelayConnection;
+use Predis\Connection\RelayFactory;
 
 /**
  * Configures a new connection factory instance.
@@ -44,11 +44,10 @@ class Connections implements OptionInterface
             return $this->createFactoryByArray($options, $value);
         } elseif (is_string($value)) {
             return $this->createFactoryByString($options, $value);
-        } else {
-            throw new InvalidArgumentException(sprintf(
-                '%s expects a valid connection factory', static::class
-            ));
         }
+        throw new InvalidArgumentException(sprintf(
+            '%s expects a valid connection factory', static::class
+        ));
     }
 
     /**
@@ -57,7 +56,7 @@ class Connections implements OptionInterface
      * The factory instance is configured according to the supplied named array
      * mapping URI schemes (passed as keys) to the FCQN of classes implementing
      * Predis\Connection\NodeConnectionInterface, or callable objects acting as
-     * lazy initalizers and returning new instances of classes implementing
+     * lazy initializers and returning new instances of classes implementing
      * Predis\Connection\NodeConnectionInterface.
      *
      * @param OptionsInterface $options Client options
@@ -86,9 +85,7 @@ class Connections implements OptionInterface
      * string that identifies specific configurations of schemes and connection
      * classes. Supported configuration values are:
      *
-     * - "phpiredis-stream" maps tcp, redis, unix to PhpiredisStreamConnection
-     * - "phpiredis-socket" maps tcp, redis, unix to PhpiredisSocketConnection
-     * - "phpiredis" is an alias of "phpiredis-stream"
+     * - "relay" maps tcp, redis, unix, tls, rediss to RelayConnection
      *
      * @param OptionsInterface $options Client options
      * @param string           $value   Descriptive string identifying the desired configuration
@@ -97,35 +94,18 @@ class Connections implements OptionInterface
      */
     protected function createFactoryByString(OptionsInterface $options, string $value)
     {
-        /**
-         * @var FactoryInterface
-         */
-        $factory = $this->getDefault($options);
-
         switch (strtolower($value)) {
-            case 'phpiredis':
-            case 'phpiredis-stream':
-                $factory->define('tcp', PhpiredisStreamConnection::class);
-                $factory->define('redis', PhpiredisStreamConnection::class);
-                $factory->define('unix', PhpiredisStreamConnection::class);
-                break;
-
-            case 'phpiredis-socket':
-                $factory->define('tcp', PhpiredisSocketConnection::class);
-                $factory->define('redis', PhpiredisSocketConnection::class);
-                $factory->define('unix', PhpiredisSocketConnection::class);
-                break;
+            case 'relay':
+                return $this->getRelayFactory($options);
 
             case 'default':
-                return $factory;
+                return $this->getDefault($options);
 
             default:
                 throw new InvalidArgumentException(sprintf(
                     '%s does not recognize `%s` as a supported configuration string', static::class, $value
                 ));
         }
-
-        return $factory;
     }
 
     /**
@@ -137,6 +117,31 @@ class Connections implements OptionInterface
 
         if ($options->defined('parameters')) {
             $factory->setDefaultParameters($options->parameters);
+        }
+
+        if ($options->defined('upstream_driver')) {
+            $factory->setUpstreamDriver($options->upstream_driver);
+        }
+
+        return $factory;
+    }
+
+    /**
+     * Creates RelayFactory instance.
+     *
+     * @param  OptionsInterface $options
+     * @return FactoryInterface
+     */
+    private function getRelayFactory(OptionsInterface $options): FactoryInterface
+    {
+        $factory = new RelayFactory();
+
+        if ($options->defined('parameters')) {
+            $factory->setDefaultParameters($options->parameters);
+        }
+
+        if ($options->defined('upstream_driver')) {
+            $factory->setUpstreamDriver($options->upstream_driver);
         }
 
         return $factory;

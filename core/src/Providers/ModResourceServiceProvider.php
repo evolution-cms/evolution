@@ -3,6 +3,10 @@
 use EvolutionCMS\ServiceProvider;
 use modResource;
 
+/**
+ * @deprecated
+ * @TODO: remove in 3.7
+ */
 class ModResourceServiceProvider extends ServiceProvider
 {
     /**
@@ -13,6 +17,7 @@ class ModResourceServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->bind('modResource', function ($modx) {
+            /* @phpstan-ignore-next-line class.notFound */
             return new modResource($modx);
         });
 

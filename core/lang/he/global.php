@@ -85,11 +85,11 @@ $_lang["captcha_words_message"] = 'Enter a list of CAPTCHA words to use if CAPTC
 $_lang["captcha_words_title"] = 'מילות קאפצה';
 $_lang["category_heading"] = 'קטגוריה';
 $_lang["category_msg"] = 'כאן תוכלו לצפות ולערוך את כל רכיבי הקבוצות לפי קטגוריות.';
-$_lang["cfg_base_path"] = 'MODX_BASE_PATH';
-$_lang["cfg_base_url"] = 'MODX_BASE_URL';
-$_lang["cfg_manager_path"] = 'MODX_MANAGER_PATH';
-$_lang["cfg_manager_url"] = 'MODX_MANAGER_URL';
-$_lang["cfg_site_url"] = 'MODX_SITE_URL';
+$_lang["cfg_base_path"] = 'EVO_BASE_PATH';
+$_lang["cfg_base_url"] = 'EVO_BASE_URL';
+$_lang["cfg_manager_path"] = 'EVO_MANAGER_PATH';
+$_lang["cfg_manager_url"] = 'EVO_MANAGER_URL';
+$_lang["cfg_site_url"] = 'EVO_SITE_URL';
 $_lang["change_name"] = 'שנה שם';
 $_lang["change_password"] = 'שנה סיסמה';
 $_lang["change_password_confirm"] = 'אימות סיסמה';
@@ -352,7 +352,9 @@ $_lang["go"] = 'Go';
 $_lang["group_access_permissions"] = 'User group access';
 $_lang["guid"] = 'GUID';
 $_lang["help"] = 'עזרה';
-$_lang["help_msg"] = '<p>You can obtain free community support by <a href="http://forums.modx.com/" target="_blank">visiting the MODX Forums</a>. There is also a growing body of <a href="http://rtfm.modx.com/evolution/1.0" target="_blank">MODX Documentation and Guides</a> that touch on virtually every aspect of MODX.</p><p>We are planning to offer commercial support services for MODX as well. Please <a href="mailto:hello@modx.com?subject=MODX Commercial Support Inquiry">email us if you\'re interested</a>.</p>';
+$_lang["help_donate_msg"] = 'קנה קפה עבור מפתחי Evolution CMS. <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> הפוך למעריץ של Evolution CMS היום! ❤️ Ko-fi מאפשרת לך לתמוך ביוצרים שאתה אוהב ללא כל עמלות תרומה.';
+$_lang["help_donate_title"] = 'לפיתוח של Evolution CMS';
+$_lang["help_msg"] = '<p>You can obtain free community support by <a href="https://forum.evo.im/" target="_blank">visiting the MODX Forums</a>. There is also a growing body of <a href="http://rtfm.modx.com/evolution/1.0" target="_blank">MODX Documentation and Guides</a> that touch on virtually every aspect of MODX.</p><p>We are planning to offer commercial support services for MODX as well. Please <a href="mailto:hello@modx.com?subject=MODX Commercial Support Inquiry">email us if you\'re interested</a>.</p>';
 $_lang["help_title"] = 'עזרה';
 $_lang["hide_tree"] = 'הסתר עץ';
 $_lang["home"] = 'ראשי';
@@ -497,7 +499,7 @@ $_lang["modx_news"] = 'MODX התראות';
 $_lang["modx_news_tab"] = 'MODX חדשות';
 $_lang["modx_news_title"] = 'MODX חדשות';
 $_lang["modx_security_notices"] = 'MODX התראות אבטחה';
-$_lang["modx_version"] = 'גרסת MODX';
+$_lang["evo_version"] = 'גרסת MODX';
 $_lang["monday"] = 'שני';
 $_lang["move"] = 'הזז';
 $_lang["move_resource"] = 'הזז מסמך';
@@ -716,7 +718,7 @@ $_lang["role_create_doc"] = 'צור מסמכים חדשים';
 $_lang["role_create_plugin"] = 'צור התקנים חדשים';
 $_lang["role_create_snippet"] = 'צור קטעי קוד חדשים';
 $_lang["role_create_template"] = 'צור תבניות עיצוב חדשות';
-$_lang["role_credits"] = 'הצג קרדיטים';
+$_lang["role_widget_online_info"] = 'הצג את הווידג׳ט משתמשים מחוברים';
 $_lang["role_delete_chunk"] = 'מחק מיני תבניות';
 $_lang["role_delete_doc"] = 'מחק מסמכים';
 $_lang["role_delete_eventlog"] = 'מחק לוגים';
@@ -747,7 +749,7 @@ $_lang["role_frames"] = 'Request manager frames';
 $_lang["role_help"] = 'הצג דפי עזרה';
 $_lang["role_home"] = 'Request manager intro page';
 $_lang["role_import_static"] = 'Import HTML';
-$_lang["role_logout"] = 'התנתק ממערכת הניהול';
+$_lang["role_widget_recent_info"] = 'הצג את הווידג׳ט מסמכים שנערכו/נוצרו לאחרונה';
 $_lang["role_manage_metatags"] = 'Manage site META tags and keywords';
 $_lang["role_management_msg"] = 'Choose the role you wish to edit.';
 $_lang["role_management_title"] = 'תפקידים';
@@ -886,7 +888,7 @@ $_lang["sunday"] = 'ראשון';
 $_lang["sys_alert"] = 'התרעת מערכת';
 $_lang["sysinfo_activity_message"] = 'This list show which documents have been recently edited by your users.';
 $_lang["sysinfo_userid"] = 'User';
-$_lang["system_email_signup"] = 'Hello [+uid+] 
+$_lang["system_email_signup"] = 'Hello [+uid+]
 
 Here are your login details for [+sname+] Content Manager:
 
@@ -911,7 +913,7 @@ If you did not request this email then please ignore it.
 
 Regrads,
 Site Administrator';
-$_lang["system_email_websignup"] = 'Hello [+uid+] 
+$_lang["system_email_websignup"] = 'Hello [+uid+]
 
 Here are your login details for [+sname+]:
 
@@ -1092,7 +1094,7 @@ $_lang["yourinfo_username"] = 'אתה מחובר כ:';
 $_lang["a17_error_reporting_title"] = 'Detection level of the PHP error';
 $_lang["a17_error_reporting_msg"] = 'Set the detection level of the PHP error.';
 $_lang["a17_error_reporting_opt0"] = 'Ignore all';
-$_lang["a17_error_reporting_opt1"] = 'Ignore the warning of a slight notice level(<a href="https://www.google.com/search?q=E_DEPRECATED+E_STRICT" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT</a>)';
+$_lang["a17_error_reporting_opt1"] = 'Ignore the warning of a slight notice level(<a href="https://www.google.com/search?q=E_DEPRECATED+E_NOTICE" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED</a>)';
 $_lang["a17_error_reporting_opt2"] = 'Detect all errors except E_NOTICE and E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt99"] = 'Detect all except E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt199"] = 'Detect all';
@@ -1114,7 +1116,7 @@ $_lang["bkmgr_run_sql_direct_label"] = 'Direct execute SQL command strings';
 $_lang["bkmgr_run_sql_submit"] = 'Execute restore';
 $_lang["bkmgr_run_sql_result"] = 'Result';
 $_lang["bkmgr_snapshot_title"] = 'Snapshot save and recovery';
-$_lang["bkmgr_snapshot_msg"] = '<p>The contents of the database are saved and restored to a server.<br />Preservation place : [+snapshot_path+] ($modx->config[\'snapshot_path\'])</p>';
+$_lang["bkmgr_snapshot_msg"] = '<p>The contents of the database are saved and restored to a server.<br />Preservation place : [+snapshot_path+] (evo()->getConfig(\'snapshot_path\'))</p>';
 $_lang["bkmgr_snapshot_submit"] = 'Add snapshot';
 $_lang["bkmgr_snapshot_list_title"] = 'List of snapshot';
 $_lang["bkmgr_restore_submit"] = 'לחזור נתונים זה';
@@ -1165,6 +1167,8 @@ $_lang["docid_incrmnt_method_2"] = 'Maximal ID + 1';
 $_lang["cache_type_title"] = 'Document caching type';
 $_lang["cache_type_1"] = 'Cache is based only on document id (standard)';
 $_lang["cache_type_2"] = 'Cache is based on document id and $_GET parameters';
+$_lang["html_comment_title"] = 'הערת HTML';
+$_lang["html_comment_message"] = 'רשימה מופרדת בפסיקים של סוגי אלמנטים לעטיפה בהערות HTML בקוד המקור של הדף: <b>snippets</b>, <b>chunks</b>, <b>tvs</b>, <b>snippetParams</b>';
 $_lang["seostrict_title"] = 'Use SEO Strict URLs';
 $_lang["seostrict_message"] = 'Enforces the use of strict URLs to prevent duplicate content if needed';
 
@@ -1220,5 +1224,12 @@ $_lang["role_tv_msg"] = 'The Variables assigned to this Role are listed below.';
 $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to access/process this Template Variable';
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
+
+$_lang["file_groups_saved"] = 'הרשאות גישה נשמרו.';
+$_lang["file_groups_edit"] = 'ערוך הרשאות גישה';
+$_lang["files_groups"] = 'קבוצות משאבים:';
+$_lang["access_permissions_file_message"] = 'בחר לאילו קבוצות משאבים שייך קובץ זה:';
+$_lang["access_permissions_dir_message"] = 'בחר לאילו קבוצות משאבים שייכת תיקייה זו:';
+$_lang["all_file_groups"] = 'כל קבוצות המשאבים (ציבורי)';
 
 return $_lang;

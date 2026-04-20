@@ -30,10 +30,10 @@ class AliasLoader
     /**
      * Create a new AliasLoader instance.
      *
-     * @param  array  $aliases
+     * @param array $aliases
      * @return void
      */
-    private function __construct($aliases)
+    final private function __construct(array $aliases)
     {
         $this->aliases = $aliases;
     }

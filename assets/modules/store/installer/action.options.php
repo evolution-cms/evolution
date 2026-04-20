@@ -17,7 +17,7 @@ include "{$setupPath}/setup.info.php";
 
 echo "<h2>" . $_lang['optional_items'] . "</h2><p>" . $_lang['optional_items_note'] . "</p>";
 
-if (is_file( MODX_BASE_PATH . 'assets/cache/store/install/install/setup.data.sql')) {
+if (is_file( EVO_BASE_PATH . 'assets/cache/store/install/install/setup.data.sql')) {
 $chk = isset ($_POST['installdata']) && $_POST['installdata'] == "1" ? 'checked="checked"' : "";
 echo '<img src="/assets/modules/store/installer/img/sample_site.png" class="options" alt="Sample Data" />';
 echo "<h3>" . $_lang['sample_web_site'] . "</h3>";
@@ -135,7 +135,7 @@ if ($limit > 0) {
     </p>
 
 </form>
-<script type="text/javascript" src="<?php echo MODX_SITE_URL;?>assets/modules/store/installer/jquery-1.4.4.min.js"></script>
+<script type="text/javascript" src="<?php echo EVO_SITE_URL;?>assets/modules/store/installer/jquery-1.4.4.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function(){
 

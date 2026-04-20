@@ -23,6 +23,6 @@
 
 $_CM_BASE = 'assets/plugins/codemirror/';
 
-$_CM_URL = MODX_SITE_URL . $_CM_BASE;
+$_CM_URL = EVO_SITE_URL . $_CM_BASE;
 
-require(MODX_BASE_PATH. $_CM_BASE .'codemirror.plugin.php');
+require(EVO_BASE_PATH. $_CM_BASE .'codemirror.plugin.php');

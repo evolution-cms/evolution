@@ -1,8 +1,8 @@
 <?php
 /**
- * EVO Installer
+ * Evolution CMS Installer
  */
-error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED);
+error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 $base_path = dirname(__DIR__) . '/';
 
 if (is_file($base_path . 'assets/cache/siteManager.php')) {
@@ -15,8 +15,11 @@ if (! defined('MGR_DIR')) {
         die('MGR_DIR is not defined');
     }
 }
-if (!defined('MODX_MANAGER_PATH')) {
-    define('MODX_MANAGER_PATH', $base_path . MGR_DIR . '/');
+if (!defined('EVO_MANAGER_PATH')) {
+    define('EVO_MANAGER_PATH', $base_path . MGR_DIR . '/');
+}
+if (!defined('EVO_MANAGER_PATH')) {
+    define('EVO_MANAGER_PATH', EVO_MANAGER_PATH);
 }
 if (! defined('EVO_CORE_PATH')) {
     if (is_dir($base_path . 'core')) {
@@ -28,70 +31,133 @@ if (! defined('EVO_CORE_PATH')) {
 require_once 'src/lang.php';
 require_once 'src/functions.php';
 
-if (empty($_GET['s'])) {
-    require_once '../' . MGR_DIR . '/includes/version.inc.php';
+// Start session
+session_start();
 
-    // start session
-    session_start();
+// Get current IP, session ID, and current time
+$ip = $_SERVER['REMOTE_ADDR'];
+$sid = session_id();
+$current_time = time();
+
+// Get session GC max lifetime
+$maxlifetime = (int) ini_get('session.gc_maxlifetime');
+if ($maxlifetime <= 0) {
+    $maxlifetime = 1440; // Default to 24 minutes if not set
+}
+
+// Define lock file path
+$lockfile = $base_path . 'install.session.php';
+
+if (file_exists("{$base_path}manager/includes/config.inc.php")) { ?>
+    Backup and delete the file `manager/includes/config.inc.php` then <a href="<?= htmlspecialchars($_SERVER['REQUEST_URI'],
+        ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" onclick="location.reload(true)">reload the page</a>
+    <?php exit();
+}
+
+// Ensure cache directory exists
+$cache_dir = EVO_CORE_PATH . 'storage/cache/';
+if (!is_dir($cache_dir)) {
+    mkdir($cache_dir, 0755, true);
+}
+
+if (file_exists($lockfile)) {
+    include $lockfile; // Loads $install_session, $install_ip, $install_timestamp
+
+    if ($sid === $install_session && $ip === $install_ip) {
+        // Update timestamp and rewrite lock file
+        $install_timestamp = $current_time;
+        $content = "<?php\n\$install_session = '" . addslashes($sid) . "';\n\$install_ip = '" . addslashes($ip) . "';\n\$install_timestamp = " . $install_timestamp . ";\n";
+        file_put_contents($lockfile, $content);
+        // Proceed with installation
+    } else {
+        // Check if lock has expired
+        if ($current_time > $install_timestamp + $maxlifetime) {
+            // Expired, remove lock and create new
+            @unlink($lockfile);
+            $content = "<?php\n\$install_session = '" . addslashes($sid) . "';\n\$install_ip = '" . addslashes($ip) . "';\n\$install_timestamp = " . $current_time . ";\n";
+            file_put_contents($lockfile, $content);
+            // Proceed
+        } else {
+            // Block access
+            header('HTTP/1.1 404 Not Found');
+            exit;
+        }
+    }
+} else {
+    // Create new lock file
+    $content = "<?php\n\$install_session = '" . addslashes($sid) . "';\n\$install_ip = '" . addslashes($ip) . "';\n\$install_timestamp = " . $current_time . ";\n";
+    file_put_contents($lockfile, $content);
+    // Proceed
+}
+
+$nonce = csrfNonce();
+header("content-security-policy: default-src 'self' 'nonce-$nonce';"
+    . " script-src 'self' 'nonce-$nonce'; style-src 'self' 'nonce-$nonce';"
+    . " frame-ancestors 'none';");
+
+if (empty($_GET['s'])) {
+    require_once $base_path . MGR_DIR . '/includes/version.inc.php';
+
     $_SESSION['test'] = 1;
     install_sessionCheck();
 
     $moduleName = 'Evolution CMS';
-    $moduleVersion = $modx_branch . ' ' . $modx_version;
-    $moduleRelease = $modx_release_date;
+    $moduleVersion = $evo_branch . ' ' . $evo_version;
+    $moduleRelease = $evo_release_date;
     $moduleSQLBaseFile = 'stubs/sql/setup.sql';
     $moduleSQLDataFile = 'stubs/sql/setup.data.sql';
     $moduleSQLResetFile = 'stubs/sql/setup.data.reset.sql';
 
     // chunks - array : name, description, type - 0:file or 1:content, file or content
-    $moduleChunks = array();
+    $moduleChunks = [];
 
     // templates - array : name, description, type - 0:file or 1:content, file or content
-    $moduleTemplates = array();
+    $moduleTemplates = [];
 
     // snippets - array : name, description, type - 0:file or 1:content, file or content,properties
-    $moduleSnippets = array();
+    $moduleSnippets = [];
 
     // plugins - array : name, description, type - 0:file or 1:content, file or content,properties, events,guid
-    $modulePlugins = array();
+    $modulePlugins = [];
 
     // modules - array : name, description, type - 0:file or 1:content, file or content,properties, guid
-    $moduleModules = array();
+    $moduleModules = [];
 
     // templates - array : name, description, type - 0:file or 1:content, file or content,properties
-    $moduleTemplates = array();
+    $moduleTemplates = [];
 
     // template variables - array : name, description, type - 0:file or 1:content, file or content,properties
-    $moduleTVs = array();
-    $moduleDependencies = array(); // module depedencies - array : module, table, column, type, name
+    $moduleTVs = [];
+    $moduleDependencies = []; // module depedencies - array : module, table, column, type, name
 
     $errors = 0;
 
     // get post back status
     $isPostBack = count($_POST);
 
-    $ph = ph();
+    $ph = ph($_lang, $moduleVersion, $evo_textdir ?? false, $evo_release_date);
     $ph = array_merge($ph, $_lang);
     $ph['install_language'] = $install_language;
 
     ob_start();
-    $action = isset($_GET['action']) ? trim(strip_tags($_GET['action'])) : 'language';
-    str_replace('.', '', $action);
-
-    $controller = 'src/controllers/' . $action . '.php';
+    $action = isset($_GET['action']) ? preg_replace('/[^a-z\/]/', '', $_GET['action']) : 'language';
+    $controller = __DIR__ . '/src/controllers/' . $action . '.php';
     if (! file_exists($controller)) {
         die("Invalid install action attempted. [action={$action}]");
     }
-    require $controller;
+    try {
+        require $controller;
+    } catch (Exception $e) {
+        echo $e->getMessage();
+    }
 
     $ph['content'] = ob_get_contents();
     ob_end_clean();
-    $tpl = file_get_contents('src/template/install.tpl');
+    $tpl = file_get_contents(__DIR__ . '/src/template/install.tpl');
     echo parse($tpl, $ph);
 } else {
-    $action = isset($_GET['action']) && is_scalar($_GET['action']) ? trim($_GET['action']) : 'language';
-    str_replace('.', '', $action);
-    $controller = 'src/controllers/' . $action . '.php';
+    $action = isset($_GET['action']) ? preg_replace('/[^a-z\/]/', '', $_GET['action']) : 'language';
+    $controller = __DIR__ . '/src/controllers/' . $action . '.php';
     if (! file_exists($controller)) {
         die("Invalid install action attempted. [action={$action}]");
     }

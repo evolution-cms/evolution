@@ -1,5 +1,5 @@
 <?php
-
+// step 5
 use EvolutionCMS\Facades\Console;
 
 ini_set('display_errors', 1);
@@ -17,7 +17,6 @@ global $moduleVersion;
 global $moduleSQLBaseFile;
 global $moduleSQLDataFile;
 global $moduleSQLResetFile;
-
 global $moduleChunks;
 global $moduleTemplates;
 global $moduleSnippets;
@@ -25,33 +24,33 @@ global $modulePlugins;
 global $moduleModules;
 global $moduleTVs;
 global $moduleDependencies;
-
 global $errors;
 
 // set timout limit
 @set_time_limit(300); // used @ to prevent warning when using safe mode?
 
 $installMode = (int)$_POST['installmode'];
-$installData = (int)!empty($_POST['installdata']);
+$installData = $_POST['installdata'] == '1' ? 1 : 0;
 
 // get db info from post
-$database_server = $_POST['databasehost'];
-$database_type = $_POST['database_type'];
-$database_user = $_SESSION['databaseloginname'];
-$database_password = $_SESSION['databaseloginpassword'];
-$database_collation = $_POST['database_collation'];
-$database_charset = substr($database_collation, 0, strpos($database_collation, '_'));
-$database_connection_charset = $_POST['database_connection_charset'];
-$database_connection_method = $_POST['database_connection_method'];
-$dbase = '`' . $_POST['database_name'] . '`';
-$adminname = $_POST['cmsadmin'];
-$adminemail = $_POST['cmsadminemail'];
-$adminpass = $_POST['cmspassword'];
-$managerlanguage = $_POST['managerlanguage'];
-$custom_placeholders = array();
+$database_type = validateDbType($_POST['database_type']);
+$database_server = validateDbHost($_POST['databasehost'], $database_type);
+$database_user = $_SESSION['databaseloginname'] ?? '';
+$database_password = $_SESSION['databaseloginpassword'] ?? '';
+$database_collation = validateDbCollation($_POST['database_collation']);
+$database_connection_charset = validateDbCollation($_POST['database_connection_charset']);
+$database_name = validateDbName($_POST['database_name']);
+if ($installMode !== 1) {
+    $adminname = validateAdminUsername($_POST['cmsadmin']);
+    $adminemail = validateAdminEmail($_POST['cmsadminemail']);
+    $adminpass = validateAdminPassword($_POST['cmspassword']);
+    $adminpassconfirm = validateAdminPassword($_POST['cmspasswordconfirm']);
+    $managerlanguage = validateLangCode($_POST['managerlanguage']);
+}
+$custom_placeholders = [];
 
 // set session name variable
-if (!isset ($site_sessionname)) {
+if (!isset($site_sessionname)) {
     $site_sessionname = 'SN' . uniqid('');
 }
 
@@ -76,7 +75,12 @@ $host = explode(':', $database_server, 2);
 
 global $conn;
 try {
-    $dbh = new PDO($_POST['database_type'] . ':host=' . $_POST['databasehost'] . ';dbname=' . $_POST['database_name'], $database_user, $database_password);
+    $pdoOptions = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
+    if ($database_type === 'sqlite') {
+        $dbh = new PDO('sqlite:' . sqliteDbNameToPath($database_name));
+    } else {
+        $dbh = new PDO($database_type . ':host=' . $database_server . ';dbname=' . $database_name, $database_user, $database_password, $pdoOptions);
+    }
 
     include dirname(__DIR__) . '/processor/result.php';
 
@@ -86,29 +90,24 @@ try {
         $installLevel = 1;
     }
     // select database
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
-
     if ($installLevel === 1) {
-        // write the config.inc.php file if new installation
-        $confph = array();
-        $confph['database_server'] = $database_server;
-        $confph['database_type'] = $database_type;
-        $confph['user_name'] = $database_user;
-        $confph['password'] = $database_password;
-        $confph['connection_charset'] = $database_connection_charset;
-        $confph['connection_collation'] = $database_collation;
-        $confph['connection_method'] = $database_connection_method;
-        $confph['dbase'] = str_replace('`', '', $dbase);
-        $confph['table_prefix'] = $_POST['tableprefix'];
+        // write the core/config/database/connections/default.php file if new installation
+        $confph = [];
+        $confph['database_server'] = addslashes($database_server);
+        $confph['database_type'] = addslashes($database_type);
+        $confph['user_name'] = addslashes($database_user);
+        $confph['password'] = addslashes($database_password);
+        $confph['connection_charset'] = addslashes($database_connection_charset);
+        $confph['connection_collation'] = addslashes($database_collation);
+        $confph['database_name'] = addslashes(
+            $database_type === 'sqlite' ? sqliteDbNameToPath($database_name) : $database_name);
+        $confph['table_prefix'] = addslashes($_POST['tableprefix'] ?? '');
         $confph['lastInstallTime'] = time();
-        $confph['site_sessionname'] = $site_sessionname;
+        $confph['site_sessionname'] = addslashes($site_sessionname);
         $confph['database_engine'] = '';
         switch ($database_type) {
             case 'pgsql':
                 $confph['database_port'] = '5432';
-                $confph['connection_charset'] = 'utf8';
                 break;
             case 'mysql':
                 $confph['database_port'] = '3306';
@@ -119,6 +118,9 @@ try {
                     $confph['database_engine'] = ", 'innodb'";
                 }
                 break;
+            case 'sqlite':
+                $confph['database_port'] = '';
+                break;
         }
         $configString = file_get_contents(dirname(__DIR__, 2) . '/stubs/files/config/database/connections/default.tpl');
         $configString = parse($configString, $confph);
@@ -126,7 +128,9 @@ try {
         $filename = EVO_CORE_PATH . 'config/database/connections/default.php';
         $configFileFailed = false;
 
-        @chmod($filename, 0777);
+        if (file_exists($filename)) {
+            @chmod($filename, 0777);
+        }
 
         if (@!$handle = fopen($filename, 'w')) {
             $configFileFailed = true;
@@ -153,10 +157,9 @@ try {
             try {
                 $siteContent = \EvolutionCMS\Models\SiteContent::query()->count();
                 $errors += 1;
-            }catch (PDOException $exception){
+            } catch (PDOException $exception) {
                 $installLevel = 3;
             }
-
         } else {
             $installLevel = 3;
         }
@@ -177,20 +180,29 @@ try {
                 }
             }
         }
-        define('MODX_API_MODE', true);
+        define('EVO_API_MODE', true);
         define('IN_MANAGER_MODE', true);
         define('IN_INSTALL_MODE', true);
-        define('MODX_BASE_PATH', dirname(dirname(dirname(__DIR__))) . '/');
-        define('MODX_SITE_URL', $_SERVER['HTTP_HOST'] . '/');
+        define('EVO_BASE_PATH', dirname(dirname(dirname(__DIR__))) . '/');
+        define('SESSION_COOKIE_NAME', session_name());
+        require_once(EVO_BASE_PATH . 'core/functions/helper.php');
+        require_once(EVO_BASE_PATH . 'core/includes/define.inc.php');
 
-        if (file_exists(MODX_BASE_PATH.'core/storage/bootstrap/services.php')) {
-            unlink(MODX_BASE_PATH.'core/storage/bootstrap/services.php');
+        if (file_exists(EVO_BASE_PATH.'core/storage/bootstrap/services.php')) {
+            unlink(EVO_BASE_PATH.'core/storage/bootstrap/services.php');
         }
 
-        include(MODX_BASE_PATH . '/index.php');
+        include(EVO_BASE_PATH . '/index.php');
 
         if ($installMode != 0 && $database_type == 'pgsql') {
-            $result = \DB::table('migrations_install')->select('id')->orderBy('id', 'DESC')->first();
+            try {
+                $result = \DB::table('migrations_install')->select('id')->orderBy('id', 'DESC')->first();
+            } catch (\PDOException $exception) {
+                $result = null;
+                if (!str_contains($exception->getMessage(), 'SQLSTATE[42P01]')) {
+                    throw $exception;
+                }
+            }
             if (!is_null($result)) {
                 $new_id = $result->id;
                 $new_id++;
@@ -199,12 +211,12 @@ try {
             }
         }
 
-        Console::call('migrate', ['--path' => MODX_BASE_PATH . 'install/stubs/migrations', '--realpath' => true, '--force' => true]);
+        Console::call('migrate', ['--path' => EVO_BASE_PATH . 'install/stubs/migrations', '--realpath' => true, '--force' => true]);
 
         if ($installMode == 0) {
             seed('install');
-            $field = array();
-            $field['password'] = EvolutionCMS()->getPasswordHash()->HashPassword($adminpass);
+            $field = [];
+            $field['password'] = evo()->getPasswordHash()->HashPassword($adminpass);
             $field['username'] = $adminname;
             $managerUser = EvolutionCMS\Models\User::create($field);
             $internalKey = $managerUser->getKey();
@@ -222,7 +234,6 @@ try {
         } else {
             seed('update');
         }
-
         $installLevel = 4;
     }
 
@@ -230,9 +241,7 @@ try {
         // generate new site_id and set manager theme to default
         if ($installMode == 0) {
             $siteid = uniqid('');
-            \EvolutionCMS\Models\SystemSetting::insert([['setting_name' => 'site_id', 'setting_value' => $siteid],
-                ['setting_name' => 'manager_theme', 'setting_value' => 'default']]);
-
+            \EvolutionCMS\Models\SystemSetting::insert([['setting_name' => 'site_id', 'setting_value' => $siteid], ['setting_name' => 'manager_theme', 'setting_value' => 'default']]);
         } else {
             // update site_id if missing
             $siteId = \EvolutionCMS\Models\SystemSetting::where('setting_name', 'site_id')->first();
@@ -257,29 +266,25 @@ try {
         }
     }
 
-    $installDataLevel = array();
+    $installDataLevel = [];
     $errorData = false;
     // Install Templates
-    if ($installLevel === 5 && (isset ($_POST['template']) || $installData)) {
-        $selTemplates = $_POST['template'] ?? [];
+    if ($installLevel === 5 && (isset($_POST['template']) || $installData)) {
+        $selTemplates = array_filter((array)($_POST['template'] ?? []), 'is_numeric');
         foreach ($moduleTemplates as $k => $moduleTemplate) {
             if (!is_array($moduleTemplate)) {
                 continue;
             }
-            $installDataLevel['templates'][$moduleTemplate[0]] = array(
-                'data' => array(
+            $installDataLevel['templates'][$moduleTemplate[0]] = [
+                'data' => [
                     'desc' => $moduleTemplate[1],
                     'category' => $moduleTemplate[4],
                     'locked' => $moduleTemplate[5],
                     'file' => $moduleTemplate[3],
                     'id' => $moduleTemplate[7],
-                ),
+                ],
                 'type' => '', // update, create
-                /*'error' => array(
-                    'type' => '' // sql, file_not_found
-                    'content' => ''
-                )*/
-            );
+            ];
             $installSample = in_array('sample', $moduleTemplate[6]) && $installData === 1;
             if ($installSample || in_array($k, $selTemplates)) {
                 $name = $moduleTemplate[0];
@@ -289,9 +294,7 @@ try {
                 $filecontent = $moduleTemplate[3];
                 $save_sql_id_as = $moduleTemplate[7]; // Nessecary for demo-site
                 if (!file_exists($filecontent)) {
-                    $installDataLevel['templates'][$moduleTemplate[0]]['error'] = array(
-                        'type' => 'file_not_found'
-                    );
+                    $installDataLevel['templates'][$moduleTemplate[0]]['error'] = ['type' => 'file_not_found'];
                 } else {
                     // Create the category if it does not already exist
                     $category_id = getCreateDbCategory($category);
@@ -317,8 +320,7 @@ try {
                         }
                     } else {
                         $installDataLevel['templates'][$moduleTemplate[0]]['type'] = 'create';
-                        $siteTemplate = \EvolutionCMS\Models\SiteTemplate::create(['templatename' => $name, 'description' => $desc,
-                            'content' => $template, 'category' => (int)$category_id, 'locked' => (int)$locked]);
+                        $siteTemplate = \EvolutionCMS\Models\SiteTemplate::create(['templatename' => $name, 'description' => $desc, 'content' => $template, 'category' => (int)$category_id, 'locked' => (int)$locked]);
 
                         if ($save_sql_id_as !== null) {
                             $custom_placeholders[$save_sql_id_as] = $siteTemplate->getKey();
@@ -332,10 +334,10 @@ try {
     }
 
     // Install Template Variables
-    if ($installLevel === 5 && $errorData === false && (isset ($_POST['tv']) || $installData)) {
-        $selTVs = $_POST['tv'] ?? [];
+    if ($installLevel === 5 && $errorData === false && (isset($_POST['tv']) || $installData)) {
+        $selTVs = array_filter((array)($_POST['tv'] ?? []), 'is_numeric');
         foreach ($moduleTVs as $k => $moduleTV) {
-            $templateVariablesData = array(
+            $templateVariablesData = [
                 'name' => $moduleTV[0],
                 'desc' => $moduleTV[2],
                 'caption' => $moduleTV[1],
@@ -348,22 +350,16 @@ try {
                 'output_widget' => $moduleTV[6],
                 'output_widget_params' => $moduleTV[7],
                 'assignments' => $moduleTV[9]
-            );
-            $installDataLevel['tvs'][$moduleTV[0]] = array(
+            ];
+            $installDataLevel['tvs'][$moduleTV[0]] = [
                 'data' => $templateVariablesData,
                 'type' => '', // update, create
-                /*'error' => array(
-                    'type' => '' // sql, file_not_found
-                    'content' => ''
-                )*/
-            );
+            ];
 
             $installSample = in_array('sample', $moduleTV[12]) && $installData == 1;
             if ($installSample || in_array($k, $selTVs)) {
-
                 // Create the category if it does not already exist
                 $templateVariablesData['category'] = getCreateDbCategory($templateVariablesData['category']);
-
                 $templateVariable = \EvolutionCMS\Models\SiteTmplvar::query()->updateOrCreate(['name' => $templateVariablesData['name']], $templateVariablesData);
 
                 // add template assignments
@@ -384,25 +380,21 @@ try {
 
     // Install Chunks
     if ($installLevel === 5 && $errorData === false && (isset ($_POST['chunk']) || $installData)) {
-        $selChunks = $_POST['chunk'] ?? [];
+        $selChunks = array_filter((array)($_POST['chunk'] ?? []), 'is_numeric');
         foreach ($moduleChunks as $k => $moduleChunk) {
             if (!is_array($moduleChunk)) {
                 continue;
             }
-            $installDataLevel['chunks'][$moduleChunk[0]] = array(
-                'data' => array(
+            $installDataLevel['chunks'][$moduleChunk[0]] = [
+                'data' => [
                     'desc' => $moduleChunk[1],
                     'category' => $moduleChunk[3],
                     'overwrite' => $moduleChunk[4],
                     'file' => $moduleChunk[2],
                     'installset' => $moduleChunk[5]
-                ),
+                ],
                 'type' => '', // update, create, overwrite, skip
-                /*'error' => array(
-                    'type' => '' // sql, file_not_found
-                    'content' => ''
-                )*/
-            );
+            ];
             $installSample = in_array('sample', $moduleChunk[5]) && $installData == 1;
             $count_new_name = 0;
             if ($installSample || in_array($k, $selChunks)) {
@@ -413,19 +405,15 @@ try {
                 $filecontent = $moduleChunk[2];
 
                 if (!file_exists($filecontent)) {
-                    $installDataLevel['chunks'][$moduleChunk[0]]['error'] = array(
-                        'type' => 'file_not_found'
-                    );
+                    $installDataLevel['chunks'][$moduleChunk[0]]['error'] = ['type' => 'file_not_found'];
                 } else {
                     // Create the category if it does not already exist
                     $category_id = getCreateDbCategory($category);
-
                     $chunk = preg_replace("/^.*?\/\*\*.*?\*\/\s+/s", '', file_get_contents($filecontent), 1);
                     $chunkRecordOld = \EvolutionCMS\Models\SiteHtmlsnippet::query()->where('name', $name);
                     $count_original_name = $chunkRecordOld->count();
                     if ($overwrite == 'false') {
-                        $newname = $name . '-' . str_replace('.', '_', $modx_version);
-
+                        $newname = $name . '-' . str_replace('.', '_', $evo_version);
                         $chunkRecord = \EvolutionCMS\Models\SiteHtmlsnippet::query()->where('name', $newname);
                         $count_new_name = $chunkRecord->count();
                     }
@@ -436,7 +424,6 @@ try {
                         $chunkRecordOld->description = $desc;
                         $chunkRecordOld->category = $category_id;
                         $chunkRecordOld->save();
-
                     } elseif ($count_new_name == 0) {
                         if ($count_original_name > 0 && $overwrite == 'false') {
                             $installDataLevel['chunks'][$moduleChunk[0]]['type'] = 'overwrite';
@@ -446,38 +433,32 @@ try {
                             $installDataLevel['chunks'][$moduleChunk[0]]['type'] = 'create';
                         }
                         \EvolutionCMS\Models\SiteHtmlsnippet::insert(['name' => $name, 'description' => $desc, 'snippet' => $chunk, 'category' => $category_id]);
-
                     }
                 }
             } else {
                 $installDataLevel['chunks'][$moduleChunk[0]]['type'] = 'skip';
             }
         }
-
     }
 
     // Install Modules
     if ($installLevel === 5 && $errorData === false && (isset ($_POST['module']) || $installData)) {
-        $selModules = $_POST['module'] ?? [];
+        $selModules = array_filter((array)($_POST['module'] ?? []), 'is_numeric');
         foreach ($moduleModules as $k => $moduleModule) {
             if (!is_array($moduleModule)) {
                 continue;
             }
-            $installDataLevel['modules'][$moduleModule[0]] = array(
-                'data' => array(
+            $installDataLevel['modules'][$moduleModule[0]] = [
+                'data' => [
                     'desc' => $moduleModule[1],
                     'category' => $moduleModule[6],
                     'file' => $moduleModule[2],
                     'guid' => $moduleModule[4],
                     'props' => $moduleModule[3],
                     'shared' => $moduleModule[5],
-                ),
+                ],
                 'type' => '', // update, create
-                /*'error' => array(
-                    'type' => '' // sql, file_not_found
-                    'content' => ''
-                )*/
-            );
+            ];
             $installSample = in_array('sample', $moduleModule[7]) && $installData == 1;
             if ($installSample || in_array($k, $selModules)) {
                 $name = $moduleModule[0];
@@ -488,13 +469,12 @@ try {
                 $shared = $moduleModule[5];
                 $category = $moduleModule[6];
                 if (!file_exists($filecontent)) {
-                    $installDataLevel['modules'][$moduleModule[0]]['error'] = array(
+                    $installDataLevel['modules'][$moduleModule[0]]['error'] = [
                         'type' => 'file_not_found'
-                    );
+                    ];
                 } else {
                     // Create the category if it does not already exist
                     $category = getCreateDbCategory($category);
-
                     $array = preg_split("/(\/\/)?\s*\<\?php/", file_get_contents($filecontent), 2);
                     $module = end($array);
                     // $module = removeDocblock($module, 'module'); // Modules have no fileBinding, keep docblock for info-tab
@@ -509,7 +489,6 @@ try {
                         $moduleRecord->description = $desc;
                         $moduleRecord->enable_sharedparams = (int)$shared;
                         $moduleRecord->save();
-
                     } else {
                         $installDataLevel['modules'][$moduleModule[0]]['type'] = 'create';
                         $properties = parseProperties($properties, true);
@@ -525,13 +504,13 @@ try {
     }
     // Install Plugins
     if ($installLevel === 5 && $errorData === false && (isset ($_POST['plugin']) || $installData)) {
-        $selPlugs = $_POST['plugin'] ?? [];
+        $selPlugs = array_filter((array)($_POST['plugin'] ?? []), 'is_numeric');
         foreach ($modulePlugins as $k => $modulePlugin) {
             if (!is_array($modulePlugin)) {
                 continue;
             }
-            $installDataLevel['plugins'][$modulePlugin[0]] = array(
-                'data' => array(
+            $installDataLevel['plugins'][$modulePlugin[0]] = [
+                'data' => [
                     'desc' => $modulePlugin[1],
                     'file' => $modulePlugin[2],
                     'category' => $modulePlugin[6],
@@ -539,13 +518,9 @@ try {
                     'disabled' => $modulePlugin[9],
                     'events' => explode(',', $modulePlugin[4]),
                     'props' => $modulePlugin[3]
-                ),
+                ],
                 'type' => '', // update, create
-                /*'error' => array(
-                    'type' => '' // sql, file_not_found
-                    'content' => ''
-                )*/
-            );
+            ];
 
             $installSample = is_array($modulePlugin[8]) && in_array('sample', $modulePlugin[8]) && $installData == 1;
 
@@ -565,20 +540,17 @@ try {
                     $leg_names = preg_split('/\s*,\s*/', $modulePlugin[7]);
                 }
                 if (!file_exists($filecontent)) {
-                    $installDataLevel['plugins'][$modulePlugin[0]]['error'] = array(
+                    $installDataLevel['plugins'][$modulePlugin[0]]['error'] = [
                         'type' => 'file_not_found'
-                    );
+                    ];
                 } else {
-
                     // disable legacy versions based on legacy_names provided
                     if (!empty($leg_names)) {
                         \EvolutionCMS\Models\SitePlugin::query()->whereIn('name', $leg_names)->update(['disabled' => 1]);
-
                     }
 
                     // Create the category if it does not already exist
                     $category = getCreateDbCategory($category);
-
                     $array1 = preg_split("/(\/\/)?\s*\<\?php/", file_get_contents($filecontent), 2);
                     $plugin = end($array1);
                     $plugin = removeDocblock($plugin, 'plugin');
@@ -590,19 +562,16 @@ try {
                         $insert = true;
                         $pluginRecords = $pluginRecords->get();
                         foreach ($pluginRecords as $pluginRecord) {
-
                             $props = propUpdate($properties, $pluginRecord->properties);
                             if ($pluginRecord->description == $desc) {
                                 $pluginRecord->plugincode = $plugin;
                                 $pluginRecord->description = $desc;
                                 $pluginRecord->properties = $props;
                                 $pluginRecord->save();
-
                                 $insert = false;
                             } else {
                                 $pluginRecord->disabled = 1;
                                 $pluginRecord->save();
-
                             }
                             $prev_id = $pluginRecord->getKey();
                         }
@@ -611,10 +580,8 @@ try {
                         }
                     } else {
                         $installDataLevel['plugins'][$modulePlugin[0]]['type'] = 'create';
-
                         $properties = parseProperties($properties, true);
                         \EvolutionCMS\Models\SitePlugin::create(['name' => $name, 'description' => $desc, 'plugincode' => $plugin, 'properties' => $properties, 'moduleguid' => $guid, 'disabled' => $disabled, 'category' => $category]);
-
                     }
                     // add system events
                     if (count($events) > 0) {
@@ -631,7 +598,8 @@ try {
                                     if ($prev_id) {
                                         $pluginEvent = \EvolutionCMS\Models\SitePluginEvent::query()
                                             ->where('pluginid', $prev_id)
-                                            ->where('evtid', $eventName->getKey())->first();
+                                            ->where('evtid', $eventName->getKey())
+                                            ->first();
                                         if (!is_null($pluginEvent)) {
                                             $prev_priority = $pluginEvent->priority;
                                         }
@@ -639,7 +607,8 @@ try {
                                     if (is_null($prev_priority)) {
                                         $pluginEvent = \EvolutionCMS\Models\SitePluginEvent::query()
                                             ->where('evtid', $eventName->getKey())
-                                            ->orderBy('priority', 'DESC')->first();
+                                            ->orderBy('priority', 'DESC')
+                                            ->first();
                                         if (!is_null($pluginEvent)) {
                                             $prev_priority = $pluginEvent->priority;
                                             $prev_priority++;
@@ -649,8 +618,7 @@ try {
                                         $prev_priority = 0;
                                     }
                                     $arrInsert = ['pluginid' => $id, 'evtid' => $eventName->getKey(), 'priority' => $prev_priority];
-                                    \EvolutionCMS\Models\SitePluginEvent::query()
-                                        ->firstOrCreate($arrInsert);
+                                    \EvolutionCMS\Models\SitePluginEvent::query()->firstOrCreate($arrInsert);
                                 }
                             }
 
@@ -660,8 +628,8 @@ try {
                                     ->whereIn('name', $events);
                             })
                                 ->whereNull('name')
-                                ->where('pluginid', $id)->delete();
-
+                                ->where('pluginid', $id)
+                                ->delete();
                         }
                     }
                 }
@@ -671,27 +639,22 @@ try {
         }
     }
 
-
     // Install Snippets
     if ($installLevel === 5 && $errorData === false && (isset ($_POST['snippet']) || $installData)) {
-        $selSnips = $_POST['snippet'] ?? [];
+        $selSnips = array_filter((array)($_POST['snippet'] ?? []), 'is_numeric');
         foreach ($moduleSnippets as $k => $moduleSnippet) {
             if (!is_array($moduleSnippet)) {
                 continue;
             }
-            $installDataLevel['snippets'][$moduleSnippet[0]] = array(
-                'data' => array(
+            $installDataLevel['snippets'][$moduleSnippet[0]] = [
+                'data' => [
                     'desc' => $moduleSnippet[1],
                     'category' => $moduleSnippet[4],
                     'props' => $moduleSnippet[3],
                     'file' => $moduleSnippet[2]
-                ),
+                ],
                 'type' => '', // update, create, skip
-                /*'error' => array(
-                    'type' => '' // sql, file_not_found
-                    'content' => ''
-                )*/
-            );
+            ];
             $installSample = in_array('sample', $moduleSnippet[5]) && $installData == 1;
             if ($installSample || in_array($k, $selSnips)) {
                 $name = $moduleSnippet[0];
@@ -700,13 +663,12 @@ try {
                 $properties = $moduleSnippet[3];
                 $category = $moduleSnippet[4];
                 if (!file_exists($filecontent)) {
-                    $installDataLevel['snippets'][$moduleSnippet[0]]['error'] = array(
+                    $installDataLevel['snippets'][$moduleSnippet[0]]['error'] = [
                         'type' => 'file_not_found'
-                    );
+                    ];
                 } else {
                     // Create the category if it does not already exist
                     $category = getCreateDbCategory($category);
-
                     $array2 = preg_split("/(\/\/)?\s*\<\?php/", file_get_contents($filecontent));
                     $snippet = end($array2);
                     $snippet = removeDocblock($snippet, 'snippet');
@@ -716,18 +678,15 @@ try {
                         $snippetRecord = $snippetRecord->first();
                         $installDataLevel['snippets'][$moduleSnippet[0]]['type'] = 'update';
 
-                        $props = propUpdate($properties, $row['properties']);
+                        $props = propUpdate($properties, $snippetRecord->properties);
                         $snippetRecord->snippet = $snippet;
-                        $snippetRecord->description = $props;
-                        $snippetRecord->properties = $name;
+                        $snippetRecord->description = $desc;
+                        $snippetRecord->properties = $props;
                         $snippetRecord->save();
-
                     } else {
                         $installDataLevel['snippets'][$moduleSnippet[0]]['type'] = 'create';
                         $properties = parseProperties($properties, true);
-                        \EvolutionCMS\Models\SiteSnippet::create(['name' => $name, 'description' => $desc, 'snippet' => $snippet,
-                            'properties' => $properties, 'category' => (int)$category]);
-
+                        \EvolutionCMS\Models\SiteSnippet::create(['name' => $name, 'description' => $desc, 'snippet' => $snippet, 'properties' => $properties, 'category' => (int)$category]);
                     }
                 }
             } else {
@@ -738,28 +697,28 @@ try {
 
     // Install demo-site
     if ($installLevel === 5 && $errorData === false && ($installData && $moduleSQLDataFile)) {
-        $installDataLevel['demo'] = array();
+        $installDataLevel['demo'] = [];
         $sqlParser->process($moduleSQLDataFile);
         // display database results
         if ($sqlParser->installFailed === true) {
             $errors += 1;
             $sqlErrors = count($sqlParser->mysqlErrors);
-            $installDataLevel['demo']['error'] = array();
+            $installDataLevel['demo']['error'] = [];
             for ($i = 0; $i < $sqlErrors; $i++) {
-                $installDataLevel['demo']['error'][] = array(
+                $installDataLevel['demo']['error'][] = [
                     'content' => $sqlParser->mysqlErrors[$i]['error'],
                     'sql' => $sqlParser->mysqlErrors[$i]['sql']
-                );
+                ];
             }
             $errorData = true;
         } else {
             $installLevel = 6;
             $sql = "SELECT id FROM `" . table_prefix('site_templates') . "` WHERE templatename='Evolution CMS startup - Bootstrap'";
-            $rs = mysqli_query($sqlParser->conn, $sql);
-            if (mysqli_num_rows($rs)) {
-                $row = mysqli_fetch_assoc($rs);
+            $stmt = $sqlParser->conn->query($sql);
+            if ($stmt->rowCount()) {
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
                 $sql = "UPDATE `" . table_prefix('site_content') . "` SET template=" . (int)$row['id'] . " WHERE template=4";
-                mysqli_query($sqlParser->conn, $sql);
+                $sqlParser->conn->exec($sql);
             }
         }
     }
@@ -770,28 +729,16 @@ try {
 
     $errorInstall = false;
     if ($installLevel === 6) {
-        $installDependencyLevel = array();
+        $installDependencyLevel = [];
 
         // Install Dependencies
         foreach ($moduleDependencies as $dependency) {
-            $installDependencyLevel[$dependency['module']] = array(
-                // 'type' => '' //create, update
-                /*'error' => array(
-                    'type' => 'sql',
-                    'content' => ''
-                )*/
-                /*'extra' => array(
-                    'type' => '', //error, done
-                    'content' => '' //dependency name or error message
-                )*/
-            );
+            $installDependencyLevel[$dependency['module']] = [];
             $modules = \EvolutionCMS\Models\SiteModule::where('name', $dependency['module'])->first();
-
             $moduleId = $modules->id;
             $moduleGuid = $modules->guid;
             // get extra id
             $dependencyRecord = \DB('site_' . $dependency['table'])->where($dependency['column'], $dependency['name'])->first();
-
             $extraId = $dependencyRecord->getKey();
             $moduleDependenciesRecord = \EvolutionCMS\Models\SiteModuleDepobj::query()
                 ->where('module', (int)$moduleId)
@@ -800,16 +747,13 @@ try {
             // setup extra as module dependency
 
             if (is_null($moduleDependenciesRecord)) {
-                $moduleDependenciesRecord = \EvolutionCMS\Models\SiteModuleDepobj::create(['module' => (int)$moduleId,
-                    'resource' => (int)$extraId, 'type' => (int)$dependency['type']]);
-
+                $moduleDependenciesRecord = \EvolutionCMS\Models\SiteModuleDepobj::create(['module' => (int)$moduleId, 'resource' => (int)$extraId, 'type' => (int)$dependency['type']]);
                 $installDependencyLevel[$dependency['module']]['type'] = 'create';
             } else {
                 $moduleDependenciesRecord->module = (int)$moduleId;
                 $moduleDependenciesRecord->resource = (int)$extraId;
                 $moduleDependenciesRecord->type = (int)$dependency['type'];
                 $moduleDependenciesRecord->save();
-
                 $installDependencyLevel[$dependency['module']]['type'] = 'update';
             }
             if ($dependency['type'] == 30 || $dependency['type'] == 40) {
@@ -828,21 +772,34 @@ try {
     }
 
     if ($installLevel === 7) {
-        if (file_exists(MODX_BASE_PATH.'assets/cache/installProc.inc.php')) {
-            @chmod(MODX_BASE_PATH.'assets/cache/installProc.inc.php', 0755);
-            unlink(MODX_BASE_PATH.'assets/cache/installProc.inc.php');
+        if (file_exists(EVO_BASE_PATH.'assets/cache/installProc.inc.php')) {
+            unlink(EVO_BASE_PATH.'assets/cache/installProc.inc.php');
+        }
+        if (file_exists($base_path.'install.session.php')) {
+            unlink($base_path.'install.session.php');
+        }
+        $bootstrapDir = EVO_STORAGE_PATH . 'bootstrap/';
+        $siteCacheFile = $bootstrapDir . 'siteCache.idx.php';
+        if (file_exists($siteCacheFile)) {
+            unlink($siteCacheFile);
+        }
+        $sitePublishingFile = $bootstrapDir . 'sitePublishing.idx.php';
+        if (file_exists($sitePublishingFile)) {
+            unlink($sitePublishingFile);
         }
         file_put_contents(EVO_CORE_PATH . '.install', time());
     }
 
 } catch (PDOException $e) {
-    if (!stristr($e->getMessage(), 'database "' . $_POST['database_name'] . '" does not exist') && !stristr($e->getMessage(), 'Unknown database \'' . $_POST['database_name'] . '\'')) {
-        echo $output . '<span id="database_fail" style="color:#FF0000;">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
+    if (!stristr($e->getMessage(), 'database "' . $database_name . '" does not exist') &&
+        !stristr($e->getMessage(), 'Unknown database \'' . $database_name . '\'')) {
+        echo ($output ?? '') . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
         exit();
     }
 }
 include_once dirname(__DIR__) . '/template/actions/install.php';
 
-function table_prefix($table_name = '') {
-    return $_POST['tableprefix'] . $table_name;
+function table_prefix($table_name = ''): string {
+    $table_prefix = validateTablePrefix($_POST['table_prefix'] ?? \DB::getTablePrefix());
+    return $table_prefix . $table_name;
 }

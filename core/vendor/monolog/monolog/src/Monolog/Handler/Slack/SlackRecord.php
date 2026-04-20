@@ -86,7 +86,7 @@ class SlackRecord
         bool $useShortAttachment = false,
         bool $includeContextAndExtra = false,
         array $excludeFields = [],
-        FormatterInterface $formatter = null
+        FormatterInterface|null $formatter = null
     ) {
         $this
             ->setChannel($channel)
@@ -206,7 +206,7 @@ class SlackRecord
      */
     public function stringify(array $fields): string
     {
-        /** @var array<mixed> $normalized */
+        /** @var array<array<mixed>|bool|float|int|string|null> $normalized */
         $normalized = $this->normalizerFormatter->normalizeValue($fields);
 
         $hasSecondDimension = \count(array_filter($normalized, 'is_array')) > 0;
@@ -220,9 +220,8 @@ class SlackRecord
     /**
      * Channel used by the bot when posting
      *
-     * @param ?string $channel
-     *
-     * @return static
+     * @param  ?string $channel
+     * @return $this
      */
     public function setChannel(?string $channel = null): self
     {
@@ -234,9 +233,8 @@ class SlackRecord
     /**
      * Username used by the bot when posting
      *
-     * @param ?string $username
-     *
-     * @return static
+     * @param  ?string $username
+     * @return $this
      */
     public function setUsername(?string $username = null): self
     {
@@ -245,6 +243,9 @@ class SlackRecord
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function useAttachment(bool $useAttachment = true): self
     {
         $this->useAttachment = $useAttachment;
@@ -252,6 +253,9 @@ class SlackRecord
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function setUserIcon(?string $userIcon = null): self
     {
         $this->userIcon = $userIcon;
@@ -263,6 +267,9 @@ class SlackRecord
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function useShortAttachment(bool $useShortAttachment = false): self
     {
         $this->useShortAttachment = $useShortAttachment;
@@ -270,6 +277,9 @@ class SlackRecord
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function includeContextAndExtra(bool $includeContextAndExtra = false): self
     {
         $this->includeContextAndExtra = $includeContextAndExtra;
@@ -282,7 +292,8 @@ class SlackRecord
     }
 
     /**
-     * @param string[] $excludeFields
+     * @param  string[] $excludeFields
+     * @return $this
      */
     public function excludeFields(array $excludeFields = []): self
     {
@@ -291,6 +302,9 @@ class SlackRecord
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function setFormatter(?FormatterInterface $formatter = null): self
     {
         $this->formatter = $formatter;
@@ -307,7 +321,7 @@ class SlackRecord
      */
     private function generateAttachmentField(string $title, $value): array
     {
-        $value = is_array($value)
+        $value = \is_array($value)
             ? sprintf('```%s```', substr($this->stringify($value), 0, 1990))
             : $value;
 
@@ -327,7 +341,7 @@ class SlackRecord
      */
     private function generateAttachmentFields(array $data): array
     {
-        /** @var array<mixed> $normalized */
+        /** @var array<array<mixed>|string> $normalized */
         $normalized = $this->normalizerFormatter->normalizeValue($data);
 
         $fields = [];

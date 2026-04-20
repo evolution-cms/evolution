@@ -4,7 +4,7 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true) {
 }
 
 // get the settings from the database.
-$settings = array();
+$settings = [];
 if ($modx && count(EvolutionCMS()->config) > 0) {
     $settings = EvolutionCMS()->config;
 } else {

@@ -24,6 +24,8 @@ class DataSetPager implements DataSetPagerInterface
     // normal page
     public $pageStyle;
     public $pageClass;
+    public $cssStyle;
+    public $cssClass;
 
     // selected page
     public $selPageStyle;
@@ -101,7 +103,7 @@ class DataSetPager implements DataSetPagerInterface
 
     public function render()
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         global $_PAGE;
 
         $isDataset = $this->ds instanceof \Illuminate\Database\Eloquent\Builder;

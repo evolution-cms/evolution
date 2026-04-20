@@ -16,4 +16,4 @@
  * @internal    @installset base, sample
  */
 
-require MODX_BASE_PATH.'assets/plugins/transalias/plugin.transalias.php';
+require EVO_BASE_PATH.'assets/plugins/transalias/plugin.transalias.php';

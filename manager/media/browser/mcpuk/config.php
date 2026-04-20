@@ -17,7 +17,7 @@
 // See http://kcfinder.sunhater.com/install for setting descriptions
 
 $modx = evolutionCMS();
-$_CONFIG = array(
+$_CONFIG = [
     'disabled' => false,
     'denyZipDownload' => EvolutionCMS()->getConfig('denyZipDownload'),
     'denyExtensionRename' => EvolutionCMS()->getConfig('denyExtensionRename'),
@@ -25,33 +25,33 @@ $_CONFIG = array(
     'theme' => "evo",
     'uploadURL'           => rtrim(EvolutionCMS()->getConfig('rb_base_url'), '/'),
     'uploadDir'           => rtrim(EvolutionCMS()->getConfig('rb_base_dir'), '/'),
-    'siteURL' => MODX_SITE_URL,
+    'siteURL'             => EVO_SITE_URL,
     'assetsURL'           => rtrim(EvolutionCMS()->getConfig('rb_base_url'), '/'),
     'dirPerms'            => intval(EvolutionCMS()->getConfig('new_folder_permissions'), 8),
     'filePerms'           => intval(EvolutionCMS()->getConfig('new_file_permissions'), 8),
     'maxfilesize'         => (int)EvolutionCMS()->getConfig('upload_maxsize'),
     'noThumbnailsRecreation' => EvolutionCMS()->getConfig('noThumbnailsRecreation'),
 
-    'access' => array(
+    'access' => [
 
-        'files' => array(
+        'files' => [
             'upload' => true,
             'delete' => true,
             'copy' => true,
             'move' => true,
             'rename' => true
-        ),
+        ],
 
-        'dirs' => array(
+        'dirs' => [
             'create' => true,
             'delete' => true,
             'rename' => true
-        )
-    ),
+        ]
+    ],
 
     'deniedExts' => "exe com msi bat php phps phtml php3 php4 cgi pl",
 
-    'types' => array(
+    'types' => [
 
         // CKEditor & FCKEditor types
         'files'  => str_replace(',', ' ', EvolutionCMS()->getConfig('upload_files')),
@@ -61,19 +61,19 @@ $_CONFIG = array(
         'file'   => str_replace(',', ' ', EvolutionCMS()->getConfig('upload_files')),
         'media'  => str_replace(',', ' ', EvolutionCMS()->getConfig('upload_media')),
         'image'  => str_replace(',', ' ', EvolutionCMS()->getConfig('upload_images')),
-    ),
-    'dirnameChangeChars' => array(
+    ],
+    'dirnameChangeChars' => [
         ' ' => "_",
         ':' => "."
-    ),
+    ],
     'mime_magic' => "",
 
     'maxImageWidth' => EvolutionCMS()->getConfig('maxImageWidth'),
     'maxImageHeight' => EvolutionCMS()->getConfig('maxImageHeight'),
-    'clientResize'   => EvolutionCMS()->getConfig('clientResize') && EvolutionCMS()->getConfig('maxImageWidth') && EvolutionCMS()->getConfig('maxImageHeight') ? array('maxWidth'  => EvolutionCMS()->getConfig('maxImageWidth'),
+    'clientResize'   => EvolutionCMS()->getConfig('clientResize') && EvolutionCMS()->getConfig('maxImageWidth') && EvolutionCMS()->getConfig('maxImageHeight') ? ['maxWidth'  => EvolutionCMS()->getConfig('maxImageWidth'),
                                                                                                                                             'maxHeight' => EvolutionCMS()->getConfig('maxImageHeight'),
                                                                                                                                             'quality'   => EvolutionCMS()->getConfig('jpegQuality') / 100
-    ) : array(),
+    ] : [],
 
     'thumbWidth' => EvolutionCMS()->getConfig('thumbWidth'),
     'thumbHeight' => EvolutionCMS()->getConfig('thumbHeight'),
@@ -87,7 +87,7 @@ $_CONFIG = array(
 
     // THE FOLLOWING SETTINGS CANNOT BE OVERRIDED WITH SESSION CONFIGURATION
     '_check4htaccess' => false,
-    '_tinyMCEPath' => MODX_BASE_URL . "assets/plugins/tinymce/tiny_mce",
+    '_tinyMCEPath' => EVO_BASE_URL . "assets/plugins/tinymce/tiny_mce",
 
     '_sessionVar' => &$_SESSION['KCFINDER'],
     //'_sessionLifetime' => 30,
@@ -95,7 +95,7 @@ $_CONFIG = array(
 
     //'_sessionDomain' => ".mysite.com",
     //'_sessionPath' => "/my/path",
-);
+];
 
 EvolutionCMS()->invokeEvent('OnFileBrowserInit', [
     'config' => &$_CONFIG,

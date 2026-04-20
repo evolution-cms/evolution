@@ -166,7 +166,7 @@ class Logger implements LoggerInterface, ResettableInterface
 
     /**
      * @param string             $name       The logging channel, a simple descriptive name that is attached to all log records
-     * @param HandlerInterface[] $handlers   Optional stack of handlers, the first one in the array is called first, etc.
+     * @param list<HandlerInterface> $handlers   Optional stack of handlers, the first one in the array is called first, etc.
      * @param callable[]         $processors Optional array of processors
      * @param DateTimeZone|null  $timezone   Optional timezone, if not provided date_default_timezone_get() will be used
      *
@@ -188,6 +188,8 @@ class Logger implements LoggerInterface, ResettableInterface
 
     /**
      * Return a new cloned instance with the name changed
+     *
+     * @return static
      */
     public function withName(string $name): self
     {
@@ -199,6 +201,8 @@ class Logger implements LoggerInterface, ResettableInterface
 
     /**
      * Pushes a handler on to the stack.
+     *
+     * @return $this
      */
     public function pushHandler(HandlerInterface $handler): self
     {
@@ -226,7 +230,8 @@ class Logger implements LoggerInterface, ResettableInterface
      *
      * If a map is passed, keys will be ignored.
      *
-     * @param list<HandlerInterface> $handlers
+     * @param  list<HandlerInterface> $handlers
+     * @return $this
      */
     public function setHandlers(array $handlers): self
     {
@@ -250,6 +255,7 @@ class Logger implements LoggerInterface, ResettableInterface
      * Adds a processor on to the stack.
      *
      * @phpstan-param ProcessorInterface|(callable(LogRecord): LogRecord) $callback
+     * @return $this
      */
     public function pushProcessor(ProcessorInterface|callable $callback): self
     {
@@ -291,7 +297,8 @@ class Logger implements LoggerInterface, ResettableInterface
      * by default. This function lets you disable them though in case you want
      * to suppress microseconds from the output.
      *
-     * @param bool $micro True to use microtime() to create timestamps
+     * @param  bool  $micro True to use microtime() to create timestamps
+     * @return $this
      */
     public function useMicrosecondTimestamps(bool $micro): self
     {
@@ -300,6 +307,9 @@ class Logger implements LoggerInterface, ResettableInterface
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function useLoggingLoopDetection(bool $detectCycles): self
     {
         $this->detectCycles = $detectCycles;
@@ -310,17 +320,18 @@ class Logger implements LoggerInterface, ResettableInterface
     /**
      * Adds a log record.
      *
-     * @param  int               $level    The logging level (a Monolog or RFC 5424 level)
-     * @param  string            $message  The log message
-     * @param  mixed[]           $context  The log context
-     * @param  DateTimeImmutable $datetime Optional log date to log into the past or future
-     * @return bool              Whether the record has been processed
+     * @param  int                    $level    The logging level (a Monolog or RFC 5424 level)
+     * @param  string                 $message  The log message
+     * @param  mixed[]                $context  The log context
+     * @param  JsonSerializableDateTimeImmutable|null $datetime Optional log date to log into the past or future
+     *
+     * @return bool                   Whether the record has been processed
      *
      * @phpstan-param value-of<Level::VALUES>|Level $level
      */
-    public function addRecord(int|Level $level, string $message, array $context = [], DateTimeImmutable $datetime = null): bool
+    public function addRecord(int|Level $level, string $message, array $context = [], JsonSerializableDateTimeImmutable|null $datetime = null): bool
     {
-        if (is_int($level) && isset(self::RFC_5424_LEVELS[$level])) {
+        if (\is_int($level) && isset(self::RFC_5424_LEVELS[$level])) {
             $level = self::RFC_5424_LEVELS[$level];
         }
 
@@ -336,20 +347,21 @@ class Logger implements LoggerInterface, ResettableInterface
 
         if ($logDepth === 3) {
             $this->warning('A possible infinite logging loop was detected and aborted. It appears some of your handler code is triggering logging, see the previous log record for a hint as to what may be the cause.');
+
             return false;
         } elseif ($logDepth >= 5) { // log depth 4 is let through, so we can log the warning above
             return false;
         }
 
         try {
-            $recordInitialized = count($this->processors) === 0;
+            $recordInitialized = \count($this->processors) === 0;
 
             $record = new LogRecord(
+                datetime: $datetime ?? new JsonSerializableDateTimeImmutable($this->microsecondTimestamps, $this->timezone),
+                channel: $this->name,
+                level: self::toMonologLevel($level),
                 message: $message,
                 context: $context,
-                level: self::toMonologLevel($level),
-                channel: $this->name,
-                datetime: $datetime ?? new DateTimeImmutable($this->microsecondTimestamps, $this->timezone),
                 extra: [],
             );
             $handled = false;
@@ -376,7 +388,7 @@ class Logger implements LoggerInterface, ResettableInterface
                 // once the record is initialized, send it to all handlers as long as the bubbling chain is not interrupted
                 try {
                     $handled = true;
-                    if (true === $handler->handle($record)) {
+                    if (true === $handler->handle(clone $record)) {
                         break;
                     }
                 } catch (Throwable $e) {
@@ -460,8 +472,8 @@ class Logger implements LoggerInterface, ResettableInterface
     /**
      * Converts PSR-3 levels to Monolog ones if necessary
      *
-     * @param  int|string|Level|LogLevel::* $level Level number (monolog) or name (PSR-3)
-     * @throws \Psr\Log\InvalidArgumentException      If level is not defined
+     * @param  int|string|Level|LogLevel::*      $level Level number (monolog) or name (PSR-3)
+     * @throws \Psr\Log\InvalidArgumentException If level is not defined
      *
      * @phpstan-param value-of<Level::VALUES>|value-of<Level::NAMES>|Level|LogLevel::* $level
      */
@@ -472,7 +484,7 @@ class Logger implements LoggerInterface, ResettableInterface
         }
 
         if (\is_string($level)) {
-            if (\is_numeric($level)) {
+            if (is_numeric($level)) {
                 $levelEnum = Level::tryFrom((int) $level);
                 if ($levelEnum === null) {
                     throw new InvalidArgumentException('Level "'.$level.'" is not defined, use one of: '.implode(', ', Level::NAMES + Level::VALUES));
@@ -484,8 +496,8 @@ class Logger implements LoggerInterface, ResettableInterface
             // Contains first char of all log levels and avoids using strtoupper() which may have
             // strange results depending on locale (for example, "i" will become "İ" in Turkish locale)
             $upper = strtr(substr($level, 0, 1), 'dinweca', 'DINWECA') . strtolower(substr($level, 1));
-            if (defined(Level::class.'::'.$upper)) {
-                return constant(Level::class . '::' . $upper);
+            if (\defined(Level::class.'::'.$upper)) {
+                return \constant(Level::class . '::' . $upper);
             }
 
             throw new InvalidArgumentException('Level "'.$level.'" is not defined, use one of: '.implode(', ', Level::NAMES + Level::VALUES));
@@ -507,7 +519,7 @@ class Logger implements LoggerInterface, ResettableInterface
     public function isHandling(int|string|Level $level): bool
     {
         $record = new LogRecord(
-            datetime: new DateTimeImmutable($this->microsecondTimestamps, $this->timezone),
+            datetime: new JsonSerializableDateTimeImmutable($this->microsecondTimestamps, $this->timezone),
             channel: $this->name,
             message: '',
             level: self::toMonologLevel($level),
@@ -526,6 +538,8 @@ class Logger implements LoggerInterface, ResettableInterface
      * Set a custom exception handler that will be called if adding a new record fails
      *
      * The Closure will receive an exception object and the record that failed to be logged
+     *
+     * @return $this
      */
     public function setExceptionHandler(Closure|null $callback): self
     {
@@ -553,7 +567,7 @@ class Logger implements LoggerInterface, ResettableInterface
     public function log($level, string|\Stringable $message, array $context = []): void
     {
         if (!$level instanceof Level) {
-            if (!is_string($level) && !is_int($level)) {
+            if (!\is_string($level) && !\is_int($level)) {
                 throw new \InvalidArgumentException('$level is expected to be a string, int or '.Level::class.' instance');
             }
 
@@ -673,6 +687,8 @@ class Logger implements LoggerInterface, ResettableInterface
 
     /**
      * Sets the timezone to be used for the timestamp of log records.
+     *
+     * @return $this
      */
     public function setTimezone(DateTimeZone $tz): self
     {

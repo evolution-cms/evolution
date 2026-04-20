@@ -52,7 +52,6 @@ $_lang["checking_table_prefix"] = 'Kontrollerer database tabellernes præfiks `'
 $_lang["chunks"] = 'Chunks';
 $_lang["config_permissions_note"] = 'Ved nyinstallation under Linux eller Unix, skal du oprette en tom fil, med navnet <span class="mono">config.inc.php</span> i <span class="mono">/'.MGR_DIR.'/includes/</span> mappen, med filrettighederne indstillet til 0666.';
 $_lang["connection_screen_collation"] = 'Collation:';
-$_lang["connection_screen_connection_method"] = 'Connection\'s metode:';
 $_lang["connection_screen_database_connection_information"] = 'Database information';
 $_lang["connection_screen_database_connection_note"] = 'Indtast navnet på databasen der skal bruges, eller som der skal oprettes til denne MODx installation. Hvis der ikke er oprettet en database, vil installationen forsøge at oprette den. Dette kan dog ikke altid gennemføres pga. brugerrettighederne i den pågældende database.';
 $_lang["connection_screen_database_host"] = 'Database host:';
@@ -109,7 +108,7 @@ $_lang["installing_demo_site"] = 'Installerer demo website: ';
 $_lang["language_code"] = 'da'; // for html element e.g. <html xml:lang="en" lang="en">
 $_lang["loading"] = 'Indlæser...';
 $_lang["modules"] = 'Moduler';
-$_lang["modx_footer1"] = '&copy; 2005-2023 <a href="http://www.modxcms.com/" target="_blank" style="color: green; text-decoration:underline">MODx</a> Content Mangement Framework (CMF) projektet. Alle rettigheder forbeholdes. MODx er licenseret af GNU GPL.';
+$_lang["modx_footer1"] = '&copy; 2004 - 2026 <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> Content Mangement Framework (CMF) projektet. Alle rettigheder forbeholdes. Evolution CMS er licenseret af GNU GPL.';
 $_lang["modx_footer2"] = 'MODx er gratis software. Vi opfordrer dig til at være kreativ og at du bruger MODx som det passer dig. Men vær opmærksom på at hvis du ændrer i MODx og vælger at offenliggøre ændringerne skal kildekoden være tilgængelige og gratis for alle!';
 $_lang["modx_install"] = 'MODx &raquo; Installation';
 $_lang["modx_requires_php"] = ', og MODx kræver PHP 4.2.0 eller nyere';
@@ -122,7 +121,7 @@ $_lang["not_found"] = 'ikke fundet';
 $_lang["ok"] = 'OK!';
 $_lang["optional_items"] = 'Valgbare muligheder';
 $_lang["optional_items_note"] = 'Vælg installationsindstillingerne - og klik på Installer:';
-$_lang["php_security_notice"] = '<legend>Bemærkning om sikkerhed</legend><p>Selvom MODx kan køre på denne PHP version, er det ikke anbefalet. Der er adskillige sikkerhedsfejl på denne PHP version som vil gøre dit website sårbart. Opgrader venligst PHP til version 4.3.8 eller nyere, da dette lukker disse sikkerhedshuller. Af hensyn til sikkerheden på dit website, anbefales det at du opdaterer PHP!</p>';
+$_lang["php_security_notice"] = '<legend>Bemærkning om sikkerhed</legend><p>Selvom MODx kan køre på denne PHP version, er det ikke anbefalet. Der er adskillige sikkerhedsfejl på denne PHP version som vil gøre dit website sårbart. Opgrader venligst PHP til version [+min_version+] eller nyere, da dette lukker disse sikkerhedshuller. Af hensyn til sikkerheden på dit website, anbefales det at du opdaterer PHP!</p>';
 $_lang["please_correct_error"] = '. Ret venligst fejlen';
 $_lang["please_correct_errors"] = '. Ret venligst fejlene';
 $_lang["plugins"] = 'Plugins';

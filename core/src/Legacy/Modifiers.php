@@ -3,22 +3,21 @@
 use EvolutionCMS\Interfaces\ModifiersInterface;
 use EvolutionCMS\Models\SiteTemplate;
 use EvolutionCMS\Support\DataGrid;
-use IntlDateFormatter;
 
 class Modifiers implements ModifiersInterface
 {
     /**
      * @var array
      */
-    public $placeholders = array();
+    public $placeholders = [];
     /**
      * @var array
      */
-    public $vars = array();
+    public $vars = [];
     /**
      * @var array
      */
-    public $tmpCache = array();
+    public $tmpCache = [];
     /**
      * @var
      */
@@ -30,7 +29,7 @@ class Modifiers implements ModifiersInterface
     /**
      * @var array
      */
-    public $condition = array();
+    public $condition = [];
     /**
      * @var string
      */
@@ -56,16 +55,16 @@ class Modifiers implements ModifiersInterface
     /**
      * @var array
      */
-    public $documentObject = array();
+    public $documentObject = [];
 
     /**
      * MODIFIERS constructor.
      */
     public function __construct()
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         if (function_exists('mb_internal_encoding')) {
-            mb_internal_encoding($modx->getConfig('modx_charset'));
+            mb_internal_encoding($modx->getConfig('evo_charset'));
         }
         $this->condModifiers = '=,is,eq,equals,ne,neq,notequals,isnot,isnt,not,%,isempty,isnotempty,isntempty,>=,gte,eg,gte,greaterthan,>,gt,isgreaterthan,isgt,lowerthan,<,lt,<=,lte,islte,islowerthan,islt,el,find,in,inarray,in_array,fnmatch,wcard,wcard_match,wildcard,wildcard_match,is_file,is_dir,file_exists,is_readable,is_writable,is_image,regex,preg,preg_match,memberof,mo,isinrole,ir';
     }
@@ -78,24 +77,24 @@ class Modifiers implements ModifiersInterface
      */
     public function phxFilter($key, $value, $modifiers)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         if (substr($modifiers, 0, 3) !== 'id(') {
             $value = $this->parseDocumentSource($value);
         }
         $this->srcValue = $value;
         $modifiers = trim($modifiers);
         $modifiers = ':' . trim($modifiers, ':');
-        $modifiers = str_replace(array("\r\n", "\r"), "\n", $modifiers);
+        $modifiers = str_replace(["\r\n", "\r"], "\n", $modifiers);
         $modifiers = $this->splitEachModifiers($modifiers);
 
-        $this->placeholders = array();
+        $this->placeholders = [];
         $this->placeholders['phx'] = '';
         $this->placeholders['dummy'] = '';
-        $this->condition = array();
-        $this->vars = array();
+        $this->condition = [];
+        $this->vars = [];
         $this->vars['name'] = &$key;
         $value = $this->parsePhx($key, $value, $modifiers);
-        $this->vars = array();
+        $this->vars = [];
 
         return $value;
     }
@@ -108,7 +107,7 @@ class Modifiers implements ModifiersInterface
     public function _getDelim($mode, $modifiers)
     {
         $c = substr($modifiers, 0, 1);
-        if (!in_array($c, array('"', "'", '`'))) {
+        if (!in_array($c, ['"', "'", '`'])) {
             return false;
         }
 
@@ -191,11 +190,11 @@ class Modifiers implements ModifiersInterface
 
     public function splitEachModifiers($modifiers)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         $cmd = '';
         $bt = '';
-        $result = array();
+        $result = [];
         while ($bt !== $modifiers) {
             $bt = $modifiers;
             $c = substr($modifiers, 0, 1);
@@ -214,12 +213,12 @@ class Modifiers implements ModifiersInterface
                 $opt = $this->_getOpt($c, $delim, $modifiers);
                 $modifiers = trim($this->_getRemainModifiers($c, $delim, $modifiers));
 
-                $result[] = array('cmd' => trim($match[1]), 'opt' => $opt, 'debuginfo' => $debuginfo);
+                $result[] = ['cmd' => trim($match[1]), 'opt' => $opt, 'debuginfo' => $debuginfo];
                 $cmd = '';
-            } elseif (in_array($c, array('+', '-', '*', '/')) && preg_match('@^[0-9]+@', $modifiers,
+            } elseif (in_array($c, ['+', '-', '*', '/']) && preg_match('@^[0-9]+@', $modifiers,
                     $match)) { // :+3, :-3, :*3 ...
                 $modifiers = substr($modifiers, strlen($match[0]));
-                $result[] = array('cmd' => 'math', 'opt' => '%s' . $c . $match[0]);
+                $result[] = ['cmd' => 'math', 'opt' => '%s' . $c . $match[0]];
                 $cmd = '';
             } elseif ($c === '(' || $c === '=') {
                 $modifiers = $m1 = trim($modifiers);
@@ -228,20 +227,20 @@ class Modifiers implements ModifiersInterface
                 $modifiers = trim($this->_getRemainModifiers($c, $delim, $modifiers));
                 $debuginfo = "#i=1 #c=[{$c}] #delim=[{$delim}] #m1=[{$m1}] remainMdf=[{$modifiers}]";
 
-                $result[] = array('cmd' => trim($cmd), 'opt' => $opt, 'debuginfo' => $debuginfo);
+                $result[] = ['cmd' => trim($cmd), 'opt' => $opt, 'debuginfo' => $debuginfo];
 
                 $cmd = '';
             } elseif ($c == ':') {
                 $debuginfo = "#i=2 #c=[{$c}] #m=[{$modifiers}]";
                 if ($cmd !== '') {
-                    $result[] = array('cmd' => trim($cmd), 'opt' => '', 'debuginfo' => $debuginfo);
+                    $result[] = ['cmd' => trim($cmd), 'opt' => '', 'debuginfo' => $debuginfo];
                 }
 
                 $cmd = '';
             } elseif (trim($modifiers) == '' && trim($cmd) !== '') {
                 $debuginfo = "#i=3 #c=[{$c}] #m=[{$modifiers}]";
                 $cmd .= $c;
-                $result[] = array('cmd' => trim($cmd), 'opt' => '', 'debuginfo' => $debuginfo);
+                $result[] = ['cmd' => trim($cmd), 'opt' => '', 'debuginfo' => $debuginfo];
 
                 break;
             } else {
@@ -250,7 +249,7 @@ class Modifiers implements ModifiersInterface
         }
 
         if (empty($result)) {
-            return array();
+            return [];
         }
 
         foreach ($result as $i => $a) {
@@ -263,7 +262,6 @@ class Modifiers implements ModifiersInterface
 
     public function parsePhx($key, $value, $modifiers)
     {
-        $modx = evolutionCMS();
         $lastKey = '';
         $cacheKey = md5('parsePhx#' . $key . '#' . $value . '#' . print_r($modifiers, true));
         if (isset($this->tmpCache[$cacheKey])) {
@@ -278,11 +276,11 @@ class Modifiers implements ModifiersInterface
         }
         $_ = explode(',', $this->condModifiers);
         if (in_array($lastKey, $_)) {
-            $modifiers[] = array('cmd' => 'then', 'opt' => '1');
-            $modifiers[] = array('cmd' => 'else', 'opt' => '0');
+            $modifiers[] = ['cmd' => 'then', 'opt' => '1'];
+            $modifiers[] = ['cmd' => 'else', 'opt' => '0'];
         }
 
-        foreach ($modifiers as $i => $a) {
+        foreach ($modifiers as $a) {
             $value = $this->Filter($key, $value, $a['cmd'], $a['opt']);
         }
         $this->tmpCache[$cacheKey] = $value;
@@ -293,7 +291,7 @@ class Modifiers implements ModifiersInterface
     // Parser: modifier detection and eXtended processing if needed
     public function Filter($key, $value, $cmd, $opt = '')
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         if ($key === 'documentObject') {
             $value = $modx->documentIdentifier;
@@ -344,7 +342,7 @@ class Modifiers implements ModifiersInterface
 
     public function getValueFromPreset($key, $value, $cmd, $opt)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         if ($this->isEmpty($cmd, $value)) {
             return '';
@@ -439,10 +437,10 @@ class Modifiers implements ModifiersInterface
                 } else {
                     $path = $opt;
                 }
-                if (strpos($path, MODX_MANAGER_PATH) !== false) {
+                if (strpos($path, EVO_MANAGER_PATH) !== false) {
                     exit('Can not read core path');
                 }
-                if (strpos($path, MODX_BASE_PATH) === false) {
+                if (strpos($path, EVO_BASE_PATH) === false) {
                     $path = ltrim($path, '/');
                 }
                 $this->condition[] = (int)($cmd($path) !== false);
@@ -505,7 +503,7 @@ class Modifiers implements ModifiersInterface
             case 'select':
             case 'switch':
                 $raw = explode('&', $opt);
-                $map = array();
+                $map = [];
                 $c = count($raw);
                 for ($m = 0; $m < $c; $m++) {
                     $mi = explode('=', $raw[$m], 2);
@@ -521,17 +519,17 @@ class Modifiers implements ModifiersInterface
             #####  Encode / Decode / Hash / Escape
             case 'htmlent':
             case 'htmlentities':
-                return htmlentities($value, ENT_QUOTES, $modx->getConfig('modx_charset'));
+                return htmlentities($value, ENT_QUOTES, $modx->getConfig('evo_charset'));
             case 'html_entity_decode':
             case 'decode_html':
             case 'html_decode':
-                return html_entity_decode($value, ENT_QUOTES, $modx->getConfig('modx_charset'));
+                return html_entity_decode($value, ENT_QUOTES, $modx->getConfig('evo_charset'));
             case 'esc':
             case 'escape':
                 $value = preg_replace('/&amp;(#[0-9]+|[a-z]+);/i', '&$1;',
-                    htmlspecialchars($value, ENT_QUOTES, $modx->getConfig('modx_charset')));
+                    htmlspecialchars($value, ENT_QUOTES, $modx->getConfig('evo_charset')));
 
-                return str_replace(array('[', ']', '`'), array('&#91;', '&#93;', '&#96;'), $value);
+                return str_replace(['[', ']', '`'], ['&#91;', '&#93;', '&#96;'], $value);
             case 'sql_escape':
             case 'encode_js':
                 return $modx->getDatabase()->escape($value);
@@ -540,9 +538,9 @@ class Modifiers implements ModifiersInterface
             case 'encode_html':
             case 'html_encode':
                 return preg_replace('/&amp;(#[0-9]+|[a-z]+);/i', '&$1;',
-                    htmlspecialchars($value, ENT_QUOTES, $modx->getConfig('modx_charset')));
+                    htmlspecialchars($value, ENT_QUOTES, $modx->getConfig('evo_charset')));
             case 'spam_protect':
-                return str_replace(array('@', '.'), array('&#64;', '&#46;'), $value);
+                return str_replace(['@', '.'], ['&#64;', '&#46;'], $value);
             case 'strip':
                 if ($opt === '') {
                     $opt = ' ';
@@ -550,12 +548,12 @@ class Modifiers implements ModifiersInterface
 
                 return preg_replace('/[\n\r\t\s]+/', $opt, $value);
             case 'strip_linefeeds':
-                return str_replace(array("\n", "\r"), '', $value);
+                return str_replace(["\n", "\r"], '', $value);
             case 'notags':
             case 'strip_tags':
             case 'remove_html':
                 if ($opt !== '') {
-                    $param = array();
+                    $param = [];
                     foreach (explode(',', $opt) as $v) {
                         $v = trim($v, '</> ');
                         $param[] = "<{$v}>";
@@ -617,13 +615,13 @@ class Modifiers implements ModifiersInterface
                     $opt = 'VKas';
                 }
 
-                return mb_convert_kana($value, $opt, $modx->getConfig('modx_charset'));
+                return mb_convert_kana($value, $opt, $modx->getConfig('evo_charset'));
             case 'hanzen':
                 if (empty($opt)) {
                     $opt = 'VKAS';
                 }
 
-                return mb_convert_kana($value, $opt, $modx->getConfig('modx_charset'));
+                return mb_convert_kana($value, $opt, $modx->getConfig('evo_charset'));
             case 'str_shuffle':
             case 'shuffle':
                 return $this->str_shuffle($value);
@@ -660,12 +658,14 @@ class Modifiers implements ModifiersInterface
                 if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
                     return $this->includeMdfFile('wordwrap');
                 } else {
-                    return preg_replace("@(\b\w+\b)@e", "wordwrap('\\1',\$wrapat,' ',1)", $value);
+                    return preg_replace_callback("@(\b\w+\b)@", function($matches) use ($wrapat) {
+                        return wordwrap($matches[1], $wrapat, ' ', 1);
+                    }, $value);
                 }
             case 'wrap_text':
                 $width = preg_match('/^[1-9][0-9]*$/', $opt) ? $opt : 70;
                 if ($modx->getConfig('manager_language') === 'japanese-utf8') {
-                    $chunk = array();
+                    $chunk = [];
                     $bt = '';
                     while ($bt != $value) {
                         $bt = $value;
@@ -740,14 +740,14 @@ class Modifiers implements ModifiersInterface
             case 'replace_to':
             case 'tpl':
                 if ($value !== '') {
-                    return str_replace(array('[+value+]', '[+output+]', '{value}', '%s'), $value, $opt);
+                    return str_replace(['[+value+]', '[+output+]', '{value}', '%s'], $value, $opt);
                 }
                 break;
             case 'eachtpl':
                 $value = explode('||', $value);
-                $_ = array();
+                $_ = [];
                 foreach ($value as $v) {
-                    $_[] = str_replace(array('[+value+]', '[+output+]', '{value}', '%s'), $v, $opt);
+                    $_[] = str_replace(['[+value+]', '[+output+]', '{value}', '%s'], $v, $opt);
                 }
 
                 return implode("\n", $_);
@@ -792,14 +792,14 @@ class Modifiers implements ModifiersInterface
             case 'money_format':
                 setlocale(LC_MONETARY, setlocale(LC_TIME, 0));
                 if ($value !== '') {
-                    return money_format($opt, (double)$value);
+                    return $this->money_format($opt, (double)$value);
                 }
                 break;
             case 'tobool':
                 return boolval($value);
             case 'nl2lf':
                 if ($value !== '') {
-                    return str_replace(array("\r\n", "\n", "\r"), '\n', $value);
+                    return str_replace(["\r\n", "\n", "\r"], '\n', $value);
                 }
                 break;
             case 'br2nl':
@@ -855,10 +855,10 @@ class Modifiers implements ModifiersInterface
                     if (extension_loaded('intl')) {
                         // https://www.php.net/manual/en/class.intldateformatter.php
                         // https://www.php.net/manual/en/datetime.createfromformat.php
-                        $formatter = new IntlDateFormatter(
-                            evolutionCMS()->getConfig('manager_language'),
-                            IntlDateFormatter::MEDIUM,
-                            IntlDateFormatter::MEDIUM,
+                        $formatter = new \IntlDateFormatter(
+                            evo()->getConfig('manager_language'),
+                            \IntlDateFormatter::MEDIUM,
+                            \IntlDateFormatter::MEDIUM,
                             null,
                             null,
                             $opt
@@ -903,7 +903,7 @@ class Modifiers implements ModifiersInterface
                 if (empty($value)) {
                     $value = '0';
                 }
-                $filter = str_replace(array('[+value+]', '[+output+]', '{value}', '%s'), '?', $opt);
+                $filter = str_replace(['[+value+]', '[+output+]', '{value}', '%s'], '?', $opt);
                 $filter = preg_replace('@([a-zA-Z\n\r\t\s])@', '', $filter);
                 if (strpos($filter, '?') === false) {
                     $filter = "?{$filter}";
@@ -1015,7 +1015,7 @@ class Modifiers implements ModifiersInterface
                     $opt = 'page';
                 }
                 $_ = explode(',', $opt);
-                $where = array();
+                $where = [];
                 foreach ($_ as $opt) {
                     switch (trim($opt)) {
                         case 'page';
@@ -1045,7 +1045,7 @@ class Modifiers implements ModifiersInterface
                 }
                 $where = implode(' AND ', $where);
                 $children = $modx->getDocumentChildren($value, $published, '0', 'id', $where);
-                $result = array();
+                $result = [];
                 foreach ((array)$children as $child) {
                     $result[] = $child['id'];
                 }
@@ -1121,7 +1121,7 @@ class Modifiers implements ModifiersInterface
                     return $value;
                 }
                 $value = realpath($value);
-                if (strpos($value, MODX_MANAGER_PATH) !== false) {
+                if (strpos($value, EVO_MANAGER_PATH) !== false) {
                     exit('Can not read core file');
                 }
                 $ext = strtolower(substr($value, -4));
@@ -1139,7 +1139,7 @@ class Modifiers implements ModifiersInterface
                 }
                 $filename = $value;
 
-                $site_url = MODX_SITE_URL;
+                $site_url = EVO_SITE_URL;
                 if (strpos($filename, $site_url) === 0) {
                     $filename = substr($filename, 0, strlen($site_url));
                 }
@@ -1150,7 +1150,7 @@ class Modifiers implements ModifiersInterface
                     $opt .= '/';
                 }
 
-                $filename = MODX_BASE_PATH . $opt . $filename;
+                $filename = EVO_BASE_PATH . $opt . $filename;
 
                 if (is_file($filename)) {
                     clearstatcache();
@@ -1247,8 +1247,8 @@ class Modifiers implements ModifiersInterface
                 return $arr[$idx];
             case 'getimage':
                 return $this->includeMdfFile('getimage');
-            case 'nicesize':
-                return nicesize($value);
+            case 'niceSize':
+                return niceSize($value);
             case 'googlemap':
             case 'googlemaps':
                 if (empty($opt)) {
@@ -1306,17 +1306,17 @@ class Modifiers implements ModifiersInterface
 
     public function includeMdfFile($cmd)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         $key = $this->key;
         $value = $this->value;
         $opt = $this->opt;
 
-        return include(MODX_MANAGER_PATH . "includes/extenders/modifiers/mdf_{$cmd}.inc.php");
+        return include(EVO_MANAGER_PATH . "includes/extenders/modifiers/mdf_{$cmd}.inc.php");
     }
 
     public function getValueFromElement($key, $value, $cmd, $opt)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         if (isset($modx->snippetCache[$this->elmName])) {
             $php = $modx->snippetCache[$this->elmName];
         } else {
@@ -1331,13 +1331,13 @@ class Modifiers implements ModifiersInterface
                 $row = $modx->getDatabase()->getRow($result);
                 $php = $row['snippet'];
             } elseif ($total == 0) {
-                $assets_path = MODX_BASE_PATH . 'assets/';
+                $assets_path = EVO_BASE_PATH . 'assets/';
                 if (is_file($assets_path . "modifiers/mdf_{$cmd}.inc.php")) {
                     $modifiers_path = $assets_path . "modifiers/mdf_{$cmd}.inc.php";
                 } elseif (is_file($assets_path . "plugins/phx/modifiers/{$cmd}.phx.php")) {
                     $modifiers_path = $assets_path . "plugins/phx/modifiers/{$cmd}.phx.php";
-                } elseif (is_file(MODX_MANAGER_PATH . "includes/extenders/modifiers/mdf_{$cmd}.inc.php")) {
-                    $modifiers_path = MODX_MANAGER_PATH . "includes/extenders/modifiers/mdf_{$cmd}.inc.php";
+                } elseif (is_file(EVO_MANAGER_PATH . "includes/extenders/modifiers/mdf_{$cmd}.inc.php")) {
+                    $modifiers_path = EVO_MANAGER_PATH . "includes/extenders/modifiers/mdf_{$cmd}.inc.php";
                 } else {
                     $modifiers_path = false;
                 }
@@ -1396,15 +1396,15 @@ class Modifiers implements ModifiersInterface
             }
             ob_end_clean();
         } elseif ($html !== false && isset($value) && $value !== '') {
-            $html = str_replace(array($self, '[+value+]'), $value, $html);
-            $value = str_replace(array('[+options+]', '[+param+]'), $opt, $html);
+            $html = str_replace([$self, '[+value+]'], $value, $html);
+            $value = str_replace(['[+options+]', '[+param+]'], $opt, $html);
         } else {
             return false;
         }
 
         if ($php === false && $html === false && $value !== ''
             && (strpos($cmd, '[+value+]') !== false || strpos($cmd, $self) !== false)) {
-            $value = str_replace(array('[+value+]', $self), $value, $cmd);
+            $value = str_replace(['[+value+]', $self], $value, $cmd);
         }
 
         return $value;
@@ -1412,7 +1412,7 @@ class Modifiers implements ModifiersInterface
 
     public function parseDocumentSource($content = '')
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         if (strpos($content, '[') === false && strpos($content, '{') === false) {
             return $content;
@@ -1435,7 +1435,7 @@ class Modifiers implements ModifiersInterface
                 $content = $modx->mergeChunkContent($content);
             }
             if (strpos($content, '[!') !== false) {
-                $content = str_replace(array('[!', '!]'), array('[[', ']]'), $content);
+                $content = str_replace(['[!', '!]'], ['[[', ']]'], $content);
             }
             if (strpos($content, '[[') !== false) {
                 $content = $modx->evalSnippets($content);
@@ -1455,7 +1455,7 @@ class Modifiers implements ModifiersInterface
 
     public function getDocumentObject($target = '', $field = 'pagetitle')
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         $target = trim($target);
         if (empty($target)) {
@@ -1510,16 +1510,16 @@ class Modifiers implements ModifiersInterface
     //mbstring
     public function substr($str, $s, $l = null)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         if (is_null($l)) {
             $l = $this->strlen($str);
         }
         if (function_exists('mb_substr')) {
             if (strpos($str, "\r") !== false) {
-                $str = str_replace(array("\r\n", "\r"), "\n", $str);
+                $str = str_replace(["\r\n", "\r"], "\n", $str);
             }
 
-            return mb_substr($str, $s, $l, $modx->getConfig('modx_charset'));
+            return mb_substr($str, $s, $l, $modx->getConfig('evo_charset'));
         }
 
         return substr($str, $s, $l);
@@ -1527,9 +1527,9 @@ class Modifiers implements ModifiersInterface
 
     public function strpos($haystack, $needle, $offset = 0)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         if (function_exists('mb_strpos')) {
-            return mb_strpos($haystack, $needle, $offset, $modx->getConfig('modx_charset'));
+            return mb_strpos($haystack, $needle, $offset, $modx->getConfig('evo_charset'));
         }
 
         return strpos($haystack, $needle, $offset);
@@ -1537,9 +1537,9 @@ class Modifiers implements ModifiersInterface
 
     public function strlen($str)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         if (function_exists('mb_strlen')) {
-            return mb_strlen(str_replace("\r\n", "\n", $str), $modx->getConfig('modx_charset'));
+            return mb_strlen(str_replace("\r\n", "\n", $str), $modx->getConfig('evo_charset'));
         }
 
         return strlen($str);
@@ -1612,7 +1612,7 @@ class Modifiers implements ModifiersInterface
 
     public function strip_tags($value, $params = '')
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         if (stripos($params, 'style') === false && stripos($value, '</style>') !== false) {
             $value = preg_replace('@<style.*?>.*?</style>@is', '', $value);
@@ -1622,5 +1622,109 @@ class Modifiers implements ModifiersInterface
         }
 
         return trim(strip_tags($value, $params));
+    }
+
+
+    /**
+     * money_format() polyfill for PHP 8.0+ - format a number as a currency string
+     *
+     * Provides a replacement for the deprecated money_format function.
+     * Note: This implementation covers common use cases but may not be 100%
+     * compatible with all edge cases of the original C-based function.
+     *
+     * @param string $format The format specification
+     * @param double $number The number to be formatted
+     * @return string The formatted string
+     */
+    function money_format($format, $number)
+    {
+        $locale_info = localeconv();
+
+        // Parse the format string
+        $regex = '/%([\^+(!-]*)([#\d]+)?(\.(\d+))?([in%])/';
+
+        return preg_replace_callback($regex, function ($matches) use ($number, $locale_info) {
+            $flags = $matches[1] ?? '';
+            $width = $matches[2] ?? '';
+            $left_precision = $matches[4] ?? null;
+            $conversion = $matches[5];
+
+            // Handle literal %
+            if ($conversion === '%') {
+                return '%';
+            }
+
+            // Get currency symbol and formatting info
+            $currency_symbol = $locale_info['currency_symbol'] ?? '$';
+            $decimal_point = $locale_info['mon_decimal_point'] ?: $locale_info['decimal_point'];
+            $thousands_sep = $locale_info['mon_thousands_sep'] ?: $locale_info['thousands_sep'];
+            $frac_digits = $locale_info['frac_digits'] ?? 2;
+
+            // Handle left precision (digits before decimal)
+            if ($left_precision !== null) {
+                $frac_digits = (int)$left_precision;
+            }
+
+            // Format the number
+            $formatted = number_format(
+                abs($number),
+                $frac_digits,
+                $decimal_point,
+                $thousands_sep
+            );
+
+            // Handle negative numbers
+            $sign = '';
+            if ($number < 0) {
+                if (str_contains($flags, '(')) {
+                    // Use parentheses for negative
+                    $formatted = '(' . $formatted . ')';
+                } else {
+                    $sign = '-';
+                }
+            } elseif (str_contains($flags, '+')) {
+                // Always show sign for positive numbers
+                $sign = '+';
+            }
+
+            // Apply conversion type
+            if ($conversion === 'i') {
+                // International currency format
+                $currency = $locale_info['int_curr_symbol'] ?? 'USD ';
+                $result = $currency . $sign . $formatted;
+            } else {
+                // National currency format
+                $p_cs_precedes = $locale_info['p_cs_precedes'] ?? 1;
+                $n_cs_precedes = $locale_info['n_cs_precedes'] ?? 1;
+                $p_sep_by_space = $locale_info['p_sep_by_space'] ?? 0;
+                $n_sep_by_space = $locale_info['n_sep_by_space'] ?? 0;
+
+                $cs_precedes = $number >= 0 ? $p_cs_precedes : $n_cs_precedes;
+                $sep_by_space = $number >= 0 ? $p_sep_by_space : $n_sep_by_space;
+
+                $space = $sep_by_space ? ' ' : '';
+
+                // Suppress currency symbol if ^ flag is present
+                if (str_contains($flags, '^')) {
+                    $result = $sign . $formatted;
+                } elseif ($cs_precedes) {
+                    $result = $currency_symbol . $space . $sign . $formatted;
+                } else {
+                    $result = $sign . $formatted . $space . $currency_symbol;
+                }
+            }
+
+            // Apply width and padding
+            if ($width !== '') {
+                $width = (int)$width;
+                if (str_contains($flags, '-')) {
+                    $result = str_pad($result, $width, ' ');
+                } else {
+                    $result = str_pad($result, $width, ' ', STR_PAD_LEFT);
+                }
+            }
+
+            return $result;
+        }, $format);
     }
 }

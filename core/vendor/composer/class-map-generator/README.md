@@ -3,8 +3,7 @@ composer/class-map-generator
 
 Utilities to generate class maps and scan PHP code.
 
-[![Continuous Integration](https://github.com/composer/class-map-generator/workflows/Continuous%20Integration/badge.svg?branch=main)](https://github.com/composer/class-map-generator/actions)
-
+[![Continuous Integration](https://github.com/composer/class-map-generator/actions/workflows/continuous-integration.yml/badge.svg?branch=main)](https://github.com/composer/class-map-generator/actions)
 
 Installation
 ------------
@@ -12,7 +11,7 @@ Installation
 Install the latest version with:
 
 ```bash
-$ composer require composer/class-map-generator
+composer require composer/class-map-generator
 ```
 
 
@@ -29,7 +28,7 @@ If all you want is to scan a directory and extract a classmap with all
 classes/interfaces/traits/enums mapped to their paths, you can simply use:
 
 
-```
+```php
 use Composer\ClassMapGenerator\ClassMapGenerator;
 
 $map = ClassMapGenerator::createMap('path/to/scan');
@@ -41,7 +40,7 @@ foreach ($map as $symbol => $path) {
 For more advanced usage, you can instantiate a generator object and call scanPaths one or more time
 then call getClassMap to get a ClassMap object containing the resulting map + eventual warnings.
 
-```
+```php
 use Composer\ClassMapGenerator\ClassMapGenerator;
 
 $generator = new ClassMapGenerator;

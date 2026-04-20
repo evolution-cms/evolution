@@ -125,11 +125,11 @@ if($modx->getManagerApi()->hasFormValues()) {
 }
 
 // include the country list language file
-$_country_lang = array();
-if($manager_language != "english" && file_exists(MODX_MANAGER_PATH . "includes/lang/country/" . $manager_language . "_country.inc.php")) {
-	include_once MODX_MANAGER_PATH . "includes/lang/country/" . $manager_language . "_country.inc.php";
+$_country_lang = [];
+if($manager_language != "english" && file_exists(EVO_MANAGER_PATH . "includes/lang/country/" . $manager_language . "_country.inc.php")) {
+	include_once EVO_MANAGER_PATH . "includes/lang/country/" . $manager_language . "_country.inc.php";
 } else {
-	include_once MODX_MANAGER_PATH . "includes/lang/country/en_country.inc.php";
+	include_once EVO_MANAGER_PATH . "includes/lang/country/en_country.inc.php";
 }
 asort($_country_lang);
 
@@ -254,7 +254,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 <form name="userform" method="post" action="index.php">
 	<?php
 	// invoke OnWUsrFormPrerender event
-	$evtOut = $modx->invokeEvent("OnWUsrFormPrerender", array("id" => $user));
+	$evtOut = $modx->invokeEvent("OnWUsrFormPrerender", ["id" => $user]);
 	if(is_array($evtOut)) {
 		echo implode("", $evtOut);
 	}
@@ -353,7 +353,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                     </tr>
 
 					<tr>
-						<td><?php echo $_lang['user_email']; ?>:</td>
+						<td><span class="warning">*</span> <?php echo $_lang['user_email']; ?>:</td>
 						<td><input type="text" name="email" class="inputBox" value="<?php echo isset($_POST['email']) ? $_POST['email'] : $userdata['email']; ?>" onChange="documentDirty=true;" />
 							<input type="hidden" name="oldemail" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(!empty($userdata['oldemail']) ? $userdata['oldemail'] : $userdata['email']); ?>" /></td>
 					</tr>
@@ -816,6 +816,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                         <td><select name="manager_theme" class="inputBox" onChange="documentDirty=true;document.userform.theme_refresher.value = Date.parse(new Date());">
                                 <option value=""></option>
                                 <?php
+                                $themeNames = [];
                                 $dir = dir("media/style/");
                                 while($file = $dir->read()) {
                                     if($file != "." && $file != ".." && is_dir("media/style/$file") && substr($file, 0, 1) != '.') {
@@ -823,14 +824,28 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                                         if($themename === 'common') {
                                             continue;
                                         }
-                                        $attr = 'value="' . $themename . '" ';
-                                        if(isset($usersettings['manager_theme']) && $themename == $usersettings['manager_theme']) {
-                                            $attr .= 'selected="selected" ';
-                                        }
-                                        echo "\t\t<option " . rtrim($attr) . '>' . ucwords(str_replace("_", " ", $themename)) . "</option>\n";
+                                        $themeNames[] = $themename;
                                     }
                                 }
                                 $dir->close();
+                                natcasesort($themeNames);
+                                $orderedThemes = [];
+                                if (in_array('default', $themeNames, true)) {
+                                    $orderedThemes[] = 'default';
+                                }
+                                foreach ($themeNames as $name) {
+                                    if ($name === 'default') {
+                                        continue;
+                                    }
+                                    $orderedThemes[] = $name;
+                                }
+                                foreach ($orderedThemes as $themename) {
+                                    $attr = 'value="' . $themename . '" ';
+                                    if(isset($usersettings['manager_theme']) && $themename == $usersettings['manager_theme']) {
+                                        $attr .= 'selected="selected" ';
+                                    }
+                                    echo "\t\t<option " . rtrim($attr) . '>' . ucwords(str_replace("_", " ", $themename)) . "</option>\n";
+                                }
                                 ?>
                             </select>
                             <input type="hidden" name="theme_refresher" value=""></td>
@@ -1019,13 +1034,13 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                         $out = '';
                             if (isset($_POST['photo'])) {
                                 if((strpos($_POST['photo'], "http://") === false)){
-                                    $out = MODX_SITE_URL;
+                                    $out = EVO_SITE_URL;
                                 }
                                 $out.=$_POST['photo'];
                             }else {
                                 if(!empty($userdata['photo'])){
                                     if((strpos($userdata['photo'], "http://") === false)){
-                                    $out = MODX_SITE_URL;
+                                    $out = EVO_SITE_URL;
                                 }
                                 $out.=$userdata['photo'];
 
@@ -1041,7 +1056,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 			<?php
 			if($modx->getConfig('use_udperms')) {
 
-			$groupsarray = array();
+			$groupsarray = [];
 
 			if($modx->getManagerApi()->action == '88') { // only do this bit if the user is being edited
 				$groupsarray = \EvolutionCMS\Models\MemberGroup::query()->where('member', $user)->pluck('user_group')->toArray();
@@ -1065,9 +1080,9 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 			</div>
 			<?php
 			// invoke OnWUsrFormRender event
-			$evtOut = $modx->invokeEvent("OnWUsrFormRender", array(
+			$evtOut = $modx->invokeEvent("OnWUsrFormRender", [
 				"id" => $user
-			));
+			]);
 			if(is_array($evtOut)) {
 				echo implode("", $evtOut);
 			}

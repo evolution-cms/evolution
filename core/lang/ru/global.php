@@ -16,7 +16,7 @@
 $modx_lang_attribute = 'ru'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
 
-$_lang["about_msg"] = 'Evolution CMS - это <a href="http://rtfm.modx.com/evolution/1.0/getting-started/what-is-modx" target="_blank">PHP Application Framework и Content Management System</a>, распространяемая по лицензии <a href="../assets/docs/license.txt">GNU GPL</a>.';
+$_lang["about_msg"] = 'Evolution CMS - это <a href="https://evo.im/" target="_blank">PHP Application Framework и Content Management System</a>, распространяемая по лицензии <a href="../assets/docs/license.txt">GNU GPL</a>.';
 $_lang["about_title"] = 'Об Evolution CMS';
 $_lang["access_permission_denied"] = 'У вас недостаточно прав для просмотра данного ресурса.';
 $_lang["access_permission_parent_denied"] = 'У вас недостаточно прав для создания ресурса в данном разделе';
@@ -36,11 +36,11 @@ $_lang["access_permissions_no_resources_in_group"] = 'Нет ресурсов.';
 $_lang["access_permissions_no_users_in_group"] = 'Нет пользователей.';
 $_lang["access_permissions_off"] = '<span class="warning">Права доступа не активированы.</span> Это означает, что никакие изменения не вступят в силу, до тех пор пока вы не измените настройки.';
 $_lang["access_permissions_resource_groups"] = 'Группы ресурсов';
-$_lang["access_permissions_resources_in_group"] = '<b>ресурсов в группе:</b> ';
+$_lang["access_permissions_resources_in_group"] = '<b>Ресурсы в группе:</b> ';
 $_lang["access_permissions_resources_tab"] = 'Здесь вы можете увидеть все группы ресурсов. Также, здесь вы можете создать, переименовать, удалить группу, просмотреть ресурсы в группе. Для добавления или удаления ресурса из группы редактируйте ресурс непосредственно.';
 $_lang["access_permissions_user_groups"] = 'Группы пользователей';
 $_lang["access_permissions_user_message"] = 'Здесь вы можете выбрать, к какой пользовательской группе принадлежит этот пользователь:';
-$_lang["access_permissions_users_in_group"] = 'Пользователей в группе:';
+$_lang["access_permissions_users_in_group"] = 'Пользователи в группе:';
 $_lang["access_permissions_users_tab"] = 'Здесь вы можете увидеть все группы пользователей. Также, здесь вы можете создать, переименовать, удалить группу, просмотреть членов группы. Для добавления или удаления пользователя из группы редактируйте пользователя непосредственно. Менеджеры всегда имеют доступ ко всем ресурсам.';
 $_lang["account_email"] = 'E-mail учетной записи';
 $_lang["actioncomplete"] = '<b>Действие успешно завершено</b><br />Пожалуйста, подождите, пока Evolution CMS произведет очистку.';
@@ -70,7 +70,7 @@ $_lang["allow_mgr_access_message"] = 'Выберите этот параметр
 $_lang["already_deleted"] = 'уже удален.';
 $_lang["attachment"] = 'Прикрепленное';
 $_lang["author_infos"] = 'Информация об авторах';
-$_lang["automatic_alias_message"] = 'Выберите \'Да\' для того, чтобы система автоматически генерировала псевдонимы на основе заголовков страниц (для транслитерации русских символов настройте плагин TransAlias).';
+$_lang["automatic_alias_message"] = 'Выберите \'Да\' для того, чтобы система автоматически генерировала псевдонимы на основе заголовков страниц.';
 $_lang["automatic_alias_title"] = 'Автоматически генерировать псевдоним:';
 $_lang["backup"] = 'Бэкап';
 $_lang["bk_manager"] = 'Резервное копирование';
@@ -90,11 +90,11 @@ $_lang["category_manager"] = 'Менеджер категорий';
 $_lang["category_management"] = 'Категории';
 $_lang["manage_categories"] = 'Категории';
 $_lang["category_msg"] = 'Здесь вы можете просматривать и редактировать все элементы, сгруппированные по категориям.';
-$_lang["cfg_base_path"] = 'MODX_BASE_PATH';
-$_lang["cfg_base_url"] = 'MODX_BASE_URL';
-$_lang["cfg_manager_path"] = 'MODX_MANAGER_PATH';
-$_lang["cfg_manager_url"] = 'MODX_MANAGER_URL';
-$_lang["cfg_site_url"] = 'MODX_SITE_URL';
+$_lang["cfg_base_path"] = 'EVO_BASE_PATH';
+$_lang["cfg_base_url"] = 'EVO_BASE_URL';
+$_lang["cfg_manager_path"] = 'EVO_MANAGER_PATH';
+$_lang["cfg_manager_url"] = 'EVO_MANAGER_URL';
+$_lang["cfg_site_url"] = 'EVO_SITE_URL';
 $_lang["change_name"] = 'Изменить имя';
 $_lang["change_password"] = 'Изменить пароль';
 $_lang["change_password_confirm"] = 'Подтвердить пароль';
@@ -380,7 +380,9 @@ $_lang["group_access_permissions"] = 'Доступ групп пользоват
 $_lang['group_tvs'] = 'Группировать ТВ параметры';
 $_lang["guid"] = 'GUID';
 $_lang["help"] = 'Помощь';
-$_lang["help_msg"] = '<p>Вы можете получить бесплатную помощь сообщества Evolution CMS <a href="http://modx.im" target="_blank">на форумах Evolution CMS</a>. Смотрите также <a href="http://docs.evolution-cms.com" target="_blank">\'Документация и уроки по Evolution CMS\'</a>, где подробно описан каждый аспект системы.</p>';
+$_lang["help_donate_msg"] = 'Покупайте кофе разработчикам Evolution CMS. <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> Станьте поклонником Evolution CMS сегодня! ❤️ Ko-fi позволяет поддерживать создателей, которых вы любите, без комиссии за пожертвования.';
+$_lang["help_donate_title"] = 'На развитие Evolution CMS';
+$_lang["help_msg"] = '<p>Вы можете получить бесплатную помощь сообщества Evolution CMS <a href="https://evo.im" target="_blank">на форумах Evolution CMS</a>. Смотрите также <a href="https://docs.evo.im" target="_blank">\'Документация и уроки по Evolution CMS\'</a>, где подробно описан каждый аспект системы.</p>';
 $_lang["help_title"] = 'Помощь';
 $_lang["hide_tree"] = 'Спрятать дерево';
 $_lang["home"] = 'Главная';
@@ -552,7 +554,7 @@ $_lang["modx_news"] = 'Новости Evolution CMS';
 $_lang["modx_news_tab"] = 'Новости Evolution CMS';
 $_lang["modx_news_title"] = 'Новости Evolution CMS';
 $_lang["modx_security_notices"] = 'Уведомления безопасности Evolution CMS';
-$_lang["modx_version"] = 'Версия Evolution CMS';
+$_lang["evo_version"] = 'Версия Evolution CMS';
 $_lang["monday"] = 'Понедельник';
 $_lang["move"] = 'Переместить';
 $_lang["move_resource"] = 'Переместить';
@@ -786,7 +788,7 @@ $_lang["role_create_doc"] = 'Создание новых ресурсов';
 $_lang["role_create_plugin"] = 'Создание новых плагинов';
 $_lang["role_create_snippet"] = 'Создание новых сниппетов';
 $_lang["role_create_template"] = 'Создание новых шаблонов';
-$_lang["role_credits"] = 'Просмотр списка разработчиков';
+$_lang["role_widget_online_info"] = 'Просмотр виджета «Пользователи онлайн»';
 $_lang["role_delete_chunk"] = 'Удаление чанков';
 $_lang["role_delete_doc"] = 'Удаление ресурсов';
 $_lang["role_delete_eventlog"] = 'Удаление протокола событий';
@@ -818,7 +820,7 @@ $_lang["role_frames"] = 'Запрос менеджерских фреймов';
 $_lang["role_help"] = 'Просмотр страниц помощи';
 $_lang["role_home"] = 'Запрос входной страницы менеджера';
 $_lang["role_import_static"] = 'Импорт HTML';
-$_lang["role_logout"] = 'Выход из системы управления';
+$_lang["role_widget_recent_info"] = 'Просмотр виджета «Недавно созданные/отредактированные ресурсы»';
 $_lang["role_list_module"] = 'Просмотр списка модулей';
 $_lang["role_manage_metatags"] = 'META-теги и ключевые слова';
 $_lang["role_management_msg"] = '<b>Роль</b> - это набор прав совершать определённые действия. Роли назначаются пользователям. Типичные роли:</p> <ul> <li><b>Администраторы сайта</b> - управляют пользователями и общими настройками;</li> <li><b>Разработчики</b> - пишут код и, соответственно, имеют набор прав на создание / редактирование / удаление <i>модулей</i>, <i>плагинов</i>, <i>сниппетов</i>, <i>чанков</i>, <i>параметров (TV)</i>;</li> <li><b>Дизайнеры</b> - отвечают за внешний вид и вёрстку страниц сайта, имеют набор прав на создание / редактирование / удаление <i>шаблонов</i> и <i>чанков</i>;</li> <li><b>Редакторы</b> - отвечают за содержание страниц сайта, создают, редактируют и удаляют ресурсы;</li> <li><b>Корректоры</b> - читают и корректируют ресурсы, но не имеют прав на их создание и удаление;</li> <li><b>Главный редактор</b> - принимает решение о публикации новых ресурсов, управляет расписанием публикации.</li> </ul><br /><p>Выберите роль для редактирования или создайте новую роль.';
@@ -1206,7 +1208,7 @@ $_lang["yourinfo_username"] = 'Вы авторизованы как:';
 $_lang["a17_error_reporting_title"] = 'Обнаружение уровня ошибки РНР';
 $_lang["a17_error_reporting_msg"] = 'Набор обнаружения уровня ошибок РНР';
 $_lang["a17_error_reporting_opt0"] = 'Игнорировать все';
-$_lang["a17_error_reporting_opt1"] = 'Игнорировать предупреждения о незначительных ошибках(<a href="https://www.google.com/search?q=E_DEPRECATED+E_STRICT" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT</a>)';
+$_lang["a17_error_reporting_opt1"] = 'Игнорировать предупреждения о незначительных ошибках(<a href="https://www.google.com/search?q=E_DEPRECATED+E_NOTICE" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED</a>)';
 $_lang["a17_error_reporting_opt2"] = 'Обнаружить все ошибки кроме E_NOTICE and E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt99"] = 'Обнаружить все кроме E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt199"] = 'Обнаружить все';
@@ -1295,6 +1297,8 @@ $_lang["disabled_at_login"] = 'Отключить для администрат�
 $_lang["cache_type_title"] = 'Способ кэширования страниц ';
 $_lang["cache_type_1"] = 'Только с учетом ID (стандартный метод)';
 $_lang["cache_type_2"] = 'C учетом ID и $_GET';
+$_lang["html_comment_title"] = 'HTML-комментарий';
+$_lang["html_comment_message"] = 'Список типов элементов через запятую для обёртывания HTML-комментариями в исходном коде страницы: <b>snippets</b>, <b>chunks</b>, <b>tvs</b>, <b>snippetParams</b>';
 $_lang["seostrict_title"] = 'Использовать SEO Strict URLs';
 $_lang["seostrict_message"] = 'использование strict URLs удаляет дубли страниц по разным ссылкам';
 $_lang["aliaslistingfolder_title"] = 'Использовать AliasListing только для Папок';
@@ -1349,8 +1353,6 @@ $_lang["dp_startDay"]   = "1";
 $_lang["check_all"] = "Включить все";
 $_lang["check_none"] = "Выключить все";
 $_lang["check_toggle"] = "Переключить";
-
-$_lang["version_notices"] = "Уведомления о версиях";
 
 $_lang["em_button_shift"] = "(Shift + клик, чтобы открыть несколько окон)";
 
@@ -1494,5 +1496,12 @@ $_lang["role_tv_msg"] = 'Ниже выводятся параметры, наз�
 $_lang["tmplvar_roles_access_msg"] = 'Укажите роли, которые могут использовать этот Параметр (TV)';
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Значение параметра задано в core/custom/config/cms/settings</strong>';
+
+$_lang["file_groups_saved"] = 'Права доступа сохранены.';
+$_lang["file_groups_edit"] = 'Редактировать права доступа';
+$_lang["files_groups"] = 'Группы ресурсов:';
+$_lang["access_permissions_file_message"] = 'Выберите, к каким Группам ресурсов относится этот файл:';
+$_lang["access_permissions_dir_message"] = 'Выберите, к каким Группам ресурсов относится эта директория:';
+$_lang["all_file_groups"] = 'Все группы ресурсов (Публичные)';
 
 return $_lang;

@@ -26,43 +26,39 @@ class Database extends Manager
 
     public $config;
 
-    public function __construct(Container $container = null)
+    protected $sqlitePragmaApplied = false;
+
+    public function __construct(?Container $container = null)
     {
         parent::__construct($container);
         $this->prepareNativeConfig();
     }
 
     /**
-     * @param $tableName
-     * @param  bool  $force
+     * @param string $sql
      * @return null|string|string[]
-     * @throws Exceptions\TableNotDefinedException
      */
-    public function replaceFullTableName($tableName, $force = false)
+    public function replacePrefixPlaceholderInTableName($sql)
     {
-        $tableName = trim($tableName);
-        if ((bool) $force === true) {
-            $result = $this->getConnection()->getTablePrefix() . $tableName;
-        } elseif (strpos($tableName, '[+prefix+]') !== false) {
-            $dbase = trim($this->getConfig('database'), '`');
-            $prefix = $this->getConfig('prefix');
-
-            $result = preg_replace(
+        if (str_contains($sql, '[+prefix+]')) {
+            $connection = $this->getConnection();
+            $grammar = $connection->getQueryGrammar();
+            return preg_replace_callback(
                 '@\[\+prefix\+\](\w+)@',
-                '`' . $dbase . '`.`' . $prefix . '$1`',
-                $tableName
+                static function ($matches) use ($grammar) {
+                    return $grammar->wrapTable($matches[1]);
+                },
+                $sql
             );
-        } else {
-            $result = $tableName;
         }
-        if ($this->getConfig('driver') == 'pgsql') {
-            $result = str_replace('"', "'", $result);
-        }
-        return $result;
+
+        return $sql;
     }
 
     /**
-     * {@inheritDoc}
+     * @param string $sql
+     * @param bool $watchError
+     * @return false|PDOStatement
      */
     public function query($sql, $watchError = true)
     {
@@ -70,12 +66,13 @@ class Database extends Manager
             $start = microtime(true);
             $pdo = \DB::connection()->getPdo();
             $out = [];
+            // @todo remove as it is not used and $out->execute() can't be called directly on regular array $out
             if (\is_array($sql)) {
                 foreach ($sql as $query) {
-                    $out[] = $pdo->prepare($this->replaceFullTableName($query));
+                    $out[] = $pdo->prepare($query);
                 }
             } else {
-                $out = $pdo->prepare($this->replaceFullTableName($sql));
+                $out = $pdo->prepare($sql);
             }
             $out->execute();
             \DB::connection()->logQuery($sql, [], (microtime(true) - $start));
@@ -84,9 +81,10 @@ class Database extends Manager
             return $out;
         } catch (Exception $exception) {
             if ($watchError === true) {
-                evolutionCMS()->getService('ExceptionHandler')->messageQuit($exception->getMessage());
+                evo()->getService('ExceptionHandler')->messageQuit($exception->getMessage());
             }
         }
+        return false;
     }
 
     /**
@@ -134,7 +132,6 @@ class Database extends Manager
     /**
      * @param  string  $sql
      * @return PDOStatement|bool
-     * @throws Exceptions\ConnectException
      */
     public function prepare($sql)
     {
@@ -161,9 +158,11 @@ class Database extends Manager
     {
         if (!$this->isConnected()) {
             $this->connect();
-            if (!$this->conn->getPdo() instanceof PDO) {
+            if (!$this->conn->getPdo() instanceof \PDO) {
                 $this->conn->reconnect();
             }
+        } else {
+            $this->applySqlitePragmas($this->conn);
         }
         return $this->conn;
     }
@@ -173,9 +172,14 @@ class Database extends Manager
      */
     public function isConnected()
     {
-        return true;
+        return $this->conn instanceof Connection && $this->conn->getPdo() instanceof \PDO;
     }
 
+    /**
+     * @deprecated
+     * @since 1.4
+     * @todo [remove@3.7] Remove in Evolution CMS 3.7
+     */
     public function insertFrom(
         $fields,
         $table,
@@ -201,13 +205,15 @@ class Database extends Manager
     }
 
     /**
-     * {@inheritDoc}
+     * @todo remove in 3.5.7 as it extends parent functionality with non-existing in the current project classes
      */
     public function setDebug($flag)
     {
         parent::setDebug($flag);
         $driver = $this->getDriver();
+        /* @phpstan-ignore-next-line class.notFound deprecated */
         if ($driver instanceof Drivers\IlluminateDriver) {
+            /* @phpstan-ignore-next-line method.notFound deprecated */
             if ($this->isDebug()) {
                 $driver->getConnect()->enableQueryLog();
             } else {
@@ -260,7 +266,7 @@ class Database extends Manager
 
     /**
      * @param  PDOStatement  $result
-     * {@inheritDoc}
+     * @return mixed
      */
     public function getRow($result, $mode = 'assoc')
     {
@@ -322,7 +328,7 @@ class Database extends Manager
             $data = '*';
         }
 
-        return $data;
+        return $this->replacePrefixPlaceholderInTableName($data);
     }
 
     /**
@@ -336,7 +342,7 @@ class Database extends Manager
         if (\is_array($data) && $hasArray === true) {
             $tmp = [];
             foreach ($data as $table) {
-                $tmp[] = $table;
+                $tmp[] = $this->replacePrefixPlaceholderInTableName($table);
             }
             $data = implode(' ', $tmp);
         }
@@ -344,7 +350,7 @@ class Database extends Manager
             throw new Exceptions\TableNotDefinedException($data);
         }
 
-        return $data;
+        return $this->replacePrefixPlaceholderInTableName($data);
     }
 
     /**
@@ -427,13 +433,13 @@ class Database extends Manager
 
     /**
      * {@inheritDoc}
-     * @throws Exceptions\TooManyLoopsException
+     * @throws \RuntimeException
      */
     public function escape($data, $safeCount = 0)
     {
         $safeCount++;
         if ($this->safeLoopCount < $safeCount) {
-            throw new Exceptions\TooManyLoopsException("Too many loops '{$safeCount}'");
+            throw new \RuntimeException("Too many loops '{$safeCount}'");
         }
         if (\is_array($data)) {
             if (\count($data) === 0) {
@@ -458,7 +464,10 @@ class Database extends Manager
      */
     public function connect()
     {
-       return $this->getConnection();
+        $this->conn = $this->getConnection();
+        $this->applySqlitePragmas($this->conn);
+
+        return $this->conn;
     }
 
     /**
@@ -466,16 +475,16 @@ class Database extends Manager
      * @param  string  $where
      * @param  string  $orderBy
      * @param  string  $limit
-     * @return bool|mysqli_result
+     * @return bool
      */
     public function delete($from, $where = '', $orderBy = '', $limit = '')
     {
 
         $out = false;
         if (!$from) {
-            evolutionCMS()->getService('ExceptionHandler')->messageQuit("Empty \$from parameters in DBAPI::delete().");
+            evo()->getService('ExceptionHandler')->messageQuit("Empty \$from parameters in DBAPI::delete().");
         } else {
-            $from = $this->replaceFullTableName($from);
+            $from = $this->replacePrefixPlaceholderInTableName($from);
             $where = trim($where);
             $orderBy = trim($orderBy);
             $limit = trim($limit);
@@ -505,7 +514,7 @@ class Database extends Manager
 
     /**
      * @param $name
-     * @param  \mysqli_result|string  $dsq
+     * @param  \PDOStatement|string  $dsq
      * @return array
      */
     public function getColumn($name, $dsq)
@@ -525,7 +534,7 @@ class Database extends Manager
     }
 
     /**
-     * @param  \mysqli_result|string  $dsq
+     * @param  \PDOStatement|string  $dsq
      * @return array
      */
     public function getColumnNames($dsq): array
@@ -588,9 +597,9 @@ class Database extends Manager
     {
         $out = false;
         if (!$intotable) {
-            evolutionCMS()->getService('ExceptionHandler')->messageQuit("Empty \$intotable parameters in DBAPI::insert().");
+            evo()->getService('ExceptionHandler')->messageQuit("Empty \$intotable parameters in DBAPI::insert().");
         } else {
-            $intotable = $this->replaceFullTableName($intotable);
+            $intotable = $this->replacePrefixPlaceholderInTableName($intotable);
             if (!is_array($fields)) {
                 $this->query("INSERT INTO {$intotable} {$fields}");
             } else {
@@ -607,7 +616,6 @@ class Database extends Manager
                     }
                     $this->query("INSERT INTO {$intotable} {$fields}");
                 } else {
-                    $fromtable = $this->replaceFullTableName($fromtable);
                     $fields = "(" . implode(",", array_keys($fields)) . ")";
                     $where = trim($where);
                     $limit = trim($limit);
@@ -621,7 +629,7 @@ class Database extends Manager
                 }
             }
             if (($lid = $this->getInsertId()) === false) {
-                evolutionCMS()->getService('ExceptionHandler')->messageQuit("Couldn't get last insert key!");
+                evo()->getService('ExceptionHandler')->messageQuit("Couldn't get last insert key!");
             }
 
             $out = $lid;
@@ -643,15 +651,15 @@ class Database extends Manager
      * @param  array|string  $fields
      * @param $table
      * @param  string  $where
-     * @return bool|mysqli_result
+     * @return false|PDOStatement
      */
     public function update($fields, $table, $where = "")
     {
         $out = false;
         if (!$table) {
-            evolutionCMS()->getService('ExceptionHandler')->messageQuit('Empty ' . $table . ' parameter in DBAPI::update().');
+            evo()->getService('ExceptionHandler')->messageQuit('Empty ' . $table . ' parameter in DBAPI::update().');
         } else {
-            $table = $this->replaceFullTableName($table);
+            $table = $this->replacePrefixPlaceholderInTableName($table);
             if (is_array($fields)) {
                 foreach ($fields as $key => $value) {
                     if ($value === null || strtolower($value) === 'null') {
@@ -688,8 +696,15 @@ class Database extends Manager
     public function getTableMetaData($table)
     {
         $metadata = [];
+        $driver = evo()->getDatabase()->getConfig('driver');
         if (!empty($table) && is_scalar($table)) {
-            switch (EvolutionCMS()->getDatabase()->getConfig('driver')) {
+            $table = $this->replacePrefixPlaceholderInTableName($table);
+            switch ($driver) {
+                case 'sqlite':
+                case 'sqlite3':
+                    $tableName = trim($table, '\'"` ');
+                    $sql = 'PRAGMA table_info(\'' . $tableName . '\')';
+                    break;
                 case 'pgsql':
                     $sql = " SELECT * FROM information_schema.columns WHERE table_name = '" . $table . "';";
                     break;
@@ -699,7 +714,15 @@ class Database extends Manager
             }
             if ($ds = $this->query($sql)) {
                 while ($row = $this->getRow($ds)) {
-                    switch (EvolutionCMS()->getDatabase()->getConfig('driver')) {
+                    switch ($driver) {
+                        case 'sqlite':
+                        case 'sqlite3':
+                            $fieldName = $row['name'];
+                            $metadata[$fieldName] = [
+                                'Field' => $row['name'],
+                                'Type' => $row['type'],
+                            ];
+                            continue 2;
                         case 'pgsql':
                             $fieldName = $row['column_name'];
                             break;
@@ -772,6 +795,36 @@ class Database extends Manager
 
     public function optimize($table_name)
     {
+        $connection = DB::connection();
+        $driver = $connection->getConfig('driver');
+
+        if (in_array($driver, ['sqlite', 'sqlite3'], true)) {
+            if ($connection->getPdo()->inTransaction()) {
+                evo()->logEvent(
+                    0,
+                    1,
+                    'VACUUM skipped: active transaction detected.',
+                    'Database::optimize'
+                );
+                return;
+            }
+
+            DB::statement('VACUUM');
+            return;
+        }
+
         DB::statement('OPTIMIZE TABLE ' . $table_name);
+    }
+
+    protected function applySqlitePragmas(Connection $connection): void
+    {
+        $driver = $connection->getConfig('driver');
+        if ($this->sqlitePragmaApplied || !in_array($driver, ['sqlite', 'sqlite3'], true)) {
+            return;
+        }
+
+        $connection->statement('PRAGMA foreign_keys = ON;');
+        $connection->statement('PRAGMA busy_timeout = 5000;');
+        $this->sqlitePragmaApplied = true;
     }
 }

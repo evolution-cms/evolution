@@ -16,6 +16,7 @@ use Composer\DependencyResolver\PoolOptimizer;
 use Composer\DependencyResolver\Pool;
 use Composer\DependencyResolver\PoolBuilder;
 use Composer\DependencyResolver\Request;
+use Composer\DependencyResolver\SecurityAdvisoryPoolFilter;
 use Composer\EventDispatcher\EventDispatcher;
 use Composer\Advisory\SecurityAdvisory;
 use Composer\Advisory\PartialSecurityAdvisory;
@@ -30,6 +31,7 @@ use Composer\Semver\Constraint\Constraint;
 use Composer\Semver\Constraint\ConstraintInterface;
 use Composer\Package\Version\StabilityFilter;
 use Composer\Semver\Constraint\MatchAllConstraint;
+use Composer\Semver\Constraint\MultiConstraint;
 
 /**
  * @author Nils Adermann <naderman@naderman.de>
@@ -64,7 +66,7 @@ class RepositorySet
 
     /**
      * @var int[] array of stability => BasePackage::STABILITY_* value
-     * @phpstan-var array<string, BasePackage::STABILITY_*>
+     * @phpstan-var array<key-of<BasePackage::STABILITIES>, BasePackage::STABILITY_*>
      */
     private $acceptableStabilities;
 
@@ -95,6 +97,7 @@ class RepositorySet
      * passing minimumStability is all you need to worry about. The rest is for advanced pool creation including
      * aliases, pinned references and other special cases.
      *
+     * @param key-of<BasePackage::STABILITIES> $minimumStability
      * @param int[]  $stabilityFlags   an array of package name => BasePackage::STABILITY_* value
      * @phpstan-param array<string, BasePackage::STABILITY_*> $stabilityFlags
      * @param array[] $rootAliases
@@ -111,8 +114,8 @@ class RepositorySet
         $this->rootReferences = $rootReferences;
 
         $this->acceptableStabilities = [];
-        foreach (BasePackage::$stabilities as $stability => $value) {
-            if ($value <= BasePackage::$stabilities[$minimumStability]) {
+        foreach (BasePackage::STABILITIES as $stability => $value) {
+            if ($value <= BasePackage::STABILITIES[$minimumStability]) {
                 $this->acceptableStabilities[$stability] = $value;
             }
         }
@@ -194,7 +197,7 @@ class RepositorySet
             }
         } else {
             foreach ($this->repositories as $repository) {
-                $result = $repository->loadPackages([$name => $constraint], $ignoreStability ? BasePackage::$stabilities : $this->acceptableStabilities, $ignoreStability ? [] : $this->stabilityFlags);
+                $result = $repository->loadPackages([$name => $constraint], $ignoreStability ? BasePackage::STABILITIES : $this->acceptableStabilities, $ignoreStability ? [] : $this->stabilityFlags);
 
                 $packages[] = $result['packages'];
                 foreach ($result['namesFound'] as $nameFound) {
@@ -225,58 +228,78 @@ class RepositorySet
 
     /**
      * @param string[] $packageNames
-     * @return ($allowPartialAdvisories is true ? array<string, array<PartialSecurityAdvisory|SecurityAdvisory>> : array<string, array<SecurityAdvisory>>)
+     * @return ($allowPartialAdvisories is true ? array{advisories: array<string, array<PartialSecurityAdvisory|SecurityAdvisory>>, unreachableRepos: array<string>} : array{advisories: array<string, array<SecurityAdvisory>>, unreachableRepos: array<string>})
      */
-    public function getSecurityAdvisories(array $packageNames, bool $allowPartialAdvisories = false): array
+    public function getSecurityAdvisories(array $packageNames, bool $allowPartialAdvisories, bool $ignoreUnreachable = false): array
     {
         $map = [];
         foreach ($packageNames as $name) {
             $map[$name] = new MatchAllConstraint();
         }
 
-        return $this->getSecurityAdvisoriesForConstraints($map, $allowPartialAdvisories);
+        $unreachableRepos = [];
+        $advisories = $this->getSecurityAdvisoriesForConstraints($map, $allowPartialAdvisories, $ignoreUnreachable, $unreachableRepos);
+
+        return ['advisories' => $advisories, 'unreachableRepos' => $unreachableRepos];
     }
 
     /**
      * @param PackageInterface[] $packages
-     * @return ($allowPartialAdvisories is true ? array<string, array<PartialSecurityAdvisory|SecurityAdvisory>> : array<string, array<SecurityAdvisory>>)
+     * @return ($allowPartialAdvisories is true ? array{advisories: array<string, array<PartialSecurityAdvisory|SecurityAdvisory>>, unreachableRepos: array<string>} : array{advisories: array<string, array<SecurityAdvisory>>, unreachableRepos: array<string>})
      */
-    public function getMatchingSecurityAdvisories(array $packages, bool $allowPartialAdvisories = false): array
+    public function getMatchingSecurityAdvisories(array $packages, bool $allowPartialAdvisories = false, bool $ignoreUnreachable = false): array
     {
         $map = [];
         foreach ($packages as $package) {
-            $map[$package->getName()] = new Constraint('=', $package->getVersion());
+            // ignore root alias versions as they are not actual package versions and should not matter when it comes to vulnerabilities
+            if ($package instanceof AliasPackage && $package->isRootPackageAlias()) {
+                continue;
+            }
+            if (isset($map[$package->getName()])) {
+                $map[$package->getName()] = new MultiConstraint([new Constraint('=', $package->getVersion()), $map[$package->getName()]], false);
+            } else {
+                $map[$package->getName()] = new Constraint('=', $package->getVersion());
+            }
         }
 
-        return $this->getSecurityAdvisoriesForConstraints($map, $allowPartialAdvisories);
+        $unreachableRepos = [];
+        $advisories = $this->getSecurityAdvisoriesForConstraints($map, $allowPartialAdvisories, $ignoreUnreachable, $unreachableRepos);
+
+        return ['advisories' => $advisories, 'unreachableRepos' => $unreachableRepos];
     }
 
     /**
      * @param array<string, ConstraintInterface> $packageConstraintMap
+     * @param array<string> &$unreachableRepos Array to store messages about unreachable repositories
      * @return ($allowPartialAdvisories is true ? array<string, array<PartialSecurityAdvisory|SecurityAdvisory>> : array<string, array<SecurityAdvisory>>)
      */
-    private function getSecurityAdvisoriesForConstraints(array $packageConstraintMap, bool $allowPartialAdvisories): array
+    private function getSecurityAdvisoriesForConstraints(array $packageConstraintMap, bool $allowPartialAdvisories, bool $ignoreUnreachable = false, array &$unreachableRepos = []): array
     {
-        $advisories = [];
+        $repoAdvisories = [];
         foreach ($this->repositories as $repository) {
-            if (!$repository instanceof AdvisoryProviderInterface || !$repository->hasSecurityAdvisories()) {
-                continue;
-            }
+            try {
+                if (!$repository instanceof AdvisoryProviderInterface || !$repository->hasSecurityAdvisories()) {
+                    continue;
+                }
 
-            $result = $repository->getSecurityAdvisories($packageConstraintMap, $allowPartialAdvisories);
-            foreach ($result['namesFound'] as $nameFound) {
-                unset($packageConstraintMap[$nameFound]);
+                $repoAdvisories[] = $repository->getSecurityAdvisories($packageConstraintMap, $allowPartialAdvisories)['advisories'];
+            } catch (\Composer\Downloader\TransportException $e) {
+                if (!$ignoreUnreachable) {
+                    throw $e;
+                }
+                $unreachableRepos[] = $e->getMessage();
             }
-
-            $advisories = array_merge($advisories, $result['advisories']);
         }
+
+        $advisories = count($repoAdvisories) > 0 ? array_merge_recursive([], ...$repoAdvisories) : [];
+        ksort($advisories);
 
         return $advisories;
     }
 
     /**
      * @return array[] an array with the provider name as key and value of array('name' => '...', 'description' => '...', 'type' => '...')
-     * @phpstan-return array<string, array{name: string, description: string, type: string}>
+     * @phpstan-return array<string, array{name: string, description: string|null, type: string}>
      */
     public function getProviders(string $packageName): array
     {
@@ -293,8 +316,8 @@ class RepositorySet
     /**
      * Check for each given package name whether it would be accepted by this RepositorySet in the given $stability
      *
-     * @param  string[] $names
-     * @param  string   $stability one of 'stable', 'RC', 'beta', 'alpha' or 'dev'
+     * @param string[] $names
+     * @param key-of<BasePackage::STABILITIES> $stability one of 'stable', 'RC', 'beta', 'alpha' or 'dev'
      */
     public function isPackageAcceptable(array $names, string $stability): bool
     {
@@ -303,10 +326,15 @@ class RepositorySet
 
     /**
      * Create a pool for dependency resolution from the packages in this repository set.
+     *
+     * @param list<string>      $ignoredTypes Packages of those types are ignored
+     * @param list<string>|null $allowedTypes Only packages of those types are allowed if set to non-null
      */
-    public function createPool(Request $request, IOInterface $io, ?EventDispatcher $eventDispatcher = null, ?PoolOptimizer $poolOptimizer = null): Pool
+    public function createPool(Request $request, IOInterface $io, ?EventDispatcher $eventDispatcher = null, ?PoolOptimizer $poolOptimizer = null, array $ignoredTypes = [], ?array $allowedTypes = null, ?SecurityAdvisoryPoolFilter $securityAdvisoryPoolFilter = null): Pool
     {
-        $poolBuilder = new PoolBuilder($this->acceptableStabilities, $this->stabilityFlags, $this->rootAliases, $this->rootReferences, $io, $eventDispatcher, $poolOptimizer, $this->temporaryConstraints);
+        $poolBuilder = new PoolBuilder($this->acceptableStabilities, $this->stabilityFlags, $this->rootAliases, $this->rootReferences, $io, $eventDispatcher, $poolOptimizer, $this->temporaryConstraints, $securityAdvisoryPoolFilter);
+        $poolBuilder->setIgnoredTypes($ignoredTypes);
+        $poolBuilder->setAllowedTypes($allowedTypes);
 
         foreach ($this->repositories as $repo) {
             if (($repo instanceof InstalledRepositoryInterface || $repo instanceof InstalledRepository) && !$this->allowInstalledRepositories) {
@@ -369,12 +397,18 @@ class RepositorySet
     {
         $request = new Request($lockedRepo);
 
+        $allowedPackages = [];
         foreach ($packageNames as $packageName) {
             if (PlatformRepository::isPlatformPackage($packageName)) {
                 throw new \LogicException('createPoolForPackage(s) can not be used for platform packages, as they are never loaded by the PoolBuilder which expects them to be fixed. Use createPoolWithAllPackages or pass in a proper request with the platform packages you need fixed in it.');
             }
 
             $request->requireName($packageName);
+            $allowedPackages[] = strtolower($packageName);
+        }
+
+        if (count($allowedPackages) > 0) {
+            $request->restrictPackages($allowedPackages);
         }
 
         return $this->createPool($request, new NullIO());

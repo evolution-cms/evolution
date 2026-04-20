@@ -42,16 +42,21 @@ class SecurityAdvisory extends PartialSecurityAdvisory
     public $reportedAt;
 
     /**
-     * @var array<array{name: string, remoteId: string}>
+     * @var non-empty-array<array{name: string, remoteId: string}>
      * @readonly
      */
     public $sources;
 
     /**
-     * @param non-empty-array<array{name: string, remoteId: string}> $sources
+     * @var string|null
      * @readonly
      */
-    public function __construct(string $packageName, string $advisoryId, ConstraintInterface $affectedVersions, string $title, array $sources, DateTimeImmutable $reportedAt, ?string $cve = null, ?string $link = null)
+    public $severity;
+
+    /**
+     * @param non-empty-array<array{name: string, remoteId: string}> $sources
+     */
+    public function __construct(string $packageName, string $advisoryId, ConstraintInterface $affectedVersions, string $title, array $sources, DateTimeImmutable $reportedAt, ?string $cve = null, ?string $link = null, ?string $severity = null)
     {
         parent::__construct($packageName, $advisoryId, $affectedVersions);
 
@@ -60,6 +65,26 @@ class SecurityAdvisory extends PartialSecurityAdvisory
         $this->reportedAt = $reportedAt;
         $this->cve = $cve;
         $this->link = $link;
+        $this->severity = $severity;
+    }
+
+    /**
+     * @internal
+     */
+    public function toIgnoredAdvisory(?string $ignoreReason): IgnoredSecurityAdvisory
+    {
+        return new IgnoredSecurityAdvisory(
+            $this->packageName,
+            $this->advisoryId,
+            $this->affectedVersions,
+            $this->title,
+            $this->sources,
+            $this->reportedAt,
+            $this->cve,
+            $this->link,
+            $ignoreReason,
+            $this->severity
+        );
     }
 
     /**

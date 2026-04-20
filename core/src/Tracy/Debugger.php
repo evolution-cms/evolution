@@ -4,7 +4,7 @@ use Tracy\Debugger as BaseDebugger;
 
 class Debugger extends BaseDebugger
 {
-    public static function enable($mode = null, string $logDirectory = null, $email = null): void
+    public static function enable($mode = null, string|null $logDirectory = null, $email = null): void
     {
         parent::enable($mode, $logDirectory, $email);
 
@@ -13,12 +13,13 @@ class Debugger extends BaseDebugger
 
     public static function errorHandler(int $severity, string $message, string $file, int $line, ?array $context = []): bool
     {
-        if (!empty(evolutionCMS()->currentSnippet)) {
-            $file = 'Snippet: ' . evolutionCMS()->currentSnippet;
+        $evo = evo();
+        if (!empty($evo->currentSnippet)) {
+            $file = "Snippet: $evo->currentSnippet";
         }
 
-        if (!empty(evolutionCMS()->event->activePlugin)) {
-            $file = 'Plugin ' . evolutionCMS()->event->name . '[' . evolutionCMS()->event->activePlugin.']';
+        if (!empty($evo->event->activePlugin)) {
+            $file = "Plugin: {$evo->event->name}[{$evo->event->activePlugin}]";
         }
 
         return parent::errorHandler($severity, $message, $file, $line, $context);

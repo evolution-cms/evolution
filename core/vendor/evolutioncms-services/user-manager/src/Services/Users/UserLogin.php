@@ -280,7 +280,7 @@ class UserLogin implements UserServiceInterface
 
         EvolutionCMS()->cleanupExpiredLocks();
         EvolutionCMS()->cleanupMultipleActiveUsers();
-        if(!defined('NO_SESSION')) {
+        if ((defined('IN_MANAGER_MODE') && IN_MANAGER_MODE) || !defined('NO_SESSION')) {
             $this->writeSession();
         }
         // successful login so reset fail count and update key values
@@ -341,7 +341,7 @@ class UserLogin implements UserServiceInterface
     {
 
         if (isset($this->userData['rememberme']) && $this->userData['rememberme'] == 1) {
-            $_SESSION['modx.' . $this->context . '.session.cookie.lifetime'] = (int)EvolutionCMS()->getConfig('session.cookie.lifetime');
+            $_SESSION['evo.' . $this->context . '.session.cookie.lifetime'] = (int)EvolutionCMS()->getConfig('session.cookie.lifetime');
 
             // Set a cookie separate from the session cookie with the username in it.
             // Are we using secure connection? If so, make sure the cookie is secure
@@ -349,15 +349,15 @@ class UserLogin implements UserServiceInterface
 
             $secure = ((isset ($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') || $_SERVER['SERVER_PORT'] == $https_port);
             if (version_compare(PHP_VERSION, '5.2', '<')) {
-                setcookie('modx_remember_manager', $_SESSION[$this->context . 'Shortname'], time() + 60 * 60 * 24 * 365, MODX_BASE_URL, '; HttpOnly', $secure);
+                setcookie('modx_remember_manager', $_SESSION[$this->context . 'Shortname'], time() + 60 * 60 * 24 * 365, EVO_BASE_URL, '; HttpOnly', $secure);
             } else {
-                setcookie('modx_remember_manager', $_SESSION[$this->context . 'Shortname'], time() + 60 * 60 * 24 * 365, MODX_BASE_URL, NULL, $secure, true);
+                setcookie('modx_remember_manager', $_SESSION[$this->context . 'Shortname'], time() + 60 * 60 * 24 * 365, EVO_BASE_URL, NULL, $secure, true);
             }
         } else {
-            $_SESSION['modx.' .$this->context . '.session.cookie.lifetime'] = 0;
+            $_SESSION['evo.' .$this->context . '.session.cookie.lifetime'] = 0;
 
             // Remove the Remember Me cookie
-            setcookie('modx_remember_manager', '', time() - 3600, MODX_BASE_URL);
+            setcookie('modx_remember_manager', '', time() - 3600, EVO_BASE_URL);
         }
     }
 

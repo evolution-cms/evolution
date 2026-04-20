@@ -92,13 +92,16 @@ EOT
         $vcsVersionChanges = [];
 
         $parser = new VersionParser;
-        $guesser = new VersionGuesser($composer->getConfig(), $composer->getLoop()->getProcessExecutor() ?? new ProcessExecutor($io), $parser);
+        $guesser = new VersionGuesser($composer->getConfig(), $composer->getLoop()->getProcessExecutor() ?? new ProcessExecutor($io), $parser, $io);
         $dumper = new ArrayDumper;
 
         // list packages
         foreach ($installedRepo->getCanonicalPackages() as $package) {
             $downloader = $dm->getDownloaderForPackage($package);
             $targetDir = $im->getInstallPath($package);
+            if ($targetDir === null) {
+                continue;
+            }
 
             if ($downloader instanceof ChangeReportInterface) {
                 if (is_link($targetDir)) {

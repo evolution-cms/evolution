@@ -4,7 +4,7 @@
  *
  * @version 1.0.15
  * @date 2014/02/24
- * @author modxcms.cz
+ * @author Evolution CMS Team
  *
  * @language Czech
  * @package modx
@@ -85,17 +85,17 @@ $_lang["captcha_words_message"] = 'Zde můžete zadat seznam CAPTCHA slov, kter�
 $_lang["captcha_words_title"] = 'CAPTCHA slova';
 $_lang["category_heading"] = 'Kategorie';
 $_lang["category_msg"] = 'Tady můžete zobrazit a upravit všechny zdroje seskupené do kategorií.';
-$_lang["cfg_base_path"] = 'MODX_BASE_PATH';
-$_lang["cfg_base_url"] = 'MODX_BASE_URL';
-$_lang["cfg_manager_path"] = 'MODX_MANAGER_PATH';
-$_lang["cfg_manager_url"] = 'MODX_MANAGER_URL';
-$_lang["cfg_site_url"] = 'MODX_SITE_URL';
+$_lang["cfg_base_path"] = 'EVO_BASE_PATH';
+$_lang["cfg_base_url"] = 'EVO_BASE_URL';
+$_lang["cfg_manager_path"] = 'EVO_MANAGER_PATH';
+$_lang["cfg_manager_url"] = 'EVO_MANAGER_URL';
+$_lang["cfg_site_url"] = 'EVO_SITE_URL';
 $_lang["change_name"] = 'Změna jména';
 $_lang["change_password"] = 'Změna hesla';
 $_lang["change_password_confirm"] = 'Potvrzení hesla';
 $_lang["change_password_message"] = 'Vložte prosím Vaše nové heslo a v následujícím řádku heslo zopakujte znovu z důvodu kontroly překlepu. Heslo by mělo mít délku 6 - 15 znaků.';
 $_lang["change_password_new"] = 'Nové heslo';
-$_lang["charset_message"] = 'Vyberte výchozí kódování znaků pro [(modx_charset)] systemové proměnné. Volba nemá vliv na Manager.';
+$_lang["charset_message"] = 'Vyberte výchozí kódování znaků pro [(evo_charset)] systemové proměnné. Volba nemá vliv na Manager.';
 $_lang["charset_title"] = 'Kódování znaků:';
 $_lang["chunk"] = 'Chunk';
 $_lang["chunk_code"] = 'Kód chunku (html)';
@@ -352,6 +352,8 @@ $_lang["go"] = 'Hledej';
 $_lang["group_access_permissions"] = 'Přístupová práva skupiny uživatelů';
 $_lang["guid"] = 'GUID';
 $_lang["help"] = 'Pomoc';
+$_lang["help_donate_msg"] = 'Nakupte kávu pro vývojáře Evolution CMS. <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> Staňte se fanoušky Evolution CMS ještě dnes! ❤️ Ko-fi vám umožní podpořit tvůrce, které máte rádi, bez jakýchkoli poplatků za dary.';
+$_lang["help_donate_title"] = 'Pro vývoj Evolution CMS';
 $_lang["help_msg"] = 'Jestliže potřebujete pomoc při používaní systému MODX, uděláte nejlépe, když navštívíte <a href="http://www.modxcms.cz/" target="_blank">české MODX fórum</a>. Najdete tam: návody, dokumentaci používání a nastavení MODX. Jestliže pošlete svoji otázku na fórum, budeme se snažit odpovědět, co nejdříve.';
 $_lang["help_title"] = 'Pomoc';
 $_lang["hide_tree"] = 'Skrýt';
@@ -497,7 +499,7 @@ $_lang["modx_news"] = 'Oznamování MODX novinek';
 $_lang["modx_news_tab"] = 'MODX novinky';
 $_lang["modx_news_title"] = 'MODX novinky';
 $_lang["modx_security_notices"] = 'MODX bezpečnostní oznámení';
-$_lang["modx_version"] = 'MODX verze';
+$_lang["evo_version"] = 'MODX verze';
 $_lang["monday"] = 'Pondělí';
 $_lang["move"] = 'Přesunout';
 $_lang["move_resource"] = 'Přesunout dokument';
@@ -720,7 +722,7 @@ $_lang["role_create_doc"] = 'Vytvořit nové dokumenty';
 $_lang["role_create_plugin"] = 'Vytvořit nové pluginy';
 $_lang["role_create_snippet"] = 'Vytvořit nové snippety';
 $_lang["role_create_template"] = 'Vytvořit novou šablonu stránek';
-$_lang["role_credits"] = 'Zobrazení poděkování';
+$_lang["role_widget_online_info"] = 'Zobrazit widget Uživatelé online';
 $_lang["role_delete_chunk"] = 'Smazat chunky';
 $_lang["role_delete_doc"] = 'Smazat dokumenty';
 $_lang["role_delete_eventlog"] = 'Smazat výpisy událostí';
@@ -751,7 +753,7 @@ $_lang["role_frames"] = 'Použít rámy správce';
 $_lang["role_help"] = 'Zobrazit pomocníka';
 $_lang["role_home"] = 'Použít správce úvodní stránky';
 $_lang["role_import_static"] = 'Importovat HTML';
-$_lang["role_logout"] = 'Odhlásit se ze správce';
+$_lang["role_widget_recent_info"] = 'Zobrazit widget Naposledy vytvořené nebo upravené dokumenty';
 $_lang["role_manage_metatags"] = 'Upravit META tagy a klíčové slova celého webu';
 $_lang["role_management_msg"] = 'Zde můžete zvolit oprávnění, které chcete upravit.';
 $_lang["role_management_title"] = 'Oprávnění';
@@ -1096,7 +1098,7 @@ $_lang["yourinfo_username"] = 'Jste přihlášen jako:';
 $_lang["a17_error_reporting_title"] = 'Detection level of the PHP error';
 $_lang["a17_error_reporting_msg"] = 'Set the detection level of the PHP error.';
 $_lang["a17_error_reporting_opt0"] = 'Ignore all';
-$_lang["a17_error_reporting_opt1"] = 'Ignore the warning of a slight notice level(<a href="https://www.google.com/search?q=E_DEPRECATED+E_STRICT" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT</a>)';
+$_lang["a17_error_reporting_opt1"] = 'Ignore the warning of a slight notice level(<a href="https://www.google.com/search?q=E_DEPRECATED+E_NOTICE" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED</a>)';
 $_lang["a17_error_reporting_opt2"] = 'Detect all errors except E_NOTICE and E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt99"] = 'Detect all except E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt199"] = 'Detect all';
@@ -1118,7 +1120,7 @@ $_lang["bkmgr_run_sql_direct_label"] = 'Direct execute SQL command strings';
 $_lang["bkmgr_run_sql_submit"] = 'Execute restore';
 $_lang["bkmgr_run_sql_result"] = 'Result';
 $_lang["bkmgr_snapshot_title"] = 'Snapshot save and recovery';
-$_lang["bkmgr_snapshot_msg"] = '<p>The contents of the database are saved and restored to a server.<br />Preservation place : [+snapshot_path+] ($modx->config[\'snapshot_path\'])</p>';
+$_lang["bkmgr_snapshot_msg"] = '<p>The contents of the database are saved and restored to a server.<br />Preservation place : [+snapshot_path+] (evo()->getConfig(\'snapshot_path\'))</p>';
 $_lang["bkmgr_snapshot_submit"] = 'Add snapshot';
 $_lang["bkmgr_snapshot_list_title"] = 'List of snapshot';
 $_lang["bkmgr_restore_submit"] = 'Vrátit tato data';
@@ -1169,6 +1171,8 @@ $_lang["docid_incrmnt_method_2"] = 'Maximal ID + 1';
 $_lang["cache_type_title"] = 'Document caching type';
 $_lang["cache_type_1"] = 'Cache is based only on document id (standard)';
 $_lang["cache_type_2"] = 'Cache is based on document id and $_GET parameters';
+$_lang["html_comment_title"] = 'HTML komentář';
+$_lang["html_comment_message"] = 'Čárkami oddělený seznam typů prvků pro zabalení do HTML komentářů ve zdrojovém kódu stránky: <b>snippets</b>, <b>chunks</b>, <b>tvs</b>, <b>snippetParams</b>';
 $_lang["seostrict_title"] = 'Use SEO Strict URLs';
 $_lang["seostrict_message"] = 'Enforces the use of strict URLs to prevent duplicate content if needed';
 
@@ -1224,5 +1228,12 @@ $_lang["role_tv_msg"] = 'The Variables assigned to this Role are listed below.';
 $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to access/process this Template Variable';
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
+
+$_lang["file_groups_saved"] = 'Přístupová oprávnění uložena.';
+$_lang["file_groups_edit"] = 'Upravit přístupová oprávnění';
+$_lang["files_groups"] = 'Skupiny zdrojů:';
+$_lang["access_permissions_file_message"] = 'Vyberte, do kterých Skupin zdrojů tento soubor patří:';
+$_lang["access_permissions_dir_message"] = 'Vyberte, do kterých Skupin zdrojů tento adresář patří:';
+$_lang["all_file_groups"] = 'Všechny skupiny zdrojů (Veřejné)';
 
 return $_lang;

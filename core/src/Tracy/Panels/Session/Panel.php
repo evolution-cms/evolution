@@ -19,7 +19,7 @@ class Panel extends AbstractPanel
         }
         if (session_status() === PHP_SESSION_ACTIVE) {
             $rows['sessionId'] = session_id();
-            $rows['data'] = $_SESSION;
+            $rows['data'] = $_SESSION ?? [];
         }
         return compact('rows');
     }

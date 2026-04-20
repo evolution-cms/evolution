@@ -40,14 +40,21 @@ abstract class BasePackage implements PackageInterface
     public const STABILITY_ALPHA = 15;
     public const STABILITY_DEV = 20;
 
-    /** @var array<string, self::STABILITY_*> */
-    public static $stabilities = [
+    public const STABILITIES = [
         'stable' => self::STABILITY_STABLE,
         'RC' => self::STABILITY_RC,
         'beta' => self::STABILITY_BETA,
         'alpha' => self::STABILITY_ALPHA,
         'dev' => self::STABILITY_DEV,
     ];
+
+    /**
+     * @deprecated
+     * @readonly
+     * @var array<key-of<BasePackage::STABILITIES>, self::STABILITY_*>
+     * @phpstan-ignore property.readOnlyByPhpDocDefaultValue
+     */
+    public static $stabilities = self::STABILITIES;
 
     /**
      * READ-ONLY: The package id, public for fast access in dependency solver
@@ -199,14 +206,23 @@ abstract class BasePackage implements PackageInterface
      */
     public function getFullPrettyVersion(bool $truncate = true, int $displayMode = PackageInterface::DISPLAY_SOURCE_REF_IF_DEV): string
     {
-        if ($displayMode === PackageInterface::DISPLAY_SOURCE_REF_IF_DEV &&
-            (!$this->isDev() || !\in_array($this->getSourceType(), ['hg', 'git']))
+        if (
+            $displayMode === PackageInterface::DISPLAY_SOURCE_REF_IF_DEV
+            && (
+                !$this->isDev()
+                || (
+                    !\in_array($this->getSourceType(), ['hg', 'git'])
+                    && ((string) $this->getSourceType() !== '' || (string) $this->getDistReference() === '')
+                )
+            )
         ) {
             return $this->getPrettyVersion();
         }
 
         switch ($displayMode) {
             case PackageInterface::DISPLAY_SOURCE_REF_IF_DEV:
+                $reference = (string) $this->getSourceReference() !== '' ? $this->getSourceReference() : $this->getDistReference();
+                break;
             case PackageInterface::DISPLAY_SOURCE_REF:
                 $reference = $this->getSourceReference();
                 break;
@@ -234,7 +250,7 @@ abstract class BasePackage implements PackageInterface
      */
     public function getStabilityPriority(): int
     {
-        return self::$stabilities[$this->getStability()];
+        return self::STABILITIES[$this->getStability()];
     }
 
     public function __clone()

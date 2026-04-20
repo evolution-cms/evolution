@@ -5,10 +5,19 @@
 
 #php_flag register_globals Off
 AddDefaultCharset utf-8
-#php_value date.timezone Europe/Moscow
+#php_value date.timezone Europe/Kyiv
 
 #Options +FollowSymlinks
 RewriteEngine On
+
+# Prevent directory listing
+Options -Indexes
+
+# Allow .well-known directory (for SSL, domain verification, etc.) blocking other dotfiles and dotfolders at any level
+RewriteRule ^\.well-known/ - [L]
+RewriteCond %{REQUEST_URI} (^|/)\. [NC]
+RewriteRule .* - [F,L]
+
 RewriteBase /
 
 # Fix Apache internal dummy connections from breaking [(site_url)] cache

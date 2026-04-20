@@ -2,20 +2,11 @@
  * This file is part of the Tracy (https://tracy.nette.org)
  */
 
-:root {
-	--tracy-space: 16px;
-}
-
-@media (max-width: 600px) {
-	:root {
-		--tracy-space: 8px;
-	}
-}
-
 html.tracy-bs-visible,
 html.tracy-bs-visible body {
 	display: block;
 	overflow: auto;
+	position: static;
 }
 
 #tracy-bs {
@@ -70,13 +61,15 @@ html.tracy-bs-visible body {
 	display: none;
 }
 
-#tracy-bs p,
-#tracy-bs table,
-#tracy-bs pre,
-#tracy-bs h1,
-#tracy-bs h2,
-#tracy-bs h3 {
-	margin: 0 0 var(--tracy-space);
+#tracy-bs :where(:is(
+	h1, h2, h3, h4, h5, h6,
+	p,
+	ol, ul, dl,
+	pre, table, hr,
+	.tracy-section-panel,
+	.tracy-pane
+):not(:first-child)) {
+	margin-top: var(--tracy-space);
 }
 
 #tracy-bs h1 {
@@ -92,7 +85,6 @@ html.tracy-bs-visible body {
 #tracy-bs h2 {
 	font-size: 14pt;
 	font-weight: normal;
-	margin-top: var(--tracy-space);
 }
 
 #tracy-bs h3 {
@@ -188,14 +180,12 @@ html.tracy-bs-visible body {
 
 
 #tracy-bs .tracy-section {
-	padding-left: calc(1.5 * var(--tracy-space));
-	padding-right: calc(1.5 * var(--tracy-space));
+	padding: var(--tracy-space);
 }
 
 #tracy-bs .tracy-section-panel {
-	background: #F4F3F1;
-	padding: var(--tracy-space) var(--tracy-space) 0;
-	margin: 0 0 var(--tracy-space);
+	background: #5040200E;
+	padding: var(--tracy-space);
 	border-radius: 8px;
 	box-shadow: inset 1px 1px 0px 0 #00000005;
 	overflow: hidden;
@@ -215,11 +205,11 @@ html.tracy-bs-visible body {
 #tracy-bs .tracy-section--error {
 	background: #CD1818;
 	color: white;
-	font-size: 13pt;
-	padding-top: var(--tracy-space);
 }
 
+#tracy-bs .tracy-section--error p,
 #tracy-bs .tracy-section--error h1 {
+	font-size: 13pt;
 	color: white;
 }
 
@@ -229,7 +219,7 @@ html.tracy-bs-visible body {
 	background: #FDF5CE !important;
 }
 
-#tracy-bs .tracy-section--error a {
+#tracy-bs .tracy-section--error h1 a {
 	color: #ffefa1 !important;
 }
 
@@ -259,12 +249,42 @@ html.tracy-bs-visible body {
 	font-style: normal;
 }
 
+#tracy-bs .tracy-section--error:has(.tracy-caused) {
+	border-radius: 0 0 0 8px;
+	overflow: hidden;
+}
+
+#tracy-bs .tracy-caused {
+	margin: var(--tracy-space) calc(-1 * var(--tracy-space)) calc(-1 * var(--tracy-space));
+	padding: .3em var(--tracy-space);
+	background: #df8075;
+	white-space: nowrap;
+}
+
+#tracy-bs .tracy-caused a {
+	color: white;
+}
+
+
 
 /* source code */
 #tracy-bs pre.tracy-code > div {
-	min-width: 100%;
-	float: left;
+	min-width: fit-content;
 	white-space: pre;
+}
+
+#tracy-bs .tracy-code-comment {
+	color: rgba(0, 0, 0, 0.5);
+	font-style: italic;
+}
+
+#tracy-bs .tracy-code-keyword {
+	color: #D24;
+	font-weight: bold;
+}
+
+#tracy-bs .tracy-code-var {
+	font-weight: bold;
 }
 
 #tracy-bs .tracy-line-highlight {
@@ -274,7 +294,7 @@ html.tracy-bs-visible body {
 	font-style: normal;
 	display: block;
 	padding: 0 1ch;
-	margin: 0 -1ch;
+	margin: 0 -1ch -1lh;
 }
 
 #tracy-bs .tracy-column-highlight {
@@ -308,34 +328,21 @@ html.tracy-bs-visible body {
 	color: #0003;
 }
 
-#tracy-bs .tracy-caused {
-	float: right;
-	padding: .3em calc(1.5 * var(--tracy-space));
-	background: #df8075;
-	border-radius: 0 0 0 8px;
-	white-space: nowrap;
-}
-
-#tracy-bs .tracy-caused a {
-	color: white;
-}
-
 #tracy-bs .tracy-callstack {
 	display: grid;
+	overflow: auto;
 	grid-template-columns: max-content 1fr;
-	margin-bottom: calc(.5 * var(--tracy-space));
+	row-gap: calc(.5 * var(--tracy-space));
 }
 
 #tracy-bs .tracy-callstack-file {
 	text-align: right;
 	padding-right: var(--tracy-space);
 	white-space: nowrap;
-	height: calc(1.5 * var(--tracy-space));
 }
 
 #tracy-bs .tracy-callstack-callee {
 	white-space: nowrap;
-	height: calc(1.5 * var(--tracy-space));
 }
 
 #tracy-bs .tracy-callstack-additional {
@@ -390,10 +397,7 @@ html.tracy-bs-visible body {
 	margin: 0;
 	width: 100%;
 	font-size: 110%;
-}
-
-#tracy-bs .tracy-tab-bar > *:not(:first-child) {
-	margin-left: var(--tracy-space);
+	column-gap: var(--tracy-space);
 }
 
 #tracy-bs .tracy-tab-bar a {

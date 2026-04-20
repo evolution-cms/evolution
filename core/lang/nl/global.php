@@ -10,7 +10,7 @@
  * @package evo
  * @subpackage manager
  *
- * Please commit your language changes on Transifex (https://www.transifex.com/evolutioncms/evolution/) or on GitHub (https://github.com/evolution-cms/evolution).
+ * Please commit your language changes on Transifex (https://www.transifex.com/evolution-cms/evolution/) or on GitHub (https://github.com/evolution-cms/evolution).
  */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL languages
 $modx_lang_attribute = 'nl'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
@@ -89,11 +89,11 @@ $_lang["category_manager"] = 'Categorie Manager';
 $_lang["category_management"] = 'Categorie beheren';
 $_lang["manage_categories"] = 'Beheer categorieën';
 $_lang["category_msg"] = 'Bekijk en wijzig hier alle Elementen gegroepeerd per categorie.';
-$_lang["cfg_base_path"] = 'MODX_BASE_PATH';
-$_lang["cfg_base_url"] = 'MODX_BASE_URL';
-$_lang["cfg_manager_path"] = 'MODX_MANAGER_PATH';
-$_lang["cfg_manager_url"] = 'MODX_MANAGER_URL';
-$_lang["cfg_site_url"] = 'MODX_SITE_URL';
+$_lang["cfg_base_path"] = 'EVO_BASE_PATH';
+$_lang["cfg_base_url"] = 'EVO_BASE_URL';
+$_lang["cfg_manager_path"] = 'EVO_MANAGER_PATH';
+$_lang["cfg_manager_url"] = 'EVO_MANAGER_URL';
+$_lang["cfg_site_url"] = 'EVO_SITE_URL';
 $_lang["change_name"] = 'Naam wijzigen';
 $_lang["change_password"] = 'Wachtwoord wijzigen';
 $_lang["change_password_confirm"] = 'Wachtwoord bevestigen';
@@ -373,7 +373,9 @@ $_lang["group_access_permissions"] = 'Groepstoegang';
 $_lang['group_tvs'] = 'TV groep';
 $_lang["guid"] = 'GUID';
 $_lang["help"] = 'Help';
-$_lang["help_msg"] = '<p>U kunt ondersteuning verkrijgen door <a href="http://forums.modx.com/" target="_blank">de EVO-forums te bezoeken</a> of bekijk de <a href="http://evolution-docs.com" target="_blank">EVO documentatie site.</a></p>';
+$_lang["help_donate_msg"] = 'Koop koffie voor de ontwikkelaars van Evolution CMS. <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> Word vandaag nog fan van Evolution CMS! ❤️ Met Ko-fi kun je de makers van wie je houdt steunen zonder donatiekosten.';
+$_lang["help_donate_title"] = 'Voor de ontwikkeling van Evolution CMS';
+$_lang["help_msg"] = '<p>U kunt ondersteuning verkrijgen door <a href="https://forum.evo.im/" target="_blank">de EVO-forums te bezoeken</a> of bekijk de <a href="http://evolution-docs.com" target="_blank">EVO documentatie site.</a></p>';
 $_lang["help_title"] = 'Help';
 $_lang["hide_tree"] = 'Website boomstructuur verbergen';
 $_lang["home"] = 'Start';
@@ -525,7 +527,7 @@ $_lang["modx_news"] = 'Nieuwsmeldingen';
 $_lang["modx_news_tab"] = 'EVO Nieuws';
 $_lang["modx_news_title"] = 'EVO Nieuws';
 $_lang["modx_security_notices"] = 'Beveiligingswaarschuwingen';
-$_lang["modx_version"] = 'EVO versie';
+$_lang["evo_version"] = 'EVO versie';
 $_lang["monday"] = 'Maandag';
 $_lang["move"] = 'Verplaatsen';
 $_lang["move_resource"] = 'Verplaats Pagina';
@@ -755,7 +757,7 @@ $_lang["role_create_doc"] = 'Nieuwe Pagina\'s maken';
 $_lang["role_create_plugin"] = 'Nieuwe Plug-ins maken';
 $_lang["role_create_snippet"] = 'Nieuwe Snippets maken';
 $_lang["role_create_template"] = 'Nieuwe website Templates maken';
-$_lang["role_credits"] = 'Dankwoord weergeven';
+$_lang["role_widget_online_info"] = 'Widget Gebruikers online weergeven';
 $_lang["role_delete_chunk"] = 'Chunks verwijderen';
 $_lang["role_delete_doc"] = 'Pagina\'s verwijderen';
 $_lang["role_delete_eventlog"] = 'Verwijder logboek (events)';
@@ -787,7 +789,7 @@ $_lang["role_frames"] = 'Verzoek om Content Management Systeem venster';
 $_lang["role_help"] = 'Help Pagina\'s weergeven';
 $_lang["role_home"] = 'Verzoek om Content Management Systeem Intropagina';
 $_lang["role_import_static"] = 'Importeer HTML';
-$_lang["role_logout"] = 'Afmelden uit de beheerder';
+$_lang["role_widget_recent_info"] = 'Widget Recent gemaakte/bewerkte Pagina\'s weergeven';
 $_lang["role_manage_metatags"] = 'Beheer \'META tags\' en keywords';
 $_lang["role_management_msg"] = 'Hier kunt u kiezen welke Rol u wenst te wijzigen.';
 $_lang["role_management_title"] = 'Rollen';
@@ -1168,7 +1170,7 @@ $_lang["yourinfo_username"] = 'U bent aangemeld als:';
 $_lang["a17_error_reporting_title"] = 'Detectie level van de PHP foutmelding';
 $_lang["a17_error_reporting_msg"] = 'Bepaal het level van de PHP foutmelding.';
 $_lang["a17_error_reporting_opt0"] = 'Negeer alle';
-$_lang["a17_error_reporting_opt1"] = 'Negeer de waarschuwing van een melding met laag niveau (<a href="https://www.google.com/search?q=E_DEPRECATED+E_STRICT" target="_blank">deprecated</a>)';
+$_lang["a17_error_reporting_opt1"] = 'Negeer de waarschuwing van een melding met laag niveau (<a href="https://www.google.com/search?q=E_DEPRECATED+E_NOTICE" target="_blank">deprecated</a>)';
 $_lang["a17_error_reporting_opt2"] = 'Detecteer alle foutmeldingen behalve E_NOTICE and E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt99"] = 'Detecteer alle foutmeldingen behalve E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt199"] = 'Detecteer alle';
@@ -1197,7 +1199,7 @@ $_lang["bkmgr_run_sql_direct_label"] = 'Direct uitvoeren van SQL commando string
 $_lang["bkmgr_run_sql_submit"] = 'Herstellen uitvoeren';
 $_lang["bkmgr_run_sql_result"] = 'Resultaat';
 $_lang["bkmgr_snapshot_title"] = 'Snapshot opgeslagen en hersteld';
-$_lang["bkmgr_snapshot_msg"] = '<p>De inhoud van de database is opgeslagen en hersteld op de server.<br />Opgeslagen locatie: [+snapshot_path+] ($modx->config[\'snapshot_path\'])</p>';
+$_lang["bkmgr_snapshot_msg"] = '<p>De inhoud van de database is opgeslagen en hersteld op de server.<br />Opgeslagen locatie: [+snapshot_path+] (evo()->getConfig(\'snapshot_path\'))</p>';
 $_lang["bkmgr_snapshot_submit"] = 'Snapshot toevoegen';
 $_lang["bkmgr_snapshot_list_title"] = 'Lijst van Snapshots';
 $_lang["bkmgr_restore_submit"] = 'Deze gegevens (data) terugzetten';
@@ -1254,6 +1256,8 @@ $_lang["disabled_at_login"] = 'Uitgeschakeld bij inloggen';
 $_lang["cache_type_title"] = 'Document cache type';
 $_lang["cache_type_1"] = 'Cache is gebaseerd op document id (standaard)';
 $_lang["cache_type_2"] = 'Cache is gebaseerd op document id en $_GET parameters';
+$_lang["html_comment_title"] = 'HTML-commentaar';
+$_lang["html_comment_message"] = 'Kommagescheiden lijst van elementtypen om te omhullen met HTML-commentaar in de paginabron: <b>snippets</b>, <b>chunks</b>, <b>tvs</b>, <b>snippetParams</b>';
 $_lang["seostrict_title"] = 'Gebruik SEO Strict URLs';
 $_lang["seostrict_message"] = 'Gebruik van strikte URL\'s om dubbele inhoud te voorkomen (wanneer dit plaatsvindt)';
 $_lang["aliaslistingfolder_title"] = 'Gebruik AliasListing alleen bij mappen';
@@ -1305,8 +1309,6 @@ $_lang["dp_startDay"]   = "1";
 $_lang["check_all"] = "Selecteer alle";
 $_lang["check_none"] = "Deselecteer alle";
 $_lang["check_toggle"] = "Selectie aan/uit";
-
-$_lang["version_notices"] = "Meldingen over versies";
 
 $_lang["em_button_shift"] = "(Shift+muiseklik om meerdere vensters te openen)";
 
@@ -1419,5 +1421,12 @@ $_lang["role_tv_msg"] = 'The Variables assigned to this Role are listed below.';
 $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to access/process this Template Variable';
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
+
+$_lang["file_groups_saved"] = 'Toegangsrechten opgeslagen.';
+$_lang["file_groups_edit"] = 'Toegangsrechten bewerken';
+$_lang["files_groups"] = 'Resourcegroepen:';
+$_lang["access_permissions_file_message"] = 'Selecteer tot welke Resourcegroepen dit bestand behoort:';
+$_lang["access_permissions_dir_message"] = 'Selecteer tot welke Resourcegroepen deze map behoort:';
+$_lang["all_file_groups"] = 'Alle resourcegroepen (Openbaar)';
 
 return $_lang;

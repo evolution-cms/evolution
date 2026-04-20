@@ -20,10 +20,13 @@
 #resizer:hover { background-color: rgba(0, 0, 0, 0.1); }
 #mask_resizer { position: absolute; width: 100%; height: 100%; }
 /* mainloader */
-#mainloader { position: absolute; z-index: 50000; top: 0; left: 0; width: 100%; height: 100%; text-align: center; vertical-align: middle; padding: 15% 0 0 0; background-color: rgba(255, 255, 255, 0.64); opacity: 0; visibility: hidden; -webkit-transition-duration: 0.3s; transition-duration: 0.3s }
-#mainloader.show { opacity: 0.75; visibility: visible; -webkit-transition-duration: 0.1s; transition-duration: 0.1s }
-#mainloader::before { content: ""; display: block; position: absolute; z-index: 1; left: 50%; top: 30%; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; animation: rotate 2s linear infinite; box-shadow: 5px 5px 0 0 rgb(234, 132, 82), 14px -7px 0 0 rgba(111, 163, 219, 0.7), -7px 11px 0 0 rgba(112, 193, 92, 0.74), -11px -7px 0 0 rgba(147, 205, 99, 0.78); }
-.sidebar-closed #tree { width: 0 !important; }
+#mainloader {position: absolute; z-index: 50000; top: 0; left: 0; width: 100%; height: 100%; text-align: center; vertical-align: middle; padding: 15% 0 0 0; background-color: rgba(255, 255, 255, 0.64); opacity: 0; visibility: hidden; -webkit-transition-duration: 0.3s; transition-duration: 0.3s }
+#mainloader.show {opacity: 0.75; visibility: visible; -webkit-transition-duration: 0.1s; transition-duration: 0.1s}
+#mainloader::before {display: none;}
+.evo__logo {font-size: 3.5em;position: fixed; top: 40%; left: 50%;}
+.evo__logo::before {content: ""; display: block; position: absolute; z-index: 1; left: 50%; top: 50%; width: 120px; height: 120px; border-radius: 50%; transform: translate(-50%, -50%) rotate(0deg); animation: rotateLogo 2s linear infinite; box-shadow: 5px 5px 0 0 #FFD700, 14px -7px 0 0 rgba(111, 163, 219, 0.7), -7px 11px 0 0 rgba(112, 193, 92, 0.74), -11px -7px 0 0 rgba(147, 205, 99, 0.78);}
+@keyframes rotateLogo {to {transform: translate(-50%, -50%) rotate(360deg)}}
+.sidebar-closed #tree {width: 0 !important;}
 .sidebar-closed #main, .sidebar-closed #resizer { left: 0 !important; }
 @media (min-width: 1200px) {
 #mainMenu { height: 2.5rem; }

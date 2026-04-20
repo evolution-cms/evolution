@@ -19,10 +19,10 @@ if (!isset($input->get['lng']) || ($input->get['lng'] == 'en')) {
     die;
 }
 $file = "lang/" . $input->get['lng'] . ".php";
-$files = dir::content("lang", array(
+$files = dir::content("lang", [
     'types' => "file",
     'pattern' => '/^.*\.php$/'
-));
+]);
 if (!in_array($file, $files)) {
     header("Content-Type: text/javascript");
     die;

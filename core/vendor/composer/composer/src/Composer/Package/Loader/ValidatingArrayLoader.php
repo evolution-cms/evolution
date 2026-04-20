@@ -17,6 +17,8 @@ use Composer\Pcre\Preg;
 use Composer\Semver\Constraint\Constraint;
 use Composer\Package\Version\VersionParser;
 use Composer\Repository\PlatformRepository;
+use Composer\Semver\Constraint\MatchNoneConstraint;
+use Composer\Semver\Intervals;
 use Composer\Spdx\SpdxLicenses;
 
 /**
@@ -91,7 +93,7 @@ class ValidatingArrayLoader implements LoaderInterface
                     continue;
                 }
                 if (!is_string($platform)) {
-                    $this->errors[] = 'config.platform.' . $key . ' : invalid value ('.gettype($platform).' '.var_export($platform, true).'): expected string or false';
+                    $this->errors[] = 'config.platform.' . $key . ' : invalid value ('.get_debug_type($platform).' '.var_export($platform, true).'): expected string or false';
                     continue;
                 }
                 try {
@@ -130,40 +132,61 @@ class ValidatingArrayLoader implements LoaderInterface
             }
         }
 
-        // check for license validity on newly updated branches
-        if (isset($this->config['license']) && (null === $releaseDate || $releaseDate->getTimestamp() >= strtotime('-8days'))) {
+        if (isset($this->config['license'])) {
+            // validate main data types
             if (is_array($this->config['license']) || is_string($this->config['license'])) {
                 $licenses = (array) $this->config['license'];
 
-                $licenseValidator = new SpdxLicenses();
-                foreach ($licenses as $license) {
-                    // replace proprietary by MIT for validation purposes since it's not a valid SPDX identifier, but is accepted by composer
-                    if ('proprietary' === $license) {
-                        continue;
+                foreach ($licenses as $index => $license) {
+                    if (!is_string($license)) {
+                        $this->warnings[] = sprintf(
+                            'License %s should be a string.',
+                            json_encode($license)
+                        );
+                        unset($licenses[$index]);
                     }
-                    $licenseToValidate = str_replace('proprietary', 'MIT', $license);
-                    if (!$licenseValidator->validate($licenseToValidate)) {
-                        if ($licenseValidator->validate(trim($licenseToValidate))) {
-                            $this->warnings[] = sprintf(
-                                'License %s must not contain extra spaces, make sure to trim it.',
-                                json_encode($license)
-                            );
-                        } else {
-                            $this->warnings[] = sprintf(
-                                'License %s is not a valid SPDX license identifier, see https://spdx.org/licenses/ if you use an open license.' . PHP_EOL .
-                                'If the software is closed-source, you may use "proprietary" as license.',
-                                json_encode($license)
-                            );
+                }
+
+                // check for license validity on newly updated branches/tags
+                if (null === $releaseDate || $releaseDate->getTimestamp() >= strtotime('-8days')) {
+                    $licenseValidator = new SpdxLicenses();
+                    foreach ($licenses as $license) {
+                        // replace proprietary by MIT for validation purposes since it's not a valid SPDX identifier, but is accepted by composer
+                        if ('proprietary' === $license) {
+                            continue;
+                        }
+                        $licenseToValidate = str_replace('proprietary', 'MIT', $license);
+                        if (!$licenseValidator->validate($licenseToValidate)) {
+                            if ($licenseValidator->validate(trim($licenseToValidate))) {
+                                $this->warnings[] = sprintf(
+                                    'License %s must not contain extra spaces, make sure to trim it.',
+                                    json_encode($license)
+                                );
+                            } else {
+                                $this->warnings[] = sprintf(
+                                    'License %s is not a valid SPDX license identifier, see https://spdx.org/licenses/ if you use an open license.' . PHP_EOL .
+                                    'If the software is closed-source, you may use "proprietary" as license.',
+                                    json_encode($license)
+                                );
+                            }
                         }
                     }
                 }
+
+                $this->config['license'] = array_values($licenses);
+            } else {
+                $this->warnings[] = sprintf(
+                    'License must be a string or array of strings, got %s.',
+                    json_encode($this->config['license'])
+                );
+                unset($this->config['license']);
             }
         }
 
         if ($this->validateArray('authors')) {
             foreach ($this->config['authors'] as $key => $author) {
                 if (!is_array($author)) {
-                    $this->errors[] = 'authors.'.$key.' : should be an array, '.gettype($author).' given';
+                    $this->errors[] = 'authors.'.$key.' : should be an array, '.get_debug_type($author).' given';
                     unset($this->config['authors'][$key]);
                     continue;
                 }
@@ -191,7 +214,7 @@ class ValidatingArrayLoader implements LoaderInterface
         }
 
         if ($this->validateArray('support') && !empty($this->config['support'])) {
-            foreach (['issues', 'forum', 'wiki', 'source', 'email', 'irc', 'docs', 'rss', 'chat'] as $key) {
+            foreach (['issues', 'forum', 'wiki', 'source', 'email', 'irc', 'docs', 'rss', 'chat', 'security'] as $key) {
                 if (isset($this->config['support'][$key]) && !is_string($this->config['support'][$key])) {
                     $this->errors[] = 'support.'.$key.' : invalid value, must be a string';
                     unset($this->config['support'][$key]);
@@ -208,7 +231,7 @@ class ValidatingArrayLoader implements LoaderInterface
                 unset($this->config['support']['irc']);
             }
 
-            foreach (['issues', 'forum', 'wiki', 'source', 'docs', 'chat'] as $key) {
+            foreach (['issues', 'forum', 'wiki', 'source', 'docs', 'chat', 'security'] as $key) {
                 if (isset($this->config['support'][$key]) && !$this->filterUrl($this->config['support'][$key])) {
                     $this->warnings[] = 'support.'.$key.' : invalid value ('.$this->config['support'][$key].'), must be an http/https URL';
                     unset($this->config['support'][$key]);
@@ -222,7 +245,7 @@ class ValidatingArrayLoader implements LoaderInterface
         if ($this->validateArray('funding') && !empty($this->config['funding'])) {
             foreach ($this->config['funding'] as $key => $fundingOption) {
                 if (!is_array($fundingOption)) {
-                    $this->errors[] = 'funding.'.$key.' : should be an array, '.gettype($fundingOption).' given';
+                    $this->errors[] = 'funding.'.$key.' : should be an array, '.get_debug_type($fundingOption).' given';
                     unset($this->config['funding'][$key]);
                     continue;
                 }
@@ -245,13 +268,152 @@ class ValidatingArrayLoader implements LoaderInterface
             }
         }
 
+        if (isset($this->config['php-ext']) && $this->validateArray('php-ext')) {
+            if (!in_array($this->config['type'] ?? '', ['php-ext', 'php-ext-zend'], true)) {
+                $this->errors[] = 'php-ext can only be set by packages of type "php-ext" or "php-ext-zend" which must be C extensions';
+                unset($this->config['php-ext']);
+            }
+
+            $phpExt = &$this->config['php-ext'];
+
+            if (isset($phpExt['extension-name']) && !is_string($phpExt['extension-name'])) {
+                $this->errors[] = 'php-ext.extension-name : should be a string, '.get_debug_type($phpExt['extension-name']).' given';
+                unset($phpExt['extension-name']);
+            }
+
+            if (isset($phpExt['priority']) && !is_int($phpExt['priority'])) {
+                $this->errors[] = 'php-ext.priority : should be an integer, '.get_debug_type($phpExt['priority']).' given';
+                unset($phpExt['priority']);
+            }
+
+            if (isset($phpExt['support-zts']) && !is_bool($phpExt['support-zts'])) {
+                $this->errors[] = 'php-ext.support-zts : should be a boolean, '.get_debug_type($phpExt['support-zts']).' given';
+                unset($phpExt['support-zts']);
+            }
+
+            if (isset($phpExt['support-nts']) && !is_bool($phpExt['support-nts'])) {
+                $this->errors[] = 'php-ext.support-nts : should be a boolean, '.get_debug_type($phpExt['support-nts']).' given';
+                unset($phpExt['support-nts']);
+            }
+
+            if (isset($phpExt['build-path']) && !is_string($phpExt['build-path']) && !is_null($phpExt['build-path'])) {
+                $this->errors[] = 'php-ext.build-path : should be a string or null, '.get_debug_type($phpExt['build-path']).' given';
+                unset($phpExt['build-path']);
+            }
+
+            if (isset($phpExt['download-url-method'])) {
+                if (!is_array($phpExt['download-url-method']) && !is_string($phpExt['download-url-method'])) {
+                    $this->errors[] = 'php-ext.download-url-method : should be an array or a string, '.get_debug_type($phpExt['download-url-method']).' given';
+                    unset($phpExt['download-url-method']);
+                } else {
+                    $validDownloadUrlMethods = ['composer-default', 'pre-packaged-source', 'pre-packaged-binary'];
+                    $definedDownloadUrlMethods = is_array($phpExt['download-url-method']) ? $phpExt['download-url-method'] : [$phpExt['download-url-method']];
+
+                    if ([] === $definedDownloadUrlMethods) {
+                        $this->errors[] = 'php-ext.download-url-method : must contain at least one element';
+                        unset($phpExt['download-url-method']);
+                    } else {
+                        foreach ($definedDownloadUrlMethods as $key => $downloadUrlMethod) {
+                            if (!is_string($downloadUrlMethod)) {
+                                $this->errors[] = 'php-ext.download-url-method.'.$key.' : should be a string, '.get_debug_type($downloadUrlMethod).' given';
+                                unset($phpExt['download-url-method']);
+                            } elseif (!in_array($downloadUrlMethod, $validDownloadUrlMethods, true)) {
+                                $this->errors[] = 'php-ext.download-url-method.'.$key.' : invalid value ('.$downloadUrlMethod.'), must be one of ' . implode(', ', $validDownloadUrlMethods);
+                                unset($phpExt['download-url-method']);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (isset($phpExt['os-families']) && isset($phpExt['os-families-exclude'])) {
+                $this->errors[] = 'php-ext : os-families and os-families-exclude cannot both be specified';
+                unset($phpExt['os-families'], $phpExt['os-families-exclude']);
+            } else {
+                $validOsFamilies = ['windows', 'bsd', 'darwin', 'solaris', 'linux', 'unknown'];
+
+                foreach (['os-families', 'os-families-exclude'] as $fieldName) {
+                    if (isset($phpExt[$fieldName])) {
+                        if (!is_array($phpExt[$fieldName])) {
+                            $this->errors[] = 'php-ext.'.$fieldName.' : should be an array, '.get_debug_type($phpExt[$fieldName]).' given';
+                            unset($phpExt[$fieldName]);
+                        } elseif ([] === $phpExt[$fieldName]) {
+                            $this->errors[] = 'php-ext.'.$fieldName.' : must contain at least one element';
+                            unset($phpExt[$fieldName]);
+                        } else {
+                            foreach ($phpExt[$fieldName] as $key => $osFamily) {
+                                if (!is_string($osFamily)) {
+                                    $this->errors[] = 'php-ext.'.$fieldName.'.'.$key.' : should be a string, '.get_debug_type($osFamily).' given';
+                                    unset($phpExt[$fieldName][$key]);
+                                } elseif (!in_array($osFamily, $validOsFamilies, true)) {
+                                    $this->errors[] = 'php-ext.'.$fieldName.'.'.$key.' : invalid value ('.$osFamily.'), must be one of '.implode(', ', $validOsFamilies);
+                                    unset($phpExt[$fieldName][$key]);
+                                }
+                            }
+                            if ([] === $phpExt[$fieldName]) {
+                                unset($phpExt[$fieldName]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (isset($phpExt['configure-options'])) {
+                if (!is_array($phpExt['configure-options'])) {
+                    $this->errors[] = 'php-ext.configure-options : should be an array, '.get_debug_type($phpExt['configure-options']).' given';
+                    unset($phpExt['configure-options']);
+                } else {
+                    foreach ($phpExt['configure-options'] as $key => $option) {
+                        if (!is_array($option)) {
+                            $this->errors[] = 'php-ext.configure-options.'.$key.' : should be an array, '.get_debug_type($option).' given';
+                            unset($phpExt['configure-options'][$key]);
+                            continue;
+                        }
+
+                        if (!isset($option['name'])) {
+                            $this->errors[] = 'php-ext.configure-options.'.$key.'.name : must be present';
+                            unset($phpExt['configure-options'][$key]);
+                            continue;
+                        }
+
+                        if (!is_string($option['name'])) {
+                            $this->errors[] = 'php-ext.configure-options.'.$key.'.name : should be a string, '.get_debug_type($option['name']).' given';
+                            unset($phpExt['configure-options'][$key]);
+                            continue;
+                        }
+
+                        if (isset($option['needs-value']) && !is_bool($option['needs-value'])) {
+                            $this->errors[] = 'php-ext.configure-options.'.$key.'.needs-value : should be a boolean, '.get_debug_type($option['needs-value']).' given';
+                            unset($phpExt['configure-options'][$key]['needs-value']);
+                        }
+
+                        if (isset($option['description']) && !is_string($option['description'])) {
+                            $this->errors[] = 'php-ext.configure-options.'.$key.'.description : should be a string, '.get_debug_type($option['description']).' given';
+                            unset($phpExt['configure-options'][$key]['description']);
+                        }
+                    }
+
+                    if ([] === $phpExt['configure-options']) {
+                        unset($phpExt['configure-options']);
+                    }
+                }
+            }
+
+            // If php-ext is now empty, unset it
+            if ([] === $phpExt) {
+                unset($this->config['php-ext']);
+            }
+
+            unset($phpExt);
+        }
+
         $unboundConstraint = new Constraint('=', '10000000-dev');
 
         foreach (array_keys(BasePackage::$supportedLinkTypes) as $linkType) {
             if ($this->validateArray($linkType) && isset($this->config[$linkType])) {
                 foreach ($this->config[$linkType] as $package => $constraint) {
                     $package = (string) $package;
-                    if (0 === strcasecmp($package, $this->config['name'])) {
+                    if (isset($this->config['name']) && 0 === strcasecmp($package, $this->config['name'])) {
                         $this->errors[] = $linkType.'.'.$package.' : a package cannot set a '.$linkType.' on itself';
                         unset($this->config[$linkType][$package]);
                         continue;
@@ -290,6 +452,11 @@ class ValidatingArrayLoader implements LoaderInterface
                         ) {
                             $this->warnings[] = $linkType.'.'.$package.' : exact version constraints ('.$constraint.') should be avoided if the package follows semantic versioning';
                         }
+
+                        $compacted = Intervals::compactConstraint($linkConstraint);
+                        if ($compacted instanceof MatchNoneConstraint) {
+                            $this->warnings[] = $linkType.'.'.$package.' : this version constraint cannot possibly match anything ('.$constraint.')';
+                        }
                     }
 
                     if ($linkType === 'conflict' && isset($this->config['replace']) && $keys = array_intersect_key($this->config['replace'], $this->config['conflict'])) {
@@ -310,8 +477,8 @@ class ValidatingArrayLoader implements LoaderInterface
         }
 
         if ($this->validateString('minimum-stability') && isset($this->config['minimum-stability'])) {
-            if (!isset(BasePackage::$stabilities[strtolower($this->config['minimum-stability'])]) && $this->config['minimum-stability'] !== 'RC') {
-                $this->errors[] = 'minimum-stability : invalid value ('.$this->config['minimum-stability'].'), must be one of '.implode(', ', array_keys(BasePackage::$stabilities));
+            if (!isset(BasePackage::STABILITIES[strtolower($this->config['minimum-stability'])]) && $this->config['minimum-stability'] !== 'RC') {
+                $this->errors[] = 'minimum-stability : invalid value ('.$this->config['minimum-stability'].'), must be one of '.implode(', ', array_keys(BasePackage::STABILITIES));
                 unset($this->config['minimum-stability']);
             }
         }
@@ -352,13 +519,13 @@ class ValidatingArrayLoader implements LoaderInterface
                     $this->errors[] = $srcType . '.reference : must be present';
                 }
                 if (isset($this->config[$srcType]['type']) && !is_string($this->config[$srcType]['type'])) {
-                    $this->errors[] = $srcType . '.type : should be a string, '.gettype($this->config[$srcType]['type']).' given';
+                    $this->errors[] = $srcType . '.type : should be a string, '.get_debug_type($this->config[$srcType]['type']).' given';
                 }
                 if (isset($this->config[$srcType]['url']) && !is_string($this->config[$srcType]['url'])) {
-                    $this->errors[] = $srcType . '.url : should be a string, '.gettype($this->config[$srcType]['url']).' given';
+                    $this->errors[] = $srcType . '.url : should be a string, '.get_debug_type($this->config[$srcType]['url']).' given';
                 }
                 if (isset($this->config[$srcType]['reference']) && !is_string($this->config[$srcType]['reference']) && !is_int($this->config[$srcType]['reference'])) {
-                    $this->errors[] = $srcType . '.reference : should be a string or int, '.gettype($this->config[$srcType]['reference']).' given';
+                    $this->errors[] = $srcType . '.reference : should be a string or int, '.get_debug_type($this->config[$srcType]['reference']).' given';
                 }
                 if (isset($this->config[$srcType]['reference']) && Preg::isMatch('{^\s*-}', (string) $this->config[$srcType]['reference'])) {
                     $this->errors[] = $srcType . '.reference : must not start with a "-", "'.$this->config[$srcType]['reference'].'" given';
@@ -382,7 +549,7 @@ class ValidatingArrayLoader implements LoaderInterface
             } else {
                 foreach ($this->config['extra']['branch-alias'] as $sourceBranch => $targetBranch) {
                     if (!is_string($targetBranch)) {
-                        $this->warnings[] = 'extra.branch-alias.'.$sourceBranch.' : the target branch ('.json_encode($targetBranch).') must be a string, "'.gettype($targetBranch).'" received.';
+                        $this->warnings[] = 'extra.branch-alias.'.$sourceBranch.' : the target branch ('.json_encode($targetBranch).') must be a string, "'.get_debug_type($targetBranch).'" received.';
                         unset($this->config['extra']['branch-alias'][$sourceBranch]);
 
                         continue;
@@ -508,7 +675,7 @@ class ValidatingArrayLoader implements LoaderInterface
     private function validateString(string $property, bool $mandatory = false): bool
     {
         if (isset($this->config[$property]) && !is_string($this->config[$property])) {
-            $this->errors[] = $property.' : should be a string, '.gettype($this->config[$property]).' given';
+            $this->errors[] = $property.' : should be a string, '.get_debug_type($this->config[$property]).' given';
             unset($this->config[$property]);
 
             return false;
@@ -532,7 +699,7 @@ class ValidatingArrayLoader implements LoaderInterface
     private function validateArray(string $property, bool $mandatory = false): bool
     {
         if (isset($this->config[$property]) && !is_array($this->config[$property])) {
-            $this->errors[] = $property.' : should be an array, '.gettype($this->config[$property]).' given';
+            $this->errors[] = $property.' : should be an array, '.get_debug_type($this->config[$property]).' given';
             unset($this->config[$property]);
 
             return false;
@@ -563,7 +730,7 @@ class ValidatingArrayLoader implements LoaderInterface
         $pass = true;
         foreach ($this->config[$property] as $key => $value) {
             if (!is_string($value) && !is_numeric($value)) {
-                $this->errors[] = $property.'.'.$key.' : must be a string or int, '.gettype($value).' given';
+                $this->errors[] = $property.'.'.$key.' : must be a string or int, '.get_debug_type($value).' given';
                 unset($this->config[$property][$key]);
                 $pass = false;
 

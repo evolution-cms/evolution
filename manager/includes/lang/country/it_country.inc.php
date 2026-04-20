@@ -4,10 +4,8 @@
  *
  * @version 1.0.15
  * @date 2014/02/24
- * @author luigif
- * @author Diego Meozzi
  *
- * @language Italian
+ * @language English
  * @package modx
  * @subpackage manager
  *

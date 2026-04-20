@@ -31,7 +31,6 @@ class XliffUtils
      */
     public static function getVersionNumber(\DOMDocument $dom): string
     {
-        /** @var \DOMNode $xliff */
         foreach ($dom->getElementsByTagName('xliff') as $xliff) {
             $version = $xliff->attributes->getNamedItem('version');
             if ($version) {
@@ -41,7 +40,7 @@ class XliffUtils
             $namespace = $xliff->attributes->getNamedItem('xmlns');
             if ($namespace) {
                 if (0 !== substr_compare('urn:oasis:names:tc:xliff:document:', $namespace->nodeValue, 0, 34)) {
-                    throw new InvalidArgumentException(sprintf('Not a valid XLIFF namespace "%s".', $namespace));
+                    throw new InvalidArgumentException(\sprintf('Not a valid XLIFF namespace "%s".', $namespace));
                 }
 
                 return substr($namespace, 34);
@@ -85,11 +84,6 @@ class XliffUtils
 
     private static function shouldEnableEntityLoader(): bool
     {
-        // Version prior to 8.0 can be enabled without deprecation
-        if (\PHP_VERSION_ID < 80000) {
-            return true;
-        }
-
         static $dom, $schema;
         if (null === $dom) {
             $dom = new \DOMDocument();
@@ -118,7 +112,7 @@ class XliffUtils
         $errorsAsString = '';
 
         foreach ($xmlErrors as $error) {
-            $errorsAsString .= sprintf("[%s %s] %s (in %s - line %d, column %d)\n",
+            $errorsAsString .= \sprintf("[%s %s] %s (in %s - line %d, column %d)\n",
                 \LIBXML_ERR_WARNING === $error['level'] ? 'WARNING' : 'ERROR',
                 $error['code'],
                 $error['message'],
@@ -140,7 +134,7 @@ class XliffUtils
             $schemaSource = file_get_contents(__DIR__.'/../Resources/schemas/xliff-core-2.0.xsd');
             $xmlUri = 'informativeCopiesOf3rdPartySchemas/w3c/xml.xsd';
         } else {
-            throw new InvalidArgumentException(sprintf('No support implemented for loading XLIFF version "%s".', $xliffVersion));
+            throw new InvalidArgumentException(\sprintf('No support implemented for loading XLIFF version "%s".', $xliffVersion));
         }
 
         return self::fixXmlLocation($schemaSource, $xmlUri);

@@ -46,7 +46,7 @@ class Captcha implements CaptchaInterface
     public function __construct($w=200, $h=80) {
         /* create session to set word for verification */
         $this->setVeriword();
-        $this->dir_font = MODX_BASE_PATH . 'assets/' . $this->dir_font;
+        $this->dir_font = EVO_BASE_PATH . 'assets/' . $this->dir_font;
         $this->im_width         = $w;
         $this->im_height        = $h;
     }
@@ -66,7 +66,7 @@ class Captcha implements CaptchaInterface
     }
 
     public function makeText() {
-        $modx = evolutionCMS();
+        $modx = evo();
         // set default words
         $words="MODX,Access,Better,BitCode,Chunk,Cache,Desc,Design,Excell,Enjoy,URLs,TechView,Gerald,Griff,Humphrey,Holiday,Intel,Integration,Joystick,Join(),Oscope,Genetic,Light,Likeness,Marit,Maaike,Niche,Netherlands,Ordinance,Oscillo,Parser,Phusion,Query,Question,Regalia,Righteous,Snippet,Sentinel,Template,Thespian,Unity,Enterprise,Verily,Veri,Website,WideWeb,Yap,Yellow,Zebra,Zygote";
         $words = $modx->getConfig('captcha_words', $words);
@@ -78,7 +78,7 @@ class Captcha implements CaptchaInterface
 
     public function drawText() {
         $dir = dir($this->dir_font);
-        $fontstmp = array();
+        $fontstmp = [];
         while (false !== ($file = $dir->read())) {
             if(substr($file, -4) == '.ttf') {
                 $fontstmp[] = $this->dir_font.$file;
@@ -134,7 +134,7 @@ class Captcha implements CaptchaInterface
     public function drawImage() {
 
         /* pick one background image randomly from image directory */
-        $img_file       = MODX_BASE_PATH . 'assets/' . $this->dir_noise."noise".rand(1,4).".jpg";
+        $img_file       = EVO_BASE_PATH . 'assets/' . $this->dir_noise."noise".rand(1,4).".jpg";
 
         /* create "noise" background image from your image stock*/
         $noise_img      = @imagecreatefromjpeg ($img_file);

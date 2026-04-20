@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2023 Till Krüss
+ * (c) 2021-2026 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -32,6 +32,7 @@ class Options implements OptionsInterface
         'exceptions' => Option\Exceptions::class,
         'prefix' => Option\Prefix::class,
         'crc16' => Option\CRC16::class,
+        'upstream_driver' => Option\UpstreamDriver::class,
     ];
 
     /** @var array */
@@ -41,9 +42,9 @@ class Options implements OptionsInterface
     protected $input;
 
     /**
-     * @param array $options Named array of client options
+     * @param array|null $options Named array of client options
      */
-    public function __construct(array $options = null)
+    public function __construct(?array $options = null)
     {
         $this->input = $options ?? [];
     }
@@ -67,8 +68,8 @@ class Options implements OptionsInterface
     public function defined($option)
     {
         return
-            array_key_exists($option, $this->options) ||
-            array_key_exists($option, $this->input)
+            array_key_exists($option, $this->options)
+            || array_key_exists($option, $this->input)
         ;
     }
 
@@ -78,8 +79,8 @@ class Options implements OptionsInterface
     public function __isset($option)
     {
         return (
-            array_key_exists($option, $this->options) ||
-            array_key_exists($option, $this->input)
+            array_key_exists($option, $this->options)
+            || array_key_exists($option, $this->input)
         ) && $this->__get($option) !== null;
     }
 
@@ -110,7 +111,13 @@ class Options implements OptionsInterface
         if (isset($this->handlers[$option])) {
             return $this->options[$option] = $this->getDefault($option);
         }
+    }
 
-        return;
+    /**
+     * {@inheritDoc}
+     */
+    public function __set($option, $value)
+    {
+        $this->options[$option] = $value;
     }
 }

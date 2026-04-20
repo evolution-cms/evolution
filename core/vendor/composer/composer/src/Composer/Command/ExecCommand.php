@@ -22,10 +22,7 @@ use Composer\Console\Input\InputArgument;
  */
 class ExecCommand extends BaseCommand
 {
-    /**
-     * @return void
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('exec')
@@ -75,7 +72,7 @@ EOT
         $input->setArgument('binary', $binaries[$binary]);
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $composer = $this->requireComposer();
         if ($input->getOption('list') || null === $input->getArgument('binary')) {

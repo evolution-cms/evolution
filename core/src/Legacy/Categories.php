@@ -14,8 +14,8 @@ use EvolutionCMS\Models\SiteTmplvar;
 class Categories
 {
     public $db;
-    public $db_tbl = array();
-    public $elements = array('templates', 'tmplvars', 'htmlsnippets', 'snippets', 'plugins', 'modules');
+    public $db_tbl = [];
+    public $elements = ['templates', 'tmplvars', 'htmlsnippets', 'snippets', 'plugins', 'modules'];
 
     public function __construct()
     {
@@ -31,7 +31,7 @@ class Categories
     {
         $categories = Category::query()->orderBy('rank', 'ASC')->orderBy('category', 'ASC')->get()->toArray();
 
-        return empty($categories) ? array() : $categories;
+        return empty($categories) ? [] : $categories;
     }
 
     /**
@@ -111,7 +111,7 @@ class Categories
      */
     public function getAllAssignedElements($category_id)
     {
-        $elements = array();
+        $elements = [];
         foreach ($this->elements as $element) {
             $elements[$element] = $this->getAssignedElements($category_id, $element);
         }
@@ -125,7 +125,7 @@ class Categories
      */
     public function deleteCategory($category_id)
     {
-        $_update = array('category' => 0);
+        $_update = ['category' => 0];
         SiteTemplate::where('category', $category_id)->update($_update);
 
         SiteTmplvar::where('category', $category_id)->update($_update);
@@ -149,16 +149,16 @@ class Categories
      * @param array $data
      * @return bool
      */
-    public function updateCategory($category_id, $data = array())
+    public function updateCategory($category_id, $data = [])
     {
         if (empty($data) || empty($category_id)) {
             return false;
         }
 
-        $_update = array(
+        $_update = [
             'category' => $data['category'],
             'rank' => (int)$data['rank']
-        );
+        ];
         $category = Category::query()->find($category_id);
 
         if (!is_null($category)) {

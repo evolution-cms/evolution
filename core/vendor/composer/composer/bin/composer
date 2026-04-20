@@ -2,12 +2,31 @@
 <?php
 
 if (PHP_SAPI !== 'cli' && PHP_SAPI !== 'phpdbg') {
+    if (0 === strpos(__FILE__, 'phar:') && ini_get('register_argc_argv')) {
+        echo 'Composer cannot be run safely on non-CLI SAPIs with register_argc_argv=On. Aborting.'.PHP_EOL;
+        exit(1);
+    }
+
     echo 'Warning: Composer should be invoked via the CLI version of PHP, not the '.PHP_SAPI.' SAPI'.PHP_EOL;
 }
 
 if (PHP_VERSION_ID < 70205) {
     echo 'Composer 2.3.0 dropped support for PHP <7.2.5 and you are running '.PHP_VERSION.', please upgrade PHP or use Composer 2.2 LTS via "composer self-update --2.2". Aborting.'.PHP_EOL;
     exit(1);
+}
+
+if (ini_get('opcache.enable_cli') && ini_get('opcache.preload')) {
+    register_shutdown_function(static function () {
+        $e = error_get_last();
+        if ($e !== null
+            && (
+                strpos($e['message'], 'Cannot redeclare class') !== false
+                || (strpos($e['message'], 'Declaration of') !== false && strpos($e['message'], 'must be compatible with') !== false)
+            )
+        ) {
+            echo 'Warning: The error above might be caused by the fact opcache.enable_cli is enabled and opcache.preload is set in php.ini. We recommend disabling opcache.enable_cli if you really need preloading on this machine.'.PHP_EOL;
+        }
+    });
 }
 
 setlocale(LC_ALL, 'C');
@@ -37,7 +56,12 @@ if (!extension_loaded('iconv') && !extension_loaded('mbstring')) {
 }
 
 if (function_exists('ini_set')) {
-    @ini_set('display_errors', '1');
+    // check if error logging is on, but to an empty destination - for the CLI SAPI, that means stderr
+    $logsToSapiDefault = ('' === ini_get('error_log') && (bool) ini_get('log_errors'));
+    // on the CLI SAPI, ensure errors are displayed on stderr, either via display_errors or via error_log
+    if (PHP_SAPI === 'cli') {
+        @ini_set('display_errors', $logsToSapiDefault ? '0' : 'stderr');
+    }
 
     // Set user defined memory limit
     if ($memoryLimit = getenv('COMPOSER_MEMORY_LIMIT')) {

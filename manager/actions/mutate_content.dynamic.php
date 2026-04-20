@@ -10,7 +10,7 @@ $pg = isset($_REQUEST['page']) ? '&page=' . (int) $_REQUEST['page'] : '';
 $add_path = $sd . $sb . $pg;
 /*******************/
 global $content, $richtexteditorIds, $richtexteditorOptions;
-$richtexteditorIds = array();
+$richtexteditorIds = [];
 $defaultContentType = 'document';
 // check permissions
 switch($modx->getManagerApi()->action) {
@@ -90,7 +90,8 @@ if(!empty ($id)) {
     $modx->documentObject = &$content;
     $_SESSION['itemname'] = $content['pagetitle'];
 } else {
-    $content = array();
+    $content = [];
+    $content['contentType'] = $_REQUEST['contentType'] ?? $defaultContentType;
 
     if(isset($_REQUEST['newtemplate'])) {
         $content['template'] = $_REQUEST['newtemplate'];
@@ -135,7 +136,7 @@ if(!isset($_REQUEST['id'])) {
     }
 }
 
-$content['type'] = get_by_key($content, 'type', $defaultContentType, 'is_scalar');
+$content['type'] = get_by_key($content, 'type', $defaultContentType, 'is_scalar') ?: $defaultContentType;
 
 if(isset ($_POST['which_editor'])) {
     $modx->setConfig('which_editor', get_by_key($_POST, 'which_editor', '', 'is_scalar'));
@@ -144,7 +145,10 @@ if(isset ($_POST['which_editor'])) {
 // Add lock-element JS-Script
 $lockElementId = $id;
 $lockElementType = 7;
-require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
+require_once(EVO_MANAGER_PATH . 'includes/active_user_locks.inc.php');
+
+$isReferenceResource = ($content['type'] === 'reference' || $modx->getManagerApi()->action == '72');
+$isDocumentResource = !$isReferenceResource;
 ?>
     <style>
         .image_for_field[data-image] { display: block; content: ""; width: 120px; height: 120px; margin: .1rem .1rem 0 0; border: 1px #ccc solid; background: #fff 50% 50% no-repeat; background-size: contain; cursor: pointer }
@@ -174,6 +178,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
               document.location.href = "index.php?pid=<?= isset($_REQUEST['id']) ? $_REQUEST['id'] : '' ?>&a=72";
           },
         save: function() {
+          syncReferenceContent();
           documentDirty = false;
           form_save = true;
           document.mutate.save.click();
@@ -193,9 +198,55 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
           }
         },
         view: function() {
-          window.open('<?= $modx->getConfig('friendly_urls') ? UrlProcessor::makeUrl($id) : MODX_SITE_URL . 'index.php?id=' . $id ?>', 'previeWin');
+          var previewUrl = '<?= $modx->getConfig('friendly_urls') ? UrlProcessor::makeUrl($id) : EVO_SITE_URL . 'index.php?id=' . $id ?>';
+          if (getSelectedResourceType() === 'reference') {
+            var linkField = document.getElementById('weblink-content');
+            var rawUrl = linkField ? linkField.value.trim() : '';
+            if (rawUrl !== '') {
+              previewUrl = rawUrl;
+            }
+          }
+          window.open(previewUrl, 'previeWin');
         }
       };
+
+      function getSelectedResourceType() {
+        if (!document.mutate.type) {
+          return 'document';
+        }
+        return document.mutate.type.value === 'reference' ? 'reference' : 'document';
+      }
+
+      function syncReferenceContent() {
+        if (getSelectedResourceType() !== 'reference' || !document.mutate.ta) {
+          return;
+        }
+
+        var linkField = document.getElementById('weblink-content');
+        if (linkField) {
+          document.mutate.ta.value = linkField.value;
+        }
+      }
+
+      function syncResourceTypePanels(type) {
+        var referenceFields = document.getElementById('resource-type-reference-fields');
+        var documentFields = document.getElementById('resource-type-document-fields');
+        if (!referenceFields || !documentFields) {
+          return;
+        }
+
+        if (type === 'reference') {
+          referenceFields.style.display = '';
+          documentFields.style.display = 'none';
+          var linkField = document.getElementById('weblink-content');
+          if (linkField && linkField.value.trim() === '' && document.mutate.ta) {
+            linkField.value = document.mutate.ta.value.trim() !== '' ? document.mutate.ta.value : 'http://';
+          }
+        } else {
+          referenceFields.style.display = 'none';
+          documentFields.style.display = '';
+        }
+      }
 
       var allowParentSelection = false;
       var allowLinkSelection = false;
@@ -220,7 +271,10 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
         }
         else {
           documentDirty = true;
-          document.mutate.ta.value = lId;
+          var linkField = document.getElementById('weblink-content');
+          if (linkField) {
+            linkField.value = lId;
+          }
         }
       }
 
@@ -483,7 +537,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
       }
 
       <?php
-      if (get_by_key($content, 'type') === 'reference' || $modx->getManagerApi()->action == '72') {
+      if ($isReferenceResource) {
           $ResourceManagerLoaded = true;
       }
       ?>
@@ -503,10 +557,10 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
     <form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php" onsubmit="documentDirty=false;">
         <?php
         // invoke OnDocFormPrerender event
-        $evtOut = $modx->invokeEvent('OnDocFormPrerender', array(
+        $evtOut = $modx->invokeEvent('OnDocFormPrerender', [
             'id' => $id,
             'template' => $content['template']
-        ));
+        ]);
 
         if(is_array($evtOut)) {
             echo implode('', $evtOut);
@@ -551,7 +605,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
             // breadcrumbs
             if($modx->getConfig('use_breadcrumbs')) {
                 $out = '';
-                $temp = array();
+                $temp = [];
                 $title = isset($content['pagetitle']) ? $content['pagetitle'] : $_lang['create_resource_title'];
 
                 if(isset($_REQUEST['id']) && $content['parent'] != 0) {
@@ -592,9 +646,9 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 
                     <!-- General -->
                     <?php
-                    $evtOut = $modx->invokeEvent('OnDocFormTemplateRender', array(
+                    $evtOut = $modx->invokeEvent('OnDocFormTemplateRender', [
                         'id' => $id
-                    ));
+                    ]);
 
                     $group_tvs = $modx->getConfig('group_tvs');
                     $templateVariables = '';
@@ -656,19 +710,17 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                     </td>
                                 </tr>
 
-                                <?php if($content['type'] == 'reference' || $modx->getManagerApi()->action == '72') { // Web Link specific ?>
-
+                                <tbody id="resource-type-reference-fields"<?= $isReferenceResource ? '' : ' style="display:none"' ?>>
                                     <tr>
                                         <td><span class="warning"><?=ManagerTheme::getLexicon('weblink');?></span>
                                             <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?=ManagerTheme::getLexicon('resource_weblink_help');?>"></i>
                                         </td>
                                         <td>
                                             <i id="llock" class="<?= $_style["icon_chain"] ?>" onclick="enableLinkSelection(!allowLinkSelection);"></i>
-                                            <input name="ta" id="ta" type="text" maxlength="255" value="<?= (!empty($content['content']) ? entities(stripslashes($content['content']), $modx->getConfig('modx_charset')) : 'http://') ?>" class="inputBox" onchange="documentDirty=true;" /><input type="button" value="<?=ManagerTheme::getLexicon('insert');?>" onclick="BrowseFileServer('ta')" />
+                                            <input id="weblink-content" type="text" maxlength="255" value="<?= (!empty($content['content']) ? entities(stripslashes($content['content']), $modx->getConfig('modx_charset')) : 'http://') ?>" class="inputBox" onchange="documentDirty=true;" /><input type="button" value="<?=ManagerTheme::getLexicon('insert');?>" onclick="BrowseFileServer('weblink-content')" />
                                         </td>
                                     </tr>
-
-                                <?php } ?>
+                                </tbody>
 
                                 <tr>
                                     <td valign="top">
@@ -832,28 +884,34 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                 }*/
                                 ?>
 
-                                <?php if($content['type'] == 'document' || $modx->getManagerApi()->action == '4') { ?>
+                                <tbody id="resource-type-document-fields"<?= $isDocumentResource ? '' : ' style="display:none"' ?>>
                                     <tr>
                                         <td colspan="2">
                                             <hr>
                                             <!-- Content -->
                                             <div class="clearfix">
-                                                <span id="content_header"><?=ManagerTheme::getLexicon('resource_content');?></span>
-                                                <label class="float-right"><?=ManagerTheme::getLexicon('which_editor_title');?>
-                                                    <select id="which_editor" class="form-control form-control-sm" size="1" name="which_editor" onchange="changeRTE();">
-                                                        <option value="none"><?=ManagerTheme::getLexicon('none');?></option>
-                                                        <?php
-                                                        // invoke OnRichTextEditorRegister event
-                                                        $evtOut = $modx->invokeEvent("OnRichTextEditorRegister");
-                                                        if(is_array($evtOut)) {
-                                                            for($i = 0; $i < count($evtOut); $i++) {
-                                                                $editor = $evtOut[$i];
-                                                                echo "\t\t\t", '<option value="', $editor, '"', ($modx->getConfig('which_editor') == $editor ? ' selected="selected"' : ''), '>', $editor, "</option>\n";
-                                                            }
-                                                        }
-                                                        ?>
-                                                    </select>
-                                                </label>
+                                                <span id="content_header"><?= ManagerTheme::getLexicon('resource_content'); ?></span>
+                                                <?php
+                                                if ($modx->getConfig('use_editor') && $content['richtext']) {
+                                                    $evtOut = $modx->invokeEvent("OnRichTextEditorRegister");
+                                                    if (is_array($evtOut) && count($evtOut) > 0) { ?>
+                                                        <label class="float-right"><?= ManagerTheme::getLexicon('which_editor_title'); ?>
+                                                            <select id="which_editor" class="form-control form-control-sm" size="1"
+                                                                    name="which_editor" onchange="changeRTE();">
+                                                                <option value="none"><?= ManagerTheme::getLexicon('none'); ?></option>
+                                                                <?php
+                                                                for ($i = 0; $i < count($evtOut); $i++) {
+                                                                    $editor = $evtOut[$i];
+                                                                    echo "\t\t\t", '<option value="', $editor, '"',
+                                                                    ($modx->getConfig('which_editor') == $editor ?
+                                                                        ' selected="selected"' : ''), '>', $editor, "</option>\n";
+                                                                }
+                                                                ?>
+                                                            </select>
+                                                        </label>
+                                                    <?php
+                                                    }
+                                                } ?>
                                             </div>
                                             <div id="content_body">
                                                 <?php
@@ -881,7 +939,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                         </td>
                                     </tr>
                                     <!-- end .sectionBody -->
-                                <?php } ?>
+                                </tbody>
                             </table>
 
                             <?php
@@ -1212,9 +1270,9 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                             <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?=ManagerTheme::getLexicon('resource_type_message');?>"></i>
                                         </td>
                                         <td>
-                                            <select name="type" class="inputBox" onchange="documentDirty=true;">
-                                                <option value="document"<?= ($content['type'] === 'document' || $modx->getManagerApi()->action == '85' || $modx->getManagerApi()->action == '4') ? ' selected="selected"' : '' ?> ><?=ManagerTheme::getLexicon('resource_type_webpage');?></option>
-                                                <option value="reference"<?= ($content['type'] === 'reference' || $modx->getManagerApi()->action == '72') ? ' selected="selected"' : '' ?> ><?=ManagerTheme::getLexicon('resource_type_weblink');?></option>
+                                            <select name="type" class="inputBox" onchange="documentDirty=true;syncResourceTypePanels(this.value);">
+                                                <option value="document"<?= $isDocumentResource ? ' selected="selected"' : '' ?> ><?=ManagerTheme::getLexicon('resource_type_webpage');?></option>
+                                                <option value="reference"<?= $isReferenceResource ? ' selected="selected"' : '' ?> ><?=ManagerTheme::getLexicon('resource_type_weblink');?></option>
                                             </select>
                                         </td>
                                     </tr>
@@ -1360,7 +1418,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                     /*******************************
                      * Document Access Permissions */
                     if($modx->getConfig('use_udperms') && $modx->hasAnyPermissions(['manage_groups', 'manage_document_permissions'])) {
-                        $groupsarray = array();
+                        $groupsarray = [];
                         $sql = '';
 
                         $userGroups = array_unique(\EvolutionCMS\Models\MemberGroup::query()
@@ -1397,13 +1455,13 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                         }
 
                         // Setup Basic attributes for each Input box
-                        $inputAttributes = array(
+                        $inputAttributes = [
                             'type' => 'checkbox',
                             'class' => 'checkbox',
                             'name' => 'docgroups[]',
                             'onclick' => 'makePublic(false);',
-                        );
-                        $permissions = array(); // New Permissions array list (this contains the HTML)
+                        ];
+                        $permissions = []; // New Permissions array list (this contains the HTML)
                         $permissions_yes = 0; // count permissions the current mgr user has
                         $permissions_no = 0; // count permissions the current mgr user doesn't have
 
@@ -1434,7 +1492,7 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                                 unset($inputAttributes['disabled']);
                             }
                             // Create attribute string list
-                            $inputString = array();
+                            $inputString = [];
                             foreach($inputAttributes as $k => $v) $inputString[] = $k . '="' . $v . '"';
 
                             // Make the <input> HTML
@@ -1496,10 +1554,10 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                     <?php
 
                     // invoke OnDocFormRender event
-                    $evtOut = $modx->invokeEvent('OnDocFormRender', array(
+                    $evtOut = $modx->invokeEvent('OnDocFormRender', [
                         'id' => $id,
                         'template' => (int)get_by_key($content, 'template', 0, 'is_scalar')
-                    ));
+                    ]);
 
                     if(is_array($evtOut)) {
                         echo implode('', $evtOut);
@@ -1512,17 +1570,18 @@ require_once(MODX_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 
     <script type="text/javascript">
       storeCurTemplate();
+      syncResourceTypePanels(getSelectedResourceType());
     </script>
 <?php
-if((! empty($content['richtext']) || $modx->getManagerApi()->action == '4' || $modx->getManagerApi()->action == '72') && $modx->getConfig('use_editor')) {
+if(((!empty($content['richtext']) && $isDocumentResource) || $modx->getManagerApi()->action == '4' || $modx->getManagerApi()->action == '72') && $modx->getConfig('use_editor')) {
     if(is_array($richtexteditorIds)) {
         foreach($richtexteditorIds as $editor => $elements) {
             // invoke OnRichTextEditorInit event
-            $evtOut = $modx->invokeEvent('OnRichTextEditorInit', array(
+            $evtOut = $modx->invokeEvent('OnRichTextEditorInit', [
                 'editor' => $editor,
                 'elements' => $elements,
                 'options' => $richtexteditorOptions[$editor]
-            ));
+            ]);
             if(is_array($evtOut)) {
                 echo implode('', $evtOut);
             }

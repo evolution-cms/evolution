@@ -17,9 +17,9 @@ $_SESSION['itemname'] = $name;
 
 // invoke OnBeforePluginFormDelete event
 EvolutionCMS()->invokeEvent("OnBeforePluginFormDelete",
-	array(
+	[
 		"id"	=> $id
-	));
+	]);
 
 // delete the plugin.
 EvolutionCMS\Models\SitePlugin::destroy($id);
@@ -27,9 +27,9 @@ EvolutionCMS\Models\SitePlugin::destroy($id);
 EvolutionCMS\Models\SitePluginEvent::where('pluginid',$id)->delete();
 // invoke OnPluginFormDelete event
 EvolutionCMS()->invokeEvent("OnPluginFormDelete",
-	array(
+	[
 		"id"	=> $id
-	));
+	]);
 
 // empty cache
 EvolutionCMS()->clearCache('full');

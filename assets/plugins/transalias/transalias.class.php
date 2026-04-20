@@ -10,6 +10,53 @@
  */
 class TransAlias {
     /**
+     * Resolve the transliteration table from the active manager language when
+     * we have a safe built-in mapping, otherwise keep the configured fallback.
+     *
+     * @param string $fallbackTable
+     * @param string|null $managerLanguage
+     * @return string
+     */
+    function resolveTableName($fallbackTable, $managerLanguage = null) {
+        $fallbackTable = is_string($fallbackTable) && $fallbackTable !== '' ? $fallbackTable : 'common';
+        $genericTables = ['common', 'utf8', 'utf8lowercase'];
+
+        if (!is_string($managerLanguage) || trim($managerLanguage) === '') {
+            return $fallbackTable;
+        }
+
+        if (!in_array($fallbackTable, $genericTables, true)) {
+            return $fallbackTable;
+        }
+
+        $normalizedLanguage = strtolower(str_replace('_', '-', trim($managerLanguage)));
+        $baseLanguage = explode('-', $normalizedLanguage)[0];
+
+        $tableMap = [
+            'az' => 'common',
+            'be' => 'russian',
+            'bg' => 'russian',
+            'cs' => 'czech',
+            'da' => 'common',
+            'de' => 'german',
+            'en' => 'common',
+            'es' => 'common',
+            'fi' => 'common',
+            'fr' => 'common',
+            'it' => 'common',
+            'nl' => 'dutch',
+            'nn' => 'common',
+            'pl' => 'common',
+            'pt' => 'common',
+            'ru' => 'russian',
+            'sv' => 'common',
+            'uk' => 'russian',
+        ];
+
+        return $tableMap[$baseLanguage] ?? $fallbackTable;
+    }
+
+    /**
      * name of the file to use for transliteration (without .php)
      * also used as array key
      *
@@ -24,7 +71,7 @@ class TransAlias {
      * @var array
      * @access
      */
-    var $_tables = array ('named' => array (
+    var $_tables = ['named' => [
             'quot' => '&#34;','amp' => '&#38;','lt' => '&#60;','gt' => '&#62;','OElig' => '&#338;','oelig' => '&#339;','Scaron' => '&#352;','scaron' => '&#353;',
             'Yuml' => '&#376;','circ' => '&#710;','tilde' => '&#732;','ensp' => '&#8194;','emsp' => '&#8195;','thinsp' => '&#8201;','zwnj' => '&#8204;','zwj' => '&#8205;',
             'lrm' => '&#8206;','rlm' => '&#8207;','ndash' => '&#8211;','mdash' => '&#8212;','lsquo' => '&#8216;','rsquo' => '&#8217;','sbquo' => '&#8218;','ldquo' => '&#8220;',
@@ -57,7 +104,7 @@ class TransAlias {
             'igrave' => '&#236;','iacute' => '&#237;','icirc' => '&#238;','iuml' => '&#239;','eth' => '&#240;','ntilde' => '&#241;','ograve' => '&#242;','oacute' => '&#243;',
             'ocirc' => '&#244;','otilde' => '&#245;','ouml' => '&#246;','divide' => '&#247;','oslash' => '&#248;','ugrave' => '&#249;','uacute' => '&#250;','ucirc' => '&#251;',
             'uuml' => '&#252;','yacute' => '&#253;','thorn' => '&#254;','yuml' => '&#255;'
-    ));
+    ]];
 
     /**
      * Swap named HTML entities with numeric entities.
@@ -105,10 +152,10 @@ class TransAlias {
      */
     function getTVValue($tv) {
         global $modx;
-        $additionalEncodings = array('-' => '%2D', '.' => '%2E', '_' => '%5F');
+        $additionalEncodings = ['-' => '%2D', '.' => '%2E', '_' => '%5F'];
         $tvname = str_replace(array_keys($additionalEncodings), array_values($additionalEncodings), rawurlencode($tv));
         if(array_key_exists('tv'.$tvname, $_POST)) {
-            include_once MODX_MANAGER_PATH . 'includes/tmplvars.commands.inc.php';
+            include_once EVO_MANAGER_PATH . 'includes/tmplvars.commands.inc.php';
             $val = $_POST['tv'.$tvname];
             $id = $_POST['id'];
             if($val == '@INHERIT' && empty($_POST['id']) && !empty($_POST['parent'])) {
@@ -168,11 +215,11 @@ class TransAlias {
      */
     function stripAlias($alias,$char_restrict,$word_separator) {
         // Convert all named HTML entities to numeric entities
-        $alias = preg_replace_callback('/&([a-zA-Z][a-zA-Z0-9]{1,7});/', array($this,'convert_entity'), $alias);
+        $alias = preg_replace_callback('/&([a-zA-Z][a-zA-Z0-9]{1,7});/', [$this,'convert_entity'], $alias);
 
         // Convert all numeric entities to their actual character
-        $alias = preg_replace_callback('/&#x([0-9a-f]{1,7});/i', array($this, 'convert_hex_entity'), $alias);
-        $alias = preg_replace_callback('/&#([0-9]{1,7});/', array($this, 'convert_numeric_entity'), $alias);
+        $alias = preg_replace_callback('/&#x([0-9a-f]{1,7});/i', [$this, 'convert_hex_entity'], $alias);
+        $alias = preg_replace_callback('/&#([0-9]{1,7});/', [$this, 'convert_numeric_entity'], $alias);
 
         if (class_exists('Normalizer')) {
             $alias = Normalizer::normalize($alias);

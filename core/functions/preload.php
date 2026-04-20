@@ -1,45 +1,45 @@
 <?php
 
-if (!function_exists('evolutionCMS')) {
+if (!function_exists('evo')) {
     /**
      * @return DocumentParser
      */
-    function evolutionCMS()
+    function evo()
     {
-        if (!defined('MODX_CLASS')) {
+        if (!defined('EVO_CLASS')) {
             if (!class_exists('\DocumentParser')) {
-                throw new RuntimeException('MODX_CLASS not defined and EvolutionCMS\Core class not exists');
+                throw new RuntimeException('EVO_CLASS not defined and EvolutionCMS\Core class not exists');
             }
-            define('MODX_CLASS', '\DocumentParser');
+            define('EVO_CLASS', '\DocumentParser');
         }
 
-        global $modx;
-        if ($modx === null) {
+        global $evo;
+        if ($evo === null) {
             try {
-                $obj = new ReflectionClass(MODX_CLASS);
-                $modx = $obj->newInstanceWithoutConstructor()->getInstance();
+                $obj = new ReflectionClass(EVO_CLASS);
+                $evo = $obj->newInstanceWithoutConstructor()->getInstance();
             } catch (ReflectionException $exception) {
                 echo $exception->getMessage();
                 exit($exception->getCode());
             }
         }
 
-        if (IN_MANAGER_MODE == true && IN_INSTALL_MODE == false  && MODX_API_MODE != true) {
+        if (IN_MANAGER_MODE == true && IN_INSTALL_MODE == false  && EVO_API_MODE != true) {
             // attempt to foil some simple types of CSRF attacks
-            if ((int)$modx->getConfig('validate_referer') !== 0) {
+            if ((int)$evo->getConfig('validate_referer') !== 0) {
                 if (isset($_SERVER['HTTP_REFERER'])) {
 
                     $referer = $_SERVER['HTTP_REFERER'];
 
                     if (!empty($referer)) {
-                        if (!preg_match('/^' . preg_quote(MODX_SITE_URL, '/') . '/i', $referer)) {
-                            $modx->webAlertAndQuit(
+                        if (!preg_match('/^' . preg_quote(EVO_SITE_URL, '/') . '/i', $referer)) {
+                            $evo->webAlertAndQuit(
                                 "A possible CSRF attempt was detected from referer: {$referer}.",
                                 "/" . MGR_DIR . "/index.php"
                             );
                         }
                     } else {
-                        $modx->webAlertAndQuit(
+                        $evo->webAlertAndQuit(
                             "A possible CSRF attempt was detected. No referer was provided by the client.",
                             "/" . MGR_DIR . "/index.php"
                         );
@@ -47,7 +47,7 @@ if (!function_exists('evolutionCMS')) {
                 } else {
 
                     if (mb_strtoupper($_SERVER['REQUEST_METHOD']) !== 'GET') {
-                        $modx->webAlertAndQuit(
+                        $evo->webAlertAndQuit(
                             "A possible CSRF attempt was detected. No referer was provided by the server.",
                             "/" . MGR_DIR . "/index.php"
                         );
@@ -57,17 +57,17 @@ if (!function_exists('evolutionCMS')) {
             }
         }
 
-        return $modx;
+        return $evo;
     }
 }
 
-if (!function_exists('evo')) {
+if (!function_exists('evolutionCMS')) {
     /**
      * @return DocumentParser
      */
-    function evo()
+    function evolutionCMS()
     {
-        return evolutionCMS();
+        return evo();
     }
 }
 
@@ -95,6 +95,11 @@ if (!function_exists('startCMSSession')) {
             return;
         }
 
+        if (defined('EVO_SESSION') && EVO_SESSION) {
+            EvoSessionProxy::earlyInit();
+            return;
+        }
+
         session_name(SESSION_COOKIE_NAME);
         removeInvalidCmsSessionIds(SESSION_COOKIE_NAME);
         session_cache_limiter('');
@@ -105,7 +110,7 @@ if (!function_exists('startCMSSession')) {
         }
         session_set_cookie_params(
             0
-            , $session_cookie_path ? $session_cookie_path : MODX_BASE_URL
+            , $session_cookie_path ? $session_cookie_path : EVO_BASE_URL
             , $session_cookie_domain ? $session_cookie_domain : ''
             , $secure
             , true
@@ -132,7 +137,21 @@ if (!function_exists('startCMSSession')) {
             }
         }
 
-        session_start();
+        $sessionname = session_name();
+        // safe session - see https://stackoverflow.com/a/33024310/1066234
+        if (isset($_COOKIE[$sessionname]) && preg_match('/^[-,a-zA-Z0-9]{1,128}$/', $_COOKIE[$sessionname])) {
+            session_start();
+        } elseif (isset($_COOKIE[$sessionname])) {
+            unset($_COOKIE[$sessionname]);
+            session_start();
+        } else {
+            session_start();
+        }
+
+        // no session started, exit
+        if (session_status() === PHP_SESSION_NONE) {
+            exit();
+        }
         $key = "modx.mgr.session.cookie.lifetime";
 
         if (isset($_SESSION[$key]) && is_numeric($_SESSION[$key])) {
@@ -140,14 +159,15 @@ if (!function_exists('startCMSSession')) {
                 session_name()
                 , session_id()
                 , (int)$_SESSION[$key] ? $_SERVER['REQUEST_TIME'] + (int)$_SESSION[$key] : 0
-                , $session_cookie_path ? $session_cookie_path : MODX_BASE_URL
+                , $session_cookie_path ? $session_cookie_path : EVO_BASE_URL
                 , $session_cookie_domain ? $session_cookie_domain : ''
                 , $secure
                 , true
             );
         }
-        if (!isset($_SESSION['modx.session.created.time'])) {
-            $_SESSION['modx.session.created.time'] = $_SERVER['REQUEST_TIME'];
+        $createdKey = 'evo.session.created.time';
+        if (!isset($_SESSION[$createdKey])) {
+            $_SESSION[$createdKey] = $_SERVER['REQUEST_TIME'] ?? time();
         }
     }
 }
@@ -231,7 +251,7 @@ if (!function_exists('getSanitizedValue')) {
             }
             $sanitizedBracket = str_replace(
                 '#',
-                MODX_SANITIZE_SEED,
+                EVO_SANITIZE_SEED,
                 sprintf('#%s#%s#', substr($bracket, 0, 1), substr($bracket, 1, 1))
             );
             $value = str_replace($bracket, $sanitizedBracket, $value);
@@ -249,10 +269,10 @@ if (!function_exists('removeSanitizeSeed')) {
      */
     function removeSanitizeSeed($string = '')
     {
-        if (!$string || strpos($string, MODX_SANITIZE_SEED) === false) {
+        if (!$string || strpos($string, EVO_SANITIZE_SEED) === false) {
             return $string;
         }
 
-        return str_replace(MODX_SANITIZE_SEED, '', $string);
+        return str_replace(EVO_SANITIZE_SEED, '', $string);
     }
 }

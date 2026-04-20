@@ -39,7 +39,10 @@ class VersionBumper
      *  * ^1.2 || ^2.3 + 2.4.0    -> ^1.2 || ^2.4
      *  * ^3@dev + 3.2.99999-dev  -> ^3.2@dev
      *  * ~2 + 2.0-beta.1         -> ~2
+     *  * ~2.0.0 + 2.0.3          -> ~2.0.3
+     *  * ~2.0 + 2.0.3            -> ^2.0.3
      *  * dev-master + dev-master -> dev-master
+     *  * * + 1.2.3               -> >=1.2.3
      */
     public function bumpRequirement(ConstraintInterface $constraint, PackageInterface $package): string
     {
@@ -70,7 +73,7 @@ class VersionBumper
             return $prettyConstraint;
         }
 
-        $major = Preg::replace('{^(\d+).*}', '$1', $version);
+        $major = Preg::replace('{^([1-9][0-9]*|0\.\d+).*}', '$1', $version);
         $versionWithoutSuffix = Preg::replace('{(?:\.(?:0|9999999))+(-dev)?$}', '', $version);
         $newPrettyConstraint = '^'.$versionWithoutSuffix;
 
@@ -82,10 +85,11 @@ class VersionBumper
         $pattern = '{
             (?<=,|\ |\||^) # leading separator
             (?P<constraint>
-                \^'.$major.'(?:\.\d+)* # e.g. ^2.anything
-                | ~'.$major.'(?:\.\d+)? # e.g. ~2 or ~2.2 but no more
-                | '.$major.'(?:\.[*x])+ # e.g. 2.* or 2.*.* or 2.x.x.x etc
-                | >=\d(?:\.\d+)* # e.g. >=2 or >=1.2 etc
+                \^v?'.$major.'(?:\.\d+)* # e.g. ^2.anything
+                | ~v?'.$major.'(?:\.\d+){1,3} # e.g. ~2.2 or ~2.2.2 or ~2.2.2.2
+                | v?'.$major.'(?:\.[*x])+ # e.g. 2.* or 2.*.* or 2.x.x.x etc
+                | >=v?\d(?:\.\d+)* # e.g. >=2 or >=1.2 etc
+                | \* # full wildcard
             )
             (?=,|$|\ |\||@) # trailing separator
         }x';
@@ -97,7 +101,12 @@ class VersionBumper
                 if (substr_count($match[0], '.') === 2 && substr_count($versionWithoutSuffix, '.') === 1) {
                     $suffix = '.0';
                 }
-                if (str_starts_with($match[0], '>=')) {
+                if (str_starts_with($match[0], '~') && substr_count($match[0], '.') !== 1) {
+                    // take as many version bits from the current version as we have in the constraint to bump it without making it more specific
+                    $versionBits = explode('.', $versionWithoutSuffix);
+                    $versionBits = array_pad($versionBits, substr_count($match[0], '.') + 1, '0');
+                    $replacement = '~'.implode('.', array_slice($versionBits, 0, substr_count($match[0], '.') + 1));
+                } elseif ($match[0] === '*' || str_starts_with($match[0], '>=')) {
                     $replacement = '>='.$versionWithoutSuffix.$suffix;
                 } else {
                     $replacement = $newPrettyConstraint.$suffix;

@@ -17,6 +17,7 @@ use Composer\Json\JsonFile;
 use Composer\Package\BasePackage;
 use Composer\Package\Loader\ArrayLoader;
 use Composer\Package\Loader\LoaderInterface;
+use Composer\Util\Platform;
 use Composer\Util\Tar;
 use Composer\Util\Zip;
 
@@ -46,7 +47,7 @@ class ArtifactRepository extends ArrayRepository implements ConfigurableReposito
         }
 
         $this->loader = new ArrayLoader();
-        $this->lookup = $repoConfig['url'];
+        $this->lookup = Platform::expandPath($repoConfig['url']);
         $this->io = $io;
         $this->repoConfig = $repoConfig;
     }
@@ -94,9 +95,6 @@ class ArtifactRepository extends ArrayRepository implements ConfigurableReposito
         }
     }
 
-    /**
-     * @return ?BasePackage
-     */
     private function getComposerInformation(\SplFileInfo $file): ?BasePackage
     {
         $json = null;
@@ -128,7 +126,7 @@ class ArtifactRepository extends ArrayRepository implements ConfigurableReposito
         $package['dist'] = [
             'type' => $fileType,
             'url' => strtr($file->getPathname(), '\\', '/'),
-            'shasum' => sha1_file($file->getRealPath()),
+            'shasum' => hash_file('sha1', $file->getRealPath()),
         ];
 
         try {

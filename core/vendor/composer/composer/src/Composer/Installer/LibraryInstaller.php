@@ -49,9 +49,6 @@ class LibraryInstaller implements InstallerInterface, BinaryPresenceInterface
 
     /**
      * Initializes library installer.
-     *
-     * @param Filesystem      $filesystem
-     * @param BinaryInstaller $binaryInstaller
      */
     public function __construct(IOInterface $io, PartialComposer $composer, ?string $type = 'library', ?Filesystem $filesystem = null, ?BinaryInstaller $binaryInstaller = null)
     {
@@ -227,6 +224,8 @@ class LibraryInstaller implements InstallerInterface, BinaryPresenceInterface
 
     /**
      * @inheritDoc
+     *
+     * @return string
      */
     public function getInstallPath(PackageInterface $package)
     {
@@ -270,6 +269,7 @@ class LibraryInstaller implements InstallerInterface, BinaryPresenceInterface
 
     /**
      * @return PromiseInterface|null
+     * @phpstan-return PromiseInterface<void|null>|null
      */
     protected function installCode(PackageInterface $package)
     {
@@ -280,6 +280,7 @@ class LibraryInstaller implements InstallerInterface, BinaryPresenceInterface
 
     /**
      * @return PromiseInterface|null
+     * @phpstan-return PromiseInterface<void|null>|null
      */
     protected function updateCode(PackageInterface $initial, PackageInterface $target)
     {
@@ -314,6 +315,7 @@ class LibraryInstaller implements InstallerInterface, BinaryPresenceInterface
 
     /**
      * @return PromiseInterface|null
+     * @phpstan-return PromiseInterface<void|null>|null
      */
     protected function removeCode(PackageInterface $package)
     {

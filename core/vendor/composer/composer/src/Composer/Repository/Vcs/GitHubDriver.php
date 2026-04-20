@@ -46,6 +46,8 @@ class GitHubDriver extends VcsDriver
     private $isArchived = false;
     /** @var array<int, array{type: string, url: string}>|false|null */
     private $fundingInfo;
+    /** @var bool */
+    private $allowGitFallback = true;
 
     /**
      * Git Driver
@@ -63,8 +65,6 @@ class GitHubDriver extends VcsDriver
             throw new \InvalidArgumentException(sprintf('The GitHub repository URL %s is invalid.', $this->url));
         }
 
-        assert(is_string($match[3]));
-        assert(is_string($match[4]));
         $this->owner = $match[3];
         $this->repository = $match[4];
         $this->originUrl = strtolower($match[1] ?? (string) $match[2]);
@@ -73,6 +73,10 @@ class GitHubDriver extends VcsDriver
         }
         $this->cache = new Cache($this->io, $this->config->get('cache-repo-dir').'/'.$this->originUrl.'/'.$this->owner.'/'.$this->repository);
         $this->cache->setReadOnly($this->config->get('cache-read-only'));
+
+        if (isset($this->repoConfig['allow-git-fallback']) && $this->repoConfig['allow-git-fallback'] === false) {
+            $this->allowGitFallback = false;
+        }
 
         if ($this->config->get('use-github-api') === false || (isset($this->repoConfig['no-api']) && $this->repoConfig['no-api'])) {
             $this->setupGitDriver($this->url);
@@ -168,7 +172,7 @@ class GitHubDriver extends VcsDriver
                 $composer = $this->getBaseComposerInformation($identifier);
 
                 if ($this->shouldCache($identifier)) {
-                    $this->cache->write($identifier, json_encode($composer));
+                    $this->cache->write($identifier, JsonFile::encode($composer, \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES));
                 }
             }
 
@@ -237,7 +241,7 @@ class GitHubDriver extends VcsDriver
                     $key = $match[1];
                     continue;
                 }
-                if (Preg::isMatchStrictGroups('{^\[(.*)\](?:\s*#.*)?$}', $match[2], $match2)) {
+                if (Preg::isMatchStrictGroups('{^\[(.*?)\](?:\s*#.*)?$}', $match[2], $match2)) {
                     foreach (array_map('trim', Preg::split('{[\'"]?\s*,\s*[\'"]?}', $match2[1])) as $item) {
                         $result[] = ['type' => $match[1], 'url' => trim($item, '"\' ')];
                     }
@@ -259,32 +263,59 @@ class GitHubDriver extends VcsDriver
 
         foreach ($result as $key => $item) {
             switch ($item['type']) {
-                case 'tidelift':
-                    $result[$key]['url'] = 'https://tidelift.com/funding/github/' . $item['url'];
+                case 'community_bridge':
+                    $result[$key]['url'] = 'https://funding.communitybridge.org/projects/' . basename($item['url']);
                     break;
                 case 'github':
                     $result[$key]['url'] = 'https://github.com/' . basename($item['url']);
                     break;
-                case 'patreon':
-                    $result[$key]['url'] = 'https://www.patreon.com/' . basename($item['url']);
-                    break;
-                case 'otechie':
-                    $result[$key]['url'] = 'https://otechie.com/' . basename($item['url']);
-                    break;
-                case 'open_collective':
-                    $result[$key]['url'] = 'https://opencollective.com/' . basename($item['url']);
-                    break;
-                case 'liberapay':
-                    $result[$key]['url'] = 'https://liberapay.com/' . basename($item['url']);
+                case 'issuehunt':
+                    $result[$key]['url'] = 'https://issuehunt.io/r/' . $item['url'];
                     break;
                 case 'ko_fi':
                     $result[$key]['url'] = 'https://ko-fi.com/' . basename($item['url']);
                     break;
-                case 'issuehunt':
-                    $result[$key]['url'] = 'https://issuehunt.io/r/' . $item['url'];
+                case 'liberapay':
+                    $result[$key]['url'] = 'https://liberapay.com/' . basename($item['url']);
                     break;
-                case 'community_bridge':
-                    $result[$key]['url'] = 'https://funding.communitybridge.org/projects/' . basename($item['url']);
+                case 'open_collective':
+                    $result[$key]['url'] = 'https://opencollective.com/' . basename($item['url']);
+                    break;
+                case 'patreon':
+                    $result[$key]['url'] = 'https://www.patreon.com/' . basename($item['url']);
+                    break;
+                case 'tidelift':
+                    $result[$key]['url'] = 'https://tidelift.com/funding/github/' . $item['url'];
+                    break;
+                case 'polar':
+                    $result[$key]['url'] = 'https://polar.sh/' . basename($item['url']);
+                    break;
+                case 'buy_me_a_coffee':
+                    $result[$key]['url'] = 'https://www.buymeacoffee.com/' . basename($item['url']);
+                    break;
+                case 'thanks_dev':
+                    $result[$key]['url'] = 'https://thanks.dev/' . $item['url'];
+                    break;
+                case 'otechie':
+                    $result[$key]['url'] = 'https://otechie.com/' . basename($item['url']);
+                    break;
+                case 'custom':
+                    $bits = parse_url($item['url']);
+                    if ($bits === false) {
+                        unset($result[$key]);
+                        break;
+                    }
+
+                    if (!array_key_exists('scheme', $bits) && !array_key_exists('host', $bits)) {
+                        if (Preg::isMatch('{^[a-z0-9-]++\.[a-z]{2,3}$}', $item['url'])) {
+                            $result[$key]['url'] = 'https://'.$item['url'];
+                            break;
+                        }
+
+                        $this->io->writeError('<warning>Funding URL '.$item['url'].' not in a supported format.</warning>');
+                        unset($result[$key]);
+                        break;
+                    }
                     break;
             }
         }
@@ -310,7 +341,7 @@ class GitHubDriver extends VcsDriver
             $resource = $this->getContents($resource['git_url'])->decodeJson();
         }
 
-        if (empty($resource['content']) || $resource['encoding'] !== 'base64' || !($content = base64_decode($resource['content']))) {
+        if (!isset($resource['content']) || $resource['encoding'] !== 'base64' || false === ($content = base64_decode($resource['content']))) {
             throw new \RuntimeException('Could not retrieve ' . $file . ' for '.$identifier);
         }
 
@@ -461,7 +492,7 @@ class GitHubDriver extends VcsDriver
                     }
 
                     if (!$this->io->isInteractive()) {
-                        $this->attemptCloneFallback();
+                        $this->attemptCloneFallback($e);
 
                         return new Response(['url' => 'dummy'], 200, [], 'null');
                     }
@@ -491,7 +522,7 @@ class GitHubDriver extends VcsDriver
                     }
 
                     if (!$this->io->isInteractive() && $fetchingRepoData) {
-                        $this->attemptCloneFallback();
+                        $this->attemptCloneFallback($e);
 
                         return new Response(['url' => 'dummy'], 200, [], 'null');
                     }
@@ -543,7 +574,7 @@ class GitHubDriver extends VcsDriver
             $this->repoData = $this->getContents($repoDataUrl, true)->decodeJson();
         } catch (TransportException $e) {
             if ($e->getCode() === 499) {
-                $this->attemptCloneFallback();
+                $this->attemptCloneFallback($e);
             } else {
                 throw $e;
             }
@@ -573,8 +604,12 @@ class GitHubDriver extends VcsDriver
      * @return true
      * @throws \RuntimeException
      */
-    protected function attemptCloneFallback(): bool
+    protected function attemptCloneFallback(?\Throwable $e = null): bool
     {
+        if (!$this->allowGitFallback) {
+            throw new \RuntimeException('Fallback to git driver disabled', 0, $e);
+        }
+
         $this->isPrivate = true;
 
         try {
@@ -595,6 +630,9 @@ class GitHubDriver extends VcsDriver
 
     protected function setupGitDriver(string $url): void
     {
+        if (!$this->allowGitFallback) {
+            throw new \RuntimeException('Fallback to git driver disabled');
+        }
         $this->gitDriver = new GitDriver(
             ['url' => $url],
             $this->io,

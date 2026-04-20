@@ -119,23 +119,78 @@ if (!function_exists('is_cli')) {
     }
 }
 
+if (!function_exists('niceSize')) {
+    /**
+     * Format file size in human-readable format.
+     *
+     * Converts bytes to appropriate unit (B, KB, MB, GB, TB) with proper rounding.
+     * Uses modern ISO/IEC 80000 standard formatting with uppercase units.
+     *
+     * @param int|float $size File size in bytes
+     * @return string Formatted file size with unit
+     *
+     * @example
+     * niceSize(1024); // "1 KB"
+     * niceSize(1048576); // "1 MB"
+     * niceSize(1536); // "1.5 KB"
+     * niceSize(0); // "0 B"
+     */
+    function niceSize($size)
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $unitIndex = 0;
+
+        while ($size >= 1024 && $unitIndex < count($units) - 1) {
+            $size /= 1024;
+            $unitIndex++;
+        }
+
+        return round($size, 2) . ' ' . $units[$unitIndex];
+    }
+}
+
 if (!function_exists('nicesize')) {
     /**
-     * @param $size
-     * @return string
+     * @deprecated since EVO 3.2.7, use niceSize()
+     * @TODO: will be delete EVO 3.5
      */
     function nicesize($size)
     {
-        $sizes = array('Tb' => 1099511627776, 'Gb' => 1073741824, 'Mb' => 1048576, 'Kb' => 1024, 'b' => 1);
-        $precisions = count($sizes) - 1;
-        foreach ($sizes as $unit => $bytes) {
-            if ($size >= $bytes) {
-                return number_format($size / $bytes, $precisions).' '.$unit;
-            }
-            $precisions--;
-        }
+        return niceSize($size);
+    }
+}
 
-        return '0 b';
+if (!function_exists('niceEta')) {
+    /**
+     * Format ETA seconds into human-readable format.
+     *
+     * Converts seconds into a user-friendly time format:
+     * - Less than 60 seconds: "45s"
+     * - Less than 1 hour: "5m 30s"
+     * - 1 hour or more: "2h 15m"
+     *
+     * @param float $seconds Number of seconds to format
+     * @return string Human-readable time format
+     *
+     * @example
+     * niceEta(45.5);     // "46s"
+     * niceEta(150);      // "2m 30s"
+     * niceEta(3600);     // "1h 0m"
+     * niceEta(8100);     // "2h 15m"
+     */
+    function niceEta(float $seconds): string
+    {
+        if ($seconds < 60) {
+            return sprintf('%.0fs', $seconds);
+        } elseif ($seconds < 3600) {
+            $minutes = floor($seconds / 60);
+            $remainingSeconds = $seconds % 60;
+            return sprintf('%.0fm %.0fs', $minutes, $remainingSeconds);
+        } else {
+            $hours = floor($seconds / 3600);
+            $minutes = floor(($seconds % 3600) / 60);
+            return sprintf('%.0fh %.0fm', $hours, $minutes);
+        }
     }
 }
 
@@ -147,7 +202,7 @@ if (!function_exists('data_is_json')) {
      */
     function data_is_json($string, $returnData = false)
     {
-        $json = json_decode($string, true);
+        $json = json_decode($string ?? '', true);
         if (json_last_error() != JSON_ERROR_NONE) {
             return false;
         }
@@ -160,6 +215,25 @@ if (!function_exists('data_is_json')) {
             return $json;
         }
         return false;
+    }
+}
+
+if (!function_exists('js_json')) {
+    /**
+     * Encode data for direct embedding into JavaScript.
+     *
+     * Uses JSON output instead of HTML escaping so translated strings keep
+     * their literal apostrophes and quotes inside JS payloads.
+     *
+     * @param mixed $value
+     * @param int $options
+     * @return string
+     */
+    function js_json($value, int $options = 0): string
+    {
+        $json = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | $options);
+
+        return $json === false ? 'null' : $json;
     }
 }
 
@@ -192,7 +266,7 @@ if (!function_exists('rename_key_arr')) {
 
         $InsertPrefix = ($prefix !== '') ? $prefix . $addPS : '';
         $InsertSuffix = ($suffix !== '') ? $addPS . $suffix : '';
-        $out = array();
+        $out = [];
         foreach ($data as $key => $item) {
             $key = $InsertPrefix . $key;
             $val = null;
@@ -235,7 +309,7 @@ if (!function_exists('replace_array')) {
                 $out = str_replace(array_keys($chars), array_values($chars), $data);
                 break;
             case is_array($data):
-                $out = array();
+                $out = [];
                 foreach ($data as $key => $val) {
                     $key = $withKey ? replace_array($key, $chars) : $key;
                     $out[$key] = replace_array($val, $chars);

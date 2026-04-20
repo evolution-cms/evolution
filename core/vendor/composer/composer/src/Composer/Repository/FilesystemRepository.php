@@ -20,6 +20,7 @@ use Composer\Package\RootPackageInterface;
 use Composer\Package\AliasPackage;
 use Composer\Package\Dumper\ArrayDumper;
 use Composer\Installer\InstallationManager;
+use Composer\Pcre\Preg;
 use Composer\Util\Filesystem;
 use Composer\Util\Platform;
 
@@ -168,9 +169,56 @@ class FilesystemRepository extends WritableArrayRepository
             if ($installedVersionsClass !== false) {
                 $this->filesystem->filePutContentsIfModified($repoDir.'/InstalledVersions.php', $installedVersionsClass);
 
+                // make sure the in memory state is up to date with on disk
                 \Composer\InstalledVersions::reload($versions);
+
+                // make sure the selfDir matches the expected data at runtime if the class was loaded from the vendor dir, as it may have been
+                // loaded from the Composer sources, causing packages to appear twice in that case if the installed.php is loaded in addition to the
+                // in memory loaded data from above
+                try {
+                    $reflProp = new \ReflectionProperty(\Composer\InstalledVersions::class, 'selfDir');
+                    (\PHP_VERSION_ID < 80100) and $reflProp->setAccessible(true);
+                    $reflProp->setValue(null, strtr($repoDir, '\\', '/'));
+
+                    $reflProp = new \ReflectionProperty(\Composer\InstalledVersions::class, 'installedIsLocalDir');
+                    (\PHP_VERSION_ID < 80100) and $reflProp->setAccessible(true);
+                    $reflProp->setValue(null, true);
+                } catch (\ReflectionException $e) {
+                    if (!Preg::isMatch('{Property .*? does not exist}i', $e->getMessage())) {
+                        throw $e;
+                    }
+                    // noop, if outdated class is loaded we do not want to cause trouble
+                }
             }
         }
+    }
+
+    /**
+     * As we load the file from vendor dir during bootstrap, we need to make sure it contains only expected code before executing it
+     *
+     * @internal
+     */
+    public static function safelyLoadInstalledVersions(string $path): bool
+    {
+        $installedVersionsData = @file_get_contents($path);
+        $pattern = <<<'REGEX'
+{(?(DEFINE)
+   (?<number>  -? \s*+ \d++ (?:\.\d++)? )
+   (?<boolean> true | false | null )
+   (?<strings> (?&string) (?: \s*+ \. \s*+ (?&string))*+ )
+   (?<string>  (?: " (?:[^"\\$]*+ | \\ ["\\0] )* " | ' (?:[^'\\]*+ | \\ ['\\] )* ' ) )
+   (?<array>   array\( \s*+ (?: (?:(?&number)|(?&strings)) \s*+ => \s*+ (?: (?:__DIR__ \s*+ \. \s*+)? (?&strings) | (?&value) ) \s*+, \s*+ )*+  \s*+ \) )
+   (?<value>   (?: (?&number) | (?&boolean) | (?&strings) | (?&array) ) )
+)
+^<\?php\s++return\s++(?&array)\s*+;$}ix
+REGEX;
+        if (is_string($installedVersionsData) && Preg::isMatch($pattern, trim($installedVersionsData))) {
+            \Composer\InstalledVersions::reload(eval('?>'.Preg::replace('{=>\s*+__DIR__\s*+\.\s*+([\'"])}', '=> '.var_export(dirname($path), true).' . $1', $installedVersionsData)));
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -183,7 +231,7 @@ class FilesystemRepository extends WritableArrayRepository
 
         foreach ($array as $key => $value) {
             $lines .= str_repeat('    ', $level);
-            $lines .= is_int($key) ? $key . ' => ' : '\'' . $key . '\' => ';
+            $lines .= is_int($key) ? $key . ' => ' : var_export($key, true) . ' => ';
 
             if (is_array($value)) {
                 if (!empty($value)) {
@@ -197,8 +245,14 @@ class FilesystemRepository extends WritableArrayRepository
                 } else {
                     $lines .= "__DIR__ . " . var_export('/' . $value, true) . ",\n";
                 }
-            } else {
+            } elseif (is_string($value)) {
                 $lines .= var_export($value, true) . ",\n";
+            } elseif (is_bool($value)) {
+                $lines .= ($value ? 'true' : 'false') . ",\n";
+            } elseif (is_null($value)) {
+                $lines .= "null,\n";
+            } else {
+                throw new \UnexpectedValueException('Unexpected type '.get_debug_type($value));
             }
         }
 
@@ -293,6 +347,14 @@ class FilesystemRepository extends WritableArrayRepository
 
         ksort($versions['versions']);
         ksort($versions);
+
+        foreach ($versions['versions'] as $name => $version) {
+            foreach (['aliases', 'replaced', 'provided'] as $key) {
+                if (isset($versions['versions'][$name][$key])) {
+                    sort($versions['versions'][$name][$key], SORT_NATURAL);
+                }
+            }
+        }
 
         return $versions;
     }

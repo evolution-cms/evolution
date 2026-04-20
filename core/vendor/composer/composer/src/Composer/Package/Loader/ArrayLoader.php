@@ -228,6 +228,10 @@ class ArrayLoader implements LoaderInterface
             $package->setIncludePaths($config['include-path']);
         }
 
+        if (isset($config['php-ext'])) {
+            $package->setPhpExt($config['php-ext']);
+        }
+
         if (!empty($config['time'])) {
             $time = Preg::isMatch('/^\d++$/D', $config['time']) ? '@'.$config['time'] : $config['time'];
 
@@ -282,7 +286,7 @@ class ArrayLoader implements LoaderInterface
                 $package->setAuthors($config['authors']);
             }
 
-            if (isset($config['support'])) {
+            if (isset($config['support']) && \is_array($config['support'])) {
                 $package->setSupport($config['support']);
             }
 
@@ -313,8 +317,8 @@ class ArrayLoader implements LoaderInterface
     }
 
     /**
-     * @param array<string, array<string, array<string, array<string, array{string, Link}>>>> $linkCache
-     * @param mixed[]                                                                         $config
+     * @param array<string, array<string, array<int|string, array<int|string, array{string, Link}>>>> $linkCache
+     * @param mixed[]                                                                             $config
      */
     private function configureCachedLinks(array &$linkCache, PackageInterface $package, array $config): void
     {
@@ -385,7 +389,7 @@ class ArrayLoader implements LoaderInterface
     private function createLink(string $source, string $sourceVersion, string $description, string $target, string $prettyConstraint): Link
     {
         if (!\is_string($prettyConstraint)) {
-            throw new \UnexpectedValueException('Link constraint in '.$source.' '.$description.' > '.$target.' should be a string, got '.\gettype($prettyConstraint) . ' (' . var_export($prettyConstraint, true) . ')');
+            throw new \UnexpectedValueException('Link constraint in '.$source.' '.$description.' > '.$target.' should be a string, got '.\get_debug_type($prettyConstraint) . ' (' . var_export($prettyConstraint, true) . ')');
         }
         if ('self.version' === $prettyConstraint) {
             $parsedConstraint = $this->versionParser->parseConstraints($sourceVersion);
@@ -455,7 +459,7 @@ class ArrayLoader implements LoaderInterface
         if (
             isset($config['default-branch'])
             && $config['default-branch'] === true
-            && false === $this->versionParser->parseNumericAliasPrefix($config['version'])
+            && false === $this->versionParser->parseNumericAliasPrefix(Preg::replace('{^v}', '', $config['version']))
         ) {
             return VersionParser::DEFAULT_BRANCH_ALIAS;
         }

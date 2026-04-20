@@ -16,19 +16,18 @@ use Composer\Factory;
 use Composer\Json\JsonFile;
 use Composer\Json\JsonValidationException;
 use Composer\Package\BasePackage;
-use Composer\Package\Package;
 use Composer\Pcre\Preg;
 use Composer\Repository\CompositeRepository;
 use Composer\Repository\PlatformRepository;
 use Composer\Repository\RepositoryFactory;
+use Composer\Spdx\SpdxLicenses;
 use Composer\Util\Filesystem;
 use Composer\Util\Silencer;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Composer\Console\Input\InputOption;
+use Composer\Util\ProcessExecutor;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Process\ExecutableFinder;
-use Symfony\Component\Process\Process;
 use Symfony\Component\Console\Helper\FormatterHelper;
 
 /**
@@ -45,10 +44,8 @@ class InitCommand extends BaseCommand
 
     /**
      * @inheritDoc
-     *
-     * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('init')
@@ -57,11 +54,11 @@ class InitCommand extends BaseCommand
                 new InputOption('name', null, InputOption::VALUE_REQUIRED, 'Name of the package'),
                 new InputOption('description', null, InputOption::VALUE_REQUIRED, 'Description of package'),
                 new InputOption('author', null, InputOption::VALUE_REQUIRED, 'Author name of package'),
-                new InputOption('type', null, InputOption::VALUE_OPTIONAL, 'Type of package (e.g. library, project, metapackage, composer-plugin)'),
+                new InputOption('type', null, InputOption::VALUE_REQUIRED, 'Type of package (e.g. library, project, metapackage, composer-plugin)'),
                 new InputOption('homepage', null, InputOption::VALUE_REQUIRED, 'Homepage of package'),
                 new InputOption('require', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'Package to require with a version constraint, e.g. foo/bar:1.0.0 or foo/bar=1.0.0 or "foo/bar 1.0.0"', null, $this->suggestAvailablePackageInclPlatform()),
                 new InputOption('require-dev', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'Package to require for development with a version constraint, e.g. foo/bar:1.0.0 or foo/bar=1.0.0 or "foo/bar 1.0.0"', null, $this->suggestAvailablePackageInclPlatform()),
-                new InputOption('stability', 's', InputOption::VALUE_REQUIRED, 'Minimum stability (empty or one of: '.implode(', ', array_keys(BasePackage::$stabilities)).')'),
+                new InputOption('stability', 's', InputOption::VALUE_REQUIRED, 'Minimum stability (empty or one of: '.implode(', ', array_keys(BasePackage::STABILITIES)).')'),
                 new InputOption('license', 'l', InputOption::VALUE_REQUIRED, 'License of package'),
                 new InputOption('repository', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Add custom repositories, either by URL or using JSON arrays'),
                 new InputOption('autoload', 'a', InputOption::VALUE_REQUIRED, 'Add PSR-4 autoload mapping. Maps your package\'s namespace to the provided directory. (Expects a relative path, e.g. src/)'),
@@ -82,14 +79,14 @@ EOT
     /**
      * @throws \Seld\JsonLint\ParsingException
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = $this->getIO();
 
         $allowlist = ['name', 'description', 'author', 'type', 'homepage', 'require', 'require-dev', 'stability', 'license', 'autoload'];
-        $options = array_filter(array_intersect_key($input->getOptions(), array_flip($allowlist)));
+        $options = array_filter(array_intersect_key($input->getOptions(), array_flip($allowlist)), static function ($val) { return $val !== null && $val !== []; });
 
-        if (isset($options['name']) && !Preg::isMatch('{^[a-z0-9_.-]+/[a-z0-9_.-]+$}D', $options['name'])) {
+        if (isset($options['name']) && !Preg::isMatch('{^[a-z0-9]([_.-]?[a-z0-9]+)*\/[a-z0-9](([_.]|-{1,2})?[a-z0-9]+)*$}D', $options['name'])) {
             throw new \InvalidArgumentException(
                 'The package name '.$options['name'].' is invalid, it should be lowercase and have a vendor name, a forward slash, and a package name, matching: [a-z0-9_.-]+/[a-z0-9_.-]+'
             );
@@ -148,10 +145,6 @@ EOT
                 return 1;
             }
         } else {
-            if (json_encode($options) === '{"require":{}}') {
-                throw new \RuntimeException('You have to run this command in interactive mode, or specify at least some data using --name, --require, etc.');
-            }
-
             $io->writeError('Writing '.$file->getPath());
         }
 
@@ -210,14 +203,26 @@ EOT
         return 0;
     }
 
+    protected function initialize(InputInterface $input, OutputInterface $output): void
+    {
+        parent::initialize($input, $output);
+
+        if (!$input->isInteractive()) {
+            if ($input->getOption('name') === null) {
+                $input->setOption('name', $this->getDefaultPackageName());
+            }
+
+            if ($input->getOption('author') === null) {
+                $input->setOption('author', $this->getDefaultAuthor());
+            }
+        }
+    }
+
     /**
      * @inheritDoc
-     *
-     * @return void
      */
-    protected function interact(InputInterface $input, OutputInterface $output)
+    protected function interact(InputInterface $input, OutputInterface $output): void
     {
-        $git = $this->getGitConfig();
         $io = $this->getIO();
         /** @var FormatterHelper $formatter */
         $formatter = $this->getHelperSet()->get('formatter');
@@ -267,29 +272,7 @@ EOT
             '',
         ]);
 
-        $cwd = realpath(".");
-
-        $name = $input->getOption('name');
-        if (null === $name) {
-            $name = basename($cwd);
-            $name = Preg::replace('{(?:([a-z])([A-Z])|([A-Z])([A-Z][a-z]))}', '\\1\\3-\\2\\4', $name);
-            $name = strtolower($name);
-            if (!empty($_SERVER['COMPOSER_DEFAULT_VENDOR'])) {
-                $name = $_SERVER['COMPOSER_DEFAULT_VENDOR'] . '/' . $name;
-            } elseif (isset($git['github.user'])) {
-                $name = $git['github.user'] . '/' . $name;
-            } elseif (!empty($_SERVER['USERNAME'])) {
-                $name = $_SERVER['USERNAME'] . '/' . $name;
-            } elseif (!empty($_SERVER['USER'])) {
-                $name = $_SERVER['USER'] . '/' . $name;
-            } elseif (get_current_user()) {
-                $name = get_current_user() . '/' . $name;
-            } else {
-                // package names must be in the format foo/bar
-                $name .= '/' . $name;
-            }
-            $name = strtolower($name);
-        }
+        $name = $input->getOption('name') ?? $this->getDefaultPackageName();
 
         $name = $io->askAndValidate(
             'Package name (<vendor>/<name>) [<comment>'.$name.'</comment>]: ',
@@ -298,7 +281,7 @@ EOT
                     return $name;
                 }
 
-                if (!Preg::isMatch('{^[a-z0-9_.-]+/[a-z0-9_.-]+$}D', $value)) {
+                if (!Preg::isMatch('{^[a-z0-9]([_.-]?[a-z0-9]+)*\/[a-z0-9](([_.]|-{1,2})?[a-z0-9]+)*$}D', $value)) {
                     throw new \InvalidArgumentException(
                         'The package name '.$value.' is invalid, it should be lowercase and have a vendor name, a forward slash, and a package name, matching: [a-z0-9_.-]+/[a-z0-9_.-]+'
                     );
@@ -318,23 +301,7 @@ EOT
         );
         $input->setOption('description', $description);
 
-        if (null === $author = $input->getOption('author')) {
-            if (!empty($_SERVER['COMPOSER_DEFAULT_AUTHOR'])) {
-                $author_name = $_SERVER['COMPOSER_DEFAULT_AUTHOR'];
-            } elseif (isset($git['user.name'])) {
-                $author_name = $git['user.name'];
-            }
-
-            if (!empty($_SERVER['COMPOSER_DEFAULT_EMAIL'])) {
-                $author_email = $_SERVER['COMPOSER_DEFAULT_EMAIL'];
-            } elseif (isset($git['user.email'])) {
-                $author_email = $git['user.email'];
-            }
-
-            if (isset($author_name, $author_email)) {
-                $author = sprintf('%s <%s>', $author_name, $author_email);
-            }
-        }
+        $author = $input->getOption('author') ?? $this->getDefaultAuthor();
 
         $author = $io->askAndValidate(
             'Author ['.(is_string($author) ? '<comment>'.$author.'</comment>, ' : '') . 'n to skip]: ',
@@ -364,10 +331,10 @@ EOT
                     return $minimumStability;
                 }
 
-                if (!isset(BasePackage::$stabilities[$value])) {
+                if (!isset(BasePackage::STABILITIES[$value])) {
                     throw new \InvalidArgumentException(
                         'Invalid minimum stability "'.$value.'". Must be empty or one of: '.
-                        implode(', ', array_keys(BasePackage::$stabilities))
+                        implode(', ', array_keys(BasePackage::STABILITIES))
                     );
                 }
 
@@ -378,11 +345,14 @@ EOT
         );
         $input->setOption('stability', $minimumStability);
 
-        $type = $input->getOption('type') ?: false;
+        $type = $input->getOption('type');
         $type = $io->ask(
             'Package Type (e.g. library, project, metapackage, composer-plugin) [<comment>'.$type.'</comment>]: ',
             $type
         );
+        if ($type === '' || $type === false) {
+            $type = null;
+        }
         $input->setOption('type', $type);
 
         if (null === $license = $input->getOption('license')) {
@@ -395,6 +365,10 @@ EOT
             'License [<comment>'.$license.'</comment>]: ',
             $license
         );
+        $spdx = new SpdxLicenses();
+        if (null !== $license && !$spdx->validate($license) && $license !== 'proprietary') {
+            throw new \InvalidArgumentException('Invalid license provided: '.$license.'. Only SPDX license identifiers (https://spdx.org/licenses/) or "proprietary" are accepted.');
+        }
         $input->setOption('license', $license);
 
         $io->writeError(['', 'Define your dependencies.', '']);
@@ -465,8 +439,6 @@ EOT
     private function parseAuthorString(string $author): array
     {
         if (Preg::isMatch('/^(?P<name>[- .,\p{L}\p{N}\p{Mn}\'’"()]+)(?:\s+<(?P<email>.+?)>)?$/u', $author, $match)) {
-            assert(is_string($match['name']));
-
             if (null !== $match['email'] && !$this->isValidEmail($match['email'])) {
                 throw new \InvalidArgumentException('Invalid email "'.$match['email'].'"');
             }
@@ -529,15 +501,11 @@ EOT
             return $this->gitConfig;
         }
 
-        $finder = new ExecutableFinder();
-        $gitBin = $finder->find('git');
+        $process = new ProcessExecutor($this->getIO());
 
-        $cmd = new Process([$gitBin, 'config', '-l']);
-        $cmd->run();
-
-        if ($cmd->isSuccessful()) {
+        if (0 === $process->execute(['git', 'config', '-l'], $output)) {
             $this->gitConfig = [];
-            Preg::matchAllStrictGroups('{^([^=]+)=(.*)$}m', $cmd->getOutput(), $matches);
+            Preg::matchAllStrictGroups('{^([^=]+)=(.*)$}m', $output, $matches);
             foreach ($matches[1] as $key => $match) {
                 $this->gitConfig[$match] = $matches[2][$key];
             }
@@ -632,5 +600,63 @@ EOT
         $devRequires = isset($options['require-dev']) ? (array) $options['require-dev'] : [];
 
         return !empty($requires) || !empty($devRequires);
+    }
+
+    private function sanitizePackageNameComponent(string $name): string
+    {
+        $name = Preg::replace('{(?:([a-z])([A-Z])|([A-Z])([A-Z][a-z]))}', '\\1\\3-\\2\\4', $name);
+        $name = strtolower($name);
+        $name = Preg::replace('{^[_.-]+|[_.-]+$|[^a-z0-9_.-]}u', '', $name);
+        $name = Preg::replace('{([_.-]){2,}}u', '$1', $name);
+
+        return $name;
+    }
+
+    private function getDefaultPackageName(): string
+    {
+        $git = $this->getGitConfig();
+        $cwd = realpath(".");
+        $name = basename($cwd);
+        $name = $this->sanitizePackageNameComponent($name);
+
+        $vendor = $name;
+        if (!empty($_SERVER['COMPOSER_DEFAULT_VENDOR'])) {
+            $vendor = $_SERVER['COMPOSER_DEFAULT_VENDOR'];
+        } elseif (isset($git['github.user'])) {
+            $vendor = $git['github.user'];
+        } elseif (!empty($_SERVER['USERNAME'])) {
+            $vendor = $_SERVER['USERNAME'];
+        } elseif (!empty($_SERVER['USER'])) {
+            $vendor = $_SERVER['USER'];
+        } elseif (get_current_user()) {
+            $vendor = get_current_user();
+        }
+
+        $vendor = $this->sanitizePackageNameComponent($vendor);
+
+        return $vendor . '/' . $name;
+    }
+
+    private function getDefaultAuthor(): ?string
+    {
+        $git = $this->getGitConfig();
+
+        if (!empty($_SERVER['COMPOSER_DEFAULT_AUTHOR'])) {
+            $author_name = $_SERVER['COMPOSER_DEFAULT_AUTHOR'];
+        } elseif (isset($git['user.name'])) {
+            $author_name = $git['user.name'];
+        }
+
+        if (!empty($_SERVER['COMPOSER_DEFAULT_EMAIL'])) {
+            $author_email = $_SERVER['COMPOSER_DEFAULT_EMAIL'];
+        } elseif (isset($git['user.email'])) {
+            $author_email = $git['user.email'];
+        }
+
+        if (isset($author_name, $author_email)) {
+            return sprintf('%s <%s>', $author_name, $author_email);
+        }
+
+        return null;
     }
 }

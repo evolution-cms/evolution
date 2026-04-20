@@ -13,6 +13,7 @@
 namespace Composer\DependencyResolver;
 
 use Composer\Package\AliasPackage;
+use Composer\Package\CompletePackageInterface;
 use Composer\Package\Link;
 use Composer\Package\PackageInterface;
 use Composer\Repository\PlatformRepository;
@@ -76,6 +77,7 @@ class Transaction
                 if ($a instanceof AliasPackage !== $b instanceof AliasPackage) {
                     return $a instanceof AliasPackage ? -1 : 1;
                 }
+
                 // if names are the same, compare version, e.g. to sort aliases reliably, actual order does not matter
                 return strcmp($b->getVersion(), $a->getVersion());
             }
@@ -123,7 +125,7 @@ class Transaction
         $visited = [];
         $processed = [];
 
-        while (!empty($stack)) {
+        while (\count($stack) > 0) {
             $package = array_pop($stack);
 
             if (isset($processed[spl_object_hash($package)])) {
@@ -163,7 +165,15 @@ class Transaction
                         // TODO different for lock?
                         if ($package->getVersion() !== $presentPackageMap[$package->getName()]->getVersion() ||
                             $package->getDistReference() !== $presentPackageMap[$package->getName()]->getDistReference() ||
-                            $package->getSourceReference() !== $presentPackageMap[$package->getName()]->getSourceReference()
+                            $package->getSourceReference() !== $presentPackageMap[$package->getName()]->getSourceReference() ||
+                            (
+                                $package instanceof CompletePackageInterface
+                                && $presentPackageMap[$package->getName()] instanceof CompletePackageInterface
+                                && (
+                                    $package->isAbandoned() !== $presentPackageMap[$package->getName()]->isAbandoned()
+                                    || $package->getReplacementPackage() !== $presentPackageMap[$package->getName()]->getReplacementPackage()
+                                )
+                            )
                         ) {
                             $operations[] = new Operation\UpdateOperation($source, $package);
                         }
@@ -283,17 +293,18 @@ class Transaction
                 continue;
             }
 
-            $isDownloadsModifyingPlugin = $package->getType() === 'composer-plugin' && ($extra = $package->getExtra()) && isset($extra['plugin-modifies-downloads']) && $extra['plugin-modifies-downloads'] === true;
+            $extra = $package->getExtra();
+            $isDownloadsModifyingPlugin = $package->getType() === 'composer-plugin' && isset($extra['plugin-modifies-downloads']) && $extra['plugin-modifies-downloads'] === true;
 
             // is this a downloads modifying plugin or a dependency of one?
-            if ($isDownloadsModifyingPlugin || count(array_intersect($package->getNames(), $dlModifyingPluginRequires))) {
+            if ($isDownloadsModifyingPlugin || \count(array_intersect($package->getNames(), $dlModifyingPluginRequires)) > 0) {
                 // get the package's requires, but filter out any platform requirements
                 $requires = array_filter(array_keys($package->getRequires()), static function ($req): bool {
                     return !PlatformRepository::isPlatformPackage($req);
                 });
 
                 // is this a plugin with no meaningful dependencies?
-                if ($isDownloadsModifyingPlugin && !count($requires)) {
+                if ($isDownloadsModifyingPlugin && 0 === \count($requires)) {
                     // plugins with no dependencies go to the very front
                     array_unshift($dlModifyingPluginsNoDeps, $op);
                 } else {
@@ -311,14 +322,14 @@ class Transaction
             $isPlugin = $package->getType() === 'composer-plugin' || $package->getType() === 'composer-installer';
 
             // is this a plugin or a dependency of a plugin?
-            if ($isPlugin || count(array_intersect($package->getNames(), $pluginRequires))) {
+            if ($isPlugin || \count(array_intersect($package->getNames(), $pluginRequires)) > 0) {
                 // get the package's requires, but filter out any platform requirements
                 $requires = array_filter(array_keys($package->getRequires()), static function ($req): bool {
                     return !PlatformRepository::isPlatformPackage($req);
                 });
 
                 // is this a plugin with no meaningful dependencies?
-                if ($isPlugin && !count($requires)) {
+                if ($isPlugin && 0 === \count($requires)) {
                     // plugins with no dependencies go to the very front
                     array_unshift($pluginsNoDeps, $op);
                 } else {

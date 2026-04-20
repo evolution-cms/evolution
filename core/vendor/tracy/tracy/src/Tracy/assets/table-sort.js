@@ -3,16 +3,17 @@
  */
 
 // enables <table class="tracy-sortable">
-class TableSort
-{
+class TableSort {
 	static init() {
 		document.documentElement.addEventListener('click', (e) => {
-			if (e.target.matches('.tracy-sortable > :first-child > tr:first-child *')) {
+			if ((window.getSelection().type !== 'Range')
+				&& e.target.matches('.tracy-sortable > :first-child > tr:first-child *')
+			) {
 				TableSort.sort(e.target.closest('td,th'));
 			}
 		});
 
-		TableSort.init = function() {};
+		TableSort.init = function () {};
 	}
 
 	static sort(tcell) {
@@ -20,17 +21,15 @@ class TableSort
 		let preserveFirst = !tcell.closest('thead') && !tcell.parentNode.querySelectorAll('td').length;
 		let asc = !(tbody.tracyAsc === tcell.cellIndex);
 		tbody.tracyAsc = asc ? tcell.cellIndex : null;
-		let getText = (cell) => { return cell ? (cell.getAttribute('data-order') || cell.innerText) : ''; };
+		let getText = (cell) => cell ? (cell.getAttribute('data-order') || cell.innerText) : '';
 
 		Array.from(tbody.children)
 			.slice(preserveFirst ? 1 : 0)
-			.sort((a, b) => {
-				return function(v1, v2) {
-					return v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2)
-						? v1 - v2
-						: v1.toString().localeCompare(v2, undefined, {numeric: true, sensitivity: 'base'});
-				}(getText((asc ? a : b).children[tcell.cellIndex]), getText((asc ? b : a).children[tcell.cellIndex]));
-			})
+			.sort((a, b) => (function (v1, v2) {
+				return v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2)
+					? v1 - v2
+					: v1.toString().localeCompare(v2, undefined, { numeric: true, sensitivity: 'base' });
+			}(getText((asc ? a : b).children[tcell.cellIndex]), getText((asc ? b : a).children[tcell.cellIndex]))))
 			.forEach((tr) => { tbody.appendChild(tr); });
 	}
 }

@@ -1,15 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Tracy (https://tracy.nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
 
-declare(strict_types=1);
-
 namespace Tracy;
 
 use ErrorException;
+use function is_resource;
+use const STDERR;
 
 
 /**
@@ -27,10 +27,7 @@ final class ProductionStrategy
 
 	public function handleException(\Throwable $exception, bool $firstTime): void
 	{
-		try {
-			Debugger::log($exception, Debugger::EXCEPTION);
-		} catch (\Throwable $e) {
-		}
+		$e = Debugger::tryLog($exception, Debugger::EXCEPTION);
 
 		if (!$firstTime) {
 			// nothing
@@ -40,12 +37,11 @@ final class ProductionStrategy
 				header('Content-Type: text/html; charset=UTF-8');
 			}
 
-			(fn($logged) => require Debugger::$errorTemplate ?: __DIR__ . '/assets/error.500.phtml')(empty($e));
+			(fn($logged) => require Debugger::$errorTemplate ?? __DIR__ . '/dist/error.500.phtml')(!$e);
 
-		} elseif (Helpers::isCli()) {
-			// @ triggers E_NOTICE when strerr is closed since PHP 7.4
-			@fwrite(STDERR, "ERROR: {$exception->getMessage()}\n"
-				. (isset($e)
+		} elseif (Helpers::isCli() && is_resource(STDERR)) {
+			fwrite(STDERR, "ERROR: {$exception->getMessage()}\n"
+				. ($e
 					? 'Unable to log error. You may try enable debug mode to inspect the problem.'
 					: 'Check log to see more info.')
 				. "\n");
@@ -67,16 +63,12 @@ final class ProductionStrategy
 			$err = 'PHP ' . Helpers::errorTypeToString($severity) . ': ' . Helpers::improveError($message) . " in $file:$line";
 		}
 
-		try {
-			Debugger::log($err, Debugger::ERROR);
-		} catch (\Throwable $e) {
-		}
+		Debugger::tryLog($err, Debugger::ERROR);
 	}
 
 
-	public function sendAssets(): bool
+	public function dispatch(): void
 	{
-		return false;
 	}
 
 

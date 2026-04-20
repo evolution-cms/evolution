@@ -85,11 +85,11 @@ $_lang["captcha_words_message"] = 'Aqui pode introduzir uma lista de palavras a 
 $_lang["captcha_words_title"] = 'Palavras encriptadas (CAPTCHA)';
 $_lang["category_heading"] = 'Categoria';
 $_lang["category_msg"] = 'Aqui pode ver e editar todos os recursos agrupados por categoria.';
-$_lang["cfg_base_path"] = 'MODX_BASE_PATH';
-$_lang["cfg_base_url"] = 'MODX_BASE_URL';
-$_lang["cfg_manager_path"] = 'MODX_MANAGER_PATH';
-$_lang["cfg_manager_url"] = 'MODX_MANAGER_URL';
-$_lang["cfg_site_url"] = 'MODX_SITE_URL';
+$_lang["cfg_base_path"] = 'EVO_BASE_PATH';
+$_lang["cfg_base_url"] = 'EVO_BASE_URL';
+$_lang["cfg_manager_path"] = 'EVO_MANAGER_PATH';
+$_lang["cfg_manager_url"] = 'EVO_MANAGER_URL';
+$_lang["cfg_site_url"] = 'EVO_SITE_URL';
 $_lang["change_name"] = 'Alterar nome';
 $_lang["change_password"] = 'Alterar senha';
 $_lang["change_password_confirm"] = 'Confirmar senha';
@@ -352,7 +352,9 @@ $_lang["go"] = 'Iniciar!';
 $_lang["group_access_permissions"] = 'Permissões de acesso do grupo';
 $_lang["guid"] = 'GUID';
 $_lang["help"] = 'Ajuda';
-$_lang["help_msg"] = '<p>Pode obter ajuda gratuitamente junto da <a href="http://forums.modx.com/" target="_blank">comunidade que suporta o MODX</a>. Existe igualmente um conjunto crescente de <a href="http://rtfm.modx.com/evolution/1.0" target="_blank">Documentação e Guias</a> que cobrem muitos aspectos do MODX.</p><p>Contamos igualmente oferecer suporte técnico especializado para o MODX. Por favor <a href="mailto:hello@modx.com?subject=MODX Commercial Support Inquiry">contacte-nos se estiver interessado</a>.</p><p><b>Atenção:</b> actualmente a maior parte da documentação encontra-se apenas disponível em Inglês. Pode contactar alguns falantes de Português que utilizam o MODX <a href=\'http://forums.modx.com/index.php/board,40.0.html\' target=\'_blank\'>na secção sobre Internacionalização do forum MODX</a>.</p>';
+$_lang["help_donate_msg"] = 'Compre café para os desenvolvedores do Evolution CMS. <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> Torne-se um fã do Evolution CMS hoje! ❤️ Ko-fi permite que você apoie os criadores que você ama sem nenhuma taxa de doação.';
+$_lang["help_donate_title"] = 'Para o desenvolvimento do Evolution CMS';
+$_lang["help_msg"] = '<p>Pode obter ajuda gratuitamente junto da <a href="https://forum.evo.im/" target="_blank">comunidade que suporta o MODX</a>. Existe igualmente um conjunto crescente de <a href="http://rtfm.modx.com/evolution/1.0" target="_blank">Documentação e Guias</a> que cobrem muitos aspectos do MODX.</p><p>Contamos igualmente oferecer suporte técnico especializado para o MODX. Por favor <a href="mailto:hello@modx.com?subject=MODX Commercial Support Inquiry">contacte-nos se estiver interessado</a>.</p><p><b>Atenção:</b> actualmente a maior parte da documentação encontra-se apenas disponível em Inglês. Pode contactar alguns falantes de Português que utilizam o MODX <a href=\'https://forum.evo.im/index.php/board,40.0.html\' target=\'_blank\'>na secção sobre Internacionalização do forum MODX</a>.</p>';
 $_lang["help_title"] = 'Ajuda';
 $_lang["hide_tree"] = 'Ocultar árvore';
 $_lang["home"] = 'Início';
@@ -497,7 +499,7 @@ $_lang["modx_news"] = 'MODX News Notices';
 $_lang["modx_news_tab"] = 'MODX News';
 $_lang["modx_news_title"] = 'MODX News';
 $_lang["modx_security_notices"] = 'MODX Security Notices';
-$_lang["modx_version"] = 'MODX versão';
+$_lang["evo_version"] = 'EVO versão';
 $_lang["monday"] = 'Segunda-feira';
 $_lang["move"] = 'Mover';
 $_lang["move_resource"] = 'Mover documento';
@@ -716,7 +718,7 @@ $_lang["role_create_doc"] = 'Criar novos Documentos';
 $_lang["role_create_plugin"] = 'Criar novos Plugins';
 $_lang["role_create_snippet"] = 'Criar novos Snippets';
 $_lang["role_create_template"] = 'Criar novos Templates para o site';
-$_lang["role_credits"] = 'Ver créditos';
+$_lang["role_widget_online_info"] = 'Ver widget Utilizadores ligados (Online)';
 $_lang["role_delete_chunk"] = 'Delete Chunks';
 $_lang["role_delete_doc"] = 'Apagar documentos';
 $_lang["role_delete_eventlog"] = 'Apagar registo de eventos (logs)';
@@ -747,7 +749,7 @@ $_lang["role_frames"] = 'Pedir áreas (frames) do Interface de Gestão';
 $_lang["role_help"] = 'Ver páginas de ajuda';
 $_lang["role_home"] = 'Pedir página de início do Interface de Gestão';
 $_lang["role_import_static"] = 'Importar HTML';
-$_lang["role_logout"] = 'Sair do Interface de Gestão';
+$_lang["role_widget_recent_info"] = 'Ver widget Documentos editados/criados recentemente';
 $_lang["role_manage_metatags"] = 'Gerir etiquetas (tags) META e palavras-chave do site';
 $_lang["role_management_msg"] = 'Aqui pode escolher qual o perfil que deseja alterar.';
 $_lang["role_management_title"] = 'Perfis';
@@ -886,7 +888,7 @@ $_lang["sunday"] = 'Domingo';
 $_lang["sys_alert"] = 'Alerta do Sistema';
 $_lang["sysinfo_activity_message"] = 'Esta lista mostra quais os documentos que foram recentemente editados pelos seus utilizadores.';
 $_lang["sysinfo_userid"] = 'Utilizador';
-$_lang["system_email_signup"] = 'Olá [+uid+] 
+$_lang["system_email_signup"] = 'Olá [+uid+]
 
 Aqui estão os seus detalhes para aceder ao Gestor de Conteúdos de [+sname+] :
 
@@ -911,7 +913,7 @@ Se não pediu este email, por favor ignore-o.
 
 Cumprimentos,
 O Administrador [+sname+]';
-$_lang["system_email_websignup"] = 'Olá [+uid+] 
+$_lang["system_email_websignup"] = 'Olá [+uid+]
 
 Aqui estão seus detalhes para aceder a [+sname+]:
 
@@ -1092,7 +1094,7 @@ $_lang["yourinfo_username"] = 'Está ligado como:';
 $_lang["a17_error_reporting_title"] = 'Detection level of the PHP error';
 $_lang["a17_error_reporting_msg"] = 'Set the detection level of the PHP error.';
 $_lang["a17_error_reporting_opt0"] = 'Ignore all';
-$_lang["a17_error_reporting_opt1"] = 'Ignore the warning of a slight notice level(<a href="https://www.google.com/search?q=E_DEPRECATED+E_STRICT" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT</a>)';
+$_lang["a17_error_reporting_opt1"] = 'Ignore the warning of a slight notice level(<a href="https://www.google.com/search?q=E_DEPRECATED+E_NOTICE" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED</a>)';
 $_lang["a17_error_reporting_opt2"] = 'Detect all errors except E_NOTICE and E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt99"] = 'Detect all except E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt199"] = 'Detect all';
@@ -1114,7 +1116,7 @@ $_lang["bkmgr_run_sql_direct_label"] = 'Direct execute SQL command strings';
 $_lang["bkmgr_run_sql_submit"] = 'Execute restore';
 $_lang["bkmgr_run_sql_result"] = 'Result';
 $_lang["bkmgr_snapshot_title"] = 'Snapshot save and recovery';
-$_lang["bkmgr_snapshot_msg"] = '<p>The contents of the database are saved and restored to a server.<br />Preservation place : [+snapshot_path+] ($modx->config[\'snapshot_path\'])</p>';
+$_lang["bkmgr_snapshot_msg"] = '<p>The contents of the database are saved and restored to a server.<br />Preservation place : [+snapshot_path+] (evo()->getConfig(\'snapshot_path\'))</p>';
 $_lang["bkmgr_snapshot_submit"] = 'Add snapshot';
 $_lang["bkmgr_snapshot_list_title"] = 'List of snapshot';
 $_lang["bkmgr_restore_submit"] = 'Reverter estes dados';
@@ -1165,6 +1167,8 @@ $_lang["docid_incrmnt_method_2"] = 'Maximal ID + 1';
 $_lang["cache_type_title"] = 'Document caching type';
 $_lang["cache_type_1"] = 'Cache is based only on document id (standard)';
 $_lang["cache_type_2"] = 'Cache is based on document id and $_GET parameters';
+$_lang["html_comment_title"] = 'Comentário HTML';
+$_lang["html_comment_message"] = 'Lista de tipos de elementos separados por vírgulas para envolver com comentários HTML no código-fonte da página: <b>snippets</b>, <b>chunks</b>, <b>tvs</b>, <b>snippetParams</b>';
 $_lang["seostrict_title"] = 'Use SEO Strict URLs';
 $_lang["seostrict_message"] = 'Enforces the use of strict URLs to prevent duplicate content if needed';
 
@@ -1220,5 +1224,12 @@ $_lang["role_tv_msg"] = 'The Variables assigned to this Role are listed below.';
 $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to access/process this Template Variable';
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
+
+$_lang["file_groups_saved"] = 'Permissões de acesso salvas.';
+$_lang["file_groups_edit"] = 'Editar permissões de acesso';
+$_lang["files_groups"] = 'Grupos de recursos:';
+$_lang["access_permissions_file_message"] = 'Selecione a quais Grupos de recursos este arquivo pertence:';
+$_lang["access_permissions_dir_message"] = 'Selecione a quais Grupos de recursos este diretório pertence:';
+$_lang["all_file_groups"] = 'Todos os grupos de recursos (Público)';
 
 return $_lang;

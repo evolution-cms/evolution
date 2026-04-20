@@ -29,3 +29,4 @@ $_lang['error_overwrite'] = 'EVOのファイルは上書きできません';
 $_lang['error_failedtogetfeed'] = 'フィードを取得できませんでした';
 
 $_lang['artisan_update'] = '更新するには、フォルダからコンソールコマンドを実行する必要があります <b>core</b>: <b>php artisan make:site update</b>';
+$_lang["help_donate_msg"] = '<a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> で、Evolution CMS 開発者からコーヒーを購入できます。今すぐ Evolution CMS ❤️ のファンになりましょう!';

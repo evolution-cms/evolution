@@ -1,15 +1,68 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>[(site_name)] (Evolution CMS Manager Login)</title>
+    <title>[+site_name_text+] (Evolution CMS Manager Login)</title>
     <meta http-equiv="content-type" content="text/html; charset=[+modx_charset+]">
     <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width">
     <link rel="icon" type="image/ico" href="[+favicon+]">
-
+    <meta name="theme-color" content="#0d47a1" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <style>
         /* [FONTS] */
+        @font-face {
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 300;
+            src: url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-300.eot');
+            src: local(''),
+                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-300.eot?#iefix') format('embedded-opentype'),
+                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-300.woff2') format('woff2'),
+                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-300.woff') format('woff'),
+                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-300.ttf') format('truetype'),
+                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-300.svg#Roboto') format('svg');
+        }
+        @font-face {
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 400;
+            src: url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-regular.eot');
+            src: local(''),
+                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-regular.eot?#iefix') format('embedded-opentype'),
+                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-regular.woff2') format('woff2'),
+                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-regular.woff') format('woff'),
+                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-regular.ttf') format('truetype'),
+                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-regular.svg#Roboto') format('svg');
+        }
+        @font-face {
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 500;
+            src: url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-500.eot');
+            src: local(''),
+                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-500.eot?#iefix') format('embedded-opentype'),
+                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-500.woff2') format('woff2'),
+                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-500.woff') format('woff'),
+                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-500.ttf') format('truetype'),
+                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-500.svg#Roboto') format('svg');
+        }
+        @font-face {
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 700;
+            src: url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-700.eot');
+            src: local(''),
+                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-700.eot?#iefix') format('embedded-opentype'),
+                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-700.woff2') format('woff2'),
+                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-700.woff') format('woff'),
+                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-700.ttf') format('truetype'),
+                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-700.svg#Roboto') format('svg');
+        }
         html { font-size: 16px }
+        body {
+            background-color: #0d47a1; /* initial color */
+        }
         @media (max-width: 900px) {
             html { font-size: 16px; }
         }
@@ -19,7 +72,7 @@
         @supports (-webkit-overflow-scrolling: touch) {
             html, body { -webkit-overflow-scrolling: touch; overflow: auto; height: 100%; /* ios iframe scroll jumping to top fix */ }
         }
-        body { font-weight: normal; font-style: normal; font-size: 0.8125rem; line-height: 1.5; font-family: sans-serif; -webkit-font-smoothing: subpixel-antialiased }
+        body { font-weight: normal; font-style: normal; font-size: 0.8125rem; line-height: 1.5; font-family: 'Roboto', sans-serif; -webkit-font-smoothing: subpixel-antialiased }
         /* For Arabic Font */
         html[lang="ar"] body, html[lang="ary"] body, html[lang="azb"] body, html[lang="fa-IR"] body, html[lang="haz"] body, html[lang="ps"] body, html[lang="ur"] body { font-family: Tahoma, Arial, sans-serif; }
         /* For Chinese Font */
@@ -40,7 +93,7 @@
         html[lang="th"] body { font-family: "Sukhumvit Set", "Helvetica Neue", Helvetica, Arial, sans-serif; }
         /* For Arabic Font */
         html[lang="fa"] body { font-family: Tahoma, Arial, sans-serif; }
-        body { background-color: #fafafa; color: #444; }
+        body { background-color: #0d47a1; color: #444; }
         body.drag *, body.drag::after { cursor: grabbing !important; cursor: -moz-grabbing !important; cursor: -webkit-grabbing !important; cursor: -moz-grab !important; -moz-user-select: none !important; -webkit-user-select: none !important; user-select: none !important }
         body.drag::after { bottom: 0; content: ""; left: 0; position: fixed; right: 0; top: 0; z-index: 999 }
         body, ul, li { padding: 0; margin: 0; }
@@ -60,6 +113,8 @@
         a.text-muted:focus, a.text-muted:hover { color: #4b5257 !important }
 
         /* [ FORMS ] */
+        #username, #password, #FMP-email { border-radius: 20px!important; }
+        #password {margin-bottom: 24px; }
         legend { font-size: 1em; }
         label { cursor: pointer; display: inline-block; margin-bottom: .5em }
         label:not([for]) { cursor: default }
@@ -73,7 +128,7 @@
         input[type=checkbox]:focus, input[type=radio]:focus { border-color: #4d8ef9 !important; box-shadow: 0 0 0 1px rgba(77, 142, 249, 0.5) }
         input[type=checkbox]:checked, input[type=radio]:checked { background-position: 50% 50% }
         input[type=checkbox]:disabled { background-image: url("data:image/svg+xml;utf8,%3Csvg%20viewBox%3D%270%200%201792%201792%27%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%3E%3Cpath%20d%3D%27M1671%20566q0%2040-28%2068l-724%20724-136%20136q-28%2028-68%2028t-68-28l-136-136-362-362q-28-28-28-68t28-68l136-136q28-28%2068-28t68%2028l294%20295%20656-657q28-28%2068-28t68%2028l136%20136q28%2028%2028%2068z%27%20fill%3D%27%23bbb%27/%3E%3C/svg%3E"); background-size: .875em; }
-        button, input, optgroup, select, textarea { position: relative; font-family: sans-serif; font-size: 0.8125rem; line-height: 1.23076923; margin: 0; -webkit-appearance: none; -moz-appearance: none; }
+        button, input, optgroup, select, textarea { position: relative; font-family: 'Roboto', sans-serif; font-size: 0.8125rem; line-height: 1.23076923; margin: 0; -webkit-appearance: none; -moz-appearance: none; }
         .form-control, input[type=text]:not(.form-control), input[type=password], input[type=number], input[type=email], input[type=date], input[type=url], input[type=search], select, textarea { display: inline-block; width: 100%; max-width: 100%; height: auto; padding: 0.46153846em .5em; line-height: 1.23076923; vertical-align: inherit; font-size: 0.8125rem; color: #464a4c; background-color: #fff; -webkit-background-clip: padding-box; background-clip: padding-box; border: 1px solid #d4d4d4; border-radius: .1em; -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s; transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s; -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s; }
         .form-control:focus, input:not([type=radio]):not([type=checkbox]):focus, select:focus, textarea:focus, .btn.focus, .btn:focus { z-index: 3; outline-offset: -1px; outline: rgba(77, 142, 249, 0.5) solid 2px; border-color: #66afe9; }
         input:not([type=button]):not([type=submit]):hover:not(:focus), select:hover:not(:focus), textarea:hover:not(:focus) { border-color: #bbb; transition: border-color 0s, background-position .1s; }
@@ -138,7 +193,7 @@
             min-height: 1px;
             height: auto;
         }
-        body,body.lightness,body.light,body.dark,body.darkness {background: #2a313b url('[+login_bg+]') no-repeat fixed center !important;background-size: cover !important;margin:0px;
+        body,body.lightness,body.light,body.dark,body.darkness {background: #000 url('[+login_bg+]') no-repeat fixed center !important;background-size: cover !important;margin:0px;
         }
         @media (max-width: 479px) {
             body,body.lightness,body.light,body.dark,body.darkness {background-image: none !important;}
@@ -194,14 +249,14 @@
         .loginbox,
         .dark .loginbox,
         .darkness .loginbox {
-            background-color: rgba(0, 0, 0, 0.85);
+            background-color: rgba(0, 0, 0, 0.75);
             transition: background ease-in-out .3s;
         }
         .loginbox.loginbox-light {
             background-color: rgba(255, 255, 255, 0.85);
         }
         .loginbox.loginbox-dark {
-            background-color: rgba(0, 0, 0, 0.85);
+            background-color: rgba(0, 0, 0, 0.75);
         }
         @media (max-width: 479px) {
             .loginbox,
@@ -351,6 +406,7 @@
         }
         #submitButton {
             float: right;
+            border-radius: 20px;
         }
         /* onManagerLoginFormRender */
 
@@ -429,50 +485,12 @@
             margin-bottom: 0.9375rem;
         }
         /* mainloader */
-
-        #mainloader {
-            position: absolute;
-            z-index: 50000;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            text-align: center;
-            vertical-align: middle;
-            padding: 15% 0 0 0;
-            background-color: rgba(255, 255, 255, 0.64);
-            opacity: 0;
-            visibility: hidden;
-            -webkit-transition-duration: 0.3s;
-            transition-duration: 0.3s
-        }
-        #mainloader::before {
-            content: "";
-            display: block;
-            position: absolute;
-            z-index: 1;
-            left: 50%;
-            top: 30%;
-            width: 7.5rem;
-            height: 7.5rem;
-            margin: -3.75rem 0 0 -3.75rem;
-            border-radius: 50%;
-            animation: rotate 2s linear infinite;
-            box-shadow: 0.3125rem 0.3125rem 0 0 rgb(234, 132, 82), 0.875rem -0.4375rem 0 0 rgba(111, 163, 219, 0.7), -0.4375rem 0.6875rem 0 0 rgba(112, 193, 92, 0.74), -0.6875rem -0.4375rem 0 0 rgba(147, 205, 99, 0.78);
-        }
-        #mainloader.show {
-            opacity: 0.75;
-            visibility: visible;
-            -webkit-transition-duration: 0.1s;
-            transition-duration: 0.1s
-        }
-        /* loader keyframes  */
-
-        @keyframes rotate {
-            to {
-                transform: rotate(360deg)
-            }
-        }
+        #mainloader {position: absolute; z-index: 50000; top: 0; left: 0; width: 100%; height: 100%; text-align: center; vertical-align: middle; padding: 15% 0 0 0; background-color: rgba(255, 255, 255, 0.64); opacity: 0; visibility: hidden; -webkit-transition-duration: 0.3s; transition-duration: 0.3s }
+        #mainloader.show {opacity: 0.75; visibility: visible; -webkit-transition-duration: 0.1s; transition-duration: 0.1s}
+        #mainloader::before {display: none;}
+        .evo__logo {font-size: 3.5em;position: fixed; top: 40%; left: 50%;}
+        .evo__logo::before {content: ""; display: block; position: absolute; z-index: 1; left: 50%; top: 50%; width: 120px; height: 120px; border-radius: 50%; transform: translate(-50%, -50%) rotate(0deg); animation: rotateLogo 2s linear infinite; box-shadow: 5px 5px 0 0 rgb(234, 132, 82), 14px -7px 0 0 rgba(111, 163, 219, 0.7), -7px 11px 0 0 rgba(112, 193, 92, 0.74), -11px -7px 0 0 rgba(147, 205, 99, 0.78);}
+        @keyframes rotateLogo {to {transform: translate(-50%, -50%) rotate(360deg)}}
         /* loginbox keyframes */
 
         @-webkit-keyframes anim-loginbox {
@@ -543,8 +561,8 @@
 
             <!-- logo -->
             <div class="form-group form-group--logo text-center">
-                <a class="logo" href="../" title="[(site_name)]">
-                    <img src="[+login_logo+]" alt="[(site_name)]" id="logo">
+                <a class="logo" href="../" title="[+site_name_attr+]">
+                    <img src="[+login_logo+]" alt="[+site_name_attr+]" id="logo">
                 </a>
             </div>
 
@@ -583,12 +601,12 @@
     <!-- copyrights -->
     <div class="copyrights">
         <p class="loginLicense"></p>
-        <div class="gpl">&copy; 2005-2023 by the <a href="https://evo.im/" target="_blank">Evolution CMS</a>. <strong>Evolution CMS</strong>&trade; is licensed under the GPL.</div>
+        <div class="gpl">&copy; 2004 - 2026 by the <a href="https://evo.im/" target="_blank">Evolution CMS</a>. <strong>Evolution CMS</strong>&trade; is licensed under the GPL.</div>
     </div>
 </div>
 
 <!-- loader -->
-<div id="mainloader"></div>
+<div id="mainloader"><div class="evo__logo">EVO</div></div>
 
 <!-- script -->
 <script>
@@ -609,9 +627,9 @@
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;');
         xhr.onload = function() {
             if (this.readyState === 4) {
-                var header = this.response.substr(0, 9);
+                var header = this.response.slice(0, 9);
                 if (header.toLowerCase() === 'location:') {
-                    window.location = this.response.substr(10);
+                    window.location = this.response.slice(10);
                 } else {
                     var cimg = document.getElementById('captcha_image');
                     if (cimg) cimg.src = 'captcha.php?rand=' + Math.random();

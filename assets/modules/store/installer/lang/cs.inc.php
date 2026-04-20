@@ -53,7 +53,6 @@ $_lang["checking_table_prefix"] = 'Kontrola prefixů tabulek `';
 $_lang["chunks"] = 'Chunky';
 $_lang["config_permissions_note"] = 'V nových instalacích Linux/Unix vytvořte prázdná soubor s názvem <span class="mono">config.inc.php</span> v adresáři <span class="mono">/'.MGR_DIR.'/includes/</span> s atributy 0666.';
 $_lang["connection_screen_collation"] = 'Porovnání:';
-$_lang["connection_screen_connection_method"] = 'Způsob připojení:';
 $_lang["connection_screen_database_connection_information"] = 'Informace o databázi';
 $_lang["connection_screen_database_connection_note"] = 'Zadejte název databáze, kterou chcete použít nebo kterou chcete vytvořit pro tuto instalaci systému MODx. Pokud databáze neexistuje pokusí se ji instalátor vytvořit. Toto se nemusí povést v závislosti na nastavení MySQL nebo na uživatelských právech pro vaši doménu/instalaci.';
 $_lang["connection_screen_database_host"] = 'Hostitel databáze:';
@@ -110,7 +109,7 @@ $_lang["installing_demo_site"] = 'Instalovat ukázkový portál: ';
 $_lang["language_code"] = 'cs';	// for html element e.g. <html xml:lang="en" lang="en">
 $_lang["loading"] = 'Načítám...';
 $_lang["modules"] = 'Moduly';
-$_lang["modx_footer1"] = '&copy; 2005-2023 the <a href="http://www.modxcms.com/" target="_blank" style="color: green; text-decoration:underline">MODx</a> Content Management Framework (CMF) projekt. Všechna práva vyhrazena. MODx je licencován pod GNU GPL.';
+$_lang["modx_footer1"] = '&copy; 2004 - 2026 the <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> Content Management Framework (CMF) projekt. Všechna práva vyhrazena. Evolution CMS je licencován pod GNU GPL.';
 $_lang["modx_footer2"] = 'MODx je free software. Doporučujeme Vám být kreativní a používat MODx jak jen uznáte za vhodné. Pouze se ujistěte, že pokud uděláte nějaké změny a budete chtít upravený MODx distribuovat dál, musí být zdrojové kódy volně přístupné!!';
 $_lang["modx_install"] = 'MODx &raquo; Instalace';
 $_lang["modx_requires_php"] = ', a MODx vyžaduje PHP 4.2.0 nebo novější';

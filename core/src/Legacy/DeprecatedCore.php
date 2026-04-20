@@ -11,7 +11,7 @@ class DeprecatedCore implements DeprecatedCoreInterface
     */
     public function dbConnect()
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         $modx->getDatabase()->connect();
         $modx->rs = $modx->getDatabase()->conn;
     }
@@ -20,11 +20,11 @@ class DeprecatedCore implements DeprecatedCoreInterface
      * @deprecated
      *
      * @param $sql
-     * @return bool|mysqli_result|resource
+     * @return bool|\PDOStatement
      */
     public function dbQuery($sql)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         return $modx->getDatabase()->query($sql);
     }
@@ -37,7 +37,7 @@ class DeprecatedCore implements DeprecatedCoreInterface
      */
     public function recordCount($rs)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         return $modx->getDatabase()->getRecordCount($rs);
     }
@@ -51,7 +51,7 @@ class DeprecatedCore implements DeprecatedCoreInterface
      */
     public function fetchRow($rs, $mode = 'assoc')
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         return $modx->getDatabase()->getRow($rs, $mode);
     }
@@ -64,7 +64,7 @@ class DeprecatedCore implements DeprecatedCoreInterface
      */
     public function affectedRows($rs)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         return $modx->getDatabase()->getAffectedRows($rs);
     }
@@ -77,7 +77,7 @@ class DeprecatedCore implements DeprecatedCoreInterface
      */
     public function insertId($rs)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         return $modx->getDatabase()->getInsertId($rs);
     }
@@ -89,7 +89,7 @@ class DeprecatedCore implements DeprecatedCoreInterface
      */
     public function dbClose()
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         $modx->getDatabase()->disconnect();
     }
 
@@ -140,7 +140,7 @@ class DeprecatedCore implements DeprecatedCoreInterface
      */
     public function getUserData()
     {
-        $client = array();
+        $client = [];
         $client['ip'] = $_SERVER['REMOTE_ADDR'];
         $client['ua'] = $_SERVER['HTTP_USER_AGENT'];
 
@@ -179,7 +179,7 @@ class DeprecatedCore implements DeprecatedCoreInterface
      */
     public function putChunk($chunkName)
     { // alias name >.<
-        $modx = evolutionCMS();
+        $modx = evo();
 
         return $modx->getChunk($chunkName);
     }
@@ -191,7 +191,7 @@ class DeprecatedCore implements DeprecatedCoreInterface
      */
     public function getDocGroups()
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         return $modx->getUserDocGroups();
     }
@@ -205,7 +205,7 @@ class DeprecatedCore implements DeprecatedCoreInterface
      */
     public function changePassword($o, $n)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         return $modx->changeWebUserPassword($o, $n);
     }
@@ -217,8 +217,8 @@ class DeprecatedCore implements DeprecatedCoreInterface
      */
     public function userLoggedIn()
     {
-        $modx = evolutionCMS();
-        $userdetails = array();
+        $modx = evo();
+        $userdetails = [];
         if ($modx->isFrontend() && isset ($_SESSION['webValidated'])) {
             // web user
             $userdetails['loggedIn'] = true;
@@ -254,8 +254,8 @@ class DeprecatedCore implements DeprecatedCoreInterface
     public function getFormVars($method = "", $prefix = "", $trim = "", $REQUEST_METHOD)
     {
         //  function to retrieve form results into an associative array
-        $modx = evolutionCMS();
-        $results = array();
+        $modx = evo();
+        $results = [];
         $method = strtoupper($method);
         if ($method == "") {
             $method = $REQUEST_METHOD;
@@ -295,7 +295,7 @@ class DeprecatedCore implements DeprecatedCoreInterface
      */
     public function webAlert($msg, $url = "")
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         $msg = addslashes($modx->getDatabase()->escape($msg));
         if (substr(strtolower($url), 0, 11) == "javascript:") {
             $act = "__WebAlert();";

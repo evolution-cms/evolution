@@ -24,3 +24,4 @@ $_lang['error_openssl'] = 'È necessario abilitare la funzione OpenSSL in PHP';
 $_lang['error_overwrite'] = 'I file di EVO non sono disponibili per la sovrascrittura';
 
 $_lang['artisan_update'] = 'Per aggiornare, è necessario eseguire il comando della console dalla cartella  <b>core</b>: <b>php artisan make:site update</b>';
+$_lang["help_donate_msg"] = 'Acquista il caffè dagli sviluppatori di Evolution CMS su <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a>. Diventa un fan di Evolution CMS ❤️ oggi!';

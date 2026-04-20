@@ -15,8 +15,9 @@ class CreateMembergroupNamesTable extends Migration {
 	{
 		Schema::create('membergroup_names', function(Blueprint $table)
 		{
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
 			$table->integer('id', true);
-			$table->string('name', 245)->default('')->unique();
+			$table->string('name', 245)->default('')->unique("{$indexPrefix}_name");
 		});
 	}
 

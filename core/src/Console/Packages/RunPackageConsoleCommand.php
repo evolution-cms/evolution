@@ -27,6 +27,13 @@ class RunPackageConsoleCommand extends Command
     protected $composer = EVO_CORE_PATH . 'custom/composer.json';
 
     /**
+     * The path to the package directory
+     *
+     * @var string
+     */
+    protected $packagePath;
+
+    /**
      * Execute the console command.
      *
      * @return void

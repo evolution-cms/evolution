@@ -8,5 +8,5 @@ interface TracyPanel
      * @param CoreInterface $evolution
      * @return $this
      */
-    public function setEvolutionCMS(CoreInterface $evolution = null);
+    public function setEvolutionCMS(?CoreInterface $evolution = null);
 }

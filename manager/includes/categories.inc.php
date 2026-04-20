@@ -63,13 +63,7 @@ function getCategory($category = '')
  */
 function getCategories()
 {
-    $categories = Category::orderBy('category', 'ASC')->get()->toArray();
-    foreach ($categories as $row) {
-        $row['category'] = stripslashes($row['category']);
-        $resourceArray[] = $row;
-    }
-
-    return $resourceArray;
+    return Category::orderBy('category', 'ASC')->get()->toArray();
 }
 
 /**
@@ -80,17 +74,17 @@ function getCategories()
 function deleteCategory($catId = 0)
 {
     if ($catId) {
-        SiteTemplate::where('category', $catId)->update(array('category' => 0));
+        SiteTemplate::where('category', $catId)->update(['category' => 0]);
 
-        SiteTmplvar::where('category', $catId)->update(array('category' => 0));
+        SiteTmplvar::where('category', $catId)->update(['category' => 0]);
 
-        SiteHtmlsnippet::where('category', $catId)->update(array('category' => 0));
+        SiteHtmlsnippet::where('category', $catId)->update(['category' => 0]);
 
-        SiteSnippet::where('category', $catId)->update(array('category' => 0));
+        SiteSnippet::where('category', $catId)->update(['category' => 0]);
 
-        SitePlugin::where('category', $catId)->update(array('category' => 0));
+        SitePlugin::where('category', $catId)->update(['category' => 0]);
 
-        SiteModule::where('category', $catId)->update(array('category' => 0));
+        SiteModule::where('category', $catId)->update(['category' => 0]);
 
         Category::where('id', $catId)->delete();
     }

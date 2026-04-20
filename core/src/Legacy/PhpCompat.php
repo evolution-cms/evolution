@@ -17,7 +17,6 @@ class PhpCompat implements PhpCompatInterface
     public function htmlspecialchars($str = '', $flags = ENT_COMPAT, $encode = '', $safecount = 0)
     {
         $safecount++;
-        $modx = evolutionCMS();
 
         if (1000 < $safecount) {
             exit("error too many loops '{$safecount}'");
@@ -29,9 +28,9 @@ class PhpCompat implements PhpCompatInterface
             }
         } elseif ($str !== '') {
             if ($encode !== '') {
-                $encode = $modx->getConfig('modx_charset');
+                $encode = evo()->getConfig('evo_charset');
             }
-            $ent_str = htmlspecialchars($str, $flags, $encode);
+            $ent_str = htmlspecialchars(($str ?? ''), $flags, $encode);
 
             if (!empty($str) && empty($ent_str)) {
                 $detect_order = implode(',', mb_detect_order());
@@ -51,6 +50,6 @@ class PhpCompat implements PhpCompatInterface
 
     public function entities($data)
     {
-        return entities($data, evolutionCMS()->getConfig('modx_charset', 'UTF-8'));
+        return entities($data, evo()->getConfig('evo_charset', 'UTF-8'));
     }
 }

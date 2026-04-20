@@ -35,7 +35,12 @@ class RefreshSite extends AbstractController implements ManagerTheme\PageControl
         return true;
     }
 
-    public function process() : bool
+    /**
+     * Updates the site: (de)publishes documents, clears the cache, and invalidates the env cache.
+     *
+     * After clearing the cache, deletes `core/storage/cache/env.php` so that the `.env` cache is rebuilt on the next request.
+     */
+    public function process(): bool
     {
         // (un)publishing of documents, version 2!
         // first, publish document waiting to be published
@@ -47,9 +52,14 @@ class RefreshSite extends AbstractController implements ManagerTheme\PageControl
         ];
 
         ob_start();
-            $this->managerTheme->getCore()->clearCache('full', true);
-            $this->parameters['cache_log'] = ob_get_contents();
+        $this->managerTheme->getCore()->clearCache('full', true);
+        $this->parameters['cache_log'] = ob_get_contents();
         ob_end_clean();
+
+        $envCache = EVO_BASE_PATH . 'core/storage/cache/env.php';
+        if (is_file($envCache)) {
+            @unlink($envCache);
+        }
 
         // invoke OnSiteRefresh event
         $this->managerTheme->getCore()->invokeEvent("OnSiteRefresh");

@@ -2,8 +2,7 @@
  * This file is part of the Tracy (https://tracy.nette.org)
  */
 
-class BlueScreen
-{
+class BlueScreen {
 	static init(ajax) {
 		BlueScreen.globalInit();
 
@@ -33,7 +32,7 @@ class BlueScreen
 		(new ResizeObserver(stickyFooter)).observe(blueScreen);
 
 		if (document.documentElement.classList.contains('tracy-bs-visible')) {
-			window.scrollTo(0, 0);
+			blueScreen.scrollIntoView();
 		}
 	}
 
@@ -51,7 +50,7 @@ class BlueScreen
 
 		window.addEventListener('scroll', stickyFooter);
 
-		BlueScreen.globalInit = function() {};
+		BlueScreen.globalInit = function () {};
 	}
 
 

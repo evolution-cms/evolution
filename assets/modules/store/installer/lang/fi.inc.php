@@ -51,7 +51,6 @@ $_lang["checking_table_prefix"] = 'Tarkistetaan tietokannan taulujen etuliite `'
 $_lang["chunks"] = 'HTML-palaset';
 $_lang["config_permissions_note"] = 'Jos olet asentamassa järjestelmää Linux / Unix palvelimeen, luo kansioon <span class=\"mono\">'.MGR_DIR.'/includes/</span> tyhjä tiedosto nimeltä <span class=\"mono\">config.inc.php</span> ja aseta tiedostoon 0666 oikeudet.';
 $_lang["connection_screen_collation"] = 'Merkistö:';
-$_lang["connection_screen_connection_method"] = 'Yhteystyyppi:';
 $_lang["connection_screen_database_connection_information"] = 'Tietokannan yhteysasetukset';
 $_lang["connection_screen_database_connection_note"] = 'Ole hyvä ja syötä tietokannan nimi, jota MODx:n tulee käyttää. Jos tietokantaa ei ole vielä luotu, asennusohjelma yrittää luodan sen. Tämä voi epäonnistua riippuen MySQL asetuksista ja/tai tietokannan käyttäjän käyttöoikeuksista.';
 $_lang["connection_screen_database_host"] = 'Tietokantapalvelimen osoite:';
@@ -108,7 +107,7 @@ $_lang["installing_demo_site"] = 'Asennetaan demo sivustoa: ';
 $_lang["language_code"] = 'fi';	// for html element e.g. <html xml:lang="en" lang="en">
 $_lang["loading"] = 'Ladataan...';
 $_lang["modules"] = 'Moduulit';
-$_lang["modx_footer1"] = '&copy; 2005-2023 <a href="http://www.modxcms.com/" target="_blank" style="color: green; text-decoration:underline">MODx</a> Content Mangement Framework (CMF). Kaikki oikeudet pidätetään. MODx on lisensoitu GNU GPL lisenssillä.';
+$_lang["modx_footer1"] = '&copy; 2004 - 2026 <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> Content Mangement Framework (CMF). Kaikki oikeudet pidätetään. Evolution CMS on lisensoitu GNU GPL lisenssillä.';
 $_lang["modx_footer2"] = 'MODx on ilmainen ohjelmisto. Kehoitamme sinua olemaan luova ja käyttämään MODx järjestelmää siten, miten sinä sen parhaaksi näet. Jos teet muutoksia järjestelmään ja päätät jakaa muokattua MODx järjestelmää eteenpäin, muista pitää muokattu lähdekoodi vapaasti saatavilla!';
 $_lang["modx_install"] = 'MODx &raquo; Asennus';
 $_lang["modx_requires_php"] = ', ja MODx vaatii PHP:stä version 4.2.0 tai uudemman';
@@ -120,7 +119,7 @@ $_lang["not_found"] = 'Ei löytynyt';
 $_lang["ok"] = 'OK!';
 $_lang["optional_items"] = 'Valinnaiset kohdat';
 $_lang["optional_items_note"] = 'Ole hyvä ja valitse asennuksesi lisäasetukset ja napsauta "Asenna" painiketta:';
-$_lang["php_security_notice"] = '<legend>Tietoturva huomio</legend><p> Vaikka MODx toimiikin tällä PHP versiolla, sen käyttöä ei kuitenkaan suositella. PHP versiosi on altis useille tietoturva aukoille. On suositeltavaa sivustosi tietoturvallisuuden kannalta, että päivität PHP versiosi. Ole hyvä ja päivitä PHP versioon 4.3.8 tai uudempaan, joka korjaa kyseiset tietoturva aukot.';
+$_lang["php_security_notice"] = '<legend>Tietoturva huomio</legend><p> Vaikka MODx toimiikin tällä PHP versiolla, sen käyttöä ei kuitenkaan suositella. PHP versiosi on altis useille tietoturva aukoille. On suositeltavaa sivustosi tietoturvallisuuden kannalta, että päivität PHP versiosi. Ole hyvä ja päivitä PHP versioon [+min_version+] tai uudempaan, joka korjaa kyseiset tietoturva aukot.';
 $_lang["please_correct_error"] = '. Ole hyvä ja korjaa seuraava virhe';
 $_lang["please_correct_errors"] = '. Ole hyvä ja korjaa seuraavat virheet';
 $_lang["plugins"] = 'Liitännäiset';

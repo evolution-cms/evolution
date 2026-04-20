@@ -77,7 +77,7 @@ class Bitbucket
         }
 
         // if available use token from git config
-        if (0 === $this->process->execute('git config bitbucket.accesstoken', $output)) {
+        if (0 === $this->process->execute(['git', 'config', 'bitbucket.accesstoken'], $output)) {
             $this->io->setAuthentication($originUrl, 'x-token-auth', trim($output));
 
             return true;
@@ -143,7 +143,8 @@ class Bitbucket
 
         $localAuthConfig = $this->config->getLocalAuthConfigSource();
         $url = 'https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/';
-        $this->io->writeError(sprintf('Follow the instructions on %s', $url));
+        $this->io->writeError('Follow the instructions here:');
+        $this->io->writeError($url);
         $this->io->writeError(sprintf('to create a consumer. It will be stored in "%s" for future use by Composer.', ($localAuthConfig !== null ? $localAuthConfig->getName() . ' OR ' : '') . $this->config->getAuthConfigSource()->getName()));
         $this->io->writeError('Ensure you enter a "Callback URL" (http://example.com is fine) or it will not be possible to create an Access Token (this callback url will not be used by composer)');
 

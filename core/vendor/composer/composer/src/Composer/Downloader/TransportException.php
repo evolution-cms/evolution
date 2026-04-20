@@ -26,6 +26,11 @@ class TransportException extends \RuntimeException
     /** @var array<mixed> */
     protected $responseInfo = [];
 
+    public function __construct(string $message = "", int $code = 400, ?\Throwable $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
+    }
+
     /**
      * @param array<string> $headers
      */
@@ -47,9 +52,6 @@ class TransportException extends \RuntimeException
         $this->response = $response;
     }
 
-    /**
-     * @return ?string
-     */
     public function getResponse(): ?string
     {
         return $this->response;
@@ -63,9 +65,6 @@ class TransportException extends \RuntimeException
         $this->statusCode = $statusCode;
     }
 
-    /**
-     * @return ?int
-     */
     public function getStatusCode(): ?int
     {
         return $this->statusCode;

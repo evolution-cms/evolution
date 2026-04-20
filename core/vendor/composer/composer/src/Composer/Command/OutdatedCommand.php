@@ -40,8 +40,9 @@ class OutdatedCommand extends BaseCommand
                 new InputOption('major-only', 'M', InputOption::VALUE_NONE, 'Show only packages that have major SemVer-compatible updates.'),
                 new InputOption('minor-only', 'm', InputOption::VALUE_NONE, 'Show only packages that have minor SemVer-compatible updates.'),
                 new InputOption('patch-only', 'p', InputOption::VALUE_NONE, 'Show only packages that have patch SemVer-compatible updates.'),
+                new InputOption('sort-by-age', 'A', InputOption::VALUE_NONE, 'Displays the installed version\'s age, and sorts packages oldest first.'),
                 new InputOption('format', 'f', InputOption::VALUE_REQUIRED, 'Format of the output: text or json', 'text', ['json', 'text']),
-                new InputOption('ignore', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Ignore specified package(s). Use it if you don\'t want to be informed about new versions of some packages.', null, $this->suggestInstalledPackage(false)),
+                new InputOption('ignore', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Ignore specified package(s). Can contain wildcards (*). Use it if you don\'t want to be informed about new versions of some packages.', null, $this->suggestInstalledPackage(false)),
                 new InputOption('no-dev', null, InputOption::VALUE_NONE, 'Disables search in require-dev packages.'),
                 new InputOption('ignore-platform-req', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Ignore a specific platform requirement (php & ext- packages). Use with the --outdated option'),
                 new InputOption('ignore-platform-reqs', null, InputOption::VALUE_NONE, 'Ignore all platform requirements (php & ext- packages). Use with the --outdated option'),
@@ -70,6 +71,18 @@ EOT
             'command' => 'show',
             '--latest' => true,
         ];
+        if ($input->getOption('no-interaction')) {
+            $args['--no-interaction'] = true;
+        }
+        if ($input->getOption('no-plugins')) {
+            $args['--no-plugins'] = true;
+        }
+        if ($input->getOption('no-scripts')) {
+            $args['--no-scripts'] = true;
+        }
+        if ($input->getOption('no-cache')) {
+            $args['--no-cache'] = true;
+        }
         if (!$input->getOption('all')) {
             $args['--outdated'] = true;
         }
@@ -96,6 +109,9 @@ EOT
         }
         if ($input->getOption('no-dev')) {
             $args['--no-dev'] = true;
+        }
+        if ($input->getOption('sort-by-age')) {
+            $args['--sort-by-age'] = true;
         }
         $args['--ignore-platform-req'] = $input->getOption('ignore-platform-req');
         if ($input->getOption('ignore-platform-reqs')) {

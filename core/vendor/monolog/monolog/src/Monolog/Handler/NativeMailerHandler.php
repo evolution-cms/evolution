@@ -78,7 +78,8 @@ class NativeMailerHandler extends MailHandler
     /**
      * Add headers to the message
      *
-     * @param string|string[] $headers Custom added headers
+     * @param  string|string[] $headers Custom added headers
+     * @return $this
      */
     public function addHeader($headers): self
     {
@@ -95,7 +96,8 @@ class NativeMailerHandler extends MailHandler
     /**
      * Add parameters to the message
      *
-     * @param string|string[] $parameters Custom added parameters
+     * @param  string|string[] $parameters Custom added parameters
+     * @return $this
      */
     public function addParameter($parameters): self
     {
@@ -126,7 +128,7 @@ class NativeMailerHandler extends MailHandler
 
         $parameters = implode(' ', $this->parameters);
         foreach ($this->to as $to) {
-            mail($to, $subject, $content, $headers, $parameters);
+            $this->mail($to, $subject, $content, $headers, $parameters);
         }
     }
 
@@ -141,7 +143,8 @@ class NativeMailerHandler extends MailHandler
     }
 
     /**
-     * @param string $contentType The content type of the email - Defaults to text/plain. Use text/html for HTML messages.
+     * @param  string $contentType The content type of the email - Defaults to text/plain. Use text/html for HTML messages.
+     * @return $this
      */
     public function setContentType(string $contentType): self
     {
@@ -154,6 +157,9 @@ class NativeMailerHandler extends MailHandler
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function setEncoding(string $encoding): self
     {
         if (strpos($encoding, "\n") !== false || strpos($encoding, "\r") !== false) {
@@ -163,5 +169,11 @@ class NativeMailerHandler extends MailHandler
         $this->encoding = $encoding;
 
         return $this;
+    }
+
+
+    protected function mail(string $to, string $subject, string $content, string $headers, string $parameters): void
+    {
+        mail($to, $subject, $content, $headers, $parameters);
     }
 }

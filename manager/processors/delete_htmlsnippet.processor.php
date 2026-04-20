@@ -17,18 +17,18 @@ $_SESSION['itemname'] = $name;
 
 // invoke OnBeforeChunkFormDelete event
 EvolutionCMS()->invokeEvent("OnBeforeChunkFormDelete",
-	array(
+	[
 		"id"	=> $id
-	));
+	]);
 
 // delete the chunk.
 EvolutionCMS\Models\SiteHtmlsnippet::destroy($id);
 
 // invoke OnChunkFormDelete event
 EvolutionCMS()->invokeEvent("OnChunkFormDelete",
-	array(
+	[
 		"id"	=> $id
-	));
+	]);
 
 // empty cache
 EvolutionCMS()->clearCache('full');

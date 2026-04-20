@@ -1,13 +1,15 @@
 <?php namespace EvolutionCMS;
 
-use AgelxNash\Modx\Evo\Database\Exceptions\InvalidFieldException;
-use AgelxNash\Modx\Evo\Database\Exceptions\TableNotDefinedException;
-use AgelxNash\Modx\Evo\Database\Exceptions\UnknownFetchTypeException;
+use EvolutionCMS\Exceptions\InvalidFieldException;
+use EvolutionCMS\Exceptions\TableNotDefinedException;
+use EvolutionCMS\Exceptions\UnknownFetchTypeException;
+use Carbon\Carbon;
 use EvolutionCMS\Models\ActiveUser;
 use EvolutionCMS\Models\ActiveUserLock;
 use EvolutionCMS\Models\ActiveUserSession;
 use EvolutionCMS\Models\DocumentGroup;
 use EvolutionCMS\Models\EventLog;
+use EvolutionCMS\Models\MembergroupAccess;
 use EvolutionCMS\Models\MembergroupName;
 use EvolutionCMS\Models\SiteContent;
 use EvolutionCMS\Models\SitePlugin;
@@ -17,17 +19,17 @@ use EvolutionCMS\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
-use IntlDateFormatter;
 use PHPMailer\PHPMailer\Exception;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use TemplateProcessor;
 use UrlProcessor;
-use HelperProcessor;
 
 /**
+ * @phpstan-consistent-constructor
  * @see: https://github.com/laravel/framework/blob/5.6/src/Illuminate/Foundation/Bootstrap/LoadConfiguration.php
  * @property Mail $mail
  *      $this->loadExtension('MODxMailer');
@@ -48,7 +50,7 @@ use HelperProcessor;
 class Core extends AbstractLaravel implements Interfaces\CoreInterface
 {
     use Traits\Settings {
-        getSettings as loadConfig;
+        Traits\Settings::getSettings as loadConfig;
     }
     use Traits\Path, Traits\Helpers;
 
@@ -125,6 +127,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     public $loadedjscripts = [];
     public $documentMap = [];
     public $forwards = 3;
+    protected $forwardTargets = [];
     public $error_reporting = 1;
     public $dumpPlugins = false;
     public $pluginsCode;
@@ -186,6 +189,21 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     private $context = '';
 
     /**
+     * @param string $type One of: chunks, tvs, snippets, snippetParams
+     * @return bool
+     */
+    public function isHtmlCommentNeeded($type)
+    {
+        $htmlComment = $this->getConfig('html_comment', '');
+        if (empty($htmlComment)) {
+            return false;
+        }
+        $types = array_map('trim', explode(',', $htmlComment));
+
+        return in_array($type, $types, true);
+    }
+
+    /**
      * @throws \Exception
      */
     public function __construct()
@@ -214,11 +232,13 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         parent::__construct();
 
         $this->initialize();
-
     }
 
     public function initialize()
     {
+        if (defined('EVO_SESSION') && EVO_SESSION) {
+            \EvoSessionProxy::init();
+        }
 
         if ($this->isLoggedIn('mgr')) {
             ini_set('display_errors', 1);
@@ -304,7 +324,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     {
         $flag = false;
         if (is_scalar($connector) && !empty($connector) && isset($this->{$connector}) && $this->{$connector} instanceof Interfaces\DatabaseInterface) {
-            $flag = (bool)$this->{$connector}->conn;
+            $flag = (bool) $this->{$connector}->conn;
         }
 
         return $flag;
@@ -359,7 +379,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     /**
      * Loads an extension from the extenders folder.
      * You can load any extension creating a boot file:
-     * MODX_MANAGER_PATH."includes/extenders/ex_{$extname}.inc.php"
+     * EVO_MANAGER_PATH."includes/extenders/ex_{$extname}.inc.php"
      * $extname - extension name in lowercase
      *
      * @param $extname
@@ -377,14 +397,14 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $found = false;
         $flag = ($reload || !in_array($extname, $this->extensions));
         if ($this->checkSQLconnect('db') && $flag) {
-            $evtOut = $this->invokeEvent('OnBeforeLoadExtension', array('name' => $extname, 'reload' => $reload));
+            $evtOut = $this->invokeEvent('OnBeforeLoadExtension', ['name' => $extname, 'reload' => $reload]);
             if (is_array($evtOut) && count($evtOut) > 0) {
                 $out = array_pop($evtOut);
             }
         }
         if (!$out && $flag) {
-            $extname = trim(str_replace(array('..', '/', '\\'), '', strtolower($extname)));
-            $filename = MODX_MANAGER_PATH . "includes/extenders/ex_{$extname}.inc.php";
+            $extname = trim(str_replace(['..', '/', '\\'], '', strtolower($extname)));
+            $filename = EVO_MANAGER_PATH . "includes/extenders/ex_{$extname}.inc.php";
             $out = is_file($filename) ? include $filename : false;
         }
         if ($out && !in_array($extname, $this->extensions)) {
@@ -403,65 +423,91 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     {
         [$usec, $sec] = explode(' ', microtime());
 
-        return ((float)$usec + (float)$sec);
+        return ((float) $usec + (float) $sec);
     }
 
     /**
      * Redirect
      *
-     * @param string $url
-     * @param int $count_attempts
-     * @param string $type $type
-     * @param string $responseCode
+     * @param string $url Target URL for redirection
+     * @param int $count_attempts Number of redirect attempts (to prevent loops)
+     * @param string $type Redirect type: REDIRECT_REFRESH, REDIRECT_META, REDIRECT_SCRIPT, REDIRECT_HEADER (default)
+     * @param string|int $responseCode HTTP 30x response code
      * @return bool|null
      * @global string $base_url
      * @global string $site_url
      */
-    public function sendRedirect($url, $count_attempts = 0, $type = '', $responseCode = '')
+    public function sendRedirect(string $url, int $count_attempts = 0, string $type = '', string|int $responseCode = ''): ?bool
     {
-        $header = '';
-        if (empty ($url)) {
+        if (empty($url)) {
             return false;
         }
-        if ($count_attempts == 1) {
-            // append the redirect count string to the url
-            $currentNumberOfRedirects = isset ($_REQUEST['err']) ? $_REQUEST['err'] : 0;
+
+        // Prevent redirect loops
+        if ($count_attempts === 1) {
+            $currentNumberOfRedirects = isset($_REQUEST['err']) ? (int) $_REQUEST['err'] : 0;
+
             if ($currentNumberOfRedirects > 3) {
                 $this->getService('ExceptionHandler')->messageQuit(
                     'Redirection attempt failed - please ensure the document you\'re trying to redirect to exists.' .
-                    '<p>Redirection URL: <i>' . $url . '</i></p>'
+                    '<p>Redirection URL: <i>' . htmlspecialchars($url) . '</i></p>'
                 );
-            } else {
-                $currentNumberOfRedirects += 1;
-                if (Str::contains($url, '?')) {
-                    $url .= "&err=$currentNumberOfRedirects";
-                } else {
-                    $url .= "?err=$currentNumberOfRedirects";
-                }
             }
-        }
-        if ($type === 'REDIRECT_REFRESH') {
-            $header = 'Refresh: 0;URL=' . $url;
-        } elseif ($type === 'REDIRECT_META') {
-            $header = '<META HTTP-EQUIV="Refresh" CONTENT="0; URL=' . $url . '" />';
-            echo $header;
-            exit;
-        } elseif ($type === 'REDIRECT_HEADER' || empty ($type)) {
-            // check if url has /$base_url
-            if (substr($url, 0, strlen(MODX_BASE_URL)) == MODX_BASE_URL) {
-                // append $site_url to make it work with Location:
-                $url = MODX_SITE_URL . substr($url, strlen(MODX_BASE_URL));
-            }
-            if (!Str::contains($url, "\n")) {
-                $header = 'Location: ' . $url;
-            } else {
-                $this->getService('ExceptionHandler')->messageQuit('No newline allowed in redirect url.');
-            }
-        }
-        if ($responseCode && (Str::contains($responseCode, '30'))) {
-            header($responseCode);
+
+            $currentNumberOfRedirects++;
+            $url .= (str_contains($url, '?') ? '&' : '?') . "err=$currentNumberOfRedirects";
         }
 
+        // Only allow redirects to the same domain or relative paths to prevent open redirect vulnerability
+        $parsed_url = parse_url($url);
+        if (isset($parsed_url['scheme'])) {
+            if (!in_array(strtolower($parsed_url['scheme']), ['http', 'https']) || $parsed_url['host'] !==
+                parse_url(EVO_SITE_URL)['host']) {
+                $this->getService('ExceptionHandler')->messageQuit(
+                    'External or invalid redirect not allowed: <i>' . htmlspecialchars($url) . '</i>'
+                );
+            }
+        }
+
+        // Fix: Prevent header injection by checking for newlines in all redirect types
+        if (str_contains($url, "\n") || str_contains($url, "\r")) {
+            $this->getService('ExceptionHandler')->messageQuit('No newline allowed in redirect URL.');
+        }
+
+        // Define redirect header
+        if ($type === 'REDIRECT_REFRESH') {
+            $header = 'Refresh: 0;URL=' . $url;
+        } elseif ($type === 'REDIRECT_SCRIPT') {
+            echo '<script>document.location.href = ' . json_encode($url) . ';</script>' . "\n";
+            exit;
+        } elseif ($type === 'REDIRECT_META') {
+            echo '<META HTTP-EQUIV="Refresh" CONTENT="0; URL=' . htmlspecialchars($url) . '" />';
+            exit;
+        } else { // default: REDIRECT_HEADER
+            $header = 'Location: ' . $url;
+        }
+
+        // Handle HTTP response code
+        $responseCodes = [
+            300 => 'Multiple Choices',
+            301 => 'Moved Permanently',
+            302 => 'Found',
+            303 => 'See Other',
+            304 => 'Not Modified',
+            305 => 'Use Proxy',
+            306 => 'Switch Proxy',
+            307 => 'Temporary Redirect',
+            308 => 'Permanent Redirect',
+        ];
+
+        $code = (int) $responseCode;
+        if (!isset($responseCodes[$code])) {
+            $code = 302;
+        }
+
+        header('HTTP/1.1 ' . $code . ' ' . $responseCodes[$code]);
+
+        // Set redirection header if applicable
         if (!empty($header)) {
             header($header);
         }
@@ -469,14 +515,17 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         exit(0);
     }
 
-    /**
-     * Forward to another page
-     *
-     * @param int|string $id
-     * @param string $responseCode
-     */
     public function sendForward($id, $responseCode = '')
     {
+        $targetKey = is_scalar($id) ? (string) $id : gettype($id);
+        $this->forwardTargets[$targetKey] = ($this->forwardTargets[$targetKey] ?? 0) + 1;
+
+        $isSelfForward = ($this->documentMethod === 'id' && (string) $this->documentIdentifier === (string) $id);
+        $isRepeatedTarget = $this->forwardTargets[$targetKey] > 1;
+        if ($isSelfForward || $isRepeatedTarget) {
+            $this->handleForwardLoop($id, $responseCode, $isSelfForward ? 'self_forward' : 'repeated_target');
+        }
+
         if ($this->forwards > 0) {
             $this->forwards = $this->forwards - 1;
             $this->documentIdentifier = $id;
@@ -494,6 +543,102 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     }
 
     /**
+     * Stops execution when a forward loop is detected, logs an error, and returns a minimal raw response.
+     *
+     * This is intentionally only invoked when a loop is detected (self-forward or repeated target) to avoid adding
+     * DB overhead on normal requests.
+     *
+     * @param mixed $target
+     * @param string $responseCode
+     * @param string $loopType
+     * @return never
+     */
+    protected function handleForwardLoop($target, string $responseCode = '', string $loopType = 'unknown')
+    {
+        $status = 500;
+        if ($responseCode !== '' && preg_match('/\\b(\\d{3})\\b/', $responseCode, $m)) {
+            $status = (int)$m[1];
+            header($responseCode);
+        } else {
+            header('HTTP/1.0 500 Internal Server Error');
+        }
+        header('Content-Type: text/html; charset=UTF-8');
+
+        $docInfo = null;
+        if (is_scalar($target) && ctype_digit((string) $target)) {
+            try {
+                $doc = SiteContent::select('id', 'deleted', 'published')->where('id', (int)$target)->first();
+                if ($doc === null) {
+                    $docInfo = ['status' => 'missing'];
+                } else {
+                    $docInfo = [
+                        'status' => ((int)$doc->deleted === 1) ? 'deleted' : 'exists',
+                        'deleted' => (int)$doc->deleted,
+                        'published' => (int)$doc->published,
+                    ];
+                }
+            } catch (\Throwable $e) {
+                $docInfo = ['status' => 'unknown', 'error' => $e->getMessage()];
+            }
+        }
+
+        Log::warning('Forward loop detected', [
+            'loop_type' => $loopType,
+            'request_uri' => $_SERVER['REQUEST_URI'] ?? null,
+            'document_method' => $this->documentMethod ?? null,
+            'document_identifier' => $this->documentIdentifier ?? null,
+            'target' => $target,
+            'target_attempts' => $this->forwardTargets[is_scalar($target) ? (string)$target : gettype($target)] ?? null,
+            'forwards_remaining' => $this->forwards,
+            'response' => $responseCode,
+            'error_page' => (int) $this->getConfig('error_page', 0),
+            'unauthorized_page' => (int) $this->getConfig('unauthorized_page', 0),
+            'site_start' => (int) $this->getConfig('site_start', 0),
+            'target_doc' => $docInfo,
+        ]);
+
+        $errorPageId = (int)$this->getConfig('error_page', 0);
+        if (
+            $errorPageId > 0
+            && (string)$errorPageId !== (string)$target
+            && (string)$errorPageId !== (string)($this->documentIdentifier ?? '')
+            && (($this->forwardTargets[(string)$errorPageId] ?? 0) === 0)
+        ) {
+            try {
+                $this->forwardTargets[(string)$errorPageId] = 1;
+                header('HTTP/1.0 404 Not Found', true, 404);
+                $this->documentIdentifier = $errorPageId;
+                $this->documentMethod = 'id';
+                $this->prepareResponse();
+                exit;
+            } catch (\Throwable $e) {
+                Log::warning('Forward loop fallback to error_page failed', [
+                    'loop_type' => $loopType,
+                    'request_uri' => $_SERVER['REQUEST_URI'] ?? null,
+                    'target' => $target,
+                    'error_page' => $errorPageId,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        if (file_exists(EVO_BASE_PATH . 'views/' . (int)$status . '.html')) {
+            header('HTTP/1.0 404 Not Found', true, (int)$status);
+            echo file_get_contents(EVO_BASE_PATH . 'views/' . (int)$status . '.html');
+            exit;
+        }
+
+        echo '<h1>ERROR: Forward loop detected</h1>';
+        echo '<p>The request could not be completed due to an internal forward loop.</p>';
+        echo '<p>Status: ' . $status . '</p>';
+        echo '<p>Target: ' . htmlspecialchars(is_scalar($target) ? (string)$target : gettype($target), ENT_QUOTES) . '</p>';
+        if (is_array($docInfo)) {
+            echo '<p>Target document: ' . htmlspecialchars((string)($docInfo['status'] ?? 'unknown'), ENT_QUOTES) . '</p>';
+        }
+        exit;
+    }
+
+    /**
      * Redirect to the error page, by calling sendForward(). This is called for example when the page was not found.
      * @param bool $noEvent
      */
@@ -507,11 +652,11 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $url = UrlProcessor::getNotFoundPageId();
 
         $this->sendForward($url, 'HTTP/1.0 404 Not Found');
-        exit();
     }
 
     /**
      * @param bool $noEvent
+     * @return never
      */
     public function sendUnauthorizedPage($noEvent = false)
     {
@@ -530,7 +675,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * Returns the document identifier of the current request
      *
      * @param string $method id and alias are allowed
-     * @return int
+     * @return int|void
      */
     public function getDocumentIdentifier($method)
     {
@@ -567,7 +712,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             return is_cli() || (isset($_SESSION[$mgr]) && !empty($_SESSION[$mgr])) || (isset($_SESSION[$web]) && !empty($_SESSION[$web]));
         }
 
-        $_ = $context.'Validated';
+        $_ = $context . 'Validated';
         return is_cli() || (isset($_SESSION[$_]) && !empty($_SESSION[$_]));
     }
 
@@ -588,7 +733,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      */
     public function checkPreview()
     {
-        return ($this->isLoggedIn() == true) && isset ($_REQUEST['z']) && $_REQUEST['z'] === 'manprev';
+        return ($this->isLoggedIn() == true) && isset($_REQUEST['z']) && $_REQUEST['z'] === 'manprev';
     }
 
     /**
@@ -626,7 +771,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     {
         $hash = $id;
         $tmp = null;
-        $params = array();
+        $params = [];
         $cacheKey = $this->getSystemCacheKey();
         if (!empty($cacheKey)) {
             $hash = $cacheKey;
@@ -638,7 +783,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 $hash .= '_' . md5(http_build_query($params));
             }
         }
-        $evtOut = $this->invokeEvent("OnMakePageCacheKey", array("hash" => &$hash, "id" => $id, 'params' => $params));
+        $evtOut = $this->invokeEvent("OnMakePageCacheKey", ["hash" => &$hash, "id" => $id, 'params' => $params]);
         if (is_array($evtOut) && count($evtOut) > 0) {
             $tmp = array_pop($evtOut);
         }
@@ -688,7 +833,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         else {
             $docObj = unserialize($a[0]); // rebuild document object
             // check page security
-            if ($this->isFrontend() && $docObj['privateweb'] && isset ($docObj['__MODxDocGroups__'])) {
+            if ($this->isFrontend() && $docObj['privateweb'] && isset($docObj['__MODxDocGroups__'])) {
                 $pass = false;
                 $usrGrps = $this->getUserDocGroups();
                 $docGrps = explode(',', $docObj['__MODxDocGroups__']);
@@ -806,7 +951,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
         // send out content-type and content-disposition headers
         if (IN_PARSER_MODE == "true") {
-            $type = !empty ($this->contentTypes[$this->documentIdentifier]) ? $this->contentTypes[$this->documentIdentifier] : "text/html";
+            $type = !empty($this->contentTypes[$this->documentIdentifier]) ? $this->contentTypes[$this->documentIdentifier] : "text/html";
             header('Content-Type: ' . $type . '; charset=' . $this->getConfig('modx_charset'));
             //            if (($this->documentIdentifier == $this->config['error_page']) || $redirect_error)
             //                header('HTTP/1.0 404 Not Found');
@@ -836,8 +981,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $out =& $this->documentOutput;
         if ($postParse && Str::contains($out, '[^')) {
             $out = str_replace(
-                array('[^q^]', '[^qt^]', '[^p^]', '[^t^]', '[^s^]', '[^m^]')
-                , array($stats['queries'], $stats['queryTime'], $stats['phpTime'], $stats['totalTime'], $stats['source'], $stats['phpMemory'])
+                ['[^q^]', '[^qt^]', '[^p^]', '[^t^]', '[^s^]', '[^m^]']
+                , [$stats['queries'], $stats['queryTime'], $stats['phpTime'], $stats['totalTime'], $stats['source'], $stats['phpMemory']]
                 , $out
             );
         }
@@ -847,7 +992,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         if (!$noEvent) {
             $evtOut = $this->invokeEvent(
                 'OnWebPagePrerender'
-                , array('documentOutput' => &$this->documentOutput)
+                , ['documentOutput' => &$this->documentOutput]
             );
         }
 
@@ -929,12 +1074,12 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     public function getTagsForEscape($tags = '{{,}},[[,]],[!,!],[*,*],[(,)],[+,+],[~,~],[^,^]')
     {
         $srcTags = explode(',', $tags);
-        $repTags = array();
+        $repTags = [];
         foreach ($srcTags as $tag) {
             $repTags[] = '\\' . $tag[0] . '\\' . $tag[1];
         }
 
-        return array($srcTags, $repTags);
+        return [$srcTags, $repTags];
     }
 
     /**
@@ -943,7 +1088,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      */
     public function getTimerStats($tstart)
     {
-        $stats = array();
+        $stats = [];
 
         $stats['totalTime'] = ($this->getMicroTime() - $tstart);
         $stats['queryTime'] = $this->queryTime;
@@ -953,7 +1098,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $stats['totalTime'] = sprintf('%2.4f s', $stats['totalTime']);
         $stats['phpTime'] = sprintf('%2.4f s', $stats['phpTime']);
         $stats['source'] = $this->documentGenerated == 1 ? 'database' : 'cache';
-        $stats['queries'] = isset ($this->executedQueries) ? $this->executedQueries : 0;
+        $stats['queries'] = isset($this->executedQueries) ? $this->executedQueries : 0;
         $stats['phpMemory'] = (memory_get_peak_usage(true) / 1024 / 1024) . ' mb';
 
         return $stats;
@@ -961,7 +1106,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
     public function setConditional()
     {
-        if (!empty($_POST) || (defined('MODX_API_MODE') && MODX_API_MODE) || $this->getLoginUserID('mgr') || !$this->useConditional || empty($this->recentUpdate)) {
+        if (!empty($_POST) || (defined('EVO_API_MODE') && EVO_API_MODE) || $this->getLoginUserID('mgr') || !$this->useConditional || empty($this->recentUpdate)) {
             return;
         }
         $last_modified = gmdate('D, d M Y H:i:s T', $this->recentUpdate);
@@ -998,32 +1143,32 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         }
 
         // now, check for documents that need publishing
-        $field = array('published' => 1, 'publishedon' => $timeNow);
+        $field = ['published' => 1, 'publishedon' => $timeNow];
         $where = "pub_date <= {$timeNow} AND pub_date!=0 AND published=0";
         $result_pub = \EvolutionCMS\Models\SiteContent::select('id')->whereRaw($where)->get();
         \EvolutionCMS\Models\SiteContent::whereRaw($where)->update($field);
 
         if ($result_pub->count() >= 1) { //Event unPublished doc
             foreach ($result_pub as $row_pub) {
-                $this->invokeEvent("OnDocUnPublished", array(
+                $this->invokeEvent("OnDocUnPublished", [
                     "docid" => $row_pub->id
-                ));
+                ]);
             }
         }
 
         // now, check for documents that need un-publishing
-        $field = array('published' => 0, 'publishedon' => 0);
+        $field = ['published' => 0, 'publishedon' => 0];
         $where = "unpub_date <= {$timeNow} AND unpub_date!=0 AND published=1";
-//
+        //
         $result_unpub = \EvolutionCMS\Models\SiteContent::select('id')->whereRaw($where)->get();
 
         \EvolutionCMS\Models\SiteContent::whereRaw($where)->update($field);
 
         if ($result_unpub->count() >= 1) { //Event unPublished doc
             foreach ($result_unpub as $row_unpub) {
-                $this->invokeEvent("OnDocUnPublished", array(
+                $this->invokeEvent("OnDocUnPublished", [
                     "docid" => $row_unpub->id
-                ));
+                ]);
             }
         }
 
@@ -1082,7 +1227,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     {
         $_ = $this->_getTagsFromContent($content, $left, $right);
         if (empty($_)) {
-            return array();
+            return [];
         }
         foreach ($_ as $v) {
             $tags[0][] = "{$left}{$v}{$right}";
@@ -1101,14 +1246,14 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     public function _getTagsFromContent($content, $left = '[+', $right = '+]')
     {
         if (!Str::contains($content, $left)) {
-            return array();
+            return [];
         }
         $spacer = md5('<<<EVO>>>');
         if ($left === '{{' && Str::contains($content, ';}}')) {
             $content = str_replace(';}}', ';}' . $spacer . '}', $content);
         }
         if ($left === '{{' && Str::contains($content, '{{}}')) {
-            $content = str_replace('{{}}', sprintf('{%$1s{}%$1s}', $spacer), $content);
+            $content = str_replace('{{}}', sprintf('{%s{}%s}', $spacer, $spacer), $content);
         }
         if ($left === '[[' && Str::contains($content, ']]]]')) {
             $content = str_replace(']]]]', ']]' . $spacer . ']]', $content);
@@ -1125,7 +1270,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         }
 
         $lp = explode($left, $content);
-        $piece = array();
+        $piece = [];
         foreach ($lp as $lc => $lv) {
             if ($lc !== 0) {
                 $piece[] = $left;
@@ -1145,7 +1290,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $lc = 0;
         $rc = 0;
         $fetch = '';
-        $tags = array();
+        $tags = [];
         foreach ($piece as $v) {
             if ($v === $left) {
                 if (0 < $lc) {
@@ -1172,7 +1317,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
                     if (!in_array($fetch, $tags)) {  // Avoid double Matches
                         $tags[] = $fetch; // Fetch
-                    };
+                    }
                     $fetch = ''; // and reset
                     $lc = 0;
                     $rc = 0;
@@ -1249,7 +1394,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             if ($context) {
                 $value = $this->_contextValue("{$key}@{$context}", $this->documentObject['parent']);
             } else {
-                $value = isset($ph[$key]) ? $ph[$key] : '';
+                $value = $ph[$key] ?? '';
             }
 
             if (is_array($value)) {
@@ -1259,6 +1404,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $s = &$matches[0][$i];
             if ($modifiers !== false) {
                 $value = $this->applyFilter($value, $modifiers, $key);
+            }
+
+            if ($this->isHtmlCommentNeeded('tvs')) {
+                $value = "<!-- tv $key\n-->" . $value . "<!--\n/tv $key -->";
             }
 
             if (Str::contains($content, $s)) {
@@ -1279,14 +1428,14 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     public function _contextValue($key, $parent = false)
     {
         if (preg_match('/@\d+\/u/', $key)) {
-            $key = str_replace(array('@', '/u'), array('@u(', ')'), $key);
+            $key = str_replace(['@', '/u'], ['@u(', ')'], $key);
         }
         [$key, $str] = explode('@', $key, 2);
 
         if (Str::contains($str, '(')) {
             [$context, $option] = explode('(', $str, 2);
         } else {
-            [$context, $option] = array($str, false);
+            [$context, $option] = [$str, false];
         }
 
         if ($option) {
@@ -1412,12 +1561,12 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $ph = array_merge(
                 $this->allConfig(),
                 [
-                    'base_url' => MODX_BASE_URL,
-                    'base_path' => MODX_BASE_PATH,
-                    'site_url' => MODX_SITE_URL,
-                    'valid_hostnames' => MODX_SITE_HOSTNAMES,
-                    'site_manager_url' => MODX_MANAGER_URL,
-                    'site_manager_path' => MODX_MANAGER_PATH
+                    'base_url' => EVO_BASE_URL,
+                    'base_path' => EVO_BASE_PATH,
+                    'site_url' => EVO_SITE_URL,
+                    'valid_hostnames' => EVO_SITE_HOSTNAMES,
+                    'site_manager_url' => EVO_MANAGER_URL,
+                    'site_manager_path' => EVO_MANAGER_PATH
                 ]
             );
         }
@@ -1461,7 +1610,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     {
         if ($this->getConfig('enable_at_syntax')) {
             if (Str::contains($content, '{{ ')) {
-                $content = str_replace(array('{{ ', ' }}'), array('\{\{ ', ' \}\}'), $content);
+                $content = str_replace(['{{ ', ' }}'], ['\{\{ ', ' \}\}'], $content);
             }
             if (stripos($content, '<@LITERAL>') !== false) {
                 $content = $this->escapeLiteralTagsContent($content);
@@ -1507,6 +1656,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
             if ($modifiers !== false) {
                 $value = $this->applyFilter($value, $modifiers, $key);
+            }
+
+            if ($this->isHtmlCommentNeeded('chunks')) {
+                $value = "<!-- chunk $key\n-->" . $value . "<!--\n/chunk $key -->";
             }
 
             $s = &$matches[0][$i];
@@ -1605,8 +1758,11 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         }
 
         $sp = '#' . md5('ConditionalTags' . $_SERVER['REQUEST_TIME']) . '#';
-        $content = str_replace(array('<?php', '<?=', '<?', '?>'), array("{$sp}b", "{$sp}p", "{$sp}s", "{$sp}e"),
-            $content);
+        $content = str_replace(
+            ['<?php', '<?=', '<?', '?>'],
+            ["{$sp}h", "{$sp}p", "{$sp}s", "{$sp}e"],
+            $content
+        );
 
         $pieces = explode('<@IF:', $content);
         foreach ($pieces as $i => $split) {
@@ -1631,12 +1787,15 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $content .= $text;
         }
 
-        $content = str_replace(array('<@ELSE>', '<@ENDIF>'), array('<?php else:?>', '<?php endif;?>'), $content);
+        $content = str_replace(['<@ELSE>', '<@ENDIF>'], ['<?php else:?>', '<?php endif;?>'], $content);
         ob_start();
-        eval('?>' . $content);
+        eval ('?>' . $content);
         $content = ob_get_clean();
-        $content = str_replace(array("{$sp}b", "{$sp}p", "{$sp}s", "{$sp}e"), array('<?php', '<?=', '<?', '?>'),
-            $content);
+        $content = str_replace(
+            ["{$sp}h", "{$sp}p", "{$sp}s", "{$sp}e"],
+            ['<?php', '<?=', '<?', '?>'],
+            $content
+        );
 
         return $content;
     }
@@ -1678,7 +1837,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         if (Str::contains($content, '<@ENDIF-->')) {
             $content = str_replace('<@ENDIF-->', $endiftag, $content);
         }
-        $tags = array($iftag, $elseiftag, $elsetag, $endiftag);
+        $tags = [$iftag, $elseiftag, $elsetag, $endiftag];
         $content = str_ireplace($tags, $tags, $content); // Change to capital letters
 
         return $content;
@@ -1712,7 +1871,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $cmd = ltrim($cmd, '!');
         }
         if (Str::contains($cmd, '[!')) {
-            $cmd = str_replace(array('[!', '!]'), array('[[', ']]'), $cmd);
+            $cmd = str_replace(['[!', '!]'], ['[[', ']]'], $cmd);
         }
         $safe = 0;
         while ($safe < 20) {
@@ -1739,10 +1898,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         }
         $cmd = ltrim($cmd);
         $cmd = rtrim($cmd, '-');
-        $cmd = str_ireplace(array(' and ', ' or '), array('&&', '||'), $cmd);
+        $cmd = str_ireplace([' and ', ' or '], ['&&', '||'], $cmd);
 
         if (!preg_match('@^\d*$@', $cmd) && preg_match('@^[0-9<= \-\+\*/\(\)%!&|]*$@', $cmd)) {
-            $cmd = eval("return {$cmd};");
+            $cmd = eval ("return {$cmd};");
         } else {
             $_ = explode(',', '[*,[(,{{,[[,[!,[+');
             foreach ($_ as $left) {
@@ -1840,7 +1999,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $detected = true;
         } elseif ($this->getConfig('error_reporting') === 2 && ($error & ~E_NOTICE & ~E_USER_DEPRECATED)) {
             $detected = true;
-        } elseif ($this->getConfig('error_reporting') === 1 && ($error & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT)) {
+        } elseif ($this->getConfig('error_reporting') === 1 && ($error & ~E_NOTICE & ~E_DEPRECATED)) {
             $detected = true;
         }
 
@@ -1863,23 +2022,30 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         if (is_array($params)) {
             extract($params, EXTR_SKIP);
         }
-        /* if uncomment incorrect work plugin, cant understend where use this code and for what?
-        // This code will avoid further execution of plugins in case they cause a fatal-error. clearCache() will delete those locks to allow execution of locked plugins again.
-        // Related to https://github.com/modxcms/evolution/issues/1130
-        $lock_file_path = MODX_BASE_PATH . 'assets/cache/lock_' . str_replace(' ','-',strtolower($this->event->activePlugin)) . '.pageCache.php';
-        if($this->isBackend()) {
-            if(is_file($lock_file_path)) {
-                $msg = sprintf("Plugin parse error, Temporarily disabled '%s'.", $this->event->activePlugin);
-                $this->logEvent(0, 3, $msg, $msg);
-                return;
-            }
-            elseif(stripos($this->event->activePlugin,'ElementsInTree')===false) touch($lock_file_path);
-        }*/
         ob_start();
-        eval($pluginCode);
+        try {
+            eval($pluginCode);
+        } catch (\Error $e) {
+            ob_end_clean();
+            $pluginName = $modx->event->activePlugin;
+            SitePlugin::where('name', $pluginName)->update(['disabled' => 1]);
+            unset($modx->pluginCache[$pluginName], $modx->pluginCache[$pluginName . 'Props']);
+            $errMsg = sprintf(
+                'Plugin "%s" caused a fatal Error and has been disabled: [%s] %s in %s on line %d',
+                $pluginName,
+                get_class($e),
+                $e->getMessage(),
+                $e->getFile(),
+                $e->getLine()
+            );
+            $modx->logEvent(0, 3, $errMsg, 'Plugin: ' . $pluginName);
+            if ($modx->isBackend()) {
+                $modx->event->alert($errMsg);
+            }
+            unset($modx->event->params);
+            return;
+        }
         $msg = ob_get_clean();
-        // When reached here, no fatal error occured so the lock should be removed.
-        /*if(is_file($lock_file_path)) unlink($lock_file_path);*/
         $error_info = error_get_last();
 
         if ((0 < $this->getConfig('error_reporting')) && $msg && $error_info !== null && $this->detectError($error_info['type'])) {
@@ -1935,9 +2101,9 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             if (substr($phpcode, 0, 5) === '<?php') {
                 $phpcode = substr($phpcode, 5);
             }
-            $return = eval($phpcode);
+            $return = eval ($phpcode);
         } elseif (!empty($phpcode) && !is_bool($phpcode)) {
-            $return = call_user_func_array($phpcode, array($params));
+            $return = call_user_func_array($phpcode, [$params]);
         } else {
             $return = '';
         }
@@ -2040,7 +2206,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $this->setConfig('enable_filter', 1);
         [$key, $modifiers] = $this->splitKeyAndFilter($key);
         $this->setConfig('enable_filter', $_);
-        $key = str_replace(array('(', ')'), array("['", "']"), $key);
+        $key = str_replace(['(', ')'], ["['", "']"], $key);
         $key = rtrim($key, ';');
         if (Str::contains($key, '$_SESSION')) {
             $_ = $_SESSION;
@@ -2053,9 +2219,9 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             }
         }
         if (Str::contains($key, '[')) {
-            $value = $key ? eval("return {$key};") : '';
-        } elseif (0 < eval("return count({$key});")) {
-            $value = eval("return print_r({$key},true);");
+            $value = $key ? eval ("return {$key};") : '';
+        } elseif (0 < eval ("return count({$key});")) {
+            $value = eval ("return print_r({$key},true);");
         } else {
             $value = '';
         }
@@ -2094,7 +2260,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $params = $this->getParamsFromString($snip_call['params']);
 
         if (!isset($snippetObject['properties'])) {
-            $snippetObject['properties'] = array();
+            $snippetObject['properties'] = [];
         }
         $default_params = $this->parseProperties($snippetObject['properties'], $this->currentSnippet, 'snippet');
         $params = array_merge($default_params, $params);
@@ -2103,6 +2269,12 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $this->currentSnippet = '';
         if ($modifiers !== false) {
             $value = $this->applyFilter($value, $modifiers, $key);
+        }
+
+        if ($this->isHtmlCommentNeeded('snippets')) {
+            $value = '<!-- snippet ' . str_replace('-->', '-- >',
+            $this->isHtmlCommentNeeded('snippetParams') ? $piece : '')
+                . "\n-->$value<!--\n/snippet {$snippetObject['name']} -->";
         }
 
         if ($this->dumpSnippets) {
@@ -2114,7 +2286,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 $this->getPhpCompat()->htmlspecialchars('$modx->event->params = ' . print_r($params, true)));
             $this->snippetsCode .= '<fieldset style="margin:1em;"><legend><b>' . $snippetObject['name'] . '</b>(' . $eventtime . ')</legend><pre style="white-space: pre-wrap;background-color:#fff;width:90%%;">[[' . $piece . ']]</pre><pre style="white-space: pre-wrap;background-color:#fff;width:90%%;">' . $print_r_params . '</pre><pre style="white-space: pre-wrap;background-color:#fff;width:90%%;">' . $code . '</pre></fieldset>';
 
-            $this->snippetsTime[] = array('sname' => $key, 'time' => $eventtime);
+            $this->snippetsTime[] = ['sname' => $key, 'time' => $eventtime];
         }
 
         return $value;
@@ -2127,13 +2299,13 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     public function getParamsFromString($string = '')
     {
         if (empty($string)) {
-            return array();
+            return [];
         }
 
         if (Str::contains($string, '&_PHX_INTERNAL_')) {
             $string = str_replace(
-                array('&_PHX_INTERNAL_091_&', '&_PHX_INTERNAL_093_&')
-                , array('[', ']')
+                ['&_PHX_INTERNAL_091_&', '&_PHX_INTERNAL_093_&']
+                , ['[', ']']
                 , $string
             );
         }
@@ -2146,7 +2318,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
         $_tmp = $string;
         $_tmp = ltrim($_tmp, '?&');
-        $temp_params = array();
+        $temp_params = [];
         $key = '';
         $value = null;
         while ($_tmp !== '') {
@@ -2157,7 +2329,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             if ($char === '=') {
                 $_tmp = trim($_tmp);
                 $delim = substr($_tmp, 0, 1);
-                if (in_array($delim, array('"', "'", '`'))) {
+                if (in_array($delim, ['"', "'", '`'])) {
                     $null = null;
                     //list(, $value, $_tmp)
                     [$null, $value, $_tmp] = explode($delim, $_tmp, 3);
@@ -2204,7 +2376,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 }
                 $key = trim($key);
                 if (Str::contains($value, '[!')) {
-                    $value = str_replace(array('[!', '!]'), array('[[', ']]'), $value);
+                    $value = str_replace(['[!', '!]'], ['[[', ']]'], $value);
                 }
                 $value = $this->mergeDocumentContent($value);
                 $value = $this->mergeSettingsContent($value);
@@ -2418,7 +2590,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      */
     public function makeFriendlyURL($pre, $suff, $alias, $isfolder = 0, $id = 0)
     {
-        return UrlProcessor::makeFriendlyURL($pre, $suff, $alias, (bool)$isfolder, (int)$id);
+        return UrlProcessor::makeFriendlyURL($pre, $suff, $alias, (bool) $isfolder, (int) $id);
     }
 
     /**
@@ -2431,7 +2603,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
     public function sendStrictURI()
     {
-        $url = UrlProcessor::strictURI((string)$this->q, (int)$this->documentIdentifier);
+        $url = UrlProcessor::strictURI((string) $this->q, (int) $this->documentIdentifier);
         if ($url !== null) {
             $this->sendRedirect($url, 0, 'REDIRECT_HEADER', 'HTTP/1.0 301 Moved Permanently');
         }
@@ -2526,24 +2698,26 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                     ->join('site_tmplvar_templates', 'site_tmplvar_templates.tmplvarid', '=', 'site_tmplvars.id')
                     ->leftJoin('site_tmplvar_contentvalues', function ($join) use ($documentObject) {
                         $join->on('site_tmplvar_contentvalues.tmplvarid', '=', 'site_tmplvars.id');
-                        $join->on('site_tmplvar_contentvalues.contentid', '=', \DB::raw((int)$documentObject['id']));
+                        $join->on('site_tmplvar_contentvalues.contentid', '=', \DB::raw((int) $documentObject['id']));
                     })->where('site_tmplvar_templates.templateid', $documentObject['template'])->get();
 
-                $tmplvars = array();
+                $tmplvars = [];
                 foreach ($tvs as $tv) {
                     $row = $tv->toArray();
                     if ($row['value'] == '') $row['value'] = $row['default_text'];
-                    $tmplvars[$row['name']] = array(
+                    $tmplvars[$row['name']] = [
                         $row['name'],
                         $row['value'],
                         $row['display'],
                         $row['display_params'],
                         $row['type']
-                    );
+                    ];
                 }
                 $documentObject = array_merge($documentObject, $tmplvars);
 
-                $documentObject['templatealias'] = SiteTemplate::select('templatealias')->where('id', $documentObject['template'])->first()->templatealias;
+                $templateId = (int) $documentObject['template'];
+                $tplAlias = SiteTemplate::whereKey($templateId)->value('templatealias');
+                $documentObject['templatealias'] = (string) ($tplAlias ?? '');
             }
             $out = $this->invokeEvent(
                 'OnAfterLoadDocumentObject'
@@ -2573,9 +2747,9 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             return $documentObject;
         }
 
-        $documentObject = \EvolutionCMS\Models\SiteContent::findOrFail((int)$id)->toArray();
+        $documentObject = \EvolutionCMS\Models\SiteContent::findOrFail((int) $id)->toArray();
         if ($documentObject === null) {
-            return array();
+            return [];
         }
 
         $rs = \DB::table('site_tmplvars as tv')
@@ -2583,22 +2757,22 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             ->join('site_tmplvar_templates as tvtpl', 'tvtpl.tmplvarid', '=', 'tv.id')
             ->leftJoin('site_tmplvar_contentvalues as tvc', function ($join) use ($documentObject) {
                 $join->on('tvc.tmplvarid', '=', 'tv.id');
-                $join->on('tvc.contentid', '=', \DB::raw((int)$documentObject['id']));
-            })->where('tvtpl.templateid', (int)$documentObject['template'])->get();
+                $join->on('tvc.contentid', '=', \DB::raw((int) $documentObject['id']));
+            })->where('tvtpl.templateid', (int) $documentObject['template'])->get();
 
-        $tmplvars = array();
+        $tmplvars = [];
         foreach ($rs as $row) {
 
             if ($row->value == '') {
                 $row->value = $row->default_text;
             }
-            $tmplvars[$row->name] = array(
+            $tmplvars[$row->name] = [
                 $row->name,
                 $row->value,
                 $row->display,
                 $row->display_params,
                 $row->type
-            );
+            ];
         }
         $documentObject = array_merge($documentObject, $tmplvars);
         if ($values === true) {
@@ -2723,7 +2897,6 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         if (is_cli()) {
             throw new \RuntimeException('Call DocumentParser::executeParser on CLI mode');
         }
-        //error_reporting(0);
 
         $this->_IIS_furl_fix(); // IIS friendly url fix
 
@@ -2751,9 +2924,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         }
 
         if ($this->documentMethod !== 'alias') {
-            $DLTemplate = \DLTemplate::getInstance(EvolutionCMS());
+            $DLTemplate = \DLTemplate::getInstance(evo());
             $DLTemplate->setTemplatePath('views/');
-            //$this->_fixURI();
             // invoke OnWebPageInit event
             $this->invokeEvent("OnWebPageInit");
             // invoke OnLogPageView event
@@ -2767,11 +2939,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             return;
         }
 
-        $this->documentIdentifier = $this->cleanDocumentIdentifier($this->documentIdentifier);
+        $this->documentIdentifier = UrlProcessor::cleanDocumentIdentifier($this->documentIdentifier, $this->documentMethod);
 
         // Check use_alias_path and check if $this->virtualDir is set to anything, then parse the path
         if ($this->getConfig('use_alias_path') == 1) {
-
             $virtualDir = UrlProcessor::getFacadeRoot()->virtualDir;
             $alias = ($virtualDir != '' ? $virtualDir . '/' : '') . $this->documentIdentifier;
             if (isset(UrlProcessor::getFacadeRoot()->documentListing[$alias])) {
@@ -2807,10 +2978,9 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             }
         }
         $this->documentMethod = 'id';
-        $DLTemplate = \DLTemplate::getInstance(EvolutionCMS());
+        $DLTemplate = \DLTemplate::getInstance(evo());
         $DLTemplate->setTemplatePath('views/');
 
-        //$this->_fixURI();
         // invoke OnWebPageInit event
         $this->invokeEvent('OnWebPageInit');
         // invoke OnLogPageView event
@@ -2854,7 +3024,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $k = array_keys($_GET);
         unset($_GET[$k[0]], $_REQUEST[$k[0]]);
         // remove 404,405 entry
-        $qp = parse_url(str_replace(MODX_SITE_URL, '', substr($url, 4)));
+        $qp = parse_url(str_replace(EVO_SITE_URL, '', substr($url, 4)));
         $_SERVER['QUERY_STRING'] = $qp['query'];
         if ($qp['query']) {
             parse_str($qp['query'], $qv);
@@ -2862,7 +3032,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 $_REQUEST[$n] = $_GET[$n] = $v;
             }
         }
-        $_SERVER['PHP_SELF'] = MODX_BASE_URL . $qp['path'];
+        $_SERVER['PHP_SELF'] = EVO_BASE_URL . $qp['path'];
         $this->q = $qp['path'];
     }
 
@@ -3039,7 +3209,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      */
     public function getParentIds($id, $height = 10)
     {
-        $parents = array();
+        $parents = [];
         while ($id && $height--) {
             $aliasListing = get_by_key(
                 UrlProcessor::getFacadeRoot()->aliasListing
@@ -3050,15 +3220,15 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $tmp = get_by_key($aliasListing, 'parent');
             $cerrent_id = $id;
             if ($this->getConfig('aliaslistingfolder')) {
-                $id = $tmp ?? (int)Models\SiteContent::findOrNew($id)->parent;
+                $id = $tmp ?? (int) Models\SiteContent::findOrNew($id)->parent;
             } else {
                 $id = $tmp;
             }
 
-            if ((int)$id === 0) {
+            if ((int) $id === 0) {
                 break;
             }
-            $parents[$cerrent_id] = (int)$id;
+            $parents[$cerrent_id] = (int) $id;
         }
 
         return $parents;
@@ -3090,11 +3260,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @param int $depth How many levels deep to search for children, default: 10
      * @param array $children Optional array of docids to merge with the result.
      * @return array Contains the document Listing (tree) like the sitemap
-     * @throws \AgelxNash\Modx\Evo\Database\Exceptions\Exception
      * @throws InvalidFieldException
      * @throws TableNotDefinedException
      */
-    public function getChildIds($id, $depth = 10, $children = array())
+    public function getChildIds($id, $depth = 10, $children = [])
     {
         static $cached = [];
 
@@ -3120,7 +3289,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                     if (UrlProcessor::getFacadeRoot()->aliasListing[$row['parent']]['alias']) {
                         $pAlias .= UrlProcessor::getFacadeRoot()->aliasListing[$row['parent']]['alias'] . '/';
                     }
-                };
+                }
                 $children[$pAlias . $row['alias']] = $row['id'];
                 if ($row['isfolder']) {
                     $idx[] = $row['id'];
@@ -3155,7 +3324,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                     $pkey = UrlProcessor::getFacadeRoot()->aliasListing[$childId]['alias'];
                 }
                 if ($pkey == '') {
-                    $pkey = (string)$childId;
+                    $pkey = (string) $childId;
                 }
                 $children[$pkey] = $childId;
 
@@ -3200,12 +3369,12 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $style = '';
         if (IN_MANAGER_MODE) {
             $path = 'media/style/' . $this->getConfig('manager_theme') . '/';
-            if (is_file(MODX_MANAGER_PATH . $path . '/css/styles.min.css')) {
+            if (is_file(EVO_MANAGER_PATH . $path . '/css/styles.min.css')) {
                 $file_name = '/css/styles.min.css';
             } else {
                 $file_name = 'style.css';
             }
-            $style = '<link rel="stylesheet" type="text/css" href="' . MODX_MANAGER_URL . $path . $file_name . '?v=' . Arr::get($GLOBALS, 'lastInstallTime', time()) . '"/>';
+            $style = '<link rel="stylesheet" type="text/css" href="' . EVO_MANAGER_URL . $path . $file_name . '?v=' . Arr::get($GLOBALS, 'lastInstallTime', time()) . '"/>';
         }
 
         ob_get_clean();
@@ -3246,10 +3415,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $state = 0;
         $pms = get_by_key($_SESSION, $context . 'Permissions', [], 'is_array');
         if ($pms) {
-            $state = (isset($pms[$pm]) && (bool)$pms[$pm] === true);
+            $state = (isset($pms[$pm]) && (bool) $pms[$pm] === true);
         }
 
-        return (int)$state;
+        return (int) $state;
     }
 
     /**
@@ -3280,8 +3449,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      */
     public function elementIsLocked($type, $id, $includeThisUser = false)
     {
-        $id = (int)$id;
-        $type = (int)$type;
+        $id = (int) $id;
+        $type = (int) $type;
         if (!$type || !$id) {
             return null;
         }
@@ -3314,14 +3483,14 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $lockedElements = $this->lockedElements;
         } else {
             // Minimum details for HTML / Ajax-requests
-            $lockedElements = array();
+            $lockedElements = [];
             foreach ($this->lockedElements as $elType => $elements) {
                 foreach ($elements as $elId => $el) {
-                    $lockedElements[$elType][$elId] = array(
+                    $lockedElements[$elType][$elId] = [
                         'username' => $el['username'],
                         'lasthit_df' => $el['lasthit_df'],
                         'state' => $this->determineLockState($el['internalKey'])
-                    );
+                    ];
                 }
             }
         }
@@ -3330,12 +3499,12 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             return $lockedElements;
         }
 
-        $type = (int)$type;
+        $type = (int) $type;
         if (isset($lockedElements[$type])) {
             return $lockedElements[$type];
         }
 
-        return array();
+        return [];
     }
 
     /**
@@ -3344,14 +3513,14 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     public function buildLockedElementsCache()
     {
         if ($this->lockedElements === null) {
-            $this->lockedElements = array();
+            $this->lockedElements = [];
             $this->cleanupExpiredLocks();
             $rs = ActiveUserLock::query()
                 ->select('sid', 'internalKey', 'elementType', 'elementId', 'lasthit', 'username')
                 ->leftJoin('users', 'active_user_locks.internalKey', '=', 'users.id')
                 ->get();
             foreach ($rs->toArray() as $row) {
-                $this->lockedElements[$row['elementType']][$row['elementId']] = array(
+                $this->lockedElements[$row['elementType']][$row['elementId']] = [
                     'sid' => $row['sid'],
                     'internalKey' => $row['internalKey'],
                     'username' => $row['username'],
@@ -3360,7 +3529,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                     'lasthit' => $row['lasthit'],
                     'lasthit_df' => $this->toDateFormat($row['lasthit']),
                     'state' => $this->determineLockState($row['sid'])
-                );
+                ];
             }
         }
     }
@@ -3371,21 +3540,21 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     public function cleanupExpiredLocks()
     {
         // Clean-up active_user_sessions first
-        if ((int)$this->getConfig('session_timeout') < 2) {
+        if ((int) $this->getConfig('session_timeout') < 2) {
             $timeout = 120;
         } else {
             $timeout = $this->getConfig('session_timeout') * 60;
         }
         // session.js pings every 10min, so 2min is minimum
         $validSessionTimeLimit = $this->time - $timeout;
-        ActiveUserSession::where('lasthit', '<', (int)$validSessionTimeLimit)->delete();
+        ActiveUserSession::where('lasthit', '<', (int) $validSessionTimeLimit)->delete();
 
         // Clean-up active_user_locks
         $activeUsers = ActiveUserSession::select('sid', 'internalKey')->get();
 
         if ($activeUsers->count() > 0) {
             $rs = $activeUsers->toArray();
-            $userSids = array();
+            $userSids = [];
             foreach ($rs as $row) {
                 $userSids[] = $row['sid'];
             }
@@ -3403,7 +3572,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $timeout = 20 * 60; // Delete multiple user-sessions after 20min
         $validSessionTimeLimit = $this->time - $timeout;
 
-        $activeUserSids = array();
+        $activeUserSids = [];
         $activeUserSids = ActiveUserSession::all();
         if ($activeUserSids->count() > 0) {
             $activeUserSids = $activeUserSids->pluck('sid');
@@ -3415,7 +3584,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
         if ($activeUsers->count() > 0) {
             $rs = $activeUsers->toArray();
-            $internalKeyCount = array();
+            $internalKeyCount = [];
             $deleteSids = [];
             foreach ($rs as $row) {
                 if (!isset($internalKeyCount[$row['internalKey']])) {
@@ -3474,8 +3643,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     public function lockElement($type, $id)
     {
         $userId = $this->isBackend() && $_SESSION['mgrInternalKey'] ? $_SESSION['mgrInternalKey'] : 0;
-        $type = (int)$type;
-        $id = (int)$id;
+        $type = (int) $type;
+        $id = (int) $id;
         if (!$type || !$id || !$userId) {
             return false;
         }
@@ -3497,8 +3666,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     public function unlockElement($type, $id, $includeAllUsers = false)
     {
         $userId = $this->isBackend() && $_SESSION['mgrInternalKey'] ? $_SESSION['mgrInternalKey'] : 0;
-        $type = (int)$type;
-        $id = (int)$id;
+        $type = (int) $type;
+        $id = (int) $id;
         if (!$type || !$id) {
             return false;
         }
@@ -3560,12 +3729,6 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @param string $msg Message to be logged
      * @param string $source source of the event (module, snippet name, etc.)
      *                       Default: Parser
-     * @throws \AgelxNash\Modx\Evo\Database\Exceptions\Exception
-     * @throws \AgelxNash\Modx\Evo\Database\Exceptions\GetDataException
-     * @throws InvalidFieldException
-     * @throws TableNotDefinedException
-     * @throws \AgelxNash\Modx\Evo\Database\Exceptions\TooManyLoopsException
-     * @throws Exception
      */
     public function logEvent($evtid, $type, $msg, $source = 'Parser')
     {
@@ -3583,8 +3746,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $LoginUserID = 0;
         }
 
-        $evtid = (int)$evtid;
-        $type = (int)$type;
+        $evtid = (int) $evtid;
+        $type = (int) $type;
 
         // Types: 1 = information, 2 = warning, 3 = error
         if ($type < 1) {
@@ -3593,33 +3756,33 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $type = 3;
         }
 
-        EventLog::insert(array(
-            'eventid' => (int)$evtid,
+        EventLog::insert([
+            'eventid' => (int) $evtid,
             'type' => $type,
             'createdon' => $_SERVER['REQUEST_TIME'] + $this->getConfig('server_offset_time'),
             'source' => $esc_source,
             'description' => $msg,
             'user' => $LoginUserID,
             'usertype' => $this->isFrontend() ? 1 : 0
-        ));
+        ]);
 
-        $this->invokeEvent('OnLogEvent', array(
-            'eventid' => (int)$evtid,
+        $this->invokeEvent('OnLogEvent', [
+            'eventid' => (int) $evtid,
             'type' => $type,
             'createdon' => $_SERVER['REQUEST_TIME'] + $this->getConfig('server_offset_time'),
             'source' => $esc_source,
             'description' => $msg,
             'user' => $LoginUserID,
             'usertype' => $this->isFrontend() ? 1 : 0
-        ));
+        ]);
 
         if ($this->getConfig('send_errormail', '0') != '0') {
             if ($this->getConfig('send_errormail') <= $type) {
-                $this->sendmail(array(
+                $this->sendmail([
                     'subject' => 'Evolution CMS System Error on ' . $this->getConfig('site_name'),
                     'body' => 'Source: ' . $source . ' - The details of the error could be seen in the Evolution CMS system events log.',
                     'type' => 'text'
-                ));
+                ]);
             }
         }
     }
@@ -3631,7 +3794,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @return bool
      * @throws Exception
      */
-    public function sendmail($params = array(), $msg = '', $files = array())
+    public function sendmail($params = [], $msg = '', $files = [])
     {
         if (\is_scalar($params)) {
             if (!Str::contains($params, '=')) {
@@ -3704,11 +3867,11 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $mail->IsHTML(false);
         }
         if (!is_array($files)) {
-            $files = array();
+            $files = [];
         }
         foreach ($files as $f) {
-            if (file_exists(MODX_BASE_PATH . $f) && is_file(MODX_BASE_PATH . $f) && is_readable(MODX_BASE_PATH . $f)) {
-                $mail->AddAttachment(MODX_BASE_PATH . $f);
+            if (file_exists(EVO_BASE_PATH . $f) && is_file(EVO_BASE_PATH . $f) && is_readable(EVO_BASE_PATH . $f)) {
+                $mail->AddAttachment(EVO_BASE_PATH . $f);
             }
         }
 
@@ -3883,6 +4046,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         }
 
         $documentChildren = SiteContent::query()->withTrashed()->where('site_content.parent', $parentid);
+
         if ($published !== 'all') {
             $documentChildren = $documentChildren->where('site_content.published', $published);
         }
@@ -3897,6 +4061,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         }
         if (!is_array($fields)) {
             $fields = array_filter(array_map('trim', explode(',', $fields)));
+            $fields = array_map(fn($value): string => (strpos($value, '.') === false ? 'site_content.' . $value : $value), $fields);
             $documentChildren = $documentChildren->select($fields);
         }
         // modify field names to use sc. table reference
@@ -3950,7 +4115,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      *
      */
     public function getDocuments(
-        $ids = array(),
+        $ids = [],
         $published = 1,
         $deleted = 0,
         $fields = '*',
@@ -4040,7 +4205,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             return false;
         }
 
-        $docs = $this->getDocuments(array($id), $published, $deleted, $fields, '', '', '', 1, $checkAccess);
+        $docs = $this->getDocuments([$id], $published, $deleted, $fields, '', '', '', 1, $checkAccess);
 
         if ($docs != false) {
             return $docs[0];
@@ -4102,7 +4267,6 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @return boolean|array
      * @throws InvalidFieldException
      * @throws TableNotDefinedException
-     * @throws \AgelxNash\Modx\Evo\Database\Exceptions\Exception
      */
     public function getPageInfo($pageid = -1, $active = 1, $fields = 'site_content.id, site_content.pagetitle, site_content.description, site_content.alias', $checkAccess = true)
     {
@@ -4155,7 +4319,6 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @return boolean|array
      * @throws InvalidFieldException
      * @throws TableNotDefinedException
-     * @throws \AgelxNash\Modx\Evo\Database\Exceptions\Exception
      */
     public function getParent($pid = -1, $active = 1, $fields = 'id, pagetitle, description, alias, parent', $checkAccess = true)
     {
@@ -4183,7 +4346,6 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @return int
      * @throws InvalidFieldException
      * @throws TableNotDefinedException
-     * @throws \AgelxNash\Modx\Evo\Database\Exceptions\Exception
      */
     public function getSnippetId()
     {
@@ -4267,7 +4429,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      */
     public function makeUrl($id, $alias = '', $args = '', $scheme = '')
     {
-        return UrlProcessor::makeUrl((int)$id, $alias, $args, $scheme);
+        return UrlProcessor::makeUrl((int) $id, $alias, $args, $scheme);
     }
 
     /**
@@ -4306,7 +4468,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @param string $cacheKey
      * @return string
      */
-    public function runSnippet($snippetName, $params = array(), $cacheTime = false, $cacheKey = false)
+    public function runSnippet($snippetName, $params = [], $cacheTime = false, $cacheKey = false)
     {
         if (
             is_numeric($cacheTime)
@@ -4381,7 +4543,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             // nop
         } elseif ($this->isChunkProcessor('DLTemplate')) {
             $out = app('DLTemplate')->getChunk($chunkName);
-        } elseif (isset ($this->chunkCache[$chunkName])) {
+        } elseif (isset($this->chunkCache[$chunkName])) {
             $out = $this->chunkCache[$chunkName];
         } elseif (stripos($chunkName, '@FILE') === 0) {
             $out = $this->chunkCache[$chunkName] = $this->atBindFileContent($chunkName);
@@ -4397,7 +4559,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      */
     public function isChunkProcessor($processor)
     {
-        $value = (string)$this->getConfig('chunk_processor');
+        $value = (string) $this->getConfig('chunk_processor');
         if (is_object($processor)) {
             $processor = get_class($processor);
         }
@@ -4423,7 +4585,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @internal param $suffix {string} - Placeholders suffix. Default: '+]'. - Placeholders suffix. Default: '+]'.
      *
      */
-    public function parseText($tpl = '', $ph = array(), $left = '[+', $right = '+]', $execModifier = true)
+    public function parseText($tpl = '', $ph = [], $left = '[+', $right = '+]', $execModifier = true)
     {
         if (empty($ph) || empty($tpl)) {
             return $tpl;
@@ -4519,7 +4681,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             case 'CODE':
                 break;
             case 'FILE':
-                $template = file_get_contents(MODX_BASE_PATH . $template);
+                $template = file_get_contents(EVO_BASE_PATH . $template);
                 break;
             case 'CHUNK':
                 $template = $this->getChunk($template);
@@ -4560,71 +4722,29 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             return $strTime;
         }
 
-        $timestamp = (int)$timestamp;
+        $timestamp = (int) $timestamp;
 
         switch ($this->getConfig('datetime_format')) {
             case 'YYYY/mm/dd':
-                $dateFormat = '%Y/%m/%d';
+                $dateFormat = 'Y/m/d';
                 break;
             case 'dd-mm-YYYY':
-                $dateFormat = '%d-%m-%Y';
+                $dateFormat = 'd-m-Y';
                 break;
             case 'mm/dd/YYYY':
-                $dateFormat = '%m/%d/%Y';
+                $dateFormat = 'm/d/Y';
                 break;
         }
 
-        if (extension_loaded('intl')) {
-            // https://www.php.net/manual/en/class.intldateformatter.php
-            // https://www.php.net/manual/en/datetime.createfromformat.php
-            $dateFormat = str_replace(
-                ['%Y', '%m', '%d', '%I', '%H', '%M', '%S', '%p'],
-                ['Y', 'MM', 'dd', 'h', 'HH', 'mm', 'ss', 'a'],
-                $dateFormat
-            );
-            if (empty($mode)) {
-                $formatter = new IntlDateFormatter(
-                    $this->getConfig('manager_language'),
-                    IntlDateFormatter::FULL,
-                    IntlDateFormatter::FULL,
-                    null,
-                    null,
-                    $dateFormat . " HH:mm:ss"
-                );
-                $strTime = $formatter->format($timestamp);
-            } elseif ($mode === 'dateOnly') {
-                $formatter = new IntlDateFormatter(
-                    $this->getConfig('manager_language'),
-                    IntlDateFormatter::FULL,
-                    IntlDateFormatter::NONE,
-                    null,
-                    null,
-                    $dateFormat
-                );
-                $strTime = $formatter->format($timestamp);
-            } elseif ($mode === 'timeOnly') {
-                $formatter = new IntlDateFormatter(
-                    $this->getConfig('manager_language'),
-                    IntlDateFormatter::NONE,
-                    IntlDateFormatter::MEDIUM,
-                    null,
-                    null,
-                    "HH:mm:ss"
-                );
-                $strTime = $formatter->format($timestamp);
-            } elseif ($mode === 'formatOnly') {
-                $strTime = $dateFormat;
-            }
-        } else {
-            if (empty($mode)) {
-                $strTime = strftime($dateFormat . " %H:%M:%S", $timestamp);
-            } elseif ($mode === 'dateOnly') {
-                $strTime = strftime($dateFormat, $timestamp);
-            } elseif ($mode === 'formatOnly') {
-                $strTime = $dateFormat;
-            } elseif ($mode === 'timeOnly') {
-                $strTime = $dateFormat;
-            }
+        // https://carbon.nesbot.com/
+        if (empty($mode)) {
+            $strTime = Carbon::createFromTimestamp($timestamp, 'UTC')->format($dateFormat . ' H:i:s');
+        } elseif ($mode === 'dateOnly') {
+            $strTime = Carbon::createFromTimestamp($timestamp, 'UTC')->format($dateFormat);
+        } elseif ($mode === 'timeOnly') {
+            $strTime = Carbon::createFromTimestamp($timestamp, 'UTC')->format('H:i:s');
+        } elseif ($mode === 'formatOnly') {
+            $strTime = $dateFormat;
         }
 
         return $strTime;
@@ -4675,7 +4795,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $S = 0;
         }
         $timeStamp = mktime($H, $M, $S, $m, $d, $Y);
-        $timeStamp = (int)$timeStamp;
+        $timeStamp = (int) $timeStamp;
         return $timeStamp;
     }
 
@@ -4707,14 +4827,14 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @throws TableNotDefinedException
      * @throws UnknownFetchTypeException
      */
-    public function getDocumentChildrenTVars($parentid = 0, $tvidnames = array(), $published = 1, $docsort = "menuindex", $docsortdir = "ASC", $tvfields = "*", $tvsort = "rank", $tvsortdir = "ASC", $checkAccess = true)
+    public function getDocumentChildrenTVars($parentid = 0, $tvidnames = [], $published = 1, $docsort = "menuindex", $docsortdir = "ASC", $tvfields = "*", $tvsort = "rank", $tvsortdir = "ASC", $checkAccess = true)
     {
         $docs = $this->getDocumentChildren($parentid, $published, 0, '*', '', $docsort, $docsortdir, '', $checkAccess);
         if (!$docs) {
             return false;
         }
 
-        $result = array();
+        $result = [];
         // get user defined template variables
         if ($tvfields) {
             $_ = array_filter(array_map('trim', explode(',', $tvfields)));
@@ -4741,17 +4861,22 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
         foreach ($docs as $doc) {
             $docid = $doc['id'];
-
-            $rs = $this->db->select("{$fields}, IF(tvc.value!='',tvc.value,tv.default_text) as value ", "[+prefix+]site_tmplvars tv
-                        INNER JOIN [+prefix+]site_tmplvar_templates tvtpl ON tvtpl.tmplvarid = tv.id
-                        LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='{$docid}'", "{$query} AND tvtpl.templateid = '{$doc['template']}'", ($tvsort ? "{$tvsort} {$tvsortdir}" : ""));
+            $rs = $this->db->select("{$fields}, IF(tvc.value!='',tvc.value,tv.default_text) as value ",
+                $this->db->getFullTableName('site_tmplvars') . " tv
+                        INNER JOIN " . $this->db->getFullTableName('site_tmplvar_templates')
+                . " tvtpl ON tvtpl.tmplvarid = tv.id
+                        LEFT JOIN " . $this->db->getFullTableName('site_tmplvar_contentvalues')
+                . " tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='{$docid}'",
+                "{$query} AND tvtpl.templateid = '{$doc['template']}'",
+                ($tvsort ? "{$tvsort} {$tvsortdir}" : "")
+            );
             $tvs = $this->db->makeArray($rs);
 
             // get default/built-in template variables
             ksort($doc);
             foreach ($doc as $key => $value) {
                 if ($tvidnames == '*' || in_array($key, $tvidnames)) {
-                    $tvs[] = array('name' => $key, 'value' => $value);
+                    $tvs[] = ['name' => $key, 'value' => $value];
                 }
             }
             if (is_array($tvs) && count($tvs)) {
@@ -4786,7 +4911,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      *
      * @desc Returns an array where each element represents one child doc and contains the result from getTemplateVarOutput().
      */
-    public function getDocumentChildrenTVarOutput($parentid = 0, $tvidnames = array(), $published = 1, $sortBy = 'menuindex', $sortDir = 'ASC', $where = '', $resultKey = 'id', $checkAccess = true)
+    public function getDocumentChildrenTVarOutput($parentid = 0, $tvidnames = [], $published = 1, $sortBy = 'menuindex', $sortDir = 'ASC', $where = '', $resultKey = 'id', $checkAccess = true)
     {
         $docs = $this->getDocumentChildren($parentid, $published, 0, 'site_content.id', $where, $sortBy, $sortDir, '', $checkAccess);
 
@@ -4794,7 +4919,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             return false;
         }
 
-        $result = array();
+        $result = [];
 
         $unsetResultKey = false;
 
@@ -4805,7 +4930,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                     $unsetResultKey = true;
                 }
             } else if ($tvidnames !== '*' && $tvidnames != $resultKey) {
-                $tvidnames = array($tvidnames, $resultKey);
+                $tvidnames = [$tvidnames, $resultKey];
                 $unsetResultKey = true;
             }
         }
@@ -4851,7 +4976,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             return false;
         }
 
-        $result = $this->getTemplateVars(array($idname), $fields, $docid, $published, "", "", $checkAccess); //remove sorting for speed
+        $result = $this->getTemplateVars([$idname], $fields, $docid, $published, "", "", $checkAccess); //remove sorting for speed
         return ($result != false) ? $result[0] : false;
     }
 
@@ -4875,9 +5000,9 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * Elements representing a TV consist of an array representing a db row including the fields specified in $fields.
      *
      */
-    public function getTemplateVars($idnames = array(), $fields = '*', $docid = '', $published = 1, $sort = 'rank', $dir = 'ASC', $checkAccess = true)
+    public function getTemplateVars($idnames = [], $fields = '*', $docid = '', $published = 1, $sort = 'rank', $dir = 'ASC', $checkAccess = true)
     {
-        static $cached = array();
+        static $cached = [];
         $cacheKey = md5(print_r(func_get_args(), true));
         if (isset($cached[$cacheKey])) {
             return $cached[$cacheKey];
@@ -4971,17 +5096,17 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      *
      * @desc Returns an associative array containing TV rendered output values.
      */
-    public function getTemplateVarOutput($idnames = array(), $docid = '', $published = 1, $sep = '')
+    public function getTemplateVarOutput($idnames = [], $docid = '', $published = 1, $sep = '')
     {
         if (is_array($idnames) && empty($idnames)) {
             return false;
         }
 
-        $output = array();
-        $vars = ($idnames === '*' || is_array($idnames)) ? $idnames : array($idnames);
+        $output = [];
+        $vars = ($idnames === '*' || is_array($idnames)) ? $idnames : [$idnames];
 
-        if ((int)$docid > 0) {
-            $docid = (int)$docid;
+        if ((int) $docid > 0) {
+            $docid = (int) $docid;
         } else {
             $docid = $this->documentIdentifier;
         }
@@ -5085,7 +5210,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         if (empty($context)) {
             $context = $this->getContext();
         }
-        if (isset ($_SESSION[$context . 'Validated'])) {
+        if (isset($_SESSION[$context . 'Validated'])) {
             $out = $_SESSION[$context . 'InternalKey'];
         }
 
@@ -5104,7 +5229,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         if (empty($context)) {
             $context = $this->getContext();
         }
-        if (isset ($_SESSION[$context . 'Validated'])) {
+        if (isset($_SESSION[$context . 'Validated'])) {
             $out = $_SESSION[$context . 'Shortname'];
         }
         return $out;
@@ -5120,7 +5245,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         if (empty($context)) {
             $context = $this->getContext();
         }
-        if ($context == 'mgr' && isset ($_SESSION['mgrValidated'])) {
+        if ($context == 'mgr' && isset($_SESSION['mgrValidated'])) {
             return 'manager';
         } elseif ($context == 'web' && isset($_SESSION['webValidated'])) {
             return 'web';
@@ -5212,17 +5337,22 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @return string|array
      * @throws InvalidFieldException
      * @throws TableNotDefinedException
-     * @throws \AgelxNash\Modx\Evo\Database\Exceptions\Exception
      */
     public function getUserDocGroups($resolveIds = false)
     {
         $context = $this->getContext();
-        if (isset($_SESSION[$context . 'Docgroups']) && isset($_SESSION[$context . 'Validated'])) {
+
+        if ($context == 'web' && isset($_SESSION['mgrValidated']) && (isset($_SESSION['mgrRole']) && $_SESSION['mgrRole'] == 1)) {
+            $dg = MembergroupAccess::pluck('documentgroup')->toArray();
+        } elseif ($context == 'web' && isset($_SESSION['mgrValidated'])) {
+            $dg = array_merge(($_SESSION['mgrDocgroups'] ?? []), ($_SESSION['webDocgroups'] ?? []));
+        } elseif (isset($_SESSION[$context . 'Docgroups']) && isset($_SESSION[$context . 'Validated'])) {
             $dg = $_SESSION[$context . 'Docgroups'];
             $dgn = isset($_SESSION[$context . 'DocgrpNames']) ? $_SESSION[$context . 'DocgrpNames'] : false;
         } else {
             $dg = '';
         }
+
         if (!$resolveIds) {
             return $dg;
         }
@@ -5233,7 +5363,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
         if (is_array($dg)) {
             // resolve ids to names
-            $dgn = array();
+            $dgn = [];
             $ds = \EvolutionCMS\Models\DocumentgroupName::select('name')
                 ->whereIn('id', $dg)
                 ->get();
@@ -5245,6 +5375,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $_SESSION[$context . 'DocgrpNames'] = $dgn;
 
             return $dgn;
+        } else {
+            return $dg;
         }
     }
 
@@ -5266,7 +5398,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             return false;
         }
         $ds = \EvolutionCMS\Models\User::selectRaw('id, username, password')
-            ->where('id', (int)$this->getLoginUserID())
+            ->where('id', (int) $this->getLoginUserID())
             ->first();
 
         $row = $ds->toArray();
@@ -5285,17 +5417,17 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             return "You didn't specify a password for this user!";
         }
 
-        \EvolutionCMS\Models\User::where('id', (int)$this->getLoginUserID())
-            ->update(array(
+        \EvolutionCMS\Models\User::where('id', (int) $this->getLoginUserID())
+            ->update([
                 'password' => $newPwd
-            ));
+            ]);
 
         // invoke OnWebChangePassword event
-        $this->invokeEvent('OnWebChangePassword', array(
+        $this->invokeEvent('OnWebChangePassword', [
             'userid' => $row['id'],
             'username' => $row['username'],
             'userpassword' => $newPwd
-        ));
+        ]);
         return true;
     }
 
@@ -5307,13 +5439,13 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @throws InvalidFieldException
      * @throws TableNotDefinedException
      */
-    public function isMemberOfWebGroup($groupNames = array())
+    public function isMemberOfWebGroup($groupNames = [])
     {
         if (!is_array($groupNames)) {
             return false;
         }
 
-        $grpNames = isset ($_SESSION['mgrUserGroupNames']) ? $_SESSION['mgrUserGroupNames'] : false;
+        $grpNames = isset($_SESSION['mgrUserGroupNames']) ? $_SESSION['mgrUserGroupNames'] : false;
         if (!is_array($grpNames)) {
             $grpNames = MembergroupName::query()
                 ->join('member_groups', 'membergroup_names.id', '=', 'member_groups.user_group')
@@ -5341,10 +5473,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      */
     public function regClientCSS($src, $media = '')
     {
-        if (empty($src) || isset ($this->loadedjscripts[$src])) {
+        if (empty($src) || isset($this->loadedjscripts[$src])) {
             return;
         }
-        $nextpos = max(array_merge(array(0), array_keys($this->sjscripts))) + 1;
+        $nextpos = max(array_merge([0], array_keys($this->sjscripts))) + 1;
         $this->loadedjscripts[$src]['startup'] = true;
         $this->loadedjscripts[$src]['version'] = '0';
         $this->loadedjscripts[$src]['pos'] = $nextpos;
@@ -5361,7 +5493,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @param string $src
      * @param array $options Default: 'name'=>'', 'version'=>'0', 'plaintext'=>false
      */
-    public function regClientStartupScript($src, $options = array('name' => '', 'version' => '0', 'plaintext' => false))
+    public function regClientStartupScript($src, $options = ['name' => '', 'version' => '0', 'plaintext' => false])
     {
         $this->regClientScript($src, $options, true);
     }
@@ -5374,7 +5506,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @param boolean $startup Default: false
      * @return void
      */
-    public function regClientScript($src, $options = array('name' => '', 'version' => '0', 'plaintext' => false), $startup = false)
+    public function regClientScript($src, $options = ['name' => '', 'version' => '0', 'plaintext' => false], $startup = false)
     {
         if (empty($src)) {
             return;
@@ -5382,19 +5514,18 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         if (!is_array($options)) {
             if (\is_bool($options)) {
                 // backward compatibility with old plaintext parameter
-                $options = array('plaintext' => $options);
+                $options = ['plaintext' => $options];
             } elseif (\is_string($options)) {
                 // Also allow script name as 2nd param
-                $options = array('name' => $options);
+                $options = ['name' => $options];
             } else {
-                $options = array();
+                $options = [];
             }
         }
         $name = isset($options['name']) ? strtolower($options['name']) : '';
         $version = isset($options['version']) ? $options['version'] : '0';
         $plaintext = isset($options['plaintext']) ? $options['plaintext'] : false;
         $key = !empty($name) ? $name : $src;
-        unset($overwritepos); // probably unnecessary--just making sure
 
         $useThisVer = true;
         if (isset($this->loadedjscripts[$key])) { // a matching script was found
@@ -5433,10 +5564,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $src = "\t" . '<script type="text/javascript" src="' . $src . '"></script>';
         }
         if ($startup) {
-            $pos = isset($overwritepos) ? $overwritepos : max(array_merge(array(0), array_keys($this->sjscripts))) + 1;
+            $pos = isset($overwritepos) ? $overwritepos : max(array_merge([0], array_keys($this->sjscripts))) + 1;
             $this->sjscripts[$pos] = $src;
         } else {
-            $pos = isset($overwritepos) ? $overwritepos : max(array_merge(array(0), array_keys($this->jscripts))) + 1;
+            $pos = isset($overwritepos) ? $overwritepos : max(array_merge([0], array_keys($this->jscripts))) + 1;
             $this->jscripts[$pos] = $src;
         }
         $this->loadedjscripts[$key]['version'] = $version;
@@ -5496,7 +5627,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             return false;
         }
         if (!array_key_exists($evtName, $this->pluginEvent)) {
-            $this->pluginEvent[$evtName] = array();
+            $this->pluginEvent[$evtName] = [];
         }
         return array_push($this->pluginEvent[$evtName], $pluginName); // return array count
     }
@@ -5512,7 +5643,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         if (!$evtName) {
             return;
         }
-        unset ($this->pluginEvent[$evtName]);
+        unset($this->pluginEvent[$evtName]);
     }
 
     /**
@@ -5520,8 +5651,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      */
     public function removeAllEventListener()
     {
-        unset ($this->pluginEvent);
-        $this->pluginEvent = array();
+        unset($this->pluginEvent);
+        $this->pluginEvent = [];
     }
 
     protected function restoreEvent()
@@ -5559,7 +5690,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @param array $extParams Parameters available to plugins. Each array key will be the PHP variable name, and the array value will be the variable value.
      * @return boolean|array
      */
-    public function invokeEvent($evtName, $extParams = array())
+    public function invokeEvent($evtName, $extParams = [])
     {
         $results = null;
 
@@ -5580,7 +5711,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             }
         }
 
-        if (!isset ($this->pluginEvent[$evtName])) {
+        if (!isset($this->pluginEvent[$evtName])) {
             return $results ?? false;
         }
 
@@ -5604,7 +5735,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             // load default params/properties
             $parameter = $this->parseProperties($pluginProperties);
             if (!is_array($parameter)) {
-                $parameter = array();
+                $parameter = [];
             }
             if (!empty($extParams)) {
                 $parameter = array_merge($parameter, $extParams);
@@ -5654,8 +5785,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      */
     public function getPluginCode($pluginName)
     {
-        $plugin = array();
-        if (isset ($this->pluginCache[$pluginName])) {
+        $plugin = [];
+        if (isset($this->pluginCache[$pluginName])) {
             $pluginCode = $this->pluginCache[$pluginName];
             if (isset($this->pluginCache[$pluginName . 'Props'])) {
                 $pluginProperties = $this->pluginCache[$pluginName . 'Props'];
@@ -5691,13 +5822,13 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      */
     public function parseProperties($propertyString, $elementName = null, $elementType = null)
     {
-        $property = array();
+        $property = [];
 
         if (\is_scalar($propertyString)) {
             $propertyString = trim($propertyString);
             $propertyString = str_replace(
-                array('{}', '} {')
-                , array('', ',')
+                ['{}', '} {']
+                , ['', ',']
                 , $propertyString
             );
             if (!empty($propertyString) && $propertyString !== '{}') {
@@ -5755,11 +5886,11 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $property = $propertyString;
         }
         if (!empty($elementName) && !empty($elementType)) {
-            $out = $this->invokeEvent('OnParseProperties', array(
+            $out = $this->invokeEvent('OnParseProperties', [
                 'element' => $elementName,
                 'type' => $elementType,
                 'args' => $property
-            ));
+            ]);
             if (is_array($out)) {
                 $out = array_pop($out);
             }
@@ -5827,7 +5958,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
         $enable_filter = $this->getConfig('enable_filter');
         $this->setConfig('enable_filter', 1);
-        $_ = array('[* *]', '[( )]', '{{ }}', '[[ ]]', '[+ +]');
+        $_ = ['[* *]', '[( )]', '{{ }}', '[[ ]]', '[+ +]'];
         foreach ($_ as $brackets) {
             [$left, $right] = explode(' ', $brackets);
             if (strpos($content, $left) !== false) {
@@ -5868,7 +5999,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     /**
      * {@inheritdoc}
      */
-    public function addSnippet($name, $phpCode, $namespace = '#', array $defaultParams = array())
+    public function addSnippet($name, $phpCode, $namespace = '#', array $defaultParams = [])
     {
         $this->snippetCache[$namespace . $name] = $phpCode;
         $this->snippetCache[$namespace . $name . 'Props'] = $defaultParams;
@@ -5887,7 +6018,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      */
     public function findElements($type, $scanPath, array $ext)
     {
-        $out = array();
+        $out = [];
 
         if (!is_dir($scanPath) || empty($ext)) {
             return $out;
@@ -5903,8 +6034,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             if ($item->isFile() && $item->isReadable() && \in_array($item->getExtension(), $ext)) {
                 $name = $item->getBasename('.' . $item->getExtension());
                 $path = ltrim(str_replace(
-                    array(rtrim($scanPath, '//'), '/'),
-                    array('', '\\'),
+                    [rtrim($scanPath, '//'), '/'],
+                    ['', '\\'],
                     $item->getPath() . '/'
                 ), '\\');
 
@@ -5945,17 +6076,17 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         modx_sanitize_gpc($phpcode);
 
         switch ($evalmode) {
-            case 'with_scan'         :
+            case 'with_scan':
                 $isSafe = $this->isSafeCode($phpcode, $safe_functions);
                 break;
-            case 'with_scan_at_post' :
+            case 'with_scan_at_post':
                 $isSafe = $_POST ? $this->isSafeCode($phpcode, $safe_functions) : true;
                 break;
-            case 'everytime_eval'    :
+            case 'everytime_eval':
                 $isSafe = true;
                 break; // Should debug only
-            case 'dont_eval'         :
-            default                  :
+            case 'dont_eval':
+            default:
                 return $phpcode;
         }
 
@@ -5969,7 +6100,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         }
 
         ob_start();
-        $return = eval($phpcode);
+        $return = eval ($phpcode);
         $echo = ob_get_clean();
 
         if (is_array($return)) {
@@ -6051,10 +6182,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
         $errorMsg = "Could not retrieve string '" . $str . "'.";
 
-        $search_path = array('assets/tvs/', 'assets/chunks/', 'assets/templates/', $this->getConfig('rb_base_url') . 'files/', '');
+        $search_path = ['assets/tvs/', 'assets/chunks/', 'assets/templates/', $this->getConfig('rb_base_url') . 'files/', ''];
         foreach ($search_path as $path) {
-            $file_path = MODX_BASE_PATH . $path . $str;
-            if (strpos($file_path, MODX_MANAGER_PATH) === 0) {
+            $file_path = EVO_BASE_PATH . $path . $str;
+            if (strpos($file_path, EVO_MANAGER_PATH) === 0) {
                 return $errorMsg;
             }
 
@@ -6069,7 +6200,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             return $errorMsg;
         }
 
-        $content = (string)file_get_contents($file_path);
+        $content = (string) file_get_contents($file_path);
         if ($content === false) {
             return $errorMsg;
         }
@@ -6128,16 +6259,17 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      */
     public function getUserSettings()
     {
+        $id = $this->getLoginUserID();
+        $mgrid = $this->isFrontend() ? $this->getLoginUserID('mgr') : false;
+        if (!$id && !$mgrid) {
+            return [];
+        }
 
         $this->getDatabase();
-        //if (!$this->getDatabase()->getDriver()->isConnected()) {
-        //   $this->getDatabase()->connect();
-        //}
-        // load user setting if user is logged in
-        $usrSettings = array();
-        if ($id = $this->getLoginUserID()) {
+        $usrSettings = [];
+        if ($id) {
             $usrType = $this->getLoginUserType();
-            if (isset ($usrType) && $usrType === 'manager') {
+            if (isset($usrType) && $usrType === 'manager') {
                 $usrType = 'mgr';
             }
 
@@ -6146,15 +6278,9 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 $this->invokeEvent("OnBeforeManagerPageInit");
             }
 
-            if ($usrType === 'web') {
-                $usrSettings = Models\UserSetting::where('user', '=', $id)->get()
-                    ->pluck('setting_value', 'setting_name')
-                    ->toArray();
-            } else {
-                $usrSettings = Models\UserSetting::where('user', '=', $id)->get()
-                    ->pluck('setting_value', 'setting_name')
-                    ->toArray();
-            }
+            $usrSettings = Models\UserSetting::where('user', '=', $id)->get()
+                ->pluck('setting_value', 'setting_name')
+                ->toArray();
 
             $which_browser_default = get_by_key(
                 $this->configGlobal,
@@ -6166,20 +6292,25 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 $usrSettings['which_browser'] = $which_browser_default;
             }
 
-            if (isset ($usrType)) {
+            if (isset($usrType)) {
                 $_SESSION[$usrType . 'UsrConfigSet'] = $usrSettings;
             } // store user settings in session
         }
-        if ($this->isFrontend() && $mgrid = $this->getLoginUserID('mgr')) {
+        if ($mgrid) {
             $musrSettings = Models\UserSetting::where('user', '=', $mgrid)->get()
                 ->pluck('setting_value', 'setting_name')
                 ->toArray();
 
             $_SESSION['mgrUsrConfigSet'] = $musrSettings; // store user settings in session
-            if (!empty ($musrSettings)) {
+            if (!empty($musrSettings)) {
                 $usrSettings = array_merge($musrSettings, $usrSettings);
             }
         }
+
+        if (empty($usrSettings)) {
+            return [];
+        }
+
         // save global values before overwriting/merging array
         foreach ($usrSettings as $param => $value) {
             if ($this->getConfig($param) !== null) {
@@ -6190,11 +6321,11 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $this->config = array_merge($this->config, $usrSettings);
         $this->setConfig(
             'filemanager_path',
-            str_replace('[(base_path)]', MODX_BASE_PATH, $this->getConfig('filemanager_path'))
+            str_replace('[(base_path)]', EVO_BASE_PATH, $this->getConfig('filemanager_path'))
         );
         $this->setConfig(
             'rb_base_dir',
-            str_replace('[(base_path)]', MODX_BASE_PATH, $this->getConfig('rb_base_dir'))
+            str_replace('[(base_path)]', EVO_BASE_PATH, $this->getConfig('rb_base_dir'))
         );
 
         return $usrSettings;
@@ -6259,10 +6390,12 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @param string $file File where the error was detected
      * @param string $line Line number within $file
      * @return boolean
-     * @deprecated
+     * @since 1.4
+     * @todo [remove@3.7] Remove in Evolution CMS 3.7
      */
     public function phpError($nr, $text, $file, $line)
     {
+        /* @phpstan-ignore-next-line return.missing deprecated */
         $this->getService('ExceptionHandler')->phpError($nr, $text, $file, $line);
     }
 
@@ -6287,7 +6420,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     /**
      * @param $backtrace
      * @return string
-     * @deprecated
+     * @deprecated since EVO 3.2.7
+     * @TODO: will be delete EVO 3.5
      */
     public function get_backtrace($backtrace)
     {
@@ -6319,7 +6453,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     public function stripAlias($alias)
     {
         // let add-ons overwrite the default behavior
-        $results = $this->invokeEvent('OnStripAlias', array('alias' => $alias));
+        $results = $this->invokeEvent('OnStripAlias', [
+            'alias' => $alias,
+            'manager_language' => $this->getConfig('manager_language'),
+        ]);
         if (!empty($results)) {
             // if multiple plugins are registered, only the last one is used
             return end($results);
@@ -6337,15 +6474,17 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     /**
      * @param $size
      * @return string
-     * @deprecated
+     * @deprecated since EVO 3.2.7
+     * @TODO: will be delete EVO 3.5
      */
     public function nicesize($size)
     {
-        return nicesize($size);
+        return niceSize($size);
     }
 
     /**
-     * @deprecated use UrlProcessor::getHiddenIdFromAlias()
+     * @deprecated since EVO 3.2.7, use UrlProcessor::getHiddenIdFromAlias()
+     * @TODO: will be delete EVO 3.5
      */
     public function getHiddenIdFromAlias($parentid, $alias)
     {
@@ -6353,7 +6492,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     }
 
     /**
-     * @deprecated use UrlProcessor::getIdFromAlias()
+     * @deprecated since EVO 3.2.7, use UrlProcessor::getIdFromAlias()
+     * @TODO: will be delete EVO 3.5
      */
     public function getIdFromAlias($alias)
     {
@@ -6380,14 +6520,14 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
         $tpl_dir = 'assets/templates/';
 
-        if (strpos($str, MODX_MANAGER_PATH) === 0) {
+        if (strpos($str, EVO_MANAGER_PATH) === 0) {
             return false;
         }
 
-        if (is_file(MODX_BASE_PATH . $str)) {
-            $file_path = MODX_BASE_PATH . $str;
-        } elseif (is_file(MODX_BASE_PATH . "{$tpl_dir}{$str}")) {
-            $file_path = MODX_BASE_PATH . $tpl_dir . $str;
+        if (is_file(EVO_BASE_PATH . $str)) {
+            $file_path = EVO_BASE_PATH . $str;
+        } elseif (is_file(EVO_BASE_PATH . "{$tpl_dir}{$str}")) {
+            $file_path = EVO_BASE_PATH . $tpl_dir . $str;
         } else {
             return false;
         }
@@ -6450,7 +6590,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $modifiers = trim($modifiers);
         }
 
-        return array($key, $modifiers);
+        return [$key, $modifiers];
     }
 
     /**
@@ -6562,14 +6702,24 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     final public function __clone()
     {}
 
-    public function maintenanceMode()
-    {}
+    public function maintenanceMode(): \Illuminate\Contracts\Foundation\MaintenanceMode
+    {
+        return new MaintenanceMode();
+    }
 
+    /**
+     * @param $callback
+     * @return \Illuminate\Contracts\Foundation\Application|\DocumentParser
+     */
     public function terminating($callback)
-    {}
+    {
+        return evo();
+    }
 
     public function hasDebugModeEnabled()
-    {}
+    {
+        return false;
+    }
 
     public function getFallbackLocale()
     {}

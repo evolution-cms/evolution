@@ -33,7 +33,6 @@ use Composer\Repository\PlatformRepository;
 use Composer\Repository\InstalledArrayRepository;
 use Composer\Repository\RepositorySet;
 use Composer\Script\ScriptEvents;
-use Composer\Util\Silencer;
 use Composer\Console\Input\InputArgument;
 use Seld\Signal\SignalHandler;
 use Symfony\Component\Console\Input\InputInterface;
@@ -92,6 +91,7 @@ class CreateProjectCommand extends BaseCommand
                 new InputOption('no-install', null, InputOption::VALUE_NONE, 'Whether to skip installation of the package dependencies.'),
                 new InputOption('no-audit', null, InputOption::VALUE_NONE, 'Whether to skip auditing of the installed package dependencies (can also be set via the COMPOSER_NO_AUDIT=1 env var).'),
                 new InputOption('audit-format', null, InputOption::VALUE_REQUIRED, 'Audit output format. Must be "table", "plain", "json" or "summary".', Auditor::FORMAT_SUMMARY, Auditor::FORMATS),
+                new InputOption('no-security-blocking', null, InputOption::VALUE_NONE, 'Allows installing packages with security advisories or that are abandoned (can also be set via the COMPOSER_NO_SECURITY_BLOCKING=1 env var).'),
                 new InputOption('ignore-platform-req', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Ignore a specific platform requirement (php & ext- packages).'),
                 new InputOption('ignore-platform-reqs', null, InputOption::VALUE_NONE, 'Ignore all platform requirements (php & ext- packages).'),
                 new InputOption('ask', null, InputOption::VALUE_NONE, 'Whether to ask for project directory.'),
@@ -193,7 +193,7 @@ EOT
         $this->suggestedPackagesReporter = new SuggestedPackagesReporter($io);
 
         if ($packageName !== null) {
-            $installedFromVcs = $this->installRootPackage($io, $config, $packageName, $platformRequirementFilter, $directory, $packageVersion, $stability, $preferSource, $preferDist, $installDevPackages, $repositories, $disablePlugins, $disableScripts, $noProgress, $secureHttp);
+            $installedFromVcs = $this->installRootPackage($input, $io, $config, $packageName, $platformRequirementFilter, $directory, $packageVersion, $stability, $preferSource, $preferDist, $installDevPackages, $repositories, $disablePlugins, $disableScripts, $noProgress, $secureHttp);
         } else {
             $installedFromVcs = false;
         }
@@ -202,7 +202,7 @@ EOT
             unlink('composer.lock');
         }
 
-        $composer = Factory::create($io, null, $disablePlugins, $disableScripts);
+        $composer = $this->createComposerInstance($input, $io, null, $disablePlugins, $disableScripts);
 
         // add the repository to the composer.json and use it for the install run later
         if ($repositories !== null && $addRepository) {
@@ -221,7 +221,7 @@ EOT
                     $configSource->addRepository($name, $repoConfig, false);
                 }
 
-                $composer = Factory::create($io, null, $disablePlugins);
+                $composer = $this->createComposerInstance($input, $io, null, $disablePlugins);
             }
         }
 
@@ -248,8 +248,7 @@ EOT
                 ->setOptimizeAutoloader($config->get('optimize-autoloader'))
                 ->setClassMapAuthoritative($config->get('classmap-authoritative'))
                 ->setApcuAutoloader($config->get('apcu-autoloader'))
-                ->setAudit(!$input->getOption('no-audit'))
-                ->setAuditFormat($this->getAuditFormat($input));
+                ->setAuditConfig($this->createAuditConfig($config, $input));
 
             if (!$composer->getLocker()->isLocked()) {
                 $installer->setUpdate(true);
@@ -278,7 +277,7 @@ EOT
             && (
                 $input->getOption('remove-vcs')
                 || !$io->isInteractive()
-                || $io->askConfirmation('<info>Do you want to remove the existing VCS (.git, .svn..) history?</info> [<comment>Y,n</comment>]? ')
+                || $io->askConfirmation('<info>Do you want to remove the existing VCS (.git, .svn..) history?</info> [<comment>y,n</comment>]? ')
             )
         ) {
             $finder = new Finder();
@@ -319,14 +318,6 @@ EOT
         $composer->getEventDispatcher()->dispatchScript(ScriptEvents::POST_CREATE_PROJECT_CMD, $installDevPackages);
 
         chdir($oldCwd);
-        $vendorComposerDir = $config->get('vendor-dir').'/composer';
-        if (is_dir($vendorComposerDir) && $fs->isDirEmpty($vendorComposerDir)) {
-            Silencer::call('rmdir', $vendorComposerDir);
-            $vendorDir = $config->get('vendor-dir');
-            if (is_dir($vendorDir) && $fs->isDirEmpty($vendorDir)) {
-                Silencer::call('rmdir', $vendorDir);
-            }
-        }
 
         return 0;
     }
@@ -336,12 +327,8 @@ EOT
      *
      * @throws \Exception
      */
-    protected function installRootPackage(IOInterface $io, Config $config, string $packageName, PlatformRequirementFilterInterface $platformRequirementFilter, ?string $directory = null, ?string $packageVersion = null, ?string $stability = 'stable', bool $preferSource = false, bool $preferDist = false, bool $installDevPackages = false, ?array $repositories = null, bool $disablePlugins = false, bool $disableScripts = false, bool $noProgress = false, bool $secureHttp = true): bool
+    protected function installRootPackage(InputInterface $input, IOInterface $io, Config $config, string $packageName, PlatformRequirementFilterInterface $platformRequirementFilter, ?string $directory = null, ?string $packageVersion = null, ?string $stability = 'stable', bool $preferSource = false, bool $preferDist = false, bool $installDevPackages = false, ?array $repositories = null, bool $disablePlugins = false, bool $disableScripts = false, bool $noProgress = false, bool $secureHttp = true): bool
     {
-        if (!$secureHttp) {
-            $config->merge(['config' => ['secure-http' => false]], Config::SOURCE_COMMAND);
-        }
-
         $parser = new VersionParser();
         $requirements = $parser->parseNameVersionPairs([$packageName]);
         $name = strtolower($requirements[0]['name']);
@@ -354,11 +341,21 @@ EOT
             $parts = explode("/", $name, 2);
             $directory = Platform::getCwd() . DIRECTORY_SEPARATOR . array_pop($parts);
         }
+        $directory = rtrim($directory, '/\\');
 
         $process = new ProcessExecutor($io);
         $fs = new Filesystem($process);
         if (!$fs->isAbsolutePath($directory)) {
             $directory = Platform::getCwd() . DIRECTORY_SEPARATOR . $directory;
+        }
+        if ('' === $directory) {
+            throw new \UnexpectedValueException('Got an empty target directory, something went wrong');
+        }
+
+        // set the base dir to ensure $config->all() below resolves the correct absolute paths to vendor-dir etc
+        $config->setBaseDir($directory);
+        if (!$secureHttp) {
+            $config->merge(['config' => ['secure-http' => false]], Config::SOURCE_COMMAND);
         }
 
         $io->writeError('<info>Creating a "' . $packageName . '" project at "' . $fs->findShortestPath(Platform::getCwd(), $directory, true) . '"</info>');
@@ -375,7 +372,7 @@ EOT
         if (null === $stability) {
             if (null === $packageVersion) {
                 $stability = 'stable';
-            } elseif (Preg::isMatchStrictGroups('{^[^,\s]*?@('.implode('|', array_keys(BasePackage::$stabilities)).')$}i', $packageVersion, $match)) {
+            } elseif (Preg::isMatchStrictGroups('{^[^,\s]*?@('.implode('|', array_keys(BasePackage::STABILITIES)).')$}i', $packageVersion, $match)) {
                 $stability = $match[1];
             } else {
                 $stability = VersionParser::parseStability($packageVersion);
@@ -384,12 +381,14 @@ EOT
 
         $stability = VersionParser::normalizeStability($stability);
 
-        if (!isset(BasePackage::$stabilities[$stability])) {
-            throw new \InvalidArgumentException('Invalid stability provided ('.$stability.'), must be one of: '.implode(', ', array_keys(BasePackage::$stabilities)));
+        if (!isset(BasePackage::STABILITIES[$stability])) {
+            throw new \InvalidArgumentException('Invalid stability provided ('.$stability.'), must be one of: '.implode(', ', array_keys(BasePackage::STABILITIES)));
         }
 
-        $composer = Factory::create($io, $config->all(), $disablePlugins, $disableScripts);
+        $composer = $this->createComposerInstance($input, $io, $config->all(), $disablePlugins, $disableScripts);
         $config = $composer->getConfig();
+        // set the base dir here again on the new config instance, as otherwise in case the vendor dir is defined in an env var for example it would still override the value set above by $config->all()
+        $config->setBaseDir($directory);
         $rm = $composer->getRepositoryManager();
 
         $repositorySet = new RepositorySet($stability);
@@ -404,6 +403,12 @@ EOT
                 ) {
                     continue;
                 }
+
+                // disable symlinking for the root package by default as that most likely makes no sense
+                if (($repoConfig['type'] ?? null) === 'path' && !isset($repoConfig['options']['symlink'])) {
+                    $repoConfig['options']['symlink'] = false;
+                }
+
                 $repositorySet->addRepository(RepositoryFactory::createRepo($io, $config, $repoConfig, $rm));
             }
         }
@@ -468,6 +473,13 @@ EOT
 
         $io->writeError('<info>Created project in ' . $directory . '</info>');
         chdir($directory);
+
+        // ensure that the env var being set does not interfere with create-project
+        // as it is probably not meant to be used here, so we do not use it if a composer.json can be found
+        // in the project
+        if (file_exists($directory.'/composer.json') && Platform::getEnv('COMPOSER') !== false) {
+            Platform::clearEnv('COMPOSER');
+        }
 
         Platform::putEnv('COMPOSER_ROOT_VERSION', $package->getPrettyVersion());
 

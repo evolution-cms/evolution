@@ -1,5 +1,11 @@
 @extends('manager::template.page')
 @section('content')
+    @php(
+        $usersInGroupLabel = rtrim(strip_tags(ManagerTheme::getLexicon('access_permissions_users_in_group')), ": \t\n\r\0\x0B")
+    )
+    @php(
+        $resourcesInGroupLabel = rtrim(strip_tags(ManagerTheme::getLexicon('access_permissions_resources_in_group')), ": \t\n\r\0\x0B")
+    )
     @push('scripts.top')
         <script type="text/javascript">
             function deletegroup(groupid, type) {
@@ -77,7 +83,7 @@
                                     </div>
                                 </div>
                             </form>
-                            <b>{{ ManagerTheme::getLexicon('access_permissions_users_in_group') }}</b>
+                            <b>{{ $usersInGroupLabel }} {{ $userGroup->name }} ({{ $userGroup->getKey() }}):</b>
                             @if($userGroup->users->count() === 0)
                                 <i>{{ ManagerTheme::getLexicon('access_permissions_no_users_in_group') }}</i>
                             @else
@@ -129,7 +135,7 @@
                                     </div>
                                 </div>
                             </form>
-                            {!! ManagerTheme::getLexicon('access_permissions_resources_in_group') !!}
+                            <b>{{ $resourcesInGroupLabel }} {{ $documentGroup->name }} ({{ $documentGroup->getKey() }}):</b>
                             @if($documentGroup->documents->count() === 0)
                                 <i>{{ ManagerTheme::getLexicon('access_permissions_no_resources_in_group') }}</i>
                             @else
@@ -161,7 +167,7 @@
                             <select name="usergroup">
                                 <?php /** @var EvolutionCMS\Models\MembergroupName $userGroup */?>
                                 @foreach($userGroups as $userGroup)
-                                    <option value="{{ $userGroup->getKey() }}"> {{ $userGroup->name }}</option>
+                                    <option value="{{ $userGroup->getKey() }}"> {{ $userGroup->name }} ({{ $userGroup->getKey() }})</option>
                                 @endforeach
                             </select>
 
@@ -169,7 +175,7 @@
                             <select name="docgroup">
                                 <?php /** @var EvolutionCMS\Models\DocumentgroupName $documentGroup */?>
                                 @foreach($documentGroups as $documentGroup)
-                                    <option value="{{ $documentGroup->getKey() }}"> {{ $documentGroup->name }}</option>
+                                    <option value="{{ $documentGroup->getKey() }}"> {{ $documentGroup->name }} ({{ $documentGroup->getKey() }})</option>
                                 @endforeach
                             </select>
                             {{ ManagerTheme::getLexicon('access_permissions_context') }}
@@ -185,13 +191,13 @@
                     @foreach($userGroups as $userGroup)
                         <ul>
                             <li>
-                                <b>{{ $userGroup->name }}</b>
+                                <b>{{ $userGroup->name }} ({{ $userGroup->getKey() }})</b>
                                 @if($userGroup->documentGroups->count() > 0)
                                     <ul>
                                         <?php /** @var EvolutionCMS\Models\DocumentgroupName $documentGroup */?>
                                         @foreach($userGroup->documentGroups as $documentGroup)
                                             <li>
-                                                {{ $documentGroup->name }} ({{ $documentGroup->pivot->context ? 'web' : 'mgr' }})
+                                                {{ $documentGroup->name }} ({{ $documentGroup->getKey() }}) ({{ $documentGroup->pivot->context ? 'web' : 'mgr' }})
                                                 <small><i>(<a class="text-danger" href="index.php?a=92&coupling={{ $documentGroup->pivot->id }}&context={{ $documentGroup->pivot->context }}&operation=remove_document_group_from_user_group">{{ ManagerTheme::getLexicon('remove') }}</a>)</i></small>
                                             </li>
                                         @endforeach

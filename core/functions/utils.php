@@ -64,7 +64,7 @@ if (!function_exists('var_debug')) {
      * @param array $options
      * @return mixed  variable itself
      */
-    function var_debug($var, $title = null, array $options = null)
+    function var_debug($var, $title = null, ?array $options = null)
     {
         return EvolutionCMS\Tracy\Debugger::barDump($var, $title, $options);
     }

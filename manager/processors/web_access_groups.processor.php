@@ -21,10 +21,10 @@ switch ($operation) {
         } else {
             $id = \EvolutionCMS\Models\MembergroupName::query()->insertGetId(['name' => $newgroup]);
             // invoke OnWebCreateGroup event
-            $modx->invokeEvent('OnWebCreateGroup', array(
+            $modx->invokeEvent('OnWebCreateGroup', [
                 'groupid' => $id,
                 'groupname' => $newgroup,
-            ));
+            ]);
         }
         break;
     case "add_document_group" :
@@ -35,10 +35,10 @@ switch ($operation) {
             $id = \EvolutionCMS\Models\DocumentgroupName::query()->insertGetId(['name' => $newgroup]);
 
             // invoke OnCreateDocGroup event
-            $modx->invokeEvent('OnCreateDocGroup', array(
+            $modx->invokeEvent('OnCreateDocGroup', [
                 'groupid' => $id,
                 'groupname' => $newgroup,
-            ));
+            ]);
         }
         break;
     case "delete_user_group" :
@@ -94,7 +94,7 @@ switch ($operation) {
         $docgroup = (int)($_REQUEST['docgroup'] ?? 0);
         $context = (int)($_REQUEST['context'] ?? 0) == 0 ? 0 : 1;
         if (\EvolutionCMS\Models\MembergroupAccess::where('membergroup', $usergroup)->where('documentgroup', $docgroup)->where('context', $context)->count() <= 0) {
-            \EvolutionCMS\Models\MembergroupAccess::create(array('membergroup' => $usergroup, 'documentgroup' => $docgroup, 'context' => $context));
+            \EvolutionCMS\Models\MembergroupAccess::create(['membergroup' => $usergroup, 'documentgroup' => $docgroup, 'context' => $context]);
         } else {
             //alert user that coupling already exists?
         }
@@ -111,7 +111,7 @@ switch ($operation) {
 
 // secure web documents - flag as private
 if ($updategroupaccess == true) {
-    include MODX_MANAGER_PATH . "includes/secure_web_documents.inc.php";
+    include EVO_MANAGER_PATH . "includes/secure_web_documents.inc.php";
     if ($context) {
         secureWebDocument();
     } else {

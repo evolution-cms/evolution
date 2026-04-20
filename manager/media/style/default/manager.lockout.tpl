@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>[(site_name)] (Evolution CMS Manager Login)</title>
+	<title>[+site_name_text+] (Evolution CMS Manager Login)</title>
 	<meta http-equiv="content-type" content="text/html; charset=[+modx_charset+]">
 	<meta name="robots" content="noindex, nofollow">
 	<meta name="viewport" content="width=device-width">
@@ -273,20 +273,20 @@
 
 			<!-- logo -->
 			<div class="form-group form-group--logo text-center">
-				<a class="logo" href="../" title="[(site_name)]">
-					<img src="[+login_logo+]" alt="[(site_name)]" id="logo">
+				<a class="logo" href="../" title="[+site_name_attr+]">
+					<img src="[+login_logo+]" alt="[+site_name_attr+]" id="logo">
 				</a>
 			</div>
 
 			<div class="text-muted">
-				<h2>[(site_name)]</h2>
+				<h2>[+site_name_text+]</h2>
 
 				[%manager_lockout_message%]
 			</div>
 
 			<!-- actions -->
 			<div class="form-group form-group--actions">
-				<input type="button" class="btn btn-default" value="[%home%]" onclick="return gotoHome();" />
+				<input type="button" class="btn btn-default" value="[%site%]" onclick="return gotoHome();" />
 				<input type="button" class="btn btn-success" value="[%logout%]" onclick="return doLogout();" />
 			</div>
 
@@ -296,7 +296,7 @@
 	<!-- copyrights -->
 	<div class="copyrights">
 		<p class="loginLicense"></p>
-		<div class="gpl">&copy; 2005-2023 by the <a href="https://evo.im/" target="_blank">Evolution CMS</a>. <strong>Evolution CMS</strong>&trade; is licensed under the GPL.</div>
+		<div class="gpl">&copy; 2004 - 2026 by the <a href="https://evo.im/" target="_blank">Evolution CMS</a>. <strong>Evolution CMS</strong>&trade; is licensed under the GPL.</div>
 	</div>
 </div>
 

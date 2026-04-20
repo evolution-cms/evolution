@@ -35,13 +35,13 @@ class HelperProcessor
         $newFolderAccessMode = empty($new) ? 0777 : octdec($newFolderAccessMode);
 
         $defaultCacheFolder = 'assets/cache/';
-        $cacheFolder = isset($cacheFolder) ? $cacheFolder : $defaultCacheFolder . 'images';
-        $phpThumbNoImagePath = isset($phpThumbNoImagePath) ? $phpThumbNoImagePath : 'assets/images/';
+        $cacheFolder = $defaultCacheFolder . 'images';
+        $phpThumbNoImagePath = 'assets/images/';
 
         /**
          * @see: https://github.com/kalessil/phpinspectionsea/blob/master/docs/probable-bugs.md#mkdir-race-condition
          */
-        $path = MODX_BASE_PATH . $cacheFolder;
+        $path = EVO_BASE_PATH . $cacheFolder;
         if (!file_exists($path) && mkdir($path) && is_dir($path)) {
             chmod($path, $newFolderAccessMode);
         }
@@ -50,24 +50,24 @@ class HelperProcessor
             $input = rawurldecode($input);
         }
 
-        if (empty($input) || !file_exists(MODX_BASE_PATH . $input)) {
-            $input = isset($noImage) ? $noImage : $phpThumbNoImagePath . 'noimage.png';
+        if (empty($input) || !file_exists(EVO_BASE_PATH . $input)) {
+            $input = $phpThumbNoImagePath . 'noimage.png';
         }
 
         /**
          * allow read in phpthumb cache folder
          */
-        if (!file_exists(MODX_BASE_PATH . $cacheFolder . '/.htaccess') &&
+        if (!file_exists(EVO_BASE_PATH . $cacheFolder . '/.htaccess') &&
             $cacheFolder !== $defaultCacheFolder &&
             strpos($cacheFolder, $defaultCacheFolder) === 0
         ) {
-            file_put_contents(MODX_BASE_PATH . $cacheFolder . '/.htaccess', "order deny,allow\nallow from all\n");
+            file_put_contents(EVO_BASE_PATH . $cacheFolder . '/.htaccess', "order deny,allow\nallow from all\n");
         }
 
         $path_parts = pathinfo($input);
         $ext = strtolower($path_parts['extension']);
-        $options = 'f=' . (in_array($ext, array('png', 'gif', 'jpeg')) ? $ext : 'jpg&q=85') . '&' .
-            strtr($options, array(',' => '&', '_' => '=', '{' => '[', '}' => ']'));
+        $options = 'f=' . (in_array($ext, ['png', 'gif', 'jpeg']) ? $ext : 'jpg&q=85') . '&' .
+            strtr($options, [',' => '&', '_' => '=', '{' => '[', '}' => ']']);
 
         parse_str($options, $params);
 
@@ -79,7 +79,7 @@ class HelperProcessor
         foreach ($tmpImagesFolder as $folder) {
             if (!empty($folder)) {
                 $cacheFolder .= '/' . $folder;
-                $path = MODX_BASE_PATH . $cacheFolder;
+                $path = EVO_BASE_PATH . $cacheFolder;
                 if (!file_exists($path) && mkdir($path) && is_dir($path)) {
                     chmod($path, $newFolderAccessMode);
                 }
@@ -88,7 +88,7 @@ class HelperProcessor
 
         $fmtime = '';
         if(isset($filemtime)){
-            $fmtime = filemtime(MODX_BASE_PATH . $input);
+            $fmtime = filemtime(EVO_BASE_PATH . $input);
         }
 
         $fNamePref = rtrim($cacheFolder, '/') . '/';
@@ -99,13 +99,13 @@ class HelperProcessor
 
         $fNameSuf = str_replace("ad", "at", $fNameSuf);
 
-        $outputFilename = MODX_BASE_PATH . $fNamePref . $fName . $fNameSuf;
+        $outputFilename = EVO_BASE_PATH . $fNamePref . $fName . $fNameSuf;
         if (!file_exists($outputFilename)) {
             $phpThumb = new \phpthumb();
-            $phpThumb->config_cache_directory = MODX_BASE_PATH . $defaultCacheFolder;
+            $phpThumb->config_cache_directory = EVO_BASE_PATH . $defaultCacheFolder;
             $phpThumb->config_temp_directory = $defaultCacheFolder;
-            $phpThumb->config_document_root = MODX_BASE_PATH;
-            $phpThumb->setSourceFilename(MODX_BASE_PATH . $input);
+            $phpThumb->config_document_root = EVO_BASE_PATH;
+            $phpThumb->setSourceFilename(EVO_BASE_PATH . $input);
             foreach ($params as $key => $value) {
                 $phpThumb->setParameter($key, $value);
             }

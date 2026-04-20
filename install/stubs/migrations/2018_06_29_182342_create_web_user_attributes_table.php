@@ -15,8 +15,9 @@ class CreateWebUserAttributesTable extends Migration {
 	{
 		Schema::create('web_user_attributes', function(Blueprint $table)
 		{
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
 			$table->integer('id', true);
-			$table->integer('internalKey')->default(0)->index();
+			$table->integer('internalKey')->default(0)->index("{$indexPrefix}_internalKey");
 			$table->string('fullname', 100)->default();
 			$table->integer('role')->default(0);
 			$table->string('email', 100)->default('');

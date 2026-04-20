@@ -1,5 +1,4 @@
 <?php
-
 if (!function_exists('getDefaultTemplate')) {
     /**
      * @return string
@@ -23,9 +22,7 @@ if (!function_exists('getDefaultTemplate')) {
                         }
                     }
                 } else {
-
-                    $sibl = $modx->getDocumentChildren($_REQUEST['pid'], 1, 0, 'template,menuindex', [],
-                        'isfolder', 'ASC', 1);
+                    $sibl = evo()->getDocumentChildren($_REQUEST['pid'], 1, 0, 'template,menuindex', [], 'isfolder', 'ASC', 1);
 
                     if (isset($sibl[0]['template']) && $sibl[0]['template'] !== '') {
                         $default_template = $sibl[0]['template'];
@@ -66,7 +63,7 @@ if (! function_exists('ProcessTVCommand')) {
      * @param array $tvsArray
      * @return string
      */
-    function ProcessTVCommand($value, $name = '', $docid = '', $src = 'docform', $tvsArray = array())
+    function ProcessTVCommand($value, $name = '', $docid = '', $src = 'docform', $tvsArray = [])
     {
         $modx = evolutionCMS();
         $docid = (int)$docid > 0 ? (int)$docid : $modx->documentIdentifier;
@@ -99,11 +96,11 @@ if (! function_exists('ProcessTVCommand')) {
                     break;
 
                 case "SELECT" : // selects a record from the cms database
-                    $rt = array();
-                    $replacementVars = array(
+                    $rt = [];
+                    $replacementVars = [
                         'DBASE'  => $modx->getDatabase()->getConfig('database'),
                         'PREFIX' => $modx->getDatabase()->getConfig('prefix')
-                    );
+                    ];
                     foreach ($replacementVars as $rvKey => $rvValue) {
                         $modx->setPlaceholder($rvKey, $rvValue);
                     }
@@ -142,8 +139,8 @@ if (! function_exists('ProcessTVCommand')) {
                     break;
 
                 case 'DIRECTORY' :
-                    $files = array();
-                    $path = MODX_BASE_PATH . $param;
+                    $files = [];
+                    $path = EVO_BASE_PATH . $param;
                     if (substr($path, -1, 1) != '/') {
                         $path .= '/';
                     }
@@ -200,7 +197,7 @@ if (! function_exists('ParseCommand')) {
      */
     function ParseCommand($binding_string)
     {
-        $BINDINGS = array( // Array of supported bindings. must be upper case
+        $BINDINGS = [ // Array of supported bindings. must be upper case
             'FILE',
             'CHUNK',
             'DOCUMENT',
@@ -208,13 +205,13 @@ if (! function_exists('ParseCommand')) {
             'EVAL',
             'INHERIT',
             'DIRECTORY'
-        );
+        ];
 
-        $binding_array = array();
+        $binding_array = [];
         foreach ($BINDINGS as $cmd) {
             if (strpos($binding_string, '@' . $cmd) === 0) {
                 $code = substr($binding_string, strlen($cmd) + 1);
-                $binding_array = array($cmd, trim($code));
+                $binding_array = [$cmd, trim($code)];
                 break;
             }
         }
@@ -275,7 +272,7 @@ if (! function_exists('getTVDisplayFormat')) {
         $docid = (int)$docid > 0 ? (int)$docid : $modx->documentIdentifier;
         $value = ProcessTVCommand($value, $name, $docid);
 
-        $params = array();
+        $params = [];
         if ($paramstring) {
             $cp = explode("&", $paramstring);
             foreach ($cp as $p => $v) {
@@ -300,13 +297,13 @@ if (! function_exists('getTVDisplayFormat')) {
                     if ($src) {
                         // We have a valid source
                         $attributes = '';
-                        $attr = array(
+                        $attr = [
                             'class' => $params['class'],
                             'src'   => $src,
                             'id'    => ($params['id'] ? $params['id'] : ''),
                             'alt'   => $modx->getPhpCompat()->htmlspecialchars($params['alttext']),
                             'style' => $params['style']
-                        );
+                        ];
                         if (isset($params['align']) && $params['align'] != 'none') {
                             $attr['align'] = $params['align'];
                         }
@@ -380,13 +377,13 @@ if (! function_exists('getTVDisplayFormat')) {
                         }
                         $attributes = '';
                         // setup the link attributes
-                        $attr = array(
+                        $attr = [
                             'href'   => $url,
                             'title'  => $params['title'] ? $modx->getPhpCompat()->htmlspecialchars($params['title']) : $name,
                             'class'  => $params['class'],
                             'style'  => $params['style'],
                             'target' => $params['target'],
-                        );
+                        ];
                         foreach ($attr as $k => $v) {
                             $attributes .= ($v ? ' ' . $k . '="' . $v . '"' : '');
                         }
@@ -412,12 +409,12 @@ if (! function_exists('getTVDisplayFormat')) {
                     }
 
                     $attributes = '';
-                    $attr = array(
+                    $attr = [
                         'id'    => ($tagid ? $tagid : $id),
                         // 'tv' already added to id
                         'class' => $params['class'],
                         'style' => $params['style'],
-                    );
+                    ];
                     foreach ($attr as $k => $v) {
                         $attributes .= ($v ? ' ' . $k . '="' . $v . '"' : '');
                     }
@@ -433,20 +430,20 @@ if (! function_exists('getTVDisplayFormat')) {
                 $w = $params['w'] ? $params['w'] : '100%';
                 $h = $params['h'] ? $params['h'] : '400px';
                 $richtexteditor = $params['edt'] ? $params['edt'] : "";
-                $o = '<div class="MODX_RichTextWidget"><textarea id="' . $id . '" name="' . $id . '" style="width:' . $w . '; height:' . $h . ';">';
+                $o = '<div class="EVO_RichTextWidget"><textarea id="' . $id . '" name="' . $id . '" style="width:' . $w . '; height:' . $h . ';">';
                 $o .= $modx->getPhpCompat()->htmlspecialchars($value);
                 $o .= '</textarea></div>';
-                $replace_richtext = array($id);
+                $replace_richtext = [$id];
                 // setup editors
                 if (!empty($replace_richtext) && !empty($richtexteditor)) {
                     // invoke OnRichTextEditorInit event
-                    $evtOut = $modx->invokeEvent("OnRichTextEditorInit", array(
+                    $evtOut = $modx->invokeEvent("OnRichTextEditorInit", [
                         'editor'      => $richtexteditor,
                         'elements'    => $replace_richtext,
                         'forfrontend' => 1,
                         'width'       => $w,
                         'height'      => $h
-                    ));
+                    ]);
                     if (is_array($evtOut)) {
                         $o .= implode("", $evtOut);
                     }
@@ -485,11 +482,11 @@ if (! function_exists('getTVDisplayFormat')) {
                     }
                 }
 
-                $modx->regClientStartupScript(MODX_MANAGER_URL . "media/script/bin/viewport.js", array(
+                $modx->regClientStartupScript(EVO_MANAGER_URL . "media/script/bin/viewport.js", [
                     'name'      => 'viewport',
                     'version'   => '0',
                     'plaintext' => false
-                ));
+                ]);
                 $o = $sTag . " id='" . $params['vpid'] . "' name='" . $params['vpid'] . "' ";
                 if ($params['class']) {
                     $o .= " class='" . $params['class'] . "' ";
@@ -554,14 +551,14 @@ if (! function_exists('getTVDisplayFormat')) {
                 $o = '';
                 /* If we are loading a file */
                 if (substr($params['output'], 0, 5) == "@FILE") {
-                    $file_name = MODX_BASE_PATH . trim(substr($params['output'], 6));
+                    $file_name = EVO_BASE_PATH . trim(substr($params['output'], 6));
                     if (!file_exists($file_name)) {
                         $widget_output = $file_name . ' does not exist';
                     } else {
                         $widget_output = file_get_contents($file_name);
                     }
                 } elseif (substr($params['output'], 0, 8) == '@INCLUDE') {
-                    $file_name = MODX_BASE_PATH . trim(substr($params['output'], 9));
+                    $file_name = EVO_BASE_PATH . trim(substr($params['output'], 9));
                     if (!file_exists($file_name)) {
                         $widget_output = $file_name . ' does not exist';
                     } else {
@@ -582,7 +579,7 @@ if (! function_exists('getTVDisplayFormat')) {
                 if (is_string($widget_output)) {
                     $_ = $modx->getConfig('enable_filter');
                     $modx->setConfig('enable_filter', 1);
-                    $widget_output = $modx->parseText($widget_output, array('value' => $value));
+                    $widget_output = $modx->parseText($widget_output, ['value' => $value]);
                     $modx->setConfig('enable_filter', $_);
                     $o = $modx->parseDocumentSource($widget_output);
                 } else {
@@ -633,7 +630,7 @@ if (! function_exists('parseInput')) {
         $modx = evolutionCMS();
         if ($modx->getDatabase()->isResult($src)) {
             // must be a recordset
-            $rows = array();
+            $rows = [];
             while ($cols = $modx->getDatabase()->getRow($src, 'num')) {
                 $rows[] = ($columns) ? $cols : implode(" ", $cols);
             }
@@ -661,7 +658,7 @@ if (! function_exists('getUnixtimeFromDateString')) {
         // Check for MySQL or legacy style date
         $date_match_1 = '/^([0-9]{2})-([0-9]{2})-([0-9]{4})\ ([0-9]{2}):([0-9]{2}):([0-9]{2})$/';
         $date_match_2 = '/^([0-9]{4})-([0-9]{2})-([0-9]{2})\ ([0-9]{2}):([0-9]{2}):([0-9]{2})$/';
-        $matches = array();
+        $matches = [];
         if (strpos($value, '-') !== false) {
             if (preg_match($date_match_1, $value, $matches)) {
                 $timestamp = mktime($matches[4], $matches[5], $matches[6], $matches[2], $matches[1], $matches[3]);
@@ -699,8 +696,8 @@ if (! function_exists('renderFormElement')) {
         $field_elements = '',
         $field_value = '',
         $field_style = '',
-        $row = array(),
-        $tvsArray = array(),
+        $row = [],
+        $tvsArray = [],
         $content = null,
         $properties = []
     ) {
@@ -717,6 +714,7 @@ if (! function_exists('renderFormElement')) {
 
         $field_html = '';
         $cimode = strpos($field_type, ':');
+        static $i = 0;
         if ($cimode === false) {
             switch ($field_type) {
                 case "text": // handler for regular text boxes
@@ -748,10 +746,10 @@ if (! function_exists('renderFormElement')) {
                     $field_html .= '<textarea id="tv' . $field_id . '" name="tv' . $field_id . '" cols="40" rows="15" onchange="documentDirty=true;" style="width:100%">' . $modx->getPhpCompat()->htmlspecialchars($field_value) . '</textarea>';
                     break;
                 case "date":
-                    $field_id = str_replace(array(
+                    $field_id = str_replace([
                         '-',
                         '.'
-                    ), '_', urldecode($field_id));
+                    ], '_', urldecode($field_id));
                     if ($field_value == '') {
                         $field_value = 0;
                     }
@@ -801,13 +799,13 @@ if (! function_exists('renderFormElement')) {
                     $field_html .= "</select>";
                     break;
                 case "url": // handles url input fields
-                    $urls = array(
+                    $urls = [
                         ''         => '--',
                         'http://'  => 'http://',
                         'https://' => 'https://',
                         'ftp://'   => 'ftp://',
                         'mailto:'  => 'mailto:'
-                    );
+                    ];
                     $field_html = '<table border="0" cellspacing="0" cellpadding="0"><tr><td><select id="tv' . $field_id . '_prefix" name="tv' . $field_id . '_prefix" onchange="documentDirty=true;">';
                     foreach ($urls as $k => $v) {
                         if (strpos($field_value, $v) === false) {
@@ -825,36 +823,33 @@ if (! function_exists('renderFormElement')) {
                     $index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id, '', 'tvform',
                         $tvsArray));
                     $tpl = '<label class="checkbox"><input type="checkbox" value="%s" id="tv_%s" name="tv%s[]" %s onchange="documentDirty=true;" />%s</label><br />';
-                    static $i = 0;
-                    $_ = array();
+                    $_ = [];
                     foreach ($index_list as $c => $item) {
                         if (is_array($item)) {
                             $name = trim($item[0]);
                             $value = isset($item[1]) ? $item[1] : $name;
                         } else {
                             $item = trim($item);
-                            [$name, $value] = (strpos($item, '==') !== false) ? array_merge(explode('==', $item, 2), ['']) : array(
+                            [$name, $value] = (strpos($item, '==') !== false) ? array_merge(explode('==', $item, 2), ['']) : [
                                 $item,
                                 $item
-                            );
+                            ];
                         }
                         $checked = in_array($value, $values) ? ' checked="checked"' : '';
-                        $param = array(
+                        $param = [
                             $modx->getPhpCompat()->htmlspecialchars($value),
                             $i,
                             $field_id,
                             $checked,
                             $name
-                        );
+                        ];
                         $_[] = vsprintf($tpl, $param);
                         $i++;
                     }
                     $field_html = implode("\n", $_);
                     break;
                 case "option": // handles radio buttons
-                    $index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id, '', 'tvform',
-                        $tvsArray));
-                    static $i = 0;
+                    $index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id, '', 'tvform', $tvsArray));
                     foreach($index_list as $item => $itemvalue) {
                         [$item, $itemvalue] = (is_array($itemvalue)) ? $itemvalue : array_merge(explode("==", $itemvalue), ['']);
                         if (strlen($itemvalue) == 0) {
@@ -914,14 +909,14 @@ if (! function_exists('renderFormElement')) {
                     $custom_output = '';
                     /* If we are loading a file */
                     if (substr($field_elements, 0, 5) == "@FILE") {
-                        $file_name = MODX_BASE_PATH . trim(substr($field_elements, 6));
+                        $file_name = EVO_BASE_PATH . trim(substr($field_elements, 6));
                         if (!file_exists($file_name)) {
                             $custom_output = $file_name . ' does not exist';
                         } else {
                             $custom_output = file_get_contents($file_name);
                         }
                     } elseif (substr($field_elements, 0, 8) == '@INCLUDE') {
-                        $file_name = MODX_BASE_PATH . trim(substr($field_elements, 9));
+                        $file_name = EVO_BASE_PATH . trim(substr($field_elements, 9));
                         if (!file_exists($file_name)) {
                             $custom_output = $file_name . ' does not exist';
                         } else {
@@ -944,13 +939,13 @@ if (! function_exists('renderFormElement')) {
                     } else {
                         $custom_output = $field_elements;
                     }
-                    $replacements = array(
+                    $replacements = [
                         '[+field_type+]'   => $field_type,
                         '[+field_id+]'     => $field_id,
                         '[+default_text+]' => $default_text,
                         '[+field_value+]'  => $modx->getPhpCompat()->htmlspecialchars($field_value),
                         '[+field_style+]'  => $field_style,
-                    );
+                    ];
                     $custom_output = str_replace(array_keys($replacements), $replacements, $custom_output);
                     $modx->documentObject = $content;
                     $modx->documentIdentifier = $content['id'];
@@ -965,7 +960,7 @@ if (! function_exists('renderFormElement')) {
         } else {
             $custom = explode(":", $field_type);
             $custom_output = '';
-            $file_name = MODX_BASE_PATH . 'assets/tvs/' . $custom['1'] . '/' . $custom['1'] . '.customtv.php';
+            $file_name = EVO_BASE_PATH . 'assets/tvs/' . $custom['1'] . '/' . $custom['1'] . '.customtv.php';
             if (!file_exists($file_name)) {
                 $custom_output = $file_name . ' does not exist';
             } else {
@@ -974,13 +969,13 @@ if (! function_exists('renderFormElement')) {
                 $custom_output = ob_get_contents();
                 ob_end_clean();
             }
-            $replacements = array(
+            $replacements = [
                 '[+field_type+]'   => $field_type,
                 '[+field_id+]'     => $field_id,
                 '[+default_text+]' => $default_text,
                 '[+field_value+]'  => $modx->getPhpCompat()->htmlspecialchars($field_value),
                 '[+field_style+]'  => $field_style,
-            );
+            ];
             $custom_output = str_replace(array_keys($replacements), $replacements, $custom_output);
             $modx->documentObject = $content;
             $custom_output = $modx->parseDocumentSource($custom_output);
@@ -991,15 +986,15 @@ if (! function_exists('renderFormElement')) {
     } // end renderFormElement function
 }
 
-if (! function_exists('ParseIntputOptions')) {
+if (! function_exists('ParseInputOptions')) {
     /**
-     * @param string|array|mysqli_result $v
+     * @param string|array $v
      * @return array
      */
-    function ParseIntputOptions($v)
+    function ParseInputOptions($v)
     {
         $modx = evolutionCMS();
-        $a = array();
+        $a = [];
         if (is_array($v)) {
             return $v;
         } else {
@@ -1016,5 +1011,18 @@ if (! function_exists('ParseIntputOptions')) {
         }
 
         return $a;
+    }
+}
+if (!function_exists('ParseIntputOptions')) {
+    /**
+     * @param $v
+     * @return array
+     * @todo [remove@3.7] Remove in Evolution CMS 3.7
+     * @deprecated
+     * @since 3.5.0
+     */
+    function ParseIntputOptions($v)
+    {
+        return ParseInputOptions($v);
     }
 }

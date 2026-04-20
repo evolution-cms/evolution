@@ -22,14 +22,16 @@ class RouteConfigurator
     use Traits\HostTrait;
     use Traits\RouteTrait;
 
-    protected $parentConfigurator;
-
-    public function __construct(RouteCollection $collection, RouteCollection $route, string $name = '', CollectionConfigurator $parentConfigurator = null, array $prefixes = null)
-    {
+    public function __construct(
+        RouteCollection $collection,
+        RouteCollection $route,
+        string $name = '',
+        protected ?CollectionConfigurator $parentConfigurator = null, // for GC control
+        ?array $prefixes = null,
+    ) {
         $this->collection = $collection;
         $this->route = $route;
         $this->name = $name;
-        $this->parentConfigurator = $parentConfigurator; // for GC control
         $this->prefixes = $prefixes;
     }
 
@@ -40,9 +42,16 @@ class RouteConfigurator
      *
      * @return $this
      */
-    final public function host($host): self
+    final public function host(string|array $host): static
     {
+        $previousRoutes = clone $this->route;
         $this->addHost($this->route, $host);
+        foreach ($previousRoutes as $name => $route) {
+            if (!$this->route->get($name)) {
+                $this->collection->remove($name);
+            }
+        }
+        $this->collection->addCollection($this->route);
 
         return $this;
     }

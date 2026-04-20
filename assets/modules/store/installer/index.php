@@ -1,42 +1,36 @@
 <?php
-/*
-error_reporting(E_ALL & ~E_NOTICE);
+define('MGR', EVO_BASE_PATH . MGR_DIR);
 
-define('MODX_BASE_PATH',realpath('../../../../').'/');
-include_once(MODX_BASE_PATH."assets/cache/siteManager.php");*/
-define('MGR',MODX_BASE_PATH.MGR_DIR);
-/*define('MODX_API_MODE', true);
-define('IN_MANAGER_MODE', true);
-include_once (MODX_BASE_PATH . '/index.php');*/
-$modx = EvolutionCMS();
-$modx->invokeEvent('OnManagerPageInit');
-if( ! defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true || ! $modx->hasPermission('exec_module')) {
+$modx = evo();
+$GLOBALS['modx'] = $modx;
+
+evo()->invokeEvent('OnManagerPageInit');
+if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true || !evo()->hasPermission('exec_module')) {
 	die('<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the EVO Content Manager instead of accessing this file directly.');
 }
 
-$moduleurl = MODX_SITE_URL.'assets/modules/store/installer/index.php';
-$modulePath = MODX_BASE_PATH.'assets/modules/store/installer/';
-$self = $modulePath.'/index.php';
-require_once($modulePath."/functions.php");
+$moduleurl = EVO_SITE_URL . 'assets/modules/store/installer/index.php';
+$modulePath = EVO_BASE_PATH . 'assets/modules/store/installer/';
+$self = $modulePath . '/index.php';
+require_once($modulePath . "/functions.php");
 
 $_lang = array();
 $_params = array();
-$lang = $modx->config['manager_language'];
-if (file_exists($modulePath.'/lang/'.$lang.'.inc.php')){
-	include_once($modulePath.'/lang/'.$lang.'.inc.php');
-
+$lang = evo()->config['manager_language'];
+if (file_exists($modulePath . '/lang/' . $lang . '.inc.php')){
+	include_once($modulePath . '/lang/' . $lang . '.inc.php');
 } else {
-	include_once($modulePath.'/lang/en.inc.php');
+	include_once($modulePath . '/lang/en.inc.php');
 }
-include_once(MODX_BASE_PATH."assets/cache/siteManager.php");
-require_once(MGR.'/includes/version.inc.php');
+include_once(EVO_BASE_PATH . "assets/cache/siteManager.php");
+require_once(MGR . '/includes/version.inc.php');
 
 $_SESSION['test'] = 1;
 install_sessionCheck();
 
-$moduleName = "MODX";
-$moduleVersion = $modx_branch.' '.$modx_version;
-$moduleRelease = $modx_release_date;
+$moduleName = "Evolution CMS";
+$moduleVersion = $evo_branch . ' ' . $evo_version;
+$moduleRelease = $evo_release_date;
 $moduleSQLBaseFile = "setup.sql";
 $moduleSQLDataFile = "setup.data.sql";
 
@@ -52,21 +46,17 @@ $errors= 0;
 
 // get post back status
 $isPostBack = (count($_POST));
-$action= isset ($_GET['action']) ? trim(strip_tags($_GET['action'])) : 'load';
+$action = isset($_GET['action']) && in_array($_GET['action'], ['load', 'options', 'install']) ? $_GET['action'] : 'load';
 
 ob_start();
 echo '<!DOCTYPE html>
 <html><head><title>Install</title>
 <meta http-equiv="Content-Type" content="text/html; charset="utf-8" />
-<link rel="stylesheet" href="'.MODX_SITE_URL.'assets/modules/store/installer/style.css" type="text/css" media="screen" /></head>
+<link rel="stylesheet" href="' . EVO_SITE_URL . 'assets/modules/store/installer/style.css" type="text/css" media="screen" /></head>
 <body><div id="contentarea"><div class="container_12"><br>';
 
-
-if (!@include ($modulePath.'/action.' . $action . '.php')) {
-	die ('Invalid install action attempted. [action=' . $action . ']');
-}
+include($modulePath . '/action.' . $action . '.php');
 
 echo "</div><!-- // content --></div><!-- // contentarea --><br /></body></html>";
 ob_end_flush();
-
 ?>

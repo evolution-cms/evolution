@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>[(site_name)] (Evolution CMS Manager Login)</title>
+    <title>[+site_name_text+] (Evolution CMS Manager Login)</title>
     <meta http-equiv="content-type" content="text/html; charset=[(modx_charset)]" />
     <meta name="robots" content="noindex, nofollow" />
     <meta name="viewport" content="width=device-width">
@@ -63,8 +63,8 @@
         [+OnManagerLoginFormPrerender+]
         <fieldset>
             <div class="text-center">
-                <a class="logo" href="../" title="[(site_name)]">
-                    <img src="media/style/[(manager_theme)]/images/misc/login-logo.png" alt="[(site_name)]" id="logo" />
+                <a class="logo" href="../" title="[+site_name_attr+]">
+                    <img src="media/style/[(manager_theme)]/images/misc/login-logo.png" alt="[+site_name_attr+]" id="logo" />
                 </a>
             </div>
             <label for="username">[%username%]</label>
@@ -83,7 +83,7 @@
     </form>
 </div>
 <p class="loginLicense"></p>
-<div class="gpl">&copy; 2005-2023 by the <a href="https://evo.im/" target="_blank">Evolution CMS</a>. <strong>Evolution CMS</strong>&trade; is licensed under the GPL.</div>
+<div class="gpl">&copy; 2004 - 2026 by the <a href="https://evo.im/" target="_blank">Evolution CMS</a>. <strong>Evolution CMS</strong>&trade; is licensed under the GPL.</div>
 </body>
 <script type="text/javascript">
     /* <![CDATA[ */
@@ -103,9 +103,9 @@
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;');
         xhr.onload = function() {
             if(this.readyState === 4) {
-                var header = this.response.substr(0, 9);
+                var header = this.response.slice(0, 9);
                 if(header.toLowerCase() === 'location:') {
-                    window.location = this.response.substr(10);
+                    window.location = this.response.slice(10);
                 } else {
                     var cimg = document.getElementById('captcha_image');
                     if(cimg) cimg.src = 'captcha.php?rand=' + Math.random();

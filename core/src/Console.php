@@ -37,7 +37,7 @@ class Console extends Artisan
 
     private function SetRequestForConsole()
     {
-        $uri = evo()->getConfig('site_url');
+        $uri = evo()->getConfig('site_url', '');
 
         $components = parse_url($uri);
 

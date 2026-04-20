@@ -23,6 +23,7 @@ use Composer\Util\ComposerMirror;
  *
  * @phpstan-import-type AutoloadRules from PackageInterface
  * @phpstan-import-type DevAutoloadRules from PackageInterface
+ * @phpstan-import-type PhpExtConfig from PackageInterface
  */
 class Package extends BasePackage
 {
@@ -98,6 +99,11 @@ class Package extends BasePackage
     protected $isDefaultBranch = false;
     /** @var mixed[] */
     protected $transportOptions = [];
+    /**
+     * @var array|null
+     * @phpstan-var PhpExtConfig|null
+     */
+    protected $phpExt = null;
 
     /**
      * Creates a new in memory package.
@@ -271,9 +277,6 @@ class Package extends BasePackage
         return $this->getUrls($this->sourceUrl, $this->sourceMirrors, $this->sourceReference, $this->sourceType, 'source');
     }
 
-    /**
-     * @param string $type
-     */
     public function setDistType(?string $type): void
     {
         $this->distType = $type === '' ? null : $type;
@@ -287,9 +290,6 @@ class Package extends BasePackage
         return $this->distType;
     }
 
-    /**
-     * @param string|null $url
-     */
     public function setDistUrl(?string $url): void
     {
         $this->distUrl = $url === '' ? null : $url;
@@ -303,9 +303,6 @@ class Package extends BasePackage
         return $this->distUrl;
     }
 
-    /**
-     * @param string $reference
-     */
     public function setDistReference(?string $reference): void
     {
         $this->distReference = $reference;
@@ -319,9 +316,6 @@ class Package extends BasePackage
         return $this->distReference;
     }
 
-    /**
-     * @param string $sha1checksum
-     */
     public function setDistSha1Checksum(?string $sha1checksum): void
     {
         $this->distSha1Checksum = $sha1checksum;
@@ -588,6 +582,25 @@ class Package extends BasePackage
     public function getIncludePaths(): array
     {
         return $this->includePaths;
+    }
+
+    /**
+     * Sets the settings for php extension packages
+     *
+     *
+     * @phpstan-param PhpExtConfig|null $phpExt
+     */
+    public function setPhpExt(?array $phpExt): void
+    {
+        $this->phpExt = $phpExt;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getPhpExt(): ?array
+    {
+        return $this->phpExt;
     }
 
     /**

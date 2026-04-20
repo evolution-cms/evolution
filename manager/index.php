@@ -2,7 +2,7 @@
 /*
 *************************************************************************
 	Evolution CMS Content Management System and PHP Application Framework ("EVO")
-	Managed and maintained by Dmytro Lukianenko and the	EVO community
+	Managed and maintained by Dmytro Lukianenko, Serhii Korneliuk and the EVO community
 *************************************************************************
 	EVO is an opensource PHP/MySQL content management system and content
 	management framework that is flexible, adaptable, supports XHTML/CSS
@@ -33,7 +33,7 @@
 
 **************************************************************************
 	Based on MODX Evolution CMS and Application Framework
-	Copyright 2005 and forever thereafter by Raymond Irving & Ryan Thrash.
+	Copyright 2004 and forever thereafter by Raymond Irving & Ryan Thrash.
 	All rights reserved.
 
 	MODX Evolution is originally based on Etomite by Alex Butter
@@ -65,11 +65,11 @@ if (!defined('IN_INSTALL_MODE')) {
     define('IN_INSTALL_MODE', false);
 }
 
-if (!defined('MODX_API_MODE')) {
-    define('MODX_API_MODE', false);
+if (!defined('EVO_API_MODE')) {
+    define('EVO_API_MODE', false);
 }
 
-if (! defined('IN_PARSER_MODE')) {
+if (!defined('IN_PARSER_MODE')) {
     define('IN_PARSER_MODE', false);
 }
 
@@ -110,11 +110,10 @@ header('Pragma: no-cache');
 header('X-UA-Compatible: IE=edge;FF=3;OtherUA=4');
 header('X-XSS-Protection: 0');
 
-// check PHP version. EVO is compatible with php 5 (5.6.0+)
-$php_ver_comp = version_compare(phpversion(), "7.1.3");
+$php_ver_comp = version_compare(phpversion(), "8.3");
 // -1 if left is less, 0 if equal, +1 if left is higher
 if ($php_ver_comp < 0) {
-    echo 'Evolution CMS is compatible with PHP version 7.1.3 and higher. This server is using version ' . phpversion() . '. Please upgrade your PHP installation!';
+    echo 'Evolution CMS is compatible with PHP version 8.3 and higher. This server is using version ' . phpversion() . '. Please upgrade your PHP installation!';
     exit;
 }
 
@@ -133,18 +132,31 @@ if (!isset($_SERVER['DOCUMENT_ROOT']) || empty($_SERVER['DOCUMENT_ROOT'])) {
         ) . "/";
 }
 
-// initiate the content manager class
-$modx = evolutionCMS();
-$modx->mstart = $mstart;
-$modx->sid = session_id();
+/**
+ * @deprecated
+ * @since 3.5.3
+ *
+ * Use $evo or/and evo() instead.
+ *
+ * @todo [remove@3.7] Remove in Evolution CMS 3.7
+ */
+$GLOBALS['modx'] = $modx = evo();
+// Initiate a new document parser
+$GLOBALS['evo'] = $evo = evo();
+$evo->mstart = $mstart;
+$useLaravelSession = defined('EVO_SESSION') && EVO_SESSION;
+if ($useLaravelSession) {
+    \EvoSessionProxy::init();
+}
+$evo->sid = session_id();
 
-//$settings = $modx->allConfig();
+//$settings = $evo->allConfig();
 //extract($settings, EXTR_OVERWRITE);
 
 
 // Initialize System Alert Message Queque
 if (!isset($_SESSION['SystemAlertMsgQueque'])) {
-    $_SESSION['SystemAlertMsgQueque'] = array();
+    $_SESSION['SystemAlertMsgQueque'] = [];
 }
 $SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
@@ -157,6 +169,6 @@ header('Content-Type: text/html; charset=' . ManagerTheme::getCharset());
 $action = 0;
 
 // Update table active_user_sessions
-$modx->updateValidatedUserSession();
+$evo->updateValidatedUserSession();
 
 ManagerTheme::handleRoute();

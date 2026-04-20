@@ -1,19 +1,25 @@
 <?php
 error_reporting(E_ALL & ~E_NOTICE);
-if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true || !EvolutionCMS()->hasPermission('exec_module')) {
+if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true || !evo()->hasPermission('exec_module')) {
     die('<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the EVO Content Manager instead of accessing this file directly.');
 }
 
-//:: MODx Installer Setup file
+//:: Evolution CMS Installer Setup file
 //:::::::::::::::::::::::::::::::::::::::::
 require_once(MGR . '/includes/version.inc.php');
-$installPath = MODX_BASE_PATH . 'assets/cache/store/install';
-if (!isset($modx_branch)) $modx_branch = '';
-if (!isset($modx_version)) $modx_version = '';
-if (!isset($modx_release_date)) $modx_release_date = '';
-$moduleName = "MODX";
-$moduleVersion = $modx_branch . ' ' . $modx_version;
-$moduleRelease = $modx_release_date;
+$installPath = EVO_BASE_PATH . 'assets/cache/store/install';
+if (!isset($evo_branch)) {
+    $evo_branch = '';
+}
+if (!isset($evo_version)) {
+    $evo_version = '';
+}
+if (!isset($evo_release_date)) {
+    $evo_release_date = '';
+}
+$moduleName = "Evolution CMS";
+$moduleVersion = $evo_branch . ' ' . $evo_version;
+$moduleRelease = $evo_release_date;
 $moduleSQLBaseFile = "setup.sql";
 $moduleSQLDataFile = "install/setup.data.sql";
 $chunkPath = $installPath . '/install/assets/chunks';
@@ -105,7 +111,6 @@ if (is_dir($chunkPath) && is_readable($chunkPath)) {
 $ms = &$moduleSnippets;
 
 if (is_dir($snippetPath) && is_readable($snippetPath)) {
-
     $d = dir($snippetPath);
     while (false !== ($tplfile = $d->read())) {
         if (substr($tplfile, -4) != '.tpl') {
@@ -154,7 +159,6 @@ if (is_dir($pluginPath) && is_readable($pluginPath)) {
         }
     }
     $d->close();
-
 }
 
 // setup modules - array : name, description, type - 0:file or 1:content, file or content, properties, guid, enable_sharedparams, icon
@@ -191,75 +195,47 @@ function clean_up($sqlParser)
 {
     $ids = array();
     $mysqlVerOk = -1;
+    $table_prefix = evo()->getDatabase()->getConfig('prefix');
 
     if (function_exists("mysql_get_server_info")) {
         $mysqlVerOk = (version_compare(mysql_get_server_info(), "4.0.2") >= 0);
     }
 
     // secure web documents - privateweb
-    mysql_query("UPDATE `" . $modx->db->config['table_prefix'] . "site_content` SET privateweb = 0 WHERE privateweb = 1", $sqlParser->conn);
+    mysql_query("UPDATE `" . $table_prefix . "site_content` SET privateweb = 0 WHERE privateweb = 1", $sqlParser->conn);
     $sql = "SELECT DISTINCT sc.id
-             FROM `" . $modx->db->config['table_prefix'] . "site_content` sc
-             LEFT JOIN `" . $modx->db->config['table_prefix'] . "document_groups` dg ON dg.document = sc.id
-             LEFT JOIN `" . $modx->db->config['table_prefix'] . "webgroup_access` wga ON wga.documentgroup = dg.document_group
+             FROM `" . $table_prefix . "site_content` sc
+             LEFT JOIN `" . $table_prefix . "document_groups` dg ON dg.document = sc.id
+             LEFT JOIN `" . $table_prefix . "webgroup_access` wga ON wga.documentgroup = dg.document_group
              WHERE wga.id>0";
-    $ds = $modx->db->queryquery($sql);
+    $ds = evo()->getDatabase()->query($sql);
     if (!$ds) {
         echo "An error occurred while executing a query: " . mysql_error();
     } else {
-        while ($r = $modx->db->GetRow($ds, 'assoc')) $ids[] = $r["id"];
+        while ($r = evo()->getDatabase()->GetRow($ds, 'assoc')) $ids[] = $r["id"];
         if (count($ids) > 0) {
-            mysql_query("UPDATE `" . $modx->db->config['table_prefix'] . "site_content` SET privateweb = 1 WHERE id IN (" . implode(", ", $ids) . ")");
+            mysql_query("UPDATE `" . $table_prefix . "site_content` SET privateweb = 1 WHERE id IN (" . implode(", ", $ids) . ")");
             unset($ids);
         }
     }
 
     // secure manager documents privatemgr
-    mysql_query("UPDATE `" . $modx->db->config['table_prefix'] . "site_content` SET privatemgr = 0 WHERE privatemgr = 1");
+    mysql_query("UPDATE `" . $table_prefix . "site_content` SET privatemgr = 0 WHERE privatemgr = 1");
     $sql = "SELECT DISTINCT sc.id
-             FROM `" . $modx->db->config['table_prefix'] . "site_content` sc
-             LEFT JOIN `" . $modx->db->config['table_prefix'] . "document_groups` dg ON dg.document = sc.id
-             LEFT JOIN `" . $modx->db->config['table_prefix'] . "membergroup_access` mga ON mga.documentgroup = dg.document_group
+             FROM `" . $table_prefix . "site_content` sc
+             LEFT JOIN `" . $table_prefix . "document_groups` dg ON dg.document = sc.id
+             LEFT JOIN `" . $table_prefix . "membergroup_access` mga ON mga.documentgroup = dg.document_group
              WHERE mga.id>0";
-    $ds = $modx->db->query($sql);
+    $ds = evo()->getDatabase()->query($sql);
     if (!$ds) {
         echo "An error occurred while executing a query: " . mysql_error();
     } else {
-        while ($r = $modx->db->GetRow($ds, 'assoc')) $ids[] = $r["id"];
+        while ($r = evo()->getDatabase()->GetRow($ds, 'assoc')) $ids[] = $r["id"];
         if (count($ids) > 0) {
-            $modx->db->query("UPDATE `" . $modx->db->config['table_prefix'] . "site_content` SET privatemgr = 1 WHERE id IN (" . implode(", ", $ids) . ")");
+            evo()->getDatabase()->query("UPDATE `" . $table_prefix . "site_content` SET privatemgr = 1 WHERE id IN (" . implode(", ", $ids) . ")");
             unset($ids);
         }
     }
-
-    /**** Add Quick Plugin to Module
-     * // get quick edit module id
-     * $ds = mysql_query("SELECT id FROM `".$sqlParser->prefix."site_modules` WHERE name='QuickEdit'");
-     * if(!$ds) {
-     * echo "An error occurred while executing a query: ".mysql_error();
-     * }
-     * else {
-     * $row = mysql_fetch_assoc($ds);
-     * $moduleid=$row["id"];
-     * }
-     * // get plugin id
-     * $ds = mysql_query("SELECT id FROM `".$sqlParser->prefix."site_plugins` WHERE name='QuickEdit'");
-     * if(!$ds) {
-     * echo "An error occurred while executing a query: ".mysql_error();
-     * }
-     * else {
-     * $row = mysql_fetch_assoc($ds);
-     * $pluginid=$row["id"];
-     * }
-     * // setup plugin as module dependency
-     * $ds = mysql_query("SELECT module FROM `".$sqlParser->prefix."site_module_depobj` WHERE module='$moduleid' AND resource='$pluginid' AND type='30' LIMIT 1");
-     * if(!$ds) {
-     * echo "An error occurred while executing a query: ".mysql_error();
-     * }
-     * elseif (mysql_num_rows($ds)==0){
-     * mysql_query("INSERT INTO `".$sqlParser->prefix."site_module_depobj` (module, resource, type) VALUES('$moduleid','$pluginid',30)");
-     * }
-     ***/
 }
 
 function parse_docblock($element_dir, $filename)
@@ -311,7 +287,6 @@ function parse_docblock($element_dir, $filename)
                                     $param = trim($ma[1]);
                                     $val = trim($ma[2]);
                                 }
-                                //if($val !== '0' && (empty($param) || empty($val))) {
                                 if (empty($param)) {
                                     continue;
                                 }

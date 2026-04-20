@@ -89,11 +89,11 @@ $_lang["category_manager"] = 'Category Manager';
 $_lang["category_management"] = 'Category management';
 $_lang["manage_categories"] = 'Manage Categories';
 $_lang["category_msg"] = 'Aquí puedes ver y editar todos los Elementos agrupados por categoría.';
-$_lang["cfg_base_path"] = 'MODX_BASE_PATH';
-$_lang["cfg_base_url"] = 'MODX_BASE_URL';
-$_lang["cfg_manager_path"] = 'MODX_MANAGER_PATH';
-$_lang["cfg_manager_url"] = 'MODX_MANAGER_URL';
-$_lang["cfg_site_url"] = 'MODX_SITE_URL';
+$_lang["cfg_base_path"] = 'EVO_BASE_PATH';
+$_lang["cfg_base_url"] = 'EVO_BASE_URL';
+$_lang["cfg_manager_path"] = 'EVO_MANAGER_PATH';
+$_lang["cfg_manager_url"] = 'EVO_MANAGER_URL';
+$_lang["cfg_site_url"] = 'EVO_SITE_URL';
 $_lang["change_name"] = 'Cambiar nombre';
 $_lang["change_password"] = 'Cambiar Contraseña';
 $_lang["change_password_confirm"] = 'Confirmar Contraseña';
@@ -373,7 +373,9 @@ $_lang["group_access_permissions"] = 'Acceso de grupo de usuarios';
 $_lang['group_tvs'] = 'Group TV';
 $_lang["guid"] = 'GUID';
 $_lang["help"] = 'Ayuda';
-$_lang["help_msg"] = '<p>Puede obtener soporte gratuito de la comunidad <a href="http://forums.modx.com" target="_blank">visitando los foros de EVO</a>.  También hay un cumulo creciente de <a href="http://evolution-docs.com" target="_blank">Documentación y Guías EVO</a> que tocan virtualmente todos los aspectos de EVO.</p><p>Estamos planeando ofrecer servicios de soporte comercial para EVO. Por favor, <a href="mailto:hello@modx.com?subject=MODX Commercial Support Inquiry">envíenos un mensaje si está interesado</a>.';
+$_lang["help_donate_msg"] = 'Comprar café para los desarrolladores de Evolution CMS. <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> ¡Hazte fan de Evolution CMS hoy! ❤️ Ko-fi te permite apoyar a los creadores que amas sin ninguna tarifa de donación.';
+$_lang["help_donate_title"] = 'Para el desarrollo de Evolution CMS';
+$_lang["help_msg"] = '<p>Puede obtener soporte gratuito de la comunidad <a href="https://forum.evo.im" target="_blank">visitando los foros de EVO</a>.  También hay un cumulo creciente de <a href="http://evolution-docs.com" target="_blank">Documentación y Guías EVO</a> que tocan virtualmente todos los aspectos de EVO.</p><p>Estamos planeando ofrecer servicios de soporte comercial para EVO. Por favor, <a href="mailto:hello@modx.com?subject=MODX Commercial Support Inquiry">envíenos un mensaje si está interesado</a>.';
 $_lang["help_title"] = 'Ayuda';
 $_lang["hide_tree"] = 'Ocultar árbol';
 $_lang["home"] = 'Cuadro de Mando';
@@ -536,7 +538,7 @@ $_lang["modx_news"] = 'Noticias de EVO';
 $_lang["modx_news_tab"] = 'Noticias de EVO';
 $_lang["modx_news_title"] = 'Noticias de EVO';
 $_lang["modx_security_notices"] = 'Notas de Seguridad de EVO';
-$_lang["modx_version"] = 'Versión de EVO';
+$_lang["evo_version"] = 'Versión de EVO';
 $_lang["monday"] = 'Lunes';
 $_lang["move"] = 'Mover';
 $_lang["move_resource"] = 'Mover documento';
@@ -767,7 +769,7 @@ $_lang["role_create_doc"] = 'Crear documentos nuevos';
 $_lang["role_create_plugin"] = 'Crear plugins nuevos';
 $_lang["role_create_snippet"] = 'Crear snippets nuevos';
 $_lang["role_create_template"] = 'Crear templates del sitio nuevos';
-$_lang["role_credits"] = 'Ver los créditos';
+$_lang["role_widget_online_info"] = 'Ver widget Usuarios en línea';
 $_lang["role_delete_chunk"] = 'Borrar chunks';
 $_lang["role_delete_doc"] = 'Borrar documentos';
 $_lang["role_delete_eventlog"] = 'Borrar bitácora de eventos';
@@ -799,7 +801,7 @@ $_lang["role_frames"] = 'Solicitar marcos del administrador';
 $_lang["role_help"] = 'Ver las páginas de ayuda';
 $_lang["role_home"] = 'Solicitar página de inicio del administrador';
 $_lang["role_import_static"] = 'Importar HTML';
-$_lang["role_logout"] = 'Salir del administrador';
+$_lang["role_widget_recent_info"] = 'Ver widget Documentos recientemente editados/creados';
 $_lang["role_manage_metatags"] = 'Administrar las etiquetas META y las Palabras clave del sitio';
 $_lang["role_management_msg"] = 'Elige el rol que deseas editar.';
 $_lang["role_management_title"] = 'Roles';
@@ -961,9 +963,9 @@ $_lang["sys_alert"] = 'Alerta de Sistema';
 $_lang["sysinfo_activity_message"] = 'Esta lista muestra qué documentos han sido editados recientemente por tus usuarios.';
 $_lang["sysinfo_userid"] = 'Usuario';
 $_lang["system"] = 'System';
-$_lang["system_email_signup"] = 'Hola [+uid+] 
+$_lang["system_email_signup"] = 'Hola [+uid+]
 <html>
-Hello [+uid+] 
+Hello [+uid+]
 
 Aquí tienes los detalles de inicio de sesión para el Administrador de Contenido de [+sname+]:
 
@@ -989,7 +991,7 @@ Si no solicitaste este email entonces por favor ignóralo.
 
 Saludos,
 El Administrador';
-$_lang["system_email_websignup"] = 'Hola [+uid+] 
+$_lang["system_email_websignup"] = 'Hola [+uid+]
 
 Aquí tienes los detalles de ingreso para [+sname+]:
 
@@ -1182,7 +1184,7 @@ $_lang["yourinfo_username"] = 'Estás ingresado como:';
 $_lang["a17_error_reporting_title"] = 'Nivel de detección de errores de PHP';
 $_lang["a17_error_reporting_msg"] = 'Set the detection level of the PHP errors.';
 $_lang["a17_error_reporting_opt0"] = 'Ignora todo';
-$_lang["a17_error_reporting_opt1"] = 'Ignore warnings of a slight notice level (<a href="https://www.google.com/search?q=E_DEPRECATED+E_STRICT" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT</a>)';
+$_lang["a17_error_reporting_opt1"] = 'Ignore warnings of a slight notice level (<a href="https://www.google.com/search?q=E_DEPRECATED+E_NOTICE" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED</a>)';
 $_lang["a17_error_reporting_opt2"] = 'Detect all errors except E_NOTICE and E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt99"] = 'Detect all except E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt199"] = 'Detect all';
@@ -1209,7 +1211,7 @@ $_lang["bkmgr_run_sql_direct_label"] = 'Direct execute SQL commands';
 $_lang["bkmgr_run_sql_submit"] = 'Ejecutar restaurar';
 $_lang["bkmgr_run_sql_result"] = 'Resultado';
 $_lang["bkmgr_snapshot_title"] = 'Snapshot save and recovery';
-$_lang["bkmgr_snapshot_msg"] = '<p>The contents of the database are saved in and restored from a server directory.<br />Location: [+snapshot_path+] ($modx->config[\'snapshot_path\'])</p>';
+$_lang["bkmgr_snapshot_msg"] = '<p>The contents of the database are saved in and restored from a server directory.<br />Location: [+snapshot_path+] (evo()->getConfig(\'snapshot_path\'))</p>';
 $_lang["bkmgr_snapshot_submit"] = 'Add snapshot';
 $_lang["bkmgr_snapshot_list_title"] = 'List of snapshots';
 $_lang["bkmgr_restore_submit"] = 'Revertir estos datos';
@@ -1266,6 +1268,8 @@ $_lang["disabled_at_login"] = 'Deshabilitado al iniciar sesión';
 $_lang["cache_type_title"] = 'Tipo de caché de documentos';
 $_lang["cache_type_1"] = 'Cache is based only on Resource ID (standard)';
 $_lang["cache_type_2"] = 'Cache is based on Resource ID and $_GET parameters';
+$_lang["html_comment_title"] = 'Comentario HTML';
+$_lang["html_comment_message"] = 'Lista de tipos de elementos separados por comas para envolver con comentarios HTML en el código fuente de la página: <b>snippets</b>, <b>chunks</b>, <b>tvs</b>, <b>snippetParams</b>';
 $_lang["seostrict_title"] = 'Usar URLs estrictas de SEO';
 $_lang["seostrict_message"] = 'Enforces the use of strict URLs to prevent duplicate content (if needed)';
 $_lang["aliaslistingfolder_title"] = 'Use AliasListing only for Folders';
@@ -1317,8 +1321,6 @@ $_lang["dp_startDay"]   = "1";
 $_lang["check_all"] = "Selecciona Todo";
 $_lang["check_none"] = "No seleccionar nada";
 $_lang["check_toggle"] = "Invertir selección";
-
-$_lang["version_notices"] = "Avisos de la versión";
 
 $_lang["em_button_shift"] = " (Shift-Mouseclick to open multiple windows)";
 
@@ -1458,5 +1460,12 @@ $_lang["role_tv_msg"] = 'The Variables assigned to this Role are listed below.';
 $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to access/process this Template Variable';
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
+
+$_lang["file_groups_saved"] = 'Permisos de acceso guardados.';
+$_lang["file_groups_edit"] = 'Editar permisos de acceso';
+$_lang["files_groups"] = 'Grupos de recursos:';
+$_lang["access_permissions_file_message"] = 'Seleccione a qué Grupos de recursos pertenece este archivo:';
+$_lang["access_permissions_dir_message"] = 'Seleccione a qué Grupos de recursos pertenece este directorio:';
+$_lang["all_file_groups"] = 'Todos los grupos de recursos (Público)';
 
 return $_lang;

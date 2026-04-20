@@ -8,7 +8,7 @@ use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 class ServiceProvider extends BaseServiceProvider
 {
     /**
-     * Массовая регистрация виртуальных сниппетов с использованием неймспейса
+     * Mass registration of virtual snippets using namespace
      *
      * @param $path
      * @param $namespace
@@ -16,14 +16,14 @@ class ServiceProvider extends BaseServiceProvider
      */
     protected function loadSnippetsFrom($path, $namespace = '')
     {
-        $found = $this->app->findElements('snippet', $path, array('php'));
+        $found = $this->app->findElements('snippet', $path, ['php']);
         foreach ($found as $name => $code) {
             $this->addSnippet($name, $code, $namespace);
         }
     }
 
     /**
-     * Массовая регистрация виртуальных чанков с использованием неймспейса
+     * Mass registration of virtual chunks using namespace
      *
      * @param $path
      * @param $namespace
@@ -31,14 +31,14 @@ class ServiceProvider extends BaseServiceProvider
      */
     protected function loadChunksFrom($path, $namespace = '')
     {
-        $found = $this->app->findElements('chunk', $path, array('tpl', 'html'));
+        $found = $this->app->findElements('chunk', $path, ['tpl', 'html']);
         foreach ($found as $name => $code) {
             $this->addChunk($name, $code, $namespace);
         }
     }
 
     /**
-     * Массовая регистрация виртуальных плагинов
+     * Bulk registration of virtual plugins
      *
      * @param $path
      * @throws \Exception
@@ -52,7 +52,7 @@ class ServiceProvider extends BaseServiceProvider
 
 
     /**
-     * Регистрация виртуального сниппета с использованием неймспейса
+     * Registering a virtual snippet using namespace
      *
      * @param $name
      * @param $code
@@ -64,7 +64,7 @@ class ServiceProvider extends BaseServiceProvider
     }
 
     /**
-     * Регистрация виртуального чанка с использованием неймспейса
+     * Registering a virtual chunk using namespace
      *
      * @param $name
      * @param $code

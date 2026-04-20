@@ -37,6 +37,7 @@ class ArrayDumper
             'devAutoload' => 'autoload-dev',
             'notificationUrl' => 'notification-url',
             'includePaths' => 'include-path',
+            'phpExt' => 'php-ext',
         ];
 
         $data = [];
@@ -44,11 +45,11 @@ class ArrayDumper
         $data['version'] = $package->getPrettyVersion();
         $data['version_normalized'] = $package->getVersion();
 
-        if ($package->getTargetDir()) {
+        if ($package->getTargetDir() !== null) {
             $data['target-dir'] = $package->getTargetDir();
         }
 
-        if ($package->getSourceType()) {
+        if ($package->getSourceType() !== null) {
             $data['source']['type'] = $package->getSourceType();
             $data['source']['url'] = $package->getSourceUrl();
             if (null !== ($value = $package->getSourceReference())) {
@@ -59,7 +60,7 @@ class ArrayDumper
             }
         }
 
-        if ($package->getDistType()) {
+        if ($package->getDistType() !== null) {
             $data['dist']['type'] = $package->getDistType();
             $data['dist']['url'] = $package->getDistUrl();
             if (null !== ($value = $package->getDistReference())) {
@@ -74,15 +75,18 @@ class ArrayDumper
         }
 
         foreach (BasePackage::$supportedLinkTypes as $type => $opts) {
-            if ($links = $package->{'get'.ucfirst($opts['method'])}()) {
-                foreach ($links as $link) {
-                    $data[$type][$link->getTarget()] = $link->getPrettyConstraint();
-                }
-                ksort($data[$type]);
+            $links = $package->{'get'.ucfirst($opts['method'])}();
+            if (\count($links) === 0) {
+                continue;
             }
+            foreach ($links as $link) {
+                $data[$type][$link->getTarget()] = $link->getPrettyConstraint();
+            }
+            ksort($data[$type]);
         }
 
-        if ($packages = $package->getSuggests()) {
+        $packages = $package->getSuggests();
+        if (\count($packages) > 0) {
             ksort($packages);
             $data['suggest'] = $packages;
         }
@@ -130,7 +134,7 @@ class ArrayDumper
 
         if ($package instanceof RootPackageInterface) {
             $minimumStability = $package->getMinimumStability();
-            if ($minimumStability) {
+            if ($minimumStability !== '') {
                 $data['minimum-stability'] = $minimumStability;
             }
         }

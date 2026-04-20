@@ -15,6 +15,7 @@ namespace Composer\IO;
 use Composer\Config;
 use Composer\Pcre\Preg;
 use Composer\Util\ProcessExecutor;
+use Composer\Util\Silencer;
 use Psr\Log\LogLevel;
 
 abstract class BaseIO implements IOInterface
@@ -118,8 +119,11 @@ abstract class BaseIO implements IOInterface
         $githubOauth = $config->get('github-oauth');
         $gitlabOauth = $config->get('gitlab-oauth');
         $gitlabToken = $config->get('gitlab-token');
+        $forgejoToken = $config->get('forgejo-token');
         $httpBasic = $config->get('http-basic');
         $bearerToken = $config->get('bearer');
+        $customHeaders = $config->get('custom-headers');
+        $clientCertificate = $config->get('client-certificate');
 
         // reload oauth tokens from config if available
 
@@ -162,6 +166,15 @@ abstract class BaseIO implements IOInterface
             $this->checkAndSetAuthentication($domain, $username, $password);
         }
 
+        foreach ($forgejoToken as $domain => $cred) {
+            if (!in_array($domain, $config->get('forgejo-domains'), true)) {
+                $this->debug($domain.' is not in the configured forgejo-domains, adding it implicitly as authentication is configured for this domain');
+                $config->merge(['config' => ['forgejo-domains' => array_merge($config->get('forgejo-domains'), [$domain])]], 'implicit-due-to-auth');
+            }
+
+            $this->checkAndSetAuthentication($domain, $cred['username'], $cred['token']);
+        }
+
         // reload http basic credentials from config if available
         foreach ($httpBasic as $domain => $cred) {
             $this->checkAndSetAuthentication($domain, $cred['username'], $cred['password']);
@@ -171,53 +184,117 @@ abstract class BaseIO implements IOInterface
             $this->checkAndSetAuthentication($domain, $token, 'bearer');
         }
 
+        // load custom HTTP headers from config
+        foreach ($customHeaders as $domain => $headers) {
+            if ($headers !== null) {
+                $this->checkAndSetAuthentication($domain, (string) json_encode($headers), 'custom-headers');
+            }
+        }
+
+        // reload ssl client certificate credentials from config if available
+        foreach ($clientCertificate as $domain => $cred) {
+            $sslOptions = array_filter(
+                [
+                    'local_cert' => $cred['local_cert'] ?? null,
+                    'local_pk' => $cred['local_pk'] ?? null,
+                    'passphrase' => $cred['passphrase'] ?? null,
+                ],
+                static function (?string $value): bool { return $value !== null; }
+            );
+            if (!isset($sslOptions['local_cert'])) {
+                $this->writeError(
+                    sprintf(
+                        '<warning>Warning: Client certificate configuration is missing key `local_cert` for %s.</warning>',
+                        $domain
+                    )
+                );
+                continue;
+            }
+            $this->checkAndSetAuthentication($domain, 'client-certificate', (string) json_encode($sslOptions));
+        }
+
         // setup process timeout
         ProcessExecutor::setTimeout($config->get('process-timeout'));
     }
 
+    /**
+     * @param string|\Stringable $message
+     */
     public function emergency($message, array $context = []): void
     {
         $this->log(LogLevel::EMERGENCY, $message, $context);
     }
 
+    /**
+     * @param string|\Stringable $message
+     */
     public function alert($message, array $context = []): void
     {
         $this->log(LogLevel::ALERT, $message, $context);
     }
 
+    /**
+     * @param string|\Stringable $message
+     */
     public function critical($message, array $context = []): void
     {
         $this->log(LogLevel::CRITICAL, $message, $context);
     }
 
+    /**
+     * @param string|\Stringable $message
+     */
     public function error($message, array $context = []): void
     {
         $this->log(LogLevel::ERROR, $message, $context);
     }
 
+    /**
+     * @param string|\Stringable $message
+     */
     public function warning($message, array $context = []): void
     {
         $this->log(LogLevel::WARNING, $message, $context);
     }
 
+    /**
+     * @param string|\Stringable $message
+     */
     public function notice($message, array $context = []): void
     {
         $this->log(LogLevel::NOTICE, $message, $context);
     }
 
+    /**
+     * @param string|\Stringable $message
+     */
     public function info($message, array $context = []): void
     {
         $this->log(LogLevel::INFO, $message, $context);
     }
 
+    /**
+     * @param string|\Stringable $message
+     */
     public function debug($message, array $context = []): void
     {
         $this->log(LogLevel::DEBUG, $message, $context);
     }
 
+    /**
+     * @param mixed|LogLevel::* $level
+     * @param string|\Stringable $message
+     */
     public function log($level, $message, array $context = []): void
     {
         $message = (string) $message;
+
+        if ($context !== []) {
+            $json = Silencer::call('json_encode', $context, JSON_INVALID_UTF8_IGNORE | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            if ($json !== false) {
+                $message .= ' ' . $json;
+            }
+        }
 
         if (in_array($level, [LogLevel::EMERGENCY, LogLevel::ALERT, LogLevel::CRITICAL, LogLevel::ERROR])) {
             $this->writeError('<error>'.$message.'</error>');

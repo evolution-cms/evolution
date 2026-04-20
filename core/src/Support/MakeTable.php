@@ -79,7 +79,7 @@ class MakeTable implements MakeTableInterface
     /**
      * @var array
      */
-    public $excludeFields = array();
+    public $excludeFields = [];
     /**
      * @var int
      */
@@ -91,15 +91,15 @@ class MakeTable implements MakeTableInterface
     /**
      * @var array
      */
-    public $columnWidths = array();
+    public $columnWidths = [];
     /**
      * @var array
      */
-    public $selectedValues = array();
+    public $selectedValues = [];
     /**
      * @var array
      */
-    public $fieldHeaders = array();
+    public $fieldHeaders = [];
     /**
      * @var string
      */
@@ -422,7 +422,7 @@ class MakeTable implements MakeTableInterface
      * for each column.
      * @return string
      */
-    public function create($fieldsArray, $fieldHeadersArray = array(), $linkpage = "")
+    public function create($fieldsArray, $fieldHeadersArray = [], $linkpage = "")
     {
         global $_lang;
         $table = '';
@@ -559,7 +559,7 @@ class MakeTable implements MakeTableInterface
      */
     public function createPageLink($link = '', $pageNum = 1, $displayText = '', $currentPage = false, $qs = '')
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         $orderBy = !empty($_GET['orderby']) ? '&orderby=' . $_GET['orderby'] : '';
         $orderDir = !empty($_GET['orderdir']) ? '&orderdir=' . $_GET['orderdir'] : '';
         if (!empty($qs)) {
@@ -634,7 +634,7 @@ class MakeTable implements MakeTableInterface
      */
     public function prepareOrderByLink($key, $text, $qs = '')
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         if (!empty($_GET['orderdir'])) {
             $orderDir = strtolower($_GET['orderdir']) == 'desc' ? '&orderdir=asc' : '&orderdir=desc';
         } else {

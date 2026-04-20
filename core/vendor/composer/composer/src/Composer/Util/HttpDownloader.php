@@ -28,7 +28,7 @@ use React\Promise\PromiseInterface;
 /**
  * @author Jordi Boggiano <j.boggiano@seld.be>
  * @phpstan-type Request array{url: non-empty-string, options: mixed[], copyTo: string|null}
- * @phpstan-type Job array{id: int, status: int, request: Request, sync: bool, origin: string, resolve?: callable, reject?: callable, curl_id?: int, response?: Response, exception?: TransportException}
+ * @phpstan-type Job array{id: int, status: int, request: Request, sync: bool, origin: string, resolve?: callable, reject?: callable, curl_id?: int, response?: Response, exception?: \Throwable}
  */
 class HttpDownloader
 {
@@ -107,7 +107,10 @@ class HttpDownloader
         if ('' === $url) {
             throw new \InvalidArgumentException('$url must not be an empty string');
         }
-        [$job] = $this->addJob(['url' => $url, 'options' => $options, 'copyTo' => null], true);
+        [$job, $promise] = $this->addJob(['url' => $url, 'options' => $options, 'copyTo' => null], true);
+        $promise->then(null, static function (\Throwable $e) {
+            // suppress error as it is rethrown to the caller by getResponse() a few lines below
+        });
         $this->wait($job['id']);
 
         $response = $this->getResponse($job['id']);
@@ -123,6 +126,7 @@ class HttpDownloader
      *                                     although not all options are supported when using the default curl downloader
      * @throws TransportException
      * @return PromiseInterface
+     * @phpstan-return PromiseInterface<Response>
      */
     public function add(string $url, array $options = [])
     {
@@ -164,6 +168,7 @@ class HttpDownloader
      *                                     although not all options are supported when using the default curl downloader
      * @throws TransportException
      * @return PromiseInterface
+     * @phpstan-return PromiseInterface<Response>
      */
     public function addCopy(string $url, string $to, array $options = [])
     {
@@ -199,6 +204,7 @@ class HttpDownloader
     /**
      * @phpstan-param Request $request
      * @return array{Job, PromiseInterface}
+     * @phpstan-return array{Job, PromiseInterface<Response>}
      */
     private function addJob(array $request, bool $sync = false): array
     {
@@ -242,13 +248,13 @@ class HttpDownloader
                     $rfs->copy($job['origin'], $url, $job['request']['copyTo'], false /* TODO progress */, $options);
 
                     $headers = $rfs->getLastHeaders();
-                    $response = new Http\Response($job['request'], $rfs->findStatusCode($headers), $headers, $job['request']['copyTo'].'~');
+                    $response = new Response($job['request'], $rfs->findStatusCode($headers), $headers, $job['request']['copyTo'].'~');
 
                     $resolve($response);
                 } else {
                     $body = $rfs->getContents($job['origin'], $url, false /* TODO progress */, $options);
                     $headers = $rfs->getLastHeaders();
-                    $response = new Http\Response($job['request'], $rfs->findStatusCode($headers), $headers, $body);
+                    $response = new Response($job['request'], $rfs->findStatusCode($headers), $headers, $body);
 
                     $resolve($response);
                 }

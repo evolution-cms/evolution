@@ -15,10 +15,11 @@ class CreateMemberGroupsTable extends Migration {
 	{
 		Schema::create('member_groups', function(Blueprint $table)
 		{
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
 			$table->integer('id', true);
 			$table->integer('user_group')->default(0);
 			$table->integer('member')->default(0);
-			$table->unique(['user_group','member'], 'ix_group_member');
+			$table->unique(['user_group','member'], "{$indexPrefix}_ix_group_member");
 		});
 	}
 

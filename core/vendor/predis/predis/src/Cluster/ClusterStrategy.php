@@ -4,7 +4,7 @@
  * This file is part of the Predis package.
  *
  * (c) 2009-2020 Daniele Alessandri
- * (c) 2021-2023 Till Krüss
+ * (c) 2021-2026 Till Krüss
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -53,6 +53,7 @@ abstract class ClusterStrategy implements StrategyInterface
             'SORT' => [$this, 'getKeyFromSortCommand'],
             'DUMP' => $getKeyFromFirstArgument,
             'RESTORE' => $getKeyFromFirstArgument,
+            'FLUSHDB' => [$this, 'getFakeKey'],
 
             /* commands operating on string values */
             'APPEND' => $getKeyFromFirstArgument,
@@ -154,6 +155,11 @@ abstract class ClusterStrategy implements StrategyInterface
             'HSCAN' => $getKeyFromFirstArgument,
             'HSTRLEN' => $getKeyFromFirstArgument,
 
+            /* commands operating on streams */
+            'XADD' => $getKeyFromFirstArgument,
+            'XDEL' => $getKeyFromFirstArgument,
+            'XRANGE' => $getKeyFromFirstArgument,
+
             /* commands operating on HyperLogLog */
             'PFADD' => $getKeyFromFirstArgument,
             'PFCOUNT' => $getKeyFromAllArguments,
@@ -162,6 +168,11 @@ abstract class ClusterStrategy implements StrategyInterface
             /* scripting */
             'EVAL' => [$this, 'getKeyFromScriptingCommands'],
             'EVALSHA' => [$this, 'getKeyFromScriptingCommands'],
+            'EVAL_RO' => [$this, 'getKeyFromScriptingCommands'],
+            'EVALSHA_RO' => [$this, 'getKeyFromScriptingCommands'],
+
+            /* server */
+            'INFO' => [$this, 'getFakeKey'],
 
             /* commands performing geospatial operations */
             'GEOADD' => $getKeyFromFirstArgument,
@@ -170,6 +181,17 @@ abstract class ClusterStrategy implements StrategyInterface
             'GEODIST' => $getKeyFromFirstArgument,
             'GEORADIUS' => [$this, 'getKeyFromGeoradiusCommands'],
             'GEORADIUSBYMEMBER' => [$this, 'getKeyFromGeoradiusCommands'],
+
+            /* sharded pubsub */
+            'SSUBSCRIBE' => $getKeyFromAllArguments,
+            'SUNSUBSCRIBE' => [$this, 'getKeyFromSUnsubscribeCommand'],
+            'SPUBLISH' => $getKeyFromFirstArgument,
+
+            /* cluster */
+            'CLUSTER' => [$this, 'getFakeKey'],
+
+            /* control */
+            'ACL' => [$this, 'getFakeKey'],
         ];
     }
 
@@ -214,6 +236,16 @@ abstract class ClusterStrategy implements StrategyInterface
         }
 
         $this->commands[$commandID] = $callback;
+    }
+
+    /**
+     * Get fake key for commands with no key argument.
+     *
+     * @return string
+     */
+    protected function getFakeKey(): string
+    {
+        return 'key';
     }
 
     /**
@@ -389,6 +421,24 @@ abstract class ClusterStrategy implements StrategyInterface
     }
 
     /**
+     * Extracts key from SUNSUBSCRIBE command if it's given.
+     *
+     * @param  CommandInterface $command
+     * @return string
+     */
+    protected function getKeyFromSUnsubscribeCommand(CommandInterface $command): ?string
+    {
+        $arguments = $command->getArguments();
+
+        // SUNSUBSCRIBE command could be called without arguments, so it doesn't matter on each node it will be called.
+        if (empty($arguments)) {
+            return 'fake';
+        }
+
+        return $this->getKeyFromAllArguments($command);
+    }
+
+    /**
      * Extracts the key from EVAL and EVALSHA commands.
      *
      * @param CommandInterface $command Command instance.
@@ -428,13 +478,9 @@ abstract class ClusterStrategy implements StrategyInterface
     }
 
     /**
-     * Checks if the specified array of keys will generate the same hash.
-     *
-     * @param array $keys Array of keys.
-     *
-     * @return bool
+     * {@inheritdoc}
      */
-    protected function checkSameSlotForKeys(array $keys)
+    public function checkSameSlotForKeys(array $keys): bool
     {
         if (!$count = count($keys)) {
             return false;
@@ -448,8 +494,6 @@ abstract class ClusterStrategy implements StrategyInterface
             if ($currentSlot !== $nextSlot) {
                 return false;
             }
-
-            $currentSlot = $nextSlot;
         }
 
         return true;

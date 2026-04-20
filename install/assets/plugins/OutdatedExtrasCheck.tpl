@@ -15,4 +15,4 @@
  * @internal    @disabled 0
  */
 
-require MODX_BASE_PATH . 'assets/plugins/extrascheck/OutdatedExtrasCheck.plugin.php';
+require EVO_BASE_PATH . 'assets/plugins/extrascheck/OutdatedExtrasCheck.plugin.php';

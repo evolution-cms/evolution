@@ -62,9 +62,13 @@ $(document).ready(function() {
             lazyLoadInstance = e.detail.instance;
             browser.resize();
             browser.init();
+            browser.fitParentIFrame();
             $('#all').css('visibility', 'visible');
         }, false);
     }(window, document));
 });
-$(window).resize(browser.resize);
+$(window).resize(function() {
+    browser.resize();
+    browser.fitParentIFrame();
+});
 </script>

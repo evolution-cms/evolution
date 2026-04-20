@@ -51,7 +51,6 @@
 	$_lang["chunks"] = 'Chunks';
 	$_lang["config_permissions_note"] = 'Für neue Linux/Unix Installationen bitt eine leere Datei <span class="mono">config.inc.php</span> im Ordner <span class="mono">'.MGR_DIR.'/includes/</span> anlegen und die Dateirechte auf 0666 setzen.';
 	$_lang["connection_screen_collation"] = 'Kollation:';
-	$_lang["connection_screen_connection_method"] = 'Verbindungsmethode:';
 	$_lang["connection_screen_database_connection_information"] = 'Datenbankinformationen';
 	$_lang["connection_screen_database_connection_note"] = 'Bitte geben Sie den Namen der Datenbank an, die Sie für MODx nutzen wollen. Falls die Datenbank nicht existiert, wird MODx versuchen sie zu erstellen. Dies kann fehlschlagen, falls Sie nicht die nötigen Rechte besitzen. Bei vielen Web-Hosting-Angeboten sind die Datenbanken bereits eingerichtet oder können in der Administrationsoberfläche des Web-Hosting-Angebots erstellt werden. Notieren Sie diesen Namen und geben Sie ihn hier ein.';
 	$_lang["connection_screen_database_host"] = 'Datenbank-Host:';
@@ -108,7 +107,7 @@
 	$_lang["language_code"] = 'de';
 	$_lang["loading"] = 'Laden …';
 	$_lang["modules"] = 'Module';
-	$_lang["modx_footer1"] = '&copy; 2005-2023 <a href="http://www.modxcms.com/" target="_blank" style="color: green; text-decoration:underline">MODx</a> Content Mangement Framework (CMF) Projekt. Alle Rechte vorbehalten. MODx ist unter der GNU GPL lizenziert.';
+	$_lang["modx_footer1"] = '&copy; 2004 - 2026 <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> Content Mangement Framework (CMF) Projekt. Alle Rechte vorbehalten. Evolution CMS ist unter der GNU GPL lizenziert.';
 	$_lang["modx_footer2"] = 'MODx is freie Software.  Wir ermutigen Sie, kreativ zu sein und MODx so zu nutzen wie es Ihnen am besten passt. Stellen Sie nur sicher, dass Sie bei Veränderungen des Quellcodes und der Weiterverbreitung der modifizierten MODx-Version den Quelltext frei zugänglich belassen!';
 	$_lang["modx_install"] = 'MODx &raquo; Installation';
 	$_lang["modx_requires_php"] = ', und MODx benötigt PHP 4.2.0. oder höher';

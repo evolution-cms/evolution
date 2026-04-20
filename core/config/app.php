@@ -1,7 +1,7 @@
-<?php
-return [
+<?php return [
     'env' => 'production',
     'debug' => false,
+
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration
@@ -13,6 +13,7 @@ return [
     |
     */
     'locale' => 'en',
+
     /*
     |--------------------------------------------------------------------------
     | Application Fallback Locale
@@ -30,7 +31,6 @@ return [
          * via custom/config/app/providers/*.php
          */
         'Bootstrap_ExceptionHandler' => EvolutionCMS\Providers\ExceptionHandlerServiceProvider::class,
-
         'Console_Artisan' => EvolutionCMS\Providers\ArtisanServiceProvider::class,
         'Console_Migration' => Illuminate\Database\MigrationServiceProvider::class,
         'Console_Composer' => EvolutionCMS\Providers\ComposerServiceProvider::class,
@@ -41,7 +41,7 @@ return [
         'Laravel_Redis' => Illuminate\Redis\RedisServiceProvider::class,
         'Laravel_Lang' => Illuminate\Translation\TranslationServiceProvider::class,
         'Laravel_Validator' => Illuminate\Validation\ValidationServiceProvider::class,
-
+        'Evolution_LogContext' => EvolutionCMS\Providers\LogContextServiceProvider::class,
         'Evolution_Auth' => EvolutionCMS\Providers\AuthServiceProvider::class,
         'Evolution_Observers' => EvolutionCMS\Providers\ObserversServiceProvider::class,
         'Evolution_Pagination' => EvolutionCMS\Providers\PaginationServiceProvider::class,
@@ -65,13 +65,15 @@ return [
         'Evolution_Routing' => EvolutionCMS\Providers\RoutingServiceProvider::class,
         'Evolution_Config' => EvolutionCMS\Providers\ConfigServiceProvider::class,
         'Evolution_Session' => EvolutionCMS\Providers\SessionServiceProvider::class,
-        'Evolution_Salo' => \EvolutionCMS\Salo\SaloServiceProvider::class,
-
+        'Evolution_SystemTasks' => EvolutionCMS\Providers\SystemTasksServiceProvider::class,
+        'Evolution_Tailwind' => EvolutionCMS\Providers\TailwindServiceProvider::class,
         'Fix_DLTemplate' => EvolutionCMS\Providers\DLTemplateServiceProvider::class,
         'Fix_Phx' => EvolutionCMS\Providers\PhxServiceProvider::class,
         'Fix_ModResource' => EvolutionCMS\Providers\ModResourceServiceProvider::class,
         'Fix_ModUsers' => EvolutionCMS\Providers\ModUsersServiceProvider::class,
-        'Fix_Fs' => EvolutionCMS\Providers\FsServiceProvider::class
+        'Fix_Fs' => EvolutionCMS\Providers\FsServiceProvider::class,
+        'Blade_Icons' => EvolutionCMS\Providers\BladeIconsAdapterServiceProvider::class,
+        'Blade_Tabler' => secondnetwork\TablerIcons\BladeTablerIconsServiceProvider::class,
     ],
 
     'aliases' => [
@@ -98,12 +100,13 @@ return [
         'Request' => Illuminate\Support\Facades\Request::class,
         'Session' => Illuminate\Support\Facades\Session::class,
         'Str' => Illuminate\Support\Str::class,
+
         /**
          * EvolutionCMS
-         * @TODO DBAPI, MakeTable and other will be added at version 2.1
+         * @TODO DBAPI, MakeTable and other will be added at version 3.x
          */
-        'Auth' => \EvolutionCMS\Facades\AuthServices::class,
-        'Config' => \EvolutionCMS\Facades\ConfigService::class,
+        'Auth' => EvolutionCMS\Facades\AuthServices::class,
+        'Config' => EvolutionCMS\Facades\ConfigService::class,
         'Evo' => Illuminate\Support\Facades\App::class,
         'DocBlock' => EvolutionCMS\Facades\DocBlock::class,
         'ManagerTheme' => EvolutionCMS\Facades\ManagerTheme::class,
@@ -112,14 +115,15 @@ return [
         'Helper' => EvolutionCMS\Facades\HelperProcessor::class,
         'UserManager' => EvolutionCMS\UserManager\Facades\UserManager::class,
         'DocumentManager' => EvolutionCMS\DocumentManager\Facades\DocumentManager::class,
+        'Tailwind' => EvolutionCMS\Facades\Tailwind::class,
     ],
 
     'middleware' => [
-
         'mgr' => [
+            Illuminate\Session\Middleware\StartSession::class,
+            EvolutionCMS\Middleware\SessionProxy::class,
             EvolutionCMS\Middleware\VerifyCsrfToken::class,
             EvolutionCMS\Middleware\Manager::class,
-            Illuminate\Session\Middleware\StartSession::class,
             Illuminate\Routing\Middleware\SubstituteBindings::class,
             Illuminate\View\Middleware\ShareErrorsFromSession::class,
         ],
@@ -134,9 +138,9 @@ return [
         | for custom middleware see file core/custom/config/middleware.php.
         |
         */
-
         'global' => [
             Illuminate\Session\Middleware\StartSession::class,
+            EvolutionCMS\Middleware\SessionProxy::class,
             Illuminate\Routing\Middleware\SubstituteBindings::class,
             Illuminate\View\Middleware\ShareErrorsFromSession::class,
         ],
@@ -151,7 +155,6 @@ return [
         | for custom aliases see file core/custom/config/middleware.php.
         |
         */
-
         'aliases' => [
             'csrf' => EvolutionCMS\Middleware\VerifyCsrfToken::class,
             'authtoken' => EvolutionCMS\Middleware\CheckAuthToken::class,

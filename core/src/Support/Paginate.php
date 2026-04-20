@@ -131,7 +131,7 @@ class Paginate implements PaginginateInterface
     public function getPagingRowArray()
     {
         global $PHP_SELF;
-        $array_all_page = array();
+        $array_all_page = [];
         for ($i = 0; $i < $this->getNumberOfPage(); $i++) {
             // if current page, do not make a link
             if ($i == $this->getCurrentPage()) {

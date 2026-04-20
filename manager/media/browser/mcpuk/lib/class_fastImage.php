@@ -176,7 +176,7 @@ class fastImage
 				case 'readsize':
 					$c = $this->getChars(7);
 
-					return array($this->readInt(substr($c, 5, 2)), $this->readInt(substr($c, 3, 2)));
+					return [$this->readInt(substr($c, 5, 2)), $this->readInt(substr($c, 3, 2))];
 			}
 		}
 	}

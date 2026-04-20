@@ -210,7 +210,7 @@ class Tmplvar extends AbstractController implements ManagerTheme\PageControllerI
             $_SESSION['itemname'] = $this->managerTheme->getLexicon('new_template');
             $data->category = isset($_REQUEST['catid']) ? (int) $_REQUEST['catid'] : 0;
         }
-        $data->properties = json_decode($data->properties, true) ?? [];
+        $data->properties = json_decode($data->properties ?? '', true) ?? [];
         $values = $this->managerTheme->loadValuesFromSession($_POST);
         if ($values) {
             $data->fill($values);
@@ -249,7 +249,7 @@ class Tmplvar extends AbstractController implements ManagerTheme\PageControllerI
         ];
 
         $finder = Finder\Finder::create()
-            ->in(MODX_BASE_PATH . 'assets/tvs')
+            ->in(EVO_BASE_PATH . 'assets/tvs')
             ->depth(0)
             ->notName('/^index\.html$/')
             ->sortByName();
@@ -260,7 +260,7 @@ class Tmplvar extends AbstractController implements ManagerTheme\PageControllerI
             $customTvs['custom_tv:' . $filename] = $filename;
             $propertiesFile = 'assets/tvs/' . $filename . '/' . $filename . '.properties.php';
             if (Storage::exists($propertiesFile)) {
-                $cfg = require MODX_BASE_PATH . $propertiesFile;
+                $cfg = require EVO_BASE_PATH . $propertiesFile;
                 if (is_array($cfg)) {
                     $this->defaultProperties['custom_tv:' . $filename] = $cfg;
                 }

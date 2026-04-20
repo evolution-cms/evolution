@@ -9,6 +9,8 @@ use EvolutionCMS\Models\SiteSnippet;
 use EvolutionCMS\Models\SiteTemplate;
 use EvolutionCMS\Models\SiteTmplvar;
 use EvolutionCMS\Models\SiteTmplvarContentvalue;
+use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 
 class Search extends AbstractController implements ManagerTheme\PageControllerInterface
 {
@@ -53,12 +55,12 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
 
     protected function getResults()
     {
-        $results = null;
-
         $searchQuery = SiteContent::query()
-            ->select('site_content.id', 'pagetitle', 'longtitle', 'description', 'introtext', 'menutitle', 'deleted', 'published', 'isfolder', 'type');
+            ->select('site_content.id', 'pagetitle', 'longtitle', 'description', 'introtext', 'menutitle',
+                'deleted', 'published', 'isfolder', 'type');
 
         $searchfields = trim(get_by_key($_REQUEST, 'searchfields', '', 'is_scalar'));
+        $contentIds = [];
 
 
         $templateid = isset($_REQUEST['templateid']) && $_REQUEST['templateid'] !== '' ? (int)$_REQUEST['templateid'] : '';
@@ -70,8 +72,8 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
             $url = $_REQUEST['url'];
             $friendly_url_suffix = $this->managerTheme->getCore()
                 ->getConfig('friendly_url_suffix');
-            $base_url = MODX_BASE_URL;
-            $site_url = MODX_SITE_URL;
+            $base_url = EVO_BASE_URL;
+            $site_url = EVO_SITE_URL;
             $url = preg_replace('@' . $friendly_url_suffix . '$@', '', $url);
             if ($url[0] === '/') {
                 $url = preg_replace('@^' . $base_url . '@', '', $url);
@@ -79,46 +81,66 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
             if (substr($url, 0, 4) === 'http') {
                 $url = preg_replace('@^' . $site_url . '@', '', $url);
             }
-            $idFromAlias = $this->managerTheme->getCore()
-                ->getIdFromAlias($url);
+            $idFromAlias = \UrlProcessor::getIdFromAlias($url);
         }
 
         if ($searchfields != '') {
             $tvs = SiteTmplvarContentvalue::query()
-                ->where('value', 'LIKE', '%' . $searchfields . '%');
-
-            if ($tvs->count() > 0) {
-                $articul_id = [];
-                $i = 1;
-                foreach ($tvs->pluck('contentid')
-                             ->toArray() as $articul) {
-                    $articul_id[] = $articul;
-                }
-            }
-
-            if (ctype_digit($searchfields)) {
-                $searchQuery->orWhere('site_content.id', $searchfields);
-                if (strlen($searchfields) > 3) {
-                    $searchQuery->orWhere('site_content.pagetitle', 'LIKE', '%' . $searchfields . '%');
-                }
-            }
-
-            if ($idFromAlias) {
-                $searchQuery->orWhere('site_content.id', $idFromAlias);
-
-            }
-
-            if (!ctype_digit($searchfields)) {
-                $searchQuery = $searchQuery->where(function ($query) use ($searchfields) {
-                    $query->where('pagetitle', 'LIKE', '%' . $searchfields . '%')
-                        ->orWhere('longtitle', 'LIKE', '%' . $searchfields . '%')
-                        ->orWhere('description', 'LIKE', '%' . $searchfields . '%')
-                        ->orWhere('introtext', 'LIKE', '%' . $searchfields . '%')
-                        ->orWhere('menutitle', 'LIKE', '%' . $searchfields . '%')
-                        ->orWhere('alias', 'LIKE', '%' . $searchfields . '%');
+                ->where(function ($query) use ($searchfields) {
+                    $this->ciLikeConditions($query, ['value'], $searchfields);
                 });
 
+            if ($tvs->count() > 0) {
+                foreach ($tvs->pluck('contentid')->toArray() as $contentId) {
+                    $contentIds[] = $contentId;
+                }
             }
+
+            $searchQuery = $searchQuery->where(function ($query) use ($searchfields, $idFromAlias, $contentIds) {
+                $hasClause = false;
+
+                if (ctype_digit($searchfields)) {
+                    $query->where('site_content.id', $searchfields);
+                    $hasClause = true;
+                    if (strlen($searchfields) > 3) {
+                        $query->orWhere('site_content.pagetitle', 'LIKE', '%' . $searchfields . '%');
+                    }
+                }
+
+                if ($idFromAlias) {
+                    if ($hasClause) {
+                        $query->orWhere('site_content.id', $idFromAlias);
+                    } else {
+                        $query->where('site_content.id', $idFromAlias);
+                        $hasClause = true;
+                    }
+                }
+
+                if (!ctype_digit($searchfields)) {
+                    $condition = function ($nested) use ($searchfields) {
+                        $this->ciLikeConditions(
+                            $nested,
+                            ['pagetitle', 'longtitle', 'description', 'introtext', 'menutitle', 'alias'],
+                            $searchfields
+                        );
+                    };
+
+                    if ($hasClause) {
+                        $query->orWhere($condition);
+                    } else {
+                        $query->where($condition);
+                        $hasClause = true;
+                    }
+                }
+
+                if (!empty($contentIds)) {
+                    if ($hasClause) {
+                        $query->orWhereIn('site_content.id', $contentIds);
+                    } else {
+                        $query->whereIn('site_content.id', $contentIds);
+                    }
+                }
+            });
         } elseif ($idFromAlias) {
             $searchQuery = $searchQuery->where('site_content.id', $idFromAlias);
         }
@@ -137,11 +159,12 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
             $mgrRole = (isset ($_SESSION['mgrRole']) && $_SESSION['mgrRole'] == 1) ? 1 : 0;
             if ($mgrRole != 1) {
                 if (isset($_SESSION['mgrDocgroups']) && is_array($_SESSION['mgrDocgroups'])) {
-                    $searchQuery = $searchQuery->leftJoin('document_groups', 'site_content.id', '=', 'document_groups.document')
-                        ->where(function ($query) use ($searchfields) {
-                            $query->where('privatemgr', 0)
-                                ->orWhereIn('document_group', $_SESSION['mgrDocgroups']);
-                        });
+                    $searchQuery = $searchQuery->leftJoin(
+                        'document_groups', 'site_content.id', '=', 'document_groups.document'
+                    )->where(function ($query) use ($searchfields) {
+                        $query->where('privatemgr', 0)
+                            ->orWhereIn('document_group', $_SESSION['mgrDocgroups']);
+                    });
                 } else {
                     $searchQuery = $searchQuery->where('privatemgr', 0);
                 }
@@ -163,8 +186,10 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
             'application/vnd.ms-excel' => $this->managerTheme->getStyle('icon_excel'),
         ];
 
-        if(!empty($articul_id)){
-            $searchQuery = $searchQuery->orWhereIn('site_content.id', $articul_id);
+        if (!empty($contentIds)) {
+            $searchQuery = $searchQuery->orWhere(function ($query) use ($contentIds) {
+                $query->whereIn('site_content.id', $contentIds);
+            });
         }
 
         $searchQuery = $searchQuery->groupBy('site_content.id');
@@ -225,7 +250,7 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
             $templates[] = [
                 'value' => $row['id'],
                 'title' => htmlspecialchars($row['templatename'], ENT_QUOTES, $this->managerTheme->getCore()
-                        ->getConfig('modx_charset')) . ' (' . $row['id'] . ')',
+                        ->getConfig('evo_charset')) . ' (' . $row['id'] . ')',
                 'selected' => $row['id'] == $templateid ? ' selected' : ''
             ];
         }
@@ -272,10 +297,14 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
 
                 $results = SiteTemplate::query()
                     ->select('id', 'templatename', 'locked')
-                    ->where('id', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('templatename', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('description', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('content', 'LIKE', '%' . $searchfields . '%');
+                    ->where(function ($query) use ($searchfields) {
+                        $query->where('id', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere(function ($nested) use ($searchfields) {
+                                $this->ciLikeConditions(
+                                    $nested, ['templatename', 'description', 'content'], $searchfields
+                                );
+                            });
+                    });
 
                 $count = $results->count();
 
@@ -305,14 +334,16 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
 
                 $results = SiteTmplvar::query()
                     ->select('id', 'name', 'locked')
-                    ->where('id', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('name', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('description', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('type', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('elements', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('display', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('display_params', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('default_text', 'LIKE', '%' . $searchfields . '%');
+                    ->where(function ($query) use ($searchfields) {
+                        $query->where('id', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere(function ($nested) use ($searchfields) {
+                                $this->ciLikeConditions(
+                                    $nested,
+                                    ['name', 'description', 'type', 'elements', 'display', 'display_params', 'default_text'],
+                                    $searchfields
+                                );
+                            });
+                    });
 
                 $count = $results->count();
 
@@ -339,10 +370,12 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
 
                 $results = SiteHtmlsnippet::query()
                     ->select('id', 'name', 'locked', 'disabled')
-                    ->where('id', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('name', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('description', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('snippet', 'LIKE', '%' . $searchfields . '%');
+                    ->where(function ($query) use ($searchfields) {
+                        $query->where('id', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere(function ($nested) use ($searchfields) {
+                                $this->ciLikeConditions($nested, ['name', 'description', 'snippet'], $searchfields);
+                            });
+                    });
 
                 $count = $results->count();
 
@@ -369,12 +402,14 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
 
                 $results = SiteSnippet::query()
                     ->select('id', 'name', 'locked', 'disabled')
-                    ->where('id', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('name', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('description', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('snippet', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('properties', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('moduleguid', 'LIKE', '%' . $searchfields . '%');
+                    ->where(function ($query) use ($searchfields) {
+                        $query->where('id', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere(function ($nested) use ($searchfields) {
+                                $this->ciLikeConditions(
+                                    $nested, ['name', 'description', 'snippet', 'properties', 'moduleguid'], $searchfields
+                                );
+                            });
+                    });
 
                 $count = $results->count();
 
@@ -401,12 +436,16 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
 
                 $results = SitePlugin::query()
                     ->select('id', 'name', 'locked', 'disabled')
-                    ->where('id', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('name', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('description', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('plugincode', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('properties', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('moduleguid', 'LIKE', '%' . $searchfields . '%');
+                    ->where(function ($query) use ($searchfields) {
+                        $query->where('id', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere(function ($nested) use ($searchfields) {
+                                $this->ciLikeConditions(
+                                    $nested,
+                                    ['name', 'description', 'plugincode', 'properties', 'moduleguid'],
+                                    $searchfields
+                                );
+                            });
+                    });
 
                 $count = $results->count();
 
@@ -433,13 +472,16 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
 
                 $results = SiteModule::query()
                     ->select('id', 'name', 'locked', 'disabled')
-                    ->where('id', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('name', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('description', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('modulecode', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('properties', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('guid', 'LIKE', '%' . $searchfields . '%')
-                    ->orWhere('resourcefile', 'LIKE', '%' . $searchfields . '%');
+                    ->where(function ($query) use ($searchfields) {
+                        $query->where('id', 'LIKE', '%' . $searchfields . '%')
+                            ->orWhere(function ($nested) use ($searchfields) {
+                                $this->ciLikeConditions(
+                                    $nested,
+                                    ['name', 'description', 'modulecode', 'properties', 'guid', 'resourcefile'],
+                                    $searchfields
+                                );
+                            });
+                    });
 
                 $count = $results->count();
 
@@ -485,18 +527,37 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
         return $class;
     }
 
+    /**
+     * Force text searches to behave case-insensitively on SQLite instead of depending on connection-level LIKE.
+     */
+    protected function ciLikeConditions(EloquentBuilder|QueryBuilder $query, array $columns, string $search): void
+    {
+        $driver = $query->getConnection()->getDriverName();
+        $searchPattern = '%' . $search . '%';
+        $loweredPattern = '%' . mb_strtolower($search, 'UTF-8') . '%';
+        $baseQuery = $query instanceof EloquentBuilder ? $query->getQuery() : $query;
+        $grammar = $baseQuery->getGrammar();
+
+        foreach ($columns as $index => $column) {
+            if (in_array($driver, ['sqlite', 'sqlite3'], true)) {
+                $method = $index === 0 ? 'whereRaw' : 'orWhereRaw';
+                $query->{$method}('LOWER(' . $grammar->wrap($column) . ') LIKE ?', [$loweredPattern]);
+                continue;
+            }
+
+            $method = $index === 0 ? 'where' : 'orWhere';
+            $query->{$method}($column, 'LIKE', $searchPattern);
+        }
+    }
+
     protected function highlightingCoincidence($text, $search)
     {
-        $regexp = '!(' . str_replace(array(
-                '(',
-                ')'
-            ), array(
-                '\(',
-                '\)'
-            ), entities(trim($search), $this->managerTheme->getCore()
-                ->getConfig('modx_charset'))) . ')!isu';
-
-        return preg_replace($regexp, '<span class="text-danger">$1</span>', entities($text, $this->managerTheme->getCore()
-            ->getConfig('modx_charset')));
+        $escapedSearch = preg_quote(entities(trim($search), $this->managerTheme->getCore()->getConfig('evo_charset')),
+            '!');
+        return preg_replace(
+            '!(' . $escapedSearch . ')!isu',
+            '<span class="text-danger">$1</span>',
+            entities($text, $this->managerTheme->getCore()->getConfig('evo_charset'))
+        );
     }
 }

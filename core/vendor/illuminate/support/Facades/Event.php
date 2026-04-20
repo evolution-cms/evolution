@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Testing\Fakes\EventFake;
 
 /**
- * @method static void listen(\Closure|string|array $events, \Closure|string|array|null $listener = null)
+ * @method static void listen(\Illuminate\Events\QueuedClosure|callable|array|string $events, \Illuminate\Events\QueuedClosure|callable|array|string|null $listener = null)
  * @method static bool hasListeners(string $eventName)
  * @method static bool hasWildcardListeners(string $eventName)
  * @method static void push(string $event, object|array $payload = [])
@@ -20,6 +20,8 @@ use Illuminate\Support\Testing\Fakes\EventFake;
  * @method static void forget(string $event)
  * @method static void forgetPushed()
  * @method static \Illuminate\Events\Dispatcher setQueueResolver(callable $resolver)
+ * @method static \Illuminate\Events\Dispatcher setTransactionManagerResolver(callable $resolver)
+ * @method static mixed defer(callable $callback, string[]|null $events = null)
  * @method static array getRawListeners()
  * @method static void macro(string $name, object|callable $macro)
  * @method static void mixin(object $mixin, bool $replace = true)
@@ -28,11 +30,13 @@ use Illuminate\Support\Testing\Fakes\EventFake;
  * @method static \Illuminate\Support\Testing\Fakes\EventFake except(array|string $eventsToDispatch)
  * @method static void assertListening(string $expectedEvent, string|array $expectedListener)
  * @method static void assertDispatched(string|\Closure $event, callable|int|null $callback = null)
+ * @method static void assertDispatchedOnce(string $event)
  * @method static void assertDispatchedTimes(string $event, int $times = 1)
  * @method static void assertNotDispatched(string|\Closure $event, callable|null $callback = null)
  * @method static void assertNothingDispatched()
  * @method static \Illuminate\Support\Collection dispatched(string $event, callable|null $callback = null)
  * @method static bool hasDispatched(string $event)
+ * @method static array dispatchedEvents()
  *
  * @see \Illuminate\Events\Dispatcher
  * @see \Illuminate\Support\Testing\Fakes\EventFake
@@ -48,8 +52,8 @@ class Event extends Facade
     public static function fake($eventsToFake = [])
     {
         $actualDispatcher = static::isFake()
-                ? static::getFacadeRoot()->dispatcher
-                : static::getFacadeRoot();
+            ? static::getFacadeRoot()->dispatcher
+            : static::getFacadeRoot();
 
         return tap(new EventFake($actualDispatcher, $eventsToFake), function ($fake) {
             static::swap($fake);
@@ -87,12 +91,14 @@ class Event extends Facade
 
         static::fake($eventsToFake);
 
-        return tap($callable(), function () use ($originalDispatcher) {
+        try {
+            return $callable();
+        } finally {
             static::swap($originalDispatcher);
 
             Model::setEventDispatcher($originalDispatcher);
             Cache::refreshEventDispatcher();
-        });
+        }
     }
 
     /**
@@ -108,12 +114,14 @@ class Event extends Facade
 
         static::fakeExcept($eventsToAllow);
 
-        return tap($callable(), function () use ($originalDispatcher) {
+        try {
+            return $callable();
+        } finally {
             static::swap($originalDispatcher);
 
             Model::setEventDispatcher($originalDispatcher);
             Cache::refreshEventDispatcher();
-        });
+        }
     }
 
     /**

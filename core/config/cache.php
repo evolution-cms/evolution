@@ -1,7 +1,5 @@
-<?php
-use Illuminate\Support\Str;
+<?php use Illuminate\Support\Str;
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Default Cache Store
@@ -14,7 +12,6 @@ return [
     | Supported: "apc", "array", "database", "file", "memcached", "redis"
     |
     */
-
     'default' => env('CACHE_DRIVER', 'file'),
 
     /*
@@ -27,28 +24,22 @@ return [
     | same cache driver to group types of items stored in your caches.
     |
     */
-
     'stores' => [
-
         'apc' => [
             'driver' => 'apc',
         ],
-
         'array' => [
             'driver' => 'array',
         ],
-
         'database' => [
             'driver' => 'database',
             'table' => 'cache',
             'connection' => null,
         ],
-
         'file' => [
             'driver' => 'file',
             'path' => EVO_STORAGE_PATH . 'cache/',
         ],
-
         'memcached' => [
             'driver' => 'memcached',
             'persistent_id' => env('MEMCACHED_PERSISTENT_ID'),
@@ -67,12 +58,10 @@ return [
                 ],
             ],
         ],
-
         'redis' => [
             'driver' => 'redis',
             'connection' => 'default',
         ],
-
     ],
 
     /*
@@ -85,10 +74,8 @@ return [
     | value to get prefixed to all our keys so we can avoid collisions.
     |
     */
-
     'prefix' => env(
         'CACHE_PREFIX',
-        Str::slug(env('APP_NAME', 'laravel'), '_').'_cache'
+        Str::slug(env('APP_NAME', 'evo'), '_').'_cache'
     ),
-
 ];

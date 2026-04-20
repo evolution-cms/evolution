@@ -1,73 +1,39 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\Middleware;
 
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\API\ExceptionConverter;
+use Doctrine\DBAL\Driver\Connection as DriverConnection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\VersionAwarePlatformDriver;
-use Doctrine\Deprecations\Deprecation;
+use Doctrine\DBAL\ServerVersionProvider;
 use SensitiveParameter;
 
-abstract class AbstractDriverMiddleware implements VersionAwarePlatformDriver
+abstract class AbstractDriverMiddleware implements Driver
 {
-    private Driver $wrappedDriver;
-
-    public function __construct(Driver $wrappedDriver)
+    public function __construct(private readonly Driver $wrappedDriver)
     {
-        $this->wrappedDriver = $wrappedDriver;
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function connect(
         #[SensitiveParameter]
-        array $params
-    ) {
+        array $params,
+    ): DriverConnection {
         return $this->wrappedDriver->connect($params);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getDatabasePlatform()
+    public function getDatabasePlatform(ServerVersionProvider $versionProvider): AbstractPlatform
     {
-        return $this->wrappedDriver->getDatabasePlatform();
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @deprecated Use {@link AbstractPlatform::createSchemaManager()} instead.
-     */
-    public function getSchemaManager(Connection $conn, AbstractPlatform $platform)
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5458',
-            'AbstractDriverMiddleware::getSchemaManager() is deprecated.'
-                . ' Use AbstractPlatform::createSchemaManager() instead.',
-        );
-
-        return $this->wrappedDriver->getSchemaManager($conn, $platform);
+        return $this->wrappedDriver->getDatabasePlatform($versionProvider);
     }
 
     public function getExceptionConverter(): ExceptionConverter
     {
         return $this->wrappedDriver->getExceptionConverter();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function createDatabasePlatformForVersion($version)
-    {
-        if ($this->wrappedDriver instanceof VersionAwarePlatformDriver) {
-            return $this->wrappedDriver->createDatabasePlatformForVersion($version);
-        }
-
-        return $this->wrappedDriver->getDatabasePlatform();
     }
 }

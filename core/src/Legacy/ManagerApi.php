@@ -37,7 +37,7 @@ class ManagerApi implements ManagerApiInterface
         global $_PAGE;
         $vsid = isset($_SESSION["mgrPageViewSID"]) ? $_SESSION["mgrPageViewSID"] : '';
         if ($vsid != $this->action) {
-            $_SESSION["mgrPageViewSDATA"] = array(); // new view state
+            $_SESSION["mgrPageViewSDATA"] = []; // new view state
             $_SESSION["mgrPageViewSID"] = $id > 0 ? $id : $this->action; // set id
         }
         $_PAGE['vs'] = &$_SESSION["mgrPageViewSDATA"]; // restore viewstate
@@ -250,12 +250,12 @@ class ManagerApi implements ManagerApiInterface
      */
     public function getSystemChecksum($check_files)
     {
-        $_ = array();
+        $_ = [];
         $check_files = trim($check_files);
         $check_files = explode("\n", $check_files);
         foreach ($check_files as $file) {
             $file = trim($file);
-            $file = MODX_BASE_PATH . $file;
+            $file = EVO_BASE_PATH . $file;
             if (!is_file($file)) {
                 continue;
             }
@@ -272,13 +272,13 @@ class ManagerApi implements ManagerApiInterface
      */
     public function getModifiedSystemFilesList($check_files, $checksum)
     {
-        $_ = array();
+        $_ = [];
         $check_files = trim($check_files);
         $check_files = explode("\n", $check_files);
         $checksum = unserialize($checksum);
         foreach ($check_files as $file) {
             $file = trim($file);
-            $filePath = MODX_BASE_PATH . $file;
+            $filePath = EVO_BASE_PATH . $file;
             if (!is_file($filePath)) {
                 continue;
             }
@@ -341,7 +341,7 @@ class ManagerApi implements ManagerApiInterface
 
         $rs = UserSetting::where('user', (int)$_SESSION['mgrInternalKey'])->get();
 
-        $usersettings = array();
+        $usersettings = [];
         foreach ($rs as $row) {
             if (substr($row['setting_name'], 0, 6) == '_LAST_') {
                 $name = substr($row['setting_name'], 6);
@@ -366,18 +366,15 @@ class ManagerApi implements ManagerApiInterface
 
         if (!empty($settings)) {
             if (!is_array($settings)) {
-                $settings = array($settings => $val);
+                $settings = [$settings => $val];
             }
 
             foreach ($settings as $key => $val) {
-                $f = array();
-                $f['user'] = $_SESSION['mgrInternalKey'];
-                $f['setting_name'] = '_LAST_' . $key;
-                $f['setting_value'] = $val;
-                $f = $modx->getDatabase()->escape($f);
-                $f = "(`" . implode("`, `", array_keys($f)) . "`) VALUES('" . implode("', '", array_values($f)) . "')";
-                $f .= " ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)";
-                $modx->getDatabase()->insert($f, $modx->getDatabase()->getFullTableName('user_settings'));
+                $data = [
+                    'user' => $_SESSION['mgrInternalKey'],
+                    'setting_name' => '_LAST_' . $key,
+                ];
+                UserSetting::query()->updateOrCreate($data, ['setting_value' => $val]);
             }
         }
     }

@@ -21,7 +21,7 @@ class uploader
     /** Config session-overrided settings
      * @var array
      */
-    protected $config = array();
+    protected array $config = [];
 
     /** Default image driver
      * @var string
@@ -34,7 +34,7 @@ class uploader
      *   $opener['TinyMCE']              Boolean
      * @var array
      */
-    protected $opener = array();
+    protected $opener = [];
 
     /** Got from $_GET['type'] or first one $config['types'] array key, if inexistant
      * @var string
@@ -56,12 +56,12 @@ class uploader
     /** Linked to $config['types']
      * @var array
      */
-    protected $types = array();
+    protected $types = [];
 
     /** Settings which can override default settings if exists as keys in $config['types'][$type] array
      * @var array
      */
-    protected $typeSettings = array('disabled', 'theme', 'dirPerms', 'filePerms', 'denyZipDownload', 'maxImageWidth', 'maxImageHeight', 'thumbWidth', 'thumbHeight', 'jpegQuality', 'access', 'filenameChangeChars', 'dirnameChangeChars', 'denyExtensionRename', 'deniedExts', 'watermark');
+    protected $typeSettings = ['disabled', 'theme', 'dirPerms', 'filePerms', 'denyZipDownload', 'maxImageWidth', 'maxImageHeight', 'thumbWidth', 'thumbHeight', 'jpegQuality', 'access', 'filenameChangeChars', 'dirnameChangeChars', 'denyExtensionRename', 'deniedExts', 'watermark'];
 
     /** Got from language file
      * @var string
@@ -76,7 +76,7 @@ class uploader
     /** Possible language $_GET keys
      * @var array
      */
-    protected $langInputNames = array('lang', 'langCode', 'lng', 'language', 'lang_code');
+    protected $langInputNames = ['lang', 'langCode', 'lng', 'language', 'lang_code'];
 
     /** Uploaded file(s) info. Linked to first $_FILES element
      * @var array
@@ -93,7 +93,7 @@ class uploader
     /** Contain Specified language labels
      * @var array
      */
-    protected $labels = array();
+    protected $labels = [];
 
     /** Contain unprocessed $_GET array. Please use this instead of $_GET
      * @var array
@@ -156,7 +156,7 @@ class uploader
 
         // SET CMS INTEGRATION ATTRIBUTE
         if (isset($this->get['cms']) &&
-            in_array($this->get['cms'], array("drupal"))
+            in_array($this->get['cms'], ["drupal"])
         )
             $this->cms = $this->get['cms'];
 
@@ -176,7 +176,7 @@ class uploader
                 if ((substr($key, 0, 1) != "_") && isset($_CONFIG[$key]))
                     $this->config[$key] = $val;
             if (!isset($this->config['_sessionVar']['self']))
-                $this->config['_sessionVar']['self'] = array();
+                $this->config['_sessionVar']['self'] = [];
             $this->session = &$this->config['_sessionVar']['self'];
         } else
             $this->session = &$_SESSION;
@@ -190,13 +190,13 @@ class uploader
                 $this->imageDriver = $driver;
         }
         if ((!isset($driver) || ($driver === false)) &&
-            (image::getDriver(array($this->imageDriver)) === false)
+            (image::getDriver([$this->imageDriver]) === false)
         )
             die("Cannot find any of the supported PHP image extensions!");
 
         // WATERMARK INIT
         if (isset($this->config['watermark']) && is_string($this->config['watermark']))
-            $this->config['watermark'] = array('file' => $this->config['watermark']);
+            $this->config['watermark'] = ['file' => $this->config['watermark']];
 
         // GET TYPE DIRECTORY
         $this->types = &$this->config['types'];
@@ -219,7 +219,7 @@ class uploader
 
         // COOKIES INIT
         $ip = '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)';
-        $ip = '/^' . implode('\.', array($ip, $ip, $ip, $ip)) . '$/';
+        $ip = '/^' . implode('\.', [$ip, $ip, $ip, $ip]) . '$/';
         if (preg_match($ip, $_SERVER['HTTP_HOST']) ||
             preg_match('/^[^\.]+$/', $_SERVER['HTTP_HOST'])
         )
@@ -306,7 +306,7 @@ class uploader
         // CHECK & CREATE UPLOAD FOLDER
         if (!is_dir($this->typeDir)) {
             if (!mkdir($this->typeDir, $this->config['dirPerms']))
-                $this->backMsg("Cannot create {dir} folder.", array('dir' => $this->type));
+                $this->backMsg("Cannot create {dir} folder.", ['dir' => $this->type]);
         } elseif (!is_readable($this->typeDir))
             $this->backMsg("Cannot read upload folder.");
     }
@@ -379,10 +379,10 @@ class uploader
             return
                 ($file['error'] == UPLOAD_ERR_INI_SIZE) ?
                     $this->label("The uploaded file exceeds {size} bytes.",
-                        array('size' => ini_get('upload_max_filesize'))) : (
+                        ['size' => ini_get('upload_max_filesize')]) : (
                 ($file['error'] == UPLOAD_ERR_FORM_SIZE) ?
                     $this->label("The uploaded file exceeds {size} bytes.",
-                        array('size' => $this->get['MAX_FILE_SIZE'])) : (
+                        ['size' => $this->get['MAX_FILE_SIZE']]) : (
                 ($file['error'] == UPLOAD_ERR_PARTIAL) ?
                     $this->label("The uploaded file was only partially uploaded.") : (
                 ($file['error'] == UPLOAD_ERR_NO_FILE) ?
@@ -612,7 +612,7 @@ class uploader
             $img->watermark($this->config['watermark']['file'], $left, $top);
         }
 
-        $options = array('file' => $file);
+        $options = ['file' => $file];
 
         $type = exif_imagetype($file);
 
@@ -625,7 +625,7 @@ class uploader
                 return $img->output('png', $options);
 
             default:
-                return $img->output('jpeg', array_merge($options, array('quality' => $this->config['jpegQuality'])));
+                return $img->output('jpeg', array_merge($options, ['quality' => $this->config['jpegQuality']]));
         }
 
     }
@@ -670,7 +670,7 @@ class uploader
         if ($this->imageDriver == 'gd') {
             $width = imagesx($img->image);
             $height = imagesy($img->image);
-            $back = image::factory($this->imageDriver, array($width, $height));
+            $back = image::factory($this->imageDriver, [$width, $height]);
             $tile = image::factory($this->imageDriver, __DIR__ . '/../themes/' . $this->config['theme'] . '/img/bg_transparent.png');
 
             imagesettile($back->image, $tile->image);
@@ -681,10 +681,10 @@ class uploader
         }
 
         // Save thumbnail
-        return $img->output("jpeg", array(
+        return $img->output("jpeg", [
             'file' => $thumb,
             'quality' => $this->config['jpegQuality']
-        ));
+        ]);
     }
 
     /**

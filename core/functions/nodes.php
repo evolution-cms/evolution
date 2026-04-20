@@ -10,7 +10,7 @@ if (!function_exists('makeHTML')) {
      */
     function makeHTML($indent, $parent, $expandAll, $hereid = '')
     {
-        $modx = evolutionCMS();
+        $modx = evo();
         global $icons, $_style, $_lang, $opened, $opened2, $closed2, $modx_textdir;
 
         $output = '';
@@ -80,7 +80,7 @@ if (!function_exists('makeHTML')) {
         if ($_SESSION['tree_sortby'] === 'isfolder') {
             $result = $result->orderBy('menuindex', 'ASC')->orderBy('pagetitle', 'ASC');
         }
-           // orderBy('menuindex', 'ASC')->orderBy('pagetitle', 'ASC');
+        // orderBy('menuindex', 'ASC')->orderBy('pagetitle', 'ASC');
 //'privatemgr',\DB::raw('MAX(IF(1='.$mgrRole.' OR privatemgr=0 '.$docgrp_cond.', 1, 0)) AS hasAccess'),
         if (!$showProtected) {
             if (!$docgrp) {
@@ -118,6 +118,7 @@ if (!function_exists('makeHTML')) {
         foreach ($result as $item) {
             $row = $item->toArray();
             $row['roles'] = '';
+            $row['nomove'] = 0;
             $row['hasAccess'] = 0;
             if ($mgrRole == 1 || $row['privatemgr'] == 0) {
                 $row['hasAccess'] = 1;
@@ -160,20 +161,20 @@ if (!function_exists('makeHTML')) {
                 if ($rowLock['sid'] == $modx->sid) {
                     $title = $modx->parseText(
                         $_lang['lock_element_editing']
-                        , array(
+                        , [
                             'element_type' => $_lang['lock_element_type_7'],
                             'lasthit_df' => $rowLock['lasthit_df']
-                        )
+                        ]
                     );
                     $lockedByUser = '<span title="' . $title . '" class="editResource"><i class="' . $_style['icon_eye'] . '"></i></span>';
                 } else {
-                    $title = $modx->parseText($_lang['lock_element_locked_by'], array(
+                    $title = $modx->parseText($_lang['lock_element_locked_by'], [
                         'element_type' => $_lang['lock_element_type_7'],
                         'username' => $rowLock['username'],
                         'lasthit_df' => $rowLock['lasthit_df']
-                    ));
+                    ]);
                     if ($modx->hasPermission('remove_locks')) {
-                        $lockedByUser = '<span onclick="modx.tree.unlockElement(7, ' . $row['id'] . ', this);return false;" title="' . $title . '" class="lockedResource"><i class="' . $_style['icon_lock'] . '"></i></span>';
+                        $lockedByUser = '<span onclick="evo.tree.unlockElement(7, ' . $row['id'] . ', this);return false;" title="' . $title . '" class="lockedResource"><i class="' . $_style['icon_lock'] . '"></i></span>';
                     } else {
                         $lockedByUser = '<span title="' . $title . '" class="lockedResource"><i class="' . $_style['icon_lock'] . '"></i></span>';
                     }
@@ -201,7 +202,7 @@ if (!function_exists('makeHTML')) {
             $title = $modx->getPhpCompat()->htmlspecialchars($title);
             $title = str_replace('[+lf+]', ' &#13;', $title);   // replace line-breaks with empty space as fall-back
 
-            $data = array(
+            $data = [
                 'id' => $row['id'],
                 'pagetitle' => $row['pagetitle'],
                 'longtitle' => $row['longtitle'],
@@ -241,8 +242,9 @@ if (!function_exists('makeHTML')) {
                 'subMenuState' => '',
                 'level' => $level,
                 'isPrivate' => 0,
-                'roles' => ($row['roles'] ? $row['roles'] : '')
-            );
+                'roles' => ($row['roles'] ? $row['roles'] : ''),
+                'nomove' => 0
+            ];
 
             $ph = $data;
             $ph['nodetitle_esc'] = addslashes($nodetitle);
@@ -253,16 +255,20 @@ if (!function_exists('makeHTML')) {
             if (!$row['isfolder']) {
                 $tpl = getTplSingleNode();
                 switch ($row['id']) {
-                    case $modx->getConfig('site_start')            :
+                    case $modx->getConfig('site_start') :
+                        $ph['nomove'] = 1;
                         $icon = '<i class="' . $_style['icon_home'] . '"></i>';
                         break;
-                    case $modx->getConfig('error_page')            :
+                    case $modx->getConfig('error_page') :
+                        $ph['nomove'] = 1;
                         $icon = '<i class="' . $_style['icon_info_triangle'] . '"></i>';
                         break;
                     case $modx->getConfig('site_unavailable_page') :
+                        $ph['nomove'] = 1;
                         $icon = '<i class="' . $_style['icon_clock'] . '"></i>';
                         break;
-                    case $modx->getConfig('unauthorized_page')     :
+                    case $modx->getConfig('unauthorized_page') :
+                        $ph['nomove'] = 1;
                         $icon = '<i class="' . $_style['icon_info'] . '"></i>';
                         break;
                     default:
@@ -275,9 +281,9 @@ if (!function_exists('makeHTML')) {
                 $ph['icon'] = $icon;
 
                 // invoke OnManagerNodePrerender event
-                $prenode = $modx->invokeEvent('OnManagerNodePrerender', array('ph' => $ph));
+                $prenode = $modx->invokeEvent('OnManagerNodePrerender', ['ph' => $ph]);
                 if (is_array($prenode)) {
-                    $phnew = array();
+                    $phnew = [];
                     foreach ($prenode as $pnode) {
                         $pnode = unserialize($pnode);
                         foreach ($pnode as $k => $v) {
@@ -330,12 +336,12 @@ if (!function_exists('makeHTML')) {
                         }
 
                         // invoke OnManagerNodePrerender event
-                        $prenode = $modx->invokeEvent('OnManagerNodePrerender', array(
+                        $prenode = $modx->invokeEvent('OnManagerNodePrerender', [
                             'ph' => $ph,
                             'opened' => '1'
-                        ));
+                        ]);
                         if (is_array($prenode)) {
-                            $phnew = array();
+                            $phnew = [];
                             foreach ($prenode as $pnode) {
                                 $pnode = unserialize($pnode);
                                 foreach ($pnode as $k => $v) {
@@ -373,12 +379,12 @@ if (!function_exists('makeHTML')) {
                         }
 
                         // invoke OnManagerNodePrerender event
-                        $prenode = $modx->invokeEvent('OnManagerNodePrerender', array(
+                        $prenode = $modx->invokeEvent('OnManagerNodePrerender', [
                             'ph' => $ph,
                             'opened' => '0'
-                        ));
+                        ]);
                         if (is_array($prenode)) {
-                            $phnew = array();
+                            $phnew = [];
                             foreach ($prenode as $pnode) {
                                 $pnode = unserialize($pnode);
                                 foreach ($pnode as $k => $v) {
@@ -415,12 +421,12 @@ if (!function_exists('makeHTML')) {
                         }
 
                         // invoke OnManagerNodePrerender event
-                        $prenode = $modx->invokeEvent('OnManagerNodePrerender', array(
+                        $prenode = $modx->invokeEvent('OnManagerNodePrerender', [
                             'ph' => $ph,
                             'opened' => '1'
-                        ));
+                        ]);
                         if (is_array($prenode)) {
-                            $phnew = array();
+                            $phnew = [];
                             foreach ($prenode as $pnode) {
                                 $pnode = unserialize($pnode);
                                 foreach ($pnode as $k => $v) {
@@ -465,12 +471,12 @@ if (!function_exists('makeHTML')) {
                         }
 
                         // invoke OnManagerNodePrerender event
-                        $prenode = $modx->invokeEvent('OnManagerNodePrerender', array(
+                        $prenode = $modx->invokeEvent('OnManagerNodePrerender', [
                             'ph' => $ph,
                             'opened' => '0'
-                        ));
+                        ]);
                         if (is_array($prenode)) {
-                            $phnew = array();
+                            $phnew = [];
                             foreach ($prenode as $pnode) {
                                 $pnode = unserialize($pnode);
                                 foreach ($pnode as $k => $v) {
@@ -521,7 +527,7 @@ if (!function_exists('getIconInfo')) {
      */
     function getIconInfo($_style)
     {
-        return array(
+        return [
             'text/plain' => '<i class="' . $_style['icon_document'] . '"></i>',
             'text/html' => '<i class="' . $_style['icon_document'] . '"></i>',
             'text/xml' => '<i class="' . $_style['icon_code_file'] . '"></i>',
@@ -534,7 +540,7 @@ if (!function_exists('getIconInfo')) {
             'application/rss+xml' => '<i class="' . $_style['icon_code_file'] . '"></i>',
             'application/vnd.ms-word' => '<i class="' . $_style['icon_word'] . '"></i>',
             'application/vnd.ms-excel' => '<i class="' . $_style['icon_excel'] . '"></i>',
-        );
+        ];
     }
 }
 
@@ -546,7 +552,7 @@ if (!function_exists('getNodeTitle')) {
      */
     function getNodeTitle($nodeNameSource, $row)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         switch ($nodeNameSource) {
             case 'menutitle':
@@ -583,11 +589,11 @@ if (!function_exists('getNodeTitle')) {
             default:
                 $nodetitle = $row['pagetitle'];
         }
-        $nodetitle = $modx->getPhpCompat()->htmlspecialchars(str_replace(array(
+        $nodetitle = $modx->getPhpCompat()->htmlspecialchars(str_replace([
             "\r\n",
             "\n",
             "\r"
-        ), ' ', $nodetitle), ENT_COMPAT);
+        ], ' ', $nodetitle), ENT_COMPAT);
 
         return $nodetitle;
     }
@@ -632,7 +638,7 @@ if (!function_exists('_htmlentities')) {
      */
     function _htmlentities($array)
     {
-        $modx = evolutionCMS();
+        $modx = evo();
 
         $array = json_encode($array, JSON_UNESCAPED_UNICODE);
         $array = htmlentities($array, ENT_COMPAT, $modx->getConfig('modx_charset'));
@@ -648,8 +654,8 @@ if (!function_exists('getTplSingleNode')) {
     function getTplSingleNode()
     {
         return '<div id="node[+id+]"><a class="[+treeNodeClass+]"
-        onclick="modx.tree.treeAction(event,[+id+]);"
-        oncontextmenu="modx.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');"
+        onclick="evo.tree.treeAction(event,[+id+]);"
+        oncontextmenu="evo.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');"
         data-id="[+id+]"
         data-title-esc="[+nodetitle_esc+]"
         data-published="[+published+]"
@@ -658,12 +664,13 @@ if (!function_exists('getTplSingleNode')) {
         data-href="[+url+]"
         data-private="[+isPrivate+]"
         data-roles="[+roles+]"
+        data-nomove="[+nomove+]"
         data-level="[+level+]"
         data-treepageclick="[+tree_page_click+]"
         [+contextmenu+]
         >[+spacer+]<span
         class="icon"
-        onclick="modx.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');return false;"
+        onclick="evo.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');return false;"
         oncontextmenu="this.onclick(event);return false;"
         >[+icon+]</span>[+lockedByUser+]<span
         class="title"
@@ -678,8 +685,8 @@ if (!function_exists('getTplFolderNode')) {
     function getTplFolderNode()
     {
         return '<div id="node[+id+]"><a class="[+treeNodeClass+]"
-        onclick="modx.tree.treeAction(event,[+id+]);"
-        oncontextmenu="modx.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');"
+        onclick="evo.tree.treeAction(event,[+id+]);"
+        oncontextmenu="evo.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');"
         data-id="[+id+]"
         data-title-esc="[+nodetitle_esc+]"
         data-published="[+published+]"
@@ -688,6 +695,7 @@ if (!function_exists('getTplFolderNode')) {
         data-href="[+url+]"
         data-private="[+isPrivate+]"
         data-roles="[+roles+]"
+        data-nomove="[+nomove+]"
         data-level="[+level+]"
         data-icon-expanded="[+tree_plusnode+]"
         data-icon-collapsed="[+tree_minusnode+]"
@@ -701,11 +709,11 @@ if (!function_exists('getTplFolderNode')) {
         [+contextmenu+]
         >[+spacer+]<span
         class="toggle"
-        onclick="modx.tree.toggleNode(event, [+id+]);"
+        onclick="evo.tree.toggleNode(event, [+id+]);"
         oncontextmenu="this.onclick(event);"
         >[+icon_node_toggle+]</span><span
         class="icon"
-        onclick="modx.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');return false;"
+        onclick="evo.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');return false;"
         oncontextmenu="this.onclick(event);return false;"
         >[+icon+]</span>[+lockedByUser+]<span
         class="title"
@@ -719,8 +727,8 @@ if (!function_exists('getTplFolderNodeNotChildren')) {
     function getTplFolderNodeNotChildren()
     {
         return '<div id="node[+id+]"><a class="[+treeNodeClass+]"
-        onclick="modx.tree.treeAction(event,[+id+]);"
-        oncontextmenu="modx.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');"
+        onclick="evo.tree.treeAction(event,[+id+]);"
+        oncontextmenu="evo.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');"
         data-id="[+id+]"
         data-title-esc="[+nodetitle_esc+]"
         data-published="[+published+]"
@@ -729,6 +737,7 @@ if (!function_exists('getTplFolderNodeNotChildren')) {
         data-href="[+url+]"
         data-private="[+isPrivate+]"
         data-roles="[+roles+]"
+        data-nomove="[+nomove+]"
         data-level="[+level+]"
         data-icon-expanded="[+tree_plusnode+]"
         data-icon-collapsed="[+tree_minusnode+]"
@@ -742,7 +751,7 @@ if (!function_exists('getTplFolderNodeNotChildren')) {
         [+contextmenu+]
         >[+spacer+]<span
         class="icon"
-        onclick="modx.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');return false;"
+        onclick="evo.tree.showPopup(event,[+id+],\'[+nodetitle_esc+]\');return false;"
         oncontextmenu="this.onclick(event);return false;"
         >[+icon+]</span>[+lockedByUser+]<span
         class="title"

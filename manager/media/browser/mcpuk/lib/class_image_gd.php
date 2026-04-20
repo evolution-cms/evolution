@@ -1,16 +1,16 @@
 <?php
 
 /** This file is part of KCFinder project
-  *
-  *      @desc GD image driver class
-  *   @package KCFinder
-  *   @version 2.54
-  *    @author Pavel Tzonkov <sunhater@sunhater.com>
-  * @copyright 2010-2014 KCFinder Project
-  *   @license http://www.opensource.org/licenses/gpl-2.0.php GPLv2
-  *   @license http://www.opensource.org/licenses/lgpl-2.1.php LGPLv2
-  *      @link http://kcfinder.sunhater.com
-  */
+ *
+ *      @desc GD image driver class
+ *   @package KCFinder
+ *   @version 2.54
+ *    @author Pavel Tzonkov <sunhater@sunhater.com>
+ * @copyright 2010-2014 KCFinder Project
+ *   @license http://www.opensource.org/licenses/gpl-2.0.php GPLv2
+ *   @license http://www.opensource.org/licenses/lgpl-2.1.php LGPLv2
+ *      @link http://kcfinder.sunhater.com
+ */
 
 class image_gd extends image {
 
@@ -21,7 +21,7 @@ class image_gd extends image {
         if (!$width) $width = 1;
         if (!$height) $height = 1;
         return (
-            (false !== ($img = new image_gd(array($width, $height)))) &&
+            (false !== ($img = new image_gd([$width, $height]))) &&
             $img->imageCopyResampled($this) &&
             (false !== ($this->image = $img->image)) &&
             (false !== ($this->width = $img->width)) &&
@@ -49,7 +49,7 @@ class image_gd extends image {
             return $this->resize($w, $h);
 
         else {
-            $img = new image_gd(array($width, $height));
+            $img = new image_gd([$width, $height]);
             $x = round(($width - $w) / 2);
             $y = round(($height - $h) / 2);
 
@@ -104,9 +104,9 @@ class image_gd extends image {
         if (!$h) $h = 1;
 
         $return = (
-            (false !== ($img = new image_gd(array($width, $height))))) &&
+            (false !== ($img = new image_gd([$width, $height])))) &&
             (false !== ($img->imageCopyResampled($this->image, $x, $y, 0, 0, $w, $h))
-        );
+            );
 
         if ($return) {
             $this->image = $img->image;
@@ -130,8 +130,8 @@ class image_gd extends image {
 
     public function flipHorizontal() {
         $img = imagecreatetruecolor($this->width, $this->height);
-            imagealphablending($img, false);
-            imagesavealpha($img, true);
+        imagealphablending($img, false);
+        imagesavealpha($img, true);
         if (imagecopyresampled($img, $this->image, 0, 0, ($this->width - 1), 0, $this->width, $this->height, -$this->width, $this->height))
             $this->image = $img;
         else
@@ -141,8 +141,8 @@ class image_gd extends image {
 
     public function flipVertical() {
         $img = imagecreatetruecolor($this->width, $this->height);
-            imagealphablending($img, false);
-            imagesavealpha($img, true);
+        imagealphablending($img, false);
+        imagesavealpha($img, true);
         if (imagecopyresampled($img, $this->image, 0, 0, 0, ($this->height - 1), $this->width, $this->height, $this->width, -$this->height))
             $this->image = $img;
         else
@@ -153,7 +153,7 @@ class image_gd extends image {
     public function watermark($file, $left=false, $top=false) {
         $info = getimagesize($file);
         list($w, $h, $t) = $info;
-        if (!in_array($t, array(IMAGETYPE_PNG, IMAGETYPE_GIF)))
+        if (!in_array($t, [IMAGETYPE_PNG, IMAGETYPE_GIF]))
             return false;
         $imagecreate = ($t == IMAGETYPE_PNG) ? "imagecreatefrompng" : "imagecreatefromgif";
 
@@ -187,7 +187,7 @@ class image_gd extends image {
         return true;
     }
 
-    public function output($type='jpeg', array $options=array()) {
+    public function output($type='jpeg', array $options=[]) {
         $method = "output_$type";
         if (!method_exists($this, $method))
             return false;
@@ -219,11 +219,12 @@ class image_gd extends image {
         ) {
             $image =
                 ($t == IMAGETYPE_GIF)  ? @imagecreatefromgif($image)  : (
+                ($t == IMAGETYPE_WEBP) ? @imagecreatefromwebp($image) : (
                 ($t == IMAGETYPE_WBMP) ? @imagecreatefromwbmp($image) : (
                 ($t == IMAGETYPE_JPEG) ? @imagecreatefromjpeg($image) : (
                 ($t == IMAGETYPE_PNG)  ? @imagecreatefrompng($image)  : (
                 ($t == IMAGETYPE_XBM)  ? @imagecreatefromxbm($image)  : false
-            ))));
+                )))));
 
             return $image;
 
@@ -246,11 +247,12 @@ class image_gd extends image {
 
         $img =
             ($t == IMAGETYPE_GIF)  ? @imagecreatefromgif($file)  : (
+            ($t == IMAGETYPE_WEBP)  ? @imagecreatefromwebp($file)  : (
             ($t == IMAGETYPE_WBMP) ? @imagecreatefromwbmp($file) : (
             ($t == IMAGETYPE_JPEG) ? @imagecreatefromjpeg($file) : (
             ($t == IMAGETYPE_PNG)  ? @imagecreatefrompng($file)  : (
             ($t == IMAGETYPE_XBM)  ? @imagecreatefromxbm($file)  : false
-        ))));
+            )))));
 
         return ($img !== false);
     }
@@ -258,7 +260,7 @@ class image_gd extends image {
 
     // OWN METHODS
 
-    protected function output_png(array $options=array()) {
+    protected function output_png(array $options=[]) {
         $file = isset($options['file']) ? $options['file'] : null;
         $quality = isset($options['quality']) ? $options['quality'] : null;
         $filters = isset($options['filters']) ? $options['filters'] : null;
@@ -268,7 +270,7 @@ class image_gd extends image {
         return imagepng($this->image, $file, $quality, $filters);
     }
 
-    protected function output_jpeg(array $options=array()) {
+    protected function output_jpeg(array $options=[]) {
         $file = isset($options['file']) ? $options['file'] : null;
         $quality = isset($options['quality'])
             ? $options['quality']
@@ -278,7 +280,7 @@ class image_gd extends image {
         return imagejpeg($this->image, $file, $quality);
     }
 
-    protected function output_gif(array $options=array()) {
+    protected function output_gif(array $options=[]) {
         $file = isset($options['file']) ? $options['file'] : null;
         if (isset($options['file']) && !headers_sent())
             header("Content-Type: image/gif");

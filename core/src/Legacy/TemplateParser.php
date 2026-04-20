@@ -8,11 +8,11 @@ Class TemplateParser
      * @param array $data
      * @return string
      */
-    public function output($config = array(), $data = array()) {
+    public function output($config = [], $data = []) {
         $modx = evolutionCMS();
 
         $output = '';
-        $action = !empty($config['action']) ? $config['action'] : (!empty($_REQUEST['a']) ? $_REQUEST['a'] : '');
+        $action = !empty($config['action']) ? $config['action'] : (!empty($_REQUEST['a']) ? (int)$_REQUEST['a'] : '');
         $tab = isset($config['tab']) ? ' AND tab IN(' . $config['tab'] . ')' : '';
 
         if($action) {
@@ -23,7 +23,7 @@ Class TemplateParser
 			ORDER BY t1.tab ASC, t1.rank ASC');
 
             if($modx->getDatabase()->getRecordCount($sql)) {
-                $tabs = array();
+                $tabs = [];
                 while($row = $modx->getDatabase()->getRow($sql)) {
                     if(!$row['value'] && !empty($data[$row['name']])) {
                         $row['value'] = $data[$row['name']];

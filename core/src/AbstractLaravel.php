@@ -14,6 +14,7 @@ use Illuminate\Config\Repository;
 use Symfony\Component\Finder\Finder;
 use Illuminate\Log\LogServiceProvider;
 
+/** @phpstan-consistent-constructor */
 abstract class AbstractLaravel extends Container implements ApplicationContract
 {
     /**
@@ -84,7 +85,7 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
     ];
 
     /**
-     * All of the registered service providers.
+     * All the registered service providers.
      *
      * @var array
      */
@@ -195,9 +196,26 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
             ksort($files, SORT_NATURAL);
 
             foreach ($files as $key => $path) {
-                $config->set($key, require $path);
+                try {
+                    $config->set($key, require $path);
+                } catch (\ParseError $exception) {
+                    if (!$this->isCustomConfigPath($path)) {
+                        throw $exception;
+                    }
+
+                    error_log(sprintf(
+                        '[EvolutionCMS] Skipped invalid custom config file "%s": %s',
+                        $path,
+                        $exception->getMessage()
+                    ));
+                }
             }
         }
+    }
+
+    protected function isCustomConfigPath(string $path): bool
+    {
+        return str_contains(str_replace('\\', '/', $path), '/custom/config/');
     }
 
     /**
@@ -293,7 +311,7 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
 
     /**
      * {@inheritdoc}
-     * @TODO: Загрузиь сначала Illuminate\\, потом EvolutionCMS, а потом все остальное
+     * @TODO: Завантажити спочатку Illuminate, потім EvolutionCMS, а потім все інше
      */
     public function registerConfiguredProviders()
     {
@@ -358,7 +376,7 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
     }
 
     /**
-     * Load and boot all of the remaining deferred providers.
+     * Load and boot all the remaining deferred providers.
      *
      * @return void
      */
@@ -385,9 +403,9 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
             return;
         }
         $provider = $this->deferredServices[$service];
-        // If the service provider has not already been loaded and registered we can
+        // If the service provider has not already been loaded and registered, we can
         // register it with the application and remove the service from this list
-        // of deferred services, since it will already be loaded on subsequent.
+        // of deferred services, since it will already be loaded on later.
         if (!isset($this->loadedProviders[$provider])) {
             $this->registerDeferredProvider($provider, $service);
         }
@@ -398,7 +416,7 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
      */
     public function registerDeferredProvider($provider, $service = null)
     {
-        // Once the provider that provides the deferred service has been registered we
+        // Once the provider that provides the deferred service has been registered, we
         // will remove it from our local list of the deferred services with related
         // providers so that this container does not try to resolve it out again.
         if ($service) {
@@ -459,11 +477,12 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
      * Resolve the given type from the container.
      *
      * (Overriding Container::make)
+     * @template TClass of object
      *
-     * @param string $abstract
+     * @param string|class-string<TClass> $abstract
      * @param array $parameters
-     * @return mixed
-     */
+     * @return ($abstract is class-string<TClass> ? \Closure(): TClass : \Closure(): mixed)
+    */
     public function make($abstract, array $parameters = [])
     {
         $abstract = $this->getAlias($abstract);
@@ -507,7 +526,7 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
         if ($this->booted) {
             return;
         }
-        // Once the application has booted we will also fire some "booted" callbacks
+        // Once the application has booted, we will also fire some "booted" callbacks
         // for any listeners that need to do work after this initial booting gets
         // finished. This is useful when ordering the boot-up processes we run.
         $this->fireAppCallbacks($this->bootingCallbacks);
@@ -639,7 +658,6 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
     {
         return $this->getService('makeTable');
     }
-
 
     /**
      * @return mixed

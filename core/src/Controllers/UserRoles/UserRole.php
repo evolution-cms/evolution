@@ -66,11 +66,18 @@ class UserRole extends AbstractController implements ManagerTheme\PageController
         $role->description = $_POST['description'];
         $role->save();
 
-        if (isset($_POST['permissions']) && is_array($_POST['permissions'])) {
-            Models\RolePermissions::query()->where('role_id', $role->getKey())->delete();
-            foreach ($_POST['permissions'] as $key => $permission) {
-                Models\RolePermissions::create(['role_id' => $role->getKey(), 'permission' => $key]);
-            }
+        $requiredPermissions = Models\Permissions::query()
+            ->where('disabled', 1)
+            ->pluck('key')
+            ->all();
+        $selectedPermissions = self::normalizePermissionsPayload(
+            is_array($_POST['permissions'] ?? null) ? $_POST['permissions'] : [],
+            $requiredPermissions
+        );
+
+        Models\RolePermissions::query()->where('role_id', $role->getKey())->delete();
+        foreach (array_keys($selectedPermissions) as $key) {
+            Models\RolePermissions::create(['role_id' => $role->getKey(), 'permission' => $key]);
         }
 
         if ($_POST['tvsDirty'] == 1) {
@@ -105,6 +112,15 @@ class UserRole extends AbstractController implements ManagerTheme\PageController
 
         $this->managerTheme->getCore()->getManagerApi()->clearSavedFormValues();
         header('Location: index.php?a=35&id=' . $role->getKey() . '&r=9');
+    }
+
+    public static function normalizePermissionsPayload(array $permissions, array $requiredPermissions = []): array
+    {
+        foreach ($requiredPermissions as $permission) {
+            $permissions[$permission] = 1;
+        }
+
+        return $permissions;
     }
 
     /**

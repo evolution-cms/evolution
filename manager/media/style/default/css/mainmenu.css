@@ -30,8 +30,11 @@
 }
 #mainMenu > .container {
     display: table;
-    width: 100%;
     border-collapse: collapse;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    width: 100%;
+    min-width: 100%;
 }
 #mainMenu > .container > .row {
     display: table-row;
@@ -59,7 +62,18 @@
 }
 #mainMenu .nav > li.active > a {
     color: #fff;
-    background-color: rgba(255, 255, 255, 0.07);
+    background-color: transparent;
+}
+#mainMenu #nav #site::before {
+    content: none !important;
+    display: none !important;
+    background: none !important;
+}
+#mainMenu #nav #bars.active > a,
+#mainMenu #nav #bars.hover > a,
+#mainMenu.show #nav #bars.hover > a {
+    background-color: transparent;
+    color: inherit;
 }
 #mainMenu .nav > li > a,
 #mainMenu .nav .label_searchid {
@@ -75,12 +89,12 @@
 }
 #mainMenu .nav > li > a:hover,
 #mainMenu .nav .label_searchid:hover {
-    color: #f3f3f3;
+    color: #fff;
 }
 /*#mainMenu.show .nav > li.dropdown:hover > a, */
 #mainMenu.show .nav > li.dropdown.hover > a {
-    background-color: #fff;
-    color: #444;
+    background-color: transparent;
+    color: #fff;
 }
 #mainMenu .nav > li > a .icon {
     display: inline-block;
@@ -110,19 +124,77 @@
     vertical-align: top;
 }
 #mainMenu #nav > li > a > .fa {
-    display: none;
+    display: inline-block;
+    font-size: 20px;
+    line-height: 20px;
+}
+#mainMenu #nav > li > a > svg {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+}
+#mainMenu .menu-icon-evo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px !important;
+    pointer-events: none;
+    vertical-align: middle;
+    align-self: center;
+}
+#mainMenu #nav #site a .icon.menu-icon-evo {
+    margin: 0;
+}
+#mainMenu .menu-icon-evo svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+    pointer-events: none;
+}
+#mainMenu #nav > li > a,
+#mainMenu #settings > li > a {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+#mainMenu #nav > li > a > .fa,
+#mainMenu #nav > li > a > svg {
+    margin-right: 0;
+    line-height: 1;
+}
+#mainMenu #settings > li > a .username {
+    line-height: 1;
+}
+#mainMenu #settings > li > a .icon:not(.photo) {
+    margin: 0;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+#mainMenu #settings > li > a .icon:not(.photo) svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+}
+#mainMenu #nav > li > a .menu-item-text {
+    line-height: 1;
 }
 #mainMenu #nav #bars {
-    width: 3.5rem;
+    width: 2.75rem;
     text-align: center;
 }
 #mainMenu #nav #bars a {
     padding: 0;
+    justify-content: center;
 }
 #mainMenu #nav #bars .fa {
     display: inline-block;
-    min-width: 0.25rem;
-    width: 1.5rem;
+    min-width: 20px;
+    width: 20px;
     margin: 0;
     text-align: center;
     overflow: hidden;
@@ -130,8 +202,33 @@
     transition-duration: 0.15s;
 }
 .sidebar-closed #mainMenu #nav #bars .fa {
-    width: 0.25rem;
+    width: 20px;
 }
+#mainMenu #nav #bars svg {
+    display: inline-block;
+    min-width: 20px;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    text-align: center;
+    overflow: hidden;
+    -webkit-transition-duration: 0.15s;
+    transition-duration: 0.15s;
+}
+.sidebar-closed #mainMenu #nav #bars svg {
+    width: 20px;
+    height: 20px;
+}
+#mainMenu #nav #bars .icon-expand,
+#mainMenu #nav #bars .icon-collapse {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+body:not(.sidebar-closed) #bars .icon-expand { display: none !important; }
+body:not(.sidebar-closed) #bars .icon-collapse { display: inline-block !important; }
+body.sidebar-closed #bars .icon-expand { display: inline-block !important; }
+body.sidebar-closed #bars .icon-collapse { display: none !important; }
 #mainMenu #system > a > .fa {
     font-size: 1.1rem;
 }
@@ -219,10 +316,28 @@
 #mainMenu .nav > li > ul > li .fa {
     width: 1.3em;
     margin-right: 0.5em;
-    font-size: 0.875rem;
-    line-height: 0.8rem;
+    font-size: 1rem;
+    line-height: 1rem;
     text-align: center;
-    vertical-align: baseline;
+    vertical-align: middle;
+}
+#mainMenu .nav > li > ul > li > a > svg:first-child {
+    margin-right: 0.5em;
+    vertical-align: middle;
+}
+#mainMenu .nav > li > ul > li > a > svg {
+    width: 1rem;
+    height: 1rem;
+}
+#mainMenu .nav > li > ul > li .arrow svg,
+#mainMenu .nav > li > ul > li .toggle svg,
+#mainMenu .nav > li > ul > li > a .arrow svg,
+#mainMenu .nav > li > ul > li svg.toggle,
+#mainMenu .nav > li > ul > li svg.arrow,
+#mainMenu .nav > li > ul > li svg[class*="chevron"],
+#mainMenu .nav > li > ul > li svg[class*="angle"] {
+    width: 0.7em;
+    height: 0.7em;
 }
 #mainMenu .nav > li > ul > li.selected a:first-child::before,
 #main .evo-tab-row .tab.changed::before {
@@ -481,7 +596,7 @@
         top: 2.5rem;
     }
     #mainMenu #nav #site a {
-        margin-left: 9.25rem;
+        margin-left: 0;
     }
     body.lightness #mainMenu #nav #site::before {
         content: "";
@@ -532,7 +647,7 @@
         font-size: 0.875rem;
     }
     #mainMenu #nav > li > a {
-        padding: 0 1.25rem;
+        padding: 0 1rem;
     }
     #mainMenu #nav > li > a > .fa {
         display: none;
@@ -562,7 +677,7 @@
 }
 @media (max-width: 1020px) {
     #mainMenu #nav #bars {
-        width: 3rem;
+        width: 2.5rem;
     }
     .nav > li > a,
     #mainMenu .nav > li > ul > li > a,
@@ -576,7 +691,7 @@
         display: none;
     }
     #mainMenu #nav #bars {
-        width: 2.5rem;
+        width: 2.25rem;
     }
     #mainMenu .nav > li {
         position: static;
@@ -647,11 +762,19 @@
     color: #464646;
 }
 .lightness #mainMenu .nav > li.active > a {
-    color: #222;
-    background: #fff;
+    color: #464646;
+    background: transparent;
 }
 .lightness #mainMenu.show .nav > li.dropdown.hover > a {
-    color: #222;
+    color: #464646;
+    background-color: transparent;
+}
+.lightness #mainMenu #settings > #theme > a:hover,
+.lightness #mainMenu #settings > #theme > a:focus,
+.lightness #mainMenu #settings > #theme > a:active,
+.lightness #mainMenu.show #settings > #theme.hover > a {
+    color: #2f2f2f;
+    background-color: transparent;
 }
 /* light */
 .light #mainMenu {
@@ -667,7 +790,8 @@
     color: #dcd9e3;
 }
 .light #mainMenu.show .nav > li.dropdown.hover > a {
-    color: #444;
+    color: #fff;
+    background-color: transparent;
 }
 /* dark */
 .dark #mainMenu {
@@ -683,7 +807,8 @@
     color: #bbb;
 }
 .dark #mainMenu.show .nav > li.dropdown.hover > a {
-    color: #444;
+    color: #fff;
+    background-color: transparent;
 }
 /* darkness */
 .darkness #mainMenu {
@@ -701,8 +826,8 @@
 }
 .darkness #mainMenu.show .nav > li.dropdown.hover > a,
 .dark.navbar-left #mainMenu.show .nav > li.dropdown.hover > a {
-    color: #eee;
-    background-color: #343942;
+    color: #fff;
+    background-color: transparent;
 }
 .darkness #mainMenu .nav > li > ul,
 .dark.navbar-left #mainMenu .nav > li > ul {
@@ -752,25 +877,31 @@
         top: 0;
     }
     .navbar-left #tree {
-        padding-left: 3rem;
+        padding-left: 2.5rem;
     }
     .navbar-left.sidebar-closed #tree {
         padding-left: 0;
     }
     .navbar-left.sidebar-closed #main {
-        left: 3rem !important;
+        left: 2.5rem !important;
     }
     .navbar-left #mainMenu {
-        width: 3rem;
+        width: 2.5rem;
         height: 100%;
     }
     .navbar-left #mainMenu > .container {
-        display: block;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
         padding-left: 0;
         padding-right: 0;
     }
     .navbar-left #mainMenu > .container > .row {
-        display: block;
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        justify-content: space-between;
+        min-height: 0;
         margin-left: 0;
         margin-right: 0;
     }
@@ -780,11 +911,18 @@
     .navbar-left #mainMenu #nav,
     .navbar-left #mainMenu #settings {
         float: none;
+        width: 2.5rem;
     }
     .navbar-left #mainMenu #settings {
-        margin-top: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.25rem;
         padding-top: 0.5rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.15);
+        padding-bottom: 0.75rem;
+        margin-top: 0;
+        border-top: 0;
     }
     .navbar-left #mainMenu .nav > li {
         width: 100%;
@@ -798,11 +936,19 @@
     .navbar-left #mainMenu #nav > li > a,
     .navbar-left #mainMenu #settings > li > a {
         padding: 0;
+        justify-content: center;
+        gap: 0;
+        width: 100%;
+        height: 2.5rem;
+        line-height: 2.5rem;
     }
     .navbar-left #mainMenu #settings > li > a {
-        padding: 0.5rem 0;
+        padding: 0;
     }
     .navbar-left #mainMenu #nav > li > a > .fa {
+        display: inline-block;
+    }
+    .navbar-left #mainMenu #nav > li > a > svg {
         display: inline-block;
     }
     .navbar-left #mainMenu #nav > li > a > .fa,
@@ -811,11 +957,21 @@
     .navbar-left #mainMenu #nav > li > .fa,
     .navbar-left #mainMenu #nav > li > a > .fa,
     .navbar-left #mainMenu #system > a > .fa {
-        font-size: 0.875rem;
+        font-size: 20px;
+        line-height: 20px;
+    }
+    .navbar-left #mainMenu #nav > li > a > svg,
+    .navbar-left #mainMenu #searchform svg,
+    .navbar-left #mainMenu #preview svg,
+    .navbar-left #mainMenu #nav > li > svg,
+    .navbar-left #mainMenu #nav > li > a > svg,
+    .navbar-left #mainMenu #system > a > svg {
+        width: 20px;
+        height: 20px;
     }
     .navbar-left #mainMenu .nav > li > ul,
     .navbar-left #mainMenu #settings.nav > li > ul {
-        left: 3rem;
+        left: 2.5rem;
         top: 0;
         right: auto;
         bottom: 0;
@@ -830,17 +986,8 @@
     .navbar-left #mainMenu #settings.nav > #account,
     .navbar-left #mainMenu #settings.nav > #system,
     .navbar-left #mainMenu #settings.nav > #fullscreen {
-        position: absolute;
-        width: 3rem;
-    }
-    .navbar-left #mainMenu #settings.nav > #account {
-        bottom: 0;
-    }
-    .navbar-left #mainMenu #settings.nav > #system {
-        bottom: 3.2rem;
-    }
-    .navbar-left #mainMenu #settings.nav > #fullscreen {
-        bottom: 5rem;
+        position: static;
+        width: 100%;
     }
     .navbar-left #mainMenu #settings.nav > #account > ul,
     .navbar-left #mainMenu #settings.nav > #system > ul {
@@ -851,7 +998,7 @@
         bottom: -5rem;
     }
     .navbar-left #mainMenu .nav > li > .sub-menu {
-        margin-left: 3rem;
+        margin-left: 2.5rem;
         border-radius: 0;
     }
     .navbar-left #mainMenu .menu-item-text,
@@ -864,25 +1011,54 @@
         margin-top: 0;
         margin-left: 0;
     }
+    .navbar-left #mainMenu .menu-icon-evo {
+        height: auto !important;
+    }
     .navbar-left #mainMenu #nav #bars {
         width: 100%;
+    }
+    .navbar-left #mainMenu #nav {
+        margin-top: -6px;
     }
     .navbar-left #mainMenu #nav #site a {
         position: static;
         padding: 0.5rem 0;
     }
     .navbar-left #mainMenu #nav #site a::before {
-        display: block;
-        content: "";
-        left: auto;
-        width: 100%;
-        height: 2.25rem;
-        background: transparent url("../images/misc/logo-navbar-left.png")
-            no-repeat 50% 50%;
-        background-size: 2.25rem;
+        display: none;
+        content: none;
     }
     .navbar-left #mainMenu #nav #site a i {
         display: none;
+    }
+    .navbar-left #mainMenu #nav #site a svg {
+        display: inline-block;
+    }
+    .navbar-left #mainMenu #searchform {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+    .navbar-left #mainMenu #searchform form {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .navbar-left #mainMenu #searchform .label_searchid {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: auto;
+        height: 2.5rem;
+        margin: 0;
+    }
+    .navbar-left #mainMenu #searchform .label_searchid svg,
+    .navbar-left #mainMenu #searchform .label_searchid .fa {
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+        display: block;
     }
     .navbar-left #mainMenu #searchform input,
     .navbar-left #mainMenu #searchform .mask {
@@ -933,16 +1109,16 @@
 }
 @media (min-width: 1200px) {
     .navbar-left #tree {
-        padding-left: 5rem;
+        padding-left: 2.5rem;
     }
     .navbar-left.sidebar-closed #main {
-        left: 5rem !important;
+        left: 2.5rem !important;
     }
     .navbar-left #mainMenu,
     .navbar-left #mainMenu #nav.nav > #bars,
     .navbar-left #mainMenu #settings.nav > #account,
     .navbar-left #mainMenu #settings.nav > #system {
-        width: 5rem;
+        width: 2.5rem;
     }
     .navbar-left #mainMenu #nav #site::before {
         display: none !important;
@@ -956,30 +1132,21 @@
     .navbar-left #mainMenu #nav > li > .fa,
     .navbar-left #mainMenu #nav > li > a > .fa,
     .navbar-left #mainMenu #system > a > .fa {
-        font-size: 1.125rem;
+        font-size: 20px;
+        line-height: 20px;
     }
     .navbar-left #mainMenu .menu-item-text,
     .navbar-left #mainMenu .username {
-        display: block;
-        font-size: 0.6875rem;
-        line-height: 1em;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        padding: 0 0.3125rem 0.5rem;
-    }
-    .navbar-left #mainMenu #nav #site a .menu-item-text {
-        padding-top: 0.5rem;
-        padding-bottom: 0;
+        display: none;
     }
     .navbar-left #mainMenu #settings.nav > #system {
-        bottom: 5rem;
+        bottom: auto;
     }
     .navbar-left #mainMenu .nav > li > ul,
     .navbar-left #mainMenu #settings.nav > li > ul {
-        left: 5rem;
+        left: 2.5rem;
     }
     .navbar-left #mainMenu .nav > li > .sub-menu {
-        margin-left: 5rem;
+        margin-left: 2.5rem;
     }
 }

@@ -1,0 +1,54 @@
+# You can enable a virtual host via a symbolic link
+# Rename this file at .nginx
+# sudo ln -s /{domain_path}/.nginx /etc/nginx/sites-enabled/
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name {domain} www.{domain}; # Change the {domain} as your domain name
+    # merge_slashes off; # Uncomment this line if you want to handle double slashes from php.
+    root /{domain_path}/; # Change the {domain_path} as your domain root path on this server
+
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-XSS-Protection "1; mode=block";
+    add_header X-Content-Type-Options "nosniff";
+
+    index index.php index.html;
+    error_page 404 /index.php?q=404;
+
+    access_log /{domain_path}/core/storage/logs/nginx-access.log; # Change the {domain_path} as your domain root path on this server
+    client_max_body_size 512M;
+
+    location ~ /\. { access_log off; return 404; }
+    location ~ ^/assets/\.thumbs/(.*)\.php$ { access_log off; return 404; }
+    location ~ ^/assets/snippets/summary/(.*)\.php$ { access_log off; return 404; }
+    location ~ ^/assets/snippets/DocLister/(.*)\.php$ { access_log off; return 404; }
+    location ~ ^/assets/site/(.*)\.php$ { access_log off; return 404; }
+    location ~ ^/assets/lib/(.*)\.php$ { access_log off; return 404; }
+    location ~ ^/assets/js/(.*)\.php$ { access_log off; return 404; }
+    location ~ ^/assets/import/(.*)\.php$ { access_log off; return 404; }
+    location ~ ^/assets/images/(.*)\.php$ { access_log off; return 404; }
+    location ~ ^/assets/files/(.*)\.php$ { access_log off; return 404; }
+    location ~ ^/assets/export/(.*)\.php$ { access_log off; return 404; }
+    location ~ ^/assets/docs/(.*)\.php$ { access_log off; return 404; }
+
+    location / { try_files $uri $uri/ @rewrite; }
+    location /manager { rewrite ^/manager/(.*)$ /manager/index.php last; }
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    location ~ \.php$ {
+        try_files $uri @rewrite;
+        include /etc/nginx/fastcgi.conf;
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+    }
+
+    location ~* \.(jpg|jpeg|gif|png|ico|css|bmp|swf|js|html|txt|svg|woff|woff2|ttf)$ {
+        root /{domain_path}/; # Change the {domain_path} as your domain root path on this server
+        expires max;
+    }
+
+    location @rewrite {
+        rewrite ^(.*)$ /index.php?q=$1&$args last;
+    }
+}

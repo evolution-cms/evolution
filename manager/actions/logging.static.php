@@ -150,7 +150,7 @@ $logs = \EvolutionCMS\Models\ManagerLog::query()->select('internalKey', 'usernam
 if (isset($_REQUEST['log_submit'])) {
     $logs = \EvolutionCMS\Models\ManagerLog::query()->orderBy('timestamp', 'DESC')->orderBy('id', 'DESC');
     // get the selections the user made.
-    $sqladd = array();
+    $sqladd = [];
     if (get_by_key($_REQUEST, 'searchuser') != 0) {
         $logs = $logs->where('internalKey', (int)get_by_key($_REQUEST, 'searchuser'));
     }
@@ -255,7 +255,7 @@ if ($limit < 1) {
                 <tbody>
                 <?php
                 // grab the entire log file...
-                $logentries = array();
+                $logentries = [];
                 $i = 0;
                 foreach ($rs->toArray() as $logentry) {
                     if (!preg_match("/^[0-9]+$/", $logentry['itemid'])) {

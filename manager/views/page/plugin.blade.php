@@ -299,20 +299,20 @@
                         if (isset($data->sysevents) && is_array($data->sysevents)) {
                             $evts = $data->sysevents;
                         } else {
-                            $evts = array();
+                            $evts = [];
                         }
                     }
 
                     // display system events
-                    $evtnames = array();
-                    $services = array(
+                    $evtnames = [];
+                    $services = [
                         "Parser Service Events",
                         "Manager Access Events",
                         "Web Access Service Events",
                         "Cache Service Events",
                         "Template Service Events",
                         "User Defined Events"
-                    );
+                    ];
                     $eventNames = \EvolutionCMS\Models\SystemEventname::query()
                         ->orderBy('service', 'DESC')->orderBy('groupname', 'ASC')->orderBy('name', 'ASC');
 

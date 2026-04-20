@@ -1,14 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Tracy (https://tracy.nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
 
-declare(strict_types=1);
-
 namespace Tracy\Dumper;
+
+use Dom;
 use Ds;
+use function array_diff_key, array_key_exists, count, end, explode, get_mangled_object_vars, implode, iterator_to_array, preg_match_all, sort;
+use const PHP_VERSION_ID;
 
 
 /**
@@ -19,6 +21,11 @@ final class Exposer
 {
 	public static function exposeObject(object $obj, Value $value, Describer $describer): void
 	{
+		if (PHP_VERSION_ID >= 80400 && (new \ReflectionClass($obj))->isUninitializedLazyObject($obj)) {
+			self::exposeLazyObject($obj, $describer, $value);
+			return;
+		}
+
 		$values = get_mangled_object_vars($obj);
 		$props = self::getProperties($obj::class);
 
@@ -61,6 +68,10 @@ final class Exposer
 	}
 
 
+	/**
+	 * @param  class-string  $class
+	 * @return array<string, array{string, class-string, int}>
+	 */
 	private static function getProperties(string $class): array
 	{
 		static $cache;
@@ -137,21 +148,22 @@ final class Exposer
 		self::exposeObject($obj, $value, $describer);
 		$obj->setFlags($flags);
 		$describer->addPropertyTo($value, 'storage', $obj->getArrayCopy(), Value::PropertyPrivate, null, \ArrayObject::class);
+		$value->value .= ' (' . count($obj) . ')';
 	}
 
 
-	public static function exposeDOMNode(\DOMNode $obj, Value $value, Describer $describer): void
+	public static function exposeDOMNode(\DOMNode|Dom\Node $obj, Value $value, Describer $describer): void
 	{
-		$props = preg_match_all('#^\s*\[([^\]]+)\] =>#m', print_r($obj, true), $tmp) ? $tmp[1] : [];
+		$props = preg_match_all('#^\s*\[([^\]]+)\] =>#m', print_r($obj, return: true), $tmp) ? $tmp[1] : [];
 		sort($props);
 		foreach ($props as $p) {
-			$describer->addPropertyTo($value, $p, $obj->$p, Value::PropertyPublic);
+			$describer->addPropertyTo($value, $p, @$obj->$p, Value::PropertyPublic); // @ some props may be deprecated
 		}
 	}
 
 
 	public static function exposeDOMNodeList(
-		\DOMNodeList|\DOMNamedNodeMap $obj,
+		\DOMNodeList|\DOMNamedNodeMap|Dom\NodeList|Dom\NamedNodeMap|Dom\TokenList|Dom\HTMLCollection $obj,
 		Value $value,
 		Describer $describer,
 	): void
@@ -167,7 +179,7 @@ final class Exposer
 			$r = new \ReflectionGenerator($gen);
 			$describer->addPropertyTo($value, 'file', $r->getExecutingFile() . ':' . $r->getExecutingLine());
 			$describer->addPropertyTo($value, 'this', $r->getThis());
-		} catch (\ReflectionException $e) {
+		} catch (\ReflectionException) {
 			$value->value = $gen::class . ' (terminated)';
 		}
 	}
@@ -187,20 +199,40 @@ final class Exposer
 	}
 
 
+	/** @return array{path: string} */
 	public static function exposeSplFileInfo(\SplFileInfo $obj): array
 	{
 		return ['path' => $obj->getPathname()];
 	}
 
 
-	public static function exposeSplObjectStorage(\SplObjectStorage $obj): array
+	public static function exposeSplObjectStorage(\SplObjectStorage $obj, Value $value, Describer $describer): void
 	{
-		$res = [];
-		foreach (clone $obj as $item) {
-			$res[] = ['object' => $item, 'data' => $obj[$item]];
+		$value->value .= ' (' . count($obj) . ')';
+		foreach (clone $obj as $v) {
+			$pair = new Value(Value::TypeObject, '');
+			$pair->depth = $value->depth + 1;
+			$describer->addPropertyTo($pair, 'key', $v);
+			$describer->addPropertyTo($pair, 'value', $obj[$v]);
+			$describer->addPropertyTo($value, '', null, described: $pair);
+			assert($value->items !== null);
+			$value->items[count($value->items) - 1][0] = '';
 		}
+	}
 
-		return $res;
+
+	public static function exposeWeakMap(\WeakMap $obj, Value $value, Describer $describer): void
+	{
+		$value->value .= ' (' . count($obj) . ')';
+		foreach ($obj as $k => $v) {
+			$pair = new Value(Value::TypeObject, '');
+			$pair->depth = $value->depth + 1;
+			$describer->addPropertyTo($pair, 'key', $k);
+			$describer->addPropertyTo($pair, 'value', $v);
+			$describer->addPropertyTo($value, '', null, described: $pair);
+			assert($value->items !== null);
+			$value->items[count($value->items) - 1][0] = '';
+		}
 	}
 
 
@@ -239,7 +271,7 @@ final class Exposer
 		Describer $describer,
 	): void
 	{
-		foreach ($obj as $k => $v) {
+		foreach (clone $obj as $k => $v) {
 			$describer->addPropertyTo($value, (string) $k, $v);
 		}
 	}
@@ -255,5 +287,24 @@ final class Exposer
 		foreach ($obj as $k => $v) {
 			$describer->addPropertyTo($value, (string) $i++, new Ds\Pair($k, $v));
 		}
+	}
+
+
+	private static function exposeLazyObject(object $obj, Describer $describer, Value $value): void
+	{
+		$rc = new \ReflectionClass($obj);
+		foreach ($rc->getProperties(\ReflectionProperty::IS_PUBLIC) as $prop) {
+			if (!$prop->isLazy($obj)) {
+				$describer->addPropertyTo(
+					$value,
+					$prop->getName(),
+					$prop->getValue($obj),
+					Value::PropertyPublic,
+					described: $describer->describeEnumProperty($obj::class, $prop->getName(), $prop->getValue($obj)),
+				);
+			}
+		}
+
+		$value->value .= ' (lazy)';
 	}
 }

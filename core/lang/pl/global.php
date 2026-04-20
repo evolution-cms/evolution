@@ -90,11 +90,11 @@ $_lang["category_manager"] = 'Menadżer kategorii';
 $_lang["category_management"] = 'Zarządzanie kategoriami';
 $_lang["manage_categories"] = 'Zarządzanie kategoriami';
 $_lang["category_msg"] = 'Przeglądaj i edytuj wszystkie elementy pogrupowane w kategorie.';
-$_lang["cfg_base_path"] = 'MODX_BASE_PATH';
-$_lang["cfg_base_url"] = 'MODX_BASE_URL';
-$_lang["cfg_manager_path"] = 'MODX_MANAGER_PATH';
-$_lang["cfg_manager_url"] = 'MODX_MANAGER_URL';
-$_lang["cfg_site_url"] = 'MODX_SITE_URL';
+$_lang["cfg_base_path"] = 'EVO_BASE_PATH';
+$_lang["cfg_base_url"] = 'EVO_BASE_URL';
+$_lang["cfg_manager_path"] = 'EVO_MANAGER_PATH';
+$_lang["cfg_manager_url"] = 'EVO_MANAGER_URL';
+$_lang["cfg_site_url"] = 'EVO_SITE_URL';
 $_lang["change_name"] = 'Zmień nazwę użytkownika';
 $_lang["change_password"] = 'Zmień hasło';
 $_lang["change_password_confirm"] = 'Potwierdź hasło';
@@ -374,7 +374,9 @@ $_lang["group_access_permissions"] = 'Dostęp grup użytkowników';
 $_lang['group_tvs'] = 'Grupowanie Zmiennych Szablonu';
 $_lang["guid"] = 'GUID';
 $_lang["help"] = 'Pomoc';
-$_lang["help_msg"] = '<p>Możesz uzyskać darmową pomoc poprzez <a href="http://forums.modx.com/" target="_blank">odwiedzenie Forum EVO</a>. Istnieje również wciąż rozwijana <a href="http://evolution-docs.com" target="_blank">Dokumentacja i Instrukcje dla EVO</a>, dotyczące praktycznie wszystkich aspektów pracy z EVO.</p><p>Planujemy również usługę wsparcia komercyjnego dla EVO. <a href="mailto:dmi3yy@evo.im?subject=EVO Commercial Support Inquiry">Zainteresowanych prosimy o kontakt mailowy</a>.</p>';
+$_lang["help_donate_msg"] = 'Kup kawę dla programistów Evolution CMS. <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> Zostań fanem Evolution CMS już dziś! ❤️ Ko-fi pozwala wspierać twórców, których kochasz, bez żadnych opłat.';
+$_lang["help_donate_title"] = 'Dla rozwoju Evolution CMS';
+$_lang["help_msg"] = '<p>Możesz uzyskać darmową pomoc poprzez <a href="https://forum.evo.im/" target="_blank">odwiedzenie Forum EVO</a>. Istnieje również wciąż rozwijana <a href="http://evolution-docs.com" target="_blank">Dokumentacja i Instrukcje dla EVO</a>, dotyczące praktycznie wszystkich aspektów pracy z EVO.</p><p>Planujemy również usługę wsparcia komercyjnego dla EVO. <a href="mailto:dmi3yy@evo.im?subject=EVO Commercial Support Inquiry">Zainteresowanych prosimy o kontakt mailowy</a>.</p>';
 $_lang["help_title"] = 'Pomoc';
 $_lang["hide_tree"] = 'Ukryj drzewo';
 $_lang["home"] = 'Start';
@@ -537,7 +539,7 @@ $_lang["modx_news"] = 'EVO Powiadomienia';
 $_lang["modx_news_tab"] = 'Wiadomości';
 $_lang["modx_news_title"] = 'Wiadomości';
 $_lang["modx_security_notices"] = 'EVO Powiadomienia bezpieczeństwa';
-$_lang["modx_version"] = 'Wersja EVO';
+$_lang["evo_version"] = 'Wersja EVO';
 $_lang["monday"] = 'Poniedziałek';
 $_lang["move"] = 'Przenieś';
 $_lang["move_resource"] = 'Przenieś dokument';
@@ -768,7 +770,7 @@ $_lang["role_create_doc"] = 'Tworzenie nowych dokumentów';
 $_lang["role_create_plugin"] = 'Utwórz nowe wtyczki';
 $_lang["role_create_snippet"] = 'Tworzenie snippetów';
 $_lang["role_create_template"] = 'Tworzenie nowych szablonów';
-$_lang["role_credits"] = 'Pokazuj stronę \'Zasłużeni\'';
+$_lang["role_widget_online_info"] = 'Wyświetl widżet Zalogowani użytkownicy';
 $_lang["role_delete_chunk"] = 'Usuwanie chunków';
 $_lang["role_delete_doc"] = 'Usuwanie dokumentów';
 $_lang["role_delete_eventlog"] = 'Czyszczenie dziennika zdarzeń';
@@ -800,7 +802,7 @@ $_lang["role_frames"] = 'Pokaż ramki menedżera';
 $_lang["role_help"] = 'Przeglądanie stron pomocy';
 $_lang["role_home"] = 'Pokaż stronę wprowadzającą menedżera';
 $_lang["role_import_static"] = 'Import HTML';
-$_lang["role_logout"] = 'Wylogowanie z menedżera';
+$_lang["role_widget_recent_info"] = 'Wyświetl widżet Ostatnio edytowane dokumenty';
 $_lang["role_manage_metatags"] = 'Zarządzaj META tagami i słowami kluczowymi witryny';
 $_lang["role_management_msg"] = 'Tutaj możesz wybrać, którą rolę chcesz edytować.';
 $_lang["role_management_title"] = 'Zarządzanie rolami';
@@ -965,7 +967,7 @@ $_lang["sysinfo_userid"] = 'Użytkownik';
 $_lang["system"] = 'System';
 $_lang["system_email_signup"] = '<!doctype html>
 <html>
-Witaj [+uid+] 
+Witaj [+uid+]
 
 Poniżej znajdziesz dane logowania do systemu zarządzania treścią serwisu [+sname+]:
 
@@ -1184,7 +1186,7 @@ $_lang["yourinfo_username"] = 'Zalogowany jako:';
 $_lang["a17_error_reporting_title"] = 'Poziom wykrywania błędów PHP';
 $_lang["a17_error_reporting_msg"] = 'Ustaw poziom wykrywania błędów PHP.';
 $_lang["a17_error_reporting_opt0"] = 'Ignoruj wszystko';
-$_lang["a17_error_reporting_opt1"] = 'Ignoruj ostrzeżenia niskiego poziomu (<a href="https://www.google.com/search?q=E_DEPRECATED+E_STRICT" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT</a>)';
+$_lang["a17_error_reporting_opt1"] = 'Ignoruj ostrzeżenia niskiego poziomu (<a href="https://www.google.com/search?q=E_DEPRECATED+E_NOTICE" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED</a>)';
 $_lang["a17_error_reporting_opt2"] = 'Wykrywaj wszystkie błędy poza E_NOTICE';
 $_lang["a17_error_reporting_opt99"] = 'Wykrywaj wszystko';
 
@@ -1210,7 +1212,7 @@ $_lang["bkmgr_run_sql_direct_label"] = 'Polecenie SQL';
 $_lang["bkmgr_run_sql_submit"] = 'Przywróć';
 $_lang["bkmgr_run_sql_result"] = 'Wynik';
 $_lang["bkmgr_snapshot_title"] = 'Zapisywanie i przywracanie zrzutu';
-$_lang["bkmgr_snapshot_msg"] = '<p>Zawartość bazy danych zostanie zapisana na serwerze i w razie potrzeby przywrócona.<br />Miejsce przechowywania: [+snapshot_path+] ($modx->config[\'snapshot_path\'])</p>';
+$_lang["bkmgr_snapshot_msg"] = '<p>Zawartość bazy danych zostanie zapisana na serwerze i w razie potrzeby przywrócona.<br />Miejsce przechowywania: [+snapshot_path+] (evo()->getConfig(\'snapshot_path\'))</p>';
 $_lang["bkmgr_snapshot_submit"] = ' Dodaj zrzut';
 $_lang["bkmgr_snapshot_list_title"] = 'Lista zrzutów';
 $_lang["bkmgr_restore_submit"] = 'Przywróć te dane';
@@ -1267,6 +1269,8 @@ $_lang["disabled_at_login"] = 'Wyłącz po zalogowaniu';
 $_lang["cache_type_title"] = 'Metoda działania cache';
 $_lang["cache_type_1"] = 'Cache bazuje tylko na ID zasobu (standardowe)';
 $_lang["cache_type_2"] = 'Cache bazuje na ID zasobu oraz parametrach $_GET';
+$_lang["html_comment_title"] = 'Komentarz HTML';
+$_lang["html_comment_message"] = 'Oddzielona przecinkami lista typów elementów do opakowania komentarzami HTML w kodzie źródłowym strony: <b>snippets</b>, <b>chunks</b>, <b>tvs</b>, <b>snippetParams</b>';
 $_lang["seostrict_title"] = 'Używaj SEO Strict URL';
 $_lang["seostrict_message"] = 'Jeśli potrzeba, wymuś używanie strict URLs aby zapobiec duplikowaniu treści';
 $_lang["aliaslistingfolder_title"] = 'AliasListing tylko dla folderów';
@@ -1318,8 +1322,6 @@ $_lang["dp_startDay"]   = "1";
 $_lang["check_all"] = "Wybierz wszystko";
 $_lang["check_none"] = "Żaden";
 $_lang["check_toggle"] = "Odwróć zaznaczenie";
-
-$_lang["version_notices"] = "Uwagi do wydania";
 
 $_lang["em_button_shift"] = "(Shift + kliknięcie otwiera w wielu oknach)";
 
@@ -1454,5 +1456,12 @@ $_lang["role_tv_msg"] = 'The Variables assigned to this Role are listed below.';
 $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to access/process this Template Variable';
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
+
+$_lang["file_groups_saved"] = 'Uprawnienia dostępu zapisane.';
+$_lang["file_groups_edit"] = 'Edytuj uprawnienia dostępu';
+$_lang["files_groups"] = 'Grupy zasobów:';
+$_lang["access_permissions_file_message"] = 'Wybierz, do których Grup zasobów należy ten plik:';
+$_lang["access_permissions_dir_message"] = 'Wybierz, do których Grup zasobów należy ten katalog:';
+$_lang["all_file_groups"] = 'Wszystkie grupy zasobów (Publiczne)';
 
 return $_lang;

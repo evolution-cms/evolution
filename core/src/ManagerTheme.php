@@ -37,32 +37,32 @@ class ManagerTheme implements ManagerThemeInterface
         /** frame management - show the requested frame */
         1 => Controllers\Frame::class,
         /** show the homepage */
-        2,
+        2 => null,
         /** document data */
-        3,
+        3 => null,
         /** content management */
-        85,
-        27,
-        4,
-        5,
-        6,
-        63,
+        85 => null,
+        27 => null,
+        4 => null,
+        5 => null,
+        6 => null,
+        63 => null,
         51 => Controllers\MoveDocument::class,
         52 => Controllers\MoveDocument::class,
-        61,
-        62,
-        56,
+        61 => null,
+        62 => null,
+        56 => null,
         /** show the wait page - gives the tree time to refresh (hopefully) */
-        7,
+        7 => null,
         /** let the user log out */
         8 => Controllers\Users\LogInOut::class,
         0 => Controllers\Users\LogInOut::class,
         /** user management */
-        87,
-        88,
+        87 => null,
+        88 => null,
         89 => Controllers\Users\EditOrNewUser::class,
         90 => Controllers\Users\DeleteUser::class,
-        32,
+        32 => null,
         28 => Controllers\Password::class,
         34 => ChangePassword::class,
         /** role management */
@@ -72,77 +72,77 @@ class ManagerTheme implements ManagerThemeInterface
         135 => Permission::class,
         136 => PermissionsGroups::class,
         /** category management */
-        120,
-        121,
+        120 => null,
+        121 => null,
         /** template management */
         16 => Controllers\Template::class,
         19 => Controllers\Template::class,
-        20,
-        21,
-        96,
-        117,
+        20 => null,
+        21 => null,
+        96 => null,
+        117 => null,
         /** snippet management */
         22 => Controllers\Snippet::class,
         23 => Controllers\Snippet::class,
-        24,
-        25,
-        98,
+        24 => null,
+        25 => null,
+        98 => null,
         /** htmlsnippet management */
         78 => Controllers\Chunk::class,
         77 => Controllers\Chunk::class,
-        79,
-        80,
-        97,
+        79 => null,
+        80 => null,
+        97 => null,
         /** @deprecated show the credits page */
         18 => Controllers\Help::class,
         /** empty cache & synchronisation */
         26 => Controllers\RefreshSite::class,
         /** Module management */
         106 => Controllers\Modules::class,
-        107,
-        108,
-        109,
-        110,
-        111,
-        112,
-        113,
+        107 => null,
+        108 => null,
+        109 => null,
+        110 => null,
+        111 => null,
+        112 => null,
+        113 => null,
         /** plugin management */
         100 => Controllers\PluginPriority::class,
         101 => Controllers\Plugin::class,
         102 => Controllers\Plugin::class,
-        103,
-        104,
-        105,
-        119,
+        103 => null,
+        104 => null,
+        105 => null,
+        119 => null,
         /** view phpinfo */
         200 => Controllers\Phpinfo::class,
         /** @deprecated errorpage */
         29 => Controllers\EventLog::class,
         /** file manager */
-        31,
+        31 => null,
         /** access permissions */
         91 => Controllers\WebAccessPermissions::class,
         /** access groups processor */
-        92,
+        92 => null,
         /** settings editor */
         17 => Controllers\SystemSettings::class,
-        118,
+        118 => null,
         /** save settings */
-        30,
+        30 => null,
         /** system information */
         53 => Controllers\SystemInfo::class,
         /** optimise table */
-        54,
+        54 => null,
         /** view logging */
-        13,
+        13 => null,
         /** empty logs */
-        55,
+        55 => null,
         /** calls test page    */
-        999,
+        999 => null,
         /** Empty recycle bin */
-        64,
+        64 => null,
         /** Remove locks */
-        67,
+        67 => null,
         /** Site schedule */
         70 => Controllers\SiteSchedule::class,
         /** Search */
@@ -150,18 +150,18 @@ class ManagerTheme implements ManagerThemeInterface
         /** @deprecated About */
         59 => Controllers\Help::class,
         /** Add weblink */
-        72,
+        72 => null,
         /** User management */
-        99,
+        99 => null,
         86 => RoleManagment::class,
         /** template/ snippet management */
         76 => Controllers\Resources::class,
         /** Resource Selector  */
-        84,
+        84 => null,
         /** Backup Manager */
-        93,
+        93 => null,
         /** Duplicate Document */
-        94,
+        94 => null,
         /** Update Tree for Closure Table */
         95 => Controllers\UpdateTree::class,
         /** Help */
@@ -169,23 +169,23 @@ class ManagerTheme implements ManagerThemeInterface
         /** Template Variables - Based on Apodigm's Docvars */
         300 => Controllers\Tmplvar::class,
         301 => Controllers\Tmplvar::class,
-        302,
-        303,
-        304,
+        302 => null,
+        303 => null,
+        304 => null,
         305 => Controllers\TmplvarRank::class,
         /** Event viewer: show event message log */
         114 => Controllers\EventLog::class,
         115 => Controllers\EventLogDetails::class,
-        116,
-        501
+        116 => null,
+        501 => null
     ];
 
     public function __construct(CoreInterface $core, string $theme)
     {
         $this->core = $core;
 
-        $this->getCore()['view']->addNamespace('manager', MODX_MANAGER_PATH . '/media/style/' . $theme . '/views/');
-        $this->getCore()['view']->addNamespace('manager', MODX_MANAGER_PATH . '/views/');
+        $this->getCore()['view']->addNamespace('manager', EVO_MANAGER_PATH . '/media/style/' . $theme . '/views/');
+        $this->getCore()['view']->addNamespace('manager', EVO_MANAGER_PATH . '/views/');
 
         $this->theme = $theme;
 
@@ -205,7 +205,7 @@ class ManagerTheme implements ManagerThemeInterface
 
     protected function loadLang($lang = 'english')
     {
-        $_lang = array();
+        $_lang = [];
         $modx_lang_attribute = $this->getLang();
         $modx_manager_charset = $this->getCharset();
         $modx_textdir = $this->getTextDir();
@@ -223,7 +223,6 @@ class ManagerTheme implements ManagerThemeInterface
         if ($lang !== 'english' && file_exists(EVO_CORE_PATH . 'lang/' . $lang . '/global.php')) {
             include EVO_CORE_PATH . 'lang/' . $lang . '/global.php';
         }
-
 
         foreach ($_lang as $k => $v) {
             if (strpos($v, '[+') !== false) {
@@ -275,9 +274,13 @@ class ManagerTheme implements ManagerThemeInterface
         $this->textDir = $textDir === 'rtl' ? 'rtl' : 'ltr';
     }
 
+    public function setLexicon($key, $value = '')
+    {
+        return $this->lexicon[$key] = $value;
+    }
+
     public function getLexicon($key = null, $default = '')
     {
-
         return $key === null ? $this->lexicon : get_by_key($this->lexicon, $key, $default);
     }
 
@@ -314,12 +317,12 @@ class ManagerTheme implements ManagerThemeInterface
      */
     public function getThemeDir($full = true): string
     {
-        return ($full ? MODX_MANAGER_PATH : '') . 'media/style/' . $this->getTheme() . '/';
+        return ($full ? EVO_MANAGER_PATH : '') . 'media/style/' . $this->getTheme() . '/';
     }
 
     public function getThemeUrl(): string
     {
-        return MODX_MANAGER_URL . $this->getThemeDir(false);
+        return EVO_MANAGER_URL . $this->getThemeDir(false);
     }
 
     /**
@@ -360,10 +363,10 @@ class ManagerTheme implements ManagerThemeInterface
             $theme = $this->getTheme();
         }
 
-        if (is_file(MODX_MANAGER_PATH . '/media/style/' . $theme . '/' . $filepath)) {
-            $element = MODX_MANAGER_PATH . '/media/style/' . $theme . '/' . $filepath;
+        if (is_file(EVO_MANAGER_PATH . '/media/style/' . $theme . '/' . $filepath)) {
+            $element = EVO_MANAGER_PATH . '/media/style/' . $theme . '/' . $filepath;
         } else {
-            $element = MODX_MANAGER_PATH . ltrim($filepath, '/');
+            $element = EVO_MANAGER_PATH . ltrim($filepath, '/');
         }
 
         return $element;
@@ -371,7 +374,11 @@ class ManagerTheme implements ManagerThemeInterface
 
     public function findController($action)
     {
-        return $action === null ? null : get_by_key($this->actions, $action, $action);
+        if (is_null($action)) {
+            return null;
+        }
+        $actionController = get_by_key($this->actions, $action);
+        return is_null($actionController) ? $action : $actionController;
     }
 
     public function setRequest()
@@ -399,7 +406,7 @@ class ManagerTheme implements ManagerThemeInterface
 
         Route::middleware('mgr')
             ->namespace('\\EvolutionCMS\\Controllers')
-            ->group(MODX_MANAGER_PATH . '/routes.php');
+            ->group(EVO_MANAGER_PATH . '/routes.php');
 
         $routes = $evo->router->getRoutes();
         $routes->refreshNameLookups();
@@ -447,7 +454,7 @@ class ManagerTheme implements ManagerThemeInterface
         }
         /********************************************************************/
 
-        unset($_SESSION['itemname']); // clear this, because it's only set for logging purposes
+        unset($_SESSION['itemname'], $_SESSION['itemaction']); // clear this, because it's only set for logging purposes
 
         return $out;
     }
@@ -463,70 +470,74 @@ class ManagerTheme implements ManagerThemeInterface
     }
 
     public function getActionId()
-    {
-        // OK, let's retrieve the action directive from the request
-        $option = array('min_range' => 1, 'max_range' => 2000);
-        if (isset($_GET['a']) && isset($_POST['a'])) {
-            $this->alertAndQuit('error_double_action');
-        } elseif (isset($_GET['a'])) {
-            $action = (int)filter_input(INPUT_GET, 'a', FILTER_VALIDATE_INT, $option);
-        } elseif (isset($_POST['a'])) {
-            $action = (int)filter_input(INPUT_POST, 'a', FILTER_VALIDATE_INT, $option);
-        } else {
-            $action = null;
-        }
+{
+    // OK, let's retrieve the action directive from the request
+    // NOTE: Do NOT use filter_input() here.
+    // In embedded PHP (iOS), filter_input() may not see values
+    // injected into $_GET / $_POST by prelude code.
 
-        return $action;
-        //return isset($_REQUEST['a']) ? (int)$_REQUEST['a'] : 1;
+    $options = [
+        'options' => [
+            'min_range' => 1,
+            'max_range' => 2000,
+        ],
+    ];
+
+    if (isset($_GET['a']) && isset($_POST['a'])) {
+        $this->alertAndQuit('error_double_action');
     }
+
+    if (isset($_GET['a'])) {
+        $value = $_GET['a'];
+    } elseif (isset($_POST['a'])) {
+        $value = $_POST['a'];
+    } else {
+        return null;
+    }
+
+    $action = filter_var($value, FILTER_VALIDATE_INT, $options);
+
+    return ($action === false) ? 0 : (int)$action;
+}
 
     public function isAuthManager()
     {
         $out = null;
 
         if (isset($_SESSION['mgrValidated']) && $_SESSION['usertype'] !== 'manager') {
-            //      if (isset($_COOKIE[session_name()])) {
-            //          setcookie(session_name(), '', 0, MODX_BASE_URL);
-            //      }
             @session_destroy();
-            // start session
-            //      startCMSSession();
         }
 
-        // andrazk 20070416 - if installer is running, destroy active sessions
-        if (is_file(MODX_BASE_PATH . 'assets/cache/installProc.inc.php')) {
-            include_once(MODX_BASE_PATH . 'assets/cache/installProc.inc.php');
+        if (is_file(EVO_BASE_PATH . 'assets/cache/installProc.inc.php')) {
+            include_once(EVO_BASE_PATH . 'assets/cache/installProc.inc.php');
             if (isset($installStartTime)) {
                 if ((time() - $installStartTime) > 5 * 60) { // if install flag older than 5 minutes, discard
                     unset($installStartTime);
-                    @ chmod(MODX_BASE_PATH . 'assets/cache/installProc.inc.php', 0755);
-                    unlink(MODX_BASE_PATH . 'assets/cache/installProc.inc.php');
+                    @ chmod(EVO_BASE_PATH . 'assets/cache/installProc.inc.php', 0755);
+                    unlink(EVO_BASE_PATH . 'assets/cache/installProc.inc.php');
                 } else {
                     if ($_SERVER['REQUEST_METHOD'] != 'POST') {
                         if (isset($_COOKIE[session_name()])) {
                             session_unset();
                             @session_destroy();
-                            //                  setcookie(session_name(), '', 0, MODX_BASE_URL);
                         }
                     }
                 }
             }
         }
 
-        // andrazk 20070416 - if session started before install and was not destroyed yet
         if (defined('EVO_INSTALL_TIME')) {
             if (isset($_SESSION['mgrValidated'])) {
-                if (isset($_SESSION['modx.session.created.time'])) {
-                    if ($_SESSION['modx.session.created.time'] < EVO_INSTALL_TIME) {
-                        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                            if (isset($_COOKIE[session_name()])) {
-                                session_unset();
-                                @session_destroy();
-                                // setcookie(session_name(), '', 0, MODX_BASE_URL);
-                            }
-                            header('HTTP/1.0 307 Redirect');
-                            header('Location: ' . MODX_MANAGER_URL . 'index.php?installGoingOn=2');
+                $createdKey = 'evo.session.created.time';
+                $createdAt = $_SESSION[$createdKey] ?? null;
+                if ($createdAt !== null && $createdAt < EVO_INSTALL_TIME) {
+                    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                        if (isset($_COOKIE[session_name()])) {
+                            session_unset();
+                            @session_destroy();
                         }
+                        header('HTTP/1.0 307 Redirect');
+                        header('Location: ' . EVO_MANAGER_URL . 'index.php?installGoingOn=2');
                     }
                 }
             }
@@ -564,18 +575,17 @@ class ManagerTheme implements ManagerThemeInterface
     public function getTemplate($name, $config = null)
     {
         if (!empty($config) && empty($this->getCore()->getConfig($config))) {
-            $this->getCore()->setConfig($config, MODX_MANAGER_PATH . 'media/style/common/' . $name . '.tpl');
+            $this->getCore()->setConfig($config, EVO_MANAGER_PATH . 'media/style/common/' . $name . '.tpl');
         }
 
         $target = $this->getCore()->getConfig($config);
-        $target = str_replace('[+base_path+]', MODX_BASE_PATH, $target);
+        $target = str_replace('[+base_path+]', EVO_BASE_PATH, $target);
         $target = $this->getCore()->mergeSettingsContent($target);
-
 
         $content = $this->getCore()->getChunk($target);
         if (empty($content)) {
-            if (is_file(MODX_BASE_PATH . $target)) {
-                $target = MODX_BASE_PATH . $target;
+            if (is_file(EVO_BASE_PATH . $target)) {
+                $target = EVO_BASE_PATH . $target;
                 $content = file_get_contents($target);
             } elseif (is_file($this->getThemeDir() . $name . '.tpl')) {
                 $target = $this->getThemeDir() . $name . '.tpl';
@@ -587,7 +597,7 @@ class ManagerTheme implements ManagerThemeInterface
                 $target = $this->getThemeDir() . 'html/' . $name . '.html';
                 $content = file_get_contents($target);
             } else {
-                $target = MODX_MANAGER_PATH . 'media/style/common/' . $name . '.tpl';
+                $target = EVO_MANAGER_PATH . 'media/style/common/' . $name . '.tpl';
                 $content = file_get_contents($target);
             }
         }
@@ -618,15 +628,17 @@ class ManagerTheme implements ManagerThemeInterface
     public function getTemplatePlaceholders(): array
     {
         $plh = [
-            'modx_charset' => $this->getCharset(),
-            'favicon' => (file_exists(MODX_BASE_PATH . 'favicon.ico') ? MODX_SITE_URL : $this->getThemeUrl() . 'images/') . 'favicon.ico',
+            'evo_charset' => $this->getCharset(),
+            'favicon' => (file_exists(EVO_BASE_PATH . 'favicon.ico') ? EVO_SITE_URL : $this->getThemeUrl() . 'images/') . 'favicon.ico',
             'homeurl' => $this->getCore()->makeUrl($this->getManagerStartupPageId()),
-            'logouturl' => MODX_MANAGER_URL . 'index.php?a=8',
+            'logouturl' => EVO_MANAGER_URL . 'index.php?a=8',
             'year' => date('Y'),
             'theme' => $this->getTheme(),
             'manager_theme_url' => $this->getThemeUrl(),
             'manager_theme_style' => $this->getThemeStyle(),
             'manager_path' => MGR_DIR,
+            'site_name_text' => e((string)$this->getCore()->getConfig('site_name')),
+            'site_name_attr' => htmlspecialchars((string)$this->getCore()->getConfig('site_name'), ENT_QUOTES, $this->getCharset()),
         ];
 
         // set login logo image
@@ -635,7 +647,7 @@ class ManagerTheme implements ManagerThemeInterface
             if (substr($logo, 0, 4) === "http") {
                 $plh['login_logo'] = $logo;
             } else {
-                $plh['login_logo'] = MODX_SITE_URL . $logo;
+                $plh['login_logo'] = EVO_SITE_URL . $logo;
             }
         } else {
             $plh['login_logo'] = $this->getThemeUrl() . 'images/login/default/login-logo.png';
@@ -647,10 +659,10 @@ class ManagerTheme implements ManagerThemeInterface
             if (substr($background, 0, 4) === "http") {
                 $plh['login_bg'] = $background;
             } else {
-                $plh['login_bg'] = MODX_SITE_URL . $background;
+                $plh['login_bg'] = EVO_SITE_URL . $background;
             }
 
-            $plh['login_bg'] = MODX_SITE_URL . $background;
+            $plh['login_bg'] = EVO_SITE_URL . $background;
         } else {
             $plh['login_bg'] = $this->getThemeUrl() . 'images/login/default/login-background.jpg';
         }
@@ -662,7 +674,7 @@ class ManagerTheme implements ManagerThemeInterface
     public function renderLoginPage()
     {
         $plh = [
-            'remember_me' => isset($_COOKIE['modx_remember_manager']) ? 'checked="checked"' : ''
+            'remember_me' => isset($_COOKIE['evo_remember_manager']) ? 'checked="checked"' : ''
         ];
 
         // invoke OnManagerLoginFormPrerender event
@@ -670,7 +682,6 @@ class ManagerTheme implements ManagerThemeInterface
         $html = is_array($evtOut) ? implode('', $evtOut) : '';
         $plh['OnManagerLoginFormPrerender'] = $html;
 
-        // andrazk 20070416 - notify user of install/update
         if (isset($_GET['installGoingOn'])) {
             switch ((int)$_GET['installGoingOn']) {
                 case 1:
@@ -692,14 +703,14 @@ class ManagerTheme implements ManagerThemeInterface
 
         if ($this->getCore()->getConfig('use_captcha')) {
             $plh['login_captcha_message'] = $this->getLexicon("login_captcha_message");
-            $plh['captcha_image'] = '<a href="' . MODX_MANAGER_URL . '" class="loginCaptcha"><img id="captcha_image" src="' . MODX_MANAGER_URL . 'captcha.php?rand=' . rand() . '" alt="' . $this->getLexicon('login_captcha_message') . '" /></a>';
+            $plh['captcha_image'] = '<a href="' . EVO_MANAGER_URL . '" class="loginCaptcha"><img id="captcha_image" src="' . EVO_MANAGER_URL . 'captcha.php?rand=' . rand() . '" alt="' . $this->getLexicon('login_captcha_message') . '" /></a>';
             $plh['captcha_input'] = '<label>' . $this->getLexicon('captcha_code') . '</label><input type="text" name="captcha_code" tabindex="3" value="" />';
         }
 
         // login info
         $uid = '';
-        if (isset($_COOKIE['modx_remember_manager'])) {
-            $uid = preg_replace('/[^a-zA-Z0-9\-_@\.]*/', '', $_COOKIE['modx_remember_manager']);
+        if (isset($_COOKIE['evo_remember_manager'])) {
+            $uid = preg_replace('/[^a-zA-Z0-9\-_@\.]*/', '', $_COOKIE['evo_remember_manager']);
         }
         $plh['uid'] = $uid;
 
@@ -712,7 +723,6 @@ class ManagerTheme implements ManagerThemeInterface
         $plh['login_form_style_class'] = 'loginbox-' . $this->getCore()->getConfig('login_form_style');
 
         $plh['repair_password'] = $this->repairPassword($plh);
-
 
         return $this->makeTemplate('login', 'manager_login_tpl', $plh, false);
     }
@@ -776,19 +786,17 @@ class ManagerTheme implements ManagerThemeInterface
 
     public function getCssFiles()
     {
-        return [
-            'bootstrap' => MODX_MANAGER_PATH . 'media/style/common/bootstrap/css/bootstrap.min.css',
-            'font-awesome' => MODX_MANAGER_PATH . 'media/style/common/font-awesome/css/font-awesome.min.css',
-            'fonts' => $this->getThemeDir() . 'css/fonts.css',
-            'forms' => $this->getThemeDir() . 'css/forms.css',
-            'mainmenu' => $this->getThemeDir() . 'css/mainmenu.css',
-            'tree' => $this->getThemeDir() . 'css/tree.css',
-            'custom' => $this->getThemeDir() . 'css/custom.css',
-            'tabpane' => $this->getThemeDir() . 'css/tabpane.css',
-            'contextmenu' => $this->getThemeDir() . 'css/contextmenu.css',
-            'index' => $this->getThemeDir() . 'css/index.css',
-            'main' => $this->getThemeDir() . 'css/main.css'
-        ];
+        $listFile = $this->getThemeDir() . 'CSSMinify.php';
+        if (!is_file($listFile)) {
+            return [];
+        }
+
+        $files = include $listFile;
+        if (!is_array($files)) {
+            return [];
+        }
+
+        return $files;
     }
 
     public function css()
@@ -796,35 +804,36 @@ class ManagerTheme implements ManagerThemeInterface
         $css = $this->getThemeUrl() . 'style.css';
         $minCssName = 'css/styles.min.css';
 
-        if (!file_exists($this->getThemeDir() . $minCssName) && is_writable($this->getThemeDir() . 'css')) {
+        $minCssPath = $this->getThemeDir() . $minCssName;
+        if (!file_exists($minCssPath) && is_writable($this->getThemeDir() . 'css')) {
             $files = $this->getCssFiles();
-            $evtOut = $this->getCore()->invokeEvent('OnBeforeMinifyCss', array(
-                'files' => $files,
-                'source' => 'manager',
-                'theme' => $this->getTheme()
-            ));
-            switch (true) {
-                case empty($evtOut):
-                case \is_array($evtOut) && count($evtOut) === 0:
-                    break;
-                case \is_array($evtOut) && count($evtOut) === 1:
-                    $files = $evtOut[0];
-                    break;
-                default:
-                    $this->getCore()->webAlertAndQuit(
-                        sprintf($this->getLexicon('invalid_event_response'), 'OnBeforeMinifyManagerCss')
-                    );
+            if (!empty($files)) {
+                $evtOut = $this->getCore()->invokeEvent('OnBeforeMinifyCss', [
+                    'files' => $files,
+                    'source' => 'manager',
+                    'theme' => $this->getTheme()
+                ]);
+                switch (true) {
+                    case empty($evtOut):
+                    case \is_array($evtOut) && count($evtOut) === 0:
+                        break;
+                    case \is_array($evtOut) && count($evtOut) === 1:
+                        $files = $evtOut[0];
+                        break;
+                    default:
+                        $this->getCore()->webAlertAndQuit(
+                            sprintf($this->getLexicon('invalid_event_response'), 'OnBeforeMinifyManagerCss')
+                        );
+                }
             }
 
-            $minifier = new \EvolutionCMS\Support\Formatter\CSSMinify($files);
-            $css = $minifier->minify();
-            file_put_contents(
-                $this->getThemeDir() . $minCssName,
-                $css
-            );
-
+            if (!empty($files)) {
+                $minifier = new \EvolutionCMS\Support\Formatter\CSSMinify($files);
+                $css = $minifier->minify();
+                file_put_contents($minCssPath, $css);
+            }
         }
-        if (file_exists($this->getThemeDir() . $minCssName)) {
+        if (file_exists($minCssPath)) {
             $css = $this->getThemeUrl() . $minCssName;
         }
 
@@ -840,9 +849,9 @@ class ManagerTheme implements ManagerThemeInterface
     public function getThemeStyle(): string
     {
         $default = 'dark';
-        $modes = array('', 'lightness', 'light', 'dark', 'darkness');
+        $modes = ['', 'lightness', 'light', 'dark', 'darkness'];
 
-        $cookie = (int)get_by_key($_COOKIE, 'MODX_themeMode', 0, function ($val) use ($modes) {
+        $cookie = (int)get_by_key($_COOKIE, 'EVO_themeMode', 0, function ($val) use ($modes) {
             return (int)$val > 0 && (int)$val <= \count($modes);
         });
         $system = $this->getCore()->getConfig('manager_theme_mode');
@@ -885,20 +894,18 @@ class ManagerTheme implements ManagerThemeInterface
                 if ($output == '')
                     $output .= $this->sendRepairMail($_GET['email'], $hash, 'hash');
             }
-
         }
         return $output . $this->makeTemplate('repair_button', 'manager_login_tpl', $plh, false);
-
     }
 
     public function sendRepairMail($email, $hash, $mode)
     {
         $body = '
-                <p>' . \Lang::get('global.forgot_password_email_intro') . ' <a href="' . MODX_MANAGER_URL . '?a=0&hash=' . $hash . '&mode=' . $mode . '">' . \Lang::get('global.forgot_password_email_link') . '</a></p>
+                <p>' . \Lang::get('global.forgot_password_email_intro') . ' <a href="' . EVO_MANAGER_URL . '?a=0&hash=' . $hash . '&mode=' . $mode . '">' . \Lang::get('global.forgot_password_email_link') . '</a></p>
                 <p>' . \Lang::get('global.forgot_password_email_instructions') . '</p>
                 <p><small>' . \Lang::get('global.forgot_password_email_fine_print') . '</small></p>';
 
-        $param = array();
+        $param = [];
         $param['from'] = $this->getCore()->getConfig('site_name') . '<' . $this->getCore()->getConfig('emailsender') . '>';
         $param['to'] = $email;
         $param['subject'] = \Lang::get('global.password_change_request');

@@ -12,7 +12,6 @@
 
 namespace Composer\Command;
 
-use Composer\Factory;
 use Composer\Json\JsonFile;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputInterface;
@@ -67,7 +66,7 @@ EOT
         }
 
         if (!($composer = $this->tryComposer())) {
-            $composer = Factory::create($this->getIO(), [], $input->hasParameterOption('--no-plugins'));
+            $composer = $this->createComposerInstance($input, $this->getIO(), []);
         }
         $localRepo = $composer->getRepositoryManager()->getLocalRepository();
         $installedRepo = new CompositeRepository([$localRepo, $platformRepo]);

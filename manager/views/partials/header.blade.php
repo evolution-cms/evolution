@@ -1,30 +1,28 @@
 <!DOCTYPE html>
-<html lang="{{ ManagerTheme::getLang() }}" dir="{{ ManagerTheme::getTextDir() }}">
+<html lang="{{ManagerTheme::getLang()}}" dir="{{ManagerTheme::getTextDir()}}">
 <head>
     <title>Evolution CMS</title>
-    <base href="{{ MODX_MANAGER_URL }}">
-    <meta http-equiv="Content-Type" content="text/html; charset={{ ManagerTheme::getCharset() }}"/>
+    <base href="{{EVO_MANAGER_URL}}">
+    <meta http-equiv="Content-Type" content="text/html; charset={{ManagerTheme::getCharset()}}"/>
     <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width"/>
     <meta name="theme-color" content="#1d2023"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    @if(class_exists(Tracy\Debugger::class) && EvolutionCMS()->get('config')->get('tracy.active'))
+    @if(class_exists(Tracy\Debugger::class) && evo()->get('config')->get('tracy.active'))
         {!! Tracy\Debugger::renderLoader() !!}
     @endif
-    <link rel="stylesheet" type="text/css" href="{{ ManagerTheme::css() }}"/>
+    <link rel="stylesheet" type="text/css" href="{{ManagerTheme::css()}}"/>
     <script type="text/javascript" src="media/script/tabpane.js"></script>
-    <script type="text/javascript" src="{{ EvolutionCMS()->getConfig('mgr_jquery_path') }}"></script>
-    @if (EvolutionCMS()->getConfig('show_picker') === true)
-        <script src="{{ ManagerTheme::getThemeUrl() }}/js/color.switcher.js" type="text/javascript"></script>
+    <script type="text/javascript" src="{{evo()->getConfig('mgr_jquery_path')}}"></script>
+    @if (evo()->getConfig('show_picker') === true)
+        <script src="{{ManagerTheme::getThemeUrl()}}/js/color.switcher.js" type="text/javascript"></script>
     @endif
-
-    {!! ManagerTheme::getMainFrameHeaderHTMLBlock() !!}
-
+    {!!ManagerTheme::getMainFrameHeaderHTMLBlock()!!}
     <script type="text/javascript">
         if (!evo) {
             var evo = {};
         }
         if (!evo.config) {
-          evo.config = {};
+            evo.config = {};
         }
         var actions,
             actionStay = [],
@@ -41,15 +39,23 @@
             ManagerTheme::getStyle(),
             ['icon_file', 'icon_pencil', 'icon_reply', 'icon_plus']
         )) !!};
-        evo.MODX_MANAGER_URL = '{{  MODX_MANAGER_URL }}';
-        evo.config.which_browser = '{{ EvolutionCMS()->getConfig('which_browser') }}';
+        evo.EVO_MANAGER_URL = '{{EVO_MANAGER_URL}}';
+        evo.config.which_browser = '{{evo()->getConfig('which_browser')}}';
+        // ============================================
+        // @deprecated
+        // @since 3.5.2
+        // Use evo.EVO_MANAGER_URL instead.
+        // @todo [remove@3.7] Remove in Evolution CMS 3.7
+        evo.MODX_MANAGER_URL = '{{EVO_MANAGER_URL}}';
+        if (!modx) { var modx = evo; }
+        // ============================================
     </script>
+    <script src="media/script/tooltip-helper.js"></script>
     <script src="media/script/main.js"></script>
     @if (get_by_key($_REQUEST, 'r', '', 'is_numeric'))
         <script>doRefresh({{ $_REQUEST['r'] }});</script>
     @endif
     @stack('scripts.top')
-    {!! EvolutionCMS()->getRegisteredClientStartupScripts() !!}
+    {!!evo()->getRegisteredClientStartupScripts()!!}
 </head>
-
-<body class="{{ ManagerTheme::getTextDir() }} {{ ManagerTheme::getThemeStyle() }}" data-evocp="color">
+<body class="{{ManagerTheme::getTextDir()}} {{ManagerTheme::getThemeStyle()}}" data-evocp="color">

@@ -74,7 +74,7 @@ if(isset($query) && $query != ''){
             ->orWhere('description', 'LIKE', '%' . $query . '%');
     });
 }
-include_once MODX_MANAGER_PATH . "includes/header.inc.php";
+include_once EVO_MANAGER_PATH . "includes/header.inc.php";
 ?>
 <script language="JavaScript" type="text/javascript">
     function saveSelection()

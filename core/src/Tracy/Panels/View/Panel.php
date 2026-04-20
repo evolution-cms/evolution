@@ -31,7 +31,7 @@ class Panel extends AbstractPanel
      * logView.
      *
      * @param  \Illuminate\Contracts\View\View
-     * @return string
+     * @return void
      */
     protected function logView($view)
     {

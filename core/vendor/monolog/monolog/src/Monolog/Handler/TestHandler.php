@@ -15,6 +15,7 @@ use Monolog\Level;
 use Monolog\Logger;
 use Psr\Log\LogLevel;
 use Monolog\LogRecord;
+use NoDiscard;
 
 /**
  * Used for testing purposes.
@@ -23,14 +24,14 @@ use Monolog\LogRecord;
  *
  * @author Jordi Boggiano <j.boggiano@seld.be>
  *
- * @method bool hasEmergency($record)
- * @method bool hasAlert($record)
- * @method bool hasCritical($record)
- * @method bool hasError($record)
- * @method bool hasWarning($record)
- * @method bool hasNotice($record)
- * @method bool hasInfo($record)
- * @method bool hasDebug($record)
+ * @method bool hasEmergency(array{message: string, context?: mixed[]}|string $recordAssertions)
+ * @method bool hasAlert(array{message: string, context?: mixed[]}|string $recordAssertions)
+ * @method bool hasCritical(array{message: string, context?: mixed[]}|string $recordAssertions)
+ * @method bool hasError(array{message: string, context?: mixed[]}|string $recordAssertions)
+ * @method bool hasWarning(array{message: string, context?: mixed[]}|string $recordAssertions)
+ * @method bool hasNotice(array{message: string, context?: mixed[]}|string $recordAssertions)
+ * @method bool hasInfo(array{message: string, context?: mixed[]}|string $recordAssertions)
+ * @method bool hasDebug(array{message: string, context?: mixed[]}|string $recordAssertions)
  *
  * @method bool hasEmergencyRecords()
  * @method bool hasAlertRecords()
@@ -41,32 +42,32 @@ use Monolog\LogRecord;
  * @method bool hasInfoRecords()
  * @method bool hasDebugRecords()
  *
- * @method bool hasEmergencyThatContains($message)
- * @method bool hasAlertThatContains($message)
- * @method bool hasCriticalThatContains($message)
- * @method bool hasErrorThatContains($message)
- * @method bool hasWarningThatContains($message)
- * @method bool hasNoticeThatContains($message)
- * @method bool hasInfoThatContains($message)
- * @method bool hasDebugThatContains($message)
+ * @method bool hasEmergencyThatContains(string $message)
+ * @method bool hasAlertThatContains(string $message)
+ * @method bool hasCriticalThatContains(string $message)
+ * @method bool hasErrorThatContains(string $message)
+ * @method bool hasWarningThatContains(string $message)
+ * @method bool hasNoticeThatContains(string $message)
+ * @method bool hasInfoThatContains(string $message)
+ * @method bool hasDebugThatContains(string $message)
  *
- * @method bool hasEmergencyThatMatches($message)
- * @method bool hasAlertThatMatches($message)
- * @method bool hasCriticalThatMatches($message)
- * @method bool hasErrorThatMatches($message)
- * @method bool hasWarningThatMatches($message)
- * @method bool hasNoticeThatMatches($message)
- * @method bool hasInfoThatMatches($message)
- * @method bool hasDebugThatMatches($message)
+ * @method bool hasEmergencyThatMatches(string $regex)
+ * @method bool hasAlertThatMatches(string $regex)
+ * @method bool hasCriticalThatMatches(string $regex)
+ * @method bool hasErrorThatMatches(string $regex)
+ * @method bool hasWarningThatMatches(string $regex)
+ * @method bool hasNoticeThatMatches(string $regex)
+ * @method bool hasInfoThatMatches(string $regex)
+ * @method bool hasDebugThatMatches(string $regex)
  *
- * @method bool hasEmergencyThatPasses($message)
- * @method bool hasAlertThatPasses($message)
- * @method bool hasCriticalThatPasses($message)
- * @method bool hasErrorThatPasses($message)
- * @method bool hasWarningThatPasses($message)
- * @method bool hasNoticeThatPasses($message)
- * @method bool hasInfoThatPasses($message)
- * @method bool hasDebugThatPasses($message)
+ * @method bool hasEmergencyThatPasses(callable $predicate)
+ * @method bool hasAlertThatPasses(callable $predicate)
+ * @method bool hasCriticalThatPasses(callable $predicate)
+ * @method bool hasErrorThatPasses(callable $predicate)
+ * @method bool hasWarningThatPasses(callable $predicate)
+ * @method bool hasNoticeThatPasses(callable $predicate)
+ * @method bool hasInfoThatPasses(callable $predicate)
+ * @method bool hasDebugThatPasses(callable $predicate)
  */
 class TestHandler extends AbstractProcessingHandler
 {
@@ -79,6 +80,7 @@ class TestHandler extends AbstractProcessingHandler
     /**
      * @return array<LogRecord>
      */
+    #[NoDiscard]
     public function getRecords(): array
     {
         return $this->records;
@@ -107,6 +109,7 @@ class TestHandler extends AbstractProcessingHandler
      *
      * @phpstan-param value-of<Level::VALUES>|value-of<Level::NAMES>|Level|LogLevel::* $level
      */
+    #[NoDiscard]
     public function hasRecords(int|string|Level $level): bool
     {
         return isset($this->recordsByLevel[Logger::toMonologLevel($level)->value]);
@@ -117,9 +120,10 @@ class TestHandler extends AbstractProcessingHandler
      *
      * @phpstan-param array{message: string, context?: mixed[]}|string $recordAssertions
      */
+    #[NoDiscard]
     public function hasRecord(string|array $recordAssertions, Level $level): bool
     {
-        if (is_string($recordAssertions)) {
+        if (\is_string($recordAssertions)) {
             $recordAssertions = ['message' => $recordAssertions];
         }
 
@@ -135,11 +139,13 @@ class TestHandler extends AbstractProcessingHandler
         }, $level);
     }
 
+    #[NoDiscard]
     public function hasRecordThatContains(string $message, Level $level): bool
     {
         return $this->hasRecordThatPasses(fn (LogRecord $rec) => str_contains($rec->message, $message), $level);
     }
 
+    #[NoDiscard]
     public function hasRecordThatMatches(string $regex, Level $level): bool
     {
         return $this->hasRecordThatPasses(fn (LogRecord $rec) => preg_match($regex, $rec->message) > 0, $level);
@@ -148,6 +154,7 @@ class TestHandler extends AbstractProcessingHandler
     /**
      * @phpstan-param callable(LogRecord, int): mixed $predicate
      */
+    #[NoDiscard]
     public function hasRecordThatPasses(callable $predicate, Level $level): bool
     {
         $level = Logger::toMonologLevel($level);
@@ -177,19 +184,20 @@ class TestHandler extends AbstractProcessingHandler
     /**
      * @param mixed[] $args
      */
+    #[NoDiscard]
     public function __call(string $method, array $args): bool
     {
-        if (preg_match('/(.*)(Debug|Info|Notice|Warning|Error|Critical|Alert|Emergency)(.*)/', $method, $matches) > 0) {
+        if ((bool) preg_match('/(.*)(Debug|Info|Notice|Warning|Error|Critical|Alert|Emergency)(.*)/', $method, $matches)) {
             $genericMethod = $matches[1] . ('Records' !== $matches[3] ? 'Record' : '') . $matches[3];
-            $level = constant(Level::class.'::' . $matches[2]);
+            $level = \constant(Level::class.'::' . $matches[2]);
             $callback = [$this, $genericMethod];
-            if (is_callable($callback)) {
+            if (\is_callable($callback)) {
                 $args[] = $level;
 
-                return call_user_func_array($callback, $args);
+                return \call_user_func_array($callback, $args);
             }
         }
 
-        throw new \BadMethodCallException('Call to undefined method ' . get_class($this) . '::' . $method . '()');
+        throw new \BadMethodCallException('Call to undefined method ' . \get_class($this) . '::' . $method . '()');
     }
 }

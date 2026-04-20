@@ -170,6 +170,10 @@ class SiteContent extends Eloquent\Model
         'alias_visible' => 'int',
     ];
 
+    /*
+     * @phpstan-consistent-constructor
+     * @param  array<string, mixed>  $attributes
+     */
     public function __construct(array $attributes = [])
     {
         $position = $this->getPositionColumn();
@@ -306,7 +310,7 @@ class SiteContent extends Eloquent\Model
      */
     public function getNodeNameAttribute()
     {
-        $key = evolutionCMS()->getConfig('resource_tree_node_name', 'pagetitle');
+        $key = evo()->getConfig('resource_tree_node_name', 'pagetitle');
         if (mb_strtolower($key) === 'nodename') {
             $key = 'pagetitle';
         }
@@ -364,7 +368,7 @@ class SiteContent extends Eloquent\Model
 
     public static function getLockedElements()
     {
-        return evolutionCMS()->getLockedElements(7);
+        return evo()->getLockedElements(7);
     }
 
     /**
@@ -1220,7 +1224,7 @@ class SiteContent extends Eloquent\Model
     public function removeChildren($from, $to = null, $forceDelete = false)
     {
         if (!is_numeric($from) || ($to !== null && !is_numeric($to))) {
-            throw new InvalidArgumentException('`from` and `to` are the position boundaries. They must be of type int.');
+            throw new \InvalidArgumentException('`from` and `to` are the position boundaries. They must be of type int.');
         }
 
         if (!$this->exists) {
@@ -1774,7 +1778,7 @@ class SiteContent extends Eloquent\Model
      *
      * @return Builder
      */
-    private function buildSiblingQuery(Builder $builder, $id, callable $positionCallback = null)
+    private function buildSiblingQuery(Builder $builder, $id, ?callable $positionCallback = null)
     {
         $parentIdColumn = $this->getParentIdColumn();
         $positionColumn = $this->getPositionColumn();
@@ -1863,9 +1867,9 @@ class SiteContent extends Eloquent\Model
     public static function getRoots(array $columns = ['*'])
     {
         /**
-         * @var Entity $instance
+         * @var \Entity $instance
          */
-        $instance = new static;
+        $instance = new self();
 
         return $instance->whereNull($instance->getParentIdColumn())->get($columns);
     }
@@ -1896,12 +1900,12 @@ class SiteContent extends Eloquent\Model
      * Saves models from the given attributes array.
      *
      * @param array $tree
-     * @param SiteContent $parent
+     * @param SiteContent|null $parent
      *
      * @return Collection
      * @throws Throwable
      */
-    public static function createFromArray(array $tree, SiteContent $parent = null)
+    public static function createFromArray(array $tree, ?SiteContent $parent = null)
     {
         $entities = [];
 
@@ -1911,7 +1915,7 @@ class SiteContent extends Eloquent\Model
             /**
              * @var Entity $entity
              */
-            $entity = new static($item);
+            $entity = new self($item);
             $entity->parent = $parent ? $parent->getKey() : null;
             $entity->save();
 
@@ -1942,7 +1946,7 @@ class SiteContent extends Eloquent\Model
         }
 
         if ($this->getKey() === $parentId) {
-            throw new InvalidArgumentException('Target entity is equal to the sender.');
+            throw new \InvalidArgumentException('Target entity is equal to the sender.');
         }
 
         $this->parent = $parentId;
@@ -2030,7 +2034,7 @@ class SiteContent extends Eloquent\Model
      * @param array $models
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function newCollection(array $models = array())
+    public function newCollection(array $models = [])
     {
         return new Collection($models);
     }
@@ -2067,8 +2071,8 @@ class SiteContent extends Eloquent\Model
     {
         $query->leftJoin('document_groups', 'document_groups.document', '=', 'site_content.id');
         $query->where(function($query){
-            $docgrp = EvolutionCMS()->getUserDocGroups();
-            if (EvolutionCMS()->isFrontend()) {
+            $docgrp = evo()->getUserDocGroups();
+            if (evo()->isFrontend()) {
                 $query->where('privateweb', 0);
             } else {
                 $query->whereRaw("1 = {$_SESSION['mgrRole']}");
@@ -2082,7 +2086,7 @@ class SiteContent extends Eloquent\Model
         return $query;
     }
 
-    public function scopeWithTVs($query, $tvList = array(), $sep = ':', $tree = false)
+    public function scopeWithTVs($query, $tvList = [], $sep = ':', $tree = false)
     {
         $main_table = 'site_content';
         if($tree){
@@ -2117,7 +2121,7 @@ class SiteContent extends Eloquent\Model
 
     public function scopeTvFilter($query, $filters = '', $outerSep = ';', $innerSep = ':')
     {
-        $prefix = EvolutionCMS()->getDatabase()->getConfig('prefix');
+        $prefix = evo()->getDatabase()->getConfig('prefix');
         $filters = explode($outerSep, trim($filters));
         foreach ($filters as $filter) {
             if (empty($filter)) break;
@@ -2158,10 +2162,13 @@ class SiteContent extends Eloquent\Model
                 case ($cast == 'UNSIGNED'):
                 case ($cast == 'SIGNED'):
                 case (strpos($cast, 'DECIMAL') !== false):
+                    $numericCast = (in_array(evo()->getDatabase()->getConfig('driver'), ['sqlite', 'sqlite3'], true))
+                        ? 'INTEGER'
+                        : $cast;
                     if ($type == 'tvd') {
-                        $query = $query->whereRaw("CAST(IFNULL(`" . $prefix . "tv_" . $tvname . "`.`value`, `" . $prefix . "tvd_" . $tvname . "`.`default_text`) AS " . $cast . " ) " . $op . " " . $value);
+                        $query = $query->whereRaw("CAST(IFNULL(`" . $prefix . "tv_" . $tvname . "`.`value`, `" . $prefix . "tvd_" . $tvname . "`.`default_text`) AS " . $numericCast . " ) " . $op . " " . $value);
                     } else {
-                        $query = $query->whereRaw("CAST(`" . $prefix . 'tv_' . $tvname . "`.`value` AS " . $cast . " ) " . $op . " " . $value);
+                        $query = $query->whereRaw("CAST(`" . $prefix . 'tv_' . $tvname . "`.`value` AS " . $numericCast . " ) " . $op . " " . $value);
                     }
                     break;
                 default:
@@ -2174,7 +2181,7 @@ class SiteContent extends Eloquent\Model
 
     public function scopeTvOrderBy($query, $orderBy = '', $sep = ':')
     {
-        $prefix = EvolutionCMS()->getDatabase()->getConfig('prefix');
+        $prefix = evo()->getDatabase()->getConfig('prefix');
         $orderBy = explode(',', trim($orderBy));
         foreach ($orderBy as $parts) {
             if (empty(trim($parts))) return;
@@ -2182,6 +2189,11 @@ class SiteContent extends Eloquent\Model
             $tvname = $part[0];
             $sortDir = !empty($part[1]) ? $part[1] : 'desc';
             $cast = !empty($part[2]) ? $part[2] : '';
+            $driver = evo()->getDatabase()->getConfig('driver');
+            $castType = $cast;
+            if (in_array($driver, ['sqlite', 'sqlite3'], true) && $castType !== '') {
+                $castType = 'INTEGER';
+            }
             $withDefaults = false;
             if (strpos($tvname, $sep) !== false) {
                 list($tvname, $withDefaults) = explode($sep, $tvname, 2);
@@ -2189,16 +2201,16 @@ class SiteContent extends Eloquent\Model
             }
             $field = 'tv_' . $tvname . ".value";
             if ($withDefaults === true) {
-                $field = DB::Raw("IFNULL(`" . $prefix . "tv_" . $tvname . "`.`value`, `" . $prefix . "tvd_" . $tvname . "`.`default_text`)");
+                $field = \DB::Raw("IFNULL(`" . $prefix . "tv_" . $tvname . "`.`value`, `" . $prefix . "tvd_" . $tvname . "`.`default_text`)");
             }
             switch (true) {
-                case ($cast == 'UNSIGNED'):
-                case ($cast == 'SIGNED'):
-                case (strpos($cast, 'DECIMAL') !== false):
+                case ($castType == 'UNSIGNED'):
+                case ($castType == 'SIGNED'):
+                case (strpos($castType, 'DECIMAL') !== false):
                     if ($withDefaults === false) {
-                        $query = $query->orderByRaw("CAST(`" . $prefix . 'tv_' . $tvname . "`.`value` AS " . $cast . ") " . $sortDir);
+                        $query = $query->orderByRaw("CAST(`" . $prefix . 'tv_' . $tvname . "`.`value` AS " . $castType . ") " . $sortDir);
                     } else {
-                        $query = $query->orderByRaw("CAST(IFNULL(`" . $prefix . "tv_" . $tvname . "`.`value`, `" . $prefix . "tvd_" . $tvname . "`.`default_text`) AS " . $cast . ") " . $sortDir);
+                        $query = $query->orderByRaw("CAST(IFNULL(`" . $prefix . "tv_" . $tvname . "`.`value`, `" . $prefix . "tvd_" . $tvname . "`.`default_text`) AS " . $castType . ") " . $sortDir);
                     }
                     break;
                 default:
@@ -2225,13 +2237,13 @@ class SiteContent extends Eloquent\Model
     }
 
     //return tvs array [$docid => tvs array()]
-    public static function getTvList($docs, $tvList = array())
+    public static function getTvList($docs, $tvList = [])
     {
-        $docsTV = array();
+        $docsTV = [];
         if (empty($docs)) {
-            return array();
+            return [];
         } else if (empty($tvList)) {
-            return array();
+            return [];
         } else {
             $ids = $docs->pluck('id')->toArray();
             $tvs = SiteTmplvar::whereIn('name', $tvList)->get();
@@ -2248,13 +2260,13 @@ class SiteContent extends Eloquent\Model
             foreach ($ids as $docid) {
                 foreach ($tvIds as $tvid => $tvname) {
                     if (empty($docsTV[$docid][$tvid])) {
-                        $docsTV[$docid][$tvid] = array('tmplvarid' => $tvid, 'contentid' => $docid, 'value' => $tvNames[$tvIds [$tvid]]);
+                        $docsTV[$docid][$tvid] = ['tmplvarid' => $tvid, 'contentid' => $docid, 'value' => $tvNames[$tvIds [$tvid]]];
                     }
                 }
             }
         }
         if (!empty($docsTV)) {
-            $tmp = array();
+            $tmp = [];
             foreach ($docsTV as $docid => $tvs) {
                 foreach ($tvs as $tvid => $tv) {
                     $tmp[$docid][$tvIds[$tvid]] = $tv['value'];
@@ -2266,16 +2278,16 @@ class SiteContent extends Eloquent\Model
     }
 
     //return docs array with tvs
-    public static function tvList($docs, $tvList = array())
+    public static function tvList($docs, $tvList = [])
     {
         if (empty($docs)) {
-            return array();
+            return [];
         } else {
             $docsTV = static::getTvList($docs, $tvList);
             $docs = $docs->toArray();
             $tmp = $docs;
             foreach ($docs as $key => $doc) {
-                $tmp[$key]['tvs'] = !empty($docsTV[$doc['id']]) ? $docsTV[$doc['id']] : array();
+                $tmp[$key]['tvs'] = !empty($docsTV[$doc['id']]) ? $docsTV[$doc['id']] : [];
             }
             $docs = $tmp;
             unset($tmp);
@@ -2285,7 +2297,7 @@ class SiteContent extends Eloquent\Model
 
     public function scopeOrderByDate($query, $sortDir = 'desc')
     {
-        return $query->orderByRaw('IF(pub_date!=0,pub_date,createdon) ' . $sortDir);
+        return $query->orderByRaw('CASE WHEN pub_date != 0 THEN pub_date ELSE createdon END ' . $sortDir);
     }
 
     public function scopeTagsData($query, $tagsData, $sep = ':', $tagSeparator = ',')

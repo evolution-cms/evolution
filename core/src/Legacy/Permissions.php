@@ -31,7 +31,7 @@ class Permissions
     {
 
         global $udperms_allowroot;
-        $modx = evolutionCMS();
+        $modx = evo();
 
         $document = $this->document;
         $role = $this->role;

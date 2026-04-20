@@ -85,11 +85,11 @@ $_lang["captcha_words_message"] = 'در اینجا شما میتوانید فه�
 $_lang["captcha_words_title"] = 'کلمات حفاظتی';
 $_lang["category_heading"] = 'شاخه یا کتگوری';
 $_lang["category_msg"] = 'در اینجا شما میتوانید کلیه ی منابع جمعبندی شده بوسیله ی شاخه یا کتگوری را مرور کنید.';
-$_lang["cfg_base_path"] = 'MODX_BASE_PATH';
-$_lang["cfg_base_url"] = 'MODX_BASE_URL';
-$_lang["cfg_manager_path"] = 'MODX_MANAGER_PATH';
-$_lang["cfg_manager_url"] = 'MODX_MANAGER_URL';
-$_lang["cfg_site_url"] = 'MODX_SITE_URL';
+$_lang["cfg_base_path"] = 'EVO_BASE_PATH';
+$_lang["cfg_base_url"] = 'EVO_BASE_URL';
+$_lang["cfg_manager_path"] = 'EVO_MANAGER_PATH';
+$_lang["cfg_manager_url"] = 'EVO_MANAGER_URL';
+$_lang["cfg_site_url"] = 'EVO_SITE_URL';
 $_lang["change_name"] = 'تغییر نام';
 $_lang["change_password"] = 'تغییر کلمه ی عبور';
 $_lang["change_password_confirm"] = 'دوباره نگاری کلمه ی عبور';
@@ -352,7 +352,9 @@ $_lang["go"] = 'برو';
 $_lang["group_access_permissions"] = 'سطح دسترسی گروه کاربری';
 $_lang["guid"] = 'شناسه ی خاص';
 $_lang["help"] = 'راهنمای استفاده';
-$_lang["help_msg"] = '<p>شما میتوانید بصورت رایگان  عضو <a href="http://forums.modx.com" target="_blank">انجمنهای رفع اشکال و راهنمایی مادایکس</a> شوید و به کمک سایر دوستان باتجربه در این زمینه پاسخ سوالات خود را در مورد مادایکس بیابید.<br />ضمنا میتوانید حجم بزرگی از <a href="http://rtfm.modx.com/evolution/1.0" target="_blank">راهنمایی ها و نحوه استفاده و پشتیبانی مادایکس </a> را در بخش راهنمایی و پشتیبانی استفاده از مادایکس بیابید</p><p>شما با پرداخت هزینه میتوانید از پشتیبانی و راهنمای اختصاصی و حرفه ای برای وبگاه (سایت) خود بهرهمند شوید برای این منظور لطفا از طریق پست الکترونیک با آدرس زیر تماس حاصل کنید<br />hello@modx.com';
+$_lang["help_donate_msg"] = 'برای توسعه دهندگان Evolution CMS قهوه بخرید. <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> همین امروز از طرفداران Evolution CMS شوید! ❤️ Ko-fi به شما امکان می‌دهد از سازندگانی که دوست دارید بدون هیچ هزینه‌ای حمایت کنید.';
+$_lang["help_donate_title"] = 'برای توسعه CMS تکامل';
+$_lang["help_msg"] = '<p>شما میتوانید بصورت رایگان  عضو <a href="https://forum.evo.im" target="_blank">انجمنهای رفع اشکال و راهنمایی مادایکس</a> شوید و به کمک سایر دوستان باتجربه در این زمینه پاسخ سوالات خود را در مورد مادایکس بیابید.<br />ضمنا میتوانید حجم بزرگی از <a href="http://rtfm.modx.com/evolution/1.0" target="_blank">راهنمایی ها و نحوه استفاده و پشتیبانی مادایکس </a> را در بخش راهنمایی و پشتیبانی استفاده از مادایکس بیابید</p><p>شما با پرداخت هزینه میتوانید از پشتیبانی و راهنمای اختصاصی و حرفه ای برای وبگاه (سایت) خود بهرهمند شوید برای این منظور لطفا از طریق پست الکترونیک با آدرس زیر تماس حاصل کنید<br />hello@modx.com';
 $_lang["help_title"] = ' راهنما و توضیحات';
 $_lang["hide_tree"] = 'مخفی کردن درختی';
 $_lang["home"] = 'منزل';
@@ -497,7 +499,7 @@ $_lang["modx_news"] = 'MODX News Notices';
 $_lang["modx_news_tab"] = 'MODX News';
 $_lang["modx_news_title"] = 'MODX News';
 $_lang["modx_security_notices"] = 'MODX Security Notices';
-$_lang["modx_version"] = 'نسخه مادایکس شما';
+$_lang["evo_version"] = 'نسخه مادایکس شما';
 $_lang["monday"] = 'دوشنبه';
 $_lang["move"] = 'انتقال';
 $_lang["move_resource"] = 'انتقال پرونده';
@@ -716,7 +718,7 @@ $_lang["role_create_doc"] = 'ایجاد پرونده جدید';
 $_lang["role_create_plugin"] = 'ایجاد پلاگین جدید';
 $_lang["role_create_snippet"] = 'ایجاد اسنیپت جدید';
 $_lang["role_create_template"] = 'ایجاد قالبهای جدید وبگاه';
-$_lang["role_credits"] = 'نمایش جزییات';
+$_lang["role_widget_online_info"] = 'مشاهده ویجت کاربران حاضر در وبگاه یا سایت شما';
 $_lang["role_delete_chunk"] = 'حذف چانک';
 $_lang["role_delete_doc"] = 'حذف پرونده ها';
 $_lang["role_delete_eventlog"] = 'حذف آمار فعالیت';
@@ -747,7 +749,7 @@ $_lang["role_frames"] = 'درخواست فریم های مدیریت';
 $_lang["role_help"] = 'مشاهده ی صفحات راهنما';
 $_lang["role_home"] = 'درخواست صفحه ی مقدمه ی مدیریت';
 $_lang["role_import_static"] = 'واردسازی HTML';
-$_lang["role_logout"] = 'خروج از مدیریت';
+$_lang["role_widget_recent_info"] = 'مشاهده ویجت پرونده هایی که به تازگی ایجاد / ویرایش شده اند';
 $_lang["role_manage_metatags"] = 'مدیریت کلمات شاخص و کلیدی وبگاه';
 $_lang["role_management_msg"] = 'در اینجا شما میتوانید نقش مورد نظر خود را برای ویرایش انتخاب کنید.';
 $_lang["role_management_title"] = 'نقش ها';
@@ -886,7 +888,7 @@ $_lang["sunday"] = 'یکشنبه';
 $_lang["sys_alert"] = 'اخطار سیستم';
 $_lang["sysinfo_activity_message"] = 'این فهرست نمایانگر پرونده هایی است که اخیرا توسط کاربران شما ویرایش شده است';
 $_lang["sysinfo_userid"] = 'کاربر';
-$_lang["system_email_signup"] = 'با سلام [+uid+] 
+$_lang["system_email_signup"] = 'با سلام [+uid+]
 
 جزییات حساب کاربر شما در [+sname+] :
 
@@ -911,7 +913,7 @@ $_lang["system_email_webreminder"] = 'با سلام [+uid+]
 
 با اترام,
 مدیریت وبگاه';
-$_lang["system_email_websignup"] = 'با سلام [+uid+] 
+$_lang["system_email_websignup"] = 'با سلام [+uid+]
 
 اطلاعات حساب کاربری شما در وبگاه [+sname+]:
 
@@ -1092,7 +1094,7 @@ $_lang["yourinfo_username"] = 'شناسه ای که با آن وارد شده ا
 $_lang["a17_error_reporting_title"] = 'Detection level of the PHP error';
 $_lang["a17_error_reporting_msg"] = 'Set the detection level of the PHP error.';
 $_lang["a17_error_reporting_opt0"] = 'Ignore all';
-$_lang["a17_error_reporting_opt1"] = 'Ignore the warning of a slight notice level(<a href="https://www.google.com/search?q=E_DEPRECATED+E_STRICT" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT</a>)';
+$_lang["a17_error_reporting_opt1"] = 'Ignore the warning of a slight notice level(<a href="https://www.google.com/search?q=E_DEPRECATED+E_NOTICE" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED</a>)';
 $_lang["a17_error_reporting_opt2"] = 'Detect all errors except E_NOTICE and E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt99"] = 'Detect all except E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt199"] = 'Detect all';
@@ -1114,7 +1116,7 @@ $_lang["bkmgr_run_sql_direct_label"] = 'Direct execute SQL command strings';
 $_lang["bkmgr_run_sql_submit"] = 'Execute restore';
 $_lang["bkmgr_run_sql_result"] = 'Result';
 $_lang["bkmgr_snapshot_title"] = 'Snapshot save and recovery';
-$_lang["bkmgr_snapshot_msg"] = '<p>The contents of the database are saved and restored to a server.<br />Preservation place : [+snapshot_path+] ($modx->config[\'snapshot_path\'])</p>';
+$_lang["bkmgr_snapshot_msg"] = '<p>The contents of the database are saved and restored to a server.<br />Preservation place : [+snapshot_path+] (evo()->getConfig(\'snapshot_path\'))</p>';
 $_lang["bkmgr_snapshot_submit"] = 'Add snapshot';
 $_lang["bkmgr_snapshot_list_title"] = 'List of snapshot';
 $_lang["bkmgr_restore_submit"] = 'Revert this data';
@@ -1165,6 +1167,8 @@ $_lang["docid_incrmnt_method_2"] = 'Maximal ID + 1';
 $_lang["cache_type_title"] = 'Document caching type';
 $_lang["cache_type_1"] = 'Cache is based only on document id (standard)';
 $_lang["cache_type_2"] = 'Cache is based on document id and $_GET parameters';
+$_lang["html_comment_title"] = 'توضیح HTML';
+$_lang["html_comment_message"] = 'فهرست انواع عناصر جدا شده با کاما برای احاطه با توضیحات HTML در کد منبع صفحه: <b>snippets</b>, <b>chunks</b>, <b>tvs</b>, <b>snippetParams</b>';
 $_lang["seostrict_title"] = 'Use SEO Strict URLs';
 $_lang["seostrict_message"] = 'Enforces the use of strict URLs to prevent duplicate content if needed';
 
@@ -1221,4 +1225,10 @@ $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to acces
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
 
+$_lang["file_groups_saved"] = 'مجوزهای دسترسی ذخیره شد.';
+$_lang["file_groups_edit"] = 'ویرایش مجوزهای دسترسی';
+$_lang["files_groups"] = 'گروه‌های منابع:';
+$_lang["access_permissions_file_message"] = 'انتخاب کنید این فایل به کدام گروه‌های منابع تعلق دارد:';
+$_lang["access_permissions_dir_message"] = 'انتخاب کنید این پوشه به کدام گروه‌های منابع تعلق دارد:';
+$_lang["all_file_groups"] = 'همه گروه‌های منابع (عمومی)';
 return $_lang;

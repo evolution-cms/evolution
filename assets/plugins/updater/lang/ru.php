@@ -24,3 +24,4 @@ $_lang['error_openssl'] = 'Необходимо включить функцию 
 $_lang['error_overwrite'] = 'Файлы Evolution CMS не доступны для перезаписи';
 
 $_lang['artisan_update'] = 'Для обновления нужно выполнить консольную команду из папки <b>core</b>: <b>php artisan make:site update</b>';
+$_lang["help_donate_msg"] = 'Купите кофе разработчикам Evolution CMS на <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a>. Станьте поклонником Evolution CMS ❤️ сегодня!';

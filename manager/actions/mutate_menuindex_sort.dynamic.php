@@ -2,8 +2,9 @@
 if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true) {
     die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the EVO Content Manager instead of accessing this file directly.");
 }
-if (!EvolutionCMS()->hasPermission('edit_document') || !EvolutionCMS()->hasPermission('save_document')) {
-    EvolutionCMS()->webAlertAndQuit($_lang["error_no_privileges"]);
+
+if (!evo()->hasPermission('edit_document') || !evo()->hasPermission('save_document')) {
+    evo()->webAlertAndQuit($_lang["error_no_privileges"]);
 }
 
 $id = isset($_REQUEST['id']) ? (int) $_REQUEST['id'] : null;
@@ -14,12 +15,12 @@ $updateMsg = '';
 
 // check permissions on the document
 $udperms = new EvolutionCMS\Legacy\Permissions();
-$udperms->user = EvolutionCMS()->getLoginUserID('mgr');
+$udperms->user = evo()->getLoginUserID('mgr');
 $udperms->document = $id;
 $udperms->role = $_SESSION['mgrRole'];
 
 if (!$udperms->checkPermissions()) {
-    EvolutionCMS()->webAlertAndQuit($_lang["access_permission_denied"]);
+    evo()->webAlertAndQuit($_lang["access_permission_denied"]);
 }
 
 if (isset($_POST['listSubmitted'])) {
@@ -40,30 +41,32 @@ $disabled = 'true';
 $pagetitle = '';
 $ressourcelist = '';
 if ($id !== null) {
-    try {
-        $doc = \EvolutionCMS\Models\SiteContent::query()->withTrashed()->findOrFail($id);
-    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-        $modx->webAlertAndQuit($_lang["access_permission_denied"]);
+    if ($id > 0) {
+        try {
+            $doc = \EvolutionCMS\Models\SiteContent::query()->withTrashed()->findOrFail($id);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            evo()->webAlertAndQuit($_lang["access_permission_denied"]);
+        }
+        $pagetitle = $doc->pagetitle;
     }
-    $pagetitle = $doc->pagetitle;
 
     $mgrRole = (isset ($_SESSION['mgrRole']) && (string) $_SESSION['mgrRole'] === '1') ? '1' : '0';
     $resources = \EvolutionCMS\Models\SiteContent::query()
-        ->withTrashed()
-        ->select('site_content.id', 'site_content.pagetitle', 'site_content.parent', 'site_content.menuindex',
-            'site_content.published', 'site_content.hidemenu', 'site_content.deleted', 'site_content.isfolder')
-        ->leftJoin('document_groups', 'document_groups.document', '=', 'site_content.id')
-        ->where('site_content.parent', $id)
-        ->orderBy('menuindex', 'ASC')
-        ->groupBy([
-            'site_content.id', 'site_content.pagetitle', 'site_content.parent', 'site_content.menuindex',
-            'site_content.published', 'site_content.hidemenu', 'site_content.deleted', 'site_content.isfolder'
-        ]);
+            ->withTrashed()
+            ->select('site_content.id', 'site_content.pagetitle', 'site_content.parent', 'site_content.menuindex',
+                    'site_content.published', 'site_content.hidemenu', 'site_content.deleted', 'site_content.isfolder')
+            ->leftJoin('document_groups', 'document_groups.document', '=', 'site_content.id')
+            ->where('site_content.parent', $id)
+            ->orderBy('menuindex', 'ASC')
+            ->groupBy([
+                    'site_content.id', 'site_content.pagetitle', 'site_content.parent', 'site_content.menuindex',
+                    'site_content.published', 'site_content.hidemenu', 'site_content.deleted', 'site_content.isfolder'
+            ]);
     if ($mgrRole != 1) {
         if (is_array($_SESSION['mgrDocgroups']) && count($_SESSION['mgrDocgroups']) > 0) {
             $resources = $resources->where(function ($q) {
                 $q->where('site_content.privatemgr', 0)
-                    ->orWhereIn('document_groups.document_group', $_SESSION['mgrDocgroups']);
+                        ->orWhereIn('document_groups.document_group', $_SESSION['mgrDocgroups']);
             });
         } else {
             $resources = $resources->where('site_content.privatemgr', 0);
@@ -86,11 +89,10 @@ if ($id !== null) {
     }
 }
 
-$pagetitle = empty($id) ? EvolutionCMS()->getConfig('site_name') : $pagetitle;
+$pagetitle = empty($id) ? evo()->getConfig('site_name') : $pagetitle;
 ?>
 
 <script type="text/javascript">
-
     parent.tree.updateTree();
 
     var actions = {
@@ -158,7 +160,6 @@ $pagetitle = empty($id) ? EvolutionCMS()->getConfig('site_name') : $pagetitle;
             actions.save();
         }
     }
-
 </script>
 
 <h1>
@@ -169,7 +170,7 @@ $pagetitle = empty($id) ? EvolutionCMS()->getConfig('site_name') : $pagetitle;
 
 <div class="tab-page">
     <div class="container container-body">
-        <b><?= EvolutionCMS()->getPhpCompat()->entities($pagetitle) ?> (<?= $id ?>)</b>
+        <b><?= evo()->getPhpCompat()->entities($pagetitle) ?> (<?= $id ?>)</b>
         <?php
         if ($ressourcelist) {
             ?>
@@ -197,11 +198,9 @@ $pagetitle = empty($id) ? EvolutionCMS()->getConfig('site_name') : $pagetitle;
 </form>
 
 <script type="text/javascript">
-
     evo.sortable('.sortableList > li', {
         complete: function () {
             renderList();
         }
     });
-
 </script>

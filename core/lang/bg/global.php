@@ -4,7 +4,7 @@
  *
  * @version 1.0.15
  * @date 2014/02/24
- * @author The MODX Project Team
+ * @author Evolution CMS Team
  *
  * @language Bulgarian
  * @package modx
@@ -85,11 +85,11 @@ $_lang["captcha_words_message"] = 'Тук можете да въведете с�
 $_lang["captcha_words_title"] = 'CAPTCHA Думи';
 $_lang["category_heading"] = 'Категория';
 $_lang["category_msg"] = 'Тук можете да разгледате и редактирате всички ресурси групирани по категория.';
-$_lang["cfg_base_path"] = 'MODX_BASE_PATH';
-$_lang["cfg_base_url"] = 'MODX_BASE_URL';
-$_lang["cfg_manager_path"] = 'MODX_MANAGER_PATH';
-$_lang["cfg_manager_url"] = 'MODX_MANAGER_URL';
-$_lang["cfg_site_url"] = 'MODX_SITE_URL';
+$_lang["cfg_base_path"] = 'EVO_BASE_PATH';
+$_lang["cfg_base_url"] = 'EVO_BASE_URL';
+$_lang["cfg_manager_path"] = 'EVO_MANAGER_PATH';
+$_lang["cfg_manager_url"] = 'EVO_MANAGER_URL';
+$_lang["cfg_site_url"] = 'EVO_SITE_URL';
 $_lang["change_name"] = 'Смяна на името';
 $_lang["change_password"] = 'Смяна на паролата';
 $_lang["change_password_confirm"] = 'Потвърждаване на паролата';
@@ -352,7 +352,9 @@ $_lang["go"] = 'Отиди';
 $_lang["group_access_permissions"] = 'Права за достъп на Група Потребители';
 $_lang["guid"] = 'GUID';
 $_lang["help"] = 'Помощ';
-$_lang["help_msg"] = '<p>Можете да получите безплатна помощ на <a href="http://forums.modx.com" target="_blank">адреса на Форума на MODX</a>. Също така можете да посетите и <a href="http://rtfm.modx.com/evolution/1.0" target="_blank">MODX Документация и Ръководства</a> , където са засегнати почти всички аспекти на MODX.</p><p>Екипът планира да предложи и платена помощ като услуга също. Моля да се информирате за платената помощ на адрес <a href="mailto:modx@vertexworks.com?subject=MODX Commercial Support Inquiry"></a>.';
+$_lang["help_donate_msg"] = 'Купете кафето за разработчици Evolution CMS. <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> Станете фен на Evolution CMS днес! ❤️ Ko-fi ви позволява да подкрепяте творците, които обичате, без никакви такси за дарения.';
+$_lang["help_donate_title"] = 'За разработването на Evolution CMS';
+$_lang["help_msg"] = '<p>Можете да получите безплатна помощ на <a href="https://forum.evo.im" target="_blank">адреса на Форума на MODX</a>. Също така можете да посетите и <a href="http://rtfm.modx.com/evolution/1.0" target="_blank">MODX Документация и Ръководства</a> , където са засегнати почти всички аспекти на MODX.</p><p>Екипът планира да предложи и платена помощ като услуга също. Моля да се информирате за платената помощ на адрес <a href="mailto:modx@vertexworks.com?subject=MODX Commercial Support Inquiry"></a>.';
 $_lang["help_title"] = 'Помощ';
 $_lang["hide_tree"] = 'Скриване на дървото';
 $_lang["home"] = 'Начало';
@@ -497,7 +499,7 @@ $_lang["modx_news"] = 'MODX News Notices';
 $_lang["modx_news_tab"] = 'MODX News';
 $_lang["modx_news_title"] = 'MODX News';
 $_lang["modx_security_notices"] = 'MODX Security Notices';
-$_lang["modx_version"] = 'Версия на MODX';
+$_lang["evo_version"] = 'Версия на MODX';
 $_lang["monday"] = 'Понеделник';
 $_lang["move"] = 'Преместете';
 $_lang["move_resource"] = 'Преместете документ';
@@ -716,7 +718,7 @@ $_lang["role_create_doc"] = 'Създаване на нови документи
 $_lang["role_create_plugin"] = 'Създаване на нови плъгини';
 $_lang["role_create_snippet"] = 'Създаване на нови снипети';
 $_lang["role_create_template"] = 'Създаване на нови шаблони за сайта';
-$_lang["role_credits"] = 'Преглед на страницата със заслугите';
+$_lang["role_widget_online_info"] = 'Преглед на уиджета „Активни потребители“';
 $_lang["role_delete_chunk"] = 'Изтриване на чънкове';
 $_lang["role_delete_doc"] = 'Изтриване на документи';
 $_lang["role_delete_eventlog"] = 'Изтриване на Дневника на събитията';
@@ -747,7 +749,7 @@ $_lang["role_frames"] = 'Викане на мениджъра';
 $_lang["role_help"] = 'Преглед на страниците Помощ';
 $_lang["role_home"] = 'Викане на началната страница на мениджъра';
 $_lang["role_import_static"] = 'Импорт на HTML';
-$_lang["role_logout"] = 'Изход от мениджъра';
+$_lang["role_widget_recent_info"] = 'Преглед на уиджета „Наскоро редактирани/създадени документи“';
 $_lang["role_manage_metatags"] = 'Управление на META тагове и ключови думи на сайта';
 $_lang["role_management_msg"] = 'Тук можете да изберете коя роля да редактирате.';
 $_lang["role_management_title"] = 'Роли';
@@ -886,7 +888,7 @@ $_lang["sunday"] = 'Неделя';
 $_lang["sys_alert"] = 'Системен сигнал';
 $_lang["sysinfo_activity_message"] = 'Този списък показва кои документи са били редактирани напоследък от потребителите.';
 $_lang["sysinfo_userid"] = 'Потребител';
-$_lang["system_email_signup"] = 'Здравей [+uid+] 
+$_lang["system_email_signup"] = 'Здравей [+uid+]
 
 Въведи потребителско име и парола, за да влезеш в Мениджъра на [+sname+]:
 
@@ -911,7 +913,7 @@ $_lang["system_email_webreminder"] = 'Здравей [+uid+]
 
 С уважение,
 Администратор';
-$_lang["system_email_websignup"] = 'Здравей [+uid+] 
+$_lang["system_email_websignup"] = 'Здравей [+uid+]
 
 Ето детайлите за акаунта ти в [+sname+]:
 
@@ -1092,7 +1094,7 @@ $_lang["yourinfo_username"] = 'Влязал си като:';
 $_lang["a17_error_reporting_title"] = 'Detection level of the PHP error';
 $_lang["a17_error_reporting_msg"] = 'Set the detection level of the PHP error.';
 $_lang["a17_error_reporting_opt0"] = 'Ignore all';
-$_lang["a17_error_reporting_opt1"] = 'Ignore the warning of a slight notice level(<a href="https://www.google.com/search?q=E_DEPRECATED+E_STRICT" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT</a>)';
+$_lang["a17_error_reporting_opt1"] = 'Ignore the warning of a slight notice level(<a href="https://www.google.com/search?q=E_DEPRECATED+E_NOTICE" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED</a>)';
 $_lang["a17_error_reporting_opt2"] = 'Detect all errors except E_NOTICE and E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt99"] = 'Detect all except E_USER_DEPRECATED';
 $_lang["a17_error_reporting_opt199"] = 'Detect all';
@@ -1114,7 +1116,7 @@ $_lang["bkmgr_run_sql_direct_label"] = 'Direct execute SQL command strings';
 $_lang["bkmgr_run_sql_submit"] = 'Execute restore';
 $_lang["bkmgr_run_sql_result"] = 'Result';
 $_lang["bkmgr_snapshot_title"] = 'Snapshot save and recovery';
-$_lang["bkmgr_snapshot_msg"] = '<p>The contents of the database are saved and restored to a server.<br />Preservation place : [+snapshot_path+] ($modx->config[\'snapshot_path\'])</p>';
+$_lang["bkmgr_snapshot_msg"] = '<p>The contents of the database are saved and restored to a server.<br />Preservation place : [+snapshot_path+] (evo()->getConfig(\'snapshot_path\'))</p>';
 $_lang["bkmgr_snapshot_submit"] = 'Add snapshot';
 $_lang["bkmgr_snapshot_list_title"] = 'List of snapshot';
 $_lang["bkmgr_restore_submit"] = 'Връщане на тези данни';
@@ -1165,6 +1167,8 @@ $_lang["docid_incrmnt_method_2"] = 'Maximal ID + 1';
 $_lang["cache_type_title"] = 'Document caching type';
 $_lang["cache_type_1"] = 'Cache is based only on document id (standard)';
 $_lang["cache_type_2"] = 'Cache is based on document id and $_GET parameters';
+$_lang["html_comment_title"] = 'HTML коментар';
+$_lang["html_comment_message"] = 'Списък от типове елементи, разделени с запетаи, за обвиване с HTML коментари в изходния код на страницата: <b>snippets</b>, <b>chunks</b>, <b>tvs</b>, <b>snippetParams</b>';
 $_lang["seostrict_title"] = 'Use SEO Strict URLs';
 $_lang["seostrict_message"] = 'Enforces the use of strict URLs to prevent duplicate content if needed';
 
@@ -1220,5 +1224,12 @@ $_lang["role_tv_msg"] = 'The Variables assigned to this Role are listed below.';
 $_lang["tmplvar_roles_access_msg"] = 'Select the Roles that are allowed to access/process this Template Variable';
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is defined in core/custom/confic/cms/settings</strong>';
+
+$_lang["file_groups_saved"] = 'Правата за достъп са запазени.';
+$_lang["file_groups_edit"] = 'Редактиране на правата за достъп';
+$_lang["files_groups"] = 'Групи ресурси:';
+$_lang["access_permissions_file_message"] = 'Изберете към кои Групи ресурси принадлежи този файл:';
+$_lang["access_permissions_dir_message"] = 'Изберете към кои Групи ресурси принадлежи тази директория:';
+$_lang["all_file_groups"] = 'Всички групи ресурси (Публични)';
 
 return $_lang;

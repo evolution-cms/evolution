@@ -10,27 +10,32 @@ if(!function_exists('import_sql')) {
         global $e;
 
         $rs = null;
-        if ($modx->getLockedElements() !== array()) {
+        if ($modx->getLockedElements() !== []) {
             $modx->webAlertAndQuit("At least one Resource is still locked or edited right now by any user. Remove locks or ask users to log out before proceeding.");
         }
 
         $settings = getSettings();
 
         if (strpos($source, "\r") !== false) {
-            $source = str_replace(array(
+            $source = str_replace([
                 "\r\n",
                 "\n",
                 "\r"
-            ), "\n", $source);
+            ], "\n", $source);
         }
         $sql_array = preg_split('@;[ \t]*\n@', $source);
+        $driver = $modx->getDatabase()->getConfig('driver');
         foreach ($sql_array as $sql_entry) {
             $sql_entry = trim($sql_entry, "\r\n; ");
             if (empty($sql_entry)) {
                 continue;
             }
 
-            $rs = $modx->getDatabase()->query($sql_entry);
+            if (in_array($driver, ['sqlite', 'sqlite3'], true)) {
+                $rs = \DB::statement($sql_entry);
+            } else {
+                $rs = $modx->getDatabase()->query($sql_entry);
+            }
 
 
         }
@@ -115,10 +120,26 @@ if(!function_exists('getSettings')) {
     {
         $modx = evolutionCMS();
         $tbl_system_settings = $modx->getDatabase()->getFullTableName('system_settings');
+        $driver = $modx->getDatabase()->getConfig('driver');
+        $settings = [];
+
+        if (in_array($driver, ['sqlite', 'sqlite3'], true)) {
+            $rows = \DB::select('SELECT setting_name, setting_value FROM ' . $tbl_system_settings);
+            foreach ($rows as $row) {
+                switch ($row->setting_name) {
+                    case 'rb_base_dir':
+                    case 'filemanager_path':
+                    case 'site_url':
+                    case 'base_url':
+                        $settings[$row->setting_name] = $row->setting_value;
+                        break;
+                }
+            }
+
+            return $settings;
+        }
 
         $rs = $modx->getDatabase()->select('setting_name, setting_value', $tbl_system_settings);
-
-        $settings = array();
         while ($row = $modx->getDatabase()->getRow($rs)) {
             switch ($row['setting_name']) {
                 case 'rb_base_dir':
@@ -142,9 +163,19 @@ if(!function_exists('restoreSettings')) {
     {
         $modx = evolutionCMS();
         $tbl_system_settings = $modx->getDatabase()->getFullTableName('system_settings');
+        $driver = $modx->getDatabase()->getConfig('driver');
+
+        if (in_array($driver, ['sqlite', 'sqlite3'], true)) {
+            foreach ($settings as $k => $v) {
+                \DB::table('system_settings')
+                    ->where('setting_name', $k)
+                    ->update(['setting_value' => $v]);
+            }
+            return;
+        }
 
         foreach ($settings as $k => $v) {
-            $modx->getDatabase()->update(array('setting_value' => $v), $tbl_system_settings, "setting_name='{$k}'");
+            $modx->getDatabase()->update(['setting_value' => $v], $tbl_system_settings, "setting_name='{$k}'");
         }
     }
 }
@@ -155,7 +186,7 @@ if(!function_exists('parsePlaceholder')) {
      * @param array $ph
      * @return string
      */
-    function parsePlaceholder($tpl = '', $ph = array())
+    function parsePlaceholder($tpl = '', $ph = [])
     {
         if (empty($ph) || empty($tpl)) {
             return $tpl;

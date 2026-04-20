@@ -20,7 +20,7 @@ evo.tooltips = function (a) {
                 return;
             }
             var x = e.clientX, y = e.clientY;
-            b.innerHTML = (this.dataset && this.dataset.tooltip ? (this.dataset.tooltip[0] === '#' ? document.querySelector(this.dataset.tooltip).innerHTML : this.dataset.tooltip) : this.innerHTML);
+            b.innerHTML = evoTooltipHelper.getTooltipContent(this, document.querySelector.bind(document)) || this.innerHTML;
             if (x + b.offsetWidth + (c * 2) > window.innerWidth) {
                 b.style.left = Math.round(x - b.offsetWidth - (c * 2)) + 'px';
                 b.classList.add('evo-tooltip-right');
@@ -314,7 +314,7 @@ function document_onload() {
             this.parentNode.classList.toggle('show');
         };
     }
-    evo.tooltips('[data-tooltip]');
+    evo.tooltips('[data-tooltip], [data-toggle="tooltip"][title]');
     //evo.collapse('.panel-heading', 'panel-collapse');
 
     if (document.forms.length && document.forms.mutate && window.frameElement.parentNode.parentNode.classList.contains('evo-popup')) {
@@ -476,20 +476,21 @@ function BrowseServer(ctrl) {
     lastImageCtrl = ctrl;
     var w = screen.width * 0.7;
     var h = screen.height * 0.7;
-    OpenServerBrowser(evo.MODX_MANAGER_URL + 'media/browser/' + evo.config.which_browser + '/browser.php?Type=images', w, h);
+    OpenServerBrowser(evo.EVO_MANAGER_URL + 'media/browser/' + evo.config.which_browser + '/browser.php?Type=images', w, h);
 }
 
 function BrowseFileServer(ctrl) {
     lastFileCtrl = ctrl;
     var w = screen.width * 0.7;
     var h = screen.height * 0.7;
-    OpenServerBrowser(evo.MODX_MANAGER_URL + 'media/browser/' + evo.config.which_browser + '/browser.php?Type=files', w, h);
+    OpenServerBrowser(evo.EVO_MANAGER_URL + 'media/browser/' + evo.config.which_browser + '/browser.php?Type=files', w, h);
 }
 
 function SetUrlChange(el) {
     if ('createEvent' in document) {
-        var evt = document.createEvent('HTMLEvents');
-        evt.initEvent('change', false, true);
+        //var evt = document.createEvent('HTMLEvents');
+        //evt.initEvent('change', false, true);
+        let evt = new Event("change", {"bubbles":false, "cancelable":true});
         el.dispatchEvent(evt);
     } else {
         el.fireEvent('onchange');
@@ -515,3 +516,31 @@ function SetUrl(url, width, height, alt) {
         return;
     }
 }
+
+// Hide tab-row when all tabs are hidden
+(function() {
+    function checkHiddenTabs() {
+        var tabRows = document.querySelectorAll('.tab-row, .tab-row-container');
+        tabRows.forEach(function(tabRow) {
+            var tabs = tabRow.querySelectorAll('.tab');
+            var allHidden = true;
+            tabs.forEach(function(tab) {
+                var styleAttr = tab.getAttribute('style') || '';
+                var isHidden = styleAttr.indexOf('display:none') !== -1 || 
+                               styleAttr.indexOf('display: none') !== -1 ||
+                               window.getComputedStyle(tab).display === 'none';
+                if (!isHidden) {
+                    allHidden = false;
+                }
+            });
+            if (tabs.length > 0 && allHidden) {
+                tabRow.style.display = 'none';
+                document.body.classList.add('tabs-hidden');
+            }
+        });
+    }
+    // Run after window load to ensure all styles are applied
+    window.addEventListener('load', checkHiddenTabs);
+    // Also try on DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', checkHiddenTabs);
+})();

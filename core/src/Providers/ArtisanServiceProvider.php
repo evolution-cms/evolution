@@ -3,6 +3,8 @@
 use EvolutionCMS\Console;
 use EvolutionCMS\Console\Scheduling\ScheduleListCommand;
 use EvolutionCMS\Console\Scheduling\ScheduleRunCommand;
+use EvolutionCMS\Console\SystemTasks\SchedulerHeartbeatCommand;
+use EvolutionCMS\Console\SystemTasks\TaskWorkerCommand;
 use Illuminate\Console\Scheduling\ScheduleClearCacheCommand;
 use Illuminate\Console\Scheduling\ScheduleFinishCommand;
 use Illuminate\Console\Scheduling\ScheduleTestCommand;
@@ -24,10 +26,12 @@ use Illuminate\Database\Console\Migrations\MigrateMakeCommand;
 use EvolutionCMS\Console\ClearCompiledCommand;
 use EvolutionCMS\Console\VendorPublishCommand;
 use EvolutionCMS\Console\ViewClearCommand;
+use EvolutionCMS\Console\Presets\ApplyCommand;
+use EvolutionCMS\Console\Presets\InstallCommand;
 use EvolutionCMS\Console\Lists;
 use EvolutionCMS\Console\Packages;
 
-/** @see: https://github.com/laravel/framework/blob/5.6/src/Illuminate/Foundation/Providers/ArtisanServiceProvider.php */
+/** @see: https://github.com/laravel/framework/blob/12.x/src/Illuminate/Foundation/Providers/ArtisanServiceProvider.php */
 class ArtisanServiceProvider extends ServiceProvider
 {
     /**
@@ -60,7 +64,9 @@ class ArtisanServiceProvider extends ServiceProvider
         'ScheduleRun' => ScheduleRunCommand::class,
         'ScheduleClearCache' => ScheduleClearCacheCommand::class,
         'ScheduleTest' => ScheduleTestCommand::class,
-        'ScheduleWork' => ScheduleWorkCommand::class,
+        'ScheduleWork' => 'command.schedule.work',
+        'SystemSchedulerHeartbeat' => 'command.system.scheduler.heartbeat',
+        'SystemTaskWorker' => 'command.system.task.worker',
         'ViewClear' => 'command.view.clear',
         'ListsDoc' => 'command.lists.doc',
         'ListsTv' => 'command.lists.tv',
@@ -69,11 +75,15 @@ class ArtisanServiceProvider extends ServiceProvider
         'PackageCreate' => 'command.packages.create',
         'RunPackageConsole' => 'command.packages.runconsole',
         'InstallPackageRequire' => 'command.packages.installrequire',
+        'RemovePackageRequire' => 'command.packages.removerequire',
         'InstallPackageAutoload' => 'command.packages.installautoload',
         'UpdateTree' => 'command.updatetree',
         'SiteUpdate' => 'command.siteupdate',
+        'TranslationsSync' => 'command.translations.sync',
         'Extras' => 'command.extras',
         'RouteList' => 'command.route.list',
+        'PresetApply' => 'command.preset.apply',
+        'PresetInstall' => 'command.preset.install',
     ];
 
     /**
@@ -83,6 +93,7 @@ class ArtisanServiceProvider extends ServiceProvider
      */
     protected $devCommands = [
         'VendorPublish' => 'command.vendor.publish',
+        'ListsDeprecated' => 'command.lists.deprecated',
         'MigrateMake' => 'command.migrate.make',
     ];
 
@@ -97,9 +108,9 @@ class ArtisanServiceProvider extends ServiceProvider
             $this->commands, $this->devCommands
         );
 
-        if (IN_INSTALL_MODE) {
+        /*if (IN_INSTALL_MODE) {
             unset($hereCommands['Migrate']);
-        }
+        }*/
 
         $this->registerCommands($hereCommands);
         $this->app->singleton('Console', function ($app) {
@@ -177,8 +188,8 @@ class ArtisanServiceProvider extends ServiceProvider
      */
     protected function registerMigrateFreshCommand()
     {
-        $this->app->singleton('command.migrate.fresh', function () {
-            return new MigrateFreshCommand;
+        $this->app->singleton('command.migrate.fresh', function ($app) {
+            return new MigrateFreshCommand($app['migrator']);
         });
     }
 
@@ -311,7 +322,9 @@ class ArtisanServiceProvider extends ServiceProvider
      */
     protected function registerScheduleWorkCommand()
     {
-        $this->app->singleton(ScheduleWorkCommand::class);
+        $this->app->singleton('command.schedule.work', function () {
+            return new ScheduleWorkCommand();
+        });
     }
 
     /**
@@ -335,6 +348,18 @@ class ArtisanServiceProvider extends ServiceProvider
     {
         $this->app->singleton('command.view.clear', function ($app) {
             return new ViewClearCommand($app['files']);
+        });
+    }
+
+    /**
+     * Register the command.
+     *
+     * @return void
+     */
+    protected function registerListsDeprecatedCommand()
+    {
+        $this->app->singleton('command.lists.deprecated', function () {
+            return new Lists\DeprecatedCommand;
         });
     }
 
@@ -407,6 +432,31 @@ class ArtisanServiceProvider extends ServiceProvider
             return new Packages\RunPackageConsoleCommand();
         });
     }
+
+    /**
+     * Register the preset apply command.
+     *
+     * @return void
+     */
+    protected function registerPresetApplyCommand()
+    {
+        $this->app->singleton('command.preset.apply', function () {
+            return new ApplyCommand();
+        });
+    }
+
+    /**
+     * Register the preset install command.
+     *
+     * @return void
+     */
+    protected function registerPresetInstallCommand()
+    {
+        $this->app->singleton('command.preset.install', function () {
+            return new InstallCommand();
+        });
+    }
+
     /**
      * Register the command.
      *
@@ -416,6 +466,18 @@ class ArtisanServiceProvider extends ServiceProvider
     {
         $this->app->singleton('command.packages.installrequire', function () {
             return new Packages\InstallPackageRequireCommand();
+        });
+    }
+
+    /**
+     * Register the command.
+     *
+     * @return void
+     */
+    protected function registerRemovePackageRequireCommand()
+    {
+        $this->app->singleton('command.packages.removerequire', function () {
+            return new Packages\RemovePackageRequireCommand();
         });
     }
 
@@ -452,6 +514,19 @@ class ArtisanServiceProvider extends ServiceProvider
             return new Console\SiteUpdateCommand();
         });
     }
+
+    /**
+     * Register the command.
+     *
+     * @return void
+     */
+    protected function registerTranslationsSyncCommand()
+    {
+        $this->app->singleton('command.translations.sync', function () {
+            return new \EvolutionCMS\Console\TranslationsSyncCommand();
+        });
+    }
+
     /**
      * Register the command.
      *
@@ -473,6 +548,30 @@ class ArtisanServiceProvider extends ServiceProvider
     {
         $this->app->singleton('command.clear-cache-full', function () {
             return new Console\ClearCacheFullCommand();
+        });
+    }
+
+    /**
+     * Register the command.
+     *
+     * @return void
+     */
+    protected function registerSystemSchedulerHeartbeatCommand()
+    {
+        $this->app->singleton('command.system.scheduler.heartbeat', function () {
+            return new SchedulerHeartbeatCommand();
+        });
+    }
+
+    /**
+     * Register the command.
+     *
+     * @return void
+     */
+    protected function registerSystemTaskWorkerCommand()
+    {
+        $this->app->singleton('command.system.task.worker', function () {
+            return new TaskWorkerCommand();
         });
     }
 

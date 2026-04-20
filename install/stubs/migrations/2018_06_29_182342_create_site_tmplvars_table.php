@@ -15,6 +15,7 @@ class CreateSiteTmplvarsTable extends Migration {
 	{
 		Schema::create('site_tmplvars', function(Blueprint $table)
 		{
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
 			$table->integer('id', true);
 			$table->string('type', 50)->default('');
 			$table->string('name', 50)->default('');
@@ -24,7 +25,7 @@ class CreateSiteTmplvarsTable extends Migration {
 			$table->integer('category')->default(0)->comment('category id');
 			$table->boolean('locked')->default(0);
 			$table->text('elements', 65535)->nullable();
-			$table->integer('rank')->default(0)->index('indx_rank');
+			$table->integer('rank')->default(0)->index("{$indexPrefix}_indx_rank");
 			$table->string('display', 20)->default('')->comment('Display Control');
 			$table->text('display_params', 65535)->nullable()->comment('Display Control Properties');
 			$table->text('default_text', 65535)->nullable();

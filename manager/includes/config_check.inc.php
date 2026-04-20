@@ -16,24 +16,24 @@ if($_SESSION['mgrRole'] == 1) {
 }
 
 // NOW CHECK CONFIG
-$warnings = array();
+$warnings = [];
 $sysfiles_check = EvolutionCMS()->getManagerApi()->checkSystemChecksum();
 if ($sysfiles_check!=='0') {
-    $warnings[] = array($_lang['configcheck_sysfiles_mod']);
+    $warnings[] = [$_lang['configcheck_sysfiles_mod']];
 }
 
 if (file_exists("../install/")) {
-    $warnings[] = array($_lang['configcheck_installer']);
+    $warnings[] = [$_lang['configcheck_installer']];
 }
 
 if (!extension_loaded('gd') || !extension_loaded('zip')) {
-    $warnings[] = array($_lang['configcheck_php_gdzip']);
+    $warnings[] = [$_lang['configcheck_php_gdzip']];
 }
 
 if(!isset(EvolutionCMS()->config['_hide_configcheck_validate_referer']) || EvolutionCMS()->config['_hide_configcheck_validate_referer'] !== '1') {
     if(isset($_SESSION['mgrPermissions']['settings']) && $_SESSION['mgrPermissions']['settings'] == '1') {
         if (EvolutionCMS()->getConfig('validate_referer') == '0') {
-            $warnings[] = array($_lang['configcheck_validate_referer']);
+            $warnings[] = [$_lang['configcheck_validate_referer']];
         }
     }
 }
@@ -47,7 +47,7 @@ if(!isset(EvolutionCMS()->config['_hide_configcheck_templateswitcher_present']) 
                 ->orWhere('plugincode','LIKE','%TemplateSwitcher%');
         })->first();
         if(!is_null($row) && $row->disabled == 0) {
-            $warnings[] = array($_lang['configcheck_templateswitcher_present']);
+            $warnings[] = [$_lang['configcheck_templateswitcher_present']];
             $tplName = $row->name;
             $script = <<<JS
 <script type="text/javascript">
@@ -91,16 +91,16 @@ $pages = \EvolutionCMS\Models\SiteContent::select (['id', 'published', 'privatew
     ->get();
 foreach ($pages as $page) {
     if ($page->id == $unathorized_page_id && !$page->published) {
-        $warnings[] = array($_lang['configcheck_unauthorizedpage_unpublished']);
+        $warnings[] = [$_lang['configcheck_unauthorizedpage_unpublished']];
     }
     if ($page->id == $unathorized_page_id && $page->privateweb) {
-        $warnings[] = array($_lang['configcheck_unauthorizedpage_unavailable']);
+        $warnings[] = [$_lang['configcheck_unauthorizedpage_unavailable']];
     }
     if ($page->id == $error_page_id && !$page->published) {
-        $warnings[] = array($_lang['configcheck_errorpage_unavailable']);
+        $warnings[] = [$_lang['configcheck_errorpage_unavailable']];
     }
     if ($page->id == $error_page_id && $page->privateweb) {
-        $warnings[] = array($_lang['configcheck_errorpage_unavailable']);
+        $warnings[] = [$_lang['configcheck_errorpage_unavailable']];
     }
 }
 if (!function_exists('checkSiteCache')) {
@@ -110,32 +110,32 @@ if (!function_exists('checkSiteCache')) {
     function checkSiteCache() {
         $modx = evolutionCMS();
         $checked= true;
-        if (file_exists(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php')) {
-            $checked= @include_once (MODX_BASE_PATH . 'assets/cache/siteCache.idx.php');
+        if (file_exists(EVO_BASE_PATH . 'assets/cache/siteCache.idx.php')) {
+            $checked= @include_once (EVO_BASE_PATH . 'assets/cache/siteCache.idx.php');
         }
 
         return $checked;
     }
 }
 
-if (!is_writable(MODX_BASE_PATH . "assets/cache/")) {
-    $warnings[] = array($_lang['configcheck_cache']);
+if (!is_writable(EVO_BASE_PATH . "assets/cache/")) {
+    $warnings[] = [$_lang['configcheck_cache']];
 }
 
 if (!checkSiteCache()) {
-    $warnings[]= array($lang['configcheck_sitecache_integrity']);
+    $warnings[]= [$lang['configcheck_sitecache_integrity']];
 }
 
-if (!is_writable(MODX_BASE_PATH . "assets/images/")) {
-    $warnings[] = array($_lang['configcheck_images']);
+if (!is_writable(EVO_BASE_PATH . "assets/images/")) {
+    $warnings[] = [$_lang['configcheck_images']];
 }
 
-if(strpos(EvolutionCMS()->config['rb_base_dir'], MODX_BASE_PATH) !==0 && strpos(EvolutionCMS()->config['rb_base_dir'], '[(base_path)]') !==0) {
-    $warnings[] = array($_lang['configcheck_rb_base_dir']);
+if(strpos(EvolutionCMS()->config['rb_base_dir'], EVO_BASE_PATH) !==0 && strpos(EvolutionCMS()->config['rb_base_dir'], '[(base_path)]') !==0) {
+    $warnings[] = [$_lang['configcheck_rb_base_dir']];
 }
 
-if(strpos(EvolutionCMS()->config['filemanager_path'], MODX_BASE_PATH) !==0 && strpos(EvolutionCMS()->config['rb_base_dir'], '[(base_path)]assets/') !==0) {
-    $warnings[] = array($_lang['configcheck_filemanager_path']);
+if(strpos(EvolutionCMS()->config['filemanager_path'], EVO_BASE_PATH) !==0 && strpos(EvolutionCMS()->config['rb_base_dir'], '[(base_path)]assets/') !==0) {
+    $warnings[] = [$_lang['configcheck_filemanager_path']];
 }
 
 // clear file info cache

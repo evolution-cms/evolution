@@ -143,9 +143,9 @@ class XdebugHandler
         if (!((bool) $envArgs[0]) && $this->requiresRestart(self::$xdebugActive)) {
             // Restart required
             $this->notify(Status::RESTART);
+            $command = $this->prepareRestart();
 
-            if ($this->prepareRestart()) {
-                $command = $this->getCommand();
+            if ($command !== null) {
                 $this->restart($command);
             }
             return;
@@ -183,9 +183,9 @@ class XdebugHandler
      * Returns an array of php.ini locations with at least one entry
      *
      * The equivalent of calling php_ini_loaded_file then php_ini_scanned_files.
-     * The loaded ini location is the first entry and may be empty.
+     * The loaded ini location is the first entry and may be an empty string.
      *
-     * @return string[]
+     * @return non-empty-list<string>
      */
     public static function getAllIniFiles(): array
     {
@@ -267,7 +267,7 @@ class XdebugHandler
     /**
      * Allows an extending class to access the tmpIni
      *
-     * @param string[] $command     *
+     * @param non-empty-list<string> $command
      */
     protected function restart(array $command): void
     {
@@ -277,23 +277,25 @@ class XdebugHandler
     /**
      * Executes the restarted command then deletes the tmp ini
      *
-     * @param string[] $command
+     * @param non-empty-list<string> $command
      * @phpstan-return never
      */
     private function doRestart(array $command): void
     {
-        $this->tryEnableSignals();
-        $this->notify(Status::RESTARTING, implode(' ', $command));
-
         if (PHP_VERSION_ID >= 70400) {
             $cmd = $command;
+            $displayCmd = sprintf('[%s]', implode(', ', $cmd));
         } else {
             $cmd = Process::escapeShellCommand($command);
             if (defined('PHP_WINDOWS_VERSION_BUILD')) {
                 // Outer quotes required on cmd string below PHP 8
                 $cmd = '"'.$cmd.'"';
             }
+            $displayCmd = $cmd;
         }
+
+        $this->tryEnableSignals();
+        $this->notify(Status::RESTARTING, $displayCmd);
 
         $process = proc_open($cmd, [], $pipes);
         if (is_resource($process)) {
@@ -318,52 +320,74 @@ class XdebugHandler
     }
 
     /**
-     * Returns true if everything was written for the restart
+     * Returns the command line array if everything was written for the restart
      *
      * If any of the following fails (however unlikely) we must return false to
      * stop potential recursion:
      *   - tmp ini file creation
      *   - environment variable creation
+     *
+     * @return non-empty-list<string>|null
      */
-    private function prepareRestart(): bool
+    private function prepareRestart(): ?array
     {
+        if (!$this->cli) {
+            $this->notify(Status::ERROR, 'Unsupported SAPI: '.PHP_SAPI);
+            return null;
+        }
+
+        if (($argv = $this->checkServerArgv()) === null) {
+            $this->notify(Status::ERROR, '$_SERVER[argv] is not as expected');
+            return null;
+        }
+
+        if (!$this->checkConfiguration($info)) {
+            $this->notify(Status::ERROR, $info);
+            return null;
+        }
+
+        $mainScript = (string) $this->script;
+        if (!$this->checkMainScript($mainScript, $argv)) {
+            $this->notify(Status::ERROR, 'Unable to access main script: '.$mainScript);
+            return null;
+        }
+
+        $tmpDir = sys_get_temp_dir();
+        $iniError = 'Unable to create temp ini file at: '.$tmpDir;
+
+        if (($tmpfile = @tempnam($tmpDir, '')) === false) {
+            $this->notify(Status::ERROR, $iniError);
+            return null;
+        }
+
         $error = null;
         $iniFiles = self::getAllIniFiles();
         $scannedInis = count($iniFiles) > 1;
-        $tmpDir = sys_get_temp_dir();
 
-        if (!$this->cli) {
-            $error = 'Unsupported SAPI: '.PHP_SAPI;
-        } elseif (!$this->checkConfiguration($info)) {
-            $error = $info;
-        } elseif (!$this->checkMainScript()) {
-            $error = 'Unable to access main script: '.$this->script;
-        } elseif (!$this->writeTmpIni($iniFiles, $tmpDir, $error)) {
-            $error = $error !== null ? $error : 'Unable to create temp ini file at: '.$tmpDir;
-        } elseif (!$this->setEnvironment($scannedInis, $iniFiles)) {
-            $error = 'Unable to set environment variables';
+        if (!$this->writeTmpIni($tmpfile, $iniFiles, $error)) {
+            $this->notify(Status::ERROR, $error ?? $iniError);
+            @unlink($tmpfile);
+            return null;
         }
 
-        if ($error !== null) {
-            $this->notify(Status::ERROR, $error);
+        if (!$this->setEnvironment($scannedInis, $iniFiles, $tmpfile)) {
+            $this->notify(Status::ERROR, 'Unable to set environment variables');
+            @unlink($tmpfile);
+            return null;
         }
 
-        return $error === null;
+        $this->tmpIni = $tmpfile;
+
+        return $this->getCommand($argv, $tmpfile, $mainScript);
     }
 
     /**
      * Returns true if the tmp ini file was written
      *
-     * @param string[] $iniFiles All ini files used in the current process
+     * @param non-empty-list<string> $iniFiles All ini files used in the current process
      */
-    private function writeTmpIni(array $iniFiles, string $tmpDir, ?string &$error): bool
+    private function writeTmpIni(string $tmpFile, array $iniFiles, ?string &$error): bool
     {
-        if (($tmpfile = @tempnam($tmpDir, '')) === false) {
-            return false;
-        }
-
-        $this->tmpIni = $tmpfile;
-
         // $iniFiles has at least one item and it may be empty
         if ($iniFiles[0] === '') {
             array_shift($iniFiles);
@@ -380,7 +404,7 @@ class XdebugHandler
                 return false;
             }
             // Check and remove directives after HOST and PATH sections
-            if (Preg::isMatchWithOffsets($sectionRegex, $data, $matches, PREG_OFFSET_CAPTURE)) {
+            if (Preg::isMatchWithOffsets($sectionRegex, $data, $matches)) {
                 $data = substr($data, 0, $matches[0][1]);
             }
             $content .= Preg::replace($xdebugRegex, ';$1', $data).PHP_EOL;
@@ -400,25 +424,26 @@ class XdebugHandler
         // Work-around for https://bugs.php.net/bug.php?id=75932
         $content .= 'opcache.enable_cli=0'.PHP_EOL;
 
-        return (bool) @file_put_contents($this->tmpIni, $content);
+        return (bool) @file_put_contents($tmpFile, $content);
     }
 
     /**
      * Returns the command line arguments for the restart
      *
-     * @return string[]
+     * @param non-empty-list<string> $argv
+     * @return non-empty-list<string>
      */
-    private function getCommand(): array
+    private function getCommand(array $argv, string $tmpIni, string $mainScript): array
     {
         $php = [PHP_BINARY];
-        $args = array_slice($_SERVER['argv'], 1);
+        $args = array_slice($argv, 1);
 
         if (!$this->persistent) {
             // Use command-line options
-            array_push($php, '-n', '-c', $this->tmpIni);
+            array_push($php, '-n', '-c', $tmpIni);
         }
 
-        return array_merge($php, [$this->script], $args);
+        return array_merge($php, [$mainScript], $args);
     }
 
     /**
@@ -426,9 +451,9 @@ class XdebugHandler
      *
      * No need to update $_SERVER since this is set in the restarted process.
      *
-     * @param string[] $iniFiles All ini files used in the current process
+     * @param non-empty-list<string> $iniFiles All ini files used in the current process
      */
-    private function setEnvironment(bool $scannedInis, array $iniFiles): bool
+    private function setEnvironment(bool $scannedInis, array $iniFiles, string $tmpIni): bool
     {
         $scanDir = getenv('PHP_INI_SCAN_DIR');
         $phprc = getenv('PHPRC');
@@ -440,7 +465,7 @@ class XdebugHandler
 
         if ($this->persistent) {
             // Use the environment to persist the settings
-            if (!putenv('PHP_INI_SCAN_DIR=') || !putenv('PHPRC='.$this->tmpIni)) {
+            if (!putenv('PHP_INI_SCAN_DIR=') || !putenv('PHPRC='.$tmpIni)) {
                 return false;
             }
         }
@@ -495,15 +520,17 @@ class XdebugHandler
 
     /**
      * Returns true if the script name can be used
+     *
+     * @param non-empty-list<string> $argv
      */
-    private function checkMainScript(): bool
+    private function checkMainScript(string &$mainScript, array $argv): bool
     {
-        if ($this->script !== null) {
+        if ($mainScript !== '') {
             // Allow an application to set -- for standard input
-            return file_exists($this->script) || '--' === $this->script;
+            return file_exists($mainScript) || '--' === $mainScript;
         }
 
-        if (file_exists($this->script = $_SERVER['argv'][0])) {
+        if (file_exists($mainScript = $argv[0])) {
             return true;
         }
 
@@ -512,7 +539,7 @@ class XdebugHandler
         $main = end($trace);
 
         if ($main !== false && isset($main['file'])) {
-            return file_exists($this->script = $main['file']);
+            return file_exists($mainScript = $main['file']);
         }
 
         return false;
@@ -521,7 +548,7 @@ class XdebugHandler
     /**
      * Adds restart settings to the environment
      *
-     * @param string[] $envArgs
+     * @param non-empty-list<string> $envArgs
      */
     private function setEnvRestartSettings(array $envArgs): void
     {
@@ -560,6 +587,11 @@ class XdebugHandler
     {
         if (!function_exists('proc_open')) {
             $info = 'proc_open function is disabled';
+            return false;
+        }
+
+        if (!file_exists(PHP_BINARY)) {
+            $info = 'PHP_BINARY is not available';
             return false;
         }
 
@@ -617,6 +649,28 @@ class XdebugHandler
             // process without having to enable them there, which is unreliable.
             sapi_windows_set_ctrl_handler(function ($evt) {});
         }
+    }
+
+    /**
+     * Returns $_SERVER['argv'] if it is as expected
+     *
+     * @return non-empty-list<string>|null
+     */
+    private function checkServerArgv(): ?array
+    {
+        $result = [];
+
+        if (isset($_SERVER['argv']) && is_array($_SERVER['argv'])) {
+            foreach ($_SERVER['argv'] as $value) {
+                if (!is_string($value)) {
+                    return null;
+                }
+
+                $result[] = $value;
+            }
+        }
+
+        return count($result) > 0 ? $result : null;
     }
 
     /**

@@ -13,6 +13,7 @@
 namespace Composer\Util;
 
 use Composer\Pcre\Preg;
+use ErrorException;
 use React\Promise\PromiseInterface;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -108,9 +109,9 @@ class Filesystem
         }
 
         if (Platform::isWindows()) {
-            $cmd = sprintf('rmdir /S /Q %s', ProcessExecutor::escape(realpath($directory)));
+            $cmd = ['rmdir', '/S', '/Q', Platform::realpath($directory)];
         } else {
-            $cmd = sprintf('rm -rf %s', ProcessExecutor::escape($directory));
+            $cmd = ['rm', '-rf', $directory];
         }
 
         $result = $this->getProcess()->execute($cmd, $output) === 0;
@@ -133,6 +134,7 @@ class Filesystem
      *
      * @throws \RuntimeException
      * @return PromiseInterface
+     * @phpstan-return PromiseInterface<bool>
      */
     public function removeDirectoryAsync(string $directory)
     {
@@ -142,9 +144,9 @@ class Filesystem
         }
 
         if (Platform::isWindows()) {
-            $cmd = sprintf('rmdir /S /Q %s', ProcessExecutor::escape(realpath($directory)));
+            $cmd = ['rmdir', '/S', '/Q', Platform::realpath($directory)];
         } else {
-            $cmd = sprintf('rm -rf %s', ProcessExecutor::escape($directory));
+            $cmd = ['rm', '-rf', $directory];
         }
 
         $promise = $this->getProcess()->executeAsync($cmd);
@@ -250,10 +252,29 @@ class Filesystem
                     $directory.' exists and is not a directory.'
                 );
             }
+
+            if (is_link($directory) && !@$this->unlinkImplementation($directory)) {
+                throw new \RuntimeException('Could not delete symbolic link '.$directory.': '.(error_get_last()['message'] ?? ''));
+            }
+
             if (!@mkdir($directory, 0777, true)) {
-                throw new \RuntimeException(
-                    $directory.' does not exist and could not be created.'
-                );
+                $e = new \RuntimeException($directory.' does not exist and could not be created: '.(error_get_last()['message'] ?? ''));
+
+                // in pathological cases with paths like path/to/broken-symlink/../foo is_dir will fail to detect path/to/foo
+                // but normalizing the ../ away first makes it work so we attempt this just in case, and if it still fails we
+                // report the initial error we had with the original path, and ignore the normalized path exception
+                // see https://github.com/composer/composer/issues/11864
+                $normalized = $this->normalizePath($directory);
+                if ($normalized !== $directory) {
+                    try {
+                        $this->ensureDirectoryExists($normalized);
+
+                        return;
+                    } catch (\Throwable $ignoredEx) {
+                    }
+                }
+
+                throw $e;
             }
         }
     }
@@ -345,8 +366,33 @@ class Filesystem
      */
     public function copy(string $source, string $target)
     {
+        // refs https://github.com/composer/composer/issues/11864
+        $target = $this->normalizePath($target);
+
         if (!is_dir($source)) {
-            return copy($source, $target);
+            try {
+                return copy($source, $target);
+            } catch (ErrorException $e) {
+                // if copy fails we attempt to copy it manually as this can help bypass issues with VirtualBox shared folders
+                // see https://github.com/composer/composer/issues/12057
+                if (str_contains($e->getMessage(), 'Bad address')) {
+                    $sourceHandle = fopen($source, 'r');
+                    $targetHandle = fopen($target, 'w');
+                    if (false === $sourceHandle || false === $targetHandle) {
+                        throw $e;
+                    }
+                    while (!feof($sourceHandle)) {
+                        if (false === fwrite($targetHandle, (string) fread($sourceHandle, 1024 * 1024))) {
+                            throw $e;
+                        }
+                    }
+                    fclose($sourceHandle);
+                    fclose($targetHandle);
+
+                    return true;
+                }
+                throw $e;
+            }
         }
 
         $it = new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS);
@@ -383,8 +429,7 @@ class Filesystem
 
         if (Platform::isWindows()) {
             // Try to copy & delete - this is a workaround for random "Access denied" errors.
-            $command = sprintf('xcopy %s %s /E /I /Q /Y', ProcessExecutor::escape($source), ProcessExecutor::escape($target));
-            $result = $this->getProcess()->execute($command, $output);
+            $result = $this->getProcess()->execute(['xcopy', $source, $target, '/E', '/I', '/Q', '/Y'], $output);
 
             // clear stat cache because external processes aren't tracked by the php stat cache
             clearstatcache();
@@ -397,8 +442,7 @@ class Filesystem
         } else {
             // We do not use PHP's "rename" function here since it does not support
             // the case where $source, and $target are located on different partitions.
-            $command = sprintf('mv %s %s', ProcessExecutor::escape($source), ProcessExecutor::escape($target));
-            $result = $this->getProcess()->execute($command, $output);
+            $result = $this->getProcess()->execute(['mv', $source, $target], $output);
 
             // clear stat cache because external processes aren't tracked by the php stat cache
             clearstatcache();
@@ -415,10 +459,11 @@ class Filesystem
      * Returns the shortest path from $from to $to
      *
      * @param  bool                      $directories if true, the source/target are considered to be directories
+     * @param  bool                      $preferRelative if true, relative paths will be preferred even if longer
      * @throws \InvalidArgumentException
      * @return string
      */
-    public function findShortestPath(string $from, string $to, bool $directories = false)
+    public function findShortestPath(string $from, string $to, bool $directories = false, bool $preferRelative = false)
     {
         if (!$this->isAbsolutePath($from) || !$this->isAbsolutePath($to)) {
             throw new \InvalidArgumentException(sprintf('$from (%s) and $to (%s) must be absolute paths.', $from, $to));
@@ -450,7 +495,7 @@ class Filesystem
         $commonPathCode = str_repeat('../', $sourcePathDepth);
 
         // allow top level /foo & /bar dirs to be addressed relatively as this is common in Docker setups
-        if ('/' === $commonPath && $sourcePathDepth > 1) {
+        if (!$preferRelative && '/' === $commonPath && $sourcePathDepth > 1) {
             return $to;
         }
 
@@ -466,10 +511,11 @@ class Filesystem
      * Returns PHP code that, when executed in $from, will return the path to $to
      *
      * @param  bool                      $directories if true, the source/target are considered to be directories
+     * @param  bool                      $preferRelative if true, relative paths will be preferred even if longer
      * @throws \InvalidArgumentException
      * @return string
      */
-    public function findShortestPathCode(string $from, string $to, bool $directories = false, bool $staticCode = false)
+    public function findShortestPathCode(string $from, string $to, bool $directories = false, bool $staticCode = false, bool $preferRelative = false)
     {
         if (!$this->isAbsolutePath($from) || !$this->isAbsolutePath($to)) {
             throw new \InvalidArgumentException(sprintf('$from (%s) and $to (%s) must be absolute paths.', $from, $to));
@@ -499,7 +545,7 @@ class Filesystem
         $sourcePathDepth = substr_count((string) substr($from, \strlen($commonPath)), '/') + (int) $directories;
 
         // allow top level /foo & /bar dirs to be addressed relatively as this is common in Docker setups
-        if ('/' === $commonPath && $sourcePathDepth > 1) {
+        if (!$preferRelative && '/' === $commonPath && $sourcePathDepth > 1) {
             return var_export($to, true);
         }
 
@@ -587,7 +633,6 @@ class Filesystem
 
         // ensure c: is normalized to C:
         $prefix = Preg::replaceCallback('{(^|://)[a-z]:$}i', static function (array $m) {
-            assert(is_string($m[0]));
             return strtoupper($m[0]);
         }, $prefix);
 
@@ -617,7 +662,13 @@ class Filesystem
      */
     public static function isLocalPath(string $path)
     {
-        return Preg::isMatch('{^(file://(?!//)|/(?!/)|/?[a-z]:[\\\\/]|\.\.[\\\\/]|[a-z0-9_.-]+[\\\\/])}i', $path);
+        // on windows, \\foo indicates network paths so we exclude those from local paths, however it is unsafe
+        // on linux as file:////foo (which would be a network path \\foo on windows) will resolve to /foo which could be a local path
+        if (Platform::isWindows()) {
+            return Preg::isMatch('{^(file://(?!//)|/(?!/)|/?[a-z]:[\\\\/]|\.\.[\\\\/]|[a-z0-9_.-]+[\\\\/])}i', $path);
+        }
+
+        return Preg::isMatch('{^(file://|/|/?[a-z]:[\\\\/]|\.\.[\\\\/]|[a-z0-9_.-]+[\\\\/])}i', $path);
     }
 
     /**
@@ -784,11 +835,13 @@ class Filesystem
         if (!is_dir($target)) {
             throw new IOException(sprintf('Cannot junction to "%s" as it is not a directory.', $target), 0, null, $target);
         }
-        $cmd = sprintf(
-            'mklink /J %s %s',
-            ProcessExecutor::escape(str_replace('/', DIRECTORY_SEPARATOR, $junction)),
-            ProcessExecutor::escape(realpath($target))
-        );
+
+        // Removing any previously junction to ensure clean execution.
+        if (!is_dir($junction) || $this->isJunction($junction)) {
+            @rmdir($junction);
+        }
+
+        $cmd = ['mklink', '/J', str_replace('/', DIRECTORY_SEPARATOR, $junction), Platform::realpath($target)];
         if ($this->getProcess()->execute($cmd, $output) !== 0) {
             throw new IOException(sprintf('Failed to create junction to "%s" at "%s".', $target, $junction), 0, null, $target);
         }
@@ -867,10 +920,8 @@ class Filesystem
 
     /**
      * Copy file using stream_copy_to_stream to work around https://bugs.php.net/bug.php?id=6463
-     *
-     * @return void
      */
-    public function safeCopy(string $source, string $target)
+    public function safeCopy(string $source, string $target): void
     {
         if (!file_exists($target) || !file_exists($source) || !$this->filesAreEqual($source, $target)) {
             $sourceHandle = fopen($source, 'r');
@@ -881,6 +932,8 @@ class Filesystem
             stream_copy_to_stream($sourceHandle, $targetHandle);
             fclose($sourceHandle);
             fclose($targetHandle);
+
+            touch($target, (int) filemtime($source), (int) fileatime($source));
         }
     }
 

@@ -1,148 +1,183 @@
 {
-  "name": "evolutioncms/core",
-  "type": "project",
-  "description": "Evolution CMS is a Content Management System, ex MODX Evolution",
-  "keywords": [
-    "content",
-    "CMS",
-    "routing",
-    "templating",
-    "core"
-  ],
-  "homepage": "https://evo.im/",
-  "license": "GPL-2.0+",
-  "authors": [
-    {
-      "name": "Evgeniy Borisov",
-      "email": "modx@agel-nash.ru",
-      "homepage": "https://agel-nash.ru",
-      "role": "Developer"
-    },
-    {
-      "name": "Dmytro Lukianenko",
-      "email": "dmi3yy@gmail.com",
-      "homepage": "https://dmi3yy.com",
-      "role": "Developer"
-    },
-    {
-      "name": "Serhii Korneliuk",
-      "email": "info@seigerit.com",
-      "homepage": "https://seigerit.com",
-      "role": "Developer"
-    }
-  ],
-  "require": {
-    "php": ">=8.1",
-    "ext-SimpleXML": "*",
-    "ext-dom": "*",
-    "ext-iconv": "*",
-    "ext-json": "*",
-    "ext-libxml": "*",
-    "ext-mbstring": "*",
-    "lib-iconv": "*",
-    "lib-libxml": "*",
-    "doctrine/dbal": "3.*",
-    "phpoption/phpoption": "*",
-    "vlucas/phpdotenv": "^5.2",
-    "guzzlehttp/guzzle": "^7.0.1",
-    "composer/composer": "*",
-    "illuminate/cache": "10.*",
-    "illuminate/redis": "10.*",
-    "illuminate/config": "10.*",
-    "illuminate/console": "10.*",
-    "illuminate/container": "10.*",
-    "illuminate/database": "10.*",
-    "illuminate/events": "10.*",
-    "illuminate/filesystem": "10.*",
-    "illuminate/log": "10.*",
-    "illuminate/pagination": "10.*",
-    "illuminate/routing": "10.*",
-    "illuminate/support": "10.*",
-    "illuminate/translation": "10.*",
-    "illuminate/view": "10.*",
-    "illuminate/validation": "10.*",
-    "illuminate/http": "10.*",
-    "league/flysystem": "^1.0.8",
-    "phpmailer/phpmailer": "6.*",
-    "tracy/tracy": "2.10.*",
-    "wikimedia/composer-merge-plugin": "2.*",
-    "symfony/process": "^6.0",
-    "dmitry-suffi/redis-session-handler": "*",
-    "rosell-dk/webp-convert": "*",
-    "predis/predis": "*",
-    "james-heinrich/phpthumb": "1.*",
-    "evolutioncms-services/user-manager": "1.*",
-    "evolutioncms-services/document-manager": "1.*",
-    "evolutioncms/salo2": "*",
-    "simplepie/simplepie": "1.*"
-  },
-  "require-dev": {
-    "roave/security-advisories": "dev-master"
-  },
-  "config": {
-    "optimize-autoloader": true,
-    "preferred-install": "dist",
-    "prestissimo": {
-      "maxConnections": 6,
-      "minConnections": 3
-    },
-    "vendor-dir": "vendor",
-    "allow-plugins": {
-      "wikimedia/composer-merge-plugin": true
-    }
-  },
-  "extra": {
-    "merge-plugin": {
-      "include": [
-        "custom/composer.json"
-      ],
-      "recurse": true,
-      "replace": true,
-      "merge-dev": false,
-      "merge-extra": true,
-      "merge-scripts": false
-    }
-  },
-  "autoload": {
-    "psr-4": {
-      "EvolutionCMS\\": "src/",
-      "Database\\Seeders\\": "database/seeders/"
-    },
-    "classmap": [
-      "database/migrations/"
+    "name": "evolution-cms/evolution",
+    "type": "project",
+    "version": "3.5.5",
+    "description": "Welcome to the Evolution CMS. The world’s fastest, most customizable Open Source PHP CMS. Your creative vision, no restrictions, no compromise.",
+    "keywords": [
+        "content",
+        "CMS",
+        "routing",
+        "templating",
+        "core"
     ],
-    "files": [
-      "functions/actions/bkmanager.php",
-      "functions/actions/files.php",
-      "functions/actions/help.php",
-      "functions/actions/logging.php",
-      "functions/actions/mutate_content.php",
-      "functions/actions/mutate_plugin.php",
-      "functions/actions/settings.php",
-      "functions/helper.php",
-      "functions/laravel.php",
-      "functions/nodes.php",
-      "functions/preload.php",
-      "functions/processors.php",
-      "functions/utils.php"
-    ]
-  },
-  "minimum-stability": "dev",
-  "prefer-stable": true,
-  "scripts": {
-    "upd": "composer update --lock --ansi",
-    "post-autoload-dump": [
-      "@php artisan package:discover"
-    ]
-  },
-  "scripts-descriptions": {
-    "upd": "Updating sub-levels composer.json files"
-  },
-  "support": {
-    "email": "dmi3yy@evo.im",
-    "issues": "https://github.com/evolution-cms/evolution/issues/",
-    "source": "https://github.com/evolution-cms/evolution/",
-    "docs": "https://docs.evo.im",
-    "telegram": "https://t.me/evolutioncms"
-  }
+    "homepage": "https://evo.im/",
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Dmytro Lukianenko",
+            "email": "dmi3yy@gmail.com",
+            "homepage": "https://ddaproduction.com/",
+            "role": "Core Developer"
+        },
+        {
+            "name": "Serhii Korneliuk",
+            "email": "info@seigerit.com",
+            "homepage": "https://seigerit.com",
+            "role": "Core Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "composer/composer": "*",
+        "dmitry-suffi/redis-session-handler": "*",
+        "doctrine/dbal": "4.*",
+        "dragonmantank/cron-expression": "^3.6",
+        "evolutioncms-services/document-manager": "1.*",
+        "evolutioncms-services/user-manager": "1.*",
+        "ext-ctype": "*",
+        "ext-dom": "*",
+        "ext-fileinfo": "*",
+        "ext-filter": "*",
+        "ext-hash": "*",
+        "ext-iconv": "*",
+        "ext-json": "*",
+        "ext-libxml": "*",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "ext-pcre": "*",
+        "ext-pdo": "*",
+        "ext-session": "*",
+        "ext-simplexml": "*",
+        "ext-tokenizer": "*",
+        "ext-xml": "*",
+        "ext-xmlreader": "*",
+        "ext-zip": "*",
+        "guzzlehttp/guzzle": "^7.10",
+        "illuminate/cache": "12.*",
+        "illuminate/config": "12.*",
+        "illuminate/console": "12.*",
+        "illuminate/container": "12.*",
+        "illuminate/database": "12.*",
+        "illuminate/events": "12.*",
+        "illuminate/filesystem": "12.*",
+        "illuminate/http": "12.*",
+        "illuminate/log": "12.*",
+        "illuminate/pagination": "12.*",
+        "illuminate/redis": "12.*",
+        "illuminate/routing": "12.*",
+        "illuminate/support": "12.*",
+        "illuminate/translation": "12.*",
+        "illuminate/queue": "12.*",
+        "illuminate/validation": "12.*",
+        "illuminate/view": "12.*",
+        "james-heinrich/phpthumb": "*",
+        "league/flysystem": "^3",
+        "phpmailer/phpmailer": "7.*",
+        "phpoption/phpoption": "*",
+        "predis/predis": "*",
+        "rosell-dk/webp-convert": "*",
+        "simplepie/simplepie": "1.*",
+        "symfony/process": "7.*",
+        "tracy/tracy": "2.*",
+        "vlucas/phpdotenv": "5.*",
+        "wikimedia/composer-merge-plugin": "2.*",
+        "secondnetwork/blade-tabler-icons": "^3.35"
+    },
+    "replace": {
+        "symfony/polyfill-php73": "1.99",
+        "symfony/polyfill-php80": "1.99",
+        "symfony/polyfill-php81": "1.99",
+        "symfony/polyfill-php82": "1.99",
+        "symfony/polyfill-php83": "1.99"
+    },
+    "require-dev": {
+        "roave/security-advisories": "dev-master",
+        "mockery/mockery": "^1.6",
+        "pestphp/pest": "^4.3"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "prestissimo": {
+            "maxConnections": 6,
+            "minConnections": 3
+        },
+        "vendor-dir": "vendor",
+        "allow-plugins": {
+            "wikimedia/composer-merge-plugin": true,
+            "pestphp/pest-plugin": true
+        }
+    },
+    "extra": {
+        "merge-plugin": {
+            "include": [
+                "custom/composer.json"
+            ],
+            "recurse": true,
+            "replace": true,
+            "merge-dev": false,
+            "merge-extra": true,
+            "merge-scripts": false
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "EvolutionCMS\\": "src/",
+            "Database\\Seeders\\": "database/seeders/"
+        },
+        "classmap": [
+            "database/migrations/"
+        ],
+        "files": [
+            "functions/actions/bkmanager.php",
+            "functions/actions/files.php",
+            "functions/actions/help.php",
+            "functions/actions/logging.php",
+            "functions/actions/mutate_content.php",
+            "functions/actions/mutate_plugin.php",
+            "functions/actions/settings.php",
+            "functions/helper.php",
+            "functions/laravel.php",
+            "functions/nodes.php",
+            "functions/preload.php",
+            "functions/processors.php",
+            "functions/utils.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "scripts": {
+        "sync-replace": "@php functions/sync-replace-version.php",
+        "test": "vendor/bin/pest",
+        "optimize": "@composer install --no-dev && @composer dump-autoload -o --no-dev --classmap-authoritative",
+        "optimize-dev": "@composer install && @composer dump-autoload -o --classmap-authoritative",
+        "upd": [
+            "@sync-replace",
+            "@composer update --lock --ansi"
+        ],
+        "pre-install-cmd": [
+            "@sync-replace"
+        ],
+        "pre-update-cmd": [
+            "@sync-replace"
+        ],
+        "post-autoload-dump": [
+            "@php artisan package:discover"
+        ]
+    },
+    "scripts-descriptions": {
+        "upd": "Updating sub-levels composer.json files"
+    },
+    "support": {
+        "email": "dmi3yy@evo.im",
+        "issues": "https://github.com/evolution-cms/evolution/issues/",
+        "source": "https://github.com/evolution-cms/evolution/",
+        "docs": "https://docs.evo.im",
+        "telegram": "https://t.me/evolutioncms"
+    }
 }

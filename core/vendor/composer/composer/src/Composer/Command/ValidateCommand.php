@@ -17,8 +17,6 @@ use Composer\IO\IOInterface;
 use Composer\Package\Loader\ValidatingArrayLoader;
 use Composer\Plugin\CommandEvent;
 use Composer\Plugin\PluginEvents;
-use Composer\Repository\InstalledRepository;
-use Composer\Repository\PlatformRepository;
 use Composer\Util\ConfigValidator;
 use Composer\Util\Filesystem;
 use Symfony\Component\Console\Input\InputArgument;
@@ -68,7 +66,7 @@ EOT
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $file = $input->getArgument('file') ?: Factory::getComposerFile();
+        $file = $input->getArgument('file') ?? Factory::getComposerFile();
         $io = $this->getIO();
 
         if (!file_exists($file)) {
@@ -91,7 +89,7 @@ EOT
         [$errors, $publishErrors, $warnings] = $validator->validate($file, $checkAll, $checkVersion);
 
         $lockErrors = [];
-        $composer = Factory::create($io, $file, $input->hasParameterOption('--no-plugins'));
+        $composer = $this->createComposerInstance($input, $io, $file);
         // config.lock = false ~= implicit --no-check-lock; --check-lock overrides
         $checkLock = ($checkLock && $composer->getConfig()->get('lock')) || $input->getOption('check-lock');
         $locker = $composer->getLocker();
@@ -106,12 +104,15 @@ EOT
         $this->outputResult($io, $file, $errors, $warnings, $checkPublish, $publishErrors, $checkLock, $lockErrors, true);
 
         // $errors include publish and lock errors when exists
-        $exitCode = $errors ? 2 : ($isStrict && $warnings ? 1 : 0);
+        $exitCode = count($errors) > 0 ? 2 : (($isStrict && count($warnings) > 0) ? 1 : 0);
 
         if ($input->getOption('with-dependencies')) {
             $localRepo = $composer->getRepositoryManager()->getLocalRepository();
             foreach ($localRepo->getPackages() as $package) {
                 $path = $composer->getInstallationManager()->getInstallPath($package);
+                if (null === $path) {
+                    continue;
+                }
                 $file = $path . '/composer.json';
                 if (is_dir($path) && file_exists($file)) {
                     [$errors, $publishErrors, $warnings] = $validator->validate($file, $checkAll, $checkVersion);
@@ -119,7 +120,7 @@ EOT
                     $this->outputResult($io, $package->getPrettyName(), $errors, $warnings, $checkPublish, $publishErrors);
 
                     // $errors include publish errors when exists
-                    $depCode = $errors ? 2 : ($isStrict && $warnings ? 1 : 0);
+                    $depCode = count($errors) > 0 ? 2 : (($isStrict && count($warnings) > 0) ? 1 : 0);
                     $exitCode = max($depCode, $exitCode);
                 }
             }
@@ -141,16 +142,16 @@ EOT
     {
         $doPrintSchemaUrl = false;
 
-        if ($errors) {
+        if (\count($errors) > 0) {
             $io->writeError('<error>' . $name . ' is invalid, the following errors/warnings were found:</error>');
-        } elseif ($publishErrors) {
+        } elseif (\count($publishErrors) > 0 && $checkPublish) {
             $io->writeError('<info>' . $name . ' is valid for simple usage with Composer but has</info>');
             $io->writeError('<info>strict errors that make it unable to be published as a package</info>');
             $doPrintSchemaUrl = $printSchemaUrl;
-        } elseif ($warnings) {
+        } elseif (\count($warnings) > 0) {
             $io->writeError('<info>' . $name . ' is valid, but with a few warnings</info>');
             $doPrintSchemaUrl = $printSchemaUrl;
-        } elseif ($lockErrors) {
+        } elseif (\count($lockErrors) > 0) {
             $io->write('<info>' . $name . ' is valid but your composer.lock has some '.($checkLock ? 'errors' : 'warnings').'</info>');
         } else {
             $io->write('<info>' . $name . ' is valid</info>');
@@ -160,13 +161,13 @@ EOT
             $io->writeError('<warning>See https://getcomposer.org/doc/04-schema.md for details on the schema</warning>');
         }
 
-        if ($errors) {
+        if (\count($errors) > 0) {
             $errors = array_map(static function ($err): string {
                 return '- ' . $err;
             }, $errors);
             array_unshift($errors, '# General errors');
         }
-        if ($warnings) {
+        if (\count($warnings) > 0) {
             $warnings = array_map(static function ($err): string {
                 return '- ' . $err;
             }, $warnings);
@@ -177,22 +178,17 @@ EOT
         $extraWarnings = [];
 
         // If checking publish errors, display them as errors, otherwise just show them as warnings
-        if ($publishErrors) {
+        if (\count($publishErrors) > 0 && $checkPublish) {
             $publishErrors = array_map(static function ($err): string {
                 return '- ' . $err;
             }, $publishErrors);
 
-            if ($checkPublish) {
-                array_unshift($publishErrors, '# Publish errors');
-                $errors = array_merge($errors, $publishErrors);
-            } else {
-                array_unshift($publishErrors, '# Publish warnings');
-                $extraWarnings = array_merge($extraWarnings, $publishErrors);
-            }
+            array_unshift($publishErrors, '# Publish errors');
+            $errors = array_merge($errors, $publishErrors);
         }
 
         // If checking lock errors, display them as errors, otherwise just show them as warnings
-        if ($lockErrors) {
+        if (\count($lockErrors) > 0) {
             if ($checkLock) {
                 array_unshift($lockErrors, '# Lock file errors');
                 $errors = array_merge($errors, $lockErrors);

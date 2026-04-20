@@ -7,6 +7,30 @@
 ¤ = structure change or important new feature
 * = less important new feature or change
 
+v1.7.24-202506091232
+  * [bugfix: #230] CVE-2025-52994
+  * [bugfix: #229] PHP 8 compatibility
+
+v1.7.23-202503281052
+  * [bugfix: #227] preserving WEBP transparency
+  * [bugfix: #226] avoid arbitrary file deletion abuse via object injection
+  * [bugfix: #224] imagecolorallocatealpha color out of range
+  * [bugfix: #223] imagepng default quality
+  * [bugfix: #221] gd-png: libpng warning: iCCP: known incorrect sRGB profile
+
+v1.7.22-202312071641
+  * [bugfix: #219] PHP 8 compatibility
+  * [bugfix: #218] PHP 7 compatibility
+
+v1.7.21-202307141720
+  * [bugfix: #215] PHP 8.2 compatibility
+  * [bugfix: #214] PHP 8.2 compatibility (Dynamic Properties are deprecated)
+  * [bugfix: #213] PHP 8.2 compatibility
+  * [bugfix: #212] PHP 8.2 compatibility
+  * [bugfix: #211] quality parameter fix for ImageMagick processing
+  * [bugfix: #208] PHP 8.2 compatibility
+  * [bugfix: #207] PHP 8.2 compatibility
+
 v1.7.20-202212091316
   * [bugfix: #203] Support https in file_get_contents polyfill
   * [bugfix: #202] Test if property is set when testing array (@ operator fix)
@@ -22,8 +46,8 @@ v1.7.18-202208061319
   ¤ add support for AVIF image format (requires PHP 8.1.0) for native PHP support.
   * [bugfix: G190] ensure that all used IMG_ and IMAGETYPE_ constants are always defined.
   * [bugfix: G188] fix some potential null-parameter warnings
-  * [bugfix: G187] PHP8 compatibility
-  * [bugfix: G185] PHP8 compatibility
+  * [bugfix: G187] PHP 8 compatibility
+  * [bugfix: G185] PHP 8 compatibility
   * [bugfix: G183] better message auth
 
 v1.7.17-202109221111

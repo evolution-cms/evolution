@@ -9,26 +9,26 @@
  * MODX version:   1.0.3
  */
 $style_path = 'media/style/' . ManagerTheme::getTheme() . '/images/';
-$modx->config['mgr_date_picker_path'] = 'media/calendar/datepicker.inc.php';
+evo()->config['mgr_date_picker_path'] = 'media/calendar/datepicker.inc.php';
 
 if (!empty($_GET['a']) && $_GET['a'] == 2) {
-    $modx->config['enable_filter'] = 1;
+    evo()->config['enable_filter'] = 1;
 
-    $modx->addSnippet('hasPermission', 'return $modx->hasPermission($key);');
+    evo()->addSnippet('hasPermission', 'return evo()->hasPermission($key);');
 
-    if ($modx->hasPermission('new_template') || $modx->hasPermission('edit_template') || $modx->hasPermission('new_snippet') || $modx->hasPermission('edit_snippet') || $modx->hasPermission('new_plugin') || $modx->hasPermission('edit_plugin') || $modx->hasPermission('manage_metatags')) {
+    if (evo()->hasPermission('new_template') || evo()->hasPermission('edit_template') || evo()->hasPermission('new_snippet') || evo()->hasPermission('edit_snippet') || evo()->hasPermission('new_plugin') || evo()->hasPermission('edit_plugin') || evo()->hasPermission('manage_metatags')) {
         $hasAnyPermission = 1;
     } else {
         $hasAnyPermission = 0;
     }
 
-    $modx->addSnippet('hasAnyPermission', 'global $hasAnyPermission; return $hasAnyPermission;');
+    evo()->addSnippet('hasAnyPermission', 'global $hasAnyPermission; return $hasAnyPermission;');
 
-    $modx->addSnippet('getLoginUserName', 'return $modx->getLoginUserName();');
+    evo()->addSnippet('getLoginUserName', 'return evo()->getLoginUserName();');
 }
 
 // Favicon
-$_style['favicon'] = (file_exists(MODX_BASE_PATH . 'favicon.ico') ? MODX_SITE_URL . 'favicon.ico' : 'media/style/' . ManagerTheme::getTheme() . '/images/favicon.ico');
+$_style['favicon'] = (file_exists(EVO_BASE_PATH . 'favicon.ico') ? EVO_SITE_URL . 'favicon.ico' : 'media/style/' . ManagerTheme::getTheme() . '/images/favicon.ico');
 
 // Icons
 $_style['icon_size_2x'] = ' fa-2x';
@@ -95,6 +95,7 @@ $_style['icon_info_circle'] = 'fa fa-info-circle';
 $_style['icon_info_triangle'] = 'fa fa-exclamation-triangle';
 $_style['icon_loader'] = 'fa fa-spinner';
 $_style['icon_lock'] = 'fa fa-lock';
+$_style['icon_unlock'] = 'fa fa-unlock-alt';
 $_style['icon_logout'] = 'fa fa-sign-out';
 $_style['icon_mail'] = 'fa fa-envelope';
 $_style['icon_module'] = 'fa fa-cube';
@@ -140,7 +141,7 @@ $_style['tx'] = $style_path . 'misc/_tx_.gif';
 
 // actions buttons templates
 $action = isset($_REQUEST['a']) ? $_REQUEST['a'] : '';
-if (!empty($modx->config['global_tabs']) && !isset($_SESSION['stay'])) {
+if (!empty(evo()->config['global_tabs']) && !isset($_SESSION['stay'])) {
     $_REQUEST['stay'] = 2;
 }
 if (isset($_REQUEST['stay'])) {
@@ -156,52 +157,52 @@ switch ($action) {
     case '4':
     case '27':
     case '72':
-        if ($modx->hasPermission('new_document')) {
+        if (evo()->hasPermission('new_document')) {
             $addnew = 1;
         }
         break;
     case '16':
     case '19':
-        if ($modx->hasPermission('new_template')) {
+        if (evo()->hasPermission('new_template')) {
             $addnew = 1;
         }
         break;
     case '300':
     case '301':
-        if ($modx->hasPermission('new_snippet') && $modx->hasPermission('new_chunk') && $modx->hasPermission('new_plugin')) {
+        if (evo()->hasPermission('new_snippet') && evo()->hasPermission('new_chunk') && evo()->hasPermission('new_plugin')) {
             $addnew = 1;
         }
         break;
     case '77':
     case '78':
-        if ($modx->hasPermission('new_chunk')) {
+        if (evo()->hasPermission('new_chunk')) {
             $addnew = 1;
         }
         break;
     case '22':
     case '23':
-        if ($modx->hasPermission('new_snippet')) {
+        if (evo()->hasPermission('new_snippet')) {
             $addnew = 1;
         }
         break;
     case '101':
     case '102':
-        if ($modx->hasPermission('new_plugin')) {
+        if (evo()->hasPermission('new_plugin')) {
             $addnew = 1;
         }
         break;
     case '106':
     case '107':
     case '108':
-        if ($modx->hasPermission('new_module')) {
+        if (evo()->hasPermission('new_module')) {
             $addnew = 1;
         }
-        if ($modx->hasPermission('exec_module')) {
+        if (evo()->hasPermission('exec_module')) {
             $run = 1;
         }
         break;
     case '88':
-        if ($modx->hasPermission('new_user')) {
+        if (evo()->hasPermission('new_user')) {
             $addnew = 1;
         }
         break;
@@ -209,8 +210,8 @@ switch ($action) {
 
 $disabled = ($action == '19' || $action == '300' || $action == '77' || $action == '23' || $action == '101' || $action == '4' || $action == '72' || $action == '87' || $action == '11' || $action == '107' || $action == '38') ? ' disabled' : '';
 
-$_style['actionbuttons'] = array(
-    'dynamic' => array(
+$_style['actionbuttons'] = [
+    'dynamic' => [
         'document' => '<div id="actions">
 			<div class="btn-group">
 			' . (isset($_REQUEST['id']) ? '
@@ -234,7 +235,7 @@ $_style['actionbuttons'] = array(
 						<option id="stay3" value="" ' . ($stay == '' ? ' selected="selected"' : '') . '>' . $_lang['close'] . '</option>
 					</select>
 				</div>' .
-        ($addnew ? '
+            ($addnew ? '
 					<a id="Button6" class="btn btn-secondary' . $disabled . '" href="javascript:;" onclick="actions.duplicate();">
 						<i class="' . $_style["icon_clone"] . '"></i><span>' . $_lang['duplicate'] . '</span>
 					</a>
@@ -360,11 +361,11 @@ $_style['actionbuttons'] = array(
 				</a>
 			</div>
 		</div>',
-    ),
-    'static' => array(
+    ],
+    'static' => [
         'document' => '<div id="actions">
 			<div class="btn-group">' .
-        ($addnew ? '
+            ($addnew ? '
 					<a class="btn btn-secondary" href="javascript:;" onclick="actions.new();">
 						<i class="' . $_style["icon_document"] . '"></i><span>' . $_lang['create_resource_here'] . '</span>
 					</a>
@@ -396,5 +397,5 @@ $_style['actionbuttons'] = array(
 				</a>
 			</div>
 		</div>',
-    ),
-);
+    ],
+];

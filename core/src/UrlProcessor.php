@@ -78,10 +78,10 @@ class UrlProcessor
             $url = ($dir !== '' ? $dir . '/' : '') . $pre . $alias . $suff;
         }
 
-        $evtOut = $this->core->invokeEvent('OnMakeDocUrl', array(
+        $evtOut = $this->core->invokeEvent('OnMakeDocUrl', [
             'id' => $id,
             'url' => $url
-        ));
+        ]);
 
         if (\is_array($evtOut) && \count($evtOut) > 0) {
             $url = array_pop($evtOut);
@@ -166,6 +166,10 @@ class UrlProcessor
             ->get();
 
         foreach ($data as $row) {
+            if (empty($row->alias)) {
+                $row->alias = $row->id;
+            }
+
             if ($useAliasPath && $row->parent > 0) {
                 $parent = $row->parent;
                 $path = $aliases[$parent];
@@ -359,7 +363,7 @@ class UrlProcessor
      * @param string|array $query
      * @return string
      */
-    public function cleanQueryString($query): string
+    public static function cleanQueryString($query): string
     {
         $out = '';
 
@@ -398,13 +402,13 @@ class UrlProcessor
             return null;
         }
 
-        $this->aliasListing[$id] = array(
+        $this->aliasListing[$id] = [
             'id' => $query->getKey(),
             'alias' => $query->alias === '' ? $query->getKey() : $query->alias,
             'parent' => $query->parent,
             'isfolder' => $query->isfolder,
             'alias_visible' => $query->alias_visible,
-        );
+        ];
 
         if ($query->parent <= 0) {
             return $this->aliasListing[$id];
@@ -539,8 +543,8 @@ class UrlProcessor
     public function makeUrl(int $id, string $alias = '', string $args = '', string $scheme = ''): string
     {
         $virtualDir = $this->core->getConfig('virtual_dir');
-        $f_url_prefix = $this->core->getConfig('friendly_url_prefix');
-        $f_url_suffix = $this->core->getConfig('friendly_url_suffix');
+        $f_url_prefix = $this->core->getConfig('friendly_url_prefix', '');
+        $f_url_suffix = $this->core->getConfig('friendly_url_suffix', '');
 
         if ($args !== '') {
             // add ? or & to $args if missing
@@ -580,11 +584,11 @@ class UrlProcessor
                             $alias = $al['alias'];
                         }
 
-                        if ($al['alias_visible'] === 0 && $al['isfolder'] === 1) {
-                            $alias = $alPath;
-                        } else {
+                        //if ($al['alias_visible'] === 0 && $al['isfolder'] === 1) {
+                        //    $alias = $alPath;
+                        //} else {
                             $alias = $alPath . $f_url_prefix . $alias . $f_url_suffix;
-                        }
+                        //}
                     }
                 }
 
@@ -624,10 +628,10 @@ class UrlProcessor
             $url = $host . $virtualDir . $url;
         }
 
-        $evtOut = $this->core->invokeEvent('OnMakeDocUrl', array(
+        $evtOut = $this->core->invokeEvent('OnMakeDocUrl', [
             'id' => $id,
             'url' => $url
-        ));
+        ]);
 
         if (is_array($evtOut) && $evtOut) {
             $url = array_pop($evtOut);

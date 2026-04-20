@@ -2,10 +2,11 @@
 
 ![screenshot_1](https://user-images.githubusercontent.com/523389/105744390-5a720e00-5f3d-11eb-8405-7b0f7e28688a.jpg)
 
-[![CMS Evolution](https://img.shields.io/badge/CMS-Evolution-brightgreen.svg)](https://github.com/evolution-cms/evolution)
+[![CMS Evolution](https://img.shields.io/badge/CMS-Evolution-brightgreen.svg)](https://packagist.org/packages/evolution-cms/evolution)
 [![GitHub release](https://img.shields.io/github/release/evolution-cms/evolution.svg)](https://github.com/evolution-cms/evolution/releases)
-![PHP version](https://img.shields.io/badge/PHP->=v8.1-red.svg?php=8.1)
+![PHP version](https://img.shields.io/badge/PHP->=8.3-red.svg?php=8.3)
 [![Issues](https://img.shields.io/github/issues-closed-raw/evolution-cms/evolution.svg?maxAge=2592000)](https://github.com/evolution-cms/evolution/issues)
+[![Total Installs](https://img.shields.io/packagist/dt/evolution-cms/evolution)](https://packagist.org/packages/evolution-cms/evolution)
 [![Code quality](https://img.shields.io/scrutinizer/g/evolution-cms/evolution.svg?maxAge=2592000&b=develop)](https://scrutinizer-ci.com/g/evolution-cms/evolution/?branch=develop)
 [![Documentation](https://img.shields.io/badge/Documentation-processed-orange.svg)](https://github.com/evolution-cms/docs/)
 
@@ -16,7 +17,7 @@
 
 ## History
 
-Initially inspired by **Etomite 0.6**, then it been **MODX Evolution 0.7 - 1.0.8** is an ongoing project written by *Raymond Irving* and a core team of contributors **MODX**, and now its **Evolution CMS** maintained by *Dmytro Lukianenko* and a core team of contributors at the **Evolution CMS Project**.
+Initially inspired by **Etomite 0.6**, then it has been **MODX Evolution 0.7 - 1.0.8** is an ongoing project written by *Raymond Irving* and a core team of contributors **MODX**, and now its **Evolution CMS** maintained by *Dmytro Lukianenko*, *Serhii Korneliuk* and a core team of contributors at the **Evolution CMS Project**.
 
 ## License
 
@@ -34,17 +35,7 @@ Most significant, though, is **Evolution CMS's** ability to empower you to quick
 
 ## Install
 You can use the single click installer: [Evolution CMS Installer](https://github.com/evolution-cms/installer)
-Evolution CMS 3.2 requires **PHP >= 8.1**
-
-## Docker
-
-Run command ``` php core/artisan salo:install ``` for generating **docker-compose.yml** file.
-
-To run **Evolution CMS** using docker make **docker-compose up -d** command in your terminal. Additional configs and access parameters you can find in **docker-compose.yml** file and **docker** folder
-
-#### For Windows
-
-See documentation for install WSL https://learn.microsoft.com/uk-ua/windows/wsl/install-manual
+Evolution CMS 3.5.x requires **PHP >= 8.3**. Recommend **PHP >= 8.4**.
 
 ## References
 
@@ -60,15 +51,11 @@ https://forum.evo.im
 Download:
 https://github.com/evolution-cms/evolution/releases
 
-Previous Releases:
-https://modx.com/download/evolution/previous-releases.html
-
 Extras / Add-ons:
 https://extras.evo.im
 
 Documentation:
 https://docs.evo.im
-https://evolution-docs.com
 
 Youtube:
 https://www.youtube.com/channel/UCS7ZUn62Qln_OhHSVaFTTig

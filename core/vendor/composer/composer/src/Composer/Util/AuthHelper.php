@@ -28,6 +28,8 @@ class AuthHelper
     protected $config;
     /** @var array<string, string> Map of origins to message displayed */
     private $displayedOriginAuthentications = [];
+    /** @var array<string, bool> Map of URLs and whether they already retried with authentication from Bitbucket */
+    private $bitbucketRetry = [];
 
     public function __construct(IOInterface $io, Config $config)
     {
@@ -164,6 +166,12 @@ class AuthHelper
                         $this->io->setAuthentication($origin, 'x-token-auth', $accessToken);
                         $askForOAuthToken = false;
                     }
+                } elseif (!isset($this->bitbucketRetry[$url])) {
+                    // when multiple requests fire at the same time, they will all fail and the first one resets the token to be correct above but then the others
+                    // reach the code path and without this fallback they would end up throwing below
+                    // see https://github.com/composer/composer/pull/11464 for more details
+                    $askForOAuthToken = false;
+                    $this->bitbucketRetry[$url] = true;
                 } else {
                     throw new TransportException('Could not authenticate against ' . $origin, 401);
                 }
@@ -219,17 +227,53 @@ class AuthHelper
     }
 
     /**
+     * @deprecated use addAuthenticationOptions instead
+     *
      * @param string[] $headers
      *
      * @return string[] updated headers array
      */
     public function addAuthenticationHeader(array $headers, string $origin, string $url): array
     {
+        trigger_error('AuthHelper::addAuthenticationHeader is deprecated since Composer 2.9 use addAuthenticationOptions instead.', E_USER_DEPRECATED);
+
+        $options = ['http' => ['header' => &$headers]];
+        $options = $this->addAuthenticationOptions($options, $origin, $url);
+
+        return $options['http']['header'];
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @return array<string, mixed> updated options
+     */
+    public function addAuthenticationOptions(array $options, string $origin, string $url): array
+    {
+        if (!isset($options['http'])) {
+            $options['http'] = [];
+        }
+        if (!isset($options['http']['header'])) {
+            $options['http']['header'] = [];
+        }
+        $headers = &$options['http']['header'];
         if ($this->io->hasAuthentication($origin)) {
             $authenticationDisplayMessage = null;
             $auth = $this->io->getAuthentication($origin);
             if ($auth['password'] === 'bearer') {
                 $headers[] = 'Authorization: Bearer '.$auth['username'];
+            } elseif ($auth['password'] === 'custom-headers') {
+                // Handle custom HTTP headers from auth.json
+                $customHeaders = null;
+                if (is_string($auth['username'])) {
+                    $customHeaders = json_decode($auth['username'], true);
+                }
+                if (is_array($customHeaders)) {
+                    foreach ($customHeaders as $header) {
+                        $headers[] = $header;
+                    }
+                    $authenticationDisplayMessage = 'Using custom HTTP headers for authentication';
+                }
             } elseif ('github.com' === $origin && 'x-oauth-basic' === $auth['password']) {
                 // only add the access_token if it is actually a github API URL
                 if (Preg::isMatch('{^https?://api\.github\.com/}', $url)) {
@@ -237,8 +281,8 @@ class AuthHelper
                     $authenticationDisplayMessage = 'Using GitHub token authentication';
                 }
             } elseif (
-                in_array($origin, $this->config->get('gitlab-domains'), true)
-                && in_array($auth['password'], ['oauth2', 'private-token', 'gitlab-ci-token'], true)
+                in_array($auth['password'], ['oauth2', 'private-token', 'gitlab-ci-token'], true)
+                && in_array($origin, $this->config->get('gitlab-domains'), true)
             ) {
                 if ($auth['password'] === 'oauth2') {
                     $headers[] = 'Authorization: Bearer '.$auth['username'];
@@ -256,6 +300,9 @@ class AuthHelper
                     $headers[] = 'Authorization: Bearer ' . $auth['password'];
                     $authenticationDisplayMessage = 'Using Bitbucket OAuth token authentication';
                 }
+            } elseif ('client-certificate' === $auth['username']) {
+                $options['ssl'] = array_merge($options['ssl'] ?? [], json_decode((string) $auth['password'], true));
+                $authenticationDisplayMessage = 'Using SSL client certificate';
             } else {
                 $authStr = base64_encode($auth['username'] . ':' . $auth['password']);
                 $headers[] = 'Authorization: Basic '.$authStr;
@@ -267,10 +314,10 @@ class AuthHelper
                 $this->displayedOriginAuthentications[$origin] = $authenticationDisplayMessage;
             }
         } elseif (in_array($origin, ['api.bitbucket.org', 'api.github.com'], true)) {
-            return $this->addAuthenticationHeader($headers, str_replace('api.', '', $origin), $url);
+            return $this->addAuthenticationOptions($options, str_replace('api.', '', $origin), $url);
         }
 
-        return $headers;
+        return $options;
     }
 
     /**

@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Str;
-
 if (!defined('HTTPS_PORT')) {
     define('HTTPS_PORT', env('HTTPS_PORT', '443')); //$https_port
 }
@@ -31,13 +29,9 @@ if (!defined('SESSION_COOKIE_NAME')) {
     define('SESSION_COOKIE_NAME', env('SESSION_COOKIE_NAME', genEvoSessionName())); // $site_sessionname
 }
 
-if (!defined('MODX_CLASS')) {
-    define('MODX_CLASS', env('MODX_CLASS', '\DocumentParser'));
-}
+define('EVO_CLASS', '\DocumentParser');
 
-if (!defined('MODX_SITE_HOSTNAMES')) {
-    define('MODX_SITE_HOSTNAMES', env('MODX_SITE_HOSTNAMES', ''));
-}
+define('EVO_SITE_HOSTNAMES', '');
 
 if (!defined('MGR_DIR')) {
     define('MGR_DIR', env('MGR_DIR', 'manager'));
@@ -51,7 +45,7 @@ if (!defined('EVO_STORAGE_PATH')) {
     define('EVO_STORAGE_PATH', env('EVO_STORAGE_PATH', EVO_CORE_PATH . 'storage/'));
 }
 
-if (!defined('MODX_BASE_PATH') || !defined('MODX_BASE_URL')) {
+if (!defined('EVO_BASE_PATH') || !defined('EVO_BASE_URL')) {
     // automatically assign base_path and base_url
     $script_name = str_replace(
         '\\',
@@ -78,7 +72,7 @@ if (!defined('MODX_BASE_PATH') || !defined('MODX_BASE_URL')) {
     if ($separator !== '') {
         $items = explode('/' . $separator, $script_name);
     } else {
-        $items = array($script_name);
+        $items = [$script_name];
     }
     unset($script_name);
 
@@ -88,7 +82,7 @@ if (!defined('MODX_BASE_PATH') || !defined('MODX_BASE_URL')) {
 
     $url = implode($separator, $items);
 
-    $base_url = Str::finish(implode($separator, $items), '/');
+    $base_url = rtrim(implode($separator, $items), '/') . '/';
     unset($separator);
 
     reset($items);
@@ -97,35 +91,29 @@ if (!defined('MODX_BASE_PATH') || !defined('MODX_BASE_URL')) {
         array_pop($items);
     }
 
-    $base_path = Str::finish(
+    $base_path = rtrim(
         str_replace('\\', '/', implode(MGR_DIR, $items))
         , '/'
-    );
-
-    if (!defined('MODX_BASE_PATH')) {
-        define('MODX_BASE_PATH', env('MODX_BASE_PATH', $base_path));
-    }
-    unset($base_path);
-
-    if (!defined('MODX_BASE_URL')) {
-        define('MODX_BASE_URL', env('MODX_BASE_URL', $base_url));
-    }
-    unset($base_url);
+    ) . '/';
 }
 
-if (!preg_match('/\/$/', MODX_BASE_PATH)) {
-    throw new RuntimeException('Please, use trailing slash at the end of MODX_BASE_PATH');
+if (!defined('EVO_CORE_PATH')) { define('EVO_CORE_PATH', $config['core'] . '/'); }
+if (!defined('EVO_BASE_PATH')) { define('EVO_BASE_PATH', $base_path ?? null); }
+if (!defined('EVO_BASE_URL')) { define('EVO_BASE_URL', $base_url ?? null); }
+
+unset($base_path, $base_url);
+
+if (!preg_match('/\/$/', EVO_BASE_PATH)) {
+    throw new RuntimeException('Please, use trailing slash at the end of EVO_BASE_PATH');
 }
 
-if (!preg_match('/\/$/', MODX_BASE_URL)) {
-    throw new RuntimeException('Please, use trailing slash at the end of MODX_BASE_URL');
+if (!preg_match('/\/$/', EVO_BASE_URL)) {
+    throw new RuntimeException('Please, use trailing slash at the end of EVO_BASE_URL');
 }
 
-if (!defined('MODX_MANAGER_PATH')) {
-    define('MODX_MANAGER_PATH', env('MODX_MANAGER_PATH', MODX_BASE_PATH . MGR_DIR . '/'));
-}
+define('EVO_MANAGER_PATH', EVO_BASE_PATH . MGR_DIR . '/');
 
-if (!defined('MODX_SITE_URL')) {
+if (!defined('EVO_SITE_URL')) {
     // check for valid hostnames
     $site_hostname = 'localhost';
     if (!is_cli()) {
@@ -135,7 +123,7 @@ if (!defined('MODX_SITE_URL')) {
             get_by_key($_SERVER, 'HTTP_HOST', $site_hostname)
         );
     }
-    $site_hostnames = explode(',', MODX_SITE_HOSTNAMES);
+    $site_hostnames = explode(',', EVO_SITE_HOSTNAMES);
     if (!empty($site_hostnames[0]) && !in_array($site_hostname, $site_hostnames)) {
         $site_hostname = $site_hostnames[0];
     }
@@ -166,34 +154,59 @@ if (!defined('MODX_SITE_URL')) {
         $site_url .= ':' . $_SERVER['SERVER_PORT'];
     }
 
-    $site_url .= MODX_BASE_URL;
+    $site_url .= EVO_BASE_URL;
+}
+if (!defined('EVO_SITE_URL')) { define('EVO_SITE_URL', $site_url ?? null); }
+unset($site_url);
 
-    define('MODX_SITE_URL', env('MODX_SITE_URL', $site_url));
-    unset($site_url);
+if (!preg_match('/\/$/', EVO_SITE_URL)) {
+    throw new RuntimeException('Please, use trailing slash at the end of EVO_SITE_URL');
 }
 
-if (!preg_match('/\/$/', MODX_SITE_URL)) {
-    throw new RuntimeException('Please, use trailing slash at the end of MODX_SITE_URL');
-}
-
-if (!defined('MODX_MANAGER_URL')) {
-    define('MODX_MANAGER_URL', env('MODX_MANAGER_URL', MODX_SITE_URL . MGR_DIR . '/'));
-}
-
-if (!defined('MODX_SANITIZE_SEED')) {
-    define('MODX_SANITIZE_SEED', 'sanitize_seed_' . base_convert(md5(__FILE__), 16, 36));
-}
+define('EVO_MANAGER_URL', EVO_SITE_URL . MGR_DIR . '/');
+define('EVO_SANITIZE_SEED', 'sanitize_seed_' . base_convert(md5(__FILE__), 16, 36));
 
 if (is_cli()) {
-    if (!defined('MODX_CLI')) {
-        define('MODX_CLI', true);
+    if (!defined('EVO_CLI')) { define('EVO_CLI', true); }
+
+    if (!(defined('EVO_BASE_PATH') || defined('EVO_BASE_URL'))) {
+        throw new RuntimeException('Please, define EVO_BASE_PATH and EVO_BASE_URL on cli mode');
     }
 
-    if (!(defined('MODX_BASE_PATH') || defined('MODX_BASE_URL'))) {
-        throw new RuntimeException('Please, define MODX_BASE_PATH and MODX_BASE_URL on cli mode');
+    if (!defined('EVO_SITE_URL')) {
+        throw new RuntimeException('Please, define EVO_SITE_URL on cli mode');
     }
+}
 
-    if (!defined('MODX_SITE_URL')) {
-        throw new RuntimeException('Please, define MODX_SITE_URL on cli mode');
-    }
+/**
+ * @deprecated
+ * @since 3.5.5
+ *
+ * This block defines constants that will be permanently deleted. Please replace them in your code with appropriate options.
+ *
+ * @todo [remove@3.7] Remove in Evolution CMS 3.7
+ */
+if (!defined('MODX_CLASS')) {
+    define('MODX_CLASS', EVO_CLASS);
+}
+if (!defined('MODX_SITE_HOSTNAMES')) {
+    define('MODX_SITE_HOSTNAMES', EVO_SITE_HOSTNAMES);
+}
+if (!defined('MODX_BASE_PATH')) {
+    define('MODX_BASE_PATH', EVO_BASE_PATH);
+}
+if (!defined('MODX_BASE_URL')) {
+    define('MODX_BASE_URL', EVO_BASE_URL);
+}
+if (!defined('MODX_MANAGER_PATH')) {
+    define('MODX_MANAGER_PATH', EVO_MANAGER_PATH);
+}
+if (!defined('MODX_SITE_URL')) {
+    define('MODX_SITE_URL', EVO_SITE_URL);
+}
+if (!defined('MODX_MANAGER_URL')) {
+    define('MODX_MANAGER_URL', EVO_MANAGER_URL);
+}
+if (!defined('MODX_SANITIZE_SEED')) {
+    define('MODX_SANITIZE_SEED', EVO_SANITIZE_SEED);
 }

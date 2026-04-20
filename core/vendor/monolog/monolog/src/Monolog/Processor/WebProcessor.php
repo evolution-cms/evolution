@@ -65,7 +65,7 @@ class WebProcessor implements ProcessorInterface
         }
         if (isset($extraFields[0])) {
             foreach (array_keys($this->extraFields) as $fieldName) {
-                if (!in_array($fieldName, $extraFields, true)) {
+                if (!\in_array($fieldName, $extraFields, true)) {
                     unset($this->extraFields[$fieldName]);
                 }
             }
@@ -90,6 +90,9 @@ class WebProcessor implements ProcessorInterface
         return $record;
     }
 
+    /**
+     * @return $this
+     */
     public function addExtraField(string $extraName, string $serverName): self
     {
         $this->extraFields[$extraName] = $serverName;

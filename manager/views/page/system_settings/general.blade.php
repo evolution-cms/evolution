@@ -181,7 +181,7 @@
             'name' => 'auto_template_logic',
             'label' => __('global.defaulttemplate_logic_title'),
             'small' => '[(auto_template_logic)]',
-            'value' => $settings['auto_template_logic'],
+            'value' => $settings['auto_template_logic'] ?? 'sibling',
             'options' => [
                 'system' => __('global.defaulttemplate_logic_system_message'),
                 'parent' => __('global.defaulttemplate_logic_parent_message'),
@@ -446,6 +446,19 @@
             ],
             'comment' => (isset($disabledSettings['cache_type']) ? __('global.setting_from_file') . '<br>' : ''),
             'disabled' => $disabledSettings['cache_type'] ?? null
+        ])
+
+        <div class="split my-1"></div>
+
+        @include('manager::form.input', [
+            'name' => 'html_comment',
+            'label' => __('global.html_comment_title'),
+            'small' => '[(html_comment)]',
+            'value' => $settings['html_comment'] ?? '',
+            'attributes' => 'onchange="documentDirty=true;" maxlength="255" placeholder="snippets,chunks,tvs,snippetParams"',
+            'comment' => (isset($disabledSettings['html_comment']) ? __('global.setting_from_file') . '<br>' : '') .
+                __('global.html_comment_message'),
+            'disabled' => $disabledSettings['html_comment'] ?? null
         ])
 
         <div class="split my-1"></div>

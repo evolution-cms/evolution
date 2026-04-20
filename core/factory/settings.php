@@ -1,12 +1,11 @@
-<?php
-return [
+<?php return [
     'site_name' => 'My Evolution CMS Site',
     'site_start' => 1,
     'error_page' => 1,
     'unauthorized_page' => 1,
     'site_unavailable_page' => '',
     'top_howmany' => 10,
-    'custom_contenttype' => 'application/rss+xml,application/pdf,application/vnd.ms-word,application/vnd.ms-excel,text/html,text/css,text/xml,text/javascript,text/plain,application/json',
+    'custom_contenttype' => 'text/html,application/rss+xml,application/pdf,application/vnd.ms-word,application/vnd.ms-excel,text/css,text/xml,text/javascript,text/plain,application/json',
     'docid_incrmnt_method' => 0,
     'valid_hostnames' => '',
     'enable_filter' => 0,
@@ -16,7 +15,7 @@ return [
     'rss_url_security' => ManagerTheme::getLexicon("rss_url_security_default"),
     'friendly_urls' => 0,
     'friendly_url_prefix' => '',
-    'friendly_url_suffix' => '.html',
+    'friendly_url_suffix' => '/',
     'friendly_alias_urls' => '1',
     'use_alias_path' => '1',
     'make_folders' => '0',
@@ -95,6 +94,7 @@ return [
     'datetime_format' => 'dd-mm-YYYY',
     'enable_cache' => '1',
     'cache_type' => '1',
+    'html_comment' => '',
     'server_protocol' => 'http',
     'settings_version' => 0,
     'server_offset_time' => 0,

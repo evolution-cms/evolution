@@ -6,6 +6,7 @@ use \EvolutionCMS\Models\User;
 
 class AuthServices
 {
+    /** @var User */
     public $user;
 
     public function __construct()
@@ -51,8 +52,6 @@ class AuthServices
 
     /**
      * Determine if the current user is a guest.
-     *
-     * @return bool
      */
     public function id()
     {
@@ -88,7 +87,7 @@ class AuthServices
      */
     public function viaRemember()
     {
-        return isset($_COOKIE['modx_remember_manager']);
+        return isset($_COOKIE['evo_remember_manager']);
     }
 
     public function attempt($checked = [])
@@ -109,7 +108,7 @@ class AuthServices
                 $matchPassword = false;
 
                 // check user password - local authentication
-                $hashType = EvolutionCMS()->getManagerApi()->getHashType($this->user->password);
+                $hashType = evo()->getManagerApi()->getHashType($this->user->password);
 
                 if ($hashType == 'phpass') {
                     $matchPassword = login($this->user->username, $value, $this->user->password);
@@ -138,7 +137,7 @@ class AuthServices
 
     public function loginUsingId($userId, $remember = false)
     {
-        return UserManager::loginById(['id' => $userId, 'rememberme' => $remember]);
+        return \UserManager::loginById(['id' => $userId, 'rememberme' => $remember]);
     }
 
 }

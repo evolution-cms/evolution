@@ -180,6 +180,59 @@ browser.resize = function() {
     _('resizer').style.width = _.outerRightSpace('#folders', 'm') + _.outerLeftSpace('#files', 'm') + 'px';
 };
 
+browser.fitParentIFrame = function() {
+    if (!window.parent || window.parent === window) return;
+    var doc;
+
+    try {
+        doc = window.parent.document;
+    } catch (e) {
+        return;
+    }
+    if (!doc) return;
+
+    var iframe = doc.getElementById('filemanager_iframe-popup');
+    if (!iframe) return;
+
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+
+    if (document.documentElement) document.documentElement.style.height = '100%';
+    if (document.body) document.body.style.height = '100%';
+
+    var el = iframe.parentElement;
+    var matched = false;
+
+    while (el && el !== doc.body) {
+        var isDialog = false;
+        if (el.classList) {
+            if (el.classList.contains('tox-dialog__body') ||
+                el.classList.contains('tox-dialog__content-js')
+            ) {
+                isDialog = true;
+            } else {
+                for (var i = 0; i < el.classList.length; i++) {
+                    if (el.classList[i].indexOf('tox-dialog') === 0) {
+                        isDialog = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (isDialog) {
+            el.style.height = '80vh';
+            matched = true;
+        }
+        el = el.parentElement;
+    }
+
+    if (!matched && iframe.parentElement) {
+        iframe.parentElement.style.height = '80vh';
+        if (iframe.parentElement.parentElement)
+            iframe.parentElement.parentElement.style.height = '80vh';
+    }
+};
+
 browser.fixFilesHeight = function() {
     _('files').style.height =
         $('#left').outerHeight() - $('#toolbar').outerHeight() - _.outerVSpace('#files') -

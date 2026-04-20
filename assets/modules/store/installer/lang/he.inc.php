@@ -10,7 +10,7 @@
  * Language:       Hebrew
  * Encoding:       UTF-8
  */
-$modx_textdir = 'rtl';
+$evo_textdir = 'rtl';
 
 $_lang["alert_database_test_connection"] = 'You need to create your database or test the selection of your database!';
 $_lang["alert_database_test_connection_failed"] = 'The test of your database selection has failed!';
@@ -54,7 +54,6 @@ $_lang["config_permissions_note"] = 'For new Linux/Unix installs, please create 
 $_lang["connection_screen_character_set"] = 'חיבור ערכת תווים:';
 $_lang["connection_screen_collation"] = 'אוסף נתונים:';
 $_lang["connection_screen_connection_information"] = 'מידע התחברות';
-$_lang["connection_screen_connection_method"] = 'שיטת התחברות:';
 $_lang["connection_screen_database_connection_information"] = 'מידע אודות מסד הנתונים';
 $_lang["connection_screen_database_connection_note"] = 'נא להזין את שם מסד הנתונים שנוצר עבור MODX. אם אין עדיין מסד נתונים, תוכנת ההתקנה תנסה ליצור מסד נתונים עבורך. תהליך זה עלול להיכשל בהתאם לתצורת MySQL   או הרשאות משתמש עבור שם המתחם /התקנה.';
 $_lang["connection_screen_database_host"] = 'שרת מסד הנתונים:';
@@ -105,7 +104,7 @@ $_lang["installing_demo_site"] = 'התקנת אתר דוגמא: ';
 $_lang["language_code"] = 'he';	// for html element e.g. <html xml:lang="en" lang="en">
 $_lang["loading"] = 'טוען...';
 $_lang["modules"] = 'מודולים';
-$_lang["modx_footer1"] = '&copy; 2005-2023 the <a href="http://www.modxcms.com/" target="_blank" style="color: green; text-decoration:underline">MODx</a> Content Mangement Framework (CMF) project. All rights reserved. MODx is licensed under the GNU GPL.';
+$_lang["modx_footer1"] = '&copy; 2004 - 2026 the <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> Content Mangement Framework (CMF) project. All rights reserved. Evolution CMS is licensed under the GNU GPL.';
 $_lang["modx_footer2"] = 'MODx is free software.  We encourage you to be creative and make use of MODx in any way you see fit. Just make sure that if you do make changes and decide to redistribute your modified MODx, that you keep the source code free!';
 $_lang["modx_install"] = 'MODx &raquo; Install';
 $_lang["modx_requires_php"] = ', and MODx requires PHP 4.2.0 or later';
@@ -117,7 +116,7 @@ $_lang["not_found"] = 'לא נמצא';
 $_lang["ok"] = 'תקין!';
 $_lang["optional_items"] = 'פריטים אופצוינאלים';
 $_lang["optional_items_note"] = 'אנא בחר את אפשרויות ההתקנה שלך ולחץ על התקן:';
-$_lang["php_security_notice"] = '<legend>Security notice</legend><p>While MODx will work on your PHP version, usage of MODx on this version is not recommended. Your version of PHP is vulnerable to numerous security holes. Please upgrade to PHP version is 4.3.8 or higher, which patches these holes. It is recommended you upgrade to this version for the security of your own website.</p>';
+$_lang["php_security_notice"] = '<legend>Security notice</legend><p>While MODx will work on your PHP version, usage of MODx on this version is not recommended. Your version of PHP is vulnerable to numerous security holes. Please upgrade to PHP version is [+min_version+] or higher, which patches these holes. It is recommended you upgrade to this version for the security of your own website.</p>';
 $_lang["please_correct_error"] = '. Please correct the error';
 $_lang["please_correct_errors"] = '. Please correct the errors';
 $_lang["plugins"] = 'התקנים';

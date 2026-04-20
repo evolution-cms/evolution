@@ -15,16 +15,21 @@ class CreateSiteTmplvarContentvaluesTable extends Migration {
 	{
 		Schema::create('site_tmplvar_contentvalues', function(Blueprint $table)
 		{
+            $indexPrefix = \DB::getTablePrefix() . $table->getTable();
 			$table->integer('id', true);
-			$table->integer('tmplvarid')->default(0)->index('idx_tmplvarid')->comment('Template Variable id');
-			$table->integer('contentid')->default(0)->index('idx_id')->comment('Site Content Id');
+			$table->integer('tmplvarid')->default(0)->index("{$indexPrefix}_idx_tmplvarid")->comment('Template Variable id');
+			$table->integer('contentid')->default(0)->index("{$indexPrefix}_idx_id")->comment('Site Content Id');
 			$table->mediumText('value')->nullable();
-			$table->unique(['tmplvarid','contentid'], 'ix_tvid_contentid');
+			$table->unique(['tmplvarid','contentid'], "{$indexPrefix}_ix_tvid_contentid");
         });
         $prefix = DB::getTablePrefix();
         $site_content_tmplvar = (new \EvolutionCMS\Models\SiteTmplvarContentvalue())->getTable();
-        if(isset($_POST['database_type']) && $_POST['database_type'] != 'pgsql')
-        DB::statement('ALTER TABLE '.$prefix.$site_content_tmplvar.' ADD FULLTEXT content_ft_idx(value)');
+        $indexPrefix = $prefix . $site_content_tmplvar;
+        if (isset($_POST['database_type']) && $_POST['database_type'] === 'mysql') {
+            DB::statement(
+                'ALTER TABLE ' . $prefix . $site_content_tmplvar . " ADD FULLTEXT {$indexPrefix}_content_ft_idx(value)"
+            );
+        }
 	}
 
 

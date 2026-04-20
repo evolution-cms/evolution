@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>[(site_name)] (Evolution CMS Content Manager)</title>
+	<title>[+site_name_text+] (Evolution CMS Content Manager)</title>
 	<meta http-equiv="content-type" content="text/html; charset=[(modx_charset)]" />
 	<link rel="icon" type="image/ico" href="[+favicon+]">
 	<meta name="robots" content="noindex, nofollow" />
@@ -60,12 +60,12 @@
 		<!-- end #mx_logobox -->
 
 		<div class="sectionBody">
-			<h1>[(site_name)]</h1>
+			<h1>[+site_name_text+]</h1>
 
 			<div class="loginMessage">[%manager_lockout_message%]</div>
 
 			<fieldset class="buttonset">
-				<input type="button" class="login" id="submitButton" value="[%home%]" onclick="return gotoHome();" />&nbsp;
+				<input type="button" class="login" id="submitButton" value="[%site%]" onclick="return gotoHome();" />&nbsp;
 				<input type="button" class="login" id="submitButton" value="[%logout%]" onclick="return doLogout();" />
 			</fieldset>
 		</div>
@@ -78,7 +78,7 @@
 
 <!-- convert this to a language include -->
 <p class="loginLicense">
-	<strong>MODX</strong>&trade; is licensed under the GPL license. &copy; 2005-2023 <a href="https://evo.im/" target="_blank">MODX</a>.
+	<strong>Evolution CMS</strong>&trade; is licensed under the GPL license. &copy; 2004 - 2026 <a href="https://evo.im/" target="_blank">Evolution CMS</a>.
 </p>
 
 </body>

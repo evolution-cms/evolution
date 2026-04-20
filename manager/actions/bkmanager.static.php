@@ -9,10 +9,10 @@ if (!EvolutionCMS()->hasPermission('bk_manager')) {
 $dbase = EvolutionCMS()->getDatabase()->getConfig('database');
 
 if (!EvolutionCMS()->getConfig('snapshot_path')) {
-    if (is_dir(MODX_BASE_PATH . 'temp/backup/')) {
-        EvolutionCMS()->setConfig('snapshot_path', MODX_BASE_PATH . 'temp/backup/');
+    if (is_dir(EVO_BASE_PATH . 'temp/backup/')) {
+        EvolutionCMS()->setConfig('snapshot_path', EVO_BASE_PATH . 'temp/backup/');
     } else {
-        EvolutionCMS()->setConfig('snapshot_path', MODX_BASE_PATH . 'assets/backup/');
+        EvolutionCMS()->setConfig('snapshot_path', EVO_BASE_PATH . 'assets/backup/');
     }
 }
 
@@ -40,7 +40,7 @@ if ($mode == 'restore1') {
     } else {
         switch ($driver) {
             case 'pgsql':
-                $tempfile_path = MODX_BASE_PATH . 'assets/backup/temp.php';
+                $tempfile_path = EVO_BASE_PATH . 'assets/backup/temp.php';
                 file_put_contents($tempfile_path,  file_get_contents($_FILES['sqlfile']['tmp_name']));
 
                 $dump_request = 'PGPASSWORD="'.EvolutionCMS()->getDatabase()->getConfig('password').'" psql --host '.EvolutionCMS()->getDatabase()->getConfig('host').' --username ' . EvolutionCMS()->getDatabase()->getConfig('username') . ' --dbname ' . $dbase . ' < '.$tempfile_path;
@@ -90,7 +90,7 @@ if ($mode == 'restore1') {
     @set_time_limit(120); // set timeout limit to 2 minutes
     switch ($driver) {
         case 'pgsql':
-            $tempfile_path = MODX_BASE_PATH . 'assets/backup/temp.php';
+            $tempfile_path = EVO_BASE_PATH . 'assets/backup/temp.php';
             $clean = '';
             if ($_POST['droptables'] == 'on') {
                 $clean = '--clean';
@@ -101,6 +101,18 @@ if ($mode == 'restore1') {
 
             exec($dump_request, $data, $data_second);
             dumpSql($tempfile_path);
+            break;
+        case 'sqlite':
+        case 'sqlite3':
+            $dumper = new EvolutionCMS\Support\SqliteDumper($dbase);
+            $dumper->setDBtables($tables);
+            $dumper->setDroptables((isset($_POST['droptables']) ? true : false));
+            $dumpfinished = $dumper->createDump('dumpSql');
+            if ($dumpfinished) {
+                exit;
+            } else {
+                EvolutionCMS()->webAlertAndQuit('Unable to Backup Database');
+            }
             break;
         default:
             $dumper = new EvolutionCMS\Support\MysqlDumper($dbase);
@@ -126,7 +138,7 @@ if ($mode == 'restore1') {
         file_put_contents(EvolutionCMS()->getConfig('snapshot_path').".htaccess", $htaccess);
     }
     if (!is_writable(rtrim(EvolutionCMS()->getConfig('snapshot_path'), '/'))) {
-        EvolutionCMS()->webAlertAndQuit(parsePlaceholder($_lang["bkmgr_alert_mkdir"], array('snapshot_path' => EvolutionCMS()->getConfig('snapshot_path'))));
+        EvolutionCMS()->webAlertAndQuit(parsePlaceholder($_lang["bkmgr_alert_mkdir"], ['snapshot_path' => EvolutionCMS()->getConfig('snapshot_path')]));
     }
     $dumpfinished = false;
     $today = date('Y-m-d_H-i-s');
@@ -154,6 +166,17 @@ if ($mode == 'restore1') {
                 file_put_contents($path, $output);
                 $dumpfinished = true;
             }
+            break;
+        case 'sqlite':
+        case 'sqlite3':
+            $prefix = EvolutionCMS()->getDatabase()->getConfig('prefix');
+            $tables = EvolutionCMS\Support\SqliteDumper::listTables($prefix);
+
+            $dumper = new EvolutionCMS\Support\SqliteDumper($dbase);
+            $dumper->setDBtables($tables);
+            $dumper->setSnapshotFile($path);
+            $dumper->setDroptables(true);
+            $dumpfinished = $dumper->createDump('snapshot');
             break;
         default:
             $sql = "SHOW TABLE STATUS FROM `{$dbase}` LIKE '" . EvolutionCMS()->getDatabase()->escape(EvolutionCMS()->getDatabase()->getConfig('prefix')) . "%'";
@@ -188,7 +211,7 @@ if ($mode == 'restore1') {
         EvolutionCMS()->webAlertAndQuit('Unable to Backup Database');
     }
 } else {
-    include_once MODX_MANAGER_PATH . "includes/header.inc.php";  // start normal header
+    include_once EVO_MANAGER_PATH . "includes/header.inc.php";  // start normal header
 }
 
 if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
@@ -325,6 +348,26 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                                                 EvolutionCMS()->getDatabase()->query($sql)
                                         );
                                         break;
+                                    case 'sqlite':
+                                    case 'sqlite3':
+                                        $tables = EvolutionCMS\Support\SqliteDumper::listTables($prefix);
+                                        $array = [];
+                                        $pdo = \DB::connection()->getPdo();
+                                        foreach ($tables as $tableName) {
+                                            $quotedName = '"' . str_replace('"', '""', $tableName) . '"';
+                                            $stmt = $pdo->query('SELECT COUNT(*) FROM ' . $quotedName);
+                                            $count = $stmt ? $stmt->fetchColumn() : 0;
+                                            $array[] = [
+                                                'Name' => $tableName,
+                                                'Rows' => (int) $count,
+                                                'Collation' => '-',
+                                                'Data_length' => 0,
+                                                'Data_free' => 0,
+                                                'Index_length' => 0,
+                                                'Comment' => '',
+                                            ];
+                                        }
+                                        break;
                                     default:
                                         $array = [];
                                         break;
@@ -336,8 +379,8 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                                     if (isset($db_status['tablename'])) {
                                         $db_status['Name'] = $db_status['tablename'];
                                     }
-                                    if (isset($tables)) {
-                                        $table_string = implode(',', $table);
+                                    if (isset($tables) && is_array($tables)) {
+                                        $table_string = implode(',', $tables);
                                     } else {
                                         $table_string = '';
                                     }
@@ -348,23 +391,23 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                                     echo '<td class="text-xs-right">' . $db_status['Collation'] . '</td>' . "\n";
 
                                     // Enable record deletion for certain tables (TRUNCATE TABLE) if they're not already empty
-                                    $truncateable = array(
+                                    $truncateable = [
                                             EvolutionCMS()->getDatabase()->getConfig('prefix') . 'event_log',
                                             EvolutionCMS()->getDatabase()->getConfig('prefix') . 'manager_log',
-                                    );
+                                    ];
                                     if (EvolutionCMS()->hasPermission('settings') && in_array($db_status['Name'], $truncateable) && $db_status['Rows'] > 0) {
-                                        echo '<td class="text-xs-right"><a class="text-danger" href="index.php?a=54&mode=93&u=' . $db_status['Name'] . '" title="' . $_lang['truncate_table'] . '">' . nicesize($db_status['Data_length'] + $db_status['Data_free']) . '</a>' . '</td>' . "\n";
+                                        echo '<td class="text-xs-right"><a class="text-danger" href="index.php?a=54&mode=93&u=' . $db_status['Name'] . '" title="' . $_lang['truncate_table'] . '">' . niceSize($db_status['Data_length'] + $db_status['Data_free']) . '</a>' . '</td>' . "\n";
                                     } else {
-                                        echo '<td class="text-xs-right">' . nicesize($db_status['Data_length'] + $db_status['Data_free']) . '</td>' . "\n";
+                                        echo '<td class="text-xs-right">' . niceSize($db_status['Data_length'] + $db_status['Data_free']) . '</td>' . "\n";
                                     }
 
                                     if (EvolutionCMS()->hasPermission('settings')) {
-                                        echo '<td class="text-xs-right">' . ($db_status['Data_free'] > 0 ? '<a class="text-danger" href="index.php?a=54&mode=93&t=' . $db_status['Name'] . '" title="' . $_lang['optimize_table'] . '">' . nicesize($db_status['Data_free']) . '</a>' : '-') . '</td>' . "\n";
+                                        echo '<td class="text-xs-right">' . ($db_status['Data_free'] > 0 ? '<a class="text-danger" href="index.php?a=54&mode=93&t=' . $db_status['Name'] . '" title="' . $_lang['optimize_table'] . '">' . niceSize($db_status['Data_free']) . '</a>' : '-') . '</td>' . "\n";
                                     } else {
-                                        echo '<td class="text-xs-right">' . ($db_status['Data_free'] > 0 ? nicesize($db_status['Data_free']) : '-') . '</td>' . "\n";
+                                        echo '<td class="text-xs-right">' . ($db_status['Data_free'] > 0 ? niceSize($db_status['Data_free']) : '-') . '</td>' . "\n";
                                     }
 
-                                    echo '<td class="text-xs-right">' . nicesize($db_status['Data_length'] - $db_status['Data_free']) . '</td>' . "\n" . '<td class="text-xs-right">' . EvolutionCMS()->nicesize($db_status['Index_length']) . '</td>' . "\n" . '<td class="text-xs-right">' . EvolutionCMS()->nicesize($db_status['Index_length'] + $db_status['Data_length'] + $db_status['Data_free']) . '</td>' . "\n" . "</tr>";
+                                    echo '<td class="text-xs-right">' . niceSize($db_status['Data_length'] - $db_status['Data_free']) . '</td>' . "\n" . '<td class="text-xs-right">' . niceSize($db_status['Index_length']) . '</td>' . "\n" . '<td class="text-xs-right">' . EvolutionCMS()->nicesize($db_status['Index_length'] + $db_status['Data_length'] + $db_status['Data_free']) . '</td>' . "\n" . "</tr>";
 
                                     $total += $db_status['Index_length'] + $db_status['Data_length'];
                                     $totaloverhead += $db_status['Data_free'];
@@ -375,9 +418,9 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                                 <tr>
                                     <td class="text-xs-right"><?= $_lang['database_table_totals'] ?></td>
                                     <td colspan="4">&nbsp;</td>
-                                    <td class="text-xs-right"><?= $totaloverhead > 0 ? '<b class="text-danger">' . nicesize($totaloverhead) . '</b><br />(' . number_format($totaloverhead) . ' B)' : '-' ?></td>
+                                    <td class="text-xs-right"><?= $totaloverhead > 0 ? '<b class="text-danger">' . niceSize($totaloverhead) . '</b><br />(' . number_format($totaloverhead) . ' B)' : '-' ?></td>
                                     <td colspan="2">&nbsp;</td>
-                                    <td class="text-xs-right"><?= "<b>" . nicesize($total) . "</b><br />(" . number_format($total) . " B)" ?></td>
+                                    <td class="text-xs-right"><?= "<b>" . niceSize($total) . "</b><br />(" . number_format($total) . " B)" ?></td>
                                 </tr>
                                 </tfoot>
                             </table>
@@ -424,14 +467,14 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                         if (count($last_result) < 1) {
                             $result = '';
                         } else {
-                            $last_result = array_merge(array(), array_diff($last_result, array('')));
+                            $last_result = array_merge([], array_diff($last_result, ['']));
                             foreach ($last_result['0'] as $k => $v) {
                                 $title[] = $k;
                             }
                             $result = '<thead><tr><th>' . implode('</th><th>', $title) . '</th></tr></thead>';
                             $result .= '<tbody>';
                             foreach ($last_result as $row) {
-                                $result_value = array();
+                                $result_value = [];
                                 if ($row) {
                                     foreach ($row as $k => $v) {
                                         $result_value[] = $v;
@@ -482,7 +525,7 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
             <div class="container container-body">
                 <?= $ph['result_msg_snapshot'] ?>
                 <div class="element-edit-message-tab alert alert-warning">
-                    <?= parsePlaceholder($_lang["bkmgr_snapshot_msg"], array('snapshot_path' => "snapshot_path=".EvolutionCMS()->getConfig('snapshot_path'))) ?>
+                    <?= parsePlaceholder($_lang["bkmgr_snapshot_msg"], ['snapshot_path' => "snapshot_path=".EvolutionCMS()->getConfig('snapshot_path')]) ?>
                 </div>
                 <form method="post" name="snapshot" action="index.php">
                     <input type="hidden" name="a" value="93"/>
@@ -509,7 +552,7 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                     $pattern = EvolutionCMS()->getConfig('snapshot_path')."*.sql";
                     $files = glob($pattern, GLOB_NOCHECK);
                     $total = ($files[0] !== $pattern) ? count($files) : 0;
-                    $detailFields = array(
+                    $detailFields = [
                             'Evolution CMS Version',
                             'Host',
                             'Generation Time',
@@ -517,7 +560,7 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                             'PHP Version',
                             'Database',
                             'Description'
-                    );
+                    ];
                     if (is_array($files) && 0 < $total) {
                         ?>
                         <div class="row">
@@ -529,7 +572,7 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                                         <th width="1%"></th>
                                         <th><?= $_lang["files_filesize"] ?></th>
                                         <th><?= $_lang["description"] ?></th>
-                                        <th><?= $_lang["modx_version"] ?></th>
+                                        <th><?= $_lang["evo_version"] ?></th>
                                         <th><?= $_lang["database_name"] ?></th>
                                         <th width="1%"><?= $_lang["onlineusers_action"] ?></th>
                                     </tr>
@@ -539,21 +582,24 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                                     arsort($files);
                                     while ($file = array_shift($files)) {
                                         $filename = substr($file, strrpos($file, '/') + 1);
-                                        $filesize = nicesize(filesize($file));
+                                        $filesize = niceSize(filesize($file));
 
                                         $file = fopen($file, "r");
                                         $count = 0;
-                                        $details = array();
+                                        $details = [];
                                         while ($count < 11) {
                                             $line = fgets($file);
                                             foreach ($detailFields as $label) {
-                                                $fileLabel = '# ' . $label;
-                                                if (strpos($line, $fileLabel) !== false) {
-                                                    $details[$label] = htmlentities(trim(str_replace(array(
-                                                            $fileLabel,
-                                                            ':',
-                                                            '`'
-                                                    ), '', $line)), ENT_QUOTES, ManagerTheme::getCharset());
+                                                foreach (['# ', '-- '] as $prefix) {
+                                                    $fileLabel = $prefix . $label;
+                                                    if (strpos($line, $fileLabel) !== false) {
+                                                        $details[$label] = htmlentities(trim(str_replace([
+                                                                $fileLabel,
+                                                                ':',
+                                                                '`'
+                                                        ], '', $line)), ENT_QUOTES, ManagerTheme::getCharset());
+                                                        break;
+                                                    }
                                                 }
                                             }
                                             $count++;
@@ -602,7 +648,7 @@ if (is_numeric($tab)) {
     echo '<script type="text/javascript">tpDBM.setSelectedIndex( ' . $_GET['tab'] . ' );</script>';
 }
 
-include_once MODX_MANAGER_PATH . "includes/footer.inc.php"; // send footer
+include_once EVO_MANAGER_PATH . "includes/footer.inc.php"; // send footer
 ?>
 
 <?php

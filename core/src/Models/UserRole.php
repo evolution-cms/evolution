@@ -130,7 +130,7 @@ class UserRole extends Eloquent\Model
 
     public static function getLockedElements()
     {
-        return evolutionCMS()->getLockedElements(8);
+        return evo()->getLockedElements(8);
     }
 
     public function getIsAlreadyEditAttribute()

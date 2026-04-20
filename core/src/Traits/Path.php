@@ -27,7 +27,7 @@ trait Path
      */
     public function path($path = '')
     {
-        return rtrim(EVO_CORE_PATH, '/') . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return rtrim(EVO_CORE_PATH, DIRECTORY_SEPARATOR) . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 
     /**
@@ -77,7 +77,7 @@ trait Path
      */
     public function publicPath($path = '')
     {
-        return MODX_BASE_PATH . $path;
+        return EVO_BASE_PATH . $path;
     }
 
     /**
@@ -137,7 +137,7 @@ trait Path
      */
     public function resourcePath($path = '')
     {
-        return $this->publicPath() . DIRECTORY_SEPARATOR . 'assets' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return rtrim($this->publicPath(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'assets' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 
     /**
@@ -184,7 +184,7 @@ trait Path
      */
     public function getManagerUrl()
     {
-        return MODX_MANAGER_URL;
+        return EVO_MANAGER_URL;
     }
 
     /**
@@ -388,5 +388,4 @@ trait Path
     {
 
     }
-
 }

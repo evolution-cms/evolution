@@ -16,9 +16,7 @@ use Composer\DependencyResolver\Request;
 use Composer\Package\AliasPackage;
 use Composer\Package\CompletePackageInterface;
 use Composer\Package\Loader\RootPackageLoader;
-use Composer\Package\Locker;
 use Composer\Package\PackageInterface;
-use Composer\Package\Version\VersionBumper;
 use Composer\Package\Version\VersionSelector;
 use Composer\Pcre\Preg;
 use Composer\Repository\RepositorySet;
@@ -71,10 +69,7 @@ class RequireCommand extends BaseCommand
     /** @var bool */
     private $dependencyResolutionCompleted = false;
 
-    /**
-     * @return void
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('require')
@@ -94,15 +89,17 @@ class RequireCommand extends BaseCommand
                 new InputOption('no-install', null, InputOption::VALUE_NONE, 'Skip the install step after updating the composer.lock file.'),
                 new InputOption('no-audit', null, InputOption::VALUE_NONE, 'Skip the audit step after updating the composer.lock file (can also be set via the COMPOSER_NO_AUDIT=1 env var).'),
                 new InputOption('audit-format', null, InputOption::VALUE_REQUIRED, 'Audit output format. Must be "table", "plain", "json", or "summary".', Auditor::FORMAT_SUMMARY, Auditor::FORMATS),
+                new InputOption('no-security-blocking', null, InputOption::VALUE_NONE, 'Allows installing packages with security advisories or that are abandoned (can also be set via the COMPOSER_NO_SECURITY_BLOCKING=1 env var).'),
                 new InputOption('update-no-dev', null, InputOption::VALUE_NONE, 'Run the dependency update with the --no-dev option.'),
-                new InputOption('update-with-dependencies', 'w', InputOption::VALUE_NONE, 'Allows inherited dependencies to be updated, except those that are root requirements.'),
-                new InputOption('update-with-all-dependencies', 'W', InputOption::VALUE_NONE, 'Allows all inherited dependencies to be updated, including those that are root requirements.'),
+                new InputOption('update-with-dependencies', 'w', InputOption::VALUE_NONE, 'Allows inherited dependencies to be updated, except those that are root requirements (can also be set via the COMPOSER_WITH_DEPENDENCIES=1 env var).'),
+                new InputOption('update-with-all-dependencies', 'W', InputOption::VALUE_NONE, 'Allows all inherited dependencies to be updated, including those that are root requirements (can also be set via the COMPOSER_WITH_ALL_DEPENDENCIES=1 env var).'),
                 new InputOption('with-dependencies', null, InputOption::VALUE_NONE, 'Alias for --update-with-dependencies'),
                 new InputOption('with-all-dependencies', null, InputOption::VALUE_NONE, 'Alias for --update-with-all-dependencies'),
                 new InputOption('ignore-platform-req', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Ignore a specific platform requirement (php & ext- packages).'),
                 new InputOption('ignore-platform-reqs', null, InputOption::VALUE_NONE, 'Ignore all platform requirements (php & ext- packages).'),
                 new InputOption('prefer-stable', null, InputOption::VALUE_NONE, 'Prefer stable versions of dependencies (can also be set via the COMPOSER_PREFER_STABLE=1 env var).'),
                 new InputOption('prefer-lowest', null, InputOption::VALUE_NONE, 'Prefer lowest versions of dependencies (can also be set via the COMPOSER_PREFER_LOWEST=1 env var).'),
+                new InputOption('minimal-changes', 'm', InputOption::VALUE_NONE, 'During an update with -w/-W, only perform absolutely necessary changes to transitive dependencies (can also be set via the COMPOSER_MINIMAL_CHANGES=1 env var).'),
                 new InputOption('sort-packages', null, InputOption::VALUE_NONE, 'Sorts packages when adding/updating a new dependency'),
                 new InputOption('optimize-autoloader', 'o', InputOption::VALUE_NONE, 'Optimize autoloader during autoloader dump'),
                 new InputOption('classmap-authoritative', 'a', InputOption::VALUE_NONE, 'Autoload classes from the classmap only. Implicitly enables `--optimize-autoloader`.'),
@@ -129,7 +126,7 @@ EOT
     /**
      * @throws \Seld\JsonLint\ParsingException
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->file = Factory::getComposerFile();
         $io = $this->getIO();
@@ -230,7 +227,7 @@ EOT
 
         $requirements = $this->formatRequirements($requirements);
 
-        if (!$input->getOption('dev') && $io->isInteractive()) {
+        if (!$input->getOption('dev') && $io->isInteractive() && !$composer->isGlobal()) {
             $devPackages = [];
             $devTags = ['dev', 'testing', 'static analysis'];
             $currentRequiresByKey = $this->getPackagesByRequireKey();
@@ -348,6 +345,10 @@ EOT
             }
             throw $e;
         } finally {
+            if ($input->getOption('dry-run') && $this->newlyCreated) {
+                @unlink($this->json->getPath());
+            }
+
             $signalHandler->unregister();
         }
     }
@@ -397,6 +398,8 @@ EOT
 
     /**
      * @param array<string, string> $requirements
+     * @param 'require'|'require-dev' $requireKey
+     * @param 'require'|'require-dev' $removeKey
      * @throws \Exception
      */
     private function doUpdate(InputInterface $input, OutputInterface $output, IOInterface $io, array $requirements, string $requireKey, string $removeKey): int
@@ -440,6 +443,7 @@ EOT
         $authoritative = $input->getOption('classmap-authoritative') || $composer->getConfig()->get('classmap-authoritative');
         $apcuPrefix = $input->getOption('apcu-autoloader-prefix');
         $apcu = $apcuPrefix !== null || $input->getOption('apcu-autoloader') || $composer->getConfig()->get('apcu-autoloader');
+        $minimalChanges = $input->getOption('minimal-changes') || $composer->getConfig()->get('update-with-minimal-changes');
 
         $updateAllowTransitiveDependencies = Request::UPDATE_ONLY_LISTED;
         $flags = '';
@@ -477,8 +481,8 @@ EOT
             ->setPlatformRequirementFilter($this->getPlatformRequirementFilter($input))
             ->setPreferStable($input->getOption('prefer-stable'))
             ->setPreferLowest($input->getOption('prefer-lowest'))
-            ->setAudit(!$input->getOption('no-audit'))
-            ->setAuditFormat($this->getAuditFormat($input))
+            ->setAuditConfig($this->createAuditConfig($composer->getConfig(), $input))
+            ->setMinimalUpdate($minimalChanges)
         ;
 
         // if no lock is present, or the file is brand new, we do not do a
@@ -488,7 +492,7 @@ EOT
         }
 
         $status = $install->run();
-        if ($status !== 0) {
+        if ($status !== 0 && $status !== Installer::ERROR_AUDIT_FAILED) {
             if ($status === Installer::ERROR_DEPENDENCY_RESOLUTION_FAILED) {
                 foreach ($this->normalizeRequirements($input->getArgument('packages')) as $req) {
                     if (!isset($req['version'])) {
@@ -536,7 +540,7 @@ EOT
 
             if (Preg::isMatch('{^dev-(?!main$|master$|trunk$|latest$)}', $requirements[$packageName])) {
                 $this->getIO()->warning('Version '.$requirements[$packageName].' looks like it may be a feature branch which is unlikely to keep working in the long run and may be in an unstable state');
-                if ($this->getIO()->isInteractive() && !$this->getIO()->askConfirmation('Are you sure you want to use this constraint (<comment>Y</comment>) or would you rather abort (<comment>n</comment>) the whole operation [<comment>Y,n</comment>]? ')) {
+                if ($this->getIO()->isInteractive() && !$this->getIO()->askConfirmation('Are you sure you want to use this constraint (<comment>y</comment>) or would you rather abort (<comment>n</comment>) the whole operation [<comment>y,n</comment>]? ')) {
                     $this->revertComposerFile();
 
                     return 1;
@@ -546,15 +550,15 @@ EOT
 
         if (!$dryRun) {
             $this->updateFile($this->json, $requirements, $requireKey, $removeKey, $sortPackages);
-            if ($locker->isLocked()) {
-                $contents = file_get_contents($this->json->getPath());
-                if (false === $contents) {
-                    throw new \RuntimeException('Unable to read '.$this->json->getPath().' contents to update the lock file hash.');
-                }
-                $lock = new JsonFile(Factory::getLockFile($this->json->getPath()));
-                $lockData = $lock->read();
-                $lockData['content-hash'] = Locker::getContentHash($contents);
-                $lock->write($lockData);
+            if ($locker->isLocked() && $composer->getConfig()->get('lock')) {
+                $stabilityFlags = RootPackageLoader::extractStabilityFlags($requirements, $composer->getPackage()->getMinimumStability(), []);
+                $locker->updateHash($this->json, static function (array $lockData) use ($stabilityFlags) {
+                    foreach ($stabilityFlags as $packageName => $flag) {
+                        $lockData['stability-flags'][$packageName] = $flag;
+                    }
+
+                    return $lockData;
+                });
             }
         }
 

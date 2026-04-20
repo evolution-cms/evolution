@@ -161,19 +161,31 @@ class SystemSettings extends AbstractController implements ManagerTheme\PageCont
      */
     protected function parameterThemes(): array
     {
-        $themes = [];
-        $dir = dir(MODX_MANAGER_PATH . 'media/style/');
+        $themeNames = [];
+        $dir = dir(EVO_MANAGER_PATH . 'media/style/');
         while ($file = $dir->read()) {
             if (strpos($file, '.') === 0 || $file === 'common') {
                 continue;
             }
-            if (!is_dir(MODX_MANAGER_PATH . 'media/style/' . $file)) {
+            if (!is_dir(EVO_MANAGER_PATH . 'media/style/' . $file)) {
                 continue;
             }
 
-            $themes[$file] = $file;
+            $themeNames[] = $file;
         }
         $dir->close();
+
+        natcasesort($themeNames);
+        $themes = [];
+        if (in_array('default', $themeNames, true)) {
+            $themes['default'] = 'default';
+        }
+        foreach ($themeNames as $name) {
+            if ($name === 'default') {
+                continue;
+            }
+            $themes[$name] = $name;
+        }
 
         return $themes;
     }
@@ -184,7 +196,7 @@ class SystemSettings extends AbstractController implements ManagerTheme\PageCont
     protected function parameterFileBrowsers(): array
     {
         $out = [];
-        foreach (glob(MODX_MANAGER_PATH . 'media/browser/*', GLOB_ONLYDIR) as $dir) {
+        foreach (glob(EVO_MANAGER_PATH . 'media/browser/*', GLOB_ONLYDIR) as $dir) {
             $dir = str_replace('\\', '/', $dir);
             $out[] = substr($dir, strrpos($dir, '/') + 1);
         }
@@ -216,13 +228,13 @@ class SystemSettings extends AbstractController implements ManagerTheme\PageCont
         }
 
         $out['filemanager_path'] = str_replace(
-            MODX_BASE_PATH,
+            EVO_BASE_PATH,
             '[(base_path)]',
             get_by_key($out, 'filemanager_path')
         );
 
         $out['rb_base_dir'] = str_replace(
-            MODX_BASE_PATH,
+            EVO_BASE_PATH,
             '[(base_path)]',
             get_by_key($out, 'rb_base_dir')
         );

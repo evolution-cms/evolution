@@ -19,7 +19,7 @@
 <?php else : ?>
     <p><?=$_lang['setup_database_create_connection']?> <span class="ok"><?=$_lang['ok']?></span></p>
     <?php if (isset($selectDatabase) && $selectDatabase === false) : ?>
-        <p><?=rtrim($_lang['setup_database_selection'], '`')?> <strong><?=trim($dbase, '`')?></strong>:
+        <p><?=rtrim($_lang['setup_database_selection'], '`')?> <strong><?=trim($database_name, '` ')?></strong>:
             <span class="notok" style='color:#707070'>
                 <?=$_lang['setup_database_selection_failed']?>
             </span>
@@ -27,24 +27,24 @@
         </p>
         <?php if (isset($createDatabase) && $createDatabase === false) : ?>
             <p>
-                <?=rtrim($_lang['setup_database_creation'], '`')?> <strong><?=trim($dbase, '`')?></strong>:
+                <?=rtrim($_lang['setup_database_creation'], '`')?> <strong><?=trim($database_name, '` ')?></strong>:
                 <span class="notok"><?=$_lang['setup_database_creation_failed']?></span>
                 <?=$_lang['setup_database_creation_failed_note']?>
             </p>
             <pre>
-                database charset = <?=$database_charset?>
+                database charset = <?=$database_connection_charset?>
                 database collation = <?=$database_collation?>
             </pre>
             <p><?=$_lang['setup_database_creation_failed_note2']?></p>
         <?php else : ?>
             <p>
-                <?=rtrim($_lang['setup_database_creation'], '`')?> <strong><?=trim($dbase, '`')?></strong>:
+                <?=rtrim($_lang['setup_database_creation'], '`')?> <strong><?=trim($database_name, '` ')?></strong>:
                 <span class="ok"><?=$_lang['ok']?></span>
             </p>
         <?php endif; ?>
     <?php else : ?>
         <p>
-            <?=rtrim($_lang['setup_database_selection'], '`')?> <strong><?=trim($dbase, '`')?></strong>:
+            <?=rtrim($_lang['setup_database_selection'], '`')?> <strong><?=trim($database_name, '` ')?></strong>:
             <span class="ok"><?=$_lang['ok']?></span>
         </p>
     <?php endif; ?>
@@ -77,7 +77,7 @@
         <?php for ($i = 0; $i < $sqlErrors; $i++) : ?>
             <em><?=$sqlParser->mysqlErrors[$i]["error"]?></em>
             <?=$_lang['during_execution_of_sql'];?>
-            <span class="mono"><?=strip_tags($sqlParser->mysqlErrors[$i]["sql"])?></span>
+            <code><?=strip_tags($sqlParser->mysqlErrors[$i]["sql"])?></code>
             <hr />
         <?php endfor; ?>
         <p><?=$_lang['some_tables_not_updated']?></p>
@@ -91,7 +91,7 @@
         <p>
             <?=$_lang['writing_config_file']?> <span class="notok"><?=$_lang['failed']?></span>
         </p>
-        <p><?=$_lang['cant_write_config_file']?> <span class="mono">/core/config/database/connections/default.php</span></p>
+        <p><?=$_lang['cant_write_config_file']?> <code>/core/config/database/connections/default.php</code></p>
         <textarea style="width:400px; height:160px;"><?=$configString?></textarea>
         <p><?=$_lang['cant_write_config_file_note']?></p>
     <?php else : ?>
@@ -289,7 +289,7 @@
             <?php foreach($installDataLevel['demo']['error'] as $error): ?>
                 <em><?=$error['content']?></em>
                 <?=$_lang['during_execution_of_sql']?>
-                <span class="mono"><?=htmlspecialchars($error['sql'])?></span>
+                <code><?=htmlspecialchars($error['sql'])?></code>
                 <hr />
             <?php endforeach; ?>
             <p><?=$_lang['some_tables_not_updated']?></p>
@@ -329,53 +329,45 @@
     <p><?=$_lang['to_log_into_content_manager']?></p>
     <?php if ($installMode === 0) : ?>
         <p>
-            <img src="img/ico_info.png" width="40" height="42" align="left" style="margin-right:10px;" />
-            <?=$_lang['installation_note']?>
+            <img src="img/ico_info.png" width="40" height="42" class="mx-2"/>
+            <?= $_lang['installation_note'] ?>
         </p>
     <?php else : ?>
         <p>
-            <img src="img/ico_info.png" width="40" height="42" align="left" style="margin-right:10px;" />
-            <?=$_lang['upgrade_note']?>
+            <img src="img/ico_info.png" width="40" height="42" class="mx-2"/>
+            <?= $_lang['upgrade_note'] ?>
         </p>
     <?php endif; ?>
 
     <form name="install" id="install_form" action="index.php?action=options" method="post">
-            <?php if ($errors === 0) : ?>
-                <?php if (is_writable(dirname(__DIR__, 2))) : ?>
-                    <span id="removeinstall" style="float:left;cursor:pointer;color:#505050;line-height:18px;"
-                          onclick="var chk=document.install.rminstaller; if(chk) chk.checked=!chk.checked;">
-                      <input type="checkbox" name="rminstaller"
-                             onclick="event.cancelBubble=true;" <?=(empty($errors) ? 'checked="checked"' : '') ?>
-                             style="cursor:default;"
-                      />
-                        <?=$_lang['remove_install_folder_auto'] ?>
-                </span>
-                <?php else : ?>
-                    <span id="removeinstall" style="float:left;color:#505050;line-height:18px;">
-                    <?=$_lang['remove_install_folder_manual'] ?>
-                </span>
-                <?php endif; ?>
+        <?php if ($errors === 0) : ?>
+            <?php if (is_writable(dirname(__DIR__, 2))) : ?>
+                <label id="removeinstall" class="clickable">
+                    <input type="checkbox" name="rminstaller" <?= (empty($errors) ? 'checked="checked"' : '') ?>/>
+                    <?= $_lang['remove_install_folder_auto'] ?>
+                </label>
+            <?php else : ?>
+                <span id="removeinstall"><?= $_lang['remove_install_folder_manual'] ?></span>
             <?php endif; ?>
+        <?php endif; ?>
         <p class="buttonlinks">
-            <a href="javascript:closepage();" title="<?=$_lang['btnclose_value'] ?>">
-                <span><?=$_lang['btnclose_value'] ?></span>
-            </a>
+            <button type="button" id="closepage" nonce="<?= csrfNonce(); ?>" title="<?= $_lang['btnclose_value'] ?>">
+                <span><?= $_lang['btnclose_value'] ?></span>
+            </button>
         </p>
         <br/>
-        </form>
-        <br/>
-        <script type="text/javascript">
-            /* <![CDATA[ */
-            function closepage() {
-                var chk = document.install.rminstaller;
-                if (chk && chk.checked) {
-                    // remove install folder and files
-                    window.location.href = "../<?=MGR_DIR;?>/processors/remove_installer.processor.php?rminstall=1";
-                }
-                else {
-                    window.location.href = "../<?=MGR_DIR;?>/";
-                }
-            }
-            /* ]]> */
-        </script>
+    </form>
+    <br/>
+    <script type="text/javascript" nonce="<?= csrfNonce(); ?>">
+      function closepage() {
+        var chk = document.install.rminstaller;
+        if (chk && chk.checked) {
+          // remove install folder and files
+          window.location.href = "../<?=MGR_DIR;?>/processors/remove_installer.processor.php?rminstall=1";
+        } else {
+          window.location.href = "../<?=MGR_DIR;?>/";
+        }
+      }
+      document.getElementById('closepage').onclick = closepage;
+    </script>
 <?php endif; ?>

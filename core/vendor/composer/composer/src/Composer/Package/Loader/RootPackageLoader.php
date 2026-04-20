@@ -49,13 +49,24 @@ class RootPackageLoader extends ArrayLoader
      */
     private $versionGuesser;
 
+    /**
+     * @var IOInterface|null
+     */
+    private $io;
+
     public function __construct(RepositoryManager $manager, Config $config, ?VersionParser $parser = null, ?VersionGuesser $versionGuesser = null, ?IOInterface $io = null)
     {
         parent::__construct($parser);
 
         $this->manager = $manager;
         $this->config = $config;
-        $this->versionGuesser = $versionGuesser ?: new VersionGuesser($config, new ProcessExecutor($io), $this->versionParser);
+        if (null === $versionGuesser) {
+            $processExecutor = new ProcessExecutor($io);
+            $processExecutor->enableAsync();
+            $versionGuesser = new VersionGuesser($config, $processExecutor, $this->versionParser);
+        }
+        $this->versionGuesser = $versionGuesser;
+        $this->io = $io;
     }
 
     /**
@@ -82,7 +93,7 @@ class RootPackageLoader extends ArrayLoader
 
             // override with env var if available
             if (Platform::getEnv('COMPOSER_ROOT_VERSION')) {
-                $config['version'] = Platform::getEnv('COMPOSER_ROOT_VERSION');
+                $config['version'] = $this->versionGuesser->getRootVersionFromEnv();
             } else {
                 $versionData = $this->versionGuesser->guessVersion($config, $cwd ?? Platform::getCwd(true));
                 if ($versionData) {
@@ -93,6 +104,14 @@ class RootPackageLoader extends ArrayLoader
             }
 
             if (!isset($config['version'])) {
+                if ($this->io !== null && $config['name'] !== '__root__' && 'project' !== ($config['type'] ?? '')) {
+                    $this->io->warning(
+                        sprintf(
+                            "Composer could not detect the root package (%s) version, defaulting to '1.0.0'. See https://getcomposer.org/root-version",
+                            $config['name']
+                        )
+                    );
+                }
                 $config['version'] = '1.0.0';
                 $autoVersioned = true;
             }
@@ -213,6 +232,7 @@ class RootPackageLoader extends ArrayLoader
      *
      * @param array<string, string> $requires
      * @param array<string, int>    $stabilityFlags
+     * @param key-of<BasePackage::STABILITIES> $minimumStability
      *
      * @return array<string, int>
      *
@@ -221,8 +241,7 @@ class RootPackageLoader extends ArrayLoader
      */
     public static function extractStabilityFlags(array $requires, string $minimumStability, array $stabilityFlags): array
     {
-        $stabilities = BasePackage::$stabilities;
-        /** @var int $minimumStability */
+        $stabilities = BasePackage::STABILITIES;
         $minimumStability = $stabilities[$minimumStability];
         foreach ($requires as $reqName => $reqVersion) {
             $constraints = [];
