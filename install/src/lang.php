@@ -15,7 +15,7 @@ $_lang = [];
 #default fallback language file - english
 $install_language = 'en';
 
-$_langISO6391 = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+$_langISO6391 = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '', 0, 2);
 if (ctype_alpha($_langISO6391) && file_exists(__DIR__ . '/lang/' . $_langISO6391 . '.inc.php')) {
     $install_language = $_langISO6391;
 }

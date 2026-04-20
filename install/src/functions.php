@@ -379,6 +379,63 @@ function getLangs($install_language)
     return implode("\n", $_);
 }
 
+/**
+ * Existing installs may carry a single synthetic baseline row instead of the
+ * full historical install migration list. Register those older migrations so
+ * upgrade mode only runs genuinely new schema changes.
+ */
+function bootstrapInstallMigrationHistory(string $migrationsPath, string $baselineMigration = '2025_12_25_000000_initial_schema'): int
+{
+    if (!class_exists(\Illuminate\Support\Facades\DB::class) ||
+        !class_exists(\Illuminate\Support\Facades\Schema::class)
+    ) {
+        return 0;
+    }
+
+    try {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('migrations_install') ||
+            !\Illuminate\Support\Facades\Schema::hasTable('active_user_locks')
+        ) {
+            return 0;
+        }
+
+        $registered = \Illuminate\Support\Facades\DB::table('migrations_install')
+            ->pluck('migration')
+            ->all();
+
+        if (!in_array($baselineMigration, $registered, true)) {
+            return 0;
+        }
+
+        $historical = [];
+        foreach (glob(rtrim($migrationsPath, '/') . '/*.php') as $migrationFile) {
+            $migration = basename($migrationFile, '.php');
+            if (strcmp($migration, $baselineMigration) < 0 && !in_array($migration, $registered, true)) {
+                $historical[] = $migration;
+            }
+        }
+
+        if ($historical === []) {
+            return 0;
+        }
+
+        sort($historical);
+        $batch = (int) (\Illuminate\Support\Facades\DB::table('migrations_install')->max('batch') ?: 1);
+        $rows = array_map(static function ($migration) use ($batch) {
+            return [
+                'migration' => $migration,
+                'batch' => $batch,
+            ];
+        }, $historical);
+
+        \Illuminate\Support\Facades\DB::table('migrations_install')->insert($rows);
+
+        return count($historical);
+    } catch (\Throwable $exception) {
+        return 0;
+    }
+}
+
 function sortItem($array = [], $order = 'utf8mb4,utf8')
 {
     $rs = ['recommend' => ''];

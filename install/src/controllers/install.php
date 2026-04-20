@@ -194,6 +194,12 @@ try {
 
         include(EVO_BASE_PATH . '/index.php');
 
+        $installMigrationsPath = EVO_BASE_PATH . 'install/stubs/migrations';
+
+        if ($installMode != 0) {
+            bootstrapInstallMigrationHistory($installMigrationsPath);
+        }
+
         if ($installMode != 0 && $database_type == 'pgsql') {
             try {
                 $result = \DB::table('migrations_install')->select('id')->orderBy('id', 'DESC')->first();
@@ -211,7 +217,7 @@ try {
             }
         }
 
-        Console::call('migrate', ['--path' => EVO_BASE_PATH . 'install/stubs/migrations', '--realpath' => true, '--force' => true]);
+        Console::call('migrate', ['--path' => $installMigrationsPath, '--realpath' => true, '--force' => true]);
 
         if ($installMode == 0) {
             seed('install');

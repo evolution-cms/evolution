@@ -111,7 +111,9 @@ if (!preg_match('/\/$/', EVO_BASE_URL)) {
     throw new RuntimeException('Please, use trailing slash at the end of EVO_BASE_URL');
 }
 
-define('EVO_MANAGER_PATH', EVO_BASE_PATH . MGR_DIR . '/');
+if (!defined('EVO_MANAGER_PATH')) {
+    define('EVO_MANAGER_PATH', EVO_BASE_PATH . MGR_DIR . '/');
+}
 
 if (!defined('EVO_SITE_URL')) {
     // check for valid hostnames
