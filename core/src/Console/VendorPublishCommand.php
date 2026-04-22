@@ -1,5 +1,6 @@
 <?php namespace EvolutionCMS\Console;
 
+use EvolutionCMS\Events\VendorTagPublished;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Arr;
@@ -209,6 +210,10 @@ class VendorPublishCommand extends Command
         if ($publishing === false) {
             $this->components->info('No publishable resources for tag ['.$tag.'].');
         } else {
+            if (class_exists(VendorTagPublished::class)) {
+                $this->laravel['events']->dispatch(new VendorTagPublished($tag, $pathsToPublish));
+            }
+
             $this->newLine();
         }
     }
@@ -235,6 +240,13 @@ class VendorPublishCommand extends Command
      */
     protected function publishItem($from, $to): void
     {
+        // Prefix the publish source with "symlink:" to link it instead of copying.
+        // If links are unavailable, vendor:publish falls back to a normal copy.
+        if ($this->isSymlinkPublish($from)) {
+            $this->publishSymlink($this->symlinkPublishPath($from), $to);
+            return;
+        }
+
         if ($this->files->isFile($from)) {
             $this->publishFile($from, $to);
             return;
@@ -247,6 +259,134 @@ class VendorPublishCommand extends Command
     }
 
     /**
+     * Determine if the given publish source should be exposed as a symlink.
+     *
+     * @param  string  $from
+     * @return bool
+     * @since 3.5.7
+     */
+    protected function isSymlinkPublish($from)
+    {
+        return is_string($from) && str_starts_with($from, 'symlink:');
+    }
+
+    /**
+     * Get the source path from a symlink publish declaration.
+     *
+     * @param  string  $from
+     * @return string
+     * @since 3.5.7
+     */
+    protected function symlinkPublishPath($from)
+    {
+        return substr($from, strlen('symlink:'));
+    }
+
+    /**
+     * Publish the given source as a symlink.
+     *
+     * @param  string  $from
+     * @param  string  $to
+     * @return void
+     * @since 3.5.7
+     */
+    protected function publishSymlink($from, $to)
+    {
+        if (!$this->files->exists($from)) {
+            $this->components->error("Can't locate path: <{$from}>");
+            return;
+        }
+
+        if (is_link($to) && realpath($to) === realpath($from) && !$this->option('force')) {
+            $this->components->twoColumnDetail(sprintf(
+                'Symlink [%s] already exists',
+                str_replace(base_path().'/', '', $to),
+            ), '<fg=yellow;options=bold>SKIPPED</>');
+            return;
+        }
+
+        if ((!$this->option('existing') && (!$this->files->exists($to) || is_link($to) || $this->option('force')))
+            || ($this->option('existing') && $this->files->exists($to))) {
+            $this->createParentDirectory(dirname($to));
+
+            if (is_link($to) || $this->option('force')) {
+                $this->files->delete($to);
+            } elseif ($this->files->exists($to)) {
+                $this->components->twoColumnDetail(sprintf(
+                    'File [%s] already exists',
+                    str_replace(base_path().'/', '', realpath($to)),
+                ), '<fg=yellow;options=bold>SKIPPED</>');
+                return;
+            }
+
+            if (@symlink($this->relativePath(dirname($to), $from), $to)) {
+                $this->status($from, $to, 'symlink');
+                return;
+            }
+
+            $this->components->warn("Can't create symlink: <{$to}>. Copying file instead.");
+            $this->copySymlinkFallback($from, $to);
+        } else {
+            if ($this->option('existing')) {
+                $this->components->twoColumnDetail(sprintf(
+                    'Symlink [%s] does not exist',
+                    str_replace(base_path().'/', '', $to),
+                ), '<fg=yellow;options=bold>SKIPPED</>');
+            } else {
+                $this->components->twoColumnDetail(sprintf(
+                    'Symlink [%s] already exists',
+                    str_replace(base_path().'/', '', realpath($to)),
+                ), '<fg=yellow;options=bold>SKIPPED</>');
+            }
+        }
+    }
+
+    /**
+     * Copy a symlink source when the filesystem does not allow links.
+     *
+     * @param  string  $from
+     * @param  string  $to
+     * @return void
+     * @since 3.5.7
+     */
+    protected function copySymlinkFallback($from, $to)
+    {
+        if ($this->files->isFile($from)) {
+            $this->files->copy($from, $to);
+            $this->status($from, $to, 'file');
+            return;
+        }
+
+        if ($this->files->isDirectory($from)) {
+            $this->publishDirectory($from, $to);
+            return;
+        }
+
+        $this->components->error("Can't locate path: <{$from}>");
+    }
+
+    /**
+     * Build a relative path from a directory to a target.
+     *
+     * @param  string  $fromDirectory
+     * @param  string  $toPath
+     * @return string
+     * @since 3.5.7
+     */
+    protected function relativePath($fromDirectory, $toPath)
+    {
+        $from = explode(DIRECTORY_SEPARATOR, trim(str_replace('\\', DIRECTORY_SEPARATOR, realpath($fromDirectory)), DIRECTORY_SEPARATOR));
+        $to = explode(DIRECTORY_SEPARATOR, trim(str_replace('\\', DIRECTORY_SEPARATOR, realpath($toPath)), DIRECTORY_SEPARATOR));
+
+        while ($from && $to && $from[0] === $to[0]) {
+            array_shift($from);
+            array_shift($to);
+        }
+
+        return str_repeat('..' . DIRECTORY_SEPARATOR, count($from)) . implode(DIRECTORY_SEPARATOR, $to);
+    }
+
+    /**
      * Publish the file to the given path.
      *
      * @param  string  $from
@@ -255,14 +395,12 @@ class VendorPublishCommand extends Command
      */
     protected function publishFile($from, $to)
     {
-        if ((! $this->option('existing') && (! $this->files->exists($to) || $this->option('force')))
+        if ((!$this->option('existing') && (!$this->files->exists($to) || $this->option('force')))
             || ($this->option('existing') && $this->files->exists($to))) {
+
             $to = $this->ensureMigrationNameIsUpToDate($from, $to);
-
             $this->createParentDirectory(dirname($to));
-
             $this->files->copy($from, $to);
-
             $this->status($from, $to, 'file');
         } else {
             if ($this->option('existing')) {
@@ -380,11 +518,11 @@ class VendorPublishCommand extends Command
     protected function status($from, $to, $type)
     {
         $from = str_replace(base_path().'/', '', realpath($from));
-
-        $to = str_replace(base_path().'/', '', realpath($to));
+        $to = str_replace(base_path().'/', '', is_link($to) ? $to : realpath($to));
 
         $this->components->task(sprintf(
-            'Copying %s [%s] to [%s]',
+            '%s %s [%s] to [%s]',
+            $type === 'symlink' ? 'Linking' : 'Copying',
             $type,
             $from,
             $to,
