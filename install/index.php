@@ -18,9 +18,6 @@ if (! defined('MGR_DIR')) {
 if (!defined('EVO_MANAGER_PATH')) {
     define('EVO_MANAGER_PATH', $base_path . MGR_DIR . '/');
 }
-if (!defined('EVO_MANAGER_PATH')) {
-    define('EVO_MANAGER_PATH', EVO_MANAGER_PATH);
-}
 if (! defined('EVO_CORE_PATH')) {
     if (is_dir($base_path . 'core')) {
         define('EVO_CORE_PATH', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'core' . DIRECTORY_SEPARATOR);
@@ -48,6 +45,8 @@ if ($maxlifetime <= 0) {
 // Define lock file path
 $lockfile = $base_path . 'install.session.php';
 
+$isLoopbackRequest = in_array($ip, ['127.0.0.1', '::1'], true);
+
 if (file_exists("{$base_path}manager/includes/config.inc.php")) { ?>
     Backup and delete the file `manager/includes/config.inc.php` then <a href="<?= htmlspecialchars($_SERVER['REQUEST_URI'],
         ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" onclick="location.reload(true)">reload the page</a>
@@ -74,6 +73,13 @@ if (file_exists($lockfile)) {
         if ($current_time > $install_timestamp + $maxlifetime) {
             // Expired, remove lock and create new
             @unlink($lockfile);
+            $content = "<?php\n\$install_session = '" . addslashes($sid) . "';\n\$install_ip = '" . addslashes($ip) . "';\n\$install_timestamp = " . $current_time . ";\n";
+            file_put_contents($lockfile, $content);
+            // Proceed
+        } elseif ($isLoopbackRequest && in_array($install_ip, ['127.0.0.1', '::1'], true)) {
+            // Local development can easily desync installer cookies between refreshes.
+            // On loopback, let the current browser session take over the installer lock
+            // instead of failing with an opaque 404.
             $content = "<?php\n\$install_session = '" . addslashes($sid) . "';\n\$install_ip = '" . addslashes($ip) . "';\n\$install_timestamp = " . $current_time . ";\n";
             file_put_contents($lockfile, $content);
             // Proceed
