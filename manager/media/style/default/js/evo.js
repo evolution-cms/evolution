@@ -1724,7 +1724,15 @@
                             this.show();
                         }
                     } else {
-                        this.show();
+                        var frame = this.page.firstElementChild,
+                            currentUrl = frame ? evo.normalizeUrl(frame.getAttribute('src') || '') : '',
+                            requestedUrl = evo.normalizeUrl(this.url);
+                        if (this.reload && frame && currentUrl && currentUrl !== requestedUrl) {
+                            frame.src = this.url;
+                            this.show();
+                        } else {
+                            this.show();
+                        }
                         if (~this.closeactions.indexOf(this.action)) {
                             this.setDocPublished();
                             evo.get(this.url, function (r) {
