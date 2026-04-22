@@ -735,6 +735,8 @@ $_lang["fe_editor_lang_title"] = 'Ön tərəf redaktorunun dili';
 
 $_lang["filemanager_path_message"] = 'IIS serverində document_root ayarı düzgün təyin olunmaya bilər, bu da fayl menecerinin işləməsinə təsir edə bilər. Əgər fayl menecerində problemlər yaşayırsa, bu yolun Evolution CMS quraşdırılmasının kökünə yönəldildiyinə əmin olun.';
 $_lang["filemanager_path_title"] = 'Fayl menecerinin yolu';
+$_lang["image_base_upload_dir_message"] = 'Bu veb istifadəçi üçün fayl brauzerində kök yükləmə qovluğunu təyin edin. Mütləq yolu, [(base_path)] placeholder-ni və ya qlobal yükləmə qovluğuna nisbətən yolu istifadə edə bilərsiniz. Sistem standartını istifadə etmək üçün boş qoyun.';
+$_lang["image_base_upload_dir_title"] = 'Fayl Brauzer yükləmə kökü';
 
 $_lang["folder"] = 'Qovluq';
 $_lang["forgot_password_email_fine_print"] = '* Yuxarıdakı keçid parolunuzu dəyişdirdikdən sonra və ya bu günün sonunda etibarsız olacaq.';

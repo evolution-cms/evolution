@@ -325,6 +325,8 @@ $_lang["file_unzip"] = '解凍しました。';
 $_lang["file_unzip_fail"] = '解凍できません。';
 $_lang["filemanager_path_message"] = '<a href="index.php?a=31">「ファイル管理」</a>で扱える範囲を決定します。コンテンツ編集に利用するファイルブラウザと違い、同じサーバ内で権限を持つ領域であればどのディレクトリでも管理できます。ドキュメントルート外の指定も可能です。';
 $_lang["filemanager_path_title"] = 'ファイル管理機能の<br />管理対象ディレクトリ';
+$_lang["image_base_upload_dir_message"] = 'ファイルブラウザでこのウェブユーザーのファイルアップロード用ルートディレクトリを設定します。絶対パス、[(base_path)]プレースホルダー、またはグローバルアップロードディレクトリの相対パスを使用できます。システムのデフォルトを使用する場合は空白のままにしてください。';
+$_lang["image_base_upload_dir_title"] = 'ファイルブラウザアップロードルート';
 $_lang["files_access_denied"] = 'このアカウントは休止中です。';
 $_lang["files_data"] = 'データ';
 $_lang["files_dir_listing"] = 'ディレクトリ一覧';

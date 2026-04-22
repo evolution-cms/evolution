@@ -24,8 +24,9 @@ define('EVO_API_MODE', true);
 include_once(__DIR__."/../../../../../index.php");
 $modx = EvolutionCMS();
 
-if(!isset($_SESSION['mgrValidated'])) {
-        die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the EVO Content Manager instead of accessing this file directly.");
+$allowWebUser = (bool) $modx->getConfig('rb_webuser') && isset($_SESSION['webValidated']);
+if (!isset($_SESSION['mgrValidated']) && !$allowWebUser) {
+    die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the EVO Content Manager instead of accessing this file directly.");
 }
 $manager_language = ManagerTheme::getLangName();
 $_GET['langCode'] = ManagerTheme::getLang();

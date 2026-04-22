@@ -17,16 +17,64 @@
 // See http://kcfinder.sunhater.com/install for setting descriptions
 
 $modx = evolutionCMS();
+
+$resolveUploadRoot = static function (string $defaultDir, string $defaultUrl, string $customDir): array {
+    $defaultDir = rtrim(str_replace('\\', '/', str_replace('[(base_path)]', EVO_BASE_PATH, $defaultDir)), '/');
+    $defaultUrl = rtrim(str_replace('\\', '/', $defaultUrl), '/');
+    $customDir = trim($customDir);
+
+    if ($customDir === '') {
+        return [$defaultDir, $defaultUrl];
+    }
+
+    $customDir = str_replace('[(base_path)]', EVO_BASE_PATH, $customDir);
+    $customDir = str_replace('\\', '/', $customDir);
+
+    if (!preg_match('/^(?:[A-Za-z]:[\/\\\\]|\/)/', $customDir)) {
+        $customDir = $defaultDir . '/' . ltrim($customDir, '/');
+    }
+
+    $customDir = rtrim($customDir, '/');
+    $resolvedDir = str_replace('\\', '/', realpath($customDir) ?: $customDir);
+
+    if ($defaultDir !== '' && strpos($resolvedDir, $defaultDir) === 0) {
+        $relativePath = ltrim(substr($resolvedDir, strlen($defaultDir)), '/');
+        return [
+            $resolvedDir,
+            $relativePath === '' ? $defaultUrl : $defaultUrl . '/' . $relativePath
+        ];
+    }
+
+    $siteBasePath = rtrim(str_replace('\\', '/', EVO_BASE_PATH), '/');
+    $siteBaseUrl = rtrim(str_replace('\\', '/', EVO_BASE_URL), '/');
+    if ($siteBasePath !== '' && strpos($resolvedDir, $siteBasePath) === 0) {
+        $relativePath = ltrim(substr($resolvedDir, strlen($siteBasePath)), '/');
+        return [
+            $resolvedDir,
+            $relativePath === '' ? ($siteBaseUrl === '' ? '/' : $siteBaseUrl) :
+                ($siteBaseUrl === '' ? '' : $siteBaseUrl) . '/' . $relativePath
+        ];
+    }
+
+    return [$defaultDir, $defaultUrl];
+};
+
+[$uploadDir, $uploadUrl] = $resolveUploadRoot(
+    (string) EvolutionCMS()->getConfig('rb_base_dir'),
+    (string) EvolutionCMS()->getConfig('rb_base_url'),
+    (string) EvolutionCMS()->getConfig('image_base_upload_dir', '')
+);
+
 $_CONFIG = [
     'disabled' => false,
     'denyZipDownload' => EvolutionCMS()->getConfig('denyZipDownload'),
     'denyExtensionRename' => EvolutionCMS()->getConfig('denyExtensionRename'),
     'showHiddenFiles' => EvolutionCMS()->getConfig('showHiddenFiles'),
     'theme' => "evo",
-    'uploadURL'           => rtrim(EvolutionCMS()->getConfig('rb_base_url'), '/'),
-    'uploadDir'           => rtrim(EvolutionCMS()->getConfig('rb_base_dir'), '/'),
+    'uploadURL'           => $uploadUrl,
+    'uploadDir'           => $uploadDir,
     'siteURL'             => EVO_SITE_URL,
-    'assetsURL'           => rtrim(EvolutionCMS()->getConfig('rb_base_url'), '/'),
+    'assetsURL'           => $uploadUrl,
     'dirPerms'            => intval(EvolutionCMS()->getConfig('new_folder_permissions'), 8),
     'filePerms'           => intval(EvolutionCMS()->getConfig('new_file_permissions'), 8),
     'maxfilesize'         => (int)EvolutionCMS()->getConfig('upload_maxsize'),
@@ -70,10 +118,12 @@ $_CONFIG = [
 
     'maxImageWidth' => EvolutionCMS()->getConfig('maxImageWidth'),
     'maxImageHeight' => EvolutionCMS()->getConfig('maxImageHeight'),
-    'clientResize'   => EvolutionCMS()->getConfig('clientResize') && EvolutionCMS()->getConfig('maxImageWidth') && EvolutionCMS()->getConfig('maxImageHeight') ? ['maxWidth'  => EvolutionCMS()->getConfig('maxImageWidth'),
-                                                                                                                                            'maxHeight' => EvolutionCMS()->getConfig('maxImageHeight'),
-                                                                                                                                            'quality'   => EvolutionCMS()->getConfig('jpegQuality') / 100
-    ] : [],
+    'clientResize'   => EvolutionCMS()->getConfig('clientResize') && EvolutionCMS()->getConfig('maxImageWidth')
+    && EvolutionCMS()->getConfig('maxImageHeight')
+      ? ['maxWidth'  => EvolutionCMS()->getConfig('maxImageWidth'),
+        'maxHeight' => EvolutionCMS()->getConfig('maxImageHeight'),
+        'quality'   => EvolutionCMS()->getConfig('jpegQuality') / 100]
+      : [],
 
     'thumbWidth' => EvolutionCMS()->getConfig('thumbWidth'),
     'thumbHeight' => EvolutionCMS()->getConfig('thumbHeight'),
