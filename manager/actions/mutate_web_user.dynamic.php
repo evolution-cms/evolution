@@ -65,7 +65,8 @@ $usersettings = [
     'login_home' => '',
     'allowed_ip' => '',
     'manager_login_startup' => '',
-    'which_browser' => 'default'
+    'which_browser' => 'default',
+    'image_base_upload_dir' => ''
 ];
 
 $usernamedata = [
@@ -914,8 +915,20 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                         <td class='comment'><?php echo $_lang["filemanager_path_message"] ?></td>
                     </tr>
                     <tr>
+                        <td><?php echo $_lang["image_base_upload_dir_title"] ?></td>
+                        <td><input onChange="documentDirty=true;" type='text' maxlength='255'
+                        style="width: 300px;" name="image_base_upload_dir" value="<?php
+                        echo $modx->getPhpCompat()->htmlspecialchars(isset($usersettings['image_base_upload_dir'])
+                            ? $usersettings['image_base_upload_dir'] : ""); ?>"></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td class='comment'><?php echo $_lang["image_base_upload_dir_message"] ?></td>
+                    </tr>
+                    <tr>
                         <td><?php echo $_lang["uploadable_images_title"] ?></td>
-                        <td><input onChange="documentDirty=true;" type='text' maxlength='255' name="upload_images" value="<?php echo isset($usersettings['upload_images']) ? $usersettings['upload_images'] : ""; ?>">
+                        <td><input onChange="documentDirty=true;" type='text' maxlength='255' name="upload_images"
+                            value="<?php echo isset($usersettings['upload_images']) ? $usersettings['upload_images'] : ""; ?>">
                             &nbsp;&nbsp;
                             <input onChange="documentDirty=true;" type="checkbox" name="default_upload_images" value="1" <?php echo isset($usersettings['upload_images']) && $usersettings['upload_images'] != '' ? '' : 'checked'; ?> />
                             <?php echo $_lang["user_use_config"]; ?>

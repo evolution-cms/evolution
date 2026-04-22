@@ -9,10 +9,13 @@ if (is_numeric($lockElementId) && ($lockElementId > 0 || $lockElementId == 0)) {
       // Trigger unlock when leaving window
       var form_save = false;
 
-      window.addEventListener('unload', unlockThisElement, false);
+      window.addEventListener('pagehide', unlockThisElement, false);
 
-      function unlockThisElement()
+      function unlockThisElement(event)
       {
+        if (event && event.persisted) {
+          return;
+        }
         var stay = document.getElementById('stay');
         // Trigger unlock
         if ((stay && stay.value !== '2') || !form_save) {
