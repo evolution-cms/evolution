@@ -1013,6 +1013,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                     $cliUpdateCommand = $_lang['updater_cli_command'];
                     if ($isBranchMode) {
                         $cliUpdateCommand .= ' ' . escapeshellarg($latestVersionRaw);
+                        $cliUpdateCommand .= ' --repository=' . escapeshellarg($version);
                     }
                     $cliCommand = 'cd core && ' . $cliUpdateCommand;
                     $safeCliCommand = htmlspecialchars($cliCommand, ENT_QUOTES, 'UTF-8');
