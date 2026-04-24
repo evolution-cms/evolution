@@ -163,6 +163,512 @@ if (!function_exists('updaterFormatReleaseDate')) {
     }
 }
 
+if (!function_exists('updaterLang')) {
+    function updaterLang(array $lang, $key, $fallback = '')
+    {
+        return isset($lang[$key]) && $lang[$key] !== '' ? (string)$lang[$key] : (string)$fallback;
+    }
+}
+
+if (!function_exists('updaterEnsureSystemTaskToken')) {
+    function updaterEnsureSystemTaskToken()
+    {
+        if (empty($_SESSION['updater_system_task_token'])) {
+            try {
+                $_SESSION['updater_system_task_token'] = bin2hex(random_bytes(16));
+            } catch (Exception $exception) {
+                $_SESSION['updater_system_task_token'] = md5(uniqid('updater-system-task-', true));
+            }
+        }
+
+        return (string)$_SESSION['updater_system_task_token'];
+    }
+}
+
+if (!function_exists('updaterJsonResponse')) {
+    function updaterJsonResponse(array $payload)
+    {
+        while (ob_get_level() > 0) {
+            if (!@ob_end_clean()) {
+                break;
+            }
+        }
+
+        if (!headers_sent()) {
+            header('Content-Type: application/json; charset=UTF-8');
+        }
+
+        echo json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
+if (!function_exists('updaterBuildSystemTaskUiState')) {
+    function updaterBuildSystemTaskUiState()
+    {
+        $state = [
+            'ok' => false,
+            'can_view' => false,
+            'can_queue_site_update' => false,
+            'scheduler' => null,
+            'worker' => null,
+            'message' => '',
+        ];
+
+        try {
+            if (!class_exists('\EvolutionCMS\Services\Store\StoreContextService')) {
+                $state['message'] = 'System task services are not available.';
+                return $state;
+            }
+
+            $context = new \EvolutionCMS\Services\Store\StoreContextService();
+            $requesterSnapshot = $context->buildRequesterSnapshot();
+            $isSuperAdmin = $context->isSuperAdmin();
+            $permissions = isset($requesterSnapshot['permissions']) && is_array($requesterSnapshot['permissions'])
+                ? $requesterSnapshot['permissions']
+                : [];
+
+            $schedulerService = new \EvolutionCMS\Services\SystemTasks\SchedulerHealthService();
+            $workerService = new \EvolutionCMS\Services\SystemTasks\WorkerHealthService();
+            $scheduler = $schedulerService->getStatusPayload();
+            $worker = $workerService->getStatusPayload($schedulerService);
+
+            $schedulerStatus = (string)($scheduler['status'] ?? 'unhealthy');
+            $workerStatus = (string)($worker['status'] ?? 'unknown');
+
+            $state['ok'] = true;
+            $state['can_view'] = $isSuperAdmin || !empty($permissions['system_tasks.view']);
+            $state['scheduler'] = $scheduler;
+            $state['worker'] = $worker;
+            $state['can_queue_site_update'] = $isSuperAdmin
+                && !empty($permissions['exec_module'])
+                && !empty($permissions['system_tasks.site_update'])
+                && $schedulerStatus === 'healthy'
+                && $workerStatus !== 'unhealthy';
+
+            return $state;
+        } catch (Throwable $exception) {
+            $state['message'] = $exception->getMessage();
+            return $state;
+        }
+    }
+}
+
+if (!function_exists('updaterHandleSystemTaskRequest')) {
+    function updaterHandleSystemTaskRequest()
+    {
+        if (empty($_SESSION['mgrInternalKey'])) {
+            updaterJsonResponse([
+                'ok' => false,
+                'error_code' => 'MANAGER_SESSION_REQUIRED',
+                'message' => 'Manager session is required.',
+            ]);
+        }
+
+        if ((int)($_SESSION['mgrRole'] ?? 0) !== 1) {
+            updaterJsonResponse([
+                'ok' => false,
+                'error_code' => 'ACL_DENIED',
+                'message' => 'Only administrators can run system updates from the manager.',
+            ]);
+        }
+
+        $action = isset($_REQUEST['updater_task_action']) ? trim((string)$_REQUEST['updater_task_action']) : '';
+        if ($action === '') {
+            updaterJsonResponse([
+                'ok' => false,
+                'error_code' => 'ACTION_REQUIRED',
+                'message' => 'System task action is required.',
+            ]);
+        }
+
+        $requiresToken = in_array($action, ['create', 'cancel'], true);
+        if ($requiresToken) {
+            $token = isset($_REQUEST['updater_task_token']) ? (string)$_REQUEST['updater_task_token'] : '';
+            if ($token === '' || !hash_equals(updaterEnsureSystemTaskToken(), $token)) {
+                updaterJsonResponse([
+                    'ok' => false,
+                    'error_code' => 'TOKEN_INVALID',
+                    'message' => 'System task token is invalid.',
+                ]);
+            }
+        }
+
+        try {
+            $context = new \EvolutionCMS\Services\Store\StoreContextService();
+            $requesterSnapshot = $context->buildRequesterSnapshot();
+            $isSuperAdmin = $context->isSuperAdmin();
+            $permissions = isset($requesterSnapshot['permissions']) && is_array($requesterSnapshot['permissions'])
+                ? $requesterSnapshot['permissions']
+                : [];
+            $canView = $isSuperAdmin || !empty($permissions['system_tasks.view']);
+
+            if (!$canView) {
+                updaterJsonResponse([
+                    'ok' => false,
+                    'error_code' => 'ACL_DENIED',
+                    'message' => 'You do not have access to system task status.',
+                ]);
+            }
+
+            $schedulerService = new \EvolutionCMS\Services\SystemTasks\SchedulerHealthService();
+            $workerService = new \EvolutionCMS\Services\SystemTasks\WorkerHealthService();
+            $taskService = new \EvolutionCMS\Services\SystemTasks\SystemTaskService();
+
+            switch ($action) {
+                case 'health':
+                    updaterJsonResponse([
+                        'ok' => true,
+                        'scheduler' => $schedulerService->getStatusPayload(),
+                        'worker' => $workerService->getStatusPayload($schedulerService),
+                    ]);
+
+                case 'create':
+                    updaterJsonResponse($taskService->createTaskFromStoreRequest(
+                        'site_update',
+                        [
+                            'target_ref' => isset($_REQUEST['target_ref']) ? (string)$_REQUEST['target_ref'] : '',
+                        ],
+                        $requesterSnapshot,
+                        $isSuperAdmin
+                    ));
+
+                case 'status':
+                    updaterJsonResponse($taskService->getTaskStatusPayload(
+                        isset($_REQUEST['task_id']) ? (int)$_REQUEST['task_id'] : 0,
+                        isset($_REQUEST['task_uuid']) ? (string)$_REQUEST['task_uuid'] : '',
+                        $requesterSnapshot,
+                        $isSuperAdmin
+                    ));
+
+                case 'result':
+                    updaterJsonResponse($taskService->getTaskResultPayload(
+                        isset($_REQUEST['task_id']) ? (int)$_REQUEST['task_id'] : 0,
+                        isset($_REQUEST['task_uuid']) ? (string)$_REQUEST['task_uuid'] : '',
+                        $requesterSnapshot,
+                        $isSuperAdmin
+                    ));
+
+                case 'cancel':
+                    updaterJsonResponse($taskService->cancelQueuedTaskPayload(
+                        isset($_REQUEST['task_id']) ? (int)$_REQUEST['task_id'] : 0,
+                        isset($_REQUEST['task_uuid']) ? (string)$_REQUEST['task_uuid'] : '',
+                        $requesterSnapshot,
+                        $isSuperAdmin
+                    ));
+            }
+        } catch (Throwable $exception) {
+            updaterJsonResponse([
+                'ok' => false,
+                'error_code' => 'SYSTEM_TASK_REQUEST_FAILED',
+                'message' => $exception->getMessage(),
+            ]);
+        }
+
+        updaterJsonResponse([
+            'ok' => false,
+            'error_code' => 'ACTION_NOT_ALLOWED',
+            'message' => 'System task action is not allowed.',
+        ]);
+    }
+}
+
+if (!function_exists('updaterBuildSystemTaskScript')) {
+    function updaterBuildSystemTaskScript(array $config, array $labels)
+    {
+        $payloadJson = json_encode(
+            ['config' => $config, 'labels' => $labels],
+            JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+        );
+        $payloadJson = htmlspecialchars($payloadJson ?: '{}', ENT_NOQUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
+        $script = <<<'HTML'
+<script>
+(function () {
+    var payloadNode = document.getElementById('updater-system-task-payload');
+    var payload = {};
+    var timer = null;
+    var activeTask = null;
+
+    try {
+        payload = payloadNode ? JSON.parse(payloadNode.textContent || '{}') : {};
+    } catch (error) {
+        payload = {};
+    }
+
+    var config = payload.config || {};
+    var labels = payload.labels || {};
+
+    function t(key, fallback) {
+        return labels[key] || fallback || key;
+    }
+
+    function esc(value) {
+        var map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+
+        return String(value === undefined || value === null ? '' : value).replace(/[&<>"']/g, function (ch) {
+            return map[ch] || ch;
+        });
+    }
+
+    function qs(data) {
+        var params = [];
+
+        for (var key in data) {
+            if (Object.prototype.hasOwnProperty.call(data, key)) {
+                params.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key] === undefined || data[key] === null ? '' : data[key]));
+            }
+        }
+
+        return params.join('&');
+    }
+
+    function request(action, data) {
+        data = data || {};
+        data.updater_system_task = 1;
+        data.updater_task_action = action;
+
+        if (config.token) {
+            data.updater_task_token = config.token;
+        }
+
+        return fetch(config.endpoint || 'index.php?a=2&updater_system_task=1', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'Accept': 'application/json'
+            },
+            body: qs(data)
+        }).then(function (response) {
+            return response.text().then(function (text) {
+                var normalized = String(text || '').replace(/^\s+|\s+$/g, '');
+
+                if (normalized === '') {
+                    throw new Error(t('invalid_response', 'Manager returned an empty update response.'));
+                }
+
+                try {
+                    return JSON.parse(normalized);
+                } catch (error) {
+                    throw new Error(t('invalid_response', 'Manager returned an invalid update response.'));
+                }
+            });
+        });
+    }
+
+    function close() {
+        if (timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
+
+        var modal = document.getElementById('updater-system-task-modal');
+
+        if (modal) {
+            modal.parentNode.removeChild(modal);
+        }
+    }
+
+    function shell() {
+        var modal = document.getElementById('updater-system-task-modal');
+
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'updater-system-task-modal';
+            modal.innerHTML = '<div class="updater-system-task-backdrop"></div><div class="updater-system-task-dialog" role="dialog" aria-modal="true"><button type="button" class="updater-system-task-close" data-role="close">&times;</button><div data-role="content"></div></div>';
+            document.body.appendChild(modal);
+            modal.addEventListener('click', function (event) {
+                if (event.target && event.target.getAttribute('data-role') === 'close') {
+                    close();
+                }
+            });
+        }
+
+        return modal.querySelector('[data-role=content]');
+    }
+
+    function style() {
+        if (document.getElementById('updater-system-task-style')) {
+            return;
+        }
+
+        var css = [
+            '#updater-system-task-modal{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:24px}',
+            '.updater-system-task-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.62)}',
+            '.updater-system-task-dialog{position:relative;width:min(720px,calc(100vw - 32px));max-height:calc(100vh - 48px);overflow:auto;background:#20242b;color:#f2f4f8;border:1px solid rgba(255,255,255,.12);border-radius:14px;box-shadow:0 24px 70px rgba(0,0,0,.45);padding:24px}',
+            '.updater-system-task-close{position:absolute;top:10px;right:12px;border:0;background:transparent;color:#b9c1ce;font-size:26px;line-height:1;cursor:pointer}',
+            '.updater-system-task-title{margin:0 34px 12px 0;font-size:22px;font-weight:700}',
+            '.updater-system-task-text{margin:0 0 12px 0;color:#c9d0dc;line-height:1.45}',
+            '.updater-system-task-warning{margin:12px 0;padding:12px 14px;border-radius:10px;background:rgba(255,193,7,.14);color:#ffd36a;border:1px solid rgba(255,193,7,.28)}',
+            '.updater-system-task-warning.is-danger{background:rgba(220,53,69,.16);color:#ff7b8a;border-color:rgba(220,53,69,.36)}',
+            '.updater-system-task-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:14px 0}',
+            '.updater-system-task-meta div{padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}',
+            '.updater-system-task-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}',
+            '.updater-system-task-progress{height:10px;background:rgba(255,255,255,.1);border-radius:999px;overflow:hidden;margin:14px 0}',
+            '.updater-system-task-progress span{display:block;height:100%;width:0;background:#28a745;transition:width .25s}',
+            '.updater-system-task-logs{margin-top:14px;max-height:220px;overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(0,0,0,.18);padding:10px}',
+            '.updater-system-task-log{padding:5px 0;color:#ccd4df;border-bottom:1px solid rgba(255,255,255,.06)}',
+            '.updater-system-task-log:last-child{border-bottom:0}',
+            '.updater-system-task-log.is-error{color:#ff9d9d}',
+            '.updater-system-task-log.is-warning{color:#ffd36a}',
+            '.updater-system-task-log.is-success{color:#8fe1a4}'
+        ].join('');
+        var tag = document.createElement('style');
+
+        tag.id = 'updater-system-task-style';
+        tag.textContent = css;
+        document.head.appendChild(tag);
+    }
+
+    function setContent(html) {
+        style();
+        shell().innerHTML = html;
+    }
+
+    function renderConfirm() {
+        setContent(
+            '<h2 class="updater-system-task-title">' + esc(t('title', 'System update')) + '</h2>'
+            + '<p class="updater-system-task-text">' + esc(t('intro', 'Scheduler is available. The update can be queued and monitored from the manager.')) + '</p>'
+            + '<div class="updater-system-task-warning is-danger"><strong>' + esc(t('backup', 'Do not forget to create a backup before updating.')) + '</strong></div>'
+            + '<div class="updater-system-task-meta">'
+            + '<div><small>' + esc(t('target', 'Target version')) + '</small><br><strong>' + esc(config.targetRef) + '</strong></div>'
+            + '<div><small>' + esc(t('health', 'Scheduler / worker')) + '</small><br><strong>' + esc(config.schedulerStatus) + ' / ' + esc(config.workerStatus) + '</strong></div>'
+            + '</div>'
+            + '<div class="updater-system-task-actions">'
+            + '<button type="button" class="btn btn-success" data-role="confirm">' + esc(t('confirm', 'Start update')) + '</button>'
+            + '<button type="button" class="btn btn-secondary" data-role="close">' + esc(t('cancel', 'Cancel')) + '</button>'
+            + '</div>'
+        );
+
+        var content = shell();
+        var confirm = content.querySelector('[data-role=confirm]');
+
+        if (confirm) {
+            confirm.addEventListener('click', queue);
+        }
+    }
+
+    function renderTask(task, result) {
+        task = task || {};
+        result = result || {};
+
+        var progress = parseInt(task.progress || 0, 10);
+        var logs = result.logs || task.logs || [];
+
+        if (isNaN(progress)) {
+            progress = 0;
+        }
+
+        var html = '<h2 class="updater-system-task-title">' + esc(t('title', 'System update')) + '</h2>'
+            + '<p class="updater-system-task-text">' + esc(task.message || t('queued', 'Update task queued. Waiting for worker...')) + '</p>'
+            + '<div class="updater-system-task-meta">'
+            + '<div><small>' + esc(t('status', 'Status')) + '</small><br><strong>' + esc(task.status || '') + '</strong></div>'
+            + '<div><small>' + esc(t('step', 'Step')) + '</small><br><strong>' + esc(task.step || '') + '</strong></div>'
+            + '<div><small>' + esc(t('progress', 'Progress')) + '</small><br><strong>' + progress + '%</strong></div>'
+            + '</div>'
+            + '<div class="updater-system-task-progress"><span style="width:' + Math.max(0, Math.min(100, progress)) + '%"></span></div>';
+
+        if (logs.length) {
+            html += '<div class="updater-system-task-logs">';
+            logs.forEach(function (log) {
+                var cls = 'updater-system-task-log';
+
+                if (log.level === 'error') {
+                    cls += ' is-error';
+                } else if (log.level === 'warning') {
+                    cls += ' is-warning';
+                } else if (log.step === 'completed' || task.status === 'succeeded') {
+                    cls += ' is-success';
+                }
+
+                html += '<div class="' + cls + '">' + esc(log.message || '') + '</div>';
+            });
+            html += '</div>';
+        }
+
+        if (task.status === 'succeeded' || task.status === 'failed') {
+            html += '<div class="updater-system-task-actions"><button type="button" class="btn btn-primary" data-role="close">' + esc(t('close', 'Close')) + '</button></div>';
+        }
+
+        setContent(html);
+    }
+
+    function queue() {
+        setContent(
+            '<h2 class="updater-system-task-title">' + esc(t('title', 'System update')) + '</h2>'
+            + '<p class="updater-system-task-text">' + esc(t('queueing', 'Queueing update...')) + '</p>'
+        );
+
+        request('create', {target_ref: config.targetRef}).then(function (response) {
+            if (!response || !response.ok) {
+                throw new Error((response && response.message) || t('failed', 'Unable to start update.'));
+            }
+
+            activeTask = response.task;
+            renderTask(activeTask, response);
+            poll();
+        }).catch(function (error) {
+            setContent(
+                '<h2 class="updater-system-task-title">' + esc(t('title', 'System update')) + '</h2>'
+                + '<div class="updater-system-task-warning">' + esc(error.message || t('failed', 'Unable to start update.')) + '</div>'
+                + '<div class="updater-system-task-actions"><button type="button" class="btn btn-primary" data-role="close">' + esc(t('close', 'Close')) + '</button></div>'
+            );
+        });
+    }
+
+    function poll() {
+        if (!activeTask || !activeTask.id) {
+            return;
+        }
+
+        request('result', {task_id: activeTask.id}).then(function (response) {
+            if (!response || !response.ok) {
+                throw new Error((response && response.message) || t('failed', 'Unable to read update status.'));
+            }
+
+            activeTask = response.task;
+            renderTask(activeTask, response.result || response);
+
+            if (activeTask.status === 'succeeded' || activeTask.status === 'failed') {
+                return;
+            }
+
+            timer = setTimeout(poll, 2200);
+        }).catch(function (error) {
+            setContent(
+                '<h2 class="updater-system-task-title">' + esc(t('title', 'System update')) + '</h2>'
+                + '<div class="updater-system-task-warning">' + esc(error.message || t('failed', 'Unable to read update status.')) + '</div>'
+                + '<div class="updater-system-task-actions"><button type="button" class="btn btn-primary" data-role="close">' + esc(t('close', 'Close')) + '</button></div>'
+            );
+        });
+    }
+
+    window.EvoUpdaterSystemTask = {
+        openConfirm: function () {
+            renderConfirm();
+            return false;
+        },
+        close: close
+    };
+})();
+</script>
+HTML;
+
+        return '<script type="application/json" id="updater-system-task-payload">' . $payloadJson . '</script>' . $script;
+    }
+}
+
+if (isset($_REQUEST['updater_system_task'])) {
+    updaterHandleSystemTaskRequest();
+}
+
 if ($role != 1 && $wdgVisibility == 'AdminOnly') {
 
 } else if ($role == 1 && $wdgVisibility == 'AdminExcluded') {
@@ -257,7 +763,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                 $pubdate = $modx->toDateFormat(strtotime($pubdate));
                 $author = $item->author->name->__toString();
                 $updateButton .= '<tr><td><b>' . $pubdate . '</b></td><td><a href="' . $href . '" target="_blank">' . $title . '</a> (' . $author . ')</td>';
-                if (($role != 1) AND ($showButton == 'AdminOnly') OR ($showButton == 'hide') OR ($errors > 0)) {
+                if (((int)$role !== 1) || ($showButton == 'hide') || ($errors > 0)) {
                     $updateButton .= '<td></td></tr>';
                 } else {
                     $updateButton .= '<td><a onclick="return confirm(\'' . $_lang['are_you_sure_update'] . '\')" target="_parent" title="sha: '
@@ -444,6 +950,54 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
 
                     $cliCommand = 'cd core && ' . $_lang['updater_cli_command'];
                     $safeCliCommand = htmlspecialchars($cliCommand, ENT_QUOTES, 'UTF-8');
+                    $canShowUpdateActions = ((int)$role === 1);
+                    $liveUpdateScript = '';
+                    $managerUpdateButtonHtml = '';
+                    $primaryUpdateButtonHtml = '';
+                    $cliPanelHtml = '';
+
+                    if ($canShowUpdateActions) {
+                        $primaryUpdateButtonHtml = '<a class="btn btn-sm btn-success" href="#" onclick="var panel=document.getElementById(\'updater-cli-panel\');if(panel){panel.style.display=(panel.style.display===\'block\'?\'none\':\'block\');}return false;">'
+                            . '<i class="fa fa-terminal"></i> ' . htmlspecialchars(updaterLang($_lang, 'updater_cli_summary', 'Manual update (CLI)'), ENT_QUOTES, 'UTF-8')
+                            . '</a>';
+                        $cliPanelHtml = '<div id="updater-cli-panel" style="display:none;margin-top:12px;padding:8px;border:1px dashed #bdbdbd;border-radius:6px;">'
+                            . '<div style="margin-bottom:6px;">' . htmlspecialchars(updaterLang($_lang, 'updater_cli_intro', 'If you are updating manually, run this command in terminal:'), ENT_QUOTES, 'UTF-8') . '</div>'
+                            . '<code style="display:block;padding:8px;background:rgba(127,127,127,0.12);border:1px solid rgba(127,127,127,0.35);border-radius:4px;color:inherit;">' . $safeCliCommand . '</code>'
+                            . '</div>';
+
+                        $systemTaskUiState = updaterBuildSystemTaskUiState();
+                        if (!empty($systemTaskUiState['can_queue_site_update'])) {
+                            $systemTaskToken = updaterEnsureSystemTaskToken();
+                            $schedulerStatus = isset($systemTaskUiState['scheduler']['status']) ? (string)$systemTaskUiState['scheduler']['status'] : 'unknown';
+                            $workerStatus = isset($systemTaskUiState['worker']['status']) ? (string)$systemTaskUiState['worker']['status'] : 'unknown';
+                            $liveUpdateScript = updaterBuildSystemTaskScript([
+                                'endpoint' => 'index.php?a=2&updater_system_task=1',
+                                'token' => $systemTaskToken,
+                                'targetRef' => $latestVersionRaw,
+                                'schedulerStatus' => $schedulerStatus,
+                                'workerStatus' => $workerStatus,
+                            ], [
+                                'title' => updaterLang($_lang, 'updater_live_update_title', 'System update'),
+                                'intro' => updaterLang($_lang, 'updater_live_update_intro', 'Scheduler is available. The update can be queued and monitored from the manager.'),
+                                'backup' => updaterLang($_lang, 'updater_notice_backup_warning', 'Do not forget to create a backup before updating.'),
+                                'target' => updaterLang($_lang, 'updater_live_update_target', 'Target version'),
+                                'health' => updaterLang($_lang, 'updater_live_update_health', 'Scheduler / worker'),
+                                'confirm' => updaterLang($_lang, 'updater_live_update_confirm', 'Start update'),
+                                'cancel' => updaterLang($_lang, 'updater_live_update_cancel', 'Cancel'),
+                                'queueing' => updaterLang($_lang, 'updater_live_update_queueing', 'Queueing update...'),
+                                'queued' => updaterLang($_lang, 'updater_live_update_queued', 'Update task queued. Waiting for worker...'),
+                                'status' => updaterLang($_lang, 'updater_live_update_status', 'Status'),
+                                'step' => updaterLang($_lang, 'updater_live_update_step', 'Step'),
+                                'progress' => updaterLang($_lang, 'updater_live_update_progress', 'Progress'),
+                                'close' => updaterLang($_lang, 'updater_live_update_close', 'Close'),
+                                'failed' => updaterLang($_lang, 'updater_live_update_failed', 'Unable to start update.'),
+                                'invalid_response' => updaterLang($_lang, 'updater_live_update_invalid_response', 'Manager returned an invalid update response.'),
+                            ]);
+                            $managerUpdateButtonHtml = '<button type="button" class="btn btn-sm btn-primary" onclick="return window.EvoUpdaterSystemTask && window.EvoUpdaterSystemTask.openConfirm ? window.EvoUpdaterSystemTask.openConfirm() : false;">'
+                                . '<i class="fa fa-refresh"></i> ' . htmlspecialchars(updaterLang($_lang, 'updater_live_update_button', 'Update in manager'), ENT_QUOTES, 'UTF-8')
+                                . '</button>';
+                        }
+                    }
 
                     $output = '<div class="card-body" data-updater-hide-root="1">'
                         . '<div class="alert ' . $severityAlertClass . '" role="alert" style="margin-bottom:12px;">'
@@ -470,19 +1024,16 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                         . '</div>'
 
                         . '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">'
-                        . '<a class="btn btn-sm btn-success" href="#" onclick="var panel=document.getElementById(\'updater-cli-panel\');if(panel){panel.style.display=(panel.style.display===\'block\'?\'none\':\'block\');}return false;">'
-                        . '<i class="fa fa-terminal"></i> ' . htmlspecialchars($_lang['updater_cli_summary'], ENT_QUOTES, 'UTF-8')
-                        . '</a>'
+                        . $primaryUpdateButtonHtml
+                        . $managerUpdateButtonHtml
                         . $supportButtonHtml
                         . '<span data-updater-action-slot="update"></span>'
                         . '</div>'
-                        . '<div id="updater-cli-panel" style="display:none;margin-top:12px;padding:8px;border:1px dashed #bdbdbd;border-radius:6px;">'
-                        . '<div style="margin-bottom:6px;">' . htmlspecialchars($_lang['updater_cli_intro'], ENT_QUOTES, 'UTF-8') . '</div>'
-                        . '<code style="display:block;padding:8px;background:rgba(127,127,127,0.12);border:1px solid rgba(127,127,127,0.35);border-radius:4px;color:inherit;">' . $safeCliCommand . '</code>'
-                        . '</div>'
+                        . $cliPanelHtml
                         . ($errorsMessage !== '' ? '<small style="color:red;font-size:10px;display:block;">' . $errorsMessage . '</small>' : '')
                         . $hideTodayHtml
                         . '<script>(function(){if(window.updaterHideForDay){return;}window.updaterHideForDay=function(hideKey,token,untilTs,trigger){var xhr=new XMLHttpRequest();xhr.open("POST","index.php?a=118",true);xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded; charset=UTF-8");xhr.onload=function(){if(xhr.readyState!==4){return;}var root=null;if(trigger&&trigger.closest){root=trigger.closest("[data-updater-hide-root]");}if(!root){root=document.getElementById("updater");}if(root){root.style.display="none";}};var payload="action=setsetting&key="+encodeURIComponent(hideKey)+"&value="+encodeURIComponent(String(untilTs));if(token){payload+="&_token="+encodeURIComponent(token);}xhr.send(payload);return false;};})();</script>'
+                        . $liveUpdateScript
                         . '</div>';
 
                     $widgets['updater'] = [
@@ -501,6 +1052,9 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
     }
     if (isset($_GET['q']) && $_GET['q'] === $_SESSION['updatelink']) {
         if (empty($_SESSION['mgrInternalKey']) || empty($_SESSION['updatelink'])) {
+            return;
+        }
+        if ((int)$role !== 1) {
             return;
         }
         unset($_SESSION['updatelink']);

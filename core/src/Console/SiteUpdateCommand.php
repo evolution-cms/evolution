@@ -214,14 +214,18 @@ HELP;
             $application = new Application();
             $application->setAutoExit(false);
             $application->run($input);
+            $this->line('<fg=green>Rebuild optimized autoload</>');
+            $this->runCoreShellCommand('composer dump-autoload -o --no-dev --classmap-authoritative');
             $this->line('<fg=green>Run Migrations</>');
-            exec('php  ../install/cli-install.php --typeInstall=2 --removeInstall=y');
+            $this->runCoreShellCommand('php ../install/cli-install.php --typeInstall=2 --removeInstall=y');
 
             $this->line('<fg=green>Remove Install Directory</>');
             self::rmdirs(EVO_BASE_PATH . 'install');
 
             $this->line('<fg=green>Run Composer update</>');
-            exec('composer update');
+            $this->runCoreShellCommand('composer update');
+            $this->line('<fg=green>Rebuild optimized autoload</>');
+            $this->runCoreShellCommand('composer dump-autoload -o --no-dev --classmap-authoritative');
 
             $this->line('<fg=yellow;bg=blue>Now You use ' . $factoryName . '</>');
         } else {
@@ -240,6 +244,31 @@ HELP;
         $updateRepository = (string) evo()->getConfig('UpgradeRepository');
 
         return $updateRepository !== '' ? trim($updateRepository, '/') : self::DEFAULT_UPGRADE_REPOSITORY;
+    }
+
+    /**
+     * Run a shell command from the core directory.
+     *
+     * Core updates may be started from the manager, cron, or a shell with a different
+     * current working directory, so Composer and installer calls must not rely on cwd.
+     *
+     * @since 3.5.7
+     * @param string $command Command to execute from EVO_CORE_PATH.
+     * @return void
+     */
+    protected function runCoreShellCommand(string $command): void
+    {
+        $fullCommand = 'cd ' . escapeshellarg(EVO_CORE_PATH) . ' && ' . $command;
+        exec($fullCommand, $output, $exitCode);
+
+        if ((int) $exitCode !== 0) {
+            $message = 'Command failed: ' . $command;
+            if (!empty($output)) {
+                $message .= '. ' . implode("\n", array_slice($output, -8));
+            }
+
+            throw new \RuntimeException($message);
+        }
     }
 
     /**

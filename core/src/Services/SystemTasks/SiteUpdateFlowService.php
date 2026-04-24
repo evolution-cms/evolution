@@ -1,0 +1,120 @@
+<?php namespace EvolutionCMS\Services\SystemTasks;
+
+use EvolutionCMS\Models\SystemCliTask;
+use Symfony\Component\Process\Process;
+
+class SiteUpdateFlowService
+{
+    protected string $corePath;
+
+    public function __construct(?string $corePath = null)
+    {
+        $this->corePath = $corePath ?: (defined('EVO_CORE_PATH') ? EVO_CORE_PATH : dirname(__DIR__, 2) . '/');
+        $this->corePath = rtrim($this->corePath, '/\\') . '/';
+    }
+
+    public function execute(SystemCliTask $task, ?callable $report = null)
+    {
+        $snapshot = is_array($task->payload_json) ? $task->payload_json : [];
+        $targetRef = $this->resolveTargetRef($task, $snapshot);
+
+        if ($targetRef === '') {
+            throw new \RuntimeException('Site update target ref is missing.');
+        }
+
+        $this->report($report, 'preflight', 10, 'Validated site update snapshot.', 'info', [
+            'target_ref' => $targetRef,
+        ]);
+
+        $process = new Process($this->buildArtisanProcessArguments('make:site', [
+            'command_site' => 'update',
+            'version' => $targetRef,
+        ]), $this->corePath, null, null, null);
+        $process->setTimeout(null);
+
+        $this->report($report, 'site_update', 25, 'Running Evolution CMS update to ' . $targetRef . '.', 'info', [
+            'target_ref' => $targetRef,
+        ]);
+
+        $process->run();
+
+        $exitCode = $process->getExitCode();
+        $output = trim($process->getOutput() . "\n" . $process->getErrorOutput());
+
+        if ($output !== '') {
+            $this->report($report, 'site_update', 80, $this->summarizeOutput($output), 'info', [
+                'target_ref' => $targetRef,
+            ]);
+        }
+
+        if ((int) $exitCode !== 0) {
+            $reason = $this->summarizeOutput($output);
+            if ($reason !== '') {
+                throw new \RuntimeException('Site update failed with exit code ' . (int) $exitCode . '. ' . $reason);
+            }
+
+            throw new \RuntimeException('Site update failed with exit code ' . (int) $exitCode . '.');
+        }
+
+        $this->report($report, 'finalize', 95, 'Site update flow completed.', 'info', [
+            'target_ref' => $targetRef,
+        ]);
+
+        return [
+            'message' => 'Site update completed successfully.',
+            'result' => [
+                'task_type' => 'site_update',
+                'target_ref' => $targetRef,
+            ],
+        ];
+    }
+
+    protected function resolveTargetRef(SystemCliTask $task, array $snapshot)
+    {
+        $targetRef = trim((string) ($snapshot['target_ref'] ?? $task->requested_version));
+
+        return str_replace(["\0", "\r", "\n"], '', $targetRef);
+    }
+
+    protected function buildArtisanProcessArguments($command, array $arguments)
+    {
+        $parts = [PHP_BINARY, $this->corePath . 'artisan', $command];
+
+        foreach ($arguments as $value) {
+            if ($value === false || $value === null || $value === '') {
+                continue;
+            }
+
+            $parts[] = (string) $value;
+        }
+
+        return $parts;
+    }
+
+    protected function summarizeOutput($output)
+    {
+        $lines = preg_split('/\r\n|\r|\n/', trim((string) $output));
+        $lines = array_values(array_filter(array_map(function ($line) {
+            $line = trim((string) $line);
+            $line = preg_replace('~^Evolution CMS \d+\.\d+\.\d+(?:\.\d+)?\s*~', '', $line);
+            $line = strip_tags($line);
+
+            return trim((string) $line);
+        }, $lines), function ($line) {
+            return $line !== '';
+        }));
+
+        if ($lines === []) {
+            return '';
+        }
+
+        return implode(' ', array_slice($lines, 0, 5));
+    }
+
+    protected function report(?callable $report, $step, $progress, $message, $level = 'info', array $context = [])
+    {
+        if ($report !== null) {
+            $report((string) $step, (int) $progress, (string) $message, (string) $level, $context);
+        }
+    }
+}

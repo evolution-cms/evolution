@@ -95,6 +95,8 @@ class CreateSystemCliTasksTables extends Migration
             });
         }
 
+        $this->ensureUpdaterManagerEndpoint();
+
         if (!$this->hasAclTables()) {
             return;
         }
@@ -177,6 +179,56 @@ class CreateSystemCliTasksTables extends Migration
         }
 
         return false;
+    }
+
+    protected function ensureUpdaterManagerEndpoint(): void
+    {
+        if (
+            !Schema::hasTable('site_plugins')
+            || !Schema::hasTable('site_plugin_events')
+            || !Schema::hasTable('system_eventnames')
+        ) {
+            return;
+        }
+
+        $plugin = DB::table('site_plugins')->where('name', 'Updater')->first();
+        $eventId = DB::table('system_eventnames')->where('name', 'OnManagerPageInit')->value('id');
+
+        if (!$plugin || !$eventId) {
+            return;
+        }
+
+        DB::table('site_plugin_events')->updateOrInsert(
+            [
+                'pluginid' => (int) $plugin->id,
+                'evtid' => (int) $eventId,
+            ],
+            [
+                'priority' => 0,
+            ]
+        );
+
+        $description = (string) ($plugin->description ?? '');
+        if (preg_match('/<strong>.*?<\/strong>/i', $description)) {
+            $description = preg_replace('/<strong>.*?<\/strong>/i', '<strong>0.9.1</strong>', $description, 1);
+        } else {
+            $description = '<strong>0.9.1</strong> ' . ltrim($description);
+        }
+
+        $plugincode = (string) ($plugin->plugincode ?? '');
+        $plugincode = str_replace('@version     0.9.0', '@version     0.9.1', $plugincode);
+        $plugincode = str_replace(
+            '@events OnManagerWelcomeHome,OnPageNotFound,OnSiteRefresh',
+            '@events OnManagerPageInit,OnManagerWelcomeHome,OnPageNotFound,OnSiteRefresh',
+            $plugincode
+        );
+
+        DB::table('site_plugins')
+            ->where('id', (int) $plugin->id)
+            ->update([
+                'description' => $description,
+                'plugincode' => $plugincode,
+            ]);
     }
 
     protected function getOrCreateGroup(): int
