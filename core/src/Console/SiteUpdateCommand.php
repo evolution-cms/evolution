@@ -277,14 +277,13 @@ HELP;
     {
         $customPackages = $this->resolveCustomComposerPackages();
 
+        $this->line('<fg=green>Install Composer dependencies</>');
+        $this->runCoreShellCommand($this->composerInstallCommand());
+
         if ($customPackages !== []) {
             $this->line('<fg=green>Install Composer dependencies with custom packages</>');
             $this->runCoreShellCommand($this->buildCustomComposerUpdateCommand($customPackages));
-            return;
         }
-
-        $this->line('<fg=green>Install Composer dependencies</>');
-        $this->runCoreShellCommand('composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative');
     }
 
     /**
@@ -360,6 +359,11 @@ HELP;
         return 'composer update '
             . implode(' ', array_map('escapeshellarg', $packages))
             . ' --with-all-dependencies --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative';
+    }
+
+    protected function composerInstallCommand(): string
+    {
+        return 'composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative';
     }
 
     protected function normalizeUpdateRepository(string $repository): string
