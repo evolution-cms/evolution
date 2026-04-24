@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateSystemCliTasksTables extends Migration
 {
+    public $withinTransaction = false;
+
     protected array $permissions = [
         'system_tasks.view' => 'View System Tasks',
         'system_tasks.manage_packages' => 'Manage System Task Packages',
