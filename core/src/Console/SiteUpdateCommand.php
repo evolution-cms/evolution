@@ -1,8 +1,6 @@
 <?php namespace EvolutionCMS\Console;
 
-use Composer\Console\Application;
 use Illuminate\Console\Command;
-use Symfony\Component\Console\Input\ArrayInput;
 
 /**
  * @see: https://github.com/laravel-zero/foundation/blob/9.x/src/Illuminate/Foundation/Console/ClearCompiledCommand.php
@@ -214,10 +212,8 @@ HELP;
                 }
             }
             putenv('COMPOSER_HOME=' . EVO_CORE_PATH . 'composer');
-            $input = new ArrayInput(['command' => 'update']);
-            $application = new Application();
-            $application->setAutoExit(false);
-            $application->run($input);
+            $this->line('<fg=green>Install Composer dependencies</>');
+            $this->runCoreShellCommand('composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative');
             $this->line('<fg=green>Rebuild optimized autoload</>');
             $this->runCoreShellCommand('composer dump-autoload -o --no-dev --classmap-authoritative');
             $this->line('<fg=green>Run Core Migrations</>');
@@ -225,11 +221,6 @@ HELP;
 
             $this->line('<fg=green>Remove Install Directory</>');
             self::rmdirs(EVO_BASE_PATH . 'install');
-
-            $this->line('<fg=green>Run Composer update</>');
-            $this->runCoreShellCommand('composer update');
-            $this->line('<fg=green>Rebuild optimized autoload</>');
-            $this->runCoreShellCommand('composer dump-autoload -o --no-dev --classmap-authoritative');
 
             $this->line('<fg=yellow;bg=blue>Now You use ' . $factoryName . '</>');
         } else {
@@ -278,7 +269,7 @@ HELP;
      */
     protected function runCoreShellCommand(string $command): void
     {
-        $fullCommand = 'cd ' . escapeshellarg(EVO_CORE_PATH) . ' && ' . $command;
+        $fullCommand = 'cd ' . escapeshellarg(EVO_CORE_PATH) . ' && ' . $command . ' 2>&1';
         exec($fullCommand, $output, $exitCode);
 
         if ((int) $exitCode !== 0) {

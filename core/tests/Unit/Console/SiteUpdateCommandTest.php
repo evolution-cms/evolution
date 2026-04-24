@@ -54,3 +54,15 @@ test('site updater runs core migrations during updates', function () {
     expect($source)->toContain("runCoreShellCommand('php artisan migrate --force')");
     expect($source)->not->toContain('cli-install.php --typeInstall=2');
 });
+
+test('site updater repairs composer vendor state before artisan commands', function () {
+    $source = (string) file_get_contents(dirname(__DIR__, 3) . '/src/Console/SiteUpdateCommand.php');
+
+    expect($source)
+        ->toContain("composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative")
+        ->toContain("composer dump-autoload -o --no-dev --classmap-authoritative")
+        ->not->toContain('new Application()')
+        ->not->toContain("runCoreShellCommand('composer update')");
+
+    expect(strpos($source, 'composer install --no-dev'))->toBeLessThan(strpos($source, 'php artisan migrate --force'));
+});
