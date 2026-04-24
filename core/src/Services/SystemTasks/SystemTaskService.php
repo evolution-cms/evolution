@@ -53,7 +53,8 @@ class SystemTaskService
                     isset($request['target_ref']) ? (string) $request['target_ref'] : '',
                     $requesterSnapshot,
                     (bool) $isSuperAdmin,
-                    isset($request['update_repository']) ? (string) $request['update_repository'] : ''
+                    isset($request['update_repository']) ? (string) $request['update_repository'] : '',
+                    $this->normalizeBooleanRequest($request['backup_database'] ?? true)
                 );
                 if (!empty($response['ok'])) {
                     $response['warnings'] = $preflight['warnings'];
@@ -108,7 +109,7 @@ class SystemTaskService
         ];
     }
 
-    public function createSiteUpdateTask($targetRef = '', array $requesterSnapshot = [], $isSuperAdmin = false, $updateRepository = '')
+    public function createSiteUpdateTask($targetRef = '', array $requesterSnapshot = [], $isSuperAdmin = false, $updateRepository = '', $backupDatabase = true)
     {
         if (!$isSuperAdmin) {
             return [
@@ -141,8 +142,10 @@ class SystemTaskService
             'catalog_source' => 'core-maintenance',
             'catalog_fetched_at' => Carbon::now()->toAtomString(),
             'target_ref' => $targetRef,
+            'backup_database' => (bool) $backupDatabase,
             'capabilities' => [
                 'site_update' => true,
+                'database_backup' => (bool) $backupDatabase,
             ],
         ];
         if ($updateRepository !== '') {
@@ -160,6 +163,7 @@ class SystemTaskService
         $this->appendLog($task, 'info', 'queued', 'Site update task queued.', [
             'target_ref' => $targetRef,
             'update_repository' => $updateRepository,
+            'backup_database' => (bool) $backupDatabase,
         ]);
 
         return [
@@ -180,6 +184,15 @@ class SystemTaskService
         }
 
         return $repository;
+    }
+
+    protected function normalizeBooleanRequest($value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        return !in_array(strtolower(trim((string) $value)), ['0', 'false', 'off', 'no'], true);
     }
 
     public function createConsoleUninstallTask($catalogItemId, $requestedVersion = '', array $requesterSnapshot = [])

@@ -1,6 +1,7 @@
 <?php namespace EvolutionCMS\Services\SystemTasks;
 
 use EvolutionCMS\Models\SystemCliTask;
+use EvolutionCMS\Services\DatabaseBackupService;
 use Symfony\Component\Process\Process;
 
 class SiteUpdateFlowService
@@ -18,6 +19,7 @@ class SiteUpdateFlowService
         $snapshot = is_array($task->payload_json) ? $task->payload_json : [];
         $targetRef = $this->resolveTargetRef($task, $snapshot);
         $updateRepository = $this->resolveUpdateRepository($snapshot);
+        $backupDatabase = $this->shouldCreateDatabaseBackup($snapshot);
 
         if ($targetRef === '') {
             throw new \RuntimeException('Site update target ref is missing.');
@@ -32,6 +34,27 @@ class SiteUpdateFlowService
 
         $this->report($report, 'preflight', 10, 'Validated site update snapshot.', 'info', $reportContext);
 
+        $databaseBackup = null;
+        if ($backupDatabase) {
+            $this->report($report, 'database_backup', 20, 'Creating database backup before site update.', 'info', $reportContext);
+            $databaseBackup = (new DatabaseBackupService($this->resolveBasePath()))->createSnapshot(
+                'Automatic backup before Evolution CMS update to ' . $targetRef
+            );
+            $backupMessage = 'Database backup created: ' . $databaseBackup['filename'];
+            if ($databaseBackup['version'] !== '') {
+                $backupMessage .= ' (Evolution CMS ' . $databaseBackup['version'] . ')';
+            }
+            $this->report($report, 'database_backup', 30, $backupMessage . '.', 'info', [
+                'filename' => $databaseBackup['filename'],
+                'database' => $databaseBackup['database'],
+                'driver' => $databaseBackup['driver'],
+                'version' => $databaseBackup['version'],
+                'size' => $databaseBackup['size'],
+            ] + $reportContext);
+        } else {
+            $this->report($report, 'database_backup', 20, 'Database backup skipped by operator.', 'warning', $reportContext);
+        }
+
         $arguments = [
             'command_site' => 'update',
             'version' => $targetRef,
@@ -43,7 +66,7 @@ class SiteUpdateFlowService
         $process = new Process($this->buildArtisanProcessArguments('make:site', $arguments), $this->corePath, null, null, null);
         $process->setTimeout(null);
 
-        $this->report($report, 'site_update', 25, 'Running Evolution CMS update to ' . $targetRef . '.', 'info', $reportContext);
+        $this->report($report, 'site_update', 40, 'Running Evolution CMS update to ' . $targetRef . '.', 'info', $reportContext);
 
         $process->run();
 
@@ -72,6 +95,9 @@ class SiteUpdateFlowService
         if ($updateRepository !== '') {
             $result['update_repository'] = $updateRepository;
         }
+        if ($databaseBackup !== null) {
+            $result['database_backup'] = $databaseBackup;
+        }
 
         return [
             'message' => 'Site update completed successfully.',
@@ -91,6 +117,29 @@ class SiteUpdateFlowService
         $repository = trim((string) ($snapshot['update_repository'] ?? ''));
 
         return str_replace(["\0", "\r", "\n"], '', $repository);
+    }
+
+    protected function shouldCreateDatabaseBackup(array $snapshot): bool
+    {
+        if (!array_key_exists('backup_database', $snapshot)) {
+            return true;
+        }
+
+        $value = $snapshot['backup_database'];
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        return !in_array(strtolower(trim((string) $value)), ['0', 'false', 'off', 'no'], true);
+    }
+
+    protected function resolveBasePath(): string
+    {
+        if (defined('EVO_BASE_PATH')) {
+            return EVO_BASE_PATH;
+        }
+
+        return dirname(rtrim($this->corePath, '/\\')) . '/';
     }
 
     protected function buildArtisanProcessArguments($command, array $arguments)

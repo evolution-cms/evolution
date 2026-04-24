@@ -364,6 +364,7 @@ if (!function_exists('updaterHandleSystemTaskRequest')) {
                         [
                             'target_ref' => isset($_REQUEST['target_ref']) ? (string)$_REQUEST['target_ref'] : '',
                             'update_repository' => isset($_REQUEST['update_repository']) ? (string)$_REQUEST['update_repository'] : '',
+                            'backup_database' => isset($_REQUEST['backup_database']) ? (string)$_REQUEST['backup_database'] : '1',
                         ],
                         $requesterSnapshot,
                         $isSuperAdmin
@@ -562,6 +563,8 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
             '.updater-system-task-warning{margin:12px 0;padding:12px 14px;border-radius:10px;background:rgba(255,193,7,.14);color:#ffd36a;border:1px solid rgba(255,193,7,.28)}',
             '.updater-system-task-warning.is-danger{background:rgba(220,53,69,.16);color:#ff7b8a;border-color:rgba(220,53,69,.36)}',
             '.updater-system-task-warning.is-success{background:rgba(40,167,69,.16);color:#8fe1a4;border-color:rgba(40,167,69,.36)}',
+            '.updater-system-task-check{display:flex;gap:8px;align-items:flex-start;margin:12px 0;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:#e6ebf3}',
+            '.updater-system-task-check input{margin-top:3px}',
             '.updater-system-task-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:14px 0}',
             '.updater-system-task-meta div{padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}',
             '.updater-system-task-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}',
@@ -591,7 +594,9 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
             '<h2 class="updater-system-task-title">' + esc(t('title', 'System update')) + '</h2>'
             + '<p class="updater-system-task-text">' + esc(t('intro', 'Scheduler is available. The update can be queued and monitored from the manager.')) + '</p>'
             + '<div class="updater-system-task-warning is-danger"><strong>' + esc(t('backup', 'Do not forget to create a backup before updating.')) + '</strong></div>'
+            + '<label class="updater-system-task-check"><input type="checkbox" data-role="backup-database" checked> <span>' + esc(t('backup_checkbox', 'Create database backup before updating')) + (config.currentVersion ? ' <small>(' + esc(t('current_version', 'current version')) + ': ' + esc(config.currentVersion) + ')</small>' : '') + '</span></label>'
             + '<div class="updater-system-task-meta">'
+            + '<div><small>' + esc(t('current', 'Current version')) + '</small><br><strong>' + esc(config.currentVersion || '') + '</strong></div>'
             + '<div><small>' + esc(t('target', 'Target version')) + '</small><br><strong>' + esc(config.targetRef) + '</strong></div>'
             + '<div><small>' + esc(t('repository', 'Repository')) + '</small><br><strong>' + esc(config.repository) + '</strong></div>'
             + '<div><small>' + esc(t('health', 'Scheduler / worker')) + '</small><br><strong>' + esc(config.schedulerStatus) + ' / ' + esc(config.workerStatus) + '</strong></div>'
@@ -698,12 +703,16 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
     }
 
     function queue() {
+        var content = shell();
+        var backupCheckbox = content.querySelector('[data-role=backup-database]');
+        var backupDatabase = !backupCheckbox || backupCheckbox.checked;
+
         setContent(
             '<h2 class="updater-system-task-title">' + esc(t('title', 'System update')) + '</h2>'
             + '<p class="updater-system-task-text">' + esc(t('queueing', 'Queueing update...')) + '</p>'
         );
 
-        request('create', {target_ref: config.targetRef, update_repository: config.repository}).then(function (response) {
+        request('create', {target_ref: config.targetRef, update_repository: config.repository, backup_database: backupDatabase ? '1' : '0'}).then(function (response) {
             if (!response || !response.ok) {
                 throw new Error((response && response.message) || t('failed', 'Unable to start update.'));
             }
@@ -1113,12 +1122,16 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                                 'token' => $systemTaskToken,
                                 'repository' => $version,
                                 'targetRef' => $latestVersionRaw,
+                                'currentVersion' => $currentVersionString,
                                 'schedulerStatus' => $schedulerStatus,
                                 'workerStatus' => $workerStatus,
                             ], [
                                 'title' => updaterLang($_lang, 'updater_live_update_title', 'System update'),
                                 'intro' => updaterLang($_lang, 'updater_live_update_intro', 'Scheduler is available. The update can be queued and monitored from the manager.'),
                                 'backup' => updaterLang($_lang, 'updater_notice_backup_warning', 'Do not forget to create a backup before updating.'),
+                                'backup_checkbox' => updaterLang($_lang, 'updater_live_update_backup_checkbox', 'Create database backup before updating'),
+                                'current' => updaterLang($_lang, 'updater_live_update_current', 'Current version'),
+                                'current_version' => updaterLang($_lang, 'updater_live_update_current_version', 'current version'),
                                 'target' => $isBranchMode
                                     ? updaterLang($_lang, 'updater_live_update_branch_target', 'Target branch/ref')
                                     : updaterLang($_lang, 'updater_live_update_target', 'Target version'),
