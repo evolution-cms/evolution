@@ -80,6 +80,15 @@ if (!function_exists('updaterBuildHideKey')) {
     }
 }
 
+if (!function_exists('updaterCanShowUpdateActions')) {
+    function updaterCanShowUpdateActions($showButton, $role, $errors = 0)
+    {
+        return ((int)$role === 1)
+            && ((string)$showButton !== 'hide')
+            && ((int)$errors <= 0);
+    }
+}
+
 if (!function_exists('updaterBuildReleaseUrls')) {
     function updaterBuildReleaseUrls($repository, $latestVersionRaw)
     {
@@ -763,7 +772,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                 $pubdate = $modx->toDateFormat(strtotime($pubdate));
                 $author = $item->author->name->__toString();
                 $updateButton .= '<tr><td><b>' . $pubdate . '</b></td><td><a href="' . $href . '" target="_blank">' . $title . '</a> (' . $author . ')</td>';
-                if (((int)$role !== 1) || ($showButton == 'hide') || ($errors > 0)) {
+                if (!updaterCanShowUpdateActions($showButton, $role, $errors)) {
                     $updateButton .= '<td></td></tr>';
                 } else {
                     $updateButton .= '<td><a onclick="return confirm(\'' . $_lang['are_you_sure_update'] . '\')" target="_parent" title="sha: '
@@ -950,7 +959,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
 
                     $cliCommand = 'cd core && ' . $_lang['updater_cli_command'];
                     $safeCliCommand = htmlspecialchars($cliCommand, ENT_QUOTES, 'UTF-8');
-                    $canShowUpdateActions = ((int)$role === 1);
+                    $canShowUpdateActions = updaterCanShowUpdateActions($showButton, $role, $errors);
                     $liveUpdateScript = '';
                     $managerUpdateButtonHtml = '';
                     $primaryUpdateButtonHtml = '';
