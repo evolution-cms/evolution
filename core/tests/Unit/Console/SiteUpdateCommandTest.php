@@ -60,9 +60,24 @@ test('site updater repairs composer vendor state before artisan commands', funct
 
     expect($source)
         ->toContain("composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative")
+        ->toContain('buildCustomComposerUpdateCommand')
         ->toContain("composer dump-autoload -o --no-dev --classmap-authoritative")
         ->not->toContain('new Application()')
         ->not->toContain("runCoreShellCommand('composer update')");
 
-    expect(strpos($source, 'composer install --no-dev'))->toBeLessThan(strpos($source, 'php artisan migrate --force'));
+    expect(strpos($source, 'installComposerDependencies();'))->toBeLessThan(strpos($source, 'php artisan migrate --force'));
+});
+
+test('site updater builds constrained composer update for custom packages', function () {
+    $command = invokeSiteUpdateMethod($this->command, 'buildCustomComposerUpdateCommand', [[
+        'evolution-cms/eai',
+        'php',
+        'ext-json',
+        'Seiger/sTask',
+        'bad package',
+        'evolution-cms/eai',
+    ]]);
+
+    expect($command)
+        ->toBe("composer update 'evolution-cms/eai' 'seiger/stask' --with-all-dependencies --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative");
 });
