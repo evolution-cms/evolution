@@ -72,15 +72,23 @@ HELP;
      */
     public function handle()
     {
-        switch ($this->argument('command_site')) {
-            case 'pizdato':
-                echo 'Remove MODX REVO and install Evolution CMS' . "\n";
-                $this->startUpdate();
-                break;
-            case 'update':
-                $this->startUpdate();
-                break;
+        try {
+            switch ($this->argument('command_site')) {
+                case 'pizdato':
+                    echo 'Remove MODX REVO and install Evolution CMS' . "\n";
+                    $this->startUpdate();
+                    return self::SUCCESS;
+
+                case 'update':
+                    $this->startUpdate();
+                    return self::SUCCESS;
+            }
+        } catch (\Throwable $exception) {
+            $this->error($exception->getMessage());
+            return self::FAILURE;
         }
+
+        return self::FAILURE;
     }
 
     /**
@@ -213,8 +221,6 @@ HELP;
             }
             putenv('COMPOSER_HOME=' . EVO_CORE_PATH . 'composer');
             $this->installComposerDependencies();
-            $this->line('<fg=green>Rebuild optimized autoload</>');
-            $this->runCoreShellCommand('composer dump-autoload -o --no-dev --classmap-authoritative');
             $this->runCoreMigrations();
 
             $this->line('<fg=green>Remove Install Directory</>');
@@ -277,13 +283,16 @@ HELP;
     {
         $customPackages = $this->resolveCustomComposerPackages();
 
-        $this->line('<fg=green>Install Composer dependencies</>');
-        $this->runCoreShellCommand($this->composerInstallCommand());
-
         if ($customPackages !== []) {
-            $this->line('<fg=green>Install Composer dependencies with custom packages</>');
+            $this->line('<fg=green>Update Composer dependencies with custom packages</>');
             $this->runCoreShellCommand($this->buildCustomComposerUpdateCommand($customPackages));
+        } else {
+            $this->line('<fg=green>Install Composer dependencies</>');
+            $this->runCoreShellCommand($this->composerInstallCommand());
         }
+
+        $this->line('<fg=green>Rebuild optimized autoload</>');
+        $this->runCoreShellCommand($this->composerDumpAutoloadCommand());
 
         $this->line('<fg=green>Discover Composer packages</>');
         $this->runCoreShellCommand('php artisan package:discover');
@@ -367,6 +376,11 @@ HELP;
     protected function composerInstallCommand(): string
     {
         return 'composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative --no-scripts';
+    }
+
+    protected function composerDumpAutoloadCommand(): string
+    {
+        return 'composer dump-autoload -o --no-dev --classmap-authoritative --no-scripts';
     }
 
     protected function normalizeUpdateRepository(string $repository): string
