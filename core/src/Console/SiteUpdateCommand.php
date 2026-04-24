@@ -216,8 +216,8 @@ HELP;
             $application->run($input);
             $this->line('<fg=green>Rebuild optimized autoload</>');
             $this->runCoreShellCommand('composer dump-autoload -o --no-dev --classmap-authoritative');
-            $this->line('<fg=green>Run Migrations</>');
-            $this->runCoreShellCommand('php ../install/cli-install.php --typeInstall=2 --removeInstall=y');
+            $this->line('<fg=green>Run Core Migrations</>');
+            $this->runCoreShellCommand('php artisan migrate --force');
 
             $this->line('<fg=green>Remove Install Directory</>');
             self::rmdirs(EVO_BASE_PATH . 'install');

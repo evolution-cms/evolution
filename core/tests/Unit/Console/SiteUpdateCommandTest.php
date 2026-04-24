@@ -42,3 +42,10 @@ test('normalizeRequestedVersion keeps explicit refs and normalizes empty input',
     expect(invokeSiteUpdateMethod($this->command, 'normalizeRequestedVersion', ['']))->toBe('null');
     expect(invokeSiteUpdateMethod($this->command, 'normalizeRequestedVersion', [null]))->toBe('null');
 });
+
+test('site updater runs core migrations during updates', function () {
+    $source = (string) file_get_contents(dirname(__DIR__, 3) . '/src/Console/SiteUpdateCommand.php');
+
+    expect($source)->toContain("runCoreShellCommand('php artisan migrate --force')");
+    expect($source)->not->toContain('cli-install.php --typeInstall=2');
+});
