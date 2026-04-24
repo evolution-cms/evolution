@@ -3,6 +3,7 @@
 use Composer\Console\Application;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Process\Process;
 
 /**
  * @see: https://github.com/laravel-zero/foundation/blob/9.x/src/Illuminate/Foundation/Console/ClearCompiledCommand.php
@@ -214,19 +215,69 @@ HELP;
             $application = new Application();
             $application->setAutoExit(false);
             $application->run($input);
-            $this->line('<fg=green>Run Migrations</>');
-            exec('php  ../install/cli-install.php --typeInstall=2 --removeInstall=y');
+
+            $this->runLegacyInstallMigrations();
+            $this->runCoreMigrations();
 
             $this->line('<fg=green>Remove Install Directory</>');
             self::rmdirs(EVO_BASE_PATH . 'install');
 
             $this->line('<fg=green>Run Composer update</>');
-            exec('composer update');
+            $this->runUpdateProcess($this->composerUpdateCommand(), EVO_CORE_PATH, 'Composer update');
 
             $this->line('<fg=yellow;bg=blue>Now You use ' . $factoryName . '</>');
         } else {
             $this->line('<fg=yellow;bg=blue>You use almost current version</>');
         }
+    }
+
+    protected function runLegacyInstallMigrations(): void
+    {
+        $this->line('<fg=green>Run Install Migrations</>');
+        $this->runUpdateProcess(
+            $this->legacyInstallMigrationCommand(),
+            EVO_CORE_PATH,
+            'Install migrations'
+        );
+    }
+
+    protected function runCoreMigrations(): void
+    {
+        $this->line('<fg=green>Run Core Migrations</>');
+        $this->runUpdateProcess(
+            $this->coreMigrationCommand(),
+            EVO_CORE_PATH,
+            'Core migrations'
+        );
+    }
+
+    protected function runUpdateProcess(array $command, string $workingDirectory, string $label): void
+    {
+        $process = new Process($command, $workingDirectory);
+        $process->setTimeout(null);
+        $process->run();
+
+        if ($process->isSuccessful()) {
+            return;
+        }
+
+        $output = trim($process->getErrorOutput() . "\n" . $process->getOutput());
+        throw new \RuntimeException($label . ' failed' . ($output !== '' ? ': ' . $output : '.'));
+    }
+
+    protected function legacyInstallMigrationCommand(): array
+    {
+        return [PHP_BINARY, '../install/cli-install.php', '--typeInstall=2', '--removeInstall=y'];
+    }
+
+    protected function coreMigrationCommand(): array
+    {
+        return [PHP_BINARY, 'artisan', 'migrate', '--force'];
+    }
+
+    protected function composerUpdateCommand(): array
+    {
+        return ['composer', 'update'];
     }
 
     /**
