@@ -83,3 +83,23 @@ test('site update flow resolves custom repository from payload', function () {
 
     expect($repository)->toBe('middleDuckAi/evolution');
 });
+
+test('site update flow creates database backup by default', function () {
+    $service = new SiteUpdateFlowService(EVO_CORE_PATH);
+
+    expect(invokeSiteUpdateFlowMethod($service, 'shouldCreateDatabaseBackup', [[]]))->toBeTrue()
+        ->and(invokeSiteUpdateFlowMethod($service, 'shouldCreateDatabaseBackup', [[
+            'backup_database' => '1',
+        ]]))->toBeTrue();
+});
+
+test('site update flow can skip database backup from task payload', function () {
+    $service = new SiteUpdateFlowService(EVO_CORE_PATH);
+
+    expect(invokeSiteUpdateFlowMethod($service, 'shouldCreateDatabaseBackup', [[
+        'backup_database' => false,
+    ]]))->toBeFalse()
+        ->and(invokeSiteUpdateFlowMethod($service, 'shouldCreateDatabaseBackup', [[
+            'backup_database' => '0',
+        ]]))->toBeFalse();
+});

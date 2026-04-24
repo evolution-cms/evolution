@@ -605,6 +605,18 @@ test('site update task snapshot keeps custom update repository', function () {
         ->and($task->payload_json['update_repository'])->toBe('middleDuckAi/evolution');
 });
 
+test('site update task snapshot keeps database backup choice', function () {
+    $service = new SystemTaskService();
+    $response = $service->createSiteUpdateTask('3.5.x', [
+        'user_id' => 1,
+    ], true, '', false);
+    $task = SystemCliTask::query()->latest('id')->first();
+
+    expect($response['ok'])->toBeTrue()
+        ->and($task->payload_json['backup_database'])->toBeFalse()
+        ->and($task->payload_json['capabilities']['database_backup'])->toBeFalse();
+});
+
 test('site update task rejects invalid custom update repository', function () {
     $service = new SystemTaskService();
     $response = $service->createSiteUpdateTask('3.5.x', [
