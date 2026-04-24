@@ -199,12 +199,21 @@ class CreateSystemCliTasksTables extends Migration
         } catch (QueryException $exception) {
             $this->fixPostgresSequence('permissions_groups');
 
-            $group = DB::table('permissions_groups')->where('name', 'System Tasks')->first();
-            if ($group) {
-                return (int) $group->id;
-            }
+            try {
+                return (int) DB::table('permissions_groups')->insertGetId([
+                    'name' => 'System Tasks',
+                    'lang_key' => 'system_tasks.permissions_group',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            } catch (QueryException $retryException) {
+                $group = DB::table('permissions_groups')->where('name', 'System Tasks')->first();
+                if ($group) {
+                    return (int) $group->id;
+                }
 
-            throw $exception;
+                throw $retryException;
+            }
         }
     }
 
@@ -236,15 +245,29 @@ class CreateSystemCliTasksTables extends Migration
                 'updated_at' => now(),
             ]);
         } catch (QueryException $exception) {
-            DB::table('permissions')
-                ->where('key', $key)
-                ->update([
+            $this->fixPostgresSequence('permissions');
+
+            try {
+                DB::table('permissions')->insert([
+                    'key' => $key,
                     'name' => $name,
                     'lang_key' => '',
                     'group_id' => $groupId,
                     'disabled' => 0,
+                    'created_at' => now(),
                     'updated_at' => now(),
                 ]);
+            } catch (QueryException $retryException) {
+                DB::table('permissions')
+                    ->where('key', $key)
+                    ->update([
+                        'name' => $name,
+                        'lang_key' => '',
+                        'group_id' => $groupId,
+                        'disabled' => 0,
+                        'updated_at' => now(),
+                    ]);
+            }
         }
     }
 
@@ -272,7 +295,18 @@ class CreateSystemCliTasksTables extends Migration
                     'updated_at' => now(),
                 ]);
             } catch (QueryException $exception) {
-                // Ignore duplicate race.
+                $this->fixPostgresSequence('role_permissions');
+
+                try {
+                    DB::table('role_permissions')->insert([
+                        'role_id' => 1,
+                        'permission' => $permission,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                } catch (QueryException $retryException) {
+                    // Ignore duplicate race or already repaired entry.
+                }
             }
         }
     }
