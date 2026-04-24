@@ -17,24 +17,33 @@ class SiteUpdateFlowService
     {
         $snapshot = is_array($task->payload_json) ? $task->payload_json : [];
         $targetRef = $this->resolveTargetRef($task, $snapshot);
+        $updateRepository = $this->resolveUpdateRepository($snapshot);
 
         if ($targetRef === '') {
             throw new \RuntimeException('Site update target ref is missing.');
         }
 
-        $this->report($report, 'preflight', 10, 'Validated site update snapshot.', 'info', [
+        $reportContext = [
             'target_ref' => $targetRef,
-        ]);
+        ];
+        if ($updateRepository !== '') {
+            $reportContext['update_repository'] = $updateRepository;
+        }
 
-        $process = new Process($this->buildArtisanProcessArguments('make:site', [
+        $this->report($report, 'preflight', 10, 'Validated site update snapshot.', 'info', $reportContext);
+
+        $arguments = [
             'command_site' => 'update',
             'version' => $targetRef,
-        ]), $this->corePath, null, null, null);
+        ];
+        if ($updateRepository !== '') {
+            $arguments['repository'] = '--repository=' . $updateRepository;
+        }
+
+        $process = new Process($this->buildArtisanProcessArguments('make:site', $arguments), $this->corePath, null, null, null);
         $process->setTimeout(null);
 
-        $this->report($report, 'site_update', 25, 'Running Evolution CMS update to ' . $targetRef . '.', 'info', [
-            'target_ref' => $targetRef,
-        ]);
+        $this->report($report, 'site_update', 25, 'Running Evolution CMS update to ' . $targetRef . '.', 'info', $reportContext);
 
         $process->run();
 
@@ -42,9 +51,7 @@ class SiteUpdateFlowService
         $output = trim($process->getOutput() . "\n" . $process->getErrorOutput());
 
         if ($output !== '') {
-            $this->report($report, 'site_update', 80, $this->summarizeOutput($output), 'info', [
-                'target_ref' => $targetRef,
-            ]);
+            $this->report($report, 'site_update', 80, $this->summarizeOutput($output), 'info', $reportContext);
         }
 
         if ((int) $exitCode !== 0) {
@@ -56,16 +63,19 @@ class SiteUpdateFlowService
             throw new \RuntimeException('Site update failed with exit code ' . (int) $exitCode . '.');
         }
 
-        $this->report($report, 'finalize', 95, 'Site update flow completed.', 'info', [
+        $this->report($report, 'finalize', 95, 'Site update flow completed.', 'info', $reportContext);
+
+        $result = [
+            'task_type' => 'site_update',
             'target_ref' => $targetRef,
-        ]);
+        ];
+        if ($updateRepository !== '') {
+            $result['update_repository'] = $updateRepository;
+        }
 
         return [
             'message' => 'Site update completed successfully.',
-            'result' => [
-                'task_type' => 'site_update',
-                'target_ref' => $targetRef,
-            ],
+            'result' => $result,
         ];
     }
 
@@ -74,6 +84,13 @@ class SiteUpdateFlowService
         $targetRef = trim((string) ($snapshot['target_ref'] ?? $task->requested_version));
 
         return str_replace(["\0", "\r", "\n"], '', $targetRef);
+    }
+
+    protected function resolveUpdateRepository(array $snapshot): string
+    {
+        $repository = trim((string) ($snapshot['update_repository'] ?? ''));
+
+        return str_replace(["\0", "\r", "\n"], '', $repository);
     }
 
     protected function buildArtisanProcessArguments($command, array $arguments)

@@ -21,7 +21,8 @@ class SiteUpdateCommand extends Command
      */
     protected $signature = 'make:site
                             {command_site=update : Update action to run. Keep "update" for normal core updates}
-                            {version=null : Optional tag, branch or commit hash. Examples: 3.5.4, 3.5.x, 922ece660}';
+                            {version=null : Optional tag, branch or commit hash. Examples: 3.5.4, 3.5.x, 922ece660}
+                            {--repository= : Optional GitHub repository slug. Example: middleDuckAi/evolution}';
     /**
      * The console command description.
      *
@@ -50,6 +51,9 @@ You can also request a specific ref manually:
 
   php artisan make:site update 3.5.x
     Update to the current HEAD of the 3.5.x branch.
+
+  php artisan make:site update 3.5.x --repository=middleDuckAi/evolution
+    Update from a branch in a custom repository, useful for testing a fork.
 
   php artisan make:site update 922ece66071acecaea9afb8486791738acc6de5e
     Update to a specific commit.
@@ -241,9 +245,25 @@ HELP;
      */
     protected function resolveUpdateRepository(): string
     {
+        try {
+            $optionRepository = $this->normalizeUpdateRepository((string) $this->option('repository'));
+            if ($optionRepository !== '') {
+                return $optionRepository;
+            }
+        } catch (\Throwable $exception) {
+            // Unit tests can call protected helpers without a bound console input.
+        }
+
         $updateRepository = (string) evo()->getConfig('UpgradeRepository');
 
-        return $updateRepository !== '' ? trim($updateRepository, '/') : self::DEFAULT_UPGRADE_REPOSITORY;
+        $updateRepository = $this->normalizeUpdateRepository($updateRepository);
+
+        return $updateRepository !== '' ? $updateRepository : self::DEFAULT_UPGRADE_REPOSITORY;
+    }
+
+    protected function normalizeUpdateRepository(string $repository): string
+    {
+        return trim($repository, " \t\n\r\0\x0B/");
     }
 
     /**

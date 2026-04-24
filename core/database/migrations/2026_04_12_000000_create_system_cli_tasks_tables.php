@@ -222,13 +222,65 @@ class CreateSystemCliTasksTables extends Migration
             '@events OnManagerPageInit,OnManagerWelcomeHome,OnPageNotFound,OnSiteRefresh',
             $plugincode
         );
+        $properties = $this->normalizeUpdaterProperties((string) ($plugin->properties ?? ''));
 
-        DB::table('site_plugins')
-            ->where('id', (int) $plugin->id)
-            ->update([
-                'description' => $description,
-                'plugincode' => $plugincode,
-            ]);
+        $update = [
+            'description' => $description,
+            'plugincode' => $plugincode,
+        ];
+        if ($properties !== null) {
+            $update['properties'] = $properties;
+        }
+
+        DB::table('site_plugins')->where('id', (int) $plugin->id)->update($update);
+    }
+
+    protected function normalizeUpdaterProperties(string $rawProperties): ?string
+    {
+        $properties = json_decode($rawProperties, true);
+        if (!is_array($properties)) {
+            return null;
+        }
+
+        $type = isset($properties['type'][0]) && is_array($properties['type'][0])
+            ? $properties['type'][0]
+            : [];
+        $typeOptions = isset($type['options']) ? explode(',', (string) $type['options']) : ['tags', 'releases', 'commits'];
+        $typeOptions = array_values(array_unique(array_filter(array_map('trim', array_merge($typeOptions, ['branch'])))));
+        $properties['type'][0] = array_merge([
+            'label' => 'Type:',
+            'type' => 'menu',
+            'value' => 'tags',
+            'default' => 'tags',
+            'desc' => '',
+        ], $type, [
+            'options' => implode(',', $typeOptions),
+        ]);
+
+        $branch = isset($properties['branch'][0]) && is_array($properties['branch'][0])
+            ? $properties['branch'][0]
+            : [];
+        $properties['branch'][0] = array_merge([
+            'type' => 'text',
+            'value' => 'develop',
+            'default' => 'develop',
+            'desc' => '',
+        ], $branch, [
+            'label' => 'Branch/ref:',
+        ]);
+
+        if (!isset($properties['showButton'][0]) || !is_array($properties['showButton'][0])) {
+            $properties['showButton'][0] = [
+                'label' => 'Show Update Button:',
+                'type' => 'menu',
+                'value' => 'AdminOnly',
+                'options' => 'show,hide,AdminOnly',
+                'default' => 'AdminOnly',
+                'desc' => '',
+            ];
+        }
+
+        return json_encode($properties, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
     protected function getOrCreateGroup(): int

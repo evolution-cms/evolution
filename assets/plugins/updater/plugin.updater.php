@@ -20,6 +20,10 @@ $ThisRole = isset($ThisRole) ? $ThisRole : '';
 $ThisUser = isset($ThisUser) ? $ThisUser : '';
 $version = isset($version) ? $version : 'evolution-cms/evolution';
 $type = isset($type) ? $type : 'tags';
+$branch = isset($branch) ? trim((string)$branch) : 'develop';
+if ($branch === '') {
+    $branch = 'develop';
+}
 $showButton = isset($showButton) ? $showButton : 'AdminOnly';
 $supportLink = isset($supportLink) ? trim((string)$supportLink) : '';
 if ($supportLink === '') {
@@ -106,6 +110,28 @@ if (!function_exists('updaterBuildReleaseUrls')) {
         $urls[] = $base;
 
         return array_values(array_unique($urls));
+    }
+}
+
+if (!function_exists('updaterBuildBranchUrls')) {
+    function updaterBuildBranchUrls($repository, $branchRef)
+    {
+        $repo = trim((string)$repository);
+        $ref = trim((string)$branchRef);
+        $base = 'https://github.com/' . $repo;
+
+        if ($ref === '') {
+            return [$base];
+        }
+
+        if (preg_match('/^[0-9a-f]{7,40}$/i', $ref)) {
+            return [$base . '/commit/' . rawurlencode($ref), $base];
+        }
+
+        return [
+            $base . '/tree/' . str_replace('%2F', '/', rawurlencode($ref)),
+            $base . '/branches',
+        ];
     }
 }
 
@@ -337,6 +363,7 @@ if (!function_exists('updaterHandleSystemTaskRequest')) {
                         'site_update',
                         [
                             'target_ref' => isset($_REQUEST['target_ref']) ? (string)$_REQUEST['target_ref'] : '',
+                            'update_repository' => isset($_REQUEST['update_repository']) ? (string)$_REQUEST['update_repository'] : '',
                         ],
                         $requesterSnapshot,
                         $isSuperAdmin
@@ -548,6 +575,7 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
             + '<div class="updater-system-task-warning is-danger"><strong>' + esc(t('backup', 'Do not forget to create a backup before updating.')) + '</strong></div>'
             + '<div class="updater-system-task-meta">'
             + '<div><small>' + esc(t('target', 'Target version')) + '</small><br><strong>' + esc(config.targetRef) + '</strong></div>'
+            + '<div><small>' + esc(t('repository', 'Repository')) + '</small><br><strong>' + esc(config.repository) + '</strong></div>'
             + '<div><small>' + esc(t('health', 'Scheduler / worker')) + '</small><br><strong>' + esc(config.schedulerStatus) + ' / ' + esc(config.workerStatus) + '</strong></div>'
             + '</div>'
             + '<div class="updater-system-task-actions">'
@@ -615,7 +643,7 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
             + '<p class="updater-system-task-text">' + esc(t('queueing', 'Queueing update...')) + '</p>'
         );
 
-        request('create', {target_ref: config.targetRef}).then(function (response) {
+        request('create', {target_ref: config.targetRef, update_repository: config.repository}).then(function (response) {
             if (!response || !response.ok) {
                 throw new Error((response && response.message) || t('failed', 'Unable to start update.'));
             }
@@ -808,77 +836,87 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
             $currentVersion = $modx->getVersionData();
             $arrayVersion = explode('.', $currentVersion['version']);
             $currentMajorVersion = array_shift($arrayVersion);
+            $isBranchMode = $type === 'branch';
+            $git = [];
 
-            $cacheFile = EVO_BASE_PATH . 'assets/cache/updater/check_' . date("d") . '.json';
-
-            if (!file_exists($cacheFile)) {
-                $ch = curl_init();
-                $url = 'https://api.github.com/repos/' . $version . '/' . $type;
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-                curl_setopt($ch, CURLOPT_HEADER, false);
-                //curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-                curl_setopt($ch, CURLOPT_URL, $url);
-                curl_setopt($ch, CURLOPT_REFERER, $url);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, ['User-Agent: updateNotify widget']);
-                $info = curl_exec($ch);
-                curl_close($ch);
-                if (substr($info, 0, 1) != '[') {
-                    return;
-                }
-                $info = json_decode($info, true);
-
-                foreach ($info as $key => $val) {
-                    $candidateVersion = '';
-                    if (isset($val['name']) && $val['name'] !== '') {
-                        $candidateVersion = $val['name'];
-                    } elseif (isset($val['tag_name']) && $val['tag_name'] !== '') {
-                        $candidateVersion = $val['tag_name'];
-                    }
-
-                    if ($candidateVersion === '') {
-                        continue;
-                    }
-
-                    $arrayVersion = explode('.', $candidateVersion);
-                    if ($currentMajorVersion == array_shift($arrayVersion)) {
-
-                        $git['version'] = $candidateVersion;
-                        if (isset($val['published_at']) && $val['published_at'] !== '') {
-                            $git['published_at'] = $val['published_at'];
-                        }
-
-                        if (strpos($candidateVersion, 'alpha')) {
-                            $git['alpha'] = $candidateVersion;
-                            continue;
-                        } elseif (strpos($candidateVersion, 'beta')) {
-                            $git['beta'] = $candidateVersion;
-                            continue;
-                        } else {
-                            $git['stable'] = $candidateVersion;
-                            break;
-                        }
-                    }
-                }
-
-                file_put_contents($cacheFile, json_encode($git));
+            if ($isBranchMode) {
+                $git = [
+                    'version' => $branch,
+                    'published_at' => '',
+                    'branch_ref' => true,
+                ];
             } else {
-                $git = file_get_contents($cacheFile);
-                $git = json_decode($git, true);
-            }
+                $cacheFile = EVO_BASE_PATH . 'assets/cache/updater/check_' . date("d") . '.json';
 
-            if ($stableOnly == 'true') {
-                if (isset($git['stable'])) {
-                    if (version_compare($git['version'], $git['stable'], '!=')) {
-                        $git['version'] = $git['stable'];
+                if (!file_exists($cacheFile)) {
+                    $ch = curl_init();
+                    $url = 'https://api.github.com/repos/' . $version . '/' . $type;
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                    curl_setopt($ch, CURLOPT_HEADER, false);
+                    //curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                    curl_setopt($ch, CURLOPT_URL, $url);
+                    curl_setopt($ch, CURLOPT_REFERER, $url);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, ['User-Agent: updateNotify widget']);
+                    $info = curl_exec($ch);
+                    curl_close($ch);
+                    if (substr($info, 0, 1) != '[') {
+                        return;
+                    }
+                    $info = json_decode($info, true);
+
+                    foreach ($info as $key => $val) {
+                        $candidateVersion = '';
+                        if (isset($val['name']) && $val['name'] !== '') {
+                            $candidateVersion = $val['name'];
+                        } elseif (isset($val['tag_name']) && $val['tag_name'] !== '') {
+                            $candidateVersion = $val['tag_name'];
+                        }
+
+                        if ($candidateVersion === '') {
+                            continue;
+                        }
+
+                        $arrayVersion = explode('.', $candidateVersion);
+                        if ($currentMajorVersion == array_shift($arrayVersion)) {
+
+                            $git['version'] = $candidateVersion;
+                            if (isset($val['published_at']) && $val['published_at'] !== '') {
+                                $git['published_at'] = $val['published_at'];
+                            }
+
+                            if (strpos($candidateVersion, 'alpha')) {
+                                $git['alpha'] = $candidateVersion;
+                                continue;
+                            } elseif (strpos($candidateVersion, 'beta')) {
+                                $git['beta'] = $candidateVersion;
+                                continue;
+                            } else {
+                                $git['stable'] = $candidateVersion;
+                                break;
+                            }
+                        }
+                    }
+
+                    file_put_contents($cacheFile, json_encode($git));
+                } else {
+                    $git = file_get_contents($cacheFile);
+                    $git = json_decode($git, true);
+                }
+
+                if ($stableOnly == 'true') {
+                    if (isset($git['stable'])) {
+                        if (version_compare($git['version'], $git['stable'], '!=')) {
+                            $git['version'] = $git['stable'];
+                        }
                     }
                 }
-            }
-            if (isset($git['version']) && (!isset($git['published_at']) || $git['published_at'] === '')) {
-                $fallbackPublishedAt = updaterFetchReleasePublishedAt($version, $git['version']);
-                if ($fallbackPublishedAt !== '') {
-                    $git['published_at'] = $fallbackPublishedAt;
-                    file_put_contents($cacheFile, json_encode($git));
+                if (isset($git['version']) && (!isset($git['published_at']) || $git['published_at'] === '')) {
+                    $fallbackPublishedAt = updaterFetchReleasePublishedAt($version, $git['version']);
+                    if ($fallbackPublishedAt !== '') {
+                        $git['published_at'] = $fallbackPublishedAt;
+                        file_put_contents($cacheFile, json_encode($git));
+                    }
                 }
             }
 
@@ -887,7 +925,10 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
             } else {
                 $git['version'] = $currentVersion['version'];
             }
-            if (version_compare($git['version'], $currentVersion['version'], '>') && $git['version'] != '') {
+            $shouldShowUpdate = $isBranchMode
+                ? $git['version'] != ''
+                : (version_compare($git['version'], $currentVersion['version'], '>') && $git['version'] != '');
+            if ($shouldShowUpdate) {
                 $currentVersionString = (string)$currentVersion['version'];
                 $latestVersionRaw = (string)$git['version'];
                 $hideKey = updaterBuildHideKey($latestVersionRaw, $internalKey);
@@ -897,17 +938,27 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                     $severity = updaterGetSeverity($currentVersionString, $latestVersionRaw);
                     $severityAlertClass = 'alert-info';
 
-                    if ($severity === 'critical') {
+                    if ($isBranchMode) {
+                        $severityAlertClass = 'alert-warning';
+                    } elseif ($severity === 'critical') {
                         $severityAlertClass = 'alert-danger';
                     } elseif ($severity === 'warning') {
                         $severityAlertClass = 'alert-warning';
                     }
 
-                    $releaseUrls = updaterBuildReleaseUrls($version, $latestVersionRaw);
+                    $releaseUrls = $isBranchMode
+                        ? updaterBuildBranchUrls($version, $latestVersionRaw)
+                        : updaterBuildReleaseUrls($version, $latestVersionRaw);
                     $releaseUrl = reset($releaseUrls);
                     $releaseFallbackUrl = end($releaseUrls);
                     $safeReleaseUrl = htmlspecialchars((string)$releaseUrl, ENT_QUOTES, 'UTF-8');
                     $safeFallbackUrl = htmlspecialchars((string)$releaseFallbackUrl, ENT_QUOTES, 'UTF-8');
+                    $primaryReleaseLabel = $isBranchMode
+                        ? updaterLang($_lang, 'updater_action_branch', 'View branch/ref')
+                        : $_lang['updater_action_release'];
+                    $secondaryReleaseLabel = $isBranchMode
+                        ? updaterLang($_lang, 'updater_action_branch_all', 'All branches')
+                        : $_lang['updater_action_release_all'];
 
                     $currentReleaseDate = updaterFormatReleaseDate(isset($currentVersion['release_date']) ? (string)$currentVersion['release_date'] : '');
                     $latestReleaseDate = updaterFormatReleaseDate(isset($git['published_at']) ? (string)$git['published_at'] : '');
@@ -917,8 +968,10 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                         $currentWithDate .= ' (' . $currentReleaseDate . ')';
                     }
 
-                    $latestWithDate = $latestVersionRaw;
-                    if ($latestReleaseDate !== '') {
+                    $latestWithDate = $isBranchMode
+                        ? updaterLang($_lang, 'updater_branch_target_label', 'Branch/ref') . ': ' . $latestVersionRaw
+                        : $latestVersionRaw;
+                    if (!$isBranchMode && $latestReleaseDate !== '') {
                         $latestWithDate .= ' (' . $latestReleaseDate . ')';
                     }
 
@@ -950,15 +1003,25 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
 
                     $releaseButtonsHtml = '<div style="margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">'
                         . '<a class="btn btn-xs btn-primary" href="' . $safeReleaseUrl . '" target="_blank" rel="noopener noreferrer">'
-                        . '<i class="fa fa-external-link"></i> ' . htmlspecialchars($_lang['updater_action_release'], ENT_QUOTES, 'UTF-8')
+                        . '<i class="fa fa-external-link"></i> ' . htmlspecialchars($primaryReleaseLabel, ENT_QUOTES, 'UTF-8')
                         . '</a>'
                         . '<a href="' . $safeFallbackUrl . '" target="_blank" rel="noopener noreferrer" style="font-size:12px;text-decoration:underline;color:#0d6efd;">'
-                        . '<i class="fa fa-list"></i> ' . htmlspecialchars($_lang['updater_action_release_all'], ENT_QUOTES, 'UTF-8')
+                        . '<i class="fa fa-list"></i> ' . htmlspecialchars($secondaryReleaseLabel, ENT_QUOTES, 'UTF-8')
                         . '</a>'
                         . '</div>';
 
-                    $cliCommand = 'cd core && ' . $_lang['updater_cli_command'];
+                    $cliUpdateCommand = $_lang['updater_cli_command'];
+                    if ($isBranchMode) {
+                        $cliUpdateCommand .= ' ' . escapeshellarg($latestVersionRaw);
+                    }
+                    $cliCommand = 'cd core && ' . $cliUpdateCommand;
                     $safeCliCommand = htmlspecialchars($cliCommand, ENT_QUOTES, 'UTF-8');
+                    $branchModeNoticeHtml = '';
+                    if ($isBranchMode) {
+                        $branchModeNoticeHtml = '<p style="margin:0 0 8px 0;color:#856404;font-weight:600;"><i class="fa fa-code-fork"></i> '
+                            . htmlspecialchars(updaterLang($_lang, 'updater_branch_mode_notice', 'Development branch/ref update mode is enabled. Use it only for testing or controlled maintenance.'), ENT_QUOTES, 'UTF-8')
+                            . '</p>';
+                    }
                     $canShowUpdateActions = updaterCanShowUpdateActions($showButton, $role, $errors);
                     $liveUpdateScript = '';
                     $managerUpdateButtonHtml = '';
@@ -982,6 +1045,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                             $liveUpdateScript = updaterBuildSystemTaskScript([
                                 'endpoint' => 'index.php?a=2&updater_system_task=1',
                                 'token' => $systemTaskToken,
+                                'repository' => $version,
                                 'targetRef' => $latestVersionRaw,
                                 'schedulerStatus' => $schedulerStatus,
                                 'workerStatus' => $workerStatus,
@@ -989,7 +1053,10 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                                 'title' => updaterLang($_lang, 'updater_live_update_title', 'System update'),
                                 'intro' => updaterLang($_lang, 'updater_live_update_intro', 'Scheduler is available. The update can be queued and monitored from the manager.'),
                                 'backup' => updaterLang($_lang, 'updater_notice_backup_warning', 'Do not forget to create a backup before updating.'),
-                                'target' => updaterLang($_lang, 'updater_live_update_target', 'Target version'),
+                                'target' => $isBranchMode
+                                    ? updaterLang($_lang, 'updater_live_update_branch_target', 'Target branch/ref')
+                                    : updaterLang($_lang, 'updater_live_update_target', 'Target version'),
+                                'repository' => updaterLang($_lang, 'updater_live_update_repository', 'Repository'),
                                 'health' => updaterLang($_lang, 'updater_live_update_health', 'Scheduler / worker'),
                                 'confirm' => updaterLang($_lang, 'updater_live_update_confirm', 'Start update'),
                                 'cancel' => updaterLang($_lang, 'updater_live_update_cancel', 'Cancel'),
@@ -1021,6 +1088,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                         . '</div>'
 
                         . '<div style="margin:0 0 12px 0;">'
+                        . $branchModeNoticeHtml
                         . '<p style="margin:0 0 8px 0;"><i class="fa fa-check-circle"></i> '
                         . htmlspecialchars($_lang['updater_notice_text_1'], ENT_QUOTES, 'UTF-8') . '</p>'
                         . '<p style="margin:0 0 8px 0;"><i class="fa fa-database"></i> '

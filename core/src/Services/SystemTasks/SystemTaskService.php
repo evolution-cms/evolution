@@ -52,7 +52,8 @@ class SystemTaskService
                 $response = $this->createSiteUpdateTask(
                     isset($request['target_ref']) ? (string) $request['target_ref'] : '',
                     $requesterSnapshot,
-                    (bool) $isSuperAdmin
+                    (bool) $isSuperAdmin,
+                    isset($request['update_repository']) ? (string) $request['update_repository'] : ''
                 );
                 if (!empty($response['ok'])) {
                     $response['warnings'] = $preflight['warnings'];
@@ -107,7 +108,7 @@ class SystemTaskService
         ];
     }
 
-    public function createSiteUpdateTask($targetRef = '', array $requesterSnapshot = [], $isSuperAdmin = false)
+    public function createSiteUpdateTask($targetRef = '', array $requesterSnapshot = [], $isSuperAdmin = false, $updateRepository = '')
     {
         if (!$isSuperAdmin) {
             return [
@@ -126,6 +127,15 @@ class SystemTaskService
             ];
         }
 
+        $updateRepository = $this->normalizeSiteUpdateRepository($updateRepository);
+        if ($updateRepository === false) {
+            return [
+                'ok' => false,
+                'error_code' => 'SNAPSHOT_INVALID',
+                'message' => 'Site update repository must use the owner/repository format.',
+            ];
+        }
+
         $snapshot = [
             'task_type' => 'site_update',
             'catalog_source' => 'core-maintenance',
@@ -135,6 +145,9 @@ class SystemTaskService
                 'site_update' => true,
             ],
         ];
+        if ($updateRepository !== '') {
+            $snapshot['update_repository'] = $updateRepository;
+        }
 
         $task = $this->persistQueuedTask(
             'site_update',
@@ -146,12 +159,27 @@ class SystemTaskService
 
         $this->appendLog($task, 'info', 'queued', 'Site update task queued.', [
             'target_ref' => $targetRef,
+            'update_repository' => $updateRepository,
         ]);
 
         return [
             'ok' => true,
             'task' => $this->buildTaskPayloadWithLogs($task),
         ];
+    }
+
+    protected function normalizeSiteUpdateRepository($repository)
+    {
+        $repository = trim((string) $repository, " \t\n\r\0\x0B/");
+        if ($repository === '') {
+            return '';
+        }
+
+        if (preg_match('~^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$~', $repository) !== 1) {
+            return false;
+        }
+
+        return $repository;
     }
 
     public function createConsoleUninstallTask($catalogItemId, $requestedVersion = '', array $requesterSnapshot = [])
