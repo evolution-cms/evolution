@@ -1102,8 +1102,8 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                         . '</div>'
 
                         . '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">'
-                        . $primaryUpdateButtonHtml
                         . $managerUpdateButtonHtml
+                        . $primaryUpdateButtonHtml
                         . $supportButtonHtml
                         . '<span data-updater-action-slot="update"></span>'
                         . '</div>'
