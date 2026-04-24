@@ -51,6 +51,7 @@ test('normalizeUpdateRepository trims custom repository slugs', function () {
 test('site updater runs core migrations during updates', function () {
     $source = (string) file_get_contents(dirname(__DIR__, 3) . '/src/Console/SiteUpdateCommand.php');
 
+    expect($source)->toContain('$this->runCoreMigrations();');
     expect($source)->toContain("runCoreShellCommand('php artisan migrate --force')");
     expect($source)->not->toContain('cli-install.php --typeInstall=2');
 });
@@ -65,7 +66,7 @@ test('site updater repairs composer vendor state before artisan commands', funct
         ->not->toContain('new Application()')
         ->not->toContain("runCoreShellCommand('composer update')");
 
-    expect(strpos($source, 'installComposerDependencies();'))->toBeLessThan(strpos($source, 'php artisan migrate --force'));
+    expect(strpos($source, 'installComposerDependencies();'))->toBeLessThan(strpos($source, '$this->runCoreMigrations();'));
 });
 
 test('site updater builds constrained composer update for custom packages', function () {

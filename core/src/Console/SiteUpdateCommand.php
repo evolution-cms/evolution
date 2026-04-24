@@ -215,8 +215,7 @@ HELP;
             $this->installComposerDependencies();
             $this->line('<fg=green>Rebuild optimized autoload</>');
             $this->runCoreShellCommand('composer dump-autoload -o --no-dev --classmap-authoritative');
-            $this->line('<fg=green>Run Core Migrations</>');
-            $this->runCoreShellCommand('php artisan migrate --force');
+            $this->runCoreMigrations();
 
             $this->line('<fg=green>Remove Install Directory</>');
             self::rmdirs(EVO_BASE_PATH . 'install');
@@ -225,6 +224,18 @@ HELP;
         } else {
             $this->line('<fg=yellow;bg=blue>You use almost current version</>');
         }
+    }
+
+    /**
+     * Run database migrations shipped with the updated core.
+     *
+     * @since 3.5.7
+     * @return void
+     */
+    protected function runCoreMigrations(): void
+    {
+        $this->line('<fg=green>Run Core Migrations</>');
+        $this->runCoreShellCommand('php artisan migrate --force');
     }
 
     /**
