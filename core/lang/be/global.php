@@ -1,4 +1,8 @@
 <?php
+$modx_lang_attribute = 'be'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
+$modx_manager_charset = 'UTF-8';
+setlocale(LC_ALL, 'be_BY.UTF-8');
+
 $_lang["about_msg"] = 'Evolution CMS - гэта <a href="https://evo.im/" target="_blank">PHP-прылажэнне і сістэма кіравання кантэнтам</a>, якая дзейнічае пад ліцэнзіяй <a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU GPL.</a>';
 $_lang["about_title"] = 'Аб Evolution CMS';
 
@@ -745,6 +749,8 @@ $_lang["group_access_permissions"] = 'Доступ групы карысталь
 $_lang["group_tvs"] = 'Групавыя поля TV';
 $_lang["guid"] = 'GUID';
 $_lang["help"] = 'Даведка';
+$_lang["help_donate_msg"] = 'Купляйце каву распрацоўшчыкам Evolution CMS на <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a>. Станьце прыхільнікам Evolution CMS сёння! ❤️ Ko-fi дазваляе падтрымаць любімых творцаў без камісій за ахвяраванні.';
+$_lang["help_donate_title"] = 'На развіццё Evolution CMS';
 $_lang["help_msg"] = '<b>Вы можаце атрымаць бясплатную падтрымку супольнасці, наведаўшы <a href="https://forum.evo.im/" target="_blank">форумы Evolution CMS</a>. Таксама ўзрастае колькасць дакументацыі і кіраўніцтваў па Evolution CMS, якія апісваюць практычна кожны аспект Evolution CMS.</p><p>Мы таксама плануем прапанаваць камерцыйную падтрымку для Evolution CMS. Калі вы цікавіцеся, калі ласка, звярніцеся да нас.';
 $_lang["help_title"] = 'Даведка';
 $_lang["hide_tree"] = 'Схаваць дрэва сайтаў';
@@ -1381,6 +1387,10 @@ $_lang["setting_resource_tree_node_name_desc_add"] = 'Заўвага: пачын
 $_lang["resource_opt_alvisibled"] = 'Выкарыстоўваць бягучы псеўданім у шляху';
 $_lang["resource_opt_alvisibled_help"] = 'Псеўданім гэтага рэсурсу будзе выкарыстоўвацца ў дружалюбным URL-адрасе';
 $_lang['resource_opt_is_published'] = 'Апублікавана';
+$_lang["docid_incrmnt_method_title"] = 'Спосаб даданняі Resource ID';
+$_lang["docid_incrmnt_method_0"] = 'DB аўтаінкрэмент';
+$_lang["docid_incrmnt_method_1"] = 'Мінімальны прапушчаны ID';
+$_lang["docid_incrmnt_method_2"] = 'Максімальны ID + 1';
 
 $_lang["enable_cache_title"] = 'Кэшаванне дакументаў';
 $_lang["disable_chunk_cache_title"] = 'Адключыць кэшаванне чанкаў';
@@ -1395,6 +1405,9 @@ $_lang["html_comment_title"] = 'HTML-каментар';
 $_lang["html_comment_message"] = 'Спіс тыпаў элементаў праз коску для абгортвання HTML-каментарамі ў зыходным кодзе старонкі: <b>snippets</b>, <b>chunks</b>, <b>tvs</b>, <b>snippetParams</b>';
 $_lang["seostrict_title"] = 'Выкарыстоўваць строгія SEO-URL';
 $_lang["seostrict_message"] = 'Захоўвае выкарыстанне строгіх URL-адрасоў для прадухілення дублявання кантэнту (пры неабходнасці)';
+$_lang["aliaslistingfolder_title"] = 'Выкарыстоўваць AliasListing толькі для каталогаў';
+$_lang["full_aliaslisting_title"] = 'Адключыць AliasListing для ўсіх рэсурсаў';
+$_lang["aliaslistingfolder_message"] = 'Памяншае спажыванне памяці пры вялікай колькасці рэсурсаў';
 
 $_lang["alias_listing_title"] = 'Выкарыстоўваць кэш AliasListing';
 $_lang["alias_listing_message"] = 'Кэшаванне спісаў псеўданімаў рэсурсаў варта адключыць, калі сайт мае вялікую колькасць рэсурсаў. "Адключана" памяншае выкарыстанне памяці, калі сайт мае шмат рэсурсаў.';

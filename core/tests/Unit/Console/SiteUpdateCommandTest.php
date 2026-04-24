@@ -43,17 +43,42 @@ test('normalizeRequestedVersion keeps explicit refs and normalizes empty input',
     expect(invokeSiteUpdateMethod($this->command, 'normalizeRequestedVersion', [null]))->toBe('null');
 });
 
+test('normalizeUpdateRepository trims custom repository slugs', function () {
+    expect(invokeSiteUpdateMethod($this->command, 'normalizeUpdateRepository', [' /middleDuckAi/evolution/ ']))
+        ->toBe('middleDuckAi/evolution');
+});
+
 test('site updater runs core migrations during updates', function () {
     $source = (string) file_get_contents(dirname(__DIR__, 3) . '/src/Console/SiteUpdateCommand.php');
 
-    expect(invokeSiteUpdateMethod($this->command, 'coreMigrationCommand'))->toBe([
-        PHP_BINARY,
-        'artisan',
-        'migrate',
-        '--force',
-    ]);
-
     expect($source)->toContain('$this->runCoreMigrations();');
-    expect($source)->not->toContain('runLegacyInstallMigrations');
-    expect($source)->not->toContain('legacyInstallMigrationCommand');
+    expect($source)->toContain("runCoreShellCommand('php artisan migrate --force')");
+    expect($source)->not->toContain('cli-install.php --typeInstall=2');
+});
+
+test('site updater repairs composer vendor state before artisan commands', function () {
+    $source = (string) file_get_contents(dirname(__DIR__, 3) . '/src/Console/SiteUpdateCommand.php');
+
+    expect($source)
+        ->toContain("composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative")
+        ->toContain('buildCustomComposerUpdateCommand')
+        ->toContain("composer dump-autoload -o --no-dev --classmap-authoritative")
+        ->not->toContain('new Application()')
+        ->not->toContain("runCoreShellCommand('composer update')");
+
+    expect(strpos($source, 'installComposerDependencies();'))->toBeLessThan(strpos($source, '$this->runCoreMigrations();'));
+});
+
+test('site updater builds constrained composer update for custom packages', function () {
+    $command = invokeSiteUpdateMethod($this->command, 'buildCustomComposerUpdateCommand', [[
+        'evolution-cms/eai',
+        'php',
+        'ext-json',
+        'Seiger/sTask',
+        'bad package',
+        'evolution-cms/eai',
+    ]]);
+
+    expect($command)
+        ->toBe("composer update 'evolution-cms/eai' 'seiger/stask' --with-all-dependencies --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative");
 });

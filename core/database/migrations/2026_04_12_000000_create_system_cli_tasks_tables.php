@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateSystemCliTasksTables extends Migration
 {
+    public $withinTransaction = false;
+
     protected array $permissions = [
         'system_tasks.view' => 'View System Tasks',
         'system_tasks.manage_packages' => 'Manage System Task Packages',
@@ -93,6 +95,8 @@ class CreateSystemCliTasksTables extends Migration
             });
         }
 
+        $this->ensureUpdaterManagerEndpoint();
+
         if (!$this->hasAclTables()) {
             return;
         }
@@ -177,6 +181,108 @@ class CreateSystemCliTasksTables extends Migration
         return false;
     }
 
+    protected function ensureUpdaterManagerEndpoint(): void
+    {
+        if (
+            !Schema::hasTable('site_plugins')
+            || !Schema::hasTable('site_plugin_events')
+            || !Schema::hasTable('system_eventnames')
+        ) {
+            return;
+        }
+
+        $plugin = DB::table('site_plugins')->where('name', 'Updater')->first();
+        $eventId = DB::table('system_eventnames')->where('name', 'OnManagerPageInit')->value('id');
+
+        if (!$plugin || !$eventId) {
+            return;
+        }
+
+        DB::table('site_plugin_events')->updateOrInsert(
+            [
+                'pluginid' => (int) $plugin->id,
+                'evtid' => (int) $eventId,
+            ],
+            [
+                'priority' => 0,
+            ]
+        );
+
+        $description = (string) ($plugin->description ?? '');
+        if (preg_match('/<strong>.*?<\/strong>/i', $description)) {
+            $description = preg_replace('/<strong>.*?<\/strong>/i', '<strong>0.9.1</strong>', $description, 1);
+        } else {
+            $description = '<strong>0.9.1</strong> ' . ltrim($description);
+        }
+
+        $plugincode = (string) ($plugin->plugincode ?? '');
+        $plugincode = str_replace('@version     0.9.0', '@version     0.9.1', $plugincode);
+        $plugincode = str_replace(
+            '@events OnManagerWelcomeHome,OnPageNotFound,OnSiteRefresh',
+            '@events OnManagerPageInit,OnManagerWelcomeHome,OnPageNotFound,OnSiteRefresh',
+            $plugincode
+        );
+        $properties = $this->normalizeUpdaterProperties((string) ($plugin->properties ?? ''));
+
+        $update = [
+            'description' => $description,
+            'plugincode' => $plugincode,
+        ];
+        if ($properties !== null) {
+            $update['properties'] = $properties;
+        }
+
+        DB::table('site_plugins')->where('id', (int) $plugin->id)->update($update);
+    }
+
+    protected function normalizeUpdaterProperties(string $rawProperties): ?string
+    {
+        $properties = json_decode($rawProperties, true);
+        if (!is_array($properties)) {
+            return null;
+        }
+
+        $type = isset($properties['type'][0]) && is_array($properties['type'][0])
+            ? $properties['type'][0]
+            : [];
+        $typeOptions = isset($type['options']) ? explode(',', (string) $type['options']) : ['tags', 'releases', 'commits'];
+        $typeOptions = array_values(array_unique(array_filter(array_map('trim', array_merge($typeOptions, ['branch'])))));
+        $properties['type'][0] = array_merge([
+            'label' => 'Type:',
+            'type' => 'menu',
+            'value' => 'tags',
+            'default' => 'tags',
+            'desc' => '',
+        ], $type, [
+            'options' => implode(',', $typeOptions),
+        ]);
+
+        $branch = isset($properties['branch'][0]) && is_array($properties['branch'][0])
+            ? $properties['branch'][0]
+            : [];
+        $properties['branch'][0] = array_merge([
+            'type' => 'text',
+            'value' => 'develop',
+            'default' => 'develop',
+            'desc' => '',
+        ], $branch, [
+            'label' => 'Branch/ref:',
+        ]);
+
+        if (!isset($properties['showButton'][0]) || !is_array($properties['showButton'][0])) {
+            $properties['showButton'][0] = [
+                'label' => 'Show Update Button:',
+                'type' => 'menu',
+                'value' => 'AdminOnly',
+                'options' => 'show,hide,AdminOnly',
+                'default' => 'AdminOnly',
+                'desc' => '',
+            ];
+        }
+
+        return json_encode($properties, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
+
     protected function getOrCreateGroup(): int
     {
         $group = DB::table('permissions_groups')
@@ -197,12 +303,21 @@ class CreateSystemCliTasksTables extends Migration
         } catch (QueryException $exception) {
             $this->fixPostgresSequence('permissions_groups');
 
-            $group = DB::table('permissions_groups')->where('name', 'System Tasks')->first();
-            if ($group) {
-                return (int) $group->id;
-            }
+            try {
+                return (int) DB::table('permissions_groups')->insertGetId([
+                    'name' => 'System Tasks',
+                    'lang_key' => 'system_tasks.permissions_group',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            } catch (QueryException $retryException) {
+                $group = DB::table('permissions_groups')->where('name', 'System Tasks')->first();
+                if ($group) {
+                    return (int) $group->id;
+                }
 
-            throw $exception;
+                throw $retryException;
+            }
         }
     }
 
@@ -234,15 +349,29 @@ class CreateSystemCliTasksTables extends Migration
                 'updated_at' => now(),
             ]);
         } catch (QueryException $exception) {
-            DB::table('permissions')
-                ->where('key', $key)
-                ->update([
+            $this->fixPostgresSequence('permissions');
+
+            try {
+                DB::table('permissions')->insert([
+                    'key' => $key,
                     'name' => $name,
                     'lang_key' => '',
                     'group_id' => $groupId,
                     'disabled' => 0,
+                    'created_at' => now(),
                     'updated_at' => now(),
                 ]);
+            } catch (QueryException $retryException) {
+                DB::table('permissions')
+                    ->where('key', $key)
+                    ->update([
+                        'name' => $name,
+                        'lang_key' => '',
+                        'group_id' => $groupId,
+                        'disabled' => 0,
+                        'updated_at' => now(),
+                    ]);
+            }
         }
     }
 
@@ -270,13 +399,28 @@ class CreateSystemCliTasksTables extends Migration
                     'updated_at' => now(),
                 ]);
             } catch (QueryException $exception) {
-                // Ignore duplicate race.
+                $this->fixPostgresSequence('role_permissions');
+
+                try {
+                    DB::table('role_permissions')->insert([
+                        'role_id' => 1,
+                        'permission' => $permission,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                } catch (QueryException $retryException) {
+                    // Ignore duplicate race or already repaired entry.
+                }
             }
         }
     }
 
     protected function fixPostgresSequence(string $table): void
     {
+        if (DB::connection()->getDriverName() !== 'pgsql') {
+            return;
+        }
+
         try {
             $fullTable = DB::getTablePrefix() . $table;
             $maxId = DB::table($table)->max('id') ?? 0;

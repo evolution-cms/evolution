@@ -15,7 +15,6 @@ $_Lang['alert_overwrite'] = "Встановлення цього доповне�
 
 /* Main */
 $_Lang['store_name'] = "Керування пакетами";
-$_Lang['version_evailble'] = "Доступна нова версія";
 $_Lang['category'] = "Категорії";
 
 /* Login form */
