@@ -15,7 +15,6 @@ $_Lang['alert_overwrite'] = "Installing this add-on will overwrite the existing 
 
 /*Main*/
 $_Lang['store_name'] = "Package Management";
-$_Lang['version_evailble'] = "A new version";
 $_Lang['category'] = "Categories";
 
 /*Login form*/

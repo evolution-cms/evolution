@@ -14,7 +14,6 @@ $_Lang['alert_overwrite'] = "すでに存在するアドオンを上書きしま
 
 /*Main*/
 $_Lang['store_name'] = "Package Management";
-$_Lang['version_evailble'] = "新しいバージョン";
 $_Lang['category'] = "カテゴリ";
 
 /*Login form*/

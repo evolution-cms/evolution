@@ -14,7 +14,6 @@ $_Lang['alert_overwrite'] = "L'installazione di questo add-on sovrascrive quelli
 
 /*Main*/
 $_Lang['store_name'] = "Gestione Pacchetti";
-$_Lang['version_evailble'] = "Una nuova versione";
 $_Lang['category'] = "Categorie";
 
 /*Login form*/
