@@ -1,8 +1,6 @@
 <?php namespace EvolutionCMS\Console;
 
-use Composer\Console\Application;
 use Illuminate\Console\Command;
-use Symfony\Component\Console\Input\ArrayInput;
 
 /**
  * @see: https://github.com/laravel-zero/foundation/blob/9.x/src/Illuminate/Foundation/Console/ClearCompiledCommand.php
@@ -21,7 +19,8 @@ class SiteUpdateCommand extends Command
      */
     protected $signature = 'make:site
                             {command_site=update : Update action to run. Keep "update" for normal core updates}
-                            {version=null : Optional tag, branch or commit hash. Examples: 3.5.4, 3.5.x, 922ece660}';
+                            {version=null : Optional tag, branch or commit hash. Examples: 3.5.4, 3.5.x, 922ece660}
+                            {--repository= : Optional GitHub repository slug. Example: middleDuckAi/evolution}';
     /**
      * The console command description.
      *
@@ -50,6 +49,9 @@ You can also request a specific ref manually:
 
   php artisan make:site update 3.5.x
     Update to the current HEAD of the 3.5.x branch.
+
+  php artisan make:site update 3.5.x --repository=middleDuckAi/evolution
+    Update from a branch in a custom repository, useful for testing a fork.
 
   php artisan make:site update 922ece66071acecaea9afb8486791738acc6de5e
     Update to a specific commit.
@@ -210,18 +212,14 @@ HELP;
                 }
             }
             putenv('COMPOSER_HOME=' . EVO_CORE_PATH . 'composer');
-            $input = new ArrayInput(['command' => 'update']);
-            $application = new Application();
-            $application->setAutoExit(false);
-            $application->run($input);
-            $this->line('<fg=green>Run Migrations</>');
-            exec('php  ../install/cli-install.php --typeInstall=2 --removeInstall=y');
+            $this->installComposerDependencies();
+            $this->line('<fg=green>Rebuild optimized autoload</>');
+            $this->runCoreShellCommand('composer dump-autoload -o --no-dev --classmap-authoritative');
+            $this->line('<fg=green>Run Core Migrations</>');
+            $this->runCoreShellCommand('php artisan migrate --force');
 
             $this->line('<fg=green>Remove Install Directory</>');
             self::rmdirs(EVO_BASE_PATH . 'install');
-
-            $this->line('<fg=green>Run Composer update</>');
-            exec('composer update');
 
             $this->line('<fg=yellow;bg=blue>Now You use ' . $factoryName . '</>');
         } else {
@@ -237,9 +235,150 @@ HELP;
      */
     protected function resolveUpdateRepository(): string
     {
+        try {
+            $optionRepository = $this->normalizeUpdateRepository((string) $this->option('repository'));
+            if ($optionRepository !== '') {
+                return $optionRepository;
+            }
+        } catch (\Throwable $exception) {
+            // Unit tests can call protected helpers without a bound console input.
+        }
+
         $updateRepository = (string) evo()->getConfig('UpgradeRepository');
 
-        return $updateRepository !== '' ? trim($updateRepository, '/') : self::DEFAULT_UPGRADE_REPOSITORY;
+        $updateRepository = $this->normalizeUpdateRepository($updateRepository);
+
+        return $updateRepository !== '' ? $updateRepository : self::DEFAULT_UPGRADE_REPOSITORY;
+    }
+
+    /**
+     * Install Composer dependencies after core files are replaced.
+     *
+     * Clean Evolution installs can use the shipped lock file directly. Sites with
+     * core/custom/composer.json need a targeted lock refresh for those packages,
+     * otherwise Composer installs the new core lock and leaves custom providers
+     * registered without their vendor classes.
+     *
+     * @since 3.5.7
+     * @return void
+     */
+    protected function installComposerDependencies(): void
+    {
+        $customPackages = $this->resolveCustomComposerPackages();
+
+        if ($customPackages !== []) {
+            $this->line('<fg=green>Install Composer dependencies with custom packages</>');
+            $this->runCoreShellCommand($this->buildCustomComposerUpdateCommand($customPackages));
+            return;
+        }
+
+        $this->line('<fg=green>Install Composer dependencies</>');
+        $this->runCoreShellCommand('composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative');
+    }
+
+    /**
+     * Resolve package names from the local custom Composer layer.
+     *
+     * Platform requirements such as php/ext-json are intentionally ignored because
+     * Composer cannot update them as packages. The merged root composer.json still
+     * validates those constraints during install/update.
+     *
+     * @since 3.5.7
+     * @return array<int, string>
+     */
+    protected function resolveCustomComposerPackages(): array
+    {
+        $customComposer = EVO_CORE_PATH . 'custom/composer.json';
+        if (!is_file($customComposer)) {
+            return [];
+        }
+
+        $composer = json_decode((string) file_get_contents($customComposer), true);
+        if (!is_array($composer)) {
+            throw new \RuntimeException('Invalid custom composer.json.');
+        }
+
+        $requires = $composer['require'] ?? [];
+        if (!is_array($requires)) {
+            return [];
+        }
+
+        return $this->normalizeComposerPackageNames(array_keys($requires));
+    }
+
+    /**
+     * Keep only updateable Composer package names.
+     *
+     * @since 3.5.7
+     * @param array<int, mixed> $packages Raw Composer requirement names.
+     * @return array<int, string>
+     */
+    protected function normalizeComposerPackageNames(array $packages): array
+    {
+        $normalized = [];
+        foreach ($packages as $package) {
+            $package = trim((string) $package);
+            if ($package === '') {
+                continue;
+            }
+
+            if (preg_match('~^[a-z0-9][a-z0-9_.-]*/[a-z0-9][a-z0-9_.-]*$~i', $package) !== 1) {
+                continue;
+            }
+
+            $normalized[] = strtolower($package);
+        }
+
+        return array_values(array_unique($normalized));
+    }
+
+    /**
+     * Build a constrained Composer update command for custom packages.
+     *
+     * @since 3.5.7
+     * @param array<int, string> $packages Package names from core/custom/composer.json.
+     * @return string
+     */
+    protected function buildCustomComposerUpdateCommand(array $packages): string
+    {
+        $packages = $this->normalizeComposerPackageNames($packages);
+        if ($packages === []) {
+            throw new \RuntimeException('Custom Composer packages are missing.');
+        }
+
+        return 'composer update '
+            . implode(' ', array_map('escapeshellarg', $packages))
+            . ' --with-all-dependencies --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative';
+    }
+
+    protected function normalizeUpdateRepository(string $repository): string
+    {
+        return trim($repository, " \t\n\r\0\x0B/");
+    }
+
+    /**
+     * Run a shell command from the core directory.
+     *
+     * Core updates may be started from the manager, cron, or a shell with a different
+     * current working directory, so Composer and installer calls must not rely on cwd.
+     *
+     * @since 3.5.7
+     * @param string $command Command to execute from EVO_CORE_PATH.
+     * @return void
+     */
+    protected function runCoreShellCommand(string $command): void
+    {
+        $fullCommand = 'cd ' . escapeshellarg(EVO_CORE_PATH) . ' && ' . $command . ' 2>&1';
+        exec($fullCommand, $output, $exitCode);
+
+        if ((int) $exitCode !== 0) {
+            $message = 'Command failed: ' . $command;
+            if (!empty($output)) {
+                $message .= '. ' . implode("\n", array_slice($output, -8));
+            }
+
+            throw new \RuntimeException($message);
+        }
     }
 
     /**

@@ -592,6 +592,29 @@ test('site update task creation is blocked when worker health is unhealthy', fun
         ->and($response['error_code'])->toBe('SITE_UPDATE_BLOCKED');
 });
 
+test('site update task snapshot keeps custom update repository', function () {
+    $service = new SystemTaskService();
+    $response = $service->createSiteUpdateTask('middleDuck/evo-updater-manager-flow', [
+        'user_id' => 1,
+    ], true, 'middleDuckAi/evolution');
+    $task = SystemCliTask::query()->latest('id')->first();
+
+    expect($response['ok'])->toBeTrue()
+        ->and($response['task']['requested_version'])->toBe('middleDuck/evo-updater-manager-flow')
+        ->and($task->payload_json['target_ref'])->toBe('middleDuck/evo-updater-manager-flow')
+        ->and($task->payload_json['update_repository'])->toBe('middleDuckAi/evolution');
+});
+
+test('site update task rejects invalid custom update repository', function () {
+    $service = new SystemTaskService();
+    $response = $service->createSiteUpdateTask('3.5.x', [
+        'user_id' => 1,
+    ], true, 'https://github.com/middleDuckAi/evolution');
+
+    expect($response['ok'])->toBeFalse()
+        ->and($response['error_code'])->toBe('SNAPSHOT_INVALID');
+});
+
 test('task status payload denies access to another manager user', function () {
     $service = new SystemTaskService();
     $task = SystemCliTask::query()->create([

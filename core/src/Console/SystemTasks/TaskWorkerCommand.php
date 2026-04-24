@@ -2,6 +2,7 @@
 
 use EvolutionCMS\Services\SystemTasks\ConsoleInstallFlowService;
 use EvolutionCMS\Services\SystemTasks\ConsoleUninstallFlowService;
+use EvolutionCMS\Services\SystemTasks\SiteUpdateFlowService;
 use EvolutionCMS\Services\SystemTasks\SystemTaskService;
 use EvolutionCMS\Services\SystemTasks\WorkerHealthService;
 use Illuminate\Console\Command;
@@ -82,17 +83,26 @@ class TaskWorkerCommand extends Command
                     return self::SUCCESS;
 
                 case 'site_update':
-                    $taskService->markTaskFailed(
+                    $flow = new SiteUpdateFlowService();
+                    $result = $flow->execute($task, function ($step, $progress, $message, $level = 'info', array $context = []) use (&$task, $taskService) {
+                        $task = $taskService->updateTaskProgress(
+                            $task,
+                            'running',
+                            (int) $progress,
+                            (string) $step,
+                            (string) $message,
+                            (string) $level,
+                            $context
+                        );
+                    });
+
+                    $taskService->markTaskSucceeded(
                         $task,
-                        'SITE_UPDATE_NOT_IMPLEMENTED',
-                        'Site update task execution is not wired in this runtime slice yet.'
+                        isset($result['message']) ? (string) $result['message'] : 'Site update completed successfully.',
+                        isset($result['result']) && is_array($result['result']) ? $result['result'] : []
                     );
-                    $workerHealth->markFailure('SITE_UPDATE_NOT_IMPLEMENTED', $host, $pid);
-                    Log::warning('[system:task-worker] site update task is not wired yet', [
-                        'task_id' => (int) $task->id,
-                        'target' => (string) $task->target,
-                    ]);
-                    $this->warn('[system:task-worker] site update task is not wired yet');
+                    $workerHealth->markSuccess($host, $pid);
+                    $this->info('[system:task-worker] site update task completed');
                     return self::SUCCESS;
 
                 default:
