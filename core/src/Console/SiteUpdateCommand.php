@@ -216,7 +216,6 @@ HELP;
             $application->setAutoExit(false);
             $application->run($input);
 
-            $this->runLegacyInstallMigrations();
             $this->runCoreMigrations();
 
             $this->line('<fg=green>Remove Install Directory</>');
@@ -229,16 +228,6 @@ HELP;
         } else {
             $this->line('<fg=yellow;bg=blue>You use almost current version</>');
         }
-    }
-
-    protected function runLegacyInstallMigrations(): void
-    {
-        $this->line('<fg=green>Run Install Migrations</>');
-        $this->runUpdateProcess(
-            $this->legacyInstallMigrationCommand(),
-            EVO_CORE_PATH,
-            'Install migrations'
-        );
     }
 
     protected function runCoreMigrations(): void
@@ -263,11 +252,6 @@ HELP;
 
         $output = trim($process->getErrorOutput() . "\n" . $process->getOutput());
         throw new \RuntimeException($label . ' failed' . ($output !== '' ? ': ' . $output : '.'));
-    }
-
-    protected function legacyInstallMigrationCommand(): array
-    {
-        return [PHP_BINARY, '../install/cli-install.php', '--typeInstall=2', '--removeInstall=y'];
     }
 
     protected function coreMigrationCommand(): array

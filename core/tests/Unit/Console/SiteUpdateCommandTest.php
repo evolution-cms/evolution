@@ -43,15 +43,8 @@ test('normalizeRequestedVersion keeps explicit refs and normalizes empty input',
     expect(invokeSiteUpdateMethod($this->command, 'normalizeRequestedVersion', [null]))->toBe('null');
 });
 
-test('site updater runs install and core migrations during updates', function () {
+test('site updater runs core migrations during updates', function () {
     $source = (string) file_get_contents(dirname(__DIR__, 3) . '/src/Console/SiteUpdateCommand.php');
-
-    expect(invokeSiteUpdateMethod($this->command, 'legacyInstallMigrationCommand'))->toBe([
-        PHP_BINARY,
-        '../install/cli-install.php',
-        '--typeInstall=2',
-        '--removeInstall=y',
-    ]);
 
     expect(invokeSiteUpdateMethod($this->command, 'coreMigrationCommand'))->toBe([
         PHP_BINARY,
@@ -60,6 +53,7 @@ test('site updater runs install and core migrations during updates', function ()
         '--force',
     ]);
 
-    expect(strpos($source, '$this->runLegacyInstallMigrations();'))
-        ->toBeLessThan(strpos($source, '$this->runCoreMigrations();'));
+    expect($source)->toContain('$this->runCoreMigrations();');
+    expect($source)->not->toContain('runLegacyInstallMigrations');
+    expect($source)->not->toContain('legacyInstallMigrationCommand');
 });
