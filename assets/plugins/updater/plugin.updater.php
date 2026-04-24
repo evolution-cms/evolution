@@ -616,7 +616,7 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
 
         var progress = parseInt(task.progress || 0, 10);
         var logs = result.logs || task.logs || [];
-        var isFinished = task.status === 'succeeded' || task.status === 'failed' || task.force_close_button === true;
+        var isFinished = task.status === 'succeeded' || task.status === 'failed';
         var isSucceeded = task.status === 'succeeded';
 
         if (isNaN(progress)) {
@@ -627,7 +627,7 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
             lastTaskResult = result;
         }
 
-        if (isSucceeded || task.reload_on_close === true) {
+        if (isSucceeded) {
             reloadOnClose = true;
         }
 
@@ -663,23 +663,38 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
         }
 
         if (isFinished) {
-            html += '<div class="updater-system-task-actions"><button type="button" class="btn btn-primary" data-role="close">' + esc((isSucceeded || task.reload_on_close === true) ? t('close_reload', 'Close and reload') : t('close', 'Close')) + '</button></div>';
+            html += '<div class="updater-system-task-actions"><button type="button" class="btn btn-primary" data-role="close">' + esc(isSucceeded ? t('close_reload', 'Close and reload') : t('close', 'Close')) + '</button></div>';
         }
 
         setContent(html);
     }
 
     function renderRecoverablePollError(error) {
-        if (!activeTask || !activeTask.id) {
-            throw error;
-        }
+        var logs = (lastTaskResult && lastTaskResult.logs) || (activeTask && activeTask.logs) || [];
+        var html = '<h2 class="updater-system-task-title">' + esc(t('title', 'System update')) + '</h2>'
+            + '<p class="updater-system-task-text">' + esc(t('response_changed', 'The manager response changed while the update was running. Close this window to reload the manager and read the final state.')) + '</p>';
 
         reloadOnClose = true;
-        activeTask.message = t('response_changed', 'The manager response changed while the update was running. Close this window to reload the manager and read the final state.');
-        activeTask.force_close_button = true;
-        activeTask.reload_on_close = true;
 
-        renderTask(activeTask, lastTaskResult || {});
+        if (logs.length) {
+            html += '<div class="updater-system-task-logs">';
+            logs.forEach(function (log) {
+                var cls = 'updater-system-task-log';
+
+                if (log.level === 'error') {
+                    cls += ' is-error';
+                } else if (log.level === 'warning') {
+                    cls += ' is-warning';
+                }
+
+                html += '<div class="' + cls + '">' + esc(log.message || '') + '</div>';
+            });
+            html += '</div>';
+        }
+
+        html += '<div class="updater-system-task-actions"><button type="button" class="btn btn-primary" data-role="close">' + esc(t('close_reload', 'Close and reload')) + '</button></div>';
+
+        setContent(html);
     }
 
     function queue() {

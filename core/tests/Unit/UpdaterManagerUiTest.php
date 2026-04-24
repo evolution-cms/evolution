@@ -11,7 +11,9 @@ test('updater manager modal reloads after successful live update', function () {
         ->toContain('window.location.reload();')
         ->toContain('updater_live_update_close_reload')
         ->toContain('updater_live_update_response_changed')
-        ->toContain('normalized.substring(firstJsonChar, lastJsonChar + 1)');
+        ->toContain('normalized.substring(firstJsonChar, lastJsonChar + 1)')
+        ->toContain('function renderRecoverablePollError(error)')
+        ->not->toContain('activeTask.force_close_button');
 
     expect($enLang)
         ->toContain('updater_live_update_close_reload')
