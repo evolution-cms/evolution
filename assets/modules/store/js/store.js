@@ -70,17 +70,6 @@ store = {
 		};
 		return $.extend(obj1,param);
 	},
-	update:function(){
-		$.ajax({
-			url:'http://'+location.hostname+'/assets/modules/store/update.php',
-			cache:false,
-			data:{just:'empty'},
-			type:'get',
-			success:function(data){
-				window.location.reload();
-			}
-		})
-	},
 	verifyUser: function(){
 		if ($('[name="hash"]').val() !='') {
 			store.query('verifyuser',{'verify':'1'},function(data){
@@ -140,12 +129,6 @@ store = {
 			store.loadConsoleCatalog(function(){
 				store.finishCatalogBoot();
 			});
-
-			var version = $('.version').html();
-			if (data.version != version && version != '0.2.0') {
-					$('.new_version').html(data.version);
-					$('#actions').show();
-			}
 
 			if (data.user) {
 				store.showUserForms( data.user.result );

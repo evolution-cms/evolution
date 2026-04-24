@@ -14,7 +14,6 @@ $_Lang['alert_overwrite'] = "Установка данного дополнен�
 
 /*Main*/
 $_Lang['store_name'] = "Управление пакетами";
-$_Lang['version_evailble'] = "Доступна новая версия";
 $_Lang['category'] = "Категории";
 
 /*Login form*/

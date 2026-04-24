@@ -14,7 +14,6 @@ $_Lang['alert_overwrite'] = "Installeren van deze add-on zal uw bestaande oversc
 
 /*Main*/
 $_Lang['store_name'] = "Pakket Manager";
-$_Lang['version_evailble'] = "Een nieuwe versie";
 $_Lang['category'] = "Categorieën";
 
 /*Login form*/
