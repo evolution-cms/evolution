@@ -2,11 +2,6 @@
 
 namespace Laravel\SerializableClosure\Support;
 
-defined('T_NAME_QUALIFIED') || define('T_NAME_QUALIFIED', -4);
-defined('T_NAME_FULLY_QUALIFIED') || define('T_NAME_FULLY_QUALIFIED', -5);
-defined('T_FN') || define('T_FN', -6);
-defined('T_NULLSAFE_OBJECT_OPERATOR') || define('T_NULLSAFE_OBJECT_OPERATOR', -7);
-
 use Closure;
 use ReflectionFunction;
 
@@ -526,6 +521,16 @@ class ReflectionClosure extends ReflectionFunction
                             $code .= $token[1];
                             $state = 'anonymous';
                             break;
+                        case '(':
+                            if ($context === 'instanceof') {
+                                $code .= '(';
+                                if ($isShortClosure) {
+                                    $open++;
+                                }
+                                $state = $lastState;
+                                break;
+                            }
+                            // no break
                         default:
                             $i--; //reprocess last
                             $state = 'id_name';
@@ -596,7 +601,7 @@ class ReflectionClosure extends ReflectionFunction
                                     if (! $inside_structure) {
                                         $isUsingScope = $token[0] === T_DOUBLE_COLON;
                                     }
-                                } elseif (! (\PHP_MAJOR_VERSION >= 7 && in_array($id_start_ci, $builtin_types))) {
+                                } elseif (! in_array($id_start_ci, $builtin_types)) {
                                     if ($classes === null) {
                                         $classes = $this->getClasses();
                                     }
@@ -643,10 +648,10 @@ class ReflectionClosure extends ReflectionFunction
                                     $context === 'root'
                                 ) {
                                     if (in_array($id_start_ci, $class_keywords)) {
-                                        if (! $inside_structure && ! $id_start_ci === 'static') {
+                                        if (! $inside_structure && $id_start_ci !== 'static') {
                                             $isUsingScope = true;
                                         }
-                                    } elseif (! (\PHP_MAJOR_VERSION >= 7 && in_array($id_start_ci, $builtin_types))) {
+                                    } elseif (! in_array($id_start_ci, $builtin_types)) {
                                         if ($classes === null) {
                                             $classes = $this->getClasses();
                                         }
@@ -695,10 +700,27 @@ class ReflectionClosure extends ReflectionFunction
             }
         }
 
-        $attributesCode = array_map(function ($attribute) {
-            $arguments = $attribute->getArguments();
-
+        $attributesCode = array_values(array_filter(array_map(function ($attribute) {
             $name = $attribute->getName();
+
+            // Skip attributes that cannot target functions. When a closure is
+            // created from a method (e.g. `$obj->method(...)`), the method's
+            // attributes are inherited. Attributes that only target methods
+            // (like #[\Override]) would cause a fatal error when applied to
+            // the serialized closure function.
+            if (class_exists($name)) {
+                $ref = new \ReflectionClass($name);
+                $attrAttributes = $ref->getAttributes(\Attribute::class);
+
+                if (! empty($attrAttributes)) {
+                    $flags = $attrAttributes[0]->getArguments()[0] ?? \Attribute::TARGET_ALL;
+                    if (($flags & \Attribute::TARGET_FUNCTION) === 0) {
+                        return null;
+                    }
+                }
+            }
+
+            $arguments = $attribute->getArguments();
             $arguments = implode(', ', array_map(function ($argument, $key) {
                 $argument = var_export($argument, true);
 
@@ -710,7 +732,7 @@ class ReflectionClosure extends ReflectionFunction
             }, $arguments, array_keys($arguments)));
 
             return "#[$name($arguments)]";
-        }, $this->getAttributes());
+        }, $this->getAttributes())));
 
         if (count($candidates) > 1) {
             $lastItem = array_pop($candidates);
@@ -769,7 +791,7 @@ class ReflectionClosure extends ReflectionFunction
      */
     protected static function getBuiltinTypes()
     {
-        return ['array', 'callable', 'string', 'int', 'bool', 'float', 'iterable', 'void', 'object', 'mixed', 'false', 'null', 'never'];
+        return ['array', 'callable', 'string', 'int', 'bool', 'float', 'iterable', 'void', 'object', 'mixed', 'false', 'null', 'never', 'true'];
     }
 
     /**

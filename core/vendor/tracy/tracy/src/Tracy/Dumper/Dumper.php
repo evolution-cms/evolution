@@ -140,7 +140,7 @@ class Dumper
 
 
 	/**
-	 * Dumps variable to plain text.
+	 * Returns variable dump as plain text.
 	 * @param  array<string, mixed>  $options
 	 */
 	public static function toText(mixed $var, array $options = []): string
@@ -150,7 +150,7 @@ class Dumper
 
 
 	/**
-	 * Dumps variable to x-terminal.
+	 * Returns variable dump as ANSI-colored terminal output.
 	 * @param  array<string, mixed>  $options
 	 */
 	public static function toTerminal(mixed $var, array $options = []): string
@@ -171,7 +171,7 @@ class Dumper
 
 		$sent = true;
 
-		$nonceAttr = ($nonce = Helpers::getNonce()) ? ' nonce="' . Helpers::escapeHtml($nonce) . '"' : '';
+		$nonceAttr = Helpers::getNonce(attr: true);
 		$s = (Debugger::$showBar ? '' : file_get_contents(__DIR__ . '/../assets/reset.css'))
 			. file_get_contents(__DIR__ . '/../assets/toggle.css')
 			. file_get_contents(__DIR__ . '/assets/dumper-light.css')
@@ -261,7 +261,7 @@ class Dumper
 	/** @param  array{0?: Dumper\Value[], 1?: mixed[]}  $snapshot */
 	public static function formatSnapshotAttribute(array &$snapshot): string
 	{
-		$res = "'" . Renderer::jsonEncode($snapshot[0] ?? []) . "'";
+		$res = "'" . Helpers::jsonEncode($snapshot[0] ?? []) . "'";
 		$snapshot = [];
 		return $res;
 	}
