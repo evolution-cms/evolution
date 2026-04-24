@@ -593,7 +593,6 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
         setContent(
             '<h2 class="updater-system-task-title">' + esc(t('title', 'System update')) + '</h2>'
             + '<p class="updater-system-task-text">' + esc(t('intro', 'Scheduler is available. The update can be queued and monitored from the manager.')) + '</p>'
-            + '<div class="updater-system-task-warning is-danger"><strong>' + esc(t('backup', 'Do not forget to create a backup before updating.')) + '</strong></div>'
             + '<label class="updater-system-task-check"><input type="checkbox" data-role="backup-database" checked> <span>' + esc(t('backup_checkbox', 'Create database backup before updating')) + (config.currentVersion ? ' <small>(' + esc(t('current_version', 'current version')) + ': ' + esc(config.currentVersion) + ')</small>' : '') + '</span></label>'
             + '<div class="updater-system-task-meta">'
             + '<div><small>' + esc(t('current', 'Current version')) + '</small><br><strong>' + esc(config.currentVersion || '') + '</strong></div>'
