@@ -425,6 +425,8 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
     var payload = {};
     var timer = null;
     var activeTask = null;
+    var lastTaskResult = null;
+    var reloadOnClose = false;
 
     try {
         payload = payloadNode ? JSON.parse(payloadNode.textContent || '{}') : {};
@@ -493,6 +495,17 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
                 try {
                     return JSON.parse(normalized);
                 } catch (error) {
+                    var firstJsonChar = normalized.indexOf('{');
+                    var lastJsonChar = normalized.lastIndexOf('}');
+
+                    if (firstJsonChar !== -1 && lastJsonChar > firstJsonChar) {
+                        try {
+                            return JSON.parse(normalized.substring(firstJsonChar, lastJsonChar + 1));
+                        } catch (innerError) {
+                            // Fall through to the normalized manager error below.
+                        }
+                    }
+
                     throw new Error(t('invalid_response', 'Manager returned an invalid update response.'));
                 }
             });
@@ -509,6 +522,10 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
 
         if (modal) {
             modal.parentNode.removeChild(modal);
+        }
+
+        if (reloadOnClose) {
+            window.location.reload();
         }
     }
 
@@ -544,6 +561,7 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
             '.updater-system-task-text{margin:0 0 12px 0;color:#c9d0dc;line-height:1.45}',
             '.updater-system-task-warning{margin:12px 0;padding:12px 14px;border-radius:10px;background:rgba(255,193,7,.14);color:#ffd36a;border:1px solid rgba(255,193,7,.28)}',
             '.updater-system-task-warning.is-danger{background:rgba(220,53,69,.16);color:#ff7b8a;border-color:rgba(220,53,69,.36)}',
+            '.updater-system-task-warning.is-success{background:rgba(40,167,69,.16);color:#8fe1a4;border-color:rgba(40,167,69,.36)}',
             '.updater-system-task-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:14px 0}',
             '.updater-system-task-meta div{padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}',
             '.updater-system-task-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}',
@@ -598,9 +616,19 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
 
         var progress = parseInt(task.progress || 0, 10);
         var logs = result.logs || task.logs || [];
+        var isFinished = task.status === 'succeeded' || task.status === 'failed' || task.force_close_button === true;
+        var isSucceeded = task.status === 'succeeded';
 
         if (isNaN(progress)) {
             progress = 0;
+        }
+
+        if (isFinished) {
+            lastTaskResult = result;
+        }
+
+        if (isSucceeded || task.reload_on_close === true) {
+            reloadOnClose = true;
         }
 
         var html = '<h2 class="updater-system-task-title">' + esc(t('title', 'System update')) + '</h2>'
@@ -611,6 +639,10 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
             + '<div><small>' + esc(t('progress', 'Progress')) + '</small><br><strong>' + progress + '%</strong></div>'
             + '</div>'
             + '<div class="updater-system-task-progress"><span style="width:' + Math.max(0, Math.min(100, progress)) + '%"></span></div>';
+
+        if (isSucceeded) {
+            html += '<div class="updater-system-task-warning is-success"><strong>' + esc(t('completed', 'Update completed. Close this window to reload the manager and verify the new version.')) + '</strong></div>';
+        }
 
         if (logs.length) {
             html += '<div class="updater-system-task-logs">';
@@ -630,11 +662,24 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
             html += '</div>';
         }
 
-        if (task.status === 'succeeded' || task.status === 'failed') {
-            html += '<div class="updater-system-task-actions"><button type="button" class="btn btn-primary" data-role="close">' + esc(t('close', 'Close')) + '</button></div>';
+        if (isFinished) {
+            html += '<div class="updater-system-task-actions"><button type="button" class="btn btn-primary" data-role="close">' + esc((isSucceeded || task.reload_on_close === true) ? t('close_reload', 'Close and reload') : t('close', 'Close')) + '</button></div>';
         }
 
         setContent(html);
+    }
+
+    function renderRecoverablePollError(error) {
+        if (!activeTask || !activeTask.id) {
+            throw error;
+        }
+
+        reloadOnClose = true;
+        activeTask.message = t('response_changed', 'The manager response changed while the update was running. Close this window to reload the manager and read the final state.');
+        activeTask.force_close_button = true;
+        activeTask.reload_on_close = true;
+
+        renderTask(activeTask, lastTaskResult || {});
     }
 
     function queue() {
@@ -671,7 +716,8 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
             }
 
             activeTask = response.task;
-            renderTask(activeTask, response.result || response);
+            lastTaskResult = response.result || response;
+            renderTask(activeTask, lastTaskResult);
 
             if (activeTask.status === 'succeeded' || activeTask.status === 'failed') {
                 return;
@@ -679,11 +725,15 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
 
             timer = setTimeout(poll, 2200);
         }).catch(function (error) {
-            setContent(
-                '<h2 class="updater-system-task-title">' + esc(t('title', 'System update')) + '</h2>'
-                + '<div class="updater-system-task-warning">' + esc(error.message || t('failed', 'Unable to read update status.')) + '</div>'
-                + '<div class="updater-system-task-actions"><button type="button" class="btn btn-primary" data-role="close">' + esc(t('close', 'Close')) + '</button></div>'
-            );
+            try {
+                renderRecoverablePollError(error);
+            } catch (fallbackError) {
+                setContent(
+                    '<h2 class="updater-system-task-title">' + esc(t('title', 'System update')) + '</h2>'
+                    + '<div class="updater-system-task-warning">' + esc(fallbackError.message || t('failed', 'Unable to read update status.')) + '</div>'
+                    + '<div class="updater-system-task-actions"><button type="button" class="btn btn-primary" data-role="close">' + esc(t('close', 'Close')) + '</button></div>'
+                );
+            }
         });
     }
 
@@ -1067,6 +1117,9 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                                 'step' => updaterLang($_lang, 'updater_live_update_step', 'Step'),
                                 'progress' => updaterLang($_lang, 'updater_live_update_progress', 'Progress'),
                                 'close' => updaterLang($_lang, 'updater_live_update_close', 'Close'),
+                                'close_reload' => updaterLang($_lang, 'updater_live_update_close_reload', 'Close and reload'),
+                                'completed' => updaterLang($_lang, 'updater_live_update_completed', 'Update completed. Close this window to reload the manager and verify the new version.'),
+                                'response_changed' => updaterLang($_lang, 'updater_live_update_response_changed', 'The manager response changed while the update was running. Close this window to reload the manager and read the final state.'),
                                 'failed' => updaterLang($_lang, 'updater_live_update_failed', 'Unable to start update.'),
                                 'invalid_response' => updaterLang($_lang, 'updater_live_update_invalid_response', 'Manager returned an invalid update response.'),
                             ]);
