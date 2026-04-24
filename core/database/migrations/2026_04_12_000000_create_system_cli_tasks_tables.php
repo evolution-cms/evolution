@@ -417,6 +417,10 @@ class CreateSystemCliTasksTables extends Migration
 
     protected function fixPostgresSequence(string $table): void
     {
+        if (DB::connection()->getDriverName() !== 'pgsql') {
+            return;
+        }
+
         try {
             $fullTable = DB::getTablePrefix() . $table;
             $maxId = DB::table($table)->max('id') ?? 0;
