@@ -10,6 +10,17 @@
     @if(class_exists(Tracy\Debugger::class) && evo()->get('config')->get('tracy.active'))
         {!! Tracy\Debugger::renderLoader() !!}
     @endif
+    <script>
+        (function () {
+            try {
+                var platform = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent || '';
+                if (/win/i.test(platform)) {
+                    document.documentElement.classList.add('evo-custom-scrollbars');
+                }
+            } catch (error) {
+            }
+        })();
+    </script>
     <link rel="stylesheet" type="text/css" href="{{ManagerTheme::css()}}"/>
     <script type="text/javascript" src="media/script/tabpane.js"></script>
     <script type="text/javascript" src="{{evo()->getConfig('mgr_jquery_path')}}"></script>

@@ -1715,7 +1715,17 @@
                             this.reload = 1;
                             if (this.tab.onclick === null) {
                                 this.tab.onclick = function (e) {
-                                    s.select.call(s, e, this);
+                                    return s.select.call(s, e, this);
+                                };
+                                this.tab.ondblclick = function (e) {
+                                    if (e && e.preventDefault) {
+                                        e.preventDefault();
+                                    }
+                                    if (e && e.stopPropagation) {
+                                        e.stopPropagation();
+                                    }
+                                    s.reloadFrame();
+                                    return false;
                                 };
                             }
                             this.tab.show = function (e) {
@@ -1779,16 +1789,31 @@
                     this.tab.id = 'evo-tab-' + this.uid;
                     this.tab.className = 'tab' + (keepSelected ? '' : ' selected');
                     this.icon = '';
-                    if (!/<i/.test(this.title)) {
-                        this.icon = '<i class="' + evo.setTypeIcon(this.action) + '"></i>';
+                    if (!/<(?:i|svg)\b/i.test(this.title)) {
+                        var typeIcon = evo.setTypeIcon(this.action);
+                        this.icon = /</.test(typeIcon) ? typeIcon : '<i class="' + typeIcon + '"></i>';
                     }
                     this.txt = evo.title(this.title);
-                    this.tab.innerHTML = '<span class="tab-title" title="' + this.txt + '">' + this.icon + this.title + '</span><span class="tab-close">×</span>';
+                    this.tab.innerHTML = '<span class="tab-title">' + this.icon + this.title + '</span><span class="tab-close">×</span>';
+                    this.cleanTitle();
                     this.tab.dataset.url = this.url;
                     this.tab.dataset.title = this.title;
                     this.row.appendChild(this.tab);
                     this.tab.onclick = function (e) {
-                        s.select.call(s, e, this);
+                        return s.select.call(s, e, this);
+                    };
+                    this.tab.ondblclick = function (e) {
+                        if (e && e.preventDefault) {
+                            e.preventDefault();
+                        }
+                        if (e && e.stopPropagation) {
+                            e.stopPropagation();
+                        }
+                        if (e && e.target && e.target.classList && e.target.classList.contains('tab-close')) {
+                            return false;
+                        }
+                        s.reloadFrame();
+                        return false;
                     };
                     this.tab.close = function (e) {
                         s.close.call(s, e);
@@ -1840,7 +1865,8 @@
                             this.title = w.main.document.body.querySelectorAll('h1')[0] && w.main.document.body.querySelectorAll('h1')[0].innerHTML || this.title;
                             this.txt = evo.title(this.title);
                             if (this.title && this.uid !== 'home') {
-                                this.tab.innerHTML = '<span class="tab-title" title="' + this.txt + '">' + this.title + '</span><span class="tab-close">×</span>';
+                                this.tab.innerHTML = '<span class="tab-title">' + this.title + '</span><span class="tab-close">×</span>';
+                                this.cleanTitle();
                             }
                             this.page.id = 'evo-tab-page-' + this.uid;
                             this.tab.id = 'evo-tab-' + this.uid;
@@ -1871,6 +1897,28 @@
                                 }
                             }, false);
                         }
+                    }
+                },
+                cleanTitle: function () {
+                    var titleEl = this.tab && this.tab.querySelector ? this.tab.querySelector('.tab-title') : null;
+                    if (!titleEl) {
+                        return;
+                    }
+                    titleEl.removeAttribute('title');
+                    titleEl.removeAttribute('data-tooltip');
+                    var removable = titleEl.querySelectorAll('.help, svg title');
+                    for (var i = removable.length - 1; i >= 0; i--) {
+                        removable[i].parentNode.removeChild(removable[i]);
+                    }
+                    var titled = titleEl.querySelectorAll('[title], [data-tooltip]');
+                    for (var j = 0; j < titled.length; j++) {
+                        titled[j].removeAttribute('title');
+                        titled[j].removeAttribute('data-tooltip');
+                    }
+                    var svgs = titleEl.querySelectorAll('svg');
+                    for (var k = 0; k < svgs.length; k++) {
+                        svgs[k].setAttribute('aria-hidden', 'true');
+                        svgs[k].setAttribute('focusable', 'false');
                     }
                 },
                 show: function () {
@@ -1938,14 +1986,21 @@
                     evo.main.stopWork();
                 },
                 select: function (e) {
-                    if (e.target.className === 'tab-close') {
+                    if (e && e.preventDefault) {
+                        e.preventDefault();
+                    }
+                    if (e && e.stopPropagation) {
+                        e.stopPropagation();
+                    }
+                    var isClose = e && e.target && e.target.classList && e.target.classList.contains('tab-close');
+                    if (isClose) {
                         this.close(e);
                     } else if (evo.tabs.selected === this.tab) {
                         var s = this;
                         if (this.timer) {
                             clearTimeout(this.timer);
                             this.timer = null;
-                            w.main.location.reload();
+                            this.reloadFrame();
                         } else {
                             this.timer = setTimeout(function () {
                                 s.timer = null;
@@ -1954,6 +2009,7 @@
                     } else {
                         this.show();
                     }
+                    return false;
                 },
                 setDocPublished: function () {
                     var el = w.main.document.getElementsByName('publishedcheck')[0];
@@ -1962,7 +2018,25 @@
                         w.main.document.getElementsByName('published')[0].value = +el.checked;
                     }
                     if (evo.getActionFromUrl(evo.normalizeUrl(w.main.location.href), 3)) {
-                        w.main.location.reload();
+                        this.reloadFrame();
+                    }
+                },
+                reloadFrame: function () {
+                    var frame = this.page && this.page.firstElementChild;
+                    if (!frame) {
+                        return;
+                    }
+                    var url = '';
+                    try {
+                        url = frame.contentWindow && frame.contentWindow.location ? frame.contentWindow.location.href : '';
+                    } catch (ignore) {
+                        url = '';
+                    }
+                    url = url || frame.getAttribute('src') || this.url;
+                    try {
+                        frame.contentWindow.location.replace(url);
+                    } catch (ignore) {
+                        frame.src = url;
                     }
                 }
             };

@@ -327,10 +327,10 @@ ul.sortableList li.ghost { z-index: 2; box-shadow: 0 0.25rem 1.5rem rgba(0, 0, 0
 .dark .content-blocks input[type="text"], .dark .content-blocks input[type="password"], .dark .content-blocks input[type="number"], .dark .content-blocks textarea { background-color: #fbfbfb !important; border-color: #dbdbdb !important; }
 .dark .content-blocks .controls { background: #f9f9f9 !important; }
 .dark .widgets .card-header { color: #616a73; background-color: #fafafa; }
-::-webkit-scrollbar, *::-webkit-scrollbar, ::-webkit-scrollbar-thumb, *::-webkit-scrollbar-thumb { width: 1rem; height: 1rem; background-color: transparent; border-radius: .5rem; border: .25rem solid transparent; }
-::-webkit-scrollbar-thumb, *::-webkit-scrollbar-thumb, :hover::-webkit-scrollbar-thumb, *:hover::-webkit-scrollbar-thumb { box-shadow: inset 0 0 0 1rem rgba(0, 0, 0, 0.15); }
-::-webkit-scrollbar-thumb:hover, *::-webkit-scrollbar-thumb:hover { box-shadow: inset 0 0 0 1rem rgba(0, 0, 0, 0.3); }
-::-webkit-scrollbar-corner, *::-webkit-scrollbar-corner { background-color: transparent; }
+html.evo-custom-scrollbars::-webkit-scrollbar, html.evo-custom-scrollbars *::-webkit-scrollbar, html.evo-custom-scrollbars::-webkit-scrollbar-thumb, html.evo-custom-scrollbars *::-webkit-scrollbar-thumb { width: 1rem; height: 1rem; background-color: transparent; border-radius: .5rem; border: .25rem solid transparent; }
+html.evo-custom-scrollbars::-webkit-scrollbar-thumb, html.evo-custom-scrollbars *::-webkit-scrollbar-thumb, html.evo-custom-scrollbars:hover::-webkit-scrollbar-thumb, html.evo-custom-scrollbars *:hover::-webkit-scrollbar-thumb { box-shadow: inset 0 0 0 1rem rgba(0, 0, 0, 0.15); }
+html.evo-custom-scrollbars::-webkit-scrollbar-thumb:hover, html.evo-custom-scrollbars *::-webkit-scrollbar-thumb:hover { box-shadow: inset 0 0 0 1rem rgba(0, 0, 0, 0.3); }
+html.evo-custom-scrollbars::-webkit-scrollbar-corner, html.evo-custom-scrollbars *::-webkit-scrollbar-corner { background-color: transparent; }
 /* darkness */
 .darkness { background-color: #282c34; color: #aaa }
 .darkness .container-body { background-color: #282c34; }
@@ -447,10 +447,10 @@ ul.sortableList li.ghost { z-index: 2; box-shadow: 0 0.25rem 1.5rem rgba(0, 0, 0
 .darkness .mce-splitbtn .mce-open:hover, .darkness .mce-splitbtn .mce-open:active, .darkness .mce-splitbtn:hover .mce-open, .darkness .mce-splitbtn.mce-active:hover .mce-open { border-left: 1px solid #3d4045; }
 .darkness .mce-checked i.mce-i-checkbox { color: #aaa; }
 .darkness .mce-textbox { font-family: monospace; }
-.darkness::-webkit-scrollbar, .darkness *::-webkit-scrollbar, .darkness::-webkit-scrollbar-thumb, .darkness *::-webkit-scrollbar-thumb { width: 1rem; height: 1rem; background-color: transparent; border-radius: .5rem; border: .25rem solid transparent; }
-.darkness::-webkit-scrollbar-thumb, .darkness *::-webkit-scrollbar-thumb, .darkness:hover::-webkit-scrollbar-thumb, .darkness *:hover::-webkit-scrollbar-thumb { box-shadow: inset 0 0 0 1rem rgba(255, 255, 255, 0.1); }
-.darkness::-webkit-scrollbar-thumb:hover, .darkness *::-webkit-scrollbar-thumb:hover { box-shadow: inset 0 0 0 1rem rgba(255, 255, 255, 0.2); }
-.darkness::-webkit-scrollbar-corner, .darkness *::-webkit-scrollbar-corner { background-color: transparent; }
+html.evo-custom-scrollbars .darkness::-webkit-scrollbar, html.evo-custom-scrollbars .darkness *::-webkit-scrollbar, html.evo-custom-scrollbars .darkness::-webkit-scrollbar-thumb, html.evo-custom-scrollbars .darkness *::-webkit-scrollbar-thumb { width: 1rem; height: 1rem; background-color: transparent; border-radius: .5rem; border: .25rem solid transparent; }
+html.evo-custom-scrollbars .darkness::-webkit-scrollbar-thumb, html.evo-custom-scrollbars .darkness *::-webkit-scrollbar-thumb, html.evo-custom-scrollbars .darkness:hover::-webkit-scrollbar-thumb, html.evo-custom-scrollbars .darkness *:hover::-webkit-scrollbar-thumb { box-shadow: inset 0 0 0 1rem rgba(255, 255, 255, 0.1); }
+html.evo-custom-scrollbars .darkness::-webkit-scrollbar-thumb:hover, html.evo-custom-scrollbars .darkness *::-webkit-scrollbar-thumb:hover { box-shadow: inset 0 0 0 1rem rgba(255, 255, 255, 0.2); }
+html.evo-custom-scrollbars .darkness::-webkit-scrollbar-corner, html.evo-custom-scrollbars .darkness *::-webkit-scrollbar-corner { background-color: transparent; }
 /*
 [ OTHERS COMPONENTS ] - this components need fix css
 */

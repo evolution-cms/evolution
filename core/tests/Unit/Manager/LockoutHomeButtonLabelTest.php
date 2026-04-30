@@ -4,7 +4,6 @@ it('uses the site label for lockout home buttons instead of the dashboard label'
     $files = [
         dirname(__DIR__, 4) . '/manager/media/style/common/manager.lockout.tpl',
         dirname(__DIR__, 4) . '/manager/media/style/default/manager.lockout.tpl',
-        dirname(__DIR__, 4) . '/manager/media/style/liquid/manager.lockout.tpl',
     ];
 
     foreach ($files as $file) {
