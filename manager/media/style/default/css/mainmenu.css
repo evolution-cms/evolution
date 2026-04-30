@@ -180,6 +180,11 @@
     height: 20px;
     display: block;
 }
+#mainMenu .nav > li > ul > li .fa,
+#mainMenu .nav > li > ul > li > a > svg:first-child,
+#mainMenu .nav > li > ul > li > a:first-child > .menu-module-icon {
+    transform: translateY(-1px);
+}
 #mainMenu #nav > li > a .menu-item-text {
     line-height: 1;
 }
@@ -328,6 +333,32 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
 #mainMenu .nav > li > ul > li > a > svg {
     width: 1rem;
     height: 1rem;
+}
+#mainMenu .nav > li > ul > li > a:first-child > .menu-module-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.3em;
+    height: 1rem;
+    margin-right: 0.5em;
+    color: currentColor;
+    vertical-align: middle;
+}
+#mainMenu .nav > li > ul > li > a:first-child > .menu-module-icon > i {
+    margin: 0;
+    width: 1.3em;
+    line-height: 1;
+}
+#mainMenu .nav > li > ul > li > a:first-child > .menu-module-icon > svg {
+    display: block;
+    width: 1.1rem;
+    height: 1.1rem;
+    margin: 0;
+    color: currentColor;
+    stroke: currentColor;
+}
+#mainMenu .nav > li > ul > li > a:first-child > .menu-module-icon > svg [stroke]:not([stroke="none"]) {
+    stroke: currentColor;
 }
 #mainMenu .nav > li > ul > li .arrow svg,
 #mainMenu .nav > li > ul > li .toggle svg,

@@ -12,7 +12,7 @@ use const ARRAY_FILTER_USE_KEY, ENT_IGNORE, PHP_VERSION_ID;
 
 
 /**
- * Red BlueScreen.
+ * Renders a beautiful error/exception page with syntax-highlighted stack trace.
  */
 class BlueScreen
 {
@@ -48,7 +48,7 @@ class BlueScreen
 	/** @var array<\Closure(string, ?string): ?string> */
 	private array $fileGenerators = [];
 
-	/** @var array<Dumper\Value> */
+	/** @var array{0?: Dumper\Value[], 1?: mixed[]} */
 	private array $snapshot = [];
 
 	/** @var \WeakMap<\Fiber|\Generator, true> */
@@ -173,8 +173,8 @@ class BlueScreen
 			$httpHeaders = array_combine(array_map(fn($k) => strtolower(strtr(substr($k, 5), '_', '-')), array_keys($httpHeaders)), $httpHeaders);
 		}
 
-		$snapshot = &$this->snapshot;
-		$snapshot = [];
+		$this->snapshot = [];
+		$snapshot = &$this->snapshot[0];
 		$dump = $this->getDumper();
 
 		$css = array_map(file_get_contents(...), array_merge([
@@ -202,6 +202,7 @@ class BlueScreen
 		$blueScreen = $this;
 
 		require $template;
+		$this->snapshot = [];
 	}
 
 
@@ -315,7 +316,7 @@ class BlueScreen
 
 
 	/**
-	 * Returns syntax highlighted source code.
+	 * Returns syntax highlighted snippet from a file, or null if the file cannot be read.
 	 */
 	public static function highlightFile(
 		string $file,
@@ -343,7 +344,7 @@ class BlueScreen
 
 
 	/**
-	 * Returns syntax highlighted source code.
+	 * Returns syntax highlighted PHP source code with the given line emphasized.
 	 */
 	public static function highlightPhp(string $source, int $line, int $lines = 15, int $column = 0): string
 	{
@@ -352,7 +353,7 @@ class BlueScreen
 
 
 	/**
-	 * Returns highlighted line in HTML code.
+	 * Returns highlighted line in already-tokenized HTML code.
 	 */
 	public static function highlightLine(string $html, int $line, int $lines = 15, int $column = 0): string
 	{

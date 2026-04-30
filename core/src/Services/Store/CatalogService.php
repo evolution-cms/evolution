@@ -42,6 +42,7 @@ class CatalogService
             $installVersion = $latestRelease !== '' ? $latestRelease : $defaultBranch;
             $displayVersion = $installVersion !== '' ? $installVersion : 'main';
             $fullName = isset($package['full_name']) ? trim((string) $package['full_name']) : '';
+            $downloads = $this->resolvePackageDownloads($package);
             $author = '';
             $composerKey = strtolower($composerName);
             if ($fullName !== '' && strpos($fullName, '/') !== false) {
@@ -115,7 +116,7 @@ class CatalogService
                 'raw_current_version' => $rawInstalledVersion,
                 'is_installed' => $isInstalled ? 1 : 0,
                 'cls' => $statusClass,
-                'downloads' => '',
+                'downloads' => $downloads,
                 'author' => $author,
                 'date' => '',
                 'source_url' => isset($package['html_url']) ? trim((string) $package['html_url']) : '',
@@ -257,6 +258,24 @@ class CatalogService
     private function getConsoleCatalogCacheDirectory(): string
     {
         return rtrim(EVO_CORE_PATH, '/\\') . DIRECTORY_SEPARATOR . 'custom' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'store';
+    }
+
+    private function resolvePackageDownloads(array $package): string
+    {
+        foreach (['downloads', 'downloads_monthly', 'downloads_daily'] as $field) {
+            if (!array_key_exists($field, $package) || $package[$field] === null || $package[$field] === '') {
+                continue;
+            }
+
+            if (is_numeric($package[$field])) {
+                $value = (int) $package[$field];
+                if ($value > 0) {
+                    return (string) $value;
+                }
+            }
+        }
+
+        return '';
     }
 
     private function getConsoleCatalogCachePath(): string

@@ -13,10 +13,8 @@ it('uses escaped site name placeholders in login and lockout templates', functio
     $files = [
         dirname(__DIR__, 4) . '/manager/media/style/common/login.tpl',
         dirname(__DIR__, 4) . '/manager/media/style/default/login.tpl',
-        dirname(__DIR__, 4) . '/manager/media/style/liquid/login.tpl',
         dirname(__DIR__, 4) . '/manager/media/style/common/manager.lockout.tpl',
         dirname(__DIR__, 4) . '/manager/media/style/default/manager.lockout.tpl',
-        dirname(__DIR__, 4) . '/manager/media/style/liquid/manager.lockout.tpl',
     ];
 
     foreach ($files as $file) {
