@@ -333,10 +333,12 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
     protected function moduleIconHtml(string $icon = ''): string
     {
         if ($icon === '') {
-            return $this->svgIcon('box');
+            $iconHtml = $this->svgIcon('box');
+        } else {
+            $iconHtml = $this->iconHtml($icon);
         }
 
-        return $this->iconHtml($icon);
+        return '<span class="menu-module-icon" aria-hidden="true">' . $iconHtml . '</span>';
     }
 
     protected function menuBars()
