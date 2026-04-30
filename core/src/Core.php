@@ -3105,13 +3105,15 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                     ];
                 }
 
-                $this['view']->share($data);
+                $viewData = $this->getDataForView();
+
+                $this['view']->share(array_merge($data, $viewData));
 
                 if ($this->isChunkProcessor('DLTemplate')) {
-                    app('DLTemplate')->blade->share($data);
+                    app('DLTemplate')->blade->share(array_merge($data, $viewData));
                 }
 
-                $tpl = $this['view']->make($template, $this->dataForView);
+                $tpl = $this['view']->make($template, $viewData);
                 $templateCode = $tpl->render();
             } else {
                 // get the template and start parsing!
@@ -6639,15 +6641,32 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
     /**
      * @param array $data
+     * @return $this
      */
     public function addDataToView($data = [])
     {
+        if (!is_array($data)) {
+            return $this;
+        }
+
         $this->dataForView = array_merge($this->dataForView, $data);
+        $this->shareDataForView($data);
+
+        return $this;
     }
 
     public function getDataForView()
     {
         return $this->dataForView;
+    }
+
+    protected function shareDataForView(array $data): void
+    {
+        if ($data === [] || !$this->bound('view')) {
+            return;
+        }
+
+        $this['view']->share($data);
     }
 
     /**
