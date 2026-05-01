@@ -132,14 +132,14 @@ text-transform: none; border: none; border-right: 1px solid #cfd2d6; border-left
 .evo-tab-row .tab-row .tab:not(#evo-tab-home) i, .evo-popup.evo-popup-iframe .evo-popup-header i { margin-right: .25em }
 .evo-tab-row .tab-row .tab:not(#evo-tab-home) svg, .evo-popup.evo-popup-iframe .evo-popup-header svg { margin-right: .25em }
 .evo-tab-row .tab-row .tab span { background: none !important }
-
+.evo-tab-row .tab-row .tab .tab-title, .evo-tab-row .tab-row .tab .tab-title * { font-size: inherit; font-weight: inherit; }
 .evo-tab-row .tab-row .tab,
-.evo-tab-row .tab-row .tab .tab-title {
-    font-size: .875rem;
-    font-weight: 600;
+.evo-tab-row .tab-row .tab .tab-title,
+.evo-tab-row .tab-row .tab .tab-title * {
+    font-size: .75rem;
+    font-weight: inherit;
     letter-spacing: 0;
 }
-
 .evo-tab-row .tab-row .tab .tab-title { float: left; width: 5rem; line-height: 2rem; text-overflow: ellipsis; overflow: hidden; }
 .evo-tab-row .tab-row .tab .tab-close { float: right; margin: 0 -.75rem 0 .5rem;
 padding: .25em; line-height: 1.3em; font-size: 1.3em; font-weight: 700; color: #9e9e9e }
