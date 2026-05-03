@@ -56,12 +56,12 @@ $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
 $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
 @endphp
 <!DOCTYPE html>
-<html dir="{{ManagerTheme::getTextDir()}}" lang="{{ManagerTheme::getLang()}}" xml:lang="{{ManagerTheme::getLang()}}">
+<html dir="{{ManagerTheme::getTextDir()}}" lang="{{ManagerTheme::getLang()}}" xml:lang="{{ManagerTheme::getLang()}}" class="manager-frame {{ManagerTheme::getThemeStyle()}}">
 <head>
     <title>{!! $managerTitle !!}</title>
     <meta http-equiv="Content-Type" content="text/html; charset={{ManagerTheme::getCharset()}}" />
     <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" />
-    <meta name="theme-color" content="#000" />
+    <meta name="theme-color" content="{{ ManagerTheme::getThemeColor() }}" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="stylesheet" type="text/css" href="{{$css}}" />
     @if (evo()->getConfig('show_picker'))
@@ -72,6 +72,9 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
     <style>
         #tree{width:{{$EVO_widthSideBar}}rem}
         #main,#resizer{left:{{$EVO_widthSideBar}}rem}
+        html.manager-frame,
+        html.manager-frame body,
+        html.manager-frame #frameset{background-color:{{ManagerTheme::getThemeColor()}}}
         .ios #main{-webkit-overflow-scrolling:touch;overflow-y:scroll;}
         #mainMenu #nav #bars .icon-expand,
         #mainMenu #nav #bars .icon-collapse{display:inline-block;}

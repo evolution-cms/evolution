@@ -636,6 +636,7 @@ class ManagerTheme implements ManagerThemeInterface
             'theme' => $this->getTheme(),
             'manager_theme_url' => $this->getThemeUrl(),
             'manager_theme_style' => $this->getThemeStyle(),
+            'manager_theme_color' => $this->getThemeColor(),
             'manager_path' => MGR_DIR,
             'site_name_text' => e((string)$this->getCore()->getConfig('site_name')),
             'site_name_attr' => htmlspecialchars((string)$this->getCore()->getConfig('site_name'), ENT_QUOTES, $this->getCharset()),
@@ -865,6 +866,18 @@ class ManagerTheme implements ManagerThemeInterface
         }
 
         return $out;
+    }
+
+    public function getThemeColor(): string
+    {
+        $colors = [
+            'light' => '#343944',
+            'lightness' => '#f9f9f9',
+            'dark' => '#212328',
+            'darkness' => '#212328',
+        ];
+
+        return $colors[$this->getThemeStyle()] ?? '#343944';
     }
 
     public function repairPassword($plh)

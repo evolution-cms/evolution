@@ -14,7 +14,7 @@ input[type=checkbox]:active, input[type=radio]:active { background-color: #fafaf
 input[type=checkbox]:focus, input[type=radio]:focus { border-color: #4d8ef9 !important; box-shadow: 0 0 0 1px rgba(77, 142, 249, 0.5) }
 input[type=checkbox]:checked, input[type=radio]:checked { background-position: 50% 50% }
 input[type=checkbox]:disabled, input[type=radio]:disabled, input[type=checkbox]:checked:disabled, input[type=radio]:checked:disabled, .btn:disabled, input[type=button]:disabled { background-color: #e9ecef !important; border-color: #d4d4d4 !important; box-shadow: none !important; pointer-events: none; }
-button, input, optgroup, select, textarea { position: relative; font-family: 'Roboto', sans-serif; font-size: 0.8125rem; line-height: 1.23076923; margin: 0; -webkit-appearance: none; -moz-appearance: none; }
+button, input, optgroup, select, textarea { position: relative; font-family: inherit; font-size: 0.8125rem; line-height: 1.23076923; margin: 0; -webkit-appearance: none; -moz-appearance: none; }
 .form-control, input[type=text]:not(.form-control), input[type=password], input[type=number], input[type=email], input[type=date], input[type=url], input[type=search], select, textarea { display: inline-block; width: 100%; max-width: 100%; height: auto; padding: 0.46153846em .5em; line-height: 1.23076923; vertical-align: inherit; font-size: 0.8125rem; color: #464a4c; background-color: #fff; -webkit-background-clip: padding-box; background-clip: padding-box; border: 1px solid #d4d4d4; border-radius: .1em; -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s; transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s; -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s; }
 .form-control:focus, input:not([type=radio]):not([type=checkbox]):focus, select:focus, textarea:focus, .btn.focus, .btn:focus { z-index: 3; outline-offset: -1px; outline: rgba(77, 142, 249, 0.5) solid 2px; border-color: #66afe9; }
 .form-control:disabled, .form-control[readonly], .btn:disabled, input[type=button]:disabled { pointer-events: none }
@@ -77,7 +77,7 @@ select:not([size]):not([multiple]) { text-indent: -2px }
 .darkness .btn-info:hover { color: #fff; background-color: #31b0d5; border-color: #2aabd2; }
 .darkness .btn-default { color: #bbb; background-color: #202329; border-color: #202329 }
 .darkness .btn-default:hover { color: #fff; background-color: #1a1c21; border-color: #1a1c21 }
-.darkness #actions { right: 0; background-color: #282c34 }
+.darkness #actions { right: 0; background-color: #212328 }
 .darkness #actions .btn-group .btn-success { box-shadow: none }
 .darkness #actions .dropdown-menu .btn { background-color: #343942; border-radius: 0; color: #fff; }
 .darkness #actions .dropdown-menu .btn:hover { background-color: #3c424e; color: #fff }

@@ -194,7 +194,7 @@ body.darkness #main .evo-tab-row .tab-row h2.tab.selected svg,
 body.darkness #main .evo-tab-row .tab-row h2.tab.selected svg * { color: #eee !important; -webkit-text-fill-color: initial !important; }
 .dark .evo-tab-page, .dark .evo-tab-page iframe, .darkness .evo-tab-page, .darkness .evo-tab-page iframe { background-color: #ecf0f1 }
 /* darkness */
-.darkness .evo-popup.alert.evo-popup-iframe, .darkness .evo-tab-page iframe { background-color: #282c34 }
+.darkness .evo-popup.alert.evo-popup-iframe, .darkness .evo-tab-page iframe { background-color: #212328 }
 .darkness .evo-popup.evo-popup-iframe .close { opacity: 0.64; background-color: #ca000c; font-family: serif; }
 .darkness .evo-popup.evo-popup-iframe .close:hover { opacity: 1; }
 .darkness .evo-popup.evo-popup-iframe .evo-popup-header { border-bottom: 1px solid #17191d; }

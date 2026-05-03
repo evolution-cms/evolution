@@ -180,6 +180,21 @@
     height: 20px;
     display: block;
 }
+#mainMenu #nav #bars > a {
+    top: -1px;
+}
+#mainMenu #nav #bars svg,
+#mainMenu #searchform label,
+#mainMenu #searchform .label_searchid > svg {
+    position: relative;
+}
+#mainMenu #nav #bars svg {
+    top: -1px;
+}
+#mainMenu #searchform label,
+#mainMenu #searchform .label_searchid > svg {
+    top: -1px;
+}
 #mainMenu .nav > li > ul > li .fa,
 #mainMenu .nav > li > ul > li > a > svg:first-child,
 #mainMenu .nav > li > ul > li > a:first-child > .menu-module-icon {
@@ -351,8 +366,8 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
 }
 #mainMenu .nav > li > ul > li > a:first-child > .menu-module-icon > svg {
     display: block;
-    width: 1.1rem;
-    height: 1.1rem;
+    width: 1rem;
+    height: 1rem;
     margin: 0;
     color: currentColor;
     stroke: currentColor;
@@ -830,7 +845,7 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
     box-shadow: 0 0.25rem 0.25rem rgba(0, 0, 0, 0.3);
 }
 .dark #mainMenu {
-    background-color: #202329;
+    background-color: #212328;
     color: #bbb;
 }
 .dark #mainMenu .nav > li > a,
@@ -847,7 +862,7 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
     box-shadow: 0 0.25rem 0.25rem rgba(0, 0, 0, 0.3);
 }
 .darkness #mainMenu {
-    background-color: #202329;
+    background-color: #212328;
     color: #bbb;
 }
 .darkness #mainMenu .nav > li > a,
@@ -880,7 +895,7 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
     background-color: transparent;
 }
 .darkness #searchresult {
-    background-color: #202329;
+    background-color: #212328;
     border-left: 1px solid #282c34;
 }
 .darkness #searchresult .ajaxSearchResults b {

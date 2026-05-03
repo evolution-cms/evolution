@@ -7,6 +7,7 @@
         isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
         typesactions: { '16': 1, '301': 2, '78': 3, '22': 4, '102': 5, '108': 6, '3': 7, '4': 7, '6': 7, '27': 7, '61': 7, '62': 7, '63': 7, '72': 7 },
         thememodes: ['', 'lightness', 'light', 'dark', 'darkness'],
+        themeColors: { lightness: '#f9f9f9', light: '#343944', dark: '#212328', darkness: '#212328' },
         tabsTimer: 0,
         popupTimer: 0,
         tabsStorageKey: 'EVO_Tabs',
@@ -1087,7 +1088,7 @@
                 }
             },
             toggleTheme: function () {
-                var a, b = 1, myCodeMirrors = w.main.myCodeMirrors, key;
+                var a, b = 1, myCodeMirrors = w.main.myCodeMirrors, key, themeColor, themeColorMeta, frames;
                 if (typeof localStorage['EVO_themeMode'] === 'undefined') {
                     localStorage['EVO_themeMode'] = evo.config.theme_mode;
                 }
@@ -1095,14 +1096,34 @@
                     b = parseInt(localStorage['EVO_themeMode']) + 1;
                 }
                 a = evo.thememodes[b];
-                for (key in evo.thememodes) {
-                    if (evo.thememodes[key]) {
-                        d.body.classList.remove(evo.thememodes[key]);
-                        w.main.document.body.classList.remove(evo.thememodes[key]);
+
+                function syncDocumentTheme(doc) {
+                    if (!doc || !doc.body) {
+                        return;
+                    }
+                    for (key in evo.thememodes) {
+                        if (evo.thememodes[key]) {
+                            doc.documentElement.classList.remove(evo.thememodes[key]);
+                            doc.body.classList.remove(evo.thememodes[key]);
+                        }
+                    }
+                    doc.documentElement.classList.add(a);
+                    doc.body.classList.add(a);
+                }
+
+                syncDocumentTheme(d);
+                frames = d.querySelectorAll('iframe');
+                for (key = 0; key < frames.length; key++) {
+                    try {
+                        syncDocumentTheme(frames[key].contentDocument);
+                    } catch (error) {
                     }
                 }
-                d.body.classList.add(a);
-                w.main.document.body.classList.add(a);
+                themeColor = evo.themeColors[a] || evo.themeColors.light;
+                themeColorMeta = d.querySelector('meta[name="theme-color"]');
+                if (themeColorMeta) {
+                    themeColorMeta.setAttribute('content', themeColor);
+                }
                 d.cookie = 'EVO_themeMode=' + b;
                 localStorage['EVO_themeMode'] = b;
                 if (typeof myCodeMirrors !== 'undefined') {
