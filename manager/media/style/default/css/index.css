@@ -48,12 +48,25 @@
 @keyframes rotate {
 to { transform: rotate(360deg) }
 }
+/* manager chrome */
+html.manager-frame.light,
+html.manager-frame body.light,
+html.manager-frame.light #frameset { background-color: #343944; }
+html.manager-frame.lightness,
+html.manager-frame body.lightness,
+html.manager-frame.lightness #frameset { background-color: #f9f9f9; }
+html.manager-frame.dark,
+html.manager-frame body.dark,
+html.manager-frame.dark #frameset { background-color: #212328 !important; }
+html.manager-frame.darkness,
+html.manager-frame body.darkness,
+html.manager-frame.darkness #frameset { background-color: #212328 !important; }
 /* dark */
-.dark #frameset { background-color: #202329 }
+.dark #frameset { background-color: #212328 }
 .dark #main { background-color: #ecf0f1 }
 .dark #mainloader { background-color: rgba(0, 0, 0, 0.1); }
 /* darkness */
 .darkness { letter-spacing: 0; }
 .darkness #mainloader { background-color: rgba(0, 0, 0, 0.1); }
-.darkness, .darkness #frameset, .darkness #main, .darkness .table  { background-color: #282c34; color: #bdbdbd; }
-.darkness > form { background-color: #202329 }
+.darkness, .darkness #frameset, .darkness #main, .darkness .table  { background-color: #212328; color: #bdbdbd; }
+.darkness > form { background-color: #212328 }

@@ -6,59 +6,10 @@
     <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width">
     <link rel="icon" type="image/ico" href="[+favicon+]">
-    <meta name="theme-color" content="#0d47a1" />
+    <meta name="theme-color" content="[+manager_theme_color+]" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <style>
-        /* [FONTS] */
-        @font-face {
-            font-family: 'Roboto';
-            font-style: normal;
-            font-weight: 300;
-            src: url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-300.eot');
-            src: local(''),
-                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-300.eot?#iefix') format('embedded-opentype'),
-                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-300.woff2') format('woff2'),
-                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-300.woff') format('woff'),
-                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-300.ttf') format('truetype'),
-                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-300.svg#Roboto') format('svg');
-        }
-        @font-face {
-            font-family: 'Roboto';
-            font-style: normal;
-            font-weight: 400;
-            src: url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-regular.eot');
-            src: local(''),
-                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-regular.eot?#iefix') format('embedded-opentype'),
-                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-regular.woff2') format('woff2'),
-                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-regular.woff') format('woff'),
-                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-regular.ttf') format('truetype'),
-                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-regular.svg#Roboto') format('svg');
-        }
-        @font-face {
-            font-family: 'Roboto';
-            font-style: normal;
-            font-weight: 500;
-            src: url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-500.eot');
-            src: local(''),
-                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-500.eot?#iefix') format('embedded-opentype'),
-                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-500.woff2') format('woff2'),
-                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-500.woff') format('woff'),
-                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-500.ttf') format('truetype'),
-                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-500.svg#Roboto') format('svg');
-        }
-        @font-face {
-            font-family: 'Roboto';
-            font-style: normal;
-            font-weight: 700;
-            src: url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-700.eot');
-            src: local(''),
-                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-700.eot?#iefix') format('embedded-opentype'),
-                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-700.woff2') format('woff2'),
-                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-700.woff') format('woff'),
-                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-700.ttf') format('truetype'),
-                 url('[+manager_theme_url+]fonts/roboto/roboto-v19-latin-700.svg#Roboto') format('svg');
-        }
         html { font-size: 16px }
         body {
             background-color: #0d47a1; /* initial color */
@@ -72,7 +23,7 @@
         @supports (-webkit-overflow-scrolling: touch) {
             html, body { -webkit-overflow-scrolling: touch; overflow: auto; height: 100%; /* ios iframe scroll jumping to top fix */ }
         }
-        body { font-weight: normal; font-style: normal; font-size: 0.8125rem; line-height: 1.5; font-family: 'Roboto', sans-serif; -webkit-font-smoothing: subpixel-antialiased }
+        body { font-weight: normal; font-style: normal; font-size: 0.8125rem; line-height: 1.5; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -webkit-font-smoothing: subpixel-antialiased }
         /* For Arabic Font */
         html[lang="ar"] body, html[lang="ary"] body, html[lang="azb"] body, html[lang="fa-IR"] body, html[lang="haz"] body, html[lang="ps"] body, html[lang="ur"] body { font-family: Tahoma, Arial, sans-serif; }
         /* For Chinese Font */
@@ -128,7 +79,7 @@
         input[type=checkbox]:focus, input[type=radio]:focus { border-color: #4d8ef9 !important; box-shadow: 0 0 0 1px rgba(77, 142, 249, 0.5) }
         input[type=checkbox]:checked, input[type=radio]:checked { background-position: 50% 50% }
         input[type=checkbox]:disabled { background-image: url("data:image/svg+xml;utf8,%3Csvg%20viewBox%3D%270%200%201792%201792%27%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%3E%3Cpath%20d%3D%27M1671%20566q0%2040-28%2068l-724%20724-136%20136q-28%2028-68%2028t-68-28l-136-136-362-362q-28-28-28-68t28-68l136-136q28-28%2068-28t68%2028l294%20295%20656-657q28-28%2068-28t68%2028l136%20136q28%2028%2028%2068z%27%20fill%3D%27%23bbb%27/%3E%3C/svg%3E"); background-size: .875em; }
-        button, input, optgroup, select, textarea { position: relative; font-family: 'Roboto', sans-serif; font-size: 0.8125rem; line-height: 1.23076923; margin: 0; -webkit-appearance: none; -moz-appearance: none; }
+        button, input, optgroup, select, textarea { position: relative; font-family: inherit; font-size: 0.8125rem; line-height: 1.23076923; margin: 0; -webkit-appearance: none; -moz-appearance: none; }
         .form-control, input[type=text]:not(.form-control), input[type=password], input[type=number], input[type=email], input[type=date], input[type=url], input[type=search], select, textarea { display: inline-block; width: 100%; max-width: 100%; height: auto; padding: 0.46153846em .5em; line-height: 1.23076923; vertical-align: inherit; font-size: 0.8125rem; color: #464a4c; background-color: #fff; -webkit-background-clip: padding-box; background-clip: padding-box; border: 1px solid #d4d4d4; border-radius: .1em; -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s; transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s; -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s; }
         .form-control:focus, input:not([type=radio]):not([type=checkbox]):focus, select:focus, textarea:focus, .btn.focus, .btn:focus { z-index: 3; outline-offset: -1px; outline: rgba(77, 142, 249, 0.5) solid 2px; border-color: #66afe9; }
         input:not([type=button]):not([type=submit]):hover:not(:focus), select:hover:not(:focus), textarea:hover:not(:focus) { border-color: #bbb; transition: border-color 0s, background-position .1s; }

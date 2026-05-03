@@ -285,7 +285,7 @@ ul.sortableList li { position: relative; z-index: 1; float: left; clear: both; m
     border: 1px solid #ccc; line-height: 1.23076923; background-color: #fff; -webkit-transform: translate3d(0, 0, 0); transform: translate3d(0, 0, 0); box-shadow: none; transition: color .3s, box-shadow .3s, transform .3s, z-index .3s step-end; }
 ul.sortableList li.ghost { z-index: 2; box-shadow: 0 0.25rem 1.5rem rgba(0, 0, 0, 0.15); transition: color .3s, box-shadow .3s, transform 0s, z-index 0s; }
 /* [ TOOLTIPS ] */
-.evo-tooltip, .custom-tip { position: fixed; z-index: 13000; width: 13rem; margin: 1rem; padding: 0.9rem 1rem; font-size: 0.75rem; line-height: 1.5; font-family: 'Roboto', sans-serif; text-align: left; color: #333; background-color: #fff; visibility: hidden; transition-duration: .3s; transform: translate3d(1rem, 0, 0); -webkit-box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.15); box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.15); }
+.evo-tooltip, .custom-tip { position: fixed; z-index: 13000; width: 13rem; margin: 1rem; padding: 0.9rem 1rem; font-size: 0.75rem; line-height: 1.5; font-family: inherit; text-align: left; color: #333; background-color: #fff; visibility: hidden; transition-duration: .3s; transform: translate3d(1rem, 0, 0); -webkit-box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.15); box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.15); }
 .evo-tooltip { opacity: 0; content: attr(data-tooltip); }
 .evo-tooltip.show { opacity: 1; visibility: visible; transform: translate3d(0, 0, 0); }
 [data-tooltip] { cursor: help }
@@ -332,12 +332,12 @@ html.evo-custom-scrollbars::-webkit-scrollbar-thumb, html.evo-custom-scrollbars 
 html.evo-custom-scrollbars::-webkit-scrollbar-thumb:hover, html.evo-custom-scrollbars *::-webkit-scrollbar-thumb:hover { box-shadow: inset 0 0 0 1rem rgba(0, 0, 0, 0.3); }
 html.evo-custom-scrollbars::-webkit-scrollbar-corner, html.evo-custom-scrollbars *::-webkit-scrollbar-corner { background-color: transparent; }
 /* darkness */
-.darkness { background-color: #282c34; color: #aaa }
-.darkness .container-body { background-color: #282c34; }
-.darkness > .container-body, .darkness .page { background-color: #282c34; }
-.darkness .sectionBody .tab-page, .darkness .tab-page { background-color: #282c34; box-shadow: none; }
-.darkness .widgets .card, .darkness h1, .darkness .element-edit-message, .darkness #ManageFiles .breadcrumbs { background-color: #202329; }
-.darkness #edit-info.element-edit-message, .darkness #add-info.element-edit-message, .darkness #sort-info.element-edit-message, .darkness #categorize-info.element-edit-message { background-color: #282c34; }
+.darkness { background-color: #212328; color: #aaa }
+.darkness .container-body { background-color: #212328; }
+.darkness > .container-body, .darkness .page { background-color: #212328; }
+.darkness .sectionBody .tab-page, .darkness .tab-page { background-color: #212328; box-shadow: none; }
+.darkness .widgets .card, .darkness h1, .darkness .element-edit-message, .darkness #ManageFiles .breadcrumbs { background-color: #212328; }
+.darkness #edit-info.element-edit-message, .darkness #add-info.element-edit-message, .darkness #sort-info.element-edit-message, .darkness #categorize-info.element-edit-message { background-color: #212328; }
 .darkness .msg-container { border-bottom: 1px solid #414449; }
 .darkness .widgets #welcome .wm_button a { color: #aaa; }
 .darkness .widgets #welcome .wm_button a:hover { background-color: rgba(255, 255, 255, 0.08); color: #e8e8e8; }
