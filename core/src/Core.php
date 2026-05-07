@@ -515,6 +515,16 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         exit(0);
     }
 
+    /**
+     * Forwards request processing to another document id within the current request.
+     *
+     * The method tracks visited targets to stop only real forward loops, while still allowing
+     * legitimate first-pass self-forwards used by integrations and routing plugins.
+     *
+     * @param mixed $id
+     * @param string $responseCode
+     * @return never
+     */
     public function sendForward($id, $responseCode = '')
     {
         $targetKey = is_scalar($id) ? (string) $id : gettype($id);
@@ -522,7 +532,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
         $isSelfForward = ($this->documentMethod === 'id' && (string) $this->documentIdentifier === (string) $id);
         $isRepeatedTarget = $this->forwardTargets[$targetKey] > 1;
-        if ($isSelfForward || $isRepeatedTarget) {
+        if ($isRepeatedTarget) {
             $this->handleForwardLoop($id, $responseCode, $isSelfForward ? 'self_forward' : 'repeated_target');
         }
 
@@ -545,8 +555,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     /**
      * Stops execution when a forward loop is detected, logs an error, and returns a minimal raw response.
      *
-     * This is intentionally only invoked when a loop is detected (self-forward or repeated target) to avoid adding
-     * DB overhead on normal requests.
+     * This is intentionally only invoked when the same target is forwarded to repeatedly within one request to avoid
+     * adding DB overhead on normal requests and to preserve legitimate self-forward flows used by integrations.
      *
      * @param mixed $target
      * @param string $responseCode
