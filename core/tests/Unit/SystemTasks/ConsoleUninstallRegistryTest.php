@@ -1,5 +1,7 @@
 <?php
 
+namespace Tests\Unit\SystemTasks;
+
 use EvolutionCMS\Services\SystemTasks\ConsoleUninstall\ConsoleUninstallHandlerInterface;
 use EvolutionCMS\Services\SystemTasks\ConsoleUninstall\ConsoleUninstallPlan;
 use EvolutionCMS\Services\SystemTasks\ConsoleUninstall\ConsoleUninstallRegistry;
