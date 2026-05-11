@@ -3399,7 +3399,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 <script>
                     function __alertQuit() {
                         var el = document.querySelector('p');
-                        alert(el.innerHTML);
+                        alert(el.textContent || el.innerText || '');
                         el.remove();
                         " . $fnc . "
                     }
