@@ -1,4 +1,113 @@
 <?php
+if (!function_exists('import_sql_split_statements')) {
+    /**
+     * Split SQL dumps on statement delimiters without breaking values that contain semicolons.
+     *
+     * Backup dumps can contain PHP code inside SQL string literals, for example @EVAL TV values.
+     * A plain preg_split on ";\\n" breaks those rows when the PHP code itself contains semicolons.
+     *
+     * @param string $source
+     * @return array
+     */
+    function import_sql_split_statements($source)
+    {
+        $statements = [];
+        $statement = '';
+        $quote = null;
+        $lineComment = false;
+        $blockComment = false;
+        $length = strlen($source);
+
+        for ($i = 0; $i < $length; $i++) {
+            $char = $source[$i];
+            $next = $source[$i + 1] ?? null;
+
+            if ($lineComment) {
+                $statement .= $char;
+                if ($char === "\n") {
+                    $lineComment = false;
+                }
+                continue;
+            }
+
+            if ($blockComment) {
+                $statement .= $char;
+                if ($char === '*' && $next === '/') {
+                    $statement .= $next;
+                    $i++;
+                    $blockComment = false;
+                }
+                continue;
+            }
+
+            if ($quote !== null) {
+                $statement .= $char;
+
+                if ($char === '\\' && $quote !== '`' && $next !== null) {
+                    $statement .= $next;
+                    $i++;
+                    continue;
+                }
+
+                if ($char === $quote) {
+                    if ($next === $quote) {
+                        $statement .= $next;
+                        $i++;
+                        continue;
+                    }
+
+                    $quote = null;
+                }
+                continue;
+            }
+
+            if ($char === '-' && $next === '-') {
+                $statement .= $char . $next;
+                $i++;
+                $lineComment = true;
+                continue;
+            }
+
+            if ($char === '#') {
+                $statement .= $char;
+                $lineComment = true;
+                continue;
+            }
+
+            if ($char === '/' && $next === '*') {
+                $statement .= $char . $next;
+                $i++;
+                $blockComment = true;
+                continue;
+            }
+
+            if ($char === '\'' || $char === '"' || $char === '`') {
+                $statement .= $char;
+                $quote = $char;
+                continue;
+            }
+
+            if ($char === ';') {
+                $sql = trim($statement, "\r\n\t ;");
+                if ($sql !== '') {
+                    $statements[] = $sql;
+                }
+                $statement = '';
+                continue;
+            }
+
+            $statement .= $char;
+        }
+
+        $sql = trim($statement, "\r\n\t ;");
+        if ($sql !== '') {
+            $statements[] = $sql;
+        }
+
+        return $statements;
+    }
+}
+
 if(!function_exists('import_sql')) {
     /**
      * @param string $source
@@ -23,7 +132,7 @@ if(!function_exists('import_sql')) {
                 "\r"
             ], "\n", $source);
         }
-        $sql_array = preg_split('@;[ \t]*\n@', $source);
+        $sql_array = import_sql_split_statements($source);
         $driver = $modx->getDatabase()->getConfig('driver');
         foreach ($sql_array as $sql_entry) {
             $sql_entry = trim($sql_entry, "\r\n; ");
