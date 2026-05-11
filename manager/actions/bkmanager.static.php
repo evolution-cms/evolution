@@ -606,21 +606,23 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                                         };
                                         fclose($file);
 
-                                        $tooltip = "Generation Time: " . ($details["Generation Time"] ?? 'Undefined') . "\n<br>";
-                                        $tooltip .= "Server version: " . ($details["Server version"] ?? 'Undefined') . "\n<br>";
-                                        $tooltip .= "PHP Version: " . ($details["PHP Version"] ?? 'Undefined') . "\n<br>";
-                                        $tooltip .= "Host: " . ($details["Host"] ?? 'Undefined') . "\n";
+                                        $tooltipLines = [];
+                                        foreach (['Server version', 'PHP Version', 'Host'] as $label) {
+                                            if (!empty($details[$label])) {
+                                                $tooltipLines[] = $label . ': ' . $details[$label];
+                                            }
+                                        }
+                                        $tooltip = htmlspecialchars(implode("\n", $tooltipLines), ENT_QUOTES, ManagerTheme::getCharset());
                                         ?>
                                         <tr>
                                             <td><?= $filename ?></td>
-                                            <td><i class="<?= $_style['icon_question_circle'] ?>"
-                                                   data-tooltip="<?= $tooltip ?>"></i></td>
+                                            <td><?= $tooltip !== '' ? '<i class="' . $_style['icon_question_circle'] . '" data-tooltip="' . $tooltip . '"></i>' : '' ?></td>
                                             <td><?= $filesize ?></td>
                                             <td><?= ($details['Description'] ?? 'Undefined') ?></td>
                                             <td><?= ($details['Evolution CMS Version'] ?? 'Undefined') ?></td>
                                             <td><?= ($details['Database'] ?? 'Undefined') ?></td>
                                             <td><a href="javascript:;" onclick="confirmRevert('<?= $filename ?>');"
-                                                   title="<?= $tooltip ?>"><?= $_lang["bkmgr_restore_submit"] ?></a>
+                                                   title="<?= $tooltip !== '' ? $tooltip : $_lang["bkmgr_restore_submit"] ?>"><?= $_lang["bkmgr_restore_submit"] ?></a>
                                             </td>
                                         </tr>
                                         <?php
