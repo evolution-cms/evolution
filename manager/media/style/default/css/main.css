@@ -183,6 +183,12 @@ ul.elements_buttonbar .fa { font-size: 0.875rem; padding: 1px 1px 0; }
 .resourceTable.flex ul.elements > li { overflow: hidden; /* fix for Firefox */
 break-inside: avoid-column; -webkit-column-break-inside: avoid; -moz-column-break-inside: avoid; -o-column-break-inside: avoid; -ms-column-break-inside: avoid; column-break-inside: avoid; page-break-inside: avoid }
 .resourceTable.flex .elements_descr { display: block; margin-left: 1.5em; }
+.switchForm { padding: 0.5rem 0; }
+.switchForm .form-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; margin-bottom: 0.5rem; }
+.switchForm label { display: inline-flex; align-items: center; gap: 0.35rem; margin: 0; white-space: nowrap; }
+.switchForm input[type="checkbox"], .switchForm input[type="radio"] { margin: 0; }
+.switchForm .columns, .switchForm .fontsize { width: 5rem; }
+.switchForm .optionsReset { margin-top: 0.25rem; }
 #content_body #which_editor { margin-top: 12px; }
 /* resource children list */
 #tabChildren .grid th, #tabChildren .grid tr > td:nth-child(5), #tabChildren .grid tr > td:nth-child(6) { text-align: center; white-space: nowrap }
