@@ -1,10 +1,48 @@
 <?php
 
-it('uses Ukrainian text for config-file-defined setting notices', function () {
+it('uses Ukrainian text for manager setting notices', function () {
     $_lang = [];
     include dirname(__DIR__, 3) . '/lang/uk/global.php';
 
     expect($_lang['setting_from_file'])
         ->toContain('Значення параметра задано')
-        ->not->toContain('Значение параметра задано');
+        ->not->toContain('Значение параметра задано')
+        ->and($_lang['database_overhead'])
+        ->toContain('Примітка:</b> \'перевитрата\'')
+        ->toContain('невикористаний')
+        ->not->toContain('неиспользуемое')
+        ->and($_lang['friendly_alias_message'])
+        ->toContain('буде наступною')
+        ->toContain('ID ресурсу')
+        ->not->toContain('следующий')
+        ->not->toContain('ID ресурса')
+        ->and($_lang['rb_webuser_message'])
+        ->toContain('<b>Попередження:</b>')
+        ->not->toContain('<B> Попередження: </b>')
+        ->and($_lang['settings_strip_image_paths_title'])
+        ->toBe('Обрізати шляхи до зображень')
+        ->and($_lang['settings_strip_image_paths_message'])
+        ->toContain('Якщо цей параметр увімкнено')
+        ->not->toContain('Если')
+        ->and($_lang['snippet_management_msg'])
+        ->toContain('Сніпети дозволяють')
+        ->toContain('виконання сніпета')
+        ->not->toContain('Сніппети')
+        ->not->toContain('сниппета')
+        ->and($_lang['use_alias_path_message'])
+        ->toContain('<b>Увага:</b>')
+        ->not->toContain('< / b>')
+        ->and($_lang['enable_bindings_message'])
+        ->toContain('виводу')
+        ->toContain('показано')
+        ->not->toContain('воводу')
+        ->not->toContain('показно')
+        ->and($_lang['setting_resource_tree_node_name_desc_add'])
+        ->toContain('за &quot;замовчуванням&quot;')
+        ->not->toContain('за& &quot;')
+        ->and($_lang['aliaslistingfolder_title'])
+        ->toBe('Використовувати AliasListing тільки для тек')
+        ->and($_lang['error_double_action'])
+        ->toContain('GET &amp; POST')
+        ->not->toContain('GET & POST');
 });
