@@ -44,5 +44,14 @@ it('uses Ukrainian text for manager setting notices', function () {
         ->toBe('Використовувати AliasListing тільки для тек')
         ->and($_lang['error_double_action'])
         ->toContain('GET &amp; POST')
-        ->not->toContain('GET & POST');
+        ->not->toContain('GET & POST')
+        ->and($_lang['email_sender_method_message'])
+        ->toContain('адреса, на яку буде відправлено відмову')
+        ->not->toContain('якиу')
+        ->and($_lang['websignupemail_message'])
+        ->toContain('[+uid+] та [+pwd+]')
+        ->not->toContain('[+ pwd +]')
+        ->and($_lang['rb_message'])
+        ->toContain('Виберіть \'Так\', щоб включити браузер файлів')
+        ->not->toContain('\\ `Так \\');
 });
