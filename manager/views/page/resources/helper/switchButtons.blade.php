@@ -1,4 +1,4 @@
-<form id="switchForm_{{ $id }}" class="form-group form-inline switchForm" data-target="{{ $id }}_content" style="display:none">
+<form id="switchForm_{{ $id }}" class="form-group switchForm" data-target="{{ $id }}_content" style="display:none">
     <div class="form-row">
         <label class="form-check">
             <input type="radio" name="view" value="list" />
