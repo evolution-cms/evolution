@@ -55,7 +55,7 @@ if (!function_exists('makeHTML')) {
         }
 
         if ($modx->getConfig('tree_show_protected') !== null) {
-            $showProtected = (boolean)$modx->getConfig('tree_show_protected');
+            $showProtected = (bool)$modx->getConfig('tree_show_protected');
         } else {
             $showProtected = false;
         }
