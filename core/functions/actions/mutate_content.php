@@ -734,7 +734,7 @@ if (! function_exists('renderFormElement')) {
                         $min = isset($properties['min']) ? $properties['min'] : '';
                         $max = isset($properties['max']) ? $properties['max'] : '';
                     }
-                    $field_html .= '<input type="number"' . ($step ? '" step="'.$step.'"' : '') . ($min ? ' min="'.$min.'"' : '') . ($max ? ' min="'.$max.'"' : '') . ' id="tv' . $field_id . '" name="tv' . $field_id . '" value="' . $modx->getPhpCompat()->htmlspecialchars($field_value) . '" ' . $field_style . ' tvtype="' . $field_type . '" onchange="documentDirty=true;" style="width:100%" onkeyup="this.value=this.value.replace(/[^\d-,.+]/,\'\')"/>';
+                    $field_html .= '<input type="number"' . ($step ? '" step="'.$step.'"' : '') . ($min ? ' min="'.$min.'"' : '') . ($max ? ' max="'.$max.'"' : '') . ' id="tv' . $field_id . '" name="tv' . $field_id . '" value="' . $modx->getPhpCompat()->htmlspecialchars($field_value) . '" ' . $field_style . ' tvtype="' . $field_type . '" onchange="documentDirty=true;" style="width:100%" onkeyup="this.value=this.value.replace(/[^\d-,.+]/,\'\')"/>';
                     break;
                 case "textareamini": // handler for textarea mini boxes
                     $field_html .= '<textarea id="tv' . $field_id . '" name="tv' . $field_id . '" cols="40" rows="5" onchange="documentDirty=true;" style="width:100%">' . $modx->getPhpCompat()->htmlspecialchars($field_value) . '</textarea>';
