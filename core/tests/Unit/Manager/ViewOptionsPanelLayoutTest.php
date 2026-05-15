@@ -6,12 +6,16 @@ test('manage elements view options panel has scoped spacing rules', function () 
     $mainCss = file_get_contents($basePath . 'manager/media/style/default/css/main.css');
 
     expect($helper)
-        ->toContain('class="form-group form-inline switchForm"')
+        ->toContain('class="form-group switchForm"')
+        ->not->toContain('form-inline switchForm')
         ->toContain('name="cb_icons"')
         ->toContain('name="fontsize"')
         ->and($mainCss)
-        ->toContain('.switchForm .form-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem;')
-        ->toContain('.switchForm label { display: inline-flex; align-items: center; gap: 0.35rem;')
-        ->toContain('.switchForm input[type="checkbox"], .switchForm input[type="radio"] { margin: 0;')
-        ->toContain('.switchForm .columns, .switchForm .fontsize { width: 5rem;');
+        ->toContain('.switchForm { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1rem;')
+        ->toContain('.switchForm .form-row { display: flex; flex: 0 1 auto; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem;')
+        ->toContain('.switchForm label { display: inline-flex; align-items: center; gap: 0.35rem; margin: 0; min-height: 2rem;')
+        ->toContain('.switchForm input[type="checkbox"], .switchForm input[type="radio"] { flex: 0 0 auto; margin: 0;')
+        ->toContain('.switchForm .columns, .switchForm .fontsize { flex: 0 0 5rem; width: 5rem; min-width: 5rem;')
+        ->toContain('.switchForm .optionsReset { display: flex; align-items: center; margin: 0;')
+        ->toContain('@media (max-width: 480px)');
 });
