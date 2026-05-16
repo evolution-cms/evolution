@@ -8,9 +8,9 @@ if (!function_exists('createGUID')) {
      */
     function createGUID()
     {
-        mt_srand((double)microtime() * 1000000);
+        mt_srand((float)microtime() * 1000000);
         $r = mt_rand();
-        $u = uniqid(getmypid() . $r . (double)microtime() * 1000000, 1);
+        $u = uniqid(getmypid() . $r . (float)microtime() * 1000000, 1);
         return md5($u);
     }
 }
@@ -26,7 +26,7 @@ if (!function_exists('generate_password')) {
     {
         $allowable_characters = 'abcdefghjkmnpqrstuvxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
         $ps_len = strlen($allowable_characters);
-        mt_srand((double)microtime() * 1000000);
+        mt_srand((float)microtime() * 1000000);
         $pass = "";
         for ($i = 0; $i < $length; $i++) {
             $pass .= $allowable_characters[mt_rand(0, $ps_len - 1)];
