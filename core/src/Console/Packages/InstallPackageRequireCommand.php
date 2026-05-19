@@ -13,7 +13,7 @@ class InstallPackageRequireCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'package:installrequire {key} {value} {composer_run=1}';
+    protected $signature = 'package:installrequire {key} {value} {composer_run=1} {--no-dev : Skip installing packages listed in require-dev} {--optimize-autoloader : Optimize Composer autoload files after update}';
 
     /**
      * The console command description.
@@ -81,10 +81,26 @@ class InstallPackageRequireCommand extends Command
         file_put_contents($this->composer, json_encode($this->composerArray, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
     }
 
+    /**
+     * Run Composer update for the modified custom package requirements.
+     *
+     * Optional flags are exposed for higher-level install flows that should behave like production
+     * updates. For example, `extras extras` can avoid dev dependencies and immediately build an
+     * optimized autoloader while direct `package:installrequire` calls keep their previous defaults.
+     *
+     * @return int Composer process exit code.
+     */
     public function runComposer()
     {
         putenv('COMPOSER_HOME=' . EVO_CORE_PATH . 'composer');
-        $input = new ArrayInput(['command' => 'update']);
+        $arguments = ['command' => 'update'];
+        if ($this->option('no-dev')) {
+            $arguments['--no-dev'] = true;
+        }
+        if ($this->option('optimize-autoloader')) {
+            $arguments['--optimize-autoloader'] = true;
+        }
+        $input = new ArrayInput($arguments);
         $application = new Application();
         $application->setAutoExit(false);
         $originalCwd = function_exists('getcwd') ? getcwd() : false;
@@ -114,5 +130,4 @@ class InstallPackageRequireCommand extends Command
             @unlink($this->composer);
         }
     }
-
 }

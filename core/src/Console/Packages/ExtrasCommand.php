@@ -680,6 +680,8 @@ class ExtrasCommand extends Command
         $exitCode = (int) $this->call('package:installrequire', [
             'key' => $composerName,
             'value' => $this->version,
+            '--no-dev' => true,
+            '--optimize-autoloader' => true,
         ]);
 
         if ($exitCode === 0) {
