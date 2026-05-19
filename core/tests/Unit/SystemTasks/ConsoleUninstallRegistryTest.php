@@ -1,11 +1,6 @@
-<?php
+<?php namespace Tests\Unit\SystemTasks;
 
-namespace Tests\Unit\SystemTasks;
-
-use EvolutionCMS\Services\SystemTasks\ConsoleUninstall\ConsoleUninstallHandlerInterface;
-use EvolutionCMS\Services\SystemTasks\ConsoleUninstall\ConsoleUninstallPlan;
 use EvolutionCMS\Services\SystemTasks\ConsoleUninstall\ConsoleUninstallRegistry;
-use EvolutionCMS\Services\SystemTasks\ConsoleUninstall\ConsoleUninstallResult;
 
 test('console uninstall registry normalizes package names and resolves class handlers lazily', function () {
     $registry = new ConsoleUninstallRegistry([
@@ -50,24 +45,3 @@ test('console uninstall registry returns explicit unsupported payloads for unkno
         'error_code' => 'CONSOLE_UNINSTALL_NOT_SUPPORTED',
     ]);
 });
-
-class TestConsoleUninstallHandler implements ConsoleUninstallHandlerInterface
-{
-    public function preview(array $context = []): ConsoleUninstallPlan
-    {
-        return new ConsoleUninstallPlan('evolution-cms/etinymce', true, [
-            'files' => 2,
-            'db' => 1,
-        ], [
-            ['type' => 'file', 'path' => 'assets/plugins/tinymce4'],
-        ], []);
-    }
-
-    public function apply(ConsoleUninstallPlan $plan, array $context = []): ConsoleUninstallResult
-    {
-        return new ConsoleUninstallResult(true, $plan->getPackageName(), 'Uninstall completed.', '', [
-            'deleted_files' => 2,
-            'deleted_records' => 1,
-        ]);
-    }
-}
