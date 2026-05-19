@@ -289,7 +289,9 @@ class ExtrasCommand extends Command
                 exit();
             }
             if (isset($gitInfo['name'])) {
-                $this->call("package:installrequire", ['key' => $gitInfo['name'], 'value' => $this->version]);
+                if (!$this->installComposerPackage($gitInfo['name'])) {
+                    return;
+                }
                 $this->runPostInstallSteps($gitInfo['name']);
             } else {
                 echo 'No composer.json file';
@@ -311,7 +313,9 @@ class ExtrasCommand extends Command
             echo 'Composer package name is unavailable in extras catalog.';
             exit();
         }
-        $this->call("package:installrequire", ['key' => $composerName, 'value' => $this->version]);
+        if (!$this->installComposerPackage($composerName)) {
+            return;
+        }
         $this->runPostInstallSteps($composerName);
     }
 
@@ -661,6 +665,32 @@ class ExtrasCommand extends Command
         $this->runArtisanCommand(['migrate', '--force']);
     }
 
+    /**
+     * Install or update the selected composer package before running publish steps.
+     *
+     * The extras command must not continue to `vendor:publish` or migrations when Composer fails,
+     * otherwise it can publish assets from the previously installed package version. This is most
+     * visible during branch upgrades where the selected version may require dependency changes.
+     *
+     * @param string $composerName Composer package name selected from the catalog or GitHub repo.
+     * @return bool True when Composer finished successfully and post-install steps may continue.
+     */
+    protected function installComposerPackage(string $composerName): bool
+    {
+        $exitCode = (int) $this->call('package:installrequire', [
+            'key' => $composerName,
+            'value' => $this->version,
+        ]);
+
+        if ($exitCode === 0) {
+            return true;
+        }
+
+        $this->error('Composer update failed for ' . $composerName . '. Publishing assets and migrations were skipped.');
+
+        return false;
+    }
+
     protected function getPackageProviders($packageName)
     {
         $composer = $this->getPackageComposer($packageName);
@@ -869,6 +899,9 @@ class ExtrasCommand extends Command
         if ($version === '' || strpos($version, 'dev-') === 0 || $version === '*') {
             return $version;
         }
+        if ($this->isVersionLikeBranch($version)) {
+            return $version . '-dev';
+        }
         if ($defaultBranch !== '' && $version === $defaultBranch) {
             return 'dev-' . $version;
         }
@@ -876,6 +909,20 @@ class ExtrasCommand extends Command
             return 'dev-' . $version;
         }
         return $version;
+    }
+
+    /**
+     * Detect Composer version-like branch names such as `1.x`, `2.x`, or `3.5.x`.
+     *
+     * Composer normalizes numeric branch aliases in the opposite direction from regular branch
+     * names: `main` becomes `dev-main`, but `2.x` must be requested as `2.x-dev`.
+     *
+     * @param string $version Version or branch value selected by the operator.
+     * @return bool True when the selected branch must use Composer's `*.x-dev` constraint form.
+     */
+    protected function isVersionLikeBranch(string $version): bool
+    {
+        return preg_match('/^\d+(?:\.\d+)*\.x$/', $version) === 1;
     }
 
     protected function parsePackageArguments()
