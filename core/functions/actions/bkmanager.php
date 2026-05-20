@@ -132,21 +132,19 @@ if(!function_exists('import_sql')) {
                 "\r"
             ], "\n", $source);
         }
-        $sql_array = import_sql_split_statements($source);
         $driver = $modx->getDatabase()->getConfig('driver');
-        foreach ($sql_array as $sql_entry) {
-            $sql_entry = trim($sql_entry, "\r\n; ");
-            if (empty($sql_entry)) {
-                continue;
-            }
+        if (in_array($driver, ['sqlite', 'sqlite3'], true)) {
+            $rs = \DB::connection()->getPdo()->exec($source);
+        } else {
+            $sql_array = import_sql_split_statements($source);
+            foreach ($sql_array as $sql_entry) {
+                $sql_entry = trim($sql_entry, "\r\n; ");
+                if (empty($sql_entry)) {
+                    continue;
+                }
 
-            if (in_array($driver, ['sqlite', 'sqlite3'], true)) {
-                $rs = \DB::statement($sql_entry);
-            } else {
                 $rs = $modx->getDatabase()->query($sql_entry);
             }
-
-
         }
         restoreSettings($settings);
 
@@ -163,20 +161,29 @@ if (!function_exists('import_sql_from_file')) {
         if (!file_exists($path)) {
             return false;
         }
+        $evo = evolutionCMS();
+        $driver = $evo->getDatabase()->getConfig('driver');
+        if (in_array($driver, ['sqlite', 'sqlite3'], true)) {
+            import_sql(file_get_contents($path), $result_code);
+            return true;
+        }
+
         $fp = fopen($path, 'r');
         $output = '';
         while (($buffer = fgets($fp)) !== false) {
             $output .= $buffer . "\n";
             if (strlen($output) > 5040000 && $buffer === "\n") {
 
-                import_sql($output);
+                import_sql($output, $result_code);
                 $output = '';
             }
         }
 
         if(!empty($output)){
-            import_sql($output);
+            import_sql($output, $result_code);
         }
+
+        return true;
     }
 }
 
