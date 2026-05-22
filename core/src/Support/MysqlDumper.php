@@ -78,15 +78,38 @@ class MysqlDumper implements MysqlDumperInterface
         $modx = evo();
         $createtable = [];
         $dataBaseConfig = $modx->db->getConfig();
+        $pdo = \DB::connection()->getPdo();
+        $transactionStarted = false;
 
+        if ($callBack !== 'snapshot') {
+            return $this->writeDump($callBack, $modx, $createtable, $dataBaseConfig);
+        }
+
+        try {
+            $pdo->exec('START TRANSACTION WITH CONSISTENT SNAPSHOT');
+            $transactionStarted = true;
+
+            $result = $this->writeDump($callBack, $modx, $createtable, $dataBaseConfig);
+
+            $pdo->exec('COMMIT');
+            $transactionStarted = false;
+
+            return $result;
+        } catch (\Throwable $throwable) {
+            if ($transactionStarted) {
+                $pdo->exec('ROLLBACK');
+            }
+
+            throw $throwable;
+        }
+    }
+
+    private function writeDump($callBack, $modx, array $createtable, array $dataBaseConfig): bool
+    {
         $databaseName = $dataBaseConfig['database'];
-
         $sql =  'SELECT table_name AS "table", round(((data_length + index_length) / 1024 / 1024)) "size" FROM information_schema.TABLES WHERE table_schema = "'.$databaseName.'"';
         $tableSizes = array_column($modx->db->makeArray($modx->db->query($sql)), 'size', 'table');
-
-        // Sort tables by foreign key dependencies
         $tables = $this->sortTablesByDependencies($this->_dbtables);
-
         // Set line feed
         $lf = "\n";
         $tempfile_path = EVO_BASE_PATH . 'assets/backup/temp.php';
