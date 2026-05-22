@@ -25,6 +25,14 @@ if (file_exists($tempFile)) {
 $mode = isset($_POST['mode']) ? $_POST['mode'] : '';
 $driver = EvolutionCMS()->getDatabase()->getConfig('driver');
 
+function parseBackupSnapshotDetailValue(string $line, string $fileLabel): string
+{
+    $value = trim(substr($line, strlen($fileLabel)));
+    $value = ltrim($value, " \t:");
+
+    return trim($value, " \t\n\r\0\x0B`");
+}
+
 if ($mode == 'restore1') {
     if (isset($_POST['textarea']) && !empty($_POST['textarea'])) {
         $source = trim($_POST['textarea']);
@@ -593,11 +601,11 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                                                 foreach (['# ', '-- '] as $prefix) {
                                                     $fileLabel = $prefix . $label;
                                                     if (strpos($line, $fileLabel) !== false) {
-                                                        $details[$label] = htmlentities(trim(str_replace([
-                                                                $fileLabel,
-                                                                ':',
-                                                                '`'
-                                                        ], '', $line)), ENT_QUOTES, ManagerTheme::getCharset());
+                                                        $details[$label] = htmlentities(
+                                                            parseBackupSnapshotDetailValue($line, $fileLabel),
+                                                            ENT_QUOTES,
+                                                            ManagerTheme::getCharset()
+                                                        );
                                                         break;
                                                     }
                                                 }
