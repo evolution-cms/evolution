@@ -167,18 +167,37 @@ class DatabaseBackupService
         $password = isset($config['password']) ? (string) $config['password'] : '';
         $host = isset($config['host']) ? (string) $config['host'] : '';
         $username = isset($config['username']) ? (string) $config['username'] : '';
+        $tempFilePath = $this->buildTempSnapshotFilePath((string) $filePath);
 
-        file_put_contents($filePath, $this->buildSqlHeader('--', (string) $database, $host));
+        file_put_contents($tempFilePath, $this->buildSqlHeader('--', (string) $database, $host));
 
         $command = 'PGPASSWORD=' . escapeshellarg($password)
             . ' pg_dump --host ' . escapeshellarg($host)
             . ' --username ' . escapeshellarg($username)
             . ' --dbname ' . escapeshellarg((string) $database)
-            . ' --clean --inserts --no-owner --no-privileges >> ' . escapeshellarg((string) $filePath);
+            . ' --clean --inserts --no-owner --no-privileges >> ' . escapeshellarg((string) $tempFilePath);
 
         exec($command, $output, $exitCode);
 
-        return (int) $exitCode === 0;
+        if ((int) $exitCode !== 0 || !is_file($tempFilePath) || filesize($tempFilePath) <= 0) {
+            if (is_file($tempFilePath)) {
+                unlink($tempFilePath);
+            }
+
+            return false;
+        }
+
+        if (is_file((string) $filePath)) {
+            unlink((string) $filePath);
+        }
+
+        return rename($tempFilePath, (string) $filePath);
+    }
+
+    protected function buildTempSnapshotFilePath($filePath)
+    {
+        return rtrim(dirname((string) $filePath), '/\\')
+            . '/.' . basename((string) $filePath) . '.' . getmypid() . '.tmp';
     }
 
     protected function buildSqlHeader($commentPrefix, $database, $host)

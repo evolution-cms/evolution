@@ -125,7 +125,33 @@ class SqliteDumper
         $modx = evo();
         $config = $modx->getDatabase()->getConfig();
         $pdo = \DB::connection()->getPdo();
+        $transactionStarted = false;
 
+        if ($callBack !== 'snapshot') {
+            return $this->writeDump($callBack, $modx, $config, $pdo);
+        }
+
+        try {
+            $pdo->exec('BEGIN IMMEDIATE TRANSACTION');
+            $transactionStarted = true;
+
+            $result = $this->writeDump($callBack, $modx, $config, $pdo);
+
+            $pdo->exec('COMMIT');
+            $transactionStarted = false;
+
+            return $result;
+        } catch (\Throwable $throwable) {
+            if ($transactionStarted) {
+                $pdo->exec('ROLLBACK');
+            }
+
+            throw $throwable;
+        }
+    }
+
+    private function writeDump($callBack, $modx, array $config, PDO $pdo): bool
+    {
         $lf = "\n";
         $tempfile_path = EVO_BASE_PATH . 'assets/backup/temp.php';
 
