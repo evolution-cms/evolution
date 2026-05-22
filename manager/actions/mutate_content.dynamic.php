@@ -1367,8 +1367,8 @@ $isDocumentResource = !$isReferenceResource;
                                 </tr>
                                 <tr>
                                     <td>
-                                        <span class="warning"><?=ManagerTheme::getLexicon('track_visitors_title');?></span>
-                                        <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?=ManagerTheme::getLexicon('resource_opt_trackvisit_help');?>"></i>
+                                        <span class="warning"><?=ManagerTheme::getLexicon('hide_from_tree_title');?></span>
+                                        <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?=ManagerTheme::getLexicon('hide_from_tree_help');?>"></i>
                                     </td>
                                     <td>
                                         <input name="hide_from_treecheck" type="checkbox" class="checkbox" <?= empty($content['hide_from_tree']) ? 'checked="checked"' : '' ?> onclick="changestate(document.mutate.hide_from_tree);" /><input type="hidden" name="hide_from_tree" value="<?= empty($content['hide_from_tree']) ? 0 : 1 ?>" onchange="documentDirty=true;" />
