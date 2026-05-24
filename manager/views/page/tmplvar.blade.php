@@ -3,7 +3,11 @@
     <?php /** @var EvolutionCMS\Models\SiteTmplvar $data */ ?>
     @push('scripts.top')
         <script src="media/script/element-properties.js"></script>
+        <script src="media/script/element-name-helper.js"></script>
         <script>
+            window.evoElementNameHelperConfig = window.evoElementNameHelperConfig || {};
+            window.evoElementNameHelperConfig.endpoint = 'media/style/{{ ManagerTheme::getTheme() }}/ajax.php';
+
             var defaultProperties = {!! $defaultProperties !!};
             var elementProperties = new ElementProperties({
                 name: 'elementProperties',
@@ -266,6 +270,10 @@
             h1help.onclick = function() {
               document.querySelector('.element-edit-message').classList.toggle('show');
             };
+
+            if (window.evoElementNameHelper) {
+              window.evoElementNameHelper.installTvBindingPickers('#elements, #default_text');
+            }
           });
 
         </script>

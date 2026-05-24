@@ -39,6 +39,8 @@ $undoDepth = (isset($undoDepth) ? $undoDepth : 200);
 $historyEventDelay = (isset($historyEventDelay) ? $historyEventDelay : 1250);
 $fontSize = (isset($fontSize) ? 'font-size:' . $fontSize . 'px !important;' : '');
 $lineHeight = (isset($lineHeight) ? 'line-height:' . $lineHeight . ' !important;' : '');
+$managerTheme = $modx->getConfig('manager_theme') ?: 'default';
+$elementNameHelperEndpoint = addslashes('media/style/' . $managerTheme . '/ajax.php');
 
 if (!empty($_COOKIE['EVO_themeMode'])) {
     if ($_COOKIE['EVO_themeMode'] == 3 || $_COOKIE['EVO_themeMode'] == 4) {
@@ -169,8 +171,11 @@ if(('none' == $rte) && $mode && !defined('INIT_CODEMIRROR')) {
     <script src="{$_CM_URL}cm/mode/{$lang}-compressed.js"></script>
     {$emmet}{$search}
 	<script src="{$_CM_URL}cm/addon-compressed.js"></script>
+    <script src="media/script/element-name-helper.js"></script>
 	    
     <script type="text/javascript">
+        window.evoElementNameHelperConfig = window.evoElementNameHelperConfig || {};
+        window.evoElementNameHelperConfig.endpoint = "{$elementNameHelperEndpoint}";
         // Add mode MODX for syntax highlighting. Dfsed on $mode
         CodeMirror.defineMode("MODx-{$mode}", function(config, parserConfig) {
             var mustacheOverlay = {
@@ -363,6 +368,9 @@ if(('none' == $rte) && $mode && $elements !== NULL) {
 					}
 				};
 				myCodeMirrors['{$el}'] = CodeMirror.fromTextArea(myTextArea, config);
+                if (window.evoElementNameHelper) {
+                    window.evoElementNameHelper.installCodeMirror(myCodeMirrors['{$el}']);
+                }
 				{$setHeight}
 				// reset onchange tab
 				var els = document.querySelectorAll('.tab-row .tab');

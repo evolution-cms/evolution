@@ -197,18 +197,8 @@ if (! function_exists('ParseCommand')) {
      */
     function ParseCommand($binding_string)
     {
-        $BINDINGS = [ // Array of supported bindings. must be upper case
-            'FILE',
-            'CHUNK',
-            'DOCUMENT',
-            'SELECT',
-            'EVAL',
-            'INHERIT',
-            'DIRECTORY'
-        ];
-
         $binding_array = [];
-        foreach ($BINDINGS as $cmd) {
+        foreach (\EvolutionCMS\Parser::TV_BINDINGS as $cmd) {
             if (strpos($binding_string, '@' . $cmd) === 0) {
                 $code = substr($binding_string, strlen($cmd) + 1);
                 $binding_array = [$cmd, trim($code)];
