@@ -16,8 +16,8 @@
  * @see         https://github.com/Mihanik71/CodeMirror-MODx
  */
 global $content;
-
-$which_editor = $modx->getConfig('which_editor');
+$evo = evo();
+$which_editor = $evo->getConfig('which_editor');
 $textarea_name = 'post';
 $mode = 'htmlmixed';
 $lang = 'htmlmixed';
@@ -39,28 +39,28 @@ $undoDepth = (isset($undoDepth) ? $undoDepth : 200);
 $historyEventDelay = (isset($historyEventDelay) ? $historyEventDelay : 1250);
 $fontSize = (isset($fontSize) ? 'font-size:' . $fontSize . 'px !important;' : '');
 $lineHeight = (isset($lineHeight) ? 'line-height:' . $lineHeight . ' !important;' : '');
-$managerTheme = $modx->getConfig('manager_theme') ?: 'default';
+$managerTheme = $evo->getConfig('manager_theme') ?: 'default';
 $elementNameHelperEndpoint = addslashes('media/style/' . $managerTheme . '/ajax.php');
 
 if (!empty($_COOKIE['EVO_themeMode'])) {
     if ($_COOKIE['EVO_themeMode'] == 3 || $_COOKIE['EVO_themeMode'] == 4) {
         $theme = $darktheme;
     }
-} elseif ($modx->config['manager_theme_mode'] == 3 || $modx->config['manager_theme_mode'] == 4) {
+} elseif ($evo->config['manager_theme_mode'] == 3 || $evo->config['manager_theme_mode'] == 4) {
     $theme = $darktheme;
 }
 /*
  * This plugin is only valid in "text" mode. So check for the current Editor
  */
 $prte = (isset($_POST['which_editor']) ? $_POST['which_editor'] : '');
-$srte = ($modx->getConfig('use_editor') ? $modx->getConfig('which_editor') : 'none');
+$srte = ($evo->getConfig('use_editor') ? $evo->getConfig('which_editor') : 'none');
 $xrte = isset($content['richtext']) ? $content['richtext'] : '';
 $tvMode = false;
 $limitedHeight = false;
 /*
  * Switch event
  */
-switch($modx->event->name) {
+switch($evo->event->name) {
 	case 'OnTempFormRender'   :
 		$rte = ($prte ? $prte : 'none');
 		break;
@@ -72,10 +72,10 @@ switch($modx->event->name) {
 		if($editor !== 'Codemirror') {
 			return;
 		}
-		$textarea_name = $modx->event->params['elements'];
+		$textarea_name = $evo->event->params['elements'];
 		$rte = 'none';
 		$tvMode = true;
-		$contentType = $content['contentType'] ?? $modx->event->params['contentType'];
+		$contentType = $content['contentType'] ?? $evo->event->params['contentType'];
 
 		/*
 		* Switch contentType for doc
@@ -149,7 +149,7 @@ switch($modx->event->name) {
 		break;
 
 	default:
-		$this->logEvent(1, 2, 'Undefined event : <b>' . $modx->Event->name . '</b> in <b>' . $this->Event->activePlugin . '</b> Plugin', 'CodeMirror Plugin : ' . $modx->Event->name);
+		$this->logEvent(1, 2, 'Undefined event : <b>' . $evo->Event->name . '</b> in <b>' . $this->Event->activePlugin . '</b> Plugin', 'CodeMirror Plugin : ' . $evo->Event->name);
 }
 $output = '';
 
@@ -348,9 +348,9 @@ if(('none' == $rte) && $mode && $elements !== NULL) {
 			$setHeight = '';
 		};
         if(isset($content['id']))
-		    $object_id = md5($modx->event->name . '-' . $content['id'] . '-' . $el);
+		    $object_id = md5($evo->event->name . '-' . $content['id'] . '-' . $el);
         else
-            $object_id = md5($modx->event->name . '-' . $el);
+            $object_id = md5($evo->event->name . '-' . $el);
 
 		$output .= "
 			<script>
@@ -416,4 +416,4 @@ if(('none' == $rte) && $mode && $elements !== NULL) {
 			</script>\n";
 	};
 };
-$modx->event->addOutput($output);
+$evo->event->addOutput($output);
