@@ -566,6 +566,35 @@ if (isset($action)) {
             break;
         }
 
+        case 'elementNameHelper':
+        {
+            header('Content-Type: application/json; charset=' . evo()->getConfig('modx_charset'), true);
+
+            $bindings = \EvolutionCMS\Parser::TV_BINDINGS;
+
+            $chunks = \EvolutionCMS\Models\SiteHtmlsnippet::query()
+                ->orderBy('name', 'ASC')
+                ->pluck('name')
+                ->filter()
+                ->values()
+                ->all();
+
+            $snippets = \EvolutionCMS\Models\SiteSnippet::query()
+                ->orderBy('name', 'ASC')
+                ->pluck('name')
+                ->filter()
+                ->values()
+                ->all();
+
+            echo json_encode([
+                'bindings' => $bindings,
+                'chunks' => $chunks,
+                'snippets' => $snippets,
+            ], JSON_UNESCAPED_UNICODE);
+
+            break;
+        }
+
         case 'movedocument' :
         {
             $json = [];

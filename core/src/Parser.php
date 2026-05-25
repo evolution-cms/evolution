@@ -8,6 +8,16 @@ use Illuminate\View\FileViewFinder;
  */
 class Parser
 {
+    public const TV_BINDINGS = [
+        'FILE',
+        'CHUNK',
+        'DOCUMENT',
+        'SELECT',
+        'EVAL',
+        'INHERIT',
+        'DIRECTORY',
+    ];
+
     /**
      * Объект Core - основной класс MODX
      * @var Core $modx
