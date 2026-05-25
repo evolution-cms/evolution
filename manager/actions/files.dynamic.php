@@ -121,6 +121,160 @@ if ($showFileGroups) {
     $allDocGroups = \EvolutionCMS\Models\DocumentgroupName::orderBy('name')->get();
 }
 $currentPathWritable = is_writable($startpath) && fileManagerIsAccessible($relative_path, $userGroups, $fileGroupsMap);
+
+if (!function_exists('fileManagerDirectoryZipPaths')) {
+    function fileManagerDirectoryZipPaths(string $filemanagerPath, string $relativePath): array
+    {
+        $hash = sha1(rtrim(str_replace('\\', '/', EVO_BASE_PATH), '/') . '|' . rtrim($filemanagerPath, '/') . '|' . trim($relativePath, '/'));
+        $base = rtrim(str_replace('\\', '/', sys_get_temp_dir()), '/') . '/evo-file-manager-directory-' . $hash;
+
+        return [
+            'lock' => $base . '.lock',
+            'zip' => $base . '.zip',
+        ];
+    }
+}
+
+if (!function_exists('fileManagerDirectoryZipName')) {
+    function fileManagerDirectoryZipName(string $filemanagerPath, string $relativePath): string
+    {
+        $name = basename($relativePath !== '' ? $relativePath : $filemanagerPath);
+        $name = preg_replace('/[^\w.-]+/', '-', $name);
+        $name = trim($name, '.-');
+
+        return ($name !== '' ? $name : 'files') . '.zip';
+    }
+}
+
+if (!function_exists('fileManagerDirectoryZipExists')) {
+    function fileManagerDirectoryZipExists(array $zipPaths): bool
+    {
+        return is_file($zipPaths['lock']) || is_file($zipPaths['zip']);
+    }
+}
+
+if (!function_exists('fileManagerPathIsProtected')) {
+    function fileManagerPathIsProtected(string $path, array $protectedPaths): bool
+    {
+        $path = rtrim(str_replace('\\', '/', $path), '/');
+        foreach ($protectedPaths as $protectedPath) {
+            $protectedPath = rtrim(str_replace('\\', '/', $protectedPath), '/');
+            if ($path === $protectedPath || strpos($path, $protectedPath . '/') === 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+if (!function_exists('fileManagerDeleteDirectoryZip')) {
+    function fileManagerDeleteDirectoryZip(array $zipPaths): void
+    {
+        foreach ([$zipPaths['zip'], $zipPaths['lock']] as $path) {
+            if (is_file($path)) {
+                @unlink($path);
+            }
+        }
+    }
+}
+
+if (!function_exists('fileManagerCreateDirectoryZip')) {
+    function fileManagerCreateDirectoryZip(
+        string $sourcePath,
+        string $relativePath,
+        string $filemanagerPath,
+        string $zipPath,
+        array $userGroups,
+        array $fileGroupsMap,
+        array $protectedPaths
+    ): bool {
+        $sourcePath = rtrim(str_replace('\\', '/', realpath($sourcePath)), '/');
+        $filemanagerPath = rtrim(str_replace('\\', '/', realpath($filemanagerPath)), '/');
+        $archiveRoot = basename($relativePath !== '' ? $relativePath : $sourcePath);
+        $archiveRoot = trim(preg_replace('/[^\w.-]+/', '-', $archiveRoot), '.-') ?: 'files';
+
+        $zip = new ZipArchive();
+        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+            return false;
+        }
+
+        $zip->addEmptyDir($archiveRoot);
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($sourcePath, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::SELF_FIRST
+        );
+
+        foreach ($iterator as $item) {
+            $itemPath = str_replace('\\', '/', $item->getPathname());
+            $realItemPath = str_replace('\\', '/', realpath($itemPath) ?: $itemPath);
+            if (strpos($realItemPath, $sourcePath . '/') !== 0 || !$item->isReadable()) {
+                continue;
+            }
+            if (fileManagerPathIsProtected($realItemPath, $protectedPaths)) {
+                continue;
+            }
+
+            $itemRelPath = ltrim(substr($realItemPath, strlen($filemanagerPath)), '/');
+            if (!fileManagerIsAccessible($itemRelPath, $userGroups, $fileGroupsMap)) {
+                continue;
+            }
+
+            $archivePath = $archiveRoot . '/' . ltrim(substr($realItemPath, strlen($sourcePath)), '/');
+            if ($item->isDir()) {
+                $zip->addEmptyDir($archivePath);
+            } elseif ($item->isFile()) {
+                $zip->addFile($realItemPath, $archivePath);
+            }
+        }
+
+        return $zip->close();
+    }
+}
+
+$directoryZipPaths = fileManagerDirectoryZipPaths($filemanager_path, $relative_path);
+$directoryZipMessage = '';
+$directoryZipBlocked = evo()->getConfig('denyZipDownload')
+    || fileManagerPathIsProtected($startpath, $protected_path)
+    || !class_exists('ZipArchive')
+    || !is_readable($startpath);
+if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
+    if ($token_check) {
+        fileManagerDeleteDirectoryZip($directoryZipPaths);
+        $directoryZipMessage = '<span class="success"><b>' . $_lang['files_zip_deleted'] . '</b></span><br /><br />';
+    } else {
+        $directoryZipMessage = '<span class="warning"><b>Invalid token</b></span><br /><br />';
+    }
+} elseif (get_by_key($_REQUEST, 'mode') == 'downloadzip') {
+    if (!$token_check) {
+        $directoryZipMessage = '<span class="warning"><b>Invalid token</b></span><br /><br />';
+    } elseif ($directoryZipBlocked) {
+        $directoryZipMessage = '<span class="warning"><b>' . $_lang['files_zip_unavailable'] . '</b></span><br /><br />';
+    } elseif (fileManagerDirectoryZipExists($directoryZipPaths)) {
+        $directoryZipMessage = '<span class="warning"><b>' . $_lang['files_zip_in_progress'] . '</b></span><br /><br />';
+    } else {
+        $lockHandle = @fopen($directoryZipPaths['lock'], 'x');
+        if ($lockHandle === false) {
+            $directoryZipMessage = '<span class="warning"><b>' . $_lang['files_zip_in_progress'] . '</b></span><br /><br />';
+        } else {
+            fclose($lockHandle);
+            if (fileManagerCreateDirectoryZip($startpath, $relative_path, $filemanager_path, $directoryZipPaths['zip'], $userGroups, $fileGroupsMap, $protected_path)) {
+                register_shutdown_function('fileManagerDeleteDirectoryZip', $directoryZipPaths);
+                while (ob_get_level() > 0) {
+                    ob_end_clean();
+                }
+                header('Content-Type: application/zip');
+                header('Content-Disposition: attachment; filename="' . fileManagerDirectoryZipName($filemanager_path, $relative_path) . '"');
+                header('Content-Length: ' . filesize($directoryZipPaths['zip']));
+                header('X-Content-Type-Options: nosniff');
+                readfile($directoryZipPaths['zip']);
+                exit;
+            }
+            fileManagerDeleteDirectoryZip($directoryZipPaths);
+            $directoryZipMessage = '<span class="warning"><b>' . $_lang['files_zip_failed'] . '</b></span><br /><br />';
+        }
+    }
+}
 ?>
     <script type="text/javascript">
         var current_path = '<?= addslashes($relative_path) ?>';
@@ -325,6 +479,7 @@ $currentPathWritable = is_writable($startpath) && fileManagerIsAccessible($relat
                     echo '<span class="warning"><b>Invalid token</b></span><br /><br />';
                 }
             }
+            echo $directoryZipMessage;
             if (in_array($startpath, $protected_path)) {
                 evo()->webAlertAndQuit($_lang["files.dynamic.php2"]);
             }
@@ -671,7 +826,25 @@ $currentPathWritable = is_writable($startpath) && fileManagerIsAccessible($relat
                 </form>
             <?php } else {
                 echo "<p>" . $_lang['files_upload_inhibited_msg'] . "</p>";
-            } ?>
+            }
+            $directoryZipExists = fileManagerDirectoryZipExists($directoryZipPaths);
+            $directoryZipPathParam = urlencode($relative_path);
+            if ($directoryZipExists) { ?>
+                <p>
+                    <a class="btn btn-secondary disabled" href="javascript:;" aria-disabled="true">
+                        <i class="<?= $_style['icon_download'] ?>"></i><span><?= $_lang['files_download_zip'] ?></span>
+                    </a>
+                    <a class="btn btn-danger" href="index.php?a=31&mode=deletezip&path=<?= $directoryZipPathParam ?>&token=<?= $newToken ?>">
+                        <i class="<?= $_style['icon_trash'] ?>"></i><span><?= $_lang['files_delete_zip'] ?></span>
+                    </a>
+                </p>
+            <?php } elseif (!$directoryZipBlocked) { ?>
+                <p>
+                    <a class="btn btn-secondary" href="index.php?a=31&mode=downloadzip&path=<?= $directoryZipPathParam ?>&token=<?= $newToken ?>">
+                        <i class="<?= $_style['icon_download'] ?>"></i><span><?= $_lang['files_download_zip'] ?></span>
+                    </a>
+                </p>
+            <?php } ?>
             <div id="imageviewer"></div>
         </div>
     </div>
