@@ -149,6 +149,8 @@ require_once(EVO_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 
 $isReferenceResource = ($content['type'] === 'reference' || $modx->getManagerApi()->action == '72');
 $isDocumentResource = !$isReferenceResource;
+$publishedOn = (int)get_by_key($content, 'publishedon', 0, 'is_scalar');
+$publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') : $modx->toDateFormat($publishedOn);
 ?>
     <style>
         .image_for_field[data-image] { display: block; content: ""; width: 120px; height: 120px; margin: .1rem .1rem 0 0; border: 1px #ccc solid; background: #fff 50% 50% no-repeat; background-size: contain; cursor: pointer }
@@ -1223,8 +1225,8 @@ $isDocumentResource = !$isReferenceResource;
                                 </tr>
                                 <tr>
                                     <td>
-                                        <span class="warning"><?=ManagerTheme::getLexicon('page_data_publishdate');?></span>
-                                        <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?=ManagerTheme::getLexicon('page_data_publishdate_help');?>"></i>
+                                        <span class="warning"><?=ManagerTheme::getLexicon('page_data_scheduled_publishdate');?></span>
+                                        <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?=ManagerTheme::getLexicon('page_data_scheduled_publishdate_help');?>"></i>
                                     </td>
                                     <td>
                                         <input type="text" id="pub_date" <?= $mx_can_pub ?>name="pub_date" class="DatePicker" value="<?= ((int)get_by_key($content, 'pub_date', 0, 'is_scalar') === 0 || !isset($content['pub_date']) ? '' : $modx->toDateFormat($content['pub_date'])) ?>" onblur="documentDirty=true;" />
@@ -1236,6 +1238,15 @@ $isDocumentResource = !$isReferenceResource;
                                     <td></td>
                                     <td>
                                         <em> <?= $modx->getConfig('datetime_format') ?> HH:MM:SS</em></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="warning"><?=ManagerTheme::getLexicon('page_data_actual_publishdate');?></span>
+                                        <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?=ManagerTheme::getLexicon('page_data_actual_publishdate_help');?>"></i>
+                                    </td>
+                                    <td>
+                                        <input type="text" id="publishedon" class="inputBox" value="<?= htmlspecialchars($publishedOnDisplay, ENT_QUOTES, $modx->getConfig('modx_charset')) ?>" readonly="readonly" />
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>
