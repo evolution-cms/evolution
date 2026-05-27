@@ -36,7 +36,7 @@ $_lang["access_permissions_no_users_in_group"] = 'None.';
 $_lang["access_permissions_off"] = '<span class="warning">Access Permissions are not activated.</span> This means any changes made here will not have any effect until Access Permissions are activated in your Configuration.';
 $_lang["access_permissions_resource_groups"] = 'Resource Groups';
 $_lang["access_permissions_resources_in_group"] = '<b>Resources in group:</b> ';
-$_lang["access_permissions_resources_tab"] = 'See which Resource Groups have been created. Also create new groups, rename groups, delete groups and see which Resources are in the different groups (hover over the id of the Resource to see it\'s name). To add a Resource to a group or remove a Resource from a group, edit the Resource directly.';
+$_lang["access_permissions_resources_tab"] = 'See which Resource Groups have been created. Also create new groups, rename groups, delete groups and see which Resources are in the different groups (hover over the id of the Resource to see its name). To add a Resource to a group or remove a Resource from a group, edit the Resource directly.';
 $_lang["access_permissions_user_groups"] = 'User groups';
 $_lang["access_permissions_user_message"] = 'Select which User Groups this user belongs to:';
 $_lang["access_permissions_users_in_group"] = 'Users in group:';
@@ -147,7 +147,7 @@ $_lang["configcheck_title"] = 'Configuration check';
 $_lang["configcheck_templateswitcher_present"] = 'TemplateSwitcher Plugin detected';
 $_lang["configcheck_templateswitcher_present_delete"] = '<a href="javascript:deleteTemplateSwitcher();">Delete TemplateSwitcher</a>';
 $_lang["configcheck_templateswitcher_present_disable"] = '<a href="javascript:disableTemplateSwitcher();">Disable TemplateSwitcher</a>';
-$_lang["configcheck_templateswitcher_present_msg"] = 'The TemplateSwitcher plugin has been found to cause caching and performance problems, and should be used only the functionality is required in your site.';
+$_lang["configcheck_templateswitcher_present_msg"] = 'The TemplateSwitcher plugin has been found to cause caching and performance problems, and should be used only if the functionality is required in your site.';
 $_lang["configcheck_unauthorizedpage_unavailable"] = 'Your site\'s Unauthorized page is not published or does not exist.';
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'This means that your Unauthorized page is not accessible to normal web surfers or does not exist. This can lead to a recursive looping condition and many errors in your site logs. Make sure there are no Webuser Groups assigned to the page.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'The Unauthorized page defined in the site configuration settings is not published.';
@@ -287,7 +287,7 @@ $_lang["empty_recycle_bin"] = 'Purge deleted Resources';
 $_lang["empty_recycle_bin_empty"] = 'There are no deleted Resources to purge.';
 $_lang["enable_resource"] = 'Enable Element file.';
 $_lang["enable_sharedparams"] = 'Enable parameter sharing';
-$_lang["enable_sharedparams_msg"] = '<b>NOTE:</b> The above globally unique id (GUID) will be used to uniquely identify this Module and it\'s shared parameters. The GUID is also used to form a link between the Module and the Plugins or Snippets accessing the it\'s shared parameters. ';
+$_lang["enable_sharedparams_msg"] = '<b>NOTE:</b> The above globally unique id (GUID) will be used to uniquely identify this Module and its shared parameters. The GUID is also used to form a link between the Module and the Plugins or Snippets accessing its shared parameters. ';
 $_lang["enabled"] = 'Enabled';
 $_lang["error"] = 'Error';
 $_lang["error_sending_email"] = 'Error sending email';
@@ -1493,15 +1493,15 @@ $_lang["login_form_style"] = 'Login form style:';
 $_lang["login_form_style_dark"] = 'dark';
 $_lang["login_form_style_light"] = 'light';
 $_lang['login_logo_title'] = 'Login page logo image';
-$_lang['login_logo_message'] = 'Recomended login logo image width: 360px, type .png';
+$_lang['login_logo_message'] = 'Recommended login logo image width: 360px, type .png';
 $_lang['login_bg_title'] = 'Login page background image';
-$_lang['login_bg_message'] = 'Recomended login page background image width: 1920px  ';
+$_lang['login_bg_message'] = 'Recommended login page background image width: 1920px  ';
 
 $_lang['manager_menu_position_title'] = 'Main menu position';
 $_lang['manager_menu_position_top'] = 'top';
 $_lang['manager_menu_position_left'] = 'left';
 
-$_lang['invalid_event_response'] = 'The %s event has ivalid output';
+$_lang['invalid_event_response'] = 'The %s event has invalid output';
 
 $_lang['chunk_processor'] = 'Chunks processing class';
 
