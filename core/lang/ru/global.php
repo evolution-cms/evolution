@@ -1510,6 +1510,8 @@ $_lang["role_tv_msg"] = 'Ниже выводятся параметры, наз�
 $_lang["tmplvar_roles_access_msg"] = 'Укажите роли, которые могут использовать этот Параметр (TV)';
 
 $_lang["setting_from_file"] = '<strong class="text-danger">Значение параметра задано в core/custom/config/cms/settings</strong>';
+$_lang['disable'] = 'Отключить';
+$_lang['enable'] = 'Включить';
 
 $_lang["file_groups_saved"] = 'Права доступа сохранены.';
 $_lang["file_groups_edit"] = 'Редактировать права доступа';

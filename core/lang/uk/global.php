@@ -107,6 +107,11 @@ $_lang["chunk_code"] = 'Код чанку (HTML)';
 $_lang["chunk_multiple_id"] = 'Помилка: Кілька чанків мають однаковий ідентифікатор.';
 $_lang["chunk_no_exist"] = 'Чанк не знайдено.';
 $_lang['chunk_processor'] = 'Клас обробки чанків';
+
+$_lang["permission_title"] = 'Створити / редагувати право доступу';
+$_lang["groups_permission_title"] = 'Створити / редагувати категорію';
+$_lang["lang_key_desc"] = 'Ключ мови з масиву $_lang';
+$_lang["key_desc"] = 'Ключ для перевірки доступу';
 $_lang["cleaningup"] = 'Очищення...';
 $_lang["clean_uploaded_filename"] = 'Використовувати транслітерацію при завантаженні файлів.';
 $_lang["clean_uploaded_filename_message"] = 'Використовувати налаштування плагіна transalias для транслітерації імен файлів, що завантажуються із збереженням крапок і ком.';
@@ -1504,12 +1509,9 @@ $_lang["role_notassigned_tv"] = 'Ці змінні доступні для пр�
 $_lang["role_tv_msg"] = 'Змінні, призначені цій ролі, перераховані нижче.';
 $_lang["tmplvar_roles_access_msg"] = 'Виберіть ролі, яким дозволено доступ до цієї змінної шаблону та її обробка';
 
-$_lang["site_indexing_title"] = 'Індексація сайту';
-$_lang['site_indexing_message'] = 'Керування метатегом robots для індексації сайту пошуковими роботами.';
-$_lang["ignore"] = 'Не враховувати';
-$_lang["indexing_is_allowed"] = 'Індексацію дозволено';
-$_lang["indexing_is_prohibited"] = 'Індексацію заборонено';
 $_lang["setting_from_file"] = '<strong class="text-danger">Значення параметра задано в core/custom/config/cms/settings</strong>';
+$_lang['disable'] = 'Вимкнути';
+$_lang['enable'] = 'Увімкнути';
 
 $_lang["file_groups_saved"] = 'Права доступу збережено.';
 $_lang["file_groups_edit"] = 'Редагувати права доступу';
