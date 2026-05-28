@@ -137,6 +137,7 @@
                 }
             }
             this.resizer.init();
+            this.moduleViewport.init();
             this.search.init();
             if (this.config.session_timeout > 0) {
                 w.setInterval(this.keepMeAlive, 1000 * 60 * this.config.session_timeout);
@@ -845,6 +846,128 @@
             },
             setDefaultWidth: function () {
                 evo.resizer.setWidth(evo.remToPx(evo.config.tree_width));
+            }
+        },
+        // Allows manager modules to request a full-width workspace while their tab is active.
+        moduleViewport: {
+            restoreWidth: 0,
+            hiddenByModule: false,
+            syncTimer: null,
+            init: function () {
+                var self = this;
+                var main = d.getElementById('main');
+
+                d.addEventListener('click', function (event) {
+                    if (event.target.closest('.evo-tab-row') || event.target.closest('#mainMenu')) {
+                        self.scheduleSync();
+                    }
+                }, true);
+
+                d.addEventListener('load', function (event) {
+                    if (event.target && event.target.tagName === 'IFRAME') {
+                        self.scheduleSync();
+                    }
+                }, true);
+
+                if (main && w.MutationObserver) {
+                    new MutationObserver(function () {
+                        self.scheduleSync();
+                    }).observe(main, {
+                        subtree: true,
+                        attributes: true,
+                        attributeFilter: ['class']
+                    });
+                }
+            },
+            getActiveFrame: function () {
+                var page = d.querySelector('.evo-tab-page.show');
+                var frame = page ? page.querySelector('iframe') : null;
+
+                return frame || d.getElementById(evo.main.idFrame);
+            },
+            wantsHiddenTree: function (frame) {
+                var frameWindow;
+                var frameDocument;
+
+                try {
+                    frameWindow = frame && frame.contentWindow;
+                    frameDocument = frame && (frame.contentDocument || frameWindow.document);
+                } catch (e) {
+                    return false;
+                }
+
+                return !!(
+                    frameWindow &&
+                    (
+                        frameWindow.__evoHideManagerTree === true ||
+                        frameDocument.documentElement.dataset.managerTree === 'hidden' ||
+                        frameDocument.body && frameDocument.body.dataset.managerTree === 'hidden'
+                    )
+                );
+            },
+            getTreeWidth: function () {
+                var tree = d.getElementById('tree');
+
+                return tree ? tree.offsetWidth : 0;
+            },
+            hideTree: function () {
+                var width = this.getTreeWidth();
+
+                if (width > 0 && evo.resizer && typeof evo.resizer.setWidth === 'function') {
+                    this.restoreWidth = width;
+                    evo.resizer.setWidth(0);
+                    this.hiddenByModule = true;
+                }
+            },
+            restoreTree: function () {
+                var width = this.restoreWidth || (
+                    evo.remToPx && evo.config
+                        ? evo.remToPx(evo.config.tree_width)
+                        : 0
+                );
+
+                if (evo.resizer && typeof evo.resizer.setWidth === 'function') {
+                    if (width > 0) {
+                        evo.resizer.setWidth(width);
+                    } else if (typeof evo.resizer.setDefaultWidth === 'function') {
+                        evo.resizer.setDefaultWidth();
+                    }
+                }
+
+                this.hiddenByModule = false;
+                this.restoreWidth = 0;
+            },
+            sync: function () {
+                var frame = this.getActiveFrame();
+
+                if (this.wantsHiddenTree(frame)) {
+                    this.hideTree();
+                } else if (this.hiddenByModule) {
+                    this.restoreTree();
+                }
+            },
+            scheduleSync: function () {
+                var self = this;
+
+                w.clearTimeout(this.syncTimer);
+                this.syncTimer = w.setTimeout(function () {
+                    self.sync();
+                }, 0);
+
+                w.setTimeout(function () {
+                    self.sync();
+                }, 120);
+
+                w.setTimeout(function () {
+                    self.sync();
+                }, 450);
+            },
+            requestHiddenTree: function (frameWindow) {
+                if (frameWindow) {
+                    frameWindow.__evoHideManagerTree = true;
+                }
+
+                this.sync();
             }
         },
         tree: {
@@ -1902,6 +2025,7 @@
                             if (allowShow) {
                                 this.show();
                                 evo.main.onload(e);
+                                evo.moduleViewport.scheduleSync();
                             } else if (prevMain) {
                                 w.main = prevMain;
                             }
@@ -1961,6 +2085,7 @@
                         evo.main.tabRow.scroll(this.row, this.tab, 350);
                     }
                     evo.tabsStore();
+                    evo.moduleViewport.scheduleSync();
                 },
                 close: function (e) {
                     var documentDirty = this.page.firstElementChild.contentWindow.documentDirty;
@@ -2004,6 +2129,7 @@
                         }
                     }
                     evo.tabsStore();
+                    evo.moduleViewport.scheduleSync();
                     evo.main.stopWork();
                 },
                 select: function (e) {
