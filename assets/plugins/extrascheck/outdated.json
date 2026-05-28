@@ -16,8 +16,8 @@
     "rss_url_security": {
       "old": "http://feeds.feedburner.com/modxsecurity"
     },
-    "rss_url_news": {
-      "old": "http://feeds.feedburner.com/modx-announce"
+    "rss_url_releases": {
+      "old": "https://feeds.feedburner.com/evocms-release-news"
     }
   },
   "snippet": {

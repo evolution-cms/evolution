@@ -60,9 +60,9 @@
 
 		<!-- evo news -->
 		<div class="tab-page" id="tabNews" style="padding-left:0; padding-right:0">
-			<h2 class="tab">[%modx_news_tab%]</h2>
+			<h2 class="tab">[%evo_release_title%]</h2>
 			<script type="text/javascript">tpPane.addTabPage(document.getElementById("tabNews"));</script>
-			<div class="sectionHeader">[%modx_news_title%]</div>
+			<div class="sectionHeader">[%evo_release_title%]</div>
 			<div class="sectionBody">
 				[+evo_news_content+]
 			</div>

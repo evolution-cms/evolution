@@ -895,9 +895,7 @@ $_lang["mgrlog_username"] = 'Імя карыстальніка';
 $_lang["mgrlog_value"] = 'Каштоўнасць';
 $_lang["mgrlog_view"] = 'Прагляд часопісаў мэнэджэра';
 
-$_lang["modx_news"] = 'Апавяшчэнні пра навіны Evolution CMS';
-$_lang["modx_news_tab"] = 'Навіны Evolution CMS';
-$_lang["modx_news_title"] = 'Навіны Evolution CMS';
+$_lang["evo_release_title"] = 'Рэлізы Evolution CMS';
 $_lang["modx_security_notices"] = 'Заўвагі па бяспецы Evolution CMS';
 $_lang["evo_version"] = 'Версія Evolution CMS';
 
@@ -1053,9 +1051,9 @@ $_lang["manage_document_permissions"] = 'Кіраванне дазволамі �
 $_lang["manage_module_permissions"] = 'Кіраванне дазволамі модуля';
 $_lang["manage_tv_permissions"] = 'Кіраванне дазволамі ТБ';
 
-$_lang["rss_url_news_default"] = 'https://feeds.feedburner.com/evocms-release-news';
-$_lang["rss_url_news_message"] = 'Увядзіце URL для стужкі навін Evolution CMS.';
-$_lang["rss_url_news_title"] = 'RSS-стужка навін';
+$_lang["rss_url_releases_default"] = 'https://evo.im/rss/releases.xml';
+$_lang["rss_url_releases_message"] = 'Увядзіце URL-адрас RSS-стужкі рэлізаў EVO.';
+$_lang["rss_url_releases_title"] = 'RSS-стужка рэлізаў EVO';
 $_lang["rss_url_security_default"] = 'https://feeds.feedburner.com/evocms-security-news';
 $_lang["rss_url_security_message"] = 'Увядзіце URL для стужкі бяспекі Evolution CMS.';
 $_lang["rss_url_security_title"] = 'Канал бяспекі RSS';

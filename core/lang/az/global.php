@@ -909,9 +909,7 @@ $_lang["mgrlog_username"] = 'İstifadəçi adı';
 $_lang["mgrlog_value"] = 'Dəyər';
 $_lang["mgrlog_view"] = 'İdarəetmə loglarına bax';
 
-$_lang["modx_news"] = 'Evolution CMS Xəbərləri';
-$_lang["modx_news_tab"] = 'Evolution CMS Xəbərlər';
-$_lang["modx_news_title"] = 'Evolution CMS Xəbərlər';
+$_lang["evo_release_title"] = 'Evolution CMS buraxılışları';
 $_lang["modx_security_notices"] = 'Evolution CMS Təhlükəsizlik Bildirişləri';
 $_lang["evo_version"] = 'Evolution CMS versiyası';
 
@@ -1066,9 +1064,9 @@ $_lang["manage_document_permissions"] = 'Sənəd icazələrini idarə et';
 $_lang["manage_module_permissions"] = 'Modul icazələrini idarə et';
 $_lang["manage_tv_permissions"] = 'TV icazələrini idarə et';
 
-$_lang["rss_url_news_default"] = 'https://feeds.feedburner.com/evocms-release-news';
-$_lang["rss_url_news_message"] = 'Evolution CMS Xəbərlər Lentinin URL ünvanını daxil edin.';
-$_lang["rss_url_news_title"] = 'RSS Xəbərlər Lenti';
+$_lang["rss_url_releases_default"] = 'https://evo.im/rss/releases.xml';
+$_lang["rss_url_releases_message"] = 'EVO buraxılışlarının RSS lentinin URL ünvanını daxil edin.';
+$_lang["rss_url_releases_title"] = 'EVO Buraxılışlarının RSS Lenti';
 $_lang["rss_url_security_default"] = 'https://feeds.feedburner.com/evocms-security-news';
 $_lang["rss_url_security_message"] = 'Evolution CMS Təhlükəsizlik Lentinin URL ünvanını daxil edin.';
 $_lang["rss_url_security_title"] = 'RSS Təhlükəsizlik Xəbər Lenti';

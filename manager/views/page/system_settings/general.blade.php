@@ -509,18 +509,6 @@
 
         <div class="split my-1"></div>
 
-        @include('manager::form.input', [
-            'name' => 'rss_url_news',
-            'label' => __('global.rss_url_news_title'),
-            'small' => '[(rss_url_news)]',
-            'value' => $settings['rss_url_news'],
-            'attributes' => 'onchange="documentDirty=true;" maxlength="350"',
-            'comment' => (isset($disabledSettings['rss_url_news']) ? __('global.setting_from_file') . '<br>' : ''),
-            'disabled' => $disabledSettings['rss_url_news'] ?? null
-        ])
-
-        <div class="split my-1"></div>
-
         @include('manager::form.radio', [
             'name' => 'track_visitors',
             'label' => __('global.track_visitors_title'),
@@ -530,9 +518,20 @@
                 1 => __('global.yes'),
                 0 => __('global.no')
             ],
-            'comment' => (isset($disabledSettings['track_visitors']) ? __('global.setting_from_file') . '<br>' : '') .
-                __('global.track_visitors_message'),
+            'comment' => (isset($disabledSettings['track_visitors']) ? __('global.setting_from_file') . '<br>' : '') . __('global.track_visitors_message'),
             'disabled' => $disabledSettings['track_visitors'] ?? null
+        ])
+
+        <div class="split my-1"></div>
+
+        @include('manager::form.input', [
+            'name' => 'rss_url_releases',
+            'label' => __('global.rss_url_releases_title'),
+            'small' => '[(rss_url_releases)]',
+            'value' => $settings['rss_url_releases'],
+            'attributes' => 'onchange="documentDirty=true;" maxlength="350"',
+            'comment' => (isset($disabledSettings['rss_url_releases']) ? __('global.setting_from_file') . '<br>' : '') . __('global.rss_url_releases_message'),
+            'disabled' => $disabledSettings['rss_url_releases'] ?? null
         ])
 
         <div class="split my-1"></div>
