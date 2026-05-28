@@ -536,6 +536,19 @@
 
         <div class="split my-1"></div>
 
+        @include('manager::form.input', [
+            'name' => 'rss_url_extras',
+            'label' => __('global.rss_url_extras_title'),
+            'small' => '[(rss_url_extras)]',
+            'value' => $settings['rss_url_extras'],
+            'attributes' => 'onchange="documentDirty=true;" maxlength="350"',
+            'comment' => (isset($disabledSettings['rss_url_extras']) ? __('global.setting_from_file') . '<br>' : '') .
+                __('global.rss_url_extras_message'),
+            'disabled' => $disabledSettings['rss_url_extras'] ?? null
+        ])
+
+        <div class="split my-1"></div>
+
         {!! get_by_key($tabEvents, 'OnSiteSettingsRender') !!}
     </div>
 </div>

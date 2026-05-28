@@ -68,13 +68,13 @@
 			</div>
 		</div>
 
-		<!-- security notices -->
-		<div class="tab-page" id="tabSecurityNotices" style="padding-left:0; padding-right:0">
-			<h2 class="tab">[%security_notices_tab%]</h2>
-			<script type="text/javascript">tpPane.addTabPage(document.getElementById("tabSecurityNotices"));</script>
-			<div class="sectionHeader">[%security_notices_title%]</div>
+		<!-- extras releases -->
+		<div class="tab-page" id="tabExtrasReleases" style="padding-left:0; padding-right:0">
+			<h2 class="tab">[%extras_release_tab%]</h2>
+			<script type="text/javascript">tpPane.addTabPage(document.getElementById("tabExtrasReleases"));</script>
+			<div class="sectionHeader">[%extras_release_title%]</div>
 			<div class="sectionBody">
-				[+evo_security_notices_content+]
+				[+evo_extras_releases_content+]
 			</div>
 		</div>
 

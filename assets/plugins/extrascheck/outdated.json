@@ -13,8 +13,8 @@
     "ScienceStyle": {}
   },
   "rss": {
-    "rss_url_security": {
-      "old": "http://feeds.feedburner.com/modxsecurity"
+    "rss_url_extras": {
+      "old": "https://feeds.feedburner.com/evocms-security-news"
     },
     "rss_url_releases": {
       "old": "https://feeds.feedburner.com/evocms-release-news"

@@ -102,19 +102,6 @@
 
         <div class="split my-1"></div>
 
-        @include('manager::form.input', [
-            'name' => 'rss_url_security',
-            'label' => __('global.rss_url_security_title'),
-            'small' => '[(rss_url_security)]',
-            'value' => $settings['rss_url_security'],
-            'attributes' => 'onchange="documentDirty=true;" maxlength="350"',
-            'comment' => (isset($disabledSettings['rss_url_security']) ? __('global.setting_from_file') . '<br>' : '') .
-                __('global.rss_url_security_message'),
-            'disabled' => $disabledSettings['rss_url_security'] ?? null
-        ])
-
-        <div class="split my-1"></div>
-
         @include('manager::form.radio', [
             'name' => 'error_reporting',
             'label' => __('global.a17_error_reporting_title'),

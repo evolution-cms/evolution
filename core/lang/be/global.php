@@ -1054,9 +1054,9 @@ $_lang["manage_tv_permissions"] = 'Кіраванне дазволамі ТБ';
 $_lang["rss_url_releases_default"] = 'https://evo.im/rss/releases.xml';
 $_lang["rss_url_releases_message"] = 'Увядзіце URL-адрас RSS-стужкі рэлізаў EVO.';
 $_lang["rss_url_releases_title"] = 'RSS-стужка рэлізаў EVO';
-$_lang["rss_url_security_default"] = 'https://feeds.feedburner.com/evocms-security-news';
-$_lang["rss_url_security_message"] = 'Увядзіце URL для стужкі бяспекі Evolution CMS.';
-$_lang["rss_url_security_title"] = 'Канал бяспекі RSS';
+$_lang["rss_url_extras_default"] = 'https://evo.im/rss/extras.xml';
+$_lang["rss_url_extras_message"] = 'Увядзіце URL-адрас RSS-стужкі дадаткаў EVO.';
+$_lang["rss_url_extras_title"] = 'RSS-стужка рэлізаў Extras';
 
 $_lang["run_module"] = 'Запусціць модуль';
 $_lang["save"] = 'Захаваць';
@@ -1089,8 +1089,8 @@ $_lang["search_results_returned_title"] = 'Назва';
 $_lang["search_view_docdata"] = 'Праглядзець гэты элемент';
 
 $_lang["security"] = 'Бяспека';
-$_lang["security_notices_tab"] = 'Нататкі па бяспецы';
-$_lang["security_notices_title"] = 'Нататкі па бяспецы';
+$_lang["extras_release_tab"] = 'Рэлізы Evolution CMS Extras';
+$_lang["extras_release_title"] = 'Рэлізы Evolution CMS Extras';
 
 $_lang["select_date"] = 'Выберыце дату';
 $_lang["send"] = 'Адправіць';

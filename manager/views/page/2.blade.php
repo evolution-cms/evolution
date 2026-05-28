@@ -47,6 +47,8 @@
     $_style['icon_pencil'] = svg('tabler-pencil')->toHtml();
     $_style['icon_rss'] = svg('tabler-rss')->toHtml();
     $_style['icon_alert_triangle'] = svg('tabler-alert-triangle')->toHtml();
+    $_style['icon_rocket'] = svg('tabler-rocket')->toHtml();
+    $_style['icon_package'] = svg('tabler-package')->toHtml();
 
     // set placeholders
     $ph = $_lang;
@@ -275,10 +277,10 @@
     // Here you can set the urls to retrieve the RSS from. Add a $urls line following the numbering progress in the square brackets.
 
     $urls['evo_news_content'] = evo()->getConfig('rss_url_releases');
-    $urls['evo_security_notices_content'] = evo()->getConfig('rss_url_security');
+    $urls['evo_extras_releases_content'] = evo()->getConfig('rss_url_extras');
 
     // How many items per Feed?
-    $itemsNumber = 3;
+    $itemsNumber = 5;
     $feedData = [];
 
     // create Feed
@@ -315,7 +317,7 @@
         $feedData[$section] = $output;
     }
 
-    $ph['evo_security_notices_content'] = $feedData['evo_security_notices_content'] ?? '';
+    $ph['evo_extras_releases_content'] = $feedData['evo_extras_releases_content'] ?? '';
     $ph['evo_news_content'] = $feedData['evo_news_content'] ?? '';
 
     $ph['theme'] = evo()->getConfig('manager_theme');
@@ -333,8 +335,8 @@
     $ph['info'] = $_lang['info'];
     $ph['yourinfo_title'] = $_lang['yourinfo_title'];
 
-    $ph['modx_security_notices'] = $_lang['security_notices_tab'];
-    $ph['modx_security_notices_title'] = $_lang['security_notices_title'];
+    $ph['extras_release_tab'] = $_lang['extras_release_tab'];
+    $ph['extras_release_title'] = $_lang['extras_release_title'];
     $ph['evo_release_title'] = $_lang['evo_release_title'];
 
     evo()->toPlaceholders($ph);
@@ -466,20 +468,20 @@
             'menuindex' => '40',
             'id' => 'news',
             'cols' => 'col-sm-6',
-            'icon' => 'tabler-rss',
+            'icon' => 'tabler-rocket',
             'title' => '[%evo_release_title%]',
             'body' => '<div style="max-height:200px;overflow-y: scroll;padding: 1rem .5rem">[+evo_news_content+]</div>',
             'hide' => '0',
         ];
     }
-    if (evo()->getConfig('rss_url_security')) {
-        $widgets['security'] = [
+    if (evo()->getConfig('rss_url_extras')) {
+        $widgets['extras'] = [
             'menuindex' => '50',
-            'id' => 'security',
+            'id' => 'extras',
             'cols' => 'col-sm-6',
-            'icon' => 'tabler-alert-triangle',
-            'title' => '[%security_notices_title%]',
-            'body' => '<div style="max-height:200px;overflow-y: scroll;padding: 1rem .5rem">[+evo_security_notices_content+]</div>',
+            'icon' => 'tabler-package',
+            'title' => '[%extras_release_title%]',
+            'body' => '<div style="max-height:200px;overflow-y: scroll;padding: 1rem .5rem">[+evo_extras_releases_content+]</div>',
             'hide' => '0',
         ];
     }

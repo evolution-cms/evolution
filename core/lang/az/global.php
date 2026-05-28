@@ -1067,9 +1067,9 @@ $_lang["manage_tv_permissions"] = 'TV icazələrini idarə et';
 $_lang["rss_url_releases_default"] = 'https://evo.im/rss/releases.xml';
 $_lang["rss_url_releases_message"] = 'EVO buraxılışlarının RSS lentinin URL ünvanını daxil edin.';
 $_lang["rss_url_releases_title"] = 'EVO Buraxılışlarının RSS Lenti';
-$_lang["rss_url_security_default"] = 'https://feeds.feedburner.com/evocms-security-news';
-$_lang["rss_url_security_message"] = 'Evolution CMS Təhlükəsizlik Lentinin URL ünvanını daxil edin.';
-$_lang["rss_url_security_title"] = 'RSS Təhlükəsizlik Xəbər Lenti';
+$_lang["rss_url_extras_default"] = 'https://evo.im/rss/extras.xml';
+$_lang["rss_url_extras_message"] = 'EVO əlavələrinin RSS lentinin URL ünvanını daxil edin.';
+$_lang["rss_url_extras_title"] = 'Extras Buraxılışlarının RSS Lenti';
 
 $_lang["run_module"] = 'Modulu işə sal';
 $_lang["save"] = 'Yadda saxla';
@@ -1102,8 +1102,8 @@ $_lang["search_results_returned_title"] = 'Başlıq';
 $_lang["search_view_docdata"] = 'Bu elementi görüntülə';
 
 $_lang["security"] = 'İstifadəçilər';
-$_lang["security_notices_tab"] = 'Təhlükəsizlik Bildirişləri';
-$_lang["security_notices_title"] = 'Təhlükəsizlik Bildirişləri';
+$_lang["extras_release_tab"] = 'Evolution CMS Extras buraxılışları';
+$_lang["extras_release_title"] = 'Evolution CMS Extras buraxılışları';
 
 $_lang["select_date"] = 'Tarix seçin';
 $_lang["send"] = 'Göndər';

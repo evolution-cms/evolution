@@ -342,8 +342,8 @@ html.evo-custom-scrollbars::-webkit-scrollbar-corner, html.evo-custom-scrollbars
 .darkness .widgets #welcome .wm_button a { color: #aaa; }
 .darkness .widgets #welcome .wm_button a:hover { background-color: rgba(255, 255, 255, 0.08); color: #e8e8e8; }
 .darkness .widgets .card-header { color: #b0b0b1; border-bottom: 1px solid #2b2e34; }
-.darkness #news .card-block ul li, .darkness #security .card-block ul li { border-bottom: 1px solid #2b2e34; }
-.darkness #news .card-block ul li:last-child, .darkness #security .card-block ul li:last-child, .darkness table.table.table--edit > tbody > tr > td { border: none }
+.darkness #news .card-block ul li, .darkness #extras .card-block ul li { border-bottom: 1px solid #2b2e34; }
+.darkness #news .card-block ul li:last-child, .darkness #extras .card-block ul li:last-child, .darkness table.table.table--edit > tbody > tr > td { border: none }
 .darkness .multitv .list li.element { background: #282c34 !important; border-color: #414449; }
 .darkness .multitv .list li.element input[type="text"], .darkness .multitv .list li.element input[type="password"], .darkness .multitv .list li.element input[type="number"], .darkness .multitv .list li.element textarea { background-color: #202329 !important; border-color: #414449 !important; }
 .darkness #displayparams { width: calc(100% + 2.5rem); max-width: calc(100% + 2.5rem); margin: 0 -1.25rem !important; }
@@ -504,9 +504,9 @@ form#docfinder div.tab-page { height: auto !important }
 ul.breadcrumbs { margin: 0 0 1rem 0; padding: .5rem 0.8rem; line-height: normal; font-size: .675rem; color: #888; border-width: 0; background-image: linear-gradient(to right, rgba(0, 0, 0, 0.04), transparent 60%); }
 ul.breadcrumbs a { color: #333; }
 
-#news .card-block > div, #security .card-block > div { padding: 0 !important; }
-#news .card-block ul, #security .card-block ul { padding: 0; margin: 0; }
-#news .card-block ul li, #security .card-block ul li { padding: 0.75rem 1rem; border-bottom: 1px solid #ebebeb; }
+#news .card-block > div, #extras .card-block > div { padding: 0 !important; }
+#news .card-block ul, #extras .card-block ul { padding: 0; margin: 0; }
+#news .card-block ul li, #extras .card-block ul li { padding: 0.75rem 1rem; border-bottom: 1px solid #ebebeb; }
 ul.mmTagList li { padding: 2px 8px !important; margin-bottom: 5px !important; border-radius: 3px !important; -webkit-border-radius: 3px !important; background-color: #eaeaea !important; text-decoration: none !important; }
 ul.mmTagList li.tagSelected { border-radius: 3px !important; -webkit-border-radius: 3px !important; background-color: #5a5e63 !important; }
 .tox-promotion {display: none !important; }

@@ -12,7 +12,7 @@
     'enable_at_syntax' => 0,
     'minifyphp_incache' => 0,
     'rss_url_releases' => ManagerTheme::getLexicon("rss_url_releases_default"),
-    'rss_url_security' => ManagerTheme::getLexicon("rss_url_security_default"),
+    'rss_url_extras' => ManagerTheme::getLexicon("rss_url_extras_default"),
     'friendly_urls' => 0,
     'friendly_url_prefix' => '',
     'friendly_url_suffix' => '/',
