@@ -499,6 +499,9 @@
                 }
                 var url = evo.normalizeUrl(w.main.location.href);
                 w.history.replaceState(null, d.title, evo.getActionFromUrl(url, 2) ? evo.EVO_MANAGER_URL : '#' + url);
+                if (evo.moduleViewport) {
+                    evo.moduleViewport.syncFrame(e.target);
+                }
                 setTimeout('evo.tree.restoreTree()', 100);
             },
             oncontextmenu: function (e) {
@@ -800,9 +803,15 @@
                     if (e.clientX > 0) {
                         d.body.classList.remove('sidebar-closed');
                         evo.resizer.left = e.clientX;
+                        if (evo.moduleViewport && evo.moduleViewport.hiddenByModule) {
+                            evo.moduleViewport.manualTreeVisible = true;
+                        }
                     } else {
                         d.body.classList.add('sidebar-closed');
                         evo.resizer.left = 0;
+                        if (evo.moduleViewport) {
+                            evo.moduleViewport.manualTreeVisible = false;
+                        }
                     }
                     d.cookie = 'EVO_widthSideBar=' + evo.pxToRem(evo.resizer.left);
                     evo.resizer.dragElement.style.zIndex = evo.resizer.oldZIndex;
@@ -819,16 +828,25 @@
                 if (evo.isMobile || w.innerWidth <= evo.minWidth) {
                     if (d.body.classList.contains('sidebar-closed')) {
                         d.body.classList.remove('sidebar-closed');
+                        if (evo.moduleViewport && evo.moduleViewport.hiddenByModule) {
+                            evo.moduleViewport.manualTreeVisible = true;
+                        }
                         localStorage.setItem('EVO_widthSideBar', 0);
                         d.cookie = 'EVO_widthSideBar=' + evo.pxToRem(parseInt(d.getElementById('tree').offsetWidth));
                     } else {
                         localStorage.setItem('EVO_widthSideBar', parseInt(d.getElementById('tree').offsetWidth));
                         d.body.classList.add('sidebar-closed');
+                        if (evo.moduleViewport) {
+                            evo.moduleViewport.manualTreeVisible = false;
+                        }
                         d.cookie = 'EVO_widthSideBar=0';
                     }
                 } else {
                     var p = d.getElementById('tree').offsetWidth !== 0 ? 0 : parseInt(localStorage.getItem('EVO_widthSideBar')) ? parseInt(localStorage.getItem('EVO_widthSideBar')) : evo.config.tree_width;
                     evo.resizer.setWidth(p);
+                    if (evo.moduleViewport) {
+                        evo.moduleViewport.manualTreeVisible = evo.moduleViewport.hiddenByModule && p > 0;
+                    }
                 }
             },
             setWidth: function (a) {
@@ -852,6 +870,7 @@
         moduleViewport: {
             restoreWidth: 0,
             hiddenByModule: false,
+            manualTreeVisible: false,
             syncTimer: null,
             init: function () {
                 var self = this;
@@ -911,6 +930,10 @@
                 return tree ? tree.offsetWidth : 0;
             },
             hideTree: function () {
+                if (this.manualTreeVisible) {
+                    return;
+                }
+
                 var width = this.getTreeWidth();
 
                 if (width > 0 && evo.resizer && typeof evo.resizer.setWidth === 'function') {
@@ -935,15 +958,21 @@
                 }
 
                 this.hiddenByModule = false;
+                this.manualTreeVisible = false;
                 this.restoreWidth = 0;
             },
             sync: function () {
-                var frame = this.getActiveFrame();
-
+                this.syncFrame(this.getActiveFrame());
+            },
+            syncFrame: function (frame) {
                 if (this.wantsHiddenTree(frame)) {
-                    this.hideTree();
+                    if (!this.manualTreeVisible) {
+                        this.hideTree();
+                    }
                 } else if (this.hiddenByModule) {
                     this.restoreTree();
+                } else {
+                    this.manualTreeVisible = false;
                 }
             },
             scheduleSync: function () {
@@ -967,7 +996,7 @@
                     frameWindow.__evoHideManagerTree = true;
                 }
 
-                this.sync();
+                this.hideTree();
             }
         },
         tree: {
@@ -2077,6 +2106,7 @@
                     evo.title(this.txt);
                     evo.tabs.selected = this.tab;
                     w.main = this.page.firstElementChild.contentWindow;
+                    evo.moduleViewport.syncFrame(this.page.firstElementChild);
                     if (this.getTab && this.action === 76 && !~w.main.frameElement.contentDocument.location.href.indexOf(this.url)) {
                         w.main.frameElement.src = this.url;
                     } else {
