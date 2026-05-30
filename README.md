@@ -52,7 +52,7 @@ Download:
 https://github.com/evolution-cms/evolution/releases
 
 Extras / Add-ons:
-https://extras.evo.im
+https://evo.im/extras/
 
 Documentation:
 https://docs.evo.im
