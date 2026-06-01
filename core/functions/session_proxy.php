@@ -5,17 +5,23 @@ class EvoSessionProxy
     /**
      * @var bool
      */
-    private static $initialized = false;
+    private static bool $initialized = false;
 
     /**
      * @var bool
      */
-    private static $synced = false;
+    private static bool $synced = false;
 
     /**
      * @var bool
      */
-    private static $shutdownRegistered = false;
+    private static bool $shutdownRegistered = false;
+
+    /**
+     * @var bool  Tracks whether saveAndEmitCookie() already ran, so the shutdown handler does not attempt a second save/emit.
+     */
+    private static bool $cookieEmitted = false;
+
 
     /**
      * Early init - before Laravel middleware.
@@ -272,6 +278,64 @@ class EvoSessionProxy
     }
 
     /**
+     * Sync $_SESSION to the Laravel session store and emit the session cookie header.
+     *
+     * Must be called BEFORE any header() / exit() that bypasses the middleware stack
+     * (e.g. sendRedirect on a fresh session where the browser has no evo_session cookie yet).
+     */
+    public static function saveAndEmitCookie(): void {
+        if (!self::$initialized) {
+            return;
+        }
+
+        // Sync data first (marks self::$synced = true so shutdown won't double-save).
+        if (!self::$cookieEmitted) {
+            self::syncBack();
+        }
+
+        $store = self::getLaravelSessionStore();
+        if ($store === null) {
+            return;
+        }
+
+        $cookieName = self::getLaravelSessionCookieName();
+        $sessionId  = $store->getId();
+
+        if (!$cookieName || !$sessionId || headers_sent()) {
+            return;
+        }
+
+        // Only emit when the browser does not already carry this exact session id,
+        // or when it carries a different one (session was regenerated).
+        if (isset($_COOKIE[$cookieName]) && $_COOKIE[$cookieName] === $sessionId) {
+            return;
+        }
+
+        $config   = function_exists('config') ? (array) config('session', []) : [];
+        $lifetime = isset($config['lifetime']) ? (int) $config['lifetime'] * 60 : 0;
+
+        $secure = (bool) ($config['secure'] ?? (
+            (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+            (isset($_SERVER['SERVER_PORT']) && (int) $_SERVER['SERVER_PORT'] === 443)
+        ));
+
+        setcookie(
+            $cookieName,
+            $sessionId,
+            [
+                'expires'  => $lifetime ? time() + $lifetime : 0,
+                'path'     => $config['path']      ?? '/',
+                'domain'   => $config['domain']    ?? '',
+                'secure'   => $secure,
+                'httponly' => (bool) ($config['http_only'] ?? true),
+                'samesite' => $config['same_site'] ?? 'Lax',
+            ]
+        );
+
+        self::$cookieEmitted = true;
+    }
+
+    /**
      * @return string
      */
     private static function getLaravelSessionCookieName(): string
@@ -301,6 +365,6 @@ class EvoSessionProxy
      */
     private static function isInternalKey(string $key): bool
     {
-        return strncmp($key, '_', 1) === 0;
+        return str_starts_with($key, '_');
     }
 }
