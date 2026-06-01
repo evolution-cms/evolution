@@ -1,11 +1,10 @@
-<?php use Illuminate\Support\Facades\Route;
+<?php
 
-if (class_exists(\EvoUI\Support\LivewireManagerEndpoint::class)) {
-    $evoUiLivewireEndpoint = static function (\Illuminate\Http\Request $request, ?string $path = null) {
-        return app(\EvoUI\Support\LivewireManagerEndpoint::class)($request, $path);
-    };
+use Illuminate\Support\Facades\Route;
+use EvoUI\Support\LivewireManagerEndpoint;
 
-    Route::match(['GET', 'POST'], 'evo-ui/{path?}', $evoUiLivewireEndpoint)->where('path', '.*');
+if (class_exists(LivewireManagerEndpoint::class)) {
+    Route::match(['GET', 'POST'], 'evo-ui/{path?}', LivewireManagerEndpoint::class)->where('path', '.*');
 }
 
 Route::match(['GET', 'POST'], '/', 'Actions@handleAction');
