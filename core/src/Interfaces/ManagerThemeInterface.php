@@ -8,6 +8,8 @@ interface ManagerThemeInterface
 
     public function getStyle($key = null);
 
+    public function getThemeColor() : string;
+
     /**
      * @param string $message
      * @param bool $lexicon
