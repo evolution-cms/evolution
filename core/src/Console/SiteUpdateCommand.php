@@ -1,5 +1,7 @@
 <?php namespace EvolutionCMS\Console;
 
+use EvolutionCMS\Models\Category;
+use EvolutionCMS\Models\SiteModule;
 use Illuminate\Console\Command;
 
 /**
@@ -222,6 +224,7 @@ HELP;
             putenv('COMPOSER_HOME=' . EVO_CORE_PATH . 'composer');
             $this->installComposerDependencies();
             $this->runCoreMigrations();
+            $this->updateBundledExtrasModule();
 
             $this->line('<fg=green>Remove Install Directory</>');
             self::rmdirs(EVO_BASE_PATH . 'install');
@@ -242,6 +245,166 @@ HELP;
     {
         $this->line('<fg=green>Run Core Migrations</>');
         $this->runCoreShellCommand('php artisan migrate --force');
+    }
+
+    /**
+     * Update the bundled Extras module during CLI core updates.
+     *
+     * The web and install-folder CLI updater run the installer asset update flow,
+     * but "php artisan make:site update" replaces files directly and used to skip
+     * the bundled module refresh. Keeping this step here ensures Extras is updated
+     * before the installer directory is removed.
+     *
+     * @since 3.5.7
+     * @return void
+     */
+    protected function updateBundledExtrasModule(): void
+    {
+        $moduleFile = EVO_BASE_PATH . 'install/assets/modules/store.tpl';
+        if (!is_file($moduleFile) || !is_readable($moduleFile)) {
+            return;
+        }
+
+        $params = $this->parseInstallerDocblock($moduleFile);
+        if (($params['name'] ?? '') !== 'Extras') {
+            return;
+        }
+
+        $moduleCode = $this->readInstallerModuleCode($moduleFile);
+        if ($moduleCode === '') {
+            return;
+        }
+
+        $categoryId = $this->getOrCreateCategoryId((string) ($params['modx_category'] ?? ''));
+        $description = trim((string) ($params['description'] ?? ''));
+        if (!empty($params['version'])) {
+            $description = '<strong>' . $params['version'] . '</strong> ' . $description;
+        }
+
+        $module = SiteModule::query()->where('name', 'Extras')->first();
+
+        if ($module) {
+            $module->modulecode = $moduleCode;
+            $module->description = $description;
+            $module->category = $categoryId;
+            $module->guid = (string) ($params['guid'] ?? $module->guid);
+            $module->enable_sharedparams = (int) ($params['shareparams'] ?? $module->enable_sharedparams);
+            if (!empty($params['properties'])) {
+                $module->properties = (string) $params['properties'];
+            }
+            $module->save();
+
+            return;
+        }
+
+        SiteModule::query()->create([
+            'name' => 'Extras',
+            'description' => $description,
+            'modulecode' => $moduleCode,
+            'properties' => (string) ($params['properties'] ?? ''),
+            'guid' => (string) ($params['guid'] ?? ''),
+            'enable_sharedparams' => (int) ($params['shareparams'] ?? 0),
+            'category' => $categoryId,
+        ]);
+    }
+
+    /**
+     * Parse installer asset docblock metadata.
+     *
+     * @since 3.5.7
+     * @param string $file Absolute path to an installer asset file.
+     * @return array<string, string>
+     */
+    protected function parseInstallerDocblock(string $file): array
+    {
+        $params = [];
+        $handle = @fopen($file, 'r');
+        if (!$handle) {
+            return $params;
+        }
+
+        $docblockStartFound = false;
+        $nameFound = false;
+        $descriptionFound = false;
+
+        while (!feof($handle)) {
+            $line = (string) fgets($handle);
+
+            if (!$docblockStartFound) {
+                if (strpos($line, '/**') !== false) {
+                    $docblockStartFound = true;
+                }
+                continue;
+            }
+
+            if (!$nameFound) {
+                if (preg_match("/^\s+\*\s+(.+)/", $line, $matches)) {
+                    $params['name'] = trim($matches[1]);
+                    $nameFound = $params['name'] !== '';
+                }
+                continue;
+            }
+
+            if (!$descriptionFound) {
+                if (preg_match("/^\s+\*\s+(.+)/", $line, $matches)) {
+                    $params['description'] = trim($matches[1]);
+                    $descriptionFound = $params['description'] !== '';
+                }
+                continue;
+            }
+
+            if (preg_match("/^\s+\*\s+\@([^\s]+)\s+(.+)/", $line, $matches)) {
+                $param = trim($matches[1]);
+                $value = trim($matches[2]);
+
+                if ($param === 'internal' && preg_match("/\@([^\s]+)\s+(.+)/", $value, $internalMatches)) {
+                    $param = trim($internalMatches[1]);
+                    $value = trim($internalMatches[2]);
+                }
+
+                if ($param !== '' && $value !== '') {
+                    $params[$param] = $value;
+                }
+            } elseif (preg_match("/^\s*\*\/\s*$/", $line)) {
+                break;
+            }
+        }
+
+        fclose($handle);
+
+        return $params;
+    }
+
+    /**
+     * Read module PHP code from an installer module template.
+     *
+     * @since 3.5.7
+     * @param string $file Absolute path to the module template.
+     * @return string
+     */
+    protected function readInstallerModuleCode(string $file): string
+    {
+        $content = (string) file_get_contents($file);
+        $parts = preg_split("/(\/\/)?\s*\<\?php/", $content, 2);
+
+        return trim((string) end($parts));
+    }
+
+    /**
+     * Return an existing category id or create the category when missing.
+     *
+     * @since 3.5.7
+     * @param string $categoryName Category name from installer metadata.
+     * @return int
+     */
+    protected function getOrCreateCategoryId(string $categoryName): int
+    {
+        $categoryName = trim($categoryName);
+        if ($categoryName === '') {
+            return 0;
+        }
+
+        return (int) Category::query()->firstOrCreate(['category' => $categoryName])->getKey();
     }
 
     /**

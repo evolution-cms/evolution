@@ -53,7 +53,10 @@ test('site updater runs core migrations during updates', function () {
 
     expect($source)->toContain('$this->runCoreMigrations();');
     expect($source)->toContain("runCoreShellCommand('php artisan migrate --force')");
+    expect($source)->toContain('$this->updateBundledExtrasModule();');
     expect($source)->not->toContain('cli-install.php --typeInstall=2');
+    expect(strpos($source, '$this->runCoreMigrations();'))->toBeLessThan(strpos($source, '$this->updateBundledExtrasModule();'));
+    expect(strpos($source, '$this->updateBundledExtrasModule();'))->toBeLessThan(strpos($source, "self::rmdirs(EVO_BASE_PATH . 'install')"));
 });
 
 test('site updater repairs composer vendor state before artisan commands', function () {
@@ -97,4 +100,16 @@ test('site updater updates custom packages before install-only path', function (
     $source = (string) file_get_contents(dirname(__DIR__, 3) . '/src/Console/SiteUpdateCommand.php');
 
     expect(strpos($source, 'buildCustomComposerUpdateCommand($customPackages)'))->toBeLessThan(strpos($source, '$this->composerInstallCommand()'));
+});
+
+test('site updater can read bundled extras installer metadata', function () {
+    $moduleFile = dirname(__DIR__, 4) . '/install/assets/modules/store.tpl';
+
+    $params = invokeSiteUpdateMethod($this->command, 'parseInstallerDocblock', [$moduleFile]);
+    $moduleCode = invokeSiteUpdateMethod($this->command, 'readInstallerModuleCode', [$moduleFile]);
+
+    expect($params['name'])->toBe('Extras');
+    expect($params['version'])->toBe('0.2.0');
+    expect($params['guid'])->toBe('store435243542tf542t5t');
+    expect($moduleCode)->toContain("assets/modules/store/core.php");
 });
