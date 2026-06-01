@@ -505,6 +505,13 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $code = 302;
         }
 
+        // Persist session data and emit the session cookie before exit() so the
+        // browser receives the Set-Cookie header even when the redirect bypasses
+        // Laravel's StartSession middleware response phase (e.g. after login).
+        if (defined('EVO_SESSION') && EVO_SESSION) {
+            \EvoSessionProxy::saveAndEmitCookie();
+        }
+
         header('HTTP/1.1 ' . $code . ' ' . $responseCodes[$code]);
 
         // Set redirection header if applicable
