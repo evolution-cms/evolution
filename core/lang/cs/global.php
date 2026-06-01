@@ -187,6 +187,12 @@ $_lang["custom_contenttype_message"] = 'Tady můžete přidat uživatelské typy
 $_lang["custom_contenttype_title"] = 'Uživatelské typy obsahu:';
 $_lang["database_charset"] = 'Znaková sada databáze';
 $_lang["database_collation"] = 'Výchozí znaková sada porovnávání';
+$_lang["opcache"] = 'OPcache';
+$_lang["jit"] = 'JIT';
+$_lang["opcache_memory_details"] = '(%s použito / %s dostupné), %s zásahů / %s chyb';
+$_lang["opcache_reset_unavailable"] = 'reset není dostupný';
+$_lang["opcache_reset_complete"] = 'reset dokončen';
+$_lang["opcache_reset_failed"] = 'reset selhal';
 $_lang["database_name"] = 'Jméno databáze';
 $_lang["database_overhead"] = '<b style="color:#990033;">Poznámka:</b> Navíc je nevyužité místo rezervované MySQL. Pro uvolnění místa klikněte v tabulce na číslo v sloupci Navíc.';
 $_lang["database_server"] = 'Databázový server';

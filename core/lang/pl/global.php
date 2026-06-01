@@ -200,6 +200,12 @@ $_lang["custom_contenttype_message"] = 'Tutaj możesz dodać własne typy treśc
 $_lang["custom_contenttype_title"] = 'Własne typy treści';
 $_lang["database_charset"] = 'Baza danych - zestaw znaków';
 $_lang["database_collation"] = 'Baza danych - zestaw znaków dla porównań';
+$_lang["opcache"] = 'OPcache';
+$_lang["jit"] = 'JIT';
+$_lang["opcache_memory_details"] = '(%s użyte / %s dostępne), %s trafień / %s chybień';
+$_lang["opcache_reset_unavailable"] = 'reset niedostępny';
+$_lang["opcache_reset_complete"] = 'reset zakończony';
+$_lang["opcache_reset_failed"] = 'reset nieudany';
 $_lang["database_name"] = 'Baza danych - nazwa bazy';
 $_lang["database_overhead"] = '<b style=\'color:#990033\'>Wyjaśnienie:</b> Nadmiar to nieużywane miejsce zarezerwowane przez MySQL na przyszłe dane. Aby zwolnić to miejsce, kliknij na liczbę je reprezentującą.';
 $_lang["database_server"] = 'Baza danych - serwer';

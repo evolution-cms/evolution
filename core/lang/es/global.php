@@ -199,6 +199,12 @@ $_lang["custom_contenttype_message"] = 'Aquí puedes añadir tipos de contenido 
 $_lang["custom_contenttype_title"] = 'Tipos de contenido personalizados:';
 $_lang["database_charset"] = 'Conjunto de Caracteres de la Base de Datos';
 $_lang["database_collation"] = 'Conjunto de Caracteres de Colación de la Base de Datos';
+$_lang["opcache"] = 'OPcache';
+$_lang["jit"] = 'JIT';
+$_lang["opcache_memory_details"] = '(%s usado / %s disponible), %s aciertos / %s fallos';
+$_lang["opcache_reset_unavailable"] = 'restablecimiento no disponible';
+$_lang["opcache_reset_complete"] = 'restablecimiento completado';
+$_lang["opcache_reset_failed"] = 'restablecimiento fallido';
 $_lang["database_name"] = 'Nombre de la base de datos';
 $_lang["database_overhead"] = '<b style="color:#990033;">Nota:</b> Overhead es un espacio no usado reservado por MySQL. Para liberar este espacio, haz clic en la figura overhead de las tablas.';
 $_lang["database_server"] = 'Servidor de BD';

@@ -188,6 +188,12 @@ $_lang["custom_contenttype_message"] = 'Opret specielle indholdstype for ressour
 $_lang["custom_contenttype_title"] = 'Specielle indholdstyper:';
 $_lang["database_charset"] = 'Database karaktersæt';
 $_lang["database_collation"] = 'Database collations karaktersæt';
+$_lang["opcache"] = 'OPcache';
+$_lang["jit"] = 'JIT';
+$_lang["opcache_memory_details"] = '(%s brugt / %s tilgængelig), %s hits / %s misses';
+$_lang["opcache_reset_unavailable"] = 'nulstilling ikke tilgængelig';
+$_lang["opcache_reset_complete"] = 'nulstilling fuldført';
+$_lang["opcache_reset_failed"] = 'nulstilling mislykkedes';
 $_lang["database_name"] = 'Database navn';
 $_lang["database_overhead"] = '<b style="color:#990033;">Bemærk:</b> Overhead er ubrugt men reserveret plads i MySQL databasen. For at fjerne denne, skal du klikke på angivelsen af størrelsen i ovenstående tabels Overhead kolonne.';
 $_lang["database_server"] = 'Database server';

@@ -202,6 +202,12 @@ $_lang["custom_contenttype_message"] = 'Add custom content types for Resources. 
 $_lang["custom_contenttype_title"] = 'Custom content types';
 $_lang["database_charset"] = 'Database Charset';
 $_lang["database_collation"] = 'Database Collation Charset';
+$_lang["opcache"] = 'OPcache';
+$_lang["jit"] = 'JIT';
+$_lang["opcache_memory_details"] = '(%s used / %s available), %s hits / %s misses';
+$_lang["opcache_reset_unavailable"] = 'reset unavailable';
+$_lang["opcache_reset_complete"] = 'reset complete';
+$_lang["opcache_reset_failed"] = 'reset failed';
 $_lang["database_name"] = 'Database name';
 $_lang["database_overhead"] = '<b style="color:#990033;">Note:</b> Overhead is unused space reserved by MySQL. To free up this space, click on the table\'s overhead figure.';
 $_lang["database_server"] = 'Database server';

@@ -187,6 +187,12 @@ $_lang["custom_contenttype_message"] = 'Тук можете да добавит�
 $_lang["custom_contenttype_title"] = 'Потребителски типове съдържание:';
 $_lang["database_charset"] = 'Кодова таблица на базата от данни';
 $_lang["database_collation"] = 'Кодова таблица на Колациите на базата от данни';
+$_lang["opcache"] = 'OPcache';
+$_lang["jit"] = 'JIT';
+$_lang["opcache_memory_details"] = '(%s използвани / %s налични), %s попадения / %s пропуски';
+$_lang["opcache_reset_unavailable"] = 'нулирането не е достъпно';
+$_lang["opcache_reset_complete"] = 'нулирането е завършено';
+$_lang["opcache_reset_failed"] = 'нулирането е неуспешно';
 $_lang["database_name"] = 'Име на базата от данни';
 $_lang["database_overhead"] = '<b style=\'color:#990033\'>ЗАБЕЛЕЖКА:</b> Загубеното място е неизползвано пространство, резервирано от MySQL. За да освободите това пространство, щракнете върху картинката на загубеното място в таблицата.';
 $_lang["database_server"] = 'Сървъра, където е базата от данни';

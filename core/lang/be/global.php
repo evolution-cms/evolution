@@ -625,6 +625,12 @@ $_lang["custom_contenttype_title"] = 'Карыстальніцкія тыпы к
 
 $_lang["database_charset"] = 'Набор кодаў базы дадзеных';
 $_lang["database_collation"] = 'Калекцыя для сартавання базы дадзеных';
+$_lang["opcache"] = 'OPcache';
+$_lang["jit"] = 'JIT';
+$_lang["opcache_memory_details"] = '(%s выкарыстоўваецца / %s даступна), %s трапленняў / %s промахаў';
+$_lang["opcache_reset_unavailable"] = 'скід недаступны';
+$_lang["opcache_reset_complete"] = 'скід завершаны';
+$_lang["opcache_reset_failed"] = 'скід не атрымаўся';
 $_lang["database_name"] = 'Імя базы дадзеных';
 $_lang["database_overhead"] = '<b style="color:#990033;">Заўвага:</b> Накладныя выдаткі - гэта няўжываная прастора, зарэзерваваная MySQL. Каб ачысціць гэтае месца, пстрыкніце на малюнак над сталом.';
 $_lang["database_server"] = 'Сервер базы дадзеных';

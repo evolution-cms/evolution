@@ -187,6 +187,12 @@ $_lang["custom_contenttype_message"] = 'Here you can add custom content types to
 $_lang["custom_contenttype_title"] = 'Custom content types:';
 $_lang["database_charset"] = 'Database Charset';
 $_lang["database_collation"] = 'Database Collation Charset';
+$_lang["opcache"] = 'OPcache';
+$_lang["jit"] = 'JIT';
+$_lang["opcache_memory_details"] = '(%s בשימוש / %s זמינים), %s פגיעות / %s החטאות';
+$_lang["opcache_reset_unavailable"] = 'איפוס לא זמין';
+$_lang["opcache_reset_complete"] = 'האיפוס הושלם';
+$_lang["opcache_reset_failed"] = 'האיפוס נכשל';
 $_lang["database_name"] = 'שם מסד הנתונים';
 $_lang["database_overhead"] = '<b style=\'color:#990033\'>Note:</b> Overhead is unused space reserved by MySQL. To free up this space, click on the table\'s overhead figure.';
 $_lang["database_server"] = 'שרת מסד הנתונים';

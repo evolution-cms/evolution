@@ -190,6 +190,12 @@ $_lang["custom_contenttype_message"] = 'Vous pouvez ajouter ici des types de con
 $_lang["custom_contenttype_title"] = 'Types de contenu personnalisés:';
 $_lang["database_charset"] = 'Jeu de caractères de la base de données';
 $_lang["database_collation"] = 'Collation de la base de données';
+$_lang["opcache"] = 'OPcache';
+$_lang["jit"] = 'JIT';
+$_lang["opcache_memory_details"] = '(%s utilisés / %s disponibles), %s succès / %s échecs';
+$_lang["opcache_reset_unavailable"] = 'réinitialisation indisponible';
+$_lang["opcache_reset_complete"] = 'réinitialisation terminée';
+$_lang["opcache_reset_failed"] = 'échec de la réinitialisation';
 $_lang["database_name"] = 'Nom de la base de données';
 $_lang["database_overhead"] = '<b style="color:#990033;">NOTE:</b> L\'overhead est un espace réservé par MySQL et qui est inutilisé. Pour libérer cet espace, cliquez sur le chiffre dans la colonne overhead.';
 $_lang["database_server"] = 'Serveur de la base de données';

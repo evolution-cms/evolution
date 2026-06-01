@@ -204,6 +204,12 @@ $_lang["custom_contenttype_message"] = 'Здесь вы можете добав�
 $_lang["custom_contenttype_title"] = 'Типы содержимого (Content-Type):';
 $_lang["database_charset"] = 'Кодировка базы данных';
 $_lang["database_collation"] = 'Сопоставление базы данных';
+$_lang["opcache"] = 'OPcache';
+$_lang["jit"] = 'JIT';
+$_lang["opcache_memory_details"] = '(%s используется / %s доступно), %s попаданий / %s промахов';
+$_lang["opcache_reset_unavailable"] = 'сброс недоступен';
+$_lang["opcache_reset_complete"] = 'сброс выполнен';
+$_lang["opcache_reset_failed"] = 'сброс не выполнен';
 $_lang["database_name"] = 'Имя базы данных';
 $_lang["database_overhead"] = '<b style="color:#990033;">Примечание:</b> \'перерасход\' – это неиспользуемое, но зарезервированное MySQL пространство. Чтобы освободить это место, нажмите \'Перерасход\' в таблице (таблицах).';
 $_lang["database_server"] = 'Сервер базы данных';
