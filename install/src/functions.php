@@ -67,11 +67,48 @@ function getDatabaseCharset($database_collation, $driver): string
     return $database_charset;
 }
 
+function databaseHostParts(string $host): array
+{
+    $host = trim($host);
+    $port = null;
+
+    if (preg_match('/^\[([0-9a-f:.]+)\](?::([0-9]{1,5}))?$/i', $host, $matches)) {
+        $host = $matches[1];
+        $port = $matches[2] ?? null;
+    } elseif (substr_count($host, ':') === 1) {
+        [$host, $port] = explode(':', $host, 2);
+    }
+
+    if ($port !== null && ($port === '' || filter_var($port, FILTER_VALIDATE_INT, [
+        'options' => ['min_range' => 1, 'max_range' => 65535],
+    ]) === false)) {
+        throw new InvalidArgumentException('Database port should be a number from 1 to 65535');
+    }
+
+    return ['host' => $host, 'port' => $port];
+}
+
+function databaseDsn(string $driver, string $host, ?string $database = null): string
+{
+    $parts = databaseHostParts($host);
+    $dsn = $driver . ':host=' . $parts['host'];
+
+    if ($parts['port'] !== null) {
+        $dsn .= ';port=' . $parts['port'];
+    }
+
+    if ($database !== null && $database !== '') {
+        $dsn .= ';dbname=' . $database;
+    }
+
+    return $dsn;
+}
+
 function dbConnect(string $driver, string $host, $db, ?string $user = null, ?string $password = null, ?array $pdoOptions = null) {
     if ($driver === 'sqlite') {
         $dbh = new PDO('sqlite:' . EVO_CORE_PATH . "database/$db.sqlite", null, null, $pdoOptions);
     } else {
-        $dbh = new PDO($driver . ':host=' . $host . ($driver === 'pgsql' ? ";dbname=$db" : ''), $user, $password, $pdoOptions);
+        $dbh = new PDO(databaseDsn($driver, $host, $driver === 'pgsql' ? $db : null), $user, $password, $pdoOptions);
     }
     return $dbh;
 }
@@ -204,14 +241,15 @@ function validateDbHost($host, $type)
     if ($type === 'sqlite' && empty($host)) {
         return $host;
     }
-    if (!$ip = filter_var($host, FILTER_VALIDATE_IP)) {
-        if (!$host = filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+    $parts = databaseHostParts($host);
+    if (!$ip = filter_var($parts['host'], FILTER_VALIDATE_IP)) {
+        if (!$parts['host'] = filter_var($parts['host'], FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
             throw new InvalidArgumentException("Database host should be valid IP or hostname");
         }
     } else {
-        $host = $ip;
+        $parts['host'] = $ip;
     }
-    return $host;
+    return $parts['host'] . ($parts['port'] !== null ? ':' . $parts['port'] : '');
 }
 
 function validateTablePrefix($prefix)
@@ -298,11 +336,8 @@ function get_installmode()
         if (!isset($database_name) || empty($database_name)) {
             $installmode = 0;
         } else {
-            $host = explode(':', $database_server, 2);
             try {
-                $port = isset($host[1]) ? ";port={$host[1]}" : '';
-                $dsn = "mysql:host={$host[0]}{$port}";
-                $conn = new PDO($dsn, $database_user, $database_password);
+                $conn = new PDO(databaseDsn('mysql', $database_server), $database_user, $database_password);
                 $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
                 $_SESSION['database_server'] = $database_server;

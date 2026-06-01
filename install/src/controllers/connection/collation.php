@@ -10,12 +10,12 @@ try {
     echo '<span id="database_fail">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
 }
 try {
-    $dsn = $driver . ':host=' . $host;
+    $dsn = databaseDsn($driver, $host);
     $output = '<select id="database_collation" name="database_collation">';
 
     switch ($driver) {
         case 'pgsql':
-            $dbh = new PDO($dsn . ";dbname=postgres", $uid, $pwd);
+            $dbh = new PDO(databaseDsn($driver, $host, 'postgres'), $uid, $pwd);
             $sql = "SELECT collname FROM pg_collation ORDER BY collname";
             $_ = [];
 

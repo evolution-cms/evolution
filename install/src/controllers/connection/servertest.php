@@ -13,7 +13,7 @@ try {
     if ($method === 'sqlite') {
         $dbh = new PDO('sqlite::memory:');
     } else {
-        $dbh = new PDO($method . ':host=' . $host . ($method === 'pgsql' ? ';dbname=postgres' : ''), $uid, $pwd);
+        $dbh = new PDO(databaseDsn($method, $host, $method === 'pgsql' ? 'postgres' : null), $uid, $pwd);
     }
     $output .= '<span id="server_pass"> ' . $_lang['status_passed_server'] . '</span>';
 } catch (Throwable $e) {
