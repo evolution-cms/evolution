@@ -70,16 +70,13 @@ unset ($a);
 $base_url = $url . (substr($url, -1) !== '/' ? '/' : '');
 $base_path = $pth . (substr($pth, -1) !== '/' ? '/' : '');
 
-// connect to the database
-$host = explode(':', $database_server, 2);
-
 global $conn;
 try {
     $pdoOptions = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
     if ($database_type === 'sqlite') {
         $dbh = new PDO('sqlite:' . sqliteDbNameToPath($database_name));
     } else {
-        $dbh = new PDO($database_type . ':host=' . $database_server . ';dbname=' . $database_name, $database_user, $database_password, $pdoOptions);
+        $dbh = new PDO(databaseDsn($database_type, $database_server, $database_name), $database_user, $database_password, $pdoOptions);
     }
 
     include dirname(__DIR__) . '/processor/result.php';
@@ -93,7 +90,8 @@ try {
     if ($installLevel === 1) {
         // write the core/config/database/connections/default.php file if new installation
         $confph = [];
-        $confph['database_server'] = addslashes($database_server);
+        $databaseHostParts = databaseHostParts($database_server);
+        $confph['database_server'] = addslashes($databaseHostParts['host']);
         $confph['database_type'] = addslashes($database_type);
         $confph['user_name'] = addslashes($database_user);
         $confph['password'] = addslashes($database_password);
@@ -107,10 +105,10 @@ try {
         $confph['database_engine'] = '';
         switch ($database_type) {
             case 'pgsql':
-                $confph['database_port'] = '5432';
+                $confph['database_port'] = $databaseHostParts['port'] ?? '5432';
                 break;
             case 'mysql':
-                $confph['database_port'] = '3306';
+                $confph['database_port'] = $databaseHostParts['port'] ?? '3306';
                 $serverVersion = $dbh->getAttribute(PDO::ATTR_SERVER_VERSION);
                 if (version_compare($serverVersion, '5.7.6', '<')) {
                     $confph['database_engine'] = ", 'myisam'";

@@ -8,7 +8,6 @@ $database_name = validateDbName($_POST['database_name']);
 $installMode = (int)$_POST['installMode'];
 
 $output = $_lang['status_checking_database'];
-$h = explode(':', $host, 2);
 $database_collation = $_POST['database_collation'];
 
 $database_charset = getDatabaseCharset($database_collation, $driver);
@@ -16,7 +15,7 @@ try {
     if ($driver === 'sqlite') {
         $dbh = new PDO('sqlite:' . sqliteDbNameToPath($database_name));
     } else {
-        $dbh = new PDO($driver . ':host=' . $host . ';dbname=' . $database_name, $uid, $pwd);
+        $dbh = new PDO(databaseDsn($driver, $host, $database_name), $uid, $pwd);
     }
     switch ($driver) {
         case 'pgsql':
@@ -123,7 +122,7 @@ try {
     if ($driver === 'sqlite') {
         $dbh = new PDO('sqlite:' . sqliteDbNameToPath($database_name));
     } else {
-        $dbh = new PDO($driver . ':host=' . $host . ($driver === 'pgsql' ? ';dbname=postgres' : ''), $uid, $pwd);
+        $dbh = new PDO(databaseDsn($driver, $host, $driver === 'pgsql' ? 'postgres' : null), $uid, $pwd);
     }
     switch ($driver) {
         case 'pgsql':

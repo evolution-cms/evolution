@@ -182,6 +182,9 @@ if (!is_writable("../assets/export")) {
 if ($installMode == 1) {
     $db_config = include_once EVO_CORE_PATH . 'config/database/connections/default.php';
     $database_server = $db_config['host'];
+    if (!empty($db_config['port'])) {
+        $database_server .= ':' . $db_config['port'];
+    }
     $database_user = $db_config['username'];
     $database_password = $db_config['password'];
     $database_collation = $db_config['collation'];
@@ -201,19 +204,13 @@ if ($installMode == 1) {
     $table_prefix = validateTablePrefix($_POST['tableprefix']);
 }
 echo '<p>' . $_lang['creating_database_connection'];
-$host = explode(':', $database_server, 2);
 $pdoOptions = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
 try {
     $dbh = null;
     if ($database_type === 'sqlite') {
         $dbh = new PDO('sqlite:' . sqliteDbNameToPath($database_name), null, null, $pdoOptions);
     } else {
-        if (count($host) === 1) {
-            $dsn = $database_type . ':host=' . $host[0] . ';dbname=' . $database_name;
-        } else {
-            $dsn = $database_type . ':host=' . $host[0] . ';port=' . $host[1] . ';dbname=' . $database_name;
-        }
-        $dbh = new PDO($dsn, $database_user, $database_password, $pdoOptions);
+        $dbh = new PDO(databaseDsn($database_type, $database_server, $database_name), $database_user, $database_password, $pdoOptions);
     }
     echo '<span class="ok">' . $_lang['ok'] . '</span></p>';
 } catch (PDOException $e) {

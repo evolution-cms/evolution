@@ -23,7 +23,7 @@
     </p>
     <p class="labelHolder">
         <label for="databasehost">[%connection_screen_database_host%]</label>
-        <input type="text" id="databasehost" value="[+databasehost+]" name="databasehost" />
+        <input type="text" id="databasehost" value="[+databasehost+]" name="databasehost" placeholder="[+databasehost_placeholder+]" />
         <small class="is-invalid">[%alert_enter_host%]</small>
     </p>
     <p class="labelHolder">

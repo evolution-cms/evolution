@@ -155,6 +155,7 @@ $ph['install_language'] = escapeHtmlAttribute($install_language);
 $ph['installMode'] = escapeHtmlAttribute($installMode);
 $ph['checkedChkagree'] = isset($_POST['chkagree']) ? 'checked' : '';
 $ph['databasehost'] = escapeHtmlAttribute(isset($_POST['databasehost']) ? $_POST['databasehost'] : $database_host);
+$ph['databasehost_placeholder'] = escapeHtmlAttribute('localhost:3306');
 $ph['databaseloginname'] = escapeHtmlAttribute(isset($_SESSION['databaseloginname']) ? $_SESSION['databaseloginname'] : '');
 $ph['databaseloginpassword'] = escapeHtmlAttribute(isset($_SESSION['databaseloginpassword']) ? $_SESSION['databaseloginpassword'] : '');
 $ph['MGR_DIR'] = escapeHtmlAttribute(MGR_DIR);
