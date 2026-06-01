@@ -152,7 +152,7 @@
 	$_lang["status_connecting"] = ' Verbindung zum Host: ';
 	$_lang["status_failed"] = 'fehlgeschlagen!';
 	$_lang["status_failed_could_not_create_database"] = 'fehlgeschlagen – konnte Datenbank nicht erstellen';
-	$_lang["status_failed_database_collation_does_not_match"] = 'fehlgeschlagen – Unterschied in der Datenbank-Kollation; benutzen Sie SET NAMES oder wählen Sie %s';
+	$_lang["status_failed_database_collation_does_not_match"] = 'fehlgeschlagen - Datenbank-Kollation stimmt nicht überein (Server-Standard ist %1$s). Empfohlen: ändern Sie die Datenbank-Kollation im Hosting-Panel/phpMyAdmin auf die gewählte UTF-8-Kollation und führen Sie die Prüfung erneut aus. Wenn SET NAMES unterstützt wird, können Sie fortfahren; wechseln Sie nicht nur für diese Prüfung zu %1$s.';
 	$_lang["status_failed_table_prefix_already_in_use"] = 'fehlgeschlagen – Tabellen-Präfix bereits verwendet!';
 	$_lang["status_passed"] = 'In Ordnung – Datenbank ausgewählt';
 	$_lang["status_passed_database_created"] = 'In Ordnung – Datenbank erstellt';
