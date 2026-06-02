@@ -64,23 +64,52 @@ test('site updater repairs composer vendor state before artisan commands', funct
 
     expect($source)
         ->toContain('$this->composerInstallCommand()')
+        ->toContain('buildCustomComposerUpdateCommand')
         ->toContain('$this->composerDumpAutoloadCommand()')
         ->toContain("runCoreShellCommand('php artisan package:discover')")
         ->toContain('--no-scripts')
         ->toContain('return self::FAILURE')
         ->toContain('catch (\Throwable $exception)')
         ->not->toContain('new Application()')
-        ->not->toContain("runCoreShellCommand('composer update')")
-        ->not->toContain('buildCustomComposerUpdateCommand')
-        ->not->toContain('resolveCustomComposerPackages');
+        ->not->toContain("runCoreShellCommand('composer update')");
 
-    expect(strpos($source, 'installComposerDependencies();'))->toBeLessThan(strpos($source, '$this->runCoreMigrations();'));
+    expect($source)->toContain('$this->installComposerDependencies($customPackageConstraints, $lockedCustomPackageVersions);');
+    expect(strpos($source, '$this->installComposerDependencies($customPackageConstraints, $lockedCustomPackageVersions);'))->toBeLessThan(strpos($source, '$this->runCoreMigrations();'));
+    expect(strpos($source, 'buildCustomComposerUpdateCommand'))->toBeLessThan(strpos($source, '$this->composerInstallCommand()'));
     expect(strpos($source, '$this->composerInstallCommand()'))->toBeLessThan(strpos($source, '$this->composerDumpAutoloadCommand()'));
     expect(strpos($source, '$this->composerDumpAutoloadCommand()'))->toBeLessThan(strpos($source, "runCoreShellCommand('php artisan package:discover')"));
     expect(invokeSiteUpdateMethod($this->command, 'composerInstallCommand'))
         ->toBe('composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative --no-scripts');
     expect(invokeSiteUpdateMethod($this->command, 'composerDumpAutoloadCommand'))
         ->toBe('composer dump-autoload -o --no-dev --classmap-authoritative --no-scripts');
+});
+
+test('site updater accepts only real composer package names for scoped updates', function () {
+    expect(invokeSiteUpdateMethod($this->command, 'isComposerPackageName', ['seiger/scommerce']))->toBeTrue();
+    expect(invokeSiteUpdateMethod($this->command, 'isComposerPackageName', ['evolution-cms/eai']))->toBeTrue();
+    expect(invokeSiteUpdateMethod($this->command, 'isComposerPackageName', ['php']))->toBeFalse();
+    expect(invokeSiteUpdateMethod($this->command, 'isComposerPackageName', ['ext-json']))->toBeFalse();
+    expect(invokeSiteUpdateMethod($this->command, 'isComposerPackageName', ['bad package']))->toBeFalse();
+});
+
+test('site updater builds scoped composer update for custom packages', function () {
+    $command = invokeSiteUpdateMethod($this->command, 'buildCustomComposerUpdateCommand', [
+        [
+            'evolution-cms/eai' => '^1.0',
+            'php' => '^8.3',
+            'ext-json' => '*',
+            'Seiger/sTask' => '*',
+            'bad package' => '*',
+            'seiger/scommerce' => '*',
+        ],
+        [
+            'evolution-cms/eai' => '1.2.3',
+            'seiger/stask' => '1.0.10',
+        ],
+    ]);
+
+    expect($command)
+        ->toBe("composer update 'evolution-cms/eai:1.2.3' 'seiger/stask:1.0.10' 'seiger/scommerce' --with-all-dependencies --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative --no-scripts");
 });
 
 test('site updater can read bundled extras installer metadata', function () {

@@ -150,6 +150,8 @@ HELP;
             }
         }
         if ($git['version'] != '') {
+            $customPackageConstraints = $this->resolveCustomComposerPackageConstraints();
+            $lockedCustomPackageVersions = $this->resolveLockedComposerPackageVersions(array_keys($customPackageConstraints));
             $url = $this->buildArchiveUrl($updateRepository, $git['version']);
             $this->line('<fg=green>Start download Evolution CMS</>');
             $url = file_get_contents($url);
@@ -222,7 +224,7 @@ HELP;
                 }
             }
             putenv('COMPOSER_HOME=' . EVO_CORE_PATH . 'composer');
-            $this->installComposerDependencies();
+            $this->installComposerDependencies($customPackageConstraints, $lockedCustomPackageVersions);
             $this->runCoreMigrations();
             $this->updateBundledExtrasModule();
 
@@ -434,16 +436,25 @@ HELP;
     /**
      * Install Composer dependencies after core files are replaced.
      *
-     * The updater must not run Composer update here because third-party packages
-     * from custom Composer layers can receive untested version changes as a side
-     * effect of a core update. Composer install restores the vendor/autoload state
-     * from the lock file, then package discovery refreshes registered providers.
+     * Core dependencies are restored from the shipped lock file. Custom Composer
+     * packages need a scoped lock refresh first because the updated core lock does
+     * not contain packages merged from core/custom/composer.json.
      *
      * @since 3.5.7
+     * @param array<string, string> $customPackageConstraints Package constraints from core/custom/composer.json.
+     * @param array<string, string> $lockedCustomPackageVersions Package versions from the pre-update composer.lock.
      * @return void
      */
-    protected function installComposerDependencies(): void
+    protected function installComposerDependencies(array $customPackageConstraints = [], array $lockedCustomPackageVersions = []): void
     {
+        if ($customPackageConstraints !== []) {
+            $this->line('<fg=green>Restore Composer lock with custom packages</>');
+            $this->runCoreShellCommand($this->buildCustomComposerUpdateCommand(
+                $customPackageConstraints,
+                $lockedCustomPackageVersions
+            ));
+        }
+
         $this->line('<fg=green>Install Composer dependencies</>');
         $this->runCoreShellCommand($this->composerInstallCommand());
 
@@ -452,6 +463,112 @@ HELP;
 
         $this->line('<fg=green>Discover Composer packages</>');
         $this->runCoreShellCommand('php artisan package:discover');
+    }
+
+    /**
+     * Resolve Composer package constraints from the local custom Composer layer.
+     *
+     * Platform requirements such as php/ext-json are intentionally ignored because
+     * Composer cannot update them as packages.
+     *
+     * @since 3.5.7
+     * @return array<string, string>
+     */
+    protected function resolveCustomComposerPackageConstraints(): array
+    {
+        $customComposer = EVO_CORE_PATH . 'custom/composer.json';
+        if (!is_file($customComposer)) {
+            return [];
+        }
+
+        $composer = json_decode((string) file_get_contents($customComposer), true);
+        if (!is_array($composer)) {
+            throw new \RuntimeException('Invalid custom composer.json.');
+        }
+
+        $requires = $composer['require'] ?? [];
+        if (!is_array($requires)) {
+            return [];
+        }
+
+        $packages = [];
+        foreach ($requires as $package => $constraint) {
+            $package = trim((string) $package);
+            if ($this->isComposerPackageName($package)) {
+                $packages[strtolower($package)] = trim((string) $constraint);
+            }
+        }
+
+        return $packages;
+    }
+
+    /**
+     * Resolve currently locked versions for custom packages before core files are replaced.
+     *
+     * @since 3.5.7
+     * @param array<int, string> $packages Composer package names.
+     * @return array<string, string>
+     */
+    protected function resolveLockedComposerPackageVersions(array $packages): array
+    {
+        $lockFile = EVO_CORE_PATH . 'composer.lock';
+        if (!is_file($lockFile)) {
+            return [];
+        }
+
+        $lock = json_decode((string) file_get_contents($lockFile), true);
+        if (!is_array($lock)) {
+            return [];
+        }
+
+        $packageMap = array_fill_keys(array_map('strtolower', $packages), true);
+        $versions = [];
+
+        foreach (['packages', 'packages-dev'] as $section) {
+            foreach (($lock[$section] ?? []) as $package) {
+                $name = strtolower((string) ($package['name'] ?? ''));
+                if ($name !== '' && isset($packageMap[$name]) && !empty($package['version'])) {
+                    $versions[$name] = (string) $package['version'];
+                }
+            }
+        }
+
+        return $versions;
+    }
+
+    /**
+     * Build a scoped Composer update command for packages from core/custom/composer.json.
+     *
+     * @since 3.5.7
+     * @param array<string, string> $customPackageConstraints Package constraints from core/custom/composer.json.
+     * @param array<string, string> $lockedCustomPackageVersions Package versions from the pre-update composer.lock.
+     * @return string
+     */
+    protected function buildCustomComposerUpdateCommand(array $customPackageConstraints, array $lockedCustomPackageVersions = []): string
+    {
+        $packages = [];
+        foreach ($customPackageConstraints as $package => $constraint) {
+            if (!$this->isComposerPackageName($package)) {
+                continue;
+            }
+
+            $package = strtolower($package);
+            $version = trim((string) ($lockedCustomPackageVersions[$package] ?? ''));
+            $packages[] = $version !== '' ? $package . ':' . $version : $package;
+        }
+
+        if ($packages === []) {
+            throw new \RuntimeException('Custom Composer packages are missing.');
+        }
+
+        return 'composer update '
+            . implode(' ', array_map('escapeshellarg', array_values(array_unique($packages))))
+            . ' --with-all-dependencies --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative --no-scripts';
+    }
+
+    protected function isComposerPackageName(string $package): bool
+    {
+        return preg_match('~^[a-z0-9][a-z0-9_.-]*/[a-z0-9][a-z0-9_.-]*$~i', $package) === 1;
     }
 
     protected function composerInstallCommand(): string
