@@ -561,7 +561,7 @@ HELP;
             throw new \RuntimeException('Custom Composer packages are missing.');
         }
 
-        return 'composer update '
+        return $this->composerBinaryCommand() . ' update '
             . implode(' ', array_map('escapeshellarg', array_values(array_unique($packages))))
             . ' --with-all-dependencies --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative --no-scripts';
     }
@@ -573,12 +573,108 @@ HELP;
 
     protected function composerInstallCommand(): string
     {
-        return 'composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative --no-scripts';
+        return $this->composerBinaryCommand() . ' install --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative --no-scripts';
     }
 
     protected function composerDumpAutoloadCommand(): string
     {
-        return 'composer dump-autoload -o --no-dev --classmap-authoritative --no-scripts';
+        return $this->composerBinaryCommand() . ' dump-autoload -o --no-dev --classmap-authoritative --no-scripts';
+    }
+
+    /**
+     * Resolve a Composer executable command for shell calls.
+     *
+     * Some shared-hosting environments expose Composer only as a shell alias such
+     * as ~/.composer/composer. PHP executes update commands through /bin/sh, where
+     * interactive bash aliases are not available, so we need a real executable path.
+     *
+     * @since 3.5.7
+     * @return string Composer command safe for shell usage.
+     */
+    protected function composerBinaryCommand(): string
+    {
+        foreach (['COMPOSER_BINARY', 'COMPOSER_BIN'] as $envName) {
+            $configured = trim((string) getenv($envName));
+            if ($configured !== '') {
+                return escapeshellarg($configured);
+            }
+        }
+
+        if ($this->shellCommandExists('composer')) {
+            return 'composer';
+        }
+
+        foreach ($this->composerBinaryCandidates() as $candidate) {
+            if (is_file($candidate) && is_executable($candidate)) {
+                return escapeshellarg($candidate);
+            }
+        }
+
+        return 'composer';
+    }
+
+    /**
+     * Build fallback Composer executable candidates.
+     *
+     * @since 3.5.7
+     * @return array<int, string>
+     */
+    protected function composerBinaryCandidates(): array
+    {
+        $candidates = [
+            '/usr/local/bin/composer',
+            '/usr/bin/composer',
+        ];
+
+        foreach ($this->homeDirectories() as $home) {
+            $candidates[] = $home . '/.composer/composer';
+        }
+
+        return array_values(array_unique($candidates));
+    }
+
+    /**
+     * Resolve possible home directories without relying on shell "~" expansion.
+     *
+     * @since 3.5.7
+     * @return array<int, string>
+     */
+    protected function homeDirectories(): array
+    {
+        $homes = [];
+
+        foreach (['HOME', 'USERPROFILE'] as $envName) {
+            $home = trim((string) getenv($envName));
+            if ($home !== '') {
+                $homes[] = rtrim(str_replace('\\', '/', $home), '/');
+            }
+        }
+
+        if (function_exists('posix_getpwuid') && function_exists('posix_getuid')) {
+            $user = posix_getpwuid(posix_getuid());
+            if (is_array($user) && !empty($user['dir'])) {
+                $homes[] = rtrim(str_replace('\\', '/', (string) $user['dir']), '/');
+            }
+        }
+
+        return array_values(array_unique(array_filter($homes)));
+    }
+
+    /**
+     * Check whether a command is available to the non-interactive shell.
+     *
+     * @since 3.5.7
+     * @param string $command Command name.
+     * @return bool
+     */
+    protected function shellCommandExists(string $command): bool
+    {
+        $output = [];
+        $exitCode = 1;
+
+        exec('command -v ' . escapeshellarg($command) . ' >/dev/null 2>&1', $output, $exitCode);
+
+        return (int) $exitCode === 0;
     }
 
     protected function normalizeUpdateRepository(string $repository): string

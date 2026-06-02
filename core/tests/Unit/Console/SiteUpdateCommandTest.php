@@ -61,6 +61,11 @@ test('site updater runs core migrations during updates', function () {
 
 test('site updater repairs composer vendor state before artisan commands', function () {
     $source = (string) file_get_contents(dirname(__DIR__, 3) . '/src/Console/SiteUpdateCommand.php');
+    $composerBinary = getenv('COMPOSER_BINARY');
+    $composerBin = getenv('COMPOSER_BIN');
+
+    putenv('COMPOSER_BINARY');
+    putenv('COMPOSER_BIN');
 
     expect($source)
         ->toContain('$this->composerInstallCommand()')
@@ -82,6 +87,9 @@ test('site updater repairs composer vendor state before artisan commands', funct
         ->toBe('composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative --no-scripts');
     expect(invokeSiteUpdateMethod($this->command, 'composerDumpAutoloadCommand'))
         ->toBe('composer dump-autoload -o --no-dev --classmap-authoritative --no-scripts');
+
+    $composerBinary === false ? putenv('COMPOSER_BINARY') : putenv('COMPOSER_BINARY=' . $composerBinary);
+    $composerBin === false ? putenv('COMPOSER_BIN') : putenv('COMPOSER_BIN=' . $composerBin);
 });
 
 test('site updater accepts only real composer package names for scoped updates', function () {
@@ -93,6 +101,12 @@ test('site updater accepts only real composer package names for scoped updates',
 });
 
 test('site updater builds scoped composer update for custom packages', function () {
+    $composerBinary = getenv('COMPOSER_BINARY');
+    $composerBin = getenv('COMPOSER_BIN');
+
+    putenv('COMPOSER_BINARY');
+    putenv('COMPOSER_BIN');
+
     $command = invokeSiteUpdateMethod($this->command, 'buildCustomComposerUpdateCommand', [
         [
             'evolution-cms/eai' => '^1.0',
@@ -110,6 +124,33 @@ test('site updater builds scoped composer update for custom packages', function 
 
     expect($command)
         ->toBe("composer update 'evolution-cms/eai:1.2.3' 'seiger/stask:1.0.10' 'seiger/scommerce' --with-all-dependencies --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative --no-scripts");
+
+    $composerBinary === false ? putenv('COMPOSER_BINARY') : putenv('COMPOSER_BINARY=' . $composerBinary);
+    $composerBin === false ? putenv('COMPOSER_BIN') : putenv('COMPOSER_BIN=' . $composerBin);
+});
+
+test('site updater accepts configured composer binary', function () {
+    $composerBinary = getenv('COMPOSER_BINARY');
+
+    putenv('COMPOSER_BINARY=/home/evo/.composer/composer');
+
+    expect(invokeSiteUpdateMethod($this->command, 'composerInstallCommand'))
+        ->toBe("'/home/evo/.composer/composer' install --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative --no-scripts");
+    expect(invokeSiteUpdateMethod($this->command, 'composerDumpAutoloadCommand'))
+        ->toBe("'/home/evo/.composer/composer' dump-autoload -o --no-dev --classmap-authoritative --no-scripts");
+
+    $composerBinary === false ? putenv('COMPOSER_BINARY') : putenv('COMPOSER_BINARY=' . $composerBinary);
+});
+
+test('site updater checks user local composer path as a fallback', function () {
+    $home = getenv('HOME');
+
+    putenv('HOME=/home/evo');
+
+    expect(invokeSiteUpdateMethod($this->command, 'composerBinaryCandidates'))
+        ->toContain('/home/evo/.composer/composer');
+
+    $home === false ? putenv('HOME') : putenv('HOME=' . $home);
 });
 
 test('site updater can read bundled extras installer metadata', function () {
