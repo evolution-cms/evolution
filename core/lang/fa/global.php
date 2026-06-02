@@ -187,6 +187,12 @@ $_lang["custom_contenttype_message"] = 'در اینجا شما میتوانید 
 $_lang["custom_contenttype_title"] = 'انواع مختلف محتوا:';
 $_lang["database_charset"] = 'کارست بانک اطلاعات';
 $_lang["database_collation"] = 'کارست کالیژن بانک اطلاعاتی';
+$_lang["opcache"] = 'OPcache';
+$_lang["jit"] = 'JIT';
+$_lang["opcache_memory_details"] = '(%s استفاده‌شده / %s در دسترس)، %s موفق / %s ناموفق';
+$_lang["opcache_reset_unavailable"] = 'بازنشانی در دسترس نیست';
+$_lang["opcache_reset_complete"] = 'بازنشانی کامل شد';
+$_lang["opcache_reset_failed"] = 'بازنشانی ناموفق بود';
 $_lang["database_name"] = 'نام دیتابیس';
 $_lang["database_overhead"] = '<b style=\'color:#990033\'>تذکر:</b> حیاط خلوت فضای بی استفاده ای است که توسط ما یاس کیو ال رزرو شده. برای تخلیه ی این فضا, روی نماد حیات خلوت هر جدول کلیک کنید.';
 $_lang["database_server"] = 'سرور دیتابیس';

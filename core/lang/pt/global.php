@@ -187,6 +187,12 @@ $_lang["custom_contenttype_message"] = 'Aqui pode adicionar tipos de conteúdos 
 $_lang["custom_contenttype_title"] = 'Tipos de conteúdos personalizados:';
 $_lang["database_charset"] = 'Database Charset';
 $_lang["database_collation"] = 'Database Collation Charset';
+$_lang["opcache"] = 'OPcache';
+$_lang["jit"] = 'JIT';
+$_lang["opcache_memory_details"] = '(%s usado / %s disponível), %s acertos / %s falhas';
+$_lang["opcache_reset_unavailable"] = 'reset indisponível';
+$_lang["opcache_reset_complete"] = 'reset concluído';
+$_lang["opcache_reset_failed"] = 'reset falhou';
 $_lang["database_name"] = 'Nome da Base de Dados';
 $_lang["database_overhead"] = '<b style=\'color:#990033\'>Nota:</b> A \'folga\' (overhead) consiste num espaço não utilizado mas reservado pelo MySQL. Para libertar este espaço, clique no valor de folga da tabela.';
 $_lang["database_server"] = 'Servidor da Base de Dados';

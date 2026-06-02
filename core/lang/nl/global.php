@@ -199,6 +199,12 @@ $_lang["custom_contenttype_message"] = 'Voeg eigen \'content types\' toe. Vul ee
 $_lang["custom_contenttype_title"] = 'Toegevoegde content types';
 $_lang["database_charset"] = 'Database Karakterset';
 $_lang["database_collation"] = 'Database Collatie Karakterset';
+$_lang["opcache"] = 'OPcache';
+$_lang["jit"] = 'JIT';
+$_lang["opcache_memory_details"] = '(%s gebruikt / %s beschikbaar), %s hits / %s misses';
+$_lang["opcache_reset_unavailable"] = 'reset niet beschikbaar';
+$_lang["opcache_reset_complete"] = 'reset voltooid';
+$_lang["opcache_reset_failed"] = 'reset mislukt';
 $_lang["database_name"] = 'Database naam';
 $_lang["database_overhead"] = '<b style="color:#990033;">Opmerking:</b> Overhead is ongebruikte ruimte gereserveerd door MySQL. Om deze ruimte vrij te maken klikt u op de link in de kolom Overhead van de tabel.';
 $_lang["database_server"] = 'Database server';

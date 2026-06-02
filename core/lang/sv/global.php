@@ -188,6 +188,12 @@ $_lang["custom_contenttype_message"] = 'Lägg till egna innehållstyper för res
 $_lang["custom_contenttype_title"] = 'Egna innehållstyper';
 $_lang["database_charset"] = 'Databasens teckenuppsättning';
 $_lang["database_collation"] = 'Databasens kollationering';
+$_lang["opcache"] = 'OPcache';
+$_lang["jit"] = 'JIT';
+$_lang["opcache_memory_details"] = '(%s används / %s tillgängligt), %s träffar / %s missar';
+$_lang["opcache_reset_unavailable"] = 'återställning inte tillgänglig';
+$_lang["opcache_reset_complete"] = 'återställning klar';
+$_lang["opcache_reset_failed"] = 'återställning misslyckades';
 $_lang["database_name"] = 'Databasens namn';
 $_lang["database_overhead"] = '<b style="color:#990033;">Notera:</b><br />"Overhead" är oanvänt utrymme reserverat av MySQL. Klicka på ett overhead-belopp för att frigöra utrymmet.';
 $_lang["database_server"] = 'Databasens server';

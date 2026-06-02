@@ -637,6 +637,12 @@ $_lang["custom_contenttype_title"] = 'Xüsusi məzmun tipləri';
 
 $_lang["database_charset"] = 'Verilənlər bazası Şrift Dəsti';
 $_lang["database_collation"] = 'Verilənlər bazası Sıralama Şrift Dəsti';
+$_lang["opcache"] = 'OPcache';
+$_lang["jit"] = 'JIT';
+$_lang["opcache_memory_details"] = '(%s istifadə olunur / %s mövcuddur), %s hit / %s miss';
+$_lang["opcache_reset_unavailable"] = 'sıfırlama mümkün deyil';
+$_lang["opcache_reset_complete"] = 'sıfırlama tamamlandı';
+$_lang["opcache_reset_failed"] = 'sıfırlama alınmadı';
 $_lang["database_name"] = 'Verilənlər bazasının adı';
 $_lang["database_overhead"] = '<b style="color:#990033;">Qeyd:</b> Overhead MySQL tərəfindən ayrılmış, lakin istifadə olunmayan boş sahədir. Bu sahəni azad etmək üçün cədvəlin overhead rəqəminə klikləyin.';
 $_lang["database_server"] = 'Verilənlər bazası serveri';

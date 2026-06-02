@@ -206,6 +206,12 @@ $_lang["custom_contenttype_message"] = 'リソースが使用するコンテン�
 $_lang["custom_contenttype_title"] = 'カスタムコンテントタイプ';
 $_lang["database_charset"] = 'データベース文字コード';
 $_lang["database_collation"] = '照合順序';
+$_lang["opcache"] = 'OPcache';
+$_lang["jit"] = 'JIT';
+$_lang["opcache_memory_details"] = '（%s 使用中 / %s 利用可能）、%s ヒット / %s ミス';
+$_lang["opcache_reset_unavailable"] = 'リセットは利用できません';
+$_lang["opcache_reset_complete"] = 'リセットが完了しました';
+$_lang["opcache_reset_failed"] = 'リセットに失敗しました';
 $_lang["database_name"] = 'データベース名';
 $_lang["database_overhead"] = '<strong style="color:#990033">注:</strong>オーバーヘッドは、更新処理の際に発生する不要な領域です。オーバーヘッドの数字をクリックすると、この領域を消去します';
 $_lang["database_server"] = 'データベースサーバー';

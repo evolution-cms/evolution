@@ -209,6 +209,12 @@ $_lang["custom_contenttype_message"] = 'Тут ви можете додати т
 $_lang["custom_contenttype_title"] = 'Типи вмісту (Content-Type):';
 $_lang["database_charset"] = 'Кодування бази даних';
 $_lang["database_collation"] = 'Зіставлення бази даних';
+$_lang["opcache"] = 'OPcache';
+$_lang["jit"] = 'JIT';
+$_lang["opcache_memory_details"] = '(%s використано / %s доступно), %s влучань / %s промахів';
+$_lang["opcache_reset_unavailable"] = 'скидання недоступне';
+$_lang["opcache_reset_complete"] = 'скидання завершено';
+$_lang["opcache_reset_failed"] = 'скидання не вдалося';
 $_lang["database_name"] = 'Ім\'я бази даних';
 $_lang["database_overhead"] = '<b style="color:#990033;">Примітка:</b> \'перевитрата\' – це невикористаний, але зарезервований MySQL простір. Щоб звільнити це місце, натисніть \'Перевитрата\' в таблиці (таблицях).';
 $_lang["database_server"] = 'Сервер бази даних';

@@ -187,6 +187,12 @@ $_lang["custom_contenttype_message"] = 'Her kan du legge til egne innholdstyper 
 $_lang["custom_contenttype_title"] = 'Egne innholdstyper';
 $_lang["database_charset"] = 'Database Charset';
 $_lang["database_collation"] = 'Database Collation Charset';
+$_lang["opcache"] = 'OPcache';
+$_lang["jit"] = 'JIT';
+$_lang["opcache_memory_details"] = '(%s brukt / %s tilgjengeleg), %s treff / %s bom';
+$_lang["opcache_reset_unavailable"] = 'nullstilling ikkje tilgjengeleg';
+$_lang["opcache_reset_complete"] = 'nullstilling fullført';
+$_lang["opcache_reset_failed"] = 'nullstilling mislukkast';
 $_lang["database_name"] = 'Database name';
 $_lang["database_overhead"] = '<b style="color:#990033;">Note:</b> Overhead is unused space reserved by MySQL. To free up this space, click on the table\'s overhead figure.';
 $_lang["database_server"] = 'Database server';

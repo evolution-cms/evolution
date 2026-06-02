@@ -36,6 +36,16 @@
         $pinfo = str_replace('<div class="center">', '<div>', $pinfo);
         $pinfo = str_replace('width="600"', 'width="90%"', $pinfo);
         $pinfo = str_replace('src,input', 'src, input', $pinfo);
+        $pinfo = preg_replace_callback('/<a\s+href="([^"]*)"([^>]*)>/i', static function ($matches) {
+            $href = $matches[1];
+            $attributes = $matches[2];
+
+            if (preg_match('~^(https?:|mailto:)~i', $href) === 1) {
+                return '<a href="' . $href . '"' . $attributes . ' target="_blank" rel="noopener noreferrer">';
+            }
+
+            return '<a href="javascript:;"' . $attributes . ' onclick="return false;">';
+        }, $pinfo);
     ?>
     {!! $pinfo !!}
 @endsection
