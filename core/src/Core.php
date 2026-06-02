@@ -3591,13 +3591,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $timeout = 20 * 60; // Delete multiple user-sessions after 20min
         $validSessionTimeLimit = $this->time - $timeout;
 
-        $activeUserSids = [];
-        $activeUserSids = ActiveUserSession::all();
-        if ($activeUserSids->count() > 0) {
-            $activeUserSids = $activeUserSids->pluck('sid');
-        } else {
-            $activeUserSids = [];
-        }
+        $activeUserSids = ActiveUserSession::pluck('sid')->toArray();
 
         $activeUsers = ActiveUser::query()->orderBy('lasthit', 'DESC')->get();
 
