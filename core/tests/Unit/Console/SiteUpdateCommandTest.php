@@ -14,9 +14,9 @@ function invokeSiteUpdateMethod(SiteUpdateCommand $command, string $method, arra
 }
 
 test('buildArchiveUrl uses tag archive path for semantic versions', function () {
-    $url = invokeSiteUpdateMethod($this->command, 'buildArchiveUrl', ['evolution-cms/evolution', '3.5.4']);
+    $url = invokeSiteUpdateMethod($this->command, 'buildArchiveUrl', ['evolution-cms/evolution', '3.5.5']);
 
-    expect($url)->toBe('https://codeload.github.com/evolution-cms/evolution/zip/refs/tags/3.5.4');
+    expect($url)->toBe('https://codeload.github.com/evolution-cms/evolution/zip/refs/tags/3.5.5');
 });
 
 test('buildArchiveUrl uses branch archive path for branch refs', function () {
@@ -57,6 +57,29 @@ test('site updater runs core migrations during updates', function () {
     expect($source)->not->toContain('cli-install.php --typeInstall=2');
     expect(strpos($source, '$this->runCoreMigrations();'))->toBeLessThan(strpos($source, '$this->updateBundledExtrasModule();'));
     expect(strpos($source, '$this->updateBundledExtrasModule();'))->toBeLessThan(strpos($source, "self::rmdirs(EVO_BASE_PATH . 'install')"));
+});
+
+test('site updater removes update placeholder files before composer repair', function () {
+    $source = (string) file_get_contents(dirname(__DIR__, 3) . '/src/Console/SiteUpdateCommand.php');
+    $pairs = invokeSiteUpdateMethod($this->command, 'updatePlaceholderFilePairs');
+    $normalizedPairs = array_map(
+        fn (array $pair) => array_map(fn (string $path) => str_replace('\\', '/', $path), $pair),
+        $pairs
+    );
+
+    expect($source)->toContain('$this->cleanupUpdatePlaceholderFiles();');
+    expect(strpos($source, '$this->cleanupUpdatePlaceholderFiles();'))->toBeLessThan(strpos($source, '$this->installComposerDependencies('));
+    expect($normalizedPairs)->toHaveCount(5);
+    expect($normalizedPairs[0][0])->toEndWith('/ht.access');
+    expect($normalizedPairs[0][1])->toEndWith('/.htaccess');
+    expect($normalizedPairs[1][0])->toEndWith('/sample-robots.txt');
+    expect($normalizedPairs[1][1])->toEndWith('/robots.txt');
+    expect($normalizedPairs[2][0])->toEndWith('/core/custom/.env.docker.example');
+    expect($normalizedPairs[2][1])->toEndWith('/core/custom/.env.docker');
+    expect($normalizedPairs[3][0])->toEndWith('/core/custom/composer.json.example');
+    expect($normalizedPairs[3][1])->toEndWith('/core/custom/composer.json');
+    expect($normalizedPairs[4][0])->toEndWith('/core/custom/config/cms/settings/ControllerNamespace.php.example');
+    expect($normalizedPairs[4][1])->toEndWith('/core/custom/config/cms/settings/ControllerNamespace.php');
 });
 
 test('site updater repairs composer vendor state before artisan commands', function () {

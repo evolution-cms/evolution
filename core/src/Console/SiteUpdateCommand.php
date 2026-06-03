@@ -223,6 +223,7 @@ HELP;
                     }
                 }
             }
+            $this->cleanupUpdatePlaceholderFiles();
             putenv('COMPOSER_HOME=' . EVO_CORE_PATH . 'composer');
             $this->installComposerDependencies($customPackageConstraints, $lockedCustomPackageVersions);
             $this->runCoreMigrations();
@@ -247,6 +248,41 @@ HELP;
     {
         $this->line('<fg=green>Run Core Migrations</>');
         $this->runCoreShellCommand('php artisan migrate --force');
+    }
+
+    /**
+     * Remove placeholder files from the update archive when real local files exist.
+     *
+     * @since 3.5.7
+     * @return void
+     */
+    protected function cleanupUpdatePlaceholderFiles(): void
+    {
+        foreach ($this->updatePlaceholderFilePairs() as [$placeholder, $localFile]) {
+            if (is_file($placeholder) && is_file($localFile)) {
+                unlink($placeholder);
+            }
+        }
+    }
+
+    /**
+     * Placeholder files shipped by the core archive and their local replacements.
+     *
+     * @since 3.5.7
+     * @return array<int, array{0: string, 1: string}>
+     */
+    protected function updatePlaceholderFilePairs(): array
+    {
+        return [
+            [EVO_BASE_PATH . 'ht.access', EVO_BASE_PATH . '.htaccess'],
+            [EVO_BASE_PATH . 'sample-robots.txt', EVO_BASE_PATH . 'robots.txt'],
+            [EVO_CORE_PATH . 'custom/.env.docker.example', EVO_CORE_PATH . 'custom/.env.docker'],
+            [EVO_CORE_PATH . 'custom/composer.json.example', EVO_CORE_PATH . 'custom/composer.json'],
+            [
+                EVO_CORE_PATH . 'custom/config/cms/settings/ControllerNamespace.php.example',
+                EVO_CORE_PATH . 'custom/config/cms/settings/ControllerNamespace.php',
+            ],
+        ];
     }
 
     /**
