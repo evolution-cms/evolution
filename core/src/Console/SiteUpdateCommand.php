@@ -227,6 +227,7 @@ HELP;
             putenv('COMPOSER_HOME=' . EVO_CORE_PATH . 'composer');
             $this->installComposerDependencies($customPackageConstraints, $lockedCustomPackageVersions);
             $this->runCoreMigrations();
+            $this->runUpdateSeeders();
             $this->updateBundledExtrasModule();
 
             $this->line('<fg=green>Remove Install Directory</>');
@@ -248,6 +249,36 @@ HELP;
     {
         $this->line('<fg=green>Run Core Migrations</>');
         $this->runCoreShellCommand('php artisan migrate --force');
+    }
+
+    /**
+     * Apply the version update seeders shipped in the install directory.
+     *
+     * The web installer and install-folder CLI updater run seed('update') to apply
+     * data fixes such as permission renames. "php artisan make:site update" replaces
+     * files directly and used to skip this step, so manager/CLI updates drifted from
+     * the installer. The seeders use only the DB facade and are idempotent, so running
+     * them here before the install directory is removed keeps every path consistent.
+     *
+     * @since 3.5.7
+     * @return void
+     */
+    protected function runUpdateSeeders(): void
+    {
+        $seedDir = EVO_BASE_PATH . 'install/stubs/seeds/update';
+        if (!is_dir($seedDir)) {
+            return;
+        }
+
+        $this->line('<fg=green>Apply update seeders</>');
+
+        foreach (glob($seedDir . '/*.php') as $filename) {
+            require_once $filename;
+            $class = 'EvolutionCMS\\Installer\\Update\\' . basename($filename, '.php');
+            if (class_exists($class) && is_subclass_of($class, \Illuminate\Database\Seeder::class)) {
+                (new $class())->run();
+            }
+        }
     }
 
     /**

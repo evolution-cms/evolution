@@ -238,6 +238,13 @@ try {
         } else {
             seed('update');
         }
+
+        // Apply core-only migrations (core/database/migrations) that are not part
+        // of the install/stubs incremental chain, e.g. the system task tables. This
+        // runs after seeding so the ACL baseline is already populated and the guarded
+        // repairs inside those migrations detect a healthy baseline and skip.
+        Console::call('migrate', ['--force' => true]);
+
         $installLevel = 4;
     }
 

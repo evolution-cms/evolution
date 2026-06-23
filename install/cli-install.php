@@ -169,6 +169,10 @@ class InstallEvo
         bootstrapInstallMigrationHistory($installMigrationsPath);
         Console::call('migrate', ['--path' => $installMigrationsPath, '--realpath' => true, '--force' => true]);
         seed('update');
+        // Apply core-only migrations (core/database/migrations) not present in the
+        // install/stubs chain, e.g. the system task tables. Runs after seeding so the
+        // guarded ACL repairs inside those migrations detect a healthy baseline.
+        Console::call('migrate', ['--force' => true]);
         echo 'Evolution CMS updated!' . "\n";
         $this->checkRemoveInstall();
         $this->removeInstall();
@@ -534,6 +538,10 @@ class InstallEvo
         $systemSettings[] = ['setting_name' => 'emailsender', 'setting_value' => $this->cmsAdminEmail];
         $systemSettings[] = ['setting_name' => 'fe_editor_lang', 'setting_value' => $this->language];
         \EvolutionCMS\Models\SystemSetting::insert($systemSettings);
+        // Apply core-only migrations (core/database/migrations) not present in the
+        // install/stubs chain, e.g. the system task tables. Runs after seeding so the
+        // guarded ACL repairs inside those migrations detect a healthy baseline.
+        Console::call('migrate', ['--force' => true]);
         success('✔ All migrations is done!');
     }
 
