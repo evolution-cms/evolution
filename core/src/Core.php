@@ -1143,7 +1143,9 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     }
 
     /**
-     * Checks the publish state of page
+     * Checks the publish state of page. When a scheduled (un)publish time has passed, the heavy work is deferred
+     * until after the response has been delivered, so it never delays page output.
+     * {@see isScheduledUnpublished()} and {@see prepareResponse()}.
      */
     public function updatePubStatus()
     {
@@ -1159,40 +1161,129 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             return;
         }
 
-        // now, check for documents that need publishing
-        $field = ['published' => 1, 'publishedon' => $timeNow];
-        $where = "pub_date <= {$timeNow} AND pub_date!=0 AND published=0";
-        $result_pub = \EvolutionCMS\Models\SiteContent::select('id')->whereRaw($where)->get();
-        \EvolutionCMS\Models\SiteContent::whereRaw($where)->update($field);
-
-        if ($result_pub->count() >= 1) { //Event unPublished doc
-            foreach ($result_pub as $row_pub) {
-                $this->invokeEvent("OnDocUnPublished", [
-                    "docid" => $row_pub->id
-                ]);
+        // A scheduled (un)publish time has passed. Make sure only one request performs the transition and the others
+        // just serve their page - the render-time checks keep them correct while the flags are still being synced.
+        $lock = @fopen($this->getSitePublishingFilePath() . '.lock', 'c');
+        if ($lock === false || !flock($lock, LOCK_EX | LOCK_NB)) {
+            if (is_resource($lock)) {
+                fclose($lock);
             }
-        }
-
-        // now, check for documents that need un-publishing
-        $field = ['published' => 0, 'publishedon' => 0];
-        $where = "unpub_date <= {$timeNow} AND unpub_date!=0 AND published=1";
-        //
-        $result_unpub = \EvolutionCMS\Models\SiteContent::select('id')->whereRaw($where)->get();
-
-        \EvolutionCMS\Models\SiteContent::whereRaw($where)->update($field);
-
-        if ($result_unpub->count() >= 1) { //Event unPublished doc
-            foreach ($result_unpub as $row_unpub) {
-                $this->invokeEvent("OnDocUnPublished", [
-                    "docid" => $row_unpub->id
-                ]);
-            }
+            return;
         }
 
         $this->recentUpdate = $timeNow;
 
-        // clear the cache
-        $this->clearCache('full');
+        // Defer the database writes, events and threshold recalculation until the response has been sent to the client.
+        // The lock is held for the whole request and released once the deferred sync has completed.
+        $this->deferAfterResponse(function () use ($timeNow, $lock) {
+            try {
+                $this->runPubStatusSync($timeNow);
+            } finally {
+                flock($lock, LOCK_UN);
+                fclose($lock);
+            }
+        });
+    }
+
+    /**
+     * Applies the deferred publish-status transition: flips the published flag for pub_date / unpub_date passed docs,
+     * fires the matching events, drops only the affected page caches and advances the publish threshold.
+     * Runs after the response has been sent.
+     * @param int $timeNow
+     */
+    protected function runPubStatusSync($timeNow)
+    {
+        // documents that need publishing
+        $where = "pub_date <= {$timeNow} AND pub_date != 0 AND published = 0";
+        $resultPub = \EvolutionCMS\Models\SiteContent::select('id')->whereRaw($where)->get();
+        if ($resultPub->isNotEmpty()) {
+            \EvolutionCMS\Models\SiteContent::whereRaw($where)->update(['published' => 1, 'publishedon' => $timeNow]);
+            foreach ($resultPub as $rowPub) {
+                $this->invokeEvent('OnDocPublished', ['docid' => $rowPub->id]);
+            }
+        }
+
+        // documents that need un-publishing
+        $where = "unpub_date <= {$timeNow} AND unpub_date != 0 AND published = 1";
+        $resultUnpub = \EvolutionCMS\Models\SiteContent::select('id')->whereRaw($where)->get();
+        if ($resultUnpub->isNotEmpty()) {
+            \EvolutionCMS\Models\SiteContent::whereRaw($where)->update(['published' => 0, 'publishedon' => 0]);
+            foreach ($resultUnpub as $rowUnpub) {
+                // drop only this page's cache instead of wiping the whole site
+                $this->clearCache((string) $rowUnpub->id);
+                $this->invokeEvent('OnDocUnPublished', ['docid' => $rowUnpub->id]);
+            }
+        }
+
+        // recalculate the next scheduled (un)publish time without clearing cache
+        $cache = new Legacy\Cache();
+        $cache->setCachepath($this->bootstrapPath());
+        $cache->publishTimeConfig();
+    }
+
+    /**
+     * Registers a callback to run after sent response. Detaches with *_finish_request() php-fpm, FrankenPHP, LiteSpeed
+     * Otherwise runs at shutdown, so it works on every SAPI including Apache mod_php, plain CGI and Windows/IIS
+     * @param callable $callback
+     */
+    protected function deferAfterResponse(callable $callback)
+    {
+        register_shutdown_function(function () use ($callback) {
+            $this->finishRequest();
+            try {
+                $callback();
+            } catch (\Throwable $e) {
+                Log::error('Deferred publish-status sync failed: ' . $e->getMessage());
+            }
+        });
+    }
+
+    /**
+     * Flushes the response to the client so trailing work no longer holds the connection open.
+     * Detaches via *_finish_request(), on other SAPIs the trailing work simply runs after the content emission.
+     */
+    public function finishRequest()
+    {
+        if (function_exists('fastcgi_finish_request')) {
+            fastcgi_finish_request();
+        } elseif (function_exists('litespeed_finish_request')) {
+            litespeed_finish_request();
+        }
+    }
+
+    /**
+     * Check if document's scheduled publish time passed while its stored published flag has not been updated yet.
+     * Lets such pages render immediately without waiting for the DB sync (the flag flip is deferred).
+     * @param array $documentObject
+     * @return bool
+     */
+    public function isScheduledPublished($documentObject)
+    {
+        $pubDate = (int) ($documentObject['pub_date'] ?? 0);
+        if ($pubDate === 0) {
+            return false;
+        }
+        $timeNow = $_SERVER['REQUEST_TIME'] + $this->getConfig('server_offset_time', 0);
+
+        return $pubDate <= $timeNow;
+    }
+
+    /**
+     * @param array $documentObject
+     * @return bool
+     */
+    public function isScheduledUnpublished($documentObject)
+    {
+        if ($this->checkPreview()) {
+            return false;
+        }
+        $unpubDate = (int) ($documentObject['unpub_date'] ?? 0);
+        if ($unpubDate === 0) {
+            return false;
+        }
+        $timeNow = $_SERVER['REQUEST_TIME'] + $this->getConfig('server_offset_time', 0);
+
+        return $unpubDate <= $timeNow;
     }
 
     public function checkPublishStatus()
@@ -3076,6 +3167,12 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $this->documentContent = '';
         }
 
+        // If cached page scheduled un-publish time has since passed, drop only this page cache
+        if ($this->documentContent !== '' && $this->isScheduledUnpublished($this->documentObject)) {
+            $this->clearCache((string) $this->documentIdentifier);
+            $this->documentContent = '';
+        }
+
         $template = false;
         if ($this->documentContent == '') {
 
@@ -3097,7 +3194,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             if ($this->documentObject['deleted'] == 1) {
                 $this->sendErrorPage();
             } // validation routines
-            elseif ($this->documentObject['published'] == 0) {
+            elseif (
+                ($this->documentObject['published'] == 0 && !$this->isScheduledPublished($this->documentObject))
+                || $this->isScheduledUnpublished($this->documentObject)
+            ) {
                 $this->_sendErrorForUnpubPage();
             } elseif ($this->documentObject['type'] === 'reference') {
                 $this->_sendRedirectForRefPage($this->documentObject['content']);
