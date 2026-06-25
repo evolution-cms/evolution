@@ -431,6 +431,8 @@ nav ul li {
   inset: 0;
   width: 100%;
   height: 100%;
+  color: #212529;
+  color-scheme: light;
   opacity: 0;
   z-index: 3;
   cursor: pointer;
@@ -441,6 +443,11 @@ nav ul li {
   border: 0 !important;
   margin: 0;
   padding: 0;
+}
+
+.install_extras select[name="link"] option {
+  color: #212529;
+  background-color: #ffffff;
 }
 
 .catalog_item.liststyle .install_extras select[name="link"] {
@@ -2040,6 +2047,13 @@ body.darkness {
 
 .darkness .install_extras select[name="link"] {
   background: transparent !important;
+  color: #212529;
+  color-scheme: light;
+}
+
+.darkness .install_extras select[name="link"] option {
+  color: #212529;
+  background-color: #ffffff;
 }
 
 .darkness .install_extras .store-version-wrap {
