@@ -149,7 +149,7 @@ trait Path
      */
     public function bootstrapPath($path = '')
     {
-        return $this->storagePath() . 'bootstrap' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        return $this->storagePath('bootstrap' . ($path ? DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR) : $path));
     }
 
     /**
