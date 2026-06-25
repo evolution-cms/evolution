@@ -83,11 +83,12 @@ trait Path
     /**
      * Get the path to the storage directory.
      *
+     * @param string $path Optionally, a path to append to the storage path
      * @return string
      */
     public function storagePath($path = '')
     {
-        return $this->storagePath ?: EVO_STORAGE_PATH;
+        return rtrim($this->storagePath ?: EVO_STORAGE_PATH, DIRECTORY_SEPARATOR) . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 
     /**
