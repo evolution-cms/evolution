@@ -101,6 +101,7 @@ var DatePicker = function() {
     dp.onclick = dp.onfocus = function() {
       DatePicker.create(dp, self);
     };
+    DatePicker.bindToggle(dp);
   }
 
   _createClass(DatePicker, null, [
@@ -136,9 +137,74 @@ var DatePicker = function() {
           if (formatted !== '') {
             dp.value = formatted;
             dp.lastValidDate = formatted;
+            DatePicker.updateToggle(dp);
           }
           this.dp.dirty = true;
         }
+      },
+    }, {
+      key: 'getToggle', value: function getToggle(dp) {
+        if (!dp.nextElementSibling) {
+          return null;
+        }
+
+        if (dp.nextElementSibling.tagName === 'A' ||
+            dp.nextElementSibling.classList.contains('clearDate')) {
+          return dp.nextElementSibling;
+        }
+
+        return null;
+      },
+    }, {
+      key: 'getToggleIcon', value: function getToggleIcon(toggle) {
+        if (!toggle) {
+          return null;
+        }
+
+        if (toggle.tagName === 'I') {
+          return toggle;
+        }
+
+        return toggle.querySelector('i');
+      },
+    }, {
+      key: 'updateToggle', value: function updateToggle(dp) {
+        var icon = DatePicker.getToggleIcon(DatePicker.getToggle(dp));
+        if (!icon) {
+          return;
+        }
+
+        icon.classList.remove('fa-calendar-plus-o', 'fa-calendar-times-o');
+        icon.classList.add(dp.value === '' ? 'fa-calendar-plus-o' : 'fa-calendar-times-o');
+      },
+    }, {
+      key: 'bindToggle', value: function bindToggle(dp) {
+        var toggle = DatePicker.getToggle(dp);
+        if (!toggle) {
+          return;
+        }
+
+        toggle.onclick = function(e) {
+          if (e) {
+            e.preventDefault ? e.preventDefault() : e.returnValue = false;
+            e.stopPropagation ? e.stopPropagation() : e.cancelBubble = true;
+          }
+
+          if (dp.value === '') {
+            DatePicker.create(dp);
+          } else {
+            dp.value = '';
+            dp.lastValidDate = '';
+            if (typeof dp.onblur === 'function') {
+              dp.onblur();
+            }
+            DatePicker.updateToggle(dp);
+          }
+
+          return false;
+        };
+
+        DatePicker.updateToggle(dp);
       },
     }, {
       key: 'alertError', value: function alertError(dp) {
