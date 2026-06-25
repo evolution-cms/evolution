@@ -183,10 +183,16 @@ ul.elements_buttonbar .fa { font-size: 0.875rem; padding: 1px 1px 0; }
 .resourceTable.flex ul.elements > li { overflow: hidden; /* fix for Firefox */
 break-inside: avoid-column; -webkit-column-break-inside: avoid; -moz-column-break-inside: avoid; -o-column-break-inside: avoid; -ms-column-break-inside: avoid; column-break-inside: avoid; page-break-inside: avoid }
 .resourceTable.flex .elements_descr { display: block; margin-left: 1.5em; }
-.switchForm { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1rem; padding: 0.5rem 0; }
-.switchForm .form-row { display: flex; flex: 0 1 auto; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; margin: 0; min-width: 0; }
+.switchForm { display: flex; flex-wrap: wrap; align-items: center; padding: 0.5rem 0; }
+.switchForm .form-row { display: flex; flex: 0 1 auto; flex-wrap: wrap; align-items: center; margin: 0 1rem 0.25rem 0; min-width: 0; }
 .switchForm label { display: inline-flex; align-items: center; gap: 0.35rem; margin: 0; min-height: 2rem; white-space: nowrap; }
+.switchForm .form-row > label,
+.switchForm .form-row > input {
+    margin-right: 0.75rem;
+    margin-bottom: 0.5rem;
+}
 .switchForm input[type="checkbox"], .switchForm input[type="radio"] { flex: 0 0 auto; margin: 0; }
+.switchForm label > input[type="checkbox"], .switchForm label > input[type="radio"] { margin-right: 0.35rem; }
 .switchForm .columns, .switchForm .fontsize { flex: 0 0 5rem; width: 5rem; min-width: 5rem; }
 .switchForm .optionsReset { display: flex; align-items: center; margin: 0; }
 @media (max-width: 480px) {
