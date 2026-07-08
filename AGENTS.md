@@ -65,19 +65,24 @@ a template variable (TV) system, plugins, snippets, chunks, and a modular extras
 All commits in this project use a bracketed prefix:
 
 ```
-[ADD]  New feature or file
-[FIX]  Bug fix
-[REF]  Refactor / code quality improvement
-[UPD]  Dependency or content update
-[DEL]  Removal of code or files
+type(scope): short description (#issue)
 ```
 
-Examples from the log:
-- `[FIX] Fix confusing dropdown showing rich text editor when editor is disabled`
-- `[REF] Deprecation warnings for store installer.`
-- `[ADD] Add command to list the code marked as deprecated`
+Allowed lowercase types:
+- `add` — net-new file, feature, surface, contract, rule, or generated capability
+- `feat` — net-new user-facing feature or capability where feature wording is clearest
+- `fix` — bug fix or defect repair
+- `upd` — update to existing behavior, content, generated output, or workflow
+- `ref` — refactor or restructure without changing intended product meaning
+- `del` — explicit removal of obsolete code, docs, links, generated files, or flows
 
-Always use one of these prefixes. Write short, imperative present-tense descriptions.
+Examples:
+- `add(ex42): add feed source worker (#69)`
+- `ref(source): split API source transport (#69)`
+- `fix(ex42): repair source run diagnostics`
+
+Use a short concrete scope, write the description in English, do not add a final period,
+and append `(#issue)` only when the commit is tied to an issue.
 
 ---
 
