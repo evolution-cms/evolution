@@ -119,44 +119,59 @@ if (!function_exists('is_cli')) {
     }
 }
 
-if (!function_exists('niceSize')) {
+if (!function_exists('niceCount')) {
     /**
-     * Format file size in human-readable format.
+     * Format a quantity using compact SI suffixes.
      *
-     * Converts bytes to appropriate unit (B, KB, MB, GB, TB) with proper rounding.
-     * Uses modern ISO/IEC 80000 standard formatting with uppercase units.
+     * Values below one thousand are returned without a suffix. Larger values
+     * are scaled through K, M, B, T, and Q while insignificant trailing zeroes
+     * are removed. This keeps counters compact without changing their numeric
+     * source value.
      *
-     * @param int|float $size File size in bytes
-     * @return string Formatted file size with unit
+     * @param int|float $count Quantity to format
+     * @param int $precision Maximum decimal places for a scaled value
+     * @return string Compact human-readable quantity
+     * @since 3.5.7
      *
      * @example
-     * niceSize(1024); // "1 KB"
-     * niceSize(1048576); // "1 MB"
-     * niceSize(1536); // "1.5 KB"
-     * niceSize(0); // "0 B"
+     * niceCount(999); // "999"
+     * niceCount(1500); // "1.5K"
+     * niceCount(5000000); // "5M"
      */
-    function niceSize($size)
+    function niceCount(int|float $count, int $precision = 1): string
     {
-        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $value = (float)$count;
+        if (!is_finite($value)) {
+            return '0';
+        }
+
+        $precision = max(0, min(3, $precision));
+        $units = ['', 'K', 'M', 'B', 'T', 'Q'];
         $unitIndex = 0;
 
-        while ($size >= 1024 && $unitIndex < count($units) - 1) {
-            $size /= 1024;
+        while (abs($value) >= 1000 && $unitIndex < count($units) - 1) {
+            $value /= 1000;
             $unitIndex++;
         }
 
-        return round($size, 2) . ' ' . $units[$unitIndex];
-    }
-}
+        if ($unitIndex === 0) {
+            $formatted = number_format($value, $precision, '.', '');
 
-if (!function_exists('nicesize')) {
-    /**
-     * @deprecated since EVO 3.2.7, use niceSize()
-     * @TODO: will be delete EVO 3.5
-     */
-    function nicesize($size)
-    {
-        return niceSize($size);
+            return $precision > 0 ? rtrim(rtrim($formatted, '0'), '.') : $formatted;
+        }
+
+        $decimals = $precision;
+        if (abs(round($value, $decimals)) >= 1000 && $unitIndex < count($units) - 1) {
+            $value /= 1000;
+            $unitIndex++;
+        }
+
+        $formatted = number_format($value, $decimals, '.', '');
+        if ($decimals > 0) {
+            $formatted = rtrim(rtrim($formatted, '0'), '.');
+        }
+
+        return $formatted . $units[$unitIndex];
     }
 }
 
@@ -191,6 +206,36 @@ if (!function_exists('niceEta')) {
             $minutes = floor(($seconds % 3600) / 60);
             return sprintf('%.0fh %.0fm', $hours, $minutes);
         }
+    }
+}
+
+if (!function_exists('niceSize')) {
+    /**
+     * Format file size in human-readable format.
+     *
+     * Converts bytes to appropriate unit (B, KB, MB, GB, TB) with proper rounding.
+     * Uses modern ISO/IEC 80000 standard formatting with uppercase units.
+     *
+     * @param int|float $size File size in bytes
+     * @return string Formatted file size with unit
+     *
+     * @example
+     * niceSize(1024); // "1 KB"
+     * niceSize(1048576); // "1 MB"
+     * niceSize(1536); // "1.5 KB"
+     * niceSize(0); // "0 B"
+     */
+    function niceSize($size)
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $unitIndex = 0;
+
+        while ($size >= 1024 && $unitIndex < count($units) - 1) {
+            $size /= 1024;
+            $unitIndex++;
+        }
+
+        return round($size, 2) . ' ' . $units[$unitIndex];
     }
 }
 

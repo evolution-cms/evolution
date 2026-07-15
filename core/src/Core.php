@@ -6585,17 +6585,6 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     }
 
     /**
-     * @param $size
-     * @return string
-     * @deprecated since EVO 3.2.7
-     * @TODO: will be delete EVO 3.5
-     */
-    public function nicesize($size)
-    {
-        return niceSize($size);
-    }
-
-    /**
      * @deprecated since EVO 3.2.7, use UrlProcessor::getHiddenIdFromAlias()
      * @TODO: will be delete EVO 3.5
      */
