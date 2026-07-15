@@ -160,6 +160,62 @@ if (!function_exists('nicesize')) {
     }
 }
 
+if (!function_exists('niceCount')) {
+    /**
+     * Format a quantity using compact SI suffixes.
+     *
+     * Values below one thousand are returned without a suffix. Larger values
+     * are scaled through K, M, B, T, and Q while insignificant trailing zeroes
+     * are removed. This keeps counters compact without changing their numeric
+     * source value.
+     *
+     * @param int|float $count Quantity to format
+     * @param int $precision Maximum decimal places for a scaled value
+     * @return string Compact human-readable quantity
+     * @since 3.6.0
+     *
+     * @example
+     * niceCount(999); // "999"
+     * niceCount(1500); // "1.5K"
+     * niceCount(5000000); // "5M"
+     */
+    function niceCount(int|float $count, int $precision = 1): string
+    {
+        $value = (float)$count;
+        if (!is_finite($value)) {
+            return '0';
+        }
+
+        $precision = max(0, min(3, $precision));
+        $units = ['', 'K', 'M', 'B', 'T', 'Q'];
+        $unitIndex = 0;
+
+        while (abs($value) >= 1000 && $unitIndex < count($units) - 1) {
+            $value /= 1000;
+            $unitIndex++;
+        }
+
+        if ($unitIndex === 0) {
+            $formatted = number_format($value, $precision, '.', '');
+
+            return $precision > 0 ? rtrim(rtrim($formatted, '0'), '.') : $formatted;
+        }
+
+        $decimals = $precision;
+        if (abs(round($value, $decimals)) >= 1000 && $unitIndex < count($units) - 1) {
+            $value /= 1000;
+            $unitIndex++;
+        }
+
+        $formatted = number_format($value, $decimals, '.', '');
+        if ($decimals > 0) {
+            $formatted = rtrim(rtrim($formatted, '0'), '.');
+        }
+
+        return $formatted . $units[$unitIndex];
+    }
+}
+
 if (!function_exists('niceEta')) {
     /**
      * Format ETA seconds into human-readable format.
