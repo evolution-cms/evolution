@@ -3677,7 +3677,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             foreach ($rs as $row) {
                 $userSids[] = $row['sid'];
             }
-            ActiveUserSession::whereNotIn('sid', $userSids)->delete();
+            ActiveUserLock::whereNotIn('sid', $userSids)->delete();
         } else {
             ActiveUserLock::query()->truncate();
         }
