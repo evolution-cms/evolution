@@ -194,7 +194,7 @@ $_lang["opcache_reset_unavailable"] = 'بازنشانی در دسترس نیست
 $_lang["opcache_reset_complete"] = 'بازنشانی کامل شد';
 $_lang["opcache_reset_failed"] = 'بازنشانی ناموفق بود';
 $_lang["database_name"] = 'نام دیتابیس';
-$_lang["database_overhead"] = '<b style=\'color:#990033\'>تذکر:</b> حیاط خلوت فضای بی استفاده ای است که توسط ما یاس کیو ال رزرو شده. برای تخلیه ی این فضا, روی نماد حیات خلوت هر جدول کلیک کنید.';
+$_lang["database_overhead"] = '<b style=\'color:#990033\'>تذکر:</b> سربار فضای استفاده‌نشده‌ای است که توسط MySQL رزرو شده است. برای آزاد کردن آن، روی مقدار سربار جدول مربوطه کلیک کنید.';
 $_lang["database_server"] = 'سرور دیتابیس';
 $_lang["database_table_clickbackup"] = 'برای تهیه ی نسخه ی پشتیبان و دانلود و دخیره ی جداول انتخابی';
 $_lang["database_table_clickhere"] = 'اینجا کلیک کنید';
@@ -202,7 +202,7 @@ $_lang["database_table_datasize"] = 'حجم داده';
 $_lang["database_table_droptablestatements"] = 'حالت دراپ تیبل را اجرا کن.';
 $_lang["database_table_effectivesize"] = 'حجم موثر';
 $_lang["database_table_indexsize"] = 'حجم ایندکس';
-$_lang["database_table_overhead"] = 'حیات خلوت';
+$_lang["database_table_overhead"] = 'سربار';
 $_lang["database_table_records"] = 'رکوردها';
 $_lang["database_table_tablename"] = 'نام جدول';
 $_lang["database_table_totals"] = 'مجموعا:';

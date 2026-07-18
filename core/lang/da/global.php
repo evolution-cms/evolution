@@ -195,7 +195,7 @@ $_lang["opcache_reset_unavailable"] = 'nulstilling ikke tilgængelig';
 $_lang["opcache_reset_complete"] = 'nulstilling fuldført';
 $_lang["opcache_reset_failed"] = 'nulstilling mislykkedes';
 $_lang["database_name"] = 'Database navn';
-$_lang["database_overhead"] = '<b style="color:#990033;">Bemærk:</b> Overhead er ubrugt men reserveret plads i MySQL databasen. For at fjerne denne, skal du klikke på angivelsen af størrelsen i ovenstående tabels Overhead kolonne.';
+$_lang["database_overhead"] = '<b style="color:#990033;">Bemærk:</b> overhead er ubrugt plads reserveret af MySQL. Klik på overheadværdien for den relevante tabel for at frigøre pladsen.';
 $_lang["database_server"] = 'Database server';
 $_lang["database_table_clickbackup"] = 'for at udføre en backup og hente de valgte tabeller i databasen';
 $_lang["database_table_clickhere"] = 'Klik her';

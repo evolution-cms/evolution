@@ -206,7 +206,7 @@ $_lang["opcache_reset_unavailable"] = 'reset niet beschikbaar';
 $_lang["opcache_reset_complete"] = 'reset voltooid';
 $_lang["opcache_reset_failed"] = 'reset mislukt';
 $_lang["database_name"] = 'Database naam';
-$_lang["database_overhead"] = '<b style="color:#990033;">Opmerking:</b> Overhead is ongebruikte ruimte gereserveerd door MySQL. Om deze ruimte vrij te maken klikt u op de link in de kolom Overhead van de tabel.';
+$_lang["database_overhead"] = '<b style="color:#990033;">Opmerking:</b> overhead is ongebruikte ruimte die door MySQL is gereserveerd. Klik op de overheadwaarde van de betreffende tabel om deze ruimte vrij te maken.';
 $_lang["database_server"] = 'Database server';
 $_lang["database_table_clickbackup"] = 'Backup &amp; download';
 $_lang["database_table_clickhere"] = 'Klik hier';

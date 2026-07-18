@@ -194,7 +194,7 @@ $_lang["opcache_reset_unavailable"] = 'нулирането не е достъп
 $_lang["opcache_reset_complete"] = 'нулирането е завършено';
 $_lang["opcache_reset_failed"] = 'нулирането е неуспешно';
 $_lang["database_name"] = 'Име на базата от данни';
-$_lang["database_overhead"] = '<b style=\'color:#990033\'>ЗАБЕЛЕЖКА:</b> Загубеното място е неизползвано пространство, резервирано от MySQL. За да освободите това пространство, щракнете върху картинката на загубеното място в таблицата.';
+$_lang["database_overhead"] = '<b style=\'color:#990033\'>Забележка:</b> излишното пространство е неизползвано място, резервирано от MySQL. За да го освободите, щракнете върху стойността на излишното пространство за съответната таблица.';
 $_lang["database_server"] = 'Сървъра, където е базата от данни';
 $_lang["database_table_clickbackup"] = 'за архивиране & даунлоудване на избраните таблици';
 $_lang["database_table_clickhere"] = 'Щракнете тук';
@@ -202,7 +202,7 @@ $_lang["database_table_datasize"] = 'Големина на данните';
 $_lang["database_table_droptablestatements"] = 'Генерирайте DROP TABLE отчет.';
 $_lang["database_table_effectivesize"] = 'Действителен размер';
 $_lang["database_table_indexsize"] = 'Размер на индекса';
-$_lang["database_table_overhead"] = 'Загубено място';
+$_lang["database_table_overhead"] = 'Излишно пространство';
 $_lang["database_table_records"] = 'Записи';
 $_lang["database_table_tablename"] = 'Име на таблица';
 $_lang["database_table_totals"] = 'Общо:';

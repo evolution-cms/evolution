@@ -195,7 +195,7 @@ $_lang["opcache_reset_unavailable"] = 'återställning inte tillgänglig';
 $_lang["opcache_reset_complete"] = 'återställning klar';
 $_lang["opcache_reset_failed"] = 'återställning misslyckades';
 $_lang["database_name"] = 'Databasens namn';
-$_lang["database_overhead"] = '<b style="color:#990033;">Notera:</b><br />"Overhead" är oanvänt utrymme reserverat av MySQL. Klicka på ett overhead-belopp för att frigöra utrymmet.';
+$_lang["database_overhead"] = '<b style="color:#990033;">Obs:</b> overhead är oanvänt utrymme som reserverats av MySQL. Klicka på overheadvärdet för motsvarande tabell för att frigöra utrymmet.';
 $_lang["database_server"] = 'Databasens server';
 $_lang["database_table_clickbackup"] = 'för att säkerhetskopiera och ladda ner de valda tabellerna.';
 $_lang["database_table_clickhere"] = 'Klicka här';

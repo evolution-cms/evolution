@@ -8,9 +8,12 @@ it('uses Ukrainian text for manager setting notices', function () {
         ->toContain('Значення параметра задано')
         ->not->toContain('Значение параметра задано')
         ->and($_lang['database_overhead'])
-        ->toContain('Примітка:</b> \'перевитрата\'')
-        ->toContain('невикористаний')
+        ->toContain('Примітка:</b> надлишок')
+        ->toContain('невикористаний простір')
+        ->not->toContain('перевитрата')
         ->not->toContain('неиспользуемое')
+        ->and($_lang['database_table_overhead'])
+        ->toBe('Надлишок')
         ->and($_lang['friendly_alias_message'])
         ->toContain('буде наступною')
         ->toContain('ID ресурсу')
@@ -54,4 +57,28 @@ it('uses Ukrainian text for manager setting notices', function () {
         ->and($_lang['rb_message'])
         ->toContain('Виберіть \'Так\', щоб включити браузер файлів')
         ->not->toContain('\\ `Так \\');
+});
+
+it('keeps SQL backup overhead translations unique and avoids stale mixed-language wording', function () {
+    $languageFiles = glob(dirname(__DIR__, 3) . '/lang/*/global.php') ?: [];
+
+    foreach ($languageFiles as $languageFile) {
+        $source = (string) file_get_contents($languageFile);
+
+        expect(substr_count($source, '$_lang["database_overhead"]'))->toBe(1);
+        expect(substr_count($source, '$_lang["database_table_overhead"]'))->toBe(1);
+    }
+
+    $_lang = [];
+    include dirname(__DIR__, 3) . '/lang/uk/global.php';
+
+    expect($_lang['database_overhead'])
+        ->not->toContain('перевитрата')
+        ->not->toContain('неиспользуемое');
+
+    $_lang = [];
+    include dirname(__DIR__, 3) . '/lang/ru/global.php';
+
+    expect($_lang['database_overhead'])
+        ->not->toContain('перерасход');
 });

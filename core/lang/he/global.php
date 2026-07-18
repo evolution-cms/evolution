@@ -194,7 +194,7 @@ $_lang["opcache_reset_unavailable"] = 'איפוס לא זמין';
 $_lang["opcache_reset_complete"] = 'האיפוס הושלם';
 $_lang["opcache_reset_failed"] = 'האיפוס נכשל';
 $_lang["database_name"] = 'שם מסד הנתונים';
-$_lang["database_overhead"] = '<b style=\'color:#990033\'>Note:</b> Overhead is unused space reserved by MySQL. To free up this space, click on the table\'s overhead figure.';
+$_lang["database_overhead"] = '<b style=\'color:#990033\'>הערה:</b> תקורה היא שטח לא בשימוש ש-MySQL שמר. כדי לשחרר אותו, לחץ על ערך התקורה של הטבלה המתאימה.';
 $_lang["database_server"] = 'שרת מסד הנתונים';
 $_lang["database_table_clickbackup"] = 'to backup &amp; download the selected tables';
 $_lang["database_table_clickhere"] = 'לחץ כאן';

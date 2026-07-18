@@ -644,7 +644,7 @@ $_lang["opcache_reset_unavailable"] = 'sıfırlama mümkün deyil';
 $_lang["opcache_reset_complete"] = 'sıfırlama tamamlandı';
 $_lang["opcache_reset_failed"] = 'sıfırlama alınmadı';
 $_lang["database_name"] = 'Verilənlər bazasının adı';
-$_lang["database_overhead"] = '<b style="color:#990033;">Qeyd:</b> Overhead MySQL tərəfindən ayrılmış, lakin istifadə olunmayan boş sahədir. Bu sahəni azad etmək üçün cədvəlin overhead rəqəminə klikləyin.';
+$_lang["database_overhead"] = '<b style="color:#990033;">Qeyd:</b> overhead MySQL tərəfindən ayrılmış, lakin istifadə olunmayan boş sahədir. Bu sahəni azad etmək üçün müvafiq cədvəlin overhead dəyərinə klikləyin.';
 $_lang["database_server"] = 'Verilənlər bazası serveri';
 $_lang["database_table_clickbackup"] = 'Seçilmiş cədvəlləri yedəklə və yüklə';
 $_lang["database_table_clickhere"] = 'Buraya klikləyin';

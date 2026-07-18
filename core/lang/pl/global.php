@@ -207,7 +207,7 @@ $_lang["opcache_reset_unavailable"] = 'reset niedostępny';
 $_lang["opcache_reset_complete"] = 'reset zakończony';
 $_lang["opcache_reset_failed"] = 'reset nieudany';
 $_lang["database_name"] = 'Baza danych - nazwa bazy';
-$_lang["database_overhead"] = '<b style=\'color:#990033\'>Wyjaśnienie:</b> Nadmiar to nieużywane miejsce zarezerwowane przez MySQL na przyszłe dane. Aby zwolnić to miejsce, kliknij na liczbę je reprezentującą.';
+$_lang["database_overhead"] = '<b style=\'color:#990033\'>Wyjaśnienie:</b> nadmiar to nieużywane miejsce zarezerwowane przez MySQL. Aby je zwolnić, kliknij wartość nadmiaru dla odpowiedniej tabeli.';
 $_lang["database_server"] = 'Baza danych - serwer';
 $_lang["database_table_clickbackup"] = 'Pobierz kopię zapasową';
 $_lang["database_table_clickhere"] = 'Kliknij tutaj';
