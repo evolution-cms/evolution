@@ -194,7 +194,7 @@ $_lang["opcache_reset_unavailable"] = 'reset indisponível';
 $_lang["opcache_reset_complete"] = 'reset concluído';
 $_lang["opcache_reset_failed"] = 'reset falhou';
 $_lang["database_name"] = 'Nome da Base de Dados';
-$_lang["database_overhead"] = '<b style=\'color:#990033\'>Nota:</b> A \'folga\' (overhead) consiste num espaço não utilizado mas reservado pelo MySQL. Para libertar este espaço, clique no valor de folga da tabela.';
+$_lang["database_overhead"] = '<b style=\'color:#990033\'>Nota:</b> a folga (overhead) é espaço não utilizado reservado pelo MySQL. Para libertá-la, clique no valor de folga da tabela correspondente.';
 $_lang["database_server"] = 'Servidor da Base de Dados';
 $_lang["database_table_clickbackup"] = 'para criar Cópia de Segurança (Backup) e descarregar as tabelas seleccionadas';
 $_lang["database_table_clickhere"] = 'Clique aqui';

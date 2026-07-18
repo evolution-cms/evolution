@@ -206,7 +206,7 @@ $_lang["opcache_reset_unavailable"] = 'reset non disponibile';
 $_lang["opcache_reset_complete"] = 'reset completato';
 $_lang["opcache_reset_failed"] = 'reset non riuscito';
 $_lang["database_name"] = 'Nome del Database';
-$_lang["database_overhead"] = '<b style=\'color:#990033\'>Nota:</b> L\'Overhead è lo spazio inutilizzato riservato da MySQL. Per liberare questo spazio, cliccate sulla cifra overhead della tabella.';
+$_lang["database_overhead"] = '<b style=\'color:#990033\'>Nota:</b> l\'overhead è spazio inutilizzato riservato da MySQL. Per liberarlo, fai clic sul valore di overhead della tabella corrispondente.';
 $_lang["database_server"] = 'Server del Database';
 $_lang["database_table_clickbackup"] = 'Effettua il backup e scarica le tabelle selezionate';
 $_lang["database_table_clickhere"] = 'Cliccate qui';

@@ -213,7 +213,7 @@ $_lang["opcache_reset_unavailable"] = 'リセットは利用できません';
 $_lang["opcache_reset_complete"] = 'リセットが完了しました';
 $_lang["opcache_reset_failed"] = 'リセットに失敗しました';
 $_lang["database_name"] = 'データベース名';
-$_lang["database_overhead"] = '<strong style="color:#990033">注:</strong>オーバーヘッドは、更新処理の際に発生する不要な領域です。オーバーヘッドの数字をクリックすると、この領域を消去します';
+$_lang["database_overhead"] = '<strong style="color:#990033">注:</strong> オーバーヘッドは MySQL が予約している未使用領域です。解放するには、対象テーブルのオーバーヘッド値をクリックしてください。';
 $_lang["database_server"] = 'データベースサーバー';
 $_lang["database_table_clickbackup"] = '選択したテーブルをバックアップ・ダウンロード';
 $_lang["database_table_clickhere"] = 'ここをクリック';

@@ -194,7 +194,7 @@ $_lang["opcache_reset_unavailable"] = 'nullstilling ikkje tilgjengeleg';
 $_lang["opcache_reset_complete"] = 'nullstilling fullført';
 $_lang["opcache_reset_failed"] = 'nullstilling mislukkast';
 $_lang["database_name"] = 'Database name';
-$_lang["database_overhead"] = '<b style="color:#990033;">Note:</b> Overhead is unused space reserved by MySQL. To free up this space, click on the table\'s overhead figure.';
+$_lang["database_overhead"] = '<b style="color:#990033;">Merk:</b> overhead er ubrukt plass reservert av MySQL. Klikk på overheadverdien for den aktuelle tabellen for å frigjere plassen.';
 $_lang["database_server"] = 'Database server';
 $_lang["database_table_clickbackup"] = 'to backup &amp; download the selected tables';
 $_lang["database_table_clickhere"] = 'Click here';
