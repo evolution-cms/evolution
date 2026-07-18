@@ -24,4 +24,7 @@ $_lang['error_openssl'] = 'De OpenSSL functie in PHP moet worden ingeschakelend'
 $_lang['error_overwrite'] = 'Bestanden kunnen niet worden overschreven';
 
 $_lang['artisan_update'] = 'Om bij te werken, moet u de console-opdracht vanuit de map uitvoeren <b>core</b>: <b>php artisan make:site update</b>';
+$_lang['updater_notice_backup_warning'] = 'Vergeet niet een back-up van de site te maken voordat u bijwerkt.';
+$_lang['updater_backup_action_label'] = 'een back-up van de site te maken';
+$_lang['updater_live_update_button'] = 'Handmatige update (WEB)';
 $_lang["help_donate_msg"] = 'Koop koffie bij de Evolution CMS-ontwikkelaars op <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a>. Word vandaag nog fan van Evolution CMS ❤️!';

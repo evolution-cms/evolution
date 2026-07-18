@@ -13,15 +13,21 @@ test('updater manager modal reloads after successful live update', function () {
         ->toContain('updater_live_update_response_changed')
         ->toContain('normalized.substring(firstJsonChar, lastJsonChar + 1)')
         ->toContain('function renderRecoverablePollError(error)')
+        ->toContain('updaterBuildBackupWarningHtml($_lang)')
+        ->toContain('$primaryUpdateButtonHtml' . "\n" . '                        . $managerUpdateButtonHtml')
         ->not->toContain('activeTask.force_close_button');
 
     expect($enLang)
         ->toContain('updater_live_update_close_reload')
         ->toContain('updater_live_update_completed')
-        ->toContain('updater_live_update_response_changed');
+        ->toContain('updater_live_update_response_changed')
+        ->toContain("updater_backup_action_label'] = 'create a backup'")
+        ->toContain("updater_live_update_button'] = 'Manual update (WEB)'");
 
     expect($ukLang)
         ->toContain('updater_live_update_close_reload')
         ->toContain('updater_live_update_completed')
-        ->toContain('updater_live_update_response_changed');
+        ->toContain('updater_live_update_response_changed')
+        ->toContain("updater_backup_action_label'] = 'зробити резервну копію'")
+        ->toContain("updater_live_update_button'] = 'Самостійне оновлення (WEB)'");
 });

@@ -24,4 +24,7 @@ $_lang['error_openssl'] = 'Musisz włączyć funkcję OpenSSL w PHP';
 $_lang['error_overwrite'] = 'Nie udało się nadpisać plików systemu';
 
 $_lang['artisan_update'] = 'Aby zaktualizować, musisz uruchomić polecenie konsoli z folderu  <b>core</b>: <b>php artisan make:site update</b>';
+$_lang['updater_notice_backup_warning'] = 'Nie zapomnij utworzyć kopię zapasową witryny przed aktualizacją.';
+$_lang['updater_backup_action_label'] = 'utworzyć kopię zapasową witryny';
+$_lang['updater_live_update_button'] = 'Ręczna aktualizacja (WEB)';
 $_lang["help_donate_msg"] = 'Kup kawę od programistów Evolution CMS na <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a>. Zostań fanem Evolution CMS ❤️ już dziś!';

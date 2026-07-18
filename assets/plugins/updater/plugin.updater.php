@@ -205,6 +205,22 @@ if (!function_exists('updaterLang')) {
     }
 }
 
+if (!function_exists('updaterBuildBackupWarningHtml')) {
+    function updaterBuildBackupWarningHtml(array $lang)
+    {
+        $warning = updaterLang($lang, 'updater_notice_backup_warning', 'Do not forget to create a backup before updating.');
+        $linkText = updaterLang($lang, 'updater_backup_action_label', 'create a backup');
+        $escapedWarning = htmlspecialchars($warning, ENT_QUOTES, 'UTF-8');
+        $backupLink = '<a href="?a=93">' . htmlspecialchars($linkText, ENT_QUOTES, 'UTF-8') . '</a>';
+
+        if ($linkText !== '' && strpos($warning, $linkText) !== false) {
+            return str_replace(htmlspecialchars($linkText, ENT_QUOTES, 'UTF-8'), $backupLink, $escapedWarning);
+        }
+
+        return $escapedWarning . ' ' . $backupLink;
+    }
+}
+
 if (!function_exists('updaterEnsureSystemTaskToken')) {
     function updaterEnsureSystemTaskToken()
     {
@@ -1151,7 +1167,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                                 'invalid_response' => updaterLang($_lang, 'updater_live_update_invalid_response', 'Manager returned an invalid update response.'),
                             ]);
                             $managerUpdateButtonHtml = '<button type="button" class="btn btn-sm btn-primary" onclick="return window.EvoUpdaterSystemTask && window.EvoUpdaterSystemTask.openConfirm ? window.EvoUpdaterSystemTask.openConfirm() : false;">'
-                                . '<i class="fa fa-refresh"></i> ' . htmlspecialchars(updaterLang($_lang, 'updater_live_update_button', 'Update in manager'), ENT_QUOTES, 'UTF-8')
+                                . '<i class="fa fa-refresh"></i> ' . htmlspecialchars(updaterLang($_lang, 'updater_live_update_button', 'Manual update (WEB)'), ENT_QUOTES, 'UTF-8')
                                 . '</button>';
                         }
                     }
@@ -1175,15 +1191,15 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                         . '<p style="margin:0 0 8px 0;"><i class="fa fa-database"></i> '
                         . htmlspecialchars($_lang['updater_notice_text_2'], ENT_QUOTES, 'UTF-8')
                         . '<span style="display:block;margin-top:4px;color:#dc3545;font-weight:600;">'
-                        . htmlspecialchars($_lang['updater_notice_backup_warning'], ENT_QUOTES, 'UTF-8')
+                        . updaterBuildBackupWarningHtml($_lang)
                         . '</span></p>'
                         . '<p style="margin:0;"><i class="fa fa-user"></i> '
                         . htmlspecialchars($_lang['updater_notice_text_3'], ENT_QUOTES, 'UTF-8') . '</p>'
                         . '</div>'
 
                         . '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">'
-                        . $managerUpdateButtonHtml
                         . $primaryUpdateButtonHtml
+                        . $managerUpdateButtonHtml
                         . $supportButtonHtml
                         . '<span data-updater-action-slot="update"></span>'
                         . '</div>'
