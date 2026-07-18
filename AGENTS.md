@@ -132,7 +132,7 @@ The CMS uses a subset of Laravel's Artisan. The entry point is `core/artisan`.
 ```bash
 php core/artisan list                    # list all commands
 php core/artisan cache:clear-full        # clear all caches
-php core/artisan site:update             # run pending migrations / updates
+php core/artisan make:site update        # update site files and run pending migrations / updates
 php core/artisan package:extras          # manage extras/packages
 php core/artisan deprecated:list         # list deprecated code by semver
 php core/artisan translations:sync       # sync translation files
@@ -141,6 +141,11 @@ php core/artisan route:list              # list registered routes
 php core/artisan tpl:list                # list registered templates
 php core/artisan tv:list                 # list registered TVs
 ```
+
+When a site was installed from a branch/ref that ends with `.x`, web and CLI site updates
+must target the same `.x` branch/ref unless the operator explicitly selects another target.
+Update migrations, seeders, and data fixes must be trackable or idempotent so repeated
+`make:site update` runs do not break already-updated installations.
 
 ---
 

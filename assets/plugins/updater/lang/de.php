@@ -29,4 +29,7 @@ $_lang['error_overwrite'] = 'Evolution CMS-Dateien können nicht überschrieben 
 $_lang['error_failedtogetfeed'] = 'Feed konnte nicht abgerufen werden';
 
 $_lang['artisan_update'] = 'Führen Sie zum Aktualisieren den Konsolenbefehl aus dem Ordner <b>core</b> aus: <b>php artisan make:site update</b>';
+$_lang['updater_notice_backup_warning'] = 'Vergessen Sie nicht, vor dem Update ein Backup der Website zu erstellen.';
+$_lang['updater_backup_action_label'] = 'ein Backup der Website zu erstellen';
+$_lang['updater_live_update_button'] = 'Manuelles Update (WEB)';
 $_lang["help_donate_msg"] = 'Kaufen Sie Kaffee von den Entwicklern von Evolution CMS unter <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a>. Werden Sie noch heute ein Fan von Evolution CMS ❤️!';
