@@ -11,13 +11,13 @@ test('backup manager tooltip uses clean plain text lines', function () {
         ->and($tooltipCss)->toContain('white-space: pre-line');
 });
 
-test('backup manager snapshot detail parser keeps windows drive colons', function () {
+test('backup manager delegates snapshots to database backup service', function () {
     $basePath = dirname(__DIR__, 4) . DIRECTORY_SEPARATOR;
     $backupManager = file_get_contents($basePath . 'manager/actions/bkmanager.static.php');
 
     expect($backupManager)
-        ->toContain('function parseBackupSnapshotDetailValue')
-        ->toContain('ltrim($value, " \t:")')
-        ->toContain('parseBackupSnapshotDetailValue($line, $fileLabel)')
-        ->not->toContain("str_replace([\n                                                                \$fileLabel,\n                                                                ':'");
+        ->toContain('new EvolutionCMS\Services\DatabaseBackupService(EVO_BASE_PATH)')
+        ->toContain('->createSnapshot(')
+        ->not->toContain('$output .= "-- Evolution CMS Version:"')
+        ->not->toContain(' --clean --inserts --no-owner --no-privileges >> ');
 });

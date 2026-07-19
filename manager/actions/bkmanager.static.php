@@ -25,14 +25,6 @@ if (file_exists($tempFile)) {
 $mode = isset($_POST['mode']) ? $_POST['mode'] : '';
 $driver = EvolutionCMS()->getDatabase()->getConfig('driver');
 
-function parseBackupSnapshotDetailValue(string $line, string $fileLabel): string
-{
-    $value = trim(substr($line, strlen($fileLabel)));
-    $value = ltrim($value, " \t:");
-
-    return trim($value, " \t\n\r\0\x0B`");
-}
-
 if ($mode == 'restore1') {
     if (isset($_POST['textarea']) && !empty($_POST['textarea'])) {
         $source = trim($_POST['textarea']);
@@ -148,67 +140,14 @@ if ($mode == 'restore1') {
     if (!is_writable(rtrim(EvolutionCMS()->getConfig('snapshot_path'), '/'))) {
         EvolutionCMS()->webAlertAndQuit(parsePlaceholder($_lang["bkmgr_alert_mkdir"], ['snapshot_path' => EvolutionCMS()->getConfig('snapshot_path')]));
     }
-    $dumpfinished = false;
-    $today = date('Y-m-d_H-i-s');
-    global $path;
-    $path = EvolutionCMS()->getConfig('snapshot_path').$today.".sql";
-    switch ($driver) {
-        case 'pgsql':
-//            $lf = "\n";
-//            $version = EvolutionCMS()->getVersionData();
-//            $output = "# " . addslashes(EvolutionCMS()->getPhpCompat()->entities(EvolutionCMS()->getConfig('site_name'))) . " Database Dump{$lf}";
-//            $output .= "# Evolution CMS Version:{$version['version']}{$lf}";
-//            $output .= "# {$lf}";
-//            $output .= "# Host: {EvolutionCMS()->getDatabase()->getConfig('host')}{$lf}";
-//            $output .= "# Generation Time: " . EvolutionCMS()->toDateFormat(time()) . $lf;
-//            $output .= "# Server version: " . EvolutionCMS()->getDatabase()->getVersion() . $lf;
-//            $output .= "# PHP Version: " . phpversion() . $lf;
-//            $output .= "# Database: `{EvolutionCMS()->getDatabase()->getConfig('database')}`{$lf}";
-//            $output .= "# Description: " . trim($_REQUEST['backup_title']) . "{$lf}";
-//            $output .= "#";
-            $dump_request = 'pg_dump postgresql://' . EvolutionCMS()->getDatabase()->getConfig('username') . ':'.EvolutionCMS()->getDatabase()->getConfig('password').'@'.EvolutionCMS()->getDatabase()->getConfig('host').'/' . $dbase . ' --clean --inserts --no-owner --no-privileges > ' . $path;
-
-            exec($dump_request, $data, $data_second);
-            if ($data_second == 0) {
-                $output = file_get_contents($path);
-                file_put_contents($path, $output);
-                $dumpfinished = true;
-            }
-            break;
-        case 'sqlite':
-        case 'sqlite3':
-            $prefix = EvolutionCMS()->getDatabase()->getConfig('prefix');
-            $tables = EvolutionCMS\Support\SqliteDumper::listTables($prefix);
-
-            $dumper = new EvolutionCMS\Support\SqliteDumper($dbase);
-            $dumper->setDBtables($tables);
-            $dumper->setSnapshotFile($path);
-            $dumper->setDroptables(true);
-            $dumpfinished = $dumper->createDump('snapshot');
-            break;
-        default:
-            $sql = "SHOW TABLE STATUS FROM `{$dbase}` LIKE '" . EvolutionCMS()->getDatabase()->escape(EvolutionCMS()->getDatabase()->getConfig('prefix')) . "%'";
-            $rs = EvolutionCMS()->getDatabase()->query($sql);
-            $tables = EvolutionCMS()->getDatabase()->getColumn('Name', $rs);
-
-            @set_time_limit(120); // set timeout limit to 2 minutes
-            $dumper = new EvolutionCMS\Support\MysqlDumper($dbase);
-            $dumper->setDBtables($tables);
-            $dumper->setSnapshotFile($path);
-            $dumper->setDroptables(true);
-            $dumpfinished = $dumper->createDump('snapshot');
-
-            $pattern = EvolutionCMS()->getConfig('snapshot_path')."*.sql";
-            $files = glob($pattern, GLOB_NOCHECK);
-            $total = ($files[0] !== $pattern) ? count($files) : 0;
-            arsort($files);
-            while (10 < $total && $limit < 50) {
-                $del_file = array_pop($files);
-                unlink($del_file);
-                $total = count($files);
-                $limit++;
-            }
-            break;
+    @set_time_limit(120); // set timeout limit to 2 minutes
+    try {
+        (new EvolutionCMS\Services\DatabaseBackupService(EVO_BASE_PATH))->createSnapshot(
+                trim((string) ($_REQUEST['backup_title'] ?? ''))
+        );
+        $dumpfinished = true;
+    } catch (Throwable $e) {
+        $dumpfinished = false;
     }
 
     if ($dumpfinished) {
@@ -286,7 +225,6 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
         }
 
         <?= (isset($_REQUEST['r']) ? " doRefresh(" . $_REQUEST['r'] . ");" : "") ?>
-
     </script>
 
     <h1>
@@ -308,22 +246,26 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                 <form name="frmdb" method="post">
                     <input type="hidden" name="mode" value=""/>
                     <p>
-                        <a href="javascript:;" class="btn btn-primary" onclick="backup();return false;"> <i
-                                    class="<?= $_style['icon_save'] ?>"></i> <?= $_lang['database_table_clickbackup'] ?>
+                        <a href="javascript:;" class="btn btn-primary" onclick="backup();return false;">
+                            <i class="<?= $_style['icon_save'] ?>"></i> <?= $_lang['database_table_clickbackup'] ?>
                         </a>
-                        <label><input type="checkbox" name="droptables"
-                                      checked="checked"/><?= $_lang['database_table_droptablestatements'] ?></label>
+                        <label>
+                            <input type="checkbox" name="droptables" checked="checked"/><?= $_lang['database_table_droptablestatements'] ?>
+                        </label>
                     </p>
                     <div class="row">
                         <div class="table-responsive">
                             <table class="table data nowrap">
                                 <thead>
                                 <tr>
-                                    <td><label class="form-check form-check-label"><input type="checkbox" name="chkselall"
-                                                                                          class="form-check-input"
-                                                                                          onclick="selectAll();"
-                                                                                          title="Select All Tables"/> <?= $_lang['database_table_tablename'] ?>
-                                        </label></td>
+                                    <td>
+                                        <label class="form-check form-check-label">
+                                            <input type="checkbox" name="chkselall"
+                                                   class="form-check-input"
+                                                   onclick="selectAll();"
+                                                   title="Select All Tables"/> <?= $_lang['database_table_tablename'] ?>
+                                        </label>
+                                    </td>
                                     <td width="1%"></td>
                                     <td class="text-xs-center"><?= $_lang['database_table_records'] ?></td>
                                     <td class="text-xs-center"><?= $_lang['database_collation'] ?></td>
@@ -366,13 +308,13 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                                             $stmt = $pdo->query('SELECT COUNT(*) FROM ' . $quotedName);
                                             $count = $stmt ? $stmt->fetchColumn() : 0;
                                             $array[] = [
-                                                'Name' => $tableName,
-                                                'Rows' => (int) $count,
-                                                'Collation' => '-',
-                                                'Data_length' => 0,
-                                                'Data_free' => 0,
-                                                'Index_length' => 0,
-                                                'Comment' => '',
+                                                    'Name' => $tableName,
+                                                    'Rows' => (int) $count,
+                                                    'Collation' => '-',
+                                                    'Data_length' => 0,
+                                                    'Data_free' => 0,
+                                                    'Index_length' => 0,
+                                                    'Comment' => '',
                                             ];
                                         }
                                         break;
@@ -501,15 +443,16 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                         }
                     } ?>
                     <p>
-                        <label><input type="radio" name="sel"
-                                      onclick="showhide('file');" <?= checked(!isset($_SESSION['console_mode']) || $_SESSION['console_mode'] !== 'text') ?> /> <?= $_lang["bkmgr_run_sql_file_label"] ?>
+                        <label>
+                            <input type="radio" name="sel" onclick="showhide('file');" <?= checked(!isset($_SESSION['console_mode']) || $_SESSION['console_mode'] !== 'text') ?> /> <?= $_lang["bkmgr_run_sql_file_label"] ?>
                         </label>
-                        <label><input type="radio" name="sel"
-                                      onclick="showhide('textarea');" <?= checked(isset($_SESSION['console_mode']) && $_SESSION['console_mode'] === 'text') ?> /> <?= $_lang["bkmgr_run_sql_direct_label"] ?>
+                        <label>
+                            <input type="radio" name="sel" onclick="showhide('textarea');" <?= checked(isset($_SESSION['console_mode']) && $_SESSION['console_mode'] === 'text') ?> /> <?= $_lang["bkmgr_run_sql_direct_label"] ?>
                         </label>
                     </p>
-                    <div class="form-group"><input type="file" name="sqlfile" id="sqlfile"
-                                                   style="display:<?= $f_display ?>;"/></div>
+                    <div class="form-group">
+                        <input type="file" name="sqlfile" id="sqlfile" style="display:<?= $f_display ?>;"/>
+                    </div>
                     <div id="textarea" style="display:<?= $t_display ?>;">
                         <textarea name="textarea" rows="10"><?= $value ?></textarea>
                     </div>
@@ -561,13 +504,13 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                     $files = glob($pattern, GLOB_NOCHECK);
                     $total = ($files[0] !== $pattern) ? count($files) : 0;
                     $detailFields = [
-                            'Evolution CMS Version',
-                            'Host',
-                            'Generation Time',
-                            'Server version',
-                            'PHP Version',
-                            'Database',
-                            'Description'
+                        'Evolution CMS Version',
+                        'Host',
+                        'Generation Time',
+                        'Server version',
+                        'PHP Version',
+                        'Database',
+                        'Description'
                     ];
                     if (is_array($files) && 0 < $total) {
                         ?>
@@ -601,11 +544,11 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                                                 foreach (['# ', '-- '] as $prefix) {
                                                     $fileLabel = $prefix . $label;
                                                     if (strpos($line, $fileLabel) !== false) {
-                                                        $details[$label] = htmlentities(
-                                                            parseBackupSnapshotDetailValue($line, $fileLabel),
-                                                            ENT_QUOTES,
-                                                            ManagerTheme::getCharset()
-                                                        );
+                                                        $details[$label] = htmlentities(trim(str_replace([
+                                                                $fileLabel,
+                                                                ':',
+                                                                '`'
+                                                        ], '', $line)), ENT_QUOTES, ManagerTheme::getCharset());
                                                         break;
                                                     }
                                                 }
@@ -659,13 +602,3 @@ if (is_numeric($tab)) {
 }
 
 include_once EVO_MANAGER_PATH . "includes/footer.inc.php"; // send footer
-?>
-
-<?php
-
-/**
- * @deprecated use EvolutionCMS\Support\MysqlDumper
- */
-class Mysqldumper extends EvolutionCMS\Support\MysqlDumper
-{
-}

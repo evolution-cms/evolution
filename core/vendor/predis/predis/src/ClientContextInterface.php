@@ -47,6 +47,7 @@ use Predis\Command\Container\Json\JSONDEBUG;
 use Predis\Command\Container\Search\FTCONFIG;
 use Predis\Command\Container\Search\FTCURSOR;
 use Predis\Command\Container\XGROUP;
+use Predis\Command\Redis\HSETEX;
 use Predis\Command\Redis\VADD;
 
 /**
@@ -76,7 +77,26 @@ use Predis\Command\Redis\VADD;
  * @method $this sort_ro(string $key, ?string $byPattern = null, ?LimitOffsetCount $limit = null, array $getPatterns = [], ?string $sorting = null, bool $alpha = false)
  * @method $this ttl($key)
  * @method $this type($key)
+ * @method $this unlink(string[]|string $keyOrKeys, string ...$keys = null)
  * @method $this append($key, $value)
+ * @method $this arcount(string $key)
+ * @method $this ardel(string $key, int ...$index)
+ * @method $this ardelrange(string $key, int ...$startEnd)
+ * @method $this arget(string $key, int $index)
+ * @method $this argetrange(string $key, int $start, int $end)
+ * @method $this argrep(string $key, int $start, int $end, array $predicates, ?string $combinator = null, ?int $limit = null, bool $withValues = false, bool $noCase = false)
+ * @method $this arinfo(string $key, bool $full = false)
+ * @method $this arinsert(string $key, string ...$value)
+ * @method $this arlastitems(string $key, int $count, bool $reverse = false)
+ * @method $this arlen(string $key)
+ * @method $this armget(string $key, int ...$index)
+ * @method $this armset(string $key, array $indexValueDictionary)
+ * @method $this arnext(string $key)
+ * @method $this arop(string $key, int $start, int $end, string $operation, $matchValue = null)
+ * @method $this arring(string $key, int $size, string ...$value)
+ * @method $this arscan(string $key, int $start, int $end, ?int $limit = null)
+ * @method $this arseek(string $key, int $index)
+ * @method $this arset(string $key, int $index, string ...$value)
  * @method $this bfadd(string $key, $item)
  * @method $this bfexists(string $key, $item)
  * @method $this bfinfo(string $key, string $modifier = '')
@@ -151,6 +171,7 @@ use Predis\Command\Redis\VADD;
  * @method $this incr($key)
  * @method $this incrby($key, $increment)
  * @method $this incrbyfloat($key, $increment)
+ * @method $this increx(string $key, int|float|string $value, ?int $lbound = null, ?int $ubound = null, bool $saturate = false, ?string $expireType = null, $expireValue = null, bool $enx = false)
  * @method $this mget(array $keys)
  * @method $this mset(array $dictionary)
  * @method $this msetex(array $dictionary, ?string $existModifier = null, ?string $expireResolution = null, ?int $expireTTL = null)
@@ -207,7 +228,7 @@ use Predis\Command\Redis\VADD;
  * @method $this jsonobjkeys(string $key, string $path = '$')
  * @method $this jsonobjlen(string $key, string $path = '$')
  * @method $this jsonresp(string $key, string $path = '$')
- * @method $this jsonset(string $key, string $path, string $value, ?string $subcommand = null)
+ * @method $this jsonset(string $key, string $path, string $value, ?string $subcommand = null, ?string $fpha = null)
  * @method $this jsonstrappend(string $key, string $path, string $value)
  * @method $this jsonstrlen(string $key, string $path = '$')
  * @method $this jsontoggle(string $key, string $path)
@@ -299,6 +320,7 @@ use Predis\Command\Redis\VADD;
  * @method $this xdel(string $key, string ...$id)
  * @method $this xdelex(string $key, string $mode, array $ids)
  * @method $this xlen(string $key)
+ * @method $this xnack(string $key, string $group, string $mode, array $ids, ?int $retryCount = null, bool $force = false)
  * @method $this xpending(string $key, string $group, ?int $minIdleTime = null, ?string $start = null, ?string $end = null, ?int $count = null, ?string $consumer = null)
  * @method $this xrevrange(string $key, string $end, string $start, ?int $count = null)
  * @method $this xrange(string $key, string $start, string $end, ?int $count = null)

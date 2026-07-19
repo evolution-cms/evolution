@@ -303,7 +303,7 @@ class UserLogin implements UserServiceInterface
 
     public function writeSession()
     {
-        $currentsessionid = session_regenerate_id();
+        $currentsessionid = $this->regenerateSessionId();
 
         $_SESSION['usertype'] = 'manager'; // user is a backend user
         // get permissions
@@ -335,6 +335,73 @@ class UserLogin implements UserServiceInterface
 
         $_SESSION[$this->context . 'Token'] = md5($currentsessionid);
 
+    }
+
+    protected function regenerateSessionId(): string
+    {
+        $sessionId = Str::random(40);
+        $sessionData = (isset($_SESSION) && is_array($_SESSION)) ? $_SESSION : [];
+
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_unset();
+            session_destroy();
+        }
+
+        session_id($sessionId);
+        session_start();
+
+        foreach ($sessionData as $key => $value) {
+            $_SESSION[$key] = $value;
+        }
+
+        $this->syncLaravelSessionId($sessionId);
+        $this->refreshSessionCookie($sessionId);
+
+        return $sessionId;
+    }
+
+    protected function syncLaravelSessionId(string $sessionId): void
+    {
+        if (!defined('EVO_SESSION') || !EVO_SESSION || !function_exists('session')) {
+            return;
+        }
+
+        try {
+            $store = session()->driver();
+            if (is_object($store) && method_exists($store, 'setId')) {
+                $store->setId($sessionId);
+            }
+        } catch (\Throwable $exception) {
+            // Native PHP session remains the source of truth when Laravel sync is unavailable.
+        }
+    }
+
+    protected function refreshSessionCookie(string $sessionId): void
+    {
+        if (headers_sent()) {
+            return;
+        }
+
+        $name = function_exists('config') ? (string) config('session.cookie', 'evo_session') : session_name();
+        $lifetime = function_exists('config') ? (int) config('session.lifetime', 120) : 0;
+        $expireOnClose = function_exists('config') ? (bool) config('session.expire_on_close', false) : true;
+
+        $options = [
+            'expires' => $expireOnClose ? 0 : time() + ($lifetime * 60),
+            'path' => function_exists('config') ? (string) config('session.path', '/') : '/',
+            'domain' => function_exists('config') ? (string) config('session.domain', '') : '',
+            'secure' => function_exists('config') ? (bool) config('session.secure', false) : false,
+            'httponly' => function_exists('config') ? (bool) config('session.http_only', true) : true,
+        ];
+
+        $sameSite = function_exists('config') ? config('session.same_site') : null;
+        if (!empty($sameSite)) {
+            $options['samesite'] = (string) $sameSite;
+        }
+
+        setcookie($name, $sessionId, $options);
+
+        $_COOKIE[$name] = $sessionId;
     }
 
     public function checkRemember()

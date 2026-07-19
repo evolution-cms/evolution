@@ -137,7 +137,7 @@ class Logger implements ILogger
 		assert($this->directory !== null);
 		$dir = strtr($this->directory . '/', '\/', DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR);
 		foreach (new \DirectoryIterator($this->directory) as $file) {
-			if (strpos($file->getBasename(), $hash)) {
+			if (str_ends_with($file->getBasename(), "$hash.html")) {
 				return $dir . $file;
 			}
 		}
@@ -154,7 +154,7 @@ class Logger implements ILogger
 	{
 		$file ??= $this->getExceptionFile($exception);
 		$bs = $this->blueScreen ?? new BlueScreen;
-		$bs->renderToFile($exception, $file);
+		$bs->renderToFile($exception, $file, Helpers::findCallerLocation());
 		return $file;
 	}
 
