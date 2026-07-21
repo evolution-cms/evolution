@@ -147,6 +147,27 @@ must target the same `.x` branch/ref unless the operator explicitly selects anot
 Update migrations, seeders, and data fixes must be trackable or idempotent so repeated
 `make:site update` runs do not break already-updated installations.
 
+### Installing Evolution CMS packages
+
+Install Composer packages from the `core/` directory through the Evolution CMS package installer:
+
+```bash
+cd core
+php artisan package:installrequire vendor/package "*"
+```
+
+Do not use `composer require` directly and do not manually add packages to the root
+`composer.json`. The Artisan command registers the dependency in `core/custom/composer.json` and
+runs Composer in the correct Evolution CMS context.
+
+After installation, run `vendor:publish` only when the package documents a provider or publish tag,
+then apply package migrations when required:
+
+```bash
+php artisan vendor:publish --provider="Vendor\\Package\\PackageServiceProvider"
+php artisan migrate
+```
+
 ---
 
 ## Customisation Points (core/custom/)
@@ -228,5 +249,5 @@ There are ~30 service providers in `core/src/Providers/`. Notable ones:
 - **Do not commit to `3.5.x` directly.** Open a PR.
 - **Do not modify `core/config/`** for site-specific settings — use `core/custom/config/` instead.
 - **Do not add files to `assets/cache/`** — it is auto-generated and git-ignored.
-- **Do not use `$modx`** — it is deprecated. Use `EvolutionCMS()` or the `evo()` helper.
+- **Do not use `$modx`** — it is deprecated. Use `evo()` helper.
 - **PHPStan error count must not increase.** Run `composer analyze` before submitting a PR.
