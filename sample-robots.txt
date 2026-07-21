@@ -12,7 +12,13 @@ Disallow: /assets/packages/
 Disallow: /assets/tvs/
 Disallow: /install/
 
-Allow: /assets/cache/images/
+Allow: /assets/cache/*.avif
+Allow: /assets/cache/*.gif
+Allow: /assets/cache/*.jpeg
+Allow: /assets/cache/*.jpg
+Allow: /assets/cache/*.png
+Allow: /assets/cache/*.svg
+Allow: /assets/cache/*.webp
 Allow: /assets/modules/*.css
 Allow: /assets/modules/*.js
 Allow: /assets/plugins/*.css

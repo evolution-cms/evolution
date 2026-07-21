@@ -15,7 +15,6 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true || !evo()->hasPermis
 }
 
 error_reporting(E_ALL & ~E_NOTICE);
-define('MGR', EVO_BASE_PATH . MGR_DIR);
 $moduleurl = 'assets/modules/store/installer/index.php';
 $modulePath = __DIR__;
 $self = $modulePath . '/index.php';

@@ -22,7 +22,7 @@ class SqlParser {
         $adminemail = $_SESSION['mgrEmail'];
         $imgPath = EVO_BASE_PATH . 'assets/images/';
         $imgUrl = EVO_SITE_URL . 'assets/images/';
-        $fileManagerPath = EVO_BASE_PATH . MGR_DIR . '/';
+        $fileManagerPath = EVO_MANAGER_PATH;
         $connection_charset= 'utf8';
         $managerlanguage='en';
         $auto_template_logic = 'sibling';

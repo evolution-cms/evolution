@@ -1,5 +1,4 @@
 <?php
-define('MGR', EVO_BASE_PATH . MGR_DIR);
 
 $modx = evo();
 $GLOBALS['modx'] = $modx;
@@ -22,8 +21,7 @@ if (file_exists($modulePath . '/lang/' . $lang . '.inc.php')){
 } else {
 	include_once($modulePath . '/lang/en.inc.php');
 }
-include_once(EVO_BASE_PATH . "assets/cache/siteManager.php");
-require_once(MGR . '/includes/version.inc.php');
+require_once(EVO_MANAGER_PATH . 'includes/version.inc.php');
 
 $_SESSION['test'] = 1;
 install_sessionCheck();

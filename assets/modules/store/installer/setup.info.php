@@ -6,7 +6,7 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true || !evo()->hasPermis
 
 //:: Evolution CMS Installer Setup file
 //:::::::::::::::::::::::::::::::::::::::::
-require_once(MGR . '/includes/version.inc.php');
+require_once(EVO_MANAGER_PATH . 'includes/version.inc.php');
 $installPath = EVO_BASE_PATH . 'assets/cache/store/install';
 if (!isset($evo_branch)) {
     $evo_branch = '';
