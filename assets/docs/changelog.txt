@@ -1,84 +1,119 @@
 This file shows the changes in recent releases of Evolution CMS. The most current release is usually the
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
+Evolution CMS 3.5.7 (Jul 19, 2026)
+* [7451c58] - add(helper): add compact count helper for SI-style quantity formatting <middle:Sokil>
+* [97bf485] - add(system): show OPcache and JIT state in system information (#2376) <middle:Sokil>
+* [c2055c7] - add(manager): add EvoUI manager support <Serhii Korneliuk>
+* [f633f64] - add(manager): support module-controlled resource tree visibility <Serhii Korneliuk>
+* [69aa568] - add(codemirror): add autocomplete for @-bindings in TVs, chunks, and snippets <Artur Kyryliuk>
+* [810df0c] - add(manager): add directory ZIP downloads in the file manager (#2357) <middle:Sokil>
+* [7403601] - add(update): create database backups before manager updates <middle:Duck>
+* [395b6ba] - add(console): add vendor publish symlink support <Serhii Korneliuk>
+* [cabbd25] - add(manager): add optional per-user image upload base directory setting for the file browser <Artur Kyryliuk>
+* [33fa35d] - upd(core): update bundled vendor dependencies <Serhii Korneliuk>
+* [1e90105] - upd(install): support database host port syntax in installer configuration (#2368) <middle:Sokil>
+* [41cf459] - upd(install): clarify database collation warnings (#2367) <middle:Sokil>
+* [299ec1b] - upd(update): wire the manager site update flow <middle:Duck>
+* [3910295] - fix(update): restore manager web update action visibility (#2393) <middle:Sokil>
+* [b6189b5] - fix(core): clean stale resource locks (#2390) <middle:Sokil>
+* [392e818] - fix(core): preserve storage_path subdirectories with Laravel framework storage <Serhii Korneliuk>
+* [f00f8b8] - fix(migrations): make migration execution consistent across update paths <Artur Kyryliuk>
+* [9307b0d] - fix(update): clean placeholder files after site updates <Serhii Korneliuk>
+* [4d04787] - fix(console): resolve Composer binary path for site updates <middle:Sokil>
+* [dd482b7] - fix(update): preserve custom packages on repeated updates (#2378) <middle:Sokil>
+* [85551a5] - fix(update): avoid unintended Composer package updates during site updates (#2373) <middle:Sokil>
+* [3cb0ade] - fix(update): refresh Extras during CLI updates (#2372) <middle:Sokil>
+* [2545f26] - fix(auth): preserve web user sessions across login redirects <AlexPahomi>
+* [a95eda6] - fix(manager): synchronize reported localization keys (#2363) <middle:Sokil>
+* [1c6ce57] - fix(manager): separate scheduled and actual publish dates (#2360) <middle:Sokil>
+* [95fda1e] - fix(backup): make backup snapshots consistent (#2353) <middle:Sokil>
+* [0816d7c] - fix(backup): preserve SQLite snapshot paths containing colons (#2352) <middle:Sokil>
+* [55d2e74] - fix(backup): restore SQLite backups with serialized settings (#2349) <middle:Sokil>
+* [98efd98] - fix(backup): preserve SQL import string delimiters <middle:Duck>
+* [2854e11] - fix(core): share added view data correctly <middle:Duck>
+* [b43cede] - fix(migrations): fix system_cli_tasks migration for PostgreSQL <Serhii Korneliuk>
+* [48ba48c] - ref(core): postpone document publish checks <Artur Kyryliuk>
+* [0f57873] - del(store): remove the Store self-update banner <middle:Duck>
+
 Evolution CMS 3.5.6 (Apr 19, 2026)
-* [2106997] - [FIX] Keep the light theme toggle out of the active state. (middle:Duck)
-* [6c1a94b] - [FIX] Prevent zero-size dump batches for small tables. (middle:Duck)
-* [8d8dcdd] - [FIX] Replace redundant roles logout and view developers list with dashboard widgets recent changes and online users view roles. (Artur Kyryliuk)
-* [1aff71a] - [FIX] Fixed semi-transparency making protected resource titles hard to read. (Artur Kyryliuk)
-* [8ca05ab] - [FIX] Keep lightness active menu items readable. (middle:Duck)
-* [9f3f064] - [FIX] Remap dashboard widget permissions during updates. (middle:Duck)
-* [d3ff323] - [FIX] Bootstrap legacy tree state for TinyMCE4 link dialogs. (middle:Duck)
-* [bb537a0] - [UPD] Guard file_groups creation in migrations. (middleDuckAi)
-* [35b4820] - [DEL] Liquid draft theme. (middle:Duck)
-* [09f072f] - [UPD] Refresh Store module for 0.2.0. (middleDuckAi)
-* [a4188e5] - [UPD] Polish Store UI follow-ups. (middleDuckAi)
-* [b42873e] - [UPD] Restore TinyMCE4 legacy API compatibility. (middleDuckAi)
-* [de3cef1] - [UPD] Add legacy Store delete flow and UI polish. (middleDuckAi)
-* [8cec37b] - [REF] Stabilize Store runtime task flows and installed-state handling. (middleDuckAi)
-* [652631c] - [UPD] Cache console catalog and unify initial load. (middleDuckAi)
-* [b361c6a] - [UPD] Align catalog loader with Evo default style. (middleDuckAi)
-* [6f019f1] - [UPD] Remove custom catalog loader and align layout. (middleDuckAi)
-* [ddfa745] - [UPD] Remove module version from title. (middleDuckAi)
+* [bb537a0] - upd(migrations): guard file_groups creation <middle:Duck>
+* [09f072f] - upd(store): refresh Store module for 0.2.0 <middle:Duck>
+* [a4188e5] - upd(store): polish Store UI follow-ups <middle:Duck>
+* [b42873e] - upd(editor): restore TinyMCE4 legacy API compatibility <middle:Duck>
+* [de3cef1] - upd(store): add legacy Store delete flow and UI polish <middle:Duck>
+* [652631c] - upd(store): cache console catalog and unify initial load <middle:Duck>
+* [b361c6a] - upd(store): align catalog loader with Evo default style <middle:Duck>
+* [6f019f1] - upd(store): remove custom catalog loader and align layout <middle:Duck>
+* [ddfa745] - upd(store): remove module version from title <middle:Duck>
+* [2106997] - fix(manager): keep the light theme toggle out of the active state <middle:Duck>
+* [6c1a94b] - fix(backup): prevent zero-size dump batches for small tables <middle:Duck>
+* [8d8dcdd] - fix(manager): replace redundant roles views with dashboard widgets <Artur Kyryliuk>
+* [1aff71a] - fix(manager): keep protected resource titles readable <Artur Kyryliuk>
+* [8ca05ab] - fix(manager): keep lightness active menu items readable <middle:Duck>
+* [9f3f064] - fix(update): remap dashboard widget permissions during updates <middle:Duck>
+* [d3ff323] - fix(manager): bootstrap legacy tree state for TinyMCE4 link dialogs <middle:Duck>
+* [8cec37b] - ref(store): stabilize runtime task flows and installed-state handling <middle:Duck>
+* [35b4820] - del(theme): remove Liquid draft theme <middle:Duck>
 
 Evolution CMS 3.5.5 (Apr 07, 2026)
-* [d027f4d] - [REF] Finalized the MODX_* to EVO_* compatibility transition and prepared legacy constants for removal. (Seiger)
-* [8b0e83a] - [ADD] Added resource group ACL management for the file and image managers. (Artur Kyryliuk)
-* [dd7e331] - [ADD] Added `deprecated:list` command to find code marked for removal by semantic version. (Artur Kyryliuk)
-* [550cf13] - [FIX] TransAlias now uses the current manager language for alias transliteration. (middle:Duck)
-* [01e4267] - [FIX] Preserved explicit TransAlias table overrides when custom table settings are used. (middle:Duck)
-* [d4dfcb9] - [FIX] Preserved portable path settings when saving system configuration. (middle:Duck)
-* [6f77af6] - [FIX] Prioritized KCFinder callbacks over TinyMCE fallback in the file browser flow. (middle:Duck)
-* [a6ff481] - [FIX] Prevented moving documents into deleted resources from the manager tree. (middle:Duck)
-* [63f3bd5] - [FIX] Resolved an internal forward loop that could break request processing. (Seiger)
-* [44ab3f4] - [REF] Updated Composer dependencies, improved tests, and fixed multiple PHP 8.4 deprecation warnings. (Artur Kyryliuk)
+* [8b0e83a] - add(manager): add resource group ACL management for file and image managers <Artur Kyryliuk>
+* [dd7e331] - add(console): add deprecated:list command for semantic version removals <Artur Kyryliuk>
+* [550cf13] - fix(transalias): use the current manager language for alias transliteration <middle:Duck>
+* [01e4267] - fix(transalias): preserve explicit table overrides with custom table settings <middle:Duck>
+* [d4dfcb9] - fix(settings): preserve portable path settings when saving system configuration <middle:Duck>
+* [6f77af6] - fix(filemanager): prioritize KCFinder callbacks over TinyMCE fallback <middle:Duck>
+* [a6ff481] - fix(manager): prevent moving documents into deleted resources from the tree <middle:Duck>
+* [63f3bd5] - fix(core): resolve internal forward loop in request processing <Serhii Korneliuk>
+* [d027f4d] - ref(core): finalize the MODX_* to EVO_* compatibility transition <Serhii Korneliuk>
+* [44ab3f4] - ref(core): update Composer dependencies, improve tests, and fix PHP 8.4 deprecations <Artur Kyryliuk>
 
 Evolution CMS 3.5.4 (Feb 20, 2026)
-* [1dc4453] - [REF] Mark $modx as Deprecated. (Seiger)
-* [1aaf916] - [FIX] Reverted prefix placeholder support and fixed login issue. (Elcreator)
-* [236b1ec] - [FIX] Reverted inability to login if NO_SESSION is set. (Elcreator)
-* [5e4704f] - [FIX] MCPUK via evo.EVO_MANAGER_URL. (Seiger)
+* [1aaf916] - fix(auth): revert prefix placeholder support and fix login issue <Artur Kyryliuk>
+* [236b1ec] - fix(auth): restore login when NO_SESSION is set <Artur Kyryliuk>
+* [5e4704f] - fix(filemanager): use evo.EVO_MANAGER_URL for MCPUK <Serhii Korneliuk>
+* [1dc4453] - ref(core): mark $modx as deprecated <Serhii Korneliuk>
 
 Evolution CMS 3.5.3 (Feb 19, 2026)
-* [GitHub: 032c5dd] - [ADD] Automatic register alias config file for custom packages. (Seiger)
-* [GitHub: e46ec54] - [ADD] Laravel session compatibility layer through EvoSessionProxy and middleware integration. (Dmi3yy)
-* [GitHub: 6ded2cb] - [ADD] Initialize Laravel session support in manager via EvoSessionProxy. (Dmi3yy)
-* [GitHub: 8541461] - [ADD] SQLite to the web installer. (Elcreator)
-* [GitHub: b3db5ce] - [ADD] Init new theme liquid. (Dmi3yy)
-* [GitHub: 243020b] - [ADD] Introduce refined tab and popup styles, update theme variables, and adjust menu padding for improved UI consistency. (Dmi3yy)
-* [GitHub: 7857ee8] - [ADD] Add SqliteDumper class and integrate SQLite backup support into database management actions. (Dmi3yy)
-* [GitHub: 60da28d] - [ADD] Preset install command. (Dmi3yy)
+* [GitHub: 032c5dd] - add(config): register alias config file for custom packages automatically <Serhii Korneliuk>
+* [GitHub: e46ec54] - add(session): add Laravel session compatibility through EvoSessionProxy <Dmytro Lukianenko>
+* [GitHub: 6ded2cb] - add(manager): initialize Laravel session support via EvoSessionProxy <Dmytro Lukianenko>
+* [GitHub: 8541461] - add(install): add SQLite support to the web installer <Artur Kyryliuk>
+* [GitHub: b3db5ce] - add(theme): initialize the Liquid theme <Dmytro Lukianenko>
+* [GitHub: 243020b] - add(manager): refine tab and popup styles <Dmytro Lukianenko>
+* [GitHub: 7857ee8] - add(backup): add SqliteDumper and SQLite backup support <Dmytro Lukianenko>
+* [GitHub: 60da28d] - add(install): add preset install command <Dmytro Lukianenko>
 
 Evolution CMS 3.5.1 (Jan 02, 2026)
-* [GitHub: 3ce16e5] - [ADD] Performance optimization: cache dotenv to speed up bootstrap. (Seiger)
-* [GitHub: f0ba72a] - [FIX] Dates. (Seiger)
-* [GitHub: cc2fb6b] - [FIX] Fixes #2164: speed up TTFB performance. (Seiger)
-* [GitHub: 0eea7ad] - [FIX] style typo error (Dmi3yy)
-* [GitHub: 0c141c2] - [FIX] Phx inarray (Dmi3yy)
+* [GitHub: 3ce16e5] - add(performance): cache dotenv to speed up bootstrap <Serhii Korneliuk>
+* [GitHub: f0ba72a] - fix(core): correct release dates <Serhii Korneliuk>
+* [GitHub: cc2fb6b] - fix(performance): speed up TTFB performance <Serhii Korneliuk>
+* [GitHub: 0eea7ad] - fix(style): correct typo error <Dmytro Lukianenko>
+* [GitHub: 0c141c2] - fix(parser): fix PHx inarray handling <Dmytro Lukianenko>
 
 Evolution CMS 3.5.0 (Dec 25, 2025)
-* [GitHub: ff5dfb9] - [UPD] logo animation color (Dmi3yy)
-* [GitHub: a8d63c5] - [UPD] Logo  (Dmi3yy)
-* [GitHub: 368863d] - [FIX] Helper data_is_json() for PHP 8.4. (Seiger)
-* [GitHub: a4a36cd] - [ADD] Blade icons (Dmi3yy)
-* [GitHub: 60f2d9b] - [FIX] Tracy Debug for PHP 8.4. (Seiger)
-* [GitHub: 4f7bc49] - [FIX] SqlFormatter for PHP 8.4. (Seiger)
-* [GitHub: c00ff21] - [FIX] Refactor support collations. (Seiger)
-* [GitHub: 4566426] - [UPD] Core to Laravel 12. (Seiger)
-* [GitHub: d5337c2] - [DEL] Salo 2. (Seiger)
-* [GitHub: 02f122a] - [FIX] DB Collation on WEB installer. (Seiger)
-* [GitHub: d786389] - [UPD] Evolution 3.5 new background (Dmi3yy)
-* [GitHub: 77a0cc4] - [UPD] login style (Dmi3yy)
-* [GitHub: 0302954] - [UPD] Font to roboto (Dmi3yy)
-* [GitHub: 344a841] - [FIX] Console error in tree (Dmi3yy)
-* [GitHub: c2bfdd2] - [FIX] Style in tree (Dmi3yy)
-* [GitHub: 510d42b] - [UPD] update main icons to tabler (Dmi3yy)
-* [GitHub: 6233553] - [UPD] update left menu (Dmi3yy)
-* [GitHub: 6440598] - [UPD] update dashboard (Dmi3yy)
-* [GitHub: 5b91093] - [ADD] Initial Migration. (Seiger)
-* [GitHub: dfa70bc] - [ADD] Initial Seed. (Seiger)
-* [GitHub: 37b625b] - [FIX] Warning EVO_INSTALL_TIME. (Seiger)
-* [GitHub: 76cf432] - [ADD] Admin User seed. (Seiger)
+* [GitHub: a4a36cd] - add(ui): add Blade icons <Dmytro Lukianenko>
+* [GitHub: 5b91093] - add(migrations): add initial migration <Serhii Korneliuk>
+* [GitHub: dfa70bc] - add(seed): add initial seed <Serhii Korneliuk>
+* [GitHub: 76cf432] - add(seed): add admin user seed <Serhii Korneliuk>
+* [GitHub: ff5dfb9] - upd(branding): update logo animation color <Dmytro Lukianenko>
+* [GitHub: a8d63c5] - upd(branding): update logo <Dmytro Lukianenko>
+* [GitHub: 4566426] - upd(core): update core to Laravel 12 <Serhii Korneliuk>
+* [GitHub: d786389] - upd(manager): add Evolution 3.5 background <Dmytro Lukianenko>
+* [GitHub: 77a0cc4] - upd(auth): update login style <Dmytro Lukianenko>
+* [GitHub: 0302954] - upd(manager): switch font to Roboto <Dmytro Lukianenko>
+* [GitHub: 510d42b] - upd(ui): update main icons to Tabler <Dmytro Lukianenko>
+* [GitHub: 6233553] - upd(manager): update left menu <Dmytro Lukianenko>
+* [GitHub: 6440598] - upd(manager): update dashboard <Dmytro Lukianenko>
+* [GitHub: 368863d] - fix(helper): support data_is_json() on PHP 8.4 <Serhii Korneliuk>
+* [GitHub: 60f2d9b] - fix(debug): support Tracy Debug on PHP 8.4 <Serhii Korneliuk>
+* [GitHub: 4f7bc49] - fix(sql): support SqlFormatter on PHP 8.4 <Serhii Korneliuk>
+* [GitHub: c00ff21] - fix(database): refactor collation support <Serhii Korneliuk>
+* [GitHub: 02f122a] - fix(install): fix database collation in the web installer <Serhii Korneliuk>
+* [GitHub: 344a841] - fix(manager): fix console error in the tree <Dmytro Lukianenko>
+* [GitHub: c2bfdd2] - fix(manager): fix tree styling <Dmytro Lukianenko>
+* [GitHub: 37b625b] - fix(install): fix EVO_INSTALL_TIME warning <Serhii Korneliuk>
+* [GitHub: d5337c2] - del(core): remove Salo 2 <Serhii Korneliuk>
 
 Evolution CMS 3.3.0 (Nov 07, 2025)
 * !!! Notice: minimum PHP version 8.3. !!!
@@ -577,3 +612,5 @@ Evolution CMS 3.0.0rc3 (Dec 25, 2020)
 * [GitHub:#421cfd8c9] - core (add) add access and refresh token to login user (aleksandrpaskevic)
 * [GitHub:#7057b427a] - Update global.php (masco123)
 * [GitHub:#bf8d0431a] - core (fix) fix Deprecated (aleksandrpaskevic)
+
+
