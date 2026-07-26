@@ -1249,4 +1249,25 @@ $_lang["files_groups"] = 'گروه‌های منابع:';
 $_lang["access_permissions_file_message"] = 'انتخاب کنید این فایل به کدام گروه‌های منابع تعلق دارد:';
 $_lang["access_permissions_dir_message"] = 'انتخاب کنید این پوشه به کدام گروه‌های منابع تعلق دارد:';
 $_lang["all_file_groups"] = 'همه گروه‌های منابع (عمومی)';
+
+$_lang['mail_test_title'] = 'پیام آزمایشی ایمیل';
+$_lang['mail_test_destination'] = 'ایمیل گیرنده';
+$_lang['mail_test_send'] = 'ارسال آزمایشی';
+$_lang['mail_test_help'] = 'یک پیام را با روش و تنظیمات ایمیل ذخیره‌شده فعلی ارسال می‌کند. تغییرات این صفحه ذخیره نمی‌شوند.';
+$_lang['mail_test_subject'] = 'آزمایش ایمیل از :site';
+$_lang['mail_test_body'] = "این یک پیام آزمایشی ایمیل از :site است.\nروش ایمیل: :method\nزمان ارسال: :time";
+$_lang['mail_test_success'] = 'سامانه ایمیل پیام آزمایشی را با روش :method پذیرفت.';
+$_lang['mail_test_method_mail'] = 'PHP mail()';
+$_lang['mail_test_method_smtp'] = 'SMTP';
+$_lang['mail_test_invalid_destination'] = 'یک نشانی ایمیل معتبر برای گیرنده وارد کنید.';
+$_lang['mail_test_method_not_allowed'] = 'آزمایش ایمیل فقط درخواست‌های POST را می‌پذیرد.';
+$_lang['mail_test_unsupported_method'] = 'روش ایمیل ذخیره‌شده فعلی قابل آزمایش نیست.';
+$_lang['mail_test_debug_mode'] = 'تا زمانی که حالت اشکال‌زدایی Evolution CMS فعال است، PHP mail() قابل آزمایش نیست.';
+$_lang['mail_test_csrf_error'] = 'توکن امنیتی منقضی شده است. صفحه را دوباره بارگذاری و مجدداً تلاش کنید.';
+$_lang['mail_test_error'] = 'پیام آزمایشی با روش ایمیل ذخیره‌شده فعلی ارسال نشد.';
+$_lang['mail_test_error_connection'] = 'اتصال به سرور SMTP پیکربندی‌شده ممکن نشد.';
+$_lang['mail_test_error_authentication'] = 'سرور SMTP احراز هویت را رد کرد.';
+$_lang['mail_test_error_encryption'] = 'برقراری اتصال امن SMTP ممکن نشد.';
+$_lang['mail_test_error_recipient'] = 'سرور SMTP نشانی گیرنده را رد کرد.';
+
 return $_lang;

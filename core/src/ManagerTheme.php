@@ -116,6 +116,8 @@ class ManagerTheme implements ManagerThemeInterface
         119 => null,
         /** view phpinfo */
         200 => Controllers\Phpinfo::class,
+        /** send a test mail message */
+        201 => Controllers\MailTest::class,
         /** @deprecated errorpage */
         29 => Controllers\EventLog::class,
         /** file manager */

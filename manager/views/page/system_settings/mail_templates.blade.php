@@ -152,6 +152,35 @@
             <div class="split my-1"></div>
         </div>
 
+        <div class="row form-row form-element-input" id="mailTestPanel" data-endpoint="index.php" data-action="{{ \EvolutionCMS\Controllers\MailTest::ACTION_ID }}" data-token="{{ csrf_token() }}">
+            <label class="control-label col-5 col-md-3 col-lg-2" for="mailTestDestination">
+                {{ __('global.mail_test_title') }}
+            </label>
+            <div class="col-7 col-md-9 col-lg-10">
+                <div class="input-group">
+                    <input
+                        type="email"
+                        class="form-control"
+                        id="mailTestDestination"
+                        form="mailTestForm"
+                        maxlength="254"
+                        autocomplete="email"
+                        required
+                        placeholder="{{ __('global.mail_test_destination') }}"
+                    >
+                    <div class="input-group-append">
+                        <button class="btn btn-secondary" type="button" id="mailTestSend" form="mailTestForm">
+                            {{ __('global.mail_test_send') }}
+                        </button>
+                    </div>
+                </div>
+                <small class="form-text text-muted">{{ __('global.mail_test_help') }}</small>
+                <div class="alert mt-2 mb-0" id="mailTestFeedback" role="status" aria-live="polite" hidden></div>
+            </div>
+        </div>
+
+        <div class="split my-1"></div>
+
         @include('manager::form.input', [
             'name' => 'emailsubject',
             'id' => 'emailsubject_field',
@@ -281,3 +310,71 @@
         {!! get_by_key($tabEvents, 'OnUserSettingsRender') !!}
     </div>
 </div>
+
+@push('scripts.bot')
+    <script>
+        (function() {
+            var panel = document.getElementById('mailTestPanel');
+            var destination = document.getElementById('mailTestDestination');
+            var sendButton = document.getElementById('mailTestSend');
+            var feedback = document.getElementById('mailTestFeedback');
+
+            if (!panel || !destination || !sendButton || !feedback) {
+                return;
+            }
+
+            function showFeedback(message, success) {
+                feedback.textContent = message;
+                feedback.className = 'alert mt-2 mb-0 ' + (success ? 'alert-success' : 'alert-danger');
+                feedback.hidden = false;
+            }
+
+            sendButton.addEventListener('click', function() {
+                if (!destination.checkValidity()) {
+                    destination.reportValidity();
+                    return;
+                }
+
+                sendButton.disabled = true;
+                feedback.hidden = true;
+
+                var body = new URLSearchParams();
+                body.set('a', panel.dataset.action);
+                body.set('_token', panel.dataset.token);
+                body.set('destination', destination.value.trim());
+
+                fetch(panel.dataset.endpoint, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                    },
+                    body: body.toString()
+                })
+                    .then(function(response) {
+                        return response.json()
+                            .catch(function() {
+                                return {};
+                            })
+                            .then(function(payload) {
+                                if (!response.ok || payload.success !== true) {
+                                    throw new Error(payload.message || '{{ __('global.mail_test_error') }}');
+                                }
+
+                                return payload;
+                            });
+                    })
+                    .then(function(payload) {
+                        showFeedback(payload.message, true);
+                    })
+                    .catch(function(error) {
+                        showFeedback(error.message || '{{ __('global.mail_test_error') }}', false);
+                    })
+                    .finally(function() {
+                        sendButton.disabled = false;
+                    });
+            });
+        })();
+    </script>
+@endpush

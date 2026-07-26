@@ -1250,4 +1250,24 @@ $_lang["access_permissions_file_message"] = 'Selecione a quais Grupos de recurso
 $_lang["access_permissions_dir_message"] = 'Selecione a quais Grupos de recursos este diretório pertence:';
 $_lang["all_file_groups"] = 'Todos os grupos de recursos (Público)';
 
+$_lang['mail_test_title'] = 'Mensagem de e-mail de teste';
+$_lang['mail_test_destination'] = 'E-mail do destinatário';
+$_lang['mail_test_send'] = 'Enviar teste';
+$_lang['mail_test_help'] = 'Envia uma mensagem usando o método e as configurações de e-mail atualmente guardados. As alterações nesta página não são guardadas.';
+$_lang['mail_test_subject'] = 'Teste de e-mail de :site';
+$_lang['mail_test_body'] = "Esta é uma mensagem de e-mail de teste de :site.\nMétodo de e-mail: :method\nEnviada em: :time";
+$_lang['mail_test_success'] = 'O sistema de e-mail aceitou a mensagem de teste através de :method.';
+$_lang['mail_test_method_mail'] = 'PHP mail()';
+$_lang['mail_test_method_smtp'] = 'SMTP';
+$_lang['mail_test_invalid_destination'] = 'Introduza um endereço de e-mail válido para o destinatário.';
+$_lang['mail_test_method_not_allowed'] = 'O teste de e-mail aceita apenas pedidos POST.';
+$_lang['mail_test_unsupported_method'] = 'O método de e-mail atualmente guardado não pode ser testado.';
+$_lang['mail_test_debug_mode'] = 'PHP mail() não pode ser testado enquanto o modo de depuração do Evolution CMS estiver ativo.';
+$_lang['mail_test_csrf_error'] = 'O token de segurança expirou. Recarregue a página e tente novamente.';
+$_lang['mail_test_error'] = 'Não foi possível enviar a mensagem de teste usando o método de e-mail atualmente guardado.';
+$_lang['mail_test_error_connection'] = 'Não foi possível ligar ao servidor SMTP configurado.';
+$_lang['mail_test_error_authentication'] = 'O servidor SMTP rejeitou a autenticação.';
+$_lang['mail_test_error_encryption'] = 'Não foi possível estabelecer a ligação SMTP segura.';
+$_lang['mail_test_error_recipient'] = 'O servidor SMTP rejeitou o endereço do destinatário.';
+
 return $_lang;

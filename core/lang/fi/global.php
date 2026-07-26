@@ -1249,4 +1249,24 @@ $_lang["access_permissions_file_message"] = 'Valitse mihin Resurssiryhmiin täm�
 $_lang["access_permissions_dir_message"] = 'Valitse mihin Resurssiryhmiin tämä hakemisto kuuluu:';
 $_lang["all_file_groups"] = 'Kaikki resurssiryhmät (Julkinen)';
 
+$_lang['mail_test_title'] = 'Testisähköposti';
+$_lang['mail_test_destination'] = 'Vastaanottajan sähköposti';
+$_lang['mail_test_send'] = 'Lähetä testi';
+$_lang['mail_test_help'] = 'Lähettää yhden viestin käyttäen tällä hetkellä tallennettua sähköpostimenetelmää ja sen asetuksia. Tämän sivun muutoksia ei tallenneta.';
+$_lang['mail_test_subject'] = 'Sähköpostitesti sivustolta :site';
+$_lang['mail_test_body'] = "Tämä on testisähköposti sivustolta :site.\nSähköpostimenetelmä: :method\nLähetetty: :time";
+$_lang['mail_test_success'] = 'Sähköpostijärjestelmä hyväksyi testiviestin menetelmällä :method.';
+$_lang['mail_test_method_mail'] = 'PHP mail()';
+$_lang['mail_test_method_smtp'] = 'SMTP';
+$_lang['mail_test_invalid_destination'] = 'Anna kelvollinen vastaanottajan sähköpostiosoite.';
+$_lang['mail_test_method_not_allowed'] = 'Sähköpostitesti hyväksyy vain POST-pyynnöt.';
+$_lang['mail_test_unsupported_method'] = 'Tällä hetkellä tallennettua sähköpostimenetelmää ei voi testata.';
+$_lang['mail_test_debug_mode'] = 'PHP mail() -toimintoa ei voi testata, kun Evolution CMS:n virheenkorjaustila on käytössä.';
+$_lang['mail_test_csrf_error'] = 'Suojaustunnus on vanhentunut. Lataa sivu uudelleen ja yritä uudelleen.';
+$_lang['mail_test_error'] = 'Testiviestiä ei voitu lähettää tällä hetkellä tallennetulla sähköpostimenetelmällä.';
+$_lang['mail_test_error_connection'] = 'Määritettyyn SMTP-palvelimeen ei saatu yhteyttä.';
+$_lang['mail_test_error_authentication'] = 'SMTP-palvelin hylkäsi tunnistautumisen.';
+$_lang['mail_test_error_encryption'] = 'Suojattua SMTP-yhteyttä ei voitu muodostaa.';
+$_lang['mail_test_error_recipient'] = 'SMTP-palvelin hylkäsi vastaanottajan osoitteen.';
+
 return $_lang;

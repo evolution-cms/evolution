@@ -1496,4 +1496,24 @@ $_lang["access_permissions_file_message"] = 'Seleziona a quali Gruppi di risorse
 $_lang["access_permissions_dir_message"] = 'Seleziona a quali Gruppi di risorse appartiene questa directory:';
 $_lang["all_file_groups"] = 'Tutti i gruppi di risorse (Pubblico)';
 
+$_lang['mail_test_title'] = 'Messaggio e-mail di prova';
+$_lang['mail_test_destination'] = 'E-mail del destinatario';
+$_lang['mail_test_send'] = 'Invia prova';
+$_lang['mail_test_help'] = 'Invia un messaggio usando il metodo e le impostazioni di posta attualmente salvati. Le modifiche in questa pagina non vengono salvate.';
+$_lang['mail_test_subject'] = 'Test della posta da :site';
+$_lang['mail_test_body'] = "Questo è un messaggio e-mail di prova da :site.\nMetodo di posta: :method\nInviato il: :time";
+$_lang['mail_test_success'] = 'Il sistema di posta ha accettato il messaggio di prova tramite :method.';
+$_lang['mail_test_method_mail'] = 'PHP mail()';
+$_lang['mail_test_method_smtp'] = 'SMTP';
+$_lang['mail_test_invalid_destination'] = 'Inserisci un indirizzo e-mail valido per il destinatario.';
+$_lang['mail_test_method_not_allowed'] = 'Il test della posta accetta solo richieste POST.';
+$_lang['mail_test_unsupported_method'] = 'Il metodo di posta attualmente salvato non può essere testato.';
+$_lang['mail_test_debug_mode'] = 'PHP mail() non può essere testato mentre la modalità di debug di Evolution CMS è attiva.';
+$_lang['mail_test_csrf_error'] = 'Il token di sicurezza è scaduto. Ricarica la pagina e riprova.';
+$_lang['mail_test_error'] = 'Non è stato possibile inviare il messaggio di prova usando il metodo di posta attualmente salvato.';
+$_lang['mail_test_error_connection'] = 'Impossibile connettersi al server SMTP configurato.';
+$_lang['mail_test_error_authentication'] = 'Il server SMTP ha rifiutato l’autenticazione.';
+$_lang['mail_test_error_encryption'] = 'Non è stato possibile stabilire la connessione SMTP sicura.';
+$_lang['mail_test_error_recipient'] = 'Il server SMTP ha rifiutato l’indirizzo del destinatario.';
+
 return $_lang;

@@ -1482,4 +1482,24 @@ $_lang["access_permissions_file_message"] = 'Wybierz, do których Grup zasobów 
 $_lang["access_permissions_dir_message"] = 'Wybierz, do których Grup zasobów należy ten katalog:';
 $_lang["all_file_groups"] = 'Wszystkie grupy zasobów (Publiczne)';
 
+$_lang['mail_test_title'] = 'Testowa wiadomość e-mail';
+$_lang['mail_test_destination'] = 'E-mail odbiorcy';
+$_lang['mail_test_send'] = 'Wyślij test';
+$_lang['mail_test_help'] = 'Wysyła jedną wiadomość przy użyciu aktualnie zapisanej metody i ustawień poczty. Zmiany na tej stronie nie są zapisywane.';
+$_lang['mail_test_subject'] = 'Test poczty z :site';
+$_lang['mail_test_body'] = "To jest testowa wiadomość e-mail z :site.\nMetoda poczty: :method\nWysłano: :time";
+$_lang['mail_test_success'] = 'System pocztowy przyjął wiadomość testową przy użyciu :method.';
+$_lang['mail_test_method_mail'] = 'PHP mail()';
+$_lang['mail_test_method_smtp'] = 'SMTP';
+$_lang['mail_test_invalid_destination'] = 'Wprowadź prawidłowy adres e-mail odbiorcy.';
+$_lang['mail_test_method_not_allowed'] = 'Test poczty akceptuje tylko żądania POST.';
+$_lang['mail_test_unsupported_method'] = 'Aktualnie zapisanej metody poczty nie można przetestować.';
+$_lang['mail_test_debug_mode'] = 'PHP mail() nie można przetestować, gdy tryb debugowania Evolution CMS jest włączony.';
+$_lang['mail_test_csrf_error'] = 'Token bezpieczeństwa wygasł. Odśwież stronę i spróbuj ponownie.';
+$_lang['mail_test_error'] = 'Nie udało się wysłać wiadomości testowej przy użyciu aktualnie zapisanej metody poczty.';
+$_lang['mail_test_error_connection'] = 'Nie udało się połączyć ze skonfigurowanym serwerem SMTP.';
+$_lang['mail_test_error_authentication'] = 'Serwer SMTP odrzucił uwierzytelnianie.';
+$_lang['mail_test_error_encryption'] = 'Nie udało się nawiązać bezpiecznego połączenia SMTP.';
+$_lang['mail_test_error_recipient'] = 'Serwer SMTP odrzucił adres odbiorcy.';
+
 return $_lang;

@@ -1250,4 +1250,24 @@ $_lang["access_permissions_file_message"] = 'Изберете към кои Гр
 $_lang["access_permissions_dir_message"] = 'Изберете към кои Групи ресурси принадлежи тази директория:';
 $_lang["all_file_groups"] = 'Всички групи ресурси (Публични)';
 
+$_lang['mail_test_title'] = 'Тестово имейл съобщение';
+$_lang['mail_test_destination'] = 'Имейл на получателя';
+$_lang['mail_test_send'] = 'Изпрати тест';
+$_lang['mail_test_help'] = 'Изпраща едно съобщение чрез текущо запазения метод и настройки за поща. Промените на тази страница не се запазват.';
+$_lang['mail_test_subject'] = 'Тест на пощата от :site';
+$_lang['mail_test_body'] = "Това е тестово имейл съобщение от :site.\nМетод за поща: :method\nИзпратено на: :time";
+$_lang['mail_test_success'] = 'Пощенската система прие тестовото съобщение чрез :method.';
+$_lang['mail_test_method_mail'] = 'PHP mail()';
+$_lang['mail_test_method_smtp'] = 'SMTP';
+$_lang['mail_test_invalid_destination'] = 'Въведете валиден имейл адрес на получателя.';
+$_lang['mail_test_method_not_allowed'] = 'Тестът на пощата приема само POST заявки.';
+$_lang['mail_test_unsupported_method'] = 'Текущо запазеният метод за поща не може да бъде тестван.';
+$_lang['mail_test_debug_mode'] = 'PHP mail() не може да бъде тестван, докато режимът за отстраняване на грешки на Evolution CMS е включен.';
+$_lang['mail_test_csrf_error'] = 'Срокът на защитния токен изтече. Презаредете страницата и опитайте отново.';
+$_lang['mail_test_error'] = 'Тестовото съобщение не можа да бъде изпратено чрез текущо запазения метод за поща.';
+$_lang['mail_test_error_connection'] = 'Неуспешно свързване с конфигурирания SMTP сървър.';
+$_lang['mail_test_error_authentication'] = 'SMTP сървърът отхвърли удостоверяването.';
+$_lang['mail_test_error_encryption'] = 'Не можа да бъде установена защитена SMTP връзка.';
+$_lang['mail_test_error_recipient'] = 'SMTP сървърът отхвърли адреса на получателя.';
+
 return $_lang;

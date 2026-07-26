@@ -1219,4 +1219,25 @@ $_lang["files_groups"] = 'Groupes de ressources :';
 $_lang["access_permissions_file_message"] = 'Sélectionnez les Groupes de ressources auxquels appartient ce fichier :';
 $_lang["access_permissions_dir_message"] = 'Sélectionnez les Groupes de ressources auxquels appartient ce répertoire :';
 $_lang["all_file_groups"] = 'Tous les groupes de ressources (Public)';
+
+$_lang['mail_test_title'] = 'Message de test';
+$_lang['mail_test_destination'] = 'E-mail du destinataire';
+$_lang['mail_test_send'] = 'Envoyer le test';
+$_lang['mail_test_help'] = 'Envoie un message avec la méthode et les paramètres de messagerie actuellement enregistrés. Les modifications de cette page ne sont pas enregistrées.';
+$_lang['mail_test_subject'] = 'Test de messagerie depuis :site';
+$_lang['mail_test_body'] = "Ceci est un message de test envoyé depuis :site.\nMéthode de messagerie : :method\nEnvoyé le : :time";
+$_lang['mail_test_success'] = 'Le système de messagerie a accepté le message de test via :method.';
+$_lang['mail_test_method_mail'] = 'PHP mail()';
+$_lang['mail_test_method_smtp'] = 'SMTP';
+$_lang['mail_test_invalid_destination'] = 'Saisissez une adresse e-mail de destinataire valide.';
+$_lang['mail_test_method_not_allowed'] = 'Le test de messagerie accepte uniquement les requêtes POST.';
+$_lang['mail_test_unsupported_method'] = 'La méthode de messagerie actuellement enregistrée ne peut pas être testée.';
+$_lang['mail_test_debug_mode'] = 'PHP mail() ne peut pas être testé lorsque le mode de débogage d’Evolution CMS est activé.';
+$_lang['mail_test_csrf_error'] = 'Le jeton de sécurité a expiré. Rechargez la page et réessayez.';
+$_lang['mail_test_error'] = 'Le message de test n’a pas pu être envoyé avec la méthode de messagerie actuellement enregistrée.';
+$_lang['mail_test_error_connection'] = 'Impossible de se connecter au serveur SMTP configuré.';
+$_lang['mail_test_error_authentication'] = 'Le serveur SMTP a refusé l’authentification.';
+$_lang['mail_test_error_encryption'] = 'La connexion SMTP sécurisée n’a pas pu être établie.';
+$_lang['mail_test_error_recipient'] = 'Le serveur SMTP a refusé l’adresse du destinataire.';
+
 return $_lang;

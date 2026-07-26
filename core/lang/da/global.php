@@ -1253,4 +1253,24 @@ $_lang["access_permissions_file_message"] = 'Vælg hvilke Ressourcegrupper denne
 $_lang["access_permissions_dir_message"] = 'Vælg hvilke Ressourcegrupper denne mappe tilhører:';
 $_lang["all_file_groups"] = 'Alle ressourcegrupper (Offentlige)';
 
+$_lang['mail_test_title'] = 'Testmail';
+$_lang['mail_test_destination'] = 'Modtagerens e-mail';
+$_lang['mail_test_send'] = 'Send test';
+$_lang['mail_test_help'] = 'Sender én besked med den aktuelt gemte mailmetode og dens indstillinger. Ændringer på denne side gemmes ikke.';
+$_lang['mail_test_subject'] = 'Mailtest fra :site';
+$_lang['mail_test_body'] = "Dette er en testmail fra :site.\nMailmetode: :method\nSendt: :time";
+$_lang['mail_test_success'] = 'Mailsystemet accepterede testbeskeden via :method.';
+$_lang['mail_test_method_mail'] = 'PHP mail()';
+$_lang['mail_test_method_smtp'] = 'SMTP';
+$_lang['mail_test_invalid_destination'] = 'Indtast en gyldig e-mailadresse til modtageren.';
+$_lang['mail_test_method_not_allowed'] = 'Mailtesten accepterer kun POST-anmodninger.';
+$_lang['mail_test_unsupported_method'] = 'Den aktuelt gemte mailmetode kan ikke testes.';
+$_lang['mail_test_debug_mode'] = 'PHP mail() kan ikke testes, mens Evolution CMS-fejlfinding er aktiveret.';
+$_lang['mail_test_csrf_error'] = 'Sikkerhedstokenet er udløbet. Genindlæs siden, og prøv igen.';
+$_lang['mail_test_error'] = 'Testbeskeden kunne ikke sendes med den aktuelt gemte mailmetode.';
+$_lang['mail_test_error_connection'] = 'Der kunne ikke oprettes forbindelse til den konfigurerede SMTP-server.';
+$_lang['mail_test_error_authentication'] = 'SMTP-serveren afviste godkendelsen.';
+$_lang['mail_test_error_encryption'] = 'Den sikre SMTP-forbindelse kunne ikke oprettes.';
+$_lang['mail_test_error_recipient'] = 'SMTP-serveren afviste modtageradressen.';
+
 return $_lang;

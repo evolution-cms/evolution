@@ -1532,4 +1532,24 @@ $_lang["access_permissions_file_message"] = 'このファイルが属するリ�
 $_lang["access_permissions_dir_message"] = 'このディレクトリが属するリソースグループを選択してください：';
 $_lang["all_file_groups"] = 'すべてのリソースグループ（公開）';
 
+$_lang['mail_test_title'] = 'テストメール';
+$_lang['mail_test_destination'] = '送信先メールアドレス';
+$_lang['mail_test_send'] = 'テスト送信';
+$_lang['mail_test_help'] = '現在保存されているメール送信方法と設定を使用して、1通のメッセージを送信します。このページの変更内容は保存されません。';
+$_lang['mail_test_subject'] = ':site からのメールテスト';
+$_lang['mail_test_body'] = "これは :site からのテストメールです。\nメール送信方法: :method\n送信日時: :time";
+$_lang['mail_test_success'] = 'メールシステムは :method を使用したテストメッセージを受け付けました。';
+$_lang['mail_test_method_mail'] = 'PHP mail()';
+$_lang['mail_test_method_smtp'] = 'SMTP';
+$_lang['mail_test_invalid_destination'] = '有効な送信先メールアドレスを入力してください。';
+$_lang['mail_test_method_not_allowed'] = 'メールテストはPOSTリクエストのみ受け付けます。';
+$_lang['mail_test_unsupported_method'] = '現在保存されているメール送信方法はテストできません。';
+$_lang['mail_test_debug_mode'] = 'Evolution CMSのデバッグモードが有効な間は、PHP mail()をテストできません。';
+$_lang['mail_test_csrf_error'] = 'セキュリティトークンの有効期限が切れました。ページを再読み込みして、もう一度お試しください。';
+$_lang['mail_test_error'] = '現在保存されているメール送信方法では、テストメッセージを送信できませんでした。';
+$_lang['mail_test_error_connection'] = '設定されたSMTPサーバーに接続できませんでした。';
+$_lang['mail_test_error_authentication'] = 'SMTPサーバーが認証を拒否しました。';
+$_lang['mail_test_error_encryption'] = '安全なSMTP接続を確立できませんでした。';
+$_lang['mail_test_error_recipient'] = 'SMTPサーバーが送信先アドレスを拒否しました。';
+
 return $_lang;

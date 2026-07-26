@@ -1250,4 +1250,24 @@ $_lang["access_permissions_file_message"] = 'בחר לאילו קבוצות מש
 $_lang["access_permissions_dir_message"] = 'בחר לאילו קבוצות משאבים שייכת תיקייה זו:';
 $_lang["all_file_groups"] = 'כל קבוצות המשאבים (ציבורי)';
 
+$_lang['mail_test_title'] = 'הודעת דוא״ל לבדיקה';
+$_lang['mail_test_destination'] = 'דוא״ל הנמען';
+$_lang['mail_test_send'] = 'שליחת בדיקה';
+$_lang['mail_test_help'] = 'שולח הודעה אחת באמצעות שיטת הדואר וההגדרות השמורות כעת. השינויים בדף זה אינם נשמרים.';
+$_lang['mail_test_subject'] = 'בדיקת דואר מאת :site';
+$_lang['mail_test_body'] = "זוהי הודעת דוא״ל לבדיקה מאת :site.\nשיטת דואר: :method\nנשלחה בתאריך: :time";
+$_lang['mail_test_success'] = 'מערכת הדואר קיבלה את הודעת הבדיקה באמצעות :method.';
+$_lang['mail_test_method_mail'] = 'PHP mail()';
+$_lang['mail_test_method_smtp'] = 'SMTP';
+$_lang['mail_test_invalid_destination'] = 'יש להזין כתובת דוא״ל תקינה של הנמען.';
+$_lang['mail_test_method_not_allowed'] = 'בדיקת הדואר מקבלת בקשות POST בלבד.';
+$_lang['mail_test_unsupported_method'] = 'לא ניתן לבדוק את שיטת הדואר השמורה כעת.';
+$_lang['mail_test_debug_mode'] = 'לא ניתן לבדוק את PHP mail() כאשר מצב ניפוי השגיאות של Evolution CMS מופעל.';
+$_lang['mail_test_csrf_error'] = 'פג תוקף אסימון האבטחה. יש לטעון מחדש את הדף ולנסות שוב.';
+$_lang['mail_test_error'] = 'לא ניתן היה לשלוח את הודעת הבדיקה באמצעות שיטת הדואר השמורה כעת.';
+$_lang['mail_test_error_connection'] = 'לא ניתן היה להתחבר לשרת ה-SMTP שהוגדר.';
+$_lang['mail_test_error_authentication'] = 'שרת ה-SMTP דחה את האימות.';
+$_lang['mail_test_error_encryption'] = 'לא ניתן היה ליצור חיבור SMTP מאובטח.';
+$_lang['mail_test_error_recipient'] = 'שרת ה-SMTP דחה את כתובת הנמען.';
+
 return $_lang;

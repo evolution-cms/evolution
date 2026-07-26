@@ -1524,4 +1524,24 @@ $_lang["access_permissions_file_message"] = 'Виберіть, до яких Г�
 $_lang["access_permissions_dir_message"] = 'Виберіть, до яких Груп ресурсів належить цей каталог:';
 $_lang["all_file_groups"] = 'Всі групи ресурсів (Публічні)';
 
+$_lang['mail_test_title'] = 'Тестове поштове повідомлення';
+$_lang['mail_test_destination'] = 'Email одержувача';
+$_lang['mail_test_send'] = 'Надіслати тест';
+$_lang['mail_test_help'] = 'Надсилає одне повідомлення через поточний збережений поштовий метод і його налаштування. Зміни на цій сторінці не зберігаються.';
+$_lang['mail_test_subject'] = 'Тест пошти із сайту :site';
+$_lang['mail_test_body'] = "Це тестове поштове повідомлення із сайту :site.\nПоштовий метод: :method\nЧас відправлення: :time";
+$_lang['mail_test_success'] = 'Поштова система прийняла тестове повідомлення через :method.';
+$_lang['mail_test_method_mail'] = 'PHP mail()';
+$_lang['mail_test_method_smtp'] = 'SMTP';
+$_lang['mail_test_invalid_destination'] = 'Вкажіть коректну email-адресу одержувача.';
+$_lang['mail_test_method_not_allowed'] = 'Тест пошти приймає лише POST-запити.';
+$_lang['mail_test_unsupported_method'] = 'Поточний збережений поштовий метод неможливо перевірити.';
+$_lang['mail_test_debug_mode'] = 'PHP mail() неможливо перевірити, доки ввімкнено режим налагодження Evolution CMS.';
+$_lang['mail_test_csrf_error'] = 'Термін дії захисного токена минув. Оновіть сторінку та повторіть спробу.';
+$_lang['mail_test_error'] = 'Не вдалося надіслати тестове повідомлення через поточний збережений поштовий метод.';
+$_lang['mail_test_error_connection'] = 'Не вдалося підключитися до налаштованого SMTP-сервера.';
+$_lang['mail_test_error_authentication'] = 'SMTP-сервер відхилив автентифікацію.';
+$_lang['mail_test_error_encryption'] = 'Не вдалося встановити захищене SMTP-з’єднання.';
+$_lang['mail_test_error_recipient'] = 'SMTP-сервер відхилив адресу одержувача.';
+
 return $_lang;

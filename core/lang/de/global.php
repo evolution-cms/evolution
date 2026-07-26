@@ -1477,4 +1477,24 @@ $_lang["access_permissions_file_message"] = 'Wählen Sie aus, zu welchen Ressour
 $_lang["access_permissions_dir_message"] = 'Wählen Sie aus, zu welchen Ressourcengruppen dieses Verzeichnis gehört:';
 $_lang["all_file_groups"] = 'Alle Ressourcengruppen (Öffentlich)';
 
+$_lang['mail_test_title'] = 'Test-E-Mail';
+$_lang['mail_test_destination'] = 'E-Mail des Empfängers';
+$_lang['mail_test_send'] = 'Test senden';
+$_lang['mail_test_help'] = 'Sendet eine Nachricht mit der aktuell gespeicherten E-Mail-Methode und deren Einstellungen. Änderungen auf dieser Seite werden nicht gespeichert.';
+$_lang['mail_test_subject'] = 'E-Mail-Test von :site';
+$_lang['mail_test_body'] = "Dies ist eine Test-E-Mail von :site.\nE-Mail-Methode: :method\nGesendet am: :time";
+$_lang['mail_test_success'] = 'Das E-Mail-System hat die Testnachricht über :method angenommen.';
+$_lang['mail_test_method_mail'] = 'PHP mail()';
+$_lang['mail_test_method_smtp'] = 'SMTP';
+$_lang['mail_test_invalid_destination'] = 'Geben Sie eine gültige E-Mail-Adresse des Empfängers ein.';
+$_lang['mail_test_method_not_allowed'] = 'Der E-Mail-Test akzeptiert nur POST-Anfragen.';
+$_lang['mail_test_unsupported_method'] = 'Die aktuell gespeicherte E-Mail-Methode kann nicht getestet werden.';
+$_lang['mail_test_debug_mode'] = 'PHP mail() kann nicht getestet werden, solange der Debug-Modus von Evolution CMS aktiviert ist.';
+$_lang['mail_test_csrf_error'] = 'Das Sicherheitstoken ist abgelaufen. Laden Sie die Seite neu und versuchen Sie es erneut.';
+$_lang['mail_test_error'] = 'Die Testnachricht konnte mit der aktuell gespeicherten E-Mail-Methode nicht gesendet werden.';
+$_lang['mail_test_error_connection'] = 'Verbindung zum konfigurierten SMTP-Server konnte nicht hergestellt werden.';
+$_lang['mail_test_error_authentication'] = 'Der SMTP-Server hat die Authentifizierung abgelehnt.';
+$_lang['mail_test_error_encryption'] = 'Die sichere SMTP-Verbindung konnte nicht hergestellt werden.';
+$_lang['mail_test_error_recipient'] = 'Der SMTP-Server hat die Empfängeradresse abgelehnt.';
+
 return $_lang;

@@ -1624,4 +1624,24 @@ $_lang["access_permissions_file_message"] = 'Выберыце, да якіх Г�
 $_lang["access_permissions_dir_message"] = 'Выберыце, да якіх Груп рэсурсаў належыць гэты каталог:';
 $_lang["all_file_groups"] = 'Усе групы рэсурсаў (Публічныя)';
 
+$_lang['mail_test_title'] = 'Тэставае паштовае паведамленне';
+$_lang['mail_test_destination'] = 'Email атрымальніка';
+$_lang['mail_test_send'] = 'Адправіць тэст';
+$_lang['mail_test_help'] = 'Адпраўляе адно паведамленне праз бягучы захаваны паштовы метад і яго налады. Змены на гэтай старонцы не захоўваюцца.';
+$_lang['mail_test_subject'] = 'Тэст пошты з сайта :site';
+$_lang['mail_test_body'] = "Гэта тэставае паштовае паведамленне з сайта :site.\nПаштовы метад: :method\nЧас адпраўкі: :time";
+$_lang['mail_test_success'] = 'Паштовая сістэма прыняла тэставае паведамленне праз :method.';
+$_lang['mail_test_method_mail'] = 'PHP mail()';
+$_lang['mail_test_method_smtp'] = 'SMTP';
+$_lang['mail_test_invalid_destination'] = 'Увядзіце карэктны email-адрас атрымальніка.';
+$_lang['mail_test_method_not_allowed'] = 'Тэст пошты прымае толькі POST-запыты.';
+$_lang['mail_test_unsupported_method'] = 'Бягучы захаваны паштовы метад немагчыма праверыць.';
+$_lang['mail_test_debug_mode'] = 'PHP mail() немагчыма праверыць, пакуль уключаны рэжым адладкі Evolution CMS.';
+$_lang['mail_test_csrf_error'] = 'Тэрмін дзеяння ахоўнага токена скончыўся. Абнавіце старонку і паўтарыце спробу.';
+$_lang['mail_test_error'] = 'Не ўдалося адправіць тэставае паведамленне праз бягучы захаваны паштовы метад.';
+$_lang['mail_test_error_connection'] = 'Не ўдалося падключыцца да наладжанага SMTP-сервера.';
+$_lang['mail_test_error_authentication'] = 'SMTP-сервер адхіліў аўтэнтыфікацыю.';
+$_lang['mail_test_error_encryption'] = 'Не ўдалося ўсталяваць бяспечнае SMTP-злучэнне.';
+$_lang['mail_test_error_recipient'] = 'SMTP-сервер адхіліў адрас атрымальніка.';
+
 return $_lang;

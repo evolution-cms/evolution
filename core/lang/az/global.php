@@ -1626,4 +1626,24 @@ $_lang["access_permissions_file_message"] = 'Bu faylın hansı Resurs Qrupların
 $_lang["access_permissions_dir_message"] = 'Bu qovluğun hansı Resurs Qruplarına aid olduğunu seçin:';
 $_lang["all_file_groups"] = 'Bütün Resurs Qrupları (İctimai)';
 
+$_lang['mail_test_title'] = 'Test poçt mesajı';
+$_lang['mail_test_destination'] = 'Alıcının e-poçt ünvanı';
+$_lang['mail_test_send'] = 'Test göndər';
+$_lang['mail_test_help'] = 'Hazırda saxlanmış poçt metodu və parametrlərindən istifadə edərək bir mesaj göndərir. Bu səhifədəki dəyişiklikləri saxlamır.';
+$_lang['mail_test_subject'] = ':site saytından poçt testi';
+$_lang['mail_test_body'] = "Bu, :site saytından göndərilmiş test poçt mesajıdır.\nPoçt metodu: :method\nGöndərilmə vaxtı: :time";
+$_lang['mail_test_success'] = 'Poçt sistemi test mesajını :method vasitəsilə qəbul etdi.';
+$_lang['mail_test_method_mail'] = 'PHP mail()';
+$_lang['mail_test_method_smtp'] = 'SMTP';
+$_lang['mail_test_invalid_destination'] = 'Etibarlı alıcı e-poçt ünvanı daxil edin.';
+$_lang['mail_test_method_not_allowed'] = 'Poçt testi yalnız POST sorğularını qəbul edir.';
+$_lang['mail_test_unsupported_method'] = 'Hazırda saxlanmış poçt metodunu test etmək mümkün deyil.';
+$_lang['mail_test_debug_mode'] = 'Evolution CMS sazlama rejimi aktiv olduqda PHP mail() test edilə bilməz.';
+$_lang['mail_test_csrf_error'] = 'Təhlükəsizlik nişanının müddəti bitib. Səhifəni yeniləyin və yenidən cəhd edin.';
+$_lang['mail_test_error'] = 'Hazırda saxlanmış poçt metodu ilə test mesajını göndərmək mümkün olmadı.';
+$_lang['mail_test_error_connection'] = 'Konfiqurasiya edilmiş SMTP serverinə qoşulmaq mümkün olmadı.';
+$_lang['mail_test_error_authentication'] = 'SMTP serveri autentifikasiyanı rədd etdi.';
+$_lang['mail_test_error_encryption'] = 'Təhlükəsiz SMTP bağlantısını qurmaq mümkün olmadı.';
+$_lang['mail_test_error_recipient'] = 'SMTP serveri alıcının ünvanını rədd etdi.';
+
 return $_lang;

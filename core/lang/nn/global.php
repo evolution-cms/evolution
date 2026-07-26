@@ -1217,4 +1217,24 @@ $_lang["access_permissions_file_message"] = 'Vel kva Ressursgrupper denne fila h
 $_lang["access_permissions_dir_message"] = 'Vel kva Ressursgrupper denne mappa høyrer til:';
 $_lang["all_file_groups"] = 'Alle ressursgrupper (Offentlege)';
 
+$_lang['mail_test_title'] = 'Test-e-post';
+$_lang['mail_test_destination'] = 'E-post til mottakar';
+$_lang['mail_test_send'] = 'Send test';
+$_lang['mail_test_help'] = 'Sender éi melding med den lagra e-postmetoden og innstillingane som gjeld no. Endringar på denne sida blir ikkje lagra.';
+$_lang['mail_test_subject'] = 'E-posttest frå :site';
+$_lang['mail_test_body'] = "Dette er ein test-e-post frå :site.\nE-postmetode: :method\nSendt: :time";
+$_lang['mail_test_success'] = 'E-postsystemet godtok testmeldinga via :method.';
+$_lang['mail_test_method_mail'] = 'PHP mail()';
+$_lang['mail_test_method_smtp'] = 'SMTP';
+$_lang['mail_test_invalid_destination'] = 'Skriv inn ei gyldig e-postadresse til mottakaren.';
+$_lang['mail_test_method_not_allowed'] = 'E-posttesten godtek berre POST-førespurnader.';
+$_lang['mail_test_unsupported_method'] = 'Den lagra e-postmetoden kan ikkje testast.';
+$_lang['mail_test_debug_mode'] = 'PHP mail() kan ikkje testast medan feilsøkingsmodus i Evolution CMS er aktivert.';
+$_lang['mail_test_csrf_error'] = 'Tryggingstokenet er utgått. Last sida på nytt og prøv igjen.';
+$_lang['mail_test_error'] = 'Testmeldinga kunne ikkje sendast med den lagra e-postmetoden.';
+$_lang['mail_test_error_connection'] = 'Kunne ikkje kople til den konfigurerte SMTP-tenaren.';
+$_lang['mail_test_error_authentication'] = 'SMTP-tenaren avviste autentiseringa.';
+$_lang['mail_test_error_encryption'] = 'Kunne ikkje opprette ei sikker SMTP-tilkopling.';
+$_lang['mail_test_error_recipient'] = 'SMTP-tenaren avviste mottakaradressa.';
+
 return $_lang;

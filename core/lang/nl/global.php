@@ -1447,4 +1447,24 @@ $_lang["access_permissions_file_message"] = 'Selecteer tot welke Resourcegroepen
 $_lang["access_permissions_dir_message"] = 'Selecteer tot welke Resourcegroepen deze map behoort:';
 $_lang["all_file_groups"] = 'Alle resourcegroepen (Openbaar)';
 
+$_lang['mail_test_title'] = 'Test-e-mail';
+$_lang['mail_test_destination'] = 'E-mailadres ontvanger';
+$_lang['mail_test_send'] = 'Test verzenden';
+$_lang['mail_test_help'] = 'Verzendt één bericht met de momenteel opgeslagen e-mailmethode en instellingen. Wijzigingen op deze pagina worden niet opgeslagen.';
+$_lang['mail_test_subject'] = 'E-mailtest van :site';
+$_lang['mail_test_body'] = "Dit is een test-e-mail van :site.\nE-mailmethode: :method\nVerzonden op: :time";
+$_lang['mail_test_success'] = 'Het e-mailsysteem heeft het testbericht via :method geaccepteerd.';
+$_lang['mail_test_method_mail'] = 'PHP mail()';
+$_lang['mail_test_method_smtp'] = 'SMTP';
+$_lang['mail_test_invalid_destination'] = 'Voer een geldig e-mailadres van de ontvanger in.';
+$_lang['mail_test_method_not_allowed'] = 'De e-mailtest accepteert alleen POST-verzoeken.';
+$_lang['mail_test_unsupported_method'] = 'De momenteel opgeslagen e-mailmethode kan niet worden getest.';
+$_lang['mail_test_debug_mode'] = 'PHP mail() kan niet worden getest zolang de foutopsporingsmodus van Evolution CMS is ingeschakeld.';
+$_lang['mail_test_csrf_error'] = 'Het beveiligingstoken is verlopen. Laad de pagina opnieuw en probeer het nogmaals.';
+$_lang['mail_test_error'] = 'Het testbericht kon niet worden verzonden met de momenteel opgeslagen e-mailmethode.';
+$_lang['mail_test_error_connection'] = 'Er kon geen verbinding worden gemaakt met de geconfigureerde SMTP-server.';
+$_lang['mail_test_error_authentication'] = 'De SMTP-server heeft de verificatie geweigerd.';
+$_lang['mail_test_error_encryption'] = 'De beveiligde SMTP-verbinding kon niet tot stand worden gebracht.';
+$_lang['mail_test_error_recipient'] = 'De SMTP-server heeft het adres van de ontvanger geweigerd.';
+
 return $_lang;

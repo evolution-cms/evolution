@@ -2,8 +2,8 @@
 @section('content')
     @push('scripts.top')
         <script>
-            var displayStyle = '{{ $displayStyle }}';
-            var lang_chg = '{{ ManagerTheme::getLexicon('confirm_setting_language_change') }}';
+            var displayStyle = '{{$displayStyle}}';
+            var lang_chg = '{{ManagerTheme::getLexicon('confirm_setting_language_change')}}';
             var actions = {
                 save: function() {
                     documentDirty = false;
@@ -20,9 +20,9 @@
     <form name="settings" method="post" action="index.php">
         <input type="hidden" name="a" value="30">
         <!-- this field is used to check site settings have been entered/ updated after install or upgrade -->
-        <input type="hidden" name="site_id" value="{{ get_by_key(EvolutionCMS()->config, 'site_id') }}" />
-        <input type="hidden" name="settings_version" value="{{ EvolutionCMS()->getVersionData('version') }}" />
-        <h1><i class="{{ $_style['icon_sliders'] }}"></i>{{ ManagerTheme::getLexicon('settings_title') }}</h1>
+        <input type="hidden" name="site_id" value="{{get_by_key(EvolutionCMS()->config, 'site_id')}}" />
+        <input type="hidden" name="settings_version" value="{{EvolutionCMS()->getVersionData('version')}}" />
+        <h1><i class="{{$_style['icon_sliders']}}"></i>{{ManagerTheme::getLexicon('settings_title')}}</h1>
         @include('manager::partials.actionButtons', $actionButtons)
         @if(!get_by_key(EvolutionCMS()->config, 'settings_version') || get_by_key(EvolutionCMS()->config, 'settings_version') !== EvolutionCMS()->getVersionData('version'))
             <div class="container">
@@ -31,7 +31,7 @@
         @endif
         <div class="tab-pane" id="settingsPane">
             <script>
-                tpSettings = new WebFXTabPane(document.getElementById('settingsPane'), {{ get_by_key(EvolutionCMS()->config, 'remember_last_tab') ? 1 : 0 }});
+                tpSettings = new WebFXTabPane(document.getElementById('settingsPane'), {{get_by_key(EvolutionCMS()->config, 'remember_last_tab') ? 1 : 0}});
             </script>
             @include('manager::page.system_settings.general')
             @include('manager::page.system_settings.friendly_urls')
@@ -42,6 +42,7 @@
             @include('manager::page.system_settings.mail_templates')
         </div>
     </form>
+    <form id="mailTestForm" onsubmit="return false;"></form>
     @push('scripts.bot')
         <script>
             (function($) {
@@ -107,7 +108,7 @@
             });
         </script>
         @if(is_numeric(get_by_key($_GET, 'tab')))
-            <script>tpSettings.setSelectedIndex({{ $_GET['tab'] }});</script>
+            <script>tpSettings.setSelectedIndex({{$_GET['tab']}});</script>
         @endif
     @endpush
 @endsection

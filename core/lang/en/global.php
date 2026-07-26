@@ -1523,4 +1523,24 @@ $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is de
 $_lang['disable'] = 'Disable';
 $_lang['enable'] = 'Enable';
 
+$_lang['mail_test_title'] = 'Test mail message';
+$_lang['mail_test_destination'] = 'Destination email';
+$_lang['mail_test_send'] = 'Send test';
+$_lang['mail_test_help'] = 'Sends one message using the currently saved mail method and settings. It does not save changes from this page.';
+$_lang['mail_test_subject'] = 'Mail test from :site';
+$_lang['mail_test_body'] = "This is a test mail message from :site.\nMail method: :method\nSent at: :time";
+$_lang['mail_test_success'] = 'The mail system accepted the test message using :method.';
+$_lang['mail_test_method_mail'] = 'PHP mail()';
+$_lang['mail_test_method_smtp'] = 'SMTP';
+$_lang['mail_test_invalid_destination'] = 'Enter a valid destination email address.';
+$_lang['mail_test_method_not_allowed'] = 'The mail test accepts POST requests only.';
+$_lang['mail_test_unsupported_method'] = 'The currently saved mail method cannot be tested.';
+$_lang['mail_test_debug_mode'] = 'PHP mail() cannot be tested while Evolution CMS debug mode is enabled.';
+$_lang['mail_test_csrf_error'] = 'The security token expired. Reload the page and try again.';
+$_lang['mail_test_error'] = 'The test message could not be sent using the currently saved mail method.';
+$_lang['mail_test_error_connection'] = 'Could not connect to the configured SMTP server.';
+$_lang['mail_test_error_authentication'] = 'The SMTP server rejected authentication.';
+$_lang['mail_test_error_encryption'] = 'The secure SMTP connection could not be established.';
+$_lang['mail_test_error_recipient'] = 'The SMTP server rejected the destination address.';
+
 return $_lang;

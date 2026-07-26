@@ -1,5 +1,4 @@
-<?php
-return [
+<?php return [
     '1'   => 'Loading a frame(set)', //ok
     '2'   => 'Viewing dashboard', //ok
     '3'   => 'Viewing data for resource',  //ok
@@ -96,6 +95,7 @@ return [
     '97'  => 'Duplicate Chunk (HTML Snippet)',//ok
     '98'  => 'Duplicate Snippet', //ok
     '99'  => 'Manage Users', //ok
+
     '100' => 'Previewing resource', //ok change the plugin priority
     '101' => 'Create new plugin', //ok 101, 102
     '102' => 'Edit plugin', //ok 101, 102
@@ -117,18 +117,17 @@ return [
     '118' => 'Call settings ajax include', //ok
     '119' => 'Login Fail (Temporary Block)',//ok  get the purge processor
 
+    '200' => 'Viewing phpInfo()', //ok
+    '201' => 'Sending a test mail message', //ok
+
     '300' => 'Create Template Variable', //ok 300,301
     '301' => 'Edit Template Variable',//ok 300,301
     '302' => 'Save Template Variable',//ok
     '303' => 'Delete Template Variable',//ok
     '304' => 'Duplicate Template Variable',//ok
 
-    '200' => 'Viewing phpInfo()', //ok
     '501' => 'Delete category', //ok
+
     '998' => 'Viewing web page', //not found
     '999' => 'Viewing test page', //ok
 ];
-
-//120  get the edit category page
-//121  for ajax-requests
-//305  get the tv-rank action

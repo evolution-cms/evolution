@@ -1250,4 +1250,24 @@ $_lang["access_permissions_file_message"] = 'Välj vilka Resursgrupper den här 
 $_lang["access_permissions_dir_message"] = 'Välj vilka Resursgrupper den här katalogen tillhör:';
 $_lang["all_file_groups"] = 'Alla resursgrupper (Offentliga)';
 
+$_lang['mail_test_title'] = 'Testmeddelande via e-post';
+$_lang['mail_test_destination'] = 'Mottagarens e-postadress';
+$_lang['mail_test_send'] = 'Skicka test';
+$_lang['mail_test_help'] = 'Skickar ett meddelande med den sparade e-postmetoden och de aktuella inställningarna. Ändringar på den här sidan sparas inte.';
+$_lang['mail_test_subject'] = 'E-posttest från :site';
+$_lang['mail_test_body'] = "Detta är ett testmeddelande via e-post från :site.\nE-postmetod: :method\nSkickat: :time";
+$_lang['mail_test_success'] = 'E-postsystemet accepterade testmeddelandet via :method.';
+$_lang['mail_test_method_mail'] = 'PHP mail()';
+$_lang['mail_test_method_smtp'] = 'SMTP';
+$_lang['mail_test_invalid_destination'] = 'Ange en giltig e-postadress för mottagaren.';
+$_lang['mail_test_method_not_allowed'] = 'E-posttestet accepterar endast POST-förfrågningar.';
+$_lang['mail_test_unsupported_method'] = 'Den sparade e-postmetoden kan inte testas.';
+$_lang['mail_test_debug_mode'] = 'PHP mail() kan inte testas när felsökningsläget i Evolution CMS är aktiverat.';
+$_lang['mail_test_csrf_error'] = 'Säkerhetstoken har upphört att gälla. Läs in sidan igen och försök på nytt.';
+$_lang['mail_test_error'] = 'Testmeddelandet kunde inte skickas med den sparade e-postmetoden.';
+$_lang['mail_test_error_connection'] = 'Det gick inte att ansluta till den konfigurerade SMTP-servern.';
+$_lang['mail_test_error_authentication'] = 'SMTP-servern avvisade autentiseringen.';
+$_lang['mail_test_error_encryption'] = 'Det gick inte att upprätta en säker SMTP-anslutning.';
+$_lang['mail_test_error_recipient'] = 'SMTP-servern avvisade mottagaradressen.';
+
 return $_lang;

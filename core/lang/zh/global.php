@@ -1251,4 +1251,24 @@ $_lang["access_permissions_file_message"] = '选择此文件所属的资源组�
 $_lang["access_permissions_dir_message"] = '选择此目录所属的资源组：';
 $_lang["all_file_groups"] = '所有资源组（公开）';
 
+$_lang['mail_test_title'] = '测试邮件';
+$_lang['mail_test_destination'] = '收件人邮箱';
+$_lang['mail_test_send'] = '发送测试';
+$_lang['mail_test_help'] = '使用当前已保存的邮件发送方式和设置发送一封邮件。不会保存此页面上的更改。';
+$_lang['mail_test_subject'] = '来自 :site 的邮件测试';
+$_lang['mail_test_body'] = "这是一封来自 :site 的测试邮件。\n邮件发送方式：:method\n发送时间：:time";
+$_lang['mail_test_success'] = '邮件系统已通过 :method 接受测试消息。';
+$_lang['mail_test_method_mail'] = 'PHP mail()';
+$_lang['mail_test_method_smtp'] = 'SMTP';
+$_lang['mail_test_invalid_destination'] = '请输入有效的收件人邮箱地址。';
+$_lang['mail_test_method_not_allowed'] = '邮件测试仅接受 POST 请求。';
+$_lang['mail_test_unsupported_method'] = '当前保存的邮件发送方式无法测试。';
+$_lang['mail_test_debug_mode'] = '启用 Evolution CMS 调试模式时无法测试 PHP mail()。';
+$_lang['mail_test_csrf_error'] = '安全令牌已过期。请重新加载页面后再试。';
+$_lang['mail_test_error'] = '无法使用当前保存的邮件发送方式发送测试消息。';
+$_lang['mail_test_error_connection'] = '无法连接到配置的 SMTP 服务器。';
+$_lang['mail_test_error_authentication'] = 'SMTP 服务器拒绝了身份验证。';
+$_lang['mail_test_error_encryption'] = '无法建立安全的 SMTP 连接。';
+$_lang['mail_test_error_recipient'] = 'SMTP 服务器拒绝了收件人地址。';
+
 return $_lang;

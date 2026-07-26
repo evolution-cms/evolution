@@ -1254,4 +1254,24 @@ $_lang["access_permissions_file_message"] = 'Vyberte, do kterých Skupin zdrojů
 $_lang["access_permissions_dir_message"] = 'Vyberte, do kterých Skupin zdrojů tento adresář patří:';
 $_lang["all_file_groups"] = 'Všechny skupiny zdrojů (Veřejné)';
 
+$_lang['mail_test_title'] = 'Testovací e-mailová zpráva';
+$_lang['mail_test_destination'] = 'E-mail příjemce';
+$_lang['mail_test_send'] = 'Odeslat test';
+$_lang['mail_test_help'] = 'Odešle jednu zprávu pomocí aktuálně uložené poštovní metody a nastavení. Změny na této stránce se neukládají.';
+$_lang['mail_test_subject'] = 'Test pošty z webu :site';
+$_lang['mail_test_body'] = "Toto je testovací e-mailová zpráva z webu :site.\nPoštovní metoda: :method\nOdesláno: :time";
+$_lang['mail_test_success'] = 'Poštovní systém přijal testovací zprávu pomocí :method.';
+$_lang['mail_test_method_mail'] = 'PHP mail()';
+$_lang['mail_test_method_smtp'] = 'SMTP';
+$_lang['mail_test_invalid_destination'] = 'Zadejte platnou e-mailovou adresu příjemce.';
+$_lang['mail_test_method_not_allowed'] = 'Test pošty přijímá pouze požadavky POST.';
+$_lang['mail_test_unsupported_method'] = 'Aktuálně uloženou poštovní metodu nelze otestovat.';
+$_lang['mail_test_debug_mode'] = 'PHP mail() nelze testovat, když je zapnutý režim ladění Evolution CMS.';
+$_lang['mail_test_csrf_error'] = 'Platnost bezpečnostního tokenu vypršela. Obnovte stránku a zkuste to znovu.';
+$_lang['mail_test_error'] = 'Testovací zprávu se nepodařilo odeslat pomocí aktuálně uložené poštovní metody.';
+$_lang['mail_test_error_connection'] = 'Nepodařilo se připojit k nakonfigurovanému serveru SMTP.';
+$_lang['mail_test_error_authentication'] = 'Server SMTP odmítl ověření.';
+$_lang['mail_test_error_encryption'] = 'Nepodařilo se navázat zabezpečené připojení SMTP.';
+$_lang['mail_test_error_recipient'] = 'Server SMTP odmítl adresu příjemce.';
+
 return $_lang;
