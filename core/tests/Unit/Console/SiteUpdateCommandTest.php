@@ -68,7 +68,10 @@ test('site updater removes update placeholder files before composer repair', fun
     );
 
     expect($source)->toContain('$this->cleanupUpdatePlaceholderFiles();');
+    expect($source)->toContain('$this->synchronizeComposerVersion();');
     expect(strpos($source, '$this->cleanupUpdatePlaceholderFiles();'))->toBeLessThan(strpos($source, '$this->installComposerDependencies('));
+    expect(strpos($source, '$this->cleanupUpdatePlaceholderFiles();'))->toBeLessThan(strpos($source, '$this->synchronizeComposerVersion();'));
+    expect(strpos($source, '$this->synchronizeComposerVersion();'))->toBeLessThan(strpos($source, '$this->installComposerDependencies('));
     expect($normalizedPairs)->toHaveCount(5);
     expect($normalizedPairs[0][0])->toEndWith('/ht.access');
     expect($normalizedPairs[0][1])->toEndWith('/.htaccess');
@@ -113,6 +116,18 @@ test('site updater repairs composer vendor state before artisan commands', funct
 
     $composerBinary === false ? putenv('COMPOSER_BINARY') : putenv('COMPOSER_BINARY=' . $composerBinary);
     $composerBin === false ? putenv('COMPOSER_BIN') : putenv('COMPOSER_BIN=' . $composerBin);
+});
+
+test('ordinary composer lifecycle does not synchronize root version metadata', function () {
+    $composer = json_decode(
+        (string) file_get_contents(dirname(__DIR__, 3) . '/composer.json'),
+        true
+    );
+    $scripts = $composer['scripts'] ?? [];
+
+    expect($scripts)->toHaveKey('sync-replace');
+    expect($scripts)->not->toHaveKey('pre-install-cmd');
+    expect($scripts)->not->toHaveKey('pre-update-cmd');
 });
 
 test('site updater accepts only real composer package names for scoped updates', function () {

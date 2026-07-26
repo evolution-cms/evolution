@@ -160,12 +160,6 @@
             "@sync-replace",
             "@composer update --lock --ansi"
         ],
-        "pre-install-cmd": [
-            "@sync-replace"
-        ],
-        "pre-update-cmd": [
-            "@sync-replace"
-        ],
         "post-autoload-dump": [
             "@php artisan package:discover"
         ]

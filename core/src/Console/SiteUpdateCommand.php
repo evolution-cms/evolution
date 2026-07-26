@@ -2,6 +2,7 @@
 
 use EvolutionCMS\Models\Category;
 use EvolutionCMS\Models\SiteModule;
+use EvolutionCMS\Services\ComposerVersionSynchronizer;
 use Illuminate\Console\Command;
 
 /**
@@ -98,6 +99,8 @@ HELP;
      *
      * When no explicit version/ref is provided, the command falls back to the latest
      * stable tag for the current major version reported by GitHub.
+     * After the new core is overlaid, Composer package metadata is synchronized with
+     * factory/version.php before dependencies are restored.
      *
      * @since 3.5.5 Added support for branch and commit refs in manual update requests.
      * @return void
@@ -224,6 +227,7 @@ HELP;
                 }
             }
             $this->cleanupUpdatePlaceholderFiles();
+            $this->synchronizeComposerVersion();
             putenv('COMPOSER_HOME=' . EVO_CORE_PATH . 'composer');
             $this->installComposerDependencies($customPackageConstraints, $lockedCustomPackageVersions);
             $this->runCoreMigrations();
@@ -236,6 +240,31 @@ HELP;
             $this->line('<fg=yellow;bg=blue>Now You use ' . $factoryName . '</>');
         } else {
             $this->line('<fg=yellow;bg=blue>You use almost current version</>');
+        }
+    }
+
+    /**
+     * Align Composer package metadata with the overlaid Evolution release.
+     *
+     * This explicit updater step prevents version mismatch loops without attaching
+     * the synchronizer to ordinary Composer install, update, or autoload operations.
+     *
+     * @since 3.5.8
+     * @return void
+     */
+    protected function synchronizeComposerVersion(): void
+    {
+        $this->line('<fg=green>Checking Evolution CMS version...</>');
+
+        $result = (new ComposerVersionSynchronizer())->synchronize(
+            EVO_CORE_PATH . 'composer.json',
+            EVO_CORE_PATH . 'factory/version.php'
+        );
+
+        if ($result['changed']) {
+            $this->line('<fg=green>Synced composer.json: evolution-cms/evolution ' . $result['version'] . '</>');
+        } else {
+            $this->line('<fg=green>Evolution CMS ' . $result['version'] . '</>');
         }
     }
 
