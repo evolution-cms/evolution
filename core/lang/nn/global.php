@@ -1221,6 +1221,7 @@ $_lang["access_permissions_dir_message"] = 'Vel kva Ressursgrupper denne mappa h
 $_lang["all_file_groups"] = 'Alle ressursgrupper (Offentlege)';
 
 $_lang['eventlog_mail_sent'] = 'E-post sendt';
+$_lang['eventlog_system_user'] = 'System';
 $_lang['mail_test_title'] = 'Test-e-post';
 $_lang['mail_test_destination'] = 'E-post til mottakar';
 $_lang['mail_test_send'] = 'Send test';

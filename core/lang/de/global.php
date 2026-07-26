@@ -1481,6 +1481,7 @@ $_lang["access_permissions_dir_message"] = 'Wählen Sie aus, zu welchen Ressourc
 $_lang["all_file_groups"] = 'Alle Ressourcengruppen (Öffentlich)';
 
 $_lang['eventlog_mail_sent'] = 'E-Mail gesendet';
+$_lang['eventlog_system_user'] = 'System';
 $_lang['mail_test_title'] = 'Test-E-Mail';
 $_lang['mail_test_destination'] = 'E-Mail des Empfängers';
 $_lang['mail_test_send'] = 'Test senden';

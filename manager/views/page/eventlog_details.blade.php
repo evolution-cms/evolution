@@ -59,9 +59,9 @@
                         </tr>
                         <tr>
                             <td width="25%" valign="top">{{ ManagerTheme::getLexicon('date') }}:</td>
-                            <td width="25%" valign="top">{{ $log->created_at->format('Y-m-d H:i:s') }}</td>
+                            <td width="25%" valign="top">{{ EvolutionCMS\Models\EventLog::formatStoredTimestamp($log->getRawOriginal('createdon'), EvolutionCMS()->getConfig('site_timezone'), 'Y-m-d H:i:s') }}</td>
                             <td width="25%" valign="top">{{ ManagerTheme::getLexicon('user') }}:</td>
-                            <td width="25%" valign="top">{{ $log->getUser() !== null ? $log->getUser()->username : '-' }}</td>
+                            <td width="25%" valign="top">{{ $log->getUser() !== null ? $log->getUser()->username : ManagerTheme::getLexicon('eventlog_system_user') }}</td>
                         </tr>
                         <tr>
                             <td width="100%" colspan="4"><br />

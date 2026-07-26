@@ -1254,6 +1254,7 @@ $_lang["access_permissions_dir_message"] = 'انتخاب کنید این پوش�
 $_lang["all_file_groups"] = 'همه گروه‌های منابع (عمومی)';
 
 $_lang['eventlog_mail_sent'] = 'ایمیل ارسال شد';
+$_lang['eventlog_system_user'] = 'سیستم';
 $_lang['mail_test_title'] = 'پیام آزمایشی ایمیل';
 $_lang['mail_test_destination'] = 'ایمیل گیرنده';
 $_lang['mail_test_send'] = 'ارسال آزمایشی';

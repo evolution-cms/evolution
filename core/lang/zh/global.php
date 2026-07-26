@@ -1255,6 +1255,7 @@ $_lang["access_permissions_dir_message"] = '选择此目录所属的资源组：
 $_lang["all_file_groups"] = '所有资源组（公开）';
 
 $_lang['eventlog_mail_sent'] = '邮件已发送';
+$_lang['eventlog_system_user'] = '系统';
 $_lang['mail_test_title'] = '测试邮件';
 $_lang['mail_test_destination'] = '收件人邮箱';
 $_lang['mail_test_send'] = '发送测试';

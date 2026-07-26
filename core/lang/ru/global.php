@@ -1528,6 +1528,7 @@ $_lang["access_permissions_dir_message"] = 'Выберите, к каким Гр
 $_lang["all_file_groups"] = 'Все группы ресурсов (Публичные)';
 
 $_lang['eventlog_mail_sent'] = 'Письмо отправлено';
+$_lang['eventlog_system_user'] = 'Система';
 $_lang['mail_test_title'] = 'Тестовое почтовое сообщение';
 $_lang['mail_test_destination'] = 'Email получателя';
 $_lang['mail_test_send'] = 'Отправить тест';

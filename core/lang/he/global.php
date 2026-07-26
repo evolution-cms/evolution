@@ -1254,6 +1254,7 @@ $_lang["access_permissions_dir_message"] = 'בחר לאילו קבוצות מש�
 $_lang["all_file_groups"] = 'כל קבוצות המשאבים (ציבורי)';
 
 $_lang['eventlog_mail_sent'] = 'הדוא״ל נשלח';
+$_lang['eventlog_system_user'] = 'מערכת';
 $_lang['mail_test_title'] = 'הודעת דוא״ל לבדיקה';
 $_lang['mail_test_destination'] = 'דוא״ל הנמען';
 $_lang['mail_test_send'] = 'שליחת בדיקה';

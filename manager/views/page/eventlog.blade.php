@@ -128,16 +128,13 @@
                             'event_log.id',
                             'event_log.type',
                             'event_log.type as icon',
-                            'event_log.createdon',
+                            'event_log.createdon as list_created_at',
                             'event_log.source as list_source',
                             'event_log.eventid',
-                            'users.username as username'
+                            'users.username as list_username'
                         )
-                           ->leftJoin('users', function($join)
-                        {
-                            $join->on('users.id', '=', 'event_log.user');
-                            $join->on('event_log.usertype', '=', \DB::raw(1));
-                        })->orderBy('createdon', 'DESC');
+                            ->leftJoin('users', 'users.id', '=', 'event_log.user')
+                            ->orderBy('event_log.createdon', 'DESC');
 
                         if($sqlQuery!=''){
                             if(is_numeric($sqlQuery))
@@ -155,22 +152,27 @@
                         $grd->pagerStyle = 'white-space: normal;';
                         $grd->pageClass = 'page-item';
                         $grd->selPageClass = 'page-item active';
-                        $grd->prepareResult = ['icon' => [
-                            \EvolutionCMS\Models\EventLog::TYPE_INFORMATION => "text-info " . $_style['icon_info_circle'],
-                            \EvolutionCMS\Models\EventLog::TYPE_WARNING => "text-warning " . $_style['icon_info_triangle'],
-                            \EvolutionCMS\Models\EventLog::TYPE_ERROR => "text-danger " . $_style['icon_cancel'],
-                            \EvolutionCMS\Models\EventLog::TYPE_MAIL_SENT => "text-success " . $_style['icon_mail'],
-                        ]];
+                        $grd->prepareResult = [
+                            'icon' => [
+                                \EvolutionCMS\Models\EventLog::TYPE_INFORMATION => "text-info " . $_style['icon_info_circle'],
+                                \EvolutionCMS\Models\EventLog::TYPE_WARNING => "text-warning " . $_style['icon_info_triangle'],
+                                \EvolutionCMS\Models\EventLog::TYPE_ERROR => "text-danger " . $_style['icon_cancel'],
+                                \EvolutionCMS\Models\EventLog::TYPE_MAIL_SENT => "text-success " . $_style['icon_mail'],
+                            ],
+                            'list_username' => [
+                                '__' => ManagerTheme::getLexicon('eventlog_system_user'),
+                            ],
+                        ];
                         $grd->noRecordMsg = ManagerTheme::getLexicon('no_records_found');
                         $grd->cssClass = "table data nowrap";
                         $grd->columnHeaderClass = "tableHeader";
                         $grd->itemClass = "tableItem";
                         $grd->altItemClass = "tableAltItem";
-                        $grd->fields = "type,list_source,createdon,eventid,username";
+                        $grd->fields = "type,list_source,list_created_at,eventid,list_username";
                         $grd->columns = ManagerTheme::getLexicon('type') . " ," . ManagerTheme::getLexicon('source') . " ," . ManagerTheme::getLexicon('date') . " ," . ManagerTheme::getLexicon('event_id') . " ," . ManagerTheme::getLexicon('sysinfo_userid');
                         $grd->colWidths = "1%,,1%,1%,1%";
                         $grd->colAligns = "center,,,center,center";
-                        $grd->colTypes = "template:<a class='gridRowIcon' href='javascript:;' onclick='return showContentMenu([+id+],event);' title='" . ManagerTheme::getLexicon('click_to_context') . "'><i class='[+icon+]'></i></a>||template:<a href='index.php?a=115&id=[+id+]' title='" . ManagerTheme::getLexicon('click_to_view_details') . "'>[+list_source+]</a>||date: " . EvolutionCMS()->toDateFormat(null, 'formatOnly');
+                        $grd->colTypes = "template:<a class='gridRowIcon' href='javascript:;' onclick='return showContentMenu([+id+],event);' title='" . ManagerTheme::getLexicon('click_to_context') . "'><i class='[+icon+]'></i></a>||template:<a href='index.php?a=115&id=[+id+]' title='" . ManagerTheme::getLexicon('click_to_view_details') . "'>[+list_source+]</a>||template:[+value+]";
                         if ($listmode == '1') {
                             $grd->pageSize = 0;
                         }

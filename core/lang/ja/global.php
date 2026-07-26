@@ -1536,6 +1536,7 @@ $_lang["access_permissions_dir_message"] = 'このディレクトリが属する
 $_lang["all_file_groups"] = 'すべてのリソースグループ（公開）';
 
 $_lang['eventlog_mail_sent'] = 'メール送信済み';
+$_lang['eventlog_system_user'] = 'システム';
 $_lang['mail_test_title'] = 'テストメール';
 $_lang['mail_test_destination'] = '送信先メールアドレス';
 $_lang['mail_test_send'] = 'テスト送信';

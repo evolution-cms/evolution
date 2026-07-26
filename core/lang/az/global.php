@@ -1630,6 +1630,7 @@ $_lang["access_permissions_dir_message"] = 'Bu qovluğun hansı Resurs Qrupları
 $_lang["all_file_groups"] = 'Bütün Resurs Qrupları (İctimai)';
 
 $_lang['eventlog_mail_sent'] = 'E-poçt göndərildi';
+$_lang['eventlog_system_user'] = 'Sistem';
 $_lang['mail_test_title'] = 'Test poçt mesajı';
 $_lang['mail_test_destination'] = 'Alıcının e-poçt ünvanı';
 $_lang['mail_test_send'] = 'Test göndər';

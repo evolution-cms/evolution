@@ -1,7 +1,10 @@
 <?php namespace EvolutionCMS\Models;
 
+use DateTimeInterface;
 use Illuminate\Database\Eloquent;
+use Illuminate\Support\Carbon;
 use EvolutionCMS\Traits;
+use EvolutionCMS\Support\SiteTimezone;
 
 /**
  * EvolutionCMS\Models\EventLog
@@ -138,6 +141,68 @@ class EventLog extends Eloquent\Model
         }
 
         return htmlspecialchars($source, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8');
+    }
+
+    /**
+     * Format the stored legacy event timestamp in the selected site timezone.
+     *
+     * Event timestamps historically include server_offset_time when they are written,
+     * so presentation must not add that legacy offset a second time.
+     *
+     * @since 3.5.8
+     */
+    public static function formatStoredTimestamp(
+        int|string|DateTimeInterface|null $timestamp,
+        ?string $timezone,
+        string $format
+    ): string {
+        if ($timestamp instanceof DateTimeInterface) {
+            $timestamp = $timestamp->getTimestamp();
+        } elseif (is_string($timestamp)) {
+            $timestamp = trim($timestamp);
+            if ($timestamp === '' || !ctype_digit($timestamp)) {
+                return '-';
+            }
+        }
+
+        if (empty($timestamp)) {
+            return '-';
+        }
+
+        return Carbon::createFromTimestamp(
+            (int)$timestamp,
+            SiteTimezone::resolve($timezone)
+        )->format($format);
+    }
+
+    /**
+     * Present a selected timestamp alias in the Event Viewer DataGrid.
+     *
+     * @since 3.5.8
+     */
+    public function getListCreatedAtAttribute(int|string|null $timestamp): string
+    {
+        return static::formatStoredTimestamp(
+            $timestamp,
+            evo()->getConfig('site_timezone'),
+            evo()->normalizeFormat()
+        );
+    }
+
+    /**
+     * Escape an authenticated username selected for Event Viewer presentation.
+     *
+     * An empty result is intentionally left for the view's localized System fallback.
+     *
+     * @since 3.5.8
+     */
+    public function getListUsernameAttribute(?string $username): string
+    {
+        $username = trim((string)$username);
+
+        return $username === ''
+            ? ''
+            : htmlspecialchars($username, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8');
     }
 
     public function getCreatedAtAttribute()

@@ -3854,9 +3854,16 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $esc_source = substr($source, 0, 50);
         }
 
-        $LoginUserID = $this->getLoginUserID();
-        if ($LoginUserID == '') {
+        // Prefer a verified manager, then a verified web user; only unauthenticated work stays actorless.
+        $LoginUserID = $this->getLoginUserID('mgr');
+        $userType = EventLog::USER_MGR;
+        if (!$LoginUserID) {
+            $LoginUserID = $this->getLoginUserID('web');
+            $userType = EventLog::USER_WEB;
+        }
+        if (!$LoginUserID) {
             $LoginUserID = 0;
+            $userType = EventLog::USER_MGR;
         }
 
         $evtid = (int) $evtid;
@@ -3876,7 +3883,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             'source' => $esc_source,
             'description' => $msg,
             'user' => $LoginUserID,
-            'usertype' => $this->isFrontend() ? 1 : 0
+            'usertype' => $userType
         ]);
 
         $this->invokeEvent('OnLogEvent', [
@@ -3886,7 +3893,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             'source' => $esc_source,
             'description' => $msg,
             'user' => $LoginUserID,
-            'usertype' => $this->isFrontend() ? 1 : 0
+            'usertype' => $userType
         ]);
 
         if ($type <= EventLog::TYPE_ERROR && $this->getConfig('send_errormail', '0') != '0') {

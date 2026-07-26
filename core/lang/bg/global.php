@@ -1254,6 +1254,7 @@ $_lang["access_permissions_dir_message"] = 'Изберете към кои Гр�
 $_lang["all_file_groups"] = 'Всички групи ресурси (Публични)';
 
 $_lang['eventlog_mail_sent'] = 'Имейлът е изпратен';
+$_lang['eventlog_system_user'] = 'Система';
 $_lang['mail_test_title'] = 'Тестово имейл съобщение';
 $_lang['mail_test_destination'] = 'Имейл на получателя';
 $_lang['mail_test_send'] = 'Изпрати тест';

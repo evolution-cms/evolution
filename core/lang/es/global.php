@@ -1490,6 +1490,7 @@ $_lang["access_permissions_dir_message"] = 'Seleccione a qué Grupos de recursos
 $_lang["all_file_groups"] = 'Todos los grupos de recursos (Público)';
 
 $_lang['eventlog_mail_sent'] = 'Correo enviado';
+$_lang['eventlog_system_user'] = 'Sistema';
 $_lang['mail_test_title'] = 'Mensaje de correo de prueba';
 $_lang['mail_test_destination'] = 'Correo del destinatario';
 $_lang['mail_test_send'] = 'Enviar prueba';
