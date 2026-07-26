@@ -91,9 +91,18 @@ class PackageCommand extends Command
     public $evo = '';
 
     /**
-     * @var array
+     * Packages currently being traversed during recursive provider discovery.
+     *
+     * @var array<string,bool>
      */
-    public $require = [];
+    protected $visitingPackages = [];
+
+    /**
+     * Packages whose dependencies and provider metadata were already processed.
+     *
+     * @var array<string,bool>
+     */
+    protected $discoveredPackages = [];
 
     /**
      * PackageCommand constructor.
@@ -131,17 +140,18 @@ class PackageCommand extends Command
         if (file_exists($this->composer)) {
             $this->parseComposer($this->composer);
         }
-        if (count($this->require) > 0) {
-            $this->loadRequire();
-        }
-
         $this->cleanupAliases();
 
         unlink(EVO_CORE_PATH . 'storage/bootstrap/services.php');
     }
 
     /**
-     * @param string $composer
+     * Discover providers declared by the custom Composer root and its packages.
+     *
+     * Installed package requirements are traversed recursively so dependencies
+     * register their providers before the packages that depend on them.
+     *
+     * @param string $composer Absolute path to the custom composer.json file.
      */
     public function parseComposer(string $composer)
     {
@@ -165,12 +175,7 @@ class PackageCommand extends Command
 
         if (isset($data['require'])) {
             foreach ($data['require'] as $key => $value) {
-                $composer = EVO_CORE_PATH . 'vendor/' . $key . '/composer.json';
-                $this->packagePath = EVO_CORE_PATH . 'vendor/' . $key . '/';
-                if (file_exists($composer)) {
-                    $this->checkRequired($composer);
-                    $this->parseComposerServiceProvider($composer);
-                }
+                $this->discoverPackage((string) $key);
             }
         }
         if (isset($data['autoload']['psr-4'])) {
@@ -319,24 +324,55 @@ class PackageCommand extends Command
         File::copyDirectory($this->packagePath . $copyArray['source'], $this->load_dir . $copyArray['destination']);
     }
 
-    protected function checkRequired($composer)
+    /**
+     * Recursively discover one installed package in dependency-first order.
+     *
+     * Visiting and discovered sets make shared dependencies idempotent and stop
+     * circular Composer requirements without package-specific exceptions.
+     *
+     * @since 3.5.8
+     * @param string $package Composer package name.
+     * @return void
+     */
+    protected function discoverPackage(string $package): void
     {
-        $composerArray = json_decode(file_get_contents($composer), true);
-        if (isset($composerArray['require']) && is_array($composerArray['require'])) {
-            foreach ($composerArray['require'] as $key => $item) {
-                $this->require[] = $key;
-            }
+        $package = strtolower(trim($package));
+        if ($package === '' || isset($this->discoveredPackages[$package]) || isset($this->visitingPackages[$package])) {
+            return;
         }
+
+        $this->visitingPackages[$package] = true;
+        $composer = $this->packageComposerPath($package);
+
+        if (is_file($composer)) {
+            $composerArray = json_decode((string) file_get_contents($composer), true);
+
+            if (isset($composerArray['require']) && is_array($composerArray['require'])) {
+                foreach (array_keys($composerArray['require']) as $dependency) {
+                    $this->discoverPackage((string) $dependency);
+                }
+            }
+
+            $this->packagePath = dirname($composer) . '/';
+            $this->parseComposerServiceProvider($composer);
+        }
+
+        unset($this->visitingPackages[$package]);
+        $this->discoveredPackages[$package] = true;
     }
 
-    protected function loadRequire()
+    /**
+     * Resolve the installed composer.json path for a package.
+     *
+     * Kept separate from traversal so package graph fixtures can exercise the
+     * resolver without writing into the real vendor directory.
+     *
+     * @since 3.5.8
+     * @param string $package Normalized Composer package name.
+     * @return string Absolute path to the installed package metadata.
+     */
+    protected function packageComposerPath(string $package): string
     {
-        foreach ($this->require as $require) {
-            $composer = EVO_CORE_PATH . 'vendor/' . $require . '/composer.json';
-            $this->packagePath = EVO_CORE_PATH . 'vendor/' . $require . '/';
-            if (file_exists($composer)) {
-                $this->parseComposerServiceProvider($composer);
-            }
-        }
+        return EVO_CORE_PATH . 'vendor/' . $package . '/composer.json';
     }
 }
