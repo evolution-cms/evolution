@@ -1624,6 +1624,7 @@ $_lang["access_permissions_file_message"] = 'Выберыце, да якіх Г�
 $_lang["access_permissions_dir_message"] = 'Выберыце, да якіх Груп рэсурсаў належыць гэты каталог:';
 $_lang["all_file_groups"] = 'Усе групы рэсурсаў (Публічныя)';
 
+$_lang['eventlog_mail_sent'] = 'Электронны ліст адпраўлены';
 $_lang['mail_test_title'] = 'Тэставае паштовае паведамленне';
 $_lang['mail_test_destination'] = 'Email атрымальніка';
 $_lang['mail_test_send'] = 'Адправіць тэст';

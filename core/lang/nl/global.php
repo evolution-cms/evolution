@@ -1447,6 +1447,7 @@ $_lang["access_permissions_file_message"] = 'Selecteer tot welke Resourcegroepen
 $_lang["access_permissions_dir_message"] = 'Selecteer tot welke Resourcegroepen deze map behoort:';
 $_lang["all_file_groups"] = 'Alle resourcegroepen (Openbaar)';
 
+$_lang['eventlog_mail_sent'] = 'E-mail verzonden';
 $_lang['mail_test_title'] = 'Test-e-mail';
 $_lang['mail_test_destination'] = 'E-mailadres ontvanger';
 $_lang['mail_test_send'] = 'Test verzenden';

@@ -3,8 +3,32 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception as PHPMailerException;
 
+/**
+ * Evolution mail transport configured from the active CMS settings.
+ */
 class Mail extends PHPMailer
 {
+    /**
+     * Maximum subject length retained in a successful-mail event.
+     *
+     * @since 3.5.8
+     */
+    protected const EVENT_LOG_SUBJECT_LIMIT = 255;
+
+    /**
+     * Maximum number of addresses retained per recipient group.
+     *
+     * @since 3.5.8
+     */
+    protected const EVENT_LOG_RECIPIENT_LIMIT = 10;
+
+    /**
+     * Maximum length retained for one recipient address.
+     *
+     * @since 3.5.8
+     */
+    protected const EVENT_LOG_ADDRESS_LIMIT = 254;
+
     /**
      * @var string
      */
@@ -24,6 +48,13 @@ class Mail extends PHPMailer
      * @var Core $modx
      */
     protected $modx;
+
+    /**
+     * Prevent successful-mail logging from recursively producing more mail log events.
+     *
+     * @since 3.5.8
+     */
+    protected static bool $loggingMailSentEvent = false;
 
     public function init($modx = null)
     {
@@ -151,7 +182,114 @@ class Mail extends PHPMailer
         $this->Body = removeSanitizeSeed($this->Body);
         $this->Subject = removeSanitizeSeed($this->Subject);
 
-        return parent::send();
+        $sent = parent::send();
+        if ($sent) {
+            $this->logSuccessfulSend();
+        }
+
+        return $sent;
+    }
+
+    /**
+     * Record safe transport metadata after PHPMailer confirms that it accepted the message.
+     *
+     * The subject and bounded To/CC/BCC address lists are retained as escaped manager HTML.
+     * Body, attachments, headers and transport credentials are deliberately excluded.
+     *
+     * @since 3.5.8
+     */
+    protected function logSuccessfulSend(): void
+    {
+        if (
+            static::$loggingMailSentEvent
+            || $this->modx === null
+            || ($this->modx->debug && strtolower($this->Mailer) === 'mail')
+        ) {
+            return;
+        }
+
+        static::$loggingMailSentEvent = true;
+
+        try {
+            $method = match (strtolower($this->Mailer)) {
+                'smtp' => 'SMTP',
+                'mail' => 'PHP mail()',
+                'sendmail' => 'sendmail',
+                'qmail' => 'qmail',
+                default => 'custom transport',
+            };
+
+            $this->modx->logEvent(
+                0,
+                Models\EventLog::TYPE_MAIL_SENT,
+                sprintf(
+                    'Mail accepted for delivery.<br>Method: %s<br>Subject: %s<br>To: %s<br>CC: %s<br>BCC: %s',
+                    $method,
+                    $this->formatEventLogValue($this->Subject, static::EVENT_LOG_SUBJECT_LIMIT),
+                    $this->formatEventLogRecipients($this->getToAddresses()),
+                    $this->formatEventLogRecipients($this->getCcAddresses()),
+                    $this->formatEventLogRecipients($this->getBccAddresses())
+                ),
+                'Mailer'
+            );
+        } catch (\Throwable) {
+            // Observability must not turn a successfully accepted message into a send failure.
+        } finally {
+            static::$loggingMailSentEvent = false;
+        }
+    }
+
+    /**
+     * Format a bounded recipient-address list for safe Event Log HTML.
+     *
+     * Names are deliberately omitted. When the group exceeds the configured limit, the
+     * representation states exactly how many additional addresses were not retained.
+     *
+     * @since 3.5.8
+     */
+    protected function formatEventLogRecipients(array $recipients): string
+    {
+        $total = count($recipients);
+        $addresses = [];
+
+        foreach (array_slice($recipients, 0, static::EVENT_LOG_RECIPIENT_LIMIT) as $recipient) {
+            $addresses[] = $this->formatEventLogValue(
+                (string)($recipient[0] ?? ''),
+                static::EVENT_LOG_ADDRESS_LIMIT
+            );
+        }
+
+        $formatted = $addresses === [] ? '(none)' : implode(', ', $addresses);
+        if ($total > static::EVENT_LOG_RECIPIENT_LIMIT) {
+            $formatted .= sprintf(
+                ' ... (+%d more)',
+                $total - static::EVENT_LOG_RECIPIENT_LIMIT
+            );
+        }
+
+        return $formatted;
+    }
+
+    /**
+     * Escape and truncate one dynamic value for safe Event Log HTML.
+     *
+     * @since 3.5.8
+     */
+    protected function formatEventLogValue(string $value, int $limit): string
+    {
+        $value = trim($value);
+        $length = extension_loaded('mbstring')
+            ? mb_strlen($value, 'UTF-8')
+            : strlen($value);
+
+        if ($length > $limit) {
+            $value = extension_loaded('mbstring')
+                ? mb_substr($value, 0, max(0, $limit - 3), 'UTF-8')
+                : substr($value, 0, max(0, $limit - 3));
+            $value .= '...';
+        }
+
+        return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
     /**
@@ -186,7 +324,7 @@ class Mail extends PHPMailer
             $debug_info .= "send_mode = {$mode}\n";
             $debug_info .= 'Subject = ' . $this->Subject . "\n";
             $log = "<pre>{$debug_info}\n{$header}\n{$org_body}</pre>";
-            $this->modx->logEvent(1, 1, $log, 'MODxMailer debug information');
+            $this->modx->logEvent(1, 1, $log, 'EVOMailer debug information');
 
             return true;
         }
@@ -262,7 +400,10 @@ class Mail extends PHPMailer
     }
 
     /**
-     * Add an error message to the error container.
+     * Add an error to PHPMailer while recording only safe transport metadata.
+     *
+     * The detailed message remains available through PHPMailer ErrorInfo but is not copied to
+     * the event log because it may contain message content, headers, addresses or credentials.
      *
      * @param string $msg
      */

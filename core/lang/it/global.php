@@ -1496,6 +1496,7 @@ $_lang["access_permissions_file_message"] = 'Seleziona a quali Gruppi di risorse
 $_lang["access_permissions_dir_message"] = 'Seleziona a quali Gruppi di risorse appartiene questa directory:';
 $_lang["all_file_groups"] = 'Tutti i gruppi di risorse (Pubblico)';
 
+$_lang['eventlog_mail_sent'] = 'E-mail inviata';
 $_lang['mail_test_title'] = 'Messaggio e-mail di prova';
 $_lang['mail_test_destination'] = 'E-mail del destinatario';
 $_lang['mail_test_send'] = 'Invia prova';

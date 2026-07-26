@@ -1524,6 +1524,7 @@ $_lang["access_permissions_file_message"] = 'Выберите, к каким Г�
 $_lang["access_permissions_dir_message"] = 'Выберите, к каким Группам ресурсов относится эта директория:';
 $_lang["all_file_groups"] = 'Все группы ресурсов (Публичные)';
 
+$_lang['eventlog_mail_sent'] = 'Письмо отправлено';
 $_lang['mail_test_title'] = 'Тестовое почтовое сообщение';
 $_lang['mail_test_destination'] = 'Email получателя';
 $_lang['mail_test_send'] = 'Отправить тест';

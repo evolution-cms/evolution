@@ -1250,6 +1250,7 @@ $_lang["access_permissions_file_message"] = 'בחר לאילו קבוצות מש
 $_lang["access_permissions_dir_message"] = 'בחר לאילו קבוצות משאבים שייכת תיקייה זו:';
 $_lang["all_file_groups"] = 'כל קבוצות המשאבים (ציבורי)';
 
+$_lang['eventlog_mail_sent'] = 'הדוא״ל נשלח';
 $_lang['mail_test_title'] = 'הודעת דוא״ל לבדיקה';
 $_lang['mail_test_destination'] = 'דוא״ל הנמען';
 $_lang['mail_test_send'] = 'שליחת בדיקה';

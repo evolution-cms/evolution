@@ -1482,6 +1482,7 @@ $_lang["access_permissions_file_message"] = 'Wybierz, do których Grup zasobów 
 $_lang["access_permissions_dir_message"] = 'Wybierz, do których Grup zasobów należy ten katalog:';
 $_lang["all_file_groups"] = 'Wszystkie grupy zasobów (Publiczne)';
 
+$_lang['eventlog_mail_sent'] = 'E-mail wysłany';
 $_lang['mail_test_title'] = 'Testowa wiadomość e-mail';
 $_lang['mail_test_destination'] = 'E-mail odbiorcy';
 $_lang['mail_test_send'] = 'Wyślij test';

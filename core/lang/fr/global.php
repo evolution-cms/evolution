@@ -1220,6 +1220,7 @@ $_lang["access_permissions_file_message"] = 'Sélectionnez les Groupes de ressou
 $_lang["access_permissions_dir_message"] = 'Sélectionnez les Groupes de ressources auxquels appartient ce répertoire :';
 $_lang["all_file_groups"] = 'Tous les groupes de ressources (Public)';
 
+$_lang['eventlog_mail_sent'] = 'E-mail envoyé';
 $_lang['mail_test_title'] = 'Message de test';
 $_lang['mail_test_destination'] = 'E-mail du destinataire';
 $_lang['mail_test_send'] = 'Envoyer le test';

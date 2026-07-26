@@ -194,11 +194,11 @@ return new class extends Migration
         $this->createTableIfMissing('event_log', function(Blueprint $table)
         {
             $indexPrefix = \DB::getTablePrefix() . $table->getTable();
-            $table->comment('System event log - records all system events, errors, warnings, and informational messages');
+            $table->comment('System event log - records information, warnings, errors, and accepted mail messages');
             $table->increments('id');
             $table->unsignedInteger('eventid')->nullable()->default(0);
             $table->unsignedInteger('createdon')->default(0);
-            $table->unsignedInteger('type')->default(1)->comment('1- information, 2 - warning, 3- error');
+            $table->unsignedInteger('type')->default(1)->comment('1 - information, 2 - warning, 3 - error, 4 - mail accepted for delivery');
             $table->unsignedInteger('user')->default(0)->index("{$indexPrefix}_user")->comment('link to user table');
             $table->unsignedInteger('usertype')->default(0)->comment('0 - manager, 1 - web');
             $table->string('source', 128)->default('');

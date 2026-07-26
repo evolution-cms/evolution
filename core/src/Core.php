@@ -3838,7 +3838,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * Add an a alert message to the system event log
      *
      * @param int $evtid Event ID
-     * @param int $type Types: 1 = information, 2 = warning, 3 = error
+     * @param int $type Types: 1 = information, 2 = warning, 3 = error, 4 = mail accepted for delivery
      * @param string $msg Message to be logged
      * @param string $source source of the event (module, snippet name, etc.)
      *                       Default: Parser
@@ -3862,11 +3862,11 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $evtid = (int) $evtid;
         $type = (int) $type;
 
-        // Types: 1 = information, 2 = warning, 3 = error
-        if ($type < 1) {
-            $type = 1;
-        } elseif ($type > 3) {
-            $type = 3;
+        // Preserve the historical fallback to error while allowing the explicit mail-sent state.
+        if ($type < EventLog::TYPE_INFORMATION) {
+            $type = EventLog::TYPE_INFORMATION;
+        } elseif ($type > EventLog::TYPE_MAIL_SENT) {
+            $type = EventLog::TYPE_ERROR;
         }
 
         EventLog::insert([
@@ -3889,7 +3889,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             'usertype' => $this->isFrontend() ? 1 : 0
         ]);
 
-        if ($this->getConfig('send_errormail', '0') != '0') {
+        if ($type <= EventLog::TYPE_ERROR && $this->getConfig('send_errormail', '0') != '0') {
             if ($this->getConfig('send_errormail') <= $type) {
                 $this->sendmail([
                     'subject' => 'Evolution CMS System Error on ' . $this->getConfig('site_name'),

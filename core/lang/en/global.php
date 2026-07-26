@@ -1523,6 +1523,7 @@ $_lang["setting_from_file"] = '<strong class="text-danger">Parameter value is de
 $_lang['disable'] = 'Disable';
 $_lang['enable'] = 'Enable';
 
+$_lang['eventlog_mail_sent'] = 'Mail sent';
 $_lang['mail_test_title'] = 'Test mail message';
 $_lang['mail_test_destination'] = 'Destination email';
 $_lang['mail_test_send'] = 'Send test';

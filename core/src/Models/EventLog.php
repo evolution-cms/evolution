@@ -54,6 +54,7 @@ class EventLog extends Eloquent\Model
     public const TYPE_INFORMATION = 1;
     public const TYPE_WARNING = 2;
     public const TYPE_ERROR = 3;
+    public const TYPE_MAIL_SENT = 4;
 
     public const USER_MGR = 0;
     public const USER_WEB = 1;
@@ -71,6 +72,16 @@ class EventLog extends Eloquent\Model
     public function isErrorType() : bool
     {
         return $this->type === static::TYPE_ERROR;
+    }
+
+    /**
+     * Determine whether the event confirms that a mail transport accepted a message.
+     *
+     * @since 3.5.8
+     */
+    public function isMailSentType(): bool
+    {
+        return $this->type === static::TYPE_MAIL_SENT;
     }
 
     public function getCreatedAtAttribute()

@@ -1253,6 +1253,7 @@ $_lang["access_permissions_file_message"] = 'Vælg hvilke Ressourcegrupper denne
 $_lang["access_permissions_dir_message"] = 'Vælg hvilke Ressourcegrupper denne mappe tilhører:';
 $_lang["all_file_groups"] = 'Alle ressourcegrupper (Offentlige)';
 
+$_lang['eventlog_mail_sent'] = 'E-mail sendt';
 $_lang['mail_test_title'] = 'Testmail';
 $_lang['mail_test_destination'] = 'Modtagerens e-mail';
 $_lang['mail_test_send'] = 'Send test';

@@ -1254,6 +1254,7 @@ $_lang["access_permissions_file_message"] = 'Vyberte, do kterých Skupin zdrojů
 $_lang["access_permissions_dir_message"] = 'Vyberte, do kterých Skupin zdrojů tento adresář patří:';
 $_lang["all_file_groups"] = 'Všechny skupiny zdrojů (Veřejné)';
 
+$_lang['eventlog_mail_sent'] = 'E-mail byl odeslán';
 $_lang['mail_test_title'] = 'Testovací e-mailová zpráva';
 $_lang['mail_test_destination'] = 'E-mail příjemce';
 $_lang['mail_test_send'] = 'Odeslat test';

@@ -19,7 +19,7 @@ class CreateEventLogTable extends Migration
 			$table->integer('id', true);
 			$table->integer('eventid')->nullable()->default(0);
 			$table->integer('createdon')->default(0);
-			$table->integer('type')->default(1)->comment('1- information, 2 - warning, 3- error');
+			$table->integer('type')->default(1)->comment('1 - information, 2 - warning, 3 - error, 4 - mail accepted for delivery');
 			$table->integer('user')->default(0)->index("{$indexPrefix}_user")->comment('link to user table');
 			$table->integer('usertype')->default(0)->comment('0 - manager, 1 - web');
 			$table->string('source', 128)->default('');

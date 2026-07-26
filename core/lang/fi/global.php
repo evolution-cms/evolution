@@ -1249,6 +1249,7 @@ $_lang["access_permissions_file_message"] = 'Valitse mihin Resurssiryhmiin täm�
 $_lang["access_permissions_dir_message"] = 'Valitse mihin Resurssiryhmiin tämä hakemisto kuuluu:';
 $_lang["all_file_groups"] = 'Kaikki resurssiryhmät (Julkinen)';
 
+$_lang['eventlog_mail_sent'] = 'Sähköposti lähetetty';
 $_lang['mail_test_title'] = 'Testisähköposti';
 $_lang['mail_test_destination'] = 'Vastaanottajan sähköposti';
 $_lang['mail_test_send'] = 'Lähetä testi';

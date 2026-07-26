@@ -33,80 +33,72 @@
     ?>
     @push('scripts.top')
         <script type="text/javascript">
-          function searchResource()
-          {
-            document.resource.op.value = 'srch';
-            document.resource.submit();
-          };
-
-          function resetSearch()
-          {
-            document.resource.search.value = '';
-            document.resource.op.value = 'reset';
-            document.resource.submit();
-          };
-
-          function changeListMode()
-          {
-            var m = parseInt(document.resource.listmode.value) ? 1 : 0;
-            if (m) {
-              document.resource.listmode.value = 0;
-            } else {
-              document.resource.listmode.value = 1;
+            function searchResource() {
+                document.resource.op.value = 'srch';
+                document.resource.submit();
             }
-            document.resource.submit();
-          };
-
-          var selectedItem;
-          var contextm = '{{ $cm->getClientScriptObject() }}';
-
-          function showContentMenu(id, e)
-          {
-            selectedItem = id;
-            contextm.style.left = (e.pageX || (e.clientX + (document.documentElement.scrollLeft || document.body.scrollLeft))) + 'px';
-            contextm.style.top = (e.pageY || (e.clientY + (document.documentElement.scrollTop || document.body.scrollTop))) + 'px';
-            contextm.style.visibility = 'visible';
-            e.cancelBubble = true;
-            return false;
-          };
-
-          function menuAction(a)
-          {
-            var id = selectedItem;
-            switch (a) {
-              case 1:		// view log details
-                window.location.href = 'index.php?a=115&id=' + id;
-                break;
-              case 2:		// clear log
-                window.location.href = 'index.php?a=116&id=' + id;
-                break;
+            function resetSearch() {
+                document.resource.search.value = '';
+                document.resource.op.value = 'reset';
+                document.resource.submit();
             }
-          }
+            function changeListMode() {
+                var m = parseInt(document.resource.listmode.value) ? 1 : 0;
+                if (m) {
+                    document.resource.listmode.value = 0;
+                } else {
+                    document.resource.listmode.value = 1;
+                }
+                document.resource.submit();
+            }
 
-          document.addEventListener('click', function() {
-            contextm.style.visibility = 'hidden';
-          });
+            var selectedItem;
+            var contextm = '{{$cm->getClientScriptObject()}}';
 
-          document.addEventListener('DOMContentLoaded', function() {
-            var h1help = document.querySelector('h1 > .help');
-            h1help.onclick = function() {
-              document.querySelector('.element-edit-message').classList.toggle('show');
-            };
-          });
+            function showContentMenu(id, e) {
+                selectedItem = id;
+                contextm.style.left = (e.pageX || (e.clientX + (document.documentElement.scrollLeft || document.body.scrollLeft))) + 'px';
+                contextm.style.top = (e.pageY || (e.clientY + (document.documentElement.scrollTop || document.body.scrollTop))) + 'px';
+                contextm.style.visibility = 'visible';
+                e.cancelBubble = true;
+                return false;
+            }
+            function menuAction(a) {
+                var id = selectedItem;
+                switch (a) {
+                    case 1:		// view log details
+                        window.location.href = 'index.php?a=115&id=' + id;
+                        break;
+                    case 2:		// clear log
+                        window.location.href = 'index.php?a=116&id=' + id;
+                        break;
+                }
+            }
+
+            document.addEventListener('click', function() {
+                contextm.style.visibility = 'hidden';
+            });
+
+            document.addEventListener('DOMContentLoaded', function() {
+                var h1help = document.querySelector('h1 > .help');
+                h1help.onclick = function() {
+                    document.querySelector('.element-edit-message').classList.toggle('show');
+                }
+            });
         </script>
     @endpush
 
     <form name="resource" method="post">
-        <input type="hidden" name="id" value="{{ get_by_key($_REQUEST, 'id') }}" />
-        <input type="hidden" name="listmode" value="{{ $listmode }}" />
+        <input type="hidden" name="id" value="{{get_by_key($_REQUEST, 'id')}}" />
+        <input type="hidden" name="listmode" value="{{$listmode}}" />
         <input type="hidden" name="op" value="" />
 
         <h1>
-            <i class="{{ $_style['icon_info_triangle'] }}"></i>{{ ManagerTheme::getLexicon('eventlog_viewer') }}<i class="{{ $_style['icon_question_circle'] }} help"></i>
+            <i class="{{ $_style['icon_info_triangle'] }}"></i>{{ManagerTheme::getLexicon('eventlog_viewer')}}<i class="{{$_style['icon_question_circle']}} help"></i>
         </h1>
 
         <div class="container element-edit-message">
-            <div class="alert alert-info">{{ ManagerTheme::getLexicon('eventlog_msg') }}</div>
+            <div class="alert alert-info">{{ManagerTheme::getLexicon('eventlog_msg')}}</div>
         </div>
 
         <div class="tab-page">
@@ -155,7 +147,12 @@
                         $grd->pagerStyle = 'white-space: normal;';
                         $grd->pageClass = 'page-item';
                         $grd->selPageClass = 'page-item active';
-                        $grd->prepareResult = ['icon' => [1 => "text-info " . $_style['icon_info_circle'], 2 => "text-warning " . $_style['icon_info_triangle'], 3 => "text-danger " . $_style['icon_cancel']]];
+                        $grd->prepareResult = ['icon' => [
+                            \EvolutionCMS\Models\EventLog::TYPE_INFORMATION => "text-info " . $_style['icon_info_circle'],
+                            \EvolutionCMS\Models\EventLog::TYPE_WARNING => "text-warning " . $_style['icon_info_triangle'],
+                            \EvolutionCMS\Models\EventLog::TYPE_ERROR => "text-danger " . $_style['icon_cancel'],
+                            \EvolutionCMS\Models\EventLog::TYPE_MAIL_SENT => "text-success " . $_style['icon_mail'],
+                        ]];
                         $grd->noRecordMsg = ManagerTheme::getLexicon('no_records_found');
                         $grd->cssClass = "table data nowrap";
                         $grd->columnHeaderClass = "tableHeader";
