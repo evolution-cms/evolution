@@ -56,6 +56,9 @@ class EventLog extends Eloquent\Model
     public const TYPE_ERROR = 3;
     public const TYPE_MAIL_SENT = 4;
 
+    public const MAIL_SENT_SOURCE_FALLBACK = 'Mailer';
+    public const SOURCE_DISPLAY_LIMIT = 50;
+
     public const USER_MGR = 0;
     public const USER_WEB = 1;
 
@@ -82,6 +85,59 @@ class EventLog extends Eloquent\Model
     public function isMailSentType(): bool
     {
         return $this->type === static::TYPE_MAIL_SENT;
+    }
+
+    /**
+     * Prepare a mail subject for storage in the Event Log source field.
+     *
+     * @since 3.5.8
+     */
+    public static function mailSentListSource(string $subject): string
+    {
+        $subject = preg_replace('/[\x00-\x1F\x7F]+/u', ' ', $subject);
+        if (!is_string($subject)) {
+            return static::MAIL_SENT_SOURCE_FALLBACK;
+        }
+
+        $subject = preg_replace('/\s+/u', ' ', trim($subject));
+        if (!is_string($subject) || $subject === '') {
+            return static::MAIL_SENT_SOURCE_FALLBACK;
+        }
+
+        if (extension_loaded('mbstring')) {
+            if (mb_strlen($subject, 'UTF-8') <= static::SOURCE_DISPLAY_LIMIT) {
+                return $subject;
+            }
+
+            return mb_substr($subject, 0, static::SOURCE_DISPLAY_LIMIT - 3, 'UTF-8') . '...';
+        }
+
+        if (strlen($subject) <= static::SOURCE_DISPLAY_LIMIT) {
+            return $subject;
+        }
+
+        return substr($subject, 0, static::SOURCE_DISPLAY_LIMIT - 3) . '...';
+    }
+
+    /**
+     * Safely present a selected source alias in the legacy Event Viewer DataGrid.
+     *
+     * Non-mail rows intentionally retain their historical rendering behavior.
+     *
+     * @since 3.5.8
+     */
+    public function getListSourceAttribute(?string $source): string
+    {
+        if (!$this->isMailSentType()) {
+            return (string)$source;
+        }
+
+        $source = trim((string)$source);
+        if ($source === '') {
+            $source = static::MAIL_SENT_SOURCE_FALLBACK;
+        }
+
+        return htmlspecialchars($source, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8');
     }
 
     public function getCreatedAtAttribute()

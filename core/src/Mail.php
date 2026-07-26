@@ -218,19 +218,33 @@ class Mail extends PHPMailer
                 'qmail' => 'qmail',
                 default => 'custom transport',
             };
+            $description = [
+                'Mail accepted for delivery.',
+                sprintf('Method: %s', $method),
+                sprintf(
+                    'Subject: %s',
+                    $this->formatEventLogValue($this->Subject, static::EVENT_LOG_SUBJECT_LIMIT)
+                ),
+                sprintf('To: %s', $this->formatEventLogRecipients($this->getToAddresses())),
+            ];
+            if ($this->getCcAddresses() !== []) {
+                $description[] = sprintf(
+                    'CC: %s',
+                    $this->formatEventLogRecipients($this->getCcAddresses())
+                );
+            }
+            if ($this->getBccAddresses() !== []) {
+                $description[] = sprintf(
+                    'BCC: %s',
+                    $this->formatEventLogRecipients($this->getBccAddresses())
+                );
+            }
 
             $this->modx->logEvent(
                 0,
                 Models\EventLog::TYPE_MAIL_SENT,
-                sprintf(
-                    'Mail accepted for delivery.<br>Method: %s<br>Subject: %s<br>To: %s<br>CC: %s<br>BCC: %s',
-                    $method,
-                    $this->formatEventLogValue($this->Subject, static::EVENT_LOG_SUBJECT_LIMIT),
-                    $this->formatEventLogRecipients($this->getToAddresses()),
-                    $this->formatEventLogRecipients($this->getCcAddresses()),
-                    $this->formatEventLogRecipients($this->getBccAddresses())
-                ),
-                'Mailer'
+                implode('<br>', $description),
+                Models\EventLog::mailSentListSource($this->Subject)
             );
         } catch (\Throwable) {
             // Observability must not turn a successfully accepted message into a send failure.

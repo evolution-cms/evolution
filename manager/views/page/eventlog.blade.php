@@ -124,7 +124,15 @@
                 <div class="row">
                     <div class="table-responsive">
                         <?php
-                        $eventLog = \EvolutionCMS\Models\EventLog::query()->select('event_log.id', 'event_log.type as icon', 'event_log.createdon', 'event_log.source', 'event_log.eventid', 'users.username as username')
+                        $eventLog = \EvolutionCMS\Models\EventLog::query()->select(
+                            'event_log.id',
+                            'event_log.type',
+                            'event_log.type as icon',
+                            'event_log.createdon',
+                            'event_log.source as list_source',
+                            'event_log.eventid',
+                            'users.username as username'
+                        )
                            ->leftJoin('users', function($join)
                         {
                             $join->on('users.id', '=', 'event_log.user');
@@ -158,11 +166,11 @@
                         $grd->columnHeaderClass = "tableHeader";
                         $grd->itemClass = "tableItem";
                         $grd->altItemClass = "tableAltItem";
-                        $grd->fields = "type,source,createdon,eventid,username";
+                        $grd->fields = "type,list_source,createdon,eventid,username";
                         $grd->columns = ManagerTheme::getLexicon('type') . " ," . ManagerTheme::getLexicon('source') . " ," . ManagerTheme::getLexicon('date') . " ," . ManagerTheme::getLexicon('event_id') . " ," . ManagerTheme::getLexicon('sysinfo_userid');
                         $grd->colWidths = "1%,,1%,1%,1%";
                         $grd->colAligns = "center,,,center,center";
-                        $grd->colTypes = "template:<a class='gridRowIcon' href='javascript:;' onclick='return showContentMenu([+id+],event);' title='" . ManagerTheme::getLexicon('click_to_context') . "'><i class='[+icon+]'></i></a>||template:<a href='index.php?a=115&id=[+id+]' title='" . ManagerTheme::getLexicon('click_to_view_details') . "'>[+source+]</a>||date: " . EvolutionCMS()->toDateFormat(null, 'formatOnly');
+                        $grd->colTypes = "template:<a class='gridRowIcon' href='javascript:;' onclick='return showContentMenu([+id+],event);' title='" . ManagerTheme::getLexicon('click_to_context') . "'><i class='[+icon+]'></i></a>||template:<a href='index.php?a=115&id=[+id+]' title='" . ManagerTheme::getLexicon('click_to_view_details') . "'>[+list_source+]</a>||date: " . EvolutionCMS()->toDateFormat(null, 'formatOnly');
                         if ($listmode == '1') {
                             $grd->pageSize = 0;
                         }
