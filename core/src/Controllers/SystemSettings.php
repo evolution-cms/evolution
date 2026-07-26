@@ -2,6 +2,7 @@
 
 use EvolutionCMS\Interfaces\ManagerTheme;
 use EvolutionCMS\Models;
+use EvolutionCMS\Support\SiteTimezone;
 use function extension_loaded;
 use function is_array;
 
@@ -66,6 +67,7 @@ class SystemSettings extends AbstractController implements ManagerTheme\PageCont
             'displayStyle' => ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block',
             'fileBrowsers' => $this->parameterFileBrowsers(),
             'themes' => $this->parameterThemes(),
+            'siteTimezones' => $this->parameterSiteTimezones(),
             'serverTimes' => $this->parameterServerTimes(),
             'phxEnabled' => Models\SitePlugin::activePhx()
                 ->count(),
@@ -157,6 +159,21 @@ class SystemSettings extends AbstractController implements ManagerTheme\PageCont
     }
 
     /**
+     * Build the selectable IANA timezone identifiers.
+     *
+     * @since 3.5.8
+     */
+    protected function parameterSiteTimezones(): array
+    {
+        $timezones = [];
+        foreach (SiteTimezone::identifiers() as $timezone) {
+            $timezones[$timezone] = $timezone;
+        }
+
+        return $timezones;
+    }
+
+    /**
      * @return array
      */
     protected function parameterThemes(): array
@@ -242,6 +259,8 @@ class SystemSettings extends AbstractController implements ManagerTheme\PageCont
         if (!$this->parameterCheckGD()) {
             $out['use_captcha'] = 0;
         }
+
+        $out['site_timezone'] = SiteTimezone::resolve($out['site_timezone'] ?? null);
 
         return $out;
     }

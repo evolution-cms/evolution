@@ -97,6 +97,7 @@
     'html_comment' => '',
     'server_protocol' => 'http',
     'settings_version' => 0,
+    'site_timezone' => date_default_timezone_get(),
     'server_offset_time' => 0,
     'default_template' => 0,
     'publish_default' => '0',

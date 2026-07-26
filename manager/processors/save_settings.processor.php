@@ -94,6 +94,9 @@ if (isset($data) && count($data) > 0) {
                     $v = 'en';
                 }
                 break;
+            case 'site_timezone':
+                $v = \EvolutionCMS\Support\SiteTimezone::resolve($v);
+                break;
             case 'smtppw':
                 if ($v !== '********************' && $v !== '') {
                     $v = trim($v);

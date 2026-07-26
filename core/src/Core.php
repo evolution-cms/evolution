@@ -6341,6 +6341,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      */
     public function getSettings()
     {
+        $serverTimezone = date_default_timezone_get();
 
         /**
          * Restore original settings
@@ -6361,8 +6362,17 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
         $this->loadConfig();
 
+        // Apply the system timezone before user settings and OnLoadSettings hooks.
+        $siteTimezone = Support\SiteTimezone::apply(
+            $this->getConfig('site_timezone'),
+            $serverTimezone
+        );
+        $this->setConfig('site_timezone', $siteTimezone);
+        $this['config']->set('app.timezone', $siteTimezone);
+
         // now merge user settings into evo-configuration
         $this->getUserSettings();
+        $this->setConfig('site_timezone', $siteTimezone);
         $this->invokeEvent('OnLoadSettings', ['config' => &$this->config]);
     }
 

@@ -24,7 +24,8 @@ class SystemSettingsTableSeeder extends Seeder
             return;
         }
 
-        DB::table('system_settings')->insertOrIgnore([
+        $isFreshInstallation = DB::table('system_settings')->doesntExist();
+        $settings = [
             [
                 'setting_name' => 'settings_version',
                 'setting_value' => '',
@@ -201,6 +202,15 @@ class SystemSettingsTableSeeder extends Seeder
                 'setting_name' => 'smtp_autotls',
                 'setting_value' => '0',
             ],
-        ]);
+        ];
+
+        if ($isFreshInstallation) {
+            array_splice($settings, 1, 0, [[
+                'setting_name' => 'site_timezone',
+                'setting_value' => date_default_timezone_get(),
+            ]]);
+        }
+
+        DB::table('system_settings')->insertOrIgnore($settings);
     }
 }

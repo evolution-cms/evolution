@@ -19,6 +19,10 @@ class SystemSettingsTableSeeder extends Seeder
                 'setting_value' => '',
             ],
             [
+                'setting_name' => 'site_timezone',
+                'setting_value' => date_default_timezone_get(),
+            ],
+            [
                 'setting_name' => 'server_offset_time',
                 'setting_value' => '0',
             ],

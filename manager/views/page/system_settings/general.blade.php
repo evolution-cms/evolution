@@ -480,6 +480,20 @@
         <div class="split my-1"></div>
 
         @include('manager::form.select', [
+            'name' => 'site_timezone',
+            'label' => __('global.site_timezone_title'),
+            'small' => '[(site_timezone)]',
+            'value' => $settings['site_timezone'],
+            'options' => $siteTimezones,
+            'attributes' => 'onChange="documentDirty=true;" size="1"',
+            'comment' => (isset($disabledSettings['site_timezone']) ? __('global.setting_from_file') . '<br>' : '') .
+                __('global.site_timezone_message'),
+            'disabled' => $disabledSettings['site_timezone'] ?? null
+        ])
+
+        <div class="split my-1"></div>
+
+        @include('manager::form.select', [
             'name' => 'server_offset_time',
             'label' => __('global.serveroffset_title'),
             'small' => '[(server_offset_time)]',
@@ -487,6 +501,7 @@
             'options' => $serverTimes,
             'attributes' => 'onChange="documentDirty=true;" size="1"',
             'comment' => (isset($disabledSettings['server_offset_time']) ? __('global.setting_from_file') . '<br>' : '') .
+                __('global.serveroffset_deprecated_message') . '<br>' .
                 sprintf(__('global.serveroffset_message'), evolutionCMS()->toDateFormat(time(), 'timeOnly'), evolutionCMS()->toDateFormat(time() + $settings['server_offset_time'], 'timeOnly')),
             'disabled' => $disabledSettings['server_offset_time'] ?? null
         ])
