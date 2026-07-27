@@ -203,7 +203,7 @@ class SystemInfo extends AbstractController implements ManagerTheme\PageControll
             number_format($misses, 0, '.', ' ')
         );
 
-        return $label . $details . $resetResult;
+        return $label . ' ' . $details . $resetResult;
     }
 
     protected function jitStatus(): string
