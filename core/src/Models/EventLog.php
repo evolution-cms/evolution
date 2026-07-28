@@ -62,6 +62,8 @@ class EventLog extends Eloquent\Model
     public const MAIL_SENT_SOURCE_FALLBACK = 'Mailer';
     public const SOURCE_DISPLAY_LIMIT = 50;
 
+    private const MAIL_BODY_MARKER = '<!-- EvolutionCMS mail body: ';
+
     public const USER_MGR = 0;
     public const USER_WEB = 1;
 
@@ -120,6 +122,49 @@ class EventLog extends Eloquent\Model
         }
 
         return substr($subject, 0, static::SOURCE_DISPLAY_LIMIT - 3) . '...';
+    }
+
+    /**
+     * Append the successful message body in a format safe for the event description.
+     *
+     * @param string $description Existing event description.
+     * @param string $body Exact mail body accepted by the transport.
+     * @return string Description with the encoded mail body.
+     *
+     * @since 3.5.8
+     */
+    public static function appendMailBody(string $description, string $body): string
+    {
+        return $description . "\n" . static::MAIL_BODY_MARKER . base64_encode($body) . ' -->';
+    }
+
+    /**
+     * Return the encoded body for a successful mail event when present.
+     *
+     * @return string|null Exact accepted mail body or null for legacy/non-mail events.
+     *
+     * @since 3.5.8
+     */
+    public function mailBody(): ?string
+    {
+        if (!$this->isMailSentType()) {
+            return null;
+        }
+
+        $description = (string)$this->getRawOriginal('description');
+        $markerPosition = strrpos($description, static::MAIL_BODY_MARKER);
+        if ($markerPosition === false) {
+            return null;
+        }
+
+        $encodedBody = substr($description, $markerPosition + strlen(static::MAIL_BODY_MARKER));
+        if (!is_string($encodedBody) || !str_ends_with($encodedBody, ' -->')) {
+            return null;
+        }
+
+        $body = base64_decode(substr($encodedBody, 0, -4), true);
+
+        return is_string($body) ? $body : null;
     }
 
     /**

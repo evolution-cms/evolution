@@ -56,6 +56,18 @@ class Mail extends PHPMailer
      */
     protected static bool $loggingMailSentEvent = false;
 
+    /**
+     * Initialize the active mail transport from the current CMS settings.
+     *
+     * Automatic SMTP sender selection uses a valid email-form SMTP username as
+     * both the visible From address and envelope sender. Explicit emailsender
+     * mode retains emailsender for both identities.
+     *
+     * @param Core|null $modx CMS instance supplying the active mail settings.
+     * @return static
+     *
+     * @since 3.5.8
+     */
     public function init($modx = null)
     {
         if ($modx === null) {
@@ -94,9 +106,19 @@ class Mail extends PHPMailer
                 $this->isMail();
         }
 
-        $this->From = $modx->getConfig('emailsender');
-        if (isset($modx->config['email_sender_method']) && !$modx->config['email_sender_method']) {
-            $this->Sender = $modx->getConfig('emailsender');
+        $emailSender = (string)$modx->getConfig('emailsender');
+        $senderMethod = (string)$modx->getConfig('email_sender_method');
+
+        // Non-SMTP transports and non-email login names retain the emailsender fallback.
+        $this->From = $emailSender;
+        if ($senderMethod === '0') {
+            $this->Sender = $emailSender;
+        } elseif ($senderMethod === '1' && $this->Mailer === 'smtp') {
+            $smtpUsername = trim((string)$modx->getConfig('smtp_username'));
+            if (static::validateAddress($smtpUsername)) {
+                $this->From = $smtpUsername;
+                $this->Sender = $smtpUsername;
+            }
         }
         $this->FromName = $modx->getPhpCompat()->entities($modx->getConfig('site_name'));
         $this->isHTML(true);
@@ -194,7 +216,8 @@ class Mail extends PHPMailer
      * Record safe transport metadata after PHPMailer confirms that it accepted the message.
      *
      * The subject and bounded To/CC/BCC address lists are retained as escaped manager HTML.
-     * Body, attachments, headers and transport credentials are deliberately excluded.
+     * The full body is encoded for a sandboxed Event Log preview; attachments, headers and
+     * transport credentials are deliberately excluded.
      *
      * @since 3.5.8
      */
@@ -243,7 +266,7 @@ class Mail extends PHPMailer
             $this->modx->logEvent(
                 0,
                 Models\EventLog::TYPE_MAIL_SENT,
-                implode('<br>', $description),
+                Models\EventLog::appendMailBody(implode('<br>', $description), $this->Body),
                 Models\EventLog::mailSentListSource($this->Subject)
             );
         } catch (\Throwable) {

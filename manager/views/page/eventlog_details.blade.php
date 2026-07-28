@@ -66,6 +66,16 @@
                         <tr>
                             <td width="100%" colspan="4"><br />
                                 {!! $log->description !!}
+                                @if($log->isMailSentType() && $log->mailBody() !== null)
+                                    <hr />
+                                    <iframe
+                                        sandbox=""
+                                        referrerpolicy="no-referrer"
+                                        srcdoc="{{ $log->mailBody() }}"
+                                        style="width:100%;height:600px;border:1px solid #dfe7ec;background:#fff;"
+                                        title="{{ ManagerTheme::getLexicon('eventlog_mail_sent') }}"
+                                    ></iframe>
+                                @endif
                             </td>
                         </tr>
                     </table>

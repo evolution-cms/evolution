@@ -120,14 +120,21 @@ class MailTest extends AbstractController implements ManagerThemeContract\PageCo
         $mailer = (new MailTestMailer())->init($evo);
         $mailer->addAddress($destination);
         $mailer->Subject = __('global.mail_test_subject', [
+            'destination' => $destination,
             'site' => (string)$evo->getConfig('site_name'),
         ]);
-        $mailer->Body = __('global.mail_test_body', [
+        $textBody = __('global.mail_test_body', [
             'site' => (string)$evo->getConfig('site_name'),
             'time' => date(DATE_ATOM),
             'method' => $methodLabel,
         ]);
-        $mailer->isHTML(false);
+        $mailer->isHTML(true);
+        $mailer->Body = $this->renderHtmlMessage(
+            $mailer->Subject,
+            $textBody,
+            __('global.mail_test_automated_note'),
+            (string)$evo->getVersionData('version')
+        );
 
         try {
             if (!$mailer->send()) {
@@ -181,5 +188,44 @@ class MailTest extends AbstractController implements ManagerThemeContract\PageCo
             'success' => false,
             'message' => $message,
         ];
+    }
+
+    /**
+     * Render the HTML-only body for a test mail message.
+     *
+     * @param string $subject Localized message subject.
+     * @param string $textBody Localized message body.
+     * @param string $footer Localized automated-message note.
+     * @param string $version Current Evolution CMS version.
+     * @return string Complete email-safe HTML document.
+     *
+     * @since 3.5.8
+     */
+    private function renderHtmlMessage(string $subject, string $textBody, string $footer, string $version): string
+    {
+        $subject = htmlspecialchars($subject, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8');
+        $textBody = nl2br(htmlspecialchars($textBody, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8'));
+        $footer = htmlspecialchars($footer, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8');
+        $version = htmlspecialchars($version, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8');
+
+        return <<<HTML
+<!doctype html>
+<html>
+<body style="margin:0;padding:24px;background:#f3f6f8;color:#243447;font-family:Arial,Helvetica,sans-serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+    <tr><td align="center">
+      <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #dfe7ec;border-radius:12px;overflow:hidden;">
+        <tr><td style="padding:24px 28px;background:#167d3f;color:#ffffff;">
+          <div style="font-size:14px;line-height:20px;opacity:.88;">Evolution CMS {$version}</div>
+          <h1 style="margin:6px 0 0;text-align:center;font-size:24px;line-height:32px;font-weight:700;">{$subject}</h1>
+        </td></tr>
+        <tr><td style="padding:28px;font-size:16px;line-height:26px;color:#334155;">{$textBody}</td></tr>
+        <tr><td style="padding:16px 28px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:12px;line-height:18px;color:#64748b;">{$footer}</td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>
+HTML;
     }
 }

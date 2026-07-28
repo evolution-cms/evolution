@@ -3978,7 +3978,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             [$p['fromname'], $p['from']] = $mail->address_split($p['from']);
         }
         $mail->setFrom(
-            isset($p['from']) ? $p['from'] : $this->getConfig('emailsender'),
+            isset($p['from']) ? $p['from'] : $mail->From,
             isset($p['fromname']) ? $p['fromname'] : $this->getConfig('site_name')
         );
         $mail->Subject = (!isset($p['subject'])) ? $this->getConfig('emailsubject') : $p['subject'];

@@ -69,6 +69,82 @@ test('init still decodes stored smtp password values', function () {
     expect($mail->Password)->toBe($plainPassword);
 });
 
+test('automatic SMTP sender uses an email-form SMTP username for From and envelope sender', function () {
+    $mail = (new Mail())->init(makeMailTestModx(mailSenderSettings([
+        'email_method' => 'smtp',
+        'email_sender_method' => '1',
+        'smtp_username' => 'website@example.com',
+        'emailsender' => 'support@example.net',
+    ])));
+
+    expect($mail->Mailer)->toBe('smtp')
+        ->and($mail->Username)->toBe('website@example.com')
+        ->and($mail->From)->toBe('website@example.com')
+        ->and($mail->Sender)->toBe('website@example.com');
+});
+
+test('explicit emailsender mode keeps emailsender as From and envelope sender for SMTP', function () {
+    $mail = (new Mail())->init(makeMailTestModx(mailSenderSettings([
+        'email_method' => 'smtp',
+        'email_sender_method' => '0',
+        'smtp_username' => 'website@example.com',
+        'emailsender' => 'support@example.net',
+    ])));
+
+    expect($mail->From)->toBe('support@example.net')
+        ->and($mail->Sender)->toBe('support@example.net');
+});
+
+test('automatic SMTP sender falls back safely when the SMTP username is not an email address', function (string $username) {
+    $mail = (new Mail())->init(makeMailTestModx(mailSenderSettings([
+        'email_method' => 'smtp',
+        'email_sender_method' => '1',
+        'smtp_username' => $username,
+        'emailsender' => 'support@example.net',
+    ])));
+
+    expect($mail->Username)->toBe($username)
+        ->and($mail->From)->toBe('support@example.net')
+        ->and($mail->Sender)->toBe('');
+})->with([
+    'non-email authentication name' => 'mailer-account',
+    'empty authentication name' => '',
+    'invalid email-like name' => 'mailer@@example.com',
+]);
+
+test('automatic non-SMTP sender retains the legacy mail transport fallback', function () {
+    $mail = (new Mail())->init(makeMailTestModx(mailSenderSettings([
+        'email_method' => 'mail',
+        'email_sender_method' => '1',
+        'smtp_username' => 'website@example.com',
+        'emailsender' => 'support@example.net',
+    ])));
+
+    expect($mail->Mailer)->toBe('mail')
+        ->and($mail->From)->toBe('support@example.net')
+        ->and($mail->Sender)->toBe('');
+});
+
+function mailSenderSettings(array $overrides = []): array
+{
+    return array_replace([
+        'email_method' => 'smtp',
+        'email_sender_method' => '1',
+        'smtp_secure' => 'none',
+        'smtp_port' => 25,
+        'smtp_host' => 'smtp.example.com',
+        'smtp_auth' => '1',
+        'smtp_autotls' => '0',
+        'smtp_username' => 'website@example.com',
+        'smtppw' => '',
+        'emailsender' => 'support@example.net',
+        'site_name' => 'Evolution CMS',
+        'manager_language' => 'english',
+        'evo_charset' => 'UTF-8',
+        'modx_charset' => 'UTF-8',
+    ], $overrides);
+}
+
 function makeMailTestModx(array $settings)
 {
     return new class($settings) implements ArrayAccess {

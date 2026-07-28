@@ -71,10 +71,30 @@ it('registers a native one-time Manager mail action', function () {
         ->toContain("\$request->isMethod('post')")
         ->toContain("in_array(\$method, ['mail', 'smtp'], true)")
         ->toContain('new MailTestMailer()')
+        ->toContain("'destination' => \$destination")
+        ->toContain('isHTML(true)')
+        ->toContain('renderHtmlMessage(')
+        ->toContain("getVersionData('version')")
+        ->not->toContain('AltBody')
         ->not->toContain("getConfig('email_method') !== 'smtp'");
 
     expect($managerTheme)
         ->toContain('201 => Controllers\MailTest::class')
         ->and($actionList[201] ?? null)->toBe('Sending a test mail message')
         ->and($managerRoutes)->not->toContain("Route::post('mail/test'");
+});
+
+it('provides the HTML test-mail copy in every bundled locale', function () {
+    $root = dirname(__DIR__, 4);
+    $languageFiles = glob($root . '/core/lang/*/global.php');
+
+    expect($languageFiles)->toHaveCount(22);
+    foreach ($languageFiles as $languageFile) {
+        $language = file_get_contents($languageFile);
+
+        expect($language)
+            ->toContain("\$_lang['mail_test_subject']")
+            ->toContain(':destination')
+            ->toContain("\$_lang['mail_test_automated_note']");
+    }
 });
