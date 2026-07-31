@@ -147,7 +147,7 @@ if (!empty($warnings)) {
 
     for ($i=0;$i<count($warnings);$i++) {
         switch ($warnings[$i][0]) {
-            case $_lang['configcheck_configinc'];
+            case $_lang['configcheck_configinc']:
                 $warnings[$i][1] = $_lang['configcheck_configinc_msg'];
                 if(empty($_SESSION["mgrConfigCheck"])) EvolutionCMS()->logEvent(0,3,$warnings[$i][1],$_lang['configcheck_configinc']);
                 break;
