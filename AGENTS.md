@@ -229,6 +229,33 @@ There are ~30 service providers in `core/src/Providers/`. Notable ones:
 - **Template Variables (TVs)** — custom fields attached to templates `[*tvName*]`
 - **Output Modifiers** — pipe-chained filters on tag output: `[*field*:modifier]`
 - **Templates** — whole page HTML with chunks, snippets, TVs
+
+---
+
+### Blade Directives
+
+Application developers can use these directives in Blade views instead of duplicating their underlying CMS logic:
+
+| Directive | Purpose |
+|---|---|
+| `@evoConfig('key')` | Output an Evolution CMS configuration value |
+| `@makeUrl($id)` | Build a CMS URL for a resource identifier |
+| `@revision('path/to/file.css')` | Build a public static-file URL with an mtime-based cache revision |
+| `@evoParser($value)` | Process Evolution CMS parser tags in a value |
+| `@evoRole('role')` / `@evoElseRole('role')` / `@evoEndRole` | Conditionally render content for a manager role |
+| `@auth` / `@guest` | Conditionally render content for authenticated or guest users |
+| `@lang('key')` | Output a localized translation string |
+
+Blade also provides its standard Laravel syntax. The most commonly used directives are:
+
+| Group | Directives |
+|---|---|
+| Layouts | `@extends`, `@section`, `@yield`, `@include`, `@component`, `@slot`, `@push`, `@stack` |
+| Conditions | `@if`, `@elseif`, `@else`, `@unless`, `@isset`, `@empty`, `@switch`, `@case`, `@default` |
+| Loops | `@for`, `@foreach`, `@forelse`, `@while`, `@break`, `@continue` |
+| Forms and security | `@csrf`, `@method`, `@error` |
+| PHP and escaping | `{{ $value }}`, `{!! $html !!}`, `@php`, `@verbatim` |
+
 ---
 
 ## Dependencies of Note
