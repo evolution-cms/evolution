@@ -1,5 +1,32 @@
 <?php
 
+if (!function_exists('revision')) {
+    /**
+     * Build a cache-versioned URL for a file located below the public web root.
+     *
+     * The revision is the file modification time, so browsers can cache the URL until the file
+     * actually changes. Missing or invalid paths still produce a regular public URL.
+     *
+     * @param string $path Path relative to the public web root.
+     * @return string Public URL with an mtime-based version query parameter when available.
+     * @since 3.5.8
+     */
+    function revision(string $path = ''): string
+    {
+        $path = ltrim(str_replace('\\', '/', trim($path)), '/');
+        $url = EVO_BASE_URL . $path;
+
+        if ($path === '' || str_contains($path, "\0") || preg_match('#(?:^|/)\.\.(?:/|$)#', $path)) {
+            return $url;
+        }
+
+        $file = EVO_BASE_PATH . str_replace('/', DIRECTORY_SEPARATOR, $path);
+        $mtime = is_file($file) ? @filemtime($file) : false;
+
+        return $mtime === false ? $url : $url . '?v=' . $mtime;
+    }
+}
+
 if (!function_exists('createGUID')) {
     /**
      * create globally unique identifiers (guid)

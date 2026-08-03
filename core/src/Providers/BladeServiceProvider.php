@@ -17,6 +17,16 @@ class BladeServiceProvider extends ServiceProvider
             return "<?php echo e(app('UrlProcessor')->makeUrlWithString($expression)); ?>";
         });
 
+        /**
+         * Render a public file URL with an mtime-based cache revision.
+         *
+         * @since 3.5.8
+         */
+        Blade::directive('revision', function ($expression) {
+            $expression = $expression ?: "''";
+            return "<?php echo e(revision($expression)); ?>";
+        });
+
         Blade::directive('evoParser', function ($expression) {
             $expression = $expression ?: "''";
             return "<?php echo evo_parser($expression); ?>";
