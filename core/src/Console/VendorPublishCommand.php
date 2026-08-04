@@ -45,11 +45,32 @@ class VendorPublishCommand extends Command
     protected $tags = [];
 
     /**
+     * The tag currently being published.
+     *
+     * @var string|null
+     */
+    protected $currentTag = null;
+
+    /**
      * The time the command started.
      *
      * @var \Illuminate\Support\Carbon|null
      */
     protected $publishedAt;
+
+    /**
+     * The publish manifest entries collected during the command run.
+     *
+     * @var array
+     */
+    protected $publishManifestEntries = [];
+
+    /**
+     * Composer package versions keyed by package name.
+     *
+     * @var array|null
+     */
+    protected $composerPackageVersions = null;
 
     /**
      * The console command signature.
@@ -98,8 +119,12 @@ class VendorPublishCommand extends Command
         $this->publishedAt = now();
         $this->determineWhatShouldBePublished();
 
-        foreach ($this->tags ?: [null] as $tag) {
-            $this->publishTag($tag);
+        try {
+            foreach ($this->tags ?: [null] as $tag) {
+                $this->publishTag($tag);
+            }
+        } finally {
+            $this->writePublishManifest();
         }
     }
 
@@ -194,6 +219,7 @@ class VendorPublishCommand extends Command
      */
     protected function publishTag($tag)
     {
+        $this->currentTag = $tag;
         $pathsToPublish = $this->pathsToPublish($tag);
 
         if ($publishing = count($pathsToPublish) > 0) {
@@ -307,6 +333,7 @@ class VendorPublishCommand extends Command
 
         if ((!$this->option('existing') && (!$this->files->exists($to) || is_link($to) || $this->option('force')))
             || ($this->option('existing') && $this->files->exists($to))) {
+            $existedBefore = $this->files->exists($to) || is_link($to);
             $this->createParentDirectory(dirname($to));
 
             if (is_link($to) || $this->option('force')) {
@@ -321,6 +348,13 @@ class VendorPublishCommand extends Command
 
             if (@symlink($this->relativePath(dirname($to), $from), $to)) {
                 $this->status($from, $to, 'symlink');
+                $this->recordPublishedItem(
+                    $from,
+                    $to,
+                    'symlink',
+                    $existedBefore ? 'overwritten' : 'created',
+                    $existedBefore
+                );
                 return;
             }
 
@@ -352,8 +386,16 @@ class VendorPublishCommand extends Command
     protected function copySymlinkFallback($from, $to)
     {
         if ($this->files->isFile($from)) {
+            $existedBefore = $this->files->exists($to);
             $this->files->copy($from, $to);
             $this->status($from, $to, 'file');
+            $this->recordPublishedItem(
+                $from,
+                $to,
+                'file',
+                $existedBefore ? 'overwritten' : 'created',
+                $existedBefore
+            );
             return;
         }
 
@@ -400,8 +442,16 @@ class VendorPublishCommand extends Command
 
             $to = $this->ensureMigrationNameIsUpToDate($from, $to);
             $this->createParentDirectory(dirname($to));
+            $existedBefore = $this->files->exists($to);
             $this->files->copy($from, $to);
             $this->status($from, $to, 'file');
+            $this->recordPublishedItem(
+                $from,
+                $to,
+                'file',
+                $existedBefore ? 'overwritten' : 'created',
+                $existedBefore
+            );
         } else {
             if ($this->option('existing')) {
                 $this->components->twoColumnDetail(sprintf(
@@ -428,7 +478,7 @@ class VendorPublishCommand extends Command
     {
         $visibility = PortableVisibilityConverter::fromArray([], Visibility::PUBLIC);
 
-        $this->moveManagedFiles($from, new MountManager([
+        $this->moveManagedFiles($from, $to, new MountManager([
             'from' => new Flysystem(new LocalAdapter($from)),
             'to' => new Flysystem(new LocalAdapter($to, $visibility)),
         ]));
@@ -440,10 +490,11 @@ class VendorPublishCommand extends Command
      * Move all the files in the given MountManager.
      *
      * @param  string  $from
+     * @param  string  $to
      * @param  \League\Flysystem\MountManager  $manager
      * @return void
      */
-    protected function moveManagedFiles($from, $manager)
+    protected function moveManagedFiles($from, $to, $manager)
     {
         foreach ($manager->listContents('from://', true)->sortByPath() as $file) {
             $path = Str::after($file['path'], 'from://');
@@ -455,11 +506,169 @@ class VendorPublishCommand extends Command
                     || ($this->option('existing') && $manager->fileExists('to://'.$path))
                 )
             ) {
+                $source = rtrim($from, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $path;
                 $path = $this->ensureMigrationNameIsUpToDate($from, $path);
+                $destination = rtrim($to, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $path;
+                $existedBefore = $manager->fileExists('to://'.$path);
 
                 $manager->write('to://'.$path, $manager->read($file['path']));
+                $this->recordPublishedItem(
+                    $source,
+                    $destination,
+                    'file',
+                    $existedBefore ? 'overwritten' : 'created',
+                    $existedBefore
+                );
             }
         }
+    }
+
+    /**
+     * Record a publish operation for the storage manifest.
+     *
+     * @param  string  $from
+     * @param  string  $to
+     * @param  string  $type
+     * @param  string  $action
+     * @param  bool  $existedBefore
+     * @return void
+     */
+    protected function recordPublishedItem($from, $to, $type, $action, $existedBefore)
+    {
+        $package = $this->packageForPath($from);
+
+        $this->publishManifestEntries[] = [
+            'published_at' => $this->publishedAt?->toIso8601String(),
+            'provider' => $this->provider,
+            'tag' => $this->currentTag,
+            'tags' => $this->tags,
+            'source' => $this->normalizeManifestPath($from),
+            'destination' => $this->normalizeManifestPath($to),
+            'type' => $type,
+            'action' => $action,
+            'existed_before' => $existedBefore,
+            'force' => (bool) $this->option('force'),
+            'existing' => (bool) $this->option('existing'),
+            'package' => $package['name'],
+            'package_version' => $package['version'],
+        ];
+    }
+
+    /**
+     * Append collected publish records to the storage manifest.
+     *
+     * @return void
+     */
+    protected function writePublishManifest()
+    {
+        if ($this->publishManifestEntries === []) {
+            return;
+        }
+
+        $manifestPath = $this->publishManifestPath();
+        $this->createParentDirectory(dirname($manifestPath));
+
+        $manifest = [
+            'version' => 1,
+            'published' => [],
+        ];
+
+        if ($this->files->exists($manifestPath)) {
+            $existingManifest = json_decode((string) $this->files->get($manifestPath), true);
+
+            if (is_array($existingManifest)) {
+                $manifest = $existingManifest + $manifest;
+                $manifest['published'] = is_array($existingManifest['published'] ?? null)
+                    ? $existingManifest['published']
+                    : [];
+            }
+        }
+
+        $manifest['version'] = 1;
+        $manifest['published'] = array_merge($manifest['published'], $this->publishManifestEntries);
+
+        $this->files->put(
+            $manifestPath,
+            json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL
+        );
+
+        $this->publishManifestEntries = [];
+    }
+
+    /**
+     * Get the storage path for the vendor publish manifest.
+     *
+     * @return string
+     */
+    protected function publishManifestPath()
+    {
+        if (function_exists('storage_path')) {
+            return storage_path('vendor-publish/manifest.json');
+        }
+
+        return rtrim(EVO_STORAGE_PATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'vendor-publish' . DIRECTORY_SEPARATOR . 'manifest.json';
+    }
+
+    /**
+     * Normalize paths for portable manifest entries.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    protected function normalizeManifestPath($path)
+    {
+        return str_replace('\\', '/', $path);
+    }
+
+    /**
+     * Resolve Composer package metadata for a vendor source path.
+     *
+     * @param  string  $path
+     * @return array{name: string|null, version: string|null}
+     */
+    protected function packageForPath($path)
+    {
+        $normalizedPath = $this->normalizeManifestPath($path);
+
+        if (!preg_match('#/vendor/([^/]+/[^/]+)/#', $normalizedPath, $matches)) {
+            return ['name' => null, 'version' => null];
+        }
+
+        $package = $matches[1];
+
+        return [
+            'name' => $package,
+            'version' => $this->composerPackageVersions()[$package] ?? null,
+        ];
+    }
+
+    /**
+     * Get Composer package versions from the core lock file.
+     *
+     * @return array
+     */
+    protected function composerPackageVersions()
+    {
+        if ($this->composerPackageVersions !== null) {
+            return $this->composerPackageVersions;
+        }
+
+        $this->composerPackageVersions = [];
+        $lockPath = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'composer.lock';
+
+        if (!$this->files->exists($lockPath)) {
+            return $this->composerPackageVersions;
+        }
+
+        $lock = json_decode((string) $this->files->get($lockPath), true);
+
+        foreach (array_merge($lock['packages'] ?? [], $lock['packages-dev'] ?? []) as $package) {
+            if (isset($package['name'], $package['version'])) {
+                $this->composerPackageVersions[$package['name']] = $package['version'];
+            }
+        }
+
+        return $this->composerPackageVersions;
     }
 
     /**
