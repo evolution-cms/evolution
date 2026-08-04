@@ -111,6 +111,29 @@ PHP
         ->and($config->get('cms.settings.ControllerNamespace'))->toBeNull();
 });
 
+test('loadConfiguration skips custom config runtime failures without killing bootstrap', function () {
+    $root = makeTempConfigRoot($this, 'broken-custom-runtime');
+    $configRoot = $root . '/custom/config';
+
+    writePhpConfigFile(
+        $configRoot . '/cms/settings/Broken.php',
+        '<?php return array_merge([], false);' . PHP_EOL
+    );
+
+    $config = new Repository([
+        'cms' => [
+            'settings' => [
+                'site_name' => 'Demo',
+            ],
+        ],
+    ]);
+
+    invokeLoadConfiguration(buildConfigLoaderApp(), $config, $configRoot);
+
+    expect($config->get('cms.settings.site_name'))->toBe('Demo')
+        ->and($config->get('cms.settings.Broken'))->toBeNull();
+});
+
 test('loadConfiguration still throws for invalid non-custom config files', function () {
     $root = makeTempConfigRoot($this, 'broken-core');
     $configRoot = $root . '/config';
@@ -127,4 +150,19 @@ PHP
 
     expect(fn () => invokeLoadConfiguration(buildConfigLoaderApp(), $config, $configRoot))
         ->toThrow(ParseError::class);
+});
+
+test('loadConfiguration still throws for non-custom config runtime failures', function () {
+    $root = makeTempConfigRoot($this, 'broken-core-runtime');
+    $configRoot = $root . '/config';
+
+    writePhpConfigFile(
+        $configRoot . '/app.php',
+        '<?php return array_merge([], false);' . PHP_EOL
+    );
+
+    $config = new Repository([]);
+
+    expect(fn () => invokeLoadConfiguration(buildConfigLoaderApp(), $config, $configRoot))
+        ->toThrow(TypeError::class);
 });

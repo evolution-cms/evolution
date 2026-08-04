@@ -210,12 +210,12 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
     /**
      * Load PHP configuration files from a directory into the configuration repository.
      *
-     * Invalid files from the custom configuration directory are skipped and logged.
+     * Invalid custom configuration files are skipped and reported to the PHP error log.
      *
      * @param Repository $config Configuration repository.
      * @param string $dir Configuration directory.
      * @return void
-     * @throws \ParseError When a core configuration file is invalid.
+     * @throws \Throwable When a core configuration file cannot be loaded.
      */
     protected function loadConfiguration($config, $dir)
     {
@@ -242,7 +242,7 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
                     })($path);
 
                     $config->set($key, $value);
-                } catch (\ParseError $exception) {
+                } catch (\Throwable $exception) {
                     if (!$this->isCustomConfigPath($path)) {
                         throw $exception;
                     }
