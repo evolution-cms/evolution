@@ -68,11 +68,12 @@ test('site updater removes update placeholder files before composer repair', fun
     );
 
     expect($source)->toContain('$this->cleanupUpdatePlaceholderFiles();');
+    expect($source)->toContain("[EVO_BASE_PATH . 'composer.json', EVO_BASE_PATH . 'config.php.example']");
     expect($source)->toContain('$this->synchronizeComposerVersion();');
     expect(strpos($source, '$this->cleanupUpdatePlaceholderFiles();'))->toBeLessThan(strpos($source, '$this->installComposerDependencies('));
     expect(strpos($source, '$this->cleanupUpdatePlaceholderFiles();'))->toBeLessThan(strpos($source, '$this->synchronizeComposerVersion();'));
     expect(strpos($source, '$this->synchronizeComposerVersion();'))->toBeLessThan(strpos($source, '$this->installComposerDependencies('));
-    expect($normalizedPairs)->toHaveCount(5);
+    expect($normalizedPairs)->toHaveCount(6);
     expect($normalizedPairs[0][0])->toEndWith('/ht.access');
     expect($normalizedPairs[0][1])->toEndWith('/.htaccess');
     expect($normalizedPairs[1][0])->toEndWith('/sample-robots.txt');
@@ -81,8 +82,10 @@ test('site updater removes update placeholder files before composer repair', fun
     expect($normalizedPairs[2][1])->toEndWith('/core/custom/.env.docker');
     expect($normalizedPairs[3][0])->toEndWith('/core/custom/composer.json.example');
     expect($normalizedPairs[3][1])->toEndWith('/core/custom/composer.json');
-    expect($normalizedPairs[4][0])->toEndWith('/core/custom/config/cms/settings/ControllerNamespace.php.example');
-    expect($normalizedPairs[4][1])->toEndWith('/core/custom/config/cms/settings/ControllerNamespace.php');
+    expect($normalizedPairs[4][0])->toEndWith('/core/custom/routes.php.example');
+    expect($normalizedPairs[4][1])->toEndWith('/core/custom/routes.php');
+    expect($normalizedPairs[5][0])->toEndWith('/core/custom/config/cms/settings/ControllerNamespace.php.example');
+    expect($normalizedPairs[5][1])->toEndWith('/core/custom/config/cms/settings/ControllerNamespace.php');
 });
 
 test('site updater repairs composer vendor state before artisan commands', function () {

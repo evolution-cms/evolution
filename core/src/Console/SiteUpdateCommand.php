@@ -311,7 +311,7 @@ HELP;
     }
 
     /**
-     * Remove placeholder files from the update archive when real local files exist.
+     * Remove placeholder files and root distribution artifacts from the update archive.
      *
      * @since 3.5.7
      * @return void
@@ -321,6 +321,12 @@ HELP;
         foreach ($this->updatePlaceholderFilePairs() as [$placeholder, $localFile]) {
             if (is_file($placeholder) && is_file($localFile)) {
                 unlink($placeholder);
+            }
+        }
+
+        foreach ([EVO_BASE_PATH . 'composer.json', EVO_BASE_PATH . 'config.php.example'] as $file) {
+            if (is_file($file)) {
+                unlink($file);
             }
         }
     }
@@ -338,6 +344,7 @@ HELP;
             [EVO_BASE_PATH . 'sample-robots.txt', EVO_BASE_PATH . 'robots.txt'],
             [EVO_CORE_PATH . 'custom/.env.docker.example', EVO_CORE_PATH . 'custom/.env.docker'],
             [EVO_CORE_PATH . 'custom/composer.json.example', EVO_CORE_PATH . 'custom/composer.json'],
+            [EVO_CORE_PATH . 'custom/routes.php.example', EVO_CORE_PATH . 'custom/routes.php'],
             [
                 EVO_CORE_PATH . 'custom/config/cms/settings/ControllerNamespace.php.example',
                 EVO_CORE_PATH . 'custom/config/cms/settings/ControllerNamespace.php',
