@@ -105,6 +105,20 @@ class PackageCommand extends Command
     protected $discoveredPackages = [];
 
     /**
+     * Packages listed directly in core/custom/composer.json.
+     *
+     * @var array<string,bool>
+     */
+    protected $rootRequiredPackages = [];
+
+    /**
+     * Parent packages that required a package during recursive discovery.
+     *
+     * @var array<string,array<string,bool>>
+     */
+    protected $packageDependents = [];
+
+    /**
      * PackageCommand constructor.
      */
     public function __construct()
@@ -156,6 +170,11 @@ class PackageCommand extends Command
     public function parseComposer(string $composer)
     {
         $data = json_decode(file_get_contents($composer), true);
+        $this->rootRequiredPackages = [];
+        $this->packageDependents = [];
+        $this->visitingPackages = [];
+        $this->discoveredPackages = [];
+
         if (isset($data['extra']['laravel']['providers'])) {
             // Get priorities if defined (default to empty array if not present)
             $priorities = $data['extra']['laravel']['priority'] ?? [];
@@ -173,7 +192,12 @@ class PackageCommand extends Command
             }
         }
 
-        if (isset($data['require'])) {
+        if (isset($data['require']) && is_array($data['require'])) {
+            $this->rootRequiredPackages = array_fill_keys(
+                array_map(fn ($package) => strtolower(trim((string) $package)), array_keys($data['require'])),
+                true
+            );
+
             foreach ($data['require'] as $key => $value) {
                 $this->discoverPackage((string) $key);
             }
@@ -334,9 +358,14 @@ class PackageCommand extends Command
      * @param string $package Composer package name.
      * @return void
      */
-    protected function discoverPackage(string $package): void
+    protected function discoverPackage(string $package, string $requiredBy = ''): void
     {
         $package = strtolower(trim($package));
+        $requiredBy = strtolower(trim($requiredBy));
+        if ($package !== '' && $requiredBy !== '') {
+            $this->packageDependents[$package][$requiredBy] = true;
+        }
+
         if ($package === '' || isset($this->discoveredPackages[$package]) || isset($this->visitingPackages[$package])) {
             return;
         }
@@ -349,11 +378,12 @@ class PackageCommand extends Command
 
             if (isset($composerArray['require']) && is_array($composerArray['require'])) {
                 foreach (array_keys($composerArray['require']) as $dependency) {
-                    $this->discoverPackage((string) $dependency);
+                    $this->discoverPackage((string) $dependency, $package);
                 }
             }
 
             $this->packagePath = dirname($composer) . '/';
+            $this->warnAboutTransitivePackage($package, $composerArray);
             $this->parseComposerServiceProvider($composer);
         }
 
@@ -374,5 +404,50 @@ class PackageCommand extends Command
     protected function packageComposerPath(string $package): string
     {
         return EVO_CORE_PATH . 'vendor/' . $package . '/composer.json';
+    }
+
+    /**
+     * Warn when a provider-bearing package remains discovered as a transitive dependency.
+     *
+     * @since 3.5.8
+     * @param string $package Composer package name.
+     * @param array|null $composer Package composer metadata.
+     * @return void
+     */
+    protected function warnAboutTransitivePackage(string $package, ?array $composer): void
+    {
+        if (isset($this->rootRequiredPackages[$package]) || empty($this->packageDependents[$package])) {
+            return;
+        }
+
+        if (!$this->hasLaravelDiscoveryMetadata($composer)) {
+            return;
+        }
+
+        $dependents = implode(', ', array_keys($this->packageDependents[$package]));
+        $this->warn('Package ' . $package . ' is still discovered because it is required by ' . $dependents . '.');
+    }
+
+    /**
+     * Determine whether a package contributes discovery output.
+     *
+     * @since 3.5.8
+     * @param array|null $composer Package composer metadata.
+     * @return bool
+     */
+    protected function hasLaravelDiscoveryMetadata(?array $composer): bool
+    {
+        $laravel = $composer['extra']['laravel'] ?? null;
+        if (!is_array($laravel)) {
+            return false;
+        }
+
+        foreach (['providers', 'aliases', 'files'] as $key) {
+            if (!empty($laravel[$key]) && is_array($laravel[$key])) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
