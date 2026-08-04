@@ -24,6 +24,11 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
      */
     protected $booted = false;
 
+    /**
+     * Container aliases registered by the Evolution CMS core.
+     *
+     * @var array<string, list<class-string>>
+     */
     protected $coreAliases = [
         'app' => [
             Interfaces\CoreInterface::class,
@@ -118,17 +123,42 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
      */
     protected $bootedCallbacks = [];
 
+    /**
+     * Deprecated Evolution CMS property names mapped to container abstracts.
+     *
+     * @var array<string, string|null>
+     */
     protected $evolutionProperty = [];
 
+    /**
+     * Get the requested Evolution CMS version value.
+     *
+     * @param string|null $data Version data key.
+     * @return mixed
+     */
     abstract public function getVersionData($data = null);
 
+    /**
+     * Get an Evolution CMS configuration value.
+     *
+     * @param string $name Configuration key.
+     * @param mixed $default Value returned when the key is not configured.
+     * @return mixed
+     */
     abstract public function getConfig($name = '', $default = null);
 
+    /**
+     * Get the path to the application's bootstrap directory.
+     *
+     * @param string $path Path relative to the bootstrap directory.
+     * @return string
+     */
     abstract public function bootstrapPath($path = '');
 
     /**
-     * @param array $classes
-     * @throws \Exception
+     * Create a new Evolution CMS application instance.
+     *
+     * @throws \Exception When the application configuration cannot be loaded.
      */
     public function __construct()
     {
@@ -177,6 +207,16 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
         $this->boot();
     }
 
+    /**
+     * Load PHP configuration files from a directory into the configuration repository.
+     *
+     * Invalid files from the custom configuration directory are skipped and logged.
+     *
+     * @param Repository $config Configuration repository.
+     * @param string $dir Configuration directory.
+     * @return void
+     * @throws \ParseError When a core configuration file is invalid.
+     */
     protected function loadConfiguration($config, $dir)
     {
         $files = [];
@@ -213,6 +253,12 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
         }
     }
 
+    /**
+     * Determine whether a path belongs to the custom configuration directory.
+     *
+     * @param string $path Absolute configuration file path.
+     * @return bool
+     */
     protected function isCustomConfigPath(string $path): bool
     {
         return str_contains(str_replace('\\', '/', $path), '/custom/config/');
@@ -241,6 +287,8 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
     }
 
     /**
+     * Determine whether the application is running in the production environment.
+     *
      * @return bool
      */
     public function isProduction() : bool
@@ -481,8 +529,8 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
      *
      * @param string|class-string<TClass> $abstract
      * @param array $parameters
-     * @return ($abstract is class-string<TClass> ? \Closure(): TClass : \Closure(): mixed)
-    */
+     * @return ($abstract is class-string<TClass> ? TClass : mixed)
+     */
     public function make($abstract, array $parameters = [])
     {
         $abstract = $this->getAlias($abstract);
@@ -609,17 +657,31 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
         }
     }
 
+    /**
+     * Resolve a service from the container.
+     *
+     * @param string $name Service abstract or alias.
+     * @return mixed
+     */
     public function getService($name)
     {
         return $this->get($name);
     }
 
+    /**
+     * Determine whether a service is bound in the container.
+     *
+     * @param string $name Service abstract or alias.
+     * @return bool
+     */
     public function hasService($name)
     {
         return $this->has($name);
     }
 
     /**
+     * Get the legacy database service.
+     *
      * @return Database
      */
     public function getDatabase(): Database
@@ -628,6 +690,8 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
     }
 
     /**
+     * Get the legacy mail service.
+     *
      * @return Mail
      */
     public function getMail(): Mail
@@ -636,6 +700,8 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
     }
 
     /**
+     * Get the legacy PHP compatibility service.
+     *
      * @return Legacy\PhpCompat
      */
     public function getPhpCompat(): Legacy\PhpCompat
@@ -644,6 +710,8 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
     }
 
     /**
+     * Get the legacy password hashing service.
+     *
      * @return Legacy\PasswordHash
      */
     public function getPasswordHash(): Legacy\PasswordHash
@@ -652,6 +720,8 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
     }
 
     /**
+     * Get the legacy table rendering service.
+     *
      * @return Support\MakeTable
      */
     public function getMakeTable(): Support\MakeTable
@@ -660,6 +730,8 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
     }
 
     /**
+     * Get the legacy deprecated-core proxy.
+     *
      * @return mixed
      */
     public function getDeprecatedCore()
@@ -668,6 +740,8 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
     }
 
     /**
+     * Get the legacy ManagerAPI service.
+     *
      * @return mixed
      */
     public function getManagerApi()
@@ -676,6 +750,8 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
     }
 
     /**
+     * Get the legacy output modifiers service.
+     *
      * @return mixed
      */
     public function getModifiers()
@@ -683,22 +759,33 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
         return $this->getService('MODIFIERS');
     }
 
+    /**
+     * Register a deprecated Evolution CMS property alias for a container abstract.
+     *
+     * @param string|null $abstract Container abstract resolved through the property.
+     * @param string $property Deprecated property name.
+     * @return void
+     */
     public function setEvolutionProperty(?string $abstract, string $property)
     {
         $this->evolutionProperty[$property] = $abstract;
     }
 
     /**
-     * @param string $property
+     * Determine whether an Evolution CMS property is registered.
+     *
+     * @param string $property Property name.
      * @return bool
      */
     public function isEvolutionProperty(string $property)
     {
-        return \in_array($property, $this->evolutionProperty, true);
+        return $this->hasEvolutionProperty($property);
     }
 
     /**
-     * @param string $property
+     * Determine whether an Evolution CMS property is registered.
+     *
+     * @param string $property Property name.
      * @return bool
      */
     public function hasEvolutionProperty(string $property)
@@ -707,7 +794,9 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
     }
 
     /**
-     * @param string $property
+     * Resolve the service registered for an Evolution CMS property.
+     *
+     * @param string $property Property name.
      * @return mixed|null
      */
     public function getEvolutionProperty(string $property)
