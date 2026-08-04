@@ -20,13 +20,31 @@ class RemovePackageRequireCommand extends InstallPackageRequireCommand
 
         $target = strtolower(trim((string) $this->argument('key')));
         if ($target === '') {
-            return;
+            $this->error('Package requirement name is empty.');
+            return false;
         }
 
         foreach (array_keys($this->composerArray['require']) as $requireKey) {
-            if (strtolower(trim((string) $requireKey)) === $target) {
+            if ($this->matchesRequirementKey((string) $requireKey, $target)) {
                 unset($this->composerArray['require'][$requireKey]);
+                $this->info('Removed package requirement: ' . $requireKey);
+                return true;
             }
         }
+
+        $this->error('Package requirement not found: ' . $this->argument('key'));
+        return false;
+    }
+
+    protected function matchesRequirementKey(string $requireKey, string $target): bool
+    {
+        $requireKey = strtolower(trim($requireKey));
+        if ($requireKey === $target) {
+            return true;
+        }
+
+        $packageName = basename(str_replace('\\', '/', $requireKey));
+
+        return $packageName === $target;
     }
 }

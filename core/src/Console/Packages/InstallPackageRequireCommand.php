@@ -49,7 +49,9 @@ class InstallPackageRequireCommand extends Command
         $originalComposerContents = $composerExisted ? file_get_contents($this->composer) : null;
 
         $this->checkFile();
-        $this->updateArray();
+        if ($this->updateArray() === false) {
+            return self::FAILURE;
+        }
         $this->putComposer();
         if ($this->argument('composer_run') == 1) {
             $exitCode = $this->runComposer();
@@ -94,10 +96,10 @@ class InstallPackageRequireCommand extends Command
     {
         putenv('COMPOSER_HOME=' . EVO_CORE_PATH . 'composer');
         $arguments = ['command' => 'update'];
-        if ($this->option('no-dev')) {
+        if ($this->hasCommandOption('no-dev') && $this->option('no-dev')) {
             $arguments['--no-dev'] = true;
         }
-        if ($this->option('optimize-autoloader')) {
+        if ($this->hasCommandOption('optimize-autoloader') && $this->option('optimize-autoloader')) {
             $arguments['--optimize-autoloader'] = true;
         }
         $input = new ArrayInput($arguments);
@@ -117,6 +119,11 @@ class InstallPackageRequireCommand extends Command
             }
         }
 
+    }
+
+    protected function hasCommandOption(string $name): bool
+    {
+        return $this->getDefinition()->hasOption($name);
     }
 
     protected function restoreComposerState($composerExisted, $originalComposerContents)
