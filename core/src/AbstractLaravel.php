@@ -237,7 +237,11 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
 
             foreach ($files as $key => $path) {
                 try {
-                    $config->set($key, require $path);
+                    $value = (static function (string $configPath) {
+                        return require $configPath;
+                    })($path);
+
+                    $config->set($key, $value);
                 } catch (\ParseError $exception) {
                     if (!$this->isCustomConfigPath($path)) {
                         throw $exception;
