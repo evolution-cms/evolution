@@ -26,6 +26,9 @@ class TracyServiceProvider extends ServiceProvider
     protected function activateTracy(): void
     {
         Debugger::enable($this->isHiddenTracyHandler(), $this->logPath());
+        Debugger::$onFatalError[] = function (\Throwable $exception): void {
+            $this->app['log']->error($exception->getMessage(), ['exception' => $exception]);
+        };
         Debugger::$strictMode = $this->isStrictMode();
         Debugger::$showLocation = $this->isShowLocation();
         Debugger::$maxDepth = 20;
