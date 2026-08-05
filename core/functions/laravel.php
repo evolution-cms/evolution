@@ -95,6 +95,7 @@ if (!function_exists('asset')) {
     function asset($path = '')
     {
         $path = 'assets/' . $path;
+        $path = str_replace('assets/assets', 'assets', $path);
         return EVO_SITE_URL . ltrim(($path ? DIRECTORY_SEPARATOR . $path : $path), '/');
     }
 }
