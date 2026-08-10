@@ -11,7 +11,7 @@
         {{ $item->name }}
         <small>({{ $item->getKey() }})</small>
         @if(!empty($item->description))
-            - {{ safe_html($item->description) }}
+            - {{ sanitize_inline_html($item->description) }}
         @endif
     </label>
 </li>
