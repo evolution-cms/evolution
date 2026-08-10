@@ -121,6 +121,15 @@ class LogInOut extends AbstractController implements ManagerTheme\PageController
 
     public function loginFromHash()
     {
+        $hash = trim((string)($_GET['hash'] ?? ''));
+
+        if ($hash === '') {
+            jsAlert(\Lang::get('global.login_processor_unknown_user'));
+            exit();
+        }
+
+        $_GET['hash'] = $hash;
+
         try {
             \UserManager::hashLogin($_GET);
         } catch (ServiceActionException $exception) {
