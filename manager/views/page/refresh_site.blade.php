@@ -12,10 +12,10 @@
     <div class="tab-page">
         <div class="container container-body">
             @if($num_rows_pub)
-                <p>{!! sprintf(ManagerTheme::getLexicon('refresh_published'), (int)$num_rows_pub) !!}</p>
+                <p>{{ ManagerTheme::lexiconHtml('refresh_published', [(int)$num_rows_pub]) }}</p>
             @endif
             @if($num_rows_unpub)
-                <p>{!! sprintf(ManagerTheme::getLexicon('refresh_unpublished'), (int)$num_rows_unpub) !!}</p>
+                <p>{{ ManagerTheme::lexiconHtml('refresh_unpublished', [(int)$num_rows_unpub]) }}</p>
             @endif
             {!! $cache_log !!}
         </div>

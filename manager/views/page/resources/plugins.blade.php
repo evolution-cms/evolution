@@ -6,7 +6,7 @@
     <script>tpResources.addTabPage(document.getElementById('{{ $tabIndexPageName }}'));</script>
 
     <div id="{{ $tabIndexPageName }}-info" class="msg-container" style="display:none">
-        <div class="element-edit-message-tab">{!! ManagerTheme::getLexicon('plugin_management_msg') !!}</div>
+        <div class="element-edit-message-tab">{{ ManagerTheme::lexiconHtml('plugin_management_msg') }}</div>
         <p class="viewoptions-message">{{ ManagerTheme::getLexicon('view_options_msg') }}</p>
     </div>
 
@@ -30,7 +30,7 @@
                     @endif
                     <a class="btn btn-secondary" href="javascript:;" id="{{ $tabIndexPageName }}-help">
                         <i class="{{ $_style['icon_question_circle'] }}"></i>
-                        <span>{!! ManagerTheme::getLexicon('help') !!}</span>
+                        <span>{{ ManagerTheme::lexiconHtml('help') }}</span>
                     </a>
                     <a class="btn btn-secondary switchform-btn" href="javascript:;" data-target="switchForm_{{ $tabIndexPageName }}">
                         <i class="{{ $_style['icon_bars'] }}"></i>

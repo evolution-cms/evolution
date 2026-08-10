@@ -303,7 +303,7 @@
         @include('manager::partials.actionButtons', $actionButtons)
 
         <div class="container element-edit-message">
-            <div class="alert alert-info">{!! ManagerTheme::getLexicon('tmplvars_msg') !!}</div>
+            <div class="alert alert-info">{{ ManagerTheme::lexiconHtml('tmplvars_msg') }}</div>
         </div>
 
         <div class="tab-pane" id="tmplvarsPane">
@@ -617,7 +617,7 @@
         </div>
     </form>
     <script>
-        var savedProperties = {!! json_encode($data->properties) !!};
+        var savedProperties = @js($data->properties);
         setTimeout(function () {
             showParameters();
             elementProperties.showParameters();

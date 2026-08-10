@@ -211,7 +211,7 @@
                             ])
                             {{ ManagerTheme::getLexicon('parse_docblock') }}
                         </label>
-                        <small class="form-text text-muted">{!! ManagerTheme::getLexicon('parse_docblock_msg') !!}</small>
+                        <small class="form-text text-muted">{{ ManagerTheme::lexiconHtml('parse_docblock_msg') }}</small>
                     </div>
                 </div>
 

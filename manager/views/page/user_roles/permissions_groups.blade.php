@@ -10,7 +10,7 @@
                     <i class="fa fa-user-tag"></i>@if(isset($groups->name)){{$groups->name}} <small>({{$groups->id}})</small> @else {{ ManagerTheme::getLexicon('groups_permission_title') }}@endif
                 </h1>
 
-                {!!  ManagerTheme::getStyle('actionbuttons.dynamic.savedelete')  !!}
+                {{ ManagerTheme::styleHtml('actionbuttons.dynamic.savedelete') }}
 
                 <div class="tab-page">
                     <div class="container container-body">

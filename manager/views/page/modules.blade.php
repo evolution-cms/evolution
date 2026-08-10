@@ -6,10 +6,10 @@
                 class="<?= ManagerTheme::getStyle('icon_question_circle') ?> help"></i>
     </h1>
 
-    {!! ManagerTheme::getStyle('actionbuttons.dynamic.newmodule') !!}
+    {{ ManagerTheme::styleHtml('actionbuttons.dynamic.newmodule') }}
 
     <div class="container element-edit-message">
-        <div class="alert alert-info">{!! __('global.module_management_msg') !!}</div>
+        <div class="alert alert-info">{{ ManagerTheme::lexiconHtml('module_management_msg') }}</div>
     </div>
 
     <div class="tab-page">
@@ -30,10 +30,10 @@
                             <td class="tableItem text-center" style="width: 34px;">
                                 @if(evo()->hasAnyPermissions(['edit_module', 'exec_module']))
                                     <a class="tableRowIcon" href="javascript:;" onclick="return showContentMenu({{ $module->getKey() }}, event);" title="{{ __('global.click_to_context') }}">
-                                        <i class="{!! !empty($module->icon) ? $module->icon : 'fa fa-cube' !!}"></i>
+                                        <i class="{{ !empty($module->icon) ? $module->icon : 'fa fa-cube' }}"></i>
                                     </a>
                                 @else
-                                    <i class="{!! !empty($module->icon) ? $module->icon : 'fa fa-cube' !!}"></i>
+                                    <i class="{{ !empty($module->icon) ? $module->icon : 'fa fa-cube' }}"></i>
                                 @endif
                             </td>
                             <td class="tableItem">
@@ -43,7 +43,7 @@
                                     {{ $module->name }}
                                 @endif
                             </td>
-                            <td class="tableItem">{!! $module->description !!}</td>
+                            <td class="tableItem">{{ safe_html($module->description) }}</td>
                             <td class="tableItem text-center" style="width: 60px;">
                                 @if($module->locked)
                                     {{ __('global.yes') }}

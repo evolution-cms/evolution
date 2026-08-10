@@ -357,11 +357,16 @@ if (!function_exists('js_json')) {
      * @param int $options
      * @return string
      */
-    function js_json($value, int $options = 0): string
+    function js_json($value, int $options = 0): \Illuminate\Support\HtmlString
     {
-        $json = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | $options);
+        $json = json_encode(
+            $value,
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | $options
+        );
 
-        return $json === false ? 'null' : $json;
+        // Already-safe JSON: no raw `<`, `>` or unescaped quote can leave the literal, so the
+        // value is returned as Htmlable and templates can print it with `{{ }}`.
+        return new \Illuminate\Support\HtmlString($json === false ? 'null' : $json);
     }
 }
 
@@ -447,5 +452,167 @@ if (!function_exists('replace_array')) {
                 $out = '';
         }
         return $out;
+    }
+}
+
+if (!function_exists('safe_html')) {
+    /**
+     * Turn untrusted, possibly HTML-flavoured text into markup that is safe to print with `{{ }}`.
+     *
+     * The whole value is HTML-escaped first, so no attribute, no protocol handler and no element
+     * an attacker wrote can survive. Only afterwards a fixed allow list of attribute-free
+     * formatting tags is restored. Because the restore step works on the *escaped* string and
+     * matches nothing but a tag name with optional slashes, `<img onerror=...>` or
+     * `<a href="javascript:...">` can never come back - the worst an attacker can inject is a
+     * harmless line break.
+     *
+     * Escaping runs with `$double_encode = false`, so text that already contains entities
+     * (`&amp;`, `&#039;`) keeps its original meaning instead of being encoded a second time.
+     *
+     * The return value is `Htmlable`, which `e()` - and therefore Blade's `{{ }}` - prints
+     * verbatim. That is the intended replacement for `{!! !!}` on stored, user-influenced HTML.
+     *
+     * @param mixed $value Raw stored value.
+     * @param array<int, string>|null $tags Allowed attribute-free tags, defaults to the formatting set.
+     * @return HtmlString
+     * @since 3.5.8
+     */
+    function safe_html($value, ?array $tags = null): \Illuminate\Support\HtmlString
+    {
+        if ($value instanceof \Illuminate\Contracts\Support\Htmlable) {
+            $value = $value->toHtml();
+        }
+
+        if (!is_scalar($value) && !(is_object($value) && method_exists($value, '__toString'))) {
+            $value = '';
+        }
+
+        $value = (string) $value;
+
+        $tags = $tags ?? [
+            'br', 'hr', 'p', 'b', 'strong', 'i', 'em', 'u', 's', 'small',
+            'code', 'pre', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'span', 'div',
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'sub', 'sup', 'blockquote',
+        ];
+
+        $tags = array_values(array_filter(array_map(
+            static fn($tag) => preg_match('~^[a-z][a-z0-9]*$~i', (string) $tag) ? strtolower((string) $tag) : null,
+            $tags
+        )));
+
+        $escaped = htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false);
+
+        if ($tags !== []) {
+            // Only `<`, an optional slash, an allowed tag name, optional whitespace, an optional
+            // slash and `>` are turned back into markup. Everything the pattern matched is
+            // re-emitted unchanged, so `<br />` stays `<br />` and `<br/>` stays `<br/>`.
+            $escaped = preg_replace(
+                '~&lt;(/?)(' . implode('|', $tags) . ')(\s*)(/?)&gt;~i',
+                '<$1$2$3$4>',
+                $escaped
+            );
+        }
+
+        return new \Illuminate\Support\HtmlString($escaped);
+    }
+}
+
+if (!function_exists('icon_markup')) {
+    /**
+     * Normalise a manager theme icon into HTML.
+     *
+     * Theme icons arrive in three shapes: ready-made SVG/HTML markup, a `tabler-*` icon name, or
+     * a plain CSS class list. Class lists are escaped before they land in the `class` attribute,
+     * so a malformed or third-party theme value cannot close the attribute and inject markup.
+     *
+     * @param string|\Illuminate\Contracts\Support\Htmlable|null $icon
+     * @param string $attributes Additional literal attributes, e.g. ' aria-hidden="true"'.
+     * @return string
+     * @since 3.5.8
+     */
+    function icon_markup($icon, string $attributes = ''): string
+    {
+        if ($icon instanceof \Illuminate\Contracts\Support\Htmlable) {
+            $icon = $icon->toHtml();
+        }
+
+        $icon = is_scalar($icon) ? trim((string) $icon) : '';
+
+        if ($icon === '') {
+            return '';
+        }
+
+        if (strpos($icon, '<') !== false) {
+            return $icon;
+        }
+
+        if (strpos($icon, 'tabler-') === 0 && function_exists('svg')) {
+            return svg($icon)->toHtml();
+        }
+
+        return '<i class="' . htmlspecialchars($icon, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false) . '"' .
+            $attributes . '></i>';
+    }
+}
+
+if (!function_exists('icon_html')) {
+    /**
+     * Same as icon_markup(), but returned as `Htmlable`.
+     *
+     * `e()` - and therefore Blade's `{{ }}` - leaves `Htmlable` untouched, so this is the direct
+     * replacement for `{!! $_style['icon_x'] !!}` with no double encoding.
+     *
+     * @param string|\Illuminate\Contracts\Support\Htmlable|null $icon
+     * @param string $attributes
+     * @return HtmlString
+     * @since 3.5.8
+     */
+    function icon_html($icon, string $attributes = ''): \Illuminate\Support\HtmlString
+    {
+        return new \Illuminate\Support\HtmlString(icon_markup($icon, $attributes));
+    }
+}
+
+if (!function_exists('sort_direction')) {
+    /**
+     * Normalise a user supplied sort direction to `ASC` or `DESC`.
+     *
+     * Manager list pages copy the requested direction straight into generated links; anything
+     * outside the two valid keywords is attacker controlled text and is dropped.
+     *
+     * @param mixed $direction
+     * @param string $default
+     * @return string
+     * @since 3.5.8
+     */
+    function sort_direction($direction, string $default = 'DESC'): string
+    {
+        $direction = is_scalar($direction) ? strtoupper(trim((string) $direction)) : '';
+
+        if ($direction === 'ASC' || $direction === 'DESC') {
+            return $direction;
+        }
+
+        return strtoupper($default) === 'ASC' ? 'ASC' : 'DESC';
+    }
+}
+
+if (!function_exists('sort_column')) {
+    /**
+     * Normalise a user supplied sort column to a plain identifier.
+     *
+     * Only characters that can appear in a column name survive, so the value is safe both for the
+     * query builder and for the links the manager renders back into the page.
+     *
+     * @param mixed $column
+     * @param string $default
+     * @return string
+     * @since 3.5.8
+     */
+    function sort_column($column, string $default = 'createdon'): string
+    {
+        $column = is_scalar($column) ? trim((string) $column) : '';
+
+        return preg_match('~^[A-Za-z_][A-Za-z0-9_]*$~', $column) ? $column : $default;
     }
 }

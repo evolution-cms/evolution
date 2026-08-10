@@ -76,7 +76,7 @@
         @include('manager::partials.actionButtons', $actionButtons)
 
         <div class="container element-edit-message">
-            <div class="alert alert-info">{!! ManagerTheme::getLexicon('snippet_msg') !!}</div>
+            <div class="alert alert-info">{{ ManagerTheme::lexiconHtml('snippet_msg') }}</div>
         </div>
 
         <div class="tab-pane" id="snipetPane">
@@ -169,7 +169,7 @@
                             ])
                             {{ ManagerTheme::getLexicon('parse_docblock') }}
                         </label>
-                        <small class="form-text text-muted">{!! ManagerTheme::getLexicon('parse_docblock_msg') !!}</small>
+                        <small class="form-text text-muted">{{ ManagerTheme::lexiconHtml('parse_docblock_msg') }}</small>
                     </div>
                 </div>
 

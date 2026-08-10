@@ -28,16 +28,16 @@ $_style['icon_trash'] = svg('tabler-trash')->toHtml();
 
 <div class="treeframebody">
     <div id="treeMenu">
-        <a class="treeButton" id="treeMenu_expandtree" onclick="evo.tree.expandTree();" title="{{ ManagerTheme::getLexicon('expand_tree') }}">{!! $_style['icon_arrow_down_circle'] !!}</a>
-        <a class="treeButton" id="treeMenu_collapsetree" onclick="evo.tree.collapseTree();" title="{{ ManagerTheme::getLexicon('collapse_tree') }}">{!! $_style['icon_arrow_up_circle'] !!}</a>
+        <a class="treeButton" id="treeMenu_expandtree" onclick="evo.tree.expandTree();" title="{{ ManagerTheme::getLexicon('expand_tree') }}">{{ icon_html($_style['icon_arrow_down_circle']) }}</a>
+        <a class="treeButton" id="treeMenu_collapsetree" onclick="evo.tree.collapseTree();" title="{{ ManagerTheme::getLexicon('collapse_tree') }}">{{ icon_html($_style['icon_arrow_up_circle']) }}</a>
         @if(evo()->hasPermission('new_document'))
-            <a class="treeButton" id="treeMenu_addresource" onclick="evo.tabs({url:'{{ EVO_MANAGER_URL }}?a=4', title: '{{ ManagerTheme::getLexicon('add_resource') }}'});" title="{{ ManagerTheme::getLexicon('add_resource') }}">{!! $_style['icon_add'] !!}</a>
-            <a class="treeButton" id="treeMenu_addweblink" onclick="evo.tabs({url:'{{ EVO_MANAGER_URL }}?a=72', title: '{{ ManagerTheme::getLexicon('add_weblink') }}'});" title="{{ ManagerTheme::getLexicon('add_weblink') }}">{!! $_style['icon_chain_broken'] !!}</a>
+            <a class="treeButton" id="treeMenu_addresource" onclick="evo.tabs({url:'{{ EVO_MANAGER_URL }}?a=4', title: '{{ ManagerTheme::getLexicon('add_resource') }}'});" title="{{ ManagerTheme::getLexicon('add_resource') }}">{{ icon_html($_style['icon_add']) }}</a>
+            <a class="treeButton" id="treeMenu_addweblink" onclick="evo.tabs({url:'{{ EVO_MANAGER_URL }}?a=72', title: '{{ ManagerTheme::getLexicon('add_weblink') }}'});" title="{{ ManagerTheme::getLexicon('add_weblink') }}">{{ icon_html($_style['icon_chain_broken']) }}</a>
         @endif
-        <a class="treeButton" id="treeMenu_refreshtree" onclick="evo.tree.restoreTree();" title="{{ ManagerTheme::getLexicon('refresh_tree') }}">{!! $_style['icon_refresh'] !!}</a>
-        <a class="treeButton" id="treeMenu_sortingtree" onclick="evo.tree.showSorter(event);" title="{{ ManagerTheme::getLexicon('sort_tree') }}">{!! $_style['icon_sort'] !!}</a>
+        <a class="treeButton" id="treeMenu_refreshtree" onclick="evo.tree.restoreTree();" title="{{ ManagerTheme::getLexicon('refresh_tree') }}">{{ icon_html($_style['icon_refresh']) }}</a>
+        <a class="treeButton" id="treeMenu_sortingtree" onclick="evo.tree.showSorter(event);" title="{{ ManagerTheme::getLexicon('sort_tree') }}">{{ icon_html($_style['icon_sort']) }}</a>
         @if(evo()->hasPermission('edit_document') && evo()->hasPermission('save_document'))
-            <a class="treeButton" id="treeMenu_sortingindex" onclick="evo.tree.openSortMenuIndex();" title="{{ ManagerTheme::getLexicon('sort_menuindex') }}">{!! $_style['icon_sort_num_asc'] !!}</a>
+            <a class="treeButton" id="treeMenu_sortingindex" onclick="evo.tree.openSortMenuIndex();" title="{{ ManagerTheme::getLexicon('sort_menuindex') }}">{{ icon_html($_style['icon_sort_num_asc']) }}</a>
         @endif
         {{-- @if(evo()->getConfig('use_browser') && evo()->hasPermission('assets_images'))
             <a class="treeButton" id="treeMenu_openimages" title="{{ ManagerTheme::getLexicon('images_management') }}&#013;{{ ManagerTheme::getLexicon('em_button_shift') }}"><i class="{{ $_style['icon_camera'] }}"></i></a>
@@ -46,7 +46,7 @@ $_style['icon_trash'] = svg('tabler-trash')->toHtml();
             <a class="treeButton" id="treeMenu_openfiles" title="{{ ManagerTheme::getLexicon('files_management') }}&#013;{{ ManagerTheme::getLexicon('em_button_shift') }}"><i class="{{ $_style['icon_files'] }}"></i></a>
         @endif --}}
         @if(evo()->hasPermission('empty_trash'))
-            <a class="treeButton treeButtonDisabled" id="treeMenu_emptytrash" title="{{ ManagerTheme::getLexicon('empty_recycle_bin_empty') }}">{!! $_style['icon_trash'] !!}</a>
+            <a class="treeButton treeButtonDisabled" id="treeMenu_emptytrash" title="{{ ManagerTheme::getLexicon('empty_recycle_bin_empty') }}">{{ icon_html($_style['icon_trash']) }}</a>
         @endif
         {{-- <a class="treeButton" id="treeMenu_theme_dark" onclick="evo.tree.toggleTheme(event)" title="{{ ManagerTheme::getLexicon('manager_theme_mode_title') }}"><i class="{{ $_style['icon_theme'] }}"></i></a> --}}
     </div>

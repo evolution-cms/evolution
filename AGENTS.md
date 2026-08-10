@@ -256,6 +256,25 @@ Blade also provides its standard Laravel syntax. The most commonly used directiv
 | Forms and security | `@csrf`, `@method`, `@error` |
 | PHP and escaping | `{{ $value }}`, `{!! $html !!}`, `@php`, `@verbatim` |
 
+### Escaping rules for manager views
+
+`{!! !!}` disables escaping for the whole expression and is the usual cause of stored XSS in the
+manager. Prefer these, in this order:
+
+| Situation | Use |
+|---|---|
+| Plain text, attribute values, CSS class lists | `{{ $value }}` |
+| Anything inside a `<script>` element or an inline event handler | `@js($value)` (or `js_json()` for a raw JSON island) |
+| Stored text that is allowed to carry simple formatting (`<br>`, `<b>`, `<pre>`) | `{{ safe_html($value) }}` |
+| Theme icons | `{{ icon_html($_style['icon_x']) }}` / `icon_markup()` for string concatenation |
+| Theme style blocks and lexicon entries that ship their own markup | `{{ ManagerTheme::styleHtml('key') }}` / `{{ ManagerTheme::lexiconHtml('key', [...]) }}` |
+| Markup a PHP producer builds itself | return `Illuminate\Support\HtmlString` and print it with `{{ }}` |
+
+`{{ }}` compiles to `e()`, which leaves `Htmlable` values untouched - so a producer that returns
+`HtmlString` is printed verbatim and is never encoded twice. Reach for `{!! !!}` only for output
+that is HTML by contract and outside the CMS's control (plugin event results, `phpinfo()`,
+registered client scripts).
+
 ---
 
 ## Dependencies of Note

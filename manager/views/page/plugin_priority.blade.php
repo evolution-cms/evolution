@@ -24,7 +24,7 @@
         <i class="{{ $_style['icon_sort_num_asc'] }}"></i>{{ ManagerTheme::getLexicon('plugin_priority_title') }}
     </h1>
 
-    {!! ManagerTheme::getStyle('actionbuttons.dynamic.save') !!}
+    {{ ManagerTheme::styleHtml('actionbuttons.dynamic.save') }}
 
     <div class="tab-page">
         <div class="container container-body">

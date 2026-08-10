@@ -169,6 +169,16 @@ class EditOrNewUser extends AbstractController implements ManagerTheme\PageContr
         if ($userData['passwordnotifymethod'] == 's' && $userData['newpassword'] == 1) {
             $this->parameters['username'] = $user->username;
             $this->parameters['password'] = $userData['password'];
+            // The lexicon entry carries its own <b>/<br> markup, so the message is assembled here
+            // with escaped replacements and handed to the view as Htmlable. That keeps the markup
+            // working while a username such as `<img src=x onerror=...>` stays inert, and it keeps
+            // the exact generated password readable instead of re-escaping it in the template.
+            $this->parameters['passwordMessage'] = new \Illuminate\Support\HtmlString(
+                \Lang::get('global.password_msg', [
+                    'username' => e($user->username),
+                    'password' => e($userData['password']),
+                ])
+            );
             return true;
         }
         header("Location: " . $this->parameters['url']);

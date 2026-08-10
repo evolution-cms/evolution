@@ -76,7 +76,7 @@
         @include('manager::partials.actionButtons', $actionButtons)
 
         <div class="container element-edit-message">
-            <div class="alert alert-info">{!! ManagerTheme::getLexicon('htmlsnippet_msg') !!}</div>
+            <div class="alert alert-info">{{ ManagerTheme::lexiconHtml('htmlsnippet_msg') }}</div>
         </div>
 
         <div class="tab-pane" id="chunkPane">

@@ -17,7 +17,7 @@
         <div class="tab-page">
             <div class="container container-body" id="disp">
                 <p>
-                    {!! \Lang::get('global.password_msg', ['username' => $username, 'password'=>$password]) !!}
+                    {{ $passwordMessage }}
                 </p>
             </div>
         </div>

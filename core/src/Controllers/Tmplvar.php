@@ -177,7 +177,9 @@ class Tmplvar extends AbstractController implements ManagerTheme\PageControllerI
             'events'            => $this->parameterEvents(),
             'actionButtons'     => $this->parameterActionButtons(),
             'groupsArray'       => $this->getGroupsArray(),
-            'defaultProperties' => json_encode($this->defaultProperties),
+            // JSON_HEX_TAG keeps a `</script>` inside a custom TV configuration from closing the
+            // script element the view embeds this payload into.
+            'defaultProperties' => json_encode($this->defaultProperties, JSON_HEX_TAG),
             // :TODO delete
             'origin'            => isset($_REQUEST['or']) ? (int) $_REQUEST['or'] : 76,
             'originId'          => isset($_REQUEST['oid']) ? (int) $_REQUEST['oid'] : null

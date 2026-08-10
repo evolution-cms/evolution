@@ -6,7 +6,7 @@
     <script>tpResources.addTabPage(document.getElementById('{{ $tabIndexPageName }}'));</script>
 
     <div id="{{ $tabIndexPageName }}-info" class="msg-container" style="display:none">
-        <div class="element-edit-message-tab">{!! ManagerTheme::getLexicon('template_management_msg') !!}</div>
+        <div class="element-edit-message-tab">{{ ManagerTheme::lexiconHtml('template_management_msg') }}</div>
         <p class="viewoptions-message">{{ ManagerTheme::getLexicon('view_options_msg') }}</p>
     </div>
 

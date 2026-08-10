@@ -29,7 +29,7 @@
                         <small>({{ $item->id }})</small>
                         <span class="elements_descr">
                             {{ $item->caption }}
-                            {!! $item->description !!}
+                            {{ safe_html($item->description) }}
                         </span>
                     @if(empty($action))
                         </span>
