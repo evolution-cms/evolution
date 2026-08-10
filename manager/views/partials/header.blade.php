@@ -42,16 +42,16 @@
             timerForUnload,
             managerPath = '';
 
-        evo.lang = {!! json_encode(Illuminate\Support\Arr::only(
+        evo.lang = @js(Illuminate\Support\Arr::only(
             ManagerTheme::getLexicon(),
             ['saving', 'error_internet_connection', 'warning_not_saved']
-        )) !!};
-        evo.style = {!! json_encode(Illuminate\Support\Arr::only(
+        ));
+        evo.style = @js(Illuminate\Support\Arr::only(
             ManagerTheme::getStyle(),
             ['icon_file', 'icon_pencil', 'icon_reply', 'icon_plus']
-        )) !!};
+        ));
         evo.EVO_MANAGER_URL = '{{EVO_MANAGER_URL}}';
-        evo.config.which_browser = '{{evo()->getConfig('which_browser')}}';
+        evo.config.which_browser = @js(evo()->getConfig('which_browser'));
         // ============================================
         // @deprecated
         // @since 3.5.2

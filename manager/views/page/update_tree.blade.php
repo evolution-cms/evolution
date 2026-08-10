@@ -15,19 +15,19 @@
         <i class="{{ ManagerTheme::getStyle('icon_sitemap') }}"></i>{{ ManagerTheme::getLexicon('update_tree') }}
     </h1>
     <div class="tab-page">
-    {!! ManagerTheme::getStyle('actionbuttons.static.cancel') !!}
+    {{ ManagerTheme::styleHtml('actionbuttons.static.cancel') }}
 
 
 
             <div class="container container-body">
                 <p>
-                    {!! ManagerTheme::getLexicon('update_tree_description') !!}
+                    {{ ManagerTheme::lexiconHtml('update_tree_description') }}
                 </p>
                 @if($count < 3000)
 
                     @if($finish == 1)
                         <div class="alert alert-success" role="alert">
-                            {!! sprintf(ManagerTheme::getLexicon('update_tree_time'), $count, $end) !!}
+                            {{ ManagerTheme::lexiconHtml('update_tree_time', [$count, $end]) }}
                         </div>
                     @endif
 
@@ -38,7 +38,7 @@
 
                 @else
                     <div class="alert alert-danger" role="alert">
-                        {!! ManagerTheme::getLexicon('update_tree_danger') !!}
+                        {{ ManagerTheme::lexiconHtml('update_tree_danger') }}
                     </div>
                 @endif
             </div>

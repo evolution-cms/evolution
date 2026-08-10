@@ -10,7 +10,7 @@
         ])
         {{ $item->name }}
         <small>({{ $item->getKey() }})</small>
-        - {!! $item->caption !!}
+        - {{ $item->caption }}
     </label>
     @if(!empty($item->locked))
         <em>({{ ManagerTheme::getLexicon('locked') }})</em>

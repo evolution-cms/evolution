@@ -286,6 +286,40 @@ class ManagerTheme implements ManagerThemeInterface
         return $key === null ? $this->lexicon : get_by_key($this->lexicon, $key, $default);
     }
 
+    /**
+     * Return a lexicon entry as `Htmlable`, with escaped replacements.
+     *
+     * A number of lexicon entries ship with their own markup (`<b>`, `<br>`, help links), which is
+     * why they used to be printed raw. The language files are part of the installation and are
+     * therefore trusted; the values substituted into them usually are not. This method escapes
+     * every replacement and marks only the resulting message as safe, so templates can use
+     * `{{ }}` without either double encoding the markup or trusting the substituted data.
+     *
+     * @param string $key
+     * @param array<string, mixed> $replace Positional (sprintf) or named (:name) replacements.
+     * @param string $default
+     * @return \Illuminate\Support\HtmlString
+     * @since 3.5.8
+     */
+    public function lexiconHtml(string $key, array $replace = [], string $default = ''): \Illuminate\Support\HtmlString
+    {
+        $message = (string) $this->getLexicon($key, $default);
+
+        if ($replace !== []) {
+            $escaped = array_map(static fn($value) => e(is_scalar($value) ? (string) $value : ''), $replace);
+
+            if (array_is_list($escaped)) {
+                $message = vsprintf($message, $escaped);
+            } else {
+                foreach ($escaped as $name => $value) {
+                    $message = str_replace([':' . $name, '[+' . $name . '+]'], $value, $message);
+                }
+            }
+        }
+
+        return new \Illuminate\Support\HtmlString($message);
+    }
+
     public function getCharset()
     {
         return $this->charset;
@@ -333,6 +367,25 @@ class ManagerTheme implements ManagerThemeInterface
     public function getStyle($key = null)
     {
         return $key === null ? $this->style : get_by_key($this->style, $key, '');
+    }
+
+    /**
+     * Return a theme style entry as `Htmlable`.
+     *
+     * Several style entries - the action button blocks and the icons - are markup authored by the
+     * theme itself. Returning them as Htmlable lets templates print them with `{{ }}`: Blade
+     * leaves Htmlable untouched, so nothing is encoded twice and the raw `{!! !!}` output is no
+     * longer needed for theme-owned markup.
+     *
+     * @param string $key
+     * @return \Illuminate\Support\HtmlString
+     * @since 3.5.8
+     */
+    public function styleHtml(string $key): \Illuminate\Support\HtmlString
+    {
+        $value = get_by_key($this->style, $key, '');
+
+        return new \Illuminate\Support\HtmlString(is_scalar($value) ? (string) $value : '');
     }
 
     public function view($name, array $params = [])

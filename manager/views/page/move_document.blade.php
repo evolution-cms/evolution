@@ -57,7 +57,7 @@
         <i class="{{ $_style['icon_move'] }}"></i>{{ $document->pagetitle }} <small>({{ $document->getKey() }})</small>
     </h1>
 
-    {!! ManagerTheme::getStyle('actionbuttons.dynamic.save') !!}
+    {{ ManagerTheme::styleHtml('actionbuttons.dynamic.save') }}
 
     <div class="tab-page">
         <div class="container container-body">

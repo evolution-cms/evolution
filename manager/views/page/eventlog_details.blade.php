@@ -20,7 +20,7 @@
         {{ ManagerTheme::getLexicon('eventlog') }}
     </h1>
 
-    {!! ManagerTheme::getStyle('actionbuttons.dynamic.canceldelete') !!}
+    {{ ManagerTheme::styleHtml('actionbuttons.dynamic.canceldelete') }}
 
     <?php /** @var EvolutionCMS\Models\EventLog $log */?>
     @if($log->exists)
@@ -65,7 +65,7 @@
                         </tr>
                         <tr>
                             <td width="100%" colspan="4"><br />
-                                {!! $log->description !!}
+                                {{ $log->descriptionHtml() }}
                                 @if($log->isMailSentType() && $log->mailBody() !== null)
                                     <hr />
                                     <iframe

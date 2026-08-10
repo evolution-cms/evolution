@@ -2,8 +2,8 @@
 
 @push('scripts.bot')
     <script>
-        var trans = {!! json_encode($unlockTranslations, JSON_UNESCAPED_UNICODE) !!},
-            mraTrans = {!! json_encode($mraTranslations, JSON_UNESCAPED_UNICODE) !!};
+        var trans = @js($unlockTranslations),
+            mraTrans = @js($mraTranslations);
     </script>
     <script src="media/script/jquery.quicksearch.js"></script>
     <script src="media/script/bootstrap/js/bootstrap.min.js"></script>

@@ -26,7 +26,7 @@
         @include('manager::partials.actionButtons', $actionButtons)
         @if(!get_by_key(EvolutionCMS()->config, 'settings_version') || get_by_key(EvolutionCMS()->config, 'settings_version') !== EvolutionCMS()->getVersionData('version'))
             <div class="container">
-                <p class="alert alert-warning">{!! ManagerTheme::getLexicon('settings_after_install') !!}</p>
+                <p class="alert alert-warning">{{ ManagerTheme::lexiconHtml('settings_after_install') }}</p>
             </div>
         @endif
         <div class="tab-pane" id="settingsPane">

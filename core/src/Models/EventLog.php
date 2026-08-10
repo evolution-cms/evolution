@@ -168,6 +168,47 @@ class EventLog extends Eloquent\Model
     }
 
     /**
+     * Return the stored description without the encoded mail body marker.
+     *
+     * The marker is an HTML comment, so it used to stay invisible only because the view printed
+     * the description unescaped. Any escaping sink has to drop it explicitly, otherwise the
+     * base64 payload becomes visible text.
+     *
+     * @since 3.5.8
+     */
+    public function visibleDescription(): string
+    {
+        $description = (string)$this->getRawOriginal('description');
+        $markerPosition = strrpos($description, static::MAIL_BODY_MARKER);
+
+        if ($markerPosition === false) {
+            return $description;
+        }
+
+        return rtrim(substr($description, 0, $markerPosition), "\r\n");
+    }
+
+    /**
+     * Render the event description as markup that is safe to print with `{{ }}`.
+     *
+     * Descriptions are written by logEvent() and therefore contain whatever a plugin, a snippet,
+     * a failing query or an unauthenticated visitor put into the logged message. They are also
+     * plain HTML in every historical row: core writes `<pre>`, `<br/>` and `<b>` to structure the
+     * message. Escaping the whole value would keep the page safe but would show those tags as
+     * literal text, so the description goes through the allow list in safe_html(): everything is
+     * escaped, then attribute-free formatting tags are restored.
+     *
+     * Sanitising happens on read, not only in logEvent(), because rows written before this fix
+     * already carry stored payloads.
+     *
+     * @since 3.5.8
+     */
+    public function descriptionHtml(): \Illuminate\Support\HtmlString
+    {
+        return safe_html($this->visibleDescription());
+    }
+
+    /**
      * Safely present a selected source alias in the legacy Event Viewer DataGrid.
      *
      * Non-mail rows intentionally retain their historical rendering behavior.

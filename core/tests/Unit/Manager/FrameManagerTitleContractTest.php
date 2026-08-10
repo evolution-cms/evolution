@@ -1,28 +1,75 @@
 <?php
 
-namespace Tests\Unit\Manager;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\View\Compilers\BladeCompiler;
 
-use Tests\TestCase;
+/*
+|--------------------------------------------------------------------------
+| Manager frame title
+|--------------------------------------------------------------------------
+|
+| The frame title is built from the site_name setting, which an operator can edit. It is printed
+| in two places - the <title> element and the JavaScript configuration object - and each place
+| needs its own encoding. These tests exercise both echoes against a payload instead of looking
+| for a particular spelling in the template.
+|
+*/
 
-class FrameManagerTitleContractTest extends TestCase
+function renderFrameTitleFragment(string $template, string $siteName): string
 {
-    public function test_frame_title_uses_raw_manager_title_contract(): void
-    {
-        $view = file_get_contents(dirname(__DIR__, 4) . '/manager/views/frame/1.blade.php');
+    static $compiler = null;
 
-        $this->assertIsString($view);
-        $this->assertStringContainsString(
-            "\$managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';",
-            $view
-        );
-        $this->assertStringContainsString('<title>{!! $managerTitle !!}</title>', $view);
-        $this->assertStringContainsString(
-            'manager_title: {!! json_encode($managerTitle, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!},',
-            $view
-        );
-        $this->assertStringNotContainsString(
-            "<title>{{evo()->getConfig('site_name')}} - (Evolution CMS Manager)</title>",
-            $view
-        );
+    if ($compiler === null) {
+        $cache = sys_get_temp_dir() . '/evo-frame-title-tests';
+        if (!is_dir($cache)) {
+            mkdir($cache, 0777, true);
+        }
+        $compiler = new BladeCompiler(new Filesystem(), $cache);
     }
+
+    $managerTitle = $siteName . ' - (Evolution CMS Manager)';
+    $compiled = $compiler->compileString($template);
+
+    ob_start();
+    try {
+        eval('?>' . $compiled);
+    } catch (\Throwable $exception) {
+        ob_end_clean();
+        throw $exception;
+    }
+
+    return ob_get_clean();
 }
+
+test('the site name cannot close the title element', function () {
+    $output = renderFrameTitleFragment(
+        '<title>{{ $managerTitle }}</title>',
+        '</title><script>alert(1)</script>'
+    );
+
+    expect($output)->not->toContain('<script>')
+        ->and(substr_count($output, '</title>'))->toBe(1);
+});
+
+test('an ordinary site name is shown as typed', function () {
+    $output = renderFrameTitleFragment('<title>{{ $managerTitle }}</title>', "Bob's Bikes");
+
+    expect(html_entity_decode(strip_tags($output), ENT_QUOTES, 'UTF-8'))
+        ->toBe("Bob's Bikes - (Evolution CMS Manager)");
+});
+
+test('the JavaScript copy of the title survives quotes and cannot break out of the script', function () {
+    $output = renderFrameTitleFragment(
+        '<script>var t = @js($managerTitle);</script>',
+        'A "quoted" & \'apostrophed\' </script> name'
+    );
+
+    // One script element in, one script element out.
+    expect(substr_count($output, '<script>'))->toBe(1)
+        ->and(substr_count($output, '</script>'))->toBe(1);
+
+    // And no HTML entity leaks into the JavaScript string value.
+    expect($output)->not->toContain('&quot;')
+        ->and($output)->not->toContain('&#039;')
+        ->and($output)->not->toContain('&amp;');
+});

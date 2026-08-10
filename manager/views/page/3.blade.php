@@ -43,20 +43,23 @@
     }
     $content = $content->toArray();
 
-    $sd = isset($_REQUEST['dir']) ? '&dir=' . $_REQUEST['dir'] : '&dir=DESC';
-    $sb = isset($_REQUEST['sort']) ? '&sort=' . $_REQUEST['sort'] : '&sort=createdon';
+    // The requested id/sort/dir end up inside generated links and inside the JS action handlers
+    // below, so they are normalised here instead of being trusted as-is.
+    $requestId = (int) get_by_key($_REQUEST, 'id', 0);
+    $sd = '&dir=' . sort_direction(get_by_key($_REQUEST, 'dir'));
+    $sb = '&sort=' . sort_column(get_by_key($_REQUEST, 'sort'));
     $pg = isset($_REQUEST['page']) ? '&page=' . (int) $_REQUEST['page'] : '';
     $add_path = $sd . $sb . $pg;
 
     $actions = [
-        'new'       => 'index.php?pid=' . $_REQUEST['id'] . '&a=4',
-        'newlink'   => 'index.php?pid=' . $_REQUEST['id'] . '&a=72',
-        'edit'      => 'index.php?id=' . $_REQUEST['id'] . '&a=27',
+        'new'       => 'index.php?pid=' . $requestId . '&a=4',
+        'newlink'   => 'index.php?pid=' . $requestId . '&a=72',
+        'edit'      => 'index.php?id=' . $requestId . '&a=27',
         'save'      => '',
-        'delete'    => 'index.php?id=' . $_REQUEST['id'] . '&a=6',
+        'delete'    => 'index.php?id=' . $requestId . '&a=6',
         'cancel'    => 'index.php?' . ($id == 0 ? 'a=2' : 'a=3&r=1&id=' . $id . $add_path),
-        'move'      => 'index.php?id=' . $_REQUEST['id'] . '&a=51',
-        'duplicate' => 'index.php?id=' . $_REQUEST['id'] . '&a=94',
+        'move'      => 'index.php?id=' . $requestId . '&a=51',
+        'duplicate' => 'index.php?id=' . $requestId . '&a=94',
         'view'      => evo()->getConfig('friendly_urls') ? UrlProcessor::makeUrl($id) : EVO_SITE_URL . 'index.php?id=' . $id,
     ];
 
@@ -122,8 +125,9 @@
 
         $numRecords = $childs->count();
 
-        $sort = isset($_REQUEST['sort']) ? $_REQUEST['sort'] : 'createdon';
-        $dir = isset($_REQUEST['dir']) ? $_REQUEST['dir'] : 'DESC';
+        // Both values reach orderBy() and the paging links, so only plain identifiers survive.
+        $sort = sort_column(get_by_key($_REQUEST, 'sort'));
+        $dir = sort_direction(get_by_key($_REQUEST, 'dir'));
         $pg = isset($_REQUEST['page']) ? (int) $_REQUEST['page'] - 1 : 0;
 
         // Get child documents (with paging)
@@ -262,13 +266,13 @@
     <script type="text/javascript">
         var actions = {
             new: function () {
-                document.location.href = "{!! $actions['new'] !!}";
+                document.location.href = @js($actions['new']);
             },
             newlink: function () {
-                document.location.href = "{!! $actions['newlink'] !!}";
+                document.location.href = @js($actions['newlink']);
             },
             edit: function () {
-                document.location.href = "{!! $actions['edit'] !!}";
+                document.location.href = @js($actions['edit']);
             },
             save: function () {
                 documentDirty = false;
@@ -276,24 +280,24 @@
                 document.mutate.save.click();
             },
             delete: function () {
-                if (confirm("{{ ManagerTheme::getLexicon('confirm_delete_resource') }}") === true) {
-                    document.location.href = "{!! $actions['delete'] !!}";
+                if (confirm(@js(ManagerTheme::getLexicon('confirm_delete_resource'))) === true) {
+                    document.location.href = @js($actions['delete']);
                 }
             },
             cancel: function () {
                 documentDirty = false;
-                document.location.href = "{!! $actions['cancel'] !!}";
+                document.location.href = @js($actions['cancel']);
             },
             move: function () {
-                document.location.href = "{!! $actions['move'] !!}";
+                document.location.href = @js($actions['move']);
             },
             duplicate: function () {
-                if (confirm("{{ ManagerTheme::getLexicon('confirm_resource_duplicate') }}") === true) {
-                    document.location.href = "{!! $actions['duplicate'] !!}";
+                if (confirm(@js(ManagerTheme::getLexicon('confirm_resource_duplicate'))) === true) {
+                    document.location.href = @js($actions['duplicate']);
                 }
             },
             view: function () {
-                window.open("{!! $actions['view'] !!}", "previewWin");
+                window.open(@js($actions['view']), "previewWin");
             }
         };
     </script>

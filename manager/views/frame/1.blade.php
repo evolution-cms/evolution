@@ -1,29 +1,10 @@
 @php
-if (!function_exists('jsSvg')) {
-    function jsSvg($svg) {
-        $svg = str_replace(["\n", "\r", "\t"], '', $svg);
-        $svg = preg_replace('/\s+/', ' ', $svg);
-        return json_encode(trim($svg));
-    }
-}
-if (!function_exists('jsIcon')) {
-    function jsIcon($icon) {
-        if (strpos($icon, '<') === false) {
-            if (strpos($icon, 'tabler-') === 0) {
-                $icon = svg($icon)->toHtml();
-            } else {
-                $icon = '<i class="' . $icon . '"></i>';
-            }
-        }
-        return jsSvg($icon);
-    }
-}
-if (!function_exists('iconHtml')) {
-    function iconHtml($icon, $attrs = '') {
-        if (strpos($icon, '<svg') !== false) {
-            return $icon;
-        }
-        return '<i class="' . $icon . '"' . $attrs . '></i>';
+// Icon markup now comes from the global icon_markup()/icon_html() helpers, so the templates can
+// print it with {{ }} instead of raw output. jsIconMarkup() only collapses the whitespace of the
+// icons that are embedded into the JavaScript configuration below; @js() does the escaping.
+if (!function_exists('jsIconMarkup')) {
+    function jsIconMarkup($icon) {
+        return trim(preg_replace('/\s+/', ' ', str_replace(["\n", "\r", "\t"], '', icon_markup($icon))));
     }
 }
 
@@ -58,7 +39,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
 <!DOCTYPE html>
 <html dir="{{ManagerTheme::getTextDir()}}" lang="{{ManagerTheme::getLang()}}" xml:lang="{{ManagerTheme::getLang()}}" class="manager-frame {{ManagerTheme::getThemeStyle()}}">
 <head>
-    <title>{!! $managerTitle !!}</title>
+    <title>{{ $managerTitle }}</title>
     <meta http-equiv="Content-Type" content="text/html; charset={{ManagerTheme::getCharset()}}" />
     <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" />
     <meta name="theme-color" content="{{ ManagerTheme::getThemeColor() }}" />
@@ -110,11 +91,11 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
             MODX_MANAGER_URL: '{{EVO_MANAGER_URL}}',
             user: {
                 role: {{(int)$user['role']}},
-                username: '{{$user['username']}}',
-                groups: {!!json_encode(evo()->getUserDocGroups())!!}
+                username: @js($user['username']),
+                groups: @js(evo()->getUserDocGroups())
             },
             config: {
-                manager_title: {!! json_encode($managerTitle, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!},
+                manager_title: @js($managerTitle),
                 menu_height: {{(int)evo()->getConfig('manager_menu_height')}},
                 tree_width: {{(int)$EVO_widthSideBar}},
                 tree_min_width: {{(int)$tree_min_width}},
@@ -132,7 +113,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                 itemToChange: '',
                 selectedObjectName: null
             },
-            lang: {!! js_json([
+            lang: {{ js_json([
                 'already_deleted' => ManagerTheme::getLexicon('already_deleted'),
                 'cm_unknown_error' => ManagerTheme::getLexicon('cm_unknown_error'),
                 'collapse_tree' => ManagerTheme::getLexicon('collapse_tree'),
@@ -155,40 +136,40 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                 'unable_set_parent' => ManagerTheme::getLexicon('unable_set_parent'),
                 'working' => ManagerTheme::getLexicon('working'),
                 'paging_prev' => ManagerTheme::getLexicon('paging_prev'),
-            ]) !!},
+            ]) }},
             style: {
-                actions_file: '{!!addslashes($_style['icon_file'])!!}',
-                actions_pencil: '{!!addslashes($_style['icon_pencil'])!!}',
-                actions_plus: '{!!addslashes($_style['icon_plus'])!!}',
-                actions_reply: '{!!addslashes($_style['icon_reply'])!!}',
-                collapse_tree: {!! jsIcon($_style['icon_arrow_up_circle']) !!},
-                email: '{!!addslashes('<i class="' . $_style['icon_mail'] . '"></i>')!!}',
-                expand_tree: {!! jsIcon($_style['icon_arrow_down_circle']) !!},
-                icon_angle_left: '{!!addslashes($_style['icon_angle_left'])!!}',
-                icon_angle_right: '{!!addslashes($_style['icon_angle_right'])!!}',
-                icon_chunk: '{!!addslashes($_style['icon_chunk'])!!}',
-                icon_circle: '{!!addslashes($_style['icon_circle'])!!}',
-                icon_code: '{!!addslashes($_style['icon_code'])!!}',
-                icon_edit: '{!!addslashes($_style['icon_edit'])!!}',
-                icon_element: '{!!addslashes($_style['icon_elements'])!!}',
-                icon_folder: '{!!addslashes('<i class="' . $_style['icon_folder'] . '"></i>')!!}',
-                icon_plugin: '{!!addslashes($_style['icon_plugin'])!!}',
-                icon_refresh: '{!!addslashes($_style['icon_refresh'])!!}',
-                icon_spin: '{!!addslashes($_style['icon_spin'])!!}',
-                icon_template: '{!!addslashes($_style['icon_template'])!!}',
-                icon_trash: {!! jsIcon($_style['icon_trash']) !!},
-                icon_trash_alt: {!! jsIcon($_style['icon_trash_alt']) !!},
-                icon_tv: '{!!addslashes($_style['icon_tv'])!!}',
-                icons_external_link: '{!!addslashes('<i class="' . $_style['icon_external_link'] . '"></i>')!!}',
-                icons_working: {!! jsIcon($_style['icon_info_triangle']) !!},
-                tree_folder: '{!!addslashes('<i class="' . $_style['icon_folder'] . '"></i>')!!}',
-                tree_folder_secure: '{!!addslashes('<i class="' . $_style['icon_folder'] . '"></i>')!!}',
-                tree_folderopen: '{!!addslashes('<i class="' . $_style['icon_folder_open'] . '"></i>')!!}',
-                tree_folderopen_secure: '{!!addslashes('<i class="' . $_style['icon_folder_open'] . '"></i>')!!}',
-                tree_info: {!! jsIcon($_style['icon_info_circle']) !!},
-                tree_minusnode: '{!!addslashes('<i class="' . $_style['icon_angle_down'] . '"></i>')!!}',
-                tree_plusnode: '{!!addslashes('<i class="' . $_style['icon_angle_right'] . '"></i>')!!}',
-                tree_preview_resource: '{!!addslashes('<i class="' . $_style['icon_eye'] . '"></i>')!!}'
+                actions_file: @js(jsIconMarkup($_style['icon_file'])),
+                actions_pencil: @js(jsIconMarkup($_style['icon_pencil'])),
+                actions_plus: @js(jsIconMarkup($_style['icon_plus'])),
+                actions_reply: @js(jsIconMarkup($_style['icon_reply'])),
+                collapse_tree: @js(jsIconMarkup($_style['icon_arrow_up_circle'])),
+                email: @js(jsIconMarkup($_style['icon_mail'])),
+                expand_tree: @js(jsIconMarkup($_style['icon_arrow_down_circle'])),
+                icon_angle_left: @js(jsIconMarkup($_style['icon_angle_left'])),
+                icon_angle_right: @js(jsIconMarkup($_style['icon_angle_right'])),
+                icon_chunk: @js(jsIconMarkup($_style['icon_chunk'])),
+                icon_circle: @js(jsIconMarkup($_style['icon_circle'])),
+                icon_code: @js(jsIconMarkup($_style['icon_code'])),
+                icon_edit: @js(jsIconMarkup($_style['icon_edit'])),
+                icon_element: @js(jsIconMarkup($_style['icon_elements'])),
+                icon_folder: @js(jsIconMarkup($_style['icon_folder'])),
+                icon_plugin: @js(jsIconMarkup($_style['icon_plugin'])),
+                icon_refresh: @js(jsIconMarkup($_style['icon_refresh'])),
+                icon_spin: @js(jsIconMarkup($_style['icon_spin'])),
+                icon_template: @js(jsIconMarkup($_style['icon_template'])),
+                icon_trash: @js(jsIconMarkup($_style['icon_trash'])),
+                icon_trash_alt: @js(jsIconMarkup($_style['icon_trash_alt'])),
+                icon_tv: @js(jsIconMarkup($_style['icon_tv'])),
+                icons_external_link: @js(jsIconMarkup($_style['icon_external_link'])),
+                icons_working: @js(jsIconMarkup($_style['icon_info_triangle'])),
+                tree_folder: @js(jsIconMarkup($_style['icon_folder'])),
+                tree_folder_secure: @js(jsIconMarkup($_style['icon_folder'])),
+                tree_folderopen: @js(jsIconMarkup($_style['icon_folder_open'])),
+                tree_folderopen_secure: @js(jsIconMarkup($_style['icon_folder_open'])),
+                tree_info: @js(jsIconMarkup($_style['icon_info_circle'])),
+                tree_minusnode: @js(jsIconMarkup($_style['icon_angle_down'])),
+                tree_plusnode: @js(jsIconMarkup($_style['icon_angle_right'])),
+                tree_preview_resource: @js(jsIconMarkup($_style['icon_eye']))
             },
             permission: {
                 assets_images: {{evo()->hasPermission('assets_images') ? 1 : 0}},
@@ -260,7 +241,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                         <li id="searchform">
                             <form action="index.php?a=71" method="post" target="main">
                                 <input type="hidden" value="Search" name="submitok" />
-                                <label for="searchid" class="label_searchid">{!! $_style['icon_search'] !!}</label>
+                                <label for="searchid" class="label_searchid">{{ icon_html($_style['icon_search']) }}</label>
                                 <input type="text" id="searchid" name="searchid" size="25" />
                                 <div class="mask"></div>
                             </form>
@@ -268,32 +249,32 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                         @if (evo()->getConfig('show_newresource_btn') && evo()->hasPermission('new_document'))
                             <li id="newresource" class="dropdown newresource">
                                 <a href="javascript:;" class="dropdown-toggle" onclick="return false;" title="{{ManagerTheme::getLexicon('add_resource')}}">
-                                    {!! $_style['icon_add'] !!}
+                                    {{ icon_html($_style['icon_add']) }}
                                 </a>
                                 <ul class="dropdown-menu">
                                     @if (evo()->hasPermission('new_document'))
                                         <li>
                                             <a onclick="" href="index.php?a=4" target="main">
-                                                {!! $_style['icon_add'] !!} {{ManagerTheme::getLexicon('add_resource')}}
+                                                {{ icon_html($_style['icon_add']) }} {{ManagerTheme::getLexicon('add_resource')}}
                                             </a>
                                         </li>
                                         <li>
                                             <a onclick="" href="index.php?a=72" target="main">
-                                                {!! iconHtml($_style['icon_chain']) !!} {{ManagerTheme::getLexicon('add_weblink')}}
+                                                {{ icon_html($_style['icon_chain']) }} {{ManagerTheme::getLexicon('add_weblink')}}
                                             </a>
                                         </li>
                                     @endif
                                     @if (evo()->getConfig('use_browser') && evo()->hasPermission('assets_images'))
                                         <li>
                                             <a onclick="" href="media/browser/{{evo()->getConfig('which_browser')}}/browse.php?&type=images" target="main">
-                                                {!! $_style['icon_camera'] !!} {{ManagerTheme::getLexicon('images_management')}}
+                                                {{ icon_html($_style['icon_camera']) }} {{ManagerTheme::getLexicon('images_management')}}
                                             </a>
                                         </li>
                                     @endif
                                     @if (evo()->getConfig('use_browser') && evo()->hasPermission('assets_files'))
                                         <li>
                                             <a onclick="" href="media/browser/{{$modx->getConfig('which_browser')}}/browse.php?&type=files" target="main">
-                                                {!! $_style['icon_files'] !!} {{ManagerTheme::getLexicon('files_management')}}
+                                                {{ icon_html($_style['icon_files']) }} {{ManagerTheme::getLexicon('files_management')}}
                                             </a>
                                         </li>
                                     @endif
@@ -302,36 +283,39 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                         @endif
                         <li id="preview">
                             <a href="../" target="_blank" title="{{ManagerTheme::getLexicon('preview')}}">
-                                {!! $_style['icon_desktop'] !!}
+                                {{ icon_html($_style['icon_desktop']) }}
                             </a>
                         </li>
                         <li id="account" class="dropdown account">
                             <a href="javascript:;" class="dropdown-toggle" onclick="return false;">
                                 @if ($user['photo'])
-                                    <span class="icon photo" style="background-image: url({!!EVO_SITE_URL . entities($user['photo'], evo()->getConfig('modx_charset'))!!});"></span>
+                                    {{-- The value lands in a CSS url(): quote it and drop the characters that could
+                                        close the function or start a new declaration, then let {{ }} escape the
+                                        attribute itself. --}}
+                                    <span class="icon photo" style="background-image: url('{{ EVO_SITE_URL . preg_replace('~[\'"()\\\\;\s]+~', '', (string) $user['photo']) }}');"></span>
                                 @else
-                                    <span class="icon">{!! $_style['icon_user'] !!}</span>
+                                    <span class="icon">{{ icon_html($_style['icon_user']) }}</span>
                                 @endif
-                                <span class="username">{{entities($user['username'], evo()->getConfig('modx_charset'))}}</span>
+                                <span class="username">{{ $user['username'] }}</span>
                             </a>
                             <ul class="dropdown-menu">
                                 @if (evo()->hasPermission('change_password'))
                                     <li>
                                         <a onclick="" href="index.php?a=28" target="main">
-                                            {!! $_style['icon_lock'] !!} {{ManagerTheme::getLexicon('change_password')}}
+                                            {{ icon_html($_style['icon_lock']) }} {{ManagerTheme::getLexicon('change_password')}}
                                         </a>
                                     </li>
                                 @endif
                                 <li>
                                     <a href="index.php?a=8">
-                                        {!! $_style['icon_logout'] !!} {{ManagerTheme::getLexicon('logout')}}
+                                        {{ icon_html($_style['icon_logout']) }} {{ManagerTheme::getLexicon('logout')}}
                                     </a>
                                 </li>
                             </ul>
                         </li>
                         <li id="theme">
                             <a id="treeMenu_theme_dark" onclick="evo.tree.toggleTheme(event)" title="{{ManagerTheme::getLexicon('manager_theme_mode_title')}}">
-                                <span class="icon">{!! $_style['icon_theme'] !!}</span>
+                                <span class="icon">{{ icon_html($_style['icon_theme']) }}</span>
                             </a>
                         </li>
                         @if (
@@ -342,46 +326,46 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                         )
                             <li id="system" class="dropdown">
                                 <a href="javascript:;" class="dropdown-toggle" title="{{ManagerTheme::getLexicon('system')}}" onclick="return false;">
-                                    {!! $_style['icon_cogs'] !!}
+                                    {{ icon_html($_style['icon_cogs']) }}
                                 </a>
                                 <ul class="dropdown-menu">
                                     @if (evo()->hasPermission('settings'))
                                         <li>
                                             <a href="index.php?a=17" target="main">
-                                                {!! $_style['icon_sliders'] !!} {{ManagerTheme::getLexicon('edit_settings')}}
+                                                {{ icon_html($_style['icon_sliders']) }} {{ManagerTheme::getLexicon('edit_settings')}}
                                             </a>
                                         </li>
                                     @endif
                                     @if (evo()->hasPermission('view_eventlog'))
                                         <li>
                                             <a href="index.php?a=70" target="main">
-                                                {!! $_style['icon_calendar'] !!} {{ManagerTheme::getLexicon('site_schedule')}}
+                                                {{ icon_html($_style['icon_calendar']) }} {{ManagerTheme::getLexicon('site_schedule')}}
                                             </a>
                                         </li>
                                     @endif
                                     @if (evo()->hasPermission('view_eventlog'))
                                         <li>
                                             <a href="index.php?a=114" target="main">
-                                                {!! $_style['icon_info_triangle'] !!} {{ManagerTheme::getLexicon('eventlog_viewer')}}
+                                                {{ icon_html($_style['icon_info_triangle']) }} {{ManagerTheme::getLexicon('eventlog_viewer')}}
                                             </a>
                                         </li>
                                     @endif
                                     @if (evo()->hasPermission('logs'))
                                         <li>
                                             <a href="index.php?a=13" target="main">
-                                                {!! $_style['icon_user_secret'] !!} {{ManagerTheme::getLexicon('view_logging')}}
+                                                {{ icon_html($_style['icon_user_secret']) }} {{ManagerTheme::getLexicon('view_logging')}}
                                             </a>
                                         </li>
                                         <li>
                                             <a href="index.php?a=53" target="main">
-                                                {!! $_style['icon_info_circle'] !!} {{ManagerTheme::getLexicon('view_sysinfo')}}
+                                                {{ icon_html($_style['icon_info_circle']) }} {{ManagerTheme::getLexicon('view_sysinfo')}}
                                             </a>
                                         </li>
                                     @endif
                                     @if (evo()->hasPermission('help'))
                                         <li>
                                             <a href="index.php?a=9" target="main">
-                                                {!! $_style['icon_question_circle'] !!} {{ManagerTheme::getLexicon('help')}}
+                                                {{ icon_html($_style['icon_question_circle']) }} {{ManagerTheme::getLexicon('help')}}
                                             </a>
                                         </li>
                                     @endif
@@ -395,7 +379,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                         @if (evo()->getConfig('show_fullscreen_btn'))
                             <li id="fullscreen">
                                 <a href="javascript:;" onclick="toggleFullScreen();" id="toggleFullScreen" title="{{ManagerTheme::getLexicon('toggle_fullscreen')}}">
-                                    {!! $_style['icon_expand'] !!}
+                                    {{ icon_html($_style['icon_expand']) }}
                                 </a>
                             </li>
                         @endif
@@ -410,7 +394,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
             <div class="tab-row-container evo-tab-row">
                 <div class="tab-row">
                     <h2 id="evo-tab-home" class="tab selected" data-target="evo-tab-page-home" style="display:none!important;">
-                        {!! iconHtml($_style['icon_home']) !!}
+                        {{ icon_html($_style['icon_home']) }}
                     </h2>
                 </div>
             </div>
@@ -528,7 +512,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
         {
             if ((bool) $allowed) {
                 echo '<div class="menuLink" id="item' . $action . '" onclick="evo.tree.menuHandler(' . $action . ');">';
-                echo iconHtml($img) . ' ' . $text . '</div>';
+                echo icon_markup($img) . ' ' . e($text) . '</div>';
             }
         }
     }
@@ -642,7 +626,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
             $('#toggleFullScreen').click(function() {
                 var $toggle = $(this);
                 var isExpanded = $toggle.data('expanded') === true;
-                $toggle.html(isExpanded ? {!! jsIcon($_style['icon_expand']) !!} : {!! jsIcon($_style['icon_compress']) !!});
+                $toggle.html(isExpanded ? @js(jsIconMarkup($_style['icon_expand'])) : @js(jsIconMarkup($_style['icon_compress'])));
                 $toggle.data('expanded', !isExpanded);
             });
         </script>
@@ -783,7 +767,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                 <div class="panel-heading">
                     <h3 data-toggle="collapse" data-target=".alinkcolors"><i
                                 class="togglearrow {{ $_style['icon_chevron_right'] }}" aria-hidden="true"></i>
-                        {!! iconHtml($_style['icon_chain'], ' aria-hidden="true"') !!} Links Color</h3> <a
+                        {{ icon_html($_style['icon_chain'], ' aria-hidden="true"') }} Links Color</h3> <a
                             title="{{ ManagerTheme::getLexicon('reset') }}" href="javascript:;"
                             onclick="cleanLocalStorageReloadMain('my_evo_alinkcolor')"
                             class="pull-right resetcolor btn btn-secondary"><i

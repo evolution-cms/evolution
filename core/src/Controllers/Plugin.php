@@ -138,7 +138,9 @@ class Plugin extends AbstractController implements ManagerTheme\PageControllerIn
             $internal[0]['events'] = isset($parsed['events']) ? $parsed['events'] : '';
         }
 
-        $this->internal = json_encode($internal);
+        // JSON_HEX_TAG keeps a `</script>` inside a plugin docblock from closing the script
+        // element the view embeds this payload into.
+        $this->internal = json_encode($internal, JSON_HEX_TAG);
 
         return $out;
     }

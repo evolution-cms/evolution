@@ -130,13 +130,13 @@
                                     @if(!empty($row['results']))
                                         <li>
                                             <b>
-                                                <i class="{{ $row['class'] }}"></i> {!! $row['title'] !!}
+                                                <i class="{{ $row['class'] }}"></i> {{ $row['title'] }}
                                             </b>
                                         </li>
                                         @foreach($row['results'] as $item)
                                             <li class="{{ $item['class'] }}">
                                                 <a href="{{ $item['url'] }}" id="{{ $k }}_{{ $item['id'] }}" target="main">
-                                                    {!! $item['title'] !!}
+                                                    {{ $item['title'] }}
                                                     <i class="{{ ManagerTheme::getStyle('icon_external_link') }}"></i>
                                                 </a>
                                             </li>

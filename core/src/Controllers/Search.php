@@ -249,8 +249,8 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
                      ->toArray() as $row) {
             $templates[] = [
                 'value' => $row['id'],
-                'title' => htmlspecialchars($row['templatename'], ENT_QUOTES, $this->managerTheme->getCore()
-                        ->getConfig('evo_charset')) . ' (' . $row['id'] . ')',
+                // The view prints this with `{{ }}`; pre-escaping here would encode it twice.
+                'title' => $row['templatename'] . ' (' . $row['id'] . ')',
                 'selected' => $row['id'] == $templateid ? ' selected' : ''
             ];
         }
@@ -284,7 +284,10 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
                         $output['content']['results'][] = [
                             'id' => $row['id'],
                             'url' => 'index.php?a=27&id=' . $row['id'],
-                            'title' => $this->highlightingCoincidence($row['pagetitle'], $_REQUEST['searchfields']) . ' (' . $this->highlightingCoincidence($row['id'], $_REQUEST['searchfields']) . ')',
+                            'title' => new \Illuminate\Support\HtmlString(
+                                $this->highlightingCoincidence($row['pagetitle'], $_REQUEST['searchfields'])
+                                . ' (' . $this->highlightingCoincidence($row['id'], $_REQUEST['searchfields']) . ')'
+                            ),
                             'class' => $this->addClassForItemList('', !$row['published'], $row['deleted'])
                         ];
                     }
@@ -550,14 +553,36 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
         }
     }
 
-    protected function highlightingCoincidence($text, $search)
+    /**
+     * Escape a result title and wrap the searched fragment in a highlight element.
+     *
+     * Both the haystack (a stored page title, element name, ...) and the needle (the raw search
+     * term) are escaped before the highlight markup is added, so the only markup in the result is
+     * the highlight element this method wrote itself. The value is returned as Htmlable so the
+     * view can print it with `{{ }}` - Blade leaves Htmlable untouched, which keeps the highlight
+     * working without re-enabling raw output for the whole title.
+     *
+     * @param string|int|null $text
+     * @param string|int|null $search
+     * @return \Illuminate\Support\HtmlString
+     */
+    protected function highlightingCoincidence($text, $search): \Illuminate\Support\HtmlString
     {
-        $escapedSearch = preg_quote(entities(trim($search), $this->managerTheme->getCore()->getConfig('evo_charset')),
-            '!');
-        return preg_replace(
-            '!(' . $escapedSearch . ')!isu',
-            '<span class="text-danger">$1</span>',
-            entities($text, $this->managerTheme->getCore()->getConfig('evo_charset'))
+        $charset = $this->managerTheme->getCore()->getConfig('evo_charset');
+        $escapedSearch = preg_quote(entities(trim((string) $search), $charset), '!');
+
+        $escapedText = entities((string) $text, $charset);
+
+        if ($escapedSearch === '') {
+            return new \Illuminate\Support\HtmlString($escapedText);
+        }
+
+        return new \Illuminate\Support\HtmlString(
+            preg_replace(
+                '!(' . $escapedSearch . ')!isu',
+                '<span class="text-danger">$1</span>',
+                $escapedText
+            )
         );
     }
 }

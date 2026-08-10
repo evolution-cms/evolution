@@ -7,7 +7,7 @@
 
     <div class="">
         <div class="form-group">
-            {!! ManagerTheme::getLexicon('role_management_msg') !!}
+            {{ ManagerTheme::lexiconHtml('role_management_msg') }}
             <a class="btn btn-secondary btn-sm" href="{{ (new EvolutionCMS\Models\UserRole)->makeUrl('actions.new') }}">
                 <i class="{{ $_style['icon_add'] }} hide4desktop"></i> {{ ManagerTheme::getLexicon('new_role') }}
             </a>

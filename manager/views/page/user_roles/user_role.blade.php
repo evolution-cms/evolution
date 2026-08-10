@@ -10,7 +10,7 @@
             <i class="{{ $_style['icon_role'] }}"></i>@if(isset($role->name)){{$role->name}} <small>({{$role->id}})</small> @else {{ ManagerTheme::getLexicon('role_title') }}@endif
         </h1>
 
-        {!!  ManagerTheme::getStyle('actionbuttons.dynamic.savedelete')  !!}
+        {{ ManagerTheme::styleHtml('actionbuttons.dynamic.savedelete') }}
 
         <div class="tab-pane" id="rolePane">
             <script>
