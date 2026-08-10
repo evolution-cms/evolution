@@ -1,6 +1,8 @@
 <?php
 $modx_lang_attribute = 'be'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
+$evo_lang_attribute = 'be'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
+$evo_manager_charset = 'UTF-8';
 setlocale(LC_ALL, 'be_BY.UTF-8');
 
 $_lang["about_msg"] = 'Evolution CMS - гэта <a href="https://evo.im/" target="_blank">PHP-прылажэнне і сістэма кіравання кантэнтам</a>, якая дзейнічае пад ліцэнзіяй <a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU GPL.</a>';
@@ -1649,5 +1651,10 @@ $_lang['mail_test_error_connection'] = 'Не ўдалося падключыцц
 $_lang['mail_test_error_authentication'] = 'SMTP-сервер адхіліў аўтэнтыфікацыю.';
 $_lang['mail_test_error_encryption'] = 'Не ўдалося ўсталяваць бяспечнае SMTP-злучэнне.';
 $_lang['mail_test_error_recipient'] = 'SMTP-сервер адхіліў адрас атрымальніка.';
+
+$_lang['time_unit_day_short'] = 'д';
+$_lang['time_unit_hour_short'] = 'г';
+$_lang['time_unit_minute_short'] = 'хв';
+$_lang['time_unit_second_short'] = 'с';
 
 return $_lang;

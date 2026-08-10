@@ -18,6 +18,8 @@
 //$modx_textdir = 'rtl'; // uncomment this line for RTL languages
 $modx_lang_attribute = 'fr'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
+$evo_lang_attribute = 'fr'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
+$evo_manager_charset = 'UTF-8';
 
 $_lang["about_msg"] = 'MODX est un <a href="https://evo.im/" target="_blank">Système de Gestion de Contenu et un Framework applicatif PHP</a> placé sous licence <a href="../assets/docs/license.txt">GNU GPL</a>.';
 $_lang["about_title"] = 'À propos de MODX';
@@ -1245,5 +1247,10 @@ $_lang['mail_test_error_connection'] = 'Impossible de se connecter au serveur SM
 $_lang['mail_test_error_authentication'] = 'Le serveur SMTP a refusé l’authentification.';
 $_lang['mail_test_error_encryption'] = 'La connexion SMTP sécurisée n’a pas pu être établie.';
 $_lang['mail_test_error_recipient'] = 'Le serveur SMTP a refusé l’adresse du destinataire.';
+
+$_lang['time_unit_day_short'] = 'j';
+$_lang['time_unit_hour_short'] = 'h';
+$_lang['time_unit_minute_short'] = 'min';
+$_lang['time_unit_second_short'] = 's';
 
 return $_lang;

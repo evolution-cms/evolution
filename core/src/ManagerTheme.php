@@ -208,7 +208,7 @@ class ManagerTheme implements ManagerThemeInterface
     protected function loadLang($lang = 'english')
     {
         $_lang = [];
-        $evo_lang_attribute = $this->getLang();
+        $modx_lang_attribute = $this->getLang();
         $modx_manager_charset = $this->getCharset();
         $modx_textdir = $this->getTextDir();
 
@@ -237,8 +237,8 @@ class ManagerTheme implements ManagerThemeInterface
         }
         $this->lexicon = $_lang;
         $this->langName = $lang;
-        $this->lang = $evo_lang_attribute;
-        app()->setLocale($evo_lang_attribute);
+        $this->lang = $modx_lang_attribute;
+        app()->setLocale($modx_lang_attribute);
         $this->setTextDir($modx_textdir);
         $this->setCharset($modx_manager_charset);
         $this->getCore()->setConfig('lang_code', $this->getLang());

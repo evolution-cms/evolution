@@ -15,6 +15,9 @@
 $modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'he'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
+$evo_textdir = 'rtl'; // uncomment this line for RTL langauges
+$evo_lang_attribute = 'he'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
+$evo_manager_charset = 'UTF-8';
 
 $_lang["about_msg"] = 'MODX הינה <a href="https://evo.im/" target="_blank">מערכת ניהול תוכן מבוססת PHP</a> תחת רשיון <a href="../assets/docs/license.txt">GNU GPL</a>.';
 $_lang["about_title"] = 'אודות MODX';
@@ -1275,5 +1278,10 @@ $_lang['mail_test_error_connection'] = 'לא ניתן היה להתחבר לשר
 $_lang['mail_test_error_authentication'] = 'שרת ה-SMTP דחה את האימות.';
 $_lang['mail_test_error_encryption'] = 'לא ניתן היה ליצור חיבור SMTP מאובטח.';
 $_lang['mail_test_error_recipient'] = 'שרת ה-SMTP דחה את כתובת הנמען.';
+
+$_lang['time_unit_day_short'] = 'י׳';
+$_lang['time_unit_hour_short'] = 'ש׳';
+$_lang['time_unit_minute_short'] = 'דק׳';
+$_lang['time_unit_second_short'] = 'שנ׳';
 
 return $_lang;

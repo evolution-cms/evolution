@@ -16,6 +16,8 @@
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'sv'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
+$evo_lang_attribute = 'sv'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
+$evo_manager_charset = 'UTF-8';
 
 $_lang["about_msg"] = 'MODX är ett <a href="https://evo.im/" target="_blank">PHP applikationsramverk och system för innehållshantering</a> och är licensierat under <a href="../assets/docs/license.txt">GNU GPL</a>.';
 $_lang["about_title"] = 'Om MODX';
@@ -1275,5 +1277,10 @@ $_lang['mail_test_error_connection'] = 'Det gick inte att ansluta till den konfi
 $_lang['mail_test_error_authentication'] = 'SMTP-servern avvisade autentiseringen.';
 $_lang['mail_test_error_encryption'] = 'Det gick inte att upprätta en säker SMTP-anslutning.';
 $_lang['mail_test_error_recipient'] = 'SMTP-servern avvisade mottagaradressen.';
+
+$_lang['time_unit_day_short'] = 'd';
+$_lang['time_unit_hour_short'] = 'tim';
+$_lang['time_unit_minute_short'] = 'min';
+$_lang['time_unit_second_short'] = 's';
 
 return $_lang;

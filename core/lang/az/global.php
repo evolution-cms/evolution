@@ -12,9 +12,10 @@
  *
  * Please commit your language changes on Transifex (https://www.transifex.com/projects/p/modx-evolution/) or on GitHub (https://github.com/modxcms/evolution).
  */
-//$modx_textdir = 'rtl'; // uncomment this line for RTL languages
 $modx_lang_attribute = 'az'; // Menecer HTML/XML Dil Atributu, bax: http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
+$evo_lang_attribute = 'az'; // Menecer HTML/XML Dil Atributu, bax: http://en.wikipedia.org/wiki/ISO_639-1
+$evo_manager_charset = 'UTF-8';
 
 $_lang["about_msg"] = 'Evolution CMS, <a href="https://evo.im/" target="_blank">PHP Tətbiq Çərçivəsi və Məzmun İdarəetmə Sistemi</a> olub, <a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU GPL</a> lisenziyası altında yayımlanır.';
 $_lang["about_title"] = 'Evolution CMS haqqında';
@@ -1651,5 +1652,10 @@ $_lang['mail_test_error_connection'] = 'Konfiqurasiya edilmiş SMTP serverinə q
 $_lang['mail_test_error_authentication'] = 'SMTP serveri autentifikasiyanı rədd etdi.';
 $_lang['mail_test_error_encryption'] = 'Təhlükəsiz SMTP bağlantısını qurmaq mümkün olmadı.';
 $_lang['mail_test_error_recipient'] = 'SMTP serveri alıcının ünvanını rədd etdi.';
+
+$_lang['time_unit_day_short'] = 'g';
+$_lang['time_unit_hour_short'] = 'saat';
+$_lang['time_unit_minute_short'] = 'dəq';
+$_lang['time_unit_second_short'] = 'san';
 
 return $_lang;

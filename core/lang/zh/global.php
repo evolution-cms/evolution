@@ -16,6 +16,8 @@
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'zh'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
+$evo_lang_attribute = 'zh'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
+$evo_manager_charset = 'UTF-8';
 
 $_lang["about_msg"] = '镆铘是一个 <a href="https://evo.im/" target="_blank">PHP编写的内容管理系统</a> 遵循 <a href="../assets/docs/license.txt">GNU GPL</a>协议.';
 $_lang["about_title"] = '关于MODX';
@@ -1276,5 +1278,10 @@ $_lang['mail_test_error_connection'] = '无法连接到配置的 SMTP 服务器�
 $_lang['mail_test_error_authentication'] = 'SMTP 服务器拒绝了身份验证。';
 $_lang['mail_test_error_encryption'] = '无法建立安全的 SMTP 连接。';
 $_lang['mail_test_error_recipient'] = 'SMTP 服务器拒绝了收件人地址。';
+
+$_lang['time_unit_day_short'] = '天';
+$_lang['time_unit_hour_short'] = '时';
+$_lang['time_unit_minute_short'] = '分';
+$_lang['time_unit_second_short'] = '秒';
 
 return $_lang;

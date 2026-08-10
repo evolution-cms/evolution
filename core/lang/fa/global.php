@@ -15,6 +15,9 @@
 $modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'fa'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
+$evo_textdir = 'rtl'; // uncomment this line for RTL langauges
+$evo_lang_attribute = 'fa'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
+$evo_manager_charset = 'UTF-8';
 
 $_lang["about_msg"] = 'مادایکس یک <a href="https://evo.im/" target="_blank">سیستم مدیریت محتوای ساختار یافته و پیشرفته  توسط PHP میباشد</a> که  تحت لیسانس <a href="../assets/docs/license.txt">GNU-GPL</a> منتشر شده است';
 $_lang["about_title"] = 'درباره مادایکس';
@@ -1275,5 +1278,10 @@ $_lang['mail_test_error_connection'] = 'اتصال به سرور SMTP پیکرب
 $_lang['mail_test_error_authentication'] = 'سرور SMTP احراز هویت را رد کرد.';
 $_lang['mail_test_error_encryption'] = 'برقراری اتصال امن SMTP ممکن نشد.';
 $_lang['mail_test_error_recipient'] = 'سرور SMTP نشانی گیرنده را رد کرد.';
+
+$_lang['time_unit_day_short'] = 'روز';
+$_lang['time_unit_hour_short'] = 'ساعت';
+$_lang['time_unit_minute_short'] = 'دقیقه';
+$_lang['time_unit_second_short'] = 'ثانیه';
 
 return $_lang;

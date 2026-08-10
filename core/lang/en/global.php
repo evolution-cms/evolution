@@ -15,6 +15,8 @@
 //$modx_textdir = 'rtl'; // uncomment this line for RTL languages
 $modx_lang_attribute = 'en'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
+$evo_lang_attribute = 'en'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
+$evo_manager_charset = 'UTF-8';
 
 $_lang["about_msg"] = 'Evolution CMS is a <a href="https://evo.im/" target="_blank">PHP Application Framework and Content Management System</a> licensed under the <a href="../assets/docs/license.txt">GNU GPL</a>.';
 $_lang["about_title"] = 'About Evolution CMS';
@@ -1548,5 +1550,9 @@ $_lang['mail_test_error_connection'] = 'Could not connect to the configured SMTP
 $_lang['mail_test_error_authentication'] = 'The SMTP server rejected authentication.';
 $_lang['mail_test_error_encryption'] = 'The secure SMTP connection could not be established.';
 $_lang['mail_test_error_recipient'] = 'The SMTP server rejected the destination address.';
+$_lang['time_unit_day_short'] = 'd';
+$_lang['time_unit_hour_short'] = 'h';
+$_lang['time_unit_minute_short'] = 'm';
+$_lang['time_unit_second_short'] = 's';
 
 return $_lang;

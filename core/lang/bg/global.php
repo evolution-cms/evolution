@@ -15,6 +15,8 @@
 //$modx_textdir = 'rtl'; // uncomment this line for RTL languages
 $modx_lang_attribute = 'bg'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
+$evo_lang_attribute = 'bg'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
+$evo_manager_charset = 'UTF-8';
 
 $_lang["about_msg"] = 'MODX is a <a href="https://evo.im/" target="_blank">PHP Application Framework and Content Management System</a> licensed under the <a href="../assets/docs/license.txt">GNU GPL</a>.';
 $_lang["about_title"] = 'За Системата MODX';
@@ -1275,5 +1277,10 @@ $_lang['mail_test_error_connection'] = 'Неуспешно свързване с
 $_lang['mail_test_error_authentication'] = 'SMTP сървърът отхвърли удостоверяването.';
 $_lang['mail_test_error_encryption'] = 'Не можа да бъде установена защитена SMTP връзка.';
 $_lang['mail_test_error_recipient'] = 'SMTP сървърът отхвърли адреса на получателя.';
+
+$_lang['time_unit_day_short'] = 'д';
+$_lang['time_unit_hour_short'] = 'ч';
+$_lang['time_unit_minute_short'] = 'мин';
+$_lang['time_unit_second_short'] = 'сек';
 
 return $_lang;

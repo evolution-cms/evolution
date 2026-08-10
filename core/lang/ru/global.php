@@ -15,6 +15,8 @@
 //$modx_textdir = 'rtl'; // uncomment this line for RTL languages
 $modx_lang_attribute = 'ru'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
+$evo_lang_attribute = 'ru'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
+$evo_manager_charset = 'UTF-8';
 
 $_lang["about_msg"] = 'Evolution CMS - это <a href="https://evo.im/" target="_blank">PHP Application Framework и Content Management System</a>, распространяемая по лицензии <a href="../assets/docs/license.txt">GNU GPL</a>.';
 $_lang["about_title"] = 'Об Evolution CMS';
@@ -1549,5 +1551,9 @@ $_lang['mail_test_error_connection'] = 'Не удалось подключить
 $_lang['mail_test_error_authentication'] = 'SMTP-сервер отклонил аутентификацию.';
 $_lang['mail_test_error_encryption'] = 'Не удалось установить защищённое SMTP-соединение.';
 $_lang['mail_test_error_recipient'] = 'SMTP-сервер отклонил адрес получателя.';
+$_lang['time_unit_day_short'] = 'д';
+$_lang['time_unit_hour_short'] = 'ч';
+$_lang['time_unit_minute_short'] = 'мин';
+$_lang['time_unit_second_short'] = 'с';
 
 return $_lang;

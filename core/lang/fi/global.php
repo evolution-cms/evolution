@@ -15,6 +15,8 @@
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'fi'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
+$evo_lang_attribute = 'fi'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
+$evo_manager_charset = 'UTF-8';
 
 $_lang["about_msg"] = 'MODX on <a href="https://evo.im/" target="_blank">PHP-sovelluskehys ja sisällönhallintajärjestelmä</a>, jonka lisenssinä on avoimen lähdekoodin <a href="../assets/docs/license.txt">GNU GPL</a>.';
 $_lang["about_title"] = 'Tietoa MODX:stä';
@@ -1274,5 +1276,10 @@ $_lang['mail_test_error_connection'] = 'Määritettyyn SMTP-palvelimeen ei saatu
 $_lang['mail_test_error_authentication'] = 'SMTP-palvelin hylkäsi tunnistautumisen.';
 $_lang['mail_test_error_encryption'] = 'Suojattua SMTP-yhteyttä ei voitu muodostaa.';
 $_lang['mail_test_error_recipient'] = 'SMTP-palvelin hylkäsi vastaanottajan osoitteen.';
+
+$_lang['time_unit_day_short'] = 'pv';
+$_lang['time_unit_hour_short'] = 'h';
+$_lang['time_unit_minute_short'] = 'min';
+$_lang['time_unit_second_short'] = 's';
 
 return $_lang;

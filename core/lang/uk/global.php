@@ -12,10 +12,12 @@
  *
  * Please commit your language changes on Transifex (https://www.transifex.com/projects/p/modx-evolution/) or on GitHub (https://github.com/modxcms/evolution).
  */
-
 $modx_lang_attribute = 'uk'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
+$evo_lang_attribute = 'uk'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
+$evo_manager_charset = 'UTF-8';
 setlocale (LC_ALL, 'uk_UA.UTF-8');
+
 $_lang["about_msg"] = 'Evolution CMS - це <a href="https://evo.im/" target="_blank">професійний інструмент розробки сайтів</a>, що дозволяє управляти контентом та поширюється за ліцензією <a href="../assets/docs/license.txt">GNU GPL</a>.';
 $_lang["about_title"] = 'Про Evolution CMS';
 $_lang["access_permission_denied"] = 'У вас недостатньо прав для перегляду даного ресурсу.';
@@ -1549,5 +1551,9 @@ $_lang['mail_test_error_connection'] = 'Не вдалося підключити
 $_lang['mail_test_error_authentication'] = 'SMTP-сервер відхилив автентифікацію.';
 $_lang['mail_test_error_encryption'] = 'Не вдалося встановити захищене SMTP-з’єднання.';
 $_lang['mail_test_error_recipient'] = 'SMTP-сервер відхилив адресу одержувача.';
+$_lang['time_unit_day_short'] = 'д';
+$_lang['time_unit_hour_short'] = 'г';
+$_lang['time_unit_minute_short'] = 'хв';
+$_lang['time_unit_second_short'] = 'с';
 
 return $_lang;

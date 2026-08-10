@@ -18,6 +18,8 @@
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'ja'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
+$evo_lang_attribute = 'ja'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
+$evo_manager_charset = 'UTF-8';
 
 $_lang["about_msg"] = '<p>Evolution CMSは <a href="https://evo.im/" target="_blank">PHP アプリケーション フレームワーク・コンテンツ管理システム</a>です。GPL に基づいて使用が許諾されます。</p>';
 $_lang["about_title"] = 'Evolution について';
@@ -1557,5 +1559,10 @@ $_lang['mail_test_error_connection'] = '設定されたSMTPサーバーに接続
 $_lang['mail_test_error_authentication'] = 'SMTPサーバーが認証を拒否しました。';
 $_lang['mail_test_error_encryption'] = '安全なSMTP接続を確立できませんでした。';
 $_lang['mail_test_error_recipient'] = 'SMTPサーバーが送信先アドレスを拒否しました。';
+
+$_lang['time_unit_day_short'] = '日';
+$_lang['time_unit_hour_short'] = '時間';
+$_lang['time_unit_minute_short'] = '分';
+$_lang['time_unit_second_short'] = '秒';
 
 return $_lang;

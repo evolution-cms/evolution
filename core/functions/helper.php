@@ -262,10 +262,12 @@ if (!function_exists('niceEta')) {
     /**
      * Format ETA seconds into human-readable format.
      *
-     * Converts seconds into a user-friendly time format:
+     * Converts seconds into a user-friendly time format. Unit abbreviations
+     * are translated using the current application locale. English examples:
      * - Less than 60 seconds: "45s"
      * - Less than 1 hour: "5m 30s"
-     * - 1 hour or more: "2h 15m"
+     * - Less than 1 day: "2h 15m"
+     * - 1 day or more: "9d 9h 56m"
      *
      * @param float $seconds Number of seconds to format
      * @return string Human-readable time format
@@ -275,19 +277,54 @@ if (!function_exists('niceEta')) {
      * niceEta(150);      // "2m 30s"
      * niceEta(3600);     // "1h 0m"
      * niceEta(8100);     // "2h 15m"
+     * niceEta(813360);   // "9d 9h 56m"
      */
     function niceEta(float $seconds): string
     {
+        $units = [
+            'day' => 'd',
+            'hour' => 'h',
+            'minute' => 'm',
+            'second' => 's',
+        ];
+
+        if (class_exists(\Illuminate\Container\Container::class)) {
+            $container = \Illuminate\Container\Container::getInstance();
+
+            if ($container->bound('translator')) {
+                $translator = $container->make('translator');
+
+                foreach ($units as $unit => $fallback) {
+                    $key = 'global.time_unit_' . $unit . '_short';
+                    $translation = $translator->get($key);
+                    $units[$unit] = $translation === $key ? $fallback : $translation;
+                }
+            }
+        }
+
         if ($seconds < 60) {
-            return sprintf('%.0fs', $seconds);
+            return sprintf('%.0f%s', $seconds, $units['second']);
         } elseif ($seconds < 3600) {
             $minutes = floor($seconds / 60);
             $remainingSeconds = $seconds % 60;
-            return sprintf('%.0fm %.0fs', $minutes, $remainingSeconds);
-        } else {
+            return sprintf('%.0f%s %.0f%s', $minutes, $units['minute'], $remainingSeconds, $units['second']);
+        } elseif ($seconds < 86400) {
             $hours = floor($seconds / 3600);
             $minutes = floor(($seconds % 3600) / 60);
-            return sprintf('%.0fh %.0fm', $hours, $minutes);
+            return sprintf('%.0f%s %.0f%s', $hours, $units['hour'], $minutes, $units['minute']);
+        } else {
+            $days = floor($seconds / 86400);
+            $hours = floor(($seconds % 86400) / 3600);
+            $minutes = floor(($seconds % 3600) / 60);
+            return sprintf(
+                '%.0f%s %.0f%s %.0f%s',
+                $days,
+                $units['day'],
+                $hours,
+                $units['hour'],
+                $minutes,
+                $units['minute']
+            );
         }
     }
 }

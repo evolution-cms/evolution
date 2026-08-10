@@ -15,6 +15,8 @@
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'es'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
+$evo_lang_attribute = 'es'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
+$evo_manager_charset = 'UTF-8';
 
 $_lang["about_msg"] = 'EVO es un <a href="https://evo.im/" target="_blank">Sistema de Administración de Contenido y Esquema de PHP</a> bajo licencia <a href="../assets/docs/license.txt">GNU GPL</a>.';
 $_lang["about_title"] = 'Acerca de Evolution';
@@ -1511,5 +1513,10 @@ $_lang['mail_test_error_connection'] = 'No se pudo conectar con el servidor SMTP
 $_lang['mail_test_error_authentication'] = 'El servidor SMTP rechazó la autenticación.';
 $_lang['mail_test_error_encryption'] = 'No se pudo establecer la conexión SMTP segura.';
 $_lang['mail_test_error_recipient'] = 'El servidor SMTP rechazó la dirección del destinatario.';
+
+$_lang['time_unit_day_short'] = 'd';
+$_lang['time_unit_hour_short'] = 'h';
+$_lang['time_unit_minute_short'] = 'min';
+$_lang['time_unit_second_short'] = 's';
 
 return $_lang;

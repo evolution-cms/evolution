@@ -16,6 +16,8 @@
 //$modx_textdir = 'rtl'; // uncomment this line for RTL languages
 $modx_lang_attribute = 'pl'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
+$evo_lang_attribute = 'pl'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
+$evo_manager_charset = 'UTF-8';
 
 $_lang["about_msg"] = 'EVO to <a href="https://evo.im/" target="_blank">PHP Application Framework i Content Management System</a> objęty licencją <a href="../assets/docs/license.txt">GNU GPL</a>.';
 $_lang["about_title"] = 'O Evolution';
@@ -1507,5 +1509,10 @@ $_lang['mail_test_error_connection'] = 'Nie udało się połączyć ze skonfigur
 $_lang['mail_test_error_authentication'] = 'Serwer SMTP odrzucił uwierzytelnianie.';
 $_lang['mail_test_error_encryption'] = 'Nie udało się nawiązać bezpiecznego połączenia SMTP.';
 $_lang['mail_test_error_recipient'] = 'Serwer SMTP odrzucił adres odbiorcy.';
+
+$_lang['time_unit_day_short'] = 'd';
+$_lang['time_unit_hour_short'] = 'godz';
+$_lang['time_unit_minute_short'] = 'min';
+$_lang['time_unit_second_short'] = 's';
 
 return $_lang;
