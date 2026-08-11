@@ -25,7 +25,10 @@ class Lang extends \Illuminate\Support\Facades\Lang {}
 class View extends \Illuminate\Support\Facades\View {}
 class Response extends \Illuminate\Support\Facades\Response {}
 class Redirect extends \Illuminate\Support\Facades\Redirect {}
-class Redis extends \Illuminate\Support\Facades\Redis {}
+// ext-redis already provides a global Redis class, alias the facade only without it.
+if (!class_exists('Redis', false)) {
+    class Redis extends \Illuminate\Support\Facades\Redis {}
+}
 class Route extends \Illuminate\Support\Facades\Route {}
 class Str extends \Illuminate\Support\Str {}
 class Config extends \EvolutionCMS\Facades\ConfigService {}
