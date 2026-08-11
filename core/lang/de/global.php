@@ -1264,6 +1264,7 @@ $_lang["configcheck_sysfiles_mod_msg"] = 'EVO wurde so konfiguriert, dass wichti
 $_lang['email_method_title'] = 'Sendmail Methode';
 $_lang['email_method_mail'] = 'PHP mail() Funktion';
 $_lang['email_method_smtp'] = 'SMTP Server';
+$_lang['email_method_message'] = 'Transportweg für System-E-Mails. „PHP mail() Funktion“ übergibt die Nachricht an das lokale Mailprogramm des Servers und benötigt keine weitere Konfiguration. „SMTP Server“ versendet über den unten konfigurierten externen SMTP-Server und ist der einzige Modus, in dem die automatische Absenderwahl den SMTP-Benutzernamen verwenden kann.';
 $_lang['smtp_auth_title'] = 'SMTP Auth';
 $_lang['smtp_autotls_title'] = 'SMTPAutoTLS';
 $_lang['smtp_host_title'] = 'SMTP Host';
@@ -1452,7 +1453,7 @@ $_lang["viewopts_cb_alltabs"] = 'auf alle Tabs anwenden';
 $_lang['email_sender_method'] = 'Absender-Adresse';
 $_lang['auto'] = 'Automatische Erkennung';
 $_lang['use_emailsender'] = 'Benutze [(emailsender)]';
-$_lang['email_sender_method_message'] = 'Die Absender-Adresse wird normalerweise als Return-Path Header durch den Versender verwendet, und empfängt daher Mails welche nicht zugestellt werden konnten (Bounces). Die automatische Erkennung ist in der Regel ausreichend.';
+$_lang['email_sender_method_message'] = '„Automatische Erkennung“: Ist SMTP ausgewählt und der SMTP-Benutzername eine gültige E-Mail-Adresse, wird diese sowohl als From-Adresse als auch als Envelope-Sender verwendet. Andernfalls dient [(emailsender)] als From-Adresse, und der Envelope-Sender bleibt der bisherigen automatischen Behandlung durch den Transport überlassen. „Benutze [(emailsender)]“ erzwingt diese Adresse für From und Envelope-Sender gleichermaßen.';
 
 $_lang['login_form_position_title'] = 'Position des Login-Formulars';
 $_lang['login_form_position_left'] = 'links';

@@ -1301,6 +1301,7 @@ $_lang["configcheck_sysfiles_mod_msg"] = 'EVOを設定して、Webサイトの�
 $_lang['email_method_title'] = 'Sendmail による方法';
 $_lang['email_method_mail'] = 'PHP mail() による機能';
 $_lang['email_method_smtp'] = 'SMTP サーバ';
+$_lang['email_method_message'] = 'システムメールの送信方法。「PHP mail() による機能」はメッセージをサーバーのローカルメールプログラムに渡すため、追加の設定は不要です。「SMTP サーバ」は下で設定した外部 SMTP サーバー経由で送信し、送信者の自動検出が SMTP ユーザー名を利用できる唯一のモードです。';
 $_lang['smtp_auth_title'] = 'SMTP-AUTH';
 $_lang['smtp_autotls_title'] = 'SMTPAutoTLS';
 $_lang['smtp_host_title'] = 'SMTP ホスト';
@@ -1493,7 +1494,7 @@ $_lang["viewopts_cb_alltabs"] = 'すべてのタブ';
 $_lang['email_sender_method'] = 'メッセージの送り主';
 $_lang['auto'] = '自動検出';
 $_lang['use_emailsender'] = ' [(emailsender)] の値を使う';
-$_lang['email_sender_method_message'] = 'メッセージの送り主。これは通常、受信者によってReturn-Pathヘッダーに変換され、またこのアドレスはバウンスの送信先となります。ほとんどの場合、自動検出が機能します。';
+$_lang['email_sender_method_message'] = '「自動検出」: SMTP が選択されていて、SMTP ユーザー名が有効なメールアドレスである場合、そのアドレスが From とエンベロープ送信者の両方に使われます。それ以外の場合は [(emailsender)] が From に使われ、エンベロープ送信者はトランスポートの従来の自動処理に委ねられます。「[(emailsender)] の値を使う」を選ぶと、そのアドレスが From とエンベロープ送信者の両方に強制的に使われます。';
 
 $_lang['login_form_position_title'] = 'ログインフォームのポジション';
 $_lang['login_form_position_left'] = '左部';

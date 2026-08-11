@@ -1266,6 +1266,7 @@ $_lang["configcheck_sysfiles_mod_msg"] = 'EVO zostało skonfigurowany tak, aby s
 $_lang['email_method_title'] = 'Metoda wysyłania poczty';
 $_lang['email_method_mail'] = 'Funkcja PHP mail()';
 $_lang['email_method_smtp'] = 'Serwer SMTP';
+$_lang['email_method_message'] = 'Sposób wysyłania poczty systemowej. „Funkcja PHP mail()” przekazuje wiadomość lokalnemu programowi pocztowemu serwera i nie wymaga dodatkowej konfiguracji. „Serwer SMTP” wysyła przez zewnętrzny serwer SMTP skonfigurowany poniżej i jest jedynym trybem, w którym automatyczne wykrywanie nadawcy może użyć nazwy użytkownika SMTP.';
 $_lang['smtp_auth_title'] = 'SMTP-AUTH';
 $_lang['smtp_autotls_title'] = 'SMTPAutoTLS';
 $_lang['smtp_host_title'] = 'SMTP host';
@@ -1454,7 +1455,7 @@ $_lang["viewopts_cb_alltabs"] = 'Wszystkie karty';
 $_lang['email_sender_method'] = 'Nadawca wiadomości';
 $_lang['auto'] = 'Wykryj automatycznie';
 $_lang['use_emailsender'] = 'Użyj wartości [(emailsender)]';
-$_lang['email_sender_method_message'] = 'Nadawca koperty wiadomości. Zwykle zostanie zamieniony na nagłówek Return-Path przez odbiorcę i jest to adres, do którego zostaną wysłane odrzucone wiadomości. Automatyczne wykrywanie będzie działać w większości przypadków.';
+$_lang['email_sender_method_message'] = '„Wykryj automatycznie”: jeśli wybrano SMTP, a nazwa użytkownika SMTP jest poprawnym adresem e-mail, adres ten jest używany zarówno jako From, jak i jako nadawca koperty. W przeciwnym razie jako From używany jest [(emailsender)], a nadawcę koperty ustala dotychczasowa automatyczna obsługa transportu. „Użyj wartości [(emailsender)]” wymusza ten adres zarówno dla From, jak i dla nadawcy koperty.';
 
 $_lang['login_form_position_title'] = 'Pozycja formularza logowania';
 $_lang['login_form_position_left'] = 'Lewa strona';

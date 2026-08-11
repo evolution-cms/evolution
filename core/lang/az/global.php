@@ -1401,6 +1401,7 @@ $_lang["configcheck_sysfiles_mod_msg"] = 'Siz Evolution CMS-i əsas sistem fayll
 $_lang['email_method_title'] = 'E-poçt göndərmə metodu';
 $_lang['email_method_mail'] = 'PHP mail() funksiyası';
 $_lang['email_method_smtp'] = 'SMTP Server';
+$_lang['email_method_message'] = 'Sistem məktublarının göndərilmə üsulu. «PHP mail() funksiyası» məktubu serverin yerli poçt proqramına ötürür və əlavə tənzimləmə tələb etmir. «SMTP Server» aşağıda tənzimlənmiş xarici SMTP serveri vasitəsilə göndərir və göndərənin avtomatik seçiminin SMTP istifadəçi adından yararlana bildiyi yeganə rejimdir.';
 $_lang['smtp_auth_title'] = 'SMTP-AUTH';
 $_lang['smtp_autotls_title'] = 'SMTPAutoTLS';
 $_lang['smtp_host_title'] = 'SMTP host';
@@ -1592,7 +1593,7 @@ $_lang["viewopts_cb_alltabs"] = 'Bütün tablar';
 $_lang['email_sender_method'] = 'Mesajın göndərən ünvani';
 $_lang['auto'] = 'Avtomatik tanıma';
 $_lang['use_emailsender'] = '[(emailsender)] dəyərini istifadə et';
-$_lang['email_sender_method_message'] = 'Mesajın göndərən ünvani. Bu, adətən alınan tərəf tərəfindən Return-Path başlığına çevriləcək və geri dönən mesajlar bu ünvana göndəriləcək. Avtomatik tanıma əksər hallarda işləyir.';
+$_lang['email_sender_method_message'] = '«Avtomatik tanıma»: SMTP seçildikdə və SMTP istifadəçi adı düzgün e-poçt ünvanı olduqda, həmin ünvan həm From, həm də zərf göndəricisi (envelope sender) kimi istifadə olunur. Əks halda From üçün [(emailsender)] istifadə edilir, zərf göndəricisi isə nəqliyyatın əvvəlki avtomatik davranışına buraxılır. «[(emailsender)] dəyərini istifadə et» bu ünvanı həm From, həm də zərf göndəricisi üçün məcburi edir.';
 
 $_lang['login_form_position_title'] = 'Daxil olma forması mövqeyi';
 $_lang['login_form_position_left'] = 'sol';

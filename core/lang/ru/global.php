@@ -1287,8 +1287,9 @@ $_lang["configcheck_sysfiles_mod"] = 'Системные файлы были и�
 $_lang["configcheck_sysfiles_mod_msg"] = 'Вы включили проверку системных файлов на наличие изменений, характерных для взломанных сайтов. Это не значит, что сайт был взломан, но желательно просмотреть измененные файлы.(index.php, .htaccess, [+MGR_DIR+]/index.php, [+MGR_DIR+]/includes/config.inc.php)';
 
 $_lang['email_method_title'] = 'Метод отправки писем';
-$_lang['email_method_mail'] = 'MAIL - cообщения отправляются с помощью функции mail().';
+$_lang['email_method_mail'] = 'MAIL - сообщения отправляются с помощью функции mail().';
 $_lang['email_method_smtp'] = 'Через SMTP-сервер';
+$_lang['email_method_message'] = 'Способ отправки системных писем. Вариант с функцией mail() передаёт письмо локальной почтовой программе сервера и не требует дополнительной настройки. «Через SMTP-сервер» отправляет через внешний SMTP-сервер, настроенный ниже, и это единственный режим, в котором автоопределение отправителя может использовать имя пользователя SMTP.';
 $_lang['smtp_auth_title'] = 'SMTP авторизация';
 $_lang['smtp_autotls_title'] = 'SMTPAutoTLS';
 $_lang['smtp_host_title'] = 'Адрес SMTP-сервера';
@@ -1484,10 +1485,10 @@ $_lang["viewopts_radio_flex"] = 'Флекс';
 $_lang["viewopts_fontsize"] = 'Размер шрифта';
 $_lang["viewopts_cb_alltabs"] = 'Все табы';
 
-$_lang['email_sender_method'] = 'The envelope sender of the message';
-$_lang['auto'] = 'Auto-detect';
-$_lang['use_emailsender'] = 'Use [(emailsender)] value';
-$_lang['email_sender_method_message'] = 'The envelope sender of the message. This will usually be turned into a Return-Path header by the receiver, and is the address that bounces will be sent to. Auto-detect will work in most cases.';
+$_lang['email_sender_method'] = 'Отправитель сообщения';
+$_lang['auto'] = 'Автоопределение';
+$_lang['use_emailsender'] = 'Использовать значение [(emailsender)]';
+$_lang['email_sender_method_message'] = '«Автоопределение»: если выбран SMTP и имя пользователя SMTP является корректным email-адресом, оно используется и как адрес From, и как отправитель конверта. Иначе в качестве From используется [(emailsender)], а отправитель конверта остаётся на прежней автоматической обработке транспортом. «Использовать значение [(emailsender)]» принудительно задаёт этот адрес и для From, и для отправителя конверта.';
 
 $_lang['login_form_position_title'] = 'Положение формы авторизации';
 $_lang['login_form_position_left'] = 'Слева';

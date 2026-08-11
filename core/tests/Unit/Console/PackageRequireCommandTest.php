@@ -2,10 +2,24 @@
 
 use EvolutionCMS\Console\Packages\InstallPackageRequireCommand;
 use EvolutionCMS\Console\Packages\RemovePackageRequireCommand;
+use Illuminate\Container\Container;
 use Symfony\Component\Console\Tester\CommandTester;
 
 if (!defined('EVO_CORE_PATH')) {
     define('EVO_CORE_PATH', dirname(__DIR__, 3) . '/');
+}
+
+/**
+ * Minimal stand-in for the CMS application container. Illuminate\Console\Command
+ * resolves its output style and view components through the container and asks it
+ * whether the process is a unit test run, which the bare container cannot answer.
+ */
+final class PackageRequireTestContainer extends Container
+{
+    public function runningUnitTests(): bool
+    {
+        return true;
+    }
 }
 
 function setPackageRequireComposerPath(InstallPackageRequireCommand $command, string $path): void
@@ -14,6 +28,8 @@ function setPackageRequireComposerPath(InstallPackageRequireCommand $command, st
     $property = $reflection->getProperty('composer');
     $property->setAccessible(true);
     $property->setValue($command, $path);
+
+    $command->setLaravel(new PackageRequireTestContainer());
 }
 
 test('package remove require reports missing requirements', function () {

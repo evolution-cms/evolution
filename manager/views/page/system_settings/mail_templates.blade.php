@@ -49,7 +49,7 @@
                 ]
             ],
             'comment' => (isset($disabledSettings['email_method']) ? __('global.setting_from_file') . '<br>' : '') .
-                __('global.email_sender_method_message'),
+                __('global.email_method_message'),
             'disabled' => $disabledSettings['email_method'] ?? null
         ])
 

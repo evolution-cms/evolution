@@ -5,8 +5,9 @@ test('vendor publish records written assets in a storage manifest', function () 
 
     expect($source)
         ->toContain('vendor-publish/manifest.json')
-        ->toContain('recordPublishedItem($from, $to, \'file\'')
-        ->toContain('recordPublishedItem($source,')
+        ->toContain('protected function recordPublishedItem($from, $to, $type, $action, $existedBefore)')
+        ->toMatch('/recordPublishedItem\(\s*\$from,\s*\$to,\s*\'file\',/')
+        ->toMatch('/recordPublishedItem\(\s*\$source,/')
         ->toContain('package_version')
         ->toContain('composer.lock')
         ->toContain('writePublishManifest()');

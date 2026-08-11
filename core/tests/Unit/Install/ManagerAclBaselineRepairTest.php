@@ -39,8 +39,8 @@ final class ManagerAclBaselineRepairTest extends TestCase
     {
         $source = (string) file_get_contents(dirname(__DIR__, 4) . '/core/database/migrations/2026_04_12_000000_create_system_cli_tasks_tables.php');
 
-        self::assertStringContainsString("new UserPermissionsTableSeeder()", $source);
-        self::assertStringContainsString("new UserRolesTableSeeder()", $source);
+        self::assertStringContainsString("new \\Database\\Seeders\\UserPermissionsTableSeeder()", $source);
+        self::assertStringContainsString("new \\Database\\Seeders\\UserRolesTableSeeder()", $source);
         self::assertStringContainsString("where('id', 1)", $source);
         self::assertStringContainsString("where('key', 'access_permissions')", $source);
         self::assertStringContainsString("where('role_id', 1)->where('permission', 'access_permissions')", $source);

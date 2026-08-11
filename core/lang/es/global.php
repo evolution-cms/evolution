@@ -1262,9 +1262,10 @@ $_lang["check_files_onlogin_message"] = 'By enabling this option, important syst
 $_lang["configcheck_sysfiles_mod"] = 'Se han modificado archivos importantes del sistema.';
 $_lang["configcheck_sysfiles_mod_msg"] = 'You have configured EVO to check important system files for possible website script attacks. This warning does not necessarily mean your site has been compromised, however, you should review the watched files in your installation (set in System configuration -> User -> Check core files on login). If you find your files unaltered or changes were made by site administrators, go to System Configuration and click to re-save settings to dismiss this message. Changes in the following files have been found:';
 
-$_lang['email_method_title'] = 'Sendmail method';
-$_lang['email_method_mail'] = 'PHP mail() function';
-$_lang['email_method_smtp'] = 'SMTP Server';
+$_lang['email_method_title'] = 'Método de envío de correo';
+$_lang['email_method_mail'] = 'Función PHP mail()';
+$_lang['email_method_smtp'] = 'Servidor SMTP';
+$_lang['email_method_message'] = 'Transporte usado para enviar el correo del sistema. «Función PHP mail()» entrega el mensaje al programa de correo local del servidor y no necesita más configuración. «Servidor SMTP» envía a través del servidor SMTP externo configurado más abajo, y es el único modo en el que la detección automática del remitente puede usar el nombre de usuario SMTP.';
 $_lang['smtp_auth_title'] = 'SMTP-AUTH';
 $_lang['smtp_autotls_title'] = 'SMTPAutoTLS';
 $_lang['smtp_host_title'] = 'SMTP host';
@@ -1450,10 +1451,10 @@ $_lang["viewopts_radio_flex"] = 'Flexionar';
 $_lang["viewopts_fontsize"] = 'Tamaño de fuente';
 $_lang["viewopts_cb_alltabs"] = 'Todas las pestañas';
 
-$_lang['email_sender_method'] = 'The envelope sender of the message';
-$_lang['auto'] = 'Auto-detect';
-$_lang['use_emailsender'] = 'Use [(emailsender)] value';
-$_lang['email_sender_method_message'] = 'The envelope sender of the message. This will usually be turned into a Return-Path header by the receiver, and is the address that bounces will be sent to. Auto-detect will work in most cases.';
+$_lang['email_sender_method'] = 'Remitente del mensaje';
+$_lang['auto'] = 'Detección automática';
+$_lang['use_emailsender'] = 'Usar el valor de [(emailsender)]';
+$_lang['email_sender_method_message'] = '«Detección automática»: si se selecciona SMTP y el nombre de usuario SMTP es una dirección de correo válida, esa dirección se usa tanto como remitente From como remitente del sobre (envelope sender). En caso contrario se usa [(emailsender)] como From y el remitente del sobre queda en la gestión automática anterior del transporte. «Usar el valor de [(emailsender)]» fuerza esa dirección tanto para From como para el remitente del sobre.';
 
 $_lang['login_form_position_title'] = 'Posición de formulario de inicio de sesión';
 $_lang['login_form_position_left'] = 'izquierda';
