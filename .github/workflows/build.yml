@@ -1,0 +1,200 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - '3.*.x'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Credentials of the pre-installed demo build. They are published together
+  # with the artifact, so this is a testing account and nothing else.
+  DEMO_ADMIN: admin
+  DEMO_EMAIL: admin@evo.local
+  DEMO_PASSWORD: Passw0rd123
+  DEMO_DATABASE: evolution
+  DEMO_PREFIX: evo_
+
+jobs:
+  zip:
+    name: Installed CMS (zip, sqlite)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # required to publish the nightly release
+    outputs:
+      zip-name: ${{ steps.package.outputs.zip-name }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          # Built on the lowest supported version so the vendor tree stays
+          # usable on 8.3 and 8.4 alike.
+          php-version: '8.3'
+          extensions: ctype, dom, fileinfo, filter, iconv, intl, json, mbstring, openssl, pdo, pdo_sqlite, readline, simplexml, sqlite3, tokenizer, xml, xmlreader, zip
+          coverage: none
+          tools: composer:v2
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache composer downloads
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-php8.3-build-${{ hashFiles('core/composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-php8.3-build-
+
+      - name: Install core dependencies
+        working-directory: core
+        run: composer install --no-dev --no-interaction --no-progress --prefer-dist
+
+      # --removeInstall=y drops install/ from the build, --skipComposer=y keeps
+      # the dependencies installed in the previous step untouched.
+      - name: Install Evolution CMS on sqlite
+        working-directory: install
+        run: |
+          php cli-install.php \
+            --typeInstall=1 \
+            --databaseType=sqlite \
+            --database="$DEMO_DATABASE" \
+            --tablePrefix="$DEMO_PREFIX" \
+            --cmsAdmin="$DEMO_ADMIN" \
+            --cmsAdminEmail="$DEMO_EMAIL" \
+            --cmsPassword="$DEMO_PASSWORD" \
+            --language=en \
+            --removeInstall=y \
+            --skipComposer=y < /dev/null
+
+      # The installer writes the absolute path of the build machine into the
+      # connection config. Resolve it at runtime instead, so the archive keeps
+      # working wherever it is unpacked.
+      - name: Make the sqlite path portable
+        run: |
+          config=core/config/database/connections/default.php
+          sed -i "s#'database' => env('DB_DATABASE', '.*'),#'database' => env('DB_DATABASE', dirname(__DIR__, 3) . '/database/${DEMO_DATABASE}.sqlite'),#" "$config"
+          grep -q "dirname(__DIR__, 3)" "$config"
+          php -l "$config"
+
+      - name: Verify the build answers over HTTP
+        run: |
+          php -S 127.0.0.1:8899 -t . > /tmp/server.log 2>&1 &
+          for i in $(seq 1 15); do
+            sleep 1
+            curl -sf -o /dev/null http://127.0.0.1:8899/ && break
+          done
+          front=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8899/)
+          # The manager answers 404 without an Accept-Language header by design.
+          manager=$(curl -s -o /dev/null -w '%{http_code}' -H 'Accept-Language: en-US,en;q=0.9' http://127.0.0.1:8899/manager/index.php)
+          echo "front=$front manager=$manager"
+          test "$front" = "200" && test "$manager" = "200"
+
+      - name: Package
+        id: package
+        run: |
+          version=$(php -r '$c = json_decode(file_get_contents("core/composer.json"), true); echo $c["version"] ?? "0.0.0";')
+          name="evolution-cms-${version}-${GITHUB_REF_NAME//\//-}-$(git rev-parse --short HEAD)-sqlite.zip"
+          # install/ is left empty by --removeInstall=y; the rest is repository
+          # tooling that has no place in a distributable build.
+          rm -rf .git .github install core/tests core/phpunit.xml AGENTS.md
+          # A leading "." keeps dotfiles such as core/.install, which the
+          # manager requires to consider the CMS installed.
+          zip -qr "/tmp/${name}" .
+          mv "/tmp/${name}" .
+          ls -lh "${name}"
+          echo "zip-name=${name}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: evolution-cms-sqlite
+          path: ${{ steps.package.outputs.zip-name }}
+          retention-days: 14
+          compression-level: 0 # already a zip
+
+      # Nightly release: anonymous direct download, unlike workflow artifacts.
+      # The tag is recreated on every push, so the link always serves the
+      # latest build of the branch.
+      - name: Publish nightly release
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ZIP: ${{ steps.package.outputs.zip-name }}
+        run: |
+          tag="nightly-${GITHUB_REF_NAME}"
+          # .git is gone by now, so every call is repo-qualified explicitly.
+          gh release delete "$tag" --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes 2>/dev/null || true
+          gh release create "$tag" "$ZIP" \
+            --repo "$GITHUB_REPOSITORY" \
+            --prerelease \
+            --target "$GITHUB_SHA" \
+            --title "Nightly ${GITHUB_REF_NAME} ($(date -u +%Y-%m-%d))" \
+            --notes "Automated build of \`${GITHUB_REF_NAME}\` at ${GITHUB_SHA}.
+
+          Pre-installed Evolution CMS on sqlite — unpack into a docroot and open it, no database server needed.
+
+          Manager: \`${DEMO_ADMIN}\` / \`${DEMO_PASSWORD}\`
+
+          A testing build with published credentials. Not for production."
+
+  docker:
+    name: Docker image (GHCR)
+    needs: zip
+    # Forked pull requests get a read-only token and cannot push packages.
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download the build
+        uses: actions/download-artifact@v4
+        with:
+          name: evolution-cms-sqlite
+          path: /tmp/artifact
+
+      - name: Unpack the build
+        run: |
+          mkdir -p build
+          unzip -q "/tmp/artifact/${{ needs.zip.outputs.zip-name }}" -d build
+
+      # The runtime recipe comes from Salo, the Evolution CMS flavour of Sail:
+      # php:8.4-apache with gd/zip/pdo and mod_rewrite enabled.
+      - name: Build the Salo runtime image
+        run: |
+          git clone --depth 1 https://github.com/evolution-cms/salo2 /tmp/salo2
+          docker build -t evo-salo-runtime:8.4 /tmp/salo2/runtimes/8.4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        run: |
+          owner=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          image="ghcr.io/${owner}/evolution"
+          docker build \
+            -f .github/docker/Dockerfile \
+            -t "${image}:${GITHUB_REF_NAME}" \
+            -t "${image}:${GITHUB_REF_NAME}-$(git rev-parse --short HEAD)" \
+            .
+          docker push --all-tags "${image}"
+          echo "### Image" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          echo "docker run --rm -p 8080:80 ${image}:${GITHUB_REF_NAME}" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
