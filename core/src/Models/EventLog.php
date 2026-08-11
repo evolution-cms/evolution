@@ -193,10 +193,13 @@ class EventLog extends Eloquent\Model
      *
      * Descriptions are written by logEvent() and therefore contain whatever a plugin, a snippet,
      * a failing query or an unauthenticated visitor put into the logged message. They are also
-     * plain HTML in every historical row: core writes `<pre>`, `<br/>` and `<b>` to structure the
-     * message. Escaping the whole value would keep the page safe but would show those tags as
-     * literal text, so the description goes through the allow list in safe_html(): everything is
-     * escaped, then attribute-free formatting tags are restored.
+     * full HTML documents in practice: ExceptionHandler stores a complete error report with
+     * headings, styled `<pre>` blocks and MakeTable grids that carry `class` and `width`.
+     *
+     * That rules out plain escaping - it would turn the report into visible source code - and it
+     * rules out the attribute-free allow list of safe_html() for the same reason. The value is
+     * therefore rebuilt by sanitize_rich_html(), which keeps the presentation attributes and
+     * removes only what can execute or fetch something.
      *
      * Sanitising happens on read, not only in logEvent(), because rows written before this fix
      * already carry stored payloads.
@@ -205,7 +208,7 @@ class EventLog extends Eloquent\Model
      */
     public function descriptionHtml(): \Illuminate\Support\HtmlString
     {
-        return safe_html($this->visibleDescription());
+        return sanitize_rich_html($this->visibleDescription());
     }
 
     /**

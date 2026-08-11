@@ -43,23 +43,23 @@ test('icon_html is the Htmlable form and is not encoded again by Blade', functio
         ->and(e($icon))->toBe('<i class="fa fa-cube"></i>');
 });
 
-test('sort_direction accepts only the two valid keywords', function () {
-    expect(sort_direction('asc'))->toBe('ASC')
-        ->and(sort_direction(' DESC '))->toBe('DESC')
-        ->and(sort_direction('ASC', 'ASC'))->toBe('ASC');
+test('sanitize_sort_direction accepts only the two valid keywords', function () {
+    expect(sanitize_sort_direction('asc'))->toBe('ASC')
+        ->and(sanitize_sort_direction(' DESC '))->toBe('DESC')
+        ->and(sanitize_sort_direction('ASC', 'ASC'))->toBe('ASC');
 
     // Anything else is attacker controlled text and falls back to the default.
     foreach (['DESC"><script>alert(1)</script>', 'ASC, (SELECT 1)', '', null, ['ASC']] as $payload) {
-        expect(sort_direction($payload))->toBe('DESC');
+        expect(sanitize_sort_direction($payload))->toBe('DESC');
     }
 
-    expect(sort_direction('nonsense', 'ASC'))->toBe('ASC');
+    expect(sanitize_sort_direction('nonsense', 'ASC'))->toBe('ASC');
 });
 
-test('sort_column accepts only a plain identifier', function () {
-    expect(sort_column('pagetitle'))->toBe('pagetitle')
-        ->and(sort_column('menu_index'))->toBe('menu_index')
-        ->and(sort_column('X1'))->toBe('X1');
+test('sanitize_sort_column accepts only a plain identifier', function () {
+    expect(sanitize_sort_column('pagetitle'))->toBe('pagetitle')
+        ->and(sanitize_sort_column('menu_index'))->toBe('menu_index')
+        ->and(sanitize_sort_column('X1'))->toBe('X1');
 
     foreach ([
         'createdon"><img src=x onerror=alert(1)>',
@@ -69,10 +69,10 @@ test('sort_column accepts only a plain identifier', function () {
         '',
         null,
     ] as $payload) {
-        expect(sort_column($payload))->toBe('createdon');
+        expect(sanitize_sort_column($payload))->toBe('createdon');
     }
 
-    expect(sort_column('bad value', 'menuindex'))->toBe('menuindex');
+    expect(sanitize_sort_column('bad value', 'menuindex'))->toBe('menuindex');
 });
 
 test('the request derived link fragment is inert once the parts are normalised', function () {
@@ -83,8 +83,8 @@ test('the request derived link fragment is inert once the parts are normalised',
         'page' => '2"><script>alert(1)</script>',
     ];
 
-    $addPath = '&dir=' . sort_direction(get_by_key($request, 'dir'))
-        . '&sort=' . sort_column(get_by_key($request, 'sort'))
+    $addPath = '&dir=' . sanitize_sort_direction(get_by_key($request, 'dir'))
+        . '&sort=' . sanitize_sort_column(get_by_key($request, 'sort'))
         . '&page=' . (int) $request['page'];
 
     expect($addPath)->toBe('&dir=DESC&sort=createdon&page=2')

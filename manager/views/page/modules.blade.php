@@ -43,7 +43,7 @@
                                     {{ $module->name }}
                                 @endif
                             </td>
-                            <td class="tableItem">{{ safe_html($module->description) }}</td>
+                            <td class="tableItem">{{ sanitize_inline_html($module->description) }}</td>
                             <td class="tableItem text-center" style="width: 60px;">
                                 @if($module->locked)
                                     {{ __('global.yes') }}

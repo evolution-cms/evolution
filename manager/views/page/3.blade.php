@@ -46,8 +46,8 @@
     // The requested id/sort/dir end up inside generated links and inside the JS action handlers
     // below, so they are normalised here instead of being trusted as-is.
     $requestId = (int) get_by_key($_REQUEST, 'id', 0);
-    $sd = '&dir=' . sort_direction(get_by_key($_REQUEST, 'dir'));
-    $sb = '&sort=' . sort_column(get_by_key($_REQUEST, 'sort'));
+    $sd = '&dir=' . sanitize_sort_direction(get_by_key($_REQUEST, 'dir'));
+    $sb = '&sort=' . sanitize_sort_column(get_by_key($_REQUEST, 'sort'));
     $pg = isset($_REQUEST['page']) ? '&page=' . (int) $_REQUEST['page'] : '';
     $add_path = $sd . $sb . $pg;
 
@@ -126,8 +126,8 @@
         $numRecords = $childs->count();
 
         // Both values reach orderBy() and the paging links, so only plain identifiers survive.
-        $sort = sort_column(get_by_key($_REQUEST, 'sort'));
-        $dir = sort_direction(get_by_key($_REQUEST, 'dir'));
+        $sort = sanitize_sort_column(get_by_key($_REQUEST, 'sort'));
+        $dir = sanitize_sort_direction(get_by_key($_REQUEST, 'dir'));
         $pg = isset($_REQUEST['page']) ? (int) $_REQUEST['page'] - 1 : 0;
 
         // Get child documents (with paging)
