@@ -276,6 +276,41 @@ manager. Prefer these, in this order:
 that is HTML by contract and outside the CMS's control (plugin event results, `phpinfo()`,
 registered client scripts).
 
+### CSRF rules for manager actions
+
+Manager routes run through `EvolutionCMS\Middleware\VerifyCsrfToken` (registered in the `mgr`
+group in `core/config/app.php`). It **fails closed**: once a manager session exists, every
+non-GET request must present a `_token` that matches `$_SESSION['_token']`, or it is rejected
+with 403. Adding a state-changing entry point without a token does not degrade quietly — it
+breaks.
+
+When you add or change a manager action, work through this:
+
+| If you are adding… | You must |
+|---|---|
+| A form that changes anything | Emit `@csrf` (Blade) or `<?= csrf_field() ?>` (legacy `.php` / `.phtml`) inside the `<form>` |
+| JS that posts to `index.php` | Send `_token` in the body, or set the `X-CSRF-TOKEN` header. Read it from `<meta name="csrf-token">` (in `manager/views/partials/header.blade.php`) or from a form field on the page |
+| An action that changes state and reads `$_GET` or `$_REQUEST` | Add its action id to `VerifyCsrfToken::MUTATING_GET_ACTIONS`, **and** append `&_token=` to every link that triggers it |
+| Code that walks the whole `$_POST` body | Skip the `_token` key, or it will be saved as data |
+
+Two traps worth stating outright, because both have already caused bugs here:
+
+- **Page controllers count, not just processors.** An action id can map straight to a class in
+  `ManagerTheme::$actions` with no file under `manager/processors/`. Auditing only the processor
+  directory misses them — that is how `a=90` (`DeleteUser`, deletes a user straight from
+  `$_GET`), `a=92`, `a=52` and `a=26` were initially left unguarded.
+- **`$_REQUEST` means GET works.** A processor whose UI only ever posts is still reachable by
+  query string if it reads `$_REQUEST`, so it belongs in `MUTATING_GET_ACTIONS` too.
+
+Already covered, do not add a second scheme: requests with no manager session (the login flow is
+deliberately exempt), the theme AJAX endpoints that require `X-Requested-With: XMLHttpRequest`
+plus POST (`manager/media/style/*/ajax.php`), and the file manager's own single-use
+`checkToken()` / `makeToken()` pair in `core/functions/actions/files.php`.
+
+Both halves are pinned by `core/tests/Unit/Security/ManagerCsrfCoverageTest.php`, which scans the
+shipped views for untokenised forms and links. It checks against hand-maintained lists, so extend
+those lists when you add an action — a green suite is not proof that a new action is guarded.
+
 ---
 
 ## Dependencies of Note
@@ -297,4 +332,5 @@ registered client scripts).
 - **Do not modify `core/config/`** for site-specific settings — use `core/custom/config/` instead.
 - **Do not add files to `assets/cache/`** — it is auto-generated and git-ignored.
 - **Do not use `$modx`** — it is deprecated. Use `evo()` helper.
+- **Do not add a manager action that changes state without a CSRF token.** See *CSRF rules for manager actions*. A state-changing action reachable by GET must also be listed in `VerifyCsrfToken::MUTATING_GET_ACTIONS`.
 - **PHPStan error count must not increase.** Run `composer analyze` before submitting a PR.

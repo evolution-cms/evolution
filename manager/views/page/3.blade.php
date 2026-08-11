@@ -56,10 +56,10 @@
         'newlink'   => 'index.php?pid=' . $requestId . '&a=72',
         'edit'      => 'index.php?id=' . $requestId . '&a=27',
         'save'      => '',
-        'delete'    => 'index.php?id=' . $requestId . '&a=6',
+        'delete'    => 'index.php?id=' . $requestId . '&a=6&_token=' . csrf_token(),
         'cancel'    => 'index.php?' . ($id == 0 ? 'a=2' : 'a=3&r=1&id=' . $id . $add_path),
         'move'      => 'index.php?id=' . $requestId . '&a=51',
-        'duplicate' => 'index.php?id=' . $requestId . '&a=94',
+        'duplicate' => 'index.php?id=' . $requestId . '&a=94&_token=' . csrf_token(),
         'view'      => evo()->getConfig('friendly_urls') ? UrlProcessor::makeUrl($id) : EVO_SITE_URL . 'index.php?id=' . $id,
     ];
 
@@ -233,12 +233,12 @@
                 }
 
                 $icon_pub_unpub = (!$children['published'])
-                    ? '<a href="index.php?a=61&id=' . $children['id'] . $add_path . '" title="' . ManagerTheme::getLexicon('publish_resource') . '"><i class="' . $_style['icon_check'] . '"></i></a>'
-                    : '<a href="index.php?a=62&id=' . $children['id'] . $add_path . '" title="' . ManagerTheme::getLexicon('unpublish_resource') . '"><i class="' . $_style['icon_close'] . '" ></i></a>';
+                    ? '<a href="index.php?a=61&id=' . $children['id'] . $add_path . '&_token=' . csrf_token() . '" title="' . ManagerTheme::getLexicon('publish_resource') . '"><i class="' . $_style['icon_check'] . '"></i></a>'
+                    : '<a href="index.php?a=62&id=' . $children['id'] . $add_path . '&_token=' . csrf_token() . '" title="' . ManagerTheme::getLexicon('unpublish_resource') . '"><i class="' . $_style['icon_close'] . '" ></i></a>';
 
                 $icon_del_undel = (!$children['deleted'])
-                    ? '<a onclick="return confirm(\'' . ManagerTheme::getLexicon('confirm_delete_resource') . '\')" href="index.php?a=6&id=' . $children['id'] . $add_path . '" title="' . ManagerTheme::getLexicon('delete_resource') . '"><i class="' . $_style['icon_trash'] . '"></i></a>'
-                    : '<a onclick="return confirm(\'' . ManagerTheme::getLexicon('confirm_undelete') . '\')" href="index.php?a=63&id=' . $children['id'] . $add_path . '" title="' . ManagerTheme::getLexicon('undelete_resource') . '"><i class="' . $_style['icon_undo'] . '"></i></a>';
+                    ? '<a onclick="return confirm(\'' . ManagerTheme::getLexicon('confirm_delete_resource') . '\')" href="index.php?a=6&id=' . $children['id'] . $add_path . '&_token=' . csrf_token() . '" title="' . ManagerTheme::getLexicon('delete_resource') . '"><i class="' . $_style['icon_trash'] . '"></i></a>'
+                    : '<a onclick="return confirm(\'' . ManagerTheme::getLexicon('confirm_undelete') . '\')" href="index.php?a=63&id=' . $children['id'] . $add_path . '&_token=' . csrf_token() . '" title="' . ManagerTheme::getLexicon('undelete_resource') . '"><i class="' . $_style['icon_undo'] . '"></i></a>';
 
                 $listDocs[] = [
                     'docid'     => '<div class="text-right">' . $children['id'] . '</div>',

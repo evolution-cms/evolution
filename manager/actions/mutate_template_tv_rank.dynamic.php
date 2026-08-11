@@ -18,7 +18,7 @@ $templatename = '';
 if (isset($_POST['listSubmitted'])) {
     $updateMsg .= '<div class="text-success" id="updated">' . $_lang['sort_updated'] . '</div>';
     foreach ($_POST as $listName => $listValue) {
-        if ($listName == 'listSubmitted' || $listName == 'reset') {
+        if ($listName == 'listSubmitted' || $listName == 'reset' || $listName == '_token') {
             continue;
         }
         $orderArray = explode(';', rtrim($listValue, ';'));
@@ -156,6 +156,7 @@ if ($templateVars->count() > 0) {
 </div>
 
 <form action="" method="post" name="sortableListForm">
+    <?= csrf_field() ?>
     <input type="hidden" name="listSubmitted" value="true"/>
     <input type="hidden" id="list" name="list" value=""/>
 </form>

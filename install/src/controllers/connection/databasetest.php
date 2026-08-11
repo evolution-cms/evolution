@@ -37,7 +37,7 @@ try {
                     exit();
                 }
             } else {
-                echo $output . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . print_r($result->errorInfo(), true) . '</span>';
+                echo $output . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . htmlspecialchars(print_r($result->errorInfo(), true), ENT_QUOTES, 'UTF-8') . '</span>';
                 exit();
             }
             break;
@@ -57,7 +57,7 @@ try {
                     if (!$collation_available && !empty($database_actual_collation)) {
                         $database_collation = $database_actual_collation;
                     } else {
-                        echo $output . '<span id="database_fail">' . sprintf($_lang['status_failed_database_collation_does_not_match'], $database_actual_collation) . '</span>';
+                        echo $output . '<span id="database_fail">' . sprintf($_lang['status_failed_database_collation_does_not_match'], htmlspecialchars((string)$database_actual_collation, ENT_QUOTES, 'UTF-8')) . '</span>';
                         exit();
                     }
                 }
@@ -90,7 +90,7 @@ try {
                     }
                 }
             } else {
-                echo $output . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . print_r($result->errorInfo(), true) . '</span>';
+                echo $output . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . htmlspecialchars(print_r($result->errorInfo(), true), ENT_QUOTES, 'UTF-8') . '</span>';
                 exit();
             }
             break;
@@ -110,11 +110,11 @@ try {
 
 } catch (PDOException $e) {
     if (!stristr($e->getMessage(), 'database "' . $database_name . '" does not exist') && !stristr($e->getMessage(), 'Unknown database \'' . $database_name . '\'') && !stristr($e->getMessage(), 'Base table or view not found')) {
-        echo $output . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
+        echo $output . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . '</span>';
         exit();
     }
 } catch (Throwable $e) {
-    echo $output . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
+    echo $output . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . '</span>';
     exit();
 }
 
@@ -156,6 +156,6 @@ try {
     echo $output . '<span id="database_pass"> ' . $_lang['status_passed'] . '</span>';
     exit();
 } catch (Throwable $e) {
-    echo $output . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
+    echo $output . '<span id="database_fail">' . $_lang['status_failed'] . ' ' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . '</span>';
     exit();
 }

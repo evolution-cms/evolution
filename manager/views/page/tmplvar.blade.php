@@ -88,13 +88,13 @@
             duplicate: function() {
               if (confirm("{{ ManagerTheme::getLexicon('confirm_duplicate_record') }}") === true) {
                 documentDirty = false;
-                document.location.href = "index.php?id={{ $data->getKey() }}&a=304";
+                document.location.href = "index.php?id={{ $data->getKey() }}&a=304&_token={{ csrf_token() }}";
               }
             },
             delete: function() {
               if (confirm("{{ ManagerTheme::getLexicon('confirm_delete_tmplvars') }}") === true) {
                 documentDirty = false;
-                document.location.href = 'index.php?id=' + document.mutate.id.value + '&a=303';
+                document.location.href = 'index.php?id=' + document.mutate.id.value + '&a=303&_token={{ csrf_token() }}';
               }
             },
             cancel: function() {
@@ -280,6 +280,7 @@
     @endpush
 
     <form name="mutate" method="post" action="index.php" enctype="multipart/form-data">
+        @csrf
         {!! get_by_key($events, 'OnTVFormPrerender') !!}
 
         <input type="hidden" name="id" value="{{ $data->getKey() }}">

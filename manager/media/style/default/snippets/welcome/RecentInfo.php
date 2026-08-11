@@ -78,9 +78,9 @@ foreach ($contents->get()->toArray() as $ph) {
 
     if (evo()->hasPermission('delete_document')) {
         if ($ph['deleted'] == 0) {
-            $delete_btn = '<a onclick="return confirm(\'[%confirm_delete_record%]\')" title="[%delete_resource%]" href="index.php?a=6&amp;id=[+id+]" target="main">' . $_style['icon_trash'] . '</a> ';
+            $delete_btn = '<a onclick="return confirm(\'[%confirm_delete_record%]\')" title="[%delete_resource%]" href="index.php?a=6&amp;id=[+id+]&amp;_token=' . csrf_token() . '" target="main">' . $_style['icon_trash'] . '</a> ';
         } else {
-            $delete_btn = '<a onclick="return confirm(\'[%confirm_undelete%]\')" title="[%undelete_resource%]" href="index.php?a=63&amp;id=[+id+]" target="main">' . $_style['icon_undo'] . '</a> ';
+            $delete_btn = '<a onclick="return confirm(\'[%confirm_undelete%]\')" title="[%undelete_resource%]" href="index.php?a=63&amp;id=[+id+]&amp;_token=' . csrf_token() . '" target="main">' . $_style['icon_undo'] . '</a> ';
         }
         $ph['delete_btn'] = str_replace('[+id+]', $docid, $delete_btn);
     } else {
@@ -88,13 +88,13 @@ foreach ($contents->get()->toArray() as $ph) {
     }
 
     if ($ph['deleted'] == 1 && $ph['published'] == 0) {
-        $publish_btn = '<a class="disabled" title="[%publish_resource%]" href="index.php?a=61&amp;id=[+id+]" target="main">' . $_style['icon_check'] . '</a> ';
+        $publish_btn = '<a class="disabled" title="[%publish_resource%]" href="index.php?a=61&amp;id=[+id+]&amp;_token=' . csrf_token() . '" target="main">' . $_style['icon_check'] . '</a> ';
     } elseif ($ph['deleted'] == 1 && $ph['published'] == 1) {
-        $publish_btn = '<a class="disabled" title="[%publish_resource%]" href="index.php?a=61&amp;id=[+id+]" target="main">' . $_style['icon_close'] . '</a> ';
+        $publish_btn = '<a class="disabled" title="[%publish_resource%]" href="index.php?a=61&amp;id=[+id+]&amp;_token=' . csrf_token() . '" target="main">' . $_style['icon_close'] . '</a> ';
     } elseif ($ph['deleted'] == 0 && $ph['published'] == 0) {
-        $publish_btn = '<a title="[%publish_resource%]" href="index.php?a=61&amp;id=[+id+]" target="main">' . $_style['icon_check'] . '</a> ';
+        $publish_btn = '<a title="[%publish_resource%]" href="index.php?a=61&amp;id=[+id+]&amp;_token=' . csrf_token() . '" target="main">' . $_style['icon_check'] . '</a> ';
     } else {
-        $publish_btn = '<a title="[%unpublish_resource%]" href="index.php?a=62&amp;id=[+id+]" target="main">' . $_style['icon_close'] . '</a> ';
+        $publish_btn = '<a title="[%unpublish_resource%]" href="index.php?a=62&amp;id=[+id+]&amp;_token=' . csrf_token() . '" target="main">' . $_style['icon_close'] . '</a> ';
     }
 
     $ph['publish_btn'] = str_replace('[+id+]', $docid, $publish_btn);

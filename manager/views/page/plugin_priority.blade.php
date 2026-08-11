@@ -38,6 +38,7 @@
             <span class="text-danger" style="display:none;" id="updating">{{ ManagerTheme::getLexicon('sort_updating') }}</span>
 
             <form action="" method="post" name="sortableListForm">
+                @csrf
                 @foreach($events as $event)
                     <div class="form-group clearfix">
                         <strong>{{ $event->name }}</strong>

@@ -57,7 +57,7 @@ class TmplvarRank extends AbstractController implements ManagerTheme\PageControl
 
         if (isset($_POST['listSubmitted'])) {
             foreach ($_POST as $listName => $listValue) {
-                if ($listName == 'listSubmitted' || $listName == 'reset') {
+                if ($listName == 'listSubmitted' || $listName == 'reset' || $listName == '_token') {
                     continue;
                 }
                 $orderArray = explode(';', rtrim($listValue, ';'));

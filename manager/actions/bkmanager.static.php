@@ -224,7 +224,8 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
             }
         }
 
-        <?= (isset($_REQUEST['r']) ? " doRefresh(" . $_REQUEST['r'] . ");" : "") ?>
+        <?php // doRefresh() takes a numeric row count; casting keeps ?r= out of this script block. ?>
+        <?= (isset($_REQUEST['r']) ? " doRefresh(" . (int)$_REQUEST['r'] . ");" : "") ?>
     </script>
 
     <h1>
@@ -244,6 +245,7 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
 
             <div class="container container-body">
                 <form name="frmdb" method="post">
+                    <?= csrf_field() ?>
                     <input type="hidden" name="mode" value=""/>
                     <p>
                         <a href="javascript:;" class="btn btn-primary" onclick="backup();return false;">
@@ -346,13 +348,13 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                                             EvolutionCMS()->getDatabase()->getConfig('prefix') . 'manager_log',
                                     ];
                                     if (EvolutionCMS()->hasPermission('settings') && in_array($db_status['Name'], $truncateable) && $db_status['Rows'] > 0) {
-                                        echo '<td class="text-xs-right"><a class="text-danger" href="index.php?a=54&mode=93&u=' . $db_status['Name'] . '" title="' . $_lang['truncate_table'] . '">' . niceSize($db_status['Data_length'] + $db_status['Data_free']) . '</a>' . '</td>' . "\n";
+                                        echo '<td class="text-xs-right"><a class="text-danger" href="index.php?a=54&mode=93&u=' . $db_status['Name'] . '&_token=' . csrf_token() . '" title="' . $_lang['truncate_table'] . '">' . niceSize($db_status['Data_length'] + $db_status['Data_free']) . '</a>' . '</td>' . "\n";
                                     } else {
                                         echo '<td class="text-xs-right">' . niceSize($db_status['Data_length'] + $db_status['Data_free']) . '</td>' . "\n";
                                     }
 
                                     if (EvolutionCMS()->hasPermission('settings')) {
-                                        echo '<td class="text-xs-right">' . ($db_status['Data_free'] > 0 ? '<a class="text-danger" href="index.php?a=54&mode=93&t=' . $db_status['Name'] . '" title="' . $_lang['optimize_table'] . '">' . niceSize($db_status['Data_free']) . '</a>' : '-') . '</td>' . "\n";
+                                        echo '<td class="text-xs-right">' . ($db_status['Data_free'] > 0 ? '<a class="text-danger" href="index.php?a=54&mode=93&t=' . $db_status['Name'] . '&_token=' . csrf_token() . '" title="' . $_lang['optimize_table'] . '">' . niceSize($db_status['Data_free']) . '</a>' : '-') . '</td>' . "\n";
                                     } else {
                                         echo '<td class="text-xs-right">' . ($db_status['Data_free'] > 0 ? niceSize($db_status['Data_free']) : '-') . '</td>' . "\n";
                                     }
@@ -395,6 +397,7 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                     <?= $_lang["bkmgr_restore_msg"] ?>
                 </div>
                 <form method="post" name="mutate" enctype="multipart/form-data" action="index.php">
+                    <?= csrf_field() ?>
                     <input type="hidden" name="a" value="93"/>
                     <input type="hidden" name="mode" value="restore1"/>
                     <?php
@@ -479,6 +482,7 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                     <?= parsePlaceholder($_lang["bkmgr_snapshot_msg"], ['snapshot_path' => "snapshot_path=".EvolutionCMS()->getConfig('snapshot_path')]) ?>
                 </div>
                 <form method="post" name="snapshot" action="index.php">
+                    <?= csrf_field() ?>
                     <input type="hidden" name="a" value="93"/>
                     <input type="hidden" name="mode" value="snapshot"/>
                     <?= $_lang["description"] ?>
@@ -496,6 +500,7 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                     <b><?= $_lang["bkmgr_snapshot_list_title"] ?></b>
                 </div>
                 <form method="post" name="restore2" action="index.php">
+                    <?= csrf_field() ?>
                     <input type="hidden" name="a" value="93"/>
                     <input type="hidden" name="mode" value="restore2"/>
                     <input type="hidden" name="filename" value=""/>

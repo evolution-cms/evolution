@@ -4,8 +4,12 @@
 use EvolutionCMS\Models\SiteContent;
 use EvolutionCMS\Models\SiteTmplvar;
 
-$sd = isset($_REQUEST['dir']) ? '&dir=' . $_REQUEST['dir'] : '&dir=DESC';
-$sb = isset($_REQUEST['sort']) ? '&sort=' . $_REQUEST['sort'] : '&sort=createdon';
+// $add_path is concatenated into JavaScript string literals further down, so the sort direction
+// and column are constrained to the shapes they can legitimately take rather than passed through.
+$sd = strtoupper((string)get_by_key($_REQUEST, 'dir', '', 'is_scalar')) === 'ASC' ? '&dir=ASC' : '&dir=DESC';
+$sb = isset($_REQUEST['sort'])
+    ? '&sort=' . preg_replace('/[^A-Za-z0-9_]/', '', (string)get_by_key($_REQUEST, 'sort', '', 'is_scalar'))
+    : '&sort=createdon';
 $pg = isset($_REQUEST['page']) ? '&page=' . (int) $_REQUEST['page'] : '';
 $add_path = $sd . $sb . $pg;
 /*******************/
@@ -174,10 +178,10 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
 
       var actions = {
           new: function() {
-              document.location.href = "index.php?pid=<?= isset($_REQUEST['id']) ? $_REQUEST['id'] : '' ?>&a=4";
+              document.location.href = "index.php?pid=<?= (int)get_by_key($_REQUEST, 'id', 0, 'is_scalar') ?>&a=4";
           },
           newlink: function() {
-              document.location.href = "index.php?pid=<?= isset($_REQUEST['id']) ? $_REQUEST['id'] : '' ?>&a=72";
+              document.location.href = "index.php?pid=<?= (int)get_by_key($_REQUEST, 'id', 0, 'is_scalar') ?>&a=72";
           },
         save: function() {
           syncReferenceContent();
@@ -187,7 +191,7 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
         },
         delete: function() {
           if(confirm("<?= $_lang['confirm_delete_resource']?>") === true) {
-            document.location.href = "index.php?id=" + document.mutate.id.value + "&a=6<?= $add_path ?>";
+            document.location.href = "index.php?id=" + document.mutate.id.value + "&a=6<?= $add_path ?>&_token=<?= csrf_token() ?>";
           }
         },
         cancel: function() {
@@ -196,7 +200,7 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
         },
         duplicate: function() {
           if(confirm("<?= $_lang['confirm_resource_duplicate']?>") === true) {
-            document.location.href = "index.php?id=<?= (int)get_by_key($_REQUEST, 'id', 0, 'is_scalar') ?>&a=94<?= $add_path ?>";
+            document.location.href = "index.php?id=<?= (int)get_by_key($_REQUEST, 'id', 0, 'is_scalar') ?>&a=94<?= $add_path ?>&_token=<?= csrf_token() ?>";
           }
         },
         view: function() {
@@ -557,6 +561,7 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
         }
     </script>
     <form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php" onsubmit="documentDirty=false;">
+        <?= csrf_field() ?>
         <?php
         // invoke OnDocFormPrerender event
         $evtOut = $modx->invokeEvent('OnDocFormPrerender', [

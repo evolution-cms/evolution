@@ -361,10 +361,28 @@ function reset_path(elementName) {
     document.getElementById(elementName).value = document.getElementById('default_' + elementName).innerHTML;
 }
 
+// A navigation that never commits produces no load event, and the loader is only switched off
+// by the next page's load handler. Downloads are the common case: the browser fires
+// beforeunload, then sees Content-Disposition and cancels the navigation, leaving this document
+// in place and the loader spinning forever. The same happens when a navigation fails or the
+// user dismisses the unsaved-changes prompt. Arming a timer here bounds that: if the navigation
+// really commits, this document - and the timer with it - is torn down before the timer fires.
+var UNLOAD_LOADER_TIMEOUT = 5000;
+
 function document_onunload(e) {
-    if (!dontShowWorker) {
-        top.mainMenu.work();
+    // One-shot: a caller that knows the click starts a download rather than a page load sets
+    // dontShowWorker, and it is consumed here. Leaving it set would silence the loader for the
+    // rest of this document's life, which matters for downloads precisely because the document
+    // survives the click.
+    if (dontShowWorker) {
+        dontShowWorker = false;
+
+        return;
     }
+
+    top.mainMenu.work();
+    clearTimeout(timerForUnload);
+    timerForUnload = setTimeout(stopWorker, UNLOAD_LOADER_TIMEOUT);
 }
 
 // set tree to default action.
@@ -452,7 +470,10 @@ if (typeof window.addEventListener !== 'undefined') {
     };
 }
 
-window.addEventListener('unload', function () {
+// 'unload' is refused by the Permissions Policy in current Chrome, so the listener never ran and
+// logged a violation on every page. 'pagehide' is the supported replacement and, unlike 'unload',
+// is also delivered when the page goes into the back/forward cache.
+window.addEventListener('pagehide', function () {
     clearTimeout(timerForUnload);
 });
 

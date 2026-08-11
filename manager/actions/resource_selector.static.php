@@ -16,17 +16,24 @@ $mxla = ManagerTheme::getLang();
  * The name of the callback function is passed via the url as &cb
  */
 
-// get name of callback function
-$cb = $_REQUEST['cb'];
+// Every value below is echoed back into this page - $cb and $rt land inside a <script> block -
+// so each one is constrained at the point it is read rather than at each of its sinks.
+
+// get name of callback function; this is looked up on window.opener, so a JS identifier path is
+// the only shape it can legitimately take
+$cb = preg_replace('/[^A-Za-z0-9_$.]/', '', (string)get_by_key($_REQUEST, 'cb', '', 'is_scalar'));
 
 // get resource type
-$rt = strtolower($_REQUEST['rt']);
+$rt = preg_replace('/[^a-z0-9_]/', '', strtolower((string)get_by_key($_REQUEST, 'rt', '', 'is_scalar')));
 
 // get selection method: s - single (default), m - multiple
-$sm = strtolower($_REQUEST['sm']);
+$sm = strtolower((string)get_by_key($_REQUEST, 'sm', '', 'is_scalar')) === 'm' ? 'm' : 's';
 
 // get search string
-$query = $_REQUEST['search'];
+$query = (string)get_by_key($_REQUEST, 'search', '', 'is_scalar');
+
+// list mode is a flag, never free text
+$listmode = (int)get_by_key($_REQUEST, 'listmode', 0, 'is_scalar');
 
 // select SQL
 switch ($rt) {
@@ -164,9 +171,9 @@ include_once EVO_MANAGER_PATH . "includes/header.inc.php";
 </div>
 
 <form name="selector" method="get">
-    <input type="hidden" name="id" value="<?= $id ?>" />
+    <input type="hidden" name="id" value="<?= (int)$id ?>" />
     <input type="hidden" name="a" value="<?= EvolutionCMS()->getManagerApi()->action ?>" />
-    <input type="hidden" name="listmode" value="<?= $_REQUEST['listmode'] ?>" />
+    <input type="hidden" name="listmode" value="<?= $listmode ?>" />
     <input type="hidden" name="op" value="" />
     <input type="hidden" name="rt" value="<?= $rt ?>" />
     <input type="hidden" name="rt" value="<?= $rt ?>" />
@@ -178,7 +185,7 @@ include_once EVO_MANAGER_PATH . "includes/header.inc.php";
             <div class="row searchbar form-group">
                 <div class="col-sm-12">
                     <div class="input-group float-right w-auto">
-                        <input class="form-control form-control-sm" name="search" type="text" value="<?= $query ?>" placeholder="<?= $_lang["search"] ?>" />
+                        <input class="form-control form-control-sm" name="search" type="text" value="<?= entities($query, EvolutionCMS()->getConfig('modx_charset')) ?>" placeholder="<?= $_lang["search"] ?>" />
                         <div class="input-group-append">
                             <a class="btn btn-secondary btn-sm" href="javascript:;" title="<?= $_lang["search"] ?>" onclick="searchResource();return false;"><i class="<?= $_style['icon_search'] ?>"></i></a>
                             <a class="btn btn-secondary btn-sm" href="javascript:;" title="<?= $_lang["reset"] ?>" onclick="resetSearch();return false;"><i class="<?= $_style['icon_refresh'] ?>"></i></a>
@@ -200,7 +207,7 @@ include_once EVO_MANAGER_PATH . "includes/header.inc.php";
                     $grd->colTypes = "template:<input type='" . ($sm == 'm' ? 'checkbox' : 'radio') . "' name='id[]' value='[+id+]' onclick='setCheckbox(this);'> [+value+]";
                     $grd->colWidths = "45%";
                     $grd->fields = "name,description";
-                    if ($_REQUEST['listmode'] == '1') {
+                    if ($listmode === 1) {
                         $grd->pageSize = 0;
                     }
                     echo $grd->render();

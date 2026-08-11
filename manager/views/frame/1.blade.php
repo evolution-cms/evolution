@@ -240,6 +240,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                     <ul id="settings" class="nav">
                         <li id="searchform">
                             <form action="index.php?a=71" method="post" target="main">
+                                @csrf
                                 <input type="hidden" value="Search" name="submitok" />
                                 <label for="searchid" class="label_searchid">{{ icon_html($_style['icon_search']) }}</label>
                                 <input type="text" id="searchid" name="searchid" size="25" />

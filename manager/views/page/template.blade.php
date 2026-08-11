@@ -14,13 +14,13 @@
                 duplicate: function () {
                     if (confirm("{{ ManagerTheme::getLexicon('confirm_duplicate_record') }}") === true) {
                         documentDirty = false;
-                        document.location.href = "index.php?id={{ $data->getKey() }}&a=96";
+                        document.location.href = "index.php?id={{ $data->getKey() }}&a=96&_token={{ csrf_token() }}";
                     }
                 },
                 delete: function () {
                     if (confirm("{{ ManagerTheme::getLexicon('confirm_delete_template') }}") === true) {
                         documentDirty = false;
-                        document.location.href = 'index.php?id={{ $data->getKey() }}&a=21';
+                        document.location.href = 'index.php?id={{ $data->getKey() }}&a=21&_token={{ csrf_token() }}';
                     }
                 },
                 cancel: function () {
@@ -70,6 +70,7 @@
     @endpush
 
     <form name="mutate" method="post" action="index.php">
+        @csrf
         {!! get_by_key($events, 'OnTempFormPrerender') !!}
 
         <input type="hidden" name="a" value="20">

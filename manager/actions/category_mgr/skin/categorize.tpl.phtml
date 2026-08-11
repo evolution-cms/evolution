@@ -1,4 +1,5 @@
 <form id="categorize-form" action="<?php echo $view->get('url'); ?>" method="post">
+    <?= csrf_field() ?>
     <input name="<?php echo $view->get('request_key'); ?>[categorize][submit]" type="hidden" value="1" />
     <div class="form-group">
         <a class="btn btn-success btn-sm" id="categorize-submit" href="javascript:;" onclick="document.getElementById('categorize-form').submit();return false;"><i class="<?= $_style['icon_save'] ?>"></i> <?php echo $view->txt('cm_save_categorization'); ?></a>

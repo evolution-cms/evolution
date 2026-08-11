@@ -63,6 +63,7 @@
         <div class="container container-body">
             <p class="alert alert-info">{{ ManagerTheme::getLexicon('move_resource_message') }}</p>
             <form method="post" action="index.php" name="newdocumentparent">
+                @csrf
                 <input type="hidden" name="a" value="52" />
                 <input type="hidden" name="id" value="{{ $document->getKey() }}" />
                 <input type="hidden" name="idshow" value="{{ $document->getKey() }}" />

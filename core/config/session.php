@@ -172,11 +172,13 @@ return [
     |--------------------------------------------------------------------------
     |
     | This option determines how your cookies behave when cross-site requests
-    | take place, and can be used to mitigate CSRF attacks. By default, we
-    | do not enable this as other CSRF protection services are in place.
+    | take place. "lax" keeps the session cookie off cross-site POST requests,
+    | which is defence in depth behind the CSRF token check in
+    | EvolutionCMS\Middleware\VerifyCsrfToken - not a replacement for it, since
+    | browsers disagree on the default and it does not cover same-site content.
     |
     | Supported: "lax", "strict"
     |
     */
-    'same_site' => null,
+    'same_site' => 'lax',
 ];

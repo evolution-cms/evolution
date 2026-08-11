@@ -19,7 +19,7 @@ if (is_numeric($lockElementId) && ($lockElementId > 0 || $lockElementId == 0)) {
         var stay = document.getElementById('stay');
         // Trigger unlock
         if ((stay && stay.value !== '2') || !form_save) {
-          var url = '<?php echo EVO_MANAGER_URL; ?>?a=67&type=<?php echo $lockElementType;?>&id=<?php echo $lockElementId;?>&o=' + Math.random();
+          var url = '<?php echo EVO_MANAGER_URL; ?>?a=67&type=<?php echo $lockElementType;?>&id=<?php echo $lockElementId;?>&_token=<?php echo csrf_token(); ?>&o=' + Math.random();
           if (navigator.sendBeacon) {
             navigator.sendBeacon(url)
           } else {

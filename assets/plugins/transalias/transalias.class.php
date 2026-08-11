@@ -182,6 +182,14 @@ class TransAlias {
         if (empty($name) || !is_string($name)) {
             return false;
         }
+        // The name is interpolated into an include() below. It normally comes from the plugin's
+        // own configuration, but when the "Override TV name" property is set it comes from a
+        // template variable, which any content editor can write - so a traversal here would be
+        // an include of an attacker-chosen file. Table names are plain file stems; anything
+        // that could climb out of the transliterations directory is rejected outright.
+        if ($name !== basename($name) || strpbrk($name, "/\\\0:") !== false) {
+            return false;
+        }
         if (isset ($this->_tables[$name] )) {
             $this->_useTable = $name;
             return true;

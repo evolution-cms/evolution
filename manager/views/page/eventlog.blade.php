@@ -70,7 +70,7 @@
                         window.location.href = 'index.php?a=115&id=' + id;
                         break;
                     case 2:		// clear log
-                        window.location.href = 'index.php?a=116&id=' + id;
+                        window.location.href = 'index.php?a=116&_token={{ csrf_token() }}&id=' + id;
                         break;
                 }
             }
@@ -89,6 +89,7 @@
     @endpush
 
     <form name="resource" method="post">
+        @csrf
         <input type="hidden" name="id" value="{{get_by_key($_REQUEST, 'id')}}" />
         <input type="hidden" name="listmode" value="{{$listmode}}" />
         <input type="hidden" name="op" value="" />
@@ -107,12 +108,12 @@
                 <div class="row searchbar form-group">
                     <div class="col-sm-6 input-group">
                         <div class="input-group-btn">
-                            <a class="btn btn-danger btn-sm" href="index.php?a=116&cls=1"><i class="{{ $_style['icon_trash'] }}"></i> {{ ManagerTheme::getLexicon('clear_log') }}</a>
+                            <a class="btn btn-danger btn-sm" href="index.php?a=116&cls=1&_token={{ csrf_token() }}"><i class="{{ $_style['icon_trash'] }}"></i> {{ ManagerTheme::getLexicon('clear_log') }}</a>
                         </div>
                     </div>
                     <div class="col-sm-6 ">
                         <div class="input-group float-right w-auto">
-                            <input class="form-control form-control-sm" name="search" type="text" value="<?= $query ?>" placeholder="{{ ManagerTheme::getLexicon('search') }}" />
+                            <input class="form-control form-control-sm" name="search" type="text" value="{{ $query }}" placeholder="{{ ManagerTheme::getLexicon('search') }}" />
                             <div class="input-group-append">
                                 <a class="btn btn-secondary btn-sm" href="javascript:;" title="{{ ManagerTheme::getLexicon('search') }}" onclick="searchResource();return false;"><i class="{{ $_style['icon_search'] }}"></i></a>
                                 <a class="btn btn-secondary btn-sm" href="javascript:;" title="{{ ManagerTheme::getLexicon('reset') }}" onclick="resetSearch();return false;"><i class="{{ $_style['icon_refresh'] }}"></i></a>

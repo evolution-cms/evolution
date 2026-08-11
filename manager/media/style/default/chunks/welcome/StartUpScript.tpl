@@ -9,7 +9,8 @@
                 fieldset.className = "collapse";
             }
         };
-        xhr.send("action=setsetting&key=_hide_configcheck_" + key + "&value=1");
+        var tokenMeta = document.querySelector('meta[name="csrf-token"]');
+        xhr.send("_token=" + encodeURIComponent(tokenMeta ? tokenMeta.content : "") + "&action=setsetting&key=_hide_configcheck_" + key + "&value=1");
     }
     (function($) {
         $("[data-toggle='collapse']").click(function(e) {

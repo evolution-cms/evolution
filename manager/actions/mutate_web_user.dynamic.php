@@ -230,7 +230,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 		},
 		delete: function() {
 			if(confirm("<?php echo $_lang['confirm_delete_user']; ?>") === true) {
-				window.location.href = "index.php?id=" + document.userform.id.value + "&a=90";
+				window.location.href = "index.php?id=" + document.userform.id.value + "&a=90&_token=<?= csrf_token() ?>";
 			}
 		},
 		cancel: function() {
@@ -253,6 +253,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 </script>
 
 <form name="userform" method="post" action="index.php">
+    <?= csrf_field() ?>
 	<?php
 	// invoke OnWUsrFormPrerender event
 	$evtOut = $modx->invokeEvent("OnWUsrFormPrerender", ["id" => $user]);
@@ -261,7 +262,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 	}
 	?>
     <input type="hidden" name="a" value="89">
-	<input type="hidden" name="mode" value="<?php echo $modx->getManagerApi()->action; ?>" />
+	<input type="hidden" name="mode" value="<?php echo $modx->getPhpCompat()->htmlspecialchars($modx->getManagerApi()->action); ?>" />
 	<input type="hidden" name="id" value="<?php echo $user ?>" />
 	<input type="hidden" name="blockedmode" value="<?php echo ($userdata['blocked'] == 1 || ($userdata['blockeduntil'] > time() && $userdata['blockeduntil'] != 0) || ($userdata['blockedafter'] < time() && $userdata['blockedafter'] != 0) || $userdata['failedlogins'] > $modx->getConfig('failed_login_attempts')) ? "1" : "0" ?>" />
 
@@ -305,7 +306,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 					<tr>
 						<td><?php echo $modx->getManagerApi()->action == '87' ? $_lang['password'] . ":" : $_lang['change_password_new'] . ":"; ?></td>
 						<td><input name="newpasswordcheck" type="checkbox" onClick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);"<?php echo $modx->getManagerApi()->action == "87" ? " checked disabled" : ""; ?>>
-							<input type="hidden" name="newpassword" value="<?php echo $modx->getManagerApi()->action == "87" ? 1 : 0; ?>" onChange="documentDirty=true;" />
+							<input type="hidden" name="newpassword" value="<?php echo $modx->getPhpCompat()->htmlspecialchars($modx->getManagerApi()->action == "87" ? 1 : 0); ?>" onChange="documentDirty=true;" />
 							<br />
 							<span style="display:<?php echo $modx->getManagerApi()->action == "87" ? "block" : "none"; ?>" id="passwordBlock">
 							<fieldset style="width:300px">
@@ -355,7 +356,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 
 					<tr>
 						<td><span class="warning">*</span> <?php echo $_lang['user_email']; ?>:</td>
-						<td><input type="text" name="email" class="inputBox" value="<?php echo isset($_POST['email']) ? $_POST['email'] : $userdata['email']; ?>" onChange="documentDirty=true;" />
+						<td><input type="text" name="email" class="inputBox" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($_POST['email']) ? $_POST['email'] : $userdata['email']); ?>" onChange="documentDirty=true;" />
 							<input type="hidden" name="oldemail" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(!empty($userdata['oldemail']) ? $userdata['oldemail'] : $userdata['email']); ?>" /></td>
 					</tr>
                     <tr>
@@ -376,7 +377,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                                         $selectedtext = $row['id'] == $userdata['role'] ? "selected='selected'" : '';
                                     }
                                     ?>
-                                    <option value="<?php echo $row['id']; ?>"<?php echo $selectedtext; ?>><?php echo $row['name']; ?></option>
+                                    <option value="<?php echo $modx->getPhpCompat()->htmlspecialchars($row['id']); ?>"<?php echo $selectedtext; ?>><?php echo $row['name']; ?></option>
                                     <?php
                                 }
                                 ?>
@@ -384,15 +385,15 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                     </tr>
 					<tr>
 						<td><?php echo $_lang['user_phone']; ?>:</td>
-						<td><input type="text" name="phone" class="inputBox" value="<?php echo isset($_POST['phone']) ? $_POST['phone'] : $userdata['phone']; ?>" onChange="documentDirty=true;" /></td>
+						<td><input type="text" name="phone" class="inputBox" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($_POST['phone']) ? $_POST['phone'] : $userdata['phone']); ?>" onChange="documentDirty=true;" /></td>
 					</tr>
 					<tr>
 						<td><?php echo $_lang['user_mobile']; ?>:</td>
-						<td><input type="text" name="mobilephone" class="inputBox" value="<?php echo isset($_POST['mobilephone']) ? $_POST['mobilephone'] : $userdata['mobilephone']; ?>" onChange="documentDirty=true;" /></td>
+						<td><input type="text" name="mobilephone" class="inputBox" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($_POST['mobilephone']) ? $_POST['mobilephone'] : $userdata['mobilephone']); ?>" onChange="documentDirty=true;" /></td>
 					</tr>
 					<tr>
 						<td><?php echo $_lang['user_fax']; ?>:</td>
-						<td><input type="text" name="fax" class="inputBox" value="<?php echo isset($_POST['fax']) ? $_POST['fax'] : $userdata['fax']; ?>" onChange="documentDirty=true;" /></td>
+						<td><input type="text" name="fax" class="inputBox" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($_POST['fax']) ? $_POST['fax'] : $userdata['fax']); ?>" onChange="documentDirty=true;" /></td>
 					</tr>
 					<tr>
 						<td><?php echo $_lang['user_street']; ?>:</td>
@@ -404,11 +405,11 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 					</tr>
 					<tr>
 						<td><?php echo $_lang['user_state']; ?>:</td>
-						<td><input type="text" name="state" class="inputBox" value="<?php echo isset($_POST['state']) ? $_POST['state'] : $userdata['state']; ?>" onChange="documentDirty=true;" /></td>
+						<td><input type="text" name="state" class="inputBox" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($_POST['state']) ? $_POST['state'] : $userdata['state']); ?>" onChange="documentDirty=true;" /></td>
 					</tr>
 					<tr>
 						<td><?php echo $_lang['user_zip']; ?>:</td>
-						<td><input type="text" name="zip" class="inputBox" value="<?php echo isset($_POST['zip']) ? $_POST['zip'] : $userdata['zip']; ?>" onChange="documentDirty=true;" /></td>
+						<td><input type="text" name="zip" class="inputBox" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($_POST['zip']) ? $_POST['zip'] : $userdata['zip']); ?>" onChange="documentDirty=true;" /></td>
 					</tr>
 					<tr>
 						<td><?php echo $_lang['user_country']; ?>:</td>
@@ -424,7 +425,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 					</tr>
 					<tr>
 						<td><?php echo $_lang['user_dob']; ?>:</td>
-						<td><input type="text" id="dob" name="dob" class="DatePicker" value="<?php echo isset($_POST['dob']) ? $_POST['dob'] : ($userdata['dob'] ? $modx->toDateFormat($userdata['dob']) : ""); ?>" onBlur='documentDirty=true;' readonly />
+						<td><input type="text" id="dob" name="dob" class="DatePicker" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($_POST['dob']) ? $_POST['dob'] : ($userdata['dob'] ? $modx->toDateFormat($userdata['dob']) : "")); ?>" onBlur='documentDirty=true;' readonly />
 							<i onClick="document.userform.dob.value=''; return true;" class="clearDate <?php echo $_style["icon_calendar_close"] ?>" data-tooltip="<?php echo $_lang['remove_date']; ?>"></i></td>
 					</tr>
 					<tr>
@@ -455,22 +456,22 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 						</tr>
 						<tr>
 							<td><?php echo $_lang['user_failedlogincount']; ?>:</td>
-								<input type="hidden" name="failedlogincount" onChange='documentDirty=true;' value="<?php echo $userdata['failedlogincount']; ?>">
+								<input type="hidden" name="failedlogincount" onChange='documentDirty=true;' value="<?php echo $modx->getPhpCompat()->htmlspecialchars($userdata['failedlogincount']); ?>">
 							<td><span id='failed'><?php echo $userdata['failedlogincount'] ?></span>&nbsp;&nbsp;&nbsp;[<a href="javascript:resetFailed()"><?php echo $_lang['reset_failedlogins']; ?></a>]</td>
 						</tr>
 						<tr>
 							<td><?php echo $_lang['user_block']; ?>:</td>
 							<td><input name="blockedcheck" type="checkbox" onClick="changeblockstate(document.userform.blockedmode, document.userform.blockedcheck);"<?php echo ($userdata['blocked'] == 1 || ($userdata['blockeduntil'] > time() && $userdata['blockeduntil'] != 0) || ($userdata['blockedafter'] < time() && $userdata['blockedafter'] != 0)) ? " checked='checked'" : ""; ?> />
-								<input type="hidden" name="blocked" value="<?php echo ($userdata['blocked'] == 1 || ($userdata['blockeduntil'] > time() && $userdata['blockeduntil'] != 0)) ? 1 : 0; ?>"></td>
+								<input type="hidden" name="blocked" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(($userdata['blocked'] == 1 || ($userdata['blockeduntil'] > time() && $userdata['blockeduntil'] != 0)) ? 1 : 0); ?>"></td>
 						</tr>
 						<tr>
 							<td><?php echo $_lang['user_blockeduntil']; ?>:</td>
-							<td><input type="text" id="blockeduntil" name="blockeduntil" class="DatePicker" value="<?php echo isset($_POST['blockeduntil']) ? $_POST['blockeduntil'] : ($userdata['blockeduntil'] ? $modx->toDateFormat($userdata['blockeduntil']) : ""); ?>" onBlur='documentDirty=true;' readonly />
+							<td><input type="text" id="blockeduntil" name="blockeduntil" class="DatePicker" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($_POST['blockeduntil']) ? $_POST['blockeduntil'] : ($userdata['blockeduntil'] ? $modx->toDateFormat($userdata['blockeduntil']) : "")); ?>" onBlur='documentDirty=true;' readonly />
 								<i onClick="document.userform.blockeduntil.value=''; return true;" class="clearDate <?php echo $_style["icon_calendar_close"] ?>" data-tooltip="<?php echo $_lang['remove_date']; ?>"></i></td>
 						</tr>
 						<tr>
 							<td><?php echo $_lang['user_blockedafter']; ?>:</td>
-							<td><input type="text" id="blockedafter" name="blockedafter" class="DatePicker" value="<?php echo isset($_POST['blockedafter']) ? $_POST['blockedafter'] : ($userdata['blockedafter'] ? $modx->toDateFormat($userdata['blockedafter']) : ""); ?>" onBlur='documentDirty=true;' readonly />
+							<td><input type="text" id="blockedafter" name="blockedafter" class="DatePicker" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($_POST['blockedafter']) ? $_POST['blockedafter'] : ($userdata['blockedafter'] ? $modx->toDateFormat($userdata['blockedafter']) : "")); ?>" onBlur='documentDirty=true;' readonly />
 								<i onClick="document.userform.blockedafter.value=''; return true;" class="clearDate <?php echo $_style["icon_calendar_close"] ?>" data-tooltip="<?php echo $_lang['remove_date']; ?>"></i></td>
 						</tr>
 						<?php
@@ -740,7 +741,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                                     if(is_dir(EVO_CORE_PATH.'lang/'.$file) && ($file != '.' && $file != '..')) {
                                         $selectedtext = $file == $activelang ? "selected='selected'" : "";
                                         ?>
-                                        <option value="<?php echo $file; ?>" <?php echo $selectedtext; ?>><?php echo ucwords(str_replace("_", " ", $file)); ?></option>
+                                        <option value="<?php echo $modx->getPhpCompat()->htmlspecialchars($file); ?>" <?php echo $selectedtext; ?>><?php echo ucwords(str_replace("_", " ", $file)); ?></option>
                                         <?php
                                     }
                                 }
@@ -755,7 +756,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                     </tr>
                     <tr>
                         <td><?php echo $_lang["mgr_login_start"] ?></td>
-                        <td><input onChange="documentDirty=true;" type='text' maxlength='50' name="manager_login_startup" value="<?php echo isset($_POST['manager_login_startup']) ? $_POST['manager_login_startup'] : (isset($usersettings['manager_login_startup']) ? $usersettings['manager_login_startup'] : ""); ?>"></td>
+                        <td><input onChange="documentDirty=true;" type='text' maxlength='50' name="manager_login_startup" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($_POST['manager_login_startup']) ? $_POST['manager_login_startup'] : (isset($usersettings['manager_login_startup']) ? $usersettings['manager_login_startup'] : "")); ?>"></td>
                     </tr>
                     <tr>
                         <td>&nbsp;</td>
@@ -763,7 +764,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                     </tr>
                     <tr>
                         <td><?php echo $_lang["login_homepage"] ?></td>
-                        <td><input onChange="documentDirty=true;" type='text' maxlength='50' name="login_home" value="<?php echo isset($_POST['login_home']) ? $_POST['login_home'] : (isset($usersettings['login_home']) ? $usersettings['login_home'] : ""); ?>"></td>
+                        <td><input onChange="documentDirty=true;" type='text' maxlength='50' name="login_home" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($_POST['login_home']) ? $_POST['login_home'] : (isset($usersettings['login_home']) ? $usersettings['login_home'] : "")); ?>"></td>
                     </tr>
                     <tr>
                         <td>&nbsp;</td>
@@ -771,7 +772,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                     </tr>
                     <tr>
                         <td><?php echo $_lang["login_allowed_ip"] ?></td>
-                        <td><input onChange="documentDirty=true;" type="text" maxlength='255' style="width: 300px;" name="allowed_ip" value="<?php echo isset($usersettings['allowed_ip']) ? $usersettings['allowed_ip'] : ""; ?>" /></td>
+                        <td><input onChange="documentDirty=true;" type="text" maxlength='255' style="width: 300px;" name="allowed_ip" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($usersettings['allowed_ip']) ? $usersettings['allowed_ip'] : ""); ?>" /></td>
                     </tr>
                     <tr>
                         <td>&nbsp;</td>
@@ -928,7 +929,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                     <tr>
                         <td><?php echo $_lang["uploadable_images_title"] ?></td>
                         <td><input onChange="documentDirty=true;" type='text' maxlength='255' name="upload_images"
-                            value="<?php echo isset($usersettings['upload_images']) ? $usersettings['upload_images'] : ""; ?>">
+                            value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($usersettings['upload_images']) ? $usersettings['upload_images'] : ""); ?>">
                             &nbsp;&nbsp;
                             <input onChange="documentDirty=true;" type="checkbox" name="default_upload_images" value="1" <?php echo isset($usersettings['upload_images']) && $usersettings['upload_images'] != '' ? '' : 'checked'; ?> />
                             <?php echo $_lang["user_use_config"]; ?>
@@ -940,7 +941,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                     </tr>
                     <tr>
                         <td><?php echo $_lang["uploadable_media_title"] ?></td>
-                        <td><input onChange="documentDirty=true;" type='text' maxlength='255' name="upload_media" value="<?php echo isset($usersettings['upload_media']) ? $usersettings['upload_media'] : ""; ?>">
+                        <td><input onChange="documentDirty=true;" type='text' maxlength='255' name="upload_media" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($usersettings['upload_media']) ? $usersettings['upload_media'] : ""); ?>">
                             &nbsp;&nbsp;
                             <input onChange="documentDirty=true;" type="checkbox" name="default_upload_media" value="1" <?php echo isset($usersettings['upload_media']) && $usersettings['upload_media'] != '' ? '' : 'checked'; ?> />
                             <?php echo $_lang["user_use_config"]; ?>
@@ -952,7 +953,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                     </tr>
                     <tr>
                         <td><?php echo $_lang["uploadable_files_title"] ?></td>
-                        <td><input onChange="documentDirty=true;" type='text' maxlength='255' name="upload_files" value="<?php echo isset($usersettings['upload_files']) ? $usersettings['upload_files'] : ""; ?>">
+                        <td><input onChange="documentDirty=true;" type='text' maxlength='255' name="upload_files" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($usersettings['upload_files']) ? $usersettings['upload_files'] : ""); ?>">
                             &nbsp;&nbsp;
                             <input onChange="documentDirty=true;" type="checkbox" name="default_upload_files" value="1" <?php echo isset($usersettings['upload_files']) && $usersettings['upload_files'] != '' ? '' : 'checked'; ?> />
                             <?php echo $_lang["user_use_config"]; ?>
@@ -964,7 +965,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                     </tr>
                     <tr class='row2'>
                         <td><?php echo $_lang["upload_maxsize_title"] ?></td>
-                        <td><input onChange="documentDirty=true;" type='text' maxlength='255' style="width: 300px;" name="upload_maxsize" value="<?php echo isset($usersettings['upload_maxsize']) ? $usersettings['upload_maxsize'] : ""; ?>"></td>
+                        <td><input onChange="documentDirty=true;" type='text' maxlength='255' style="width: 300px;" name="upload_maxsize" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($usersettings['upload_maxsize']) ? $usersettings['upload_maxsize'] : ""); ?>"></td>
                     </tr>
                     <tr class='row2'>
                         <td>&nbsp;</td>
@@ -995,7 +996,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                     </tr>
                     <tr id='editorRow14' class="row3" style="display: <?php echo $modx->getConfig('use_editor') === true ? $displayStyle : 'none'; ?>">
                         <td><?php echo $_lang["editor_css_path_title"] ?></td>
-                        <td><input onChange="documentDirty=true;" type='text' maxlength='255' name="editor_css_path" value="<?php echo isset($usersettings["editor_css_path"]) ? $usersettings["editor_css_path"] : ""; ?>" /></td>
+                        <td><input onChange="documentDirty=true;" type='text' maxlength='255' name="editor_css_path" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($usersettings["editor_css_path"]) ? $usersettings["editor_css_path"] : ""); ?>" /></td>
                     </tr>
                     <tr id='editorRow15' class='row3' style="display: <?php echo $modx->getConfig('use_editor') === true ? $displayStyle : 'none'; ?>">
                         <td>&nbsp;</td>
@@ -1003,7 +1004,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                     </tr>
                     <tr id='rbRow1' class='row3' style="display: <?php echo $modx->getConfig('use_browser') === true ? $displayStyle : 'none'; ?>">
                         <td><?php echo $_lang["rb_base_dir_title"] ?></td>
-                        <td><input onChange="documentDirty=true;" type='text' maxlength='255' style="width: 300px;" name="rb_base_dir" value="<?php echo isset($usersettings["rb_base_dir"]) ? $usersettings["rb_base_dir"] : ""; ?>" /></td>
+                        <td><input onChange="documentDirty=true;" type='text' maxlength='255' style="width: 300px;" name="rb_base_dir" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($usersettings["rb_base_dir"]) ? $usersettings["rb_base_dir"] : ""); ?>" /></td>
                     </tr>
                     <tr id='rbRow2' class='row3' style="display: <?php echo $modx->getConfig('use_browser') === true ? $displayStyle : 'none'; ?>">
                         <td>&nbsp;</td>
@@ -1011,7 +1012,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                     </tr>
                     <tr id='rbRow4' class='row3' style="display: <?php echo $modx->getConfig('use_browser') === true ? $displayStyle : 'none'; ?>">
                         <td><?php echo $_lang["rb_base_url_title"] ?></td>
-                        <td><input onChange="documentDirty=true;" type='text' maxlength='255' style="width: 300px;" name="rb_base_url" value="<?php echo isset($usersettings["rb_base_url"]) ? $usersettings["rb_base_url"] : ""; ?>" /></td>
+                        <td><input onChange="documentDirty=true;" type='text' maxlength='255' style="width: 300px;" name="rb_base_url" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($usersettings["rb_base_url"]) ? $usersettings["rb_base_url"] : ""); ?>" /></td>
                     </tr>
                     <tr id='rbRow5' class='row3' style="display: <?php echo $modx->getConfig('use_browser') === true ? $displayStyle : 'none'; ?>">
                         <td>&nbsp;</td>
@@ -1035,7 +1036,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 						<td><?php echo $_lang["user_photo"] ?></td>
                         <td>
 						<input onChange="documentDirty=true;" type='text' maxlength='255' name="photo" id="photo" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($_POST['photo']) ? $_POST['photo'] : $userdata['photo']); ?>" />
-                            <input type="button"  onClick="BrowseServer('photo');" value="<?php echo $_lang['insert']; ?>" />
+                            <input type="button"  onClick="BrowseServer('photo');" value="<?php echo $modx->getPhpCompat()->htmlspecialchars($_lang['insert']); ?>" />
                         </td>
 					</tr>
 					<tr>

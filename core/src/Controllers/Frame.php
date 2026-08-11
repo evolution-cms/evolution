@@ -701,7 +701,7 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
                         'module' . $row['id'],
                         'modules',
                         $this->moduleIconHtml($row['icon']) . e($row['name']),
-                        'index.php?a=112&id=' . $row['id'],
+                        'index.php?a=112&_token=' . csrf_token() . '&id=' . $row['id'],
                         e($row['name']),
                         '',
                         '',
@@ -721,7 +721,7 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
                     'module' . $module['id'],
                     'modules',
                     $this->moduleIconHtml($module['icon']) . $module['name'],
-                    !empty($module['properties']['routes']) ? 'modules/' . $module['id'] : 'index.php?a=112&id=' . $module['id'],
+                    !empty($module['properties']['routes']) ? 'modules/' . $module['id'] : 'index.php?a=112&_token=' . csrf_token() . '&id=' . $module['id'],
                     $module['name'],
                     '',
                     '',
@@ -809,7 +809,7 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
             'refresh_site',
             'tools',
             $this->menuIcon('icon_recycle') . $this->managerTheme->getLexicon('refresh_site'),
-            'index.php?a=26',
+            'index.php?a=26&_token=' . csrf_token(),
             $this->managerTheme->getLexicon('refresh_site'),
             '',
             '',
@@ -825,7 +825,7 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
                     // href
                     'btn btn-secondary',
                     // class or btn-success
-                    "evo.popup({url:'index.php?a=26', title:'" . $this->managerTheme->getLexicon('refresh_site') . "', icon: 'fa-recycle', iframe: 'ajax', selector: '.tab-page>.container', position: 'right top', width: 'auto', maxheight: '50%%', wrap: 'body' })",
+                    "evo.popup({url:'index.php?a=26&_token=" . csrf_token() . "', title:'" . $this->managerTheme->getLexicon('refresh_site') . "', icon: 'fa-recycle', iframe: 'ajax', selector: '.tab-page>.container', position: 'right top', width: 'auto', maxheight: '50%%', wrap: 'body' })",
                     // onclick
                     $this->managerTheme->getLexicon('refresh_site'),
                     // title

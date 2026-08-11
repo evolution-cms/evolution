@@ -1003,12 +1003,19 @@ function seed($folder = 'install')
 /**
  * Print a neutral info message (default color).
  *
+ * Guarded because Laravel declares a global info() of its own. The installers load this file
+ * before the core bootstraps, so this declaration normally wins and Laravel's guarded helper
+ * stands down. Under the test harness the order is reversed - Composer maps Laravel's helpers
+ * at autoload time - and an unguarded declaration here fatals the whole run.
+ *
  * @param string $text Text to print.
  * @return void
  */
-function info(string $text): void
-{
-    echo $text . PHP_EOL;
+if (!function_exists('info')) {
+    function info(string $text): void
+    {
+        echo $text . PHP_EOL;
+    }
 }
 
 /**
