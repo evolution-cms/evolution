@@ -32,7 +32,7 @@ jobs:
     outputs:
       zip-name: ${{ steps.package.outputs.zip-name }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -49,7 +49,7 @@ jobs:
         run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Cache composer downloads
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: composer-${{ runner.os }}-php8.3-build-${{ hashFiles('core/composer.lock') }}
@@ -115,7 +115,7 @@ jobs:
           echo "zip-name=${name}" >> "$GITHUB_OUTPUT"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: evolution-cms-sqlite
           path: ${{ steps.package.outputs.zip-name }}
@@ -157,10 +157,10 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Download the build
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: evolution-cms-sqlite
           path: /tmp/artifact
@@ -178,7 +178,7 @@ jobs:
           docker build -t evo-salo-runtime:8.4 /tmp/salo2/runtimes/8.4
 
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
