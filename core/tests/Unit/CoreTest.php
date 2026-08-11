@@ -45,7 +45,7 @@ beforeEach(function () {
         define('EVO_CLASS', 'Tests\Mocks\MockDocumentParser');
     }
 
-    $autoload = EVO_BASE_PATH . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+    $autoload = EVO_CORE_PATH . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
     if (!file_exists($autoload)) {
         throw new \RuntimeException("Run: composer install");
     }
