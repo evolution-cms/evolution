@@ -163,8 +163,16 @@ test('site updater builds scoped composer update for custom packages', function 
         ],
     ]);
 
+    // The builder quotes each package with escapeshellarg(), whose quoting style
+    // is platform specific, so the expectation is quoted the same way.
+    $quoted = implode(' ', array_map('escapeshellarg', [
+        'evolution-cms/eai:1.2.3',
+        'seiger/stask:1.0.10',
+        'seiger/scommerce',
+    ]));
+
     expect($command)
-        ->toBe("composer update 'evolution-cms/eai:1.2.3' 'seiger/stask:1.0.10' 'seiger/scommerce' --with-all-dependencies --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative --no-scripts");
+        ->toBe("composer update {$quoted} --with-all-dependencies --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative --no-scripts");
 
     $composerBinary === false ? putenv('COMPOSER_BINARY') : putenv('COMPOSER_BINARY=' . $composerBinary);
     $composerBin === false ? putenv('COMPOSER_BIN') : putenv('COMPOSER_BIN=' . $composerBin);
@@ -175,10 +183,12 @@ test('site updater accepts configured composer binary', function () {
 
     putenv('COMPOSER_BINARY=/home/evo/.composer/composer');
 
+    $binary = escapeshellarg('/home/evo/.composer/composer');
+
     expect(invokeSiteUpdateMethod($this->command, 'composerInstallCommand'))
-        ->toBe("'/home/evo/.composer/composer' install --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative --no-scripts");
+        ->toBe("{$binary} install --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative --no-scripts");
     expect(invokeSiteUpdateMethod($this->command, 'composerDumpAutoloadCommand'))
-        ->toBe("'/home/evo/.composer/composer' dump-autoload -o --no-dev --classmap-authoritative --no-scripts");
+        ->toBe("{$binary} dump-autoload -o --no-dev --classmap-authoritative --no-scripts");
 
     $composerBinary === false ? putenv('COMPOSER_BINARY') : putenv('COMPOSER_BINARY=' . $composerBinary);
 });

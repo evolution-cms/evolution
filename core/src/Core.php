@@ -2150,7 +2150,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             if ($modx->isBackend()) {
                 $modx->event->alert($errMsg);
             }
-            unset($modx->event->params);
+            $modx->event->params = [];
             return;
         }
         $msg = ob_get_clean();
@@ -2175,7 +2175,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         } else {
             echo $msg;
         }
-        unset($modx->event->params);
+        $modx->event->params = [];
     }
 
     /**
@@ -2237,7 +2237,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 );
             }
         }
-        unset($modx->event->params);
+        $modx->event->params = [];
         if (is_array($return) || is_object($return)) {
             return $return;
         }
@@ -5771,7 +5771,6 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      */
     public function removeAllEventListener()
     {
-        unset($this->pluginEvent);
         $this->pluginEvent = [];
     }
 
@@ -5779,7 +5778,6 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     {
         $event = $this->event->getPreviousEvent();
         if ($event) {
-            unset($this->event);
             $this->event = $event;
             $this->Event = &$this->event;
         } else {

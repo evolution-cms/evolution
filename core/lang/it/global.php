@@ -1276,6 +1276,7 @@ $_lang["configcheck_sysfiles_mod_msg"] = 'È stato configurato EVO per controlla
 $_lang['email_method_title'] = 'Metodo di invio mail:';
 $_lang['email_method_mail'] = 'Funzione mail() di PHP';
 $_lang['email_method_smtp'] = 'Server SMTP';
+$_lang['email_method_message'] = 'Trasporto usato per inviare le email di sistema. «Funzione mail() di PHP» consegna il messaggio al programma di posta locale del server e non richiede altra configurazione. «Server SMTP» invia tramite il server SMTP esterno configurato qui sotto ed è la sola modalità in cui il riconoscimento automatico del mittente può usare il nome utente SMTP.';
 $_lang['smtp_auth_title'] = 'SMTP-AUTH:';
 $_lang['smtp_autotls_title'] = 'SMTPAutoTLS';
 $_lang['smtp_host_title'] = 'Host SMTP:';
@@ -1464,7 +1465,7 @@ $_lang["viewopts_cb_alltabs"] = 'Tutti i Tab';
 $_lang['email_sender_method'] = 'Il mittente del messaggio';
 $_lang['auto'] = 'Riconoscimento automatico';
 $_lang['use_emailsender'] = 'Usa il valore [(emailsender)]';
-$_lang['email_sender_method_message'] = 'Il mittente del messaggio. In genere verrà trasformato in un header Return-Path dal destinatario ed è l\'indirizzo al quale verranno notificati gli indirizzi errati. Attivare Il riconoscimento automatico andrà bene nella maggior parte dei casi.';
+$_lang['email_sender_method_message'] = '«Riconoscimento automatico»: se è selezionato SMTP e il nome utente SMTP è un indirizzo email valido, tale indirizzo viene usato sia come mittente From sia come mittente della busta (envelope sender). Altrimenti viene usato [(emailsender)] come From e il mittente della busta resta affidato alla precedente gestione automatica del trasporto. «Usa il valore [(emailsender)]» impone tale indirizzo sia per From sia per il mittente della busta.';
 
 $_lang['login_form_position_title'] = 'Posizione del form di login';
 $_lang['login_form_position_left'] = 'sinistra';

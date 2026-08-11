@@ -140,7 +140,8 @@ class MysqlDumper implements MysqlDumperInterface
         if (isset($this->_dbtables) && count($this->_dbtables)) {
             $this->_dbtables = implode(',', $this->_dbtables);
         } else {
-            unset($this->_dbtables);
+            // Null keeps the isset() guards below false, meaning "dump every table".
+            $this->_dbtables = null;
         }
 
 

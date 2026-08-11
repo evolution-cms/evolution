@@ -1295,9 +1295,10 @@ $_lang["check_files_onlogin_message"] = 'By enabling this option, important syst
 $_lang["configcheck_sysfiles_mod"] = 'Important System Files have been modified.';
 $_lang["configcheck_sysfiles_mod_msg"] = 'You have configured Evolution CMS to check important system files for possible website script attacks. This warning does not necessarily mean your site has been compromised, however, you should review the watched files in your installation (set in System configuration -> User -> Check core files on login). If you find your files unaltered or changes were made by site administrators, go to System Configuration and click to re-save settings to dismiss this message. Changes in the following files have been found:';
 
-$_lang['email_method_title'] = 'Sendmail method';
+$_lang['email_method_title'] = 'Mail sending method';
 $_lang['email_method_mail'] = 'PHP mail() function';
 $_lang['email_method_smtp'] = 'SMTP Server';
+$_lang['email_method_message'] = 'Transport used to send system email. “PHP mail() function” hands the message to the local mail program of the server and needs no further configuration. “SMTP Server” delivers through the external SMTP server configured below, and is the only mode in which automatic sender selection can use the SMTP username.';
 $_lang['smtp_auth_title'] = 'SMTP-AUTH';
 $_lang['smtp_autotls_title'] = 'SMTPAutoTLS';
 $_lang['smtp_host_title'] = 'SMTP host';
@@ -1489,10 +1490,10 @@ $_lang["viewopts_radio_flex"] = 'Flex';
 $_lang["viewopts_fontsize"] = 'Font-Size';
 $_lang["viewopts_cb_alltabs"] = 'All Tabs';
 
-$_lang['email_sender_method'] = 'The envelope sender of the message';
+$_lang['email_sender_method'] = 'Message sender';
 $_lang['auto'] = 'Auto-detect';
 $_lang['use_emailsender'] = 'Use [(emailsender)] value';
-$_lang['email_sender_method_message'] = 'Automatic uses a valid email-form SMTP username as both From and envelope sender when SMTP is selected. Otherwise it uses [(emailsender)] as From and retains the transport\'s legacy automatic envelope handling. “Use [(emailsender)]” forces that address for both From and envelope sender.';
+$_lang['email_sender_method_message'] = '“Auto-detect”: when SMTP is selected and the SMTP username is a valid email address, that address is used as both the From address and the envelope sender. Otherwise [(emailsender)] is used as From and the envelope sender is left to the transport\'s previous automatic handling. “Use [(emailsender)] value” forces that address for both From and envelope sender.';
 
 $_lang['login_form_position_title'] = 'Login form postiton';
 $_lang['login_form_position_left'] = 'left';
