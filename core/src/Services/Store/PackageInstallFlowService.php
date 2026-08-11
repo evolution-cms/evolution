@@ -105,9 +105,12 @@ class PackageInstallFlowService
 
         $cwd = getcwd();
         chdir($this->modulePath . '/installer/');
-        ob_start();
-        require "instprocessor-fast.php";
-        ob_end_clean();
+        $fastProcessor = $this->modulePath . '/installer/instprocessor-fast.php';
+        if (is_file($fastProcessor)) {
+            ob_start();
+            include $fastProcessor; // @todo [remove@3.7] Remove in Evolution CMS 3.7
+            ob_end_clean();
+        }
         chdir($cwd);
 
         if (is_dir(EVO_BASE_PATH . 'assets/cache/store/')) {

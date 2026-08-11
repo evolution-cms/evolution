@@ -60,3 +60,4 @@ Desktop.ini
 # all dotfiles and dotfolders except do not ignore .gitignore
 **/.*
 !.gitignore
+!/.github

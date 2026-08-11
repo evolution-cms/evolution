@@ -14,7 +14,11 @@ require_once EVO_BASE_PATH . 'install/src/functions.php';
 /**
  * EVO Cli Installer/Updater
  * php cli-install.php --typeInstall=1 --databaseType=pgsql --databaseServer=localhost --database=db_name --databaseUser=serious --databasePassword=serious  --tablePrefix=evo_ --cmsAdmin=admin --cmsAdminEmail=serious2008@gmail.com --cmsPassword=123456 --language=uk --removeInstall=y
+ * php cli-install.php --typeInstall=1 --databaseType=sqlite --database=evolution --tablePrefix=evo_ --cmsAdmin=admin --cmsAdminEmail=serious2008@gmail.com --cmsPassword=123456 --language=uk --removeInstall=y
  * php cli-install.php --typeInstall=2 --removeInstall=y
+ *
+ * The sqlite database is created as core/database/<--database>.sqlite
+ * Use --skipComposer=y to keep the already installed dependencies untouched.
  **/
 
 function runCliInstall(array $argv): void
@@ -41,6 +45,7 @@ class InstallEvo
     public $cmsPassword = '';
     public $language = '';
     public $removeInstall = '';
+    public $skipComposer = '';
     public $database_charset = 'utf8mb4';
     public $database_collation = 'utf8mb4_unicode_520_ci';
     public $dbh;
@@ -202,7 +207,7 @@ class InstallEvo
 
     public function checkDatabaseType()
     {
-        $dbTypes = ['pgsql', 'mysql'];
+        $dbTypes = ['pgsql', 'mysql', 'sqlite'];
         while (!in_array($this->databaseType, $dbTypes)) {
             $this->databaseType = $this->choice(
                 'Please choose your database type:',
@@ -211,8 +216,20 @@ class InstallEvo
         }
     }
 
+    /**
+     * A file based sqlite database has no server, user or password.
+     */
+    public function isSqlite(): bool
+    {
+        return $this->databaseType === 'sqlite';
+    }
+
     public function checkDatabaseServer()
     {
+        if ($this->isSqlite()) {
+            return;
+        }
+
         while ($this->databaseServer === '') {
             $this->databaseServer = $this->ask('Please enter database server:', 'localhost');
         }
@@ -227,6 +244,10 @@ class InstallEvo
 
     public function checkDatabaseUser()
     {
+        if ($this->isSqlite()) {
+            return;
+        }
+
         while ($this->databaseUser === '') {
             $this->databaseUser = $this->ask('Please enter database user:', '');
         }
@@ -234,6 +255,10 @@ class InstallEvo
 
     public function checkDatabasePassword()
     {
+        if ($this->isSqlite()) {
+            return;
+        }
+
         while ($this->databasePassword === '') {
             $this->databasePassword = $this->ask('Please enter database password:', '');
         }
@@ -312,6 +337,27 @@ class InstallEvo
 
     public function checkConnectToDatabase()
     {
+        if ($this->isSqlite()) {
+            $this->checkDatabase();
+            $databaseFile = sqliteDbNameToPath($this->database);
+            $databaseDir = dirname($databaseFile);
+
+            if (!is_dir($databaseDir)) {
+                mkdir($databaseDir, 0755, true);
+            }
+
+            try {
+                $this->dbh = new PDO('sqlite:' . $databaseFile);
+            } catch (PDOException $e) {
+                error('✖ ' . $e->getMessage());
+                $this->databaseType = '';
+                $this->database = '';
+                $this->install();
+            }
+
+            return;
+        }
+
         try {
             $this->dbh = new PDO($this->databaseType . ':host=' . $this->databaseServer, $this->databaseUser, $this->databasePassword);
         } catch (PDOException $e) {
@@ -330,6 +376,11 @@ class InstallEvo
 
     public function checkConnectToDatabaseWithBase()
     {
+        if ($this->isSqlite()) {
+            // The database file is the connection itself, it was opened already.
+            return;
+        }
+
         $error = 0;
         try {
             $dbh_alt = new PDO($this->databaseType . ':host=' . $this->databaseServer . ';dbname=' . $this->database, $this->databaseUser, $this->databasePassword);
@@ -399,6 +450,11 @@ class InstallEvo
 
     public function composerUpdate()
     {
+        if ($this->skipComposer === 'y') {
+            info('- Composer update skipped.');
+            return;
+        }
+
         $disabled = array_map('trim', explode(',', ini_get('disable_functions') ?: ''));
         $composerBin = EVO_CORE_PATH . 'vendor/bin/composer';
         $workingDir  = EVO_CORE_PATH;
@@ -466,6 +522,11 @@ class InstallEvo
         $confph['lastInstallTime'] = time();
         $confph['database_engine'] = '';
         switch ($this->databaseType) {
+            case 'sqlite':
+                $confph['database_port'] = '';
+                $confph['connection_charset'] = '';
+                $confph['connection_collation'] = '';
+                break;
             case 'pgsql':
                 $confph['database_port'] = '5432';
                 $confph['connection_charset'] = 'utf8';
