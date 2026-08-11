@@ -813,9 +813,10 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
             <?php if (((@ini_get("file_uploads") == true) || get_cfg_var("file_uploads") == 1) && $currentPathWritable) {
                 @ini_set("upload_max_filesize", $upload_maxsize ?? 0); // modified by raymond ?>
                 <form name="upload" enctype="multipart/form-data" action="index.php" method="post">
+                    <?= csrf_field() ?>
                     <input type="hidden" name="MAX_FILE_SIZE" value="<?= $upload_maxsize ?? 5000000 ?>">
                     <input type="hidden" name="a" value="31">
-                    <input type="hidden" name="path" value="<?= $relative_path ?>">
+                    <input type="hidden" name="path" value="<?= entities($relative_path, evo()->getConfig('modx_charset')) ?>">
                     <!-- Fix: Add token to upload form -->
                     <input type="hidden" name="token" value="<?= $newToken ?>">
                     <?php if (isset($information)) { echo $information; } ?>
@@ -840,7 +841,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                 </p>
             <?php } elseif (!$directoryZipBlocked) { ?>
                 <p>
-                    <a class="btn btn-secondary" href="index.php?a=31&mode=downloadzip&path=<?= $directoryZipPathParam ?>&token=<?= $newToken ?>">
+                    <a class="btn btn-secondary" onclick="dontShowWorker = true;" href="index.php?a=31&mode=downloadzip&path=<?= $directoryZipPathParam ?>&token=<?= $newToken ?>">
                         <i class="<?= $_style['icon_download'] ?>"></i><span><?= $_lang['files_download_zip'] ?></span>
                     </a>
                 </p>
@@ -909,6 +910,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
             }
             ?>
             <form action="index.php" method="post" name="fileGroupsForm">
+                <?= csrf_field() ?>
                 <input type="hidden" name="a" value="31">
                 <input type="hidden" name="mode" value="savegroups">
                 <input type="hidden" name="groupspath" value="<?= htmlspecialchars($groupsTargetPath, ENT_QUOTES) ?>">
@@ -972,9 +974,10 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
         }
         ?>
         <form action="index.php" method="post" name="editFile">
+            <?= csrf_field() ?>
             <input type="hidden" name="a" value="31" />
             <input type="hidden" name="mode" value="save" />
-            <input type="hidden" name="path" value="<?= $requested_path ?>" />
+            <input type="hidden" name="path" value="<?= entities($requested_path, evo()->getConfig('modx_charset')) ?>" />
             <input type="hidden" name="token" value="<?= $newToken ?>" />
             <table width="100%" border="0" cellspacing="0" cellpadding="0">
                 <tr>

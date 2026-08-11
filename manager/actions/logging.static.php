@@ -18,6 +18,7 @@ $logs = \EvolutionCMS\Models\ManagerLog::query()->select('internalKey', 'usernam
             <div class="element-edit-message-tab alert alert-warning"><?= $_lang["mgrlog_query_msg"] ?></div>
 
             <form name="logging" method="post" action="index.php" class="form-group">
+                <?= csrf_field() ?>
                 <input type="hidden" name="a" value="13">
                 <div class="row form-row">
                     <div class="col-sm-4 col-md-3 col-lg-2"><b><?= $_lang["mgrlog_user"] ?></b></div>
@@ -99,7 +100,7 @@ $logs = \EvolutionCMS\Models\ManagerLog::query()->select('internalKey', 'usernam
                     <div class="col-sm-8 col-md-5 col-lg-4">
                         <div class="input-group">
                             <input type="text" id="datefrom" name="datefrom" class="form-control unstyled DatePicker"
-                                   value="<?= isset($_REQUEST['datefrom']) ? $_REQUEST['datefrom'] : "" ?>"/>
+                                   value="<?= entities((string)get_by_key($_REQUEST, 'datefrom', '', 'is_scalar'), EvolutionCMS()->getConfig('modx_charset')) ?>"/>
                             <i onClick="document.logging.datefrom.value=''; return true;"
                                class="clearDate <?php echo $_style["icon_calendar_close"] ?>"
                                title="<?php echo $_lang['remove_date']; ?>"></i>
@@ -111,7 +112,7 @@ $logs = \EvolutionCMS\Models\ManagerLog::query()->select('internalKey', 'usernam
                     <div class="col-sm-8 col-md-5 col-lg-4">
                         <div class="input-group">
                             <input type="text" id="dateto" name="dateto" class="form-control unstyled DatePicker"
-                                   value="<?= isset($_REQUEST['dateto']) ? $_REQUEST['dateto'] : "" ?>"/>
+                                   value="<?= entities((string)get_by_key($_REQUEST, 'dateto', '', 'is_scalar'), EvolutionCMS()->getConfig('modx_charset')) ?>"/>
                             <i onClick="document.logging.dateto.value=''; return true;"
                                class="clearDate <?php echo $_style["icon_calendar_close"] ?>"
                                title="<?php echo $_lang['remove_date']; ?>"></i>
@@ -122,7 +123,7 @@ $logs = \EvolutionCMS\Models\ManagerLog::query()->select('internalKey', 'usernam
                     <div class="col-sm-4 col-md-3 col-lg-2"><b><?= $_lang["mgrlog_results"] ?></b></div>
                     <div class="col-sm-8 col-md-5 col-lg-4">
                         <input type="text" name="nrresults" class="form-control"
-                               value="<?= isset($_REQUEST['nrresults']) ? $_REQUEST['nrresults'] : EvolutionCMS()->getConfig('number_of_logs') ?>"/>
+                               value="<?= (int)(is_numeric(get_by_key($_REQUEST, 'nrresults')) ? $_REQUEST['nrresults'] : EvolutionCMS()->getConfig('number_of_logs')) ?>"/>
                     </div>
                 </div>
 
@@ -269,13 +270,13 @@ if ($limit < 1) {
                     $user_drill = 'index.php?a=13&searchuser=' . $logentry['internalKey'] . '&itemname=0&log_submit=true';
                     ?>
                     <tr>
-                        <td><?= '<a href="' . $user_drill . '">' . $logentry['username'] . '</a>' ?></td>
-                        <td class="text-nowrap"><?= '[' . $logentry['action'] . '] ' . $logentry['message'] ?></td>
-                        <td class="text-xs-right"><?= $logentry['itemid'] ?></td>
-                        <td><?= $item ?></td>
+                        <td><?= '<a href="' . $user_drill . '">' . entities($logentry['username'], EvolutionCMS()->getConfig('modx_charset')) . '</a>' ?></td>
+                        <td class="text-nowrap"><?= '[' . (int)$logentry['action'] . '] ' . entities($logentry['message'], EvolutionCMS()->getConfig('modx_charset')) ?></td>
+                        <td class="text-xs-right"><?= entities((string)$logentry['itemid'], EvolutionCMS()->getConfig('modx_charset')) ?></td>
+                        <td><?= entities($item, EvolutionCMS()->getConfig('modx_charset')) ?></td>
                         <td class="text-nowrap"><?= EvolutionCMS()->toDateFormat($logentry['timestamp'] + EvolutionCMS()->getConfig('server_offset_time')) ?></td>
-                        <td class="text-nowrap"><?= $logentry['ip'] ?></td>
-                        <td class="text-nowrap"><?= $logentry['useragent'] ?></td>
+                        <td class="text-nowrap"><?= entities($logentry['ip'], EvolutionCMS()->getConfig('modx_charset')) ?></td>
+                        <td class="text-nowrap"><?= entities($logentry['useragent'], EvolutionCMS()->getConfig('modx_charset')) ?></td>
                     </tr>
                     <?php
                     $i++;

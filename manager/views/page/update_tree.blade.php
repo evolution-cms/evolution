@@ -32,6 +32,7 @@
                     @endif
 
                     <form  method="post" name="exportFrm">
+                        @csrf
 
                         <button type="submit" name="start" class="btn btn-primary"> <i class="{{ ManagerTheme::getStyle('icon_sitemap') }}"></i> {{ ManagerTheme::getLexicon('update_tree') }}</button>
                     </form>

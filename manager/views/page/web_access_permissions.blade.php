@@ -11,10 +11,10 @@
             function deletegroup(groupid, type) {
                 if(confirm("{{ ManagerTheme::getLexicon('confirm_delete_group') }}") === true) {
                     if(type === 'usergroup') {
-                        document.location.href = "index.php?a=92&usergroup=" + groupid + "&operation=delete_user_group";
+                        document.location.href = "index.php?a=92&_token={{ csrf_token() }}&usergroup=" + groupid + "&operation=delete_user_group";
                     }
                     else if(type === 'documentgroup') {
-                        document.location.href = "index.php?a=92&documentgroup=" + groupid + "&operation=delete_document_group";
+                        document.location.href = "index.php?a=92&_token={{ csrf_token() }}&documentgroup=" + groupid + "&operation=delete_document_group";
                     }
                 }
             }
@@ -54,6 +54,7 @@
                 <div class="form-group">
                     <b>{{ ManagerTheme::getLexicon('access_permissions_add_user_group') }}</b>
                     <form method="post" action="index.php" name="accesspermissions">
+                        @csrf
                         <input type="hidden" name="a" value="92" />
                         <input type="hidden" name="operation" value="add_user_group" />
                         <div class="input-group">
@@ -72,6 +73,7 @@
                     @foreach($userGroups as $userGroup)
                         <div class="form-group">
                             <form method="post" action="index.php" name="accesspermissions">
+                                @csrf
                                 <input type="hidden" name="a" value="92" />
                                 <input type="hidden" name="groupid" value="{{ $userGroup->getKey() }}" />
                                 <input type="hidden" name="operation" value="rename_user_group" />
@@ -107,6 +109,7 @@
                 <div class="form-group">
                     <b>{{ ManagerTheme::getLexicon('access_permissions_add_resource_group') }}</b>
                     <form method="post" action="index.php" name="accesspermissions">
+                        @csrf
                         <input type="hidden" name="a" value="92" />
                         <input type="hidden" name="operation" value="add_document_group" />
                         <div class="input-group">
@@ -124,6 +127,7 @@
                     @foreach($documentGroups as $documentGroup)
                         <div class="form-group">
                             <form method="post" action="index.php" name="accesspermissions">
+                                @csrf
                                 <input type="hidden" name="a" value="92" />
                                 <input type="hidden" name="groupid" value="{{ $documentGroup->getKey() }}" />
                                 <input type="hidden" name="operation" value="rename_document_group" />
@@ -160,6 +164,7 @@
                     <div class="form-group">
                         <b>{{ ManagerTheme::getLexicon('access_permissions_group_link') }}</b>
                         <form method="post" action="index.php" name="accesspermissions">
+                            @csrf
                             <input type="hidden" name="a" value="92" />
                             <input type="hidden" name="operation" value="add_document_group_to_user_group" />
 
@@ -198,7 +203,7 @@
                                         @foreach($userGroup->documentGroups as $documentGroup)
                                             <li>
                                                 {{ $documentGroup->name }} ({{ $documentGroup->getKey() }}) ({{ $documentGroup->pivot->context ? 'web' : 'mgr' }})
-                                                <small><i>(<a class="text-danger" href="index.php?a=92&coupling={{ $documentGroup->pivot->id }}&context={{ $documentGroup->pivot->context }}&operation=remove_document_group_from_user_group">{{ ManagerTheme::getLexicon('remove') }}</a>)</i></small>
+                                                <small><i>(<a class="text-danger" href="index.php?a=92&_token={{ csrf_token() }}&coupling={{ $documentGroup->pivot->id }}&context={{ $documentGroup->pivot->context }}&operation=remove_document_group_from_user_group">{{ ManagerTheme::getLexicon('remove') }}</a>)</i></small>
                                             </li>
                                         @endforeach
                                     </ul>

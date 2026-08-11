@@ -7,6 +7,8 @@
     <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width"/>
     <meta name="theme-color" content="{{ ManagerTheme::getThemeColor() }}"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    {{-- Lets scripts that post to index.php read the CSRF token without an enclosing form. --}}
+    <meta name="csrf-token" content="{{ csrf_token() }}"/>
     @if(class_exists(Tracy\Debugger::class) && evo()->get('config')->get('tracy.active'))
         {!! Tracy\Debugger::renderLoader() !!}
     @endif

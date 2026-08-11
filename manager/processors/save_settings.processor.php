@@ -78,6 +78,10 @@ if (isset($data) && count($data) > 0) {
                 // Skip these
                 $k = '';
                 break;
+            case '_token':
+                // The CSRF field travels with the form but is not a setting.
+                $k = '';
+                break;
             case 'rb_base_dir':
             case 'filemanager_path':
                 $v = \EvolutionCMS\Support\SystemSettingPathNormalizer::normalizeStorageValue($k, $v, EVO_BASE_PATH);

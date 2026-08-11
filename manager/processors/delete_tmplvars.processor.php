@@ -23,7 +23,7 @@ if(!$forced) {
 		<script>
 			var actions = {
 				delete: function() {
-					document.location.href = "index.php?id=<?= $id ?>&a=303&force=1";
+					document.location.href = "index.php?id=<?= $id ?>&a=303&force=1&_token=<?= csrf_token() ?>";
 				},
 				cancel: function() {
 					window.location.href = 'index.php?a=301&id=<?= $id ?>';

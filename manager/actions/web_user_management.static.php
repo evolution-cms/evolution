@@ -170,7 +170,7 @@ if ($numRecords > 0) {
                 break;
             case 2: // delete
                 if(confirm("<?php echo ManagerTheme::getLexicon('confirm_delete_user') ?>") === true) {
-                    window.location.href = 'index.php?a=90&id=' + id;
+                    window.location.href = 'index.php?a=90&_token=<?= csrf_token() ?>&id=' + id;
                 }
                 break;
         }
@@ -190,6 +190,7 @@ if ($numRecords > 0) {
 </script>
 
 <form name="resource" method="post" action="?a=99">
+    <?= csrf_field() ?>
     <input type="hidden" name="op" value="" />
 
     <h1>

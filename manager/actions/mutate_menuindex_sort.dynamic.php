@@ -193,6 +193,7 @@ $pagetitle = empty($id) ? evo()->getConfig('site_name') : $pagetitle;
 </div>
 
 <form action="" method="post" name="sortableListForm">
+    <?= csrf_field() ?>
     <input type="hidden" name="listSubmitted" value="true"/>
     <input type="hidden" id="list" name="list" value=""/>
 </form>

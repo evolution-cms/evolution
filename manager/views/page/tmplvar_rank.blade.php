@@ -118,6 +118,7 @@
     </div>
 
     <form action="" method="post" name="sortableListForm">
+        @csrf
         <input type="hidden" name="listSubmitted" value="true" />
         <input type="hidden" id="list" name="list" value="" />
     </form>

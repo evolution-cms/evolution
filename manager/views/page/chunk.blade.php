@@ -30,13 +30,13 @@
             duplicate: function() {
               if (confirm('{{ ManagerTheme::getLexicon('confirm_duplicate_record') }}') === true) {
                 documentDirty = false;
-                document.location.href = "index.php?id={{ $data->getKey() }}&a=97";
+                document.location.href = "index.php?id={{ $data->getKey() }}&a=97&_token={{ csrf_token() }}";
               }
             },
             delete: function() {
               if (confirm('{{ ManagerTheme::getLexicon('confirm_delete_htmlsnippet') }}') === true) {
                 documentDirty = false;
-                document.location.href = 'index.php?id=' + document.mutate.id.value + '&a=80';
+                document.location.href = 'index.php?id=' + document.mutate.id.value + '&a=80&_token={{ csrf_token() }}';
               }
             },
             cancel: function() {
@@ -56,6 +56,7 @@
     @endpush
 
     <form class="htmlsnippet" id="mutate" name="mutate" method="post" action="index.php">
+        @csrf
         {!! get_by_key($events, 'OnChunkFormPrerender') !!}
 
         <input type="hidden" name="a" value="79" />

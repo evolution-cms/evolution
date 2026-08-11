@@ -39,7 +39,8 @@ document.getElementById('elements-select').onchange = function(e) {
       });
     }
   };
-  xhr.send(request_key + '[ajax]=1&' + request_key + '[task]=categorize_load_elements&' + request_key + '[elements]=' + e.target.value);
+  let tokenField = document.querySelector('input[name="_token"]');
+  xhr.send('_token=' + encodeURIComponent(tokenField ? tokenField.value : '') + '&' + request_key + '[ajax]=1&' + request_key + '[task]=categorize_load_elements&' + request_key + '[elements]=' + e.target.value);
 };
 
 /**

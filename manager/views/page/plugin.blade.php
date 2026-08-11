@@ -24,12 +24,12 @@
             }, duplicate: function() {
               if (confirm('{{ ManagerTheme::getLexicon('confirm_duplicate_record') }}') === true) {
                 documentDirty = false;
-                document.location.href = "index.php?id={{ $data->getKey() }}&a=105";
+                document.location.href = "index.php?id={{ $data->getKey() }}&a=105&_token={{ csrf_token() }}";
               }
             }, delete: function() {
               if (confirm('{{ ManagerTheme::getLexicon('confirm_delete_plugin') }}') === true) {
                 documentDirty = false;
-                document.location.href = 'index.php?id=' + document.mutate.id.value + '&a=104';
+                document.location.href = 'index.php?id=' + document.mutate.id.value + '&a=104&_token={{ csrf_token() }}';
               }
             }, cancel: function() {
               documentDirty = false;
@@ -98,6 +98,7 @@
     @endpush
 
     <form name="mutate" method="post" action="index.php" enctype="multipart/form-data">
+        @csrf
         {!! get_by_key($events, 'OnPluginFormPrerender') !!}
 
         <input type="hidden" name="a" value="103">

@@ -3,7 +3,7 @@
     <h1>{{ ManagerTheme::getLexicon('refresh_title') }}</h1>
     <div id="actions">
         <div class="btn-group">
-            <a id="Button1" class="btn btn-success" href="index.php?a=26">
+            <a id="Button1" class="btn btn-success" href="index.php?a=26&_token={{ csrf_token() }}">
                 <i class="{{ $_style['icon_recycle'] }}"></i>{{ ManagerTheme::getLexicon('refresh_site') }}
             </a>
         </div>

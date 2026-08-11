@@ -58,7 +58,9 @@ function confirmLangChange(el, lkey, elupd){
         proceed = confirm(lang_chg);
     }
     if(proceed) {
+        var tokenField = document.querySelector('form[name="settings"] input[name="_token"]');
         $.post('index.php?a=118', {
+            _token: tokenField ? tokenField.value : '',
             action: 'get',
             lang: lang !== '' ? lang : lang_default,
             key: lkey

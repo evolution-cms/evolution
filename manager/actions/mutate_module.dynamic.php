@@ -75,7 +75,7 @@ require_once(EVO_MANAGER_PATH . 'includes/active_user_locks.inc.php');
         }
         documentDirty = false;
 
-        window.location.href = "index.php?id=<?= (isset($_REQUEST['id'])) ? $_REQUEST['id'] : "" ?>&a=113";
+        window.location.href = "index.php?id=<?= (int)get_by_key($_REQUEST, 'id', 0, 'is_scalar') ?>&a=113";
     }
 
     var actions = {
@@ -88,13 +88,13 @@ require_once(EVO_MANAGER_PATH . 'includes/active_user_locks.inc.php');
         duplicate: function () {
             if (confirm("<?= $_lang['confirm_duplicate_record'] ?>") === true) {
                 documentDirty = false;
-                document.location.href = "index.php?id=<?= (isset($_REQUEST['id'])) ? $_REQUEST['id'] : "" ?>&a=111";
+                document.location.href = "index.php?id=<?= (int)get_by_key($_REQUEST, 'id', 0, 'is_scalar') ?>&a=111&_token=<?= csrf_token() ?>";
             }
         },
         delete: function () {
             if (confirm("<?= $_lang['confirm_delete_module'] ?>") === true) {
                 documentDirty = false;
-                document.location.href = "index.php?id=" + document.mutate.id.value + "&a=110";
+                document.location.href = "index.php?id=" + document.mutate.id.value + "&a=110&_token=<?= csrf_token() ?>";
             }
         },
         cancel: function () {
@@ -102,7 +102,7 @@ require_once(EVO_MANAGER_PATH . 'includes/active_user_locks.inc.php');
             document.location.href = 'index.php?a=76&tab=5';
         },
         run: function () {
-            document.location.href = "index.php?id=<?= (isset($_REQUEST['id'])) ? $_REQUEST['id'] : "" ?>&a=112";
+            document.location.href = "index.php?id=<?= (int)get_by_key($_REQUEST, 'id', 0, 'is_scalar') ?>&a=112&_token=<?= csrf_token() ?>";
         }
     };
 
@@ -121,6 +121,7 @@ require_once(EVO_MANAGER_PATH . 'includes/active_user_locks.inc.php');
 </script>
 
 <form name="mutate" method="post" action="index.php" id="mutate" class="module">
+    <?= csrf_field() ?>
     <?php
     // invoke OnModFormPrerender event
     $evtOut = $modx->invokeEvent('OnModFormPrerender', ['id' => $id]);
