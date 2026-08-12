@@ -32,6 +32,7 @@
     "source": "https://github.com/evolution-cms/evolution/"
   },
   "config": {
+    "bin-compat": "full",
     "vendor-dir": "vendor"
   },
   "require": {
