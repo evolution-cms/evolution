@@ -215,6 +215,7 @@ if (!function_exists('niceEta')) {
      *
      * @param float $seconds Number of seconds to format
      * @return string Human-readable time format
+     * @since 3.5.0
      *
      * @example
      * niceEta(45.5);     // "46s"
@@ -282,6 +283,7 @@ if (!function_exists('niceSize')) {
      *
      * @param int|float $size File size in bytes
      * @return string Formatted file size with unit
+     * @since 3.5.0
      *
      * @example
      * niceSize(1024); // "1 KB"

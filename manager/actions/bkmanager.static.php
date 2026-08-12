@@ -359,7 +359,7 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                                         echo '<td class="text-xs-right">' . ($db_status['Data_free'] > 0 ? niceSize($db_status['Data_free']) : '-') . '</td>' . "\n";
                                     }
 
-                                    echo '<td class="text-xs-right">' . niceSize($db_status['Data_length'] - $db_status['Data_free']) . '</td>' . "\n" . '<td class="text-xs-right">' . niceSize($db_status['Index_length']) . '</td>' . "\n" . '<td class="text-xs-right">' . EvolutionCMS()->nicesize($db_status['Index_length'] + $db_status['Data_length'] + $db_status['Data_free']) . '</td>' . "\n" . "</tr>";
+                                    echo '<td class="text-xs-right">' . niceSize($db_status['Data_length'] - $db_status['Data_free']) . '</td>' . "\n" . '<td class="text-xs-right">' . niceSize($db_status['Index_length']) . '</td>' . "\n" . '<td class="text-xs-right">' . niceSize($db_status['Index_length'] + $db_status['Data_length'] + $db_status['Data_free']) . '</td>' . "\n" . "</tr>";
 
                                     $total += $db_status['Index_length'] + $db_status['Data_length'];
                                     $totaloverhead += $db_status['Data_free'];
