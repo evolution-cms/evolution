@@ -103,6 +103,7 @@
             "minConnections": 3
         },
         "vendor-dir": "vendor",
+        "bin-compat": "full",
         "allow-plugins": {
             "wikimedia/composer-merge-plugin": true,
             "pestphp/pest-plugin": true

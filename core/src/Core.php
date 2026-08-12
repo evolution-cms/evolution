@@ -6459,6 +6459,22 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         return $usrSettings;
     }
 
+    /**
+     * The settings are only readable when the CMS is installed: during install
+     * the tables do not exist yet, and on a bare checkout the connection config
+     * (config/database/connections/) has not been written at all.
+     */
+    private function canReadSettingsFromDatabase(): bool
+    {
+        if (IN_INSTALL_MODE !== false) {
+            return false;
+        }
+
+        $config = $this['config'];
+
+        return $config->get('database.connections.' . $config->get('database.default', 'default')) !== null;
+    }
+
     private function recoverySiteCache()
     {
         $siteCacheDir = $this->bootstrapPath();
@@ -6472,11 +6488,13 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             return;
         }
 
+        $useDatabase = $this->canReadSettingsFromDatabase();
+
         $cache = new Legacy\Cache();
         $cache->setCachepath($siteCacheDir);
         $cache->setReport(false);
 
-        if (IN_INSTALL_MODE === false)
+        if ($useDatabase)
             $cache->buildCache($this);
 
         clearstatcache();
@@ -6486,7 +6504,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         if (!empty($this->config)) {
             return;
         }
-        if (IN_INSTALL_MODE === false)
+        if ($useDatabase)
             $this->config = Models\SystemSetting::all()
                 ->pluck('setting_value', 'setting_name')
                 ->toArray();
@@ -6494,7 +6512,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         if ($this->getConfig('enable_filter') === null) {
             return;
         }
-        if (IN_INSTALL_MODE === false)
+        if ($useDatabase)
             if (Models\SitePlugin::activePhx()->count() === 0) {
                 $this->setConfig('enable_filter', '0');
             }
