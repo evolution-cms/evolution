@@ -11,6 +11,22 @@
         tabsTimer: 0,
         popupTimer: 0,
         tabsStorageKey: 'EVO_Tabs',
+        tabsCsrfPlaceholder: '__EVO_CSRF_TOKEN__',
+        tabUrlForStorage: function (url) {
+            url = evo.normalizeUrl(url || '');
+            return url.replace(/([?&]_token=)[^&#]*/g, function (match, prefix) {
+                return prefix + evo.tabsCsrfPlaceholder;
+            });
+        },
+        tabUrlForRestore: function (url) {
+            url = evo.normalizeUrl(url || '');
+            if (!url || !evo.config.csrf_token) {
+                return url;
+            }
+            return url.replace(/([?&]_token=)[^&#]*/g, function (match, prefix) {
+                return prefix + encodeURIComponent(evo.config.csrf_token);
+            });
+        },
         tabsStore: function () {
             if (!evo.config.global_tabs || !w.localStorage) {
                 return;
@@ -57,7 +73,7 @@
                         title = titleEl ? titleEl.innerHTML : '';
                     }
                     tabs.push({
-                        url: evo.normalizeUrl(url),
+                        url: evo.tabUrlForStorage(url),
                         title: title
                     });
                 }
@@ -68,7 +84,7 @@
                 }
                 if (tabs.length || activeUrl) {
                     localStorage.setItem(evo.tabsStorageKey, JSON.stringify({
-                        active: evo.normalizeUrl(activeUrl),
+                        active: evo.tabUrlForStorage(activeUrl),
                         tabs: tabs
                     }));
                 } else {
@@ -97,12 +113,12 @@
                 for (var i = 0; i < data.tabs.length; i++) {
                     var tab = data.tabs[i];
                     if (tab && tab.url) {
-                        evo.tabs({ url: tab.url, title: tab.title || 'blank', reload: 0, restoring: true });
+                        evo.tabs({ url: evo.tabUrlForRestore(tab.url), title: tab.title || 'blank', reload: 0, restoring: true });
                     }
                 }
             }
             if (data.active) {
-                evo.tabs({ url: data.active, title: 'blank', restoring: true, activate: true });
+                evo.tabs({ url: evo.tabUrlForRestore(data.active), title: 'blank', restoring: true, activate: true });
             }
             return true;
         },
@@ -132,7 +148,7 @@
                 if (evo.getActionFromUrl(href, 2)) {
                     w.history.replaceState(null, d.title, evo.EVO_MANAGER_URL);
                 } else if (evo.getActionFromUrl(href) || evo.main.getQueryVariable('filemanager', href) || evo.isModuleUrl(href)) {
-                    startupUrl = evo.main.getQueryVariable('filemanager', href) ? evo.EVO_MANAGER_URL + evo.main.getQueryVariable('filemanager', href) + href : href;
+                    startupUrl = evo.main.getQueryVariable('filemanager', href) ? evo.EVO_MANAGER_URL + evo.main.getQueryVariable('filemanager', href) + href : evo.tabUrlForRestore(href);
                     openOnLoad = true;
                 }
             }
@@ -655,14 +671,14 @@
                 var a = w.main.frameElement.contentWindow,
                     b = evo.normalizeUrl(a.location.href),
                     c = localStorage.getItem('page_y') || 0,
-                    f = localStorage.getItem('page_url') || b;
+                    f = evo.tabUrlForRestore(localStorage.getItem('page_url') || b);
                 if (((evo.getActionFromUrl(f) === evo.getActionFromUrl(b)) && (evo.main.getQueryVariable('id', f) && evo.main.getQueryVariable('id', f) === evo.main.getQueryVariable('id', b))) || (f === b)) {
                     a.scrollTo(0, c);
                 }
                 a.addEventListener('scroll', function () {
                     if (this.pageYOffset >= 0) {
                         localStorage.setItem('page_y', this.pageYOffset.toString());
-                        localStorage.setItem('page_url', b);
+                        localStorage.setItem('page_url', evo.tabUrlForStorage(b));
                     }
                 }, false);
             },

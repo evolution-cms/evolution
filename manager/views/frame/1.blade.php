@@ -107,7 +107,8 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                 which_browser: '{{$user['which_browser']}}',
                 layout: {{(int)evo()->getConfig('manager_layout')}},
                 textdir: '{{ManagerTheme::getTextDir()}}',
-                global_tabs: {{(int)evo()->getConfig('global_tabs')}}
+                global_tabs: {{(int)evo()->getConfig('global_tabs')}},
+                csrf_token: @js(csrf_token())
             },
             tree: {
                 itemToChange: '',
