@@ -1748,7 +1748,11 @@ class SqlFormatter
             if ($binding instanceof DateTime) {
                 return htmlspecialchars('\''.$binding->format('Y-m-d H:i:s').'\'', ENT_NOQUOTES, 'UTF-8');
             }
-
+            
+            if ($binding === null) {
+                    return 'NULL';
+            }
+            
             return htmlspecialchars($binding, ENT_NOQUOTES, 'UTF-8');
         }, $bindings);
         $sql = str_replace(['%', '?'], ['%%', '%s'], $sql);
