@@ -5,7 +5,23 @@ on:
     branches:
       - '3.*.x'
   pull_request:
+  # Manual runs let a fork reproduce exactly what happens on evolution-cms/evolution
+  # before proposing a change: same zip, same image, published to the fork's own
+  # GHCR namespace and releases: Actions -> Build -> Run workflow.
   workflow_dispatch:
+    inputs:
+      docker:
+        description: 'Docker image'
+        type: choice
+        default: push
+        options:
+          - push # build and push to ghcr.io/<owner>/evolution
+          - build-only # build and throw away, no GHCR write needed
+          - skip
+      release:
+        description: 'Also replace the nightly release with this build'
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -22,6 +38,10 @@ env:
   DEMO_PASSWORD: Passw0rd123
   DEMO_DATABASE: evolution
   DEMO_PREFIX: evo_
+  # Where the runtime recipes come from. A fork adding or changing a PHP runtime
+  # points these at its own salo2 fork to test the pair together.
+  SALO2_REPO: https://github.com/evolution-cms/salo2
+  SALO2_REF: master
 
 jobs:
   zip:
@@ -126,7 +146,7 @@ jobs:
       # The tag is recreated on every push, so the link always serves the
       # latest build of the branch.
       - name: Publish nightly release
-        if: github.event_name != 'pull_request'
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.release)
         env:
           GH_TOKEN: ${{ github.token }}
           ZIP: ${{ steps.package.outputs.zip-name }}
@@ -148,14 +168,38 @@ jobs:
           A testing build with published credentials. Not for production."
 
   docker:
-    name: Docker image (GHCR)
+    name: Docker image PHP ${{ matrix.php }} ${{ matrix.server }} (GHCR)
     needs: zip
-    # Forked pull requests get a read-only token and cannot push packages.
-    if: github.event_name != 'pull_request'
+    # Pull requests get a read-only token and cannot push packages, so the job is
+    # skipped there — including on the run that stays attached to a merged PR.
+    # The push to the base branch, and workflow_dispatch, are what build the image.
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.docker != 'skip')
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+    strategy:
+      # One combination failing still tells us about the others, and the tags of
+      # the ones that did build stay usable.
+      fail-fast: false
+      matrix:
+        # 8.3 is the lowest supported version and the one the vendor tree in the
+        # zip is built on, so it proves the archive is portable upwards.
+        php: ['8.3', '8.4', '8.5']
+        # Three different PHP SAPIs, not three front ends over one PHP: apache
+        # runs mod_php, nginx talks FastCGI to php-fpm, and FrankenPHP embeds
+        # PHP inside Caddy. They cannot share a base image, so each is a build.
+        server: [apache, nginx, frankenphp]
+    env:
+      # "build-only" exercises the whole Dockerfile without needing GHCR write
+      # access, which is the safe first run on a fresh fork.
+      PUSH_IMAGE: ${{ github.event_name != 'workflow_dispatch' || inputs.docker == 'push' }}
+      PHP_VERSION: ${{ matrix.php }}
+      SERVER: ${{ matrix.server }}
+      # The combination that carries the unsuffixed tags, so `:3.5.x` keeps
+      # meaning what it meant before the matrix existed.
+      DEFAULT_PHP: '8.4'
+      DEFAULT_SERVER: apache
     steps:
       - uses: actions/checkout@v7
 
@@ -170,31 +214,110 @@ jobs:
           mkdir -p build
           unzip -q "/tmp/artifact/${{ needs.zip.outputs.zip-name }}" -d build
 
-      # The runtime recipe comes from Salo, the Evolution CMS flavour of Sail:
-      # php:8.4-apache with gd/zip/pdo and mod_rewrite enabled.
+      # The runtime recipes come from Salo, the Evolution CMS flavour of Sail.
+      # Directory naming there is "<php>" for apache and "<php>-<server>" for the
+      # rest. Override SALO2_REPO/SALO2_REF at the top of this file to build
+      # against a fork — that is how a runtime change is tested with the CMS.
       - name: Build the Salo runtime image
         run: |
-          git clone --depth 1 https://github.com/evolution-cms/salo2 /tmp/salo2
-          docker build -t evo-salo-runtime:8.4 /tmp/salo2/runtimes/8.4
+          git clone --depth 1 --branch "$SALO2_REF" "$SALO2_REPO" /tmp/salo2
+          if [ "$SERVER" = "apache" ]; then
+            recipe="/tmp/salo2/runtimes/${PHP_VERSION}"
+          else
+            recipe="/tmp/salo2/runtimes/${PHP_VERSION}-${SERVER}"
+          fi
+          test -d "$recipe" || {
+            echo "::error::salo2 has no ${SERVER} runtime for PHP ${PHP_VERSION} (looked in ${recipe})"
+            exit 1
+          }
+          docker build -t "evo-salo-runtime:${PHP_VERSION}-${SERVER}" "$recipe"
 
       - name: Log in to GHCR
+        if: env.PUSH_IMAGE == 'true'
         uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build the image
+        id: image
         run: |
+          # The image lives under whoever owns the repository the run belongs to,
+          # so a fork publishes to its own namespace without editing anything.
           owner=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           image="ghcr.io/${owner}/evolution"
+          # Manual runs can start from any branch, and "/" is not legal in a tag.
+          branch="${GITHUB_REF_NAME//\//-}"
+          sha=$(git rev-parse --short HEAD)
+          # apache is the assumed server, so it takes the bare -phpX.Y tag and
+          # the others are suffixed. The default php+server pair additionally
+          # answers to the plain branch tag.
+          if [ "$SERVER" = "$DEFAULT_SERVER" ]; then
+            base="${branch}-php${PHP_VERSION}"
+          else
+            base="${branch}-php${PHP_VERSION}-${SERVER}"
+          fi
+          tags=("${base}" "${base}-${sha}")
+          if [ "$PHP_VERSION" = "$DEFAULT_PHP" ] && [ "$SERVER" = "$DEFAULT_SERVER" ]; then
+            tags+=("${branch}" "${branch}-${sha}")
+          fi
+          args=()
+          for t in "${tags[@]}"; do args+=(-t "${image}:${t}"); done
           docker build \
             -f .github/docker/Dockerfile \
-            -t "${image}:${GITHUB_REF_NAME}" \
-            -t "${image}:${GITHUB_REF_NAME}-$(git rev-parse --short HEAD)" \
+            --build-arg "BASE_IMAGE=evo-salo-runtime:${PHP_VERSION}-${SERVER}" \
+            "${args[@]}" \
             .
-          docker push --all-tags "${image}"
-          echo "### Image" >> "$GITHUB_STEP_SUMMARY"
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
-          echo "docker run --rm -p 8080:80 ${image}:${GITHUB_REF_NAME}" >> "$GITHUB_STEP_SUMMARY"
-          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          echo "ref=${image}:${base}" >> "$GITHUB_OUTPUT"
+          echo "image=${image}" >> "$GITHUB_OUTPUT"
+
+      # The zip job proves the build works under php's own dev server. This
+      # proves the rewrite rules of each server actually serve the CMS, which is
+      # the whole point of building three of them.
+      - name: Smoke test the image
+        run: |
+          # No --rm: a container that dies on startup still has to be readable
+          # by docker logs below, which is the only diagnosis available here.
+          docker run -d --name evo-smoke -p 8899:80 "${{ steps.image.outputs.ref }}"
+          for i in $(seq 1 30); do
+            sleep 1
+            curl -sf -o /dev/null http://127.0.0.1:8899/ && break
+          done
+          front=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8899/)
+          # The manager answers 404 without an Accept-Language header by design.
+          manager=$(curl -s -o /dev/null -w '%{http_code}' -H 'Accept-Language: en-US,en;q=0.9' http://127.0.0.1:8899/manager/index.php)
+          # A friendly URL has to be routed into index.php rather than answered
+          # by the web server itself. Whether the CMS then renders a page or an
+          # error is not the point — reaching PHP at all is — so this looks for
+          # the header PHP adds to its own responses. A server that handled the
+          # request on its own (Caddy's 404, nginx's 404) sends no such header.
+          friendly=$(curl -s -D - -o /dev/null http://127.0.0.1:8899/no-such-page)
+          echo "front=$front manager=$manager"
+          docker logs evo-smoke 2>&1 | tail -30
+          docker rm -f evo-smoke > /dev/null
+          test "$front" = "200"
+          test "$manager" = "200"
+          echo "$friendly" | grep -qi '^x-powered-by: php' || {
+            echo "::error::friendly URL was not routed to index.php on ${SERVER}"
+            echo "$friendly"
+            exit 1
+          }
+
+      - name: Push
+        run: |
+          image="${{ steps.image.outputs.image }}"
+          if [ "$PUSH_IMAGE" = "true" ]; then
+            # Only this leg's tags exist locally, so --all-tags stays scoped to
+            # the php+server combination this job built.
+            docker push --all-tags "$image"
+            hint="docker run --rm -p 8080:80 ${{ steps.image.outputs.ref }}"
+          else
+            hint="# built as ${{ steps.image.outputs.ref }}, not pushed (docker=build-only)"
+          fi
+          {
+            echo "### Image — PHP ${PHP_VERSION} / ${SERVER}"
+            echo '```'
+            echo "$hint"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
