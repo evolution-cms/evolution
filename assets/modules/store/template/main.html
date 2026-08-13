@@ -1,6 +1,9 @@
 <html>
 <head>
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+    <!--- Lets store.js attach the token to its AJAX calls; this module renders its own
+    standalone document, so it doesn't get the meta tag from header.blade.php/main.js. --->
+    <meta name="csrf-token" content="[+csrf_token+]">
     <title>Evolution CMS Store</title>
     <link rel="stylesheet" type="text/css" href="media/style/[+manager_theme+]/style.css" />
     <link rel="stylesheet" type="text/css" href="[+site_url+]/assets/modules/store/css/style.css?v=[+v+]-legacydelete1-taskui23" />

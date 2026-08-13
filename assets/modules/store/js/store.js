@@ -15,6 +15,27 @@ function link(){
 	return mass[0]+'?id='+_GET['id']+'&a='+_GET['a'];
 }
 
+// This module renders its own standalone document (see template/main.html), so it never
+// gets the CSRF wiring that manager/media/script/main.js sets up for the rest of the
+// Manager. Attach the token here instead, or every install/console_catalog call 403s.
+function csrfToken(){
+	var tokenMeta = document.querySelector('meta[name="csrf-token"]');
+	return tokenMeta ? tokenMeta.getAttribute('content') : '';
+}
+if (csrfToken()) {
+	// store.query() posts to the remote extras.evo.im catalog API, not the local Manager -
+	// only attach the token to same-origin calls, or the header trips a CORS preflight there.
+	$.ajaxSetup({
+		beforeSend: function (xhr, settings) {
+			var a = document.createElement('a');
+			a.href = settings.url;
+			if (a.protocol === window.location.protocol && a.host === window.location.host) {
+				xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken());
+			}
+		}
+	});
+}
+
 function store_search(val){
 	$('.item_list .catalog_item').each(function(){
 		var search_name = $(this).find('h3').text() || '';
@@ -291,7 +312,8 @@ store = {
 		});
 
 		if ($(elm).attr('data-method') == "package"){
-			var install_url = link() + "&action=install&cid="+$(elm).attr('data-id')+"&name="+$(elm).attr('data-name')+"&dependencies="+$(elm).attr('data-dependencies')+"&file="+file;
+			// A plain iframe navigation can't carry a header, so the token has to ride in the URL here.
+			var install_url = link() + "&action=install&cid="+$(elm).attr('data-id')+"&name="+$(elm).attr('data-name')+"&dependencies="+$(elm).attr('data-dependencies')+"&file="+file+"&_token="+encodeURIComponent(csrfToken());
 			$.fancybox.open({
 				href : install_url,
 				type: 'iframe',

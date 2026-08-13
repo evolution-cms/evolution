@@ -1,3 +1,45 @@
+// Attaches the CSRF token (see the meta tag in header.blade.php) to every same-origin
+// XMLHttpRequest so VerifyCsrfToken doesn't reject Manager actions that never post through
+// a <form> - the package Store's install/console_catalog polling, evo.js popups, etc.
+// Patching XMLHttpRequest itself (rather than jQuery.ajaxSetup) covers both raw XHR calls
+// and jQuery's $.ajax in one place, since jQuery's transport is built on the same native XHR.
+(function () {
+    'use strict';
+    var tokenMeta = document.querySelector('meta[name="csrf-token"]');
+    if (!tokenMeta || typeof XMLHttpRequest === 'undefined') {
+        return;
+    }
+
+    function isSameOrigin(url) {
+        try {
+            var a = document.createElement('a');
+            a.href = url;
+            return a.protocol === window.location.protocol && a.host === window.location.host;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    var nativeOpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function (method, url) {
+        this.__evoCsrfEligible = isSameOrigin(url);
+        return nativeOpen.apply(this, arguments);
+    };
+
+    var nativeSend = XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.send = function () {
+        if (this.__evoCsrfEligible) {
+            try {
+                this.setRequestHeader('X-CSRF-TOKEN', tokenMeta.getAttribute('content'));
+            } catch (error) {
+                // send() was reached without a matching open() (or in an otherwise invalid
+                // state) - let the underlying XHR surface that failure itself.
+            }
+        }
+        return nativeSend.apply(this, arguments);
+    };
+})();
+
 // evoTooltips
 evo.tooltips = function (a) {
     'use strict';
