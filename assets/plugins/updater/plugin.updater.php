@@ -165,7 +165,9 @@ if (!function_exists('updaterFetchReleasePublishedAt')) {
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_HTTPHEADER, ['User-Agent: updateNotify widget']);
             $response = curl_exec($ch);
-            curl_close($ch);
+            if (PHP_VERSION_ID < 80500) {
+                curl_close($ch);
+            }
 
             if (!is_string($response) || $response === '' || strpos(ltrim($response), '{') !== 0) {
                 continue;
@@ -948,7 +950,9 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                     curl_setopt($ch, CURLOPT_HTTPHEADER, ['User-Agent: updateNotify widget']);
                     $info = curl_exec($ch);
-                    curl_close($ch);
+                    if (PHP_VERSION_ID < 80500) {
+                        curl_close($ch);
+                    }
                     if (substr($info, 0, 1) != '[') {
                         return;
                     }
