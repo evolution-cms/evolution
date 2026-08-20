@@ -684,7 +684,7 @@ if (!function_exists('renderFormElement')) {
             switch ($field_type) {
 
                 case 'text': // handler for regular text boxes
-                case 'rawtext'; // non-htmlentity converted text boxes
+                case 'rawtext': // non-htmlentity converted text boxes
                     $field_html .= '<input type="text" id="tv' . $field_id . '" name="tv' . $field_id . '" value="' . $modx->getPhpCompat()->htmlspecialchars($field_value) . '" ' . $field_style . ' tvtype="' . $field_type . '" onchange="documentDirty=true;" style="width:100%%" />';
 
                     break;
