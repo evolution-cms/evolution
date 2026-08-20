@@ -89,12 +89,12 @@ it('restores an encoded mail body only for successful-mail events', function () 
     $event->setRawAttributes([
         'type' => EventLog::TYPE_MAIL_SENT,
         'description' => EventLog::appendMailBody('Mail accepted for delivery.', '<h1>Accepted body</h1>'),
-    ]);
+    ], true);
     $legacyEvent = new EventLog();
     $legacyEvent->setRawAttributes([
         'type' => EventLog::TYPE_MAIL_SENT,
         'description' => 'Mail accepted for delivery.',
-    ]);
+    ], true);
 
     expect($event->mailBody())->toBe('<h1>Accepted body</h1>')
         ->and($legacyEvent->mailBody())->toBeNull();
