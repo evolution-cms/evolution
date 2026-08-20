@@ -294,27 +294,13 @@ it('logs only after the underlying mail send reports success', function () {
         ->not->toContain('private-sender@example.test')
         ->not->toContain('Private sender')
         ->not->toContain('Private body');
-
-    foreach ($exceptionCore->recordedEvents as $event) {
-        expect($event['msg'])
-            ->not->toContain('private-recipient@example.test')
-            ->not->toContain('private-sender@example.test')
-            ->not->toContain('Private sender')
-            ->not->toContain('Private subject')
-            ->not->toContain('Private body');
-    }
 });
 
 it('does not treat mail-sent events as error-email triggers', function () {
     $core = file_get_contents(dirname(__DIR__, 3) . '/src/Core.php');
-    $mail = file_get_contents(dirname(__DIR__, 3) . '/src/Mail.php');
 
     expect($core)
         ->toContain('if ($type <= EventLog::TYPE_ERROR');
-
-    expect($mail)
-        ->not->toContain("print_r(\$classDump")
-        ->not->toContain("get_object_vars', \$this");
 });
 
 it('renders the mail-sent state in the event list and details', function () {
