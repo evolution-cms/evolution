@@ -1404,6 +1404,8 @@ $_lang['email_method_smtp'] = 'SMTP Server';
 $_lang['email_method_message'] = 'Sistem məktublarının göndərilmə üsulu. «PHP mail() funksiyası» məktubu serverin yerli poçt proqramına ötürür və əlavə tənzimləmə tələb etmir. «SMTP Server» aşağıda tənzimlənmiş xarici SMTP serveri vasitəsilə göndərir və göndərənin avtomatik seçiminin SMTP istifadəçi adından yararlana bildiyi yeganə rejimdir.';
 $_lang['smtp_auth_title'] = 'SMTP-AUTH';
 $_lang['smtp_autotls_title'] = 'SMTPAutoTLS';
+$_lang['smtp_verify_peer_title'] = 'Verify SMTP certificate';
+$_lang['smtp_verify_peer_message'] = 'Validates the SMTP server certificate and host name. Disable only temporarily because this weakens connection security.';
 $_lang['smtp_host_title'] = 'SMTP host';
 $_lang['smtp_secure_title'] = 'Şifrəli SMTP';
 $_lang['smtp_username_title'] = 'SMTP istifadəçi adı';
@@ -1652,6 +1654,7 @@ $_lang['mail_test_error'] = 'Hazırda saxlanmış poçt metodu ilə test mesajı
 $_lang['mail_test_error_connection'] = 'Konfiqurasiya edilmiş SMTP serverinə qoşulmaq mümkün olmadı.';
 $_lang['mail_test_error_authentication'] = 'SMTP serveri autentifikasiyanı rədd etdi.';
 $_lang['mail_test_error_encryption'] = 'Təhlükəsiz SMTP bağlantısını qurmaq mümkün olmadı.';
+$_lang['mail_test_error_certificate_expired'] = 'The SMTP TLS certificate has expired. It expired on :date.';
 $_lang['mail_test_error_recipient'] = 'SMTP serveri alıcının ünvanını rədd etdi.';
 
 $_lang['time_unit_day_short'] = 'g';

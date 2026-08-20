@@ -138,12 +138,14 @@ class MailTest extends AbstractController implements ManagerThemeContract\PageCo
 
         try {
             if (!$mailer->send()) {
-                $this->fail(__('global.' . $mailer->failureMessageKey()));
+                $key = $mailer->failureMessageKey();
+                $this->fail(__('global.' . $key, $mailer->failureMessageParameters()));
 
                 return true;
             }
         } catch (Throwable $exception) {
-            $this->fail(__('global.' . $mailer->failureMessageKey($exception)));
+            $key = $mailer->failureMessageKey($exception);
+            $this->fail(__('global.' . $key, $mailer->failureMessageParameters()));
 
             return true;
         }

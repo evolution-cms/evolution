@@ -84,6 +84,7 @@
     'email_sender_method' => 1,
     'email_method' => 'mail',
     'smtp_auth' => '0',
+    'smtp_verify_peer' => '1',
     'which_editor' => 'TinyMCE4',
     'auto_menuindex' => '1',
     'tinymce4_theme' => 'custom',

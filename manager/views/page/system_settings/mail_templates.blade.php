@@ -86,6 +86,22 @@
 
             <div class="split my-1"></div>
 
+            @include('manager::form.radio', [
+                'name' => 'smtp_verify_peer',
+                'label' => __('global.smtp_verify_peer_title'),
+                'small' => '[(smtp_verify_peer)]',
+                'value' => $settings['smtp_verify_peer'] ?? 1,
+                'options' => [
+                    1 => __('global.yes'),
+                    0 => __('global.no')
+                ],
+                'comment' => (isset($disabledSettings['smtp_verify_peer']) ? __('global.setting_from_file') . '<br>' : '') .
+                    __('global.smtp_verify_peer_message'),
+                'disabled' => $disabledSettings['smtp_verify_peer'] ?? null
+            ])
+
+            <div class="split my-1"></div>
+
             @include('manager::form.select', [
                 'name' => 'smtp_secure',
                 'label' => __('global.smtp_secure_title'),

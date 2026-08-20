@@ -85,6 +85,15 @@ class Mail extends PHPMailer
                 $this->Host = $modx->getConfig('smtp_host');
                 $this->SMTPAuth = $modx->getConfig('smtp_auth') === '1' ? true : false;
                 $this->SMTPAutoTLS = $modx->getConfig('smtp_autotls') === '0' ? false : true;
+                if ((string)$modx->getConfig('smtp_verify_peer', '1') === '0') {
+                    $this->SMTPOptions = [
+                        'ssl' => [
+                            'verify_peer' => false,
+                            'verify_peer_name' => false,
+                            'allow_self_signed' => true,
+                        ],
+                    ];
+                }
                 $this->Username = $modx->getConfig('smtp_username');
                 if ($modx['config']->has('cms.settings.smtppw')) {
                     $this->Password = (string)$modx['config']->get('cms.settings.smtppw');

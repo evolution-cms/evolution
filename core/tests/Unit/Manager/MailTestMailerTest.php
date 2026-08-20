@@ -1,6 +1,7 @@
 <?php
 
 use EvolutionCMS\Support\MailTestMailer;
+use EvolutionCMS\Support\MailTestSmtp;
 
 it('maps raw SMTP failures to sanitized feedback keys', function (string $error, string $expected) {
     $mailer = new MailTestMailer();
@@ -39,6 +40,34 @@ it('maps PHP mail failures to generic feedback', function () {
     expect($mailer->failureMessageKey())->toBe('mail_test_error');
 });
 
+it('reports an expired SMTP certificate with its UTC expiry date', function () {
+    $mailer = new class extends MailTestMailer {
+        protected function probePeerCertificateValidTo(): ?int
+        {
+            return 1784940564;
+        }
+    };
+    $mailer->isSMTP();
+    $mailer->SetError('TLS certificate verification failed');
+
+    expect($mailer->failureMessageKey())
+        ->toBe('mail_test_error_certificate_expired')
+        ->and($mailer->failureMessageParameters())
+        ->toBe(['date' => '2026-07-25 00:49:24 UTC']);
+});
+
+it('retains stream diagnostics in the test-only SMTP transport', function () {
+    $smtp = new class extends MailTestSmtp {
+        public function capture(string $message): void
+        {
+            $this->errorHandler(E_WARNING, $message);
+        }
+    };
+    $smtp->capture('certificate verify failed');
+
+    expect($smtp->connectionErrorDetails())->toBe('certificate verify failed');
+});
+
 it('registers a native one-time Manager mail action', function () {
     $root = dirname(__DIR__, 4);
     $viewPath = $root . '/manager/views/page/system_settings/mail_templates.blade.php';
@@ -47,6 +76,7 @@ it('registers a native one-time Manager mail action', function () {
     $controller = file_get_contents($root . '/core/src/Controllers/MailTest.php');
     $managerTheme = file_get_contents($root . '/core/src/ManagerTheme.php');
     $managerRoutes = file_get_contents($root . '/manager/routes.php');
+    $factorySettings = file_get_contents($root . '/core/factory/settings.php');
     $actionList = require $root . '/core/factory/actionlist.php';
 
     expect($view)
@@ -60,6 +90,8 @@ it('registers a native one-time Manager mail action', function () {
         ->toContain('type="button" id="mailTestSend" form="mailTestForm"')
         ->toContain("body.set('a', panel.dataset.action)")
         ->toContain("body.set('_token', panel.dataset.token)")
+        ->toContain("'name' => 'smtp_verify_peer'")
+        ->toContain("'value' => \$settings['smtp_verify_peer'] ?? 1")
         ->toContain('payload.success !== true')
         ->not->toContain('<form');
 
@@ -82,6 +114,8 @@ it('registers a native one-time Manager mail action', function () {
         ->toContain('201 => Controllers\MailTest::class')
         ->and($actionList[201] ?? null)->toBe('Sending a test mail message')
         ->and($managerRoutes)->not->toContain("Route::post('mail/test'");
+
+    expect($factorySettings)->toContain("'smtp_verify_peer' => '1'");
 });
 
 it('provides the HTML test-mail copy in every bundled locale', function () {
@@ -95,6 +129,9 @@ it('provides the HTML test-mail copy in every bundled locale', function () {
         expect($language)
             ->toContain("\$_lang['mail_test_subject']")
             ->toContain(':destination')
-            ->toContain("\$_lang['mail_test_automated_note']");
+            ->toContain("\$_lang['mail_test_automated_note']")
+            ->toContain("\$_lang['mail_test_error_certificate_expired']")
+            ->toContain("\$_lang['smtp_verify_peer_title']")
+            ->toContain("\$_lang['smtp_verify_peer_message']");
     }
 });

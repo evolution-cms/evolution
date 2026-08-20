@@ -1304,6 +1304,8 @@ $_lang['email_method_smtp'] = 'SMTP サーバ';
 $_lang['email_method_message'] = 'システムメールの送信方法。「PHP mail() による機能」はメッセージをサーバーのローカルメールプログラムに渡すため、追加の設定は不要です。「SMTP サーバ」は下で設定した外部 SMTP サーバー経由で送信し、送信者の自動検出が SMTP ユーザー名を利用できる唯一のモードです。';
 $_lang['smtp_auth_title'] = 'SMTP-AUTH';
 $_lang['smtp_autotls_title'] = 'SMTPAutoTLS';
+$_lang['smtp_verify_peer_title'] = 'Verify SMTP certificate';
+$_lang['smtp_verify_peer_message'] = 'Validates the SMTP server certificate and host name. Disable only temporarily because this weakens connection security.';
 $_lang['smtp_host_title'] = 'SMTP ホスト';
 $_lang['smtp_secure_title'] = 'Encrypted SMTP';
 $_lang['smtp_username_title'] = 'SMTP ユーザ名';
@@ -1559,6 +1561,7 @@ $_lang['mail_test_error'] = '現在保存されているメール送信方法で
 $_lang['mail_test_error_connection'] = '設定されたSMTPサーバーに接続できませんでした。';
 $_lang['mail_test_error_authentication'] = 'SMTPサーバーが認証を拒否しました。';
 $_lang['mail_test_error_encryption'] = '安全なSMTP接続を確立できませんでした。';
+$_lang['mail_test_error_certificate_expired'] = 'The SMTP TLS certificate has expired. It expired on :date.';
 $_lang['mail_test_error_recipient'] = 'SMTPサーバーが送信先アドレスを拒否しました。';
 
 $_lang['time_unit_day_short'] = '日';

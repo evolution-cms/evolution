@@ -1396,6 +1396,8 @@ $_lang['email_method_smtp'] = 'Сервер SMTP';
 $_lang['email_method_message'] = 'Спосаб адпраўкі сістэмных лістоў. «Функцыя PHP mail()» перадае ліст лакальнай паштовай праграме сервера і не патрабуе дадатковай наладкі. «Сервер SMTP» адпраўляе праз знешні SMTP-сервер, наладжаны ніжэй, і гэта адзіны рэжым, у якім аўтаматычны выбар адпраўніка можа выкарыстаць імя карыстальніка SMTP.';
 $_lang['smtp_auth_title'] = 'Аўтэнтыфікацыя SMTP';
 $_lang['smtp_autotls_title'] = 'Аўтаматычны TLS для SMTP';
+$_lang['smtp_verify_peer_title'] = 'Verify SMTP certificate';
+$_lang['smtp_verify_peer_message'] = 'Validates the SMTP server certificate and host name. Disable only temporarily because this weakens connection security.';
 $_lang['smtp_host_title'] = 'Хост SMTP';
 $_lang['smtp_secure_title'] = 'Шыфраванне SMTP';
 $_lang['smtp_username_title'] = 'Імя карыстальніка SMTP';
@@ -1651,6 +1653,7 @@ $_lang['mail_test_error'] = 'Не ўдалося адправіць тэстав
 $_lang['mail_test_error_connection'] = 'Не ўдалося падключыцца да наладжанага SMTP-сервера.';
 $_lang['mail_test_error_authentication'] = 'SMTP-сервер адхіліў аўтэнтыфікацыю.';
 $_lang['mail_test_error_encryption'] = 'Не ўдалося ўсталяваць бяспечнае SMTP-злучэнне.';
+$_lang['mail_test_error_certificate_expired'] = 'The SMTP TLS certificate has expired. It expired on :date.';
 $_lang['mail_test_error_recipient'] = 'SMTP-сервер адхіліў адрас атрымальніка.';
 
 $_lang['time_unit_day_short'] = 'д';

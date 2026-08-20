@@ -69,6 +69,26 @@ test('init still decodes stored smtp password values', function () {
     expect($mail->Password)->toBe($plainPassword);
 });
 
+test('SMTP certificate verification remains enabled by default', function () {
+    $mail = (new Mail())->init(makeMailTestModx(mailSenderSettings()));
+
+    expect($mail->SMTPOptions)->toBe([]);
+});
+
+test('SMTP certificate verification can be explicitly disabled', function () {
+    $mail = (new Mail())->init(makeMailTestModx(mailSenderSettings([
+        'smtp_verify_peer' => '0',
+    ])));
+
+    expect($mail->SMTPOptions)->toBe([
+        'ssl' => [
+            'verify_peer' => false,
+            'verify_peer_name' => false,
+            'allow_self_signed' => true,
+        ],
+    ]);
+});
+
 test('automatic SMTP sender uses an email-form SMTP username for From and envelope sender', function () {
     $mail = (new Mail())->init(makeMailTestModx(mailSenderSettings([
         'email_method' => 'smtp',

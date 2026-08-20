@@ -1269,6 +1269,8 @@ $_lang['email_method_smtp'] = 'Serwer SMTP';
 $_lang['email_method_message'] = 'Sposób wysyłania poczty systemowej. „Funkcja PHP mail()” przekazuje wiadomość lokalnemu programowi pocztowemu serwera i nie wymaga dodatkowej konfiguracji. „Serwer SMTP” wysyła przez zewnętrzny serwer SMTP skonfigurowany poniżej i jest jedynym trybem, w którym automatyczne wykrywanie nadawcy może użyć nazwy użytkownika SMTP.';
 $_lang['smtp_auth_title'] = 'SMTP-AUTH';
 $_lang['smtp_autotls_title'] = 'SMTPAutoTLS';
+$_lang['smtp_verify_peer_title'] = 'Verify SMTP certificate';
+$_lang['smtp_verify_peer_message'] = 'Validates the SMTP server certificate and host name. Disable only temporarily because this weakens connection security.';
 $_lang['smtp_host_title'] = 'SMTP host';
 $_lang['smtp_secure_title'] = 'Zaszyfrowane SMTP';
 $_lang['smtp_username_title'] = 'Nazwa użytkownika SMTP';
@@ -1509,6 +1511,7 @@ $_lang['mail_test_error'] = 'Nie udało się wysłać wiadomości testowej przy 
 $_lang['mail_test_error_connection'] = 'Nie udało się połączyć ze skonfigurowanym serwerem SMTP.';
 $_lang['mail_test_error_authentication'] = 'Serwer SMTP odrzucił uwierzytelnianie.';
 $_lang['mail_test_error_encryption'] = 'Nie udało się nawiązać bezpiecznego połączenia SMTP.';
+$_lang['mail_test_error_certificate_expired'] = 'The SMTP TLS certificate has expired. It expired on :date.';
 $_lang['mail_test_error_recipient'] = 'Serwer SMTP odrzucił adres odbiorcy.';
 
 $_lang['time_unit_day_short'] = 'd';

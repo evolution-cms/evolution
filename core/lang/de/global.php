@@ -1267,6 +1267,8 @@ $_lang['email_method_smtp'] = 'SMTP Server';
 $_lang['email_method_message'] = 'Transportweg für System-E-Mails. „PHP mail() Funktion“ übergibt die Nachricht an das lokale Mailprogramm des Servers und benötigt keine weitere Konfiguration. „SMTP Server“ versendet über den unten konfigurierten externen SMTP-Server und ist der einzige Modus, in dem die automatische Absenderwahl den SMTP-Benutzernamen verwenden kann.';
 $_lang['smtp_auth_title'] = 'SMTP Auth';
 $_lang['smtp_autotls_title'] = 'SMTPAutoTLS';
+$_lang['smtp_verify_peer_title'] = 'Verify SMTP certificate';
+$_lang['smtp_verify_peer_message'] = 'Validates the SMTP server certificate and host name. Disable only temporarily because this weakens connection security.';
 $_lang['smtp_host_title'] = 'SMTP Host';
 $_lang['smtp_secure_title'] = 'SMTP Verschlüsselung';
 $_lang['smtp_username_title'] = 'SMTP Benutzername';
@@ -1504,6 +1506,7 @@ $_lang['mail_test_error'] = 'Die Testnachricht konnte mit der aktuell gespeicher
 $_lang['mail_test_error_connection'] = 'Verbindung zum konfigurierten SMTP-Server konnte nicht hergestellt werden.';
 $_lang['mail_test_error_authentication'] = 'Der SMTP-Server hat die Authentifizierung abgelehnt.';
 $_lang['mail_test_error_encryption'] = 'Die sichere SMTP-Verbindung konnte nicht hergestellt werden.';
+$_lang['mail_test_error_certificate_expired'] = 'The SMTP TLS certificate has expired. It expired on :date.';
 $_lang['mail_test_error_recipient'] = 'Der SMTP-Server hat die Empfängeradresse abgelehnt.';
 
 $_lang['time_unit_day_short'] = 'T';

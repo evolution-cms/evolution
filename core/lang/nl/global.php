@@ -1255,6 +1255,8 @@ $_lang['email_method_mail'] = 'mail() PHP functie';
 $_lang['email_method_smtp'] = 'SMTP Server';
 $_lang['smtp_auth_title'] = 'SMTP-AUTH';
 $_lang['smtp_autotls_title'] = 'SMTPAutoTLS';
+$_lang['smtp_verify_peer_title'] = 'Verify SMTP certificate';
+$_lang['smtp_verify_peer_message'] = 'Validates the SMTP server certificate and host name. Disable only temporarily because this weakens connection security.';
 $_lang['smtp_host_title'] = 'SMTP host';
 $_lang['smtp_secure_title'] = 'Gecodeerde SMTP';
 $_lang['smtp_username_title'] = 'SMTP gebruikersnaam';
@@ -1473,6 +1475,7 @@ $_lang['mail_test_error'] = 'Het testbericht kon niet worden verzonden met de mo
 $_lang['mail_test_error_connection'] = 'Er kon geen verbinding worden gemaakt met de geconfigureerde SMTP-server.';
 $_lang['mail_test_error_authentication'] = 'De SMTP-server heeft de verificatie geweigerd.';
 $_lang['mail_test_error_encryption'] = 'De beveiligde SMTP-verbinding kon niet tot stand worden gebracht.';
+$_lang['mail_test_error_certificate_expired'] = 'The SMTP TLS certificate has expired. It expired on :date.';
 $_lang['mail_test_error_recipient'] = 'De SMTP-server heeft het adres van de ontvanger geweigerd.';
 
 $_lang['time_unit_day_short'] = 'd';

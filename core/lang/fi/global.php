@@ -1169,6 +1169,8 @@ $_lang['email_method_mail'] = 'mail() PHP function';
 $_lang['email_method_smtp'] = 'SMTP Server';
 $_lang['smtp_auth_title'] = 'SMTP－AUTH';
 $_lang['smtp_autotls_title'] = 'SMTPAutoTLS';
+$_lang['smtp_verify_peer_title'] = 'Verify SMTP certificate';
+$_lang['smtp_verify_peer_message'] = 'Validates the SMTP server certificate and host name. Disable only temporarily because this weakens connection security.';
 $_lang['smtp_host_title'] = 'SMTP host';
 $_lang['smtp_secure_title'] = 'Encrypted SMTP';
 $_lang['smtp_username_title'] = 'SMTP user name';
@@ -1275,6 +1277,7 @@ $_lang['mail_test_error'] = 'Testiviestiä ei voitu lähettää tällä hetkell�
 $_lang['mail_test_error_connection'] = 'Määritettyyn SMTP-palvelimeen ei saatu yhteyttä.';
 $_lang['mail_test_error_authentication'] = 'SMTP-palvelin hylkäsi tunnistautumisen.';
 $_lang['mail_test_error_encryption'] = 'Suojattua SMTP-yhteyttä ei voitu muodostaa.';
+$_lang['mail_test_error_certificate_expired'] = 'The SMTP TLS certificate has expired. It expired on :date.';
 $_lang['mail_test_error_recipient'] = 'SMTP-palvelin hylkäsi vastaanottajan osoitteen.';
 
 $_lang['time_unit_day_short'] = 'pv';

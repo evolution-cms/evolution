@@ -1170,6 +1170,8 @@ $_lang['email_method_mail'] = 'mail() PHP function';
 $_lang['email_method_smtp'] = 'SMTP Server';
 $_lang['smtp_auth_title'] = 'SMTP－AUTH';
 $_lang['smtp_autotls_title'] = 'SMTPAutoTLS';
+$_lang['smtp_verify_peer_title'] = 'Verify SMTP certificate';
+$_lang['smtp_verify_peer_message'] = 'Validates the SMTP server certificate and host name. Disable only temporarily because this weakens connection security.';
 $_lang['smtp_host_title'] = 'SMTP host';
 $_lang['smtp_secure_title'] = 'Encrypted SMTP';
 $_lang['smtp_username_title'] = 'SMTP user name';
@@ -1276,6 +1278,7 @@ $_lang['mail_test_error'] = 'Тестовото съобщение не можа
 $_lang['mail_test_error_connection'] = 'Неуспешно свързване с конфигурирания SMTP сървър.';
 $_lang['mail_test_error_authentication'] = 'SMTP сървърът отхвърли удостоверяването.';
 $_lang['mail_test_error_encryption'] = 'Не можа да бъде установена защитена SMTP връзка.';
+$_lang['mail_test_error_certificate_expired'] = 'The SMTP TLS certificate has expired. It expired on :date.';
 $_lang['mail_test_error_recipient'] = 'SMTP сървърът отхвърли адреса на получателя.';
 
 $_lang['time_unit_day_short'] = 'д';

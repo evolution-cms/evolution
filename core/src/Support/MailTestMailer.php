@@ -1,6 +1,7 @@
 <?php namespace EvolutionCMS\Support;
 
 use EvolutionCMS\Mail;
+use PHPMailer\PHPMailer\SMTP;
 use Throwable;
 
 /**
@@ -14,6 +15,22 @@ use Throwable;
  */
 class MailTestMailer extends Mail
 {
+    protected ?int $expiredCertificateValidTo = null;
+
+    /**
+     * Use a test-only SMTP transport that retains connection diagnostics.
+     *
+     * @return SMTP
+     */
+    public function getSMTPInstance()
+    {
+        if (!is_object($this->smtp)) {
+            $this->smtp = new MailTestSmtp();
+        }
+
+        return $this->smtp;
+    }
+
     /**
      * Captures a mail failure without invoking the credential-bearing legacy dump.
      *
@@ -40,6 +57,9 @@ class MailTestMailer extends Mail
             if (!empty($lastError['smtp_code_ex'])) {
                 $msg .= ' ' . $lastError['smtp_code_ex'];
             }
+            if ($this->smtp instanceof MailTestSmtp) {
+                $msg .= ' ' . $this->smtp->connectionErrorDetails();
+            }
         }
 
         $this->ErrorInfo = (string)$msg;
@@ -64,6 +84,16 @@ class MailTestMailer extends Mail
 
         $details = strtolower($this->ErrorInfo . ' ' . ($exception?->getMessage() ?? ''));
 
+        if (
+            $this->containsAny($details, ['certificate', 'tls', 'ssl', 'crypto'])
+            && ($validTo = $this->probePeerCertificateValidTo()) !== null
+            && $validTo < time()
+        ) {
+            $this->expiredCertificateValidTo = $validTo;
+
+            return 'mail_test_error_certificate_expired';
+        }
+
         if ($this->containsAny($details, ['tls', 'ssl', 'certificate', 'crypto'])) {
             return 'mail_test_error_encryption';
         }
@@ -81,6 +111,79 @@ class MailTestMailer extends Mail
         }
 
         return 'mail_test_error';
+    }
+
+    /**
+     * Returns sanitized localization parameters for the classified failure.
+     *
+     * @return array<string, string>
+     */
+    public function failureMessageParameters(): array
+    {
+        if ($this->expiredCertificateValidTo === null) {
+            return [];
+        }
+
+        return [
+            'date' => gmdate('Y-m-d H:i:s \\U\\T\\C', $this->expiredCertificateValidTo),
+        ];
+    }
+
+    /**
+     * Read the implicit-TLS peer certificate without validating or authenticating.
+     *
+     * This probe runs only after PHPMailer has already reported a TLS-related
+     * failure. It never sends SMTP credentials or message content.
+     */
+    protected function probePeerCertificateValidTo(): ?int
+    {
+        if ($this->SMTPSecure !== static::ENCRYPTION_SMTPS) {
+            return null;
+        }
+
+        $hostEntry = trim(explode(';', (string)$this->Host, 2)[0]);
+        if (!preg_match('/^(?:ssl:\/\/)?([^:]+)(?::(\d+))?$/i', $hostEntry, $matches)) {
+            return null;
+        }
+
+        $host = $matches[1];
+        $port = isset($matches[2]) ? (int)$matches[2] : (int)$this->Port;
+        $context = stream_context_create([
+            'ssl' => [
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+                'allow_self_signed' => true,
+                'capture_peer_cert' => true,
+                'peer_name' => $host,
+            ],
+        ]);
+        $socket = @stream_socket_client(
+            'ssl://' . $host . ':' . $port,
+            $errno,
+            $error,
+            min(5, max(1, (int)$this->Timeout)),
+            STREAM_CLIENT_CONNECT,
+            $context
+        );
+
+        if (!is_resource($socket)) {
+            return null;
+        }
+
+        try {
+            $parameters = stream_context_get_params($socket);
+            $certificate = $parameters['options']['ssl']['peer_certificate'] ?? null;
+            if ($certificate === null) {
+                return null;
+            }
+
+            $certificateData = openssl_x509_parse($certificate, false);
+            $validTo = $certificateData['validTo_time_t'] ?? null;
+
+            return is_int($validTo) ? $validTo : null;
+        } finally {
+            fclose($socket);
+        }
     }
 
     /**
