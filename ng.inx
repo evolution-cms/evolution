@@ -1,54 +1,311 @@
-# You can enable a virtual host via a symbolic link
-# Rename this file at .nginx
-# sudo ln -s /{domain_path}/.nginx /etc/nginx/sites-enabled/
+# Placeholders to fill in during setup:
+#
+#   {domain}       bare domain, no scheme and no www
+#                    example.com
+#   {domain_path}  document root WITHOUT the leading slash and no trailing one
+#                    var/www/example.com
+#   {log_path}     directory for the nginx logs, WITHOUT the leading slash;
+#                  keep it outside the document root
+#                    var/log/nginx/example.com
+#   {ssl_cert}     full chain certificate, WITHOUT the leading slash
+#                    etc/letsencrypt/live/example.com/fullchain.pem
+#   {ssl_key}      private key, WITHOUT the leading slash
+#                    etc/letsencrypt/live/example.com/privkey.pem
+#   {php_backend}  FPM backend, either a unix socket or a TCP address
+#                    unix:/run/php/php8.4-fpm.sock   or   127.0.0.1:9000
+#
+#   DOMAIN=example.com
+#   DOMAIN_PATH=var/www/example.com
+#   LOG_PATH=var/log/nginx/example.com
+#   SSL_CERT=etc/letsencrypt/live/example.com/fullchain.pem
+#   SSL_KEY=etc/letsencrypt/live/example.com/privkey.pem
+#   PHP_BACKEND=unix:/run/php/php8.4-fpm.sock
+#
+#   sed -e "s|{domain_path}|${DOMAIN_PATH}|g" \
+#       -e "s|{log_path}|${LOG_PATH}|g" \
+#       -e "s|{ssl_cert}|${SSL_CERT}|g" \
+#       -e "s|{ssl_key}|${SSL_KEY}|g" \
+#       -e "s|{php_backend}|${PHP_BACKEND}|g" \
+#       -e "s|{domain}|${DOMAIN}|g" \
+#       ng.inx | sudo tee /etc/nginx/sites-available/"$DOMAIN".conf > /dev/null
+#
+#   sudo mkdir -p /"$LOG_PATH"
+#   sudo ln -s /etc/nginx/sites-available/"$DOMAIN".conf /etc/nginx/sites-enabled/
+#   sudo nginx -t && sudo systemctl reload nginx
+#
+# nginx picks a location in this order: exact (=), then the longest prefix
+# match, then the regular expressions in the order they are written here.
+# A plain prefix block such as `location /core` therefore does NOT protect
+# /core/composer.json against a later `location ~ \.php$` regex, so every deny
+# rule below is written as a regex and placed BEFORE the PHP handler.
+#
+# PHP execution is an allowlist, not a filter: the only URIs passed to FPM are
+# the handful of real entry points listed further down, and everything else
+# ending in .php returns 404. Check that list before adding an extra.
+#
+# The locations are grouped into a PUBLIC SITE section and a MANAGER section
+# (admin panel + installer), because the two are worth different levels of
+# exposure. The manager section can be closed to all but a list of known
+# addresses with the $manager_allowed allowlist defined just below.
+
+# ---------------------------------------------------------------------
+# Optional IP allowlist for the manager section (admin panel + installer).
+# `geo` is only valid at http level, so it sits outside the server block.
+#
+# Off by default: `default 1` lets everyone through and the site behaves
+# exactly as it would without this block. To lock the manager down, swap
+# to `default 0` and list every address or range that may reach it.
+# Nothing inside the server block needs editing - the manager locations
+# already consult $manager_allowed.
+#
+# Behind a proxy, load balancer or CDN, $remote_addr is the proxy, not the
+# visitor, and the allowlist would lock everybody out. Configure the real
+# IP module first (`set_real_ip_from <proxy>;` / `real_ip_header
+# X-Forwarded-For;`) and only trust proxies you control.
+# ---------------------------------------------------------------------
+geo $manager_allowed {
+    default 1;
+    # default 0;              # <- uncomment to turn the allowlist on
+    # 203.0.113.10     1;     # office
+    # 198.51.100.0/24  1;     # office range
+    # 2001:db8::/32    1;     # IPv6 range
+    # 127.0.0.1        1;     # keep local access when tunnelling in
+}
 
 server {
-    listen 80;
-    listen [::]:80;
-    server_name {domain} www.{domain}; # Change the {domain} as your domain name
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    http2 on;                 # nginx < 1.25.1: drop this, use `listen 443 ssl http2;`
+    server_name {domain} www.{domain};
     # merge_slashes off; # Uncomment this line if you want to handle double slashes from php.
-    root /{domain_path}/; # Change the {domain_path} as your domain root path on this server
+    root /{domain_path};
 
-    add_header X-Frame-Options "SAMEORIGIN";
-    add_header X-XSS-Protection "1; mode=block";
-    add_header X-Content-Type-Options "nosniff";
+    # Refuse anything that did not ask for one of the names above, so the
+    # site cannot be reached by IP address or by a stray Host header.
+    set $known_host 0;
+    if ($host = {domain})     { set $known_host 1; }
+    if ($host = www.{domain}) { set $known_host 1; }
+    if ($known_host = 0)      { return 444; }
+
+    # One canonical origin. www has to be answered rather than dropped -
+    # listing it in server_name and then refusing it hands visitors a dead
+    # connection - but it is redirected, not served, so sessions and CSRF
+    # tokens are never split across two origins.
+    if ($host = www.{domain}) { return 301 https://{domain}$request_uri; }
+
+    ssl_certificate     /{ssl_cert};
+    ssl_certificate_key /{ssl_key};
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+    ssl_session_cache   shared:SSL:10m;
+    ssl_session_timeout 1d;
+    ssl_session_tickets off;
+
+    server_tokens off;
+    keepalive_timeout 60;
+
+    # SAMEORIGIN, not DENY: the manager UI is a frameset (manager/views/frame),
+    # and DENY blocks same-origin framing too, which blanks the admin panel.
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Strict-Transport-Security "max-age=31536000" always;
 
     index index.php index.html;
     error_page 404 /index.php?q=404;
 
-    access_log /{domain_path}/core/storage/logs/nginx-access.log; # Change the {domain_path} as your domain root path on this server
+    # Logs live outside the document root: the web server writes them, the
+    # site never needs to read them, and nothing under /{domain_path} should
+    # be writable by nginx that does not have to be.
+    access_log /{log_path}/access.log;
+    error_log  /{log_path}/error.log;
+
+    # The file browser and the package installer both upload; the nginx
+    # default of 1m rejects most real uploads with a 413.
     client_max_body_size 512M;
 
-    location ~ /\. { access_log off; return 404; }
-    location ~ ^/assets/\.thumbs/(.*)\.php$ { access_log off; return 404; }
-    location ~ ^/assets/snippets/summary/(.*)\.php$ { access_log off; return 404; }
-    location ~ ^/assets/snippets/DocLister/(.*)\.php$ { access_log off; return 404; }
-    location ~ ^/assets/site/(.*)\.php$ { access_log off; return 404; }
-    location ~ ^/assets/lib/(.*)\.php$ { access_log off; return 404; }
-    location ~ ^/assets/js/(.*)\.php$ { access_log off; return 404; }
-    location ~ ^/assets/import/(.*)\.php$ { access_log off; return 404; }
-    location ~ ^/assets/images/(.*)\.php$ { access_log off; return 404; }
-    location ~ ^/assets/files/(.*)\.php$ { access_log off; return 404; }
-    location ~ ^/assets/export/(.*)\.php$ { access_log off; return 404; }
-    location ~ ^/assets/docs/(.*)\.php$ { access_log off; return 404; }
+    # Never serve a directory index anywhere on the site.
+    autoindex off;
+
+    # Let's Encrypt / domain verification. `^~` stops regex evaluation, so this
+    # must stay above the dotfile rule that would otherwise swallow it.
+    location ^~ /.well-known/ { allow all; }
+
+    # Dotfiles and dotfolders at any level (.git, .env, .htaccess, .idea, ...).
+    location ~ (^|/)\. { access_log off; return 404; }
+
+    # ---------------------------------------------------------------------
+    # Directories that must never be reachable over HTTP.
+    #   core    - the CMS core: config.php, .env, vendor, storage, logs, cache
+    #   views   - Blade layouts of the manager UI
+    #   vendor  - root level composer dependencies
+    #   tmp     - scratch directory
+    # ---------------------------------------------------------------------
+    location ~ ^/(core|views|vendor|tmp)(/|$) { access_log off; return 404; }
+
+    # Writable / generated areas under assets.
+    location ~ ^/assets/(cache|backup|export|import)(/|$) { access_log off; return 404; }
+
+    # Root-level files that fingerprint the install or describe its layout.
+    #   composer.json/.lock  exact dependency versions -> known CVEs
+    #   publiccode.yml       softwareVersion, plus PHP and DB minimums
+    #   phpstan.neon         analysed paths
+    #   ht.access            the Apache rewrite template shipped alongside
+    #   ng.inx               this file
+    #   config.php.example   configuration shape
+    #   AGENTS.md/README.md  repository map; not secret, just not public
+    #
+    # LICENSE is deliberately NOT here: it is the stock GPL-3.0 text, it
+    # fingerprints nothing, and hiding it on a GPL project helps no one.
+    # `artisan` is not here either - it lives in core/, not the web root,
+    # and /core is already refused above.
+    location ~ ^/(composer\.(json|lock)|phpstan\.neon|publiccode\.yml|AGENTS\.md|README\.md|ht\.access|ng\.inx|config\.php(\.example)?)$ {
+        access_log off;
+        return 404;
+    }
+
+    # Backups, dumps, editor leftovers and PHP include fragments anywhere.
+    # The optional compression suffix matters: the static rule at the bottom
+    # serves .gz and .zip, so without it dump.sql.gz would be downloadable.
+    # `tar` is in the list for the same reason: a site-backup.tar.gz left in
+    # the web root is the single most valuable file an attacker can find.
+    location ~* \.(sql|sqlite|db|log|bak|old|orig|save|swp|swo|tpl|inc|ini|env|dist|example|yml|yaml|lock|tar)(\.(gz|bz2|xz|zip|tgz))?$ {
+        access_log off;
+        return 404;
+    }
+
+    location ~ ^/assets/.*\.php$ { access_log off; return 404; }
+
+    # =====================================================================
+    # PUBLIC SITE
+    # Reachable by anyone. The front controller is the only PHP file a
+    # visitor ever touches; friendly URLs reach it through @rewrite at the
+    # bottom of this file.
+    # =====================================================================
 
     location / { try_files $uri $uri/ @rewrite; }
-    location /manager { rewrite ^/manager/(.*)$ /manager/index.php last; }
     location = /favicon.ico { access_log off; log_not_found off; }
     location = /robots.txt  { access_log off; log_not_found off; }
 
-    location ~ \.php$ {
+    location = /index.php {
         try_files $uri @rewrite;
-        include /etc/nginx/fastcgi.conf;
-        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+
+        include /etc/nginx/fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param HTTPS on;
+        fastcgi_hide_header X-Powered-By;
+        fastcgi_pass {php_backend};
     }
 
-    location ~* \.(jpg|jpeg|gif|png|ico|css|bmp|swf|js|html|txt|svg|woff|woff2|ttf)$ {
-        root /{domain_path}/; # Change the {domain_path} as your domain root path on this server
+    # =====================================================================
+    # MANAGER SECTION - admin panel and installer
+    #
+    # These URIs are the only ones from which the site can be changed, so
+    # they are held to a higher standard than the public site above and are
+    # kept together here rather than mixed in with it.
+    #
+    # Every block in this section consults $manager_allowed, so enabling the
+    # IP allowlist at the top of this file covers the whole section in one
+    # edit: PHP entry points, rewritten manager URLs, manager static assets
+    # and the installer. It answers 404 rather than 403, so a blocked
+    # address cannot tell a protected manager from a site that has none.
+    # =====================================================================
+
+    # Manager PHP entry points. Everything else under /manager that ends in
+    # .php - processors, includes, language fragments, file browser
+    # internals - is refused by the catch-all in the next section.
+    #
+    #   index.php                        manager front controller
+    #   captcha.php                      login captcha image
+    #   includes/session_keepalive.php   manager session ping
+    #   media/style/<theme>/ajax.php     manager ajax endpoint
+    #   media/browser/<browser>/...      file browser: browse, browser, css,
+    #                                    js_localize, js/browser/joiner
+    #
+    # <theme> and <browser> are the manager_theme / which_browser settings,
+    # hence [A-Za-z0-9_-]+ rather than a hard-coded `default` / `mcpuk`.
+    # Uploads go through browse.php, not a separate connector. An extra that
+    # needs its own HTTP-callable PHP file has to be added to this list.
+    location ~ ^/manager/(index\.php|captcha\.php|includes/session_keepalive\.php|media/style/[A-Za-z0-9_-]+/ajax\.php|media/browser/[A-Za-z0-9_-]+/(browse|browser|css|js_localize)\.php|media/browser/[A-Za-z0-9_-]+/js/browser/joiner\.php)$ {
+        if ($manager_allowed = 0) { return 404; }
+
+        try_files $uri @rewrite;
+
+        include /etc/nginx/fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param HTTPS on;
+        fastcgi_hide_header X-Powered-By;
+        fastcgi_pass {php_backend};
+    }
+
+    # Manager static assets: theme CSS/JS, icons, the file browser's HTML.
+    # Spelled out separately from the public static rule at the bottom so
+    # the IP gate applies to them as well - a regex location wins over the
+    # `location /manager` prefix, so they would otherwise slip past it.
+    location ~* ^/manager/.+\.(css|js|html|txt|jpg|jpeg|gif|png|webp|svg|ico|bmp|swf|woff|woff2|ttf|otf|eot)$ {
+        if ($manager_allowed = 0) { return 404; }
+
+        access_log off;
+        log_not_found off;
+        expires max;
+    }
+
+    # Any other manager URL is an action name, not a file: hand it to the
+    # manager front controller.
+    location /manager {
+        if ($manager_allowed = 0) { return 404; }
+
+        rewrite ^/manager/(.*)$ /manager/index.php last;
+    }
+
+    # Installer. Delete or rename /install once the site is set up; until
+    # then it can create an admin account, so it belongs in this section.
+    # Uncomment the deny to close it off without deleting it - it has to
+    # stay above the handler, as regexes are tried in order.
+    # location ~ ^/install(/|$) { access_log off; return 404; }
+    location ~ ^/install/index\.php$ {
+        if ($manager_allowed = 0) { return 404; }
+
+        try_files $uri @rewrite;
+
+        include /etc/nginx/fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param HTTPS on;
+        fastcgi_hide_header X-Powered-By;
+        fastcgi_pass {php_backend};
+    }
+
+    # =====================================================================
+    # Fall-through, both sections
+    # =====================================================================
+
+    # Not an entry point in either section above, so it is never executed.
+    # There is no fastcgi_split_path_info anywhere in this file: every
+    # handler above is anchored with $, so /index.php/evil.php never reaches
+    # FPM and the cgi.fix_pathinfo class of bypass has nothing to work with.
+    location ~ \.php$ { access_log off; return 404; }
+
+    location ~* \.(css|js|html|txt|xml|rss|atom|jpg|jpeg|gif|png|webp|avif|svg|svgz|ico|bmp|swf|woff|woff2|ttf|otf|eot|mp3|mp4|webm|ogg|ogv|wav|mid|midi|pdf|doc|docx|xls|xlsx|ppt|pptx|rtf|zip|gz|bz2|rar|7z)$ {
+        access_log off;
+        log_not_found off;
         expires max;
     }
 
     location @rewrite {
         rewrite ^(.*)$ /index.php?q=$1&$args last;
     }
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name {domain} www.{domain};
+
+    access_log off;
+
+    # Certificate renewals have to be answerable over plain HTTP, so this
+    # stays above the redirect. `^~` keeps it out of regex comparison.
+    location ^~ /.well-known/acme-challenge/ { root /{domain_path}; }
+
+    location / { return 301 https://{domain}$request_uri; }
 }
