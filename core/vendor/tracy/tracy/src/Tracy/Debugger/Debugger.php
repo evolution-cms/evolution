@@ -17,7 +17,7 @@ use const PHP_VERSION;
  */
 class Debugger
 {
-	public const Version = '2.12.0';
+	public const Version = '2.12.1';
 
 	/** server modes for Debugger::enable() */
 	public const
@@ -168,7 +168,7 @@ class Debugger
 	/**
 	 * Enables displaying or logging errors and exceptions.
 	 * @param  bool|string|string[]  $mode  use constant Debugger::Production, Development, Detect (autodetection) or IP address(es) whitelist.
-	 * @param  string  $logDirectory  error log directory
+	 * @param  ?string  $logDirectory  error log directory
 	 * @param  string|string[]|null  $email  administrator email; enables email sending in production mode
 	 */
 	public static function enable(
@@ -484,33 +484,22 @@ class Debugger
 	public static function dump(mixed $var, bool $return = false): mixed
 	{
 		if ($return) {
-			$options = [
-				Dumper::DEPTH => self::$maxDepth,
-				Dumper::TRUNCATE => self::$maxLength,
-				Dumper::ITEMS => self::$maxItems,
-			];
+			$options = self::dumpOptions();
 			return Helpers::isCli()
-				? Dumper::toText($var)
+				? Dumper::toText($var, $options)
 				: Helpers::capture(fn() => Dumper::dump($var, $options));
 
 		} elseif (!self::$productionMode) {
 			$html = Helpers::isHtmlMode();
 			echo $html ? '<tracy-div>' : '';
-			Dumper::dump($var, [
-				Dumper::DEPTH => self::$maxDepth,
-				Dumper::TRUNCATE => self::$maxLength,
-				Dumper::ITEMS => self::$maxItems,
+			Dumper::dump($var, self::dumpOptions() + [
 				Dumper::LOCATION => self::$showLocation,
 				Dumper::THEME => self::$dumpTheme,
-				Dumper::KEYS_TO_HIDE => self::$keysToHide,
 			]);
 			echo $html ? '</tracy-div>' : '';
 
 			if ($html && Helpers::isAgent()) {
-				Helpers::consoleLog(Dumper::toText($var, [
-					Dumper::DEPTH => 3,
-					Dumper::KEYS_TO_HIDE => self::$keysToHide,
-				]));
+				Helpers::consoleLog(Dumper::toText($var, self::agentDumpOptions()));
 			}
 		}
 
@@ -549,20 +538,35 @@ class Debugger
 				self::getBar()->addPanel($panel = new DefaultBarPanel('dumps'), 'Tracy:dumps');
 			}
 
-			$panel->data[] = ['title' => $title, 'dump' => Dumper::toHtml($var, $options + [
-				Dumper::DEPTH => self::$maxDepth,
-				Dumper::ITEMS => self::$maxItems,
-				Dumper::TRUNCATE => self::$maxLength,
+			$panel->data[] = ['title' => $title, 'dump' => Dumper::toHtml($var, $options + self::dumpOptions() + [
 				Dumper::LOCATION => self::$showLocation ?: Dumper::LOCATION_CLASS | Dumper::LOCATION_SOURCE,
 				Dumper::LAZY => true,
-				Dumper::KEYS_TO_HIDE => self::$keysToHide,
-			]), 'text' => Helpers::isAgent() ? Dumper::toText($var, [
-				Dumper::DEPTH => 3,
-				Dumper::KEYS_TO_HIDE => self::$keysToHide,
-			]) : null];
+			]), 'text' => Helpers::isAgent() ? Dumper::toText($var, self::agentDumpOptions()) : null];
 		}
 
 		return $var;
+	}
+
+
+	/** @return array<string, mixed> */
+	private static function dumpOptions(): array
+	{
+		return [
+			Dumper::DEPTH => self::$maxDepth,
+			Dumper::TRUNCATE => self::$maxLength,
+			Dumper::ITEMS => self::$maxItems,
+			Dumper::KEYS_TO_HIDE => self::$keysToHide,
+		];
+	}
+
+
+	/** @return array<string, mixed> */
+	private static function agentDumpOptions(): array
+	{
+		return [
+			Dumper::DEPTH => 3,
+			Dumper::KEYS_TO_HIDE => self::$keysToHide,
+		];
 	}
 
 

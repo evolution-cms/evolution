@@ -355,7 +355,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                     </tr>
 
 					<tr>
-						<td><span class="warning">*</span> <?php echo $_lang['user_email']; ?>:</td>
+						<td style="white-space:nowrap;"><span class="warning">*</span> <?php echo $_lang['user_email']; ?>:</td>
 						<td><input type="text" name="email" class="inputBox" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($_POST['email']) ? $_POST['email'] : $userdata['email']); ?>" onChange="documentDirty=true;" />
 							<input type="hidden" name="oldemail" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(!empty($userdata['oldemail']) ? $userdata['oldemail'] : $userdata['email']); ?>" /></td>
 					</tr>

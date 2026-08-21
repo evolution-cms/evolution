@@ -115,21 +115,36 @@ class ManagerApi implements ManagerApiInterface
     }
 
     /**
+     * Which login() helper can verify this stored value.
+     *
+     * Returns one of three routing values, and never anything else — every caller
+     * dispatches on them with an if/elseif chain, and a value outside this set would
+     * silently mean "no way to log in":
+     *
+     *   md5    -> loginMD5(), needs the user id
+     *   v1     -> loginV1(),  needs the user id (Evolution 1.x "algorithm>hash")
+     *   phpass -> login(),    everything password_hash()/phpass/crypt can verify
+     *
+     * Anything unrecognisable — plaintext, a truncated hash, an empty column — is also
+     * routed to login(), which detects it via PasswordHash::isUsable() and starts
+     * password recovery instead of reporting a wrong password.
+     *
      * @param string $db_value
-     * @return string
+     * @return string md5|v1|phpass
      */
     public function getHashType($db_value = '')
-    { // md5 | v1 | phpass
-        $c = substr($db_value, 0, 1);
-        if ($c === '$') {
-            return 'phpass';
-        } elseif (strlen($db_value) === 32) {
+    {
+        $db_value = (string) $db_value;
+
+        if (strlen($db_value) === 32 && ctype_xdigit($db_value)) {
             return 'md5';
-        } elseif ($c !== '$' && strpos($db_value, '>') !== false) {
-            return 'v1';
-        } else {
-            return 'unknown';
         }
+
+        if (substr($db_value, 0, 1) !== '$' && strpos($db_value, '>') !== false) {
+            return 'v1';
+        }
+
+        return 'phpass';
     }
 
     /**
@@ -208,6 +223,15 @@ class ManagerApi implements ManagerApiInterface
         $result = false;
         if (!empty($algorithm)) {
             switch ($algorithm) {
+                case 'BCRYPT':
+                    $result = true;
+                    break;
+                case 'ARGON2ID':
+                    $result = defined('PASSWORD_ARGON2ID');
+                    break;
+                case 'ARGON2I':
+                    $result = defined('PASSWORD_ARGON2I');
+                    break;
                 case 'BLOWFISH_Y':
                     if (defined('CRYPT_BLOWFISH') && CRYPT_BLOWFISH == 1) {
                         if (version_compare('5.3.7', PHP_VERSION) <= 0) {

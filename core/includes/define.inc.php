@@ -29,9 +29,13 @@ if (!defined('SESSION_COOKIE_NAME')) {
     define('SESSION_COOKIE_NAME', env('SESSION_COOKIE_NAME', genEvoSessionName())); // $site_sessionname
 }
 
-define('EVO_CLASS', '\DocumentParser');
+if (!defined('EVO_CLASS')) {
+    define('EVO_CLASS', '\DocumentParser');
+}
 
-define('EVO_SITE_HOSTNAMES', '');
+if (!defined('EVO_SITE_HOSTNAMES')) {
+    define('EVO_SITE_HOSTNAMES', '');
+}
 
 if (!defined('MGR_DIR')) {
     define('MGR_DIR', env('MGR_DIR', 'manager'));
@@ -165,8 +169,15 @@ if (!preg_match('/\/$/', EVO_SITE_URL)) {
     throw new RuntimeException('Please, use trailing slash at the end of EVO_SITE_URL');
 }
 
-define('EVO_MANAGER_URL', EVO_SITE_URL . MGR_DIR . '/');
-define('EVO_SANITIZE_SEED', 'sanitize_seed_' . base_convert(md5(__FILE__), 16, 36));
+if (!defined('EVO_MANAGER_URL')) {
+    define('EVO_MANAGER_URL', EVO_SITE_URL . MGR_DIR . '/');
+}
+
+// Must keep its first value: the sanitize helpers in core/functions/preload.php strip
+// this seed back out, so a second, different seed would leave the marker in the output.
+if (!defined('EVO_SANITIZE_SEED')) {
+    define('EVO_SANITIZE_SEED', 'sanitize_seed_' . base_convert(md5(__FILE__), 16, 36));
+}
 
 if (is_cli()) {
     if (!defined('EVO_CLI')) { define('EVO_CLI', true); }

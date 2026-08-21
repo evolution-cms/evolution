@@ -49,7 +49,7 @@ class AdminUserTableSeeder extends Seeder
 
             $usersData = [
                 'username' => $username,
-                'password' => md5($password),
+                'password' => evolutionCMS()->getPasswordHash()->HashPassword($password),
                 'cachepwd' => '',
                 'refresh_token' => null,
                 'access_token' => null,

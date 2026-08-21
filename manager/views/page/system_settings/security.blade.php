@@ -181,6 +181,19 @@
 
         <div class="split my-1"></div>
 
+        @include('manager::form.input', [
+            'name' => 'pwd_repair_minutes',
+            'label' => __('global.pwd_repair_minutes_title'),
+            'small' => '[(pwd_repair_minutes)]',
+            'value' => $settings['pwd_repair_minutes'],
+            'attributes' => 'onchange="documentDirty=true;"',
+            'comment' => (isset($disabledSettings['pwd_repair_minutes']) ? __('global.setting_from_file') . '<br>' : '') .
+                __('global.pwd_repair_minutes_message'),
+            'disabled' => $disabledSettings['pwd_repair_minutes'] ?? null
+        ])
+
+        <div class="split my-1"></div>
+
         @include('manager::form.radio', [
             'name' => 'pwd_hash_algo',
             'label' => __('global.pwd_hash_algo_title'),

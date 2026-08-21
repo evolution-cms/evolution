@@ -37,11 +37,14 @@ use Predis\Command\Argument\TimeSeries\IncrByArguments;
 use Predis\Command\Argument\TimeSeries\InfoArguments;
 use Predis\Command\Argument\TimeSeries\MGetArguments;
 use Predis\Command\Argument\TimeSeries\MRangeArguments;
+use Predis\Command\Argument\TimeSeries\NRangeArguments;
 use Predis\Command\Argument\TimeSeries\RangeArguments;
+use Predis\Command\Argument\TimeSeries\ReadArguments;
 use Predis\Command\CommandInterface;
 use Predis\Command\Container\ACL;
 use Predis\Command\Container\CLIENT;
 use Predis\Command\Container\FUNCTIONS;
+use Predis\Command\Container\HIMPORT;
 use Predis\Command\Container\HOTKEYS;
 use Predis\Command\Container\Json\JSONDEBUG;
 use Predis\Command\Container\Search\FTCONFIG;
@@ -153,6 +156,7 @@ use Predis\Response\Status;
  * @method array             ftaggregate(string $index, string $query, ?AggregateArguments $arguments = null)
  * @method Status            ftaliasadd(string $alias, string $index)
  * @method Status            ftaliasdel(string $alias)
+ * @method array             ftaliaslist(string $index)
  * @method Status            ftaliasupdate(string $alias, string $index)
  * @method Status            ftalter(string $index, FieldInterface[] $schema, ?AlterArguments $arguments = null)
  * @method Status            ftcreate(string $index, FieldInterface[] $schema, ?CreateArguments $arguments = null)
@@ -245,6 +249,7 @@ use Predis\Response\Status;
  * @method array             jsontoggle(string $key, string $path)
  * @method array             jsontype(string $key, string $path = '$')
  * @method string            blmove(string $source, string $destination, string $where, string $to, int $timeout)
+ * @method array|null        blmovem(string $source, string $destination, string $from, string $to, int|float $timeout, ?string $quantifier = null, ?int $count = null, ?string $ordering = null)
  * @method array|null        blpop(array|string $keys, int|float $timeout)
  * @method array|null        brpop(array|string $keys, int|float $timeout)
  * @method string|null       brpoplpush(string $source, string $destination, int|float $timeout)
@@ -253,6 +258,7 @@ use Predis\Response\Status;
  * @method int               linsert(string $key, $whence, $pivot, $value)
  * @method int               llen(string $key)
  * @method string            lmove(string $source, string $destination, string $where, string $to)
+ * @method array|null        lmovem(string $source, string $destination, string $from, string $to, ?string $quantifier = null, ?int $count = null, ?string $ordering = null)
  * @method array|null        lmpop(array $keys, string $modifier = 'left', int $count = 1)
  * @method string|null       lpop(string $key)
  * @method int               lpush(string $key, array $values)
@@ -268,6 +274,7 @@ use Predis\Response\Status;
  * @method int               sadd(string $key, array $members)
  * @method int               scard(string $key)
  * @method string[]          sdiff(array|string $keys)
+ * @method int               sdiffcard(array $keys, int $limit = 0)
  * @method int               sdiffstore(string $destination, array|string $keys)
  * @method string[]          sinter(array|string $keys)
  * @method int               sintercard(array $keys, int $limit = 0)
@@ -283,6 +290,7 @@ use Predis\Response\Status;
  * @method array             ssubscribe(string ...$shardChannels)
  * @method array             subscribe(string ...$channels)
  * @method string[]          sunion(array|string $keys)
+ * @method int               sunioncard(array $keys, bool $approx = false, int $limit = 0)
  * @method int               sunionstore(string $destination, array|string $keys)
  * @method array             sunsubscribe(?string ...$shardChannels = null)
  * @method int               touch(string[]|string $keyOrKeys, string ...$keys = null)
@@ -320,8 +328,12 @@ use Predis\Response\Status;
  * @method array             tsmget(MGetArguments $arguments, string ...$filterExpression)
  * @method array             tsmrange($fromTimestamp, $toTimestamp, MRangeArguments $arguments)
  * @method array             tsmrevrange($fromTimestamp, $toTimestamp, MRangeArguments $arguments)
+ * @method array             tsnrange(array $keys, $fromTimestamp, $toTimestamp, ?NRangeArguments $arguments = null)
+ * @method array             tsnrevrange(array $keys, $fromTimestamp, $toTimestamp, ?NRangeArguments $arguments = null)
  * @method array             tsqueryindex(string ...$filterExpression)
+ * @method array             tsquerylabels(?string $label = null, string ...$filterExpression)
  * @method array             tsrange(string $key, $fromTimestamp, $toTimestamp, ?RangeArguments $arguments = null)
+ * @method array             tsread(string $key, $timestamp, ?ReadArguments $arguments = null)
  * @method array             tsrevrange(string $key, $fromTimestamp, $toTimestamp, ?RangeArguments $arguments = null)
  * @method int               xack(string $key, string $group, string ...$id)
  * @method array             xackdel(string $key, string $group, string $mode, array $ids)
@@ -337,8 +349,9 @@ use Predis\Response\Status;
  * @method array             xrevrange(string $key, string $end, string $start, ?int $count = null)
  * @method array             xrange(string $key, string $start, string $end, ?int $count = null)
  * @method array|null        xread(int $count = null, int $block = null, array $streams = null, string ...$id)
+ * @method array|null        xread_v4(array $keyIdDict, ?int $count = null, ?int $blockMs = null, ?int $maxCount = null, ?int $maxSize = null)
  * @method array             xreadgroup(string $group, string $consumer, ?int $count = null, ?int $blockMs = null, bool $noAck = false, string ...$keyOrId)
- * @method array             xreadgroup_claim(string $group, string $consumer, array $keyIdDict, ?int $count = null, ?int $blockMs = null, bool $noAck = false, ?int $claim = null)
+ * @method array             xreadgroup_claim(string $group, string $consumer, array $keyIdDict, ?int $count = null, ?int $blockMs = null, bool $noAck = false, ?int $claim = null, ?int $maxCount = null, ?int $maxSize = null)
  * @method Status            xsetid(string $key, string $lastId, ?int $entriesAdded = null, ?string $maxDeleteId = null)
  * @method string            xtrim(string $key, array|string $strategy, string $threshold, array $options = null)
  * @method int               zadd(string $key, array $membersAndScoresDictionary)
@@ -434,6 +447,7 @@ use Predis\Response\Status;
  *
  * Container commands
  * @property CLIENT    $client
+ * @property HIMPORT   $himport
  * @property HOTKEYS   $hotkeys
  * @property FUNCTIONS $function
  * @property FTCONFIG  $ftconfig

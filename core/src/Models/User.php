@@ -25,9 +25,13 @@ class User extends Eloquent\Model
 	protected $hidden = [
 		'password',
         'cachepwd',
+        'cachepwd_valid_to',
         'verified_key',
 	];
 
+	// `cachepwd_valid_to` is deliberately absent: the recovery token's deadline is only
+	// ever set by PasswordRecoveryService through direct assignment, so there is no
+	// reason to expose it to mass assignment from request data.
 	protected $fillable = [
 		'username',
 		'password',

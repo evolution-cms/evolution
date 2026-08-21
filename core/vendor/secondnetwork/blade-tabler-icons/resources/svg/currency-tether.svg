@@ -11,7 +11,7 @@
   class="icon icon-tabler icons-tabler-outline icon-tabler-currency-tether"
 >
   <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-  <path d="M4 11a8 2 0 1 0 16 0a8 2 0 1 0 -16 0"  />
+  <path d="M4 11a8 2 0 1 0 16 0a8 2 0 1 0 -16 0" />
   <path d="M12 20v-16" />
   <path d="M4 4h16" />
 </svg>

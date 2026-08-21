@@ -30,6 +30,8 @@ class ChangePassword extends AbstractController implements ManagerTheme\PageCont
     {
         try {
             \UserManager::changeManagerPassword($_POST);
+        }catch (ServiceActionException $exception){
+            EvolutionCMS()->webAlertAndQuit($exception->getMessage(), 'index.php?a=28');
         }catch (ServiceValidationException $exception){
             foreach ($exception->getValidationErrors() as $errors){
                 if(is_array($errors)){

@@ -5521,12 +5521,29 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             ->where('id', (int) $this->getLoginUserID())
             ->first();
 
-        $row = $ds->toArray();
-        if (!$row) {
+        if (is_null($ds)) {
             return false;
         }
 
-        if ($row['password'] !== md5($oldPwd)) {
+        // Read the attributes off the model: `password` is in $hidden, so toArray()
+        // would drop it and every comparison below would silently fail.
+        $row = [
+            'id' => $ds->getKey(),
+            'username' => $ds->username,
+            'password' => (string) $ds->password,
+        ];
+
+        $hashType = $this->getManagerApi()->getHashType($row['password']);
+
+        if ($hashType === 'md5') {
+            $matched = hash_equals((string) $row['password'], md5($oldPwd));
+        } elseif ($hashType === 'v1') {
+            $matched = loginV1($row['id'], $oldPwd, $row['password'], $row['username']);
+        } else {
+            $matched = $this->getPasswordHash()->CheckPassword($oldPwd, $row['password']);
+        }
+
+        if (!$matched) {
             return 'Incorrect password.';
         }
         if (strlen($newPwd) < 6) {
@@ -5537,9 +5554,15 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             return "You didn't specify a password for this user!";
         }
 
+        $hash = $this->getPasswordHash()->HashPassword($newPwd);
+
+        if (!is_string($hash) || $hash === '' || $hash === '*') {
+            return 'Password could not be hashed.';
+        }
+
         \EvolutionCMS\Models\User::where('id', (int) $this->getLoginUserID())
             ->update([
-                'password' => $newPwd
+                'password' => $hash
             ]);
 
         // invoke OnWebChangePassword event

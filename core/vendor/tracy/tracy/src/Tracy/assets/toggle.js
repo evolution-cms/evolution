@@ -17,7 +17,7 @@ class Toggle {
 			if (
 				!e.shiftKey && !e.ctrlKey && !e.metaKey
 				&& (el = e.target.closest('.tracy-toggle'))
-				&& Math.pow(start[0] - e.clientX, 2) + Math.pow(start[1] - e.clientY, 2) < MOVE_THRESHOLD
+				&& (!start || Math.pow(start[0] - e.clientX, 2) + Math.pow(start[1] - e.clientY, 2) < MOVE_THRESHOLD) // no start = keyboard activation
 			) {
 				Toggle.toggle(el, undefined, e);
 				e.preventDefault();
@@ -31,7 +31,7 @@ class Toggle {
 	// changes element visibility
 	static toggle(el, expand, e) {
 		let collapsed = el.classList.contains('tracy-collapsed'),
-			ref = el.getAttribute('data-tracy-ref') || el.getAttribute('href', 2),
+			ref = el.getAttribute('data-tracy-ref') || el.getAttribute('href'),
 			dest = el;
 
 		if (typeof expand === 'undefined') {
@@ -73,7 +73,12 @@ class Toggle {
 			}
 		});
 
-		let toggles = JSON.parse(sessionStorage.getItem('tracy-toggles-' + baseEl.id));
+		let toggles;
+		try {
+			toggles = JSON.parse(sessionStorage.getItem('tracy-toggles-' + baseEl.id));
+		} catch {
+			// ignore corrupt data
+		}
 		if (toggles && restore !== false) {
 			toggles.forEach((item) => {
 				let el = baseEl;

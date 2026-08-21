@@ -93,37 +93,42 @@ class AuthServices
     public function attempt($checked = [])
     {
         foreach ($checked as $key => $value) {
-            if (isset($this->user->{$key})) {
-                if ($this->user->{$key} == $value) {
-                    unset($checked[$key]);
+            // The password is never compared as a plain attribute: a row still holding
+            // a plaintext password would otherwise authenticate on an equality match.
+            if ($key !== 'password') {
+                if (isset($this->user->{$key})) {
+                    if ($this->user->{$key} == $value) {
+                        unset($checked[$key]);
+                    }
                 }
-            }
-            if (isset($this->user->attributes->{$key})) {
-                if ($this->user->attributes->{$key} == $value) {
-                    unset($checked[$key]);
+                if (isset($this->user->attributes->{$key})) {
+                    if ($this->user->attributes->{$key} == $value) {
+                        unset($checked[$key]);
+                    }
                 }
+
+                continue;
             }
 
-            if ($key == 'password') {
-                $matchPassword = false;
+            // check user password - local authentication
+            $hashType = evo()->getManagerApi()->getHashType($this->user->password);
 
-                // check user password - local authentication
-                $hashType = evo()->getManagerApi()->getHashType($this->user->password);
-
-                if ($hashType == 'phpass') {
-                    $matchPassword = login($this->user->username, $value, $this->user->password);
-                } elseif ($hashType == 'md5') {
+            try {
+                if ($hashType == 'md5') {
                     $matchPassword = loginMD5($this->user->getKey(), $value, $this->user->password, $this->user->username);
                 } elseif ($hashType == 'v1') {
                     $matchPassword = loginV1($this->user->getKey(), $value, $this->user->password, $this->user->username);
                 } else {
-                    $matchPassword = false;
+                    $matchPassword = login($this->user->username, $value, $this->user->password);
                 }
+            } catch (\EvolutionCMS\Exceptions\PasswordRecoveryRequiredException $exception) {
+                // Recovery has been started for an unusable hash. This entry point has
+                // no way to show the message, so it just refuses the login.
+                $matchPassword = false;
+            }
 
-
-                if ($matchPassword) {
-                    unset($checked[$key]);
-                }
+            if ($matchPassword) {
+                unset($checked[$key]);
             }
         }
         if (count($checked) > 0) return false;
