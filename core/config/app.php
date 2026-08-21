@@ -61,7 +61,7 @@
         'Evolution_TemplateProcessor' => EvolutionCMS\Providers\TemplateProcessorServiceProvider::class,
         'Evolution_HelperProcessor' => EvolutionCMS\Providers\HelperProcessorServiceProvider::class,
         'Evolution_Blade' => EvolutionCMS\Providers\BladeServiceProvider::class,
-        'Evolution_UserManager' => EvolutionCMS\UserManager\Providers\UserManagerServiceProvider::class,
+        'Evolution_UserManager' => EvolutionCMS\Providers\PipelineUserManagerServiceProvider::class,
         'Evolution_DocumentManager' => EvolutionCMS\DocumentManager\Providers\DocumentManagerServiceProvider::class,
         'Evolution_Routing' => EvolutionCMS\Providers\RoutingServiceProvider::class,
         'Evolution_Config' => EvolutionCMS\Providers\ConfigServiceProvider::class,

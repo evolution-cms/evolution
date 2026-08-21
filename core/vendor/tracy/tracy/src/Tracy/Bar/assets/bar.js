@@ -2,9 +2,7 @@
  * This file is part of the Tracy (https://tracy.nette.org)
  */
 
-if (navigator.webdriver) {
-	document.cookie = 'tracy-webdriver=1;path=/;SameSite=Lax';
-}
+document.cookie = navigator.webdriver ? 'tracy-webdriver=1;path=/;SameSite=Lax' : 'tracy-webdriver=;path=/;Max-Age=0;SameSite=Lax';
 
 let requestId = document.currentScript.dataset.id,
 	ajaxCounter = 1,
@@ -21,6 +19,14 @@ let defaults = {
 function getOption(key) {
 	let global = window['Tracy' + key];
 	return global === undefined ? defaults[key] : global;
+}
+
+function restoreJSON(key) {
+	try {
+		return JSON.parse(localStorage.getItem(key));
+	} catch {
+		return null; // ignore corrupt data
+	}
 }
 
 class Panel {
@@ -144,8 +150,8 @@ class Panel {
 
 	toWindow() {
 		let offset = getOffset(this.elem);
-		offset.left += typeof window.screenLeft === 'number' ? window.screenLeft : (window.screenX + 10);
-		offset.top += typeof window.screenTop === 'number' ? window.screenTop : (window.screenY + 50);
+		offset.left += window.screenLeft;
+		offset.top += window.screenTop;
 
 		let win = window.open('', this.id.replace(/-/g, '_'), 'left=' + offset.left + ',top=' + offset.top
 			+ ',width=' + this.elem.offsetWidth + ',height=' + this.elem.offsetHeight + ',resizable=yes,scrollbars=yes');
@@ -154,7 +160,8 @@ class Panel {
 		}
 
 		let doc = win.document;
-		doc.write('<!DOCTYPE html><meta charset="utf-8"><body id="tracy-debug">');
+		doc.head.appendChild(doc.createElement('meta')).setAttribute('charset', 'utf-8');
+		doc.body.id = 'tracy-debug';
 
 		let script = doc.createElement('script');
 		script.src = baseUrl + '_tracy_bar=js&XDEBUG_SESSION_STOP=1';
@@ -178,7 +185,7 @@ class Panel {
 		});
 
 		doc.addEventListener('keyup', (e) => {
-			if (e.keyCode === 27 && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey) {
+			if (e.key === 'Escape' && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey) {
 				win.close();
 			}
 		});
@@ -221,7 +228,7 @@ class Panel {
 
 	restorePosition() {
 		let key = this.id.split(':')[0];
-		let pos = JSON.parse(localStorage.getItem(key));
+		let pos = restoreJSON(key);
 		if (!pos) {
 			this.elem.classList.add(Panel.PEEK);
 		} else if (pos.window) {
@@ -379,7 +386,7 @@ class Bar {
 
 
 	restorePosition() {
-		let pos = JSON.parse(localStorage.getItem(this.id));
+		let pos = restoreJSON(this.id);
 		setPosition(this.elem, pos || { right: 0, bottom: 0 });
 		this.savePosition();
 	}
@@ -492,19 +499,22 @@ class Debug {
 			oldOpen.apply(this, arguments);
 
 			if (getOption('AutoRefresh') && new URL(arguments[1], location.origin).host === location.host) {
-				let reqId = Tracy.getAjaxHeader();
-				this.setRequestHeader('X-Tracy-Ajax', reqId);
-				this.addEventListener('load', function () {
-					if (this.getAllResponseHeaders().match(/^X-Tracy-Ajax: 1/mi)) {
-						Debug.loadScript(baseUrl + '_tracy_bar=content-ajax.' + reqId + '&XDEBUG_SESSION_STOP=1&v=' + Math.random());
-					}
-				});
+				this.tracyReqId = Tracy.getAjaxHeader();
+				this.setRequestHeader('X-Tracy-Ajax', this.tracyReqId);
+				if (!this.tracyLoadListener) { // open() may be called repeatedly on the same instance
+					this.tracyLoadListener = true;
+					this.addEventListener('load', function () {
+						if (this.getAllResponseHeaders().match(/^X-Tracy-Ajax: 1/mi)) {
+							Debug.loadScript(baseUrl + '_tracy_bar=content-ajax.' + this.tracyReqId + '&XDEBUG_SESSION_STOP=1&v=' + Math.random());
+						}
+					});
+				}
 			}
 		};
 
 		let oldFetch = window.fetch;
 		window.fetch = function (request, options) {
-			request = request instanceof Request ? request : new Request(request, options || {});
+			request = new Request(request, options);
 			let reqId = request.headers.get('X-Tracy-Ajax');
 
 			if (getOption('AutoRefresh') && !reqId && new URL(request.url, location.origin).host === location.host) {
@@ -541,6 +551,7 @@ function evalScripts(elem) {
 			let dolly = document.createElement('script');
 			dolly.textContent = script.textContent;
 			(document.body || document.documentElement).appendChild(dolly);
+			dolly.remove();
 			script.tracyEvaluated = true;
 		}
 	});

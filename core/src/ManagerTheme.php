@@ -954,43 +954,49 @@ class ManagerTheme implements ManagerThemeInterface
             return $this->makeTemplate('repair_form', 'manager_login_tpl', $plh, false);
         }
         if (isset($_GET['email'])) {
-            $user = UserAttribute::where('email', $_GET['email'])->first();
-            if (is_null($user)) {
+            $attributes = UserAttribute::where('email', $_GET['email'])->first();
+            $user = is_null($attributes)
+                ? null
+                : \EvolutionCMS\Models\User::query()->find($attributes->internalKey);
+
+            if (is_null($attributes) || is_null($user)) {
                 $output .= '<span class="error">' . \Lang::get('global.could_not_find_user') . '</span>';
-            }
-            if ($user->blocked == 1) {
+            } elseif ($attributes->blocked == 1) {
                 $output .= '<span class="error">' . \Lang::get('global.user_is_blocked') . '</span>';
             } else {
-                $hash = '';
                 try {
-                    $hash = \UserManager::repairPassword(['id' => $user->internalKey, 'mode' => 'hash']);
-                } catch (ServiceValidationException $exception) {
-                    foreach ($exception->getValidationErrors() as $errors) {
-                        foreach ($errors as $error) {
-                            $output .= '<span class="error">' . $error . '</span>';
-                        }
-                    }
+                    $recovery = new \EvolutionCMS\Services\PasswordRecoveryService();
+                    $hash = $recovery->issueToken($user);
+                    $output .= $recovery->sendRecoveryMail($user, $hash, 'hash')
+                        ? '<p><b>' . \Lang::get('global.email_sent') . '</b></p>'
+                        : '<span class="error">' . \Lang::get('global.error_sending_email') . '</span>';
+                } catch (\Throwable $exception) {
+                    $output .= '<span class="error">' . \Lang::get('global.error_sending_email') . '</span>';
                 }
-                if ($output == '')
-                    $output .= $this->sendRepairMail($_GET['email'], $hash, 'hash');
             }
         }
         return $output . $this->makeTemplate('repair_button', 'manager_login_tpl', $plh, false);
     }
 
+    /**
+     * Kept for themes and extras that call it directly; the message itself is built by
+     * PasswordRecoveryService so there is only one copy of the recovery mail.
+     *
+     * @param string $email
+     * @param string $hash
+     * @param string $mode
+     * @return string
+     */
     public function sendRepairMail($email, $hash, $mode)
     {
-        $body = '
-                <p>' . \Lang::get('global.forgot_password_email_intro') . ' <a href="' . EVO_MANAGER_URL . '?a=0&hash=' . $hash . '&mode=' . $mode . '">' . \Lang::get('global.forgot_password_email_link') . '</a></p>
-                <p>' . \Lang::get('global.forgot_password_email_instructions') . '</p>
-                <p><small>' . \Lang::get('global.forgot_password_email_fine_print') . '</small></p>';
+        $attributes = UserAttribute::where('email', $email)->first();
+        $user = is_null($attributes)
+            ? null
+            : \EvolutionCMS\Models\User::query()->find($attributes->internalKey);
 
-        $param = [];
-        $param['from'] = $this->getCore()->getConfig('site_name') . '<' . $this->getCore()->getConfig('emailsender') . '>';
-        $param['to'] = $email;
-        $param['subject'] = \Lang::get('global.password_change_request');
-        $param['body'] = $body;
-        $rs = $this->getCore()->sendmail($param); //ignore mail errors in this case
+        $rs = is_null($user)
+            ? false
+            : (new \EvolutionCMS\Services\PasswordRecoveryService())->sendRecoveryMail($user, $hash, $mode);
 
         if (!$rs) return '<span class="error">' . \Lang::get('global.error_sending_email') . '</span>';
 

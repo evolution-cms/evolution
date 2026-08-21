@@ -1,6 +1,7 @@
 <?php namespace EvolutionCMS\Controllers;
 
 use EvolutionCMS\Interfaces\ManagerTheme;
+use EvolutionCMS\Legacy;
 use EvolutionCMS\Models;
 use EvolutionCMS\Support\SiteTimezone;
 use function extension_loaded;
@@ -244,6 +245,13 @@ class SystemSettings extends AbstractController implements ManagerTheme\PageCont
             }
         }
 
+        // Show which algorithm is actually in force. A site carrying a pre-3.5 value
+        // (BLOWFISH_Y, UNCRYPT, ...) hashes with bcrypt, so bcrypt is what the radio
+        // group must show as selected rather than nothing at all.
+        if (!array_key_exists((string) get_by_key($out, 'pwd_hash_algo'), $this->parameterPasswordHash())) {
+            $out['pwd_hash_algo'] = Legacy\PasswordHash::ALGO_BCRYPT;
+        }
+
         $out['filemanager_path'] = str_replace(
             EVO_BASE_PATH,
             '[(base_path)]',
@@ -289,36 +297,26 @@ class SystemSettings extends AbstractController implements ManagerTheme\PageCont
         $managerApi = $this->managerTheme->getCore()
             ->getManagerApi();
 
+        // Only algorithms that password_hash() can actually produce are offered. The
+        // pre-3.5 names (BLOWFISH_*, SHA*, MD5, UNCRYPT) described the legacy "v1"
+        // scheme, which is verify-only now: a stored v1 hash carries its own algorithm
+        // name, so nothing needs to select it here. Sites still holding one of those
+        // values keep working — PasswordHash::resolveAlgorithm() maps them to bcrypt.
         return [
-            'BLOWFISH_Y' => [
-                'value' => 'BLOWFISH_Y',
-                'text' => 'CRYPT_BLOWFISH_Y (salt &amp; stretch)',
-                'disabled' => $managerApi->checkHashAlgorithm('BLOWFISH_Y') ? 0 : 1
+            'BCRYPT' => [
+                'value' => 'BCRYPT',
+                'text' => 'bcrypt (cost ' . \EvolutionCMS\Legacy\PasswordHash::BCRYPT_COST . ')',
+                'disabled' => $managerApi->checkHashAlgorithm('BCRYPT') ? 0 : 1
             ],
-            'BLOWFISH_A' => [
-                'value' => 'BLOWFISH_A',
-                'text' => 'CRYPT_BLOWFISH_A (salt &amp; stretch)',
-                'disabled' => $managerApi->checkHashAlgorithm('BLOWFISH_A') ? 0 : 1
+            'ARGON2ID' => [
+                'value' => 'ARGON2ID',
+                'text' => 'Argon2id (memory-hard, recommended)',
+                'disabled' => $managerApi->checkHashAlgorithm('ARGON2ID') ? 0 : 1
             ],
-            'SHA512' => [
-                'value' => 'SHA512',
-                'text' => 'CRYPT_SHA512 (salt &amp; stretch)',
-                'disabled' => $managerApi->checkHashAlgorithm('SHA512') ? 0 : 1
-            ],
-            'SHA256' => [
-                'value' => 'SHA256',
-                'text' => 'CRYPT_SHA256 (salt &amp; stretch)',
-                'disabled' => $managerApi->checkHashAlgorithm('SHA256') ? 0 : 1
-            ],
-            'MD5' => [
-                'value' => 'MD5',
-                'text' => 'CRYPT_MD5 (salt &amp; stretch)',
-                'disabled' => $managerApi->checkHashAlgorithm('MD5') ? 0 : 1
-            ],
-            'UNCRYPT' => [
-                'value' => 'UNCRYPT',
-                'text' => 'UNCRYPT(32 chars salt + SHA-1 hash)',
-                'disabled' => $managerApi->checkHashAlgorithm('UNCRYPT') ? 0 : 1
+            'ARGON2I' => [
+                'value' => 'ARGON2I',
+                'text' => 'Argon2i',
+                'disabled' => $managerApi->checkHashAlgorithm('ARGON2I') ? 0 : 1
             ],
         ];
     }

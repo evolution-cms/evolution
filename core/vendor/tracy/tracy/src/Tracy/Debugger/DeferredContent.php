@@ -67,14 +67,17 @@ final class DeferredContent
 
 	public function sendAssets(): bool
 	{
+		$asset = $_GET['_tracy_bar'] ?? null;
 		if (headers_sent($file, $line) || ob_get_length()) {
+			if ($asset === null && !$this->deferred) { // nothing to send, repeated enable() is a no-op
+				return false;
+			}
+
 			throw new \LogicException(
 				__METHOD__ . '() called after some output has been sent. '
 				. ($file ? "Output started at $file:$line." : 'Try Tracy\OutputDebugger to find where output started.'),
 			);
 		}
-
-		$asset = $_GET['_tracy_bar'] ?? null;
 		if ($asset === 'js') {
 			header('Content-Type: application/javascript; charset=UTF-8');
 			header('Cache-Control: max-age=864000');
@@ -157,7 +160,7 @@ final class DeferredContent
 	public function clean(): void
 	{
 		foreach ($this->sessionStorage->getData() as &$items) {
-			$items = array_slice((array) $items, -10, null, preserve_keys: true);
+			$items = array_slice((array) $items, -10, preserve_keys: true);
 			$items = array_filter($items, fn($item) => isset($item['time']) && $item['time'] > time() - 60);
 		}
 	}

@@ -130,12 +130,26 @@ class LogInOut extends AbstractController implements ManagerTheme\PageController
 
         $_GET['hash'] = $hash;
 
+        // Recovery links are one-time and time limited. hashLogin() only matches the
+        // token itself, so the expiry is enforced here, before the login happens.
+        $recovery = new \EvolutionCMS\Services\PasswordRecoveryService();
+        $user = $recovery->findByToken($hash);
+
+        if (is_null($user)) {
+            jsAlert(\Lang::get('global.login_processor_hash_expired'));
+            exit();
+        }
+
         try {
             \UserManager::hashLogin($_GET);
         } catch (ServiceActionException $exception) {
             jsAlert($exception->getMessage());
             exit();
         }
+
+        // hashLogin() clears the token; drop the expiry with it so no stale deadline
+        // is left behind on the row.
+        $recovery->clearToken($user->refresh());
 
         header('Location: ' . EVO_MANAGER_URL . '#?a=28');
         exit();

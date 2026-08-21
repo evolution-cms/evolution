@@ -28,6 +28,22 @@ use EvolutionCMS\Interfaces\PasswordHashInterface;
 //
 class PasswordHash implements PasswordHashInterface
 {
+    /** Algorithm names as stored in the `pwd_hash_algo` system setting. */
+    public const ALGO_BCRYPT = 'BCRYPT';
+    public const ALGO_ARGON2ID = 'ARGON2ID';
+    public const ALGO_ARGON2I = 'ARGON2I';
+
+    /** Deliberately above the PHP 8.3 default of 10; matches the PHP 8.4 default. */
+    public const BCRYPT_COST = 12;
+
+    /** Storage formats recognised by identify(). */
+    public const FORMAT_NATIVE = 'native';
+    public const FORMAT_PORTABLE = 'portable';
+    public const FORMAT_CRYPT = 'crypt';
+    public const FORMAT_MD5 = 'md5';
+    public const FORMAT_V1 = 'v1';
+    public const FORMAT_UNKNOWN = 'unknown';
+
     public $itoa64;
     public $iteration_count_log2;
     public $portable_hashes;
@@ -246,10 +262,172 @@ class PasswordHash implements PasswordHashInterface
     }
 
     /**
+     * Hash a password with the algorithm selected in the system settings.
+     *
+     * Always produces a self-describing password_hash() string ($2y$ / $argon2id$).
+     * The portable phpass format ($P$) is no longer generated — it is only still
+     * verified, so hashes written by earlier Evolution versions keep working until
+     * their owner logs in and the hash is upgraded in place.
+     *
+     * @param string $password
+     * @return string '*' when hashing failed — never a usable hash
+     */
+    public function HashPassword($password)
+    {
+        if (strlen($password) > 4096) {
+            return '*';
+        }
+
+        [$algorithm, $options] = $this->resolveAlgorithm();
+
+        $hash = password_hash($password, $algorithm, $options);
+
+        // password_hash() only returns a non-string on catastrophic failure, but a
+        // truncated or empty result must never reach the database: '*' can never be
+        // produced by any hashing algorithm, so it can never validate.
+        if (!is_string($hash) || strlen($hash) < 20) {
+            return '*';
+        }
+
+        return $hash;
+    }
+
+    /**
+     * Resolve the configured algorithm into a password_hash() algorithm + options pair.
+     *
+     * Unknown and pre-3.5 values (BLOWFISH_Y, SHA512, UNCRYPT, ...) map to bcrypt:
+     * those names described the legacy "v1" hashing scheme, which is verify-only now.
+     *
+     * @return array{0: string|int, 1: array}
+     */
+    public function resolveAlgorithm(): array
+    {
+        $configured = strtoupper((string) $this->configuredAlgorithm());
+
+        if (($configured === self::ALGO_ARGON2ID || $configured === self::ALGO_ARGON2I)
+            && defined('PASSWORD_' . $configured)) {
+            return [
+                constant('PASSWORD_' . $configured),
+                [
+                    'memory_cost' => PASSWORD_ARGON2_DEFAULT_MEMORY_COST,
+                    'time_cost' => PASSWORD_ARGON2_DEFAULT_TIME_COST,
+                    'threads' => PASSWORD_ARGON2_DEFAULT_THREADS,
+                ],
+            ];
+        }
+
+        return [PASSWORD_BCRYPT, ['cost' => self::BCRYPT_COST]];
+    }
+
+    /**
+     * @return string
+     */
+    protected function configuredAlgorithm(): string
+    {
+        // Reachable from the installer and from CLI seeding, where no CMS instance
+        // exists yet. Any failure to read the setting simply means "use the default".
+        try {
+            if (!function_exists('evolutionCMS')) {
+                return self::ALGO_BCRYPT;
+            }
+
+            $value = evolutionCMS()->getConfig('pwd_hash_algo');
+        } catch (\Throwable $exception) {
+            return self::ALGO_BCRYPT;
+        }
+
+        return is_scalar($value) ? (string) $value : self::ALGO_BCRYPT;
+    }
+
+    /**
+     * Name the storage format of a hash already in the database.
+     *
+     * @param string $stored_hash
+     * @return string native|portable|crypt|md5|v1|unknown
+     */
+    public function identify($stored_hash): string
+    {
+        $stored_hash = (string) $stored_hash;
+
+        if ($stored_hash === '' || $stored_hash === '*') {
+            return self::FORMAT_UNKNOWN;
+        }
+
+        if (str_starts_with($stored_hash, '$2') || str_starts_with($stored_hash, '$argon2')) {
+            return self::FORMAT_NATIVE;
+        }
+
+        if (str_starts_with($stored_hash, '$P$') || str_starts_with($stored_hash, '$H$')) {
+            return self::FORMAT_PORTABLE;
+        }
+
+        if (strlen($stored_hash) === 32 && ctype_xdigit($stored_hash)) {
+            return self::FORMAT_MD5;
+        }
+
+        // "algorithm>hash" — the Evolution 1.x scheme, verified by ManagerApi::genV1Hash()
+        if (str_contains($stored_hash, '>')) {
+            return self::FORMAT_V1;
+        }
+
+        if (preg_match('/^\$[156]\$/', $stored_hash) === 1 || str_starts_with($stored_hash, '_')) {
+            return self::FORMAT_CRYPT;
+        }
+
+        return self::FORMAT_UNKNOWN;
+    }
+
+    /**
+     * Can this stored value be used to verify a password at all?
+     *
+     * False means the row is unusable — plaintext left behind by a buggy extra, a
+     * truncated hash, an empty column. Such an account cannot log in by any password,
+     * so the caller must start password recovery instead of reporting "wrong password".
+     *
+     * @param string $stored_hash
+     * @return bool
+     */
+    public function isUsable($stored_hash): bool
+    {
+        return $this->identify($stored_hash) !== self::FORMAT_UNKNOWN;
+    }
+
+    /**
+     * Must this hash be replaced after a successful login?
+     *
+     * True for every legacy format, and for current-format hashes whose algorithm or
+     * cost no longer matches the system settings.
+     *
+     * @param string $stored_hash
+     * @return bool
+     */
+    public function needsRehash($stored_hash): bool
+    {
+        $format = $this->identify($stored_hash);
+
+        if ($format === self::FORMAT_UNKNOWN) {
+            return false;
+        }
+
+        if ($format !== self::FORMAT_NATIVE) {
+            return true;
+        }
+
+        [$algorithm, $options] = $this->resolveAlgorithm();
+
+        return password_needs_rehash((string) $stored_hash, $algorithm, $options);
+    }
+
+    /**
+     * Hash in the legacy portable phpass format ($P$).
+     *
+     * Kept for backwards compatibility and tests only — nothing in the CMS writes
+     * this format any more.
+     *
      * @param string $password
      * @return string
      */
-    public function HashPassword($password)
+    public function HashPasswordPortable($password)
     {
         if (strlen($password) > 4096) {
             return '*';
@@ -294,21 +472,39 @@ class PasswordHash implements PasswordHashInterface
     }
 
     /**
+     * Verify a password against any hash format this CMS has ever written,
+     * except the "v1" scheme, which needs the user id as its salt seed and is
+     * handled by loginV1() / ManagerApi::genV1Hash().
+     *
      * @param string $password
      * @param string $stored_hash
      * @return bool
      */
     public function CheckPassword($password, $stored_hash)
     {
+        $password = (string) $password;
+        $stored_hash = (string) $stored_hash;
+
         if (strlen($password) > 4096) {
             return false;
         }
 
-        $hash = $this->crypt_private($password, $stored_hash);
-        if (substr($hash, 0, 1) === '*') {
-            $hash = crypt($password, $stored_hash);
+        switch ($this->identify($stored_hash)) {
+            case self::FORMAT_NATIVE:
+                return password_verify($password, $stored_hash);
+
+            case self::FORMAT_PORTABLE:
+                return hash_equals($stored_hash, $this->crypt_private($password, $stored_hash));
+
+            case self::FORMAT_CRYPT:
+                return hash_equals($stored_hash, crypt($password, $stored_hash));
+
+            case self::FORMAT_MD5:
+                return hash_equals($stored_hash, md5($password));
         }
 
-        return ($hash === $stored_hash) ? true : false;
+        // Unknown format, including plaintext: refuse rather than compare. A plaintext
+        // column must never authenticate anybody — recovery is the only way out.
+        return false;
     }
 }

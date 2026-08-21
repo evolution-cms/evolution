@@ -102,16 +102,78 @@ if (!function_exists('jsAlert')) {
 
 if (!function_exists('login')) {
     /**
+     * Verify a password against a password_hash()/phpass/crypt hash.
+     *
+     * On success the hash is upgraded in place when it no longer matches the algorithm
+     * configured in the system settings — that is how $P$ (and every future format
+     * change) migrates without ever knowing the old passwords in bulk.
+     *
      * @param string $username
      * @param string $givenPassword
      * @param string $dbasePassword
      * @return bool
+     * @throws \EvolutionCMS\Exceptions\PasswordRecoveryRequiredException
      */
     function login($username, $givenPassword, $dbasePassword)
     {
         $modx = evo();
+        $hasher = $modx->getPasswordHash();
 
-        return $modx->getPasswordHash()->CheckPassword($givenPassword, $dbasePassword);
+        // Nothing recognisable is stored, so no password can ever match. Silently
+        // answering "wrong password" would lock the account out for good.
+        if (!$hasher->isUsable($dbasePassword)) {
+            startPasswordRecovery($username);
+        }
+
+        if (!$hasher->CheckPassword($givenPassword, $dbasePassword)) {
+            return false;
+        }
+
+        if ($hasher->needsRehash($dbasePassword)) {
+            updateNewHash($username, $givenPassword);
+        }
+
+        return true;
+    }
+}
+
+if (!function_exists('startPasswordRecovery')) {
+    /**
+     * Begin password recovery for an account whose stored password is unusable.
+     *
+     * Always throws: the login flow cannot continue, and the thrown message is what the
+     * user sees. Repeated attempts reuse the outstanding token instead of sending
+     * another mail.
+     *
+     * @param string $username
+     * @return void
+     * @throws \EvolutionCMS\Exceptions\PasswordRecoveryRequiredException
+     */
+    function startPasswordRecovery($username)
+    {
+        $user = \EvolutionCMS\Models\User::query()
+            ->where('username', $username)
+            ->first();
+
+        if (!is_null($user)) {
+            try {
+                (new \EvolutionCMS\Services\PasswordRecoveryService())->startAutomaticRecovery($user);
+            } catch (\Throwable $exception) {
+                // A failing mailer must not turn into a fatal on the login screen; the
+                // user still gets told that the password has to be reset.
+                evo()->logEvent(0, 3, 'Password recovery could not be started: '
+                    . $exception->getMessage(), 'Auth');
+            }
+        }
+
+        try {
+            $message = \Lang::get('global.login_processor_password_recovery');
+        } catch (\Throwable $exception) {
+            // No lexicon bound (CLI, installer): the reason still has to reach the caller.
+            $message = 'The stored password of this account cannot be verified.';
+        }
+
+        throw new \EvolutionCMS\Exceptions\PasswordRecoveryRequiredException($message);
     }
 }
 
@@ -133,12 +195,19 @@ if (!function_exists('loginV1')) {
             $modx->setConfig('pwd_hash_algo', 'UNCRYPT');
         }
 
-        if ($user_algo !== $modx->getConfig('pwd_hash_algo')) {
-            $bk_pwd_hash_algo = $modx->getConfig('pwd_hash_algo');
+        // genV1Hash() reads the algorithm from the config, so it has to be pointed at
+        // the algorithm this particular hash was made with — and put back afterwards,
+        // or the setting stays overwritten for the rest of the request.
+        $bk_pwd_hash_algo = $modx->getConfig('pwd_hash_algo');
+        if ($user_algo !== $bk_pwd_hash_algo) {
             $modx->setConfig('pwd_hash_algo', $user_algo);
         }
 
-        if ($dbasePassword != $modx->getManagerApi()->genV1Hash($givenPassword, $internalKey)) {
+        $expected = $modx->getManagerApi()->genV1Hash($givenPassword, $internalKey);
+
+        $modx->setConfig('pwd_hash_algo', $bk_pwd_hash_algo);
+
+        if (!hash_equals((string) $dbasePassword, (string) $expected)) {
             return false;
         }
 
@@ -160,7 +229,7 @@ if (!function_exists('loginMD5')) {
     {
         $modx = evo();
 
-        if ($dbasePassword != md5($givenPassword)) {
+        if (!hash_equals((string) $dbasePassword, md5($givenPassword))) {
             return false;
         }
         updateNewHash($username, $givenPassword);
@@ -178,8 +247,19 @@ if (!function_exists('updateNewHash')) {
     {
         $modx = evo();
 
+        $hash = $modx->getPasswordHash()->HashPassword($password);
+
+        // '*' is the hasher's failure marker. Writing it would replace a working hash
+        // with one that can never validate, so leave the old one alone instead.
+        if (!is_string($hash) || $hash === '' || $hash === '*') {
+            $modx->logEvent(0, 3, 'Password rehash failed for user ' . $username
+                . '; the existing hash was kept.', 'Auth');
+
+            return;
+        }
+
         $field = [];
-        $field['password'] = $modx->getPasswordHash()->HashPassword($password);
+        $field['password'] = $hash;
         \EvolutionCMS\Models\User::where('username', $username)->update($field);
 
     }

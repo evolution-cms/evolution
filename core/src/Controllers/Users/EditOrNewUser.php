@@ -57,7 +57,9 @@ class EditOrNewUser extends AbstractController implements ManagerTheme\PageContr
                 if (isset($userData['password'])) {
                     $userData['clearPassword'] = $userData['password'];
                     $user->password = EvolutionCMS()->getPasswordHash()->HashPassword($userData['password']);
+                    // A new password invalidates any outstanding recovery link.
                     $user->cachepwd = '';
+                    $user->cachepwd_valid_to = null;
                     $user->save();
                 }
             }

@@ -34,7 +34,8 @@ return new class extends Migration
             $table->increments('id');
             $table->string('username')->default('');
             $table->string('password')->default('');
-            $table->string('cachepwd')->default('')->comment('Store new unconfirmed password');
+            $table->string('cachepwd')->default('')->comment('One-time password recovery token');
+            $table->dateTime('cachepwd_valid_to')->nullable()->comment('Expiry of the recovery token in cachepwd; NULL = never expires');
             $table->string('refresh_token')->nullable();
             $table->string('access_token')->nullable();
             $table->timestamp('valid_to')->nullable();

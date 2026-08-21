@@ -37,11 +37,14 @@ use Predis\Command\Argument\TimeSeries\IncrByArguments;
 use Predis\Command\Argument\TimeSeries\InfoArguments;
 use Predis\Command\Argument\TimeSeries\MGetArguments;
 use Predis\Command\Argument\TimeSeries\MRangeArguments;
+use Predis\Command\Argument\TimeSeries\NRangeArguments;
 use Predis\Command\Argument\TimeSeries\RangeArguments;
+use Predis\Command\Argument\TimeSeries\ReadArguments;
 use Predis\Command\CommandInterface;
 use Predis\Command\Container\ACL;
 use Predis\Command\Container\CLIENT;
 use Predis\Command\Container\FUNCTIONS;
+use Predis\Command\Container\HIMPORT;
 use Predis\Command\Container\HOTKEYS;
 use Predis\Command\Container\Json\JSONDEBUG;
 use Predis\Command\Container\Search\FTCONFIG;
@@ -127,7 +130,7 @@ use Predis\Command\Redis\VADD;
  * @method $this cfinsertnx(string $key, int $capacity = -1, bool $noCreate = false, string ...$item)
  * @method $this cfreserve(string $key, int $capacity, int $bucketSize = -1, int $maxIterations = -1, int $expansion = -1)
  * @method $this cfscandump(string $key, int $iterator)
- * @method $this cmsincrby(string $key, string|int...$itemIncrementDictionary)
+ * @method $this cmsincrby(string $key, string|int ...$itemIncrementDictionary)
  * @method $this cmsinfo(string $key)
  * @method $this cmsinitbydim(string $key, int $width, int $depth)
  * @method $this cmsinitbyprob(string $key, float $errorRate, float $probability)
@@ -142,6 +145,7 @@ use Predis\Command\Redis\VADD;
  * @method $this ftaggregate(string $index, string $query, ?AggregateArguments $arguments = null)
  * @method $this ftaliasadd(string $alias, string $index)
  * @method $this ftaliasdel(string $alias)
+ * @method $this ftaliaslist(string $index)
  * @method $this ftaliasupdate(string $alias, string $index)
  * @method $this ftalter(string $index, FieldInterface[] $schema, ?AlterArguments $arguments = null)
  * @method $this ftcreate(string $index, FieldInterface[] $schema, ?CreateArguments $arguments = null)
@@ -234,6 +238,7 @@ use Predis\Command\Redis\VADD;
  * @method $this jsontoggle(string $key, string $path)
  * @method $this jsontype(string $key, string $path = '$')
  * @method $this blmove(string $source, string $destination, string $where, string $to, int $timeout)
+ * @method $this blmovem(string $source, string $destination, string $from, string $to, int|float $timeout, ?string $quantifier = null, ?int $count = null, ?string $ordering = null)
  * @method $this blpop(array|string $keys, $timeout)
  * @method $this brpop(array|string $keys, $timeout)
  * @method $this brpoplpush($source, $destination, $timeout)
@@ -242,6 +247,7 @@ use Predis\Command\Redis\VADD;
  * @method $this linsert($key, $whence, $pivot, $value)
  * @method $this llen($key)
  * @method $this lmove(string $source, string $destination, string $where, string $to)
+ * @method $this lmovem(string $source, string $destination, string $from, string $to, ?string $quantifier = null, ?int $count = null, ?string $ordering = null)
  * @method $this lmpop(array $keys, string $modifier = 'left', int $count = 1)
  * @method $this lpop($key)
  * @method $this lpush($key, array $values)
@@ -257,6 +263,7 @@ use Predis\Command\Redis\VADD;
  * @method $this sadd($key, array $members)
  * @method $this scard($key)
  * @method $this sdiff(array|string $keys)
+ * @method $this sdiffcard(array $keys, int $limit = 0)
  * @method $this sdiffstore($destination, array|string $keys)
  * @method $this sinter(array|string $keys)
  * @method $this sintercard(array $keys, int $limit = 0)
@@ -273,6 +280,7 @@ use Predis\Command\Redis\VADD;
  * @method $this subscribe(string ...$channels)
  * @method $this sunsubscribe(?string ...$shardChannels = null)
  * @method $this sunion(array|string $keys)
+ * @method $this sunioncard(array $keys, bool $approx = false, int $limit = 0)
  * @method $this sunionstore($destination, array|string $keys)
  * @method $this tdigestadd(string $key, float ...$value)
  * @method $this tdigestbyrank(string $key, int ...$rank)
@@ -308,8 +316,12 @@ use Predis\Command\Redis\VADD;
  * @method $this tsmget(MGetArguments $arguments, string ...$filterExpression)
  * @method $this tsmrange($fromTimestamp, $toTimestamp, MRangeArguments $arguments)
  * @method $this tsmrevrange($fromTimestamp, $toTimestamp, MRangeArguments $arguments)
+ * @method $this tsnrange(array $keys, $fromTimestamp, $toTimestamp, ?NRangeArguments $arguments = null)
+ * @method $this tsnrevrange(array $keys, $fromTimestamp, $toTimestamp, ?NRangeArguments $arguments = null)
  * @method $this tsqueryindex(string ...$filterExpression)
+ * @method $this tsquerylabels(?string $label = null, string ...$filterExpression)
  * @method $this tsrange(string $key, $fromTimestamp, $toTimestamp, ?RangeArguments $arguments = null)
+ * @method $this tsread(string $key, $timestamp, ?ReadArguments $arguments = null)
  * @method $this tsrevrange(string $key, $fromTimestamp, $toTimestamp, ?RangeArguments $arguments = null)
  * @method $this xack(string $key, string $group, string ...$id)
  * @method $this xackdel(string $key, string $group, string $mode, array $ids)
@@ -325,8 +337,9 @@ use Predis\Command\Redis\VADD;
  * @method $this xrevrange(string $key, string $end, string $start, ?int $count = null)
  * @method $this xrange(string $key, string $start, string $end, ?int $count = null)
  * @method $this xread(int $count = null, int $block = null, array $streams = null, string ...$id)
+ * @method $this xread_v4(array $keyIdDict, ?int $count = null, ?int $blockMs = null, ?int $maxCount = null, ?int $maxSize = null)
  * @method $this xreadgroup(string $group, string $consumer, ?int $count = null, ?int $blockMs = null, bool $noAck = false, string ...$keyOrId)
- * @method $this xreadgroup_claim(string $group, string $consumer, array $keyIdDict, ?int $count = null, ?int $blockMs = null, bool $noAck = false, ?int $claim = null)
+ * @method $this xreadgroup_claim(string $group, string $consumer, array $keyIdDict, ?int $count = null, ?int $blockMs = null, bool $noAck = false, ?int $claim = null, ?int $maxCount = null, ?int $maxSize = null)
  * @method $this xsetid(string $key, string $lastId, ?int $entriesAdded = null, ?string $maxDeleteId = null)
  * @method $this xtrim(string $key, array|string $strategy, string $threshold, array $options = null)
  * @method $this zadd($key, array $membersAndScoresDictionary)
@@ -419,6 +432,7 @@ use Predis\Command\Redis\VADD;
  *
  * Container commands
  * @property CLIENT    $client
+ * @property HIMPORT   $himport
  * @property HOTKEYS   $hotkeys
  * @property FUNCTIONS $function
  * @property FTCONFIG  $ftconfig

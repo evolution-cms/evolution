@@ -11,7 +11,7 @@
   class="icon icon-tabler icons-tabler-outline icon-tabler-device-screen"
 >
   <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-  <path d="M5 5a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-14"  />
+  <path d="M5 5a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-14" />
   <path d="M15 7l-6 10" />
   <path d="M15 14l-1.75 3" />
   <path d="M10.75 7l-1.75 3" />

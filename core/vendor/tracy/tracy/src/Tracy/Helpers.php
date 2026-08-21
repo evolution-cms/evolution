@@ -218,13 +218,20 @@ class Helpers
 				. (isset($_SERVER['argv']) ? ': ' . implode(' ', array_map(self::escapeArg(...), $_SERVER['argv'])) : '');
 
 		} elseif (isset($_SERVER['REQUEST_URI'])) {
-			return (!empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'], 'off') ? 'https://' : 'http://')
+			return (self::isHttps() ? 'https://' : 'http://')
 				. ($_SERVER['HTTP_HOST'] ?? '')
 				. $_SERVER['REQUEST_URI'];
 
 		} else {
 			return PHP_SAPI;
 		}
+	}
+
+
+	/** @internal */
+	public static function isHttps(): bool
+	{
+		return !empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'], 'off') !== 0;
 	}
 
 
@@ -385,7 +392,8 @@ class Helpers
 	/** @internal */
 	public static function isAgent(): bool
 	{
-		return ($_COOKIE['tracy-webdriver'] ?? null) === '1';
+		return ($_COOKIE['tracy-webdriver'] ?? null) === '1' // set by bar.js when navigator.webdriver
+			|| isset($_SERVER['HTTP_X_TRACY_AGENT']); // non-browser agents (curl, HTTP clients)
 	}
 
 
