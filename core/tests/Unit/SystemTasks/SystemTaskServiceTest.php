@@ -1,13 +1,26 @@
 <?php
 
 use Carbon\Carbon;
+use EvolutionCMS\Console\SystemTasks\TaskWorkerCommand;
+use EvolutionCMS\Interfaces\SystemTaskHandlerInterface;
 use EvolutionCMS\Models\SystemCliTask;
 use EvolutionCMS\Services\Store\CatalogService;
 use EvolutionCMS\Services\SystemTasks\SchedulerHealthService;
 use EvolutionCMS\Services\SystemTasks\SystemTaskService;
+use EvolutionCMS\Services\SystemTasks\SystemTaskRegistry;
+use Illuminate\Container\Container;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Blueprint;
+use Symfony\Component\Console\Tester\CommandTester;
+
+final class SystemTaskWorkerTestContainer extends Container
+{
+    public function runningUnitTests(): bool
+    {
+        return true;
+    }
+}
 
 beforeAll(function () {
     $capsule = new Capsule();
@@ -88,6 +101,11 @@ beforeEach(function () {
     \EvolutionCMS\Models\SystemCliTaskLog::query()->delete();
     \EvolutionCMS\Models\SystemSchedulerHealth::query()->delete();
     \EvolutionCMS\Models\SystemWorkerHealth::query()->delete();
+    SystemTaskRegistry::forget('custom.worker_test');
+});
+
+afterEach(function () {
+    SystemTaskRegistry::forget('custom.worker_test');
 });
 
 function invokeSystemTaskServiceMethod(SystemTaskService $service, string $method, array $args = [])
@@ -746,4 +764,70 @@ test('task status payload requires system task view permission even for owner se
 
     expect($response['ok'])->toBeFalse()
         ->and($response['error_code'])->toBe('ACL_DENIED');
+});
+
+test('task worker executes registered extension task handlers', function () {
+    $handler = new class implements SystemTaskHandlerInterface {
+        public function execute(SystemCliTask $task, ?callable $report = null)
+        {
+            if ($report !== null) {
+                $report('extension_step', 40, 'Extension task is running.', 'info', [
+                    'target' => (string) $task->target,
+                ]);
+            }
+
+            return [
+                'message' => 'Extension task completed.',
+                'result' => [
+                    'handled_by' => 'extension',
+                    'target' => (string) $task->target,
+                ],
+            ];
+        }
+    };
+
+    SystemTaskRegistry::register('custom.worker_test', $handler, [
+        'label' => 'Custom worker test',
+    ]);
+
+    $task = SystemCliTask::query()->create([
+        'uuid' => 'custom-worker-task',
+        'type' => 'custom.worker_test',
+        'target' => 'custom-target',
+        'requested_version' => '',
+        'status' => 'queued',
+        'step' => 'queued',
+        'progress' => 0,
+        'message' => 'Queued',
+        'payload_json' => ['display_title' => 'Custom worker task'],
+        'result_json' => [],
+        'created_by' => 7,
+        'locked_by' => '',
+        'attempt_count' => 0,
+        'worker_host' => '',
+        'worker_pid' => null,
+        'error_code' => '',
+        'catalog_snapshot_hash' => '',
+        'requested_by_snapshot' => ['user_id' => 7],
+        'created_at' => Carbon::now(),
+        'updated_at' => Carbon::now(),
+    ]);
+
+    $command = new TaskWorkerCommand();
+    $command->setLaravel(new SystemTaskWorkerTestContainer());
+
+    $tester = new CommandTester($command);
+    $exitCode = $tester->execute(['--once' => true]);
+
+    $task->refresh();
+
+    expect($exitCode)->toBe(0)
+        ->and($task->status)->toBe('succeeded')
+        ->and($task->progress)->toBe(100)
+        ->and($task->message)->toBe('Extension task completed.')
+        ->and($task->result_json)->toBe([
+            'handled_by' => 'extension',
+            'target' => 'custom-target',
+        ])
+        ->and($tester->getDisplay())->toContain('[system:task-worker] custom.worker_test task completed');
 });

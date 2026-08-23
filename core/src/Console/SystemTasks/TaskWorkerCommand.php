@@ -1,9 +1,7 @@
 <?php namespace EvolutionCMS\Console\SystemTasks;
 
-use EvolutionCMS\Services\SystemTasks\ConsoleInstallFlowService;
-use EvolutionCMS\Services\SystemTasks\ConsoleUninstallFlowService;
-use EvolutionCMS\Services\SystemTasks\SiteUpdateFlowService;
 use EvolutionCMS\Services\SystemTasks\SystemTaskService;
+use EvolutionCMS\Services\SystemTasks\SystemTaskRegistry;
 use EvolutionCMS\Services\SystemTasks\WorkerHealthService;
 use Illuminate\Console\Command;
 use Illuminate\Console\Scheduling\Schedule;
@@ -35,90 +33,43 @@ class TaskWorkerCommand extends Command
         $workerHealth->markPick($host, $pid);
 
         try {
-            switch ((string) $task->type) {
-                case 'console_install':
-                    $flow = new ConsoleInstallFlowService();
-                    $result = $flow->execute($task, function ($step, $progress, $message, $level = 'info', array $context = []) use (&$task, $taskService) {
-                        $task = $taskService->updateTaskProgress(
-                            $task,
-                            'running',
-                            (int) $progress,
-                            (string) $step,
-                            (string) $message,
-                            (string) $level,
-                            $context
-                        );
-                    });
-
-                    $taskService->markTaskSucceeded(
-                        $task,
-                        isset($result['message']) ? (string) $result['message'] : 'System task completed successfully.',
-                        isset($result['result']) && is_array($result['result']) ? $result['result'] : []
-                    );
-                    $workerHealth->markSuccess($host, $pid);
-                    $this->info('[system:task-worker] console install task completed');
-                    return self::SUCCESS;
-
-                case 'console_uninstall':
-                    $flow = new ConsoleUninstallFlowService();
-                    $result = $flow->execute($task, function ($step, $progress, $message, $level = 'info', array $context = []) use (&$task, $taskService) {
-                        $task = $taskService->updateTaskProgress(
-                            $task,
-                            'running',
-                            (int) $progress,
-                            (string) $step,
-                            (string) $message,
-                            (string) $level,
-                            $context
-                        );
-                    });
-
-                    $taskService->markTaskSucceeded(
-                        $task,
-                        isset($result['message']) ? (string) $result['message'] : 'System task completed successfully.',
-                        isset($result['result']) && is_array($result['result']) ? $result['result'] : []
-                    );
-                    $workerHealth->markSuccess($host, $pid);
-                    $this->info('[system:task-worker] console uninstall task completed');
-                    return self::SUCCESS;
-
-                case 'site_update':
-                    $flow = new SiteUpdateFlowService();
-                    $result = $flow->execute($task, function ($step, $progress, $message, $level = 'info', array $context = []) use (&$task, $taskService) {
-                        $task = $taskService->updateTaskProgress(
-                            $task,
-                            'running',
-                            (int) $progress,
-                            (string) $step,
-                            (string) $message,
-                            (string) $level,
-                            $context
-                        );
-                    });
-
-                    $taskService->markTaskSucceeded(
-                        $task,
-                        isset($result['message']) ? (string) $result['message'] : 'Site update completed successfully.',
-                        isset($result['result']) && is_array($result['result']) ? $result['result'] : []
-                    );
-                    $workerHealth->markSuccess($host, $pid);
-                    $this->info('[system:task-worker] site update task completed');
-                    return self::SUCCESS;
-
-                default:
-                    $taskService->markTaskFailed(
-                        $task,
-                        'TASK_TYPE_NOT_ALLOWED',
-                        'Unsupported system task type for this worker.'
-                    );
-                    $workerHealth->markFailure('TASK_TYPE_NOT_ALLOWED', $host, $pid);
-                    Log::warning('[system:task-worker] unsupported task type', [
-                        'task_id' => (int) $task->id,
-                        'type' => (string) $task->type,
-                    ]);
-                    $this->warn('[system:task-worker] unsupported task type');
-                    return self::SUCCESS;
+            $type = (string) $task->type;
+            if (!SystemTaskRegistry::has($type)) {
+                $taskService->markTaskFailed(
+                    $task,
+                    'TASK_TYPE_NOT_ALLOWED',
+                    'Unsupported system task type for this worker.'
+                );
+                $workerHealth->markFailure('TASK_TYPE_NOT_ALLOWED', $host, $pid);
+                Log::warning('[system:task-worker] unsupported task type', [
+                    'task_id' => (int) $task->id,
+                    'type' => $type,
+                ]);
+                $this->warn('[system:task-worker] unsupported task type');
+                return self::SUCCESS;
             }
+
+            $handler = SystemTaskRegistry::handler($type);
+            $result = $handler->execute($task, function ($step, $progress, $message, $level = 'info', array $context = []) use (&$task, $taskService) {
+                $task = $taskService->updateTaskProgress(
+                    $task,
+                    'running',
+                    (int) $progress,
+                    (string) $step,
+                    (string) $message,
+                    (string) $level,
+                    $context
+                );
+            });
+
+            $taskService->markTaskSucceeded(
+                $task,
+                isset($result['message']) ? (string) $result['message'] : SystemTaskRegistry::label($type) . ' completed successfully.',
+                isset($result['result']) && is_array($result['result']) ? $result['result'] : []
+            );
+            $workerHealth->markSuccess($host, $pid);
+            $this->info('[system:task-worker] ' . $type . ' task completed');
+            return self::SUCCESS;
         } catch (\Throwable $exception) {
             $errorCode = 'TASK_EXECUTION_FAILED';
             $taskService->markTaskFailed($task, $errorCode, $exception->getMessage(), [

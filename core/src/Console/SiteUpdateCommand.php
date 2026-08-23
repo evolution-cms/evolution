@@ -708,12 +708,33 @@ HELP;
         }
 
         foreach ($this->composerBinaryCandidates() as $candidate) {
-            if (is_file($candidate) && is_executable($candidate)) {
+            if ($this->isExecutableFile($candidate)) {
                 return escapeshellarg($candidate);
             }
         }
 
         return 'composer';
+    }
+
+    /**
+     * Check whether a path is something the shell can run.
+     *
+     * On Windows is_executable() answers false even for a genuine
+     * composer.bat — it does not consult PATHEXT the way the shell does — so
+     * every candidate would be rejected no matter which paths were offered.
+     * There the file existing is the only signal available.
+     *
+     * @since 3.5.8
+     * @param string $path Absolute path to test.
+     * @return bool
+     */
+    protected function isExecutableFile(string $path): bool
+    {
+        if (!is_file($path)) {
+            return false;
+        }
+
+        return windows_os() ? true : is_executable($path);
     }
 
     /**
@@ -733,7 +754,53 @@ HELP;
             $candidates[] = $home . '/.composer/composer';
         }
 
+        // Appended rather than switched on the platform. Every candidate is
+        // filtered by isExecutableFile() anyway, so an entry that cannot exist
+        // here costs one is_file() call, while a platform branch would be a
+        // new way to guess wrong — under WSL, or wherever the environment does
+        // not match what PHP_OS_FAMILY suggests.
+        $candidates = array_merge($candidates, $this->windowsComposerBinaryCandidates());
+
         return array_values(array_unique($candidates));
+    }
+
+    /**
+     * Build fallback Composer executable candidates for Windows layouts.
+     *
+     * The POSIX list finds nothing here: there is no /usr/local/bin, and a
+     * per-user install puts a shim in %APPDATA%\Composer rather than in a
+     * ~/.composer/composer file. Only shell-runnable shims are listed —
+     * composer.phar is deliberately absent, because it needs `php` in front of
+     * it and this list feeds a command that is executed directly.
+     *
+     * @since 3.5.8
+     * @return array<int, string>
+     */
+    protected function windowsComposerBinaryCandidates(): array
+    {
+        $candidates = [];
+
+        // Where the Composer-Setup installer puts a machine-wide install.
+        $programData = trim((string) getenv('ProgramData'));
+        if ($programData !== '') {
+            $base = rtrim(str_replace('\\', '/', $programData), '/') . '/ComposerSetup/bin/composer';
+            $candidates[] = $base . '.bat';
+            $candidates[] = $base . '.exe';
+        }
+
+        // A per-user install.
+        $appData = trim((string) getenv('APPDATA'));
+        if ($appData !== '') {
+            $base = rtrim(str_replace('\\', '/', $appData), '/') . '/Composer/composer';
+            $candidates[] = $base . '.bat';
+            $candidates[] = $base . '.exe';
+        }
+
+        foreach ($this->homeDirectories() as $home) {
+            $candidates[] = $home . '/AppData/Roaming/Composer/composer.bat';
+        }
+
+        return array_values(array_unique(array_filter($candidates)));
     }
 
     /**
@@ -775,7 +842,16 @@ HELP;
         $output = [];
         $exitCode = 1;
 
-        exec('command -v ' . escapeshellarg($command) . ' >/dev/null 2>&1', $output, $exitCode);
+        // `command -v` is a POSIX shell builtin and /dev/null is a POSIX
+        // device; cmd.exe has neither, so on Windows this probe reported "not
+        // found" for every command — including ones plainly on PATH — and the
+        // resolver fell through to candidate paths that do not exist there
+        // either. `where` is the native equivalent and answers 0 when found.
+        $probe = windows_os()
+            ? 'where ' . escapeshellarg($command) . ' >NUL 2>NUL'
+            : 'command -v ' . escapeshellarg($command) . ' >/dev/null 2>&1';
+
+        exec($probe, $output, $exitCode);
 
         return (int) $exitCode === 0;
     }

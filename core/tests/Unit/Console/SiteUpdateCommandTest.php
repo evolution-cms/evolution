@@ -215,3 +215,50 @@ test('site updater can read bundled extras installer metadata', function () {
     expect($params['guid'])->toBe('store435243542tf542t5t');
     expect($moduleCode)->toContain("assets/modules/store/core.php");
 });
+
+test('composer detection uses a probe the local shell actually understands', function () {
+    $source = file_get_contents(dirname(__DIR__, 3) . '/src/Console/SiteUpdateCommand.php');
+
+    expect($source)
+        ->toContain("'where ' . escapeshellarg(\$command) . ' >NUL 2>NUL'")
+        ->toContain("'command -v ' . escapeshellarg(\$command) . ' >/dev/null 2>&1'");
+});
+
+test('shellCommandExists finds a command that is really on PATH', function () {
+    $present = windows_os() ? 'where' : 'sh';
+
+    expect(invokeSiteUpdateMethod($this->command, 'shellCommandExists', [$present]))->toBeTrue()
+        ->and(invokeSiteUpdateMethod($this->command, 'shellCommandExists', ['evo-no-such-command-here']))->toBeFalse();
+});
+
+test('composer binary candidates cover windows layouts as well as posix ones', function () {
+    $programData = getenv('ProgramData');
+    $appData = getenv('APPDATA');
+
+    putenv('ProgramData=C:\ProgramData');
+    putenv('APPDATA=C:\Users\evo\AppData\Roaming');
+
+    $candidates = invokeSiteUpdateMethod($this->command, 'composerBinaryCandidates');
+
+    expect($candidates)
+        ->toContain('/usr/local/bin/composer')
+        ->toContain('C:/ProgramData/ComposerSetup/bin/composer.bat')
+        ->toContain('C:/Users/evo/AppData/Roaming/Composer/composer.bat');
+
+    $programData === false ? putenv('ProgramData') : putenv('ProgramData=' . $programData);
+    $appData === false ? putenv('APPDATA') : putenv('APPDATA=' . $appData);
+});
+
+test('isExecutableFile accepts a windows shim that is_executable rejects', function () {
+    $path = sys_get_temp_dir() . '/evo-composer-probe-' . getmypid() . '.bat';
+    file_put_contents($path, '@echo off');
+
+    try {
+        $expected = windows_os() ? true : is_executable($path);
+
+        expect(invokeSiteUpdateMethod($this->command, 'isExecutableFile', [$path]))->toBe($expected)
+            ->and(invokeSiteUpdateMethod($this->command, 'isExecutableFile', [$path . '.missing']))->toBeFalse();
+    } finally {
+        @unlink($path);
+    }
+});

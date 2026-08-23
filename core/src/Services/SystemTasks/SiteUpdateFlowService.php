@@ -1,10 +1,11 @@
 <?php namespace EvolutionCMS\Services\SystemTasks;
 
+use EvolutionCMS\Interfaces\SystemTaskHandlerInterface;
 use EvolutionCMS\Models\SystemCliTask;
 use EvolutionCMS\Services\DatabaseBackupService;
 use Symfony\Component\Process\Process;
 
-class SiteUpdateFlowService
+class SiteUpdateFlowService implements SystemTaskHandlerInterface
 {
     protected string $corePath;
 
