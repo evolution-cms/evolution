@@ -87,6 +87,24 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     public $documentOutput;
     public $tstart = 0;
     public $mstart = 0;
+    /**
+     * Conditional-tag commands referenced by index from the source generated in
+     * mergeConditionalTagsContent(), so they never have to be quoted into it.
+     *
+     * @var array<int, string>
+     */
+    private $ctagCmds = [];
+
+    /**
+     * Extensions @FILE refuses to serve. `.php` alone left `.phtml`/`.php5`/`.inc` readable as
+     * plain text, which discloses their source.
+     *
+     * @var string[]
+     */
+    private const AT_BIND_FILE_DENIED_EXTENSIONS = [
+        '.php', '.php3', '.php4', '.php5', '.php7', '.php8', '.phps', '.phtml', '.phar', '.inc',
+    ];
+
     public $minParserPasses = 2;
     public $maxParserPasses = 10;
     public $documentObject = [];
@@ -1872,6 +1890,12 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $content
         );
 
+        // The command is handed to _parseCTagCMD() by index instead of being quoted into the
+        // generated source. Escaping it was never sufficient: a backslash in front of the quote
+        // consumed the escape and let the rest of the command close the string literal and run as
+        // PHP. Passing a reference removes the concatenation, so there is nothing left to escape.
+        $ctagOffset = count($this->ctagCmds);
+
         $pieces = explode('<@IF:', $content);
         foreach ($pieces as $i => $split) {
             if ($i === 0) {
@@ -1879,8 +1903,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 continue;
             }
             [$cmd, $text] = explode('>', $split, 2);
-            $cmd = str_replace("'", "\'", $cmd);
-            $content .= "<?php if(\$this->_parseCTagCMD('" . $cmd . "')): ?>";
+            $index = array_push($this->ctagCmds, $cmd) - 1;
+            $content .= '<?php if($this->_parseCTagCMD($this->ctagCmds[' . $index . '])): ?>';
             $content .= $text;
         }
         $pieces = explode('<@ELSEIF:', $content);
@@ -1890,15 +1914,21 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 continue;
             }
             [$cmd, $text] = explode('>', $split, 2);
-            $cmd = str_replace("'", "\'", $cmd);
-            $content .= "<?php elseif(\$this->_parseCTagCMD('" . $cmd . "')): ?>";
+            $index = array_push($this->ctagCmds, $cmd) - 1;
+            $content .= '<?php elseif($this->_parseCTagCMD($this->ctagCmds[' . $index . '])): ?>';
             $content .= $text;
         }
 
         $content = str_replace(['<@ELSE>', '<@ENDIF>'], ['<?php else:?>', '<?php endif;?>'], $content);
         ob_start();
-        eval ('?>' . $content);
-        $content = ob_get_clean();
+        try {
+            eval ('?>' . $content);
+        } finally {
+            $content = ob_get_clean();
+            // A nested parse has already trimmed its own entries, so the indices baked into the
+            // source above stayed valid for the whole eval.
+            array_splice($this->ctagCmds, $ctagOffset);
+        }
         $content = str_replace(
             ["{$sp}h", "{$sp}p", "{$sp}s", "{$sp}e"],
             ['<?php', '<?=', '<?', '?>'],
@@ -2316,28 +2346,94 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $this->setConfig('enable_filter', $_);
         $key = str_replace(['(', ')'], ["['", "']"], $key);
         $key = rtrim($key, ';');
-        if (Str::contains($key, '$_SESSION')) {
-            $_ = $_SESSION;
-            $key = str_replace('$_SESSION', '$_', $key);
-            if (isset($_['mgrFormValues'])) {
-                unset($_['mgrFormValues']);
-            }
-            if (isset($_['token'])) {
-                unset($_['token']);
-            }
-        }
-        if (Str::contains($key, '[')) {
-            $value = $key ? eval ("return {$key};") : '';
-        } elseif (0 < eval ("return count({$key});")) {
-            $value = eval ("return print_r({$key},true);");
-        } else {
-            $value = '';
-        }
+
+        // The superglobal is read by walking the array, not by evaluating the tag. eval() only
+        // looked safe here because `(` and `)` were rewritten away, but PHP's backtick operator
+        // needs no parentheses, so `[[$_SERVER . `id` ]]` reached the shell.
+        $value = $this->resolveSGVar($key);
+
         if ($modifiers !== false) {
             $value = $this->applyFilter($value, $modifiers, $key);
         }
 
         return $value;
+    }
+
+    /**
+     * Read one superglobal entry named by a parser tag.
+     *
+     * Accepts `$_GET(key)` and `$_GET['key']` (the former is rewritten into the latter by the
+     * caller), nested to any depth, plus the bare `$_SERVER` form that dumps the whole array.
+     * Anything else - arithmetic, concatenation, backticks - is refused rather than evaluated.
+     *
+     * @param string $key
+     * @return mixed
+     * @since 3.5.8
+     */
+    private function resolveSGVar($key)
+    {
+        if (!preg_match('@^\$_(GET|POST|SESSION|COOKIE|REQUEST|SERVER|FILES|ENV)@', $key, $matches)) {
+            return '';
+        }
+
+        $path = [];
+        $rest = substr($key, strlen($matches[0]));
+        while ($rest !== '' && $rest !== false) {
+            if (!preg_match('@^\[\s*([\'"]?)([^\[\]\'"]*)\1\s*\]@', $rest, $accessor)) {
+                // Trailing characters that are not an array access: refuse the whole tag.
+                return '';
+            }
+            $path[] = $accessor[2];
+            $rest = substr($rest, strlen($accessor[0]));
+        }
+
+        $container = $this->getSuperGlobal($matches[1]);
+
+        if ($path === []) {
+            return count($container) > 0 ? print_r($container, true) : '';
+        }
+
+        $cursor = $container;
+        foreach ($path as $segment) {
+            if (!is_array($cursor) || !array_key_exists($segment, $cursor)) {
+                return '';
+            }
+            $cursor = $cursor[$segment];
+        }
+
+        return $cursor;
+    }
+
+    /**
+     * @param string $name
+     * @return array
+     * @since 3.5.8
+     */
+    private function getSuperGlobal($name)
+    {
+        switch ($name) {
+            case 'GET':
+                return $_GET;
+            case 'POST':
+                return $_POST;
+            case 'COOKIE':
+                return $_COOKIE;
+            case 'REQUEST':
+                return $_REQUEST;
+            case 'SERVER':
+                return $_SERVER;
+            case 'FILES':
+                return $_FILES;
+            case 'ENV':
+                return $_ENV;
+            case 'SESSION':
+                $session = isset($_SESSION) && is_array($_SESSION) ? $_SESSION : [];
+                unset($session['mgrFormValues'], $session['token']);
+
+                return $session;
+        }
+
+        return [];
     }
 
     /**
@@ -6300,6 +6396,47 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @param string $str
      * @return bool|mixed|string
      */
+    /**
+     * Resolve one @FILE candidate to a real path inside the installation, or false.
+     *
+     * The old check compared the unresolved concatenation against EVO_MANAGER_PATH, so a `..`
+     * segment walked straight past it - and past EVO_BASE_PATH - to anywhere the web user could
+     * read. Containment is decided on the resolved path instead.
+     *
+     * @param string $candidate
+     * @return string|false
+     * @since 3.5.8
+     */
+    private function resolveAtBindFilePath($candidate)
+    {
+        $resolved = realpath($candidate);
+        if ($resolved === false || !is_file($resolved)) {
+            return false;
+        }
+
+        $base = realpath(EVO_BASE_PATH);
+        if ($base === false) {
+            return false;
+        }
+
+        $resolved = str_replace(DIRECTORY_SEPARATOR, '/', $resolved);
+        $base = rtrim(str_replace(DIRECTORY_SEPARATOR, '/', $base), '/') . '/';
+
+        if (strpos($resolved, $base) !== 0) {
+            return false;
+        }
+
+        $manager = realpath(EVO_MANAGER_PATH);
+        if ($manager !== false) {
+            $manager = rtrim(str_replace(DIRECTORY_SEPARATOR, '/', $manager), '/') . '/';
+            if (strpos($resolved, $manager) === 0) {
+                return false;
+            }
+        }
+
+        return $resolved;
+    }
+
     public function atBindFileContent($str = '')
     {
 
@@ -6310,7 +6447,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $str = substr($str, 0, strpos("\n", $str));
         }
 
-        if ($this->getExtFromFilename($str) === '.php') {
+        if (in_array($this->getExtFromFilename($str), self::AT_BIND_FILE_DENIED_EXTENSIONS, true)) {
             return 'Could not retrieve PHP file.';
         }
 
@@ -6325,16 +6462,11 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
         $search_path = ['assets/tvs/', 'assets/chunks/', 'assets/templates/', $this->getConfig('rb_base_url') . 'files/', ''];
         foreach ($search_path as $path) {
-            $file_path = EVO_BASE_PATH . $path . $str;
-            if (strpos($file_path, EVO_MANAGER_PATH) === 0) {
-                return $errorMsg;
-            }
+            $file_path = $this->resolveAtBindFilePath(EVO_BASE_PATH . $path . $str);
 
-            if (is_file($file_path)) {
+            if ($file_path !== false) {
                 break;
             }
-
-            $file_path = false;
         }
 
         if (!$file_path) {

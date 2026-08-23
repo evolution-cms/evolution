@@ -2,6 +2,7 @@
 
 use EvolutionCMS\Interfaces\ModifiersInterface;
 use EvolutionCMS\Models\SiteTemplate;
+use EvolutionCMS\Support\ArithmeticExpression;
 use EvolutionCMS\Support\DataGrid;
 
 class Modifiers implements ModifiersInterface
@@ -479,7 +480,7 @@ class Modifiers implements ModifiersInterface
             case 'show':
             case 'this':
                 $conditional = implode(' ', $this->condition);
-                $isvalid = (int)(eval("return ({$conditional});"));
+                $isvalid = (int)ArithmeticExpression::evaluate($conditional);
                 if ($isvalid) {
                     return $this->srcValue;
                 }
@@ -487,7 +488,7 @@ class Modifiers implements ModifiersInterface
                 return null;
             case 'then':
                 $conditional = implode(' ', $this->condition);
-                $isvalid = (int)eval("return ({$conditional});");
+                $isvalid = (int)ArithmeticExpression::evaluate($conditional);
                 if ($isvalid) {
                     return $opt;
                 }
@@ -495,7 +496,7 @@ class Modifiers implements ModifiersInterface
                 return null;
             case 'else':
                 $conditional = implode(' ', $this->condition);
-                $isvalid = (int)eval("return ({$conditional});");
+                $isvalid = (int)ArithmeticExpression::evaluate($conditional);
                 if (!$isvalid) {
                     return $opt;
                 }
@@ -910,7 +911,9 @@ class Modifiers implements ModifiersInterface
                 }
                 $filter = str_replace('?', $value, $filter);
 
-                return eval("return {$filter};");
+                // The letter strip above leaves `$`, quotes and backslashes in place, which is
+                // enough to reach PHP through octal escapes; only arithmetic gets through now.
+                return ArithmeticExpression::evaluate($filter);
             case 'count':
                 if ($value == '') {
                     return 0;

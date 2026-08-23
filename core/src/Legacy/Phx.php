@@ -1,6 +1,7 @@
 <?php namespace EvolutionCMS\Legacy;
 
 use EvolutionCMS\Core;
+use EvolutionCMS\Support\ArithmeticExpression;
 
 /**
  * @deprecated
@@ -414,7 +415,9 @@ class Phx
                     case "math":
                         $filter = preg_replace("~([a-zA-Z\n\r\t\s])~", "", $modifier_value[$i]);
                         $filter = str_replace("?", $output, $filter);
-                        $output = eval("return " . $filter . ";");
+                        // The letter strip above never made this safe: `$`, quotes and backslashes
+                        // survive it, and octal escapes need no letters at all.
+                        $output = ArithmeticExpression::evaluate($filter);
                         break;
                     case "isnotempty":
                         if (!empty($output)) {
@@ -526,7 +529,9 @@ class Phx
      */
     private function runCode($code)
     {
-        return eval("return (" . $code . ");");
+        // $code is assembled from intval() results joined by `&&`/`||`, so the arithmetic
+        // evaluator covers it exactly and no eval() is needed to resolve it.
+        return ArithmeticExpression::evaluate($code);
     }
 
     // Event logging (debug)
