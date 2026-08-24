@@ -1340,7 +1340,7 @@ class browser extends uploader
      * @param $message
      * @param array|null $data
      */
-    protected function errorMsg($message, array $data = null)
+    protected function errorMsg($message, ?array $data = null)
     {
         if (in_array($this->action, ["thumb", "upload", "download", "downloadDir"])) {
             die($this->label($message, $data));
