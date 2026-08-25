@@ -294,10 +294,21 @@ jobs:
           # request on its own (Caddy's 404, nginx's 404) sends no such header.
           friendly=$(curl -s -D - -o /dev/null http://127.0.0.1:8899/no-such-page)
           echo "front=$front manager=$manager"
+          # The image also runs the scheduler next to the web server: the
+          # manager queues package installs, updates and backups as system
+          # tasks that nothing picks up without it. The wait gives a scheduler
+          # that boots and dies time to log its restart, so a crash loop fails
+          # here rather than shipping as a quietly idle queue.
+          sleep 8
+          started=$(docker logs evo-smoke 2>&1 | grep -c 'starting php artisan schedule:work' || true)
+          restarted=$(docker logs evo-smoke 2>&1 | grep -c 'schedule:work exited' || true)
+          echo "scheduler started=$started restarted=$restarted"
           docker logs evo-smoke 2>&1 | tail -30
           docker rm -f evo-smoke > /dev/null
           test "$front" = "200"
           test "$manager" = "200"
+          test "$started" = "1"
+          test "$restarted" = "0"
           echo "$friendly" | grep -qi '^x-powered-by: php' || {
             echo "::error::friendly URL was not routed to index.php on ${SERVER}"
             echo "$friendly"

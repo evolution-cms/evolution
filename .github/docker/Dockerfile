@@ -8,6 +8,7 @@ ARG BASE_IMAGE=evo-salo-runtime:8.4
 FROM ${BASE_IMAGE}
 
 COPY build/ /var/www/html/
+COPY .github/docker/entrypoint.sh /usr/local/bin/evo-entrypoint
 
 # Friendly URLs: the repository ships the Apache rules as ht.access. The nginx
 # and FrankenPHP runtimes carry their own rules inside the base image, and
@@ -16,6 +17,11 @@ RUN if [ -f /var/www/html/ht.access ] && [ ! -f /var/www/html/.htaccess ]; then 
         cp /var/www/html/ht.access /var/www/html/.htaccess; \
     fi \
     && if command -v a2enmod > /dev/null 2>&1; then a2enmod rewrite; fi \
-    && chown -R www-data:www-data /var/www/html
+    && chown -R www-data:www-data /var/www/html \
+    && chmod +x /usr/local/bin/evo-entrypoint
 
 EXPOSE 80
+
+# The scheduler runs inside the container next to the web server; see the
+# script for why, and for the EVO_SCHEDULER=0 escape hatch.
+ENTRYPOINT ["evo-entrypoint"]
