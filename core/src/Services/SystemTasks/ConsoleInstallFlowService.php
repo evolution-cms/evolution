@@ -1,10 +1,11 @@
 <?php namespace EvolutionCMS\Services\SystemTasks;
 
+use EvolutionCMS\Interfaces\SystemTaskHandlerInterface;
 use EvolutionCMS\Models\SystemCliTask;
 use EvolutionCMS\Services\Store\CatalogService;
 use Symfony\Component\Process\Process;
 
-class ConsoleInstallFlowService
+class ConsoleInstallFlowService implements SystemTaskHandlerInterface
 {
     protected CatalogService $catalogService;
 

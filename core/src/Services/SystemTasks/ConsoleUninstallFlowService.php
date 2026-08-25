@@ -1,9 +1,10 @@
 <?php namespace EvolutionCMS\Services\SystemTasks;
 
+use EvolutionCMS\Interfaces\SystemTaskHandlerInterface;
 use EvolutionCMS\Models\SystemCliTask;
 use Symfony\Component\Process\Process;
 
-class ConsoleUninstallFlowService
+class ConsoleUninstallFlowService implements SystemTaskHandlerInterface
 {
     protected string $corePath;
     protected string $providersDir;

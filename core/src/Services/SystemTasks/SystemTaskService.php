@@ -10,6 +10,14 @@ class SystemTaskService
 {
     public const DEFAULT_LEASE_SECONDS = 900;
 
+    /**
+     * How far down the queue one acquire attempt looks for a startable task.
+     *
+     * Bounded so a queue holding thousands of blocked tasks cannot turn a
+     * once-a-minute worker tick into a full table scan.
+     */
+    public const ACQUIRE_SCAN_LIMIT = 50;
+
     protected CatalogService $catalogService;
 
     public function __construct(?CatalogService $catalogService = null)
@@ -62,6 +70,32 @@ class SystemTaskService
                 return $response;
         }
 
+        // Types a package registered. The built-in three keep the explicit
+        // cases above because each takes a differently shaped request; a
+        // registered type declares one creator and receives the request whole,
+        // so the store endpoint needs no knowledge of what is in it.
+        $creator = SystemTaskRegistry::creator($type);
+
+        if ($creator !== null) {
+            $response = $creator($request, $requesterSnapshot, (bool) $isSuperAdmin);
+
+            if (!is_array($response)) {
+                return [
+                    'ok' => false,
+                    'error_code' => 'TASK_CREATE_FAILED',
+                    'message' => 'The creator registered for system task type "' . $type . '" returned no result.',
+                ];
+            }
+
+            if (!empty($response['ok'])) {
+                $response['warnings'] = $preflight['warnings'];
+            }
+
+            return $response;
+        }
+
+        // Registered, runnable, but with no creator: the package queues it
+        // through its own code and deliberately did not expose it here.
         return [
             'ok' => false,
             'error_code' => 'TASK_TYPE_NOT_ALLOWED',
@@ -349,48 +383,118 @@ class SystemTaskService
         ];
     }
 
+    /**
+     * Claim the next task this worker is allowed to start.
+     *
+     * Oldest first, but a candidate is skipped rather than the whole scan
+     * abandoned when its type may not start yet: an exclusive task waiting for
+     * a running one must not stop a concurrent task behind it from being
+     * picked, or one long install would idle the worker for its whole duration.
+     *
+     * The claim itself is an optimistic `UPDATE … WHERE status = 'queued'` and
+     * is the only thing that makes two workers safe on one queue — the
+     * concurrency check above it is advisory and can race, which is why the
+     * scan continues when the update touches no rows.
+     */
     public function acquireNextQueuedTask($lockOwner, $host = '', $pid = null, $leaseSeconds = self::DEFAULT_LEASE_SECONDS)
     {
-        $candidate = SystemCliTask::query()
+        $candidates = SystemCliTask::query()
             ->where('status', 'queued')
             ->orderBy('id')
-            ->first();
+            ->limit(self::ACQUIRE_SCAN_LIMIT)
+            ->get();
 
-        if (!$candidate) {
-            return null;
+        foreach ($candidates as $candidate) {
+            if (!$this->canStartTaskNow($candidate)) {
+                continue;
+            }
+
+            $now = Carbon::now();
+            $updated = SystemCliTask::query()
+                ->where('id', $candidate->id)
+                ->where('status', 'queued')
+                ->update([
+                    'status' => 'picked',
+                    'step' => 'picked',
+                    'progress' => 5,
+                    'message' => 'Picked by worker',
+                    'locked_by' => trim((string) $lockOwner),
+                    'attempt_count' => ((int) $candidate->attempt_count) + 1,
+                    'lease_expires_at' => $now->copy()->addSeconds((int) $leaseSeconds),
+                    'worker_host' => trim((string) $host),
+                    'worker_pid' => $pid,
+                    'started_at' => $candidate->started_at ?: $now,
+                    'heartbeat_at' => $now,
+                    'updated_at' => $now,
+                ]);
+
+            if ((int) $updated !== 1) {
+                // Another worker won the race for this row. The next candidate
+                // may still be ours.
+                continue;
+            }
+
+            $task = SystemCliTask::query()->find($candidate->id);
+            if ($task) {
+                $this->appendLog($task, 'info', 'picked', 'Task picked by worker.', [
+                    'lock_owner' => trim((string) $lockOwner),
+                ]);
+            }
+
+            return $task;
+        }
+
+        return null;
+    }
+
+    /**
+     * May a task of this type start while the queue looks like this?
+     *
+     * An unregistered type answers true on purpose. It cannot run, and letting
+     * the worker pick it is what turns it into a task marked failed with
+     * TASK_TYPE_NOT_ALLOWED — refusing to pick it here would instead leave it
+     * queued forever, in front of everything behind it.
+     */
+    protected function canStartTaskNow(SystemCliTask $task): bool
+    {
+        $type = (string) $task->type;
+
+        if (!SystemTaskRegistry::has($type)) {
+            return true;
+        }
+
+        if (SystemTaskRegistry::isExclusive($type)) {
+            return $this->countActiveTasks(SystemTaskRegistry::exclusiveTypes()) === 0;
+        }
+
+        return $this->countActiveTasks([$type]) < SystemTaskRegistry::parallelism($type);
+    }
+
+    /**
+     * How many tasks of these types a worker is currently holding.
+     *
+     * Counts claimed work only — `picked` and `running` — and only while the
+     * lease is live, so an abandoned task stops occupying a slot once its
+     * lease lapses instead of shrinking the pipe permanently.
+     *
+     * @param string[] $types
+     */
+    protected function countActiveTasks(array $types): int
+    {
+        if ($types === []) {
+            return 0;
         }
 
         $now = Carbon::now();
-        $updated = SystemCliTask::query()
-            ->where('id', $candidate->id)
-            ->where('status', 'queued')
-            ->update([
-                'status' => 'picked',
-                'step' => 'picked',
-                'progress' => 5,
-                'message' => 'Picked by worker',
-                'locked_by' => trim((string) $lockOwner),
-                'attempt_count' => ((int) $candidate->attempt_count) + 1,
-                'lease_expires_at' => $now->copy()->addSeconds((int) $leaseSeconds),
-                'worker_host' => trim((string) $host),
-                'worker_pid' => $pid,
-                'started_at' => $candidate->started_at ?: $now,
-                'heartbeat_at' => $now,
-                'updated_at' => $now,
-            ]);
 
-        if ((int) $updated !== 1) {
-            return null;
-        }
-
-        $task = SystemCliTask::query()->find($candidate->id);
-        if ($task) {
-            $this->appendLog($task, 'info', 'picked', 'Task picked by worker.', [
-                'lock_owner' => trim((string) $lockOwner),
-            ]);
-        }
-
-        return $task;
+        return (int) SystemCliTask::query()
+            ->whereIn('status', ['picked', 'running'])
+            ->whereIn('type', $types)
+            ->where(function ($query) use ($now) {
+                $query->whereNull('lease_expires_at')
+                    ->orWhere('lease_expires_at', '>=', $now);
+            })
+            ->count();
     }
 
     public function updateTaskProgress(SystemCliTask $task, $status, $progress, $step, $message, $level = null, array $context = [])
@@ -840,6 +944,18 @@ class SystemTaskService
 
     protected function runCreatePreflight($type, array $requesterSnapshot = [], $isSuperAdmin = false)
     {
+        // An unknown type is refused before anything else is disclosed. It has
+        // no handler, so it could never run; answering it with a scheduler
+        // health verdict would only tell an unauthorised prober how the
+        // installation is doing.
+        if (!SystemTaskRegistry::has($type)) {
+            return [
+                'ok' => false,
+                'error_code' => 'TASK_TYPE_NOT_ALLOWED',
+                'message' => 'Unsupported system task type.',
+            ];
+        }
+
         if (empty($requesterSnapshot['permissions']['exec_module'])) {
             return [
                 'ok' => false,
@@ -848,31 +964,34 @@ class SystemTaskService
             ];
         }
 
-        if (in_array($type, ['console_install', 'console_uninstall'], true) && empty($requesterSnapshot['permissions']['system_tasks.manage_packages'])) {
+        // Which extra permissions a type needs is the type's own declaration,
+        // so a package gates its work with its own permission key instead of
+        // borrowing one of the CMS's.
+        foreach (SystemTaskRegistry::permissions($type) as $permission) {
+            if (empty($requesterSnapshot['permissions'][$permission])) {
+                return [
+                    'ok' => false,
+                    'error_code' => 'ACL_DENIED',
+                    'message' => 'Queueing a "' . SystemTaskRegistry::label($type)
+                        . '" task requires the ' . $permission . ' permission.',
+                ];
+            }
+        }
+
+        if (SystemTaskRegistry::requiresSuperAdmin($type) && !$isSuperAdmin) {
             return [
                 'ok' => false,
                 'error_code' => 'ACL_DENIED',
-                'message' => 'Console package queueing requires system task package management permission.',
+                'message' => '"' . SystemTaskRegistry::label($type) . '" tasks are limited to super administrators.',
             ];
         }
 
-        if ($type === 'site_update' && empty($requesterSnapshot['permissions']['system_tasks.site_update'])) {
-            return [
-                'ok' => false,
-                'error_code' => 'ACL_DENIED',
-                'message' => 'Site update queueing requires system task site update permission.',
-            ];
-        }
-
-        if ($type === 'site_update' && !$isSuperAdmin) {
-            return [
-                'ok' => false,
-                'error_code' => 'ACL_DENIED',
-                'message' => 'Site update tasks are limited to super administrators.',
-            ];
-        }
-
-        $activeTask = $this->findActiveMutatingTask();
+        // The global lock covers exclusive types only, and is asked about only
+        // when the new task is itself exclusive. Before the registry every type
+        // was exclusive, so for the three built-in flows this is the behaviour
+        // it always had; what it stops doing is letting a package's long batch
+        // hold the updater hostage for the length of the batch.
+        $activeTask = SystemTaskRegistry::isExclusive($type) ? $this->findActiveMutatingTask() : null;
         if ($activeTask) {
             $activeTaskPayload = $this->buildTaskStatusPayload($activeTask);
             $activeTaskPayload['can_cancel_queued'] = ((string) $activeTask->status === 'queued');
@@ -897,12 +1016,16 @@ class SystemTaskService
             ];
         }
 
-        if ($type === 'site_update') {
+        // A type reserved for super administrators is one that rewrites the
+        // installation, and half-healthy infrastructure is a bad place to start
+        // one: a lease that expires mid-update leaves a partly-updated site.
+        // Everything else is allowed to start and merely warned about.
+        if (SystemTaskRegistry::requiresSuperAdmin($type)) {
             if (($schedulerStatus['status'] ?? 'unhealthy') === 'degraded') {
                 return [
                     'ok' => false,
                     'error_code' => 'SITE_UPDATE_BLOCKED',
-                    'message' => 'Site update tasks are blocked while scheduler health is degraded.',
+                    'message' => SystemTaskRegistry::label($type) . ' tasks are blocked while scheduler health is degraded.',
                 ];
             }
 
@@ -910,10 +1033,10 @@ class SystemTaskService
                 return [
                     'ok' => false,
                     'error_code' => 'SITE_UPDATE_BLOCKED',
-                    'message' => 'Site update tasks are blocked while worker health is unhealthy.',
+                    'message' => SystemTaskRegistry::label($type) . ' tasks are blocked while worker health is unhealthy.',
                 ];
             }
-        } elseif (in_array($type, ['console_install', 'console_uninstall'], true)) {
+        } else {
             if (($schedulerStatus['status'] ?? '') === 'degraded') {
                 $warnings[] = [
                     'code' => 'SCHEDULER_DEGRADED',
@@ -935,10 +1058,39 @@ class SystemTaskService
         ];
     }
 
+    /**
+     * The exclusive task currently holding the queue, if any.
+     *
+     * Only exclusive types count. A concurrent type is ordinary background
+     * work — a package's image batch may run for a day, and letting that block
+     * a site update for a day would make the shared queue unusable for exactly
+     * the work it was opened up for.
+     */
     protected function findActiveMutatingTask()
     {
+        $exclusiveTypes = SystemTaskRegistry::exclusiveTypes();
+
+        if ($exclusiveTypes === []) {
+            return null;
+        }
+
+        $now = Carbon::now();
+
         return SystemCliTask::query()
             ->whereIn('status', ['queued', 'picked', 'running'])
+            ->whereIn('type', $exclusiveTypes)
+            ->where(function ($query) use ($now) {
+                // A queued task holds the lock unconditionally — it has no
+                // lease yet. A picked or running one holds it only while its
+                // lease is live: a worker killed mid-task would otherwise hold
+                // the global lock forever, and every later task would be
+                // refused with GLOBAL_LOCK_ACTIVE until somebody edited the row
+                // by hand. A null lease is treated as live, because that is the
+                // shape a task takes between being claimed and being stamped.
+                $query->where('status', 'queued')
+                    ->orWhereNull('lease_expires_at')
+                    ->orWhere('lease_expires_at', '>=', $now);
+            })
             ->orderBy('id')
             ->first();
     }

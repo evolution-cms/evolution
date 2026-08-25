@@ -2,6 +2,7 @@
 
 use EvolutionCMS\Support\MysqlDumper;
 use EvolutionCMS\Support\SqliteDumper;
+use Symfony\Component\Process\Process;
 
 class DatabaseBackupService
 {
@@ -171,15 +172,63 @@ class DatabaseBackupService
 
         file_put_contents($tempFilePath, $this->buildSqlHeader('--', (string) $database, $host));
 
-        $command = 'PGPASSWORD=' . escapeshellarg($password)
-            . ' pg_dump --host ' . escapeshellarg($host)
-            . ' --username ' . escapeshellarg($username)
-            . ' --dbname ' . escapeshellarg((string) $database)
-            . ' --clean --inserts --no-owner --no-privileges >> ' . escapeshellarg((string) $tempFilePath);
+        $handle = fopen($tempFilePath, 'ab');
 
-        exec($command, $output, $exitCode);
+        if ($handle === false) {
+            if (is_file($tempFilePath)) {
+                unlink($tempFilePath);
+            }
 
-        if ((int) $exitCode !== 0 || !is_file($tempFilePath) || filesize($tempFilePath) <= 0) {
+            return false;
+        }
+
+        // No shell is involved here, and that is the point. The previous form
+        // was `PGPASSWORD=… pg_dump … >> file`, and a leading VAR=value
+        // assignment is POSIX shell syntax that cmd.exe rejects outright with
+        // "'PGPASSWORD' is not recognized", so this backup could never succeed
+        // on Windows. Passing the password as an environment entry and the
+        // arguments as a list works the same way on every platform, and has
+        // the side benefit that nothing has to be quoted for a shell.
+        $process = new Process(
+            [
+                'pg_dump',
+                '--host', $host,
+                '--username', $username,
+                '--dbname', (string) $database,
+                '--clean',
+                '--inserts',
+                '--no-owner',
+                '--no-privileges',
+            ],
+            null,
+            ['PGPASSWORD' => $password]
+        );
+        $process->setTimeout(null);
+
+        try {
+            // Streamed rather than buffered: a dump is as large as the
+            // database, and getOutput() would hold all of it in memory. The
+            // shell redirect this replaces streamed too, so buffering here
+            // would be a regression on exactly the databases worth backing up.
+            $process->run(static function ($type, $buffer) use ($handle) {
+                if ($type === Process::OUT) {
+                    fwrite($handle, $buffer);
+                }
+            });
+        } catch (\Throwable $exception) {
+            fclose($handle);
+
+            if (is_file($tempFilePath)) {
+                unlink($tempFilePath);
+            }
+
+            return false;
+        }
+
+        fclose($handle);
+        clearstatcache(true, $tempFilePath);
+
+        if (!$process->isSuccessful() || !is_file($tempFilePath) || filesize($tempFilePath) <= 0) {
             if (is_file($tempFilePath)) {
                 unlink($tempFilePath);
             }
