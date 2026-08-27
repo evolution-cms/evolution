@@ -5036,7 +5036,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $M = 0;
             $S = 0;
         }
-        $timeStamp = mktime($H, $M, $S, $m, $d, $Y);
+        $timeStamp = gmmktime($H, $M, $S, $m, $d, $Y);
         $timeStamp = (int) $timeStamp;
         return $timeStamp;
     }

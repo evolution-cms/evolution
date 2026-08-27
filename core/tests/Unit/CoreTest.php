@@ -73,6 +73,24 @@ afterEach(function () {
     Mockery::close();
 });
 
+test('date conversion round trips without runtime timezone drift', function () {
+    $originalTimezone = date_default_timezone_get();
+
+    try {
+        date_default_timezone_set('Asia/Tokyo');
+        $this->parser->config['datetime_format'] = 'YYYY/mm/dd';
+
+        $date = '2026/09/01 10:00:00';
+        $timestamp = $this->parser->toTimeStamp($date);
+
+        expect($this->parser->toDateFormat($timestamp))->toBe($date)
+            ->and($this->parser->toDateFormat($this->parser->toTimeStamp($this->parser->toDateFormat($timestamp))))
+            ->toBe($date);
+    } finally {
+        date_default_timezone_set($originalTimezone);
+    }
+});
+
 describe('getTagsFromContent', function () {
 
     test('it extracts basic placeholders correctly', function () {
