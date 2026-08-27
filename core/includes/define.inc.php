@@ -120,45 +120,71 @@ if (!defined('EVO_MANAGER_PATH')) {
 }
 
 if (!defined('EVO_SITE_URL')) {
-    // check for valid hostnames
-    $site_hostname = 'localhost';
-    if (!is_cli()) {
-        $site_hostname = str_replace(
-            ':' . $_SERVER['SERVER_PORT'],
-            '',
-            get_by_key($_SERVER, 'HTTP_HOST', $site_hostname)
-        );
+    if (!isset($_SERVER['SERVER_PORT'])) {
+        $_SERVER['SERVER_PORT'] = 80;
     }
+
+    // Host is what the browser actually asked for, and behind a proxy or a
+    // published container port it is the only view of the site that can be
+    // reached again - SERVER_PORT is the port this process listens on, which
+    // may be a different number entirely. So the host header decides both the
+    // hostname and the port, and SERVER_PORT is consulted only when there is
+    // no host header at all.
+    $site_hostname = 'localhost';
+    $site_port = null;
+    $has_http_host = false;
+    if (!is_cli() && !empty($_SERVER['HTTP_HOST'])) {
+        // Anchored on purpose: str_replace(':' . SERVER_PORT, ...) turns
+        // "localhost:8080" into "localhost80" whenever the server itself
+        // listens on 80. The character sets are spelled out rather than
+        // written as "everything up to the colon", because whatever lands here
+        // is pasted into every URL the site emits: a header of
+        // "localhost@evil.example" would otherwise become the userinfo of
+        // http://localhost@evil.example/ and send the visitor elsewhere.
+        // The two branches share no first character and neither repetition can
+        // match the delimiter that follows it, so the match stays linear.
+        $host_pattern = '/^(?:([A-Za-z0-9._-]+)|(\[[0-9A-Fa-f:.]+\]))(?::(\d{1,5}))?$/';
+        if (preg_match($host_pattern, $_SERVER['HTTP_HOST'], $matches)) {
+            $port = isset($matches[3]) && $matches[3] !== '' ? (int) $matches[3] : null;
+            if ($port === null || ($port > 0 && $port <= 65535)) {
+                $has_http_host = true;
+                $site_hostname = $matches[1] !== '' ? $matches[1] : $matches[2];
+                $site_port = $port;
+            }
+        }
+        unset($host_pattern, $matches, $port);
+    }
+
+    // check for valid hostnames
     $site_hostnames = explode(',', EVO_SITE_HOSTNAMES);
     if (!empty($site_hostnames[0]) && !in_array($site_hostname, $site_hostnames)) {
         $site_hostname = $site_hostnames[0];
     }
     unset($site_hostnames);
 
-    if (!isset($_SERVER['SERVER_PORT'])) {
-        $_SERVER['SERVER_PORT'] = 80;
-    }
-
     // assign site_url
     if ((isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) === 'on') ||
         $_SERVER['SERVER_PORT'] == HTTPS_PORT ||
         (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
     ) {
-        $site_url = 'https://' . $site_hostname;
+        $scheme = 'https';
+        $default_port = (int) HTTPS_PORT;
     } else {
-        $site_url = 'http://' . $site_hostname;
-    }
-    unset($site_hostname);
-
-    if ($_SERVER['SERVER_PORT'] !== 80) { // remove port from HTTP_HOST
-        $site_url = str_replace(':' . $_SERVER['SERVER_PORT'], '', $site_url);
+        $scheme = 'http';
+        $default_port = 80;
     }
 
-    if (!in_array((int)$_SERVER['SERVER_PORT'], [80, (int)HTTPS_PORT], true) &&
-        strtolower(get_by_key($_SERVER, 'HTTPS', 'off'))
-    ) {
-        $site_url .= ':' . $_SERVER['SERVER_PORT'];
+    // A host header omits the port when it is the default one for the scheme,
+    // so "no port here" is an answer rather than a gap to fill from SERVER_PORT.
+    if (!$has_http_host) {
+        $site_port = (int) $_SERVER['SERVER_PORT'];
     }
+
+    $site_url = $scheme . '://' . $site_hostname;
+    if ($site_port !== null && $site_port !== $default_port) {
+        $site_url .= ':' . $site_port;
+    }
+    unset($site_hostname, $site_port, $has_http_host, $scheme, $default_port);
 
     $site_url .= EVO_BASE_URL;
 }
