@@ -8,6 +8,9 @@ use EvolutionCMS\Traits;
  *
  * @property int $id
  * @property string $templatename
+ * @property string $templatealias
+ * @property string $templatesource
+ * @property string $templatefileextension
  * @property string $description
  * @property int $editor_type
  * @property int $category
@@ -60,6 +63,8 @@ class SiteTemplate extends Eloquent\Model
 	protected $fillable = [
 		'templatename',
         'templatealias',
+        'templatesource',
+        'templatefileextension',
 		'description',
 		'editor_type',
 		'category',

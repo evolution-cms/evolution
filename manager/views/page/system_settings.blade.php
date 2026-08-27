@@ -90,8 +90,10 @@
 
             function setChangesChunkProcessor(item) {
                 item = item || document.querySelector('[name="chunk_processor"]:checked');
+                // Any template processor from plugin is not among options and we still sure it is not DLTemplate
+                var lockFilters = !!item && item.checked && item.value === 'DLTemplate';
                 document.querySelectorAll('[name="enable_at_syntax"], [name="enable_filter"]').forEach(function(el) {
-                    if (item.checked && item.value === 'DLTemplate') {
+                    if (lockFilters) {
                         el.checked = !!el.value;
                         el.disabled = true;
                     } else {

@@ -1,10 +1,17 @@
 <?php namespace EvolutionCMS;
 
 use EvolutionCMS\Models\SiteTemplate;
+use EvolutionCMS\Support\TemplateFileEngines;
 use Illuminate\Support\Facades\Log;
 
 class TemplateProcessor
 {
+    /** Template code lives in the database; files are not consulted. */
+    public const SOURCE_DATABASE = 'db';
+
+    /** Template code lives in a view file. */
+    public const SOURCE_FILE = 'file';
+
     /**
      * @var Interfaces\CoreInterface
      */
@@ -16,8 +23,28 @@ class TemplateProcessor
         $this->core = $core;
     }
 
+    /**
+     * Absolute path of the file the current document must render from, when its
+     * template names one, or '' otherwise.
+     *
+     * Resolving by view name asks the view factory, which tries extensions in
+     * registration order - so the last engine to boot would decide for every
+     * template on the site. A template that recorded an engine when it was
+     * saved gets that file instead, and only falls back to the factory when the
+     * file it named is gone.
+     *
+     * @var string
+     */
+    protected $documentViewPath = '';
+
+    public function getDocumentViewPath(): string
+    {
+        return $this->documentViewPath;
+    }
+
     public function getBladeDocumentContent()
     {
+        $this->documentViewPath = '';
         $template = false;
         $doc = $this->core->documentObject;
         if(isset($this->core->documentObject['templatealias']) && $this->core->documentObject['templatealias'] != ''){
@@ -32,6 +59,21 @@ class TemplateProcessor
                     $templateAlias = '_blank';
                 }
             }
+        }
+
+        // "Database" is an answer, not a starting point: no view path is walked,
+        // no extension is tried, and a file that happens to share the alias has
+        // no say. It is also the cheapest branch on the page - the lookups
+        // below are a filesystem probe per extension per view path.
+        if ($this->templateSource($doc) === self::SOURCE_DATABASE) {
+            return false;
+        }
+
+        $pinned = $this->pinnedTemplateFile($doc, $templateAlias);
+        if ($pinned !== '') {
+            $this->documentViewPath = $pinned;
+
+            return $templateAlias;
         }
 
         switch (true) {
@@ -84,10 +126,66 @@ class TemplateProcessor
                     if (!$this->core['view']->exists($template)) {
                         $this->core->documentObject['template'] = 0;
                         $this->core->documentContent = $doc['content'];
+                        // Returning the name of a view that is not there sends
+                        // the caller to $view->make() anyway, which throws:
+                        // "View [x] not found", a 500 where this branch was
+                        // written to degrade instead.
+                        $template = false;
                     }
                 }
         }
         return $template;
+    }
+
+    /**
+     * Where the current document's template says its code lives.
+     *
+     * '' is every template that predates the setting, and means "decide the old
+     * way": a matching file wins if one happens to exist.
+     */
+    private function templateSource(array $doc): string
+    {
+        $templateId = (int) get_by_key($doc, 'template', 0);
+        if ($templateId === 0) {
+            return '';
+        }
+
+        return (string) SiteTemplate::whereKey($templateId)->value('templatesource');
+    }
+
+    /**
+     * The file a template pinned to an engine when it was saved, if that file is
+     * still there.
+     *
+     * The document specific views (tpl-N_doc-M, doc-M, tpl-N) are deliberately
+     * not overridden: those are per document overrides of the template, and a
+     * template pinning its own engine says nothing about them.
+     */
+    private function pinnedTemplateFile(array $doc, string $templateAlias): string
+    {
+        if ($templateAlias === '') {
+            return '';
+        }
+
+        foreach (['tpl-' . get_by_key($doc, 'template') . '_doc-' . get_by_key($doc, 'id'),
+                     'doc-' . get_by_key($doc, 'id'),
+                     'tpl-' . get_by_key($doc, 'template')] as $override) {
+            if ($this->core['view']->exists($override)) {
+                return '';
+            }
+        }
+
+        $templateId = (int) get_by_key($doc, 'template', 0);
+        if ($templateId === 0) {
+            return '';
+        }
+
+        $extension = (string) SiteTemplate::whereKey($templateId)->value('templatefileextension');
+        if ($extension === '') {
+            return '';
+        }
+
+        return (string) (TemplateFileEngines::make()->pathFor($templateAlias, $extension) ?? '');
     }
 
     /**

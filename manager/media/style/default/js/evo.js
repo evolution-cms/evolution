@@ -931,12 +931,19 @@
                     return false;
                 }
 
+                // A frame that is between documents answers contentDocument
+                // with a document that has no documentElement yet, and the
+                // sync runs on timers (0/120/450ms) that land squarely in that
+                // window - so every step here is checked before it is read.
+                var root = frameDocument && frameDocument.documentElement;
+                var body = frameDocument && frameDocument.body;
+
                 return !!(
                     frameWindow &&
                     (
                         frameWindow.__evoHideManagerTree === true ||
-                        frameDocument.documentElement.dataset.managerTree === 'hidden' ||
-                        frameDocument.body && frameDocument.body.dataset.managerTree === 'hidden'
+                        (root && root.dataset && root.dataset.managerTree === 'hidden') ||
+                        (body && body.dataset && body.dataset.managerTree === 'hidden')
                     )
                 );
             },

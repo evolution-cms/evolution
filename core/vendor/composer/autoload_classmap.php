@@ -7,6 +7,8 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'AddCachepwdExpiryToUsers' => $baseDir . '/database/migrations/2026_08_20_000000_add_cachepwd_expiry_to_users.php',
+    'AddTemplatefileextensionToSiteTemplates' => $baseDir . '/database/migrations/2026_08_27_000000_add_templatefileextension_to_site_templates.php',
+    'AddTemplatesourceToSiteTemplates' => $baseDir . '/database/migrations/2026_08_27_000100_add_templatesource_to_site_templates.php',
     'BladeUI\\Icons\\BladeIconsServiceProvider' => $vendorDir . '/blade-ui-kit/blade-icons/src/BladeIconsServiceProvider.php',
     'BladeUI\\Icons\\Components\\Icon' => $vendorDir . '/blade-ui-kit/blade-icons/src/Components/Icon.php',
     'BladeUI\\Icons\\Components\\Svg' => $vendorDir . '/blade-ui-kit/blade-icons/src/Components/Svg.php',
@@ -1407,6 +1409,7 @@ return array(
     'EvolutionCMS\\Support\\SiteTimezone' => $baseDir . '/src/Support/SiteTimezone.php',
     'EvolutionCMS\\Support\\SqliteDumper' => $baseDir . '/src/Support/SqliteDumper.php',
     'EvolutionCMS\\Support\\SystemSettingPathNormalizer' => $baseDir . '/src/Support/SystemSettingPathNormalizer.php',
+    'EvolutionCMS\\Support\\TemplateFileEngines' => $baseDir . '/src/Support/TemplateFileEngines.php',
     'EvolutionCMS\\TemplateProcessor' => $baseDir . '/src/TemplateProcessor.php',
     'EvolutionCMS\\Tracy\\Debugger' => $baseDir . '/src/Tracy/Debugger.php',
     'EvolutionCMS\\Tracy\\Panels\\AbstractPanel' => $baseDir . '/src/Tracy/Panels/AbstractPanel.php',
