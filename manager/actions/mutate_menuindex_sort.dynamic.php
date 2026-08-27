@@ -10,7 +10,7 @@ if (!evo()->hasPermission('edit_document') || !evo()->hasPermission('save_docume
 $id = isset($_REQUEST['id']) ? (int) $_REQUEST['id'] : null;
 $reset = isset($_POST['reset']) && $_POST['reset'] == 'true' ? 1 : 0;
 $items = isset($_POST['list']) ? $_POST['list'] : '';
-$ressourcelist = '';
+$resourcelist = '';
 $updateMsg = '';
 
 // check permissions on the document
@@ -39,7 +39,7 @@ if (isset($_POST['listSubmitted'])) {
 
 $disabled = 'true';
 $pagetitle = '';
-$ressourcelist = '';
+$resourcelist = '';
 if ($id !== null) {
     if ($id > 0) {
         try {
@@ -74,16 +74,16 @@ if ($id !== null) {
     }
 
     if ($resources->count() > 0) {
-        $ressourcelist .= '<div class="clearfix"><ul id="sortlist" class="sortableList">';
+        $resourcelist .= '<div class="clearfix"><ul id="sortlist" class="sortableList">';
         foreach ($resources->get()->toArray() as $row) {
             $classes = '';
             $classes .= ($row['hidemenu']) ? ' notInMenuNode ' : ' inMenuNode';
             $classes .= ($row['published']) ? ' publishedNode ' : ' unpublishedNode ';
             $classes = ($row['deleted']) ? ' deletedNode ' : $classes;
             $icon = $row['isfolder'] ? '<i class="' . $_style['icon_folder'] . '"></i> ' : ' <i class="' . $_style['icon_document'] . '"></i> ';
-            $ressourcelist .= '<li id="item_' . $row['id'] . '" class="' . $classes . '">' . $icon . $row['pagetitle'] . ' <small>(' . $row['id'] . ')</small></li>';
+            $resourcelist .= '<li id="item_' . $row['id'] . '" class="' . $classes . '">' . $icon . $row['pagetitle'] . ' <small>(' . $row['id'] . ')</small></li>';
         }
-        $ressourcelist .= '</ul></div>';
+        $resourcelist .= '</ul></div>';
     } else {
         $updateMsg = '<p class="text-danger">' . $_lang['sort_nochildren'] . '</p>';
     }
@@ -172,7 +172,7 @@ $pagetitle = empty($id) ? evo()->getConfig('site_name') : $pagetitle;
     <div class="container container-body">
         <b><?= evo()->getPhpCompat()->entities($pagetitle) ?> (<?= $id ?>)</b>
         <?php
-        if ($ressourcelist) {
+        if ($resourcelist) {
             ?>
             <p><?= $_lang["sort_elements_msg"] ?></p>
             <p>
@@ -183,7 +183,7 @@ $pagetitle = empty($id) ? evo()->getConfig('site_name') : $pagetitle;
             </p>
             <?= $updateMsg ?>
             <span class="text-danger" style="display:none;" id="updating"><?= $_lang['sort_updating'] ?></span>
-            <?= $ressourcelist ?>
+            <?= $resourcelist ?>
             <?php
         } else {
             echo $updateMsg;

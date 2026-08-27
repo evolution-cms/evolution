@@ -35,35 +35,252 @@
                     document.querySelector('.element-edit-message').classList.toggle('show');
                 };
 
-                var checkContainer = document.getElementById('assigned-blade-file'),
-                    filenameLabel = document.getElementById('blade-filename'),
+                var checkContainer = document.getElementById('assigned-template-file'),
+                    filenameLabel = document.getElementById('template-filename'),
                     alias = document.getElementById('templatealias'),
-                    check = document.getElementById('createbladefile');
+                    templatename = document.getElementsByName('templatename')[0],
+                    extension = document.getElementById('templatefileextension');
 
-                var updateFilename = function(value) {
-                    var filename = value;
-                    filename = filename.replace(/\s*/g, '');
-                    filename = filename.replace(/[^a-zA-Z0-9_-]+/g, '');
+                // The engine list can be empty, in which case the block is not
+                // rendered at all and there is nothing to keep up to date.
+                if (checkContainer && filenameLabel && alias) {
+                    var note = document.getElementById('template-file-note'),
+                        source = document.getElementById('templatesource'),
+                        savedAlias = checkContainer.dataset.alias || '',
+                        savedSource = checkContainer.dataset.source || '',
+                        savedExtension = checkContainer.dataset.extension || '',
+                        winner = checkContainer.dataset.winner || '',
+                        existing = [];
 
-                    if (filename == value && filename != '') {
-                        filenameLabel.innerText = '/views/' + filename + '.blade.php';
-                        checkContainer.style.display = 'block';
-                        check.disabled = false;
-                    } else {
-                        checkContainer.style.display = 'none';
-                        check.disabled = true;
+                    try {
+                        existing = JSON.parse(checkContainer.dataset.existing || '[]');
+                    } catch (e) {
+                        existing = [];
                     }
-                };
 
-                alias.addEventListener('change', function(event) {
-                    updateFilename(this.value);
-                });
+                    // What is on disk was read for the alias as saved. Rename
+                    // the alias in the form and it says nothing about the new
+                    // one, so the warnings go quiet rather than lie.
+                    var noteFor = function(selected) {
+                        // Moving the code out of the database and into a file
+                        // leaves the database copy behind untouched, and coming
+                        // back later shows that copy rather than the file.
+                        if (source && source.value !== savedSource) {
+                            if (source.value === 'db' && savedSource === 'file') {
+                                return {{ Illuminate\Support\Js::from(ManagerTheme::getLexicon('template_source_back_to_db', 'The editor now shows the database copy, and that is what will be saved. The file is left where it is.')) }};
+                            }
+                            if (source.value === 'file'
+                                && existing.indexOf(extension ? extension.value : '') === -1) {
+                                return {{ Illuminate\Support\Js::from(ManagerTheme::getLexicon('template_source_to_file', 'What is in the editor is written to the file on save. The database copy is kept as it is.')) }};
+                            }
+                        }
 
-                alias.addEventListener('input', function(event) {
-                    updateFilename(this.value);
-                });
+                        if (alias.value !== savedAlias || !existing.length) {
+                            return '';
+                        }
 
-                updateFilename(alias.value);
+                        // Picking an engine whose file exists loads that file
+                        // into the editor, so there is nothing to warn about:
+                        // what is on screen is what will be written back.
+                        if (existing.indexOf(selected) !== -1) {
+                            return '';
+                        }
+
+                        // Until this template is saved with the new engine,
+                        // the file that renders is still the one it is pinned
+                        // to - or, with nothing pinned, whichever the view
+                        // factory finds first.
+                        if (!winner) {
+                            return '';
+                        }
+
+                        return {{ Illuminate\Support\Js::from(ManagerTheme::getLexicon('template_file_shadowed', 'Until this template is saved, this file still renders:')) }} +
+                            ' ' + savedAlias + '.' + winner;
+                    };
+
+                    // What the editor must show for a given pair of selectors:
+                    // the database column, or the file that pair points at. A
+                    // pair with no file yet keeps whatever is on screen - that
+                    // is the code being moved into it.
+                    var dbContent = {{ Illuminate\Support\Js::from($templateDbContent) }},
+                        fileContents = {{ Illuminate\Support\Js::from($templateFileContents) }},
+                        shownKey = savedSource === 'file' && savedExtension !== ''
+                            ? 'file:' + savedExtension
+                            : 'db';
+
+                    var editorValue = function() {
+                        if (window.myCodeMirrors && window.myCodeMirrors['post']) {
+                            return window.myCodeMirrors['post'].getValue();
+                        }
+
+                        var box = document.getElementsByName('post')[0];
+
+                        return box ? box.value : '';
+                    };
+
+                    var setEditorValue = function(value) {
+                        var box = document.getElementsByName('post')[0];
+
+                        if (box) {
+                            box.value = value;
+                        }
+
+                        if (window.myCodeMirrors && window.myCodeMirrors['post']) {
+                            window.myCodeMirrors['post'].setValue(value);
+                        }
+                    };
+
+                    var lastLoaded = editorValue();
+
+                    // Switching away from unsaved edits would drop them
+                    // silently, so it is asked about rather than assumed.
+                    var mayReplaceEditor = function() {
+                        if (editorValue() === lastLoaded) {
+                            return true;
+                        }
+
+                        return window.confirm(
+                            {{ Illuminate\Support\Js::from(ManagerTheme::getLexicon('template_source_discard_edits', 'The editor has unsaved changes. Switching loads the other copy and discards them. Continue?')) }}
+                        );
+                    };
+
+                    var syncEditor = function() {
+                        var onFile = source && source.value === 'file',
+                            selected = extension ? extension.value : '',
+                            key = onFile ? 'file:' + selected : 'db';
+
+                        if (key === shownKey) {
+                            return;
+                        }
+
+                        // No file there yet: the editor's contents are what
+                        // will be written into it, so they stay put.
+                        if (onFile && !Object.prototype.hasOwnProperty.call(fileContents, selected)) {
+                            shownKey = key;
+                            return;
+                        }
+
+                        if (!mayReplaceEditor()) {
+                            // Put the selectors back where they were.
+                            if (shownKey === 'db') {
+                                if (source) { source.value = 'db'; }
+                            } else if (source) {
+                                source.value = 'file';
+                                if (extension) { extension.value = shownKey.slice(5); }
+                            }
+                            return;
+                        }
+
+                        setEditorValue(onFile ? fileContents[selected] : dbContent);
+                        lastLoaded = editorValue();
+                        shownKey = key;
+                    };
+
+                    // The editor is shared with the database view, where the
+                    // code is EVO template markup; a file gets the highlighting
+                    // of whatever engine reads it. The plugin publishes its
+                    // instances on window, so no plugin change is needed - and
+                    // if it is switched off, this simply does nothing.
+                    var modes = {
+                        'php': 'application/x-httpd-php',
+                        'css': 'text/css'
+                    };
+
+                    var applyHighlighting = function() {
+                        if (!window.myCodeMirrors || !window.myCodeMirrors['post']) {
+                            return;
+                        }
+
+                        var onFile = source && source.value === 'file',
+                            mode = onFile && extension
+                                ? (modes[extension.value] || 'htmlmixed')
+                                : 'htmlmixed';
+
+                        try {
+                            window.myCodeMirrors['post'].setOption('mode', mode);
+                        } catch (e) {
+                            // An editor that will not take a mode is not worth
+                            // breaking the form over.
+                        }
+                    };
+
+                    // The file is named after the alias, and the alias is
+                    // filled in from the name when it is left blank - so a
+                    // template being created has a filename to show before its
+                    // alias field has anything in it.
+                    var previewName = function() {
+                        var value = alias.value !== ''
+                            ? alias.value
+                            : (templatename ? templatename.value : '');
+
+                        return value
+                            .replace(/\s*/g, '')
+                            .replace(/[^a-zA-Z0-9_-]+/g, '')
+                            .toLowerCase();
+                    };
+
+                    var updateFilename = function() {
+                        var onFile = source
+                            ? (source.value === 'file' || (source.value === '' && existing.length))
+                            : true;
+
+                        // The engine and the filename only mean anything for a
+                        // template that reads from a file.
+                        if (!onFile) {
+                            checkContainer.style.display = 'none';
+                            if (note) {
+                                var switching = noteFor(extension ? extension.value : '');
+                                note.innerText = switching;
+                                note.style.display = switching ? 'block' : 'none';
+                            }
+                            return;
+                        }
+
+                        // Choosing a file and being told nothing about which
+                        // file is the state this block exists to prevent, so it
+                        // stays visible even when the name is not usable yet.
+                        checkContainer.style.display = 'block';
+
+                        var filename = previewName(),
+                            selected = extension ? extension.value : 'blade.php';
+
+                        filenameLabel.innerText = filename !== ''
+                            ? '/views/' + filename + '.' + selected
+                            : {{ Illuminate\Support\Js::from(ManagerTheme::getLexicon('template_file_pending', 'named after the alias, once there is one')) }};
+
+                        if (note) {
+                            var message = noteFor(selected);
+                            note.innerText = message;
+                            note.style.display = message ? 'block' : 'none';
+                        }
+
+                        applyHighlighting();
+                    };
+
+                    var onSelectorChange = function() {
+                        syncEditor();
+                        updateFilename();
+                    };
+
+                    alias.addEventListener('change', updateFilename);
+                    alias.addEventListener('input', updateFilename);
+                    if (templatename) {
+                        templatename.addEventListener('input', updateFilename);
+                    }
+                    if (source) {
+                        source.addEventListener('change', onSelectorChange);
+                    }
+                    if (extension) {
+                        extension.addEventListener('change', onSelectorChange);
+                    }
+
+                    updateFilename();
+
+                    // The editor is created by a plugin whose script may not
+                    // have run yet.
+                    applyHighlighting();
+                    window.setTimeout(applyHighlighting, 0);
+                }
             });
 
         </script>
@@ -168,23 +385,62 @@
 
                     </div>
 
-                    <div class="form-group" id="assigned-blade-file" style="display: none;">
-                        {{ ManagerTheme::getLexicon('template_assigned_blade_file') }}: <strong id="blade-filename"></strong>
-
-                        <div class="create-check" style="display: hidden;">
-                            <label>
-                                @include('manager::form.inputElement', [
-                                    'name' => 'createbladefile',
-                                    'id' => 'createbladefile',
-                                    'type' => 'checkbox',
-                                    'checked' => false,
-                                    'attributes' => 'onchange="documentDirty=true;"'
-                                ])
-
-                                {{ ManagerTheme::getLexicon('template_create_blade_file') }}
+                    @if(!empty($templateFileEngines))
+                        <div class="form-group" id="template-source">
+                            <label for="templatesource">
+                                {{ ManagerTheme::getLexicon('template_source', 'Template code') }}
                             </label>
+                            <select name="templatesource" id="templatesource" onchange="documentDirty=true;">
+                                <option value="db" @if($templateSource === 'db') selected @endif
+                                >{{ ManagerTheme::getLexicon('template_source_db', 'In the database') }}</option>
+                                <option value="file" @if($templateSource === 'file') selected @endif
+                                >{{ ManagerTheme::getLexicon('template_source_file', 'In a file') }}</option>
+                                @if($templateSource !== 'db' && $templateSource !== 'file')
+                                    {{-- Templates from before this setting existed: a matching file wins
+                                         if one happens to be there. Offered only while that is still true,
+                                         so nobody can pick it deliberately. --}}
+                                    <option value="" selected
+                                    >{{ ManagerTheme::getLexicon('template_source_auto', 'Automatic (a matching file wins)') }}</option>
+                                @endif
+                            </select>
                         </div>
-                    </div>
+
+                        <div class="form-group" id="assigned-template-file" style="display: none;"
+                             data-alias="{{ $data->templatealias }}"
+                             data-existing="{{ json_encode(array_keys($templateFileExisting)) }}"
+                             data-winner="{{ $templateFileWinner }}"
+                             data-source="{{ $templateSource }}"
+                             data-extension="{{ $data->templatefileextension }}">
+                            {{ ManagerTheme::getLexicon('template_assigned_file', ManagerTheme::getLexicon('template_assigned_blade_file', 'Corresponding template file')) }}:
+                            <strong id="template-filename"></strong>
+
+                            <div class="create-check">
+                                {{-- Choosing to keep the code in a file is the whole
+                                     instruction: the file is written on save, and
+                                     brought into existence if it is not there yet. --}}
+                                <select name="templatefileextension" id="templatefileextension"
+                                        onchange="documentDirty=true;">
+                                    @foreach($templateFileEngines as $extension => $engine)
+                                        <option value="{{ $extension }}"
+                                                @if($extension === $templateFileDefault) selected @endif
+                                        >{{ $engine['label'] }} (.{{ $extension }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            @if(!empty($templateFileExisting))
+                                <small class="form-text text-muted">
+                                    {{ ManagerTheme::getLexicon('template_file_exists', 'Already on disk') }}:
+                                    @foreach($templateFileExisting as $extension => $path)
+                                        <code>{{ basename($path) }}</code>@if($extension === $templateFileWinner && count($templateFileExisting) > 1)
+                                            ({{ ManagerTheme::getLexicon('template_file_wins', 'this one renders') }})@endif{{ $loop->last ? '' : ', ' }}
+                                    @endforeach
+                                </small>
+                            @endif
+
+                            <small class="form-text text-warning" id="template-file-note" style="display: none;"></small>
+                        </div>
+                    @endif
 
                     @if(EvolutionCMS()->hasPermission('save_role'))
                         <div class="form-group">

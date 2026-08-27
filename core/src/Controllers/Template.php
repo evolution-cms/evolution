@@ -2,12 +2,21 @@
 
 use EvolutionCMS\Models;
 use EvolutionCMS\Interfaces\ManagerTheme;
+use EvolutionCMS\Support\TemplateFileEngines;
+use EvolutionCMS\TemplateProcessor;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent;
 
 class Template extends AbstractController implements ManagerTheme\PageControllerInterface
 {
     protected $view = 'page.template';
+
+    /**
+     * A template file larger than this is not handed to the editor for
+     * switching. Templates are not this big; something else is going on, and a
+     * megabyte of it does not belong inline in the form.
+     */
+    private const MAX_EDITABLE_FILE_BYTES = 524288;
 
     protected $events = [
         'OnTempFormPrerender',
@@ -51,6 +60,48 @@ class Template extends AbstractController implements ManagerTheme\PageController
     public function process() : bool
     {
         $this->object = $this->parameterData();
+        $engines = TemplateFileEngines::make();
+        $existingFiles = $engines->existing((string) $this->object->templatealias);
+        $winningExtension = $engines->winner(
+            (string) $this->object->templatealias,
+            (string) $this->object->templatefileextension
+        );
+
+        // A template that reads from a file shows the file in the editor, not
+        // the database column - editing what is not rendered would be a trap.
+        // The database copy stays where it is as the fallback it already is.
+        // "Automatic" only describes templates that predate the setting. A
+        // template being created now has no old behaviour to preserve, so it
+        // starts where its code is being typed.
+        $templateSource = (string) $this->object->templatesource;
+        if ($templateSource === '' && !$this->object->getKey()) {
+            $templateSource = TemplateProcessor::SOURCE_DATABASE;
+        }
+
+        // The editor has to be able to show whatever the selectors point at, the
+        // moment they are moved - otherwise it keeps displaying code that the
+        // save is not going to write, which is the one thing an editor must
+        // never do. The database column and every file already on disk are
+        // handed to the page so the swap needs no round trip.
+        $databaseContent = (string) $this->object->content;
+        $fileContents = [];
+        foreach ($existingFiles as $extension => $path) {
+            if (is_readable($path) && filesize($path) <= self::MAX_EDITABLE_FILE_BYTES) {
+                $fileContents[$extension] = (string) file_get_contents($path);
+            }
+        }
+
+        $sourceFile = null;
+        if ($templateSource === TemplateProcessor::SOURCE_FILE) {
+            $sourceFile = $engines->pathFor(
+                (string) $this->object->templatealias,
+                (string) $this->object->templatefileextension
+            );
+            $pinned = ltrim((string) $this->object->templatefileextension, '.');
+            if ($sourceFile !== null && isset($fileContents[$pinned])) {
+                $this->object->content = $fileContents[$pinned];
+            }
+        }
         $this->parameters = [
             'data' => $this->object,
             'categories'       => $this->parameterCategories(),
@@ -69,7 +120,24 @@ class Template extends AbstractController implements ManagerTheme\PageController
             ),
             'action'           => $this->getIndex(),
             'events'           => $this->parameterEvents(),
-            'actionButtons'    => $this->parameterActionButtons()
+            'actionButtons'    => $this->parameterActionButtons(),
+            'templateFileEngines'   => $engines->all(),
+            // A new template follows [(chunk_processor)]; one that already
+            // recorded an engine keeps showing it, so that opening a template
+            // and saving it cannot quietly re-point it at another engine.
+            'templateFileDefault'   => $engines->isRegistered($this->object->templatefileextension)
+                ? ltrim((string) $this->object->templatefileextension, '.')
+                : $engines->defaultExtension(
+                    (string) $this->managerTheme->getCore()->getConfig('chunk_processor')
+                ),
+            // Only one file can render an alias; the rest are shadowed, so the
+            // form says which ones are already there and which of them wins.
+            'templateFileExisting'  => $existingFiles,
+            'templateFileWinner'    => $winningExtension,
+            'templateSource'        => $templateSource,
+            'templateSourceFile'    => $sourceFile,
+            'templateDbContent'     => $databaseContent,
+            'templateFileContents'  => $fileContents
         ];
 
         return true;

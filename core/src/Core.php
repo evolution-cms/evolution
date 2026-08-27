@@ -84,6 +84,23 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     public $documentMethod;
     public $documentGenerated;
     public $documentContent;
+
+    /**
+     * The view the current document is rendered from, or '' when it is rendered
+     * from template code by the parser.
+     *
+     * A template whose alias resolves to a file under a view path is handed to
+     * Laravel's view factory, and parseDocumentSource() is then skipped - so by
+     * the time OnLoadWebDocument fires, documentContent holds finished HTML
+     * from another engine rather than template source. A listener that
+     * transforms template code has to be able to tell the two apart, and
+     * calling TemplateProcessor::getBladeDocumentContent() again to find out is
+     * not free: it can run a controller's main() a second time.
+     *
+     * @var string
+     * @since 3.5.9
+     */
+    public $documentTemplateView = '';
     public $documentOutput;
     public $tstart = 0;
     public $mstart = 0;
@@ -3300,6 +3317,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             }
 
             $template = TemplateProcessor::getBladeDocumentContent();
+            $this->documentTemplateView = $template ? (string) $template : '';
 
             if ($template) {
                 $this->documentObject['cacheable'] = 0;
@@ -3326,7 +3344,15 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                     app('DLTemplate')->blade->share(array_merge($data, $viewData));
                 }
 
-                $tpl = $this['view']->make($template, $viewData);
+                // A template that pinned an engine names the exact file, so the
+                // view factory is handed a path rather than a name - resolving
+                // a name would put the question back to extension registration
+                // order and hand the document to whichever engine booted last.
+                $viewPath = TemplateProcessor::getDocumentViewPath();
+
+                $tpl = $viewPath !== ''
+                    ? $this['view']->file($viewPath, $viewData)
+                    : $this['view']->make($template, $viewData);
                 $templateCode = $tpl->render();
             } else {
                 // get the template and start parsing!

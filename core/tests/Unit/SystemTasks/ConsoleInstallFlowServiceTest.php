@@ -29,8 +29,13 @@ test('buildArtisanProcessArguments preserves positional args flags and key value
         ],
     ]);
 
+    // EVO_CORE_PATH is built from __DIR__, which is backslashed on Windows, so
+    // the path arrives as "C:\...\core/artisan". Which separator the host uses
+    // is not what this test is about - Symfony's Process takes either.
+    $artisanPath = str_replace('\\', '/', $arguments[1]);
+
     expect($arguments[0])->toBe(PHP_BINARY)
-        ->and($arguments[1])->toContain('/core/artisan')
+        ->and($artisanPath)->toEndWith('/core/artisan')
         ->and($arguments[2])->toBe('package:installrequire')
         ->and($arguments)->toContain('evolution-cms/ecodemirror')
         ->and($arguments)->toContain('dev-main')

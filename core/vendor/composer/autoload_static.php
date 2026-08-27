@@ -684,6 +684,8 @@ class ComposerStaticInit925fea465a58fa69f06ccf2629003e87
 
     public static $classMap = array (
         'AddCachepwdExpiryToUsers' => __DIR__ . '/../..' . '/database/migrations/2026_08_20_000000_add_cachepwd_expiry_to_users.php',
+        'AddTemplatefileextensionToSiteTemplates' => __DIR__ . '/../..' . '/database/migrations/2026_08_27_000000_add_templatefileextension_to_site_templates.php',
+        'AddTemplatesourceToSiteTemplates' => __DIR__ . '/../..' . '/database/migrations/2026_08_27_000100_add_templatesource_to_site_templates.php',
         'BladeUI\\Icons\\BladeIconsServiceProvider' => __DIR__ . '/..' . '/blade-ui-kit/blade-icons/src/BladeIconsServiceProvider.php',
         'BladeUI\\Icons\\Components\\Icon' => __DIR__ . '/..' . '/blade-ui-kit/blade-icons/src/Components/Icon.php',
         'BladeUI\\Icons\\Components\\Svg' => __DIR__ . '/..' . '/blade-ui-kit/blade-icons/src/Components/Svg.php',
@@ -2084,6 +2086,7 @@ class ComposerStaticInit925fea465a58fa69f06ccf2629003e87
         'EvolutionCMS\\Support\\SiteTimezone' => __DIR__ . '/../..' . '/src/Support/SiteTimezone.php',
         'EvolutionCMS\\Support\\SqliteDumper' => __DIR__ . '/../..' . '/src/Support/SqliteDumper.php',
         'EvolutionCMS\\Support\\SystemSettingPathNormalizer' => __DIR__ . '/../..' . '/src/Support/SystemSettingPathNormalizer.php',
+        'EvolutionCMS\\Support\\TemplateFileEngines' => __DIR__ . '/../..' . '/src/Support/TemplateFileEngines.php',
         'EvolutionCMS\\TemplateProcessor' => __DIR__ . '/../..' . '/src/TemplateProcessor.php',
         'EvolutionCMS\\Tracy\\Debugger' => __DIR__ . '/../..' . '/src/Tracy/Debugger.php',
         'EvolutionCMS\\Tracy\\Panels\\AbstractPanel' => __DIR__ . '/../..' . '/src/Tracy/Panels/AbstractPanel.php',
