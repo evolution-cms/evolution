@@ -418,6 +418,40 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
     </div>
     <div id="resizer"></div>
     <div id="searchresult"></div>
+    <script>
+        (() => {
+            const frameset = document.getElementById('frameset');
+            const mainMenu = document.getElementById('mainMenu');
+            const menuContent = mainMenu?.firstElementChild;
+
+            if (!frameset || !mainMenu || !menuContent) {
+                return;
+            }
+
+            const updateManagerMenuHeight = () => {
+                const style = window.getComputedStyle(mainMenu);
+                const verticalChrome = [
+                    style.paddingTop,
+                    style.paddingBottom,
+                    style.borderTopWidth,
+                    style.borderBottomWidth,
+                ].reduce((height, value) => height + (Number.parseFloat(value) || 0), 0);
+                const contentHeight = menuContent.getBoundingClientRect().height;
+
+                if (contentHeight > 0) {
+                    frameset.style.setProperty('--manager-menu-height', `${contentHeight + verticalChrome}px`);
+                }
+            };
+
+            updateManagerMenuHeight();
+
+            if ('ResizeObserver' in window) {
+                new ResizeObserver(updateManagerMenuHeight).observe(menuContent);
+            } else {
+                window.addEventListener('resize', updateManagerMenuHeight);
+            }
+        })();
+    </script>
     <div id="floater" class="dropdown">
         @php
             $sortParams = ['tree_sortby', 'tree_sortdir', 'tree_nodename'];

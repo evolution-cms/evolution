@@ -268,8 +268,8 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
     margin: 0;
     padding: 0 0 0.25rem;
     min-width: 15rem;
-    max-height: -webkit-calc(100vh - 2.2rem);
-    max-height: calc(100vh - 2.2rem);
+    max-height: -webkit-calc(100vh - var(--manager-menu-height, 2.2rem));
+    max-height: calc(100vh - var(--manager-menu-height, 2.2rem));
     font-size: 1em;
     border: none;
     border-radius: 0 0 0.25rem 0.25rem;
@@ -537,7 +537,7 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
     position: absolute;
     z-index: 99;
     overflow: hidden;
-    top: 2.2rem;
+    top: var(--manager-menu-height, 2.2rem);
     right: 0;
     bottom: 0;
     width: 0;
@@ -639,7 +639,7 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
 }
 @media (min-width: 1200px) {
     #searchresult {
-        top: 2.5rem;
+        top: var(--manager-menu-height, 2.5rem);
     }
     #mainMenu #nav #site a {
         margin-left: 0;
