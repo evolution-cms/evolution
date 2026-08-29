@@ -471,6 +471,12 @@ div.mce-fullscreen { margin-top:2.6rem;	}
 .mceEditor .mceToolbar td { height: 24px; float: left }
 /* codeMirror */
 .CodeMirror { width: 100%; margin: 0 !important; }
+/* Drag the bottom edge to make any editor taller. The wrapper is already
+   overflow: hidden (codemirror.css), which is what lets resize apply to it.
+   CodeMirror only draws the lines its last measurement said would fit, so
+   the instance has to refresh on resize or the new space stays blank - the
+   CodeMirror plugin does that for the editors it creates. */
+.CodeMirror { resize: vertical; }
 .CodeMirror pre { word-break: break-all !important; }
 .CodeMirror > div:first-child > textarea { /*opacity: 0;*/
     z-index: -1; left: -9999rem; }

@@ -371,6 +371,15 @@ if(('none' == $rte) && $mode && $elements !== NULL) {
                 if (window.evoElementNameHelper) {
                     window.evoElementNameHelper.installCodeMirror(myCodeMirrors['{$el}']);
                 }
+                // .CodeMirror is resize: vertical (custom.css), so the wrapper
+                // can be dragged taller. CodeMirror renders the lines its last
+                // measurement said would fit, so the new space stays blank
+                // until it is asked to measure again.
+                if (window.ResizeObserver) {
+                    new ResizeObserver(function() {
+                        myCodeMirrors['{$el}'].refresh();
+                    }).observe(myCodeMirrors['{$el}'].getWrapperElement());
+                }
 				{$setHeight}
 				// reset onchange tab
 				var els = document.querySelectorAll('.tab-row .tab');
