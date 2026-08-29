@@ -30,15 +30,11 @@ switch($modx->getManagerApi()->action) {
     case 4:
         if(!$modx->hasPermission('new_document')) {
             $modx->webAlertAndQuit($_lang["error_no_privileges"]);
-        } elseif(isset($_REQUEST['pid']) && $_REQUEST['pid'] != '0') {
-            // check user has permissions for parent
-            $udperms = new EvolutionCMS\Legacy\Permissions();
-            $udperms->user = $modx->getLoginUserID('mgr');
-            $udperms->document = empty($_REQUEST['pid']) ? 0 : $_REQUEST['pid'];
-            $udperms->role = $_SESSION['mgrRole'];
-            if(!$udperms->checkPermissions()) {
-                $modx->webAlertAndQuit($_lang["access_permission_denied"]);
-            }
+        }
+        // check user has permissions for the requested parent
+        if(isset($_REQUEST['pid'])
+            && !EvolutionCMS\Legacy\Permissions::canCreateIn((int)get_by_key($_REQUEST, 'pid', 0, 'is_scalar'))) {
+            evo()->webAlertAndQuit($_lang["access_permission_parent_denied"]);
         }
         break;
     default:
@@ -128,6 +124,12 @@ if($formRestored == true) {
     } else {
         $content['unpub_date'] = $modx->toTimeStamp($content['unpub_date']);
     }
+}
+
+// no parent was requested and there is none to restore: preselect the first location this
+// user may create in, instead of the root, which non-administrators are often denied
+if(evo()->getManagerApi()->action != 27 && !isset($_REQUEST['pid']) && !isset($content['parent'])) {
+    $_REQUEST['pid'] = EvolutionCMS\Legacy\Permissions::getFirstAllowedParent();
 }
 
 // increase menu index if this is a new document
@@ -848,10 +850,11 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
                                             $content['parent'] = 0;
                                         }
                                         if($parentlookup !== false && is_numeric($parentlookup)) {
-                                            $parentname = SiteContent::withTrashed()->select('pagetitle')->find($parentlookup)->pagetitle;
-                                            if(!$parentname) {
+                                            $parentDocument = SiteContent::withTrashed()->select('pagetitle')->find($parentlookup);
+                                            if(!$parentDocument) {
                                                 $modx->webAlertAndQuit($_lang["error_no_parent"]);
                                             }
+                                            $parentname = $parentDocument->pagetitle;
                                         }
                                         ?>
                                         <i id="plock" class="<?= $_style["icon_folder"] ?>" onclick="enableParentSelection(!allowParentSelection);"></i>

@@ -2083,6 +2083,7 @@ class ComposerStaticInit925fea465a58fa69f06ccf2629003e87
         'EvolutionCMS\\Support\\MoveDocumentTargetGuard' => __DIR__ . '/../..' . '/src/Support/MoveDocumentTargetGuard.php',
         'EvolutionCMS\\Support\\MysqlDumper' => __DIR__ . '/../..' . '/src/Support/MysqlDumper.php',
         'EvolutionCMS\\Support\\Paginate' => __DIR__ . '/../..' . '/src/Support/Paginate.php',
+        'EvolutionCMS\\Support\\ResourceParentGuard' => __DIR__ . '/../..' . '/src/Support/ResourceParentGuard.php',
         'EvolutionCMS\\Support\\SiteTimezone' => __DIR__ . '/../..' . '/src/Support/SiteTimezone.php',
         'EvolutionCMS\\Support\\SqliteDumper' => __DIR__ . '/../..' . '/src/Support/SqliteDumper.php',
         'EvolutionCMS\\Support\\SystemSettingPathNormalizer' => __DIR__ . '/../..' . '/src/Support/SystemSettingPathNormalizer.php',

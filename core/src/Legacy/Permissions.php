@@ -1,6 +1,8 @@
 <?php namespace EvolutionCMS\Legacy;
 
+use EvolutionCMS\Models\DocumentGroup;
 use EvolutionCMS\Models\SiteContent;
+use EvolutionCMS\Support\ResourceParentGuard;
 
 /**
  * @class: udperms
@@ -29,32 +31,24 @@ class Permissions
      */
     public function checkPermissions()
     {
-
-        global $udperms_allowroot;
         $modx = evo();
 
-        $document = $this->document;
-        $role = $this->role;
+        $document = (int) $this->document;
 
-        if ($role == 1) {
-            return true;  // administrator - grant all document permissions
+        if (ResourceParentGuard::grantsWithoutLookup($this->role, $modx->getConfig('use_udperms'))) {
+            return true; // administrator, or permissions aren't in use
         }
 
-        if ($modx->getConfig('use_udperms') == 0 || $modx->getConfig('use_udperms') == "" || !isset($modx->config['use_udperms'])) {
-            return true; // permissions aren't in use
-        }
-        $parent = SiteContent::query()->find($this->document);
-        $parent = $parent->parent ?? null;
-        if ($document == 0 && $parent == null && $udperms_allowroot == 1) {
-            return true;
-        } // User is allowed to create new document in root
-        if (($this->duplicateDoc == true || $document == 0) && $parent == 0 && $udperms_allowroot == 0) {
-            return false; // deny duplicate || create new document at root if Allow Root is No
+        if ($document === 0) {
+            return static::rootIsAllowed(); // placing a resource in the site root
         }
 
-        // get document groups for current user
-        $docgrp = empty($_SESSION['mgrDocgroups']) ? '' : implode(' || dg.document_group = ',
-            $_SESSION['mgrDocgroups']);
+        if ($this->duplicateDoc) {
+            $source = SiteContent::withTrashed()->find($document);
+            if (ResourceParentGuard::duplicateBlockedAtRoot(static::allowRootSetting(), $source->parent ?? 0)) {
+                return false; // the duplicate would end up in the root
+            }
+        }
 
         /* Note:
             A document is flagged as private whenever the document group that it
@@ -64,22 +58,150 @@ class Permissions
             are private to the manager users will not be private to web users if the
             document group is not assigned to a web user group and visa versa.
          */
-        $permissionsok = false;  // set permissions to false
+        return static::documentIsAccessible($document);
+    }
 
-        $query = SiteContent::query()->select('id');
-        if(!empty($docgrp)){
-            $query = $query->leftJoin('document_groups', 'site_content.id','=', 'document_groups.document')
-                ->where(function($q) use ($docgrp) {
-                    $q->where('document_groups.document_group', $docgrp)
-                        ->orWhere('site_content.privatemgr', 0);
+    /**
+     * The manager no longer exports settings as globals, so the setting is the authoritative
+     * source here; the legacy global is still honoured when something did define it.
+     *
+     * @return mixed
+     */
+    public static function allowRootSetting()
+    {
+        global $udperms_allowroot;
+
+        return isset($udperms_allowroot) ? $udperms_allowroot : evo()->getConfig('udperms_allowroot');
+    }
+
+    /**
+     * @return bool
+     */
+    public static function rootIsAllowed()
+    {
+        return ResourceParentGuard::allowsRoot(static::allowRootSetting());
+    }
+
+    /**
+     * Document groups of the manager user of the current session.
+     *
+     * @return array
+     */
+    public static function getManagerDocumentGroups()
+    {
+        return (isset($_SESSION['mgrDocgroups']) && is_array($_SESSION['mgrDocgroups']))
+            ? $_SESSION['mgrDocgroups']
+            : [];
+    }
+
+    /**
+     * Ids of the private documents the manager user of the current session belongs to.
+     * Trashed documents are kept, so restoring one from the recycle bin stays possible.
+     *
+     * @return array
+     */
+    public static function getAccessibleDocumentIds()
+    {
+        static $documents = null;
+
+        if ($documents === null) {
+            $docgrp = static::getManagerDocumentGroups();
+            $documents = empty($docgrp)
+                ? []
+                : DocumentGroup::query()->whereIn('document_group', $docgrp)
+                    ->pluck('document')
+                    ->map(static function ($document) {
+                        return (int) $document;
+                    })
+                    ->all();
+        }
+
+        return $documents;
+    }
+
+    /**
+     * Whether the manager user of the current session may work with the given document.
+     *
+     * @param int $document
+     * @return bool
+     */
+    public static function documentIsAccessible($document)
+    {
+        $docgrp = static::getManagerDocumentGroups();
+
+        // withTrashed(), so publishing, restoring and moving a trashed document keep working
+        $query = SiteContent::withTrashed()->where('site_content.id', (int) $document);
+
+        if (empty($docgrp)) {
+            $query->where('site_content.privatemgr', 0);
+        } else {
+            $query->leftJoin('document_groups', 'site_content.id', '=', 'document_groups.document')
+                ->where(function ($q) use ($docgrp) {
+                    $q->where('site_content.privatemgr', 0)
+                        ->orWhereIn('document_groups.document_group', $docgrp);
                 });
-        }else {
-            $query->where('privatemgr', 0);
-        }
-        if ($query->count() > 0) {
-            $permissionsok = true;
         }
 
-        return $permissionsok;
+        return $query->exists();
+    }
+
+    /**
+     * Whether the manager user of the current session may place a resource inside $parent.
+     *
+     * @param int $parent
+     * @return bool
+     */
+    public static function canCreateIn($parent)
+    {
+        $udperms = new static();
+        $udperms->user = evo()->getLoginUserID('mgr');
+        $udperms->document = (int) $parent;
+        $udperms->role = $_SESSION['mgrRole'] ?? 0;
+
+        return $udperms->checkPermissions();
+    }
+
+    /**
+     * First location the manager user of the current session may create resources in.
+     *
+     * @return int
+     */
+    public static function getFirstAllowedParent()
+    {
+        if (static::canCreateIn(0)) {
+            return 0;
+        }
+
+        return ResourceParentGuard::pickDefaultParent(false, static::findFirstAccessibleDocument());
+    }
+
+    /**
+     * Topmost document of the tree the manager user of the current session can reach.
+     *
+     * @return int|null
+     */
+    protected static function findFirstAccessibleDocument()
+    {
+        $docgrp = static::getManagerDocumentGroups();
+
+        $query = SiteContent::query()->select('site_content.id')
+            ->where('site_content.deleted', 0);
+
+        if (empty($docgrp)) {
+            $query->where('site_content.privatemgr', 0);
+        } else {
+            $query->leftJoin('document_groups', 'site_content.id', '=', 'document_groups.document')
+                ->where(function ($q) use ($docgrp) {
+                    $q->where('site_content.privatemgr', 0)
+                        ->orWhereIn('document_groups.document_group', $docgrp);
+                });
+        }
+
+        $first = $query->orderBy('site_content.parent')
+            ->orderBy('site_content.menuindex')
+            ->orderBy('site_content.id')
+            ->first();
+
+        return $first === null ? null : (int) $first->id;
     }
 }

@@ -1406,6 +1406,7 @@ return array(
     'EvolutionCMS\\Support\\MoveDocumentTargetGuard' => $baseDir . '/src/Support/MoveDocumentTargetGuard.php',
     'EvolutionCMS\\Support\\MysqlDumper' => $baseDir . '/src/Support/MysqlDumper.php',
     'EvolutionCMS\\Support\\Paginate' => $baseDir . '/src/Support/Paginate.php',
+    'EvolutionCMS\\Support\\ResourceParentGuard' => $baseDir . '/src/Support/ResourceParentGuard.php',
     'EvolutionCMS\\Support\\SiteTimezone' => $baseDir . '/src/Support/SiteTimezone.php',
     'EvolutionCMS\\Support\\SqliteDumper' => $baseDir . '/src/Support/SqliteDumper.php',
     'EvolutionCMS\\Support\\SystemSettingPathNormalizer' => $baseDir . '/src/Support/SystemSettingPathNormalizer.php',
