@@ -598,6 +598,13 @@ class InstallEvo
         $systemSettings[] = ['setting_name' => 'auto_template_logic', 'setting_value' => 1];
         $systemSettings[] = ['setting_name' => 'emailsender', 'setting_value' => $this->cmsAdminEmail];
         $systemSettings[] = ['setting_name' => 'fe_editor_lang', 'setting_value' => $this->language];
+        // The web installer writes these two at installLevel 4
+        // (install/src/controllers/install.php); this path never reached them,
+        // so a CLI-installed site had no manager_theme and the manager built
+        // its stylesheet URL as media/style//style.css - a 404, leaving the
+        // whole manager unstyled.
+        $systemSettings[] = ['setting_name' => 'manager_theme', 'setting_value' => 'default'];
+        $systemSettings[] = ['setting_name' => 'site_id', 'setting_value' => uniqid('')];
         \EvolutionCMS\Models\SystemSetting::insert($systemSettings);
         // Apply core-only migrations (core/database/migrations) not present in the
         // install/stubs chain, e.g. the system task tables. Runs after seeding so the
