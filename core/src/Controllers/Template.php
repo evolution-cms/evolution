@@ -159,7 +159,16 @@ class Template extends AbstractController implements ManagerTheme\PageController
 
         if ($id > 0) {
             if (!$data->exists) {
-                $this->managerTheme->alertAndQuit('No database record has been found for this template.');
+                // false: the message is the message, not a lexicon key - and a
+                // key that does not exist used to resolve to '', so this alert
+                // was empty. The URL is the page's own Cancel target: without
+                // one the alert falls back to history.back(-1), straight into
+                // the request that raised it.
+                $this->managerTheme->alertAndQuit(
+                    'No database record has been found for this template.',
+                    false,
+                    'index.php?a=76&tab=0'
+                );
             }
 
             $_SESSION['itemname'] = $data->templatename;
