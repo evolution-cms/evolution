@@ -200,6 +200,7 @@ class LegacyDeleteService
                 continue;
             }
             \EvolutionCMS\Models\SiteModuleAccess::query()->where('module', $id)->delete();
+            \EvolutionCMS\Models\SiteModuleRole::query()->where('module', $id)->delete();
             $deletedDb += (int) \EvolutionCMS\Models\SiteModule::query()->where('id', $id)->delete();
         }
 

@@ -1,5 +1,6 @@
 <?php namespace EvolutionCMS\Models;
 
+use EvolutionCMS\Support\ModuleAccess;
 use Illuminate\Database\Eloquent;
 use EvolutionCMS\Traits;
 
@@ -36,6 +37,8 @@ use EvolutionCMS\Traits;
  * @property-read mixed $is_already_edit
  *
  * @method static \Illuminate\Database\Eloquent\Builder|\EvolutionCMS\Models\SiteModule lockedView()
+ * @method static \Illuminate\Database\Eloquent\Builder|\EvolutionCMS\Models\SiteModule withoutProtected()
+ * @method static \Illuminate\Database\Eloquent\Builder|\EvolutionCMS\Models\SiteModule allowedForRole(int $roleId)
  *
  * @mixin \Eloquent
  */
@@ -123,16 +126,72 @@ class SiteModule extends Eloquent\Model
             $builder->where('locked', '=', 0) : $builder;
     }
 
+    /**
+     * Roles this module is restricted to. No rows means every role may run it.
+     *
+     * @return Eloquent\Relations\HasMany
+     */
+    public function roles()
+    {
+        return $this->hasMany(SiteModuleRole::class, 'module', 'id');
+    }
+
+    /**
+     * Hide modules the current manager user may not run.
+     *
+     * Two independent axes, both of which must pass: the user-group ACL
+     * (site_module_access, only when use_udperms is on) and the role ACL
+     * (site_module_roles, which is a property of the role and therefore
+     * applies whether or not user-document permissions are enabled).
+     */
     public function scopeWithoutProtected(Eloquent\Builder $builder)
     {
-        if ($_SESSION['mgrRole'] != 1 && evo()->getConfig('use_udperms')) {
-            $builder->leftJoin('site_module_access', 'site_module_access.module', '=', 'site_modules.id')
-                ->leftJoin('member_groups', 'member_groups.user_group', '=', 'site_module_access.usergroup')
-                ->whereNull('site_module_access.usergroup')
-                ->orWhere('member_groups.member', '=', (int)evo()->getLoginUserID('mgr'));
+        $roleId = (int) get_by_key($_SESSION, 'mgrRole', 0);
+        if ($roleId === ModuleAccess::ADMIN_ROLE) {
+            return $builder;
         }
 
-        return $builder;
+        if (evo()->getConfig('use_udperms')) {
+            // the joins below bring in columns of their own, so make sure a
+            // caller that did not name any gets the module row, not a mix of
+            // module and member_groups columns sharing the id name
+            if (empty($builder->getQuery()->columns)) {
+                $builder->select('site_modules.*');
+            }
+
+            $builder->leftJoin('site_module_access', 'site_module_access.module', '=', 'site_modules.id')
+                ->leftJoin('member_groups', 'member_groups.user_group', '=', 'site_module_access.usergroup')
+                ->where(function (Eloquent\Builder $query) {
+                    $query->whereNull('site_module_access.usergroup')
+                        ->orWhere('member_groups.member', '=', (int)evo()->getLoginUserID('mgr'));
+                });
+        }
+
+        return $builder->allowedForRole($roleId);
+    }
+
+    /**
+     * Restrict to modules the given role may run: those with no role
+     * restriction at all, plus those the role is explicitly listed on.
+     */
+    public function scopeAllowedForRole(Eloquent\Builder $builder, int $roleId)
+    {
+        if ($roleId === ModuleAccess::ADMIN_ROLE) {
+            return $builder;
+        }
+
+        return $builder->where(function (Eloquent\Builder $query) use ($roleId) {
+            $query->whereNotExists(function ($sub) {
+                $sub->selectRaw(1)
+                    ->from('site_module_roles')
+                    ->whereColumn('site_module_roles.module', 'site_modules.id');
+            })->orWhereExists(function ($sub) use ($roleId) {
+                $sub->selectRaw(1)
+                    ->from('site_module_roles')
+                    ->whereColumn('site_module_roles.module', 'site_modules.id')
+                    ->where('site_module_roles.role', '=', $roleId);
+            });
+        });
     }
 
     public static function getLockedElements()

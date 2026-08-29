@@ -27,6 +27,8 @@ EvolutionCMS\Models\SiteModule::destroy($id);
 EvolutionCMS\Models\SiteModuleDepobj::where('module',$id)->delete();
 // delete the module user group access.
 EvolutionCMS\Models\SiteModuleAccess::where('module',$id)->delete();
+// delete the module role access.
+EvolutionCMS\Models\SiteModuleRole::where('module',$id)->delete();
 
 // invoke OnModFormDelete event
 EvolutionCMS()->invokeEvent("OnModFormDelete",
