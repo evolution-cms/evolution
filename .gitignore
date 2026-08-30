@@ -32,6 +32,9 @@
 /manager/includes/config.inc.php
 /manager/media/style/default/css/styles.min.css
 
+# Installer lock
+/install.session.php
+
 # Composer
 /composer.phar
 

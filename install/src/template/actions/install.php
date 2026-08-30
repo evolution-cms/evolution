@@ -339,11 +339,15 @@
         </p>
     <?php endif; ?>
 
-    <form name="install" id="install_form" action="index.php?action=options" method="post">
+    <form name="install" id="install_form"
+          action="../<?= escapeHtmlAttribute(MGR_DIR) ?>/processors/remove_installer.processor.php" method="post">
+        <input type="hidden" name="installer_token"
+               value="<?= escapeHtmlAttribute($installerRemovalToken ?? '') ?>"/>
         <?php if ($errors === 0) : ?>
             <?php if (is_writable(dirname(__DIR__, 2))) : ?>
                 <label id="removeinstall" class="clickable">
-                    <input type="checkbox" name="rminstaller" <?= (empty($errors) ? 'checked="checked"' : '') ?>/>
+                    <input type="checkbox" name="rminstaller" value="1"
+                        <?= (empty($errors) ? 'checked="checked"' : '') ?>/>
                     <?= $_lang['remove_install_folder_auto'] ?>
                 </label>
             <?php else : ?>
@@ -351,23 +355,11 @@
             <?php endif; ?>
         <?php endif; ?>
         <p class="buttonlinks">
-            <button type="button" id="closepage" nonce="<?= csrfNonce(); ?>" title="<?= $_lang['btnclose_value'] ?>">
+            <button type="submit" id="closepage" title="<?= $_lang['btnclose_value'] ?>">
                 <span><?= $_lang['btnclose_value'] ?></span>
             </button>
         </p>
         <br/>
     </form>
     <br/>
-    <script type="text/javascript" nonce="<?= csrfNonce(); ?>">
-      function closepage() {
-        var chk = document.install.rminstaller;
-        if (chk && chk.checked) {
-          // remove install folder and files
-          window.location.href = "../<?=MGR_DIR;?>/processors/remove_installer.processor.php?rminstall=1";
-        } else {
-          window.location.href = "../<?=MGR_DIR;?>/";
-        }
-      }
-      document.getElementById('closepage').onclick = closepage;
-    </script>
 <?php endif; ?>

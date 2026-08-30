@@ -22,7 +22,13 @@
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Facade;
+use EvolutionCMS\Models\SystemCliTask;
+use EvolutionCMS\Services\SystemTasks\SchedulerHealthService;
+use EvolutionCMS\Services\SystemTasks\SiteUpdateFlowService;
+use EvolutionCMS\Services\SystemTasks\SystemTaskService;
+use EvolutionCMS\Services\SystemTasks\WorkerHealthService;
 
 if (!defined('EVO_BASE_PATH')) {
     define('EVO_BASE_PATH', str_replace('\\', '/', dirname(__DIR__, 3)) . '/');
@@ -202,6 +208,38 @@ function runSiteUpdateDatabaseSteps(): void
     $command->applyExtrasModule();
 }
 
+/**
+ * Build an isolated core tree whose Artisan entry point records the requested target as the
+ * installed version. SiteUpdateFlowService still launches it through the real process boundary.
+ */
+function managerUpgradeCoreFixture(string $currentVersion): string
+{
+    $core = str_replace('\\', '/', sys_get_temp_dir()) . '/evo-manager-upgrade-' . bin2hex(random_bytes(8)) . '/core';
+    mkdir($core . '/factory', 0777, true);
+    file_put_contents(
+        $core . '/factory/version.php',
+        "<?php\nreturn " . var_export(['version' => $currentVersion], true) . ";\n"
+    );
+    file_put_contents($core . '/artisan', <<<'PHP'
+<?php
+
+if (($argv[1] ?? '') !== 'make:site' || ($argv[2] ?? '') !== 'update' || empty($argv[3])) {
+    fwrite(STDERR, "Unexpected update command.\n");
+    exit(2);
+}
+
+$targetVersion = (string) $argv[3];
+file_put_contents(
+    __DIR__ . '/factory/version.php',
+    "<?php\nreturn " . var_export(['version' => $targetVersion], true) . ";\n"
+);
+echo "Evolution CMS $targetVersion updated\n";
+PHP
+    );
+
+    return $core . '/';
+}
+
 test('update from version N to N+1 applies migrations, update seeders and refreshes Extras', function () {
     $capsule = bootSiteUpdateDatabase();
     seedVersionNDatabase($capsule);
@@ -238,6 +276,60 @@ test('update from version N to N+1 applies migrations, update seeders and refres
     expect($extras->description)->toContain('<strong>0.2.0</strong>')
         ->and($extras->modulecode)->toContain('store/core.php')
         ->and($extras->modulecode)->not->toBe('OUTDATED MODULE CODE');
+});
+
+test('manager system upgrade action queues work and finishes on the requested system version', function () {
+    $capsule = bootSiteUpdateDatabase();
+    seedVersionNDatabase($capsule);
+    (new \CreateSystemCliTasksTables())->up();
+    (new SchedulerHealthService())->recordHeartbeat('feature-test', 'manual');
+    $workerHealth = new WorkerHealthService();
+    $workerHealth->markRun('feature-worker', 1234);
+    $workerHealth->markSuccess('feature-worker', 1234);
+
+    $currentVersion = '3.5.8';
+    $targetVersion = '3.5.9';
+    $corePath = managerUpgradeCoreFixture($currentVersion);
+    $taskService = new SystemTaskService();
+
+    try {
+        $versionBeforeUpdate = include $corePath . 'factory/version.php';
+        expect($versionBeforeUpdate['version'])->toBe($currentVersion);
+
+        // This is the service call made by updaterHandleSystemTaskRequest() when an authenticated
+        // super administrator presses the manager's system-update button.
+        $queued = $taskService->createTaskFromStoreRequest('site_update', [
+            'target_ref' => $targetVersion,
+            'backup_database' => '0',
+        ], [
+            'user_id' => 1,
+            'permissions' => [
+                'exec_module' => 1,
+                'system_tasks.view' => 1,
+                'system_tasks.site_update' => 1,
+            ],
+            'session_hash' => hash('sha256', 'authenticated-manager-cookie'),
+        ], true);
+
+        expect($queued['ok'])->toBeTrue()
+            ->and($queued['task']['status'])->toBe('queued')
+            ->and($queued['task']['requested_version'])->toBe($targetVersion);
+
+        $task = $taskService->acquireNextQueuedTask('feature-worker', 'feature-host', 1234);
+        expect($task)->toBeInstanceOf(SystemCliTask::class);
+
+        $result = (new SiteUpdateFlowService($corePath))->execute($task);
+        $taskService->markTaskSucceeded($task, $result['message'], $result['result']);
+
+        $installedVersion = include $corePath . 'factory/version.php';
+        $completedTask = $task->fresh();
+
+        expect($completedTask->status)->toBe('succeeded')
+            ->and($completedTask->result_json['target_ref'])->toBe($targetVersion)
+            ->and($installedVersion['version'])->toBe($targetVersion);
+    } finally {
+        (new Filesystem())->deleteDirectory(dirname(rtrim($corePath, '/')));
+    }
 });
 
 test('moveFiles replaces files into the destination tree', function () {
