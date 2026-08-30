@@ -494,14 +494,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         }
 
         // Only allow redirects to the same domain or relative paths to prevent open redirect vulnerability
-        $parsed_url = parse_url($url);
-        if (isset($parsed_url['scheme'])) {
-            if (!in_array(strtolower($parsed_url['scheme']), ['http', 'https']) || $parsed_url['host'] !==
-                parse_url(EVO_SITE_URL)['host']) {
-                $this->getService('ExceptionHandler')->messageQuit(
-                    'External or invalid redirect not allowed: <i>' . htmlspecialchars($url) . '</i>'
-                );
-            }
+        if (!$this->isLocalRedirectTarget($url, EVO_SITE_URL)) {
+            $this->getService('ExceptionHandler')->messageQuit(
+                'External or invalid redirect not allowed: <i>' . htmlspecialchars($url) . '</i>'
+            );
         }
 
         // Fix: Prevent header injection by checking for newlines in all redirect types
@@ -555,6 +551,58 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         }
 
         exit(0);
+    }
+
+    /**
+     * Decide whether a redirect target stays on this site.
+     *
+     * Relative paths pass, absolute URLs pass only when the host is our own. Everything else
+     * is refused - including the two shapes that carry no scheme and therefore used to skip
+     * the check entirely: "//evil.tld" is protocol-relative, and browsers normalise the
+     * backslash variants ("/\evil.tld", "\/evil.tld") to the same thing before following
+     * the Location header.
+     *
+     * @param string $url the target as it would be sent to the browser
+     * @param string $siteUrl EVO_SITE_URL, or any absolute URL naming this site
+     * @return bool
+     * @since 3.5.8
+     */
+    public function isLocalRedirectTarget(string $url, string $siteUrl): bool
+    {
+        // The URL parser used by browsers strips ASCII whitespace/control characters before
+        // resolving a target (and strips tabs and newlines within it). parse_url() does not, so
+        // accepting them would let a value such as " //evil.tld" masquerade as a relative path.
+        if (preg_match('/[\x00-\x20\x7f]/', $url) === 1) {
+            return false;
+        }
+
+        // Browsers read a backslash in the authority position as a slash, so the check has to
+        // read it that way too before deciding whether an authority is present at all.
+        $normalized = str_replace('\\', '/', $url);
+
+        $parsed = parse_url($normalized);
+        if ($parsed === false) {
+            return false;
+        }
+
+        $hasAuthority = isset($parsed['host']) || str_starts_with($normalized, '//');
+
+        if (!isset($parsed['scheme']) && !$hasAuthority) {
+            return true; // a relative path, which can only stay on this site
+        }
+
+        if (isset($parsed['scheme']) && !in_array(strtolower($parsed['scheme']), ['http', 'https'], true)) {
+            return false;
+        }
+
+        $host = isset($parsed['host']) ? (string) $parsed['host'] : '';
+        if ($host === '') {
+            return false; // "//" with nothing behind it, or an authority we could not read
+        }
+
+        $siteHost = parse_url($siteUrl, PHP_URL_HOST);
+
+        return is_string($siteHost) && $siteHost !== '' && strcasecmp($host, $siteHost) === 0;
     }
 
     /**
