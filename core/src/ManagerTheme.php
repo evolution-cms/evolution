@@ -838,12 +838,21 @@ class ManagerTheme implements ManagerThemeInterface
     /**
      * @inheritdoc
      */
-    public function alertAndQuit(string $message, $lexicon = true): void
+    /**
+     * @param string $message a lexicon key, or the message itself when $lexicon is false
+     * @param bool $lexicon whether $message is a key to look up
+     * @param string $url where to send the user after the alert. Empty means
+     *                    history.back(-1), which on a page that alerts as soon
+     *                    as it is opened returns to the page that alerts - a
+     *                    loop the user cannot leave. Pass a destination
+     *                    whenever the alert ends the page.
+     */
+    public function alertAndQuit(string $message, $lexicon = true, string $url = ''): void
     {
         if ($lexicon) {
-            $message = $this->getLexicon($message);
+            $message = $this->getLexicon($message, $message);
         }
-        $this->getCore()->webAlertAndQuit($message);
+        $this->getCore()->webAlertAndQuit($message, $url);
     }
 
     public function isLoadDatePicker(): bool

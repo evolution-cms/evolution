@@ -3610,8 +3610,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $style = '';
         if (IN_MANAGER_MODE) {
             $path = 'media/style/' . $this->getConfig('manager_theme') . '/';
-            if (is_file(EVO_MANAGER_PATH . $path . '/css/styles.min.css')) {
-                $file_name = '/css/styles.min.css';
+            if (is_file(EVO_MANAGER_PATH . $path . 'css/styles.min.css')) {
+                $file_name = 'css/styles.min.css';
             } else {
                 $file_name = 'style.css';
             }
