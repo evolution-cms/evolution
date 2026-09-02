@@ -101,6 +101,14 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @since 3.5.9
      */
     public $documentTemplateView = '';
+
+    /**
+     * Whether the DocumentParser runs over what the template produced - False for a document rendered from a file
+     * Plugin view engine switches it to true on OnLoadWebDocument to not re-implement a parser.
+     *
+     * @since 3.5.8
+     */
+    public $runDocumentParser = true;
     public $documentOutput;
     public $tstart = 0;
     public $mstart = 0;
@@ -3287,6 +3295,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         }
 
         $template = false;
+        $this->runDocumentParser = true;
         if ($this->documentContent == '') {
 
             // get document object from DB
@@ -3318,6 +3327,9 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
             $template = TemplateProcessor::getBladeDocumentContent();
             $this->documentTemplateView = $template ? (string) $template : '';
+
+            // A file is finished output; the database holds source. A plugin may flip this on OnLoadWebDocument, below.
+            $this->runDocumentParser = !$template;
 
             if ($template) {
                 $this->documentObject['cacheable'] = 0;
@@ -3373,7 +3385,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             // invoke OnLoadWebDocument event
             $this->invokeEvent('OnLoadWebDocument');
 
-            if (!$template) {
+            if ($this->runDocumentParser) {
                 // Parse document source
                 $this->documentContent = $this->parseDocumentSource($this->documentContent);
             }
@@ -3389,15 +3401,15 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             }
         }
 
-        if ($template) {
-            $this->outputContent(false, false);
-        } else {
+        if (!$template) {
             register_shutdown_function([
                 &$this,
                 'postProcess'
             ]); // tell PHP to call postProcess when it shuts down
-            $this->outputContent();
         }
+
+        // [!snippets!], [^stats^], tag cleanup, URL rewriting, escaped tag recovery.
+        $this->outputContent(false, $this->runDocumentParser);
     }
 
     public function _sendErrorForUnpubPage()
