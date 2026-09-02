@@ -205,8 +205,11 @@ it('accepts the token from the X-CSRF-TOKEN header', function () {
     expect(csrfPassed($request))->toBeTrue();
 });
 
-it('answers XHR callers with JSON and page requests with plain text', function () {
-    $xhr = csrfRequest('POST', ['a' => 109], ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']);
+it('answers XHR callers with JSON and page requests with plain text', function (string $accept) {
+    $xhr = csrfRequest('POST', ['a' => 109], [
+        'HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest',
+        'HTTP_ACCEPT' => $accept,
+    ]);
     $page = csrfRequest('GET', ['a' => 6, 'id' => 3]);
 
     $middleware = new VerifyCsrfToken();
@@ -216,6 +219,13 @@ it('answers XHR callers with JSON and page requests with plain text', function (
         ->toMatchArray(['kind' => 'json', 'status' => 403])
         ->and($middleware->handle($page, $noop))
         ->toMatchArray(['kind' => 'text', 'status' => 403]);
+})->with(['text/html', '*/*', 'application/json']);
+
+it('answers non-XHR JSON clients with a JSON rejection', function () {
+    $request = csrfRequest('POST', ['a' => 109], ['HTTP_ACCEPT' => 'application/json']);
+
+    expect((new VerifyCsrfToken())->handle($request, fn () => 'next'))
+        ->toMatchArray(['kind' => 'json', 'status' => 403]);
 });
 
 it('lets HEAD and OPTIONS through for ordinary navigation', function (string $method) {

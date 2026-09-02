@@ -154,11 +154,12 @@ class VerifyCsrfToken
     }
 
     /**
-     * Builds the rejection response, matching the format the caller expects.
+     * Builds the rejection response. Legacy XHR callers require JSON even when
+     * their Accept header prefers HTML; ordinary page loads receive plain text.
      */
     protected function reject($request)
     {
-        if ($request->expectsJson()) {
+        if ($request->ajax() || $request->wantsJson()) {
             return Response::json(['error' => 'CSRF token mismatch', 'code' => 'csrf_token_mismatch'], 403);
         }
 
