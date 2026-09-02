@@ -19,6 +19,7 @@ use EvolutionCMS\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
@@ -6560,6 +6561,44 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $this->getUserSettings();
         $this->setConfig('site_timezone', $siteTimezone);
         $this->invokeEvent('OnLoadSettings', ['config' => &$this->config]);
+
+        // The factory defaults read the manager lexicon (core/factory/settings.php), so
+        // ManagerTheme is already built from the system theme and language by the time the
+        // user settings above are merged. Realign it so a per-user manager_theme /
+        // manager_language (and anything OnLoadSettings changed) reaches the manager UI.
+        $this->syncManagerTheme();
+    }
+
+    /**
+     * Realign the already resolved ManagerTheme with the current manager_theme and
+     * manager_language. A different theme needs a new instance (the theme name drives the
+     * view namespaces, the style and the theme snippets/chunks); a different language only
+     * needs the lexicon read again.
+     */
+    protected function syncManagerTheme(): void
+    {
+        if (!$this->isBackend() || !$this->resolved('ManagerTheme')) {
+            return;
+        }
+
+        $managerTheme = $this['ManagerTheme'];
+        if (!$managerTheme instanceof ManagerTheme) {
+            return;
+        }
+
+        $theme = (string) $this->getConfig('manager_theme', 'default');
+        if ($theme !== '' && $theme !== $managerTheme->getTheme()) {
+            // Dropped, not rebuilt: the next call resolves it again from the merged config.
+            $this->forgetInstance('ManagerTheme');
+            Facade::clearResolvedInstance('ManagerTheme');
+
+            return;
+        }
+
+        $language = (string) $this->getConfig('manager_language');
+        if ($language !== '' && $language !== $managerTheme->getLangName()) {
+            $managerTheme->reloadLang($language);
+        }
     }
 
     /**
