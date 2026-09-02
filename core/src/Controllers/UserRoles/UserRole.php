@@ -2,6 +2,7 @@
 
 use EvolutionCMS\Controllers\AbstractController;
 use EvolutionCMS\Models;
+use EvolutionCMS\Support\ModuleAccess;
 use EvolutionCMS\Interfaces\ManagerTheme;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent;
@@ -37,6 +38,7 @@ class UserRole extends AbstractController implements ManagerTheme\PageController
         if(isset($_GET['action']) && $_GET['action'] == 'delete' ){
             $id = $this->getElementId();
             Models\RolePermissions::query()->where('role_id', $id)->delete();
+            Models\SiteModuleRole::query()->where('role', $id)->delete();
             Models\UserRoleVar::where('roleid', $id)->delete();
             Models\UserRole::query()->where('id', $id)->delete();
             header('Location: index.php?a=86&tab=0');
@@ -80,6 +82,11 @@ class UserRole extends AbstractController implements ManagerTheme\PageController
             Models\RolePermissions::create(['role_id' => $role->getKey(), 'permission' => $key]);
         }
 
+        $this->saveModuleAccess(
+            (int) $role->getKey(),
+            is_array($_POST['modules'] ?? null) ? array_keys($_POST['modules']) : []
+        );
+
         if ($_POST['tvsDirty'] == 1) {
             // Preserve rankings of already assigned TVs
             $exists = Models\UserRoleVar::where('roleid', $role->id)->get()->toArray();
@@ -112,6 +119,101 @@ class UserRole extends AbstractController implements ManagerTheme\PageController
 
         $this->managerTheme->getCore()->getManagerApi()->clearSavedFormValues();
         header('Location: index.php?a=35&id=' . $role->getKey() . '&r=9');
+    }
+
+    /**
+     * Store which modules this role may run.
+     *
+     * A module with no rows in site_module_roles is unrestricted, so allowing
+     * such a module means writing nothing at all. Denying one has to make it
+     * restricted first, by listing every other role. A module always keeps at
+     * least the admin role, otherwise dropping the last row would silently
+     * turn it back into an unrestricted module.
+     *
+     * @param int $roleId
+     * @param array $allowedModuleIds Module ids ticked on the role form.
+     * @return void
+     */
+    protected function saveModuleAccess(int $roleId, array $allowedModuleIds): void
+    {
+        // the admin role bypasses the ACL, and the form renders read-only for it
+        if ($roleId <= 0 || $roleId === ModuleAccess::ADMIN_ROLE) {
+            return;
+        }
+
+        if (!$this->managerTheme->getCore()->hasPermission('manage_module_permissions')) {
+            return;
+        }
+
+        $allowed = ModuleAccess::normalizeRoleIds($allowedModuleIds);
+        $restricted = Models\SiteModuleRole::query()->get()->groupBy('module');
+        $allRoleIds = Models\UserRole::query()->pluck('id')->all();
+
+        foreach (Models\SiteModule::query()->pluck('id') as $moduleId) {
+            $moduleId = (int) $moduleId;
+            $isRestricted = isset($restricted[$moduleId]);
+
+            if (in_array($moduleId, $allowed, true)) {
+                if ($isRestricted) {
+                    Models\SiteModuleRole::query()->firstOrCreate([
+                        'module' => $moduleId,
+                        'role' => $roleId,
+                    ]);
+                }
+
+                continue;
+            }
+
+            if (!$isRestricted) {
+                foreach (ModuleAccess::normalizeRoleIds($allRoleIds) as $otherRoleId) {
+                    if ($otherRoleId === $roleId) {
+                        continue;
+                    }
+
+                    Models\SiteModuleRole::query()->firstOrCreate([
+                        'module' => $moduleId,
+                        'role' => $otherRoleId,
+                    ]);
+                }
+
+                continue;
+            }
+
+            Models\SiteModuleRole::query()
+                ->where('module', $moduleId)
+                ->where('role', $roleId)
+                ->delete();
+
+            $remaining = Models\SiteModuleRole::query()->where('module', $moduleId)->count();
+            if ($remaining === 0) {
+                Models\SiteModuleRole::query()->firstOrCreate([
+                    'module' => $moduleId,
+                    'role' => ModuleAccess::ADMIN_ROLE,
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Modules the role may run, keyed by module id.
+     *
+     * Unrestricted modules read as allowed: unticking one is what restricts it.
+     *
+     * @param int $roleId
+     * @return array<int, bool>
+     */
+    protected function parameterModuleAccess(int $roleId): array
+    {
+        $restricted = Models\SiteModuleRole::query()->get()->groupBy('module');
+        $selected = [];
+
+        foreach (Models\SiteModule::query()->pluck('id') as $moduleId) {
+            $moduleId = (int) $moduleId;
+            $selected[$moduleId] = !isset($restricted[$moduleId])
+                || $restricted[$moduleId]->contains('role', $roleId);
+        }
+
+        return $selected;
     }
 
     public static function normalizePermissionsPayload(array $permissions, array $requiredPermissions = []): array
@@ -150,6 +252,10 @@ class UserRole extends AbstractController implements ManagerTheme\PageController
             'role'             => $role,
             'groups'           => Models\PermissionsGroups::query()->get(),
             'permissionsRole'  => $permissionsRole,
+            'modules'          => Models\SiteModule::query()->orderBy('name')->get(),
+            'moduleAccess'     => $this->parameterModuleAccess($id),
+            'canManageModuleAccess' => $this->managerTheme->getCore()
+                ->hasPermission('manage_module_permissions'),
             'categories'       => $this->parameterCategories(),
             'tvSelected'       => $this->parameterTvSelected(),
             'categoriesWithTv' => $this->parameterCategoriesWithTv(

@@ -864,7 +864,9 @@ class InstallEvo
                         \EvolutionCMS\Models\SiteModule::query()->where('name', $name)->update(['modulecode' => $module, 'description' => $desc, 'properties' => $props, 'enable_sharedparams' => $shared]);
                     } else {
                         $props = parseProperties($properties, true);
-                        \EvolutionCMS\Models\SiteModule::query()->create(['name' => $name, 'guid' => $guid, 'category' => $category, 'modulecode' => $module, 'description' => $desc, 'properties' => $props, 'enable_sharedparams' => $shared]);
+                        $newModule = \EvolutionCMS\Models\SiteModule::query()->create(['name' => $name, 'guid' => $guid, 'category' => $category, 'modulecode' => $module, 'description' => $desc, 'properties' => $props, 'enable_sharedparams' => $shared]);
+                        // bundled modules ship with a default role restriction
+                        \EvolutionCMS\Models\SiteModuleRole::applyDefaultsFor((int)$newModule->getKey(), $name);
                     }
                 }
             }

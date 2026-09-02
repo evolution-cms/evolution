@@ -46,6 +46,14 @@ EvolutionCMS\Models\SiteModuleAccess::select("module", "usergroup")
         $item->replicate()->save();
     });
 
+// duplicate module role access
+EvolutionCMS\Models\SiteModuleRole::select("module", "role")
+    ->where('module', $id)->get()
+    ->each(function ($item, $key) use ($newid) {
+        $item->module = $newid;
+        $item->replicate()->save();
+    });
+
 // Set the item name for logger
 $name = EvolutionCMS\Models\SiteModule::select('name')->findOrFail($newid)->name;
 $_SESSION['itemname'] = $name;

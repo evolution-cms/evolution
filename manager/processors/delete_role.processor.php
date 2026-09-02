@@ -24,6 +24,9 @@ if($count>0){
 $name = EvolutionCMS\Models\UserRole::select('name')->where('id',$id)->first()->name;
 $_SESSION['itemname'] = $name;
 
+// delete the module access rows granted to this role
+EvolutionCMS\Models\SiteModuleRole::where('role',$id)->delete();
+
 // delete the attributes
 EvolutionCMS\Models\UserRole::select('name')->where('id',$id)->delete();
 
