@@ -61,6 +61,7 @@ $_style['icon_trash'] = svg('tabler-trash')->toHtml();
         ?>
 
         <div id="node0" class="rootNode"><a class="node" onclick="evo.tree.treeAction(event, 0)" data-id="0"
+            data-canaddchild="{{ \EvolutionCMS\Legacy\Permissions::canCreateIn(0) ? 1 : 0 }}"
             data-title-esc="{{ $siteName }}"><span class="icon"><i
             class="{{ $_style['icon_sitemap'] }}"></i></span><span class="title">{{ $siteName }}</span></a>
             <div id="treeloader"><i class="{{ $_style['icon_cog'] }} {{ $_style['icon_spin'] }}"></i></div>

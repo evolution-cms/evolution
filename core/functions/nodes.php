@@ -61,9 +61,12 @@ if (!function_exists('makeHTML')) {
         }
         $mgrRole = (isset ($_SESSION['mgrRole']) && (string)$_SESSION['mgrRole'] === '1') ? '1' : '0';
 
-        $docgrp_cond = $docgrp ? 'OR dg.document_group IN (' . $docgrp . ')' : '';
+        // documents this user may work with, used to tell which nodes can take a new child
+        $usePermissions = $modx->getConfig('use_udperms');
+        $accessibleDocuments = \EvolutionCMS\Legacy\Permissions::getAccessibleDocumentIds();
+
+        // $docgrp_cond = $docgrp ? 'OR dg.document_group IN (' . $docgrp . ')' : '';
         $mgrRole = (int)$mgrRole;
-        $docgrp_cond = $docgrp_cond;
 
         $result = \EvolutionCMS\Models\SiteContent::query()->withTrashed()->select('site_content.id', 'site_content.pagetitle', 'longtitle',
             'menutitle', 'parent', 'isfolder'
@@ -123,6 +126,18 @@ if (!function_exists('makeHTML')) {
             if ($mgrRole == 1 || $row['privatemgr'] == 0) {
                 $row['hasAccess'] = 1;
             }
+            // reachability is wider than hasAccess: it also covers the private documents
+            // this user is a member of, which are legitimate places to create a resource in
+            $row['canAddChild'] = \EvolutionCMS\Support\ResourceParentGuard::nodeAcceptsChild(
+                \EvolutionCMS\Support\ResourceParentGuard::documentIsAccessible(
+                    $mgrRole,
+                    $usePermissions,
+                    $row['privatemgr'],
+                    $row['id'],
+                    $accessibleDocuments
+                ),
+                $row['deleted']
+            ) ? 1 : 0;
             $node = '';
             $nodetitle = getNodeTitle($nodeNameSource, $row);
             $nodetitleDisplay = $nodetitle;
@@ -243,7 +258,8 @@ if (!function_exists('makeHTML')) {
                 'level' => $level,
                 'isPrivate' => 0,
                 'roles' => ($row['roles'] ? $row['roles'] : ''),
-                'nomove' => 0
+                'nomove' => 0,
+                'canAddChild' => $row['canAddChild']
             ];
 
             $ph = $data;
@@ -665,6 +681,7 @@ if (!function_exists('getTplSingleNode')) {
         data-private="[+isPrivate+]"
         data-roles="[+roles+]"
         data-nomove="[+nomove+]"
+        data-canaddchild="[+canAddChild+]"
         data-level="[+level+]"
         data-treepageclick="[+tree_page_click+]"
         [+contextmenu+]
@@ -696,6 +713,7 @@ if (!function_exists('getTplFolderNode')) {
         data-private="[+isPrivate+]"
         data-roles="[+roles+]"
         data-nomove="[+nomove+]"
+        data-canaddchild="[+canAddChild+]"
         data-level="[+level+]"
         data-icon-expanded="[+tree_plusnode+]"
         data-icon-collapsed="[+tree_minusnode+]"
@@ -738,6 +756,7 @@ if (!function_exists('getTplFolderNodeNotChildren')) {
         data-private="[+isPrivate+]"
         data-roles="[+roles+]"
         data-nomove="[+nomove+]"
+        data-canaddchild="[+canAddChild+]"
         data-level="[+level+]"
         data-icon-expanded="[+tree_plusnode+]"
         data-icon-collapsed="[+tree_minusnode+]"

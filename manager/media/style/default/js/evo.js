@@ -1102,6 +1102,10 @@
             isBlockedDropTarget: function (target) {
                 return !!(w.modxTreeDropGuardHelper && !w.modxTreeDropGuardHelper.canDropIntoTarget(target));
             },
+            // nodes the current user may not create or move a resource into
+            isBlockedParentTarget: function (node) {
+                return !!(w.modxTreeParentGuardHelper && w.modxTreeParentGuardHelper.isBlockedParentTarget(node));
+            },
             ondragenter: function (e) {
                 if (
                     d.getElementById('node' + evo.tree.itemToChange) === (this.parentNode.closest('#node' + evo.tree.itemToChange) || this.parentNode)
@@ -1407,6 +1411,11 @@
                     openfolder = parseInt(el.dataset.openfolder);
                 title = title || el.dataset && el.dataset.titleEsc;
                 if (tree.ca === 'move') {
+                    if (this.isBlockedParentTarget(el)) {
+                        e.preventDefault();
+                        alert(evo.lang.access_permission_parent_denied);
+                        return;
+                    }
                     try {
                         this.setSelectedByContext(id);
                         w.main.setMoveValue(id, title);
@@ -1445,6 +1454,11 @@
                     this.setSelected(id);
                 }
                 if (tree.ca === 'parent') {
+                    if (this.isBlockedParentTarget(el)) {
+                        e.preventDefault();
+                        alert(evo.lang.access_permission_parent_denied);
+                        return;
+                    }
                     try {
                         this.setSelectedByContext(id);
                         w.main.setParent(id, title);

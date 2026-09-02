@@ -118,6 +118,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                 selectedObjectName: null
             },
             lang: {{ js_json([
+                'access_permission_parent_denied' => ManagerTheme::getLexicon('access_permission_parent_denied'),
                 'already_deleted' => ManagerTheme::getLexicon('already_deleted'),
                 'cm_unknown_error' => ManagerTheme::getLexicon('cm_unknown_error'),
                 'collapse_tree' => ManagerTheme::getLexicon('collapse_tree'),
@@ -218,6 +219,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
         window.tree = evo.tree;
     </script>
     <script src="media/script/tree-drop-guard-helper.js?v={{evo()->getVersionData('version')}}"></script>
+    <script src="media/script/tree-parent-guard-helper.js?v={{evo()->getVersionData('version')}}"></script>
     <script src="media/script/main-target-link-helper.js?v={{evo()->getVersionData('version')}}"></script>
     <script src="@revision(MGR_DIR . '/media/script/manager-tab-state.js')"></script>
     <script src="@revision(MGR_DIR . '/' . ManagerTheme::getThemeDir(false) . 'js/evo.js')"></script>
