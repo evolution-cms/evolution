@@ -218,13 +218,26 @@ it('answers XHR callers with JSON and page requests with plain text', function (
         ->toMatchArray(['kind' => 'text', 'status' => 403]);
 });
 
-it('lets HEAD and OPTIONS through without looking at a token', function (string $method) {
+it('lets HEAD and OPTIONS through for ordinary navigation', function (string $method) {
     unset($_SESSION['_token']);
 
-    $request = csrfRequest($method, ['a' => 6, 'id' => 3]);
+    $request = csrfRequest($method, ['a' => 2]);
 
     expect(csrfPassed($request))->toBeTrue();
 })->with(['HEAD', 'OPTIONS']);
+
+it('rejects destructive actions even through HEAD and OPTIONS', function (string $method) {
+    expect(csrfPassed(csrfRequest($method, ['a' => 6, 'id' => 3])))->toBeFalse();
+})->with(['HEAD', 'OPTIONS']);
+
+it('does not exempt a POST disguised with a safe method override', function () {
+    $request = csrfRequest('POST', ['a' => 2], ['HTTP_X_HTTP_METHOD_OVERRIDE' => 'GET']);
+    expect(csrfPassed($request))->toBeFalse();
+});
+
+it('rejects an explicitly stale token even on ordinary navigation', function () {
+    expect(csrfPassed(csrfRequest('GET', ['a' => 2, '_token' => 'old'])))->toBeFalse();
+});
 
 it('compares tokens in constant time', function () {
     // A plain string comparison leaks the token a byte at a time under timing analysis.

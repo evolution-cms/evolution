@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Response;
 class VerifyCsrfToken
 {
     /**
-     * Request methods that never change state and therefore never need a token.
+     * Normally safe methods; legacy mutation actions still require a token.
      */
     protected const READ_ONLY_METHODS = ['HEAD', 'OPTIONS'];
 
@@ -93,15 +93,14 @@ class VerifyCsrfToken
 
         $method = strtoupper((string)$request->method());
 
-        if (in_array($method, self::READ_ONLY_METHODS, true)) {
-            return false;
-        }
-
-        if ($method !== 'GET') {
+        if (!in_array($request->getRealMethod(), ['GET', 'HEAD', 'OPTIONS'], true)
+            || ($method !== 'GET' && !in_array($method, self::READ_ONLY_METHODS, true))) {
             return true;
         }
 
-        return in_array($this->getActionId(), self::MUTATING_GET_ACTIONS, true);
+        // Explicitly stale tokens must not be ignored even on read-only pages.
+        return $request->input('_token', $request->header('X-CSRF-TOKEN')) !== null
+            || in_array($this->getActionId($request), self::MUTATING_GET_ACTIONS, true);
     }
 
     /**
@@ -109,10 +108,10 @@ class VerifyCsrfToken
      */
     protected function tokensMatch($request): bool
     {
-        $sessionToken = (string)($_SESSION['_token'] ?? '');
+        $sessionToken = $_SESSION['_token'] ?? null;
         $requestToken = $this->getRequestToken($request);
 
-        if ($sessionToken === '' || $requestToken === '') {
+        if (!is_string($sessionToken) || $sessionToken === '' || $requestToken === '') {
             return false;
         }
 
@@ -124,29 +123,21 @@ class VerifyCsrfToken
      */
     protected function getRequestToken($request): string
     {
-        $token = $request->input('_token', '');
+        // An explicitly empty/malformed field must not fall back to another credential.
+        $token = $request->input('_token', $request->header('X-CSRF-TOKEN'));
 
-        if (!is_scalar($token) || (string)$token === '') {
-            $token = $request->header('X-CSRF-TOKEN', '');
-        }
-
-        return is_scalar($token) ? (string)$token : '';
+        return is_string($token) ? $token : '';
     }
 
     /**
      * Resolves the requested action the same way the Manager dispatcher does.
      *
+     * @param \Illuminate\Http\Request $request
      * @return int|null
      */
-    protected function getActionId()
+    protected function getActionId($request)
     {
-        if (isset($_GET['a'])) {
-            $value = $_GET['a'];
-        } elseif (isset($_POST['a'])) {
-            $value = $_POST['a'];
-        } else {
-            return null;
-        }
+        $value = $request->query('a', $request->input('a'));
 
         if (!is_scalar($value)) {
             return null;
@@ -167,10 +158,15 @@ class VerifyCsrfToken
      */
     protected function reject($request)
     {
-        if ($request->ajax() || $request->wantsJson()) {
-            return Response::json(['error' => 'CSRF token mismatch'], 403);
+        if ($request->expectsJson()) {
+            return Response::json(['error' => 'CSRF token mismatch', 'code' => 'csrf_token_mismatch'], 403);
         }
 
-        return Response::make('CSRF token mismatch', 403, ['Content-Type' => 'text/plain']);
+        // Rejected operations, including mutating GET actions, must never be replayed.
+        return Response::make(
+            'The session token has changed or is missing. Reopen the manager, then review and retry your action. The action was not performed.',
+            403,
+            ['Content-Type' => 'text/plain; charset=UTF-8', 'Cache-Control' => 'no-store']
+        );
     }
 }

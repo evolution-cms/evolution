@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Lang;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 
+/**
+ * Validates login credentials and creates the authenticated context's session.
+ * Manager logins rotate CSRF credentials without discarding unrelated web-session data.
+ */
 class UserLogin implements UserServiceInterface
 {
     use SafelyDestroyUserSessionTrait;
@@ -337,6 +341,12 @@ class UserLogin implements UserServiceInterface
 
     }
 
+    /**
+     * Creates a fresh native session after login, preserving unrelated session data.
+     * Manager authentication also rotates CSRF; a web login keeps the manager token.
+     *
+     * @return string Newly assigned session identifier.
+     */
     protected function regenerateSessionId(): string
     {
         $sessionId = Str::random(40);
@@ -354,12 +364,24 @@ class UserLogin implements UserServiceInterface
             $_SESSION[$key] = $value;
         }
 
+        if ($this->context === 'mgr') {
+            // A new authenticated manager session must not inherit its predecessor's token.
+            $_SESSION['_token'] = Str::random(40);
+        }
+
         $this->syncLaravelSessionId($sessionId);
         $this->refreshSessionCookie($sessionId);
 
         return $sessionId;
     }
 
+    /**
+     * Mirrors the native session ID and rotated manager token into Laravel when enabled.
+     * Native session state remains authoritative if no compatible store is available.
+     *
+     * @param string $sessionId Newly generated native session identifier.
+     * @return void
+     */
     protected function syncLaravelSessionId(string $sessionId): void
     {
         if (!defined('EVO_SESSION') || !EVO_SESSION || !function_exists('session')) {
@@ -370,6 +392,9 @@ class UserLogin implements UserServiceInterface
             $store = session()->driver();
             if (is_object($store) && method_exists($store, 'setId')) {
                 $store->setId($sessionId);
+                if ($this->context === 'mgr' && method_exists($store, 'put')) {
+                    $store->put('_token', $_SESSION['_token']);
+                }
             }
         } catch (\Throwable $exception) {
             // Native PHP session remains the source of truth when Laravel sync is unavailable.

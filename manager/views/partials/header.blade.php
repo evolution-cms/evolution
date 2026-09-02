@@ -54,6 +54,8 @@
         ));
         evo.EVO_MANAGER_URL = '{{EVO_MANAGER_URL}}';
         evo.config.which_browser = @js(evo()->getConfig('which_browser'));
+        evo.config.tab_restore_user = @js((string) ($_SESSION['mgrInternalKey'] ?? ''));
+        evo.config.tab_restore_modules = @js(config('cms.manager_tab_restore.modules', []));
         // ============================================
         // @deprecated
         // @since 3.5.2
@@ -64,6 +66,7 @@
         // ============================================
     </script>
     <script src="media/script/tooltip-helper.js"></script>
+    <script src="@revision(MGR_DIR . '/media/script/manager-tab-state.js')"></script>
     <script src="media/script/main.js"></script>
     @if (get_by_key($_REQUEST, 'r', '', 'is_numeric'))
         <script>doRefresh({{ $_REQUEST['r'] }});</script>
