@@ -107,6 +107,14 @@ $_lang["htmlsnippet_name"] = 'Chunk adı';
 $_lang["htmlsnippet_title"] = 'Chunk yarat/redaktə et';
 $_lang["chunk"] = 'Chunk';
 $_lang["chunk_code"] = 'Chunk kodu (HTML)';
+$_lang["chunk_assigned_file"] = 'Uyğun chunk faylı';
+$_lang["chunk_file_unusable_name"] = 'bu ad fayl adı ola bilməz';
+$_lang["chunk_file_not_writable"] = '%s chunk faylı yazıla bilmədi, ona görə heç nə saxlanılmadı. Adı və chunk qovluğunun icazələrini yoxlayın.';
+$_lang["chunk_name_empty"] = 'Faylda saxlanılan chunk üçün ad lazımdır.';
+$_lang["chunk_name_not_utf8"] = 'Bu ad düzgün UTF-8 deyil, ona görə fayl adı ola bilməz.';
+$_lang["chunk_name_not_nfc"] = 'Bu adda birləşdirici simvollar var. Onu yenidən yazın, əks halda macOS onu eyni sözün başqa yazılışı ilə eyni fayl kimi qəbul edəcək.';
+$_lang["chunk_name_too_long"] = 'Xüsusi simvolları ekranlaşdırıldıqdan sonra bu ad fayl adı üçün çox uzundur.';
+$_lang["chunk_name_collides"] = 'Bu ad və «%s» chunk-u Windows və macOS-da eyni faylı paylaşardı, çünki onlar yalnız hərflərin registrinə görə fərqləndirir. Onlardan birini yenidən adlandırın.';
 $_lang["chunk_multiple_id"] = 'Xəta: Bir neçə Chunk eyni unikal ID ilə paylaşılır.';
 $_lang["chunk_no_exist"] = 'Chunk mövcud deyil.';
 
