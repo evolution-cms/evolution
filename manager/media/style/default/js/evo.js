@@ -21,6 +21,9 @@
         tabUrlForRestore: function (url) {
             return w.evoManagerTabState ? w.evoManagerTabState.restore(url, evo.tabsRestoreOptions()) : '';
         },
+        tabsTitleForRestore: function (url, title) {
+            return w.evoManagerTabState ? w.evoManagerTabState.restoreTitle(url, title, evo.tabsRestoreOptions(), d) : 'blank';
+        },
         tabsRestoreOptions: function () {
             return { base: evo.EVO_MANAGER_URL, origin: w.location.origin, token: evo.tabsCsrfToken(), modules: evo.config.tab_restore_modules };
         },
@@ -117,7 +120,7 @@
                     if (tab && tab.url) {
                         var tabUrl = evo.tabUrlForRestore(tab.url);
                         if (tabUrl) {
-                            evo.tabs({ url: tabUrl, title: 'blank', reload: 0, restoring: true });
+                            evo.tabs({ url: tabUrl, title: evo.tabsTitleForRestore(tabUrl, tab.title), reload: 0, restoring: true });
                             restored = true;
                         }
                     }
@@ -126,7 +129,7 @@
             if (data.active) {
                 var activeUrl = evo.tabUrlForRestore(data.active);
                 if (activeUrl) {
-                    evo.tabs({ url: activeUrl, title: 'blank', restoring: true, activate: true });
+                    evo.tabs({ url: activeUrl, title: evo.tabsTitleForRestore(activeUrl), restoring: true, activate: true });
                     restored = true;
                 }
             }
@@ -180,7 +183,7 @@
                     this.tabs({ url: '?a=2', reload: 0 });
                 }
                 if (openOnLoad) {
-                    evo.tabs({ url: startupUrl, title: 'blank' });
+                    evo.tabs({ url: startupUrl, title: evo.tabsTitleForRestore(startupUrl) });
                 }
             } else if (openOnLoad) {
                 if (w.main) {
