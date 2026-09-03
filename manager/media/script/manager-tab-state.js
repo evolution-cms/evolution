@@ -5,66 +5,43 @@
 }(typeof window !== 'undefined' ? window : this, function () {
     'use strict';
 
-    // This list is deliberately smaller than the Manager action registry.
-    // Unknown actions and extra parameters must never acquire a fresh token on restore.
-    var readActions = ['2', '3', '27', '76', '106', '107'];
-    var coreParams = { id: '^\\d+$', tab: '^[a-zA-Z0-9_-]{1,64}$' };
-
+    // Store navigation URLs, not a second registry of pages or parameter names.
     function read(url, options) {
         try {
-            var base = new URL(options.base, options.origin);
-            var input = String(url || '');
-            if (!input || input.length > 8192) return null;
+            var base = new URL(options.base, options.origin), input = String(url || '');
+            if (!input) return null;
             if (input.charAt(0) === '#') input = input.slice(1);
             var target = new URL(input, base);
-            if (target.hash) {
-                if (target.origin !== base.origin || target.search
-                    || (target.pathname !== base.pathname && target.pathname !== base.pathname + 'index.php')) return null;
+            if (target.hash && !target.search && (target.pathname === base.pathname
+                || target.pathname === base.pathname + 'index.php')) {
                 target = new URL(target.hash.slice(1), base);
             }
-            if (target.origin !== base.origin || target.username || target.password || target.hash) return null;
-            if (target.pathname !== base.pathname && target.pathname !== base.pathname + 'index.php') return null;
-            var seen = new Set(), valid = true;
-            target.searchParams.forEach(function (value, key) {
-                if (seen.has(key)) valid = false;
-                seen.add(key);
-            });
-            if (!valid) return null;
-            var action = target.searchParams.get('a');
-            var params = coreParams;
-            if (action === '112') {
-                var id = target.searchParams.get('id');
-                if (!options.modules || !Object.prototype.hasOwnProperty.call(options.modules, id)) return null;
-                var rule = options.modules[id];
-                if (!rule || !Array.isArray(rule.views) || rule.views.indexOf(target.searchParams.get('get') || '') === -1) return null;
-                params = rule.params || {};
-            } else if (readActions.indexOf(action) === -1) {
-                return null;
-            }
-            target.searchParams.forEach(function (value, key) {
-                if (key === 'a' || key === '_token' || (action === '112' && (key === 'id' || key === 'get'))) return;
-                if (!Object.prototype.hasOwnProperty.call(params, key) || value.length > 512
-                    || !(new RegExp(params[key])).test(value)) valid = false;
-            });
-            if (!valid) return null;
+            if (!/^https?:$/.test(target.protocol) || target.origin !== base.origin
+                || target.username || target.password) return null;
+            // A restored iframe makes a fresh GET, never resubmits a form.
             target.searchParams.delete('_token');
+            target.searchParams.delete('_method');
             return target;
-        } catch (error) {
-            return null;
-        }
+        } catch (error) { return null; }
+    }
+
+    function relativeUrl(target, options) {
+        var base = new URL(options.base, options.origin);
+        var path = target.pathname === base.pathname || target.pathname === base.pathname + 'index.php' ? '' : target.pathname;
+        var query = target.searchParams.toString();
+        return path + (query ? '?' + query : '') + target.hash;
     }
 
     function storage(url, options) {
         var target = read(url, options);
-        return target ? '?' + target.searchParams.toString() : '';
+        return target ? relativeUrl(target, options) : '';
     }
 
     function restore(url, options) {
         var target = read(url, options);
         if (!target || !options.token) return '';
-        // All restored requests are fresh read-page loads, never retries of a failed action.
         target.searchParams.set('_token', options.token);
-        return '?' + target.searchParams.toString();
+        return relativeUrl(target, options);
     }
 
     // Rebuild legacy stored labels instead of inserting their HTML. Only the
@@ -104,5 +81,32 @@
         return title(storedTitle) || 'blank';
     }
 
-    return { storage: storage, restore: restore, title: title, restoreTitle: restoreTitle };
+    function remember(url, options) {
+        var saved = storage(url, options);
+        return saved ? { url: saved } : null;
+    }
+
+    function resume(saved, options, document, storedTitle) {
+        if (typeof saved === 'string') saved = { url: saved };
+        if (!saved || typeof saved !== 'object') return null;
+        var source = saved.url;
+        // Migrate ID-only entries from the previous fix using the current menu.
+        if (!source && saved.module) {
+            var links = document.querySelectorAll('#mainMenu a[href]');
+            for (var i = 0; i < links.length; i++) {
+                var candidate = read(links[i].getAttribute('href'), options);
+                if (candidate && (candidate.searchParams.get('id') === saved.module
+                    || (saved.title && title(links[i].innerHTML) === title(saved.title)))) {
+                    source = links[i].getAttribute('href');
+                    break;
+                }
+            }
+        }
+        if (typeof source !== 'string') return null;
+        var url = restore(source, options);
+        return url ? { url: url, title: restoreTitle(url, saved.title || storedTitle, options, document) } : null;
+    }
+
+    return { storage: storage, restore: restore, title: title, restoreTitle: restoreTitle,
+        remember: remember, resume: resume };
 }));

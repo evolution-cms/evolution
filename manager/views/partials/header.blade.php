@@ -55,7 +55,6 @@
         evo.EVO_MANAGER_URL = '{{EVO_MANAGER_URL}}';
         evo.config.which_browser = @js(evo()->getConfig('which_browser'));
         evo.config.tab_restore_user = @js((string) ($_SESSION['mgrInternalKey'] ?? ''));
-        evo.config.tab_restore_modules = @js(config('cms.manager_tab_restore.modules', []));
         // ============================================
         // @deprecated
         // @since 3.5.2

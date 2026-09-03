@@ -97,7 +97,6 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
             },
             config: {
                 tab_restore_user: @js((string) ($_SESSION['mgrInternalKey'] ?? '')),
-                tab_restore_modules: @js(config('cms.manager_tab_restore.modules', [])),
                 manager_title: @js($managerTitle),
                 menu_height: {{(int)evo()->getConfig('manager_menu_height')}},
                 tree_width: {{(int)$EVO_widthSideBar}},

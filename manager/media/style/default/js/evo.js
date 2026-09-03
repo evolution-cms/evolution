@@ -15,20 +15,20 @@
             var meta = d.querySelector('meta[name="csrf-token"]');
             return meta ? (meta.getAttribute('content') || '') : '';
         },
-        tabUrlForStorage: function (url) {
+        tabsUrlForStorage: function (url) {
             return w.evoManagerTabState ? w.evoManagerTabState.storage(url, evo.tabsRestoreOptions()) : '';
         },
-        tabUrlForRestore: function (url) {
+        tabsUrlForRestore: function (url) {
             return w.evoManagerTabState ? w.evoManagerTabState.restore(url, evo.tabsRestoreOptions()) : '';
         },
         tabsTitleForRestore: function (url, title) {
             return w.evoManagerTabState ? w.evoManagerTabState.restoreTitle(url, title, evo.tabsRestoreOptions(), d) : 'blank';
         },
         tabsRestoreOptions: function () {
-            return { base: evo.EVO_MANAGER_URL, origin: w.location.origin, token: evo.tabsCsrfToken(), modules: evo.config.tab_restore_modules };
+            return { base: evo.EVO_MANAGER_URL, origin: w.location.origin, token: evo.tabsCsrfToken() };
         },
         tabsHistoryUrl: function (url) {
-            var safe = evo.tabUrlForStorage(url);
+            var safe = evo.tabsUrlForStorage(url);
             return safe && !evo.getActionFromUrl(safe, 2) ? '#' + safe : evo.EVO_MANAGER_URL;
         },
         tabsStore: function () {
@@ -67,8 +67,8 @@
                     if (tab.id === 'evo-tab-home') {
                         continue;
                     }
-                    var url = evo.tabUrlForStorage(getTabUrl(tab));
-                    if (!url) {
+                    var entry = w.evoManagerTabState.remember(getTabUrl(tab), evo.tabsRestoreOptions());
+                    if (!entry) {
                         continue;
                     }
                     var title = (tab.dataset && tab.dataset.title) ? tab.dataset.title : '';
@@ -76,10 +76,8 @@
                         var titleEl = tab.querySelector('.tab-title');
                         title = titleEl ? titleEl.innerHTML : '';
                     }
-                    tabs.push({
-                        url: evo.tabUrlForStorage(url),
-                        title: title
-                    });
+                    entry.title = title;
+                    tabs.push(entry);
                 }
                 var selected = row.querySelector('h2.tab.selected'),
                     activeUrl = getTabUrl(selected);
@@ -88,7 +86,7 @@
                 }
                 if (tabs.length || activeUrl) {
                     localStorage.setItem(evo.tabsStorageKey, JSON.stringify({
-                        active: evo.tabUrlForStorage(activeUrl),
+                        active: w.evoManagerTabState.remember(activeUrl, evo.tabsRestoreOptions()),
                         tabs: tabs
                     }));
                 } else {
@@ -117,19 +115,21 @@
             if (data.tabs && data.tabs.length) {
                 for (var i = 0; i < data.tabs.length; i++) {
                     var tab = data.tabs[i];
-                    if (tab && tab.url) {
-                        var tabUrl = evo.tabUrlForRestore(tab.url);
-                        if (tabUrl) {
-                            evo.tabs({ url: tabUrl, title: evo.tabsTitleForRestore(tabUrl, tab.title), reload: 0, restoring: true });
+                    if (tab) {
+                        var plan = w.evoManagerTabState.resume(tab, evo.tabsRestoreOptions(), d);
+                        if (plan) {
+                            evo.tabs(Object.assign(plan, { reload: 0, restoring: true }));
                             restored = true;
                         }
                     }
                 }
             }
             if (data.active) {
-                var activeUrl = evo.tabUrlForRestore(data.active);
-                if (activeUrl) {
-                    evo.tabs({ url: activeUrl, title: evo.tabsTitleForRestore(activeUrl), restoring: true, activate: true });
+                var active = data.active;
+                if (active.module && data.tabs) active = data.tabs.find(function (tab) { return tab.module === active.module; }) || active;
+                var activePlan = w.evoManagerTabState.resume(active, evo.tabsRestoreOptions(), d);
+                if (activePlan) {
+                    evo.tabs(Object.assign(activePlan, { reload: 0, restoring: true, activate: true }));
                     restored = true;
                 }
             }
@@ -149,7 +149,7 @@
             return true;
         },
         init: function () {
-            // Discard legacy state, which can belong to another login/account.
+            // Discard legacy unscoped state, which can belong to another login/account.
             this.tabsStorageKey = 'EVO_Tabs:' + encodeURIComponent(evo.EVO_MANAGER_URL) + ':' + evo.config.tab_restore_user;
             try { localStorage.removeItem('EVO_Tabs'); localStorage.removeItem('page_url'); } catch (error) { }
             if (!localStorage.getItem('EVO_widthSideBar')) {
@@ -159,13 +159,15 @@
             this.mainmenu.init();
             var href = evo.normalizeUrl(w.location.href),
                 startupUrl = '',
+                startupPlan = null,
                 openOnLoad = false;
             if (href) {
                 if (evo.getActionFromUrl(href, 2)) {
                     w.history.replaceState(null, d.title, evo.EVO_MANAGER_URL);
                 } else if (evo.getActionFromUrl(href) || evo.main.getQueryVariable('filemanager', href) || evo.isModuleUrl(href)) {
-                    startupUrl = evo.tabUrlForRestore(w.location.href);
-                    openOnLoad = !!startupUrl;
+                    startupUrl = evo.tabsUrlForRestore(w.location.href);
+                    startupPlan = w.evoManagerTabState.resume(w.location.href, evo.tabsRestoreOptions(), d);
+                    openOnLoad = !!startupPlan;
                     w.history.replaceState(null, d.title, evo.tabsHistoryUrl(w.location.href));
                 }
             }
@@ -183,9 +185,9 @@
                     this.tabs({ url: '?a=2', reload: 0 });
                 }
                 if (openOnLoad) {
-                    evo.tabs({ url: startupUrl, title: evo.tabsTitleForRestore(startupUrl) });
+                    evo.tabs(startupPlan);
                 }
-            } else if (openOnLoad) {
+            } else if (openOnLoad && startupUrl) {
                 if (w.main) {
                     w.main.frameElement.src = startupUrl;
                 } else {
@@ -688,14 +690,14 @@
                 var a = w.main.frameElement.contentWindow,
                     b = evo.normalizeUrl(a.location.href),
                     c = localStorage.getItem('page_y') || 0,
-                    f = evo.tabUrlForRestore(localStorage.getItem('page_url') || b);
+                    f = localStorage.getItem('page_url') || b;
                 if (((evo.getActionFromUrl(f) === evo.getActionFromUrl(b)) && (evo.main.getQueryVariable('id', f) && evo.main.getQueryVariable('id', f) === evo.main.getQueryVariable('id', b))) || (f === b)) {
                     a.scrollTo(0, c);
                 }
                 a.addEventListener('scroll', function () {
                     if (this.pageYOffset >= 0) {
                         localStorage.setItem('page_y', this.pageYOffset.toString());
-                        localStorage.setItem('page_url', evo.tabUrlForStorage(b));
+                        localStorage.setItem('page_url', evo.tabsUrlForStorage(b));
                     }
                 }, false);
             },
@@ -1995,6 +1997,7 @@
                     d.getElementById('main').appendChild(this.page);
                     //console.time('load-tab');
                     this.page.firstElementChild.onload = function (e) {
+                        if (!s.tab) return;
                         s.onload.call(s, e);
                         //console.timeEnd('load-tab');
                     };
