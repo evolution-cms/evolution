@@ -1,6 +1,7 @@
 <?php
 // step 5
 use EvolutionCMS\Facades\Console;
+use EvolutionCMS\Support\InstallerCompletion;
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -786,8 +787,18 @@ try {
         if (file_exists(EVO_BASE_PATH.'assets/cache/installProc.inc.php')) {
             unlink(EVO_BASE_PATH.'assets/cache/installProc.inc.php');
         }
-        if (file_exists($base_path.'install.session.php')) {
-            unlink($base_path.'install.session.php');
+        // Only successful completion adds the one-time capability accepted by the installer
+        // removal processor. A generic lock created on the first installer visit is not enough.
+        require_once EVO_CORE_PATH . 'src/Support/InstallerCompletion.php';
+        $installerRemovalToken = bin2hex(random_bytes(32));
+        if (file_exists($base_path . 'install.session.php')) {
+            InstallerCompletion::writeLock(
+                $base_path . 'install.session.php',
+                session_id(),
+                (string) ($_SERVER['REMOTE_ADDR'] ?? ''),
+                time(),
+                $installerRemovalToken
+            );
         }
         $bootstrapDir = EVO_STORAGE_PATH . 'bootstrap/';
         $siteCacheFile = $bootstrapDir . 'siteCache.idx.php';

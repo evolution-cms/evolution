@@ -91,3 +91,33 @@ jobs:
       - name: Run Pest
         working-directory: core
         run: composer test -- --compact
+
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          # The audit reads composer.lock and the advisory database; it does not run the code,
+          # so one version is enough. Kept at the lowest supported one for consistency.
+          php-version: '8.3'
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          coverage: none
+          tools: composer:v2
+
+      # --locked audits the lock file directly: no vendor tree has to be installed, and what is
+      # audited is exactly what a site gets. core/ is where the shipped dependencies live.
+      - name: Audit shipped dependencies
+        working-directory: core
+        run: composer audit --locked --no-dev
+
+      # Dev-only tooling (Pest and friends) never reaches a live site, so an advisory there is
+      # worth seeing but must not block a release. The root composer.json holds PHPStan alone and
+      # ships no lock file, so there is nothing to audit there.
+      - name: Audit development dependencies
+        continue-on-error: true
+        working-directory: core
+        run: composer audit --locked
