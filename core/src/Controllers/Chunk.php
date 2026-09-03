@@ -2,11 +2,15 @@
 
 use EvolutionCMS\Models;
 use EvolutionCMS\Interfaces\ManagerTheme;
+use EvolutionCMS\Support\ChunkFileStore;
 use Illuminate\Support\Collection;
 
 class Chunk extends AbstractController implements ManagerTheme\PageControllerInterface
 {
     protected $view = 'page.chunk';
+
+    /** A chunk is not this big; half a megabyte does not belong in a form. */
+    private const MAX_EDITABLE_FILE_BYTES = 524288;
 
     protected $events = [
         'OnChunkFormPrerender',
@@ -54,13 +58,31 @@ class Chunk extends AbstractController implements ManagerTheme\PageControllerInt
     public function process() : bool
     {
         $this->object = $this->parameterData();
+        $store = ChunkFileStore::make();
+        $name = (string) $this->object->name;
+
+        // Same rule the front end renders by: the file, else the column.
+        //
+        // @deprecated since 3.5.8 falling back to the column
+        // @todo [remove@3.7] Remove in Evolution CMS 3.7
+        $extension = $store->writeExtension($name);
+        $fileContent = $store->read($name, $store->firstExisting($name));
+
+        if ($fileContent !== null) {
+            $this->object->snippet = $fileContent;
+        }
+
         $this->parameters = [
             'data'          => $this->object,
             'categories'    => $this->parameterCategories(),
             'which_editor'  => $this->which_editor,
             'action'        => $this->getIndex(),
             'events'        => $this->parameterEvents(),
-            'actionButtons' => $this->parameterActionButtons()
+            'actionButtons' => $this->parameterActionButtons(),
+            'chunkFormats'       => $store->all(),
+            'chunkFormatDefault' => $extension,
+            'chunkFileExisting'  => $store->existing($name),
+            'chunkFileDirectory' => $store->displayDirectory()
         ];
 
         return true;

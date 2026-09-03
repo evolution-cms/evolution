@@ -50,6 +50,85 @@
             h1help.onclick = function() {
               document.querySelector('.element-edit-message').classList.toggle('show');
             };
+
+            var extension = document.getElementById('chunkfileextension'),
+                fileBlock = document.getElementById('assigned-chunk-file'),
+                filenameLabel = document.getElementById('chunk-filename'),
+                nameField = document.getElementsByName('name')[0];
+
+            // The format list can be empty, in which case the block is not
+            // rendered and there is nothing to keep up to date.
+            if (!fileBlock || !filenameLabel) {
+              return;
+            }
+
+            var directory = fileBlock.dataset.directory || '',
+                savedName = fileBlock.dataset.name || '';
+
+            // The same encoding ChunkFileStore::encode() applies, so the name
+            // shown while typing is the name that will be on disk. Only ASCII
+            // hazards are listed; everything above them - Cyrillic, dashes -
+            // is left alone, exactly as on the PHP side.
+            var RESERVED = /^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i;
+
+            var hex = function(ch) {
+              var code = ch.charCodeAt(0).toString(16).toUpperCase();
+
+              return '%' + (code.length < 2 ? '0' + code : code);
+            };
+
+            var encodeChunkName = function(value) {
+              var out = value.replace(/[%<>:"\/\\|?*\u0000-\u001F\u007F]/g, hex);
+
+              if (out.charAt(0) === '.') {
+                out = '%2E' + out.slice(1);
+              }
+
+              if (/[. ]$/.test(out)) {
+                out = out.slice(0, -1) + hex(out.slice(-1));
+              }
+
+              if (RESERVED.test(out)) {
+                out = hex(out.charAt(0)) + out.slice(1);
+              }
+
+              return out;
+            };
+
+            // What the store refuses outright: an empty name, and one whose
+            // encoded filename overruns the filesystem. The rest - normal form,
+            // and a clash with another chunk's file - needs more than this form
+            // knows, so the save says so instead.
+            var byteLength = function(value) {
+              return new TextEncoder().encode(value).length;
+            };
+
+            var previewName = function() {
+              var value = (nameField ? nameField.value : savedName).trim();
+
+              return value === '' ? '' : encodeChunkName(value);
+            };
+
+            var updateFilename = function() {
+              var filename = previewName(),
+                  selected = extension ? extension.value : '',
+                  // The same 255 the store measures, on the same bytes: the
+                  // whole filename, extension included.
+                  usable = filename !== '' && byteLength(filename + '.' + selected) <= 255;
+
+              filenameLabel.innerText = usable
+                ? '/' + directory + filename + '.' + selected
+                : {{ Illuminate\Support\Js::from(ManagerTheme::getLexicon('chunk_file_unusable_name', 'this name cannot become a filename')) }};
+            };
+
+            if (extension) {
+              extension.addEventListener('change', updateFilename);
+            }
+            if (nameField) {
+              nameField.addEventListener('input', updateFilename);
+            }
+
+            updateFilename();
           });
 
         </script>
@@ -158,6 +237,34 @@
                             @endif
                         </label>
                     </div>
+
+                    @if(!empty($chunkFormats))
+                        <div class="form-group" id="assigned-chunk-file"
+                             data-name="{{ $data->name }}"
+                             data-directory="{{ $chunkFileDirectory }}"
+                             data-extension="{{ $chunkFormatDefault }}">
+                            {{ ManagerTheme::getLexicon('chunk_assigned_file', 'Chunk file') }}:
+                            <strong id="chunk-filename"></strong>
+
+                            @if(count($chunkFormats) > 1)
+                                {{-- Only worth asking once a plugin has put a second
+                                     format in the list. --}}
+                                <div class="create-check">
+                                    <select name="chunkfileextension" id="chunkfileextension"
+                                            onchange="documentDirty=true;">
+                                        @foreach($chunkFormats as $extension => $label)
+                                            <option value="{{ $extension }}"
+                                                    @if($extension === $chunkFormatDefault) selected @endif
+                                            >{{ $label }} (.{{ $extension }})</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @else
+                                <input type="hidden" name="chunkfileextension" id="chunkfileextension"
+                                       value="{{ $chunkFormatDefault }}">
+                            @endif
+                        </div>
+                    @endif
                 </div>
 
                 <!-- HTML text editor start -->

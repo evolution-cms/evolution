@@ -1,6 +1,7 @@
 <?php namespace EvolutionCMS;
 
 use EvolutionCMS\Legacy\Phx;
+use EvolutionCMS\Support\ChunkFileStore;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\View\FileViewFinder;
 
@@ -313,6 +314,14 @@ class Parser
         return $tpl;
     }
 
+    /**
+     * @param string $name
+     * @return null|string
+     *
+     * @deprecated since 3.5.8 reading a chunk's code out of the database; the
+     *      snippet column is only resolve()'s fallback for a chunk with no file
+     * @todo [remove@3.7] Remove in Evolution CMS 3.7
+     */
     public function getBaseChunk ($name)
     {
         if (empty($name)) {
@@ -327,7 +336,10 @@ class Parser
                 ->where('disabled', '=', 0)
                 ->get();
 
-            $tpl = ($chunk->count() === 1) ? $chunk->first()->snippet : null;
+            $row = $chunk->count() === 1 ? $chunk->first() : null;
+            $tpl = $row === null
+                ? null
+                : ChunkFileStore::make()->resolve((string) $row->name, $row->snippet);
             $this->modx->chunkCache[$name] = $tpl;
         }
 

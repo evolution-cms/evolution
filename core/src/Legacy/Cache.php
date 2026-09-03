@@ -301,9 +301,18 @@ class Cache
         if (!isset($config['disable_chunk_cache']) || $config['disable_chunk_cache'] != 1) {
             // WRITE Chunks to cache file
             $chunks = Models\SiteHtmlsnippet::all();
+            $chunkFiles = \EvolutionCMS\Support\ChunkFileStore::make();
             $content .= '$c=&$this->chunkCache;';
             foreach ($chunks->toArray() as $doc) {
-                $content .= '$c[\'' . $doc['name'] . '\']=\'' . ($doc['disabled'] ? '' : $this->escapeSingleQuotes($doc['snippet'])) . '\';';
+                // What the front end reads: getBaseChunk() never runs for a
+                // cached chunk, so files are resolved here or not at all.
+                //
+                // @deprecated since 3.5.8 the $doc['snippet'] half
+                // @todo [remove@3.7] Remove in Evolution CMS 3.7
+                $value = $doc['disabled']
+                    ? ''
+                    : (string) $chunkFiles->resolve((string) $doc['name'], $doc['snippet']);
+                $content .= '$c[\'' . $doc['name'] . '\']=\'' . $this->escapeSingleQuotes($value) . '\';';
             }
         }
 

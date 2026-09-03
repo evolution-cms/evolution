@@ -33,6 +33,33 @@ return [
         'blade.php' => ['label' => 'Blade', 'processor' => null],
         'php' => ['label' => 'PHP', 'processor' => null],
     ],
+    /*
+    |--------------------------------------------------------------------------
+    | Chunk files
+    |--------------------------------------------------------------------------
+    |
+    | Where a chunk keeps its code.
+    |
+    | Under views/, not assets/: the root .htaccess passes ^assets/ straight to
+    | the filesystem, and chunks hold extras' configuration, credentials
+    | included. views/ ships denied and already holds template files.
+    | (@FILE still searches assets/chunks/; existing files are not moved.)
+    |
+    | A chunk is HTML with placeholders some parser may know - the file decides
+    | neither which parser nor whether one runs. Hence one format, and a form
+    | that only offers the list once something adds a second entry:
+    |
+    |   config(['view.chunk_formats' => array_merge(
+    |       config('view.chunk_formats', []),
+    |       ['tpl' => 'Template']
+    |   )]);
+    |
+    */
+    'chunk_path' => EVO_BASE_PATH . 'views/chunks/',
+    'chunk_formats' => [
+        'html' => 'HTML',
+    ],
+
     'directive' => [
         //----------
         /**
