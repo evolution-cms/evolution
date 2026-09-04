@@ -10,6 +10,7 @@
 |   - mergeConditionalTagsContent()  <@IF:...> conditional tags
 |   - _getSGVar()                     [[$_GET(x)]] superglobal reads
 |   - atBindFileContent()             @FILE: template includes
+|   - atBindInclude()                 @INCLUDE: template includes, which run the file
 |
 | All three are reachable from content that the parser re-scans across passes, so a snippet echoing
 | request data can carry a payload into them without any editing privilege. These tests drive the
@@ -232,5 +233,91 @@ describe('@FILE binding', function () {
         } finally {
             @unlink($absolute);
         }
+    });
+});
+
+describe('@INCLUDE binding', function () {
+
+    test('directory traversal outside the base path is refused', function () {
+        $core = parserHardeningCore();
+
+        // This one does not read the file, it includes it - so a path that
+        // escapes the tree is arbitrary code execution, not a disclosure.
+        expect($core->atBindInclude('@INCLUDE ' . str_repeat('../', 20) . 'Windows/win.ini'))->toBeFalse()
+            ->and($core->atBindInclude('@INCLUDE ' . str_repeat('../', 20) . 'etc/passwd'))->toBeFalse();
+    });
+
+    test('a traversal back into the manager directory is refused', function () {
+        $core = parserHardeningCore();
+
+        // The old check asked whether the string as typed started with the
+        // manager path, so anything reaching it by way of `..` walked past.
+        expect($core->atBindInclude('@INCLUDE assets/../manager/index.php'))->toBeFalse()
+            ->and($core->atBindInclude('@INCLUDE manager/index.php'))->toBeFalse();
+    });
+
+    test('a file inside the tree is still included', function () {
+        $core = parserHardeningCore();
+
+        $relative = 'evo_atinclude_' . bin2hex(random_bytes(6)) . '.php';
+        $absolute = EVO_BASE_PATH . $relative;
+        file_put_contents($absolute, '<?php echo "included-body";');
+
+        try {
+            expect($core->atBindInclude('@INCLUDE ' . $relative))->toBe('included-body')
+                // A traversal that normalises back inside the tree still resolves.
+                ->and($core->atBindInclude('@INCLUDE assets/../' . $relative))->toBe('included-body');
+        } finally {
+            @unlink($absolute);
+        }
+    });
+
+    test('a missing file is refused rather than fatal', function () {
+        $core = parserHardeningCore();
+
+        expect($core->atBindInclude('@INCLUDE assets/evo_no_such_' . bin2hex(random_bytes(6)) . '.php'))
+            ->toBeFalse()
+            ->and($core->atBindInclude('@INCLUDE '))->toBeFalse();
+    });
+
+    test('content with no binding is returned untouched', function () {
+        $core = parserHardeningCore();
+
+        expect($core->atBindInclude('plain content'))->toBe('plain content');
+    });
+});
+
+describe('the shared binding path resolver', function () {
+
+    test('a directory is not a file a binding may name', function () {
+        $core = parserHardeningCore();
+
+        expect($core->atBindFilePath('.'))->toBeFalse()
+            ->and($core->atBindFilePath(''))->toBeFalse()
+            ->and($core->atBindFilePath('   '))->toBeFalse();
+    });
+
+    test('search path prefixes are tried in order', function () {
+        $core = parserHardeningCore();
+
+        $name = 'evo_bindpath_' . bin2hex(random_bytes(6)) . '.txt';
+        $absolute = EVO_BASE_PATH . $name;
+        file_put_contents($absolute, 'x');
+
+        try {
+            expect($core->atBindFilePath($name, ['']))->toBe(str_replace(chr(92), '/', realpath($absolute)))
+                // A prefix the file is not under does not find it.
+                ->and($core->atBindFilePath($name, ['assets/']))->toBeFalse();
+        } finally {
+            @unlink($absolute);
+        }
+    });
+
+    test('a backslash separator is accepted and still contained', function () {
+        $core = parserHardeningCore();
+
+        // Windows style separators reach this from hand written bindings.
+        expect($core->atBindFilePath(str_repeat('..' . chr(92), 20) . 'Windows' . chr(92) . 'win.ini'))
+            ->toBeFalse();
     });
 });

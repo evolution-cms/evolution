@@ -6445,7 +6445,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @return string|false
      * @since 3.5.8
      */
-    private function resolveAtBindFilePath($candidate)
+    public function resolveAtBindFilePath($candidate)
     {
         $resolved = realpath($candidate);
         if ($resolved === false || !is_file($resolved)) {
@@ -6475,6 +6475,37 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         return $resolved;
     }
 
+    /**
+     * The file an @FILE or @INCLUDE binding names, or false.
+     *
+     * One containment rule for every binding. It used to be four, and only one
+     * of them resolved the path before checking it.
+     *
+     * @param string $relative the binding's argument, as typed
+     * @param string[] $searchPaths prefixes below EVO_BASE_PATH, in order
+     * @return string|false
+     * @since 3.5.8
+     */
+    public function atBindFilePath($relative, array $searchPaths = [''])
+    {
+        $relative = trim((string) $relative);
+        $relative = ltrim(str_replace(chr(92), '/', $relative), '/');
+
+        if ($relative === '') {
+            return false;
+        }
+
+        foreach ($searchPaths as $path) {
+            $resolved = $this->resolveAtBindFilePath(EVO_BASE_PATH . $path . $relative);
+
+            if ($resolved !== false) {
+                return $resolved;
+            }
+        }
+
+        return false;
+    }
+
     public function atBindFileContent($str = '')
     {
 
@@ -6498,16 +6529,15 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
         $errorMsg = "Could not retrieve string '" . $str . "'.";
 
-        $search_path = ['assets/tvs/', 'assets/chunks/', 'assets/templates/', $this->getConfig('rb_base_url') . 'files/', ''];
-        foreach ($search_path as $path) {
-            $file_path = $this->resolveAtBindFilePath(EVO_BASE_PATH . $path . $str);
+        $file_path = $this->atBindFilePath($str, [
+            'assets/tvs/',
+            'assets/chunks/',
+            'assets/templates/',
+            $this->getConfig('rb_base_url') . 'files/',
+            ''
+        ]);
 
-            if ($file_path !== false) {
-                break;
-            }
-        }
-
-        if (!$file_path) {
+        if ($file_path === false) {
             return $errorMsg;
         }
 
@@ -6842,25 +6872,13 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         }
 
         $str = substr($str, 9);
-        $str = trim($str);
-        $str = str_replace('\\', '/', $str);
-        $str = ltrim($str, '/');
 
-        $tpl_dir = 'assets/templates/';
+        // This includes rather than reads, so the path settles on is the
+        // path PHP executes. The old check ran on the string as typed, which
+        // a `..` walked straight past.
+        $file_path = $this->atBindFilePath($str, ['', 'assets/templates/']);
 
-        if (strpos($str, EVO_MANAGER_PATH) === 0) {
-            return false;
-        }
-
-        if (is_file(EVO_BASE_PATH . $str)) {
-            $file_path = EVO_BASE_PATH . $str;
-        } elseif (is_file(EVO_BASE_PATH . "{$tpl_dir}{$str}")) {
-            $file_path = EVO_BASE_PATH . $tpl_dir . $str;
-        } else {
-            return false;
-        }
-
-        if (!$file_path || !is_file($file_path)) {
+        if ($file_path === false) {
             return false;
         }
 

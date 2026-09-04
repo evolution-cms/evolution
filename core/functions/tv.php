@@ -516,30 +516,35 @@ if (!function_exists('getTVDisplayFormat')) {
             case 'custom_widget':
                 $widget_output = '';
                 /* If we are loading a file */
-                if (strpos($params['output'], '@FILE') === 0) {
-                    $file_name = EVO_BASE_PATH . trim(substr($params['output'], 6));
-                    if (!is_file($file_name)) {
-                        $widget_output = $file_name . ' does not exist';
+                $output = (string) get_by_key($params, 'output', '');
+                /* Both paths are resolved and checked for containment before
+                   they are used - @INCLUDE runs the file, and the output
+                   options this comes from are edited under a permission of
+                   their own, not the one that grants arbitrary PHP. */
+                if (strpos($output, '@FILE') === 0) {
+                    $file_name = $modx->atBindFilePath(substr($output, 6));
+                    if ($file_name === false) {
+                        $widget_output = 'Could not retrieve file for TV ' . $name . '.';
                     } else {
                         $widget_output = file_get_contents($file_name);
                     }
-                } elseif (strpos($params['output'], '@INCLUDE') === 0) {
-                    $file_name = EVO_BASE_PATH . trim(substr($params['output'], 9));
-                    if (!is_file($file_name)) {
-                        $widget_output = $file_name . ' does not exist';
+                } elseif (strpos($output, '@INCLUDE') === 0) {
+                    $file_name = $modx->atBindFilePath(substr($output, 9));
+                    if ($file_name === false) {
+                        $widget_output = 'Could not retrieve file for TV ' . $name . '.';
                     } else {
                         /* The included file needs to set $widget_output. Can be string, array, object */
                         include $file_name;
                     }
                 } elseif ($value !== '') {
-                    if (strpos($params['output'], '@CHUNK') === 0) {
-                        $chunk_name = trim(substr($params['output'], 7));
+                    if (strpos($output, '@CHUNK') === 0) {
+                        $chunk_name = trim(substr($output, 7));
                         $widget_output = $modx->getChunk($chunk_name);
-                    } elseif (strpos($params['output'], '@EVAL') === 0) {
-                        $eval_str = trim(substr($params['output'], 6));
+                    } elseif (strpos($output, '@EVAL') === 0) {
+                        $eval_str = trim(substr($output, 6));
                         $widget_output = eval($eval_str);
                     } else {
-                        $widget_output = $params['output'];
+                        $widget_output = $output;
                     }
                 } else {
                     $widget_output = '';
@@ -893,16 +898,16 @@ if (!function_exists('renderFormElement')) {
                     $custom_output = '';
                     /* If we are loading a file */
                     if (strpos($field_elements, '@FILE') === 0) {
-                        $file_name = EVO_BASE_PATH . trim(substr($field_elements, 6));
-                        if (!file_exists($file_name)) {
-                            $custom_output = $file_name . ' does not exist';
+                        $file_name = $modx->atBindFilePath(substr($field_elements, 6));
+                        if ($file_name === false) {
+                            $custom_output = 'Could not retrieve file for this TV.';
                         } else {
                             $custom_output = file_get_contents($file_name);
                         }
                     } elseif (strpos($field_elements, '@INCLUDE') === 0) {
-                        $file_name = EVO_BASE_PATH . trim(substr($field_elements, 9));
-                        if (!file_exists($file_name)) {
-                            $custom_output = $file_name . ' does not exist';
+                        $file_name = $modx->atBindFilePath(substr($field_elements, 9));
+                        if ($file_name === false) {
+                            $custom_output = 'Could not retrieve file for this TV.';
                         } else {
                             ob_start();
                             include $file_name;
@@ -942,9 +947,15 @@ if (!function_exists('renderFormElement')) {
             } // end switch statement
         } else {
             $custom = explode(':', $field_type);
-            $file_name = EVO_BASE_PATH.'assets/tvs/'.$custom['1'].'/'.$custom['1'].'.customtv.php';
-            if (!is_file($file_name)) {
-                $custom_output = $file_name . ' does not exist';
+            // The widget name comes out of the TV's type column and lands in a
+            // path that is then included, so it goes through the same
+            // containment rule as every other binding.
+            $widget = (string) get_by_key($custom, 1, '');
+            $file_name = $widget === ''
+                ? false
+                : $modx->atBindFilePath('assets/tvs/' . $widget . '/' . $widget . '.customtv.php');
+            if ($file_name === false) {
+                $custom_output = 'Could not retrieve the custom TV widget.';
             } else {
                 ob_start();
                 include $file_name;
