@@ -3,6 +3,7 @@
 use EvolutionCMS\Models\Category;
 use EvolutionCMS\Models\SiteModule;
 use EvolutionCMS\Services\ComposerVersionSynchronizer;
+use EvolutionCMS\Services\Store\RemoteTransportService;
 use Illuminate\Console\Command;
 
 /**
@@ -109,16 +110,7 @@ HELP;
     {
         $evo = evo();
         $updateRepository = $this->resolveUpdateRepository();
-        $ch = curl_init();
-        $url = 'https://api.github.com/repos/' . $updateRepository . '/tags';
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_REFERER, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['User-Agent: updateNotify widget']);
-        $info = curl_exec($ch);
-        curl_close($ch);
+        $info = $this->fetchRepositoryMetadata($updateRepository, 'tags');
         if (substr($info, 0, 1) != '[') {
             return;
         }
@@ -157,41 +149,45 @@ HELP;
             $lockedCustomPackageVersions = $this->resolveLockedComposerPackageVersions(array_keys($customPackageConstraints));
             $url = $this->buildArchiveUrl($updateRepository, $git['version']);
             $this->line('<fg=green>Start download Evolution CMS</>');
-            $url = file_get_contents($url);
             $file = EVO_BASE_PATH . 'new_version.zip';
 
-            file_put_contents($file, $url);
+            // Nothing below this point may run on a failed package: the site keeps its
+            // current files, and composer, migrations and seeders stay untouched.
+            if (!$this->downloadUpdateArchive($url, $file)) {
+                @unlink($file);
+                $this->error('Could not download the update package. Nothing was changed.');
+
+                return;
+            }
+
             $this->line('<fg=green>Start unpacking Evolution CMS</>');
 
             $temp_dir = EVO_BASE_PATH . '_temp' . md5(time());
             //run unzip and install
 
-            $zip = new \ZipArchive;
-            $res = $zip->open($file);
-            $zip->extractTo($temp_dir);
-            $zip->close();
+            if (!$this->extractUpdateArchive($file, $temp_dir)) {
+                @unlink($file);
+                self::rmdirs($temp_dir);
+                $this->error('The downloaded update package is not a valid archive. Nothing was changed.');
+
+                return;
+            }
+
             unlink($file);
 
-            if ($handle = opendir($temp_dir)) {
-                while (false !== ($name = readdir($handle))) {
-                    if ($name != '.' && $name != '..') $dir = $name;
-                }
-                closedir($handle);
+            $dir = $this->resolveExtractedRoot($temp_dir);
+
+            if ($dir === '') {
+                self::rmdirs($temp_dir);
+                $this->error('The update package has an unexpected layout. Nothing was changed.');
+
+                return;
             }
 
             self::moveFiles($temp_dir . '/' . $dir, EVO_BASE_PATH);
             self::rmdirs($temp_dir);
 
-            $ch = curl_init();
-            $url = 'https://api.github.com/repos/' . $updateRepository . '/releases';
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_HEADER, false);
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_REFERER, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ["User-Agent: updateNotify widget"]);
-            $releases = curl_exec($ch);
-            curl_close($ch);
+            $releases = $this->fetchRepositoryMetadata($updateRepository, 'releases');
 
             $factoryName = $currentVersion['full_appname'];
             if (substr($releases, 0, 1) == "[") {
@@ -200,12 +196,12 @@ HELP;
                     if ($git['version'] == $release["tag_name"]) {
                         $factoryDate = date("M j, Y", strtotime($release["published_at"]));
                         $factoryName = $release["name"] . ' (' . $factoryDate . ')';
-                        $factoryVersion = '<?php return [' . "\n";
-                        $factoryVersion .= "\t" . '"version" => "' . $release["tag_name"] . '", // Current version number' . "\n";
-                        $factoryVersion .= "\t" . '"release_date" => "' . $factoryDate . '", // Date of release' . "\n";
-                        $factoryVersion .= "\t" . '"branch" => "Evolution CMS", // Codebase name' . "\n";
-                        $factoryVersion .= "\t" . '"full_appname" => "' . $factoryName . '", // Date of release' . "\n";
-                        $factoryVersion .= '];';
+                        $factoryVersion = self::buildVersionFile([
+                            'version' => (string)$release["tag_name"],
+                            'release_date' => $factoryDate,
+                            'branch' => 'Evolution CMS',
+                            'full_appname' => $factoryName,
+                        ]);
                         file_put_contents(EVO_CORE_PATH . "factory/version.php", $factoryVersion);
                         break;
                     }
@@ -510,6 +506,145 @@ HELP;
         }
 
         return (int) Category::query()->firstOrCreate(['category' => $categoryName])->getKey();
+    }
+
+    /**
+     * Download the update package and store it locally.
+     *
+     * A transfer that failed or returned nothing must not be mistaken for a package:
+     * an empty file opens as a valid archive and would unpack into an empty tree.
+     *
+     * @since 3.5.8
+     * @param string $url Archive URL.
+     * @param string $file Absolute path the package is written to.
+     * @return bool False when nothing usable was received or stored.
+     */
+    protected function downloadUpdateArchive(string $url, string $file): bool
+    {
+        $body = @file_get_contents($url);
+
+        if (!is_string($body) || $body === '') {
+            return false;
+        }
+
+        return @file_put_contents($file, $body) !== false;
+    }
+
+    /**
+     * Unpack the update package into a staging directory.
+     *
+     * @since 3.5.8
+     * @param string $file Absolute path to the downloaded package.
+     * @param string $tempDir Staging directory the package is unpacked into.
+     * @return bool False when the package is not a usable archive.
+     */
+    protected function extractUpdateArchive(string $file, string $tempDir): bool
+    {
+        // A zero byte file opens as a valid archive, so it is rejected before
+        // ZipArchive sees it and reports the empty archive as deprecated.
+        if (!is_file($file) || filesize($file) === 0) {
+            return false;
+        }
+
+        $zip = new \ZipArchive();
+
+        if ($zip->open($file) !== true) {
+            return false;
+        }
+
+        if ($zip->numFiles === 0) {
+            $zip->close();
+
+            return false;
+        }
+
+        try {
+            $extracted = $zip->extractTo($tempDir);
+        } catch (\Throwable $exception) {
+            $extracted = false;
+        }
+
+        $zip->close();
+
+        return $extracted === true;
+    }
+
+    /**
+     * Name the directory a release archive unpacked into.
+     *
+     * A release always contains exactly one top level directory. Anything else means
+     * the package is not what the updater expects, or the staging directory was not
+     * empty to begin with.
+     *
+     * @since 3.5.8
+     * @param string $tempDir Staging directory holding the unpacked package.
+     * @return string Directory name, empty when it cannot be determined.
+     */
+    protected function resolveExtractedRoot(string $tempDir): string
+    {
+        if (!is_dir($tempDir)) {
+            return '';
+        }
+
+        $entries = scandir($tempDir);
+
+        if (!is_array($entries)) {
+            return '';
+        }
+
+        $directories = [];
+        foreach ($entries as $entry) {
+            if ($entry !== '.' && $entry !== '..' && is_dir($tempDir . '/' . $entry)) {
+                $directories[] = $entry;
+            }
+        }
+
+        return count($directories) === 1 ? $directories[0] : '';
+    }
+
+    /**
+     * Render factory/version.php from release metadata.
+     *
+     * Release name and tag come from the GitHub API, so every value is exported as a
+     * PHP literal. Concatenating them into double-quoted strings let a crafted release
+     * name break out of the literal and run as code when the file is included.
+     *
+     * @since 3.5.8
+     * @param array $version Version data to persist.
+     * @return string
+     */
+    public static function buildVersionFile(array $version): string
+    {
+        // Fixed text, never metadata, so a comment can never carry a line break.
+        $comments = [
+            'version' => 'Current version number',
+            'release_date' => 'Date of release',
+            'branch' => 'Codebase name',
+            'full_appname' => 'Full application name and release date',
+        ];
+
+        $body = '';
+        foreach ($version as $key => $value) {
+            $comment = $comments[$key] ?? '';
+            $body .= '    ' . var_export((string)$key, true) . ' => ' . var_export($value, true) . ','
+                . ($comment !== '' ? ' // ' . $comment : '') . "\n";
+        }
+
+        return '<?php return [' . "\n" . $body . '];' . "\n";
+    }
+
+    /**
+     * Read repository metadata from the GitHub API over a TLS-verified transport.
+     *
+     * @since 3.5.8
+     * @param string $repository Repository slug, for example evolution-cms/evolution.
+     * @param string $resource API resource to read, either tags or releases.
+     * @return string Raw response body, empty when the request failed.
+     */
+    protected function fetchRepositoryMetadata(string $repository, string $resource): string
+    {
+        return (new RemoteTransportService())
+            ->fetchBody('https://api.github.com/repos/' . $repository . '/' . $resource);
     }
 
     /**
