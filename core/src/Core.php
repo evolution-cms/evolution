@@ -891,7 +891,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $result = $a[0];
         } // return only document content
         else {
-            $docObj = unserialize($a[0]); // rebuild document object
+            $docObj = unserialize($a[0], ['allowed_classes' => false]); // rebuild document object; arrays only, no POP chains
             // check page security
             if ($this->isFrontend() && $docObj['privateweb'] && isset($docObj['__MODxDocGroups__'])) {
                 $pass = false;
