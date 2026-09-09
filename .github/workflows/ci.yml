@@ -91,3 +91,39 @@ jobs:
       - name: Run Pest
         working-directory: core
         run: composer test -- --compact
+
+  install:
+    name: Install on ${{ matrix.db }} (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The two database servers the CLI installer supports besides sqlite,
+        # each on its current long term release. The sqlite path is covered by
+        # the build workflow, which installs on it to produce the nightly zip.
+        db: [mysql, pgsql]
+        php: ['8.3', '8.4']
+    env:
+      COMPOSE: .github/docker/ci/docker-compose.yml
+      PHP_VERSION: ${{ matrix.php }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # Everything happens inside the containers: a PHP image with pdo_mysql and
+      # pdo_pgsql, next to the database server. See .github/docker/ci/ for what
+      # the run asserts - it fails on any PHP diagnostic, on missing or wrong
+      # seeded data, and on a site that does not answer.
+      - name: Install and smoke test
+        run: |
+          docker compose -f "$COMPOSE" --profile ${{ matrix.db }} up \
+            --build \
+            --abort-on-container-exit \
+            --exit-code-from install-${{ matrix.db }}
+
+      - name: Database server log
+        if: failure()
+        run: docker compose -f "$COMPOSE" --profile ${{ matrix.db }} logs ${{ matrix.db }}
+
+      - name: Tear down
+        if: always()
+        run: docker compose -f "$COMPOSE" --profile ${{ matrix.db }} down -v

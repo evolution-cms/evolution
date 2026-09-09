@@ -1,0 +1,8 @@
+# Keeps the build context small for both images in .github/docker. Neither of
+# them needs the history, the editor settings or the scratch directory.
+.git
+.github/docker/**/*.md
+.idea
+tmp
+node_modules
+core/database/*.sqlite
