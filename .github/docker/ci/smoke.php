@@ -1,17 +1,41 @@
 <?php
 /**
- * Asserts that a freshly installed site carries the data the installer is
- * supposed to have put there.
+ * Asserts that an installed site carries the data it is supposed to.
  *
  * Reads the connection the installer just wrote, so a site whose config file
  * points somewhere unusable fails here rather than in the manager. Deliberately
  * does not boot the CMS: the point is what reached the database, and a
  * bootstrap failure would hide it behind a stack trace.
  *
- * Usage: php smoke.php [repository root]
+ * Usage: php smoke.php [--mode=install|baseline|upgrade] [site root]
+ *
+ *   install   (default) a site this tree's installer just created: every
+ *             expectation is exact, down to the row counts.
+ *   baseline  record the row counts and check nothing. Run against the OLDER
+ *             site before an upgrade, so the upgrade run below has something
+ *             to compare against.
+ *   upgrade   a site an older release owned and this tree's updater has been
+ *             over. The schema and the seeded catalogues have to be current,
+ *             but the content is whatever the old site had, so the checks that
+ *             assert what the installer chose are the ones that relax.
  */
 
-$root = rtrim($argv[1] ?? dirname(__DIR__, 3), '/');
+$mode = 'install';
+$positional = [];
+foreach (array_slice($argv, 1) as $argument) {
+    if (str_starts_with($argument, '--mode=')) {
+        $mode = substr($argument, 7);
+        continue;
+    }
+    $positional[] = $argument;
+}
+
+if (!in_array($mode, ['install', 'baseline', 'upgrade'], true)) {
+    fwrite(STDERR, 'smoke: unknown mode ' . $mode . PHP_EOL);
+    exit(1);
+}
+
+$root = rtrim($positional[0] ?? dirname(__DIR__, 3), '/');
 
 /** Stand in for Laravel's helper so the config file can be read on its own. */
 if (!function_exists('env')) {
@@ -102,6 +126,31 @@ function count_rows(string $table): int
     return (int) scalar('SELECT COUNT(*) FROM ' . t($table));
 }
 
+/** Null instead of an error for a table the schema in front of us lacks. */
+function count_rows_or_null(string $table): ?int
+{
+    try {
+        return count_rows($table);
+    } catch (PDOException $e) {
+        return null;
+    }
+}
+
+/**
+ * The tables whose row counts are compared between two runs. Every one of them
+ * is filled by a seeder, so a seeder that inserts where it should update shows
+ * up here - and on an upgrade, so does one that deletes what it should keep.
+ */
+function counted_tables(): array
+{
+    return [
+        'migrations_install', 'site_content', 'site_templates', 'system_eventnames',
+        'system_settings', 'permissions', 'permissions_groups', 'role_permissions',
+        'user_roles', 'users', 'user_attributes', 'site_plugins', 'site_plugin_events',
+        'site_modules', 'site_snippets', 'site_htmlsnippets',
+    ];
+}
+
 function has_column(string $table, string $column): bool
 {
     global $pdo;
@@ -125,8 +174,31 @@ $adminEmail = getenv('EVO_ADMIN_EMAIL') ?: 'admin@evo.local';
 $adminPassword = getenv('EVO_ADMIN_PASSWORD') ?: '';
 $language = getenv('EVO_LANGUAGE') ?: 'en';
 
-echo 'Smoke test: ' . $driver . ' ' . $pdo->getAttribute(PDO::ATTR_SERVER_VERSION)
+echo 'Smoke test (' . $mode . '): ' . $driver . ' ' . $pdo->getAttribute(PDO::ATTR_SERVER_VERSION)
     . ", prefix '" . $prefix . "'" . PHP_EOL;
+
+$baselineFile = getenv('EVO_SMOKE_BASELINE') ?: sys_get_temp_dir() . '/evo-smoke-baseline.json';
+
+// baseline runs against the site as the OLDER release left it, so none of the
+// expectations below apply to it - its schema is the old one by definition.
+// All it does is write down what is there for the upgrade run to compare with.
+if ($mode === 'baseline') {
+    $counts = [];
+    foreach (counted_tables() as $table) {
+        $rows = count_rows_or_null($table);
+        if ($rows !== null) {
+            $counts[$table] = $rows;
+        }
+    }
+    file_put_contents($baselineFile, json_encode($counts, JSON_PRETTY_PRINT));
+    echo PHP_EOL . 'Recorded ' . count($counts) . ' table counts in ' . $baselineFile . PHP_EOL;
+    foreach ($counts as $table => $rows) {
+        echo '  --   ' . $prefix . $table . ': ' . $rows . PHP_EOL;
+    }
+    exit(0);
+}
+
+$upgraded = $mode === 'upgrade';
 
 echo PHP_EOL . 'Schema' . PHP_EOL;
 // Every table the migration chain creates has to be there: a migration that
@@ -174,11 +246,19 @@ $applied = (int) scalar('SELECT COUNT(*) FROM ' . t('migrations_install'));
 check('migrations were recorded', $applied > 0, 'recorded: ' . $applied);
 
 echo PHP_EOL . 'Seeded content' . PHP_EOL;
-check('one document seeded', count_rows('site_content') === 1, 'rows: ' . count_rows('site_content'));
+// An upgraded site carries the content the older release seeded and whatever
+// its owner added since, so only a fresh install can be held to one document
+// with a known alias. What has to hold either way is that the front page still
+// has something published to render.
 $home = $pdo->query('SELECT * FROM ' . t('site_content') . ' ORDER BY id LIMIT 1')->fetch() ?: [];
-check('the document is the install success page', ($home['alias'] ?? '') === 'minimal-base', 'alias: ' . ($home['alias'] ?? 'none'));
+if ($upgraded) {
+    check('the documents survived the upgrade', count_rows('site_content') >= 1, 'rows: ' . count_rows('site_content'));
+} else {
+    check('one document seeded', count_rows('site_content') === 1, 'rows: ' . count_rows('site_content'));
+    check('the document is the install success page', ($home['alias'] ?? '') === 'minimal-base', 'alias: ' . ($home['alias'] ?? 'none'));
+    check('the document uses the seeded template', (int) ($home['template'] ?? 0) === 1);
+}
 check('the document is published', (int) ($home['published'] ?? 0) === 1);
-check('the document uses the seeded template', (int) ($home['template'] ?? 0) === 1);
 check('a template was seeded', count_rows('site_templates') >= 1);
 check('event names were seeded', count_rows('system_eventnames') > 50, 'rows: ' . count_rows('system_eventnames'));
 check('settings were seeded', count_rows('system_settings') >= 40, 'rows: ' . count_rows('system_settings'));
@@ -186,12 +266,23 @@ check('permission groups were seeded', count_rows('permissions_groups') >= 14, '
 check('permissions were seeded', count_rows('permissions') > 0);
 check('role permissions were seeded', count_rows('role_permissions') > 0);
 
-echo PHP_EOL . 'Settings written by the installer' . PHP_EOL;
+echo PHP_EOL . 'Settings' . PHP_EOL;
+// These two are answers the operator gave the installer, and an upgrade has no
+// business overwriting them - so they stay exact in both modes. The upgrade run
+// is where that matters most: a seeder that writes defaults instead of leaving
+// existing rows alone would reset a live site's language here.
 check("manager_language is '" . $language . "'", setting('manager_language') === $language, 'got: ' . var_export(setting('manager_language'), true));
-check("manager_theme is 'default'", setting('manager_theme') === 'default', 'got: ' . var_export(setting('manager_theme'), true));
-check('site_id was generated', is_string(setting('site_id')) && setting('site_id') !== '');
 check('emailsender is the admin email', setting('emailsender') === $adminEmail, 'got: ' . var_export(setting('emailsender'), true));
-check('auto_template_logic is on', (string) setting('auto_template_logic') === '1');
+check('site_id is set', is_string(setting('site_id')) && setting('site_id') !== '');
+if ($upgraded) {
+    // Defaults that have moved between releases: on an upgrade the assertion is
+    // that the setting exists at all, which is what the update seeder is for.
+    check('manager_theme is set', is_string(setting('manager_theme')) && setting('manager_theme') !== '', 'got: ' . var_export(setting('manager_theme'), true));
+    check('auto_template_logic is set', setting('auto_template_logic') !== null);
+} else {
+    check("manager_theme is 'default'", setting('manager_theme') === 'default', 'got: ' . var_export(setting('manager_theme'), true));
+    check('auto_template_logic is on', (string) setting('auto_template_logic') === '1');
+}
 
 echo PHP_EOL . 'Admin account' . PHP_EOL;
 $statement = $pdo->prepare('SELECT * FROM ' . t('users') . ' WHERE username = ?');
@@ -219,17 +310,15 @@ check('plugin events were bound', count_rows('site_plugin_events') > 0, 'rows: '
 check('modules were installed', count_rows('site_modules') > 0, 'rows: ' . count_rows('site_modules'));
 
 echo PHP_EOL . 'Stability' . PHP_EOL;
-// The entrypoint runs this script once after installing and again after the
-// updater has been over the same site. The second run compares against the
-// counts the first one recorded: a migration or seeder that is not idempotent
-// shows up here as rows appearing twice.
-$baselineFile = getenv('EVO_SMOKE_BASELINE') ?: sys_get_temp_dir() . '/evo-smoke-baseline.json';
-$counted = [
-    'migrations_install', 'site_content', 'site_templates', 'system_eventnames',
-    'system_settings', 'permissions', 'permissions_groups', 'role_permissions',
-    'user_roles', 'users', 'user_attributes', 'site_plugins', 'site_plugin_events',
-    'site_modules', 'site_snippets', 'site_htmlsnippets',
-];
+// install: the entrypoint runs this script once after installing and again
+// after the updater has been over the same site, so the counts have to match
+// exactly - a migration or seeder that is not idempotent doubles its table.
+//
+// upgrade: the baseline came from the older release, so the catalogues the
+// update seeder tops up are expected to grow. What may never happen is a table
+// shrinking, and the tables holding what the site's owner would call their own
+// data may not move at all.
+$counted = counted_tables();
 $counts = [];
 foreach ($counted as $table) {
     $counts[$table] = count_rows($table);
@@ -240,13 +329,32 @@ if (!is_file($baselineFile)) {
     echo '  --   baseline recorded in ' . $baselineFile . PHP_EOL;
 } else {
     $baseline = json_decode((string) file_get_contents($baselineFile), true) ?: [];
+    // Rows an upgrade has to carry across untouched: the documents, the accounts
+    // and the accounts' attributes are the site, not the release.
+    $preserved = ['site_content', 'users', 'user_attributes'];
     $drifted = [];
+    $lost = [];
     foreach ($counts as $table => $rows) {
-        if (($baseline[$table] ?? $rows) !== $rows) {
-            $drifted[] = $prefix . $table . ': ' . $baseline[$table] . ' -> ' . $rows;
+        if (!array_key_exists($table, $baseline)) {
+            // Absent from the older schema, so there is nothing to compare.
+            continue;
+        }
+        $before = (int) $baseline[$table];
+        $exact = !$upgraded || in_array($table, $preserved, true);
+        $moved = $prefix . $table . ': ' . $before . ' -> ' . $rows;
+        if ($exact && $before !== $rows) {
+            $drifted[] = $moved;
+        } elseif (!$exact && $before > $rows) {
+            $lost[] = $moved;
         }
     }
-    check('row counts unchanged since the first run', $drifted === [], implode(', ', $drifted));
+
+    if ($upgraded) {
+        check('the rows belonging to the site came through unchanged', $drifted === [], implode(', ', $drifted));
+        check('no seeded table lost rows in the upgrade', $lost === [], implode(', ', $lost));
+    } else {
+        check('row counts unchanged since the first run', $drifted === [], implode(', ', $drifted));
+    }
 }
 
 echo PHP_EOL;

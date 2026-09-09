@@ -98,12 +98,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # The two database servers the CLI installer supports besides sqlite,
-        # each on its current long term release. The sqlite path is covered by
-        # the build workflow, which installs on it to produce the nightly zip.
-        # One PHP version only: what this job proves is the installer's MySQL
-        # and PostgreSQL paths, and those do not vary with the PHP minor. The
-        # matrix above already runs the analysis and the tests on both.
+        # Every database the CLI installer supports. The build workflow also
+        # installs on sqlite to produce the nightly zip, but it stops at an HTTP
+        # check - the seeded data and the updater are only asserted here.
+        # One PHP version only: what this job proves is the installer's database
+        # paths, and those do not vary with the PHP minor. The matrix above
+        # already runs the analysis and the tests on both.
         include:
           - db: mysql
             user: root
@@ -111,6 +111,8 @@ jobs:
           - db: pgsql
             user: evo
             password: secret
+          # A file, so there is no server, no user and no password.
+          - db: sqlite
     env:
       COMPOSE: .github/docker/ci/docker-compose.yml
     steps:
@@ -123,6 +125,7 @@ jobs:
       # prebuilt. .github/docker/ci/ still describes the full containerised run
       # for local use.
       - name: Start ${{ matrix.db }}
+        if: matrix.db != 'sqlite'
         run: docker compose -f "$COMPOSE" --profile ${{ matrix.db }} up -d --wait ${{ matrix.db }}
 
       # error_log to stderr for the same reason the CI image sets it: the
@@ -133,7 +136,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: ${{ env.PHP_EXTENSIONS }}, pdo_mysql, pdo_pgsql
+          extensions: ${{ env.PHP_EXTENSIONS }}, pdo_mysql, pdo_pgsql, sqlite3
           ini-values: error_reporting=E_ALL, display_errors=On, display_startup_errors=On, log_errors=On, error_log=/dev/stderr
           coverage: none
           tools: composer:v2
@@ -154,9 +157,9 @@ jobs:
         run: .github/docker/ci/install-and-smoke.sh
 
       - name: Database server log
-        if: failure()
+        if: failure() && matrix.db != 'sqlite'
         run: docker compose -f "$COMPOSE" --profile ${{ matrix.db }} logs ${{ matrix.db }}
 
       - name: Tear down
-        if: always()
+        if: always() && matrix.db != 'sqlite'
         run: docker compose -f "$COMPOSE" --profile ${{ matrix.db }} down -v
