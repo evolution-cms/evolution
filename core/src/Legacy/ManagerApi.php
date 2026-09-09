@@ -299,7 +299,10 @@ class ManagerApi implements ManagerApiInterface
         $_ = [];
         $check_files = trim($check_files);
         $check_files = explode("\n", $check_files);
-        $checksum = unserialize($checksum);
+        $checksum = unserialize($checksum, ['allowed_classes' => false]);
+        if (!is_array($checksum)) {
+            $checksum = [];
+        }
         foreach ($check_files as $file) {
             $file = trim($file);
             $filePath = EVO_BASE_PATH . $file;
