@@ -1,7 +1,7 @@
 {
     "name": "evolution-cms/evolution",
     "type": "project",
-    "version": "3.5.7",
+    "version": "3.5.8",
     "description": "Welcome to the Evolution CMS. The world’s fastest, most customizable Open Source PHP CMS. Your creative vision, no restrictions, no compromise.",
     "keywords": [
         "content",
@@ -76,7 +76,7 @@
         "phpoption/phpoption": "*",
         "predis/predis": "*",
         "rosell-dk/webp-convert": "*",
-        "secondnetwork/blade-tabler-icons": "^3.35",
+        "secondnetwork/blade-tabler-icons": "^3.46",
         "simplepie/simplepie": "1.*",
         "symfony/process": "7.*",
         "tracy/tracy": "2.*",
@@ -93,7 +93,7 @@
     "require-dev": {
         "roave/security-advisories": "dev-master",
         "mockery/mockery": "^1.6",
-        "pestphp/pest": "^4.3"
+        "pestphp/pest": "^4.7"
     },
     "config": {
         "optimize-autoloader": true,
