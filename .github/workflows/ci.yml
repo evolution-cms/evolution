@@ -93,7 +93,7 @@ jobs:
         run: composer test -- --compact
 
   install:
-    name: Install on ${{ matrix.db }} (PHP ${{ matrix.php }})
+    name: Install on ${{ matrix.db }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -101,24 +101,57 @@ jobs:
         # The two database servers the CLI installer supports besides sqlite,
         # each on its current long term release. The sqlite path is covered by
         # the build workflow, which installs on it to produce the nightly zip.
-        db: [mysql, pgsql]
-        php: ['8.3', '8.4']
+        # One PHP version only: what this job proves is the installer's MySQL
+        # and PostgreSQL paths, and those do not vary with the PHP minor. The
+        # matrix above already runs the analysis and the tests on both.
+        include:
+          - db: mysql
+            user: root
+            password: secret
+          - db: pgsql
+            user: evo
+            password: secret
     env:
       COMPOSE: .github/docker/ci/docker-compose.yml
-      PHP_VERSION: ${{ matrix.php }}
     steps:
       - uses: actions/checkout@v7
 
-      # Everything happens inside the containers: a PHP image with pdo_mysql and
-      # pdo_pgsql, next to the database server. See .github/docker/ci/ for what
-      # the run asserts - it fails on any PHP diagnostic, on missing or wrong
-      # seeded data, and on a site that does not answer.
+      # Only the database server runs in a container, straight from its official
+      # image - nothing is built here. The installer itself runs on the runner's
+      # own PHP, which already carries the PDO drivers; building a PHP image for
+      # it would cost minutes per leg to reproduce what setup-php hands over
+      # prebuilt. .github/docker/ci/ still describes the full containerised run
+      # for local use.
+      - name: Start ${{ matrix.db }}
+        run: docker compose -f "$COMPOSE" --profile ${{ matrix.db }} up -d --wait ${{ matrix.db }}
+
+      # error_log to stderr for the same reason the CI image sets it: the
+      # installer runs the migrations inside an output buffer it later discards,
+      # so a warning raised during one only reaches the log the script greps if
+      # PHP also writes it outside that buffer.
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: ${{ env.PHP_EXTENSIONS }}, pdo_mysql, pdo_pgsql
+          ini-values: error_reporting=E_ALL, display_errors=On, display_startup_errors=On, log_errors=On, error_log=/dev/stderr
+          coverage: none
+          tools: composer:v2
+
+      # core/vendor is committed, so there is no composer step: the script calls
+      # the installer with --skipComposer=y. See .github/docker/ci/ for what the
+      # run asserts - it fails on any PHP diagnostic, on missing or wrong seeded
+      # data, and on a site that does not answer.
       - name: Install and smoke test
-        run: |
-          docker compose -f "$COMPOSE" --profile ${{ matrix.db }} up \
-            --build \
-            --abort-on-container-exit \
-            --exit-code-from install-${{ matrix.db }}
+        env:
+          EVO_APP_DIR: ${{ github.workspace }}
+          EVO_DB_TYPE: ${{ matrix.db }}
+          EVO_DB_HOST: 127.0.0.1
+          EVO_DB_USER: ${{ matrix.user }}
+          EVO_DB_PASSWORD: ${{ matrix.password }}
+          EVO_DB_NAME: evolution
+          EVO_DB_PREFIX: evo_
+        run: .github/docker/ci/install-and-smoke.sh
 
       - name: Database server log
         if: failure()

@@ -18,9 +18,27 @@ Clean up with `docker compose -f .github/docker/ci/docker-compose.yml --profile
 <mysql|pgsql> down -v`. The container works on a copy of the tree, not a bind
 mount, so a run leaves the working tree alone.
 
-`PHP_VERSION`, `MYSQL_IMAGE_TAG` and `POSTGRES_IMAGE_TAG` override the defaults
-(PHP 8.4, MySQL 9.7 LTS, PostgreSQL 18.6 LTS). CI runs both databases against
-PHP 8.3 and 8.4 — see the `install` job in `.github/workflows/ci.yml`.
+`PHP_VERSION`, `MYSQL_IMAGE_TAG`, `POSTGRES_IMAGE_TAG`, `MYSQL_PORT` and
+`POSTGRES_PORT` override the defaults (PHP 8.3, MySQL 9.7 LTS, PostgreSQL 18.6
+LTS, the servers' own ports).
+
+## What CI runs
+
+The `install` job in `.github/workflows/ci.yml` does not use the image above.
+It starts only the database service from this compose file — an official image,
+pulled, never built — and runs `install-and-smoke.sh` directly on the runner,
+whose PHP `shivammathur/setup-php` already provides with `pdo_mysql` and
+`pdo_pgsql` prebuilt. Building the image there would spend two or three minutes
+per leg compiling extensions the runner hands over ready-made, on every push.
+
+The script only needs `EVO_DB_*` and a reachable server, so both paths run the
+same checks; the image is what makes a local run reproducible on a machine with
+no PHP on it, and what pins the PHP version when a version question is the one
+being investigated.
+
+One PHP version, both databases: what the job proves is the installer's MySQL
+and PostgreSQL paths, which do not vary with the PHP minor. 8.3 and 8.4 are both
+covered by the analysis and unit test jobs.
 
 ## What a run asserts
 
