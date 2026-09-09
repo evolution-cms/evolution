@@ -57,7 +57,10 @@ class EvoSessionProxy
         self::migrateLegacySessionIfNeeded($store);
 
         // Start PHP session with cookies disabled (Laravel owns the cookie).
-        if (session_status() === PHP_SESSION_NONE) {
+        // Skipped on CLI: there are no headers to send there, and the merge
+        // below fills $_SESSION either way. The CLI installer reaches this
+        // after it has printed, so each call would only warn.
+        if (PHP_SAPI !== 'cli' && session_status() === PHP_SESSION_NONE) {
             ini_set('session.use_cookies', '0');
             if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 80400) {
                 ini_set('session.use_only_cookies', '0');
