@@ -1,0 +1,142 @@
+name: Upgrade
+
+# Upgrading an older Evolution CMS to this tree is a different check from
+# installing this tree: it is the only one that runs the migration chain over a
+# schema this branch did not create, which is what every existing site does when
+# it moves to a new release.
+#
+# Not on push or pull_request on purpose. An upgrade regression comes from a
+# change to the migrations or the seeders, not from every commit, and each leg
+# costs a full install plus a full update. Nightly, plus on demand:
+#
+#   Actions -> Upgrade -> Run workflow
+#
+# and fill in the versions to go from and to.
+on:
+  schedule:
+    # After the nightly build, so a failure here is about the tree that was just
+    # published rather than the one before it.
+    - cron: '40 3 * * *'
+  workflow_dispatch:
+    inputs:
+      from:
+        description: 'Upgrade from - one or more git refs of the source repository, comma separated (tag, branch or sha)'
+        default: '3.5.7'
+      to:
+        description: 'Upgrade to - a ref of this repository, or blank for the checked out tree'
+        default: ''
+      db:
+        description: 'Database'
+        type: choice
+        default: all
+        options: [all, mysql, pgsql, sqlite]
+      from_repo:
+        description: 'Repository the source versions are taken from'
+        default: 'evolution-cms/evolution'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: upgrade-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  matrix:
+    name: Legs to run
+    runs-on: ubuntu-latest
+    outputs:
+      legs: ${{ steps.build.outputs.legs }}
+    steps:
+      # sqlite is the reason the legs are listed as pairs rather than crossed:
+      # no released version can be installed on it (cli-install.php offered only
+      # pgsql and mysql through 3.5.7), so its source has to be a ref that
+      # carries the sqlite installer. Once a release ships it, a tag works here
+      # like any other.
+      - name: Build the leg list
+        id: build
+        env:
+          FROM: ${{ inputs.from }}
+          DB: ${{ inputs.db || 'all' }}
+        run: |
+          if [ -z "${FROM:-}" ]; then
+            # The nightly sweep: the oldest version still worth supporting, the
+            # last release, and sqlite from the branch that introduced it.
+            legs='[{"db":"mysql","from":"3.2.7"},{"db":"mysql","from":"3.5.7"},{"db":"pgsql","from":"3.2.7"},{"db":"pgsql","from":"3.5.7"},{"db":"sqlite","from":"nightly-3.5.x"}]'
+          else
+            dbs=$([ "$DB" = "all" ] && echo "mysql pgsql sqlite" || echo "$DB")
+            legs=$(
+              for db in $dbs; do
+                echo "$FROM" | tr ',' '\n' | while read -r ref; do
+                  ref=$(echo "$ref" | tr -d '[:space:]')
+                  [ -n "$ref" ] && printf '{"db":"%s","from":"%s"}\n' "$db" "$ref"
+                done
+              done | paste -sd, - | sed 's/^/[/; s/$/]/'
+            )
+          fi
+          echo "legs=$legs" >> "$GITHUB_OUTPUT"
+          echo "$legs"
+
+  upgrade:
+    name: ${{ matrix.leg.from }} -> ${{ inputs.to || 'this tree' }} on ${{ matrix.leg.db }}
+    needs: matrix
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        leg: ${{ fromJSON(needs.matrix.outputs.legs) }}
+    env:
+      COMPOSE: .github/docker/ci/docker-compose.yml
+    steps:
+      - name: Check out the version being upgraded to
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.to }}
+          path: new
+
+      # Its core/vendor is committed at every tag, so the older tree needs no
+      # composer step either - see upgrade-and-smoke.sh for how its installer is
+      # kept from running one anyway.
+      - name: Check out the version being upgraded from
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ inputs.from_repo || 'evolution-cms/evolution' }}
+          ref: ${{ matrix.leg.from }}
+          path: old
+
+      # Only the database server runs in a container, straight from its official
+      # image - nothing is built. sqlite is a file and needs no server at all.
+      - name: Start ${{ matrix.leg.db }}
+        if: matrix.leg.db != 'sqlite'
+        run: docker compose -f "new/$COMPOSE" --profile ${{ matrix.leg.db }} up -d --wait ${{ matrix.leg.db }}
+
+      # 8.3 is the lowest version both trees support, so it is the one that can
+      # run the old installer and the new updater in the same job.
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: ctype, dom, fileinfo, filter, iconv, intl, json, mbstring, openssl, pdo, pdo_mysql, pdo_pgsql, pdo_sqlite, readline, simplexml, sqlite3, tokenizer, xml, xmlreader, zip
+          ini-values: error_reporting=E_ALL, display_errors=On, display_startup_errors=On, log_errors=On, error_log=/dev/stderr
+          coverage: none
+          tools: composer:v2
+
+      - name: Upgrade and smoke test
+        env:
+          EVO_NEW_DIR: ${{ github.workspace }}/new
+          EVO_FROM_DIR: ${{ github.workspace }}/old
+          EVO_DB_TYPE: ${{ matrix.leg.db }}
+          EVO_DB_HOST: 127.0.0.1
+          EVO_DB_USER: ${{ matrix.leg.db == 'pgsql' && 'evo' || 'root' }}
+          EVO_DB_PASSWORD: secret
+          EVO_DB_NAME: evolution
+          EVO_DB_PREFIX: evo_
+        run: new/.github/docker/ci/upgrade-and-smoke.sh
+
+      - name: Database server log
+        if: failure() && matrix.leg.db != 'sqlite'
+        run: docker compose -f "new/$COMPOSE" --profile ${{ matrix.leg.db }} logs ${{ matrix.leg.db }}
+
+      - name: Tear down
+        if: always() && matrix.leg.db != 'sqlite'
+        run: docker compose -f "new/$COMPOSE" --profile ${{ matrix.leg.db }} down -v

@@ -91,3 +91,75 @@ jobs:
       - name: Run Pest
         working-directory: core
         run: composer test -- --compact
+
+  install:
+    name: Install on ${{ matrix.db }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Every database the CLI installer supports. The build workflow also
+        # installs on sqlite to produce the nightly zip, but it stops at an HTTP
+        # check - the seeded data and the updater are only asserted here.
+        # One PHP version only: what this job proves is the installer's database
+        # paths, and those do not vary with the PHP minor. The matrix above
+        # already runs the analysis and the tests on both.
+        include:
+          - db: mysql
+            user: root
+            password: secret
+          - db: pgsql
+            user: evo
+            password: secret
+          # A file, so there is no server, no user and no password.
+          - db: sqlite
+    env:
+      COMPOSE: .github/docker/ci/docker-compose.yml
+    steps:
+      - uses: actions/checkout@v7
+
+      # Only the database server runs in a container, straight from its official
+      # image - nothing is built here. The installer itself runs on the runner's
+      # own PHP, which already carries the PDO drivers; building a PHP image for
+      # it would cost minutes per leg to reproduce what setup-php hands over
+      # prebuilt. .github/docker/ci/ still describes the full containerised run
+      # for local use.
+      - name: Start ${{ matrix.db }}
+        if: matrix.db != 'sqlite'
+        run: docker compose -f "$COMPOSE" --profile ${{ matrix.db }} up -d --wait ${{ matrix.db }}
+
+      # error_log to stderr for the same reason the CI image sets it: the
+      # installer runs the migrations inside an output buffer it later discards,
+      # so a warning raised during one only reaches the log the script greps if
+      # PHP also writes it outside that buffer.
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: ${{ env.PHP_EXTENSIONS }}, pdo_mysql, pdo_pgsql, sqlite3
+          ini-values: error_reporting=E_ALL, display_errors=On, display_startup_errors=On, log_errors=On, error_log=/dev/stderr
+          coverage: none
+          tools: composer:v2
+
+      # core/vendor is committed, so there is no composer step: the script calls
+      # the installer with --skipComposer=y. See .github/docker/ci/ for what the
+      # run asserts - it fails on any PHP diagnostic, on missing or wrong seeded
+      # data, and on a site that does not answer.
+      - name: Install and smoke test
+        env:
+          EVO_APP_DIR: ${{ github.workspace }}
+          EVO_DB_TYPE: ${{ matrix.db }}
+          EVO_DB_HOST: 127.0.0.1
+          EVO_DB_USER: ${{ matrix.user }}
+          EVO_DB_PASSWORD: ${{ matrix.password }}
+          EVO_DB_NAME: evolution
+          EVO_DB_PREFIX: evo_
+        run: .github/docker/ci/install-and-smoke.sh
+
+      - name: Database server log
+        if: failure() && matrix.db != 'sqlite'
+        run: docker compose -f "$COMPOSE" --profile ${{ matrix.db }} logs ${{ matrix.db }}
+
+      - name: Tear down
+        if: always() && matrix.db != 'sqlite'
+        run: docker compose -f "$COMPOSE" --profile ${{ matrix.db }} down -v
