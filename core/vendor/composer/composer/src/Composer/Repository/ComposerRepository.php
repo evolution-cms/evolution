@@ -573,9 +573,9 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
                     $namesFound[$name] = true;
 
                     if (!$constraint || $constraint->matches(new Constraint('==', $candidate->getVersion()))) {
-                        $matches[spl_object_hash($candidate)] = $candidate;
-                        if ($candidate instanceof AliasPackage && !isset($matches[spl_object_hash($candidate->getAliasOf())])) {
-                            $matches[spl_object_hash($candidate->getAliasOf())] = $candidate->getAliasOf();
+                        $matches[spl_object_id($candidate)] = $candidate;
+                        if ($candidate instanceof AliasPackage && !isset($matches[spl_object_id($candidate->getAliasOf())])) {
+                            $matches[spl_object_id($candidate->getAliasOf())] = $candidate->getAliasOf();
                         }
                     }
                 }
@@ -583,8 +583,8 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
                 // add aliases of matched packages even if they did not match the constraint
                 foreach ($candidates as $candidate) {
                     if ($candidate instanceof AliasPackage) {
-                        if (isset($matches[spl_object_hash($candidate->getAliasOf())])) {
-                            $matches[spl_object_hash($candidate)] = $candidate;
+                        if (isset($matches[spl_object_id($candidate->getAliasOf())])) {
+                            $matches[spl_object_id($candidate)] = $candidate;
                         }
                     }
                 }
@@ -911,7 +911,7 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
     private function getFilterApiClient(): FilterListApiClient
     {
         if ($this->filterApiClient === null) {
-            $this->filterApiClient = new FilterListApiClient($this->httpDownloader);
+            $this->filterApiClient = new FilterListApiClient($this->httpDownloader, $this->options);
         }
 
         return $this->filterApiClient;
@@ -1275,7 +1275,7 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
      * @phpstan-param array<string, BasePackage::STABILITY_*>|null $stabilityFlags
      * @param array<string, array<string, PackageInterface>> $alreadyLoaded
      *
-     * @return array{namesFound: array<string, true>, packages: array<string, BasePackage>}
+     * @return array{namesFound: array<string, true>, packages: array<int, BasePackage>}
      */
     private function loadAsyncPackages(array $packageNames, ?array $acceptableStabilities = null, ?array $stabilityFlags = null, array $alreadyLoaded = []): array
     {
@@ -1345,11 +1345,11 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
                     $loadedPackages = $this->createPackages($versionsToLoad, $packagesSource);
                     foreach ($loadedPackages as $package) {
                         $package->setRepository($this);
-                        $packages[spl_object_hash($package)] = $package;
+                        $packages[spl_object_id($package)] = $package;
 
-                        if ($package instanceof AliasPackage && !isset($packages[spl_object_hash($package->getAliasOf())])) {
+                        if ($package instanceof AliasPackage && !isset($packages[spl_object_id($package->getAliasOf())])) {
                             $package->getAliasOf()->setRepository($this);
-                            $packages[spl_object_hash($package->getAliasOf())] = $package->getAliasOf();
+                            $packages[spl_object_id($package->getAliasOf())] = $package->getAliasOf();
                         }
                     }
                 });
@@ -1775,7 +1775,7 @@ class ComposerRepository extends ArrayRepository implements ConfigurableReposito
                     }
 
                     // TODO use scarier wording once we know for sure it doesn't do false positives anymore
-                    throw new RepositorySecurityException('The contents of '.$filename.' do not match its signature. This could indicate a man-in-the-middle attack or e.g. antivirus software corrupting files. Try running composer again and report this if you think it is a mistake.');
+                    throw new RepositorySecurityException('The contents of '.Url::sanitize($filename).' do not match its signature. This could indicate a man-in-the-middle attack or e.g. antivirus software corrupting files. Try running composer again and report this if you think it is a mistake.');
                 }
 
                 if ($this->eventDispatcher) {

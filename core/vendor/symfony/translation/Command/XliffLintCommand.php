@@ -123,7 +123,7 @@ class XliffLintCommand extends Command
         $internal = libxml_use_internal_errors(true);
 
         $document = new \DOMDocument();
-        $document->loadXML($content);
+        $document->loadXML($content, \LIBXML_NONET);
 
         if (null !== $targetLanguage = $this->getTargetLanguageFromFile($document)) {
             $normalizedLocalePattern = \sprintf('(%s|%s)', preg_quote($targetLanguage, '/'), preg_quote(str_replace('-', '_', $targetLanguage), '/'));
@@ -153,7 +153,7 @@ class XliffLintCommand extends Command
         libxml_clear_errors();
         libxml_use_internal_errors($internal);
 
-        return ['file' => $file, 'valid' => 0 === \count($errors), 'messages' => $errors];
+        return ['file' => $file, 'valid' => !$errors, 'messages' => $errors];
     }
 
     private function display(SymfonyStyle $io, array $files): int

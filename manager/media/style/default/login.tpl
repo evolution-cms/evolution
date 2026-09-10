@@ -145,6 +145,7 @@
             height: auto;
         }
         body,body.lightness,body.light,body.dark,body.darkness {background: #000 url('[+login_bg+]') no-repeat fixed center !important;background-size: cover !important;margin:0px;
+            [+login_bg_image_set+]
         }
         @media (max-width: 479px) {
             body,body.lightness,body.light,body.dark,body.darkness {background-image: none !important;}
