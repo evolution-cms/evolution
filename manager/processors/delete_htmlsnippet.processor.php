@@ -21,7 +21,9 @@ EvolutionCMS()->invokeEvent("OnBeforeChunkFormDelete",
 		"id"	=> $id
 	]);
 
-// delete the chunk.
+// delete the chunk. Its file goes with it: left behind, it would be adopted
+// silently by the next chunk anybody names the same.
+EvolutionCMS\Support\ChunkFileStore::make()->forget($name);
 EvolutionCMS\Models\SiteHtmlsnippet::destroy($id);
 
 // invoke OnChunkFormDelete event

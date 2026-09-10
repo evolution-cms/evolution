@@ -21,6 +21,13 @@ else $count = '';
 // duplicate htmlsnippet
 $newHtmlsnippet = $htmlsnippet->replicate();
 $newHtmlsnippet->name = $htmlsnippet->name.' '.$_lang['duplicated_el_suffix'].$count;
+
+// The copy gets the code, not the file. The original's file is named after the
+// original, so the copy carries the resolved contents in its row and writes its
+// own file the first time it is saved.
+$store = \EvolutionCMS\Support\ChunkFileStore::make();
+$newHtmlsnippet->snippet = $store->resolve((string) $htmlsnippet->name, $htmlsnippet->snippet);
+
 $newHtmlsnippet->push();
 
 $_SESSION['itemname'] = $newHtmlsnippet->name;

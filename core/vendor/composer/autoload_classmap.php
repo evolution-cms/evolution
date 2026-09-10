@@ -1391,6 +1391,7 @@ return array(
     'EvolutionCMS\\Support\\ArithmeticExpression' => $baseDir . '/src/Support/ArithmeticExpression.php',
     'EvolutionCMS\\Support\\BladeDirective' => $baseDir . '/src/Support/BladeDirective.php',
     'EvolutionCMS\\Support\\Captcha' => $baseDir . '/src/Support/Captcha.php',
+    'EvolutionCMS\\Support\\ChunkFileStore' => $baseDir . '/src/Support/ChunkFileStore.php',
     'EvolutionCMS\\Support\\ContextMenu' => $baseDir . '/src/Support/ContextMenu.php',
     'EvolutionCMS\\Support\\DataGrid' => $baseDir . '/src/Support/DataGrid.php',
     'EvolutionCMS\\Support\\DataSetPager' => $baseDir . '/src/Support/DataSetPager.php',

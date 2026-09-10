@@ -2068,6 +2068,7 @@ class ComposerStaticInit925fea465a58fa69f06ccf2629003e87
         'EvolutionCMS\\Support\\ArithmeticExpression' => __DIR__ . '/../..' . '/src/Support/ArithmeticExpression.php',
         'EvolutionCMS\\Support\\BladeDirective' => __DIR__ . '/../..' . '/src/Support/BladeDirective.php',
         'EvolutionCMS\\Support\\Captcha' => __DIR__ . '/../..' . '/src/Support/Captcha.php',
+        'EvolutionCMS\\Support\\ChunkFileStore' => __DIR__ . '/../..' . '/src/Support/ChunkFileStore.php',
         'EvolutionCMS\\Support\\ContextMenu' => __DIR__ . '/../..' . '/src/Support/ContextMenu.php',
         'EvolutionCMS\\Support\\DataGrid' => __DIR__ . '/../..' . '/src/Support/DataGrid.php',
         'EvolutionCMS\\Support\\DataSetPager' => __DIR__ . '/../..' . '/src/Support/DataSetPager.php',
