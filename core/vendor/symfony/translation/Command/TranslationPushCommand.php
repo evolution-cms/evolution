@@ -40,7 +40,6 @@ final class TranslationPushCommand extends Command
         private array $transPaths = [],
         private array $enabledLocales = [],
     ) {
-        $this->enabledLocales = array_filter($enabledLocales);
         parent::__construct();
     }
 

@@ -49,9 +49,6 @@ class DumpServer
         }
     }
 
-    /**
-     * @param-immediately-invoked-callable $callback
-     */
     public function listen(callable $callback): void
     {
         if (null === $this->socket) {

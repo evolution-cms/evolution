@@ -1,11 +1,6 @@
 CHANGELOG
 =========
 
-8.1
----
-
- * Deprecate calling `Filesystem::mirror()` with option `copy_on_windows`, use option `follow_symlinks` instead.
-
 7.1
 ---
 
