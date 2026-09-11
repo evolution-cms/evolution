@@ -6,6 +6,8 @@ if (!EvolutionCMS()->hasPermission('bk_manager')) {
     EvolutionCMS()->webAlertAndQuit($_lang["error_no_privileges"]);
 }
 
+use ExecWithFallback\ExecWithFallback;
+
 $dbase = EvolutionCMS()->getDatabase()->getConfig('database');
 
 if (!EvolutionCMS()->getConfig('snapshot_path')) {
@@ -44,7 +46,7 @@ if ($mode == 'restore1') {
                 file_put_contents($tempfile_path,  file_get_contents($_FILES['sqlfile']['tmp_name']));
 
                 $dump_request = 'PGPASSWORD="'.EvolutionCMS()->getDatabase()->getConfig('password').'" psql --host '.EvolutionCMS()->getDatabase()->getConfig('host').' --username ' . EvolutionCMS()->getDatabase()->getConfig('username') . ' --dbname ' . $dbase . ' < '.$tempfile_path;
-                exec($dump_request, $data, $data_second);
+                ExecWithFallback::exec($dump_request, $data, $data_second);
                 unlink($tempfile_path);
                 break;
             default:
@@ -61,7 +63,7 @@ if ($mode == 'restore1') {
         switch ($driver) {
             case 'pgsql':
                 $dump_request = 'PGPASSWORD="'.EvolutionCMS()->getDatabase()->getConfig('password').'" psql --host '.EvolutionCMS()->getDatabase()->getConfig('host').' --username ' . EvolutionCMS()->getDatabase()->getConfig('username') . ' --dbname ' . $dbase . ' < '.$path;
-                exec($dump_request, $data, $data_second);
+                ExecWithFallback::exec($dump_request, $data, $data_second);
                 break;
             default :
                 import_sql_from_file($path);
@@ -99,7 +101,7 @@ if ($mode == 'restore1') {
 
             $dump_request = 'pg_dump postgresql://' . EvolutionCMS()->getDatabase()->getConfig('username') . ':'.EvolutionCMS()->getDatabase()->getConfig('password').'@'.EvolutionCMS()->getDatabase()->getConfig('host').'/' . $dbase . ' --clean --inserts --no-owner --no-privileges '. $table_str .'> ' . $tempfile_path;
 
-            exec($dump_request, $data, $data_second);
+            ExecWithFallback::exec($dump_request, $data, $data_second);
             dumpSql($tempfile_path);
             break;
         case 'sqlite':

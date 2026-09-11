@@ -1,8 +1,7 @@
 <?php namespace EvolutionCMS\Console\Packages;
 
-use Doctrine\DBAL\Exception;
+use ExecWithFallback\ExecWithFallback;
 use Illuminate\Console\Command;
-use \EvolutionCMS;
 use Illuminate\Support\Facades\File;
 
 class ExtrasCommand extends Command
@@ -870,7 +869,7 @@ class ExtrasCommand extends Command
         foreach ($args as $arg) {
             $command .= ' ' . escapeshellarg($arg);
         }
-        passthru($command);
+        ExecWithFallback::exec($command);
     }
 
     protected function normalizeComposerVersion($version, array $branches = [], $defaultBranch = '')

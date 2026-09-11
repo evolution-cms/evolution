@@ -1,5 +1,6 @@
 <?php
 
+use ExecWithFallback\ExecWithFallback;
 use EvolutionCMS\Facades\Console;
 
 $base_path = dirname(__DIR__) . '/';
@@ -33,6 +34,30 @@ if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) {
 
 class InstallEvo
 {
+    /**
+     * Run Composer update through the ExecWithFallback library.
+     *
+     * This replaces the previous manual fallback chain (passthru → exec → shell_exec)
+     * with the unified ExecWithFallback::exec() which automatically tries methods in order:
+     * exec() → passthru() → popen() → proc_open() → shell_exec() → Exception.
+     *
+     * @return void
+     */
+    protected function runComposerUpdate(string $cmd): void
+    {
+        $out = [];
+        $exitCode = 0;
+        try {
+            ExecWithFallback::exec($cmd, $out, $exitCode);
+            if (!empty($out) && is_array($out)) {
+                echo implode(PHP_EOL, $out), PHP_EOL;
+            }
+        } catch (\Exception $e) {
+            info('- No command execution methods available (all disabled).');
+            warning('⚠ Run "composer update" manually.');
+        }
+    }
+
     public $typeInstall = '';
     public $databaseType = '';
     public $databaseServer = '';
@@ -455,7 +480,6 @@ class InstallEvo
             return;
         }
 
-        $disabled = array_map('trim', explode(',', ini_get('disable_functions') ?: ''));
         $composerBin = EVO_CORE_PATH . 'vendor/bin/composer';
         $workingDir  = EVO_CORE_PATH;
 
@@ -472,28 +496,7 @@ class InstallEvo
             escapeshellarg($workingDir)
         );
 
-        $exitCode = null;
-        if (!in_array('passthru', $disabled, true)) {
-            passthru($cmd, $exitCode);
-        } elseif (!in_array('exec', $disabled, true)) {
-            exec($cmd . ' 2>&1', $out, $exitCode);
-            echo implode(PHP_EOL, $out), PHP_EOL;
-        } elseif (!in_array('shell_exec', $disabled, true)) {
-            $output = shell_exec($cmd . ' 2>&1');
-            $exitCode = (is_string($output) && $output !== '') ? 0 : 1;
-            echo $output;
-        } else {
-            info('- The passthru/exec/shell_exec functions are disabled in php.ini.');
-            warning('⚠ Run "composer update" manually.');
-            return;
-        }
-
-        if ($exitCode === 0) {
-            success('✔ Dependencies updated successfully.');
-        } else {
-            error("✖ Composer finished with the code {$exitCode}.");
-            warning('⚠ Make sure you have execute permissions and try "composer update" manually.');
-        }
+        $this->runComposerUpdate($cmd);
     }
 
     public function realInstall()
