@@ -2,6 +2,7 @@
 
 use EvolutionCMS\Models\Category;
 use EvolutionCMS\Models\SiteModule;
+use EvolutionCMS\Models\SystemSetting;
 use EvolutionCMS\Services\ComposerVersionSynchronizer;
 use EvolutionCMS\Services\Store\RemoteTransportService;
 use Illuminate\Console\Command;
@@ -229,6 +230,7 @@ HELP;
             $this->runCoreMigrations();
             $this->runUpdateSeeders();
             $this->updateBundledExtrasModule();
+            $this->syncSettingsVersion();
 
             $this->line('<fg=green>Remove Install Directory</>');
             self::rmdirs(EVO_BASE_PATH . 'install');
@@ -304,6 +306,69 @@ HELP;
                 (new $class())->run();
             }
         }
+    }
+
+    /**
+     * Persist the installed version and drop the settings cache.
+     *
+     * The manager menu and plugins read settings_version, which only a manual
+     * settings save used to refresh, so the old version stayed visible after an update.
+     *
+     * @since 3.5.8
+     * @return void
+     */
+    protected function syncSettingsVersion(): void
+    {
+        $version = $this->readInstalledVersion();
+        if ($version === '') {
+            return;
+        }
+
+        SystemSetting::query()->updateOrCreate(
+            ['setting_name' => 'settings_version'],
+            ['setting_value' => $version]
+        );
+
+        foreach (['siteCache.idx.php', 'sitePublishing.idx.php'] as $file) {
+            $path = $this->bootstrapCachePath() . $file;
+            if (is_file($path)) {
+                unlink($path);
+            }
+        }
+
+        $this->line('<fg=green>Settings version set to ' . $version . '</>');
+    }
+
+    /**
+     * Read the version from the freshly overlaid factory/version.php.
+     *
+     * @since 3.5.8
+     * @return string
+     */
+    protected function readInstalledVersion(): string
+    {
+        $file = EVO_CORE_PATH . 'factory/version.php';
+        if (!is_file($file)) {
+            return '';
+        }
+        if (function_exists('opcache_invalidate')) {
+            @opcache_invalidate($file, true);
+        }
+
+        $version = include $file;
+
+        return is_array($version) ? trim((string) ($version['version'] ?? '')) : '';
+    }
+
+    /**
+     * Directory holding the compiled settings cache.
+     *
+     * @since 3.5.8
+     * @return string
+     */
+    protected function bootstrapCachePath(): string
+    {
+        return rtrim(evo()->bootstrapPath(), '/\\') . '/';
     }
 
     /**

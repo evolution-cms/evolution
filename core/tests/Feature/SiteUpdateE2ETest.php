@@ -13,6 +13,7 @@
 |   - the core-only migration that creates the system task tables
 |   - SiteUpdateCommand::runUpdateSeeders() (the install update seeders)
 |   - SiteUpdateCommand::updateBundledExtrasModule()
+|   - SiteUpdateCommand::syncSettingsVersion() (settings_version + settings cache)
 |
 | and asserts the resulting schema/data deltas. The file-replacement mechanics
 | (download/extract/move) are covered separately via the static helpers, since
@@ -107,6 +108,15 @@ function seedVersionNDatabase(Capsule $capsule): void
         $table->string('category')->nullable();
         $table->integer('rank')->default(0);
     });
+    // settings_version is what the manager menu shows; version N left it stale.
+    $schema->create('system_settings', function (Blueprint $table) {
+        $table->string('setting_name')->primary();
+        $table->text('setting_value')->nullable();
+    });
+    $capsule->getConnection()->table('system_settings')->insert([
+        'setting_name' => 'settings_version',
+        'setting_value' => '0.0.0',
+    ]);
     $schema->create('site_modules', function (Blueprint $table) {
         $table->increments('id');
         $table->string('name')->nullable();
@@ -175,13 +185,19 @@ function seedVersionNDatabase(Capsule $capsule): void
 /**
  * Run the database-affecting steps of an update, exactly as the update command does.
  */
-function runSiteUpdateDatabaseSteps(): void
+function runSiteUpdateDatabaseSteps(string $bootstrapDir): void
 {
     // 1. Core-only migration that ships the system task tables and permissions.
     (new \CreateSystemCliTasksTables())->up();
 
-    // 2 + 3. The real update command steps, with console output suppressed.
-    $command = new class extends \EvolutionCMS\Console\SiteUpdateCommand {
+    // 2-4. The real update command steps, with console output suppressed and the
+    // settings cache pointed at a scratch directory instead of the live storage path.
+    $command = new class($bootstrapDir) extends \EvolutionCMS\Console\SiteUpdateCommand {
+        public function __construct(private string $bootstrapDir)
+        {
+            parent::__construct();
+        }
+
         public function line($string, $style = null, $verbosity = null)
         {
             // Suppress: there is no console output bound in the test harness.
@@ -196,10 +212,21 @@ function runSiteUpdateDatabaseSteps(): void
         {
             $this->updateBundledExtrasModule();
         }
+
+        public function applySettingsVersion(): void
+        {
+            $this->syncSettingsVersion();
+        }
+
+        protected function bootstrapCachePath(): string
+        {
+            return $this->bootstrapDir;
+        }
     };
 
     $command->applyUpdateSeeders();
     $command->applyExtrasModule();
+    $command->applySettingsVersion();
 }
 
 test('update from version N to N+1 applies migrations, update seeders and refreshes Extras', function () {
@@ -211,7 +238,13 @@ test('update from version N to N+1 applies migrations, update seeders and refres
     expect($db->getSchemaBuilder()->hasTable('system_cli_tasks'))->toBeFalse()
         ->and($db->table('permissions')->where('key', 'logout')->exists())->toBeTrue();
 
-    runSiteUpdateDatabaseSteps();
+    // A stale settings cache from version N that must be dropped so the DB value is read.
+    $bootstrapDir = sys_get_temp_dir() . '/evo_update_cache_' . uniqid() . '/';
+    mkdir($bootstrapDir, 0777, true);
+    file_put_contents($bootstrapDir . 'siteCache.idx.php', '<?php // stale');
+    file_put_contents($bootstrapDir . 'sitePublishing.idx.php', '<?php // stale');
+
+    runSiteUpdateDatabaseSteps($bootstrapDir);
 
     // Migration created the system task tables.
     expect($db->getSchemaBuilder()->hasTable('system_cli_tasks'))->toBeTrue()
@@ -238,6 +271,16 @@ test('update from version N to N+1 applies migrations, update seeders and refres
     expect($extras->description)->toContain('<strong>0.2.0</strong>')
         ->and($extras->modulecode)->toContain('store/core.php')
         ->and($extras->modulecode)->not->toBe('OUTDATED MODULE CODE');
+
+    // settings_version now matches the installed core and the stale settings cache is gone,
+    // so the manager menu shows the new version without a settings save or re-login.
+    $installed = include EVO_CORE_PATH . 'factory/version.php';
+    expect($db->table('system_settings')->where('setting_name', 'settings_version')->value('setting_value'))
+        ->toBe($installed['version'])
+        ->and(is_file($bootstrapDir . 'siteCache.idx.php'))->toBeFalse()
+        ->and(is_file($bootstrapDir . 'sitePublishing.idx.php'))->toBeFalse();
+
+    rmdir($bootstrapDir);
 });
 
 test('moveFiles replaces files into the destination tree', function () {

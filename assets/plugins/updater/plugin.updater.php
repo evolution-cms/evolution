@@ -325,7 +325,7 @@ if (!function_exists('updaterHandleSystemTaskRequest')) {
             ]);
         }
 
-        $requiresToken = in_array($action, ['create', 'cancel'], true);
+        $requiresToken = in_array($action, ['create', 'cancel', 'refresh_session'], true);
         if ($requiresToken) {
             $token = isset($_REQUEST['updater_task_token']) ? (string)$_REQUEST['updater_task_token'] : '';
             if ($token === '' || !hash_equals(updaterEnsureSystemTaskToken(), $token)) {
@@ -393,6 +393,9 @@ if (!function_exists('updaterHandleSystemTaskRequest')) {
                         $requesterSnapshot,
                         $isSuperAdmin
                     ));
+
+                case 'refresh_session':
+                    updaterJsonResponse($context->refreshCurrentManagerPermissions());
 
                 case 'cancel':
                     updaterJsonResponse($taskService->cancelQueuedTaskPayload(
@@ -534,7 +537,15 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
         }
 
         if (reloadOnClose) {
-            window.location.reload();
+            var target = window;
+            try {
+                if (window.top && window.top.location && window.top !== window) {
+                    target = window.top;
+                }
+            } catch (error) {
+                target = window;
+            }
+            target.location.reload();
         }
     }
 
@@ -640,6 +651,9 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
         }
 
         if (isSucceeded) {
+            if (!reloadOnClose) {
+                request('refresh_session').catch(function () {});
+            }
             reloadOnClose = true;
         }
 
