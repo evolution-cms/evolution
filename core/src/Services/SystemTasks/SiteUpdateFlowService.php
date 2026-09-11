@@ -7,6 +7,8 @@ use Symfony\Component\Process\Process;
 
 class SiteUpdateFlowService implements SystemTaskHandlerInterface
 {
+    use ReportsProcessFailure;
+
     protected string $corePath;
 
     public function __construct(?string $corePath = null)
@@ -79,7 +81,9 @@ class SiteUpdateFlowService implements SystemTaskHandlerInterface
         }
 
         if ((int) $exitCode !== 0) {
-            $reason = $this->summarizeOutput($output);
+            $this->reportProcessFailure($report, 'site_update', 80, 'make:site', $exitCode, $output, $reportContext);
+
+            $reason = $this->summarizeOutput($output, true);
             if ($reason !== '') {
                 throw new \RuntimeException('Site update failed with exit code ' . (int) $exitCode . '. ' . $reason);
             }
@@ -158,7 +162,7 @@ class SiteUpdateFlowService implements SystemTaskHandlerInterface
         return $parts;
     }
 
-    protected function summarizeOutput($output)
+    protected function summarizeOutput($output, bool $fromEnd = false)
     {
         $lines = preg_split('/\r\n|\r|\n/', trim((string) $output));
         $lines = array_values(array_filter(array_map(function ($line) {
@@ -175,7 +179,7 @@ class SiteUpdateFlowService implements SystemTaskHandlerInterface
             return '';
         }
 
-        return implode(' ', array_slice($lines, 0, 5));
+        return implode(' ', $this->pickSummaryLines($lines, $fromEnd, 5));
     }
 
     protected function report(?callable $report, $step, $progress, $message, $level = 'info', array $context = [])
