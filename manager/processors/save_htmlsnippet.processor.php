@@ -97,7 +97,7 @@ switch ($_POST['mode']) {
         // finished emptying cache - redirect
         if ($_POST['stay'] != '') {
             $a = ($_POST['stay'] == '2') ? "78&id=$id" : "77";
-            $header = "Location: index.php?a=" . $a . "&tab=2&stay=" . $_POST['stay'];
+            $header = "Location: index.php?a=" . $a . "&tab=2&stay=" . (int)$_POST['stay'];
             header($header);
         } else {
             $header = "Location: index.php?a=76&tab=2";
@@ -137,7 +137,7 @@ switch ($_POST['mode']) {
         // finished emptying cache - redirect
         if ($_POST['stay'] != '') {
             $a = ($_POST['stay'] == '2') ? "78&id=$id" : "77";
-            $header = "Location: index.php?a=" . $a . "&r=2&stay=" . $_POST['stay'];
+            $header = "Location: index.php?a=" . $a . "&r=2&stay=" . (int)$_POST['stay'];
             header($header);
         } else {
             evo()->unlockElement(3, $id);

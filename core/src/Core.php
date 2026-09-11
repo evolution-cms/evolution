@@ -3595,7 +3595,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     /**
      * Displays a javascript alert message in the web browser and quit
      *
-     * @param string $msg Message to show
+     * @param string $msg Message to show, as plain text
      * @param string $url URL to redirect to
      */
     public function webAlertAndQuit($msg, $url = '')
@@ -3648,7 +3648,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 </script>
             </head>
             <body>
-                <p>" . $msg . '</p>
+                <p>" . htmlspecialchars((string)$msg, ENT_QUOTES, $manager_charset) . '</p>
             </body>
         </html>';
         exit;

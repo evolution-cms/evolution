@@ -476,7 +476,7 @@ switch ($actionToTake) {
             } else {
                 $a = ($_POST['stay'] == '2') ? "27&id=$key" : "4&pid=$parentId";
             }
-            $redirectUrl = "index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'];
+            $redirectUrl = "index.php?a=" . $a . "&r=1&stay=" . (int)$_POST['stay'];
         } else {
             $redirectUrl = "index.php?a=3&id=$key&r=1";
         }
@@ -689,7 +689,7 @@ switch ($actionToTake) {
                     // document
                     $a = ($_POST['stay'] == '2') ? "27&id=$id" : "4&pid=$parentId";
                 }
-                $redirectUrl = "index.php?a=" . $a . "&r=1&stay=" . $_POST['stay'] . $add_path;
+                $redirectUrl = "index.php?a=" . $a . "&r=1&stay=" . (int)$_POST['stay'] . $add_path;
             } else {
                 $redirectUrl = "index.php?a=3&id=$id&r=1" . $add_path;
             }

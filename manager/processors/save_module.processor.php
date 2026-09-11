@@ -144,7 +144,7 @@ switch ($_POST['mode']) {
         // finished emptying cache - redirect
         if ($_POST['stay'] != '') {
             $a = ($_POST['stay'] == '2') ? "108&id=$newid" : "107";
-            $header = "Location: index.php?a=" . $a . "&r=2&stay=" . $_POST['stay'];
+            $header = "Location: index.php?a=" . $a . "&r=2&stay=" . (int)$_POST['stay'];
             header($header);
         } else {
             $header = "Location: index.php?a=76&tab=5&r=2";
@@ -202,7 +202,7 @@ switch ($_POST['mode']) {
         // finished emptying cache - redirect
         if ($_POST['stay'] != '') {
             $a = ($_POST['stay'] == '2') ? "108&id=$id" : "107";
-            $header = "Location: index.php?a=" . $a . "&r=2&stay=" . $_POST['stay'];
+            $header = "Location: index.php?a=" . $a . "&r=2&stay=" . (int)$_POST['stay'];
             header($header);
         } else {
             $modx->unlockElement(6, $id);

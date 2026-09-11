@@ -339,6 +339,8 @@ browser.baseGetData = function(act) {
         data += "&act=" + act;
     if (this.cms)
         data += "&cms=" + this.cms;
+    if (this.csrfToken)
+        data += "&_token=" + encodeURIComponent(this.csrfToken);
     return data;
 };
 

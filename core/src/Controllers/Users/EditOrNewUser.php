@@ -157,7 +157,7 @@ class EditOrNewUser extends AbstractController implements ManagerTheme\PageContr
 
         if ($userData['stay'] != '') {
             $a = ($userData['stay'] == '2') ? "88&id={$user->getKey()}" : "87";
-            $this->parameters['url'] = "index.php?a={$a}&r=2&stay=" . $userData['stay'];
+            $this->parameters['url'] = "index.php?a={$a}&r=2&stay=" . (int)$userData['stay'];
         } else {
             $this->parameters['url'] = "index.php?a=88&id={$user->getKey()}";
         }

@@ -603,7 +603,7 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
 
 $tab = get_by_key($_GET, 'tab', false);
 if (is_numeric($tab)) {
-    echo '<script type="text/javascript">tpDBM.setSelectedIndex( ' . $_GET['tab'] . ' );</script>';
+    echo '<script type="text/javascript">tpDBM.setSelectedIndex( ' . (int)$_GET['tab'] . ' );</script>';
 }
 
 include_once EVO_MANAGER_PATH . "includes/footer.inc.php"; // send footer
