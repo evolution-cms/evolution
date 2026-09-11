@@ -240,6 +240,30 @@ class Database extends Manager
         return $this->getFullTableName($table);
     }
 
+    /**
+     * Whether the value can be written into raw SQL as a table identifier: a bare name that
+     * carries the configured prefix.
+     *
+     * The pattern is the whole guard - no quote, space, semicolon or shell metacharacter gets
+     * through it, so the name cannot leave the identifier it is substituted into. Existence is
+     * deliberately not checked: an unknown table is a failing statement, not an injection, and
+     * asking the catalogue would make every call depend on schema read rights.
+     *
+     * @since 3.5.8
+     * @param mixed $table
+     * @return bool
+     */
+    public function isValidTableName($table)
+    {
+        if (!is_string($table) || !preg_match('/^[A-Za-z0-9_]+$/', $table)) {
+            return false;
+        }
+
+        $prefix = (string) $this->getConfig('prefix');
+
+        return $prefix === '' || strncmp($table, $prefix, strlen($prefix)) === 0;
+    }
+
     public function getValue($result)
     {
         $out = false;

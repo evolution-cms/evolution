@@ -81,6 +81,16 @@ if ($mode == 'restore1') {
         EvolutionCMS()->webAlertAndQuit("Please select a valid table from the list below.");
     }
 
+    // The names reach pg_dump on a command line and the dumpers inside raw SQL, so keep only
+    // the bare prefixed identifiers.
+    $db = EvolutionCMS()->getDatabase();
+    $tables = array_values(array_filter($tables, static function ($table) use ($db) {
+        return $db->isValidTableName($table);
+    }));
+    if (!$tables) {
+        EvolutionCMS()->webAlertAndQuit("Please select a valid table from the list below.");
+    }
+
     /*
     * Code taken from Ralph A. Dahlgren MySQLdumper Snippet - Etomite 0.6 - 2004-09-27
     * Modified by Raymond 3-Jan-2005
