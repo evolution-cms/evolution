@@ -8,11 +8,6 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php [L,QSA]
 
-<IfModule mod_security.c>
-# Turn the filtering engine Off
-SecFilterEngine Off
-</IfModule>
-
 <IfModule mod_expires.c>
     ExpiresActive off
 </IfModule>

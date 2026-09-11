@@ -61,6 +61,22 @@ RewriteRule .* - [F,L]
 #RewriteCond %{THE_REQUEST} \s/+index\.php\?q=([^\s&]+) [NC]
 #RewriteRule ^ /%1? [R=301,L]
 
+# Paths that must never be reachable over HTTP (mirrors ng.inx).
+#   core, views, vendor, tmp          - CMS core (config, .env, storage), Blade layouts, deps, scratch
+#   assets/(cache|backup|export|import) - generated and writable areas; the per-directory
+#                                       .htaccess files there only work with AllowOverride
+RewriteRule ^(core|views|vendor|tmp)(/|$) - [F,L]
+RewriteRule ^assets/(cache|backup|export|import)(/|$) - [F,L]
+
+# Root-level files that fingerprint the install or describe its layout.
+RewriteRule ^(composer\.(json|lock)|phpstan\.neon|publiccode\.yml|AGENTS\.md|README\.md|ht\.access|ng\.inx|config\.php(\.example)?)$ - [F,L]
+
+# Backups, dumps, editor leftovers and PHP include fragments anywhere, including compressed copies.
+RewriteRule \.(sql|sqlite|db|log|bak|old|orig|save|swp|swo|tpl|inc|ini|env|dist|example|yml|yaml|lock|tar)(\.(gz|bz2|xz|zip|tgz))?$ - [F,L,NC]
+
+# No PHP execution under assets - uploads live here.
+RewriteRule ^assets/.*\.php$ - [F,L,NC]
+
 # Exclude /assets and /manager directories and images from rewrite rules
 RewriteRule ^(manager|assets|js|css|images|img)/.*$ - [L]
 RewriteRule \.(jpg|jpeg|png|gif|ico)$ - [L]
