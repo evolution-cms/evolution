@@ -67,17 +67,25 @@ class Modules extends AbstractResources implements TabControllerInterface
 
     protected function parameterOutCategory() : Collection
     {
-        return Models\SiteModule::where('category', '=', 0)
-            ->orderBy('name', 'ASC')
+        return Models\SiteModule::query()
+            ->where('site_modules.category', '=', 0)
+            ->withoutProtected()
+            ->orderBy('site_modules.name', 'ASC')
             ->lockedView()
             ->get();
     }
 
     protected function parameterCategories() : Collection
     {
-        return Models\Category::with('modules')
-            ->whereHas('modules', function (Eloquent\Builder $builder) {
-                return $builder->lockedView();
+        // the eager load is constrained too, otherwise a category the user can
+        // see would list the modules inside it that they may not run
+        $roleId = (int) get_by_key($_SESSION, 'mgrRole', 0);
+
+        return Models\Category::with(['modules' => function ($builder) use ($roleId) {
+                return $builder->allowedForRole($roleId);
+            }])
+            ->whereHas('modules', function (Eloquent\Builder $builder) use ($roleId) {
+                return $builder->lockedView()->allowedForRole($roleId);
             })->orderBy('rank', 'ASC')
             ->get();
     }

@@ -503,9 +503,11 @@ try {
                     } else {
                         $installDataLevel['modules'][$moduleModule[0]]['type'] = 'create';
                         $properties = parseProperties($properties, true);
-                        \EvolutionCMS\Models\SiteModule::create(['name' => $name,
+                        $newModule = \EvolutionCMS\Models\SiteModule::create(['name' => $name,
                             'description' => $desc, 'modulecode' => $module, 'properties' => $properties,
                             'guid' => $guid, 'enable_sharedparams' => (int)$shared, 'category' => $category]);
+                        // bundled modules ship with a default role restriction
+                        \EvolutionCMS\Models\SiteModuleRole::applyDefaultsFor((int)$newModule->getKey(), $name);
                     }
                 }
             } else {

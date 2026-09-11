@@ -3,6 +3,7 @@
 use EvolutionCMS\Interfaces\ManagerTheme;
 use EvolutionCMS\Interfaces\ManagerThemeInterface;
 use EvolutionCMS\Models\SiteModule;
+use EvolutionCMS\Support\ModuleAccess;
 
 class Frame extends AbstractController implements ManagerTheme\PageControllerInterface
 {
@@ -685,18 +686,17 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
     protected function menuRunModules()
     {
         if ($this->managerTheme->getCore()->hasPermission('exec_module')) {
-            if ($_SESSION['mgrRole'] != 1 && $this->managerTheme->getCore()->getConfig('use_udperms') === true) {
-                $modules = SiteModule::select('site_modules.id', 'site_modules.name', 'site_modules.icon', 'member_groups.member')
-                    ->withoutProtected()
-                    ->lockedView()
-                    ->where('site_modules.disabled', 0)
-                    ->orderBy('site_modules.name')->get()->toArray();
-
-            } else {
-                $modules = SiteModule::where('disabled', '!=', 1)->orderBy('name')->get()->toArray();
-            }
+            // withoutProtected() applies both ACL axes and is a no-op for the
+            // admin role, so the menu lists exactly what the user may run
+            $modules = SiteModule::select('site_modules.id', 'site_modules.name', 'site_modules.icon')
+                ->withoutProtected()
+                ->lockedView()
+                ->where('site_modules.disabled', '!=', 1)
+                ->orderBy('site_modules.name')->get()->toArray();
+            $entries = 0;
             if (count($modules) > 0) {
                 foreach ($modules as $row) {
+                    $entries++;
                     $this->sitemenu['module' . $row['id']] = [
                         'module' . $row['id'],
                         'modules',
@@ -712,11 +712,17 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
                     ];
                 }
             }
+            $mgrRole = (int) get_by_key($_SESSION, 'mgrRole', 0);
             foreach ($this->managerTheme->getCore()->modulesFromFile as $module) {
                 if (!empty($module['properties']['hidden'])) {
                     continue;
                 }
 
+                if (!ModuleAccess::canRunFileModule($mgrRole, $module)) {
+                    continue;
+                }
+
+                $entries++;
                 $this->sitemenu['module' . $module['id']] = [
                     'module' . $module['id'],
                     'modules',
@@ -730,6 +736,13 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
                     1,
                     ''
                 ];
+            }
+
+            // Nothing this user may run: drop the parent node menuModules()
+            // added before the list was known, instead of rendering an empty
+            // Modules menu. Free - the listing above has already happened.
+            if ($entries === 0) {
+                unset($this->sitemenu['modules']);
             }
         }
 

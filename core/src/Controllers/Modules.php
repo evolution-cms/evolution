@@ -99,7 +99,13 @@ class Modules extends AbstractController implements ManagerTheme\PageControllerI
      */
     protected function getCategories(): Collection
     {
-        return Category::with('modules')
+        // the eager load is constrained too, otherwise a category the user can
+        // see would list the modules inside it that they may not run
+        $roleId = (int) get_by_key($_SESSION, 'mgrRole', 0);
+
+        return Category::with(['modules' => function ($builder) use ($roleId) {
+                return $builder->allowedForRole($roleId);
+            }])
             ->whereHas('modules', function (Builder $builder) {
                 return $builder->withoutProtected()->lockedView();
             })
