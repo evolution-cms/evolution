@@ -361,6 +361,8 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                                                 {{ icon_html($_style['icon_user_secret']) }} {{ManagerTheme::getLexicon('view_logging')}}
                                             </a>
                                         </li>
+                                    @endif
+                                    @if (evo()->hasPermission('settings'))
                                         <li>
                                             <a href="index.php?a=53" target="main">
                                                 {{ icon_html($_style['icon_info_circle']) }} {{ManagerTheme::getLexicon('view_sysinfo')}}
