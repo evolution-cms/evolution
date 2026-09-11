@@ -174,10 +174,20 @@ class InstallEvo
         bootstrapInstallMigrationHistory($installMigrationsPath);
         Console::call('migrate', ['--path' => $installMigrationsPath, '--realpath' => true, '--force' => true]);
         seed('update');
+        // The manager menu reads settings_version; keep it on the installed version.
+        \EvolutionCMS\Models\SystemSetting::query()->updateOrCreate(
+            ['setting_name' => 'settings_version'],
+            ['setting_value' => (string) evo()->getVersionData('version')]
+        );
         // Apply core-only migrations (core/database/migrations) not present in the
         // install/stubs chain, e.g. the system task tables. Runs after seeding so the
         // guarded ACL repairs inside those migrations detect a healthy baseline.
         Console::call('migrate', ['--force' => true]);
+        foreach ([evo()->getSiteCacheFilePath(), evo()->getSitePublishingFilePath()] as $cacheFile) {
+            if (is_file($cacheFile)) {
+                unlink($cacheFile);
+            }
+        }
         echo 'Evolution CMS updated!' . "\n";
         $this->checkRemoveInstall();
         $this->removeInstall();

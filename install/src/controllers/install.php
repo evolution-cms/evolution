@@ -237,6 +237,11 @@ try {
             \EvolutionCMS\Models\SystemSetting::insert($systemSettings);
         } else {
             seed('update');
+            // The manager menu reads settings_version; keep it on the installed version.
+            \EvolutionCMS\Models\SystemSetting::query()->updateOrCreate(
+                ['setting_name' => 'settings_version'],
+                ['setting_value' => (string) evo()->getVersionData('version')]
+            );
         }
 
         // Apply core-only migrations (core/database/migrations) that are not part
