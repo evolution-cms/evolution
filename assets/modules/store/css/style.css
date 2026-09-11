@@ -1064,6 +1064,7 @@ input#store_search:focus {
   display: block;
   min-width: 0;
   overflow-wrap: anywhere;
+  white-space: pre-wrap;
   color: #d8dee6;
   font-size: 13px;
   line-height: 1.35;

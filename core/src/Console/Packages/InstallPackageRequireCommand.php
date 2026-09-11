@@ -95,7 +95,15 @@ class InstallPackageRequireCommand extends Command
     public function runComposer()
     {
         putenv('COMPOSER_HOME=' . EVO_CORE_PATH . 'composer');
-        $arguments = ['command' => 'update'];
+        // A partial update: only the requested package and what it pulls in may
+        // move. A bare `update` re-resolves the whole lock for the running PHP,
+        // which on a container whose vendor tree was built on 8.3 and runs on
+        // 8.4 rewrote 62 core packages before the extra was even touched.
+        $arguments = [
+            'command' => 'update',
+            'packages' => [(string) $this->argument('key')],
+            '--with-all-dependencies' => true,
+        ];
         if ($this->hasCommandOption('no-dev') && $this->option('no-dev')) {
             $arguments['--no-dev'] = true;
         }
