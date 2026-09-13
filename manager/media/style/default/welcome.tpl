@@ -28,7 +28,6 @@
 		[+widgets+]
 	</div>
 
-	<!--a class="btn btn-secondary mb-1"><i class="fa fa-cogs"></i> Добавить виджет</a-->
 </div>
 
 [[@OnManagerWelcomeRender]]
