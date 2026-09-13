@@ -29,7 +29,9 @@ if (isset($_POST['language']) && ctype_alpha($_POST['language'])) {
 }
 # load language file
 require_once 'lang/en.inc.php'; // As fallback
+$fallbackLang = $_lang;
 require_once 'lang/' . $install_language . '.inc.php';
+$_lang += $fallbackLang;
 
 $manager_language = $install_language;
 

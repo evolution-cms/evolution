@@ -15,6 +15,10 @@
 		<input type="hidden" value="[+install_language+]" name="language" />
 	</div>
 	<h2 class="my-3" nonce="[+csrf_nonce+]">[%installation_mode%]</h2>
+	<div class="config-write-failure" [+configPermissionErrorHidden+]>
+		<p><code>/core/config/database/connections/default.php</code></p>
+		<p><span class="notok">[+configPermissionError+]</span></p>
+	</div>
 	<div class="ovh" [+displayNew+]>
 		<div class="installImg"><img src="img/install_new.png" alt="new install" /></div>
 		<div class="installDetails">
@@ -44,7 +48,7 @@
 
     <p class="buttonlinks">
         <button type="button" class="prev" title="[%btnback_value%]"><span>[%btnback_value%]</span></button>
-        <button type="button" class="next" title="[%btnnext_value%]"><span>[%btnnext_value%]</span></button>
+        <button type="button" class="next" title="[%btnnext_value%]" [+disabledNext+]><span>[%btnnext_value%]</span></button>
     </p>
 
 	<script type="text/javascript" nonce="[+csrf_nonce+]">
