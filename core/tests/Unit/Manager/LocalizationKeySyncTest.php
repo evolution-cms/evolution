@@ -1,15 +1,15 @@
 <?php
 
-it('keeps reported Ukrainian and Russian manager localization keys in sync', function () {
+it('keeps reported Ukrainian and Slovak manager localization keys in sync', function () {
     $locales = [];
-    foreach (['en', 'ru', 'uk'] as $locale) {
+    foreach (['en', 'sk', 'uk'] as $locale) {
         $_lang = [];
         include dirname(__DIR__, 3) . '/lang/' . $locale . '/global.php';
         $locales[$locale] = $_lang;
     }
 
     foreach (['disable', 'enable'] as $key) {
-        expect($locales['ru'])
+        expect($locales['sk'])
             ->toHaveKey($key)
             ->and($locales['uk'])
             ->toHaveKey($key);
@@ -19,12 +19,12 @@ it('keeps reported Ukrainian and Russian manager localization keys in sync', fun
         expect($locales['uk'])->toHaveKey($key);
     }
 
-    expect($locales['ru'])
+    expect($locales['sk'])
         ->toHaveKey('chunk_processor')
         ->and($locales['uk']['permission_title'])
         ->toBe('Створити / редагувати право доступу')
-        ->and($locales['ru']['disable'])
-        ->toBe('Отключить')
+        ->and($locales['sk']['disable'])
+        ->toBe('Vypnúť')
         ->and($locales['uk']['enable'])
         ->toBe('Увімкнути');
 });

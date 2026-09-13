@@ -22,24 +22,24 @@ it('fixes reported Ukrainian manager localization typos and escapes', function (
         ->toBe('Помилка відправки e-mail');
 });
 
-it('fixes reported Russian manager localization typos and escaping', function () {
+it('keeps Slovak manager localization strings free of escaping artifacts', function () {
     $_lang = [];
-    include dirname(__DIR__, 3) . '/lang/ru/global.php';
+    include dirname(__DIR__, 3) . '/lang/sk/global.php';
 
     expect($_lang['duplicate_name_found_general'])
-        ->toContain('Пожалуйста')
+        ->toContain('Zadajte prosím')
         ->and($_lang['duplicate_name_found_module'])
-        ->toContain('Пожалуйста')
+        ->toContain('Zadajte prosím')
         ->and($_lang['files_management_no_permission'])
-        ->toStartWith('У вас недостаточно прав')
+        ->toStartWith('Nemáte dostatočné oprávnenia')
         ->and($_lang['access_permissions_links_tab'])
-        ->toContain('могут создавать и редактировать')
+        ->toContain('môžu vytvárať a upravovať')
         ->and($_lang['access_permissions_resources_tab'])
-        ->toContain('Также здесь')
+        ->toContain('Tiež tu')
         ->and($_lang['access_permissions_users_tab'])
-        ->toContain('Также здесь')
+        ->toContain('Tiež tu')
         ->and($_lang['files_upload_permissions_error'])
-        ->toContain('недоступна для записи')
+        ->toContain('nie je na vašom serveri zapisovateľný')
         ->and($_lang['confirm_reset_sort_order'])
         ->toContain("'sort order/index'")
         ->not->toContain('\\"sort order/index\\"');

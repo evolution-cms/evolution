@@ -40,7 +40,7 @@ it('defines directory zip labels for every manager language', function () {
 });
 
 it('keeps ambiguous upload labels distinct from zip download labels', function () {
-    $languages = ['en', 'fr', 'fi', 'ru', 'uk'];
+    $languages = ['en', 'fr', 'fi', 'sk', 'uk'];
 
     foreach ($languages as $language) {
         $_lang = [];

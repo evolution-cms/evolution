@@ -48,7 +48,7 @@ class TransAlias {
             'nn' => 'common',
             'pl' => 'common',
             'pt' => 'common',
-            'ru' => 'russian',
+            'sk' => 'czech',
             'sv' => 'common',
             'uk' => 'russian',
         ];

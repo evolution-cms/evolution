@@ -18,10 +18,6 @@ class DATEPICKER {
     public function getLangCode() {
         $lang = evolutionCMS()->get('ManagerTheme')->getLang();
 
-        if ($lang === 'uk') {
-            $lang = 'ru';
-        }
-
         $dp_path = str_replace('\\', '/', __DIR__);
 
         return is_file("{$dp_path}/i18n/datepicker.{$lang}.js") ? $lang : 'en';
