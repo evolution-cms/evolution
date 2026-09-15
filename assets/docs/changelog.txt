@@ -1,6 +1,68 @@
 This file shows the changes in recent releases of Evolution CMS. The most current release is usually the
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
+Evolution CMS 3.5.8 (Sep 10, 2026)
+* [d984246] - add(core): template processor db or file source switch <Artur Kyryliuk>
+* [c7fa58c] - add(parser): let a view engine ask for the DocumentParser pass <Artur Kyryliuk>
+* [38dcef9] - add(settings): add IANA site timezone <Serhii Korneliuk>
+* [72a2fb1] - add(mail): add test mail action with delivery test and event logging <Serhii Korneliuk>
+* [d1a47b2] - add(mail): SMTP certificate verification controls <Serhii Korneliuk>
+* [ef92b09] - add(blade): add mtime-based file revision URLs <Serhii Korneliuk>
+* [b738941] - add(packages): track vendor publish manifest (#2402) <middle:Sokil>
+* [2e411d1] - add(core): scheduler autostart in Dockerfile <Artur Kyryliuk>
+* [d87cc45] - add(extras): Artur repository <Serhii Korneliuk>
+* [6e051c0] - add(ci): Nginx, Apache, FrankenPHP runtimes on PHP 8.3, 8.4, 8.5 <Artur Kyryliuk>
+* [219383e] - add(ci): SQLite based CMS install builds on PHP 8.3 and 8.4, GHCR <Artur Kyryliuk>
+* [ad05687] - add(ci): upgrade between versions smoke test <Artur Kyryliuk>
+* [4d8f9f3] - add(ci): MySQL and PgSQL test matrix <Artur Kyryliuk>
+* [8175bdb] - upd(mail): improve sender identity and delivery diagnostics <Serhii Korneliuk>
+* [d015a19] - upd(mail): improve sent-message event display <Serhii Korneliuk>
+* [e46e1fc] - upd(core): make login flow chainable, add expiration to login link, move legacy ciphers to Legacy <Artur Kyryliuk>
+* [d80c396] - upd(manager): remove eval from browser.php <Artur Kyryliuk>
+* [607b588] - upd(core): refactor system task registry, fix Windows task execution <Artur Kyryliuk>
+* [6a1d83b] - upd(store): use canonical manager path in legacy installer <Serhii Korneliuk>
+* [79b2cc2] - fix(core): block object injection via unserialize() <Artur Kyryliuk>
+* [678a4bc] - fix(core): remove eval from PHx and harden @FILE <Artur Kyryliuk>
+* [f535da4] - fix(core): harden against MitM during upgrade <Artur Kyryliuk>
+* [379f596] - fix(manager): stored XSS fixes by {!! removal <Artur Kyryliuk>
+* [5425a46] - fix(manager): safe recreation of the rich HTML in admin panel <Artur Kyryliuk>
+* [cf4598a] - fix(manager): rotate CSRF tokens on login and safely restore tabs <Artur Kyryliuk>
+* [b188b9c] - fix(manager): CSRF token for jQuery and XHR requests <Artur Kyryliuk>
+* [d3fb81f] - fix(manager): restore tabs by URL without registration allowlists <Serhii Korneliuk>
+* [0d4b2cb] - fix(manager): safely restore tab titles and icons <Serhii Korneliuk>
+* [61eef03] - fix(manager): align tab icons with their labels <Serhii Korneliuk>
+* [6bc0a41] - fix(manager): prevent wrapped menu from overlapping tabs <Serhii Korneliuk>
+* [09d9e3b] - fix(manager): reject empty hash login (#2407) <middle:Sokil>
+* [ae47646] - fix(manager): stop an unknown template id from looping on an empty alert <Artur Kyryliuk>
+* [3b6c37f] - fix(manager): MODX to Evo in CodeMirror, fatal error if no user found <Artur Kyryliuk>
+* [e5f104f] - fix(manager): composer and login background <Serhii Korneliuk>
+* [a4afcb2] - fix(manager): preserve selected ISO locale after language loading <Serhii Korneliuk>
+* [a92239c] - fix(manager): use ISO locale for Laravel translations <Serhii Korneliuk>
+* [3688b85] - fix(manager): niceSize() for backup manager <Serhii Korneliuk>
+* [586c9c9] - fix(manager): add space after OPcache status link <Serhii Korneliuk>
+* [7d8080b] - fix(core): keep resource date round trips timezone-stable (#2431) <middle:Sokil>
+* [2abc711] - fix(timezone): restore site timezone helper (#2397) <middle:Sokil>
+* [8a09ea1] - fix(log): event log align timezone and actor display <Serhii Korneliuk>
+* [0b48144] - fix(core): CLI cookie warning headers already sent <Artur Kyryliuk>
+* [0363477] - fix(core): missing connection file and cross-platform composer config <Artur Kyryliuk>
+* [a260f08] - fix(core): Windows autoload <Artur Kyryliuk>
+* [30321b0] - fix(core): duplicate functions declaration <Artur Kyryliuk>
+* [0c2fc68] - fix(core): static analysis findings <Artur Kyryliuk>
+* [5e7b3a5] - fix(core): Redis alias <Artur Kyryliuk>
+* [710300e] - fix(core): Docker port processing <Artur Kyryliuk>
+* [e6a9972] - fix(infra): Nginx config as template to be filled <Artur Kyryliuk>
+* [9f8b00a] - fix(core): resolve registered legacy extension properties <Serhii Korneliuk>
+* [636cae4] - fix(config): isolate configuration file scope <Serhii Korneliuk>
+* [fa3677a] - fix(config): skip invalid custom configuration files <Serhii Korneliuk>
+* [4294ff4] - fix(packages): discover transitive package dependencies <Serhii Korneliuk>
+* [3282573] - fix(packages): warn about transitive discovery (#2401) <middle:Sokil>
+* [fcb6ee8] - fix(packages): report remove require results (#2400) <middle:Sokil>
+* [693a967] - fix(helper): deduplicate assets path <Serhii Korneliuk>
+* [7afb900] - fix(tracy): log unhandled exceptions in development <Serhii Korneliuk>
+* [756093a] - fix(install): write manager_theme and site_id on a CLI install <Artur Kyryliuk>
+* [cc46af4] - fix(translations): resource translations <Artur Kyryliuk>
+* [6c680c3] - fix(core): mail sender settings translations <Artur Kyryliuk>
+
 Evolution CMS 3.5.7 (Jul 19, 2026)
 * [7451c58] - add(helper): add compact count helper for SI-style quantity formatting <middle:Sokil>
 * [97bf485] - add(system): show OPcache and JIT state in system information (#2376) <middle:Sokil>
