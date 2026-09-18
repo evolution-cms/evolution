@@ -60,6 +60,12 @@ class PackageCommand extends Command
      */
     protected $aliasesDir = EVO_CORE_PATH . 'custom/config/app/aliases/';
     /**
+     * Track provider config files generated during current discovery run.
+     * @var array<string,bool>
+     */
+    protected $discoveredProviderFiles = [];
+
+    /**
      * Track aliases generated during current discovery run.
      * @var array<string,bool>
      */
@@ -154,9 +160,13 @@ class PackageCommand extends Command
         if (file_exists($this->composer)) {
             $this->parseComposer($this->composer);
         }
+        $this->cleanupProviders();
         $this->cleanupAliases();
 
-        unlink(EVO_CORE_PATH . 'storage/bootstrap/services.php');
+        $servicesCache = EVO_CORE_PATH . 'storage/bootstrap/services.php';
+        if (file_exists($servicesCache)) {
+            unlink($servicesCache);
+        }
     }
 
     /**
@@ -280,6 +290,8 @@ class PackageCommand extends Command
             $fileContent = "<?php \nreturn " . $value . "::class;";
         }
 
+        $this->discoveredProviderFiles[$fileName] = true;
+
         if (file_put_contents($this->configDir . $fileName, $fileContent)) {
             $this->getOutput()->write('<info>' . $value . ($priority > 0 ? " (priority: {$priority})" : '') . '</info>');
         } else {
@@ -312,6 +324,35 @@ class PackageCommand extends Command
 
         $content = "<?php\n// {$this->aliasMarker}\nreturn {$class}::class;\n";
         @file_put_contents($this->aliasesDir . $fileName, $content);
+    }
+
+    /**
+     * Remove provider config files whose class no longer exists.
+     *
+     * Keeps the app bootable after a package is removed via composer
+     * while its generated provider file is still in place.
+     */
+    protected function cleanupProviders(): void
+    {
+        foreach (glob($this->configDir . '*.php') ?: [] as $file) {
+            if (isset($this->discoveredProviderFiles[basename($file)])) {
+                continue;
+            }
+
+            try {
+                $class = include $file;
+            } catch (\Throwable $exception) {
+                continue;
+            }
+
+            if (!is_string($class) || $class === '' || class_exists($class)) {
+                continue;
+            }
+
+            @unlink($file);
+            $this->getOutput()->write('<comment>Removed stale provider config ' . basename($file) . ' (' . $class . ' not found)</comment>');
+            $this->line('');
+        }
     }
 
     /**
