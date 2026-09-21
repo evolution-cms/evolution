@@ -29,16 +29,26 @@ if (!function_exists('revision')) {
 
 if (!function_exists('createGUID')) {
     /**
-     * create globally unique identifiers (guid)
-     *
-     * @return string
+     * @throws \Random\RandomException
      */
-    function createGUID()
+    function createGUID(int $version = 4, $dashes = false): string
     {
-        mt_srand((float)microtime() * 1000000);
-        $r = mt_rand();
-        $u = uniqid(getmypid() . $r . (float)microtime() * 1000000, 1);
-        return md5($u);
+        $data = random_bytes(16);
+        if ($version === 7) {
+            $milliseconds = (int)floor(microtime(true) * 1000);
+            for ($i = 5; $i >= 0; $i--) {
+                $data[$i] = chr($milliseconds & 0xff);
+                $milliseconds = intdiv($milliseconds, 256);
+            }
+            $data[6] = chr((ord($data[6]) & 0x0f) | 0x70);
+        } else {
+            $data[6] = chr((ord($data[6]) & 0x0f) | 0x40);
+        }
+        $data[8] = chr((ord($data[8]) & 0x3f) | 0x80);
+
+        $hex = bin2hex($data);
+        return !$dashes ? $hex : substr($hex, 0, 8) . '-' . substr($hex, 8, 4) . '-' .
+            substr($hex, 12, 4) . '-' . substr($hex, 16, 4) . '-' . substr($hex, 20, 12);
     }
 }
 
@@ -46,17 +56,23 @@ if (!function_exists('generate_password')) {
     /**
      * Generate password
      *
+     * Used for the password proposed when an account is created, which is then mailed to its
+     * owner - so it has to be unguessable. mt_rand() seeded from microtime() was not: the seed
+     * is the creation time, which anyone receiving such a mail can narrow down to a second.
+     *
      * @param int $length
      * @return string
+     * @throws \Random\RandomException
      */
-    function generate_password($length = 10)
+    function generate_password(int $length = 10): string
     {
+        // No look-alike characters (l/1/I, O/0), because these passwords get read off a screen and typed by hand.
         $allowable_characters = 'abcdefghjkmnpqrstuvxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
         $ps_len = strlen($allowable_characters);
-        mt_srand((float)microtime() * 1000000);
-        $pass = "";
+        $length = max(1, $length);
+        $pass = '';
         for ($i = 0; $i < $length; $i++) {
-            $pass .= $allowable_characters[mt_rand(0, $ps_len - 1)];
+            $pass .= $allowable_characters[random_int(0, $ps_len - 1)];
         }
 
         return $pass;
