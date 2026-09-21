@@ -84,7 +84,7 @@ test('tree drag-and-drop and the move action both run the cycle and target permi
 
     expect($move)->toContain('MoveDocumentTargetGuard::isInsideItself($id, $parent)')->toContain('MoveDocumentTargetGuard::deniedForUser($parent)')
         ->and(strpos($move, 'isInsideItself'))->toBeGreaterThan(strpos($move, '$parent = $eventParent;'))
-        ->and(strpos($move, 'isInsideItself'))->toBeLessThan(strpos($move, "'parent' => \$parent,"))
+        ->and(strpos($move, 'isInsideItself'))->toBeLessThan(strpos($move, '$document->parent = $parent;'))
         ->and(substr_count($controller, 'MoveDocumentTargetGuard::isInsideItself('))->toBe(2)
         ->and($controller)->not->toContain('allChildren(')->not->toContain('getParentIds(');
 });
