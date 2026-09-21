@@ -34,6 +34,7 @@ if (isset($_POST['listSubmitted'])) {
                 \EvolutionCMS\Models\SiteContent::where('id', $docid)->withTrashed()->update(['menuindex' => $key]);
             }
         }
+        evo()->clearCache('document');
     }
 }
 

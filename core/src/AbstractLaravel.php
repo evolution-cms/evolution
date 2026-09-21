@@ -368,6 +368,14 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
     public function registerConfiguredProviders()
     {
         $providers = Collection::make($this['config']->get('app.providers'))
+            ->filter(function ($provider) {
+                if (!is_string($provider) || class_exists($provider)) {
+                    return true;
+                }
+                // Stale custom/config/app/providers/*.php left behind by a removed package
+                error_log('[EvolutionCMS] Skipped missing service provider "' . $provider . '"');
+                return false;
+            })
             ->partition(function ($provider) {
                 return Str::startsWith($provider, 'Illuminate\\');
             });

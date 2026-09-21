@@ -21,7 +21,7 @@ class Phpinfo extends AbstractController implements ManagerTheme\PageControllerI
      */
     public function canView(): bool
     {
-        return $this->managerTheme->getCore()->hasPermission('logs');
+        return $this->managerTheme->getCore()->hasPermission('settings');
     }
 
     /**

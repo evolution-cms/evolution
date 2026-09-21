@@ -1,5 +1,6 @@
 <?php namespace EvolutionCMS\Legacy;
 
+use EvolutionCMS\Interfaces;
 use EvolutionCMS\Models;
 
 /**
@@ -111,30 +112,13 @@ class Cache
      */
     public function emptyCache($evo = null)
     {
-        if (!($evo instanceof Interfaces\CoreInterface)) {
-            $evo = $GLOBALS['evo'];
-        }
-        if (!isset($this->cachePath)) {
-            $evo->getService('ExceptionHandler')->messageQuit("Cache path not set.");
-        }
+        $evo = $this->resolveCore($evo);
         \Illuminate\Support\Facades\Cache::flush();
         Models\UserSetting::query()->whereIn('setting_name', ['password', 'password_confirmation', 'clearPassword'])->delete();
-        $files = glob(realpath($this->cachePath) . '/*.pageCache.php');
-        $filesincache = count($files);
-        $deletedfiles = [];
-        while ($file = array_shift($files)) {
-            $name = basename($file);
-            clearstatcache();
-            if (is_file($file)) {
-                if (unlink($file)) {
-                    $deletedfiles[] = $name;
-                }
-            }
-        }
-        $opcache_restrict_api = trim(ini_get('opcache.restrict_api'));
-        $opcache_restrict_api = $opcache_restrict_api && mb_stripos(__FILE__, $opcache_restrict_api) !== 0;
+        $filesincache = count(glob(realpath($this->cachePath) . '/*.pageCache.php') ?: []);
+        $deletedfiles = $this->clearPageCache();
 
-        if (!$opcache_restrict_api && function_exists('opcache_get_status')) {
+        if ($this->opcacheApiAllowed() && function_exists('opcache_get_status')) {
             $opcache = opcache_get_status();
             if (!empty($opcache['opcache_enabled'])) {
                 opcache_reset();
@@ -164,6 +148,83 @@ class Cache
     }
 
     /**
+     * Document save/publish/move: drops page caches and rebuilds the site cache
+     * without resetting opcache or touching compiled views.
+     * @param null|Interfaces\CoreInterface $evo
+     * @since 3.5.8
+     */
+    public function refreshDocumentCache($evo = null)
+    {
+        $evo = $this->resolveCore($evo);
+        \Illuminate\Support\Facades\Cache::flush();
+        $this->clearPageCache();
+        $this->buildCache($evo);
+        $this->publishTimeConfig();
+    }
+
+    /**
+     * @return string[] deleted file names
+     */
+    public function clearPageCache(): array
+    {
+        $deleted = [];
+        foreach (glob(realpath($this->cachePath) . '/*.pageCache.php') ?: [] as $file) {
+            clearstatcache(false, $file);
+            if (is_file($file) && @unlink($file)) {
+                $deleted[] = basename($file);
+            }
+        }
+
+        return $deleted;
+    }
+
+    /**
+     * @param mixed $evo
+     * @return Interfaces\CoreInterface
+     */
+    protected function resolveCore($evo)
+    {
+        if (!($evo instanceof Interfaces\CoreInterface)) {
+            $evo = $GLOBALS['evo'];
+        }
+        if (!isset($this->cachePath)) {
+            $evo->getService('ExceptionHandler')->messageQuit("Cache path not set.");
+        }
+
+        return $evo;
+    }
+
+    protected function opcacheApiAllowed(): bool
+    {
+        $restrict = trim((string) ini_get('opcache.restrict_api'));
+
+        return !($restrict && mb_stripos(__FILE__, $restrict) !== 0);
+    }
+
+    /**
+     * Writes through a temp file + rename so concurrent readers never include a partial file,
+     * then drops the stale opcache entry (needed with opcache.validate_timestamps=0).
+     */
+    protected function writeCacheFile(string $filename, string $content): bool
+    {
+        $tmp = $filename . '.' . uniqid('', true) . '.tmp';
+        if (@file_put_contents($tmp, $content) === false) {
+            return false;
+        }
+        if (!@rename($tmp, $filename)) {
+            @unlink($tmp);
+            if (@file_put_contents($filename, $content) === false) {
+                return false;
+            }
+        }
+        if ($this->opcacheApiAllowed() && function_exists('opcache_invalidate')) {
+            @opcache_invalidate($filename, true);
+        }
+
+        return true;
+    }
+
+    /**
      * @param string|int $cacheRefreshTime
      */
     public function publishTimeConfig($cacheRefreshTime = '')
@@ -179,15 +240,10 @@ class Cache
         $content .= '$recent_update=\'' . $this->request_time . '\';' . "\n";
         $content .= '$cacheRefreshTime=\'' . $cacheRefreshTime . '\';' . "\n";
 
-        $filename = evo()->getSitePublishingFilePath();
-        if (!$handle = fopen($filename, 'w')) {
-            exit("Cannot open file ({$filename}");
-        }
-
         $content .= "\n";
 
-        // Write $somecontent to our opened file.
-        if (fwrite($handle, $content) === false) {
+        $filename = evo()->getSitePublishingFilePath();
+        if (!$this->writeCacheFile($filename, $content)) {
             exit("Cannot write publishing info file! Make sure the {$filename} and its directory is writable!");
         }
     }
@@ -233,6 +289,27 @@ class Cache
      * @return boolean success
      */
     public function buildCache($evo)
+    {
+        // serialise concurrent rebuilds so the last writer always reflects the latest DB state
+        $lock = @fopen($evo->getSiteCacheFilePath() . '.lock', 'c');
+        if ($lock) {
+            flock($lock, LOCK_EX);
+        }
+        try {
+            return $this->writeSiteCache($evo);
+        } finally {
+            if ($lock) {
+                flock($lock, LOCK_UN);
+                fclose($lock);
+            }
+        }
+    }
+
+    /**
+     * @param Interfaces\CoreInterface $evo
+     * @return boolean success
+     */
+    protected function writeSiteCache($evo)
     {
         $content = "<?php\n";
 
@@ -301,9 +378,18 @@ class Cache
         if (!isset($config['disable_chunk_cache']) || $config['disable_chunk_cache'] != 1) {
             // WRITE Chunks to cache file
             $chunks = Models\SiteHtmlsnippet::all();
+            $chunkFiles = \EvolutionCMS\Support\ChunkFileStore::make();
             $content .= '$c=&$this->chunkCache;';
             foreach ($chunks->toArray() as $doc) {
-                $content .= '$c[\'' . $doc['name'] . '\']=\'' . ($doc['disabled'] ? '' : $this->escapeSingleQuotes($doc['snippet'])) . '\';';
+                // What the front end reads: getBaseChunk() never runs for a
+                // cached chunk, so files are resolved here or not at all.
+                //
+                // @deprecated since 3.5.8 the $doc['snippet'] half
+                // @todo [remove@3.7] Remove in Evolution CMS 3.7
+                $value = $doc['disabled']
+                    ? ''
+                    : (string) $chunkFiles->resolve((string) $doc['name'], $doc['snippet']);
+                $content .= '$c[\'' . $doc['name'] . '\']=\'' . $this->escapeSingleQuotes($value) . '\';';
             }
         }
 
@@ -383,7 +469,7 @@ class Cache
         // invoke OnBeforeCacheUpdate event
         $evo->invokeEvent('OnBeforeCacheUpdate');
 
-        if (@file_put_contents($filename, $content) === false) {
+        if (!$this->writeCacheFile($filename, $content)) {
             exit("Cannot write $filename! Make sure file or its directory is writable!");
         }
 

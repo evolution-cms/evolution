@@ -24,6 +24,32 @@ class EvoSessionProxy
 
 
     /**
+     * NO_SESSION (core/custom/define.php) disables the visitor session entirely: no store, no cookie.
+     * The manager always keeps its session.
+     */
+    public static function disabled(): bool
+    {
+        return defined('NO_SESSION') && NO_SESSION && !(defined('IN_MANAGER_MODE') && IN_MANAGER_MODE);
+    }
+
+    /**
+     * Drops the session middleware from a front-end group while sessions are disabled.
+     * @param string[] $middleware
+     * @return string[]
+     */
+    public static function filterMiddleware(array $middleware): array
+    {
+        if (!self::disabled()) {
+            return $middleware;
+        }
+
+        return array_values(array_filter($middleware, static fn ($m) => !in_array($m, [
+            \Illuminate\Session\Middleware\StartSession::class,
+            \EvolutionCMS\Middleware\SessionProxy::class,
+        ], true)));
+    }
+
+    /**
      * Early init - before Laravel middleware.
      * Ensure $_SESSION is an array (do NOT overwrite if already initialized).
      */
@@ -44,7 +70,8 @@ class EvoSessionProxy
      */
     public static function init(): void
     {
-        if (self::$initialized) {
+        if (self::$initialized || self::disabled()) {
+            self::earlyInit();
             return;
         }
 

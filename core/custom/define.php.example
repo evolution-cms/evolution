@@ -16,6 +16,7 @@
  *      - EVO_SITE_URL
  *      - EVO_MANAGER_URL
  *      - EVO_SANITIZE_SEED
- *      - NO_SESSION
+ *      - NO_SESSION      define('NO_SESSION', true): no visitor session and no session cookie on the
+ *                        front end (GDPR); the manager keeps its session
  *  - custom
  */

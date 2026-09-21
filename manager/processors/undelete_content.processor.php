@@ -60,7 +60,7 @@ EvolutionCMS()->invokeEvent("OnDocFormUnDelete",
 $_SESSION['itemname'] = $document->pagetitle;
 
 // empty cache
-EvolutionCMS()->clearCache('full');
+EvolutionCMS()->clearCache('document');
 
 // finished emptying cache - redirect
 $header = "Location: index.php?a=3&id=$pid&r=1" . $add_path;

@@ -205,6 +205,20 @@ class ManagerTheme implements ManagerThemeInterface
         }
     }
 
+    /**
+     * Re-read the lexicon for another language.
+     *
+     * The theme is built while the configuration still only holds the system settings,
+     * so the core calls this once the per-user manager_language has been merged in.
+     *
+     * @param string $lang
+     * @return string
+     */
+    public function reloadLang(string $lang): string
+    {
+        return $this->loadLang($lang);
+    }
+
     protected function loadLang($lang = 'english')
     {
         $_lang = [];

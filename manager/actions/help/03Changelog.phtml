@@ -9,6 +9,6 @@ if( ! defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true) {
 <?php
 	$changeLog = EVO_BASE_PATH . 'assets/docs/changelog.txt';
 	if(is_readable($changeLog))
-		echo str_replace("\n",'<br>',file_get_contents($changeLog));
+		echo nl2br(entities(file_get_contents($changeLog)));
 ?>
 </div>

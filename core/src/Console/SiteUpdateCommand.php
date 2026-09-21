@@ -2,6 +2,7 @@
 
 use EvolutionCMS\Models\Category;
 use EvolutionCMS\Models\SiteModule;
+use EvolutionCMS\Models\SiteModuleRole;
 use EvolutionCMS\Models\SystemSetting;
 use EvolutionCMS\Services\ComposerVersionSynchronizer;
 use EvolutionCMS\Services\Store\RemoteTransportService;
@@ -463,7 +464,7 @@ HELP;
             return;
         }
 
-        SiteModule::query()->create([
+        $created = SiteModule::query()->create([
             'name' => 'Extras',
             'description' => $description,
             'modulecode' => $moduleCode,
@@ -472,6 +473,9 @@ HELP;
             'enable_sharedparams' => (int) ($params['shareparams'] ?? 0),
             'category' => $categoryId,
         ]);
+
+        // a re-created Extras module keeps the shipped default: admins only
+        SiteModuleRole::applyDefaultsFor((int) $created->getKey(), 'Extras');
     }
 
     /**

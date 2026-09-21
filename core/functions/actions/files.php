@@ -813,7 +813,7 @@ if(!function_exists('checkToken')) {
             $token = false;
         }
 
-        if (isset($_SESSION['token']) && !empty($_SESSION['token']) && $_SESSION['token'] === $token) {
+        if (is_string($token) && isset($_SESSION['token']) && !empty($_SESSION['token']) && hash_equals($_SESSION['token'], $token)) {
             $rs = true;
         } else {
             $rs = false;
@@ -830,7 +830,7 @@ if(!function_exists('makeToken')) {
      */
     function makeToken()
     {
-        $newToken = uniqid('', true);
+        $newToken = bin2hex(random_bytes(16)); // uniqid() is clock-derived, not random
         $_SESSION['token'] = $newToken;
 
         return $newToken;
