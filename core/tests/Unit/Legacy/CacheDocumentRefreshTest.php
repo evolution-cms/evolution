@@ -107,6 +107,59 @@ test('moving a document keeps the closure table consistent and the rebuilt listi
         ->and($listing['b/c'])->toBe(3);
 });
 
+test('tree drag-and-drop: moving a subtree to another parent, to root and reordering keeps closure and listing in step', function () {
+    cacheRefreshDoc(['id' => 1, 'alias' => 'a', 'parent' => 0, 'isfolder' => 1]);
+    cacheRefreshDoc(['id' => 2, 'alias' => 'b', 'parent' => 0, 'isfolder' => 1]);
+    cacheRefreshDoc(['id' => 3, 'alias' => 'c', 'parent' => 1, 'isfolder' => 1]);
+    cacheRefreshDoc(['id' => 4, 'alias' => 'd', 'parent' => 3]);
+    cacheRefreshDoc(['id' => 5, 'alias' => 'e', 'parent' => 2]);
+    $ancestors = fn (int $id) => ClosureTable::query()->where('descendant', $id)->orderBy('depth')->pluck('ancestor')->all();
+
+    // what manager/media/style/default/ajax.php movedocument does: model save, then explicit sibling order
+    $move = function (int $id, int $parent, array $order) {
+        $doc = SiteContent::withTrashed()->find($id);
+        $doc->parent = $parent;
+        $doc->save();
+        foreach ($order as $key => $value) {
+            SiteContent::withTrashed()->where('id', $value)->update(['menuindex' => $key]);
+        }
+        $sync = new SyncCache();
+        $sync->setCachepath($this->dir);
+        $sync->refreshDocumentCache();
+    };
+
+    $move(3, 2, [3, 5]);
+    expect($ancestors(4))->toBe([4, 3, 2])
+        ->and($ancestors(3))->toBe([3, 2])
+        ->and(ClosureTable::query()->where('ancestor', 1)->count())->toBe(1);
+    $listing = cacheRefreshListing($this->dir . '/siteCache.idx.php');
+    expect($listing)->toHaveKey('b/c/d')->not->toHaveKey('a/c')
+        ->and(array_keys($listing))->toBe(['a', 'b', 'b/c', 'b/e', 'b/c/d']);
+
+    $move(3, 0, [1, 3, 2]);
+    expect($ancestors(4))->toBe([4, 3])
+        ->and($ancestors(3))->toBe([3]);
+    $listing = cacheRefreshListing($this->dir . '/siteCache.idx.php');
+    expect(array_keys($listing))->toBe(['a', 'c', 'b', 'b/e', 'c/d']);
+
+    $move(3, 1, [3]);
+    expect($ancestors(4))->toBe([4, 3, 1])
+        ->and(ClosureTable::query()->where('depth', '>', 0)->orderBy('descendant')->orderBy('depth')->get(['ancestor', 'descendant', 'depth'])->map(fn ($r) => "$r->ancestor>$r->descendant:$r->depth")->all())
+        ->toBe(['1>3:1', '3>4:1', '1>4:2', '2>5:1'])
+        ->and(cacheRefreshListing($this->dir . '/siteCache.idx.php'))->toHaveKey('a/c/d');
+});
+
+test('tree move and menuindex sort persist through the model and refresh the document cache', function () {
+    $root = dirname(__DIR__, 4);
+    $ajax = file_get_contents("$root/manager/media/style/default/ajax.php");
+    $move = substr($ajax, strpos($ajax, "case 'movedocument'"), strpos($ajax, "case 'getLockedElements'") - strpos($ajax, "case 'movedocument'"));
+
+    expect($move)->toContain('$document->parent = $parent;')->toContain('$document->save();')->toContain("clearCache('document')")
+        ->and($move)->not->toContain("update([
+                                'parent'")
+        ->and(file_get_contents("$root/manager/actions/mutate_menuindex_sort.dynamic.php"))->toContain("clearCache('document')");
+});
+
 test('site cache rebuild waits for a concurrent builder holding the lock', function () {
     cacheRefreshDoc(['id' => 1, 'alias' => 'a', 'parent' => 0]);
     $lockFile = $this->evo->getSiteCacheFilePath() . '.lock';
