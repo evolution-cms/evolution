@@ -34,17 +34,17 @@ class WebAccessPermissionsGroupIdsVisibilityTest extends TestCase
         $this->assertStringContainsString('{{ $documentGroup->name }} ({{ $documentGroup->getKey() }}) ({{ $documentGroup->pivot->context ? \'web\' : \'mgr\' }})', $template);
     }
 
-    public function test_ukrainian_and_russian_labels_use_entity_names(): void
+    public function test_ukrainian_and_slovak_labels_use_entity_names(): void
     {
         $uk = file_get_contents(__DIR__ . '/../../../../core/lang/uk/global.php');
-        $ru = file_get_contents(__DIR__ . '/../../../../core/lang/ru/global.php');
+        $sk = file_get_contents(__DIR__ . '/../../../../core/lang/sk/global.php');
 
         $this->assertNotFalse($uk, 'Failed to read the Ukrainian lexicon file.');
-        $this->assertNotFalse($ru, 'Failed to read the Russian lexicon file.');
+        $this->assertNotFalse($sk, 'Failed to read the Slovak lexicon file.');
 
         $this->assertStringContainsString('$_lang["access_permissions_users_in_group"] = \'Користувачі в групі:\';', $uk);
         $this->assertStringContainsString('$_lang["access_permissions_resources_in_group"] = \'<b>Ресурси в групі:</b> \';', $uk);
-        $this->assertStringContainsString('$_lang["access_permissions_users_in_group"] = \'Пользователи в группе:\';', $ru);
-        $this->assertStringContainsString('$_lang["access_permissions_resources_in_group"] = \'<b>Ресурсы в группе:</b> \';', $ru);
+        $this->assertStringContainsString('$_lang["access_permissions_users_in_group"] = \'Používatelia v skupine:\';', $sk);
+        $this->assertStringContainsString('$_lang["access_permissions_resources_in_group"] = \'<b>Zdroje v skupine:</b> \';', $sk);
     }
 }

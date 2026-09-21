@@ -37,6 +37,9 @@ $lang = array(
     "Please enter new folder name." => "Zadajte prosím nové meno adresára.",
     "Unallowable characters in folder name." => "Nepovolené znaky v názve adresára.",
     "Folder name shouldn't begins with '.'" => "Meno adresára nesmie začínať znakom '.'",
+    "Unable to create folder." => "Adresár sa nepodarilo vytvoriť.",
+    "Unable to rename folder." => "Adresár sa nepodarilo premenovať.",
+    "Unable to delete folder." => "Adresár sa nepodarilo vymazať.",
     "Please enter new file name." => "Vložte prosím nové meno súboru.",
     "Unallowable characters in file name." => "Nepovolené znaky v názve súboru.",
     "File name shouldn't begins with '.'" => "Názov súboru nesmie začínať znakom '.'",
@@ -122,6 +125,8 @@ $lang = array(
     "You cannot rename the extension of files!" => "Nemôžete premenovať príponu súborov",
     "Uploading file {number} of {count}... {progress}" => "Nahrávam súbor {number} z {count}... {progress}",
     "Failed to upload {filename}!" => "Nepodarilo sa nahrať súbor {filename}!",
+    "Server error" => "Chyba servera",
+    "Unable to process server response" => "Nepodarilo sa spracovať odpoveď servera"
 );
 
 ?>

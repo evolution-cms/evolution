@@ -36,7 +36,7 @@ test('niceEta decomposes long durations into days hours and minutes', function (
 
 test('niceEta translates unit abbreviations using the current locale', function () {
     expect(niceEtaWithLocale(813360, 'uk'))->toBe('9д 9г 56хв')
-        ->and(niceEtaWithLocale(813360, 'ru'))->toBe('9д 9ч 56мин');
+        ->and(niceEtaWithLocale(813360, 'sk'))->toBe('9d 9h 56min');
 });
 
 test('niceEta unit translations are synchronized across manager locales', function () {

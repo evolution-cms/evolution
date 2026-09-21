@@ -11,11 +11,11 @@ if ($id == 0) {
     EvolutionCMS()->webAlertAndQuit($_lang["error_no_id"]);
 }
 
-/*******ищем родителя чтобы к нему вернуться********/
+/******* find the parent to return to ********/
 $document = \EvolutionCMS\Models\SiteContent::withTrashed()->findOrFail($id);
 $pid = ($document->parent == 0 ? $id : $document->parent);
 
-/************ а заодно и путь возврата (сам путь внизу файла) **********/
+/************ and the return path (built at the bottom of the file) **********/
 $sd = isset($_REQUEST['dir']) ? '&dir=' . $_REQUEST['dir'] : '&dir=DESC';
 $sb = isset($_REQUEST['sort']) ? '&sort=' . $_REQUEST['sort'] : '&sort=createdon';
 $pg = isset($_REQUEST['page']) ? '&page=' . (int)$_REQUEST['page'] : '';

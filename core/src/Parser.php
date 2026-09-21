@@ -20,7 +20,7 @@ class Parser
     ];
 
     /**
-     * Объект Core - основной класс MODX
+     * Core object - the main Evolution CMS class
      * @var Core $modx
      * @access protected
      */
@@ -95,7 +95,7 @@ class Parser
     }
 
     /**
-     * Задает относительный путь к папке с шаблонами
+     * Sets the relative path to the templates folder
      *
      * @param string $path
      * @param bool $supRoot
@@ -135,7 +135,7 @@ class Parser
     }
 
     /**
-     * Задает расширение файла с шаблоном
+     * Sets the template file extension
      *
      * @param $ext
      * @return $this
@@ -180,12 +180,12 @@ class Parser
     }
 
     /**
-     * Сохранение данных в массив плейсхолдеров
+     * Stores data in the placeholders array
      *
-     * @param mixed $data данные
-     * @param int $set устанавливать ли глобальнй плейсхолдер MODX
-     * @param string $key ключ локального плейсхолдера
-     * @param string $prefix префикс для ключей массива
+     * @param mixed $data data
+     * @param int $set whether to set the global Evolution CMS placeholder as well
+     * @param string $key local placeholder key
+     * @param string $prefix prefix for the array keys
      * @return string
      */
     public function toPlaceholders ($data, $set = 0, $key = 'contentPlaceholder', $prefix = '')
@@ -347,19 +347,19 @@ class Parser
     }
 
     /**
-     * Рендер документа с подстановкой плейсхолдеров и выполнением сниппетов
+     * Renders a document, substituting placeholders and executing snippets
      *
-     * @param int $id ID документа
-     * @param bool $events Во время рендера документа стоит ли вызывать события OnLoadWebDocument и OnLoadDocumentObject (внутри метода getDocumentObject).
-     * @param mixed $tpl Шаблон с которым необходимо отрендерить документ. Возможные значения:
-     *                       null - Использовать шаблон который назначен документу
-     *                       int(0-n) - Получить шаблон из базы данных с указанным ID и применить его к документу
-     *                       string - Применить шаблон указанный в строке к документу
+     * @param int $id document ID
+     * @param bool $events whether to fire the OnLoadWebDocument and OnLoadDocumentObject events (inside getDocumentObject) while rendering
+     * @param mixed $tpl template to render the document with. Possible values:
+     *                       null - use the template assigned to the document
+     *                       int(0-n) - load the template with this ID from the database and apply it
+     *                       string - apply the template given in the string
      * @return string
      *
-     * Событие OnLoadWebDocument дополнительно передает параметры:
-     *       - с источиком от куда произошел вызов события
-     *       - оригинальный экземпляр класса Core
+     * The OnLoadWebDocument event additionally receives:
+     *       - the source the event was fired from
+     *       - the original Core instance
      */
     public function renderDoc ($id, $events = false, $tpl = null)
     {
@@ -368,7 +368,7 @@ class Parser
             return '';
         }
 
-        $m = clone $this->modx; //Чтобы была возможность вызывать события
+        $m = clone $this->modx; // so that events can be fired
         $m->documentIdentifier = $id;
         $m->documentObject = $m->getDocumentObject('id', (int)$id, $events ? 'prepareResponse' : null);
         if ($m->documentObject['type'] === 'reference') {
@@ -398,9 +398,9 @@ class Parser
     }
 
     /**
-     * Получить содержимое шаблона с определенным номером
-     * @param int $id Номер шаблона
-     * @return string HTML код шаблона
+     * Returns the content of the template with the given ID
+     * @param int $id template ID
+     * @return string template HTML
      */
     public function getTemplate ($id)
     {
@@ -515,13 +515,13 @@ class Parser
     }
 
     /**
-     * Переменовывание элементов массива
+     * Renames array keys
      *
-     * @param array $data массив с данными
-     * @param string $prefix префикс ключей
-     * @param string $suffix суффикс ключей
-     * @param string $sep разделитель суффиксов, префиксов и ключей массива
-     * @return array массив с переименованными ключами
+     * @param array $data source array
+     * @param string $prefix key prefix
+     * @param string $suffix key suffix
+     * @param string $sep separator between prefix, key and suffix
+     * @return array array with renamed keys
      */
     public function renameKeyArr ($data, $prefix = '', $suffix = '', $sep = '.')
     {

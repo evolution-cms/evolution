@@ -79,8 +79,8 @@ it('keeps SQL backup overhead translations unique and avoids stale mixed-languag
         ->not->toContain('неиспользуемое');
 
     $_lang = [];
-    include dirname(__DIR__, 3) . '/lang/ru/global.php';
+    include dirname(__DIR__, 3) . '/lang/sk/global.php';
 
     expect($_lang['database_overhead'])
-        ->not->toContain('перерасход');
+        ->toContain('nadbytočný priestor');
 });

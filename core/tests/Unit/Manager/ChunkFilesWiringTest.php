@@ -60,7 +60,7 @@ test('the manager never offers the database as a place to keep a chunk', functio
     expect($view)->not->toContain('name="chunksource"')
         ->and($view)->not->toContain('chunk_source');
 
-    foreach (['en', 'uk', 'ru'] as $lang) {
+    foreach (['en', 'uk', 'sk'] as $lang) {
         expect($root("core/lang/$lang/global.php"))->not->toContain('$_lang["chunk_source');
     }
 });
@@ -98,7 +98,7 @@ test('a name that cannot be a file is refused before the save, with a reason', f
         ->toContain("'chunk_name_collides'")
         ->and($root('core/lang/en/global.php'))->toContain('$_lang["chunk_name_collides"]')
         ->and($root('core/lang/uk/global.php'))->toContain('$_lang["chunk_name_collides"]')
-        ->and($root('core/lang/ru/global.php'))->toContain('$_lang["chunk_name_collides"]');
+        ->and($root('core/lang/sk/global.php'))->toContain('$_lang["chunk_name_collides"]');
 });
 
 test('a file is never left behind to be adopted by the next chunk', function () use ($root, $core) {

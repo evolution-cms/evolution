@@ -90,7 +90,7 @@ class TemplateProcessor
                 $namespace = trim($this->core->getConfig('ControllerNamespace') ?? '');
                 if (!empty($namespace)) {
                     $baseClassName = $namespace . 'BaseController';
-                    if (class_exists($baseClassName)) { //Проверяем есть ли Base класс
+                    if (class_exists($baseClassName)) { // check whether the Base class exists
                         $classArray = explode('.', $templateAlias);
                         $classArray = array_map(
                             function ($item) {
@@ -103,7 +103,7 @@ class TemplateProcessor
                         $className = $namespace . ucfirst($className) . 'Controller';
                         if (!class_exists(
                             $className
-                        )) { //Проверяем есть ли контроллер по алиасу, если нет, то помещаем Base
+                        )) { // check for a controller matching the alias, fall back to Base
                             $className = $baseClassName;
                         }
                         $controller = $this->core->make($className);

@@ -196,7 +196,7 @@ class MysqlDumper implements MysqlDumperInterface
 
 
                 while ($arr = $modx->getDatabase()->getRow($result)) {
-                    //формируем блок значений
+                    // build the values block
                     $insertdump = "(";
                     if (!is_array($arr)) $arr = [];
 
@@ -216,7 +216,7 @@ class MysqlDumper implements MysqlDumperInterface
                     }
                     $insertdump = rtrim($insertdump, ',') . ")";
 
-                    //если еще небыло значен
+                    // no values written yet
                     if($insertQuerySize === 0){
                         $output .= $lf."INSERT INTO `{$tblval}` VALUES";
                     }
@@ -226,12 +226,12 @@ class MysqlDumper implements MysqlDumperInterface
                     $output .= $lf."  ".$insertdump;
                     $insertQuerySize+=strlen($insertdump);
 
-                    //если записали больше 30 строк з запрос ставим ; и сбрасивыем счетчик
+                    // after 30 rows per statement terminate it with ; and reset the counter
                     if($insertQuerySize>47299){
                         $output .= ";".$lf;
                         $insertQuerySize = 0;
                     }
-                    //если большая строрки пишем в файл чтоб не перегрузить память
+                    // flush large chunks to the file to keep memory usage low
 
                     if (5040000 < strlen($output)) {
                         file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
@@ -239,12 +239,12 @@ class MysqlDumper implements MysqlDumperInterface
                     }
                 }
             }
-            //если данные есть, и записано больше 0 строк данных ставим ; в конце
+            // if any rows were written terminate the statement with ;
             if(!empty($output) && $insertQuerySize >0){
                 $output .= ";".$lf;
             }
 
-            //пишем блок в файл
+            // write the block to the file
             file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
             $output = '';
         }

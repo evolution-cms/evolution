@@ -12,7 +12,7 @@ final class TransAliasManagerLanguageTest extends TestCase
     {
         $transAlias = new \TransAlias();
 
-        self::assertSame('russian', $transAlias->resolveTableName('utf8lowercase', 'ru'));
+        self::assertSame('czech', $transAlias->resolveTableName('utf8lowercase', 'sk'));
         self::assertSame('russian', $transAlias->resolveTableName('utf8lowercase', 'uk'));
         self::assertSame('german', $transAlias->resolveTableName('utf8lowercase', 'de'));
         self::assertSame('dutch', $transAlias->resolveTableName('utf8lowercase', 'nl'));
@@ -20,7 +20,7 @@ final class TransAliasManagerLanguageTest extends TestCase
         self::assertSame('common', $transAlias->resolveTableName('utf8lowercase', 'en'));
         self::assertSame('common', $transAlias->resolveTableName('utf8lowercase', 'fr'));
         self::assertSame('utf8lowercase', $transAlias->resolveTableName('utf8lowercase', 'ja'));
-        self::assertSame('german', $transAlias->resolveTableName('german', 'ru'));
+        self::assertSame('german', $transAlias->resolveTableName('german', 'sk'));
     }
 
     public function testCorePassesManagerLanguageIntoStripAliasPluginEvent(): void
@@ -35,9 +35,9 @@ final class TransAliasManagerLanguageTest extends TestCase
     public function testAutomaticAliasMessageNoLongerMentionsLegacyTransAliasSetup(): void
     {
         $ukLanguage = (string) file_get_contents(dirname(__DIR__, 3) . '/core/lang/uk/global.php');
-        $ruLanguage = (string) file_get_contents(dirname(__DIR__, 3) . '/core/lang/ru/global.php');
+        $skLanguage = (string) file_get_contents(dirname(__DIR__, 3) . '/core/lang/sk/global.php');
 
         self::assertStringNotContainsString('налаштуйте TransAlias', $ukLanguage);
-        self::assertStringNotContainsString('настройте плагин TransAlias', $ruLanguage);
+        self::assertStringNotContainsString('nastavte plugin TransAlias', $skLanguage);
     }
 }

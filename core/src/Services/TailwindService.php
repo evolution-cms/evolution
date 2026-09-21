@@ -109,7 +109,7 @@ class TailwindService
         $unameOS   = strtolower(PHP_OS_FAMILY); // 'Windows', 'Linux', 'Darwin'
         $unameArch = php_uname('m'); // x86_64, aarch64, ...
 
-        /* ОS */
+        /* OS */
         $os = match (true) {
             str_contains($unameOS, 'windows') => 'windows',
             str_contains($unameOS, 'darwin')  => 'macos',

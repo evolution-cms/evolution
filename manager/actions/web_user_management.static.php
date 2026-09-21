@@ -106,7 +106,7 @@ if ($numRecords > 0) {
 
     $listDocs = [];
     foreach ($managerUsers as $k => $el) {
-        // дата блокировки
+        // blocked date
         $blocked_title = '';
         if ($el['blocked']) {
             if ($el['blockedafter']) {

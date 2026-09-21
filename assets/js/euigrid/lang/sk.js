@@ -1,0 +1,11 @@
+_euigLang = [];
+_euigLang['please_wait'] = 'Čakajte, prosím.';
+_euigLang['cancel'] = 'Zrušiť';
+_euigLang['close'] = 'Zavrieť';
+_euigLang['delete'] = 'Odstránenie';
+_euigLang['are_you_sure_to_delete'] = 'Naozaj chcete odstrániť súbor?';
+_euigLang['error'] = 'Chyba';
+_euigLang['delete_fail'] = 'Odstránenie zlyhalo.';
+_euigLang['are_you_sure_to_delete_many'] = 'Naozaj chcete odstrániť vybrané súbory?';
+_euigLang['server_error'] = 'Chyba servera: ';
+_euigLang['parse_error'] = 'Nepodarilo sa spracovať odpoveď servera';
