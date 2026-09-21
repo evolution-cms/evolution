@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.12.0] - 2026-09-04
+
+### Fixed
+- Report additional property errors at the property path ([#942](https://github.com/jsonrainbow/json-schema/pull/942))
+- Fix RFC 3339 date-time validation with high-precision fractional seconds ([#940](https://github.com/jsonrainbow/json-schema/pull/940))
+
+### Added
+- Define minimal permissions on every workflow ([#941](https://github.com/jsonrainbow/json-schema/pull/941))
+- feat: Add --allow-invalid-content-type-endpoint option to validate-json ([#932](https://github.com/jsonrainbow/json-schema/pull/932))
+
+
+### Changed
+- fix: Avoid restricted stargazers endpoint in Welcome workflow and avoid running for bot user types ([#946](https://github.com/jsonrainbow/json-schema/pull/946))
+- fix: Correct changelog and changelog updates ([#945](https://github.com/jsonrainbow/json-schema/pull/945))
+
+
+## [6.11.0] - 2026-08-21
+
+### Fixed
+- fix: Handle null byte when validating date/time formats ([#939](https://github.com/jsonrainbow/json-schema/pull/939))
+- fix: Correct php-cs-fixer setup ([#938](https://github.com/jsonrainbow/json-schema/pull/938))
+- fix: Ignore Content-Type header parameters when checking media type ([#934](https://github.com/jsonrainbow/json-schema/pull/934))
+- fix: Dont use mb_detect_encoding for mb_string function calls ([#924](https://github.com/jsonrainbow/json-schema/pull/924))
+- Add missing ext-filter dependency ([#922](https://github.com/jsonrainbow/json-schema/pull/922))
+
+### Changed
+- Update README with Draft 7 badge correction and include JetBrains logo ([#921](https://github.com/jsonrainbow/json-schema/pull/921))
+
+### Added
+- Update composer.json authors to reflect current active maintainer ([#928](https://github.com/jsonrainbow/json-schema/pull/928))
+
+
 ## [6.10.0] - 2026-06-16
 
 ### Added
