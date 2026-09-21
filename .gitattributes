@@ -5,6 +5,9 @@ ng.inx export-ignore
 README.md export-ignore
 LICENSE export-ignore
 
+# Store every text file with LF; the working tree matches on every platform.
+* text=auto eol=lf
+
 # Windows batch scripts must keep CRLF; cmd.exe can misparse LF-only files.
 *.bat text eol=crlf
 *.cmd text eol=crlf
