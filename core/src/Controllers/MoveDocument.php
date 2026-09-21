@@ -55,6 +55,9 @@ class MoveDocument extends AbstractController implements ManagerTheme\PageContro
 
         $document = $this->getDocument($documentID);
 
+        // the form (a=51) checks the source document; the action must too, or the check is bypassable
+        $this->checkDocumentPermission($document->getKey(), 'access_permission_denied');
+
         if (MoveDocumentTargetGuard::isInsideItself($document->getKey(), $newParentID)) {
             $this->managerTheme->alertAndQuit('error_movedocument1');
         }
@@ -109,7 +112,7 @@ class MoveDocument extends AbstractController implements ManagerTheme\PageContro
         ]);
 
         // empty cache & sync site
-        $this->managerTheme->getCore()->clearCache('full');
+        $this->managerTheme->getCore()->clearCache('document');
 
         header('Location: index.php?a=3&id=' . $document->getKey() . '&r=9');
     }
@@ -119,15 +122,7 @@ class MoveDocument extends AbstractController implements ManagerTheme\PageContro
         $id = $this->getElementId();
         $document = $this->getDocument($id);
 
-        // check permissions on the document
-        $udperms = new Permissions();
-        $udperms->user     = $this->managerTheme->getCore()->getLoginUserID('mgr');
-        $udperms->document = $document->getKey();
-        $udperms->role     = $_SESSION['mgrRole'];
-
-        if (!$udperms->checkPermissions()) {
-            $this->managerTheme->alertAndQuit('access_permission_denied');
-        }
+        $this->checkDocumentPermission($document->getKey(), 'access_permission_denied');
 
         // Set the item name for logger
         $_SESSION['itemname'] = $document->pagetitle;
@@ -157,6 +152,16 @@ class MoveDocument extends AbstractController implements ManagerTheme\PageContro
 
     protected function checkNewParentPermission($id)
     {
+        $this->checkDocumentPermission($id, 'access_permission_parent_denied');
+    }
+
+    /**
+     * @param int $id
+     * @param string $lang lexicon key of the alert shown when access is denied
+     * @since 3.5.8
+     */
+    protected function checkDocumentPermission($id, string $lang): void
+    {
         $udperms           = new Permissions;
         $udperms->user     = $this->managerTheme->getCore()->getLoginUserID('mgr');
         $udperms->document = $id;
@@ -166,6 +171,6 @@ class MoveDocument extends AbstractController implements ManagerTheme\PageContro
             return;
         }
 
-        $this->managerTheme->alertAndQuit('access_permission_parent_denied');
+        $this->managerTheme->alertAndQuit($lang);
     }
 }

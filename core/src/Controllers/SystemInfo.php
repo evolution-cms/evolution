@@ -27,7 +27,7 @@ class SystemInfo extends AbstractController implements ManagerTheme\PageControll
 
     public function canView(): bool
     {
-        return $this->managerTheme->getCore()->hasPermission('logs');
+        return $this->managerTheme->getCore()->hasPermission('settings');
     }
 
     public function getParameters(array $params = []): array

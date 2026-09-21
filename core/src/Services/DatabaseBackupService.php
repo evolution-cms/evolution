@@ -6,6 +6,14 @@ use Symfony\Component\Process\Process;
 
 class DatabaseBackupService
 {
+    /**
+     * Apache deny rule for the directories dumps land in. `Order deny,allow` on its own is 2.2
+     * syntax: on 2.4 without mod_access_compat it is a 500, which leaves the directory served
+     * rather than denied, so both forms are written and each is guarded by its module.
+     */
+    public const DENY_HTACCESS = "<IfModule mod_authz_core.c>\n    Require all denied\n</IfModule>\n"
+        . "<IfModule !mod_authz_core.c>\n    Order deny,allow\n    Deny from all\n</IfModule>\n";
+
     protected string $basePath;
 
     public function __construct(?string $basePath = null)
@@ -87,7 +95,7 @@ class DatabaseBackupService
 
         $htaccess = $path . '/.htaccess';
         if (!is_file($htaccess)) {
-            file_put_contents($htaccess, "order deny,allow\ndeny from all\n");
+            file_put_contents($htaccess, self::DENY_HTACCESS);
         }
 
         if (!is_writable($path)) {
@@ -164,17 +172,13 @@ class DatabaseBackupService
 
     protected function createPostgresSnapshot($database, $filePath)
     {
-        $config = evo()->getDatabase()->getConfig();
-        $password = isset($config['password']) ? (string) $config['password'] : '';
+        $config = $this->databaseConfig();
         $host = isset($config['host']) ? (string) $config['host'] : '';
-        $username = isset($config['username']) ? (string) $config['username'] : '';
         $tempFilePath = $this->buildTempSnapshotFilePath((string) $filePath);
 
         file_put_contents($tempFilePath, $this->buildSqlHeader('--', (string) $database, $host));
 
-        $handle = fopen($tempFilePath, 'ab');
-
-        if ($handle === false) {
+        if (!$this->runPostgresDump(['--clean', '--inserts', '--no-owner', '--no-privileges'], $tempFilePath)) {
             if (is_file($tempFilePath)) {
                 unlink($tempFilePath);
             }
@@ -182,28 +186,102 @@ class DatabaseBackupService
             return false;
         }
 
-        // No shell is involved here, and that is the point. The previous form
-        // was `PGPASSWORD=… pg_dump … >> file`, and a leading VAR=value
-        // assignment is POSIX shell syntax that cmd.exe rejects outright with
-        // "'PGPASSWORD' is not recognized", so this backup could never succeed
-        // on Windows. Passing the password as an environment entry and the
-        // arguments as a list works the same way on every platform, and has
-        // the side benefit that nothing has to be quoted for a shell.
-        $process = new Process(
-            [
-                'pg_dump',
-                '--host', $host,
-                '--username', $username,
-                '--dbname', (string) $database,
-                '--clean',
-                '--inserts',
-                '--no-owner',
-                '--no-privileges',
-            ],
-            null,
-            ['PGPASSWORD' => $password]
-        );
-        $process->setTimeout(null);
+        if (is_file((string) $filePath)) {
+            unlink((string) $filePath);
+        }
+
+        return rename($tempFilePath, (string) $filePath);
+    }
+
+    /**
+     * Dumps the given tables to a file under the snapshot directory and returns its path, or null
+     * when the dump failed. The caller owns the file from there on.
+     *
+     * @since 3.5.8
+     * @param array $tables
+     * @param bool $dropTables
+     * @return string|null
+     */
+    public function dumpPostgresTables(array $tables, $dropTables = true)
+    {
+        $config = $this->databaseConfig();
+        $database = isset($config['database']) ? (string) $config['database'] : '';
+        $host = isset($config['host']) ? (string) $config['host'] : '';
+        $snapshotPath = $this->resolveSnapshotPath();
+
+        $this->prepareSnapshotPath($snapshotPath);
+
+        // Under the snapshot directory rather than the old assets/backup/temp.php: that path sat
+        // in the web root with nothing denying it, so a full dump was readable by anyone who
+        // guessed the name. Here the directory carries a deny rule and the name is not guessable.
+        $tempFilePath = $this->buildTempSnapshotFilePath($snapshotPath . 'download.sql');
+
+        file_put_contents($tempFilePath, $this->buildSqlHeader('--', $database, $host));
+
+        $arguments = ['--inserts', '--no-owner', '--no-privileges'];
+
+        if ($dropTables) {
+            $arguments[] = '--clean';
+        }
+
+        foreach ($tables as $table) {
+            $arguments[] = '--table';
+            $arguments[] = (string) $table;
+        }
+
+        if (!$this->runPostgresDump($arguments, $tempFilePath)) {
+            if (is_file($tempFilePath)) {
+                unlink($tempFilePath);
+            }
+
+            return null;
+        }
+
+        return $tempFilePath;
+    }
+
+    /**
+     * Replays a SQL file into the database.
+     *
+     * @since 3.5.8
+     * @param string $path
+     * @return bool
+     */
+    public function restorePostgresFile($path)
+    {
+        $path = (string) $path;
+
+        if (!is_file($path)) {
+            return false;
+        }
+
+        $process = $this->buildPostgresProcess('psql', ['--file', $path]);
+
+        try {
+            $process->run();
+        } catch (\Throwable $exception) {
+            return false;
+        }
+
+        return $process->isSuccessful();
+    }
+
+    /**
+     * Streams a pg_dump run onto the end of the given file.
+     *
+     * @param array $arguments
+     * @param string $tempFilePath
+     * @return bool
+     */
+    protected function runPostgresDump(array $arguments, $tempFilePath)
+    {
+        $handle = fopen($tempFilePath, 'ab');
+
+        if ($handle === false) {
+            return false;
+        }
+
+        $process = $this->buildPostgresProcess('pg_dump', $arguments);
 
         try {
             // Streamed rather than buffered: a dump is as large as the
@@ -218,29 +296,65 @@ class DatabaseBackupService
         } catch (\Throwable $exception) {
             fclose($handle);
 
-            if (is_file($tempFilePath)) {
-                unlink($tempFilePath);
-            }
-
             return false;
         }
 
         fclose($handle);
         clearstatcache(true, $tempFilePath);
 
-        if (!$process->isSuccessful() || !is_file($tempFilePath) || filesize($tempFilePath) <= 0) {
-            if (is_file($tempFilePath)) {
-                unlink($tempFilePath);
-            }
+        return $process->isSuccessful() && is_file($tempFilePath) && filesize($tempFilePath) > 0;
+    }
 
-            return false;
-        }
+    /**
+     * Builds a PostgreSQL client invocation.
+     *
+     * No shell is involved here, and that is the point. The previous form was
+     * `PGPASSWORD=... pg_dump ... >> file`, and a leading VAR=value assignment
+     * is POSIX shell syntax that cmd.exe rejects outright with "'PGPASSWORD'
+     * is not recognized", so this backup could never succeed on Windows.
+     * Passing the password as an environment entry and the arguments as a list
+     * works the same way on every platform, keeps the password out of the
+     * process list, and has the side benefit that nothing has to be quoted for
+     * a shell - an argument holding a semicolon stays one argument.
+     *
+     * @param string $binary
+     * @param array $arguments
+     * @return Process
+     */
+    /**
+     * The connection settings the pg client is invoked with.
+     *
+     * @return array
+     */
+    protected function databaseConfig()
+    {
+        return (array) evo()->getDatabase()->getConfig();
+    }
 
-        if (is_file((string) $filePath)) {
-            unlink((string) $filePath);
-        }
+    protected function buildPostgresProcess($binary, array $arguments)
+    {
+        $config = $this->databaseConfig();
+        $password = isset($config['password']) ? (string) $config['password'] : '';
+        $host = isset($config['host']) ? (string) $config['host'] : '';
+        $username = isset($config['username']) ? (string) $config['username'] : '';
+        $database = isset($config['database']) ? (string) $config['database'] : '';
 
-        return rename($tempFilePath, (string) $filePath);
+        $process = new Process(
+            array_merge(
+                [
+                    (string) $binary,
+                    '--host', $host,
+                    '--username', $username,
+                    '--dbname', $database,
+                ],
+                array_values($arguments)
+            ),
+            null,
+            ['PGPASSWORD' => $password]
+        );
+        $process->setTimeout(null);
+
+        return $process;
     }
 
     protected function buildTempSnapshotFilePath($filePath)

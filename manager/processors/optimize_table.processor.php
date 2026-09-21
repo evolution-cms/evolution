@@ -6,28 +6,32 @@ if(!(EvolutionCMS()->hasPermission('settings') && (EvolutionCMS()->hasPermission
 	EvolutionCMS()->webAlertAndQuit($_lang["error_no_privileges"]);
 }
 
+$db = EvolutionCMS()->getDatabase();
+
 if (isset($_REQUEST['t'])) {
 
-	if (empty($_REQUEST['t'])) {
+	// The name goes into raw SQL, so it has to be a bare prefixed identifier.
+	if (!$db->isValidTableName($_REQUEST['t'])) {
 		EvolutionCMS()->webAlertAndQuit($_lang["error_no_optimise_tablename"]);
 	}
 
 	// Set the item name for logger
 	$_SESSION['itemname'] = $_REQUEST['t'];
 
-    if(EvolutionCMS()->getDatabase()->getConfig('driver') != 'pgsql'){
-	    EvolutionCMS()->getDatabase()->optimize($_REQUEST['t']);
-    }
+	if ($db->getConfig('driver') != 'pgsql') {
+		$db->optimize($_REQUEST['t']);
+	}
 
 } elseif (isset($_REQUEST['u'])) {
 
-	if (empty($_REQUEST['u'])) {
+	if (!$db->isValidTableName($_REQUEST['u'])) {
 		EvolutionCMS()->webAlertAndQuit($_lang["error_no_truncate_tablename"]);
 	}
 
 	// Set the item name for logger
 	$_SESSION['itemname'] = $_REQUEST['u'];
-    \DB::table(\DB::raw($_REQUEST['u']))->truncate();
+	// Raw so the builder does not prefix an already prefixed name; safe now that it is a validated identifier.
+	\DB::table(\DB::raw($_REQUEST['u']))->truncate();
 
 } else {
 	EvolutionCMS()->webAlertAndQuit($_lang["error_no_optimise_tablename"]);

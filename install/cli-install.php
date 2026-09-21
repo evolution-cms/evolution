@@ -21,14 +21,22 @@ require_once EVO_BASE_PATH . 'install/src/functions.php';
  * Use --skipComposer=y to keep the already installed dependencies untouched.
  **/
 
-function runCliInstall(array $argv): void
+function runCliInstall(array $argv): int
 {
-    $install = new InstallEvo($argv);
-    $install->start();
+    try {
+        $install = new InstallEvo($argv);
+        $install->start();
+    } catch (RuntimeException $exception) {
+        error($exception->getMessage());
+
+        return 1;
+    }
+
+    return 0;
 }
 
 if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) {
-    runCliInstall($argv);
+    exit(runCliInstall($argv));
 }
 
 class InstallEvo
@@ -544,25 +552,18 @@ class InstallEvo
         $configString = file_get_contents(__DIR__ . '/stubs/files/config/database/connections/default.tpl');
         $configString = parse($configString, $confph);
 
-        $filename = EVO_CORE_PATH . 'config/database/connections/default.php';
-        $configFileFailed = false;
-
-        if (file_exists($filename)) {
-            @chmod($filename, 0777);
+        $filename = $this->configFilePath();
+        if (!writeInstallConfigFile($filename, $configString)) {
+            throw new RuntimeException(
+                "Unable to write the database configuration file: {$filename}. "
+                . 'Check the file and directory permissions, then run the installer again.'
+            );
         }
+    }
 
-        if (!$handle = fopen($filename, 'w')) {
-            $configFileFailed = true;
-        }
-        // write $somecontent to our opened file.
-        if (@ fwrite($handle, $configString) === false) {
-            $configFileFailed = true;
-        }
-        @ fclose($handle);
-
-        // try to chmod the config file go-rwx (for suexeced php)
-        @chmod($filename, 0404);
-
+    protected function configFilePath(): string
+    {
+        return EVO_CORE_PATH . 'config/database/connections/default.php';
     }
 
     public function migrationAndSeed()
@@ -864,7 +865,9 @@ class InstallEvo
                         \EvolutionCMS\Models\SiteModule::query()->where('name', $name)->update(['modulecode' => $module, 'description' => $desc, 'properties' => $props, 'enable_sharedparams' => $shared]);
                     } else {
                         $props = parseProperties($properties, true);
-                        \EvolutionCMS\Models\SiteModule::query()->create(['name' => $name, 'guid' => $guid, 'category' => $category, 'modulecode' => $module, 'description' => $desc, 'properties' => $props, 'enable_sharedparams' => $shared]);
+                        $newModule = \EvolutionCMS\Models\SiteModule::query()->create(['name' => $name, 'guid' => $guid, 'category' => $category, 'modulecode' => $module, 'description' => $desc, 'properties' => $props, 'enable_sharedparams' => $shared]);
+                        // bundled modules ship with a default role restriction
+                        \EvolutionCMS\Models\SiteModuleRole::applyDefaultsFor((int)$newModule->getKey(), $name);
                     }
                 }
             }

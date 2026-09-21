@@ -27,6 +27,7 @@ class RemovePackageRequireCommand extends InstallPackageRequireCommand
         foreach (array_keys($this->composerArray['require']) as $requireKey) {
             if ($this->matchesRequirementKey((string) $requireKey, $target)) {
                 unset($this->composerArray['require'][$requireKey]);
+                $this->affectedPackages[] = (string) $requireKey;
                 $this->info('Removed package requirement: ' . $requireKey);
                 return true;
             }

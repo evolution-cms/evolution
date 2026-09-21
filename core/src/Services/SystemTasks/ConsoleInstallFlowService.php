@@ -7,6 +7,8 @@ use Symfony\Component\Process\Process;
 
 class ConsoleInstallFlowService implements SystemTaskHandlerInterface
 {
+    use ReportsProcessFailure;
+
     protected CatalogService $catalogService;
 
     public function __construct(?CatalogService $catalogService = null)
@@ -33,6 +35,7 @@ class ConsoleInstallFlowService implements SystemTaskHandlerInterface
                 'key' => $composerName,
                 'value' => $composerVersion,
                 'composer_run' => 1,
+                '--no-dev' => !$this->vendorHasDevPackages(),
             ],
             'install_require',
             30,
@@ -107,13 +110,32 @@ class ConsoleInstallFlowService implements SystemTaskHandlerInterface
         }
 
         if ((int) $exitCode !== 0) {
-            $reason = $this->summarizeOutput($output);
+            $this->reportProcessFailure($report, $step, $progress, $command, $exitCode, $output);
+
+            $reason = $this->summarizeOutput($output, true);
             if ($reason !== '') {
                 throw new \RuntimeException($command . ' failed with exit code ' . (int) $exitCode . '. ' . $reason);
             }
 
             throw new \RuntimeException($command . ' failed with exit code ' . (int) $exitCode . '.');
         }
+    }
+
+    /**
+     * Does vendor/ carry require-dev packages? Mirrors that state into the
+     * composer run so an install neither strips a dev checkout nor pulls the
+     * dev tree into a --no-dev production build.
+     */
+    protected function vendorHasDevPackages(): bool
+    {
+        $installed = EVO_CORE_PATH . 'vendor/composer/installed.json';
+        if (!file_exists($installed)) {
+            return true;
+        }
+
+        $data = json_decode((string) file_get_contents($installed), true);
+
+        return !is_array($data) || !array_key_exists('dev', $data) || (bool) $data['dev'];
     }
 
     protected function buildArtisanProcessArguments($command, array $arguments)
@@ -276,7 +298,7 @@ class ConsoleInstallFlowService implements SystemTaskHandlerInterface
         return true;
     }
 
-    protected function summarizeOutput($output)
+    protected function summarizeOutput($output, bool $fromEnd = false)
     {
         $lines = preg_split('/\r\n|\r|\n/', trim((string) $output));
         $lines = array_values(array_filter(array_map(function ($line) {
@@ -303,7 +325,7 @@ class ConsoleInstallFlowService implements SystemTaskHandlerInterface
             return true;
         }));
 
-        $output = implode(' ', array_slice($lines, 0, 3));
+        $output = implode(' ', $this->pickSummaryLines($lines, $fromEnd, $fromEnd ? 5 : 3));
         if ($output === '') {
             return '';
         }

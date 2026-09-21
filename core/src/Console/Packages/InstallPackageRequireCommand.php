@@ -29,6 +29,12 @@ class InstallPackageRequireCommand extends Command
     protected $composer = EVO_CORE_PATH . 'custom/composer.json';
 
     /**
+     * Packages touched by updateArray(); scopes the composer update to them.
+     * @var array<int,string>
+     */
+    protected $affectedPackages = [];
+
+    /**
      * @var array
      */
     public $composerArray = [
@@ -76,6 +82,7 @@ class InstallPackageRequireCommand extends Command
     public function updateArray()
     {
         $this->composerArray['require'][$this->argument('key')] = $this->argument('value');
+        $this->affectedPackages[] = (string) $this->argument('key');
     }
 
     public function putComposer()
@@ -95,14 +102,7 @@ class InstallPackageRequireCommand extends Command
     public function runComposer()
     {
         putenv('COMPOSER_HOME=' . EVO_CORE_PATH . 'composer');
-        $arguments = ['command' => 'update'];
-        if ($this->hasCommandOption('no-dev') && $this->option('no-dev')) {
-            $arguments['--no-dev'] = true;
-        }
-        if ($this->hasCommandOption('optimize-autoloader') && $this->option('optimize-autoloader')) {
-            $arguments['--optimize-autoloader'] = true;
-        }
-        $input = new ArrayInput($arguments);
+        $input = new ArrayInput($this->buildComposerArguments());
         $application = new Application();
         $application->setAutoExit(false);
         $originalCwd = function_exists('getcwd') ? getcwd() : false;
@@ -119,6 +119,35 @@ class InstallPackageRequireCommand extends Command
             }
         }
 
+    }
+
+    /**
+     * Build the composer update arguments.
+     *
+     * The update is limited to the changed packages and their dependencies,
+     * like `composer require`/`remove` do. A bare `update` would also bump every
+     * core dependency, including composer/composer running this very process.
+     *
+     * @return array<string,mixed>
+     */
+    public function buildComposerArguments(): array
+    {
+        $arguments = ['command' => 'update'];
+
+        $packages = array_values(array_unique(array_filter(array_map('trim', $this->affectedPackages))));
+        if ($packages !== []) {
+            $arguments['packages'] = $packages;
+            $arguments['--with-dependencies'] = true;
+        }
+
+        if ($this->hasCommandOption('no-dev') && $this->option('no-dev')) {
+            $arguments['--no-dev'] = true;
+        }
+        if ($this->hasCommandOption('optimize-autoloader') && $this->option('optimize-autoloader')) {
+            $arguments['--optimize-autoloader'] = true;
+        }
+
+        return $arguments;
     }
 
     protected function hasCommandOption(string $name): bool

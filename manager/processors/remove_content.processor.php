@@ -30,7 +30,7 @@ EvolutionCMS()->invokeEvent("OnBeforeEmptyTrash",
 						]);
 
 	// empty cache
-	EvolutionCMS()->clearCache('full');
+	EvolutionCMS()->clearCache('document');
 
 	// finished emptying cache - redirect
 	$header="Location: index.php?a=2&r=1";
