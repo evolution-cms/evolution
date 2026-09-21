@@ -3072,10 +3072,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
     public function setRouterMiddleware()
     {
-        $middleware = array_merge(
+        $middleware = \EvoSessionProxy::filterMiddleware(array_merge(
             config('app.middleware.global', []),
             config('middleware.global', [])
-        );
+        ));
 
         $priority = config('middleware.priority');
 
