@@ -51,7 +51,14 @@ select[name=context] + input[type=submit] { float: none; margin: 0; }
 #actions .btn-group .btn-group #Button1 { min-width: 100%; text-align: left; float: right; }
 #actions .btn-group .btn-success { box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .07); }
 #actions .btn-group .btn-success:hover { box-shadow: none }
-#actions .btn-group .plus { z-index: 2; float: right; margin: -2.4em 0 0 0; width: 2rem; padding-left: 0; padding-right: 0; text-align: center; cursor: default; }
+/* the in-place save: the join box between "Save" and the stay option shows +, a spinner, then a check mark, at one width */
+#actions .btn-group #Button1 .save-join { display: inline-block; position: relative; width: 1.4em; margin: 0 .25em; text-align: center }
+#actions .btn-group #Button1.saving { pointer-events: none; opacity: .75 }
+#actions .btn-group #Button1.saving .save-join, #actions .btn-group #Button1.saved .save-join { color: transparent }
+#actions .btn-group #Button1.saving .save-join::before { content: ''; position: absolute; left: 50%; top: 50%; width: .8em; height: .8em; margin: -.45em 0 0 -.45em; border: 2px solid rgba(255, 255, 255, .45); border-top-color: #fff; border-radius: 50%; animation: evo-save-spin .7s linear infinite }
+#actions .btn-group #Button1.saved .save-join::before { content: '\2713'; position: absolute; left: 0; right: 0; top: 0; color: #fff }
+@keyframes evo-save-spin { to { transform: rotate(360deg) } }
+#actions .btn-group .plus { z-index: 2; float: right; margin: -2.4em 0 0 0; width: 2rem; padding-left: 0; padding-right: 0; text-align: center; cursor: pointer; }
 #actions .btn-group .plus::before { content: "\f107"; font-weight: 900; font-family: 'Font Awesome 5 Free' }
 #actions .btn-group .show .plus::before { content: "\f106"; }
 #actions .btn-group select#stay { display: block; position: relative; z-index: -1; clear: both; width: auto; height: 0; margin: -100% 0 -2rem 0; font-size: 0.675rem; opacity: 0; visibility: hidden; }
@@ -70,6 +77,11 @@ select[name=context] + input[type=submit] { float: none; margin: 0; }
     #actions .btn-group .btn span, #actions .btn-group select#stay, #_actions .btn-group .btn span { display: none }
 
     #actions .btn-group .btn .fa, #_actions .btn-group .btn .fa { display: inline-block }
+    /* icons only: the plus icon takes the spinner and the check mark, the join box goes */
+    #actions .btn-group #Button1 .save-join { display: none }
+    #actions .btn-group #Button1 .fa-plus { position: relative; margin: 0 3px }
+    #actions .btn-group #Button1.saving .fa-plus::before { content: ''; position: absolute; left: 50%; top: 50%; width: .8em; height: .8em; margin: -.45em 0 0 -.45em; border: 2px solid rgba(255, 255, 255, .45); border-top-color: #fff; border-radius: 50%; animation: evo-save-spin .7s linear infinite }
+    #actions .btn-group #Button1.saved .fa-plus::before { content: '\2713'; font-family: inherit; font-weight: normal }
 
     #actions .btn-group .dropdown-menu { width: 2rem }
     #actions .btn-group .dropdown-menu span { padding-left: 0; padding-right: 0; text-align: center }
@@ -84,7 +96,7 @@ select[name=context] + input[type=submit] { float: none; margin: 0; }
 #actions .actionButtons li a, #actions .actionButtons .plus { float: left; padding: 0 10px !important; height: 32px; line-height: 30px; -webkit-user-select: none; user-select: none; }
 #actions .actionButtons li:last-child { margin: 0 }
 #actions .actionButtons #Button1 a { width: 100%; text-align: left; }
-#actions .actionButtons .plus { overflow: hidden; float: right; margin: -32px 0 0 0; width: 35px; border-radius: 0 3px 3px 0 !important; text-align: center; cursor: default; font: normal normal normal 0/30px 'Font Awesome 5 Free' }
+#actions .actionButtons .plus { overflow: hidden; float: right; margin: -32px 0 0 0; width: 35px; border-radius: 0 3px 3px 0 !important; text-align: center; cursor: pointer; font: normal normal normal 0/30px 'Font Awesome 5 Free' }
 #actions .actionButtons .plus::before { content: "\f107"; font-size: 14px }
 #actions .actionButtons .show .plus::before { content: "\f106"; }
 #actions .actionButtons .dropdown-menu { display: none; position: absolute; z-index: -1; left: auto; right: 0; top: 100%; width: 100%; min-width: 35px; margin: -2px 0 0; padding: 2px 0 0; text-align: left; font-size: 1em; background-color: #fff; border: 1px solid #32ab9a; border-top: none; border-radius: 0 0 3px 3px; overflow: hidden; }

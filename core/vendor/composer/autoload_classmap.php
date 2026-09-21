@@ -1408,6 +1408,7 @@ return array(
     'EvolutionCMS\\Support\\DocumentPrivacy' => $baseDir . '/src/Support/DocumentPrivacy.php',
     'EvolutionCMS\\Support\\DocumentSave\\DocumentGroupSync' => $baseDir . '/src/Support/DocumentSave/DocumentGroupSync.php',
     'EvolutionCMS\\Support\\DocumentSave\\PublishState' => $baseDir . '/src/Support/DocumentSave/PublishState.php',
+    'EvolutionCMS\\Support\\DocumentSave\\SaveResponse' => $baseDir . '/src/Support/DocumentSave/SaveResponse.php',
     'EvolutionCMS\\Support\\DocumentSave\\TemplateVariableInput' => $baseDir . '/src/Support/DocumentSave/TemplateVariableInput.php',
     'EvolutionCMS\\Support\\DocumentSave\\TemplateVariableValues' => $baseDir . '/src/Support/DocumentSave/TemplateVariableValues.php',
     'EvolutionCMS\\Support\\FileManagerAccess' => $baseDir . '/src/Support/FileManagerAccess.php',

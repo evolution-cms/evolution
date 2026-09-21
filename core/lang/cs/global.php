@@ -725,6 +725,7 @@ $_lang["resource_overview"] = 'Přehled dokumentu';
 $_lang["resource_parent"] = 'Umístění dokumentu';
 $_lang["resource_parent_help"] = 'Klikněte v adresářovém stromě na ikonku složky pro jeho otevření (zavření), a potom na dokument v stromu, který chcete nastavit jako umístění dokumentu.';
 $_lang["resource_permissions_error"] = 'Přiřaďte tento dokument alespoň do jedné skupiny dokumentů, kterou můžete používat.';
+$_lang["resource_save_unconfirmed"] = 'Uložení se nepodařilo potvrdit. Editor se znovu načte a zobrazí uložený stav.';
 $_lang["resource_setting"] = 'Nastavení dokumentu';
 $_lang["resource_summary"] = 'Souhrn (introtext)';
 $_lang["resource_summary_help"] = 'Model stručného souhrnu dokumentu';

@@ -769,6 +769,7 @@ $_lang["resource_overview"] = 'Vista general del documento';
 $_lang["resource_parent"] = 'Padre del documento';
 $_lang["resource_parent_help"] = 'Haz clic en el icono de arriba para habilitar (o deshabilitar) seleccionar el padre de este documento. Luego, haz clic en un documento del árbol para seleccionar su nuevo padre.';
 $_lang["resource_permissions_error"] = 'Asigna este Documento a por lo menos un Grupo de Documentos al que puedas acceder.';
+$_lang["resource_save_unconfirmed"] = 'No se pudo confirmar el guardado. El editor se recargará para mostrar el estado almacenado.';
 $_lang["resource_setting"] = 'Configuración de documento';
 $_lang["resource_summary"] = 'Resumen (introtext)';
 $_lang["resource_summary_help"] = 'Escribe un resumen corto del documento';

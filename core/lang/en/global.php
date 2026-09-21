@@ -786,6 +786,7 @@ $_lang["resource_overview"] = 'Resource overview';
 $_lang["resource_parent"] = 'Resource parent';
 $_lang["resource_parent_help"] = 'Click the icon to enable setting a Resource parent, then click a Resource in the Site Tree to set a new parent.';
 $_lang["resource_permissions_error"] = 'Assign this Resource to at least one Resource Group to which you have access.';
+$_lang["resource_save_unconfirmed"] = 'The save could not be confirmed. The editor reloads to show the stored state.';
 $_lang["resource_setting"] = 'Resource setting';
 $_lang["resource_summary"] = 'Summary (introtext)';
 $_lang["resource_summary_help"] = 'Type a brief summary of the Resource';

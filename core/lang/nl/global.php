@@ -757,6 +757,7 @@ $_lang["resource_overview"] = 'Pagina overzicht';
 $_lang["resource_parent"] = 'Hoofdpagina';
 $_lang["resource_parent_help"] = 'Selecteer een Pagina in de Website boomstructuur om het als Hoofdpagina van deze Pagina in te stellen.';
 $_lang["resource_permissions_error"] = 'Koppel deze Pagina aan tenminste 1 Paginagroep waar u toegang tot heeft.';
+$_lang["resource_save_unconfirmed"] = 'Het opslaan kon niet worden bevestigd. De editor wordt opnieuw geladen om de opgeslagen staat te tonen.';
 $_lang["resource_setting"] = 'Pagina instellingen';
 $_lang["resource_summary"] = 'Samenvatting (introductietekst)';
 $_lang["resource_summary_help"] = 'Typ een korte beschrijving van de Pagina.';

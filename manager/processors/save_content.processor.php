@@ -3,13 +3,25 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true) {
     die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the EVO Content Manager instead of accessing this file directly.");
 }
 $modx = EvolutionCMS();
+
+// the editor saves in place over XHR and expects JSON instead of the redirect
+$ajax = is_ajax();
+$respondJson = static function (int $status, array $payload): void {
+    http_response_code($status);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    exit;
+};
+
 if (!evo()->hasPermission('save_document')) {
+    if ($ajax) {
+        $respondJson(403, ['success' => false, 'message' => __("global.error_no_privileges")]);
+    }
     evo()->webAlertAndQuit(__("global.error_no_privileges"));
 }
 
 $id = is_numeric($_POST['id'] ?? null) ? (int)$_POST['id'] : 0;
 $type = $_POST['type'] ?? 'document';
-$parentId = (int)get_by_key($_POST, 'parent', 0, 'is_scalar');
 $syncsite = (int)($_POST['syncsite'] ?? 0);
 $stay = (string)($_POST['stay'] ?? '');
 
@@ -25,9 +37,17 @@ $editResourceAction = "27";
 $newResourceRedirect = "index.php?a={$newResourceAction}";
 $editResourceRedirect = "index.php?a={$editResourceAction}&id={$id}";
 
+// a plugin may echo from OnDocFormSave; that must not end up inside the JSON
+if ($ajax) {
+    ob_start();
+}
 try {
     $saved = \EvolutionCMS\Services\DocumentSaveService::forManager()->save($_POST);
 } catch (\EvolutionCMS\Services\DocumentSave\DocumentSaveDenied $denied) {
+    if ($ajax) {
+        ob_end_clean();
+        $respondJson(422, ['success' => false, 'message' => $denied->getMessage()]);
+    }
     if (!$denied->restoreForm) {
         $modx->webAlertAndQuit($denied->getMessage());
     }
@@ -49,26 +69,15 @@ if ($syncsite == 1) {
     $modx->clearCache('document');
 }
 
-if (!$saved->isNew() && ($_POST['refresh_preview'] ?? '') == '1') {
-    $redirectUrl = EVO_SITE_URL . "index.php?id=$id&z=manprev";
-} else {
-    if (!$saved->isNew() && $stay != '2') {
-        $modx->unlockElement(7, $id);
-    }
-    if ($stay != '') {
-        if ($type == "reference") {
-            // weblink
-            $a = ($stay == '2') ? "27&id=$id" : "72&pid=$parentId";
-        } else {
-            // document
-            $a = ($stay == '2') ? "27&id=$id" : "4&pid=$parentId";
-        }
-        $redirectUrl = "index.php?a=" . $a . "&r=1&stay=" . (int)$stay;
-    } else {
-        $redirectUrl = "index.php?a=3&id=$id&r=1";
-    }
-    if (!$saved->isNew()) {
-        $redirectUrl .= $add_path;
-    }
+$refreshPreview = ($_POST['refresh_preview'] ?? '') == '1';
+if (!$saved->isNew() && !$refreshPreview && $stay != '2') {
+    $modx->unlockElement(7, $id);
+}
+
+$redirectUrl = \EvolutionCMS\Support\DocumentSave\SaveResponse::redirectUrl($saved, $stay, $refreshPreview, $add_path, EVO_SITE_URL);
+
+if ($ajax) {
+    ob_end_clean();
+    $respondJson(200, \EvolutionCMS\Support\DocumentSave\SaveResponse::payload($saved, $redirectUrl, csrf_token()));
 }
 evo()->sendRedirect($redirectUrl, 0, headers_sent() ? 'REDIRECT_SCRIPT' : '');

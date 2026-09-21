@@ -722,6 +722,7 @@ $_lang["resource_overview"] = 'Resursöversikt';
 $_lang["resource_parent"] = 'Resursförälder';
 $_lang["resource_parent_help"] = 'Klicka på ikonen för att aktivera val av förälder för denna resurs. Klicka sedan på en resurs i webbplatsträdet för att ange den som ny förälder.';
 $_lang["resource_permissions_error"] = 'Tilldela denna resurs till minst en resursgrupp som du kan komma åt.';
+$_lang["resource_save_unconfirmed"] = 'Sparningen kunde inte bekräftas. Redigeraren laddas om för att visa det sparade läget.';
 $_lang["resource_setting"] = 'Resursinställningar';
 $_lang["resource_summary"] = 'Sammanfattning';
 $_lang["resource_summary_help"] = 'Skriv en kort sammanfattning av resursen';

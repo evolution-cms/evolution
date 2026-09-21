@@ -17,6 +17,7 @@ final class DocumentSaveResult
         public readonly int $parent,
         public readonly string $pagetitle,
         public readonly string $alias,
+        public readonly int $editedon = 0,
     ) {
     }
 

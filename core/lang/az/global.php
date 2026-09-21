@@ -269,6 +269,7 @@ $_lang["resource_overview"] = 'Resurs icmalı';
 $_lang["resource_parent"] = 'Ana resurs';
 $_lang["resource_parent_help"] = 'Ana resursu təyin etmək üçün ikona klikləyin, sonra Sayt Ağacında bir resurs seçərək yeni ana resurs təyin edin.';
 $_lang["resource_permissions_error"] = 'Bu resursu, daxil ola bildiyiniz ən azı bir resurs qrupuna təyin edin.';
+$_lang["resource_save_unconfirmed"] = 'Yadda saxlama təsdiqlənmədi. Redaktor saxlanılmış vəziyyəti göstərmək üçün yenidən yüklənəcək.';
 $_lang["resource_setting"] = 'Resurs ayarı';
 $_lang["resource_summary"] = 'Qısa məzmun (giriş mətni)';
 $_lang["resource_summary_help"] = 'Resurs üçün qısa xülasə daxil edin';

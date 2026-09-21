@@ -122,8 +122,11 @@ final class DocumentSaveService
             // only the event sees this id: the row gets auto increment, as it always did (id is not fillable)
             $ctx->fire('OnBeforeDocFormSave', ['mode' => 'new', 'id' => $this->announcedId()]);
 
-            $id = $this->transaction(function () use ($fields, $tvs, $tvValues, $parent, $parentRow, $groupPairs, $usePermissions) {
-                $id = (int) SiteContent::withTrashed()->create($fields)->getKey();
+            $editedon = 0;
+            $id = $this->transaction(function () use (&$editedon, $fields, $tvs, $tvValues, $parent, $parentRow, $groupPairs, $usePermissions) {
+                $document = SiteContent::withTrashed()->create($fields);
+                $id = (int) $document->getKey();
+                $editedon = (int) $document->editedon;
                 TemplateVariableValues::sync($id, $tvs, $tvValues);
                 if ($usePermissions) {
                     $this->attachGroupsToNew($id, $parent, $groupPairs);
@@ -145,11 +148,13 @@ final class DocumentSaveService
 
             $ctx->fire('OnBeforeDocFormSave', ['mode' => 'upd', 'id' => $id]);
 
-            $this->transaction(function () use ($existing, $id, $fields, $tvs, $tvValues, $parent, $oldParent, $parentRow, $groupPairs, $makePublic, $usePermissions) {
+            $editedon = 0;
+            $this->transaction(function () use (&$editedon, $existing, $id, $fields, $tvs, $tvValues, $parent, $oldParent, $parentRow, $groupPairs, $makePublic, $usePermissions) {
                 foreach ($fields as $field => $value) {
                     $existing->{$field} = $value;
                 }
                 $existing->save();
+                $editedon = (int) $existing->editedon;
                 TemplateVariableValues::sync($id, $tvs, $tvValues);
                 if ($usePermissions && ($this->ctx->can('manage_groups') || $this->ctx->can('manage_document_permissions'))) {
                     $kept = DocumentGroupSync::forExistingDocument($id, $groupPairs, $this->ctx->userGroups(), $this->ctx->can('manage_groups'), $makePublic);
@@ -170,7 +175,7 @@ final class DocumentSaveService
         // after the event, a plugin may have changed the groups
         DocumentPrivacy::refresh($id);
 
-        return new DocumentSaveResult($id, $mode, $type, $parent, $pagetitle, $alias);
+        return new DocumentSaveResult($id, $mode, $type, $parent, $pagetitle, $alias, $editedon);
     }
 
     /**

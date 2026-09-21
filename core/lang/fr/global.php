@@ -724,6 +724,7 @@ $_lang["resource_overview"] = 'Résumé de la Ressource';
 $_lang["resource_parent"] = 'Ressource parente';
 $_lang["resource_parent_help"] = 'Cliquez sur l\'icône ci-dessus pour activer (ou désactiver) la sélection d\'une Ressource parente. Cliquez ensuite sur une Ressource dans l\'Arbre du Site pour la choisir comme parente.';
 $_lang["resource_permissions_error"] = 'Assignez cette Ressource à au moins un Groupe de Ressources auquel vous avez accès.';
+$_lang["resource_save_unconfirmed"] = 'L\'enregistrement n\'a pas pu être confirmé. L\'éditeur se recharge pour afficher l\'état enregistré.';
 $_lang["resource_setting"] = 'Propriétés de la Ressource';
 $_lang["resource_summary"] = 'Résumé';
 $_lang["resource_summary_help"] = 'Rédigez un bref résumé de la Ressource';

@@ -767,6 +767,7 @@ $_lang["resource_overview"] = 'Ressourcen-Übersicht';
 $_lang["resource_parent"] = 'Container';
 $_lang["resource_parent_help"] = 'Klicken Sie auf eine Ressource im Baum, um diese als übergeordnete Ressource zu wählen.';
 $_lang["resource_permissions_error"] = 'Weisen Sie diese Ressource mindestens einer Ressourcen-Gruppe zu, zu der Sie Zugriff haben.';
+$_lang["resource_save_unconfirmed"] = 'Das Speichern konnte nicht bestätigt werden. Der Editor wird neu geladen und zeigt den gespeicherten Stand.';
 $_lang["resource_setting"] = 'Ressourcen-Eigenschaften';
 $_lang["resource_summary"] = 'Zusammenfassung';
 $_lang["resource_summary_help"] = 'Geben Sie eine kurze inhaltliche Zusammenfassung der Ressource ein.';

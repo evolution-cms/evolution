@@ -722,6 +722,7 @@ $_lang["resource_overview"] = 'סקירת מסמך';
 $_lang["resource_parent"] = 'אב המסמך';
 $_lang["resource_parent_help"] = 'Click on the icon above to enable (or disable) selecting this document\'s parent. Next, click a document in the tree to set its new parent.';
 $_lang["resource_permissions_error"] = 'Assign this Document to at least one Document Group which you can access.';
+$_lang["resource_save_unconfirmed"] = 'לא ניתן היה לאשר את השמירה. העורך ייטען מחדש כדי להציג את המצב השמור.';
 $_lang["resource_setting"] = 'הגדרות מסמך';
 $_lang["resource_summary"] = 'סיכום (introtext)';
 $_lang["resource_summary_help"] = 'Type a brief summary of the document';

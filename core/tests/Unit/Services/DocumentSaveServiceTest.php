@@ -94,6 +94,8 @@ test('a new document is created with its tvs, inherited groups, folder flag and 
         ->and((int) $row->createdby)->toBe(7)
         // createdon is not fillable; the creating hook of the model writes it, for the legacy processor too
         ->and((int) $row->createdon)->toBeGreaterThan(0)
+        ->and($result->editedon)->toBe((int) $row->editedon)
+        ->and($result->editedon)->toBeGreaterThan(0)
         ->and(Capsule::table('site_tmplvar_contentvalues')->where('contentid', $result->id)->pluck('value', 'tmplvarid')->all())->toBe([1 => 'first'])
         ->and(Capsule::table('site_content')->where('id', 4)->value('isfolder'))->toBe(1)
         ->and(Capsule::table('site_content_closure')->where('descendant', $result->id)->count())->toBe(2);

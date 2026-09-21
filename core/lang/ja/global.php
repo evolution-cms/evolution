@@ -797,6 +797,7 @@ $_lang["resource_overview"] = '詳細情報を表示';
 $_lang["resource_parent"] = '親リソース';
 $_lang["resource_parent_help"] = 'コンテナアイコンをクリックすると、このリソースの親(コンテナ)を変更できる状態になります。アイコンが変化している状態で、親にしたいリソースをリソースツリー上でクリックしてください。もう一度クリックすると元に戻ります。';
 $_lang["resource_permissions_error"] = 'このリソースを、少なくともアクセス可能な一つ以上のリソースグループへ割り当ててください。';
+$_lang["resource_save_unconfirmed"] = '保存を確認できませんでした。保存済みの状態を表示するためエディターを再読み込みします。';
 $_lang["resource_setting"] = 'リソース設定';
 $_lang["resource_summary"] = '要約(序説)';
 $_lang["resource_summary_help"] = 'リソースの要約を入力します。リソース変数：[*introtext*]';

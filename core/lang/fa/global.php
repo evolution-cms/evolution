@@ -722,6 +722,7 @@ $_lang["resource_overview"] = 'بازخوانی پرونده';
 $_lang["resource_parent"] = 'سرگروه پرونده';
 $_lang["resource_parent_help"] = 'برای انتخاب یا مشخص کردن سرگروه این پرونده روی نماد یا آیکون بالا کلیک کنید سپس از طریق درختی روی پرونده کلیک کنید تا سرگروه جدید آنرا تعیین کنید';
 $_lang["resource_permissions_error"] = 'Assign this Resource to at least one Resource Group to which you have access.';
+$_lang["resource_save_unconfirmed"] = 'ذخیره‌سازی تأیید نشد. ویرایشگر برای نمایش وضعیت ذخیره‌شده دوباره بارگذاری می‌شود.';
 $_lang["resource_setting"] = 'تنظیمات پرونده';
 $_lang["resource_summary"] = 'خلاصه یا مقدمه ی کوتاه مطلب';
 $_lang["resource_summary_help"] = 'خلاصه ای مختصر از پرونده را در اینجا ذکر کنید.';

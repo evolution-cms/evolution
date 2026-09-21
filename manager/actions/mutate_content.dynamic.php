@@ -163,11 +163,65 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
         .image_for_field[data-image=""] { display: none }
 
     </style>
+    <script src="<?= revision(MGR_DIR . '/media/script/document-save-helper.js') ?>"></script>
     <script type="text/javascript">
       /* <![CDATA[ */
 
       // save tree folder state
       if(parent.tree) parent.tree.saveFolderState();
+
+      // Save and keep editing: post the form over XHR and stay on the page instead of
+      // reloading the editor. Anything unexpected hands over to the classic form post.
+      var ajaxSaveHelper = window.modxDocumentSaveHelper;
+      var ajaxSaving = false;
+      function ajaxSave() {
+        if (ajaxSaving) return;
+        var form = document.mutate;
+        var button = document.getElementById('Button1');
+        var done = function () {
+          ajaxSaving = false;
+          if (button) { button.classList.remove('saving'); button.blur(); }
+        };
+        // let every editor that syncs its textarea on submit do so; a synthetic event does not navigate
+        if (window.tinymce && tinymce.triggerSave) tinymce.triggerSave();
+        if (window.CKEDITOR && CKEDITOR.instances) {
+          for (var name in CKEDITOR.instances) CKEDITOR.instances[name].updateElement();
+        }
+        form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+        var tokenMeta = document.querySelector('meta[name="csrf-token"]');
+        var unconfirmed = function (reload) {
+          documentDirty = !reload;
+          alert(<?= js_json($_lang['resource_save_unconfirmed']) ?>);
+          if (reload) window.location.reload();
+        };
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', ajaxSaveHelper.requestUrl(form.a.value), true);
+        xhr.setRequestHeader('X-REQUESTED-WITH', 'XMLHttpRequest');
+        xhr.setRequestHeader('Accept', 'application/json');
+        xhr.onload = function () {
+          done();
+          var answer = ajaxSaveHelper.parseResponse(xhr.status, xhr.responseText);
+          if (!answer.ok) {
+            if (answer.unconfirmed) { unconfirmed(true); return; }
+            documentDirty = true;
+            alert(answer.message || (xhr.status + ' ' + xhr.statusText));
+            return;
+          }
+          ajaxSaveHelper.applyResult(form, answer.result, document.querySelector('#create_edit > h1'), tokenMeta);
+          if (button) {
+            button.classList.add('saved');
+            setTimeout(function () { button.classList.remove('saved'); }, 1500);
+          }
+          if (parent.evo && parent.evo.tree && parent.evo.tree.restoreTree) parent.evo.tree.restoreTree();
+        };
+        xhr.onerror = function () {
+          done();
+          unconfirmed(false); // no answer at all: the user decides whether to save again
+        };
+        ajaxSaving = true;
+        if (button) button.classList.add('saving');
+        xhr.send(ajaxSaveHelper.requestBody(new FormData(form), tokenMeta));
+      }
 
       function changestate(el) {
         if(parseInt(el.value) === 1) {
@@ -189,6 +243,10 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
           syncReferenceContent();
           documentDirty = false;
           form_save = true;
+          if (ajaxSaveHelper && window.FormData && ajaxSaveHelper.usesAjax(document.mutate)) {
+            ajaxSave();
+            return;
+          }
           document.mutate.save.click();
         },
         delete: function() {
