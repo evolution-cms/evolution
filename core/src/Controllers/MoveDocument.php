@@ -55,9 +55,8 @@ class MoveDocument extends AbstractController implements ManagerTheme\PageContro
 
         $document = $this->getDocument($documentID);
 
-        $parents = $this->managerTheme->getCore()->getParentIds($newParentID);
-        if (\in_array($document->getKey(), $parents, true)) {
-            $this->managerTheme->alertAndQuit('error_movedocument2');
+        if (MoveDocumentTargetGuard::isInsideItself($document->getKey(), $newParentID)) {
+            $this->managerTheme->alertAndQuit('error_movedocument1');
         }
 
         // check user has permission to move document to chosen location
@@ -84,9 +83,8 @@ class MoveDocument extends AbstractController implements ManagerTheme\PageContro
             if (MoveDocumentTargetGuard::blocksParent($parentDocument)) {
                 $this->managerTheme->alertAndQuit('error_parent_deleted');
             };
-            $children = allChildren($document->getKey());
-            if (\in_array($parentDocument->getKey(), $children, true)) {
-                $this->managerTheme->alertAndQuit('You cannot move a document to a child document!', false);
+            if (MoveDocumentTargetGuard::isInsideItself($document->getKey(), $parentDocument->getKey())) {
+                $this->managerTheme->alertAndQuit('error_movedocument1');
             }
 
             $parentDocument->isfolder = true;
