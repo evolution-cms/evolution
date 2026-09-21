@@ -1555,7 +1555,7 @@ store = {
 			}
 		});
 	},
-	refreshManagerUiAfterPermissionSync: function(){
+	refreshManagerUiAfterPermissionSync: function(delay){
 		try {
 			if (window.top && window.top.mainMenu && typeof window.top.mainMenu.reloadtree === 'function') {
 				window.top.mainMenu.reloadtree();
@@ -1566,7 +1566,7 @@ store = {
 			if (window.top && window.top.location) {
 				setTimeout(function(){
 					window.top.location.reload();
-				}, 700);
+				}, 700 + (parseInt(delay || 0, 10) || 0));
 			}
 		} catch (e) {}
 	},
@@ -1916,13 +1916,16 @@ store = {
 				if (
 					task
 					&& task.status === 'succeeded'
-					&& $.inArray(task.type, ['console_install', 'console_uninstall']) >= 0
+					&& $.inArray(task.type, ['console_install', 'console_uninstall', 'site_update']) >= 0
 					&& store.systemTaskRefreshPermissionsTaskId !== parseInt(task.id || 0, 10)
 				) {
 					store.systemTaskRefreshPermissionsTaskId = parseInt(task.id || 0, 10);
+					var reloadAlways = task.type === 'site_update';
 					store.refreshManagerPermissions(function(response){
-						if (response && response.ok) {
-							store.refreshManagerUiAfterPermissionSync();
+						// After a core update the whole manager must reload so the
+						// session and menu pick up the new version.
+						if (reloadAlways || (response && response.ok)) {
+							store.refreshManagerUiAfterPermissionSync(reloadAlways ? 2000 : 0);
 						}
 					});
 				}

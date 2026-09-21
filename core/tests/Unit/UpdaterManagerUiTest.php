@@ -8,7 +8,13 @@ test('updater manager modal reloads after successful live update', function () {
 
     expect($source)
         ->toContain('reloadOnClose')
-        ->toContain('window.location.reload();')
+        // Reload the whole manager so the top menu shows the new version, and
+        // rebuild session permissions before that reload.
+        ->toContain('target = window.top;')
+        ->toContain('target.location.reload();')
+        ->toContain("request('refresh_session')")
+        ->toContain("case 'refresh_session':")
+        ->toContain("['create', 'cancel', 'refresh_session']")
         ->toContain('updater_live_update_close_reload')
         ->toContain('updater_live_update_response_changed')
         ->toContain('normalized.substring(firstJsonChar, lastJsonChar + 1)')
