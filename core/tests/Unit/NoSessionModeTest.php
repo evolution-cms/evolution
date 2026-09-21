@@ -3,6 +3,7 @@
 use EvolutionCMS\Middleware\SessionProxy;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 // Constants are process-global, so every combination boots in its own PHP process.
 function noSessionRun(string $noSession, string $manager): array
@@ -29,7 +30,7 @@ test('the manager keeps its session under NO_SESSION', function () {
 
     expect($r['disabled'])->toBeFalse()
         ->and($r['store'])->toBe(['start', 'put', 'save'])
-        ->and($r['middleware'])->toBe([StartSession::class, SessionProxy::class, SubstituteBindings::class]);
+        ->and($r['middleware'])->toBe([StartSession::class, SessionProxy::class, SubstituteBindings::class, ShareErrorsFromSession::class]);
 });
 
 test('sessions stay on when NO_SESSION is absent or false', function () {
