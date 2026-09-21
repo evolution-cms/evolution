@@ -153,13 +153,20 @@ class Cache
      * @param null|Interfaces\CoreInterface $evo
      * @since 3.5.8
      */
-    public function refreshDocumentCache($evo = null)
+    /**
+     * @param bool $deferRebuild rebuild siteCache.idx.php after the response instead of inside it; the purge
+     *                           itself stays synchronous so no stale page is served meanwhile
+     */
+    public function refreshDocumentCache($evo = null, bool $deferRebuild = false)
     {
         $evo = $this->resolveCore($evo);
         \Illuminate\Support\Facades\Cache::flush();
         $this->clearPageCache();
-        $this->buildCache($evo);
-        $this->publishTimeConfig();
+        $rebuild = function () use ($evo) {
+            $this->buildCache($evo);
+            $this->publishTimeConfig();
+        };
+        $deferRebuild ? $evo->deferAfterResponse($rebuild) : $rebuild();
     }
 
     /**

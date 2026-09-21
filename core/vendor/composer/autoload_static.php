@@ -2050,6 +2050,7 @@ class ComposerStaticInit925fea465a58fa69f06ccf2629003e87
         'EvolutionCMS\\Services\\DocumentSave\\DocumentSaveContext' => __DIR__ . '/../..' . '/src/Services/DocumentSave/DocumentSaveContext.php',
         'EvolutionCMS\\Services\\DocumentSave\\DocumentSaveDenied' => __DIR__ . '/../..' . '/src/Services/DocumentSave/DocumentSaveDenied.php',
         'EvolutionCMS\\Services\\DocumentSave\\DocumentSaveResult' => __DIR__ . '/../..' . '/src/Services/DocumentSave/DocumentSaveResult.php',
+        'EvolutionCMS\\Services\\ManagerActivity' => __DIR__ . '/../..' . '/src/Services/ManagerActivity.php',
         'EvolutionCMS\\Services\\PasswordRecoveryService' => __DIR__ . '/../..' . '/src/Services/PasswordRecoveryService.php',
         'EvolutionCMS\\Services\\Store\\CatalogService' => __DIR__ . '/../..' . '/src/Services/Store/CatalogService.php',
         'EvolutionCMS\\Services\\Store\\InstalledStateService' => __DIR__ . '/../..' . '/src/Services/Store/InstalledStateService.php',
