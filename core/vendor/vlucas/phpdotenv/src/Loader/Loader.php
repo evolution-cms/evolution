@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Dotenv\Loader;
 
+use Dotenv\Parser\Entry;
+use Dotenv\Parser\Value;
 use Dotenv\Repository\RepositoryInterface;
 
 final class Loader implements LoaderInterface
@@ -21,23 +23,26 @@ final class Loader implements LoaderInterface
      */
     public function load(RepositoryInterface $repository, array $entries)
     {
-        $vars = [];
-
-        foreach ($entries as $entry) {
+        /** @var array<string, string|null> */
+        return \array_reduce($entries, static function (array $vars, Entry $entry) use ($repository) {
             $name = $entry->getName();
 
-            $value = $entry->getValue();
+            $value = $entry->getValue()->map(static function (Value $value) use ($repository) {
+                return Resolver::resolve($repository, $value);
+            });
 
             if ($value->isDefined()) {
-                $inner = Resolver::resolve($repository, $value->get());
+                $inner = $value->get();
                 if ($repository->set($name, $inner)) {
-                    $vars[$name] = $inner;
+                    return \array_merge($vars, [$name => $inner]);
                 }
-            } elseif ($repository->clear($name)) {
-                $vars[$name] = null;
+            } else {
+                if ($repository->clear($name)) {
+                    return \array_merge($vars, [$name => null]);
+                }
             }
-        }
 
-        return $vars;
+            return $vars;
+        }, []);
     }
 }

@@ -154,11 +154,7 @@ class FormatConstraint extends Constraint
 
     protected function validateDateTime($datetime, $format)
     {
-        try {
-            $dt = \DateTime::createFromFormat($format, (string) $datetime);
-        } catch (\Throwable $e) {
-            return false;
-        }
+        $dt = \DateTime::createFromFormat($format, (string) $datetime);
 
         if (!$dt) {
             return false;

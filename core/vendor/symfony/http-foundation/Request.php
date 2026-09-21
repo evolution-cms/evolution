@@ -181,8 +181,6 @@ class Request
 
     private static int $trustedHeaderSet = -1;
 
-    private static ?string $trustedHostsRegexp = null;
-
     private const FORWARDED_PARAMS = [
         self::HEADER_X_FORWARDED_FOR => 'for',
         self::HEADER_X_FORWARDED_HOST => 'host',
@@ -656,8 +654,8 @@ class Request
     public static function setTrustedHosts(array $hostPatterns): void
     {
         self::$trustedHostPatterns = array_map(static fn ($hostPattern) => \sprintf('{%s}i', $hostPattern), $hostPatterns);
-        // the branch reset group keeps capturing groups, back references and inline modifiers local to each pattern
-        self::$trustedHostsRegexp = $hostPatterns ? \sprintf('{(?|(?:%s))}i', implode(')|(?:', $hostPatterns)) : null;
+        // we need to reset trusted hosts on trusted host patterns change
+        self::$trustedHosts = [];
     }
 
     /**
@@ -1195,11 +1193,19 @@ class Request
             throw new SuspiciousOperationException(\sprintf('Invalid Host "%s".', $host));
         }
 
-        if (self::$trustedHostsRegexp) {
+        if (\count(self::$trustedHostPatterns) > 0) {
             // to avoid host header injection attacks, you should provide a list of trusted host patterns
 
-            if (preg_match(self::$trustedHostsRegexp, $host)) {
+            if (\in_array($host, self::$trustedHosts, true)) {
                 return $host;
+            }
+
+            foreach (self::$trustedHostPatterns as $pattern) {
+                if (preg_match($pattern, $host)) {
+                    self::$trustedHosts[] = $host;
+
+                    return $host;
+                }
             }
 
             if (!$this->isHostValid) {

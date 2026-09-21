@@ -75,7 +75,7 @@ class Store implements StoreInterface
 
         if (!isset($this->locks[$key])) {
             $path = $this->getPath($key);
-            if (!is_dir(\dirname($path)) && !@mkdir(\dirname($path), 0o777, true) && !is_dir(\dirname($path))) {
+            if (!is_dir(\dirname($path)) && false === @mkdir(\dirname($path), 0o777, true) && !is_dir(\dirname($path))) {
                 return $path;
             }
             $h = fopen($path, 'c');
@@ -192,21 +192,15 @@ class Store implements StoreInterface
             }
         // Everything seems ok, omit writing content to disk
         } else {
-            // Responses that cannot provide their content, like BinaryFileResponse or
-            // StreamedResponse, have no entity to store, so no entry is written
-            if (false === $content = $response->getContent()) {
-                return $key;
-            }
-
             $digest = $this->generateContentDigest($response);
             $response->headers->set('X-Content-Digest', $digest);
 
-            if (!$this->save($digest, $content, false)) {
+            if (!$this->save($digest, $response->getContent(), false)) {
                 throw new \RuntimeException('Unable to store the entity.');
             }
 
             if (!$response->headers->has('Transfer-Encoding')) {
-                $response->headers->set('Content-Length', \strlen($content));
+                $response->headers->set('Content-Length', \strlen($response->getContent()));
             }
         }
 
@@ -381,7 +375,7 @@ class Store implements StoreInterface
                 return false;
             }
         } else {
-            if (!is_dir(\dirname($path)) && !@mkdir(\dirname($path), 0o777, true) && !is_dir(\dirname($path))) {
+            if (!is_dir(\dirname($path)) && false === @mkdir(\dirname($path), 0o777, true) && !is_dir(\dirname($path))) {
                 return false;
             }
 
@@ -400,7 +394,7 @@ class Store implements StoreInterface
                 return false;
             }
 
-            if (!@rename($tmpFile, $path)) {
+            if (false === @rename($tmpFile, $path)) {
                 @unlink($tmpFile);
 
                 return false;

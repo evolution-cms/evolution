@@ -40,7 +40,7 @@ class OutputFormatter implements WrappableOutputFormatterInterface
      */
     public static function escape(string $text): string
     {
-        $text = str_replace(['<', '>'], ['\\<', '\\>'], $text);
+        $text = preg_replace('/([^\\\\]|^)([<>])/', '$1\\\\$2', $text);
 
         return self::escapeTrailingBackslash($text);
     }

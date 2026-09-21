@@ -34,7 +34,9 @@ final class Regex
      */
     public static function matches(string $pattern, string $subject)
     {
-        return self::wrap(@\preg_match($pattern, $subject) === 1);
+        return self::pregAndWrap(static function (string $subject) use ($pattern) {
+            return @\preg_match($pattern, $subject) === 1;
+        }, $subject);
     }
 
     /**
@@ -43,11 +45,13 @@ final class Regex
      * @param string $pattern
      * @param string $subject
      *
-     * @return \GrahamCampbell\ResultType\Result<int<0, max>, string>
+     * @return \GrahamCampbell\ResultType\Result<int, string>
      */
     public static function occurrences(string $pattern, string $subject)
     {
-        return self::wrap((int) @\preg_match_all($pattern, $subject));
+        return self::pregAndWrap(static function (string $subject) use ($pattern) {
+            return (int) @\preg_match_all($pattern, $subject);
+        }, $subject);
     }
 
     /**
@@ -62,7 +66,9 @@ final class Regex
      */
     public static function replaceCallback(string $pattern, callable $callback, string $subject, ?int $limit = null)
     {
-        return self::wrap((string) @\preg_replace_callback($pattern, $callback, $subject, $limit ?? -1));
+        return self::pregAndWrap(static function (string $subject) use ($pattern, $callback, $limit) {
+            return (string) @\preg_replace_callback($pattern, $callback, $subject, $limit ?? -1);
+        }, $subject);
     }
 
     /**
@@ -75,27 +81,32 @@ final class Regex
      */
     public static function split(string $pattern, string $subject)
     {
-        /** @var string[] */
-        $result = (array) @\preg_split($pattern, $subject);
-
-        return self::wrap($result);
+        return self::pregAndWrap(static function (string $subject) use ($pattern) {
+            /** @var string[] */
+            return (array) @\preg_split($pattern, $subject);
+        }, $subject);
     }
 
     /**
-     * Wrap the result of a preg operation.
+     * Perform a preg operation, wrapping up the result.
      *
      * @template V
      *
-     * @param V $result
+     * @param callable(string): V $operation
+     * @param string              $subject
      *
      * @return \GrahamCampbell\ResultType\Result<V, string>
      */
-    private static function wrap($result)
+    private static function pregAndWrap(callable $operation, string $subject)
     {
+        $result = $operation($subject);
+
         if (\preg_last_error() !== \PREG_NO_ERROR) {
+            /** @var \GrahamCampbell\ResultType\Result<V,string> */
             return Error::create(\preg_last_error_msg());
         }
 
+        /** @var \GrahamCampbell\ResultType\Result<V,string> */
         return Success::create($result);
     }
 }

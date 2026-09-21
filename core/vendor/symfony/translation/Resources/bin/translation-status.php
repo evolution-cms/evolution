@@ -218,7 +218,7 @@ function printTable($translations, $verboseOutput, bool $includeCompletedLanguag
 
         if ($translation['translated'] > $translation['total']) {
             textColorRed();
-        } elseif ($translation['mismatches']) {
+        } elseif (count($translation['mismatches']) > 0) {
             textColorRed();
         } elseif ($translation['is_completed']) {
             textColorGreen();
@@ -235,7 +235,7 @@ function printTable($translations, $verboseOutput, bool $includeCompletedLanguag
         textColorNormal();
 
         $shouldBeClosed = false;
-        if ($verboseOutput && $translation['missingKeys']) {
+        if (true === $verboseOutput && count($translation['missingKeys']) > 0) {
             echo '|    Missing Translations:'.\PHP_EOL;
 
             foreach ($translation['missingKeys'] as $id => $content) {
@@ -243,7 +243,7 @@ function printTable($translations, $verboseOutput, bool $includeCompletedLanguag
             }
             $shouldBeClosed = true;
         }
-        if ($verboseOutput && $translation['mismatches']) {
+        if (true === $verboseOutput && count($translation['mismatches']) > 0) {
             echo '|    Mismatches between trans-unit id and source:'.\PHP_EOL;
 
             foreach ($translation['mismatches'] as $id => $content) {

@@ -69,10 +69,6 @@ class Ask implements InteractiveAttributeInterface
             throw new LogicException(\sprintf('The %s "$%s" of "%s" must have a named type. Untyped, Union or Intersection types are not supported for interactive questions.', $reflection->getMemberName(), $name, $reflection->getSourceName()));
         }
 
-        if ('array' === $type->getName() && null !== $self->default) {
-            throw new LogicException(\sprintf('The "%s::$default" value is not supported for the array "$%s" of "%s", because an empty answer ends the collection.', self::class, $name, $reflection->getSourceName()));
-        }
-
         $self->closure = function (SymfonyStyle $io, InputInterface $input) use ($self, $reflection, $name, $type) {
             if ($reflection->isProperty() && isset($this->{$reflection->getName()})) {
                 return;
@@ -115,11 +111,8 @@ class Ask implements InteractiveAttributeInterface
 
             if ('array' === $type->getName()) {
                 $value = [];
-                while (null !== $v = $io->askQuestion($question)) {
-                    if ($question->isTrimmable()) {
-                        $v = trim($v);
-                    }
-                    if ("\x4" === $v || \PHP_EOL === $v || '' === $v) {
+                while ($v = $io->askQuestion($question)) {
+                    if ("\x4" === $v || \PHP_EOL === $v || ($question->isTrimmable() && '' === $v = trim($v))) {
                         break;
                     }
                     $value[] = $v;

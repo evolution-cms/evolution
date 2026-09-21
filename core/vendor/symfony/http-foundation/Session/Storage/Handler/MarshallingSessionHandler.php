@@ -34,14 +34,6 @@ class MarshallingSessionHandler implements \SessionHandlerInterface, \SessionUpd
         return $this->handler->close();
     }
 
-    /**
-     * @return string
-     */
-    public function create_sid()
-    {
-        return session_create_id() ?: throw new \RuntimeException('Unable to create a session ID.');
-    }
-
     public function destroy(#[\SensitiveParameter] string $sessionId): bool
     {
         return $this->handler->destroy($sessionId);
@@ -54,14 +46,7 @@ class MarshallingSessionHandler implements \SessionHandlerInterface, \SessionUpd
 
     public function read(#[\SensitiveParameter] string $sessionId): string
     {
-        $data = $this->handler->read($sessionId);
-
-        try {
-            return $this->marshaller->unmarshall($data);
-        } catch (\DomainException $e) {
-            // data that cannot be unmarshalled is treated as a missing session, as PHP does with data it cannot decode
-            return '';
-        }
+        return $this->marshaller->unmarshall($this->handler->read($sessionId));
     }
 
     public function write(#[\SensitiveParameter] string $sessionId, string $data): bool

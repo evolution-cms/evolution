@@ -538,7 +538,11 @@ class Filesystem
 
         // Iterate in destination folder to remove obsolete entries
         if ($this->exists($targetDir) && isset($options['delete']) && $options['delete']) {
-            $deleteIterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($targetDir, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
+            $deleteIterator = $iterator;
+            if (null === $deleteIterator) {
+                $flags = \FilesystemIterator::SKIP_DOTS;
+                $deleteIterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($targetDir, $flags), \RecursiveIteratorIterator::CHILD_FIRST);
+            }
             $targetDirLen = \strlen($targetDir);
             foreach ($deleteIterator as $file) {
                 $origin = $originDir.substr($file->getPathname(), $targetDirLen);
@@ -622,15 +626,7 @@ class Filesystem
 
             // Use fopen instead of file_exists as some streams do not support stat
             // Use mode 'x+' to atomically check existence and create to avoid a TOCTOU vulnerability
-            // Force the umask so that the file is created private, as PHP's tempnam() does
-            $umask = umask(0o077);
-            try {
-                $handle = self::box('fopen', $tmpFile, 'x+');
-            } finally {
-                umask($umask);
-            }
-
-            if (!$handle) {
+            if (!$handle = self::box('fopen', $tmpFile, 'x+')) {
                 continue;
             }
 

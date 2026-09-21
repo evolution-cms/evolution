@@ -23,11 +23,12 @@ final class PutenvAdapter implements AdapterInterface
     /**
      * Create a new instance of the adapter, if it is available.
      *
-     * @return \PhpOption\Option<self>
+     * @return \PhpOption\Option<\Dotenv\Repository\Adapter\AdapterInterface>
      */
     public static function create()
     {
         if (self::isSupported()) {
+            /** @var \PhpOption\Option<AdapterInterface> */
             return Some::create(new self());
         }
 
@@ -53,10 +54,6 @@ final class PutenvAdapter implements AdapterInterface
      */
     public function read(string $name)
     {
-        if (\strpos($name, "\0") !== false) {
-            return None::create();
-        }
-
         /** @var \PhpOption\Option<string> */
         return Option::fromValue(\getenv($name), false)->filter(static function ($value) {
             return \is_string($value);
@@ -73,10 +70,6 @@ final class PutenvAdapter implements AdapterInterface
      */
     public function write(string $name, string $value)
     {
-        if (\strpos($name, "\0") !== false || \strpos($value, "\0") !== false) {
-            return false;
-        }
-
         \putenv("$name=$value");
 
         return true;
@@ -91,10 +84,6 @@ final class PutenvAdapter implements AdapterInterface
      */
     public function delete(string $name)
     {
-        if (\strpos($name, "\0") !== false) {
-            return false;
-        }
-
         \putenv($name);
 
         return true;

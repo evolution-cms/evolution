@@ -31,7 +31,7 @@ use Symfony\Contracts\Service\ResetInterface;
 class TraceableEventDispatcher implements EventDispatcherInterface, ResetInterface
 {
     /**
-     * @var \SplObjectStorage<WrappedListener, array{string, int}>|null
+     * @var \SplObjectStorage<WrappedListener, array{string, string}>|null
      */
     private ?\SplObjectStorage $callStack = null;
     private array $wrappedListeners = [];
@@ -39,7 +39,7 @@ class TraceableEventDispatcher implements EventDispatcherInterface, ResetInterfa
     private array $dispatchDepth = [];
     private array $calledListenerInfos = [];
     private array $calledOriginalListeners = [];
-    private int $currentRequestHash = 0;
+    private string $currentRequestHash = '';
 
     public function __construct(
         private EventDispatcherInterface $dispatcher,
@@ -114,7 +114,7 @@ class TraceableEventDispatcher implements EventDispatcherInterface, ResetInterfa
 
         $this->callStack ??= new \SplObjectStorage();
 
-        $currentRequestHash = $this->currentRequestHash = $this->requestStack && ($request = $this->requestStack->getCurrentRequest()) ? spl_object_id($request) : 0;
+        $currentRequestHash = $this->currentRequestHash = $this->requestStack && ($request = $this->requestStack->getCurrentRequest()) ? spl_object_hash($request) : '';
 
         if (null !== $this->logger && $event instanceof StoppableEventInterface && $event->isPropagationStopped()) {
             $this->logger->debug(\sprintf('The "%s" event is already stopped. No listeners have been called.', $eventName));
@@ -149,7 +149,7 @@ class TraceableEventDispatcher implements EventDispatcherInterface, ResetInterfa
             return [];
         }
 
-        $hash = $request ? spl_object_id($request) : null;
+        $hash = $request ? spl_object_hash($request) : null;
         $called = [];
 
         foreach ($this->calledListenerInfos as $requestHash => $eventInfos) {
@@ -179,7 +179,7 @@ class TraceableEventDispatcher implements EventDispatcherInterface, ResetInterfa
             return [];
         }
 
-        $hash = $request ? spl_object_id($request) : null;
+        $hash = $request ? spl_object_hash($request) : null;
         $calledListeners = [];
 
         foreach ($this->calledOriginalListeners as $requestHash => $eventListeners) {
@@ -211,7 +211,7 @@ class TraceableEventDispatcher implements EventDispatcherInterface, ResetInterfa
     public function getOrphanedEvents(?Request $request = null): array
     {
         if ($request) {
-            return $this->orphanedEvents[spl_object_id($request)] ?? [];
+            return $this->orphanedEvents[spl_object_hash($request)] ?? [];
         }
 
         if (!$this->orphanedEvents) {
@@ -226,7 +226,7 @@ class TraceableEventDispatcher implements EventDispatcherInterface, ResetInterfa
         $this->callStack = null;
         $this->wrappedListeners = [];
         $this->orphanedEvents = [];
-        $this->currentRequestHash = 0;
+        $this->currentRequestHash = '';
         $this->dispatchDepth = [];
         $this->calledListenerInfos = [];
         $this->calledOriginalListeners = [];

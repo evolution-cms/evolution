@@ -27,7 +27,7 @@ class RoutingResolverPass implements CompilerPassInterface
 
     public function process(ContainerBuilder $container): void
     {
-        if (!$container->hasDefinition('routing.resolver')) {
+        if (false === $container->hasDefinition('routing.resolver')) {
             return;
         }
 

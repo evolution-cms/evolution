@@ -140,12 +140,7 @@ class FormatConstraint implements ConstraintInterface
             $input = sprintf('%s59%s', substr($datetime, 0, 6), substr($datetime, 8));
         }
 
-        try {
-            $dt = \DateTimeImmutable::createFromFormat($format, $input);
-        } catch (\Throwable $e) {
-            return false;
-        }
-
+        $dt = \DateTimeImmutable::createFromFormat($format, $input);
         if (!$dt) {
             return false;
         }

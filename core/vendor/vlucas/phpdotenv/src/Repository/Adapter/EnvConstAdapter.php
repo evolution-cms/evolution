@@ -22,10 +22,11 @@ final class EnvConstAdapter implements AdapterInterface
     /**
      * Create a new instance of the adapter, if it is available.
      *
-     * @return \PhpOption\Option<self>
+     * @return \PhpOption\Option<\Dotenv\Repository\Adapter\AdapterInterface>
      */
     public static function create()
     {
+        /** @var \PhpOption\Option<AdapterInterface> */
         return Some::create(new self());
     }
 
@@ -38,23 +39,22 @@ final class EnvConstAdapter implements AdapterInterface
      */
     public function read(string $name)
     {
-        /** @var \PhpOption\Option<scalar> */
-        $value = Option::fromArraysValue($_ENV, $name)
+        /** @var \PhpOption\Option<string> */
+        return Option::fromArraysValue($_ENV, $name)
             ->filter(static function ($value) {
                 return \is_scalar($value);
+            })
+            ->map(static function ($value) {
+                if ($value === false) {
+                    return 'false';
+                }
+
+                if ($value === true) {
+                    return 'true';
+                }
+
+                return (string) $value;
             });
-
-        return $value->map(static function ($value) {
-            if ($value === false) {
-                return 'false';
-            }
-
-            if ($value === true) {
-                return 'true';
-            }
-
-            return (string) $value;
-        });
     }
 
     /**

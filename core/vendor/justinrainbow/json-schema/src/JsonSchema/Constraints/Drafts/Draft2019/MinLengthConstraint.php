@@ -29,7 +29,7 @@ class MinLengthConstraint implements ConstraintInterface
             return;
         }
 
-        $length = mb_strlen($value, 'UTF-8');
+        $length = mb_strlen($value);
         if ($length >= $schema->minLength) {
             return;
         }

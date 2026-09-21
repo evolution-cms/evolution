@@ -160,10 +160,6 @@ class JsonFormatter extends NormalizerFormatter
      */
     protected function normalize(mixed $data, int $depth = 0): mixed
     {
-        if (is_null($data) || is_scalar($data)) {
-            return $data;
-        }
-
         if ($depth > $this->maxNormalizeDepth) {
             return 'Over '.$this->maxNormalizeDepth.' levels deep, aborting normalization';
         }
@@ -213,7 +209,11 @@ class JsonFormatter extends NormalizerFormatter
             return $data;
         }
 
-        return parent::normalize($data);
+        if (\is_resource($data)) {
+            return parent::normalize($data);
+        }
+
+        return $data;
     }
 
     /**

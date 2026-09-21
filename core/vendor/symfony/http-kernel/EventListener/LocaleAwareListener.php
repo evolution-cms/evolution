@@ -25,9 +25,6 @@ use Symfony\Contracts\Translation\LocaleAwareInterface;
  */
 class LocaleAwareListener implements EventSubscriberInterface
 {
-    private array $storedLocales = [];
-    private array $initializedServices = [];
-
     /**
      * @param iterable<mixed, LocaleAwareInterface> $localeAwareServices
      */
@@ -39,27 +36,11 @@ class LocaleAwareListener implements EventSubscriberInterface
 
     public function onKernelRequest(RequestEvent $event): void
     {
-        if (!$event->isMainRequest()) {
-            $locales = [];
-
-            foreach ($this->localeAwareServices as $key => $service) {
-                // a service the listener never set can hold no locale to restore
-                if (isset($this->initializedServices[$key])) {
-                    $locales[$key] = $service->getLocale();
-                }
-            }
-
-            $this->storedLocales[spl_object_id($event->getRequest())] = $locales;
-        }
-
         $this->setLocale($event->getRequest()->getLocale(), $event->getRequest()->getDefaultLocale());
     }
 
     public function onKernelFinishRequest(FinishRequestEvent $event): void
     {
-        $storedLocales = $this->storedLocales[$id = spl_object_id($event->getRequest())] ?? [];
-        unset($this->storedLocales[$id]);
-
         if (null === $parentRequest = $this->requestStack->getParentRequest()) {
             foreach ($this->localeAwareServices as $service) {
                 $service->setLocale($event->getRequest()->getDefaultLocale());
@@ -68,7 +49,7 @@ class LocaleAwareListener implements EventSubscriberInterface
             return;
         }
 
-        $this->setLocale($parentRequest->getLocale(), $parentRequest->getDefaultLocale(), $storedLocales);
+        $this->setLocale($parentRequest->getLocale(), $parentRequest->getDefaultLocale());
     }
 
     public static function getSubscribedEvents(): array
@@ -80,16 +61,14 @@ class LocaleAwareListener implements EventSubscriberInterface
         ];
     }
 
-    private function setLocale(string $locale, string $defaultLocale, array $storedLocales = []): void
+    private function setLocale(string $locale, string $defaultLocale): void
     {
-        foreach ($this->localeAwareServices as $key => $service) {
+        foreach ($this->localeAwareServices as $service) {
             try {
-                $service->setLocale($storedLocales[$key] ?? $locale);
+                $service->setLocale($locale);
             } catch (\InvalidArgumentException) {
                 $service->setLocale($defaultLocale);
             }
-
-            $this->initializedServices[$key] = true;
         }
     }
 }

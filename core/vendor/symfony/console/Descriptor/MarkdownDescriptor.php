@@ -77,7 +77,7 @@ class MarkdownDescriptor extends Descriptor
 
     protected function describeInputDefinition(InputDefinition $definition, array $options = []): void
     {
-        if ($showArguments = $definition->getArguments()) {
+        if ($showArguments = \count($definition->getArguments()) > 0) {
             $this->write('### Arguments');
             foreach ($definition->getArguments() as $argument) {
                 $this->write("\n\n");

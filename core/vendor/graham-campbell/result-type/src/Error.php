@@ -17,9 +17,10 @@ use PhpOption\None;
 use PhpOption\Some;
 
 /**
- * @template-covariant E
+ * @template T
+ * @template E
  *
- * @extends \GrahamCampbell\ResultType\Result<never,E>
+ * @extends \GrahamCampbell\ResultType\Result<T,E>
  */
 final class Error extends Result
 {
@@ -47,7 +48,7 @@ final class Error extends Result
      *
      * @param F $value
      *
-     * @return \GrahamCampbell\ResultType\Error<F>
+     * @return \GrahamCampbell\ResultType\Result<T,F>
      */
     public static function create($value)
     {
@@ -57,7 +58,7 @@ final class Error extends Result
     /**
      * Get the success option value.
      *
-     * @return \PhpOption\Option<never>
+     * @return \PhpOption\Option<T>
      */
     public function success()
     {
@@ -69,9 +70,9 @@ final class Error extends Result
      *
      * @template S
      *
-     * @param callable(never):S $f
+     * @param callable(T):S $f
      *
-     * @return \GrahamCampbell\ResultType\Error<E>
+     * @return \GrahamCampbell\ResultType\Result<S,E>
      */
     public function map(callable $f)
     {
@@ -84,12 +85,13 @@ final class Error extends Result
      * @template S
      * @template F
      *
-     * @param callable(never):\GrahamCampbell\ResultType\Result<S,F> $f
+     * @param callable(T):\GrahamCampbell\ResultType\Result<S,F> $f
      *
-     * @return \GrahamCampbell\ResultType\Error<E>
+     * @return \GrahamCampbell\ResultType\Result<S,F>
      */
     public function flatMap(callable $f)
     {
+        /** @var \GrahamCampbell\ResultType\Result<S,F> */
         return self::create($this->value);
     }
 
@@ -110,7 +112,7 @@ final class Error extends Result
      *
      * @param callable(E):F $f
      *
-     * @return \GrahamCampbell\ResultType\Error<F>
+     * @return \GrahamCampbell\ResultType\Result<T,F>
      */
     public function mapError(callable $f)
     {

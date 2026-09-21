@@ -14,8 +14,8 @@ declare(strict_types=1);
 namespace GrahamCampbell\ResultType;
 
 /**
- * @template-covariant T
- * @template-covariant E
+ * @template T
+ * @template E
  */
 abstract class Result
 {
@@ -45,7 +45,7 @@ abstract class Result
      *
      * @param callable(T):\GrahamCampbell\ResultType\Result<S,F> $f
      *
-     * @return \GrahamCampbell\ResultType\Result<S,E|F>
+     * @return \GrahamCampbell\ResultType\Result<S,F>
      */
     abstract public function flatMap(callable $f);
 

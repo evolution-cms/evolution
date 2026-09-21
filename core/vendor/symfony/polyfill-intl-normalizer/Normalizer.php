@@ -129,8 +129,7 @@ class Normalizer
                     return false;
                 }
 
-                // the doubled article was fixed in PHP 8.6
-                throw new \ValueError('normalizer_normalize(): Argument #2 ($form) must be a '.(80600 > \PHP_VERSION_ID ? 'a ' : '').'valid normalization form');
+                throw new \ValueError('normalizer_normalize(): Argument #2 ($form) must be a a valid normalization form');
         }
 
         if ('' === $s) {

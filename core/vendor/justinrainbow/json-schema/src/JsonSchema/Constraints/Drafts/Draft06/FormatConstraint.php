@@ -125,11 +125,7 @@ class FormatConstraint implements ConstraintInterface
 
     private function validateDateTime(string $datetime, string $format): bool
     {
-        try {
-            $dt = \DateTime::createFromFormat($format, $datetime);
-        } catch (\Throwable $e) {
-            return false;
-        }
+        $dt = \DateTime::createFromFormat($format, $datetime);
 
         if (!$dt) {
             return false;

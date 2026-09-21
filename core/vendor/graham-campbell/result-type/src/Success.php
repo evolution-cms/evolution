@@ -17,9 +17,10 @@ use PhpOption\None;
 use PhpOption\Some;
 
 /**
- * @template-covariant T
+ * @template T
+ * @template E
  *
- * @extends \GrahamCampbell\ResultType\Result<T,never>
+ * @extends \GrahamCampbell\ResultType\Result<T,E>
  */
 final class Success extends Result
 {
@@ -41,13 +42,13 @@ final class Success extends Result
     }
 
     /**
-     * Create a new success value.
+     * Create a new error value.
      *
      * @template S
      *
      * @param S $value
      *
-     * @return \GrahamCampbell\ResultType\Success<S>
+     * @return \GrahamCampbell\ResultType\Result<S,E>
      */
     public static function create($value)
     {
@@ -71,7 +72,7 @@ final class Success extends Result
      *
      * @param callable(T):S $f
      *
-     * @return \GrahamCampbell\ResultType\Success<S>
+     * @return \GrahamCampbell\ResultType\Result<S,E>
      */
     public function map(callable $f)
     {
@@ -96,7 +97,7 @@ final class Success extends Result
     /**
      * Get the error option value.
      *
-     * @return \PhpOption\Option<never>
+     * @return \PhpOption\Option<E>
      */
     public function error()
     {
@@ -108,9 +109,9 @@ final class Success extends Result
      *
      * @template F
      *
-     * @param callable(never):F $f
+     * @param callable(E):F $f
      *
-     * @return \GrahamCampbell\ResultType\Success<T>
+     * @return \GrahamCampbell\ResultType\Result<T,F>
      */
     public function mapError(callable $f)
     {
