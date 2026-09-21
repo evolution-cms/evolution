@@ -53,6 +53,12 @@ class InstallEvo
      */
     protected function runComposerUpdate(string $cmd): void
     {
+        // This runs before the core bootstraps, so nothing has registered the Composer autoloader yet.
+        if (!loadExecWithFallback()) {
+            warning('⚠ The exec-with-fallback package is missing. Run "composer update" manually.');
+            return;
+        }
+
         $out = [];
         $exitCode = 0;
         try {
