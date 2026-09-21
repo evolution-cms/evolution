@@ -31,6 +31,71 @@ function getLangOptions($install_language = 'en')
     return implode("\n", $_);
 }
 
+/**
+ * Determine whether the installer can create or replace its database config file.
+ */
+function hasInstallConfigPermissions(string $filename): bool
+{
+    if (file_exists($filename)) {
+        return is_file($filename) && is_readable($filename) && is_writable($filename);
+    }
+
+    $directory = dirname($filename);
+    $directoryIsTraversable = DIRECTORY_SEPARATOR === '\\' || is_executable($directory);
+
+    return is_dir($directory)
+        && is_readable($directory)
+        && is_writable($directory)
+        && $directoryIsTraversable;
+}
+
+/**
+ * Write the generated database config without passing an invalid handle to stream functions.
+ */
+function writeInstallConfigFile(string $filename, string $configString): bool
+{
+    if (file_exists($filename)) {
+        @chmod($filename, 0600);
+    }
+
+    $handle = @fopen($filename, 'wb');
+    if (!is_resource($handle)) {
+        return false;
+    }
+
+    $length = strlen($configString);
+    $written = 0;
+    $complete = true;
+
+    try {
+        while ($written < $length) {
+            $bytes = @fwrite($handle, substr($configString, $written));
+            if ($bytes === false || $bytes === 0) {
+                $complete = false;
+                break;
+            }
+
+            $written += $bytes;
+        }
+
+        if ($complete && !@fflush($handle)) {
+            $complete = false;
+        }
+    } finally {
+        @fclose($handle);
+    }
+
+    if (!$complete || $written !== $length) {
+        return false;
+    }
+
+    // Use conventional shared-hosting permissions: owner read/write, everyone else read-only.
+    @chmod($filename, 0644);
+    clearstatcache(true, $filename);
+
+    return is_readable($filename) && is_writable($filename);
+}
+
 function escapeHtmlAttribute($unescaped) {
     return htmlspecialchars($unescaped, ENT_QUOTES, 'UTF-8');
 }

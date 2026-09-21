@@ -2,6 +2,7 @@
 <html lang="[+language_code+]">
 <head>
 <meta charset="[+encoding+]">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>[+pagetitle+]</title>
 <base href="../install/">
 <meta name="robots" content="noindex, nofollow">

@@ -43,6 +43,7 @@ browser.opener.TinyMCE = true;
 browser.opener.TinyMCE4 = "<?= text::jsValue($this->get['field']) ?>";
 <?php ENDIF ?>
 browser.cms = "<?php echo text::jsValue($this->cms) ?>";
+browser.csrfToken = "<?php echo text::jsValue(csrf_token()) ?>";
 _.kuki.domain = "<?php echo text::jsValue($this->config['cookieDomain']) ?>";
 _.kuki.path = "<?php echo text::jsValue($this->config['cookiePath']) ?>";
 _.kuki.prefix = "<?php echo text::jsValue($this->config['cookiePrefix']) ?>";
