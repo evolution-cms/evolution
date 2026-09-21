@@ -628,6 +628,10 @@ if (isset($action)) {
                     $parentDeleted = $parent > 0 && MoveDocumentTargetGuard::blocksParent($parentDocument);
                     if ($parentDeleted) {
                         $json['errors'] = $_lang['error_parent_deleted'];
+                    } elseif (MoveDocumentTargetGuard::isInsideItself($id, $parent)) {
+                        $json['errors'] = $_lang['error_movedocument1'];
+                    } elseif ($parent != $parentOld && MoveDocumentTargetGuard::deniedForUser($parent)) {
+                        $json['errors'] = $_lang['access_permission_parent_denied'];
                     } elseif (empty($json['errors'])) {
                         // check privileges user for move docs
                         if (!empty(evo()->config['tree_show_protected']) && $role != 1) {
