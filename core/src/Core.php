@@ -19,6 +19,7 @@ use EvolutionCMS\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
@@ -101,6 +102,14 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @since 3.5.9
      */
     public $documentTemplateView = '';
+
+    /**
+     * Whether the DocumentParser runs over what the template produced - False for a document rendered from a file
+     * Plugin view engine switches it to true on OnLoadWebDocument to not re-implement a parser.
+     *
+     * @since 3.5.8
+     */
+    public $runDocumentParser = true;
     public $documentOutput;
     public $tstart = 0;
     public $mstart = 0;
@@ -931,7 +940,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $result = $a[0];
         } // return only document content
         else {
-            $docObj = unserialize($a[0]); // rebuild document object
+            $docObj = unserialize($a[0], ['allowed_classes' => false]); // rebuild document object; arrays only, no POP chains
             // check page security
             if ($this->isFrontend() && $docObj['privateweb'] && isset($docObj['__MODxDocGroups__'])) {
                 $pass = false;
@@ -3112,10 +3121,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
     public function setRouterMiddleware()
     {
-        $middleware = array_merge(
+        $middleware = \EvoSessionProxy::filterMiddleware(array_merge(
             config('app.middleware.global', []),
             config('middleware.global', [])
-        );
+        ));
 
         $priority = config('middleware.priority');
 
@@ -3335,6 +3344,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         }
 
         $template = false;
+        $this->runDocumentParser = true;
         if ($this->documentContent == '') {
 
             // get document object from DB
@@ -3366,6 +3376,9 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
             $template = TemplateProcessor::getBladeDocumentContent();
             $this->documentTemplateView = $template ? (string) $template : '';
+
+            // A file is finished output; the database holds source. A plugin may flip this on OnLoadWebDocument, below.
+            $this->runDocumentParser = !$template;
 
             if ($template) {
                 $this->documentObject['cacheable'] = 0;
@@ -3421,7 +3434,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             // invoke OnLoadWebDocument event
             $this->invokeEvent('OnLoadWebDocument');
 
-            if (!$template) {
+            if ($this->runDocumentParser) {
                 // Parse document source
                 $this->documentContent = $this->parseDocumentSource($this->documentContent);
             }
@@ -3437,15 +3450,15 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             }
         }
 
-        if ($template) {
-            $this->outputContent(false, false);
-        } else {
+        if (!$template) {
             register_shutdown_function([
                 &$this,
                 'postProcess'
             ]); // tell PHP to call postProcess when it shuts down
-            $this->outputContent();
         }
+
+        // [!snippets!], [^stats^], tag cleanup, URL rewriting, escaped tag recovery.
+        $this->outputContent(false, $this->runDocumentParser);
     }
 
     public function _sendErrorForUnpubPage()
@@ -3631,7 +3644,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     /**
      * Displays a javascript alert message in the web browser and quit
      *
-     * @param string $msg Message to show
+     * @param string $msg Message to show, as plain text
      * @param string $url URL to redirect to
      */
     public function webAlertAndQuit($msg, $url = '')
@@ -3684,7 +3697,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 </script>
             </head>
             <body>
-                <p>" . $msg . '</p>
+                <p>" . htmlspecialchars((string)$msg, ENT_QUOTES, $manager_charset) . '</p>
             </body>
         </html>';
         exit;
@@ -4662,7 +4675,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     /**
      * Clear the cache of MODX.
      *
-     * @param string $type
+     * @param string|array $type '' page caches, 'full', 'document' (no opcache reset / compiled views) or a document id
      * @param bool $report
      * @return void
      */
@@ -4671,7 +4684,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $cache_dir = $this->bootstrapPath();
 
         /*$this['command.view.clear']->handle();*/
-        $path = $this['config']['view.compiled'];
+        $path = $type === 'document' ? '' : $this['config']['view.compiled'];
         if ($path) {
             foreach ($this['files']->glob("{$path}/*") as $view) {
                 $this['files']->delete($view);
@@ -4687,6 +4700,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $sync->setCachepath($cache_dir);
             $sync->setReport($report);
             $sync->emptyCache();
+        } elseif ($type === 'document') {
+            $sync = new Legacy\Cache();
+            $sync->setCachepath($cache_dir);
+            $sync->refreshDocumentCache($this);
         } elseif (preg_match('@^[1-9]\d*$@', $type)) {
             $key = ($this->getConfig('cache_type') == 2) ? $this->makePageCacheKey($type) : $type;
             $file_name = "docid_" . $key . "_*.pageCache.php";
@@ -6481,7 +6498,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @return string|false
      * @since 3.5.8
      */
-    private function resolveAtBindFilePath($candidate)
+    public function resolveAtBindFilePath($candidate)
     {
         $resolved = realpath($candidate);
         if ($resolved === false || !is_file($resolved)) {
@@ -6511,6 +6528,37 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         return $resolved;
     }
 
+    /**
+     * The file an @FILE or @INCLUDE binding names, or false.
+     *
+     * One containment rule for every binding. It used to be four, and only one
+     * of them resolved the path before checking it.
+     *
+     * @param string $relative the binding's argument, as typed
+     * @param string[] $searchPaths prefixes below EVO_BASE_PATH, in order
+     * @return string|false
+     * @since 3.5.8
+     */
+    public function atBindFilePath($relative, array $searchPaths = [''])
+    {
+        $relative = trim((string) $relative);
+        $relative = ltrim(str_replace(chr(92), '/', $relative), '/');
+
+        if ($relative === '') {
+            return false;
+        }
+
+        foreach ($searchPaths as $path) {
+            $resolved = $this->resolveAtBindFilePath(EVO_BASE_PATH . $path . $relative);
+
+            if ($resolved !== false) {
+                return $resolved;
+            }
+        }
+
+        return false;
+    }
+
     public function atBindFileContent($str = '')
     {
 
@@ -6534,16 +6582,15 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
         $errorMsg = "Could not retrieve string '" . $str . "'.";
 
-        $search_path = ['assets/tvs/', 'assets/chunks/', 'assets/templates/', $this->getConfig('rb_base_url') . 'files/', ''];
-        foreach ($search_path as $path) {
-            $file_path = $this->resolveAtBindFilePath(EVO_BASE_PATH . $path . $str);
+        $file_path = $this->atBindFilePath($str, [
+            'assets/tvs/',
+            'assets/chunks/',
+            'assets/templates/',
+            $this->getConfig('rb_base_url') . 'files/',
+            ''
+        ]);
 
-            if ($file_path !== false) {
-                break;
-            }
-        }
-
-        if (!$file_path) {
+        if ($file_path === false) {
             return $errorMsg;
         }
 
@@ -6608,6 +6655,44 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $this->getUserSettings();
         $this->setConfig('site_timezone', $siteTimezone);
         $this->invokeEvent('OnLoadSettings', ['config' => &$this->config]);
+
+        // The factory defaults read the manager lexicon (core/factory/settings.php), so
+        // ManagerTheme is already built from the system theme and language by the time the
+        // user settings above are merged. Realign it so a per-user manager_theme /
+        // manager_language (and anything OnLoadSettings changed) reaches the manager UI.
+        $this->syncManagerTheme();
+    }
+
+    /**
+     * Realign the already resolved ManagerTheme with the current manager_theme and
+     * manager_language. A different theme needs a new instance (the theme name drives the
+     * view namespaces, the style and the theme snippets/chunks); a different language only
+     * needs the lexicon read again.
+     */
+    protected function syncManagerTheme(): void
+    {
+        if (!$this->isBackend() || !$this->resolved('ManagerTheme')) {
+            return;
+        }
+
+        $managerTheme = $this['ManagerTheme'];
+        if (!$managerTheme instanceof ManagerTheme) {
+            return;
+        }
+
+        $theme = (string) $this->getConfig('manager_theme', 'default');
+        if ($theme !== '' && $theme !== $managerTheme->getTheme()) {
+            // Dropped, not rebuilt: the next call resolves it again from the merged config.
+            $this->forgetInstance('ManagerTheme');
+            Facade::clearResolvedInstance('ManagerTheme');
+
+            return;
+        }
+
+        $language = (string) $this->getConfig('manager_language');
+        if ($language !== '' && $language !== $managerTheme->getLangName()) {
+            $managerTheme->reloadLang($language);
+        }
     }
 
     /**
@@ -6878,25 +6963,13 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         }
 
         $str = substr($str, 9);
-        $str = trim($str);
-        $str = str_replace('\\', '/', $str);
-        $str = ltrim($str, '/');
 
-        $tpl_dir = 'assets/templates/';
+        // This includes rather than reads, so the path settles on is the
+        // path PHP executes. The old check ran on the string as typed, which
+        // a `..` walked straight past.
+        $file_path = $this->atBindFilePath($str, ['', 'assets/templates/']);
 
-        if (strpos($str, EVO_MANAGER_PATH) === 0) {
-            return false;
-        }
-
-        if (is_file(EVO_BASE_PATH . $str)) {
-            $file_path = EVO_BASE_PATH . $str;
-        } elseif (is_file(EVO_BASE_PATH . "{$tpl_dir}{$str}")) {
-            $file_path = EVO_BASE_PATH . $tpl_dir . $str;
-        } else {
-            return false;
-        }
-
-        if (!$file_path || !is_file($file_path)) {
+        if ($file_path === false) {
             return false;
         }
 

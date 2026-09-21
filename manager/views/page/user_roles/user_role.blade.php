@@ -82,6 +82,45 @@
                 </div>
             </div>
 
+            @if($canManageModuleAccess)
+                <div class="tab-page" id="roleModules">
+                    <h2 class="tab">{{ ManagerTheme::getLexicon('role_modules_tab', 'Modules') }}</h2>
+
+                    <script>
+                        tp.addTabPage(document.getElementById('roleModules'));
+                    </script>
+
+                    <div class="container container-body">
+                        @php($isAdminRole = (int)($role->id ?? 0) === 1)
+                        <p>{{ $isAdminRole
+                            ? ManagerTheme::getLexicon('role_modules_admin_msg', 'The administrator role can run every module.')
+                            : ManagerTheme::getLexicon('role_modules_msg', 'Modules this role is allowed to run.') }}</p>
+
+                        @if($modules->count() === 0)
+                            {{ ManagerTheme::getLexicon('role_modules_none', 'No modules have been installed yet.') }}
+                        @else
+                            <div class="row">
+                                @foreach($modules as $module)
+                                    <div class="col-sm-6 col-lg-4">
+                                        <label class="d-block" for="module_{{ $module->id }}_check">
+                                            <input class="form-control click" type="checkbox"
+                                                   id="module_{{ $module->id }}_check"
+                                                   name="modules[{{ $module->id }}]" value="1"
+                                                   @if($isAdminRole || !empty($moduleAccess[$module->id])) checked @endif
+                                                   @if($isAdminRole) disabled @endif/>
+                                            {{ $module->name }}
+                                            @if($module->disabled)
+                                                <small>({{ ManagerTheme::getLexicon('disabled') }})</small>
+                                            @endif
+                                        </label>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
             <div class="tab-page" id="tabAssignedTVs">
                 <h2 class="tab">{{ ManagerTheme::getLexicon('template_assignedtv_tab') }}</h2>
                 <script>tp.addTabPage(document.getElementById('tabAssignedTVs'));</script>

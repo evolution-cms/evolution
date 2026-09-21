@@ -27,6 +27,7 @@
 		body.darkness {
 			background-color: #2a313b !important;
 			background-image: url('[+login_bg+]') !important;
+			[+login_bg_image_set+]
 			background-size: cover !important;
 			background-position: center !important;
 			background-repeat: no-repeat !important;

@@ -64,3 +64,4 @@ Desktop.ini
 **/.*
 !.gitignore
 !/.github
+!/.dockerignore

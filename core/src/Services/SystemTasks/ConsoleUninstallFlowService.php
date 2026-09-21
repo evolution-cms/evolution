@@ -6,6 +6,8 @@ use Symfony\Component\Process\Process;
 
 class ConsoleUninstallFlowService implements SystemTaskHandlerInterface
 {
+    use ReportsProcessFailure;
+
     protected string $corePath;
     protected string $providersDir;
     protected string $aliasesDir;
@@ -100,7 +102,9 @@ class ConsoleUninstallFlowService implements SystemTaskHandlerInterface
         }
 
         if ((int) $exitCode !== 0) {
-            $reason = $this->summarizeOutput($output);
+            $this->reportProcessFailure($report, $step, $progress, $command, $exitCode, $output);
+
+            $reason = $this->summarizeOutput($output, true);
             if ($reason !== '') {
                 throw new \RuntimeException($command . ' failed with exit code ' . (int) $exitCode . '. ' . $reason);
             }
@@ -134,7 +138,7 @@ class ConsoleUninstallFlowService implements SystemTaskHandlerInterface
         return $parts;
     }
 
-    protected function summarizeOutput($output)
+    protected function summarizeOutput($output, bool $fromEnd = false)
     {
         $lines = preg_split('/\r\n|\r|\n/', trim((string) $output));
         $lines = array_values(array_filter(array_map(function ($line) {
@@ -165,7 +169,7 @@ class ConsoleUninstallFlowService implements SystemTaskHandlerInterface
             return '';
         }
 
-        return implode(' ', array_slice($lines, 0, 3));
+        return implode(' ', $this->pickSummaryLines($lines, $fromEnd, $fromEnd ? 5 : 3));
     }
 
     protected function purgeInvalidDiscoveryArtifacts(?callable $report = null)

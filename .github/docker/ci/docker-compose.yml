@@ -1,0 +1,88 @@
+# Installs Evolution CMS onto a real database server and asserts the result.
+#
+#   docker compose -f .github/docker/ci/docker-compose.yml --profile mysql up \
+#       --build --abort-on-container-exit --exit-code-from install-mysql
+#   docker compose -f .github/docker/ci/docker-compose.yml --profile pgsql up \
+#       --build --abort-on-container-exit --exit-code-from install-pgsql
+#
+# One profile per database, so a failing leg names the database in its own
+# service. Run from the repository root: the build context is the whole tree.
+name: evo-ci
+
+services:
+  mysql:
+    profiles: [mysql]
+    # 9.7 is the LTS of the MySQL 9 series.
+    image: mysql:${MYSQL_IMAGE_TAG:-9.7}
+    # Published so the installer can also be driven from the host - which is
+    # what CI does, to avoid building a PHP image for something the runner
+    # already has. The install-* services below reach it over the network
+    # compose creates and ignore this.
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      # No MYSQL_DATABASE on purpose: the installer is meant to create the
+      # database itself, and that branch of checkConnectToDatabaseWithBase()
+      # only runs when the database is missing.
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-psecret"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  pgsql:
+    profiles: [pgsql]
+    image: postgres:${POSTGRES_IMAGE_TAG:-18.6}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: evo
+      POSTGRES_PASSWORD: secret
+      # The database the installer connects to first. The one it installs into
+      # (EVO_DB_NAME below) is deliberately a different, missing database, so
+      # the CREATE DATABASE branch of the installer is exercised.
+      POSTGRES_DB: evo
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U evo -d evo"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  install-mysql:
+    profiles: [mysql]
+    build:
+      context: ../../..
+      dockerfile: .github/docker/ci/Dockerfile
+      args:
+        PHP_VERSION: ${PHP_VERSION:-8.3}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      EVO_DB_TYPE: mysql
+      EVO_DB_HOST: mysql
+      EVO_DB_USER: root
+      EVO_DB_PASSWORD: secret
+      EVO_DB_NAME: evolution
+      EVO_DB_PREFIX: evo_
+
+  install-pgsql:
+    profiles: [pgsql]
+    build:
+      context: ../../..
+      dockerfile: .github/docker/ci/Dockerfile
+      args:
+        PHP_VERSION: ${PHP_VERSION:-8.3}
+    depends_on:
+      pgsql:
+        condition: service_healthy
+    environment:
+      EVO_DB_TYPE: pgsql
+      EVO_DB_HOST: pgsql
+      EVO_DB_USER: evo
+      EVO_DB_PASSWORD: secret
+      EVO_DB_NAME: evolution
+      EVO_DB_PREFIX: evo_

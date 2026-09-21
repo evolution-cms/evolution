@@ -145,12 +145,27 @@ class TemplateProcessor
      */
     private function templateSource(array $doc): string
     {
-        $templateId = (int) get_by_key($doc, 'template', 0);
+        $row = $this->templateRow((int) get_by_key($doc, 'template', 0));
+
+        return (string) ($row->templatesource ?? '');
+    }
+
+    /** @var array<int, SiteTemplate|null> */
+    private array $templateRows = [];
+
+    /** The template row, read once: two columns are wanted at different points. */
+    private function templateRow(int $templateId): ?SiteTemplate
+    {
         if ($templateId === 0) {
-            return '';
+            return null;
         }
 
-        return (string) SiteTemplate::whereKey($templateId)->value('templatesource');
+        if (!array_key_exists($templateId, $this->templateRows)) {
+            $this->templateRows[$templateId] = SiteTemplate::whereKey($templateId)
+                ->first(['id', 'templatesource', 'templatefileextension']);
+        }
+
+        return $this->templateRows[$templateId];
     }
 
     /**
@@ -175,12 +190,9 @@ class TemplateProcessor
             }
         }
 
-        $templateId = (int) get_by_key($doc, 'template', 0);
-        if ($templateId === 0) {
-            return '';
-        }
+        $row = $this->templateRow((int) get_by_key($doc, 'template', 0));
 
-        $extension = (string) SiteTemplate::whereKey($templateId)->value('templatefileextension');
+        $extension = (string) ($row->templatefileextension ?? '');
         if ($extension === '') {
             return '';
         }

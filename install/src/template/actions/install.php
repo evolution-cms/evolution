@@ -86,14 +86,16 @@
     <?php endif; ?>
 <?php endif; ?>
 
-<?php if ($installLevel >= 3) : ?>
-    <?php if (isset($configFileFailed) && $configFileFailed === true) : ?>
-        <p>
-            <?=$_lang['writing_config_file']?> <span class="notok"><?=$_lang['failed']?></span>
-        </p>
-        <p><?=$_lang['cant_write_config_file']?> <code>/core/config/database/connections/default.php</code></p>
-        <textarea style="width:400px; height:160px;"><?=$configString?></textarea>
-        <p><?=$_lang['cant_write_config_file_note']?></p>
+<?php if (isset($configFileFailed)) : ?>
+    <?php if ($configFileFailed === true) : ?>
+        <div class="config-write-failure">
+            <p>
+                <?=$_lang['writing_config_file']?> <span class="notok"><?=$_lang['failed']?></span>
+            </p>
+            <p><?=$_lang['cant_write_config_file']?> <code>/core/config/database/connections/default.php</code></p>
+            <textarea class="config-write-failure__content"><?=htmlspecialchars($configString, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')?></textarea>
+            <p><?=$_lang['cant_write_config_file_retry']?></p>
+        </div>
     <?php else : ?>
         <p>
             <?=$_lang['writing_config_file']?> <span class="ok"><?=$_lang['ok']?></span>

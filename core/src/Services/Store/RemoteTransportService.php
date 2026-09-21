@@ -5,6 +5,7 @@ class RemoteTransportService
     protected array $allowedHosts = [
         'evo.im',
         'extras.evo.im',
+        'api.github.com',
         'github.com',
         'codeload.github.com',
         'raw.githubusercontent.com',

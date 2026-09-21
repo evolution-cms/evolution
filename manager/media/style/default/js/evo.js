@@ -11,21 +11,25 @@
         tabsTimer: 0,
         popupTimer: 0,
         tabsStorageKey: 'EVO_Tabs',
-        tabsCsrfPlaceholder: '__EVO_CSRF_TOKEN__',
-        tabUrlForStorage: function (url) {
-            url = evo.normalizeUrl(url || '');
-            return url.replace(/([?&]_token=)[^&#]*/g, function (match, prefix) {
-                return prefix + evo.tabsCsrfPlaceholder;
-            });
+        tabsCsrfToken: function () {
+            var meta = d.querySelector('meta[name="csrf-token"]');
+            return meta ? (meta.getAttribute('content') || '') : '';
         },
-        tabUrlForRestore: function (url) {
-            url = evo.normalizeUrl(url || '');
-            if (!url || !evo.config.csrf_token) {
-                return url;
-            }
-            return url.replace(/([?&]_token=)[^&#]*/g, function (match, prefix) {
-                return prefix + encodeURIComponent(evo.config.csrf_token);
-            });
+        tabsUrlForStorage: function (url) {
+            return w.evoManagerTabState ? w.evoManagerTabState.storage(url, evo.tabsRestoreOptions()) : '';
+        },
+        tabsUrlForRestore: function (url) {
+            return w.evoManagerTabState ? w.evoManagerTabState.restore(url, evo.tabsRestoreOptions()) : '';
+        },
+        tabsTitleForRestore: function (url, title) {
+            return w.evoManagerTabState ? w.evoManagerTabState.restoreTitle(url, title, evo.tabsRestoreOptions(), d) : 'blank';
+        },
+        tabsRestoreOptions: function () {
+            return { base: evo.EVO_MANAGER_URL, origin: w.location.origin, token: evo.tabsCsrfToken() };
+        },
+        tabsHistoryUrl: function (url) {
+            var safe = evo.tabsUrlForStorage(url);
+            return safe && !evo.getActionFromUrl(safe, 2) ? '#' + safe : evo.EVO_MANAGER_URL;
         },
         tabsStore: function () {
             if (!evo.config.global_tabs || !w.localStorage) {
@@ -63,8 +67,8 @@
                     if (tab.id === 'evo-tab-home') {
                         continue;
                     }
-                    var url = getTabUrl(tab);
-                    if (!url) {
+                    var entry = w.evoManagerTabState.remember(getTabUrl(tab), evo.tabsRestoreOptions());
+                    if (!entry) {
                         continue;
                     }
                     var title = (tab.dataset && tab.dataset.title) ? tab.dataset.title : '';
@@ -72,10 +76,8 @@
                         var titleEl = tab.querySelector('.tab-title');
                         title = titleEl ? titleEl.innerHTML : '';
                     }
-                    tabs.push({
-                        url: evo.tabUrlForStorage(url),
-                        title: title
-                    });
+                    entry.title = title;
+                    tabs.push(entry);
                 }
                 var selected = row.querySelector('h2.tab.selected'),
                     activeUrl = getTabUrl(selected);
@@ -84,7 +86,7 @@
                 }
                 if (tabs.length || activeUrl) {
                     localStorage.setItem(evo.tabsStorageKey, JSON.stringify({
-                        active: evo.tabUrlForStorage(activeUrl),
+                        active: w.evoManagerTabState.remember(activeUrl, evo.tabsRestoreOptions()),
                         tabs: tabs
                     }));
                 } else {
@@ -109,18 +111,29 @@
             if (!data || ((!data.tabs || !data.tabs.length) && !data.active)) {
                 return false;
             }
+            var restored = false;
             if (data.tabs && data.tabs.length) {
                 for (var i = 0; i < data.tabs.length; i++) {
                     var tab = data.tabs[i];
-                    if (tab && tab.url) {
-                        evo.tabs({ url: evo.tabUrlForRestore(tab.url), title: tab.title || 'blank', reload: 0, restoring: true });
+                    if (tab) {
+                        var plan = w.evoManagerTabState.resume(tab, evo.tabsRestoreOptions(), d);
+                        if (plan) {
+                            evo.tabs(Object.assign(plan, { reload: 0, restoring: true }));
+                            restored = true;
+                        }
                     }
                 }
             }
             if (data.active) {
-                evo.tabs({ url: evo.tabUrlForRestore(data.active), title: 'blank', restoring: true, activate: true });
+                var active = data.active;
+                if (active.module && data.tabs) active = data.tabs.find(function (tab) { return tab.module === active.module; }) || active;
+                var activePlan = w.evoManagerTabState.resume(active, evo.tabsRestoreOptions(), d);
+                if (activePlan) {
+                    evo.tabs(Object.assign(activePlan, { reload: 0, restoring: true, activate: true }));
+                    restored = true;
+                }
             }
-            return true;
+            return restored;
         },
         isModuleUrl: function (href) {
             if (!href) {
@@ -136,6 +149,9 @@
             return true;
         },
         init: function () {
+            // Discard legacy unscoped state, which can belong to another login/account.
+            this.tabsStorageKey = 'EVO_Tabs:' + encodeURIComponent(evo.EVO_MANAGER_URL) + ':' + evo.config.tab_restore_user;
+            try { localStorage.removeItem('EVO_Tabs'); localStorage.removeItem('page_url'); } catch (error) { }
             if (!localStorage.getItem('EVO_widthSideBar')) {
                 localStorage.setItem('EVO_widthSideBar', this.config.tree_width);
             }
@@ -143,13 +159,16 @@
             this.mainmenu.init();
             var href = evo.normalizeUrl(w.location.href),
                 startupUrl = '',
+                startupPlan = null,
                 openOnLoad = false;
             if (href) {
                 if (evo.getActionFromUrl(href, 2)) {
                     w.history.replaceState(null, d.title, evo.EVO_MANAGER_URL);
                 } else if (evo.getActionFromUrl(href) || evo.main.getQueryVariable('filemanager', href) || evo.isModuleUrl(href)) {
-                    startupUrl = evo.main.getQueryVariable('filemanager', href) ? evo.EVO_MANAGER_URL + evo.main.getQueryVariable('filemanager', href) + href : evo.tabUrlForRestore(href);
-                    openOnLoad = true;
+                    startupUrl = evo.tabsUrlForRestore(w.location.href);
+                    startupPlan = w.evoManagerTabState.resume(w.location.href, evo.tabsRestoreOptions(), d);
+                    openOnLoad = !!startupPlan;
+                    w.history.replaceState(null, d.title, evo.tabsHistoryUrl(w.location.href));
                 }
             }
             this.resizer.init();
@@ -166,9 +185,9 @@
                     this.tabs({ url: '?a=2', reload: 0 });
                 }
                 if (openOnLoad) {
-                    evo.tabs({ url: startupUrl, title: 'blank' });
+                    evo.tabs(startupPlan);
                 }
-            } else if (openOnLoad) {
+            } else if (openOnLoad && startupUrl) {
                 if (w.main) {
                     w.main.frameElement.src = startupUrl;
                 } else {
@@ -514,7 +533,7 @@
                     w.main.document.addEventListener('click', evo.tabs, false);
                 }
                 var url = evo.normalizeUrl(w.main.location.href);
-                w.history.replaceState(null, d.title, evo.getActionFromUrl(url, 2) ? evo.EVO_MANAGER_URL : '#' + url);
+                w.history.replaceState(null, d.title, evo.tabsHistoryUrl(url));
                 if (evo.moduleViewport) {
                     evo.moduleViewport.syncFrame(e.target);
                 }
@@ -671,14 +690,14 @@
                 var a = w.main.frameElement.contentWindow,
                     b = evo.normalizeUrl(a.location.href),
                     c = localStorage.getItem('page_y') || 0,
-                    f = evo.tabUrlForRestore(localStorage.getItem('page_url') || b);
+                    f = localStorage.getItem('page_url') || b;
                 if (((evo.getActionFromUrl(f) === evo.getActionFromUrl(b)) && (evo.main.getQueryVariable('id', f) && evo.main.getQueryVariable('id', f) === evo.main.getQueryVariable('id', b))) || (f === b)) {
                     a.scrollTo(0, c);
                 }
                 a.addEventListener('scroll', function () {
                     if (this.pageYOffset >= 0) {
                         localStorage.setItem('page_y', this.pageYOffset.toString());
-                        localStorage.setItem('page_url', evo.tabUrlForStorage(b));
+                        localStorage.setItem('page_url', evo.tabsUrlForStorage(b));
                     }
                 }, false);
             },
@@ -1085,6 +1104,10 @@
             isBlockedDropTarget: function (target) {
                 return !!(w.modxTreeDropGuardHelper && !w.modxTreeDropGuardHelper.canDropIntoTarget(target));
             },
+            // nodes the current user may not create or move a resource into
+            isBlockedParentTarget: function (node) {
+                return !!(w.modxTreeParentGuardHelper && w.modxTreeParentGuardHelper.isBlockedParentTarget(node));
+            },
             ondragenter: function (e) {
                 if (
                     d.getElementById('node' + evo.tree.itemToChange) === (this.parentNode.closest('#node' + evo.tree.itemToChange) || this.parentNode)
@@ -1390,6 +1413,11 @@
                     openfolder = parseInt(el.dataset.openfolder);
                 title = title || el.dataset && el.dataset.titleEsc;
                 if (tree.ca === 'move') {
+                    if (this.isBlockedParentTarget(el)) {
+                        e.preventDefault();
+                        alert(evo.lang.access_permission_parent_denied);
+                        return;
+                    }
                     try {
                         this.setSelectedByContext(id);
                         w.main.setMoveValue(id, title);
@@ -1428,6 +1456,11 @@
                     this.setSelected(id);
                 }
                 if (tree.ca === 'parent') {
+                    if (this.isBlockedParentTarget(el)) {
+                        e.preventDefault();
+                        alert(evo.lang.access_permission_parent_denied);
+                        return;
+                    }
                     try {
                         this.setSelectedByContext(id);
                         w.main.setParent(id, title);
@@ -1605,7 +1638,7 @@
                         if (this.selectedObjectDeleted) {
                             alert('"' + this.selectedObjectName + '" ' + evo.lang.already_deleted);
                         } else if (confirm('"' + this.selectedObjectName + '"\n\n' + evo.lang.confirm_delete_resource) === true) {
-                            evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=6&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                            evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=6&id=' + this.itemToChange + '&_token=' + encodeURIComponent(evo.tabsCsrfToken()), title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
                         }
                         break;
                     case 5:
@@ -1617,13 +1650,13 @@
                         break;
                     case 7:
                         if (confirm(evo.lang.confirm_resource_duplicate) === true) {
-                            evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=94&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                            evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=94&id=' + this.itemToChange + '&_token=' + encodeURIComponent(evo.tabsCsrfToken()), title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
                         }
                         break;
                     case 8:
                         if (d.getElementById('node' + this.itemToChange).firstChild.dataset.deleted) {
                             if (confirm('"' + this.selectedObjectName + '" ' + evo.lang.confirm_undelete) === true) {
-                                evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=63&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                                evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=63&id=' + this.itemToChange + '&_token=' + encodeURIComponent(evo.tabsCsrfToken()), title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
                             }
                         } else {
                             alert('"' + this.selectedObjectName + '"' + evo.lang.not_deleted);
@@ -1631,13 +1664,13 @@
                         break;
                     case 9:
                         if (confirm('"' + this.selectedObjectName + '" ' + evo.lang.confirm_publish) === true) {
-                            evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=61&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                            evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=61&id=' + this.itemToChange + '&_token=' + encodeURIComponent(evo.tabsCsrfToken()), title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
                         }
                         break;
                     case 10:
                         if (this.itemToChange !== evo.config.site_start) {
                             if (confirm('"' + this.selectedObjectName + '" ' + evo.lang.confirm_unpublish) === true) {
-                                evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=62&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                                evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=62&id=' + this.itemToChange + '&_token=' + encodeURIComponent(evo.tabsCsrfToken()), title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
                             }
                         } else {
                             evo.alert('Document is linked to site_start variable and cannot be unpublished!');
@@ -1978,6 +2011,7 @@
                     d.getElementById('main').appendChild(this.page);
                     //console.time('load-tab');
                     this.page.firstElementChild.onload = function (e) {
+                        if (!s.tab) return;
                         s.onload.call(s, e);
                         //console.timeEnd('load-tab');
                     };
@@ -2034,7 +2068,7 @@
                         w.main.alert = function (a) { };
                         var message = w.main.document.body.innerHTML;
                         w.main.document.body.style.display = 'none';
-                        history.pushState(null, d.title, evo.getActionFromUrl(this.url, 2) ? evo.EVO_MANAGER_URL : '#' + this.url);
+                        history.pushState(null, d.title, evo.tabsHistoryUrl(this.url));
                         w.onpopstate = function () {
                             history.go(1);
                         };
@@ -2045,7 +2079,7 @@
                                 evo.tree.restoreTree();
                             } else {
                                 w.main.location.href = evo.EVO_MANAGER_URL + s.url;
-                                w.history.replaceState(null, d.title, evo.getActionFromUrl(s.url, 2) ? evo.EVO_MANAGER_URL : '#' + s.url);
+                                w.history.replaceState(null, d.title, evo.tabsHistoryUrl(s.url));
                             }
                         });
                     } else {
@@ -2133,7 +2167,7 @@
                     if (this.getTab && this.action === 76 && !~w.main.frameElement.contentDocument.location.href.indexOf(this.url)) {
                         w.main.frameElement.src = this.url;
                     } else {
-                        w.history.replaceState(null, w.main.document.title, evo.getActionFromUrl(this.url, 2) ? evo.EVO_MANAGER_URL : '#' + this.url);
+                        w.history.replaceState(null, w.main.document.title, evo.tabsHistoryUrl(this.url));
                         evo.tree.setItemToChange();
                         evo.main.tabRow.scroll(this.row, this.tab, 350);
                     }
@@ -2555,6 +2589,9 @@
                             xhr.open(o.method, o.url, true);
                             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;');
                             xhr.setRequestHeader('X-REQUESTED-WITH', 'XMLHttpRequest');
+                            if (new URL(o.url, d.baseURI).origin === w.location.origin && evo.tabsCsrfToken()) {
+                                xhr.setRequestHeader('X-CSRF-TOKEN', evo.tabsCsrfToken());
+                            }
                             if (o.dataType) {
                                 xhr.responseType = o.dataType;
                             }
@@ -2660,6 +2697,9 @@
             var x = this.XHR();
             x.open('GET', a, true);
             x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+            if (new URL(a, d.baseURI).origin === w.location.origin && evo.tabsCsrfToken()) {
+                x.setRequestHeader('X-CSRF-TOKEN', evo.tabsCsrfToken());
+            }
             if (c) x.responseType = c;
             x.onload = function () {
                 if (this.status === 200 && typeof b === 'function') {
@@ -2688,6 +2728,9 @@
             x.open('POST', a, true);
             x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
             x.setRequestHeader('X-REQUESTED-WITH', 'XMLHttpRequest');
+            if (new URL(a, d.baseURI).origin === w.location.origin && evo.tabsCsrfToken()) {
+                x.setRequestHeader('X-CSRF-TOKEN', evo.tabsCsrfToken());
+            }
             if (t) x.responseType = t;
             x.onload = function () {
                 if (this.readyState === 4 && c !== u) {

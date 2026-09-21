@@ -186,6 +186,17 @@
                         'css': 'text/css'
                     };
 
+                    // The CodeMirror plugin registers its EVO tag overlay as
+                    // Evo-<mode>. Setting the bare name here would throw that
+                    // overlay away and leave the template editor with no tag
+                    // highlighting at all, so the overlay is preferred wherever
+                    // the plugin defined one for the mode being asked for.
+                    var overlaid = function(mode) {
+                        return window.CodeMirror && CodeMirror.modes['Evo-' + mode]
+                            ? 'Evo-' + mode
+                            : mode;
+                    };
+
                     var applyHighlighting = function() {
                         if (!window.myCodeMirrors || !window.myCodeMirrors['post']) {
                             return;
@@ -197,7 +208,7 @@
                                 : 'htmlmixed';
 
                         try {
-                            window.myCodeMirrors['post'].setOption('mode', mode);
+                            window.myCodeMirrors['post'].setOption('mode', overlaid(mode));
                         } catch (e) {
                             // An editor that will not take a mode is not worth
                             // breaking the form over.

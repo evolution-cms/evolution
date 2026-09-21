@@ -205,6 +205,20 @@ class ManagerTheme implements ManagerThemeInterface
         }
     }
 
+    /**
+     * Re-read the lexicon for another language.
+     *
+     * The theme is built while the configuration still only holds the system settings,
+     * so the core calls this once the per-user manager_language has been merged in.
+     *
+     * @param string $lang
+     * @return string
+     */
+    public function reloadLang(string $lang): string
+    {
+        return $this->loadLang($lang);
+    }
+
     protected function loadLang($lang = 'english')
     {
         $_lang = [];
@@ -722,6 +736,7 @@ class ManagerTheme implements ManagerThemeInterface
         }
 
         // set login background image
+        $plh['login_bg_image_set'] = '';
         $background = $this->getCore()->getConfig('login_bg', '');
         if ($background !== '') {
             if (substr($background, 0, 4) === "http") {
@@ -733,6 +748,8 @@ class ManagerTheme implements ManagerThemeInterface
             $plh['login_bg'] = EVO_SITE_URL . $background;
         } else {
             $plh['login_bg'] = $this->getThemeUrl() . 'images/login/default/login-background.jpg';
+            $webpBackground = $this->getThemeUrl() . 'images/login/default/login-background.webp';
+            $plh['login_bg_image_set'] = 'background-image: image-set(url("' . $webpBackground . '") type("image/webp"), url("' . $plh['login_bg'] . '") type("image/jpeg")) !important;';
         }
         unset($background);
 

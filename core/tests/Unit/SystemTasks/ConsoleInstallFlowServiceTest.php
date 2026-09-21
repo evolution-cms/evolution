@@ -68,3 +68,20 @@ test('extractProviders merges laravel and evolution providers without duplicates
         'Vendor\\Package\\SecondaryServiceProvider',
     ]);
 });
+
+test('summarizeOutput reads the failure from the tail when asked', function () {
+    $service = new ConsoleInstallFlowService();
+
+    $output = implode("\n", [
+        'Evolution CMS 3.5.8',
+        'Lock file operations: 1 install, 62 updates, 0 removals',
+        '  - Upgrading composer/ca-bundle (1.5.13 => 1.5.14)',
+        'Your requirements could not be resolved to an installable set of packages.',
+        '  - elcreator/aimage 1.0.0 requires ext-imagick * -> it is missing from your system.',
+    ]);
+
+    expect(invokeConsoleInstallFlowMethod($service, 'summarizeOutput', [$output]))
+        ->toStartWith('Lock file operations')
+        ->and(invokeConsoleInstallFlowMethod($service, 'summarizeOutput', [$output, true]))
+        ->toContain('ext-imagick');
+});

@@ -76,10 +76,10 @@ $usernamedata = [
 if($modx->getManagerApi()->action == '88') {
 	// get user attributes
 	$userdatatmp = \EvolutionCMS\Models\UserAttribute::query()->where('internalKey', $user)->first();
-    $userdatatmp = $userdatatmp->makeVisible('role')->toArray();
 	if(!$userdatatmp) {
 		$modx->webAlertAndQuit("No user returned!");
 	}
+    $userdatatmp = $userdatatmp->makeVisible('role')->toArray();
 	$userdata = array_merge($userdata, $userdatatmp);
 	unset($userdatatmp);
 
@@ -87,10 +87,11 @@ if($modx->getManagerApi()->action == '88') {
     $usersettings = \EvolutionCMS\Models\UserSetting::where('user', $user)->pluck('setting_value', 'setting_name')->toArray();
 	extract($usersettings, EXTR_OVERWRITE);
 	// get user name
-	$usernamedata = \EvolutionCMS\Models\User::find($user)->toArray();
+	$usernamedata = \EvolutionCMS\Models\User::find($user);
 	if(!$usernamedata) {
 		$modx->webAlertAndQuit("No user returned while getting username!");
 	}
+	$usernamedata = $usernamedata->toArray();
 	$_SESSION['itemname'] = $usernamedata['username'];
 } else {
 	$_SESSION['itemname'] = $_lang["new_web_user"];

@@ -74,7 +74,8 @@ function bootSiteUpdateDatabase(): Capsule
 /**
  * Create and seed a database that mirrors a site installed at "version N":
  * a healthy ACL baseline, legacy permission keys that the update seeder renames,
- * and an existing (outdated) bundled Extras module — but no system task tables.
+ * and an existing (outdated) bundled Extras module — but no system task tables
+ * or settings that older CLI installers omitted.
  */
 function seedVersionNDatabase(Capsule $capsule): void
 {
@@ -144,6 +145,10 @@ function seedVersionNDatabase(Capsule $capsule): void
     $schema->create('system_eventnames', function (Blueprint $table) {
         $table->increments('id');
         $table->string('name')->nullable();
+    });
+    $schema->create('system_settings', function (Blueprint $table) {
+        $table->string('setting_name', 50)->primary();
+        $table->text('setting_value')->nullable();
     });
 
     $db = $capsule->getConnection();
@@ -247,7 +252,9 @@ test('update from version N to N+1 applies migrations, update seeders and refres
 
     // Pre-state sanity: version "N" has no system task tables and legacy permission keys.
     expect($db->getSchemaBuilder()->hasTable('system_cli_tasks'))->toBeFalse()
-        ->and($db->table('permissions')->where('key', 'logout')->exists())->toBeTrue();
+        ->and($db->table('permissions')->where('key', 'logout')->exists())->toBeTrue()
+        ->and($db->table('system_settings')->where('setting_name', 'site_id')->exists())->toBeFalse()
+        ->and($db->table('system_settings')->where('setting_name', 'manager_theme')->exists())->toBeFalse();
 
     runSiteUpdateDatabaseSteps();
 
@@ -270,6 +277,18 @@ test('update from version N to N+1 applies migrations, update seeders and refres
         ->and($db->table('role_permissions')->where('permission', 'logout')->exists())->toBeFalse()
         ->and($db->table('role_permissions')->where('permission', 'widget_recent_info')->exists())->toBeTrue()
         ->and($db->table('role_permissions')->where('permission', 'manage_groups')->exists())->toBeTrue();
+
+    // Older CLI installers omitted these settings. The update repairs them,
+    // and subsequent updates preserve the site's established values.
+    $siteId = $db->table('system_settings')->where('setting_name', 'site_id')->value('setting_value');
+    expect($siteId)->toBeString()->not->toBe('')
+        ->and($db->table('system_settings')->where('setting_name', 'manager_theme')->value('setting_value'))->toBe('default');
+
+    $db->table('system_settings')->where('setting_name', 'manager_theme')->update(['setting_value' => 'custom']);
+    (new \EvolutionCMS\Installer\Update\SystemSettingsTableSeeder())->run();
+
+    expect($db->table('system_settings')->where('setting_name', 'site_id')->value('setting_value'))->toBe($siteId)
+        ->and($db->table('system_settings')->where('setting_name', 'manager_theme')->value('setting_value'))->toBe('custom');
 
     // Bundled Extras module refreshed from install/assets/modules/store.tpl.
     $extras = $db->table('site_modules')->where('name', 'Extras')->first();

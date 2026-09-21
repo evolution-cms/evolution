@@ -157,17 +157,7 @@ if (!function_exists('updaterFetchReleasePublishedAt')) {
 
         foreach (array_unique($tags) as $tag) {
             $url = 'https://api.github.com/repos/' . $repo . '/releases/tags/' . rawurlencode($tag);
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($ch, CURLOPT_HEADER, false);
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_REFERER, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['User-Agent: updateNotify widget']);
-            $response = curl_exec($ch);
-            if (PHP_VERSION_ID < 80500) {
-                curl_close($ch);
-            }
+            $response = (new \EvolutionCMS\Services\Store\RemoteTransportService())->fetchBody($url);
 
             if (!is_string($response) || $response === '' || strpos(ltrim($response), '{') !== 0) {
                 continue;
@@ -940,19 +930,8 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                 $cacheFile = EVO_BASE_PATH . 'assets/cache/updater/check_' . date("d") . '.json';
 
                 if (!file_exists($cacheFile)) {
-                    $ch = curl_init();
                     $url = 'https://api.github.com/repos/' . $version . '/' . $type;
-                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-                    curl_setopt($ch, CURLOPT_HEADER, false);
-                    //curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-                    curl_setopt($ch, CURLOPT_URL, $url);
-                    curl_setopt($ch, CURLOPT_REFERER, $url);
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                    curl_setopt($ch, CURLOPT_HTTPHEADER, ['User-Agent: updateNotify widget']);
-                    $info = curl_exec($ch);
-                    if (PHP_VERSION_ID < 80500) {
-                        curl_close($ch);
-                    }
+                    $info = (new \EvolutionCMS\Services\Store\RemoteTransportService())->fetchBody($url);
                     if (substr($info, 0, 1) != '[') {
                         return;
                     }
@@ -1368,7 +1347,10 @@ removeFolder(__DIR__ . "/temp");
 unlink(__DIR__ . "/evo.zip");
 $ch = curl_init();
 $url = "https://api.github.com/repos/' . $version . '/releases";
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+curl_setopt($ch, CURLOPT_TIMEOUT, 20);
 curl_setopt($ch, CURLOPT_HEADER, false);
 curl_setopt($ch, CURLOPT_URL, $url);
 curl_setopt($ch, CURLOPT_REFERER, $url);
@@ -1381,12 +1363,14 @@ if (substr($releases, 0, 1) == "[") {
     foreach ($releases as $release) {
         if ($_GET["version"] == $release["tag_name"]) {
             $factoryDate = date("M j, Y", strtotime($release["published_at"]));
-            $factoryVersion = \'<?php return [\'."\n";
-            $factoryVersion .= "\t".\'"version" => "\'.$release["tag_name"].\'", // Current version number\'."\n";
-            $factoryVersion .= "\t".\'"release_date" => "\'.$factoryDate.\'", // Date of release\'."\n";
-            $factoryVersion .= "\t".\'"branch" => "Evolution CMS", // Codebase name\'."\n";
-            $factoryVersion .= "\t".\'"full_appname" => "\'.$release["name"].\' (\'.$factoryDate.\')", // Date of release\'."\n";
-            $factoryVersion .= \'];\';
+            // Release name and tag are remote metadata, so only those go through
+            // var_export: a crafted release must not break out and run as code.
+            $factoryVersion = "<?php return [\n";
+            $factoryVersion .= "    \'version\' => " . var_export((string)$release["tag_name"], true) . ", // Current version number\n";
+            $factoryVersion .= "    \'release_date\' => " . var_export($factoryDate, true) . ", // Date of release\n";
+            $factoryVersion .= "    \'branch\' => \'Evolution CMS\', // Codebase name\n";
+            $factoryVersion .= "    \'full_appname\' => " . var_export($release["name"] . " (" . $factoryDate . ")", true) . ", // Full application name and release date\n";
+            $factoryVersion .= "];\n";
             file_put_contents(__DIR__ . "/core/factory/version.php", $factoryVersion);
             break;
         }

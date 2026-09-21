@@ -262,3 +262,143 @@ test('isExecutableFile accepts a windows shim that is_executable rejects', funct
         @unlink($path);
     }
 });
+
+/**
+ * Update package guards.
+ *
+ * A failed or truncated download must stop the command before any site file is
+ * replaced, and before composer, migrations and seeders run against code that
+ * was never updated.
+ */
+
+function updateGuardWorkspace(): string
+{
+    $path = sys_get_temp_dir() . '/evo-update-guard-' . getmypid() . '-' . uniqid();
+    mkdir($path, 0777, true);
+
+    return $path;
+}
+
+test('downloadUpdateArchive rejects a download that returned nothing', function () {
+    $workspace = updateGuardWorkspace();
+    $target = $workspace . '/new_version.zip';
+
+    try {
+        // A failed transfer warns before returning false; that diagnostic is the
+        // expected behaviour here, so it is swallowed rather than reported as noise.
+        set_error_handler(static fn () => true);
+        try {
+            $missing = invokeSiteUpdateMethod($this->command, 'downloadUpdateArchive', [$workspace . '/absent.zip', $target]);
+        } finally {
+            restore_error_handler();
+        }
+
+        // An empty body stands in for a transfer that connected but delivered nothing.
+        $empty = invokeSiteUpdateMethod($this->command, 'downloadUpdateArchive', ['data://text/plain,', $target]);
+
+        expect($missing)->toBeFalse()
+            ->and($empty)->toBeFalse()
+            ->and(file_exists($target))->toBeFalse();
+    } finally {
+        SiteUpdateCommand::rmdirs($workspace);
+    }
+});
+
+test('downloadUpdateArchive stores a payload it actually received', function () {
+    $workspace = updateGuardWorkspace();
+    $source = $workspace . '/source.zip';
+    $target = $workspace . '/new_version.zip';
+    file_put_contents($source, 'payload-bytes');
+
+    try {
+        expect(invokeSiteUpdateMethod($this->command, 'downloadUpdateArchive', [$source, $target]))->toBeTrue()
+            ->and(file_get_contents($target))->toBe('payload-bytes');
+    } finally {
+        SiteUpdateCommand::rmdirs($workspace);
+    }
+});
+
+test('extractUpdateArchive refuses an empty file that opens as a valid archive', function () {
+    $workspace = updateGuardWorkspace();
+    $file = $workspace . '/new_version.zip';
+    file_put_contents($file, '');
+    $tempDir = $workspace . '/_temp';
+
+    try {
+        // ZipArchive::open() reports success for a zero byte file, so the entry
+        // count is what has to rule it out.
+        expect(invokeSiteUpdateMethod($this->command, 'extractUpdateArchive', [$file, $tempDir]))->toBeFalse();
+    } finally {
+        SiteUpdateCommand::rmdirs($workspace);
+    }
+});
+
+test('extractUpdateArchive refuses a truncated or wrong payload without throwing', function () {
+    $workspace = updateGuardWorkspace();
+    $tempDir = $workspace . '/_temp';
+
+    try {
+        foreach (['<html>404 Not Found</html>', "PK\x03\x04truncated-archive"] as $index => $content) {
+            $file = $workspace . '/payload' . $index . '.zip';
+            file_put_contents($file, $content);
+
+            expect(invokeSiteUpdateMethod($this->command, 'extractUpdateArchive', [$file, $tempDir]))->toBeFalse();
+        }
+    } finally {
+        SiteUpdateCommand::rmdirs($workspace);
+    }
+});
+
+test('extractUpdateArchive unpacks a real archive', function () {
+    $workspace = updateGuardWorkspace();
+    $file = $workspace . '/new_version.zip';
+    $tempDir = $workspace . '/_temp';
+
+    $zip = new ZipArchive();
+    $zip->open($file, ZipArchive::CREATE);
+    $zip->addFromString('evolution-3.5.9/index.php', '<?php // new core');
+    $zip->close();
+
+    try {
+        expect(invokeSiteUpdateMethod($this->command, 'extractUpdateArchive', [$file, $tempDir]))->toBeTrue()
+            ->and(file_get_contents($tempDir . '/evolution-3.5.9/index.php'))->toBe('<?php // new core');
+    } finally {
+        SiteUpdateCommand::rmdirs($workspace);
+    }
+});
+
+test('resolveExtractedRoot names the single unpacked directory and rejects anything else', function () {
+    $workspace = updateGuardWorkspace();
+
+    try {
+        $one = $workspace . '/one';
+        mkdir($one . '/evolution-3.5.9', 0777, true);
+
+        $none = $workspace . '/none';
+        mkdir($none, 0777, true);
+
+        $many = $workspace . '/many';
+        mkdir($many . '/evolution-3.5.9', 0777, true);
+        mkdir($many . '/planted', 0777, true);
+
+        expect(invokeSiteUpdateMethod($this->command, 'resolveExtractedRoot', [$one]))->toBe('evolution-3.5.9')
+            ->and(invokeSiteUpdateMethod($this->command, 'resolveExtractedRoot', [$none]))->toBe('')
+            ->and(invokeSiteUpdateMethod($this->command, 'resolveExtractedRoot', [$many]))->toBe('')
+            ->and(invokeSiteUpdateMethod($this->command, 'resolveExtractedRoot', [$workspace . '/absent']))->toBe('');
+    } finally {
+        SiteUpdateCommand::rmdirs($workspace);
+    }
+});
+
+test('startUpdate aborts on a bad package before touching the site', function () {
+    $source = (string) file_get_contents(dirname(__DIR__, 3) . '/src/Console/SiteUpdateCommand.php');
+    $start = strpos($source, 'Start download Evolution CMS');
+    $move = strpos($source, 'self::moveFiles($temp_dir');
+    $prelude = substr($source, $start, $move - $start);
+
+    // Every guard has to sit between the download and the first site write.
+    expect($prelude)->toContain('downloadUpdateArchive')
+        ->and($prelude)->toContain('extractUpdateArchive')
+        ->and($prelude)->toContain('resolveExtractedRoot')
+        ->and(substr_count($prelude, 'return;'))->toBe(3);
+});

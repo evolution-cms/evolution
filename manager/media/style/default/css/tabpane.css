@@ -141,6 +141,8 @@ text-transform: none; border: none; border-right: 1px solid #cfd2d6; border-left
     letter-spacing: 0;
 }
 .evo-tab-row .tab-row .tab .tab-title { float: left; width: 5rem; line-height: 2rem; text-overflow: ellipsis; overflow: hidden; }
+.evo-tab-row .tab-row .tab .tab-title > svg,
+.evo-tab-row .tab-row .tab .tab-title > i { float: none; margin-top: 0; margin-bottom: 0; vertical-align: middle !important; transform: none; line-height: 1; }
 .evo-tab-row .tab-row .tab .tab-close { float: right; margin: 0 -.75rem 0 .5rem;
 padding: .25em; line-height: 1.3em; font-size: 1.3em; font-weight: 700; color: #9e9e9e }
 .evo-tab-row .tab-row .tab .tab-close:hover { color: #d9534f }

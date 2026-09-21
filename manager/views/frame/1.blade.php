@@ -44,6 +44,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
     <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" />
     <meta name="theme-color" content="{{ ManagerTheme::getThemeColor() }}" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
     <link rel="stylesheet" type="text/css" href="{{$css}}" />
     @if (evo()->getConfig('show_picker'))
         <link rel="stylesheet" href="media/style/common/spectrum/spectrum.css" />
@@ -95,6 +96,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                 groups: @js(evo()->getUserDocGroups())
             },
             config: {
+                tab_restore_user: @js((string) ($_SESSION['mgrInternalKey'] ?? '')),
                 manager_title: @js($managerTitle),
                 menu_height: {{(int)evo()->getConfig('manager_menu_height')}},
                 tree_width: {{(int)$EVO_widthSideBar}},
@@ -115,6 +117,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                 selectedObjectName: null
             },
             lang: {{ js_json([
+                'access_permission_parent_denied' => ManagerTheme::getLexicon('access_permission_parent_denied'),
                 'already_deleted' => ManagerTheme::getLexicon('already_deleted'),
                 'cm_unknown_error' => ManagerTheme::getLexicon('cm_unknown_error'),
                 'collapse_tree' => ManagerTheme::getLexicon('collapse_tree'),
@@ -215,8 +218,10 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
         window.tree = evo.tree;
     </script>
     <script src="media/script/tree-drop-guard-helper.js?v={{evo()->getVersionData('version')}}"></script>
+    <script src="media/script/tree-parent-guard-helper.js?v={{evo()->getVersionData('version')}}"></script>
     <script src="media/script/main-target-link-helper.js?v={{evo()->getVersionData('version')}}"></script>
-    <script src="{{ManagerTheme::getThemeUrl()}}js/evo.js?v={{evo()->getVersionData('version')}}"></script>
+    <script src="@revision(MGR_DIR . '/media/script/manager-tab-state.js')"></script>
+    <script src="@revision(MGR_DIR . '/' . ManagerTheme::getThemeDir(false) . 'js/evo.js')"></script>
     @if ($modx->getConfig('show_picker'))
         <script src="media/script/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
         <script src="media/script/spectrum/spectrum.evo.min.js" type="text/javascript"></script>
@@ -358,6 +363,8 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                                                 {{ icon_html($_style['icon_user_secret']) }} {{ManagerTheme::getLexicon('view_logging')}}
                                             </a>
                                         </li>
+                                    @endif
+                                    @if (evo()->hasPermission('settings'))
                                         <li>
                                             <a href="index.php?a=53" target="main">
                                                 {{ icon_html($_style['icon_info_circle']) }} {{ManagerTheme::getLexicon('view_sysinfo')}}

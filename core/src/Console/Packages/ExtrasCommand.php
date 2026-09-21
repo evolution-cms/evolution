@@ -10,8 +10,9 @@ class ExtrasCommand extends Command
     private const DEFAULT_EXTRAS_CATALOG_URL = 'https://evo.im/extras.json';
     private const EXTRAS_REPO_SOURCES = [
         'https://api.github.com/orgs/evolution-cms/repos',
-        'https://api.github.com/users/Dmi3yy/repos',
         'https://api.github.com/users/Seiger/repos',
+        'https://api.github.com/users/Dmi3yy/repos',
+        'https://api.github.com/users/elcreator/repos',
         'https://api.github.com/orgs/evolution-cms-extras/repos',
     ];
     private const PACKAGES_REPO_SOURCES = [

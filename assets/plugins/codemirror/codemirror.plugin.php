@@ -176,8 +176,8 @@ if(('none' == $rte) && $mode && !defined('INIT_CODEMIRROR')) {
     <script type="text/javascript">
         window.evoElementNameHelperConfig = window.evoElementNameHelperConfig || {};
         window.evoElementNameHelperConfig.endpoint = "{$elementNameHelperEndpoint}";
-        // Add mode MODX for syntax highlighting. Dfsed on $mode
-        CodeMirror.defineMode("MODx-{$mode}", function(config, parserConfig) {
+        // Add the Evolution CMS overlay mode for syntax highlighting, on top of $mode
+        CodeMirror.defineMode("Evo-{$mode}", function(config, parserConfig) {
             var mustacheOverlay = {
                 token: function(stream, state) {
                     var ch;
@@ -264,6 +264,12 @@ if(('none' == $rte) && $mode && !defined('INIT_CODEMIRROR')) {
             };
             return CodeMirror.overlayMode(CodeMirror.getMode(config, parserConfig.backdrop || "{$mode}"), mustacheOverlay);
         });
+        // The mode was called MODx-* for as long as this plugin has existed,
+        // and third-party code refers to it by that name. Kept as an alias so
+        // the rename cannot break it.
+        CodeMirror.defineMode("MODx-{$mode}", function(config) {
+            return CodeMirror.getMode(config, "Evo-{$mode}");
+        });
         function makeMarker(symbol) {
           var marker = document.createElement("div");
           marker.style.color = "#822";
@@ -273,7 +279,7 @@ if(('none' == $rte) && $mode && !defined('INIT_CODEMIRROR')) {
         }
         //Basic settings
         var config = {
-            mode: 'MODx-{$mode}',
+            mode: 'Evo-{$mode}',
             theme: '{$theme}',
             defaulttheme: '{$defaulttheme}',
             darktheme: '{$darktheme}',
@@ -370,6 +376,15 @@ if(('none' == $rte) && $mode && $elements !== NULL) {
 				myCodeMirrors['{$el}'] = CodeMirror.fromTextArea(myTextArea, config);
                 if (window.evoElementNameHelper) {
                     window.evoElementNameHelper.installCodeMirror(myCodeMirrors['{$el}']);
+                }
+                // .CodeMirror is resize: vertical (custom.css), so the wrapper
+                // can be dragged taller. CodeMirror renders the lines its last
+                // measurement said would fit, so the new space stays blank
+                // until it is asked to measure again.
+                if (window.ResizeObserver) {
+                    new ResizeObserver(function() {
+                        myCodeMirrors['{$el}'].refresh();
+                    }).observe(myCodeMirrors['{$el}'].getWrapperElement());
                 }
 				{$setHeight}
 				// reset onchange tab
