@@ -14,6 +14,10 @@ use EvolutionCMS\Traits;
  * @property int $category
  * @property bool $cache_type
  * @property string $snippet
+ *      @deprecated since 3.5.8 A chunk's code belongs in views/chunks/<name>.html.
+ *      Kept for chunks nobody has saved yet, and as the mirror the manager's
+ *      search reads. Nothing renders from it once a file exists.
+ *      @todo [remove@3.7] Remove in Evolution CMS 3.7
  * @property int $locked
  * @property int $createdon
  * @property int $editedon
