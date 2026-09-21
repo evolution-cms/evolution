@@ -1066,6 +1066,40 @@ function seed($folder = 'install')
 }
 
 /**
+ * Make the ExecWithFallback classes loadable without the Composer autoloader.
+ *
+ * The CLI installer runs "composer update" before the core bootstraps, so the vendor autoloader
+ * is not registered yet when the installer wants the package. Only its own PSR-4 directory is
+ * mapped: requiring vendor/autoload.php that early would pull Laravel's helper files in over the
+ * installer's own.
+ *
+ * @since 3.5.9
+ * @return bool whether the package is available
+ */
+function loadExecWithFallback(): bool
+{
+    if (class_exists('ExecWithFallback\ExecWithFallback')) {
+        return true;
+    }
+
+    $directory = EVO_CORE_PATH . 'vendor/rosell-dk/exec-with-fallback/src/';
+    if (!is_file($directory . 'ExecWithFallback.php')) {
+        return false;
+    }
+
+    spl_autoload_register(static function (string $class) use ($directory): void {
+        if (strncmp($class, 'ExecWithFallback\\', 17) === 0) {
+            $file = $directory . substr($class, 17) . '.php';
+            if (is_file($file)) {
+                require $file;
+            }
+        }
+    });
+
+    return class_exists('ExecWithFallback\ExecWithFallback');
+}
+
+/**
  * Print a neutral info message (default color).
  *
  * Guarded because Laravel declares a global info() of its own. The installers load this file
