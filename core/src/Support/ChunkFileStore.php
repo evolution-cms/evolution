@@ -54,7 +54,7 @@ class ChunkFileStore
     public static function make(): self
     {
         $formats = [];
-        $directory = EVO_BASE_PATH . 'views/chunks/';
+        $directory = self::basePath() . 'views/chunks/';
 
         if (function_exists('config')) {
             try {
@@ -66,6 +66,19 @@ class ChunkFileStore
         }
 
         return new self($formats, $directory);
+    }
+
+    /**
+     * The installation root, with a fallback for processes that run without the
+     * bootstrap constants (the cache refresh worker, tests).
+     *
+     * @since 3.5.8
+     */
+    protected static function basePath(): string
+    {
+        $base = defined('EVO_BASE_PATH') ? (string) EVO_BASE_PATH : dirname(__DIR__, 3) . '/';
+
+        return rtrim(str_replace(chr(92), '/', $base), '/') . '/';
     }
 
     /**
@@ -416,8 +429,10 @@ class ChunkFileStore
             return false;
         }
 
+        // both dialects: a bare 2.2 directive is a 500 on Apache 2.4 without mod_access_compat
         foreach ([
-            '.htaccess' => "order deny,allow\ndeny from all\n",
+            '.htaccess' => "<IfModule mod_authz_core.c>\n    Require all denied\n</IfModule>\n"
+                . "<IfModule !mod_authz_core.c>\n    Order deny,allow\n    Deny from all\n</IfModule>\n",
             'index.html' => "<h2>Unauthorized access</h2>\nYou're not allowed to access file folder",
         ] as $guard => $body) {
             if (!file_exists($this->directory . '/' . $guard)) {
@@ -431,7 +446,7 @@ class ChunkFileStore
     /** Relative to the installation: an absolute server path is nobody's business. */
     public function displayDirectory(): string
     {
-        $base = rtrim(str_replace(chr(92), '/', EVO_BASE_PATH), '/') . '/';
+        $base = self::basePath();
         $directory = $this->directory . '/';
 
         return strpos($directory, $base) === 0 ? substr($directory, strlen($base)) : $directory;
