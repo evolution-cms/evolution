@@ -6,8 +6,6 @@ if (!EvolutionCMS()->hasPermission('bk_manager')) {
     EvolutionCMS()->webAlertAndQuit($_lang["error_no_privileges"]);
 }
 
-use ExecWithFallback\ExecWithFallback;
-
 $dbase = EvolutionCMS()->getDatabase()->getConfig('database');
 
 if (!EvolutionCMS()->getConfig('snapshot_path')) {
@@ -42,12 +40,10 @@ if ($mode == 'restore1') {
     } else {
         switch ($driver) {
             case 'pgsql':
-                $tempfile_path = EVO_BASE_PATH . 'assets/backup/temp.php';
-                file_put_contents($tempfile_path,  file_get_contents($_FILES['sqlfile']['tmp_name']));
-
-                $dump_request = 'PGPASSWORD="'.EvolutionCMS()->getDatabase()->getConfig('password').'" psql --host '.EvolutionCMS()->getDatabase()->getConfig('host').' --username ' . EvolutionCMS()->getDatabase()->getConfig('username') . ' --dbname ' . $dbase . ' < '.$tempfile_path;
-                ExecWithFallback::exec($dump_request, $data, $data_second);
-                unlink($tempfile_path);
+                // Read straight from the upload directory: the copy this replaces landed a full
+                // dump in assets/backup/, where Apache serves it.
+                (new EvolutionCMS\Services\DatabaseBackupService(EVO_BASE_PATH))
+                    ->restorePostgresFile($_FILES['sqlfile']['tmp_name']);
                 break;
             default:
                 import_sql_from_file($_FILES['sqlfile']['tmp_name']);
@@ -58,12 +54,25 @@ if ($mode == 'restore1') {
     header('Location: index.php?r=9&a=93');
     exit;
 } elseif ($mode == 'restore2') {
-    $path = EvolutionCMS()->getConfig('snapshot_path') . $_POST['filename'];
+    // The name came from the form unchecked. It used to be concatenated into a shell command,
+    // and it still names a file that is read back as SQL, so it has to resolve to a snapshot
+    // inside the snapshot directory and nowhere else.
+    $snapshotDir = rtrim(str_replace('\\', '/', (string) realpath(EvolutionCMS()->getConfig('snapshot_path'))), '/');
+    $filename = basename((string) get_by_key($_POST, 'filename', '', 'is_scalar'));
+    $path = str_replace('\\', '/', (string) realpath($snapshotDir . '/' . $filename));
+
+    if ($snapshotDir === ''
+        || !preg_match('/^[A-Za-z0-9_.-]+\.sql$/', $filename)
+        || $path === ''
+        || strncmp($path, $snapshotDir . '/', strlen($snapshotDir) + 1) !== 0) {
+        EvolutionCMS()->webAlertAndQuit('Invalid snapshot file.');
+    }
+
     if (file_exists($path)) {
         switch ($driver) {
             case 'pgsql':
-                $dump_request = 'PGPASSWORD="'.EvolutionCMS()->getDatabase()->getConfig('password').'" psql --host '.EvolutionCMS()->getDatabase()->getConfig('host').' --username ' . EvolutionCMS()->getDatabase()->getConfig('username') . ' --dbname ' . $dbase . ' < '.$path;
-                ExecWithFallback::exec($dump_request, $data, $data_second);
+                (new EvolutionCMS\Services\DatabaseBackupService(EVO_BASE_PATH))
+                    ->restorePostgresFile($path);
                 break;
             default :
                 import_sql_from_file($path);
@@ -83,6 +92,16 @@ if ($mode == 'restore1') {
         EvolutionCMS()->webAlertAndQuit("Please select a valid table from the list below.");
     }
 
+    // The names reach pg_dump on a command line and the dumpers inside raw SQL, so keep only
+    // the bare prefixed identifiers.
+    $db = EvolutionCMS()->getDatabase();
+    $tables = array_values(array_filter($tables, static function ($table) use ($db) {
+        return $db->isValidTableName($table);
+    }));
+    if (!$tables) {
+        EvolutionCMS()->webAlertAndQuit("Please select a valid table from the list below.");
+    }
+
     /*
     * Code taken from Ralph A. Dahlgren MySQLdumper Snippet - Etomite 0.6 - 2004-09-27
     * Modified by Raymond 3-Jan-2005
@@ -92,16 +111,15 @@ if ($mode == 'restore1') {
     @set_time_limit(120); // set timeout limit to 2 minutes
     switch ($driver) {
         case 'pgsql':
-            $tempfile_path = EVO_BASE_PATH . 'assets/backup/temp.php';
-            $clean = '';
-            if ($_POST['droptables'] == 'on') {
-                $clean = '--clean';
+            // The table names went onto a command line, and the password went into the
+            // connection URI where the process list shows it. Both are arguments now.
+            $tempfile_path = (new EvolutionCMS\Services\DatabaseBackupService(EVO_BASE_PATH))
+                ->dumpPostgresTables($tables, isset($_POST['droptables']));
+
+            if ($tempfile_path === null) {
+                EvolutionCMS()->webAlertAndQuit('Unable to Backup Database');
             }
-            $table_str = ' -t ' . implode(' -t ', $tables);
 
-            $dump_request = 'pg_dump postgresql://' . EvolutionCMS()->getDatabase()->getConfig('username') . ':'.EvolutionCMS()->getDatabase()->getConfig('password').'@'.EvolutionCMS()->getDatabase()->getConfig('host').'/' . $dbase . ' --clean --inserts --no-owner --no-privileges '. $table_str .'> ' . $tempfile_path;
-
-            ExecWithFallback::exec($dump_request, $data, $data_second);
             dumpSql($tempfile_path);
             break;
         case 'sqlite':
@@ -135,9 +153,11 @@ if ($mode == 'restore1') {
         mkdir(rtrim(EvolutionCMS()->getConfig('snapshot_path'), '/'));
         @chmod(rtrim(EvolutionCMS()->getConfig('snapshot_path'), '/'), 0777);
     }
-    if (!is_file(EvolutionCMS()->getConfig('snapshot_path').".htaccess")) {
-        $htaccess = "order deny,allow\ndeny from all\n";
-        file_put_contents(EvolutionCMS()->getConfig('snapshot_path').".htaccess", $htaccess);
+    if (\is_file(EvolutionCMS()->getConfig('snapshot_path').".htaccess")) {
+        file_put_contents(
+            EvolutionCMS()->getConfig('snapshot_path').".htaccess",
+            EvolutionCMS\Services\DatabaseBackupService::DENY_HTACCESS
+        );
     }
     if (!is_writable(rtrim(EvolutionCMS()->getConfig('snapshot_path'), '/'))) {
         EvolutionCMS()->webAlertAndQuit(parsePlaceholder($_lang["bkmgr_alert_mkdir"], ['snapshot_path' => EvolutionCMS()->getConfig('snapshot_path')]));
@@ -605,7 +625,7 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
 
 $tab = get_by_key($_GET, 'tab', false);
 if (is_numeric($tab)) {
-    echo '<script type="text/javascript">tpDBM.setSelectedIndex( ' . $_GET['tab'] . ' );</script>';
+    echo '<script type="text/javascript">tpDBM.setSelectedIndex( ' . (int)$_GET['tab'] . ' );</script>';
 }
 
 include_once EVO_MANAGER_PATH . "includes/footer.inc.php"; // send footer

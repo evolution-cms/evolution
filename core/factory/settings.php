@@ -54,8 +54,9 @@
     'use_editor' => 1,
     'editor_css_path' => '',
     'filemanager_path' => '[(base_path)]',
-    'upload_files' => 'bmp,ico,gif,jpeg,jpg,png,psd,tif,tiff,fla,flv,swf,aac,au,avi,css,cache,doc,docx,gz,gzip,htaccess,htm,html,js,mp3,mp4,mpeg,mpg,ods,odp,odt,pdf,ppt,pptx,rar,tar,tgz,txt,wav,wmv,xls,xlsx,xml,z,zip,JPG,JPEG,PNG,GIF,svg,tpl,webp,avif',
-    'upload_images' => 'bmp,ico,gif,jpeg,jpg,png,psd,tif,tiff,svg,webp,avif',
+    // no svg (scriptable, same-origin), htaccess or flash; defaults only reach new installs
+    'upload_files' => 'bmp,ico,gif,jpeg,jpg,png,psd,tif,tiff,aac,au,avi,css,cache,doc,docx,gz,gzip,htm,html,js,mp3,mp4,mpeg,mpg,ods,odp,odt,pdf,ppt,pptx,rar,tar,tgz,txt,wav,wmv,xls,xlsx,xml,z,zip,JPG,JPEG,PNG,GIF,tpl,webp,avif',
+    'upload_images' => 'bmp,ico,gif,jpeg,jpg,png,psd,tif,tiff,webp,avif',
     'upload_media' => 'au,avi,mp3,mp4,mpeg,mpg,wav,wmv',
     'upload_maxsize' => '5000000',
     'new_file_permissions' => '0644',

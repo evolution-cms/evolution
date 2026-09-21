@@ -95,3 +95,61 @@ test('composer option handling is guarded by command signature', function () {
         ->toContain("hasCommandOption('no-dev')")
         ->toContain("hasCommandOption('optimize-autoloader')");
 });
+
+test('package install require scopes composer update to the installed package', function () {
+    $composer = tempnam(sys_get_temp_dir(), 'evo-composer-');
+    file_put_contents($composer, json_encode(['name' => 'evolutioncms/custom', 'require' => []]));
+
+    $command = new InstallPackageRequireCommand();
+    setPackageRequireComposerPath($command, $composer);
+
+    $tester = new CommandTester($command);
+    $tester->execute([
+        'key' => 'evolution-cms/emcp',
+        'value' => '*',
+        'composer_run' => '0',
+        '--no-dev' => true,
+    ]);
+
+    expect($command->buildComposerArguments())->toBe([
+        'command' => 'update',
+        'packages' => ['evolution-cms/emcp'],
+        '--with-dependencies' => true,
+        '--no-dev' => true,
+    ]);
+
+    @unlink($composer);
+});
+
+test('package remove require scopes composer update to the removed package', function () {
+    $composer = tempnam(sys_get_temp_dir(), 'evo-composer-');
+    file_put_contents($composer, json_encode([
+        'name' => 'evolutioncms/custom',
+        'require' => ['Seiger/sCommerce' => '*', 'seiger/stask' => '*'],
+    ]));
+
+    $command = new RemovePackageRequireCommand();
+    setPackageRequireComposerPath($command, $composer);
+
+    $tester = new CommandTester($command);
+    $tester->execute(['key' => 'sCommerce', 'composer_run' => '0']);
+
+    expect($command->buildComposerArguments())->toBe([
+        'command' => 'update',
+        'packages' => ['Seiger/sCommerce'],
+        '--with-dependencies' => true,
+    ]);
+
+    @unlink($composer);
+});
+
+test('composer update falls back to a full update when no package was changed', function () {
+    $command = new InstallPackageRequireCommand();
+    $command->setLaravel(new PackageRequireTestContainer());
+
+    $input = new ReflectionProperty($command, 'input');
+    $input->setAccessible(true);
+    $input->setValue($command, new \Symfony\Component\Console\Input\ArrayInput(['key' => 'vendor/pkg', 'value' => '*'], $command->getDefinition()));
+
+    expect($command->buildComposerArguments())->toBe(['command' => 'update']);
+});

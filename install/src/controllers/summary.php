@@ -6,21 +6,14 @@ if (!function_exists('f_owc')) {
      * @param $data
      * @param null|int $mode
      */
-    function f_owc($path, $data, $mode = null)
+    function f_owc($path, $data, $mode = null): bool
     {
-        try {
-            // make an attempt to create the file
-            $hnd = fopen($path, 'w');
-            fwrite($hnd, $data);
-            fclose($hnd);
-
-            if (!is_null($mode)) {
-                @chmod($path, $mode);
-            }
-        } catch (Exception $e) {
-            // Nothing, this is NOT normal
-            unset($e);
+        $written = @file_put_contents($path, $data, LOCK_EX);
+        if ($written === false || $written !== strlen($data)) {
+            return false;
         }
+
+        return is_null($mode) || @chmod($path, $mode);
     }
 }
 
@@ -117,6 +110,20 @@ if (!is_writable("../assets/cache")) {
     echo '<span class="notok">' . $_lang['failed'] . '</span></p>';
 } else {
     echo '<span class="ok">' . $_lang['ok'] . '</span></p>';
+}
+
+// Check database config permissions for installation modes that replace it.
+if ($installMode !== 1) {
+    $databaseConfigFile = EVO_CORE_PATH . 'config/database/connections/default.php';
+    echo '<p>' . $_lang['checking_if_database_config_writable'];
+    if (!hasInstallConfigPermissions($databaseConfigFile)) {
+        $errors++;
+        echo '<span class="notok">' . $_lang['failed'] . '</span></p>';
+        echo '<p class="config-write-failure"><span class="notok">'
+            . $_lang['cant_write_config_file_retry'] . '</span></p>';
+    } else {
+        echo '<span class="ok">' . $_lang['ok'] . '</span></p>';
+    }
 }
 
 // cache files writable?
