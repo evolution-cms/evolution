@@ -653,10 +653,10 @@ if (isset($action)) {
                         if ($parent == 0 && $parent != $parentOld && !evo()->config['udperms_allowroot'] && $role != 1) {
                             $json['errors'] = $_lang["error_no_privileges"];
                         } else {
-                            // set new parent
-                            SiteContent::withTrashed()->where('id', $id)->update([
-                                'parent' => $parent,
-                            ]);
+                            // through the model so the closure table follows the new parent
+                            $document = SiteContent::withTrashed()->find($id);
+                            $document->parent = $parent;
+                            $document->save();
 
                             if ($parent > 0) {
                                 // set parent isfolder = 1
@@ -692,6 +692,7 @@ if (isset($action)) {
                                     'old_parent' => $parentOld,
                                     'new_parent' => $parent,
                                 ]);
+                                evo()->clearCache('document');
                             }
                         }
                     }

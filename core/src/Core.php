@@ -4627,7 +4627,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     /**
      * Clear the cache of MODX.
      *
-     * @param string $type
+     * @param string|array $type '' page caches, 'full', 'document' (no opcache reset / compiled views) or a document id
      * @param bool $report
      * @return void
      */
@@ -4636,7 +4636,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $cache_dir = $this->bootstrapPath();
 
         /*$this['command.view.clear']->handle();*/
-        $path = $this['config']['view.compiled'];
+        $path = $type === 'document' ? '' : $this['config']['view.compiled'];
         if ($path) {
             foreach ($this['files']->glob("{$path}/*") as $view) {
                 $this['files']->delete($view);
@@ -4652,6 +4652,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $sync->setCachepath($cache_dir);
             $sync->setReport($report);
             $sync->emptyCache();
+        } elseif ($type === 'document') {
+            $sync = new Legacy\Cache();
+            $sync->setCachepath($cache_dir);
+            $sync->refreshDocumentCache($this);
         } elseif (preg_match('@^[1-9]\d*$@', $type)) {
             $key = ($this->getConfig('cache_type') == 2) ? $this->makePageCacheKey($type) : $type;
             $file_name = "docid_" . $key . "_*.pageCache.php";
