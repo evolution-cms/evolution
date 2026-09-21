@@ -5,6 +5,7 @@ use EvolutionCMS\Models\SiteModule;
 use EvolutionCMS\Models\SiteModuleRole;
 use EvolutionCMS\Services\ComposerVersionSynchronizer;
 use EvolutionCMS\Services\Store\RemoteTransportService;
+use ExecWithFallback\ExecWithFallback;
 use Illuminate\Console\Command;
 
 /**
@@ -990,7 +991,7 @@ HELP;
             ? 'where ' . escapeshellarg($command) . ' >NUL 2>NUL'
             : 'command -v ' . escapeshellarg($command) . ' >/dev/null 2>&1';
 
-        exec($probe, $output, $exitCode);
+        ExecWithFallback::exec($probe, $output, $exitCode);
 
         return (int) $exitCode === 0;
     }
@@ -1013,7 +1014,7 @@ HELP;
     protected function runCoreShellCommand(string $command): void
     {
         $fullCommand = 'cd ' . escapeshellarg(EVO_CORE_PATH) . ' && ' . $command . ' 2>&1';
-        exec($fullCommand, $output, $exitCode);
+        ExecWithFallback::exec($fullCommand, $output, $exitCode);
 
         if ((int) $exitCode !== 0) {
             $message = 'Command failed: ' . $command;

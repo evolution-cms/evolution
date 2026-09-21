@@ -75,6 +75,7 @@
         "phpmailer/phpmailer": "7.*",
         "phpoption/phpoption": "*",
         "predis/predis": "*",
+        "rosell-dk/exec-with-fallback": "*",
         "rosell-dk/webp-convert": "*",
         "secondnetwork/blade-tabler-icons": "^3.46",
         "simplepie/simplepie": "1.*",
