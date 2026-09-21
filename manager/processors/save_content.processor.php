@@ -466,7 +466,7 @@ switch ($actionToTake) {
 
         if ($syncsite == 1) {
             // empty cache
-            $modx->clearCache('full');
+            $modx->clearCache('document');
         }
 
         // redirect/stay options
@@ -671,7 +671,7 @@ switch ($actionToTake) {
 
         if ($syncsite == 1) {
             // empty cache
-            $modx->clearCache('full');
+            $modx->clearCache('document');
         }
 
         if ($_POST['refresh_preview'] == '1')

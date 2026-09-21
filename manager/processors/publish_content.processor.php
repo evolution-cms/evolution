@@ -53,7 +53,7 @@ EvolutionCMS()->invokeEvent("OnDocPublished",["docid"=>$id]);
 $_SESSION['itemname'] = $content['pagetitle'];
 
 // empty cache
-EvolutionCMS()->clearCache('full');
+EvolutionCMS()->clearCache('document');
 
 $header="Location: index.php?a=3&id=$pid&r=1".$add_path;
 
