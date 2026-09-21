@@ -109,15 +109,6 @@ function seedVersionNDatabase(Capsule $capsule): void
         $table->string('category')->nullable();
         $table->integer('rank')->default(0);
     });
-    // settings_version is what the manager menu shows; version N left it stale.
-    $schema->create('system_settings', function (Blueprint $table) {
-        $table->string('setting_name')->primary();
-        $table->text('setting_value')->nullable();
-    });
-    $capsule->getConnection()->table('system_settings')->insert([
-        'setting_name' => 'settings_version',
-        'setting_value' => '0.0.0',
-    ]);
     $schema->create('site_modules', function (Blueprint $table) {
         $table->increments('id');
         $table->string('name')->nullable();
@@ -154,6 +145,11 @@ function seedVersionNDatabase(Capsule $capsule): void
         $table->string('setting_name', 50)->primary();
         $table->text('setting_value')->nullable();
     });
+    // settings_version is what the manager menu shows; version N left it stale.
+    $capsule->getConnection()->table('system_settings')->insert([
+        'setting_name' => 'settings_version',
+        'setting_value' => '0.0.0',
+    ]);
 
     $db = $capsule->getConnection();
 
