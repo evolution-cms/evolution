@@ -151,8 +151,15 @@ return [
     | to the server if the browser has a HTTPS connection. This will keep
     | the cookie from being sent to you if it can not be done securely.
     |
+    | Unset, it follows the current request: an HTTPS site gets the Secure
+    | flag without configuration. Set it explicitly behind a TLS-terminating
+    | proxy that talks plain HTTP to PHP.
+    |
     */
-    'secure' => env('SESSION_SECURE_COOKIE', false),
+    'secure' => env('SESSION_SECURE_COOKIE') ?? (
+        (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || (int)($_SERVER['SERVER_PORT'] ?? 0) === 443
+    ),
 
     /*
     |--------------------------------------------------------------------------
