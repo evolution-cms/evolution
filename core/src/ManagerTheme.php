@@ -8,7 +8,6 @@ use EvolutionCMS\Controllers\Users\ChangePassword;
 use EvolutionCMS\Exceptions\ServiceValidationException;
 use EvolutionCMS\Interfaces\ManagerThemeInterface;
 use EvolutionCMS\Interfaces\CoreInterface;
-use EvolutionCMS\Models\ActiveUser;
 use EvolutionCMS\Models\UserAttribute;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -483,6 +482,9 @@ class ManagerTheme implements ManagerThemeInterface
 
         $response = $evo->router->dispatch($request);
         $response->send();
+
+        // Bookkeeping writes go out after the client has its page; Tracy still has its bar to append, so it stays attached.
+        Services\ManagerActivity::instance()->flush(!\Tracy\Debugger::isEnabled());
     }
 
     public function handle($action, array $data = [])
@@ -518,8 +520,11 @@ class ManagerTheme implements ManagerThemeInterface
         /********************************************************************/
         // log action, unless it's a frame request
         if ($action > 0 && \in_array($action, [1, 2, 7], true) === false) {
-            $log = new Legacy\LogHandler;
-            $log->initAndWriteLog();
+            // $_SESSION['itemname'] is dropped below, so it is captured for the deferred write
+            $itemName = (string) ($_SESSION['itemname'] ?? '');
+            Services\ManagerActivity::instance()->defer(static function () use ($itemName): void {
+                (new Legacy\LogHandler)->initAndWriteLog('', '', '', '', '', $itemName);
+            });
         }
         /********************************************************************/
 
@@ -820,15 +825,14 @@ class ManagerTheme implements ManagerThemeInterface
         $this->getCore()->getManagerApi()->action = $action;
 
         if ((int)$action > 1) {
-            ActiveUser::where('internalKey', $this->getCore()->getLoginUserID('mgr'))->forceDelete();
-            $activeUser = new ActiveUser;
-            $activeUser->sid = session_id();
-            $activeUser->internalKey = (int)$this->getCore()->getLoginUserID('mgr');
-            $activeUser->username = $_SESSION['mgrShortname'];
-            $activeUser->lasthit = (int)$this->getCore()->tstart;
-            $activeUser->action = (int)$action;
-            $activeUser->id = (int)$this->getItemId();
-            $activeUser->save();
+            Services\ManagerActivity::instance()->setAction(
+                (int)$this->getCore()->getLoginUserID('mgr'),
+                (string)session_id(),
+                (string)$_SESSION['mgrShortname'],
+                (int)$this->getCore()->tstart,
+                (int)$action,
+                (int)$this->getItemId()
+            );
             $flag = true;
         }
 

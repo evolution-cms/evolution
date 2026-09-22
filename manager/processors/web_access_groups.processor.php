@@ -111,12 +111,7 @@ switch ($operation) {
 
 // secure web documents - flag as private
 if ($updategroupaccess == true) {
-    include EVO_MANAGER_PATH . "includes/secure_web_documents.inc.php";
-    if ($context) {
-        secureWebDocument();
-    } else {
-        secureMgrDocument();
-    }
+    \EvolutionCMS\Support\DocumentPrivacy::refreshAll($context ? \EvolutionCMS\Support\DocumentPrivacy::WEB : \EvolutionCMS\Support\DocumentPrivacy::MANAGER);
     // Update the private group column
     $columnName = $context ? 'private_webgroup' : 'private_memgroup';
     $resp = \EvolutionCMS\Models\DocumentgroupName::query()->select('documentgroup_names.id',

@@ -722,6 +722,7 @@ $_lang["resource_overview"] = 'Resource overview';
 $_lang["resource_parent"] = '文档之父本。';
 $_lang["resource_parent_help"] = '点上面文件夹的图标来激活或禁止父本的选择，当激活的时候，你可以从文档树中选择一文档作为本文档的父本。';
 $_lang["resource_permissions_error"] = 'Assign this Resource to at least one Resource Group to which you have access.';
+$_lang["resource_save_unconfirmed"] = '无法确认保存。编辑器将重新加载以显示已保存的状态。';
 $_lang["resource_setting"] = '文档设置';
 $_lang["resource_summary"] = '摘要 (介绍)';
 $_lang["resource_summary_help"] = '输入文档的大纲';

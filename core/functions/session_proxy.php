@@ -33,7 +33,9 @@ class EvoSessionProxy
     }
 
     /**
-     * Drops the session middleware from a front-end group while sessions are disabled.
+     * Drops the session middleware from a front-end group while sessions are disabled,
+     * and with it what reads the store: ShareErrorsFromSession would throw
+     * "Session store not set on request" on every routed front-end request.
      * @param string[] $middleware
      * @return string[]
      */
@@ -46,6 +48,7 @@ class EvoSessionProxy
         return array_values(array_filter($middleware, static fn ($m) => !in_array($m, [
             \Illuminate\Session\Middleware\StartSession::class,
             \EvolutionCMS\Middleware\SessionProxy::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
         ], true)));
     }
 

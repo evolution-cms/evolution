@@ -3,6 +3,8 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true) {
     die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the EVO Content Manager instead of accessing this file directly.");
 }
 
+use EvolutionCMS\Support\DocumentPrivacy;
+
 /**
  *    Secure Web Documents
  *    This script will mark web documents as private
@@ -11,34 +13,23 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true) {
  *    is assigned to the document group that the document belongs to.
  *
  * @param string $docid
+ * @deprecated since 3.5.9 use EvolutionCMS\Support\DocumentPrivacy
+ * @todo [remove@3.7] Remove in Evolution CMS 3.7
  */
 function secureWebDocument($docid = '', $context = 1)
 {
-    $context = $context == 0 ? 0 : 1;
-    $privateField = $context ? 'privateweb' : 'privatemgr';
+    $context = $context == 0 ? DocumentPrivacy::MANAGER : DocumentPrivacy::WEB;
     if (is_numeric($docid) && $docid > 0) {
-        \EvolutionCMS\Models\SiteContent::withTrashed()->find($docid)->update([$privateField => 0]);
+        DocumentPrivacy::refresh((int) $docid, $context);
     } else {
-        \EvolutionCMS\Models\SiteContent::withTrashed()->where($privateField, 1)->update([$privateField => 0]);
-    }
-
-    $documentIds = \EvolutionCMS\Models\SiteContent::withTrashed()->select('site_content.id')->distinct()
-        ->leftJoin('document_groups', 'site_content.id', '=', 'document_groups.document')
-        ->leftJoin('membergroup_access', function(Illuminate\Database\Query\JoinClause $join) use ($context) {
-            $join->on('document_groups.document_group', '=', 'membergroup_access.documentgroup')
-                ->where('membergroup_access.context', '=', $context);
-        })->where('membergroup_access.id', '>', 0);
-    if (is_numeric($docid) && $docid > 0) {
-        $documentIds = $documentIds->where('site_content.id', $docid);
-    }
-
-    $ids = $documentIds->get()->pluck('id');
-
-    if (count($ids) > 0) {
-        \EvolutionCMS\Models\SiteContent::withTrashed()->whereIn('id', $ids)->update([$privateField => 1]);
+        DocumentPrivacy::refreshAll($context);
     }
 }
 
+/**
+ * @deprecated since 3.5.9 use EvolutionCMS\Support\DocumentPrivacy
+ * @todo [remove@3.7] Remove in Evolution CMS 3.7
+ */
 function secureMgrDocument($docid = '', $context = 0)
 {
     secureWebDocument($docid, $context);

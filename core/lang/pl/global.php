@@ -770,6 +770,7 @@ $_lang["resource_overview"] = 'Szczegóły dokumentu';
 $_lang["resource_parent"] = 'Dokument nadrzędny';
 $_lang["resource_parent_help"] = 'Kliknij na powyższej ikonie folderu aby włączyć (lub wyłączyć) wybór dokumentu nadrzędnego, a następnie kliknij na dokumencie w drzewie, żeby ustawić go jako nadrzędny dla tego dokumentu.';
 $_lang["resource_permissions_error"] = 'Przypisz ten zasób przynajmniej do jednej grupy zasobów do której masz dostęp.';
+$_lang["resource_save_unconfirmed"] = 'Nie udało się potwierdzić zapisu. Edytor zostanie przeładowany, aby pokazać zapisany stan.';
 $_lang["resource_setting"] = 'Ustawienia dokumentu';
 $_lang["resource_summary"] = 'Wstęp';
 $_lang["resource_summary_help"] = 'Wpisz krótki wstęp dla dokumentu';

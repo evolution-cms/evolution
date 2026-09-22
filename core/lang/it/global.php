@@ -769,6 +769,7 @@ $_lang["resource_overview"] = 'Dettagli Risorsa';
 $_lang["resource_parent"] = 'Risorsa genitore';
 $_lang["resource_parent_help"] = 'Selezionate una Risorsa nella struttura ad albero per impostarla come genitore di questa Risorsa.';
 $_lang["resource_permissions_error"] = 'Assegnate questa Risorsa ad almeno un Gruppo Risorse al quale avete accesso.';
+$_lang["resource_save_unconfirmed"] = 'Il salvataggio non è stato confermato. L\'editor verrà ricaricato per mostrare lo stato memorizzato.';
 $_lang["resource_setting"] = 'Impostazioni Risorsa';
 $_lang["resource_summary"] = 'Sommario';
 $_lang["resource_summary_help"] = 'Inserire un breve sommario della Risorsa';

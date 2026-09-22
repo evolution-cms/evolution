@@ -401,20 +401,21 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      */
     public function checkAccess($userId): bool
     {
-        if (empty($context)) {
-            $context = $this->getContext();
-        }
-        $user = User::query()->find(evo()->getLoginUserID($context));
-        if (is_null($user)) {
+        // one query for the three block columns; a user without an attributes row passes as before
+        $row = User::query()
+            ->leftJoin('user_attributes', 'user_attributes.internalKey', '=', 'users.id')
+            ->where('users.id', (int) $userId)
+            ->first(['users.id', 'user_attributes.blocked', 'user_attributes.blockeduntil', 'user_attributes.blockedafter']);
+        if (is_null($row)) {
             return false;
         }
-        if ($user->attributes->blocked != 0) {
+        if ((int) $row->blocked != 0) {
             return false;
         }
-        if ($user->attributes->blockeduntil > time()) {
+        if ((int) $row->blockeduntil > time()) {
             return false;
         }
-        if ($user->attributes->blockedafter < time() && $user->attributes->blockedafter > 0) {
+        if ((int) $row->blockedafter < time() && (int) $row->blockedafter > 0) {
             return false;
         }
         return true;
@@ -1318,14 +1319,14 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * Otherwise runs at shutdown, so it works on every SAPI including Apache mod_php, plain CGI and Windows/IIS
      * @param callable $callback
      */
-    protected function deferAfterResponse(callable $callback)
+    public function deferAfterResponse(callable $callback)
     {
         register_shutdown_function(function () use ($callback) {
             $this->finishRequest();
             try {
                 $callback();
             } catch (\Throwable $e) {
-                Log::error('Deferred publish-status sync failed: ' . $e->getMessage());
+                Log::error('Deferred after-response work failed: ' . $e->getMessage(), ['exception' => $e]);
             }
         });
     }
@@ -3944,9 +3945,9 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         if (!$type || !$id || !$userId) {
             return false;
         }
-        return ActiveUserLock::query()->updateOrCreate(['elementId' => $id],
-            ['internalKey' => $userId, 'elementType' => $type, 'lasthit' => $this->time, 'sid' => $this->sid]);
+        Services\ManagerActivity::instance()->lock($type, $id, (int) $userId, (string) $this->sid, (int) $this->time);
 
+        return true;
     }
 
     /**
@@ -4001,19 +4002,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         // web users are stored with negative keys
         $userId = $this->getLoginUserType() == 'manager' ? $this->getLoginUserID() : -$this->getLoginUserID();
         if ($userId != false) {
-            Models\ActiveUserSession::where('internalKey', $userId)->delete();
-            Models\ActiveUserSession::where('sid', $this->sid)->delete();
-            try {
-                Models\ActiveUserSession::updateOrCreate([
-                    'internalKey' => $userId,
-                    'sid' => $this->sid,
-                ], [
-                    'lasthit' => $this->time,
-                    'ip' => $_SESSION['ip'],
-                ]);
-            } catch (\Exception $exception) {
-
-            }
+            Services\ManagerActivity::instance()
+                ->touchSession((int) $userId, (string) $this->sid, (int) $this->time, (string) $_SESSION['ip']);
         }
     }
 
@@ -4703,7 +4693,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         } elseif ($type === 'document') {
             $sync = new Legacy\Cache();
             $sync->setCachepath($cache_dir);
-            $sync->refreshDocumentCache($this);
+            // a manager request gets its answer first, the file rebuild follows once the response is out
+            $sync->refreshDocumentCache($this, $this->isBackend() && !is_cli());
         } elseif (preg_match('@^[1-9]\d*$@', $type)) {
             $key = ($this->getConfig('cache_type') == 2) ? $this->makePageCacheKey($type) : $type;
             $file_name = "docid_" . $key . "_*.pageCache.php";

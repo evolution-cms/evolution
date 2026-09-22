@@ -284,7 +284,7 @@ class UserLogin implements UserServiceInterface
 
         EvolutionCMS()->cleanupExpiredLocks();
         EvolutionCMS()->cleanupMultipleActiveUsers();
-        if(!defined('NO_SESSION')) {
+        if (!(class_exists('EvoSessionProxy', false) && \EvoSessionProxy::disabled())) {
             $this->writeSession();
         }
         // successful login so reset fail count and update key values

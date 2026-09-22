@@ -65,3 +65,4 @@ Desktop.ini
 !.gitignore
 !/.github
 !/.dockerignore
+/tmp/

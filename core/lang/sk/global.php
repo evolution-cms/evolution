@@ -788,6 +788,7 @@ $_lang["resource_overview"] = 'Prehľad zdroja';
 $_lang["resource_parent"] = 'Priečinok';
 $_lang["resource_parent_help"] = 'Kliknite na ikonu kontajnera hore pre zapnutie (vypnutie) režimu výberu rodičovského zdroja, potom ho vyberte v strome webu vľavo.';
 $_lang["resource_permissions_error"] = 'Prepojte tento zdroj aspoň s jednou skupinou zdrojov, ku ktorej máte prístup.';
+$_lang["resource_save_unconfirmed"] = 'Uloženie sa nepodarilo potvrdiť. Editor sa znova načíta a zobrazí uložený stav.';
 $_lang["resource_setting"] = 'Nastavenia zdroja';
 $_lang["resource_summary"] = 'Anotácia (úvod)';
 $_lang["resource_summary_help"] = 'Zadajte krátky popis zdroja';

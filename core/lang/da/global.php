@@ -722,6 +722,7 @@ $_lang["resource_overview"] = 'Ressource information';
 $_lang["resource_parent"] = 'Ovenstående ressource';
 $_lang["resource_parent_help"] = 'Klik på ikonet for at aktivere funktionen. Klik derefter på den ressource i website træet som denne ressource fremover skal være under.';
 $_lang["resource_permissions_error"] = 'Tilføj denne ressource til mindst én ressource gruppe du selv har rettigheder til.';
+$_lang["resource_save_unconfirmed"] = 'Gemningen kunne ikke bekræftes. Editoren genindlæses for at vise den gemte tilstand.';
 $_lang["resource_setting"] = 'Ressource redigering';
 $_lang["resource_summary"] = 'Introduktion';
 $_lang["resource_summary_help"] = 'Indtast et kort resume for denne ressource';

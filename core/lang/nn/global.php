@@ -721,6 +721,7 @@ $_lang["resource_overview"] = 'Resource overview';
 $_lang["resource_parent"] = 'Dokumenteier';
 $_lang["resource_parent_help"] = 'Klikk på det ovenstående mappeikonet for å sette (eller fjerne) eiervalg. Klikk deretter på et dokument i dokumenttreet for å sette det som eier til dette dokumententet.';
 $_lang["resource_permissions_error"] = 'Assign this Resource to at least one Resource Group to which you have access.';
+$_lang["resource_save_unconfirmed"] = 'Lagringen kunne ikke bekreftes. Editoren lastes på nytt for å vise den lagrede tilstanden.';
 $_lang["resource_setting"] = 'Dokumentinnstillinger';
 $_lang["resource_summary"] = 'Sammendrag';
 $_lang["resource_summary_help"] = 'Skriv et kort sammendrag av dokumentet';

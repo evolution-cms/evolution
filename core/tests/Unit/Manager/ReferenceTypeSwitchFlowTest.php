@@ -16,8 +16,10 @@ it('routes new reference saves by selected type instead of the original mode', f
     $processorPath = dirname(__DIR__, 4) . '/manager/processors/save_content.processor.php';
     $processor = file_get_contents($processorPath);
 
+    $response = file_get_contents(dirname(__DIR__, 4) . '/core/src/Support/DocumentSave/SaveResponse.php');
+
     expect($processor)->toContain('$newResourceAction = ($type == "reference") ? "72" : "4";');
-    expect($processor)->toContain('if ($type == "reference") {');
+    expect($response)->toContain("\$newAction = \$saved->type === 'reference' ? '72' : '4';");
     expect($processor)->not->toContain('if ($_POST[\'mode\'] == "72")');
     expect($processor)->not->toContain('if ($_POST[\'mode\'] == "4")');
 });

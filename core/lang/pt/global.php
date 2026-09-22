@@ -721,6 +721,7 @@ $_lang["resource_overview"] = 'Resumo do documento';
 $_lang["resource_parent"] = 'Document pai';
 $_lang["resource_parent_help"] = 'Clique no ícone acima para activar (ou desactivar) a selecção do \'pai\' deste documento. Em seguida clique num documento da árvore para atribuir-lhe parentesco.';
 $_lang["resource_permissions_error"] = 'Assign this Resource to at least one Resource Group to which you have access.';
+$_lang["resource_save_unconfirmed"] = 'Não foi possível confirmar a gravação. O editor será recarregado para mostrar o estado guardado.';
 $_lang["resource_setting"] = 'Configurações do documento';
 $_lang["resource_summary"] = 'Introdução';
 $_lang["resource_summary_help"] = 'Escreva um breve resumo do conteúdo do documento.';

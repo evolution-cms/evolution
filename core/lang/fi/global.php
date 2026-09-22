@@ -721,6 +721,7 @@ $_lang["resource_overview"] = 'Yhteenveto';
 $_lang["resource_parent"] = 'Sivun paikka';
 $_lang["resource_parent_help"] = 'Napsauta ensin yllä olevaa kansiokuvaketta ja sitten sivukartasta sitä sivua, jonka alle tämä sivu sijoitetaan.';
 $_lang["resource_permissions_error"] = 'Sijoita tämä sivu vähintään yhteen sivuryhmään, johon myös itselläsi on käyttöoikeudet.';
+$_lang["resource_save_unconfirmed"] = 'Tallennusta ei voitu vahvistaa. Editori ladataan uudelleen tallennetun tilan näyttämiseksi.';
 $_lang["resource_setting"] = 'Sivun asetukset';
 $_lang["resource_summary"] = 'Yhteenveto';
 $_lang["resource_summary_help"] = 'Sivun yhteenveto.';

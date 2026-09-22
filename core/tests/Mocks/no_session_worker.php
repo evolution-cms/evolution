@@ -44,5 +44,6 @@ echo json_encode([
         Illuminate\Session\Middleware\StartSession::class,
         EvolutionCMS\Middleware\SessionProxy::class,
         Illuminate\Routing\Middleware\SubstituteBindings::class,
+        Illuminate\View\Middleware\ShareErrorsFromSession::class,
     ]),
 ]);

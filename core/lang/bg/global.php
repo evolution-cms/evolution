@@ -721,6 +721,7 @@ $_lang["resource_overview"] = 'Преглед на Документа';
 $_lang["resource_parent"] = 'Родител на Документа';
 $_lang["resource_parent_help"] = 'Щракнете на горната икона, за да разрешите (или забраните) избирането на родителя на този документ. След това, щракнете върху документ от дървото, за да укажете неговия нов родителски документ.';
 $_lang["resource_permissions_error"] = 'Assign this Resource to at least one Resource Group to which you have access.';
+$_lang["resource_save_unconfirmed"] = 'Записът не беше потвърден. Редакторът ще се презареди, за да покаже съхраненото състояние.';
 $_lang["resource_setting"] = 'Настройки на Документа';
 $_lang["resource_summary"] = 'Резюме (introtext)';
 $_lang["resource_summary_help"] = 'Въведете кратко резюме за документа';
