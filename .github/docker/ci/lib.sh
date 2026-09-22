@@ -88,8 +88,8 @@ http_check() {
 
     php -r '
         // The front end and the manager are the two entry points an installed
-        // site has to serve. The manager answers 404 without an Accept-Language
-        // header by design, hence the header on the second request.
+        // site has to serve. The manager request carries no Accept-Language
+        // header on purpose: the manager must fall back to English.
         $port = $argv[1];
         $expect = $argv[2];
         $get = function (string $path, array $headers = []) use ($port): array {
@@ -125,7 +125,7 @@ http_check() {
             $failures[] = "the front page rendered nothing";
         }
 
-        [$status, $body] = $get("/manager/index.php", ["Accept-Language: en-US,en;q=0.9"]);
+        [$status, $body] = $get("/manager/index.php");
         echo "manager: {$status}\n";
         $status === 200 or $failures[] = "the manager answered {$status}";
         stripos($body, "password") !== false or $failures[] = "the manager did not render its login form";

@@ -96,10 +96,8 @@ if (!empty($config['core']) && file_exists($config['core'] . '/.install')) {
     exit;
 }
 
-if (!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-    header('HTTP/1.0 404 Not Found');
-    exit;
-}
+// Clients that send no Accept-Language header (API clients, health checks) get English.
+$_SERVER['HTTP_ACCEPT_LANGUAGE'] ??= 'en';
 
 // send anti caching headers
 header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');

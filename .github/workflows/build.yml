@@ -114,8 +114,8 @@ jobs:
             curl -sf -o /dev/null http://127.0.0.1:8899/ && break
           done
           front=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8899/)
-          # The manager answers 404 without an Accept-Language header by design.
-          manager=$(curl -s -o /dev/null -w '%{http_code}' -H 'Accept-Language: en-US,en;q=0.9' http://127.0.0.1:8899/manager/index.php)
+          # No Accept-Language header on purpose: the manager must default to English.
+          manager=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8899/manager/index.php)
           echo "front=$front manager=$manager"
           test "$front" = "200" && test "$manager" = "200"
 
@@ -285,8 +285,8 @@ jobs:
             curl -sf -o /dev/null http://127.0.0.1:8899/ && break
           done
           front=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8899/)
-          # The manager answers 404 without an Accept-Language header by design.
-          manager=$(curl -s -o /dev/null -w '%{http_code}' -H 'Accept-Language: en-US,en;q=0.9' http://127.0.0.1:8899/manager/index.php)
+          # No Accept-Language header on purpose: the manager must default to English.
+          manager=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8899/manager/index.php)
           # A friendly URL has to be routed into index.php rather than answered
           # by the web server itself. Whether the CMS then renders a page or an
           # error is not the point — reaching PHP at all is — so this looks for
