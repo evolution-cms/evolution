@@ -283,35 +283,63 @@
     $itemsNumber = 5;
     $feedData = [];
 
-    // create Feed
-    $feed = new \SimplePie\SimplePie();
-    $feedCache = evolutionCMS()->getCachePath() . 'rss/';
+    $feedCache = evo()->getCachePath() . 'rss';
     \Illuminate\Support\Facades\File::ensureDirectoryExists($feedCache);
-    $feed->set_cache_location($feedCache);
+    \Feed::$cacheDir = $feedCache;
+    \Feed::$cacheExpire = 3600;
     foreach ($urls as $section => $url) {
+        $url = trim((string) $url);
         if (empty($url)) {
             continue;
         }
-        $output = '';
-        $feed->set_feed_url($url);
-        $feed->init();
-        $items = $feed->get_items(0, $itemsNumber);
+        try {
+            if (!filter_var($url, FILTER_VALIDATE_URL)
+                || !in_array(strtolower((string) parse_url($url, PHP_URL_SCHEME)), ['http', 'https'], true)) {
+                throw new \InvalidArgumentException('Invalid feed URL.');
+            }
+            $feed = \Feed::load($url);
+            $entries = count($feed->item) ? $feed->item : $feed->entry;
+            $items = array_slice(iterator_to_array($entries, false), 0, $itemsNumber);
+        } catch (\Exception $exception) {
+            $feedData[$section] = 'Failed to retrieve ' . e($url);
+            continue;
+        }
         if (empty($items)) {
-            $feedData[$section] = 'Failed to retrieve ' . $url;
+            $feedData[$section] = 'Failed to retrieve ' . e($url);
             continue;
         }
         $output = '<ul>';
         foreach ($items as $item) {
-            $href = $item->get_link();
-            $title = $item->get_title();
-            $pubdate = $item->get_date();
-            $pubdate = evo()->toDateFormat(strtotime($pubdate));
-            $description = strip_tags($item->get_content());
-            if (strlen($description) > 199) {
-                $description = \Illuminate\Support\Str::words($description, 15, '...');
-                $description .= '<br />Read <a href="' . $href . '" target="_blank">more</a>.';
+            $link = (string) $item->url;
+            // Atom may list a self link before the human-readable alternate link.
+            foreach ($item->link as $itemLink) {
+                if (isset($itemLink['href'])
+                    && (!isset($itemLink['rel']) || (string) $itemLink['rel'] === 'alternate')) {
+                    $link = (string) $itemLink['href'];
+                    break;
+                }
             }
-            $output .= '<li><a href="' . $href . '" target="_blank">' . $title . '</a> - <b>' . $pubdate . '</b><br />' . $description . '</li>';
+            try {
+                $link = (string) \GuzzleHttp\Psr7\UriResolver::resolve(
+                    new \GuzzleHttp\Psr7\Uri($url),
+                    new \GuzzleHttp\Psr7\Uri($link)
+                );
+                $href = in_array(strtolower((string) parse_url($link, PHP_URL_SCHEME)), ['http', 'https'], true)
+                    ? e($link) : '#';
+            } catch (\InvalidArgumentException $exception) {
+                $href = '#';
+            }
+            $title = e((string) $item->title);
+            $timestamp = (int) $item->timestamp;
+            $pubdate = $timestamp > 0 ? e(evo()->toDateFormat($timestamp)) : '';
+            $description = strip_tags((string) ($item->{'content:encoded'} ?? $item->content ?? $item->description ?? $item->summary ?? ''));
+            if (strlen($description) > 199) {
+                $description = e(\Illuminate\Support\Str::words($description, 15, '...'));
+                $description .= '<br />Read <a href="' . $href . '" target="_blank" rel="noopener noreferrer">more</a>.';
+            } else {
+                $description = e($description);
+            }
+            $output .= '<li><a href="' . $href . '" target="_blank" rel="noopener noreferrer">' . $title . '</a> - <b>' . $pubdate . '</b><br />' . $description . '</li>';
         }
         $output .= '</ul>';
         $feedData[$section] = $output;

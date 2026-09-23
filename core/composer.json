@@ -29,6 +29,7 @@
     "require": {
         "php": "^8.3",
         "composer/composer": "*",
+        "dg/rss-php": "^1.7",
         "dmitry-suffi/redis-session-handler": "*",
         "doctrine/dbal": "4.*",
         "dragonmantank/cron-expression": "^3.6",
@@ -78,7 +79,6 @@
         "rosell-dk/exec-with-fallback": "*",
         "rosell-dk/webp-convert": "*",
         "secondnetwork/blade-tabler-icons": "^3.46",
-        "simplepie/simplepie": "1.*",
         "symfony/process": "7.*",
         "tracy/tracy": "2.*",
         "vlucas/phpdotenv": "5.*",
