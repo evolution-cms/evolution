@@ -1,14 +1,12 @@
-<?php
-/**
- * @see: https://tracy.nette.org
- */
-return [
+<?php return [
     /**
      * true - Activate tracy handler all errors contains at the /core/storage/logs/
      * false - Default Evolution CMS Error handler. All errors contains at the /manager/index.php?a=114
      * 'manager' - Activate tracy for users who authorize on the admin panel
+     * int[] - Activate tracy only for authenticated manager user IDs, e.g. [1, 5, 12]
      *
      * IMPORTANT! Tracy ignore the "error_reporting" EvolutionCMS setting
+     * @see: https://tracy.nette.org
      */
     'active' => false,
     'panels' => [
