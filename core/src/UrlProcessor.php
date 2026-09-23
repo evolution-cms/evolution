@@ -392,25 +392,23 @@ class UrlProcessor
      */
     public function getAliasListing($id): ?array
     {
-        if (isset($this->aliasListing[$id])) {
-            return $this->aliasListing[$id];
+        if (!isset($this->aliasListing[$id])) {
+            /** @var Models\SiteContent|null $query */
+            $query = Models\SiteContent::where('id', '=', (int)$id)->first();
+            if ($query === null) {
+                return null;
+            }
+
+            $this->aliasListing[$id] = [
+                'id' => $query->getKey(),
+                'alias' => $query->alias === '' ? $query->getKey() : $query->alias,
+                'parent' => $query->parent,
+                'isfolder' => $query->isfolder,
+                'alias_visible' => $query->alias_visible,
+            ];
         }
 
-        /** @var Models\SiteContent|null $query */
-        $query = Models\SiteContent::where('id', '=', (int)$id)->first();
-        if ($query === null) {
-            return null;
-        }
-
-        $this->aliasListing[$id] = [
-            'id' => $query->getKey(),
-            'alias' => $query->alias === '' ? $query->getKey() : $query->alias,
-            'parent' => $query->parent,
-            'isfolder' => $query->isfolder,
-            'alias_visible' => $query->alias_visible,
-        ];
-
-        if ($query->parent <= 0) {
+        if (isset($this->aliasListing[$id]['path']) || $this->aliasListing[$id]['parent'] <= 0) {
             return $this->aliasListing[$id];
         }
 
@@ -419,7 +417,7 @@ class UrlProcessor
             return $this->aliasListing[$id];
         }
 
-        $tmp = $this->getAliasListing($query->parent);
+        $tmp = $this->getAliasListing($this->aliasListing[$id]['parent']);
 
         if (!$tmp['alias_visible']) {
             $this->aliasListing[$id]['path'] = $tmp['path'];
@@ -432,6 +430,43 @@ class UrlProcessor
             $this->aliasListing[$id]['path'] = $tmp['alias'];
         }
         return $this->aliasListing[$id];
+    }
+
+    /**
+     * Whether makeUrl() resolves aliases lazily through getAliasListing()
+     * instead of reading the full alias listing loaded from the site cache.
+     */
+    public function usesLazyAliasListing(): bool
+    {
+        return (bool)$this->core->getConfig('aliaslistingfolder')
+            || $this->core->getConfig('full_aliaslisting') == 1;
+    }
+
+    /**
+     * Prime alias metadata that has already been selected by a caller.
+     *
+     * @param iterable<array{id: int|string, alias: mixed, parent: int|string, isfolder: int|string, alias_visible: int|string}> $documents
+     */
+    public function primeAliasListings(iterable $documents): void
+    {
+        foreach ($documents as $document) {
+            if (!isset($document['id'])) {
+                continue;
+            }
+
+            $id = (int) $document['id'];
+            if (isset($this->aliasListing[$id])) {
+                continue;
+            }
+
+            $this->aliasListing[$id] = [
+                'id' => $id,
+                'alias' => $document['alias'] === '' ? $id : $document['alias'],
+                'parent' => (int) $document['parent'],
+                'isfolder' => (int) $document['isfolder'],
+                'alias_visible' => (int) $document['alias_visible'],
+            ];
+        }
     }
 
     /**
@@ -565,7 +600,7 @@ class UrlProcessor
 
                 if ($this->core->getConfig('friendly_alias_urls')) {
 
-                    if ($this->core->getConfig('aliaslistingfolder') || $this->core->getConfig('full_aliaslisting') == 1) {
+                    if ($this->usesLazyAliasListing()) {
                         $al = $this->getAliasListing($id);
                     } else {
                         $al = $this->aliasListing[$id] ?? null;
