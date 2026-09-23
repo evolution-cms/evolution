@@ -72,7 +72,7 @@ if (!function_exists('makeHTML')) {
             'menutitle', 'parent', 'isfolder'
             , 'published', 'pub_date', 'unpub_date', 'richtext', 'searchable', 'cacheable'
             , 'deleted', 'type', 'template', 'templatename', 'menuindex', 'hide_from_tree', 'hidemenu', 'alias'
-            , 'contentType', 'privateweb', 'privatemgr'
+            , 'alias_visible', 'contentType', 'privateweb', 'privatemgr'
         )
             ->leftJoin('document_groups', 'site_content.id', '=', 'document_groups.document')
             ->leftJoin('site_templates', 'site_content.template', '=', 'site_templates.id')
@@ -105,8 +105,18 @@ if (!function_exists('makeHTML')) {
             'menutitle', 'parent', 'isfolder'
             , 'published', 'pub_date', 'unpub_date', 'richtext', 'searchable', 'cacheable'
             , 'deleted', 'type', 'template', 'templatename', 'menuindex', 'hide_from_tree', 'hidemenu', 'alias'
-            , 'contentType', 'privateweb', 'privatemgr']);
-        $result = $result->get();
+            , 'alias_visible', 'contentType', 'privateweb', 'privatemgr']);
+        $result = $result->get()
+            ->map(static fn ($item) => normalizeTreeNodeRow($item->getAttributes()));
+
+        // Every row below needs a front-end URL. When URLs are resolved through
+        // lazy alias lookups, reuse the aliases selected by this tree query so a
+        // fully expanded tree does not issue one document lookup per node merely
+        // to rebuild its alias path. The site cache already holds them otherwise.
+        $urlProcessor = \EvolutionCMS\Facades\UrlProcessor::getFacadeRoot();
+        if ($urlProcessor->usesLazyAliasListing()) {
+            $urlProcessor->primeAliasListings($result->all());
+        }
 
 
         if ($result->count() == 0) {
@@ -118,8 +128,7 @@ if (!function_exists('makeHTML')) {
         } else {
             $nodeNameSource = $_SESSION['tree_nodename'];
         }
-        foreach ($result as $item) {
-            $row = $item->toArray();
+        foreach ($result as $row) {
             $row['roles'] = '';
             $row['nomove'] = 0;
             $row['hasAccess'] = 0;
@@ -533,6 +542,39 @@ if (!function_exists('makeHTML')) {
         }
 
         return $output;
+    }
+}
+
+if (!function_exists('normalizeTreeNodeRow')) {
+    /**
+     * Give a raw tree query row the types SiteContent casts would give it,
+     * without running Eloquent's per-model cast/serialization path. The row
+     * reaches OnManagerNodePrerender / OnManagerNodeRender, so the types must
+     * match what toArray() produced. Null stays null; strings are untouched.
+     *
+     * @param array<string, mixed> $row
+     * @return array<string, mixed>
+     */
+    function normalizeTreeNodeRow(array $row): array
+    {
+        static $intFields = [
+            'id', 'parent', 'isfolder', 'published', 'pub_date', 'unpub_date', 'searchable', 'cacheable',
+            'deleted', 'template', 'menuindex', 'alias_visible',
+        ];
+        static $boolFields = ['richtext', 'hide_from_tree', 'hidemenu', 'privateweb', 'privatemgr'];
+
+        foreach ($intFields as $field) {
+            if (isset($row[$field])) {
+                $row[$field] = (int) $row[$field];
+            }
+        }
+        foreach ($boolFields as $field) {
+            if (isset($row[$field])) {
+                $row[$field] = (bool) $row[$field];
+            }
+        }
+
+        return $row;
     }
 }
 
