@@ -793,7 +793,7 @@ class Modifiers implements ModifiersInterface
             case 'money_format':
                 setlocale(LC_MONETARY, setlocale(LC_TIME, 0));
                 if ($value !== '') {
-                    return $this->money_format($opt, (double)$value);
+                    return $this->money_format($opt, (float)$value);
                 }
                 break;
             case 'tobool':
