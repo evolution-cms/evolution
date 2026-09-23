@@ -95,6 +95,12 @@ say "Checking the data survived the update unchanged"
 # inserts instead of updating doubles its table here.
 php "$APP_DIR/.github/docker/ci/smoke.php" "$APP_DIR" || fail "the update changed the installed data"
 
+# A deployed CMS must not leave the installer reachable. Keep its files out of
+# the HTTP document tree before exercising the installed site, while preserving
+# them under a non-routable name for this disposable CI image's diagnostics.
+say "Renaming the installer directory before the HTTP smoke test"
+mv "$APP_DIR/install" "$APP_DIR/install.disabled"
+
 say "Checking the installed site answers over HTTP"
 http_check "$APP_DIR"
 
