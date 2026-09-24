@@ -328,6 +328,8 @@ class Parser
             return null;
         }
 
+        $this->modx->loadManagerThemeForElement($name);
+
         if (array_key_exists($name, $this->modx->chunkCache)) {
             $tpl = $this->modx->chunkCache[$name];
         } else {

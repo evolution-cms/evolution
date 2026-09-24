@@ -157,8 +157,47 @@ trait Settings
         );
     }
 
+    /**
+     * Read factory defaults in the configured manager language.
+     *
+     * The backend creates its theme before loading defaults so manager setup keeps
+     * its original order. Frontend requests retain the locale and manager view
+     * namespace while deferring theme element scans until those elements are used.
+     *
+     * @return array<string, mixed>
+     * @since 3.5.9 Updated to read defaults without eager frontend theme creation.
+     */
     public function getFactorySettings() : array
     {
+        $managerLanguage = (string) $this->getConfig('manager_language', 'en');
+        $languageFile = EVO_CORE_PATH . 'lang/' . $managerLanguage . '/global.php';
+        $factoryLocale = is_file($languageFile) ? $managerLanguage : 'en';
+
+        if ($this->isBackend()) {
+            // The manager still needs its theme before per-user settings are merged.
+            $this['ManagerTheme'];
+        } else {
+            // ManagerTheme used to establish the frontend locale as a side effect of
+            // reading the factory defaults. Keep that behavior without building the theme.
+            $modx_lang_attribute = 'en';
+            if ($factoryLocale !== 'en') {
+                include $languageFile;
+            }
+            $this->setLocale($modx_lang_attribute);
+            $this->setConfig('lang_code', $modx_lang_attribute);
+            $this->setConfig('manager_language', $factoryLocale === 'en' && $managerLanguage !== 'en'
+                ? 'english'
+                : $factoryLocale);
+
+            // Keep manager:: views available to frontend integrations without
+            // scanning the theme's virtual elements on every request.
+            $theme = (string) $this->getConfig('manager_theme', 'default');
+            $this['view']->addNamespace('manager', [
+                EVO_MANAGER_PATH . '/media/style/' . $theme . '/views/',
+                EVO_MANAGER_PATH . '/views/',
+            ]);
+        }
+
         $out = include EVO_CORE_PATH . 'factory/settings.php';
         return \is_array($out) ? $out : [];
     }

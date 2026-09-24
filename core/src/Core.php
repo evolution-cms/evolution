@@ -2796,6 +2796,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      */
     public function getSnippetObject($snip_name)
     {
+        $this->loadManagerThemeForElement($snip_name);
+
         if (array_key_exists($snip_name, $this->snippetCache)) {
             $snippetObject['name'] = $snip_name;
             $snippetObject['content'] = $this->snippetCache[$snip_name];
@@ -4798,6 +4800,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 return $return;
             }
         }
+        $this->loadManagerThemeForElement($snippetName);
         if (array_key_exists($snippetName, $this->snippetCache)) {
             $snippet = $this->snippetCache[$snippetName];
             $properties = !empty($this->snippetCache[$snippetName . "Props"]) ? $this->snippetCache[$snippetName . "Props"] : '';
@@ -4861,6 +4864,19 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $out = app('DLTemplate')->getBaseChunk($chunkName);
         }
         return $out;
+    }
+
+    /**
+     * Load virtual manager snippets and chunks when their namespace is requested.
+     *
+     * @param mixed $name Element name supplied by the parser or snippet runner.
+     * @since 3.5.9
+     */
+    public function loadManagerThemeForElement($name): void
+    {
+        if (is_string($name) && str_starts_with($name, 'manager#') && !$this->resolved('ManagerTheme')) {
+            $this['ManagerTheme'];
+        }
     }
 
     /**
@@ -6659,10 +6675,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $this->setConfig('site_timezone', $siteTimezone);
         $this->invokeEvent('OnLoadSettings', ['config' => &$this->config]);
 
-        // The factory defaults read the manager lexicon (core/factory/settings.php), so
-        // ManagerTheme is already built from the system theme and language by the time the
-        // user settings above are merged. Realign it so a per-user manager_theme /
-        // manager_language (and anything OnLoadSettings changed) reaches the manager UI.
+        // The backend builds ManagerTheme before reading factory defaults. Realign it
+        // after per-user settings and OnLoadSettings have changed the configuration.
         $this->syncManagerTheme();
     }
 
