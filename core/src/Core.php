@@ -2977,7 +2977,15 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
             if ($documentObject['template']) {
                 // load TVs and merge with document - Orig by Apodigm - Docvars
-                $tvs = SiteTmplvar::query()->select('site_tmplvars.*', 'site_tmplvar_contentvalues.value')
+                $tvs = SiteTmplvar::query()->select(
+                    'site_tmplvars.id',
+                    'site_tmplvars.name',
+                    'site_tmplvars.type',
+                    'site_tmplvars.display',
+                    'site_tmplvars.display_params',
+                    'site_tmplvars.default_text',
+                    'site_tmplvar_contentvalues.value'
+                )
                     ->join('site_tmplvar_templates', 'site_tmplvar_templates.tmplvarid', '=', 'site_tmplvars.id')
                     ->leftJoin('site_tmplvar_contentvalues', function ($join) use ($documentObject) {
                         $join->on('site_tmplvar_contentvalues.tmplvarid', '=', 'site_tmplvars.id');
@@ -2986,14 +2994,15 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
                 $tmplvars = [];
                 foreach ($tvs as $tv) {
-                    $row = $tv->toArray();
-                    if ($row['value'] == '') $row['value'] = $row['default_text'];
-                    $tmplvars[$row['name']] = [
-                        $row['name'],
-                        $row['value'],
-                        $row['display'],
-                        $row['display_params'],
-                        $row['type']
+                    $name = $tv->name;
+                    $value = $tv->value;
+                    if ($value == '') $value = $tv->default_text;
+                    $tmplvars[$name] = [
+                        $name,
+                        $value,
+                        $tv->display,
+                        $tv->display_params,
+                        $tv->type
                     ];
                 }
                 $documentObject = array_merge($documentObject, $tmplvars);
