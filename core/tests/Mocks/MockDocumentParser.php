@@ -81,8 +81,8 @@ class MockDocumentParser
      * Minimal IoC make() — resolves known path abstracts directly from
      * constants so that app('path.storage') etc. work correctly when
      * evo() is returning this mock during Core bootstrap.
-     * This avoids infinite recursion that would occur if we called
-     * Core::getInstance() while Core is still being constructed.
+     * Translation during factory loading comes from the container currently
+     * being bootstrapped. This avoids calling Core::getInstance() recursively.
      */
     public function make(string $abstract, array $parameters = [])
     {
@@ -97,7 +97,18 @@ class MockDocumentParser
             'path.bootstrap' => defined('EVO_CORE_PATH') ? EVO_CORE_PATH . 'bootstrap' . DIRECTORY_SEPARATOR : null,
             'path.lang' => defined('EVO_CORE_PATH') ? EVO_CORE_PATH . 'lang' . DIRECTORY_SEPARATOR : null,
         ];
-        return $paths[$abstract] ?? null;
+        if (array_key_exists($abstract, $paths)) {
+            return $paths[$abstract];
+        }
+
+        if ($abstract === 'translator') {
+            $container = \Illuminate\Container\Container::getInstance();
+            if ($container instanceof \EvolutionCMS\Core) {
+                return $container->make($abstract, $parameters);
+            }
+        }
+
+        return null;
     }
 
     /**
