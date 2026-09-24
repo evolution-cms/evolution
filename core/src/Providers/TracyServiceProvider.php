@@ -1,6 +1,7 @@
 <?php namespace EvolutionCMS\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use EvolutionCMS\Tracy\ConnectionTiming;
 use EvolutionCMS\Tracy\Debugger;
 use EvolutionCMS\Interfaces\TracyPanel;
 use Tracy\IBarPanel;
@@ -49,6 +50,15 @@ class TracyServiceProvider extends ServiceProvider
         }
 
         $this->registerErrorTpl();
+        $timing = new ConnectionTiming();
+        $this->app->instance(ConnectionTiming::class, $timing);
+        $this->app['events']->listen(\Illuminate\Database\Events\ConnectionEstablished::class,
+            static function ($event) use ($timing): void {
+                $timing->attach($event->connection);
+            });
+        foreach ($this->app['db']->getConnections() as $connection) {
+            $timing->attach($connection);
+        }
         $this->registerPanels($this->listPanels());
     }
 

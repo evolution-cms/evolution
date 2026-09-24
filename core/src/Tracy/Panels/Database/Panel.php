@@ -71,12 +71,22 @@ class Panel extends AbstractPanel
     {
         $events = $this->evolution['events'];
         $events->listen(QueryExecuted::class, function ($event) {
+            $time = $event->time;
+            if ($this->evolution->bound(\EvolutionCMS\Tracy\ConnectionTiming::class)) {
+                $time = $this->evolution[\EvolutionCMS\Tracy\ConnectionTiming::class]
+                    ->queryMilliseconds($event->connection, (float) $time);
+            }
+            // Inspect existing handles only; logging must not open a write connection.
+            $pdo = $event->connection->getRawPdo();
+            if (!$pdo instanceof PDO) {
+                $pdo = $event->connection->getRawReadPdo();
+            }
             $this->logQuery(
                 $event->sql,
                 $event->bindings,
-                $event->time,
+                $time,
                 $event->connectionName,
-                $event->connection->getPdo()
+                $pdo instanceof PDO ? $pdo : null
             );
         });
     }
