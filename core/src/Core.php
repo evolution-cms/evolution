@@ -13,7 +13,6 @@ use EvolutionCMS\Models\MembergroupAccess;
 use EvolutionCMS\Models\MembergroupName;
 use EvolutionCMS\Models\SiteContent;
 use EvolutionCMS\Models\SitePlugin;
-use EvolutionCMS\Models\SiteTemplate;
 use EvolutionCMS\Models\SiteTmplvar;
 use EvolutionCMS\Models\User;
 use Illuminate\Http\Request;
@@ -2995,8 +2994,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 $documentObject = array_merge($documentObject, $tmplvars);
 
                 $templateId = (int) $documentObject['template'];
-                $tplAlias = SiteTemplate::whereKey($templateId)->value('templatealias');
-                $documentObject['templatealias'] = (string) ($tplAlias ?? '');
+                $documentObject['templatealias'] = TemplateProcessor::getTemplateAlias($templateId);
             }
             $out = $this->invokeEvent(
                 'OnAfterLoadDocumentObject'
@@ -6687,8 +6685,16 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     }
 
     /**
-     * Get user settings and merge into Evolution CMS configuration
-     * @return array
+     * Load the current user's settings and merge them into the CMS configuration.
+     *
+     * On the frontend, manager settings are also loaded when a manager is logged in;
+     * web-user settings take precedence for keys shared by both users. Each user's
+     * settings are stored in the corresponding session entry. Before overriding
+     * configuration values, their previous values are saved in configGlobal.
+     * Returns an empty array when neither user is logged in or no settings exist.
+     *
+     * @return array<string, mixed> The effective user settings keyed by setting name.
+     * @since 3.5.9 Updated settings loading without changing the merge behavior.
      */
     public function getUserSettings()
     {
@@ -6698,7 +6704,6 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             return [];
         }
 
-        $this->getDatabase();
         $usrSettings = [];
         if ($id) {
             $usrType = $this->getLoginUserType();
@@ -6711,18 +6716,14 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 $this->invokeEvent("OnBeforeManagerPageInit");
             }
 
-            $usrSettings = Models\UserSetting::where('user', '=', $id)->get()
-                ->pluck('setting_value', 'setting_name')
-                ->toArray();
-
-            $which_browser_default = get_by_key(
-                $this->configGlobal,
-                'which_browser',
-                $this->getConfig('which_browser')
-            );
+            $usrSettings = Models\UserSetting::where('user', '=', $id)->pluck('setting_value', 'setting_name')->toArray();
 
             if (get_by_key($usrSettings, 'which_browser') === 'default') {
-                $usrSettings['which_browser'] = $which_browser_default;
+                $usrSettings['which_browser'] = get_by_key(
+                    $this->configGlobal,
+                    'which_browser',
+                    $this->getConfig('which_browser')
+                );
             }
 
             if (isset($usrType)) {
@@ -6730,9 +6731,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             } // store user settings in session
         }
         if ($mgrid) {
-            $musrSettings = Models\UserSetting::where('user', '=', $mgrid)->get()
-                ->pluck('setting_value', 'setting_name')
-                ->toArray();
+            $musrSettings = Models\UserSetting::where('user', '=', $mgrid)->pluck('setting_value', 'setting_name')->toArray();
 
             $_SESSION['mgrUsrConfigSet'] = $musrSettings; // store user settings in session
             if (!empty($musrSettings)) {
@@ -6746,8 +6745,9 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
         // save global values before overwriting/merging array
         foreach ($usrSettings as $param => $value) {
-            if ($this->getConfig($param) !== null) {
-                $this->configGlobal[$param] = $this->getConfig($param);
+            $currentValue = $this->getConfig($param);
+            if ($currentValue !== null) {
+                $this->configGlobal[$param] = $currentValue;
             }
         }
 

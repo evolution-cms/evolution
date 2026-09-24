@@ -18,6 +18,9 @@ class TemplateProcessor
     protected $core;
 
 
+    /**
+     * @param Interfaces\CoreInterface $core
+     */
     public function __construct(Interfaces\CoreInterface $core)
     {
         $this->core = $core;
@@ -37,28 +40,34 @@ class TemplateProcessor
      */
     protected $documentViewPath = '';
 
+    /**
+     * @return string Absolute view path, or an empty string if no file is selected.
+     */
     public function getDocumentViewPath(): string
     {
         return $this->documentViewPath;
     }
 
+    /**
+     * Resolve the current document to a file-based view, if one applies.
+     *
+     * @return string|false View name, or false when no file-based view applies.
+     */
     public function getBladeDocumentContent()
     {
         $this->documentViewPath = '';
         $template = false;
         $doc = $this->core->documentObject;
-        if(isset($this->core->documentObject['templatealias']) && $this->core->documentObject['templatealias'] != ''){
-            $templateAlias = $this->core->documentObject['templatealias'];
-        }else {
-            if($doc['template'] === 0) {
-                $templateAlias = '_blank';
-            } else {
-                $tpl = SiteTemplate::select('templatealias')->find((int)$doc['template']);
-                $templateAlias = (string)($tpl ? $tpl->templatealias : '');
-                if ($templateAlias === '') {
-                    $templateAlias = '_blank';
-                }
-            }
+        // An empty alias was already loaded by getDocumentObject(); do not query it again.
+        if (array_key_exists('templatealias', $doc)) {
+            $templateAlias = (string) ($doc['templatealias'] ?? '');
+        } elseif ((int) $doc['template'] === 0) {
+            $templateAlias = '_blank';
+        } else {
+            $templateAlias = $this->getTemplateAlias((int) $doc['template']);
+        }
+        if ($templateAlias === '') {
+            $templateAlias = '_blank';
         }
 
         // "Database" is an answer, not a starting point: no view path is walked,
@@ -142,6 +151,9 @@ class TemplateProcessor
      *
      * '' is every template that predates the setting, and means "decide the old
      * way": a matching file wins if one happens to exist.
+     *
+     * @param array<string, mixed> $doc
+     * @return string
      */
     private function templateSource(array $doc): string
     {
@@ -150,10 +162,31 @@ class TemplateProcessor
         return (string) ($row->templatesource ?? '');
     }
 
-    /** @var array<int, SiteTemplate|null> */
+    /**
+     * Template rows keyed by ID for this processor instance. Missing IDs are
+     * stored as null so repeated lookups do not issue another query.
+     *
+     * @var array<int, SiteTemplate|null>
+     */
     private array $templateRows = [];
 
-    /** The template row, read once: two columns are wanted at different points. */
+    /**
+     * Return the alias from the template row shared with rendering.
+     *
+     * @param int $templateId
+     * @return string Empty when the template does not exist.
+     */
+    public function getTemplateAlias(int $templateId): string
+    {
+        return (string) ($this->templateRow($templateId)->templatealias ?? '');
+    }
+
+    /**
+     * Load the fields needed for document loading and rendering once per ID.
+     *
+     * @param int $templateId
+     * @return SiteTemplate|null Null for template ID 0 or a missing row.
+     */
     private function templateRow(int $templateId): ?SiteTemplate
     {
         if ($templateId === 0) {
@@ -162,7 +195,7 @@ class TemplateProcessor
 
         if (!array_key_exists($templateId, $this->templateRows)) {
             $this->templateRows[$templateId] = SiteTemplate::whereKey($templateId)
-                ->first(['id', 'templatesource', 'templatefileextension']);
+                ->first(['id', 'templatealias', 'templatesource', 'templatefileextension', 'content']);
         }
 
         return $this->templateRows[$templateId];
@@ -175,6 +208,10 @@ class TemplateProcessor
      * The document specific views (tpl-N_doc-M, doc-M, tpl-N) are deliberately
      * not overridden: those are per document overrides of the template, and a
      * template pinning its own engine says nothing about them.
+     *
+     * @param array<string, mixed> $doc
+     * @param string $templateAlias
+     * @return string Absolute file path, or an empty string if none applies.
      */
     private function pinnedTemplateFile(array $doc, string $templateAlias): string
     {
@@ -201,13 +238,15 @@ class TemplateProcessor
     }
 
     /**
-     * @param $templateID
-     * @return mixed
+     * Return template content from the shared row, or an inline fallback if missing.
+     *
+     * @param mixed $templateID Template ID accepted by the legacy API.
+     * @return string
      */
     public function getTemplateCodeFromDB($templateID)
     {
         $templateId = (int)$templateID;
-        $tpl = SiteTemplate::query()->find($templateId);
+        $tpl = $this->templateRow($templateId);
         if ($tpl) {
             return (string)$tpl->content;
         }
@@ -220,6 +259,10 @@ class TemplateProcessor
         return $this->inlineTemplate($templateId);
     }
 
+    /**
+     * @param int|null $expectedId Missing template ID, if known.
+     * @return string Inline HTML fallback.
+     */
     private function inlineTemplate(?int $expectedId = null): string
     {
         $msg = $expectedId ? "Expected template ID={$expectedId} is missing." : "Template is missing.";

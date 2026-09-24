@@ -10,9 +10,10 @@ return [
     'charset' => env('DB_CHARSET', '[+connection_charset+]'), // $database_connection_charset
     'collation' => env('DB_COLLATION', '[+connection_collation+]'), //$database_collation
     'prefix' => env('DB_PREFIX', '[+table_prefix+]'),
-    'strict' => env('DB_STRICT', false),
+    'strict' => (bool) env('DB_STRICT', false),
     'engine' => env('DB_ENGINE'[+database_engine+]),
     'options' => [
         PDO::ATTR_STRINGIFY_FETCHES => true,
+        PDO::ATTR_PERSISTENT => (bool) env('DB_PERSISTENT', false),
     ]
 ];
