@@ -2888,15 +2888,17 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     }
 
     /**
-     * Get all db fields and TVs for a document/resource
+     * Load a document with its template variables and apply the current access rules.
      *
-     * @param string $method
-     * @param mixed $identifier
-     * @param bool $isPrepareResponse
-     * @return array
-     * @throws \AgelxNash\Modx\Evo\Database\Exceptions\Exception
-     * @throws InvalidFieldException
-     * @throws TableNotDefinedException
+     * Before/after-load events may replace the result. A public frontend document
+     * requested by ID is read without a group join; private documents and other
+     * lookups still use the protected-document scope. The special
+     * 'prepareResponse' flag also exposes the loaded array as documentObject.
+     *
+     * @param string $method Document lookup field, usually 'id' or 'alias'.
+     * @param int|string $identifier Document ID or alias to resolve.
+     * @param bool|string|null $isPrepareResponse Pass 'prepareResponse' when preparing the current response.
+     * @return array<string, mixed> Document fields and template variables.
      */
     public function getDocumentObject($method, $identifier, $isPrepareResponse = false)
     {
@@ -2910,25 +2912,31 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $identifier = UrlProcessor::getFacadeRoot()->cleanDocumentIdentifier($identifier);
             $method = $this->documentMethod;
         }
-        if ($method === 'alias' && $this->getConfig('use_alias_path') && array_key_exists($identifier,
-                UrlProcessor::getFacadeRoot()->documentListing)) {
+        if ($method === 'alias' && $this->getConfig('use_alias_path') && array_key_exists($identifier, UrlProcessor::getFacadeRoot()->documentListing)) {
             $method = 'id';
             $identifier = UrlProcessor::getFacadeRoot()->documentListing[$identifier];
         }
 
-        $out = $this->invokeEvent(
-            'OnBeforeLoadDocumentObject'
-            , compact('method', 'identifier')
-        );
+        $out = $this->invokeEvent('OnBeforeLoadDocumentObject', compact('method', 'identifier'));
 
         if (is_array($out) && is_array($out[0])) {
             $documentObject = $out[0];
         } else {
             // get document
-            $documentObject = SiteContent::query()
-                ->withoutProtected()
-                ->where('site_content.' . $method, $identifier);
-            $documentObject = $documentObject->first();
+            $documentObject = null;
+            if ($this->isFrontend() && $method === 'id') {
+                // Public documents need no group lookup. Keep the ACL query below for private documents.
+                $documentObject = SiteContent::query()
+                    ->where('site_content.id', $identifier)
+                    ->where('site_content.privateweb', 0)
+                    ->first();
+            }
+            if (is_null($documentObject)) {
+                $documentObject = SiteContent::query()
+                    ->withoutProtected()
+                    ->where('site_content.' . $method, $identifier)
+                    ->first();
+            }
             if (is_null($documentObject)) {
                 $seclimit = 0;
                 if ($this->getConfig('unauthorized_page')) {
@@ -2961,10 +2969,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 $this->documentObject = &$documentObject;
             }
 
-            $out = $this->invokeEvent(
-                'OnLoadDocumentObject'
-                , compact('method', 'identifier', 'documentObject')
-            );
+            $out = $this->invokeEvent('OnLoadDocumentObject', compact('method', 'identifier', 'documentObject'));
 
             if (is_array($out) && is_array($out[0])) {
                 $documentObject = $out[0];
