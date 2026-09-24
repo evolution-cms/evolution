@@ -78,7 +78,7 @@ test('the template row is still read once per request', function () use ($core) 
     // code lives and which engine was pinned used to be a query each.
     $source = $core('TemplateProcessor.php');
 
-    expect($source)->toContain("first(['id', 'templatesource', 'templatefileextension'])")
+    expect($source)->toContain("first(['id', 'templatealias', 'templatesource', 'templatefileextension', 'content'])")
         ->and($source)->not->toContain("->value('templatesource')")
         ->and($source)->not->toContain("->value('templatefileextension')");
 });
