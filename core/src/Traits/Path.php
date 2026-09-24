@@ -317,17 +317,6 @@ trait Path
     }
 
     /**
-     * Get the registered service provider instances if any exist.
-     *
-     * @param \Illuminate\Support\ServiceProvider|string $provider
-     * @return array
-     */
-    public function getProviders($provider)
-    {
-        return [];
-    }
-
-    /**
      * Determine if the application has been bootstrapped before.
      *
      * @return bool

@@ -11,7 +11,6 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Config\Repository;
-use Symfony\Component\Finder\Finder;
 use Illuminate\Log\LogServiceProvider;
 
 /** @phpstan-consistent-constructor */
@@ -210,6 +209,10 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
     /**
      * Load PHP configuration files from a directory into the configuration repository.
      *
+     * Native iterators collect files recursively while preserving the previous
+     * hidden/VCS exclusions and natural key order. The scan runs on every
+     * request, so avoiding Finder's filter stack reduces bootstrap I/O.
+     *
      * Invalid custom configuration files are skipped and reported to the PHP error log.
      *
      * @param Repository $config Configuration repository.
@@ -223,15 +226,23 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
 
         $configPath = realpath($dir);
         if ($configPath !== false) {
-            /**
-             * @var \SplFileInfo $file
-             */
-            foreach (Finder::create()->files()->name('*.php')->in($configPath) as $file) {
+            $source = new \RecursiveDirectoryIterator($configPath, \FilesystemIterator::SKIP_DOTS);
+            $filtered = new \RecursiveCallbackFilterIterator($source, static function (\SplFileInfo $file): bool {
+                $name = $file->getFilename();
+
+                return $name[0] !== '.' && !in_array($name, ['_svn', 'CVS', '_darcs'], true);
+            });
+
+            foreach (new \RecursiveIteratorIterator($filtered) as $file) {
+                if ($file->isLink() || !$file->isFile() || $file->getExtension() !== 'php') {
+                    continue;
+                }
+
                 $directory = $file->getPath();
                 if ($directory = trim(str_replace($configPath, '', $directory), DIRECTORY_SEPARATOR)) {
                     $directory = str_replace(DIRECTORY_SEPARATOR, '.', $directory) . '.';
                 }
-                $files[$directory . basename($file->getRealPath(), '.php')] = $file->getRealPath();
+                $files[$directory . $file->getBasename('.php')] = $file->getRealPath();
             }
             ksort($files, SORT_NATURAL);
 
