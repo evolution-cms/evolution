@@ -219,19 +219,18 @@ class TemplateProcessor
             return '';
         }
 
+        $row = $this->templateRow((int) get_by_key($doc, 'template', 0));
+        $extension = (string) ($row->templatefileextension ?? '');
+        if ($extension === '') {
+            return '';
+        }
+
         foreach (['tpl-' . get_by_key($doc, 'template') . '_doc-' . get_by_key($doc, 'id'),
                      'doc-' . get_by_key($doc, 'id'),
                      'tpl-' . get_by_key($doc, 'template')] as $override) {
             if ($this->core['view']->exists($override)) {
                 return '';
             }
-        }
-
-        $row = $this->templateRow((int) get_by_key($doc, 'template', 0));
-
-        $extension = (string) ($row->templatefileextension ?? '');
-        if ($extension === '') {
-            return '';
         }
 
         return (string) (TemplateFileEngines::make()->pathFor($templateAlias, $extension) ?? '');
