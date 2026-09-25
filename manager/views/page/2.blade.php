@@ -297,7 +297,11 @@
                 || !in_array(strtolower((string) parse_url($url, PHP_URL_SCHEME)), ['http', 'https'], true)) {
                 throw new \InvalidArgumentException('Invalid feed URL.');
             }
-            $feed = \Feed::load($url);
+            try {
+                $feed = \Feed::load($url);
+            } finally {
+                error_clear_last();
+            }
             $entries = count($feed->item) ? $feed->item : $feed->entry;
             $items = array_slice(iterator_to_array($entries, false), 0, $itemsNumber);
         } catch (\Exception $exception) {

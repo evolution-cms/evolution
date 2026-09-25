@@ -16,6 +16,9 @@ use Illuminate\Log\LogServiceProvider;
 /** @phpstan-consistent-constructor */
 abstract class AbstractLaravel extends Container implements ApplicationContract
 {
+    /** @var list<array{key: string, path: string}> */
+    private array $dynamicConfigurationFiles = [];
+
     /**
      * Indicates if the application has "booted".
      *
@@ -170,11 +173,24 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
 
         $this->registerCoreContainerAliases();
 
-        $items = [];
+        $cachedConfiguration = Bootstrap\EnvCacheLoader::configuration();
+        $items = $cachedConfiguration['items'] ?? [];
         $this->instance('config', $config = new Repository($items));
 
-        $this->loadConfiguration($config, EVO_CORE_PATH . 'config');
-        $this->loadConfiguration($config, EVO_CORE_PATH . 'custom/config');
+        if ($cachedConfiguration === null) {
+            $this->loadConfiguration($config, EVO_CORE_PATH . 'config');
+            $this->loadConfiguration($config, EVO_CORE_PATH . 'custom/config');
+
+            $cacheableItems = $config->all();
+            unset($cacheableItems['session']);
+            unset($cacheableItems['app']);
+            unset($cacheableItems['database']['migrations']);
+            Bootstrap\EnvCacheLoader::cacheConfiguration($cacheableItems, $this->dynamicConfigurationFiles);
+        } else {
+            foreach ($cachedConfiguration['dynamic_files'] as $file) {
+                $this->loadConfigurationEntry($config, $file['key'], $file['path']);
+            }
+        }
 
         if (null === $this['config']->get('app')) {
             throw new \Exception('Unable to load the "app" configuration file.');
@@ -209,9 +225,10 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
     /**
      * Load PHP configuration files from a directory into the configuration repository.
      *
-     * Native iterators collect files recursively while preserving the previous
-     * hidden/VCS exclusions and natural key order. The scan runs on every
-     * request, so avoiding Finder's filter stack reduces bootstrap I/O.
+     * On a cache miss, native iterators collect files recursively while preserving
+     * the hidden/VCS exclusions and natural key order. The compiled values are
+     * stored with the environment cache. Request/process-dependent groups are
+     * still evaluated from their PHP files on every request.
      *
      * Invalid custom configuration files are skipped and reported to the PHP error log.
      *
@@ -247,24 +264,51 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
             ksort($files, SORT_NATURAL);
 
             foreach ($files as $key => $path) {
-                try {
-                    $value = (static function (string $configPath) {
-                        return require $configPath;
-                    })($path);
-
-                    $config->set($key, $value);
-                } catch (\Throwable $exception) {
-                    if (!$this->isCustomConfigPath($path)) {
-                        throw $exception;
-                    }
-
-                    error_log(sprintf(
-                        '[EvolutionCMS] Skipped invalid custom config file "%s": %s',
-                        $path,
-                        $exception->getMessage()
-                    ));
+                if ($this->loadConfigurationEntry($config, $key, $path)
+                    && $this->isDynamicConfigurationKey($key)) {
+                    $this->dynamicConfigurationFiles[] = ['key' => $key, 'path' => $path];
                 }
             }
+        }
+    }
+
+    /**
+     * Identify configuration groups that depend on the request, PHP process, or install mode.
+     *
+     * @since 3.5.9
+     */
+    private function isDynamicConfigurationKey(string $key): bool
+    {
+        return $key === 'session' || str_starts_with($key, 'session.')
+            || $key === 'app' || str_starts_with($key, 'app.')
+            || $key === 'database.migrations' || str_starts_with($key, 'database.migrations.');
+    }
+
+    /**
+     * Evaluate one PHP config file under the same error handling on both cache paths.
+     *
+     * @since 3.5.9
+     */
+    private function loadConfigurationEntry(Repository $config, string $key, string $path): bool
+    {
+        try {
+            $value = (static function (string $configPath) {
+                return require $configPath;
+            })($path);
+
+            $config->set($key, $value);
+            return true;
+        } catch (\Throwable $exception) {
+            if (!$this->isCustomConfigPath($path)) {
+                throw $exception;
+            }
+
+            error_log(sprintf(
+                '[EvolutionCMS] Skipped invalid custom config file "%s": %s',
+                $path,
+                $exception->getMessage()
+            ));
+            return false;
         }
     }
 

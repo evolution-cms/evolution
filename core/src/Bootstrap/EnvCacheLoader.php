@@ -4,24 +4,45 @@ use Dotenv\Dotenv;
 use Throwable;
 
 /**
- * `.env` loader with a PHP array cache.
+ * Environment loader and bootstrap configuration cache.
  *
  * Cache file:
  * - `core/storage/cache/env.php` (relative to project root)
  *
  * Invalidation:
- * - Cache is considered valid when `filemtime(cache) >= filemtime(.env)`.
- * - Cache should be removed by the Manager “Refresh site / Clear cache” action (a=26) so it rebuilds automatically.
+ * - Cache is valid while its mtime is at least that of the selected `.env` file.
+ * - A full CMS cache clear removes it, so configuration changes take effect on the next request.
+ * - The legacy environment-only array remains readable and is upgraded on the next bootstrap.
  */
 final class EnvCacheLoader
 {
+    private const BOOTSTRAP_CACHE_VERSION = 2;
+
+    /** @var array<string, mixed>|null */
+    private static ?array $loadedCache = null;
+
+    /** @var array{items: array<string, mixed>, dynamic_files: list<array{key: string, path: string}>}|null */
+    private static ?array $runtimeConfiguration = null;
+
+    private static ?string $loadedRoot = null;
+
+    private static ?string $cachePath = null;
+
+    private static ?string $envPath = null;
+
+    private static ?int $envMtimeAtLoad = null;
+
+    /** @var array<string, string> */
+    private static array $environment = [];
+
     /**
-     * Loads environment variables with caching.
+     * Loads environment variables and the optional compiled configuration payload.
      *
      * Behavior:
      * - Detects an `.env` file (project-specific search order is implemented in {@see detectEnvPathAndMtime()}).
      * - If `core/storage/cache/env.php` exists and is fresh (`mtime(cache) >= mtime(.env)`), loads it.
-     * - Otherwise parses `.env`, applies variables, and writes an atomic cache file.
+     * - Otherwise parses `.env`, applies variables, and writes an environment-only cache file.
+     * - AbstractLaravel adds configuration to the same file after loading it once.
      *
      * Compatibility:
      * - Applies variables "immutably": does not overwrite keys already present in `$_ENV` or `$_SERVER`.
@@ -39,26 +60,181 @@ final class EnvCacheLoader
             return;
         }
 
-        [$envPath, $envMtime] = self::detectEnvPathAndMtime($projectRoot);
-        if ($envPath === null || $envMtime === null) {
+        if (self::$loadedRoot === $projectRoot
+            && (self::$loadedCache !== null || self::$runtimeConfiguration !== null)) {
+            self::applyImmutable(self::$environment);
             return;
         }
 
-        $cachePath = $projectRoot . '/core/storage/cache/env.php';
+        self::$loadedRoot = $projectRoot;
+        self::$loadedCache = null;
+        self::$runtimeConfiguration = null;
+        self::$environment = [];
+        self::$cachePath = $projectRoot . '/core/storage/cache/env.php';
+
+        [$envPath, $envMtime] = self::detectEnvPathAndMtime($projectRoot);
+        self::$envPath = $envPath;
+        self::$envMtimeAtLoad = $envMtime;
+        $cachePath = self::$cachePath;
 
         $cacheMtime = false;
         if (is_file($cachePath)) {
             $cacheMtime = @filemtime($cachePath);
         }
-        if ($cacheMtime !== false && $cacheMtime >= $envMtime) {
+        if ($cacheMtime !== false && ($envMtime === null || $cacheMtime >= $envMtime)) {
             $cached = self::loadCacheArray($cachePath);
             if (is_array($cached)) {
-                self::applyImmutable(self::normalizeVarsForCache($cached));
-                return;
+                if (($cached['_evolution_bootstrap_cache'] ?? null) === self::BOOTSTRAP_CACHE_VERSION
+                    && ($cached['env_path'] ?? null) === $envPath
+                    && is_array($cached['environment'] ?? null)) {
+                    self::$loadedCache = $cached;
+                    self::$environment = self::normalizeVarsForCache($cached['environment']);
+                    self::applyImmutable(self::$environment);
+                    return;
+                }
+                if ($envPath !== null && !isset($cached['_evolution_bootstrap_cache'])) {
+                    self::$loadedCache = $cached;
+                    self::$environment = self::normalizeVarsForCache($cached);
+                    self::applyImmutable(self::$environment);
+                    return;
+                }
             }
         }
 
-        self::rebuildAndLoad($envPath, $cachePath);
+        if ($envPath !== null) {
+            self::rebuildAndLoad($envPath, $cachePath);
+        }
+    }
+
+    /**
+     * Return the parsed configuration from the same cache file loaded for the environment.
+     * Request/process-dependent configuration groups are evaluated separately each time.
+     *
+     * @return array{items: array<string, mixed>, dynamic_files: list<array{key: string, path: string}>}|null
+     * @since 3.5.9
+     */
+    public static function configuration(): ?array
+    {
+        if (self::$runtimeConfiguration !== null) {
+            return self::$runtimeConfiguration;
+        }
+
+        $cached = self::$loadedCache;
+        if (($cached['_evolution_bootstrap_cache'] ?? null) !== self::BOOTSTRAP_CACHE_VERSION
+            || !is_array($cached['configuration'] ?? null)
+            || !is_array($cached['dynamic_files'] ?? null)) {
+            return null;
+        }
+
+        foreach ($cached['dynamic_files'] as $file) {
+            if (!is_array($file) || !is_string($file['key'] ?? null) || !is_string($file['path'] ?? null)) {
+                return null;
+            }
+        }
+
+        return self::$runtimeConfiguration = [
+            'items' => $cached['configuration'],
+            'dynamic_files' => $cached['dynamic_files'],
+        ];
+    }
+
+    /**
+     * Remove the shared bootstrap cache after a full CMS cache clear.
+     *
+     * @since 3.5.9
+     */
+    public static function invalidate(string $projectRoot): void
+    {
+        $cachePath = rtrim($projectRoot, '/') . '/core/storage/cache/env.php';
+        if (is_file($cachePath)) {
+            @unlink($cachePath);
+        }
+        if (self::$cachePath === $cachePath) {
+            self::$loadedCache = null;
+            self::$runtimeConfiguration = null;
+        }
+    }
+
+    /**
+     * Persist only arrays and scalar values; objects and resources may not survive PHP export.
+     * The write is best-effort, and a failure simply keeps the normal config loading path.
+     *
+     * @param array<string, mixed> $items
+     * @param list<array{key: string, path: string}> $dynamicFiles
+     * @since 3.5.9
+     */
+    public static function cacheConfiguration(array $items, array $dynamicFiles): void
+    {
+        self::$runtimeConfiguration = ['items' => $items, 'dynamic_files' => $dynamicFiles];
+        if (self::$cachePath === null || self::$loadedRoot === null || !self::isExportable($items)) {
+            return;
+        }
+
+        if (self::$envPath !== null) {
+            clearstatcache(true, self::$envPath);
+        }
+        [$currentEnvPath, $currentEnvMtime] = self::detectEnvPathAndMtime(self::$loadedRoot);
+        if ($currentEnvPath !== self::$envPath || $currentEnvMtime !== self::$envMtimeAtLoad) {
+            return;
+        }
+
+        $payload = [
+            '_evolution_bootstrap_cache' => self::BOOTSTRAP_CACHE_VERSION,
+            'env_path' => self::$envPath,
+            'environment' => self::$environment,
+            'configuration' => $items,
+            'dynamic_files' => $dynamicFiles,
+        ];
+        $cacheDir = dirname(self::$cachePath);
+        if (!is_dir($cacheDir) && !@mkdir($cacheDir, 0777, true) && !is_dir($cacheDir)) {
+            return;
+        }
+        if (!is_writable($cacheDir)) {
+            return;
+        }
+
+        $temporary = @tempnam($cacheDir, '.env-');
+        if ($temporary === false) {
+            return;
+        }
+        try {
+            $source = '<?php return ' . self::exportShortArray($payload) . ';' . PHP_EOL;
+            $permissions = @fileperms(self::$cachePath);
+            @chmod($temporary, $permissions === false ? (0666 & ~umask()) : ($permissions & 0777));
+            if (@file_put_contents($temporary, $source, LOCK_EX) !== false && @rename($temporary, self::$cachePath)) {
+                if (function_exists('opcache_invalidate')) {
+                    @opcache_invalidate(self::$cachePath, true);
+                }
+                self::$loadedCache = $payload;
+            }
+        } finally {
+            if (is_file($temporary)) {
+                @unlink($temporary);
+            }
+        }
+    }
+
+    /**
+     * Check that every cached value can be exported as a PHP literal.
+     *
+     * @since 3.5.9
+     */
+    private static function isExportable(mixed $value, int $depth = 0): bool
+    {
+        if ($depth > 64) {
+            return false;
+        }
+        if (!is_array($value)) {
+            return is_scalar($value) || $value === null;
+        }
+
+        foreach ($value as $item) {
+            if (!self::isExportable($item, $depth + 1)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -95,9 +271,9 @@ final class EnvCacheLoader
      * Loads the cached env array from disk.
      *
      * Cache format:
-     * - A PHP file returning an array: `<?php return ['KEY' => 'value', ...];`
+     * - Legacy environment array, or the versioned environment + configuration payload.
      *
-     * @return array<string, string|null>|null
+     * @return array<string, mixed>|null
      */
     private static function loadCacheArray(string $cachePath): ?array
     {
@@ -150,6 +326,8 @@ final class EnvCacheLoader
         }
 
         $normalized = self::normalizeVarsForCache($parsed);
+        self::$environment = $normalized;
+        self::$loadedCache = $normalized;
         self::applyImmutable($normalized);
 
         self::writeCacheAtomic($cachePath, $normalized);
@@ -204,7 +382,7 @@ final class EnvCacheLoader
      * Writes the env cache atomically.
      *
      * Implementation details:
-     * - Writes to `{cachePath}.tmp` using `LOCK_EX` to avoid concurrent partial writes.
+     * - Uses a unique temporary file so concurrent requests do not overwrite each other's draft.
      * - Renames the temp file into place using `rename()` (atomic on most filesystems when on the same volume).
      *
      * Safety:
@@ -214,11 +392,15 @@ final class EnvCacheLoader
      */
     private static function writeCacheAtomic(string $cachePath, array $vars): void
     {
+        $tmpPath = @tempnam(dirname($cachePath), '.env-');
+        if ($tmpPath === false) {
+            return;
+        }
         try {
             ksort($vars, SORT_STRING);
             $php = "<?php return " . self::exportShortArray($vars) . ";\n";
-
-            $tmpPath = $cachePath . '.tmp';
+            $permissions = @fileperms($cachePath);
+            @chmod($tmpPath, $permissions === false ? (0666 & ~umask()) : ($permissions & 0777));
             if (@file_put_contents($tmpPath, $php, LOCK_EX) === false) {
                 return;
             }
@@ -226,23 +408,33 @@ final class EnvCacheLoader
             @rename($tmpPath, $cachePath);
         } catch (Throwable) {
             // Ignore
+        } finally {
+            if (is_file($tmpPath)) {
+                @unlink($tmpPath);
+            }
         }
     }
 
     /**
      * Converts an array into a readable, stable PHP array literal using short array syntax.
      *
-     * @param array<string, string> $vars
+     * @param array<array-key, mixed> $vars
      * @return string PHP code fragment for the array only (no `<?php` wrapper).
      */
-    private static function exportShortArray(array $vars): string
+    private static function exportShortArray(array $vars, int $depth = 0): string
     {
-        $lines = [];
-        $lines[] = '[';
-        foreach ($vars as $k => $v) {
-            $lines[] = '    ' . var_export((string)$k, true) . ' => ' . var_export($v, true) . ',';
+        if ($vars === []) {
+            return '[]';
         }
-        $lines[] = ']';
+
+        $indent = str_repeat('    ', $depth);
+        $childIndent = $indent . '    ';
+        $lines = ['['];
+        foreach ($vars as $k => $v) {
+            $value = is_array($v) ? self::exportShortArray($v, $depth + 1) : var_export($v, true);
+            $lines[] = $childIndent . var_export($k, true) . ' => ' . $value . ',';
+        }
+        $lines[] = $indent . ']';
         return implode("\n", $lines);
     }
 

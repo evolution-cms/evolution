@@ -4704,6 +4704,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $sync->setCachepath($cache_dir);
             $sync->setReport($report);
             $sync->emptyCache();
+            Bootstrap\EnvCacheLoader::invalidate(EVO_BASE_PATH);
         } elseif ($type === 'document') {
             $sync = new Legacy\Cache();
             $sync->setCachepath($cache_dir);
