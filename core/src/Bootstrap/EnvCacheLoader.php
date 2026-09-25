@@ -11,13 +11,14 @@ use Throwable;
  *
  * Invalidation:
  * - Cache is valid while its mtime is at least that of the selected `.env` file.
+ * - Compiled configuration is rebuilt when the project moves to another directory.
  * - Compiled configuration is used only after `core/.install` exists.
  * - A full CMS cache clear removes it, so configuration changes take effect on the next request.
  * - The legacy environment-only array remains readable and is upgraded on the next bootstrap.
  */
 final class EnvCacheLoader
 {
-    private const BOOTSTRAP_CACHE_VERSION = 2;
+    private const BOOTSTRAP_CACHE_VERSION = 3;
 
     /** @var array<string, mixed>|null */
     private static ?array $loadedCache = null;
@@ -86,6 +87,7 @@ final class EnvCacheLoader
             $cached = self::loadCacheArray($cachePath);
             if (is_array($cached)) {
                 if (($cached['_evolution_bootstrap_cache'] ?? null) === self::BOOTSTRAP_CACHE_VERSION
+                    && ($cached['project_root'] ?? null) === $projectRoot
                     && ($cached['env_path'] ?? null) === $envPath
                     && is_array($cached['environment'] ?? null)) {
                     self::$loadedCache = $cached;
@@ -110,6 +112,7 @@ final class EnvCacheLoader
     /**
      * Return the parsed configuration from the same cache file loaded for the environment.
      * Request/process-dependent configuration groups are evaluated separately each time.
+     * A project-root mismatch makes a packaged build rescan its configuration once.
      *
      * @return array{items: array<string, mixed>, dynamic_files: list<array{key: string, path: string}>}|null
      * @since 3.5.9
@@ -188,6 +191,7 @@ final class EnvCacheLoader
 
         $payload = [
             '_evolution_bootstrap_cache' => self::BOOTSTRAP_CACHE_VERSION,
+            'project_root' => self::$loadedRoot,
             'env_path' => self::$envPath,
             'environment' => self::$environment,
             'configuration' => $items,
