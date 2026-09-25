@@ -190,16 +190,34 @@ trait Settings
                 : $factoryLocale);
 
             // Keep manager:: views available to frontend integrations without
-            // scanning the theme's virtual elements on every request.
+            // scanning the theme's virtual elements on every request. A database
+            // template does not need to build the view factory just for this hint.
             $theme = (string) $this->getConfig('manager_theme', 'default');
-            $this['view']->addNamespace('manager', [
-                EVO_MANAGER_PATH . '/media/style/' . $theme . '/views/',
-                EVO_MANAGER_PATH . '/views/',
-            ]);
+            $this->registerFrontendManagerViewNamespace($theme);
         }
 
         $out = include EVO_CORE_PATH . 'factory/settings.php';
         return \is_array($out) ? $out : [];
+    }
+
+    /**
+     * Register manager:: view paths when the view factory is first needed.
+     *
+     * @since 3.5.9
+     */
+    protected function registerFrontendManagerViewNamespace(string $theme): void
+    {
+        $managerViewPaths = [
+            EVO_MANAGER_PATH . '/media/style/' . $theme . '/views/',
+            EVO_MANAGER_PATH . '/views/',
+        ];
+        if ($this->resolved('view')) {
+            $this['view']->addNamespace('manager', $managerViewPaths);
+        } else {
+            $this->afterResolving('view', static function ($view) use ($managerViewPaths): void {
+                $view->addNamespace('manager', $managerViewPaths);
+            });
+        }
     }
 
     /**

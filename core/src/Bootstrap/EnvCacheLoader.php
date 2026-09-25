@@ -11,6 +11,7 @@ use Throwable;
  *
  * Invalidation:
  * - Cache is valid while its mtime is at least that of the selected `.env` file.
+ * - Compiled configuration is used only after `core/.install` exists.
  * - A full CMS cache clear removes it, so configuration changes take effect on the next request.
  * - The legacy environment-only array remains readable and is upgraded on the next bootstrap.
  */
@@ -115,6 +116,12 @@ final class EnvCacheLoader
      */
     public static function configuration(): ?array
     {
+        // Composer commands may boot the app before the installer writes its database
+        // connection. Do not reuse a configuration snapshot from that incomplete state.
+        if (self::$loadedRoot === null || !is_file(self::$loadedRoot . '/core/.install')) {
+            return null;
+        }
+
         if (self::$runtimeConfiguration !== null) {
             return self::$runtimeConfiguration;
         }
@@ -166,7 +173,8 @@ final class EnvCacheLoader
     public static function cacheConfiguration(array $items, array $dynamicFiles): void
     {
         self::$runtimeConfiguration = ['items' => $items, 'dynamic_files' => $dynamicFiles];
-        if (self::$cachePath === null || self::$loadedRoot === null || !self::isExportable($items)) {
+        if (self::$cachePath === null || self::$loadedRoot === null
+            || !is_file(self::$loadedRoot . '/core/.install') || !self::isExportable($items)) {
             return;
         }
 
