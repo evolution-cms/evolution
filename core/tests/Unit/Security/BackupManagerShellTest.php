@@ -54,7 +54,7 @@ describe('pg client invocation', function () {
     });
 
     test('an argument carrying shell metacharacters stays a single argument', function () {
-        $table = 'evo_users; rm -rf /';
+        $table = 'evo_users; echo pwned';
         $line = (new InspectableBackupService())->inspectProcess('pg_dump', ['--table', $table])
             ->getCommandLine();
 
