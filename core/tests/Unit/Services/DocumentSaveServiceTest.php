@@ -256,6 +256,47 @@ test('the parent permission is checked for new documents and on a move only', fu
         ->and((int) Capsule::table('site_content')->where('id', 2)->value('parent'))->toBe(1);
 })->skip(!extension_loaded('pdo_sqlite'), 'pdo_sqlite is required');
 
+test('an edit of a document the user cannot reach is refused even when the parent stays', function () {
+    bootSaveFixture();
+    $asked = [];
+    $context = DocumentSaveDatabase::context(
+        config: ['use_udperms' => 1],
+        permissions: ['publish_document'],
+        role: 2,
+        userGroups: [3],
+        canEdit: function (int $id) use (&$asked) {
+            $asked[] = $id;
+            return $id !== 2;
+        },
+    );
+    $service = new DocumentSaveService($context);
+
+    $save = fn () => $service->save(saveForm(['id' => '2', 'mode' => '27', 'pagetitle' => 'hijacked', 'alias' => 'page', 'parent' => '1']));
+
+    expect($save)->toThrow(DocumentSaveDenied::class, 'access_permission_denied')
+        ->and($asked)->toBe([2])
+        ->and(Capsule::table('site_content')->where('id', 2)->value('pagetitle'))->toBe('page');
+
+    // a reachable document still saves, and a new one is not an edit
+    $service->save(saveForm(['id' => '4', 'mode' => '27', 'pagetitle' => 'renamed', 'alias' => 'other', 'parent' => '0']));
+    $service->save(saveForm(['pagetitle' => 'fresh']));
+    expect($asked)->toBe([2, 4])
+        ->and(Capsule::table('site_content')->where('id', 4)->value('pagetitle'))->toBe('renamed');
+})->skip(!extension_loaded('pdo_sqlite'), 'pdo_sqlite is required');
+
+test('without use_udperms the edit is not checked against document groups', function () {
+    bootSaveFixture();
+    $service = new DocumentSaveService(DocumentSaveDatabase::context(
+        permissions: ['publish_document'],
+        role: 2,
+        canEdit: fn (int $id) => false,
+    ));
+
+    $service->save(saveForm(['id' => '2', 'mode' => '27', 'pagetitle' => 'edited', 'alias' => 'page', 'parent' => '1']));
+
+    expect(Capsule::table('site_content')->where('id', 2)->value('pagetitle'))->toBe('edited');
+})->skip(!extension_loaded('pdo_sqlite'), 'pdo_sqlite is required');
+
 test('a non administrator cannot post a group list without one of their own groups', function () {
     bootSaveFixture();
     $service = new DocumentSaveService(DocumentSaveDatabase::context(config: ['use_udperms' => 1], role: 2, userGroups: [3]));
