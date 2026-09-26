@@ -30,7 +30,7 @@ $logs = \EvolutionCMS\Models\ManagerLog::query()->select('internalKey', 'usernam
                             $logs_user = record_sort(array_unique_multi($logs, 'internalKey'), 'username');
                             foreach ($logs_user as $row) {
                                 $selectedtext = $row['internalKey'] == get_by_key($_REQUEST, 'searchuser') ? ' selected="selected"' : '';
-                                echo "\t\t" . '<option value="' . $row['internalKey'] . '"' . $selectedtext . '>' . $row['username'] . "</option>\n";
+                                echo "\t\t" . '<option value="' . (int)$row['internalKey'] . '"' . $selectedtext . '>' . entities((string)$row['username'], EvolutionCMS()->getConfig('modx_charset')) . "</option>\n";
                             }
                             ?>
                         </select>
@@ -66,7 +66,7 @@ $logs = \EvolutionCMS\Models\ManagerLog::query()->select('internalKey', 'usernam
                             $logs_items = record_sort(array_unique_multi($logs, 'itemid'), 'itemid');
                             foreach ($logs_items as $row) {
                                 $selectedtext = $row['itemid'] == get_by_key($_REQUEST, 'itemid') ? ' selected="selected"' : '';
-                                echo "\t\t" . '<option value="' . $row['itemid'] . '"' . $selectedtext . '>' . $row['itemid'] . "</option>\n";
+                                echo "\t\t" . '<option value="' . entities((string)$row['itemid'], EvolutionCMS()->getConfig('modx_charset')) . '"' . $selectedtext . '>' . entities((string)$row['itemid'], EvolutionCMS()->getConfig('modx_charset')) . "</option>\n";
                             }
                             ?>
                         </select>
@@ -82,7 +82,7 @@ $logs = \EvolutionCMS\Models\ManagerLog::query()->select('internalKey', 'usernam
                             $logs_names = record_sort(array_unique_multi($logs, 'itemname'), 'itemname');
                             foreach ($logs_names as $row) {
                                 $selectedtext = $row['itemname'] == get_by_key($_REQUEST, 'itemname') ? ' selected="selected"' : '';
-                                echo "\t\t" . '<option value="' . $row['itemname'] . '"' . $selectedtext . '>' . $row['itemname'] . "</option>\n";
+                                echo "\t\t" . '<option value="' . entities((string)$row['itemname'], EvolutionCMS()->getConfig('modx_charset')) . '"' . $selectedtext . '>' . entities((string)$row['itemname'], EvolutionCMS()->getConfig('modx_charset')) . "</option>\n";
                             }
                             ?>
                         </select>
@@ -92,7 +92,7 @@ $logs = \EvolutionCMS\Models\ManagerLog::query()->select('internalKey', 'usernam
                     <div class="col-sm-4 col-md-3 col-lg-2"><b><?= $_lang["mgrlog_msg"] ?></b></div>
                     <div class="col-sm-8 col-md-5 col-lg-4">
                         <input type="text" name="message" class="form-control"
-                               value="<?= get_by_key($_REQUEST, 'message') ?>"/>
+                               value="<?= entities((string)get_by_key($_REQUEST, 'message', '', 'is_scalar'), EvolutionCMS()->getConfig('modx_charset')) ?>"/>
                     </div>
                 </div>
                 <div class="row form-row">
@@ -187,7 +187,20 @@ if (isset($_REQUEST['log_submit'])) {
     // Number of result to display on the page, will be in the LIMIT of the sql query also
     $int_num_result = is_numeric($_REQUEST['nrresults']) ? $_REQUEST['nrresults'] : EvolutionCMS()->getConfig('number_of_logs');
 
-    $extargv = "&a=13&searchuser=" . get_by_key($_REQUEST, 'searchuser') . "&action=" . get_by_key($_REQUEST, 'action') . "&itemid=" . get_by_key($_REQUEST, 'itemid') . "&itemname=" . get_by_key($_REQUEST, 'itemname') . "&message=" . get_by_key($_REQUEST, 'message') . "&dateto=" . $_REQUEST['dateto'] . "&datefrom=" . $_REQUEST['datefrom'] . "&nrresults=" . $int_num_result . "&log_submit=" . $_REQUEST['log_submit']; // extra argv here (could be anything depending on your page)
+    // Paginate urldecodes this before escaping it into href="", so '%' is encoded once more to
+    // keep filter values that contain '&' or '=' intact.
+    $extargv = '&' . str_replace('%', '%25', http_build_query([
+        'a' => 13,
+        'searchuser' => (string)get_by_key($_REQUEST, 'searchuser', '', 'is_scalar'),
+        'action' => (string)get_by_key($_REQUEST, 'action', '', 'is_scalar'),
+        'itemid' => (string)get_by_key($_REQUEST, 'itemid', '', 'is_scalar'),
+        'itemname' => (string)get_by_key($_REQUEST, 'itemname', '', 'is_scalar'),
+        'message' => (string)get_by_key($_REQUEST, 'message', '', 'is_scalar'),
+        'dateto' => (string)get_by_key($_REQUEST, 'dateto', '', 'is_scalar'),
+        'datefrom' => (string)get_by_key($_REQUEST, 'datefrom', '', 'is_scalar'),
+        'nrresults' => (int)$int_num_result,
+        'log_submit' => (string)get_by_key($_REQUEST, 'log_submit', '', 'is_scalar'),
+    ], '', '&', PHP_QUERY_RFC3986));
 
     // build the sql
     $limit = $num_rows = $logs->count();

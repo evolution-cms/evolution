@@ -42,7 +42,7 @@ if(!$forced) {
 				<ul>
 					<?php
                     foreach ($siteTmlvarTemplates as $siteTmlvarTemplate) {
-                        echo '<li><span style="width: 200px"><a href="index.php?id=' . $siteTmlvarTemplate->resource->id . '&a=27">' . $siteTmlvarTemplate->resource->pagetitle . '</a></span>' . ($siteTmlvarTemplate->resource->description != '' ? ' - ' . $siteTmlvarTemplate->resource->description : '') . '</li>';
+                        echo '<li><span style="width: 200px"><a href="index.php?id=' . $siteTmlvarTemplate->resource->id . '&a=27">' . entities($siteTmlvarTemplate->resource->pagetitle) . '</a></span>' . ($siteTmlvarTemplate->resource->description != '' ? ' - ' . sanitize_inline_html($siteTmlvarTemplate->resource->description) : '') . '</li>';
                     }
 					?>
 				</ul>

@@ -18,7 +18,7 @@ use Illuminate\Support\HtmlString;
 test('formatting written by the CMS survives, injected script markup does not', function () {
     // A message in the shape logEvent() writes: CMS formatting plus a value from the request.
     $stored = 'Import failed<br />'
-        . '<pre>row 12: <script>alert(document.cookie)</script></pre>';
+        . '<pre>row 12: <script>alert(document.domain)</script></pre>';
 
     $rendered = (string) safe_html($stored);
 
@@ -30,7 +30,7 @@ test('formatting written by the CMS survives, injected script markup does not', 
     // ...but the injected element is inert text, not an element.
     expect($rendered)->not->toContain('<script>')
         ->and($rendered)->not->toContain('</script>')
-        ->and($rendered)->toContain('&lt;script&gt;alert(document.cookie)&lt;/script&gt;');
+        ->and($rendered)->toContain('&lt;script&gt;alert(document.domain)&lt;/script&gt;');
 });
 
 test('attributes cannot survive the allow list', function () {

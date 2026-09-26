@@ -462,7 +462,7 @@
                 : '') .
             '
                     <span class="wm_button">
-                        <a target="_top" href="index.php?a=8">
+                        <a target="_top" href="index.php?a=8&_token={{ csrf_token() }}">
                             ' .
             $_style['icon_logout'] .
             '

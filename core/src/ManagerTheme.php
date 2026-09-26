@@ -717,7 +717,8 @@ class ManagerTheme implements ManagerThemeInterface
             'evo_charset' => $this->getCharset(),
             'favicon' => (file_exists(EVO_BASE_PATH . 'favicon.ico') ? EVO_SITE_URL : $this->getThemeUrl() . 'images/') . 'favicon.ico',
             'homeurl' => $this->getCore()->makeUrl($this->getManagerStartupPageId()),
-            'logouturl' => EVO_MANAGER_URL . 'index.php?a=8',
+            // Logout is CSRF-verified; csrf_token() throws when no session has been started.
+            'logouturl' => EVO_MANAGER_URL . 'index.php?a=8' . (isset($_SESSION) ? '&_token=' . rawurlencode(csrf_token()) : ''),
             'year' => date('Y'),
             'theme' => $this->getTheme(),
             'manager_theme_url' => $this->getThemeUrl(),

@@ -29,7 +29,7 @@ if($limit > 0) {
             <ul>
                 <?php
                 foreach ($siteContents as $row){
-                    echo '<li><span style="width: 200px"><a href="index.php?id=' . $row->id . '&a=27">' . $row->pagetitle . '</a></span>' . ($row->introtext != '' ? ' - ' . $row->introtext : '') . '</li>';
+                    echo '<li><span style="width: 200px"><a href="index.php?id=' . $row->id . '&a=27">' . entities($row->pagetitle) . '</a></span>' . ($row->introtext != '' ? ' - ' . sanitize_inline_html($row->introtext) : '') . '</li>';
                 }
                 ?>
             </ul>

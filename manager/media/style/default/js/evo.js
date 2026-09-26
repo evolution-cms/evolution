@@ -1881,7 +1881,7 @@
         keepMeAlive: function () {
             evo.get('includes/session_keepalive.php?tok=' + d.getElementById('sessTokenInput').value + '&o=' + Math.random(), function (r) {
                 r = JSON.parse(r);
-                if (r.status !== 'ok') w.location.href = evo.EVO_MANAGER_URL + '?a=8';
+                if (r.status !== 'ok') w.location.href = evo.EVO_MANAGER_URL + '?a=8&_token=' + encodeURIComponent(evo.tabsCsrfToken());
             });
         },
         openWindow: function (a) {
