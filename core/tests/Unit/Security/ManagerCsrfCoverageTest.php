@@ -189,6 +189,7 @@ it('guards the page controllers that mutate state from the request', function ()
     $guarded = (new ReflectionClass(VerifyCsrfToken::class))->getConstant('MUTATING_GET_ACTIONS');
 
     $mutatingControllers = [
+        8 => 'Users/LogInOut',    // logout destroys the manager session
         26 => 'RefreshSite',      // publishes/unpublishes pending documents, clears the cache
         52 => 'MoveDocument',     // reparents a document from $_REQUEST
         90 => 'Users/DeleteUser', // deletes a manager user from $_GET
@@ -226,6 +227,7 @@ it('guards the page actions that delete when a query parameter is present', func
         'core/src/Controllers/UserRoles/Permission.php' => [[135], 'action', "\$_GET['action'] == 'delete'"],
         'core/src/Controllers/UserRoles/PermissionsGroups.php' => [[136], 'action', "\$_GET['action'] == 'delete'"],
         'core/src/Controllers/SystemInfo.php' => [[53], 'opcache_reset', "request()->boolean('opcache_reset')"],
+        'manager/actions/mutate_module_resources.dynamic.php' => [[113], 'op', "switch (\$_REQUEST['op'])"],
         'manager/actions/category_mgr/inc/request_trigger.inc.php' => [
             [120, 121],
             'module_categories_manager',
@@ -262,6 +264,16 @@ it('appends a token to the OPcache reset link', function () {
     foreach ($links[0] as $link) {
         expect($link)->toContain('_token=');
     }
+});
+
+it('appends a token to the logout links built outside the templates', function () {
+    // The template scan covers the Blade links; these are assembled in PHP and in the theme script.
+    $theme = (string)file_get_contents(evoRoot() . '/core/src/ManagerTheme.php');
+    $script = (string)file_get_contents(evoRoot() . '/manager/media/style/default/js/evo.js');
+
+    expect($theme)->toContain("'logouturl' => EVO_MANAGER_URL . 'index.php?a=8' . (isset(\$_SESSION) ? '&_token=' . rawurlencode(csrf_token()) : '')")
+        ->and($script)->toContain("'?a=8&_token=' + encodeURIComponent(evo.tabsCsrfToken())")
+        ->and($script)->not->toMatch("/\?a=8';/");
 });
 
 it('appends a token to every role, permission and category delete link', function () {

@@ -30,6 +30,7 @@ class VerifyCsrfToken
      */
     protected const MUTATING_GET_ACTIONS = [
         6,   // delete_content
+        8,   // LogInOut - logout destroys the manager session
         21,  // delete_template
         24,  // save_snippet (?disabled= toggle)
         25,  // delete_snippet
@@ -76,6 +77,7 @@ class VerifyCsrfToken
         36  => 'action', // UserRole
         38  => 'action', // UserRole
         53  => 'opcache_reset', // SystemInfo - ?opcache_reset=1 resets OPcache
+        113 => 'op', // module dependencies - ?op=add|del changes them from $_REQUEST
         120 => 'module_categories_manager', // category manager - [delete] removes a category
         121 => 'module_categories_manager', // category manager
         135 => 'action', // Permission - ?action=delete removes the permission

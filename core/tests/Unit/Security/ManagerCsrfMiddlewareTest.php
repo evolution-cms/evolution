@@ -141,6 +141,7 @@ it('rejects destructive GET actions without a token', function (int $action) {
     expect(csrfPassed($request))->toBeFalse();
 })->with([
     6,   // delete_content
+    8,   // logout - destroys the manager session
     61,  // publish_content
     94,  // duplicate_content
     110, // delete_module
@@ -158,6 +159,8 @@ it('rejects page actions whose delete parameter is sent without a token', functi
     'role (a=36)' => [['a' => 36, 'id' => 3, 'action' => 'delete']],
     'role (a=38)' => [['a' => 38, 'id' => 3, 'action' => 'delete']],
     'opcache reset (a=53)' => [['a' => 53, 'opcache_reset' => 1]],
+    'module dependency add (a=113)' => [['a' => 113, 'id' => 3, 'op' => 'add', 'newids' => '5', 'rt' => 'snip']],
+    'module dependency delete (a=113)' => [['a' => 113, 'id' => 3, 'op' => 'del', 'depid' => [5]]],
     'permission (a=135)' => [['a' => 135, 'id' => 3, 'action' => 'delete']],
     'permission group (a=136)' => [['a' => 136, 'id' => 3, 'action' => 'delete']],
     'category (a=120)' => [['a' => 120, 'module_categories_manager' => ['delete' => 3, 'category' => 'x']]],
@@ -181,6 +184,7 @@ it('keeps the role, permission and category pages reachable without a token', fu
     'edit role' => [['a' => 35, 'id' => 3]],
     'new role' => [['a' => 38]],
     'system info' => [['a' => 53]],
+    'module dependencies' => [['a' => 113, 'id' => 3]],
     'edit permission' => [['a' => 135, 'id' => 3]],
     'edit permission group' => [['a' => 136, 'id' => 3]],
     'category manager' => [['a' => 120]],
