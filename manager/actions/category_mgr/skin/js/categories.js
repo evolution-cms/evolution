@@ -11,7 +11,7 @@ document.getElementById('elements-select').onchange = function(e) {
   document.getElementById('categorize-formfields').innerHTML = '';
   let xhr = new XMLHttpRequest();
   xhr.open('POST', ajax_url, true);
-  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;');
+  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
   xhr.onload = function() {
     if (this.readyState === 4) {
       categorizeWorkbench.classList.remove('ajax_loading');

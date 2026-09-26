@@ -100,7 +100,7 @@
         form.submitButton.classList.add('scaleX');
         var xhr = new XMLHttpRequest();
         xhr.open('POST', 'processors/login.processor.php', true);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;');
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         xhr.onload = function() {
             if(this.readyState === 4) {
                 var header = this.response.slice(0, 9);

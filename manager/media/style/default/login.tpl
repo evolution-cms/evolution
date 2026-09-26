@@ -576,7 +576,7 @@
         document.getElementById('mainloader').classList.add('show');
         var xhr = new XMLHttpRequest();
         xhr.open('POST', '?a=0', true);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;');
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         xhr.onload = function() {
             if (this.readyState === 4) {
                 var header = this.response.slice(0, 9);
