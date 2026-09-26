@@ -1432,6 +1432,7 @@ return array(
     'EvolutionCMS\\Support\\SystemSettingPathNormalizer' => $baseDir . '/src/Support/SystemSettingPathNormalizer.php',
     'EvolutionCMS\\Support\\TemplateFileEngines' => $baseDir . '/src/Support/TemplateFileEngines.php',
     'EvolutionCMS\\TemplateProcessor' => $baseDir . '/src/TemplateProcessor.php',
+    'EvolutionCMS\\Tracy\\ConnectionTiming' => $baseDir . '/src/Tracy/ConnectionTiming.php',
     'EvolutionCMS\\Tracy\\Debugger' => $baseDir . '/src/Tracy/Debugger.php',
     'EvolutionCMS\\Tracy\\Panels\\AbstractPanel' => $baseDir . '/src/Tracy/Panels/AbstractPanel.php',
     'EvolutionCMS\\Tracy\\Panels\\Auth\\Panel' => $baseDir . '/src/Tracy/Panels/Auth/Panel.php',
