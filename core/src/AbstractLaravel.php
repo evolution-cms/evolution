@@ -402,7 +402,15 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
      */
     public function getProvider($provider)
     {
-        return array_values($this->getProviders($provider))[0] ?? null;
+        $name = is_string($provider) ? $provider : get_class($provider);
+
+        foreach ($this->serviceProviders as $registeredProvider) {
+            if ($registeredProvider instanceof $name) {
+                return $registeredProvider;
+            }
+        }
+
+        return null;
     }
 
     /**
