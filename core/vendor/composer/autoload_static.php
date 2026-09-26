@@ -2089,6 +2089,7 @@ class ComposerStaticInit925fea465a58fa69f06ccf2629003e87
         'EvolutionCMS\\Support\\DocumentSave\\SaveResponse' => __DIR__ . '/../..' . '/src/Support/DocumentSave/SaveResponse.php',
         'EvolutionCMS\\Support\\DocumentSave\\TemplateVariableInput' => __DIR__ . '/../..' . '/src/Support/DocumentSave/TemplateVariableInput.php',
         'EvolutionCMS\\Support\\DocumentSave\\TemplateVariableValues' => __DIR__ . '/../..' . '/src/Support/DocumentSave/TemplateVariableValues.php',
+        'EvolutionCMS\\Support\\FileBrowserAccess' => __DIR__ . '/../..' . '/src/Support/FileBrowserAccess.php',
         'EvolutionCMS\\Support\\FileManagerAccess' => __DIR__ . '/../..' . '/src/Support/FileManagerAccess.php',
         'EvolutionCMS\\Support\\Formatter\\CSSMinify' => __DIR__ . '/../..' . '/src/Support/Formatter/CSSMinify.php',
         'EvolutionCMS\\Support\\Formatter\\HtmlFormatter' => __DIR__ . '/../..' . '/src/Support/Formatter/HtmlFormatter.php',

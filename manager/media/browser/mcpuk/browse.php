@@ -15,13 +15,20 @@
 require "core/autoload.php"; // Init MODX
 
 function returnNoPermissionsMessage($role) {
-	global $_lang;
-	echo sprintf($_lang['files_management_no_permission'], $role);
+	// there is no global $_lang here; it used to print an empty page
+	header('HTTP/1.1 403 Forbidden');
+	echo sprintf(__('global.files_management_no_permission'), $role);
 	exit;
 }
 
-if( $_GET['type'] == 'images' && !EvolutionCMS()->hasPermission('file_manager') && !EvolutionCMS()->hasPermission('assets_images')) returnNoPermissionsMessage('assets_images');
-if( $_GET['type'] == 'files'  && !EvolutionCMS()->hasPermission('file_manager') && !EvolutionCMS()->hasPermission('assets_files'))  returnNoPermissionsMessage('assets_files');
+// Every type needs a permission: media, image and file used to open for anyone, and a missing or
+// unknown type opens the files folder.
+$typePermission = \EvolutionCMS\Support\FileBrowserAccess::permissionFor(
+    isset($_GET['type']) && is_string($_GET['type']) ? $_GET['type'] : null
+);
+if (!EvolutionCMS()->hasPermission('file_manager') && !EvolutionCMS()->hasPermission($typePermission)) {
+    returnNoPermissionsMessage($typePermission);
+}
 
 // Only the page itself and the thumbnails it embeds are fetched without a token; every other
 // act, including reads, is scripted through browser.baseGetData() and carries the session one.

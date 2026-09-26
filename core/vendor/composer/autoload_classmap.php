@@ -1412,6 +1412,7 @@ return array(
     'EvolutionCMS\\Support\\DocumentSave\\SaveResponse' => $baseDir . '/src/Support/DocumentSave/SaveResponse.php',
     'EvolutionCMS\\Support\\DocumentSave\\TemplateVariableInput' => $baseDir . '/src/Support/DocumentSave/TemplateVariableInput.php',
     'EvolutionCMS\\Support\\DocumentSave\\TemplateVariableValues' => $baseDir . '/src/Support/DocumentSave/TemplateVariableValues.php',
+    'EvolutionCMS\\Support\\FileBrowserAccess' => $baseDir . '/src/Support/FileBrowserAccess.php',
     'EvolutionCMS\\Support\\FileManagerAccess' => $baseDir . '/src/Support/FileManagerAccess.php',
     'EvolutionCMS\\Support\\Formatter\\CSSMinify' => $baseDir . '/src/Support/Formatter/CSSMinify.php',
     'EvolutionCMS\\Support\\Formatter\\HtmlFormatter' => $baseDir . '/src/Support/Formatter/HtmlFormatter.php',

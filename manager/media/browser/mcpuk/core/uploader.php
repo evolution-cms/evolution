@@ -181,6 +181,13 @@ class uploader
         } else
             $this->session = &$_SESSION;
 
+        // config.php disables the browser when a confined manager's root cannot be resolved; stop
+        // here, before the code below creates folders and prunes archives under an empty root
+        if (!empty($this->config['disabled'])) {
+            header('HTTP/1.1 403 Forbidden');
+            die(sprintf(__('global.files_management_no_permission'), __('global.image_base_upload_dir_title')));
+        }
+
         // IMAGE DRIVER INIT
         if (isset($this->config['imageDriversPriority'])) {
             $this->config['imageDriversPriority'] =
