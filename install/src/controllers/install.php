@@ -100,7 +100,7 @@ try {
         $confph['connection_collation'] = addslashes($database_collation);
         $confph['database_name'] = addslashes(
             $database_type === 'sqlite' ? sqliteDbNameToPath($database_name) : $database_name);
-        $confph['table_prefix'] = addslashes($_POST['tableprefix'] ?? '');
+        $confph['table_prefix'] = addslashes(validateTablePrefix($_POST['tableprefix'] ?? ''));
         $confph['lastInstallTime'] = time();
         $confph['site_sessionname'] = addslashes($site_sessionname);
         $confph['database_engine'] = '';

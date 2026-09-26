@@ -1,14 +1,18 @@
 <?php
-$driver = validateDbType($_POST['database_type']);
-$host = validateDbHost($_POST['host'], $driver);
-$uid = validateDbUser($_POST['uid'], $driver);
-$pwd = validateDbPassword($_POST['pwd'], $driver);
-$tableprefix = validateTablePrefix($_POST['tableprefix']);
-$database_name = validateDbName($_POST['database_name']);
-$installMode = (int)$_POST['installMode'];
-
 $output = $_lang['status_checking_database'];
-$database_collation = $_POST['database_collation'];
+try {
+    $driver = validateDbType($_POST['database_type']);
+    $host = validateDbHost($_POST['host'], $driver);
+    $uid = validateDbUser($_POST['uid'], $driver);
+    $pwd = validateDbPassword($_POST['pwd'], $driver);
+    $tableprefix = validateTablePrefix($_POST['tableprefix']);
+    $database_name = validateDbName($_POST['database_name']);
+    $database_collation = validateDbCollation($_POST['database_collation'] ?? '');
+} catch (InvalidArgumentException $e) {
+    exit($output . '<span id="database_fail">' . $_lang['status_failed'] . ' '
+        . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . '</span>');
+}
+$installMode = (int)$_POST['installMode'];
 
 $database_charset = getDatabaseCharset($database_collation, $driver);
 try {

@@ -149,7 +149,7 @@ if (isset ($_POST['tv']) || $installData) {
             if (evo()->getDatabase()->getRecordCount($rs)) {
                 $insert = true;
                 while($row = evo()->getDatabase()->getRow($rs,'assoc')) {
-                    if (!@evo()->getDatabase()->query("UPDATE `" . $table_prefix . "site_tmplvars` SET type='$input_type', caption='$caption', description='$desc', category='$category', locked='$locked', elements='$input_options', display='$output_widget', display_params='$output_widget_params', default_text='$input_default' WHERE id='{$row['id']}';")) {
+                    if (!@evo()->getDatabase()->query("UPDATE `" . $table_prefix . "site_tmplvars` SET type='$input_type', caption='$caption', description='$desc', category='$category', locked='$locked', elements='$input_options', display='$output_widget', display_params='$output_widget_params', default_text='$input_default' WHERE id='" . (int) $row['id'] . "';")) {
                         echo "<p>" . mysql_error() . "</p>";
                         return;
                     }
@@ -175,8 +175,8 @@ if (isset ($_POST['tv']) || $installData) {
                     // remove existing tv -> template assignments
                     $ds = evo()->getDatabase()->query("SELECT id FROM `".$table_prefix."site_tmplvars` WHERE name='$name' AND description='$desc';" );
                     $row = evo()->getDatabase()->getRow($ds,'assoc');
-                    $id = $row["id"];
-                    evo()->getDatabase()->query("DELETE FROM $dbase.`" . $table_prefix . "site_tmplvar_templates` WHERE tmplvarid = '$id';");
+                    $id = (int) $row["id"];
+                    evo()->getDatabase()->query("DELETE FROM `" . $table_prefix . "site_tmplvar_templates` WHERE tmplvarid = '$id';");
 
                     // add tv -> template assignments
                     foreach ($assignments as $assignment) {
@@ -186,7 +186,7 @@ if (isset ($_POST['tv']) || $installData) {
                         $ts = evo()->getDatabase()->query("SELECT id FROM `".$table_prefix."site_templates` $where;" );
                         if ($ds && $ts) {
                             $tRow = evo()->getDatabase()->getRow($ts,'assoc');
-                            $templateId = $tRow['id'];
+                            $templateId = (int) $tRow['id'];
                             evo()->getDatabase()->query("INSERT INTO `" . $table_prefix . "site_tmplvar_templates` (tmplvarid, templateid) VALUES('$id', '$templateId');");
                         }
                     }
@@ -338,13 +338,13 @@ if (isset ($_POST['plugin']) || $installData) {
                     while($row = evo()->getDatabase()->getRow($rs,'assoc')) {
                         $props = evo()->getDatabase()->escape(propUpdate($properties,$row['properties']));
                         if ($row['description'] == $desc) {
-                            if (!@evo()->getDatabase()->query("UPDATE `" . $table_prefix . "site_plugins` SET plugincode='$plugin', description='$desc', properties='$props' WHERE id='{$row['id']}';")) {
+                            if (!@evo()->getDatabase()->query("UPDATE `" . $table_prefix . "site_plugins` SET plugincode='$plugin', description='$desc', properties='$props' WHERE id='" . (int) $row['id'] . "';")) {
                                 echo "<p>" . mysql_error() . "</p>";
                                 return;
                             }
                             $insert = false;
                         } else {
-                            if (!@evo()->getDatabase()->query("UPDATE `" . $table_prefix . "site_plugins` SET disabled='1' WHERE id='{$row['id']}';")) {
+                            if (!@evo()->getDatabase()->query("UPDATE `" . $table_prefix . "site_plugins` SET disabled='1' WHERE id='" . (int) $row['id'] . "';")) {
                                 echo "<p>".mysql_error()."</p>";
                                 return;
                             }
@@ -371,12 +371,13 @@ if (isset ($_POST['plugin']) || $installData) {
                     $ds = evo()->getDatabase()->query("SELECT id FROM `".$table_prefix."site_plugins` WHERE name='$name' AND description='$desc' ORDER BY id DESC LIMIT 1;" );
                     if ($ds) {
                         $row = evo()->getDatabase()->getRow($ds,'assoc');
-                        $id = $row["id"];
-                        $_events = implode("','", $events);
+                        $id = (int) $row["id"];
+                        // Event names come from the package's docblock, not from this site.
+                        $_events = implode("','", evo()->getDatabase()->escape(array_map('trim', $events)));
 
                         // add new events
                         if ($prev_id) {
-                            $prev_id = EvolutionCms()->getDatabase()->escape($prev_id);
+                            $prev_id = (int) $prev_id;
 
                             evo()->getDatabase()->query("INSERT OR IGNORE INTO `{$table_prefix}site_plugin_events` (`pluginid`, `evtid`, `priority`)
                                 SELECT {$id} as 'pluginid', `se`.`id` AS `evtid`, COALESCE(`spe`.`priority`, MAX(`spe2`.`priority`) + 1, 0) AS `priority`
