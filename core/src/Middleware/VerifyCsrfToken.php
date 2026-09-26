@@ -65,6 +65,23 @@ class VerifyCsrfToken
     ];
 
     /**
+     * Manager actions that render an ordinary page on GET but mutate state once a particular
+     * query parameter is present.
+     *
+     * Listing these in MUTATING_GET_ACTIONS would demand a token for plain navigation to the
+     * edit forms, so only requests carrying the triggering parameter are verified.
+     */
+    protected const MUTATING_GET_PARAMETERS = [
+        35  => 'action', // UserRole - ?action=delete removes the role
+        36  => 'action', // UserRole
+        38  => 'action', // UserRole
+        120 => 'module_categories_manager', // category manager - [delete] removes a category
+        121 => 'module_categories_manager', // category manager
+        135 => 'action', // Permission - ?action=delete removes the permission
+        136 => 'action', // PermissionsGroups - ?action=delete removes the group and its permissions
+    ];
+
+    /**
      * @param \Illuminate\Http\Request $request
      * @param Closure $next
      *
@@ -98,9 +115,13 @@ class VerifyCsrfToken
             return true;
         }
 
+        $action = $this->getActionId($request);
+
         // Explicitly stale tokens must not be ignored even on read-only pages.
         return $request->input('_token', $request->header('X-CSRF-TOKEN')) !== null
-            || in_array($this->getActionId($request), self::MUTATING_GET_ACTIONS, true);
+            || in_array($action, self::MUTATING_GET_ACTIONS, true)
+            || (isset(self::MUTATING_GET_PARAMETERS[$action])
+                && $request->query->has(self::MUTATING_GET_PARAMETERS[$action]));
     }
 
     /**

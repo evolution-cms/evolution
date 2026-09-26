@@ -101,7 +101,7 @@ it('rejects a state-changing POST that carries no token at all', function () {
     $request = csrfRequest('POST', [
         'a' => 109,
         'mode' => 'new',
-        'post' => '<?php system($_GET["c"]); ?>',
+        'post' => '<?php evil(); ?>',
     ]);
 
     expect(csrfPassed($request))->toBeFalse();
@@ -148,6 +148,45 @@ it('rejects destructive GET actions without a token', function (int $action) {
     116, // delete_eventlog
     303, // delete_tmplvars
 ]);
+
+it('rejects page actions whose delete parameter is sent without a token', function (array $params) {
+    // Roles, permissions and categories are deleted by the same actions that render their
+    // edit pages, so a single query parameter decides whether the request is destructive.
+    expect(csrfPassed(csrfRequest('GET', $params)))->toBeFalse();
+})->with([
+    'role (a=35)' => [['a' => 35, 'id' => 3, 'action' => 'delete']],
+    'role (a=36)' => [['a' => 36, 'id' => 3, 'action' => 'delete']],
+    'role (a=38)' => [['a' => 38, 'id' => 3, 'action' => 'delete']],
+    'permission (a=135)' => [['a' => 135, 'id' => 3, 'action' => 'delete']],
+    'permission group (a=136)' => [['a' => 136, 'id' => 3, 'action' => 'delete']],
+    'category (a=120)' => [['a' => 120, 'module_categories_manager' => ['delete' => 3, 'category' => 'x']]],
+    'category (a=121)' => [['a' => 121, 'module_categories_manager' => ['delete' => 3]]],
+]);
+
+it('accepts page action deletes carrying the session token', function (array $params) {
+    $params['_token'] = str_repeat('a', 40);
+
+    expect(csrfPassed(csrfRequest('GET', $params)))->toBeTrue();
+})->with([
+    'role' => [['a' => 35, 'id' => 3, 'action' => 'delete']],
+    'permission' => [['a' => 135, 'id' => 3, 'action' => 'delete']],
+    'category' => [['a' => 120, 'module_categories_manager' => ['delete' => 3]]],
+]);
+
+it('keeps the role, permission and category pages reachable without a token', function (array $params) {
+    expect(csrfPassed(csrfRequest('GET', $params)))->toBeTrue();
+})->with([
+    'edit role' => [['a' => 35, 'id' => 3]],
+    'new role' => [['a' => 38]],
+    'edit permission' => [['a' => 135, 'id' => 3]],
+    'edit permission group' => [['a' => 136, 'id' => 3]],
+    'category manager' => [['a' => 120]],
+]);
+
+it('does not treat the delete parameter as destructive on unrelated pages', function () {
+    // Only the role, permission and category actions act on ?action=delete.
+    expect(csrfPassed(csrfRequest('GET', ['a' => 27, 'id' => 3, 'action' => 'delete'])))->toBeTrue();
+});
 
 it('accepts destructive GET actions carrying the session token', function () {
     $request = csrfRequest('GET', ['a' => 112, 'id' => 3, '_token' => str_repeat('a', 40)]);

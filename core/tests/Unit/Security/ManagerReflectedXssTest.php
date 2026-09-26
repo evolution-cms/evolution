@@ -131,3 +131,93 @@ it('escapes database errors echoed by the installer', function () {
         ->not->toContain("' ' . \$e->getMessage() . '</span>'")
         ->not->toContain("' ' . print_r(\$result->errorInfo(), true) . '</span>'");
 });
+
+it('escapes the manager log filters echoed back into the search form', function () {
+    // ?message= was written raw into value="", and the sanitizer only rewrites "<script".
+    $source = managerSource('manager/actions/logging.static.php');
+
+    expect($source)
+        ->toContain("value=\"<?= entities((string)get_by_key(\$_REQUEST, 'message', '', 'is_scalar')")
+        ->not->toContain("value=\"<?= get_by_key(\$_REQUEST, 'message') ?>\"");
+
+    // No request value may be echoed without going through entities().
+    preg_match_all('/<\?=((?:(?!\?>).)*\$_REQUEST(?:(?!\?>).)*)\?>/s', $source, $matches);
+
+    $unescaped = array_values(array_filter(
+        $matches[1],
+        static fn ($expr) => !str_contains($expr, 'entities(') && !str_contains($expr, '(int)')
+    ));
+
+    expect($matches[1])->not->toBeEmpty()
+        ->and($unescaped)->toBe([]);
+});
+
+it('encodes the manager log filters carried into the pagination links', function () {
+    // Every filter used to be concatenated raw into $extargv, which Paginate writes into href="".
+    $source = managerSource('manager/actions/logging.static.php');
+
+    expect($source)
+        ->toContain("\$extargv = '&' . str_replace('%', '%25', http_build_query([")
+        ->toContain("], '', '&', PHP_QUERY_RFC3986));")
+        ->not->toContain("\"&message=\" . get_by_key(\$_REQUEST, 'message')")
+        ->not->toContain("\"&dateto=\" . \$_REQUEST['dateto']");
+});
+
+it('escapes stored log values listed in the manager log filter dropdowns', function () {
+    // Item names are document titles and element names, set by lower privileged editors.
+    $source = managerSource('manager/actions/logging.static.php');
+
+    expect($source)
+        ->not->toContain("'>' . \$row['username'] . \"</option>")
+        ->not->toContain("'>' . \$row['itemname'] . \"</option>")
+        ->not->toContain("'<option value=\"' . \$row['itemname'] . '\"'")
+        ->toContain("entities((string)\$row['itemname']")
+        ->toContain("entities((string)\$row['username']");
+});
+
+/**
+ * Every link Paginate renders for a given extra query string.
+ */
+function paginateLinks(string $extargv): array
+{
+    $paginate = new EvolutionCMS\Support\Paginate(100, 50, 10, $extargv);
+    $paging = $paginate->getPagingArray();
+
+    return array_merge(
+        [$paging['first_link'], $paging['previous_link'], $paging['next_link'], $paging['last_link']],
+        array_values(array_filter($paginate->getPagingRowArray(), static fn ($link) => str_starts_with($link, '<a ')))
+    );
+}
+
+it('keeps a hostile extra query string inside the pagination href', function (string $extargv) {
+    // Paginate urldecodes its argument, so URL-encoding by the caller alone is undone.
+    foreach (paginateLinks($extargv) as $link) {
+        expect($link)
+            ->toMatch('/^<a href="[^"<>\']*">/')
+            ->not->toContain('<img');
+    }
+})->with([
+    'raw' => ['&message="><img src=x onerror=alert(1)>'],
+    'url-encoded' => ['&message=' . rawurlencode('"><img src=x onerror=alert(1)>')],
+    'single quote' => ["&itemname=' autofocus onfocus=alert(1) x='"],
+]);
+
+it('round-trips manager log filters through the pagination links', function () {
+    // Mirrors the $extargv construction in logging.static.php.
+    $extargv = '&' . str_replace('%', '%25', http_build_query([
+        'a' => 13,
+        'message' => 'a&b=c "d"',
+        'itemname' => 'Home page',
+    ], '', '&', PHP_QUERY_RFC3986));
+
+    $link = paginateLinks($extargv)[2];
+    preg_match('/href="\?([^"]*)"/', $link, $match);
+    parse_str(html_entity_decode($match[1], ENT_QUOTES, 'UTF-8'), $query);
+
+    expect($query)->toMatchArray([
+        'int_cur_position' => '60',
+        'a' => '13',
+        'message' => 'a&b=c "d"',
+        'itemname' => 'Home page',
+    ]);
+});
