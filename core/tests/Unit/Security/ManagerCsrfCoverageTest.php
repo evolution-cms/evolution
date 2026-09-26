@@ -225,6 +225,7 @@ it('guards the page actions that delete when a query parameter is present', func
         'core/src/Controllers/UserRoles/UserRole.php' => [[35, 36, 38], 'action', "\$_GET['action'] == 'delete'"],
         'core/src/Controllers/UserRoles/Permission.php' => [[135], 'action', "\$_GET['action'] == 'delete'"],
         'core/src/Controllers/UserRoles/PermissionsGroups.php' => [[136], 'action', "\$_GET['action'] == 'delete'"],
+        'core/src/Controllers/SystemInfo.php' => [[53], 'opcache_reset', "request()->boolean('opcache_reset')"],
         'manager/actions/category_mgr/inc/request_trigger.inc.php' => [
             [120, 121],
             'module_categories_manager',
@@ -248,6 +249,19 @@ it('guards the page actions that delete when a query parameter is present', func
     expect($categories)->toContain("'request_key'      => 'module_categories_manager'");
 
     expect($unguarded)->toBe([]);
+});
+
+it('appends a token to the OPcache reset link', function () {
+    // The link is built in the controller, so the template scan below does not see it.
+    $source = (string)file_get_contents(evoRoot() . '/core/src/Controllers/SystemInfo.php');
+
+    preg_match_all('/^.*opcache_reset=1.*$/m', $source, $links);
+
+    expect($links[0])->not->toBeEmpty();
+
+    foreach ($links[0] as $link) {
+        expect($link)->toContain('_token=');
+    }
 });
 
 it('appends a token to every role, permission and category delete link', function () {

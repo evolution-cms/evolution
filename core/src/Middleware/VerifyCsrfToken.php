@@ -75,6 +75,7 @@ class VerifyCsrfToken
         35  => 'action', // UserRole - ?action=delete removes the role
         36  => 'action', // UserRole
         38  => 'action', // UserRole
+        53  => 'opcache_reset', // SystemInfo - ?opcache_reset=1 resets OPcache
         120 => 'module_categories_manager', // category manager - [delete] removes a category
         121 => 'module_categories_manager', // category manager
         135 => 'action', // Permission - ?action=delete removes the permission

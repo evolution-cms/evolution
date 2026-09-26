@@ -157,6 +157,7 @@ it('rejects page actions whose delete parameter is sent without a token', functi
     'role (a=35)' => [['a' => 35, 'id' => 3, 'action' => 'delete']],
     'role (a=36)' => [['a' => 36, 'id' => 3, 'action' => 'delete']],
     'role (a=38)' => [['a' => 38, 'id' => 3, 'action' => 'delete']],
+    'opcache reset (a=53)' => [['a' => 53, 'opcache_reset' => 1]],
     'permission (a=135)' => [['a' => 135, 'id' => 3, 'action' => 'delete']],
     'permission group (a=136)' => [['a' => 136, 'id' => 3, 'action' => 'delete']],
     'category (a=120)' => [['a' => 120, 'module_categories_manager' => ['delete' => 3, 'category' => 'x']]],
@@ -169,6 +170,7 @@ it('accepts page action deletes carrying the session token', function (array $pa
     expect(csrfPassed(csrfRequest('GET', $params)))->toBeTrue();
 })->with([
     'role' => [['a' => 35, 'id' => 3, 'action' => 'delete']],
+    'opcache reset' => [['a' => 53, 'opcache_reset' => 1]],
     'permission' => [['a' => 135, 'id' => 3, 'action' => 'delete']],
     'category' => [['a' => 120, 'module_categories_manager' => ['delete' => 3]]],
 ]);
@@ -178,6 +180,7 @@ it('keeps the role, permission and category pages reachable without a token', fu
 })->with([
     'edit role' => [['a' => 35, 'id' => 3]],
     'new role' => [['a' => 38]],
+    'system info' => [['a' => 53]],
     'edit permission' => [['a' => 135, 'id' => 3]],
     'edit permission group' => [['a' => 136, 'id' => 3]],
     'category manager' => [['a' => 120]],
