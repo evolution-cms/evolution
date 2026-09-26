@@ -221,3 +221,105 @@ it('round-trips manager log filters through the pagination links', function () {
         'itemname' => 'Home page',
     ]);
 });
+
+it('casts the category manager id before building its form url', function () {
+    // ?id= was written into every form action="" and link of the category manager.
+    $source = managerSource('manager/actions/mutate_categories.dynamic.php');
+
+    expect($source)
+        ->toContain("'index.php?a=120&amp;id=' . (int)get_by_key(\$_GET, 'id', 0, 'is_scalar')")
+        ->toContain("'module_id'        => (int)get_by_key(\$_GET, 'id', 0, 'is_scalar')")
+        ->not->toContain("'index.php?a=120&amp;id=' . get_by_key(\$_GET, 'id', 0)");
+});
+
+it('escapes the web user list, including its reflected search box', function () {
+    // Web users can register themselves, so these fields are chosen by anonymous visitors.
+    $source = managerSource('manager/actions/web_user_management.static.php');
+
+    expect($source)
+        ->not->toContain('value="<?php echo $query[\'search\'] ?>"')
+        ->not->toContain("'\">' . \$el['username'] . '</a>'")
+        ->not->toContain("'user_full_name' => \$el['fullname'],")
+        ->not->toContain("'email' => \$el['email'],")
+        ->not->toContain("'>'.\$row['name'].'</option>'")
+        ->toContain("htmlspecialchars((string)\$query['search'], ENT_QUOTES, ManagerTheme::getCharset(), false)")
+        ->toContain("htmlspecialchars((string)\$el['username'], ENT_QUOTES, ManagerTheme::getCharset(), false)")
+        ->toContain("htmlspecialchars((string)\$el['fullname'], ENT_QUOTES, ManagerTheme::getCharset(), false)")
+        ->toContain("htmlspecialchars((string)\$el['email'], ENT_QUOTES, ManagerTheme::getCharset(), false)");
+});
+
+it('escapes the username in the web user editor header', function () {
+    // The stored name is html_entity_decode()d first, so an encoded payload came back live.
+    $source = managerSource('manager/actions/mutate_web_user.dynamic.php');
+
+    expect($source)
+        ->toContain("entities(\$usernamedata['username'], \$modx->getConfig('modx_charset')) . (isset(\$usernamedata['id'])")
+        ->not->toContain("<?= (\$usernamedata['username'] ? \$usernamedata['username'] .");
+});
+
+it('escapes document titles listed by the manager', function (string $file, string $raw) {
+    // Editors choose these values; administrators render them.
+    $source = managerSource($file);
+
+    expect($source)->not->toContain($raw);
+})->with([
+    'menu index sort' => ['manager/actions/mutate_menuindex_sort.dynamic.php', "\$icon . \$row['pagetitle'] ."],
+    'template in use' => ['manager/processors/delete_template.processor.php', "'&a=27\">' . \$row->pagetitle ."],
+    'template in use intro' => ['manager/processors/delete_template.processor.php', "' - ' . \$row->introtext :"],
+    'tv in use' => ['manager/processors/delete_tmplvars.processor.php', "'&a=27\">' . \$siteTmlvarTemplate->resource->pagetitle ."],
+    'tv in use description' => ['manager/processors/delete_tmplvars.processor.php', "' - ' . \$siteTmlvarTemplate->resource->description :"],
+]);
+
+/*
+|--------------------------------------------------------------------------
+| Escaping must not change what the manager shows
+|--------------------------------------------------------------------------
+|
+| Older installations stored these values entity-encoded, newer ones store them raw. The escaping
+| added above has to render both the way the raw echo did, never as visible "&amp;" or "&#039;".
+|
+*/
+
+it('renders raw and legacy entity-encoded values as the same visible text', function (string $stored) {
+    $visible = html_entity_decode($stored, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+    $escaped = [
+        entities($stored, 'UTF-8'),
+        htmlspecialchars($stored, ENT_QUOTES, 'UTF-8', false),
+    ];
+
+    foreach ($escaped as $html) {
+        // What the browser displays for the escaped markup equals what the raw echo displayed.
+        expect(html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8'))->toBe($visible);
+    }
+})->with([
+    'raw ampersand and quotes' => ["Tom & Jerry's \"shop\""],
+    'legacy encoded ampersand' => ['Tom &amp; Jerry'],
+    'legacy encoded quotes' => ['O&#039;Brien &quot;Ltd&quot;'],
+    'cyrillic' => ['Привіт, світ'],
+]);
+
+it('does not double-encode the web user list', function () {
+    $source = managerSource('manager/actions/web_user_management.static.php');
+
+    preg_match_all('/htmlspecialchars\((?:[^()]|\((?:[^()])*\))*\)/', $source, $calls);
+
+    expect($calls[0])->not->toBeEmpty();
+
+    foreach ($calls[0] as $call) {
+        expect($call)->toEndWith(', false)');
+    }
+});
+
+it('keeps the formatting of summaries listed by the delete screens', function () {
+    // introtext and description may carry inline markup that has always rendered as markup.
+    foreach (['manager/processors/delete_template.processor.php', 'manager/processors/delete_tmplvars.processor.php'] as $file) {
+        expect(managerSource($file))->toContain("' - ' . sanitize_inline_html(");
+    }
+
+    $html = (string) sanitize_inline_html('<b>Summer</b> sale &amp; more<img src=x onerror=alert(1)>');
+
+    expect($html)->toContain('<b>Summer</b>')
+        ->and(html_entity_decode(strip_tags($html)))->toBe('Summer sale & more')
+        ->not->toContain('onerror');
+});
