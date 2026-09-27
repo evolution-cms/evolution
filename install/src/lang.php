@@ -15,32 +15,39 @@ $_lang = [];
 #default fallback language file - english
 $install_language = 'en';
 
+// Language codes arrive from the request and are interpolated into include paths, so a code is
+// only accepted when it is a plain alphabetic stem that names a shipped locale file/directory.
+$installLanguageExists = static function ($code): bool {
+    return is_string($code) && ctype_alpha($code) && is_file(__DIR__ . '/lang/' . $code . '.inc.php');
+};
+$managerLanguageExists = static function ($code): bool {
+    return is_string($code) && ctype_alpha($code) && is_dir(dirname(__DIR__, 2) . '/core/lang/' . $code);
+};
+
 $_langISO6391 = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '', 0, 2);
-if (ctype_alpha($_langISO6391) && file_exists(__DIR__ . '/lang/' . $_langISO6391 . '.inc.php')) {
+if ($installLanguageExists($_langISO6391)) {
     $install_language = $_langISO6391;
 }
 
-if (isset($_POST['language']) && ctype_alpha($_POST['language'])) {
+if ($installLanguageExists($_POST['language'] ?? null)) {
     $install_language = $_POST['language'];
-} else {
-    if (isset($_GET['language']) && ctype_alpha($_GET['language'])) {
-        $install_language = $_GET['language'];
-    }
+} elseif ($installLanguageExists($_GET['language'] ?? null)) {
+    $install_language = $_GET['language'];
 }
 # load language file
-require_once 'lang/en.inc.php'; // As fallback
+require __DIR__ . '/lang/en.inc.php'; // As fallback
 $fallbackLang = $_lang;
-require_once 'lang/' . $install_language . '.inc.php';
+if ($install_language !== 'en') {
+    require __DIR__ . '/lang/' . $install_language . '.inc.php';
+}
 $_lang += $fallbackLang;
 
-$manager_language = $install_language;
+$manager_language = $managerLanguageExists($install_language) ? $install_language : 'en';
 
-if (isset($_POST['managerlanguage']) && ctype_alpha($_POST['managerlanguage'])) {
+if ($managerLanguageExists($_POST['managerlanguage'] ?? null)) {
     $manager_language = $_POST['managerlanguage'];
-} else {
-    if (isset($_GET['managerlanguage']) && ctype_alpha($_GET['managerlanguage'])) {
-        $manager_language = $_GET['managerlanguage'];
-    }
+} elseif ($managerLanguageExists($_GET['managerlanguage'] ?? null)) {
+    $manager_language = $_GET['managerlanguage'];
 }
 
 foreach ($_lang as $k => $v) {

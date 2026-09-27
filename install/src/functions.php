@@ -258,9 +258,11 @@ function validateDbName($name)
     if (strlen($name) >= 64) {
         throw new InvalidArgumentException("Database name should be shorter than 64 characters");
     }
-    if (preg_match('/^[a-zA-Z][a-zA-Z0-9_-]{0,63}$/', $name) === false) {
-        throw new InvalidArgumentException("Database name should begin with letter and contain only letters,"
-            . " numbers, dashes, and underscores");
+    // The name is spliced into CREATE DATABASE and the config file. preg_match() returns 0, not
+    // false, for a mismatch, so the old "=== false" test let everything through.
+    if (preg_match('/^[A-Za-z0-9_$-]+$/', $name) !== 1) {
+        throw new InvalidArgumentException("Database name should contain only letters, numbers, dashes,"
+            . " dollar signs and underscores");
     }
     return $name;
 }
@@ -268,9 +270,11 @@ function validateDbName($name)
 function validateDbCollation($collation)
 {
     $collation = trim($collation ?? '');
-    if (preg_match('/^[a-zA-Z][a-zA-Z0-9_.-]{0,63}$/', $collation) === false) {
-        throw new InvalidArgumentException("Database name should begin with letter and contain only letters,"
-            . " numbers, dots, dashes, and underscores");
+    // Also spliced into CREATE DATABASE, unquoted on MySQL. "@" covers PostgreSQL locale
+    // modifiers such as sr_RS@latin.
+    if (preg_match('/^(?:[A-Za-z][A-Za-z0-9_.@-]{0,63})?$/', $collation) !== 1) {
+        throw new InvalidArgumentException("Database collation should begin with letter and contain only letters,"
+            . " numbers, dots, dashes, at signs and underscores");
     }
     return $collation;
 }
@@ -319,8 +323,8 @@ function validateDbHost($host, $type)
 
 function validateTablePrefix($prefix)
 {
-    $prefix = trim($prefix);
-    if (preg_match('/^[a-zA-Z0-9_]{0,40}_?$/', $prefix) === false) {
+    $prefix = trim((string) ($prefix ?? ''));
+    if (preg_match('/^[a-zA-Z0-9_]{0,40}_?$/', $prefix) !== 1) {
         throw new InvalidArgumentException('Invalid table prefix');
     }
     return $prefix;
