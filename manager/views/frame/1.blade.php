@@ -314,7 +314,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                                     </li>
                                 @endif
                                 <li>
-                                    <a href="index.php?a=8">
+                                    <a href="index.php?a=8&_token={{ csrf_token() }}">
                                         {{ icon_html($_style['icon_logout']) }} {{ManagerTheme::getLexicon('logout')}}
                                     </a>
                                 </li>

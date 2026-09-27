@@ -38,7 +38,7 @@
                             <input type="checkbox" name="<?php echo $view->get('request_key'); ?>[edit][data][<?php echo $category['id'] ?>][delete]" value="1" />
                         </td>
                         <td class="text-xs-center">
-                            <a class="btn btn-outline-danger" onclick="return confirm('<?php echo $view->txt('are_you_sure'); ?>');" href="<?php echo $view->get('url'); ?>&amp;<?php echo $view->get('request_key'); ?>[delete]=<?php echo $category['id']; ?>&amp;<?php echo $view->get('request_key'); ?>[category]=<?php echo urlencode($category['category']); ?>" data-tooltip="<?php echo htmlspecialchars($category['category']) ?>::<?php echo sprintf($view->txt('cm_delete_element_x_now'), htmlspecialchars($category['category'])); ?>"><i class="<?= $_style['icon_info_triangle'] ?>"></i> <?php echo $view->txt('delete'); ?></a>
+                            <a class="btn btn-outline-danger" onclick="return confirm('<?php echo $view->txt('are_you_sure'); ?>');" href="<?php echo $view->get('url'); ?>&amp;<?php echo $view->get('request_key'); ?>[delete]=<?php echo $category['id']; ?>&amp;<?php echo $view->get('request_key'); ?>[category]=<?php echo urlencode($category['category']); ?>&amp;_token=<?php echo csrf_token(); ?>" data-tooltip="<?php echo htmlspecialchars($category['category']) ?>::<?php echo sprintf($view->txt('cm_delete_element_x_now'), htmlspecialchars($category['category'])); ?>"><i class="<?= $_style['icon_info_triangle'] ?>"></i> <?php echo $view->txt('delete'); ?></a>
                         </td>
                     </tr>
                     <tr class="collapse" id="collapse-edit-<?php echo $i; ?>">

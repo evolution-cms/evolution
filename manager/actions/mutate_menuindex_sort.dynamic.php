@@ -82,7 +82,7 @@ if ($id !== null) {
             $classes .= ($row['published']) ? ' publishedNode ' : ' unpublishedNode ';
             $classes = ($row['deleted']) ? ' deletedNode ' : $classes;
             $icon = $row['isfolder'] ? '<i class="' . $_style['icon_folder'] . '"></i> ' : ' <i class="' . $_style['icon_document'] . '"></i> ';
-            $resourcelist .= '<li id="item_' . $row['id'] . '" class="' . $classes . '">' . $icon . $row['pagetitle'] . ' <small>(' . $row['id'] . ')</small></li>';
+            $resourcelist .= '<li id="item_' . $row['id'] . '" class="' . $classes . '">' . $icon . entities($row['pagetitle'], evo()->getConfig('modx_charset')) . ' <small>(' . (int)$row['id'] . ')</small></li>';
         }
         $resourcelist .= '</ul></div>';
     } else {

@@ -37,7 +37,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{ $item->makeUrl('actions.delete') }}&action=delete" title="{{ ManagerTheme::getLexicon('delete') }}" onclick="return confirm('{{ ManagerTheme::getLexicon('confirm_delete') }}')">
+                        <a href="{{ $item->makeUrl('actions.delete') }}&action=delete&_token={{ csrf_token() }}" title="{{ ManagerTheme::getLexicon('delete') }}" onclick="return confirm('{{ ManagerTheme::getLexicon('confirm_delete') }}')">
                             <i class="{{ $_style['icon_trash'] }}"></i>
                         </a>
                     </li>

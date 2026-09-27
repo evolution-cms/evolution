@@ -75,7 +75,9 @@ class Paginate implements PaginginateInterface
         $this->int_nbr_row = $int_nbr_row;
         $this->int_num_result = $int_num_result;
         $this->int_cur_position = $int_cur_position;
-        $this->str_ext_argv = urldecode($str_ext_argv);
+        // Every link writes this into href="", and urldecode() undoes any encoding the caller
+        // applied, so it is escaped here rather than trusted to arrive safe.
+        $this->str_ext_argv = htmlspecialchars(urldecode((string)$str_ext_argv), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false);
     }
 
     /**

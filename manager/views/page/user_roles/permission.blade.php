@@ -98,7 +98,7 @@
             },
             delete: function () {
                 if (confirm("{{ ManagerTheme::getLexicon('confirm_delete_permission') }}") === true) {
-                    document.location.href = "index.php?id=" + document.userform.id.value + "&a=135&action=delete";
+                    document.location.href = "index.php?id=" + document.userform.id.value + "&a=135&action=delete&_token={{ csrf_token() }}";
                 }
             },
             cancel: function () {

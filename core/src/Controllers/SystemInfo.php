@@ -194,7 +194,7 @@ class SystemInfo extends AbstractController implements ManagerTheme\PageControll
 
         $label = $this->managerTheme->getLexicon('enabled');
         if (function_exists('opcache_reset') && $this->canUseOpcacheApi()) {
-            $label = '<a href="index.php?a=53&opcache_reset=1" class="text-underline">' . $label . '</a>';
+            $label = '<a href="index.php?a=53&opcache_reset=1&_token=' . e(csrf_token()) . '" class="text-underline">' . $label . '</a>';
         }
         $details = sprintf($this->managerTheme->getLexicon('opcache_memory_details'),
             $this->formatBytes($used),

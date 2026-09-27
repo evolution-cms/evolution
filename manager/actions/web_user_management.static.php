@@ -38,7 +38,7 @@ echo $cm->render();
 $role_options = '<option value="0"' . ($query['role'] == '0' ? ' selected' : '') . '>' . ManagerTheme::getLexicon('no_user_role') . '</option>';
 $roles = \EvolutionCMS\Models\UserRole::query()->select('id', 'name')->get()->toArray();
 foreach ($roles as $row) {
-    $role_options .= '<option value="'.$row['id'].'" '.($query['role'] != '' && $row['id'] == $query['role'] ? 'selected' : '').'>'.$row['name'].'</option>';
+    $role_options .= '<option value="'.(int)$row['id'].'" '.($query['role'] != '' && $row['id'] == $query['role'] ? 'selected' : '').'>'.htmlspecialchars((string)$row['name'], ENT_QUOTES, ManagerTheme::getCharset(), false).'</option>';
 }
 
 // prepare data
@@ -122,13 +122,13 @@ if ($numRecords > 0) {
 
         $listDocs[] = [
             'icon' => '<a class="gridRowIcon" href="javascript:;" onclick="return showContentMenu(' . $el['id'] . ',event);" title="' . ManagerTheme::getLexicon('click_to_context') . '"><i class="' . $_style[empty($el['name']) ? 'icon_no_user_role' : 'icon_web_user'] . '"></i></a>',
-            'name' => '<a href="index.php?a=88&id=' . $el['id'] . '" title="' . ManagerTheme::getLexicon('click_to_edit_title') . '">' . $el['username'] . '</a>',
-            'user_full_name' => $el['fullname'],
-            'email' => $el['email'],
-            'role' => $el['name'] ?: ManagerTheme::getLexicon('no_user_role'),
+            'name' => '<a href="index.php?a=88&id=' . $el['id'] . '" title="' . ManagerTheme::getLexicon('click_to_edit_title') . '">' . htmlspecialchars((string)$el['username'], ENT_QUOTES, ManagerTheme::getCharset(), false) . '</a>',
+            'user_full_name' => htmlspecialchars((string)$el['fullname'], ENT_QUOTES, ManagerTheme::getCharset(), false),
+            'email' => htmlspecialchars((string)$el['email'], ENT_QUOTES, ManagerTheme::getCharset(), false),
+            'role' => $el['name'] ? htmlspecialchars((string)$el['name'], ENT_QUOTES, ManagerTheme::getCharset(), false) : ManagerTheme::getLexicon('no_user_role'),
             'user_prevlogin' => $el['thislogin'] ? $modx->toDateFormat($el['thislogin']) : '-',
             'user_logincount' => $el['logincount'],
-            'user_block' => $el['blocked'] ? ManagerTheme::getLexicon('yes').' <i class="fa fa-question-circle help" data-tooltip="'.htmlspecialchars($blocked_title, ENT_QUOTES, ManagerTheme::getCharset()).'"></i>' : '-',
+            'user_block' => $el['blocked'] ? ManagerTheme::getLexicon('yes').' <i class="fa fa-question-circle help" data-tooltip="'.htmlspecialchars($blocked_title, ENT_QUOTES, ManagerTheme::getCharset(), false).'"></i>' : '-',
         ];
     }
 
@@ -215,7 +215,7 @@ if ($numRecords > 0) {
                             <option value=""><?php echo ManagerTheme::getLexicon('web_user_management_select_role') ?></option>
                             <?php echo $role_options ?>
                         </select>
-                        <input class="form-control form-control-sm" name="search" type="text" value="<?php echo $query['search'] ?>" placeholder="<?php echo ManagerTheme::getLexicon('search') ?>" />
+                        <input class="form-control form-control-sm" name="search" type="text" value="<?php echo htmlspecialchars((string)$query['search'], ENT_QUOTES, ManagerTheme::getCharset(), false) ?>" placeholder="<?php echo ManagerTheme::getLexicon('search') ?>" />
                         <div class="input-group-append">
                             <a class="btn btn-secondary btn-sm" href="javascript:;" title="<?php echo ManagerTheme::getLexicon('search') ?>" onclick="searchResource(); return false;"><i class="<?= $_style['icon_search'] ?>"></i></a>
                             <a class="btn btn-secondary btn-sm" href="javascript:;" title="<?php echo ManagerTheme::getLexicon('reset') ?>" onclick="resetSearch(); return false;"><i class="<?= $_style['icon_refresh'] ?>"></i></a>

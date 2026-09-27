@@ -201,7 +201,7 @@
             },
             delete: function () {
                 if (confirm("{{ ManagerTheme::getLexicon('confirm_delete_role') }}") === true) {
-                    document.location.href = "index.php?id=" + document.userform.id.value + "&a=35&action=delete";
+                    document.location.href = "index.php?id=" + document.userform.id.value + "&a=35&action=delete&_token={{ csrf_token() }}";
                 }
             },
             cancel: function () {
