@@ -2587,7 +2587,7 @@
                         } else {
                             var xhr = new XMLHttpRequest();
                             xhr.open(o.method, o.url, true);
-                            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;');
+                            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
                             xhr.setRequestHeader('X-REQUESTED-WITH', 'XMLHttpRequest');
                             if (new URL(o.url, d.baseURI).origin === w.location.origin && evo.tabsCsrfToken()) {
                                 xhr.setRequestHeader('X-CSRF-TOKEN', evo.tabsCsrfToken());
