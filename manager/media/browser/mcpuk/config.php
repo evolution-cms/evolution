@@ -18,55 +18,19 @@
 
 $modx = evolutionCMS();
 
-$resolveUploadRoot = static function (string $defaultDir, string $defaultUrl, string $customDir): array {
-    $defaultDir = rtrim(str_replace('\\', '/', str_replace('[(base_path)]', EVO_BASE_PATH, $defaultDir)), '/');
-    $defaultUrl = rtrim(str_replace('\\', '/', $defaultUrl), '/');
-    $customDir = trim($customDir);
-
-    if ($customDir === '') {
-        return [$defaultDir, $defaultUrl];
-    }
-
-    $customDir = str_replace('[(base_path)]', EVO_BASE_PATH, $customDir);
-    $customDir = str_replace('\\', '/', $customDir);
-
-    if (!preg_match('/^(?:[A-Za-z]:[\/\\\\]|\/)/', $customDir)) {
-        $customDir = $defaultDir . '/' . ltrim($customDir, '/');
-    }
-
-    $customDir = rtrim($customDir, '/');
-    $resolvedDir = str_replace('\\', '/', realpath($customDir) ?: $customDir);
-
-    if ($defaultDir !== '' && strpos($resolvedDir, $defaultDir) === 0) {
-        $relativePath = ltrim(substr($resolvedDir, strlen($defaultDir)), '/');
-        return [
-            $resolvedDir,
-            $relativePath === '' ? $defaultUrl : $defaultUrl . '/' . $relativePath
-        ];
-    }
-
-    $siteBasePath = rtrim(str_replace('\\', '/', EVO_BASE_PATH), '/');
-    $siteBaseUrl = rtrim(str_replace('\\', '/', EVO_BASE_URL), '/');
-    if ($siteBasePath !== '' && strpos($resolvedDir, $siteBasePath) === 0) {
-        $relativePath = ltrim(substr($resolvedDir, strlen($siteBasePath)), '/');
-        return [
-            $resolvedDir,
-            $relativePath === '' ? ($siteBaseUrl === '' ? '/' : $siteBaseUrl) :
-                ($siteBaseUrl === '' ? '' : $siteBaseUrl) . '/' . $relativePath
-        ];
-    }
-
-    return [$defaultDir, $defaultUrl];
-};
-
-[$uploadDir, $uploadUrl] = $resolveUploadRoot(
+// A manager confined by image_base_upload_dir whose folder cannot be resolved gets no browser
+// at all rather than the shared rb_base_dir with everyone else's files in it.
+$uploadRoot = \EvolutionCMS\Support\FileBrowserAccess::resolveUploadRoot(
     (string) EvolutionCMS()->getConfig('rb_base_dir'),
     (string) EvolutionCMS()->getConfig('rb_base_url'),
-    (string) EvolutionCMS()->getConfig('image_base_upload_dir', '')
+    (string) EvolutionCMS()->getConfig('image_base_upload_dir', ''),
+    EVO_BASE_PATH,
+    EVO_BASE_URL
 );
+[$uploadDir, $uploadUrl] = $uploadRoot ?? ['', ''];
 
 $_CONFIG = [
-    'disabled' => false,
+    'disabled' => $uploadRoot === null,
     'denyZipDownload' => EvolutionCMS()->getConfig('denyZipDownload'),
     'denyExtensionRename' => EvolutionCMS()->getConfig('denyExtensionRename'),
     'showHiddenFiles' => EvolutionCMS()->getConfig('showHiddenFiles'),

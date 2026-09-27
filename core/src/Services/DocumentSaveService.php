@@ -60,6 +60,10 @@ final class DocumentSaveService
             if ($existing === null) {
                 throw new DocumentSaveDenied($ctx->lang('error_no_results'), false);
             }
+            // the editor page checks this before showing the form; a posted save has to as well
+            if ($usePermissions && !$ctx->canEdit($id)) {
+                throw new DocumentSaveDenied($ctx->lang('access_permission_denied'), false);
+            }
         }
 
         $alias = $this->resolveAlias((string) ($input['alias'] ?? ''), $pagetitle, $id, $parent);

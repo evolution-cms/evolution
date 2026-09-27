@@ -137,6 +137,7 @@ final class DocumentSaveDatabase
         ?callable $snapshot = null,
         int $now = 1_700_000_000,
         ?callable $canCreateIn = null,
+        ?callable $canEdit = null,
     ): DocumentSaveContext {
         return new DocumentSaveContext(
             userId: 7,
@@ -162,6 +163,7 @@ final class DocumentSaveDatabase
                 return $ids;
             },
             canCreateIn: $canCreateIn ?? fn (int $parent) => true,
+            canEdit: $canEdit ?? fn (int $id) => true,
             userGroupsLoader: fn () => $userGroups,
             lang: fn (string $key) => $key === 'duplicate_alias_found' ? 'duplicate %s %s' : $key,
         );

@@ -35,44 +35,75 @@ if(!function_exists('fileManagerUserGroupIds')) {
     }
 }
 
+if(!function_exists('fileManagerAclKey')) {
+    /**
+     * The file_groups key of a path given relative to the current manager's file manager root.
+     * Groups are stored against the site-wide root, so a manager with their own
+     * filemanager_path still hits the rows everyone else's paths hit.
+     *
+     * @param string $relativePath
+     * @return string|null null when the path lies outside the ACL root
+     */
+    function fileManagerAclKey($relativePath)
+    {
+        static $roots = null;
+        if ($roots === null) {
+            $userRoot = realpath(evolutionCMS()->getConfig('filemanager_path')) ?: realpath(EVO_BASE_PATH);
+            $roots = [FileManagerAccess::aclRoot(), rtrim(str_replace('\\', '/', $userRoot), '/')];
+        }
+
+        return FileManagerAccess::aclKey($roots[0], $roots[1], $relativePath);
+    }
+}
+
+if(!function_exists('fileManagerAclApplies')) {
+    /**
+     * @return bool false for administrators and when document permissions are off
+     */
+    function fileManagerAclApplies()
+    {
+        return evolutionCMS()->getConfig('use_udperms')
+            && !(isset($_SESSION['mgrRole']) && (int)$_SESSION['mgrRole'] === 1);
+    }
+}
+
 if(!function_exists('fileManagerRestrictionMap')) {
     /**
-     * @param string[] $relativePaths
-     * @return array<string, int[]>
+     * @param string[] $relativePaths relative to the manager's root
+     * @return array<string, int[]> keyed by ACL key
      */
     function fileManagerRestrictionMap(array $relativePaths)
     {
-        if (!evolutionCMS()->getConfig('use_udperms')) {
+        if (!fileManagerAclApplies()) {
             return [];
         }
 
-        if (isset($_SESSION['mgrRole']) && (int)$_SESSION['mgrRole'] === 1) {
-            return [];
-        }
+        $keys = array_filter(array_map('fileManagerAclKey', $relativePaths), static fn ($key) => $key !== null);
 
-        return FileManagerAccess::loadRestrictions($relativePaths);
+        return FileManagerAccess::loadRestrictions(array_values($keys));
     }
 }
 
 if(!function_exists('fileManagerIsAccessible')) {
     /**
-     * @param string $relativePath
+     * @param string $relativePath relative to the manager's root
      * @param int[]|null $userGroups
-     * @param array<string, int[]>|null $restrictionMap
+     * @param array<string, int[]>|null $restrictionMap from fileManagerRestrictionMap()
      * @return bool
      */
     function fileManagerIsAccessible($relativePath, ?array $userGroups = null, ?array $restrictionMap = null)
     {
-        if (!evolutionCMS()->getConfig('use_udperms')) {
+        if (!fileManagerAclApplies()) {
             return true;
         }
 
-        if (isset($_SESSION['mgrRole']) && (int)$_SESSION['mgrRole'] === 1) {
+        $key = fileManagerAclKey($relativePath);
+        if ($key === null) {
             return true;
         }
 
         return FileManagerAccess::isAccessible(
-            $relativePath,
+            $key,
             $userGroups ?? fileManagerUserGroupIds(),
             $restrictionMap ?? fileManagerRestrictionMap([$relativePath])
         );
@@ -81,39 +112,106 @@ if(!function_exists('fileManagerIsAccessible')) {
 
 if(!function_exists('fileManagerCanModifyExistingPath')) {
     /**
-     * @param string $relativePath
+     * @param string $relativePath relative to the manager's root
      * @param int[]|null $userGroups
-     * @param array<string, int[]>|null $restrictionMap
+     * @param array<string, int[]>|null $restrictionMap from fileManagerRestrictionMap()
      * @return bool
      */
     function fileManagerCanModifyExistingPath($relativePath, ?array $userGroups = null, ?array $restrictionMap = null)
     {
-        if (!evolutionCMS()->getConfig('use_udperms')) {
+        if (!fileManagerAclApplies()) {
             return true;
         }
 
-        if (isset($_SESSION['mgrRole']) && (int)$_SESSION['mgrRole'] === 1) {
-            return true;
+        // top level is what this manager sees at the top of their own file manager
+        $relativePath = FileManagerAccess::normalizeRelativePath($relativePath);
+
+        return $relativePath !== ''
+            && !FileManagerAccess::isTopLevelPath($relativePath)
+            && fileManagerIsAccessible($relativePath, $userGroups, $restrictionMap);
+    }
+}
+
+if(!function_exists('fileManagerResolvePath')) {
+    /**
+     * Resolve a requested path under the file manager root. The ACL is keyed by the resolved
+     * path, so callers must check the returned 'relative', never the raw request: own/../private
+     * names private, not something below own.
+     *
+     * @param string $filemanagerPath canonical root, no trailing slash
+     * @param string $requestedPath path relative to the root, as requested
+     * @return array{path: string, relative: string}|null null when it does not exist or leaves the root
+     */
+    function fileManagerResolvePath($filemanagerPath, $requestedPath)
+    {
+        $path = realpath($filemanagerPath . '/' . ltrim((string) $requestedPath, '/'));
+        if ($path === false) {
+            return null;
+        }
+        $path = rtrim(str_replace('\\', '/', $path), '/');
+        if (!FileManagerAccess::isWithin($filemanagerPath, $path)) {
+            return null;
         }
 
-        return FileManagerAccess::canModifyExistingPath(
-            $relativePath,
-            $userGroups ?? fileManagerUserGroupIds(),
-            $restrictionMap ?? fileManagerRestrictionMap([$relativePath])
-        );
+        return [
+            'path' => $path,
+            'relative' => FileManagerAccess::normalizeRelativePath(substr($path, strlen(rtrim($filemanagerPath, '/')))),
+        ];
+    }
+}
+
+if(!function_exists('fileManagerSubtreeRestrictionMap')) {
+    /**
+     * @param string $relativePath relative to the manager's root
+     * @return array<string, int[]> keyed by ACL key
+     */
+    function fileManagerSubtreeRestrictionMap($relativePath)
+    {
+        if (!fileManagerAclApplies()) {
+            return [];
+        }
+
+        $key = fileManagerAclKey($relativePath);
+        if ($key === null) {
+            return [];
+        }
+
+        return FileManagerAccess::loadSubtreeRestrictions($key);
+    }
+}
+
+if(!function_exists('fileManagerHasInaccessibleDescendants')) {
+    /**
+     * Whether a recursive operation on $relativePath would reach something the user may not.
+     *
+     * @param string $relativePath relative to the manager's root
+     * @return bool
+     */
+    function fileManagerHasInaccessibleDescendants($relativePath)
+    {
+        $restrictions = fileManagerSubtreeRestrictionMap($relativePath);
+        $key = fileManagerAclKey($relativePath);
+
+        return $restrictions !== [] && $key !== null
+            && FileManagerAccess::inaccessibleDescendants($key, fileManagerUserGroupIds(), $restrictions) !== [];
     }
 }
 
 if(!function_exists('fileManagerEffectiveGroupIds')) {
     /**
-     * @param string $relativePath
-     * @param array<string, int[]>|null $restrictionMap
+     * @param string $relativePath relative to the manager's root
+     * @param array<string, int[]>|null $restrictionMap from fileManagerRestrictionMap()
      * @return int[]
      */
     function fileManagerEffectiveGroupIds($relativePath, ?array $restrictionMap = null)
     {
+        $key = fileManagerAclKey($relativePath);
+        if ($key === null) {
+            return [];
+        }
+
         return FileManagerAccess::effectiveGroupIds(
-            $relativePath,
+            $key,
             $restrictionMap ?? fileManagerRestrictionMap([$relativePath])
         );
     }
@@ -267,7 +365,7 @@ if(!function_exists('ls')) {
 
                 $dirs_array[$dircounter]['groups'] = ($showFileGroups ?? false)
                     ? '<a href="index.php?a=31&mode=groups&path=' . urlencode($rel_newpath) . '"><i class="'
-                    . (!empty($fileGroupsMap[$rel_newpath]) ? $_style['icon_lock'] : $_style['icon_unlock'])
+                    . (!empty($fileGroupsMap[fileManagerAclKey($rel_newpath) ?? '']) ? $_style['icon_lock'] : $_style['icon_unlock'])
                     . '" title="' . $_lang['file_groups_edit'] . '"></i></a>'
                     : '';
 
@@ -324,7 +422,7 @@ if(!function_exists('ls')) {
 
                 $files_array[$filecounter]['groups'] = ($showFileGroups ?? false)
                     ? '<a href="index.php?a=31&mode=groups&path=' . urlencode($rel_newpath) . '"><i class="'
-                    . (!empty($fileGroupsMap[$rel_newpath]) ? $_style['icon_lock'] : $_style['icon_unlock'])
+                    . (!empty($fileGroupsMap[fileManagerAclKey($rel_newpath) ?? '']) ? $_style['icon_lock'] : $_style['icon_unlock'])
                     . '" title="' . $_lang['file_groups_edit'] . '"></i></a>'
                     : '';
 
@@ -538,7 +636,7 @@ if(!function_exists('unzip')) {
             $target = $path . '/' . $filename;
             // Additional check to ensure target is within path
             $target_dir = rtrim(str_replace('\\', '/', realpath(dirname($target)) ?: dirname($target)), '/\\');
-            if (strpos($target_dir, $path) !== 0) {
+            if (!FileManagerAccess::isWithin($path, $target_dir)) {
                 continue;
             }
             if (substr($filename, -1) == '/') {
@@ -592,7 +690,7 @@ if(!function_exists('fileupload')) {
         $startpath = str_replace('\\', '/', realpath($filemanager_path . '/' . $requested_path));
         $startpath = rtrim($startpath, '/');
         // Ensure startpath is within filemanager_path
-        if (strpos($startpath, $filemanager_path) !== 0 || !is_dir($startpath)) {
+        if (!FileManagerAccess::isWithin($filemanager_path, $startpath) || !is_dir($startpath)) {
             return '<p><span class="warning">Invalid path.</span></p>';
         }
         $dirRel = ltrim(substr($startpath, strlen($filemanager_path)), '/');
@@ -666,8 +764,8 @@ if(!function_exists('fileupload')) {
                         logFileChange('upload', $targetFile);
                         // Inherit groups from parent directory
                         if (!empty($dirGroupIds)) {
-                            $fileRel = ltrim(substr($targetFile, strlen($filemanager_path)), '/');
-                            foreach ($dirGroupIds as $gid) {
+                            $fileRel = fileManagerAclKey(ltrim(substr($targetFile, strlen($filemanager_path)), '/'));
+                            foreach ($fileRel === null ? [] : $dirGroupIds as $gid) {
                                 $inheritInserts[] = ['document_group' => $gid, 'file' => $fileRel];
                             }
                         }
@@ -722,7 +820,7 @@ if(!function_exists('textsave')) {
             ->getConfig('filemanager_path', EVO_BASE_PATH))), '/');
         $requested_path = ltrim($_POST['path'] ?? '', '/');
         $filename = str_replace('\\', '/', realpath($filemanager_path . '/' . $requested_path));
-        if (strpos($filename, $filemanager_path) !== 0 || !is_file($filename)) {
+        if (!FileManagerAccess::isWithin($filemanager_path, $filename) || !is_file($filename)) {
             return '<span class="warning"><b>Invalid path.</b></span><br /><br />';
         }
         $fileRel = ltrim(substr($filename, strlen($filemanager_path)), '/');
@@ -757,7 +855,7 @@ if(!function_exists('delete_file')) {
             ->getConfig('filemanager_path', EVO_BASE_PATH))), '/');
         $requested_path = ltrim($_REQUEST['path'] ?? '', '/');
         $file = str_replace('\\', '/', realpath($filemanager_path . '/' . $requested_path));
-        if (strpos($file, $filemanager_path) !== 0 || !is_file($file)) {
+        if (!FileManagerAccess::isWithin($filemanager_path, $file) || !is_file($file)) {
             return '<span class="warning"><b>Invalid path.</b></span><br /><br />';
         }
         $fileRel = ltrim(substr($file, strlen($filemanager_path)), '/');
@@ -770,9 +868,7 @@ if(!function_exists('delete_file')) {
             $msg .= '<span class="warning"><b>' . $_lang['file_not_deleted'] . '</b></span><br /><br />';
         } else {
             $msg .= '<span class="success"><b>' . $_lang['file_deleted'] . '</b></span><br /><br />';
-            if (evolutionCMS()->getConfig('use_udperms')) {
-                \EvolutionCMS\Models\FileGroup::query()->where('file', $fileRel)->delete();
-            }
+            \EvolutionCMS\Support\FileManagerAccess::forgetRestrictions(fileManagerAclKey($fileRel));
         }
 
         // Log the change

@@ -17,9 +17,15 @@ class zipFolder {
     protected $zip;
     protected $root;
     protected $ignored;
+    protected $filter;
 
-    function __construct($file, $folder, $ignored=null) {
+    /**
+     * @param callable|null $filter receives each absolute path; entries it refuses are left
+     *                              out, a refused folder with everything below it
+     */
+    function __construct($file, $folder, $ignored=null, ?callable $filter=null) {
         $this->zip = new ZipArchive();
+        $this->filter = $filter;
 
         $this->ignored = is_array($ignored)
             ? $ignored
@@ -47,7 +53,8 @@ class zipFolder {
         foreach ($dir as $file)
             if (!$file->isDot()) {
                 $filename = $file->getFilename();
-                if (!in_array($filename, $this->ignored)) {
+                if (!in_array($filename, $this->ignored)
+                    && ($this->filter === null || call_user_func($this->filter, "$full_path/$filename"))) {
                     if ($file->isDir())
                         $this->zip($filename, "$zip_path/");
                     else

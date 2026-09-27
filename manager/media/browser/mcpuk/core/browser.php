@@ -187,6 +187,10 @@ class browser extends uploader
         if (basename($file) != $file) {
             $this->sendDefaultThumb();
         }
+        // a cached thumbnail is still a picture of the original
+        if (!$this->isPathAccessible("{$this->typeDir}/{$this->get['dir']}/$file")) {
+            $this->sendDefaultThumb();
+        }
         $file = "{$this->thumbsDir}/{$this->type}/{$this->get['dir']}/$file";
         if (!is_file($file) || !is_readable($file)) {
             $file = "{$this->config['uploadDir']}/{$this->type}/{$this->get['dir']}/" . basename($file);
@@ -310,9 +314,11 @@ class browser extends uploader
         if (is_array($evtOut) && !empty($evtOut)) {
             $this->errorMsg(implode('\n', $evtOut));
         }
+        $oldKey = $this->getFileGroupsRelPath($dir);
         if (!@rename($dir, dirname($dir) . "/$newName")) {
             $this->errorMsg("Cannot rename the folder.");
         }
+        $this->moveFileGroups($oldKey, dirname($dir) . "/$newName");
         $thumbDir = "$this->thumbsTypeDir/{$this->post['dir']}";
         if (is_dir($thumbDir)) {
             @rename($thumbDir, dirname($thumbDir) . "/$newName");
@@ -347,6 +353,10 @@ class browser extends uploader
         if (!dir::isWritable($dir)) {
             $this->errorMsg("Cannot delete the folder.");
         }
+        // prune() takes everything below with it, including entries the listing hid
+        if ($this->hasInaccessibleDescendants($dir)) {
+            $this->errorMsg("You don't have permissions to write to this folder.");
+        }
 
         $evtOut = $this->modx->invokeEvent('OnBeforeFileBrowserDelete', [
             'element'  => 'dir',
@@ -356,7 +366,11 @@ class browser extends uploader
             die(json_encode(['error' => $evtOut]));
         }
 
+        $oldKey = $this->getFileGroupsRelPath($dir);
         $result = !dir::prune($dir, false);
+        if (!is_dir($dir)) {
+            $this->forgetFileGroups($oldKey);
+        }
         if (is_array($result) && count($result)) {
             $this->errorMsg("Failed to delete {count} files/folders.",
                 ['count' => count($result)]);
@@ -409,7 +423,8 @@ class browser extends uploader
             !isset($this->post['file']) ||
             strpos($this->post['file'], '../') !== false ||
             (false === ($file = "$dir/{$this->post['file']}")) ||
-            !file_exists($file) || !is_readable($file)
+            !file_exists($file) || !is_readable($file) ||
+            !$this->isPathAccessible($file)
         ) {
             $this->errorMsg("Unknown error.");
         }
@@ -444,6 +459,9 @@ class browser extends uploader
             !file_exists($file) || !is_readable($file) || !file::isWritable($file)
         ) {
             $this->errorMsg("Unknown error.");
+        }
+        if (!$this->isPathAccessible($file)) {
+            $this->errorMsg("You don't have permissions to write to this folder.");
         }
 
         if (isset($this->config['denyExtensionRename']) &&
@@ -483,9 +501,11 @@ class browser extends uploader
         if (is_array($evtOut) && !empty($evtOut)) {
             $this->errorMsg(implode('\n', $evtOut));
         }
+        $oldKey = $this->getFileGroupsRelPath($file);
         if (!@rename($file, $newName)) {
             $this->errorMsg("Unknown error.");
         }
+        $this->moveFileGroups($oldKey, $newName);
         $this->modx->invokeEvent('OnFileBrowserRename', [
             'element' => 'file',
             'filepath' => $dir,
@@ -517,7 +537,8 @@ class browser extends uploader
             !isset($this->post['file']) ||
             strpos($this->post['file'], '../') !== false ||
             (false === ($file = "$dir/{$this->post['file']}")) ||
-            !file_exists($file) || !is_readable($file) || !file::isWritable($file)
+            !file_exists($file) || !is_readable($file) || !file::isWritable($file) ||
+            !$this->isPathAccessible($file)
         ) {
             $this->errorMsg("Cannot delete '{file}'.", ['file' => basename($file)]);
         }
@@ -532,7 +553,10 @@ class browser extends uploader
             die(json_encode(['error' => $evtOut]));
         }
 
-        @unlink($file);
+        $oldKey = $this->getFileGroupsRelPath($file);
+        if (@unlink($file)) {
+            $this->forgetFileGroups($oldKey);
+        }
 
         $thumb = "{$this->thumbsTypeDir}/{$this->post['dir']}/{$this->post['file']}";
         if (file_exists($thumb)) {
@@ -580,6 +604,11 @@ class browser extends uploader
             $path = "{$this->config['uploadDir']}/$file";
             $base = basename($file);
             $replace = ['file' => $base];
+            if (!$this->isPathAccessible($path)) {
+                // a copy into an open folder would hand out a file the listing hides
+                $error[] = $this->label("Cannot read '{file}'.", $replace);
+                continue;
+            }
             $ext = file::getExtension($base);
             $evtOut = $this->modx->invokeEvent('OnBeforeFileBrowserCopy', [
                 'oldpath'  => $path,
@@ -664,6 +693,11 @@ class browser extends uploader
             $path = "{$this->config['uploadDir']}/$file";
             $base = basename($file);
             $replace = ['file' => $base];
+            if (!$this->isPathAccessible($path)) {
+                $error[] = $this->label("Cannot move '{file}'.", $replace);
+                continue;
+            }
+            $oldKey = $this->getFileGroupsRelPath($path);
             $ext = file::getExtension($base);
             $evtOut = $this->modx->invokeEvent('OnBeforeFileBrowserMove', [
                 'oldpath'  => $path,
@@ -685,6 +719,7 @@ class browser extends uploader
             } elseif (!file::isWritable($path) || !@rename($path, "$dir/$base")) {
                 $error[] = $this->label("Cannot move '{file}'.", $replace);
             } else {
+                $this->moveFileGroups($oldKey, "$dir/$base");
                 if (function_exists("chmod")) {
                     @chmod("$dir/$base", $this->config['filePerms']);
                 }
@@ -744,7 +779,9 @@ class browser extends uploader
             $base = basename($file);
             $filepath = str_replace('/' . $base, '', $path);
             $replace = ['file' => $base];
-            if (!is_file($path)) {
+            if (!$this->isPathAccessible($path)) {
+                $error[] = $this->label("Cannot delete '{file}'.", $replace);
+            } elseif (!is_file($path)) {
                 $error[] = $this->label("The file '{file}' does not exist.", $replace);
             } else {
                 $evtOut = $this->modx->invokeEvent('OnBeforeFileBrowserDelete', [
@@ -756,9 +793,11 @@ class browser extends uploader
                 if (is_array($evtOut) && !empty($evtOut)) {
                     $error[] = implode("\n", $evtOut);
                 } else {
+                    $oldKey = $this->getFileGroupsRelPath($path);
                     if (!@unlink($path)) {
                         $error[] = $this->label("Cannot delete '{file}'.", $replace);
                     } else {
+                        $this->forgetFileGroups($oldKey);
                         $this->modx->invokeEvent('OnFileBrowserDelete', [
                             'element'  => 'file',
                             'filename' => $base,
@@ -785,7 +824,7 @@ class browser extends uploader
     protected function act_downloadDir()
     {
         $dir = $this->postDir();
-        if (!isset($this->post['dir']) || $this->config['denyZipDownload']) {
+        if (!isset($this->post['dir']) || $this->config['denyZipDownload'] || !$this->isPathAccessible($dir)) {
             $this->errorMsg("Unknown error.");
         }
         $filename = basename($dir) . ".zip";
@@ -793,7 +832,7 @@ class browser extends uploader
             $file = md5(time() . session_id());
             $file = "{$this->config['uploadDir']}/$file.zip";
         } while (file_exists($file));
-        new zipFolder($file, $dir);
+        new zipFolder($file, $dir, null, $this->subtreeAccessFilter($dir));
         header("Content-Type: application/x-zip");
         header('Content-Disposition: attachment; filename="' . str_replace('"', "_", $filename) . '"');
         header("Content-Length: " . filesize($file));
@@ -823,7 +862,7 @@ class browser extends uploader
                 continue;
             }
             $file = "$dir/$file";
-            if (!is_file($file) || !is_readable($file)) {
+            if (!is_file($file) || !is_readable($file) || !$this->isPathAccessible($file)) {
                 continue;
             }
             $zipFiles[] = $file;
@@ -874,7 +913,7 @@ class browser extends uploader
                 continue;
             }
             $file = $this->config['uploadDir'] . "/$file";
-            if (!is_file($file) || !is_readable($file)) {
+            if (!is_file($file) || !is_readable($file) || !$this->isPathAccessible($file)) {
                 continue;
             }
             $zipFiles[] = $file;
@@ -1244,8 +1283,9 @@ class browser extends uploader
      */
     protected function getFileGroupsRelPath(string $absPath): string
     {
+        // the site-wide root, not the manager's own filemanager_path: groups are keyed by it
         return \EvolutionCMS\Support\FileManagerAccess::getRelativePath(
-            $this->modx->getConfig('filemanager_path', EVO_BASE_PATH),
+            \EvolutionCMS\Support\FileManagerAccess::aclRoot(),
             $absPath
         );
     }
@@ -1318,6 +1358,105 @@ class browser extends uploader
         $rows = \EvolutionCMS\Support\FileManagerAccess::loadRestrictions([$relPath]);
 
         return \EvolutionCMS\Support\FileManagerAccess::isAccessible($relPath, $userGroups, $rows);
+    }
+
+    /**
+     * Whether the current manager user may reach this file or folder. The listing hides what
+     * this refuses; every act that reads or changes a named entry has to ask as well, or a
+     * hidden entry is one crafted request away.
+     *
+     * @param string $absPath
+     * @return bool
+     */
+    protected function isPathAccessible($absPath)
+    {
+        if (isset($_SESSION['mgrRole']) && (int)$_SESSION['mgrRole'] === 1) {
+            return true;
+        }
+        if (!$this->modx->getConfig('use_udperms')) {
+            return true;
+        }
+
+        $relPath = $this->getFileGroupsRelPath($absPath);
+        if ($relPath === '') {
+            return true;
+        }
+        $userGroups = array_map('intval', (array)($_SESSION['mgrDocgroups'] ?? []));
+
+        return \EvolutionCMS\Support\FileManagerAccess::isAccessible(
+            $relPath,
+            $userGroups,
+            \EvolutionCMS\Support\FileManagerAccess::loadRestrictions([$relPath])
+        );
+    }
+
+    /**
+     * A filter for everything below $absDir that the current manager user may reach, built
+     * from one query instead of one per entry.
+     *
+     * @param string $absDir
+     * @return callable(string): bool
+     */
+    protected function subtreeAccessFilter($absDir)
+    {
+        if ((isset($_SESSION['mgrRole']) && (int)$_SESSION['mgrRole'] === 1) || !$this->modx->getConfig('use_udperms')) {
+            return static fn ($path) => true;
+        }
+
+        $restrictions = \EvolutionCMS\Support\FileManagerAccess::loadSubtreeRestrictions($this->getFileGroupsRelPath($absDir));
+        $userGroups = array_map('intval', (array)($_SESSION['mgrDocgroups'] ?? []));
+
+        return function ($path) use ($restrictions, $userGroups) {
+            $relPath = $this->getFileGroupsRelPath($path);
+
+            return $relPath === ''
+                || \EvolutionCMS\Support\FileManagerAccess::isAccessible($relPath, $userGroups, $restrictions);
+        };
+    }
+
+    /**
+     * Carry the file groups of a renamed or moved entry over to its new path. The rows have to
+     * follow whoever moved it, or everything below turns public at the new path.
+     *
+     * @param string $oldKey getFileGroupsRelPath() of the old path, taken before the move
+     * @param string $newAbsPath
+     */
+    protected function moveFileGroups($oldKey, $newAbsPath)
+    {
+        \EvolutionCMS\Support\FileManagerAccess::moveRestrictions($oldKey, $this->getFileGroupsRelPath($newAbsPath));
+    }
+
+    /**
+     * @param string $oldKey getFileGroupsRelPath() of the removed path, taken before removal
+     */
+    protected function forgetFileGroups($oldKey)
+    {
+        \EvolutionCMS\Support\FileManagerAccess::forgetRestrictions($oldKey);
+    }
+
+    /**
+     * Whether pruning $absDir would take something with it the current manager user may not reach.
+     *
+     * @param string $absDir
+     * @return bool
+     */
+    protected function hasInaccessibleDescendants($absDir)
+    {
+        if ((isset($_SESSION['mgrRole']) && (int)$_SESSION['mgrRole'] === 1) || !$this->modx->getConfig('use_udperms')) {
+            return false;
+        }
+
+        $relPath = $this->getFileGroupsRelPath($absDir);
+        if ($relPath === '') {
+            return false;
+        }
+        $userGroups = array_map('intval', (array)($_SESSION['mgrDocgroups'] ?? []));
+
+        return \EvolutionCMS\Support\FileManagerAccess::inaccessibleDescendants(
+            $relPath,
+            $userGroups,
+            \EvolutionCMS\Support\FileManagerAccess::loadSubtreeRestrictions($relPath)
+        ) !== [];
     }
 
     /**

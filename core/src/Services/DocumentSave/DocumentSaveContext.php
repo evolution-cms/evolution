@@ -25,6 +25,7 @@ final class DocumentSaveContext
      * @param Closure(string):int $toTimestamp
      * @param Closure(int):array $parentIds
      * @param Closure(int):bool $canCreateIn udperms check for a parent
+     * @param Closure(int):bool $canEdit udperms check for the document being edited
      * @param Closure():array $userGroupsLoader document groups the user is a member of, read fresh
      * @param Closure(string):string $lang
      */
@@ -40,6 +41,7 @@ final class DocumentSaveContext
         private readonly Closure $toTimestamp,
         private readonly Closure $parentIds,
         private readonly Closure $canCreateIn,
+        private readonly Closure $canEdit,
         private readonly Closure $userGroupsLoader,
         private readonly Closure $lang,
     ) {
@@ -64,6 +66,8 @@ final class DocumentSaveContext
             toTimestamp: fn (string $date) => (int) $evo->toTimeStamp($date),
             parentIds: fn (int $id) => (array) $evo->getParentIds($id),
             canCreateIn: fn (int $parent) => Permissions::canCreateIn($parent),
+            // udperms asks the same of a document as of a parent: can this user reach it
+            canEdit: fn (int $id) => Permissions::canCreateIn($id),
             userGroupsLoader: fn () => array_values(array_unique(array_map('intval', MemberGroup::query()
                 ->join('membergroup_access', 'membergroup_access.membergroup', '=', 'member_groups.user_group')
                 ->where('member_groups.member', $userId)
@@ -113,6 +117,11 @@ final class DocumentSaveContext
     public function canCreateIn(int $parent): bool
     {
         return ($this->canCreateIn)($parent);
+    }
+
+    public function canEdit(int $id): bool
+    {
+        return $id > 0 && ($this->canEdit)($id);
     }
 
     /**
