@@ -160,6 +160,181 @@ if(!function_exists('fileManagerResolvePath')) {
     }
 }
 
+if(!function_exists('fileManagerProtectedPaths')) {
+    /**
+     * Folders the file manager must not enter or change: always the manager and the backups,
+     * and each element folder unless the user may edit that element type anyway.
+     *
+     * @return string[] canonical absolute paths, no trailing slash
+     */
+    function fileManagerProtectedPaths()
+    {
+        $evo = evolutionCMS();
+        $paths = [
+            EVO_MANAGER_PATH,
+            EVO_BASE_PATH . 'temp/backup',
+            EVO_BASE_PATH . 'assets/backup',
+        ];
+        $byPermission = [
+            'save_plugin' => ['assets/plugins'],
+            'save_snippet' => ['assets/snippets'],
+            'save_template' => ['assets/templates'],
+            'save_module' => ['assets/modules'],
+            'empty_cache' => ['assets/cache'],
+            'import_static' => ['temp/import', 'assets/import'],
+            'export_static' => ['temp/export', 'assets/export'],
+        ];
+        foreach ($byPermission as $permission => $folders) {
+            if (!$evo->hasPermission($permission)) {
+                foreach ($folders as $folder) {
+                    $paths[] = EVO_BASE_PATH . $folder;
+                }
+            }
+        }
+
+        return array_map(
+            static fn ($path) => rtrim(str_replace('\\', '/', realpath($path) ?: $path), '/'),
+            $paths
+        );
+    }
+}
+
+if(!function_exists('fileManagerPathIsProtected')) {
+    /**
+     * Whether $path is a protected folder or lies inside one.
+     *
+     * @param string $path canonical absolute path
+     * @param string[] $protectedPaths
+     */
+    function fileManagerPathIsProtected($path, array $protectedPaths)
+    {
+        foreach ($protectedPaths as $protectedPath) {
+            if (FileManagerAccess::isWithin($protectedPath, $path)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+if(!function_exists('fileManagerPathTouchesProtected')) {
+    /**
+     * Whether removing or renaming $path would affect a protected folder: it lies inside one,
+     * or one lies inside it.
+     *
+     * @param string $path canonical absolute path
+     * @param string[] $protectedPaths
+     */
+    function fileManagerPathTouchesProtected($path, array $protectedPaths)
+    {
+        foreach ($protectedPaths as $protectedPath) {
+            if (FileManagerAccess::isWithin($protectedPath, $path) || FileManagerAccess::isWithin($path, $protectedPath)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+if(!function_exists('fileManagerIsSafeWriteTarget')) {
+    /**
+     * Whether writing to $target, which need not exist yet, stays under $root. Every part of
+     * the path that already exists is checked, so a symlink anywhere on the way (a folder
+     * whose children do not exist yet, or the file itself) cannot redirect the write.
+     *
+     * @param string $root canonical absolute path
+     * @param string $target absolute path below $root
+     */
+    function fileManagerIsSafeWriteTarget($root, $target)
+    {
+        $root = rtrim(str_replace('\\', '/', $root), '/');
+        $target = rtrim(str_replace('\\', '/', $target), '/');
+        if ($target === $root || !FileManagerAccess::isWithin($root, $target)) {
+            return false;
+        }
+
+        $current = $root;
+        foreach (explode('/', substr($target, strlen($root) + 1)) as $segment) {
+            if ($segment === '' || $segment === '.' || $segment === '..') {
+                return false;
+            }
+            $current .= '/' . $segment;
+            if (is_link($current)) {
+                return false;
+            }
+            if (!file_exists($current)) {
+                // everything below is created by this write, so none of it can be a link
+                break;
+            }
+        }
+
+        return true;
+    }
+}
+
+if(!function_exists('fileManagerExtractZip')) {
+    /**
+     * Extracts $file into $path, skipping any entry that would land outside it, go through a
+     * symlink, or reach a protected folder.
+     *
+     * @param string $file
+     * @param string $path
+     * @param string[] $protectedPaths
+     * @param int $dirMode
+     * @return bool false when the archive cannot be opened
+     */
+    function fileManagerExtractZip($file, $path, array $protectedPaths = [], $dirMode = 0777)
+    {
+        $root = realpath($path);
+        if ($root === false) {
+            return false;
+        }
+        $root = rtrim(str_replace('\\', '/', $root), '/');
+
+        $zip = new ZipArchive();
+        if ($zip->open($file) !== true) {
+            return false;
+        }
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $stat = $zip->statIndex($i);
+            $filename = str_replace('\\', '/', $stat['name']);
+            if (substr($filename, 0, 1) == '/' || strpos($filename, ':') !== false) {
+                continue; // skip absolute paths
+            }
+            // only a whole ".." segment climbs up: "just-stop..png" is an ordinary file name
+            // (Windows hides the extension, so "just-stop." easily becomes one)
+            $segments = array_values(array_filter(
+                explode('/', $filename),
+                static fn ($segment) => $segment !== '' && $segment !== '.'
+            ));
+            if ($segments === [] || in_array('..', $segments, true)) {
+                continue;
+            }
+            $isDir = substr($filename, -1) == '/';
+            $target = $root . '/' . implode('/', $segments);
+            if (!fileManagerIsSafeWriteTarget($root, $target) || fileManagerPathIsProtected($target, $protectedPaths)) {
+                continue;
+            }
+            if ($isDir) {
+                if (!is_dir($target)) {
+                    mkdir($target, $dirMode, true);
+                }
+                continue;
+            }
+            $dirname = dirname($target);
+            if (!is_dir($dirname)) {
+                mkdir($dirname, $dirMode, true);
+            }
+            file_put_contents($target, $zip->getFromIndex($i));
+        }
+        $zip->close();
+
+        return true;
+    }
+}
+
 if(!function_exists('fileManagerSubtreeRestrictionMap')) {
     /**
      * @param string $relativePath relative to the manager's root
@@ -619,41 +794,10 @@ if(!function_exists('unzip')) {
         // end mod
 
         $old_umask = umask(0);
-        $path = rtrim(str_replace('\\', '/', realpath($path)), '/\\'); // No trailing slash
-
-        $zip = new ZipArchive();
-        if ($zip->open($file) !== true) {
-            umask($old_umask);
-            return false;
-        }
-        for ($i = 0; $i < $zip->numFiles; $i++) {
-            $stat = $zip->statIndex($i);
-            $filename = str_replace('\\', '/', $stat['name']);
-            if (substr($filename, 0, 1) == '/' || strpos($filename, '..') !== false ||
-                strpos($filename, ':') !== false) {
-                continue; // skip malicious paths
-            }
-            $target = $path . '/' . $filename;
-            // Additional check to ensure target is within path
-            $target_dir = rtrim(str_replace('\\', '/', realpath(dirname($target)) ?: dirname($target)), '/\\');
-            if (!FileManagerAccess::isWithin($path, $target_dir)) {
-                continue;
-            }
-            if (substr($filename, -1) == '/') {
-                if (!is_dir($target)) {
-                    mkdir($target, $newfolderaccessmode ?: 0777, true);
-                }
-            } else {
-                $dirname = dirname($target);
-                if (!is_dir($dirname)) {
-                    mkdir($dirname, $newfolderaccessmode ?: 0777, true);
-                }
-                file_put_contents($target, $zip->getFromIndex($i));
-            }
-        }
-        $zip->close();
+        $result = fileManagerExtractZip($file, $path, fileManagerProtectedPaths(), $newfolderaccessmode ?: 0777);
         umask($old_umask);
-        return true;
+
+        return $result;
     }
 }
 
@@ -683,6 +827,8 @@ if(!function_exists('fileupload')) {
      */
     function fileupload()
     {
+        global $_lang, $uploadablefiles;
+
         $modx = evolutionCMS();
         $filemanager_path = rtrim(str_replace('\\', '/', realpath(evolutionCMS()
             ->getConfig('filemanager_path', EVO_BASE_PATH))), '/'); // Canonicalize base path
@@ -694,11 +840,12 @@ if(!function_exists('fileupload')) {
             return '<p><span class="warning">Invalid path.</span></p>';
         }
         $dirRel = ltrim(substr($startpath, strlen($filemanager_path)), '/');
-        if (!fileManagerIsAccessible($dirRel) || !is_writable($startpath)) {
+        if (!fileManagerIsAccessible($dirRel)
+            || fileManagerPathIsProtected($startpath, fileManagerProtectedPaths())
+            || !is_writable($startpath)) {
             return '<p><span class="warning">' . $_lang['files_access_denied'] . '</span></p>';
         }
         $new_file_permissions = octdec(evolutionCMS()->getConfig('new_file_permissions', '0666'));
-        global $_lang, $uploadablefiles;
         $msg = '';
         $dirGroupIds = [];
         if (evolutionCMS()->getConfig('use_udperms')) {
@@ -824,7 +971,9 @@ if(!function_exists('textsave')) {
             return '<span class="warning"><b>Invalid path.</b></span><br /><br />';
         }
         $fileRel = ltrim(substr($filename, strlen($filemanager_path)), '/');
-        if (!fileManagerCanModifyExistingPath($fileRel) || !is_writable($filename)) {
+        if (!fileManagerCanModifyExistingPath($fileRel)
+            || fileManagerPathIsProtected($filename, fileManagerProtectedPaths())
+            || !is_writable($filename)) {
             return '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
         }
         $content = $_POST['content'];
@@ -859,7 +1008,9 @@ if(!function_exists('delete_file')) {
             return '<span class="warning"><b>Invalid path.</b></span><br /><br />';
         }
         $fileRel = ltrim(substr($file, strlen($filemanager_path)), '/');
-        if (!fileManagerCanModifyExistingPath($fileRel) || !is_writable($file)) {
+        if (!fileManagerCanModifyExistingPath($fileRel)
+            || fileManagerPathIsProtected($file, fileManagerProtectedPaths())
+            || !is_writable($file)) {
             return '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
         }
         $msg = sprintf($_lang['deleting_file'], str_replace('\\', '/', $file));

@@ -17,11 +17,25 @@
 
 ## History
 
-Initially inspired by **Etomite 0.6**, then it has been **MODX Evolution 0.7 - 1.0.8** is an ongoing project written by *Raymond Irving* and a core team of contributors **MODX**, and now its **Evolution CMS** maintained by *Dmytro Lukianenko*, *Serhii Korneliuk* and a core team of contributors at the **Evolution CMS Project**.
+Initially inspired by **Etomite 0.6**, the project became **MODX Evolution**, the original MODX codebase developed by *Raymond Irving*, the MODX team, and its contributors.
+
+In its later years under MODX, development and releases were already being led by the team that subsequently formed the **Evolution CMS Project**,
+including *Dmytro Lukianenko*. In 2016, MODX transferred stewardship of Evolution to that team, and in April 2017 formally recognized **Evolution CMS** as an independent project under its existing leadership.
+
+Development has continued in `evolution-cms/evolution` as the direct continuation of MODX Evolution, maintained by *Dmytro Lukianenko*, *Serhii Korneliuk*,
+and the Evolution CMS core team and contributors. The former `modxcms/evolution` repository was later archived on Mar 9, 2021 and is now read-only.
+
+Other repositories derived from Evolution CMS are independent downstream forks or distributions and do not represent the project lineage established by the MODX Evolution team.
 
 ## License
 
-**Evolution CMS** is distributed under the **GPL license** and is now run by a professional team of developers from all over the world. Visit the Forums for more information.
+**Evolution CMS** is distributed under the **GPL v3 or later** license and is maintained by a professional international team of developers. See the [Evolution CMS Team](https://evo.im/team.html) for more information.
+
+### Name clarification
+
+**Evolution CMS**, formerly **MODX Evolution**, is a web content management system originating from the MODX project.
+
+It is not affiliated with Yamaha Corporation, Yamaha MODX/MODX+ synthesizers, or any Yamaha sound libraries, expansion packs, or products using the name “Evolution”.
 
 ## Features
 

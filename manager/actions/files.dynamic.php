@@ -23,35 +23,7 @@ $viewablefiles = explode(',', 'jpg,gif,png,ico');
 $editablefiles = add_dot($editablefiles);
 $inlineviewablefiles = add_dot($inlineviewablefiles);
 $viewablefiles = add_dot($viewablefiles);
-$protected_path = [];
-/* jp only if($_SESSION['mgrRole']!=1) { */
-$protected_path[] = str_replace('\\', '/', EVO_MANAGER_PATH);
-$protected_path[] = str_replace('\\', '/', EVO_BASE_PATH . 'temp/backup');
-$protected_path[] = str_replace('\\', '/', EVO_BASE_PATH . 'assets/backup');
-if (!evo()->hasPermission('save_plugin')) {
-    $protected_path[] = str_replace('\\', '/', EVO_BASE_PATH . 'assets/plugins');
-}
-if (!evo()->hasPermission('save_snippet')) {
-    $protected_path[] = str_replace('\\', '/', EVO_BASE_PATH . 'assets/snippets');
-}
-if (!evo()->hasPermission('save_template')) {
-    $protected_path[] = str_replace('\\', '/', EVO_BASE_PATH . 'assets/templates');
-}
-if (!evo()->hasPermission('save_module')) {
-    $protected_path[] = str_replace('\\', '/', EVO_BASE_PATH . 'assets/modules');
-}
-if (!evo()->hasPermission('empty_cache')) {
-    $protected_path[] = str_replace('\\', '/', EVO_BASE_PATH . 'assets/cache');
-}
-if (!evo()->hasPermission('import_static')) {
-    $protected_path[] = str_replace('\\', '/', EVO_BASE_PATH . 'temp/import');
-    $protected_path[] = str_replace('\\', '/', EVO_BASE_PATH . 'assets/import');
-}
-if (!evo()->hasPermission('export_static')) {
-    $protected_path[] = str_replace('\\', '/', EVO_BASE_PATH . 'temp/export');
-    $protected_path[] = str_replace('\\', '/', EVO_BASE_PATH . 'assets/export');
-}
-/* } */
+$protected_path = fileManagerProtectedPaths();
 // Mod added by Raymond
 $enablefileunzip = true;
 $enablefiledownload = true;
@@ -86,6 +58,10 @@ if ($startpath === false
     || !\EvolutionCMS\Support\FileManagerAccess::isWithin($filemanager_path, $startpath)
     || !is_readable($startpath)) {
     evo()->webAlertAndQuit($_lang["files_access_denied"]);
+}
+// before any action runs: every one of them works on $startpath or an entry in it
+if (fileManagerPathIsProtected($startpath, $protected_path)) {
+    evo()->webAlertAndQuit($_lang["files.dynamic.php2"]);
 }
 // Raymond: get web start path for showing pictures
 $relative_path = ltrim(substr($startpath, strlen($filemanager_path)), '/');
@@ -152,21 +128,6 @@ if (!function_exists('fileManagerDirectoryZipExists')) {
     function fileManagerDirectoryZipExists(array $zipPaths): bool
     {
         return is_file($zipPaths['lock']) || is_file($zipPaths['zip']);
-    }
-}
-
-if (!function_exists('fileManagerPathIsProtected')) {
-    function fileManagerPathIsProtected(string $path, array $protectedPaths): bool
-    {
-        $path = rtrim(str_replace('\\', '/', $path), '/');
-        foreach ($protectedPaths as $protectedPath) {
-            $protectedPath = rtrim(str_replace('\\', '/', $protectedPath), '/');
-            if ($path === $protectedPath || strpos($path, $protectedPath . '/') === 0) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }
 
@@ -486,9 +447,6 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                 }
             }
             echo $directoryZipMessage;
-            if (in_array($startpath, $protected_path)) {
-                evo()->webAlertAndQuit($_lang["files.dynamic.php2"]);
-            }
             $tpl = '<i class="[+image+] FilesTopFolder"></i>[+subject+]';
             $ph = [];
             $ph['style_path'] = $theme_image_path;
@@ -530,41 +488,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
         // check to see user isn't trying to move below the document_root
         // Existing check replaced with realpath check above
 
-        // Define safe unzip function
-        function safe_unzip($file, $path) {
-            $path = rtrim(str_replace('\\', '/', realpath($path)), '/\\');
-            $zip = new ZipArchive();
-            if ($zip->open($file) !== true) {
-                return false;
-            }
-            for ($i = 0; $i < $zip->numFiles; $i++) {
-                $stat = $zip->statIndex($i);
-                $filename = str_replace('\\', '/', $stat['name']);
-                if (substr($filename, 0, 1) == '/' || strpos($filename, '..') !== false || strpos($filename, ':') !== false) {
-                    continue; // skip malicious paths
-                }
-                $target = $path . '/' . $filename;
-                $target_real = rtrim(str_replace('\\', '/', realpath(dirname($target)) ?: dirname($target)), '/\\');
-                if (!\EvolutionCMS\Support\FileManagerAccess::isWithin($path, $target_real)) {
-                    continue;
-                }
-                if (substr($filename, -1) == '/') {
-                    if (!is_dir($target)) {
-                        mkdir($target, 0777, true);
-                    }
-                } else {
-                    $dirname = dirname($target);
-                    if (!is_dir($dirname)) {
-                        mkdir($dirname, 0777, true);
-                    }
-                    file_put_contents($target, $zip->getFromIndex($i));
-                }
-            }
-            $zip->close();
-            return true;
-        }
-
-        // Unzip .zip files - by Raymond, with safe_unzip
+        // Unzip .zip files - by Raymond
         if ($enablefileunzip && get_by_key($_REQUEST, 'mode') == 'unzip' && $currentPathWritable) {
             if ($token_check) {
                 $zipTarget = fileManagerResolvePath($filemanager_path, $relative_path . '/' . ($_REQUEST['file'] ?? ''));
@@ -574,7 +498,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                     // Unpacking a restricted archive into this folder would publish its contents here
                     echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
                 } else {
-                    $success = safe_unzip($zipTarget['path'], $startpath);
+                    $success = fileManagerExtractZip($zipTarget['path'], $startpath, $protected_path);
                     if (!$success) {
                         echo '<span class="warning"><b>' . $_lang['file_unzip_fail'] . '</b></span><br /><br />';
                     } else {
@@ -619,6 +543,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                     if ($folderTarget === null || !is_dir($folder)) {
                         echo '<span class="warning"><b>Invalid path.</b></span><br /><br />';
                     } elseif (!fileManagerCanModifyExistingPath($folderTarget['relative'], $userGroups)
+                        || fileManagerPathTouchesProtected($folder, $protected_path)
                         || fileManagerHasInaccessibleDescendants($folderTarget['relative'])
                         || !is_writable($folder)) {
                         echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
@@ -715,12 +640,16 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                     $dirname = $dirTarget['path'] ?? '';
                     if ($dirTarget === null || !is_dir($dirname)) {
                         echo '<span class="warning"><b>Invalid path.</b></span><br /><br />';
-                    } elseif (!fileManagerCanModifyExistingPath($dirTarget['relative'], $userGroups) || !is_writable($dirname)) {
+                    } elseif (!fileManagerCanModifyExistingPath($dirTarget['relative'], $userGroups)
+                        || fileManagerPathTouchesProtected($dirname, $protected_path)
+                        || !is_writable($dirname)) {
                         echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
                     } else {
                         $newDirname = str_replace([ '..\\', '../', '\\', '/' ], '', $_REQUEST['newDirname']);
                         if (preg_match('@(\\\\|\/|\:|\;|\,|\*|\?|\"|\<|\>|\||\?)@', $newDirname) !== 0) {
                             echo $_lang['files.dynamic.php3'];
+                        } elseif (fileManagerPathIsProtected(dirname($dirname) . '/' . $newDirname, $protected_path)) {
+                            echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
                         } else if (!rename($dirname, dirname($dirname) . '/' . $newDirname)) {
                             echo '<span class="warning"><b>', $_lang['file_folder_not_created'], '</b></span><br /><br />';
                         } else {

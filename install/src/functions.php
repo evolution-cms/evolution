@@ -368,6 +368,24 @@ function validateLangCode($langCode)
 }
 
 /**
+ * Returns the extensions from the given list that are not loaded.
+ *
+ * get_loaded_extensions() reports names in PHP's own casing (Reflection, SimpleXML),
+ * so the names are checked with the case-insensitive extension_loaded() instead.
+ *
+ * @param  array<string, bool>  $extensions  extension name => is mandatory
+ * @return array<string, bool>
+ */
+function missingInstallExtensions(array $extensions): array
+{
+    return array_filter(
+        $extensions,
+        static fn ($name) => !extension_loaded((string) $name),
+        ARRAY_FILTER_USE_KEY
+    );
+}
+
+/**
  * @return array
  */
 function ph($_lang, $moduleVersion, $evo_textdir, $evo_release_date)
