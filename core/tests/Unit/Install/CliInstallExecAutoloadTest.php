@@ -20,7 +20,7 @@ it('loads ExecWithFallback in a process without the Composer autoloader', functi
         . ' define("EVO_CORE_PATH", ' . var_export($root . '/core/', true) . ');'
         . ' require ' . var_export($root . '/install/src/functions.php', true) . ';'
         . ' echo json_encode([loadExecWithFallback(), class_exists("ExecWithFallback\\ExecWithFallback"), class_exists("ExecWithFallback\\Availability")]);');
-    $out = trim((string) shell_exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($probe) . ' 2>&1'));
+    $out = trim(evoRunPhp($probe));
     unlink($probe);
 
     expect($out)->toBe('[true,true,true]');
@@ -33,7 +33,7 @@ it('reports a missing package instead of fataling', function () {
         . ' define("EVO_CORE_PATH", ' . var_export($core, true) . ');'
         . ' require ' . var_export(dirname(__DIR__, 4) . '/install/src/functions.php', true) . ';'
         . ' var_export(loadExecWithFallback());');
-    $out = trim((string) shell_exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($probe) . ' 2>&1'));
+    $out = trim(evoRunPhp($probe));
     unlink($probe);
 
     expect($out)->toBe('false');

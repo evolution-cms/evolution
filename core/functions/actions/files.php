@@ -238,6 +238,38 @@ if(!function_exists('fileManagerPathTouchesProtected')) {
     }
 }
 
+if(!function_exists('fileManagerIsLink')) {
+    /**
+     * Whether $path is a link of any kind: a symlink, or on Windows a junction or other
+     * reparse point, which is_link() does not report (PHP sees a junction as a plain folder).
+     * So an existing entry counts as a link when it does not resolve to itself. readlink()
+     * cannot decide it: on Windows it returns a path for ordinary files and folders too.
+     *
+     * @param string $path
+     */
+    function fileManagerIsLink($path)
+    {
+        clearstatcache(true, $path);
+        if (is_link($path)) {
+            return true;
+        }
+        if (!file_exists($path)) {
+            // something is there that leads nowhere: a dangling junction, which only lstat()
+            // sees (is_link() above already caught a dangling symlink)
+            return PHP_OS_FAMILY === 'Windows' && @lstat($path) !== false;
+        }
+        $real = realpath($path);
+        $parent = realpath(dirname($path));
+        if ($real === false || $parent === false) {
+            return true;
+        }
+        $expected = rtrim(str_replace('\\', '/', $parent), '/') . '/' . basename($path);
+        $real = str_replace('\\', '/', $real);
+
+        return PHP_OS_FAMILY === 'Windows' ? strcasecmp($real, $expected) !== 0 : $real !== $expected;
+    }
+}
+
 if(!function_exists('fileManagerIsSafeWriteTarget')) {
     /**
      * Whether writing to $target, which need not exist yet, stays under $root. Every part of
@@ -261,7 +293,7 @@ if(!function_exists('fileManagerIsSafeWriteTarget')) {
                 return false;
             }
             $current .= '/' . $segment;
-            if (is_link($current)) {
+            if (fileManagerIsLink($current)) {
                 return false;
             }
             if (!file_exists($current)) {
@@ -271,6 +303,118 @@ if(!function_exists('fileManagerIsSafeWriteTarget')) {
         }
 
         return true;
+    }
+}
+
+if(!function_exists('fileManagerIsNewWriteTarget')) {
+    /**
+     * Whether $target is a safe place for a new file or folder: it stays under $root and
+     * nothing is there yet, not even a dangling symlink that a write would follow.
+     *
+     * @param string $root canonical absolute path
+     * @param string $target absolute path below $root
+     */
+    function fileManagerIsNewWriteTarget($root, $target)
+    {
+        return fileManagerIsSafeWriteTarget($root, $target) && !file_exists($target) && !fileManagerIsLink($target);
+    }
+}
+
+if(!function_exists('fileManagerCreateFile')) {
+    /**
+     * Creates $target with $content, but only as a new file: an existing file or symlink of
+     * that name is left alone, so the write can never truncate or follow it.
+     *
+     * @param string $root canonical absolute path
+     * @param string $target absolute path below $root
+     * @param string $content
+     */
+    function fileManagerCreateFile($root, $target, $content = '')
+    {
+        if (!fileManagerIsNewWriteTarget($root, $target)) {
+            return false;
+        }
+        // "x" fails when the name appeared in the meantime, including as a symlink
+        $handle = @fopen($target, 'xb');
+        if ($handle === false) {
+            return false;
+        }
+        $written = fwrite($handle, $content) === strlen($content);
+        fclose($handle);
+
+        return $written;
+    }
+}
+
+if(!function_exists('fileManagerCopyToNewFile')) {
+    /**
+     * Copies $source to $target, which must not exist yet (see fileManagerCreateFile()).
+     *
+     * @param string $root canonical absolute path
+     * @param string $source existing file
+     * @param string $target absolute path below $root
+     */
+    function fileManagerCopyToNewFile($root, $source, $target)
+    {
+        if (!is_file($source) || !fileManagerIsNewWriteTarget($root, $target)) {
+            return false;
+        }
+        $in = @fopen($source, 'rb');
+        if ($in === false) {
+            return false;
+        }
+        $out = @fopen($target, 'xb');
+        if ($out === false) {
+            fclose($in);
+
+            return false;
+        }
+        $copied = stream_copy_to_stream($in, $out) !== false;
+        fclose($in);
+        fclose($out);
+        if (!$copied) {
+            @unlink($target);
+        }
+
+        return $copied;
+    }
+}
+
+if(!function_exists('fileManagerCanRenameTo')) {
+    /**
+     * Whether $source may be renamed to $target: nothing is at the new name yet, so a rename
+     * cannot replace another file (or one the user may not modify). A case-only rename is
+     * allowed too, as on Windows the new name finds the file itself.
+     *
+     * @param string $root canonical absolute path
+     * @param string $source existing entry
+     * @param string $target absolute path below $root
+     */
+    function fileManagerCanRenameTo($root, $source, $target)
+    {
+        if (fileManagerIsNewWriteTarget($root, $target)) {
+            return true;
+        }
+        if (!fileManagerIsSafeWriteTarget($root, $target)
+            || strcasecmp(str_replace('\\', '/', $source), str_replace('\\', '/', $target)) !== 0) {
+            return false;
+        }
+        $sourceReal = realpath($source);
+
+        return $sourceReal !== false && $sourceReal === realpath($target);
+    }
+}
+
+if(!function_exists('fileManagerRemoveLink')) {
+    /**
+     * Removes the symlink $path itself, never what it points to. A directory symlink or
+     * junction on Windows is removed with rmdir.
+     *
+     * @param string $path
+     */
+    function fileManagerRemoveLink($path)
+    {
+        return @unlink($path) || @rmdir($path);
     }
 }
 
@@ -803,21 +947,37 @@ if(!function_exists('unzip')) {
 
 if(!function_exists('rrmdir')) {
     /**
+     * Deletes $dir and everything in it. Symlinks are removed as links: the walk never enters
+     * them, so a link to a folder elsewhere cannot take that folder's content with it.
+     *
      * @param string $dir
      * @return bool
      */
     function rrmdir($dir)
     {
-        $dir = str_replace('\\', '/', realpath($dir)); // Canonicalize path
-        foreach (glob($dir . '/*') as $file) {
-            if (is_dir($file)) {
+        $dir = rtrim(str_replace('\\', '/', $dir), '/');
+        if (fileManagerIsLink($dir)) {
+            return fileManagerRemoveLink($dir);
+        }
+        $items = @scandir($dir);
+        if ($items === false) {
+            return false;
+        }
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
+            }
+            $file = $dir . '/' . $item;
+            if (fileManagerIsLink($file)) {
+                fileManagerRemoveLink($file);
+            } elseif (is_dir($file)) {
                 rrmdir($file);
             } else {
-                unlink($file);
+                @unlink($file);
             }
         }
 
-        return rmdir($dir);
+        return @rmdir($dir);
     }
 }
 

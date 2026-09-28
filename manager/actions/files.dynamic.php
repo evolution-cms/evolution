@@ -565,7 +565,8 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                     $newdir = $startpath . '/' . $foldername;
                     if (!$currentPathWritable) {
                         echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
-                    } elseif (!mkdirs($newdir, 0777)) {
+                    } elseif (!fileManagerIsNewWriteTarget($filemanager_path, $newdir) || !@mkdir($newdir, 0777)) {
+                        // an existing name is refused: chmod below would follow a symlinked folder
                         echo '<span class="warning"><b>', $_lang['file_folder_not_created'], '</b></span><br /><br />';
                     } else {
                         if (!@chmod($newdir, $newfolderaccessmode)) {
@@ -591,8 +592,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                     } elseif (preg_match('@(\\\\|\/|\:|\;|\,|\*|\?|\"|\<|\>|\||\?)@', $filename) !== 0) {
                         echo $_lang['files.dynamic.php3'];
                     } else {
-                        $rs = file_put_contents($startpath . '/' . $filename, '');
-                        if ($rs === false) {
+                        if (!fileManagerCreateFile($filemanager_path, $startpath . '/' . $filename)) {
                             echo '<span class="warning"><b>', $_lang['file_folder_not_created'], '</b></span><br /><br />';
                         } else {
                             echo $_lang['files.dynamic.php4'];
@@ -622,7 +622,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                         } else {
                             // Fix: Copy to same directory, not base path
                             $newpath = dirname($filename) . '/' . $newFilename;
-                            if (!copy($filename, $newpath)) {
+                            if (!fileManagerCopyToNewFile($filemanager_path, $filename, $newpath)) {
                                 echo $_lang['files.dynamic.php5'];
                             }
                             umask($old_umask);
@@ -650,6 +650,9 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                             echo $_lang['files.dynamic.php3'];
                         } elseif (fileManagerPathIsProtected(dirname($dirname) . '/' . $newDirname, $protected_path)) {
                             echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+                        } elseif (!fileManagerCanRenameTo($filemanager_path, $dirname, dirname($dirname) . '/' . $newDirname)) {
+                            // on Linux rename() silently replaces an existing empty folder
+                            echo '<span class="warning"><b>' . $_lang['files.dynamic.php6'] . '</b></span><br /><br />';
                         } else if (!rename($dirname, dirname($dirname) . '/' . $newDirname)) {
                             echo '<span class="warning"><b>', $_lang['file_folder_not_created'], '</b></span><br /><br />';
                         } else {
@@ -682,6 +685,9 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                             echo '<span class="warning"><b>' . $_lang['files_filetype_notok'] . '</b></span><br /><br />';
                         } elseif (preg_match('@(\\\\|\/|\:|\;|\,|\*|\?|\"|\<|\>|\||\?)@', $newFilename) !== 0) {
                             echo $_lang['files.dynamic.php3'];
+                        } elseif (!fileManagerCanRenameTo($filemanager_path, $filename, $path . '/' . $newFilename)) {
+                            // renaming onto an existing name would silently replace that file
+                            echo $_lang['files.dynamic.php6'];
                         } else {
                             if (!rename($filename, $path . '/' . $newFilename)) {
                                 echo $_lang['files.dynamic.php5'];

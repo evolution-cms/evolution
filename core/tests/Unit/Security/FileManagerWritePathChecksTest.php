@@ -39,12 +39,12 @@ function runFileManagerWrite(string $site, string $function, array $request, arr
     $tmp = tempnam(sys_get_temp_dir(), 'evo-fm-');
     file_put_contents($tmp, $script);
     try {
-        $output = shell_exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($tmp) . ' 2>&1');
+        $output = evoRunPhp($tmp);
     } finally {
         unlink($tmp);
     }
 
-    return (string) $output;
+    return $output;
 }
 
 beforeEach(function () {

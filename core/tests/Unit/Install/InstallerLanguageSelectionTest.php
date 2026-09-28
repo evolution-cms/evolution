@@ -25,7 +25,7 @@ final class InstallerLanguageSelectionTest extends TestCase
         $tmp = tempnam(sys_get_temp_dir(), 'evo-lang-');
         file_put_contents($tmp, $script);
         try {
-            $output = shell_exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($tmp) . ' 2>&1');
+            $output = evoRunPhp($tmp);
         } finally {
             unlink($tmp);
         }

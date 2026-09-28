@@ -75,14 +75,13 @@ PHP;
     $scriptPath = tempnam(sys_get_temp_dir(), 'evo-constants-');
     file_put_contents($scriptPath, sprintf($script, var_export($rootDir, true), var_export($env, true)));
 
-    $output = [];
-    $status = 0;
-    exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($scriptPath), $output, $status);
+    // stdout only: the JSON must not pick up anything the script reports on stderr
+    $output = evoRunPhp($scriptPath, [], $status, false);
     @unlink($scriptPath);
 
-    expect($status)->toBe(0, implode("\n", $output));
+    expect($status)->toBe(0, $output);
 
-    return json_decode(implode("\n", $output), true, 512, JSON_THROW_ON_ERROR);
+    return json_decode($output, true, 512, JSON_THROW_ON_ERROR);
 }
 
 test('evo bootstrap constants publish modx aliases', function () {

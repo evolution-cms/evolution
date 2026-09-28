@@ -33,14 +33,12 @@ function resolveSiteUrlInFreshProcess(array $server): string
     $scriptPath = tempnam(sys_get_temp_dir(), 'evo-site-url-') . '.php';
     file_put_contents($scriptPath, $code);
 
-    $output = [];
-    $status = 0;
-    exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($scriptPath) . ' 2>&1', $output, $status);
+    $output = evoRunPhp($scriptPath, [], $status);
     @unlink($scriptPath);
 
-    expect($status)->toBe(0, implode("\n", $output));
+    expect($status)->toBe(0, $output);
 
-    return trim(implode("\n", $output));
+    return trim($output);
 }
 
 test('site url keeps the port the browser asked for', function (array $server, string $expected) {
