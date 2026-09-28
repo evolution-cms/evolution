@@ -1,5 +1,6 @@
 <?php namespace EvolutionCMS\Traits\Models;
 
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\SoftDeletes as BaseSoftDeletes;
 use EvolutionCMS\Shit\SoftDeletingScope;
 
@@ -35,5 +36,45 @@ trait SoftDeletes{
         $this->fireModelEvent('restored', false);
 
         return $result;
+    }
+
+    /**
+     * Keep the deleted-at column as its stored Unix timestamp in array form.
+     *
+     * The base trait casts that column to datetime, so toArray() would build a
+     * Carbon instance only to print it as an ISO string: every uncached page
+     * paid for loading Carbon, and templates got a value unlike every other
+     * date field. Reading the attribute still returns Carbon.
+     *
+     * @param array<string, mixed> $attributes
+     * @param array<int, string> $mutatedAttributes
+     * @return array<string, mixed>
+     */
+    protected function addCastAttributesToArray(array $attributes, array $mutatedAttributes)
+    {
+        $column = $this->getDeletedAtColumn();
+        if (!array_key_exists($column, $attributes)
+            || in_array($column, $mutatedAttributes, true)
+            || ($this->getCasts()[$column] ?? null) !== 'datetime'
+        ) {
+            return parent::addCastAttributesToArray($attributes, $mutatedAttributes);
+        }
+
+        $raw = $attributes[$column];
+        if ($raw instanceof DateTimeInterface) {
+            $raw = $raw->getTimestamp();
+        } elseif (is_numeric($raw)) {
+            $raw = (int) $raw;
+        }
+
+        // The parent only rewrites keys it is given, so the column goes back
+        // where it was and the array keeps its order.
+        $position = array_search($column, array_keys($attributes), true);
+        unset($attributes[$column]);
+        $attributes = parent::addCastAttributesToArray($attributes, $mutatedAttributes);
+
+        return array_slice($attributes, 0, $position, true)
+            + [$column => $raw]
+            + array_slice($attributes, $position, null, true);
     }
 }
