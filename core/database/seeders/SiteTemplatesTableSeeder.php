@@ -31,6 +31,7 @@ class SiteTemplatesTableSeeder extends Seeder
             [
                 'templatename'  => 'Minimal Template',
                 'templatealias' => '',
+                'templatesource' => 'db',
                 'description'   => 'Default minimal empty template (content returned only)',
                 'editor_type'   => 0,
                 'category'      => 0,
