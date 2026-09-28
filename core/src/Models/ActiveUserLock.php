@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent;
  */
 class ActiveUserLock extends Eloquent\Model
 {
+	protected $table = 'active_user_locks';
+
 	public $timestamps = false;
 
 	protected $casts = [

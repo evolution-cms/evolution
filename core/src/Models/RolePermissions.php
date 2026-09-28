@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent;
  */
 class RolePermissions extends Eloquent\Model
 {
+	protected $table = 'role_permissions';
 
 	protected $fillable = [
 		'permission',

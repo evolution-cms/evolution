@@ -15,6 +15,8 @@ class SystemSetting extends Eloquent\Model
 {
     use Traits\Models\ManagerActions;
 
+    protected $table = 'system_settings';
+
 	protected $primaryKey = 'setting_name';
 	public $incrementing = false;
 	public $timestamps = false;

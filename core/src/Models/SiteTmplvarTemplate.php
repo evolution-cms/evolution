@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent;
  */
 class SiteTmplvarTemplate extends Eloquent\Model
 {
+	protected $table = 'site_tmplvar_templates';
+
 	public $incrementing = false;
 	public $timestamps = false;
 

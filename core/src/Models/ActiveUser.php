@@ -18,6 +18,8 @@ use Illuminate\Database\Eloquent;
  */
 class ActiveUser extends Eloquent\Model
 {
+    protected $table = 'active_users';
+
     protected $primaryKey = 'sid';
     public $incrementing = false;
     public $timestamps = false;

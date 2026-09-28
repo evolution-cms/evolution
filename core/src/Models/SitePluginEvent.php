@@ -16,6 +16,8 @@ class SitePluginEvent extends Eloquent\Model
 {
     use Traits\Models\ManagerActions;
 
+    protected $table = 'site_plugin_events';
+
 	public $incrementing = false;
 	public $timestamps = false;
 

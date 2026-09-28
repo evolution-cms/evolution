@@ -49,6 +49,8 @@ class UserAttribute extends Eloquent\Model
 {
     use Traits\Models\TimeMutator;
 
+    protected $table = 'user_attributes';
+
 	const CREATED_AT = 'createdon';
 	const UPDATED_AT = 'editedon';
     protected $dateFormat = 'U';

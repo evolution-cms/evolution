@@ -16,6 +16,8 @@ class MemberGroup extends Eloquent\Model
 {
     use Traits\Models\ManagerActions;
 
+    protected $table = 'member_groups';
+
 	public $timestamps = false;
 
 	protected $casts = [

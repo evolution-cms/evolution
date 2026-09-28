@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent;
  */
 class SiteTmplvarContentvalue extends Eloquent\Model
 {
+	protected $table = 'site_tmplvar_contentvalues';
+
 	public $timestamps = false;
 
 	protected $casts = [

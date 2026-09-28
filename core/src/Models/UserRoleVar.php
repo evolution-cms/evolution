@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent;
  */
 class UserRoleVar extends Eloquent\Model
 {
+	protected $table = 'user_role_vars';
+
 	public $incrementing = false;
 	public $timestamps = false;
 

@@ -20,6 +20,8 @@ class User extends Eloquent\Model
 {
     use Traits\Models\ManagerActions;
 
+    protected $table = 'users';
+
 	public $timestamps = false;
 
 	protected $hidden = [

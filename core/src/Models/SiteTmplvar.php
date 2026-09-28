@@ -45,6 +45,8 @@ class SiteTmplvar extends Eloquent\Model
     use Traits\Models\ManagerActions,
         Traits\Models\TimeMutator;
 
+    protected $table = 'site_tmplvars';
+
 	const CREATED_AT = 'createdon';
 	const UPDATED_AT = 'editedon';
     protected $dateFormat = 'U';

@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent;
  */
 class DocumentgroupName extends Eloquent\Model
 {
+    protected $table = 'documentgroup_names';
+
     public $timestamps = false;
 
     protected $casts = [
