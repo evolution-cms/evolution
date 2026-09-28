@@ -75,11 +75,11 @@ $required_extensions = [
     'zip' => true, // ZipArchive requirement. ext-zip is no longer bundled with PHP7.4+ so must be installed and enabled
 ];
 
-$loaded_extensions = get_loaded_extensions();
+$missing_extensions = missingInstallExtensions($required_extensions);
 
 foreach ($required_extensions as $ext_name => $is_mandatory) {
     echo '<p>' . str_replace('[+extensions+]', $ext_name, $_lang['checking_extensions']);
-    if (!in_array($ext_name, $loaded_extensions)) {
+    if (array_key_exists($ext_name, $missing_extensions)) {
         if ($is_mandatory) {
             echo '<span class="notok">' . $_lang['failed'] . '</span></p>';
             $errors++;

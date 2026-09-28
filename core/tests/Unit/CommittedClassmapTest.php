@@ -35,8 +35,8 @@ function srcClassNames(): array
 }
 
 test('every class under core/src is in the committed classmap', function (string $map) {
-    $committed = shell_exec('git -C ' . escapeshellarg(dirname(__DIR__, 2)) . ' show HEAD:core/vendor/composer/' . $map . ' 2>&1');
-    if (!is_string($committed) || !str_contains($committed, 'EvolutionCMS\\\\')) {
+    $committed = evoRunCommand('git -C ' . escapeshellarg(dirname(__DIR__, 2)) . ' show HEAD:core/vendor/composer/' . $map . ' 2>&1', $exitCode);
+    if ($exitCode !== 0 || !str_contains($committed, 'EvolutionCMS\\\\')) {
         $this->markTestSkipped('no git checkout to read the committed classmap from');
     }
 

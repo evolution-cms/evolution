@@ -46,6 +46,14 @@ class dir {
 
     static function prune(string $dir, bool $firstFailExit=true, array $failed=[]): mixed
     {
+        if (self::isLink($dir)) {
+            if (@unlink($dir) || @rmdir($dir))
+                return true;
+            if ($firstFailExit)
+                return $dir;
+            $failed[] = $dir;
+            return $failed;
+        }
         $files = self::content($dir);
         if ($files === false) {
             if ($firstFailExit)
@@ -55,7 +63,14 @@ class dir {
         }
 
         foreach ($files as $file) {
-            if (is_dir($file)) {
+            // a symlink goes as a link: pruning through it would empty the folder it points to
+            if (self::isLink($file)) {
+                if (!@unlink($file) && !@rmdir($file)) {
+                    if ($firstFailExit)
+                        return $file;
+                    $failed[] = $file;
+                }
+            } elseif (is_dir($file)) {
                 $failed_in = self::prune($file, $firstFailExit, $failed);
                 if ($failed_in !== true) {
                     if ($firstFailExit)
@@ -79,6 +94,30 @@ class dir {
         }
 
         return count($failed) ? $failed : true;
+    }
+
+  /** Whether $path is a link of any kind: a symlink, or on Windows a junction or other
+    * reparse point, which is_link() does not report (PHP sees a junction as a plain folder).
+    * An existing entry that does not resolve to itself counts as one too.
+    * @param string $path
+    * @return bool */
+
+    static function isLink(string $path): bool
+    {
+        clearstatcache(true, $path);
+        if (is_link($path))
+            return true;
+        // something is there that leads nowhere: a dangling junction, which only lstat()
+        // sees (is_link() above already caught a dangling symlink)
+        if (!file_exists($path))
+            return PHP_OS_FAMILY === 'Windows' && @lstat($path) !== false;
+        $real = realpath($path);
+        $parent = realpath(dirname($path));
+        if ($real === false || $parent === false)
+            return true;
+        $expected = rtrim(str_replace('\\', '/', $parent), '/') . '/' . basename($path);
+        $real = str_replace('\\', '/', $real);
+        return PHP_OS_FAMILY === 'Windows' ? strcasecmp($real, $expected) !== 0 : $real !== $expected;
     }
 
   /** Get the content of the given directory. Returns an array with filenames
@@ -112,7 +151,8 @@ class dir {
 
         $files = [];
         while (($file = @readdir($dh)) !== false) {
-            $type = filetype("$dir/$file");
+            // a Windows junction has no type PHP knows ("unknown", plus a notice)
+            $type = @filetype("$dir/$file");
 
             if ($options['followLinks'] && ($type === "link")) {
                 $lfile = "$dir/$file";
@@ -121,7 +161,7 @@ class dir {
                     $lfile = @readlink($lfile);
                     if (substr($lfile, 0, 1) != "/")
                         $lfile = "$ldir/$lfile";
-                    $type = filetype($lfile);
+                    $type = @filetype($lfile);
                 } while ($type == "link");
             }
 

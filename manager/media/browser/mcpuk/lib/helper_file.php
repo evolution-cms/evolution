@@ -187,7 +187,8 @@ class file {
         $tpl = str_replace('{name}', $name, $tpl);
         $tpl = str_replace('{ext}', (strlen($ext) ? ".$ext" : ""), $tpl);
         $i = 1; $file = "$dir/$filename";
-        while (file_exists($file))
+        // a dangling symlink counts as taken: writing to it would create its target
+        while (file_exists($file) || dir::isLink($file))
             $file = "$dir/" . str_replace('{sufix}', $i++, $tpl);
 
         return $fullPath

@@ -33,7 +33,7 @@ it('resolves the installation root without the bootstrap constants', function ()
     $probe = tempnam(sys_get_temp_dir(), 'evo_chunk_probe_');
     file_put_contents($probe, '<?php require ' . var_export(dirname(__DIR__, 3) . '/vendor/autoload.php', true) . ';'
         . 'echo defined("EVO_BASE_PATH") ? "defined" : \EvolutionCMS\Support\ChunkFileStore::make()->displayDirectory();');
-    $out = trim((string) shell_exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($probe) . ' 2>&1'));
+    $out = trim(evoRunPhp($probe));
     unlink($probe);
 
     expect($out)->toBe('views/chunks/');

@@ -9,8 +9,8 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 function noSessionRun(string $noSession, string $manager): array
 {
     $worker = dirname(__DIR__) . '/Mocks/no_session_worker.php';
-    $out = shell_exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($worker) . " $noSession $manager 2>&1");
-    $result = json_decode((string) $out, true);
+    $out = evoRunPhp($worker, [$noSession, $manager]);
+    $result = json_decode($out, true);
     expect($result)->toBeArray("worker output: $out");
 
     return $result;

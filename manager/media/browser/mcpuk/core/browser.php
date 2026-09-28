@@ -115,7 +115,7 @@ class browser extends uploader
         } else {
             $type = $this->getTypeFromPath($this->session['dir']);
             $dir = $this->config['uploadDir'] . "/" . $this->session['dir'];
-            if (($type != $this->type) || !is_dir($dir) || !is_readable($dir)) {
+            if (($type != $this->type) || !is_dir($dir) || !is_readable($dir) || !$this->isInsideTypeDir($dir)) {
                 $this->session['dir'] = $this->type;
             }
         }
@@ -144,7 +144,8 @@ class browser extends uploader
     {
         if (isset($this->get['dir']) &&
             is_dir("{$this->typeDir}/{$this->get['dir']}") &&
-            is_readable("{$this->typeDir}/{$this->get['dir']}")
+            is_readable("{$this->typeDir}/{$this->get['dir']}") &&
+            $this->isInsideTypeDir("{$this->typeDir}/{$this->get['dir']}")
         ) {
             $this->session['dir'] = path::normalize("{$this->type}/{$this->get['dir']}");
         }
@@ -972,9 +973,11 @@ class browser extends uploader
         $filename = $this->normalizeFilename($file['name']);
         $target = "$dir/" . file::getInexistantFilename($filename, $dir);
 
-        if (!@move_uploaded_file($file['tmp_name'], $target) &&
-            !@rename($file['tmp_name'], $target) &&
-            !@copy($file['tmp_name'], $target)
+        // every attempt below writes through a symlink at $target, so check before each one
+        if (!$this->isNewUploadTarget($target) ||
+            (!@move_uploaded_file($file['tmp_name'], $target) &&
+                (!$this->isNewUploadTarget($target) || !@rename($file['tmp_name'], $target)) &&
+                (!$this->isNewUploadTarget($target) || !@copy($file['tmp_name'], $target)))
         ) {
             @unlink($file['tmp_name']);
 
@@ -994,6 +997,18 @@ class browser extends uploader
         $response['success'] = true;
 
         return $response;
+    }
+
+    /**
+     * Whether an upload may be written to $target: nothing is there yet, not even a dangling
+     * symlink, and it lies inside the type folder.
+     *
+     * @param string $target
+     * @return bool
+     */
+    protected function isNewUploadTarget($target)
+    {
+        return !file_exists($target) && !dir::isLink($target) && $this->isInsideTypeDir($target);
     }
 
     /**
@@ -1168,7 +1183,7 @@ class browser extends uploader
         if (isset($this->post['dir'])) {
             $dir .= "/" . $this->post['dir'];
         }
-        if ($existent && (!is_dir($dir) || !is_readable($dir))) {
+        if (($existent && (!is_dir($dir) || !is_readable($dir))) || !$this->isInsideTypeDir($dir)) {
             $this->errorMsg("Inexistant or inaccessible folder.");
         }
 
@@ -1185,11 +1200,45 @@ class browser extends uploader
         if (isset($this->get['dir'])) {
             $dir .= "/" . $this->get['dir'];
         }
-        if ($existent && (!is_dir($dir) || !is_readable($dir))) {
+        if (($existent && (!is_dir($dir) || !is_readable($dir))) || !$this->isInsideTypeDir($dir)) {
             $this->errorMsg("Inexistant or inaccessible folder.");
         }
 
         return $dir;
+    }
+
+    /**
+     * Whether $absPath, once symlinks are resolved, is still inside the current type folder.
+     * The dir and file parameters are only checked by name; a symlink below the upload folder
+     * would otherwise lead every action (and the file groups check) outside it.
+     *
+     * @param string $absPath
+     * @return bool
+     */
+    protected function isInsideTypeDir($absPath)
+    {
+        $root = realpath($this->typeDir);
+        if ($root === false) {
+            return false;
+        }
+        $path = realpath($absPath);
+        if ($path === false) {
+            // nothing there yet is fine, a dangling link is not: writing to it creates its target
+            if (dir::isLink($absPath)) {
+                return false;
+            }
+            $parent = realpath(dirname($absPath));
+
+            return $parent !== false && \EvolutionCMS\Support\FileManagerAccess::isWithin(
+                str_replace('\\', '/', $root),
+                str_replace('\\', '/', $parent)
+            );
+        }
+
+        return \EvolutionCMS\Support\FileManagerAccess::isWithin(
+            str_replace('\\', '/', $root),
+            str_replace('\\', '/', $path)
+        );
     }
 
     /**
@@ -1228,15 +1277,16 @@ class browser extends uploader
         $dirs  = glob($dir.'/*',GLOB_ONLYDIR);
         $hasDirs = !empty($dirs);
 
-        $relativePath = $this->getFileGroupsRelPath($dir);
-        $writable = dir::isWritable($dir) && $this->isWriteAllowed($this->removeTypeFromPath($relativePath));
+        // isWriteAllowed() takes a path below the type folder, not below the site root
+        $typeRelativePath = \EvolutionCMS\Support\FileManagerAccess::getRelativePath($this->typeDir, $dir);
+        $writable = dir::isWritable($dir) && $this->isWriteAllowed($typeRelativePath);
         $info = [
             'name'      => stripslashes(basename($dir)),
             'readable'  => is_readable($dir),
             'writable'  => $writable,
             'removable' => $writable
                 && dir::isWritable(dirname($dir))
-                && $this->isStrictWriteAllowed($this->removeTypeFromPath($relativePath)),
+                && $this->isStrictWriteAllowed($typeRelativePath),
             'hasDirs'   => $hasDirs
         ];
 
@@ -1301,6 +1351,8 @@ class browser extends uploader
      */
     protected function filterAccessiblePaths(array $absPaths): array
     {
+        // a symlink out of the upload folder is neither listed nor followed
+        $absPaths = array_values(array_filter($absPaths, [$this, 'isInsideTypeDir']));
         if (!$this->modx->getConfig('use_udperms')) {
             return $absPaths;
         }
@@ -1341,6 +1393,11 @@ class browser extends uploader
      */
     protected function isWriteAllowed($relDir)
     {
+        $relDir = trim($relDir, '/');
+        $absPath = $this->typeDir . ($relDir !== '' ? '/' . $relDir : '');
+        if (!$this->isInsideTypeDir($absPath)) {
+            return false;
+        }
         if (isset($_SESSION['mgrRole']) && (int)$_SESSION['mgrRole'] === 1) {
             return true;
         }
@@ -1348,8 +1405,6 @@ class browser extends uploader
             return true;
         }
 
-        $relDir = trim($relDir, '/');
-        $absPath = $this->typeDir . ($relDir !== '' ? '/' . $relDir : '');
         $relPath = $this->getFileGroupsRelPath($absPath);
         if ($relPath === '') {
             return true;
@@ -1370,6 +1425,9 @@ class browser extends uploader
      */
     protected function isPathAccessible($absPath)
     {
+        if (!$this->isInsideTypeDir($absPath)) {
+            return false;
+        }
         if (isset($_SESSION['mgrRole']) && (int)$_SESSION['mgrRole'] === 1) {
             return true;
         }
@@ -1400,13 +1458,16 @@ class browser extends uploader
     protected function subtreeAccessFilter($absDir)
     {
         if ((isset($_SESSION['mgrRole']) && (int)$_SESSION['mgrRole'] === 1) || !$this->modx->getConfig('use_udperms')) {
-            return static fn ($path) => true;
+            return fn ($path) => $this->isInsideTypeDir($path);
         }
 
         $restrictions = \EvolutionCMS\Support\FileManagerAccess::loadSubtreeRestrictions($this->getFileGroupsRelPath($absDir));
         $userGroups = array_map('intval', (array)($_SESSION['mgrDocgroups'] ?? []));
 
         return function ($path) use ($restrictions, $userGroups) {
+            if (!$this->isInsideTypeDir($path)) {
+                return false;
+            }
             $relPath = $this->getFileGroupsRelPath($path);
 
             return $relPath === ''
