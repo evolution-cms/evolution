@@ -257,6 +257,8 @@ if ($upgraded) {
     check('one document seeded', count_rows('site_content') === 1, 'rows: ' . count_rows('site_content'));
     check('the document is the install success page', ($home['alias'] ?? '') === 'minimal-base', 'alias: ' . ($home['alias'] ?? 'none'));
     check('the document uses the seeded template', (int) ($home['template'] ?? 0) === 1);
+    $templateSource = $pdo->query('SELECT templatesource FROM ' . t('site_templates') . ' WHERE id = 1')->fetchColumn();
+    check('the minimal template uses database rendering', $templateSource === 'db', 'source: ' . ($templateSource ?: 'empty'));
 }
 check('the document is published', (int) ($home['published'] ?? 0) === 1);
 check('a template was seeded', count_rows('site_templates') >= 1);

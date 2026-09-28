@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class UserValue extends Model
 {
+	protected $table = 'user_values';
+
 	public $timestamps = false;
 
 	protected $casts = [

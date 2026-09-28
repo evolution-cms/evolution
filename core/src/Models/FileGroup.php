@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent;
  */
 class FileGroup extends Eloquent\Model
 {
+    protected $table = 'file_groups';
+
     public $timestamps = false;
 
     protected $casts = [

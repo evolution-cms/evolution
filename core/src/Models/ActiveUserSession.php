@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent;
  */
 class ActiveUserSession extends Eloquent\Model
 {
+    protected $table = 'active_user_sessions';
+
     protected $primaryKey = 'sid';
     public $incrementing = false;
     public $timestamps = false;

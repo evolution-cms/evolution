@@ -22,6 +22,8 @@ class PermissionsGroups extends Eloquent\Model
 {
     use ManagerActions;
 
+    protected $table = 'permissions_groups';
+
     protected $managerActionsMap = [
         'actions.cancel' => 86,
         'actions.new' => 136,

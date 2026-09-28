@@ -93,6 +93,8 @@ class UserRole extends Eloquent\Model
 {
     use Traits\Models\ManagerActions;
 
+    protected $table = 'user_roles';
+
 	public $timestamps = false;
 
 	protected $casts = [

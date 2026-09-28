@@ -27,6 +27,8 @@ class Category extends Eloquent\Model
 {
     use Traits\Models\ManagerActions;
 
+    protected $table = 'categories';
+
 	public $timestamps = false;
 
 	protected $casts = [

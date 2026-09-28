@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent;
  */
 class MembergroupName extends Eloquent\Model
 {
+    protected $table = 'membergroup_names';
+
     public $timestamps = false;
 
     protected $fillable = [

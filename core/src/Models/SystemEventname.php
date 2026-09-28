@@ -17,6 +17,8 @@ use Illuminate\Database\Eloquent;
  */
 class SystemEventname extends Eloquent\Model
 {
+	protected $table = 'system_eventnames';
+
 	public $timestamps = false;
 
 	protected $casts = [

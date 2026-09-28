@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent;
  */
 class UserSetting extends Eloquent\Model
 {
+    protected $table = 'user_settings';
+
     protected $primaryKey = null;
     public $incrementing = false;
     public $timestamps = false;
