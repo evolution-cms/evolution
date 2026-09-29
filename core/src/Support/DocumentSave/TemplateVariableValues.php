@@ -20,7 +20,7 @@ final class TemplateVariableValues
     public static function forTemplate(int $template, int $documentId, bool $restrictToGroups, array $managerGroups): array
     {
         $query = SiteTmplvar::query()->distinct()
-            ->select('site_tmplvars.id', 'site_tmplvars.name', 'site_tmplvars.type', 'site_tmplvars.default_text',
+            ->select('site_tmplvars.id', 'site_tmplvars.name', 'site_tmplvars.type', 'site_tmplvars.default_text', 'site_tmplvars.rank',
                 'site_tmplvar_contentvalues.id as value_id', 'site_tmplvar_contentvalues.value')
             ->join('site_tmplvar_templates', 'site_tmplvar_templates.tmplvarid', '=', 'site_tmplvars.id')
             ->leftJoin('site_tmplvar_contentvalues', function ($join) use ($documentId) {

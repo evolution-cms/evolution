@@ -43,6 +43,23 @@ test('an administrator gets every tv of the template, ordered by rank, with the 
         ->and($rows[2])->toMatchArray(['value_id' => null, 'value' => null]);
 })->skip(!extension_loaded('pdo_sqlite'), 'pdo_sqlite is required');
 
+test('distinct tv lookup selects its sort column without leaking rank or duplicating tvs', function () {
+    $capsule = bootTvFixture();
+    Capsule::table('site_tmplvar_access')->insert(['tmplvarid' => 3, 'documentgroup' => 10]);
+    $capsule->getConnection()->enableQueryLog();
+
+    $rows = TemplateVariableValues::forTemplate(1, 0, false, []);
+    $sql = $capsule->getConnection()->getQueryLog()[0]['query'];
+    // SQLite accepts this invalid PostgreSQL query, so also check the SELECT list.
+    $select = explode(' from ', $sql, 2)[0];
+
+    expect($select)->toStartWith('select distinct ')
+        ->and($select)->toContain('"site_tmplvars"."rank"')
+        ->and(array_column($rows, 'id'))->toBe([2, 1, 3])
+        ->and(array_column($rows, 'value_id'))->toBe([null, null, null])
+        ->and(array_keys($rows[0]))->toBe(['id', 'name', 'type', 'default_text', 'value_id', 'value']);
+})->skip(!extension_loaded('pdo_sqlite'), 'pdo_sqlite is required');
+
 test('a restricted tv is hidden from a user whose document is not in its group', function () {
     bootTvFixture();
 
