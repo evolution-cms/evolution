@@ -10,13 +10,17 @@ class StoreContextService
         $languageFile = rtrim($modulePath, '/\\') . '/lang/' . $managerLanguage . '.php';
         $fallbackFile = rtrim($modulePath, '/\\') . '/lang/en.php';
 
-        if (file_exists($languageFile)) {
-            include $languageFile;
-        } else {
+        // English goes in first and the manager language on top of it, so a key the
+        // translation does not have yet shows in English instead of not at all.
+        $_Lang = [];
+        if (file_exists($fallbackFile)) {
             include $fallbackFile;
         }
+        if ($languageFile !== $fallbackFile && file_exists($languageFile)) {
+            include $languageFile;
+        }
 
-        return isset($_Lang) && is_array($_Lang) ? $_Lang : [];
+        return is_array($_Lang) ? $_Lang : [];
     }
 
     public function getLanguageCode(string $managerLanguage): string
