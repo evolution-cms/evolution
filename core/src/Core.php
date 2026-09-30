@@ -5458,6 +5458,20 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     }
 
     /**
+     * Reads the named TVs of many documents in one query, for listings that show a few
+     * TVs per item (cards, prices, ratings) where getTemplateVarOutput() per item is N+1.
+     *
+     * @param array $docIds Document ids, e.g. array_column(getDocumentChildren(...), 'id')
+     * @param array $tvNames TV names (or TV ids when every element is numeric)
+     * @param bool $withDefaults Fall back to the TV default_text when a value is empty or missing
+     * @return array [docid => [tvname => raw value]], [] when no TV matches
+     */
+    public function getTemplateVarValues(array $docIds, array $tvNames, bool $withDefaults = true): array
+    {
+        return SiteContent::getTvValues($docIds, $tvNames, $withDefaults);
+    }
+
+    /**
      * Returns the full table name based on db settings
      *
      * @param string $tbl Table name
