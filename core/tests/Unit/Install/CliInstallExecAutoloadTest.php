@@ -45,3 +45,12 @@ it('makes the package loadable before the installer calls it', function () use (
     expect(strpos($installer, 'loadExecWithFallback()'))
         ->toBeLessThan(strpos($installer, 'ExecWithFallback::exec($cmd'));
 });
+
+it('reports a failed composer update instead of passing over it', function () use ($root) {
+    $installer = (string) file_get_contents($root . '/install/cli-install.php');
+    $call = strpos($installer, 'ExecWithFallback::exec($cmd, $out, $exitCode);');
+
+    expect($call)->not->toBeFalse()
+        ->and(strpos($installer, 'if ((int) $exitCode !== 0) {', $call))->toBeGreaterThan($call)
+        ->and($installer)->toContain('the dependencies shipped with the archive are kept');
+});

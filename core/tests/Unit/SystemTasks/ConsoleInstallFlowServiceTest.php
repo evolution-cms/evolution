@@ -85,3 +85,62 @@ test('summarizeOutput reads the failure from the tail when asked', function () {
         ->and(invokeConsoleInstallFlowMethod($service, 'summarizeOutput', [$output, true]))
         ->toContain('ext-imagick');
 });
+
+/**
+ * Flow service that records the artisan commands it would run instead of running them.
+ */
+final class RecordingConsoleInstallFlowService extends ConsoleInstallFlowService
+{
+    public array $commands = [];
+
+    protected function runArtisanCommand($command, array $arguments, $step, $progress, $message, ?callable $report = null)
+    {
+        $this->commands[] = [$command, $arguments];
+    }
+
+    protected function getPublishProviders($packageName)
+    {
+        return [];
+    }
+}
+
+function installRequireArgumentsFor(array $payload): array
+{
+    if (!defined('EVO_CORE_PATH')) {
+        define('EVO_CORE_PATH', dirname(__DIR__, 3) . '/');
+    }
+
+    $task = new \EvolutionCMS\Models\SystemCliTask();
+    $task->target = $payload['composer_name'];
+    $task->requested_version = $payload['resolved_version'];
+    $task->payload_json = $payload;
+
+    $service = new RecordingConsoleInstallFlowService();
+    $service->execute($task);
+
+    return $service->commands[0][1];
+}
+
+test('an uploaded archive is installed without updating installed dependencies', function () {
+    $arguments = installRequireArgumentsFor([
+        'composer_name' => 'evodemo/hello-evo',
+        'resolved_version' => '1.0.0',
+        'composer_version' => '1.0.0',
+        'source_kind' => 'artifact',
+    ]);
+
+    expect($arguments['key'])->toBe('evodemo/hello-evo')
+        ->and($arguments['value'])->toBe('1.0.0')
+        ->and($arguments['--keep-dependencies'])->toBeTrue();
+});
+
+test('a catalog package still updates its dependencies', function () {
+    $arguments = installRequireArgumentsFor([
+        'composer_name' => 'seiger/sgallery',
+        'resolved_version' => 'v1.5.2',
+        'composer_version' => 'v1.5.2',
+        'source_kind' => 'console',
+    ]);
+
+    expect($arguments['--keep-dependencies'])->toBeFalse();
+});

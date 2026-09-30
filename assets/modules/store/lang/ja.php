@@ -69,6 +69,10 @@ $_Lang['install_file'] = "ファイルからインストール";
 $_Lang['choose_file_msg'] = "アップロードとインストールのために";
 $_Lang['install_file_btn'] = "インストール";
 $_Lang['install_file_success'] = "インストールに成功";
+$_Lang['install_file_artifact_queued'] = 'Composer パッケージ %1$s %2$s をシステムタスク #%3$s としてインストール待ちに追加しました。スケジューラーがアップロードされたアーカイブからインストールします。';
+$_Lang['install_file_artifact_no_version'] = 'アーカイブには Composer パッケージ %1$s が含まれていますが、バージョンがありません。composer.json に "version" を追加するか、ファイル名にバージョンを入れてください（例: %2$s-1.0.0.zip）。';
+$_Lang['install_file_artifact_failed'] = 'Composer パッケージ %1$s をキューに追加できませんでした: %2$s';
+$_Lang['install_file_artifact_invalid'] = 'アーカイブは Composer パッケージのようですが、%1$s はパッケージ名 "name" を含む有効な JSON ではありません。何もインストールされていません。';
 
 /* faq */
 $_Lang['faq'] = '

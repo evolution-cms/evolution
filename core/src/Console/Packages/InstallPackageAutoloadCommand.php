@@ -1,10 +1,6 @@
 <?php namespace EvolutionCMS\Console\Packages;
 
 
-use \EvolutionCMS;
-use Composer\Console\Application;
-use Symfony\Component\Console\Input\ArrayInput;
-
 class InstallPackageAutoloadCommand extends InstallPackageRequireCommand
 {
     /**
@@ -20,6 +16,16 @@ class InstallPackageAutoloadCommand extends InstallPackageRequireCommand
         $this->composerArray['autoload']['psr-4'][$this->argument('key')] = $this->argument('value');
     }
 
-
-
+    /**
+     * An autoload mapping changes no package, so rebuilding the autoloader is enough.
+     *
+     * Without this the inherited arguments fell back to a bare `update` of every
+     * dependency of the site, just to register one namespace.
+     *
+     * @return array<string,mixed>
+     */
+    public function buildComposerArguments(bool $minimalChanges = false): array
+    {
+        return ['command' => 'dump-autoload'];
+    }
 }

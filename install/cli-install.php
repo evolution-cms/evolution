@@ -66,6 +66,13 @@ class InstallEvo
             if (!empty($out) && is_array($out)) {
                 echo implode(PHP_EOL, $out), PHP_EOL;
             }
+            // The archive ships a complete vendor directory, so a failed update (no
+            // network, say) leaves a working install behind: say so instead of
+            // reporting nothing.
+            if ((int) $exitCode !== 0) {
+                warning('⚠ Composer update failed with exit code ' . (int) $exitCode . '; the dependencies shipped with the archive are kept.');
+                warning('⚠ Run "composer update" in the core directory once the server can reach Packagist, or install with --skipComposer=y offline.');
+            }
         } catch (\Exception $e) {
             info('- No command execution methods available (all disabled).');
             warning('⚠ Run "composer update" manually.');

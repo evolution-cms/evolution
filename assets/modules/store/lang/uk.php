@@ -1,7 +1,6 @@
 <?php
 /* List pack */
 $_Lang['version'] = "Версія";
-$_Lang['author'] = "Автор";
 $_Lang['date'] = "Випущено";
 $_Lang['downloads'] = "Завантажено";
 $_Lang['more'] = "more";
@@ -116,6 +115,10 @@ $_Lang['install_file'] = "Встановлення з архіву";
 $_Lang['choose_file_msg'] = "Виберіть файл";
 $_Lang['install_file_btn'] = "Встановити";
 $_Lang['install_file_success'] = "Встановлення завершено";
+$_Lang['install_file_artifact_queued'] = 'Composer-пакет %1$s %2$s поставлено в чергу на встановлення як системне завдання #%3$s. Планувальник встановить його із завантаженого архіву.';
+$_Lang['install_file_artifact_no_version'] = 'Архів містить Composer-пакет %1$s, але без версії. Додайте "version" у його composer.json або вкажіть версію в назві файлу, наприклад %2$s-1.0.0.zip.';
+$_Lang['install_file_artifact_failed'] = 'Не вдалося поставити Composer-пакет %1$s у чергу: %2$s';
+$_Lang['install_file_artifact_invalid'] = 'Архів схожий на Composer-пакет, але %1$s не є коректним JSON із назвою пакета "name". Нічого не встановлено.';
 
 /* FAQ */
 $_Lang['faq'] = '
