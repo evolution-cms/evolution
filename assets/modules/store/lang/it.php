@@ -69,6 +69,10 @@ $_Lang ['install_file'] = "Installa per file";
 $_Lang ['choose_file_msg'] = "Scegli un file da caricare e installare";
 $_Lang ['install_file_btn'] = "Installa";
 $_Lang ['install_file_success'] = "Installazione riuscita";
+$_Lang ['install_file_artifact_queued'] = 'Il pacchetto Composer %1$s %2$s è in coda per l\'installazione come attività di sistema #%3$s. Lo scheduler lo installa dall\'archivio caricato.';
+$_Lang ['install_file_artifact_no_version'] = 'L\'archivio contiene il pacchetto Composer %1$s ma senza versione. Aggiungi "version" al suo composer.json o indica la versione nel nome del file, ad es. %2$s-1.0.0.zip.';
+$_Lang ['install_file_artifact_failed'] = 'Impossibile mettere in coda il pacchetto Composer %1$s: %2$s';
+$_Lang ['install_file_artifact_invalid'] = 'L\'archivio sembra un pacchetto Composer, ma %1$s non è un JSON valido con il nome del pacchetto "name". Non è stato installato nulla.';
 
 /* faq */
 $_Lang['faq'] = '

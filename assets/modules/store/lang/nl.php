@@ -69,6 +69,10 @@ $_Lang['install_file'] = "Installatie vanuit .zip bestand";
 $_Lang['choose_file_msg'] = "Selecteer bestand";
 $_Lang['install_file_btn'] = "Installeer";
 $_Lang['install_file_success'] = "Installatie voltooid";
+$_Lang['install_file_artifact_queued'] = 'Composer-pakket %1$s %2$s staat in de wachtrij voor installatie als systeemtaak #%3$s. De planner installeert het vanuit het geüploade archief.';
+$_Lang['install_file_artifact_no_version'] = 'Het archief bevat Composer-pakket %1$s, maar zonder versie. Voeg "version" toe aan de composer.json of zet de versie in de bestandsnaam, bijv. %2$s-1.0.0.zip.';
+$_Lang['install_file_artifact_failed'] = 'Composer-pakket %1$s kon niet in de wachtrij worden gezet: %2$s';
+$_Lang['install_file_artifact_invalid'] = 'Het archief lijkt op een Composer-pakket, maar %1$s is geen geldige JSON met een pakketnaam "name". Er is niets geïnstalleerd.';
 
 /* faq */
 $_Lang['faq'] = '

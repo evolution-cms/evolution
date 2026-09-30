@@ -229,6 +229,74 @@ class SystemTaskService
         return !in_array(strtolower(trim((string) $value)), ['0', 'false', 'off', 'no'], true);
     }
 
+    /**
+     * Queue the install of a Composer package uploaded as an archive.
+     *
+     * The package is not in the catalog snapshot, so it passes the same preflight as a
+     * catalog install and is pinned to the exact version the archive holds.
+     *
+     * @since 3.5.9
+     * @param string $composerName Composer package name from the archive.
+     * @param string $version Version from the archive.
+     * @param string $archiveName Name the archive was uploaded under.
+     * @param array $requesterSnapshot
+     * @param bool $isSuperAdmin
+     * @return array
+     */
+    public function createArtifactInstallTask($composerName, $version, $archiveName = '', array $requesterSnapshot = [], $isSuperAdmin = false)
+    {
+        $preflight = $this->runCreatePreflight('console_install', $requesterSnapshot, (bool) $isSuperAdmin);
+        if (!$preflight['ok']) {
+            return $preflight;
+        }
+
+        $composerName = trim((string) $composerName);
+        $version = trim((string) $version);
+        if ($composerName === '' || $version === '') {
+            return [
+                'ok' => false,
+                'error_code' => 'SNAPSHOT_INVALID',
+                'message' => 'Uploaded package name and version are required.',
+            ];
+        }
+
+        $snapshot = [
+            'task_type' => 'console_install',
+            'catalog_source' => 'upload',
+            'catalog_fetched_at' => Carbon::now()->toAtomString(),
+            'package_type' => 'console-extra',
+            'package_name' => basename($composerName),
+            'display_title' => $composerName,
+            'composer_name' => $composerName,
+            'resolved_version' => $version,
+            'composer_version' => $version,
+            'repo_full_name' => '',
+            'source_url' => '',
+            'readme_branch' => '',
+            'source_kind' => 'artifact',
+            'source_label' => (string) $archiveName,
+            'capabilities' => [
+                'discover' => true,
+                'publish' => true,
+                'migrate' => true,
+            ],
+        ];
+
+        $task = $this->persistQueuedTask('console_install', $composerName, $version, $snapshot, $requesterSnapshot);
+
+        $this->appendLog($task, 'info', 'queued', 'Console install task queued from an uploaded archive.', [
+            'composer_name' => $composerName,
+            'resolved_version' => $version,
+            'archive' => (string) $archiveName,
+        ]);
+
+        return [
+            'ok' => true,
+            'task' => $this->buildTaskPayloadWithLogs($task),
+            'warnings' => $preflight['warnings'],
+        ];
+    }
+
     public function createConsoleUninstallTask($catalogItemId, $requestedVersion = '', array $requesterSnapshot = [])
     {
         $catalogItem = $this->resolveConsoleCatalogItem($catalogItemId);

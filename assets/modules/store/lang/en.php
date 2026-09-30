@@ -116,6 +116,10 @@ $_Lang['install_file'] = "Install by file";
 $_Lang['choose_file_msg'] = "Choose a file to upload and install";
 $_Lang['install_file_btn'] = "Install";
 $_Lang['install_file_success'] = "Installation successful";
+$_Lang['install_file_artifact_queued'] = 'Composer package %1$s %2$s is queued for installation as system task #%3$s. The scheduler installs it from the uploaded archive.';
+$_Lang['install_file_artifact_no_version'] = 'The archive holds Composer package %1$s but no version. Add "version" to its composer.json or put the version in the file name, e.g. %2$s-1.0.0.zip.';
+$_Lang['install_file_artifact_failed'] = 'Composer package %1$s could not be queued: %2$s';
+$_Lang['install_file_artifact_invalid'] = 'The archive looks like a Composer package, but %1$s is not valid JSON with a package "name". Nothing was installed.';
 
 /* faq */
 $_Lang['faq'] = '

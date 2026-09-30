@@ -69,6 +69,10 @@ $_Lang['install_file'] = "Inštalácia z archívu";
 $_Lang['choose_file_msg'] = "Vyberte súbor";
 $_Lang['install_file_btn'] = "Inštalovať";
 $_Lang['install_file_success'] = "Inštalácia dokončená";
+$_Lang['install_file_artifact_queued'] = 'Composer balík %1$s %2$s je zaradený na inštaláciu ako systémová úloha #%3$s. Plánovač ho nainštaluje z nahraného archívu.';
+$_Lang['install_file_artifact_no_version'] = 'Archív obsahuje Composer balík %1$s, ale bez verzie. Pridajte "version" do jeho composer.json alebo uveďte verziu v názve súboru, napr. %2$s-1.0.0.zip.';
+$_Lang['install_file_artifact_failed'] = 'Composer balík %1$s sa nepodarilo zaradiť do frontu: %2$s';
+$_Lang['install_file_artifact_invalid'] = 'Archív vyzerá ako Composer balík, ale %1$s nie je platný JSON s názvom balíka "name". Nič nebolo nainštalované.';
 
 /* faq */
 $_Lang['faq'] = '

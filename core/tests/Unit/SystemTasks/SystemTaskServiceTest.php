@@ -831,3 +831,46 @@ test('task worker executes registered extension task handlers', function () {
         ])
         ->and($tester->getDisplay())->toContain('[system:task-worker] custom.worker_test task completed');
 });
+
+test('artifact install task pins the uploaded package and version', function () {
+    (new SchedulerHealthService())->recordHeartbeat('tests', 'manual');
+
+    $service = new SystemTaskService();
+    $response = $service->createArtifactInstallTask('seiger/sgallery', '1.5.2', 'sgallery-1.5.2.zip', [
+        'user_id' => 7,
+        'permissions' => [
+            'exec_module' => true,
+            'system_tasks.view' => 1,
+            'system_tasks.manage_packages' => 1,
+        ],
+    ], false);
+
+    expect($response['ok'])->toBeTrue()
+        ->and($response['task']['type'])->toBe('console_install')
+        ->and($response['task']['target'])->toBe('seiger/sgallery')
+        ->and($response['task']['source_kind'])->toBe('artifact')
+        ->and($response['task']['source_label'])->toBe('sgallery-1.5.2.zip');
+
+    $task = SystemCliTask::query()->find($response['task']['id']);
+    expect($task->payload_json['composer_name'])->toBe('seiger/sgallery')
+        ->and($task->payload_json['composer_version'])->toBe('1.5.2')
+        ->and($task->payload_json['resolved_version'])->toBe('1.5.2')
+        ->and($task->payload_json['catalog_source'])->toBe('upload');
+});
+
+test('artifact install task passes the same preflight as a catalog install', function () {
+    (new SchedulerHealthService())->recordHeartbeat('tests', 'manual');
+
+    $service = new SystemTaskService();
+    $response = $service->createArtifactInstallTask('seiger/sgallery', '1.5.2', 'sgallery-1.5.2.zip', [
+        'user_id' => 7,
+        'permissions' => [
+            'exec_module' => true,
+            'system_tasks.manage_packages' => 0,
+        ],
+    ], false);
+
+    expect($response['ok'])->toBeFalse()
+        ->and($response['error_code'])->toBe('ACL_DENIED')
+        ->and(SystemCliTask::query()->count())->toBe(0);
+});

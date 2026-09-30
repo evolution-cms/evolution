@@ -36,6 +36,9 @@ class ConsoleInstallFlowService implements SystemTaskHandlerInterface
                 'value' => $composerVersion,
                 'composer_run' => 1,
                 '--no-dev' => !$this->vendorHasDevPackages(),
+                // An uploaded archive is installed from the local artifact repository;
+                // leaving its dependencies alone lets that work without network access.
+                '--keep-dependencies' => ($snapshot['source_kind'] ?? '') === 'artifact',
             ],
             'install_require',
             30,

@@ -217,7 +217,7 @@ test('site updater can read bundled extras installer metadata', function () {
 });
 
 test('composer detection uses a probe the local shell actually understands', function () {
-    $source = file_get_contents(dirname(__DIR__, 3) . '/src/Console/SiteUpdateCommand.php');
+    $source = file_get_contents(dirname(__DIR__, 3) . '/src/Traits/RunsComposerShell.php');
 
     expect($source)
         ->toContain("'where ' . escapeshellarg(\$command) . ' >NUL 2>NUL'")

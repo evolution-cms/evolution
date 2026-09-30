@@ -20,6 +20,17 @@ class ModuleActionService
 
             case 'install':
             case 'install_file':
+                if ($action === 'install_file') {
+                    $artifactBody = $this->queueComposerArtifactInstall($store, $files);
+                    if ($artifactBody !== null) {
+                        return [
+                            'handled' => true,
+                            'body' => $artifactBody,
+                            'terminate' => true,
+                        ];
+                    }
+                }
+
                 $response = $store->packageInstallFlowService()->handleLegacyInstall($action, $request, $files, $get, $post);
                 return [
                     'handled' => true,
@@ -152,6 +163,91 @@ class ModuleActionService
             'body' => json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
             'terminate' => true,
         ];
+    }
+
+    /**
+     * Queue the install of an uploaded archive that holds a Composer package.
+     *
+     * Such a package has no install/ directory for the legacy installer to run; it is
+     * kept in the local artifact repository and installed by the scheduler, exactly as
+     * a package picked from the catalog.
+     *
+     * @since 3.5.9
+     * @return string|null Response text, or null when the upload is a legacy package.
+     */
+    protected function queueComposerArtifactInstall($store, array $files)
+    {
+        $upload = $files['install_file'] ?? null;
+        $tmpName = is_array($upload) ? (string) ($upload['tmp_name'] ?? '') : '';
+        $fileName = is_array($upload) ? (string) ($upload['name'] ?? '') : '';
+        if ($tmpName === '' || !is_uploaded_file($tmpName) || strtolower(pathinfo($fileName, PATHINFO_EXTENSION)) !== 'zip') {
+            return null;
+        }
+
+        return $this->queueComposerArtifactFile($store, new ComposerArtifactService(), $tmpName, $fileName);
+    }
+
+    /**
+     * @since 3.5.9
+     * @return string|null Response text, or null when the archive holds no Composer package.
+     */
+    protected function queueComposerArtifactFile($store, ComposerArtifactService $artifacts, string $zipPath, string $fileName)
+    {
+        $package = $artifacts->inspect($zipPath, $fileName);
+        if ($package === null) {
+            return null;
+        }
+
+        $lang = is_array($store->lang ?? null) ? $store->lang : [];
+        if ($package['invalid']) {
+            return e(sprintf(
+                $lang['install_file_artifact_invalid'] ?? 'The archive looks like a Composer package, but %1$s is not valid JSON with a package "name". Nothing was installed.',
+                $package['entry']
+            ));
+        }
+
+        if ($package['version'] === '') {
+            return e(sprintf(
+                $lang['install_file_artifact_no_version'] ?? 'The archive holds Composer package %1$s but no version. Add "version" to its composer.json or put the version in the file name, e.g. %2$s-1.0.0.zip.',
+                $package['name'],
+                basename($package['name'])
+            ));
+        }
+
+        try {
+            $archive = $artifacts->store($zipPath, $package);
+        } catch (\Throwable $exception) {
+            return e(sprintf(
+                $lang['install_file_artifact_failed'] ?? 'Composer package %1$s could not be queued: %2$s',
+                $package['name'],
+                $exception->getMessage()
+            ));
+        }
+
+        $response = $store->systemTaskService()->createArtifactInstallTask(
+            $package['name'],
+            $package['version'],
+            basename($fileName),
+            $store->getRequesterSnapshot(),
+            $store->isSuperAdmin()
+        );
+
+        if (empty($response['ok'])) {
+            @unlink($archive);
+
+            return e(sprintf(
+                $lang['install_file_artifact_failed'] ?? 'Composer package %1$s could not be queued: %2$s',
+                $package['name'],
+                (string) ($response['message'] ?? '')
+            ));
+        }
+
+        return e(sprintf(
+            $lang['install_file_artifact_queued'] ?? 'Composer package %1$s %2$s is queued for installation as system task #%3$s. The scheduler installs it from the uploaded archive.',
+            $package['name'],
+            $package['version'],
+            (string) ($response['task']['id'] ?? '')
+        ));
     }
 
     protected function hasSystemTaskViewAccess($store, array $requesterSnapshot = [])
