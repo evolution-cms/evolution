@@ -2239,42 +2239,62 @@ class SiteContent extends Eloquent\Model
     //return tvs array [$docid => tvs array()]
     public static function getTvList($docs, $tvList = [])
     {
-        $docsTV = [];
-        if (empty($docs)) {
+        if (empty($docs) || empty($tvList)) {
             return [];
-        } else if (empty($tvList)) {
+        }
+
+        return static::getTvValues($docs->pluck('id')->toArray(), $tvList);
+    }
+
+    /**
+     * Reads the given TVs of many documents in one query: [docid => [tvname => value]].
+     *
+     * Only the named TVs are read, through the (tmplvarid, contentid) unique index, so a
+     * listing of cards, prices or any other per-document fields costs one query however
+     * many documents it shows. Every requested document gets every TV that exists; a TV
+     * without a stored (or with an empty) value falls back to its default_text unless
+     * $withDefaults is false, then it is ''. Values are raw: no widget rendering and no
+     * template assignment check, as with getTvList(). Returns [] when no TV matches.
+     *
+     * @param array $docIds document ids
+     * @param array $tvNames TV names, or TV ids when every element is numeric
+     */
+    public static function getTvValues(array $docIds, array $tvNames, bool $withDefaults = true): array
+    {
+        $docIds = array_values(array_unique(array_map('intval', $docIds)));
+        $tvNames = array_values(array_unique(array_filter(array_map('trim', array_map('strval', $tvNames)), 'strlen')));
+        if ($docIds === [] || $tvNames === []) {
             return [];
-        } else {
-            $ids = $docs->pluck('id')->toArray();
-            $tvs = SiteTmplvar::whereIn('name', $tvList)->get();
-            $tvNames = $tvs->pluck('default_text', 'name')->toArray();
-            $tvIds = $tvs->pluck('name', 'id')->toArray();
-            $tvValues = SiteTmplvarContentvalue::whereIn('contentid', $ids)->whereIn('tmplvarid', array_keys($tvIds))->get()->toArray();
-            foreach ($tvValues as $tv) {
-                if (empty($tv['value']) && !empty($tvNames[$tvIds [$tv['tmplvarid']]])) {
-                    $tv['value'] = $tvNames[$tvIds[$tv['tmplvarid']]];
-                }
-                unset($tv['id']);
-                $docsTV[$tv['contentid']][$tv['tmplvarid']] = $tv;
-            }
-            foreach ($ids as $docid) {
-                foreach ($tvIds as $tvid => $tvname) {
-                    if (empty($docsTV[$docid][$tvid])) {
-                        $docsTV[$docid][$tvid] = ['tmplvarid' => $tvid, 'contentid' => $docid, 'value' => $tvNames[$tvIds [$tvid]]];
-                    }
-                }
+        }
+        $byId = count(array_filter($tvNames, 'is_numeric')) === count($tvNames);
+
+        $rows = (new SiteTmplvar())->getConnection()
+            ->table('site_tmplvars as tv')
+            ->leftJoin('site_tmplvar_contentvalues as tvc', function ($join) use ($docIds) {
+                $join->on('tvc.tmplvarid', '=', 'tv.id')->whereIntegerInRaw('tvc.contentid', $docIds);
+            })
+            ->whereIn($byId ? 'tv.id' : 'tv.name', $byId ? array_map('intval', $tvNames) : $tvNames)
+            ->orderBy('tv.id')
+            ->get(['tv.name', 'tv.default_text', 'tvc.contentid', 'tvc.value']);
+        if ($rows->isEmpty()) {
+            return [];
+        }
+
+        $defaults = [];
+        $values = [];
+        foreach ($rows as $row) {
+            $defaults[$row->name] = $withDefaults ? (string) $row->default_text : '';
+            if ($row->contentid !== null && (string) $row->value !== '') {
+                $values[(int) $row->contentid][$row->name] = (string) $row->value;
             }
         }
-        if (!empty($docsTV)) {
-            $tmp = [];
-            foreach ($docsTV as $docid => $tvs) {
-                foreach ($tvs as $tvid => $tv) {
-                    $tmp[$docid][$tvIds[$tvid]] = $tv['value'];
-                }
-            }
-            $docsTV = $tmp;
+
+        $result = [];
+        foreach ($docIds as $docId) {
+            $result[$docId] = array_replace($defaults, $values[$docId] ?? []);
         }
-        return $docsTV;
+
+        return $result;
     }
 
     //return docs array with tvs
