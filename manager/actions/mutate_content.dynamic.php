@@ -132,6 +132,10 @@ if(evo()->getManagerApi()->action != 27 && !isset($_REQUEST['pid']) && !isset($c
     $_REQUEST['pid'] = EvolutionCMS\Legacy\Permissions::getFirstAllowedParent();
 }
 
+// Initialize editor defaults after resolving an allowed parent; preserve restored form values.
+$content['parent'] ??= (int)get_by_key($_REQUEST, 'pid', 0, 'is_scalar');
+$content['richtext'] ??= evo()->getManagerApi()->action == 27 ? 0 : 1;
+
 // increase menu index if this is a new document
 if(!isset($_REQUEST['id'])) {
     if ($modx->getConfig('auto_menuindex')) {

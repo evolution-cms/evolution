@@ -81,21 +81,19 @@ class TemplateProcessor
         $pinned = $this->pinnedTemplateFile($doc, $templateAlias);
         if ($pinned !== '') {
             $this->documentViewPath = $pinned;
-
-            return $templateAlias;
         }
 
         switch (true) {
-            case $this->core['view']->exists('tpl-' . $doc['template'] . '_doc-' . $doc['id']):
+            case $pinned === '' && $this->core['view']->exists('tpl-' . $doc['template'] . '_doc-' . $doc['id']):
                 $template = 'tpl-' . $doc['template'] . '_doc-' . $doc['id'];
                 break;
-            case $this->core['view']->exists('doc-' . $doc['id']):
+            case $pinned === '' && $this->core['view']->exists('doc-' . $doc['id']):
                 $template = 'doc-' . $doc['id'];
                 break;
-            case $this->core['view']->exists('tpl-' . $doc['template']):
+            case $pinned === '' && $this->core['view']->exists('tpl-' . $doc['template']):
                 $template = 'tpl-' . $doc['template'];
                 break;
-            case $this->core['view']->exists($templateAlias):
+            case $pinned !== '' || $this->core['view']->exists($templateAlias):
                 $namespace = trim($this->core->getConfig('ControllerNamespace') ?? '');
                 if (!empty($namespace)) {
                     $baseClassName = $namespace . 'BaseController';
