@@ -60,3 +60,13 @@ test('an unknown manager language loads english', function () use ($storeModule)
     expect((new StoreContextService())->loadLanguage($storeModule, 'xx'))
         ->toBe((new StoreContextService())->loadLanguage($storeModule, 'en'));
 });
+
+test('no store translation carries keys that english does not have', function () use ($storeModule) {
+    $english = storeLanguageStrings($storeModule . '/lang/en.php');
+
+    foreach (storeLanguageCodes($storeModule . '/lang') as $code) {
+        $extra = array_keys(array_diff_key(storeLanguageStrings($storeModule . '/lang/' . $code . '.php'), $english));
+
+        expect($extra)->toBe([], $code . ' has keys that are not in en: ' . implode(', ', $extra));
+    }
+});

@@ -1,7 +1,6 @@
 <?php
 /* List pack */
 $_Lang['version'] = "Версія";
-$_Lang['author'] = "Автор";
 $_Lang['date'] = "Випущено";
 $_Lang['downloads'] = "Завантажено";
 $_Lang['more'] = "more";

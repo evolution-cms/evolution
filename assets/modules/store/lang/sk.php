@@ -1,7 +1,6 @@
 <?php
 /*List pack */
 $_Lang['version'] = "Verzia";
-$_Lang['author'] = "Autor";
 $_Lang['date'] = "Vydané";
 $_Lang['downloads'] = "Stiahnuté";
 $_Lang['install'] = "Inštalovať";
