@@ -6,6 +6,7 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\View\FileViewFinder;
 
 /**
+ * @property \Illuminate\View\Factory|null $blade Built on first read.
  */
 class Parser
 {
@@ -35,7 +36,21 @@ class Parser
 
     protected $templateExtension = 'html';
 
-    public $blade;
+    /**
+     * The Blade view behind $blade, built on first read (see __get): most pages
+     * never render a Blade chunk, and building it resolved the whole view factory
+     * per request. $blade itself is not declared, so reading it reaches __get.
+     *
+     * @var \Illuminate\View\Factory|null
+     */
+    protected $bladeView;
+
+    /**
+     * Whether $bladeView was built (or building it failed), so it is built once.
+     *
+     * @var bool
+     */
+    protected $bladeLoaded = false;
 
     /**
      * The view path setTemplatePath() gave $blade, kept until $blade is built.
@@ -72,9 +87,6 @@ class Parser
     private function __construct (Core $modx)
     {
         $this->modx = $modx;
-        // $blade is built on first read (see __get): most pages never render a
-        // Blade chunk, and building it resolved the whole view factory per request.
-        unset($this->blade);
     }
 
     /**
@@ -90,9 +102,41 @@ class Parser
 
             return null;
         }
-        $this->loadBlade();
+        if (!$this->bladeLoaded) {
+            $this->loadBlade();
+        }
 
-        return $this->blade;
+        return $this->bladeView;
+    }
+
+    /**
+     * Replaces the Blade view; other names keep PHP's default behaviour.
+     *
+     * @param string $name
+     * @param mixed $value
+     * @return void
+     */
+    public function __set ($name, $value)
+    {
+        if ($name !== 'blade') {
+            $this->$name = $value;
+
+            return;
+        }
+        $this->bladeView = $value;
+        $this->bladeLoaded = true;
+    }
+
+    /**
+     * $blade counts as set, as it did when it was built eagerly, unless it was
+     * set to null or failed to build; checking it does not build it.
+     *
+     * @param string $name
+     * @return bool
+     */
+    public function __isset ($name)
+    {
+        return $name === 'blade' && (!$this->bladeLoaded || $this->bladeView !== null);
     }
 
     /**
@@ -139,8 +183,8 @@ class Parser
             $this->templatePath = $path;
             $this->bladeViewPath = EVO_BASE_PATH . $path;
             // A $blade built later picks the path up in loadBlade().
-            if (isset($this->blade)) {
-                $this->blade->setFinder(new FileViewFinder(new Filesystem, [$this->bladeViewPath]));
+            if ($this->bladeView !== null) {
+                $this->bladeView->setFinder(new FileViewFinder(new Filesystem, [$this->bladeViewPath]));
             }
         }
 
@@ -511,13 +555,14 @@ class Parser
      */
     protected function loadBlade ()
     {
+        $this->bladeLoaded = true;
         try {
-            $this->blade = clone $this->modx['view'];
+            $this->bladeView = clone $this->modx['view'];
             if ($this->bladeViewPath !== null) {
-                $this->blade->setFinder(new FileViewFinder(new Filesystem, [$this->bladeViewPath]));
+                $this->bladeView->setFinder(new FileViewFinder(new Filesystem, [$this->bladeViewPath]));
             }
         } catch (\Exception $exception) {
-            $this->blade = null;
+            $this->bladeView = null;
             $this->modx->messageQuit($exception->getMessage());
         }
     }

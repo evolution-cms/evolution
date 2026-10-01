@@ -13,6 +13,7 @@ use Illuminate\Translation\Translator;
  */
 beforeEach(function () {
     defined('EVO_CORE_PATH') || define('EVO_CORE_PATH', dirname(__DIR__, 2) . '/');
+    defined('EVO_MANAGER_PATH') || define('EVO_MANAGER_PATH', dirname(__DIR__, 3) . '/manager/');
     defined('EVO_CLASS') || define('EVO_CLASS', Container::class);
     defined('IN_MANAGER_MODE') || define('IN_MANAGER_MODE', false);
     defined('IN_INSTALL_MODE') || define('IN_INSTALL_MODE', false);

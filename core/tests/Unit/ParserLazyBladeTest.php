@@ -33,10 +33,18 @@ beforeEach(function () {
 
 afterEach(fn () => resetParserInstance());
 
-/** The finder's paths without trailing slashes (it resolves existing directories with realpath()). */
+/**
+ * The finder's paths with forward slashes and no trailing slash: it resolves
+ * existing directories with realpath(), which uses backslashes on Windows.
+ */
 function viewPaths(Factory $view): array
 {
-    return array_map(fn (string $path) => rtrim($path, '/'), $view->getFinder()->getPaths());
+    return array_map('normalizedViewPath', $view->getFinder()->getPaths());
+}
+
+function normalizedViewPath(string $path): string
+{
+    return rtrim(str_replace('\\', '/', $path), '/');
 }
 
 function resetParserInstance(): void
@@ -48,8 +56,32 @@ test('the parser does not build its view until it is read', function () {
     $parser = Parser::getInstance($this->core);
     $parser->setTemplatePath('views/');
 
-    expect($this->viewsBuilt)->toBe(0)
-        ->and(isset($parser->blade))->toBeFalse();
+    expect($this->viewsBuilt)->toBe(0);
+});
+
+test('checking whether the view is set does not build it', function () {
+    $parser = Parser::getInstance($this->core);
+
+    expect(isset($parser->blade))->toBeTrue()
+        ->and($this->viewsBuilt)->toBe(0)
+        ->and($parser->blade ?? null)->toBeInstanceOf(Factory::class)
+        ->and($this->viewsBuilt)->toBe(1);
+});
+
+test('an assigned view replaces the built one', function () {
+    $parser = Parser::getInstance($this->core);
+    $view = new Factory(new EngineResolver(), new FileViewFinder(new Filesystem(), [sys_get_temp_dir()]), new Dispatcher());
+
+    $parser->blade = $view;
+
+    expect($parser->blade)->toBe($view)
+        ->and($this->viewsBuilt)->toBe(0);
+
+    $parser->blade = null;
+
+    expect(isset($parser->blade))->toBeFalse()
+        ->and($parser->blade)->toBeNull()
+        ->and($this->viewsBuilt)->toBe(0);
 });
 
 test('the view is a copy of the factory, built once, with the template path given before', function () {
@@ -62,7 +94,7 @@ test('the view is a copy of the factory, built once, with the template path give
         ->and($blade)->not->toBe($this->core['view'])
         ->and($parser->blade)->toBe($blade)
         ->and($this->viewsBuilt)->toBe(1)
-        ->and(viewPaths($blade))->toBe([rtrim(EVO_BASE_PATH . 'views', '/')]);
+        ->and(viewPaths($blade))->toBe([normalizedViewPath(EVO_BASE_PATH . 'views')]);
 });
 
 test('a template path set after the view is built still reaches it', function () {
@@ -72,5 +104,5 @@ test('a template path set after the view is built still reaches it', function ()
     $parser->setTemplatePath('assets/chunks/');
 
     expect($parser->blade)->toBe($blade)
-        ->and(viewPaths($blade))->toBe([rtrim(EVO_BASE_PATH . 'assets/chunks', '/')]);
+        ->and(viewPaths($blade))->toBe([normalizedViewPath(EVO_BASE_PATH . 'assets/chunks')]);
 });
