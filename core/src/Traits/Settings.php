@@ -118,7 +118,8 @@ trait Settings
      */
     public function getSettings()
     {
-        $this->config = array_merge($this->getFactorySettings(), $this->config);
+        // The current values replace the defaults, so their defaults need no translation.
+        $this->config = array_merge($this->getFactorySettings($this->config), $this->config);
 
         // setup default site id - new installation should generate a unique id for the site.
         if ($this->getConfig('site_id', '') === '') {
@@ -164,10 +165,12 @@ trait Settings
      * its original order. Frontend requests retain the locale and manager view
      * namespace while deferring theme element scans until those elements are used.
      *
+     * @param array<string, mixed> $known Settings the caller already has values for: their
+     *                                    defaults are returned as these values, untranslated.
      * @return array<string, mixed>
      * @since 3.5.9 Updated to read defaults without eager frontend theme creation.
      */
-    public function getFactorySettings() : array
+    public function getFactorySettings(array $known = []) : array
     {
         $managerLanguage = (string) $this->getConfig('manager_language', 'en');
         $languageFile = EVO_CORE_PATH . 'lang/' . $managerLanguage . '/global.php';
@@ -196,6 +199,48 @@ trait Settings
             $this->registerFrontendManagerViewNamespace($theme);
         }
 
+        return $this->readFactorySettings($factoryLocale, $known);
+    }
+
+    /**
+     * The text defaults the stored settings lack, as the site cache keeps them.
+     *
+     * Factory defaults such as the e-mail texts are translated into the manager
+     * language and rarely stored, so reading them used to build the translator
+     * and load a language file on every request. The site cache stores these
+     * strings instead (it is rebuilt whenever the settings change); defaults of
+     * other types are left to getFactorySettings(), which keeps their type.
+     *
+     * @param array<string, mixed> $stored The system settings as stored.
+     * @return array<string, string>
+     * @since 3.5.9
+     */
+    public function getFactoryTextDefaults(array $stored): array
+    {
+        // The language getConfig('manager_language', 'en') reads once these settings are loaded.
+        $language = (string) ($stored['manager_language'] ?? '');
+        $language = (string) $this['config']->get('cms.settings.manager_language', $language === '' ? 'en' : $language);
+        $locale = is_file(EVO_CORE_PATH . 'lang/' . $language . '/global.php') ? $language : 'en';
+
+        $defaults = [];
+        foreach ($this->readFactorySettings($locale, $stored) as $name => $value) {
+            if (\is_string($value) && !array_key_exists($name, $stored)) {
+                $defaults[$name] = $value;
+            }
+        }
+
+        return $defaults;
+    }
+
+    /**
+     * Evaluate the factory defaults file in the given language.
+     *
+     * @param string $factoryLocale Language the default texts are translated into.
+     * @param array<string, mixed> $known Settings whose defaults are not translated.
+     * @return array<string, mixed>
+     */
+    protected function readFactorySettings(string $factoryLocale, array $known = []): array
+    {
         $out = include EVO_CORE_PATH . 'factory/settings.php';
         return \is_array($out) ? $out : [];
     }

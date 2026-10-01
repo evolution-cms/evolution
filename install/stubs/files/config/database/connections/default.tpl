@@ -12,8 +12,15 @@ return [
     'prefix' => env('DB_PREFIX', '[+table_prefix+]'),
     'strict' => (bool) env('DB_STRICT', false),
     'engine' => env('DB_ENGINE'[+database_engine+]),
+    // The DSN already names the database: a separate `use` would cost a round trip per request.
+    'use_db_after_connecting' => false,
     'options' => [
         PDO::ATTR_STRINGIFY_FETCHES => true,
         PDO::ATTR_PERSISTENT => (bool) env('DB_PERSISTENT', false),
-    ]
+    ] + (in_array(env('DB_TYPE', '[+database_type+]'), ['mysql', 'mariadb'], true) ? [
+        // Client-side prepares: one round trip per query instead of three (prepare, execute, close).
+        // Values are strings either way (ATTR_STRINGIFY_FETCHES). Quoting follows the connection
+        // charset, which is safe for utf8mb4/utf8/latin1; set DB_EMULATE_PREPARES=false for GBK-family charsets.
+        PDO::ATTR_EMULATE_PREPARES => (bool) env('DB_EMULATE_PREPARES', true),
+    ] : [])
 ];

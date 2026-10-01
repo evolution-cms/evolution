@@ -480,15 +480,7 @@ class UrlProcessor
         }
 
         if (!$this->core->getConfig('use_alias_path')) {
-            /** @var Models\SiteContent $query */
-            $query = Models\SiteContent::where('deleted', '=', 0)
-                ->where('alias', '=', $alias)
-                ->first();
-
-            if ($query === null) {
-                return null;
-            }
-            return $query->getKey();
+            return $this->findDocumentId(['alias' => $alias]);
         }
 
         if ($alias === '.') {
@@ -507,27 +499,65 @@ class UrlProcessor
             if ($id === null) {
                 break;
             }
-            /** @var Models\SiteContent $query */
-            $query = Models\SiteContent::where('deleted', '=', 0)
-                ->where('parent', '=', $id)
-                ->where('alias', '=', $tmp)
-                ->first();
+            $found = $this->findDocumentId(['parent' => $id, 'alias' => $tmp])
+                ?? $this->findDocumentId(['parent' => $id, 'id' => $tmp]);
 
-            if ($query === null) {
-                /** @var Models\SiteContent $query */
-                $query = Models\SiteContent::where('deleted', '=', 0)
-                    ->where('parent', '=', $id)
-                    ->where('id', '=', $tmp)
-                    ->first();
-            }
-
-            if ($query === null) {
-                $id = $this->getHiddenIdFromAlias($id, $tmp);
-            } else {
-                $id = $query->getKey();
-            }
+            $id = $found ?? $this->getHiddenIdFromAlias($id, $tmp);
         }
         return $id;
+    }
+
+    /**
+     * The id of the document at an alias path, read with one query.
+     *
+     * Every segment must be the alias of a non-deleted child of the previous
+     * one, starting at the root. Null when that does not hold, and the caller
+     * walks the path one segment at a time as before (getIdFromAlias() also
+     * accepts ids as segments and looks through hidden folders).
+     *
+     * @param string $path Alias path such as "articles/category-042".
+     * @since 3.5.9
+     */
+    public function findIdByAliasPath(string $path): ?int
+    {
+        $segments = explode('/', trim($path, '/'));
+        if (in_array('', $segments, true)) {
+            return null;
+        }
+
+        $query = Models\SiteContent::query()->getConnection()
+            ->table('site_content as d0')
+            ->where('d0.parent', '=', 0)
+            ->where('d0.alias', '=', $segments[0])
+            ->where('d0.deleted', '=', 0);
+        $last = count($segments) - 1;
+        for ($i = 1; $i <= $last; $i++) {
+            $query->join('site_content as d' . $i, 'd' . $i . '.parent', '=', 'd' . ($i - 1) . '.id')
+                ->where('d' . $i . '.alias', '=', $segments[$i])
+                ->where('d' . $i . '.deleted', '=', 0);
+        }
+        $id = $query->value('d' . $last . '.id');
+
+        return $id === null ? null : (int) $id;
+    }
+
+    /**
+     * The id of the first non-deleted document matching the given columns.
+     *
+     * Reads the id column only, without building a model: the alias walk runs
+     * on every friendly-URL request, one query per path segment.
+     *
+     * @param array<string, int|string> $where
+     */
+    protected function findDocumentId(array $where): ?int
+    {
+        $query = Models\SiteContent::query()->where('deleted', '=', 0);
+        foreach ($where as $column => $value) {
+            $query->where($column, '=', $value);
+        }
+        $id = $query->toBase()->value('id');
+
+        return $id === null ? null : (int) $id;
     }
 
     /**

@@ -49,14 +49,14 @@ class InstallEvo
      * with the unified ExecWithFallback::exec() which automatically tries methods in order:
      * exec() → passthru() → popen() → proc_open() → shell_exec() → Exception.
      *
-     * @return void
+     * @return bool Whether Composer ran and exited with 0.
      */
-    protected function runComposerUpdate(string $cmd): void
+    protected function runComposerUpdate(string $cmd): bool
     {
         // This runs before the core bootstraps, so nothing has registered the Composer autoloader yet.
         if (!loadExecWithFallback()) {
             warning('⚠ The exec-with-fallback package is missing. Run "composer update" manually.');
-            return;
+            return false;
         }
 
         $out = [];
@@ -72,11 +72,15 @@ class InstallEvo
             if ((int) $exitCode !== 0) {
                 warning('⚠ Composer update failed with exit code ' . (int) $exitCode . '; the dependencies shipped with the archive are kept.');
                 warning('⚠ Run "composer update" in the core directory once the server can reach Packagist, or install with --skipComposer=y offline.');
+                return false;
             }
         } catch (\Exception $e) {
             info('- No command execution methods available (all disabled).');
             warning('⚠ Run "composer update" manually.');
+            return false;
         }
+
+        return true;
     }
 
     public $typeInstall = '';
@@ -527,7 +531,21 @@ class InstallEvo
             escapeshellarg($workingDir)
         );
 
-        $this->runComposerUpdate($cmd);
+        if (!$this->runComposerUpdate($cmd)) {
+            return;
+        }
+
+        // A site needs neither the test suite's packages nor their autoloaded
+        // files, which would be included on every request. A separate pass: the
+        // update above runs Composer out of the vendor directory it rewrites,
+        // and resolving without them changes the order it replaces Composer's
+        // own dependencies in; removing packages afterwards touches none of them.
+        info('- Removing development packages');
+        $this->runComposerUpdate(sprintf(
+            'php %s install --no-interaction --no-dev --working-dir=%s',
+            escapeshellarg($composerBin),
+            escapeshellarg($workingDir)
+        ));
     }
 
     public function realInstall()
