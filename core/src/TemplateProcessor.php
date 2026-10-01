@@ -164,7 +164,7 @@ class TemplateProcessor
      * Template rows keyed by ID for this processor instance. Missing IDs are
      * stored as null so repeated lookups do not issue another query.
      *
-     * @var array<int, SiteTemplate|null>
+     * @var array<int, object|null>
      */
     private array $templateRows = [];
 
@@ -182,17 +182,20 @@ class TemplateProcessor
     /**
      * Load the fields needed for document loading and rendering once per ID.
      *
+     * A plain row, not a model: only these columns are read, every page needs
+     * them, and none of them has a cast or an accessor.
+     *
      * @param int $templateId
-     * @return SiteTemplate|null Null for template ID 0 or a missing row.
+     * @return object|null Null for template ID 0 or a missing row.
      */
-    private function templateRow(int $templateId): ?SiteTemplate
+    private function templateRow(int $templateId): ?object
     {
         if ($templateId === 0) {
             return null;
         }
 
         if (!array_key_exists($templateId, $this->templateRows)) {
-            $this->templateRows[$templateId] = SiteTemplate::whereKey($templateId)
+            $this->templateRows[$templateId] = SiteTemplate::query()->whereKey($templateId)->toBase()
                 ->first(['id', 'templatealias', 'templatesource', 'templatefileextension', 'content']);
         }
 

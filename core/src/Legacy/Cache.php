@@ -330,6 +330,13 @@ class Cache
             $content .= '$c[\'' . $systemSetting->setting_name . '\']="' . $this->escapeDoubleQuotes($systemSetting->setting_value) . '";';
             $config[$systemSetting->setting_name] = $systemSetting->setting_value;
         }
+        // Text defaults the database does not store, already translated: a request
+        // then reads them here instead of building the translator for them.
+        if (method_exists($evo, 'getFactoryTextDefaults')) {
+            foreach ($evo->getFactoryTextDefaults($config) as $name => $value) {
+                $content .= '$c[\'' . $name . '\']="' . $this->escapeDoubleQuotes($value) . '";';
+            }
+        }
 
         if (isset($config['enable_filter']) && $config['enable_filter'] == 1) {
             if (Models\SitePlugin::activePhx()->count()) {

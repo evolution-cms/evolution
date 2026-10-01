@@ -1,4 +1,10 @@
-<?php return [
+<?php
+
+// $known: settings the caller already has a value for. Their defaults are not
+// translated (`??` skips the call), since the caller's value replaces them anyway.
+$known ??= [];
+
+return [
     'site_name' => 'My Evolution CMS Site',
     'site_start' => 1,
     'error_page' => 1,
@@ -11,8 +17,8 @@
     'enable_filter' => 0,
     'enable_at_syntax' => 0,
     'minifyphp_incache' => 0,
-    'rss_url_releases' => __('global.rss_url_releases_default', [], $factoryLocale),
-    'rss_url_extras' => __('global.rss_url_extras_default', [], $factoryLocale),
+    'rss_url_releases' => $known['rss_url_releases'] ?? __('global.rss_url_releases_default', [], $factoryLocale),
+    'rss_url_extras' => $known['rss_url_extras'] ?? __('global.rss_url_extras_default', [], $factoryLocale),
     'friendly_urls' => 0,
     'friendly_url_prefix' => '',
     'friendly_url_suffix' => '/',
@@ -33,15 +39,15 @@
     'error_reporting' => '1',
     'send_errormail' => '0',
     'enable_bindings' => 1,
-    'captcha_words' => __('global.captcha_words_default', [], $factoryLocale),
+    'captcha_words' => $known['captcha_words'] ?? __('global.captcha_words_default', [], $factoryLocale),
     'emailsender' => 'you@example.com',
     'smtp_host' => 'smtp.example.com',
     'smtp_port' => 25,
     'smtp_username' => 'emailsender',
-    'emailsubject' => __('global.emailsubject_default', [], $factoryLocale),
-    'signupemail_message' => __('global.system_email_signup', [], $factoryLocale),
-    'websignupemail_message' => __('global.system_email_websignup', [], $factoryLocale),
-    'webpwdreminder_message' => __('global.system_email_webreminder', [], $factoryLocale),
+    'emailsubject' => $known['emailsubject'] ?? __('global.emailsubject_default', [], $factoryLocale),
+    'signupemail_message' => $known['signupemail_message'] ?? __('global.system_email_signup', [], $factoryLocale),
+    'websignupemail_message' => $known['websignupemail_message'] ?? __('global.system_email_websignup', [], $factoryLocale),
+    'webpwdreminder_message' => $known['webpwdreminder_message'] ?? __('global.system_email_webreminder', [], $factoryLocale),
     'warning_visibility' => 1,
     'tree_page_click' => 27,
     'use_breadcrumbs' => 0,
@@ -79,7 +85,7 @@
     'denyExtensionRename' => 0,
     'showHiddenFiles' => 0,
     'session_timeout' => 15,
-    'site_unavailable_message' => __('global.siteunavailable_message_default', [], $factoryLocale),
+    'site_unavailable_message' => $known['site_unavailable_message'] ?? __('global.siteunavailable_message_default', [], $factoryLocale),
     'allow_eval' => 'with_scan',
     'safe_functions_at_eval' => 'time,date,strtotime,strftime',
     'use_udperms' => '1',

@@ -356,7 +356,11 @@ trait Path
     public function setLocale($locale)
     {
         $this['config']->set('app.locale', $locale);
-        $this['translator']->setLocale($locale);
+        // A translator built later reads app.locale; a request that never
+        // translates anything does not need one built here.
+        if ($this->resolved('translator')) {
+            $this['translator']->setLocale($locale);
+        }
     }
 
     /**

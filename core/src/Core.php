@@ -2928,16 +2928,16 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $documentObject = null;
             if ($this->isFrontend() && $method === 'id') {
                 // Public documents need no group lookup. Keep the ACL query below for private documents.
-                $documentObject = SiteContent::query()
+                $documentObject = SiteContent::toArrays(SiteContent::query()
                     ->where('site_content.id', $identifier)
                     ->where('site_content.privateweb', 0)
-                    ->first();
+                    ->limit(1))[0] ?? null;
             }
             if (is_null($documentObject)) {
-                $documentObject = SiteContent::query()
+                $documentObject = SiteContent::toArrays(SiteContent::query()
                     ->withoutProtected()
                     ->where('site_content.' . $method, $identifier)
-                    ->first();
+                    ->limit(1))[0] ?? null;
             }
             if (is_null($documentObject)) {
                 $seclimit = 0;
@@ -2961,9 +2961,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                         $this->sendErrorPage();
                     }
                 }
+                // No such document (this used to end in a fatal error on null->toArray()).
+                $this->sendErrorPage();
             }
             //this is now the document :)
-            $documentObject = $documentObject->toArray();
             unset($documentObject['document_group'], $documentObject['document']);
             $documentObject['id'] = $identifier;
 
@@ -2992,7 +2993,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                     ->leftJoin('site_tmplvar_contentvalues', function ($join) use ($documentObject) {
                         $join->on('site_tmplvar_contentvalues.tmplvarid', '=', 'site_tmplvars.id');
                         $join->on('site_tmplvar_contentvalues.contentid', '=', \DB::raw((int) $documentObject['id']));
-                    })->where('site_tmplvar_templates.templateid', $documentObject['template'])->get();
+                    })->where('site_tmplvar_templates.templateid', $documentObject['template'])->toBase()->get();
 
                 $tmplvars = [];
                 foreach ($tvs as $tv) {
@@ -3242,15 +3243,24 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 $this->documentIdentifier = UrlProcessor::getFacadeRoot()->documentListing[$alias];
             } else {
                 if ($this->getConfig('aliaslistingfolder') == 1 || $this->getConfig('full_aliaslisting') == 1) {
-                    $parent = $virtualDir ? UrlProcessor::getIdFromAlias($virtualDir) : 0;
-                    $doc = SiteContent::select('id')
-                        ->where('deleted', 0)
-                        ->where('parent', $parent)
-                        ->where('alias', $this->documentIdentifier)->first();
-                    if (is_null($doc)) {
+                    $docId = null;
+                    // A folder path not in the listing took a query per segment; a path
+                    // of plain aliases is resolved with one, anything else as before.
+                    if ($virtualDir != '' && !isset(UrlProcessor::getFacadeRoot()->documentListing[$virtualDir])) {
+                        $docId = UrlProcessor::getFacadeRoot()->findIdByAliasPath($alias);
+                    }
+                    if ($docId === null) {
+                        $parent = $virtualDir ? UrlProcessor::getIdFromAlias($virtualDir) : 0;
+                        $docId = SiteContent::query()
+                            ->where('deleted', 0)
+                            ->where('parent', $parent)
+                            ->where('alias', $this->documentIdentifier)
+                            ->toBase()->value('id');
+                    }
+                    if (is_null($docId)) {
                         $this->sendErrorPage();
                     }
-                    $this->documentIdentifier = $doc->getKey();
+                    $this->documentIdentifier = (int) $docId;
                 } else {
                     $this->sendErrorPage();
                 }
@@ -3261,13 +3271,14 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 $this->documentIdentifier = UrlProcessor::getFacadeRoot()
                     ->documentListing[$this->documentIdentifier];
             } else {
-                $doc = SiteContent::select('id')
+                $docId = SiteContent::query()
                     ->where('deleted', 0)
-                    ->where('alias', $this->documentIdentifier)->first();
-                if (is_null($doc)) {
+                    ->where('alias', $this->documentIdentifier)
+                    ->toBase()->value('id');
+                if (is_null($docId)) {
                     $this->sendErrorPage();
                 }
-                $this->documentIdentifier = $doc->getKey();
+                $this->documentIdentifier = (int) $docId;
             }
         }
         $this->documentMethod = 'id';
@@ -4261,7 +4272,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $content->withoutProtected();
         }
         // build query
-        $resourceArray = $content->get()->toArray();
+        $resourceArray = SiteContent::toArrays($content);
         $this->tmpCache[__FUNCTION__][$cacheKey] = $resourceArray;
         return $resourceArray;
 
@@ -4302,7 +4313,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $content->withoutProtected();
         }
         // build query
-        $resourceArray = $content->get()->toArray();
+        $resourceArray = SiteContent::toArrays($content);
         $this->tmpCache[__FUNCTION__][$cacheKey] = $resourceArray;
         return $resourceArray;
     }
@@ -4386,7 +4397,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         if (is_numeric($limit)) {
             $documentChildren = $documentChildren->take($limit);
         }
-        $resourceArray = $documentChildren->get()->toArray();
+        $resourceArray = SiteContent::toArrays($documentChildren);
 
         $this->tmpCache[__FUNCTION__][$cacheKey] = $resourceArray;
 
@@ -4478,7 +4489,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         if (is_numeric($limit)) {
             $documentChildren = $documentChildren->take($limit);
         }
-        $resourceArray = $documentChildren->get()->toArray();
+        $resourceArray = SiteContent::toArrays($documentChildren);
 
         $this->tmpCache[__FUNCTION__][$cacheKey] = $resourceArray;
 

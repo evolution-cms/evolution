@@ -184,17 +184,29 @@ class SiteContent extends Eloquent\Model
             $attributes[$position] = 0;
         }
 
-        $this->closure = new $this->closure;
+        parent::__construct($attributes);
+    }
 
-        // The default class name of the closure table was not changed
-        // so we define and set default closure table name automagically.
-        // This can prevent useless copy paste of closure table models.
-        if (get_class($this->closure) === ClosureTable::class) {
-            $table = $this->getTable() . '_closure';
-            $this->closure->setTable($table);
+    /**
+     * The closure table model, built on first use: reading documents never
+     * needs it, and building one for every hydrated row doubled the models.
+     *
+     * @return ClosureTable
+     */
+    protected function closureTable(): ClosureTable
+    {
+        if (!$this->closure instanceof ClosureTable) {
+            $this->closure = new $this->closure;
+
+            // The default class name of the closure table was not changed
+            // so we define and set default closure table name automagically.
+            // This can prevent useless copy paste of closure table models.
+            if (get_class($this->closure) === ClosureTable::class) {
+                $this->closure->setTable($this->getTable() . '_closure');
+            }
         }
 
-        parent::__construct($attributes);
+        return $this->closure;
     }
 
     // adjust boot function
@@ -225,7 +237,7 @@ class SiteContent extends Eloquent\Model
             $descendant = $entity->getKey();
             $ancestor = isset($entity->parent) ? $entity->parent : $descendant;
 
-            $entity->closure->insertNode($ancestor, $descendant);
+            $entity->closureTable()->insertNode($ancestor, $descendant);
         });
 
         static::saved(static function (SiteContent $entity) {
@@ -235,15 +247,15 @@ class SiteContent extends Eloquent\Model
                 $entity->reorderSiblings();
             }
 
-            if ($entity->closure->ancestor === null) {
+            if ($entity->closureTable()->ancestor === null) {
                 $primaryKey = $entity->getKey();
-                $entity->closure->ancestor = $primaryKey;
-                $entity->closure->descendant = $primaryKey;
-                $entity->closure->depth = 0;
+                $entity->closureTable()->ancestor = $primaryKey;
+                $entity->closureTable()->descendant = $primaryKey;
+                $entity->closureTable()->depth = 0;
             }
 
             if ($parentIdChanged) {
-                $entity->closure->moveNodeTo($entity->parent);
+                $entity->closureTable()->moveNodeTo($entity->parent);
             }
 
         });
@@ -716,13 +728,13 @@ class SiteContent extends Eloquent\Model
 
         return $builder
             ->join(
-                $this->closure->getTable(),
-                $this->closure->getAncestorColumn(),
+                $this->closureTable()->getTable(),
+                $this->closureTable()->getAncestorColumn(),
                 '=',
                 $this->getQualifiedKeyName()
             )
-            ->where($this->closure->getDescendantColumn(), '=', $id)
-            ->where($this->closure->getDepthColumn(), $depthOperator, 0);
+            ->where($this->closureTable()->getDescendantColumn(), '=', $id)
+            ->where($this->closureTable()->getDepthColumn(), $depthOperator, 0);
     }
 
     /**
@@ -822,13 +834,13 @@ class SiteContent extends Eloquent\Model
 
         return $builder
             ->join(
-                $this->closure->getTable(),
-                $this->closure->getDescendantColumn(),
+                $this->closureTable()->getTable(),
+                $this->closureTable()->getDescendantColumn(),
                 '=',
                 $this->getQualifiedKeyName()
             )
-            ->where($this->closure->getAncestorColumn(), '=', $id)
-            ->where($this->closure->getDepthColumn(), $depthOperator, 0);
+            ->where($this->closureTable()->getAncestorColumn(), '=', $id)
+            ->where($this->closureTable()->getDepthColumn(), $depthOperator, 0);
     }
 
     /**
@@ -2022,7 +2034,7 @@ class SiteContent extends Eloquent\Model
         $ids = $query->pluck($this->getKeyName());
 
         if ($forceDelete) {
-            $this->closure->whereIn($this->closure->getDescendantColumn(), $ids)->delete();
+            $this->closureTable()->whereIn($this->closureTable()->getDescendantColumn(), $ids)->delete();
         }
 
         $this->whereIn($this->getKeyName(), $ids)->$action();
@@ -2067,11 +2079,100 @@ class SiteContent extends Eloquent\Model
         return $query->where('published', '1')->where('deleted', '0');
     }
 
+    /**
+     * The rows of a document query as arrays, the same as `$query->get()->toArray()`.
+     *
+     * No model is hydrated per row only to be turned back into an array: rows
+     * whose columns have no accessor and only scalar casts (the usual
+     * id/pagetitle/alias listing) are cast directly, any other row goes through
+     * one shared model instance, so dates and accessors stay Eloquent's own.
+     * The "retrieved" model event does not fire for these rows.
+     *
+     * @param Builder $query
+     * @return array<int, array<string, mixed>>
+     */
+    public static function toArrays(Builder $query): array
+    {
+        $model = $query->getModel()->newInstance([], true);
+        $rows = [];
+        $scalarCasts = null;
+        foreach ($query->toBase()->get() as $row) {
+            $row = (array) $row;
+            // Every row of one query has the same columns: decide once.
+            $scalarCasts ??= $model->scalarCastsFor(array_keys($row));
+            if ($scalarCasts === false) {
+                // toArray() without its recursion guard, which hashes a backtrace
+                // per call: a row model has no relations to recurse into.
+                $model->setRawAttributes($row);
+                $rows[] = array_merge($model->attributesToArray(), $model->relationsToArray());
+                continue;
+            }
+            foreach ($scalarCasts as $key => $type) {
+                if ($row[$key] !== null) {
+                    $row[$key] = match ($type) {
+                        'int', 'integer' => (int) $row[$key],
+                        'bool', 'boolean' => (bool) $row[$key],
+                        'string' => (string) $row[$key],
+                        // The deleted-at column, as SoftDeletes::addCastAttributesToArray() keeps it.
+                        'timestamp' => is_numeric($row[$key]) ? (int) $row[$key] : $row[$key],
+                    };
+                }
+            }
+            $rows[] = $row;
+        }
+
+        return $rows;
+    }
+
+    /**
+     * The casts of the given columns when toArray() would do nothing else to them
+     * than an int, bool or string cast (or the deleted-at timestamp SoftDeletes keeps);
+     * false when one of them needs the model (an accessor, a float, date or object
+     * cast, hidden/visible/appended attributes).
+     *
+     * @param list<string> $columns
+     * @return array<string, string>|false
+     */
+    protected function scalarCastsFor(array $columns): array|false
+    {
+        // A subclass may change how a model becomes an array; it keeps doing so.
+        if (static::class !== self::class
+            || $this->getHidden() || $this->getVisible() || $this->getAppends()
+            || array_intersect($columns, $this->getMutatedAttributes())) {
+            return false;
+        }
+        $deletedAt = $this->getDeletedAtColumn();
+        $casts = [];
+        foreach (array_intersect_key($this->getCasts(), array_flip($columns)) as $key => $type) {
+            $type = strtolower(trim((string) $type));
+            if ($key === $deletedAt && $type === 'datetime') {
+                // Arrayed as its stored timestamp, not as a date (see SoftDeletes).
+                $casts[$key] = 'timestamp';
+                continue;
+            }
+            if (!in_array($type, ['int', 'integer', 'bool', 'boolean', 'string'], true)) {
+                return false;
+            }
+            $casts[$key] = $type;
+        }
+        foreach ($columns as $column) {
+            if ($column !== $deletedAt && $this->isDateAttribute($column)) {
+                return false;
+            }
+        }
+
+        return $casts;
+    }
+
     public function scopeWithoutProtected($query)
     {
-        $query->leftJoin('document_groups', 'document_groups.document', '=', 'site_content.id');
-        $query->where(function($query){
-            $docgrp = evo()->getUserDocGroups();
+        $docgrp = evo()->getUserDocGroups();
+        // The join only serves the group condition below: without groups it would
+        // cost a lookup per row (and repeat a document once per group it is in).
+        if ($docgrp) {
+            $query->leftJoin('document_groups', 'document_groups.document', '=', 'site_content.id');
+        }
+        $query->where(function($query) use ($docgrp) {
             if (evo()->isFrontend()) {
                 $query->where('privateweb', 0);
             } else {

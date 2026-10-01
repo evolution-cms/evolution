@@ -37,6 +37,13 @@ class Parser
 
     public $blade;
 
+    /**
+     * The view path setTemplatePath() gave $blade, kept until $blade is built.
+     *
+     * @var string|null
+     */
+    protected $bladeViewPath;
+
     protected $bladeEnabled = true;
 
     protected $templateData = [];
@@ -65,7 +72,27 @@ class Parser
     private function __construct (Core $modx)
     {
         $this->modx = $modx;
+        // $blade is built on first read (see __get): most pages never render a
+        // Blade chunk, and building it resolved the whole view factory per request.
+        unset($this->blade);
+    }
+
+    /**
+     * Builds $blade the first time it is read.
+     *
+     * @param string $name
+     * @return mixed
+     */
+    public function __get ($name)
+    {
+        if ($name !== 'blade') {
+            trigger_error('Undefined property: ' . static::class . '::$' . $name, E_USER_WARNING);
+
+            return null;
+        }
         $this->loadBlade();
+
+        return $this->blade;
     }
 
     /**
@@ -110,10 +137,10 @@ class Parser
 
         if (!empty($path)) {
             $this->templatePath = $path;
-            if ($this->blade) {
-                $filesystem = new Filesystem;
-                $viewFinder = new FileViewFinder($filesystem, [EVO_BASE_PATH . $path]);
-                $this->blade->setFinder($viewFinder);
+            $this->bladeViewPath = EVO_BASE_PATH . $path;
+            // A $blade built later picks the path up in loadBlade().
+            if (isset($this->blade)) {
+                $this->blade->setFinder(new FileViewFinder(new Filesystem, [$this->bladeViewPath]));
             }
         }
 
@@ -486,7 +513,11 @@ class Parser
     {
         try {
             $this->blade = clone $this->modx['view'];
+            if ($this->bladeViewPath !== null) {
+                $this->blade->setFinder(new FileViewFinder(new Filesystem, [$this->bladeViewPath]));
+            }
         } catch (\Exception $exception) {
+            $this->blade = null;
             $this->modx->messageQuit($exception->getMessage());
         }
     }

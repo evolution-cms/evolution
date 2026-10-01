@@ -3,9 +3,9 @@
 use BladeUI\Icons\Factory;
 use BladeUI\Icons\IconsManifest;
 use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
-use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\View\Compilers\BladeCompiler;
 
 /**
  * Adapter for Blade Icons to work with Evolution CMS
@@ -59,22 +59,22 @@ class BladeIconsAdapterServiceProvider extends ServiceProvider
 
     private function bootDirectives(): void
     {
-        // Register Blade directives without type-hint issues
-        $this->callAfterResolving(ViewFactory::class, function ($view) {
+        // Register Blade directives without type-hint issues. On the compiler
+        // itself (the one the Blade engine uses): a page that only resolves the
+        // view factory, e.g. to look for a template file, then does not build it.
+        $this->callAfterResolving('blade.compiler', function (BladeCompiler $blade) {
             // Register @svg directive
-            $view->getEngineResolver()
-                ->resolve('blade')
-                ->getCompiler()
-                ->directive('svg', function ($expression) {
-                    return "<?php echo e(svg($expression)); ?>";
-                });
+            $blade->directive('svg', function ($expression) {
+                return "<?php echo e(svg($expression)); ?>";
+            });
         });
     }
 
     private function bootIconComponent(): void
     {
-        // Register icon component without Application type-hint
-        $this->callAfterResolving(ViewFactory::class, function ($view) {
+        // Register icon component without Application type-hint; components are
+        // compiler state as well, so they wait for the compiler like the directive.
+        $this->callAfterResolving('blade.compiler', function () {
             if (!is_file($this->manifestPath())) {
                 return;
             }

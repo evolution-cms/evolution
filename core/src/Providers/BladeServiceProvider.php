@@ -1,18 +1,27 @@
 <?php namespace EvolutionCMS\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Blade;
+use Illuminate\View\Compilers\BladeCompiler;
 
 class BladeServiceProvider extends ServiceProvider
 {
     public function boot()
     {
-        Blade::directive('evoConfig', function ($expression) {
+        // Registered when the compiler is first built: a page that renders no
+        // Blade view never needs it, and Blade:: here built it on every request.
+        $this->callAfterResolving('blade.compiler', function (BladeCompiler $blade) {
+            $this->registerDirectives($blade);
+        });
+    }
+
+    protected function registerDirectives(BladeCompiler $blade): void
+    {
+        $blade->directive('evoConfig', function ($expression) {
             $expression = $expression ?: "''";
             return "<?php echo e(evo()->getConfig($expression)); ?>";
         });
 
-        Blade::directive('makeUrl', function ($expression) {
+        $blade->directive('makeUrl', function ($expression) {
             $expression = $expression ?: "''";
             return "<?php echo e(app('UrlProcessor')->makeUrlWithString($expression)); ?>";
         });
@@ -22,32 +31,32 @@ class BladeServiceProvider extends ServiceProvider
          *
          * @since 3.5.8
          */
-        Blade::directive('revision', function ($expression) {
+        $blade->directive('revision', function ($expression) {
             $expression = $expression ?: "''";
             return "<?php echo e(revision($expression)); ?>";
         });
 
-        Blade::directive('evoParser', function ($expression) {
+        $blade->directive('evoParser', function ($expression) {
             $expression = $expression ?: "''";
             return "<?php echo evo_parser($expression); ?>";
         });
 
-        Blade::directive('evoRole', function ($expression) {
+        $blade->directive('evoRole', function ($expression) {
             $expression = $expression ?: "''";
             return "<?php if (evo_role($expression)): ?>";
         });
 
-        Blade::directive('evoElseRole', function ($expression) {
+        $blade->directive('evoElseRole', function ($expression) {
             $expression = $expression ?: "''";
             return "<?php elseif (evo_role($expression)): ?>";
         });
 
-        Blade::directive('evoEndRole', function () {
+        $blade->directive('evoEndRole', function () {
             return "<?php endif; ?>";
         });
 
-        Blade::if('auth', fn () => evo()->getLoginUserID() !== false);
-        Blade::if('guest', fn () => evo()->getLoginUserID() === false);
+        $blade->if('auth', fn () => evo()->getLoginUserID() !== false);
+        $blade->if('guest', fn () => evo()->getLoginUserID() === false);
 
         /**
          * @deprecated
@@ -60,7 +69,7 @@ class BladeServiceProvider extends ServiceProvider
         $directives = $this->app['config']->get('view.directive');
         if (\is_array($directives)) {
             foreach ($directives as $name => $callback) {
-                $this->app->get('blade.compiler')->directive($name, $callback);
+                $blade->directive($name, $callback);
             }
         }
     }
