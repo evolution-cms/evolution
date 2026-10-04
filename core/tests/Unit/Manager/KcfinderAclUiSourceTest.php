@@ -46,15 +46,36 @@ final class KcfinderAclUiSourceTest extends TestCase
         self::assertStringContainsString('browser.initFilesDropzone();', $source);
         self::assertStringContainsString("browser.bindDropListeners(document, '_filesDropGuardHandlers'", $source);
         self::assertStringContainsString("browser.bindDropListeners(filesPane, '_filesDropzoneHandlers'", $source);
+        self::assertStringContainsString('browser.prepareFiles(this.files);', $source);
         self::assertStringContainsString('browser.preventExternalFileDropDefault = function(evt)', $source);
         self::assertStringContainsString('browser.extractDroppedFiles = function(evt)', $source);
-        self::assertStringContainsString('var files = FileAPI.getFiles(evt) || [];', $source);
-        self::assertStringContainsString('return dataTransfer.files;', $source);
+        self::assertStringContainsString('dataTransfer.files', $source);
         self::assertStringContainsString("if (typeof types.contains === 'function')", $source);
         self::assertStringContainsString("browser.isFilesDropzoneElement = function(target)", $source);
         self::assertStringContainsString("browser.isFilesDropTarget = function(target)", $source);
         self::assertStringContainsString("$(target).closest('.file', '#files')", $source);
         self::assertStringContainsString("!file.length || !file.data('isDir')", $source);
+        self::assertStringContainsString('!browser.allowedExts.test(ext) || browser.deniedExts.test(ext)', $source);
+        self::assertStringContainsString('browser.maxFileSize <= file.size', $source);
+        self::assertStringNotContainsString('FileAPI', $source);
+        self::assertStringContainsString('new FormData()', $source);
+        self::assertStringContainsString('new XMLHttpRequest()', $source);
+        self::assertStringContainsString("data.append('file', blob, file.name);", $source);
+        self::assertStringContainsString("data.append('dir', browser.dir);", $source);
+        self::assertStringContainsString("browser.baseGetData('upload')", $source);
+        self::assertStringContainsString('window.createImageBitmap', $source);
+        self::assertStringContainsString('canvas.toBlob', $source);
+    }
+
+    public function testUploaderLoadsWithoutTheLegacyFlashFileApiBundle(): void
+    {
+        $root = dirname(__DIR__, 4);
+        $template = (string) file_get_contents($root . '/manager/media/browser/mcpuk/tpl/tpl_javascript.php');
+
+        self::assertStringNotContainsString('js/FileAPI/', $template);
+        self::assertFileDoesNotExist($root . '/manager/media/browser/mcpuk/js/FileAPI/FileAPI.flash.swf');
+        self::assertFileDoesNotExist($root . '/manager/media/browser/mcpuk/js/FileAPI/FileAPI.flash.image.swf');
+        self::assertFileDoesNotExist($root . '/manager/media/browser/mcpuk/js/FileAPI/FileAPI.flash.camera.swf');
     }
 
     public function testFolderTileAssetsExistForBothThemes(): void
