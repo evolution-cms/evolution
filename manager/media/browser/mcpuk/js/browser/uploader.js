@@ -1,6 +1,6 @@
 /** This file is part of KCFinder project
  *
- *      @desc FileAPI uploader
+ *      @desc Native browser file uploader
  *   @package KCFinder
  *   @version 2.54
  *    @author Pavel Tzonkov <sunhater@sunhater.com>
@@ -23,9 +23,8 @@ browser.initUploader = function() {
         browser.clearUpload();
         upload.trigger('click');
     });
-    FileAPI.event.on(upload.get(0), 'change', function (evt){
-        var files = FileAPI.getFiles(evt); // Retrieve file list
-        browser.prepareFiles(files);
+    upload.on('change', function () {
+        browser.prepareFiles(this.files);
     });
     browser.initFilesDropGuards();
     browser.initFilesDropzone();
@@ -149,18 +148,13 @@ browser.preventExternalFileDropDefault = function(evt) {
 };
 
 browser.extractDroppedFiles = function(evt) {
-    var files = FileAPI.getFiles(evt) || [];
     var event = evt && (evt.originalEvent || evt);
     var dataTransfer = event && event.dataTransfer;
     var items = dataTransfer && dataTransfer.items;
     var i;
 
-    if (files.length) {
-        return files;
-    }
-
     if (dataTransfer && dataTransfer.files && dataTransfer.files.length) {
-        return dataTransfer.files;
+        return Array.prototype.slice.call(dataTransfer.files);
     }
 
     if (!items || !items.length) {
@@ -222,115 +216,208 @@ browser.clearUpload = function() {
     upload.unwrap();
 };
 browser.prepareFiles = function(files) {
-    FileAPI.filterFiles(
-        files,
-        function(file) {
-            var ext = file.name.split('.').pop().toLowerCase();
-            var result = browser.allowedExts.test(ext) && !browser.deniedExts.test(ext);
-            if (!result) {
-                file.message = browser.label("Denied file extension.");
-            }
-            if (result) {
-                result = browser.maxFileSize > file.size;
-                if (!result) {
-                    file.message = browser.label("The uploaded file exceeds {size} bytes.", {size: browser.maxFileSize});
-                }
-            }
-            return result;
-        }, function (files, rejected) {
-            if (rejected.length > 0) {
-                var messages = [];
-                $.each(rejected, function(i, file) {
-                    messages.push(file.name + ': ' +file.message);
-                });
-                browser.alert(messages.join('<br>'), true, function(){browser.uploadFiles(files)});
-            } else {
-                browser.uploadFiles(files);
-            }
+    var accepted = [],
+        rejected = [],
+        selected = Array.prototype.slice.call(files || []);
+
+    $.each(selected, function(i, file) {
+        var ext = file.name.split('.').pop().toLowerCase();
+        var message = '';
+
+        if (!browser.allowedExts.test(ext) || browser.deniedExts.test(ext)) {
+            message = browser.label("Denied file extension.");
+        } else if (browser.maxFileSize <= file.size) {
+            message = browser.label("The uploaded file exceeds {size} bytes.", {size: browser.maxFileSize});
         }
-    );
+
+        if (message) {
+            rejected.push(file.name + ': ' + message);
+        } else {
+            accepted.push(file);
+        }
+    });
+
+    if (rejected.length) {
+        browser.alert(rejected.join('<br>'), true, function() {
+            browser.uploadFiles(accepted);
+        });
+    } else {
+        browser.uploadFiles(accepted);
+    }
 };
+browser.resizeImageForUpload = function(file) {
+    var resize = browser.clientResize || {},
+        maxWidth = Number(resize.maxWidth),
+        maxHeight = Number(resize.maxHeight),
+        quality = Number(resize.quality);
+
+    if (maxWidth <= 0 || maxHeight <= 0 || (file.type !== 'image/jpeg' && file.type !== 'image/png')) {
+        return Promise.resolve(file);
+    }
+
+    quality = isFinite(quality) ? Math.max(0, Math.min(1, quality)) : 1;
+
+    function makeBlob(image) {
+        var width = image.width || image.naturalWidth,
+            height = image.height || image.naturalHeight,
+            scale = Math.min(1, maxWidth / width, maxHeight / height);
+
+        if (!width || !height || scale >= 1) {
+            return Promise.resolve(file);
+        }
+
+        var canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(width * scale));
+        canvas.height = Math.max(1, Math.round(height * scale));
+        var context = canvas.getContext('2d');
+
+        if (!context || !canvas.toBlob) {
+            return Promise.resolve(file);
+        }
+
+        try {
+            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        } catch (error) {
+            return Promise.resolve(file);
+        }
+
+        return new Promise(function(resolve) {
+            canvas.toBlob(function(blob) {
+                resolve(blob || file);
+            }, file.type, quality);
+        });
+    }
+
+    if (window.createImageBitmap) {
+        return Promise.resolve().then(function() {
+            return window.createImageBitmap(file, {imageOrientation: 'from-image'});
+        }).catch(function() {
+            return window.createImageBitmap(file);
+        }).then(function(bitmap) {
+            return makeBlob(bitmap).then(function(blob) {
+                if (bitmap.close) bitmap.close();
+                return blob;
+            }).catch(function() {
+                if (bitmap.close) bitmap.close();
+                return file;
+            });
+        }).catch(function() {
+            return file;
+        });
+    }
+
+    if (!window.URL || !window.URL.createObjectURL) {
+        return Promise.resolve(file);
+    }
+
+    return new Promise(function(resolve) {
+        var image = new Image(),
+            url = window.URL.createObjectURL(file);
+
+        image.onload = function() {
+            window.URL.revokeObjectURL(url);
+            makeBlob(image).then(resolve);
+        };
+        image.onerror = function() {
+            window.URL.revokeObjectURL(url);
+            resolve(file);
+        };
+        image.src = url;
+    });
+};
+
+browser.uploadFile = function(file, index, count) {
+    return browser.resizeImageForUpload(file).then(function(blob) {
+        return new Promise(function(resolve, reject) {
+            var xhr = new XMLHttpRequest(),
+                data = new FormData();
+
+            data.append('file', blob, file.name);
+            data.append('dir', browser.dir);
+            xhr.open('POST', browser.baseGetData('upload'), true);
+            xhr.upload.addEventListener('progress', function(evt) {
+                var loaded = evt.lengthComputable ? evt.loaded : file.size,
+                    total = evt.lengthComputable ? evt.total : file.size,
+                    progress = total ? Math.round((loaded * 100) / total) + '%' : '0%';
+
+                $('#loading').html(browser.label("Uploading file {number} of {count}... {progress}", {
+                    number: index + 1,
+                    count: count,
+                    progress: progress
+                }));
+            });
+            xhr.onload = function() {
+                var response;
+
+                try {
+                    response = $.parseJSON(xhr.responseText);
+                } catch (error) {
+                    reject(browser.label("Unable to process server response"));
+                    return;
+                }
+
+                if (xhr.status < 200 || xhr.status >= 300) {
+                    reject(browser.label("Server error") + ' ' + xhr.status);
+                } else {
+                    resolve(response);
+                }
+            };
+            xhr.onerror = function() {
+                reject(browser.label("Server error"));
+            };
+            xhr.send(data);
+        });
+    });
+};
+
 browser.uploadFiles = function(files) {
     if (!this.dirWritable) {
         browser.alert(this.label("Cannot write to upload folder."));
         return;
     }
-    var uploadInProgress = false,
-        filesCount = 0,
-        errors = [],
-        uploaded = 0;
-    if( files.length ){
-        filesCount = files.length;
-        var options = {
-            url: browser.baseGetData('upload'),
-            files: { file: files },
-            data: {
-                dir: browser.dir
-            },
-            imageAutoOrientation: false,
-            prepare: function (file/**Object*/, options/**Object*/){
-                if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
-                    options.imageTransform = false;
-                }
-            },
-            upload: function() {
-                $('#loading').html(browser.label("Uploading file {number} of {count}... {progress}", {
-                    number: uploaded++,
-                    count: filesCount,
-                    progress: ""
-                }));
-                uploadInProgress = true;
-                $('#loading').show();
-                browser.fadeFiles();
-            },
-            progress: function (evt){
-                var progress = Math.round((evt.loaded * 100) / evt.total) + '%';
-                $('#loading').html(browser.label("Uploading file {number} of {count}... {progress}", {
-                    number: uploaded,
-                    count: filesCount,
-                    progress: progress
-                }));
-            },
-            filecomplete:function(err, xhr, file) {
-                if(err === false) {
-                    var response;
-                    try {
-                        response = $.parseJSON(xhr.response);
-                    } catch (error) {
-                        response = {
-                            success:false,
-                            message:browser.label("Unable to process server response")
-                        }
-                    }
-                    if (!response.success) {
-                        if (typeof response.message === 'object') {
-                            response.message = response.message.join('; ');
-                        };
-                        errors.push(file.name + ': ' + response.message);
-                    }
-                } else {
-                    errors.push(file.name + ': ' + browser.label("Server error") + ' ' + err);
-                }
-                uploaded++;
-            },
-            complete: function (err, xhr){
-                uploadInProgress = false;
-                $('#loading').hide();
-                browser.refresh();
-                browser.clearUpload();
-                if (errors.length > 0) {
-                    browser.alert(errors.join('<br>'), false);
-                }
+
+    files = Array.prototype.slice.call(files || []);
+    if (!files.length) return;
+
+    var errors = [],
+        index = 0;
+
+    $('#loading').show();
+    browser.fadeFiles();
+
+    function uploadNext() {
+        if (index >= files.length) {
+            $('#loading').hide();
+            browser.refresh();
+            browser.clearUpload();
+            if (errors.length) {
+                browser.alert(errors.join('<br>'), false);
             }
-        };
-        if (Object.keys(browser.clientResize).length) {
-            options.imageTransform = {
-                maxWidth: browser.clientResize.maxWidth,
-                maxHeight: browser.clientResize.maxHeight,
-                quality: browser.clientResize.quality
-            };
-            options.imageAutoOrientation = true;
+            return;
         }
-        FileAPI.upload(options);
+
+        var file = files[index];
+        $('#loading').html(browser.label("Uploading file {number} of {count}... {progress}", {
+            number: index + 1,
+            count: files.length,
+            progress: ""
+        }));
+
+        Promise.resolve().then(function() {
+            return browser.uploadFile(file, index, files.length);
+        }).then(function(response) {
+            if (!response || !response.success) {
+                var message = response && response.message ? response.message : browser.label("Server error");
+                if (typeof message === 'object') message = message.join('; ');
+                errors.push(file.name + ': ' + message);
+            }
+        }).catch(function(error) {
+            errors.push(file.name + ': ' + error);
+        }).then(function() {
+            index++;
+            uploadNext();
+        });
     }
+
+    uploadNext();
 };
