@@ -116,6 +116,13 @@ class TailwindBuildCommand extends Command
             $map['frontend'] = 'css';
         }
 
+        /* -------------------- theme/css/ (frontend theme) -------------------- */
+        $styles = glob(EVO_BASE_PATH . 'theme/css/*tailwind.css');
+        if (count($styles)) {
+            $labels[] = 'frontend:theme';
+            $map['frontend:theme'] = 'theme/css';
+        }
+
         sort($labels, SORT_NATURAL | SORT_FLAG_CASE);
         return [$labels, $map];
     }
