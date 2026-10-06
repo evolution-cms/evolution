@@ -379,6 +379,7 @@ $_lang["functionnotimpl_message"] = 'این کارایی هنوز تهیه و ف
 $_lang["go"] = 'برو';
 $_lang["group_access_permissions"] = 'سطح دسترسی گروه کاربری';
 $_lang["guid"] = 'شناسه ی خاص';
+$_lang["project_version"] = 'نسخه پروژه';
 $_lang["help"] = 'راهنمای استفاده';
 $_lang["help_donate_msg"] = 'برای توسعه دهندگان Evolution CMS قهوه بخرید. <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> همین امروز از طرفداران Evolution CMS شوید! ❤️ Ko-fi به شما امکان می‌دهد از سازندگانی که دوست دارید بدون هیچ هزینه‌ای حمایت کنید.';
 $_lang["help_donate_title"] = 'برای توسعه CMS تکامل';

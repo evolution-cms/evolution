@@ -378,6 +378,7 @@ $_lang["functionnotimpl_message"] = 'Тази функция все още не 
 $_lang["go"] = 'Отиди';
 $_lang["group_access_permissions"] = 'Права за достъп на Група Потребители';
 $_lang["guid"] = 'GUID';
+$_lang["project_version"] = 'Версия на проекта';
 $_lang["help"] = 'Помощ';
 $_lang["help_donate_msg"] = 'Купете кафето за разработчици Evolution CMS. <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> Станете фен на Evolution CMS днес! ❤️ Ko-fi ви позволява да подкрепяте творците, които обичате, без никакви такси за дарения.';
 $_lang["help_donate_title"] = 'За разработването на Evolution CMS';

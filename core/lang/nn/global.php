@@ -378,6 +378,7 @@ $_lang["functionnotimpl_message"] = 'Denne funksjonen er ikke implementert enda.
 $_lang["go"] = 'Go';
 $_lang["group_access_permissions"] = 'Brukergruppetilgang';
 $_lang["guid"] = 'GUID';
+$_lang["project_version"] = 'Prosjektversjon';
 $_lang["help"] = 'Hjelp';
 $_lang["help_donate_msg"] = 'Kjøp kaffe til Evolution CMS-utviklerne. <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> Bli en fan av Evolution CMS i dag! ❤️ Ko-fi lar deg støtte skaperne du elsker uten donasjonsavgifter.';
 $_lang["help_donate_title"] = 'For utvikling av Evolution CMS';

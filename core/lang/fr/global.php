@@ -381,6 +381,7 @@ $_lang["functionnotimpl_message"] = 'Cette fonction n\'a pas encore été implé
 $_lang["go"] = 'Exécuter';
 $_lang["group_access_permissions"] = 'Accès des Groupes d\'Utilisateurs';
 $_lang["guid"] = 'GUID';
+$_lang["project_version"] = 'Version du projet';
 $_lang["help"] = 'Aide';
 $_lang["help_donate_msg"] = 'Achetez du café pour les développeurs du CMS Evolution. <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> Devenez fan d\'Evolution CMS dès aujourd\'hui! ❤️ Ko-fi vous permet de soutenir les créateurs que vous aimez sans aucun frais de don.';
 $_lang["help_donate_title"] = 'Pour le développement du CMS Evolution';

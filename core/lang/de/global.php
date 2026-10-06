@@ -399,6 +399,7 @@ $_lang["go"] = 'Los';
 $_lang["group_access_permissions"] = 'Benutzergruppenberechtigungen';
 $_lang['group_tvs'] = 'TVs gruppieren';
 $_lang["guid"] = 'Eindeutige Identifikationsnummer (GUID)';
+$_lang["project_version"] = 'Projektversion';
 $_lang["help"] = 'Hilfe';
 $_lang["help_donate_msg"] = 'Kaufe Kaffee für die Evolution CMS-Entwickler. <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> Werden Sie noch heute Fan von Evolution CMS! ❤️ Mit Ko-fi können Sie die YouTuber, die Sie lieben, ohne Spendengebühren unterstützen.';
 $_lang["help_donate_title"] = 'Für die Entwicklung von Evolution CMS';

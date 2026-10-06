@@ -408,6 +408,7 @@ $_lang["go"] = '実行';
 $_lang["group_access_permissions"] = 'ユーザーグループのアクセス';
 $_lang['group_tvs'] = 'テンプレート変数をグループ化';
 $_lang["guid"] = 'GUID';
+$_lang["project_version"] = 'プロジェクトのバージョン';
 $_lang["help"] = 'ヘルプ';
 $_lang["help_donate_msg"] = 'Evolution CMS 開発者のためにコーヒーを購入してください。 <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> 今すぐ Evolution CMS のファンになりましょう! ❤️ Ko-fi を使用すると、寄付金なしでお気に入りのクリエイターをサポートできます。';
 $_lang["help_donate_title"] = 'Evolution CMS の開発のために';

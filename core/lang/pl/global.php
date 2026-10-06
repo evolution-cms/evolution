@@ -400,6 +400,7 @@ $_lang["go"] = 'Dalej';
 $_lang["group_access_permissions"] = 'Dostęp grup użytkowników';
 $_lang['group_tvs'] = 'Grupowanie Zmiennych Szablonu';
 $_lang["guid"] = 'GUID';
+$_lang["project_version"] = 'Wersja projektu';
 $_lang["help"] = 'Pomoc';
 $_lang["help_donate_msg"] = 'Kup kawę dla programistów Evolution CMS. <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> Zostań fanem Evolution CMS już dziś! ❤️ Ko-fi pozwala wspierać twórców, których kochasz, bez żadnych opłat.';
 $_lang["help_donate_title"] = 'Dla rozwoju Evolution CMS';

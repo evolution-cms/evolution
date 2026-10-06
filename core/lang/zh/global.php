@@ -379,6 +379,7 @@ $_lang["functionnotimpl_message"] = '这个功能没被执行完.';
 $_lang["go"] = 'Go';
 $_lang["group_access_permissions"] = '用户组访问';
 $_lang["guid"] = 'GUID';
+$_lang["project_version"] = '项目版本';
 $_lang["help"] = '帮助';
 $_lang["help_donate_msg"] = '為 Evolution CMS 開發人員買咖啡。 <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> 立即成為 Evolution CMS 的粉絲！ ❤️ Ko-fi 讓您無需任何捐贈費用即可支持您喜愛的創作者。';
 $_lang["help_donate_title"] = '為了 Evolution CMS 的發展';

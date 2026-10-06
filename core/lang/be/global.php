@@ -781,6 +781,7 @@ $_lang["go"] = 'Перайсці';
 $_lang["group_access_permissions"] = 'Доступ групы карыстальнікаў';
 $_lang["group_tvs"] = 'Групавыя поля TV';
 $_lang["guid"] = 'GUID';
+$_lang["project_version"] = 'Версія праекта';
 $_lang["help"] = 'Даведка';
 $_lang["help_donate_msg"] = 'Купляйце каву распрацоўшчыкам Evolution CMS на <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a>. Станьце прыхільнікам Evolution CMS сёння! ❤️ Ko-fi дазваляе падтрымаць любімых творцаў без камісій за ахвяраванні.';
 $_lang["help_donate_title"] = 'На развіццё Evolution CMS';

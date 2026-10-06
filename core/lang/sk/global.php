@@ -406,6 +406,7 @@ $_lang["go"] = 'Prejsť';
 $_lang["group_access_permissions"] = 'Prístup skupín používateľov';
 $_lang['group_tvs'] = 'Zoskupovať TV parametre';
 $_lang["guid"] = 'GUID';
+$_lang["project_version"] = 'Verzia projektu';
 $_lang["help"] = 'Pomoc';
 $_lang["help_donate_msg"] = 'Kúpte vývojárom Evolution CMS kávu. <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> Staňte sa fanúšikom Evolution CMS ešte dnes! ❤️ Ko-fi umožňuje podporovať tvorcov, ktorých máte radi, bez poplatkov z darov.';
 $_lang["help_donate_title"] = 'Na rozvoj Evolution CMS';

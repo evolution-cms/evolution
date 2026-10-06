@@ -399,6 +399,7 @@ $_lang["go"] = 'Start';
 $_lang["group_access_permissions"] = 'Groepstoegang';
 $_lang['group_tvs'] = 'TV groep';
 $_lang["guid"] = 'GUID';
+$_lang["project_version"] = 'Projectversie';
 $_lang["help"] = 'Help';
 $_lang["help_donate_msg"] = 'Koop koffie voor de ontwikkelaars van Evolution CMS. <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> Word vandaag nog fan van Evolution CMS! ❤️ Met Ko-fi kun je de makers van wie je houdt steunen zonder donatiekosten.';
 $_lang["help_donate_title"] = 'Voor de ontwikkeling van Evolution CMS';

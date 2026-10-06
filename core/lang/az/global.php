@@ -792,6 +792,7 @@ $_lang["go"] = 'Davam et';
 $_lang["group_access_permissions"] = 'İstifadəçi qrupu giriş icazələri';
 $_lang['group_tvs'] = 'TV qrupları';
 $_lang["guid"] = 'GUID';
+$_lang["project_version"] = 'Layihənin versiyası';
 $_lang["help"] = 'Kömək';
 $_lang["help_donate_msg"] = 'Evolution CMS tərtibatçıları üçün qəhvə alın <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a>. Bu gün Evolution CMS ❤️ dəstəkçisi olun!';
 $_lang["help_donate_title"] = 'Evolution CMS-in inkişafı üçün';

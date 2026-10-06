@@ -379,6 +379,32 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                                         </li>
                                     @endif
                                     @php
+                                        // Metadata belongs to the active release, including after rollback.
+                                        $buildFile = EVO_BASE_PATH . '.deploy-release.json';
+                                        $buildData = is_readable($buildFile) ? json_decode(@file_get_contents($buildFile) ?: '', true) : [];
+                                        $buildData = is_array($buildData) ? $buildData : [];
+                                        $repositoryUrl = $buildData['repository_url'] ?? '';
+                                        $repositoryParts = is_string($repositoryUrl) ? parse_url($repositoryUrl) : false;
+                                        $validRepository = is_array($repositoryParts)
+                                            && ($repositoryParts['scheme'] ?? '') === 'https'
+                                            && !empty($repositoryParts['host'])
+                                            && !isset($repositoryParts['user']) && !isset($repositoryParts['pass']);
+
+                                        $buildTag = $buildData['tag'] ?? '';
+                                        $buildSha = $buildData['sha'] ?? '';
+                                        $buildTag = is_string($buildTag) ? trim($buildTag) : '';
+                                        $buildSha = is_string($buildSha) && preg_match('/^[a-f0-9]{40}$/D', $buildSha) ? substr($buildSha, 0, 8) : '';
+                                    @endphp
+                                    @if ($validRepository && $buildTag !== '')
+                                        <li>
+                                            <a href="{{$repositoryUrl}}" target="_blank" rel="noopener noreferrer"
+                                               title="{{$buildSha !== '' ? ManagerTheme::getLexicon('project_commit') . ': ' . $buildSha : ManagerTheme::getLexicon('project_repository')}}">
+                                                @svg('tabler-git-branch', '', ['width' => 20, 'height' => 20, 'aria-hidden' => 'true', 'focusable' => 'false'])
+                                                {{ManagerTheme::getLexicon('project_version')}} · {{$buildTag}}
+                                            </a>
+                                        </li>
+                                    @endif
+                                    @php
                                         $style = evo()->getConfig('settings_version') !== evo()->getVersionData('version') ? 'style="color:#ffff8a;"' : '';
                                         echo '<li><span class="dropdown-item" title="' . evo()->getPhpCompat()->entities(evo()->getConfig('site_name')) . ' &ndash; ' . evo()->getVersionData('full_appname') . '" ' . $style . '>' . evo()->getVersionData('branch') . ' ' . evo()->getConfig('settings_version') . '</span></li>';
                                     @endphp

@@ -379,6 +379,7 @@ $_lang["functionnotimpl_message"] = 'This function has not been implemented yet.
 $_lang["go"] = 'Go';
 $_lang["group_access_permissions"] = 'User group access';
 $_lang["guid"] = 'GUID';
+$_lang["project_version"] = 'גרסת הפרויקט';
 $_lang["help"] = 'עזרה';
 $_lang["help_donate_msg"] = 'קנה קפה עבור מפתחי Evolution CMS. <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> הפוך למעריץ של Evolution CMS היום! ❤️ Ko-fi מאפשרת לך לתמוך ביוצרים שאתה אוהב ללא כל עמלות תרומה.';
 $_lang["help_donate_title"] = 'לפיתוח של Evolution CMS';
