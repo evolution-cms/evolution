@@ -58,3 +58,49 @@ test('cross-site targets are refused', function (string $url) {
 test('a site url without a host never matches', function () {
     expect(redirectGuard()->isLocalRedirectTarget('https://example.com/', ''))->toBeFalse();
 });
+test('resource links accept local paths and explicit external HTTP URLs', function (string $url) {
+    expect(redirectGuard()->isWeblinkRedirectTarget($url, 'https://example.com/'))->toBeTrue();
+})->with([
+    ['/news/'], ['index.php?id=12'], ['https://example.com/news/'],
+    ['https://ir.maup.com.ua/'],
+    ['https://maup.com.ua/ua/navchannya-u-maup/akademichna-dobrochesnist.html'],
+    ['http://other.example/path?q=a%20b'],
+]);
+
+test('resource links reject unsafe or incomplete targets', function (string $url) {
+    expect(redirectGuard()->isWeblinkRedirectTarget($url, 'https://example.com/'))->toBeFalse();
+})->with([
+    [''], ['http://'], ['https:///path'], ['//other.example/'],
+    ['javascript:alert(1)'], ['data:text/html,test'], ['ftp://other.example/'],
+    ['https://user:pass@other.example/'], ['https://user@example.com/'],
+    ["https://other.example/\r\nX-Test:1"], ["\thttps://other.example/"],
+    ['https://other.example/%0d%0aX-Test:1'], ['https://other.example/%00'],
+    ['https://other.example\\@example.com/'], ['/\\other.example/'],
+    ['https://bad_host.example/'], ['https://other.example:99999/'],
+]);
+
+test('external redirects remain opt in', function () {
+    $parameter = (new ReflectionMethod(Core::class, 'sendRedirect'))->getParameters()[4];
+    expect($parameter->getDefaultValue())->toBeFalse();
+    expect(redirectGuard()->isLocalRedirectTarget('https://ir.maup.com.ua/', 'https://example.com/'))->toBeFalse();
+});
+
+test('stored resource links explicitly opt in to validated external redirects', function () {
+    $core = new class extends Core {
+        public function __construct() {}
+        public function sendRedirect(string $url, int $count_attempts = 0, string $type = '', string|int $responseCode = '', bool $allowExternal = false): ?bool
+        {
+            expect($url)->toBe('https://ir.maup.com.ua/');
+            expect($allowExternal)->toBeTrue();
+            expect($responseCode)->toBe(302);
+            throw new RuntimeException('redirect intercepted');
+        }
+    };
+    try {
+        $core->_sendRedirectForRefPage('https://ir.maup.com.ua/');
+    } catch (RuntimeException $error) {
+        expect($error->getMessage())->toBe('redirect intercepted');
+        return;
+    }
+    throw new RuntimeException('Resource link did not redirect');
+});

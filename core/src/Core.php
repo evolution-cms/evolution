@@ -477,11 +477,12 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @param int $count_attempts Number of redirect attempts (to prevent loops)
      * @param string $type Redirect type: REDIRECT_REFRESH, REDIRECT_META, REDIRECT_SCRIPT, REDIRECT_HEADER (default)
      * @param string|int $responseCode HTTP 30x response code
+     * @param bool $allowExternal Allow validated HTTP(S) targets from trusted resource links, never request input
      * @return bool|null
      * @global string $base_url
      * @global string $site_url
      */
-    public function sendRedirect(string $url, int $count_attempts = 0, string $type = '', string|int $responseCode = ''): ?bool
+    public function sendRedirect(string $url, int $count_attempts = 0, string $type = '', string|int $responseCode = '', bool $allowExternal = false): ?bool
     {
         if (empty($url)) {
             return false;
@@ -502,8 +503,11 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $url .= (str_contains($url, '?') ? '&' : '?') . "err=$currentNumberOfRedirects";
         }
 
-        // Only allow redirects to the same domain or relative paths to prevent open redirect vulnerability
-        if (!$this->isLocalRedirectTarget($url, EVO_SITE_URL)) {
+        // Request-derived redirects stay local; stored resource links explicitly opt in.
+        $allowed = $allowExternal
+            ? $this->isWeblinkRedirectTarget($url, EVO_SITE_URL)
+            : $this->isLocalRedirectTarget($url, EVO_SITE_URL);
+        if (!$allowed) {
             $this->getService('ExceptionHandler')->messageQuit(
                 'External or invalid redirect not allowed: <i>' . htmlspecialchars($url) . '</i>'
             );
@@ -612,6 +616,38 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $siteHost = parse_url($siteUrl, PHP_URL_HOST);
 
         return is_string($siteHost) && $siteHost !== '' && strcasecmp($host, $siteHost) === 0;
+    }
+
+    /**
+     * Validate a stored resource link without relaxing the default local redirect guard.
+     *
+     * Relative resource paths remain local. Absolute targets require HTTP(S), a valid
+     * host and no credentials, backslashes or raw/encoded control characters.
+     *
+     * @param string $url Resolved target from the resource content
+     * @param string $siteUrl Absolute site URL for relative target validation
+     * @return bool
+     * @since 3.6.0
+     */
+    public function isWeblinkRedirectTarget(string $url, string $siteUrl): bool
+    {
+        if ($url === '' || preg_match('/[\x00-\x20\x7f]/', $url)
+            || preg_match('/%(?:0[0-9a-f]|1[0-9a-f]|7f)/i', $url)
+            || str_contains($url, '\\')) {
+            return false;
+        }
+
+        $parts = parse_url($url);
+        if ($parts === false || isset($parts['user']) || isset($parts['pass'])) {
+            return false;
+        }
+        if (!isset($parts['scheme'])) {
+            return !isset($parts['host']) && $this->isLocalRedirectTarget($url, $siteUrl);
+        }
+
+        return in_array(strtolower($parts['scheme']), ['http', 'https'], true)
+            && !empty($parts['host'])
+            && filter_var($url, FILTER_VALIDATE_URL) !== false;
     }
 
     /**
@@ -3506,7 +3542,11 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     }
 
     /**
-     * @param $url
+     * Resolve a stored reference resource and redirect to its validated target.
+     *
+     * Resource links may leave the site; ordinary sendRedirect() calls remain local.
+     *
+     * @param string $url Stored resource content: document ID, internal tag or URL
      */
     public function _sendRedirectForRefPage($url)
     {
@@ -3516,7 +3556,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         } elseif (Str::contains($url, '[~')) {
             $url = UrlProcessor::rewriteUrls($url); // if it's an internal docid tag, process it
         }
-        $this->sendRedirect($url, 0, '', 'HTTP/1.0 302 Moved Temporarily');
+        // The resource's stored link is trusted configuration, not a request return URL.
+        $this->sendRedirect($url, 0, '', 302, true);
         exit;
     }
 
