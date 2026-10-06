@@ -21,6 +21,7 @@ use Doctrine\DBAL\Schema\Metadata\MetadataProvider;
 use Doctrine\DBAL\Schema\Metadata\PrimaryKeyConstraintColumnRow;
 use Doctrine\DBAL\Schema\Metadata\TableColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\TableMetadataRow;
+use Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\ViewMetadataRow;
 use Doctrine\DBAL\Types\Exception\TypesException;
 use Doctrine\DBAL\Types\Types;
@@ -397,6 +398,101 @@ final readonly class SQLiteMetadataProvider implements MetadataProvider
         }
     }
 
+    /**
+     * @return iterable<UniqueConstraintColumnMetadataRow>
+     *
+     * @throws Exception
+     */
+    public function getUniqueConstraintColumnsForAllTables(): iterable
+    {
+        return $this->getUniqueConstraintColumns(null);
+    }
+
+    /**
+     * @param ?non-empty-string $schemaName
+     * @param non-empty-string  $tableName
+     *
+     * @return iterable<UniqueConstraintColumnMetadataRow>
+     *
+     * @throws Exception
+     */
+    public function getUniqueConstraintColumnsForTable(?string $schemaName, string $tableName): iterable
+    {
+        if ($schemaName !== null) {
+            throw UnsupportedName::fromNonNullSchemaName($schemaName, __METHOD__);
+        }
+
+        return $this->getUniqueConstraintColumns($tableName);
+    }
+
+    /**
+     * @return iterable<UniqueConstraintColumnMetadataRow>
+     *
+     * @throws Exception
+     */
+    private function getUniqueConstraintColumns(?string $tableName): iterable
+    {
+        $params = [];
+
+        $sql = sprintf(
+            <<<'SQL'
+            SELECT t.name,
+                   i.name,
+                   c.name
+            FROM sqlite_master t
+                     JOIN pragma_index_list(t.name) i
+                     JOIN pragma_index_info(i.name) c
+            WHERE %s
+              AND i.origin = 'u'
+            ORDER BY t.name,
+                     i.seq DESC,
+                     c.seqno
+            SQL,
+            $this->buildTableQueryPredicate($tableName, $params),
+        );
+
+        $currentTableName = null;
+        $currentIndexName = null;
+        $constraintNames  = [];
+        $position         = -1;
+
+        foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            if ($row[0] !== $currentTableName) {
+                $currentTableName = $row[0];
+                $constraintNames  = $this->getUniqueConstraintNames($row[0]);
+                $currentIndexName = null;
+                $position         = -1;
+            }
+
+            if ($row[1] !== $currentIndexName) {
+                $currentIndexName = $row[1];
+                $position++;
+            }
+
+            yield new UniqueConstraintColumnMetadataRow(
+                schemaName: null,
+                tableName: $row[0],
+                id: $row[1],
+                name: $constraintNames[$position] ?? null,
+                columnName: $row[2],
+            );
+        }
+    }
+
+    /**
+     * @return list<?non-empty-string>
+     *
+     * @throws Exception
+     */
+    private function getUniqueConstraintNames(string $tableName): array
+    {
+        $sql = $this->getCreateTableSQL($tableName);
+
+        preg_match_all('#(?:CONSTRAINT\s+(\S+)\s+)?UNIQUE\b#i', $sql, $matches);
+
+        return array_map($this->parseOptionallyQuotedName(...), $matches[1]);
+    }
+
     /** {@inheritDoc} */
     public function getForeignKeyConstraintColumnsForAllTables(): iterable
     {
@@ -630,11 +726,11 @@ SQL,
     private function getTableOptions(iterable $tableNames): iterable
     {
         foreach ($tableNames as $tableName) {
+            $createSQL = $this->getCreateTableSQL($tableName);
+
             yield new TableMetadataRow(null, $tableName, [
-                'comment' => $this->parseTableCommentFromSQL(
-                    $tableName,
-                    $this->getCreateTableSQL($tableName),
-                ),
+                'comment' => $this->parseTableCommentFromSQL($tableName, $createSQL),
+                'without_rowid' => $this->parseWithoutRowidFromSQL($createSQL),
             ]);
         }
     }
@@ -679,6 +775,15 @@ SQL,
         $comment = preg_replace('{^\s*--}m', '', rtrim($match[1], "\n"));
 
         return $comment === '' ? null : $comment;
+    }
+
+    private function parseWithoutRowidFromSQL(string $sql): bool
+    {
+        if (preg_match('/\)[^)]*$/s', $sql, $match) !== 1) {
+            return false;
+        }
+
+        return preg_match('/\bWITHOUT\s+ROWID\b/i', $match[0]) === 1;
     }
 
     /** {@inheritDoc} */

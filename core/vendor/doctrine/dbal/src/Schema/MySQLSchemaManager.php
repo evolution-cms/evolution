@@ -17,7 +17,6 @@ use Doctrine\DBAL\Result;
 use Doctrine\DBAL\Schema\DefaultExpression\CurrentDate;
 use Doctrine\DBAL\Schema\DefaultExpression\CurrentTime;
 use Doctrine\DBAL\Schema\DefaultExpression\CurrentTimestamp;
-use Doctrine\DBAL\Types\Type;
 
 use function array_change_key_case;
 use function array_map;
@@ -214,7 +213,7 @@ class MySQLSchemaManager extends AbstractSchemaManager
             $options['comment'] = $tableColumn['comment'];
         }
 
-        $column = new Column($tableColumn['field'], Type::getType($type), $options);
+        $column = new Column($tableColumn['field'], $type, $options);
         $column->setPlatformOption('charset', $tableColumn['characterset']);
         $column->setPlatformOption('collation', $tableColumn['collation']);
 
@@ -428,6 +427,7 @@ SELECT
 FROM information_schema.STATISTICS
 WHERE %s
 ORDER BY TABLE_NAME,
+         INDEX_NAME,
          SEQ_IN_INDEX
 SQL,
             implode(' AND ', $conditions),

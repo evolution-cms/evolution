@@ -227,17 +227,15 @@ abstract class AbstractAsset
             );
         }
 
-        if ($this->_namespace === $futureNamespace) {
-            return;
+        if ($this->_namespace !== $futureNamespace) {
+            Deprecation::trigger(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/6592',
+                'Instead of %s, the namespace in this name will be interpreted as %s in 5.0.',
+                $this->_namespace !== null ? sprintf('"%s"', $this->_namespace) : 'null',
+                $futureNamespace !== null ? sprintf('"%s"', $futureNamespace) : 'null',
+            );
         }
-
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/6592',
-            'Instead of %s, the namespace in this name will be interpreted as %s in 5.0.',
-            $this->_namespace !== null ? sprintf('"%s"', $this->_namespace) : 'null',
-            $futureNamespace !== null ? sprintf('"%s"', $futureNamespace) : 'null',
-        );
     }
 
     /**

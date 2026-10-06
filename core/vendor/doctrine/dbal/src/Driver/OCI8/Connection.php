@@ -47,10 +47,7 @@ final class Connection implements ConnectionInterface
         return $matches[1];
     }
 
-    /**
-     * @throws Parser\Exception
-     * @throws Error
-     */
+    /** @throws Error */
     public function prepare(string $sql): Statement
     {
         $visitor = new ConvertPositionalToNamedPlaceholders();
@@ -66,10 +63,7 @@ final class Connection implements ConnectionInterface
         return new Statement($this->connection, $statement, $visitor->getParameterMap(), $this->executionMode);
     }
 
-    /**
-     * @throws Exception
-     * @throws Parser\Exception
-     */
+    /** @throws Exception */
     public function query(string $sql): Result
     {
         return $this->prepare($sql)->execute();
@@ -80,10 +74,7 @@ final class Connection implements ConnectionInterface
         return "'" . addcslashes(str_replace("'", "''", $value), "\000\n\r\\\032") . "'";
     }
 
-    /**
-     * @throws Exception
-     * @throws Parser\Exception
-     */
+    /** @throws Exception */
     public function exec(string $sql): int|string
     {
         return $this->prepare($sql)->execute()->rowCount();

@@ -322,10 +322,8 @@ class UniqueConstraint extends AbstractOptionallyNamedObject
 
         $this->columns[$column] = new Identifier($column);
 
-        $parser = Parsers::getUnqualifiedNameParser();
-
         try {
-            $this->columnNames[] = $parser->parse($column);
+            $this->columnNames[] = Parsers::parseUnqualifiedName($column);
         } catch (Throwable $e) {
             $this->failedToParseColumnNames = true;
 

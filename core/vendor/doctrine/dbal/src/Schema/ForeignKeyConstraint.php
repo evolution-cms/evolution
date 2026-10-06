@@ -601,10 +601,8 @@ class ForeignKeyConstraint extends AbstractOptionallyNamedObject
 
     private function parseReferencedTableName(string $referencedTableName): ?OptionallyQualifiedName
     {
-        $parser = Parsers::getOptionallyQualifiedNameParser();
-
         try {
-            return $parser->parse($referencedTableName);
+            return Parsers::parseOptionallyQualifiedName($referencedTableName);
         } catch (Throwable $e) {
             Deprecation::trigger(
                 'doctrine/dbal',
@@ -624,11 +622,9 @@ class ForeignKeyConstraint extends AbstractOptionallyNamedObject
      */
     private function parseColumnNames(array $columnNames): array
     {
-        $parser = Parsers::getUnqualifiedNameParser();
-
         try {
             return array_map(
-                static fn (string $columnName) => $parser->parse($columnName),
+                static fn (string $columnName) => Parsers::parseUnqualifiedName($columnName),
                 $columnNames,
             );
         } catch (Throwable $e) {
