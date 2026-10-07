@@ -1,5 +1,40 @@
 <?php
 
+if (!function_exists('treeSortColumns')) {
+    /**
+     * Columns the manager tree may be sorted by.
+     *
+     * @return string[]
+     */
+    function treeSortColumns(): array
+    {
+        return [
+            'isfolder', 'pagetitle', 'longtitle', 'menutitle', 'id', 'menuindex', 'alias',
+            'createdon', 'editedon', 'publishedon', 'pub_date', 'unpub_date',
+        ];
+    }
+}
+
+if (!function_exists('normalizeTreeSortBy')) {
+    /**
+     * @param mixed $value
+     */
+    function normalizeTreeSortBy($value): string
+    {
+        return is_string($value) && in_array($value, treeSortColumns(), true) ? $value : 'menuindex';
+    }
+}
+
+if (!function_exists('normalizeTreeSortDir')) {
+    /**
+     * @param mixed $value
+     */
+    function normalizeTreeSortDir($value): string
+    {
+        return is_string($value) && strtoupper($value) === 'DESC' ? 'DESC' : 'ASC';
+    }
+}
+
 if (!function_exists('makeHTML')) {
     /**
      * @param int $indent
@@ -25,11 +60,9 @@ if (!function_exists('makeHTML')) {
         $spacer .= '</span>';
 
         // manage order-by
-        if (!isset($_SESSION['tree_sortby']) && !isset($_SESSION['tree_sortdir'])) {
-            // This is the first startup, set default sort order
-            $_SESSION['tree_sortby'] = 'menuindex';
-            $_SESSION['tree_sortdir'] = 'ASC';
-        }
+        // Session values may come from the request or from stored user settings: never trust them in SQL
+        $_SESSION['tree_sortby'] = normalizeTreeSortBy($_SESSION['tree_sortby'] ?? null);
+        $_SESSION['tree_sortdir'] = normalizeTreeSortDir($_SESSION['tree_sortdir'] ?? null);
 
         $sc = evo()->getDatabase()->getFullTableName('site_content');
 
@@ -45,7 +78,7 @@ if (!function_exists('makeHTML')) {
                 $sortby = $sc . '.' . $_SESSION['tree_sortby'];
         };
 
-        $orderBy = $sortby . ' ' . ($_SESSION['tree_sortdir'] ?? 'ASC');
+        $orderBy = $sortby . ' ' . $_SESSION['tree_sortdir'];
 
         // get document groups for current user
         if (isset($_SESSION['mgrDocgroups']) && is_array($_SESSION['mgrDocgroups'])) {

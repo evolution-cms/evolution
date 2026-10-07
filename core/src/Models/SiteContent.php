@@ -96,6 +96,12 @@ class SiteContent extends Eloquent\Model
     const CHILDREN_RELATION_NAME = 'children';
 
     /**
+     * Upper bound for the filters of one tvFilter() call and for the sort terms of one tvOrderBy()
+     * call: every one of them costs the database a join or a sort key, so an unbounded list is a DoS.
+     */
+    const MAX_TV_QUERY_TERMS = 20;
+
+    /**
      * ClosureTable model instance.
      *
      * @var ClosureTable
@@ -2224,6 +2230,10 @@ class SiteContent extends Eloquent\Model
     {
         $prefix = evo()->getDatabase()->getConfig('prefix');
         $filters = explode($outerSep, trim($filters));
+        if (count($filters) > self::MAX_TV_QUERY_TERMS) {
+            // Fail closed, like a malformed filter: dropping the surplus would widen the result set
+            return $query->whereRaw('1 = 0');
+        }
         foreach ($filters as $filter) {
             if (empty($filter)) break;
             $parts = explode($innerSep, $filter, 5);
@@ -2232,6 +2242,14 @@ class SiteContent extends Eloquent\Model
             $op = $parts[2];
             $value = !empty($parts[3]) ? $parts[3] : '';
             $cast = !empty($parts[4]) ? $parts[4] : '';
+            // The name, operator and cast end up in raw SQL below, so refuse anything that is not plain
+            if (!preg_match('/^[\w\-]+$/D', (string)$tvname)
+                || !preg_match('/^(=|!=|<>|<=|>=|<|>|[a-z_\-!]+)$/iD', (string)$op)
+                || !preg_match('/^([A-Za-z]+(\(\d+(,\d+)?\))?)?$/D', (string)$cast)) {
+                // Fail closed: dropping a malformed filter would widen the result set
+                $query = $query->whereRaw('1 = 0');
+                continue;
+            }
             $field = 'tv_' . $tvname . '.value';
             if ($type == 'tvd') {
                 $field = \DB::Raw("IFNULL(`" . $prefix . "tv_" . $tvname . "`.`value`, `" . $prefix . "tvd_" . $tvname . "`.`default_text`)");
@@ -2263,6 +2281,9 @@ class SiteContent extends Eloquent\Model
                 case ($cast == 'UNSIGNED'):
                 case ($cast == 'SIGNED'):
                 case (strpos($cast, 'DECIMAL') !== false):
+                    if (!is_numeric($value)) {
+                        $value = 0;
+                    }
                     $numericCast = (in_array(evo()->getDatabase()->getConfig('driver'), ['sqlite', 'sqlite3'], true))
                         ? 'INTEGER'
                         : $cast;
@@ -2283,13 +2304,20 @@ class SiteContent extends Eloquent\Model
     public function scopeTvOrderBy($query, $orderBy = '', $sep = ':')
     {
         $prefix = evo()->getDatabase()->getConfig('prefix');
-        $orderBy = explode(',', trim($orderBy));
+        $orderBy = array_slice(explode(',', trim($orderBy)), 0, self::MAX_TV_QUERY_TERMS);
         foreach ($orderBy as $parts) {
             if (empty(trim($parts))) return;
             $part = array_map('trim', explode(' ', trim($parts), 3));
             $tvname = $part[0];
             $sortDir = !empty($part[1]) ? $part[1] : 'desc';
             $cast = !empty($part[2]) ? $part[2] : '';
+            // The name, direction and cast end up in raw SQL below, so refuse anything that is not plain
+            $nameOnly = explode($sep, $tvname, 2)[0];
+            if (!preg_match('/^[\w\-]+$/D', $nameOnly)
+                || !preg_match('/^(asc|desc)$/iD', $sortDir)
+                || !preg_match('/^([A-Za-z]+(\(\d+(,\d+)?\))?)?$/D', $cast)) {
+                continue;
+            }
             $driver = evo()->getDatabase()->getConfig('driver');
             $castType = $cast;
             if (in_array($driver, ['sqlite', 'sqlite3'], true) && $castType !== '') {
@@ -2418,6 +2446,8 @@ class SiteContent extends Eloquent\Model
 
     public function scopeOrderByDate($query, $sortDir = 'desc')
     {
+        $sortDir = strtolower(trim((string)$sortDir)) === 'asc' ? 'ASC' : 'DESC';
+
         return $query->orderByRaw('CASE WHEN pub_date != 0 THEN pub_date ELSE createdon END ' . $sortDir);
     }
 
