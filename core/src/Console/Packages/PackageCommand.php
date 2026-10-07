@@ -2,6 +2,7 @@
 
 use Illuminate\Console\Command;
 use \EvolutionCMS;
+use EvolutionCMS\Bootstrap\EnvCacheLoader;
 use Illuminate\Support\Facades\File;
 
 /**
@@ -167,6 +168,9 @@ class PackageCommand extends Command
         if (file_exists($servicesCache)) {
             unlink($servicesCache);
         }
+
+        // Discovery changes the provider/alias files listed in the bootstrap snapshot.
+        EnvCacheLoader::invalidate(EVO_BASE_PATH);
     }
 
     /**
