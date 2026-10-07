@@ -343,7 +343,7 @@ class Database extends Manager
             $tmp = [];
             foreach ($data as $alias => $field) {
                 $tmp[] = ($alias !== $field && !\is_int($alias) && $ignoreAlias === false) ?
-                    ($field . ' as `' . $alias . '`') : $field;
+                    ($field . ' as `' . str_replace('`', '``', (string)$alias) . '`') : $field;
             }
 
             $data = implode(',', $tmp);
@@ -353,6 +353,23 @@ class Database extends Manager
         }
 
         return $this->replacePrefixPlaceholderInTableName($data);
+    }
+
+    /**
+     * Quotes a column name/alias for the active driver, doubling embedded quote characters
+     * so an untrusted array key cannot break out of the identifier.
+     *
+     * @param  string|int  $name
+     * @return string
+     */
+    protected function quoteIdentifier($name)
+    {
+        $name = (string)$name;
+        if ($this->getConfig('driver') === 'pgsql') {
+            return '"' . str_replace('"', '""', $name) . '"';
+        }
+
+        return '`' . str_replace('`', '``', $name) . '`';
     }
 
     /**
@@ -628,19 +645,13 @@ class Database extends Manager
                 $this->query("INSERT INTO {$intotable} {$fields}");
             } else {
                 if (empty($fromtable)) {
-                    switch ($this->getConfig('driver')) {
-                        case 'pgsql':
-                            $fields = "(\"" . implode("\", \"", array_keys($fields)) . "\") VALUES('" . implode("', '",
-                                    array_values($fields)) . "')";
-                            break;
-                        default:
-                            $fields = "(`" . implode("`, `", array_keys($fields)) . "`) VALUES('" . implode("', '",
-                                    array_values($fields)) . "')";
-                            break;
-                    }
+                    $columns = implode(', ', array_map([$this, 'quoteIdentifier'], array_keys($fields)));
+                    $fields = "(" . $columns . ") VALUES('" . implode("', '", array_values($fields)) . "')";
                     $this->query("INSERT INTO {$intotable} {$fields}");
                 } else {
-                    $fields = "(" . implode(",", array_keys($fields)) . ")";
+                    $fields = "(" . implode(",", array_map(function ($column) {
+                        return preg_match('/^[\w.]+$/', (string)$column) ? $column : $this->quoteIdentifier($column);
+                    }, array_keys($fields))) . ")";
                     $where = trim($where);
                     $limit = trim($limit);
                     if ($where !== '' && stripos($where, 'WHERE') !== 0) {
@@ -691,14 +702,7 @@ class Database extends Manager
                     } else {
                         $f = "'" . $value . "'";
                     }
-                    switch ($this->getConfig('driver')) {
-                        case 'pgsql':
-                            $fields[$key] = "\"{$key}\" = " . $f;
-                            break;
-                        default:
-                            $fields[$key] = "`{$key}` = " . $f;
-                            break;
-                    }
+                    $fields[$key] = $this->quoteIdentifier($key) . ' = ' . $f;
 
                 }
                 $fields = implode(',', $fields);

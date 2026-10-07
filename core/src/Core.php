@@ -5220,22 +5220,26 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             foreach ($_ as $i => $v) {
                 if ($v === 'value') {
                     unset($_[$i]);
-                } else {
+                } elseif (preg_match('/^(\w+|\*)$/D', $v)) {
                     $_[$i] = 'tv.' . $v;
+                } else {
+                    unset($_[$i]);
                 }
             }
-            $fields = implode(',', $_);
+            $fields = $_ ? implode(',', $_) : 'tv.*';
         } else {
             $fields = "tv.*";
         }
 
-        if ($tvsort != '') {
-            $tvsort = 'tv.' . implode(',tv.', array_filter(array_map('trim', explode(',', $tvsort))));
-        }
+        $tvsortdir = strtoupper(trim((string)$tvsortdir)) === 'DESC' ? 'DESC' : 'ASC';
+        $tvsort = array_filter(array_map('trim', explode(',', (string)$tvsort)), function ($v) {
+            return preg_match('/^\w+$/D', $v);
+        });
+        $tvsort = $tvsort ? 'tv.' . implode(',tv.', $tvsort) : '';
         if ($tvidnames === "*") {
             $query = "tv.id<>0";
         } else {
-            $query = (is_numeric($tvidnames[0]) ? "tv.id" : "tv.name") . " IN ('" . implode("','", $tvidnames) . "')";
+            $query = (is_numeric($tvidnames[0]) ? "tv.id" : "tv.name") . " IN ('" . implode("','", $this->db->escape($tvidnames)) . "')";
         }
 
         foreach ($docs as $doc) {
@@ -5416,12 +5420,15 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         } else {
             $fields = ['*'];
         }
-        $sort = ($sort == '') ? '' : $table . '.' . implode(',' . $table . '.', array_filter(array_map('trim', explode(',', $sort))));
+        $sort = array_filter(array_map('trim', explode(',', (string)$sort)), function ($v) {
+            return preg_match('/^\w+(\s+(ASC|DESC))?$/iD', $v);
+        });
+        $sort = $sort ? $table . '.' . implode(',' . $table . '.', $sort) : '';
 
         if ($idnames === '*') {
             $query = '' . $table . '.id<>0';
         } else {
-            $query = (is_numeric($idnames[0]) ? '' . $table . '.id' : '' . $table . '.name') . " IN ('" . implode("','", $idnames) . "')";
+            $query = (is_numeric($idnames[0]) ? '' . $table . '.id' : '' . $table . '.name') . " IN ('" . implode("','", $this->getDatabase()->escape($idnames)) . "')";
         }
 
         $rs = SiteTmplvar::query()
