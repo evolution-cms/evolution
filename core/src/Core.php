@@ -5398,7 +5398,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
         // get document record
         if (empty($docid)) {
-            $docid = $this->documentIdentifier;
+            $docid = (int)$this->documentIdentifier;
             $docRow = $this->documentObject;
         } else {
             $docRow = $this->getDocument($docid, '*', $published, 0, $checkAccess);
@@ -5407,6 +5407,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 $cached[$cacheKey] = false;
                 return false;
             }
+            // The id reaches raw SQL below: use the one the database returned, never the caller's value
+            $docid = (int)($docRow['id'] ?? 0);
         }
         $table = $this->getDatabase()->getFullTableName('site_tmplvars');
         // get user defined template variables
@@ -5442,7 +5444,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 $join->on('site_tmplvar_contentvalues.tmplvarid', '=', 'site_tmplvars.id');
                 $join->on('site_tmplvar_contentvalues.contentid', '=', \DB::raw($docid));
             })
-            ->whereRaw($query . " AND " . $this->getDatabase()->getConfig('prefix') . "site_tmplvar_templates.templateid = '" . $docRow['template'] . "'");
+            ->whereRaw($query . " AND " . $this->getDatabase()->getConfig('prefix') . "site_tmplvar_templates.templateid = '" . (int)$docRow['template'] . "'");
         if ($sort != '') {
             $rs = $rs->orderByRaw($sort);
         }
