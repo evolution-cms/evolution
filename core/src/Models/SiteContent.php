@@ -102,6 +102,15 @@ class SiteContent extends Eloquent\Model
     const MAX_TV_QUERY_TERMS = 20;
 
     /**
+     * Operators a tvFilter() term may use. The operator is spliced into raw SQL for numeric casts,
+     * so it has to be an exact match, not a pattern.
+     */
+    const TV_FILTER_OPERATORS = [
+        '=', '!=', '<>', '<', '>', '<=', '>=',
+        'like', 'like-l', 'like-r', 'in', 'not_in', 'isnull', 'null', 'isnotnull', '!null',
+    ];
+
+    /**
      * ClosureTable model instance.
      *
      * @var ClosureTable
@@ -2244,7 +2253,7 @@ class SiteContent extends Eloquent\Model
             $cast = !empty($parts[4]) ? $parts[4] : '';
             // The name, operator and cast end up in raw SQL below, so refuse anything that is not plain
             if (!preg_match('/^[\w\-]+$/D', (string)$tvname)
-                || !preg_match('/^(=|!=|<>|<=|>=|<|>|[a-z_\-!]+)$/iD', (string)$op)
+                || !in_array(strtolower((string)$op), self::TV_FILTER_OPERATORS, true)
                 || !preg_match('/^([A-Za-z]+(\(\d+(,\d+)?\))?)?$/D', (string)$cast)) {
                 // Fail closed: dropping a malformed filter would widen the result set
                 $query = $query->whereRaw('1 = 0');

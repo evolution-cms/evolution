@@ -49,6 +49,13 @@ function recordingTvQuery(): object
             return $this;
         }
 
+        public function __call($method, $args)
+        {
+            $this->raw[] = $method . ':' . json_encode($args);
+
+            return $this;
+        }
+
         public function orderBy(...$args)
         {
             $this->raw[] = 'orderBy:' . json_encode($args);
@@ -104,3 +111,19 @@ test('tv sort terms over the limit are ignored', function () {
     expect($q->raw)->toHaveCount($max);
     $GLOBALS['evo'] = null;
 });
+
+test('a tv filter operator outside the allowlist matches nothing', function (string $op) {
+    $q = recordingTvQuery();
+    (new \EvolutionCMS\Models\SiteContent())->scopeTvFilter($q, "tv:price:{$op}:1:UNSIGNED");
+
+    expect($q->raw)->toBe(['1 = 0']);
+    $GLOBALS['evo'] = null;
+})->with(['OR', 'AND', 'xor', 'is-not', 'div', 'regexp-x']);
+
+test('every allowlisted tv filter operator is still applied', function (string $op) {
+    $q = recordingTvQuery();
+    (new \EvolutionCMS\Models\SiteContent())->scopeTvFilter($q, "tv:price:{$op}:1:UNSIGNED");
+
+    expect($q->raw)->not->toBe(['1 = 0']);
+    $GLOBALS['evo'] = null;
+})->with(\EvolutionCMS\Models\SiteContent::TV_FILTER_OPERATORS);
