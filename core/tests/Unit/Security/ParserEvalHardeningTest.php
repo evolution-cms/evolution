@@ -31,7 +31,7 @@ beforeAll(function () {
     if (!defined('IN_MANAGER_MODE')) {
         define('IN_MANAGER_MODE', false);
     }
-    $root = str_replace('\\', '/', dirname(__DIR__, 3)) . '/';
+    $root = str_replace('\\', '/', dirname(__DIR__, 4)) . '/';
     if (!defined('EVO_BASE_PATH')) {
         define('EVO_BASE_PATH', $root);
     }
@@ -211,6 +211,8 @@ describe('@FILE binding', function () {
 
         $relative = 'assets/evo_atfile_' . bin2hex(random_bytes(6)) . '.txt';
         $absolute = EVO_BASE_PATH . $relative;
+        // Another test may have pinned EVO_BASE_PATH to a tree without an assets directory
+        is_dir(dirname($absolute)) || mkdir(dirname($absolute), 0777, true);
         file_put_contents($absolute, 'included-body');
 
         try {
@@ -225,6 +227,8 @@ describe('@FILE binding', function () {
 
         $relative = 'assets/evo_atfile_' . bin2hex(random_bytes(6)) . '.txt';
         $absolute = EVO_BASE_PATH . $relative;
+        // Another test may have pinned EVO_BASE_PATH to a tree without an assets directory
+        is_dir(dirname($absolute)) || mkdir(dirname($absolute), 0777, true);
         file_put_contents($absolute, 'roundtrip');
 
         try {
