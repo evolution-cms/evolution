@@ -14,6 +14,7 @@ use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 
 use function strcasecmp;
+use function strtolower;
 
 final class TableEditor
 {
@@ -22,8 +23,14 @@ final class TableEditor
     /** @var UnqualifiedNamedObjectSet<Column> */
     private readonly UnqualifiedNamedObjectSet $columns;
 
+    /** @var array<string, string> keys are new names, values are old names */
+    private array $renamedColumns = [];
+
     /** @var UnqualifiedNamedObjectSet<Index> */
     private UnqualifiedNamedObjectSet $indexes;
+
+    /** @var list<IndexEditor> */
+    private array $indexEditors = [];
 
     private ?PrimaryKeyConstraint $primaryKeyConstraint = null;
 
@@ -140,6 +147,10 @@ final class TableEditor
         return $this->modifyColumn(UnqualifiedName::unquoted($columnName), $modification);
     }
 
+    /**
+     * Renames a column and records it in {@see Table::getRenamedColumns()} of the resulting table. The record spans
+     * only this edit: a table derived from the result does not inherit it.
+     */
     public function renameColumn(UnqualifiedName $oldColumnName, UnqualifiedName $newColumnName): self
     {
         $this->modifyColumn($oldColumnName, static function (ColumnEditor $editor) use ($newColumnName): void {
@@ -150,6 +161,19 @@ final class TableEditor
         $this->renameColumnInPrimaryKeyConstraint($oldColumnName, $newColumnName);
         $this->renameColumnInForeignKeyConstraints($oldColumnName, $newColumnName);
         $this->renameColumnInUniqueConstraints($oldColumnName, $newColumnName);
+
+        $oldKey = $this->getColumnKey($oldColumnName);
+        $newKey = $this->getColumnKey($newColumnName);
+
+        // If a column is renamed multiple times, only the original and the last new name are kept.
+        if (isset($this->renamedColumns[$oldKey])) {
+            $oldKey = $this->renamedColumns[$oldKey];
+            unset($this->renamedColumns[$this->getColumnKey($oldColumnName)]);
+        }
+
+        if ($newKey !== $oldKey) {
+            $this->renamedColumns[$newKey] = $oldKey;
+        }
 
         return $this;
     }
@@ -170,15 +194,13 @@ final class TableEditor
                 }
             }
 
-            if (! $modified) {
-                continue;
+            if ($modified) {
+                $this->indexes->modify($index->getObjectName(), static function (Index $index) use ($columns): Index {
+                    return $index->edit()
+                        ->setColumns(...$columns)
+                        ->create();
+                });
             }
-
-            $this->indexes->modify($index->getObjectName(), static function (Index $index) use ($columns): Index {
-                return $index->edit()
-                    ->setColumns(...$columns)
-                    ->create();
-            });
         }
     }
 
@@ -202,13 +224,11 @@ final class TableEditor
             }
         }
 
-        if (! $modified) {
-            return;
+        if ($modified) {
+            $this->primaryKeyConstraint = $this->primaryKeyConstraint->edit()
+                ->setColumnNames(...$columnNames)
+                ->create();
         }
-
-        $this->primaryKeyConstraint = $this->primaryKeyConstraint->edit()
-            ->setColumnNames(...$columnNames)
-            ->create();
     }
 
     private function renameColumnInUniqueConstraints(
@@ -325,9 +345,11 @@ final class TableEditor
         return $this->dropColumn(UnqualifiedName::unquoted($columnName));
     }
 
-    public function setIndexes(Index ...$indexes): self
+    /** Replaces the indexes, accepting {@see Index} objects and editors alike, as {@see addIndex()}. */
+    public function setIndexes(Index|IndexEditor ...$indexes): self
     {
         $this->indexes->clear();
+        $this->indexEditors = [];
 
         foreach ($indexes as $index) {
             $this->addIndex($index);
@@ -336,8 +358,18 @@ final class TableEditor
         return $this;
     }
 
-    public function addIndex(Index $index): self
+    /**
+     * Adds an index. An {@see Index} is added as is; an {@see IndexEditor} without a name produces an index whose
+     * name is generated from this table and the indexed columns.
+     */
+    public function addIndex(Index|IndexEditor $index): self
     {
+        if ($index instanceof IndexEditor) {
+            $this->indexEditors[] = $index;
+
+            return $this;
+        }
+
         try {
             $this->indexes->add($index);
         } catch (ObjectAlreadyExists $e) {
@@ -507,6 +539,11 @@ final class TableEditor
         return strcasecmp($name1->getIdentifier()->getValue(), $name2->getIdentifier()->getValue()) === 0;
     }
 
+    private function getColumnKey(UnqualifiedName $name): string
+    {
+        return strtolower($name->getIdentifier()->getValue());
+    }
+
     public function setComment(string $comment): self
     {
         $this->comment = $comment;
@@ -545,7 +582,7 @@ final class TableEditor
             $options['comment'] = $this->comment;
         }
 
-        return new Table(
+        $table = new Table(
             $this->name->toString(),
             $this->columns->toList(),
             $this->indexes->toList(),
@@ -554,6 +591,13 @@ final class TableEditor
             $options,
             $this->configuration,
             $this->primaryKeyConstraint,
+            $this->renamedColumns,
         );
+
+        foreach ($this->indexEditors as $indexEditor) {
+            $indexEditor->addToTable($table);
+        }
+
+        return $table;
     }
 }

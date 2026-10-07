@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Schema\Introspection\MetadataProcessor;
 
 use Doctrine\DBAL\Schema\Metadata\PrimaryKeyConstraintColumnRow;
-use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraintEditor;
 
@@ -26,8 +25,6 @@ final readonly class PrimaryKeyConstraintColumnMetadataProcessor
 
     public function applyRow(PrimaryKeyConstraintEditor $editor, PrimaryKeyConstraintColumnRow $row): void
     {
-        $editor->addColumnName(
-            UnqualifiedName::quoted($row->getColumnName()),
-        );
+        $editor->addQuotedColumnName($row->getColumnName());
     }
 }

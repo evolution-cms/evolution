@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.13.1] - 2026-09-30
+
+### Fixed
+- Fix: Coerce quoted 0 and 1 to booleans ([#965](https://github.com/jsonrainbow/json-schema/pull/965))
+- Fix badge URL for Draft 2019-09 in README ([#964](https://github.com/jsonrainbow/json-schema/pull/964))
+
+
+## [6.13.0] - 2026-09-23
+
+### Fixed
+- fix: Reject percent signs that do not introduce a hex triplet in relative references ([#959](https://github.com/jsonrainbow/json-schema/pull/959))
+- Validate iri and iri-reference formats according to RFC 3987 ([#962](https://github.com/jsonrainbow/json-schema/pull/962))
+- Fix uri-template rejecting non-Latin literals on PCRE2 10.46 ([#961](https://github.com/jsonrainbow/json-schema/pull/961))
+- Validate uri-template format according to RFC 6570 ([#960](https://github.com/jsonrainbow/json-schema/pull/960))
+- fix: Address warning on PHPUnit process due to upstream changes ([#956](https://github.com/jsonrainbow/json-schema/pull/956))
+- Resolve nested schema ids against their enclosing base uri ([#947](https://github.com/jsonrainbow/json-schema/pull/947))
+
+### Added
+- Validate idn-email format ([#963](https://github.com/jsonrainbow/json-schema/pull/963))
+
+
 ## [6.12.0] - 2026-09-04
 
 ### Fixed

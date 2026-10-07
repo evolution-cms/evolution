@@ -22,6 +22,7 @@ use Doctrine\DBAL\Schema\Metadata\MetadataProvider;
 use Doctrine\DBAL\Schema\Metadata\PrimaryKeyConstraintColumnRow;
 use Doctrine\DBAL\Schema\Metadata\TableColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\TableMetadataRow;
+use Doctrine\DBAL\Schema\Metadata\UniqueConstraintColumnMetadataRow;
 use Doctrine\DBAL\Schema\Metadata\ViewMetadataRow;
 use Doctrine\DBAL\Types\Exception\TypesException;
 
@@ -397,6 +398,7 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
             WHERE %s
               AND INDEX_NAME != 'PRIMARY'
             ORDER BY TABLE_NAME,
+                INDEX_NAME,
                 SEQ_IN_INDEX
             SQL,
             implode(' AND ', $conditions),
@@ -502,6 +504,83 @@ final readonly class MySQLMetadataProvider implements MetadataProvider
                 tableName: $row[0],
                 constraintName: $row[1],
                 isClustered: true,
+                columnName: $row[2],
+            );
+        }
+    }
+
+    /**
+     * @return iterable<UniqueConstraintColumnMetadataRow>
+     *
+     * @throws Exception
+     */
+    public function getUniqueConstraintColumnsForAllTables(): iterable
+    {
+        return $this->getUniqueConstraintColumns(null);
+    }
+
+    /**
+     * @param ?non-empty-string $schemaName
+     * @param non-empty-string  $tableName
+     *
+     * @return iterable<UniqueConstraintColumnMetadataRow>
+     *
+     * @throws Exception
+     */
+    public function getUniqueConstraintColumnsForTable(?string $schemaName, string $tableName): iterable
+    {
+        if ($schemaName !== null) {
+            throw UnsupportedName::fromNonNullSchemaName($schemaName, __METHOD__);
+        }
+
+        return $this->getUniqueConstraintColumns($tableName);
+    }
+
+    /**
+     * @return iterable<UniqueConstraintColumnMetadataRow>
+     *
+     * @throws Exception
+     */
+    private function getUniqueConstraintColumns(?string $tableName): iterable
+    {
+        // The schema name is passed multiple times in the WHERE clause instead of using a JOIN condition to avoid
+        // performance issues on MySQL older than 8.0 and the corresponding MariaDB versions caused by
+        // https://bugs.mysql.com/bug.php?id=81347
+        $conditions = ['tc.TABLE_SCHEMA = ?', 'kcu.TABLE_SCHEMA = ?'];
+        $params     = [$this->databaseName, $this->databaseName];
+
+        if ($tableName !== null) {
+            $conditions[] = 'tc.TABLE_NAME = ?';
+            $params[]     = $tableName;
+        }
+
+        // On MySQL < 8.0 and MariaDB, information_schema compares object names case-insensitively and so
+        // conflates table names that differ only in case. The binary comparison prevents that.
+        $sql = sprintf(
+            <<<'SQL'
+            SELECT tc.TABLE_NAME,
+                   tc.CONSTRAINT_NAME,
+                   kcu.COLUMN_NAME
+            FROM information_schema.TABLE_CONSTRAINTS tc
+                     INNER JOIN information_schema.KEY_COLUMN_USAGE kcu
+                                ON kcu.TABLE_NAME = tc.TABLE_NAME
+                                    AND CONVERT(kcu.TABLE_NAME USING binary) = CONVERT(tc.TABLE_NAME USING binary)
+                                    AND kcu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
+            WHERE %s
+              AND tc.CONSTRAINT_TYPE = 'UNIQUE'
+            ORDER BY tc.TABLE_NAME,
+                tc.CONSTRAINT_NAME,
+                kcu.ORDINAL_POSITION
+            SQL,
+            implode(' AND ', $conditions),
+        );
+
+        foreach ($this->connection->iterateNumeric($sql, $params) as $row) {
+            yield new UniqueConstraintColumnMetadataRow(
+                schemaName: null,
+                tableName: $row[0],
+                id: null,
+                name: $row[1],
                 columnName: $row[2],
             );
         }

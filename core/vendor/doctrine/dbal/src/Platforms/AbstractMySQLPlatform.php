@@ -366,7 +366,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         $queryParts = [];
 
         foreach ($diff->getAddedColumns() as $column) {
-            $columnProperties = array_merge($column->toArray(), [
+            $columnProperties = array_merge($column->toArray(true), [
                 'comment' => $column->getComment(),
             ]);
 
@@ -383,7 +383,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
         foreach ($diff->getChangedColumns() as $columnDiff) {
             $newColumn = $columnDiff->getNewColumn();
 
-            $newColumnProperties = array_merge($newColumn->toArray(), [
+            $newColumnProperties = array_merge($newColumn->toArray(true), [
                 'comment' => $newColumn->getComment(),
             ]);
 
@@ -467,7 +467,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             $sql = array_merge($sql, $this->getPreAlterTableAlterPrimaryKeySQL($diff, $droppedIndex));
 
             foreach ($diff->getAddedIndexes() as $addedIndex) {
-                if ($droppedIndex->getColumns() !== $addedIndex->getColumns()) {
+                if ($droppedIndex->getUnquotedColumns() !== $addedIndex->getUnquotedColumns()) {
                     continue;
                 }
 
@@ -536,7 +536,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
             $column->setAutoincrement(false);
 
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' MODIFY ' .
-                $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+                $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray(true));
 
             // original autoincrement information might be needed later on by other parts of the table alteration
             $column->setAutoincrement(true);
@@ -593,7 +593,7 @@ abstract class AbstractMySQLPlatform extends AbstractPlatform
                 $column->setAutoincrement(false);
 
                 $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' MODIFY ' .
-                    $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray());
+                    $this->getColumnDeclarationSQL($column->getQuotedName($this), $column->toArray(true));
 
                 // Restore the autoincrement attribute as it might be needed later on
                 // by other parts of the table alteration.

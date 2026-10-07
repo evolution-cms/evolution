@@ -10,6 +10,7 @@ use Doctrine\DBAL\Platforms\Keywords\KeywordList;
 use Doctrine\DBAL\Platforms\Keywords\SQLiteKeywords;
 use Doctrine\DBAL\Platforms\SQLite\SQLiteMetadataProvider;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\DefaultExpression;
 use Doctrine\DBAL\Schema\Exception\ColumnDoesNotExist;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Doctrine\DBAL\Schema\Identifier;
@@ -298,7 +299,13 @@ class SQLitePlatform extends AbstractPlatform
             $tableComment = $this->getInlineCommentSQL($options['comment']);
         }
 
-        $query = ['CREATE TABLE ' . $name . ' ' . $tableComment . '(' . $queryFields . ')'];
+        $sql = 'CREATE TABLE ' . $name . ' ' . $tableComment . '(' . $queryFields . ')';
+
+        if (isset($options['without_rowid']) && $options['without_rowid'] === true) {
+            $sql .= ' WITHOUT ROWID';
+        }
+
+        $query = [$sql];
 
         if (isset($options['alter']) && $options['alter'] === true) {
             return $query;
@@ -638,15 +645,13 @@ class SQLitePlatform extends AbstractPlatform
 
         foreach ($diff->getDroppedColumns() as $column) {
             $columnName = strtolower($column->getName());
-            if (! isset($columns[$columnName])) {
-                continue;
+            if (isset($columns[$columnName])) {
+                unset(
+                    $columns[$columnName],
+                    $oldColumnNames[$columnName],
+                    $newColumnNames[$columnName],
+                );
             }
-
-            unset(
-                $columns[$columnName],
-                $oldColumnNames[$columnName],
-                $newColumnNames[$columnName],
-            );
         }
 
         foreach ($diff->getChangedColumns() as $columnDiff) {
@@ -757,17 +762,21 @@ class SQLitePlatform extends AbstractPlatform
         $sql = [];
 
         foreach ($diff->getAddedColumns() as $column) {
-            $definition = $column->toArray();
+            $definition = $column->toArray(true);
 
-            $type = $definition['type'];
+            $type    = $this->getColumnType($definition);
+            $default = $column->getDefault();
 
             switch (true) {
-                case isset($definition['columnDefinition']):
-                case $definition['autoincrement']:
-                case $definition['comment'] !== '':
-                case $type instanceof Types\DateTimeType && $definition['default'] === $this->getCurrentTimestampSQL():
-                case $type instanceof Types\DateType && $definition['default'] === $this->getCurrentDateSQL():
-                case $type instanceof Types\TimeType && $definition['default'] === $this->getCurrentTimeSQL():
+                case $column->getColumnDefinition() !== null:
+                case $column->getAutoincrement():
+                case $column->getComment() !== '':
+                // A non-constant default expression (e.g. CURRENT_TIMESTAMP) cannot be used with
+                // ALTER TABLE ... ADD COLUMN on a non-empty table, so fall back to a table rebuild.
+                case $default instanceof DefaultExpression:
+                case $type instanceof Types\PhpDateTimeMappingType && $default === $this->getCurrentTimestampSQL():
+                case $type instanceof Types\PhpDateMappingType && $default === $this->getCurrentDateSQL():
+                case $type instanceof Types\PhpTimeMappingType && $default === $this->getCurrentTimeSQL():
                     return false;
             }
 
@@ -832,7 +841,9 @@ class SQLitePlatform extends AbstractPlatform
 
             $changed      = false;
             $indexColumns = [];
-            foreach ($index->getColumns() as $columnName) {
+            // Use the unquoted column names so the lookup is agnostic of whether the index
+            // was introspected (which marks its column names as quoted) or built in memory.
+            foreach ($index->getUnquotedColumns() as $columnName) {
                 $normalizedColumnName = strtolower($columnName);
                 if (! isset($nameMap[$normalizedColumnName])) {
                     unset($indexes[$key]);
@@ -845,17 +856,15 @@ class SQLitePlatform extends AbstractPlatform
                 }
             }
 
-            if (! $changed) {
-                continue;
+            if ($changed) {
+                $indexes[$key] = new Index(
+                    $index->getName(),
+                    $indexColumns,
+                    $index->isUnique(),
+                    $index->isPrimary(),
+                    $index->getFlags(),
+                );
             }
-
-            $indexes[$key] = new Index(
-                $index->getName(),
-                $indexColumns,
-                $index->isUnique(),
-                $index->isPrimary(),
-                $index->getFlags(),
-            );
         }
 
         foreach ($diff->getDroppedIndexes() as $index) {
@@ -895,7 +904,9 @@ class SQLitePlatform extends AbstractPlatform
         foreach ($foreignKeys as $key => $constraint) {
             $changed      = false;
             $localColumns = [];
-            foreach ($constraint->getLocalColumns() as $columnName) {
+            // Use the unquoted column names so the lookup is agnostic of whether the constraint
+            // was introspected (which marks its column names as quoted) or built in memory.
+            foreach ($constraint->getUnquotedLocalColumns() as $columnName) {
                 $normalizedColumnName = strtolower($columnName);
                 if (! isset($nameMap[$normalizedColumnName])) {
                     unset($foreignKeys[$key]);
@@ -908,17 +919,15 @@ class SQLitePlatform extends AbstractPlatform
                 }
             }
 
-            if (! $changed) {
-                continue;
+            if ($changed) {
+                $foreignKeys[$key] = new ForeignKeyConstraint(
+                    $localColumns, // @phpstan-ignore argument.type
+                    $constraint->getForeignTableName(),
+                    $constraint->getForeignColumns(), // @phpstan-ignore argument.type
+                    $constraint->getName(),
+                    $constraint->getOptions(),
+                );
             }
-
-            $foreignKeys[$key] = new ForeignKeyConstraint(
-                $localColumns, // @phpstan-ignore argument.type
-                $constraint->getForeignTableName(),
-                $constraint->getForeignColumns(), // @phpstan-ignore argument.type
-                $constraint->getName(),
-                $constraint->getOptions(),
-            );
         }
 
         foreach ($diff->getDroppedForeignKeys() as $constraint) {

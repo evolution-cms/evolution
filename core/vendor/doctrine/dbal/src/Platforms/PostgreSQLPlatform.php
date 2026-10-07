@@ -44,6 +44,9 @@ use function trim;
  */
 class PostgreSQLPlatform extends AbstractPlatform
 {
+    /** @see https://www.postgresql.org/docs/current/collation.html */
+    private const DEFAULT_COLLATION = 'default';
+
     private bool $useBooleanTrueFalseStrings = true;
 
     /** @var string[][] PostgreSQL booleans literals */
@@ -214,22 +217,20 @@ class PostgreSQLPlatform extends AbstractPlatform
         foreach ($diff->getAddedColumns() as $addedColumn) {
             $query = 'ADD ' . $this->getColumnDeclarationSQL(
                 $addedColumn->getQuotedName($this),
-                $addedColumn->toArray(),
+                $addedColumn->toArray(true),
             );
 
             $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
 
             $comment = $addedColumn->getComment();
 
-            if ($comment === '') {
-                continue;
+            if ($comment !== '') {
+                $commentsSQL[] = $this->getCommentOnColumnSQL(
+                    $tableNameSQL,
+                    $addedColumn->getQuotedName($this),
+                    $comment,
+                );
             }
-
-            $commentsSQL[] = $this->getCommentOnColumnSQL(
-                $tableNameSQL,
-                $addedColumn->getQuotedName($this),
-                $comment,
-            );
         }
 
         foreach ($diff->getDroppedColumns() as $droppedColumn) {
@@ -253,15 +254,25 @@ class PostgreSQLPlatform extends AbstractPlatform
 
             $newTypeSQLDeclaration = $this->getTypeSQLDeclaration($newColumn);
             $oldTypeSQLDeclaration = $this->getTypeSQLDeclaration($oldColumn);
-            if ($oldTypeSQLDeclaration !== $newTypeSQLDeclaration) {
+
+            $newCollation = $newColumn->getCollation() ?? self::DEFAULT_COLLATION;
+            $oldCollation = $oldColumn->getCollation() ?? self::DEFAULT_COLLATION;
+
+            $typeChanged      = $oldTypeSQLDeclaration !== $newTypeSQLDeclaration;
+            $collationChanged = $oldCollation !== $newCollation;
+            if ($typeChanged || $collationChanged) {
                 $query = 'ALTER ' . $newColumnName . ' TYPE ' . $newTypeSQLDeclaration;
+                if (! $typeChanged || $newCollation !== self::DEFAULT_COLLATION) {
+                    $query .= ' ' . $this->getColumnCollationDeclarationSQL($newCollation);
+                }
+
                 $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
             }
 
             if ($columnDiff->hasDefaultChanged()) {
                 $defaultClause = $newColumn->getDefault() === null
                     ? ' DROP DEFAULT'
-                    : ' SET' . $this->getDefaultValueDeclarationSQL($newColumn->toArray());
+                    : ' SET' . $this->getDefaultValueDeclarationSQL($newColumn->toArray(true));
 
                 $query = 'ALTER ' . $newColumnName . $defaultClause;
                 $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ' . $query;
@@ -282,15 +293,13 @@ class PostgreSQLPlatform extends AbstractPlatform
                 $sql[] = 'ALTER TABLE ' . $tableNameSQL . ' ALTER ' . $newColumnName . ' ' . $query;
             }
 
-            if (! $columnDiff->hasCommentChanged()) {
-                continue;
+            if ($columnDiff->hasCommentChanged()) {
+                $commentsSQL[] = $this->getCommentOnColumnSQL(
+                    $tableNameSQL,
+                    $newColumn->getQuotedName($this),
+                    $newColumn->getComment(),
+                );
             }
-
-            $commentsSQL[] = $this->getCommentOnColumnSQL(
-                $tableNameSQL,
-                $newColumn->getQuotedName($this),
-                $newColumn->getComment(),
-            );
         }
 
         return array_merge(
@@ -303,10 +312,10 @@ class PostgreSQLPlatform extends AbstractPlatform
 
     private function getTypeSQLDeclaration(Column $column): string
     {
-        $type = $column->getType();
+        $type = $this->getColumnType($column);
 
         // SERIAL/BIGSERIAL are not "real" types and we can't alter a column to that type
-        $columnDefinition                  = $column->toArray();
+        $columnDefinition                  = $column->toArray(true);
         $columnDefinition['autoincrement'] = false;
 
         return $type->getSQLDeclaration($columnDefinition, $this);

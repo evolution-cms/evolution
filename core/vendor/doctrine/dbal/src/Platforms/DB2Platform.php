@@ -18,7 +18,7 @@ use Doctrine\DBAL\Schema\TableDiff;
 use Doctrine\DBAL\SQL\Builder\DefaultSelectSQLBuilder;
 use Doctrine\DBAL\SQL\Builder\SelectSQLBuilder;
 use Doctrine\DBAL\TransactionIsolationLevel;
-use Doctrine\DBAL\Types\DateTimeType;
+use Doctrine\DBAL\Types\PhpDateTimeMappingType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Deprecations\Deprecation;
 
@@ -284,7 +284,7 @@ class DB2Platform extends AbstractPlatform
 
         $queryParts = [];
         foreach ($diff->getAddedColumns() as $column) {
-            $columnDef = $column->toArray();
+            $columnDef = $column->toArray(true);
             $queryPart = 'ADD COLUMN ' . $this->getColumnDeclarationSQL($column->getQuotedName($this), $columnDef);
 
             // Adding non-nullable columns to a table requires a default value to be specified.
@@ -300,15 +300,13 @@ class DB2Platform extends AbstractPlatform
 
             $comment = $column->getComment();
 
-            if ($comment === '') {
-                continue;
+            if ($comment !== '') {
+                $commentsSQL[] = $this->getCommentOnColumnSQL(
+                    $tableNameSQL,
+                    $column->getQuotedName($this),
+                    $comment,
+                );
             }
-
-            $commentsSQL[] = $this->getCommentOnColumnSQL(
-                $tableNameSQL,
-                $column->getQuotedName($this),
-                $comment,
-            );
         }
 
         $needsReorg = false;
@@ -402,7 +400,7 @@ class DB2Platform extends AbstractPlatform
     private function getAlterColumnClausesSQL(ColumnDiff $columnDiff, bool &$needsReorg): array
     {
         $newColumn   = $columnDiff->getNewColumn();
-        $columnArray = $newColumn->toArray();
+        $columnArray = $newColumn->toArray(true);
 
         $newName = $columnDiff->getNewColumn()->getQuotedName($this);
         $oldName = $columnDiff->getOldColumn()->getQuotedName($this);
@@ -429,7 +427,7 @@ class DB2Platform extends AbstractPlatform
             $columnDiff->hasFixedChanged()
         ) {
             $needsReorg = true;
-            $clauses[]  = $alterClause . ' SET DATA TYPE ' . $newColumn->getType()
+            $clauses[]  = $alterClause . ' SET DATA TYPE ' . $this->getColumnType($newColumn)
                     ->getSQLDeclaration($columnArray, $this);
         }
 
@@ -486,7 +484,7 @@ class DB2Platform extends AbstractPlatform
                 'The "version" column platform option is deprecated.',
             );
 
-            if ($column['type'] instanceof DateTimeType) {
+            if ($this->getColumnTypeOrNull($column) instanceof PhpDateTimeMappingType) {
                 $column['default'] = '1';
             }
         }

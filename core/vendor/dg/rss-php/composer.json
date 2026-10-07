@@ -1,0 +1,35 @@
+{
+	"name": "dg/rss-php",
+	"description": "RSS & Atom Feeds for PHP is a very small and easy-to-use library for consuming an RSS and Atom feed",
+	"keywords": ["rss", "atom", "feed"],
+	"homepage": "https://github.com/dg/rss-php",
+	"license": ["BSD-3-Clause"],
+	"authors": [
+		{
+			"name": "David Grudl",
+			"homepage": "https://davidgrudl.com"
+		}
+	],
+	"require": {
+		"php": ">=8.2",
+		"ext-simplexml": "*"
+	},
+	"require-dev": {
+		"nette/tester": "^2.6",
+		"phpstan/phpstan": "^2.1",
+		"phpstan/extension-installer": "^1.4",
+		"nette/phpstan-rules": "^1.0"
+	},
+	"autoload": {
+		"classmap": ["src/"]
+	},
+	"scripts": {
+		"phpstan": "phpstan analyse",
+		"tester": "tester tests -s"
+	},
+	"config": {
+		"allow-plugins": {
+			"phpstan/extension-installer": true
+		}
+	}
+}

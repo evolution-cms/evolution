@@ -41,7 +41,7 @@ final class Driver extends AbstractMySQLDriver
         }
 
         try {
-            $success = @$connection->real_connect(
+            @$connection->real_connect(
                 $host,
                 $params['user'] ?? '',
                 $params['password'] ?? '',
@@ -52,10 +52,6 @@ final class Driver extends AbstractMySQLDriver
             );
         } catch (mysqli_sql_exception $e) {
             throw ConnectionFailed::upcast($e);
-        }
-
-        if (! $success) {
-            throw ConnectionFailed::new($connection);
         }
 
         foreach ($this->compilePostInitializers($params) as $initializer) {
@@ -81,22 +77,20 @@ final class Driver extends AbstractMySQLDriver
         }
 
         if (
-            ! isset($params['ssl_key']) &&
-            ! isset($params['ssl_cert']) &&
-            ! isset($params['ssl_ca']) &&
-            ! isset($params['ssl_capath']) &&
-            ! isset($params['ssl_cipher'])
+            isset($params['ssl_key']) ||
+            isset($params['ssl_cert']) ||
+            isset($params['ssl_ca']) ||
+            isset($params['ssl_capath']) ||
+            isset($params['ssl_cipher'])
         ) {
-            return;
+            yield new Secure(
+                $params['ssl_key']    ?? '',
+                $params['ssl_cert']   ?? '',
+                $params['ssl_ca']     ?? '',
+                $params['ssl_capath'] ?? '',
+                $params['ssl_cipher'] ?? '',
+            );
         }
-
-        yield new Secure(
-            $params['ssl_key']    ?? '',
-            $params['ssl_cert']   ?? '',
-            $params['ssl_ca']     ?? '',
-            $params['ssl_capath'] ?? '',
-            $params['ssl_cipher'] ?? '',
-        );
     }
 
     /**
