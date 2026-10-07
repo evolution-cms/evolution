@@ -5414,9 +5414,12 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             if (\is_scalar($fields)) {
                 $fields = explode(',', $fields);
             }
-            $fields = array_filter(array_map('trim', $fields), function ($value) {
-                return $value !== 'value';
-            });
+            $fields = array_values(array_filter(array_map('trim', $fields), function ($value) {
+                return $value !== 'value' && preg_match('/^(\w+|\*)$/D', $value);
+            }));
+            if (!$fields) {
+                $fields = ['*'];
+            }
         } else {
             $fields = ['*'];
         }

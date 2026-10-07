@@ -49,6 +49,13 @@ function recordingTvQuery(): object
             return $this;
         }
 
+        public function orderBy(...$args)
+        {
+            $this->raw[] = 'orderBy:' . json_encode($args);
+
+            return $this;
+        }
+
         public function where(...$args)
         {
             $this->raw[] = 'where:' . json_encode($args);
@@ -71,5 +78,29 @@ test('a tv filter with a plain non-numeric cast is still applied', function () {
     (new \EvolutionCMS\Models\SiteContent())->scopeTvFilter($q, 'tv:name:=:abc:CHAR');
 
     expect($q->raw)->toBe(['where:' . json_encode(['tv_name.value', '=', 'abc'])]);
+    $GLOBALS['evo'] = null;
+});
+
+test('a tv filter list over the limit matches nothing', function () {
+    $max = \EvolutionCMS\Models\SiteContent::MAX_TV_QUERY_TERMS;
+    $filters = fn (int $n) => implode(';', array_fill(0, $n, 'tv:name:=:abc'));
+
+    $q = recordingTvQuery();
+    (new \EvolutionCMS\Models\SiteContent())->scopeTvFilter($q, $filters($max));
+    expect($q->raw)->toHaveCount($max);
+
+    $q = recordingTvQuery();
+    (new \EvolutionCMS\Models\SiteContent())->scopeTvFilter($q, $filters($max + 1));
+    expect($q->raw)->toBe(['1 = 0']);
+    $GLOBALS['evo'] = null;
+});
+
+test('tv sort terms over the limit are ignored', function () {
+    $max = \EvolutionCMS\Models\SiteContent::MAX_TV_QUERY_TERMS;
+    $terms = implode(',', array_map(fn ($i) => "tv{$i} asc", range(1, $max + 5)));
+
+    $q = recordingTvQuery();
+    (new \EvolutionCMS\Models\SiteContent())->scopeTvOrderBy($q, $terms);
+    expect($q->raw)->toHaveCount($max);
     $GLOBALS['evo'] = null;
 });

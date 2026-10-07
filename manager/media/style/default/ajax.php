@@ -79,14 +79,8 @@ if (isset($action)) {
                     ];
                     foreach ($sortParams as $param) {
                         if (isset($_REQUEST[$param])) {
-                            $value = $_REQUEST[$param];
-                            if ($param === 'tree_sortby') {
-                                $value = normalizeTreeSortBy($value);
-                            } elseif ($param === 'tree_sortdir') {
-                                $value = normalizeTreeSortDir($value);
-                            }
-                            $_SESSION[$param] = $value;
-                            evo()->getManagerApi()->saveLastUserSetting($param, $value);
+                            $_SESSION[$param] = $_REQUEST[$param];
+                            evo()->getManagerApi()->saveLastUserSetting($param, $_REQUEST[$param]);
                         }
                     }
 

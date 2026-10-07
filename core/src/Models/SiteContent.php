@@ -96,6 +96,12 @@ class SiteContent extends Eloquent\Model
     const CHILDREN_RELATION_NAME = 'children';
 
     /**
+     * Upper bound for the filters of one tvFilter() call and for the sort terms of one tvOrderBy()
+     * call: every one of them costs the database a join or a sort key, so an unbounded list is a DoS.
+     */
+    const MAX_TV_QUERY_TERMS = 20;
+
+    /**
      * ClosureTable model instance.
      *
      * @var ClosureTable
@@ -2224,6 +2230,10 @@ class SiteContent extends Eloquent\Model
     {
         $prefix = evo()->getDatabase()->getConfig('prefix');
         $filters = explode($outerSep, trim($filters));
+        if (count($filters) > self::MAX_TV_QUERY_TERMS) {
+            // Fail closed, like a malformed filter: dropping the surplus would widen the result set
+            return $query->whereRaw('1 = 0');
+        }
         foreach ($filters as $filter) {
             if (empty($filter)) break;
             $parts = explode($innerSep, $filter, 5);
@@ -2233,8 +2243,7 @@ class SiteContent extends Eloquent\Model
             $value = !empty($parts[3]) ? $parts[3] : '';
             $cast = !empty($parts[4]) ? $parts[4] : '';
             // The name, operator and cast end up in raw SQL below, so refuse anything that is not plain
-            if (strlen((string)$tvname) > 64 || strlen((string)$op) > 16 || strlen((string)$cast) > 32
-                || !preg_match('/^[\w\-]+$/D', (string)$tvname)
+            if (!preg_match('/^[\w\-]+$/D', (string)$tvname)
                 || !preg_match('/^(=|!=|<>|<=|>=|<|>|[a-z_\-!]+)$/iD', (string)$op)
                 || !preg_match('/^([A-Za-z]+(\(\d+(,\d+)?\))?)?$/D', (string)$cast)) {
                 // Fail closed: dropping a malformed filter would widen the result set
@@ -2295,7 +2304,7 @@ class SiteContent extends Eloquent\Model
     public function scopeTvOrderBy($query, $orderBy = '', $sep = ':')
     {
         $prefix = evo()->getDatabase()->getConfig('prefix');
-        $orderBy = explode(',', trim($orderBy));
+        $orderBy = array_slice(explode(',', trim($orderBy)), 0, self::MAX_TV_QUERY_TERMS);
         foreach ($orderBy as $parts) {
             if (empty(trim($parts))) return;
             $part = array_map('trim', explode(' ', trim($parts), 3));
@@ -2304,7 +2313,7 @@ class SiteContent extends Eloquent\Model
             $cast = !empty($part[2]) ? $part[2] : '';
             // The name, direction and cast end up in raw SQL below, so refuse anything that is not plain
             $nameOnly = explode($sep, $tvname, 2)[0];
-            if (strlen($tvname) > 66 || !preg_match('/^[\w\-]+$/D', $nameOnly)
+            if (!preg_match('/^[\w\-]+$/D', $nameOnly)
                 || !preg_match('/^(asc|desc)$/iD', $sortDir)
                 || !preg_match('/^([A-Za-z]+(\(\d+(,\d+)?\))?)?$/D', $cast)) {
                 continue;
