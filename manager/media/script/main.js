@@ -359,7 +359,8 @@ function document_onload() {
     evo.tooltips('[data-tooltip], [data-toggle="tooltip"][title]');
     //evo.collapse('.panel-heading', 'panel-collapse');
 
-    if (document.forms.length && document.forms.mutate && window.frameElement.parentNode.parentNode.classList.contains('evo-popup')) {
+    var popupEl = window.frameElement && window.frameElement.parentNode ? window.frameElement.parentNode.parentNode : null;
+    if (document.forms.length && document.forms.mutate && popupEl && popupEl.classList && popupEl.classList.contains('evo-popup')) {
         window.focus();
         document.forms.mutate.addEventListener('submit', function (e) {
             if ((actionSelect && actionSelect.value === '') || (!actionSelect && actionSaveButton)) {
@@ -378,7 +379,7 @@ function document_onload() {
                         if (top.tree) {
                             top.tree.restoreTree();
                         }
-                        window.frameElement.parentNode.parentNode.close(e);
+                        popupEl.close(e);
                     }
                 };
                 xhr.open(document.forms.mutate.method, document.forms.mutate.action, true);
@@ -388,12 +389,12 @@ function document_onload() {
         }, false);
 
         actions.cancel = function () {
-            window.frameElement.parentNode.parentNode.close();
+            popupEl.close();
         };
 
         window.addEventListener('keydown', function (e) {
             if (e.keyCode === 27) {
-                window.frameElement.parentNode.parentNode.close();
+                popupEl.close();
             }
         });
     }
