@@ -497,7 +497,10 @@
     @if(!empty($show_preview))
         <div class="sectionHeader">{{ ManagerTheme::getLexicon('preview') }}</div>
         <div class="sectionBody" id="lyr2">
-            <iframe src="{{ EVO_SITE_URL }}index.php?id={{ $id }}&z=manprev" frameborder="0" border="0" id="previewIframe"></iframe>
+            {{-- sandboxed without allow-same-origin: previewed content runs scripts but gets an opaque
+                 origin, so it cannot reach window.top, read the manager's CSRF meta tag, or ride the
+                 manager's session into a same-origin request. --}}
+            <iframe src="{{ EVO_SITE_URL }}index.php?id={{ $id }}&z=manprev" frameborder="0" border="0" id="previewIframe" sandbox="allow-scripts allow-forms allow-popups"></iframe>
         </div>
     @endif
 @endsection

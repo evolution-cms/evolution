@@ -406,8 +406,12 @@ class uploader
             return $this->label("File name shouldn't begins with '.'");
 
         // EXTENSION CHECK
-        elseif (!$this->validateExtension($extension, $this->type))
+        elseif (!$this->validateFilename($file['name'], $this->type))
             return $this->label("Denied file extension.");
+
+        // RASTER IMAGE NAMES MUST HOLD IMAGE DATA OF THE KIND THEY CLAIM
+        elseif (!$this->imageDataMatchesExtension($extension, $file['tmp_name']))
+            return $this->label("Unknown error.");
 
         // SPECIAL DIRECTORY TYPES CHECK (e.g. *img)
         elseif (preg_match('/^\*([^ ]+)(.*)?$/s', $typePatt, $patt)) {
@@ -471,6 +475,57 @@ class uploader
 
         $path = "{$this->config['uploadDir']}/$dir";
         return (is_dir($path) && is_readable($path)) ? $return : false;
+    }
+
+    /**
+     * A name that claims a raster image format has to hold that format: getimagesize() must read
+     * it and report the type the extension stands for.
+     *
+     * @param string $ext
+     * @param string $path
+     * @return bool
+     */
+    protected function imageDataMatchesExtension($ext, $path)
+    {
+        $kinds = [
+            'jpg' => [IMAGETYPE_JPEG], 'jpeg' => [IMAGETYPE_JPEG], 'jpe' => [IMAGETYPE_JPEG],
+            'png' => [IMAGETYPE_PNG], 'gif' => [IMAGETYPE_GIF], 'bmp' => [IMAGETYPE_BMP],
+            'webp' => [IMAGETYPE_WEBP], 'ico' => [IMAGETYPE_ICO], 'avif' => [defined('IMAGETYPE_AVIF') ? IMAGETYPE_AVIF : -1],
+            'tif' => [IMAGETYPE_TIFF_II, IMAGETYPE_TIFF_MM], 'tiff' => [IMAGETYPE_TIFF_II, IMAGETYPE_TIFF_MM],
+            'psd' => [IMAGETYPE_PSD],
+        ];
+        $ext = strtolower(trim($ext));
+        if (!isset($kinds[$ext])) {
+            return true;
+        }
+        $info = @getimagesize($path);
+
+        return $info !== false && in_array($info[2], $kinds[$ext], true);
+    }
+
+    /**
+     * Like validateExtension() for a whole file name: every inner dot-separated part is also checked
+     * against the denied list, since Apache's AddHandler runs PHP for "shell.php.jpg".
+     *
+     * @param string $name
+     * @param string $type
+     * @return bool
+     */
+    protected function validateFilename($name, $type)
+    {
+        $parts = explode('.', basename(str_replace('\\', '/', (string)$name)));
+        $ext = array_pop($parts);
+        array_shift($parts);
+
+        $denied = strtolower(text::clearWhitespaces($this->config['deniedExts']));
+        $denied = strlen($denied) ? explode(' ', $denied) : [];
+        foreach ($parts as $part) {
+            if (in_array(strtolower(trim($part)), $denied, true)) {
+                return false;
+            }
+        }
+
+        return $this->validateExtension($ext, $type);
     }
 
     /**

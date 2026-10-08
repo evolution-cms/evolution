@@ -523,7 +523,7 @@ if (!function_exists('getTVDisplayFormat')) {
                    their own, not the one that grants arbitrary PHP. */
                 if (strpos($output, '@FILE') === 0) {
                     $file_name = $modx->atBindFilePath(substr($output, 6));
-                    if ($file_name === false) {
+                    if ($file_name === false || !$modx->atBindFileIsReadable($file_name)) {
                         $widget_output = 'Could not retrieve file for TV ' . $name . '.';
                     } else {
                         $widget_output = file_get_contents($file_name);
@@ -899,7 +899,7 @@ if (!function_exists('renderFormElement')) {
                     /* If we are loading a file */
                     if (strpos($field_elements, '@FILE') === 0) {
                         $file_name = $modx->atBindFilePath(substr($field_elements, 6));
-                        if ($file_name === false) {
+                        if ($file_name === false || !$modx->atBindFileIsReadable($file_name)) {
                             $custom_output = 'Could not retrieve file for this TV.';
                         } else {
                             $custom_output = file_get_contents($file_name);

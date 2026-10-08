@@ -238,6 +238,28 @@ describe('@FILE binding', function () {
             @unlink($absolute);
         }
     });
+
+    test('files under the core directory are refused, also through traversal', function () {
+        $core = parserHardeningCore();
+
+        // an earlier test may have pinned the constants to a tree whose core is not below its base
+        if (strpos(rtrim(EVO_CORE_PATH, '/') . '/', rtrim(EVO_BASE_PATH, '/') . '/core/') !== 0) {
+            $this->markTestSkipped('EVO_CORE_PATH is not below EVO_BASE_PATH/core here');
+        }
+
+        $relative = 'core/evo_atfile_' . bin2hex(random_bytes(6)) . '.txt';
+        $absolute = EVO_BASE_PATH . $relative;
+        is_dir(dirname($absolute)) || mkdir(dirname($absolute), 0777, true);
+        file_put_contents($absolute, 'secret');
+
+        try {
+            expect($core->atBindFileContent('@FILE:' . $relative))->not->toBe('secret')
+                ->and($core->atBindFileContent('@FILE:assets/../' . $relative))->not->toBe('secret')
+                ->and($core->atBindFilePath($relative))->toBeFalse();
+        } finally {
+            @unlink($absolute);
+        }
+    });
 });
 
 describe('@INCLUDE binding', function () {
@@ -323,5 +345,36 @@ describe('the shared binding path resolver', function () {
         // Windows style separators reach this from hand written bindings.
         expect($core->atBindFilePath(str_repeat('..' . chr(92), 20) . 'Windows' . chr(92) . 'win.ini'))
             ->toBeFalse();
+    });
+});
+
+describe('@FILE readability', function () {
+
+    test('source, hidden, generated and secret files are not handed out as text', function (string $relative) {
+        $core = parserHardeningCore();
+        $absolute = EVO_BASE_PATH . $relative;
+        is_dir(dirname($absolute)) || mkdir(dirname($absolute), 0777, true);
+        file_put_contents($absolute, 'x');
+
+        try {
+            expect($core->atBindFileIsReadable($core->atBindFilePath($relative)))->toBeFalse();
+        } finally {
+            @unlink($absolute);
+        }
+    })->with(['assets/snippets/evo_x.php', 'assets/plugins/evo_x.phtml', 'assets/evo_x/.secret.txt', 'assets/cache/evo_x.txt', 'assets/backup/evo_x.sql', 'assets/evo_x.env']);
+
+    test('ordinary content files stay readable', function () {
+        $core = parserHardeningCore();
+        $relative = 'assets/templates/evo_x_' . bin2hex(random_bytes(4)) . '.html';
+        $absolute = EVO_BASE_PATH . $relative;
+        is_dir(dirname($absolute)) || mkdir(dirname($absolute), 0777, true);
+        file_put_contents($absolute, '<p>ok</p>');
+
+        try {
+            expect($core->atBindFileIsReadable($core->atBindFilePath($relative)))->toBeTrue()
+                ->and($core->atBindFileIsReadable(false))->toBeFalse();
+        } finally {
+            @unlink($absolute);
+        }
     });
 });

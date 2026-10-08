@@ -12,6 +12,7 @@ use EvolutionCMS\Support\DocumentSave\DocumentGroupSync;
 use EvolutionCMS\Support\DocumentSave\PublishState;
 use EvolutionCMS\Support\DocumentSave\TemplateVariableInput;
 use EvolutionCMS\Support\DocumentSave\TemplateVariableValues;
+use EvolutionCMS\Support\TvBindingGuard;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -80,6 +81,15 @@ final class DocumentSaveService
 
         $tvs = TemplateVariableValues::forTemplate($template, $id, !$ctx->isAdministrator(), $ctx->managerDocgroups);
         $tvValues = TemplateVariableInput::values($tvs, $input);
+
+        // @EVAL and @SELECT in a TV value run code when it is rendered: that takes the PHP permission
+        $storedValues = [];
+        foreach ($tvs as $tv) {
+            $storedValues[$tv['id']] = $tv['value'];
+        }
+        if (!TvBindingGuard::allowsValues($ctx->can('save_snippet'), $tvValues, $storedValues, (string) ($input['ta'] ?? ''), (string) ($existing->content ?? ''), $this->textFields($input), $existing ? $this->textFields($existing->getAttributes()) : [])) {
+            throw new DocumentSaveDenied($ctx->lang('error_no_privileges'));
+        }
 
         $now = $ctx->now;
         $pubDate = empty($input['pub_date']) ? 0 : $ctx->toTimestamp((string) $input['pub_date']);
@@ -299,5 +309,20 @@ final class DocumentSaveService
     private function transaction(callable $callback): mixed
     {
         return SiteContent::resolveConnection()->transaction($callback);
+    }
+
+    /**
+     * The text fields a TV binding can pull in with [*field*].
+     *
+     * @return array<string, string>
+     */
+    private function textFields(array $source): array
+    {
+        $fields = [];
+        foreach (['pagetitle', 'longtitle', 'description', 'introtext', 'menutitle', 'link_attributes', 'alias'] as $name) {
+            $fields[$name] = (string) ($source[$name] ?? '');
+        }
+
+        return $fields;
     }
 }

@@ -6615,11 +6615,15 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             return false;
         }
 
-        $manager = realpath(EVO_MANAGER_PATH);
-        if ($manager !== false) {
-            $manager = rtrim(str_replace(DIRECTORY_SEPARATOR, '/', $manager), '/') . '/';
-            if (strpos($resolved, $manager) === 0) {
-                return false;
+        // the manager and the core hold source, configuration and .env, none of it content
+        foreach ([EVO_MANAGER_PATH, EVO_CORE_PATH] as $protected) {
+            $protected = realpath($protected);
+            if ($protected !== false) {
+                $protected = rtrim(str_replace(DIRECTORY_SEPARATOR, '/', $protected), '/') . '/';
+                // a core that is not below the base (a relocated one) is not what the base serves
+                if ($protected !== $base && strpos($protected, $base) === 0 && strpos($resolved, $protected) === 0) {
+                    return false;
+                }
             }
         }
 
@@ -6657,6 +6661,37 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         return false;
     }
 
+    /**
+     * Whether a file resolved by atBindFilePath() may be handed out as text by @FILE or the
+     * file_get_contents modifier: no source (PHP-like files, wherever they live: snippets,
+     * plugins, modules), no hidden files or folders, no generated or backup data.
+     *
+     * @param string|false $path
+     * @return bool
+     */
+    public function atBindFileIsReadable($path)
+    {
+        if ($path === false || $path === '') {
+            return false;
+        }
+        $path = str_replace(DIRECTORY_SEPARATOR, '/', (string) $path);
+        $base = realpath(EVO_BASE_PATH);
+        $relative = $base === false ? $path : ltrim(substr($path, strlen(rtrim(str_replace(DIRECTORY_SEPARATOR, '/', $base), '/'))), '/');
+
+        foreach (explode('/', $relative) as $segment) {
+            if (strpos($segment, '.') === 0) {
+                return false;
+            }
+        }
+        if (preg_match('~^assets/(?:cache|backup)(?:/|$)~i', $relative)) {
+            return false;
+        }
+        $ext = '.' . strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        $denied = array_merge(self::AT_BIND_FILE_DENIED_EXTENSIONS, ['.pht', '.cgi', '.pl', '.py', '.sh', '.env', '.ini', '.sql', '.log', '.bak', '.conf', '.pem', '.key']);
+
+        return !in_array($ext, $denied, true);
+    }
+
     public function atBindFileContent($str = '')
     {
 
@@ -6688,7 +6723,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             ''
         ]);
 
-        if ($file_path === false) {
+        if ($file_path === false || !$this->atBindFileIsReadable($file_path)) {
             return $errorMsg;
         }
 

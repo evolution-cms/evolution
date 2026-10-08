@@ -418,10 +418,38 @@ if(!function_exists('fileManagerRemoveLink')) {
     }
 }
 
+if(!function_exists('fileManagerIsExecutableName')) {
+    /**
+     * Whether a file name would be run by the web server or changes how it serves a folder:
+     * a PHP-like extension anywhere in the name ("shell.php.jpg" runs under AddHandler), or
+     * one of the per-directory configuration files.
+     *
+     * @param string $name
+     * @return bool
+     */
+    function fileManagerIsExecutableName($name)
+    {
+        $base = strtolower(basename(str_replace(chr(92), '/', (string) $name)));
+        if (in_array($base, ['.htaccess', '.htpasswd', '.user.ini', '.env', 'web.config'], true)) {
+            return true;
+        }
+        $parts = explode('.', $base);
+        array_shift($parts);
+
+        foreach ($parts as $part) {
+            if (preg_match('/^(?:php\d*|phps|phtml|pht|phar|inc|cgi|pl|py|sh|asp|aspx|jsp)$/', trim($part))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
 if(!function_exists('fileManagerExtractZip')) {
     /**
      * Extracts $file into $path, skipping any entry that would land outside it, go through a
-     * symlink, or reach a protected folder.
+     * symlink, reach a protected folder, or be a server-executable file.
      *
      * @param string $file
      * @param string $path
@@ -459,6 +487,10 @@ if(!function_exists('fileManagerExtractZip')) {
             $isDir = substr($filename, -1) == '/';
             $target = $root . '/' . implode('/', $segments);
             if (!fileManagerIsSafeWriteTarget($root, $target) || fileManagerPathIsProtected($target, $protectedPaths)) {
+                continue;
+            }
+            // the upload form refuses these; unpacking must not be the way around it
+            if (!$isDir && fileManagerIsExecutableName(end($segments))) {
                 continue;
             }
             if ($isDir) {
