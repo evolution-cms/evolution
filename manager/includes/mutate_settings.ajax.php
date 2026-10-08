@@ -15,6 +15,17 @@ $value = preg_replace('/[^A-Za-z0-9_\-\.\/]/', '', $_POST['value'] ?? '');
 $str = '';
 $emptyCache = false;
 
+// page 118 is a plain view, so nothing before this file checked what the manager may do
+$core = EvolutionCMS();
+if ($action === 'setsetting' && strpos($key, '_hide_') !== 0 && !$core->hasPermission('settings')) {
+    $action = ''; // only the dismiss flags of notices are open to every manager
+} elseif ($action === 'updateplugin') {
+    $needed = $key === '_delete_' ? 'delete_plugin' : 'save_plugin';
+    if (!$core->hasPermission($needed) || ($key !== '_delete_' && $key !== 'disabled')) {
+        $action = '';
+    }
+}
+
 switch (true) {
     case ($action == 'get' && preg_match('/^[A-z0-9_-]+$/',
             $lang) && file_exists(EVO_CORE_PATH . 'lang/' . $lang . '/global.php')): {
