@@ -356,7 +356,12 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                     </tr>
 
 					<tr>
-						<td style="white-space:nowrap;"><span class="warning">*</span> <?php echo $_lang['user_email']; ?>:</td>
+						<?php /* .warning as a direct child of td:first-child is matched by a theme rule
+						   (main.css) that stretches it to ~100% width - meant for a label whose whole
+						   text is the warning, not a bare "*" marker. Wrapping it keeps that rule from
+						   matching, so the label renders inline instead of being pushed off to the
+						   right behind a stretched asterisk. */ ?>
+						<td style="white-space:nowrap;"><span><span class="warning">*</span> <?php echo $_lang['user_email']; ?>:</span></td>
 						<td><input type="text" name="email" class="inputBox" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(isset($_POST['email']) ? $_POST['email'] : $userdata['email']); ?>" onChange="documentDirty=true;" />
 							<input type="hidden" name="oldemail" value="<?php echo $modx->getPhpCompat()->htmlspecialchars(!empty($userdata['oldemail']) ? $userdata['oldemail'] : $userdata['email']); ?>" /></td>
 					</tr>
