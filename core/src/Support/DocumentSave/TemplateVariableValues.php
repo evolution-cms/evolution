@@ -13,7 +13,7 @@ final class TemplateVariableValues
 {
     /**
      * TVs of a template with the value stored for the document. Non-administrators only
-     * get the TVs without access rules or whose document belongs to one of their groups.
+     * get the TVs without access rules or whose access rows name one of their document groups.
      *
      * @return array<int, array{id:int, name:string, type:string, default_text:string, value_id:int|null, value:string|null}>
      */
@@ -31,12 +31,12 @@ final class TemplateVariableValues
             ->where('site_tmplvar_templates.templateid', $template)
             ->orderBy('site_tmplvars.rank');
 
+        // the TV's own access rows decide, not the groups of the document it is saved on
         if ($restrictToGroups) {
-            $query->leftJoin('document_groups', 'site_tmplvar_contentvalues.contentid', '=', 'document_groups.document')
-                ->where(function ($q) use ($managerGroups) {
-                    $q->whereNull('site_tmplvar_access.documentgroup')
-                        ->orWhereIn('document_groups.document_group', $managerGroups);
-                });
+            $query->where(function ($q) use ($managerGroups) {
+                $q->whereNull('site_tmplvar_access.documentgroup')
+                    ->orWhereIn('site_tmplvar_access.documentgroup', $managerGroups);
+            });
         }
 
         $rows = [];

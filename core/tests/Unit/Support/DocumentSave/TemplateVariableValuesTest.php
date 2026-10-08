@@ -60,15 +60,18 @@ test('distinct tv lookup selects its sort column without leaking rank or duplica
         ->and(array_keys($rows[0]))->toBe(['id', 'name', 'type', 'default_text', 'value_id', 'value']);
 })->skip(!extension_loaded('pdo_sqlite'), 'pdo_sqlite is required');
 
-test('a restricted tv is hidden from a user whose document is not in its group', function () {
+test('a restricted tv is hidden from a manager outside its own access group', function () {
     bootTvFixture();
 
-    expect(array_column(TemplateVariableValues::forTemplate(1, 100, true, [5]), 'id'))->toBe([2, 1]);
-
+    // TV 3 is restricted to document group 9. A manager in group 5 does not get it, even once
+    // the document itself is put into group 5 - the document's groups are not the TV's groups.
     Capsule::table('document_groups')->insert(['document_group' => 5, 'document' => 100]);
     Capsule::table('site_tmplvar_contentvalues')->insert(['tmplvarid' => 3, 'contentid' => 100, 'value' => 'v3']);
 
-    expect(array_column(TemplateVariableValues::forTemplate(1, 100, true, [5]), 'id'))->toBe([2, 1, 3]);
+    expect(array_column(TemplateVariableValues::forTemplate(1, 100, true, [5]), 'id'))->toBe([2, 1]);
+
+    // Only membership in the TV's own access group (9) exposes it.
+    expect(array_column(TemplateVariableValues::forTemplate(1, 100, true, [9]), 'id'))->toBe([2, 1, 3]);
 })->skip(!extension_loaded('pdo_sqlite'), 'pdo_sqlite is required');
 
 test('sync writes only the differences and leaves other documents alone', function () {
