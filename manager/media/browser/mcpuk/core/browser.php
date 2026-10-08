@@ -496,7 +496,7 @@ class browser extends uploader
             $this->errorMsg("A file or folder with that name already exists.");
         }
         $ext = file::getExtension($newName);
-        if (!$this->validateExtension($ext, $this->type)) {
+        if (!$this->validateFilename($newName, $this->type)) {
             $this->errorMsg("Denied file extension.");
         }
         if (is_array($evtOut) && !empty($evtOut)) {
@@ -622,7 +622,7 @@ class browser extends uploader
                 $error[] = $this->label("The file '{file}' does not exist.", $replace);
             } elseif (substr($base, 0, 1) == ".") {
                 $error[] = "$base: " . $this->label("File name shouldn't begins with '.'");
-            } elseif (!$this->validateExtension($ext, $type)) {
+            } elseif (!$this->validateFilename($base, $type)) {
                 $error[] = "$base: " . $this->label("Denied file extension.");
             } elseif (file_exists("$dir/$base")) {
                 $error[] = "$base: " . $this->label("A file or folder with that name already exists.");
@@ -711,7 +711,7 @@ class browser extends uploader
                 $error[] = $this->label("The file '{file}' does not exist.", $replace);
             } elseif (substr($base, 0, 1) == ".") {
                 $error[] = "$base: " . $this->label("File name shouldn't begins with '.'");
-            } elseif (!$this->validateExtension($ext, $type)) {
+            } elseif (!$this->validateFilename($base, $type)) {
                 $error[] = "$base: " . $this->label("Denied file extension.");
             } elseif (file_exists("$dir/$base")) {
                 $error[] = "$base: " . $this->label("A file or folder with that name already exists.");
