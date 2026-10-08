@@ -1123,17 +1123,19 @@ class Modifiers implements ModifiersInterface
                 if (!is_file($value)) {
                     return $value;
                 }
-                $value = realpath($value);
-                if (strpos($value, EVO_MANAGER_PATH) !== false) {
-                    exit('Can not read core file');
+                // same rules as @FILE: inside the installation, not manager/ or core/, no source or secrets
+                $resolved = $modx->resolveAtBindFilePath($value);
+                if ($resolved === false) {
+                    exit('Can not read file: outside the site, or inside manager/ or core/');
                 }
-                $ext = strtolower(substr($value, -4));
-                if ($ext === '.php') {
-                    exit('Can not read php file');
+                if (!$modx->atBindFileIsReadable($resolved)) {
+                    $reason = 'hidden, generated or backup file';
+                    if (preg_match('/\.(php\d*|phps|phtml|pht|phar|inc|cgi|pl|py|sh|env|ini|sql|log|bak|conf|pem|key)$/i', $resolved, $matches)) {
+                        $reason = 'denied extension .' . strtolower($matches[1]);
+                    }
+                    exit('Can not read file: ' . $reason);
                 }
-                if ($ext === '.cgi') {
-                    exit('Can not read cgi file');
-                }
+                $value = $resolved;
 
                 return file_get_contents($value);
             case 'filesize':
