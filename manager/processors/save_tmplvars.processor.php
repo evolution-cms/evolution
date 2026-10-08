@@ -21,6 +21,7 @@ $origin = isset($_REQUEST['or']) ? (int)$_REQUEST['or'] : 76;
 $originId = isset($_REQUEST['oid']) ? (int)$_REQUEST['oid'] : null;
 $currentdate = time() + $modx->config['server_offset_time'];
 $properties = $_POST['properties'];
+$tvBindingFields = ['elements' => $elements, 'default_text' => $default_text, 'display_params' => $params];
 
 //Kyle Jaebker - added category support
 if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
@@ -46,6 +47,11 @@ switch ($_POST['mode']) {
             "mode" => "new",
             "id" => $id
         ]);
+
+        // @EVAL and @SELECT run code, which save_template alone does not grant
+        if (!\EvolutionCMS\Support\TvBindingGuard::allows($modx->hasPermission('save_snippet'), $tvBindingFields)) {
+            $modx->webAlertAndQuit($_lang["error_no_privileges"]);
+        }
 
         // disallow duplicate names for new tvs
         if (EvolutionCMS\Models\SiteTmplvar::where('name', '=', $name)->first()) {
@@ -112,6 +118,12 @@ switch ($_POST['mode']) {
             "mode" => "upd",
             "id" => $id
         ]);
+
+        // @EVAL and @SELECT run code, which save_template alone does not grant
+        $storedTv = EvolutionCMS\Models\SiteTmplvar::find($id);
+        if (!\EvolutionCMS\Support\TvBindingGuard::allows($modx->hasPermission('save_snippet'), $tvBindingFields, $storedTv ? $storedTv->getAttributes() : [])) {
+            $modx->webAlertAndQuit($_lang["error_no_privileges"]);
+        }
 
         // disallow duplicate names for tvs
         if (EvolutionCMS\Models\SiteTmplvar::where('name', '=', $name)->where('id', '!=', $id)->first()) {

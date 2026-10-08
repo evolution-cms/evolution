@@ -1443,6 +1443,7 @@ return array(
     'EvolutionCMS\\Support\\SqliteDumper' => $baseDir . '/src/Support/SqliteDumper.php',
     'EvolutionCMS\\Support\\SystemSettingPathNormalizer' => $baseDir . '/src/Support/SystemSettingPathNormalizer.php',
     'EvolutionCMS\\Support\\TemplateFileEngines' => $baseDir . '/src/Support/TemplateFileEngines.php',
+    'EvolutionCMS\\Support\\TvBindingGuard' => $baseDir . '/src/Support/TvBindingGuard.php',
     'EvolutionCMS\\TemplateProcessor' => $baseDir . '/src/TemplateProcessor.php',
     'EvolutionCMS\\Tracy\\ConnectionTiming' => $baseDir . '/src/Tracy/ConnectionTiming.php',
     'EvolutionCMS\\Tracy\\Debugger' => $baseDir . '/src/Tracy/Debugger.php',
