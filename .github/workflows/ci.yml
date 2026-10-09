@@ -92,6 +92,55 @@ jobs:
         working-directory: core
         run: composer test -- --compact
 
+  php86-rc:
+    name: PHP 8.6 RC compatibility (Docker)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # The official 8.6-rc alias follows the latest PHP 8.6 release candidate.
+      # Report prerelease failures as warnings so this compatibility signal never
+      # marks the workflow build as failed.
+      - name: Build and test the PHP 8.6 RC image
+        env:
+          IMAGE: evo-ci-php:8.6-rc
+        run: |
+          if docker build --build-arg PHP_VERSION=8.6-rc -f .github/docker/ci/Dockerfile -t "$IMAGE" .; then
+            build_result=passed
+          else
+            build_result=failed
+          fi
+
+          version_result=skipped
+          test_result=skipped
+          if [ "$build_result" = passed ]; then
+            if docker run --rm --entrypoint php "$IMAGE" -r 'if (PHP_VERSION_ID < 80600 || PHP_VERSION_ID >= 80700 || !str_contains(PHP_VERSION, "RC")) { fwrite(STDERR, PHP_VERSION . PHP_EOL); exit(1); } echo PHP_VERSION, PHP_EOL;'; then
+              version_result=passed
+            else
+              version_result=failed
+            fi
+
+            # Locked dev tools still declare an upper PHP bound of 8.5; ignore
+            # only that metadata to exercise them on this prerelease runtime.
+            if docker run --rm --entrypoint sh "$IMAGE" -c 'cd core && php vendor/bin/composer install --no-interaction --no-progress --prefer-dist --ignore-platform-req=php && php vendor/bin/pest --compact'; then
+              test_result=passed
+            else
+              test_result=failed
+            fi
+          fi
+
+          {
+            echo '### PHP 8.6 RC compatibility'
+            echo "- Docker image build: **${build_result}**"
+            echo "- PHP RC version check: **${version_result}**"
+            echo "- Pest: **${test_result}**"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$build_result" != passed ] || [ "$version_result" = failed ] || [ "$test_result" = failed ]; then
+            echo "::warning title=PHP 8.6 RC compatibility::Image build=${build_result}, version check=${version_result}, Pest=${test_result}"
+          fi
+          exit 0
+
   install:
     name: Install on ${{ matrix.db }}
     runs-on: ubuntu-latest

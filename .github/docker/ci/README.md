@@ -79,8 +79,15 @@ no PHP on it, and what pins the PHP version when a version question is the one
 being investigated.
 
 One PHP version, every database: what the job proves is the installer's database
-paths, which do not vary with the PHP minor. 8.3 and 8.4 are both covered by the
-analysis and unit test jobs. The sqlite leg starts no container.
+paths, which do not vary with the PHP minor. PHP 8.3 through 8.5 are covered by
+the analysis and unit test jobs. The sqlite leg starts no container.
+
+The same workflow also builds this image from the official `php:8.6-rc-cli`
+image and runs the unit tests in it. The `8.6-rc` tag follows the latest PHP 8.6
+release candidate; it currently resolves to PHP 8.6.0RC3. The image includes
+SQLite and mbstring support for the test suite. This prerelease compatibility
+job reports the build, version and test results in the Actions summary and as a
+warning while keeping the workflow status green.
 
 The upgrade checks live in their own workflow, `.github/workflows/upgrade.yml`,
 off `push` and `pull_request` on purpose: an upgrade regression comes from a
