@@ -83,6 +83,7 @@ browser.initSettings = function() {
 
     var viewEl = $('#view input[value="' + _.kuki.get('view') + '"]').get(0);
     if (viewEl) viewEl.checked = true;
+    browser.updateViewControls(_.kuki.get('view'));
 
     $('#view input').click(function() {
         var view = $(this).attr('value');
@@ -99,6 +100,21 @@ browser.initSettings = function() {
                 $('#show input').each(function() { this.disabled = false; });
             }
         }
+        browser.updateViewControls(view);
         browser.refresh();
     });
+};
+
+browser.updateViewControls = function(view) {
+    if (view == 'list') {
+        $('label.radio-list').addClass('labelchecked');
+        $('label.radio-thumbs').removeClass('labelchecked');
+        $('.rangeThumbContainer').addClass('hiddenrange');
+        $('.rangeTextContainer').removeClass('hiddenrange');
+    } else {
+        $('label.radio-thumbs').addClass('labelchecked');
+        $('label.radio-list').removeClass('labelchecked');
+        $('.rangeTextContainer').addClass('hiddenrange');
+        $('.rangeThumbContainer').removeClass('hiddenrange');
+    }
 };

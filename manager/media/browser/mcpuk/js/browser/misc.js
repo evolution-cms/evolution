@@ -84,10 +84,14 @@ browser.hideDialog = function() {
     $('#dialog').click(function() {
         return false;
     });
-    $(document).unbind('keydown');
-    $(document).keydown(function(e) {
-        return !browser.selectAll(e);
-    });
+    if (this.initKeyboard)
+        this.initKeyboard();
+    else {
+        $(document).unbind('keydown');
+        $(document).keydown(function(e) {
+            return !browser.selectAll(e);
+        });
+    }
     browser.hideAlert();
 };
 
@@ -185,6 +189,21 @@ browser.unshadow = function() {
 };
 
 browser.showMenu = function(e) {
+    if (this.isMobileActionMode && this.isMobileActionMode()) {
+        var menu = $('#dialog .menu').detach();
+        $('#dialog').hide().empty();
+        if (!menu.length || !menu.find('a').length) {
+            $('#mobileActions').empty().removeClass('active');
+        } else {
+            $('#mobileActions').empty().append(menu).addClass('active');
+        }
+        if (this.fixFilesHeight)
+            this.fixFilesHeight();
+        return;
+    }
+
+    if (!e)
+        return;
     var left = e.pageX;
     var top = e.pageY;
     if (($('#dialog').outerWidth() + left) > $(window).width())

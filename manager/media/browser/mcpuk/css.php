@@ -143,7 +143,7 @@ tr.file > td.size {
 
 #toolbar {
     cursor: default;
-    white-space: nowrap;
+    white-space: normal;
 }
 
 #toolbar a {

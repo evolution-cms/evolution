@@ -17,17 +17,15 @@ browser.initFolders = function() {
     $('div.folder > a').unbind();
     $('div.folder > a').bind('click', function() {
         browser.hideDialog();
+        browser.openTreeFolder($(this));
+        return false;
+    });
+    $('div.folder > a').dblclick(function() {
+        browser.toggleTreeFolder($(this));
         return false;
     });
     $('div.folder > a > span.brace').unbind();
-    $('div.folder > a > span.brace').click(function() {
-        if ($(this).hasClass('opened') || $(this).hasClass('closed'))
-            browser.expandDir($(this).parent());
-    });
     $('div.folder > a > span.folder').unbind();
-    $('div.folder > a > span.folder').click(function() {
-        browser.changeDir($(this).parent());
-    });
     $('div.folder > a > span.folder').rightClick(function(e) {
         _.unselect();
         browser.menuDir($(this).parent(), e);
@@ -49,6 +47,16 @@ browser.initFolders = function() {
             body.removeChild(div);
         });
     }
+};
+
+browser.openTreeFolder = function(dir) {
+    this.changeDir(dir);
+};
+
+browser.toggleTreeFolder = function(dir) {
+    var brace = dir.children('.brace');
+    if (brace.hasClass('opened') || brace.hasClass('closed'))
+        this.expandDir(dir);
 };
 
 browser.setTreeData = function(data, path) {
@@ -191,6 +199,7 @@ browser.expandDir = function(dir) {
 
 browser.changeDir = function(dir) {
     if (dir.children('span.folder').hasClass('regular')) {
+        this.clearMobileActions();
         $('div.folder > a > span.folder').removeClass('current');
         $('div.folder > a > span.folder').removeClass('regular');
         $('div.folder > a > span.folder').addClass('regular');
@@ -210,6 +219,7 @@ browser.changeDir = function(dir) {
                 browser.orderFiles();
                 browser.dir = dir.data('path');
                 browser.dirWritable = data.dirWritable;
+                browser.updateWriteControls();
                 var title = "KCFinder: /" + browser.dir;
                 document.title = title;
                 if (browser.opener.TinyMCE)
@@ -252,8 +262,8 @@ browser.menuDir = function(dir, e) {
         if (this.access.files.copy || this.access.files.move)
             html += '<div class="delimiter"></div>';
     }
-    html +=
-        '<a href="kcact:refresh">' + this.label("Refresh") + '</a>';
+    if (!this.isMobileActionMode())
+        html += '<a href="kcact:refresh">' + this.label("Refresh") + '</a>';
     if (this.support.zip) html+=
         '<div class="delimiter"></div>' +
         '<a href="kcact:download">' + this.label("Download") + '</a>';
