@@ -159,7 +159,7 @@ browser.initResizer = function() {
 browser.resize = function() {
     _('left').style.width = '25%';
     _('right').style.width = '75%';
-    _('toolbar').style.height = $('#toolbar a').outerHeight() + "px";
+    _('toolbar').style.height = 'auto';
     _('shadow').style.width = $(window).width() + 'px';
     _('shadow').style.height = _('resizer').style.height = $(window).height() + 'px';
     _('left').style.height = _('right').style.height =
@@ -168,16 +168,18 @@ browser.resize = function() {
         $('#left').outerHeight() - _.outerVSpace('#folders') + 'px';
     browser.fixFilesHeight();
     var width = $('#left').outerWidth() + $('#right').outerWidth();
-    _('status').style.width = width + 'px';
-    while ($('#status').outerWidth() > width)
-        _('status').style.width = _.nopx(_('status').style.width) - 1 + 'px';
-    while ($('#status').outerWidth() < width)
-        _('status').style.width = _.nopx(_('status').style.width) + 1 + 'px';
+    // Size the status bar so its outer width equals the panes' width. Computed directly:
+    // stepping 1px at a time never ends when the width cannot go below 0 (e.g. while
+    // devtools switches between desktop and mobile and the panes briefly measure 0).
+    _('status').style.width = '0px';
+    _('status').style.width = Math.max(0, width - $('#status').outerWidth()) + 'px';
     if ($.browser.msie && ($.browser.version.substr(0, 1) < 8))
         _('right').style.width = $(window).width() - $('#left').outerWidth() + 'px';
     _('files').style.width = $('#right').innerWidth() - _.outerHSpace('#files') + 'px';
     _('resizer').style.left = $('#left').outerWidth() - _.outerRightSpace('#folders', 'm') + 'px';
     _('resizer').style.width = _.outerRightSpace('#folders', 'm') + _.outerLeftSpace('#files', 'm') + 'px';
+    if (this.syncMobileActions)
+        this.syncMobileActions();
 };
 
 browser.fitParentIFrame = function() {

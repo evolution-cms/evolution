@@ -44,8 +44,14 @@ tr.selected > td, tr.selected:hover > td { background-color: #5b9bda; color: #ff
 #collapseSide { padding: 5px 0; display: inline-block; float: left; margin: 0 0 0 5px; }
 #hide-side { display: inline-block; width: 20px; text-align: center; font-size: 1.3rem; color: #5a5a5a; background-color: transparent; border: none; padding: 0.7rem 0.6rem 0.4rem 0.6rem; margin: 0px; }
 #hide-side i.fa:hover { color: #292b2c; }
-#toolbar { min-width: 500px; padding: 5px 0 5px 0; display: block; margin-top: 2px; }
-#toolbar a { font-size: 1.1rem; line-height: 2rem; color: #292b2c; background-color: #fff; border: 1px solid #d4d4d4; padding: 0.3rem 0.6rem; margin-left: 5px; display: block; float: left; }
+#toolbar { min-width: 0; padding: 5px 0 5px 0; display: block; margin-top: 2px; white-space: normal; }
+#toolbar > div { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+#toolbar a { font-size: 1.1rem; line-height: 2rem; color: #292b2c; background-color: #fff; border: 1px solid #d4d4d4; padding: 0.3rem 0.6rem; margin-left: 0; display: block; float: none; }
+#toolbar #mobileActions { display: none; flex: 0 0 100%; width: 100%; min-width: 0; }
+#toolbar #mobileActions.active { display: block; }
+#toolbar #mobileActions .menu { display: flex; flex-wrap: wrap; gap: 5px; min-width: 0; width: 100%; padding: 0; border: 0; background: transparent; opacity: 1; }
+#toolbar #mobileActions .menu .delimiter { display: none; }
+#toolbar #mobileActions .menu a { margin: 0; }
 #toolbar a:before { font-family: 'Font Awesome 5 Free'; font-size: 1.3rem; display: inline-block; padding-right: 3px; margin-top: 0px; vertical-align: top; color: #404040; font-weight: bold;}
 #toolbar a:hover, #toolbar a.hover { color: #292b2c; background-color: #e6e6e6; border-color: #adadad }
 #toolbar a.selected, #toolbar a.selected:before { background-color: #3687e2; border-color: #3687e2; color: #fff; }
@@ -53,6 +59,8 @@ tr.selected > td, tr.selected:hover > td { background-color: #5b9bda; color: #ff
 #toolbar a[href="kcact:upload"]:hover { color: #fff; background-color: #449d44; border-color: #419641 }
 #toolbar a[href="kcact:upload"]:before { content: "\f093"; color: #fff; font-weight: bold;}
 #toolbar a[href="kcact:refresh"]:before { content: "\f021"; font-weight: bold;}
+#toolbar a[href="kcact:delete"]:before { content: "\f1f8"; font-weight: bold;}
+#toolbar a.disabled, #toolbar a.disabled:hover { color: #666; background-color: #f3f3f3; border-color: #d4d4d4; cursor: default; opacity: .55; pointer-events: none; }
 #toolbar a[href="kcact:settings"]:before { content: "\f0ad"; font-weight: bold;}
 #toolbar a[href="kcact:about"], #toolbar a:hover[href="kcact:about"] { border: none; padding: 0; background: transparent; }
 #toolbar a[href="kcact:about"]:before { content: "\f05a"; font-weight: bold;}
@@ -130,6 +138,9 @@ span.close, span.clicked { float: right; width: 19px; height: 19px; background: 
 .pull-right a { color: #bbb !important; }
 div.file .thumb { background-size: contain; }
 div.file .skipthumb { background-size: auto; }
+div.file .thumb.folder-icon { position: relative; background-color: #fff; background-image: none; }
+div.file .thumb.folder-icon:before { content: "\f07b"; font-family: 'Font Awesome 5 Free'; font-size: inherit; font-weight: 900; color: #3687e2; line-height: 1; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+div.file.folder .name { display: block; height: auto; min-height: 16px; overflow: visible; white-space: normal; word-wrap: break-word; text-align: center; }
 .rangeTextContainer, .rangeThumbContainer { display: inline-block; padding: 0.4rem 0.4rem 0.2rem 0.4rem; margin-left: 2px; }
 .hiddenrange { display: none }
 .thumbsize, .textsize { display: inline-block; margin-left: 10px; }

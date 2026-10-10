@@ -230,6 +230,19 @@ class browser extends uploader
     /**
      * @return string
      */
+    protected function act_dirSize()
+    {
+        $dir = $this->postDir();
+        if (!$this->isPathAccessible($dir)) {
+            $this->errorMsg("Inexistant or inaccessible folder.");
+        }
+
+        return json_encode(['size' => $this->calculateDirectorySize($dir)]);
+    }
+
+    /**
+     * @return string
+     */
     protected function act_chDir()
     {
         $this->postDir(); // Just for existing check
@@ -1109,8 +1122,8 @@ class browser extends uploader
             $entries[] = [
                 'name'      => $folder['name'],
                 'size'      => 0,
-                'mtime'     => 0,
-                'date'      => '',
+                'mtime'     => $folder['mtime'],
+                'date'      => $folder['date'],
                 'readable'  => $folder['readable'],
                 'writable'  => $folder['writable'],
                 'removable' => $folder['removable'],
@@ -1276,17 +1289,22 @@ class browser extends uploader
 
         $dirs  = glob($dir.'/*',GLOB_ONLYDIR);
         $hasDirs = !empty($dirs);
+        $stat = @stat($dir);
+        $mtime = $stat === false ? false : $stat['mtime'];
 
         // isWriteAllowed() takes a path below the type folder, not below the site root
         $typeRelativePath = \EvolutionCMS\Support\FileManagerAccess::getRelativePath($this->typeDir, $dir);
-        $writable = dir::isWritable($dir) && $this->isWriteAllowed($typeRelativePath);
+        $writable = is_writable($dir) && $this->isWriteAllowed($typeRelativePath);
+        $removable = $writable
+            && is_writable(dirname($dir))
+            && $this->isStrictWriteAllowed($typeRelativePath);
         $info = [
             'name'      => stripslashes(basename($dir)),
+            'mtime'     => $mtime === false ? 0 : $mtime,
+            'date'      => $mtime === false ? '' : date($this->dateTimeSmall, $mtime),
             'readable'  => is_readable($dir),
             'writable'  => $writable,
-            'removable' => $writable
-                && dir::isWritable(dirname($dir))
-                && $this->isStrictWriteAllowed($typeRelativePath),
+            'removable' => $removable,
             'hasDirs'   => $hasDirs
         ];
 
@@ -1295,6 +1313,55 @@ class browser extends uploader
         }
 
         return $info;
+    }
+
+    /**
+     * Calculate the total size of readable files the current user may access below a folder.
+     * This is called only after the user asks for a folder size, since traversing a large tree
+     * would make the initial browser listing slow.
+     *
+     * @param string $dir
+     * @return int
+     */
+    protected function calculateDirectorySize($dir)
+    {
+        $isAccessible = $this->subtreeAccessFilter($dir);
+        $pending = [$dir];
+        $size = 0;
+
+        while (count($pending)) {
+            $current = array_pop($pending);
+            if (!$isAccessible($current) || (dir::isLink($current) && $current !== $this->typeDir)) {
+                continue;
+            }
+
+            $entries = dir::content($current, ['followLinks' => false]);
+            if (!is_array($entries)) {
+                continue;
+            }
+
+            foreach ($entries as $entry) {
+                if (!$isAccessible($entry) || dir::isLink($entry)) {
+                    continue;
+                }
+                if (is_dir($entry)) {
+                    if (is_readable($entry)) {
+                        $pending[] = $entry;
+                    }
+                    continue;
+                }
+                if (!is_file($entry) || !is_readable($entry)) {
+                    continue;
+                }
+
+                $fileSize = @filesize($entry);
+                if ($fileSize !== false) {
+                    $size += $fileSize;
+                }
+            }
+        }
+
+        return $size;
     }
 
     /**

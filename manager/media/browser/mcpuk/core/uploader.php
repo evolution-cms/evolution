@@ -227,12 +227,13 @@ class uploader
         // COOKIES INIT
         $ip = '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)';
         $ip = '/^' . implode('\.', [$ip, $ip, $ip, $ip]) . '$/';
-        if (preg_match($ip, $_SERVER['HTTP_HOST']) ||
-            preg_match('/^[^\.]+$/', $_SERVER['HTTP_HOST'])
+        $host = preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST']);
+        if (preg_match($ip, $host) ||
+            preg_match('/^[^\.]+$/', $host)
         )
             $this->config['cookieDomain'] = "";
         elseif (!strlen($this->config['cookieDomain']))
-            $this->config['cookieDomain'] = $_SERVER['HTTP_HOST'];
+            $this->config['cookieDomain'] = $host;
         if (!strlen($this->config['cookiePath']))
             $this->config['cookiePath'] = "/";
 

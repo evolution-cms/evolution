@@ -1,3 +1,5 @@
+@import "../../../../style/common/font-awesome/css/font-awesome.min.css?v=5.10.2";
+
 body {
     background: #e0dfde;
 }
@@ -200,6 +202,35 @@ div.file .size {
     font-size: 10px;
 }
 
+div.file .thumb.folder-icon {
+    position: relative;
+    background-color: #e0dfde;
+    background-image: none;
+}
+
+div.file .thumb.folder-icon:before {
+    content: "\f07b";
+    font-family: 'Font Awesome 5 Free';
+    font-size: inherit;
+    font-weight: 900;
+    color: #3687e2;
+    line-height: 1;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+div.file.folder .name {
+    display: block;
+    height: auto;
+    min-height: 16px;
+    overflow: visible;
+    white-space: normal;
+    word-wrap: break-word;
+    text-align: center;
+}
+
 #files div.selected,
 #files div.selected:hover {
     background-color: #5b9bda;
@@ -228,6 +259,45 @@ tr.selected:hover > td {
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
     position:relative;
+    white-space: normal;
+}
+
+#toolbar > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+}
+
+#toolbar #mobileActions {
+    display: none;
+    flex: 0 0 100%;
+    width: 100%;
+    min-width: 0;
+}
+
+#toolbar #mobileActions.active {
+    display: block;
+}
+
+#toolbar #mobileActions .menu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    min-width: 0;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    opacity: 1;
+}
+
+#toolbar #mobileActions .menu .delimiter {
+    display: none;
+}
+
+#toolbar #mobileActions .menu a {
+    margin: 0;
 }
 
 #toolbar a {
@@ -238,7 +308,7 @@ tr.selected:hover > td {
     background: no-repeat 2px center;
     outline: none;
     display: block;
-    float: left;
+    float: none;
     border-radius: 4px;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
@@ -267,6 +337,20 @@ tr.selected:hover > td {
 
 #toolbar a[href="kcact:refresh"] {
     background-image: url(img/icons/refresh.png);
+}
+
+#toolbar a[href="kcact:delete"] {
+    background-image: url(img/icons/delete.png);
+}
+
+#toolbar a.disabled,
+#toolbar a.disabled:hover {
+    color: #666;
+    background-color: #f3f3f3;
+    border-color: #d4d4d4;
+    cursor: default;
+    opacity: 0.55;
+    pointer-events: none;
 }
 
 #toolbar a[href="kcact:settings"] {

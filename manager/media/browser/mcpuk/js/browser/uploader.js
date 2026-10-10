@@ -20,14 +20,19 @@ browser.initUploader = function() {
     var upload = $('input[name="upload"]', '#toolbar');
     btn.click(function(e){
         e.preventDefault();
+        if (!browser.canWriteCurrentDirectory(browser.access.files.upload)) {
+            browser.alert(browser.label("Cannot write to upload folder."));
+            return false;
+        }
         browser.clearUpload();
         upload.trigger('click');
     });
-    upload.on('change', function () {
+    upload.change(function () {
         browser.prepareFiles(this.files);
     });
     browser.initFilesDropGuards();
     browser.initFilesDropzone();
+    browser.updateWriteControls();
 };
 
 browser.initFilesDropGuards = function() {
@@ -371,7 +376,7 @@ browser.uploadFile = function(file, index, count) {
 };
 
 browser.uploadFiles = function(files) {
-    if (!this.dirWritable) {
+    if (!this.canWriteCurrentDirectory(this.access.files.upload)) {
         browser.alert(this.label("Cannot write to upload folder."));
         return;
     }

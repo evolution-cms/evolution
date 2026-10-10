@@ -11,7 +11,7 @@
   */
 
 browser.initToolbar = function() {
-    $('#toolbar a').click(function() {
+    $('#toolbar > div > a').click(function() {
         browser.hideDialog();
     });
 
@@ -44,6 +44,17 @@ browser.initToolbar = function() {
         return false;
     });
 
+    var deleteButton = $('#toolbar a[href="kcact:delete"]');
+    if (!this.access.files['delete'])
+        deleteButton.hide();
+    deleteButton.click(function() {
+        if ($(this).hasClass('disabled'))
+            return false;
+        browser.deleteSelectedFiles();
+        return false;
+    });
+    this.updateDeleteButton();
+
     if (window.opener || this.opener.TinyMCE || $('iframe', window.parent.document).get(0))
         $('#toolbar a[href="kcact:maximize"]').click(function() {
             browser.maximize(this);
@@ -51,6 +62,89 @@ browser.initToolbar = function() {
         });
     else
         $('#toolbar a[href="kcact:maximize"]').css('display', 'none');
+};
+
+browser.updateDeleteButton = function() {
+    var files = $('.file.selected').filter(function() {
+        return !$(this).data('isDir');
+    }).map(function() {
+        return $(this).data();
+    }).get();
+    var enabled = this.deleteButtonEnabled(this.access.files['delete'], files);
+    var button = $('#toolbar a[href="kcact:delete"]');
+
+    if (enabled)
+        button.removeClass('disabled');
+    else
+        button.addClass('disabled');
+    button.attr('aria-disabled', enabled ? 'false' : 'true');
+};
+
+browser.updateWriteControls = function() {
+    var canUpload = this.canWriteCurrentDirectory(this.access.files.upload),
+        uploadButton = $('#toolbar a[href="kcact:upload"]');
+
+    uploadButton.toggleClass('disabled', !canUpload);
+    uploadButton.attr('aria-disabled', canUpload ? 'false' : 'true');
+    this.updateDeleteButton();
+};
+
+browser.isMobileActionMode = function() {
+    return $(window).width() <= 780;
+};
+
+browser.clearMobileActions = function() {
+    $('#mobileActions').empty().removeClass('active');
+    if (this.fixFilesHeight)
+        this.fixFilesHeight();
+};
+
+browser.updateMobileActions = function() {
+    if (!this.isMobileActionMode()) {
+        this.clearMobileActions();
+        return;
+    }
+
+    $('#mobileActions').empty().removeClass('active');
+    var selected = $('.file.selected').get();
+    var selectedFolder = null;
+    var selectedFiles = [];
+    $.each(selected, function(i, item) {
+        if ($(item).data('isDir'))
+            selectedFolder = item;
+        else
+            selectedFiles.push(item);
+    });
+
+    if (selectedFolder) {
+        this.menuFolder($(selectedFolder));
+    } else if (selectedFiles.length) {
+        var target = $.inArray(this.lastSelectedFile, selectedFiles) >= 0
+            ? this.lastSelectedFile : selectedFiles[0];
+        this.menuFile($(target));
+    } else {
+        var currentDir = $('#folders a').filter(function() {
+            return $(this).data('path') === browser.dir;
+        });
+        if (currentDir.get(0))
+            this.menuDir(currentDir);
+    }
+
+    this.fixFilesHeight();
+};
+
+browser.syncMobileActions = function() {
+    var isMobile = this.isMobileActionMode();
+    if (this.mobileActionMode === isMobile)
+        return;
+
+    this.mobileActionMode = isMobile;
+    if (isMobile) {
+        if (typeof this.files != 'undefined')
+            this.updateMobileActions();
+    } else {
+        this.clearMobileActions();
+    }
 };
 
 browser.maximize = function(button) {
@@ -209,6 +303,7 @@ browser.refresh = function(selected) {
             if (browser.check4errors(data))
                 return;
             browser.dirWritable = data.dirWritable;
+            browser.updateWriteControls();
             browser.files = data.files ? data.files : [];
             browser.orderFiles(null, selected);
             browser.statusDir();

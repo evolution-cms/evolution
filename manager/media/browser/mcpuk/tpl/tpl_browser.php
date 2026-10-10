@@ -4,6 +4,7 @@
 <head>
     <title>KCFinder: /
         <?php echo $this->session['dir'] ?></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <?php INCLUDE "tpl/tpl_css.php" ?>
     <?php INCLUDE "tpl/tpl_javascript.php" ?>
 </head>
@@ -30,6 +31,8 @@
                         <?php echo $this->label("Upload") ?></a>
                     <a href="kcact:refresh">
                         <?php echo $this->label("Refresh") ?></a>
+                    <a href="kcact:delete" class="disabled" aria-disabled="true">
+                        <?php echo $this->label("Delete") ?></a>
                     <a href="kcact:settings">
                         <?php echo $this->label("Settings") ?></a>
                     <a href="kcact:maximize">
@@ -47,6 +50,7 @@
                     <div class="rangeTextContainer">
                         <input id="rangeText" class="rangeText" type="range" value="12" min="12" max="28" step="1"><span class="textsize"></span>
                     </div>
+                    <div id="mobileActions"></div>
                     <div id="loading"></div>
                 </div>
             </div>
@@ -133,31 +137,14 @@
         </div>
     </div>
     <script>
-        $(document).ready(function() {
-            if ($("#viewThumbs").is(":checked")) {
-                $('label.radio-thumbs').addClass('labelchecked');
-                $('.rangeTextContainer').addClass('hiddenrange');
-                $('.rangeThumbContainer').removeClass('hiddenrange');
-            } else {
-                $('label.radio-list').addClass('labelchecked');
-                $('.rangeThumbContainer').addClass('hiddenrange');
-                $('.rangeTextContainer').removeClass('hiddenrange');
-            }
-        });
-        $('.rangeThumb').change(function() {
-            var v = $(this).val();
-            $('div.thumb').css('height', v + 'px')
-            $('div.thumb').css('width', v + 'px')
-            $('div.thumb img').css('height', v + 'px')
-            $('div.thumb img').css('width', v + 'px')
-            $('div.file').css('width', v + 'px')
-            $('.thumbsize').html(v + 'px');
-        });
-        $('.rangeText').change(function() {
-            var v = $(this).val();
-            $('tr.file td').css('font-size', v + 'px')
-            $('.textsize').html(v + 'px');
-        });
+        var applyThumbSize = function() {
+            browser.applyThumbSize($(this).val());
+        };
+        $('.rangeThumb').bind('input', applyThumbSize).change(applyThumbSize);
+        var applyTextSize = function() {
+            browser.applyTextSize($(this).val());
+        };
+        $('.rangeText').bind('input', applyTextSize).change(applyTextSize);
         $("#hide-side").click(function() {
             var x = document.getElementById('left');
             if (x.style.display === 'none') {
@@ -171,18 +158,6 @@
                 $('#files').css("width", "99%");
             }
 
-        });
-        $("label.radio-list").click(function() {
-            $('label.radio-list').addClass('labelchecked');
-            $('label.radio-thumbs').removeClass('labelchecked');
-            $('.rangeThumbContainer').addClass('hiddenrange');
-            $('.rangeTextContainer').removeClass('hiddenrange');
-        });
-        $("label.radio-thumbs").click(function() {
-            $('label.radio-thumbs').addClass('labelchecked');
-            $('label.radio-list').removeClass('labelchecked');
-            $('.rangeTextContainer').addClass('hiddenrange');
-            $('.rangeThumbContainer').removeClass('hiddenrange');
         });
     </script>
 </body>
