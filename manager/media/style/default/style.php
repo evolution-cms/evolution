@@ -8,9 +8,12 @@
  * Version:        1.1
  * MODX version:   1.0.3
  */
-// This file is included by ManagerTheme::loadStyle() while the theme is being built.
-// Resolve the current instance directly to avoid recursively constructing the facade singleton.
-$style_path = 'media/style/' . $this->getTheme() . '/images/';
+// Use the instance while ManagerTheme is being built, avoiding facade recursion.
+// Legacy modules such as sLang also include this file from their own controllers.
+$style_theme = isset($this) && $this instanceof \EvolutionCMS\ManagerTheme
+    ? $this->getTheme()
+    : evo()->getConfig('manager_theme', 'default');
+$style_path = 'media/style/' . $style_theme . '/images/';
 evo()->config['mgr_date_picker_path'] = 'media/calendar/datepicker.inc.php';
 
 if (!empty($_GET['a']) && $_GET['a'] == 2) {
@@ -30,7 +33,7 @@ if (!empty($_GET['a']) && $_GET['a'] == 2) {
 }
 
 // Favicon
-$_style['favicon'] = (file_exists(EVO_BASE_PATH . 'favicon.ico') ? EVO_SITE_URL . 'favicon.ico' : 'media/style/' . $this->getTheme() . '/images/favicon.ico');
+$_style['favicon'] = (file_exists(EVO_BASE_PATH . 'favicon.ico') ? EVO_SITE_URL . 'favicon.ico' : $style_path . 'favicon.ico');
 
 // Icons
 $_style['icon_size_2x'] = ' fa-2x';
