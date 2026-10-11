@@ -313,6 +313,77 @@ those lists when you add an action — a green suite is not proof that a new act
 
 ---
 
+### File manager access rules
+
+The classic file manager (`manager/actions/files.dynamic.php`, helpers in
+`core/functions/actions/files.php`) decides access in three layers. Every write path must go through
+them; do not add a second scheme.
+
+**1. Folders, by permission** - `fileManagerProtectedPaths()`. A listed folder is blocked for
+reading, saving, deleting, uploading and ZIP extraction unless the user holds the permission. No
+folder is protected unconditionally.
+
+| Folder(s) | Open if the user has |
+|---|---|
+| `temp/backup`, `assets/backup` | `bk_manager` |
+| `assets/plugins` | `save_plugin` |
+| `assets/snippets` | `save_snippet` |
+| `assets/templates` | `save_template` |
+| `assets/modules` | `save_module` |
+| `assets/cache` | `empty_cache` |
+| `temp/import`, `assets/import` | `import_static` |
+| `temp/export`, `assets/export` | `export_static` |
+| `manager/`, `core/` | any one of `save_snippet`, `save_plugin`, `save_module` (`fileManagerMayRunCode()`) |
+| everything else under `filemanager_path` | `file_manager` only |
+
+`save_snippet`, `save_plugin` and `save_module` store PHP that the server runs, so whoever holds one
+can already change anything under `core/` and `manager/`. `save_template` does not: database
+templates only call existing snippets, and Blade views are files.
+
+**2. File names** - `checkExtension()`, used by upload, new file, rename and ZIP extraction.
+
+| Name                                                                                                                                                                       | Allowed when |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---|
+| Executable or server-config name (`fileManagerIsExecutableName()`: a PHP-like extension anywhere in the name, `.htaccess`, `.htpasswd`, `.user.ini`, `.env`, `web.config`) | the user may run code (`fileManagerMayRunCode()`) **and** the extension is in the allowed lists |
+| Any other name                                                                                                                                                             | the extension is in `upload_files` / `upload_images` / `upload_media` |
+
+A Windows device name (`CON`, `NUL`, `COM1.jpg` ...; `fileManagerIsReservedDeviceName()`) is refused on every platform, in both file managers: on PHP before 8.3.35 / 8.4.26 / 8.5.11 (CVE-2026-17545) a filesystem call on one can hang the worker. The check also covers folder names and every path segment a request sends (`fileManagerRefuseReservedName()`), and runs before the first filesystem probe: in `fileManagerResolvePath()`, `fileManagerPathContainsLink()`, `fileManagerIsSafeWriteTarget()`, folder rename, and the media browser (`checkInputDir()`, `refuseReservedRequestNames()`).
+
+The executable-name ban does not depend on those lists. `textsave()` applies it too: an existing
+executable file cannot be edited without the code permission.
+
+**3. File groups** - only when the "Use access permissions" setting (`use_udperms`, user/document permissions: access control via user groups and resource groups) is on; administrators (role 1) are exempt.
+
+| Operation | Requirement |
+|---|---|
+| Browse or enter a path | membership in a group of every restricted ancestor folder |
+| Modify or delete an existing file | the same, and the file is not at the top level |
+| Rename, move or delete an existing entry (media browser too) | the top-level rule of the classic manager, measured from the manager's own `filemanager_path` (`canModifyExisting()` in `browser.php`) |
+| Delete a link | removing a symlink or junction never forgets the groups stored under its target's key (the key of a link is its target's) |
+| Upload over an existing file | the file's own restrictions, not just the folder's (`fileManagerCanModifyExistingPath()`); the file keeps them and is **not** given the folder's groups |
+| Copy / duplicate (both file managers) | access is an AND over the restricted folders on the way and the file itself, each an OR over its groups, which one set of groups on one key cannot say. `FileManagerAccess::carriedRestrictions()` keeps the groups that satisfy every set the destination does not already enforce; the copy is refused when there are none, and when the destination is the ACL root itself or lies outside it (no per-entry row can be stored there). Never store the union of the groups. A copy takes `replaceRestrictions()` and a rename or move takes `moveRestrictions()`, which first drops rows left at the free destination by files removed outside the CMS. Rows are matched by the exact stored path (`exactRows()`), and the `file_groups.file` column is case-sensitive (`utf8mb4_bin` on MySQL), because on a case-sensitive file system `report.txt` and `REPORT.txt` are two files |
+| Any name the media browser writes (copy, move, upload, thumbnail) | the destination is free, a dangling symlink counts as taken (`isTaken()`), and copies are made exclusively with `copyExclusive()` (`fopen` mode `x`), never `copy()` through a link |
+| Move (media browser) | the same `carriedRestrictions()`, read before the move and applied with `replaceRestrictions()` after it (a moved file brings its own, possibly wider, groups); refused when no set expresses it |
+| ZIP extraction | the archive and the target folder, and **each entry** via `fileManagerZipWriteGuard()` |
+| ZIP extraction, source archive | the archive itself must pass the folder rules of layer 1 too (not only its group access) |
+| ZIP extraction, inherited groups | only files the archive **created** receive the folder's groups (`$created` of `fileManagerExtractZip()`) |
+| Saving groups of a file | leaving it with no direct group at all is "make public" and needs `manage_groups` |
+
+**Always enforced**
+
+- Paths outside `filemanager_path` are rejected; `..`, symlinks and Windows junctions are not followed.
+- A path that passes through a symlink or junction below the root is rejected as a whole (`fileManagerPathContainsLink()`): in the classic manager, uploads, direct edit and delete, and the media browser (`isInsideTypeDir()`). Links are not listed by the classic manager (a listed entry would get a direct web URL), and the media browser serves no thumbnail whose cached path or original runs through one. Nor does it write, rename, copy, move or empty the thumbnail cache through one (`isSafeThumbPath()`, measured from the upload root, so a link at the cache root itself is refused too, before anything is probed or created).
+- Path comparison (`FileManagerAccess::isWithin()`) ignores case on Windows, and ZIP entries are
+  resolved to the stored letter case (`fileManagerCanonicalCase()`) before the checks.
+- The media browser (KCFinder) follows the same rules: it stays out of the folders of layer 1 (`isInProtectedFolder()`), applies the executable-name rule to every name it writes (`validateFilename()`, including the final name of an upload), its temporary download archives carry the `kcf-download-` prefix and are the only `.zip` files it ever cleans up, and a folder rename never replaces an existing destination.
+- ZIP entries with absolute paths, `:` or `..` segments are skipped.
+
+**Refusals are logged.** Every refusal above is written to the event log (a warning from source `File manager`, with the manager as its user), where administrators read it: `fileManagerLogDenied()` / `fileManagerDenied()` in the classic manager and its ZIP extraction, `logDenied()` in the media browser. Log the rule that refused, not routine misses (an extension that is merely not on the allowed list is not logged; an executable name is). Values from the request are escaped, one line per refusal, at most 20 per request. A new refusal that only returns a message is incomplete.
+
+When you add a file manager write path, apply layer 1 (`fileManagerPathIsProtected()`), the name rule
+for any new or changed name, and layer 3 for any existing file it touches. Tests:
+`core/tests/Unit/Security/FileManagerWritePathChecksTest.php` and `FileManagerPathContainmentTest.php`.
+
 ## Dependencies of Note
 
 - **Laravel 12** components (illuminate/*) — container, ORM, routing, events, cache, queue

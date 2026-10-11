@@ -102,6 +102,15 @@ it('rejects a write target that is itself a symlink', function () {
     expect(fileManagerIsSafeWriteTarget($this->tmp . '/root', $this->tmp . '/root/file.txt'))->toBeFalse();
 });
 
+it('rejects a read path that passes through an internal symlink', function () {
+    mkdir($this->tmp . '/root/public', 0777, true);
+    mkdir($this->tmp . '/root/restricted', 0777, true);
+    file_put_contents($this->tmp . '/root/public/secret.txt', 'secret');
+    fmContainmentSymlink($this->tmp . '/root/public/secret.txt', $this->tmp . '/root/restricted/alias.txt');
+
+    expect(fileManagerResolvePath($this->tmp . '/root', 'restricted/alias.txt'))->toBeNull();
+});
+
 it('extracts ordinary entries, including names with a double dot before the extension', function () {
     mkdir($this->tmp . '/dest', 0777, true);
     fmContainmentZip($this->tmp . '/a.zip', [
@@ -235,6 +244,99 @@ it('checks protected folders in every file manager write before anything runs', 
         ->and($dynamic)->toContain('$protected_path = fileManagerProtectedPaths();')
         ->and($dynamic)->toContain('fileManagerPathTouchesProtected($folder, $protected_path)')
         ->and($dynamic)->toContain('fileManagerPathTouchesProtected($dirname, $protected_path)')
-        ->and($dynamic)->toContain('fileManagerExtractZip($zipTarget[\'path\'], $startpath, $protected_path)')
+        ->and($dynamic)->toContain('$protected_path,')
+        ->and($dynamic)->toContain('fileManagerZipWriteGuard($filemanager_path, $startpath)')
         ->and($dynamic)->not->toContain('function safe_unzip');
+});
+
+it('protects the core folder from users who cannot run code', function () {
+    $functions = file_get_contents(dirname(__DIR__, 3) . '/functions/actions/files.php');
+    $body = substr($functions, strpos($functions, 'function fileManagerProtectedPaths'), 2500);
+
+    expect($body)->toContain('EVO_CORE_PATH');
+});
+
+it('asks the write guard about every entry and skips the ones it refuses', function () {
+    mkdir($this->tmp . '/dest/private', 0777, true);
+    file_put_contents($this->tmp . '/dest/private/keep.txt', 'original');
+    fmContainmentZip($this->tmp . '/a.zip', [
+        'private/keep.txt' => 'overwritten',
+        'private/new.txt' => 'new',
+        'open/ok.txt' => 'ok',
+    ]);
+    $asked = [];
+    $guard = function ($target, $isDir) use (&$asked) {
+        $asked[] = $target;
+
+        return strpos($target, '/private') === false;
+    };
+
+    fileManagerExtractZip($this->tmp . '/a.zip', $this->tmp . '/dest', [], 0777, $guard);
+
+    expect(file_get_contents($this->tmp . '/dest/private/keep.txt'))->toBe('original')
+        ->and(file_exists($this->tmp . '/dest/private/new.txt'))->toBeFalse()
+        ->and(file_get_contents($this->tmp . '/dest/open/ok.txt'))->toBe('ok')
+        ->and($asked)->toContain($this->tmp . '/dest/private/keep.txt');
+});
+
+it('resolves the stored letter case of the existing part of a path', function () {
+    mkdir($this->tmp . '/dest/Plugins', 0777, true);
+
+    $canonical = fileManagerCanonicalCase($this->tmp . '/dest/plugins/new/file.txt');
+
+    if (PHP_OS_FAMILY === 'Windows') {
+        expect($canonical)->toBe($this->tmp . '/dest/Plugins/new/file.txt');
+    } else {
+        expect($canonical)->toBe($this->tmp . '/dest/plugins/new/file.txt');
+    }
+});
+
+it('does not let a differently cased entry slip past a protected folder on Windows', function () {
+    if (PHP_OS_FAMILY !== 'Windows') {
+        $this->markTestSkipped('case-insensitive file systems only');
+    }
+    mkdir($this->tmp . '/dest/assets/plugins', 0777, true);
+    fmContainmentZip($this->tmp . '/a.zip', ['ASSETS/PLUGINS/note.txt' => 'x', 'ASSETS/ok.txt' => 'ok']);
+
+    fileManagerExtractZip($this->tmp . '/a.zip', $this->tmp . '/dest', [$this->tmp . '/dest/assets/plugins']);
+
+    expect(file_exists($this->tmp . '/dest/assets/plugins/note.txt'))->toBeFalse()
+        ->and(file_get_contents($this->tmp . '/dest/assets/ok.txt'))->toBe('ok');
+});
+
+it('leaves the decision about file names to the write guard, as the upload form does', function () {
+    mkdir($this->tmp . '/dest', 0777, true);
+    fmContainmentZip($this->tmp . '/a.zip', ['shell.php' => 'x', 'dir/' => '', 'photo.png' => 'png']);
+    $allowed = static fn ($target, $isDir) => $isDir || substr($target, -4) === '.png';
+
+    fileManagerExtractZip($this->tmp . '/a.zip', $this->tmp . '/dest', [], 0777, $allowed);
+
+    expect(file_exists($this->tmp . '/dest/shell.php'))->toBeFalse()
+        ->and(file_exists($this->tmp . '/dest/photo.png'))->toBeTrue();
+    // without a guard the extractor itself refuses nothing by name
+    fileManagerExtractZip($this->tmp . '/a.zip', $this->tmp . '/dest');
+    expect(file_exists($this->tmp . '/dest/shell.php'))->toBeTrue();
+});
+
+it('lists only the files an extraction created, not the ones it replaced', function () {
+    mkdir($this->tmp . '/dest', 0777, true);
+    file_put_contents($this->tmp . '/dest/old.txt', 'original');
+    fmContainmentZip($this->tmp . '/a.zip', ['old.txt' => 'replaced', 'new.txt' => 'new', 'sub/deep.txt' => 'deep']);
+    $created = [];
+
+    fileManagerExtractZip($this->tmp . '/a.zip', $this->tmp . '/dest', [], 0777, null, $created);
+
+    sort($created);
+    expect($created)->toBe([$this->tmp . '/dest/new.txt', $this->tmp . '/dest/sub/deep.txt'])
+        ->and(file_get_contents($this->tmp . '/dest/old.txt'))->toBe('replaced');
+});
+
+it('does not list a file the write guard refused', function () {
+    mkdir($this->tmp . '/dest', 0777, true);
+    fmContainmentZip($this->tmp . '/a.zip', ['secret.txt' => 'x', 'open.txt' => 'ok']);
+    $created = [];
+
+    fileManagerExtractZip($this->tmp . '/a.zip', $this->tmp . '/dest', [], 0777, static fn ($target) => basename($target) !== 'secret.txt', $created);
+
+    expect($created)->toBe([$this->tmp . '/dest/open.txt']);
 });

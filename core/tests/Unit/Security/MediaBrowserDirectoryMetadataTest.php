@@ -16,7 +16,7 @@ final class MediaBrowserDirectoryMetadataHarness extends browser
 
     protected function getFileGroupsRelPath(string $absPath): string
     {
-        return \EvolutionCMS\Support\FileBrowserAccess::getRelativePath($this->aclRootForTest, $absPath);
+        return \EvolutionCMS\Support\FileManagerAccess::getRelativePath($this->aclRootForTest, $absPath);
     }
 }
 
@@ -35,6 +35,11 @@ function mediaBrowserDirectoryMetadataHarness(string $typeDir): browser
         $property->setAccessible(true);
         $property->setValue($browser, $value);
     }
+
+    // no folder is protected here: the permission lookup needs a booted CMS
+    $protected = new ReflectionProperty(browser::class, 'protectedPaths');
+    $protected->setAccessible(true);
+    $protected->setValue($browser, []);
 
     return $browser;
 }

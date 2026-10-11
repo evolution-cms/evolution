@@ -457,6 +457,10 @@ class uploader
         if (substr($dir, 0, 1) == "/")
             $dir = substr($dir, 1);
 
+        // before the folder is probed below, or anywhere else
+        if (fileManagerRefuseReservedName($dir))
+            return false;
+
         if ((substr($dir, 0, 1) == ".") || (substr(basename($dir), 0, 1) == "."))
             return false;
 
@@ -505,6 +509,36 @@ class uploader
     }
 
     /**
+     * Writes a refused request to the event log (see fileManagerLogDenied()).
+     *
+     * @param string $reason
+     * @param string|null $path what it was asked of; the request's folder and file when omitted
+     */
+    protected function logDenied($reason = '', $path = null)
+    {
+        if ($path === null) {
+            $files = isset($this->post['files']) && is_array($this->post['files'])
+                ? implode(', ', array_slice(array_map('strval', $this->post['files']), 0, 5))
+                : '';
+            $path = trim(implode('/', array_filter([
+                $this->type,
+                is_string($this->post['dir'] ?? null) ? trim($this->post['dir'], '/') : '',
+                is_string($this->post['file'] ?? null) ? $this->post['file'] : '',
+            ], static fn ($part) => $part !== '')) . ($files !== '' ? ' [' . $files . ']' : ''), '/');
+        }
+
+        fileManagerLogDenied('media browser: ' . ($this->action ?? 'browse'), $path, $reason);
+    }
+
+    /**
+     * @return bool whether the current manager user can store PHP anyway (save_snippet and the like)
+     */
+    protected function mayAddExecutableFiles()
+    {
+        return fileManagerMayRunCode();
+    }
+
+    /**
      * Like validateExtension() for a whole file name: every inner dot-separated part is also checked
      * against the denied list, since Apache's AddHandler runs PHP for "shell.php.jpg".
      *
@@ -514,6 +548,18 @@ class uploader
      */
     protected function validateFilename($name, $type)
     {
+        if (fileManagerIsReservedDeviceName($name)) {
+            $this->logDenied('reserved device name', basename(str_replace('\\', '/', (string) $name)));
+
+            return false;
+        }
+        // the file manager's rule, whatever the lists below say: only whoever can store PHP anyway
+        // may add a file the web server would run or reconfigure
+        if (fileManagerIsExecutableName($name) && !$this->mayAddExecutableFiles()) {
+            $this->logDenied('executable name', basename(str_replace('\\', '/', (string) $name)));
+
+            return false;
+        }
         $parts = explode('.', basename(str_replace('\\', '/', (string)$name)));
         $ext = array_pop($parts);
         array_shift($parts);
@@ -698,8 +744,26 @@ class uploader
      * @param bool $overwrite
      * @return bool
      */
+    protected function isSafeThumbPath($path)
+    {
+        // the cache is written, renamed and emptied like the files: never through a link, which
+        // could lead out of it
+        return !fileManagerPathContainsLink($this->config['uploadDir'], $path);
+    }
+
+    /**
+     * Makes the thumbnail of an image.
+     *
+     * @param string $file
+     * @param bool $overwrite
+     * @return bool
+     */
     protected function makeThumb($file, $overwrite = true)
     {
+        $thumbPath = path::normalize($this->config['uploadDir'] . "/" . $this->config['thumbsDir'] . "/" . substr($file, strlen($this->config['uploadDir'])));
+        if (!$this->isSafeThumbPath($thumbPath)) {
+            return false;
+        }
         $img = image::factory($this->imageDriver, $file);
 
         // Drop files which are not images

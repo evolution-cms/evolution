@@ -27,6 +27,10 @@ function mediaBrowserForTypeDir(string $typeDir): browser
     $property = new ReflectionProperty(uploader::class, 'typeDir');
     $property->setAccessible(true);
     $property->setValue($browser, $typeDir);
+    // nothing is closed by permission here; fileManagerProtectedPaths() needs a running CMS
+    $protected = new ReflectionProperty(browser::class, 'protectedPaths');
+    $protected->setAccessible(true);
+    $protected->setValue($browser, []);
 
     return $browser;
 }
@@ -50,12 +54,13 @@ beforeEach(function () {
 });
 
 afterEach(function () {
-    foreach (['images/link', 'images/secret.txt', 'images/dangling'] as $link) {
+    foreach (['images/link', 'images/secret.txt', 'images/dangling', 'images/team-link', 'images/internal-secret.txt'] as $link) {
         if (is_link($this->tmp . '/' . $link)) {
             @unlink($this->tmp . '/' . $link) || @rmdir($this->tmp . '/' . $link);
         }
     }
     @unlink($this->tmp . '/outside/secret.txt');
+    @unlink($this->tmp . '/images/team/secret.txt');
     foreach (['images/team', 'images', 'images-old', 'outside', ''] as $dir) {
         @rmdir($this->tmp . '/' . $dir);
     }
@@ -94,6 +99,16 @@ it('rejects a symlinked file and a dangling symlink', function () {
 
     expect(mediaBrowserIsInside($this->browser, $this->tmp . '/images/secret.txt'))->toBeFalse()
         ->and(mediaBrowserIsInside($this->browser, $this->tmp . '/images/dangling'))->toBeFalse();
+});
+
+it('rejects internal symlinks so their ACL path cannot be replaced by the target path', function () {
+    file_put_contents($this->tmp . '/images/team/secret.txt', 'secret');
+    mediaBrowserSymlink($this->tmp . '/images/team', $this->tmp . '/images/team-link');
+    mediaBrowserSymlink($this->tmp . '/images/team/secret.txt', $this->tmp . '/images/internal-secret.txt');
+
+    expect(mediaBrowserIsInside($this->browser, $this->tmp . '/images/team-link'))->toBeFalse()
+        ->and(mediaBrowserIsInside($this->browser, $this->tmp . '/images/team-link/secret.txt'))->toBeFalse()
+        ->and(mediaBrowserIsInside($this->browser, $this->tmp . '/images/internal-secret.txt'))->toBeFalse();
 });
 
 it('works when the site root is reached through a symlink, like public_html', function () {

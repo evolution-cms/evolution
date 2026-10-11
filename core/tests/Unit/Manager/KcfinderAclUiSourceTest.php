@@ -24,7 +24,7 @@ final class KcfinderAclUiSourceTest extends TestCase
         self::assertStringContainsString('browser.menuFolder = function(file, e)', $source);
         self::assertStringContainsString("browser.menuDir(dir, e);", $source);
         self::assertStringContainsString("var icon = file.isDir ? 'folder' :", $source);
-        self::assertStringContainsString("themes/' + browser.theme + '/img/files/big/folder.png", $source);
+        self::assertStringContainsString("file.isDir ? 'thumb folder-icon' :", $source);
     }
 
     public function testOrderingAndSettingsScriptsProtectAclUiBehavior(): void

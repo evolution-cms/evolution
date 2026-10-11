@@ -22,7 +22,20 @@ final class FileManagerAccess
         $root = rtrim(str_replace('\\', '/', $root), '/');
         $path = rtrim(str_replace('\\', '/', $path), '/');
 
-        return $root !== '' && ($path === $root || strncmp($path, $root . '/', strlen($root) + 1) === 0);
+        if ($root === '') {
+            return false;
+        }
+        if (self::caseInsensitiveFileSystem()) {
+            // ASSETS/PLUGINS names the same folder as assets/plugins on Windows
+            return strcasecmp($path, $root) === 0 || strncasecmp($path, $root . '/', strlen($root) + 1) === 0;
+        }
+
+        return $path === $root || strncmp($path, $root . '/', strlen($root) + 1) === 0;
+    }
+
+    private static function caseInsensitiveFileSystem(): bool
+    {
+        return PHP_OS_FAMILY === 'Windows';
     }
 
     /**
@@ -164,10 +177,130 @@ final class FileManagerAccess
             return;
         }
 
+        // the destination was free, so a row still stored there is a leftover of a file removed
+        // outside the CMS; kept, it would let its group in beside the groups that moved along.
+        // (A change of letter case alone is the same entry only where the file system ignores case;
+        // elsewhere report.txt and REPORT.txt are two files and the destination is a different one.)
+        if (!(self::caseInsensitiveFileSystem() && strcasecmp($oldKey, $newKey) === 0)) {
+            self::forgetRestrictions($newKey);
+        }
+
         foreach (self::subtreeRows($oldKey) as $row) {
             $file = self::normalizeRelativePath($row->file);
             $row->update(['file' => $newKey . substr($file, strlen($oldKey))]);
         }
+    }
+
+    /**
+     * The direct restriction a copy or a moved file at $targetKey needs to stay as closed as it is
+     * at $sourceKey. Access is an AND over the restricted folders on the way (and the file itself),
+     * each of which is an OR over its groups - one set of groups on one key cannot say that. What
+     * the folders above $targetKey enforce anyway is left out; of the rest, the groups that satisfy
+     * every set at once are kept. That never opens the file to anyone the original was closed to.
+     *
+     * @return int[]|null the groups ([] when nothing needs carrying), or null when no single set
+     *                    expresses it (the sets share no group): the caller must refuse
+     */
+    public static function carriedRestrictions(?string $sourceKey, ?string $targetKey): ?array
+    {
+        $sourceKey = self::normalizeRelativePath($sourceKey);
+        $targetKey = self::normalizeRelativePath($targetKey);
+        if ($sourceKey === '' || $sourceKey === $targetKey) {
+            return [];
+        }
+
+        $restrictions = self::loadRestrictions([$sourceKey]);
+        $enforcedAnyway = array_flip(array_slice(self::ancestorPaths($targetKey), 0, -1));
+
+        $sets = [];
+        foreach (self::ancestorPaths($sourceKey) as $path) {
+            $groups = array_values(array_unique(array_map('intval', $restrictions[$path] ?? [])));
+            if ($groups === [] || isset($enforcedAnyway[$path])) {
+                continue;
+            }
+            sort($groups);
+            $sets[implode(',', $groups)] = $groups;
+        }
+
+        if ($sets === []) {
+            return [];
+        }
+
+        // An empty target key is the ACL root itself or a path outside it. There is no
+        // per-entry row that can carry a source restriction to either destination.
+        if ($targetKey === '') {
+            return null;
+        }
+
+        $common = array_values(array_intersect(...array_values($sets)));
+
+        return $common === [] ? null : $common;
+    }
+
+    /**
+     * Add groups to $key as direct restrictions, keeping the ones it has. For an entry that
+     * already exists; a copy lands on a free path and takes replaceRestrictions(), which also
+     * drops what stale rows would add.
+     *
+     * @param int[] $groups
+     */
+    public static function addRestrictions(?string $key, array $groups): void
+    {
+        $key = self::normalizeRelativePath($key);
+        if ($key === '' || $groups === []) {
+            return;
+        }
+
+        // whatever the table's keys do about duplicates, a group is stored once per entry
+        $missing = array_diff(array_map('intval', $groups), self::storedGroupsOf($key));
+        if ($missing === []) {
+            return;
+        }
+
+        FileGroup::query()->insertOrIgnore(array_map(
+            static fn ($groupId) => ['document_group' => $groupId, 'file' => $key],
+            array_values(array_unique($missing))
+        ));
+    }
+
+    /**
+     * The rows stored for exactly $key. The database may compare names without regard to case
+     * (the column takes the collation of the database), which would hand back the rows of a
+     * sibling that differs by letter case alone.
+     */
+    private static function exactRows(string $key)
+    {
+        return FileGroup::query()->where('file', $key)->get()
+            ->filter(static fn ($row) => self::normalizeRelativePath($row->file) === $key);
+    }
+
+    /** @return int[] */
+    private static function storedGroupsOf(string $key): array
+    {
+        return self::exactRows($key)->map(static fn ($row) => (int) $row->document_group)->all();
+    }
+
+    /**
+     * Make the direct restriction of $key exactly $groups: a moved file brings its own groups
+     * along, and they may be wider than what it has to be held to now.
+     *
+     * @param int[] $groups
+     */
+    public static function replaceRestrictions(?string $key, array $groups): void
+    {
+        $key = self::normalizeRelativePath($key);
+        if ($key === '') {
+            return;
+        }
+
+        $groups = array_map('intval', $groups);
+        $stale = self::exactRows($key)
+            ->filter(static fn ($row) => !in_array((int) $row->document_group, $groups, true))
+            ->map(static fn ($row) => $row->getKey())->all();
+        if ($stale !== []) {
+            FileGroup::query()->whereIn('id', $stale)->delete();
+        }
+        self::addRestrictions($key, $groups);
     }
 
     /**

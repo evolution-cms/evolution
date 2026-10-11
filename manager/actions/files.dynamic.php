@@ -44,7 +44,8 @@ $base_path = rtrim(str_replace('\\', '/', realpath(EVO_BASE_PATH)), '/');
 // end settings
 // get the current work directory
 $requested_path = ltrim(isset($_REQUEST['path']) ? $_REQUEST['path'] : '', '/');
-$fullpath = str_replace('\\', '/', realpath($filemanager_path . '/' . $requested_path));
+$resolvedCurrentPath = fileManagerResolvePath($filemanager_path, $requested_path);
+$fullpath = $resolvedCurrentPath['path'] ?? false;
 $selFile = '';
 if (is_file($fullpath)) {
     $selFile = $requested_path;
@@ -57,10 +58,12 @@ if (is_file($fullpath)) {
 if ($startpath === false
     || !\EvolutionCMS\Support\FileManagerAccess::isWithin($filemanager_path, $startpath)
     || !is_readable($startpath)) {
+    fileManagerLogDenied();
     evo()->webAlertAndQuit($_lang["files_access_denied"]);
 }
 // before any action runs: every one of them works on $startpath or an entry in it
 if (fileManagerPathIsProtected($startpath, $protected_path)) {
+    fileManagerLogDenied(null, null, 'protected folder');
     evo()->webAlertAndQuit($_lang["files.dynamic.php2"]);
 }
 // Raymond: get web start path for showing pictures
@@ -93,6 +96,7 @@ if ($fileAccessEnabled) {
     $fileGroupsMap = fileManagerRestrictionMap(array_unique(array_filter($scanPaths, static fn ($path) => $path !== null)));
 }
 if ($relative_path !== '' && !fileManagerIsAccessible($relative_path, $userGroups, $fileGroupsMap)) {
+    fileManagerLogDenied();
     evo()->webAlertAndQuit($_lang["files_access_denied"]);
 }
 if ($showFileGroups) {
@@ -391,11 +395,12 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                         if ($groupsKey === null) {
                             echo '<span class="warning"><b>Invalid path.</b></span><br /><br />';
                         } elseif (!fileManagerIsAccessible($groupsTargetPath, $userGroups)) {
-                            echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+                            echo fileManagerDenied();
                         } else {
                             $submittedGroups = isset($_POST['docgroups']) ? (array)$_POST['docgroups'] : [];
                             $chkAllFiles = isset($_POST['chkallfiles']) && $_POST['chkallfiles'] === 'on';
                             $canManageAllGroups = evo()->hasPermission('manage_groups');
+                            $groupsDenied = false;
                             $existingFG = \EvolutionCMS\Models\FileGroup::query()->where('file', $groupsKey)->get();
                             $existingGroupIds = $existingFG->pluck('document_group')->map(static fn ($groupId) => (int)$groupId)->all();
                             $manageableExistingGroups = $canManageAllGroups
@@ -403,9 +408,9 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                                 : array_values(array_intersect($existingGroupIds, $userGroups));
 
                             if (!$canManageAllGroups && count($manageableExistingGroups) !== count($existingGroupIds)) {
-                                echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+                                echo fileManagerDenied();
                             } elseif ($chkAllFiles && !$canManageAllGroups) {
-                                echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+                                echo fileManagerDenied();
                             } elseif ($chkAllFiles) {
                                 // Make public: only full group managers may remove all restrictions
                                 \EvolutionCMS\Models\FileGroup::query()->where('file', $groupsKey)->delete();
@@ -427,18 +432,28 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
 
                                 // Delete removed groups only from the set the current user manages
                                 $toDelete = array_diff($manageableExistingGroups, $submittedGroupIds);
-                                if (!empty($toDelete)) {
-                                    \EvolutionCMS\Models\FileGroup::query()->where('file', $groupsKey)
-                                        ->whereIn('document_group', $toDelete)
-                                        ->delete();
-                                }
+                                $remainingGroups = array_merge(array_diff($existingGroupIds, $toDelete), $submittedGroupIds);
 
-                                // Insert new entries
-                                if (!empty($insertRows)) {
-                                    \EvolutionCMS\Models\FileGroup::query()->insertOrIgnore($insertRows);
+                                if (!$canManageAllGroups && !empty($toDelete) && $remainingGroups === []) {
+                                    // dropping the last group makes the file public: that is "make public"
+                                    echo fileManagerDenied();
+                                    $groupsDenied = true;
+                                } else {
+                                    if (!empty($toDelete)) {
+                                        \EvolutionCMS\Models\FileGroup::query()->where('file', $groupsKey)
+                                            ->whereIn('document_group', $toDelete)
+                                            ->delete();
+                                    }
+
+                                    // Insert new entries
+                                    if (!empty($insertRows)) {
+                                        \EvolutionCMS\Models\FileGroup::query()->insertOrIgnore($insertRows);
+                                    }
                                 }
                             }
-                            echo '<span class="success"><b>' . $_lang['file_groups_saved'] . '</b></span><br /><br />';
+                            if (!$groupsDenied) {
+                                echo '<span class="success"><b>' . $_lang['file_groups_saved'] . '</b></span><br /><br />';
+                            }
                             $_REQUEST['mode'] = 'groups';
                         }
                     }
@@ -494,11 +509,21 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                 $zipTarget = fileManagerResolvePath($filemanager_path, $relative_path . '/' . ($_REQUEST['file'] ?? ''));
                 if ($zipTarget === null || !is_file($zipTarget['path'])) {
                     echo '<span class="warning"><b>Invalid path.</b></span><br /><br />';
-                } elseif (!fileManagerIsAccessible($zipTarget['relative'], $userGroups) || !is_readable($zipTarget['path'])) {
+                } elseif (!fileManagerIsAccessible($zipTarget['relative'], $userGroups)
+                    || fileManagerPathIsProtected($zipTarget['path'], $protected_path)
+                    || !is_readable($zipTarget['path'])) {
                     // Unpacking a restricted archive into this folder would publish its contents here
-                    echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+                    echo fileManagerDenied();
                 } else {
-                    $success = fileManagerExtractZip($zipTarget['path'], $startpath, $protected_path);
+                    $createdFiles = [];
+                    $success = fileManagerExtractZip(
+                        $zipTarget['path'],
+                        $startpath,
+                        $protected_path,
+                        0777,
+                        fileManagerZipWriteGuard($filemanager_path, $startpath),
+                        $createdFiles
+                    );
                     if (!$success) {
                         echo '<span class="warning"><b>' . $_lang['file_unzip_fail'] . '</b></span><br /><br />';
                     } else {
@@ -507,18 +532,16 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                             $dirRelPath = $relative_path;
                             $dirGroupIds = fileManagerEffectiveGroupIds($dirRelPath, $fileGroupsMap);
                             if (!empty($dirGroupIds)) {
-                                $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($startpath, RecursiveDirectoryIterator::SKIP_DOTS));
+                                // only what this archive created: a file it did not touch, or was refused
+                                // permission to replace, must not gain the folder's groups
                                 $insertRows = [];
-                                foreach ($iterator as $f) {
-                                    if ($f->isFile()) {
-                                        $fp = str_replace('\\', '/', $f->getPathname());
-                                        $relP = fileManagerAclKey(ltrim(substr($fp, strlen($filemanager_path)), '/'));
-                                        if ($relP === null) {
-                                            continue;
-                                        }
-                                        foreach ($dirGroupIds as $gid) {
-                                            $insertRows[] = ['document_group' => $gid, 'file' => $relP];
-                                        }
+                                foreach ($createdFiles as $fp) {
+                                    $relP = fileManagerAclKey(ltrim(substr(str_replace('\\', '/', $fp), strlen($filemanager_path)), '/'));
+                                    if ($relP === null) {
+                                        continue;
+                                    }
+                                    foreach ($dirGroupIds as $gid) {
+                                        $insertRows[] = ['document_group' => $gid, 'file' => $relP];
                                     }
                                 }
                                 if (!empty($insertRows)) {
@@ -546,7 +569,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                         || fileManagerPathTouchesProtected($folder, $protected_path)
                         || fileManagerHasInaccessibleDescendants($folderTarget['relative'])
                         || !is_writable($folder)) {
-                        echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+                        echo fileManagerDenied();
                     } elseif (!@rrmdir($folder)) {
                         echo '<span class="warning"><b>' . $_lang['file_folder_not_deleted'] . '</b></span><br /><br />';
                     } else {
@@ -564,7 +587,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                     $foldername = str_replace([ '..\\', '../', '\\', '/' ], '', $_REQUEST['name']);
                     $newdir = $startpath . '/' . $foldername;
                     if (!$currentPathWritable) {
-                        echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+                        echo fileManagerDenied();
                     } elseif (!fileManagerIsNewWriteTarget($filemanager_path, $newdir) || !@mkdir($newdir, 0777)) {
                         // an existing name is refused: chmod below would follow a symlinked folder
                         echo '<span class="warning"><b>', $_lang['file_folder_not_created'], '</b></span><br /><br />';
@@ -586,7 +609,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                     $old_umask = umask(0);
                     $filename = str_replace([ '..\\', '../', '\\', '/' ], '', $_REQUEST['name']);
                     if (!$currentPathWritable) {
-                        echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+                        echo fileManagerDenied();
                     } elseif (!checkExtension($filename)) {
                         echo '<span class="warning"><b>' . $_lang['files_filetype_notok'] . '</b></span><br /><br />';
                     } elseif (preg_match('@(\\\\|\/|\:|\;|\,|\*|\?|\"|\<|\>|\||\?)@', $filename) !== 0) {
@@ -612,7 +635,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                     if ($fileTarget === null || !is_file($filename)) {
                         echo '<span class="warning"><b>Invalid path.</b></span><br /><br />';
                     } elseif (!fileManagerCanModifyExistingPath($fileTarget['relative'], $userGroups) || !is_writable($filename)) {
-                        echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+                        echo fileManagerDenied();
                     } else {
                         $newFilename = str_replace([ '..\\', '../', '\\', '/' ], '', $_REQUEST['newFilename']);
                         if (!checkExtension($newFilename)) {
@@ -622,8 +645,18 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                         } else {
                             // Fix: Copy to same directory, not base path
                             $newpath = dirname($filename) . '/' . $newFilename;
-                            if (!fileManagerCopyToNewFile($filemanager_path, $filename, $newpath)) {
+                            // the copy has to be held to what the original is held to
+                            $newRelative = ltrim(substr(str_replace('\\', '/', $newpath), strlen($filemanager_path)), '/');
+                            $carried = \EvolutionCMS\Support\FileManagerAccess::carriedRestrictions(
+                                fileManagerAclKey($fileTarget['relative']),
+                                fileManagerAclKey($newRelative)
+                            );
+                            if ($carried === null) {
+                                echo fileManagerDenied();
+                            } elseif (!fileManagerCopyToNewFile($filemanager_path, $filename, $newpath)) {
                                 echo $_lang['files.dynamic.php5'];
+                            } else {
+                                \EvolutionCMS\Support\FileManagerAccess::replaceRestrictions(fileManagerAclKey($newRelative), $carried);
                             }
                             umask($old_umask);
                         }
@@ -643,13 +676,15 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                     } elseif (!fileManagerCanModifyExistingPath($dirTarget['relative'], $userGroups)
                         || fileManagerPathTouchesProtected($dirname, $protected_path)
                         || !is_writable($dirname)) {
-                        echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+                        echo fileManagerDenied();
                     } else {
                         $newDirname = str_replace([ '..\\', '../', '\\', '/' ], '', $_REQUEST['newDirname']);
                         if (preg_match('@(\\\\|\/|\:|\;|\,|\*|\?|\"|\<|\>|\||\?)@', $newDirname) !== 0) {
                             echo $_lang['files.dynamic.php3'];
+                        } elseif (fileManagerRefuseReservedName($newDirname)) {
+                            echo fileManagerDenied();
                         } elseif (fileManagerPathIsProtected(dirname($dirname) . '/' . $newDirname, $protected_path)) {
-                            echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+                            echo fileManagerDenied();
                         } elseif (!fileManagerCanRenameTo($filemanager_path, $dirname, dirname($dirname) . '/' . $newDirname)) {
                             // on Linux rename() silently replaces an existing empty folder
                             echo '<span class="warning"><b>' . $_lang['files.dynamic.php6'] . '</b></span><br /><br />';
@@ -677,7 +712,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                     if ($fileTarget === null || !is_file($filename)) {
                         echo '<span class="warning"><b>Invalid path.</b></span><br /><br />';
                     } elseif (!fileManagerCanModifyExistingPath($fileTarget['relative'], $userGroups) || !is_writable($filename)) {
-                        echo '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+                        echo fileManagerDenied();
                     } else {
                         $path = dirname($filename);
                         $newFilename = str_replace([ '..\\', '../', '\\', '/' ], '', $_REQUEST['newFilename']);
@@ -800,6 +835,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                 evo()->webAlertAndQuit('Invalid path.');
             }
             if (!fileManagerIsAccessible($groupsTargetPath, $userGroups)) {
+                fileManagerLogDenied();
                 evo()->webAlertAndQuit($_lang["files_access_denied"]);
             }
             $existingFileGroups = \EvolutionCMS\Models\FileGroup::query()->where('file', $groupsKey)->get();
@@ -908,6 +944,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
             evo()->webAlertAndQuit("Invalid path.");
         }
         if (!fileManagerIsAccessible($viewTarget['relative'], $userGroups)) {
+            fileManagerLogDenied();
             evo()->webAlertAndQuit($_lang["files_access_denied"]);
         }
         $buffer = file_get_contents($filename);
