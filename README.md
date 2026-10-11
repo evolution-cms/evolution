@@ -4,7 +4,8 @@
 
 [![CMS Evolution](https://img.shields.io/badge/CMS-Evolution-brightgreen.svg)](https://packagist.org/packages/evolution-cms/evolution)
 [![GitHub release](https://img.shields.io/github/release/evolution-cms/evolution.svg)](https://github.com/evolution-cms/evolution/releases)
-![PHP version](https://img.shields.io/badge/PHP->=8.3-red.svg?php=8.3)
+[![PHP supported](https://img.shields.io/badge/PHP_supported-8.3_%7C_8.4_%7C_8.5-777BB4?logo=php&logoColor=white)](#php-compatibility)
+[![PHP recommended](https://img.shields.io/badge/PHP_recommended-8.4-2ea44f?logo=php&logoColor=white)](#php-compatibility)
 [![Issues](https://img.shields.io/github/issues-closed-raw/evolution-cms/evolution.svg?maxAge=2592000)](https://github.com/evolution-cms/evolution/issues)
 [![Total Installs](https://img.shields.io/packagist/dt/evolution-cms/evolution)](https://packagist.org/packages/evolution-cms/evolution)
 [![Code quality](https://img.shields.io/scrutinizer/g/evolution-cms/evolution.svg?maxAge=2592000&b=develop)](https://scrutinizer-ci.com/g/evolution-cms/evolution/?branch=develop)
@@ -49,7 +50,20 @@ Most significant, though, is **Evolution CMS's** ability to empower you to quick
 
 ## Install
 You can use the single click installer: [Evolution CMS Installer](https://github.com/evolution-cms/installer)
-Evolution CMS 3.5.x requires **PHP >= 8.3**. Recommend **PHP >= 8.4**.
+
+### PHP compatibility
+
+Evolution CMS **3.5.x** requires **PHP 8.3 or later within PHP 8.x** (`^8.3` in [core/composer.json](core/composer.json)).
+
+| PHP version | Evolution CMS support | Recommendation |
+| --- | --- | --- |
+| **8.3** | Supported; minimum required version | Suitable for existing installations |
+| **8.4** | Supported | **Recommended for production and new installations** |
+| **8.5** | Supported | Check installed extras and custom code before upgrading |
+
+The [CI workflow](.github/workflows/ci.yml) runs unit tests on PHP **8.3, 8.4 and 8.5**. PHP **8.6 RC** has a separate experimental compatibility job and is not recommended for production.
+
+Use the latest patch release of your chosen PHP version. See the [PHP support lifecycle](https://www.php.net/supported-versions.php) for maintenance and security support dates.
 
 ## References
 
