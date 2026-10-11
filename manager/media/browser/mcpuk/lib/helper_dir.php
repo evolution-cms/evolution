@@ -104,20 +104,7 @@ class dir {
 
     static function isLink(string $path): bool
     {
-        clearstatcache(true, $path);
-        if (is_link($path))
-            return true;
-        // something is there that leads nowhere: a dangling junction, which only lstat()
-        // sees (is_link() above already caught a dangling symlink)
-        if (!file_exists($path))
-            return PHP_OS_FAMILY === 'Windows' && @lstat($path) !== false;
-        $real = realpath($path);
-        $parent = realpath(dirname($path));
-        if ($real === false || $parent === false)
-            return true;
-        $expected = rtrim(str_replace('\\', '/', $parent), '/') . '/' . basename($path);
-        $real = str_replace('\\', '/', $real);
-        return PHP_OS_FAMILY === 'Windows' ? strcasecmp($real, $expected) !== 0 : $real !== $expected;
+        return fileManagerIsLink($path);
     }
 
   /** Get the content of the given directory. Returns an array with filenames

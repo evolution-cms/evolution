@@ -35,6 +35,74 @@ if(!function_exists('fileManagerUserGroupIds')) {
     }
 }
 
+if(!function_exists('fileManagerLogDenied')) {
+    /**
+     * Writes a refused file manager request to the event log, where administrators read it. A
+     * warning that names the action, the path asked for and where it came from; the manager who
+     * did it is the event's user. Never throws: logging must not change what the request does.
+     *
+     * @param string|null $what what was attempted; the request's mode when omitted
+     * @param string|null $path what it was attempted on; taken from the request when omitted
+     * @param string $reason which rule refused it, when the caller knows
+     */
+    function fileManagerLogDenied($what = null, $path = null, $reason = '')
+    {
+        static $logged = [];
+
+        try {
+            if ($what === null) {
+                $mode = $_REQUEST['mode'] ?? '';
+                $what = is_string($mode) && $mode !== '' ? $mode : 'access';
+            }
+            if ($path === null) {
+                $parts = [];
+                foreach (['folderpath', 'path', 'file', 'dirname'] as $field) {
+                    if (isset($_REQUEST[$field]) && is_string($_REQUEST[$field]) && $_REQUEST[$field] !== '') {
+                        $parts[] = trim($_REQUEST[$field], '/');
+                    }
+                }
+                $path = implode('/', $parts);
+            }
+
+            $key = $what . '|' . $path . '|' . $reason;
+            if (isset($logged[$key]) || count($logged) >= 20) {
+                return; // one line per refusal, and a request cannot flood the log
+            }
+            $logged[$key] = true;
+
+            $clean = static function ($value) {
+                $value = preg_replace('/[\x00-\x1F\x7F]/', ' ', (string) $value);
+
+                return htmlspecialchars(substr($value, 0, 200), ENT_QUOTES, 'UTF-8');
+            };
+            $message = 'File manager access denied: ' . $clean($what) . ' ' . $clean($path)
+                . ($reason !== '' ? ' (' . $clean($reason) . ')' : '')
+                . ' - from ' . $clean($_SERVER['REMOTE_ADDR'] ?? '');
+
+            evolutionCMS()->logEvent(0, 2, $message, 'File manager');
+        } catch (\Throwable $exception) {
+            // the request is refused either way
+        }
+    }
+}
+
+if(!function_exists('fileManagerDenied')) {
+    /**
+     * Logs the refusal and returns the message shown for it.
+     *
+     * @param string $reason which rule refused it, when the caller knows
+     * @return string
+     */
+    function fileManagerDenied($reason = '')
+    {
+        global $_lang;
+
+        fileManagerLogDenied(null, null, $reason);
+
+        return '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+    }
+}
+
 if(!function_exists('fileManagerAclKey')) {
     /**
      * The file_groups key of a path given relative to the current manager's file manager root.
@@ -134,9 +202,9 @@ if(!function_exists('fileManagerCanModifyExistingPath')) {
 
 if(!function_exists('fileManagerResolvePath')) {
     /**
-     * Resolve a requested path under the file manager root. The ACL is keyed by the resolved
-     * path, so callers must check the returned 'relative', never the raw request: own/../private
-     * names private, not something below own.
+     * Resolve a requested path under the file manager root. Links below the root are rejected;
+     * for the remaining paths, ACLs use the resolved path, so callers must check the returned
+     * 'relative', never the raw request: own/../private names private, not something below own.
      *
      * @param string $filemanagerPath canonical root, no trailing slash
      * @param string $requestedPath path relative to the root, as requested
@@ -144,7 +212,15 @@ if(!function_exists('fileManagerResolvePath')) {
      */
     function fileManagerResolvePath($filemanagerPath, $requestedPath)
     {
-        $path = realpath($filemanagerPath . '/' . ltrim((string) $requestedPath, '/'));
+        if (fileManagerRefuseReservedName($requestedPath)) {
+            return null;
+        }
+        $requested = $filemanagerPath . '/' . ltrim(str_replace('\\', '/', (string) $requestedPath), '/');
+        if (fileManagerPathContainsLink($filemanagerPath, $requested)) {
+            return null;
+        }
+
+        $path = realpath($requested);
         if ($path === false) {
             return null;
         }
@@ -162,20 +238,18 @@ if(!function_exists('fileManagerResolvePath')) {
 
 if(!function_exists('fileManagerProtectedPaths')) {
     /**
-     * Folders the file manager must not enter or change: always the manager and the backups,
-     * and each element folder unless the user may edit that element type anyway.
+     * Folders the file manager must not enter or change: each element folder (and the backups)
+     * unless the user may edit that element type (or manage backups) anyway. The manager and the core (code
+     * and configuration secrets) are open only to users who can already run their own PHP.
      *
      * @return string[] canonical absolute paths, no trailing slash
      */
     function fileManagerProtectedPaths()
     {
         $evo = evolutionCMS();
-        $paths = [
-            EVO_MANAGER_PATH,
-            EVO_BASE_PATH . 'temp/backup',
-            EVO_BASE_PATH . 'assets/backup',
-        ];
+        $paths = [];
         $byPermission = [
+            'bk_manager' => ['temp/backup', 'assets/backup'],
             'save_plugin' => ['assets/plugins'],
             'save_snippet' => ['assets/snippets'],
             'save_template' => ['assets/templates'],
@@ -192,10 +266,105 @@ if(!function_exists('fileManagerProtectedPaths')) {
             }
         }
 
+        if (!fileManagerMayRunCode()) {
+            $paths[] = EVO_MANAGER_PATH;
+            $paths[] = EVO_CORE_PATH;
+        }
+
         return array_map(
             static fn ($path) => rtrim(str_replace('\\', '/', realpath($path) ?: $path), '/'),
             $paths
         );
+    }
+}
+
+if(!function_exists('fileManagerMayRunCode')) {
+    /**
+     * save_snippet, save_plugin and save_module store PHP that runs on the server: whoever has
+     * one can already change anything under core/ and manager/, and may put executable files
+     * in place. Everyone else may not.
+     */
+    function fileManagerMayRunCode()
+    {
+        $evo = evolutionCMS();
+        foreach (['save_snippet', 'save_plugin', 'save_module'] as $permission) {
+            if ($evo->hasPermission($permission)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+if(!function_exists('fileManagerIsExecutableName')) {
+    /**
+     * Whether a file name would be run by the web server or changes how it serves a folder:
+     * a PHP-like extension anywhere in the name ("shell.php.jpg" runs under AddHandler), or
+     * one of the per-directory configuration files.
+     *
+     * @param string $name
+     * @return bool
+     */
+    function fileManagerIsExecutableName($name)
+    {
+        $base = strtolower(basename(str_replace(chr(92), '/', (string) $name)));
+        if (in_array($base, ['.htaccess', '.htpasswd', '.user.ini', '.env', 'web.config'], true)) {
+            return true;
+        }
+        $parts = explode('.', $base);
+        array_shift($parts);
+
+        foreach ($parts as $part) {
+            if (preg_match('/^(?:php\d*|phps|phtml|pht|phar|inc|cgi|pl|py|sh|asp|aspx|jsp)$/', trim($part))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+
+if(!function_exists('fileManagerIsReservedDeviceName')) {
+    /**
+     * Whether the name is a Windows device name (CON, NUL, COM1.jpg ...). Windows resolves it to the
+     * device whatever the extension, and on PHP releases before 8.3.35, 8.4.26 and 8.5.11
+     * (CVE-2026-17545) a filesystem call on one can hang the worker. Refused on every platform:
+     * a site can be moved to Windows with its files.
+     *
+     * @param string $name
+     * @return bool
+     */
+    function fileManagerIsReservedDeviceName($name)
+    {
+        $base = basename(str_replace(chr(92), '/', (string) $name));
+        $stem = rtrim(explode('.', $base, 2)[0], ' ');
+
+        return (bool) preg_match('/^(?:con|prn|aux|nul|conin\$|conout\$|(?:com|lpt)[0-9¹²³])$/iu', $stem);
+    }
+}
+
+if(!function_exists('fileManagerRefuseReservedName')) {
+    /**
+     * Whether any segment of $path is a Windows device name; logged, because such a name is only
+     * ever sent to cause trouble. Ask before the file system is: even a probe (file_exists, is_dir,
+     * realpath) of one can hang the worker on an unpatched PHP.
+     *
+     * @param string $path a name or a path, relative or absolute
+     * @return bool true when the path has to be refused
+     */
+    function fileManagerRefuseReservedName($path)
+    {
+        foreach (explode('/', str_replace(chr(92), '/', (string) $path)) as $segment) {
+            if ($segment !== '' && fileManagerIsReservedDeviceName($segment)) {
+                fileManagerLogDenied(null, $segment, 'reserved device name');
+
+                return true;
+            }
+        }
+
+        return false;
     }
 }
 
@@ -270,6 +439,61 @@ if(!function_exists('fileManagerIsLink')) {
     }
 }
 
+if(!function_exists('fileManagerPathContainsLink')) {
+    /**
+     * Whether a path below $root passes through a symlink or junction. The root itself is a
+     * configured boundary and may be a symlink (for example, public_html); links below it are
+     * never followed. Accept either the configured root spelling or its canonical spelling.
+     *
+     * @param string $root absolute root
+     * @param string $path absolute path, possibly not created yet
+     *
+     * A Windows device name below the root counts as a link here: callers refuse both.
+     */
+    function fileManagerPathContainsLink($root, $path)
+    {
+        $root = rtrim(str_replace('\\', '/', $root), '/');
+        $path = rtrim(str_replace('\\', '/', $path), '/');
+        $canonicalRoot = realpath($root);
+        $canonicalRoot = $canonicalRoot === false ? '' : rtrim(str_replace('\\', '/', $canonicalRoot), '/');
+
+        if (FileManagerAccess::isWithin($root, $path)) {
+            $base = $root;
+        } elseif ($canonicalRoot !== '' && FileManagerAccess::isWithin($canonicalRoot, $path)) {
+            $base = $canonicalRoot;
+        } else {
+            return true;
+        }
+
+        // a name the file system must not be asked about is as unusable as a link
+        if (fileManagerRefuseReservedName(substr($path, strlen($base)))) {
+            return true;
+        }
+
+        $current = $base;
+        $relative = substr($path, strlen($base));
+        foreach (explode('/', trim($relative, '/')) as $segment) {
+            if ($segment === '' || $segment === '.') {
+                continue;
+            }
+            if ($segment === '..') {
+                if ($current === $base) {
+                    return true;
+                }
+                $current = dirname($current);
+                continue;
+            }
+
+            $current = rtrim($current, '/') . '/' . $segment;
+            if (fileManagerIsLink($current)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
 if(!function_exists('fileManagerIsSafeWriteTarget')) {
     /**
      * Whether writing to $target, which need not exist yet, stays under $root. Every part of
@@ -284,6 +508,10 @@ if(!function_exists('fileManagerIsSafeWriteTarget')) {
         $root = rtrim(str_replace('\\', '/', $root), '/');
         $target = rtrim(str_replace('\\', '/', $target), '/');
         if ($target === $root || !FileManagerAccess::isWithin($root, $target)) {
+            return false;
+        }
+
+        if (fileManagerRefuseReservedName(substr($target, strlen($root)))) {
             return false;
         }
 
@@ -306,6 +534,19 @@ if(!function_exists('fileManagerIsSafeWriteTarget')) {
     }
 }
 
+if(!function_exists('fileManagerPathIsTaken')) {
+    /**
+     * Whether anything is at $path. file_exists() is false for a dangling symlink, which a write
+     * would follow, so a link counts as taken.
+     *
+     * @param string $path
+     */
+    function fileManagerPathIsTaken($path)
+    {
+        return file_exists($path) || fileManagerIsLink($path);
+    }
+}
+
 if(!function_exists('fileManagerIsNewWriteTarget')) {
     /**
      * Whether $target is a safe place for a new file or folder: it stays under $root and
@@ -316,7 +557,7 @@ if(!function_exists('fileManagerIsNewWriteTarget')) {
      */
     function fileManagerIsNewWriteTarget($root, $target)
     {
-        return fileManagerIsSafeWriteTarget($root, $target) && !file_exists($target) && !fileManagerIsLink($target);
+        return fileManagerIsSafeWriteTarget($root, $target) && !fileManagerPathIsTaken($target);
     }
 }
 
@@ -418,46 +659,96 @@ if(!function_exists('fileManagerRemoveLink')) {
     }
 }
 
-if(!function_exists('fileManagerIsExecutableName')) {
+if(!function_exists('fileManagerCanonicalCase')) {
     /**
-     * Whether a file name would be run by the web server or changes how it serves a folder:
-     * a PHP-like extension anywhere in the name ("shell.php.jpg" runs under AddHandler), or
-     * one of the per-directory configuration files.
+     * $path with the letter case the file system stores for its existing part; the rest, which
+     * does not exist yet, is kept as given.
      *
-     * @param string $name
-     * @return bool
+     * @param string $path absolute path
      */
-    function fileManagerIsExecutableName($name)
+    function fileManagerCanonicalCase($path)
     {
-        $base = strtolower(basename(str_replace(chr(92), '/', (string) $name)));
-        if (in_array($base, ['.htaccess', '.htpasswd', '.user.ini', '.env', 'web.config'], true)) {
-            return true;
+        $path = rtrim(str_replace('\\', '/', $path), '/');
+        $rest = [];
+        $existing = $path;
+        while ($existing !== '' && ($real = realpath($existing)) === false) {
+            $rest[] = basename($existing);
+            $parent = dirname($existing);
+            if ($parent === $existing) {
+                return $path;
+            }
+            $existing = $parent;
         }
-        $parts = explode('.', $base);
-        array_shift($parts);
+        if ($existing === '') {
+            return $path;
+        }
 
-        foreach ($parts as $part) {
-            if (preg_match('/^(?:php\d*|phps|phtml|pht|phar|inc|cgi|pl|py|sh|asp|aspx|jsp)$/', trim($part))) {
+        return rtrim(str_replace('\\', '/', $real), '/') . ($rest ? '/' . implode('/', array_reverse($rest)) : '');
+    }
+}
+
+if(!function_exists('fileManagerZipWriteGuard')) {
+    /**
+     * Per-entry check for fileManagerExtractZip(): the ZIP and the destination folder were
+     * checked, but its entries may carry names the upload form refuses, or lead into restricted
+     * subfolders or over restricted files.
+     *
+     * @param string $filemanagerPath canonical root, no trailing slash
+     * @param string $destination canonical folder the archive is extracted into
+     */
+    function fileManagerZipWriteGuard($filemanagerPath, $destination): callable
+    {
+        $filemanagerPath = rtrim(str_replace('\\', '/', $filemanagerPath), '/');
+        $aclApplies = fileManagerAclApplies();
+        $restrictions = [];
+        if ($aclApplies) {
+            $destRel = FileManagerAccess::getRelativePath($filemanagerPath, $destination);
+            $restrictions = fileManagerSubtreeRestrictionMap($destRel);
+        }
+        $groups = fileManagerUserGroupIds();
+
+        return static function ($target, $isDir) use ($filemanagerPath, $aclApplies, $restrictions, $groups) {
+            // unpacking must not be the way around the upload form's allowed extensions
+            if (!$isDir && !checkExtension($target)) {
+                return false;
+            }
+            if (!$aclApplies) {
                 return true;
             }
-        }
+            $target = str_replace('\\', '/', $target);
+            if (!FileManagerAccess::isWithin($filemanagerPath, $target)) {
+                return false;
+            }
+            $rel = FileManagerAccess::normalizeRelativePath(substr($target, strlen($filemanagerPath)));
 
-        return false;
+            $allowed = file_exists($target)
+                ? fileManagerCanModifyExistingPath($rel, $groups, $restrictions)
+                : fileManagerIsAccessible($rel, $groups, $restrictions);
+            if (!$allowed) {
+                fileManagerLogDenied('unzip entry', $rel, 'file group');
+            }
+
+            return $allowed;
+        };
     }
 }
 
 if(!function_exists('fileManagerExtractZip')) {
     /**
      * Extracts $file into $path, skipping any entry that would land outside it, go through a
-     * symlink, reach a protected folder, or be a server-executable file.
+     * symlink, reach a protected folder, or be refused by $mayWrite.
      *
      * @param string $file
      * @param string $path
      * @param string[] $protectedPaths
      * @param int $dirMode
+     * @param callable|null $mayWrite fn(string $target, bool $isDir): bool, asked with the canonical
+     *                                target of each entry; false skips it (upload rules, file groups)
+     * @param string[]|null $created filled with the files this call created; files it replaced are
+     *                               not listed, so they keep the restrictions they already have
      * @return bool false when the archive cannot be opened
      */
-    function fileManagerExtractZip($file, $path, array $protectedPaths = [], $dirMode = 0777)
+    function fileManagerExtractZip($file, $path, array $protectedPaths = [], $dirMode = 0777, ?callable $mayWrite = null, ?array &$created = null)
     {
         $root = realpath($path);
         if ($root === false) {
@@ -469,10 +760,12 @@ if(!function_exists('fileManagerExtractZip')) {
         if ($zip->open($file) !== true) {
             return false;
         }
+        $refused = [];
         for ($i = 0; $i < $zip->numFiles; $i++) {
             $stat = $zip->statIndex($i);
             $filename = str_replace('\\', '/', $stat['name']);
             if (substr($filename, 0, 1) == '/' || strpos($filename, ':') !== false) {
+                $refused[] = $filename;
                 continue; // skip absolute paths
             }
             // only a whole ".." segment climbs up: "just-stop..png" is an ordinary file name
@@ -482,15 +775,24 @@ if(!function_exists('fileManagerExtractZip')) {
                 static fn ($segment) => $segment !== '' && $segment !== '.'
             ));
             if ($segments === [] || in_array('..', $segments, true)) {
+                if ($segments !== []) {
+                    $refused[] = $filename;
+                }
                 continue;
             }
             $isDir = substr($filename, -1) == '/';
             $target = $root . '/' . implode('/', $segments);
-            if (!fileManagerIsSafeWriteTarget($root, $target) || fileManagerPathIsProtected($target, $protectedPaths)) {
+            if (!fileManagerIsSafeWriteTarget($root, $target)) {
+                $refused[] = $filename;
                 continue;
             }
-            // the upload form refuses these; unpacking must not be the way around it
-            if (!$isDir && fileManagerIsExecutableName(end($segments))) {
+            // the entry's own letter case is not trusted: on Windows ASSETS/PLUGINS is assets/plugins
+            $canonical = fileManagerCanonicalCase($target);
+            if (fileManagerPathIsProtected($canonical, $protectedPaths)) {
+                $refused[] = $filename;
+                continue;
+            }
+            if ($mayWrite !== null && !$mayWrite($canonical, $isDir)) {
                 continue;
             }
             if ($isDir) {
@@ -503,9 +805,20 @@ if(!function_exists('fileManagerExtractZip')) {
             if (!is_dir($dirname)) {
                 mkdir($dirname, $dirMode, true);
             }
-            file_put_contents($target, $zip->getFromIndex($i));
+            $existed = file_exists($target);
+            if (file_put_contents($target, $zip->getFromIndex($i)) !== false && !$existed && $created !== null) {
+                $created[] = $target;
+            }
         }
         $zip->close();
+
+        if ($refused !== []) {
+            fileManagerLogDenied(
+                'unzip',
+                basename((string) $file),
+                count($refused) . ' entries refused: ' . implode(', ', array_slice($refused, 0, 5))
+            );
+        }
 
         return true;
     }
@@ -662,6 +975,10 @@ if(!function_exists('ls')) {
             }
             $rel_newpath = ltrim(substr($newpath, strlen($filemanager_path)), '/');
             $rel_web = ltrim(substr($newpath, strlen($base_path)), '/');
+            if (fileManagerIsLink($newpath)) {
+                // a link may lead anywhere, and the web server would serve its target without any check here
+                continue;
+            }
             if (!fileManagerIsAccessible($rel_newpath, $userGroups ?? [], $fileGroupsMap ?? [])) {
                 continue;
             }
@@ -873,6 +1190,18 @@ if(!function_exists('checkExtension')) {
      */
     function checkExtension($path = '')
     {
+        if (fileManagerIsReservedDeviceName($path)) {
+            fileManagerLogDenied(null, basename(str_replace('\\', '/', (string) $path)), 'reserved device name');
+
+            return false;
+        }
+
+        // not a matter of the lists below: only whoever can store PHP anyway may add executable files
+        if (fileManagerIsExecutableName($path) && !fileManagerMayRunCode()) {
+            fileManagerLogDenied(null, basename(str_replace('\\', '/', (string) $path)), 'executable name');
+
+            return false;
+        }
 
         $upload_files = explode(',', evolutionCMS()->getConfig('upload_files', ''));
         $upload_images = explode(',', evolutionCMS()->getConfig('upload_images', ''));
@@ -970,7 +1299,15 @@ if(!function_exists('unzip')) {
         // end mod
 
         $old_umask = umask(0);
-        $result = fileManagerExtractZip($file, $path, fileManagerProtectedPaths(), $newfolderaccessmode ?: 0777);
+        $result = fileManagerExtractZip(
+            $file,
+            $path,
+            fileManagerProtectedPaths(),
+            $newfolderaccessmode ?: 0777,
+            fileManagerZipWriteGuard(rtrim(str_replace('\\', '/',
+                (string) realpath(evolutionCMS()->getConfig('filemanager_path', EVO_BASE_PATH))), '/'),
+                rtrim(str_replace('\\', '/', (string) realpath($path)), '/'))
+        );
         umask($old_umask);
 
         return $result;
@@ -1025,7 +1362,11 @@ if(!function_exists('fileupload')) {
         $filemanager_path = rtrim(str_replace('\\', '/', realpath(evolutionCMS()
             ->getConfig('filemanager_path', EVO_BASE_PATH))), '/'); // Canonicalize base path
         $requested_path = ltrim($_REQUEST['path'] ?? '', '/');
-        $startpath = str_replace('\\', '/', realpath($filemanager_path . '/' . $requested_path));
+        $resolvedStartPath = fileManagerResolvePath($filemanager_path, $requested_path);
+        if ($resolvedStartPath === null) {
+            return '<p><span class="warning">Invalid path.</span></p>';
+        }
+        $startpath = $resolvedStartPath['path'];
         $startpath = rtrim($startpath, '/');
         // Ensure startpath is within filemanager_path
         if (!FileManagerAccess::isWithin($filemanager_path, $startpath) || !is_dir($startpath)) {
@@ -1035,6 +1376,8 @@ if(!function_exists('fileupload')) {
         if (!fileManagerIsAccessible($dirRel)
             || fileManagerPathIsProtected($startpath, fileManagerProtectedPaths())
             || !is_writable($startpath)) {
+            fileManagerLogDenied('upload', $dirRel);
+
             return '<p><span class="warning">' . $_lang['files_access_denied'] . '</span></p>';
         }
         $new_file_permissions = octdec(evolutionCMS()->getConfig('new_file_permissions', '0666'));
@@ -1086,7 +1429,14 @@ if(!function_exists('fileupload')) {
                     $msg .= '<p><span class="warning">' . $_lang['files_filetype_notok'] . '</span></p>';
                 } else {
                     $targetFile = $startpath . '/' . $userfile['name'];
-                    if (@move_uploaded_file($userfile['tmp_name'], $targetFile)) {
+                    // a replaced file is a modified file: its own restrictions apply, not just the folder's.
+                    // The restrictions are keyed by the stored name: on Windows secret.txt is Secret.txt
+                    $existingRel = ltrim(substr(fileManagerCanonicalCase($targetFile), strlen($filemanager_path)), '/');
+                    $replacing = file_exists($targetFile);
+                    if ($replacing && !fileManagerCanModifyExistingPath($existingRel)) {
+                        fileManagerLogDenied('upload over existing file', $existingRel, 'file group');
+                        $msg .= '<p><span class="warning">' . $_lang['files_access_denied'] . '</span></p>';
+                    } elseif (@move_uploaded_file($userfile['tmp_name'], $targetFile)) {
                         // Ryan: Repair broken permissions issue with file manager
                         if (strtoupper(substr(PHP_OS, 0, 3)) != 'WIN') {
                             @chmod($targetFile, $new_file_permissions);
@@ -1101,8 +1451,9 @@ if(!function_exists('fileupload')) {
                         ]);
                         // Log the change
                         logFileChange('upload', $targetFile);
-                        // Inherit groups from parent directory
-                        if (!empty($dirGroupIds)) {
+                        // Inherit groups from parent directory. A replaced file keeps the restrictions it
+                        // had: giving it the folder's groups would let that wider group read it
+                        if (!$replacing && !empty($dirGroupIds)) {
                             $fileRel = fileManagerAclKey(ltrim(substr($targetFile, strlen($filemanager_path)), '/'));
                             foreach ($fileRel === null ? [] : $dirGroupIds as $gid) {
                                 $inheritInserts[] = ['document_group' => $gid, 'file' => $fileRel];
@@ -1158,15 +1509,20 @@ if(!function_exists('textsave')) {
         $filemanager_path = rtrim(str_replace('\\', '/', realpath(evolutionCMS()
             ->getConfig('filemanager_path', EVO_BASE_PATH))), '/');
         $requested_path = ltrim($_POST['path'] ?? '', '/');
-        $filename = str_replace('\\', '/', realpath($filemanager_path . '/' . $requested_path));
+        $requested = $filemanager_path . '/' . $requested_path;
+        if (fileManagerPathContainsLink($filemanager_path, $requested)) {
+            return '<span class="warning"><b>Invalid path.</b></span><br /><br />';
+        }
+        $filename = str_replace('\\', '/', realpath($requested));
         if (!FileManagerAccess::isWithin($filemanager_path, $filename) || !is_file($filename)) {
             return '<span class="warning"><b>Invalid path.</b></span><br /><br />';
         }
         $fileRel = ltrim(substr($filename, strlen($filemanager_path)), '/');
         if (!fileManagerCanModifyExistingPath($fileRel)
             || fileManagerPathIsProtected($filename, fileManagerProtectedPaths())
+            || (fileManagerIsExecutableName($filename) && !fileManagerMayRunCode())
             || !is_writable($filename)) {
-            return '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+            return fileManagerDenied();
         }
         $content = $_POST['content'];
 
@@ -1195,7 +1551,11 @@ if(!function_exists('delete_file')) {
         $filemanager_path = rtrim(str_replace('\\', '/', realpath(evolutionCMS()
             ->getConfig('filemanager_path', EVO_BASE_PATH))), '/');
         $requested_path = ltrim($_REQUEST['path'] ?? '', '/');
-        $file = str_replace('\\', '/', realpath($filemanager_path . '/' . $requested_path));
+        $requested = $filemanager_path . '/' . $requested_path;
+        if (fileManagerPathContainsLink($filemanager_path, $requested)) {
+            return '<span class="warning"><b>Invalid path.</b></span><br /><br />';
+        }
+        $file = str_replace('\\', '/', realpath($requested));
         if (!FileManagerAccess::isWithin($filemanager_path, $file) || !is_file($file)) {
             return '<span class="warning"><b>Invalid path.</b></span><br /><br />';
         }
@@ -1203,7 +1563,7 @@ if(!function_exists('delete_file')) {
         if (!fileManagerCanModifyExistingPath($fileRel)
             || fileManagerPathIsProtected($file, fileManagerProtectedPaths())
             || !is_writable($file)) {
-            return '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
+            return fileManagerDenied();
         }
         $msg = sprintf($_lang['deleting_file'], str_replace('\\', '/', $file));
 
