@@ -14,7 +14,12 @@
 
 class browser extends uploader
 {
+    /** Name prefix of the temporary download archives; the cleanup removes nothing else. */
+    const TEMP_ZIP_PREFIX = 'kcf-download-';
+
     protected $action;
+    /** @var string[]|null fileManagerProtectedPaths(), read once per request */
+    protected $protectedPaths;
     protected $thumbsDir;
     protected $thumbsTypeDir;
 
@@ -43,6 +48,10 @@ class browser extends uploader
         }
 
         $thumbsDir = $this->config['uploadDir'] . "/" . $this->config['thumbsDir'];
+        // checked before anything is probed or created: through a link, that would touch its target
+        if (fileManagerPathContainsLink($this->config['uploadDir'], "$thumbsDir/{$this->type}")) {
+            $this->errorMsg("Cannot access or create thumbnails folder.");
+        }
         if ((
                 !is_dir($thumbsDir) &&
                 !@mkdir($thumbsDir, $this->config['dirPerms'])
@@ -61,7 +70,8 @@ class browser extends uploader
         $this->thumbsDir = $thumbsDir;
         $this->thumbsTypeDir = "$thumbsDir/{$this->type}";
 
-        // Remove temporary zip downloads if exists
+        // Remove temporary zip downloads left behind. Only archives named by newTempZipPath() go:
+        // any other .zip in the upload folder is somebody's file, possibly a restricted one.
         $files = dir::content($this->config['uploadDir'], [
             'types'   => "file",
             'pattern' => '/^.*\.zip$/i'
@@ -70,7 +80,8 @@ class browser extends uploader
         if (is_array($files) && count($files)) {
             $time = time();
             foreach ($files as $file) {
-                if (is_file($file) && ($time - filemtime($file) > 3600)) {
+                if (preg_match('/^' . self::TEMP_ZIP_PREFIX . '[0-9a-f]{32}\.zip$/', basename($file))
+                    && is_file($file) && ($time - filemtime($file) > 3600)) {
                     unlink($file);
                 }
             }
@@ -98,6 +109,7 @@ class browser extends uploader
         }
         $this->action = $act;
         $method = "act_$act";
+        $this->refuseReservedRequestNames();
         if ($this->config['disabled']) {
             $message = $this->label("You don't have permissions to browse server.");
             if (in_array($act, ["browser", "upload"]) ||
@@ -192,7 +204,12 @@ class browser extends uploader
         if (!$this->isPathAccessible("{$this->typeDir}/{$this->get['dir']}/$file")) {
             $this->sendDefaultThumb();
         }
+        $original = "{$this->typeDir}/{$this->get['dir']}/$file";
         $file = "{$this->thumbsDir}/{$this->type}/{$this->get['dir']}/$file";
+        // a cached path that is, or runs through, a link could lead to any file PHP can read
+        if (!$this->isSafeThumbPath($file) || fileManagerPathContainsLink($this->typeDir, $original)) {
+            $this->sendDefaultThumb();
+        }
         if (!is_file($file) || !is_readable($file)) {
             $file = "{$this->config['uploadDir']}/{$this->type}/{$this->get['dir']}/" . basename($file);
             if (!is_file($file) || !is_readable($file)) {
@@ -269,6 +286,7 @@ class browser extends uploader
         }
 
         if (!$this->isWriteAllowed($this->post['dir'])) {
+            $this->logDenied('folder permissions');
             $this->errorMsg("You don't have permissions to write to this folder.");
         }
 
@@ -306,6 +324,7 @@ class browser extends uploader
         }
 
         if (!$this->isStrictWriteAllowed($this->post['dir'])) {
+            $this->logDenied('folder permissions');
             $this->errorMsg("You don't have permissions to write to this folder.");
         }
 
@@ -328,13 +347,23 @@ class browser extends uploader
         if (is_array($evtOut) && !empty($evtOut)) {
             $this->errorMsg(implode('\n', $evtOut));
         }
+        if (!$this->canModifyExisting($dir)) {
+            $this->logDenied('folder permissions');
+            $this->errorMsg("You don't have permissions to write to this folder.");
+        }
         $oldKey = $this->getFileGroupsRelPath($dir);
-        if (!@rename($dir, dirname($dir) . "/$newName")) {
+        $newPath = dirname($dir) . "/$newName";
+        // on Linux rename() silently replaces an empty folder: whatever sits at the destination,
+        // restricted or not, is not ours to replace. Only a change of letter case is the same folder.
+        if ($this->isTaken($newPath) && !(strcasecmp($dir, $newPath) === 0 && realpath($dir) === realpath($newPath))) {
+            $this->errorMsg("A file or folder with that name already exists.");
+        }
+        if (!@rename($dir, $newPath)) {
             $this->errorMsg("Cannot rename the folder.");
         }
         $this->moveFileGroups($oldKey, dirname($dir) . "/$newName");
         $thumbDir = "$this->thumbsTypeDir/{$this->post['dir']}";
-        if (is_dir($thumbDir)) {
+        if (is_dir($thumbDir) && $this->isSafeThumbPath($thumbDir)) {
             @rename($thumbDir, dirname($thumbDir) . "/$newName");
         }
 
@@ -359,6 +388,7 @@ class browser extends uploader
         }
 
         if (!$this->isStrictWriteAllowed($this->post['dir'])) {
+            $this->logDenied('folder permissions');
             $this->errorMsg("You don't have permissions to write to this folder.");
         }
 
@@ -367,8 +397,13 @@ class browser extends uploader
         if (!dir::isWritable($dir)) {
             $this->errorMsg("Cannot delete the folder.");
         }
+        if (!$this->canModifyExisting($dir)) {
+            $this->logDenied('folder permissions');
+            $this->errorMsg("You don't have permissions to write to this folder.");
+        }
         // prune() takes everything below with it, including entries the listing hid
         if ($this->hasInaccessibleDescendants($dir)) {
+            $this->logDenied('folder permissions');
             $this->errorMsg("You don't have permissions to write to this folder.");
         }
 
@@ -381,8 +416,9 @@ class browser extends uploader
         }
 
         $oldKey = $this->getFileGroupsRelPath($dir);
+        $wasLink = fileManagerIsLink($dir);
         $result = !dir::prune($dir, false);
-        if (!is_dir($dir)) {
+        if (!is_dir($dir) && !$wasLink) {
             $this->forgetFileGroups($oldKey);
         }
         if (is_array($result) && count($result)) {
@@ -390,7 +426,7 @@ class browser extends uploader
                 ['count' => count($result)]);
         }
         $thumbDir = "$this->thumbsTypeDir/{$this->post['dir']}";
-        if (is_dir($thumbDir)) {
+        if (is_dir($thumbDir) && $this->isSafeThumbPath($thumbDir)) {
             dir::prune($thumbDir);
         }
         $this->modx->invokeEvent('OnFileBrowserDelete', [
@@ -413,6 +449,7 @@ class browser extends uploader
             return json_encode($response);
         }
         if (!$this->isWriteAllowed($this->post['dir'])) {
+            $this->logDenied('folder permissions');
             $response['message'] = $this->label("You don't have permissions to write to this folder.");
             return json_encode($response);
         }
@@ -461,6 +498,7 @@ class browser extends uploader
     protected function act_rename()
     {
         if (isset($this->post['dir']) && !$this->isWriteAllowed($this->post['dir'])) {
+            $this->logDenied('folder permissions');
             $this->errorMsg("You don't have permissions to write to this folder.");
         }
         $dir = $this->postDir();
@@ -474,7 +512,8 @@ class browser extends uploader
         ) {
             $this->errorMsg("Unknown error.");
         }
-        if (!$this->isPathAccessible($file)) {
+        if (!$this->isPathAccessible($file) || !$this->canModifyExisting($file)) {
+            $this->logDenied('folder permissions');
             $this->errorMsg("You don't have permissions to write to this folder.");
         }
 
@@ -505,7 +544,7 @@ class browser extends uploader
         }
         $_newName = $newName;
         $newName = "$dir/$newName";
-        if (file_exists($newName)) {
+        if ($this->isTaken($newName)) {
             $this->errorMsg("A file or folder with that name already exists.");
         }
         $ext = file::getExtension($newName);
@@ -529,7 +568,7 @@ class browser extends uploader
         $thumbDir = "{$this->thumbsTypeDir}/{$this->post['dir']}";
         $thumbFile = "$thumbDir/{$this->post['file']}";
 
-        if (file_exists($thumbFile)) {
+        if (file_exists($thumbFile) && $this->isSafeThumbPath($thumbFile)) {
             @rename($thumbFile, "$thumbDir/" . basename($newName));
         }
 
@@ -542,6 +581,7 @@ class browser extends uploader
     protected function act_delete()
     {
         if (isset($this->post['dir']) && !$this->isWriteAllowed($this->post['dir'])) {
+            $this->logDenied('folder permissions');
             $this->errorMsg("You don't have permissions to write to this folder.");
         }
         $dir = $this->postDir();
@@ -552,8 +592,9 @@ class browser extends uploader
             strpos($this->post['file'], '../') !== false ||
             (false === ($file = "$dir/{$this->post['file']}")) ||
             !file_exists($file) || !is_readable($file) || !file::isWritable($file) ||
-            !$this->isPathAccessible($file)
+            !$this->isPathAccessible($file) || !$this->canModifyExisting($file)
         ) {
+            $this->logDenied('file group or top level', is_string($file) ? $file : null);
             $this->errorMsg("Cannot delete '{file}'.", ['file' => basename($file)]);
         }
 
@@ -568,12 +609,14 @@ class browser extends uploader
         }
 
         $oldKey = $this->getFileGroupsRelPath($file);
-        if (@unlink($file)) {
+        // the key of a link is its target's: removing the link leaves the target and its groups
+        $wasLink = fileManagerIsLink($file);
+        if (@unlink($file) && !$wasLink) {
             $this->forgetFileGroups($oldKey);
         }
 
         $thumb = "{$this->thumbsTypeDir}/{$this->post['dir']}/{$this->post['file']}";
-        if (file_exists($thumb)) {
+        if (file_exists($thumb) && $this->isSafeThumbPath($thumb)) {
             @unlink($thumb);
         }
 
@@ -592,6 +635,7 @@ class browser extends uploader
     protected function act_cp_cbd()
     {
         if (isset($this->post['dir']) && !$this->isWriteAllowed($this->post['dir'])) {
+            $this->logDenied('folder permissions');
             $this->errorMsg("You don't have permissions to write to this folder.");
         }
         $dir = $this->postDir();
@@ -620,6 +664,7 @@ class browser extends uploader
             $replace = ['file' => $base];
             if (!$this->isPathAccessible($path)) {
                 // a copy into an open folder would hand out a file the listing hides
+                $this->logDenied('file group', $file);
                 $error[] = $this->label("Cannot read '{file}'.", $replace);
                 continue;
             }
@@ -637,29 +682,43 @@ class browser extends uploader
                 $error[] = "$base: " . $this->label("File name shouldn't begins with '.'");
             } elseif (!$this->validateFilename($base, $type)) {
                 $error[] = "$base: " . $this->label("Denied file extension.");
-            } elseif (file_exists("$dir/$base")) {
+            } elseif ($this->isTaken("$dir/$base")) {
                 $error[] = "$base: " . $this->label("A file or folder with that name already exists.");
             } elseif (!is_readable($path) || !is_file($path)) {
                 $error[] = $this->label("Cannot read '{file}'.", $replace);
-            } elseif (!@copy($path, "$dir/$base")) {
+            } elseif (null === ($carried = \EvolutionCMS\Support\FileManagerAccess::carriedRestrictions(
+                $this->getFileGroupsRelPath($path),
+                $this->getFileGroupsRelPath("$dir/$base")
+            ))) {
+                // no single set of groups holds the copy to what the original is held to
+                $this->logDenied('copy would widen the file groups', $file);
+                $error[] = $this->label("Cannot copy '{file}'.", $replace);
+            } elseif (!$this->copyExclusive($path, "$dir/$base")) {
                 $error[] = $this->label("Cannot copy '{file}'.", $replace);
             } else {
                 if (function_exists("chmod")) {
                     @chmod("$dir/$base", $this->config['filePerms']);
                 }
+                // the copy is as restricted as the original, not as open as the folder it landed in
+                \EvolutionCMS\Support\FileManagerAccess::replaceRestrictions(
+                    $this->getFileGroupsRelPath("$dir/$base"),
+                    $carried
+                );
                 $this->modx->invokeEvent('OnFileBrowserCopy', [
                     'oldpath'  => $path,
                     'filename' => $base,
                     'newpath' => realpath($dir)
                 ]);
                 $fromThumb = "{$this->thumbsDir}/$file";
-                if (is_file($fromThumb) && is_readable($fromThumb)) {
-                    $toThumb = "{$this->thumbsTypeDir}/{$this->post['dir']}";
+                $toThumb = "{$this->thumbsTypeDir}/{$this->post['dir']}";
+                if (is_file($fromThumb) && is_readable($fromThumb)
+                    && $this->isSafeThumbPath($fromThumb) && $this->isSafeThumbPath("$toThumb/$base")
+                ) {
                     if (!is_dir($toThumb)) {
                         @mkdir($toThumb, $this->config['dirPerms'], true);
                     }
                     $toThumb .= "/$base";
-                    @copy($fromThumb, $toThumb);
+                    $this->copyExclusive($fromThumb, $toThumb);
                 }
             }
         }
@@ -676,6 +735,7 @@ class browser extends uploader
     protected function act_mv_cbd()
     {
         if (isset($this->post['dir']) && !$this->isWriteAllowed($this->post['dir'])) {
+            $this->logDenied('folder permissions');
             $this->errorMsg("You don't have permissions to write to this folder.");
         }
         $dir = $this->postDir();
@@ -701,6 +761,7 @@ class browser extends uploader
             }
             $srcRelDir = $this->removeTypeFromPath(dirname($file));
             if (!$this->isWriteAllowed($srcRelDir)) {
+                $this->logDenied('folder permissions');
                 $error[] = basename($file) . ": " . $this->label("You don't have permissions to write to this folder.");
                 continue;
             }
@@ -708,10 +769,16 @@ class browser extends uploader
             $base = basename($file);
             $replace = ['file' => $base];
             if (!$this->isPathAccessible($path)) {
+                $this->logDenied('file group', $file);
                 $error[] = $this->label("Cannot move '{file}'.", $replace);
                 continue;
             }
             $oldKey = $this->getFileGroupsRelPath($path);
+            // read before the move: the folder it leaves may be the only thing restricting it
+            $carriedGroups = \EvolutionCMS\Support\FileManagerAccess::carriedRestrictions(
+                $oldKey,
+                $this->getFileGroupsRelPath("$dir/$base")
+            );
             $ext = file::getExtension($base);
             $evtOut = $this->modx->invokeEvent('OnBeforeFileBrowserMove', [
                 'oldpath'  => $path,
@@ -726,20 +793,33 @@ class browser extends uploader
                 $error[] = "$base: " . $this->label("File name shouldn't begins with '.'");
             } elseif (!$this->validateFilename($base, $type)) {
                 $error[] = "$base: " . $this->label("Denied file extension.");
-            } elseif (file_exists("$dir/$base")) {
+            } elseif ($this->isTaken("$dir/$base")) {
                 $error[] = "$base: " . $this->label("A file or folder with that name already exists.");
             } elseif (!is_readable($path) || !is_file($path)) {
                 $error[] = $this->label("Cannot read '{file}'.", $replace);
+            } elseif ($carriedGroups === null || !$this->canModifyExisting($path)) {
+                $this->logDenied($carriedGroups === null ? 'move would widen the file groups' : 'top level', $file);
+                $error[] = $this->label("Cannot move '{file}'.", $replace);
             } elseif (!file::isWritable($path) || !@rename($path, "$dir/$base")) {
                 $error[] = $this->label("Cannot move '{file}'.", $replace);
             } else {
                 $this->moveFileGroups($oldKey, "$dir/$base");
+                // and it keeps the restrictions of the folder it left, not only its own: all of them
+                // at once, which is narrower than its own groups when the folder had others
+                if ($carriedGroups !== []) {
+                    \EvolutionCMS\Support\FileManagerAccess::replaceRestrictions(
+                        $this->getFileGroupsRelPath("$dir/$base"),
+                        $carriedGroups
+                    );
+                }
                 if (function_exists("chmod")) {
                     @chmod("$dir/$base", $this->config['filePerms']);
                 }
                 $fromThumb = "{$this->thumbsDir}/$file";
-                if (is_file($fromThumb) && is_readable($fromThumb)) {
-                    $toThumb = "{$this->thumbsTypeDir}/{$this->post['dir']}";
+                $toThumb = "{$this->thumbsTypeDir}/{$this->post['dir']}";
+                if (is_file($fromThumb) && is_readable($fromThumb)
+                    && $this->isSafeThumbPath($fromThumb) && $this->isSafeThumbPath("$toThumb/$base")
+                ) {
                     if (!is_dir($toThumb)) {
                         @mkdir($toThumb, $this->config['dirPerms'], true);
                     }
@@ -786,6 +866,7 @@ class browser extends uploader
             }
             $srcRelDir = $this->removeTypeFromPath(dirname($file));
             if (!$this->isWriteAllowed($srcRelDir)) {
+                $this->logDenied('folder permissions');
                 $error[] = basename($file) . ": " . $this->label("You don't have permissions to write to this folder.");
                 continue;
             }
@@ -793,7 +874,8 @@ class browser extends uploader
             $base = basename($file);
             $filepath = str_replace('/' . $base, '', $path);
             $replace = ['file' => $base];
-            if (!$this->isPathAccessible($path)) {
+            if (!$this->isPathAccessible($path) || !$this->canModifyExisting($path)) {
+                $this->logDenied('file group or top level', $file);
                 $error[] = $this->label("Cannot delete '{file}'.", $replace);
             } elseif (!is_file($path)) {
                 $error[] = $this->label("The file '{file}' does not exist.", $replace);
@@ -808,17 +890,20 @@ class browser extends uploader
                     $error[] = implode("\n", $evtOut);
                 } else {
                     $oldKey = $this->getFileGroupsRelPath($path);
+                    $wasLink = fileManagerIsLink($path);
                     if (!@unlink($path)) {
                         $error[] = $this->label("Cannot delete '{file}'.", $replace);
                     } else {
-                        $this->forgetFileGroups($oldKey);
+                        if (!$wasLink) {
+                            $this->forgetFileGroups($oldKey);
+                        }
                         $this->modx->invokeEvent('OnFileBrowserDelete', [
                             'element'  => 'file',
                             'filename' => $base,
                             'filepath' => $filepath
                         ]);
                         $thumb = "{$this->thumbsDir}/$file";
-                        if (is_file($thumb)) {
+                        if (is_file($thumb) && $this->isSafeThumbPath($thumb)) {
                             @unlink($thumb);
                         }
                     }
@@ -833,6 +918,19 @@ class browser extends uploader
     }
 
     /**
+     * Path for a temporary download archive; the name is what lets the cleanup in the
+     * constructor tell it from a user's own .zip.
+     */
+    protected function newTempZipPath()
+    {
+        do {
+            $file = "{$this->config['uploadDir']}/" . self::TEMP_ZIP_PREFIX . md5(uniqid(session_id(), true)) . ".zip";
+        } while (file_exists($file));
+
+        return $file;
+    }
+
+    /**
      * @throws Exception
      */
     protected function act_downloadDir()
@@ -842,10 +940,7 @@ class browser extends uploader
             $this->errorMsg("Unknown error.");
         }
         $filename = basename($dir) . ".zip";
-        do {
-            $file = md5(time() . session_id());
-            $file = "{$this->config['uploadDir']}/$file.zip";
-        } while (file_exists($file));
+        $file = $this->newTempZipPath();
         new zipFolder($file, $dir, null, $this->subtreeAccessFilter($dir));
         header("Content-Type: application/x-zip");
         header('Content-Disposition: attachment; filename="' . str_replace('"', "_", $filename) . '"');
@@ -882,10 +977,7 @@ class browser extends uploader
             $zipFiles[] = $file;
         }
 
-        do {
-            $file = md5(time() . session_id());
-            $file = "{$this->config['uploadDir']}/$file.zip";
-        } while (file_exists($file));
+        $file = $this->newTempZipPath();
 
         $zip = new ZipArchive();
         $res = $zip->open($file, ZipArchive::CREATE);
@@ -933,10 +1025,7 @@ class browser extends uploader
             $zipFiles[] = $file;
         }
 
-        do {
-            $file = md5(time() . session_id());
-            $file = "{$this->config['uploadDir']}/$file.zip";
-        } while (file_exists($file));
+        $file = $this->newTempZipPath();
 
         $zip = new ZipArchive();
         $res = $zip->open($file, ZipArchive::CREATE);
@@ -986,11 +1075,19 @@ class browser extends uploader
         $filename = $this->normalizeFilename($file['name']);
         $target = "$dir/" . file::getInexistantFilename($filename, $dir);
 
+        // checkUploadedFile() saw the name as sent; transliteration and numbering may have changed it
+        if (!$this->validateFilename(basename($target), $this->type)) {
+            @unlink($file['tmp_name']);
+            $response['message'] = $this->label("Denied file extension.");
+
+            return $response;
+        }
+
         // every attempt below writes through a symlink at $target, so check before each one
         if (!$this->isNewUploadTarget($target) ||
             (!@move_uploaded_file($file['tmp_name'], $target) &&
                 (!$this->isNewUploadTarget($target) || !@rename($file['tmp_name'], $target)) &&
-                (!$this->isNewUploadTarget($target) || !@copy($file['tmp_name'], $target)))
+                (!$this->isNewUploadTarget($target) || !$this->copyExclusive($file['tmp_name'], $target)))
         ) {
             @unlink($file['tmp_name']);
 
@@ -1019,9 +1116,44 @@ class browser extends uploader
      * @param string $target
      * @return bool
      */
+    protected function isTaken($target)
+    {
+        return fileManagerPathIsTaken($target);
+    }
+
+    /**
+     * Copies $from to a destination nobody has taken: 'x' mode fails on anything already there,
+     * a dangling symlink included, instead of writing through it.
+     *
+     * @param string $from
+     * @param string $to
+     * @return bool
+     */
+    protected function copyExclusive($from, $to)
+    {
+        if ($this->isTaken($to)) {
+            return false;
+        }
+        $in = @fopen($from, 'rb');
+        $out = $in ? @fopen($to, 'xb') : false;
+        if (!$out) {
+            if ($in) {
+                fclose($in);
+            }
+            return false;
+        }
+        $ok = stream_copy_to_stream($in, $out) !== false;
+        fclose($in);
+        fclose($out);
+        if (!$ok) {
+            @unlink($to);
+        }
+        return $ok;
+    }
+
     protected function isNewUploadTarget($target)
     {
-        return !file_exists($target) && !dir::isLink($target) && $this->isInsideTypeDir($target);
+        return !$this->isTaken($target) && $this->isInsideTypeDir($target);
     }
 
     /**
@@ -1204,6 +1336,26 @@ class browser extends uploader
     }
 
     /**
+     * Stops a request that names a Windows device name, before any of its names is probed.
+     *
+     * @return void
+     */
+    protected function refuseReservedRequestNames()
+    {
+        // every name the request carries comes before the first probe of the file system
+        foreach ([$this->get, $this->post] as $request) {
+            foreach (['dir', 'file', 'newDir', 'newName', 'name', 'files', 'dirs'] as $key) {
+                $values = $request[$key] ?? [];
+                foreach (is_array($values) ? $values : [$values] as $value) {
+                    if (is_string($value) && fileManagerRefuseReservedName($value)) {
+                        $this->errorMsg("Denied file extension.");
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * @param bool $existent
      * @return string
      */
@@ -1229,6 +1381,33 @@ class browser extends uploader
      * @return bool
      */
     protected function isInsideTypeDir($absPath)
+    {
+        return !fileManagerPathContainsLink($this->typeDir, $absPath)
+            && $this->isInsideTypeRoot($absPath)
+            && !$this->isInProtectedFolder($absPath);
+    }
+
+    /**
+     * Whether $absPath lies in a folder the current manager user's permissions keep closed (the
+     * same list as in the classic file manager: backups, element folders, core, manager).
+     *
+     * @param string $absPath
+     * @return bool
+     */
+    protected function isInProtectedFolder($absPath)
+    {
+        if ($this->protectedPaths === null) {
+            $this->protectedPaths = fileManagerProtectedPaths();
+        }
+
+        return fileManagerPathIsProtected(fileManagerCanonicalCase($absPath), $this->protectedPaths);
+    }
+
+    /**
+     * @param string $absPath
+     * @return bool
+     */
+    protected function isInsideTypeRoot($absPath)
     {
         $root = realpath($this->typeDir);
         if ($root === false) {
@@ -1560,6 +1739,32 @@ class browser extends uploader
     protected function forgetFileGroups($oldKey)
     {
         \EvolutionCMS\Support\FileManagerAccess::forgetRestrictions($oldKey);
+    }
+
+    /**
+     * The classic file manager's rule for an existing entry: what lies at the top of the manager's
+     * own root cannot be renamed, moved or deleted by a restricted manager. Same key, same answer
+     * in both tools.
+     *
+     * @param string $absPath
+     * @return bool
+     */
+    protected function canModifyExisting($absPath)
+    {
+        if (!fileManagerAclApplies()) {
+            return true;
+        }
+        $root = realpath($this->modx->getConfig('filemanager_path')) ?: realpath(EVO_BASE_PATH);
+        $relative = \EvolutionCMS\Support\FileManagerAccess::getRelativePath($root, $absPath);
+        if ($relative === '') {
+            // not under the file manager's root (or the root itself): nothing to compare it with
+            return !\EvolutionCMS\Support\FileManagerAccess::isWithin(
+                str_replace('\\', '/', $root),
+                str_replace('\\', '/', (string) (realpath($absPath) ?: $absPath))
+            );
+        }
+
+        return fileManagerCanModifyExistingPath($relative);
     }
 
     /**

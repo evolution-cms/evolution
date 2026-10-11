@@ -241,3 +241,125 @@ test('groups of a removed entry and everything below it are dropped, and nothing
         $capsule->getConnection()->disconnect();
     }
 })->skip(!extension_loaded('pdo_sqlite'), 'pdo_sqlite is required');
+
+it('compares paths case-insensitively only where the file system is', function () {
+    $within = FileManagerAccess::isWithin('/site/assets/plugins', '/site/ASSETS/Plugins/demo/note.txt');
+
+    expect($within)->toBe(PHP_OS_FAMILY === 'Windows');
+});
+
+test('a copy is held to every restriction of the original at once, or refused', function () {
+    $capsule = fileGroupsTable([
+        ['document_group' => 1, 'file' => 'files/hr'],
+        ['document_group' => 2, 'file' => 'files/hr'],
+        ['document_group' => 2, 'file' => 'files/hr/pay.pdf'],
+        ['document_group' => 3, 'file' => 'files/hr/pay.pdf'],
+        ['document_group' => 5, 'file' => 'files/a'],
+        ['document_group' => 6, 'file' => 'files/a/x.txt'],
+        ['document_group' => 7, 'file' => 'files/solo/own.txt'],
+    ]);
+
+    try {
+        // folder [1,2] and file [2,3] mean "in 1 or 2, and in 2 or 3": only group 2 satisfies both
+        expect(FileManagerAccess::carriedRestrictions('files/hr/pay.pdf', 'files/public/pay.pdf'))->toBe([2]);
+
+        // folder [5] and file [6] share nothing: one set of groups cannot hold the copy to both
+        expect(FileManagerAccess::carriedRestrictions('files/a/x.txt', 'files/public/x.txt'))->toBeNull();
+
+        // a copy beside the original is already held to its folders: only the file's own groups remain
+        expect(FileManagerAccess::carriedRestrictions('files/hr/pay.pdf', 'files/hr/copy.pdf'))->toBe([2, 3]);
+        expect(FileManagerAccess::carriedRestrictions('files/a/x.txt', 'files/a/copy.txt'))->toBe([6]);
+
+        expect(FileManagerAccess::carriedRestrictions('files/solo/own.txt', 'files/public/own.txt'))->toBe([7])
+            ->and(FileManagerAccess::carriedRestrictions('files/open/a.txt', 'files/public/a.txt'))->toBe([])
+            ->and(FileManagerAccess::carriedRestrictions('', 'files/public/a.txt'))->toBe([])
+            ->and(FileManagerAccess::carriedRestrictions('files/hr/pay.pdf', ''))->toBeNull()
+            ->and(FileManagerAccess::carriedRestrictions('files/hr/pay.pdf', 'files/hr/pay.pdf'))->toBe([]);
+    } finally {
+        $capsule->getConnection()->disconnect();
+    }
+})->skip(!extension_loaded('pdo_sqlite'), 'pdo_sqlite is required');
+
+test('direct restrictions can be added without duplicates and replaced by a narrower set', function () {
+    $capsule = fileGroupsTable([
+        ['document_group' => 1, 'file' => 'files/x.txt'],
+        ['document_group' => 2, 'file' => 'files/x.txt'],
+        ['document_group' => 9, 'file' => 'files/other.txt'],
+    ]);
+
+    try {
+        FileManagerAccess::addRestrictions('files/x.txt', [2, 3]);
+        $groupsOf = static fn (string $file) => Illuminate\Database\Capsule\Manager::table('file_groups')
+            ->where('file', $file)->orderBy('document_group')->pluck('document_group')->map('intval')->all();
+        expect($groupsOf('files/x.txt'))->toBe([1, 2, 3]);
+
+        FileManagerAccess::replaceRestrictions('files/x.txt', [2]);
+        expect($groupsOf('files/x.txt'))->toBe([2])
+            ->and($groupsOf('files/other.txt'))->toBe([9]);
+
+        FileManagerAccess::addRestrictions('', [1]);
+        FileManagerAccess::addRestrictions('files/y.txt', []);
+        FileManagerAccess::replaceRestrictions('', [1]);
+        expect(fileGroupRows())->toHaveCount(2);
+    } finally {
+        $capsule->getConnection()->disconnect();
+    }
+})->skip(!extension_loaded('pdo_sqlite'), 'pdo_sqlite is required');
+
+test('a rename or a copy drops stale rows left at its destination', function () {
+    $capsule = fileGroupsTable([
+        ['document_group' => 1, 'file' => 'files/a.txt'],
+        ['document_group' => 9, 'file' => 'files/b.txt'],
+        ['document_group' => 8, 'file' => 'files/c.txt'],
+        ['document_group' => 9, 'file' => 'files/dir/old.txt'],
+        ['document_group' => 1, 'file' => 'files/src'],
+    ]);
+
+    try {
+        $groupsOf = static fn (string $file) => Illuminate\Database\Capsule\Manager::table('file_groups')
+            ->where('file', $file)->orderBy('document_group')->pluck('document_group')->map('intval')->all();
+
+        // group 9 is a leftover of a file removed outside the CMS
+        FileManagerAccess::moveRestrictions('files/a.txt', 'files/b.txt');
+        expect($groupsOf('files/b.txt'))->toBe([1])->and($groupsOf('files/a.txt'))->toBe([]);
+
+        // a copy replaces them with what it carries, and an unrestricted copy leaves none
+        FileManagerAccess::replaceRestrictions('files/c.txt', [2]);
+        expect($groupsOf('files/c.txt'))->toBe([2]);
+        FileManagerAccess::replaceRestrictions('files/c.txt', []);
+        expect($groupsOf('files/c.txt'))->toBe([]);
+
+        // stale rows below a folder destination go too
+        FileManagerAccess::moveRestrictions('files/src', 'files/dir');
+        expect($groupsOf('files/dir/old.txt'))->toBe([])->and($groupsOf('files/dir'))->toBe([1]);
+    } finally {
+        $capsule->getConnection()->disconnect();
+    }
+})->skip(!extension_loaded('pdo_sqlite'), 'pdo_sqlite is required');
+
+test('a copy and a rename see only the rows of their own path, not those of a sibling that differs by case', function () {
+    if (PHP_OS_FAMILY === 'Windows') {
+        $this->markTestSkipped('paths that differ by case are one path here');
+    }
+    $capsule = fileGroupsTable([
+        ['document_group' => 1, 'file' => 'files/Report.txt'],
+        ['document_group' => 9, 'file' => 'files/REPORT.txt'],
+    ]);
+
+    try {
+        $groupsOf = static fn (string $file) => Illuminate\Database\Capsule\Manager::table('file_groups')
+            ->where('file', $file)->orderBy('document_group')->pluck('document_group')->map('intval')->all();
+
+        FileManagerAccess::addRestrictions('files/report.txt', [1]);
+        expect($groupsOf('files/report.txt'))->toBe([1]);
+
+        // the stale rows of the exact destination go; those of its sibling stay
+        FileManagerAccess::moveRestrictions('files/Report.txt', 'files/REPORT.txt');
+        expect($groupsOf('files/REPORT.txt'))->toBe([1])->and($groupsOf('files/report.txt'))->toBe([1]);
+
+        FileManagerAccess::replaceRestrictions('files/report.txt', []);
+        expect($groupsOf('files/REPORT.txt'))->toBe([1]);
+    } finally {
+        $capsule->getConnection()->disconnect();
+    }
+})->skip(!extension_loaded('pdo_sqlite'), 'pdo_sqlite is required');
