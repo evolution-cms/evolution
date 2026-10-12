@@ -172,21 +172,8 @@
             $html = '<p>[%no_active_users_found%]</p>';
         } else {
             $now = evo()->now()->unix();
-            if (extension_loaded('intl')) {
-                // https://www.php.net/manual/en/class.intldateformatter.php
-                // https://www.php.net/manual/en/datetime.createfromformat.php
-                $formatter = new IntlDateFormatter(
-                    evolutionCMS()->getConfig('manager_language'),
-                    IntlDateFormatter::MEDIUM,
-                    IntlDateFormatter::MEDIUM,
-                    null,
-                    null,
-                    'HH:mm:ss'
-                );
-                $ph['now'] = $formatter->format($now);
-            } else {
-                $ph['now'] = date('H:i:s', $now);
-            }
+            // Use PHP's site timezone database; older ICU data may reject Europe/Kyiv.
+            $ph['now'] = date('H:i:s', $now);
             $timetocheck = $now - 60 * 20; //+$server_offset_time;
             $html = '
     	<div class="card-body">
@@ -233,19 +220,7 @@
                             );
                     }
                 }
-                if (extension_loaded('intl')) {
-                    $formatter = new IntlDateFormatter(
-                        evo()->getConfig('manager_language'),
-                        IntlDateFormatter::MEDIUM,
-                        IntlDateFormatter::MEDIUM,
-                        null,
-                        null,
-                        'HH:mm:ss'
-                    );
-                    $lasthit = $formatter->format(evo()->timestamp($activeUser['lasthit']));
-                } else {
-                    $lasthit = date('H:i:s', evo()->timestamp($activeUser['lasthit']));
-                }
+                $lasthit = date('H:i:s', evo()->timestamp($activeUser['lasthit']));
                 $userList[] = [
                     $idle,
                     '',

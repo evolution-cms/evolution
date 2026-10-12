@@ -53,7 +53,7 @@ You can also request a specific ref manually:
   php artisan make:site
     Update to the latest stable tag for the current major version.
 
-  php artisan make:site update 3.5.4
+  php artisan make:site update 3.5.9
     Update to a specific release tag.
 
   php artisan make:site update 3.5.x
