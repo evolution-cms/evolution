@@ -3365,15 +3365,21 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         unset($_GET[$k[0]], $_REQUEST[$k[0]]);
         // remove 404,405 entry
         $qp = parse_url(str_replace(EVO_SITE_URL, '', substr($url, 4)));
-        $_SERVER['QUERY_STRING'] = $qp['query'];
-        if ($qp['query']) {
-            parse_str($qp['query'], $qv);
+        $qp = is_array($qp) ? $qp : [];
+        $query = (string) ($qp['query'] ?? '');
+        $path = (string) ($qp['path'] ?? '');
+        $_SERVER['QUERY_STRING'] = $query;
+        if ($query !== '') {
+            parse_str($query, $qv);
+            // protect.inc.php has already run, so the rebuilt values need the same treatment
+            modx_sanitize_gpc($qv);
             foreach ($qv as $n => $v) {
                 $_REQUEST[$n] = $_GET[$n] = $v;
             }
         }
-        $_SERVER['PHP_SELF'] = EVO_BASE_URL . $qp['path'];
-        $this->q = $qp['path'];
+        $path = getSanitizedValue($path);
+        $_SERVER['PHP_SELF'] = EVO_BASE_URL . $path;
+        $this->q = $path;
     }
 
     /**
