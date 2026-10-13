@@ -61,9 +61,10 @@ if (! function_exists('ProcessTVCommand')) {
      * @param string $docid
      * @param string $src
      * @param array $tvsArray
+     * @param bool $mayRunCode false once the binding chain has passed through a chunk, file or page
      * @return string
      */
-    function ProcessTVCommand($value, $name = '', $docid = '', $src = 'docform', $tvsArray = [])
+    function ProcessTVCommand($value, $name = '', $docid = '', $src = 'docform', $tvsArray = [], $mayRunCode = true)
     {
         $modx = evolutionCMS();
         $docid = (int)$docid > 0 ? (int)$docid : $modx->documentIdentifier;
@@ -74,7 +75,10 @@ if (! function_exists('ProcessTVCommand')) {
             return '@Bindings is disabled.';
         } else {
             [$cmd, $param] = ParseCommand($nvalue);
-            $cmd = trim($cmd);
+            $cmd = trim((string) $cmd);
+            if (!$mayRunCode && \EvolutionCMS\Support\TvBindingGuard::runsCode($cmd)) {
+                return \EvolutionCMS\Support\TvBindingGuard::refuseNestedCode($name, $cmd);
+            }
             $param = parseTvValues($param, $tvsArray);
             switch ($cmd) {
                 case "FILE" :
@@ -166,7 +170,7 @@ if (! function_exists('ProcessTVCommand')) {
 
             // support for nested bindings
             return is_string($output) && ($output != $value) ? ProcessTVCommand($output, $name, $docid, $src,
-                $tvsArray) : $output;
+                $tvsArray, \EvolutionCMS\Support\TvBindingGuard::nestedMayRunCode($cmd, $mayRunCode)) : $output;
         }
     }
 }

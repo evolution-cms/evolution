@@ -14,6 +14,58 @@ final class TvBindingGuard
     /** Definition fields (POST name => column) a binding can sit in. */
     public const FIELDS = ['elements' => 'elements', 'default_text' => 'default_text', 'display_params' => 'display_params'];
 
+    /** Bindings that run code: @EVAL passes its argument to eval(), @SELECT to the database. */
+    public const CODE_BINDINGS = ['EVAL', 'SELECT'];
+
+    /**
+     * Bindings that hand back content stored somewhere else - a chunk, a file, a page, a directory
+     * listing. Whoever may write that content need not be allowed to write PHP.
+     */
+    public const CONTENT_BINDINGS = ['FILE', 'CHUNK', 'DOCUMENT', 'DIRECTORY'];
+
+    /** @var array<string, true> refusals already written to the event log in this request */
+    private static array $loggedRefusals = [];
+
+    public static function runsCode(?string $command): bool
+    {
+        return in_array(strtoupper(trim((string) $command)), self::CODE_BINDINGS, true);
+    }
+
+    /**
+     * Whether the binding found in the output of $command may still run code. ProcessTVCommand()
+     * hands a binding's output back to itself, so a chunk, file or page that starts with @EVAL
+     * would otherwise run as PHP although only its author's chunk, file or page permission was
+     * checked. Once the chain has passed through content, it stays content.
+     */
+    public static function nestedMayRunCode(?string $command, bool $mayRunCode): bool
+    {
+        return $mayRunCode && !in_array(strtoupper(trim((string) $command)), self::CONTENT_BINDINGS, true);
+    }
+
+    /**
+     * Refuse a code binding that a content binding produced: log it once per request for the
+     * administrators and render nothing.
+     */
+    public static function refuseNestedCode(?string $tvName, ?string $command): string
+    {
+        $key = (string) $tvName . '|' . strtoupper((string) $command);
+        if (!isset(self::$loggedRefusals[$key]) && function_exists('evo')) {
+            self::$loggedRefusals[$key] = true;
+            try {
+                evo()->logEvent(0, 2, sprintf(
+                    'Template variable "%s": an @%s binding inside a chunk, file or document was not run. '
+                    . 'Put code bindings into the template variable itself.',
+                    htmlspecialchars((string) $tvName, ENT_QUOTES, 'UTF-8'),
+                    htmlspecialchars(strtoupper((string) $command), ENT_QUOTES, 'UTF-8')
+                ), 'TV binding');
+            } catch (\Throwable $e) {
+                // the refusal stands even when the event log cannot be written
+            }
+        }
+
+        return '';
+    }
+
     public static function hasCodeBinding(?string $value): bool
     {
         $value = (string) $value;
