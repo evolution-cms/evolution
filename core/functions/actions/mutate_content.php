@@ -79,6 +79,8 @@ if (! function_exists('ProcessTVCommand')) {
             if (!$mayRunCode && \EvolutionCMS\Support\TvBindingGuard::runsCode($cmd)) {
                 return \EvolutionCMS\Support\TvBindingGuard::refuseNestedCode($name, $cmd);
             }
+            // @SELECT and @EVAL take [*field*] values as data, see TvBindingArguments
+            $rawParam = (string) $param;
             $param = parseTvValues($param, $tvsArray);
             switch ($cmd) {
                 case "FILE" :
@@ -108,13 +110,28 @@ if (! function_exists('ProcessTVCommand')) {
                     foreach ($replacementVars as $rvKey => $rvValue) {
                         $modx->setPlaceholder($rvKey, $rvValue);
                     }
-                    $param = $modx->mergePlaceholderContent($param);
-                    $rs = $modx->getDatabase()->query("SELECT $param;");
+                    $prepared = \EvolutionCMS\Support\TvBindingArguments::prepareSelect(
+                        $rawParam,
+                        \EvolutionCMS\Support\TvBindingArguments::fields($tvsArray, $modx->documentObject),
+                        (string) $modx->getDatabase()->getConfig('driver'),
+                        [$modx, 'mergePlaceholderContent']
+                    );
+                    if ($prepared === null) {
+                        $output = \EvolutionCMS\Support\TvBindingArguments::refuse($name, 'SELECT');
+                        break;
+                    }
+                    $rs = $modx->getDatabase()->queryWithBindings('SELECT ' . $prepared[0] . ';', $prepared[1]);
                     $output = $rs;
                     break;
 
                 case "EVAL" : // evaluates text as php codes return the results
-                    $output = eval ($param);
+                    $tvFields = \EvolutionCMS\Support\TvBindingArguments::fields($tvsArray, $modx->documentObject);
+                    $evalCode = \EvolutionCMS\Support\TvBindingArguments::php($rawParam, $tvFields);
+                    if ($evalCode === null) {
+                        $output = \EvolutionCMS\Support\TvBindingArguments::refuse($name, 'EVAL');
+                        break;
+                    }
+                    $output = eval ($evalCode);
                     break;
 
                 case "INHERIT" :

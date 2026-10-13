@@ -88,6 +88,34 @@ class Database extends Manager
     }
 
     /**
+     * Run one statement with values for its ? placeholders, returning the same kind of result as
+     * query(). A separate method so that classes overriding query() keep their signature.
+     *
+     * @param string $sql
+     * @param array $bindings
+     * @param bool $watchError
+     * @return false|PDOStatement
+     */
+    public function queryWithBindings(string $sql, array $bindings, $watchError = true)
+    {
+        try {
+            $start = microtime(true);
+            $pdo = \DB::connection()->getPdo();
+            $out = $pdo->prepare($sql);
+            $out->execute(array_values($bindings));
+            \DB::connection()->logQuery($sql, $bindings, (microtime(true) - $start));
+            $this->conn = $pdo;
+            $this->saveAffectedRows($out);
+            return $out;
+        } catch (Exception $exception) {
+            if ($watchError === true) {
+                evo()->getService('ExceptionHandler')->messageQuit($exception->getMessage());
+            }
+        }
+        return false;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function makeArray($result, $index = false)

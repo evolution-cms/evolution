@@ -32,7 +32,12 @@ final class TvBindingHarnessDatabase
         return ['database' => 'evo', 'prefix' => 'evo_', 'driver' => $this->driver][$key] ?? null;
     }
 
-    public function query($sql, $watchError = true, array $bindings = [])
+    public function query($sql, $watchError = true)
+    {
+        return $this->queryWithBindings($sql, []);
+    }
+
+    public function queryWithBindings($sql, array $bindings, $watchError = true)
     {
         $this->queries[] = ['sql' => $sql, 'bindings' => $bindings];
 
@@ -94,6 +99,10 @@ final class TvBindingHarnessCore
 
     public function mergePlaceholderContent($content)
     {
+        // like Core::mergePlaceholderContent(), which runs mergeDocumentContent() first
+        $content = preg_replace_callback('/\[\*([^:*]+)(?::[^*]*)?\*\]/', function ($m) {
+            return array_key_exists($m[1], (array) $this->documentObject) ? (string) $this->documentObject[$m[1]] : $m[0];
+        }, $content);
         foreach ($this->placeholders as $name => $value) {
             $content = str_replace('[+' . $name . '+]', $value, $content);
         }
@@ -140,11 +149,16 @@ $modx->chunks = [
 ];
 $modx->documents = [5 => "@EVAL return 'RAN';", 6 => 'Page text', 7 => "@EVAL return 'RAN';"];
 $modx->files = ['assets/files/a.txt' => "@EVAL return 'RAN';"];
+// field text with quotes and punctuation, which used to become part of the SQL or PHP
+$modx->documentObject = ['id' => 5, 'pagetitle' => "O'Brien; \"Jr.\" '.strtoupper('x').'"];
 
 $results = [];
-$run = static function (string $label, string $value) use (&$results) {
+$queries = [];
+$run = static function (string $label, string $value) use (&$results, &$queries, $modx) {
+    $modx->db->queries = [];
     $out = ProcessTVCommand($value, 'tv_' . $label, 1);
     $results[$label] = is_string($out) ? $out : get_debug_type($out);
+    $queries[$label] = $modx->db->queries;
 };
 
 $run('directEval', "@EVAL return 'ok';");
@@ -159,9 +173,16 @@ $run('chunkInheritEval', '@CHUNK inherit');
 $run('documentEval', '@DOCUMENT 5');
 $run('chunkDocumentEval', '@CHUNK viaDocument');
 $run('fileEval', '@FILE assets/files/a.txt');
+$run('selectQuoted', "@SELECT id FROM [+PREFIX+]site_content WHERE pagetitle = '[*pagetitle*]'");
+$run('selectInteger', '@SELECT id FROM [+PREFIX+]site_content WHERE parent = [*id*]');
+$run('selectBareText', '@SELECT id FROM [+PREFIX+]site_content WHERE pagetitle = [*pagetitle*]');
+$run('selectModifier', "@SELECT id FROM [+PREFIX+]site_content WHERE pagetitle = '[*pagetitle:upper*]'");
+$run('evalQuoted', "@EVAL return 'Title: [*pagetitle*]';");
+$run('evalInteger', "@EVAL return 'Id [*id*]';");
+$run('evalBare', '@EVAL return [*id*];');
 
 echo json_encode([
     'results' => $results,
     'events' => $modx->events,
-    'queries' => $modx->db->queries,
+    'queries' => $queries,
 ]);
