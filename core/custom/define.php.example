@@ -2,7 +2,8 @@
 /**
  * Define constants:
  *  - evolution cms
- *      - HTTPS_PORT
+ *      - HTTPS_PORT        port TLS is served on (default 443); a request to it counts as https.
+ *                          URLs still leave out only 443, so https on 8443 keeps ":8443"
  *      - SESSION_COOKIE_PATH
  *      - SESSION_COOKIE_DOMAIN
  *      - SESSION_COOKIE_NAME
