@@ -1505,5 +1505,6 @@ $_lang['time_unit_day_short'] = 'd';
 $_lang['time_unit_hour_short'] = 'u';
 $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
+$_lang['admin_account_protected'] = 'Alleen een beheerder kan een beheerdersaccount wijzigen of verwijderen';
 
 return $_lang;

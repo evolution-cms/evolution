@@ -1311,5 +1311,6 @@ $_lang['time_unit_day_short'] = 'روز';
 $_lang['time_unit_hour_short'] = 'ساعت';
 $_lang['time_unit_minute_short'] = 'دقیقه';
 $_lang['time_unit_second_short'] = 'ثانیه';
+$_lang['admin_account_protected'] = 'فقط یک مدیر می‌تواند حساب کاربری مدیر را تغییر دهد یا حذف کند';
 
 return $_lang;

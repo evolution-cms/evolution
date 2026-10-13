@@ -1536,5 +1536,6 @@ $_lang['time_unit_day_short'] = 'T';
 $_lang['time_unit_hour_short'] = 'Std';
 $_lang['time_unit_minute_short'] = 'Min';
 $_lang['time_unit_second_short'] = 'Sek';
+$_lang['admin_account_protected'] = 'Nur ein Administrator kann ein Administratorkonto ändern oder löschen';
 
 return $_lang;

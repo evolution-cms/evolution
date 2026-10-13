@@ -2,18 +2,30 @@
 /**
  * Evolution CMS Installer
  */
+
+use EvolutionCMS\Support\InstallerCompletion;
+
 error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 $base_path = dirname(__DIR__) . '/';
 
-if (is_file($base_path . 'assets/cache/siteManager.php')) {
+// Resolve MGR_DIR the way the site does: core/custom/define.php and the .env file first (the
+// same loader core/bootstrap.php uses), then the legacy siteManager.php cache, then the default.
+if (is_file($base_path . 'core/vendor/autoload.php')) {
+    require_once $base_path . 'core/functions/laravel.php';
+    require_once $base_path . 'core/vendor/autoload.php';
+    require_once $base_path . 'core/includes/custom-define.inc.php';
+    if (!defined('MGR_DIR') && is_string(env('MGR_DIR')) && env('MGR_DIR') !== '') {
+        define('MGR_DIR', env('MGR_DIR'));
+    }
+}
+if (!defined('MGR_DIR') && is_file($base_path . 'assets/cache/siteManager.php')) {
     include_once $base_path . 'assets/cache/siteManager.php';
 }
-if (! defined('MGR_DIR')) {
-    if (is_dir($base_path . 'manager')) {
-        define('MGR_DIR', 'manager');
-    } else {
-        die('MGR_DIR is not defined');
-    }
+if (!defined('MGR_DIR') && is_dir($base_path . 'manager')) {
+    define('MGR_DIR', 'manager');
+}
+if (!defined('MGR_DIR') || !is_file($base_path . MGR_DIR . '/includes/version.inc.php')) {
+    die('The manager folder was not found. If it was renamed, set MGR_DIR in core/custom/define.php.');
 }
 if (!defined('EVO_MANAGER_PATH')) {
     define('EVO_MANAGER_PATH', $base_path . MGR_DIR . '/');
@@ -25,6 +37,7 @@ if (! defined('EVO_CORE_PATH')) {
         die('EVO_CORE_PATH is not defined');
     }
 }
+require_once EVO_CORE_PATH . 'src/Support/InstallerCompletion.php';
 require_once 'src/lang.php';
 require_once 'src/functions.php';
 
@@ -45,8 +58,6 @@ if ($maxlifetime <= 0) {
 // Define lock file path
 $lockfile = $base_path . 'install.session.php';
 
-$isLoopbackRequest = in_array($ip, ['127.0.0.1', '::1'], true);
-
 if (file_exists("{$base_path}manager/includes/config.inc.php")) { ?>
     Backup and delete the file `manager/includes/config.inc.php` then <a href="<?= htmlspecialchars($_SERVER['REQUEST_URI'],
         ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" onclick="location.reload(true)">reload the page</a>
@@ -59,41 +70,36 @@ if (!is_dir($cache_dir)) {
     mkdir($cache_dir, 0755, true);
 }
 
-if (file_exists($lockfile)) {
-    include $lockfile; // Loads $install_session, $install_ip, $install_timestamp
+// Once the site is installed, the installer opens only for the browser an administrator's Manager
+// session granted it to (the grant cookie), or for the session that installed the site while its
+// lock lives. A leftover install folder, or one uploaded for a manual upgrade, stays shut to
+// everyone else and the site runs as usual. Deciding and recording happen in one locked step.
+$grantCookie = $_COOKIE[InstallerCompletion::GRANT_COOKIE] ?? null;
+$decision = InstallerCompletion::admit(
+    $lockfile,
+    InstallerCompletion::isInstalled(EVO_CORE_PATH),
+    $sid,
+    $ip,
+    is_string($grantCookie) ? $grantCookie : null,
+    $current_time,
+    $maxlifetime
+);
 
-    if ($sid === $install_session && $ip === $install_ip) {
-        // Update timestamp and rewrite lock file
-        $install_timestamp = $current_time;
-        $content = "<?php\n\$install_session = '" . addslashes($sid) . "';\n\$install_ip = '" . addslashes($ip) . "';\n\$install_timestamp = " . $install_timestamp . ";\n";
-        file_put_contents($lockfile, $content);
-        // Proceed with installation
-    } else {
-        // Check if lock has expired
-        if ($current_time > $install_timestamp + $maxlifetime) {
-            // Expired, remove lock and create new
-            @unlink($lockfile);
-            $content = "<?php\n\$install_session = '" . addslashes($sid) . "';\n\$install_ip = '" . addslashes($ip) . "';\n\$install_timestamp = " . $current_time . ";\n";
-            file_put_contents($lockfile, $content);
-            // Proceed
-        } elseif ($isLoopbackRequest && in_array($install_ip, ['127.0.0.1', '::1'], true)) {
-            // Local development can easily desync installer cookies between refreshes.
-            // On loopback, let the current browser session take over the installer lock
-            // instead of failing with an opaque 404.
-            $content = "<?php\n\$install_session = '" . addslashes($sid) . "';\n\$install_ip = '" . addslashes($ip) . "';\n\$install_timestamp = " . $current_time . ";\n";
-            file_put_contents($lockfile, $content);
-            // Proceed
-        } else {
-            // Block access
-            header('HTTP/1.1 404 Not Found');
-            exit;
-        }
-    }
-} else {
-    // Create new lock file
-    $content = "<?php\n\$install_session = '" . addslashes($sid) . "';\n\$install_ip = '" . addslashes($ip) . "';\n\$install_timestamp = " . $current_time . ";\n";
-    file_put_contents($lockfile, $content);
-    // Proceed
+if ($decision === null) {
+    header('HTTP/1.1 503 Service Unavailable');
+    header('Content-Type: text/plain; charset=utf-8');
+    echo "The installer could not write install.session.php in the site root."
+        . "\nMake the site root writable by the web server, then reload this page.";
+    exit;
+}
+
+if ($decision === InstallerCompletion::DENY) {
+    header('HTTP/1.1 404 Not Found');
+    header('Content-Type: text/plain; charset=utf-8');
+    echo "Not found.\n\nThis site is already installed. To run the installer, log into the Manager"
+        . "\nas an administrator in this browser, then reload this page. If another installer"
+        . "\nsession is running, it has to end first.";
+    exit;
 }
 
 $nonce = csrfNonce();

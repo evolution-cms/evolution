@@ -1311,5 +1311,6 @@ $_lang['time_unit_day_short'] = 'י׳';
 $_lang['time_unit_hour_short'] = 'ש׳';
 $_lang['time_unit_minute_short'] = 'דק׳';
 $_lang['time_unit_second_short'] = 'שנ׳';
+$_lang['admin_account_protected'] = 'רק מנהל מערכת יכול לשנות או למחוק חשבון מנהל מערכת';
 
 return $_lang;

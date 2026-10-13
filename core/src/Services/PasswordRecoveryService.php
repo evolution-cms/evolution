@@ -185,7 +185,7 @@ class PasswordRecoveryService
             return false;
         }
 
-        $link = EVO_MANAGER_URL . '?a=0&hash=' . rawurlencode((string) $token) . '&mode=' . rawurlencode((string) $mode);
+        $link = $this->recoveryBaseUrl() . '?a=0&hash=' . rawurlencode((string) $token) . '&mode=' . rawurlencode((string) $mode);
 
         $body = '
                 <p>' . \Lang::get('global.forgot_password_email_intro') . ' <a href="' . $link . '">' . \Lang::get('global.forgot_password_email_link') . '</a></p>
@@ -199,6 +199,70 @@ class PasswordRecoveryService
         $param['body'] = $body;
 
         return evolutionCMS()->sendmail($param);
+    }
+
+    /**
+     * Manager URL the recovery link points at.
+     *
+     * @return string
+     */
+    protected function recoveryBaseUrl(): string
+    {
+        return static::resolveRecoveryBaseUrl(
+            (string) EVO_MANAGER_URL,
+            defined('EVO_SITE_HOSTNAMES') ? (string) EVO_SITE_HOSTNAMES : '',
+            $_SERVER
+        );
+    }
+
+    /**
+     * Pick the manager URL for a recovery mail without trusting the Host header.
+     *
+     * EVO_MANAGER_URL is derived from the Host header unless EVO_SITE_HOSTNAMES pins it, and
+     * a forged header would make the mail carry the one-time token to the attacker's host.
+     * With no pinned host list, the web server's own SERVER_NAME is used instead: it is the
+     * configured name where the server fixes it (nginx $server_name, Apache with
+     * UseCanonicalName On) and no worse than the header where the server just echoes it.
+     * A manager URL whose host is not the one in the Host header was pinned by the operator
+     * (EVO_SITE_URL in custom/define.php) and is kept, and so is any SERVER_NAME that is not a
+     * usable host name, such as nginx's catch-all "_". Behind a published port that differs from
+     * the one the server listens on, the link loses its port: pin EVO_SITE_HOSTNAMES there.
+     *
+     * @param string $managerUrl Value of EVO_MANAGER_URL.
+     * @param string $siteHostnames Value of EVO_SITE_HOSTNAMES (comma separated).
+     * @param array $server The $_SERVER array.
+     * @return string
+     */
+    public static function resolveRecoveryBaseUrl(string $managerUrl, string $siteHostnames, array $server): string
+    {
+        if (trim($siteHostnames, " ,\t") !== '') {
+            return $managerUrl;
+        }
+
+        $serverName = (string) ($server['SERVER_NAME'] ?? '');
+        $parts = parse_url($managerUrl);
+        if ($parts === false || empty($parts['scheme']) || empty($parts['host'])
+            || !preg_match('/^(?:[A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?|\[[0-9A-Fa-f:.]+\])$/', $serverName)) {
+            return $managerUrl;
+        }
+
+        $headerHost = strtolower((string) preg_replace('/:\d+$/', '', (string) ($server['HTTP_HOST'] ?? '')));
+        if ($headerHost === '' || $headerHost !== strtolower($parts['host'])) {
+            return $managerUrl;
+        }
+
+        // The port comes from the server too: the one in the URL came from the Host header, and
+        // Apache ignores that port when it picks a virtual host, so "site.test:9080" would reach
+        // this site and send the token to whatever listens on 9080. SERVER_PORT is the ServerName
+        // port under UseCanonicalName On, the listening port elsewhere; 80 and 443 are left out,
+        // which also covers TLS terminated by a proxy in front of a server on 80.
+        $serverPort = (string) ($server['SERVER_PORT'] ?? '');
+        $port = preg_match('/^[1-9]\d{0,4}$/', $serverPort) && (int) $serverPort <= 65535
+            && !in_array((int) $serverPort, [80, 443], true)
+            ? ':' . (int) $serverPort
+            : '';
+
+        return $parts['scheme'] . '://' . $serverName . $port . ($parts['path'] ?? '/');
     }
 
     /**

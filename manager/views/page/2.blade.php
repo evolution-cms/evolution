@@ -498,7 +498,7 @@
     if (is_array($sitewidgets)) {
         $newwidgets = [];
         foreach ($sitewidgets as $widget) {
-            $newwidgets = array_merge($newwidgets, unserialize($widget));
+            $newwidgets = array_merge($newwidgets, unserialize($widget, ["allowed_classes" => false]));
         }
         $widgets = count($newwidgets) > 0 ? $newwidgets : $widgets;
     }

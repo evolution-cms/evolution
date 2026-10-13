@@ -87,6 +87,13 @@ server {
     if ($host = www.{domain}) { set $known_host 1; }
     if ($known_host = 0)      { return 444; }
 
+    # PHP builds password-reset links from SERVER_NAME when EVO_SITE_HOSTNAMES is empty, so
+    # it must be the configured name ($server_name), never the Host header ($host). Sites
+    # that answer to several equal hostnames should set EVO_SITE_HOSTNAMES instead:
+    # $server_name is only the first name of the server_name line. The link's port is
+    # SERVER_PORT, the port nginx listens on (80/443 are left out); behind a published port
+    # that differs from it, set EVO_SITE_HOSTNAMES with that port (example.com:8443).
+
     # One canonical origin. www has to be answered rather than dropped -
     # listing it in server_name and then refusing it hands visitors a dead
     # connection - but it is redirected, not served, so sessions and CSRF
@@ -191,6 +198,7 @@ server {
         try_files $uri @rewrite;
 
         include /etc/nginx/fastcgi_params;
+        fastcgi_param SERVER_NAME $server_name;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         fastcgi_param HTTPS on;
         fastcgi_hide_header X-Powered-By;
@@ -232,6 +240,7 @@ server {
         try_files $uri @rewrite;
 
         include /etc/nginx/fastcgi_params;
+        fastcgi_param SERVER_NAME $server_name;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         fastcgi_param HTTPS on;
         fastcgi_hide_header X-Powered-By;
@@ -269,6 +278,7 @@ server {
         try_files $uri @rewrite;
 
         include /etc/nginx/fastcgi_params;
+        fastcgi_param SERVER_NAME $server_name;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         fastcgi_param HTTPS on;
         fastcgi_hide_header X-Powered-By;

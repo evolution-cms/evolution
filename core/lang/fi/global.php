@@ -1309,5 +1309,6 @@ $_lang['time_unit_day_short'] = 'pv';
 $_lang['time_unit_hour_short'] = 'h';
 $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
+$_lang['admin_account_protected'] = 'Vain ylläpitäjä voi muuttaa tai poistaa ylläpitäjän tilin';
 
 return $_lang;

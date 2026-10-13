@@ -1555,5 +1555,6 @@ $_lang['time_unit_day_short'] = 'g';
 $_lang['time_unit_hour_short'] = 'h';
 $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
+$_lang['admin_account_protected'] = 'Solo un amministratore può modificare o eliminare un account amministratore';
 
 return $_lang;

@@ -93,6 +93,32 @@ test('both updater paths verify tls when fetching release metadata', function ()
         ->and($plugin)->not->toContain('CURLOPT_SSL_VERIFYPEER, false');
 });
 
+test('legacy updater link token is random and compared in constant time', function () {
+    $plugin = (string) file_get_contents(updaterRoot() . '/assets/plugins/updater/plugin.updater.php');
+
+    expect($plugin)->not->toContain('md5(time())')
+        ->and($plugin)->toContain("\$_SESSION['updatelink'] = bin2hex(random_bytes(16));")
+        ->and($plugin)->toContain("hash_equals((string)\$_SESSION['updatelink'], \$_GET['q'])")
+        ->and($plugin)->not->toContain("\$_GET['q'] === \$_SESSION['updatelink']");
+});
+
+test('generated update.php takes its target from the session, not its own query string', function () {
+    $plugin = (string) file_get_contents(updaterRoot() . '/assets/plugins/updater/plugin.updater.php');
+
+    expect($plugin)->not->toContain('$_GET["version"]')
+        ->and($plugin)->toContain(<<<'NEEDLE'
+$targetVersion = ' . var_export($updateTarget, true) . ';
+NEEDLE)
+        ->and($plugin)->toContain("preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$/', \$updateTarget)")
+        ->and($plugin)->toContain('htmlspecialchars($versionText, ENT_QUOTES');
+});
+
+test('dashboard widget output is unserialized without object instantiation', function () {
+    $view = (string) file_get_contents(updaterRoot() . '/manager/views/page/2.blade.php');
+
+    expect($view)->toContain('unserialize($widget, ["allowed_classes" => false])');
+});
+
 test('secure transport allows the github api host used by the updater', function () {
     $service = new RemoteTransportService();
 

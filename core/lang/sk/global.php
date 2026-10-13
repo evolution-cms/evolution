@@ -191,6 +191,7 @@ $_lang["confirm_delete_tmplvars"] = 'Naozaj chcete odstrániť tento parameter (
 $_lang["confirm_delete_user"] = 'Naozaj chcete odstrániť tohto používateľa?';
 $_lang["delete_yourself"] = 'Nemôžete odstrániť sami seba';
 $_lang["delete_last_admin"] = 'Nemôžete odstrániť posledného administrátora';
+$_lang["admin_account_protected"] = 'Účet správcu môže zmeniť alebo odstrániť iba správca';
 $_lang["confirm_delete_permission"] = 'Naozaj chcete odstrániť toto prístupové právo?';
 $_lang["confirm_duplicate_record"] = 'Naozaj chcete vytvoriť kópiu tohto záznamu?';
 $_lang["confirm_empty_trash"] = 'Natrvalo odstrániť VŠETKY súbory označené na odstránenie? \n\nPokračovať?';

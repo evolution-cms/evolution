@@ -193,6 +193,7 @@ $_lang["confirm_delete_tmplvars"] = 'このテンプレート変数と記録さ�
 $_lang["confirm_delete_user"] = 'このユーザーを削除してもよろしいですか?';
 $_lang["delete_yourself"] = '自分自身を削除できません。';
 $_lang["delete_last_admin"] = '最後の権限ユーザーは削除できません。';
+$_lang["admin_account_protected"] = '管理者アカウントを変更または削除できるのは管理者のみです';
 $_lang["confirm_delete_permission"] = 'このパーミッションを削除してもよろしいですか?';
 $_lang["confirm_duplicate_record"] = 'このレコードを複製してもよろしいですか?';
 $_lang["confirm_empty_trash"] = '全ての削除済みリソースを完全に消去します。';

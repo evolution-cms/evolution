@@ -1310,5 +1310,6 @@ $_lang['time_unit_day_short'] = 'д';
 $_lang['time_unit_hour_short'] = 'ч';
 $_lang['time_unit_minute_short'] = 'мин';
 $_lang['time_unit_second_short'] = 'сек';
+$_lang['admin_account_protected'] = 'Само администратор може да променя или изтрива администраторски акаунт';
 
 return $_lang;

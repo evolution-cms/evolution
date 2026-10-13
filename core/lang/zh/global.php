@@ -1311,5 +1311,6 @@ $_lang['time_unit_day_short'] = '天';
 $_lang['time_unit_hour_short'] = '时';
 $_lang['time_unit_minute_short'] = '分';
 $_lang['time_unit_second_short'] = '秒';
+$_lang['admin_account_protected'] = '只有管理员才能更改或删除管理员账户';
 
 return $_lang;

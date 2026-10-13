@@ -1280,5 +1280,6 @@ $_lang['time_unit_day_short'] = 'j';
 $_lang['time_unit_hour_short'] = 'h';
 $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
+$_lang['admin_account_protected'] = 'Seul un administrateur peut modifier ou supprimer un compte administrateur';
 
 return $_lang;

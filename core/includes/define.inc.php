@@ -34,7 +34,12 @@ if (!defined('EVO_CLASS')) {
 }
 
 if (!defined('EVO_SITE_HOSTNAMES')) {
-    define('EVO_SITE_HOSTNAMES', '');
+    // Also taken from the web server: `SetEnv EVO_SITE_HOSTNAMES example.com,www.example.com` in
+    // the Apache vhost or .htaccess, `fastcgi_param` in nginx; mod_rewrite's E= flag delivers it as
+    // REDIRECT_EVO_SITE_HOSTNAMES only, read first so the web server wins over .env either way (the
+    // .env loader never overwrites a variable the server set). custom/define.php wins over both.
+    // A client cannot set either name: request headers arrive as HTTP_*.
+    define('EVO_SITE_HOSTNAMES', (string) env('REDIRECT_EVO_SITE_HOSTNAMES', env('EVO_SITE_HOSTNAMES', '')));
 }
 
 if (!defined('MGR_DIR')) {
@@ -155,24 +160,47 @@ if (!defined('EVO_SITE_URL')) {
         unset($host_pattern, $matches, $port);
     }
 
-    // check for valid hostnames
-    $site_hostnames = explode(',', EVO_SITE_HOSTNAMES);
-    if (!empty($site_hostnames[0]) && !in_array($site_hostname, $site_hostnames)) {
-        $site_hostname = $site_hostnames[0];
-    }
-    unset($site_hostnames);
-
     // assign site_url
     if ((isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) === 'on') ||
         $_SERVER['SERVER_PORT'] == HTTPS_PORT ||
         (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
     ) {
         $scheme = 'https';
-        $default_port = (int) HTTPS_PORT;
+        // HTTPS_PORT is where TLS is served (it tells https apart above); the port a URL may
+        // leave out is still 443, so https on 8443 keeps its ":8443"
+        $default_port = 443;
     } else {
         $scheme = 'http';
         $default_port = 80;
     }
+
+    // A pinned host list decides the host and the port together: an entry without a port
+    // stands for the scheme's default one, so a forged "trusted.host:9080" cannot point links
+    // at another service on the trusted host. A request that matches no entry gets the first.
+    $site_hostnames = array_values(array_filter(array_map('trim', explode(',', (string) EVO_SITE_HOSTNAMES)), 'strlen'));
+    if ($site_hostnames !== []) {
+        $requested = strtolower($site_hostname)
+            . ($site_port !== null && $site_port !== $default_port ? ':' . $site_port : '');
+        $pinned = null;
+        foreach ($site_hostnames as $entry) {
+            if (preg_match('/^(.+?)(?::(\d{1,5}))?$/', $entry, $matches)) {
+                $entry_port = isset($matches[2]) && $matches[2] !== '' ? (int) $matches[2] : null;
+                $entry_key = strtolower($matches[1])
+                    . ($entry_port !== null && $entry_port !== $default_port ? ':' . $entry_port : '');
+                $pinned = $pinned ?? [$matches[1], $entry_port];
+                if ($entry_key === $requested) {
+                    $pinned = [$site_hostname, $site_port];
+                    break;
+                }
+            }
+        }
+        if ($pinned !== null) {
+            [$site_hostname, $site_port] = $pinned;
+            $has_http_host = true;
+        }
+        unset($requested, $pinned, $entry, $entry_port, $entry_key, $matches);
+    }
+    unset($site_hostnames);
 
     // A host header omits the port when it is the default one for the scheme,
     // so "no port here" is an answer rather than a gap to fill from SERVER_PORT.

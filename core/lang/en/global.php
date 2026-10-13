@@ -189,6 +189,7 @@ $_lang["confirm_delete_tmplvars"] = 'Are you sure you want to remove this Templa
 $_lang["confirm_delete_user"] = 'Are you sure you want to delete this User?';
 $_lang["delete_yourself"] = 'You can\'t delete yourself';
 $_lang["delete_last_admin"] = 'You can\'t delete last admin user';
+$_lang["admin_account_protected"] = 'Only an administrator can change or delete an administrator account';
 $_lang["confirm_delete_permission"] = 'Are you sure you want to delete this Permission?';
 $_lang["confirm_duplicate_record"] = 'Are you sure you want to duplicate this record?';
 $_lang["confirm_empty_trash"] = 'This will permanently remove ALL deleted Resources?\n\nProceed?';

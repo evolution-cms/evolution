@@ -626,6 +626,7 @@ $_lang["confirm_delete_user"] = 'Bu İstifadəçini silmək istədiyinizə əmin
 
 $_lang["delete_yourself"] = 'Özünüzü silə bilməzsiniz';
 $_lang["delete_last_admin"] = 'Sonuncu administratoru silə bilməzsiniz';
+$_lang["admin_account_protected"] = 'Administrator hesabını yalnız administrator dəyişə və ya silə bilər';
 
 $_lang["confirm_delete_permission"] = 'Bu icazəni silmək istədiyinizə əminsiniz?';
 $_lang["confirm_duplicate_record"] = 'Bu qeydi təkrarlamaq istədiyinizə əminsiniz?';

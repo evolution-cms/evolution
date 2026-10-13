@@ -135,3 +135,59 @@ test('host parsing does not blow up on a pathological header', function () {
     expect($long)->toBeLessThan(max($short, 1000) * 16)
         ->and(preg_last_error())->toBe(PREG_NO_ERROR);
 });
+
+test('a host list set by the web server pins the site url against a forged host header', function (
+    array $server,
+    string $expected
+) {
+    expect(resolveSiteUrlInFreshProcess($server + ['HTTP_HOST' => 'evil.example', 'SERVER_PORT' => '80']))
+        ->toBe($expected);
+})->with([
+    // Apache SetEnv in the vhost, nginx fastcgi_param
+    'server variable' => [['EVO_SITE_HOSTNAMES' => 'site.test,www.site.test'], 'http://site.test/'],
+    // SetEnv in .htaccess, seen after the rewrite to index.php
+    'after an apache rewrite' => [['REDIRECT_EVO_SITE_HOSTNAMES' => 'site.test'], 'http://site.test/'],
+    // a request header of that name is the client's, not the server's
+    'request header' => [['HTTP_EVO_SITE_HOSTNAMES' => 'site.test'], 'http://evil.example/'],
+    // the .env loader fills EVO_SITE_HOSTNAMES only when the server did not; a value the server
+    // delivered as REDIRECT_ (mod_rewrite E=) still wins over it
+    'server over .env' => [
+        ['REDIRECT_EVO_SITE_HOSTNAMES' => 'site.test', 'EVO_SITE_HOSTNAMES' => 'dotenv.test'],
+        'http://site.test/',
+    ],
+]);
+
+test('a pinned host list pins the port too', function (string $hostnames, array $server, string $expected) {
+    expect(resolveSiteUrlInFreshProcess(['EVO_SITE_HOSTNAMES' => $hostnames] + $server + ['SERVER_PORT' => '80']))
+        ->toBe($expected);
+})->with([
+    'forged host with a port' => ['site.test', ['HTTP_HOST' => 'evil.example:9080'], 'http://site.test/'],
+    'trusted host on a port nobody listed' => ['site.test', ['HTTP_HOST' => 'site.test:9080'], 'http://site.test/'],
+    'listed port' => ['site.test:8101', ['HTTP_HOST' => 'site.test:8101'], 'http://site.test:8101/'],
+    'forged host, listed port' => ['site.test:8101', ['HTTP_HOST' => 'evil.example:9080'], 'http://site.test:8101/'],
+    'second entry' => ['a.test, b.test:8080', ['HTTP_HOST' => 'b.test:8080'], 'http://b.test:8080/'],
+    'explicit default port' => [
+        'site.test',
+        ['HTTP_HOST' => 'site.test:443', 'HTTPS' => 'on', 'SERVER_PORT' => '443'],
+        'https://site.test/',
+    ],
+    'host name case' => ['site.test', ['HTTP_HOST' => 'SITE.test'], 'http://SITE.test/'],
+    'ipv6 entry' => ['[::1]:8080', ['HTTP_HOST' => 'evil.example'], 'http://[::1]:8080/'],
+]);
+
+test('https on a custom TLS port keeps that port in the url', function () {
+    // HTTPS_PORT comes from the environment, like an operator's SetEnv or .env
+    expect(resolveSiteUrlInFreshProcess([
+        'HTTPS_PORT' => '8443',
+        'HTTPS' => 'on',
+        'SERVER_PORT' => '8443',
+        'HTTP_HOST' => 'site.test:8443',
+    ]))->toBe('https://site.test:8443/')
+        ->and(resolveSiteUrlInFreshProcess([
+            'HTTPS_PORT' => '8443',
+            'HTTPS' => 'on',
+            'SERVER_PORT' => '8443',
+            'HTTP_HOST' => 'evil.example',
+            'EVO_SITE_HOSTNAMES' => 'site.test:8443',
+        ]))->toBe('https://site.test:8443/');
+});
