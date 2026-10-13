@@ -5047,6 +5047,17 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     /**
      * getTpl
      * get template for snippets
+     *
+     * Security: $tpl must come from the site's own configuration (snippet call parameters an
+     * administrator wrote), never from the request or from a field an editor can change. Nothing
+     * in core calls this method, but extras do, and its bindings are not restricted:
+     * - @FILE reads any file the PHP process can read, `..` included - it does not go through
+     *   atBindFileContent(), which @FILE in templates and TVs uses to stay inside the site and
+     *   away from manager/, core/ and secrets;
+     * - @SELECT runs its argument as raw SQL.
+     * A snippet that passes user input on should resolve the template itself (getChunk(), or
+     * atBindFileContent() for files) instead of handing the value to getTpl().
+     *
      * @param $tpl {string}
      * @return bool|string {string}
      * @throws InvalidFieldException
