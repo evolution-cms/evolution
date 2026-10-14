@@ -6,6 +6,17 @@ if (!EvolutionCMS()->hasPermission('save_template')) {
     EvolutionCMS()->webAlertAndQuit($_lang["error_no_privileges"]);
 }
 
+// Keeping a template's code in a file is writing code the server executes: the
+// php and blade.php engines run it directly, and a plugin can register latte,
+// twig and more, so every file this processor writes or scaffolds under views/
+// is server-side code regardless of extension. save_template does not grant
+// that - it is the same bar the file manager puts on views/ (one of
+// save_snippet / save_plugin / save_module, fileManagerMayRunCode()).
+if (\EvolutionCMS\Support\TemplateFileGuard::writesFile(selectedTemplateSource(), wantsTemplateFileCreated())
+    && !\EvolutionCMS\Support\TemplateFileGuard::authorMayRunCode()) {
+    EvolutionCMS()->webAlertAndQuit($_lang["error_no_privileges"]);
+}
+
 $id = (int)$_POST['id'];
 $template = $_POST['post'];
 $templatename = trim($_POST['templatename']);

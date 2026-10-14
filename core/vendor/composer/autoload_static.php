@@ -2106,6 +2106,7 @@ class ComposerStaticInit925fea465a58fa69f06ccf2629003e87
         'EvolutionCMS\\Support\\SqliteDumper' => __DIR__ . '/../..' . '/src/Support/SqliteDumper.php',
         'EvolutionCMS\\Support\\SystemSettingPathNormalizer' => __DIR__ . '/../..' . '/src/Support/SystemSettingPathNormalizer.php',
         'EvolutionCMS\\Support\\TemplateFileEngines' => __DIR__ . '/../..' . '/src/Support/TemplateFileEngines.php',
+        'EvolutionCMS\\Support\\TemplateFileGuard' => __DIR__ . '/../..' . '/src/Support/TemplateFileGuard.php',
         'EvolutionCMS\\Support\\TvBindingArguments' => __DIR__ . '/../..' . '/src/Support/TvBindingArguments.php',
         'EvolutionCMS\\Support\\TvBindingGuard' => __DIR__ . '/../..' . '/src/Support/TvBindingGuard.php',
         'EvolutionCMS\\TemplateProcessor' => __DIR__ . '/../..' . '/src/TemplateProcessor.php',

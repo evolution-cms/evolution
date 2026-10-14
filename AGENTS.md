@@ -337,8 +337,24 @@ folder is protected unconditionally.
 | everything else under `filemanager_path` | `file_manager` only |
 
 `save_snippet`, `save_plugin` and `save_module` store PHP that the server runs, so whoever holds one
-can already change anything under `core/` and `manager/`. `save_template` does not: database
-templates only call existing snippets, and Blade views are files.
+can already change anything under `core/` and `manager/`. `save_template` does not: a database
+template only calls existing snippets.
+
+A template file is a different thing from a database template, even though both are saved from the
+same form. A file under a view path is rendered by an engine that **executes** it — the `php` engine
+is a bare `include`, `blade.php` compiles to PHP, and a plugin can register `latte`, `twig` and
+others through `view.template_engines`. So writing or scaffolding a template file is authoring
+server-side code, whatever the extension, and there is no "safe" engine to allow-list. That write
+needs a code permission (`fileManagerMayRunCode()`: one of `save_snippet` / `save_plugin` /
+`save_module`), **not** `save_template`. Two paths reach it, and both enforce it:
+
+- The file manager, through the `views/` rules of layer 1 (a view path is not `assets/templates`;
+  that folder holds parsed front-end HTML and stays on `save_template`).
+- `manager/processors/save_template.processor.php`, when the form posts `templatesource=file` or asks
+  for a file to be created. It calls `EvolutionCMS\Support\TemplateFileGuard` before touching the
+  filesystem; a `save_template`-only user keeps database templates and is refused the file. Do not
+  add another template-file write path that skips this guard. Test:
+  `core/tests/Unit/Security/TemplateFileWritePermissionTest.php`.
 
 **2. File names** - `checkExtension()`, used by upload, new file, rename and ZIP extraction.
 
