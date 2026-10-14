@@ -340,6 +340,13 @@ folder is protected unconditionally.
 can already change anything under `core/` and `manager/`. `save_template` does not: a database
 template only calls existing snippets.
 
+That set lives in one place, `EvolutionCMS\Support\BackendCodePermissions` (`PERMISSIONS`,
+`granted()`, `grantedBy()`). Any action that lets a manager store backend code (PHP, or SQL, which
+reaches PHP) must ask it rather than list permissions of its own: executable file names, template
+files, `@EVAL` / `@SELECT` / `@INCLUDE` TV bindings, and database restore all do. It does not cover
+client-side code: JS or HTML in a chunk or document is governed by that element's permission.
+Test: `core/tests/Unit/Security/BackendCodePermissionsTest.php`.
+
 A template file is a different thing from a database template, even though both are saved from the
 same form. A file under a view path is rendered by an engine that **executes** it — the `php` engine
 is a bare `include`, `blade.php` compiles to PHP, and a plugin can register `latte`, `twig` and

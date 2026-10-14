@@ -133,6 +133,14 @@ function evolutionCMS()
     return evo();
 }
 
+// PHP warnings and deprecations are part of the result: a binding value must not raise any
+$phpErrors = [];
+set_error_handler(static function (int $errno, string $errstr, string $errfile, int $errline) use (&$phpErrors) {
+    $phpErrors[] = $errstr . ' in ' . basename($errfile) . ':' . $errline;
+
+    return true;
+});
+
 $copy = $argv[1] ?? 'functions/tv.php';
 require $core . $copy;
 require $core . 'vendor/autoload.php';
@@ -180,9 +188,12 @@ $run('selectModifier', "@SELECT id FROM [+PREFIX+]site_content WHERE pagetitle =
 $run('evalQuoted', "@EVAL return 'Title: [*pagetitle*]';");
 $run('evalInteger', "@EVAL return 'Id [*id*]';");
 $run('evalBare', '@EVAL return [*id*];');
+$run('handle', '@evolution_cms on GitHub');
+$run('unknownBinding', '@NOPE x');
 
 echo json_encode([
     'results' => $results,
     'events' => $modx->events,
     'queries' => $queries,
+    'phpErrors' => $phpErrors,
 ]);

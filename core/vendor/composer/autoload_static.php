@@ -2074,6 +2074,7 @@ class ComposerStaticInit925fea465a58fa69f06ccf2629003e87
         'EvolutionCMS\\Shit\\SoftDeletingScope' => __DIR__ . '/../..' . '/src/Shit/SoftDeletingScope.php',
         'EvolutionCMS\\Support\\AdminAccountGuard' => __DIR__ . '/../..' . '/src/Support/AdminAccountGuard.php',
         'EvolutionCMS\\Support\\ArithmeticExpression' => __DIR__ . '/../..' . '/src/Support/ArithmeticExpression.php',
+        'EvolutionCMS\\Support\\BackendCodePermissions' => __DIR__ . '/../..' . '/src/Support/BackendCodePermissions.php',
         'EvolutionCMS\\Support\\BladeDirective' => __DIR__ . '/../..' . '/src/Support/BladeDirective.php',
         'EvolutionCMS\\Support\\Captcha' => __DIR__ . '/../..' . '/src/Support/Captcha.php',
         'EvolutionCMS\\Support\\ChunkFileStore' => __DIR__ . '/../..' . '/src/Support/ChunkFileStore.php',

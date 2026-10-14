@@ -72,3 +72,11 @@ it('tells code bindings and content bindings apart', function () {
         ->and(TvBindingGuard::nestedMayRunCode('DOCUMENT', true))->toBeFalse()
         ->and(TvBindingGuard::nestedMayRunCode('DIRECTORY', true))->toBeFalse();
 });
+
+it('leaves "@word" that names no binding as text, without PHP warnings', function (string $copy) use ($runHarness) {
+    $run = $runHarness($copy);
+
+    expect($run['results']['handle'])->toBe('@evolution_cms on GitHub')
+        ->and($run['results']['unknownBinding'])->toBe('@NOPE x')
+        ->and($run['phpErrors'])->toBe([]);
+})->with($copies);

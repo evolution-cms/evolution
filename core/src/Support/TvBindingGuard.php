@@ -6,7 +6,8 @@ namespace EvolutionCMS\Support;
  * Keeps the TV bindings that run code out of the hands of managers who may edit TVs but not PHP.
  *
  * @EVAL passes its argument to eval() and @SELECT puts it into a query, in a TV's input options,
- * default value and output options. save_template alone is enough to store them, so they need the
+ * default value and output options; @INCLUDE in a custom input or a custom_widget output includes a
+ * file as PHP. save_template alone is enough to store them, so they need the
  * permission that already grants arbitrary PHP (save_snippet).
  */
 final class TvBindingGuard
@@ -16,6 +17,13 @@ final class TvBindingGuard
 
     /** Bindings that run code: @EVAL passes its argument to eval(), @SELECT to the database. */
     public const CODE_BINDINGS = ['EVAL', 'SELECT'];
+
+    /**
+     * Bindings a TV definition runs as code on top of CODE_BINDINGS: a custom_tv input and the
+     * custom_widget output include the file @INCLUDE names, and include runs any file as PHP -
+     * an uploaded image as well as a script.
+     */
+    public const DEFINITION_CODE_BINDINGS = ['EVAL', 'SELECT', 'INCLUDE'];
 
     /**
      * Bindings that hand back content stored somewhere else - a chunk, a file, a page, a directory
@@ -87,6 +95,33 @@ final class TvBindingGuard
     }
 
     /**
+     * Whether a TV definition field holds a binding that runs code. Display parameters are a
+     * "&name=value" list whose values are bindings of their own (custom_widget runs
+     * "&output=@EVAL ..."), so each value is checked, not only the start of the field.
+     */
+    public static function definitionHasCodeBinding(?string $value, string $column = ''): bool
+    {
+        $value = (string) $value;
+        $candidates = [$value];
+        if ($column === 'display_params') {
+            foreach (explode('&', $value) as $pair) {
+                $pos = strpos($pair, '=');
+                if ($pos !== false) {
+                    // decoded the way getTVDisplayFormat() decodes it
+                    $candidates[] = str_replace(['%3D', '%26'], ['=', '&'], substr($pair, $pos + 1));
+                }
+            }
+        }
+        foreach ($candidates as $candidate) {
+            if (self::hasCodeBinding($candidate) || preg_match('/^@{1,2}INCLUDE/i', ltrim($candidate, " \t\n\r\0\x0B"))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * A TV value or resource field that can reach a code binding. Bindings nest (@INHERIT hands
      * its argument back to the binding parser), so one is also caught behind another binding.
      */
@@ -139,7 +174,7 @@ final class TvBindingGuard
         }
         foreach (self::FIELDS as $column) {
             $value = (string) ($submitted[$column] ?? '');
-            if (self::hasCodeBinding($value) && $value !== (string) ($stored[$column] ?? '')) {
+            if (self::definitionHasCodeBinding($value, $column) && $value !== (string) ($stored[$column] ?? '')) {
                 return false;
             }
         }

@@ -12,6 +12,7 @@ use EvolutionCMS\Support\DocumentSave\DocumentGroupSync;
 use EvolutionCMS\Support\DocumentSave\PublishState;
 use EvolutionCMS\Support\DocumentSave\TemplateVariableInput;
 use EvolutionCMS\Support\DocumentSave\TemplateVariableValues;
+use EvolutionCMS\Support\BackendCodePermissions;
 use EvolutionCMS\Support\TvBindingGuard;
 use Illuminate\Support\Facades\DB;
 
@@ -87,7 +88,7 @@ final class DocumentSaveService
         foreach ($tvs as $tv) {
             $storedValues[$tv['id']] = $tv['value'];
         }
-        if (!TvBindingGuard::allowsValues($ctx->can('save_snippet'), $tvValues, $storedValues, (string) ($input['ta'] ?? ''), (string) ($existing->content ?? ''), $this->textFields($input), $existing ? $this->textFields($existing->getAttributes()) : [])) {
+        if (!TvBindingGuard::allowsValues(BackendCodePermissions::grantedBy([$ctx, 'can']), $tvValues, $storedValues, (string) ($input['ta'] ?? ''), (string) ($existing->content ?? ''), $this->textFields($input), $existing ? $this->textFields($existing->getAttributes()) : [])) {
             throw new DocumentSaveDenied($ctx->lang('error_no_privileges'));
         }
 

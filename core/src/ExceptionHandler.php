@@ -162,6 +162,19 @@ class ExceptionHandler
     }
 
     /**
+     * The event log source is plain text (the list escapes it once), while messageQuit() takes
+     * its message as HTML, with markup and pre-escaped values in it. Tags are dropped and entities
+     * decoded so neither shows up as "&lt;i&gt;" or "&amp;amp;"; a bare "2>1" or "a < b" is
+     * not a tag and stays as it is.
+     *
+     * @since 3.5.9
+     */
+    public static function plainLogSource(string $html): string
+    {
+        return html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    }
+
+    /**
      * @param string $msg
      * @param string $query
      * @param bool $is_error
@@ -372,7 +385,7 @@ class ExceptionHandler
             $source = 'Parser';
         }
         if ($msg) {
-            $source .= ' / ' . $msg;
+            $source .= ' / ' . static::plainLogSource((string) $msg);
         }
         if (isset($actionName) && !empty($actionName)) {
             $source .= $actionName;

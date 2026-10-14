@@ -26,7 +26,8 @@ if (!function_exists('ProcessTVCommand')) {
             return '@Bindings is disabled.';
         }
 
-        list ($cmd, $param) = ParseCommand($nvalue);
+        // "@word" that names no binding (a handle, a lower-case @eval) is plain text
+        [$cmd, $param] = ParseCommand($nvalue) + ['', ''];
         $cmd = trim((string) $cmd);
         if (!$mayRunCode && \EvolutionCMS\Support\TvBindingGuard::runsCode($cmd)) {
             return \EvolutionCMS\Support\TvBindingGuard::refuseNestedCode($name, $cmd);

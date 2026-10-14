@@ -48,8 +48,8 @@ switch ($_POST['mode']) {
             "id" => $id
         ]);
 
-        // @EVAL and @SELECT run code, which save_template alone does not grant
-        if (!\EvolutionCMS\Support\TvBindingGuard::allows($modx->hasPermission('save_snippet'), $tvBindingFields)) {
+        // @EVAL, @SELECT and @INCLUDE run code, which save_template alone does not grant
+        if (!\EvolutionCMS\Support\TvBindingGuard::allows(\EvolutionCMS\Support\BackendCodePermissions::granted($modx), $tvBindingFields)) {
             $modx->webAlertAndQuit($_lang["error_no_privileges"]);
         }
 
@@ -119,9 +119,9 @@ switch ($_POST['mode']) {
             "id" => $id
         ]);
 
-        // @EVAL and @SELECT run code, which save_template alone does not grant
+        // @EVAL, @SELECT and @INCLUDE run code, which save_template alone does not grant
         $storedTv = EvolutionCMS\Models\SiteTmplvar::find($id);
-        if (!\EvolutionCMS\Support\TvBindingGuard::allows($modx->hasPermission('save_snippet'), $tvBindingFields, $storedTv ? $storedTv->getAttributes() : [])) {
+        if (!\EvolutionCMS\Support\TvBindingGuard::allows(\EvolutionCMS\Support\BackendCodePermissions::granted($modx), $tvBindingFields, $storedTv ? $storedTv->getAttributes() : [])) {
             $modx->webAlertAndQuit($_lang["error_no_privileges"]);
         }
 

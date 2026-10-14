@@ -1412,6 +1412,7 @@ return array(
     'EvolutionCMS\\Shit\\SoftDeletingScope' => $baseDir . '/src/Shit/SoftDeletingScope.php',
     'EvolutionCMS\\Support\\AdminAccountGuard' => $baseDir . '/src/Support/AdminAccountGuard.php',
     'EvolutionCMS\\Support\\ArithmeticExpression' => $baseDir . '/src/Support/ArithmeticExpression.php',
+    'EvolutionCMS\\Support\\BackendCodePermissions' => $baseDir . '/src/Support/BackendCodePermissions.php',
     'EvolutionCMS\\Support\\BladeDirective' => $baseDir . '/src/Support/BladeDirective.php',
     'EvolutionCMS\\Support\\Captcha' => $baseDir . '/src/Support/Captcha.php',
     'EvolutionCMS\\Support\\ChunkFileStore' => $baseDir . '/src/Support/ChunkFileStore.php',

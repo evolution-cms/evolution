@@ -286,14 +286,7 @@ if(!function_exists('fileManagerMayRunCode')) {
      */
     function fileManagerMayRunCode()
     {
-        $evo = evolutionCMS();
-        foreach (['save_snippet', 'save_plugin', 'save_module'] as $permission) {
-            if ($evo->hasPermission($permission)) {
-                return true;
-            }
-        }
-
-        return false;
+        return \EvolutionCMS\Support\BackendCodePermissions::granted();
     }
 }
 

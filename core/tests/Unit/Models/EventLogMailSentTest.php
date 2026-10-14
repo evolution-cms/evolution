@@ -129,8 +129,19 @@ it('uses a safe bounded subject in the list with a legacy-compatible fallback', 
         ->and($oldMailEvent->list_source)
         ->toBe('Mailer')
         ->and($ordinaryEvent->list_source)
-        ->toBe('<legacy-source>');
+        ->toBe('&lt;legacy-source&gt;');
 });
+
+it('escapes the source of every event in the list, not only mail events', function (int $type) {
+    // the error handler builds a source from the PHP message, which can quote request data
+    $event = new EventLog();
+    $event->setRawAttributes([
+        'type' => $type,
+        'list_source' => 'Parser / <img src=x onerror=alert(1)>',
+    ]);
+
+    expect($event->list_source)->toBe('Parser / &lt;img src=x onerror=alert(1)&gt;');
+})->with([EventLog::TYPE_INFORMATION, EventLog::TYPE_WARNING, EventLog::TYPE_ERROR]);
 
 it('bounds subjects and recipient groups in mail-sent events', function () {
     $core = new class extends Core {
@@ -328,3 +339,15 @@ it('renders the mail-sent state in the event list and details', function () {
             ->toContain("\$_lang['eventlog_mail_sent']");
     }
 });
+
+it('encodes a source exactly once', function (string $stored, string $shown) {
+    $event = new EventLog();
+    $event->setRawAttributes(['type' => EventLog::TYPE_ERROR, 'list_source' => $stored]);
+
+    expect($event->list_source)->toBe($shown);
+})->with([
+    'command line' => ['Parser / php x.php 2>1', 'Parser / php x.php 2&gt;1'],
+    'comparison' => ['SQL Query / a < b', 'SQL Query / a &lt; b'],
+    'already encoded' => ['Parser / 2&gt;1 &amp; more', 'Parser / 2&gt;1 &amp; more'],
+    'quotes' => ['Parser / key "x"', 'Parser / key &quot;x&quot;'],
+]);

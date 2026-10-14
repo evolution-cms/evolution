@@ -15,19 +15,19 @@ use EvolutionCMS\TemplateProcessor;
  * `save_template` is deliberately not a code permission (database templates only
  * call existing snippets). Writing a template file therefore needs the same bar
  * the file manager puts on `views/`, `core/` and `manager/`:
- * `fileManagerMayRunCode()` - one of save_snippet / save_plugin / save_module.
+ * `BackendCodePermissions` - one of save_snippet / save_plugin / save_module.
  *
  * @since 3.5.9
  */
 class TemplateFileGuard
 {
     /**
-     * The permissions whose holder may store code the server runs. Kept in step
-     * with fileManagerMayRunCode() in core/functions/actions/files.php.
+     * The permissions whose holder may store code the server runs.
      *
      * @var string[]
+     * @see BackendCodePermissions::PERMISSIONS
      */
-    public const CODE_PERMISSIONS = ['save_snippet', 'save_plugin', 'save_module'];
+    public const CODE_PERMISSIONS = BackendCodePermissions::PERMISSIONS;
 
     /**
      * Whether a template save would write or scaffold a file under a view path -
@@ -48,14 +48,6 @@ class TemplateFileGuard
      */
     public static function authorMayRunCode($evo = null): bool
     {
-        $evo = $evo ?? evolutionCMS();
-
-        foreach (self::CODE_PERMISSIONS as $permission) {
-            if ($evo->hasPermission($permission)) {
-                return true;
-            }
-        }
-
-        return false;
+        return BackendCodePermissions::granted($evo);
     }
 }

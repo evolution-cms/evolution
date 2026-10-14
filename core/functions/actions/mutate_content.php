@@ -74,7 +74,8 @@ if (! function_exists('ProcessTVCommand')) {
         } elseif (isset($modx->config['enable_bindings']) && $modx->config['enable_bindings'] != 1 && $src === 'docform') {
             return '@Bindings is disabled.';
         } else {
-            [$cmd, $param] = ParseCommand($nvalue);
+            // "@word" that names no binding (a handle, a lower-case @eval) is plain text
+            [$cmd, $param] = ParseCommand($nvalue) + ['', ''];
             $cmd = trim((string) $cmd);
             if (!$mayRunCode && \EvolutionCMS\Support\TvBindingGuard::runsCode($cmd)) {
                 return \EvolutionCMS\Support\TvBindingGuard::refuseNestedCode($name, $cmd);

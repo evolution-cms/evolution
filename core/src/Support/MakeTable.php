@@ -560,8 +560,8 @@ class MakeTable implements MakeTableInterface
     public function createPageLink($link = '', $pageNum = 1, $displayText = '', $currentPage = false, $qs = '')
     {
         $modx = evo();
-        $orderBy = !empty($_GET['orderby']) ? '&orderby=' . $_GET['orderby'] : '';
-        $orderDir = !empty($_GET['orderdir']) ? '&orderdir=' . $_GET['orderdir'] : '';
+        $orderBy = !empty($_GET['orderby']) ? '&orderby=' . $this->requestedOrderBy() : '';
+        $orderDir = !empty($_GET['orderdir']) ? '&orderdir=' . $this->requestedOrderDir() : '';
         if (!empty($qs)) {
             $qs = "?$qs";
         }
@@ -598,7 +598,7 @@ class MakeTable implements MakeTableInterface
      */
     public function handlePaging()
     {
-        $offset = (isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0) ? $_GET['page'] - 1 : 0;
+        $offset = (isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0) ? (int) $_GET['page'] - 1 : 0;
         $limitClause = ' LIMIT ' . ($offset * MAX_DISPLAY_RECORDS_NUM) . ', ' . MAX_DISPLAY_RECORDS_NUM;
 
         return $limitClause;
@@ -615,12 +615,32 @@ class MakeTable implements MakeTableInterface
     {
         $orderByClause = '';
         if ((bool)$natural_order === false) {
-            $orderby = !empty($_GET['orderby']) ? $_GET['orderby'] : "id";
-            $orderdir = !empty($_GET['orderdir']) ? $_GET['orderdir'] : "DESC";
-            $orderByClause = !empty($orderby) ? ' ORDER BY ' . $orderby . ' ' . $orderdir . ' ' : "";
+            // both come from the query string of a public page and are spliced into the SQL
+            $orderByClause = ' ORDER BY ' . $this->requestedOrderBy() . ' ' . $this->requestedOrderDir() . ' ';
         }
 
         return $orderByClause;
+    }
+
+    /**
+     * The sort column the request asks for: a column name, optionally qualified by its table
+     * ("id", "u.username"), or "id" for anything else.
+     *
+     * @return string
+     */
+    protected function requestedOrderBy()
+    {
+        $orderby = isset($_GET['orderby']) && is_scalar($_GET['orderby']) ? trim((string) $_GET['orderby']) : '';
+
+        return preg_match('/^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)?$/D', $orderby) ? $orderby : 'id';
+    }
+
+    /**
+     * @return string ASC or DESC (the default)
+     */
+    protected function requestedOrderDir()
+    {
+        return sanitize_sort_direction($_GET['orderdir'] ?? '', 'DESC');
     }
 
     /**
@@ -636,7 +656,7 @@ class MakeTable implements MakeTableInterface
     {
         $modx = evo();
         if (!empty($_GET['orderdir'])) {
-            $orderDir = strtolower($_GET['orderdir']) == 'desc' ? '&orderdir=asc' : '&orderdir=desc';
+            $orderDir = $this->requestedOrderDir() === 'DESC' ? '&orderdir=asc' : '&orderdir=desc';
         } else {
             $orderDir = '&orderdir=asc';
         }
