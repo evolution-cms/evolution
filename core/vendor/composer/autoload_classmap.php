@@ -1450,6 +1450,7 @@ return array(
     'EvolutionCMS\\Support\\TemplateFileGuard' => $baseDir . '/src/Support/TemplateFileGuard.php',
     'EvolutionCMS\\Support\\TvBindingArguments' => $baseDir . '/src/Support/TvBindingArguments.php',
     'EvolutionCMS\\Support\\TvBindingGuard' => $baseDir . '/src/Support/TvBindingGuard.php',
+    'EvolutionCMS\\Support\\UploadLimits' => $baseDir . '/src/Support/UploadLimits.php',
     'EvolutionCMS\\TemplateProcessor' => $baseDir . '/src/TemplateProcessor.php',
     'EvolutionCMS\\Tracy\\ConnectionTiming' => $baseDir . '/src/Tracy/ConnectionTiming.php',
     'EvolutionCMS\\Tracy\\Debugger' => $baseDir . '/src/Tracy/Debugger.php',

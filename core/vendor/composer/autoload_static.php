@@ -2112,6 +2112,7 @@ class ComposerStaticInit925fea465a58fa69f06ccf2629003e87
         'EvolutionCMS\\Support\\TemplateFileGuard' => __DIR__ . '/../..' . '/src/Support/TemplateFileGuard.php',
         'EvolutionCMS\\Support\\TvBindingArguments' => __DIR__ . '/../..' . '/src/Support/TvBindingArguments.php',
         'EvolutionCMS\\Support\\TvBindingGuard' => __DIR__ . '/../..' . '/src/Support/TvBindingGuard.php',
+        'EvolutionCMS\\Support\\UploadLimits' => __DIR__ . '/../..' . '/src/Support/UploadLimits.php',
         'EvolutionCMS\\TemplateProcessor' => __DIR__ . '/../..' . '/src/TemplateProcessor.php',
         'EvolutionCMS\\Tracy\\ConnectionTiming' => __DIR__ . '/../..' . '/src/Tracy/ConnectionTiming.php',
         'EvolutionCMS\\Tracy\\Debugger' => __DIR__ . '/../..' . '/src/Tracy/Debugger.php',
