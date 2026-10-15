@@ -49,7 +49,7 @@ test('a deletion time set in memory is arrayed as a unix timestamp', function ()
 
 test('arraying a document does not load Carbon', function () {
     $exitCode = null;
-    $output = evoRunPhp(dirname(__DIR__, 2) . '/Mocks/site_content_to_array_worker.php', [], $exitCode);
+    $output = evoRunPhp(dirname(__DIR__, 2) . '/Mocks/site_content_to_array_worker.php', [], $exitCode, false);
     $result = json_decode($output, true, flags: JSON_THROW_ON_ERROR);
 
     expect($exitCode)->toBe(0)

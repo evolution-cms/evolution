@@ -123,3 +123,41 @@ test('legacy modx bootstrap env still hydrates evo constants', function () {
         ->and($constants['EVO_SITE_URL'])->toBe($constants['EVO_SITE_URL'])
         ->and($constants['EVO_MANAGER_URL'])->toBe($constants['EVO_MANAGER_URL']);
 });
+
+test('the sanitize seed is built without overflowing base_convert', function () {
+    $script = <<<'PHP'
+<?php
+set_error_handler(function (int $level, string $message, string $file, int $line) {
+    echo "error: $message in $file:$line\n";
+
+    return true;
+});
+
+$_SERVER['SCRIPT_NAME'] = '/index.php';
+$_SERVER['PHP_SELF'] = '/index.php';
+$_SERVER['HTTP_HOST'] = 'example.test';
+$_SERVER['SERVER_PORT'] = 80;
+
+define('IN_INSTALL_MODE', false);
+define('IN_MANAGER_MODE', false);
+define('EVO_API_MODE', true);
+
+$rootDir = %s;
+require $rootDir . '/core/vendor/autoload.php';
+require $rootDir . '/core/functions/helper.php';
+require $rootDir . '/core/functions/preload.php';
+require $rootDir . '/core/includes/define.inc.php';
+
+echo EVO_SANITIZE_SEED;
+PHP;
+
+    $scriptPath = tempnam(sys_get_temp_dir(), 'evo-seed-');
+    file_put_contents($scriptPath, sprintf($script, var_export(dirname(__DIR__, 3), true)));
+    $output = evoRunPhp($scriptPath, [], $status);
+    @unlink($scriptPath);
+
+    // A full md5 is 128 bits: base_convert() loses precision on it (a notice since PHP 8.6)
+    // and returns some 25 base-36 digits; 52 bits take at most 11.
+    expect($status)->toBe(0, $output)
+        ->and($output)->toMatch('/\Asanitize_seed_[0-9a-z]{1,11}\z/');
+});
