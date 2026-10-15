@@ -1093,7 +1093,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 				<?php
 				$webgroupnames = \EvolutionCMS\Models\MembergroupName::query()->orderBy('name')->get();
 				foreach ($webgroupnames->toArray() as $row) {
-					echo '<label><input type="checkbox" name="user_groups[]" value="' . $row['id'] . '"' . (in_array($row['id'], $groupsarray) ? ' checked="checked"' : '') . ' />' . $row['name'] . '</label><br />';
+					echo '<label><input type="checkbox" name="user_groups[]" value="' . $row['id'] . '"' . (in_array($row['id'], $groupsarray) ? ' checked="checked"' : '') . ' />' . e((string)$row['name']) . '</label><br />';
 				}
 				}
 				?>

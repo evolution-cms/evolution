@@ -1579,7 +1579,7 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
                             // Make the <input> HTML
                             $inputHTML = '<input ' . implode(' ', $inputString) . ' />';
 
-                            $permissions[] = "\t\t" . '<li>' . $inputHTML . '<label for="' . $inputId . '">' . $row['name'] . '</label></li>';
+                            $permissions[] = "\t\t" . '<li>' . $inputHTML . '<label for="' . $inputId . '">' . e((string)$row['name']) . '</label></li>';
                         }
                         if(count($userGroups) === 0 && !$modx->hasPermission('manage_groups')) {
                             $permissions = [];
