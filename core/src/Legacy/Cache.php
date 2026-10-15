@@ -319,6 +319,9 @@ class Cache
     protected function writeSiteCache($evo)
     {
         $content = "<?php\n";
+        // This file is PHP that every request includes: every name and value from the database
+        // goes in through escapeSingleQuotes() / escapeDoubleQuotes() or an (int) cast. A chunk
+        // named a');...// used to close the string and run as code.
 
         // SETTINGS & DOCUMENT LISTINGS CACHE
 
@@ -327,14 +330,14 @@ class Cache
         $config = [];
         $content .= '$c=&$this->config;';
         foreach ($systemSettings as $systemSetting) {
-            $content .= '$c[\'' . $systemSetting->setting_name . '\']="' . $this->escapeDoubleQuotes($systemSetting->setting_value) . '";';
+            $content .= '$c[\'' . $this->escapeSingleQuotes((string) $systemSetting->setting_name) . '\']="' . $this->escapeDoubleQuotes($systemSetting->setting_value) . '";';
             $config[$systemSetting->setting_name] = $systemSetting->setting_value;
         }
         // Text defaults the database does not store, already translated: a request
         // then reads them here instead of building the translator for them.
         if (method_exists($evo, 'getFactoryTextDefaults')) {
             foreach ($evo->getFactoryTextDefaults($config) as $name => $value) {
-                $content .= '$c[\'' . $name . '\']="' . $this->escapeDoubleQuotes($value) . '";';
+                $content .= '$c[\'' . $this->escapeSingleQuotes((string) $name) . '\']="' . $this->escapeDoubleQuotes($value) . '";';
             }
         }
 
@@ -374,9 +377,9 @@ class Cache
                 }
 
                 $doc['path'] = $tmpPath;
-                $content .= '$a[' . $doc['id'] . ']=array(\'id\'=>' . $doc['id'] . ',\'alias\'=>\'' . $doc['alias'] . '\',\'path\'=>\'' . $doc['path'] . '\',\'parent\'=>' . $doc['parent'] . ',\'isfolder\'=>' . $doc['isfolder'] . ',\'alias_visible\'=>' . $doc['alias_visible'] . ');';
-                $content .= '$d[\'' . $key . '\']=' . $doc['id'] . ';';
-                $content .= '$m[]=array(' . $doc['parent'] . '=>' . $doc['id'] . ');';
+                $content .= '$a[' . (int) $doc['id'] . ']=array(\'id\'=>' . (int) $doc['id'] . ',\'alias\'=>\'' . $this->escapeSingleQuotes((string) $doc['alias']) . '\',\'path\'=>\'' . $this->escapeSingleQuotes((string) $doc['path']) . '\',\'parent\'=>' . (int) $doc['parent'] . ',\'isfolder\'=>' . (int) $doc['isfolder'] . ',\'alias_visible\'=>' . (int) $doc['alias_visible'] . ');';
+                $content .= '$d[\'' . $this->escapeSingleQuotes((string) $key) . '\']=' . (int) $doc['id'] . ';';
+                $content .= '$m[]=array(' . (int) $doc['parent'] . '=>' . (int) $doc['id'] . ');';
             }
 
             // get content types
@@ -386,7 +389,7 @@ class Cache
 
             $content .= '$c=&$this->contentTypes;';
             foreach ($contentTypes->toArray() as $doc) {
-                $content .= '$c[\'' . $doc['id'] . '\']=\'' . $doc['contentType'] . '\';';
+                $content .= '$c[' . (int) $doc['id'] . ']=\'' . $this->escapeSingleQuotes((string) $doc['contentType']) . '\';';
             }
         }
         if (!isset($config['disable_chunk_cache']) || $config['disable_chunk_cache'] != 1) {
@@ -403,7 +406,7 @@ class Cache
                 $value = $doc['disabled']
                     ? ''
                     : (string) $chunkFiles->resolve((string) $doc['name'], $doc['snippet']);
-                $content .= '$c[\'' . $doc['name'] . '\']=\'' . $this->escapeSingleQuotes($value) . '\';';
+                $content .= '$c[\'' . $this->escapeSingleQuotes((string) $doc['name']) . '\']=\'' . $this->escapeSingleQuotes($value) . '\';';
             }
         }
 
@@ -414,18 +417,18 @@ class Cache
             $content .= '$s=&$this->snippetCache;';
             foreach ($snippets->toArray() as $row) {
                 if ($row['disabled']) {
-                    $content .= '$s[\'' . $row['name'] . '\']=\'return false;\';';
+                    $content .= '$s[\'' . $this->escapeSingleQuotes((string) $row['name']) . '\']=\'return false;\';';
                 } else {
                     $value = trim($row['snippet']);
                     if ($evo->getConfig('minifyphp_incache')) {
                         $value = $this->php_strip_whitespace($value);
                     }
-                    $content .= '$s[\'' . $row['name'] . '\']=\'' . $this->escapeSingleQuotes($value) . '\';';
+                    $content .= '$s[\'' . $this->escapeSingleQuotes((string) $row['name']) . '\']=\'' . $this->escapeSingleQuotes($value) . '\';';
                     $properties = $evo->parseProperties($row['properties']);
                     $sharedproperties = $evo->parseProperties($row['sharedproperties']);
                     $properties = array_merge($sharedproperties, $properties);
                     if (0 < count($properties)) {
-                        $content .= '$s[\'' . $row['name'] . 'Props\']=\'' . $this->escapeSingleQuotes(json_encode($properties)) . '\';';
+                        $content .= '$s[\'' . $this->escapeSingleQuotes($row['name'] . 'Props') . '\']=\'' . $this->escapeSingleQuotes(json_encode($properties)) . '\';';
                     }
                 }
             }
@@ -442,13 +445,13 @@ class Cache
                 if ($evo->getConfig('minifyphp_incache')) {
                     $value = $this->php_strip_whitespace($value);
                 }
-                $content .= '$p[\'' . $row['name'] . '\']=\'' . $this->escapeSingleQuotes($value) . '\';';
+                $content .= '$p[\'' . $this->escapeSingleQuotes((string) $row['name']) . '\']=\'' . $this->escapeSingleQuotes($value) . '\';';
                 if ($row['properties'] != '' || $row['sharedproperties'] != '') {
                     $properties = $evo->parseProperties($row['properties']);
                     $sharedproperties = $evo->parseProperties($row['sharedproperties']);
                     $properties = array_merge($sharedproperties, $properties);
                     if (0 < count($properties)) {
-                        $content .= '$p[\'' . $row['name'] . 'Props\']=\'' . $this->escapeSingleQuotes(json_encode($properties)) . '\';';
+                        $content .= '$p[\'' . $this->escapeSingleQuotes($row['name'] . 'Props') . '\']=\'' . $this->escapeSingleQuotes(json_encode($properties)) . '\';';
                     }
                 }
             }
@@ -471,7 +474,7 @@ class Cache
         }
         foreach ($events as $evtname => $pluginnames) {
             $events[$evtname] = $pluginnames;
-            $content .= '$e[\'' . $evtname . '\']=array(\'' . implode('\',\'',
+            $content .= '$e[\'' . $this->escapeSingleQuotes((string) $evtname) . '\']=array(\'' . implode('\',\'',
                     $this->escapeSingleQuotes($pluginnames)) . '\');';
         }
 
