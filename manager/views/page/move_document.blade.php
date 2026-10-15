@@ -22,7 +22,16 @@
                 if (pId === 0 || checkParentChildRelation(pId, pName)) {
                     documentDirty = true;
                     document.newdocumentparent.new_parent.value = pId;
-                    document.getElementById('parentName').innerHTML = '{{ ManagerTheme::getLexicon('new_parent') }}: <span class="text-primary"><b>' + pId + '</b> (' + pName + ')</span>';
+                    // pName is the decoded tree title: build the label from text nodes
+                    var parentName = document.getElementById('parentName'),
+                        label = document.createElement('span'),
+                        id = document.createElement('b');
+                    label.className = 'text-primary';
+                    id.textContent = pId;
+                    label.appendChild(id);
+                    label.appendChild(document.createTextNode(' (' + pName + ')'));
+                    parentName.textContent = @js(ManagerTheme::getLexicon('new_parent')) + ': ';
+                    parentName.appendChild(label);
                 }
             }
 

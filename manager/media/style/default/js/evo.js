@@ -1281,7 +1281,7 @@
                     if (elMenuIndex && index >= 0) elMenuIndex.value = index;
                     if (elParent && elParentName) {
                         elParent.value = parent;
-                        elParentName.innerHTML = parent + ' (' + d.querySelector('#node' + parent + ' > a').dataset.titleEsc + ')';
+                        elParentName.innerHTML = parent + ' (' + evo.escapeHtml(d.querySelector('#node' + parent + ' > a').dataset.titleEsc) + ')';
                     }
                 }
             },
@@ -1448,7 +1448,7 @@
                             evo.openWindow(href);
                             this.restoreTree();
                         } else {
-                            evo.tabs({ url: evo.EVO_MANAGER_URL + href, title: title + '<small>(' + id + ')</small>' });
+                            evo.tabs({ url: evo.EVO_MANAGER_URL + href, title: evo.escapeHtml(title) + '<small>(' + id + ')</small>' });
                             if (evo.isMobile && w.innerWidth < evo.minWidth) evo.resizer.toggle();
                         }
                     }
@@ -1616,7 +1616,7 @@
                     this.selectedObjectName = this.selectedObjectName.substr(0, 30) + '...';
                 }
                 var f = d.getElementById('nameHolder');
-                f.innerHTML = this.selectedObjectName;
+                f.textContent = this.selectedObjectName;
                 el.style.left = a + (evo.config.textdir === 'rtl' ? '-190' : '') + 'px';
                 el.style.top = b + 'px';
                 el.classList.add('show');
@@ -1625,38 +1625,38 @@
                 switch (a) {
                     case 1:
                         this.setActiveFromContextMenu(this.itemToChange);
-                        evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=3&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                        evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=3&id=' + this.itemToChange, title: evo.escapeHtml(this.selectedObjectName) + '<small>(' + this.itemToChange + ')</small>' });
                         break;
                     case 2:
                         this.setActiveFromContextMenu(this.itemToChange);
-                        evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=27&r=1&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                        evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=27&r=1&id=' + this.itemToChange, title: evo.escapeHtml(this.selectedObjectName) + '<small>(' + this.itemToChange + ')</small>' });
                         break;
                     case 3:
-                        evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=4&pid=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                        evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=4&pid=' + this.itemToChange, title: evo.escapeHtml(this.selectedObjectName) + '<small>(' + this.itemToChange + ')</small>' });
                         break;
                     case 4:
                         if (this.selectedObjectDeleted) {
                             alert('"' + this.selectedObjectName + '" ' + evo.lang.already_deleted);
                         } else if (confirm('"' + this.selectedObjectName + '"\n\n' + evo.lang.confirm_delete_resource) === true) {
-                            evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=6&id=' + this.itemToChange + '&_token=' + encodeURIComponent(evo.tabsCsrfToken()), title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                            evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=6&id=' + this.itemToChange + '&_token=' + encodeURIComponent(evo.tabsCsrfToken()), title: evo.escapeHtml(this.selectedObjectName) + '<small>(' + this.itemToChange + ')</small>' });
                         }
                         break;
                     case 5:
                         this.setActiveFromContextMenu(this.itemToChange);
-                        evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=51&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                        evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=51&id=' + this.itemToChange, title: evo.escapeHtml(this.selectedObjectName) + '<small>(' + this.itemToChange + ')</small>' });
                         break;
                     case 6:
-                        evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=72&pid=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                        evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=72&pid=' + this.itemToChange, title: evo.escapeHtml(this.selectedObjectName) + '<small>(' + this.itemToChange + ')</small>' });
                         break;
                     case 7:
                         if (confirm(evo.lang.confirm_resource_duplicate) === true) {
-                            evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=94&id=' + this.itemToChange + '&_token=' + encodeURIComponent(evo.tabsCsrfToken()), title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                            evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=94&id=' + this.itemToChange + '&_token=' + encodeURIComponent(evo.tabsCsrfToken()), title: evo.escapeHtml(this.selectedObjectName) + '<small>(' + this.itemToChange + ')</small>' });
                         }
                         break;
                     case 8:
                         if (d.getElementById('node' + this.itemToChange).firstChild.dataset.deleted) {
                             if (confirm('"' + this.selectedObjectName + '" ' + evo.lang.confirm_undelete) === true) {
-                                evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=63&id=' + this.itemToChange + '&_token=' + encodeURIComponent(evo.tabsCsrfToken()), title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                                evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=63&id=' + this.itemToChange + '&_token=' + encodeURIComponent(evo.tabsCsrfToken()), title: evo.escapeHtml(this.selectedObjectName) + '<small>(' + this.itemToChange + ')</small>' });
                             }
                         } else {
                             alert('"' + this.selectedObjectName + '"' + evo.lang.not_deleted);
@@ -1664,20 +1664,20 @@
                         break;
                     case 9:
                         if (confirm('"' + this.selectedObjectName + '" ' + evo.lang.confirm_publish) === true) {
-                            evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=61&id=' + this.itemToChange + '&_token=' + encodeURIComponent(evo.tabsCsrfToken()), title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                            evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=61&id=' + this.itemToChange + '&_token=' + encodeURIComponent(evo.tabsCsrfToken()), title: evo.escapeHtml(this.selectedObjectName) + '<small>(' + this.itemToChange + ')</small>' });
                         }
                         break;
                     case 10:
                         if (this.itemToChange !== evo.config.site_start) {
                             if (confirm('"' + this.selectedObjectName + '" ' + evo.lang.confirm_unpublish) === true) {
-                                evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=62&id=' + this.itemToChange + '&_token=' + encodeURIComponent(evo.tabsCsrfToken()), title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                                evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=62&id=' + this.itemToChange + '&_token=' + encodeURIComponent(evo.tabsCsrfToken()), title: evo.escapeHtml(this.selectedObjectName) + '<small>(' + this.itemToChange + ')</small>' });
                             }
                         } else {
                             evo.alert('Document is linked to site_start variable and cannot be unpublished!');
                         }
                         break;
                     case 11:
-                        evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=56&id=' + this.itemToChange, title: this.selectedObjectName + '<small>(' + this.itemToChange + ')</small>' });
+                        evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=56&id=' + this.itemToChange, title: evo.escapeHtml(this.selectedObjectName) + '<small>(' + this.itemToChange + ')</small>' });
                         break;
                     case 12:
                         w.open(d.getElementById('node' + this.itemToChange).firstChild.dataset.href, 'previeWin');
@@ -1732,7 +1732,7 @@
                 this.itemToChange = target.id;
                 this.selectedObjectName = target.title;
                 this.setSelected(target.id);
-                evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=56&id=' + target.id, title: target.title + '<small>(' + target.id + ')</small>' });
+                evo.tabs({ url: evo.EVO_MANAGER_URL + '?a=56&id=' + target.id, title: evo.escapeHtml(target.title) + '<small>(' + target.id + ')</small>' });
             },
             setItemToChange: function () {
                 var a = w.main.document && (w.main.document.URL || evo.normalizeUrl(w.main.document.location.href)),
@@ -2635,6 +2635,13 @@
         title: function (t) {
             t = t && t.replace(/<\/?[^>]+>/g, ' ').replace(/[\n\t\r]/g, '').trim() || '';
             return d.title = (t && t + ' - ') + this.config.manager_title;
+        },
+        // Tree titles reach scripts as text: dataset and inline handler arguments are already decoded,
+        // so "&lt;img onerror&gt;" in the markup is "<img onerror>" here. Escape before any innerHTML.
+        escapeHtml: function (t) {
+            return String(t === undefined || t === null ? '' : t).replace(/[&<>"']/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
         },
         getWindowDimension: function () {
             var a = 0,
