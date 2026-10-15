@@ -9,7 +9,6 @@ use EvolutionCMS\Services\Store\CatalogService;
 test('readme html cannot carry script into the manager', function () {
     $service = new CatalogService();
     $render = new ReflectionMethod($service, 'renderMarkdownHtml');
-    $render->setAccessible(true);
 
     $markdown = "# Title\n\n<script>alert(1)</script>\n\n<a href=\"javascript:alert(2)\" onclick=\"alert(3)\">x</a>\n\n"
         . "<div id=\"config\" onmouseover=\"alert(4)\">ok</div>\n\n<iframe src=\"https://evil.example\"></iframe>\n";

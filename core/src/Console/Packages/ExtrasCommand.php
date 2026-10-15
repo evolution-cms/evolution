@@ -274,7 +274,7 @@ class ExtrasCommand extends Command
             }
             $version = $this->getPackages($repos);
             switch ($version) {
-                case 'Current and updated';
+                case 'Current and updated':
                     $this->version = '*';
                     break;
                 default:
@@ -300,7 +300,7 @@ class ExtrasCommand extends Command
         }
         $version = $this->getPackagesFromCatalog($catalog['packages'] ?? []);
         switch ($version) {
-            case 'Current and updated';
+            case 'Current and updated':
                 $this->version = '*';
                 break;
             default:
@@ -331,7 +331,7 @@ class ExtrasCommand extends Command
         }
         $version = $this->getPackages($repos);
         switch ($version) {
-            case 'Current and updated';
+            case 'Current and updated':
                 if (!empty($this->tags)) {
                     $this->version = $this->tags[0];
                 } else {

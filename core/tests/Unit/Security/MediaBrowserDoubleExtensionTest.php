@@ -24,7 +24,6 @@ function uploaderForNames(string $types, string $denied): uploader
     $uploader = (new ReflectionClass(UploaderWithoutCodePermission::class))->newInstanceWithoutConstructor();
     foreach (['types' => ['images' => $types], 'config' => ['deniedExts' => $denied]] as $name => $value) {
         $property = new ReflectionProperty(uploader::class, $name);
-        $property->setAccessible(true);
         $property->setValue($uploader, $value);
     }
 
@@ -34,7 +33,6 @@ function uploaderForNames(string $types, string $denied): uploader
 function uploaderAllowsName(uploader $uploader, string $name): bool
 {
     $method = new ReflectionMethod(uploader::class, 'validateFilename');
-    $method->setAccessible(true);
 
     return $method->invoke($uploader, $name, 'images');
 }

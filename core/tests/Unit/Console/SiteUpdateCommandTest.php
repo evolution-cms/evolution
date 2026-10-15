@@ -8,7 +8,6 @@ function invokeSiteUpdateMethod(SiteUpdateCommand $command, string $method, arra
 {
     $reflection = new ReflectionClass($command);
     $instanceMethod = $reflection->getMethod($method);
-    $instanceMethod->setAccessible(true);
 
     return $instanceMethod->invokeArgs($command, $args);
 }

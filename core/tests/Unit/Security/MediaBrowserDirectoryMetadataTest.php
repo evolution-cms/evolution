@@ -32,13 +32,11 @@ function mediaBrowserDirectoryMetadataHarness(string $typeDir): browser
         'dateTimeSmall' => 'Y-m-d H:i:s',
     ] as $name => $value) {
         $property = new ReflectionProperty(uploader::class, $name);
-        $property->setAccessible(true);
         $property->setValue($browser, $value);
     }
 
     // no folder is protected here: the permission lookup needs a booted CMS
     $protected = new ReflectionProperty(browser::class, 'protectedPaths');
-    $protected->setAccessible(true);
     $protected->setValue($browser, []);
 
     return $browser;
@@ -47,7 +45,6 @@ function mediaBrowserDirectoryMetadataHarness(string $typeDir): browser
 function mediaBrowserDirectoryMetadataMethod(string $name): ReflectionMethod
 {
     $method = new ReflectionMethod(browser::class, $name);
-    $method->setAccessible(true);
 
     return $method;
 }

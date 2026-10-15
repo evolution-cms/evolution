@@ -12,8 +12,27 @@ function buildConfigLoaderApp(): AbstractLaravel
 function invokeLoadConfiguration(AbstractLaravel $app, Repository $config, string $dir): void
 {
     $method = new ReflectionMethod(AbstractLaravel::class, 'loadConfiguration');
-    $method->setAccessible(true);
     $method->invoke($app, $config, $dir);
+}
+
+/**
+ * Run $callback with error_log() sent to a temporary file instead of stderr, and return what it logged.
+ */
+function captureConfigErrorLog(callable $callback): string
+{
+    $logFile = tempnam(sys_get_temp_dir(), 'evo-config-log-');
+    $previous = ini_set('error_log', $logFile);
+
+    try {
+        $callback();
+    } finally {
+        ini_set('error_log', $previous === false ? '' : $previous);
+    }
+
+    $log = (string) file_get_contents($logFile);
+    @unlink($logFile);
+
+    return $log;
 }
 
 function writePhpConfigFile(string $path, string $content): void
@@ -105,10 +124,12 @@ PHP
         ],
     ]);
 
-    invokeLoadConfiguration(buildConfigLoaderApp(), $config, $configRoot);
+    $log = captureConfigErrorLog(fn () => invokeLoadConfiguration(buildConfigLoaderApp(), $config, $configRoot));
 
     expect($config->get('cms.settings.site_name'))->toBe('Demo')
-        ->and($config->get('cms.settings.ControllerNamespace'))->toBeNull();
+        ->and($config->get('cms.settings.ControllerNamespace'))->toBeNull()
+        ->and($log)->toContain('[EvolutionCMS] Skipped invalid custom config file')
+        ->and($log)->toContain('ControllerNamespace.php');
 });
 
 test('loadConfiguration skips custom config runtime failures without killing bootstrap', function () {
@@ -128,10 +149,12 @@ test('loadConfiguration skips custom config runtime failures without killing boo
         ],
     ]);
 
-    invokeLoadConfiguration(buildConfigLoaderApp(), $config, $configRoot);
+    $log = captureConfigErrorLog(fn () => invokeLoadConfiguration(buildConfigLoaderApp(), $config, $configRoot));
 
     expect($config->get('cms.settings.site_name'))->toBe('Demo')
-        ->and($config->get('cms.settings.Broken'))->toBeNull();
+        ->and($config->get('cms.settings.Broken'))->toBeNull()
+        ->and($log)->toContain('[EvolutionCMS] Skipped invalid custom config file')
+        ->and($log)->toContain('Broken.php');
 });
 
 test('loadConfiguration still throws for invalid non-custom config files', function () {

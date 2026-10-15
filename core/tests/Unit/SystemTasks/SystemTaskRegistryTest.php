@@ -167,7 +167,6 @@ function makeRegistryTask(string $type, string $status, ?Carbon $lease = null): 
 function runRegistryPreflight(SystemTaskService $service, string $type, array $snapshot, bool $isSuperAdmin = false): array
 {
     $method = new ReflectionMethod($service, 'runCreatePreflight');
-    $method->setAccessible(true);
 
     return $method->invoke($service, $type, $snapshot, $isSuperAdmin);
 }

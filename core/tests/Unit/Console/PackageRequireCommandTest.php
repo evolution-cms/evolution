@@ -26,7 +26,6 @@ function setPackageRequireComposerPath(InstallPackageRequireCommand $command, st
 {
     $reflection = new ReflectionClass(InstallPackageRequireCommand::class);
     $property = $reflection->getProperty('composer');
-    $property->setAccessible(true);
     $property->setValue($command, $path);
 
     $command->setLaravel(new PackageRequireTestContainer());
@@ -150,7 +149,6 @@ test('composer update falls back to a full update when no package was changed', 
     $command->setLaravel(new PackageRequireTestContainer());
 
     $input = new ReflectionProperty($command, 'input');
-    $input->setAccessible(true);
     $input->setValue($command, new \Symfony\Component\Console\Input\ArrayInput(['key' => 'vendor/pkg', 'value' => '*'], $command->getDefinition()));
 
     expect($command->buildComposerArguments())->toBe(['command' => 'update']);
@@ -201,7 +199,6 @@ function makeScriptedPackageRequireCommand(string $composer, string $lock): Scri
     setPackageRequireComposerPath($command, $composer);
 
     $property = new ReflectionProperty(InstallPackageRequireCommand::class, 'composerLock');
-    $property->setAccessible(true);
     $property->setValue($command, $lock);
 
     return $command;

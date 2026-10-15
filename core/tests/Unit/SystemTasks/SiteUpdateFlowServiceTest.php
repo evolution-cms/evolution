@@ -11,7 +11,6 @@ function invokeSiteUpdateFlowMethod(SiteUpdateFlowService $service, string $meth
 {
     $reflection = new ReflectionClass($service);
     $instanceMethod = $reflection->getMethod($method);
-    $instanceMethod->setAccessible(true);
 
     return $instanceMethod->invokeArgs($service, $args);
 }
