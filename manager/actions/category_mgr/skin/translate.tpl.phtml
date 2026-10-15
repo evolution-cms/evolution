@@ -13,10 +13,10 @@
         <?php $i = 0; foreach( $data as $native => $translation ) : ?>
         <tr>
           <td class="native <?php echo ($i%2===0)?'gridItem':'gridAltItem'; ?>">
-            <?php echo e((string)$native); ?>
+            <?php echo e($native); ?>
           </td>
           <td class="translation <?php echo ($i%2===0)?'gridItem':'gridAltItem'; ?>">
-            <textarea  rows="2" cols="80" name="<?php echo $view->get('request_key'); ?>[translate][data][<?php echo urlencode($native) ?>]"><?php echo e((string)$translation); ?></textarea>
+            <textarea  rows="2" cols="80" name="<?php echo $view->get('request_key'); ?>[translate][data][<?php echo urlencode($native) ?>]"><?php echo e($translation); ?></textarea>
           </td>           
         </tr>
         <?php $i++; endforeach; ?>

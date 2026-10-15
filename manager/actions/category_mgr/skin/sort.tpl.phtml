@@ -23,7 +23,7 @@
                 foreach ($data as $category): ?>
                     <tr id="item_<?= (int)$category['id'] ?>">
                         <td>
-                            <i class="<?= $_style['icon_category'] ?>"></i> <?= e((string)$category['category']) ?>
+                            <i class="<?= $_style['icon_category'] ?>"></i> <?= e($category['category']) ?>
                             <input type="hidden" class="sort" name="<?= $view->get('request_key') ?>[sort][data][<?= (int)$category['id'] ?>][rank]" value="<?= (int)$category['rank'] ?>" />
                             <input type="hidden" name="<?= $view->get('request_key') ?>[sort][data][<?= (int)$category['id'] ?>][id]" value="<?= (int)$category['id'] ?>" />
                             <input type="hidden" name="<?= $view->get('request_key') ?>[sort][data][<?= (int)$category['id'] ?>][category]" value="<?= urlencode($category['category']) ?>" />

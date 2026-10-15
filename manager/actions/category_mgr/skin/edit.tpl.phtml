@@ -32,13 +32,15 @@
                         <td>
                             <input type="hidden" name="<?php echo $view->get('request_key'); ?>[edit][data][<?php echo (int)$category['id'] ?>][rank]" value="<?php echo (int)$category['rank']; ?>" />
                             <input type="hidden" name="<?php echo $view->get('request_key'); ?>[edit][data][<?php echo (int)$category['id'] ?>][origin]" value="<?php echo urlencode($category['category']); ?>" />
-                            <input type="text" name="<?php echo $view->get('request_key'); ?>[edit][data][<?php echo (int)$category['id'] ?>][category]" value="<?php echo e((string)$category['category']); ?>" />
+                            <input type="text" name="<?php echo $view->get('request_key'); ?>[edit][data][<?php echo (int)$category['id'] ?>][category]" value="<?php echo e($category['category']); ?>" />
                         </td>
                         <td class="text-xs-center">
                             <input type="checkbox" name="<?php echo $view->get('request_key'); ?>[edit][data][<?php echo (int)$category['id'] ?>][delete]" value="1" />
                         </td>
                         <td class="text-xs-center">
-                            <a class="btn btn-outline-danger" onclick="return confirm('<?php echo $view->txt('are_you_sure'); ?>');" href="<?php echo $view->get('url'); ?>&amp;<?php echo $view->get('request_key'); ?>[delete]=<?php echo (int)$category['id']; ?>&amp;<?php echo $view->get('request_key'); ?>[category]=<?php echo urlencode($category['category']); ?>&amp;_token=<?php echo csrf_token(); ?>" data-tooltip="<?php echo e((string)(e((string)$category['category']) . '::' . e((string)sprintf($view->txt('cm_delete_element_x_now'), $category['category'])))); ?>"><i class="<?= $_style['icon_info_triangle'] ?>"></i> <?php echo $view->txt('delete'); ?></a>
+                            <?php // data-tooltip is rendered with innerHTML (main.js): escape the name for that HTML, then the whole value for the attribute
+                            $tip = e($category['category']); ?>
+                            <a class="btn btn-outline-danger" onclick="return confirm('<?php echo $view->txt('are_you_sure'); ?>');" href="<?php echo $view->get('url'); ?>&amp;<?php echo $view->get('request_key'); ?>[delete]=<?php echo (int)$category['id']; ?>&amp;<?php echo $view->get('request_key'); ?>[category]=<?php echo urlencode($category['category']); ?>&amp;_token=<?php echo csrf_token(); ?>" data-tooltip="<?= e($tip . '::' . sprintf($view->txt('cm_delete_element_x_now'), $tip)) ?>"><i class="<?= $_style['icon_info_triangle'] ?>"></i> <?php echo $view->txt('delete'); ?></a>
                         </td>
                     </tr>
                     <tr class="collapse" id="collapse-edit-<?php echo $i; ?>">
