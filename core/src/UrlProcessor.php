@@ -678,7 +678,10 @@ class UrlProcessor
             if ($scheme === 'full') {
                 $host = $this->core->getConfig('site_url');
             } else {
-                $host = $scheme . '://' . $_SERVER['HTTP_HOST'] . $host;
+                // the host of the site URL, which define.inc.php validated (and pinned to
+                // EVO_SITE_HOSTNAMES when set): the raw Host header let a forged request put
+                // another domain into links, and into pages cached from that request
+                $host = $scheme . '://' . $this->siteAuthority() . $host;
             }
         }
 
@@ -773,6 +776,20 @@ class UrlProcessor
         }
 
         return null;
+    }
+
+    /**
+     * "host" or "host:port" of the site URL, for a link that changes the scheme.
+     */
+    protected function siteAuthority(): string
+    {
+        $siteUrl = (string) $this->core->getConfig('site_url', defined('EVO_SITE_URL') ? EVO_SITE_URL : '');
+        $parts = parse_url($siteUrl);
+        if (!is_array($parts) || empty($parts['host'])) {
+            return 'localhost';
+        }
+
+        return $parts['host'] . (isset($parts['port']) ? ':' . $parts['port'] : '');
     }
 
     public function makeUrlWithString($id)
