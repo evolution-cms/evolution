@@ -558,7 +558,21 @@
                                 r = JSON.parse(r);
                                 for (var k in r) {
                                     if (r.hasOwnProperty(k) && r[k].url) {
-                                        r[k]['onclick'] = 'if(event.shiftKey){evo.openWindow({url:\'' + r[k].url + '\'})}else{evo.popup({url:\'' + r[k].url + '\',title:\'' + r.header.innerHTML + '\',width:\'95%\',height:\'95%\',margin:0,hide:0,hover:0,overlay:1,overlayclose:0,position:\'center elements\',animation:0,icon:\'none\'})}';
+                                        // showPopup() evals this: element names may hold quotes, so pass them as JSON literals
+                                        r[k]['onclick'] = 'if(event.shiftKey){evo.openWindow(' + JSON.stringify({ url: String(r[k].url) }) + ')}else{evo.popup(' + JSON.stringify({
+                                            url: String(r[k].url),
+                                            title: String(r.header && r.header.innerHTML || ''),
+                                            width: '95%',
+                                            height: '95%',
+                                            margin: 0,
+                                            hide: 0,
+                                            hover: 0,
+                                            overlay: 1,
+                                            overlayclose: 0,
+                                            position: 'center elements',
+                                            animation: 0,
+                                            icon: 'none'
+                                        }) + ')}';
                                     }
                                 }
                                 r = JSON.stringify(r);

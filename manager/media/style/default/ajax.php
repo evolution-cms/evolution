@@ -374,7 +374,7 @@ if (isset($action)) {
                                 ],
                                 'item' => [
                                     'innerHTML' => '<i class="' . $_style['icon_add'] . '"></i> ' . $_lang['new_snippet'],
-                                    'url' => "index.php?a=23&itemname=" . entities($name, evo()->getConfig('modx_charset'))
+                                    'url' => "index.php?a=23&itemname=" . rawurlencode($name)
                                 ]
                             ];
                         }
@@ -409,7 +409,7 @@ if (isset($action)) {
                                 ],
                                 'item' => [
                                     'innerHTML' => '<i class="' . $_style['icon_add'] . '"></i> ' . $_lang['new_htmlsnippet'],
-                                    'url' => "index.php?a=77&itemname=" . entities($name, evo()->getConfig('modx_charset'))
+                                    'url' => "index.php?a=77&itemname=" . rawurlencode($name)
                                 ]
                             ];
                         }
@@ -465,11 +465,11 @@ if (isset($action)) {
                                     ],
                                     'item' => [
                                         'innerHTML' => '<i class="' . $_style['icon_add'] . '"></i> ' . $_lang['new_htmlsnippet'],
-                                        'url' => "index.php?a=77&itemname=" . entities($name, evo()->getConfig('modx_charset'))
+                                        'url' => "index.php?a=77&itemname=" . rawurlencode($name)
                                     ],
                                     'item2' => [
                                         'innerHTML' => '<i class="' . $_style['icon_add'] . '"></i> ' . $_lang['new_snippet'],
-                                        'url' => "index.php?a=23&itemname=" . entities($name, evo()->getConfig('modx_charset'))
+                                        'url' => "index.php?a=23&itemname=" . rawurlencode($name)
                                     ]
                                 ];
                             }
@@ -551,7 +551,7 @@ if (isset($action)) {
                                 ],
                                 'item' => [
                                     'innerHTML' => '<i class="' . $_style['icon_add'] . '"></i> ' . $_lang['new_tmplvars'],
-                                    'url' => "index.php?a=300&itemname=" . entities($name, evo()->getConfig('modx_charset'))
+                                    'url' => "index.php?a=300&itemname=" . rawurlencode($name)
                                 ]
                             ];
                         }
