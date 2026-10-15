@@ -20,9 +20,9 @@ if ($contents->count() < 1) {
 
 $tpl = '<tr>
     <td data-toggle="collapse" data-target=".collapse[+id+]" class="text-nowrap text-right"><span class="label label-info">[+id+]</span></td>
-    <td data-toggle="collapse" data-target=".collapse[+id+]"><a class="[+status+]" title="[%edit_resource%]" href="index.php?a=3&amp;id=[+id+]" target="main">[+pagetitle:htmlentities+]</a></td>
+    <td data-toggle="collapse" data-target=".collapse[+id+]"><a class="[+status+]" title="[%edit_resource%]" href="index.php?a=3&amp;id=[+id+]" target="main">[+pagetitle+]</a></td>
     <td data-toggle="collapse" data-target=".collapse[+id+]" class="text-right text-nowrap">[+edit_date+]</td>
-    <td data-toggle="collapse" data-target=".collapse[+id+]">[+username:htmlentities+]</td>
+    <td data-toggle="collapse" data-target=".collapse[+id+]">[+username+]</td>
     <td style="text-align: right;" class="actions">[+edit_btn+][+publish_btn+][+delete_btn+][+info_btn+][+preview_btn+]</td>
 </tr>
 <tr class="resource-overview-accordian collapse collapse[+id+]">
@@ -36,7 +36,7 @@ $tpl = '<tr>
                 <li><b>[%resource_alias%]</b>: [+alias+]</li>
                 <li><b>[%page_data_cacheable%]</b>: [+cacheable+]</li>
                 <li><b>[%resource_opt_show_menu%]</b>: [+hidemenu+]</li>
-                <li><b>[%page_data_template%]</b>: [+template:templatename:htmlentities+]</li>
+                <li><b>[%page_data_template%]</b>: [+templatename+]</li>
             </ul>
         </div>
     </td>
@@ -46,12 +46,21 @@ $btntpl['edit'] = '<a title="[%edit_resource%]" href="index.php?a=27&amp;id=[+id
 $btntpl['preview_btn'] = '<a class="[+preview_disabled+]" title="[%preview_resource%]" target="_blank" href="../index.php?&amp;id=[+id+]">' . $_style['icon_eye'] . '</a> ';
 
 $output = [];
+$templateNames = [];
 foreach ($contents->get()->toArray() as $ph) {
     $docid = $ph['id'];
     $_ = evo()->getUserInfo($ph['editedby']);
-    if (isset($_['username'])) {
-        $ph['username'] = $_['username'];
+    $ph['username'] = escape_html_and_tags($_['username'] ?? '');
+    // The rows are parsed again with the dashboard, so editor-supplied text is escaped for
+    // parser tags as well as HTML: a page title must not run [[snippets]] for the viewer.
+    $ph['pagetitle'] = escape_html_and_tags($ph['pagetitle']);
+    $templateId = (int) $ph['template'];
+    if (!array_key_exists($templateId, $templateNames)) {
+        // same fallback as the templatename modifier this replaces
+        $templateNames[$templateId] = (string) (\EvolutionCMS\Models\SiteTemplate::query()
+            ->whereKey($templateId)->value('templatename') ?? '(blank)');
     }
+    $ph['templatename'] = escape_html_and_tags($templateNames[$templateId]);
 
     if ($ph['deleted'] == 1) {
         $ph['status'] = 'deleted text-danger';
@@ -99,10 +108,10 @@ foreach ($contents->get()->toArray() as $ph) {
 
     $ph['publish_btn'] = str_replace('[+id+]', $docid, $publish_btn);
     $ph['info_btn'] = str_replace('[+id+]', $docid, '<a title="[%resource_overview%]" data-toggle="collapse" data-target=".collapse[+id+]">' . $_style['icon_info'] . '</a>');
-    $ph['longtitle'] = $ph['longtitle'] == '' ? '(<i>[%not_set%]</i>)' : entities($ph['longtitle']);
-    $ph['description'] = $ph['description'] == '' ? '(<i>[%not_set%]</i>)' : entities($ph['description']);
-    $ph['introtext'] = $ph['introtext'] == '' ? '(<i>[%not_set%]</i>)' : entities($ph['introtext']);
-    $ph['alias'] = $ph['alias'] == '' ? '(<i>[%not_set%]</i>)' : entities($ph['alias']);
+    $ph['longtitle'] = $ph['longtitle'] == '' ? '(<i>[%not_set%]</i>)' : escape_html_and_tags($ph['longtitle']);
+    $ph['description'] = $ph['description'] == '' ? '(<i>[%not_set%]</i>)' : escape_html_and_tags($ph['description']);
+    $ph['introtext'] = $ph['introtext'] == '' ? '(<i>[%not_set%]</i>)' : escape_html_and_tags($ph['introtext']);
+    $ph['alias'] = $ph['alias'] == '' ? '(<i>[%not_set%]</i>)' : escape_html_and_tags($ph['alias']);
     $ph['edit_date'] = evo()->toDateFormat(evo()->timestamp($ph['editedon']));
     $ph['doctype'] = $ph['type'] == 'reference' ? '[%weblink%]' : '[%resource%]';
     $ph['hidemenu'] = $ph['hidemenu'] == 1 ? '[%no%]' : '[%yes%]';

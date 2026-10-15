@@ -454,6 +454,28 @@ if (!function_exists('replace_array')) {
     }
 }
 
+if (!function_exists('escape_html_and_tags')) {
+    /**
+     * Escape stored text for markup that the CMS parser still runs over afterwards.
+     *
+     * `e()` alone stops HTML, but `[[Snippet]]`, `{{chunk}}`, `[(setting)]` and `[!...!]` survive it,
+     * and a manager page built with ManagerTheme::makeTemplate() (the dashboard widgets) or a
+     * snippet whose output is parsed again would then run them in the viewer's request. The
+     * brackets and the backtick are written as numeric entities, which the browser shows unchanged
+     * and the parser no longer reads as tags.
+     *
+     * @since 3.5.8
+     */
+    function escape_html_and_tags($value): string
+    {
+        if (!is_scalar($value)) {
+            return '';
+        }
+
+        return (string) replace_array(e((string) $value));
+    }
+}
+
 if (!function_exists('safe_html')) {
     /**
      * Turn untrusted, possibly HTML-flavoured text into markup that is safe to print with `{{ }}`.

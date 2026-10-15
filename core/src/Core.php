@@ -4060,16 +4060,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             return;
         }
 
-        // Get user IP
-        if (getenv('HTTP_CLIENT_IP')) {
-            $_SESSION['ip'] = getenv('HTTP_CLIENT_IP');
-        } elseif (getenv('HTTP_X_FORWARDED_FOR')) {
-            $_SESSION['ip'] = getenv('HTTP_X_FORWARDED_FOR');
-        } elseif (getenv('REMOTE_ADDR')) {
-            $_SESSION['ip'] = getenv('REMOTE_ADDR');
-        } else {
-            $_SESSION['ip'] = 'UNKNOWN';
-        }
+        // Get user IP; the forwarding headers are client-controlled, so only a well-formed address is kept
+        $_SESSION['ip'] = Support\ClientIp::fromServer($_SERVER);
 
         // web users are stored with negative keys
         $userId = $this->getLoginUserType() == 'manager' ? $this->getLoginUserID() : -$this->getLoginUserID();
@@ -7293,7 +7285,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         ];
 
         if ($module_id = $this->registerModule($name, $file, $icon, $params)) {
-            Route::middleware('mgr')
+            // the module ACL of execute_module.processor.php, which these routes never pass through
+            Route::middleware(['mgr', Middleware\RoutingModuleAccess::class . ':' . $module_id])
                 ->prefix('modules/' . $module_id)
                 ->group($file);
 

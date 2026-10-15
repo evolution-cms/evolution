@@ -157,8 +157,8 @@
     </table>';
 
     $ph['UserInfo'] = evo()->parseText($tpl, [
-        'username' => evo()->getLoginUserName(),
-        'role' => $_SESSION['mgrPermissions']['name'],
+        'username' => escape_html_and_tags(evo()->getLoginUserName()),
+        'role' => escape_html_and_tags($_SESSION['mgrPermissions']['name'] ?? ''),
         'lastlogin' => evo()->toDateFormat(evo()->timestamp($_SESSION['mgrLastlogin'])),
         'logincount' => $_SESSION['mgrLogincount'] + 1,
     ]);
@@ -221,15 +221,17 @@
                     }
                 }
                 $lasthit = date('H:i:s', evo()->timestamp($activeUser['lasthit']));
+                // The table is merged into the welcome template, which the CMS parser runs over:
+                // stored values are escaped for HTML and for parser tags alike.
                 $userList[] = [
                     $idle,
                     '',
-                    $activeUser['username'],
+                    escape_html_and_tags($activeUser['username']),
                     $webicon,
                     abs($activeUser['internalKey']),
-                    $ip,
+                    escape_html_and_tags($ip),
                     $lasthit,
-                    $currentaction
+                    escape_html_and_tags($currentaction)
                 ];
             }
             foreach ($userList as $params) {
@@ -280,11 +282,11 @@
             $entries = count($feed->item) ? $feed->item : $feed->entry;
             $items = array_slice(iterator_to_array($entries, false), 0, $itemsNumber);
         } catch (\Exception $exception) {
-            $feedData[$section] = 'Failed to retrieve ' . e($url);
+            $feedData[$section] = 'Failed to retrieve ' . escape_html_and_tags($url);
             continue;
         }
         if (empty($items)) {
-            $feedData[$section] = 'Failed to retrieve ' . e($url);
+            $feedData[$section] = 'Failed to retrieve ' . escape_html_and_tags($url);
             continue;
         }
         $output = '<ul>';
@@ -304,19 +306,19 @@
                     new \GuzzleHttp\Psr7\Uri($link)
                 );
                 $href = in_array(strtolower((string) parse_url($link, PHP_URL_SCHEME)), ['http', 'https'], true)
-                    ? e($link) : '#';
+                    ? escape_html_and_tags($link) : '#';
             } catch (\InvalidArgumentException $exception) {
                 $href = '#';
             }
-            $title = e((string) $item->title);
+            $title = escape_html_and_tags((string) $item->title);
             $timestamp = (int) $item->timestamp;
-            $pubdate = $timestamp > 0 ? e(evo()->toDateFormat($timestamp)) : '';
+            $pubdate = $timestamp > 0 ? escape_html_and_tags(evo()->toDateFormat($timestamp)) : '';
             $description = strip_tags((string) ($item->{'content:encoded'} ?? $item->content ?? $item->description ?? $item->summary ?? ''));
             if (strlen($description) > 199) {
-                $description = e(\Illuminate\Support\Str::words($description, 15, '...'));
+                $description = escape_html_and_tags(\Illuminate\Support\Str::words($description, 15, '...'));
                 $description .= '<br />Read <a href="' . $href . '" target="_blank" rel="noopener noreferrer">more</a>.';
             } else {
-                $description = e($description);
+                $description = escape_html_and_tags($description);
             }
             $output .= '<li><a href="' . $href . '" target="_blank" rel="noopener noreferrer">' . $title . '</a> - <b>' . $pubdate . '</b><br />' . $description . '</li>';
         }

@@ -267,6 +267,7 @@ manager. Prefer these, in this order:
 | Anything inside a `<script>` element or an inline event handler | `@js($value)` (or `js_json()` for a raw JSON island) |
 | Stored short text rendered in a cell or label (element descriptions, captions) | `{{ sanitize_inline_html($value) }}` |
 | Stored rich markup that must keep looking the way it does (Event Log reports) | `{{ sanitize_rich_html($value) }}` |
+| Stored text that the CMS parser runs over afterwards (`ManagerTheme::makeTemplate()` placeholders such as dashboard widgets, theme snippet output) | `escape_html_and_tags($value)` - `e()` alone leaves `[[snippet]]`, `{{chunk}}` and `[(setting)]` to run in the viewer's request |
 | Theme icons | `{{ icon_html($_style['icon_x']) }}` / `icon_markup()` for string concatenation |
 | Theme style blocks and lexicon entries that ship their own markup | `{{ ManagerTheme::styleHtml('key') }}` / `{{ ManagerTheme::lexiconHtml('key', [...]) }}` |
 | Markup a PHP producer builds itself | return `Illuminate\Support\HtmlString` and print it with `{{ }}` |

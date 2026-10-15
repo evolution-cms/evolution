@@ -12,14 +12,15 @@ class Manager
         // Update last action in table active_users
         global $action;
         $action = ManagerTheme::getActionId();
+        $dispatcher = static::isActionDispatcher($request);
 
         // accesscontrol.php checks to see if the user is logged in. If not, a log in form is shown
-        if (0 !== $action && ManagerTheme::isAuthManager() === false) {
+        if (!static::skipsLogin($action, $dispatcher) && ManagerTheme::isAuthManager() === false) {
             return ManagerTheme::renderLoginPage();
         }
 
         // Ignore Logout and LogIn action
-        if (8 !== $action && 0 !== $action && ManagerTheme::hasManagerAccess() === false) {
+        if (!static::skipsManagerAccess($action, $dispatcher) && ManagerTheme::hasManagerAccess() === false) {
             return ManagerTheme::renderAccessPage();
         }
 
@@ -28,6 +29,42 @@ class Manager
         }
 
         return $next($request);
+    }
+
+    /**
+     * Whether the request goes to the manager's own action dispatcher (`manager/index.php`, route
+     * `/`), the only route where `a` selects a page.
+     *
+     * Every other route in the `mgr` group (routing modules under `modules/{id}`, add-on endpoints)
+     * ignores `a`, so the login exemption must not follow it there: getActionId() returns 0 for any
+     * value that is not a valid action id, and `modules/{id}/...?a=x` used to reach a module as a
+     * guest.
+     */
+    public static function isActionDispatcher($request): bool
+    {
+        $route = method_exists($request, 'route') ? $request->route() : null;
+        if ($route === null) {
+            // no route resolved: nothing but the dispatcher can be served
+            return true;
+        }
+
+        return trim((string) $route->uri(), '/') === '';
+    }
+
+    /**
+     * The login action (0) is the only page a guest may open, and only on the dispatcher.
+     */
+    public static function skipsLogin(?int $action, bool $dispatcher): bool
+    {
+        return $dispatcher && $action === 0;
+    }
+
+    /**
+     * Login (0) and logout (8) are open to a signed-in user without manager access, on the dispatcher.
+     */
+    public static function skipsManagerAccess(?int $action, bool $dispatcher): bool
+    {
+        return $dispatcher && ($action === 0 || $action === 8);
     }
 
     /**
