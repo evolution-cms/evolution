@@ -41,7 +41,8 @@ $_CONFIG = [
     'assetsURL'           => $uploadUrl,
     'dirPerms'            => intval(EvolutionCMS()->getConfig('new_folder_permissions'), 8),
     'filePerms'           => intval(EvolutionCMS()->getConfig('new_file_permissions'), 8),
-    'maxfilesize'         => (int)EvolutionCMS()->getConfig('upload_maxsize'),
+    // what PHP accepts as well: the setting alone let the browser send files the server then refused
+    'maxfilesize'         => \EvolutionCMS\Support\UploadLimits::fileLimit(EvolutionCMS()->getConfig('upload_maxsize')),
     'noThumbnailsRecreation' => EvolutionCMS()->getConfig('noThumbnailsRecreation'),
 
     'access' => [

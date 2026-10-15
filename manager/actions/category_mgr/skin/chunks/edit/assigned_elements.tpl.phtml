@@ -2,11 +2,11 @@
   <?php foreach( $data as $element => $items ) : ?>
   <h5><b><?php echo $view->txt( $element ); ?></b></h5>
   <?php if( empty( $items ) ) : ?>
-  <p class="no_assigned_elements"><?php echo sprintf( $view->txt('cm_no_x_assigned'), $element ); ?></p>
+  <p class="no_assigned_elements"><?php echo e(sprintf( $view->txt('cm_no_x_assigned'), $element )); ?></p>
   <?php else: ?>
   <ul>
     <?php foreach( $items as $item ) : ?>
-    <li><?php echo (strtolower($element)==='templates')? $item['templatename'] : $item['name']; ?></li>
+    <li><?php echo e(strtolower($element) === 'templates' ? $item['templatename'] : $item['name']); ?></li>
     <?php endforeach; ?>
   </ul>
   <?php endif; ?>

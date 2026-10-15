@@ -168,3 +168,11 @@ it('marks the session cookie Secure on https unless told otherwise', function ()
         ->toContain("\$_SERVER['HTTPS'] !== 'off'")
         ->and($source)->not->toContain("env('SESSION_SECURE_COOKIE', false)");
 });
+
+it('pins SERVER_NAME to the configured name in every nginx php block', function () {
+    $nginx = evoFile('ng.inx');
+
+    expect(substr_count($nginx, 'fastcgi_pass {php_backend};'))
+        ->toBe(substr_count($nginx, 'fastcgi_param SERVER_NAME $server_name;'))
+        ->and($nginx)->not->toContain('fastcgi_param SERVER_NAME $host');
+});

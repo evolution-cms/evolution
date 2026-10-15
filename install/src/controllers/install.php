@@ -7,9 +7,11 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-if (file_exists(dirname(__DIR__, 3) . '/assets/cache/siteManager.php')) {
+// install/index.php has resolved MGR_DIR already; these are fallbacks for a direct include
+if (!defined('MGR_DIR') && file_exists(dirname(__DIR__, 3) . '/assets/cache/siteManager.php')) {
     include_once dirname(__DIR__, 3) . '/assets/cache/siteManager.php';
-} else {
+}
+if (!defined('MGR_DIR')) {
     define('MGR_DIR', 'manager');
 }
 

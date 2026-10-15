@@ -83,9 +83,10 @@ if (($_POST['rminstaller'] ?? null) === '1') {
     }
 }
 
-// The lock has served its purpose either way: it exists only to carry the installation - and
-// this last step of it - through, and a stale file in the web root is not worth keeping.
-if ($msg === '') {
+// With the folder gone the lock has served its purpose. A kept folder keeps its lock: the
+// installer stays open to this session while it lives (so the site can be checked first), and
+// shuts by itself once it expires, since the site is installed by now.
+if ($msg === '' && !is_dir($installPath)) {
     @unlink($lockFile);
 }
 

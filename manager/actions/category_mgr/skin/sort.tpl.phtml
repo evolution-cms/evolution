@@ -21,14 +21,14 @@
                 <?php
                 $i = 0;
                 foreach ($data as $category): ?>
-                    <tr id="item_<?= $category['id'] ?>">
+                    <tr id="item_<?= (int)$category['id'] ?>">
                         <td>
-                            <i class="<?= $_style['icon_category'] ?>"></i> <?= $category['category'] ?>
-                            <input type="hidden" class="sort" name="<?= $view->get('request_key') ?>[sort][data][<?= $category['id'] ?>][rank]" value="<?= $category['rank'] ?>" />
-                            <input type="hidden" name="<?= $view->get('request_key') ?>[sort][data][<?= $category['id'] ?>][id]" value="<?= $category['id'] ?>" />
-                            <input type="hidden" name="<?= $view->get('request_key') ?>[sort][data][<?= $category['id'] ?>][category]" value="<?= urlencode($category['category']) ?>" />
+                            <i class="<?= $_style['icon_category'] ?>"></i> <?= e($category['category']) ?>
+                            <input type="hidden" class="sort" name="<?= $view->get('request_key') ?>[sort][data][<?= (int)$category['id'] ?>][rank]" value="<?= (int)$category['rank'] ?>" />
+                            <input type="hidden" name="<?= $view->get('request_key') ?>[sort][data][<?= (int)$category['id'] ?>][id]" value="<?= (int)$category['id'] ?>" />
+                            <input type="hidden" name="<?= $view->get('request_key') ?>[sort][data][<?= (int)$category['id'] ?>][category]" value="<?= urlencode($category['category']) ?>" />
                         </td>
-                        <td><span class="sort"><?= $category['rank'] ?></span></td>
+                        <td><span class="sort"><?= (int)$category['rank'] ?></span></td>
                     </tr>
                     <?php
                     $i++;

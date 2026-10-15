@@ -1,10 +1,10 @@
 <?php namespace EvolutionCMS\Controllers\Users;
 
 use EvolutionCMS\Controllers\AbstractController;
-use EvolutionCMS\Exceptions\ServiceActionException;
 use EvolutionCMS\Exceptions\ServiceValidationException;
 use EvolutionCMS\Models;
 use EvolutionCMS\Interfaces\ManagerTheme;
+use EvolutionCMS\Support\AdminAccountGuard;
 use Illuminate\Support\Facades\Lang;
 
 class DeleteUser extends AbstractController implements ManagerTheme\PageControllerInterface
@@ -33,6 +33,9 @@ class DeleteUser extends AbstractController implements ManagerTheme\PageControll
             evo()->webAlertAndQuit(Lang::get('global.delete_yourself'));
         }
         $user = Models\UserAttribute::query()->where('internalKey', $_GET['id'])->first();
+        if (!is_null($user) && !AdminAccountGuard::mayManageAccount((int) ($_SESSION['mgrRole'] ?? 0), (int) $user->role)) {
+            evo()->webAlertAndQuit(Lang::get('global.admin_account_protected'));
+        }
         if($user->role == 1){
             $otherAdmin = Models\UserAttribute::query()->where('role', 1)->where('internalKey', '!=', $_GET['id'])->count();
             if($otherAdmin == 0){

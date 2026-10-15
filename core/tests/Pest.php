@@ -13,6 +13,10 @@
 
 pest()->extend(Tests\TestCase::class)->in('Feature');
 
+// errors silenced with @ stay out of the results, see the trait (Tests\TestCase, and with it
+// every Feature test and class-style test, uses it already)
+pest()->use(Tests\Support\HonoursErrorSuppression::class)->in('Unit');
+
 /*
 |--------------------------------------------------------------------------
 | Expectations

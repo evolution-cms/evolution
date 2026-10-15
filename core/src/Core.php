@@ -3365,15 +3365,21 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         unset($_GET[$k[0]], $_REQUEST[$k[0]]);
         // remove 404,405 entry
         $qp = parse_url(str_replace(EVO_SITE_URL, '', substr($url, 4)));
-        $_SERVER['QUERY_STRING'] = $qp['query'];
-        if ($qp['query']) {
-            parse_str($qp['query'], $qv);
+        $qp = is_array($qp) ? $qp : [];
+        $query = (string) ($qp['query'] ?? '');
+        $path = (string) ($qp['path'] ?? '');
+        $_SERVER['QUERY_STRING'] = $query;
+        if ($query !== '') {
+            parse_str($query, $qv);
+            // protect.inc.php has already run, so the rebuilt values need the same treatment
+            modx_sanitize_gpc($qv);
             foreach ($qv as $n => $v) {
                 $_REQUEST[$n] = $_GET[$n] = $v;
             }
         }
-        $_SERVER['PHP_SELF'] = EVO_BASE_URL . $qp['path'];
-        $this->q = $qp['path'];
+        $path = getSanitizedValue($path);
+        $_SERVER['PHP_SELF'] = EVO_BASE_URL . $path;
+        $this->q = $path;
     }
 
     /**
@@ -3556,9 +3562,25 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         } elseif (Str::contains($url, '[~')) {
             $url = UrlProcessor::rewriteUrls($url); // if it's an internal docid tag, process it
         }
+        $url = $this->resolveWeblinkPath($url);
         // The resource's stored link is trusted configuration, not a request return URL.
         $this->sendRedirect($url, 0, '', 302, true);
         exit;
+    }
+
+    /**
+     * Anchors a site-relative weblink path ("assets/files/doc.pdf", as the file browser inserts it)
+     * to the site base URL. Front-end pages resolve such paths through <base href>, but a Location
+     * header is resolved against the weblink's own URL, so "/folder/link/" would become
+     * "/folder/link/assets/files/doc.pdf".
+     */
+    public function resolveWeblinkPath(string $url, ?string $baseUrl = null): string
+    {
+        if ($url === '' || str_contains('/?#\\', $url[0]) || preg_match('@^[a-z][a-z0-9+.-]*:@i', $url)) {
+            return $url;
+        }
+
+        return rtrim($baseUrl ?? EVO_BASE_URL, '/') . '/' . $url;
     }
 
     /**
@@ -4054,16 +4076,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             return;
         }
 
-        // Get user IP
-        if (getenv('HTTP_CLIENT_IP')) {
-            $_SESSION['ip'] = getenv('HTTP_CLIENT_IP');
-        } elseif (getenv('HTTP_X_FORWARDED_FOR')) {
-            $_SESSION['ip'] = getenv('HTTP_X_FORWARDED_FOR');
-        } elseif (getenv('REMOTE_ADDR')) {
-            $_SESSION['ip'] = getenv('REMOTE_ADDR');
-        } else {
-            $_SESSION['ip'] = 'UNKNOWN';
-        }
+        // Get user IP; the forwarding headers are client-controlled, so only a well-formed address is kept
+        $_SESSION['ip'] = Support\ClientIp::fromServer($_SERVER);
 
         // web users are stored with negative keys
         $userId = $this->getLoginUserType() == 'manager' ? $this->getLoginUserID() : -$this->getLoginUserID();
@@ -5041,6 +5055,17 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     /**
      * getTpl
      * get template for snippets
+     *
+     * Security: $tpl must come from the site's own configuration (snippet call parameters an
+     * administrator wrote), never from the request or from a field an editor can change. Nothing
+     * in core calls this method, but extras do, and its bindings are not restricted:
+     * - @FILE reads any file the PHP process can read, `..` included - it does not go through
+     *   atBindFileContent(), which @FILE in templates and TVs uses to stay inside the site and
+     *   away from manager/, core/ and secrets;
+     * - @SELECT runs its argument as raw SQL.
+     * A snippet that passes user input on should resolve the template itself (getChunk(), or
+     * atBindFileContent() for files) instead of handing the value to getTpl().
+     *
      * @param $tpl {string}
      * @return bool|string {string}
      * @throws InvalidFieldException
@@ -7276,7 +7301,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         ];
 
         if ($module_id = $this->registerModule($name, $file, $icon, $params)) {
-            Route::middleware('mgr')
+            // the module ACL of execute_module.processor.php, which these routes never pass through
+            Route::middleware(['mgr', Middleware\RoutingModuleAccess::class . ':' . $module_id])
                 ->prefix('modules/' . $module_id)
                 ->group($file);
 

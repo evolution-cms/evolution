@@ -42,6 +42,7 @@ $_lang["template_management_msg"] = 'Redaktə etmək istədiyiniz Şablonu seçi
 $_lang["template_msg"] = 'Şablonlar yaradın və redaktə edin. Dəyişdirilmiş və ya yeni Şablonlar, saytınızın keşlənmiş səhifələrində yalnız keşi boşaltdıqdan sonra görünəcək, lakin, səhifə önizləmə funksiyasından istifadə edərək Şablonu yoxlaya bilərsiniz.';
 $_lang["template_name"] = 'Şablon adı';
 $_lang["template_no_tv"] = 'Bu Şablona hələ Şablon Dəyişənləri təyin olunmayıb.';
+$_lang["template_not_found"] = 'Şablon #%s tapılmadı: o silinib və ya heç vaxt mövcud olmayıb. Resurs redaktorunda başqa şablon seçin.';
 $_lang["template_notassigned_tv"] = 'Bu Şablon Dəyişənləri təyin oluna bilər.';
 $_lang["template_reset_all"] = 'Bütün səhifələri Standart Şablona qaytar';
 $_lang["template_reset_specific"] = 'Yalnız \'%s\' səhifələrini yenidən təyin et';
@@ -626,6 +627,7 @@ $_lang["confirm_delete_user"] = 'Bu İstifadəçini silmək istədiyinizə əmin
 
 $_lang["delete_yourself"] = 'Özünüzü silə bilməzsiniz';
 $_lang["delete_last_admin"] = 'Sonuncu administratoru silə bilməzsiniz';
+$_lang["admin_account_protected"] = 'Administrator hesabını yalnız administrator dəyişə və ya silə bilər';
 
 $_lang["confirm_delete_permission"] = 'Bu icazəni silmək istədiyinizə əminsiniz?';
 $_lang["confirm_duplicate_record"] = 'Bu qeydi təkrarlamaq istədiyinizə əminsiniz?';
@@ -1297,8 +1299,14 @@ $_lang["untitled_weblink"] = 'Adsız Veb bağlantı';
 $_lang["update_params"] = 'Parametrlərin görünüşünü yenilə';
 $_lang["update_settings_from_language"] = 'Cari dili bununla əvəz et:';
 
+$_lang["upload_file_too_large"] = '"%1$s" faylının ölçüsü %2$s-dır, lakin fayl ən çox %3$s ola bilər. Heç nə yüklənmədi.';
+$_lang["upload_files_too_large"] = 'Seçilmiş faylların ümumi ölçüsü %1$s-dır, lakin bir yükləmə ən çox %2$s ola bilər. Heç nə yüklənmədi: daha az və ya daha kiçik fayllar seçin.';
+$_lang["upload_limits_hint"] = 'Hər fayl üçün %1$s, hər yükləmə üçün %2$s-a qədər.';
 $_lang["upload_maxsize_message"] = 'Fayl meneceri vasitəsilə yüklənə bilən maksimum fayl ölçüsünü daxil edin. Yüklənəcək fayl ölçüsü baytlarda göstərilməlidir. <b>QEYD: Böyük faylların yüklənməsi çox uzun çəkə bilər!</b>';
 $_lang["upload_maxsize_title"] = 'Maksimum yükləmə ölçüsü';
+$_lang["upload_request_back"] = 'Geri';
+$_lang["upload_request_too_large"] = 'Sorğu qəbul edilmədi: onun ölçüsü %1$s-dır, lakin bu server bir sorğuda ən çox %2$s qəbul edir (PHP post_max_size). Heç nə saxlanılmadı.';
+$_lang["upload_request_too_large_hint"] = 'Daha az və ya daha kiçik fayllar yükləyin, yaxud administratordan post_max_size və upload_max_filesize dəyərlərini artırmağı xahiş edin.';
 $_lang["uploadable_files_message"] = '\'assets/files/\' qovluğuna Fayl Brauzeri vasitəsilə yüklənə bilən faylların siyahısını daxil edin. Fayl tiplərinin uzantılarını vergüllə ayıraraq yazın.';
 $_lang["uploadable_files_title"] = 'Yüklənə bilən fayl tipləri';
 $_lang["uploadable_flash_message"] = '\'assets/flash/\' qovluğuna Fayl Brauzeri vasitəsilə yüklənə bilən flash faylların siyahısını daxil edin. Flash fayl tiplərinin uzantılarını vergüllə ayıraraq yazın.';

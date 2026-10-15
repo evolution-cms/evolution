@@ -223,7 +223,8 @@ if (!function_exists('modx_sanitize_gpc')) {
         $depth++;
         foreach ($values as $key => $value) {
             if (is_array($value)) {
-                modx_sanitize_gpc($value, $depth);
+                // Recurse into the element itself: $value is a copy, so `?a[b]=[[x]]` used to keep its tags
+                modx_sanitize_gpc($values[$key], $depth);
             } else {
                 $values[$key] = getSanitizedValue($value);
             }

@@ -207,6 +207,7 @@ include_once EVO_MANAGER_PATH . "includes/header.inc.php";
                     $grd->colTypes = "template:<input type='" . ($sm == 'm' ? 'checkbox' : 'radio') . "' name='id[]' value='[+id+]' onclick='setCheckbox(this);'> [+value+]";
                     $grd->colWidths = "45%";
                     $grd->fields = "name,description";
+                    $grd->escapeFields = ['name', 'description'];
                     if ($listmode === 1) {
                         $grd->pageSize = 0;
                     }

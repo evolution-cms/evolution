@@ -37,6 +37,7 @@
 
 # Composer
 /composer.phar
+/composer.lock
 
 /vendor
 !/vendor/index.html

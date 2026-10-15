@@ -145,7 +145,8 @@ it('works when the type folder itself is a symlink to a shared folder', function
 it('reports an ordinary folder below the type folder as writable', function () {
     require_once dirname(__DIR__, 4) . '/manager/media/browser/mcpuk/lib/helper_path.php';
     require_once dirname(__DIR__, 4) . '/manager/media/browser/mcpuk/lib/helper_dir.php';
-    foreach (['config' => ['uploadDir' => $this->tmp], 'session' => ['dir' => 'images']] as $name => $value) {
+    // the constructor that reads the date format from the language file is skipped here
+    foreach (['config' => ['uploadDir' => $this->tmp], 'session' => ['dir' => 'images'], 'dateTimeSmall' => 'Y-m-d H:i'] as $name => $value) {
         $property = new ReflectionProperty(uploader::class, $name);
         $property->setAccessible(true);
         $property->setValue($this->browser, $value);

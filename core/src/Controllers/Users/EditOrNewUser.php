@@ -1,10 +1,8 @@
 <?php namespace EvolutionCMS\Controllers\Users;
 
 use EvolutionCMS\Controllers\AbstractController;
-use EvolutionCMS\Exceptions\ServiceActionException;
-use EvolutionCMS\Exceptions\ServiceValidationException;
-use EvolutionCMS\Models;
 use EvolutionCMS\Interfaces\ManagerTheme;
+use EvolutionCMS\Support\AdminAccountGuard;
 
 class EditOrNewUser extends AbstractController implements ManagerTheme\PageControllerInterface
 {
@@ -40,6 +38,14 @@ class EditOrNewUser extends AbstractController implements ManagerTheme\PageContr
             } else {
                 $userData['password'] = $userData['specifiedpassword'];
                 $userData['password_confirmation'] = $userData['confirmpassword'];
+            }
+        }
+        $actorRole = (int) ($_SESSION['mgrRole'] ?? 0);
+        if ($id !== false && $userData['mode'] != 87) {
+            $targetRole = \EvolutionCMS\Models\UserAttribute::query()->where('internalKey', (int) $id)->value('role');
+            if (!AdminAccountGuard::mayManageAccount($actorRole, is_null($targetRole) ? null : (int) $targetRole)) {
+                webAlertAndQuit(\Lang::get('global.admin_account_protected'), $userData['mode'], $id);
+                exit();
             }
         }
         $userData['username'] = $userData['newusername'];
@@ -145,7 +151,8 @@ class EditOrNewUser extends AbstractController implements ManagerTheme\PageContr
 
         if (isset($userData['role'])
             && $userData['role'] != $user->attributes->role
-            && EvolutionCMS()->hasPermission('save_role')) {
+            && EvolutionCMS()->hasPermission('save_role')
+            && AdminAccountGuard::mayAssignRole($actorRole, (int) $userData['role'])) {
             \UserManager::setRole(['id' => $user->getKey(), 'role' => $userData['role']]);
         }
 

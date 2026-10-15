@@ -601,7 +601,7 @@
                             if ($checked) {
                                 $notPublic = true;
                             }
-                            $chks .= "<li><label><input type='checkbox' name='docgroups[]' value='" . $row['id'] . "' " . ($checked ? "checked='checked'" : '') . " onclick=\"makePublic(false)\" /> " . $row['name'] . "</label></li>";
+                            $chks .= "<li><label><input type='checkbox' name='docgroups[]' value='" . $row['id'] . "' " . ($checked ? "checked='checked'" : '') . " onclick=\"makePublic(false)\" /> " . e((string)$row['name']) . "</label></li>";
                         }
 
                         $chks = "<li><label><input type='checkbox' name='chkalldocs' " . (empty($notPublic) ? "checked='checked'" : '') . " onclick=\"makePublic(true)\" /> <span class='warning'>" . ManagerTheme::getLexicon('all_doc_groups') . "</span></label></li>" . $chks;

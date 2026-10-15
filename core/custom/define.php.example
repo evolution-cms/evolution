@@ -2,13 +2,14 @@
 /**
  * Define constants:
  *  - evolution cms
- *      - HTTPS_PORT
+ *      - HTTPS_PORT        port TLS is served on (default 443); a request to it counts as https.
+ *                          URLs still leave out only 443, so https on 8443 keeps ":8443"
  *      - SESSION_COOKIE_PATH
  *      - SESSION_COOKIE_DOMAIN
  *      - SESSION_COOKIE_NAME
  *      - EVO_CLASS
  *      - EVO_CORE_PATH
- *      - EVO_SITE_HOSTNAMES
+ *      - EVO_SITE_HOSTNAMES  comma separated host[:port] list, no port means 80/443. Wins over SetEnv and .env
  *      - MGR_DIR
  *      - EVO_BASE_PATH
  *      - EVO_BASE_URL

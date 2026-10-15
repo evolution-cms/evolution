@@ -162,6 +162,19 @@ class ExceptionHandler
     }
 
     /**
+     * The event log source is plain text (the list escapes it once), while messageQuit() takes
+     * its message as HTML, with markup and pre-escaped values in it. Tags are dropped and entities
+     * decoded so neither shows up as "&lt;i&gt;" or "&amp;amp;"; a bare "2>1" or "a < b" is
+     * not a tag and stays as it is.
+     *
+     * @since 3.5.9
+     */
+    public static function plainLogSource(string $html): string
+    {
+        return html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    }
+
+    /**
      * @param string $msg
      * @param string $query
      * @param bool $is_error
@@ -198,13 +211,8 @@ class ExceptionHandler
         $table = [];
 
         if (isset($_SERVER['HTTP_HOST'])) {
-            $request_uri = ($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . $_SERVER['HTTP_HOST'];
-            if (!in_array((int) $_SERVER['SERVER_PORT'], [80, (int) HTTPS_PORT]) && !str_contains($_SERVER['HTTP_HOST'], ':')) {
-                $request_uri .= ':' . $_SERVER['SERVER_PORT'];
-            }
-            $request_uri .= $_SERVER['REQUEST_URI'];
             $request_uri = $this->container->getPhpCompat()->htmlspecialchars(
-                $request_uri,
+                static::requestUrl($_SERVER),
                 ENT_QUOTES,
                 $this->container->getConfig('evo_charset')
             );
@@ -377,7 +385,7 @@ class ExceptionHandler
             $source = 'Parser';
         }
         if ($msg) {
-            $source .= ' / ' . $msg;
+            $source .= ' / ' . static::plainLogSource((string) $msg);
         }
         if (isset($actionName) && !empty($actionName)) {
             $source .= $actionName;
@@ -674,5 +682,19 @@ class ExceptionHandler
             '',
             $trace
         );
+    }
+
+    /**
+     * The URL of the current request, as the error report shows it.
+     *
+     * The Host header carries the port the browser used and leaves it out exactly when it is the
+     * scheme's default, the same reading EVO_SITE_URL takes (core/includes/define.inc.php). The
+     * port PHP's server listens on (SERVER_PORT, HTTPS_PORT) says nothing about that URL: behind
+     * a proxy or a published container port it is another number.
+     */
+    public static function requestUrl(array $server): string
+    {
+        return ($server['REQUEST_SCHEME'] ?? 'http') . '://' . ($server['HTTP_HOST'] ?? '')
+            . ($server['REQUEST_URI'] ?? '');
     }
 }

@@ -679,11 +679,11 @@ class browser extends uploader
             } elseif (!file_exists($path)) {
                 $error[] = $this->label("The file '{file}' does not exist.", $replace);
             } elseif (substr($base, 0, 1) == ".") {
-                $error[] = "$base: " . $this->label("File name shouldn't begins with '.'");
+                $error[] = htmlspecialchars($base, ENT_QUOTES, 'UTF-8') . ': ' . $this->label("File name shouldn't begins with '.'");
             } elseif (!$this->validateFilename($base, $type)) {
-                $error[] = "$base: " . $this->label("Denied file extension.");
+                $error[] = htmlspecialchars($base, ENT_QUOTES, 'UTF-8') . ': ' . $this->label("Denied file extension.");
             } elseif ($this->isTaken("$dir/$base")) {
-                $error[] = "$base: " . $this->label("A file or folder with that name already exists.");
+                $error[] = htmlspecialchars($base, ENT_QUOTES, 'UTF-8') . ': ' . $this->label("A file or folder with that name already exists.");
             } elseif (!is_readable($path) || !is_file($path)) {
                 $error[] = $this->label("Cannot read '{file}'.", $replace);
             } elseif (null === ($carried = \EvolutionCMS\Support\FileManagerAccess::carriedRestrictions(
@@ -790,11 +790,11 @@ class browser extends uploader
             } elseif (!file_exists($path)) {
                 $error[] = $this->label("The file '{file}' does not exist.", $replace);
             } elseif (substr($base, 0, 1) == ".") {
-                $error[] = "$base: " . $this->label("File name shouldn't begins with '.'");
+                $error[] = htmlspecialchars($base, ENT_QUOTES, 'UTF-8') . ': ' . $this->label("File name shouldn't begins with '.'");
             } elseif (!$this->validateFilename($base, $type)) {
-                $error[] = "$base: " . $this->label("Denied file extension.");
+                $error[] = htmlspecialchars($base, ENT_QUOTES, 'UTF-8') . ': ' . $this->label("Denied file extension.");
             } elseif ($this->isTaken("$dir/$base")) {
-                $error[] = "$base: " . $this->label("A file or folder with that name already exists.");
+                $error[] = htmlspecialchars($base, ENT_QUOTES, 'UTF-8') . ': ' . $this->label("A file or folder with that name already exists.");
             } elseif (!is_readable($path) || !is_file($path)) {
                 $error[] = $this->label("Cannot read '{file}'.", $replace);
             } elseif ($carriedGroups === null || !$this->canModifyExisting($path)) {

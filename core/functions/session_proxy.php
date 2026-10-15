@@ -349,7 +349,8 @@ class EvoSessionProxy
 
         $secure = (bool) ($config['secure'] ?? (
             (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
-            (isset($_SERVER['SERVER_PORT']) && (int) $_SERVER['SERVER_PORT'] === 443)
+            (isset($_SERVER['SERVER_PORT'])
+                && (int) $_SERVER['SERVER_PORT'] === (int) (defined('HTTPS_PORT') ? HTTPS_PORT : 443))
         ));
 
         setcookie(

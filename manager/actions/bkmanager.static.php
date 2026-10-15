@@ -25,6 +25,16 @@ if (file_exists($tempFile)) {
 $mode = isset($_POST['mode']) ? $_POST['mode'] : '';
 $driver = EvolutionCMS()->getDatabase()->getConfig('driver');
 
+// A restore runs whatever SQL it is handed - pasted, uploaded, or a snapshot file that bk_manager
+// may also upload through the file manager - so it can store a plugin or raise a role. That takes
+// the permission that already grants PHP, not bk_manager alone; taking a backup does not.
+$mayRestore = \EvolutionCMS\Support\BackendCodePermissions::granted();
+if (in_array($mode, ['restore1', 'restore2'], true) && !$mayRestore) {
+    EvolutionCMS()->logEvent(0, 2, 'Database restore refused: it needs one of the permissions that grant PHP ('
+        . implode(', ', \EvolutionCMS\Support\BackendCodePermissions::PERMISSIONS) . ').', 'Backup manager');
+    EvolutionCMS()->webAlertAndQuit($_lang["error_no_privileges"]);
+}
+
 if ($mode == 'restore1') {
     if (isset($_POST['textarea']) && !empty($_POST['textarea'])) {
         $source = trim($_POST['textarea']);
@@ -409,6 +419,7 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
         </div>
         <!-- This iframe is used when downloading file backup file -->
         <iframe name="fileDownloader" width="1" height="1" style="display:none; width:1px; height:1px;"></iframe>
+        <?php if ($mayRestore) { ?>
         <div class="tab-page" id="tabRestore">
             <h2 class="tab"><?= $_lang["bkmgr_restore_title"] ?></h2>
             <script type="text/javascript">tpDBM.addTabPage(document.getElementById('tabRestore'));</script>
@@ -493,6 +504,7 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                 <?php endif; ?>
             </div>
         </div>
+        <?php } ?>
 
         <div class="tab-page" id="tabSnapshot">
             <h2 class="tab"><?= $_lang["bkmgr_snapshot_title"] ?></h2>
@@ -593,14 +605,14 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                                         $tooltip = htmlspecialchars(implode("\n", $tooltipLines), ENT_QUOTES, ManagerTheme::getCharset());
                                         ?>
                                         <tr>
-                                            <td><?= $filename ?></td>
+                                            <td><?= e((string) $filename) ?></td>
                                             <td><?= $tooltip !== '' ? '<i class="' . $_style['icon_question_circle'] . '" data-tooltip="' . $tooltip . '"></i>' : '' ?></td>
                                             <td><?= $filesize ?></td>
-                                            <td><?= ($details['Description'] ?? 'Undefined') ?></td>
-                                            <td><?= ($details['Evolution CMS Version'] ?? 'Undefined') ?></td>
-                                            <td><?= ($details['Database'] ?? 'Undefined') ?></td>
-                                            <td><a href="javascript:;" onclick="confirmRevert('<?= $filename ?>');"
-                                                   title="<?= $tooltip !== '' ? $tooltip : $_lang["bkmgr_restore_submit"] ?>"><?= $_lang["bkmgr_restore_submit"] ?></a>
+                                            <td><?= e((string) ($details['Description'] ?? 'Undefined')) ?></td>
+                                            <td><?= e((string) ($details['Evolution CMS Version'] ?? 'Undefined')) ?></td>
+                                            <td><?= e((string) ($details['Database'] ?? 'Undefined')) ?></td>
+                                            <td><?php if ($mayRestore) { ?><a href="javascript:;" onclick="confirmRevert(<?= e((string) json_encode((string) $filename)) ?>);"
+                                                   title="<?= $tooltip !== '' ? $tooltip : $_lang["bkmgr_restore_submit"] ?>"><?= $_lang["bkmgr_restore_submit"] ?></a><?php } ?>
                                             </td>
                                         </tr>
                                         <?php

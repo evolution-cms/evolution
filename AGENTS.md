@@ -267,6 +267,7 @@ manager. Prefer these, in this order:
 | Anything inside a `<script>` element or an inline event handler | `@js($value)` (or `js_json()` for a raw JSON island) |
 | Stored short text rendered in a cell or label (element descriptions, captions) | `{{ sanitize_inline_html($value) }}` |
 | Stored rich markup that must keep looking the way it does (Event Log reports) | `{{ sanitize_rich_html($value) }}` |
+| Stored text that the CMS parser runs over afterwards (`ManagerTheme::makeTemplate()` placeholders such as dashboard widgets, theme snippet output) | `escape_html_and_tags($value)` - `e()` alone leaves `[[snippet]]`, `{{chunk}}` and `[(setting)]` to run in the viewer's request |
 | Theme icons | `{{ icon_html($_style['icon_x']) }}` / `icon_markup()` for string concatenation |
 | Theme style blocks and lexicon entries that ship their own markup | `{{ ManagerTheme::styleHtml('key') }}` / `{{ ManagerTheme::lexiconHtml('key', [...]) }}` |
 | Markup a PHP producer builds itself | return `Illuminate\Support\HtmlString` and print it with `{{ }}` |
@@ -337,8 +338,31 @@ folder is protected unconditionally.
 | everything else under `filemanager_path` | `file_manager` only |
 
 `save_snippet`, `save_plugin` and `save_module` store PHP that the server runs, so whoever holds one
-can already change anything under `core/` and `manager/`. `save_template` does not: database
-templates only call existing snippets, and Blade views are files.
+can already change anything under `core/` and `manager/`. `save_template` does not: a database
+template only calls existing snippets.
+
+That set lives in one place, `EvolutionCMS\Support\BackendCodePermissions` (`PERMISSIONS`,
+`granted()`, `grantedBy()`). Any action that lets a manager store backend code (PHP, or SQL, which
+reaches PHP) must ask it rather than list permissions of its own: executable file names, template
+files, `@EVAL` / `@SELECT` / `@INCLUDE` TV bindings, and database restore all do. It does not cover
+client-side code: JS or HTML in a chunk or document is governed by that element's permission.
+Test: `core/tests/Unit/Security/BackendCodePermissionsTest.php`.
+
+A template file is a different thing from a database template, even though both are saved from the
+same form. A file under a view path is rendered by an engine that **executes** it — the `php` engine
+is a bare `include`, `blade.php` compiles to PHP, and a plugin can register `latte`, `twig` and
+others through `view.template_engines`. So writing or scaffolding a template file is authoring
+server-side code, whatever the extension, and there is no "safe" engine to allow-list. That write
+needs a code permission (`fileManagerMayRunCode()`: one of `save_snippet` / `save_plugin` /
+`save_module`), **not** `save_template`. Two paths reach it, and both enforce it:
+
+- The file manager, through the `views/` rules of layer 1 (a view path is not `assets/templates`;
+  that folder holds parsed front-end HTML and stays on `save_template`).
+- `manager/processors/save_template.processor.php`, when the form posts `templatesource=file` or asks
+  for a file to be created. It calls `EvolutionCMS\Support\TemplateFileGuard` before touching the
+  filesystem; a `save_template`-only user keeps database templates and is refused the file. Do not
+  add another template-file write path that skips this guard. Test:
+  `core/tests/Unit/Security/TemplateFileWritePermissionTest.php`.
 
 **2. File names** - `checkExtension()`, used by upload, new file, rename and ZIP extraction.
 

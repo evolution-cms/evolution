@@ -272,8 +272,11 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
           if (getSelectedResourceType() === 'reference') {
             var linkField = document.getElementById('weblink-content');
             var rawUrl = linkField ? linkField.value.trim() : '';
-            if (rawUrl !== '') {
-              previewUrl = rawUrl;
+            if (/^[1-9]\d*$/.test(rawUrl)) {
+              previewUrl = <?= js_json(EVO_SITE_URL . 'index.php?id=') ?> + rawUrl;
+            } else if (rawUrl !== '') {
+              // A site-relative path is anchored to the site, not to the manager page.
+              previewUrl = /^([a-z][a-z0-9+.-]*:|[\/?#\\])/i.test(rawUrl) ? rawUrl : <?= js_json(EVO_SITE_URL) ?> + rawUrl;
             }
           }
           window.open(previewUrl, 'previeWin');
@@ -309,8 +312,8 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
           referenceFields.style.display = '';
           documentFields.style.display = 'none';
           var linkField = document.getElementById('weblink-content');
-          if (linkField && linkField.value.trim() === '' && document.mutate.ta) {
-            linkField.value = document.mutate.ta.value.trim() !== '' ? document.mutate.ta.value : 'http://';
+          if (linkField && linkField.value.trim() === '' && document.mutate.ta && document.mutate.ta.value.trim() !== '') {
+            linkField.value = document.mutate.ta.value;
           }
         } else {
           referenceFields.style.display = 'none';
@@ -323,6 +326,7 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
 
       function enableLinkSelection(b) {
         var llock = document.getElementById('llock');
+        var linkField = document.getElementById('weblink-content');
         if(b) {
           parent.tree.ca = "link";
           llock.className = "<?= $_style["icon_chain_broken"] ?>";
@@ -332,6 +336,9 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
           parent.tree.ca = "open";
           llock.className = "<?= $_style["icon_chain"] ?>";
           allowLinkSelection = false;
+        }
+        if (linkField) {
+          linkField.placeholder = linkField.getAttribute(b ? 'data-placeholder-id' : 'data-placeholder-url');
         }
       }
 
@@ -372,7 +379,7 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
             document.mutate.parent.value = pId;
             var elm = document.getElementById('parentName');
             if(elm) {
-              elm.innerHTML = (pId + " (" + pName + ")");
+              elm.textContent = pId + " (" + pName + ")";
             }
           }
         }
@@ -788,7 +795,7 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
                                         </td>
                                         <td>
                                             <i id="llock" class="<?= $_style["icon_chain"] ?>" onclick="enableLinkSelection(!allowLinkSelection);"></i>
-                                            <input id="weblink-content" type="text" maxlength="255" value="<?= (!empty($content['content']) ? entities(stripslashes($content['content']), $modx->getConfig('modx_charset')) : 'http://') ?>" class="inputBox" onchange="documentDirty=true;" /><input type="button" value="<?=ManagerTheme::getLexicon('insert');?>" onclick="BrowseFileServer('weblink-content')" />
+                                            <input id="weblink-content" type="text" maxlength="255" value="<?= (!empty($content['content']) ? entities(stripslashes($content['content']), $modx->getConfig('modx_charset')) : '') ?>" placeholder="https://evo.im" data-placeholder-url="https://evo.im" data-placeholder-id="123" class="inputBox" onchange="documentDirty=true;" /><input type="button" value="<?=ManagerTheme::getLexicon('insert');?>" onclick="BrowseFileServer('weblink-content')" />
                                         </td>
                                     </tr>
                                 </tbody>
@@ -836,13 +843,13 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
                                                     if($closeOptGroup) {
                                                         echo "\t\t\t\t\t</optgroup>\n";
                                                     }
-                                                    echo "\t\t\t\t\t<optgroup label=\"$thisCategory\">\n";
+                                                    echo "\t\t\t\t\t<optgroup label=\"" . e($thisCategory) . "\">\n";
                                                     $closeOptGroup = true;
                                                 }
 
                                                 $selectedtext = ($row['id'] == $content['template']) ? ' selected="selected"' : '';
 
-                                                echo "\t\t\t\t\t" . '<option value="' . $row['id'] . '"' . $selectedtext . '>' . $row['templatename'] . " (".$row['id'].")</option>\n";
+                                                echo "\t\t\t\t\t" . '<option value="' . $row['id'] . '"' . $selectedtext . '>' . e($row['templatename']) . " (".$row['id'].")</option>\n";
                                                 $currentCategory = $thisCategory;
                                             }
                                             if($thisCategory != '') {
@@ -1064,7 +1071,7 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
                                     $i = $ii = 0;
                                     $tab = '';
                                     foreach ($tvsArray as $row) {
-                                        $row['category'] = $row['category_name'] ?? '';
+                                        $row['category'] = e($row['category_name'] ?? ''); // printed into tab headers
                                         if(!isset($row['category_id'])){
                                             $row['category_id'] = 0;
                                             $row['category'] = $_lang['no_category'];
@@ -1176,13 +1183,13 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
                                             $tvPBV = $row['value'];
                                         }
 
-                                        $tvDescription = (!empty($row['description'])) ? '<br /><span class="comment">' . $row['description'] . '</span>' : '';
+                                        $tvDescription = (!empty($row['description'])) ? '<br /><span class="comment">' . sanitize_inline_html($row['description']) . '</span>' : '';
                                         $tvInherited = (substr($tvPBV, 0, 8) == '@INHERIT') ? '<br /><span class="comment inherited">(' . $_lang['tmplvars_inherited'] . ')</span>' : '';
-                                        $tvName = $modx->hasPermission('edit_template') ? '<br/><small class="protectedNode">[*' . $row['name'] . '*]</small>' : '';
+                                        $tvName = $modx->hasPermission('edit_template') ? '<br/><small class="protectedNode">[*' . e($row['name']) . '*]</small>' : '';
 
                                         $templateVariablesTmp .= '
                                         <tr>
-                                            <td><span class="warning">' . $row['caption'] . $tvName . '</span>' . $tvDescription . $tvInherited . '</td>
+                                            <td><span class="warning">' . sanitize_inline_html($row['caption']) . $tvName . '</span>' . $tvDescription . $tvInherited . '</td>
                                             <td><div style="position:relative;' . ($row['type'] == 'date' ? '' : '') . '">' .
                                                 renderFormElement(
                                                     $row['type'],
@@ -1579,7 +1586,7 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
                             // Make the <input> HTML
                             $inputHTML = '<input ' . implode(' ', $inputString) . ' />';
 
-                            $permissions[] = "\t\t" . '<li>' . $inputHTML . '<label for="' . $inputId . '">' . $row['name'] . '</label></li>';
+                            $permissions[] = "\t\t" . '<li>' . $inputHTML . '<label for="' . $inputId . '">' . e((string)$row['name']) . '</label></li>';
                         }
                         if(count($userGroups) === 0 && !$modx->hasPermission('manage_groups')) {
                             $permissions = [];

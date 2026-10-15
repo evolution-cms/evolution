@@ -155,13 +155,12 @@ class DataSetPager implements DataSetPagerInterface
                 } else {
                     $url = $_SERVER['PHP_SELF'] . '?';
                 }
-                $i = 0;
-                foreach ($_GET as $n => $v) if ($n != 'dpgn' . $this->id) {
-                    $i++;
-                    $url .= (($i > 1) ? "&" : "") . "$n=$v";
-                }
-                if ($i >= 1) {
-                    $url .= "&";
+                // keys and values come from the request: encode them, they used to go into the link raw
+                $query = $_GET;
+                unset($query['dpgn' . $this->id]);
+                $query = http_build_query($query, '', '&', PHP_QUERY_RFC3986);
+                if ($query !== '') {
+                    $url .= $query . '&';
                 }
             }
             for ($i = 1; $i <= $tp; $i++) {
@@ -172,7 +171,7 @@ class DataSetPager implements DataSetPagerInterface
                         $this->pager .= $fnc($p, $i);
                     }
                 } else {
-                    $this->pager .= ($p == $i) ? " <span class='" . $this->selPageClass . "' style='" . $this->selPageStyle . "'>$i</span> " : " <a href='" . $url . "dpgn" . $this->id . "=$i' class='" . $this->pageClass . "' style='" . $this->pageStyle . "'>$i</a> ";
+                    $this->pager .= ($p == $i) ? " <span class='" . $this->selPageClass . "' style='" . $this->selPageStyle . "'>$i</span> " : " <a href='" . htmlspecialchars($url . 'dpgn' . rawurlencode((string) $this->id) . '=' . $i, ENT_QUOTES, 'UTF-8') . "' class='" . $this->pageClass . "' style='" . $this->pageStyle . "'>$i</a> ";
                 }
             }
         }

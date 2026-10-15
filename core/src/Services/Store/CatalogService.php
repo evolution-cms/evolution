@@ -347,13 +347,30 @@ class CatalogService
                 ]);
 
                 if (trim($html) !== '') {
-                    return $this->postProcessRenderedMarkdownHtml($html, $repoUrl, $branch);
+                    return $this->sanitizeReadmeHtml($this->postProcessRenderedMarkdownHtml($html, $repoUrl, $branch));
                 }
             } catch (\Throwable $exception) {
             }
         }
 
-        return $this->renderMarkdownHtmlFallback($markdown, $repoUrl, $branch);
+        return $this->sanitizeReadmeHtml($this->renderMarkdownHtmlFallback($markdown, $repoUrl, $branch));
+    }
+
+    /**
+     * A README comes from a third-party repository and is shown inside the manager, so the
+     * raw HTML it may contain (html_input is allowed) must not be able to run script there.
+     */
+    private function sanitizeReadmeHtml($html)
+    {
+        $tags = ['a', 'b', 'strong', 'i', 'em', 'u', 's', 'small', 'code', 'kbd', 'samp', 'var',
+            'br', 'hr', 'p', 'div', 'span', 'pre', 'blockquote', 'ul', 'ol', 'li', 'dl', 'dt', 'dd',
+            'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td', 'caption',
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'sub', 'sup', 'details', 'summary'];
+        // No id or name: a README must not be able to clobber DOM globals the manager scripts read.
+        $attributes = ['class', 'title', 'align', 'colspan', 'rowspan', 'width', 'height',
+            'href', 'target', 'rel'];
+
+        return (string) sanitize_rich_html((string) $html, $tags, $attributes);
     }
 
     private function renderMarkdownHtmlFallback($markdown, $repoUrl = '', $branch = 'main')

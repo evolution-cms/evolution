@@ -246,10 +246,14 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
 }
 ?>
     <script type="text/javascript">
-        var current_path = '<?= addslashes($relative_path) ?>';
+        // A folder name may hold < > " ' (newfolder only strips slashes), so the path is emitted as
+        // a JSON string literal - addslashes did not stop a name from closing the <script> block.
+        var current_path = <?= js_json((string) $relative_path) ?>;
         function viewfile(url) {
             var el = document.getElementById('imageviewer');
-            el.innerHTML = '<img src="' + url + '" />';
+            var img = document.createElement('img');
+            img.src = url;
+            el.replaceChildren(img);
             el.style.display = 'block'
         }
         function setColor(o, state) {
@@ -781,20 +785,60 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                 ?>
             </p>
             <?php if (((@ini_get("file_uploads") == true) || get_cfg_var("file_uploads") == 1) && $currentPathWritable) {
-                @ini_set("upload_max_filesize", $upload_maxsize ?? 0); // modified by raymond ?>
-                <form name="upload" enctype="multipart/form-data" action="index.php" method="post">
+                // upload_max_filesize cannot be raised at run time: the smallest of the setting and PHP's limits applies
+                $uploadFileLimit = \EvolutionCMS\Support\UploadLimits::fileLimit($upload_maxsize ?? 0);
+                $uploadPostLimit = \EvolutionCMS\Support\UploadLimits::postMaxSize(); ?>
+                <form name="upload" enctype="multipart/form-data" action="index.php" method="post" onsubmit="return fileManagerUploadFits(this);">
                     <?= csrf_field() ?>
-                    <input type="hidden" name="MAX_FILE_SIZE" value="<?= $upload_maxsize ?? 5000000 ?>">
+                    <input type="hidden" name="MAX_FILE_SIZE" value="<?= $uploadFileLimit ?: ($upload_maxsize ?? 5000000) ?>">
                     <input type="hidden" name="a" value="31">
                     <input type="hidden" name="path" value="<?= entities($relative_path, evo()->getConfig('modx_charset')) ?>">
                     <!-- Fix: Add token to upload form -->
                     <input type="hidden" name="token" value="<?= $newToken ?>">
                     <?php if (isset($information)) { echo $information; } ?>
                     <div id="uploader">
-                        <input type="file" name="userfile[]" onchange="document.upload.submit();" multiple>
-                        <a class="btn btn-secondary" href="javascript:;" onclick="document.upload.submit()"><?= $_lang['files_uploadfile'] ?></a>
+                        <input type="file" name="userfile[]" onchange="if (fileManagerUploadFits(document.upload)) document.upload.submit();" multiple>
+                        <a class="btn btn-secondary" href="javascript:;" onclick="if (fileManagerUploadFits(document.upload)) document.upload.submit()"><?= $_lang['files_uploadfile'] ?></a>
                     </div>
+                    <?php if ($uploadFileLimit > 0) { ?>
+                        <p class="text-muted"><small><?= e(sprintf($_lang['upload_limits_hint'], \EvolutionCMS\Support\UploadLimits::humanSize($uploadFileLimit), $uploadPostLimit > 0 ? \EvolutionCMS\Support\UploadLimits::humanSize($uploadPostLimit) : '-')) ?></small></p>
+                    <?php } ?>
                 </form>
+                <script>
+                    // PHP drops a whole request over post_max_size and a file over upload_max_filesize:
+                    // stop such an upload here, with the reason, rather than lose it on the server
+                    function fileManagerUploadFits(form) {
+                        var input = form.querySelector('input[type=file]');
+                        var fileLimit = <?= (int) $uploadFileLimit ?>, postLimit = <?= (int) $uploadPostLimit ?>;
+                        var tooLarge = <?= js_json($_lang['upload_file_too_large']) ?>, tooMuch = <?= js_json($_lang['upload_files_too_large']) ?>;
+                        var size = function (bytes) {
+                            var units = [['GB', 1073741824], ['MB', 1048576], ['KB', 1024]];
+                            for (var i = 0; i < units.length; i++) {
+                                if (bytes >= units[i][1]) return (Math.round(bytes / units[i][1] * 10) / 10) + ' ' + units[i][0];
+                            }
+                            return bytes + ' bytes';
+                        };
+                        var format = function (text, values) {
+                            return text.replace(/%(\d)\$s/g, function (m, n) { return values[n - 1]; });
+                        };
+                        var files = input && input.files ? input.files : [], total = 0;
+                        for (var i = 0; i < files.length; i++) {
+                            total += files[i].size;
+                            if (fileLimit > 0 && files[i].size > fileLimit) {
+                                alert(format(tooLarge, [files[i].name, size(files[i].size), size(fileLimit)]));
+                                input.value = '';
+                                return false;
+                            }
+                        }
+                        // the other form fields and the multipart framing need a little room as well
+                        if (postLimit > 0 && total + 16384 > postLimit) {
+                            alert(format(tooMuch, [size(total), size(postLimit)]));
+                            input.value = '';
+                            return false;
+                        }
+                        return files.length > 0;
+                    }
+                </script>
             <?php } else {
                 echo "<p>" . $_lang['files_upload_inhibited_msg'] . "</p>";
             }

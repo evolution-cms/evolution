@@ -83,6 +83,15 @@ if (file_exists(__DIR__ . '/config.php')) {
     ];
 }
 
+// A POST over post_max_size reaches us empty. Say so before the session and headers start,
+// instead of failing the token check (and warning about headers already sent).
+if (!empty($config['core']) && !$isGet && is_file($config['core'] . '/src/Support/UploadLimits.php')) {
+    require_once $config['core'] . '/src/Support/UploadLimits.php';
+    if (\EvolutionCMS\Support\UploadLimits::bodyWasDiscarded($_SERVER, $_POST, $_FILES)) {
+        \EvolutionCMS\Support\UploadLimits::rejectDiscardedBody($_SERVER, $config['core'] . '/lang');
+    }
+}
+
 if (!empty($config['core']) && file_exists($config['core'] . '/.install')) {
     require_once $config['core'] . '/bootstrap.php';
 } else {

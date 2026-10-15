@@ -7,6 +7,31 @@
 AddDefaultCharset utf-8
 #php_value date.timezone Europe/Kyiv
 
+# Site address. Links the CMS emails out (password recovery) and its redirects are built from
+# the request; a forged Host header must not change them. Two ways to make that so:
+#
+# 1. Apache config (vhost or server config - these directives are not allowed in .htaccess):
+#        ServerName example.com
+#        ServerAlias www.example.com
+#        UseCanonicalName On
+#    PHP then sees SERVER_NAME (and SERVER_PORT) from ServerName whatever Host says, and builds
+#    recovery links from them. With UseCanonicalName Off (the default) both follow the request.
+#    On a port other than 80/443 name it: "ServerName example.com:8443". This covers recovery
+#    links only, and a published port that differs from the one Apache listens on (containers)
+#    is lost; the rest of the site URL still follows Host. A catch-all first vhost refusing
+#    unknown names helps, but Apache matches vhosts by name only - a Host with the right name
+#    and another port still gets through. For the complete address use option 2.
+#
+# 2. Pin the address list here (or EVO_SITE_HOSTNAMES in core/custom/define.php or .env).
+#    It pins the whole site URL, port included: an entry without a port means the default one
+#    (80/443), so a site on another port lists it, e.g. example.com:8443. A request for any
+#    other address gets the first entry.
+#    Precedence: core/custom/define.php, then this (or vhost SetEnv; .htaccess wins over the
+#    vhost), then .env. Set it in one place.
+#    If you enable a www / non-www redirect below, list the host it redirects to first: the CMS
+#    sends a request for an unlisted host to the first entry, and a rule sending it back loops.
+#SetEnv EVO_SITE_HOSTNAMES example.com,www.example.com
+
 #Options +FollowSymlinks
 RewriteEngine On
 

@@ -105,3 +105,21 @@ test('fresh web install requires successful completion before its installer can 
         removeInstallerWebFixture($fixture);
     }
 });
+
+test('closing the installer without removing it keeps the lock for the rest of its session', function () {
+    $fixture = installerWebFixture();
+    $token = str_repeat('b', 64);
+
+    try {
+        InstallerCompletion::writeLock($fixture['lock'], 'anonymous-session', '203.0.113.10', time(), $token);
+
+        $closed = runInstallerRemoval($fixture, ['installer_token' => $token]);
+
+        expect($closed->isSuccessful())->toBeTrue()
+            ->and($closed->getOutput())->toContain("window.location='../#?a=2'")
+            ->and(is_dir($fixture['install']))->toBeTrue()
+            ->and(InstallerCompletion::readSessionLock($fixture['lock'])['session'])->toBe('anonymous-session');
+    } finally {
+        removeInstallerWebFixture($fixture);
+    }
+});

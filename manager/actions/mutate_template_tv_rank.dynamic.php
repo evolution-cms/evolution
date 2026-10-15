@@ -48,7 +48,7 @@ if ($templateVars->count() > 0) {
     foreach ($templateVars->get()->toArray() as $row) {
         $templatename = $row['templatename'];
         $caption = $row['caption'] != '' ? $row['caption'] : $row['name'];
-        $sortableList .= '<li id="item_' . $row['id'] . '"><i class="' . $_style['icon_tv'] . '"></i> ' . $caption . ' <small class="protectedNode" style="float:right">[*' . $row['name'] . '*]</small></li>';
+        $sortableList .= '<li id="item_' . (int)$row['id'] . '"><i class="' . $_style['icon_tv'] . '"></i> ' . e((string)$caption) . ' <small class="protectedNode" style="float:right">[*' . e((string)$row['name']) . '*]</small></li>';
     }
     $sortableList .= '</ul></div>';
 } else {
@@ -126,7 +126,7 @@ if ($templateVars->count() > 0) {
 </script>
 
 <h1>
-    <i class="<?= $_style['icon_sort_num_asc'] ?>"></i><?= ($templatename ? $templatename . '<small>(' . $id . ')</small>' : $_lang['template_tv_edit_title']) ?>
+    <i class="<?= $_style['icon_sort_num_asc'] ?>"></i><?= ($templatename ? e((string)$templatename) . '<small>(' . $id . ')</small>' : $_lang['template_tv_edit_title']) ?>
 </h1>
 
 <?= ManagerTheme::getStyle('actionbuttons.dynamic.save') ?>

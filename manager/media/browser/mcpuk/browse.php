@@ -12,6 +12,17 @@
   *      @link http://kcfinder.sunhater.com
   */
 
+// An upload over post_max_size arrives empty: answer the uploader before the session starts,
+// rather than with "headers already sent" warnings and a failed token check
+$uploadLimitsCore = dirname(__DIR__, 4) . '/core';
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && is_file($uploadLimitsCore . '/src/Support/UploadLimits.php')) {
+    require_once $uploadLimitsCore . '/src/Support/UploadLimits.php';
+    if (\EvolutionCMS\Support\UploadLimits::bodyWasDiscarded($_SERVER, $_POST, $_FILES)) {
+        \EvolutionCMS\Support\UploadLimits::rejectDiscardedBody($_SERVER, $uploadLimitsCore . '/lang', true);
+    }
+}
+unset($uploadLimitsCore);
+
 require "core/autoload.php"; // Init MODX
 
 function returnNoPermissionsMessage($role) {

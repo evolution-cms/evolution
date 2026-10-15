@@ -863,7 +863,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
         }
 
         if (!isset($_SESSION['updatelink'])) {
-            $_SESSION['updatelink'] = md5(time());
+            $_SESSION['updatelink'] = bin2hex(random_bytes(16));
         }
 
         // if a GitHub commit feed
@@ -1221,7 +1221,8 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
             }
         }
     }
-    if (isset($_GET['q']) && $_GET['q'] === $_SESSION['updatelink']) {
+    if (isset($_GET['q'], $_SESSION['updatelink']) && is_string($_GET['q'])
+        && hash_equals((string)$_SESSION['updatelink'], $_GET['q'])) {
         if (empty($_SESSION['mgrInternalKey']) || empty($_SESSION['updatelink'])) {
             return;
         }
@@ -1232,7 +1233,13 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                 $currentVersion = $modx->getVersionData();
                 $commit = isset($_GET['sha']) ? $_GET['sha'] : '';
                 if ($_SESSION['updateversion'] != $currentVersion['version'] || (isset($commit) && $type == 'commits')) {
-                    file_put_contents(EVO_BASE_PATH . 'update.php', '<?php
+                    // The target is fixed here and baked into update.php: that file is publicly
+                    // reachable while it exists, so it must not take the archive from its own query string.
+                    $updateTarget = $type == 'commits' ? $commit : ($_SESSION['updateversion'] ?? '');
+                    if (!is_string($updateTarget) || !preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$/', $updateTarget)) {
+                        die('Invalid update target');
+                    }
+                    $result = file_put_contents(EVO_BASE_PATH . 'update.php', '<?php
 function downloadFile($url, $path)
 {
     $newfname = $path;
@@ -1319,9 +1326,10 @@ function mmkDir($folder, $perm = 0777)
     }
 }
 
-$version = "' . $version . '";
+$version = ' . var_export((string)$version, true) . ';
+$targetVersion = ' . var_export($updateTarget, true) . ';
 
-downloadFile("https://github.com/" . $version . "/archive/" . $_GET["version"] . ".zip", "evo.zip");
+downloadFile("https://github.com/" . $version . "/archive/" . rawurlencode($targetVersion) . ".zip", __DIR__ . "/evo.zip");
 $zip = new ZipArchive;
 $res = $zip->open(__DIR__ . "/evo.zip");
 $zip->extractTo(__DIR__ . "/temp");
@@ -1375,7 +1383,7 @@ curl_close($ch);
 if (substr($releases, 0, 1) == "[") {
     $releases = json_decode($releases, true);
     foreach ($releases as $release) {
-        if ($_GET["version"] == $release["tag_name"]) {
+        if ($targetVersion == $release["tag_name"]) {
             $factoryDate = date("M j, Y", strtotime($release["published_at"]));
             // Release name and tag are remote metadata, so only those go through
             // var_export: a crafted release must not break out and run as code.
@@ -1403,10 +1411,10 @@ header("Location: ' . constant('EVO_SITE_URL') . 'install/index.php?action=mode"
                             $versionText = $_SESSION['updateversion'];
                         }
                         echo '<html><head></head><body><h2>Evolution Updater</h2>
-                          <p>Downloading version: <strong>' . $versionText . '</strong>.</p>
+                          <p>Downloading version: <strong>' . htmlspecialchars($versionText, ENT_QUOTES, 'UTF-8') . '</strong>.</p>
                           <p>You will be redirected to the update wizard shortly.</p>
                           <p>Please wait...</p>
-                          <script>window.location = "' . EVO_SITE_URL . 'update.php?version=' . $versionGet . '";</script>
+                          <script>window.location = "' . EVO_SITE_URL . 'update.php";</script>
                           </body></html>';
                     }
                 }

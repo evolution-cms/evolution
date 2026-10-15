@@ -214,22 +214,31 @@ class EventLog extends Eloquent\Model
     /**
      * Safely present a selected source alias in the legacy Event Viewer DataGrid.
      *
-     * Non-mail rows intentionally retain their historical rendering behavior.
+     * Every row is escaped: the DataGrid prints the value into its row template as-is, and a source
+     * can carry request data (the error handler appends the PHP message, which may quote the input
+     * that triggered it), so a guest could otherwise plant markup in the administrators' list.
+     *
+     * A source is plain text, but some writers (and rows stored before this change) hold it
+     * entity-encoded, so entities are decoded before the single encoding for output: "2>1" and
+     * "2&gt;1" both read "2>1", never "&gt;".
      *
      * @since 3.5.8
      */
     public function getListSourceAttribute(?string $source): string
     {
-        if (!$this->isMailSentType()) {
-            return (string)$source;
+        $source = (string)$source;
+        if ($this->isMailSentType()) {
+            $source = trim($source);
+            if ($source === '') {
+                $source = static::MAIL_SENT_SOURCE_FALLBACK;
+            }
         }
 
-        $source = trim((string)$source);
-        if ($source === '') {
-            $source = static::MAIL_SENT_SOURCE_FALLBACK;
-        }
-
-        return htmlspecialchars($source, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8');
+        return htmlspecialchars(
+            html_entity_decode($source, ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+            ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5,
+            'UTF-8'
+        );
     }
 
     /**

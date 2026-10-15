@@ -16,6 +16,23 @@ class DatabaseBackupService
 
     protected string $basePath;
 
+    /**
+     * A value written into a comment line of the dump header, kept on that line.
+     *
+     * Only trim() used to be applied: a line break in the backup title ended the comment, and the
+     * rest of the title became a statement that a later restore executes.
+     *
+     * @param mixed $value
+     */
+    public static function headerValue($value): string
+    {
+        if (!is_scalar($value)) {
+            return '';
+        }
+
+        return trim((string) preg_replace('/[\x00-\x1F\x7F]+/', ' ', (string) $value));
+    }
+
     public function __construct(?string $basePath = null)
     {
         if ($basePath === null || trim((string) $basePath) === '') {
@@ -371,7 +388,7 @@ class DatabaseBackupService
         $prefix = (string) $commentPrefix;
 
         return $prefix . $line
-            . $prefix . ' ' . addslashes($modx->getPhpCompat()->entities($modx->getConfig('site_name'))) . ' Database Dump' . $line
+            . $prefix . ' ' . self::headerValue(addslashes($modx->getPhpCompat()->entities($modx->getConfig('site_name')))) . ' Database Dump' . $line
             . $prefix . ' Evolution CMS Version:' . (isset($version['version']) ? $version['version'] : '') . $line
             . $prefix . ' ' . $line
             . $prefix . ' Host: ' . $host . $line
@@ -379,7 +396,7 @@ class DatabaseBackupService
             . $prefix . ' Server version: ' . $modx->getDatabase()->getVersion() . $line
             . $prefix . ' PHP Version: ' . phpversion() . $line
             . $prefix . ' Database: `' . $database . '`' . $line
-            . $prefix . ' Description: ' . trim($_REQUEST['backup_title'] ?? '') . $line
+            . $prefix . ' Description: ' . self::headerValue($_REQUEST['backup_title'] ?? '') . $line
             . $prefix . $line;
     }
 

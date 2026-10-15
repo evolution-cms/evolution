@@ -48,6 +48,8 @@ form#mutate .multitv input[type="text"] { width: 300px; }
 form#mutate .imageField { width: 50%; min-width: 300px; }
 form#mutate input[name="menuindex"] { text-align: center; width: 80px; padding-left: 0; padding-right: 0; }
 form#mutate input[name="ta"].inputBox { padding-left: 30px }
+form#mutate #weblink-content.inputBox { padding-left: 2rem }
+form#mutate #weblink-content.inputBox:focus + input[type=button] { border-color: #1377c5 #1377c5 #1377c5 #bbb; }
 form#mutate input[name="ta"].inputBox:focus + input[type=button], form#mutate input[name="ta"].inputBox:focus + .CodeMirror + input[type=button] { border-color: #1377c5 #1377c5 #1377c5 #bbb; }
 input[name^=tv].DatePicker, input[name*=date].DatePicker, input[name=createdon].DatePicker, input[name=editedon].DatePicker { float: left; width: auto; padding-right: 2em }
 input[name^=tv].DatePicker + a, input[name*=date].DatePicker + a { position: relative; z-index: 5; margin-top: 0.5em; margin-left: -1.5em; float: left; }
