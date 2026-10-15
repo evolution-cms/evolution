@@ -974,6 +974,7 @@ $_lang["template_management_msg"] = '选择你需要编辑的模板。';
 $_lang["template_msg"] = '你可以在这里添加编辑/模板，当你站点的CACHE没清空的时候，你是不可以看见COOKIE里的文件采取了这个新的模板，当然你可以用预览功能来看到他。';
 $_lang["template_name"] = '模板名';
 $_lang["template_no_tv"] = 'No Template Variables have been assigned to this Template yet.';
+$_lang["template_not_found"] = '未找到模板 #%s：它已被删除或从未存在。请在文档编辑器中选择其他模板。';
 $_lang["template_reset_all"] = '设置所有的文档使用默认的模板';
 $_lang["template_reset_specific"] = '只设置 \'%s\' 页面';
 $_lang["template_assigned_blade_file"] = '对应的BLADE文件';

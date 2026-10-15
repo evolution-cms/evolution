@@ -974,6 +974,7 @@ $_lang["template_management_msg"] = 'Choose which template you wish to edit.';
 $_lang["template_msg"] = 'Create and edit templates. Changed or new templates won\'t be visible in your site\'s cached pages until the cache is emptied, however, you can use the preview function on a page to see the template in action.';
 $_lang["template_name"] = 'שם תבנית עיצוב';
 $_lang["template_no_tv"] = 'No template variables have been assigned to this template yet.';
+$_lang["template_not_found"] = 'תבנית העיצוב #%s לא נמצאה: היא נמחקה או שמעולם לא הייתה קיימת. בחרו תבנית עיצוב אחרת בעורך המסמך.';
 $_lang["template_reset_all"] = 'Reset all pages to use Default template';
 $_lang["template_reset_specific"] = 'Reset only \'%s\' pages';
 $_lang["template_assigned_blade_file"] = 'קובץ blade מקביל:';

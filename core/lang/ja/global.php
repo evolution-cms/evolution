@@ -1084,6 +1084,7 @@ $_lang["template_management_msg"] = '<h3 style="font-weight:bold;">テンプレ�
 $_lang["template_msg"] = 'テンプレートを作成/編集します。[*リソース変数*] [*テンプレート変数*] [(コンフィグ変数)] [~リンクタグ~] [[スニペット]] {{チャンク}} [^ベンチマークタグ^] などを記述できます。';
 $_lang["template_name"] = 'テンプレート名';
 $_lang["template_no_tv"] = 'テンプレート変数は定義されていません。';
+$_lang["template_not_found"] = 'テンプレート #%s が見つかりません: 削除されたか、存在しません。リソースエディタで別のテンプレートを選択してください。';
 $_lang["template_notassigned_tv"] = '次のテンプレート変数が関連付けできます。';
 $_lang["template_reset_all"] = '全てのリソースに適用する';
 $_lang["template_reset_specific"] = '「%s」テンプレートを使用しているリソースに適用する';

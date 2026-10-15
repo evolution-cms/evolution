@@ -974,6 +974,7 @@ $_lang["template_management_msg"] = 'Skapa en ny mall eller välja en redan befi
 $_lang["template_msg"] = 'Skapa och redigera mallar här. Ändrade eller nya mallar kommer inte att synas på din webbplats cachade sidor, förrän cachen har tömts. Du kan däremot använda förhandsgranskningen för att se hur den uppdaterade mallen kommer att se ut.';
 $_lang["template_name"] = 'Mallnamn';
 $_lang["template_no_tv"] = 'Inga mallvariabler har tilldelats den här mallen än.';
+$_lang["template_not_found"] = 'Mall #%s hittades inte: den har tagits bort eller har aldrig funnits. Välj en annan mall i resursredigeraren.';
 $_lang["template_reset_all"] = 'Återställ alla sidor så de använder standardmallen';
 $_lang["template_reset_specific"] = 'Återställ endast "%s" sidor';
 $_lang["template_assigned_blade_file"] = 'Motsvarande blade-fil';

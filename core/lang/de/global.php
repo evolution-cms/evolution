@@ -1050,6 +1050,7 @@ $_lang["template_management_msg"] = 'Hier können Sie ein Template wählen, das 
 $_lang["template_msg"] = 'Hier können Sie Templates anlegen und bearbeiten. Die Änderung an einem Template wird nur angezeigt, wenn Sie den Cache leeren. Sie können aber die Vorschaufunktion nutzen, um das Template anzuzeigen.';
 $_lang["template_name"] = 'Template-Name';
 $_lang["template_no_tv"] = 'Diesem Template wurden noch keine Template-Variablen zugewiesen.';
+$_lang["template_not_found"] = 'Template #%s nicht gefunden: Es wurde gelöscht oder hat nie existiert. Wählen Sie im Ressourcen-Editor ein anderes Template.';
 $_lang["template_notassigned_tv"] = 'Diese Template-Variablen können zugewiesen werden.';
 $_lang["template_reset_all"] = 'Alle Ressourcen auf das Standard-Template zurücksetzen';
 $_lang["template_reset_specific"] = 'Template nur bei Ressourcen mit dem aktuellen Template „%s“ setzen';

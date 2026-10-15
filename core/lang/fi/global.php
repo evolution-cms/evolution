@@ -972,6 +972,7 @@ $_lang["template_management_msg"] = 'Muokkaa sivupohjia (template).';
 $_lang["template_msg"] = 'Muokkaa sivupohjaa (template). Muokatut sivupohjat otetaan käyttöön vasta, kun välimuisti on tyhjennetty. Tätä ennen voit tarkastella muokattua sivupohjaa käytössä sivun esikatselutoiminnon avulla.';
 $_lang["template_name"] = 'Nimi';
 $_lang["template_no_tv"] = 'Tähän sivupohjaan ei ole määritelty muuttujia.';
+$_lang["template_not_found"] = 'Sivupohjaa #%s ei löytynyt: se on poistettu tai sitä ei ole koskaan ollut. Valitse toinen sivupohja sivun muokkaimessa.';
 $_lang["template_reset_all"] = 'Aseta kaikki sivut käyttämään oletussivupohjaa';
 $_lang["template_reset_specific"] = 'Aseta vain oletussivupohjaa \'%s\' käyttävät sivut';
 $_lang["template_assigned_blade_file"] = 'Vastaava blade-tiedosto';

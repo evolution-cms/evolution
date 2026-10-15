@@ -940,6 +940,7 @@ $_lang["template_management_msg"] = 'Her kan du opprette en ny mal eller velge e
 $_lang["template_msg"] = 'Her kan du opprette og redigere maler. Endrede og nye maler kommer ikke på cachede sider før cachen er tømt. Du kan derimot bruke forhåndsvisningen for å se hvordan den oppdaterte malen kommer til å se ut.';
 $_lang["template_name"] = 'Navn på mal';
 $_lang["template_no_tv"] = 'No Template Variables have been assigned to this Template yet.';
+$_lang["template_not_found"] = 'Mal #%s vart ikkje funnen: han er sletta eller har aldri eksistert. Vel ein annan mal i ressursredigeringa.';
 $_lang["template_reset_all"] = 'Tilbakestill alle sider så de bruker standardmalen';
 $_lang["template_reset_specific"] = 'Tilbakestill bare \'%s\' sider';
 $_lang["template_assigned_blade_file"] = 'Tilsvarende blade-fil';

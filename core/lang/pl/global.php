@@ -1054,6 +1054,7 @@ $_lang["template_management_msg"] = 'Tutaj możesz wybrać, które szablony chce
 $_lang["template_msg"] = 'Tutaj możesz tworzyć/ edytować szablony. Zmienione/ nowe szablony nie będą widoczne na zcacheowanych stronach Twojej witryny dopóki cache nie zostanie wyczyszczony, jednakże, możesz użyć funkcji podglądu na stronie, aby zobaczyć szablon w działaniu.';
 $_lang["template_name"] = 'Nazwa szablonu';
 $_lang["template_no_tv"] = 'Do tego szablonu nie zostały jeszcze przypisane żadne zmienne.';
+$_lang["template_not_found"] = 'Nie znaleziono szablonu #%s: został usunięty lub nigdy nie istniał. Wybierz inny szablon w edytorze dokumentu.';
 $_lang["template_notassigned_tv"] = 'Zmienne możliwe do przydzielenia.';
 $_lang["template_reset_all"] = 'Zresetuj wszystkie strony i przypisz je do szablonu domyślnego';
 $_lang["template_reset_specific"] = 'Zresetuj tylko \'%s\' stron';

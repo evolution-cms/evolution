@@ -943,6 +943,7 @@ $_lang["template_management_msg"] = 'Choisissez le Modèle que vous souhaitez mo
 $_lang["template_msg"] = 'Créer/modifier des Modèles. Les Modèles créés ou modifiés ne seront pas actualisés dans les pages en cache de votre site jusqu\'à ce que le cache soit vidé. Cependant, vous pouvez utiliser la fonction de prévisualisation d\'une page pour voir le nouveau Modèle en action.';
 $_lang["template_name"] = 'Nom du Modèle';
 $_lang["template_no_tv"] = 'Aucune Variable de Modèle n\'a été associée à ce Modèle pour le moment.';
+$_lang["template_not_found"] = 'Modèle #%s introuvable : il a été supprimé ou n\'a jamais existé. Choisissez un autre Modèle dans l\'éditeur de la Ressource.';
 $_lang["template_reset_all"] = 'Utiliser le Modèle par défaut sur toutes les pages';
 $_lang["template_reset_specific"] = 'Seulement sur les pages \'%s\'';
 $_lang["template_assigned_blade_file"] = 'Fichier blade correspondant';

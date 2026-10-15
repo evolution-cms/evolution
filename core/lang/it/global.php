@@ -1061,6 +1061,7 @@ $_lang["template_management_msg"] = 'Qui potete scegliere il Template da modific
 $_lang["template_msg"] = 'Qui potete creare/modificare i Templates. I Template modificati o nuovi non saranno visibili nelle pagine in cache finchè la cache stessa non verrà svuotata. Ad ogni modo, potete usare la funzione di anteprima su una pagina per vedere il Template in azione.';
 $_lang["template_name"] = 'Nome del Template';
 $_lang["template_no_tv"] = 'A questo Template non sono ancora state assegnate delle Variabili di Template.';
+$_lang["template_not_found"] = 'Template #%s non trovato: è stato eliminato o non è mai esistito. Scegli un altro Template nell\'editor della Risorsa.';
 $_lang["template_notassigned_tv"] = 'Queste variabili di template sono disponibili per l\'assegnazione.';
 $_lang["template_reset_all"] = 'Impostate il nuovo Template di default su tutte le pagine';
 $_lang["template_reset_specific"] = 'Impostate il nuovo Template di default solo sulle pagine con \'%s\'';

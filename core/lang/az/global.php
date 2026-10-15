@@ -42,6 +42,7 @@ $_lang["template_management_msg"] = 'Redaktə etmək istədiyiniz Şablonu seçi
 $_lang["template_msg"] = 'Şablonlar yaradın və redaktə edin. Dəyişdirilmiş və ya yeni Şablonlar, saytınızın keşlənmiş səhifələrində yalnız keşi boşaltdıqdan sonra görünəcək, lakin, səhifə önizləmə funksiyasından istifadə edərək Şablonu yoxlaya bilərsiniz.';
 $_lang["template_name"] = 'Şablon adı';
 $_lang["template_no_tv"] = 'Bu Şablona hələ Şablon Dəyişənləri təyin olunmayıb.';
+$_lang["template_not_found"] = 'Şablon #%s tapılmadı: o silinib və ya heç vaxt mövcud olmayıb. Resurs redaktorunda başqa şablon seçin.';
 $_lang["template_notassigned_tv"] = 'Bu Şablon Dəyişənləri təyin oluna bilər.';
 $_lang["template_reset_all"] = 'Bütün səhifələri Standart Şablona qaytar';
 $_lang["template_reset_specific"] = 'Yalnız \'%s\' səhifələrini yenidən təyin et';

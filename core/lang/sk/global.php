@@ -1070,6 +1070,7 @@ $_lang["template_management_msg"] = '<b>Šablóny</b> sú (X)HTML značkovanie s
 $_lang["template_msg"] = 'Tu môžete vytvoriť / upraviť šablónu.';
 $_lang["template_name"] = 'Názov šablóny';
 $_lang["template_no_tv"] = 'Tejto šablóne nie sú priradené žiadne parametre (TV).';
+$_lang["template_not_found"] = 'Šablóna #%s sa nenašla: bola odstránená alebo nikdy neexistovala. Vyberte inú šablónu v editore zdroja.';
 $_lang["template_notassigned_tv"] = 'Tieto TV sú dostupné na výber.';
 $_lang["template_reset_all"] = 'Obnoviť všetky šablóny (nastaví sa predvolená šablóna)';
 $_lang["template_reset_specific"] = 'Obnoviť iba stránky so šablónou <b>%s</b>';

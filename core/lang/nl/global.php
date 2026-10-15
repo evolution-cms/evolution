@@ -1040,6 +1040,7 @@ $_lang["template_management_msg"] = 'Hier kunt u Templates toevoegen en bewerken
 $_lang["template_msg"] = 'Template toevoegen of bewerken. Gewijzigde/nieuwe Templates zullen niet zichtbaar zijn in de gecachte Pagina\'s van uw website totdat de cache is leeggemaakt. U kunt echter de voorbeeldfunctie op een Pagina gebruiken om de Template te bekijken.';
 $_lang["template_name"] = 'Naam Template';
 $_lang["template_no_tv"] = 'Er zijn nog geen Template Variabelen aan deze Template toegewezen.';
+$_lang["template_not_found"] = 'Template #%s niet gevonden: deze is verwijderd of heeft nooit bestaan. Kies een andere template in de pagina-editor.';
 $_lang["template_notassigned_tv"] = 'Deze Template variabelen zijn beschikbaar voor het toewijzen.';
 $_lang["template_reset_all"] = 'Geef alle Pagina\'s het standaard Template';
 $_lang["template_reset_specific"] = 'Geef alleen \'%s\' Pagina\'s het standaard Template:';

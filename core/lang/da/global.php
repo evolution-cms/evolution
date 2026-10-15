@@ -976,6 +976,7 @@ $_lang["template_management_msg"] = 'Vælg skabelonen der skal redigeres.';
 $_lang["template_msg"] = 'Opret og rediger skabeloner. Nye eller ændrede skabeloner vil ikke være synlige, før websites cache er nulstillet. Man kan dog bruge preview funktionen på en ressource for at se resultatet af skabelonen.';
 $_lang["template_name"] = 'Skabelon navn';
 $_lang["template_no_tv"] = 'Der er endnu ikke tildelt nogle skabelon variabler til denne skabelon.';
+$_lang["template_not_found"] = 'Skabelon #%s blev ikke fundet: den er slettet eller har aldrig eksisteret. Vælg en anden skabelon i ressource-editoren.';
 $_lang["template_reset_all"] = 'Nulstil alle ressourcer så de bruger standard skabelonen';
 $_lang["template_reset_specific"] = 'Nulstil kun ressourcer der bruger: \'%s\' skabelonen';
 $_lang["template_assigned_blade_file"] = 'Tilsvarende blade-fil';

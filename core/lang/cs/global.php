@@ -977,6 +977,7 @@ $_lang["template_management_msg"] = 'Zde můžete zvolit šablonu, kterou chcete
 $_lang["template_msg"] = 'Zde můžete vytvářet/upravovat šablony. Nové anebo upravené šablony nebudou viditelné ve stránkach uložených v zásobníku až do jeho vyprázdnění. Můžete použít náhled stránek pro prohlédnutí šablony v činnosti.';
 $_lang["template_name"] = 'Název šablony';
 $_lang["template_no_tv"] = 'Žádná Template Variables nebyla přiřazena této šabloně.';
+$_lang["template_not_found"] = 'Šablona #%s nebyla nalezena: byla smazána nebo nikdy neexistovala. Vyberte jinou šablonu v editoru dokumentu.';
 $_lang["template_reset_all"] = 'Vymazat všechny stránky pro použití základní šablony';
 $_lang["template_reset_specific"] = 'Vymazat jen "%s" stránky';
 $_lang["template_assigned_blade_file"] = 'Odpovídající soubor blade';

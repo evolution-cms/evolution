@@ -973,6 +973,7 @@ $_lang["template_management_msg"] = 'Aqui pode escolher que Template deseja edit
 $_lang["template_msg"] = 'Criar e editar Templates. Templates novos ou modificados não serão visíveis nas páginas em cache até que esta seja esvaziada, no entanto pode usar a função de pré-visualização na página para ver o Template em acção.';
 $_lang["template_name"] = 'Nome do Template';
 $_lang["template_no_tv"] = 'Ainda não foi atribuída nenhuma Variável a este Template.';
+$_lang["template_not_found"] = 'Template #%s não encontrado: foi removido ou nunca existiu. Escolha outro template no editor do documento.';
 $_lang["template_reset_all"] = 'Aplicar o Template padrão a todas as páginas';
 $_lang["template_reset_specific"] = 'Aplicar apenas às páginas que usam o Template %s';
 $_lang["template_assigned_blade_file"] = 'Arquivo blade correspondente';
