@@ -66,6 +66,10 @@ function fmLinksBrowser(string $typeDir): browser
     $property = new ReflectionProperty(uploader::class, 'typeDir');
     $property->setAccessible(true);
     $property->setValue($browser, $typeDir);
+    // No protected folders: these tests cover links, not permissions (the mock parser has none).
+    $property = new ReflectionProperty(browser::class, 'protectedPaths');
+    $property->setAccessible(true);
+    $property->setValue($browser, []);
 
     return $browser;
 }

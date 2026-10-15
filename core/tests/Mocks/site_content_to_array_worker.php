@@ -1,6 +1,8 @@
 <?php
 // Turns a document row into the array the parser renders, in a clean process, and reports
 // whether that loaded Carbon. Prints JSON: {"deletedon": ..., "carbonLoaded": bool}
+// Keep stdout for the JSON alone: dependencies may raise deprecations on newer PHP versions.
+ini_set('display_errors', 'stderr');
 require dirname(__DIR__, 2) . '/vendor/autoload.php';
 
 use EvolutionCMS\Models\SiteContent;

@@ -230,7 +230,8 @@ if (!defined('EVO_MANAGER_URL')) {
 // Must keep its first value: the sanitize helpers in core/functions/preload.php strip
 // this seed back out, so a second, different seed would leave the marker in the output.
 if (!defined('EVO_SANITIZE_SEED')) {
-    define('EVO_SANITIZE_SEED', 'sanitize_seed_' . base_convert(md5(__FILE__), 16, 36));
+    // 13 hex digits (52 bits) fit an integer; a full md5 overflows base_convert(), which PHP 8.6 reports.
+    define('EVO_SANITIZE_SEED', 'sanitize_seed_' . base_convert(substr(md5(__FILE__), 0, 13), 16, 36));
 }
 
 if (is_cli()) {
