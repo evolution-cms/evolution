@@ -63,7 +63,8 @@ class DatabaseBackup extends BaseWorker
                 $lastStage = $stage;
                 $lastProgress = $progress;
             });
-        $task->update(['progress' => 100]);
+        $meta['backup_metrics'] = $snapshot['metrics'] ?? [];
+        $task->update(['progress' => 100, 'meta' => $meta]);
         $this->markFinished($task, $snapshot['filename'], '**' . __('global.bkmgr_backup_created') . ':** '
             . $snapshot['filename'] . ' (' . niceSize($snapshot['size']) . '; '
             . __('global.bkmgr_original_size') . ': ' . niceSize($snapshot['original_size']) . '; '

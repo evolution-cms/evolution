@@ -88,12 +88,21 @@ namespace {
         $dumper->setDBtables(['sample']);
         $dumper->setSnapshotFile($directory . '/snapshot.sql');
         $updates = [];
-        $dumper->setProgressCallback(function ($processed, $total) use (&$updates) { $updates[] = $processed / max(1, $total); });
+        $legacyTemp = $directory . '/assets/backup/temp.php';
+        file_put_contents($legacyTemp, 'another backup');
+        $dumper->setProgressCallback(function ($processed, $total) use (&$updates, $legacyTemp) {
+            $updates[] = $processed / max(1, $total);
+            // Reproduce the old manager refresh deleting the shared temporary file mid-export.
+            if (is_file($legacyTemp)) { unlink($legacyTemp); }
+        });
         $dumper->createDump('snapshot');
         if (!in_array(0.25, $updates, true) || !in_array(0.75, $updates, true) || end($updates) !== 1.0) {
             throw new RuntimeException('Native dumper did not report intermediate row progress.');
         }
         $restored = new PDO('sqlite::memory:');
+        if (!str_contains(file_get_contents($directory . '/snapshot.sql'), '-- Evolution CMS Version:3.5.8')) {
+            throw new RuntimeException('Manager refresh removed the snapshot header.');
+        }
         $restored->exec(file_get_contents($directory . '/snapshot.sql'));
         if ((int) $restored->query('SELECT COUNT(*) FROM sample')->fetchColumn() !== 1000) {
             throw new RuntimeException('Progress reporting changed dump contents.');

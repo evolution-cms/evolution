@@ -16,11 +16,6 @@ if (!evo()->getConfig('snapshot_path')) {
     }
 }
 
-$tempFile = evo()->getConfig('snapshot_path') . 'temp.php';
-if (file_exists($tempFile)) {
-    unlink($tempFile);
-}
-
 // Backup Manager by Raymond:
 $mode = isset($_POST['mode']) ? $_POST['mode'] : '';
 $driver = evo()->getDatabase()->getConfig('driver');

@@ -126,7 +126,7 @@ try {
         protected function prepareSnapshotPath($path) {}
         public function createSnapshot($description = '') {
             $path = $this->testDirectory . 'queued.sql';
-            file_put_contents($path, '-- Description: ' . $description . "\nSELECT 1;\n");
+            file_put_contents($path, "-- Evolution CMS Version:3.5.8\n-- Database: example_database\n-- Description: " . $description . "\nSELECT 1;\n");
             return ['path' => $path, 'description' => $description, 'filename' => basename($path), 'size' => filesize($path)];
         }
     };
@@ -147,6 +147,25 @@ try {
     unlink($result['path']);
     $defaultResult = $native->create('  ');
     checkBackup($defaultResult['description'] === 'Backup', 'Empty descriptions must be saved as Backup.');
+    $broken = new class($directory) extends DatabaseBackupArchive {
+        private string $testDirectory;
+        public function __construct(string $directory) { $this->testDirectory = $directory . '/'; }
+        protected function resolveSnapshotPath() { return $this->testDirectory; }
+        protected function prepareSnapshotPath($path) {}
+        public function createSnapshot($description = '') {
+            $path = $this->testDirectory . 'broken.sql';
+            file_put_contents($path, "INSERT INTO sample VALUES (1);\n");
+            return ['path' => $path];
+        }
+    };
+    try {
+        $broken->create();
+        throw new LogicException('A snapshot with a missing header was accepted.');
+    } catch (RuntimeException $error) {
+        checkBackup(str_contains($error->getMessage(), 'header is missing'), 'Missing metadata must fail the backup.');
+    }
+    checkBackup(!is_file($directory . '/broken.sql') && !is_file($directory . '/broken.sql.gz'), 'Incomplete snapshots must not appear as usable backups.');
+    foreach (glob($directory . '/.invalid-*') ?: [] as $file) { unlink($file); }
     unlink($directory . '/.database-backup.lock');
     echo "PASS: fallback, optional worker loading, gzip round trip, metadata, SQLite restore, cleanup, corruption, collision, plain SQL, header safety, concurrent lock, queued snapshot.\n";
 } finally {

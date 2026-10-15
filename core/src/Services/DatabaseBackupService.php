@@ -60,8 +60,6 @@ class DatabaseBackupService
         $filePath = $this->buildSnapshotFilePath($snapshotPath);
 
         $this->prepareSnapshotPath($snapshotPath);
-        $this->prepareTempPath();
-        $this->removeTempFile();
 
         $hadBackupTitle = array_key_exists('backup_title', $_REQUEST);
         $previousBackupTitle = $hadBackupTitle ? $_REQUEST['backup_title'] : null;

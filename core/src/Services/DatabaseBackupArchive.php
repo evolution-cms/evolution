@@ -1,6 +1,8 @@
 <?php namespace EvolutionCMS\Services;
 
 use Illuminate\Support\Facades\Cache;
+use Symfony\Component\Process\ExecutableFinder;
+use Symfony\Component\Process\Process;
 
 /**
  * Compressed snapshots use the same SQL generator as synchronous CMS backups.
@@ -8,6 +10,9 @@ use Illuminate\Support\Facades\Cache;
  */
 class DatabaseBackupArchive extends DatabaseBackupService
 {
+    /** @var string Export backend recorded for troubleshooting slow backups. */
+    protected string $dumpBackend = 'php';
+
     /** Build a locked gzip snapshot without publishing an incomplete archive. @since 3.6.0 */
     public function create(string $description = '', ?callable $progress = null): array
     {
@@ -30,16 +35,124 @@ class DatabaseBackupArchive extends DatabaseBackupService
             $this->setProgressCallback($progress === null ? null : static function ($processed, $total) use ($progress): void {
                 $progress('dump', $processed, $total);
             });
+            $dumpStartedAt = microtime(true);
             $snapshot = $this->createSnapshot($description);
+            $dumpSeconds = microtime(true) - $dumpStartedAt;
+            $header = self::metadata($snapshot['path']);
+            if (empty($header['Evolution CMS Version']) || empty($header['Database'])) {
+                $quarantine = dirname($snapshot['path']) . '/.invalid-' . bin2hex(random_bytes(4)) . '-' . basename($snapshot['path']);
+                if (!rename($snapshot['path'], $quarantine)) {
+                    throw new \RuntimeException('Unable to quarantine the incomplete snapshot.');
+                }
+                throw new \RuntimeException('The backup header is missing; the snapshot may be incomplete.');
+            }
             $snapshot['original_size'] = filesize($snapshot['path']);
+            $compressionStartedAt = microtime(true);
             $snapshot['path'] = $this->compress($snapshot['path'], $progress);
             $snapshot['filename'] = basename($snapshot['path']);
             $snapshot['size'] = filesize($snapshot['path']);
+            $snapshot['metrics'] = ['backend' => $this->dumpBackend, 'dump_seconds' => round($dumpSeconds, 3),
+                'compression_seconds' => round(microtime(true) - $compressionStartedAt, 3)];
             return $snapshot;
         } finally {
             $this->setProgressCallback(null);
             flock($lock, LOCK_UN);
             fclose($lock);
+        }
+    }
+
+    /** Prefer the streaming native client for asynchronous MySQL snapshots. @since 3.6.0 */
+    protected function createDriverSnapshot($driver, $database, $filePath)
+    {
+        if (!in_array((string) $driver, ['mysql', 'mariadb'], true)) {
+            return parent::createDriverSnapshot($driver, $database, $filePath);
+        }
+        $finder = new ExecutableFinder();
+        $binary = $finder->find('mariadb-dump') ?: $finder->find('mysqldump');
+        if (!$binary) { return parent::createDriverSnapshot($driver, $database, $filePath); }
+        $api = evo()->getDatabase();
+        $config = (array) $api->getConfig();
+        $prefix = (string) ($config['prefix'] ?? '');
+        $quotedDatabase = str_replace('`', '``', (string) $database);
+        $tables = $api->getColumn('Name', $api->query("SHOW TABLE STATUS FROM `{$quotedDatabase}` LIKE '" . $api->escape($prefix) . "%'"));
+        if (!$tables) { return parent::createDriverSnapshot($driver, $database, $filePath); }
+        $estimate = 0;
+        $result = $api->queryWithBindings('SELECT COALESCE(SUM(data_length), 0) FROM information_schema.TABLES WHERE table_schema = ? AND table_name LIKE ?',
+            [(string) $database, $prefix . '%']);
+        if ($result) { $estimate = (int) $api->getValue($result); }
+        $this->dumpBackend = basename($binary);
+        return $this->writeMySqlSnapshot($binary, $config, (string) $database, $tables, (string) $filePath,
+            $this->buildSqlHeader('--', (string) $database, (string) ($config['host'] ?? '')), $estimate);
+    }
+
+    /**
+     * Stream CLI SQL into a private file, preserving the CMS header and limiting memory usage.
+     * The flags keep the same table-only scope as the PHP exporter; credentials never enter argv.
+     * @since 3.6.0
+     */
+    protected function writeMySqlSnapshot(string $binary, array $config, string $database, array $tables,
+        string $filePath, string $header, int $estimate): bool
+    {
+        $credentials = tempnam(sys_get_temp_dir(), 'evo-db-');
+        $temporary = tempnam(dirname($filePath), '.database-backup-');
+        $handle = null;
+        $process = null;
+        try {
+            if ($credentials === false || $temporary === false) {
+                throw new \RuntimeException('Unable to create private dump files.');
+            }
+            if (!chmod($credentials, 0600)) { throw new \RuntimeException('Unable to protect database client options.'); }
+            $options = ['[client]'];
+            foreach (['host' => 'host', 'port' => 'port', 'unix_socket' => 'socket', 'username' => 'user', 'password' => 'password'] as $key => $option) {
+                if (!isset($config[$key]) || $config[$key] === '') { continue; }
+                $value = str_replace(["\\", '"', "\n", "\r"], ["\\\\", '\\"', '\\n', '\\r'], (string) $config[$key]);
+                $options[] = $option . '="' . $value . '"';
+            }
+            if (file_put_contents($credentials, implode("\n", $options) . "\n") === false) {
+                throw new \RuntimeException('Unable to write database client options.');
+            }
+            $handle = fopen($temporary, 'wb');
+            if ($handle === false || fwrite($handle, $header) !== strlen($header)) {
+                throw new \RuntimeException('Unable to write the backup header.');
+            }
+            $arguments = [$binary, '--defaults-extra-file=' . $credentials, '--single-transaction', '--quick',
+                '--skip-lock-tables', '--skip-add-locks', '--skip-disable-keys', '--skip-comments', '--skip-triggers',
+                '--hex-blob', '--default-character-set=utf8mb4', '--no-tablespaces', '--', $database];
+            $process = new Process(array_merge($arguments, array_values($tables)));
+            $process->setTimeout(null);
+            $processed = 0;
+            $error = '';
+            if ($this->progressCallback !== null) { ($this->progressCallback)(0, $estimate); }
+            $process->run(function ($type, $chunk) use ($handle, $process, $estimate, &$processed, &$error): void {
+                if ($type === Process::ERR) {
+                    $error = substr($error . $chunk, -4096);
+                    $process->clearErrorOutput();
+                    return;
+                }
+                if (fwrite($handle, $chunk) !== strlen($chunk)) { throw new \RuntimeException('Unable to write dump output.'); }
+                $processed += strlen($chunk);
+                $process->clearOutput();
+                if ($this->progressCallback !== null) {
+                    ($this->progressCallback)($estimate > 0 ? min($processed, $estimate * 0.99) : 0, $estimate);
+                }
+            });
+            if (!$process->isSuccessful() || $processed === 0) {
+                $error = str_replace((string) ($config['password'] ?? ''), '[redacted]', $error);
+                throw new \RuntimeException('Database client dump failed: ' . trim($error));
+            }
+            fclose($handle);
+            $handle = null;
+            if (!rename($temporary, $filePath)) { throw new \RuntimeException('Unable to publish dump output.'); }
+            if ($this->progressCallback !== null) { ($this->progressCallback)(max(1, $estimate), max(1, $estimate)); }
+            return true;
+        } catch (\Throwable $error) {
+            if ($process instanceof Process && $process->isRunning()) { $process->stop(3); }
+            throw $error;
+        } finally {
+            if (is_resource($handle)) { fclose($handle); }
+            foreach ([$credentials, $temporary] as $path) {
+                if (is_string($path) && is_file($path)) { unlink($path); }
+            }
         }
     }
 

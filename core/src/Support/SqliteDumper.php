@@ -21,6 +21,9 @@ class SqliteDumper
      */
     private $snapshootFile;
 
+    /** @var string|null Private staging file owned by this snapshot attempt. */
+    private ?string $temporarySnapshotFile = null;
+
     /** @var callable|null Optional snapshot progress observer. */
     private $progressCallback = null;
 
@@ -162,6 +165,11 @@ class SqliteDumper
             }
 
             throw $throwable;
+        } finally {
+            if ($this->temporarySnapshotFile !== null && is_file($this->temporarySnapshotFile)) {
+                unlink($this->temporarySnapshotFile);
+            }
+            $this->temporarySnapshotFile = null;
         }
     }
 
@@ -169,6 +177,11 @@ class SqliteDumper
     {
         $lf = "\n";
         $tempfile_path = EVO_BASE_PATH . 'assets/backup/temp.php';
+        if ($callBack === 'snapshot') {
+            $temporary = tempnam(dirname($this->snapshootFile), '.database-backup-');
+            if ($temporary === false) { throw new \RuntimeException('Unable to create snapshot staging file.'); }
+            $this->temporarySnapshotFile = $tempfile_path = $temporary;
+        }
 
         $version = $modx->getVersionData();
         $host = $config['host'] ?? '';
