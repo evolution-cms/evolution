@@ -3562,9 +3562,25 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         } elseif (Str::contains($url, '[~')) {
             $url = UrlProcessor::rewriteUrls($url); // if it's an internal docid tag, process it
         }
+        $url = $this->resolveWeblinkPath($url);
         // The resource's stored link is trusted configuration, not a request return URL.
         $this->sendRedirect($url, 0, '', 302, true);
         exit;
+    }
+
+    /**
+     * Anchors a site-relative weblink path ("assets/files/doc.pdf", as the file browser inserts it)
+     * to the site base URL. Front-end pages resolve such paths through <base href>, but a Location
+     * header is resolved against the weblink's own URL, so "/folder/link/" would become
+     * "/folder/link/assets/files/doc.pdf".
+     */
+    public function resolveWeblinkPath(string $url, ?string $baseUrl = null): string
+    {
+        if ($url === '' || str_contains('/?#\\', $url[0]) || preg_match('@^[a-z][a-z0-9+.-]*:@i', $url)) {
+            return $url;
+        }
+
+        return rtrim($baseUrl ?? EVO_BASE_URL, '/') . '/' . $url;
     }
 
     /**

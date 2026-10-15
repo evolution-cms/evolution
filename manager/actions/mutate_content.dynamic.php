@@ -272,8 +272,11 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
           if (getSelectedResourceType() === 'reference') {
             var linkField = document.getElementById('weblink-content');
             var rawUrl = linkField ? linkField.value.trim() : '';
-            if (rawUrl !== '') {
-              previewUrl = rawUrl;
+            if (/^[1-9]\d*$/.test(rawUrl)) {
+              previewUrl = <?= js_json(EVO_SITE_URL . 'index.php?id=') ?> + rawUrl;
+            } else if (rawUrl !== '') {
+              // A site-relative path is anchored to the site, not to the manager page.
+              previewUrl = /^([a-z][a-z0-9+.-]*:|[\/?#\\])/i.test(rawUrl) ? rawUrl : <?= js_json(EVO_SITE_URL) ?> + rawUrl;
             }
           }
           window.open(previewUrl, 'previeWin');
@@ -309,8 +312,8 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
           referenceFields.style.display = '';
           documentFields.style.display = 'none';
           var linkField = document.getElementById('weblink-content');
-          if (linkField && linkField.value.trim() === '' && document.mutate.ta) {
-            linkField.value = document.mutate.ta.value.trim() !== '' ? document.mutate.ta.value : 'http://';
+          if (linkField && linkField.value.trim() === '' && document.mutate.ta && document.mutate.ta.value.trim() !== '') {
+            linkField.value = document.mutate.ta.value;
           }
         } else {
           referenceFields.style.display = 'none';
@@ -323,6 +326,7 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
 
       function enableLinkSelection(b) {
         var llock = document.getElementById('llock');
+        var linkField = document.getElementById('weblink-content');
         if(b) {
           parent.tree.ca = "link";
           llock.className = "<?= $_style["icon_chain_broken"] ?>";
@@ -332,6 +336,9 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
           parent.tree.ca = "open";
           llock.className = "<?= $_style["icon_chain"] ?>";
           allowLinkSelection = false;
+        }
+        if (linkField) {
+          linkField.placeholder = linkField.getAttribute(b ? 'data-placeholder-id' : 'data-placeholder-url');
         }
       }
 
@@ -788,7 +795,7 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
                                         </td>
                                         <td>
                                             <i id="llock" class="<?= $_style["icon_chain"] ?>" onclick="enableLinkSelection(!allowLinkSelection);"></i>
-                                            <input id="weblink-content" type="text" maxlength="255" value="<?= (!empty($content['content']) ? entities(stripslashes($content['content']), $modx->getConfig('modx_charset')) : 'http://') ?>" class="inputBox" onchange="documentDirty=true;" /><input type="button" value="<?=ManagerTheme::getLexicon('insert');?>" onclick="BrowseFileServer('weblink-content')" />
+                                            <input id="weblink-content" type="text" maxlength="255" value="<?= (!empty($content['content']) ? entities(stripslashes($content['content']), $modx->getConfig('modx_charset')) : '') ?>" placeholder="https://evo.im" data-placeholder-url="https://evo.im" data-placeholder-id="123" class="inputBox" onchange="documentDirty=true;" /><input type="button" value="<?=ManagerTheme::getLexicon('insert');?>" onclick="BrowseFileServer('weblink-content')" />
                                         </td>
                                     </tr>
                                 </tbody>
