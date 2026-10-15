@@ -80,10 +80,8 @@
     }
 
     // Get Template name
-    $templatename = \EvolutionCMS\Models\SiteTemplate::query()->where('id', '=', $content['template'])->get()->toArray();
-    if (count($templatename)) {
-        $templatename = $templatename[0]['templatename'];
-    }
+    // a resource can still point at a template that has since been deleted
+    $templatename = \EvolutionCMS\Models\SiteTemplate::query()->whereKey($content['template'])->value('templatename');
 
     // Set the item name for logger
     $_SESSION['itemname'] = $content['pagetitle'];
@@ -435,8 +433,15 @@
                     </tr>
                     <tr>
                         <td>{{ ManagerTheme::getLexicon('page_data_template') }}:</td>
-                        <td><?= $content['template'] == 0 ? "(<i>" . ManagerTheme::getLexicon('not_set') . "</i>)" : entities($templatename,
-                                evo()->getConfig('modx_charset')) ?></td>
+                        <td>
+                            @if($content['template'] == 0)
+                                (<i>{{ ManagerTheme::getLexicon('not_set') }}</i>)
+                            @elseif($templatename === null)
+                                <span class="text-danger">{{ sprintf(ManagerTheme::getLexicon('template_not_found'), (int) $content['template']) }}</span>
+                            @else
+                                {{ $templatename }}
+                            @endif
+                        </td>
                     </tr>
                     <tr>
                         <td>{{ ManagerTheme::getLexicon('page_data_editor') }}:</td>

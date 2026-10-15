@@ -1082,6 +1082,7 @@ $_lang["template_management_msg"] = 'Choose which Template you wish to edit.';
 $_lang["template_msg"] = 'Create and edit Templates. Changed or new Templates won\'t be visible in your site\'s cached pages until the cache is emptied, however, you can use the preview function on a page to see the Template in action.';
 $_lang["template_name"] = 'Template name';
 $_lang["template_no_tv"] = 'No Template Variables have been assigned to this Template yet.';
+$_lang["template_not_found"] = 'Template #%s not found: it was deleted or never existed. Choose another template in the resource editor.';
 $_lang["template_notassigned_tv"] = 'These Template Variables are available for assigning.';
 $_lang["template_reset_all"] = 'Reset all pages to use Default Template';
 $_lang["template_reset_specific"] = 'Reset only \'%s\' pages';
