@@ -302,7 +302,8 @@ class uploader
             $htaccess = "{$this->config['uploadDir']}/.htaccess";
             if (!file_exists($htaccess)) {
                 if (!@file_put_contents($htaccess, $this->get_htaccess()))
-                    $this->backMsg("Cannot write to upload folder. {$this->config['uploadDir']}");
+                    // the absolute path is not the user's business, and made the label untranslatable
+                    $this->backMsg("Cannot write to upload folder.");
             } else {
                 if (false === ($data = @file_get_contents($htaccess)))
                     $this->backMsg("Cannot read .htaccess");
@@ -855,9 +856,11 @@ class uploader
     protected function label($string, array $data = null)
     {
         $return = isset($this->labels[$string]) ? $this->labels[$string] : $string;
+        // the browser shows these messages as HTML (browser.alert), and the values are file and
+        // folder names anyone who can upload chose
         if (is_array($data))
             foreach ($data as $key => $val)
-                $return = str_replace("{{$key}}", $val, $return);
+                $return = str_replace("{{$key}}", htmlspecialchars((string) $val, ENT_QUOTES, 'UTF-8'), $return);
         return $return;
     }
 
