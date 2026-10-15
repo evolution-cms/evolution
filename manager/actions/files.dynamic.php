@@ -246,10 +246,14 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
 }
 ?>
     <script type="text/javascript">
-        var current_path = '<?= addslashes($relative_path) ?>';
+        // A folder name may hold < > " ' (newfolder only strips slashes), so the path is emitted as
+        // a JSON string literal - addslashes did not stop a name from closing the <script> block.
+        var current_path = <?= js_json((string) $relative_path) ?>;
         function viewfile(url) {
             var el = document.getElementById('imageviewer');
-            el.innerHTML = '<img src="' + url + '" />';
+            var img = document.createElement('img');
+            img.src = url;
+            el.replaceChildren(img);
             el.style.display = 'block'
         }
         function setColor(o, state) {

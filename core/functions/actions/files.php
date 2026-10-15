@@ -1043,7 +1043,7 @@ if(!function_exists('ls')) {
                     && fileManagerCanModifyExistingPath($rel_newpath, $userGroups ?? [], $fileGroupsMap ?? [])
                     && is_writable($newpath);
                 $files_array[$filecounter]['view'] = in_array($type, $viewablefiles)
-                    ? '<a href="javascript:;" onclick="viewfile(\'../' . addslashes($rel_web) . '\');"><i class="' . $_style['icon_eye'] . '" title="'
+                    ? '<a href="javascript:;" onclick="viewfile(\'../' . implode('/', array_map('rawurlencode', explode('/', $rel_web))) . '\');"><i class="' . $_style['icon_eye'] . '" title="'
                     . $_lang['files_viewfile'] . '"></i></a>'
                     : (($enablefiledownload && in_array($type, $uploadablefiles))
                         ? '<a href="../' . implode('/', array_map('rawurlencode',
