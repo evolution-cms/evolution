@@ -15,7 +15,7 @@
 			<td>
 				<ul>
 				<?php foreach( $items as $item ) : ?>
-					<li><?php echo (strtolower($element)==='templates')? $item['templatename'] : $item['name']; ?></li>
+					<li><?php echo e((string)((strtolower($element)==='templates')? $item['templatename'] : $item['name'])); ?></li>
 				<?php endforeach; ?>
 				</ul>
 			</td>

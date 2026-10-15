@@ -24,21 +24,21 @@
                 foreach ($data as $category) : ?>
                     <tr>
                         <td>
-                            <button class="btn btn-secondary collapsed" type="button" data-toggle="collapse" data-target="#collapse-edit-<?php echo $i; ?>" aria-expanded="false" aria-controls="#collapse-edit-<?php echo $i; ?>" data-tooltip="#assigned-elements-<?php echo $category['id']; ?>">
+                            <button class="btn btn-secondary collapsed" type="button" data-toggle="collapse" data-target="#collapse-edit-<?php echo $i; ?>" aria-expanded="false" aria-controls="#collapse-edit-<?php echo $i; ?>" data-tooltip="#assigned-elements-<?php echo (int)$category['id']; ?>">
                                 <i class="<?= $_style['icon_info_circle'] ?>"></i>
                             </button>
-                            <div id="assigned-elements-<?php echo $category['id']; ?>" class="hide"><?php $view->renderView('chunks/edit/assigned_elements', $view->getAllAssignedElements($category['id'])); ?></div>
+                            <div id="assigned-elements-<?php echo (int)$category['id']; ?>" class="hide"><?php $view->renderView('chunks/edit/assigned_elements', $view->getAllAssignedElements($category['id'])); ?></div>
                         </td>
                         <td>
-                            <input type="hidden" name="<?php echo $view->get('request_key'); ?>[edit][data][<?php echo $category['id'] ?>][rank]" value="<?php echo $category['rank']; ?>" />
-                            <input type="hidden" name="<?php echo $view->get('request_key'); ?>[edit][data][<?php echo $category['id'] ?>][origin]" value="<?php echo urlencode($category['category']); ?>" />
-                            <input type="text" name="<?php echo $view->get('request_key'); ?>[edit][data][<?php echo $category['id'] ?>][category]" value="<?php echo htmlspecialchars($category['category']); ?>" />
+                            <input type="hidden" name="<?php echo $view->get('request_key'); ?>[edit][data][<?php echo (int)$category['id'] ?>][rank]" value="<?php echo (int)$category['rank']; ?>" />
+                            <input type="hidden" name="<?php echo $view->get('request_key'); ?>[edit][data][<?php echo (int)$category['id'] ?>][origin]" value="<?php echo urlencode($category['category']); ?>" />
+                            <input type="text" name="<?php echo $view->get('request_key'); ?>[edit][data][<?php echo (int)$category['id'] ?>][category]" value="<?php echo e((string)$category['category']); ?>" />
                         </td>
                         <td class="text-xs-center">
-                            <input type="checkbox" name="<?php echo $view->get('request_key'); ?>[edit][data][<?php echo $category['id'] ?>][delete]" value="1" />
+                            <input type="checkbox" name="<?php echo $view->get('request_key'); ?>[edit][data][<?php echo (int)$category['id'] ?>][delete]" value="1" />
                         </td>
                         <td class="text-xs-center">
-                            <a class="btn btn-outline-danger" onclick="return confirm('<?php echo $view->txt('are_you_sure'); ?>');" href="<?php echo $view->get('url'); ?>&amp;<?php echo $view->get('request_key'); ?>[delete]=<?php echo $category['id']; ?>&amp;<?php echo $view->get('request_key'); ?>[category]=<?php echo urlencode($category['category']); ?>&amp;_token=<?php echo csrf_token(); ?>" data-tooltip="<?php echo htmlspecialchars($category['category']) ?>::<?php echo sprintf($view->txt('cm_delete_element_x_now'), htmlspecialchars($category['category'])); ?>"><i class="<?= $_style['icon_info_triangle'] ?>"></i> <?php echo $view->txt('delete'); ?></a>
+                            <a class="btn btn-outline-danger" onclick="return confirm('<?php echo $view->txt('are_you_sure'); ?>');" href="<?php echo $view->get('url'); ?>&amp;<?php echo $view->get('request_key'); ?>[delete]=<?php echo (int)$category['id']; ?>&amp;<?php echo $view->get('request_key'); ?>[category]=<?php echo urlencode($category['category']); ?>&amp;_token=<?php echo csrf_token(); ?>" data-tooltip="<?php echo e((string)(e((string)$category['category']) . '::' . e((string)sprintf($view->txt('cm_delete_element_x_now'), $category['category'])))); ?>"><i class="<?= $_style['icon_info_triangle'] ?>"></i> <?php echo $view->txt('delete'); ?></a>
                         </td>
                     </tr>
                     <tr class="collapse" id="collapse-edit-<?php echo $i; ?>">

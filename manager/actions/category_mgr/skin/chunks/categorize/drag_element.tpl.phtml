@@ -1,6 +1,6 @@
-<div class="drag" id="categorize-element-<?php echo $data['id']; ?>"<?= (!empty($data['description']) ? ' data-tooltip="#categorize-element-' . $data['id'] . '-info"' : '') ?>>
-    <h4><?= $data['name'] ?></h4>
+<div class="drag" id="categorize-element-<?php echo (int)$data['id']; ?>"<?= (!empty($data['description']) ? ' data-tooltip="#categorize-element-' . (int)$data['id'] . '-info"' : '') ?>>
+    <h4><?= e((string)$data['name']) ?></h4>
     <?php if (!empty($data['description'])) : ?>
-        <p id="categorize-element-<?php echo $data['id']; ?>-info"><?= $data['description'] ?></p>
+        <p id="categorize-element-<?php echo (int)$data['id']; ?>-info"><?= sanitize_inline_html($data['description']) ?></p>
     <?php endif; ?>
 </div>
