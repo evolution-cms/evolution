@@ -110,6 +110,22 @@ final class UploadLimits
     }
 
     /**
+     * What went wrong and what to do, as one plain sentence pair for a JSON client.
+     *
+     * @param array<string, string> $lang Lexicon entries; English fallbacks are built in.
+     */
+    public static function discardedBodyMessage(array $lang, int $length, int $postMax): string
+    {
+        return sprintf(
+            $lang['upload_request_too_large']
+                ?? 'The request was not accepted: it is %1$s, but this server takes at most %2$s per request (PHP post_max_size). Nothing was saved.',
+            self::humanSize($length),
+            self::humanSize($postMax)
+        ) . ' ' . ($lang['upload_request_too_large_hint']
+            ?? 'Upload fewer or smaller files, or ask the administrator to raise post_max_size and upload_max_filesize.');
+    }
+
+    /**
      * The 413 page. Only sizes and lexicon text, never a path.
      *
      * @param array<string, string> $lang Lexicon entries; English fallbacks are built in.
@@ -140,19 +156,22 @@ final class UploadLimits
      *
      * @param array<string, mixed> $server
      */
-    public static function rejectDiscardedBody(array $server, string $langDir): never
+    public static function rejectDiscardedBody(array $server, string $langDir, bool $json = false): never
     {
         $postMax = self::postMaxSize();
+        $length = (int) ($server['CONTENT_LENGTH'] ?? 0);
         $code = self::language((string) ($server['HTTP_ACCEPT_LANGUAGE'] ?? ''), $langDir);
         $_lang = [];
         include $langDir . '/' . $code . '/global.php';
 
         if (!headers_sent()) {
             http_response_code(413);
-            header('Content-Type: text/html; charset=utf-8');
+            header('Content-Type: ' . ($json ? 'application/json' : 'text/html') . '; charset=utf-8');
             header('Cache-Control: no-store');
         }
-        echo self::discardedBodyPage($_lang, (int) ($server['CONTENT_LENGTH'] ?? 0), $postMax, $code);
+        echo $json
+            ? json_encode(['success' => false, 'message' => self::discardedBodyMessage($_lang, $length, $postMax)])
+            : self::discardedBodyPage($_lang, $length, $postMax, $code);
         exit;
     }
 }

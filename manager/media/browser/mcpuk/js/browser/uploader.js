@@ -357,12 +357,26 @@ browser.uploadFile = function(file, index, count) {
                 try {
                     response = $.parseJSON(xhr.responseText);
                 } catch (error) {
-                    reject(browser.label("Unable to process server response"));
+                    // with display_errors on, PHP may print a startup warning ahead of the answer
+                    var start = xhr.responseText.lastIndexOf('{"success"');
+                    try {
+                        response = start > 0 ? $.parseJSON(xhr.responseText.slice(start)) : null;
+                    } catch (ignore) {
+                        response = null;
+                    }
+                }
+                if (!response) {
+                    // 413: the server refused the request size before it could answer in JSON
+                    reject(xhr.status === 413
+                        ? browser.label("The uploaded file exceeds {size} bytes.", {size: browser.maxFileSize})
+                        : browser.label("Unable to process server response"));
                     return;
                 }
 
                 if (xhr.status < 200 || xhr.status >= 300) {
-                    reject(browser.label("Server error") + ' ' + xhr.status);
+                    reject(response && typeof response.message === 'string' && response.message !== ''
+                        ? response.message
+                        : browser.label("Server error") + ' ' + xhr.status);
                 } else {
                     resolve(response);
                 }

@@ -115,3 +115,37 @@ it('stops an oversized selection in the file manager before it is sent', functio
         ->and($source)->toContain("js_json(\$_lang['upload_files_too_large'])")
         ->and($source)->not->toContain('onchange="document.upload.submit();"');
 });
+
+it('gives JSON clients one plain message with both sizes', function () {
+    $_lang = [];
+    include dirname(__DIR__, 3) . '/lang/en/global.php';
+
+    expect(UploadLimits::discardedBodyMessage($_lang, 24613846, 8388608))
+        ->toStartWith('The request was not accepted: it is 23.5 MB, but this server takes at most 8 MB')
+        ->toContain('post_max_size and upload_max_filesize')
+        ->not->toContain('<');
+});
+
+it('answers a discarded media browser upload in JSON before the session starts', function () {
+    $browse = (string) file_get_contents(dirname(__DIR__, 4) . '/manager/media/browser/mcpuk/browse.php');
+
+    $guard = strpos($browse, "UploadLimits::rejectDiscardedBody(\$_SERVER, \$uploadLimitsCore . '/lang', true)");
+    expect($guard)->toBeInt()
+        ->and($guard)->toBeLessThan(strpos($browse, 'require "core/autoload.php";'));
+});
+
+it('announces the limit PHP applies to the media browser, not the setting alone', function () {
+    $config = (string) file_get_contents(dirname(__DIR__, 4) . '/manager/media/browser/mcpuk/config.php');
+
+    expect($config)->toContain("'maxfilesize'         => \EvolutionCMS\Support\UploadLimits::fileLimit(EvolutionCMS()->getConfig('upload_maxsize')),")
+        ->not->toContain("'maxfilesize'         => (int)EvolutionCMS()->getConfig('upload_maxsize'),");
+});
+
+it('stops displaying the warnings of a discarded front-end POST before headers are sent', function () {
+    $index = (string) file_get_contents(dirname(__DIR__, 4) . '/index.php');
+
+    $guard = strpos($index, "@ini_set('display_errors', '0');\n    }\n}");
+    expect($guard)->toBeInt()
+        ->and(strpos($index, 'UploadLimits::bodyWasDiscarded($_SERVER, $_POST, $_FILES)'))->toBeLessThan($guard)
+        ->and($guard)->toBeLessThan(strpos($index, "require \$config['core'] . '/bootstrap.php';"));
+});

@@ -59,6 +59,15 @@ if (is_file($configPath)) {
 }
 unset($configPath);
 
+// A POST over post_max_size arrives empty after a PHP startup warning. Keep the warnings that
+// follow from it (headers already sent, with server paths) off the page; the request goes on as before.
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && is_file($config['core'] . '/src/Support/UploadLimits.php')) {
+    require_once $config['core'] . '/src/Support/UploadLimits.php';
+    if (\EvolutionCMS\Support\UploadLimits::bodyWasDiscarded($_SERVER, $_POST, $_FILES)) {
+        @ini_set('display_errors', '0');
+    }
+}
+
 $installMarkerPath = $config['core'] . '/.install';
 if (!defined('IN_INSTALL_MODE') && !is_file($installMarkerPath)) {
     header('HTTP/1.1 503 Service Temporarily Unavailable');
