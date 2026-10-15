@@ -53,3 +53,32 @@ test('postgres dump output is streamed rather than buffered in memory', function
         ->toContain('fwrite($handle, $buffer)')
         ->not->toContain('fwrite($handle, $process->getOutput())');
 });
+
+test('a snapshot never takes the name of a compressed snapshot from the same second', function () {
+    $directory = sys_get_temp_dir() . '/evo-snapshot-names-' . bin2hex(random_bytes(6));
+    mkdir($directory);
+    $service = new class(dirname(__DIR__, 3) . '/') extends \EvolutionCMS\Services\DatabaseBackupService {
+        public function nameIn(string $directory): string
+        {
+            return basename($this->buildSnapshotFilePath($directory));
+        }
+    };
+
+    try {
+        $first = $service->nameIn($directory);
+        // A queued snapshot is compressed and its .sql removed; a second one in the same
+        // second used to pick the same name and fail on "Compressed snapshot already exists".
+        file_put_contents($directory . '/' . $first . '.gz', 'gz');
+        $second = $service->nameIn($directory);
+        file_put_contents($directory . '/' . $second, 'sql');
+        $third = $service->nameIn($directory);
+
+        expect($first)->toMatch('/^\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.sql$/')
+            ->and($second)->not->toBe($first)
+            ->and($third)->not->toBe($first)
+            ->and($third)->not->toBe($second);
+    } finally {
+        array_map('unlink', glob($directory . '/*') ?: []);
+        rmdir($directory);
+    }
+});

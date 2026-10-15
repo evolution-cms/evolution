@@ -115,7 +115,7 @@ describe('backup manager call sites', function () {
         // path is compared against the directory it must sit in.
         expect($source)
             ->toContain('$filename = basename(')
-            ->toContain("preg_match('/^[A-Za-z0-9_.-]+\\.sql$/', \$filename)")
+            ->toContain("preg_match('/^[A-Za-z0-9_.-]+\\.sql(?:\\.gz)?$/D', \$filename)")
             ->toContain('strncmp($path, $snapshotDir')
             ->not->toContain("EvolutionCMS()->getConfig('snapshot_path') . \$_POST['filename']");
     });

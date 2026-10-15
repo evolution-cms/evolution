@@ -292,6 +292,7 @@ When you add or change a manager action, work through this:
 | A form that changes anything | Emit `@csrf` (Blade) or `<?= csrf_field() ?>` (legacy `.php` / `.phtml`) inside the `<form>` |
 | JS that posts to `index.php` | Send `_token` in the body, or set the `X-CSRF-TOKEN` header. Read it from `<meta name="csrf-token">` (in `manager/views/partials/header.blade.php`) or from a form field on the page |
 | An action that changes state and reads `$_GET` or `$_REQUEST` | Add its action id to `VerifyCsrfToken::MUTATING_GET_ACTIONS`, **and** append `&_token=` to every link that triggers it |
+| A page that renders on plain GET but changes state once a query parameter is present (`?action=delete`, `?op=add`) | Add `action id => parameter` to `VerifyCsrfToken::MUTATING_GET_PARAMETERS` instead, so navigation to the page still works, **and** append `&_token=` to the links that carry the parameter |
 | Code that walks the whole `$_POST` body | Skip the `_token` key, or it will be saved as data |
 
 Two traps worth stating outright, because both have already caused bugs here:
@@ -335,6 +336,7 @@ folder is protected unconditionally.
 | `temp/import`, `assets/import` | `import_static` |
 | `temp/export`, `assets/export` | `export_static` |
 | `manager/`, `core/` | any one of `save_snippet`, `save_plugin`, `save_module` (`fileManagerMayRunCode()`) |
+| every view path (`config('view.paths')`, by default `views/`; `fileManagerTemplateViewPaths()`) | the same code permission: a template file there is executed by its engine, whatever the extension |
 | everything else under `filemanager_path` | `file_manager` only |
 
 `save_snippet`, `save_plugin` and `save_module` store PHP that the server runs, so whoever holds one
@@ -356,8 +358,9 @@ server-side code, whatever the extension, and there is no "safe" engine to allow
 needs a code permission (`fileManagerMayRunCode()`: one of `save_snippet` / `save_plugin` /
 `save_module`), **not** `save_template`. Two paths reach it, and both enforce it:
 
-- The file manager, through the `views/` rules of layer 1 (a view path is not `assets/templates`;
-  that folder holds parsed front-end HTML and stays on `save_template`).
+- Both file managers, through the view-path row of layer 1 (`fileManagerTemplateViewPaths()`; a view
+  path is not `assets/templates`: that folder holds parsed front-end HTML and stays on `save_template`).
+  Test: `TemplateFileWritePermissionTest.php`.
 - `manager/processors/save_template.processor.php`, when the form posts `templatesource=file` or asks
   for a file to be created. It calls `EvolutionCMS\Support\TemplateFileGuard` before touching the
   filesystem; a `save_template`-only user keeps database templates and is refused the file. Do not
@@ -368,7 +371,7 @@ needs a code permission (`fileManagerMayRunCode()`: one of `save_snippet` / `sav
 
 | Name                                                                                                                                                                       | Allowed when |
 |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---|
-| Executable or server-config name (`fileManagerIsExecutableName()`: a PHP-like extension anywhere in the name, `.htaccess`, `.htpasswd`, `.user.ini`, `.env`, `web.config`) | the user may run code (`fileManagerMayRunCode()`) **and** the extension is in the allowed lists |
+| Executable or server-config name (`fileManagerIsExecutableName()`: a server-script extension anywhere in the name - `php*`, `phps`, `phtml`, `pht`, `phar`, `inc`, `cgi`, `pl`, `py`, `sh`, `asp`, `aspx`, `jsp` - or exactly `.htaccess`, `.htpasswd`, `.user.ini`, `.env`, `web.config`) | the user may run code (`fileManagerMayRunCode()`) **and** the extension is in the allowed lists |
 | Any other name                                                                                                                                                             | the extension is in `upload_files` / `upload_images` / `upload_media` |
 
 A Windows device name (`CON`, `NUL`, `COM1.jpg` ...; `fileManagerIsReservedDeviceName()`) is refused on every platform, in both file managers: on PHP before 8.3.35 / 8.4.26 / 8.5.11 (CVE-2026-17545) a filesystem call on one can hang the worker. The check also covers folder names and every path segment a request sends (`fileManagerRefuseReservedName()`), and runs before the first filesystem probe: in `fileManagerResolvePath()`, `fileManagerPathContainsLink()`, `fileManagerIsSafeWriteTarget()`, folder rename, and the media browser (`checkInputDir()`, `refuseReservedRequestNames()`).
@@ -391,7 +394,7 @@ executable file cannot be edited without the code permission.
 | ZIP extraction | the archive and the target folder, and **each entry** via `fileManagerZipWriteGuard()` |
 | ZIP extraction, source archive | the archive itself must pass the folder rules of layer 1 too (not only its group access) |
 | ZIP extraction, inherited groups | only files the archive **created** receive the folder's groups (`$created` of `fileManagerExtractZip()`) |
-| Saving groups of a file | leaving it with no direct group at all is "make public" and needs `manage_groups` |
+| Saving groups of a file | the groups section needs `manage_groups` or `manage_document_permissions`; without `manage_groups` a user adds or removes only groups they belong to, and may not touch a file that carries a group they are not in. Leaving it with no direct group at all is "make public" and needs `manage_groups` |
 
 **Always enforced**
 
@@ -407,6 +410,22 @@ executable file cannot be edited without the code permission.
 When you add a file manager write path, apply layer 1 (`fileManagerPathIsProtected()`), the name rule
 for any new or changed name, and layer 3 for any existing file it touches. Tests:
 `core/tests/Unit/Security/FileManagerWritePathChecksTest.php` and `FileManagerPathContainmentTest.php`.
+
+### Database backup and restore rules
+
+The Backup manager (`manager/actions/bkmanager.static.php`, action 93) needs `bk_manager`.
+
+| Operation | Requirement |
+|---|---|
+| Download a dump, take a snapshot | `bk_manager` |
+| Restore (`restore1` pasted/uploaded SQL, `restore2` a snapshot, plain or `.sql.gz`) | `bk_manager` **and** `BackendCodePermissions::granted()`, checked before any mode runs; the snapshot name must match `[A-Za-z0-9_.-]+\.sql(\.gz)?` and resolve inside `snapshot_path` |
+| Queued snapshot through the optional sTask worker (`EvolutionCMS\Workers\DatabaseBackup`) | the same `bk_manager`. sTask itself checks nothing: its run endpoint and workers table create a task of any active worker for any manager, and the task runs later without a session. So the worker checks twice: `createTask()` asks the session, `taskMake()` asks `BackgroundDatabaseBackup::userMayBackup()` about the task's `started_by` (exists, not blocked, role holds `bk_manager`) |
+| Scheduled snapshot (sTask scheduler, CLI) | runs as the manager stored in the worker setting `backup_authorized_by`. Only `BackgroundDatabaseBackup::authorizeSchedule()` (listener on `eloquent.saving` of `sWorker`) writes it: the manager who saves the worker, when the schedule is on and they hold `bk_manager`, otherwise 0; a posted value never counts, a save without a manager session keeps the stored one. A queued scheduled task (meta `backup_scheduled`) is refused once that authorisation no longer names its `started_by` |
+
+There is no queued restore. Do not add one, nor another way to start a snapshot, without these checks.
+Tests: `core/tests/Unit/Security/BackgroundBackupPermissionTest.php`, `BackendCodePermissionsTest.php`, `BackupManagerShellTest.php`.
+
+---
 
 ## Dependencies of Note
 

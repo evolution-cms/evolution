@@ -64,3 +64,22 @@ it('blocks a save_template-only publisher from planting an executable template f
     // writes a file, but not allowed to -> the processor quits with no_privileges
     expect($wouldWrite && !$mayRunCode)->toBeTrue();
 })->with(['php', 'blade.php', 'latte', 'twig']);
+
+it('closes the view paths in the file manager to a manager who may not run code', function () {
+    $functions = (string) file_get_contents(dirname(__DIR__, 3) . '/functions/actions/files.php');
+    $body = substr($functions, strpos($functions, 'function fileManagerProtectedPaths'), 2500);
+    $gate = strpos($body, 'if (!fileManagerMayRunCode()) {');
+
+    // The media browser reads the same list (isInProtectedFolder()), so both file managers are covered.
+    expect($gate)->not->toBeFalse()
+        ->and(strpos($body, 'fileManagerTemplateViewPaths()'))->toBeGreaterThan($gate);
+});
+
+it('takes the view paths from the configuration and falls back to the shipped views folder', function () {
+    $shipped = (defined('EVO_BASE_PATH') ? EVO_BASE_PATH : dirname(__DIR__, 4) . '/') . 'views';
+
+    expect(fileManagerTemplateViewPaths(['/srv/site/views/', '/srv/site/themes/views']))
+        ->toBe(['/srv/site/views/', '/srv/site/themes/views'])
+        ->and(fileManagerTemplateViewPaths([]))->toBe([$shipped])
+        ->and(fileManagerTemplateViewPaths(['', '  ']))->toBe([$shipped]);
+});
