@@ -605,13 +605,13 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                                         $tooltip = htmlspecialchars(implode("\n", $tooltipLines), ENT_QUOTES, ManagerTheme::getCharset());
                                         ?>
                                         <tr>
-                                            <td><?= $filename ?></td>
+                                            <td><?= e((string) $filename) ?></td>
                                             <td><?= $tooltip !== '' ? '<i class="' . $_style['icon_question_circle'] . '" data-tooltip="' . $tooltip . '"></i>' : '' ?></td>
                                             <td><?= $filesize ?></td>
-                                            <td><?= ($details['Description'] ?? 'Undefined') ?></td>
-                                            <td><?= ($details['Evolution CMS Version'] ?? 'Undefined') ?></td>
-                                            <td><?= ($details['Database'] ?? 'Undefined') ?></td>
-                                            <td><?php if ($mayRestore) { ?><a href="javascript:;" onclick="confirmRevert('<?= $filename ?>');"
+                                            <td><?= e((string) ($details['Description'] ?? 'Undefined')) ?></td>
+                                            <td><?= e((string) ($details['Evolution CMS Version'] ?? 'Undefined')) ?></td>
+                                            <td><?= e((string) ($details['Database'] ?? 'Undefined')) ?></td>
+                                            <td><?php if ($mayRestore) { ?><a href="javascript:;" onclick="confirmRevert(<?= e((string) json_encode((string) $filename)) ?>);"
                                                    title="<?= $tooltip !== '' ? $tooltip : $_lang["bkmgr_restore_submit"] ?>"><?= $_lang["bkmgr_restore_submit"] ?></a><?php } ?>
                                             </td>
                                         </tr>

@@ -131,7 +131,8 @@ class MysqlDumper implements MysqlDumperInterface
         $output .= "# Server version: " . $modx->getDatabase()->getVersion() . $lf;
         $output .= "# PHP Version: " . phpversion() . $lf;
         $output .= "# Database: `{$this->dbname}`{$lf}";
-        $output .= "# Description: " . trim($_REQUEST['backup_title'] ?? '') . "{$lf}";
+        // one comment line: a line break in the title would start a statement the restore runs
+        $output .= "# Description: " . \EvolutionCMS\Services\DatabaseBackupService::headerValue($_REQUEST['backup_title'] ?? '') . "{$lf}";
         $output .= "#";
         file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
         $output = '';
