@@ -24,6 +24,10 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        // The string event stays inert when sTask is not installed.
+        Event::listen('eloquent.retrieved: Seiger\\sTask\\Models\\sTaskModel', [
+            \EvolutionCMS\Services\BackgroundDatabaseBackup::class, 'hydrateProgress',
+        ]);
         foreach ($this->listens() as $event => $listeners) {
             foreach ($listeners as $listener) {
                 Event::listen($event, $listener);

@@ -39,6 +39,20 @@ class MysqlDumper implements MysqlDumperInterface
      */
     private $snapshootFile;
 
+    /** @var callable|null Optional snapshot progress observer. */
+    private $progressCallback = null;
+
+    /** Observe weighted table/row completion during export. @since 3.6.0 */
+    public function setProgressCallback(?callable $callback): void
+    {
+        $this->progressCallback = $callback;
+    }
+
+    /** Publish completed work only when an observer is attached. @since 3.6.0 */
+    private function reportProgress(float $processed, float $total): void
+    {
+        if ($this->progressCallback !== null) { ($this->progressCallback)($processed, $total); }
+    }
 
     /**
      * Mysqldumper constructor.
@@ -110,6 +124,9 @@ class MysqlDumper implements MysqlDumperInterface
         $sql =  'SELECT table_name AS "table", round(((data_length + index_length) / 1024 / 1024)) "size" FROM information_schema.TABLES WHERE table_schema = "'.$databaseName.'"';
         $tableSizes = array_column($modx->db->makeArray($modx->db->query($sql)), 'size', 'table');
         $tables = $this->sortTablesByDependencies($this->_dbtables);
+        $totalWeight = array_sum(array_map(static fn ($table) => max(1, (int) ($tableSizes[$table] ?? 0)), $tables));
+        $completedWeight = 0;
+        $this->reportProgress(0, $totalWeight);
         // Set line feed
         $lf = "\n";
         $tempfile_path = EVO_BASE_PATH . 'assets/backup/temp.php';
@@ -179,6 +196,8 @@ class MysqlDumper implements MysqlDumperInterface
             $output = '';
 
             if(empty($rowCount)){
+                $completedWeight += max(1, (int) ($tableSizes[$tblval] ?? 0));
+                $this->reportProgress($completedWeight, $totalWeight);
                 continue;
             }
 
@@ -189,6 +208,8 @@ class MysqlDumper implements MysqlDumperInterface
             $total = intval(($rowCount - 1) / $rowByOneQuery) + 1;
 
             $insertQuerySize = 0;
+            $processedRows = 0;
+            $tableWeight = max(1, (int) ($tableSizes[$tblval] ?? 0));
 
             for ($page = 1; $page <= $total; $page++) {
                 $start = $page * $rowByOneQuery - $rowByOneQuery;
@@ -197,6 +218,10 @@ class MysqlDumper implements MysqlDumperInterface
 
 
                 while ($arr = $modx->getDatabase()->getRow($result)) {
+                    $processedRows++;
+                    if ($processedRows % 250 === 0) {
+                        $this->reportProgress($completedWeight + $tableWeight * min(1, $processedRows / $rowCount), $totalWeight);
+                    }
                     // build the values block
                     $insertdump = "(";
                     if (!is_array($arr)) $arr = [];
@@ -248,6 +273,8 @@ class MysqlDumper implements MysqlDumperInterface
             // write the block to the file
             file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
             $output = '';
+            $completedWeight += $tableWeight;
+            $this->reportProgress($completedWeight, $totalWeight);
         }
 
         switch ($callBack) {

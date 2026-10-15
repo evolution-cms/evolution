@@ -16,6 +16,15 @@ class DatabaseBackupService
 
     protected string $basePath;
 
+    /** @var callable|null Optional dump observer, independent of sTask. */
+    protected $progressCallback = null;
+
+    /** Observe native dump progress without changing synchronous callers. @since 3.6.0 */
+    public function setProgressCallback(?callable $callback): void
+    {
+        $this->progressCallback = $callback;
+    }
+
     /**
      * A value written into a comment line of the dump header, kept on that line.
      *
@@ -163,6 +172,7 @@ class DatabaseBackupService
                 $prefix = (string) evo()->getDatabase()->getConfig('prefix');
                 $tables = SqliteDumper::listTables($prefix);
                 $dumper = new SqliteDumper($database);
+                $dumper->setProgressCallback($this->progressCallback);
                 $dumper->setDBtables($tables);
                 $dumper->setSnapshotFile($filePath);
                 $dumper->setDroptables(true);
@@ -179,6 +189,7 @@ class DatabaseBackupService
                     $tables = [];
                 }
                 $dumper = new MysqlDumper($database);
+                $dumper->setProgressCallback($this->progressCallback);
                 $dumper->setDBtables($tables);
                 $dumper->setSnapshotFile($filePath);
                 $dumper->setDroptables(true);

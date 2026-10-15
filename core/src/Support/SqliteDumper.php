@@ -21,6 +21,21 @@ class SqliteDumper
      */
     private $snapshootFile;
 
+    /** @var callable|null Optional snapshot progress observer. */
+    private $progressCallback = null;
+
+    /** Observe table and row completion without a task-system dependency. @since 3.6.0 */
+    public function setProgressCallback(?callable $callback): void
+    {
+        $this->progressCallback = $callback;
+    }
+
+    /** Publish completed table fractions when a worker observes the dump. @since 3.6.0 */
+    private function reportProgress(float $processed, float $total): void
+    {
+        if ($this->progressCallback !== null) { ($this->progressCallback)($processed, $total); }
+    }
+
     /**
      * @param string $dbname
      */
@@ -174,9 +189,13 @@ class SqliteDumper
         $output = '';
 
         $tables = is_array($this->_dbtables) ? $this->_dbtables : [];
+        $completedTables = 0;
+        $this->reportProgress(0, count($tables));
         foreach ($tables as $table) {
             $createSql = $this->fetchCreateTable($table, $pdo);
             if (empty($createSql)) {
+                $completedTables++;
+                $this->reportProgress($completedTables, count($tables));
                 continue;
             }
 
@@ -199,8 +218,14 @@ class SqliteDumper
             }
 
             $insertQuerySize = 0;
+            $processedRows = 0;
+            $rowCount = $this->progressCallback === null ? 0 : (int) $pdo->query('SELECT COUNT(*) FROM ' . $this->quoteIdentifier($table))->fetchColumn();
             $hasRows = false;
             while (($row = $stmt->fetch(PDO::FETCH_NUM)) !== false) {
+                $processedRows++;
+                if ($rowCount > 0 && $processedRows % 250 === 0) {
+                    $this->reportProgress($completedTables + min(1, $processedRows / $rowCount), count($tables));
+                }
                 $hasRows = true;
                 $values = [];
                 foreach ($row as $value) {
@@ -235,6 +260,8 @@ class SqliteDumper
                 file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
                 $output = '';
             }
+            $completedTables++;
+            $this->reportProgress($completedTables, count($tables));
         }
 
         switch ($callBack) {

@@ -7,7 +7,7 @@ test('backup manager tooltip uses clean plain text lines', function () {
 
     expect($backupManager)->toContain('implode("\n", $tooltipLines)')
         ->and($backupManager)->not->toContain('\n<br>')
-        ->and($backupManager)->toContain("['Server version', 'PHP Version', 'Host']")
+        ->and($backupManager)->toContain("'Generation Time', 'Server version', 'PHP Version'")
         ->and($tooltipCss)->toContain('white-space: pre-line');
 });
 

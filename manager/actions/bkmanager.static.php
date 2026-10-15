@@ -2,37 +2,36 @@
 if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true) {
     die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the EVO Content Manager instead of accessing this file directly.");
 }
-if (!EvolutionCMS()->hasPermission('bk_manager')) {
-    EvolutionCMS()->webAlertAndQuit($_lang["error_no_privileges"]);
+if (!evo()->hasPermission('bk_manager')) {
+    evo()->webAlertAndQuit($_lang["error_no_privileges"]);
 }
 
-$dbase = EvolutionCMS()->getDatabase()->getConfig('database');
+$dbase = evo()->getDatabase()->getConfig('database');
 
-if (!EvolutionCMS()->getConfig('snapshot_path')) {
+if (!evo()->getConfig('snapshot_path')) {
     if (is_dir(EVO_BASE_PATH . 'temp/backup/')) {
-        EvolutionCMS()->setConfig('snapshot_path', EVO_BASE_PATH . 'temp/backup/');
+        evo()->setConfig('snapshot_path', EVO_BASE_PATH . 'temp/backup/');
     } else {
-        EvolutionCMS()->setConfig('snapshot_path', EVO_BASE_PATH . 'assets/backup/');
+        evo()->setConfig('snapshot_path', EVO_BASE_PATH . 'assets/backup/');
     }
 }
 
-$tempFile = EvolutionCMS()->getConfig('snapshot_path') . 'temp.php';
+$tempFile = evo()->getConfig('snapshot_path') . 'temp.php';
 if (file_exists($tempFile)) {
     unlink($tempFile);
 }
 
 // Backup Manager by Raymond:
 $mode = isset($_POST['mode']) ? $_POST['mode'] : '';
-$driver = EvolutionCMS()->getDatabase()->getConfig('driver');
+$driver = evo()->getDatabase()->getConfig('driver');
 
 // A restore runs whatever SQL it is handed - pasted, uploaded, or a snapshot file that bk_manager
 // may also upload through the file manager - so it can store a plugin or raise a role. That takes
 // the permission that already grants PHP, not bk_manager alone; taking a backup does not.
 $mayRestore = \EvolutionCMS\Support\BackendCodePermissions::granted();
 if (in_array($mode, ['restore1', 'restore2'], true) && !$mayRestore) {
-    EvolutionCMS()->logEvent(0, 2, 'Database restore refused: it needs one of the permissions that grant PHP ('
-        . implode(', ', \EvolutionCMS\Support\BackendCodePermissions::PERMISSIONS) . ').', 'Backup manager');
-    EvolutionCMS()->webAlertAndQuit($_lang["error_no_privileges"]);
+    evo()->logEvent(0, 2, 'Database restore refused: it needs one of the permissions that grant PHP (' . implode(', ', \EvolutionCMS\Support\BackendCodePermissions::PERMISSIONS) . ').', 'Backup manager');
+    evo()->webAlertAndQuit($_lang["error_no_privileges"]);
 }
 
 if ($mode == 'restore1') {
@@ -67,25 +66,30 @@ if ($mode == 'restore1') {
     // The name came from the form unchecked. It used to be concatenated into a shell command,
     // and it still names a file that is read back as SQL, so it has to resolve to a snapshot
     // inside the snapshot directory and nowhere else.
-    $snapshotDir = rtrim(str_replace('\\', '/', (string) realpath(EvolutionCMS()->getConfig('snapshot_path'))), '/');
+    $snapshotDir = rtrim(str_replace('\\', '/', (string) realpath(evo()->getConfig('snapshot_path'))), '/');
     $filename = basename((string) get_by_key($_POST, 'filename', '', 'is_scalar'));
     $path = str_replace('\\', '/', (string) realpath($snapshotDir . '/' . $filename));
 
     if ($snapshotDir === ''
-        || !preg_match('/^[A-Za-z0-9_.-]+\.sql$/', $filename)
+        || !preg_match('/^[A-Za-z0-9_.-]+\.sql(?:\.gz)?$/D', $filename)
         || $path === ''
         || strncmp($path, $snapshotDir . '/', strlen($snapshotDir) + 1) !== 0) {
-        EvolutionCMS()->webAlertAndQuit('Invalid snapshot file.');
+        evo()->webAlertAndQuit('Invalid snapshot file.');
     }
 
     if (file_exists($path)) {
         switch ($driver) {
             case 'pgsql':
-                (new EvolutionCMS\Services\DatabaseBackupService(EVO_BASE_PATH))
-                    ->restorePostgresFile($path);
+                \EvolutionCMS\Services\DatabaseBackupArchive::restore($path, static function ($sqlPath) {
+                    if (!(new EvolutionCMS\Services\DatabaseBackupService(EVO_BASE_PATH))->restorePostgresFile($sqlPath)) {
+                        throw new RuntimeException('Unable to restore PostgreSQL snapshot.');
+                    }
+                });
                 break;
             default :
-                import_sql_from_file($path);
+                \EvolutionCMS\Services\DatabaseBackupArchive::restore($path, static function ($sqlPath) {
+                    import_sql_from_file($sqlPath);
+                });
                 break;
         }
         if (headers_sent()) {
@@ -99,17 +103,17 @@ if ($mode == 'restore1') {
 } elseif ($mode == 'backup') {
     $tables = isset($_POST['chk']) ? $_POST['chk'] : '';
     if (!is_array($tables)) {
-        EvolutionCMS()->webAlertAndQuit("Please select a valid table from the list below.");
+        evo()->webAlertAndQuit("Please select a valid table from the list below.");
     }
 
     // The names reach pg_dump on a command line and the dumpers inside raw SQL, so keep only
     // the bare prefixed identifiers.
-    $db = EvolutionCMS()->getDatabase();
+    $db = evo()->getDatabase();
     $tables = array_values(array_filter($tables, static function ($table) use ($db) {
         return $db->isValidTableName($table);
     }));
     if (!$tables) {
-        EvolutionCMS()->webAlertAndQuit("Please select a valid table from the list below.");
+        evo()->webAlertAndQuit("Please select a valid table from the list below.");
     }
 
     /*
@@ -127,7 +131,7 @@ if ($mode == 'restore1') {
                 ->dumpPostgresTables($tables, isset($_POST['droptables']));
 
             if ($tempfile_path === null) {
-                EvolutionCMS()->webAlertAndQuit('Unable to Backup Database');
+                evo()->webAlertAndQuit('Unable to Backup Database');
             }
 
             dumpSql($tempfile_path);
@@ -141,7 +145,7 @@ if ($mode == 'restore1') {
             if ($dumpfinished) {
                 exit;
             } else {
-                EvolutionCMS()->webAlertAndQuit('Unable to Backup Database');
+                evo()->webAlertAndQuit('Unable to Backup Database');
             }
             break;
         default:
@@ -153,24 +157,37 @@ if ($mode == 'restore1') {
             if ($dumpfinished) {
                 exit;
             } else {
-                EvolutionCMS()->webAlertAndQuit('Unable to Backup Database');
+                evo()->webAlertAndQuit('Unable to Backup Database');
             }
             break;
     }
 // MySQLdumper class can be found below
 } elseif ($mode == 'snapshot') {
-    if (!is_dir(rtrim(EvolutionCMS()->getConfig('snapshot_path'), '/'))) {
-        mkdir(rtrim(EvolutionCMS()->getConfig('snapshot_path'), '/'));
-        @chmod(rtrim(EvolutionCMS()->getConfig('snapshot_path'), '/'), 0777);
+    try {
+        $taskId = (new \EvolutionCMS\Services\BackgroundDatabaseBackup())->queue(
+            (string) ($_REQUEST['backup_title'] ?? ''), (int) evo()->getLoginUserID('mgr')
+        );
+        if ($taskId !== null) {
+            $_SESSION['result_msg'] = 'snapshot_queued';
+            header('Location: index.php?a=93');
+            exit;
+        }
+    } catch (Throwable $e) {
+        evo()->logEvent(0, 3, 'Unable to queue database backup.', 'Backup manager');
+        evo()->webAlertAndQuit($_lang['bkmgr_queue_failed'] ?? 'Unable to queue database backup.');
     }
-    if (\is_file(EvolutionCMS()->getConfig('snapshot_path').".htaccess")) {
+    if (!is_dir(rtrim(evo()->getConfig('snapshot_path'), '/'))) {
+        mkdir(rtrim(evo()->getConfig('snapshot_path'), '/'));
+        @chmod(rtrim(evo()->getConfig('snapshot_path'), '/'), 0777);
+    }
+    if (\is_file(evo()->getConfig('snapshot_path').".htaccess")) {
         file_put_contents(
-            EvolutionCMS()->getConfig('snapshot_path').".htaccess",
+            evo()->getConfig('snapshot_path').".htaccess",
             EvolutionCMS\Services\DatabaseBackupService::DENY_HTACCESS
         );
     }
-    if (!is_writable(rtrim(EvolutionCMS()->getConfig('snapshot_path'), '/'))) {
-        EvolutionCMS()->webAlertAndQuit(parsePlaceholder($_lang["bkmgr_alert_mkdir"], ['snapshot_path' => EvolutionCMS()->getConfig('snapshot_path')]));
+    if (!is_writable(rtrim(evo()->getConfig('snapshot_path'), '/'))) {
+        evo()->webAlertAndQuit(parsePlaceholder($_lang["bkmgr_alert_mkdir"], ['snapshot_path' => evo()->getConfig('snapshot_path')]));
     }
     @set_time_limit(120); // set timeout limit to 2 minutes
     try {
@@ -187,7 +204,7 @@ if ($mode == 'restore1') {
         header("Location: index.php?a=93");
         exit;
     } else {
-        EvolutionCMS()->webAlertAndQuit('Unable to Backup Database');
+        evo()->webAlertAndQuit('Unable to Backup Database');
     }
 } else {
     include_once EVO_MANAGER_PATH . "includes/header.inc.php";  // start normal header
@@ -195,6 +212,10 @@ if ($mode == 'restore1') {
 
 if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
     switch ($_SESSION['result_msg']) {
+        case 'snapshot_queued':
+            $ph['result_msg_import'] = '';
+            $ph['result_msg_snapshot'] = '<div class="alert alert-info">' . ($_lang['bkmgr_snapshot_queued'] ?? 'Backup queued. Track its progress in sTask.') . '</div>';
+            break;
         case 'import_ok':
             $ph['result_msg_import'] = '<div class="alert alert-success">' . $_lang["bkmgr_import_ok"] . '</div>';
             $ph['result_msg_snapshot'] = '<div class="alert alert-success">' . $_lang["bkmgr_import_ok"] . '</div>';
@@ -312,25 +333,20 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                                 </thead>
                                 <tbody>
                                 <?php
-                                $prefix = EvolutionCMS()->getDatabase()->escape(EvolutionCMS()->getDatabase()->getConfig('prefix'));
+                                $prefix = evo()->getDatabase()->escape(evo()->getDatabase()->getConfig('prefix'));
 
-                                switch (EvolutionCMS()->getDatabase()->getConfig()['driver']) {
+                                switch (evo()->getDatabase()->getConfig()['driver']) {
                                     case 'pgsql':
                                         $sql = "SELECT *, tablename as Name
                  FROM pg_catalog.pg_tables WHERE
             schemaname != 'information_schema' AND tablename LIKE '%" . $prefix . "%'";
 
-                                        $array = EvolutionCMS()->getDatabase()->makeArray(
-                                                EvolutionCMS()->getDatabase()->query($sql)
-                                        );
+                                        $array = evo()->getDatabase()->makeArray(evo()->getDatabase()->query($sql));
                                         break;
 
                                     case 'mysql':
-                                        $sql = 'SHOW TABLE STATUS FROM `' . EvolutionCMS()->getDatabase()->getConfig('database') . '` LIKE "' . $prefix . '%"';
-
-                                        $array = EvolutionCMS()->getDatabase()->makeArray(
-                                                EvolutionCMS()->getDatabase()->query($sql)
-                                        );
+                                        $sql = 'SHOW TABLE STATUS FROM `' . evo()->getDatabase()->getConfig('database') . '` LIKE "' . $prefix . '%"';
+                                        $array = evo()->getDatabase()->makeArray(evo()->getDatabase()->query($sql));
                                         break;
                                     case 'sqlite':
                                     case 'sqlite3':
@@ -376,16 +392,16 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
 
                                     // Enable record deletion for certain tables (TRUNCATE TABLE) if they're not already empty
                                     $truncateable = [
-                                            EvolutionCMS()->getDatabase()->getConfig('prefix') . 'event_log',
-                                            EvolutionCMS()->getDatabase()->getConfig('prefix') . 'manager_log',
+                                        evo()->getDatabase()->getConfig('prefix') . 'event_log',
+                                        evo()->getDatabase()->getConfig('prefix') . 'manager_log',
                                     ];
-                                    if (EvolutionCMS()->hasPermission('settings') && in_array($db_status['Name'], $truncateable) && $db_status['Rows'] > 0) {
+                                    if (evo()->hasPermission('settings') && in_array($db_status['Name'], $truncateable) && $db_status['Rows'] > 0) {
                                         echo '<td class="text-xs-right"><a class="text-danger" href="index.php?a=54&mode=93&u=' . $db_status['Name'] . '&_token=' . csrf_token() . '" title="' . $_lang['truncate_table'] . '">' . niceSize($db_status['Data_length'] + $db_status['Data_free']) . '</a>' . '</td>' . "\n";
                                     } else {
                                         echo '<td class="text-xs-right">' . niceSize($db_status['Data_length'] + $db_status['Data_free']) . '</td>' . "\n";
                                     }
 
-                                    if (EvolutionCMS()->hasPermission('settings')) {
+                                    if (evo()->hasPermission('settings')) {
                                         echo '<td class="text-xs-right">' . ($db_status['Data_free'] > 0 ? '<a class="text-danger" href="index.php?a=54&mode=93&t=' . $db_status['Name'] . '&_token=' . csrf_token() . '" title="' . $_lang['optimize_table'] . '">' . niceSize($db_status['Data_free']) . '</a>' : '-') . '</td>' . "\n";
                                     } else {
                                         echo '<td class="text-xs-right">' . ($db_status['Data_free'] > 0 ? niceSize($db_status['Data_free']) : '-') . '</td>' . "\n";
@@ -513,7 +529,7 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
             <div class="container container-body">
                 <?= $ph['result_msg_snapshot'] ?>
                 <div class="element-edit-message-tab alert alert-warning">
-                    <?= parsePlaceholder($_lang["bkmgr_snapshot_msg"], ['snapshot_path' => "snapshot_path=".EvolutionCMS()->getConfig('snapshot_path')]) ?>
+                    <?= parsePlaceholder($_lang["bkmgr_snapshot_msg"], ['snapshot_path' => "snapshot_path=".evo()->getConfig('snapshot_path')]) ?>
                 </div>
                 <form method="post" name="snapshot" action="index.php">
                     <?= csrf_field() ?>
@@ -539,18 +555,9 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                     <input type="hidden" name="mode" value="restore2"/>
                     <input type="hidden" name="filename" value=""/>
                     <?php
-                    $pattern = EvolutionCMS()->getConfig('snapshot_path')."*.sql";
-                    $files = glob($pattern, GLOB_NOCHECK);
-                    $total = ($files[0] !== $pattern) ? count($files) : 0;
-                    $detailFields = [
-                        'Evolution CMS Version',
-                        'Host',
-                        'Generation Time',
-                        'Server version',
-                        'PHP Version',
-                        'Database',
-                        'Description'
-                    ];
+                    $snapshotPath = rtrim(evo()->getConfig('snapshot_path'), '/\\') . '/';
+                    $files = array_merge(glob($snapshotPath . '*.sql') ?: [], glob($snapshotPath . '*.sql.gz') ?: []);
+                    $total = count($files);
                     if (is_array($files) && 0 < $total) {
                         ?>
                         <div class="row">
@@ -574,43 +581,27 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                                         $filename = substr($file, strrpos($file, '/') + 1);
                                         $filesize = niceSize(filesize($file));
 
-                                        $file = fopen($file, "r");
-                                        $count = 0;
-                                        $details = [];
-                                        while ($count < 11) {
-                                            $line = fgets($file);
-                                            foreach ($detailFields as $label) {
-                                                foreach (['# ', '-- '] as $prefix) {
-                                                    $fileLabel = $prefix . $label;
-                                                    if (strpos($line, $fileLabel) !== false) {
-                                                        $details[$label] = htmlentities(trim(str_replace([
-                                                                $fileLabel,
-                                                                ':',
-                                                                '`'
-                                                        ], '', $line)), ENT_QUOTES, ManagerTheme::getCharset());
-                                                        break;
-                                                    }
-                                                }
-                                            }
-                                            $count++;
-                                        };
-                                        fclose($file);
-
+                                        $rawDetails = \EvolutionCMS\Services\DatabaseBackupArchive::metadata($file);
+                                        $originalSize = \EvolutionCMS\Services\DatabaseBackupArchive::originalSize($file);
+                                        $details = array_map(static function ($value) {
+                                            return htmlspecialchars($value, ENT_QUOTES, ManagerTheme::getCharset());
+                                        }, $rawDetails);
                                         $tooltipLines = [];
-                                        foreach (['Server version', 'PHP Version', 'Host'] as $label) {
-                                            if (!empty($details[$label])) {
-                                                $tooltipLines[] = $label . ': ' . $details[$label];
+                                        foreach (['Title', 'Evolution CMS Version', 'Host', 'Generation Time', 'Server version', 'PHP Version', 'Database', 'Description'] as $label) {
+                                            if (!empty($rawDetails[$label])) {
+                                                $tooltipLines[] = ($label === 'Title' ? '' : $label . ': ') . $rawDetails[$label];
                                             }
                                         }
+                                        $tooltipLines[] = $_lang['bkmgr_original_size'] . ': ' . niceSize($originalSize);
                                         $tooltip = htmlspecialchars(implode("\n", $tooltipLines), ENT_QUOTES, ManagerTheme::getCharset());
                                         ?>
                                         <tr>
                                             <td><?= e((string) $filename) ?></td>
                                             <td><?= $tooltip !== '' ? '<i class="' . $_style['icon_question_circle'] . '" data-tooltip="' . $tooltip . '"></i>' : '' ?></td>
-                                            <td><?= $filesize ?></td>
-                                            <td><?= e((string) ($details['Description'] ?? 'Undefined')) ?></td>
-                                            <td><?= e((string) ($details['Evolution CMS Version'] ?? 'Undefined')) ?></td>
-                                            <td><?= e((string) ($details['Database'] ?? 'Undefined')) ?></td>
+                                            <td class="text-nowrap"><?= $filesize ?><?php if (str_ends_with($filename, '.gz')): ?> <small class="text-muted">(<?= $_lang['bkmgr_original_size'] ?>: <?= niceSize($originalSize) ?>)</small><?php endif; ?></td>
+                                            <td><?= e((string) ($details['Description'] ?? '—')) ?></td>
+                                            <td><?= e((string) ($details['Evolution CMS Version'] ?? '—')) ?></td>
+                                            <td><?= e((string) ($details['Database'] ?? '—')) ?></td>
                                             <td><?php if ($mayRestore) { ?><a href="javascript:;" onclick="confirmRevert(<?= e((string) json_encode((string) $filename)) ?>);"
                                                    title="<?= $tooltip !== '' ? $tooltip : $_lang["bkmgr_restore_submit"] ?>"><?= $_lang["bkmgr_restore_submit"] ?></a><?php } ?>
                                             </td>
@@ -631,7 +622,6 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                 </form>
             </div>
         </div>
-
     </div>
 <?php
 
