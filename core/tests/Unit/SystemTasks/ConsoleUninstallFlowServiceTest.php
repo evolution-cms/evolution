@@ -10,7 +10,6 @@ function invokeConsoleUninstallMethod(ConsoleUninstallFlowService $service, stri
 {
     $reflection = new ReflectionClass($service);
     $instanceMethod = $reflection->getMethod($method);
-    $instanceMethod->setAccessible(true);
 
     return $instanceMethod->invokeArgs($service, $args);
 }
@@ -116,7 +115,6 @@ test('console uninstall captures cleanup files from snapshot even when composer 
         'servicesCache' => $servicesFile,
     ] as $property => $value) {
         $instanceProperty = $serviceReflection->getProperty($property);
-        $instanceProperty->setAccessible(true);
         $instanceProperty->setValue($service, $value);
     }
 
@@ -168,7 +166,6 @@ test('console uninstall purges stale provider and alias artifacts before compose
         'legacyAliasesCache' => $aliasesCache,
     ] as $property => $value) {
         $instanceProperty = $serviceReflection->getProperty($property);
-        $instanceProperty->setAccessible(true);
         $instanceProperty->setValue($service, $value);
     }
 

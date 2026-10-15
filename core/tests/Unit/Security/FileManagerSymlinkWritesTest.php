@@ -64,11 +64,9 @@ function fmLinksBrowser(string $typeDir): browser
 {
     $browser = (new ReflectionClass(browser::class))->newInstanceWithoutConstructor();
     $property = new ReflectionProperty(uploader::class, 'typeDir');
-    $property->setAccessible(true);
     $property->setValue($browser, $typeDir);
     // No protected folders: these tests cover links, not permissions (the mock parser has none).
     $property = new ReflectionProperty(browser::class, 'protectedPaths');
-    $property->setAccessible(true);
     $property->setValue($browser, []);
 
     return $browser;
@@ -206,7 +204,6 @@ it('accepts only a new name inside the type folder as an upload target', functio
     fmLinksSymlink($this->tmp . '/outside', $this->root . '/linked');
     $browser = fmLinksBrowser($this->root);
     $method = new ReflectionMethod(browser::class, 'isNewUploadTarget');
-    $method->setAccessible(true);
 
     expect($method->invoke($browser, $this->root . '/new.png'))->toBeTrue()
         ->and($method->invoke($browser, $this->root . '/dangling.png'))->toBeFalse()

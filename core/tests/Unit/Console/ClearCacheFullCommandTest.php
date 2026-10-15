@@ -51,7 +51,6 @@ afterEach(function () {
 test('command has correct name', function () {
     $reflection = new ReflectionClass(ClearCacheFullCommand::class);
     $property = $reflection->getProperty('name');
-    $property->setAccessible(true);
 
     expect($property->getValue($this->command))->toBe('cache:clear-full');
 });
@@ -59,7 +58,6 @@ test('command has correct name', function () {
 test('command has correct description', function () {
     $reflection = new ReflectionClass(ClearCacheFullCommand::class);
     $property = $reflection->getProperty('description');
-    $property->setAccessible(true);
 
     expect($property->getValue($this->command))->toBe('Full cache clear blade + Evolution');
 });

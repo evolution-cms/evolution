@@ -152,7 +152,6 @@ test('search result titles are escaped before the highlight markup is added', fu
 
     $highlight = function (string $text, string $needle) use ($search) {
         $method = new ReflectionMethod(Search::class, 'highlightingCoincidence');
-        $method->setAccessible(true);
 
         return $method->invoke($search, $text, $needle);
     };
@@ -182,7 +181,6 @@ function managerThemeWith(array $properties): ManagerTheme
 
     foreach ($properties as $name => $value) {
         $property = new ReflectionProperty(ManagerTheme::class, $name);
-        $property->setAccessible(true);
         $property->setValue($theme, $value);
     }
 
@@ -222,7 +220,6 @@ function searchControllerWithCharset(string $charset): Search
     $search = (new ReflectionClass(Search::class))->newInstanceWithoutConstructor();
 
     $property = new ReflectionProperty(Search::class, 'managerTheme');
-    $property->setAccessible(true);
     $property->setValue($search, $theme);
 
     return $search;

@@ -77,7 +77,6 @@ function makeArtifactUploadStore(array $taskResponse): object
 function queueArtifactUpload(object $store, ScriptedComposerArtifactService $artifacts, string $fileName = 'hello-evo-1.0.0.zip')
 {
     $method = new ReflectionMethod(ModuleActionService::class, 'queueComposerArtifactFile');
-    $method->setAccessible(true);
 
     return $method->invoke(new ModuleActionService(), $store, $artifacts, '/tmp/upload.zip', $fileName);
 }

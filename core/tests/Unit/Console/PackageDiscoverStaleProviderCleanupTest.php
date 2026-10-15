@@ -14,12 +14,10 @@ function buildStaleProviderCommand(string $configDir): array
     $command = (new ReflectionClass(PackageCommand::class))->newInstanceWithoutConstructor();
 
     $configProperty = new ReflectionProperty(PackageCommand::class, 'configDir');
-    $configProperty->setAccessible(true);
     $configProperty->setValue($command, $configDir);
 
     $buffer = new BufferedOutput();
     $outputProperty = new ReflectionProperty(PackageCommand::class, 'output');
-    $outputProperty->setAccessible(true);
     $outputProperty->setValue($command, new OutputStyle(new ArrayInput([]), $buffer));
 
     return [$command, $buffer];
@@ -53,7 +51,6 @@ test('package discovery removes provider config files whose class no longer exis
     [$command, $buffer] = buildStaleProviderCommand($this->providersDir);
 
     $method = new ReflectionMethod(PackageCommand::class, 'cleanupProviders');
-    $method->setAccessible(true);
     $method->invoke($command);
 
     expect(file_exists($this->providersDir . 'sCommerceServiceProvider.php'))->toBeFalse()
@@ -69,11 +66,9 @@ test('package discovery keeps provider files generated during the current run', 
     [$command] = buildStaleProviderCommand($this->providersDir);
 
     $discovered = new ReflectionProperty(PackageCommand::class, 'discoveredProviderFiles');
-    $discovered->setAccessible(true);
     $discovered->setValue($command, ['FreshServiceProvider.php' => true]);
 
     $method = new ReflectionMethod(PackageCommand::class, 'cleanupProviders');
-    $method->setAccessible(true);
     $method->invoke($command);
 
     expect(file_exists($this->providersDir . 'FreshServiceProvider.php'))->toBeTrue();

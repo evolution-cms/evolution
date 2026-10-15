@@ -372,7 +372,7 @@ class uploader
      * @param array|null $aFile
      * @return bool|mixed
      */
-    protected function checkUploadedFile(array $aFile = null)
+    protected function checkUploadedFile(?array $aFile = null)
     {
         $config = &$this->config;
         $file = ($aFile === null) ? $this->file : $aFile;
@@ -853,7 +853,7 @@ class uploader
      * @param array|null $data
      * @return mixed
      */
-    protected function label($string, array $data = null)
+    protected function label($string, ?array $data = null)
     {
         $return = isset($this->labels[$string]) ? $this->labels[$string] : $string;
         // the browser shows these messages as HTML (browser.alert), and the values are file and
@@ -868,7 +868,7 @@ class uploader
      * @param $message
      * @param array|null $data
      */
-    protected function backMsg($message, array $data = null)
+    protected function backMsg($message, ?array $data = null)
     {
         $message = $this->label($message, $data);
         if (isset($this->file['tmp_name']) && file_exists($this->file['tmp_name']))

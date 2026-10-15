@@ -25,11 +25,9 @@ function mediaBrowserForTypeDir(string $typeDir): browser
     // as on a site: file groups are keyed from the site root, one level above the upload folder
     $browser->aclRootForTest = dirname($typeDir, 2);
     $property = new ReflectionProperty(uploader::class, 'typeDir');
-    $property->setAccessible(true);
     $property->setValue($browser, $typeDir);
     // nothing is closed by permission here; fileManagerProtectedPaths() needs a running CMS
     $protected = new ReflectionProperty(browser::class, 'protectedPaths');
-    $protected->setAccessible(true);
     $protected->setValue($browser, []);
 
     return $browser;
@@ -38,7 +36,6 @@ function mediaBrowserForTypeDir(string $typeDir): browser
 function mediaBrowserIsInside(browser $browser, string $path): bool
 {
     $method = new ReflectionMethod(browser::class, 'isInsideTypeDir');
-    $method->setAccessible(true);
 
     return $method->invoke($browser, $path);
 }
@@ -148,11 +145,9 @@ it('reports an ordinary folder below the type folder as writable', function () {
     // the constructor that reads the date format from the language file is skipped here
     foreach (['config' => ['uploadDir' => $this->tmp], 'session' => ['dir' => 'images'], 'dateTimeSmall' => 'Y-m-d H:i'] as $name => $value) {
         $property = new ReflectionProperty(uploader::class, $name);
-        $property->setAccessible(true);
         $property->setValue($this->browser, $value);
     }
     $method = new ReflectionMethod(browser::class, 'getDirInfo');
-    $method->setAccessible(true);
     $previousSession = $_SESSION ?? null;
     // an administrator skips the file groups, leaving only the path checks
     $_SESSION = ['mgrRole' => 1];

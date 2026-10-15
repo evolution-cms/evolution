@@ -251,7 +251,7 @@ class DeprecatedCore implements DeprecatedCoreInterface
      * @param $REQUEST_METHOD
      * @return array|bool
      */
-    public function getFormVars($method = "", $prefix = "", $trim = "", $REQUEST_METHOD)
+    public function getFormVars($method = "", $prefix = "", $trim = "", $REQUEST_METHOD = "")
     {
         //  function to retrieve form results into an associative array
         $modx = evo();
