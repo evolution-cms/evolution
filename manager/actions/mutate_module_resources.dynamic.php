@@ -233,6 +233,7 @@ if ($content['locked'] == 1 && $_SESSION['mgrRole'] != 1) {
                         $grd->columns = $_lang["element_name"] . " ," . $_lang["type"];
                         $grd->colTypes = "template:<input type='checkbox' name='depid[]' value='[+id+]'> [+value+]";
                         $grd->fields = "name,type";
+                        $grd->escapeFields = ['name']; // element names and page titles
                         echo $grd->render();
                         ?>
                     </td>

@@ -74,6 +74,14 @@ class DataGrid implements DataGridInterface
     public $_fieldnames;
     public $prepareResult = [];
     /**
+     * Fields printed as text: their values are HTML-escaped before the cell and any template of
+     * colTypes use them. The grid prints every other value as-is, so list here whatever holds
+     * stored names, titles or descriptions.
+     *
+     * @var string[]
+     */
+    public $escapeFields = [];
+    /**
      * @see datagrid modifier in manager/includes/extenders/modifiers.class.inc.php
      */
     public $cdelim;
@@ -246,6 +254,11 @@ class DataGrid implements DataGridInterface
             }
             if (isset($value['__checktime'])) {
                 $row[$key] = $this->checkTime($value['__checktime'], $row);
+            }
+        }
+        foreach ((array) $this->escapeFields as $field) {
+            if (isset($row[$field]) && is_scalar($row[$field])) {
+                $row[$field] = htmlspecialchars((string) $row[$field], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
             }
         }
         if ($this->_alt == 0) {

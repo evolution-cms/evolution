@@ -381,6 +381,7 @@ require_once(EVO_MANAGER_PATH . 'includes/active_user_locks.inc.php');
                     $grd->altItemClass = 'gridAltItem';
                     $grd->columns = $_lang['element_name'] . " ," . $_lang['type'];
                     $grd->fields = "name,type";
+                    $grd->escapeFields = ['name']; // element names and page titles
                     echo $grd->render();
                     ?>
                 </div>
