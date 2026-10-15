@@ -770,7 +770,7 @@ if (! function_exists('renderFormElement')) {
                     if ($field_value == '') {
                         $field_value = 0;
                     }
-                    $field_html .= '<input id="tv' . $field_id . '" name="tv' . $field_id . '" class="DatePicker" type="text" value="' . ( !isset($field_value) || $field_value == 0 ? "" : $field_value) . '" onblur="documentDirty=true;" />';
+                    $field_html .= '<input id="tv' . $field_id . '" name="tv' . $field_id . '" class="DatePicker" type="text" value="' . ( !isset($field_value) || $field_value == 0 ? "" : $modx->getPhpCompat()->htmlspecialchars($field_value)) . '" onblur="documentDirty=true;" />';
                     $field_html .= ' <a onclick="document.forms[\'mutate\'].elements[\'tv' . $field_id . '\'].value=\'\';document.forms[\'mutate\'].elements[\'tv' . $field_id . '\'].onblur(); return true;" onmouseover="window.status=\'clear the date\'; return true;" onmouseout="window.status=\'\'; return true;" style="cursor:pointer; cursor:hand"><i class="' . ManagerTheme::getStyle("icon_calendar_close") . '"></i></a>';
 
                     break;
@@ -858,7 +858,7 @@ if (! function_exists('renderFormElement')) {
                             $i,
                             $field_id,
                             $checked,
-                            $name
+                            $modx->getPhpCompat()->htmlspecialchars($name)
                         ];
                         $_[] = vsprintf($tpl, $param);
                         $i++;
@@ -872,7 +872,7 @@ if (! function_exists('renderFormElement')) {
                         if (strlen($itemvalue) == 0) {
                             $itemvalue = $item;
                         }
-                        $field_html .= '<input type="radio" value="' . $modx->getPhpCompat()->htmlspecialchars($itemvalue) . '" id="tv_' . $i . '" name="tv' . $field_id . '" ' . ($itemvalue == $field_value ? 'checked="checked"' : '') . ' onchange="documentDirty=true;" /><label for="tv_' . $i . '" class="radio">' . $item . '</label><br />';
+                        $field_html .= '<input type="radio" value="' . $modx->getPhpCompat()->htmlspecialchars($itemvalue) . '" id="tv_' . $i . '" name="tv' . $field_id . '" ' . ($itemvalue == $field_value ? 'checked="checked"' : '') . ' onchange="documentDirty=true;" /><label for="tv_' . $i . '" class="radio">' . $modx->getPhpCompat()->htmlspecialchars($item) . '</label><br />';
                         $i++;
                     }
                     break;
@@ -885,10 +885,10 @@ if (! function_exists('renderFormElement')) {
                     $size = '';
                     $image = $field_value;
                     if(!empty($properties['width'])) {
-                        $size .= 'width:' . $properties['width'] . 'px;';
+                        $size .= 'width:' . (int) $properties['width'] . 'px;';
                     }
                     if(!empty($properties['height'])) {
-                        $size .= 'height:' . $properties['height'] . 'px;';
+                        $size .= 'height:' . (int) $properties['height'] . 'px;';
                     }
                     if(!empty($properties['thumbnailer'])) {
                         if (is_callable($properties['thumbnailer'])) {
@@ -905,9 +905,12 @@ if (! function_exists('renderFormElement')) {
                             ]);
                         }
                     }
-                    $field_html .= '<input type="text" id="tv' . $field_id . '" name="tv' . $field_id . '"  value="' . $field_value . '" ' . $field_style . ' onchange="documentDirty=true;" /><input type="button" value="' . ManagerTheme::getLexicon('insert') . '" onclick="BrowseServer(\'tv' . $field_id . '\')" />
+                    // The value is whatever an editor saved: escape it for each context it lands in
+                    $fieldValueAttr = $modx->getPhpCompat()->htmlspecialchars((string) $field_value);
+                    $imageUrlCss = $modx->getPhpCompat()->htmlspecialchars(tv_css_string_escape(evo()->getConfig('site_url') . $image), ENT_QUOTES);
+                    $field_html .= '<input type="text" id="tv' . $field_id . '" name="tv' . $field_id . '"  value="' . $fieldValueAttr . '" ' . $field_style . ' onchange="documentDirty=true;" /><input type="button" value="' . ManagerTheme::getLexicon('insert') . '" onclick="BrowseServer(\'tv' . $field_id . '\')" />
                     <div class="col-12" style="padding-left: 0px;">
-                        <div id="image_for_tv' . $field_id . '" class="image_for_field" data-image="' . $field_value . '" onclick="BrowseServer(\'tv' . $field_id . '\')" style="' . $size . 'background-image: url(\'' . evo()->getConfig('site_url') . $image . '\');"></div>
+                        <div id="image_for_tv' . $field_id . '" class="image_for_field" data-image="' . $fieldValueAttr . '" onclick="BrowseServer(\'tv' . $field_id . '\')" style="' . $size . 'background-image: url(\'' . $imageUrlCss . '\');"></div>
                         <script>document.getElementById(\'tv' . $field_id . '\').addEventListener(\'change\', evoRenderTvImageCheck, false);</script>
                     </div>';
                     break;
@@ -918,7 +921,7 @@ if (! function_exists('renderFormElement')) {
                     if (!$ResourceManagerLoaded && !(((isset($content['richtext']) && $content['richtext'] == 1) || $modx->getManagerApi()->action == 4) && $modx->getConfig('use_editor') && $which_editor == 3)) {
                         $ResourceManagerLoaded = true;
                     }
-                    $field_html .= '<input type="text" id="tv' . $field_id . '" name="tv' . $field_id . '"  value="' . $field_value . '" ' . $field_style . ' onchange="documentDirty=true;" /><input type="button" value="' . ManagerTheme::getLexicon('insert') . '" onclick="BrowseFileServer(\'tv' . $field_id . '\')" />';
+                    $field_html .= '<input type="text" id="tv' . $field_id . '" name="tv' . $field_id . '"  value="' . $modx->getPhpCompat()->htmlspecialchars((string) $field_value) . '" ' . $field_style . ' onchange="documentDirty=true;" /><input type="button" value="' . ManagerTheme::getLexicon('insert') . '" onclick="BrowseFileServer(\'tv' . $field_id . '\')" />';
 
                     break;
 

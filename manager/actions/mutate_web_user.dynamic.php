@@ -516,7 +516,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                     $i = $ii = 0;
                     $tab = '';
                     foreach ($tvsArray as $row) {
-                        $row['category'] = $row['category_name'] ?? '';
+                        $row['category'] = e($row['category_name'] ?? ''); // printed into tab headers
                         if(!isset($row['category_id'])){
                             $row['category_id'] = 0;
                             $row['category'] = $_lang['no_category'];
@@ -628,13 +628,13 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                             $tvPBV = $row['value'];
                         }
 
-                        $tvDescription = (!empty($row['description'])) ? '<br /><span class="comment">' . $row['description'] . '</span>' : '';
+                        $tvDescription = (!empty($row['description'])) ? '<br /><span class="comment">' . sanitize_inline_html($row['description']) . '</span>' : '';
                         $tvInherited = (substr($tvPBV, 0, 8) == '@INHERIT') ? '<br /><span class="comment inherited">(' . $_lang['tmplvars_inherited'] . ')</span>' : '';
-                        $tvName = '<br/><small class="protectedNode">[*' . $row['name'] . '*]</small>';
+                        $tvName = '<br/><small class="protectedNode">[*' . e($row['name']) . '*]</small>';
 
                         $templateVariablesTmp .= '
                                         <tr>
-                                            <td><span class="warning">' . $row['caption'] . $tvName . '</span>' . $tvDescription . $tvInherited . '</td>
+                                            <td><span class="warning">' . sanitize_inline_html($row['caption']) . $tvName . '</span>' . $tvDescription . $tvInherited . '</td>
                                             <td><div style="position:relative;' . ($row['type'] == 'date' ? '' : '') . '">' .
                             renderFormElement(
                                 $row['type'],

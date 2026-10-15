@@ -476,6 +476,30 @@ if (!function_exists('escape_html_and_tags')) {
     }
 }
 
+if (!function_exists('tv_css_string_escape')) {
+    /**
+     * Escape a value for a quoted CSS string, such as `url('...')` in a style attribute.
+     *
+     * Quotes, backslashes, parentheses, angle brackets and control characters become CSS hex
+     * escapes, so the value cannot close the string or the declaration. The result still needs
+     * HTML attribute escaping when it is placed in a `style` attribute.
+     *
+     * @since 3.5.8
+     */
+    function tv_css_string_escape($value): string
+    {
+        if (!is_scalar($value)) {
+            return '';
+        }
+
+        return (string) preg_replace_callback(
+            '/[\x00-\x1F\x7F"\'\\\\()<>]/',
+            static fn (array $m): string => sprintf('\\%x ', ord($m[0])),
+            (string) $value
+        );
+    }
+}
+
 if (!function_exists('safe_html')) {
     /**
      * Turn untrusted, possibly HTML-flavoured text into markup that is safe to print with `{{ }}`.
