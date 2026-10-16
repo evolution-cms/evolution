@@ -151,7 +151,8 @@ class DatabaseBackupService
         $filePath = rtrim((string) $snapshotPath, '/\\') . '/' . $baseName . '.sql';
         $index = 1;
 
-        while (is_file($filePath)) {
+        // A compressed snapshot drops its .sql, so its name is taken too (DatabaseBackupArchive).
+        while (is_file($filePath) || is_file($filePath . '.gz')) {
             $filePath = rtrim((string) $snapshotPath, '/\\') . '/' . $baseName . '_' . $index . '.sql';
             $index++;
         }

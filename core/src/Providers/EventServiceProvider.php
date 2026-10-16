@@ -28,6 +28,9 @@ class EventServiceProvider extends ServiceProvider
         Event::listen('eloquent.retrieved: Seiger\\sTask\\Models\\sTaskModel', [
             \EvolutionCMS\Services\BackgroundDatabaseBackup::class, 'hydrateProgress',
         ]);
+        Event::listen('eloquent.saving: Seiger\\sTask\\Models\\sWorker', [
+            \EvolutionCMS\Services\BackgroundDatabaseBackup::class, 'authorizeSchedule',
+        ]);
         foreach ($this->listens() as $event => $listeners) {
             foreach ($listeners as $listener) {
                 Event::listen($event, $listener);

@@ -33,7 +33,7 @@ it('writes the backup title through the helper in every dump header', function (
 it('escapes the dump header fields in the backup list', function () {
     $source = (string) file_get_contents(dirname(__DIR__, 4) . '/manager/actions/bkmanager.static.php');
 
-    expect($source)->toContain("e((string) (\$details['Description'] ?? 'Undefined'))")
+    expect($source)->toContain("e((string) (\$details['Description'] ?? '—'))")
         ->and($source)->toContain("confirmRevert(<?= e((string) json_encode((string) \$filename)) ?>)")
         ->and($source)->not->toContain("<td><?= (\$details['Description'] ?? 'Undefined') ?></td>");
 });

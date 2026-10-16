@@ -25,6 +25,11 @@ namespace EvolutionCMS\Services {
             return ['filename' => 'test.sql.gz', 'size' => 1234, 'original_size' => 12345];
         }
     }
+    // The permission guard has its own test (BackgroundBackupPermissionTest); let this task through.
+    class BackgroundDatabaseBackup {
+        public const PERMISSION = 'bk_manager';
+        public static function userMayBackup(int $userId): bool { return true; }
+    }
 }
 namespace EvolutionCMS\Workers {
     // Advance a deterministic clock instead of sleeping in a worker test.

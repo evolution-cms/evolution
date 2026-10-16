@@ -269,12 +269,41 @@ if(!function_exists('fileManagerProtectedPaths')) {
         if (!fileManagerMayRunCode()) {
             $paths[] = EVO_MANAGER_PATH;
             $paths[] = EVO_CORE_PATH;
+            // A file under a view path is executed by its engine, whatever the extension.
+            foreach (fileManagerTemplateViewPaths() as $viewPath) {
+                $paths[] = $viewPath;
+            }
         }
 
         return array_map(
             static fn ($path) => rtrim(str_replace('\\', '/', realpath($path) ?: $path), '/'),
             $paths
         );
+    }
+}
+
+if(!function_exists('fileManagerTemplateViewPaths')) {
+    /**
+     * The folders template files are rendered from (`view.paths`). The `php` engine includes a
+     * file, `blade.php` compiles to PHP, and plugins register latte, twig, tpl and others, so
+     * writing anything there authors server-side code (see TemplateFileGuard). Falls back to the
+     * shipped `views/` folder when the configuration cannot be read.
+     *
+     * @param array|null $configured view paths to use instead of `config('view.paths')`
+     * @return string[] absolute paths
+     */
+    function fileManagerTemplateViewPaths(?array $configured = null)
+    {
+        if ($configured === null) {
+            try {
+                $configured = function_exists('config') ? (array) config('view.paths', []) : [];
+            } catch (\Throwable $e) {
+                $configured = [];
+            }
+        }
+        $paths = array_values(array_filter(array_map('strval', $configured), static fn ($path) => trim($path) !== ''));
+
+        return $paths !== [] ? $paths : [(defined('EVO_BASE_PATH') ? EVO_BASE_PATH : dirname(__DIR__, 3) . '/') . 'views'];
     }
 }
 

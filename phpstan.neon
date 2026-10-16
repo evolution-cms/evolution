@@ -8,3 +8,5 @@ parameters:
         - core/bootstrap.php
         - core/includes/aliases.inc.php
         - core/includes/legacy.inc.php
+    scanFiles:
+        - core/tests/phpstan/stask-symbols.php
