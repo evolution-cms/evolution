@@ -91,7 +91,7 @@ if(!empty ($id)) {
     $_SESSION['itemname'] = $content['pagetitle'];
 } else {
     $content = [];
-    $content['contentType'] = $_REQUEST['contentType'] ?? $defaultContentType;
+    $content['contentType'] = get_by_key($_REQUEST, 'contentType', $defaultContentType, 'is_scalar');
 
     if(isset($_REQUEST['newtemplate'])) {
         $content['template'] = $_REQUEST['newtemplate'];
@@ -709,7 +709,7 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
                     }
                 }
 
-                $out .= '<li class="breadcrumbs__li breadcrumbs__li_current">' . $title . '</li>';
+                $out .= '<li class="breadcrumbs__li breadcrumbs__li_current">' . htmlspecialchars((string)$title, ENT_QUOTES, $modx->getConfig('modx_charset')) . '</li>';
                 echo '<ul class="breadcrumbs">' . $out . '</ul>';
             }
             ?>
@@ -1408,7 +1408,7 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
                                     if($content['type'] != 'reference' && $modx->getManagerApi()->action != '72') {
                                         // non-admin managers creating or editing a document resource
                                         ?>
-                                        <input type="hidden" name="contentType" value="<?= (isset($content['contentType']) ? $content['contentType'] : "text/html") ?>" />
+                                        <input type="hidden" name="contentType" value="<?= e(isset($content['contentType']) ? $content['contentType'] : "text/html") ?>" />
                                         <input type="hidden" name="type" value="document" />
                                         <input type="hidden" name="content_dispo" value="<?= (isset($content['content_dispo']) ? $content['content_dispo'] : '0') ?>" />
                                         <?php

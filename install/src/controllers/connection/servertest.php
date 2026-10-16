@@ -5,7 +5,7 @@ try {
     $uid = validateDbUser($_POST['uid'], $method);
     $pwd = validateDbPassword($_POST['pwd'], $method);
 } catch (Throwable $e) {
-    exit('<span id="server_fail"> ' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>');
+    exit('<span id="server_fail"> ' . $_lang['status_failed'] . ' ' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . '</span>');
 }
 
 $output = $_lang['status_connecting'];
@@ -17,6 +17,6 @@ try {
     }
     $output .= '<span id="server_pass"> ' . $_lang['status_passed_server'] . '</span>';
 } catch (Throwable $e) {
-    $output .= '<span id="server_fail"> ' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
+    $output .= '<span id="server_fail"> ' . $_lang['status_failed'] . ' ' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . '</span>';
 }
 echo $output;
