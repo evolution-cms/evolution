@@ -466,7 +466,7 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                         } else {
                             $last_result = array_merge([], array_diff($last_result, ['']));
                             foreach ($last_result['0'] as $k => $v) {
-                                $title[] = $k;
+                                $title[] = e($k);
                             }
                             $result = '<thead><tr><th>' . implode('</th><th>', $title) . '</th></tr></thead>';
                             $result .= '<tbody>';
@@ -474,7 +474,7 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                                 $result_value = [];
                                 if ($row) {
                                     foreach ($row as $k => $v) {
-                                        $result_value[] = $v;
+                                        $result_value[] = e($v);
                                     }
                                     $result .= '<tr><td>' . implode('</td><td>', $result_value) . '</td></tr>';
                                 }
@@ -501,7 +501,7 @@ if (isset($_SESSION['result_msg']) && $_SESSION['result_msg'] != '') {
                         <input type="file" name="sqlfile" id="sqlfile" style="display:<?= $f_display ?>;"/>
                     </div>
                     <div id="textarea" style="display:<?= $t_display ?>;">
-                        <textarea name="textarea" rows="10"><?= $value ?></textarea>
+                        <textarea name="textarea" rows="10"><?= e($value) ?></textarea>
                     </div>
                     <a href="javascript:;" class="btn btn-primary" onclick="document.mutate.save.click();"> <i
                                 class="<?= $_style['icon_save'] ?>"></i> <?= $_lang["bkmgr_run_sql_submit"] ?></a>

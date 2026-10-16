@@ -548,7 +548,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                                     if ($i === 0) {
                                         $templateVariablesOutput .= '
                             <div id="tabTV_' . $row['category_id'] . '" class="tab-page tmplvars">
-                                <h2 class="tab">' . $row['category'] . '</h2>
+                                <h2 class="tab">' . e($row['category']) . '</h2>
                                 <script type="text/javascript">tpTemplateVariables.addTabPage(document.getElementById(\'tabTV_' . $row['category_id'] . '\'));</script>
 
                                 <div class="tab-body tmplvars">
@@ -560,7 +560,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                             </div>
 
                             <div id="tabTV_' . $row['category_id'] . '" class="tab-page tmplvars">
-                                <h2 class="tab">' . $row['category'] . '</h2>
+                                <h2 class="tab">' . e($row['category']) . '</h2>
                                 <script type="text/javascript">tpTemplateVariables.addTabPage(document.getElementById(\'tabTV_' . $row['category_id'] . '\'));</script>
 
                                 <div class="tab-body tmplvars">
@@ -570,7 +570,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                                     if ($i === 0) {
                                         $templateVariablesOutput .= '
                                 <div id="tabTV_' . $row['category_id'] . '" class="tab-page tmplvars">
-                                    <h2 class="tab">' . $row['category'] . '</h2>
+                                    <h2 class="tab">' . e($row['category']) . '</h2>
                                     <script type="text/javascript">tpSettings.addTabPage(document.getElementById(\'tabTV_' . $row['category_id'] . '\'));</script>
                                     <table>';
                                     } else {
@@ -579,7 +579,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                                 </div>
 
                                 <div id="tabTV_' . $row['category_id'] . '" class="tab-page tmplvars">
-                                    <h2 class="tab">' . $row['category'] . '</h2>
+                                    <h2 class="tab">' . e($row['category']) . '</h2>
                                     <script type="text/javascript">tpSettings.addTabPage(document.getElementById(\'tabTV_' . $row['category_id'] . '\'));</script>
 
                                     <table>';
@@ -890,21 +890,15 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                         <td><?php echo $_lang["which_browser_title"] ?></td>
                         <td><select name="which_browser" class="inputBox" onChange="documentDirty=true;">
                                 <?php
-                                if(isset($usersettings['which_browser'])){
-                                    $selected = $usersettings['which_browser'];
-                                }else {
-                                    $selected = '';
-                                }
-                                echo '<option value="default"' . $selected . '>' . $_lang['option_default'] . "</option>\n";
+                                $currentBrowser = isset($usersettings['which_browser']) ? (string)$usersettings['which_browser'] : '';
+                                $isSelected = function ($value) use ($currentBrowser) {
+                                    return $value === $currentBrowser || ($value === 'default' && $currentBrowser === '') ? ' selected="selected"' : '';
+                                };
+                                echo '<option value="default"' . $isSelected('default') . '>' . $_lang['option_default'] . "</option>\n";
                                 foreach(glob("media/browser/*", GLOB_ONLYDIR) as $dir) {
                                     $dir = str_replace('\\', '/', $dir);
                                     $browser_name = substr($dir, strrpos($dir, '/') + 1);
-                                    if(isset($usersettings['which_browser'])){
-                                        $selected = $usersettings['which_browser'];
-                                    }else {
-                                        $selected = '';
-                                    }
-                                    echo '<option value="' . $browser_name . '"' . $selected . '>' . "{$browser_name}</option>\n";
+                                    echo '<option value="' . e($browser_name) . '"' . $isSelected($browser_name) . '>' . e($browser_name) . "</option>\n";
                                 }
                                 ?>
                             </select></td>

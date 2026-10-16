@@ -285,7 +285,7 @@ function validateDbUser($username, $type)
     if ($type === 'sqlite' && empty($username)) {
         return $username;
     }
-    if (preg_match('/^[a-zA-Z][a-zA-Z0-9_]+$/', $username) === false) {
+    if (preg_match('/^[a-zA-Z][a-zA-Z0-9_]+$/', $username) !== 1) {
         throw new InvalidArgumentException("Database user should begin with letter and contain only letters,"
             . " numbers, and underscores");
     };
@@ -334,7 +334,7 @@ function validateAdminUsername($username)
 {
     $username = trim($username);
     if (strlen($username) === 0 || strlen($username) >= 64 ||
-        preg_match('/^[a-zA-Z][a-zA-Z0-9._-]{0,63}$/', $username) === false) {
+        preg_match('/^[a-zA-Z][a-zA-Z0-9._-]{0,63}$/', $username) !== 1) {
         throw new InvalidArgumentException('Admin username should begin with letter and contain only letters,'
          . " numbers, dashes, dots and underscores");
     }
