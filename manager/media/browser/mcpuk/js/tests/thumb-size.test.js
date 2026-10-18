@@ -44,7 +44,9 @@ test('thumb size updates the content cards and their thumbnails', () => {
     { selector: 'div.thumb', property: { width: '240px', height: '240px' } },
     { selector: 'div.thumb.folder-icon', property: 'font-size', value: '192px' },
     { selector: 'div.thumb img', property: { width: '240px', height: '240px' } },
-    { selector: 'div.file', property: 'width', value: '240px' },
+    // links are cards of their own class (browser.linksHtml) and follow the same size
+    { selector: 'div.file, div.file-link', property: 'width', value: '240px' },
+    { selector: 'div.thumb.link-icon', property: 'font-size', value: '144px' },
     { selector: '.thumbsize', text: '240px' },
   ]);
 });

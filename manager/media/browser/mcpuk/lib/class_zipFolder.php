@@ -18,14 +18,19 @@ class zipFolder {
     protected $root;
     protected $ignored;
     protected $filter;
+    protected $linkTarget;
 
     /**
      * @param callable|null $filter receives each absolute path; entries it refuses are left
      *                              out, a refused folder with everything below it
+     * @param callable|null $linkTarget receives each link's absolute path and returns the relative
+     *                                  target to store it with as a link entry, or null to leave it
+     *                                  out. Links are never followed; without it they are left out
      */
-    function __construct($file, $folder, $ignored=null, ?callable $filter=null) {
+    function __construct($file, $folder, $ignored=null, ?callable $filter=null, ?callable $linkTarget=null) {
         $this->zip = new ZipArchive();
         $this->filter = $filter;
+        $this->linkTarget = $linkTarget;
 
         $this->ignored = is_array($ignored)
             ? $ignored
@@ -53,6 +58,14 @@ class zipFolder {
         foreach ($dir as $file)
             if (!$file->isDot()) {
                 $filename = $file->getFilename();
+                if (in_array($filename, $this->ignored))
+                    continue;
+                if (fileManagerIsLink("$full_path/$filename")) {
+                    $target = $this->linkTarget === null ? null : call_user_func($this->linkTarget, "$full_path/$filename");
+                    if ($target !== null)
+                        fileManagerZipAddLink($this->zip, "$zip_path/$filename", $target);
+                    continue;
+                }
                 if (!in_array($filename, $this->ignored)
                     && ($this->filter === null || call_user_func($this->filter, "$full_path/$filename"))) {
                     if ($file->isDir())

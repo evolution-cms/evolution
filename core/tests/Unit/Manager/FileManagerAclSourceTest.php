@@ -62,7 +62,8 @@ final class FileManagerAclSourceTest extends TestCase
             'act_cp_cbd' => '!$this->isPathAccessible($path)',
             'act_mv_cbd' => '!$this->isPathAccessible($path)',
             'act_rm_cbd' => '!$this->isPathAccessible($path)',
-            'act_downloadDir' => 'new zipFolder($file, $dir, null, $this->subtreeAccessFilter($dir));',
+            'act_downloadDir' => 'new zipFolder($file, $dir, null, $this->subtreeAccessFilter($dir),',
+            'act_copyDir' => '$this->subtreeAccessFilter($dir)',
             'act_downloadSelected' => '!$this->isPathAccessible($file)',
             'act_downloadClipboard' => '!$this->isPathAccessible($file)',
         ];

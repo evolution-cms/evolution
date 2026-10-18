@@ -1,15 +1,17 @@
 <?php
 
 it('adds guarded directory zip downloads to the classic file manager', function () {
-    $source = file_get_contents(dirname(__DIR__, 4) . '/manager/actions/files.dynamic.php');
+    // the archive itself is built by fileManagerCreateDirectoryZip() in the helpers
+    $source = file_get_contents(dirname(__DIR__, 4) . '/manager/actions/files.dynamic.php')
+        . file_get_contents(dirname(__DIR__, 3) . '/functions/actions/files.php');
 
     expect($source)
         ->toContain("sys_get_temp_dir()")
         ->toContain("sha1(rtrim(str_replace('\\\\', '/', EVO_BASE_PATH)")
         ->toContain("fopen(\$directoryZipPaths['lock'], 'x')")
-        ->toContain('new RecursiveDirectoryIterator($sourcePath, RecursiveDirectoryIterator::SKIP_DOTS)')
         ->toContain("fileManagerIsAccessible(\$itemRelPath, \$userGroups, \$fileGroupsMap)")
-        ->toContain("fileManagerPathIsProtected(\$realItemPath, \$protectedPaths)")
+        ->toContain("fileManagerPathIsProtected(fileManagerCanonicalCase(\$itemPath), \$protectedPaths)")
+        ->toContain('fileManagerRelativeLinkTarget($filemanagerPath, $itemPath, null, $mayReveal)')
         ->toContain("fileManagerPathIsProtected(\$startpath, \$protected_path)")
         ->toContain("evo()->getConfig('denyZipDownload')")
         ->toContain("header('Content-Disposition: attachment; filename=\"' . fileManagerDirectoryZipName")

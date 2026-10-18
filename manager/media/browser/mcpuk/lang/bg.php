@@ -163,6 +163,8 @@ $lang = array(
 
     "Are you sure you want to delete all selected files?" =>
     "Наистина ли искате да изтриете всички избрани файлове?",
+    "Are you sure you want to delete the selected files and folders with all their content?" =>
+    "Наистина ли искате да изтриете избраните файлове и папки с цялото им съдържание?",
 
     "Failed to delete {count} files/folders." =>
     "{count} файла/папки не могат да бъдат изтрити.",
@@ -221,8 +223,20 @@ $lang = array(
     "Loading image..." => "Изображението се зарежда...",
     "Loading folders..." => "Зареждане на папките...",
     "Loading files..." => "Зареждане на папката...",
+    "Loading..." => "Зареждане...",
     "New Subfolder..." => "Нова подпапка...",
     "Rename..." => "Преименуване...",
+    "Copy..." => "Копиране...",
+    "Name of the folder copy:" => "Име на копието на папката:",
+    "Unable to copy folder." => "Папката не може да бъде копирана.",
+    "Link" => "Връзка",
+    "Broken link" => "Счупена връзка",
+    "Outside the file manager or not accessible" => "Извън файловия мениджър или недостъпна",
+    "Delete link" => "Изтриване на връзка",
+    "Delete this link? Only the link is removed; what it leads to stays." => "Да се изтрие ли тази връзка? Премахва се само връзката; това, към което води, остава.",
+    "Unable to delete the link." => "Връзката не можа да бъде изтрита.",
+    "Links are not copied (the file manager does not create links):" => "Връзките не се копират (файловият мениджър не създава връзки):",
+    "{count} files/folders were not copied: no access, or not allowed here." => "{count} файла/папки не бяха копирани: няма достъп или не е позволено тук.",
     "Delete" => "Изтрий",
     "OK" => "OK",
     "Cancel" => "Отказ",

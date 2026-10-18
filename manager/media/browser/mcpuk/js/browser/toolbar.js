@@ -45,7 +45,7 @@ browser.initToolbar = function() {
     });
 
     var deleteButton = $('#toolbar a[href="kcact:delete"]');
-    if (!this.access.files['delete'])
+    if (!this.access.files['delete'] && !this.access.dirs['delete'])
         deleteButton.hide();
     deleteButton.click(function() {
         if ($(this).hasClass('disabled'))
@@ -65,12 +65,10 @@ browser.initToolbar = function() {
 };
 
 browser.updateDeleteButton = function() {
-    var files = $('.file.selected').filter(function() {
-        return !$(this).data('isDir');
-    }).map(function() {
+    var entries = $('.file.selected').map(function() {
         return $(this).data();
     }).get();
-    var enabled = this.deleteButtonEnabled(this.access.files['delete'], files);
+    var enabled = this.deleteButtonEnabled(this.access.files['delete'], entries, this.access.dirs['delete']);
     var button = $('#toolbar a[href="kcact:delete"]');
 
     if (enabled)
@@ -305,6 +303,7 @@ browser.refresh = function(selected) {
             browser.dirWritable = data.dirWritable;
             browser.updateWriteControls();
             browser.files = data.files ? data.files : [];
+            browser.links = data.links ? data.links : [];
             browser.orderFiles(null, selected);
             browser.statusDir();
         },

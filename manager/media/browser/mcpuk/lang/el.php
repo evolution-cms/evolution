@@ -177,8 +177,20 @@ $lang = array(
     "Loading image..." => "Η εικόνα φορτώνει...",
     "Loading folders..." => "Οι φάκελοι φορτώνουν...",
     "Loading files..." => "Τα αρχεία φορτώνουν...",
+    "Loading..." => "Φόρτωση...",
     "New Subfolder..." => "Νέος υποφάκελος...",
     "Rename..." => "Μετονομασία...",
+    "Copy..." => "Αντιγραφή...",
+    "Name of the folder copy:" => "Όνομα αντιγράφου φακέλου:",
+    "Unable to copy folder." => "Αδυναμία αντιγραφής φακέλου.",
+    "Link" => "Σύνδεσμος",
+    "Broken link" => "Κατεστραμμένος σύνδεσμος",
+    "Outside the file manager or not accessible" => "Εκτός της διαχείρισης αρχείων ή μη προσβάσιμος",
+    "Delete link" => "Διαγραφή συνδέσμου",
+    "Delete this link? Only the link is removed; what it leads to stays." => "Διαγραφή αυτού του συνδέσμου; Αφαιρείται μόνο ο σύνδεσμος· ό,τι δείχνει παραμένει.",
+    "Unable to delete the link." => "Δεν ήταν δυνατή η διαγραφή του συνδέσμου.",
+    "Links are not copied (the file manager does not create links):" => "Οι σύνδεσμοι δεν αντιγράφονται (η διαχείριση αρχείων δεν δημιουργεί συνδέσμους):",
+    "{count} files/folders were not copied: no access, or not allowed here." => "{count} αρχεία/φάκελοι δεν αντιγράφηκαν: δεν υπάρχει πρόσβαση ή δεν επιτρέπεται εδώ.",
     "Delete" => "Διαγραφή",
     "OK" => "OK",
     "Cancel" => "Ακύρωση",
@@ -222,6 +234,8 @@ $lang = array(
 
     "Are you sure you want to delete all selected files?" =>
     "Σίγουρα θέλετε να διαγράψετε όλα τα επιλεγμένα αρχεία?",
+    "Are you sure you want to delete the selected files and folders with all their content?" =>
+    "Σίγουρα θέλετε να διαγράψετε τα επιλεγμένα αρχεία και φακέλους μαζί με όλα τα περιεχόμενά τους?",
 
     "Failed to delete {count} files/folders." =>
     "Η διαγραφή  {count} αρχείων/φακέλων απέτυχε.",

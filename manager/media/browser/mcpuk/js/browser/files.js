@@ -20,6 +20,16 @@ browser.initFiles = function() {
         if (!$(e.target).closest('.file').length)
             browser.clearSelection();
     });
+    // the empty space stands for the folder on screen, not for whichever folder was clicked last
+    // (contextmenu, not rightClick(): the items stop the mouseup that rightClick() waits for here)
+    $('#files').bind('contextmenu', function(e) {
+        if ($(e.target).closest('.file, .file-link').length)
+            return false;
+        _.unselect();
+        browser.clearSelection();
+        browser.menuCurrentDir(e);
+        return false;
+    });
     $('.file').unbind();
     $('.file').click(function(e) {
         browser.handleFileClick($(this), e);
@@ -196,12 +206,12 @@ browser.canModifyFile = function(fileWritable, accessAllowed) {
     return this.canWriteCurrentDirectory(accessAllowed) && !!fileWritable;
 };
 
-browser.deleteButtonEnabled = function(canDelete, files) {
-    if (!this.canWriteCurrentDirectory(canDelete))
-        return false;
-
+// whether anything selected can go: a writable file, or a removable folder
+browser.deleteButtonEnabled = function(canDelete, files, canDeleteDirs) {
     for (var i = 0; i < files.length; i++) {
-        if (!files[i].isDir && files[i].writable)
+        if (files[i].isDir
+            ? (files[i].removable && this.canWriteCurrentDirectory(canDeleteDirs))
+            : (files[i].writable && this.canWriteCurrentDirectory(canDelete)))
             return true;
     }
 
@@ -252,7 +262,8 @@ browser.applyThumbSize = function(size) {
     $('div.thumb').css({width: px, height: px});
     $('div.thumb.folder-icon').css('font-size', Math.round(size * 0.8) + 'px');
     $('div.thumb img').css({width: px, height: px});
-    $('div.file').css('width', px);
+    $('div.file, div.file-link').css('width', px);
+    $('div.thumb.link-icon').css('font-size', Math.round(size * 0.6) + 'px');
     $('.thumbsize').text(px);
 
     return true;
@@ -263,7 +274,7 @@ browser.applyTextSize = function(size) {
     if (!isFinite(size) || size < 1)
         return false;
 
-    $('tr.file td').css('font-size', size + 'px');
+    $('tr.file td, tr.file-link td').css('font-size', size + 'px');
     $('.textsize').text(size + 'px');
 
     return true;
@@ -321,6 +332,7 @@ browser.showFiles = function(callBack, selected) {
                 '</div>';
             }
         });
+        html += browser.linksHtml(_.kuki.get('view') == 'list');
         $('#files').html('<div>' + html + '<div>');
         $.each(browser.files, function(i, file) {
             var item = $('#files .file').get(i);
@@ -335,7 +347,112 @@ browser.showFiles = function(callBack, selected) {
         $('#files > div').css({opacity:'', filter:''});
         if (callBack) callBack();
         browser.initFiles();
+        browser.initLinks();
     }, 200);
+};
+
+/**
+ * Links are listed after the files, but they are no .file: nothing selects, opens, returns or
+ * deletes them, and their target comes from the server only as a relative path, if at all.
+ */
+browser.linksHtml = function(listView) {
+    var links = this.links || [];
+    if (!links.length)
+        return '';
+    var html = '';
+    $.each(links, function(i, link) {
+        // "broken" comes only with a shown target: of one outside it would tell whether a path exists
+        var target = link.target !== null && typeof link.target != 'undefined'
+            ? '\u2192 ' + link.target + (link.broken ? ' (' + browser.label("Broken link") + ')' : '')
+            : '\u2192 ' + browser.label("Outside the file manager or not accessible");
+        var title = _.htmlValue(link.name + ' ' + target);
+        if (listView)
+            html += '<tr class="file-link" title="' + title + '">' +
+                '<td class="name">' + _.htmlData(link.name) + ' <span class="target">' + _.htmlData(target) + '</span></td>' +
+                '<td class="time">' + _.htmlData(link.date) + '</td>' +
+                '<td class="size">' + _.htmlData(browser.label("Link")) + '</td>' +
+            '</tr>';
+        else
+            html += '<div class="file-link" title="' + title + '">' +
+                '<div class="thumb link-icon"></div>' +
+                '<div class="name">' + _.htmlData(link.name) + '</div>' +
+                '<div class="target">' + _.htmlData(target) + '</div>' +
+            '</div>';
+    });
+
+    return listView ? '<table summary="links">' + html + '</table>' : html;
+};
+
+browser.initLinks = function() {
+    var links = this.links || [];
+    $('#files .file-link').each(function(i) {
+        $(this).data(links[i] || {});
+    });
+    $('#files .file-link').unbind();
+    $('#files .file-link').click(function(e) {
+        browser.menuLink($(this), e);
+        return false;
+    });
+    $('#files .file-link').rightClick(function(e) {
+        _.unselect();
+        browser.menuLink($(this), e);
+    });
+};
+
+/**
+ * The one thing done with a link: removing the link itself (act_deleteLink), never its target.
+ */
+browser.menuLink = function(item, e) {
+    var data = item.data();
+    if (!data || !data.name || !this.access.files['delete'])
+        return false;
+    var html = '<div class="menu"><a href="kcact:rmlink"' + (!data.removable ? ' class="denied"' : '') + '>' +
+        this.label("Delete link") + '</a></div>';
+    $('#dialog').html(html);
+    this.showMenu(e);
+    $('.menu a[href="kcact:rmlink"]').click(function() {
+        if (!data.removable) return false;
+        browser.hideDialog();
+        browser.confirm("Delete this link? Only the link is removed; what it leads to stays.", function(callBack) {
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: browser.baseGetData('deleteLink'),
+                data: {dir: browser.dir, name: data.name},
+                async: false,
+                success: function(response) {
+                    if (callBack) callBack();
+                    if (browser.check4errors(response))
+                        return;
+                    browser.refresh();
+                },
+                error: function() {
+                    if (callBack) callBack();
+                    browser.alert(browser.label("Unable to delete the link."));
+                }
+            });
+        });
+        return false;
+    });
+    return false;
+};
+
+/**
+ * What a folder copy left behind, as safe markup for browser.alert(), which takes HTML.
+ */
+browser.copyReport = function(dt) {
+    var lines = [];
+    if (dt && dt.skipped)
+        lines.push(_.htmlData(this.label("{count} files/folders were not copied: no access, or not allowed here.", {count: dt.skipped})));
+    if (dt && dt.links && dt.links.length) {
+        lines.push(_.htmlData(this.label("Links are not copied (the file manager does not create links):")));
+        $.each(dt.links, function(i, link) {
+            var target = link.target !== null && typeof link.target != 'undefined'
+                ? link.target : browser.label("Outside the file manager or not accessible");
+            lines.push(_.htmlData(link.name + ' \u2192 ' + target));
+        });
+    }
+    return lines.join('<br />');
 };
 
 browser.directorySizeDisplay = function(file) {
@@ -414,6 +531,83 @@ browser.menuFolder = function(file, e) {
     return true;
 };
 
+/**
+ * Menu of the empty space in the file list: the folder on screen, whatever folder was clicked last.
+ * Only what acts on the folder from inside (paste, refresh, new subfolder, download); copying,
+ * renaming or deleting the folder itself stays on the folder.
+ */
+browser.menuCurrentDir = function(e) {
+    var dir = $('div.folder > a > span.folder.current').parent();
+    var html = '';
+    if (this.clipboard && this.clipboard.length) {
+        if (this.access.files.copy)
+            html += '<a href="kcact:cpcbd"' + (!this.dirWritable ? ' class="denied"' : '') + '>' +
+                this.label("Copy {count} files", {count: this.clipboard.length}) + '</a>';
+        if (this.access.files.move)
+            html += '<a href="kcact:mvcbd"' + (!this.dirWritable ? ' class="denied"' : '') + '>' +
+                this.label("Move {count} files", {count: this.clipboard.length}) + '</a>';
+        if (this.access.files.copy || this.access.files.move)
+            html += '<div class="delimiter"></div>';
+    }
+    html += '<a href="kcact:refresh">' + this.label("Refresh") + '</a>';
+    if (this.access.dirs.create && dir.get(0))
+        html += '<a href="kcact:mkdir"' + (!this.dirWritable ? ' class="denied"' : '') + '>' +
+            this.label("New Subfolder...") + '</a>';
+    if (this.support.zip)
+        html += '<div class="delimiter"></div>' +
+            '<a href="kcact:download">' + this.label("Download") + '</a>';
+
+    $('#dialog').html('<div class="menu">' + html + '</div>');
+    this.showMenu(e);
+
+    if (this.dirWritable) {
+        $('.menu a[href="kcact:cpcbd"]').click(function() {
+            browser.hideDialog();
+            browser.copyClipboard(browser.dir);
+            return false;
+        });
+        $('.menu a[href="kcact:mvcbd"]').click(function() {
+            browser.hideDialog();
+            browser.moveClipboard(browser.dir);
+            return false;
+        });
+    }
+
+    $('.menu a[href="kcact:refresh"]').click(function() {
+        browser.hideDialog();
+        // its subfolders in the tree, then its files
+        if (dir.get(0))
+            browser.refreshDir(dir);
+        browser.refresh();
+        return false;
+    });
+
+    $('.menu a[href="kcact:mkdir"]').click(function(e) {
+        if (!browser.dirWritable) return false;
+        browser.hideDialog();
+        browser.fileNameDialog(
+            e, {dir: browser.dir},
+            'newDir', '', browser.baseGetData('newDir'), {
+                title: "New folder name:",
+                errEmpty: "Please enter new folder name.",
+                errSlash: "Unallowable characters in folder name.",
+                errDot: "Folder name shouldn't begins with '.'",
+                errMain: "Unable to create folder."
+            }, function() {
+                browser.refreshDir(dir);
+                browser.refresh();
+            }
+        );
+        return false;
+    });
+
+    $('.menu a[href="kcact:download"]').click(function() {
+        browser.hideDialog();
+        browser.post(browser.baseGetData('downloadDir'), {dir: browser.dir});
+        return false;
+    });
+};
+
 browser.selectAll = function(e) {
     if (this.keyboardAction(e) != 'selectAll')
         return false;
@@ -434,16 +628,94 @@ browser.selectAll = function(e) {
 };
 
 browser.deleteSelectedFiles = function() {
+    var entries = $('.file.selected').get();
+    var withDirs = $('.file.selected').filter(function() {
+        return $(this).data('isDir');
+    }).get().length > 0;
+    if (!entries.length)
+        return false;
+    if (withDirs)
+        return this.deleteEntries(entries);
     if (!this.canWriteCurrentDirectory(this.access.files['delete']))
         return false;
 
-    var files = $('.file.selected').filter(function() {
-        return !$(this).data('isDir');
-    }).get();
-    if (!files.length)
-        return false;
+    this.deleteFiles(entries);
+    return true;
+};
 
-    this.deleteFiles(files);
+/**
+ * Deletes a selection that holds folders, with everything in them, and the files beside them: the
+ * same requests the folder and file menus send. One question, one report, then the folder on screen
+ * is read again (its tree branch too), so nothing deleted stays on view.
+ */
+browser.deleteEntries = function(entries) {
+    var dirs = [], files = [], failed = 0;
+    $.each(entries, function(i, entry) {
+        var data = $(entry).data();
+        var path = browser.dir + '/' + data.name;
+        if (data.isDir) {
+            if (data.removable && browser.canWriteCurrentDirectory(browser.access.dirs['delete']))
+                dirs.push(path);
+            else
+                failed++;
+        } else if (browser.canModifyFile(data.writable, browser.access.files['delete']))
+            files.push(path);
+        else
+            failed++;
+    });
+    if (!dirs.length && !files.length) {
+        this.alert(this.label("The selected files are not removable."));
+        return true;
+    }
+
+    var go = function(callBack) {
+        var errors = [];
+        var collect = function(data) {
+            if (data && data.error)
+                errors = errors.concat(data.error.join ? data.error : [data.error]);
+        };
+        browser.fadeFiles();
+        $.each(dirs, function(i, dir) {
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: browser.baseGetData('deleteDir'),
+                data: {dir: dir},
+                async: false,
+                success: collect,
+                error: function() {
+                    errors.push(browser.label("Unable to delete folder."));
+                }
+            });
+        });
+        if (files.length)
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: browser.baseGetData('rm_cbd'),
+                data: {files: files},
+                async: false,
+                success: collect,
+                error: function() {
+                    errors.push(browser.label("Unknown error."));
+                }
+            });
+        if (callBack) callBack();
+        var current = $('div.folder > a > span.folder.current').parent();
+        if (current.get(0))
+            browser.refreshDir(current);
+        browser.refresh();
+        if (errors.length)
+            browser.alert(errors.join("\n"));
+    };
+
+    if (failed)
+        this.confirm(this.label("{count} selected files are not removable. Do you want to delete the rest?", {count: failed}), go);
+    else if (dirs.length == 1 && !files.length)
+        this.confirm(this.label("Are you sure you want to delete this folder and all its content?"), go);
+    else
+        this.confirm(this.label("Are you sure you want to delete the selected files and folders with all their content?"), go);
+
     return true;
 };
 

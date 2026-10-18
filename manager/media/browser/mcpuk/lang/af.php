@@ -178,8 +178,20 @@ $lang = array(
     "Loading image..." => "Besig om beeld te laai...",
     "Loading folders..." => "Besig om Gidse te laai...",
     "Loading files..." => "Besig om Lêers te laai...",
+    "Loading..." => "Besig om te laai...",
     "New Subfolder..." => "Nuwe subgids...",
     "Rename..." => "Naam verander...",
+    "Copy..." => "Kopieer...",
+    "Name of the folder copy:" => "Naam van die gidskopie:",
+    "Unable to copy folder." => "Kan nie gids kopieer nie.",
+    "Link" => "Skakel",
+    "Broken link" => "Gebreekte skakel",
+    "Outside the file manager or not accessible" => "Buite die lêerbestuurder of nie toeganklik nie",
+    "Delete link" => "Skrap skakel",
+    "Delete this link? Only the link is removed; what it leads to stays." => "Skrap hierdie skakel? Slegs die skakel word verwyder; waarna dit lei, bly behoue.",
+    "Unable to delete the link." => "Kan nie die skakel skrap nie.",
+    "Links are not copied (the file manager does not create links):" => "Skakels word nie gekopieer nie (die lêerbestuurder skep nie skakels nie):",
+    "{count} files/folders were not copied: no access, or not allowed here." => "{count} lêers/gidse is nie gekopieer nie: geen toegang nie, of nie hier toegelaat nie.",
     "Delete" => "Verwyder",
     "OK" => "REG",
     "Cancel" => "Kanselleer",
@@ -226,6 +238,8 @@ $lang = array(
 
     "Are you sure you want to delete all selected files?" =>
     "Is jy seker jy wil all geselekteerde lêers te verwyder ?",
+    "Are you sure you want to delete the selected files and folders with all their content?" =>
+    "Is jy seker jy wil die geselekteerde lêers en gidse met al hul inhoud verwyder ?",
 
     "Failed to delete {count} files/folders." =>
     "Misluk {count} lêers/gidse te verwyder.",

@@ -149,9 +149,9 @@ browser.expandDir = function(dir) {
             dir.children('.brace').removeClass('closed');
             dir.children('.brace').addClass('opened');
         } else if (!$('#loadingDirs').get(0)) {
-            dir.parent().append('<div id="loadingDirs">' + this.label("Loading folders...") + '</div>');
-            $('#loadingDirs').css('display', 'none');
-            $('#loadingDirs').show(200, function() {
+            dir.parent().append(this.loadingHtml('loadingDirs'));
+            // a moment for the indicator to show before the request holds the page
+            setTimeout(function() {
                 $.ajax({
                     type: 'POST',
                     dataType: 'json',
@@ -159,9 +159,7 @@ browser.expandDir = function(dir) {
                     data: {dir:path},
                     async: false,
                     success: function(data) {
-                        $('#loadingDirs').hide(200, function() {
-                            $('#loadingDirs').detach();
-                        });
+                        $('#loadingDirs').detach();
                         if (browser.check4errors(data))
                             return;
 
@@ -192,7 +190,7 @@ browser.expandDir = function(dir) {
                         browser.alert(browser.label("Unknown error."));
                     }
                 });
-            });
+            }, 0);
         }
     }
 };
@@ -205,7 +203,7 @@ browser.changeDir = function(dir) {
         $('div.folder > a > span.folder').addClass('regular');
         dir.children('span.folder').removeClass('regular');
         dir.children('span.folder').addClass('current');
-        $('#files').html(browser.label("Loading files..."));
+        $('#files').html(browser.loadingHtml());
         $.ajax({
             type: 'POST',
             dataType: 'json',
@@ -216,6 +214,7 @@ browser.changeDir = function(dir) {
                 if (browser.check4errors(data))
                     return;
                 browser.files = data.files;
+                browser.links = data.links ? data.links : [];
                 browser.orderFiles();
                 browser.dir = dir.data('path');
                 browser.dirWritable = data.dirWritable;
@@ -272,6 +271,9 @@ browser.menuDir = function(dir, e) {
     if (this.access.dirs.create)
         html += '<a href="kcact:mkdir"' + (!data.writable ? ' class="denied"' : '') + '>' +
             this.label("New Subfolder...") + '</a>';
+    if (this.access.dirs.create)
+        html += '<a href="kcact:cpdir"' + (!data.removable ? ' class="denied"' : '') + '>' +
+            this.label("Copy...") + '</a>';
     if (this.access.dirs.rename)
         html += '<a href="kcact:mvdir"' + (!data.removable ? ' class="denied"' : '') + '>' +
             this.label("Rename...") + '</a>';
@@ -335,6 +337,30 @@ browser.menuDir = function(dir, e) {
         return false;
     });
 
+    $('.menu a[href="kcact:cpdir"]').click(function(e) {
+        if (!data.removable) return false;
+        browser.hideDialog();
+        browser.fileNameDialog(
+            e, {dir: data.path},
+            'newName', data.name + '-copy', browser.baseGetData('copyDir'), {
+                title: "Name of the folder copy:",
+                errEmpty: "Please enter new folder name.",
+                errSlash: "Unallowable characters in folder name.",
+                errDot: "Folder name shouldn't begins with '.'",
+                errMain: "Unable to copy folder."
+            }, function(dt) {
+                var pDir = dir.parent().parent().parent().children('a').first();
+                if (pDir.get(0) && pDir.data('path'))
+                    browser.refreshDir(pDir);
+                var report = browser.copyReport(dt);
+                if (report.length)
+                    browser.alert(report);
+            },
+            true
+        );
+        return false;
+    });
+
     $('.menu a[href="kcact:mvdir"]').click(function(e) {
         if (!data.removable) return false;
         browser.hideDialog();
@@ -388,7 +414,10 @@ browser.menuDir = function(dir, e) {
                                 pDir.parent().children('.folders').detach();
                                 pDir.data('hasDirs', false);
                             }
-                            if (pDir.data('path') == browser.dir.substr(0, pDir.data('path').length))
+                            // the folder on screen lists it as a card: read it again
+                            if (pDir.data('path') == browser.dir)
+                                browser.refresh();
+                            else if (pDir.data('path') == browser.dir.substr(0, pDir.data('path').length))
                                 browser.changeDir(pDir);
                         });
                     },

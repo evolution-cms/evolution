@@ -185,8 +185,20 @@ $lang = array(
     "Loading image..." => "... درحال بارگذاری عکس",
     "Loading folders..." => "... درحال بارگذاری پوشه ها",
     "Loading files..." => "... درحال بارگذاری فایل ها",
+    "Loading..." => "... درحال بارگذاری",
     "New Subfolder..." => "...ساخت زیرپوشه جدید",
     "Rename..." => "... تغییر نام",
+    "Copy..." => "... کپی",
+    "Name of the folder copy:" => "نام کپی پوشه:",
+    "Unable to copy folder." => "کپی پوشه امکان‌پذیر نیست.",
+    "Link" => "پیوند",
+    "Broken link" => "پیوند شکسته",
+    "Outside the file manager or not accessible" => "خارج از مدیریت فایل یا غیرقابل دسترس",
+    "Delete link" => "حذف پیوند",
+    "Delete this link? Only the link is removed; what it leads to stays." => "این پیوند حذف شود؟ فقط پیوند حذف می‌شود؛ مقصد آن باقی می‌ماند.",
+    "Unable to delete the link." => "پیوند حذف نشد.",
+    "Links are not copied (the file manager does not create links):" => "پیوندها کپی نمی‌شوند (مدیریت فایل پیوند ایجاد نمی‌کند):",
+    "{count} files/folders were not copied: no access, or not allowed here." => "{count} فایل/پوشه کپی نشد: دسترسی ندارید، یا اینجا مجاز نیست.",
     "Delete" => "حذف",
     "OK" => "ادامه",
     "Cancel" => "انصراف",
@@ -233,6 +245,8 @@ $lang = array(
 
     "Are you sure you want to delete all selected files?" =>
     "آیا از حذف تمام فایل های انتخابی اطمینان دارید؟",
+    "Are you sure you want to delete the selected files and folders with all their content?" =>
+    "آیا از حذف فایل ها و پوشه های انتخابی به همراه تمام محتویات آنها اطمینان دارید؟",
 
     "Failed to delete {count} files/folders." =>
     ".فایل/پوشه {count} خطا در پاک کردن",

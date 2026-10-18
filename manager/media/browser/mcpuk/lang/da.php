@@ -178,8 +178,20 @@ $lang = array(
     "Loading image..." => "Indl�ser billede...",
     "Loading folders..." => "Indl�ser mappe...",
     "Loading files..." => "Indl�ser filer...",
+    "Loading..." => "Indlæser...",
     "New Subfolder..." => "Ny undermappe...",
     "Rename..." => "Omd�b...",
+    "Copy..." => "Kopier...",
+    "Name of the folder copy:" => "Navn på kopien af mappen:",
+    "Unable to copy folder." => "Kan ikke kopiere mappen.",
+    "Link" => "Link",
+    "Broken link" => "Brudt link",
+    "Outside the file manager or not accessible" => "Uden for filhåndteringen eller ikke tilgængelig",
+    "Delete link" => "Slet link",
+    "Delete this link? Only the link is removed; what it leads to stays." => "Slet dette link? Kun linket fjernes; det, det peger på, bevares.",
+    "Unable to delete the link." => "Linket kunne ikke slettes.",
+    "Links are not copied (the file manager does not create links):" => "Links kopieres ikke (filhåndteringen opretter ikke links):",
+    "{count} files/folders were not copied: no access, or not allowed here." => "{count} filer/mapper blev ikke kopieret: ingen adgang, eller ikke tilladt her.",
     "Delete" => "Slet",
     "OK" => "Ok",
     "Cancel" => "Fortryd",
@@ -226,6 +238,8 @@ $lang = array(
 
     "Are you sure you want to delete all selected files?" =>
     "Er du sikker p� du vil slette alle markerede filer?",
+    "Are you sure you want to delete the selected files and folders with all their content?" =>
+    "Er du sikker på du vil slette de markerede filer og mapper med alt deres indhold?",
 
     "Failed to delete {count} files/folders." =>
     "Kunne ikke slette {count} filer / mapper.",
