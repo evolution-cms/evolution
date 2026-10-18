@@ -45,8 +45,6 @@ browser.initToolbar = function() {
     });
 
     var deleteButton = $('#toolbar a[href="kcact:delete"]');
-    if (!this.access.files['delete'] && !this.access.dirs['delete'])
-        deleteButton.hide();
     deleteButton.click(function() {
         if ($(this).hasClass('disabled'))
             return false;
@@ -71,10 +69,16 @@ browser.updateDeleteButton = function() {
     var enabled = this.deleteButtonEnabled(this.access.files['delete'], entries, this.access.dirs['delete']);
     var button = $('#toolbar a[href="kcact:delete"]');
 
+    // shown only while the selection holds something that can go: a greyed-out button says nothing.
+    // On a phone the action bar below carries Delete, so the toolbar does not repeat it.
     if (enabled)
         button.removeClass('disabled');
     else
         button.addClass('disabled');
+    if (enabled && !this.isMobileActionMode())
+        button.show();
+    else
+        button.hide();
     button.attr('aria-disabled', enabled ? 'false' : 'true');
 };
 
@@ -137,6 +141,7 @@ browser.syncMobileActions = function() {
         return;
 
     this.mobileActionMode = isMobile;
+    this.updateDeleteButton();
     if (isMobile) {
         if (typeof this.files != 'undefined')
             this.updateMobileActions();

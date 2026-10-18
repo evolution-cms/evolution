@@ -99,3 +99,42 @@ test('deleting a folder from its menu reads the folder on screen again when it w
 
   assert.match(handler, /if \(pDir\.data\('path'\) == browser\.dir\)\s*browser\.refresh\(\);/);
 });
+
+test('the toolbar Delete button is there only while the selection holds something that can go', () => {
+  const states = [];
+  const button = {
+    removeClass() { states.push('enabled'); return this; },
+    addClass() { states.push('disabled'); return this; },
+    show() { states.push('shown'); return this; },
+    hide() { states.push('hidden'); return this; },
+    attr() { return this; },
+  };
+  let selection = [];
+  const $ = (target) => {
+    if (target === '.file.selected')
+      return { map: (fn) => ({ get: () => selection.map((data) => fn.call({ data })) }) };
+    if (target && target.data)
+      return { data: () => target.data };
+    return button;
+  };
+  const browser = {};
+  vm.runInNewContext(read('toolbar.js'), { browser, $, window: {} });
+  vm.runInNewContext(read('files.js'), { browser, $, _: {} });
+  let phone = false;
+  Object.assign(browser, {
+    dirWritable: true,
+    access: { files: { delete: true }, dirs: { delete: true } },
+    isMobileActionMode: () => phone,
+  });
+
+  browser.updateDeleteButton();
+  selection = [{ isDir: true, removable: true }];
+  browser.updateDeleteButton();
+  // on a phone the action bar carries Delete: the toolbar does not show a second one
+  phone = true;
+  browser.updateDeleteButton();
+  assert.deepEqual(states, ['disabled', 'hidden', 'enabled', 'shown', 'enabled', 'hidden']);
+
+  const template = fs.readFileSync(path.join(__dirname, '..', '..', 'tpl', 'tpl_browser.php'), 'utf8');
+  assert.match(template, /<a href="kcact:delete" class="disabled" aria-disabled="true" style="display: none">/);
+});
