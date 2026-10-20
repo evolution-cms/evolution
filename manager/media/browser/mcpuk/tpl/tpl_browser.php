@@ -31,7 +31,7 @@
                         <?php echo $this->label("Upload") ?></a>
                     <a href="kcact:refresh">
                         <?php echo $this->label("Refresh") ?></a>
-                    <a href="kcact:delete" class="disabled" aria-disabled="true">
+                    <a href="kcact:delete" class="disabled" aria-disabled="true" style="display: none">
                         <?php echo $this->label("Delete") ?></a>
                     <a href="kcact:settings">
                         <?php echo $this->label("Settings") ?></a>

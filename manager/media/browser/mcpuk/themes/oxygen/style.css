@@ -459,7 +459,7 @@ tr.selected:hover > td {
     background-image: url(img/icons/rename.png);
 }
 
-.menu a[href="kcact:rmdir"], .menu a[href="kcact:rm"], .menu a[href="kcact:rmcbd"] {
+.menu a[href="kcact:rmdir"], .menu a[href="kcact:rm"], .menu a[href="kcact:rmcbd"], .menu a[href="kcact:rmlink"] {
     background-image: url(img/icons/delete.png);
 }
 
@@ -479,7 +479,7 @@ tr.selected:hover > td {
     background-image: url(img/icons/view.png);
 }
 
-.menu a[href="kcact:cpcbd"] {
+.menu a[href="kcact:cpcbd"], .menu a[href="kcact:cpdir"] {
     background-image: url(img/icons/copy.png);
 }
 

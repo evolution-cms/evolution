@@ -377,7 +377,13 @@ needs a code permission (`fileManagerMayRunCode()`: one of `save_snippet` / `sav
 A Windows device name (`CON`, `NUL`, `COM1.jpg` ...; `fileManagerIsReservedDeviceName()`) is refused on every platform, in both file managers: on PHP before 8.3.35 / 8.4.26 / 8.5.11 (CVE-2026-17545) a filesystem call on one can hang the worker. The check also covers folder names and every path segment a request sends (`fileManagerRefuseReservedName()`), and runs before the first filesystem probe: in `fileManagerResolvePath()`, `fileManagerPathContainsLink()`, `fileManagerIsSafeWriteTarget()`, folder rename, and the media browser (`checkInputDir()`, `refuseReservedRequestNames()`).
 
 The executable-name ban does not depend on those lists. `textsave()` applies it too: an existing
-executable file cannot be edited without the code permission.
+executable file cannot be edited without the code permission. Nor can it be removed or displaced:
+whoever may not write code may not delete, rename or move it either. Deleting or renaming a file or
+link of an executable name, or a folder holding one at any depth (links count by their own name and
+are not followed), needs the code permission in both file managers (`fileManagerCodeRemovalDenied()`
+in the classic one, `refuseCodeRemoval()` in the media browser, both on `fileManagerCodeEntry()`).
+The name check also catches the spellings Windows turns into such a file: trailing dots and spaces
+(`.htaccess.`) and NTFS streams (`.htaccess:x`, `shell.php::$DATA`).
 
 **3. File groups** - only when the "Use access permissions" setting (`use_udperms`, user/document permissions: access control via user groups and resource groups) is on; administrators (role 1) are exempt.
 
@@ -399,7 +405,7 @@ executable file cannot be edited without the code permission.
 **Always enforced**
 
 - Paths outside `filemanager_path` are rejected; `..`, symlinks and Windows junctions are not followed.
-- A path that passes through a symlink or junction below the root is rejected as a whole (`fileManagerPathContainsLink()`): in the classic manager, uploads, direct edit and delete, and the media browser (`isInsideTypeDir()`). Links are not listed by the classic manager (a listed entry would get a direct web URL), and the media browser serves no thumbnail whose cached path or original runs through one. Nor does it write, rename, copy, move or empty the thumbnail cache through one (`isSafeThumbPath()`, measured from the upload root, so a link at the cache root itself is refused too, before anything is probed or created).
+- A path that passes through a symlink or junction below the root is rejected as a whole (`fileManagerPathContainsLink()`): in the classic manager, uploads, direct edit and delete, and the media browser (`isInsideTypeDir()`). Both file managers list a link as an inert entry: no web URL, drill-down, thumbnail or selection (a link may lead anywhere, and the web server would serve its target unchecked). The one action is removing the link itself (`mode=deletelink`, `act_deleteLink`), judged by the link's own path, never resolved: the top-level and group rules of an existing entry, and no link where a protected folder belongs; the target and its groups stay. Its target is shown only as a path relative to the link, and only when it lies inside the manager's root (the media browser: the type folder) and the manager may reach it (`fileManagerRelativeLinkTarget()`); a `../../` or absolute target outside, or a restricted one, is shown as "outside the file manager or not accessible", never as a path. Links are never created: a link entry in a ZIP is not extracted (neither as a link nor as a file holding its path) but reported (`fileManagerExtractZip()` `$links`), a directory archive stores a link as a link entry with that same relative target or leaves it out, and a folder copy leaves it out. The media browser serves no thumbnail whose cached path or original runs through one. Nor does it write, rename, copy, move or empty the thumbnail cache through one (`isSafeThumbPath()`, measured from the upload root, so a link at the cache root itself is refused too, before anything is probed or created).
 - Path comparison (`FileManagerAccess::isWithin()`) ignores case on Windows, and ZIP entries are
   resolved to the stored letter case (`fileManagerCanonicalCase()`) before the checks.
 - The media browser (KCFinder) follows the same rules: it stays out of the folders of layer 1 (`isInProtectedFolder()`), applies the executable-name rule to every name it writes (`validateFilename()`, including the final name of an upload), its temporary download archives carry the `kcf-download-` prefix and are the only `.zip` files it ever cleans up, and a folder rename never replaces an existing destination.

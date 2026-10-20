@@ -146,59 +146,6 @@ if (!function_exists('fileManagerDeleteDirectoryZip')) {
     }
 }
 
-if (!function_exists('fileManagerCreateDirectoryZip')) {
-    function fileManagerCreateDirectoryZip(
-        string $sourcePath,
-        string $relativePath,
-        string $filemanagerPath,
-        string $zipPath,
-        array $userGroups,
-        array $fileGroupsMap,
-        array $protectedPaths
-    ): bool {
-        $sourcePath = rtrim(str_replace('\\', '/', realpath($sourcePath)), '/');
-        $filemanagerPath = rtrim(str_replace('\\', '/', realpath($filemanagerPath)), '/');
-        $archiveRoot = basename($relativePath !== '' ? $relativePath : $sourcePath);
-        $archiveRoot = trim(preg_replace('/[^\w.-]+/', '-', $archiveRoot), '.-') ?: 'files';
-
-        $zip = new ZipArchive();
-        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
-            return false;
-        }
-
-        $zip->addEmptyDir($archiveRoot);
-        $iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($sourcePath, RecursiveDirectoryIterator::SKIP_DOTS),
-            RecursiveIteratorIterator::SELF_FIRST
-        );
-
-        foreach ($iterator as $item) {
-            $itemPath = str_replace('\\', '/', $item->getPathname());
-            $realItemPath = str_replace('\\', '/', realpath($itemPath) ?: $itemPath);
-            if (strpos($realItemPath, $sourcePath . '/') !== 0 || !$item->isReadable()) {
-                continue;
-            }
-            if (fileManagerPathIsProtected($realItemPath, $protectedPaths)) {
-                continue;
-            }
-
-            $itemRelPath = ltrim(substr($realItemPath, strlen($filemanagerPath)), '/');
-            if (!fileManagerIsAccessible($itemRelPath, $userGroups, $fileGroupsMap)) {
-                continue;
-            }
-
-            $archivePath = $archiveRoot . '/' . ltrim(substr($realItemPath, strlen($sourcePath)), '/');
-            if ($item->isDir()) {
-                $zip->addEmptyDir($archivePath);
-            } elseif ($item->isFile()) {
-                $zip->addFile($realItemPath, $archivePath);
-            }
-        }
-
-        return $zip->close();
-    }
-}
-
 $directoryZipPaths = fileManagerDirectoryZipPaths($filemanager_path, $relative_path);
 $directoryZipMessage = '';
 $directoryZipBlocked = evo()->getConfig('denyZipDownload')
@@ -309,6 +256,18 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
             var newFilename = prompt("<?= $_lang["files_dynamic_new_file_name"] ?>", file);
             if (newFilename !== null && newFilename !== file) {
                 window.location.href = "index.php?a=31&mode=duplicate&path=" + (current_path ? current_path + '/' : '') + file + "&newFilename=" + newFilename + "&token=<?= $newToken;?>";
+            }
+        }
+        function copyFolder(dir) {
+            var name = decodeURIComponent(dir.replace(/\+/g, ' '));
+            var newDirname = prompt(<?= js_json($_lang['files_dynamic_copy_folder_name']) ?>, name + '-copy');
+            if (newDirname !== null && newDirname !== '' && newDirname !== name) {
+                window.location.href = "index.php?a=31&mode=copyFolder&path=" + encodeURIComponent(current_path) + '&dirname=' + dir + "&newDirname=" + encodeURIComponent(newDirname) + "&token=<?= $newToken;?>";
+            }
+        }
+        function deleteLink(name) {
+            if (confirm(<?= js_json($_lang['files_link_confirm_delete']) ?>)) {
+                window.location.href = "index.php?a=31&mode=deletelink&path=" + encodeURIComponent(current_path) + "&name=" + name + "&token=<?= $newToken;?>";
             }
         }
         function renameFolder(dir) {
@@ -520,18 +479,24 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                     echo fileManagerDenied();
                 } else {
                     $createdFiles = [];
+                    $archiveLinks = [];
                     $success = fileManagerExtractZip(
                         $zipTarget['path'],
                         $startpath,
                         $protected_path,
                         0777,
                         fileManagerZipWriteGuard($filemanager_path, $startpath),
-                        $createdFiles
+                        $createdFiles,
+                        $archiveLinks
                     );
                     if (!$success) {
                         echo '<span class="warning"><b>' . $_lang['file_unzip_fail'] . '</b></span><br /><br />';
                     } else {
                         echo '<span class="success"><b>' . $_lang['file_unzip'] . '</b></span><br /><br />';
+                        if (!empty($archiveLinks)) {
+                            echo '<span class="warning"><b>' . e($_lang['file_unzip_links_skipped']) . '</b><br />'
+                                . fileManagerLinkList($filemanager_path, $startpath, $archiveLinks) . '</span><br />';
+                        }
                         if ($showFileGroups) {
                             $dirRelPath = $relative_path;
                             $dirGroupIds = fileManagerEffectiveGroupIds($dirRelPath, $fileGroupsMap);
@@ -574,6 +539,9 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                         || fileManagerHasInaccessibleDescendants($folderTarget['relative'])
                         || !is_writable($folder)) {
                         echo fileManagerDenied();
+                    } elseif (($denied = fileManagerCodeRemovalDenied($folder, $folderTarget['relative'])) !== null) {
+                        // whoever may not write code may not delete it either
+                        echo $denied;
                     } elseif (!@rrmdir($folder)) {
                         echo '<span class="warning"><b>' . $_lang['file_folder_not_deleted'] . '</b></span><br /><br />';
                     } else {
@@ -669,6 +637,113 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                     echo '<span class="warning"><b>Invalid token</b></span><br /><br />';
                 }
             }
+            // Copy folder here, beside the original
+            if (get_by_key($_REQUEST, 'mode') == 'copyFolder') {
+                if ($token_check) {
+                    $old_umask = umask(0);
+                    $dirTarget = fileManagerResolvePath($filemanager_path, $relative_path . '/' . ($_REQUEST['dirname'] ?? ''));
+                    $dirname = $dirTarget['path'] ?? '';
+                    $newDirname = str_replace([ '..\\', '../', '\\', '/' ], '', (string) ($_REQUEST['newDirname'] ?? ''));
+                    $newdir = dirname($dirname) . '/' . $newDirname;
+                    if ($dirTarget === null || !is_dir($dirname) || $dirTarget['relative'] === '' || dirname($dirname) !== $startpath) {
+                        echo '<span class="warning"><b>Invalid path.</b></span><br /><br />';
+                    } elseif (!fileManagerIsAccessible($dirTarget['relative'], $userGroups)
+                        || fileManagerPathIsProtected($dirname, $protected_path)) {
+                        echo fileManagerDenied();
+                    } elseif ($newDirname === '' || preg_match('@(\\\\|\/|\:|\;|\,|\*|\?|\"|\<|\>|\||\?)@', $newDirname) !== 0) {
+                        echo $_lang['files.dynamic.php3'];
+                    } elseif (fileManagerRefuseReservedName($newDirname)
+                        || fileManagerPathIsProtected($newdir, $protected_path)) {
+                        echo fileManagerDenied();
+                    } elseif (!fileManagerIsNewWriteTarget($filemanager_path, $newdir)) {
+                        echo '<span class="warning"><b>' . $_lang['files_folder_exists'] . '</b></span><br /><br />';
+                    } else {
+                        $sourceKey = fileManagerAclKey($dirTarget['relative']);
+                        $targetKey = fileManagerAclKey(ltrim(substr($newdir, strlen($filemanager_path)), '/'));
+                        // the copy has to be held to what the original is held to
+                        $carried = \EvolutionCMS\Support\FileManagerAccess::carriedRestrictions($sourceKey, $targetKey);
+                        if ($carried === null) {
+                            echo fileManagerDenied('copy would widen the file groups');
+                        } else {
+                            $mayRead = fileManagerCopyFolderAccessFilter($filemanager_path, $dirname);
+                            $mayCopy = static function ($path, $isDir) use ($mayRead, $filemanager_path) {
+                                if (!$mayRead($path)) {
+                                    // left out, like in the listing and the ZIP download
+                                    fileManagerLogDenied('copyFolder entry', ltrim(substr(str_replace('\\', '/', $path), strlen($filemanager_path)), '/'), 'file group');
+
+                                    return false;
+                                }
+
+                                return $isDir || checkExtension($path);
+                            };
+                            $copiedEntries = [];
+                            $skippedEntries = [];
+                            if (!fileManagerCopyFolder($filemanager_path, $dirname, $newdir, $protected_path, $mayCopy,
+                                $newfolderaccessmode, null, $copiedEntries, $skippedEntries)) {
+                                echo '<span class="warning"><b>' . $_lang['files_folder_not_copied'] . '</b></span><br /><br />';
+                            } else {
+                                \EvolutionCMS\Support\FileManagerAccess::copyFolderRestrictions($sourceKey, $targetKey, $carried, $copiedEntries);
+                                // a link is not refused, it is never created: reported apart, and not as a denial
+                                $skippedLinks = array_keys(array_filter($skippedEntries, static fn ($reason) => $reason === 'link'));
+                                $ruleSkips = array_filter($skippedEntries, static fn ($reason) => !in_array($reason, ['refused', 'unreadable', 'link'], true));
+                                if ($ruleSkips !== []) {
+                                    fileManagerLogDenied('copyFolder', $dirTarget['relative'], implode(', ', array_slice(array_map(
+                                        static fn ($entry, $reason) => $entry . ' (' . $reason . ')',
+                                        array_keys($ruleSkips),
+                                        $ruleSkips
+                                    ), 0, 5)));
+                                }
+                                echo '<span class="success"><b>' . $_lang['files_folder_copied'] . '</b></span><br /><br />';
+                                $otherSkips = count($skippedEntries) - count($skippedLinks);
+                                if ($otherSkips > 0) {
+                                    echo '<span class="warning"><b>' . e(sprintf($_lang['files_folder_copy_skipped'], $otherSkips)) . '</b></span><br /><br />';
+                                }
+                                // only links the manager may see: the walk meets a link before its file groups are asked
+                                $visibleLinks = [];
+                                foreach ($skippedLinks as $linkEntry) {
+                                    $linkEntryRelative = $dirTarget['relative'] . '/' . $linkEntry;
+                                    if (fileManagerIsAccessible($linkEntryRelative, $userGroups)) {
+                                        $visibleLinks[$linkEntry] = null;
+                                    }
+                                }
+                                if ($visibleLinks !== []) {
+                                    echo '<span class="warning"><b>' . e($_lang['files_folder_copy_links']) . '</b><br />'
+                                        . fileManagerLinkList($filemanager_path, $dirname, $visibleLinks) . '</span><br /><br />';
+                                }
+                            }
+                        }
+                    }
+                    umask($old_umask);
+                } else {
+                    echo '<span class="warning"><b>Invalid token</b></span><br /><br />';
+                }
+            }
+            // Delete a link here: the link itself, never what it leads to
+            if (get_by_key($_REQUEST, 'mode') == 'deletelink') {
+                if ($token_check) {
+                    $linkName = (string) ($_REQUEST['name'] ?? '');
+                    $linkPath = $startpath . '/' . $linkName;
+                    // its own path, never resolved: resolving would judge the target
+                    $linkRelative = ltrim(($relative_path !== '' ? $relative_path . '/' : '') . $linkName, '/');
+                    if ($linkName === '' || $linkName === '.' || $linkName === '..' || strpbrk($linkName, '/\\') !== false
+                        || fileManagerRefuseReservedName($linkName) || !fileManagerIsLink($linkPath)) {
+                        echo '<span class="warning"><b>Invalid path.</b></span><br /><br />';
+                    } elseif (!fileManagerCanModifyExistingPath($linkRelative, $userGroups)
+                        || fileManagerPathIsProtected($linkPath, $protected_path)) {
+                        echo fileManagerDenied('file group, top level or protected folder');
+                    } elseif (($denied = fileManagerCodeRemovalDenied($linkPath, $linkRelative)) !== null) {
+                        // a link named .htaccess is read by the web server like the file
+                        echo $denied;
+                    } elseif (!fileManagerIsLink($linkPath) || !fileManagerRemoveLink($linkPath)) {
+                        echo '<span class="warning"><b>' . $_lang['files_link_not_deleted'] . '</b></span><br /><br />';
+                    } else {
+                        // the target keeps its groups: they are stored under its own key
+                        echo '<span class="success"><b>' . $_lang['files_link_deleted'] . '</b></span><br /><br />';
+                    }
+                } else {
+                    echo '<span class="warning"><b>Invalid token</b></span><br /><br />';
+                }
+            }
             // Rename folder here
             if (get_by_key($_REQUEST, 'mode') == 'renameFolder') {
                 if ($token_check) {
@@ -681,6 +756,9 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                         || fileManagerPathTouchesProtected($dirname, $protected_path)
                         || !is_writable($dirname)) {
                         echo fileManagerDenied();
+                    } elseif (($denied = fileManagerCodeRemovalDenied($dirname, $dirTarget['relative'])) !== null) {
+                        // renaming takes the code it holds away from where it is
+                        echo $denied;
                     } else {
                         $newDirname = str_replace([ '..\\', '../', '\\', '/' ], '', $_REQUEST['newDirname']);
                         if (preg_match('@(\\\\|\/|\:|\;|\,|\*|\?|\"|\<|\>|\||\?)@', $newDirname) !== 0) {
@@ -717,6 +795,8 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                         echo '<span class="warning"><b>Invalid path.</b></span><br /><br />';
                     } elseif (!fileManagerCanModifyExistingPath($fileTarget['relative'], $userGroups) || !is_writable($filename)) {
                         echo fileManagerDenied();
+                    } elseif (($denied = fileManagerCodeRemovalDenied($filename, $fileTarget['relative'])) !== null) {
+                        echo $denied;
                     } else {
                         $path = dirname($filename);
                         $newFilename = str_replace([ '..\\', '../', '\\', '/' ], '', $_REQUEST['newFilename']);
@@ -762,7 +842,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                 </thead>
                 <?php extract(ls($startpath, compact('len', 'editablefiles', 'enablefileunzip', 'inlineviewablefiles', 'uploadablefiles', 'enablefiledownload', 'viewablefiles', 'protected_path', 'excludes', 'filemanager_path', 'base_path', 'showFileGroups', 'fileGroupsMap', 'allDocGroups', 'userGroups')), EXTR_OVERWRITE);
                 echo "\n\n\n";
-                if ($folders == 0 && $files == 0) { echo '<tr><td colspan="4"><i class="' . $_style['icon_folder'] . ' FilesDeletedFolder"></i> <span style="color:#888;cursor:default;"> ' . $_lang['files_directory_is_empty'] . ' </span></td></tr>'; }
+                if ($folders == 0 && $files == 0 && empty($links)) { echo '<tr><td colspan="4"><i class="' . $_style['icon_folder'] . ' FilesDeletedFolder"></i> <span style="color:#888;cursor:default;"> ' . $_lang['files_directory_is_empty'] . ' </span></td></tr>'; }
                 ?>
             </table>
         </div>

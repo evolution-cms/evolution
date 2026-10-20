@@ -179,8 +179,20 @@ $lang = array(
     "Loading image..." => "Carregando imagens...",
     "Loading folders..." => "Carregando pastas...",
     "Loading files..." => "Carregando ficheiros...",
+    "Loading..." => "Carregando...",
     "New Subfolder..." => "Nova pasta...",
     "Rename..." => "Alterar nome...",
+    "Copy..." => "Copiar...",
+    "Name of the folder copy:" => "Nome da cópia da pasta:",
+    "Unable to copy folder." => "Não foi possível copiar a pasta.",
+    "Link" => "Ligação",
+    "Broken link" => "Ligação quebrada",
+    "Outside the file manager or not accessible" => "Fora do gestor de ficheiros ou inacessível",
+    "Delete link" => "Eliminar ligação",
+    "Delete this link? Only the link is removed; what it leads to stays." => "Eliminar esta ligação? Apenas a ligação é removida; aquilo para que aponta permanece.",
+    "Unable to delete the link." => "Não foi possível eliminar a ligação.",
+    "Links are not copied (the file manager does not create links):" => "As ligações não são copiadas (o gestor de ficheiros não cria ligações):",
+    "{count} files/folders were not copied: no access, or not allowed here." => "{count} ficheiros/pastas não foram copiados: sem acesso, ou não permitido aqui.",
     "Delete" => "Eliminar",
     "OK" => "OK",
     "Cancel" => "Cancelar",
@@ -227,6 +239,8 @@ $lang = array(
 
     "Are you sure you want to delete all selected files?" =>
     "Tem a certeza que deseja apagar os ficheiros seleccionados?",
+    "Are you sure you want to delete the selected files and folders with all their content?" =>
+    "Tem a certeza que deseja apagar os ficheiros e pastas seleccionados com todos os seus conteúdos?",
 
     "Failed to delete {count} files/folders." =>
     "Ocorreu um erro a apagar {count} ficheiros/pastas.",

@@ -102,8 +102,8 @@ browser.initOpeners = function() {
 };
 
 browser.initContent = function() {
-    $('div#folders').html(this.label("Loading folders..."));
-    $('div#files').html(this.label("Loading files..."));
+    $('div#folders').html(this.loadingHtml());
+    $('div#files').html(this.loadingHtml());
     $.ajax({
         type: 'GET',
         dataType: 'json',
@@ -117,6 +117,7 @@ browser.initContent = function() {
             browser.setTreeData(data.tree);
             browser.initFolders();
             browser.files = data.files ? data.files : [];
+            browser.links = data.links ? data.links : [];
             browser.orderFiles();
         },
         error: function() {

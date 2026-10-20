@@ -93,11 +93,11 @@ if(!function_exists('fileManagerDenied')) {
      * @param string $reason which rule refused it, when the caller knows
      * @return string
      */
-    function fileManagerDenied($reason = '')
+    function fileManagerDenied($reason = '', $path = null)
     {
         global $_lang;
 
-        fileManagerLogDenied(null, null, $reason);
+        fileManagerLogDenied(null, $path, $reason);
 
         return '<span class="warning"><b>' . $_lang['files_access_denied'] . '</b></span><br /><br />';
     }
@@ -331,6 +331,9 @@ if(!function_exists('fileManagerIsExecutableName')) {
     function fileManagerIsExecutableName($name)
     {
         $base = strtolower(basename(str_replace(chr(92), '/', (string) $name)));
+        // Windows drops trailing dots and spaces (".htaccess." is .htaccess), and ".htaccess:x" is a
+        // stream of the file .htaccess, which it creates
+        $base = rtrim(explode(':', $base, 2)[0], ' .');
         if (in_array($base, ['.htaccess', '.htpasswd', '.user.ini', '.env', 'web.config'], true)) {
             return true;
         }
@@ -344,6 +347,76 @@ if(!function_exists('fileManagerIsExecutableName')) {
         }
 
         return false;
+    }
+}
+
+if(!function_exists('fileManagerCodeEntry')) {
+    /**
+     * The first entry at or below $path whose name is executable (fileManagerIsExecutableName()),
+     * relative to $path: '' when $path itself is one, null when there is none. A link counts by its
+     * own name and is not followed. A folder that cannot be read counts as holding code: what it
+     * holds cannot be told.
+     *
+     * @param string $path absolute
+     * @return string|null
+     */
+    function fileManagerCodeEntry($path)
+    {
+        $path = rtrim(str_replace('\\', '/', (string) $path), '/');
+        if (fileManagerIsExecutableName($path)) {
+            return '';
+        }
+        if (fileManagerIsLink($path) || !is_dir($path)) {
+            return null;
+        }
+        $stack = [''];
+        while ($stack) {
+            $rel = array_pop($stack);
+            $entries = @scandir($rel === '' ? $path : "$path/$rel");
+            if ($entries === false) {
+                return $rel;
+            }
+            foreach ($entries as $entry) {
+                if ($entry === '.' || $entry === '..') {
+                    continue;
+                }
+                $entryRel = ltrim("$rel/$entry", '/');
+                if (fileManagerIsExecutableName($entry)) {
+                    return $entryRel;
+                }
+                // never probed: a device name can hang the worker (and holds no code by its name)
+                if (fileManagerIsReservedDeviceName($entry)) {
+                    continue;
+                }
+                if (!fileManagerIsLink("$path/$entryRel") && is_dir("$path/$entryRel")) {
+                    $stack[] = $entryRel;
+                }
+            }
+        }
+
+        return null;
+    }
+}
+
+if(!function_exists('fileManagerCodeRemovalDenied')) {
+    /**
+     * The refusal (logged, as fileManagerDenied() prints it) when deleting, renaming or moving $path
+     * would take code away from where it is (a file or link of an executable name, or a folder holding
+     * one) from a manager who may not create code; null when the operation may go on. Whoever may not
+     * write code may not remove or displace it either.
+     *
+     * @param string $path absolute
+     * @param string $relative $path below the root, as logged
+     * @return string|null
+     */
+    function fileManagerCodeRemovalDenied($path, $relative)
+    {
+        if (fileManagerMayRunCode()) {
+            return null;
+        }
+        $entry = fileManagerCodeEntry($path);
+
+        return $entry === null ? null : fileManagerDenied('executable name', trim("$relative/$entry", '/'));
     }
 }
 
@@ -643,6 +716,420 @@ if(!function_exists('fileManagerCopyToNewFile')) {
     }
 }
 
+if(!function_exists('fileManagerCopyFolder')) {
+    /**
+     * Copies the folder $source with what it holds to $target, which must not exist yet. What the
+     * walk may not take is left out, a folder with everything below it: links (never followed),
+     * protected folders, Windows device names, unreadable entries, and whatever $mayCopy refuses
+     * (file groups the user is not in, names the upload rules refuse). Every write is exclusive, so
+     * nothing that appears in the meantime is replaced or written through.
+     *
+     * @param string $root canonical absolute path
+     * @param string $source existing folder below $root
+     * @param string $target absolute path below $root
+     * @param string[] $protectedPaths
+     * @param callable|null $mayCopy fn(string $sourcePath, bool $isDir): bool; false leaves the entry out
+     * @param int $dirMode
+     * @param int|null $fileMode null keeps what the umask gives
+     * @param string[]|null $copied filled with the paths, relative to $source, of what was copied
+     * @param array<string, string>|null $skipped filled with relative path => reason of what was left out
+     * @return bool false when the copy could not be made; a partial copy is removed again
+     */
+    function fileManagerCopyFolder(
+        $root,
+        $source,
+        $target,
+        array $protectedPaths = [],
+        ?callable $mayCopy = null,
+        $dirMode = 0777,
+        $fileMode = null,
+        ?array &$copied = null,
+        ?array &$skipped = null
+    ) {
+        $copied = [];
+        $skipped = [];
+        $root = rtrim(str_replace('\\', '/', $root), '/');
+        $source = rtrim(str_replace('\\', '/', $source), '/');
+        $target = rtrim(str_replace('\\', '/', $target), '/');
+        if (!FileManagerAccess::isWithin($root, $source) || $source === $root
+            || fileManagerPathContainsLink($root, $source) || !is_dir($source) || !is_readable($source)
+            || fileManagerPathIsProtected(fileManagerCanonicalCase($source), $protectedPaths)
+            // a copy into itself would walk what it has just written
+            || FileManagerAccess::isWithin($source, $target)
+            || !fileManagerIsNewWriteTarget($root, $target)
+            || fileManagerPathIsProtected(fileManagerCanonicalCase($target), $protectedPaths)) {
+            return false;
+        }
+
+        // first decide what goes, then write: a refusal below must not leave half a copy behind
+        $dirs = [];
+        $files = [];
+        $pending = [''];
+        while ($pending !== []) {
+            $relDir = array_pop($pending);
+            $entries = @scandir($source . ($relDir !== '' ? '/' . $relDir : ''));
+            if ($entries === false) {
+                $skipped[$relDir] = 'unreadable';
+                continue;
+            }
+            foreach ($entries as $name) {
+                if ($name === '.' || $name === '..') {
+                    continue;
+                }
+                $rel = $relDir !== '' ? $relDir . '/' . $name : $name;
+                // before the entry is probed: on an unpatched PHP that alone can hang the worker
+                if (fileManagerIsReservedDeviceName($name)) {
+                    $skipped[$rel] = 'reserved device name';
+                    continue;
+                }
+                $path = $source . '/' . $rel;
+                if (fileManagerIsLink($path)) {
+                    $skipped[$rel] = 'link';
+                    continue;
+                }
+                if (fileManagerPathIsProtected(fileManagerCanonicalCase($path), $protectedPaths)) {
+                    $skipped[$rel] = 'protected folder';
+                    continue;
+                }
+                $isDir = is_dir($path);
+                if ((!$isDir && !is_file($path)) || !is_readable($path)) {
+                    $skipped[$rel] = 'unreadable';
+                    continue;
+                }
+                if ($mayCopy !== null && !$mayCopy($path, $isDir)) {
+                    $skipped[$rel] = 'refused';
+                    continue;
+                }
+                if ($isDir) {
+                    $dirs[] = $rel;
+                    $pending[] = $rel;
+                } else {
+                    $files[] = $rel;
+                }
+            }
+        }
+
+        // mkdir() fails on anything already there, a link included
+        if (!@mkdir($target, $dirMode)) {
+            return false;
+        }
+        @chmod($target, $dirMode);
+        // parents come before their children: a folder is listed before its own entries are read
+        foreach ($dirs as $rel) {
+            if (!@mkdir($target . '/' . $rel, $dirMode)) {
+                rrmdir($target);
+                $copied = [];
+
+                return false;
+            }
+            @chmod($target . '/' . $rel, $dirMode);
+        }
+        foreach ($files as $rel) {
+            if (!fileManagerCopyToNewFile($root, $source . '/' . $rel, $target . '/' . $rel)) {
+                rrmdir($target);
+                $copied = [];
+
+                return false;
+            }
+            if ($fileMode !== null) {
+                @chmod($target . '/' . $rel, $fileMode);
+            }
+        }
+        $copied = array_merge($dirs, $files);
+
+        return true;
+    }
+}
+
+if(!function_exists('fileManagerCopyFolderAccessFilter')) {
+    /**
+     * The entries below $source the current manager may reach, from one query for the whole
+     * subtree. A folder copy (like a download archive) must not hand out what the listing hides.
+     *
+     * @param string $filemanagerPath canonical root, no trailing slash
+     * @param string $source canonical folder below it
+     * @return callable(string): bool asked with an absolute path below $source
+     */
+    function fileManagerCopyFolderAccessFilter($filemanagerPath, $source): callable
+    {
+        $filemanagerPath = rtrim(str_replace('\\', '/', $filemanagerPath), '/');
+        if (!fileManagerAclApplies()) {
+            return static fn ($path) => true;
+        }
+        $restrictions = fileManagerSubtreeRestrictionMap(FileManagerAccess::getRelativePath($filemanagerPath, $source));
+        $groups = fileManagerUserGroupIds();
+
+        return static function ($path) use ($filemanagerPath, $restrictions, $groups) {
+            $path = str_replace('\\', '/', $path);
+            if (!FileManagerAccess::isWithin($filemanagerPath, $path)) {
+                return false;
+            }
+
+            return fileManagerIsAccessible(substr($path, strlen($filemanagerPath) + 1), $groups, $restrictions);
+        };
+    }
+}
+
+if(!function_exists('fileManagerCreateDirectoryZip')) {
+    /**
+     * Packs $sourcePath into $zipPath, leaving out what the current manager may not reach: protected
+     * folders and file groups they are not in, a folder with everything below it. A link is stored
+     * as a link entry with a relative target, never followed (fileManagerRelativeLinkTarget()).
+     *
+     * @param array<string, int[]> $fileGroupsMap restrictions of the whole subtree (fileManagerSubtreeRestrictionMap())
+     */
+    function fileManagerCreateDirectoryZip(
+        string $sourcePath,
+        string $relativePath,
+        string $filemanagerPath,
+        string $zipPath,
+        array $userGroups,
+        array $fileGroupsMap,
+        array $protectedPaths
+    ): bool {
+        $sourcePath = rtrim(str_replace('\\', '/', realpath($sourcePath)), '/');
+        $filemanagerPath = rtrim(str_replace('\\', '/', realpath($filemanagerPath)), '/');
+        $archiveRoot = basename($relativePath !== '' ? $relativePath : $sourcePath);
+        $archiveRoot = trim(preg_replace('/[^\w.-]+/', '-', $archiveRoot), '.-') ?: 'files';
+
+        $zip = new ZipArchive();
+        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+            return false;
+        }
+
+        $zip->addEmptyDir($archiveRoot);
+        $mayReveal = static function ($target) use ($filemanagerPath, $userGroups) {
+            // the target's own groups, not only those this folder's subtree map holds
+            return fileManagerIsAccessible(substr($target, strlen($filemanagerPath) + 1), $userGroups);
+        };
+
+        // a walk of our own: an iterator would enter a junction, which PHP takes for a folder
+        $pending = [''];
+        while ($pending !== []) {
+            $relDir = array_pop($pending);
+            $entries = @scandir($sourcePath . ($relDir !== '' ? '/' . $relDir : ''));
+            if ($entries === false) {
+                continue;
+            }
+            foreach ($entries as $name) {
+                if ($name === '.' || $name === '..' || fileManagerIsReservedDeviceName($name)) {
+                    continue;
+                }
+                $rel = $relDir !== '' ? $relDir . '/' . $name : $name;
+                $itemPath = $sourcePath . '/' . $rel;
+                $itemRelPath = ltrim(substr($itemPath, strlen($filemanagerPath)), '/');
+                if (!fileManagerIsAccessible($itemRelPath, $userGroups, $fileGroupsMap)) {
+                    continue;
+                }
+                $archivePath = $archiveRoot . '/' . $rel;
+                if (fileManagerIsLink($itemPath)) {
+                    // kept as a link, never followed; its target only as a relative path the
+                    // manager may know of, so a blue-green "current" survives the round trip
+                    $target = fileManagerRelativeLinkTarget($filemanagerPath, $itemPath, null, $mayReveal);
+                    if ($target !== null) {
+                        fileManagerZipAddLink($zip, $archivePath, $target);
+                    }
+                    continue;
+                }
+                if (fileManagerPathIsProtected(fileManagerCanonicalCase($itemPath), $protectedPaths) || !is_readable($itemPath)) {
+                    continue;
+                }
+                if (is_dir($itemPath)) {
+                    $zip->addEmptyDir($archivePath);
+                    $pending[] = $rel;
+                } elseif (is_file($itemPath)) {
+                    $zip->addFile($itemPath, $archivePath);
+                }
+            }
+        }
+
+        return $zip->close();
+    }
+}
+
+if(!function_exists('fileManagerNormalizePathLexically')) {
+    /**
+     * Resolves . and .. of an absolute path by its text alone, without asking the file system.
+     *
+     * @param string $path absolute path
+     * @return string|null null when .. climbs above the file system root
+     */
+    function fileManagerNormalizePathLexically($path)
+    {
+        $path = str_replace('\\', '/', (string) $path);
+        $prefix = '';
+        if (preg_match('~^([A-Za-z]:)/~', $path, $match)) {
+            $prefix = $match[1];
+            $path = substr($path, 2);
+        }
+        $parts = [];
+        foreach (explode('/', $path) as $segment) {
+            if ($segment === '' || $segment === '.') {
+                continue;
+            }
+            if ($segment === '..') {
+                if ($parts === []) {
+                    return null;
+                }
+                array_pop($parts);
+                continue;
+            }
+            $parts[] = $segment;
+        }
+
+        return $prefix . '/' . implode('/', $parts);
+    }
+}
+
+if(!function_exists('fileManagerRelativeLinkTarget')) {
+    /**
+     * Where the link $linkPath leads, as a path relative to the folder it lies in, and only when
+     * that place is inside $root and $mayReveal lets the viewer know of it. A target outside the
+     * root (../../ or absolute alike) or one the viewer may not reach gives null: neither the
+     * server's layout nor the name of a restricted entry is shown to the manager.
+     *
+     * @param string $root canonical absolute path
+     * @param string $linkPath absolute path of the link, its folder canonical and inside $root
+     * @param string|null $target the link's own text (a ZIP entry, never trusted: an absolute one
+     *                            gives null); null reads the link on disk
+     * @param callable|null $mayReveal fn(string $absoluteTarget): bool
+     * @return string|null
+     */
+    function fileManagerRelativeLinkTarget($root, $linkPath, $target = null, ?callable $mayReveal = null)
+    {
+        $root = rtrim(str_replace('\\', '/', $root), '/');
+        $from = rtrim(str_replace('\\', '/', dirname(str_replace('\\', '/', $linkPath))), '/');
+        $resolved = false;
+        // a target handed in is text from an archive, written by whoever made it: compared with the
+        // root as an absolute path, guesses would tell where the site lives on the server
+        $supplied = $target !== null;
+        if ($target === null) {
+            // an existing target: where the file system says it is, whatever the link's text
+            $resolved = realpath($linkPath);
+            if ($resolved === false) {
+                $target = @readlink($linkPath);
+                if (!is_string($target) || $target === '') {
+                    return null;
+                }
+            }
+        }
+        if ($resolved === false) {
+            // a long-path prefix as Windows reports a junction's target
+            $target = preg_replace('~^//\?/~', '', str_replace('\\', '/', (string) $target));
+            $absolute = preg_match('~^(?:/|[A-Za-z]:/)~', $target) === 1;
+            if ($absolute && $supplied) {
+                return null;
+            }
+            $resolved = fileManagerNormalizePathLexically($absolute ? $target : $from . '/' . $target);
+            if ($resolved === null) {
+                return null;
+            }
+        }
+        $resolved = rtrim(str_replace('\\', '/', $resolved), '/');
+        if (!FileManagerAccess::isWithin($root, $resolved)
+            || ($mayReveal !== null && !$mayReveal($resolved))) {
+            return null;
+        }
+
+        $fromParts = array_values(array_filter(explode('/', substr($from, strlen($root))), 'strlen'));
+        $toParts = array_values(array_filter(explode('/', substr($resolved, strlen($root))), 'strlen'));
+        $common = 0;
+        while (isset($fromParts[$common], $toParts[$common])
+            && (PHP_OS_FAMILY === 'Windows'
+                ? strcasecmp($fromParts[$common], $toParts[$common]) === 0
+                : $fromParts[$common] === $toParts[$common])) {
+            $common++;
+        }
+        $relative = str_repeat('../', count($fromParts) - $common) . implode('/', array_slice($toParts, $common));
+
+        return rtrim($relative, '/') !== '' ? rtrim($relative, '/') : '.';
+    }
+}
+
+if(!function_exists('fileManagerLinkTargetText')) {
+    /**
+     * What the classic manager shows for where a link leads: its relative target, marked when it
+     * leads nowhere, or one note for anything the manager may not know of. "Broken" is said only of
+     * a target that is shown: of one outside, it would tell whether a path exists there.
+     * Plain text, to be escaped.
+     *
+     * @param string $root canonical file manager root
+     * @param string $linkPath absolute path of the link
+     * @param string|null $target the link's own text (a ZIP entry); null reads the link on disk
+     */
+    function fileManagerLinkTargetText($root, $linkPath, $target = null)
+    {
+        $_lang = ManagerTheme::getLexicon();
+        $root = rtrim(str_replace('\\', '/', $root), '/');
+        // the file groups are asked about links on disk only: for text from an archive, the answer
+        // would tell which guessed paths are restricted, and the text is the uploader's own anyway
+        $mayReveal = $target !== null ? null : static function ($resolved) use ($root) {
+            return fileManagerIsAccessible(substr($resolved, strlen($root) + 1));
+        };
+        $relative = fileManagerRelativeLinkTarget($root, $linkPath, $target, $mayReveal);
+        if ($relative === null) {
+            return $_lang['files_link_hidden'];
+        }
+
+        return $target === null && !file_exists($linkPath) ? $relative . ' (' . $_lang['files_link_broken'] . ')' : $relative;
+    }
+}
+
+if(!function_exists('fileManagerLinkList')) {
+    /**
+     * Links the classic manager did not create, as escaped "name → target" lines: those of an
+     * archive (entry name => target text) or of a folder copy (path => null, read on disk).
+     *
+     * @param string $root canonical file manager root
+     * @param string $base folder the names are relative to
+     * @param array<string, string|null> $links
+     */
+    function fileManagerLinkList($root, $base, array $links)
+    {
+        $base = rtrim(str_replace('\\', '/', $base), '/');
+        $lines = [];
+        foreach (array_slice($links, 0, 20, true) as $name => $target) {
+            $lines[] = e((string) $name) . ' &rarr; ' . e(fileManagerLinkTargetText($root, $base . '/' . $name, $target));
+        }
+        if (count($links) > 20) {
+            $lines[] = '&hellip; +' . (count($links) - 20);
+        }
+
+        return implode('<br />', $lines);
+    }
+}
+
+if(!function_exists('fileManagerZipEntryIsLink')) {
+    /**
+     * Whether entry $index of $zip is a symbolic link: a Unix entry whose file type is S_IFLNK.
+     * Its content is the link's target, not data.
+     */
+    function fileManagerZipEntryIsLink(ZipArchive $zip, $index)
+    {
+        $opsys = null;
+        $attributes = null;
+        if (!$zip->getExternalAttributesIndex($index, $opsys, $attributes)) {
+            return false;
+        }
+
+        return $opsys === ZipArchive::OPSYS_UNIX && ((($attributes >> 16) & 0170000) === 0120000);
+    }
+}
+
+if(!function_exists('fileManagerZipAddLink')) {
+    /**
+     * Adds a symbolic link entry to $zip: what an unpacker that keeps links (unzip, 7-Zip, tar)
+     * recreates as a link, and others as a small file holding the target.
+     *
+     * @param string $target relative target (fileManagerRelativeLinkTarget())
+     */
+    function fileManagerZipAddLink(ZipArchive $zip, $name, $target)
+    {
+        return $zip->addFromString($name, $target)
+            && $zip->setExternalAttributesName($name, ZipArchive::OPSYS_UNIX, (0120777 << 16));
+    }
+}
+
 if(!function_exists('fileManagerCanRenameTo')) {
     /**
      * Whether $source may be renamed to $target: nothing is at the new name yet, so a rename
@@ -768,10 +1255,13 @@ if(!function_exists('fileManagerExtractZip')) {
      *                                target of each entry; false skips it (upload rules, file groups)
      * @param string[]|null $created filled with the files this call created; files it replaced are
      *                               not listed, so they keep the restrictions they already have
+     * @param array<string, string>|null $links filled with entry name => target of the symbolic links
+     *                                          in the archive: never created, nor written as files
      * @return bool false when the archive cannot be opened
      */
-    function fileManagerExtractZip($file, $path, array $protectedPaths = [], $dirMode = 0777, ?callable $mayWrite = null, ?array &$created = null)
+    function fileManagerExtractZip($file, $path, array $protectedPaths = [], $dirMode = 0777, ?callable $mayWrite = null, ?array &$created = null, ?array &$links = null)
     {
+        $links = [];
         $root = realpath($path);
         if ($root === false) {
             return false;
@@ -800,6 +1290,11 @@ if(!function_exists('fileManagerExtractZip')) {
                 if ($segments !== []) {
                     $refused[] = $filename;
                 }
+                continue;
+            }
+            if (fileManagerZipEntryIsLink($zip, $i)) {
+                // the file manager creates no links; written out, it would be a file holding a path
+                $links[implode('/', $segments)] = (string) $zip->getFromIndex($i);
                 continue;
             }
             $isDir = substr($filename, -1) == '/';
@@ -972,6 +1467,7 @@ if(!function_exists('ls')) {
         $filesizes = 0;
         $dirs_array = [];
         $files_array = [];
+        $links_array = [];
         $currentRelPath = ltrim(substr(rtrim($curpath, '/'), strlen($filemanager_path)), '/');
         $currentDirAccessible = fileManagerIsAccessible($currentRelPath, $userGroups ?? [], $fileGroupsMap ?? []);
         $currentDirWritable = $currentDirAccessible && is_writable($curpath);
@@ -998,7 +1494,28 @@ if(!function_exists('ls')) {
             $rel_newpath = ltrim(substr($newpath, strlen($filemanager_path)), '/');
             $rel_web = ltrim(substr($newpath, strlen($base_path)), '/');
             if (fileManagerIsLink($newpath)) {
-                // a link may lead anywhere, and the web server would serve its target without any check here
+                // shown, never followed: a link may lead anywhere, and the web server would serve its
+                // target without any check here, so it gets no URL, no drill-down and no action
+                if (fileManagerIsAccessible($rel_newpath, $userGroups ?? [], $fileGroupsMap ?? [])) {
+                    $linkStats = @lstat($newpath) ?: [7 => 0, 9 => 0];
+                    // removing the link itself is the one action; judged by its own path, not its target's
+                    $canDeleteLink = $currentDirWritable
+                        && fileManagerCanModifyExistingPath($rel_newpath, $userGroups ?? [], $fileGroupsMap ?? [])
+                        && !fileManagerPathIsProtected($newpath, $protected_path ?? []);
+                    $links_array[] = [
+                        'name' => $file,
+                        'stats' => $linkStats,
+                        'delete' => $canDeleteLink
+                            ? '<a href="javascript:deleteLink(\'' . urlencode($file) . '\');"><i class="' . $_style['icon_trash']
+                                . '" title="' . e($_lang['files_link_delete']) . '"></i></a>'
+                            : '',
+                        'text' => '<span class="FilesLink"><i class="' . ($_style['icon_link'] ?? 'fa fa-link') . '"></i> '
+                            . htmlspecialchars($file, ENT_QUOTES, 'UTF-8')
+                            . ' <small class="text-muted">&rarr; '
+                            . htmlspecialchars(fileManagerLinkTargetText($filemanager_path, $newpath), ENT_QUOTES, 'UTF-8')
+                            . '</small></span>',
+                    ];
+                }
                 continue;
             }
             if (!fileManagerIsAccessible($rel_newpath, $userGroups ?? [], $fileGroupsMap ?? [])) {
@@ -1038,6 +1555,11 @@ if(!function_exists('ls')) {
                     $dirs_array[$dircounter]['delete'] = $canModifyDir ? '<a href="javascript: deleteFolder(\''
                         . urlencode($file) . '\',\'' . $file_exists . '\');"><i class="' . $_style['icon_trash']
                         . '" title="' . $_lang['file_delete_folder'] . '"></i></a>' : '';
+                    // a copy lands beside the original: what counts is that this folder takes new entries
+                    $dirs_array[$dircounter]['copy'] = $currentDirWritable
+                        ? '<a href="javascript:copyFolder(\'' . urlencode($file) . '\');"><i class="'
+                        . $_style['icon_clone'] . '" title="' . $_lang['files_copy_folder'] . '"></i></a>'
+                        : '';
                 } else {
                     $dirs_array[$dircounter]['text'] = '<span><i class="' . $_style['icon_folder']
                         . ' FilesDeletedFolder"></i> ' . htmlspecialchars($file, ENT_QUOTES, 'UTF-8')
@@ -1133,7 +1655,9 @@ if(!function_exists('ls')) {
             echo '<td class="actions text-right">';
             echo '<span class="disabled"><i class="' . $_style['icon_eye'] . '"></i></span>';
             echo '<span class="disabled"><i class="' . $_style['icon_edit'] . '"></i></span>';
-            echo '<span class="disabled"><i class="' . $_style['icon_clone'] . '"></i></span>';
+            echo ($dirs_array[$i]['copy'] ?? '') !== ''
+                ? $dirs_array[$i]['copy']
+                : '<span class="disabled"><i class="' . $_style['icon_clone'] . '"></i></span>';
             echo $dirs_array[$i]['rename'];
             echo $dirs_array[$i]['groups'] ?? '';
             echo $dirs_array[$i]['delete'];
@@ -1162,7 +1686,19 @@ if(!function_exists('ls')) {
             echo '</tr>';
         }
 
-        return compact('filesizes', 'files', 'folders');
+        // links last, listed but inert
+        $links = count($links_array);
+        usort($links_array, static fn ($a, $b) => strcmp($a['name'], $b['name']));
+        foreach ($links_array as $link) {
+            echo '<tr>';
+            echo '<td>' . $link['text'] . '</td>';
+            echo '<td class="text-nowrap">' . evo()->toDateFormat($link['stats'][9]) . '</td>';
+            echo '<td class="text-right" title="' . e($_lang['files_link']) . '">' . e($_lang['files_link']) . '</td>';
+            echo '<td class="actions text-right">' . $link['delete'] . '</td>';
+            echo '</tr>';
+        }
+
+        return compact('filesizes', 'files', 'folders', 'links');
     }
 }
 
@@ -1587,7 +2123,11 @@ if(!function_exists('delete_file')) {
             || !is_writable($file)) {
             return fileManagerDenied();
         }
-        $msg = sprintf($_lang['deleting_file'], str_replace('\\', '/', $file));
+        if (($denied = fileManagerCodeRemovalDenied($file, $fileRel)) !== null) {
+            return $denied;
+        }
+        // the path below the root, never the server's absolute one
+        $msg = sprintf($_lang['deleting_file'], htmlspecialchars($fileRel, ENT_QUOTES, 'UTF-8'));
 
         if (!evolutionCMS()->hasPermission('file_manager') || !@unlink($file)) {
             $msg .= '<span class="warning"><b>' . $_lang['file_not_deleted'] . '</b></span><br /><br />';

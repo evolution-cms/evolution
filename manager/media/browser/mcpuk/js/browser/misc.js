@@ -188,6 +188,13 @@ browser.unshadow = function() {
     $('#shadow').css('display', 'none');
 };
 
+/**
+ * What stands in while folders or files load: a spinning refresh icon beside the word, on one line.
+ */
+browser.loadingHtml = function(id) {
+    return '<div class="kc-loading"' + (id ? ' id="' + id + '"' : '') + '>' + this.label("Loading...") + '</div>';
+};
+
 browser.showMenu = function(e) {
     if (this.isMobileActionMode && this.isMobileActionMode()) {
         var menu = $('#dialog .menu').detach();

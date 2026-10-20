@@ -117,6 +117,93 @@ div.file .thumb,  div.file .skipthumb {
     background: no-repeat center center;
 }
 
+/* links: listed, never followed (browser.linksHtml) */
+div.file-link {
+    overflow-x: hidden;
+    width: <?php echo $config['thumbWidth'] ?>px;
+    float: left;
+    text-align: center;
+    cursor: default;
+    white-space: nowrap;
+    padding: 4px;
+    margin: 3px;
+    border: 1px dashed #aaa;
+    border-radius: 4px;
+    color: #666;
+}
+
+div.file-link .thumb {
+    position: relative;
+    width: <?php echo $config['thumbWidth'] ?>px;
+    height: <?php echo $config['thumbHeight'] ?>px;
+    font-size: <?php echo round($config['thumbHeight'] * 0.6) ?>px;
+}
+
+div.file-link .thumb:before,
+tr.file-link > td.name:before {
+    content: "\f0c1";
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    color: #888;
+}
+
+.kc-loading {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1.2;
+    color: #565656;
+}
+
+.kc-loading:before {
+    content: "\f021";
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    display: inline-block;
+    line-height: 1;
+    animation: kc-loading-spin 1s linear infinite;
+}
+
+@keyframes kc-loading-spin {
+    to { transform: rotate(360deg); }
+}
+
+div.file-link .thumb:before {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+div.file-link .name {
+    margin-top: 4px;
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+div.file-link .target {
+    font-size: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+tr.file-link > td {
+    white-space: nowrap;
+    padding: 3px 4px;
+    color: #666;
+    cursor: default;
+}
+
+tr.file-link > td.name:before {
+    margin-right: 6px;
+}
+
+tr.file-link > td.time,
+tr.file-link > td.size {
+    text-align: right;
+}
+
 #files table {
     width: 100%;
 }

@@ -238,6 +238,42 @@ final class FileManagerAccess
     }
 
     /**
+     * Give a folder copy the groups of its original: $groups (what carriedRestrictions() returned
+     * for the two folders) on the copy itself, and each row below the original on the same path
+     * below the copy, for the entries that were copied. The copy is then exactly as closed as the
+     * original. Rows left at the free destination by entries removed outside the CMS go first.
+     *
+     * @param int[] $groups
+     * @param string[] $copied paths relative to the original of what was copied
+     */
+    public static function copyFolderRestrictions(?string $sourceKey, ?string $targetKey, array $groups, array $copied): void
+    {
+        $sourceKey = self::normalizeRelativePath($sourceKey);
+        $targetKey = self::normalizeRelativePath($targetKey);
+        if ($sourceKey === '' || $targetKey === '' || $sourceKey === $targetKey || self::isBelow($sourceKey, $targetKey)) {
+            return;
+        }
+
+        self::forgetRestrictions($targetKey);
+        self::addRestrictions($targetKey, $groups);
+
+        $copied = array_flip(array_map([self::class, 'normalizeRelativePath'], $copied));
+        $rows = [];
+        foreach (self::subtreeRows($sourceKey) as $row) {
+            $file = self::normalizeRelativePath($row->file);
+            $suffix = substr($file, strlen($sourceKey) + 1);
+            if ($file === $sourceKey || !isset($copied[$suffix])) {
+                continue;
+            }
+            $copy = $targetKey . '/' . $suffix;
+            $rows[$copy . '|' . (int) $row->document_group] = ['document_group' => (int) $row->document_group, 'file' => $copy];
+        }
+        if ($rows !== []) {
+            FileGroup::query()->insertOrIgnore(array_values($rows));
+        }
+    }
+
+    /**
      * Add groups to $key as direct restrictions, keeping the ones it has. For an entry that
      * already exists; a copy lands on a free path and takes replaceRestrictions(), which also
      * drops what stale rows would add.

@@ -363,3 +363,30 @@ test('a copy and a rename see only the rows of their own path, not those of a si
         $capsule->getConnection()->disconnect();
     }
 })->skip(!extension_loaded('pdo_sqlite'), 'pdo_sqlite is required');
+
+test('a folder copy takes the groups of its original, for what was copied, and drops stale rows', function () {
+    $capsule = fileGroupsTable([
+        ['document_group' => 1, 'file' => 'files/team'],
+        ['document_group' => 2, 'file' => 'files/team/secret'],
+        ['document_group' => 3, 'file' => 'files/team/open/a.txt'],
+        ['document_group' => 4, 'file' => 'files/team_x/other.txt'],
+        ['document_group' => 9, 'file' => 'files/copy/stale.txt'],
+    ]);
+
+    try {
+        FileManagerAccess::copyFolderRestrictions('files/team', 'files/copy', [1], ['open', 'open/a.txt']);
+
+        // secret was not copied, so no row for it; _ in team_x is no wildcard
+        expect(fileGroupRows())->toBe([
+            'files/copy', 'files/copy/open/a.txt', 'files/team', 'files/team/open/a.txt', 'files/team/secret', 'files/team_x/other.txt',
+        ]);
+
+        // never onto itself, below itself or the ACL root
+        FileManagerAccess::copyFolderRestrictions('files/team', 'files/team/inner', [1], ['open']);
+        FileManagerAccess::copyFolderRestrictions('files/team', '', [1], ['open']);
+        FileManagerAccess::copyFolderRestrictions('', 'files/x', [1], ['open']);
+        expect(fileGroupRows())->toHaveCount(6);
+    } finally {
+        $capsule->getConnection()->disconnect();
+    }
+})->skip(!extension_loaded('pdo_sqlite'), 'pdo_sqlite is required');

@@ -178,8 +178,20 @@ $lang = array(
     "Loading image..." => "Laster bilde...",
     "Loading folders..." => "Laster mapper...",
     "Loading files..." => "Laster filer...",
+    "Loading..." => "Laster...",
     "New Subfolder..." => "Ny undermappe...",
     "Rename..." => "Endre navn...",
+    "Copy..." => "Kopier...",
+    "Name of the folder copy:" => "Navn på kopien av mappen:",
+    "Unable to copy folder." => "Kan ikke kopiere mappen.",
+    "Link" => "Lenke",
+    "Broken link" => "Brutt lenke",
+    "Outside the file manager or not accessible" => "Utenfor filbehandleren eller ikke tilgjengelig",
+    "Delete link" => "Slett lenke",
+    "Delete this link? Only the link is removed; what it leads to stays." => "Slette denne lenken? Bare lenken fjernes; det den peker til, blir værende.",
+    "Unable to delete the link." => "Kan ikke slette lenken.",
+    "Links are not copied (the file manager does not create links):" => "Lenker kopieres ikke (filbehandleren oppretter ikke lenker):",
+    "{count} files/folders were not copied: no access, or not allowed here." => "{count} filer/mapper ble ikke kopiert: ingen tilgang, eller ikke tillatt her.",
     "Delete" => "Slett",
     "OK" => "OK",
     "Cancel" => "Avbryt",
@@ -226,6 +238,8 @@ $lang = array(
 
     "Are you sure you want to delete all selected files?" =>
     "Er du sikker på at du ønsker å slette alle merkede filer?",
+    "Are you sure you want to delete the selected files and folders with all their content?" =>
+    "Er du sikker på at du ønsker å slette de merkede filene og mappene med alt innhold?",
 
     "Failed to delete {count} files/folders." =>
     "Feil ved sletting av {count} filer/mapper.",

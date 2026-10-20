@@ -101,6 +101,7 @@ $_style['icon_info_triangle'] = 'fa fa-exclamation-triangle';
 $_style['icon_loader'] = 'fa fa-spinner';
 $_style['icon_lock'] = 'fa fa-lock';
 $_style['icon_unlock'] = 'fa fa-unlock-alt';
+$_style['icon_link'] = 'fa fa-link';
 $_style['icon_logout'] = 'fa fa-sign-out';
 $_style['icon_mail'] = 'fa fa-envelope';
 $_style['icon_module'] = 'fa fa-cube';

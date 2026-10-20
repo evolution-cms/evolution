@@ -98,12 +98,12 @@ input[type=checkbox]:checked + label { color: #f00; font-style: normal; }
 .menu a[href="kcact:refresh"]:before { content: "\f021"; font-weight: bold;}
 .menu a[href="kcact:mkdir"]:before { content: "\f07b"; font-weight: bold;}
 .menu a[href="kcact:mvdir"]:before, .menu a[href="kcact:mv"]:before { content: "\f246"; font-weight: bold;}
-.menu a[href="kcact:rmdir"]:before, .menu a[href="kcact:rm"]:before, .menu a[href="kcact:rmcbd"]:before { content: "\f1f8"; font-weight: bold;}
+.menu a[href="kcact:rmdir"]:before, .menu a[href="kcact:rm"]:before, .menu a[href="kcact:rmcbd"]:before, .menu a[href="kcact:rmlink"]:before { content: "\f1f8"; font-weight: bold;}
 .menu a[href="kcact:clpbrdadd"]:before { content: "\f0ea"; font-weight: bold;}
 .menu a[href="kcact:pick"]:before, .menu a[href="kcact:pick_thumb"]:before { content: "\f00c"; font-weight: bold;}
 .menu a[href="kcact:download"]:before { content: "\f019"; font-weight: bold;}
 .menu a[href="kcact:view"]:before { content: "\f06e"; font-weight: bold;}
-.menu a[href="kcact:cpcbd"]:before { content: "\f24d";font-weight: bold; }
+.menu a[href="kcact:cpcbd"]:before, .menu a[href="kcact:cpdir"]:before { content: "\f24d";font-weight: bold; }
 .menu a[href="kcact:mvcbd"]:before { content: "\f047"; font-weight: bold;}
 .menu a[href="kcact:clrcbd"]:before { content: "\f12d"; font-weight: bold;}
 a.denied { color: #666; opacity: 0.5; filter: alpha(opacity:50);
