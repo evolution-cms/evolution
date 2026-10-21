@@ -13,6 +13,7 @@ return array(
     'WebPConvert\\' => array($vendorDir . '/rosell-dk/webp-convert/src'),
     'Tracy\\' => array($vendorDir . '/tracy/tracy/src'),
     'Termwind\\' => array($vendorDir . '/nunomaduro/termwind/src'),
+    'Symfony\\Polyfill\\Time\\' => array($vendorDir . '/symfony/polyfill-time'),
     'Symfony\\Polyfill\\Php85\\' => array($vendorDir . '/symfony/polyfill-php85'),
     'Symfony\\Polyfill\\Php84\\' => array($vendorDir . '/symfony/polyfill-php84'),
     'Symfony\\Polyfill\\Mbstring\\' => array($vendorDir . '/symfony/polyfill-mbstring'),
