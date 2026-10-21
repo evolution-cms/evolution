@@ -20,6 +20,15 @@ require_once EVO_BASE_PATH . 'install/src/functions.php';
  *
  * The sqlite database is created as core/database/<--database>.sqlite
  * Use --skipComposer=y to keep the already installed dependencies untouched.
+ * An update restores the packages of core/custom/composer.json unless --skipComposer=y is given,
+ * at the versions the last restore noted; --updateCustomPackages=y lets Composer choose others.
+ * When they cannot be restored, the update ends incomplete: exit code 1, install/ kept.
+ *
+ * Switching versions (a release, the 3.5.x branch, a fork) with this installer: lay the files
+ * of the wanted version over the site, then run the update (--typeInstall=2), for example
+ *   composer create-project --no-install evolution-cms/evolution /tmp/evo 3.5.x-dev && cp -a /tmp/evo/. ..
+ * From core/, "php artisan make:site update <version, branch or GitHub URL>" does all of it at once.
+ * See "Update and switch versions" in README.md.
  **/
 
 function runCliInstall(array $argv): int
@@ -96,6 +105,7 @@ class InstallEvo
     public $language = '';
     public $removeInstall = '';
     public $skipComposer = '';
+    public $updateCustomPackages = '';
     public $database_charset = 'utf8mb4';
     public $database_collation = 'utf8mb4_unicode_520_ci';
     public $dbh;
@@ -238,9 +248,96 @@ class InstallEvo
                 unlink($cacheFile);
             }
         }
+        // Last, once the database is updated: Composer rewrites core/vendor, which this
+        // process still loads classes from, and a failure here leaves only this step to redo.
+        if (!$this->restoreCustomPackages()) {
+            if (ob_get_level() > 0) {
+                ob_end_flush();
+            }
+
+            throw new RuntimeException('Update incomplete: the custom Composer packages were not restored, so the site does not load them.'
+                . ' The install folder was kept. Restore them with the command above, then remove the install folder.');
+        }
         echo 'Evolution CMS updated!' . "\n";
         $this->checkRemoveInstall();
         $this->removeInstall();
+    }
+
+    /**
+     * Bring back the packages core/custom/composer.json adds through the merge plugin.
+     *
+     * The files laid over the site (an archive, composer create-project) brought their
+     * own composer.lock and vendor, which know nothing of these packages, so they were
+     * no longer autoloaded. The web installer restores them the same way, through
+     * restoreCustomComposerPackages(), which keeps the Composer of core/vendor from
+     * replacing the packages it runs on.
+     *
+     * @since 3.5.9
+     * @return bool False when they could not be restored; true when they were, there were none, or --skipComposer=y.
+     */
+    public function restoreCustomPackages(): bool
+    {
+        $names = array_keys((new \EvolutionCMS\Services\CustomComposerPackages(EVO_CORE_PATH))->constraints());
+        if ($names === []) {
+            return true;
+        }
+
+        if ($this->skipComposer === 'y') {
+            warning('⚠ Custom Composer packages were not restored (--skipComposer=y). Run "composer update ' . implode(' ', $names) . ' --with-dependencies" in the core directory.');
+            return true;
+        }
+
+        info('- Restoring custom Composer packages: ' . implode(' ', $names));
+        $result = restoreCustomComposerPackages(
+            fn (string $command): array => $this->runComposerCommand($command),
+            fn () => $this->discoverPackages(),
+            $this->composerForRestore(),
+            $this->updateCustomPackages === 'y'
+        );
+
+        if ($result['output'] !== '') {
+            echo $result['output'], PHP_EOL;
+        }
+        if ($result['restored']) {
+            success('✔ Custom Composer packages restored');
+
+            return true;
+        }
+
+        warning('⚠ Custom Composer packages were not restored. Run in the site root: ' . $result['command']);
+        if ($result['consent']) {
+            warning('⚠ Or run the update again with --updateCustomPackages=y to accept these changes.');
+        }
+
+        return false;
+    }
+
+    /**
+     * Run a Composer command for restoreCustomPackages().
+     *
+     * @return array{0: int, 1: string} Exit code and output.
+     */
+    protected function runComposerCommand(string $command): array
+    {
+        return installerRunCommand($command);
+    }
+
+    /**
+     * The Composer restoreCustomPackages() uses; null lets it find one.
+     *
+     * @return array{command: string, standalone: bool}|null
+     */
+    protected function composerForRestore(): ?array
+    {
+        return null;
+    }
+
+    /**
+     * Register the providers of the restored packages; the update ran with --no-scripts.
+     */
+    protected function discoverPackages(): void
+    {
+        Console::call('package:discover');
     }
 
     public function install()
@@ -380,7 +477,11 @@ class InstallEvo
 
     public function checkRemoveInstall()
     {
-        ob_end_clean();
+        // initEvo() includes ../index.php, which opens an output buffer. Discarding it
+        // threw away everything the update printed, warnings with a command to run included.
+        if (ob_get_level() > 0) {
+            ob_end_flush();
+        }
 
         if (!in_array($this->removeInstall, ['y', 'n'], true)) {
             $this->removeInstall = $this->choice(

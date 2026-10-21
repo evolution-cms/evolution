@@ -2,6 +2,7 @@
 
 
 use Composer\Console\Application;
+use EvolutionCMS\Services\CustomComposerPackages;
 use EvolutionCMS\Traits\RunsComposerShell;
 use ExecWithFallback\ExecWithFallback;
 use Illuminate\Console\Command;
@@ -91,6 +92,10 @@ class InstallPackageRequireCommand extends Command
             if ($exitCode !== 0) {
                 $this->restoreComposerState($composerExisted, $originalComposerContents);
                 $this->rollbackVendor($originalLockContents);
+            } else {
+                // The installers restore these versions after the next update.
+                $packages = new CustomComposerPackages(EVO_CORE_PATH);
+                $packages->recordInstalled(array_keys($packages->constraints()));
             }
 
             return $exitCode;

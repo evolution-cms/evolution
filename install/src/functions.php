@@ -1122,6 +1122,201 @@ function loadExecWithFallback(): bool
 }
 
 /**
+ * Bring back the packages core/custom/composer.json adds through the merge plugin.
+ *
+ * The files laid over the site (an archive, composer create-project, the manager's
+ * update.php) bring their own composer.lock and vendor, which know nothing of these
+ * packages, so after an update they were no longer autoloaded. Both installers run
+ * this, the web one from a web request: it uses a Composer the shell can run, never
+ * the FPM binary, and when it cannot restore them it answers with the command to run.
+ *
+ * The policy is make:site's (EvolutionCMS\Services\CustomComposerPackages): the
+ * packages come back at the versions the last restore noted, and a dry run comes
+ * first. Any other change it shows needs $allowChanges; the Composer of core/vendor,
+ * however it was selected, never replaces the packages it runs on.
+ *
+ * @since 3.5.9
+ * @param callable|null $run Runs a shell command: fn(string $command): array{0: int, 1: string}.
+ * @param callable|null $discover Registers the providers of the restored packages.
+ * @param array{command: string, standalone: bool}|null $composer The Composer to use; found when null.
+ * @param bool $allowChanges Whether Composer may install other versions than the site ran.
+ * @return array{packages: list<string>, restored: bool, command: string, output: string, consent: bool}
+ *         restored is true when there was nothing to restore; command is what to run by hand otherwise;
+ *         consent is true when only other versions than the site ran would restore them.
+ */
+function restoreCustomComposerPackages(?callable $run = null, ?callable $discover = null, ?array $composer = null, bool $allowChanges = false): array
+{
+    $packages = new \EvolutionCMS\Services\CustomComposerPackages(EVO_CORE_PATH);
+    $constraints = $packages->constraints();
+    $names = array_keys($constraints);
+    $pins = $packages->pins($names, $packages->previousVersions($names), $constraints);
+    $result = [
+        'packages' => $names,
+        'restored' => $names === [],
+        'command' => installerRestoreCommand($pins),
+        'output' => '',
+        'consent' => false,
+    ];
+    if ($names === []) {
+        return $result;
+    }
+
+    // The lock already holds every package (the update kept it): nothing to resolve.
+    if ($pins === []) {
+        $result['restored'] = $packages->installed($names);
+        if (!$result['restored']) {
+            $result['command'] = 'cd core && composer install --no-dev';
+            $result['output'] = 'composer.lock lists the custom packages, but core/vendor does not have them.';
+        }
+
+        return $result;
+    }
+
+    $run ??= 'installerRunCommand';
+    $composer ??= installerComposerCommand();
+    if ($composer === null) {
+        return $result;
+    }
+
+    // A web request rarely has HOME, which Composer needs; make:site uses the same folder.
+    if (getenv('COMPOSER_HOME') === false && getenv('HOME') === false) {
+        putenv('COMPOSER_HOME=' . EVO_CORE_PATH . 'composer');
+    }
+
+    [, $version] = $run($composer['command'] . ' --version --no-ansi 2>&1');
+    $minimalChanges = preg_match('/Composer (?:version )?(\d+\.\d+\.\d+)/', (string) $version, $match) === 1
+        && version_compare($match[1], \EvolutionCMS\Console\Packages\InstallPackageRequireCommand::MINIMAL_CHANGES_SINCE, '>=');
+
+    $plan = $packages->plan(
+        static fn (string $command): array => $run($command),
+        $composer['command'],
+        $pins,
+        $names,
+        $minimalChanges,
+        $allowChanges,
+        !$composer['standalone']
+    );
+    if (!$plan['ok']) {
+        $result['output'] = \EvolutionCMS\Services\CustomComposerPackages::describeRefusal($plan);
+        if ($plan['reason'] === 'changes') {
+            // Running it by hand is the decision to accept other versions.
+            $result['consent'] = true;
+            $result['command'] = installerRestoreCommand(array_fill_keys($names, ''));
+            $result['output'] .= "\nThe command below lets Composer choose the versions.";
+        }
+
+        return $result;
+    }
+
+    [$exitCode, $output] = $run($composer['command'] . ' update ' . $plan['arguments']
+        . ' --working-dir=' . escapeshellarg(EVO_CORE_PATH) . ' 2>&1');
+    $result['output'] = installerOutputTail((string) $output);
+    if ((int) $exitCode === 0) {
+        $discover ??= static function (): void {
+            \EvolutionCMS\Facades\Console::call('package:discover');
+        };
+        $discover();
+        $packages->recordInstalled($names);
+        $result['restored'] = true;
+    }
+
+    return $result;
+}
+
+/**
+ * The restoring Composer command, as an operator types it in a terminal.
+ *
+ * @since 3.5.9
+ * @param array<string, string> $pins Package name => version, '' when Composer chooses.
+ * @return string
+ */
+function installerRestoreCommand(array $pins): string
+{
+    if ($pins === []) {
+        return '';
+    }
+
+    $packages = [];
+    foreach ($pins as $package => $version) {
+        $packages[] = $version !== '' ? $package . ':' . $version : $package;
+    }
+
+    return 'cd core && composer update ' . implode(' ', $packages) . ' --with-dependencies --no-dev';
+}
+
+/**
+ * Run a shell command for the installer.
+ *
+ * @since 3.5.9
+ * @return array{0: int, 1: string} Exit code and output; 1 when no way to start a process is enabled.
+ */
+function installerRunCommand(string $command): array
+{
+    if (!loadExecWithFallback()) {
+        return [1, 'No way to start a process is enabled.'];
+    }
+
+    $output = [];
+    $exitCode = 1;
+    try {
+        \ExecWithFallback\ExecWithFallback::exec($command, $output, $exitCode);
+    } catch (\Throwable $exception) {
+        $output = [$exception->getMessage()];
+    }
+
+    return [(int) $exitCode, implode("\n", (array) $output)];
+}
+
+/**
+ * @since 3.5.9
+ */
+function installerOutputTail(string $output): string
+{
+    return implode("\n", array_slice(preg_split('/\r\n|\r|\n/', trim($output)) ?: [], -8));
+}
+
+/**
+ * A Composer command the shell can run: the configured or system one, else the
+ * PHP command line binary with the Composer that core/vendor ships.
+ *
+ * @since 3.5.9
+ * @return array{command: string, standalone: bool}|null standalone is false whenever the command runs the copy in core/vendor.
+ */
+function installerComposerCommand(): ?array
+{
+    $resolver = new class {
+        use \EvolutionCMS\Traits\RunsComposerShell;
+
+        public function find(): ?string
+        {
+            return $this->resolveComposerBinaryCommand();
+        }
+    };
+    // COMPOSER_BINARY or the PATH may lead to the copy in core/vendor too, so the
+    // command itself is asked, not the way it was found.
+    $packages = new \EvolutionCMS\Services\CustomComposerPackages(EVO_CORE_PATH);
+    $composer = $resolver->find();
+    if ($composer !== null) {
+        return ['command' => $composer, 'standalone' => !$packages->isBundledComposer($composer)];
+    }
+
+    $bundled = EVO_CORE_PATH . 'vendor/bin/composer';
+    if (!is_file($bundled)) {
+        return null;
+    }
+
+    // Under FPM or mod_php PHP_BINARY is the server, not something that runs a script.
+    $php = PHP_SAPI === 'cli' ? PHP_BINARY : '';
+    foreach ([PHP_BINDIR . '/php', PHP_BINDIR . '/php.exe'] as $candidate) {
+        if ($php === '' && is_file($candidate)) {
+            $php = $candidate;
+        }
+    }
+
+    return $php === '' ? null : ['command' => escapeshellarg($php) . ' ' . escapeshellarg($bundled), 'standalone' => false];
+}
+
+/**
  * Print a neutral info message (default color).
  *
  * Guarded because Laravel declares a global info() of its own. The installers load this file

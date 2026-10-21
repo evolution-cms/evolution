@@ -239,6 +239,22 @@ try {
         // repairs inside those migrations detect a healthy baseline and skip.
         Console::call('migrate', ['--force' => true]);
 
+        if ($installMode != 0) {
+            // The files laid over the site replaced core/vendor; bring the packages of
+            // core/custom/composer.json back, or tell the operator how to. Last, once the
+            // database is updated: Composer may take long in a web request, and it rewrites
+            // the vendor directory this request still loads classes from.
+            try {
+                $customPackages = restoreCustomComposerPackages();
+            } catch (\Throwable $exception) {
+                $customPackages = ['packages' => ['core/custom/composer.json'], 'restored' => false, 'command' => '', 'output' => $exception->getMessage(), 'consent' => false];
+            }
+            // Not restored: the update is incomplete, and the installer stays for the operator.
+            if (!$customPackages['restored']) {
+                $errors += 1;
+            }
+        }
+
         $installLevel = 4;
     }
 
