@@ -1,6 +1,8 @@
 <?php
 namespace Seiger\sTask\Models {
     class sTaskModel {
+        public int $id = 1;
+        public int $started_by = 1;
         public int $progress = 0;
         public function update(array $values): void {
             if (isset($values['progress'])) { $this->progress = $values['progress']; }

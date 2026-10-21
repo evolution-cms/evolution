@@ -63,17 +63,30 @@ function evoRunCommand(string $command, ?int &$exitCode = null): string
 
 /**
  * Runs the PHP script $script in a fresh PHP process, for what must not leak between tests
- * (constants, globals, loaded classes). stderr joins the output unless $captureStderr is false.
+ * (constants, globals, loaded classes). stderr joins the output unless $captureStderr is false;
+ * then it goes to $stderr instead, never to the console of the test run.
  *
  * @param string[] $args passed to the script, each shell-escaped (on Windows escapeshellarg()
  *                       turns " % ! into spaces)
  */
-function evoRunPhp(string $script, array $args = [], ?int &$exitCode = null, bool $captureStderr = true): string
+function evoRunPhp(string $script, array $args = [], ?int &$exitCode = null, bool $captureStderr = true, ?string &$stderr = null): string
 {
     $command = escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($script);
     foreach ($args as $arg) {
         $command .= ' ' . escapeshellarg((string) $arg);
     }
+    $stderr = '';
+    if ($captureStderr) {
+        return evoRunCommand($command . ' 2>&1', $exitCode);
+    }
 
-    return evoRunCommand($command . ($captureStderr ? ' 2>&1' : ''), $exitCode);
+    $stderrFile = tempnam(sys_get_temp_dir(), 'evo-stderr-');
+    try {
+        $output = evoRunCommand($command . ' 2>' . escapeshellarg($stderrFile), $exitCode);
+        $stderr = (string) file_get_contents($stderrFile);
+    } finally {
+        @unlink($stderrFile);
+    }
+
+    return $output;
 }
