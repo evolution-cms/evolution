@@ -46,6 +46,7 @@ use ReflectionException;
 use ReturnTypeWillChange;
 use RuntimeException;
 use Throwable;
+use Time\Duration;
 
 // @codeCoverageIgnoreStart
 require PHP_VERSION < 8.2
@@ -782,6 +783,7 @@ class CarbonPeriod extends DatePeriodBase implements Countable, JsonSerializable
                         $argument,
                     )) ||
                     $argument instanceof DateInterval ||
+                    $argument instanceof Duration ||
                     $argument instanceof Closure ||
                     $argument instanceof Unit
                 ) &&
@@ -968,8 +970,8 @@ class CarbonPeriod extends DatePeriodBase implements Countable, JsonSerializable
     /**
      * Change the period date interval.
      *
-     * @param DateInterval|Unit|string|int $interval
-     * @param Unit|string                  $unit     the unit of $interval if it's a number
+     * @param DateInterval|Duration|Unit|string|int $interval
+     * @param Unit|string                           $unit     the unit of $interval if it's a number
      *
      * @throws InvalidIntervalException
      *
@@ -985,7 +987,7 @@ class CarbonPeriod extends DatePeriodBase implements Countable, JsonSerializable
             $unit = $unit->name;
         }
 
-        if (!$interval = CarbonInterval::make($interval, $unit)) {
+        if (!$interval = self::makeCarbonInterval($interval, $unit)) {
             throw new InvalidIntervalException('Invalid interval.');
         }
 
@@ -2590,17 +2592,23 @@ class CarbonPeriod extends DatePeriodBase implements Countable, JsonSerializable
             return; // @codeCoverageIgnore
         }
 
-        // Default interval if not set (matches __construct logic)
-        $interval = $this->dateInterval ?? \Carbon\CarbonInterval::day();
+        // During construction, the parent DatePeriod is initialized once at the end of __construct().
+        if (!$this->constructed) {
+            return;
+        }
 
-        // Reinitialize the parent DatePeriod to update $start, $end, etc.
-        // This mirrors the logic in __construct and initializeSerialization.
-        parent::__construct(
+        // Calling parent::__construct() again on an already initialized DatePeriod leaks its previous
+        // start, end and interval in PHP, so the native properties are refreshed through
+        // DatePeriod::__unserialize() instead, which releases them.
+        // The same native state is then computed as with parent::__construct() so both stay in sync.
+        $native = new DatePeriod(
             $this->startDate,
-            $interval,
+            $this->dateInterval ?? CarbonInterval::day(),
             $this->endDate ?? max(1, min(2147483639, $this->recurrences ?? 1)),
             $this->options ?? 0,
         );
+
+        parent::__unserialize($native->__serialize());
     }
 
     /**
@@ -2706,7 +2714,7 @@ class CarbonPeriod extends DatePeriodBase implements Countable, JsonSerializable
      * Return the Carbon instance passed through, a now instance in the same timezone
      * if null given or parse the input if string given.
      *
-     * @param \Carbon\Carbon|\Carbon\CarbonPeriod|\Carbon\CarbonInterval|\DateInterval|\DatePeriod|\DateTimeInterface|string|null $date
+     * @param \Carbon\Carbon|\Carbon\CarbonPeriod|\Carbon\CarbonInterval|\Time\Duration|\DateInterval|\DatePeriod|\DateTimeInterface|string|null $date
      *
      * @return \Carbon\CarbonInterface
      */
@@ -2900,5 +2908,14 @@ class CarbonPeriod extends DatePeriodBase implements Countable, JsonSerializable
         $period->handleChangedParameters();
 
         return $period;
+    }
+
+    private static function makeCarbonInterval(mixed $interval, Unit|string|null $unit = null): ?CarbonInterval
+    {
+        if ($unit === null && $interval instanceof CarbonInterval) {
+            return clone $interval;
+        }
+
+        return CarbonInterval::make($interval, $unit);
     }
 }
