@@ -79,6 +79,7 @@ $_lang = [
   'custom_packages_not_restored' => 'לא ניתן היה לשחזר את החבילות של core/custom/composer.json, ולכן האתר עדיין לא טוען אותן:',
   'custom_packages_restored' => 'החבילות של core/custom/composer.json שוחזרו:',
   'custom_packages_run_command' => 'הריצו את הפקודה הזו במסוף מתיקיית השורש של האתר:',
+  'custom_packages_update_incomplete' => 'העדכון לא הושלם: חבילות Composer המותאמות אישית עדיין לא שוחזרו. הריצו את הפקודה המוצגת למעלה, ולאחר מכן מחקו את תיקיית install.',
   'database_alerts' => 'התראות מסד הנתונים!',
   'database_connection_failed' => 'התחברות למסד הנתונים נכשלה!',
   'database_connection_failed_note' => 'אנא בדוק את פרטי ההתחברות למסד הנתונים ונסה שוב.',

@@ -349,7 +349,11 @@
 <?php endif; ?>
 
 <?php if ($installLevel >= 7): ?>
-    <h2><?=$_lang['installation_successful']?></h2>
+    <?php if (!empty($customPackages['packages']) && !$customPackages['restored']) : ?>
+        <h2><?=$_lang['custom_packages_update_incomplete']?></h2>
+    <?php else : ?>
+        <h2><?=$_lang['installation_successful']?></h2>
+    <?php endif; ?>
     <p><?=$_lang['to_log_into_content_manager']?></p>
     <?php if ($installMode === 0) : ?>
         <p>

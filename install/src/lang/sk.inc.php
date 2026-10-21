@@ -79,6 +79,7 @@ $_lang = [
   'custom_packages_not_restored' => 'Balíčky z core/custom/composer.json sa nepodarilo obnoviť, preto ich stránka zatiaľ nenačítava:',
   'custom_packages_restored' => 'Balíčky z core/custom/composer.json boli obnovené:',
   'custom_packages_run_command' => 'Spustite tento príkaz v termináli z koreňového priečinka stránky:',
+  'custom_packages_update_incomplete' => 'Aktualizácia nie je dokončená: vlastné balíčky Composer zatiaľ nie sú obnovené. Spustite vyššie uvedený príkaz a potom odstráňte priečinok install.',
   'database_alerts' => 'Pozor, chyba!',
   'database_connection_failed' => 'Pripojenie k databáze zlyhalo!',
   'database_connection_failed_note' => 'Skontrolujte parametre pripojenia a skúste to znova.',

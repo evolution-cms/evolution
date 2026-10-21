@@ -79,6 +79,7 @@ $_lang = [
   'custom_packages_not_restored' => 'Les paquets de core/custom/composer.json n\'ont pas pu être restaurés, le site ne les charge donc pas encore :',
   'custom_packages_restored' => 'Paquets de core/custom/composer.json restaurés :',
   'custom_packages_run_command' => 'Exécutez cette commande dans un terminal depuis la racine du site :',
+  'custom_packages_update_incomplete' => 'Mise à jour incomplète : les paquets Composer personnalisés ne sont pas encore restaurés. Exécutez la commande ci-dessus, puis supprimez le dossier install.',
   'database_alerts' => 'Alertes de la base!',
   'database_connection_failed' => 'Échec de connexion à la base de données!',
   'database_connection_failed_note' => 'Veuillez vérifier les paramètres de connexion à la base de données et réessayez.',

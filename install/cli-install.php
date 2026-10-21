@@ -20,7 +20,9 @@ require_once EVO_BASE_PATH . 'install/src/functions.php';
  *
  * The sqlite database is created as core/database/<--database>.sqlite
  * Use --skipComposer=y to keep the already installed dependencies untouched.
- * An update restores the packages of core/custom/composer.json unless --skipComposer=y is given.
+ * An update restores the packages of core/custom/composer.json unless --skipComposer=y is given,
+ * at the versions the last restore noted; --updateCustomPackages=y lets Composer choose others.
+ * When they cannot be restored, the update ends incomplete: exit code 1, install/ kept.
  *
  * Switching versions (a release, the 3.5.x branch, a fork) with this installer: lay the files
  * of the wanted version over the site, then run the update (--typeInstall=2), for example
@@ -103,6 +105,7 @@ class InstallEvo
     public $language = '';
     public $removeInstall = '';
     public $skipComposer = '';
+    public $updateCustomPackages = '';
     public $database_charset = 'utf8mb4';
     public $database_collation = 'utf8mb4_unicode_520_ci';
     public $dbh;
@@ -227,7 +230,6 @@ class InstallEvo
     public function update()
     {
         $this->initEvo();
-        $this->restoreCustomPackages();
         $installMigrationsPath = EVO_BASE_PATH . 'install/stubs/migrations';
         bootstrapInstallMigrationHistory($installMigrationsPath);
         Console::call('migrate', ['--path' => $installMigrationsPath, '--realpath' => true, '--force' => true]);
@@ -246,6 +248,16 @@ class InstallEvo
                 unlink($cacheFile);
             }
         }
+        // Last, once the database is updated: Composer rewrites core/vendor, which this
+        // process still loads classes from, and a failure here leaves only this step to redo.
+        if (!$this->restoreCustomPackages()) {
+            if (ob_get_level() > 0) {
+                ob_end_flush();
+            }
+
+            throw new RuntimeException('Update incomplete: the custom Composer packages were not restored, so the site does not load them.'
+                . ' The install folder was kept. Restore them with the command above, then remove the install folder.');
+        }
         echo 'Evolution CMS updated!' . "\n";
         $this->checkRemoveInstall();
         $this->removeInstall();
@@ -261,24 +273,26 @@ class InstallEvo
      * replacing the packages it runs on.
      *
      * @since 3.5.9
+     * @return bool False when they could not be restored; true when they were, there were none, or --skipComposer=y.
      */
-    public function restoreCustomPackages(): void
+    public function restoreCustomPackages(): bool
     {
         $names = array_keys((new \EvolutionCMS\Services\CustomComposerPackages(EVO_CORE_PATH))->constraints());
         if ($names === []) {
-            return;
+            return true;
         }
 
         if ($this->skipComposer === 'y') {
             warning('⚠ Custom Composer packages were not restored (--skipComposer=y). Run "composer update ' . implode(' ', $names) . ' --with-dependencies" in the core directory.');
-            return;
+            return true;
         }
 
         info('- Restoring custom Composer packages: ' . implode(' ', $names));
         $result = restoreCustomComposerPackages(
             fn (string $command): array => $this->runComposerCommand($command),
             fn () => $this->discoverPackages(),
-            $this->composerForRestore()
+            $this->composerForRestore(),
+            $this->updateCustomPackages === 'y'
         );
 
         if ($result['output'] !== '') {
@@ -286,9 +300,16 @@ class InstallEvo
         }
         if ($result['restored']) {
             success('✔ Custom Composer packages restored');
-        } else {
-            warning('⚠ Custom Composer packages were not restored. Run in the site root: ' . $result['command']);
+
+            return true;
         }
+
+        warning('⚠ Custom Composer packages were not restored. Run in the site root: ' . $result['command']);
+        if ($result['consent']) {
+            warning('⚠ Or run the update again with --updateCustomPackages=y to accept these changes.');
+        }
+
+        return false;
     }
 
     /**

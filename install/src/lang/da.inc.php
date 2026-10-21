@@ -79,6 +79,7 @@ $_lang = [
   'custom_packages_not_restored' => 'Pakkerne i core/custom/composer.json kunne ikke gendannes, så sitet indlæser dem ikke endnu:',
   'custom_packages_restored' => 'Pakkerne i core/custom/composer.json er gendannet:',
   'custom_packages_run_command' => 'Kør denne kommando i en terminal fra sitets rodmappe:',
+  'custom_packages_update_incomplete' => 'Opdateringen er ikke fuldført: de brugerdefinerede Composer-pakker er endnu ikke gendannet. Kør kommandoen ovenfor, og slet derefter mappen install.',
   'database_alerts' => 'Database advarsler!',
   'database_connection_failed' => 'Der opstod en fejl under oprettelse af forbindelsen til databasen!',
   'database_connection_failed_note' => 'Kontroller log ind informationerne til databasen og prøv igen.',

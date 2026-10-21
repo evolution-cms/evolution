@@ -79,6 +79,7 @@ $_lang = [
     'custom_packages_not_restored' => 'Пакети з core/custom/composer.json не вдалося відновити, тому сайт поки що їх не завантажує:',
     'custom_packages_restored' => 'Пакети з core/custom/composer.json відновлено:',
     'custom_packages_run_command' => 'Виконайте цю команду в терміналі з кореневої теки сайту:',
+    'custom_packages_update_incomplete' => 'Оновлення не завершено: власні пакети Composer ще не відновлено. Виконайте наведену вище команду, а потім видаліть теку install.',
     'database_alerts' => 'Увага, помилка!',
     'database_connection_failed' => 'Помилка з\'єднання з базою даних!',
     'database_connection_failed_note' => 'Перевірте параметри з\'єднання та спробуйте ще раз.',

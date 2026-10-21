@@ -79,6 +79,7 @@ $_lang = [
   'custom_packages_not_restored' => 'بسته‌های core/custom/composer.json بازیابی نشدند، بنابراین سایت هنوز آن‌ها را بارگذاری نمی‌کند:',
   'custom_packages_restored' => 'بسته‌های core/custom/composer.json بازیابی شدند:',
   'custom_packages_run_command' => 'این فرمان را در ترمینال از پوشه ریشه سایت اجرا کنید:',
+  'custom_packages_update_incomplete' => 'به‌روزرسانی کامل نشد: بسته‌های سفارشی Composer هنوز بازیابی نشده‌اند. فرمان نشان‌داده‌شده در بالا را اجرا کنید، سپس پوشه install را حذف کنید.',
   'database_alerts' => 'خطار پایگاه داده!',
   'database_connection_failed' => 'ارتباط با پایگاه داده ناموفق بود!',
   'database_connection_failed_note' => 'لطفا اطلاعات مربوط به پایگاه داده خود را مرور و دوباره اقدام کنید.',

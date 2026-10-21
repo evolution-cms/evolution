@@ -37,7 +37,8 @@ class SiteUpdateCommand extends Command
     protected $signature = 'make:site
                             {command_site=update : Update action to run. Keep "update" for normal core updates}
                             {version=null : Optional Release (3.5.8), branch (3.5.x), tag (nightly-3.5.x), commit hash (922ece660) or GitHub URL (https://github.com/owner/evolution/tree/branch). Omit it to stay on the current line}
-                            {--repository= : Optional GitHub repository slug for a plain version. Example: middleDuckAi/evolution}';
+                            {--repository= : Optional GitHub repository slug for a plain version. Example: middleDuckAi/evolution}
+                            {--update-custom-packages : Let Composer move packages of core/custom/composer.json (and what they need) to other versions when the ones the site runs do not fit}';
 
     /**
      * Every form the version argument takes, shown in the help and after a failed update.
@@ -86,9 +87,13 @@ either direction by passing the version to go to. The branch, tag or fork it
 came from is noted in core/factory/version.php, so a later update without a
 version stays on it; installing a release removes the note again.
 
-Packages of core/custom/composer.json are kept, migrations and update seeders
-run, compiled views are dropped. The command exits with 1 when an error left
-the site unchanged (unknown branch, GitHub unreachable or rate limited).
+Packages of core/custom/composer.json are kept at the versions the site runs,
+migrations and update seeders run, compiled views are dropped. Before any file
+is replaced, a Composer dry run checks those packages against the new version;
+when they do not fit, or Composer would move other packages, the update stops
+unless --update-custom-packages accepts the changes it lists. The command exits
+with 1 when an error left the site unchanged (unknown branch, GitHub unreachable
+or rate limited, custom packages that do not fit).
 
 HELP;
 
@@ -209,8 +214,11 @@ EXAMPLES;
         }
 
         if ($targetRef !== '') {
-            $customPackageConstraints = $this->resolveCustomComposerPackageConstraints();
-            $lockedCustomPackageVersions = $this->resolveLockedComposerPackageVersions(array_keys($customPackageConstraints));
+            $customPackageNames = array_keys($this->resolveCustomComposerPackageConstraints());
+            // Read before the update replaces composer.lock.
+            $previousCustomPackageVersions = $customPackageNames === []
+                ? []
+                : $this->customComposerPackages()->previousVersions($customPackageNames);
             $url = $this->buildArchiveUrl($updateRepository, $targetRef, $tags);
             $this->line('<fg=green>Start download Evolution CMS ' . $this->describeSource($updateRepository, $targetRef) . '</>');
             $file = EVO_BASE_PATH . 'new_version.zip';
@@ -246,6 +254,18 @@ EXAMPLES;
             if ($dir === '') {
                 self::rmdirs($temp_dir);
                 $this->error('The update package has an unexpected layout. Nothing was changed.');
+
+                return false;
+            }
+
+            putenv('COMPOSER_HOME=' . EVO_CORE_PATH . 'composer');
+            $customPackageUpdate = $this->preflightComposer(
+                $temp_dir . '/' . $dir . '/core',
+                $customPackageNames,
+                $previousCustomPackageVersions
+            );
+            if ($customPackageUpdate === null) {
+                self::rmdirs($temp_dir);
 
                 return false;
             }
@@ -293,8 +313,7 @@ EXAMPLES;
             }
             $this->cleanupUpdatePlaceholderFiles();
             $this->synchronizeComposerVersion();
-            putenv('COMPOSER_HOME=' . EVO_CORE_PATH . 'composer');
-            $this->installComposerDependencies($customPackageConstraints, $lockedCustomPackageVersions);
+            $this->installComposerDependencies($customPackageUpdate, $customPackageNames);
             $this->runCoreMigrations();
             $this->runUpdateSeeders();
             $this->clearCompiledViews();
@@ -971,18 +990,16 @@ EXAMPLES;
      * not contain packages merged from core/custom/composer.json.
      *
      * @since 3.5.7
-     * @param array<string, string> $customPackageConstraints Package constraints from core/custom/composer.json.
-     * @param array<string, string> $lockedCustomPackageVersions Package versions from the pre-update composer.lock.
+     * @since 3.5.9 Takes the update preflightCustomComposerPackages() settled on, and notes the restored versions.
+     * @param string $customPackageUpdate Arguments of the restoring "composer update", '' for none.
+     * @param array<int, string> $customPackageNames Packages of core/custom/composer.json.
      * @return void
      */
-    protected function installComposerDependencies(array $customPackageConstraints = [], array $lockedCustomPackageVersions = []): void
+    protected function installComposerDependencies(string $customPackageUpdate = '', array $customPackageNames = []): void
     {
-        if ($customPackageConstraints !== []) {
+        if ($customPackageUpdate !== '') {
             $this->line('<fg=green>Restore Composer lock with custom packages</>');
-            $this->runCoreShellCommand($this->buildCustomComposerUpdateCommand(
-                $customPackageConstraints,
-                $lockedCustomPackageVersions
-            ));
+            $this->runCoreShellCommand($this->buildCustomComposerUpdateCommand($customPackageUpdate));
         }
 
         $this->line('<fg=green>Install Composer dependencies</>');
@@ -993,6 +1010,188 @@ EXAMPLES;
 
         $this->line('<fg=green>Discover Composer packages</>');
         $this->runCoreShellCommand('php artisan package:discover');
+
+        if ($customPackageNames !== []) {
+            $this->customComposerPackages()->recordInstalled($customPackageNames);
+        }
+    }
+
+    /**
+     * Check the Composer steps against the unpacked version, before any site file changes.
+     *
+     * A Composer dry run in the unpacked core resolves the packages of
+     * core/custom/composer.json at the versions the site runs (CustomComposerPackages::plan()),
+     * or, with none to restore, the "composer install" that follows (planInstall()): the
+     * merged requirements still have to fit the release's lock. When they do not fit, when
+     * Composer would move other packages, or when the Composer of core/vendor would replace
+     * its own, the update stops here with the site untouched. A site without custom packages
+     * is checked only when it runs that Composer. --update-custom-packages accepts the
+     * changes the dry run lists.
+     *
+     * @since 3.5.9
+     * @param string $targetCore Core directory of the unpacked update.
+     * @param array<int, string> $packages Packages of core/custom/composer.json.
+     * @param array<string, string> $previous Versions the site runs (CustomComposerPackages::previousVersions()).
+     * @return string|null Arguments of the restoring "composer update", '' when there is nothing to restore, null when refused.
+     */
+    protected function preflightComposer(string $targetCore, array $packages, array $previous): ?string
+    {
+        $composer = $this->composerBinaryCommand();
+        $bundled = $this->customComposerPackages()->isBundledComposer($composer);
+        if ($packages === [] && !$bundled) {
+            return '';
+        }
+
+        $this->line('<fg=green>Check Composer packages against the new version</>');
+
+        $targetCore = rtrim($targetCore, '/\\') . '/';
+        // The staged copy must not reach the site: moveFiles() lays the unpacked tree over it.
+        $staged = $targetCore . 'custom/composer.json';
+        $shipped = is_file($staged) ? (string) file_get_contents($staged) : null;
+        try {
+            if ($packages !== [] && !$this->stageCustomComposerJson($targetCore)) {
+                $this->error('Could not prepare the custom Composer packages for the check. Nothing was changed.');
+
+                return null;
+            }
+
+            return $this->checkComposerPlan($targetCore, $packages, $previous, $composer, $bundled);
+        } finally {
+            if ($shipped !== null) {
+                @file_put_contents($staged, $shipped);
+            } elseif (is_file($staged)) {
+                @unlink($staged);
+            }
+        }
+    }
+
+    /**
+     * Run the dry run preflightComposer() prepared, and report what it found.
+     *
+     * @since 3.5.9
+     * @param string $targetCore Core directory of the unpacked update, with a trailing slash.
+     * @param array<int, string> $packages Packages of core/custom/composer.json.
+     * @param array<string, string> $previous Versions the site runs.
+     * @param string $composer Composer command safe for shell usage.
+     * @param bool $bundled Whether that Composer runs from core/vendor.
+     * @return string|null Arguments of the restoring "composer update", '' when there is nothing to restore, null when refused.
+     */
+    protected function checkComposerPlan(string $targetCore, array $packages, array $previous, string $composer, bool $bundled): ?string
+    {
+        $target = new CustomComposerPackages($targetCore);
+        $pins = $packages === [] ? [] : $target->pins($packages, $previous, $target->constraints());
+        $run = function (string $command): array {
+            $output = [];
+            $exitCode = $this->execCoreShellCommand($command, $output);
+
+            return [$exitCode, implode("\n", $output)];
+        };
+        $plan = $pins === []
+            ? $target->planInstall($run, $composer, $bundled)
+            : $target->plan(
+                $run,
+                $composer,
+                $pins,
+                $packages,
+                $this->composerSupportsMinimalChanges($composer),
+                $this->allowCustomPackageChanges(),
+                $bundled
+            );
+
+        if (!$plan['ok']) {
+            $this->error('The Composer check stopped the update. Nothing was changed.');
+            $this->line(CustomComposerPackages::describeRefusal($plan));
+            if ($plan['reason'] === 'changes') {
+                $this->line('To accept these changes, run the update again with --update-custom-packages.');
+            }
+
+            return null;
+        }
+
+        foreach ($plan['changes'] as $change) {
+            $this->line('<fg=yellow>Custom Composer package change accepted: ' . $change . '</>');
+        }
+
+        return $plan['arguments'];
+    }
+
+    /**
+     * Put the site's core/custom/composer.json into the unpacked core, its local paths rebased.
+     *
+     * @since 3.5.9
+     * @param string $targetCore Core directory of the unpacked update, with a trailing slash.
+     * @return bool
+     */
+    protected function stageCustomComposerJson(string $targetCore): bool
+    {
+        $contents = (string) @file_get_contents($this->customComposerJsonPath());
+        $json = json_decode($contents, true);
+        if (!is_array($json) || (!is_dir($targetCore . 'custom') && !@mkdir($targetCore . 'custom', 0777, true))) {
+            return false;
+        }
+
+        $rebased = (new CustomComposerPackages(dirname($this->customComposerJsonPath(), 2)))->rebasedCustomComposerJson($json, $targetCore);
+        // Written anew only when a path moved: decoding loses the difference between {} and [].
+        if ($rebased !== $json) {
+            $contents = (string) json_encode($rebased, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        }
+
+        return @file_put_contents($targetCore . 'custom/composer.json', $contents) !== false;
+    }
+
+    /**
+     * The Composer to run; the copy of core/vendor goes through PHP.
+     *
+     * The update package does not keep the executable bit of vendor/bin/composer, so
+     * after the overlay a COMPOSER_BINARY (or PATH entry) leading to it fails with
+     * "Permission denied", with the site files already replaced.
+     *
+     * @since 3.5.9
+     * @return string Composer command safe for shell usage.
+     */
+    protected function composerBinaryCommand(): string
+    {
+        $command = $this->resolveComposerBinaryCommand() ?? 'composer';
+        $script = $this->customComposerPackages()->bundledPhpScript($command);
+
+        return $script === null ? $command : $this->phpBinaryCommand() . ' ' . escapeshellarg($script);
+    }
+
+    /**
+     * @since 3.5.9
+     * @return string
+     */
+    protected function customComposerJsonPath(): string
+    {
+        return EVO_CORE_PATH . 'custom/composer.json';
+    }
+
+    /**
+     * @since 3.5.9
+     * @return bool
+     */
+    protected function allowCustomPackageChanges(): bool
+    {
+        try {
+            return (bool) $this->option('update-custom-packages');
+        } catch (\Throwable $exception) {
+            return false;
+        }
+    }
+
+    /**
+     * Whether a Composer knows "update --minimal-changes".
+     *
+     * @since 3.5.9
+     * @param string $composer Composer command safe for shell usage.
+     * @return bool
+     */
+    protected function composerSupportsMinimalChanges(string $composer): bool
+    {
+        $version = $this->composerVersion($composer);
+
+        return $version !== null
+            && version_compare($version, \EvolutionCMS\Console\Packages\InstallPackageRequireCommand::MINIMAL_CHANGES_SINCE, '>=');
     }
 
     /**
@@ -1007,29 +1206,16 @@ EXAMPLES;
     }
 
     /**
-     * Resolve currently locked versions for custom packages before core files are replaced.
-     *
-     * @since 3.5.7
-     * @param array<int, string> $packages Composer package names.
-     * @return array<string, string>
-     */
-    protected function resolveLockedComposerPackageVersions(array $packages): array
-    {
-        return $this->customComposerPackages()->lockedVersions($packages);
-    }
-
-    /**
      * Build a scoped Composer update command for packages from core/custom/composer.json.
      *
      * @since 3.5.7
-     * @param array<string, string> $customPackageConstraints Package constraints from core/custom/composer.json.
-     * @param array<string, string> $lockedCustomPackageVersions Package versions from the pre-update composer.lock.
+     * @since 3.5.9 Takes the arguments CustomComposerPackages::plan() settled on.
+     * @param string $arguments Package list and options (CustomComposerPackages::updateArguments()).
      * @return string
      */
-    protected function buildCustomComposerUpdateCommand(array $customPackageConstraints, array $lockedCustomPackageVersions = []): string
+    protected function buildCustomComposerUpdateCommand(string $arguments): string
     {
-        return $this->composerBinaryCommand() . ' update '
-            . $this->customComposerPackages()->updateArguments($customPackageConstraints, $lockedCustomPackageVersions);
+        return $this->composerBinaryCommand() . ' update ' . $arguments;
     }
 
     protected function isComposerPackageName(string $package): bool

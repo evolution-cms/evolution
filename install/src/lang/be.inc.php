@@ -79,6 +79,7 @@ $_lang = [
   'custom_packages_not_restored' => 'Пакеты з core/custom/composer.json не ўдалося аднавіць, таму сайт пакуль іх не загружае:',
   'custom_packages_restored' => 'Пакеты з core/custom/composer.json адноўлены:',
   'custom_packages_run_command' => 'Выканайце гэтую каманду ў тэрмінале з каранёвага каталога сайта:',
+  'custom_packages_update_incomplete' => 'Абнаўленне не завершана: уласныя пакеты Composer яшчэ не адноўлены. Выканайце паказаную вышэй каманду, затым выдаліце каталог install.',
   'database_alerts' => 'Database Alerts!',
   'database_connection_failed' => 'Database connection failed!',
   'database_connection_failed_note' => 'Please check the database login details and try again.',

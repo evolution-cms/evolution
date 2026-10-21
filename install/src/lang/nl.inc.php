@@ -79,6 +79,7 @@ $_lang = [
   'custom_packages_not_restored' => 'De pakketten van core/custom/composer.json konden niet worden hersteld, dus de site laadt ze nog niet:',
   'custom_packages_restored' => 'Pakketten van core/custom/composer.json hersteld:',
   'custom_packages_run_command' => 'Voer deze opdracht uit in een terminal vanuit de hoofdmap van de site:',
+  'custom_packages_update_incomplete' => 'Update onvolledig: de aangepaste Composer-pakketten zijn nog niet hersteld. Voer de hierboven getoonde opdracht uit en verwijder daarna de map install.',
   'database_alerts' => 'Database Meldingen!',
   'database_connection_failed' => 'Database verbinding mislukt!',
   'database_connection_failed_note' => 'Controleer de database inloggegevens en probeer het opnieuw.',

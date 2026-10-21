@@ -79,6 +79,7 @@ $_lang = [
   'custom_packages_not_restored' => 'Tiedoston core/custom/composer.json paketteja ei voitu palauttaa, joten sivusto ei vielä lataa niitä:',
   'custom_packages_restored' => 'Tiedoston core/custom/composer.json paketit palautettu:',
   'custom_packages_run_command' => 'Suorita tämä komento päätteessä sivuston juurihakemistosta:',
+  'custom_packages_update_incomplete' => 'Päivitys on kesken: mukautettuja Composer-paketteja ei ole vielä palautettu. Suorita yllä näkyvä komento ja poista sitten install-kansio.',
   'database_alerts' => 'Tietokanta varoitukset!',
   'database_connection_failed' => 'Yhteys tietokantaan epäonnistui!',
   'database_connection_failed_note' => 'Ole hyvä ja tarkista tietokannan yhteys-, sekä kirjautumistiedot ja yritä uudelleen.',

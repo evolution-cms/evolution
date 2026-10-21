@@ -79,6 +79,7 @@ $_lang = [
   'custom_packages_not_restored' => 'Paketen i core/custom/composer.json kunde inte återställas, så webbplatsen läser inte in dem ännu:',
   'custom_packages_restored' => 'Paketen i core/custom/composer.json har återställts:',
   'custom_packages_run_command' => 'Kör det här kommandot i en terminal från webbplatsens rotkatalog:',
+  'custom_packages_update_incomplete' => 'Uppdateringen är inte slutförd: de anpassade Composer-paketen har inte återställts ännu. Kör kommandot ovan och ta sedan bort mappen install.',
   'database_alerts' => 'Databasvarningar!',
   'database_connection_failed' => 'Anslutningen till databasen misslyckades!',
   'database_connection_failed_note' => 'Kontrollera databasens inloggningsuppgifter och försök igen.',

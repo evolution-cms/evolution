@@ -79,6 +79,7 @@ $_lang = [
   'custom_packages_not_restored' => '无法恢复 core/custom/composer.json 中的包，因此网站暂时不会加载它们：',
   'custom_packages_restored' => '已恢复 core/custom/composer.json 中的包：',
   'custom_packages_run_command' => '请在终端中从网站根目录运行以下命令：',
+  'custom_packages_update_incomplete' => '更新未完成：自定义 Composer 包尚未恢复。请运行上方显示的命令，然后删除 install 文件夹。',
   'database_alerts' => 'Database Alerts!',
   'database_connection_failed' => 'Database connection failed!',
   'database_connection_failed_note' => 'Please check the database login details and try again.',

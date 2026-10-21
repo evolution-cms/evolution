@@ -79,6 +79,7 @@ $_lang = [
   'custom_packages_not_restored' => 'Die Pakete aus core/custom/composer.json konnten nicht wiederhergestellt werden, daher lädt die Website sie noch nicht:',
   'custom_packages_restored' => 'Pakete aus core/custom/composer.json wiederhergestellt:',
   'custom_packages_run_command' => 'Führen Sie diesen Befehl in einem Terminal im Stammverzeichnis der Website aus:',
+  'custom_packages_update_incomplete' => 'Aktualisierung unvollständig: Die eigenen Composer-Pakete sind noch nicht wiederhergestellt. Führen Sie den oben angezeigten Befehl aus und löschen Sie anschließend den Ordner install.',
   'database_alerts' => 'Datenbank Meldungen!',
   'database_connection_failed' => 'Datenbank-Verbindung fehlgeschlagen!',
   'database_connection_failed_note' => 'Bitte Überprüfen Sie Ihre Datenbank-Anmeldung und versuchen Sie es erneut.',

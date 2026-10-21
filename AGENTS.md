@@ -158,11 +158,33 @@ release clears the note. Do not rely on `install/` for anything a switch needs: 
 installation, and a site moved by git, Composer or an older updater never runs it. Compiled Blade
 views are keyed on the template file time (`EvolutionCMS\Extensions\BladeCompiler`) for that reason,
 and packages of `core/custom/composer.json` are restored by `make:site`, the CLI updater and the web
-installer (`restoreCustomComposerPackages()`) through `EvolutionCMS\Services\CustomComposerPackages`.
-Never run the Composer of `core/vendor` first: it loads its classes from the directory it rewrites, and an
-update that replaces one of its own packages (`symfony/finder`, `symfony/console`...) stops it halfway
-with those packages deleted. Prefer a standalone Composer; run the vendor copy only after a `--dry-run`
-showed none of `composerRuntimePackages()` would change (as the installers and `package:installrequire` do).
+installer (`restoreCustomComposerPackages()`) through `EvolutionCMS\Services\CustomComposerPackages`,
+under one policy. Do not add a restore path that skips it:
+
+- Versions: what the site ran (`previousVersions()`: the lock while it still lists them, else
+  `core/custom/composer.installed.json`, written by every restore and by `package:installrequire`),
+  pinned by `pins()`; a package the release ships or the core requires keeps the release's version.
+- Arguments: `updateArguments()`, `--with-dependencies` (`--minimal-changes` from Composer 2.7), never
+  `--with-all-dependencies`, which moves the core's own packages too.
+- `plan()` dry run first (`planInstall()`, a `composer install --dry-run`, when nothing needs restoring:
+  the merged requirements must still fit the lock). Any change beyond installing those versions needs
+  consent (`make:site --update-custom-packages`, `cli-install.php --updateCustomPackages=y`). `make:site`
+  runs it against the unpacked archive before `moveFiles()` (`preflightComposer()`), so a refusal changes
+  nothing. The staged `custom/composer.json` is rebased (`rebasedCustomComposerJson()`: the merge plugin
+  prefixes `custom/` to path repositories and includes) and removed again before `moveFiles()`, which
+  would otherwise lay it over the site's own.
+- The merge plugin runs with `"replace": true`: a custom constraint replaces the core's own, so a
+  custom requirement on a core package is checked against the lock like any other (`pins()`).
+- A restore that fails leaves the installers' update incomplete: the CLI exits with 1 and keeps `install/`,
+  the web installer counts an error. Both restore after the core migrations.
+
+Never let the Composer of `core/vendor` replace its own packages: it loads its classes from the directory
+it rewrites, and an update that replaces one of them (`symfony/finder`, `symfony/console`...) stops it
+halfway with those packages deleted. Prefer a standalone Composer. Whether a command runs the vendor copy
+is asked of the command (`isBundledComposer()`: `COMPOSER_BINARY`, the `PATH`, links and wrapper scripts
+are resolved), never of the way it was found; `plan()` and `planInstall()` refuse changes to
+`composerRuntimePackages()` for it, and `make:site` asks them on every update that runs it, custom
+packages or not (an update package's `vendor/` may differ from its lock: 3.5.8's does).
 
 ### Installing Evolution CMS packages
 

@@ -79,6 +79,7 @@ $_lang = [
   'custom_packages_not_restored' => 'Nie udało się przywrócić pakietów z core/custom/composer.json, więc witryna jeszcze ich nie ładuje:',
   'custom_packages_restored' => 'Przywrócono pakiety z core/custom/composer.json:',
   'custom_packages_run_command' => 'Uruchom to polecenie w terminalu z katalogu głównego witryny:',
+  'custom_packages_update_incomplete' => 'Aktualizacja nie została ukończona: własne pakiety Composer nie zostały jeszcze przywrócone. Uruchom powyższe polecenie, a następnie usuń katalog install.',
   'database_alerts' => 'Ostrzeżenia bazy danych!',
   'database_connection_failed' => 'Połączenie z bazą danych nie powiodło się!',
   'database_connection_failed_note' => 'Sprawdź nazwę użytkownika i hasło, a następnie spróbuj ponownie.',

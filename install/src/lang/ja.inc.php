@@ -79,6 +79,7 @@ $_lang = [
   'custom_packages_not_restored' => 'core/custom/composer.json のパッケージを復元できなかったため、サイトはまだそれらを読み込んでいません:',
   'custom_packages_restored' => 'core/custom/composer.json のパッケージを復元しました:',
   'custom_packages_run_command' => 'サイトのルートディレクトリからターミナルで次のコマンドを実行してください:',
+  'custom_packages_update_incomplete' => '更新が完了していません: カスタム Composer パッケージはまだ復元されていません。上に表示されたコマンドを実行してから、install フォルダーを削除してください。',
   'database_alerts' => 'データベースの警告',
   'database_connection_failed' => 'データベース接続に異常があります',
   'database_connection_failed_note' => 'データベースのログイン設定を確認し、再びチェックを試してください。',

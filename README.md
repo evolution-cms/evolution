@@ -82,7 +82,16 @@ Run from the `core/` directory:
 | `php artisan make:site update https://github.com/<owner>/evolution/tree/<branch>` | Switches to a branch or tag of a fork, as GitHub shows it in the browser. `.../releases/tag/<tag>` and `.../commit/<hash>` work too. A plain `make:site` then stays on that branch of the fork. |
 | `php artisan make:site update <branch> --repository=<owner>/evolution` | The same as the URL form. |
 
-The branch, tag or fork a site was updated from is noted in `core/factory/version.php` (`ref`, `repository`); a release removes the note again. Packages added through `core/custom/composer.json` are kept on every switch. The command exits with a non-zero code when nothing was changed because of an error (a branch that does not exist, GitHub not reachable or rate limited).
+The branch, tag or fork a site was updated from is noted in `core/factory/version.php` (`ref`, `repository`); a release removes the note again. The command exits with a non-zero code when nothing was changed because of an error (a branch that does not exist, GitHub not reachable or rate limited, custom packages that do not fit).
+
+### Custom Composer packages
+
+Packages added through `core/custom/composer.json` are kept on every update and switch, at the versions the site runs, together with the packages only they need. Every update path follows the same rules:
+
+- Before anything changes, a Composer dry run checks them against the target version. `make:site` runs it on the downloaded archive, so a refusal leaves the site untouched. The check covers every requirement of `core/custom/composer.json`, also a constraint on a package the core requires itself (the custom constraint replaces the core's one), and path repositories such as `custom/packages/*` still lead to the site's own folders.
+- Composer may only install those versions. If it would choose other versions, or move or remove a package the release ships (Laravel, Symfony...), the update stops and lists the changes. To accept them, run `make:site ... --update-custom-packages` or `cli-install.php ... --updateCustomPackages=y`, or run the printed `composer update` command yourself.
+- The versions of each restore are noted in `core/custom/composer.installed.json` (an update package never ships that file), so the installers know them after the files of another version were laid over the site.
+- The copy of Composer in `core/vendor` is never allowed to replace the packages it runs on, however it was chosen (`COMPOSER_BINARY`, the `PATH`, a wrapper script). `make:site` checks this on every update that runs it, with or without custom packages: a release whose `vendor/` differs from its own lock (3.5.8 does) would make `composer install` replace them. Use a standalone Composer then.
 
 ### With Composer or an archive and the CLI installer
 
@@ -95,9 +104,9 @@ cd /path/to/site/install
 php cli-install.php --typeInstall=2 --removeInstall=y
 ```
 
-The update runs the migrations and restores the packages of `core/custom/composer.json` (add `--skipComposer=y` to leave Composer alone; it then prints the command to run). The `install/` folder is removed afterwards.
+The update runs the migrations, then restores the packages of `core/custom/composer.json` (add `--skipComposer=y` to leave Composer alone; it then prints the command to run). The `install/` folder is removed afterwards. When the packages cannot be restored, the update ends incomplete: the installer exits with code 1, prints the command to run and keeps `install/`.
 
-Instead of the last two lines you can open `/install/` in the browser while logged into the manager and choose the update. The web installer restores the custom packages as well when the server lets it run Composer; otherwise its results page lists them with the command to run in a terminal.
+Instead of the last two lines you can open `/install/` in the browser while logged into the manager and choose the update. The web installer restores the custom packages as well when the server lets it run Composer. Otherwise its results page reports the update as incomplete, lists the packages with the command to run in a terminal, and keeps the `install/` folder.
 
 ### From the manager
 

@@ -79,6 +79,7 @@ $_lang = [
   'custom_packages_not_restored' => 'Pakkane i core/custom/composer.json kunne ikkje gjenopprettast, så nettstaden lastar dei ikkje enno:',
   'custom_packages_restored' => 'Pakkane i core/custom/composer.json er gjenoppretta:',
   'custom_packages_run_command' => 'Køyr denne kommandoen i ein terminal frå rotmappa til nettstaden:',
+  'custom_packages_update_incomplete' => 'Oppdateringa er ikkje fullført: dei eigne Composer-pakkane er ikkje gjenoppretta enno. Køyr kommandoen ovanfor, og slett deretter install-mappa.',
   'database_alerts' => 'Databasevarsler!',
   'database_connection_failed' => 'Tilkobling til databasen mislyktes!',
   'database_connection_failed_note' => 'Kontrollér databasens tilkoblingsopplysninger og fors&oslash;k igjen.',

@@ -79,6 +79,7 @@ $_lang = [
   'custom_packages_not_restored' => 'Packages of core/custom/composer.json could not be restored, so the site does not load them yet:',
   'custom_packages_restored' => 'Packages of core/custom/composer.json restored:',
   'custom_packages_run_command' => 'Run this command in a terminal from the site root:',
+  'custom_packages_update_incomplete' => 'Update incomplete: the custom Composer packages are not restored yet. Run the command shown above, then delete the install folder.',
   'database_alerts' => 'Database Alerts!',
   'database_connection_failed' => 'Database connection failed!',
   'database_connection_failed_note' => 'Please check the database login details and try again.',

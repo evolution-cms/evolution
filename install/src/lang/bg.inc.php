@@ -79,6 +79,7 @@ $_lang = [
   'custom_packages_not_restored' => 'Пакетите от core/custom/composer.json не можаха да бъдат възстановени, затова сайтът все още не ги зарежда:',
   'custom_packages_restored' => 'Пакетите от core/custom/composer.json са възстановени:',
   'custom_packages_run_command' => 'Изпълнете тази команда в терминал от основната директория на сайта:',
+  'custom_packages_update_incomplete' => 'Обновяването не е завършено: потребителските пакети на Composer все още не са възстановени. Изпълнете показаната по-горе команда, след което изтрийте директорията install.',
   'database_alerts' => 'БД - внимание!',
   'database_connection_failed' => 'Връзката към БД неуспешна!',
   'database_connection_failed_note' => 'Моля, проверете данните за връзка с БД и опитайте отново.',
