@@ -110,12 +110,12 @@ jobs:
         if: matrix.leg.db != 'sqlite'
         run: docker compose -f "new/$COMPOSE" --profile ${{ matrix.leg.db }} up -d --wait ${{ matrix.leg.db }}
 
-      # 8.3 is the lowest version both trees support, so it is the one that can
+      # 8.4 is the lowest version both trees support, so it is the one that can
       # run the old installer and the new updater in the same job.
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.4'
           extensions: ctype, dom, fileinfo, filter, iconv, intl, json, mbstring, openssl, pdo, pdo_mysql, pdo_pgsql, pdo_sqlite, readline, simplexml, sqlite3, tokenizer, xml, xmlreader, zip
           ini-values: error_reporting=E_ALL, display_errors=On, display_startup_errors=On, log_errors=On, error_log=/dev/stderr
           coverage: none

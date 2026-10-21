@@ -57,7 +57,7 @@ services:
       context: ../../..
       dockerfile: .github/docker/ci/Dockerfile
       args:
-        PHP_VERSION: ${PHP_VERSION:-8.3}
+        PHP_VERSION: ${PHP_VERSION:-8.4}
     depends_on:
       mysql:
         condition: service_healthy
@@ -75,7 +75,7 @@ services:
       context: ../../..
       dockerfile: .github/docker/ci/Dockerfile
       args:
-        PHP_VERSION: ${PHP_VERSION:-8.3}
+        PHP_VERSION: ${PHP_VERSION:-8.4}
     depends_on:
       pgsql:
         condition: service_healthy
