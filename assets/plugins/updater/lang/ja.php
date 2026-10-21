@@ -32,4 +32,6 @@ $_lang['artisan_update'] = '更新するには、フォルダからコンソー�
 $_lang['updater_notice_backup_warning'] = '更新前にサイトのバックアップを作成することを忘れないでください。';
 $_lang['updater_backup_action_label'] = 'サイトのバックアップを作成';
 $_lang['updater_live_update_button'] = '手動更新 (WEB)';
+$_lang['updater_line_mode_notice'] = 'このサイトは %s を追跡しており、新しいコミットがあります。リリースに戻すには、core フォルダで php artisan make:site update <release> を実行してください。';
+$_lang['updater_action_compare'] = '変更を表示';
 $_lang["help_donate_msg"] = '<a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a> で、Evolution CMS 開発者からコーヒーを購入できます。今すぐ Evolution CMS ❤️ のファンになりましょう!';

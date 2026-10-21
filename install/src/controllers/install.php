@@ -231,6 +231,13 @@ try {
                 ['setting_name' => 'settings_version'],
                 ['setting_value' => (string) evo()->getVersionData('version')]
             );
+            // The files laid over the site replaced core/vendor; bring the packages of
+            // core/custom/composer.json back, or tell the operator how to.
+            try {
+                $customPackages = restoreCustomComposerPackages();
+            } catch (\Throwable $exception) {
+                $customPackages = ['packages' => ['core/custom/composer.json'], 'restored' => false, 'command' => '', 'output' => $exception->getMessage()];
+            }
         }
 
         // Apply core-only migrations (core/database/migrations) that are not part

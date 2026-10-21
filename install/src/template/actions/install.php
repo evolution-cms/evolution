@@ -127,6 +127,28 @@
     <?php endif; ?>
 <?php endif; ?>
 
+<?php if (!empty($customPackages['packages'])) : ?>
+    <h3><?=$_lang['custom_packages']?></h3>
+    <?php if ($customPackages['restored']) : ?>
+        <p>
+            <?=$_lang['custom_packages_restored']?> <strong><?=htmlspecialchars(implode(', ', $customPackages['packages']), ENT_QUOTES, 'UTF-8')?></strong>
+            <span class="ok"><?=$_lang['ok']?></span>
+        </p>
+    <?php else : ?>
+        <p>
+            <?=$_lang['custom_packages_not_restored']?> <strong><?=htmlspecialchars(implode(', ', $customPackages['packages']), ENT_QUOTES, 'UTF-8')?></strong>
+            <span class="notok"><?=$_lang['failed']?></span>
+        </p>
+        <?php if ($customPackages['command'] !== '') : ?>
+            <p><?=$_lang['custom_packages_run_command']?></p>
+            <p><code><?=htmlspecialchars($customPackages['command'], ENT_QUOTES, 'UTF-8')?></code></p>
+        <?php endif; ?>
+        <?php if ($customPackages['output'] !== '') : ?>
+            <pre class="mono"><?=htmlspecialchars($customPackages['output'], ENT_QUOTES, 'UTF-8')?></pre>
+        <?php endif; ?>
+    <?php endif; ?>
+<?php endif; ?>
+
 <?php if ($installLevel >= 5) : ?>
     <?php if (isset($installDataLevel['templates'])) : ?>
         <h3><?=$_lang['templates']?>:</h3>

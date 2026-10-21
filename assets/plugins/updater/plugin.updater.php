@@ -135,6 +135,40 @@ if (!function_exists('updaterBuildBranchUrls')) {
     }
 }
 
+if (!function_exists('updaterFetchRefHead')) {
+    /**
+     * Latest commit of a branch or tag, cached for an hour.
+     *
+     * @since 3.5.9
+     * @return array{sha: string, date: string} Empty strings when GitHub did not answer.
+     */
+    function updaterFetchRefHead($repository, $ref)
+    {
+        $cacheFile = EVO_BASE_PATH . 'assets/cache/updater/head_' . md5($repository . '|' . $ref) . '_' . date('YmdH') . '.json';
+        if (is_file($cacheFile)) {
+            $cached = json_decode((string)file_get_contents($cacheFile), true);
+            if (is_array($cached) && isset($cached['sha'], $cached['date'])) {
+                return ['sha' => (string)$cached['sha'], 'date' => (string)$cached['date']];
+            }
+        }
+
+        $head = ['sha' => '', 'date' => ''];
+        $body = (new \EvolutionCMS\Services\Store\RemoteTransportService())->fetchBody(
+            'https://api.github.com/repos/' . $repository . '/commits?per_page=1&sha=' . rawurlencode((string)$ref)
+        );
+        $commits = json_decode((string)$body, true);
+        if (is_array($commits) && isset($commits[0]['sha']) && preg_match('/^[0-9a-f]{40}$/', (string)$commits[0]['sha'])) {
+            $head['sha'] = (string)$commits[0]['sha'];
+            $head['date'] = (string)($commits[0]['commit']['committer']['date'] ?? '');
+        }
+
+        // A failed lookup is cached too, so an unreachable or rate limited API is asked once an hour.
+        @file_put_contents($cacheFile, json_encode($head));
+
+        return $head;
+    }
+}
+
 if (!function_exists('updaterFetchReleasePublishedAt')) {
     function updaterFetchReleasePublishedAt($repository, $versionRaw)
     {
@@ -934,12 +968,37 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
             $isBranchMode = $type === 'branch';
             $git = [];
 
+            // make:site notes in factory/version.php the branch, moving tag or fork a site
+            // was updated from. Such a site follows that line, not the releases: it is
+            // offered its branch again once the branch has moved past the noted commit,
+            // and always from the repository it came from.
+            $installedRef = trim((string)($currentVersion['ref'] ?? ''));
+            $installedRepository = trim((string)($currentVersion['repository'] ?? ''));
+            $installedCommit = trim((string)($currentVersion['commit'] ?? ''));
+            if (preg_match('~^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$~', $installedRepository)) {
+                $version = $installedRepository;
+            }
+            $isLineMode = !$isBranchMode
+                && $installedRef !== ''
+                && !preg_match('/^[0-9a-f]{7,40}$/i', $installedRef)
+                && !preg_match('/^\d+\.\d+\.\d+(?:[-+][A-Za-z0-9.-]+)?$/', $installedRef);
+            if ($isLineMode) {
+                $isBranchMode = true;
+                $branch = $installedRef;
+            }
+
             if ($isBranchMode) {
                 $git = [
                     'version' => $branch,
                     'published_at' => '',
                     'branch_ref' => true,
+                    'head' => '',
                 ];
+                if ($isLineMode) {
+                    $head = updaterFetchRefHead($version, $branch);
+                    $git['head'] = $head['sha'];
+                    $git['published_at'] = $head['date'];
+                }
             } else {
                 $cacheFile = EVO_BASE_PATH . 'assets/cache/updater/check_' . date("d") . '.json';
 
@@ -1012,7 +1071,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                 $git['version'] = $currentVersion['version'];
             }
             $shouldShowUpdate = $isBranchMode
-                ? $git['version'] != ''
+                ? $git['version'] != '' && (!$isLineMode || ($git['head'] !== '' && $git['head'] !== $installedCommit))
                 : (version_compare($git['version'], $currentVersion['version'], '>') && $git['version'] != '');
             if ($shouldShowUpdate) {
                 $currentVersionString = (string)$currentVersion['version'];
@@ -1035,13 +1094,17 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                     $releaseUrls = $isBranchMode
                         ? updaterBuildBranchUrls($version, $latestVersionRaw)
                         : updaterBuildReleaseUrls($version, $latestVersionRaw);
+                    $primaryReleaseLabel = $isBranchMode
+                        ? updaterLang($_lang, 'updater_action_branch', 'View branch/ref')
+                        : $_lang['updater_action_release'];
+                    if ($isLineMode && $installedCommit !== '') {
+                        array_unshift($releaseUrls, 'https://github.com/' . $version . '/compare/' . $installedCommit . '...' . $git['head']);
+                        $primaryReleaseLabel = updaterLang($_lang, 'updater_action_compare', 'View changes');
+                    }
                     $releaseUrl = reset($releaseUrls);
                     $releaseFallbackUrl = end($releaseUrls);
                     $safeReleaseUrl = htmlspecialchars((string)$releaseUrl, ENT_QUOTES, 'UTF-8');
                     $safeFallbackUrl = htmlspecialchars((string)$releaseFallbackUrl, ENT_QUOTES, 'UTF-8');
-                    $primaryReleaseLabel = $isBranchMode
-                        ? updaterLang($_lang, 'updater_action_branch', 'View branch/ref')
-                        : $_lang['updater_action_release'];
                     $secondaryReleaseLabel = $isBranchMode
                         ? updaterLang($_lang, 'updater_action_branch_all', 'All branches')
                         : $_lang['updater_action_release_all'];
@@ -1059,6 +1122,15 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                         : $latestVersionRaw;
                     if (!$isBranchMode && $latestReleaseDate !== '') {
                         $latestWithDate .= ' (' . $latestReleaseDate . ')';
+                    }
+                    if ($isLineMode) {
+                        if ($installedCommit !== '') {
+                            $currentWithDate .= ' · ' . $latestVersionRaw . ' @' . substr($installedCommit, 0, 7);
+                        }
+                        $latestWithDate .= ' @' . substr($git['head'], 0, 7);
+                        if ($latestReleaseDate !== '') {
+                            $latestWithDate .= ' (' . $latestReleaseDate . ')';
+                        }
                     }
 
                     $safeCurrentWithDate = htmlspecialchars($currentWithDate, ENT_QUOTES, 'UTF-8');
@@ -1104,7 +1176,14 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                     $cliCommand = 'cd core && ' . $cliUpdateCommand;
                     $safeCliCommand = htmlspecialchars($cliCommand, ENT_QUOTES, 'UTF-8');
                     $branchModeNoticeHtml = '';
-                    if ($isBranchMode) {
+                    if ($isLineMode) {
+                        $branchModeNoticeHtml = '<p style="margin:0 0 8px 0;color:#856404;font-weight:600;"><i class="fa fa-code-fork"></i> '
+                            . htmlspecialchars(sprintf(
+                                updaterLang($_lang, 'updater_line_mode_notice', 'This site follows %s, which has new commits. To return to a release, run php artisan make:site update <release> in the core folder.'),
+                                $version === 'evolution-cms/evolution' ? $latestVersionRaw : $version . ' ' . $latestVersionRaw
+                            ), ENT_QUOTES, 'UTF-8')
+                            . '</p>';
+                    } elseif ($isBranchMode) {
                         $branchModeNoticeHtml = '<p style="margin:0 0 8px 0;color:#856404;font-weight:600;"><i class="fa fa-code-fork"></i> '
                             . htmlspecialchars(updaterLang($_lang, 'updater_branch_mode_notice', 'Development branch/ref update mode is enabled. Use it only for testing or controlled maintenance.'), ENT_QUOTES, 'UTF-8')
                             . '</p>';

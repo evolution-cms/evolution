@@ -27,4 +27,6 @@ $_lang['artisan_update'] = 'Aby zaktualizować, musisz uruchomić polecenie kons
 $_lang['updater_notice_backup_warning'] = 'Nie zapomnij utworzyć kopię zapasową witryny przed aktualizacją.';
 $_lang['updater_backup_action_label'] = 'utworzyć kopię zapasową witryny';
 $_lang['updater_live_update_button'] = 'Ręczna aktualizacja (WEB)';
+$_lang['updater_line_mode_notice'] = 'Ta witryna śledzi %s, w której są nowe commity. Aby wrócić do wydania, uruchom php artisan make:site update <release> w folderze core.';
+$_lang['updater_action_compare'] = 'Pokaż zmiany';
 $_lang["help_donate_msg"] = 'Kup kawę od programistów Evolution CMS na <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a>. Zostań fanem Evolution CMS ❤️ już dziś!';

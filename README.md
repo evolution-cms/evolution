@@ -65,6 +65,50 @@ The [CI workflow](.github/workflows/ci.yml) runs unit tests on PHP **8.3, 8.4 an
 
 Use the latest patch release of your chosen PHP version. See the [PHP support lifecycle](https://www.php.net/supported-versions.php) for maintenance and security support dates.
 
+## Update and switch versions
+
+A site can move between a release (such as `3.5.8`), the `3.5.x` development branch (nightly) and a fork in either direction. Take a database backup first: a switch back to an older release keeps the database schema of the newer one.
+
+### With Artisan (recommended)
+
+Run from the `core/` directory:
+
+| Command | What it does |
+| --- | --- |
+| `php artisan make:site` | Updates along the line the site runs. A release moves to the newest release of its major version, a site on `3.5.x` takes the latest `3.5.x` again (run it every night to follow the nightly), a site on a fork branch takes that branch again. It never moves a site back to an older release. |
+| `php artisan make:site update 3.5.x` | Switches to the `3.5.x` branch. The site stays on it until a version is passed again. |
+| `php artisan make:site update 3.5.8` | Switches to a release, also an older one (back from `3.5.x` or from a fork). |
+| `php artisan make:site update nightly-3.5.x` | Switches to the nightly build tag. |
+| `php artisan make:site update https://github.com/<owner>/evolution/tree/<branch>` | Switches to a branch or tag of a fork, as GitHub shows it in the browser. `.../releases/tag/<tag>` and `.../commit/<hash>` work too. A plain `make:site` then stays on that branch of the fork. |
+| `php artisan make:site update <branch> --repository=<owner>/evolution` | The same as the URL form. |
+
+The branch, tag or fork a site was updated from is noted in `core/factory/version.php` (`ref`, `repository`); a release removes the note again. Packages added through `core/custom/composer.json` are kept on every switch. The command exits with a non-zero code when nothing was changed because of an error (a branch that does not exist, GitHub not reachable or rate limited).
+
+### With Composer or an archive and the CLI installer
+
+Get the files of the version you want, lay them over the site and run the installer in update mode:
+
+```bash
+composer create-project --no-install evolution-cms/evolution /tmp/evo 3.5.x-dev   # or 3.5.8
+cp -a /tmp/evo/. /path/to/site/          # or unpack a release / branch archive there
+cd /path/to/site/install
+php cli-install.php --typeInstall=2 --removeInstall=y
+```
+
+The update runs the migrations and restores the packages of `core/custom/composer.json` (add `--skipComposer=y` to leave Composer alone; it then prints the command to run). The `install/` folder is removed afterwards.
+
+Instead of the last two lines you can open `/install/` in the browser while logged into the manager and choose the update. The web installer restores the custom packages as well when the server lets it run Composer; otherwise its results page lists them with the command to run in a terminal.
+
+### From the manager
+
+The update widget on the dashboard follows the line the site runs. A release is offered newer releases. A site updated from `3.5.x`, `nightly-3.5.x` or a fork branch is offered that branch again once it has new commits (with a link to the changes), from the repository it came from. **Manual update (WEB)** queues `make:site` for that target, so everything above applies. To leave a branch for a release, run `php artisan make:site update <release>`.
+
+### Things to know
+
+- Moving from **3.5.8** to `3.5.x` is done by the 3.5.8 updater, which reports the old version at the end; the site is on `3.5.x` all the same. Its CLI installer cannot restore custom Composer packages, so switch back to 3.5.8 with `make:site update 3.5.8` rather than with its `cli-install.php`.
+- After a git pull or rsync of new code, with no update step, run `php artisan migrate` and `composer update <your custom packages>` in `core/`. Compiled templates refresh by themselves.
+- An old fork branch is an old version of Evolution CMS: switching to it is a downgrade.
+
 ## References
 
 Official Website:

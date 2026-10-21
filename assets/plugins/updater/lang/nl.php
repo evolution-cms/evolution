@@ -27,4 +27,6 @@ $_lang['artisan_update'] = 'Om bij te werken, moet u de console-opdracht vanuit 
 $_lang['updater_notice_backup_warning'] = 'Vergeet niet een back-up van de site te maken voordat u bijwerkt.';
 $_lang['updater_backup_action_label'] = 'een back-up van de site te maken';
 $_lang['updater_live_update_button'] = 'Handmatige update (WEB)';
+$_lang['updater_line_mode_notice'] = 'Deze site volgt %s, waarvoor nieuwe commits beschikbaar zijn. Voer php artisan make:site update <release> uit in de map core om terug te keren naar een release.';
+$_lang['updater_action_compare'] = 'Wijzigingen bekijken';
 $_lang["help_donate_msg"] = 'Koop koffie bij de Evolution CMS-ontwikkelaars op <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a>. Word vandaag nog fan van Evolution CMS ❤️!';

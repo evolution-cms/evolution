@@ -27,4 +27,6 @@ $_lang['artisan_update'] = 'Per aggiornare, è necessario eseguire il comando de
 $_lang['updater_notice_backup_warning'] = 'Non dimenticare di creare un backup del sito prima dell\'aggiornamento.';
 $_lang['updater_backup_action_label'] = 'creare un backup del sito';
 $_lang['updater_live_update_button'] = 'Aggiornamento manuale (WEB)';
+$_lang['updater_line_mode_notice'] = 'Questo sito segue %s, che ha nuovi commit. Per tornare a una release, esegui php artisan make:site update <release> nella cartella core.';
+$_lang['updater_action_compare'] = 'Visualizza modifiche';
 $_lang["help_donate_msg"] = 'Acquista il caffè dagli sviluppatori di Evolution CMS su <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a>. Diventa un fan di Evolution CMS ❤️ oggi!';

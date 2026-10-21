@@ -27,4 +27,6 @@ $_lang['artisan_update'] = 'Pre aktualizáciu spustite konzolový príkaz z prie
 $_lang['updater_notice_backup_warning'] = 'Pred aktualizáciou nezabudnite vytvoriť zálohu stránky.';
 $_lang['updater_backup_action_label'] = 'vytvoriť zálohu';
 $_lang['updater_live_update_button'] = 'Samostatná aktualizácia (WEB)';
+$_lang['updater_line_mode_notice'] = 'Táto stránka sleduje %s, kde sú nové commity. Ak sa chcete vrátiť k vydaniu, spustite php artisan make:site update <release> v priečinku core.';
+$_lang['updater_action_compare'] = 'Zobraziť zmeny';
 $_lang["help_donate_msg"] = 'Kúpte vývojárom Evolution CMS kávu na <a href="https://ko-fi.com/evolutioncms" target="_blank">ko-fi.com/evolutioncms ☕</a>. Staňte sa fanúšikom Evolution CMS ❤️ ešte dnes!';

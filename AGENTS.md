@@ -147,6 +147,23 @@ must target the same `.x` branch/ref unless the operator explicitly selects anot
 Update migrations, seeders, and data fixes must be trackable or idempotent so repeated
 `make:site update` runs do not break already-updated installations.
 
+Switching lines is one explicit ref away, in either direction (`make:site update 3.5.x`,
+`make:site update 3.5.8`, or a fork as `make:site update https://github.com/<owner>/<repo>/tree/<ref>`).
+After a non-release or fork update, `make:site` notes `ref` / `repository` / `commit` (the archive's
+commit, from the zip comment GitHub writes) in `core/factory/version.php`; the manager update widget
+(`assets/plugins/updater`) reads them to offer the branch again once its head moves;
+an update without a version follows that note, and never moves a site back to an older release on
+its own. Keep it there: every way of replacing the code also replaces that file, so an overlay of a
+release clears the note. Do not rely on `install/` for anything a switch needs: it is deleted after
+installation, and a site moved by git, Composer or an older updater never runs it. Compiled Blade
+views are keyed on the template file time (`EvolutionCMS\Extensions\BladeCompiler`) for that reason,
+and packages of `core/custom/composer.json` are restored by `make:site`, the CLI updater and the web
+installer (`restoreCustomComposerPackages()`) through `EvolutionCMS\Services\CustomComposerPackages`.
+Never run the Composer of `core/vendor` first: it loads its classes from the directory it rewrites, and an
+update that replaces one of its own packages (`symfony/finder`, `symfony/console`...) stops it halfway
+with those packages deleted. Prefer a standalone Composer; run the vendor copy only after a `--dry-run`
+showed none of `composerRuntimePackages()` would change (as the installers and `package:installrequire` do).
+
 ### Installing Evolution CMS packages
 
 Install Composer packages from the `core/` directory through the Evolution CMS package installer:

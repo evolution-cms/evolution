@@ -1122,6 +1122,157 @@ function loadExecWithFallback(): bool
 }
 
 /**
+ * Bring back the packages core/custom/composer.json adds through the merge plugin.
+ *
+ * The files laid over the site (an archive, composer create-project, the manager's
+ * update.php) bring their own composer.lock and vendor, which know nothing of these
+ * packages, so after an update they were no longer autoloaded. Both installers run
+ * this, the web one from a web request: it uses a Composer the shell can run, never
+ * the FPM binary, and when it cannot restore them it answers with the command to run.
+ *
+ * A standalone Composer comes first. The copy in core/vendor loads its classes from
+ * the directory it rewrites: an update that replaces one of its own packages (symfony
+ * /finder, symfony/console...) makes it stop halfway with those packages deleted. So
+ * that copy runs only after a dry run showed none of them would change.
+ *
+ * @since 3.5.9
+ * @param callable|null $run Runs a shell command: fn(string $command): array{0: int, 1: string}.
+ * @param callable|null $discover Registers the providers of the restored packages.
+ * @param array{command: string, standalone: bool}|null $composer The Composer to use; found when null.
+ * @return array{packages: list<string>, restored: bool, command: string, output: string}
+ *         restored is true when there was nothing to restore; command is what to run by hand otherwise.
+ */
+function restoreCustomComposerPackages(?callable $run = null, ?callable $discover = null, ?array $composer = null): array
+{
+    $packages = new \EvolutionCMS\Services\CustomComposerPackages(EVO_CORE_PATH);
+    $constraints = $packages->constraints();
+    $names = array_keys($constraints);
+    $result = [
+        'packages' => $names,
+        'restored' => $names === [],
+        'command' => $names === [] ? '' : 'cd core && composer update ' . implode(' ', $names) . ' --with-dependencies --no-dev',
+        'output' => '',
+    ];
+    if ($names === []) {
+        return $result;
+    }
+
+    $run ??= 'installerRunCommand';
+    $composer ??= installerComposerCommand();
+    if ($composer === null) {
+        return $result;
+    }
+
+    // A web request rarely has HOME, which Composer needs; make:site uses the same folder.
+    if (getenv('COMPOSER_HOME') === false && getenv('HOME') === false) {
+        putenv('COMPOSER_HOME=' . EVO_CORE_PATH . 'composer');
+    }
+
+    [, $version] = $run($composer['command'] . ' --version --no-ansi 2>&1');
+    $minimalChanges = preg_match('/Composer (?:version )?(\d+\.\d+\.\d+)/', (string) $version, $match) === 1
+        && version_compare($match[1], \EvolutionCMS\Console\Packages\InstallPackageRequireCommand::MINIMAL_CHANGES_SINCE, '>=');
+    $update = $composer['command'] . ' update ' . $packages->restoreArguments($constraints, $minimalChanges)
+        . ' --working-dir=' . escapeshellarg(EVO_CORE_PATH) . ' 2>&1';
+
+    if (!$composer['standalone']) {
+        [$exitCode, $output] = $run($update . ' --dry-run');
+        $own = array_values(array_intersect(
+            \EvolutionCMS\Services\CustomComposerPackages::changedPackages((string) $output),
+            $packages->composerRuntimePackages()
+        ));
+        if ((int) $exitCode !== 0 || $own !== []) {
+            $result['output'] = (int) $exitCode !== 0
+                ? installerOutputTail((string) $output)
+                : 'Restoring them would replace packages the Composer of core/vendor runs on ('
+                    . implode(', ', $own) . '), which would stop it halfway. Run the command with a standalone Composer.';
+
+            return $result;
+        }
+    }
+
+    [$exitCode, $output] = $run($update);
+    $result['output'] = installerOutputTail((string) $output);
+    if ((int) $exitCode === 0) {
+        $discover ??= static function (): void {
+            \EvolutionCMS\Facades\Console::call('package:discover');
+        };
+        $discover();
+        $result['restored'] = true;
+    }
+
+    return $result;
+}
+
+/**
+ * Run a shell command for the installer.
+ *
+ * @since 3.5.9
+ * @return array{0: int, 1: string} Exit code and output; 1 when no way to start a process is enabled.
+ */
+function installerRunCommand(string $command): array
+{
+    if (!loadExecWithFallback()) {
+        return [1, 'No way to start a process is enabled.'];
+    }
+
+    $output = [];
+    $exitCode = 1;
+    try {
+        \ExecWithFallback\ExecWithFallback::exec($command, $output, $exitCode);
+    } catch (\Throwable $exception) {
+        $output = [$exception->getMessage()];
+    }
+
+    return [(int) $exitCode, implode("\n", (array) $output)];
+}
+
+/**
+ * @since 3.5.9
+ */
+function installerOutputTail(string $output): string
+{
+    return implode("\n", array_slice(preg_split('/\r\n|\r|\n/', trim($output)) ?: [], -8));
+}
+
+/**
+ * A Composer command the shell can run: the configured or system one, else the
+ * PHP command line binary with the Composer that core/vendor ships.
+ *
+ * @since 3.5.9
+ * @return array{command: string, standalone: bool}|null
+ */
+function installerComposerCommand(): ?array
+{
+    $resolver = new class {
+        use \EvolutionCMS\Traits\RunsComposerShell;
+
+        public function find(): ?string
+        {
+            return $this->resolveComposerBinaryCommand();
+        }
+    };
+    $composer = $resolver->find();
+    if ($composer !== null) {
+        return ['command' => $composer, 'standalone' => true];
+    }
+
+    $bundled = EVO_CORE_PATH . 'vendor/bin/composer';
+    if (!is_file($bundled)) {
+        return null;
+    }
+
+    // Under FPM or mod_php PHP_BINARY is the server, not something that runs a script.
+    $php = PHP_SAPI === 'cli' ? PHP_BINARY : '';
+    foreach ([PHP_BINDIR . '/php', PHP_BINDIR . '/php.exe'] as $candidate) {
+        if ($php === '' && is_file($candidate)) {
+            $php = $candidate;
+        }
+    }
+
+    return $php === '' ? null : ['command' => escapeshellarg($php) . ' ' . escapeshellarg($bundled), 'standalone' => false];
+}
+
+/**
  * Print a neutral info message (default color).
  *
  * Guarded because Laravel declares a global info() of its own. The installers load this file
