@@ -27,8 +27,31 @@ function setPackageRequireComposerPath(InstallPackageRequireCommand $command, st
     $reflection = new ReflectionClass(InstallPackageRequireCommand::class);
     $property = $reflection->getProperty('composer');
     $property->setValue($command, $path);
+    // Not the vendor of this checkout, which may or may not hold the dev dependencies:
+    // a missing installed.json leaves the dev state unknown unless a test sets one.
+    setPackageRequireInstalledJson($command, $path . '.missing-installed.json');
 
     $command->setLaravel(new PackageRequireTestContainer());
+}
+
+function setPackageRequireInstalledJson(InstallPackageRequireCommand $command, string $path): void
+{
+    (new ReflectionProperty(InstallPackageRequireCommand::class, 'installedJson'))->setValue($command, $path);
+}
+
+/**
+ * A vendor/composer/installed.json as Composer 2 writes it after an install with or without --no-dev.
+ */
+function packageRequireInstalledJson(bool $dev): string
+{
+    $path = tempnam(sys_get_temp_dir(), 'evo-installed-');
+    file_put_contents($path, json_encode([
+        'packages' => [['name' => 'pestphp/pest', 'version' => 'v4.7.8']],
+        'dev' => $dev,
+        'dev-package-names' => $dev ? ['pestphp/pest'] : [],
+    ]));
+
+    return $path;
 }
 
 test('package remove require reports missing requirements', function () {
@@ -251,6 +274,127 @@ test('an update after which the site no longer boots is rolled back as well', fu
     @unlink($composer);
     @unlink($lock);
 });
+
+/*
+| The dev dependencies stay as they were. Composer installs them unless told otherwise,
+| so a vendor installed without them (every release, every installer) gained Pest,
+| PHPStan and the rest from each package install, and from the rollback of a failed one.
+*/
+
+test('a vendor installed without dev dependencies keeps them out of the update and the rollback', function () {
+    $composer = tempnam(sys_get_temp_dir(), 'evo-composer-');
+    $lock = tempnam(sys_get_temp_dir(), 'evo-lock-');
+    $installed = packageRequireInstalledJson(false);
+    file_put_contents($composer, json_encode(['name' => 'evolutioncms/custom', 'require' => []]));
+    file_put_contents($lock, '{"old":true}');
+
+    $command = makeScriptedPackageRequireCommand($composer, $lock);
+    setPackageRequireInstalledJson($command, $installed);
+    $command->updateExitCode = 2;
+
+    try {
+        // No --no-dev given, the way the sCommerce README runs it.
+        (new CommandTester($command))->execute(['key' => 'seiger/scommerce', 'value' => '*']);
+
+        expect($command->composerRuns[0])->toHaveKey('--no-dev')
+            ->and($command->composerRuns[1])->toBe(['command' => 'install', '--no-dev' => true]);
+    } finally {
+        @unlink($composer);
+        @unlink($lock);
+        @unlink($installed);
+    }
+});
+
+test('a development vendor gets its dev dependencies back, also after an update with --no-dev', function () {
+    $composer = tempnam(sys_get_temp_dir(), 'evo-composer-');
+    $lock = tempnam(sys_get_temp_dir(), 'evo-lock-');
+    $installed = packageRequireInstalledJson(true);
+    file_put_contents($composer, json_encode(['name' => 'evolutioncms/custom', 'require' => []]));
+    file_put_contents($lock, '{"old":true}');
+
+    $command = makeScriptedPackageRequireCommand($composer, $lock);
+    setPackageRequireInstalledJson($command, $installed);
+    $command->updateExitCode = 2;
+
+    try {
+        (new CommandTester($command))->execute(['key' => 'seiger/scommerce', 'value' => '*', '--no-dev' => true]);
+
+        // The update does what was asked; the rollback restores what was there.
+        expect($command->composerRuns[0])->toHaveKey('--no-dev')
+            ->and($command->composerRuns[1])->toBe(['command' => 'install']);
+    } finally {
+        @unlink($composer);
+        @unlink($lock);
+        @unlink($installed);
+    }
+});
+
+test('a development vendor keeps its dev dependencies through the update and the rollback', function () {
+    $composer = tempnam(sys_get_temp_dir(), 'evo-composer-');
+    $lock = tempnam(sys_get_temp_dir(), 'evo-lock-');
+    $installed = packageRequireInstalledJson(true);
+    file_put_contents($composer, json_encode(['name' => 'evolutioncms/custom', 'require' => []]));
+    file_put_contents($lock, '{"old":true}');
+
+    $command = makeScriptedPackageRequireCommand($composer, $lock);
+    setPackageRequireInstalledJson($command, $installed);
+    $command->boots = false;
+
+    try {
+        (new CommandTester($command))->execute(['key' => 'seiger/scommerce', 'value' => '*']);
+
+        expect($command->composerRuns[0])->not->toHaveKey('--no-dev')
+            ->and($command->composerRuns[1])->toBe(['command' => 'install']);
+    } finally {
+        @unlink($composer);
+        @unlink($lock);
+        @unlink($installed);
+    }
+});
+
+test('removing a package from a vendor without dev dependencies does not add them', function () {
+    $composer = tempnam(sys_get_temp_dir(), 'evo-composer-');
+    $installed = packageRequireInstalledJson(false);
+    file_put_contents($composer, json_encode(['name' => 'evolutioncms/custom', 'require' => ['seiger/sgallery' => '*']]));
+
+    $command = new RemovePackageRequireCommand();
+    setPackageRequireComposerPath($command, $composer);
+    setPackageRequireInstalledJson($command, $installed);
+
+    try {
+        (new CommandTester($command))->execute(['key' => 'sgallery', 'composer_run' => '0']);
+
+        expect($command->buildComposerArguments())->toBe([
+            'command' => 'update',
+            'packages' => ['seiger/sgallery'],
+            '--with-dependencies' => true,
+            '--no-dev' => true,
+        ]);
+    } finally {
+        @unlink($composer);
+        @unlink($installed);
+    }
+});
+
+test('the dev state is read from what Composer noted in installed.json', function (?string $contents, ?bool $expected) {
+    $path = tempnam(sys_get_temp_dir(), 'evo-installed-');
+    $contents === null ? @unlink($path) : file_put_contents($path, $contents);
+
+    $command = new InstallPackageRequireCommand();
+    setPackageRequireInstalledJson($command, $path);
+
+    try {
+        expect((new ReflectionMethod($command, 'readDevDependenciesInstalled'))->invoke($command))->toBe($expected);
+    } finally {
+        @unlink($path);
+    }
+})->with([
+    'after --no-dev' => ['{"packages": [], "dev": false}', false],
+    'with dev dependencies' => ['{"packages": [], "dev": true}', true],
+    'Composer 1, no flag' => ['[{"name": "vendor/pkg"}]', null],
+    'no vendor yet' => [null, null],
+    'unreadable' => ['{broken', null],
+]);
 
 test('a successful update keeps the new requirement and lock file', function () {
     $composer = tempnam(sys_get_temp_dir(), 'evo-composer-');
