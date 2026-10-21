@@ -1,7 +1,7 @@
 {
     "name": "evolution-cms/evolution",
     "type": "project",
-    "version": "3.5.9",
+    "version": "3.6.0",
     "description": "Welcome to the Evolution CMS. The world’s fastest, most customizable Open Source PHP CMS. Your creative vision, no restrictions, no compromise.",
     "keywords": [
         "content",
@@ -27,7 +27,7 @@
         }
     ],
     "require": {
-        "php": "^8.3",
+        "php": "^8.4",
         "composer/composer": "*",
         "dg/rss-php": "^1.7",
         "dmitry-suffi/redis-session-handler": "*",

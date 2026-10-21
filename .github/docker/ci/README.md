@@ -34,7 +34,7 @@ EVO_DB_TYPE=sqlite EVO_APP_DIR="$PWD" .github/docker/ci/install-and-smoke.sh
 ```
 
 `PHP_VERSION`, `MYSQL_IMAGE_TAG`, `POSTGRES_IMAGE_TAG`, `MYSQL_PORT` and
-`POSTGRES_PORT` override the defaults (PHP 8.3, MySQL 9.7 LTS, PostgreSQL 18.6
+`POSTGRES_PORT` override the defaults (PHP 8.4, MySQL 9.7 LTS, PostgreSQL 18.6
 LTS, the servers' own ports).
 
 ## Upgrading
@@ -79,7 +79,7 @@ no PHP on it, and what pins the PHP version when a version question is the one
 being investigated.
 
 One PHP version, every database: what the job proves is the installer's database
-paths, which do not vary with the PHP minor. PHP 8.3 through 8.5 are covered by
+paths, which do not vary with the PHP minor. PHP 8.4 and 8.5 are covered by
 the analysis and unit test jobs. The sqlite leg starts no container.
 
 The same workflow also builds this image from the official `php:8.6-rc-cli`

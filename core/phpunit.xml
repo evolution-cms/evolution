@@ -7,6 +7,8 @@
     <testsuites>
         <testsuite name="Test Suite">
             <directory suffix="Test.php">./tests</directory>
+            <!-- Plain PHP scripts with their own stubs; StandaloneScriptsTest runs each in its own process. -->
+            <exclude>./tests/standalone</exclude>
         </testsuite>
     </testsuites>
     <source>
