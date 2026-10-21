@@ -453,6 +453,10 @@ final class CustomComposerPackages
         ksort($record);
 
         $file = $this->corePath . self::RECORD_FILE;
+        // Nothing to note: an existing record is emptied, none is created.
+        if ($record === [] && !is_file($file)) {
+            return;
+        }
         $json = json_encode(['packages' => $record], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_FORCE_OBJECT) . "\n";
         if (!is_file($file) || file_get_contents($file) !== $json) {
             @file_put_contents($file, $json);
