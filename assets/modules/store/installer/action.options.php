@@ -1,6 +1,7 @@
 
 
-<form name="install" id="install_form" action="/manager/?id=<?php echo (int) $_GET['id']; ?>&a=112&action=install2_step" method="post">
+<form name="install" id="install_form" action="<?= htmlspecialchars(EVO_MANAGER_URL, ENT_QUOTES, 'UTF-8') ?>?id=<?= (int) $_GET['id'] ?>&amp;a=112&amp;action=install2_step" method="post">
+  <?= csrf_field() ?>
   <div>
     <input type="hidden" value="1" name="options_selected" />
   </div>
