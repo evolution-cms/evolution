@@ -171,7 +171,8 @@ under one policy. Do not add a restore path that skips it:
   consent (`make:site --update-custom-packages`, `cli-install.php --updateCustomPackages=y`). `make:site`
   runs it against the unpacked archive before `moveFiles()` (`preflightComposer()`), so a refusal changes
   nothing. The staged `custom/composer.json` is rebased (`rebasedCustomComposerJson()`: the merge plugin
-  prefixes `custom/` to path repositories and includes) and removed again before `moveFiles()`, which
+  prefixes `custom/` to path repositories and to `extra.merge-plugin.include` / `require`, a list or a
+  single path) and removed again before `moveFiles()`, which
   would otherwise lay it over the site's own.
 - The merge plugin runs with `"replace": true`: a custom constraint replaces the core's own, so a
   custom requirement on a core package is checked against the lock like any other (`pins()`).
