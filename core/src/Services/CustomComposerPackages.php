@@ -365,8 +365,8 @@ final class CustomComposerPackages
     /**
      * core/custom/composer.json as it has to read from another core directory, such as an unpacked update.
      *
-     * The merge plugin resolves the path repositories and the further includes of that
-     * file against its own folder (it prefixes "custom/" to them), and Composer resolves
+     * The merge plugin resolves the path repositories and the further files of that one
+     * ("include" and "require") against its own folder (it prefixes "custom/" to them), and Composer resolves
      * an artifact repository against its working directory. A copy in another core
      * directory would look for them there, where they are not: rebased, they still lead
      * to the site's own folders.
@@ -402,15 +402,21 @@ final class CustomComposerPackages
             }
         }
 
-        $includes = $json['extra']['merge-plugin']['include'] ?? null;
-        if (is_array($includes)) {
-            foreach ($includes as $key => $include) {
-                if (is_string($include) && $isRelative($include)) {
-                    $rebased = self::relativePath($otherCustom, $liveCustom . '/' . $include);
-                    if ($rebased !== null) {
-                        $json['extra']['merge-plugin']['include'][$key] = $rebased;
-                    }
-                }
+        // Files to include ("include", optional) and files that must exist ("require"),
+        // a list or a single path.
+        $rebase = static function ($path) use ($isRelative, $otherCustom, $liveCustom) {
+            if (!is_string($path) || !$isRelative($path)) {
+                return $path;
+            }
+
+            return self::relativePath($otherCustom, $liveCustom . '/' . $path) ?? $path;
+        };
+        foreach (['include', 'require'] as $key) {
+            $paths = $json['extra']['merge-plugin'][$key] ?? null;
+            if (is_array($paths)) {
+                $json['extra']['merge-plugin'][$key] = array_map($rebase, $paths);
+            } elseif (is_string($paths)) {
+                $json['extra']['merge-plugin'][$key] = $rebase($paths);
             }
         }
 

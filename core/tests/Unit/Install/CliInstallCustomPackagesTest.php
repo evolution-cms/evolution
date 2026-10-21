@@ -382,8 +382,9 @@ test('a copy of the custom composer.json still finds the site\'s local repositor
             ['type' => 'composer', 'url' => 'https://packages.example.com'],
             ['type' => 'path', 'url' => '/srv/shared/pkg'],
         ],
-        'extra' => ['merge-plugin' => ['include' => ['more/composer.json']]],
+        'extra' => ['merge-plugin' => ['include' => ['more/composer.json'], 'require' => ['required.json']]],
     ];
+    file_put_contents($live . 'custom/required.json', '{}');
 
     try {
         $rebased = (new CustomComposerPackages($live))->rebasedCustomComposerJson($json, $staging);
@@ -396,7 +397,14 @@ test('a copy of the custom composer.json still finds the site\'s local repositor
             ->and(realpath($rebased['repositories'][1]['url']))->toBe(realpath($live . 'artifacts'))
             ->and($rebased['repositories'][2]['url'])->toBe('https://packages.example.com')
             ->and($rebased['repositories'][3]['url'])->toBe('/srv/shared/pkg')
-            ->and($resolve(dirname($rebased['extra']['merge-plugin']['include'][0])))->toBe(realpath($live . 'custom/more'));
+            ->and($resolve(dirname($rebased['extra']['merge-plugin']['include'][0])))->toBe(realpath($live . 'custom/more'))
+            // A file that must exist, as a list or as a single path.
+            ->and($resolve($rebased['extra']['merge-plugin']['require'][0]))->toBe(realpath($live . 'custom/required.json'));
+
+        $json['extra']['merge-plugin'] = ['require' => 'required.json'];
+        $single = (new CustomComposerPackages($live))->rebasedCustomComposerJson($json, $staging);
+        expect($single['extra']['merge-plugin']['require'])->toBeString()
+            ->and($resolve($single['extra']['merge-plugin']['require']))->toBe(realpath($live . 'custom/required.json'));
     } finally {
         removeCustomPackagesCore($live);
         (new Illuminate\Filesystem\Filesystem())->deleteDirectory(dirname($staging, 2));
