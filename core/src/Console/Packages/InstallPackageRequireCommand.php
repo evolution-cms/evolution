@@ -45,6 +45,18 @@ class InstallPackageRequireCommand extends Command
     protected $composerLock = EVO_CORE_PATH . 'composer.lock';
 
     /**
+     * Where Composer notes how it installed core/vendor.
+     * @var string
+     */
+    protected $installedJson = EVO_CORE_PATH . 'vendor/composer/installed.json';
+
+    /**
+     * Whether core/vendor held the dev dependencies before this command ran; null when unknown.
+     * @var bool|null
+     */
+    protected $devDependenciesInstalled = null;
+
+    /**
      * Packages touched by updateArray(); scopes the composer update to them.
      * @var array<int,string>
      */
@@ -76,6 +88,7 @@ class InstallPackageRequireCommand extends Command
         $composerExisted = file_exists($this->composer);
         $originalComposerContents = $composerExisted ? file_get_contents($this->composer) : null;
         $originalLockContents = is_file($this->composerLock) ? file_get_contents($this->composerLock) : null;
+        $this->devDependenciesInstalled = $this->readDevDependenciesInstalled();
 
         $this->checkFile();
         if ($this->updateArray() === false) {
@@ -266,7 +279,9 @@ class InstallPackageRequireCommand extends Command
             }
         }
 
-        if ($this->commandOptionEnabled('no-dev')) {
+        // Composer installs the dev dependencies unless told otherwise, so a vendor
+        // directory installed without them would gain them (Pest, PHPStan...) here.
+        if ($this->commandOptionEnabled('no-dev') || $this->devDependenciesInstalled === false) {
             $arguments['--no-dev'] = true;
         }
         if ($this->commandOptionEnabled('optimize-autoloader')) {
@@ -348,6 +363,8 @@ class InstallPackageRequireCommand extends Command
      * Restoring custom/composer.json alone is not enough: Composer has already written
      * the new lock file and replaced part of vendor. `composer install` from the old lock
      * file downgrades what was updated and reinstalls what a failed step left half removed.
+     * It restores the dev dependencies as they were too: absent from a vendor installed
+     * without them, back in a development checkout even when --no-dev removed them.
      *
      * @since 3.5.9
      * @param string|null $originalLockContents Lock file contents before the update, null when there was none.
@@ -363,7 +380,7 @@ class InstallPackageRequireCommand extends Command
         $this->warn('Composer update failed; restoring the previous dependencies.');
 
         $arguments = ['command' => 'install'];
-        if ($this->commandOptionEnabled('no-dev')) {
+        if ($this->devDependenciesInstalled === null ? $this->commandOptionEnabled('no-dev') : !$this->devDependenciesInstalled) {
             $arguments['--no-dev'] = true;
         }
 
@@ -380,6 +397,23 @@ class InstallPackageRequireCommand extends Command
         if ($exitCode !== 0) {
             $this->error('Restoring the previous dependencies failed. Run "composer install" in ' . EVO_CORE_PATH . ' manually.');
         }
+    }
+
+    /**
+     * Whether core/vendor holds the dev dependencies, as Composer noted it.
+     *
+     * Composer 2 writes "dev" to vendor/composer/installed.json on every install and
+     * update: false after --no-dev, which is how the releases and the installers set
+     * a site up.
+     *
+     * @since 3.5.9
+     * @return bool|null Null when the file or the flag is missing (no vendor yet, Composer 1).
+     */
+    protected function readDevDependenciesInstalled(): ?bool
+    {
+        $installed = json_decode((string) @file_get_contents($this->installedJson), true);
+
+        return is_array($installed) && is_bool($installed['dev'] ?? null) ? $installed['dev'] : null;
     }
 
     protected function commandOptionEnabled(string $name): bool

@@ -457,6 +457,23 @@ test('a restore notes the versions for the next update, beside the custom compos
     }
 });
 
+test('a site without custom packages gets no record, and an old record is emptied', function () {
+    $core = customPackagesCore([], ['packages' => [], 'packages-dev' => []]);
+    $packages = new CustomComposerPackages($core);
+
+    try {
+        // package:installrequire notes the record after every install, also with no custom package left.
+        $packages->recordInstalled([]);
+        expect(is_file($core . CustomComposerPackages::RECORD_FILE))->toBeFalse();
+
+        file_put_contents($core . CustomComposerPackages::RECORD_FILE, json_encode(['packages' => ['gone/pkg' => ['version' => '1.0.0', 'dependencies' => []]]]));
+        $packages->recordInstalled([]);
+        expect($packages->recordedVersions())->toBe([]);
+    } finally {
+        removeCustomPackagesCore($core);
+    }
+});
+
 test('the restore never hands Composer --with-all-dependencies', function () {
     $arguments = (new CustomComposerPackages(sys_get_temp_dir()))->updateArguments(['league/csv' => '9.21.0', 'new/pkg' => ''], true);
 
