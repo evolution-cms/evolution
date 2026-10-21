@@ -1,6 +1,87 @@
 This file shows the changes in recent releases of Evolution CMS. The most current release is usually the
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
+Evolution CMS 3.5.9 (Oct 21, 2026)
+* [47bc8bd] - add(install): update to nightly build or custom repo branch <Artur Kyryliuk>
+* [b5b961f] - add(install): ensure custom packages will not override core dependencies in vendor <Artur Kyryliuk>
+* [8237b91] - feat(backup): add optional sTask backups with gzip support and progress tracking <Serhii Korneliuk>
+* [984d3ef] - add(manager): cloning directory in the file manager and display links <Artur Kyryliuk>
+* [2f117a1] - feat(manager): display project version and repository link from deployment metadata <Serhii Korneliuk>
+* [2a93a53] - add(core): getTemplateVarValues for reading TVs from multiple docs <Artur Kyryliuk>
+* [c595bf3] - feat(chunks): keep chunk code in files, deprecate the database column <Artur Kyryliuk>
+* [8ec4be6] - feat(manager): Ability to restrict roles to run specific modules <Artur Kyryliuk>
+* [4d7eaf4] - feat(manager): let CodeMirror editors be resized vertically <Artur Kyryliuk>
+* [6ebcbe9] - add(ci): 8.6 RC experimental (so disallowed to fail the common build) support <Artur Kyryliuk>
+* [02f9652] - upd(ci): run static analysis and unit tests on PHP 8.5 <Artur Kyryliuk>
+* [94f064c] - fix(i18n): add Sk localization, remove deprecated MODx and Ru from i18n <Artur Kyryliuk>
+* [19ad647] - upd(lang): translate the upload size limit messages <Artur Kyryliuk>
+* [6fee84c] - fix(store): translate the archive messages into every manager language <Artur Kyryliuk>
+* [347e22c] - fix(manager): backup and template permission rules <Artur Kyryliuk>
+* [3ad7153] - fix(manager): template save should require code execution privileges <Artur Kyryliuk>
+* [60d8e07] - fix(tv): require save_snippet before a TV binding can run code <Artur Kyryliuk>
+* [1b76a9d] - fix(security): do not run code bindings found in chunks, files or pages <Artur Kyryliuk>
+* [00fdefe] - fix(security): pass page field values to @SELECT and @EVAL as data <Artur Kyryliuk>
+* [d7597ba] - fix(core): confine @FILE/@INCLUDE/file_get_contents to safe content <Artur Kyryliuk>
+* [f0a5c28] - fix(security): close SQL injection in tree sort, TV filters and identifier quoting <Artur Kyryliuk>
+* [57b9784] - fix(security): sanitize nested request arrays <Artur Kyryliuk>
+* [01cda27] - fix(security): sanitize request rebuilt by the IIS friendly URL fix <Artur Kyryliuk>
+* [8cd65ff] - fix(core): PHP code injection via element names in the site cache <Artur Kyryliuk>
+* [d4a6766] - fix(manager): routing module auth bypass, dashboard XSS and tag injection <Artur Kyryliuk>
+* [e77d02c] - fix(manager): xss <Artur Kyryliuk>
+* [9db71b5] - fix(manager): web install guard, admin account removal guard, redirect origin check, web update CSRF <Artur Kyryliuk>
+* [16f3a5a] - fix(manager): harden file manager tokens, media browser CSRF and alert output <Artur Kyryliuk>
+* [0adb94d] - fix(manager): require CSRF tokens for logout and module dependency changes <Artur Kyryliuk>
+* [ab52b94] - fix(manager): require a CSRF token for the OPcache reset <Artur Kyryliuk>
+* [18de1c1] - fix(tv): restrict a TV by its own access group, not the document's <Artur Kyryliuk>
+* [f8c2fcf] - fix(file-browser): require a permission for every type and refuse an unusable root <Artur Kyryliuk>
+* [eaaddf5] - fix(files): enforce file groups on resolved paths in the file manager and browser <Artur Kyryliuk>
+* [6dee396] - fix(core): symlink access check in file browser and file manager <Artur Kyryliuk>
+* [6e222ba] - fix(media-browser): reject disguised and mismatched image uploads <Artur Kyryliuk>
+* [8fb1a87] - fix(manager): sandbox the resource preview iframe <Artur Kyryliuk>
+* [7bcf2f8] - fix(config): mirror the nginx deny rules in the Apache template, Secure cookie by scheme <Artur Kyryliuk>
+* [34f7255] - fix(core): links with an explicit scheme took the host from the Host header <Artur Kyryliuk>
+* [59fa7e1] - fix(backup): isolate snapshot temp files and restore native MySQL dump performance <Serhii Korneliuk>
+* [062591c] - fix(core): backup title could add SQL to the dump <Artur Kyryliuk>
+* [45a949b] - fix(packages): run composer as a separate process and roll back failed installs <Artur Kyryliuk>
+* [143933b] - fix(discovery): invalidate bootstrap configuration cache <Serhii Korneliuk>
+* [fb358ff] - fix(config): rebuild bootstrap cache after deployment path changes <Serhii Korneliuk>
+* [351d1b0] - fix(core): fatal error about missing provider after package uninstall <Artur Kyryliuk>
+* [0fb3878] - fix(core): scope composer update to the resolved package on remove too <Artur Kyryliuk>
+* [5e5ec34] - fix(core): package installer failure to install package due to self-update caused by composer update <Artur Kyryliuk>
+* [01d3d3d] - fix(core): silent failures on the hostings with disabled exec-like functions <Artur Kyryliuk>
+* [2aed5a6] - fix(installer): fatal error when installer can't write a config file <Artur Kyryliuk>
+* [4251b5f] - fix(installer): artefacts in CLI-installed Evo 3.0 through 3.5.7 <Artur Kyryliuk>
+* [0d008e8] - fix(core): wrong version number after upgrade <Artur Kyryliuk>
+* [d2f8f4b] - ref(manager): document save speedup by splitting save_content.processor and reducing database calls <Artur Kyryliuk>
+* [29dae33] - ref(manager): document save speedup by AJAX call eliminating need for second call <Artur Kyryliuk>
+* [53336d8] - ref(core): cache refresh deferred after manager saves document <Artur Kyryliuk>
+* [b628170] - fix(cache): document saves no longer reset opcache or purge compiled views <Artur Kyryliuk>
+* [ceea9db] - fix(manager): remove per-node alias queries from resource tree <Artur Kyryliuk>
+* [ce19a38] - ref(core): slowdowns caused by missing index, alias search extra query, translation of replaceable defaults, connection quotes extra query needed only for GBK (obsolete Chinese encoding family) <Artur Kyryliuk>
+* [67c9c0e] - feat(config): cache bootstrap configuration in env.php <Serhii Korneliuk>
+* [6d93250] - ref(frontend): defer manager view factory initialization <Serhii Korneliuk>
+* [cab12d1] - ref(settings): defer manager theme initialization on frontend <Serhii Korneliuk>
+* [ab8cc2c] - ref(tvs): reduce document template variable loading overhead <Serhii Korneliuk>
+* [f10e349] - fix(tracy): separate PDO connection time from SQL query timing <Serhii Korneliuk>
+* [f2d8973] - fix(templates): run controllers for explicitly selected template files <Serhii Korneliuk>
+* [c0ed144] - fix(manager): resource overview fails when its template was deleted <Artur Kyryliuk>
+* [59ac33c] - fix(models): keep deletedon as a unix timestamp in document arrays <Artur Kyryliuk>
+* [ae39b82] - fix(document-save): include TV rank in DISTINCT query for PostgreSQL <Serhii Korneliuk>
+* [3924c8d] - fix(session): honour NO_SESSION on the Laravel session path <Artur Kyryliuk>
+* [a595704] - fix(tree): drag-and-drop move updates the closure table and refreshes caches <Artur Kyryliuk>
+* [bd4342d] - fix(tree): drag-and-drop move runs the cycle and target permission checks <Artur Kyryliuk>
+* [1da2db2] - fix(manager): media browser uploads over the PHP limits <Artur Kyryliuk>
+* [9f6613e] - fix(manager): explain uploads over post_max_size instead of leaking paths <Artur Kyryliuk>
+* [23bf78d] - fix(manager): broken mobile markup, missing controls, permission for upload and removal, add multiple files removal and directory info <Artur Kyryliuk>
+* [184355a] - fix(manager): removed flash based uploader <Artur Kyryliuk>
+* [197a86f] - fix(manager): link resolution and removed old http prefill <Artur Kyryliuk>
+* [aac2c03] - fix(manager): support legacy controller theme includes <MiddleSokilAI>
+* [e2d84de] - fix(dashboard): avoid ICU timezone errors when formatting activity times <Serhii Korneliuk>
+* [b28e71c] - fix(core): tailwind build command <Serhii Korneliuk>
+* [0a4fe60] - ref(feeds): replace SimplePie with dg/rss-php <Serhii Korneliuk>
+* [da81379] - fix(vendor) outdated dependencies, GHSA-f9x3-7vq9-cph6 <Artur Kyryliuk>
+* [cb1d586] - fix(deps): lock composer/composer 2.10.3, which vendor already ships (CVE-2026-84361) <Artur Kyryliuk>
+
 Evolution CMS 3.5.8 (Sep 10, 2026)
 * [d984246] - add(core): template processor db or file source switch <Artur Kyryliuk>
 * [c7fa58c] - add(parser): let a view engine ask for the DocumentParser pass <Artur Kyryliuk>
