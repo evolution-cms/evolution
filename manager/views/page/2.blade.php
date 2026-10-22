@@ -163,6 +163,8 @@
         'logincount' => $_SESSION['mgrLogincount'] + 1,
     ]);
     if (evo()->hasPermission('widget_online_info')) {
+        // The widget reads the viewer's own session and action, queued for after the response: write them first.
+        \EvolutionCMS\Services\ManagerActivity::instance()->flush();
         $activeUsers = \EvolutionCMS\Models\ActiveUserSession::query()
             ->join('active_users', 'active_users.sid', '=', 'active_user_sessions.sid')
             ->where('active_users.action', '<>', 8)

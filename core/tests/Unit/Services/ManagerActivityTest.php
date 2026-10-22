@@ -136,6 +136,31 @@ test('a failing job rolls the whole batch back and surfaces the error when attac
         ->and($activity->hasPending())->toBeFalse();
 });
 
+test('the dashboard writes the viewer\'s own activity before the online users widget reads it', function () {
+    $view = file_get_contents(dirname(__DIR__, 4) . '/manager/views/page/2.blade.php');
+    $flush = strpos($view, 'ManagerActivity::instance()->flush()');
+
+    expect($flush)->toBeInt()
+        ->and($flush)->toBeGreaterThan(strpos($view, "hasPermission('widget_online_info')"))
+        ->and($flush)->toBeLessThan(strpos($view, "->join('active_users'"));
+});
+
+test('a flush mid-request makes the queued session and action visible, later writes queue again', function () {
+    $activity = ManagerActivity::instance();
+    $activity->touchSession(7, 'sid-a', 1000, '10.0.0.1');
+    $activity->setAction(7, 'sid-a', 'admin', 1000, 2, 0);
+
+    $activity->flush();
+
+    expect(Capsule::table('active_user_sessions')
+        ->join('active_users', 'active_users.sid', '=', 'active_user_sessions.sid')
+        ->pluck('username')->all())->toBe(['admin']);
+
+    $activity->lock(7, 42, 7, 'sid-a', 1000);
+
+    expect($activity->hasPending())->toBeTrue();
+});
+
 test('the manager hands its bookkeeping to the service and flushes after the response is sent', function () {
     $core = file_get_contents(dirname(__DIR__, 3) . '/src/Core.php');
     $theme = file_get_contents(dirname(__DIR__, 3) . '/src/ManagerTheme.php');
