@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\Log;
  * Each of these used to be its own autocommit statement inside the request - six or seven
  * fsyncs on every manager page, about 55 ms of the ~80 ms bootstrap on an fsync-per-commit
  * MySQL. Nothing in the same request reads its own bookkeeping back (the lock and action
- * queries exclude the current user), so nothing observable moves.
+ * queries exclude the current user), so nothing observable moves - except the dashboard's
+ * online users widget, which lists the viewer too and flushes before it reads.
  * @since 3.5.9
  */
 final class ManagerActivity
