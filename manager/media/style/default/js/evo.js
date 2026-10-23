@@ -2116,6 +2116,11 @@
                             }
                         } else {
                             this.title = w.main.document.body.querySelectorAll('h1')[0] && w.main.document.body.querySelectorAll('h1')[0].innerHTML || this.title;
+                            // Native pages can use the manager tab as their only heading.
+                            // Keep the action icon selected when that tab was created.
+                            if (this.icon && !/<(?:i|svg)\b/i.test(this.title)) {
+                                this.title = this.icon + this.title;
+                            }
                             this.txt = evo.title(this.title);
                             if (this.title && this.uid !== 'home') {
                                 this.tab.innerHTML = '<span class="tab-title">' + this.title + '</span><span class="tab-close">×</span>';
@@ -3030,6 +3035,9 @@
             return new this.dragging.init(a, b);
         },
         setTypeIcon: function (a) {
+            if (String(a) === '53') {
+                return evo.style.icon_info_circle;
+            }
             var b = '';
             switch (this.typesactions[a]) {
                 case 1:

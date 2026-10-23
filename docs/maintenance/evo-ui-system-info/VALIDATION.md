@@ -106,3 +106,32 @@ asset theme as the rest of the manager. The final source is qualified with the
 complete sequential runtime matrix above. Production dependency installation and
 interactive modal/reset checks were performed earlier with the same locked graph;
 these later presentation changes add no runtime dependencies.
+
+## Copy and tab follow-up
+
+After the initial integration commit `935371033`, the view was refined to keep
+path prefixes and suffixes, expose compact right-hand copy buttons for every
+path/URL and the table prefix, label the PHP button `phpinfo`, color Reset OPcache,
+and let its summary occupy one line when space allows. A shared Blade partial
+keeps full values separate from their visual clipping. Copy uses an explicit
+per-button value, a selection/copy event plus the Clipboard API, and visible
+check/error icons.
+
+The actual Clipboard API was read back through a temporary local test field after
+each click: all seven values matched exactly (database name, table prefix, base
+path/URL, manager path/URL and site URL). Copying the manager URL from the real
+manager iframe also matched exactly. The temporary check page was removed.
+Browser-tool virtual clipboard snapshots were insufficient for repeated reads;
+these checks read the browser's native API through the test UI instead.
+
+The missing tab icon was traced to the manager replacing its initial action icon
+when the iframe has no h1. It now preserves that icon, and System Info resolves
+the existing info-circle SVG. Reload shows exactly one SVG in the tab. Core JS
+regression tests: 41 passed. This follow-up changes views, translations and the
+existing tab handler; the full core PHP matrix above belongs to the integration
+commit, while the final rendered page is checked again on the portable runtimes.
+
+Final follow-up renders on 8.4.27 → 8.5.12 → 8.6.0RC4 used the same installation.
+Each has seven copy buttons, a 47px OPcache row at 1280px, and scrollWidth equal
+to clientWidth. HTTP logs have no PHP warnings/notices/deprecations/fatals. JIT
+configuration was not changed by this work. Local evidence: `copy-render-checks.json`.

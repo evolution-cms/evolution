@@ -153,6 +153,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                 icon_angle_right: @js(jsIconMarkup($_style['icon_angle_right'])),
                 icon_chunk: @js(jsIconMarkup($_style['icon_chunk'])),
                 icon_circle: @js(jsIconMarkup($_style['icon_circle'])),
+                icon_info_circle: @js(jsIconMarkup($_style['icon_info_circle'])),
                 icon_code: @js(jsIconMarkup($_style['icon_code'])),
                 icon_edit: @js(jsIconMarkup($_style['icon_edit'])),
                 icon_element: @js(jsIconMarkup($_style['icon_elements'])),
