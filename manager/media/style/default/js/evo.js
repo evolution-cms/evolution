@@ -913,6 +913,11 @@
             },
             setDefaultWidth: function () {
                 evo.resizer.setWidth(evo.remToPx(evo.config.tree_width));
+            },
+            closeDrawer: function () {
+                if (w.innerWidth <= evo.minWidth && d.body && !d.body.classList.contains('sidebar-closed')) {
+                    evo.resizer.toggle();
+                }
             }
         },
         // Allows manager modules to request a full-width workspace while their tab is active.
@@ -1463,7 +1468,6 @@
                             this.restoreTree();
                         } else {
                             evo.tabs({ url: evo.EVO_MANAGER_URL + href, title: evo.escapeHtml(title) + '<small>(' + id + ')</small>' });
-                            if (evo.isMobile && w.innerWidth < evo.minWidth) evo.resizer.toggle();
                         }
                     }
                     this.itemToChange = id;
@@ -1935,6 +1939,7 @@
             }
         },
         tabs: function (a) {
+            if (!a.restoring) evo.resizer.closeDrawer();
             function Tabs(a) {
                 var s = this;
                 this.url = a.url.replace(new RegExp(evo.EVO_MANAGER_URL, 'g'), '');
@@ -2171,6 +2176,7 @@
                     }
                 },
                 show: function () {
+                    if (!this.restoring) evo.resizer.closeDrawer();
                     evo.tabs.selected = this.row.querySelector('.selected');
                     if (evo.tabs.selected && evo.tabs.selected !== this.tab) {
                         d.getElementById(evo.tabs.selected.id.replace('tab', 'tab-page')).classList.remove('show');
@@ -2245,6 +2251,7 @@
                         e.stopPropagation();
                     }
                     var isClose = e && e.target && e.target.classList && e.target.classList.contains('tab-close');
+                    if (!isClose) evo.resizer.closeDrawer();
                     if (isClose) {
                         this.close(e);
                     } else if (evo.tabs.selected === this.tab) {

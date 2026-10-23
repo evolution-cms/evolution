@@ -29,7 +29,7 @@ foreach ($icons as $icon) {
 }
 $css .= "}\n";
 $css .= <<<'CSS'
-.evo-icon{display:inline-block;width:1em;height:1em;flex-shrink:0;font-style:normal;font-variant:normal;line-height:1;vertical-align:-.125em;text-rendering:auto}
+.evo-icon{display:inline-block;width:1em;height:1em;flex-shrink:0;font-size:1.15em;font-style:normal;font-variant:normal;line-height:1;vertical-align:-.125em;text-rendering:auto}
 .evo-icon::before{content:"";display:block;width:100%;height:100%;background-color:currentColor;-webkit-mask:var(--evo-icon) center/contain no-repeat;mask:var(--evo-icon) center/contain no-repeat}
 .evo-icon-fw{width:1.25em;text-align:center}
 .evo-icon-xs{font-size:.75em}.evo-icon-sm{font-size:.875em}.evo-icon-lg{font-size:1.333333em}

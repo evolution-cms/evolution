@@ -52,6 +52,8 @@ test('old CSS caches are rebuilt and rebased caches are recognised', function ()
         expect(CSSMinify::isCacheCurrent($file))->toBeFalse();
         file_put_contents($file, '/* Evolution CMS: rebased CSS URLs v1 */' . "\n" . '@font-face{font-family:old}');
         expect(CSSMinify::isCacheCurrent($file))->toBeFalse();
+        file_put_contents($file, '/* Evolution CMS: SVG manager icons; rebased CSS URLs v2 */' . "\n" . '.evo-icon{width:1em}');
+        expect(CSSMinify::isCacheCurrent($file))->toBeFalse();
 
         $root = dirname(__DIR__, 4);
         $minifier = new CSSMinify([$root . '/manager/media/style/default/css/mainmenu.css']);

@@ -181,7 +181,7 @@
     display: block;
 }
 #mainMenu #nav #bars > a {
-    top: -1px;
+    top: 0;
 }
 #mainMenu #nav #bars svg,
 #mainMenu #searchform label,
@@ -189,11 +189,11 @@
     position: relative;
 }
 #mainMenu #nav #bars svg {
-    top: -1px;
+    top: 0;
 }
 #mainMenu #searchform label,
 #mainMenu #searchform .label_searchid > svg {
-    top: -1px;
+    top: 0;
 }
 #mainMenu .nav > li > ul > li .evo-icon,
 #mainMenu .nav > li > ul > li > a > svg:first-child,
@@ -246,8 +246,8 @@
     justify-content: center;
 }
 body:not(.sidebar-closed) #bars .icon-expand { display: none !important; }
-body:not(.sidebar-closed) #bars .icon-collapse { display: inline-block !important; }
-body.sidebar-closed #bars .icon-expand { display: inline-block !important; }
+body:not(.sidebar-closed) #bars .icon-collapse { display: inline-flex !important; }
+body.sidebar-closed #bars .icon-expand { display: inline-flex !important; }
 body.sidebar-closed #bars .icon-collapse { display: none !important; }
 #mainMenu #system > a > .evo-icon {
     font-size: 1.1rem;
@@ -1196,3 +1196,8 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
         margin-left: 2.5rem;
     }
 }
+
+/* All header icons share the same centered 20px slot at every breakpoint. */
+#mainMenu #nav > li > a .icon, #mainMenu #nav #bars .icon-expand, #mainMenu #nav #bars .icon-collapse { align-items: center; justify-content: center; width: 20px; height: 20px; line-height: 1; flex: 0 0 20px; }
+#mainMenu #nav #bars svg, #mainMenu #searchform .label_searchid > svg { display: block; top: 0; width: 20px; height: 20px; }
+#mainMenu #searchform .label_searchid { display: flex; align-items: center; justify-content: center; top: 0; }

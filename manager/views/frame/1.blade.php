@@ -59,10 +59,10 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
         html.manager-frame #frameset{background-color:{{ManagerTheme::getThemeColor()}}}
         .ios #main{-webkit-overflow-scrolling:touch;overflow-y:scroll;}
         #mainMenu #nav #bars .icon-expand,
-        #mainMenu #nav #bars .icon-collapse{display:inline-block;}
+        #mainMenu #nav #bars .icon-collapse{display:inline-flex;}
         body:not(.sidebar-closed) #bars .icon-expand{display:none!important;}
-        body:not(.sidebar-closed) #bars .icon-collapse{display:inline-block!important;}
-        body.sidebar-closed #bars .icon-expand{display:inline-block!important;}
+        body:not(.sidebar-closed) #bars .icon-collapse{display:inline-flex!important;}
+        body.sidebar-closed #bars .icon-expand{display:inline-flex!important;}
         body.sidebar-closed #bars .icon-collapse{display:none!important;}
         #mainMenu .nav > li > ul > li.dropdown-toggle > a > svg.toggle,
         #mainMenu .nav > li > ul > li.dropdown-toggle > a > svg[class*="chevron"],

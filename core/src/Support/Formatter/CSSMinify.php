@@ -2,7 +2,7 @@
 
 class CSSMinify
 {
-    private const REBASED_CACHE_MARKER = '/* Evolution CMS: SVG manager icons; rebased CSS URLs v2 */';
+    private const REBASED_CACHE_MARKER = '/* Evolution CMS: SVG manager icons; rebased CSS URLs v3 */';
 
     private $cssPath = [];
 

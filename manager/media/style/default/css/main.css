@@ -143,7 +143,7 @@ div#tabCategory.tab-page ul li ul li { padding-top: 7px; padding-bottom: 7px; }
 .rTableHeading { display: table-header-group; }
 .rTableBody { display: table-row-group; }
 .rTableFoot { display: table-footer-group; }
-.lockCell, .mainCell, .btnCell, .rTableHead { display: table-cell; padding: 0; }
+.lockCell, .mainCell, .btnCell, .rTableHead { display: table-cell; padding: 0; vertical-align: middle; }
 .lockCell { width: 2.5em; padding-left: 10px; }
 .mainCell { width: auto; }
 .btnCell { width: 6em; text-align: right; padding-right: 1rem; }
@@ -165,8 +165,8 @@ ul.resourceTable .category_name { float: none; display: block; clear: both; marg
 /* Manager Elements Buttons bar*/
 ul.elements_buttonbar { list-style: none; margin: 0; padding: 0; display: table; table-layout: fixed; }
 ul.elements_buttonbar li { display: table-cell; padding: 0 !important; width: 2em; }
-ul.elements_buttonbar li a { display: block; width: 2em; padding: 4px 2px 2px 2px; margin: 1px; min-width: 22px; }
-ul.elements_buttonbar .evo-icon { font-size: 0.875rem; padding: 1px 1px 0; }
+ul.elements_buttonbar li a { display: inline-flex; align-items: center; justify-content: center; width: 2em; height: 1.75rem; padding: 0; margin: 1px; min-width: 22px; }
+ul.elements_buttonbar .evo-icon { font-size: 1rem; padding: 0; margin: 0; }
 /* Checkbox "Icons" */
 .noicons.tab-page ul li ul li a:before, .noicons .elements_description a > i.evo-icon:first-child { display: none !important; }
 /* View-dependent styles */
@@ -214,3 +214,8 @@ break-inside: avoid-column; -webkit-column-break-inside: avoid; -moz-column-brea
 .modx-alert.alert-error { background-color: #ffd0d0; border: 1px solid #f00; color: #000; }
 tr.userIdle td { color: #aaa; }
 tr.userIdle td strong:before {  font-style: normal; font-weight: normal; color: #aaa; padding: 0 5px 0 0; content:"";display:inline-block;width:1em;height:1em;vertical-align:middle;background-color:currentColor;-webkit-mask:var(--evo-icon-clock) center/contain no-repeat;mask:var(--evo-icon-clock) center/contain no-repeat; }
+
+.man_el_name > .evo-icon { vertical-align: -.2em; }
+.man_el_name > .evo-icon:first-child { width: 1.25em; font-size: 1rem; margin-right: .2em; }
+.lockCell .evo-icon { font-size: 1rem; }
+h1 .evo-icon-info-small::before { transform: scale(1.5); }
