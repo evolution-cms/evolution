@@ -75,8 +75,10 @@
 }
 #mainMenu.evo-manager-topbar .evo-manager-caret { min-height: 32px; padding: 6px 3px; }
 #mainMenu.evo-manager-topbar .evo-manager-caret svg { width: 14px; height: 14px; }
-#mainMenu.evo-manager-topbar #site .evo-manager-link { padding: 2px 8px; }
+#mainMenu.evo-manager-topbar #site .evo-manager-link { padding: 2px 4px; }
 #mainMenu.evo-manager-topbar #site svg { width: 22px; height: 22px; }
+#mainMenu.evo-manager-topbar #nav #bars { width: 32px; flex: 0 0 32px; }
+#mainMenu.evo-manager-topbar #nav #bars .evo-manager-link { width: 32px; padding: 6px; justify-content: center; }
 #mainMenu.evo-manager-topbar #bars svg { width: 20px; height: 20px; }
 #mainMenu.evo-manager-topbar .evo-manager-extra {
     padding: 5px;
