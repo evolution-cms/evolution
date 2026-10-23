@@ -41,6 +41,7 @@
 
 /vendor
 !/vendor/index.html
+/core/vendor/
 
 # IDE Helper
 evo_evolution.IDEhelper.php

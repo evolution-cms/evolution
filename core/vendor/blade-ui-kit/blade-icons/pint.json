@@ -1,6 +1,0 @@
-{
-    "notPath": [
-        "tests/fixtures/blade-icons.php",
-        "tests/fixtures/generated-manifest.php"
-    ]
-}
