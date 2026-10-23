@@ -123,7 +123,7 @@ class VerifyCsrfToken
         // Explicitly stale tokens must not be ignored even on read-only pages.
         return $request->input('_token', $request->header('X-CSRF-TOKEN')) !== null
             || in_array($action, self::MUTATING_GET_ACTIONS, true)
-            || (isset(self::MUTATING_GET_PARAMETERS[$action])
+            || ($action !== null && isset(self::MUTATING_GET_PARAMETERS[$action])
                 && $request->query->has(self::MUTATING_GET_PARAMETERS[$action]));
     }
 

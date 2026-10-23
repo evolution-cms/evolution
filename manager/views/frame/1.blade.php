@@ -104,7 +104,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                 session_timeout: {{(int)evo()->getConfig('session_timeout')}},
                 site_start: {{(int)evo()->getConfig('site_start')}},
                 tree_page_click: {{evo()->getConfig('tree_page_click')}},
-                theme: '{{ManagerTheme::getTheme()}}',
+                theme: @js(\EvolutionCMS\ManagerTheme::resolveAssetTheme(ManagerTheme::getTheme())),
                 theme_mode: '{{ManagerTheme::getThemeStyle()}}',
                 which_browser: '{{$user['which_browser']}}',
                 layout: {{(int)evo()->getConfig('manager_layout')}},

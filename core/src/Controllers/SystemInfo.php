@@ -34,6 +34,15 @@ class SystemInfo extends AbstractController implements ManagerTheme\PageControll
     {
         return [
             'serverArr' => $this->parameterServerArr(),
+            'opcacheInfo' => $this->opcacheInfo(),
+        ];
+    }
+
+    public function getReadOnlyParameters(): array
+    {
+        return [
+            'serverArr' => $this->parameterServerArr(false),
+            'opcacheInfo' => $this->opcacheInfo(),
         ];
     }
 
@@ -84,8 +93,11 @@ class SystemInfo extends AbstractController implements ManagerTheme\PageControll
         }
     }
 
-    protected function parameterServerArr(): Collection
+    protected function parameterServerArr(bool $allowReset = true): Collection
     {
+        $jit = $this->jitInfo();
+        $permissionsEnabled = (bool)$this->managerTheme->getCore()->getConfig('use_udperms');
+
         return new Collection([
             'evo_version' => [
                 'is_lexicon' => true,
@@ -104,18 +116,21 @@ class SystemInfo extends AbstractController implements ManagerTheme\PageControll
             ],
             'opcache' => [
                 'is_lexicon' => true,
-                'data' => $this->opcacheStatus(),
+                'data' => $this->opcacheStatus($allowReset),
                 'render' => 'manager::' . $this->getView() . '.html'
             ],
             'jit' => [
                 'is_lexicon' => true,
-                'data' => $this->jitStatus()
+                'data' => $this->managerTheme->getLexicon($jit['enabled'] ? 'enabled' : 'disabled') . ' (' . $jit['details'] . ')',
+                'status' => $jit['enabled'],
+                'details' => '(' . $jit['details'] . ')'
             ],
             'access_permissions' => [
                 'is_lexicon' => true,
                 'data' => $this->managerTheme->getLexicon(
-                    (bool)$this->managerTheme->getCore()->getConfig('use_udperms') ? 'enabled' : 'disabled'
-                )
+                    $permissionsEnabled ? 'enabled' : 'disabled'
+                ),
+                'status' => $permissionsEnabled
             ],
             'servertime' => [
                 'is_lexicon' => true,
@@ -176,13 +191,24 @@ class SystemInfo extends AbstractController implements ManagerTheme\PageControll
         ]);
     }
 
-    protected function opcacheStatus(): string
+    protected function opcacheStatus(bool $allowReset = true): string
     {
-        if (!$this->isOpcacheEnabled()) {
+        $info = $this->opcacheInfo();
+        if (!$info['enabled']) {
             return $this->managerTheme->getLexicon('disabled');
         }
 
-        $resetResult = $this->resetOpcacheIfRequested();
+        $resetResult = $allowReset ? $this->resetOpcacheIfRequested() : '';
+        $label = $this->managerTheme->getLexicon('enabled');
+        if ($info['can_reset']) {
+            $label = '<a href="index.php?a=53&opcache_reset=1&_token=' . e(csrf_token()) . '" class="text-underline">' . $label . '</a>';
+        }
+
+        return $label . ' ' . $info['details'] . $resetResult;
+    }
+
+    public function opcacheInfo(): array
+    {
         $status = $this->opcacheStatusData();
         $memory = $status['memory_usage'] ?? [];
         $statistics = $status['opcache_statistics'] ?? [];
@@ -192,10 +218,6 @@ class SystemInfo extends AbstractController implements ManagerTheme\PageControll
         $hits = (int)($statistics['hits'] ?? 0);
         $misses = (int)($statistics['misses'] ?? 0);
 
-        $label = $this->managerTheme->getLexicon('enabled');
-        if (function_exists('opcache_reset') && $this->canUseOpcacheApi()) {
-            $label = '<a href="index.php?a=53&opcache_reset=1&_token=' . e(csrf_token()) . '" class="text-underline">' . $label . '</a>';
-        }
         $details = sprintf($this->managerTheme->getLexicon('opcache_memory_details'),
             $this->formatBytes($used),
             $this->formatBytes($free),
@@ -203,10 +225,19 @@ class SystemInfo extends AbstractController implements ManagerTheme\PageControll
             number_format($misses, 0, '.', ' ')
         );
 
-        return $label . ' ' . $details . $resetResult;
+        $enabled = $this->isOpcacheEnabled();
+        return [
+            'enabled' => $enabled,
+            'details' => $enabled ? $details : '',
+            'can_reset' => $enabled && function_exists('opcache_reset') && $this->canUseOpcacheApi(),
+            'memory_used' => $this->formatBytes($used),
+            'memory_total' => $this->formatBytes($used + $free + (int)($memory['wasted_memory'] ?? 0)),
+            'has_statistics' => $memory !== [],
+            'hit_rate' => $hits + $misses > 0 ? number_format(100 * $hits / ($hits + $misses), 1, '.', '') . '%' : null,
+        ];
     }
 
-    protected function jitStatus(): string
+    protected function jitInfo(): array
     {
         $bufferSize = $this->iniBytes((string)ini_get('opcache.jit_buffer_size'));
         $enabled = $this->isOpcacheEnabled()
@@ -219,7 +250,7 @@ class SystemInfo extends AbstractController implements ManagerTheme\PageControll
             $enabled = (bool)$status['jit']['enabled'];
         }
 
-        return $this->managerTheme->getLexicon($enabled ? 'enabled' : 'disabled') . ' (' . $this->formatBytes($bufferSize) . ')';
+        return ['enabled' => $enabled, 'details' => $this->formatBytes($bufferSize)];
     }
 
     protected function resetOpcacheIfRequested(): string
@@ -228,11 +259,24 @@ class SystemInfo extends AbstractController implements ManagerTheme\PageControll
             return '';
         }
 
-        if (!function_exists('opcache_reset') || !$this->canUseOpcacheApi()) {
-            return ' - ' . $this->managerTheme->getLexicon('opcache_reset_unavailable');
-        }
+        return ' - ' . $this->managerTheme->getLexicon($this->resetOpcache());
+    }
 
-        return ' - ' . $this->managerTheme->getLexicon(@opcache_reset() ? 'opcache_reset_complete' : 'opcache_reset_failed');
+    /** Both the legacy token-protected action and Livewire use this operation. */
+    public function resetOpcache(): string
+    {
+        if (!$this->canView()) {
+            throw new \Symfony\Component\HttpKernel\Exception\HttpException(403);
+        }
+        if (!$this->isOpcacheEnabled() || !function_exists('opcache_reset') || !$this->canUseOpcacheApi()) {
+            return 'opcache_reset_unavailable';
+        }
+        return $this->performOpcacheReset() ? 'opcache_reset_complete' : 'opcache_reset_failed';
+    }
+
+    protected function performOpcacheReset(): bool
+    {
+        return @opcache_reset();
     }
 
     protected function isOpcacheEnabled(): bool

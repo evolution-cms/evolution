@@ -89,6 +89,12 @@ function csrfPassed(Request $request): bool
     return $reached;
 }
 
+it('allows authenticated read-only package routes without a dispatcher action', function () {
+    // Livewire script/probe routes have no numeric a= id. PHP 8.5+ deprecates
+    // indexing the conditional-action map with null; the request is still GET.
+    expect(csrfPassed(csrfRequest('GET', ['action' => 'script'])))->toBeTrue();
+});
+
 /*
 |--------------------------------------------------------------------------
 | The reported vulnerability

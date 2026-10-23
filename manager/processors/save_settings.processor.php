@@ -39,8 +39,9 @@ if ($data['friendly_urls'] === '1' && strpos($_SERVER['SERVER_SOFTWARE'], 'IIS')
     }
 }
 
-if (file_exists(EVO_MANAGER_PATH . 'media/style/' . $modx->getConfig('manager_theme') . '/css/styles.min.css')) {
-    unlink(EVO_MANAGER_PATH . 'media/style/' . $modx->getConfig('manager_theme') . '/css/styles.min.css');
+$themeCssCache = \EvolutionCMS\Facades\ManagerTheme::getThemeDir() . 'css/styles.min.css';
+if (file_exists($themeCssCache)) {
+    unlink($themeCssCache);
 }
 
 $data['filemanager_path'] = str_replace('[(base_path)]', EVO_BASE_PATH, $data['filemanager_path']);

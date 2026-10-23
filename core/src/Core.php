@@ -3759,7 +3759,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
         $style = '';
         if (IN_MANAGER_MODE) {
-            $path = 'media/style/' . $this->getConfig('manager_theme') . '/';
+            $path = 'media/style/' . \EvolutionCMS\ManagerTheme::resolveAssetTheme((string)$this->getConfig('manager_theme')) . '/';
             if (\EvolutionCMS\Support\Formatter\CSSMinify::isCacheCurrent(EVO_MANAGER_PATH . $path . 'css/styles.min.css')) {
                 $file_name = 'css/styles.min.css';
             } else {

@@ -361,12 +361,22 @@ class ManagerTheme implements ManagerThemeInterface
     }
 
     /**
+     * Opt-in Evo UI views share the established shell/assets until each screen
+     * is migrated. The logical theme name and its view overrides stay separate.
+     */
+    public static function resolveAssetTheme(string $theme): string
+    {
+        return $theme === 'evo-ui' ? 'default' : $theme;
+    }
+
+    /**
      * @param bool $full
+     * Shared asset directory, not the logical theme's view directory.
      * @return string
      */
     public function getThemeDir($full = true): string
     {
-        return ($full ? EVO_MANAGER_PATH : '') . 'media/style/' . $this->getTheme() . '/';
+        return ($full ? EVO_MANAGER_PATH : '') . 'media/style/' . self::resolveAssetTheme($this->getTheme()) . '/';
     }
 
     public function getThemeUrl(): string

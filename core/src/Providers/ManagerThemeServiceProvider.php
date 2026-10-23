@@ -6,6 +6,14 @@ use EvolutionCMS\Interfaces\ManagerThemeInterface;
 
 class ManagerThemeServiceProvider extends ServiceProvider
 {
+    public function boot(): void
+    {
+        $this->app->make(\EvoUI\EvoUI::class)->registerComponent(
+            'evo-core.system-info',
+            \EvolutionCMS\Livewire\SystemInfo::class
+        );
+    }
+
     /**
      * Indicates if loading of the provider is deferred.
      *
@@ -24,12 +32,13 @@ class ManagerThemeServiceProvider extends ServiceProvider
     {
         $this->app->singleton('ManagerTheme', function ($app) {
             $theme = $this->app->getConfig('manager_theme', 'default');
+            $assetTheme = ManagerTheme::resolveAssetTheme($theme);
             $this->loadSnippetsFrom(
-                EVO_MANAGER_PATH . 'media/style/' . $theme . '/snippets/',
+                EVO_MANAGER_PATH . 'media/style/' . $assetTheme . '/snippets/',
                 $this->namespace
             );
             $this->loadChunksFrom(
-                EVO_MANAGER_PATH . 'media/style/' . $theme . '/chunks/',
+                EVO_MANAGER_PATH . 'media/style/' . $assetTheme . '/chunks/',
                 $this->namespace
             );
             return new ManagerTheme($app, $theme);

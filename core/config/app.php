@@ -75,6 +75,7 @@
         'Fix_Fs' => EvolutionCMS\Providers\FsServiceProvider::class,
         'Blade_Icons' => EvolutionCMS\Providers\BladeIconsAdapterServiceProvider::class,
         'Blade_Tabler' => secondnetwork\TablerIcons\BladeTablerIconsServiceProvider::class,
+        'Evolution_EvoUI' => EvoUI\EvoUIServiceProvider::class,
     ],
 
     'aliases' => [
@@ -93,6 +94,7 @@
         'Lang' => Illuminate\Support\Facades\Lang::class,
         'Schema' => Illuminate\Support\Facades\Schema::class,
         'View' => Illuminate\Support\Facades\View::class,
+        'EvoUI' => EvoUI\Facades\EvoUI::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'Response' => Illuminate\Support\Facades\Response::class,
         'Redirect' => Illuminate\Support\Facades\Redirect::class,

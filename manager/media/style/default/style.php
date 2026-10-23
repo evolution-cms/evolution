@@ -11,8 +11,8 @@
 // Use the instance while ManagerTheme is being built, avoiding facade recursion.
 // Legacy modules such as sLang also include this file from their own controllers.
 $style_theme = isset($this) && $this instanceof \EvolutionCMS\ManagerTheme
-    ? $this->getTheme()
-    : evo()->getConfig('manager_theme', 'default');
+    ? \EvolutionCMS\ManagerTheme::resolveAssetTheme($this->getTheme())
+    : \EvolutionCMS\ManagerTheme::resolveAssetTheme(evo()->getConfig('manager_theme', 'default'));
 $style_path = 'media/style/' . $style_theme . '/images/';
 evo()->config['mgr_date_picker_path'] = 'media/calendar/datepicker.inc.php';
 

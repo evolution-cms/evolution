@@ -6,7 +6,7 @@
         <script src="media/script/element-name-helper.js"></script>
         <script>
             window.evoElementNameHelperConfig = window.evoElementNameHelperConfig || {};
-            window.evoElementNameHelperConfig.endpoint = 'media/style/{{ ManagerTheme::getTheme() }}/ajax.php';
+            window.evoElementNameHelperConfig.endpoint = @js(ManagerTheme::getThemeDir(false) . 'ajax.php');
 
             var defaultProperties = {!! $defaultProperties !!};
             var elementProperties = new ElementProperties({
