@@ -2191,7 +2191,9 @@ class SiteContent extends Eloquent\Model
             if (evo()->isFrontend()) {
                 $query->where('privateweb', 0);
             } else {
-                $query->whereRaw("1 = {$_SESSION['mgrRole']}");
+                // Error pages can run in manager/API mode without a manager
+                // session. Bind a fail-closed admin flag, never raw session SQL.
+                $query->whereRaw('1 = ?', [in_array($_SESSION['mgrRole'] ?? null, [1, '1'], true) ? 1 : 0]);
                 $query->orWhere('site_content.privatemgr', 0);
             }
             if ($docgrp) {
