@@ -84,7 +84,7 @@
 #mainMenu.evo-manager-topbar #site svg { width: 22px; height: 22px; }
 #mainMenu.evo-manager-topbar #nav #bars { width: 32px; flex: 0 0 32px; }
 #mainMenu.evo-manager-topbar #nav #bars .evo-manager-link { width: 32px; padding: 6px; justify-content: center; }
-#mainMenu.evo-manager-topbar #bars svg { width: 20px; height: 20px; }
+#mainMenu.evo-manager-topbar #bars svg { width: 20px; height: 20px; transform: translateX(-2px); }
 #mainMenu.evo-manager-topbar .evo-manager-extra {
     padding: 5px;
     min-height: 26px;
