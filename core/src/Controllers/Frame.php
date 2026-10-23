@@ -255,6 +255,9 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
             }
         }
 
+        // Both renderers consume the same final plugin-modified menu.
+        $this->parameters['menuItems'] = $this->sitemenu;
+
         $this->parameters['menu'] = (new \EvolutionCMS\Support\Menu())
             ->Build(
                 $this->sitemenu,

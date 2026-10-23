@@ -199,6 +199,9 @@
             id: 'mainMenu',
             init: function () {
                 var mm = d.getElementById('mainMenu'), timer;
+                if (mm.hasAttribute('data-evo-topbar')) {
+                    return; // The Evo UI renderer owns its dropdowns; tree/tabs/search stay shared.
+                }
                 mm.addEventListener('click', function (e) {
                     var a = e.target.closest('a');
                     if (!a) {

@@ -4,11 +4,22 @@ Select `evo-ui` under System configuration → Interface & Features → Manager 
 save and reload the manager. Select `default` to restore the existing interface.
 The default installation and existing sites keep `default`.
 
-This first slice overrides only `manager::page.sysinfo` (action 53). Both themes
-use the same controller, permission checks and data. Other views resolve through
-the existing `manager/views` fallback. The shell, tree, AJAX, snippets, chunks,
-login and legacy screens share the default theme's physical assets; they are not
-copied. Evo UI CSS/JavaScript are loaded only by the native iframe document.
+The theme overrides the topbar and `manager::page.sysinfo` (action 53). The frame,
+tree, AJAX, snippets, chunks, login and legacy screens share the default theme's
+physical assets; they are not copied. The topbar loads EvoUI's CSS tokens and
+components plus its own scoped CSS/JavaScript. It does not load a second Livewire
+or Alpine runtime into the frame. Native EvoUI iframe documents own their runtime.
+
+The topbar uses the final menu produced by the existing Frame controller after
+`OnManagerMenuPrerender`. Plugin-added roots, nested groups, positions, links,
+handlers and optional buttons keep their indexed-array contract. Element lists
+load through the existing guarded AJAX endpoint. See
+[`docs/manager/evo-ui-topbar.md`](../../../../docs/manager/evo-ui-topbar.md).
+
+The bar is compact, has no arrows on its standard root groups, and shows icons
+with accessible names on screens up to 600px wide. Nested menus retain labels
+and separate expansion controls. The existing theme button cycles the four
+Evolution modes; there is no palette selector.
 
 `ManagerTheme::getTheme()` identifies the logical selection;
 `getThemeDir()` / `getThemeUrl()` identify its shared physical asset directory.

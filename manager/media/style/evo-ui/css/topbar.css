@@ -1,0 +1,187 @@
+/* The frame/tree stay on their established runtime. All new rules belong to the topbar. */
+#mainMenu.evo-manager-topbar {
+    background: var(--color-base-100);
+    color: var(--color-base-content);
+    border-bottom: 1px solid var(--color-base-300);
+    box-shadow: 0 2px 8px #00000012;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    z-index: 12000;
+    overflow: visible;
+}
+#mainMenu.evo-manager-topbar .evo-manager-topbar__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 42px;
+    padding: 3px 12px;
+    box-sizing: border-box;
+}
+#mainMenu.evo-manager-topbar .evo-manager-menu,
+#mainMenu.evo-manager-topbar #settings {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    float: none;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    white-space: nowrap;
+    font-size: 13px;
+}
+#mainMenu.evo-manager-topbar li { list-style: none; }
+#mainMenu.evo-manager-topbar .evo-manager-item { position: relative; }
+#mainMenu.evo-manager-topbar .evo-manager-item__row { display: flex; align-items: center; }
+#mainMenu.evo-manager-topbar .evo-manager-link,
+#mainMenu.evo-manager-topbar #settings > li > a,
+#mainMenu.evo-manager-topbar .evo-manager-caret,
+#mainMenu.evo-manager-topbar .evo-manager-extra {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    min-height: 32px;
+    height: auto;
+    line-height: 1.4;
+    padding: 6px 8px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+#mainMenu.evo-manager-topbar .evo-manager-mobile-icon { display: none; }
+#mainMenu.evo-manager-topbar .evo-manager-link:hover,
+#mainMenu.evo-manager-topbar #settings > li > a:hover,
+#mainMenu.evo-manager-topbar .evo-manager-caret:hover,
+#mainMenu.evo-manager-topbar .is-open > .evo-manager-item__row,
+#mainMenu.evo-manager-topbar #settings > li.is-open > a {
+    background: var(--color-base-200);
+    color: var(--color-base-content);
+    border-radius: 7px;
+}
+#mainMenu.evo-manager-topbar :is(a, button, input):focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+}
+#mainMenu.evo-manager-topbar svg {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+}
+#mainMenu.evo-manager-topbar .evo-manager-caret { min-height: 32px; padding: 6px 3px; }
+#mainMenu.evo-manager-topbar .evo-manager-caret svg { width: 14px; height: 14px; }
+#mainMenu.evo-manager-topbar #site .evo-manager-link { padding: 2px 8px; }
+#mainMenu.evo-manager-topbar #site svg { width: 22px; height: 22px; }
+#mainMenu.evo-manager-topbar #bars svg { width: 20px; height: 20px; }
+#mainMenu.evo-manager-topbar .evo-manager-extra {
+    padding: 5px;
+    min-height: 26px;
+    margin: 0 6px 0 0;
+    color: var(--color-primary);
+}
+#mainMenu.evo-manager-topbar .evo-manager-submenu,
+#mainMenu.evo-manager-topbar #settings .dropdown-menu {
+    display: none;
+    position: fixed;
+    inset: auto;
+    z-index: 12001;
+    width: max-content;
+    min-width: 210px;
+    max-width: calc(100vw - 16px);
+    margin: 0;
+    padding: 6px;
+    background: var(--color-base-100);
+    color: var(--color-base-content);
+    border: 1px solid var(--color-base-300);
+    border-radius: 10px;
+    box-shadow: 0 12px 36px #00000026;
+    overflow: auto;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    white-space: normal;
+    font-size: 13px;
+}
+#mainMenu.evo-manager-topbar li.is-open > ul,
+#mainMenu.evo-manager-topbar #settings > li.is-open > ul { display: block; }
+#mainMenu.evo-manager-topbar .evo-manager-submenu .evo-manager-link { flex: 1; }
+#mainMenu.evo-manager-topbar .evo-manager-submenu .evo-manager-caret { margin-left: auto; }
+#mainMenu.evo-manager-topbar .evo-manager-submenu .evo-manager-caret svg { transform: rotate(-90deg); }
+#mainMenu.evo-manager-topbar :is(.evo-manager-submenu, .dropdown-menu) > li {
+    position: relative;
+    margin: 0;
+    border: 0;
+    float: none;
+    display: block;
+}
+#mainMenu.evo-manager-topbar :is(.evo-manager-submenu, .dropdown-menu) > li > :is(a, button),
+#mainMenu.evo-manager-topbar .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    min-height: 34px;
+    padding: 7px 10px;
+    border: 0;
+    border-radius: 6px;
+    color: inherit;
+    background: transparent;
+    text-decoration: none;
+    text-align: start;
+    font: inherit;
+    line-height: 1.4;
+    cursor: pointer;
+    white-space: nowrap;
+}
+#mainMenu.evo-manager-topbar :is(.evo-manager-submenu, .dropdown-menu) > li > :is(a, button):hover {
+    background: var(--color-base-200);
+    color: var(--color-base-content);
+}
+#mainMenu.evo-manager-topbar .evo-manager-item--divider { border-top: 1px solid var(--color-base-300) !important; margin-top: 5px !important; padding-top: 5px; }
+#mainMenu.evo-manager-topbar #searchform form { display: flex; align-items: center; margin: 0; }
+#mainMenu.evo-manager-topbar #searchform .label_searchid { color: inherit; height: auto; line-height: 1; padding: 6px; }
+#mainMenu.evo-manager-topbar #searchid {
+    width: 140px;
+    height: 32px;
+    min-height: 0;
+    background: var(--color-base-200);
+    color: var(--color-base-content);
+    border: 1px solid var(--color-base-300);
+    border-radius: 7px;
+    padding: 5px 8px;
+    font: inherit;
+}
+#mainMenu.evo-manager-topbar #account .icon { margin: 0; height: 22px; line-height: 22px; }
+#mainMenu.evo-manager-topbar #account .photo { width: 22px; }
+.evo-manager-dialog { color: var(--color-base-content); background: var(--color-base-100); border: 1px solid var(--color-base-300); border-radius: 12px; padding: 24px; max-width: min(480px, calc(100vw - 32px)); box-shadow: 0 16px 56px #0005; }
+.evo-manager-dialog::backdrop { background: #0006; backdrop-filter: blur(3px); }
+.evo-manager-dialog h2 { font: 600 20px system-ui; margin: 0 0 16px; }
+.evo-manager-dialog__actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 24px; }
+@media (max-width: 1050px) {
+    #mainMenu.evo-manager-topbar .evo-manager-topbar__bar { flex-wrap: wrap; gap: 4px; padding: 6px 8px; }
+    #mainMenu.evo-manager-topbar #settings { margin-left: auto; }
+}
+@media (max-width: 600px) {
+    #mainMenu.evo-manager-topbar .evo-manager-menu { flex-wrap: wrap; }
+    #mainMenu.evo-manager-topbar #settings { flex-wrap: wrap; justify-content: flex-end; }
+    #mainMenu.evo-manager-topbar #account .username { display: none; }
+    #mainMenu.evo-manager-topbar #searchid { width: 90px; }
+    #mainMenu.evo-manager-topbar .evo-manager-menu > li > .evo-manager-item__row > .evo-manager-link {
+        width: 32px;
+        padding: 6px;
+        justify-content: center;
+        gap: 0;
+        font-size: 0;
+    }
+    #mainMenu.evo-manager-topbar .evo-manager-menu > li > .evo-manager-item__row > .evo-manager-link .menu-item-text { display: none; }
+    #mainMenu.evo-manager-topbar .evo-manager-menu > li > .evo-manager-item__row > .evo-manager-link > i { font-size: 18px; }
+    #mainMenu.evo-manager-topbar .evo-manager-menu > li > .evo-manager-item__row > .evo-manager-link .evo-manager-mobile-icon { display: inline-block; }
+    #mainMenu.evo-manager-topbar #settings > li > a { padding: 6px; justify-content: center; min-width: 32px; }
+}
+
+#mainMenu.evo-manager-topbar .evo-manager-group-caret { width: 12px; height: 12px; }
