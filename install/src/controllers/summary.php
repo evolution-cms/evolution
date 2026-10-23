@@ -39,7 +39,7 @@ echo '<h3>' . $_lang['summary_setup_check'] . '</h3>';
 $errors = 0;
 
 // check PHP version
-define('PHP_MIN_VERSION', '8.3.0');
+define('PHP_MIN_VERSION', '8.4.1');
 $phpMinVersion = PHP_MIN_VERSION; // Maybe not necessary. For backward compatibility
 echo '<p>' . $_lang['checking_php_version'];
 // -1 if left is less, 0 if equal, +1 if left is higher

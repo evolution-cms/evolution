@@ -34,14 +34,18 @@ RUN { \
         echo 'error_log = /dev/stderr'; \
     } > /usr/local/etc/php/conf.d/evo-ci.ini
 
+COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
 WORKDIR /var/www/html
 
-# The repository ships core/vendor, so there is no composer step here and the
-# installer is called with --skipComposer=y. A copy rather than a bind mount:
+# Build dependencies from the lock using standalone Composer. A copy rather
+# than a bind mount:
 # the installer rewrites core/config and deletes install/, which would leave a
 # developer running this locally with a dirty working tree.
 COPY . /var/www/html
 
-RUN chmod +x .github/docker/ci/install-and-smoke.sh
+RUN composer install --working-dir=core --no-interaction --no-progress --prefer-dist \
+    && chmod +x .github/docker/ci/install-and-smoke.sh
 
 ENTRYPOINT ["/var/www/html/.github/docker/ci/install-and-smoke.sh"]

@@ -39,7 +39,7 @@ function fmLinksRemove(string $path): void
 function fmLinksSymlink(string $target, string $link): void
 {
     if (!function_exists('symlink') || !@symlink($target, $link)) {
-        test()->markTestSkipped('symlinks are not available here');
+        \PHPUnit\Framework\Assert::markTestSkipped('symlinks are not available here');
     }
 }
 
@@ -47,16 +47,16 @@ function fmLinksSymlink(string $target, string $link): void
 function fmLinksJunction(string $target, string $link): void
 {
     if (PHP_OS_FAMILY !== 'Windows') {
-        test()->markTestSkipped('junctions exist on Windows only');
+        \PHPUnit\Framework\Assert::markTestSkipped('junctions exist on Windows only');
     }
     try {
         $output = evoRunCommand('mklink /J ' . escapeshellarg(str_replace('/', '\\', $link)) . ' '
             . escapeshellarg(str_replace('/', '\\', $target)) . ' 2>&1', $code);
     } catch (\Exception $e) {
-        test()->markTestSkipped('no way to run mklink here');
+        \PHPUnit\Framework\Assert::markTestSkipped('no way to run mklink here');
     }
     if ($code !== 0) {
-        test()->markTestSkipped('junctions are not available here: ' . $output);
+        \PHPUnit\Framework\Assert::markTestSkipped('junctions are not available here: ' . $output);
     }
 }
 
@@ -300,7 +300,7 @@ it('allows a rename that only changes the case of the name', function () {
 it('refuses a case-only rename onto a different file on a case-sensitive file system', function () {
     file_put_contents($this->root . '/doomed/inner/File.txt', 'other');
     if (file_get_contents($this->root . '/doomed/inner/file.txt') !== 'inside') {
-        test()->markTestSkipped('the file system here ignores case');
+        \PHPUnit\Framework\Assert::markTestSkipped('the file system here ignores case');
     }
 
     expect(fileManagerCanRenameTo($this->root, $this->root . '/doomed/inner/file.txt', $this->root . '/doomed/inner/File.txt'))
@@ -311,6 +311,17 @@ it('routes the classic manager file rename through the rename check', function (
     $source = file_get_contents(dirname(__DIR__, 4) . '/manager/actions/files.dynamic.php');
 
     expect($source)->toContain('fileManagerCanRenameTo($filemanager_path, $filename, $path . \'/\' . $newFilename)');
+});
+
+it('does not replace a distinct case-sensitive hard link during a case-only rename', function () {
+    $source = $this->root . '/doomed/inner/file.txt';
+    $target = $this->root . '/doomed/inner/File.txt';
+    if (file_exists($target) || !function_exists('link') || !@link($source, $target)) {
+        \PHPUnit\Framework\Assert::markTestSkipped('distinct case-sensitive hard links are not available here');
+    }
+
+    expect(fileManagerCanRenameTo($this->root, $source, $target))->toBeFalse()
+        ->and(file_get_contents($target))->toBe('inside');
 });
 
 it('allows renaming a folder to a new name only', function () {

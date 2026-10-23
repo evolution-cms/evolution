@@ -21,7 +21,7 @@ function linkDisplayMake(string $target, string $link): void
         } catch (\Exception $e) {
         }
     }
-    test()->markTestSkipped('no links can be made here');
+    \PHPUnit\Framework\Assert::markTestSkipped('no links can be made here');
 }
 
 function linkDisplayRemove(string $path): void

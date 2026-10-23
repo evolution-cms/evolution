@@ -53,7 +53,7 @@ You can use the single click installer: [Evolution CMS Installer](https://github
 
 ### PHP compatibility
 
-Evolution CMS **3.6.x** requires **PHP 8.4 or later within PHP 8.x** (`^8.4` in [core/composer.json](core/composer.json)).
+Evolution CMS **3.6.x** requires **PHP 8.4.1 or later within PHP 8.x** (`^8.4.1` in [core/composer.json](core/composer.json)).
 
 | PHP version | Evolution CMS support | Recommendation |
 | --- | --- | --- |

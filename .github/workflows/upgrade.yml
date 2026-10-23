@@ -121,6 +121,10 @@ jobs:
           coverage: none
           tools: composer:v2
 
+      - name: Install target core dependencies
+        working-directory: new/core
+        run: composer install --no-dev --no-interaction --no-progress --prefer-dist
+
       - name: Upgrade and smoke test
         env:
           EVO_NEW_DIR: ${{ github.workspace }}/new

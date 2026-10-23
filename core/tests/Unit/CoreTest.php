@@ -45,7 +45,7 @@ beforeEach(function () {
         define('EVO_CLASS', 'Tests\Mocks\MockDocumentParser');
     }
 
-    // core/vendor is the dependency tree the CMS ships with; the root vendor/
+    // core/vendor is the installed CMS dependency tree; the root vendor/
     // only holds the static-analysis tools and is absent on the test runners.
     $autoload = EVO_CORE_PATH . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
     if (!file_exists($autoload)) {
