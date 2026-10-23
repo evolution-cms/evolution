@@ -17,7 +17,7 @@ RUN apt-get update \
         libpq-dev libsqlite3-dev libzip-dev libicu-dev libxml2-dev libonig-dev \
         libfreetype6-dev libjpeg62-turbo-dev libpng-dev unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j"$(nproc)" pdo_mysql pdo_pgsql pdo_sqlite zip intl gd mbstring \
+    && docker-php-ext-install -j"$(nproc)" pdo_mysql pdo_pgsql pdo_sqlite zip intl gd mbstring exif \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

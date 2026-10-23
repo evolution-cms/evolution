@@ -216,6 +216,8 @@ $expected = [
     'system_scheduler_health', 'system_settings', 'system_worker_health',
     'user_attributes', 'user_role_vars', 'user_roles', 'user_settings',
     'user_values', 'users',
+    // Bundled packages must be booted during installation, not merely present in vendor/.
+    's_galleries', 's_gallery_fields', 's_tasks', 's_workers', 's_supervisor_states',
 ];
 $missing = [];
 foreach ($expected as $table) {

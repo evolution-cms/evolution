@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  PHP_EXTENSIONS: ctype, dom, fileinfo, filter, iconv, intl, json, mbstring, openssl, pdo, pdo_sqlite, readline, simplexml, tokenizer, xml, xmlreader, zip
+  PHP_EXTENSIONS: ctype, dom, exif, fileinfo, filter, iconv, intl, json, mbstring, openssl, pdo, pdo_sqlite, readline, simplexml, tokenizer, xml, xmlreader, zip
 
 jobs:
   analyze:
