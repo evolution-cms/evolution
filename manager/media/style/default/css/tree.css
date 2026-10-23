@@ -76,11 +76,15 @@
 .treeRoot .evo-icon-folder, .treeRoot .evo-icon-folder-open, .treeRoot .evo-icon-folder, .treeRoot .evo-icon-folder-open, .treeRoot .evo-icon-alert-triangle { margin-top: 0.1em; text-align: left }
 .treeRoot .evo-icon-link { margin-right: 0; font-size: 0.8em }
 .treeRoot #binFull { display: none }
-/* Keep privacy badges anchored while JavaScript replaces open/closed folder icons. */
-.treeRoot .icon, #treeRoot .icon { position: relative; display: inline-block; width: 1.25em; height: 1.25em; vertical-align: middle; }
-.treeRoot .icon > svg, #treeRoot .icon > svg { width: 1.2em; height: 1.2em; vertical-align: middle; }
-.treeRoot a[data-private="1"] .icon::after, #treeRoot a[data-private="1"] .icon::after { position: absolute; float: none; right: -.2em; bottom: -.1em; margin: 0; width: .8em; height: .8em; font-size: inherit; color: #d9534f; }
-.treeRoot .toggle svg, #treeRoot .toggle svg { width: 1em; height: 1em; }
+/* Match the old tree's text baseline without nested inline pseudo-element line boxes. */
+.treeRoot a.node, #treeRoot a.node { line-height: 1.5em; }
+.treeRoot .icon, #treeRoot .icon { position: relative; display: inline-flex; align-items: center; justify-content: flex-start; width: 1.5em; height: 1.25em; vertical-align: -.2em; }
+.treeRoot .icon > .evo-icon, #treeRoot .icon > .evo-icon { display: block; width: 1em; height: 1em; margin: 0; font-size: 1.08em; }
+.treeRoot .icon > svg, #treeRoot .icon > svg { display: block; width: 1.08em; height: 1.08em; margin: 0; }
+.treeRoot a[data-private="1"] .icon::after, #treeRoot a[data-private="1"] .icon::after { position: absolute; float: none; right: .05em; bottom: 0; margin: 0; width: .7em; height: .7em; font-size: inherit; color: #d9534f; }
+.treeRoot .toggle, #treeRoot .toggle { display: inline-flex; align-items: center; justify-content: center; height: 1.5em; margin-top: 0; margin-bottom: 0; line-height: 1; }
+.treeRoot .toggle > .evo-icon, #treeRoot .toggle > .evo-icon, .treeRoot .toggle > svg, #treeRoot .toggle > svg { display: block; width: 1em; height: 1em; margin: 0; font-size: 1em; }
+.treeRoot .title .evo-icon, #treeRoot .title .evo-icon { vertical-align: -.125em; }
 /* modes theme */
 /* lightness */
 .lightness #treeMenu { background-color: #e8e8e8 }
