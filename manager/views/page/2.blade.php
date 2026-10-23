@@ -163,12 +163,8 @@
         'logincount' => $_SESSION['mgrLogincount'] + 1,
     ]);
     if (evo()->hasPermission('widget_online_info')) {
-        $activeUsers = \EvolutionCMS\Models\ActiveUserSession::query()
-            ->join('active_users', 'active_users.sid', '=', 'active_user_sessions.sid')
-            ->where('active_users.action', '<>', 8)
-            ->orderBy('username', 'ASC')
-            ->orderBy('active_users.sid', 'ASC');
-        if ($activeUsers->count() < 1) {
+        $activeUsers = \EvolutionCMS\Services\ManagerActivity::instance()->onlineUsers();
+        if ($activeUsers->isEmpty()) {
             $html = '<p>[%no_active_users_found%]</p>';
         } else {
             $now = evo()->now()->unix();
@@ -196,7 +192,7 @@
             $userList = [];
             $userCount = [];
             // Create userlist with session-count first before output
-            foreach ($activeUsers->get()->toArray() as $activeUser) {
+            foreach ($activeUsers->toArray() as $activeUser) {
                 $userCount[$activeUser['internalKey']] = isset($userCount[$activeUser['internalKey']])
                     ? $userCount[$activeUser['internalKey']] + 1 :
                     1;

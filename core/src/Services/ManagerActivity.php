@@ -5,6 +5,7 @@ namespace EvolutionCMS\Services;
 use EvolutionCMS\Models\ActiveUser;
 use EvolutionCMS\Models\ActiveUserLock;
 use EvolutionCMS\Models\ActiveUserSession;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -14,8 +15,8 @@ use Illuminate\Support\Facades\Log;
  *
  * Each of these used to be its own autocommit statement inside the request - six or seven
  * fsyncs on every manager page, about 55 ms of the ~80 ms bootstrap on an fsync-per-commit
- * MySQL. Nothing in the same request reads its own bookkeeping back (the lock and action
- * queries exclude the current user), so nothing observable moves.
+ * MySQL. Readers that need the current request's activity must flush first; the dashboard
+ * uses onlineUsers() so its current session and action are visible together.
  * @since 3.5.9
  */
 final class ManagerActivity
@@ -108,6 +109,23 @@ final class ManagerActivity
     public function hasPending(): bool
     {
         return $this->jobs !== [];
+    }
+
+    /**
+     * @return Collection<int, ActiveUserSession>
+     */
+    public function onlineUsers(): Collection
+    {
+        // The frameset may have refreshed the session with a different SID from the last action.
+        // Publish this request's session and action together before the dashboard joins them.
+        $this->flush();
+
+        return ActiveUserSession::query()
+            ->join('active_users', 'active_users.sid', '=', 'active_user_sessions.sid')
+            ->where('active_users.action', '<>', 8)
+            ->orderBy('username', 'ASC')
+            ->orderBy('active_users.sid', 'ASC')
+            ->get();
     }
 
     /**

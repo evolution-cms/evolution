@@ -95,6 +95,50 @@ test('a session replaces the stale rows of the same user and of the same sid', f
         ->toBe(['sid-a' => 7, 'someone-else' => 9]);
 });
 
+test('online users include the first manager visit before the response is sent', function () {
+    $activity = ManagerActivity::instance();
+    $activity->touchSession(7, 'first-visit', 1000, '10.0.0.1');
+    $activity->setAction(7, 'first-visit', 'admin', 1000, 2, 0);
+
+    $users = $activity->onlineUsers();
+
+    expect($users)->toHaveCount(1)
+        ->and($users->first()->username)->toBe('admin')
+        ->and($users->first()->ip)->toBe('10.0.0.1')
+        ->and($users->first()->action)->toBe('2')
+        ->and($activity->hasPending())->toBeFalse();
+});
+
+test('online users reconcile the session and action before joining them', function () {
+    Capsule::table('active_user_sessions')->insert(['sid' => 'frameset', 'internalKey' => 7, 'lasthit' => 1, 'ip' => '']);
+    Capsule::table('active_users')->insert(['sid' => 'previous-page', 'internalKey' => 7, 'username' => 'admin', 'lasthit' => 1, 'action' => '93']);
+
+    $activity = ManagerActivity::instance();
+    $activity->touchSession(7, 'dashboard', 2000, '10.0.0.2');
+    $activity->setAction(7, 'dashboard', 'admin', 2000, 2, 0);
+
+    $users = $activity->onlineUsers();
+    $activity->flush(); // The normal end-of-response flush must not repeat the writes.
+
+    expect($users)->toHaveCount(1)
+        ->and($users->first()->sid)->toBe('dashboard')
+        ->and($users->first()->lasthit)->toBe(2000)
+        ->and($users->first()->action)->toBe('2')
+        ->and(Capsule::table('active_user_sessions')->count())->toBe(1)
+        ->and(Capsule::table('active_users')->count())->toBe(1);
+});
+
+test('online users omit logout and unmatched sessions and sort by username', function () {
+    $activity = ManagerActivity::instance();
+    foreach ([7 => ['z-editor', 27], 8 => ['admin', 2], 9 => ['logged-out', 8]] as $id => [$name, $action]) {
+        $activity->touchSession($id, 'sid-' . $id, 1000, '10.0.0.1');
+        $activity->setAction($id, 'sid-' . $id, $name, 1000, $action, 0);
+    }
+    $activity->setAction(10, 'no-session', 'unmatched', 1000, 2, 0);
+
+    expect($activity->onlineUsers()->pluck('username')->all())->toBe(['admin', 'z-editor']);
+});
+
 test('an action keeps one active_users row per user and refreshes an existing lock in place', function () {
     Capsule::table('active_users')->insert(['sid' => 'old', 'internalKey' => 7, 'username' => 'admin', 'lasthit' => 1, 'action' => '3', 'id' => null]);
     Capsule::table('active_user_locks')->insert(['sid' => 'old', 'internalKey' => 7, 'elementType' => 7, 'elementId' => 42, 'lasthit' => 1]);
