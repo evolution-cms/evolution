@@ -22,7 +22,7 @@ class DatabaseBackup extends BaseWorker
     /** Group core workers together. @since 3.6.0 */
     public function scope(): string { return 'EvolutionCMS'; }
     /** Database icon for the workers list. @since 3.6.0 */
-    public function icon(): string { return '<i class="fas fa-database"></i>'; }
+    public function icon(): string { return '<i class="evo-icon evo-icon-database"></i>'; }
     /** Localized manager title. @since 3.6.0 */
     public function title(): string { return __('global.bkmgr_snapshot_title'); }
     /** Localized worker description. @since 3.6.0 */

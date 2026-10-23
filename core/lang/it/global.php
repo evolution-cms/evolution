@@ -429,7 +429,7 @@ $_lang["htmlsnippet_msg"] = 'Qui potete aggiungere/modificare i Chunks. Ricordat
 $_lang["htmlsnippet_name"] = 'Nome Chunk';
 $_lang["htmlsnippet_title"] = 'Crea/Modifica Chunk';
 $_lang["icon"] = 'Icona';
-$_lang["icon_description"] = 'classe CSS. i.e. fa&nbsp;fa-star';
+$_lang["icon_description"] = 'classe CSS. i.e. evo-icon&nbsp;evo-icon-star';
 $_lang["id"] = 'ID';
 $_lang["illegal_parent_child"] = 'Assegnazione parentela:\n\nLa Risorsa è un sottodocumento della Risorsa selezionata.';
 $_lang["illegal_parent_self"] = 'Assegnazione parentela:\n\nLa Risorsa selezionata non può essere assegnata a se stessa.';
@@ -503,7 +503,7 @@ $_lang["login_cancelled_site_was_updated"] = '<span style="font-weight: bold; co
 $_lang["login_captcha_message"] = 'Inserite il codice di sicurezza mostrato all\'interno dell\'immagine grafica. Se avete difficoltà nel leggere il codice, cliccateci sopra per generarne un altro a caso, oppure contattate l\'amministratore del sito.';
 $_lang["login_homepage"] = 'Autenticazione Pagina d\'inizio';
 $_lang["login_homepage_message"] = 'Inserite l\'ID della Risorsa da mostrare all\'utente dopo che ha eseguito l\'autenticazione. <b>NOTA: assicuratevi che la Risorsa indicata esista, sia pubblicata e accessibile all\'utente!</b>';
-$_lang["login_message"] = 'Inserisci le tue credenziali per effettuare l\'accesso.<br /> Il sistema fa distinzione fra le maiuscole/minuscole del nome utente e della password.';
+$_lang["login_message"] = 'Inserisci le tue credenziali per effettuare l\'accesso.<br /> Il sistema evo-icon distinzione fra le maiuscole/minuscole del nome utente e della password.';
 $_lang["logo_slogan"] = 'Sistema di gestione dei contenuti EVO - \nCreate e fate di più con meno';
 $_lang["logout"] = 'Uscita';
 $_lang["long_title"] = 'Titolo esteso';
@@ -528,7 +528,7 @@ $_lang["manager_theme_mode1"] = 'è tutto chiaro';
 $_lang["manager_theme_mode2"] = 'l\'header è scuro';
 $_lang["manager_theme_mode3"] = 'l\'header e la sidebar sono scuri';
 $_lang["manager_theme_mode4"] = 'è tutto scuro';
-$_lang['manager_theme_mode_message'] = 'Questa impostazione viene utilizzata come "predefinita" e può essere sovrascritta dall\'utente con il pulsante "Modalità Colore del Tema", nell\'albero delle risorse: <i class="fa fa-lg fa-adjust"></i>';
+$_lang['manager_theme_mode_message'] = 'Questa impostazione viene utilizzata come "predefinita" e può essere sovrascritta dall\'utente con il pulsante "Modalità Colore del Tema", nell\'albero delle risorse: <i class="evo-icon evo-icon-lg evo-icon-brightness-half"></i>';
 $_lang['manager_theme_mode_title'] = 'Modalità colore del Tema';
 $_lang["meta_keywords"] = 'META e parole chiave';
 $_lang["metatag_intro"] = 'In questa pagina potete eliminare, creare o modificare i META tag e le parole chiave. Per collegare le parole chiave alle Risorse, modificate la Risorsa in questione e selezionate le parole chiave desiderate dalla lista. Per aggiungere una parola chiave digitate la nuova parola e poi cliccate \'Aggiungi tag\'.';

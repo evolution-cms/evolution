@@ -1117,7 +1117,7 @@ store = {
 		array.dev_badge = array.is_dev_package === '1' ? ($('[name="dev_badge"]').val() || 'DEV') : '';
 		array.dev_badge_class = array.is_dev_package === '1' ? '' : 'hidden';
 		array.download_class = array.downloads ? '' : 'hidden';
-		array.popup_downloads = array.downloads ? '<br/><span class=\'fa fa-download\'> </span> Downloads: <strong>' + store.escapeHtml(array.downloads) + '</strong>' : '';
+		array.popup_downloads = array.downloads ? '<br/><span class=\'evo-icon evo-icon-download\'> </span> Downloads: <strong>' + store.escapeHtml(array.downloads) + '</strong>' : '';
 		array.zip = array.url == ''?'zip':'github';
 
 		array.version = array.version || '';
@@ -1215,7 +1215,7 @@ store = {
 			.attr('title', $('[name="delete_label"]').val() || 'delete');
 
 		if ((array.source_kind || '') === 'console') {
-			$out.find('.item-more').html('<i class="fa fa-book"></i> readme');
+			$out.find('.item-more').html('<i class="evo-icon evo-icon-book"></i> readme');
 		}
 
 		if (array.is_installed) {
@@ -1317,14 +1317,14 @@ store = {
 			+ '<div class="store-install-step">'
 			+ '<div class="store-install-card-head">'
 			+ '<span class="store-install-card-label">' + store.escapeHtml(openCoreLabel) + '</span>'
-			+ '<button type="button" class="store-copy-button" data-copy-command="' + store.escapeHtml('cd ' + corePath) + '" aria-label="' + store.escapeHtml(copyLabel) + '"><i class="fa fa-copy"></i></button>'
+			+ '<button type="button" class="store-copy-button" data-copy-command="' + store.escapeHtml('cd ' + corePath) + '" aria-label="' + store.escapeHtml(copyLabel) + '"><i class="evo-icon evo-icon-copy"></i></button>'
 			+ '</div>'
 			+ '<div class="store-install-command">' + store.escapeHtml('cd ' + corePath) + '</div>'
 			+ '</div>'
 			+ '<div class="store-install-step">'
 			+ '<div class="store-install-card-head">'
 			+ '<span class="store-install-card-label">' + store.escapeHtml(runArtisanLabel) + '</span>'
-			+ '<button type="button" class="store-copy-button" data-copy-command="' + store.escapeHtml(command) + '" aria-label="' + store.escapeHtml(copyLabel) + '"><i class="fa fa-copy"></i></button>'
+			+ '<button type="button" class="store-copy-button" data-copy-command="' + store.escapeHtml(command) + '" aria-label="' + store.escapeHtml(copyLabel) + '"><i class="evo-icon evo-icon-copy"></i></button>'
 			+ '</div>'
 			+ '<div class="store-install-command">' + store.escapeHtml(command) + '</div>'
 			+ '</div>'
@@ -1341,7 +1341,7 @@ store = {
 				html += '<div class="store-task-warning-list"><div class="store-task-warning-item"><strong>' + store.escapeHtml(warningLabel) + ':</strong> <span>' + store.escapeHtml(autoWarningLabel) + '</span></div></div>';
 			}
 			html += '<div class="store-task-actions">'
-				+ '<button type="button" class="btn btn-primary store-task-start" data-task-type="console_install" data-catalog-item-id="' + store.escapeHtml(catalogItemId) + '" data-version="' + store.escapeHtml(selectedVersion || '') + '" data-title="' + store.escapeHtml(name) + '"><i class="fa fa-play"></i> ' + store.escapeHtml(queueLabel) + '</button>'
+				+ '<button type="button" class="btn btn-primary store-task-start" data-task-type="console_install" data-catalog-item-id="' + store.escapeHtml(catalogItemId) + '" data-version="' + store.escapeHtml(selectedVersion || '') + '" data-title="' + store.escapeHtml(name) + '"><i class="evo-icon evo-icon-player-play"></i> ' + store.escapeHtml(queueLabel) + '</button>'
 				+ '</div>';
 		} else {
 			html += '<p class="store-popup-note store-task-note-muted">' + store.escapeHtml(autoDisabledLabel) + '</p>';
@@ -1353,7 +1353,7 @@ store = {
 				+ '<div class="store-install-step">'
 				+ '<div class="store-install-card-head">'
 				+ '<span class="store-install-card-label">' + store.escapeHtml(schedulerRuntimeLabel) + '</span>'
-				+ '<button type="button" class="store-copy-button" data-copy-command="' + store.escapeHtml(schedulerRuntimeCommand) + '" aria-label="' + store.escapeHtml(copyLabel) + '"><i class="fa fa-copy"></i></button>'
+				+ '<button type="button" class="store-copy-button" data-copy-command="' + store.escapeHtml(schedulerRuntimeCommand) + '" aria-label="' + store.escapeHtml(copyLabel) + '"><i class="evo-icon evo-icon-copy"></i></button>'
 				+ '</div>'
 				+ '<div class="store-install-command">' + store.escapeHtml(schedulerRuntimeCommand) + '</div>'
 				+ '</div>'
@@ -1391,7 +1391,7 @@ store = {
 			+ '<div class="store-install-step">'
 			+ '<div class="store-install-card-head">'
 			+ '<span class="store-install-card-label">' + store.escapeHtml(runtimeLabel) + '</span>'
-			+ '<button type="button" class="store-copy-button" data-copy-command="' + store.escapeHtml(schedulerCommand) + '" aria-label="' + store.escapeHtml(copyLabel) + '"><i class="fa fa-copy"></i></button>'
+			+ '<button type="button" class="store-copy-button" data-copy-command="' + store.escapeHtml(schedulerCommand) + '" aria-label="' + store.escapeHtml(copyLabel) + '"><i class="evo-icon evo-icon-copy"></i></button>'
 			+ '</div>'
 			+ '<div class="store-install-command">' + store.escapeHtml(schedulerCommand) + '</div>'
 			+ '</div>'
@@ -1619,12 +1619,12 @@ store = {
 		html += '<div class="store-task-note-area" data-role="task-note-area"></div>';
 		html += '<div class="store-task-warning-list" data-role="task-warnings"></div>';
 		html += '<div class="store-task-status-grid">';
-		html += store.buildSystemTaskLiveMetaItem('fa-tasks', $('[name="system_task_modal_status"]').val() || 'Status', 'task-status');
-		html += store.buildSystemTaskLiveMetaItem('fa-list-ol', $('[name="system_task_modal_step"]').val() || 'Step', 'task-step');
-		html += store.buildSystemTaskLiveMetaItem('fa-bar-chart', $('[name="system_task_modal_progress"]').val() || 'Progress', 'task-progress');
+		html += store.buildSystemTaskLiveMetaItem('evo-icon-list-check', $('[name="system_task_modal_status"]').val() || 'Status', 'task-status');
+		html += store.buildSystemTaskLiveMetaItem('evo-icon-list-numbers', $('[name="system_task_modal_step"]').val() || 'Step', 'task-step');
+		html += store.buildSystemTaskLiveMetaItem('evo-icon-chart-bar', $('[name="system_task_modal_progress"]').val() || 'Progress', 'task-progress');
 		html += ''
 			+ '<div class="store-popup-meta-item">'
-			+ '<i class="fa fa-clock-o" aria-hidden="true"></i>'
+			+ '<i class="evo-icon evo-icon-clock" aria-hidden="true"></i>'
 			+ '<span class="store-popup-meta-label">' + store.escapeHtml($('[name="system_task_modal_elapsed"]').val() || 'Elapsed') + ':</span>'
 			+ '<strong class="store-task-elapsed-value" data-started-at="' + store.escapeHtml(elapsedBase) + '" data-finished-at="' + store.escapeHtml(elapsedEnd) + '">' + store.escapeHtml(store.formatElapsedTime(elapsedBase, elapsedEnd)) + '</strong>'
 			+ '</div>';
@@ -1659,7 +1659,7 @@ store = {
 	buildSystemTaskLiveMetaItem: function(iconClass, label, role){
 		return ''
 			+ '<div class="store-popup-meta-item">'
-			+ '<i class="fa ' + store.escapeHtml(iconClass) + '" aria-hidden="true"></i>'
+			+ '<i class="evo-icon ' + store.escapeHtml(iconClass) + '" aria-hidden="true"></i>'
 			+ '<span class="store-popup-meta-label">' + store.escapeHtml(label) + ':</span>'
 			+ '<strong data-role="' + store.escapeHtml(role) + '"></strong>'
 			+ '</div>';
@@ -1717,7 +1717,7 @@ store = {
 				noteHtml += '<div class="store-install-step">';
 				noteHtml += '<div class="store-install-card-head">';
 				noteHtml += '<span class="store-install-card-label">' + store.escapeHtml(queuedStaleState.command_label || (($('[name="console_install_scheduler_local"]').val() || 'Local'))) + '</span>';
-				noteHtml += '<button type="button" class="store-copy-button" data-copy-command="' + store.escapeHtml(queuedStaleState.command) + '" aria-label="' + store.escapeHtml($('[name="popup_copy_command"]').val() || 'Copy command') + '"><i class="fa fa-copy"></i></button>';
+				noteHtml += '<button type="button" class="store-copy-button" data-copy-command="' + store.escapeHtml(queuedStaleState.command) + '" aria-label="' + store.escapeHtml($('[name="popup_copy_command"]').val() || 'Copy command') + '"><i class="evo-icon evo-icon-copy"></i></button>';
 				noteHtml += '</div>';
 				noteHtml += '<div class="store-install-command">' + store.escapeHtml(queuedStaleState.command) + '</div>';
 				noteHtml += '</div>';
@@ -2186,10 +2186,10 @@ store = {
 		var versionValue = selectedVersion || $button.attr('data-version') || '';
 		var html = '<div class="store-popup-meta">';
 
-		html += store.buildMetaItem('fa-refresh', versionLabel, versionValue);
-		html += store.buildMetaItem('fa-clock-o', updatedLabel, $button.attr('data-date') || '');
-		html += store.buildMetaItem('fa-user', authorLabel, $button.attr('data-author') || '');
-		html += store.buildMetaItem('fa-download', downloadsLabel, $button.attr('data-downloads') || '');
+		html += store.buildMetaItem('evo-icon-refresh', versionLabel, versionValue);
+		html += store.buildMetaItem('evo-icon-clock', updatedLabel, $button.attr('data-date') || '');
+		html += store.buildMetaItem('evo-icon-user', authorLabel, $button.attr('data-author') || '');
+		html += store.buildMetaItem('evo-icon-download', downloadsLabel, $button.attr('data-downloads') || '');
 		html += '</div>';
 
 		return html;
@@ -2201,7 +2201,7 @@ store = {
 
 		return ''
 			+ '<div class="store-popup-meta-item">'
-			+ '<i class="fa ' + store.escapeHtml(iconClass) + '" aria-hidden="true"></i>'
+			+ '<i class="evo-icon ' + store.escapeHtml(iconClass) + '" aria-hidden="true"></i>'
 			+ '<span class="store-popup-meta-label">' + store.escapeHtml(label) + ':</span>'
 			+ '<strong>' + store.escapeHtml(value) + '</strong>'
 			+ '</div>';
@@ -2477,11 +2477,11 @@ store = {
 				}
 
 				var $button = $(button);
-				$button.addClass('is-copied').attr('aria-label', copiedLabel).html('<i class="fa fa-check"></i>');
+				$button.addClass('is-copied').attr('aria-label', copiedLabel).html('<i class="evo-icon evo-icon-check"></i>');
 				setTimeout(function(){
 					$button.removeClass('is-copied')
 						.attr('aria-label', copyLabel)
-						.html('<i class="fa fa-copy"></i>');
+						.html('<i class="evo-icon evo-icon-copy"></i>');
 				}, 3000);
 			});
 

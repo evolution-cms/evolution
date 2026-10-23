@@ -1,0 +1,372 @@
+[
+  {
+    "repository": "Dmi3yy/dDocs",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "main",
+        "commit": "bef6349f547db9e5d84340eed5258f39c61ac1a0"
+      },
+      {
+        "kind": "catalog-release",
+        "ref": "v1.1.1",
+        "commit": "bef6349f547db9e5d84340eed5258f39c61ac1a0"
+      }
+    ]
+  },
+  {
+    "repository": "Dmi3yy/dTui-editor",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "main",
+        "commit": "2b7c23a2e152d113558cccaeee6252989820c1f0"
+      },
+      {
+        "kind": "catalog-release",
+        "ref": "v1.0.2",
+        "commit": "7e87572d97263039be908d7cbb3107b5460679c8"
+      }
+    ]
+  },
+  {
+    "repository": "Seiger/sApi",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "main",
+        "commit": "8d096a905fcb70a79ee9459c0c1f88de7d98025b"
+      },
+      {
+        "kind": "catalog-release",
+        "ref": "v1.1.1",
+        "commit": "5f5a8bb6d3bd91e32dfc182dc5601da8c220876c"
+      }
+    ]
+  },
+  {
+    "repository": "Seiger/sArticles",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "2.x",
+        "commit": "9cce795aab2b4c91a9094b0ba88bdee2ad078643"
+      },
+      {
+        "kind": "catalog-release",
+        "ref": "v1.2.4",
+        "commit": "603cd097c246e22ac697aae98a391c9ecf8b0ae8"
+      }
+    ]
+  },
+  {
+    "repository": "Seiger/sCommerce",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "1.x",
+        "commit": "f082e4341bc6a1257c0e38bb022098459f1e0c1f"
+      },
+      {
+        "kind": "catalog-release",
+        "ref": "v1.3.14",
+        "commit": "723dd9c946cabeb3f2bc5bf88191a0c01529c9d8"
+      }
+    ]
+  },
+  {
+    "repository": "Seiger/sGallery",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "main",
+        "commit": "e82d8680ea1d24e83363c90382c82cc7ac890a38"
+      },
+      {
+        "kind": "catalog-release",
+        "ref": "v1.7.0",
+        "commit": "e82d8680ea1d24e83363c90382c82cc7ac890a38"
+      }
+    ]
+  },
+  {
+    "repository": "Seiger/sLang",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "2.x",
+        "commit": "7d43fd1a8437f424bc7f1154d9604798f6613ebe"
+      },
+      {
+        "kind": "catalog-release",
+        "ref": "v1.1.4",
+        "commit": "99c7b836ce96322f19d9627cd80d1d52d848e0c3"
+      }
+    ]
+  },
+  {
+    "repository": "Seiger/sLibrary",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "2.x",
+        "commit": "b6663073399cf8d9104e210a9dbc241c9ebdd5b1"
+      }
+    ]
+  },
+  {
+    "repository": "Seiger/sMailer",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "2.x",
+        "commit": "61038f87f20ac2da0570b8dcc1e4edc2422aa953"
+      },
+      {
+        "kind": "catalog-release",
+        "ref": "v1.0.1",
+        "commit": "c1660f263221fb2ad2d5b03773dc81f0812bebb2"
+      }
+    ]
+  },
+  {
+    "repository": "Seiger/sMultisite",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "master",
+        "commit": "ec0083e4ae4e6e7df4d722161809fc9bf184c4e9"
+      },
+      {
+        "kind": "catalog-release",
+        "ref": "v1.1.8",
+        "commit": "ec0083e4ae4e6e7df4d722161809fc9bf184c4e9"
+      }
+    ]
+  },
+  {
+    "repository": "Seiger/sOffers",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "master",
+        "commit": "3d4da8d7bf15f686a2f1c6ff81824f6795dc6b52"
+      },
+      {
+        "kind": "catalog-release",
+        "ref": "v1.0.0",
+        "commit": "57593fa58546a7a27a322951e1449ac341444516"
+      }
+    ]
+  },
+  {
+    "repository": "Seiger/sSeo",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "main",
+        "commit": "5319ee750ef27d66d22aa53674bc408189f460ab"
+      },
+      {
+        "kind": "catalog-release",
+        "ref": "v1.3.4",
+        "commit": "5319ee750ef27d66d22aa53674bc408189f460ab"
+      }
+    ]
+  },
+  {
+    "repository": "Seiger/sSettings",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "2.x",
+        "commit": "7e35a84cdd8c3815c803d97fdbef3e76a1dd6399"
+      },
+      {
+        "kind": "catalog-release",
+        "ref": "v2.0.1",
+        "commit": "c8b6cfbfcd5ef812bd3d0e5254bd5f50422c8a93"
+      }
+    ]
+  },
+  {
+    "repository": "Seiger/sTask",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "2.x",
+        "commit": "6355cf293422d43885d803cdd43637c0896f63cd"
+      },
+      {
+        "kind": "catalog-release",
+        "ref": "v2.2.1",
+        "commit": "6355cf293422d43885d803cdd43637c0896f63cd"
+      }
+    ]
+  },
+  {
+    "repository": "elcreator/aEvoAST",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "main",
+        "commit": "00fb1ae93b1692a8a1855423ea13bac083b046f6"
+      },
+      {
+        "kind": "catalog-release",
+        "ref": "index-3.5.8",
+        "commit": "00fb1ae93b1692a8a1855423ea13bac083b046f6"
+      }
+    ]
+  },
+  {
+    "repository": "elcreator/aIMage",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "main",
+        "commit": "0f63ca445c4956b93e8db5842f556f40927d6569"
+      },
+      {
+        "kind": "catalog-release",
+        "ref": "v0.4.0",
+        "commit": "0f63ca445c4956b93e8db5842f556f40927d6569"
+      }
+    ]
+  },
+  {
+    "repository": "elcreator/aLatteX",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "main",
+        "commit": "d38baa75070e6a144518913cb6c30db68dd559ac"
+      },
+      {
+        "kind": "catalog-release",
+        "ref": "0.5.0",
+        "commit": "d38baa75070e6a144518913cb6c30db68dd559ac"
+      }
+    ]
+  },
+  {
+    "repository": "elcreator/aMount",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "main",
+        "commit": "ef883817c9f9a23e582655480a93ad85eb9552f3"
+      },
+      {
+        "kind": "catalog-release",
+        "ref": "0.2.0",
+        "commit": "13d2124c971ffc01b658710f0b49a94f49a4a4cb"
+      }
+    ]
+  },
+  {
+    "repository": "elcreator/aPhalcon",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "main",
+        "commit": "fc805e5ac339073bfb1482e02127747800b11c16"
+      }
+    ]
+  },
+  {
+    "repository": "elcreator/aSocialAuth",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "main",
+        "commit": "6c2a0090a6bfd3dc558c6dfb952a8b9e2f1fca35"
+      }
+    ]
+  },
+  {
+    "repository": "evolution-cms-extras/TinyMCE5",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "master",
+        "commit": "59c34991bf816ac484fe1c68642563f533bad9fb"
+      },
+      {
+        "kind": "catalog-release",
+        "ref": "v5.7.2",
+        "commit": "59c34991bf816ac484fe1c68642563f533bad9fb"
+      }
+    ]
+  },
+  {
+    "repository": "evolution-cms-extras/evocms-resourceHistory",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "master",
+        "commit": "738a80b4d8da7ac33556708da7b69c7dcd9eddf5"
+      }
+    ]
+  },
+  {
+    "repository": "evolution-cms-extras/multifields",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "master",
+        "commit": "07bb5a4ba703b79212503a5759bd97e8f561ea58"
+      },
+      {
+        "kind": "catalog-release",
+        "ref": "v3.1.1",
+        "commit": "964f37f03d8f781d245d13d1806380faaf1ea99b"
+      }
+    ]
+  },
+  {
+    "repository": "evolution-cms/eCodemirror",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "main",
+        "commit": "d28da160f61ff7cd1f3af7f6d352d8a2000e3817"
+      }
+    ]
+  },
+  {
+    "repository": "evolution-cms/eFilemanager",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "main",
+        "commit": "f95a4630da37aa6cdb724a3d857f410dbed166b2"
+      }
+    ]
+  },
+  {
+    "repository": "evolution-cms/ePasskeys",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "main",
+        "commit": "c4e9a0a0053721994195977d9d2fa0c58f94e14f"
+      }
+    ]
+  },
+  {
+    "repository": "evolution-cms/eTinyMCE",
+    "snapshots": [
+      {
+        "kind": "default-branch",
+        "ref": "main",
+        "commit": "8bc76fa77c3a90d1fcc14dd8dfe6c1d7c73041f4"
+      },
+      {
+        "kind": "catalog-release",
+        "ref": "v8.3.3",
+        "commit": "8bc76fa77c3a90d1fcc14dd8dfe6c1d7c73041f4"
+      }
+    ]
+  }
+]

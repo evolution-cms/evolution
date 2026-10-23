@@ -1,4 +1,4 @@
-@import "../../../../style/common/font-awesome/css/font-awesome.min.css?v=5.10.2";
+@import "../../../../style/common/icons/manager-icons.css";
 
 body {
     background: #e0dfde;
@@ -209,8 +209,8 @@ div.file .thumb.folder-icon {
 }
 
 div.file .thumb.folder-icon:before {
-    content: "\f07b";
-    font-family: 'Font Awesome 5 Free';
+    content:"";display:inline-block;width:1em;height:1em;vertical-align:middle;background-color:currentColor;-webkit-mask:var(--evo-icon-folder) center/contain no-repeat;mask:var(--evo-icon-folder) center/contain no-repeat;
+
     font-size: inherit;
     font-weight: 900;
     color: #3687e2;

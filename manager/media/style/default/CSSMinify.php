@@ -1,6 +1,6 @@
 <?php return [
     EVO_MANAGER_PATH . 'media/style/common/bootstrap/css/bootstrap.min.css',
-    EVO_MANAGER_PATH . 'media/style/common/font-awesome/css/font-awesome.min.css',
+    EVO_MANAGER_PATH . 'media/style/common/icons/manager-icons.css',
     EVO_MANAGER_PATH . 'media/style/default/css/fonts.css',
     EVO_MANAGER_PATH . 'media/style/default/css/forms.css',
     EVO_MANAGER_PATH . 'media/style/default/css/mainmenu.css',

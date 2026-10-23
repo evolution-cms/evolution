@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="media/style/[+manager_theme+]/style.css" />
     <link rel="stylesheet" type="text/css" href="[+site_url+]/assets/modules/store/css/style.css?v=[+v+]-legacydelete1-taskui23" />
     <!--- <link rel="stylesheet" type="text/css" href="media/style/[+manager_theme+]/store.css" /> -->
-    <link rel="stylesheet" href="media/style/common/font-awesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="media/style/common/icons/manager-icons.css" />
     <link rel="stylesheet" type="text/css" href="[+site_url+]/assets/modules/store/js/fancybox/jquery.fancybox.css" media="screen" />
     <script src="[+site_url+]/assets/modules/store/js/jquery.min.js" type="text/javascript"></script>
     <script src="[+site_url+]/assets/modules/store/js/store.js?v=1.0.55" type="text/javascript"></script>
@@ -20,7 +20,7 @@
 <body class="[+body_class_name+]">
     <h1 class="pagetitle">
       <span class="pagetitle-icon">
-        <i class="fa fa-archive"></i>
+        <i class="evo-icon evo-icon-archive"></i>
       </span>
       <span class="pagetitle-text">[+store_name+]</span>
     </h1>
@@ -189,14 +189,14 @@
 
                             <div class="input-group">
                                 <span class="input-group-btn">
-					<button id="hide-side" type="button" class="btn btn-secondary"><i id="hide-icon" class="fa fa-bars"></i></button>
+					<button id="hide-side" type="button" class="btn btn-secondary"><i id="hide-icon" class="evo-icon evo-icon-menu-2"></i></button>
 				</span>
                                 <input id="store_search" class="form-control" onkeyup="store_search( $(this).val() )" placeholder="[+search+]" type="text" name="store_search" value="">
 				<span class="input-group-btn">
-					<button id="list-btn" type="button" class="btn btn-secondary bt-active"><i class="fa fa-list" aria-hidden="true"></i></button>
+					<button id="list-btn" type="button" class="btn btn-secondary bt-active"><i class="evo-icon evo-icon-list" aria-hidden="true"></i></button>
 				</span>
 				<span class="input-group-btn">
-					<button id="3col-btn" type="button" class="btn btn-secondary"><i class="fa fa-th" aria-hidden="true"></i></button>
+					<button id="3col-btn" type="button" class="btn btn-secondary"><i class="evo-icon evo-icon-layout-grid" aria-hidden="true"></i></button>
 				</span>
 				<span class="input-group-btn store-select-wrap store-sort-wrap">
                                     <span class="store-select-display"></span>
@@ -260,9 +260,9 @@
                             </a>
                             <span class="descript">%description%</span>
                             <div class="info_extras">
-                                <span class="item-downloads %download_class%"><i class="fa fa-download"></i><span class="item-downloads-value">%downloads%</span></span>
-                                <button type="button" class="btn btn-sm btn-secondary pull-right item-more %more_hidden_class%"><i class="fa fa-info"></i> [+more+]</button>
-                                <button type="button" class="btn btn-sm btn-danger pull-right item-delete %delete_hidden_class%" aria-label="[+delete+]" title="[+delete+]"><i class="fa fa-trash"></i></button>
+                                <span class="item-downloads %download_class%"><i class="evo-icon evo-icon-download"></i><span class="item-downloads-value">%downloads%</span></span>
+                                <button type="button" class="btn btn-sm btn-secondary pull-right item-more %more_hidden_class%"><i class="evo-icon evo-icon-info-small"></i> [+more+]</button>
+                                <button type="button" class="btn btn-sm btn-danger pull-right item-delete %delete_hidden_class%" aria-label="[+delete+]" title="[+delete+]"><i class="evo-icon evo-icon-trash-filled"></i></button>
                             </div>
                             <div class="install_extras">
                                 <a href="#" class="btn btn-success item-install %install_hidden_class%" data-text="[+alert_overwrite+]" data-url="%url%" data-source-url="%source_url%" data-id="%id%" data-name="%title%" data-package="%install_target%" data-method="%install_method%" data-command="%install_command%" data-dependencies="%dependencies%" data-installed-state="%installed_state%">[+install+]</a>
@@ -330,7 +330,7 @@
                 x.style.display = 'none';
                 $('.extras-list').removeClass('col-sm-9');
                 $('.extras-list').addClass('col-sm-12');
-                $('#hide-icon').toggleClass('fa-bars fa-ellipsis-v');
+                $('#hide-icon').toggleClass('evo-icon-menu-2 evo-icon-dots-vertical');
             }
             $("#hide-side").click(function() {
                 var x = document.getElementById('sidebar2');
@@ -338,7 +338,7 @@
                     x.style.display = 'block';
                     $('.extras-list').removeClass('col-sm-12');
                     $('.extras-list').addClass('col-sm-9');
-                    $('#hide-icon').toggleClass('fa-bars fa-ellipsis-v');
+                    $('#hide-icon').toggleClass('evo-icon-menu-2 evo-icon-dots-vertical');
                     localStorage.removeItem('hide_xtraSidebar');
                 } else {
                     setxtraSide(HideExtraSide);

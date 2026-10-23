@@ -818,7 +818,7 @@ $_lang["hide_tree"] = 'Sayt ağacını gizlət';
 $_lang["home"] = 'İdarəetmə paneli';
 
 $_lang["icon"] = 'İkon';
-$_lang["icon_description"] = 'CSS sinif dəyəri. Məsələn, fa&nbsp;fa-star';
+$_lang["icon_description"] = 'CSS sinif dəyəri. Məsələn, evo-icon&nbsp;evo-icon-star';
 $_lang["id"] = 'ID';
 $_lang["illegal_parent_child"] = 'Valideyn təyinatı:\n\nResurs seçilmiş resursun övladıdır.';
 $_lang["illegal_parent_self"] = 'Valideyn təyinatı:\n\nSeçilmiş resurs özünə valideyn olaraq təyin edilə bilməz.';
@@ -916,7 +916,7 @@ $_lang["manager_theme_mode1"] = 'hər şey açıq rəngdədir';
 $_lang["manager_theme_mode2"] = 'yalnız başlıq tünd rəngdədir';
 $_lang["manager_theme_mode3"] = 'başlıq və yan panel tünd rəngdədir';
 $_lang["manager_theme_mode4"] = 'hər şey tünd rəngdədir';
-$_lang['manager_theme_mode_message'] = 'Bu ayar "standart" kimi istifadə olunur və idarəetmə panelində resurs ağacındakı mövzu rəng rejimi keçid düyməsi ilə dəyişdirilə bilər: <i class="fa fa-lg fa-adjust"></i>';
+$_lang['manager_theme_mode_message'] = 'Bu ayar "standart" kimi istifadə olunur və idarəetmə panelində resurs ağacındakı mövzu rəng rejimi keçid düyməsi ilə dəyişdirilə bilər: <i class="evo-icon evo-icon-lg evo-icon-brightness-half"></i>';
 $_lang['manager_theme_mode_title'] = 'Mövzu rəng rejimi keçidi';
 
 $_lang["meta_keywords"] = 'META açar sözlər';
@@ -1246,7 +1246,7 @@ Bu, [+sname+] məzmun meneceri üçün giriş məlumatlarınızdır:
 
 Məzmun Menecerinə ([+surl+]) daxil olduqdan sonra şifrənizi dəyişə bilərsiniz.
 
-Hörmətlə,  
+Hörmətlə,
 Sayt Administratoru';
 $_lang["system_email_webreminder"] = 'Salam, [+uid+]
 
@@ -1260,7 +1260,7 @@ Yeni şifrənizi aktivləşdirmək üçün aşağıdakı linkə keçid edin:
 
 Əgər bu e-poçtu siz istəməmisinizsə, sadəcə onu nəzərə almayın.
 
-Hörmətlə,  
+Hörmətlə,
 Sayt Administratoru';
 $_lang["system_email_websignup"] = 'Salam, [+uid+]
 
@@ -1271,7 +1271,7 @@ Bu, [+sname+] üçün giriş məlumatlarınızdır:
 
 [+sname+] ([+surl+]) sisteminə daxil olduqdan sonra şifrənizi dəyişə bilərsiniz.
 
-Hörmətlə,  
+Hörmətlə,
 Sayt Administratoru';
 $_lang["table_hoverinfo"] = 'Cədvəl adının üzərinə gedərək onun funksiyası haqqında qısa məlumatı görə bilərsiniz (bütün cədvəllərdə <i>şərhlər</i> mövcud deyil).';
 $_lang["table_prefix"] = 'Cədvəl prefiksi';

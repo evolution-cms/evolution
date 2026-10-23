@@ -53,7 +53,7 @@
 			<script type="text/javascript"> if('[+config_display+]' == 'block') tpPane.addTabPage(document.getElementById("tabcheck"));</script>
 			<div class="sectionHeader">[%configcheck_title%]</div>
 			<div class="sectionBody">
-				<i class="fa fa-times-circle"></i>
+				<i class="evo-icon evo-icon-circle-x"></i>
 				[+config_check_results+]
 			</div>
 		</div>

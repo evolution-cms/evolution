@@ -13,7 +13,7 @@
             <div class="mainCell elements_description">
                 <span>
                     <a class="man_el_name" data-type="{{ $tabIndexPageName }}" data-id="{{ $item->id }}" data-catid="{{ $item->category }}" href="{{ $item->makeUrl('actions.edit') }}">
-                        <i class="fa fa-user-tag"></i>
+                        <i class="evo-icon evo-icon-user-square"></i>
                         @if($item->locked)
                             <i class="{{ $_style['icon_lock'] }}"></i>
                         @endif

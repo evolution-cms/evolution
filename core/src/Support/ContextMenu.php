@@ -44,8 +44,8 @@ class ContextMenu implements ContextMenuInterface{
         }
         $action = " onmouseover=\"this.className='cntxMnuItemOver';\" onmouseout=\"this.className='cntxMnuItem';\" onclick=\"$action; hideCntxMenu('" . $this->id . "');\"";
         $this->html .= "<div class='" . ($disabled ? "cntxMnuItemDisabled" : "cntxMnuItem") . "' $action>";
-        if(substr($img, 0, 5) == 'fa fa') {
-            $img = '<i class="' . $img . '"></i>';
+        if(str_starts_with($img, 'evo-icon ')) {
+            $img = icon_markup($img);
         } else if(substr($img, 0, 1) != '<') {
             $img = '<img src="' . $img . '" />';
         }

@@ -44,7 +44,7 @@ margin-bottom: .5rem; font-family: inherit; font-weight: 500; line-height: 1.1; 
 .h4, h4 { font-size: 1rem }
 .h5, h5 { font-size: 0.8125rem }
 .h6, h6 { font-size: 0.7rem }
-h1 .fa:first-child { color:#444; margin-right: 0.5em }
+h1 .evo-icon:first-child { color:#444; margin-right: 0.5em }
 a { color: #3481bc; text-decoration: none }
 .text-primary { color: #3481bc !important; }
 a:focus, a:hover { color: #014c8c; text-decoration: underline }
@@ -92,11 +92,12 @@ a.text-gray-dark:focus, a.text-gray-dark:hover { color: #101112 !important }
 .clear { clear: both; }
 /* custom */
 #loadingmask { display: none !important; }
-.fa > .fa-lock { position: relative; float: left; width: auto !important; margin-top: -1em; font-size: 0.7em !important; color: #ffc107 !important; -webkit-text-stroke: 1px rgba(0, 0, 0, 0.39); text-stroke: 1px rgba(0, 0, 0, 0.39); }
+.evo-icon:has(> .evo-icon-lock) { position: relative; }
+.evo-icon > .evo-icon-lock { position: absolute; left: -.2em; bottom: -.2em; width: 1em !important; font-size: 0.7em !important; color: #ffc107 !important; }
 .rotate180 { -webkit-transform: rotate(180deg); -moz-transform: rotate(180deg); -ms-transform: rotate(180deg); -o-transform: rotate(180deg); transform: rotate(180deg); }
 .disabledPlugin, .disabledPlugin a { color: #b68282; font-style: italic; }
 h1 { font-size: 1.5em; line-height: 1.5rem; padding: 0.8rem; margin: 0; }
-h1 .fa { margin-right: 0.25em; color: #1377c5; }
+h1 .evo-icon { margin-right: 0.25em; color: #1377c5; }
 h1 .help { margin: 0 0 0 0.25em; color: rgba(0, 0, 0, 0.15); font-size: 0.8em; cursor: pointer }
 h1 .help:hover { color: rgba(0, 0, 0, 0.3); }
 h1 small { margin-left: 0.5em; line-height: 1em }

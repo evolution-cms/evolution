@@ -45,12 +45,12 @@
     }
 
     // Rebuild legacy stored labels instead of inserting their HTML. Only the
-    // known Font Awesome icon classes survive; all label text is escaped.
+    // known Evo SVG icon classes survive; all label text is escaped.
     function title(value) {
         if (typeof value !== 'string' || value.length > 4096) return '';
         var icon = value.match(/<i\s+class=(["'])([a-z0-9 -]+)\1\s*>\s*<\/i>/i);
         var classes = icon ? icon[2].split(/\s+/).filter(function (name) {
-            return /^(?:fa[brsldt]?|fa-[a-z0-9-]+)$/.test(name);
+            return /^(?:evo-icon|evo-icon-[a-z0-9-]+)$/.test(name);
         }) : [];
         var text = value.replace(/<(script|style|svg)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, '')
             .replace(/<[^>]*>/g, '').trim();

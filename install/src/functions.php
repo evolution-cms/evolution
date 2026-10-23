@@ -361,7 +361,7 @@ function validateAdminPassword($password)
 
 function validateLangCode($langCode)
 {
-    if (!in_array($langCode, explode(' ', 'az be bg cs da de en es fa fi fr he it ja nl nn pl pt ru sv uk zh'))) {
+    if (!in_array($langCode, explode(' ', 'az be bg cs da de en es evo-icon fi fr he it ja nl nn pl pt ru sv uk zh'))) {
         throw new InvalidArgumentException('Language code should be 2 characters lowercase');
     }
     return $langCode;

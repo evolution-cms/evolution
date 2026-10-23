@@ -29,6 +29,6 @@ test('the spinner turns the refresh icon', () => {
   const css = fs.readFileSync(path.join(base, '..', 'css.php'), 'utf8');
 
   assert.match(css, /\.kc-loading \{[^}]*display: flex;[^}]*align-items: center;/);
-  assert.match(css, /\.kc-loading:before \{[^}]*content: "\\f021";[^}]*animation: kc-loading-spin 1s linear infinite;/);
+  assert.match(css, /\.kc-loading:before \{[^}]*mask:var\(--evo-icon-refresh\)[^}]*animation: kc-loading-spin 1s linear infinite;/);
   assert.match(css, /@keyframes kc-loading-spin/);
 });

@@ -46,7 +46,7 @@ $_style['icon_trash'] = svg('tabler-trash')->toHtml();
             <a class="treeButton" id="treeMenu_openfiles" title="{{ ManagerTheme::getLexicon('files_management') }}&#013;{{ ManagerTheme::getLexicon('em_button_shift') }}"><i class="{{ $_style['icon_files'] }}"></i></a>
         @endif --}}
         @if(evo()->hasPermission('empty_trash'))
-            <a class="treeButton treeButtonDisabled" id="treeMenu_emptytrash" title="{{ ManagerTheme::getLexicon('empty_recycle_bin_empty') }}">{{ icon_html($_style['icon_trash']) }}</a>
+            <a class="treeButton disabled" id="treeMenu_emptytrash" aria-disabled="true" data-bin-state="empty" title="{{ ManagerTheme::getLexicon('empty_recycle_bin_empty') }}">{{ icon_html($_style['icon_trash_alt']) }}</a>
         @endif
         {{-- <a class="treeButton" id="treeMenu_theme_dark" onclick="evo.tree.toggleTheme(event)" title="{{ ManagerTheme::getLexicon('manager_theme_mode_title') }}"><i class="{{ $_style['icon_theme'] }}"></i></a> --}}
     </div>

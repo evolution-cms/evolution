@@ -443,7 +443,7 @@ $_lang["htmlsnippet_msg"] = 'Add and edit Chunks. Remember, Chunks are \'raw\' H
 $_lang["htmlsnippet_name"] = 'Chunk name';
 $_lang["htmlsnippet_title"] = 'Create/edit Chunk';
 $_lang["icon"] = 'Icon';
-$_lang["icon_description"] = 'CSS class value. e.g. fa&nbsp;fa-star';
+$_lang["icon_description"] = 'CSS class value. e.g. evo-icon&nbsp;evo-icon-star';
 $_lang["id"] = 'ID';
 $_lang["illegal_parent_child"] = 'Parent Assignment:\n\nResource is a child of the selected Resource.';
 $_lang["illegal_parent_self"] = 'Parent Assignment:\n\nThe selected Resource cannot be assigned to itself.';
@@ -548,7 +548,7 @@ $_lang["manager_theme_mode1"] = 'everything is light';
 $_lang["manager_theme_mode2"] = 'the header is dark';
 $_lang["manager_theme_mode3"] = 'header and sidebar are dark';
 $_lang["manager_theme_mode4"] = 'everything is dark';
-$_lang['manager_theme_mode_message'] = 'This setting is used as the "default" and can be overridden by the manager when using the theme color mode switch button in the Resource Tree: <i class="fa fa-lg fa-adjust"></i>';
+$_lang['manager_theme_mode_message'] = 'This setting is used as the "default" and can be overridden by the manager when using the theme color mode switch button in the Resource Tree: <i class="evo-icon evo-icon-lg evo-icon-brightness-half"></i>';
 $_lang['manager_theme_mode_title'] = 'Theme color mode switch';
 $_lang["meta_keywords"] = 'META Keywords';
 $_lang["metatag_intro"] = 'On this page you can delete, create or edit META tags. To link META tags to Resources, click on the <u>META Keywords</u> tab when editing the Resource, and select the desired META tags and keywords. To add a new tag enter the name and value and click the \'Add tag\' button. To edit the tag click on the name of the tag from within the data grid.';

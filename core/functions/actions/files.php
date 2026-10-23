@@ -1509,7 +1509,7 @@ if(!function_exists('ls')) {
                             ? '<a href="javascript:deleteLink(\'' . urlencode($file) . '\');"><i class="' . $_style['icon_trash']
                                 . '" title="' . e($_lang['files_link_delete']) . '"></i></a>'
                             : '',
-                        'text' => '<span class="FilesLink"><i class="' . ($_style['icon_link'] ?? 'fa fa-link') . '"></i> '
+                        'text' => '<span class="FilesLink"><i class="' . ($_style['icon_link'] ?? 'evo-icon evo-icon-link') . '"></i> '
                             . htmlspecialchars($file, ENT_QUOTES, 'UTF-8')
                             . ' <small class="text-muted">&rarr; '
                             . htmlspecialchars(fileManagerLinkTargetText($filemanager_path, $newpath), ENT_QUOTES, 'UTF-8')

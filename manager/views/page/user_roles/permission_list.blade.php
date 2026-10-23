@@ -1,6 +1,6 @@
 <div class="tab-page {{ $tabPageName }}" id="{{ $tabIndexPageName }}">
     <h2 class="tab">
-        <a href="?a=86&tab={{ $index }}"><i class="fa fa-user-tag"></i>{{ ManagerTheme::getLexicon('manage_permission') }}</a>
+        <a href="?a=86&tab={{ $index }}"><i class="evo-icon evo-icon-user-square"></i>{{ ManagerTheme::getLexicon('manage_permission') }}</a>
     </h2>
     <script>tpResources.addTabPage(document.getElementById('{{ $tabIndexPageName }}'));</script>
 

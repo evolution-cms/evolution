@@ -303,7 +303,7 @@
                                         evo.post(evo.EVO_MANAGER_URL + 'media/style/' + evo.config.theme + '/ajax.php', href, function (data) {
                                             if (data) {
                                                 if (evo.isMobile || w.innerWidth < evo.minWidth) {
-                                                    data = '<li class="dropdown-back"><span class="dropdown-item"><i class="fa fa-arrow-left"></i>' + evo.lang.paging_prev + '</span></li>' + data;
+                                                    data = '<li class="dropdown-back"><span class="dropdown-item"><i class="evo-icon evo-icon-arrow-left"></i>' + evo.lang.paging_prev + '</span></li>' + data;
                                                 }
                                                 ul.id = 'parent_' + self.id;
                                                 ul.innerHTML = data;
@@ -1854,6 +1854,8 @@
                     if (a) {
                         el.title = evo.lang.empty_recycle_bin;
                         el.classList.remove('disabled');
+                        el.setAttribute('aria-disabled', 'false');
+                        el.dataset.binState = 'full';
                         el.innerHTML = evo.style.icon_trash;
                         el.onclick = function () {
                             evo.tree.emptyTrash();
@@ -1865,6 +1867,8 @@
                     } else {
                         el.title = evo.lang.empty_recycle_bin_empty;
                         el.classList.add('disabled');
+                        el.setAttribute('aria-disabled', 'true');
+                        el.dataset.binState = 'empty';
                         el.innerHTML = evo.style.icon_trash_alt;
                         el.onclick = null;
                     }
@@ -2328,7 +2332,7 @@
                     height: 'auto', // auto | 100 | 100rem | 100px | 100%
                     hide: 1, // close after delay
                     hover: 1, // close after hover
-                    icon: '', // empty | fa class | none
+                    icon: '', // empty | evo-icon class | none
                     iframe: 'iframe', // iframe | ajax
                     margin: '.5rem',
                     maxheight: '',
@@ -2540,7 +2544,7 @@
                     if (o.title) {
                         o.header = document.createElement('div');
                         if (o.icon !== 'none') {
-                            o.header.innerHTML += '<i class="fa fa-fw ' + (o.icon ? o.icon : 'fa-' + o.type) + '"></i>';
+                            o.header.innerHTML += '<i class="evo-icon evo-icon-fw ' + (o.icon ? o.icon : 'evo-icon-' + ({error: 'alert-circle', warning: 'alert-triangle', success: 'circle-check', info: 'info-circle'}[o.type] || 'info-circle')) + '"></i>';
                         }
                         o.header.innerHTML += o.title;
                         o.header.className = 'evo-popup-header';

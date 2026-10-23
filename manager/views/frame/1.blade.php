@@ -32,7 +32,7 @@ $_style['icon_question_circle'] = svg('tabler-help-circle')->toHtml();
 $_style['icon_home'] = svg('tabler-home')->toHtml();
 $_style['icon_expand'] = svg('tabler-arrows-maximize')->toHtml();
 $_style['icon_compress'] = svg('tabler-arrows-minimize')->toHtml();
-$_style['icon_trash'] = svg('tabler-trash-x')->toHtml();
+$_style['icon_trash'] = svg('tabler-trash-filled')->toHtml();
 $_style['icon_trash_alt'] = svg('tabler-trash')->toHtml();
 $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
 @endphp

@@ -23,8 +23,8 @@ test('content folders use the tree font glyph instead of a folder image', () => 
   assert.match(browserSource, /div\.thumb\.folder-icon'\)\.css\('font-size', Math\.round\(size \* 0\.8\)/);
   assert.match(browserSource, /'<div class="' \+ thumbClass \+ '"' \+ thumbData \+ '><\/div>' \+\s*'<div class="name">' \+ _.htmlData\(file\.name\)/);
   assert.doesNotMatch(browserSource, /big\/folder\.png/);
-  assert.match(evoStyle, /div\.file \.thumb\.folder-icon:before[^\n]*content: "\\f07b"/);
-  assert.match(oxygenStyle, /div\.file \.thumb\.folder-icon:before\s*\{[^}]*content: "\\f07b"/);
+  assert.match(evoStyle, /div\.file \.thumb\.folder-icon:before[^\n]*mask:var\(--evo-icon-folder\)/);
+  assert.match(oxygenStyle, /div\.file \.thumb\.folder-icon:before\s*\{[^}]*mask:var\(--evo-icon-folder\)/);
   assert.match(evoStyle, /div\.file \.thumb\.folder-icon:before[^\n]*color: #3687e2/);
   assert.match(oxygenStyle, /div\.file \.thumb\.folder-icon:before\s*\{[^}]*color: #3687e2/);
   assert.match(evoStyle, /div\.file\.folder \.name \{[^}]*height: auto;[^}]*white-space: normal/);

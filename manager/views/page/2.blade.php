@@ -517,7 +517,7 @@
                 $styleKey = 'icon_' . str_replace('-', '_', substr($widget['icon'], 7));
                 $widget['icon_html'] = $_style[$styleKey] ?? '';
             } else {
-                $widget['icon_html'] = '<i class="fa ' . ($widget['icon'] ?? '') . '"></i>';
+                $widget['icon_html'] = '<i class="evo-icon ' . ($widget['icon'] ?? '') . '"></i>';
             }
             $output .= evo()->parseText($tpl, $widget);
         }

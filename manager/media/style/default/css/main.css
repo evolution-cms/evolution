@@ -128,13 +128,13 @@ table th { font-weight: 500; }
 /* Required for Bootstrap3 Collapse */
 .panel-title > a { font-size: 1.1em; color: #657587; display: block; padding: 3px 0; }
 .panel-title > a:hover { text-decoration: none; color: #1377c5; background: rgba(255, 255, 255, 0.27); }
-.panel-title > a > i::before { content: "\f107"; /* fa-angle-down */ }
-.panel-title > a.collapsed > i::before { content: "\f105"; /* fa-angle-right */ }
+.panel-title > a > i::before { content:"";display:inline-block;width:1em;height:1em;vertical-align:middle;background-color:currentColor;-webkit-mask:var(--evo-icon-chevron-down) center/contain no-repeat;mask:var(--evo-icon-chevron-down) center/contain no-repeat; /* evo-icon-chevron-down */ }
+.panel-title > a.collapsed > i::before { content:"";display:inline-block;width:1em;height:1em;vertical-align:middle;background-color:currentColor;-webkit-mask:var(--evo-icon-chevron-right) center/contain no-repeat;mask:var(--evo-icon-chevron-right) center/contain no-repeat; /* evo-icon-chevron-right */ }
 /* category icons in manage elements */
 #site_templates, #site_tmplvars, #site_htmlsnippets, #site_snippets, #site_plugins { padding-left: 0; }
 #site_templates li, #site_tmplvars li, #site_htmlsnippets li, #site_snippets li, #site_modules li, #site_plugins li, #categories_list li { list-style: none; margin-left: -21px; }
-#site_templates li strong:before, #site_tmplvars li strong:before, #site_htmlsnippets li strong:before, #site_snippets li strong:before, #site_modules li strong:before, #site_plugins li strong:before, #categories_list li strong:before { font-family: "Font Awesome 5 Free"; font-style: normal; font-weight: normal; color: #5b6f7a; padding: 0 5px 0 5px; content: '\f105'; }
-.tab-pane ul li ul li strong:before { content: ''; }
+#site_templates li strong:before, #site_tmplvars li strong:before, #site_htmlsnippets li strong:before, #site_snippets li strong:before, #site_modules li strong:before, #site_plugins li strong:before, #categories_list li strong:before {  font-style: normal; font-weight: normal; color: #5b6f7a; padding: 0 5px 0 5px; content:"";display:inline-block;width:1em;height:1em;vertical-align:middle;background-color:currentColor;-webkit-mask:var(--evo-icon-chevron-right) center/contain no-repeat;mask:var(--evo-icon-chevron-right) center/contain no-repeat; }
+.tab-pane ul li ul li strong:before { display: none; }
 /* elements icons in manage elements */
 div#tabCategory.tab-page ul li ul li { padding-top: 7px; padding-bottom: 7px; }
 /*Fake tables for providing dynamic amount of cells per row*/
@@ -166,9 +166,9 @@ ul.resourceTable .category_name { float: none; display: block; clear: both; marg
 ul.elements_buttonbar { list-style: none; margin: 0; padding: 0; display: table; table-layout: fixed; }
 ul.elements_buttonbar li { display: table-cell; padding: 0 !important; width: 2em; }
 ul.elements_buttonbar li a { display: block; width: 2em; padding: 4px 2px 2px 2px; margin: 1px; min-width: 22px; }
-ul.elements_buttonbar .fa { font-size: 0.875rem; padding: 1px 1px 0; }
+ul.elements_buttonbar .evo-icon { font-size: 0.875rem; padding: 1px 1px 0; }
 /* Checkbox "Icons" */
-.noicons.tab-page ul li ul li a:before, .noicons .elements_description a > i.fa:first-child { display: none !important; }
+.noicons.tab-page ul li ul li a:before, .noicons .elements_description a > i.evo-icon:first-child { display: none !important; }
 /* View-dependent styles */
 /* List-view */
 .resourceTable.list li { }
@@ -213,4 +213,4 @@ break-inside: avoid-column; -webkit-column-break-inside: avoid; -moz-column-brea
 .modx-alert { display: block; margin: 60px 10px 10px 10px; padding: 1em; }
 .modx-alert.alert-error { background-color: #ffd0d0; border: 1px solid #f00; color: #000; }
 tr.userIdle td { color: #aaa; }
-tr.userIdle td strong:before { font-family: "Font Awesome 5 Free"; font-style: normal; font-weight: normal; color: #aaa; padding: 0 5px 0 0; content: '\f017'; }
+tr.userIdle td strong:before {  font-style: normal; font-weight: normal; color: #aaa; padding: 0 5px 0 0; content:"";display:inline-block;width:1em;height:1em;vertical-align:middle;background-color:currentColor;-webkit-mask:var(--evo-icon-clock) center/contain no-repeat;mask:var(--evo-icon-clock) center/contain no-repeat; }

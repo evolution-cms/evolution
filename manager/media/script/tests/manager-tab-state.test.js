@@ -54,7 +54,8 @@ test('never sends the session token to another origin or non-HTTP address',()=>{
 
 test('stored title HTML is sanitized, and ID-only state migrates from the current menu',()=>{
     assert.equal(state.title('<script>alert(1)</script><img onerror=evil()>Document'),'Document');
-    assert.equal(state.title('<i class="fa fa-file"></i> Document'),'<i class="fa fa-file"></i> Document');
+    assert.equal(state.title('<i class="evo-icon evo-icon-file"></i> Document'),'<i class="evo-icon evo-icon-file"></i> Document');
+    assert.equal(state.title('<i class="fa fa-file"></i> Document'),'Document');
     const menu={querySelectorAll:()=>[{getAttribute:()=>'/ssettings?a=2500',innerHTML:'Налаштування'}]};
     assert.equal(state.resume({module:'old-menu-id',title:'Налаштування'},options,menu).url,'/ssettings?a=2500&_token=current-token');
     assert.equal(state.resume({module:'missing'},options,noMenu),null);

@@ -174,8 +174,8 @@ var DatePicker = function() {
           return;
         }
 
-        icon.classList.remove('fa-calendar-plus-o', 'fa-calendar-times-o');
-        icon.classList.add(dp.value === '' ? 'fa-calendar-plus-o' : 'fa-calendar-times-o');
+        icon.classList.remove('evo-icon-calendar-plus', 'evo-icon-calendar-x');
+        icon.classList.add(dp.value === '' ? 'evo-icon-calendar-plus' : 'evo-icon-calendar-x');
       },
     }, {
       key: 'bindToggle', value: function bindToggle(dp) {

@@ -904,7 +904,7 @@ class ManagerTheme implements ManagerThemeInterface
         $minCssName = 'css/styles.min.css';
 
         $minCssPath = $this->getThemeDir() . $minCssName;
-        if (!file_exists($minCssPath) && is_writable($this->getThemeDir() . 'css')) {
+        if (!\EvolutionCMS\Support\Formatter\CSSMinify::isCacheCurrent($minCssPath) && is_writable($this->getThemeDir() . 'css')) {
             $files = $this->getCssFiles();
             if (!empty($files)) {
                 $evtOut = $this->getCore()->invokeEvent('OnBeforeMinifyCss', [
@@ -928,11 +928,11 @@ class ManagerTheme implements ManagerThemeInterface
 
             if (!empty($files)) {
                 $minifier = new \EvolutionCMS\Support\Formatter\CSSMinify($files);
-                $css = $minifier->minify();
+                $css = $minifier->minify($minCssPath);
                 file_put_contents($minCssPath, $css);
             }
         }
-        if (file_exists($minCssPath)) {
+        if (\EvolutionCMS\Support\Formatter\CSSMinify::isCacheCurrent($minCssPath)) {
             $css = $this->getThemeUrl() . $minCssName;
         }
 

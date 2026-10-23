@@ -429,7 +429,7 @@ $_lang["htmlsnippet_msg"] = 'Aquí puedes añadir/editar chunks.  Recuerda, los 
 $_lang["htmlsnippet_name"] = '{{ Nombre del chunk }}';
 $_lang["htmlsnippet_title"] = 'Crear/editar chunk';
 $_lang["icon"] = 'Icono';
-$_lang["icon_description"] = 'CSS class value. e.g. fa&nbsp;fa-star';
+$_lang["icon_description"] = 'CSS class value. e.g. evo-icon&nbsp;evo-icon-star';
 $_lang["id"] = 'ID';
 $_lang["illegal_parent_child"] = 'Asignación de padre:\n\nEl documento es un hijo del documento seleccionado.';
 $_lang["illegal_parent_self"] = 'Asignación de padre:\n\nEl documento seleccionado no puede ser asignado a sí mismo.';
@@ -528,7 +528,7 @@ $_lang["manager_theme_mode1"] = 'todo es claro';
 $_lang["manager_theme_mode2"] = 'el encabezado es oscuro';
 $_lang["manager_theme_mode3"] = 'el encabezado y la barra lateral son oscuros';
 $_lang["manager_theme_mode4"] = 'todo esta oscuro';
-$_lang['manager_theme_mode_message'] = 'This setting is used as the "default" and can be overridden by the manager when using the theme color mode switch button in the Resource Tree: <i class="fa fa-lg fa-adjust"></i>';
+$_lang['manager_theme_mode_message'] = 'This setting is used as the "default" and can be overridden by the manager when using the theme color mode switch button in the Resource Tree: <i class="evo-icon evo-icon-lg evo-icon-brightness-half"></i>';
 $_lang['manager_theme_mode_title'] = 'Theme color mode switch';
 $_lang["meta_keywords"] = 'Palabras Clave META';
 $_lang["metatag_intro"] = 'En esta página puedes borrar, crear o editar Etiquetas META (METAtags).  Para enlazar etiquetas META a documentos haz clic en la pestaña <u>Palabras Clave META</u> cuando edites el documento y selecciona las etiquetas META y las Palabras Clave deseadas.  Para añadir una etiqueta nueva ingresa el nombre y valor y haz clic en el botón \'Agregar etiqueta\'.  Para editar la etiqueta haz clic en el nombre de la etiqueta dentro de la cuadrícula de datos.';

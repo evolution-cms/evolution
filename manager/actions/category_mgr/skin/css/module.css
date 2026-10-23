@@ -13,13 +13,13 @@ div#section-body-categories .hidden {
   display: none;
 }
 
-/* FONT AWESOME */
+/* Tabler SVG icons */
 
 div#section-body-categories div.messages ul li:before,
 div#section-body-categories div.ok:before,
 div#section-body-categories div.nok,
 div#section-body-categories .ajax_loading {
-    font-family: 'Font Awesome 5 Free';
+
     font-style: normal;
     display: inline;
     text-decoration: inherit;
@@ -51,7 +51,7 @@ div#section-body-categories div.messages ul li {
 }
 
 div#section-body-categories div.messages ul li:before {
-    content: "\f00c";
+    content:"";display:inline-block;width:1em;height:1em;vertical-align:middle;background-color:currentColor;-webkit-mask:var(--evo-icon-check) center/contain no-repeat;mask:var(--evo-icon-check) center/contain no-repeat;
     color:#3697CD;
 }
 
@@ -234,27 +234,27 @@ div#section-body-categories div.drop h2 {
   font-weight: bold;
 }
 div#section-body-categories div {
-    
+
 }
 div#section-body-categories div.over {
   background-color: rgba(54,151,204,.2);
 }
 
 div#section-body-categories .ajax_loading:before {
-    content: "\f110";
+    content:"";display:inline-block;width:1em;height:1em;vertical-align:middle;background-color:currentColor;-webkit-mask:var(--evo-icon-loader-2) center/contain no-repeat;mask:var(--evo-icon-loader-2) center/contain no-repeat;
     color:#3697CD;
 }
 
 div#section-body-categories div.ok {
     background-color: #37bdf4;
-    
+
 }
 div#section-body-categories div.ok:before {
-    content: "\f00c";
+    content:"";display:inline-block;width:1em;height:1em;vertical-align:middle;background-color:currentColor;-webkit-mask:var(--evo-icon-check) center/contain no-repeat;mask:var(--evo-icon-check) center/contain no-repeat;
 }
 
 div#section-body-categories div.nok {
-    content: "\f06a";
+    content:"";display:inline-block;width:1em;height:1em;vertical-align:middle;background-color:currentColor;-webkit-mask:var(--evo-icon-alert-circle) center/contain no-repeat;mask:var(--evo-icon-alert-circle) center/contain no-repeat;
     color:#C9302C;
 }
 

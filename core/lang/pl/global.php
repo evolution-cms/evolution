@@ -430,7 +430,7 @@ $_lang["htmlsnippet_msg"] = 'Tutaj możesz dodawać/edytować chunki. Pamiętaj,
 $_lang["htmlsnippet_name"] = 'Nazwa chunka';
 $_lang["htmlsnippet_title"] = 'Utwórz/edytuj chunka';
 $_lang["icon"] = 'Ikona';
-$_lang["icon_description"] = 'Klasa CSS np. fa&nbsp;fa-star';
+$_lang["icon_description"] = 'Klasa CSS np. evo-icon&nbsp;evo-icon-star';
 $_lang["id"] = 'ID';
 $_lang["illegal_parent_child"] = 'Przypisanie nadrzędne:\n\nDokument jest dzieckiem wybranego dokumentu.';
 $_lang["illegal_parent_self"] = 'Przypisanie nadrzędne:\n\nWybrany dokument nie może być przypisany do samego siebie.';
@@ -529,7 +529,7 @@ $_lang["manager_theme_mode1"] = 'Wszystko jasne';
 $_lang["manager_theme_mode2"] = 'Ciemna nawigacja';
 $_lang["manager_theme_mode3"] = 'Ciemna nawigacja i drzewo zasobów';
 $_lang["manager_theme_mode4"] = 'Wszystko ciemne';
-$_lang['manager_theme_mode_message'] = 'Ustawienie jest traktowane jako domyślne i może być ominięte, gdy użyto przycisku zmiany motywu w drzewie zasobów: <i class="fa fa-lg fa-adjust"></i>';
+$_lang['manager_theme_mode_message'] = 'Ustawienie jest traktowane jako domyślne i może być ominięte, gdy użyto przycisku zmiany motywu w drzewie zasobów: <i class="evo-icon evo-icon-lg evo-icon-brightness-half"></i>';
 $_lang['manager_theme_mode_title'] = 'Motyw kolorystyczny';
 $_lang["meta_keywords"] = 'Słowa kluczowe';
 $_lang["metatag_intro"] = 'Na tej stronie możesz tworzyć, dodawać, edytować i usuwać META tagi. Aby przypisać META tagi do dokumentów, kliknij na zakładce \'META słowa kluczowe\' podczas edycji dokumentu i wybierz potrzebne META tagi i słowa kluczowe. Aby dodać nowy tag wprowadź jego nazwę i wartość, a następnie kliknij przycisk \'Dodaj tag\'. Aby edytować tag kliknij jego nazwę na liście.';

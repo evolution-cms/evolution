@@ -43,7 +43,7 @@
         /* For Thai Font */
         html[lang="th"] body { font-family: "Sukhumvit Set", "Helvetica Neue", Helvetica, Arial, sans-serif; }
         /* For Arabic Font */
-        html[lang="fa"] body { font-family: Tahoma, Arial, sans-serif; }
+        html[lang="evo-icon"] body { font-family: Tahoma, Arial, sans-serif; }
         body { background-color: #0d47a1; color: #444; }
         body.drag *, body.drag::after { cursor: grabbing !important; cursor: -moz-grabbing !important; cursor: -webkit-grabbing !important; cursor: -moz-grab !important; -moz-user-select: none !important; -webkit-user-select: none !important; user-select: none !important }
         body.drag::after { bottom: 0; content: ""; left: 0; position: fixed; right: 0; top: 0; z-index: 999 }

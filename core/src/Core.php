@@ -3760,7 +3760,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $style = '';
         if (IN_MANAGER_MODE) {
             $path = 'media/style/' . $this->getConfig('manager_theme') . '/';
-            if (is_file(EVO_MANAGER_PATH . $path . 'css/styles.min.css')) {
+            if (\EvolutionCMS\Support\Formatter\CSSMinify::isCacheCurrent(EVO_MANAGER_PATH . $path . 'css/styles.min.css')) {
                 $file_name = 'css/styles.min.css';
             } else {
                 $file_name = 'style.css';
@@ -7268,7 +7268,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @param string $icon
      * @param array $params
      */
-    public function registerModule($name, $file, $icon = 'fa fa-cube', $params = [])
+    public function registerModule($name, $file, $icon = 'evo-icon evo-icon-cube', $params = [])
     {
         if (!$this->isBackend() || is_cli()) {
             return false;
@@ -7293,7 +7293,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      * @param string $icon
      * @param string $hidden
      */
-    public function registerRoutingModule($name, $file, $icon = 'fa fa-cube', $hidden = false)
+    public function registerRoutingModule($name, $file, $icon = 'evo-icon evo-icon-cube', $hidden = false)
     {
         $params = [
             'routes' => $file,

@@ -141,8 +141,8 @@ div.file-link .thumb {
 
 div.file-link .thumb:before,
 tr.file-link > td.name:before {
-    content: "\f0c1";
-    font-family: 'Font Awesome 5 Free';
+    content:"";display:inline-block;width:1em;height:1em;vertical-align:middle;background-color:currentColor;-webkit-mask:var(--evo-icon-link) center/contain no-repeat;mask:var(--evo-icon-link) center/contain no-repeat;
+
     font-weight: 900;
     color: #888;
 }
@@ -156,8 +156,8 @@ tr.file-link > td.name:before {
 }
 
 .kc-loading:before {
-    content: "\f021";
-    font-family: 'Font Awesome 5 Free';
+    content:"";display:inline-block;width:1em;height:1em;vertical-align:middle;background-color:currentColor;-webkit-mask:var(--evo-icon-refresh) center/contain no-repeat;mask:var(--evo-icon-refresh) center/contain no-repeat;
+
     font-weight: 900;
     display: inline-block;
     line-height: 1;

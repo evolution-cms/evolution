@@ -113,17 +113,17 @@
 #mainMenu .nav > li > a .icon.photo {
     width: 2rem;
 }
-#mainMenu .nav > li > a .icon .fa {
+#mainMenu .nav > li > a .icon .evo-icon {
     font-size: 1.2rem;
     line-height: 2.1rem;
 }
-#mainMenu .nav > li .fa {
+#mainMenu .nav > li .evo-icon {
     min-width: 1em;
     line-height: 2.2rem;
     font-size: 0.875rem;
     vertical-align: top;
 }
-#mainMenu #nav > li > a > .fa {
+#mainMenu #nav > li > a > .evo-icon {
     display: inline-block;
     font-size: 20px;
     line-height: 20px;
@@ -158,7 +158,7 @@
     align-items: center;
     gap: 0.45rem;
 }
-#mainMenu #nav > li > a > .fa,
+#mainMenu #nav > li > a > .evo-icon,
 #mainMenu #nav > li > a > svg {
     margin-right: 0;
     line-height: 1;
@@ -195,7 +195,7 @@
 #mainMenu #searchform .label_searchid > svg {
     top: -1px;
 }
-#mainMenu .nav > li > ul > li .fa,
+#mainMenu .nav > li > ul > li .evo-icon,
 #mainMenu .nav > li > ul > li > a > svg:first-child,
 #mainMenu .nav > li > ul > li > a:first-child > .menu-module-icon {
     transform: translateY(-1px);
@@ -211,7 +211,7 @@
     padding: 0;
     justify-content: center;
 }
-#mainMenu #nav #bars .fa {
+#mainMenu #nav #bars .evo-icon {
     display: inline-block;
     min-width: 20px;
     width: 20px;
@@ -221,7 +221,7 @@
     -webkit-transition-duration: 0.15s;
     transition-duration: 0.15s;
 }
-.sidebar-closed #mainMenu #nav #bars .fa {
+.sidebar-closed #mainMenu #nav #bars .evo-icon {
     width: 20px;
 }
 #mainMenu #nav #bars svg {
@@ -249,7 +249,7 @@ body:not(.sidebar-closed) #bars .icon-expand { display: none !important; }
 body:not(.sidebar-closed) #bars .icon-collapse { display: inline-block !important; }
 body.sidebar-closed #bars .icon-expand { display: inline-block !important; }
 body.sidebar-closed #bars .icon-collapse { display: none !important; }
-#mainMenu #system > a > .fa {
+#mainMenu #system > a > .evo-icon {
     font-size: 1.1rem;
 }
 #mainMenu .nav .caret,
@@ -333,7 +333,7 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
 #mainMenu .nav > li > ul > li.dropdown-back > span * {
     pointer-events: none;
 }
-#mainMenu .nav > li > ul > li .fa {
+#mainMenu .nav > li > ul > li .evo-icon {
     width: 1.3em;
     margin-right: 0.5em;
     font-size: 1rem;
@@ -434,7 +434,7 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
 #mainMenu .nav li.item-group > *:first-child {
     width: 100%;
 }
-#mainMenu .nav li.item-group > *:not(:first-child) .fa {
+#mainMenu .nav li.item-group > *:not(:first-child) .evo-icon {
     margin-right: 0;
 }
 /* statusbar */
@@ -447,17 +447,17 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
     white-space: nowrap;
     float: left;
 }
-#statusbar .fa {
+#statusbar .evo-icon {
     font-size: 0.875rem;
 }
 #statusbar #buildText,
 #statusbar #workText {
     display: none;
 }
-#statusbar .fa {
+#statusbar .evo-icon {
     margin-right: 0.375rem;
 }
-#statusbar .fa-warning {
+#statusbar .evo-icon-alert-triangle {
     color: #f44336;
 }
 /* search */
@@ -520,11 +520,11 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
     transition-duration: 0.3s;
     transform: translateZ(0);
 }
-#mainMenu #searchform .fa-search {
+#mainMenu #searchform .evo-icon-search {
     position: relative;
     z-index: 1;
 }
-#mainMenu #searchform .fa-refresh {
+#mainMenu #searchform .evo-icon-refresh {
     position: absolute;
     z-index: 9;
     display: none;
@@ -680,7 +680,7 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
     }
     #mainMenu .nav > li > a,
     #mainMenu .nav .label_searchid,
-    #mainMenu .nav > li .fa,
+    #mainMenu .nav > li .evo-icon,
     #mainMenu .nav > li > a .icon {
         line-height: 2.5rem;
     }
@@ -689,16 +689,16 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
         height: 2.1rem;
         margin-top: 0.2rem;
     }
-    #mainMenu .nav > li .fa {
+    #mainMenu .nav > li .evo-icon {
         font-size: 0.875rem;
     }
     #mainMenu #nav > li > a {
         padding: 0 1rem;
     }
-    #mainMenu #nav > li > a > .fa {
+    #mainMenu #nav > li > a > .evo-icon {
         display: none;
     }
-    #mainMenu .nav > li > a .icon .fa {
+    #mainMenu .nav > li > a .icon .evo-icon {
         line-height: 2.5rem;
         font-size: 1.5rem;
     }
@@ -752,10 +752,10 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
     #mainMenu .nav > li > a > .username {
         font-size: 0.75rem;
     }
-    #mainMenu #nav > li > a > .fa {
+    #mainMenu #nav > li > a > .evo-icon {
         display: inline-block;
     }
-    #mainMenu .nav > li > a > .fa {
+    #mainMenu .nav > li > a > .evo-icon {
         display: inline-block;
         width: 1.3em;
         margin-right: 0 !important;
@@ -991,18 +991,18 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
     .navbar-left #mainMenu #settings > li > a {
         padding: 0;
     }
-    .navbar-left #mainMenu #nav > li > a > .fa {
+    .navbar-left #mainMenu #nav > li > a > .evo-icon {
         display: inline-block;
     }
     .navbar-left #mainMenu #nav > li > a > svg {
         display: inline-block;
     }
-    .navbar-left #mainMenu #nav > li > a > .fa,
-    .navbar-left #mainMenu #searchform .fa,
-    .navbar-left #mainMenu #preview .fa,
-    .navbar-left #mainMenu #nav > li > .fa,
-    .navbar-left #mainMenu #nav > li > a > .fa,
-    .navbar-left #mainMenu #system > a > .fa {
+    .navbar-left #mainMenu #nav > li > a > .evo-icon,
+    .navbar-left #mainMenu #searchform .evo-icon,
+    .navbar-left #mainMenu #preview .evo-icon,
+    .navbar-left #mainMenu #nav > li > .evo-icon,
+    .navbar-left #mainMenu #nav > li > a > .evo-icon,
+    .navbar-left #mainMenu #system > a > .evo-icon {
         font-size: 20px;
         line-height: 20px;
     }
@@ -1100,7 +1100,7 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
         margin: 0;
     }
     .navbar-left #mainMenu #searchform .label_searchid svg,
-    .navbar-left #mainMenu #searchform .label_searchid .fa {
+    .navbar-left #mainMenu #searchform .label_searchid .evo-icon {
         width: 20px;
         height: 20px;
         line-height: 20px;
@@ -1172,12 +1172,12 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
     .navbar-left #mainMenu #nav #site a {
         margin-left: 0;
     }
-    .navbar-left #mainMenu #nav > li > a > .fa,
-    .navbar-left #mainMenu #searchform .fa,
-    .navbar-left #mainMenu #preview .fa,
-    .navbar-left #mainMenu #nav > li > .fa,
-    .navbar-left #mainMenu #nav > li > a > .fa,
-    .navbar-left #mainMenu #system > a > .fa {
+    .navbar-left #mainMenu #nav > li > a > .evo-icon,
+    .navbar-left #mainMenu #searchform .evo-icon,
+    .navbar-left #mainMenu #preview .evo-icon,
+    .navbar-left #mainMenu #nav > li > .evo-icon,
+    .navbar-left #mainMenu #nav > li > a > .evo-icon,
+    .navbar-left #mainMenu #system > a > .evo-icon {
         font-size: 20px;
         line-height: 20px;
     }

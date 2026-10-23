@@ -8,7 +8,7 @@
                 <input type="hidden" name="id" value="<?= isset($_GET['id']) ? (int)$_GET['id'] : '' ?>">
 
                 <h1>
-                    <i class="fa fa-user-tag"></i>@if(isset($groups->name)){{$groups->name}} <small>({{$groups->id}})</small> @else {{ ManagerTheme::getLexicon('groups_permission_title') }}@endif
+                    <i class="evo-icon evo-icon-user-square"></i>@if(isset($groups->name)){{$groups->name}} <small>({{$groups->id}})</small> @else {{ ManagerTheme::getLexicon('groups_permission_title') }}@endif
                 </h1>
 
                 {{ ManagerTheme::styleHtml('actionbuttons.dynamic.savedelete') }}

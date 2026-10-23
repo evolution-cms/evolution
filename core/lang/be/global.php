@@ -806,7 +806,7 @@ $_lang["hide_tree"] = 'Схаваць дрэва сайтаў';
 $_lang["home"] = 'Галоўная';
 
 $_lang["icon"] = 'Значок';
-$_lang["icon_description"] = 'Значэнне CSS класу, напр. fa fa-star';
+$_lang["icon_description"] = 'Значэнне CSS класу, напр. evo-icon evo-icon-star';
 $_lang["id"] = 'ID';
 $_lang["illegal_parent_child"] = 'Несапраўдны бацькоўскі элемент:\n\nРэсурс з\'яўляецца даччыным для выбранага рэсурсу.';
 $_lang["illegal_parent_self"] = 'Несапраўдны бацькоўскі элемент:\n\nВыбраны рэсурс не можа быць самым сабе бацькам.';
@@ -902,7 +902,7 @@ $_lang["manager_theme_mode1"] = 'Усё светла';
 $_lang["manager_theme_mode2"] = 'Загаловак цёмны';
 $_lang["manager_theme_mode3"] = 'Загаловак і бакавая панэль цёмныя';
 $_lang["manager_theme_mode4"] = 'Усё цёмна';
-$_lang['manager_theme_mode_message'] = 'Гэты параметр выкарыстоўваецца як "па змаўчанні" і можа быць адменены мэнэджэрам пры выкарыстанні кнопкі пераключэння рэжыму колеру тэмы ў дрэве рэсурсаў: <i class="fa fa-lg fa-adjust"></i>';
+$_lang['manager_theme_mode_message'] = 'Гэты параметр выкарыстоўваецца як "па змаўчанні" і можа быць адменены мэнэджэрам пры выкарыстанні кнопкі пераключэння рэжыму колеру тэмы ў дрэве рэсурсаў: <i class="evo-icon evo-icon-lg evo-icon-brightness-half"></i>';
 $_lang['manager_theme_mode_title'] = 'Пераключальнік каляровага рэжыму тэмы';
 
 $_lang["meta_keywords"] = 'META Ключавыя словы';

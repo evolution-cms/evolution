@@ -128,7 +128,7 @@ if ($numRecords > 0) {
             'role' => $el['name'] ? htmlspecialchars((string)$el['name'], ENT_QUOTES, ManagerTheme::getCharset(), false) : ManagerTheme::getLexicon('no_user_role'),
             'user_prevlogin' => $el['thislogin'] ? $modx->toDateFormat($el['thislogin']) : '-',
             'user_logincount' => $el['logincount'],
-            'user_block' => $el['blocked'] ? ManagerTheme::getLexicon('yes').' <i class="fa fa-question-circle help" data-tooltip="'.htmlspecialchars($blocked_title, ENT_QUOTES, ManagerTheme::getCharset(), false).'"></i>' : '-',
+            'user_block' => $el['blocked'] ? ManagerTheme::getLexicon('yes').' <i class="evo-icon evo-icon-help-circle help" data-tooltip="'.htmlspecialchars($blocked_title, ENT_QUOTES, ManagerTheme::getCharset(), false).'"></i>' : '-',
         ];
     }
 

@@ -197,19 +197,19 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
         $themeDir = $this->managerTheme->getThemeDir();
 
         if (file_exists($themeDir . 'CSSMinify.php')) {
-            if (!file_exists($themeDir . 'css/styles.min.css') && is_writable($themeDir . 'css')) {
+            if (!\EvolutionCMS\Support\Formatter\CSSMinify::isCacheCurrent($themeDir . 'css/styles.min.css') && is_writable($themeDir . 'css')) {
                 $cssFiles = include_once $themeDir . 'CSSMinify.php';
                 if (is_array($cssFiles) && count($cssFiles)) {
                     $minifier = new \EvolutionCMS\Support\Formatter\CSSMinify();
                     foreach ($cssFiles as $item) {
                         $minifier->addFile($item);
                     }
-                    file_put_contents($themeDir . 'css/styles.min.css', $minifier->minify());
+                    file_put_contents($themeDir . 'css/styles.min.css', $minifier->minify($themeDir . 'css/styles.min.css'));
 
                 }
             }
 
-            if (file_exists($themeDir . 'css/styles.min.css')) {
+            if (\EvolutionCMS\Support\Formatter\CSSMinify::isCacheCurrent($themeDir . 'css/styles.min.css')) {
                 $this->parameters['css'] = $this->managerTheme->getThemeDir(false) . 'css/styles.min.css?v=' . evo()->getVersionData('version') . '.' . EVO_INSTALL_TIME;
             }
         }
@@ -838,7 +838,7 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
                     // href
                     'btn btn-secondary',
                     // class or btn-success
-                    "evo.popup({url:'index.php?a=26&_token=" . csrf_token() . "', title:'" . $this->managerTheme->getLexicon('refresh_site') . "', icon: 'fa-recycle', iframe: 'ajax', selector: '.tab-page>.container', position: 'right top', width: 'auto', maxheight: '50%%', wrap: 'body' })",
+                    "evo.popup({url:'index.php?a=26&_token=" . csrf_token() . "', title:'" . $this->managerTheme->getLexicon('refresh_site') . "', icon: 'evo-icon-recycle', iframe: 'ajax', selector: '.tab-page>.container', position: 'right top', width: 'auto', maxheight: '50%%', wrap: 'body' })",
                     // onclick
                     $this->managerTheme->getLexicon('refresh_site'),
                     // title

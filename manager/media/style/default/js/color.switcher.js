@@ -223,7 +223,7 @@ jQuery(document).ready(function($) {
     function setColor(color) {
         $('[data-evocp="color"]').css('color', color);
         $('[data-evocp="borderColor"]').css('border-color', color);
-        $('h1 .fa:not(.help)').css('color', color); 
+        $('h1 .evo-icon:not(.help)').css('color', color);
    }
     //store the color value in a variable
     $('.evocp-color').each(function(i) {
@@ -276,6 +276,6 @@ function cleanLocalStorageReloadAll(keys) {
 jQuery(document).on('click', '.panel-heading h3', function(e) {
     var $this = $(this);
     icon = $(this).find("i.togglearrow");
-    icon.toggleClass("fa-chevron-right fa-chevron-down")
+    icon.toggleClass("evo-icon-chevron-right evo-icon-chevron-down")
 
 })

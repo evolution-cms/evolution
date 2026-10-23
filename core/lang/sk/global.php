@@ -545,7 +545,7 @@ $_lang["manager_theme_mode1"] = 'Všetko svetlé';
 $_lang["manager_theme_mode2"] = 'Tmavá hlavička';
 $_lang["manager_theme_mode3"] = 'Tmavá hlavička a strom';
 $_lang["manager_theme_mode4"] = 'Všetko tmavé';
-$_lang['manager_theme_mode_message'] = 'Tento parameter sa používa ako \'predvolený\' a môže byť prepísaný prepínačom farebného režimu témy v strome dokumentov: <i class="fa fa-lg fa-adjust"></i>';
+$_lang['manager_theme_mode_message'] = 'Tento parameter sa používa ako \'predvolený\' a môže byť prepísaný prepínačom farebného režimu témy v strome dokumentov: <i class="evo-icon evo-icon-lg evo-icon-brightness-half"></i>';
 $_lang['manager_theme_mode_title'] = 'Prepínač farebnej schémy: 4 schémy';
 $_lang["meta_keywords"] = 'Kľúčové slová';
 $_lang["metatag_intro"] = 'Na tejto stránke môžete vytvárať/upravovať/odstraňovať META tagy. Ak chcete META tagy priradiť zdrojom, kliknite pri úprave zdroja na kartu <u>Kľúčové slová</u> a vyberte požadované kľúčové slová a META tagy. Ak chcete vytvoriť nový tag, zadajte jeho názov a hodnotu a kliknite na \'Vytvoriť tag\'. Ak ho chcete upraviť, kliknite na názov tagu.';

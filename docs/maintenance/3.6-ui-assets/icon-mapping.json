@@ -1,0 +1,1654 @@
+[
+  {
+    "old": "fa-address-book",
+    "tabler": "tabler-address-book",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-adjust",
+    "tabler": "tabler-brightness-half",
+    "core_locations": 13,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-anchor",
+    "tabler": "tabler-anchor",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-angle-down",
+    "tabler": "tabler-chevron-down",
+    "core_locations": 10,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-angle-left",
+    "tabler": "tabler-chevron-left",
+    "core_locations": 3,
+    "extra_locations": 13,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-angle-right",
+    "tabler": "tabler-chevron-right",
+    "core_locations": 9,
+    "extra_locations": 13,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-angle-up",
+    "tabler": "tabler-chevron-up",
+    "core_locations": 4,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-archive",
+    "tabler": "tabler-archive",
+    "core_locations": 2,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-arrow-circle-down",
+    "tabler": "tabler-circle-arrow-down",
+    "core_locations": 6,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-arrow-circle-up",
+    "tabler": "tabler-circle-arrow-up",
+    "core_locations": 6,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-arrow-left",
+    "tabler": "tabler-arrow-left",
+    "core_locations": 1,
+    "extra_locations": 3,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-arrow-right",
+    "tabler": "tabler-arrow-right",
+    "core_locations": 1,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-arrow-up",
+    "tabler": "tabler-arrow-up",
+    "core_locations": 0,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-arrows",
+    "tabler": "tabler-arrows-move",
+    "core_locations": 9,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-ban",
+    "tabler": "tabler-ban",
+    "core_locations": 4,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-bar-chart",
+    "tabler": "tabler-chart-bar",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-barcode",
+    "tabler": "tabler-barcode",
+    "core_locations": 0,
+    "extra_locations": 6,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-bars",
+    "tabler": "tabler-menu-2",
+    "core_locations": 17,
+    "extra_locations": 91,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-book",
+    "tabler": "tabler-book",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-bookmark",
+    "tabler": "tabler-bookmark",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-box-open",
+    "tabler": "tabler-box",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-bread-slice",
+    "tabler": "tabler-bread",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-briefcase",
+    "tabler": "tabler-briefcase",
+    "core_locations": 0,
+    "extra_locations": 8,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-bug",
+    "tabler": "tabler-bug",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-calendar",
+    "tabler": "tabler-calendar",
+    "core_locations": 5,
+    "extra_locations": 3,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-calendar-check",
+    "tabler": "tabler-calendar-check",
+    "core_locations": 0,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-calendar-plus-o",
+    "tabler": "tabler-calendar-plus",
+    "core_locations": 2,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-calendar-times-o",
+    "tabler": "tabler-calendar-x",
+    "core_locations": 12,
+    "extra_locations": 11,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-camera",
+    "tabler": "tabler-camera",
+    "core_locations": 8,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-caret-down",
+    "tabler": "tabler-caret-down",
+    "core_locations": 0,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-caret-right",
+    "tabler": "tabler-caret-right",
+    "core_locations": 2,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-caret-up",
+    "tabler": "tabler-caret-up",
+    "core_locations": 0,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-chain-broken",
+    "tabler": "tabler-link-off",
+    "core_locations": 6,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-chart-line",
+    "tabler": "tabler-chart-line",
+    "core_locations": 1,
+    "extra_locations": 14,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-check",
+    "tabler": "tabler-check",
+    "core_locations": 12,
+    "extra_locations": 1,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-check-circle",
+    "tabler": "tabler-circle-check",
+    "core_locations": 2,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-check-circle-o",
+    "tabler": "tabler-circle-check",
+    "core_locations": 9,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-check-square",
+    "tabler": "tabler-square-check",
+    "core_locations": 2,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-chevron-circle-up",
+    "tabler": "tabler-circle-chevron-up",
+    "core_locations": 0,
+    "extra_locations": 90,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-chevron-down",
+    "tabler": "tabler-chevron-down",
+    "core_locations": 3,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-chevron-left",
+    "tabler": "tabler-chevron-left",
+    "core_locations": 0,
+    "extra_locations": 3,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-chevron-right",
+    "tabler": "tabler-chevron-right",
+    "core_locations": 6,
+    "extra_locations": 3,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-circle",
+    "tabler": "tabler-circle",
+    "core_locations": 2,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-clipboard-check",
+    "tabler": "tabler-clipboard-check",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-clipboard-list",
+    "tabler": "tabler-clipboard-list",
+    "core_locations": 0,
+    "extra_locations": 6,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-clock",
+    "tabler": "tabler-clock",
+    "core_locations": 2,
+    "extra_locations": 4,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-clock-o",
+    "tabler": "tabler-clock",
+    "core_locations": 5,
+    "extra_locations": 4,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-clone",
+    "tabler": "tabler-copy",
+    "core_locations": 20,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-close",
+    "tabler": "tabler-x",
+    "core_locations": 9,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-cloud",
+    "tabler": "tabler-cloud",
+    "core_locations": 1,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-cloud-upload-alt",
+    "tabler": "tabler-cloud-upload",
+    "core_locations": 0,
+    "extra_locations": 6,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-code",
+    "tabler": "tabler-code",
+    "core_locations": 16,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-code-branch",
+    "tabler": "tabler-git-branch",
+    "core_locations": 0,
+    "extra_locations": 6,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-code-fork",
+    "tabler": "tabler-git-branch",
+    "core_locations": 2,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-coffee",
+    "tabler": "tabler-coffee",
+    "core_locations": 0,
+    "extra_locations": 6,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-cog",
+    "tabler": "tabler-settings",
+    "core_locations": 4,
+    "extra_locations": 9,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-cogs",
+    "tabler": "tabler-settings-cog",
+    "core_locations": 6,
+    "extra_locations": 3,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-coins",
+    "tabler": "tabler-coins",
+    "core_locations": 0,
+    "extra_locations": 6,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-comments",
+    "tabler": "tabler-messages",
+    "core_locations": 5,
+    "extra_locations": 12,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-compress",
+    "tabler": "tabler-minimize",
+    "core_locations": 3,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-copy",
+    "tabler": "tabler-copy",
+    "core_locations": 6,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-cube",
+    "tabler": "tabler-cube",
+    "core_locations": 7,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-cubes",
+    "tabler": "tabler-packages",
+    "core_locations": 7,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-database",
+    "tabler": "tabler-database",
+    "core_locations": 8,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-desktop",
+    "tabler": "tabler-device-desktop",
+    "core_locations": 3,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-dice-d20",
+    "tabler": "tabler-dice",
+    "core_locations": 0,
+    "extra_locations": 6,
+    "note": "Семантична заміна; форму D20 погодити окремо."
+  },
+  {
+    "old": "fa-download",
+    "tabler": "tabler-download",
+    "core_locations": 9,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-edit",
+    "tabler": "tabler-edit",
+    "core_locations": 31,
+    "extra_locations": 10,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-ellipsis-v",
+    "tabler": "tabler-dots-vertical",
+    "core_locations": 4,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-envelope",
+    "tabler": "tabler-mail",
+    "core_locations": 5,
+    "extra_locations": 7,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-envelope-open-text",
+    "tabler": "tabler-mail-opened",
+    "core_locations": 2,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-eraser",
+    "tabler": "tabler-eraser",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-exchange",
+    "tabler": "tabler-arrows-exchange",
+    "core_locations": 1,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-exclamation-circle",
+    "tabler": "tabler-alert-circle",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-exclamation-triangle",
+    "tabler": "tabler-alert-triangle",
+    "core_locations": 21,
+    "extra_locations": 8,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-expand",
+    "tabler": "tabler-maximize",
+    "core_locations": 5,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-expand-arrows-alt",
+    "tabler": "tabler-arrows-maximize",
+    "core_locations": 1,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-external-link",
+    "tabler": "tabler-external-link",
+    "core_locations": 4,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-eye",
+    "tabler": "tabler-eye",
+    "core_locations": 27,
+    "extra_locations": 3,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-eye-slash",
+    "tabler": "tabler-eye-off",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-file",
+    "tabler": "tabler-file",
+    "core_locations": 2,
+    "extra_locations": 4,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-file-archive-o",
+    "tabler": "tabler-file-zip",
+    "core_locations": 2,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-file-code",
+    "tabler": "tabler-file-code",
+    "core_locations": 2,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-file-code-o",
+    "tabler": "tabler-file-code",
+    "core_locations": 15,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-file-csv",
+    "tabler": "tabler-file-type-csv",
+    "core_locations": 0,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-file-excel-o",
+    "tabler": "tabler-file-spreadsheet",
+    "core_locations": 4,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-file-export",
+    "tabler": "tabler-file-export",
+    "core_locations": 0,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-file-image",
+    "tabler": "tabler-file-type-jpg",
+    "core_locations": 0,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-file-image-o",
+    "tabler": "tabler-file-type-jpg",
+    "core_locations": 10,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-file-import",
+    "tabler": "tabler-file-import",
+    "core_locations": 0,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-file-movie-o",
+    "tabler": "tabler-movie",
+    "core_locations": 0,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-file-o",
+    "tabler": "tabler-file",
+    "core_locations": 22,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-file-pdf",
+    "tabler": "tabler-file-type-pdf",
+    "core_locations": 0,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-file-pdf-o",
+    "tabler": "tabler-file-type-pdf",
+    "core_locations": 4,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-file-text",
+    "tabler": "tabler-file-text",
+    "core_locations": 0,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-file-upload",
+    "tabler": "tabler-file-upload",
+    "core_locations": 0,
+    "extra_locations": 4,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-file-word-o",
+    "tabler": "tabler-file-type-doc",
+    "core_locations": 4,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-files-o",
+    "tabler": "tabler-files",
+    "core_locations": 4,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-filter",
+    "tabler": "tabler-filter",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-flag",
+    "tabler": "tabler-flag",
+    "core_locations": 0,
+    "extra_locations": 5,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-floppy-o",
+    "tabler": "tabler-device-floppy",
+    "core_locations": 17,
+    "extra_locations": 38,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-folder",
+    "tabler": "tabler-folder",
+    "core_locations": 19,
+    "extra_locations": 26,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-folder-o",
+    "tabler": "tabler-folder",
+    "core_locations": 2,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-folder-open",
+    "tabler": "tabler-folder-open",
+    "core_locations": 16,
+    "extra_locations": 13,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-folder-open-o",
+    "tabler": "tabler-folder-open",
+    "core_locations": 2,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-font",
+    "tabler": "tabler-typography",
+    "core_locations": 2,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-forward",
+    "tabler": "tabler-arrow-forward",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-github",
+    "tabler": "tabler-brand-github",
+    "core_locations": 2,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-globe",
+    "tabler": "tabler-world",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-globe-europe",
+    "tabler": "tabler-world",
+    "core_locations": 5,
+    "extra_locations": 4,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "U+F968",
+    "tabler": "tabler-corner-left-up",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "U+F968 не визначений у комплектному FA5; UltimateParent → перехід до предка."
+  },
+  {
+    "old": "fa-google",
+    "tabler": "tabler-brand-google",
+    "core_locations": 0,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-grin-stars",
+    "tabler": "tabler-mood-spark",
+    "core_locations": 0,
+    "extra_locations": 12,
+    "note": "Близька за значенням оцінка/відгук; затвердити вигляд."
+  },
+  {
+    "old": "fa-hand-paper",
+    "tabler": "tabler-hand-stop",
+    "core_locations": 0,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-hashtag",
+    "tabler": "tabler-hash",
+    "core_locations": 1,
+    "extra_locations": 6,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-heading",
+    "tabler": "tabler-heading",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-highlighter",
+    "tabler": "tabler-highlight",
+    "core_locations": 0,
+    "extra_locations": 12,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-home",
+    "tabler": "tabler-home",
+    "core_locations": 7,
+    "extra_locations": 6,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-hourglass-end",
+    "tabler": "tabler-hourglass-high",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-i-cursor",
+    "tabler": "tabler-cursor-text",
+    "core_locations": 5,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-image",
+    "tabler": "tabler-photo",
+    "core_locations": 0,
+    "extra_locations": 26,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-images",
+    "tabler": "tabler-photo-scan",
+    "core_locations": 5,
+    "extra_locations": 3,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-info",
+    "tabler": "tabler-info-small",
+    "core_locations": 16,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-info-circle",
+    "tabler": "tabler-info-circle",
+    "core_locations": 11,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-italic",
+    "tabler": "tabler-italic",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-keyboard",
+    "tabler": "tabler-keyboard",
+    "core_locations": 0,
+    "extra_locations": 6,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-language",
+    "tabler": "tabler-language",
+    "core_locations": 0,
+    "extra_locations": 14,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-layer-group",
+    "tabler": "tabler-layers-intersect",
+    "core_locations": 0,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-legal",
+    "tabler": "tabler-gavel",
+    "core_locations": 4,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-life-ring",
+    "tabler": "tabler-lifebuoy",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-link",
+    "tabler": "tabler-link",
+    "core_locations": 21,
+    "extra_locations": 259,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-list",
+    "tabler": "tabler-list",
+    "core_locations": 4,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-list-alt",
+    "tabler": "tabler-list-details",
+    "core_locations": 14,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-list-ol",
+    "tabler": "tabler-list-numbers",
+    "core_locations": 2,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-list-ul",
+    "tabler": "tabler-list",
+    "core_locations": 0,
+    "extra_locations": 1,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-lock",
+    "tabler": "tabler-lock",
+    "core_locations": 33,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-mail-bulk",
+    "tabler": "tabler-mailbox",
+    "core_locations": 0,
+    "extra_locations": 4,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-male",
+    "tabler": "tabler-user",
+    "core_locations": 2,
+    "extra_locations": 0,
+    "note": "У менеджері позначає web user; нейтральна іконка user."
+  },
+  {
+    "old": "fa-map-marked-alt",
+    "tabler": "tabler-map-pin",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-memory",
+    "tabler": "tabler-cpu",
+    "core_locations": 0,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-microphone",
+    "tabler": "tabler-microphone",
+    "core_locations": 0,
+    "extra_locations": 8,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-minus",
+    "tabler": "tabler-minus",
+    "core_locations": 0,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-minus-circle",
+    "tabler": "tabler-circle-minus",
+    "core_locations": 0,
+    "extra_locations": 29,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-mobile-alt",
+    "tabler": "tabler-device-mobile",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-modx",
+    "tabler": "tabler-cube",
+    "core_locations": 0,
+    "extra_locations": 12,
+    "note": "Брендовий логотип: cube лише функціональна пропозиція; бажано окремий погоджений SVG бренду."
+  },
+  {
+    "old": "fa-money-bill-wave",
+    "tabler": "tabler-cash",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-newspaper",
+    "tabler": "tabler-news",
+    "core_locations": 2,
+    "extra_locations": 8,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-newspaper-o",
+    "tabler": "tabler-news",
+    "core_locations": 6,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-object-group",
+    "tabler": "tabler-box-multiple",
+    "core_locations": 4,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-paint-brush",
+    "tabler": "tabler-brush",
+    "core_locations": 3,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-palette",
+    "tabler": "tabler-palette",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-paper-plane",
+    "tabler": "tabler-send",
+    "core_locations": 2,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-paperclip",
+    "tabler": "tabler-paperclip",
+    "core_locations": 0,
+    "extra_locations": 18,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-paragraph",
+    "tabler": "tabler-pilcrow",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-paste",
+    "tabler": "tabler-clipboard",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-pause-circle-o",
+    "tabler": "tabler-player-pause",
+    "core_locations": 0,
+    "extra_locations": 12,
+    "note": "Зберегти круглу кнопку через контейнер, якщо це частина дизайну."
+  },
+  {
+    "old": "fa-pencil",
+    "tabler": "tabler-pencil",
+    "core_locations": 3,
+    "extra_locations": 22,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-pencil-alt",
+    "tabler": "tabler-pencil",
+    "core_locations": 0,
+    "extra_locations": 11,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-photo-video",
+    "tabler": "tabler-photo-video",
+    "core_locations": 1,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-play",
+    "tabler": "tabler-player-play",
+    "core_locations": 5,
+    "extra_locations": 4,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-play-circle",
+    "tabler": "tabler-player-play",
+    "core_locations": 0,
+    "extra_locations": 2,
+    "note": "Зберегти круглу кнопку через контейнер, якщо це частина дизайну."
+  },
+  {
+    "old": "fa-play-circle-o",
+    "tabler": "tabler-player-play",
+    "core_locations": 0,
+    "extra_locations": 6,
+    "note": "Зберегти круглу кнопку через контейнер, якщо це частина дизайну."
+  },
+  {
+    "old": "fa-plug",
+    "tabler": "tabler-plug",
+    "core_locations": 8,
+    "extra_locations": 14,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-plus",
+    "tabler": "tabler-plus",
+    "core_locations": 5,
+    "extra_locations": 35,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-plus-circle",
+    "tabler": "tabler-circle-plus",
+    "core_locations": 43,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-poll",
+    "tabler": "tabler-chart-bar",
+    "core_locations": 0,
+    "extra_locations": 6,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-poll-h",
+    "tabler": "tabler-chart-bar",
+    "core_locations": 1,
+    "extra_locations": 6,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-question-circle",
+    "tabler": "tabler-help-circle",
+    "core_locations": 57,
+    "extra_locations": 410,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-recycle",
+    "tabler": "tabler-recycle",
+    "core_locations": 3,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-redo",
+    "tabler": "tabler-arrow-forward-up",
+    "core_locations": 0,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-refresh",
+    "tabler": "tabler-refresh",
+    "core_locations": 29,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-reply",
+    "tabler": "tabler-corner-up-left",
+    "core_locations": 2,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-reply-all",
+    "tabler": "tabler-arrow-back-up-double",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-rss",
+    "tabler": "tabler-rss",
+    "core_locations": 0,
+    "extra_locations": 3,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-satellite-dish",
+    "tabler": "tabler-satellite",
+    "core_locations": 0,
+    "extra_locations": 4,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-save",
+    "tabler": "tabler-device-floppy",
+    "core_locations": 3,
+    "extra_locations": 16,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-search",
+    "tabler": "tabler-search",
+    "core_locations": 12,
+    "extra_locations": 12,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-server",
+    "tabler": "tabler-server",
+    "core_locations": 0,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-shipping-fast",
+    "tabler": "tabler-truck-delivery",
+    "core_locations": 0,
+    "extra_locations": 12,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-shopping-cart",
+    "tabler": "tabler-shopping-cart",
+    "core_locations": 0,
+    "extra_locations": 6,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-sign-in-alt",
+    "tabler": "tabler-login",
+    "core_locations": 3,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-sign-out",
+    "tabler": "tabler-logout",
+    "core_locations": 6,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-sitemap",
+    "tabler": "tabler-sitemap",
+    "core_locations": 6,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-sliders",
+    "tabler": "tabler-adjustments-horizontal",
+    "core_locations": 4,
+    "extra_locations": 24,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-sort",
+    "tabler": "tabler-arrows-sort",
+    "core_locations": 10,
+    "extra_locations": 125,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-sort-numeric-asc",
+    "tabler": "tabler-sort-ascending-numbers",
+    "core_locations": 11,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-spinner",
+    "tabler": "tabler-loader-2",
+    "core_locations": 2,
+    "extra_locations": 5,
+    "note": "Зберегти анімацію обертання та reduced-motion."
+  },
+  {
+    "old": "fa-square",
+    "tabler": "tabler-square",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-star",
+    "tabler": "tabler-star",
+    "core_locations": 10,
+    "extra_locations": 3,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-step-forward",
+    "tabler": "tabler-player-skip-forward",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-stop",
+    "tabler": "tabler-player-stop",
+    "core_locations": 1,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-store",
+    "tabler": "tabler-building-store",
+    "core_locations": 1,
+    "extra_locations": 8,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-store-alt",
+    "tabler": "tabler-building-store",
+    "core_locations": 0,
+    "extra_locations": 6,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-stream",
+    "tabler": "tabler-list-tree",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-sync-alt",
+    "tabler": "tabler-refresh",
+    "core_locations": 0,
+    "extra_locations": 5,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-table",
+    "tabler": "tabler-table",
+    "core_locations": 4,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-tachometer",
+    "tabler": "tabler-dashboard",
+    "core_locations": 3,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-tags",
+    "tabler": "tabler-tags",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-tasks",
+    "tabler": "tabler-list-check",
+    "core_locations": 5,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-terminal",
+    "tabler": "tabler-terminal-2",
+    "core_locations": 3,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-th",
+    "tabler": "tabler-layout-grid",
+    "core_locations": 7,
+    "extra_locations": 6,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-th-large",
+    "tabler": "tabler-layout-grid",
+    "core_locations": 9,
+    "extra_locations": 1,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-thumbs-up",
+    "tabler": "tabler-thumb-up",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-times",
+    "tabler": "tabler-x",
+    "core_locations": 0,
+    "extra_locations": 115,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-times-circle",
+    "tabler": "tabler-circle-x",
+    "core_locations": 18,
+    "extra_locations": 47,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-times-circle-o",
+    "tabler": "tabler-circle-x",
+    "core_locations": 9,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-trash",
+    "tabler": "tabler-trash-filled",
+    "core_locations": 42,
+    "extra_locations": 45,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-trash-alt",
+    "tabler": "tabler-trash",
+    "core_locations": 0,
+    "extra_locations": 12,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-trash-o",
+    "tabler": "tabler-trash",
+    "core_locations": 3,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-underline",
+    "tabler": "tabler-underline",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-undo",
+    "tabler": "tabler-arrow-back-up",
+    "core_locations": 7,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-universal-access",
+    "tabler": "tabler-accessible",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-university",
+    "tabler": "tabler-building-bank",
+    "core_locations": 0,
+    "extra_locations": 6,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-unlock",
+    "tabler": "tabler-lock-open",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-unlock-alt",
+    "tabler": "tabler-lock-open",
+    "core_locations": 3,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-upload",
+    "tabler": "tabler-upload",
+    "core_locations": 2,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-user",
+    "tabler": "tabler-user",
+    "core_locations": 9,
+    "extra_locations": 6,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-user-check",
+    "tabler": "tabler-user-check",
+    "core_locations": 2,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-user-circle-o",
+    "tabler": "tabler-user-circle",
+    "core_locations": 5,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-user-friends",
+    "tabler": "tabler-users",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-user-o",
+    "tabler": "tabler-user",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-user-secret",
+    "tabler": "tabler-user-shield",
+    "core_locations": 4,
+    "extra_locations": 0,
+    "note": "Перевірити значення ролі/доступу в конкретному місці."
+  },
+  {
+    "old": "fa-user-shield",
+    "tabler": "tabler-user-shield",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-user-tag",
+    "tabler": "tabler-user-square",
+    "core_locations": 4,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-users",
+    "tabler": "tabler-users",
+    "core_locations": 2,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-video",
+    "tabler": "tabler-video",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-volume-off",
+    "tabler": "tabler-volume-off",
+    "core_locations": 0,
+    "extra_locations": 4,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-volume-up",
+    "tabler": "tabler-volume",
+    "core_locations": 0,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-wallet",
+    "tabler": "tabler-wallet",
+    "core_locations": 0,
+    "extra_locations": 6,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-wand-magic-sparkles",
+    "tabler": "tabler-wand",
+    "core_locations": 0,
+    "extra_locations": 2,
+    "note": "Клас FA6 відсутній у комплектному FA5 5.10.2; поточний glyph не гарантований."
+  },
+  {
+    "old": "fa-warehouse",
+    "tabler": "tabler-building-warehouse",
+    "core_locations": 0,
+    "extra_locations": 2,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-warning",
+    "tabler": "tabler-alert-triangle",
+    "core_locations": 2,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-window-maximize",
+    "tabler": "tabler-window-maximize",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-wrench",
+    "tabler": "tabler-tool",
+    "core_locations": 2,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-yandex-international",
+    "tabler": "tabler-brand-yandex",
+    "core_locations": 1,
+    "extra_locations": 0,
+    "note": "Перевірити семантику в конкретному місці."
+  },
+  {
+    "old": "fa-youtube",
+    "tabler": "tabler-brand-youtube",
+    "core_locations": 0,
+    "extra_locations": 4,
+    "note": "Перевірити семантику в конкретному місці."
+  }
+]

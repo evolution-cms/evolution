@@ -1,7 +1,7 @@
 <div class="panel-heading">
     <span class="panel-title">
         <a class="accordion-toggle" id="toggle{{ $name }}{{ $id }}" href="#collapse{{ $name }}{{ $id }}" data-cattype="{{ $name }}" data-catid="{{ $id }}" title="Click to toggle collapse. Shift+Click to toggle all.">
-            <i class="fa fa-fw"></i>
+            <i class="evo-icon evo-icon-fw"></i>
             <span class="category_name">
                 <strong>
                     {{ $title }}

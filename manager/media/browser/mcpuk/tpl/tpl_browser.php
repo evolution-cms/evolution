@@ -149,11 +149,11 @@
             var x = document.getElementById('left');
             if (x.style.display === 'none') {
                 x.style.display = 'block';
-                $('#hide-icon').toggleClass('fa-bars fa-ellipsis-v');
+                $('#hide-icon').toggleClass('evo-icon-menu-2 evo-icon-dots-vertical');
                 $('#right').css("width", "74%");
             } else {
                 x.style.display = 'none';
-                $('#hide-icon').toggleClass('fa-bars fa-ellipsis-v');
+                $('#hide-icon').toggleClass('evo-icon-menu-2 evo-icon-dots-vertical');
                 $('#right').css("width", "99%");
                 $('#files').css("width", "99%");
             }
