@@ -13,11 +13,8 @@
         @include('manager::frame.topbar-actions', ['nativeTopbar' => true])
     </div>
 </div>
-<dialog id="evo-menu-cache-confirm" class="evo-manager-dialog" aria-labelledby="evo-menu-cache-title" data-theme="{{ $topbarTheme }}">
-    <h2 id="evo-menu-cache-title">{{ ManagerTheme::getLexicon('refresh_site') }}</h2>
-    <p>{{ ManagerTheme::getLexicon('refresh_title') }}</p>
-    <div class="evo-manager-dialog__actions">
-        <x-evo::button data-evo-cache-cancel :label="ManagerTheme::getLexicon('cancel')" />
-        <x-evo::button data-evo-cache-confirm tone="warning" variant="filled" :label="ManagerTheme::getLexicon('refresh_site')" />
-    </div>
-</dialog>
+<div id="evo-menu-cache-notice" class="evo-manager-cache-notice" role="status" aria-live="polite" data-theme="{{ $topbarTheme }}" hidden>
+    <x-evo::icon name="refresh" class="evo-manager-cache-notice__icon" />
+    <span data-evo-cache-message></span>
+    <button type="button" data-evo-cache-dismiss aria-label="{{ ManagerTheme::getLexicon('close') }}"><x-evo::icon name="x" /></button>
+</div>

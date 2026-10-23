@@ -3,7 +3,9 @@
 
     const menu = document.querySelector('[data-evo-topbar]');
     if (!menu) return;
-    const dialog = document.getElementById('evo-menu-cache-confirm');
+    const cacheNotice = document.getElementById('evo-menu-cache-notice');
+    let cachePending = false;
+    let noticeTimer;
     const modes = ['', 'lightness', 'light', 'dark', 'darkness'];
     const themes = ['', 'evolightness', 'evolight', 'evodark', 'evodarkness'];
     const triggers = '[data-evo-menu-toggle], #settings > .dropdown > a.dropdown-toggle';
@@ -129,7 +131,7 @@
     function syncTheme() {
         const mode = currentMode();
         menu.dataset.theme = themes[mode];
-        dialog.dataset.theme = themes[mode];
+        cacheNotice.dataset.theme = themes[mode];
         try {
             localStorage.setItem('evo.theme', themes[mode]);
             localStorage.setItem('evo.mode', mode > 2 ? 'dark' : 'light');
@@ -153,21 +155,77 @@
         closeExcept(null);
     });
 
-    // Capture before the optional button's legacy inline popup handler executes.
+    // A mouse opens the next level on hover; the parent link still navigates.
+    // Touch and keyboard users retain the separate expansion control.
+    menu.addEventListener('pointerover', event => {
+        if (event.pointerType !== 'mouse') return;
+        const owner = event.target.closest('.evo-manager-item');
+        if (!owner || !owner.parentElement.classList.contains('evo-manager-submenu') || owner.contains(event.relatedTarget)) return;
+        const trigger = owner.querySelector(':scope > .evo-manager-item__row > [data-evo-menu-toggle]');
+        if (trigger) toggle(trigger, true);
+        else closeExcept(owner.parentElement.closest('li'));
+    });
+
+    function showCacheNotice(rect, state, message) {
+        clearTimeout(noticeTimer);
+        cacheNotice.dataset.state = state;
+        cacheNotice.querySelector('[data-evo-cache-message]').textContent = message;
+        cacheNotice.hidden = false;
+        const box = cacheNotice.getBoundingClientRect();
+        cacheNotice.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - box.width - 8)) + 'px';
+        cacheNotice.style.top = Math.max(8, Math.min(rect.bottom + 8, window.innerHeight - box.height - 8)) + 'px';
+        if (state !== 'loading') noticeTimer = setTimeout(() => { cacheNotice.hidden = true; }, state === 'success' ? 5000 : 10000);
+    }
+
+    async function clearCache(extra) {
+        if (cachePending) return;
+        cachePending = true;
+        const link = menu.querySelector('#refresh_site .evo-manager-link');
+        const rect = extra.getBoundingClientRect();
+        extra.setAttribute('aria-busy', 'true');
+        extra.setAttribute('aria-disabled', 'true');
+        closeExcept(null);
+        showCacheNotice(rect, 'loading', link.title);
+        try {
+            const url = new URL(link.href, location.href);
+            if (url.origin !== location.origin) throw new Error('Invalid cache endpoint');
+            const token = document.querySelector('meta[name="csrf-token"]')?.content || '';
+            const response = await fetch(url, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': token},
+                body: new URLSearchParams({_token: token})
+            });
+            if (!response.ok || response.redirected) throw new Error('Cache request failed');
+            const resultDocument = new DOMParser().parseFromString(await response.text(), 'text/html');
+            const result = resultDocument.querySelector('[data-manager-cache-result]');
+            // Login/permission/error pages must never be reported as a successful clear.
+            if (!result) throw new Error('Missing cache result');
+            result.querySelectorAll('script, style').forEach(element => element.remove());
+            const summary = result.querySelector('[data-manager-cache-summary]') || result;
+            const fullMessage = Array.from(summary.childNodes).map(node => node.textContent).join(' ').replace(/\s+/g, ' ').trim();
+            const message = (fullMessage.match(/^[\s\S]*?[.!?](?:\s|$)/) || [fullMessage])[0].trim();
+            showCacheNotice(rect, 'success', message.length > 320 ? message.slice(0, 320) + '…' : message || link.title + ' ✓');
+        } catch (error) {
+            showCacheNotice(rect, 'error', menu.dataset.evoMenuError);
+        } finally {
+            cachePending = false;
+            extra.removeAttribute('aria-busy');
+            extra.removeAttribute('aria-disabled');
+        }
+    }
+
+    // Capture only the shipped quick action before its legacy inline popup runs.
     menu.addEventListener('click', event => {
         const extra = event.target.closest('#refresh_site [data-evo-menu-extra="refresh_site_in_window"]');
         if (!extra) return;
         event.preventDefault();
         event.stopImmediatePropagation();
-        const link = document.querySelector('#refresh_site .evo-manager-link');
-        dialog.dataset.url = link.href;
-        closeExcept(null);
-        dialog.showModal();
+        clearCache(extra);
     }, true);
-    dialog.querySelector('[data-evo-cache-cancel]').addEventListener('click', () => dialog.close());
-    dialog.querySelector('[data-evo-cache-confirm]').addEventListener('click', () => {
-        window.evo.tabs({url: dialog.dataset.url, title: dialog.querySelector('h2').textContent});
-        dialog.close();
+    cacheNotice.querySelector('[data-evo-cache-dismiss]').addEventListener('click', () => {
+        clearTimeout(noticeTimer);
+        cacheNotice.hidden = true;
     });
 
     function focusable(panel) {

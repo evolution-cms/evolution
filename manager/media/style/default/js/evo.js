@@ -153,7 +153,7 @@
             this.tabsStorageKey = 'EVO_Tabs:' + encodeURIComponent(evo.EVO_MANAGER_URL) + ':' + evo.config.tab_restore_user;
             try { localStorage.removeItem('EVO_Tabs'); localStorage.removeItem('page_url'); } catch (error) { }
             if (!localStorage.getItem('EVO_widthSideBar')) {
-                localStorage.setItem('EVO_widthSideBar', this.config.tree_width);
+                localStorage.setItem('EVO_widthSideBar', this.resizer.getDefaultWidth());
             }
             //this.tree.init();
             this.mainmenu.init();
@@ -880,7 +880,7 @@
                 if (evo.isMobile || w.innerWidth <= evo.minWidth) {
                     if (d.body.classList.contains('sidebar-closed')) {
                         d.body.classList.remove('sidebar-closed');
-                        if (evo.moduleViewport && evo.moduleViewport.hiddenByModule) {
+                        if (evo.moduleViewport) {
                             evo.moduleViewport.manualTreeVisible = true;
                         }
                         localStorage.setItem('EVO_widthSideBar', 0);
@@ -894,10 +894,10 @@
                         d.cookie = 'EVO_widthSideBar=0';
                     }
                 } else {
-                    var p = d.getElementById('tree').offsetWidth !== 0 ? 0 : parseInt(localStorage.getItem('EVO_widthSideBar')) ? parseInt(localStorage.getItem('EVO_widthSideBar')) : evo.config.tree_width;
+                    var p = d.getElementById('tree').offsetWidth !== 0 ? 0 : parseInt(localStorage.getItem('EVO_widthSideBar')) || evo.resizer.getDefaultWidth();
                     evo.resizer.setWidth(p);
                     if (evo.moduleViewport) {
-                        evo.moduleViewport.manualTreeVisible = evo.moduleViewport.hiddenByModule && p > 0;
+                        evo.moduleViewport.manualTreeVisible = p > 0;
                     }
                 }
             },
@@ -914,8 +914,11 @@
                 d.getElementById('resizer').style.left = evo.pxToRem(a) + 'rem';
                 d.getElementById('main').style.left = evo.pxToRem(a) + 'rem';
             },
+            getDefaultWidth: function () {
+                return evo.remToPx(evo.config.tree_width_default || evo.config.tree_width || 18);
+            },
             setDefaultWidth: function () {
-                evo.resizer.setWidth(evo.remToPx(evo.config.tree_width));
+                evo.resizer.setWidth(evo.resizer.getDefaultWidth());
             },
             closeDrawer: function () {
                 if (w.innerWidth <= evo.minWidth && d.body && !d.body.classList.contains('sidebar-closed')) {
@@ -1007,11 +1010,7 @@
                 }
             },
             restoreTree: function () {
-                var width = this.restoreWidth || (
-                    evo.remToPx && evo.config
-                        ? evo.remToPx(evo.config.tree_width)
-                        : 0
-                );
+                var width = this.restoreWidth || evo.resizer.getDefaultWidth();
 
                 if (evo.resizer && typeof evo.resizer.setWidth === 'function') {
                     if (width > 0) {
@@ -1942,7 +1941,10 @@
             }
         },
         tabs: function (a) {
-            if (!a.restoring) evo.resizer.closeDrawer();
+            var navigationLink = typeof a.currentTarget !== 'undefined' && !a.defaultPrevented ? modxMainTargetLinkHelper.getMainTargetLink(a) : null;
+            // This also receives every document click: only navigation closes
+            // the narrow drawer, never its own toggle or a menu/filter control.
+            if (!a.restoring && (a.url || navigationLink)) evo.resizer.closeDrawer();
             function Tabs(a) {
                 var s = this;
                 this.url = a.url.replace(new RegExp(evo.EVO_MANAGER_URL, 'g'), '');
@@ -2310,7 +2312,7 @@
             if (evo.config.global_tabs) {
                 if (typeof a.currentTarget !== 'undefined') {
                     var e = a;
-                    var link = modxMainTargetLinkHelper.getMainTargetLink(e);
+                    var link = navigationLink;
                     if (link) {
                         a = link;
                         if (e.shiftKey) {

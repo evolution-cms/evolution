@@ -98,6 +98,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
                 manager_title: @js($managerTitle),
                 menu_height: {{(int)evo()->getConfig('manager_menu_height')}},
                 tree_width: {{(int)$EVO_widthSideBar}},
+                tree_width_default: @js((float) evo()->getConfig('manager_tree_width')),
                 tree_min_width: {{(int)$tree_min_width}},
                 session_timeout: {{(int)evo()->getConfig('session_timeout')}},
                 site_start: {{(int)evo()->getConfig('site_start')}},

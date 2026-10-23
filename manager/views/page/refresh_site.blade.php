@@ -10,14 +10,14 @@
     </div>
 
     <div class="tab-page">
-        <div class="container container-body">
+        <div class="container container-body" data-manager-cache-result>
             @if($num_rows_pub)
                 <p>{{ ManagerTheme::lexiconHtml('refresh_published', [(int)$num_rows_pub]) }}</p>
             @endif
             @if($num_rows_unpub)
                 <p>{{ ManagerTheme::lexiconHtml('refresh_unpublished', [(int)$num_rows_unpub]) }}</p>
             @endif
-            {!! $cache_log !!}
+            <div data-manager-cache-summary>{!! $cache_log !!}</div>
         </div>
     </div>
 @endsection

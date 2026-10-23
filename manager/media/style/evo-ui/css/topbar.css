@@ -52,7 +52,12 @@
     text-decoration: none;
     cursor: pointer;
     box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 0;
 }
+#mainMenu.evo-manager-topbar .evo-manager-menu > li > .evo-manager-item__row { height: 32px; }
+#mainMenu.evo-manager-topbar .evo-manager-menu > li > .evo-manager-item__row > :is(a, button) { height: 32px; line-height: 20px; }
 #mainMenu.evo-manager-topbar .evo-manager-mobile-icon { display: none; }
 #mainMenu.evo-manager-topbar .evo-manager-link:hover,
 #mainMenu.evo-manager-topbar #settings > li > a:hover,
@@ -112,8 +117,12 @@
 #mainMenu.evo-manager-topbar li.is-open > ul,
 #mainMenu.evo-manager-topbar #settings > li.is-open > ul { display: block; }
 #mainMenu.evo-manager-topbar .evo-manager-submenu .evo-manager-link { flex: 1; }
-#mainMenu.evo-manager-topbar .evo-manager-submenu .evo-manager-caret { margin-left: auto; }
+#mainMenu.evo-manager-topbar .evo-manager-submenu .evo-manager-caret { margin-left: auto; flex: 0 0 26px; }
+#mainMenu.evo-manager-topbar .evo-manager-submenu .evo-manager-item__row:hover { background: var(--evo-ui-row-hover); border-radius: var(--evo-ui-radius-sm); }
+#mainMenu.evo-manager-topbar [data-evo-menu-extra="refresh_site_in_window"] { background: var(--evo-ui-primary-soft); border: 1px solid var(--evo-ui-border-soft); }
+#mainMenu.evo-manager-topbar [aria-busy="true"].evo-manager-extra { opacity: .6; cursor: progress; }
 #mainMenu.evo-manager-topbar .evo-manager-submenu .evo-manager-caret svg { transform: rotate(-90deg); }
+#mainMenu.evo-manager-topbar .evo-manager-submenu .evo-manager-group-caret { margin-left: auto; transform: rotate(-90deg); }
 #mainMenu.evo-manager-topbar :is(.evo-manager-submenu, .dropdown-menu) > li {
     position: relative;
     margin: 0;
@@ -160,10 +169,15 @@
 }
 #mainMenu.evo-manager-topbar #account .icon { margin: 0; height: 22px; line-height: 22px; }
 #mainMenu.evo-manager-topbar #account .photo { width: 22px; }
-.evo-manager-dialog { color: var(--evo-ui-text); background: var(--evo-ui-bg); border: 1px solid var(--evo-ui-border); border-radius: 12px; padding: 24px; max-width: min(480px, calc(100vw - 32px)); box-shadow: 0 16px 56px #0005; }
-.evo-manager-dialog::backdrop { background: #0006; backdrop-filter: blur(3px); }
-.evo-manager-dialog h2 { font: 600 20px system-ui; margin: 0 0 16px; }
-.evo-manager-dialog__actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 24px; }
+.evo-manager-cache-notice { position: fixed; z-index: 12002; display: flex; align-items: flex-start; gap: 8px; width: max-content; max-width: min(360px, calc(100vw - 16px)); max-height: calc(100vh - 16px); overflow: auto; box-sizing: border-box; padding: 12px; color: var(--evo-ui-text); background: var(--evo-ui-bg); border: 1px solid var(--evo-ui-border); border-radius: var(--evo-ui-radius); box-shadow: 0 12px 32px #0003; font: 13px/1.45 system-ui; }
+.evo-manager-cache-notice[hidden] { display: none; }
+.evo-manager-cache-notice svg { flex: 0 0 20px; width: 20px; height: 20px; }
+.evo-manager-cache-notice__icon { color: var(--evo-ui-primary); }
+.evo-manager-cache-notice[data-state="success"] .evo-manager-cache-notice__icon { color: var(--evo-ui-success); }
+.evo-manager-cache-notice[data-state="error"] .evo-manager-cache-notice__icon { color: var(--evo-ui-danger); }
+.evo-manager-cache-notice button { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 24px; height: 24px; padding: 2px; border: 0; border-radius: var(--evo-ui-radius-sm); background: transparent; color: var(--evo-ui-muted); cursor: pointer; }
+.evo-manager-cache-notice button:hover { background: var(--evo-ui-row-hover); }
+.evo-manager-cache-notice button:focus-visible { outline: 2px solid var(--evo-ui-primary); }
 @media (max-width: 1050px) {
     #mainMenu.evo-manager-topbar .evo-manager-topbar__bar { flex-wrap: wrap; gap: 4px; padding: 3px 8px; }
     #mainMenu.evo-manager-topbar #settings { margin-left: auto; }

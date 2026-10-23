@@ -52,7 +52,7 @@ Optional controls use `[tag, href, class, onclick, title, html]`, with `a` or
 user text must be escaped by its producer. Attributes are escaped by Blade.
 External `_blank` links receive `noopener noreferrer`.
 Keyed optional controls retain their key in `data-evo-menu-extra`. Only the
-stock `refresh_site_in_window` control opens the native cache dialog; extra
+stock `refresh_site_in_window` control clears the cache in the background; extra
 plugin buttons on that same row keep their own handlers.
 
 The new renderer accepts any available operation in column 6, matching core
@@ -60,7 +60,10 @@ entries such as `new_chunk,edit_chunk`. A denied parent hides its branch. The
 shipped sidebar toggle's historical `return false;` sentinel is preserved.
 Routes/actions still enforce authorization independently of menu visibility.
 
-Static children are rendered recursively. A parent with a real link retains
+Static children are rendered recursively. On desktop, hovering a submenu row
+opens its next level; clicking its label still navigates. The expansion control
+stays on the right within the same highlighted row. Touch and keyboard users
+can expand it with that control. A parent with a real link retains
 that link and has a separate expansion control. If it has no static children,
 the existing `dropdown-toggle` class requests its dynamic element list through
 the manager's physical asset-theme AJAX endpoint. Native `fetch` sends the
@@ -74,15 +77,19 @@ discarded. Failed requests show a retry control and release the busy state.
   expansion controls, including on mobile.
 - At widths up to 600px the primary bar shows icons only. Titles and accessible
   labels remain; text-only plugin items receive a fallback icon.
-- The bar measures approximately 39px on a normal desktop viewport; the logo
-  is 22px. Existing frame height measurement also accommodates wrapped rows.
+- Native button appearance is reset and primary controls have an explicit 32px
+  height and 20px line height for Safari/Chrome alignment. The bar measures
+  approximately 39px on a normal desktop viewport; the logo is 22px. Existing
+  frame height measurement also accommodates wrapped rows.
 - Arrow keys and Escape operate the menu. Text fields retain their editing keys;
   closing a parent resets expanded descendants. Focusing outside the bar or clicking
-  outside closes it. Modified link clicks keep normal browser behavior.
+  outside closes it.
 - The existing theme button cycles `evolightness`, `evolight`, `evodark` and
   `evodarkness`, using the manager's editor/iframe/cookie synchronization.
-- The cache item's optional control opens a confirmation dialog; confirmation
-  uses the existing tokenized action URL.
+- The cache item's blue optional control immediately posts the existing tokenized
+  action URL. A small result notice beside the control disappears after five
+  seconds. There is no confirmation or new tab. The main cache link still opens
+  the full result page. Failed/login responses are never reported as success.
 - EvoUI always uses the horizontal bar, even if a site previously selected the
   legacy left menu. The setting remains available when switching back to default.
 
@@ -112,6 +119,16 @@ continue to cover the common runtime.
 Browser verification should include a real event listener that adds nested
 items and optional controls, moves/removes stock items and supplies a denied
 permission. Also exercise dynamic element lists, main-target navigation with
-global tabs, both themes, the four modes, the cache dialog and a mobile viewport.
+global tabs, both themes, the four modes, the quick-cache result notice and a
+mobile viewport.
 Also verify tabs disabled, clearing a dynamic filter, failed-request retry,
 editing filter text with the arrow keys, and `show_picker=1` with both themes.
+
+The sidebar toggle restores the configured default width when a collapsed
+cookie/saved width is zero. The default rem width is converted to pixels before
+resizing; modules requesting a hidden tree respect an explicit manual open.
+The global tab click listener closes the narrow drawer only for actual
+navigation, and respects links cancelled/handled by other listeners.
+Node regressions live in `manager/media/script/tests/responsive-tree-drawer.test.js`
+and `evo-ui-topbar.test.js` (including quick-action CSRF, duplicate-click guarding,
+expired-login/error feedback, auto-dismiss, hover and parent navigation).

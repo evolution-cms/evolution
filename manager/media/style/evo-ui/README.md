@@ -24,6 +24,11 @@ The old palette/Spectrum/Bootstrap assets are excluded even with `show_picker`
 enabled, and the legacy recursive menu builder no longer runs for this theme.
 Dynamic lists use native `fetch` with the existing manager session/CSRF contract.
 Legacy left-menu preferences do not change the new horizontal layout.
+Hovering a submenu row opens its next level; clicking its label navigates. The
+right-aligned arrow remains available to touch and keyboard users. The blue
+cache action clears immediately with a short result notice; the main cache link
+still opens the full page. The sidebar toggle also works after restoring a
+collapsed session and on narrow screens with global tabs enabled.
 
 `ManagerTheme::getTheme()` identifies the logical selection;
 `getThemeDir()` / `getThemeUrl()` identify its shared physical asset directory.
