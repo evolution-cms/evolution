@@ -34,7 +34,7 @@ function evoUiThemeFixture(string $name): array
     return [$theme, $views->getFinder()];
 }
 
-test('switching manager themes selects only the native System Info override', function (string $name, string $path) {
+test('switching manager themes selects native views while sharing the frame and physical assets', function (string $name, string $path) {
     [$theme, $finder] = evoUiThemeFixture($name);
     $root = dirname(__DIR__, 4) . '/manager/';
 
@@ -42,6 +42,7 @@ test('switching manager themes selects only the native System Info override', fu
         ->and(realpath($finder->find($theme->getViewName('page.sysinfo'))))->toBe(realpath($root . $path))
         ->and(realpath($finder->find($theme->getViewName('page.system_settings'))))->toBe(realpath($root . 'views/page/system_settings.blade.php'))
         ->and(realpath($finder->find($theme->getViewName('frame.1'))))->toBe(realpath($root . 'views/frame/1.blade.php'))
+        ->and(realpath($finder->find($theme->getViewName('frame.topbar'))))->toBe(realpath($root . ($name === 'evo-ui' ? 'media/style/evo-ui/' : '') . 'views/frame/topbar.blade.php'))
         ->and($theme->getThemeDir(false))->toBe('media/style/default/')
         ->and($theme->getThemeUrl())->toBe(EVO_MANAGER_URL . 'media/style/default/')
         ->and($theme->getCssFiles())->not->toBeEmpty();
