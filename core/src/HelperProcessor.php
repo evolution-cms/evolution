@@ -1,9 +1,29 @@
 <?php namespace EvolutionCMS;
 
+use Illuminate\Support\Facades\Cache;
+use WebPConvert\Convert\Exceptions\ConversionFailed\ConverterNotOperationalException;
 use WebPConvert\WebPConvert;
 
 class HelperProcessor
 {
+    /**
+     * Same as the shipped assets/cache/images/.htaccess: both dialects, a bare 2.2 directive is a 500 on
+     * a 2.4 server without mod_access_compat.
+     */
+    const CACHE_FOLDER_HTACCESS = "<IfModule mod_authz_core.c>\n    Require all granted\n</IfModule>\n"
+        . "<IfModule !mod_authz_core.c>\n    Order deny,allow\n    Allow from all\n</IfModule>\n";
+
+    /**
+     * Set for a day once no WebP converter works here (a GD without WebP and no cwebp, imagick, ...),
+     * so the stack is not tried, and logged, again for every image; clearing the cache retries.
+     */
+    const WEBP_UNAVAILABLE_KEY = 'evo.phpthumb.webp_unavailable';
+
+    const ALLOWED_PARAMS = ['w', 'h', 'wp', 'hp', 'wl', 'hl', 'ws', 'hs', 'q', 'sx', 'sy', 'sw', 'sh',
+        'zc', 'ica', 'bc', 'bg', 'bgt', 'fltr', 'xto', 'ra', 'ar', 'aoe', 'far', 'iar', 'maxb', 'dpi'];
+
+    const ALLOWED_FORMATS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'bmp', 'ico', 'wbmp'];
+
     /**
      * @var Interfaces\CoreInterface
      */
@@ -61,15 +81,17 @@ class HelperProcessor
             $cacheFolder !== $defaultCacheFolder &&
             strpos($cacheFolder, $defaultCacheFolder) === 0
         ) {
-            file_put_contents(EVO_BASE_PATH . $cacheFolder . '/.htaccess', "order deny,allow\nallow from all\n");
+            file_put_contents(EVO_BASE_PATH . $cacheFolder . '/.htaccess', self::CACHE_FOLDER_HTACCESS);
         }
 
         $path_parts = pathinfo($input);
         $ext = strtolower($path_parts['extension']);
-        $options = 'f=' . (in_array($ext, ['png', 'gif', 'jpeg']) ? $ext : 'jpg&q=85') . '&' .
+        $defaultFormat = in_array($ext, ['png', 'gif', 'jpeg'], true) ? $ext : 'jpg';
+        $options = 'f=' . ($defaultFormat === 'jpg' ? 'jpg&q=85' : $defaultFormat) . '&' .
             strtr($options, [',' => '&', '_' => '=', '{' => '[', '}' => ']']);
 
         parse_str($options, $params);
+        $params = $this->sanitizeParams($params, $defaultFormat);
 
         $fName = $this->makeFilename($path_parts, $params);
 
@@ -77,7 +99,7 @@ class HelperProcessor
         $tmpImagesFolder = explode('/', $tmpImagesFolder);
 
         foreach ($tmpImagesFolder as $folder) {
-            if (!empty($folder)) {
+            if (!empty($folder) && $folder !== '.' && $folder !== '..') {
                 $cacheFolder .= '/' . $folder;
                 $path = EVO_BASE_PATH . $cacheFolder;
                 if (!file_exists($path) && mkdir($path) && is_dir($path)) {
@@ -116,17 +138,86 @@ class HelperProcessor
             }
         }
 
-        if (isset($webp) && class_exists('\WebPConvert\WebPConvert')) {
+        if ($webp && class_exists('\WebPConvert\WebPConvert')) {
             if( isset( $_SERVER['HTTP_ACCEPT'] ) && strpos( $_SERVER['HTTP_ACCEPT'], 'image/webp' ) !== false && pathinfo($outputFilename, PATHINFO_EXTENSION) != 'gif') {
-                if (file_exists($outputFilename . '.webp')) {
-                    $fNameSuf .= '.webp';
-                } else {
-                    WebPConvert::convert($outputFilename, $outputFilename . '.webp');
+                if ($this->makeWebp($outputFilename)) {
                     $fNameSuf .= '.webp';
                 }
             }
         }
 
         return $fNamePref . rawurlencode($fName) . $fNameSuf;
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     * @return array<string, mixed>
+     */
+    protected function sanitizeParams(array $params, string $defaultFormat): array
+    {
+        $format = isset($params['f']) && is_string($params['f']) ? strtolower($params['f']) : $defaultFormat;
+        if (!in_array($format, self::ALLOWED_FORMATS, true)) {
+            $format = $defaultFormat;
+        }
+
+        $safe = [];
+        foreach (self::ALLOWED_PARAMS as $key) {
+            if (array_key_exists($key, $params)) {
+                $safe[$key] = $params[$key];
+            }
+        }
+        $safe['f'] = $format;
+
+        return $safe;
+    }
+
+    /**
+     * Writes $filename.webp next to the thumbnail unless it is there already.
+     *
+     * @return bool false when there is no WebP copy to link: the caller keeps the thumbnail itself
+     */
+    protected function makeWebp(string $filename): bool
+    {
+        if (file_exists($filename . '.webp')) {
+            return true;
+        }
+        if (!file_exists($filename) || $this->rememberedWebpUnavailable()) {
+            return false;
+        }
+        try {
+            $this->convertToWebp($filename, $filename . '.webp');
+        } catch (\Throwable $e) {
+            if ($e instanceof ConverterNotOperationalException) {
+                $this->rememberWebpUnavailable();
+            }
+            $this->core->logEvent(0, 2, 'WebP copy of ' . e(basename($filename)) . ' not made, the thumbnail is served as it is: '
+                . e($e->getMessage()), 'phpthumb');
+
+            return false;
+        }
+
+        return file_exists($filename . '.webp');
+    }
+
+    protected function convertToWebp(string $source, string $destination): void
+    {
+        WebPConvert::convert($source, $destination);
+    }
+
+    protected function rememberedWebpUnavailable(): bool
+    {
+        try {
+            return (bool) Cache::get(self::WEBP_UNAVAILABLE_KEY, false);
+        } catch (\Throwable $e) {
+            return false; // no cache store here: try every time
+        }
+    }
+
+    protected function rememberWebpUnavailable(): void
+    {
+        try {
+            Cache::put(self::WEBP_UNAVAILABLE_KEY, true, 86400);
+        } catch (\Throwable $e) {
+        }
     }
 }

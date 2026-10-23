@@ -90,7 +90,13 @@ RewriteRule .* - [F,L]
 #   core, views, vendor, tmp          - CMS core (config, .env, storage), Blade layouts, deps, scratch
 #   assets/(cache|backup|export|import) - generated and writable areas; the per-directory
 #                                       .htaccess files there only work with AllowOverride
+#   except assets/cache/images          - phpThumb thumbnails (Helper::phpThumb()), linked from pages:
+#                                       existing image files only. REQUEST_FILENAME is the file Apache
+#                                       resolved, so a script with PATH_INFO (x.php/y.png) is no image.
 RewriteRule ^(core|views|vendor|tmp)(/|$) - [F,L]
+RewriteCond %{REQUEST_FILENAME} \.(jpe?g|png|gif|webp|avif|bmp|ico|wbmp)$ [NC]
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^assets/cache/images/ - [L]
 RewriteRule ^assets/(cache|backup|export|import)(/|$) - [F,L]
 
 # Root-level files that fingerprint the install or describe its layout.
