@@ -32,7 +32,7 @@ function fmContainmentRemove(string $path): void
 function fmContainmentSymlink(string $target, string $link): void
 {
     if (!function_exists('symlink') || !@symlink($target, $link)) {
-        test()->markTestSkipped('symlinks are not available here');
+        \PHPUnit\Framework\Assert::markTestSkipped('symlinks are not available here');
     }
 }
 
@@ -265,10 +265,11 @@ it('asks the write guard about every entry and skips the ones it refuses', funct
         'open/ok.txt' => 'ok',
     ]);
     $asked = [];
-    $guard = function ($target, $isDir) use (&$asked) {
+    $private = $this->tmp . '/dest/private';
+    $guard = function ($target, $isDir) use (&$asked, $private) {
         $asked[] = $target;
 
-        return strpos($target, '/private') === false;
+        return $target !== $private && !str_starts_with($target, $private . '/');
     };
 
     fileManagerExtractZip($this->tmp . '/a.zip', $this->tmp . '/dest', [], 0777, $guard);

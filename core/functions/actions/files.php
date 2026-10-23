@@ -1150,8 +1150,26 @@ if(!function_exists('fileManagerCanRenameTo')) {
             return false;
         }
         $sourceReal = realpath($source);
+        $targetReal = realpath($target);
+        if ($sourceReal === false || $targetReal === false) {
+            return false;
+        }
+        if ($sourceReal === $targetReal) {
+            return true;
+        }
 
-        return $sourceReal !== false && $sourceReal === realpath($target);
+        // On case-insensitive macOS volumes realpath can preserve the requested
+        // spelling. Verify the entry identity without allowing replacement of a
+        // distinct, case-sensitive hard link that happens to share its inode.
+        $sourceStat = @lstat($sourceReal);
+        $targetStat = @lstat($targetReal);
+        $entries = @scandir(dirname($sourceReal));
+
+        return $sourceStat !== false && $targetStat !== false && $entries !== false
+            && $sourceStat['ino'] !== 0
+            && $sourceStat['dev'] === $targetStat['dev']
+            && $sourceStat['ino'] === $targetStat['ino']
+            && !in_array(basename($target), $entries, true);
     }
 }
 

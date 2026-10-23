@@ -37,7 +37,7 @@ UPDATE_LOG=/tmp/update.log
 wait_for_db
 
 say "Installing Evolution CMS (${EVO_DB_TYPE}, database '${EVO_DB_NAME}', prefix '${EVO_DB_PREFIX}')"
-# --skipComposer=y: core/vendor is committed, so there is nothing to install and
+# --skipComposer=y: the workflow/image already installed the locked dependencies;
 # a composer update here would test the network rather than the CMS.
 # --removeInstall=n: keeping install/ lets the run report what it used, and the
 # sqlite leg of the build workflow already covers removal.

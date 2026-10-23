@@ -145,7 +145,7 @@ it('finds the same .htaccess files through git and on disk in this checkout', fu
     $root = dirname(__DIR__, 4);
     $tracked = evoTrackedHtaccessFiles($root);
     if ($tracked === []) {
-        test()->markTestSkipped('no usable git checkout here');
+        \PHPUnit\Framework\Assert::markTestSkipped('no usable git checkout here');
     }
 
     // git's list is the reference; the scan may add untracked files, but must not miss any

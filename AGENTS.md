@@ -1,10 +1,10 @@
 # Evolution CMS — Agent Guide
 
-Evolution CMS is a community-maintained fork of MODX Evolution, rebuilt on Laravel 12 components.
+Evolution CMS is a community-maintained fork of MODX Evolution, rebuilt on Laravel 13 components.
 It is a PHP CMS and application framework with a tree-based document/resource model,
 a template variable (TV) system, plugins, snippets, chunks, and a modular extras ecosystem.
 
-**PHP requirement:** >= 8.3 (8.4 recommended) · **License:** GPL-3.0-or-later
+**PHP requirement:** >= 8.4.1 (8.5 supported; 8.6 RC tested) · **License:** GPL-3.0-or-later
 
 ---
 
@@ -25,7 +25,7 @@ a template variable (TV) system, plugins, snippets, chunks, and a modular extras
 ├── core/                ← CMS core (NOT web-accessible; block in nginx/Apache)
 │   ├── artisan          ← CLI entry point: php core/artisan <command>
 │   ├── bootstrap.php    ← application bootstrap
-│   ├── composer.json    ← core dependencies (Laravel 12, Pest, etc.)
+│   ├── composer.json    ← core dependencies (Laravel 13, Pest, etc.)
 │   ├── config/          ← Laravel-style config files
 │   ├── custom/          ← LOCAL OVERRIDES — copy examples here, never edit originals
 │   │   ├── composer.json.example  → custom/composer.json (add extra packages)
@@ -475,13 +475,12 @@ Tests: `core/tests/Unit/Security/BackgroundBackupPermissionTest.php`, `BackendCo
 
 ## Dependencies of Note
 
-- **Laravel 12** components (illuminate/*) — container, ORM, routing, events, cache, queue
-- **Pest 4** — test framework
+- **Laravel 13** components (illuminate/*) — container, ORM, routing, events, cache, queue
+- **Pest 5** — test framework
 - **Tracy 2** — debug/profiling bar
-- **doctrine/dbal 4** — schema inspection for migrations
 - **evolutioncms-services/document-manager** and **user-manager** — official service packages
 - **phpmailer/phpmailer 7** — mail sending
-- **guzzlehttp/guzzle 7** — HTTP client
+- **guzzlehttp/guzzle 8** — HTTP client
 
 ---
 

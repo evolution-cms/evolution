@@ -66,7 +66,7 @@ afterEach(function () {
 function mediaBrowserSymlink(string $target, string $link): void
 {
     if (!function_exists('symlink') || !@symlink($target, $link)) {
-        test()->markTestSkipped('symlinks are not available here');
+        \PHPUnit\Framework\Assert::markTestSkipped('symlinks are not available here');
     }
 }
 

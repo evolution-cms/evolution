@@ -44,11 +44,13 @@ jobs:
         uses: actions/cache@v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: composer-${{ runner.os }}-php${{ matrix.php }}-analyze-${{ hashFiles('composer.json') }}
+          key: composer-${{ runner.os }}-php${{ matrix.php }}-analyze-${{ hashFiles('composer.json', 'core/composer.lock') }}
           restore-keys: composer-${{ runner.os }}-php${{ matrix.php }}-analyze-
 
-      # Only the root dependencies (PHPStan) are installed here:
-      # core/vendor is committed and provides everything phpstan.neon bootstraps.
+      - name: Install core dependencies
+        working-directory: core
+        run: composer install --no-interaction --no-progress --prefer-dist
+
       - name: Install root dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
 
@@ -90,7 +92,7 @@ jobs:
 
       - name: Run Pest
         working-directory: core
-        run: composer test -- --compact
+        run: composer test -- --compact --fail-on-warning --fail-on-risky --fail-on-deprecation
 
   php86-rc:
     name: PHP 8.6 RC compatibility (Docker)
@@ -98,48 +100,18 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # The official 8.6-rc alias follows the latest PHP 8.6 release candidate.
-      # Report prerelease failures as warnings so this compatibility signal never
-      # marks the workflow build as failed.
-      - name: Build and test the PHP 8.6 RC image
-        env:
-          IMAGE: evo-ci-php:8.6-rc
-        run: |
-          if docker build --build-arg PHP_VERSION=8.6-rc -f .github/docker/ci/Dockerfile -t "$IMAGE" .; then
-            build_result=passed
-          else
-            build_result=failed
-          fi
+      # Locked dependencies support PHP 8.6: exercise the actual platform
+      # requirements and fail the job if the runtime or the suite fails.
+      - name: Build the PHP 8.6 RC image
+        run: docker build --build-arg PHP_VERSION=8.6-rc -f .github/docker/ci/Dockerfile -t evo-ci-php:8.6-rc .
 
-          version_result=skipped
-          test_result=skipped
-          if [ "$build_result" = passed ]; then
-            if docker run --rm --entrypoint php "$IMAGE" -r 'if (PHP_VERSION_ID < 80600 || PHP_VERSION_ID >= 80700 || !str_contains(PHP_VERSION, "RC")) { fwrite(STDERR, PHP_VERSION . PHP_EOL); exit(1); } echo PHP_VERSION, PHP_EOL;'; then
-              version_result=passed
-            else
-              version_result=failed
-            fi
+      - name: Verify the PHP 8.6 RC runtime
+        run: >-
+          docker run --rm --entrypoint php evo-ci-php:8.6-rc
+          -r 'if (PHP_VERSION_ID < 80600 || PHP_VERSION_ID >= 80700 || !str_contains(PHP_VERSION, "RC")) { fwrite(STDERR, PHP_VERSION . PHP_EOL); exit(1); } echo PHP_VERSION, PHP_EOL;'
 
-            # Locked dev tools still declare an upper PHP bound of 8.5; ignore
-            # only that metadata to exercise them on this prerelease runtime.
-            if docker run --rm --entrypoint sh "$IMAGE" -c 'cd core && php vendor/bin/composer install --no-interaction --no-progress --prefer-dist --ignore-platform-req=php && php vendor/bin/pest --compact'; then
-              test_result=passed
-            else
-              test_result=failed
-            fi
-          fi
-
-          {
-            echo '### PHP 8.6 RC compatibility'
-            echo "- Docker image build: **${build_result}**"
-            echo "- PHP RC version check: **${version_result}**"
-            echo "- Pest: **${test_result}**"
-          } >> "$GITHUB_STEP_SUMMARY"
-
-          if [ "$build_result" != passed ] || [ "$version_result" = failed ] || [ "$test_result" = failed ]; then
-            echo "::warning title=PHP 8.6 RC compatibility::Image build=${build_result}, version check=${version_result}, Pest=${test_result}"
-          fi
-          exit 0
+      - name: Run Pest on PHP 8.6 RC
+        run: docker run --rm --entrypoint sh evo-ci-php:8.6-rc -c 'cd core && php vendor/bin/pest --compact --fail-on-warning --fail-on-risky --fail-on-deprecation'
 
   install:
     name: Install on ${{ matrix.db }}
@@ -190,10 +162,12 @@ jobs:
           coverage: none
           tools: composer:v2
 
-      # core/vendor is committed, so there is no composer step: the script calls
-      # the installer with --skipComposer=y. See .github/docker/ci/ for what the
-      # run asserts - it fails on any PHP diagnostic, on missing or wrong seeded
-      # data, and on a site that does not answer.
+      # Build the production dependency tree from the lock before the installer
+      # runs with --skipComposer=y. Source archives no longer contain vendor/.
+      - name: Install core dependencies
+        working-directory: core
+        run: composer install --no-dev --no-interaction --no-progress --prefer-dist
+
       - name: Install and smoke test
         env:
           EVO_APP_DIR: ${{ github.workspace }}

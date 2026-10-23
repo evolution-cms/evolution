@@ -30,6 +30,7 @@ mount, so a run leaves the working tree alone.
 sqlite needs no container at all:
 
 ```sh
+composer install --working-dir=core --no-interaction --prefer-dist
 EVO_DB_TYPE=sqlite EVO_APP_DIR="$PWD" .github/docker/ci/install-and-smoke.sh
 ```
 
@@ -45,6 +46,7 @@ a checkout that can be thrown away.
 
 ```sh
 git clone --depth 1 --branch 3.5.7 https://github.com/evolution-cms/evolution /tmp/evo-3.5.7
+composer install --working-dir=core --no-dev --no-interaction --prefer-dist
 EVO_FROM_DIR=/tmp/evo-3.5.7 EVO_NEW_DIR="$PWD" EVO_DB_TYPE=mysql EVO_DB_HOST=127.0.0.1 EVO_DB_USER=root EVO_DB_PASSWORD=secret     .github/docker/ci/upgrade-and-smoke.sh
 ```
 
@@ -73,6 +75,10 @@ whose PHP `shivammathur/setup-php` already provides with `pdo_mysql` and
 `pdo_pgsql` prebuilt. Building the image there would spend two or three minutes
 per leg compiling extensions the runner hands over ready-made, on every push.
 
+The workflow installs production core dependencies from `core/composer.lock`
+before the installer runs. The Docker image installs development dependencies
+as well, so it can also run Pest. Source archives contain no `core/vendor/`.
+
 The script only needs `EVO_DB_*` and a reachable server, so both paths run the
 same checks; the image is what makes a local run reproducible on a machine with
 no PHP on it, and what pins the PHP version when a version question is the one
@@ -84,10 +90,10 @@ the analysis and unit test jobs. The sqlite leg starts no container.
 
 The same workflow also builds this image from the official `php:8.6-rc-cli`
 image and runs the unit tests in it. The `8.6-rc` tag follows the latest PHP 8.6
-release candidate; it currently resolves to PHP 8.6.0RC3. The image includes
-SQLite and mbstring support for the test suite. This prerelease compatibility
-job reports the build, version and test results in the Actions summary and as a
-warning while keeping the workflow status green.
+release candidate. The image includes SQLite and mbstring support and installs
+locked dependencies with standalone Composer. No platform requirements are
+ignored: a failed build, runtime check or test fails the compatibility job.
+PHP 8.6 remains a prerelease platform until its general release.
 
 The upgrade checks live in their own workflow, `.github/workflows/upgrade.yml`,
 off `push` and `pull_request` on purpose: an upgrade regression comes from a

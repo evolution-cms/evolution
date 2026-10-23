@@ -12,20 +12,29 @@ trait ManagerActions
         $map = $this->getManagerActionsMap();
         switch (true) {
             case isset($map[$type]) && is_scalar($map[$type]):
-                $out = '?' . http_build_query(array_merge($options, [
+                $parameters = array_merge($options, [
                         'a' => $map[$type]
-                    ]));
+                    ]);
                 break;
             case $this->exists && isset($map['id'][$type]) &&
                 is_scalar($map['id'][$type]):
-                $out = '?' . http_build_query(array_merge($options, [
+                $parameters = array_merge($options, [
                         'a' => $map['id'][$type],
                         'id' => $this->getKey()
-                    ]));
+                    ]);
                 break;
             default:
-                $out = '#';
+                $parameters = null;
         }
+
+        if ($parameters !== null && in_array($type, [
+            'actions.save', 'actions.enable', 'actions.disable',
+            'actions.delete', 'actions.duplicate', 'actions.run',
+        ], true)) {
+            $parameters['_token'] = csrf_token();
+        }
+
+        $out = $parameters === null ? '#' : '?' . http_build_query($parameters);
 
         return ($full ? EVO_MANAGER_URL : '') . $out;
     }
