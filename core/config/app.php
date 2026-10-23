@@ -76,6 +76,10 @@
         'Blade_Icons' => EvolutionCMS\Providers\BladeIconsAdapterServiceProvider::class,
         'Blade_Tabler' => secondnetwork\TablerIcons\BladeTablerIconsServiceProvider::class,
         'Evolution_EvoUI' => EvoUI\EvoUIServiceProvider::class,
+        'Evolution_DTuiEditor' => EvolutionCMS\dTuiEditor\DTuiEditorServiceProvider::class,
+        'Evolution_dDocs' => Dmi3yy\dDocs\dDocsServiceProvider::class,
+        'Evolution_sGallery' => Seiger\sGallery\sGalleryServiceProvider::class,
+        'Evolution_sTask' => Seiger\sTask\sTaskServiceProvider::class,
     ],
 
     'aliases' => [
@@ -95,6 +99,9 @@
         'Schema' => Illuminate\Support\Facades\Schema::class,
         'View' => Illuminate\Support\Facades\View::class,
         'EvoUI' => EvoUI\Facades\EvoUI::class,
+        'dDocs' => Dmi3yy\dDocs\Facades\dDocs::class,
+        'sGallery' => Seiger\sGallery\Facades\sGallery::class,
+        'sTask' => Seiger\sTask\Facades\sTask::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'Response' => Illuminate\Support\Facades\Response::class,
         'Redirect' => Illuminate\Support\Facades\Redirect::class,

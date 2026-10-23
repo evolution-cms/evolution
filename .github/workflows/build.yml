@@ -60,7 +60,7 @@ jobs:
           # Built on the lowest supported version so the vendor tree stays
           # usable on 8.4 and 8.5 alike.
           php-version: '8.4'
-          extensions: ctype, dom, fileinfo, filter, iconv, intl, json, mbstring, openssl, pdo, pdo_sqlite, readline, simplexml, sqlite3, tokenizer, xml, xmlreader, zip
+          extensions: ctype, dom, exif, fileinfo, filter, iconv, intl, json, mbstring, openssl, pdo, pdo_sqlite, readline, simplexml, sqlite3, tokenizer, xml, xmlreader, zip
           coverage: none
           tools: composer:v2
 
