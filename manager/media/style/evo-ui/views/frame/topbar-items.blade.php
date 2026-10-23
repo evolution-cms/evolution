@@ -19,10 +19,10 @@
             @endif
             @foreach ($node['optional'] as $button)
                 @if ($button['tag'] === 'button')
-                    <button type="button" class="evo-manager-extra {{ $button['class'] }}" title="{{ $button['title'] }}"
+                    <button type="button" class="evo-manager-extra {{ $button['class'] }}" data-evo-menu-extra="{{ $button['key'] }}" title="{{ $button['title'] }}"
                         onclick="{{ $button['onclick'] }}">{{ $button['label'] }}</button>
                 @else
-                    <a class="evo-manager-extra {{ $button['class'] }}" href="{{ $button['href'] }}" title="{{ $button['title'] }}"
+                    <a class="evo-manager-extra {{ $button['class'] }}" data-evo-menu-extra="{{ $button['key'] }}" href="{{ $button['href'] }}" title="{{ $button['title'] }}"
                         onclick="{{ $button['onclick'] }}">{{ $button['label'] }}</a>
                 @endif
             @endforeach

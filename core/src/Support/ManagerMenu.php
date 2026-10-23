@@ -78,11 +78,12 @@ class ManagerMenu
             $items = [$items];
         }
         $buttons = [];
-        foreach ($items as $item) {
+        foreach ($items as $key => $item) {
             if (!is_array($item) || count($item) < 6 || !in_array($item[0], ['a', 'button'], true)) {
                 continue;
             }
             $buttons[] = [
+                'key' => is_string($key) ? $key : '',
                 'tag' => $item[0], 'href' => $item[1], 'class' => $item[2],
                 'onclick' => $item[3], 'title' => $item[4], 'label' => new HtmlString($item[5]),
             ];

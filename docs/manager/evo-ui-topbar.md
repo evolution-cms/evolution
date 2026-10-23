@@ -28,8 +28,9 @@ Event::listen('evolution.OnManagerMenuPrerender', function ($params) {
 ```
 
 The event's replacement/merge behavior has not changed. The Frame controller
-also exposes this final list as `menuItems`; the legacy HTML `menu` remains
-available. A plugin can add, remove, reorder or reparent items before rendering.
+exposes this final list as `menuItems`. The legacy HTML `menu` is built only for
+themes using the legacy renderer; EvoUI consumes `menuItems` directly. A plugin
+can add, remove, reorder or reparent items before rendering.
 
 | Index | Meaning |
 | --- | --- |
@@ -50,6 +51,9 @@ Optional controls use `[tag, href, class, onclick, title, html]`, with `a` or
 `button` as the tag. Names and handlers remain a trusted extension API; stored
 user text must be escaped by its producer. Attributes are escaped by Blade.
 External `_blank` links receive `noopener noreferrer`.
+Keyed optional controls retain their key in `data-evo-menu-extra`. Only the
+stock `refresh_site_in_window` control opens the native cache dialog; extra
+plugin buttons on that same row keep their own handlers.
 
 The new renderer accepts any available operation in column 6, matching core
 entries such as `new_chunk,edit_chunk`. A denied parent hides its branch. The
@@ -59,8 +63,10 @@ Routes/actions still enforce authorization independently of menu visibility.
 Static children are rendered recursively. A parent with a real link retains
 that link and has a separate expansion control. If it has no static children,
 the existing `dropdown-toggle` class requests its dynamic element list through
-the manager's physical asset-theme AJAX endpoint. Search in a dynamic list can
-be changed and cleared; stale search responses are discarded.
+the manager's physical asset-theme AJAX endpoint. Native `fetch` sends the
+session, XHR header and CSRF token; the bar does not depend on `evo.post`.
+Search in a dynamic list can be changed and cleared; stale search responses are
+discarded. Failed requests show a retry control and release the busy state.
 
 ## Interaction and appearance
 
@@ -68,14 +74,32 @@ be changed and cleared; stale search responses are discarded.
   expansion controls, including on mobile.
 - At widths up to 600px the primary bar shows icons only. Titles and accessible
   labels remain; text-only plugin items receive a fallback icon.
-- The bar measures approximately 43px on a normal desktop viewport; the logo
+- The bar measures approximately 39px on a normal desktop viewport; the logo
   is 22px. Existing frame height measurement also accommodates wrapped rows.
-- Arrow keys and Escape operate the menu. Focusing outside the bar or clicking
+- Arrow keys and Escape operate the menu. Text fields retain their editing keys;
+  closing a parent resets expanded descendants. Focusing outside the bar or clicking
   outside closes it. Modified link clicks keep normal browser behavior.
 - The existing theme button cycles `evolightness`, `evolight`, `evodark` and
   `evodarkness`, using the manager's editor/iframe/cookie synchronization.
 - The cache item's optional control opens a confirmation dialog; confirmation
   uses the existing tokenized action URL.
+- EvoUI always uses the horizontal bar, even if a site previously selected the
+  legacy left menu. The setting remains available when switching back to default.
+
+## Incremental legacy removal
+
+The EvoUI frame skips the old recursive HTML menu builder and the old mainmenu
+initializer. Palette markup, Spectrum, color-switcher CSS/JS and its Bootstrap
+script are excluded even if `show_picker` is enabled. Those optional controls
+live in separate `frame.color-picker-*` partials for legacy themes. EvoUI's theme
+control is a native keyboard-operable button and still cycles the four modes.
+
+The shared `evo.js` and default stylesheet remain necessary for the tree,
+resizer, search, tabs, theme synchronization and legacy iframe screens. The
+right-hand action list still shares its permission/CSRF-aware Blade partial.
+These are the next migration boundaries; removing their assets globally would
+break screens that have not yet moved to EvoUI. Native Sysinfo remains a theme
+override with its own Livewire runtime.
 
 ## Validation
 
@@ -89,3 +113,5 @@ Browser verification should include a real event listener that adds nested
 items and optional controls, moves/removes stock items and supplies a denied
 permission. Also exercise dynamic element lists, main-target navigation with
 global tabs, both themes, the four modes, the cache dialog and a mobile viewport.
+Also verify tabs disabled, clearing a dynamic filter, failed-request retry,
+editing filter text with the arrow keys, and `show_picker=1` with both themes.

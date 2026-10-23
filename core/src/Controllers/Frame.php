@@ -109,7 +109,7 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
         }
 
         $navbar_position = $this->managerTheme->getCore()->getConfig('manager_menu_position');
-        if ($navbar_position === 'left') {
+        if ($navbar_position === 'left' && $this->managerTheme->getTheme() !== 'evo-ui') {
             $body_class .= ' navbar-left navbar-left-icon-and-text';
         }
 
@@ -257,6 +257,12 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
 
         // Both renderers consume the same final plugin-modified menu.
         $this->parameters['menuItems'] = $this->sitemenu;
+
+        // EvoUI renders the indexed contract directly. Do not run the recursive
+        // legacy HTML builder as well (including on plugin-supplied rows).
+        if ($this->managerTheme->getTheme() === 'evo-ui') {
+            return;
+        }
 
         $this->parameters['menu'] = (new \EvolutionCMS\Support\Menu())
             ->Build(

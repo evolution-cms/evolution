@@ -20,6 +20,10 @@ The bar is compact, has no arrows on its standard root groups, and shows icons
 with accessible names on screens up to 600px wide. Nested menus retain labels
 and separate expansion controls. The existing theme button cycles the four
 Evolution modes; there is no palette selector.
+The old palette/Spectrum/Bootstrap assets are excluded even with `show_picker`
+enabled, and the legacy recursive menu builder no longer runs for this theme.
+Dynamic lists use native `fetch` with the existing manager session/CSRF contract.
+Legacy left-menu preferences do not change the new horizontal layout.
 
 `ManagerTheme::getTheme()` identifies the logical selection;
 `getThemeDir()` / `getThemeUrl()` identify its shared physical asset directory.

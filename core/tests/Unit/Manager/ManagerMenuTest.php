@@ -59,6 +59,7 @@ test('static plugin children take precedence over an AJAX submenu and keep optio
     $tree = (new ManagerMenu())->tree([$row, managerMenuRow('child', 'parent')], fn () => true);
     expect($tree[0]['lazy'])->toBeFalse()
         ->and($tree[0]['class'])->toBe('dropdown-toggle custom-plugin')
+        ->and($tree[0]['optional'][0]['key'])->toBe('extra')
         ->and($tree[0]['optional'][0]['onclick'])->toBe('extra(event)')
         ->and((string) $tree[0]['optional'][0]['label'])->toBe('<svg></svg>');
 
@@ -91,4 +92,26 @@ test('malformed rows and cyclic plugin parents cannot break menu construction', 
         null, [], managerMenuRow('main'), managerMenuRow('loop', 'loop'), managerMenuRow('good'),
     ], fn () => true);
     expect(array_column($tree, 'id'))->toBe(['good']);
+});
+
+test('the EvoUI frame passes the final event menu directly without running the legacy HTML builder', function () {
+    // The adapter tolerates malformed plugin rows; the old renderer cannot.
+    $rows = [null, managerMenuRow('plugin'), managerMenuRow('loop', 'loop')];
+    $core = Mockery::mock(\EvolutionCMS\Interfaces\CoreInterface::class);
+    $core->shouldReceive('invokeEvent')->once()->with('OnManagerMenuPrerender', ['menu' => []])->andReturn([serialize($rows)]);
+    $theme = Mockery::mock(\EvolutionCMS\ManagerTheme::class);
+    $theme->shouldReceive('getCore')->andReturn($core);
+    $theme->shouldReceive('getTheme')->andReturn('evo-ui');
+    $frame = Mockery::mock(\EvolutionCMS\Controllers\Frame::class)->makePartial()->shouldAllowMockingProtectedMethods();
+    // Producers are independent of this boundary: model the event replacing them.
+    foreach ((new ReflectionClass($frame))->getMethods() as $method) {
+        if (str_starts_with($method->name, 'menu')) {
+            $frame->shouldReceive($method->name)->andReturnSelf();
+        }
+    }
+    (new ReflectionProperty(\EvolutionCMS\Controllers\AbstractController::class, 'managerTheme'))->setValue($frame, $theme);
+    (new ReflectionMethod(\EvolutionCMS\Controllers\Frame::class, 'makeMenu'))->invoke($frame);
+
+    expect($frame->getParameters())->toHaveKey('menuItems', $rows)->not->toHaveKey('menu')
+        ->and(array_column((new ManagerMenu())->tree($frame->getParameters()['menuItems'], fn () => true), 'id'))->toBe(['plugin']);
 });

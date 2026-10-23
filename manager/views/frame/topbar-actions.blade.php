@@ -76,9 +76,15 @@
                             </ul>
                         </li>
                         <li id="theme">
+                            @if ($nativeTopbar ?? false)
+                            <button type="button" id="treeMenu_theme_dark" class="evo-manager-link" onclick="evo.tree.toggleTheme(event)" title="{{ManagerTheme::getLexicon('manager_theme_mode_title')}}" aria-label="{{ManagerTheme::getLexicon('manager_theme_mode_title')}}">
+                                {{ icon_html($_style['icon_theme']) }}
+                            </button>
+                            @else
                             <a id="treeMenu_theme_dark" onclick="evo.tree.toggleTheme(event)" title="{{ManagerTheme::getLexicon('manager_theme_mode_title')}}">
                                 <span class="icon">{{ icon_html($_style['icon_theme']) }}</span>
                             </a>
+                            @endif
                         </li>
                         @if (
                             evo()->hasPermission('settings') ||

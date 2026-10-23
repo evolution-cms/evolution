@@ -13,6 +13,7 @@
     }
 
     function setOpen(owner, open) {
+        if (!open) owner.querySelectorAll('li.is-open').forEach(child => setOpen(child, false));
         owner.classList.toggle('is-open', open);
         owner.querySelectorAll(':scope > .evo-manager-item__row > [data-evo-menu-toggle], :scope > a.dropdown-toggle')
             .forEach(button => button.setAttribute('aria-expanded', String(open)));
@@ -41,7 +42,7 @@
         panel.style.top = Math.max(8, nested ? rect.top : rect.bottom + 5) + 'px';
     }
 
-    function loadItems(owner, filter) {
+    async function loadItems(owner, filter) {
         const panel = owner.querySelector(':scope > [data-evo-menu-results]');
         const link = owner.querySelector(':scope > .evo-manager-item__row > a');
         if (!panel || !link || (filter === undefined && owner.dataset.loaded === 'true')) return;
@@ -51,10 +52,21 @@
         const request = String(Number(owner.dataset.request || 0) + 1);
         owner.dataset.request = request;
         panel.setAttribute('aria-busy', 'true');
-        // Use the existing manager endpoint and its session/XHR/CSRF transport.
-        window.evo.post(window.evo.EVO_MANAGER_URL + 'media/style/' + window.evo.config.theme + '/ajax.php', params.toString(), html => {
+        panel.querySelector('.evo-manager-load-error')?.remove();
+        try {
+            // Native transport; the endpoint retains the manager's ACL/session guards.
+            const response = await fetch(window.evo.EVO_MANAGER_URL + 'media/style/' + window.evo.config.theme + '/ajax.php', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                },
+                body: params
+            });
+            if (!response.ok || response.redirected) throw new Error('Menu request failed');
+            const html = await response.text();
             if (owner.dataset.request !== request) return;
-            panel.removeAttribute('aria-busy');
             if (filter === undefined) {
                 panel.innerHTML = html;
                 owner.dataset.loaded = 'true';
@@ -72,8 +84,30 @@
                 if (more) more.insertAdjacentHTML('beforebegin', html);
                 else panel.insertAdjacentHTML('beforeend', html);
             }
-            position(owner);
-        });
+            // Keyboard expansion may finish after the first ArrowDown.
+            const trigger = owner.querySelector('[data-evo-menu-toggle]');
+            if (owner.classList.contains('is-open') && document.activeElement === trigger) focusable(panel)[0]?.focus();
+        } catch (error) {
+            if (owner.dataset.request !== request) return;
+            const item = document.createElement('li');
+            item.className = 'evo-manager-load-error';
+            item.setAttribute('role', 'alert');
+            const retry = document.createElement('button');
+            retry.type = 'button';
+            retry.textContent = '↻ ' + menu.dataset.evoMenuError;
+            retry.addEventListener('click', () => {
+                // Keep focus inside the bar before removing the retry button.
+                (panel.querySelector('input') || owner.querySelector('[data-evo-menu-toggle]')).focus();
+                loadItems(owner, filter);
+            });
+            item.appendChild(retry);
+            panel.appendChild(item);
+        } finally {
+            if (owner.dataset.request === request) {
+                panel.removeAttribute('aria-busy');
+                if (owner.classList.contains('is-open')) position(owner);
+            }
+        }
     }
 
     function toggle(trigger, forceOpen) {
@@ -121,7 +155,7 @@
 
     // Capture before the optional button's legacy inline popup handler executes.
     menu.addEventListener('click', event => {
-        const extra = event.target.closest('#refresh_site .evo-manager-extra');
+        const extra = event.target.closest('#refresh_site [data-evo-menu-extra="refresh_site_in_window"]');
         if (!extra) return;
         event.preventDefault();
         event.stopImmediatePropagation();
@@ -141,6 +175,8 @@
     }
 
     menu.addEventListener('keydown', event => {
+        // Keep text editing keys inside search/filter fields; Escape still closes.
+        if (event.key !== 'Escape' && event.target.matches('input, textarea, [contenteditable="true"]')) return;
         const trigger = event.target.closest(triggers);
         if (event.key === 'Escape' || event.key === 'ArrowLeft') {
             const owner = event.target.closest('li.is-open') || event.target.closest('ul').closest('li.is-open');
