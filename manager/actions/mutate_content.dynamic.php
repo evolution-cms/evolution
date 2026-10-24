@@ -212,6 +212,7 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
             return;
           }
           ajaxSaveHelper.applyResult(form, answer.result, document.querySelector('#create_edit > h1'), tokenMeta);
+          ajaxSaveHelper.announceSaved(document);
           if (button) {
             button.classList.add('saved');
             setTimeout(function () { button.classList.remove('saved'); }, 1500);
