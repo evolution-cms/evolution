@@ -270,6 +270,11 @@ class EvoSessionProxy
      */
     private static function readLegacySessionPayload(string $sessionId): ?string
     {
+        // The cookie becomes part of a file name; Windows resolves "sess_\..\" even without a sess_ folder.
+        if (preg_match('/^[A-Za-z0-9,-]{1,256}$/', $sessionId) !== 1) {
+            return null;
+        }
+
         $savePath = session_save_path();
         if (!is_string($savePath) || $savePath === '') {
             $savePath = sys_get_temp_dir();
@@ -282,7 +287,7 @@ class EvoSessionProxy
         }
 
         $file = rtrim($path, "/\\") . DIRECTORY_SEPARATOR . 'sess_' . $sessionId;
-        if (!is_readable($file)) {
+        if (!is_file($file) || !is_readable($file)) {
             return null;
         }
 
