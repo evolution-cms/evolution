@@ -188,7 +188,11 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
             Bootstrap\EnvCacheLoader::cacheConfiguration($cacheableItems, $this->dynamicConfigurationFiles);
         } else {
             foreach ($cachedConfiguration['dynamic_files'] as $file) {
-                $this->loadConfigurationEntry($config, $file['key'], $file['path']);
+                if (array_key_exists('static_value', $file)) {
+                    $config->set($file['key'], $file['static_value']);
+                } else {
+                    $this->loadConfigurationEntry($config, $file['key'], $file['path']);
+                }
             }
         }
 
@@ -228,7 +232,8 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
      * On a cache miss, native iterators collect files recursively while preserving
      * the hidden/VCS exclusions and natural key order. The compiled values are
      * stored with the environment cache. Request/process-dependent groups are
-     * still evaluated from their PHP files on every request.
+     * still evaluated from their PHP files on every request, except literal
+     * provider/alias declarations replayed in the same order from the cache.
      *
      * Invalid custom configuration files are skipped and reported to the PHP error log.
      *
@@ -266,7 +271,11 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
             foreach ($files as $key => $path) {
                 if ($this->loadConfigurationEntry($config, $key, $path)
                     && $this->isDynamicConfigurationKey($key)) {
-                    $this->dynamicConfigurationFiles[] = ['key' => $key, 'path' => $path];
+                    $entry = ['key' => $key, 'path' => $path];
+                    if (is_string($config->get($key)) && Bootstrap\EnvCacheLoader::isStaticClassDeclaration($key, $path)) {
+                        $entry['static_value'] = $config->get($key);
+                    }
+                    $this->dynamicConfigurationFiles[] = $entry;
                 }
             }
         }
@@ -425,22 +434,18 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
     }
 
     /**
-     * {@inheritdoc}
-     * @TODO: Завантажити спочатку Illuminate, потім EvolutionCMS, а потім все інше
+     * Register configured providers in their existing framework-first order.
+     *
+     * Provider availability is checked when rebuilding the service manifest or
+     * registering an eager provider, leaving deferred classes unloaded on warm requests.
      */
     public function registerConfiguredProviders()
     {
         $providers = Collection::make($this['config']->get('app.providers'))
-            ->filter(function ($provider) {
-                if (!is_string($provider) || class_exists($provider)) {
-                    return true;
-                }
-                // Stale custom/config/app/providers/*.php left behind by a removed package
-                error_log('[EvolutionCMS] Skipped missing service provider "' . $provider . '"');
-                return false;
-            })
             ->partition(function ($provider) {
-                return Str::startsWith($provider, 'Illuminate\\');
+                // The core cache adapter keeps the framework provider's original slot.
+                return Str::startsWith($provider, 'Illuminate\\')
+                    || $provider === Providers\CacheServiceProvider::class;
             });
         (new ProviderRepository($this, new Filesystem, $this->getCachedServicesPath()))
             ->load($providers->collapse()->toArray());
@@ -526,6 +531,19 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
             return;
         }
         $provider = $this->deferredServices[$service];
+        if (!class_exists($provider)) {
+            error_log('[EvolutionCMS] Skipped missing service provider "' . $provider . '"');
+            foreach ($this->deferredServices as $name => $candidate) {
+                if ($candidate === $provider) {
+                    unset($this->deferredServices[$name]);
+                }
+            }
+            $manifest = $this->getCachedServicesPath();
+            if (is_file($manifest)) {
+                unlink($manifest);
+            }
+            return;
+        }
         // If the service provider has not already been loaded and registered, we can
         // register it with the application and remove the service from this list
         // of deferred services, since it will already be loaded on later.

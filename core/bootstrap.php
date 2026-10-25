@@ -2,6 +2,13 @@
 error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 
 require_once __DIR__ . '/functions/laravel.php';
+// Composer uses package/path identifiers for files autoloading. The CMS helpers
+// must be loaded first, but need not be required again by Composer.
+$GLOBALS['__composer_autoload_files'][md5('evolution-cms/evolution:functions/laravel.php')] = true;
+if (PHP_VERSION_ID >= 80400) {
+    // Symfony's PHP 8.4 bootstrap returns immediately on supported runtimes.
+    $GLOBALS['__composer_autoload_files'][md5('symfony/polyfill-php84:bootstrap.php')] = true;
+}
 require_once __DIR__ . '/vendor/autoload.php';
 
 if (!defined('EVO_INSTALL_TIME')) {

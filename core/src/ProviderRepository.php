@@ -4,8 +4,43 @@ use Exception;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Contracts\Foundation\Application as ApplicationContract;
 
+/** Reuse current provider declarations without autoloading deferred classes on every request. */
 class ProviderRepository
 {
+    /** @var string|null Cheap Composer metadata signature shared by validation and compilation. */
+    private ?string $autoloadSignature = null;
+
+    /**
+     * Detect Composer installs/dumps across registered root and custom vendor trees.
+     * Inspect stat metadata only; provider classes and generated file contents stay unloaded.
+     * Composer's post-autoload-dump package:discover deletes services.php explicitly, covering
+     * equal-size, same-second rewrites that filesystem timestamps alone cannot distinguish.
+     *
+     * @return string Versioned digest of paths, file identity, size and change timestamps.
+     * @since 3.7.0
+     */
+    protected function autoloadSignature(): string
+    {
+        if ($this->autoloadSignature !== null) {
+            return $this->autoloadSignature;
+        }
+        $files = [];
+        if (class_exists(\Composer\Autoload\ClassLoader::class, false)) {
+            foreach (array_keys(\Composer\Autoload\ClassLoader::getRegisteredLoaders()) as $vendor) {
+                foreach (['installed.php', 'installed.json', 'autoload_classmap.php', 'autoload_psr4.php', 'autoload_static.php'] as $file) {
+                    $path = $vendor.'/composer/'.$file;
+                    $stat = @stat($path);
+                    $files[$path] = $stat === false ? null : [
+                        $stat['dev'], $stat['ino'], $stat['mode'],
+                        $stat['size'], $stat['mtime'], $stat['ctime'],
+                    ];
+                }
+            }
+        }
+        ksort($files);
+        return $this->autoloadSignature = 'metadata-v2:'.hash('sha256', serialize($files));
+    }
+
     /**
      * The application implementation.
      *
@@ -43,7 +78,8 @@ class ProviderRepository
     }
 
     /**
-     * Register the application service providers.
+     * Register eager providers and deferred mappings from the validated manifest.
+     * Existing eager classes load at their registration point, not in a global preflight.
      *
      * @param  array  $providers
      * @return void
@@ -54,7 +90,8 @@ class ProviderRepository
         // First we will load the service manifest, which contains information on all
         // service providers registered with the application and which services it
         // provides. This is used to know which services are "deferred" loaders.
-        if ($this->shouldRecompile($manifest, $providers)) {
+        $recompile = $this->shouldRecompile($manifest, $providers);
+        if ($recompile) {
             $manifest = $this->compileManifest($providers);
         }
         // Next, we will register events to load the providers for each of the events
@@ -67,6 +104,12 @@ class ProviderRepository
         // application so their services can be registered with the application as
         // a provided service. Then we will set the deferred service list on it.
         foreach ($manifest['eager'] as $provider) {
+            if (!class_exists($provider)) {
+                // Rare out-of-band removal: repair the manifest and skip stale declarations.
+                $manifest = $this->compileManifest($providers);
+                foreach ($manifest['eager'] as $available) $this->app->register($available);
+                break;
+            }
             $this->app->register($provider);
         }
         $this->app->addDeferredServices($manifest['deferred']);
@@ -84,14 +127,14 @@ class ProviderRepository
         // deferred loading or should be eagerly loaded on each request to us.
         if ($this->files->exists($this->manifestPath)) {
             $manifest = $this->files->getRequire($this->manifestPath);
-            if ($manifest) {
+            if (is_array($manifest)) {
                 return array_merge(['when' => []], $manifest);
             }
         }
     }
 
     /**
-     * Determine if the manifest should be compiled.
+     * Recompile changed declarations or Composer metadata, while allowing missing providers to reappear.
      *
      * @param  array  $manifest
      * @param  array  $providers
@@ -99,7 +142,15 @@ class ProviderRepository
      */
     public function shouldRecompile($manifest, $providers)
     {
-        return $manifest === null || $manifest['providers'] != $providers;
+        if (!is_array($manifest) || ($manifest['providers'] ?? null) != $providers
+            || !is_array($manifest['eager'] ?? null) || !is_array($manifest['deferred'] ?? null)
+            || !is_array($manifest['when'] ?? null)
+            || ($manifest['autoload_signature'] ?? null) !== $this->autoloadSignature()) return true;
+        // Reinstalled custom PSR providers may appear without a Composer dump.
+        foreach ($manifest['missing'] ?? [] as $provider) {
+            if (class_exists($provider)) return true;
+        }
+        return false;
     }
 
     /**
@@ -115,7 +166,12 @@ class ProviderRepository
             return;
         }
         $this->app->make('events')->listen($events, function () use ($provider) {
-            $this->app->register($provider);
+            if (class_exists($provider)) {
+                $this->app->register($provider);
+            } else {
+                error_log('[EvolutionCMS] Skipped missing service provider "' . $provider . '"');
+                $this->files->delete($this->manifestPath);
+            }
         });
     }
 
@@ -149,6 +205,10 @@ class ProviderRepository
                 else {
                     $manifest['eager'][] = $provider;
                 }
+            } else {
+                $manifest['missing'][] = $provider;
+                error_log('[EvolutionCMS] Skipped missing service provider "' . $provider . '"');
+                error_log('[EvolutionCMS] Skipped missing service provider "' . $provider . '"');
             }
         }
         return $this->writeManifest($manifest);
@@ -162,7 +222,8 @@ class ProviderRepository
      */
     protected function freshManifest(array $providers)
     {
-        return ['providers' => $providers, 'eager' => [], 'deferred' => []];
+        return ['providers' => $providers, 'eager' => [], 'deferred' => [], 'when' => [],
+            'missing' => [], 'autoload_signature' => $this->autoloadSignature()];
     }
 
     /**

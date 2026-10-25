@@ -14,16 +14,49 @@ use Throwable;
  * - Compiled configuration is rebuilt when the project moves to another directory.
  * - Compiled configuration is used only after `core/.install` exists.
  * - A full CMS cache clear removes it, so configuration changes take effect on the next request.
+ * - Literal provider/alias declarations follow the same clear/discovery invalidation;
+ *   conditional declarations and files with side effects remain dynamic.
  * - The legacy environment-only array remains readable and is upgraded on the next bootstrap.
  */
 final class EnvCacheLoader
 {
-    private const BOOTSTRAP_CACHE_VERSION = 3;
+    private const BOOTSTRAP_CACHE_VERSION = 4;
+
+    /**
+     * Recognize only a literal class-name return in provider/alias declaration files.
+     * Anything containing imports, conditions, function calls or side effects stays
+     * dynamic. Classification runs on cache rebuild, never on a warm request.
+     *
+     * @since 3.7.0
+     */
+    public static function isStaticClassDeclaration(string $key, string $path): bool
+    {
+        if (!str_starts_with($key, 'app.providers.') && !str_starts_with($key, 'app.aliases.')) {
+            return false;
+        }
+        $source = file_get_contents($path);
+        if ($source === false) {
+            return false;
+        }
+        $tokens = array_values(array_filter(token_get_all($source), static fn ($token) =>
+            !is_array($token) || !in_array($token[0], [T_OPEN_TAG, T_WHITESPACE, T_COMMENT, T_DOC_COMMENT, T_CLOSE_TAG], true)));
+        if (count($tokens) === 3) {
+            return is_array($tokens[0]) && $tokens[0][0] === T_RETURN
+                && is_array($tokens[1]) && $tokens[1][0] === T_CONSTANT_ENCAPSED_STRING
+                && $tokens[2] === ';';
+        }
+        return count($tokens) === 5
+            && is_array($tokens[0]) && $tokens[0][0] === T_RETURN
+            && is_array($tokens[1]) && in_array($tokens[1][0], [T_STRING, T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED], true)
+            && is_array($tokens[2]) && $tokens[2][0] === T_DOUBLE_COLON
+            && is_array($tokens[3]) && $tokens[3][0] === T_CLASS
+            && $tokens[4] === ';';
+    }
 
     /** @var array<string, mixed>|null */
     private static ?array $loadedCache = null;
 
-    /** @var array{items: array<string, mixed>, dynamic_files: list<array{key: string, path: string}>}|null */
+    /** @var array{items: array<string, mixed>, dynamic_files: list<array{key: string, path: string, static_value?: string}>}|null */
     private static ?array $runtimeConfiguration = null;
 
     private static ?string $loadedRoot = null;
@@ -114,7 +147,7 @@ final class EnvCacheLoader
      * Request/process-dependent configuration groups are evaluated separately each time.
      * A project-root mismatch makes a packaged build rescan its configuration once.
      *
-     * @return array{items: array<string, mixed>, dynamic_files: list<array{key: string, path: string}>}|null
+     * @return array{items: array<string, mixed>, dynamic_files: list<array{key: string, path: string, static_value?: string}>}|null
      * @since 3.5.9
      */
     public static function configuration(): ?array
@@ -170,7 +203,7 @@ final class EnvCacheLoader
      * The write is best-effort, and a failure simply keeps the normal config loading path.
      *
      * @param array<string, mixed> $items
-     * @param list<array{key: string, path: string}> $dynamicFiles
+     * @param list<array{key: string, path: string, static_value?: string}> $dynamicFiles Ordered replay entries, including cached declarations.
      * @since 3.5.9
      */
     public static function cacheConfiguration(array $items, array $dynamicFiles): void

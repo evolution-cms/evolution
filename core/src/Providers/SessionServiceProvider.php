@@ -19,13 +19,14 @@ use Illuminate\Session\SessionManager;
 class SessionServiceProvider extends IlluminateSessionServiceProvider
 {
     /**
-     * Register the session manager instance.
+     * Register the session manager with an optimized native file handler.
+     * All upstream stores and the Illuminate SessionManager alias remain available.
      *
      * @return void
      */
     protected function registerSessionManager()
     {
-        parent::registerSessionManager();
+        $this->app->singleton('session', fn ($app) => new \EvolutionCMS\Session\SessionManager($app));
         $this->app->alias('session', SessionManager::class);
         //register_shutdown_function([$this, 'handleExitWithSession']);
     }
