@@ -6856,7 +6856,9 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      *
      * On the frontend, manager settings are also loaded when a manager is logged in;
      * web-user settings take precedence for keys shared by both users. Each user's
-     * settings are stored in the corresponding session entry. Before overriding
+     * settings are stored in the corresponding session entry. When both IDs name
+     * the same user, the raw row is reused only within this call; later calls still
+     * query the database. Before overriding
      * configuration values, their previous values are saved in configGlobal.
      * Returns an empty array when neither user is logged in or no settings exist.
      *
@@ -6872,6 +6874,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         }
 
         $usrSettings = [];
+        $loadedSettings = null;
         if ($id) {
             $usrType = $this->getLoginUserType();
             if (isset($usrType) && $usrType === 'manager') {
@@ -6884,6 +6887,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             }
 
             $usrSettings = Models\UserSetting::where('user', '=', $id)->pluck('setting_value', 'setting_name')->toArray();
+            $loadedSettings = $usrSettings;
 
             if (get_by_key($usrSettings, 'which_browser') === 'default') {
                 $usrSettings['which_browser'] = get_by_key(
@@ -6898,7 +6902,9 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             } // store user settings in session
         }
         if ($mgrid) {
-            $musrSettings = Models\UserSetting::where('user', '=', $mgrid)->pluck('setting_value', 'setting_name')->toArray();
+            $musrSettings = $loadedSettings !== null && $id === $mgrid
+                ? $loadedSettings
+                : Models\UserSetting::where('user', '=', $mgrid)->pluck('setting_value', 'setting_name')->toArray();
 
             $_SESSION['mgrUsrConfigSet'] = $musrSettings; // store user settings in session
             if (!empty($musrSettings)) {
