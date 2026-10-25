@@ -2129,20 +2129,40 @@
                             } else if (prevMain) {
                                 w.main = prevMain;
                             }
-                            tabWindow.document.addEventListener('click', function a(e) {
-                                if (typeof e.view.documentDirty !== 'undefined' && e.view.documentDirty && !s.tab.classList.contains('changed')) {
-                                    s.tab.classList.add('changed');
-                                    this.removeEventListener(e.type, a, false);
-                                }
-                            }, false);
-                            tabWindow.document.addEventListener('keyup', function a(e) {
-                                if (e.view && e.view.documentDirty && !s.tab.classList.contains('changed')) {
-                                    s.tab.classList.add('changed');
-                                    this.removeEventListener(e.type, a, false);
+                            this.watchChanges(tabWindow);
+                            // a save that keeps the editor open (no reload) clears the mark here
+                            tabWindow.document.addEventListener('evo:saved', function () {
+                                if (!tabWindow.documentDirty) {
+                                    s.tab.classList.remove('changed');
+                                    s.watchChanges(tabWindow);
                                 }
                             }, false);
                         }
                     }
+                },
+                watchChanges: function (tabWindow) {
+                    var s = this;
+                    var doc = tabWindow.document;
+                    var events = ['click', 'keyup'];
+                    var mark = function () {
+                        if (!tabWindow.documentDirty) {
+                            return;
+                        }
+                        s.tab.classList.add('changed');
+                        events.forEach(function (type) {
+                            doc.removeEventListener(type, mark, false);
+                        });
+                    };
+                    if (this.markChanged && this.markChangedDoc === doc) {
+                        events.forEach(function (type) {
+                            doc.removeEventListener(type, s.markChanged, false);
+                        });
+                    }
+                    this.markChanged = mark;
+                    this.markChangedDoc = doc;
+                    events.forEach(function (type) {
+                        doc.addEventListener(type, mark, false);
+                    });
                 },
                 cleanTitle: function () {
                     var titleEl = this.tab && this.tab.querySelector ? this.tab.querySelector('.tab-title') : null;

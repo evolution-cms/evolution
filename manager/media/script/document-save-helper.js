@@ -10,6 +10,7 @@
     'use strict';
 
     var TITLE_LENGTH = 50;
+    var SAVED_EVENT = 'evo:saved';
 
     function fieldValue(form, name) {
         var field = form && form.elements ? form.elements[name] : null;
@@ -114,7 +115,20 @@
         return changed;
     }
 
+    // An in-place save does not reload the editor, so the manager tab showing it (evo.js)
+    // learns from this event that the changes are stored and drops its "changed" mark.
+    function announceSaved(doc) {
+        var view = doc && doc.defaultView;
+        if (!view || typeof view.Event !== 'function' || typeof doc.dispatchEvent !== 'function') {
+            return false;
+        }
+
+        return doc.dispatchEvent(new view.Event(SAVED_EVENT));
+    }
+
     return {
+        savedEvent: SAVED_EVENT,
+        announceSaved: announceSaved,
         usesAjax: usesAjax,
         requestUrl: requestUrl,
         requestBody: requestBody,
