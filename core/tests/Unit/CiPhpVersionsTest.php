@@ -24,12 +24,18 @@ function ciPhpVersionsFor(string $versionFile, ?int &$exitCode = null): string
     $tree = sys_get_temp_dir() . '/evo-ci-php-' . bin2hex(random_bytes(4));
     mkdir($tree . '/core/factory', 0777, true);
     file_put_contents($tree . '/core/factory/version.php', $versionFile);
+    // Inside GitHub Actions the script would write to the job's own output file, not stdout.
+    $githubOutput = getenv('GITHUB_OUTPUT');
+    putenv('GITHUB_OUTPUT');
     try {
         return evoRunCommand(
             'sh ' . escapeshellarg(ciPhpVersionsScript()) . ' ' . escapeshellarg($tree) . ' 2>&1',
             $exitCode
         );
     } finally {
+        if ($githubOutput !== false) {
+            putenv('GITHUB_OUTPUT=' . $githubOutput);
+        }
         unlink($tree . '/core/factory/version.php');
         rmdir($tree . '/core/factory');
         rmdir($tree . '/core');
