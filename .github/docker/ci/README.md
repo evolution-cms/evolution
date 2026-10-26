@@ -79,11 +79,13 @@ no PHP on it, and what pins the PHP version when a version question is the one
 being investigated.
 
 One PHP version, every database: what the job proves is the installer's database
-paths, which do not vary with the PHP minor. PHP 8.3 through 8.5 are covered by
-the analysis and unit test jobs. The sqlite leg starts no container.
+paths, which do not vary with the PHP minor, and it runs on the lowest one
+`.github/scripts/php-versions.sh` lists. The analysis and unit test jobs cover
+all of them: 8.4 and 8.5, plus 8.3 while the CMS version is below 3.6. The
+sqlite leg starts no container.
 
-The same workflow also builds this image from the official `php:8.6-rc-cli`
-image and runs the unit tests in it. The `8.6-rc` tag follows the latest PHP 8.6
+From CMS 3.6 on (the 3.5 line skips it), the same workflow also builds this
+image from the official `php:8.6-rc-cli` image and runs the unit tests in it. The `8.6-rc` tag follows the latest PHP 8.6
 release candidate; it currently resolves to PHP 8.6.0RC3. The image includes
 SQLite and mbstring support for the test suite. This prerelease compatibility
 job reports the build, version and test results in the Actions summary and as a
