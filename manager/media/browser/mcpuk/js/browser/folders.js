@@ -28,6 +28,7 @@ browser.initFolders = function() {
     $('div.folder > a > span.folder').unbind();
     $('div.folder > a > span.folder').rightClick(function(e) {
         _.unselect();
+        browser.selectListedFolder($(this).parent());
         browser.menuDir($(this).parent(), e);
     });
 
@@ -51,6 +52,78 @@ browser.initFolders = function() {
 
 browser.openTreeFolder = function(dir) {
     this.changeDir(dir);
+};
+
+// a folder's node in the tree; empty while the branch holding it is not loaded
+browser.treeDir = function(path) {
+    return $('#folders a[href="kcdir:/' + _.escapeDirs(path) + '"]');
+};
+
+browser.subDirPath = function(name) {
+    return this.dir.length ? this.dir + '/' + name : name;
+};
+
+// the subfolder of dir that leads to path: ("images", "images/team/2024") gives "team"
+browser.subDirOnPath = function(dir, path) {
+    if ((typeof path != 'string') || (path.indexOf(dir + '/') !== 0))
+        return undefined;
+    return path.substr(dir.length + 1).split('/')[0];
+};
+
+/**
+ * The tree node of a folder listed in the file list. A tree folder opened by a click is not expanded,
+ * so its branch is loaded here when it never was: every listed folder has a node to open or mark.
+ */
+browser.treeSubDir = function(name) {
+    var dir = this.treeDir(this.subDirPath(name));
+    if (dir.get(0))
+        return dir;
+
+    var current = this.treeDir(this.dir);
+    if (current.get(0) && !current.parent().children('.folders').get(0) && this.loadTreeBranch(current))
+        dir = this.treeDir(this.subDirPath(name));
+    return dir;
+};
+
+// opens the collapsed branches above a tree node and scrolls the tree to it
+browser.revealTreeDir = function(dir) {
+    dir.parents('div.folders').each(function() {
+        var folders = $(this);
+        if (folders.css('display') != 'none')
+            return;
+        folders.css('display', '');
+        folders.parent().children('a').first().children('.brace').removeClass('closed').addClass('opened');
+    });
+    this.scrollIntoPane('#folders', dir.children('span.folder').get(0));
+};
+
+// the folders selected in the file list are marked in the tree too: both panes show one selection
+browser.syncTreeSelection = function() {
+    $('div.folder > a > span.folder').removeClass('selected');
+    $('#files .file.selected').each(function() {
+        var file = $(this);
+        if (!file.data('isDir'))
+            return;
+        var dir = browser.treeSubDir(file.data('name'));
+        if (!dir.get(0))
+            return;
+        dir.children('span.folder').addClass('selected');
+        browser.revealTreeDir(dir);
+    });
+};
+
+// a tree folder that the file list shows (a subfolder of the folder on screen) is selected there too
+browser.selectListedFolder = function(dir) {
+    var path = dir.data('path');
+    var file = $('#files .file').filter(function() {
+        return $(this).data('isDir') && (browser.subDirPath($(this).data('name')) === path);
+    }).first();
+    if (!file.get(0))
+        return false;
+
+    this.selectFolder(file);
+    this.scrollIntoPane('#files', file.get(0));
+    return true;
 };
 
 browser.toggleTreeFolder = function(dir) {
@@ -152,57 +225,71 @@ browser.expandDir = function(dir) {
             dir.parent().append(this.loadingHtml('loadingDirs'));
             // a moment for the indicator to show before the request holds the page
             setTimeout(function() {
-                $.ajax({
-                    type: 'POST',
-                    dataType: 'json',
-                    url: browser.baseGetData('expand'),
-                    data: {dir:path},
-                    async: false,
-                    success: function(data) {
-                        $('#loadingDirs').detach();
-                        if (browser.check4errors(data))
-                            return;
-
-                        var html = '';
-                        $.each(data.dirs, function(i, cdir) {
-                            html += '<div class="folder"><a href="kcdir:/' + _.escapeDirs(path + '/' + cdir.name) + '"><span class="brace">&nbsp;</span><span class="folder">' + _.htmlData(cdir.name) + '</span></a></div>';
-                        });
-                        if (html.length) {
-                            dir.parent().append('<div class="folders">' + html + '</div>');
-                            var folders = $(dir.parent().children('.folders').first());
-                            folders.css('display', 'none');
-                            $(folders).show(500);
-                            $.each(data.dirs, function(i, cdir) {
-                                browser.setTreeData(cdir, path);
-                            });
-                        }
-                        if (data.dirs.length) {
-                            dir.children('.brace').removeClass('closed');
-                            dir.children('.brace').addClass('opened');
-                        } else {
-                            dir.children('.brace').removeClass('opened');
-                            dir.children('.brace').removeClass('closed');
-                        }
-                        browser.initFolders();
-                    },
-                    error: function() {
-                        $('#loadingDirs').detach();
-                        browser.alert(browser.label("Unknown error."));
-                    }
-                });
+                browser.loadTreeBranch(dir, true);
+                $('#loadingDirs').detach();
+                browser.syncTreeSelection();
             }, 0);
         }
     }
 };
 
+// reads the subfolders of a tree node into the tree; false when the request fails
+browser.loadTreeBranch = function(dir, animate) {
+    var path = dir.data('path');
+    var loaded = false;
+    $.ajax({
+        type: 'POST',
+        dataType: 'json',
+        url: browser.baseGetData('expand'),
+        data: {dir:path},
+        async: false,
+        success: function(data) {
+            if (browser.check4errors(data))
+                return;
+
+            var html = '';
+            $.each(data.dirs, function(i, cdir) {
+                html += '<div class="folder"><a href="kcdir:/' + _.escapeDirs(path + '/' + cdir.name) + '"><span class="brace">&nbsp;</span><span class="folder">' + _.htmlData(cdir.name) + '</span></a></div>';
+            });
+            if (html.length) {
+                dir.parent().append('<div class="folders">' + html + '</div>');
+                if (animate) {
+                    var folders = $(dir.parent().children('.folders').first());
+                    folders.css('display', 'none');
+                    $(folders).show(500);
+                }
+                $.each(data.dirs, function(i, cdir) {
+                    browser.setTreeData(cdir, path);
+                });
+            }
+            if (data.dirs.length) {
+                dir.children('.brace').removeClass('closed');
+                dir.children('.brace').addClass('opened');
+            } else {
+                dir.children('.brace').removeClass('opened');
+                dir.children('.brace').removeClass('closed');
+            }
+            browser.initFolders();
+            loaded = true;
+        },
+        error: function() {
+            browser.alert(browser.label("Unknown error."));
+        }
+    });
+    return loaded;
+};
+
 browser.changeDir = function(dir) {
     if (dir.children('span.folder').hasClass('regular')) {
+        var previous = this.dir;
         this.clearMobileActions();
         $('div.folder > a > span.folder').removeClass('current');
+        $('div.folder > a > span.folder').removeClass('selected');
         $('div.folder > a > span.folder').removeClass('regular');
         $('div.folder > a > span.folder').addClass('regular');
         dir.children('span.folder').removeClass('regular');
         dir.children('span.folder').addClass('current');
+        this.revealTreeDir(dir);
         $('#files').html(browser.loadingHtml());
         $.ajax({
             type: 'POST',
@@ -215,8 +302,11 @@ browser.changeDir = function(dir) {
                     return;
                 browser.files = data.files;
                 browser.links = data.links ? data.links : [];
-                browser.orderFiles();
                 browser.dir = dir.data('path');
+                // up the tree, the folder it came from is selected in the list (and so in the tree)
+                browser.orderFiles(function() {
+                    browser.scrollIntoPane('#files', $('#files .file.selected').get(0));
+                }, browser.subDirOnPath(browser.dir, previous));
                 browser.dirWritable = data.dirWritable;
                 browser.updateWriteControls();
                 var title = "KCFinder: /" + browser.dir;

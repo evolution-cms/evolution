@@ -6,7 +6,7 @@
 # installer, the migrations and the seeded data, and the built in web server is
 # enough to prove the installed site answers. Which web server serves it is what
 # the Salo images in .github/docker/Dockerfile are for.
-ARG PHP_VERSION=8.4
+ARG PHP_VERSION=8.3
 FROM php:${PHP_VERSION}-cli
 
 # libpq/libzip/libicu are the build inputs of the extensions below; the -dev

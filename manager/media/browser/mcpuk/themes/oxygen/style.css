@@ -160,6 +160,13 @@ span.regular:hover, span.context {
     color: #000;
 }
 
+span.folder.selected,
+span.folder.selected:hover {
+    background-color: #b9d4f0;
+    border-color: #2973bd;
+    color: #000;
+}
+
 span.opened {
     background-image: url(img/tree/minus.png);
 }

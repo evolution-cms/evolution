@@ -15,7 +15,7 @@ categories:
 developmentStatus: stable
 softwareType: standalone/web
 
-softwareVersion: "3.6.x"
+softwareVersion: "3.5.9"
 releaseDate: "2026-10-21"
 
 isBasedOn:
@@ -45,7 +45,7 @@ description:
       Evolution CMS is an open-source content management system and web application framework written in PHP.
 
       The project originates from MODX Evolution (2004) and has been continuously developed by an international community.  
-      The 3.6 series is based on Laravel 12 components and PHP 8.4+.
+      The 3.5 series is based on Laravel 12 and PHP 8.3+.
 
       The system provides flexible content modeling, granular permissions, and multi-site architecture.  
       It supports multilingual websites and is suitable for public sector portals, intranets, and institutional websites.
@@ -66,7 +66,7 @@ description:
     longDescription: |
       Evolution CMS — це система керування контентом з відкритим кодом, написана на PHP.
 
-      Проєкт розвивається міжнародною спільнотою та базується на компонентах Laravel 12 і PHP 8.4+.
+      Проєкт розвивається міжнародною спільнотою та базується на Laravel 12 і PHP 8.3+.
 
 legal:
   license: "GPL-3.0-or-later"
@@ -114,7 +114,7 @@ localisation:
 dependsOn:
   open:
     - name: "PHP"
-      versionMin: "8.4"
+      versionMin: "8.3"
       optional: false
     - name: "Laravel"
       versionMin: "12.0"
