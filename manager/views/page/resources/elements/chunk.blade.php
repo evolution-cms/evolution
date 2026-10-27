@@ -42,10 +42,10 @@
                            onclick="actionDisableElement(this)"
                            title="@if($item->disabled) {{ ManagerTheme::getLexicon('enable') }} @else {{ ManagerTheme::getLexicon('disable') }} @endif"
                            data-disabled="{{ $item->disabled }}"
-                           data-enable-href="{{ $item->makeUrl('actions.enable', false, ['disabled' => 0]) }}"
+                           data-enable-href="{{ $item->makeUrl('actions.enable', false, ['disabled' => 0, '_token' => csrf_token()]) }}"
                            data-enable-title="{{ ManagerTheme::getLexicon('enable') }}"
                            data-enable-icon="{{ $_style['icon_enable'] }}"
-                           data-disable-href="{{ $item->makeUrl('actions.disable', false, ['disabled' => 1]) }}"
+                           data-disable-href="{{ $item->makeUrl('actions.disable', false, ['disabled' => 1, '_token' => csrf_token()]) }}"
                            data-disable-title="{{ ManagerTheme::getLexicon('disable') }}"
                            data-disable-icon="{{ $_style['icon_disable'] }}"
                         >
@@ -55,14 +55,14 @@
                     @endif
                     @if(evolutionCMS()->hasPermission('new_chunk'))
                     <li>
-                        <a href="{{ $item->makeUrl('actions.duplicate') }}" target="main" title="{{ ManagerTheme::getLexicon('resource_duplicate') }}" onclick="return confirm('{{ ManagerTheme::getLexicon('confirm_duplicate_record') }}')">
+                        <a href="{{ $item->makeUrl('actions.duplicate', false, ['_token' => csrf_token()]) }}" target="main" title="{{ ManagerTheme::getLexicon('resource_duplicate') }}" onclick="return confirm('{{ ManagerTheme::getLexicon('confirm_duplicate_record') }}')">
                             <i class="{{ $_style['icon_clone'] }}"></i>
                         </a>
                     </li>
                     @endif
                     @if(evolutionCMS()->hasPermission('delete_chunk'))
                     <li>
-                        <a href="{{ $item->makeUrl('actions.delete') }}" target="main" title="{{ ManagerTheme::getLexicon('delete') }}" onclick="return confirm('{{ ManagerTheme::getLexicon('confirm_delete_htmlsnippet') }}')">
+                        <a href="{{ $item->makeUrl('actions.delete', false, ['_token' => csrf_token()]) }}" target="main" title="{{ ManagerTheme::getLexicon('delete') }}" onclick="return confirm('{{ ManagerTheme::getLexicon('confirm_delete_htmlsnippet') }}')">
                             <i class="{{ $_style['icon_trash'] }}"></i>
                         </a>
                     </li>

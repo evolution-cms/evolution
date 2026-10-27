@@ -195,6 +195,12 @@ it('does not treat the delete parameter as destructive on unrelated pages', func
     expect(csrfPassed(csrfRequest('GET', ['a' => 27, 'id' => 3, 'action' => 'delete'])))->toBeTrue();
 });
 
+it('does not reach an element delete processor without the current session token', function (int $action) {
+    expect(csrfPassed(csrfRequest('GET', ['a' => $action, 'id' => 3])))->toBeFalse()
+        ->and(csrfPassed(csrfRequest('GET', ['a' => $action, 'id' => 3, '_token' => 'stale'])))->toBeFalse()
+        ->and(csrfPassed(csrfRequest('GET', ['a' => $action, 'id' => 3, '_token' => str_repeat('a', 40)])))->toBeTrue();
+})->with([21, 80, 25, 104, 303, 110]);
+
 it('accepts destructive GET actions carrying the session token', function () {
     $request = csrfRequest('GET', ['a' => 112, 'id' => 3, '_token' => str_repeat('a', 40)]);
 
