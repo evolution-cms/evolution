@@ -413,3 +413,21 @@ browser.fadeFiles = function() {
         filter: 'alpha(opacity:40)'
     });
 };
+
+// scrolls a pane just enough to show an element; not scrollIntoView(), which also moves the editor page around an iframe
+browser.scrollIntoPane = function(pane, element) {
+    pane = $(pane).get(0);
+    if (!pane || !element || !element.getBoundingClientRect)
+        return;
+
+    var view = pane.getBoundingClientRect();
+    var box = element.getBoundingClientRect();
+    if (box.top < view.top)
+        pane.scrollTop -= view.top - box.top;
+    else if (box.bottom > view.bottom)
+        pane.scrollTop += Math.min(box.bottom - view.bottom, box.top - view.top);
+    if (box.left < view.left)
+        pane.scrollLeft -= view.left - box.left;
+    else if (box.right > view.right)
+        pane.scrollLeft += Math.min(box.right - view.right, box.left - view.left);
+};

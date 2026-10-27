@@ -156,13 +156,18 @@ test('event handlers are removed while the element survives', function () {
     expect($out)->toBe('<div class="x">text</div>');
 });
 
-test('executable and resource loading elements are removed with their content', function () {
-    foreach (['script', 'style', 'iframe', 'object', 'embed', 'form', 'svg'] as $tag) {
-        $out = (string) sanitize_rich_html('<p>before</p><' . $tag . '>payload</' . $tag . '><p>after</p>');
+test('executable and resource loading elements are removed with their content', function (string $tag) {
+    $out = (string) sanitize_rich_html('<p>before</p><' . $tag . '>payload</' . $tag . '><p>after</p>');
 
-        expect($out)->toBe('<p>before</p><p>after</p>');
-    }
-});
+    expect($out)->toBe('<p>before</p><p>after</p>');
+})->with(['script', 'style', 'iframe', 'object', 'form', 'svg']);
+
+test('void resource loading elements are removed while adjacent text survives', function (string $tag) {
+    // Void elements have no children; self-closing syntax also keeps older libxml parsers consistent.
+    $out = (string) sanitize_rich_html('<p>before</p><' . $tag . ' src="https://example.test/resource" />text<p>after</p>');
+
+    expect($out)->toBe('<p>before</p>text<p>after</p>');
+})->with(['embed', 'img', 'input', 'source', 'track']);
 
 test('an unknown element is unwrapped so its text stays visible', function () {
     expect((string) sanitize_rich_html('<marquee>still readable</marquee>'))

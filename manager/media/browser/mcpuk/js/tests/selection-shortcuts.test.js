@@ -51,6 +51,7 @@ function loadBrowser() {
   vm.runInNewContext(source, { browser, $ });
   vm.runInNewContext(toolbarSource, { browser, $ });
   browser.updateMobileActions = () => {};
+  browser.syncTreeSelection = () => {};
   return browser;
 }
 
@@ -86,6 +87,7 @@ function loadFileSelection() {
   browser.updateDeleteButton = () => {};
   browser.updateSelectionStatus = () => {};
   browser.updateMobileActions = () => {};
+  browser.syncTreeSelection = () => {};
   return { browser, files, wrap };
 }
 
@@ -259,9 +261,11 @@ test('clearing selection removes its highlight and resets the range anchor', () 
   const browser = loadBrowser();
   let statusCalls = 0;
   let buttonCalls = 0;
+  let treeCalls = 0;
   browser.lastSelectedFile = {};
   browser.statusDir = () => statusCalls++;
   browser.updateDeleteButton = () => buttonCalls++;
+  browser.syncTreeSelection = () => treeCalls++;
 
   browser.clearSelection();
 
@@ -269,4 +273,5 @@ test('clearing selection removes its highlight and resets the range anchor', () 
   assert.equal(browser.lastSelectedFile, null);
   assert.equal(statusCalls, 1);
   assert.equal(buttonCalls, 1);
+  assert.equal(treeCalls, 1);
 });

@@ -44,8 +44,26 @@ env:
   SALO2_REF: master
 
 jobs:
+  php:
+    name: PHP versions
+    runs-on: ubuntu-latest
+    outputs:
+      versions: ${{ steps.php.outputs.versions }}
+      lowest: ${{ steps.php.outputs.lowest }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            .github/scripts
+            core/factory
+
+      # 8.3 below CMS 3.6 only, see the script
+      - id: php
+        run: sh .github/scripts/php-versions.sh
+
   zip:
     name: Installed CMS (zip, sqlite)
+    needs: php
     runs-on: ubuntu-latest
     permissions:
       contents: write # required to publish the nightly release
@@ -58,8 +76,8 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           # Built on the lowest supported version so the vendor tree stays
-          # usable on 8.4 and 8.5 alike.
-          php-version: '8.4'
+          # usable on every version the docker job runs it on.
+          php-version: ${{ needs.php.outputs.lowest }}
           extensions: ctype, dom, exif, fileinfo, filter, iconv, intl, json, mbstring, openssl, pdo, pdo_sqlite, readline, simplexml, sqlite3, tokenizer, xml, xmlreader, zip
           coverage: none
           tools: composer:v2
@@ -72,8 +90,8 @@ jobs:
         uses: actions/cache@v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: composer-${{ runner.os }}-php8.4-build-${{ hashFiles('core/composer.lock') }}
-          restore-keys: composer-${{ runner.os }}-php8.4-build-
+          key: composer-${{ runner.os }}-php${{ needs.php.outputs.lowest }}-build-${{ hashFiles('core/composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-php${{ needs.php.outputs.lowest }}-build-
 
       - name: Install core dependencies
         working-directory: core
@@ -169,7 +187,7 @@ jobs:
 
   docker:
     name: Docker image PHP ${{ matrix.php }} ${{ matrix.server }} (GHCR)
-    needs: zip
+    needs: [php, zip]
     # Pull requests get a read-only token and cannot push packages, so the job is
     # skipped there — including on the run that stays attached to a merged PR.
     # The push to the base branch, and workflow_dispatch, are what build the image.
@@ -183,9 +201,9 @@ jobs:
       # the ones that did build stay usable.
       fail-fast: false
       matrix:
-        # 8.4 is the lowest supported version and the one the vendor tree in the
-        # zip is built on, so it proves the archive is portable upwards.
-        php: ['8.4', '8.5']
+        # The lowest of them is the one the vendor tree in the zip is built on,
+        # so the others prove the archive is portable upwards.
+        php: ${{ fromJSON(needs.php.outputs.versions) }}
         # Three different PHP SAPIs, not three front ends over one PHP: apache
         # runs mod_php, nginx talks FastCGI to php-fpm, and FrankenPHP embeds
         # PHP inside Caddy. They cannot share a base image, so each is a build.

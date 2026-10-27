@@ -12,6 +12,29 @@ function invokeSiteUpdateMethod(SiteUpdateCommand $command, string $method, arra
     return $instanceMethod->invokeArgs($command, $args);
 }
 
+/**
+ * Runs a test without core/vendor/bin on the PATH, as make:site runs.
+ *
+ * "composer test" puts that directory first on the PATH of its scripts, where a
+ * bare "composer" is then the copy of core/vendor.
+ */
+function withoutBundledComposerOnPath(callable $test): mixed
+{
+    $path = getenv('PATH');
+    $bin = realpath(dirname(__DIR__, 3) . '/vendor/bin');
+    $directories = array_filter(
+        explode(PATH_SEPARATOR, (string) $path),
+        fn (string $directory) => $bin === false || realpath($directory) !== $bin
+    );
+    putenv('PATH=' . implode(PATH_SEPARATOR, $directories));
+
+    try {
+        return $test();
+    } finally {
+        $path === false ? putenv('PATH') : putenv('PATH=' . $path);
+    }
+}
+
 test('buildArchiveUrl uses tag archive path for semantic versions', function () {
     $url = invokeSiteUpdateMethod($this->command, 'buildArchiveUrl', ['evolution-cms/evolution', '3.5.5']);
 
@@ -111,10 +134,12 @@ test('site updater repairs composer vendor state before artisan commands', funct
     expect(strpos($source, 'buildCustomComposerUpdateCommand'))->toBeLessThan(strpos($source, '$this->composerInstallCommand()'));
     expect(strpos($source, '$this->composerInstallCommand()'))->toBeLessThan(strpos($source, '$this->composerDumpAutoloadCommand()'));
     expect(strpos($source, '$this->composerDumpAutoloadCommand()'))->toBeLessThan(strpos($source, "runCoreShellCommand('php artisan package:discover')"));
-    expect(invokeSiteUpdateMethod($this->command, 'composerInstallCommand'))
-        ->toBe('composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative --no-scripts');
-    expect(invokeSiteUpdateMethod($this->command, 'composerDumpAutoloadCommand'))
-        ->toBe('composer dump-autoload -o --no-dev --classmap-authoritative --no-scripts');
+    withoutBundledComposerOnPath(function () {
+        expect(invokeSiteUpdateMethod($this->command, 'composerInstallCommand'))
+            ->toBe('composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative --no-scripts');
+        expect(invokeSiteUpdateMethod($this->command, 'composerDumpAutoloadCommand'))
+            ->toBe('composer dump-autoload -o --no-dev --classmap-authoritative --no-scripts');
+    });
 
     $composerBinary === false ? putenv('COMPOSER_BINARY') : putenv('COMPOSER_BINARY=' . $composerBinary);
     $composerBin === false ? putenv('COMPOSER_BIN') : putenv('COMPOSER_BIN=' . $composerBin);
@@ -154,7 +179,7 @@ test('site updater builds scoped composer update for custom packages', function 
         'bad package' => '',
         'seiger/scommerce' => '',
     ], true);
-    $command = invokeSiteUpdateMethod($this->command, 'buildCustomComposerUpdateCommand', [$arguments]);
+    $command = withoutBundledComposerOnPath(fn () => invokeSiteUpdateMethod($this->command, 'buildCustomComposerUpdateCommand', [$arguments]));
 
     // The builder quotes each package with escapeshellarg(), whose quoting style
     // is platform specific, so the expectation is quoted the same way.
@@ -989,7 +1014,7 @@ test('without custom packages only the Composer of core/vendor is checked, again
 
     try {
         $standalone = preflightCommand($workspace . '/custom-composer.json', $drift);
-        expect(invokeSiteUpdateMethod($standalone, 'preflightComposer', [$target, [], []]))->toBe('')
+        expect(withoutBundledComposerOnPath(fn () => invokeSiteUpdateMethod($standalone, 'preflightComposer', [$target, [], []])))->toBe('')
             ->and($standalone->commands)->toBe([]);
 
         $vendorCopy = preflightCommand($workspace . '/custom-composer.json', $drift, false, $bundled);

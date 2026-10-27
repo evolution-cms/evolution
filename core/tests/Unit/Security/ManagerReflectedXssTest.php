@@ -323,3 +323,15 @@ it('keeps the formatting of summaries listed by the delete screens', function ()
         ->and(html_entity_decode(strip_tags($html)))->toBe('Summer sale & more')
         ->not->toContain('onerror');
 });
+
+it('escapes the document fields restored from a posted form', function () {
+    // A template switch or a failed save re-renders the form from $_POST, not from the saved document.
+    $source = managerSource('manager/actions/mutate_content.dynamic.php');
+
+    expect($source)
+        ->toContain("value=\"<?= e(stripslashes(get_by_key(\$content, 'alias', '', 'is_scalar'))) ?>\"")
+        ->toContain("value=\"<?= (int) (\$content['menuindex'] ?? 0) ?>\"")
+        ->toContain("name=\"content_dispo\" value=\"<?= (int) (\$content['content_dispo'] ?? 0) ?>\"")
+        ->not->toContain(": \$content['parent']) ?>")
+        ->and(substr_count($source, ": (int) (\$content['parent'] ?? 0)) ?>"))->toBe(2);
+});

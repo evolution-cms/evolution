@@ -99,13 +99,15 @@ it('includes stderr in the output unless told not to', function () {
     $script = processHelperScript('fwrite(STDERR, "to-stderr"); echo "to-stdout";');
     try {
         $withStderr = evoRunPhp($script);
-        $withoutStderr = evoRunPhp($script, [], $exitCode, false);
+        $withoutStderr = evoRunPhp($script, [], $exitCode, false, $stderr);
     } finally {
         unlink($script);
     }
 
+    // kept apart, stderr is handed back rather than left to reach the console of the test run
     expect($withStderr)->toContain('to-stdout')->toContain('to-stderr')
-        ->and($withoutStderr)->toBe('to-stdout');
+        ->and($withoutStderr)->toBe('to-stdout')
+        ->and($stderr)->toBe('to-stderr');
 });
 
 it('leaves no direct shell_exec or exec calls in the tests', function () {

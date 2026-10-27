@@ -98,3 +98,16 @@ test('shortTitle truncates like the editor heading does', () => {
     assert.equal(helper.shortTitle('x'.repeat(60)), 'x'.repeat(50) + '...');
     assert.equal(helper.shortTitle(undefined), '');
 });
+
+test('announceSaved tells the manager tab that the in-place save went through', () => {
+    const doc = new EventTarget();
+    doc.defaultView = { Event };
+    const seen = [];
+    doc.addEventListener(helper.savedEvent, (e) => seen.push(e.type));
+
+    assert.equal(helper.announceSaved(doc), true);
+    assert.deepEqual(seen, ['evo:saved']);
+    // no window (detached frame) or no document: nothing to tell
+    assert.equal(helper.announceSaved({ dispatchEvent: () => true }), false);
+    assert.equal(helper.announceSaved(null), false);
+});
