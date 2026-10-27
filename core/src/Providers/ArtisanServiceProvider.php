@@ -9,6 +9,7 @@ use Illuminate\Console\Scheduling\ScheduleClearCacheCommand;
 use Illuminate\Console\Scheduling\ScheduleFinishCommand;
 use Illuminate\Console\Scheduling\ScheduleTestCommand;
 use Illuminate\Console\Scheduling\ScheduleWorkCommand;
+use Illuminate\Console\Signals;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Console\Seeds\SeedCommand;
@@ -22,6 +23,7 @@ use Illuminate\Database\Console\Migrations\InstallCommand as MigrateInstallComma
 use Illuminate\Database\Console\Migrations\RefreshCommand as MigrateRefreshCommand;
 use Illuminate\Database\Console\Migrations\RollbackCommand as MigrateRollbackCommand;
 use Illuminate\Database\Console\Migrations\MigrateMakeCommand;
+use Symfony\Component\Console\SignalRegistry\SignalRegistry;
 
 use EvolutionCMS\Console\ClearCompiledCommand;
 use EvolutionCMS\Console\VendorPublishCommand;
@@ -104,6 +106,8 @@ class ArtisanServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        Signals::resolveAvailabilityUsing(static fn () => SignalRegistry::isSupported());
+
         $hereCommands = array_merge(
             $this->commands, $this->devCommands
         );
