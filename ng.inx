@@ -150,7 +150,14 @@ server {
     # ---------------------------------------------------------------------
     location ~ ^/(core|views|vendor|tmp)(/|$) { access_log off; return 404; }
 
-    # Writable / generated areas under assets.
+    # Writable / generated areas under assets. The one exception, and it has to
+    # come first: phpThumb thumbnails (Helper::phpThumb()) in assets/cache/images,
+    # which pages link to - image files only, served as static files.
+    location ~* ^/assets/cache/images/.+\.(jpe?g|png|gif|webp|avif|bmp|ico|wbmp)$ {
+        access_log off;
+        log_not_found off;
+        expires max;
+    }
     location ~ ^/assets/(cache|backup|export|import)(/|$) { access_log off; return 404; }
 
     # Root-level files that fingerprint the install or describe its layout.

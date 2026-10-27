@@ -85,8 +85,10 @@ no PHP on it, and what pins the PHP version when a version question is the one
 being investigated.
 
 One PHP version, every database: what the job proves is the installer's database
-paths, which do not vary with the PHP minor. PHP 8.4 and 8.5 are covered by
-the analysis and unit test jobs. The sqlite leg starts no container.
+paths, which do not vary with the PHP minor, and it runs on the lowest one
+`.github/scripts/php-versions.sh` lists. The analysis and unit test jobs cover
+all of them: 8.4 and 8.5, plus 8.3 while the CMS version is below 3.6. The
+sqlite leg starts no container.
 
 The same workflow also builds this image from the official `php:8.6-rc-cli`
 image and runs the unit tests in it. The `8.6-rc` tag follows the latest PHP 8.6

@@ -3,7 +3,8 @@
 # The base image is built from evolution-cms/salo2 runtimes/<php version> (Salo
 # is the Evolution CMS flavour of Laravel Sail): php:<version>-apache with gd,
 # zip, pdo and mod_rewrite. sqlite3/pdo_sqlite come enabled in the official php
-# images. The workflow builds 8.3, 8.4 and 8.5 and overrides BASE_IMAGE per leg.
+# images. The workflow builds every version .github/scripts/php-versions.sh lists
+# for the tree (8.3 too below CMS 3.6) and overrides BASE_IMAGE per leg.
 ARG BASE_IMAGE=evo-salo-runtime:8.4
 FROM ${BASE_IMAGE}
 

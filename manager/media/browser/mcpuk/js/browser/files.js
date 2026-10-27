@@ -92,6 +92,7 @@ browser.initFiles = function() {
     });
     this.statusDir();
     this.updateDeleteButton();
+    this.syncTreeSelection();
     lazyLoadInstance.update();
     this.updateMobileActions();
 };
@@ -116,6 +117,7 @@ browser.selectFolder = function(file) {
     file.addClass('selected');
     this.statusDir();
     this.updateDeleteButton();
+    this.syncTreeSelection();
     this.updateMobileActions();
 };
 
@@ -223,6 +225,7 @@ browser.clearSelection = function() {
     this.lastSelectedFile = null;
     this.statusDir();
     this.updateDeleteButton();
+    this.syncTreeSelection();
     this.updateMobileActions();
 };
 
@@ -232,6 +235,7 @@ browser.updateSelectionStatus = function() {
     }).get();
     var size = 0;
 
+    this.syncTreeSelection();
     if (!files.length) {
         this.statusDir();
         this.updateDeleteButton();
@@ -504,9 +508,7 @@ browser.selectionAnchorIndex = function(file, files, targetIndex) {
 };
 
 browser.openDir = function(file) {
-    var name = file.data('name');
-    var path = browser.dir.length ? browser.dir + '/' + name : name;
-    var dir = $('#folders a[href="kcdir:/' + _.escapeDirs(path) + '"]');
+    var dir = this.treeSubDir(file.data('name'));
 
     if (!dir.get(0))
         return false;
@@ -517,8 +519,7 @@ browser.openDir = function(file) {
 
 browser.menuFolder = function(file, e) {
     var name = file.data('name');
-    var path = browser.dir.length ? browser.dir + '/' + name : name;
-    var dir = $('#folders a[href="kcdir:/' + _.escapeDirs(path) + '"]');
+    var dir = this.treeSubDir(name);
 
     if (!dir.get(0))
         return browser.openDir(file);
@@ -526,6 +527,7 @@ browser.menuFolder = function(file, e) {
     $('.file').removeClass('selected');
     file.addClass('selected');
     this.updateDeleteButton();
+    this.syncTreeSelection();
     $('#fileinfo').text(name);
     browser.menuDir(dir, e);
     return true;

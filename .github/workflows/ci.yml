@@ -18,13 +18,32 @@ env:
   PHP_EXTENSIONS: ctype, dom, exif, fileinfo, filter, iconv, intl, json, mbstring, openssl, pdo, pdo_sqlite, readline, simplexml, tokenizer, xml, xmlreader, zip
 
 jobs:
+  php:
+    name: PHP versions
+    runs-on: ubuntu-latest
+    outputs:
+      versions: ${{ steps.php.outputs.versions }}
+      lowest: ${{ steps.php.outputs.lowest }}
+      rc: ${{ steps.php.outputs.rc }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            .github/scripts
+            core/factory
+
+      # 8.3 below CMS 3.6 only, 8.6 RC from 3.6 only, see the script
+      - id: php
+        run: sh .github/scripts/php-versions.sh
+
   analyze:
     name: Static analysis (PHP ${{ matrix.php }})
+    needs: php
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        php: ['8.4', '8.5']
+        php: ${{ fromJSON(needs.php.outputs.versions) }}
     steps:
       - uses: actions/checkout@v7
 
@@ -59,11 +78,12 @@ jobs:
 
   tests:
     name: Unit tests (PHP ${{ matrix.php }})
+    needs: php
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        php: ['8.4', '8.5']
+        php: ${{ fromJSON(needs.php.outputs.versions) }}
     steps:
       - uses: actions/checkout@v7
 
@@ -96,6 +116,8 @@ jobs:
 
   php86-rc:
     name: PHP 8.6 RC compatibility (Docker)
+    needs: php
+    if: needs.php.outputs.rc == '8.6'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -115,6 +137,7 @@ jobs:
 
   install:
     name: Install on ${{ matrix.db }}
+    needs: php
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -156,7 +179,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: ${{ needs.php.outputs.lowest }}
           extensions: ${{ env.PHP_EXTENSIONS }}, pdo_mysql, pdo_pgsql, sqlite3
           ini-values: error_reporting=E_ALL, display_errors=On, display_startup_errors=On, log_errors=On, error_log=/dev/stderr
           coverage: none
@@ -189,6 +212,7 @@ jobs:
 
   audit:
     name: Dependency audit
+    needs: php
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -198,7 +222,7 @@ jobs:
         with:
           # The audit reads composer.lock and the advisory database; it does not run the code,
           # so one version is enough. Kept at the lowest supported one for consistency.
-          php-version: '8.4'
+          php-version: ${{ needs.php.outputs.lowest }}
           extensions: ${{ env.PHP_EXTENSIONS }}
           coverage: none
           tools: composer:v2

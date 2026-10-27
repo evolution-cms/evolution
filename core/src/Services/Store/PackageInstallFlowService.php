@@ -239,7 +239,7 @@ class PackageInstallFlowService
 <meta http-equiv="Content-Type" content="text/html; charset="utf-8" />
 <link rel="stylesheet" href="' . EVO_SITE_URL . 'assets/modules/store/installer/style.css" type="text/css" media="screen" /></head>
 <body' . $bodyClass . '><div id="contentarea"><div class="container_12"><br>';
-        $html .= '<h2>Error installation</h2><br><br><p>Before install ' . htmlspecialchars((string) ($get['name'] ?? '')) . '<br> Please install this packages: <br>' . implode('<br>', $arrDependencies) . '</p>';
+        $html .= '<h2>Error installation</h2><br><br><p>Before install ' . htmlspecialchars((string) ($get['name'] ?? '')) . '<br> Please install this packages: <br>' . implode('<br>', array_map('htmlspecialchars', $arrDependencies)) . '</p>';
         $html .= "</div><!-- // content --></div><!-- // contentarea --><br /></body></html>";
 
         return $html;

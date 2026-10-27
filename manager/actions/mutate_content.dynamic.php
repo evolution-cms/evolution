@@ -212,6 +212,7 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
             return;
           }
           ajaxSaveHelper.applyResult(form, answer.result, document.querySelector('#create_edit > h1'), tokenMeta);
+          ajaxSaveHelper.announceSaved(document);
           if (button) {
             button.classList.add('saved');
             setTimeout(function () { button.classList.remove('saved'); }, 1500);
@@ -775,7 +776,7 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
                                         <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?=ManagerTheme::getLexicon('resource_alias_help');?>"></i>
                                     </td>
                                     <td>
-                                        <input name="alias" type="text" maxlength="100" value="<?= stripslashes(get_by_key($content, 'alias', '', 'is_scalar')) ?>" class="inputBox" onchange="documentDirty=true;" />
+                                        <input name="alias" type="text" maxlength="100" value="<?= e(stripslashes(get_by_key($content, 'alias', '', 'is_scalar'))) ?>" class="inputBox" onchange="documentDirty=true;" />
                                     </td>
                                 </tr>
                                 <tr>
@@ -874,7 +875,7 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
                                         <i class="<?= $_style["icon_question_circle"] ?>" data-tooltip="<?=ManagerTheme::getLexicon('resource_opt_menu_index_help');?>"></i>
                                     </td>
                                     <td>
-                                        <input name="menuindex" type="text" maxlength="6" value="<?= $content['menuindex'] ?>" class="inputBox" onchange="documentDirty=true;" />
+                                        <input name="menuindex" type="text" maxlength="6" value="<?= (int) ($content['menuindex'] ?? 0) ?>" class="inputBox" onchange="documentDirty=true;" />
                                         <a href="javascript:;" class="btn btn-secondary" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')-1;elm.value=v>0? v:0;elm.focus();documentDirty=true;return false;"><i class="<?= $_style['icon_angle_left'] ?>"></i></a>
                                         <a href="javascript:;" class="btn btn-secondary" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')+1;elm.value=v>0? v:0;elm.focus();documentDirty=true;return false;"><i class="<?= $_style['icon_angle_right'] ?>"></i></a>
                                     </td>
@@ -927,8 +928,8 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
                                         }
                                         ?>
                                         <i id="plock" class="<?= $_style["icon_folder"] ?>" onclick="enableParentSelection(!allowParentSelection);"></i>
-                                        <b><span id="parentName"><?= (isset($_REQUEST['pid']) ? entities($_REQUEST['pid']) : $content['parent']) ?> (<?= entities($parentname) ?>)</span></b>
-                                        <input type="hidden" name="parent" value="<?= (isset($_REQUEST['pid']) ? entities($_REQUEST['pid']) : $content['parent']) ?>" onchange="documentDirty=true;" />
+                                        <b><span id="parentName"><?= (isset($_REQUEST['pid']) ? entities($_REQUEST['pid']) : (int) ($content['parent'] ?? 0)) ?> (<?= entities($parentname) ?>)</span></b>
+                                        <input type="hidden" name="parent" value="<?= (isset($_REQUEST['pid']) ? entities($_REQUEST['pid']) : (int) ($content['parent'] ?? 0)) ?>" onchange="documentDirty=true;" />
                                     </td>
                                 </tr>
                                 <tr></tr>
@@ -1410,7 +1411,7 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
                                         ?>
                                         <input type="hidden" name="contentType" value="<?= e(isset($content['contentType']) ? $content['contentType'] : "text/html") ?>" />
                                         <input type="hidden" name="type" value="document" />
-                                        <input type="hidden" name="content_dispo" value="<?= (isset($content['content_dispo']) ? $content['content_dispo'] : '0') ?>" />
+                                        <input type="hidden" name="content_dispo" value="<?= (int) ($content['content_dispo'] ?? 0) ?>" />
                                         <?php
                                     } else {
                                         // non-admin managers creating or editing a reference (weblink) resource
