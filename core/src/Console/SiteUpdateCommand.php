@@ -11,6 +11,11 @@ use EvolutionCMS\Traits\RunsComposerShell;
 use Illuminate\Console\Command;
 
 /**
+ * Check and apply a core archive using the site's configured Manager and Composer environment.
+ *
+ * Preflight runs before the overlay; dependency repair, migrations and cache cleanup
+ * then bring the installed files and application state onto the requested version.
+ *
  * @see: https://github.com/laravel-zero/foundation/blob/9.x/src/Illuminate/Foundation/Console/ClearCompiledCommand.php
  */
 class SiteUpdateCommand extends Command
@@ -94,6 +99,11 @@ when they do not fit, or Composer would move other packages, the update stops
 unless --update-custom-packages accepts the changes it lists. The command exits
 with 1 when an error left the site unchanged (unknown branch, GitHub unreachable
 or rate limited, custom packages that do not fit).
+
+Manager files follow EVO_MANAGER_PATH, including a renamed manager directory.
+Existing Manager configuration and local access-control files are preserved.
+Composer keeps the operator's authentication environment; core/composer/auth.json
+remains supported, with a site-local home fallback for headless environments.
 
 HELP;
 
@@ -258,7 +268,7 @@ EXAMPLES;
                 return false;
             }
 
-            putenv('COMPOSER_HOME=' . EVO_CORE_PATH . 'composer');
+            $this->configureComposerHome(EVO_CORE_PATH . 'composer');
             $customPackageUpdate = $this->preflightComposer(
                 $temp_dir . '/' . $dir . '/core',
                 $customPackageNames,
@@ -270,7 +280,7 @@ EXAMPLES;
                 return false;
             }
 
-            self::moveFiles($temp_dir . '/' . $dir, EVO_BASE_PATH);
+            self::moveFiles($temp_dir . '/' . $dir, EVO_BASE_PATH, EVO_MANAGER_PATH);
             self::rmdirs($temp_dir);
 
             // Only a release carries a version number of its own. Any other ref (a
@@ -1491,28 +1501,83 @@ EXAMPLES;
     }
 
     /**
-     * Recursively move files from the extracted update archive into the site root.
+     * Keep Composer's normal authentication lookup unless a legacy site auth file is needed.
      *
-     * Destination directories are created on demand. Existing writable files are replaced.
+     * An explicit home or inline authentication belongs to the operator. Without
+     * an explicit home, an existing site-local auth.json remains supported unless
+     * inline authentication was supplied. Otherwise Composer resolves its own home,
+     * including XDG_CONFIG_HOME, instead of losing global auth. A worker without HOME
+     * (APPDATA on Windows) still needs the old site-local fallback, even with inline
+     * authentication. No credentials are read, copied or printed by the updater.
+     *
+     * @since 3.6.1
+     * @param string $legacyHome Site-local Composer home used by earlier updaters.
+     * @return void
+     */
+    protected function configureComposerHome(string $legacyHome): void
+    {
+        if (getenv('COMPOSER_HOME') !== false) {
+            return;
+        }
+
+        $authFile = rtrim($legacyHome, '/\\') . '/auth.json';
+        $globalHome = getenv(windows_os() ? 'APPDATA' : 'HOME');
+        if ((getenv('COMPOSER_AUTH') === false && is_file($authFile) && is_readable($authFile))
+            || $globalHome === false || $globalHome === '') {
+            putenv('COMPOSER_HOME=' . $legacyHome);
+        }
+    }
+
+    /**
+     * Overlay an update archive, routing only its top-level manager tree to the active Manager.
+     *
+     * The optional Manager path preserves the two-argument file-copy contract. Site
+     * updates pass EVO_MANAGER_PATH so renamed or externally located Managers receive
+     * the new forms and assets without creating a second default login directory.
+     * Existing Manager configuration, .htaccess and .user.ini stay operator-owned;
+     * unrelated destination files are never deleted. Invalid roots fail before writes.
      *
      * @param string $src Absolute path to the extracted source directory.
      * @param string $dest Absolute path to the destination root.
+     * @param string|null $managerPath Existing configured Manager directory, or null for an unchanged archive layout.
      * @return void
      */
-    static public function moveFiles($src, $dest)
+    static public function moveFiles($src, $dest, ?string $managerPath = null)
     {
         $path = realpath($src);
         $dest = realpath($dest);
-        $objects = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path), \RecursiveIteratorIterator::SELF_FIRST);
+        $manager = $managerPath === null ? null : realpath($managerPath);
+        if ($path === false || !is_dir($path) || $dest === false || !is_dir($dest)
+            || ($managerPath !== null && ($manager === false || !is_dir($manager)))) {
+            throw new \RuntimeException('The update source, site root and configured Manager must be existing directories.');
+        }
+
+        $objects = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::SELF_FIRST
+        );
         foreach ($objects as $name => $object) {
-            $startsAt = substr(dirname($name), strlen($path));
-            self::mmkDir($dest . $startsAt);
-            if ($object->isDir()) {
-                self::mmkDir($dest . substr($name, strlen($path)));
+            $relative = str_replace('\\', '/', substr($name, strlen($path) + 1));
+            $target = $dest . '/' . $relative;
+            if ($manager !== null && ($relative === 'manager' || str_starts_with($relative, 'manager/'))) {
+                $managerRelative = substr($relative, strlen('manager/'));
+                $target = $manager . ($managerRelative === '' ? '' : '/' . $managerRelative);
+                if (in_array($managerRelative, ['includes/config.inc.php', '.htaccess', '.user.ini'], true)
+                    && (file_exists($target) || is_link($target))) {
+                    continue;
+                }
             }
 
-            if (is_writable($dest . $startsAt) && $object->isFile()) {
-                rename((string)$name, $dest . $startsAt . '/' . basename($name));
+            if ($object->isDir()) {
+                self::mmkDir($target);
+                continue;
+            }
+
+            if ($object->isFile()) {
+                self::mmkDir(dirname($target));
+                if (!is_writable(dirname($target)) || !rename((string) $name, $target)) {
+                    throw new \RuntimeException('Could not replace an update file: ' . $relative);
+                }
             }
         }
     }
