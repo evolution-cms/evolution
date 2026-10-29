@@ -7,6 +7,7 @@ if (!evo()->hasPermission('file_manager')) {
 }
 $token_check = checkToken();
 $newToken = makeToken();
+$tokenRefusedMessage = '<span class="warning"><b>' . e(\EvolutionCMS\Support\CsrfMessage::text()) . '</b></span><br /><br />';
 // settings
 $theme_image_path = EVO_MANAGER_URL . 'media/style/' . evo()->getConfig('manager_theme') . '/images/';
 $excludes = [
@@ -157,11 +158,11 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
         fileManagerDeleteDirectoryZip($directoryZipPaths);
         $directoryZipMessage = '<span class="success"><b>' . $_lang['files_zip_deleted'] . '</b></span><br /><br />';
     } else {
-        $directoryZipMessage = '<span class="warning"><b>Invalid token</b></span><br /><br />';
+        $directoryZipMessage = $tokenRefusedMessage;
     }
 } elseif (get_by_key($_REQUEST, 'mode') == 'downloadzip') {
     if (!$token_check) {
-        $directoryZipMessage = '<span class="warning"><b>Invalid token</b></span><br /><br />';
+        $directoryZipMessage = $tokenRefusedMessage;
     } elseif ($directoryZipBlocked) {
         $directoryZipMessage = '<span class="warning"><b>' . $_lang['files_zip_unavailable'] . '</b></span><br /><br />';
     } elseif (fileManagerDirectoryZipExists($directoryZipPaths)) {
@@ -333,19 +334,19 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                 if ($token_check) {
                     $information = fileupload();
                 } else {
-                    echo '<span class="warning"><b>Invalid token</b></span><br /><br />';
+                    echo $tokenRefusedMessage;
                 }
             } elseif (get_by_key($_POST, 'mode') == 'save') {
                 if ($token_check) {
                     echo textsave();
                 } else {
-                    echo '<span class="warning"><b>Invalid token</b></span><br /><br />';
+                    echo $tokenRefusedMessage;
                 }
             } elseif (get_by_key($_REQUEST, 'mode') == 'delete') {
                 if ($token_check) {
                     echo delete_file();
                 } else {
-                    echo '<span class="warning"><b>Invalid token</b></span><br /><br />';
+                    echo $tokenRefusedMessage;
                 }
             } elseif (get_by_key($_POST, 'mode') == 'savegroups') {
                 if ($token_check) {
@@ -421,7 +422,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                         }
                     }
                 } else {
-                    echo '<span class="warning"><b>Invalid token</b></span><br /><br />';
+                    echo $tokenRefusedMessage;
                 }
             }
             echo $directoryZipMessage;
@@ -521,7 +522,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                     }
                 }
             } else {
-                echo '<span class="warning"><b>Invalid token</b></span><br /><br />';
+                echo $tokenRefusedMessage;
             }
         }
         // End Unzip - Raymond
@@ -549,7 +550,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                         \EvolutionCMS\Support\FileManagerAccess::forgetRestrictions(fileManagerAclKey($folderTarget['relative']));
                     }
                 } else {
-                    echo '<span class="warning"><b>Invalid token</b></span><br /><br />';
+                    echo $tokenRefusedMessage;
                 }
             }
             // Create folder here
@@ -572,7 +573,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                     }
                     umask($old_umask);
                 } else {
-                    echo '<span class="warning"><b>Invalid token</b></span><br /><br />';
+                    echo $tokenRefusedMessage;
                 }
             }
             // Create file here
@@ -595,7 +596,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                         umask($old_umask);
                     }
                 } else {
-                    echo '<span class="warning"><b>Invalid token</b></span><br /><br />';
+                    echo $tokenRefusedMessage;
                 }
             }
             // Duplicate file here
@@ -634,7 +635,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                         }
                     }
                 } else {
-                    echo '<span class="warning"><b>Invalid token</b></span><br /><br />';
+                    echo $tokenRefusedMessage;
                 }
             }
             // Copy folder here, beside the original
@@ -715,7 +716,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                     }
                     umask($old_umask);
                 } else {
-                    echo '<span class="warning"><b>Invalid token</b></span><br /><br />';
+                    echo $tokenRefusedMessage;
                 }
             }
             // Delete a link here: the link itself, never what it leads to
@@ -741,7 +742,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                         echo '<span class="success"><b>' . $_lang['files_link_deleted'] . '</b></span><br /><br />';
                     }
                 } else {
-                    echo '<span class="warning"><b>Invalid token</b></span><br /><br />';
+                    echo $tokenRefusedMessage;
                 }
             }
             // Rename folder here
@@ -782,7 +783,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                         umask($old_umask);
                     }
                 } else {
-                    echo '<span class="warning"><b>Invalid token</b></span><br /><br />';
+                    echo $tokenRefusedMessage;
                 }
             }
             // Rename file here
@@ -820,7 +821,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                         }
                     }
                 } else {
-                    echo '<span class="warning"><b>Invalid token</b></span><br /><br />';
+                    echo $tokenRefusedMessage;
                 }
             }
         } // End New Folder - Raymond

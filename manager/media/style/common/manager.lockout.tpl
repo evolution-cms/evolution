@@ -3,6 +3,7 @@
 <head>
 	<title>[+site_name_text+] (Evolution CMS Content Manager)</title>
 	<meta http-equiv="content-type" content="text/html; charset=[(modx_charset)]" />
+	<meta name="referrer" content="same-origin">
 	<link rel="icon" type="image/ico" href="[+favicon+]">
 	<meta name="robots" content="noindex, nofollow" />
 	<style type="text/css">

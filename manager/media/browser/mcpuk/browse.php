@@ -49,7 +49,7 @@ if (!in_array($act, ['browser', 'thumb'], true)) {
     if ($token === '' || !hash_equals(csrf_token(), $token)) {
         header('HTTP/1.1 403 Forbidden');
         header('Content-Type: text/plain; charset=utf-8');
-        die(json_encode(['error' => 'Invalid CSRF token.']));
+        die(json_encode(['error' => \EvolutionCMS\Support\CsrfMessage::text()], JSON_UNESCAPED_UNICODE));
     }
 }
 
