@@ -1,0 +1,195 @@
+<?php
+/**
+ * Evolution CMS ka.inc.php language file
+ *
+ * @author Evolution CMS Team
+ * @version 3.5.x
+ * @date 2026-10-29 20:30:13
+ *
+ * @language Georgian
+ * @package Evolution CMS
+ * @subpackage assets
+ * Please commit your language changes here: https://github.com/evolution-cms/evolution
+ */
+
+$_lang["agree_to_terms"] = 'ლიცენზიის პირობებზე დათანხმება და დაყენება';
+$_lang["alert_database_test_connection"] = 'შექმენით მონაცემთა ბაზა ან შეამოწმეთ მისი არჩევა!';
+$_lang["alert_database_test_connection_failed"] = 'მონაცემთა ბაზის არჩევის შემოწმება ვერ მოხერხდა!';
+$_lang["alert_enter_adminconfirm"] = 'ადმინისტრატორის პაროლი და მისი დადასტურება არ ემთხვევა!';
+$_lang["alert_enter_adminlogin"] = 'შეიყვანეთ სისტემის ადმინისტრატორის მომხმარებლის სახელი!';
+$_lang["alert_enter_adminpassword"] = 'შეიყვანეთ სისტემის ადმინისტრატორის პაროლი!';
+$_lang["alert_enter_database_name"] = 'შეიყვანეთ მონაცემთა ბაზის სახელი!';
+$_lang["alert_enter_host"] = 'შეიყვანეთ მონაცემთა ბაზის ჰოსტი!';
+$_lang["alert_enter_login"] = 'შეიყვანეთ მონაცემთა ბაზის მომხმარებლის სახელი!';
+$_lang["alert_server_test_connection"] = 'შეამოწმეთ სერვერთან კავშირი!';
+$_lang["alert_server_test_connection_failed"] = 'სერვერთან კავშირის შემოწმება ვერ მოხერხდა!';
+$_lang["alert_table_prefixes"] = 'ცხრილების პრეფიქსი ასოთი უნდა იწყებოდეს!';
+$_lang["all"] = 'ყველა';
+$_lang["and_try_again"] = ', და სცადეთ ხელახლა. თუ პრობლემის გადაჭრაში დახმარება გჭირდებათ';
+$_lang["and_try_again_plural"] = ', და სცადეთ ხელახლა. თუ პრობლემების გადაჭრაში დახმარება გჭირდებათ';
+$_lang["begin"] = 'დაწყება';
+$_lang["btnback_value"] = 'უკან';
+$_lang["btnclose_value"] = 'დახურვა';
+$_lang["btnnext_value"] = 'შემდეგი';
+$_lang["cant_write_config_file"] = 'Evolution CMS-მა კონფიგურაციის ფაილის ჩაწერა ვერ შეძლო. შემდეგი ტექსტი დააკოპირეთ ფაილში ';
+$_lang["cant_write_config_file_note"] = 'ამის შემდეგ Evolution CMS-ის ადმინისტრირების პანელში შესვლას ბრაუზერში YourSiteName.com/manager/ მისამართის გახსნით შეძლებთ.';
+$_lang["checkbox_select_options"] = 'მოსანიშნი ველების არჩევის პარამეტრები:';
+$_lang["checking_if_cache_exist"] = 'მოწმდება <span class="mono">/assets/cache</span> და <span class="mono">/assets/cache/rss</span> საქაღალდეების არსებობა: ';
+$_lang["checking_if_cache_file_writable"] = 'მოწმდება <span class="mono">/assets/cache/siteCache.idx.php</span> ფაილში ჩაწერის უფლება: ';
+$_lang["checking_if_cache_file2_writable"] = 'მოწმდება <span class="mono">/assets/cache/sitePublishing.idx.php</span> ფაილში ჩაწერის უფლება: ';
+$_lang["checking_if_cache_writable"] = 'მოწმდება <span class="mono">/assets/cache</span> და <span class="mono">/assets/cache/rss</span> საქაღალდეებში ჩაწერის უფლება: ';
+$_lang["checking_if_config_exist_and_writable"] = 'მოწმდება <span class="mono">'.MGR_DIR.'/includes/config.inc.php</span> ფაილის არსებობა და მასში ჩაწერის უფლება: ';
+$_lang["checking_if_export_exists"] = 'მოწმდება <span class="mono">/assets/export</span> საქაღალდის არსებობა: ';
+$_lang["checking_if_export_writable"] = 'მოწმდება <span class="mono">/assets/export</span> საქაღალდეში ჩაწერის უფლება: ';
+$_lang["checking_if_images_exist"] = 'მოწმდება <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> და <span class="mono">/assets/media</span> საქაღალდეების არსებობა: ';
+$_lang["checking_if_images_writable"] = 'მოწმდება <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> და <span class="mono">/assets/media</span> საქაღალდეებში ჩაწერის უფლება: ';
+$_lang["checking_mysql_strict_mode"] = 'მოწმდება MySQL-ის მკაცრი sql_mode რეჟიმი: ';
+$_lang["checking_mysql_version"] = 'მოწმდება MySQL-ის ვერსია: ';
+$_lang["checking_php_version"] = 'მოწმდება PHP-ის ვერსია: ';
+$_lang["checking_registerglobals"] = 'მოწმდება, გამორთულია თუ არა Register_Globals: ';
+$_lang["checking_registerglobals_note"] = 'ეს კონფიგურაცია თქვენს საიტს Cross Site Scripting (XSS) შეტევების მიმართ მეტად დაუცველს ხდის. ამ პარამეტრის გამორთვის შესახებ მიმართეთ ჰოსტინგის პროვაიდერს. ჩვეულებრივ, ამის სამი გზა არსებობს: გლობალური php.ini ფაილის შეცვლა, Evolution CMS-ის ძირეულ საქაღალდეში .htaccess ფაილში წესების დამატება ან ინსტალაციის ყველა საქაღალდეში საკუთარი php.ini ფაილის დამატება პარამეტრების გადასაფარად (ასეთი საქაღალდე კი ბევრია). Evolution CMS-ის დაყენებას მაინც შეძლებთ, თუმცა ეს გაფრთხილება გაითვალისწინეთ.'; //Look at changing this to provide a solution.
+$_lang["checking_sessions"] = 'მოწმდება სესიების გამართული კონფიგურაცია: ';
+$_lang["checking_table_prefix"] = 'მოწმდება ცხრილის პრეფიქსი `';
+$_lang["chunks"] = 'ჩანკები';
+$_lang["config_permissions_note"] = 'Linux/Unix-ზე ახალი ინსტალაციისთვის შექმენით ცარიელი ფაილი სახელად <span class="mono">config.inc.php</span> საქაღალდეში <span class="mono">/manager/includes/</span> და მიანიჭეთ წვდომის უფლება 0666.';
+$_lang["connection_screen_collation"] = 'შედარების წესი:';
+$_lang["connection_screen_database_connection_information"] = 'მონაცემთა ბაზის ინფორმაცია';
+$_lang["connection_screen_database_connection_note"] = 'შეიყვანეთ იმ მონაცემთა ბაზის სახელი, რომლის გამოყენება ან შექმნა გსურთ Evolution CMS-ის ამ ინსტალაციისთვის. თუ ბაზა არ არსებობს, ინსტალერი მის შექმნას შეეცდება. ეს შესაძლოა ვერ მოხერხდეს MySQL-ის მომხმარებლის უფლებებიდან გამომდინარე.';
+$_lang["connection_screen_database_host"] = 'მონაცემთა ბაზის ჰოსტი:';
+$_lang["connection_screen_database_info"] = 'მონაცემთა ბაზის ინფორმაცია';
+$_lang["connection_screen_database_login"] = 'მონაცემთა ბაზის მომხმარებლის სახელი:';
+$_lang["connection_screen_database_name"] = 'მონაცემთა ბაზის სახელი:';
+$_lang["connection_screen_database_pass"] = 'მონაცემთა ბაზის პაროლი:';
+$_lang["connection_screen_database_test_connection"] = 'შექმენით მონაცემთა ბაზა ან შეამოწმეთ მისი არჩევა.';
+$_lang["connection_screen_default_admin_email"] = 'ადმინისტრატორის ელფოსტა:';
+$_lang["connection_screen_default_admin_login"] = 'ადმინისტრატორის მომხმარებლის სახელი:';
+$_lang["connection_screen_default_admin_note"] = 'ახლა შეიყვანეთ მთავარი ადმინისტრატორის ანგარიშის მონაცემები. შეგიძლიათ მიუთითოთ თქვენი სახელი და პაროლი, რომელიც არ დაგავიწყდებათ. დაყენების დასრულების შემდეგ ეს მონაცემები ადმინისტრირების პანელში შესასვლელად დაგჭირდებათ.';
+$_lang["connection_screen_default_admin_password"] = 'ადმინისტრატორის პაროლი:';
+$_lang["connection_screen_default_admin_password_confirm"] = 'პაროლის დადასტურება:';
+$_lang["connection_screen_default_admin_user"] = 'ნაგულისხმევი ადმინისტრატორი';
+$_lang["connection_screen_defaults"] = 'მართვის პანელის ნაგულისხმევი პარამეტრები';
+$_lang["connection_screen_server_connection_information"] = 'სერვერთან კავშირისა და შესვლის ინფორმაცია';
+$_lang["connection_screen_server_connection_note"] = 'კავშირის შემოწმებამდე შეიყვანეთ მონაცემთა ბაზის ჰოსტი (სერვერის სახელი ან IP მისამართი), მომხმარებლის სახელი და პაროლი.';
+$_lang["connection_screen_server_test_connection"] = 'შეამოწმეთ მონაცემთა ბაზის სერვერთან კავშირი და ნახეთ შედარების წესები.';
+$_lang["connection_screen_table_prefix"] = 'ცხრილების პრეფიქსი:';
+$_lang["creating_database_connection"] = 'მონაცემთა ბაზასთან კავშირის შექმნა: ';
+$_lang["database_alerts"] = 'მონაცემთა ბაზის გაფრთხილებები!';
+$_lang["database_connection_failed"] = 'მონაცემთა ბაზასთან დაკავშირება ვერ მოხერხდა!';
+$_lang["database_connection_failed_note"] = 'შეამოწმეთ მონაცემთა ბაზაში შესვლის მონაცემები და სცადეთ ხელახლა.';
+$_lang["database_use_failed"] = 'მონაცემთა ბაზის არჩევა ვერ მოხერხდა!';
+$_lang["database_use_failed_note"] = 'შეამოწმეთ მითითებული მომხმარებლის უფლებები მონაცემთა ბაზაზე და სცადეთ ხელახლა.';
+$_lang["default_language"] = 'მართვის პანელის ნაგულისხმევი ენა';
+$_lang["default_language_description"] = 'ეს არის ნაგულისხმევი ენა, რომელიც Evolution CMS-ის ადმინისტრირების პანელში გამოიყენება.';
+$_lang["during_execution_of_sql"] = ' SQL ბრძანების შესრულებისას ';
+$_lang["encoding"] = 'UTF-8';	//charset encoding for html header
+$_lang["error"] = 'შეცდომა';
+$_lang["errors"] = 'შეცდომები';
+$_lang["failed"] = 'ვერ მოხერხდა!';
+$_lang["help"] = 'დახმარება!';
+$_lang["help_link"] = 'https://forum.evo.im';
+$_lang["help_title"] = 'დახმარება ინსტალაციისას Evolution CMS-ის ფორუმებზე';
+$_lang["iagree_box"] = 'ვეთანხმები <a href="../assets/docs/license.txt" target="_blank">Evolution CMS-ის ლიცენზიის</a> პირობებს. GPL-ის მე-2 ვერსიის ლიცენზიის თარგმანებისთვის ეწვიეთ <a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-translations.html" target="_blank">GNU ოპერაციული სისტემის ვებსაიტს</a>.';
+$_lang["install"] = 'დაყენება';
+$_lang["install_overwrite"] = 'დაყენება/გადაწერა';
+$_lang["install_results"] = 'დაყენების შედეგები';
+$_lang["install_update"] = 'დაყენება/განახლება';
+$_lang["installation_error_occured"] = 'დაყენებისას შემდეგი შეცდომები წარმოიშვა';
+$_lang["installation_install_new_copy"] = 'ახალი ასლის დაყენება: ';
+$_lang["installation_install_new_note"] = 'გაითვალისწინეთ, რომ ამ პარამეტრმა შესაძლოა თქვენს მონაცემთა ბაზაში არსებული ნებისმიერი მონაცემი გადაწეროს.';
+$_lang["installation_mode"] = 'დაყენების რეჟიმი';
+$_lang["installation_new_installation"] = 'ახალი ინსტალაცია';
+$_lang["installation_note"] = '<strong>შენიშვნა:</strong> მართვის პანელში შესვლის შემდეგ, საიტის დათვალიერებამდე, შეცვალეთ და შეინახეთ სისტემის კონფიგურაცია Evolution CMS-ის მართვის პანელის მენიუდან <strong>ხელსაწყოები</strong> -> სისტემის კონფიგურაცია.';
+$_lang["installation_successful"] = 'დაყენება წარმატებით დასრულდა!';
+$_lang["installation_upgrade_advanced"] = 'გაფართოებული განახლება';
+$_lang["installation_upgrade_advanced_note"] = 'მონაცემთა ბაზის გამოცდილი ადმინისტრატორებისთვის ან სერვერზე გადასატანად, რომელსაც მონაცემთა ბაზასთან კავშირის განსხვავებული სიმბოლოების ნაკრები აქვს.<br /><b>საჭიროა იცოდეთ მონაცემთა ბაზის სრული სახელი, მომხმარებელი, პაროლი და კავშირის/კოლაციის დეტალები.</b>';
+$_lang["installation_upgrade_existing"] = 'არსებული ინსტალაციის განახლება';
+$_lang["installation_upgrade_existing_note"] = 'განაახლეთ მიმდინარე ფაილები და მონაცემთა ბაზა.';
+$_lang["installed"] = 'დაინსტალირებულია';
+$_lang["installing_demo_site"] = 'სადემონსტრაციო საიტის ინსტალაცია: ';
+$_lang["language_code"] = 'ka';	// for html element e.g. <html xml:lang="en" lang="en">
+$_lang["loading"] = 'იტვირთება...';
+$_lang["modules"] = 'მოდულები';
+$_lang["modx_footer1"] = '&copy; 2004 - 2026 კონტენტის მართვის პლატფორმის (CMF) პროექტი <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a>. ყველა უფლება დაცულია. Evolution CMS ვრცელდება GNU GPL ლიცენზიით.';
+$_lang["modx_footer2"] = 'Evolution CMS თავისუფალი პროგრამული უზრუნველყოფაა.  მოგიწოდებთ შემოქმედებითად გამოიყენოთ Evolution CMS თქვენთვის სასურველი ნებისმიერი გზით. თუ ცვლილებებს შეიტანთ და შეცვლილი Evolution CMS-ის გავრცელებას გადაწყვეტთ, საწყისი კოდი აუცილებლად თავისუფლად ხელმისაწვდომი დატოვეთ!';
+$_lang["modx_install"] = 'Evolution CMS &raquo; ინსტალაცია';
+$_lang["modx_requires_php"] = ', ხოლო Evolution CMS მოითხოვს PHP 4.2.0-ს ან უფრო ახალ ვერსიას';
+$_lang["mysql_5051"] = ' MySQL სერვერის ვერსიაა 5.0.51!';
+$_lang["mysql_5051_warning"] = 'MySQL 5.0.51-ს ცნობილი პრობლემები აქვს. გაგრძელებამდე რეკომენდებულია მისი განახლება.';
+$_lang["mysql_version_is"] = ' თქვენი MySQL-ის ვერსიაა: ';
+$_lang["no"] = 'არა';
+$_lang["none"] = 'არცერთი';
+$_lang["not_found"] = 'ვერ მოიძებნა';
+$_lang["ok"] = 'კარგია!';
+$_lang["optional_items"] = 'დამატებითი კომპონენტები';
+$_lang["optional_items_note"] = 'აირჩიეთ ინსტალაციის პარამეტრები და დააწკაპუნეთ ინსტალაციაზე:';
+$_lang["php_security_notice"] = '<legend>უსაფრთხოების შეტყობინება</legend><p>მიუხედავად იმისა, რომ Evolution CMS თქვენს PHP ვერსიაზე იმუშავებს, ამ ვერსიის გამოყენება რეკომენდებული არ არის. თქვენს PHP ვერსიას უსაფრთხოების მრავალი ხარვეზი აქვს. განაახლეთ PHP [+min_version+]-მდე ან უფრო ახალ ვერსიამდე, რომელშიც ეს ხარვეზები გამოსწორებულია. თქვენი საიტის უსაფრთხოებისთვის რეკომენდებულია განახლება.</p>';
+$_lang["please_correct_error"] = '. გთხოვთ, გამოასწოროთ შეცდომა';
+$_lang["please_correct_errors"] = '. გთხოვთ, გამოასწოროთ შეცდომები';
+$_lang["plugins"] = 'პლაგინები';
+$_lang["preinstall_validation"] = 'ინსტალაციამდე შემოწმება';
+$_lang["recommend_setting_change_title"] = 'პარამეტრის რეკომენდებული ცვლილება';
+$_lang["recommend_setting_change_validate_referer_confirmation"] = 'პარამეტრის ცვლილება: <em>შემოწმდეს HTTP_REFERER სათაურები?</em>';
+$_lang["recommend_setting_change_validate_referer_description"] = 'თქვენს საიტზე მენეჯერში შემომავალი მოთხოვნების HTTP_REFERER-ის შემოწმება ჩართული არ არის. CSRF (საიტთაშორისი მოთხოვნის გაყალბება) შეტევის რისკის შესამცირებლად მკაცრად გირჩევთ ამ პარამეტრის ჩართვას.';
+$_lang["remove_install_folder_auto"] = 'ჩემი საიტიდან ინსტალაციის საქაღალდისა და ფაილების წაშლა <br />&nbsp;(ამ ოპერაციისთვის ინსტალაციის საქაღალდეზე წაშლის უფლებაა საჭირო).';
+$_lang["remove_install_folder_manual"] = 'კონტენტის მენეჯერში შესვლამდე აუცილებლად წაშალეთ &quot;<b>install</b>&quot; საქაღალდე.';
+$_lang["retry"] = 'ხელახლა ცდა';
+$_lang["running_database_updates"] = 'მონაცემთა ბაზის განახლებების შესრულება: ';
+$_lang["sample_web_site"] = 'სანიმუშო ვებსაიტი';
+$_lang["sample_web_site_note"] = 'გაითვალისწინეთ, რომ ეს არსებულ დოკუმენტებსა და რესურსებს <b>გადააწერს</b>.';
+$_lang["session_problem"] = 'თქვენი სერვერის სესიებთან დაკავშირებული პრობლემა გამოვლინდა. მის გამოსასწორებლად მიმართეთ სერვერის ადმინისტრატორს.';
+$_lang["session_problem_try_again"] = 'ხელახლა ვცადოთ?';
+$_lang["setup_cannot_continue"] = 'სამწუხაროდ, ინსტალაცია ამჟამად ვერ გაგრძელდება ზემოთ მითითებული მიზეზის გამო: ';
+$_lang["setup_couldnt_install"] = 'Evolution CMS-ის ინსტალატორმა არჩეულ მონაცემთა ბაზაში ზოგიერთი ცხრილის შექმნა/შეცვლა ვერ შეძლო.';
+$_lang["setup_database"] = 'ინსტალატორი ახლა მონაცემთა ბაზის გამართვას შეეცდება:<br />';
+$_lang["setup_database_create_connection"] = 'მონაცემთა ბაზასთან კავშირის შექმნა: ';
+$_lang["setup_database_create_connection_failed"] = 'მონაცემთა ბაზასთან დაკავშირება ვერ მოხერხდა!';
+$_lang["setup_database_create_connection_failed_note"] = 'შეამოწმეთ მონაცემთა ბაზაში შესვლის მონაცემები და სცადეთ ხელახლა.';
+$_lang["setup_database_creating_tables"] = 'მონაცემთა ბაზის ცხრილების შექმნა: ';
+$_lang["setup_database_creation"] = 'მონაცემთა ბაზის შექმნა `';
+$_lang["setup_database_creation_failed"] = 'მონაცემთა ბაზის შექმნა ვერ მოხერხდა!';
+$_lang["setup_database_creation_failed_note"] = ' - ინსტალატორმა მონაცემთა ბაზის შექმნა ვერ შეძლო!';
+$_lang["setup_database_creation_failed_note2"] = 'ინსტალატორმა მონაცემთა ბაზის შექმნა ვერ შეძლო და ამავე სახელის მქონე არსებული ბაზაც ვერ იპოვა. სავარაუდოდ, თქვენი ჰოსტინგის უსაფრთხოების წესები გარე სკრიპტებს მონაცემთა ბაზის შექმნის უფლებას არ აძლევს. შექმენით მონაცემთა ბაზა ჰოსტინგის პროვაიდერის წესების მიხედვით და ინსტალაცია ხელახლა გაუშვით.';
+$_lang["setup_database_selection"] = 'მონაცემთა ბაზის არჩევა `';
+$_lang["setup_database_selection_failed"] = 'მონაცემთა ბაზის არჩევა ვერ მოხერხდა...';
+$_lang["setup_database_selection_failed_note"] = 'მონაცემთა ბაზა არ არსებობს. ინსტალატორი მის შექმნას შეეცდება.';
+$_lang["snippets"] = 'სნიპეტები';
+$_lang["some_tables_not_updated"] = 'ზოგიერთი ცხრილი არ განახლებულა. ამის მიზეზი შესაძლოა ადრე შეტანილი ცვლილებები იყოს.';
+$_lang["status_checking_database"] = 'მონაცემთა ბაზის შემოწმება: ';
+$_lang["status_connecting"] = ' ჰოსტთან დაკავშირება: ';
+$_lang["status_failed"] = 'ვერ მოხერხდა!';
+$_lang["status_failed_could_not_create_database"] = 'ვერ მოხერხდა - მონაცემთა ბაზა ვერ შეიქმნა';
+$_lang["status_failed_database_collation_does_not_match"] = 'ვერ მოხერხდა - მონაცემთა ბაზის კოლაცია არ ემთხვევა; გამოიყენეთ SET NAMES ან აირჩიეთ %s';
+$_lang["status_failed_table_prefix_already_in_use"] = 'ვერ მოხერხდა - ცხრილის პრეფიქსი უკვე გამოიყენება!';
+$_lang["status_passed"] = 'წარმატებულია - მონაცემთა ბაზა არჩეულია';
+$_lang["status_passed_database_created"] = 'წარმატებულია - მონაცემთა ბაზა შექმნილია';
+$_lang["status_passed_server"] = 'წარმატებულია - კოლაციები ახლა ხელმისაწვდომია';
+$_lang["strict_mode"] = ' MySQL სერვერზე მკაცრი sql_mode ჩართულია!';
+$_lang["strict_mode_error"] = 'Evolution CMS-ის ზოგიერთმა ფუნქციამ შესაძლოა არასწორად იმუშაოს, თუ STRICT_TRANS_TABLES sql_mode ჩართულია. MySQL-ის რეჟიმის შეცვლა შეგიძლიათ my.cnf ფაილის რედაქტირებით ან სერვერის ადმინისტრატორთან დაკავშირებით.';
+$_lang["summary_setup_check"] = 'ინსტალატორმა რამდენიმე შემოწმება შეასრულა, რათა დაედგინა, მზად არის თუ არა ყველაფერი ინსტალაციის დასაწყებად.';
+$_lang["system_configuration"] = 'სისტემის კონფიგურაცია';
+$_lang["system_configuration_validate_referer_description"] = 'პარამეტრი <strong>HTTP_REFERER სათაურების შემოწმება</strong> რეკომენდებულია და შეუძლია თქვენი საიტის დაცვა CSRF შეტევებისგან, თუმცა სერვერის ზოგიერთი კონფიგურაციისას მენეჯერი შესაძლოა მიუწვდომელი გახადოს.';
+$_lang["table_prefix_already_inuse"] = ' - ცხრილის პრეფიქსი ამ მონაცემთა ბაზაში უკვე გამოიყენება!';
+$_lang["table_prefix_already_inuse_note"] = 'ინსტალატორმა არჩეულ მონაცემთა ბაზაში ინსტალაცია ვერ შეძლო, რადგან ის უკვე შეიცავს მითითებული პრეფიქსის მქონე ცხრილებს. აირჩიეთ ცხრილების ახალი პრეფიქსი და ინსტალაცია ხელახლა გაუშვით.';
+$_lang["table_prefix_not_exist"] = ' - ცხრილის პრეფიქსი ამ მონაცემთა ბაზაში არ არსებობს!';
+$_lang["table_prefix_not_exist_note"] = 'ინსტალატორმა არჩეულ მონაცემთა ბაზაში ინსტალაცია ვერ შეძლო, რადგან ის არ შეიცავს განახლებისთვის მითითებული პრეფიქსის მქონე არსებულ ცხრილებს. აირჩიეთ ცხრილების არსებული პრეფიქსი და ინსტალაცია ხელახლა გაუშვით.';
+$_lang["templates"] = 'შაბლონები';
+$_lang["to_log_into_content_manager"] = 'კონტენტის მენეჯერში (manager/index.php) შესასვლელად შეგიძლიათ დააწკაპუნოთ ღილაკზე `დახურვა`.';
+$_lang["toggle"] = 'გადართვა';
+$_lang['tvs'] = 'შაბლონის ცვლადები';
+$_lang["unable_install_chunk"] = 'ჩანკის ინსტალაცია ვერ მოხერხდა.  ფაილი';
+$_lang["unable_install_module"] = 'მოდულის ინსტალაცია ვერ მოხერხდა.  ფაილი';
+$_lang["unable_install_plugin"] = 'პლაგინის ინსტალაცია ვერ მოხერხდა.  ფაილი';
+$_lang["unable_install_snippet"] = 'სნიპეტის ინსტალაცია ვერ მოხერხდა.  ფაილი';
+$_lang["unable_install_template"] = 'შაბლონის ინსტალაცია ვერ მოხერხდა.  ფაილი';
+$_lang["upgrade_note"] = '<strong>შენიშვნა:</strong> საიტის დათვალიერებამდე შედით მენეჯერში ადმინისტრატორის ანგარიშით, შემდეგ შეამოწმეთ და შეინახეთ სისტემის კონფიგურაციის პარამეტრები.';
+$_lang["upgraded"] = 'განახლებულია';
+$_lang["validate_referer_title"] = 'შემოწმდეს HTTP_REFERER სათაურები?';
+$_lang["visit_forum"] = ', ეწვიეთ <a href="https://forum.evo.im" target="_blank">Evolution CMS-ის ფორუმებს</a>.';
+$_lang["warning"] = 'გაფრთხილება!';
+$_lang["welcome_message_start"] = 'ჯერ აირჩიეთ ინსტალაციის ტიპი:';
+$_lang["welcome_message_text"] = 'ეს პროგრამა ინსტალაციის დარჩენილ ეტაპებს გაგატარებთ.';
+$_lang["welcome_message_welcome"] = 'მოგესალმებათ Evolution CMS-ის ინსტალაციის პროგრამა.';
+$_lang["writing_config_file"] = 'კონფიგურაციის ფაილის ჩაწერა: ';
+$_lang["yes"] = 'დიახ';
+$_lang["you_running_php"] = ' - თქვენ იყენებთ PHP-ს ';
+?>

@@ -1456,6 +1456,7 @@ return array(
     'EvolutionCMS\\Support\\MailTestMailer' => $baseDir . '/src/Support/MailTestMailer.php',
     'EvolutionCMS\\Support\\MailTestSmtp' => $baseDir . '/src/Support/MailTestSmtp.php',
     'EvolutionCMS\\Support\\MakeTable' => $baseDir . '/src/Support/MakeTable.php',
+    'EvolutionCMS\\Support\\ManagerLanguage' => $baseDir . '/src/Support/ManagerLanguage.php',
     'EvolutionCMS\\Support\\ManagerReferer' => $baseDir . '/src/Support/ManagerReferer.php',
     'EvolutionCMS\\Support\\Menu' => $baseDir . '/src/Support/Menu.php',
     'EvolutionCMS\\Support\\ModuleAccess' => $baseDir . '/src/Support/ModuleAccess.php',

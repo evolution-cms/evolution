@@ -1,9 +1,9 @@
 <?php
 /**
- * MODx language File
+ * Evolution CMS language File
  *
- * @author MotSmart ~ Mohsen Zare [MotSmart@Gmail.com]| www.modxcms.ir
- * @package MODx
+ * @author MotSmart ~ Mohsen Zare [MotSmart@Gmail.com]
+ * @package Evolution CMS
  * @version 1.0
  * @Update by AliAqua
  * Filename:       /install/lang/persian/persian.inc.php
@@ -46,7 +46,7 @@ $_lang["checking_mysql_strict_mode"] = 'مرور MySQL برای strict mode: ';
 $_lang["checking_mysql_version"] = 'مرور نسخه ی MySQL شما: ';
 $_lang["checking_php_version"] = 'بازبینی نسخه PHP : ';
 $_lang["checking_registerglobals"] = 'بازخوانی اینکه Register_Globals خاموش است: ';
-$_lang["checking_registerglobals_note"] = 'این تنظیمات سایت شما رو در مقابل حملات (XSS) نقوذ پذیر کرده. شما بایستی از طریق هاستینگ خود این تنظیمات را غیر فعال کنید,  به طور معمول از سه طریق امکان پذیر است: از طریق اعمال تغییر در فایل php.ini, ویرایش قوانین و دستورات در فایل .htaccess روت و پرونده نصب مادایکس و یا اضافه کردن دستور اضافه در فایل جدید خود تحت نام php.ini که داخل همه ی پرونده های نصب شده مادایکس خود قرار می دهیدو. شما همچنان قادر به نصب مادایکس هستید, به هر حال ما به شما تذکرات لازم را دادیم!'; //Look at changing this to provide a solution.
+$_lang["checking_registerglobals_note"] = 'این تنظیمات سایت شما رو در مقابل حملات (XSS) نقوذ پذیر کرده. شما بایستی از طریق هاستینگ خود این تنظیمات را غیر فعال کنید,  به طور معمول از سه طریق امکان پذیر است: از طریق اعمال تغییر در فایل php.ini, ویرایش قوانین و دستورات در فایل .htaccess روت و پرونده نصب Evolution CMS و یا اضافه کردن دستور اضافه در فایل جدید خود تحت نام php.ini که داخل همه ی پرونده های نصب شده Evolution CMS خود قرار می دهیدو. شما همچنان قادر به نصب Evolution CMS هستید, به هر حال ما به شما تذکرات لازم را دادیم!'; //Look at changing this to provide a solution.
 $_lang["checking_sessions"] = 'بازخوانی sessions مطابق تنظیمات درست: ';
 $_lang["checking_table_prefix"] = 'مرور پیشوند جدول  `';
 $_lang["chunks"] = 'چانکها';
@@ -102,10 +102,10 @@ $_lang["installing_demo_site"] = 'نصب محتوای سایت پیشفرض (د�
 $_lang["language_code"] = 'fa';
 $_lang["loading"] = 'در حال بارگذاری ...';
 $_lang["modules"] = 'ماژولها';
-$_lang["modx_footer1"] = '&copy; 2004 - 2026 کلیه ی حقوق برای پروژه ی سیستم مدیریت محتوای <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> محفوظ است. مادایکس تحت لیسانس GNU-GPL است.';
-$_lang["modx_footer2"] = 'مادایکس نرم افزاری رایگان است، ما شما را تشویق به خلاقیت می کنیم، شما می توانید به منظور هماهنگی مادایکس با نیازهای خود، هر تغییری را در آن اعمال کنید. چنانچه قصد ارائه نسخه مادایکس ویژه خود به دیگران را دارید حتما آن را رایگان ارائه کنید!';
-$_lang["modx_install"] = 'MODx &raquo; برنامه نصب';
-$_lang["modx_requires_php"] = ', است, و مادایکس به نسخه ی PHP 4.2.0 و یا بالاتر نیاز دار';
+$_lang["modx_footer1"] = '&copy; 2004 - 2026 کلیه ی حقوق برای پروژه ی سیستم مدیریت محتوای <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> محفوظ است. Evolution CMS تحت لیسانس GNU-GPL است.';
+$_lang["modx_footer2"] = 'Evolution CMS نرم افزاری رایگان است، ما شما را تشویق به خلاقیت می کنیم، شما می توانید به منظور هماهنگی Evolution CMS با نیازهای خود، هر تغییری را در آن اعمال کنید. چنانچه قصد ارائه نسخه Evolution CMS ویژه خود به دیگران را دارید حتما آن را رایگان ارائه کنید!';
+$_lang["modx_install"] = 'Evolution CMS &raquo; برنامه نصب';
+$_lang["modx_requires_php"] = ', است, و Evolution CMS به نسخه ی PHP 4.2.0 و یا بالاتر نیاز دار';
 $_lang["mysql_5051"] = ' نسخه MySQL سرور 5.0.51 می باشد!';
 $_lang["mysql_5051"] = 'Warning : MySQL server version is 5.0.51';
 $_lang["mysql_5051_warning"] = 'مشکلاتی با نسخه MySQL 5.0.51 کشف شده. پیشنهاد می کنیم نسخه MySQL خود را ارتقا دهید.';
@@ -115,7 +115,7 @@ $_lang["not_found"] = 'پیدا نشد';
 $_lang["ok"] = ' مشکلی ندارد!';
 $_lang["optional_items"] = 'موارد اختیاری »';
 $_lang["optional_items_note"] = 'لطفا موارد نصب را انتخاب و روی نصب کلیک کنید:';
-$_lang["php_security_notice"] = '<legend>تذکر امنیتی</legend><p>چنانچه مادایکس روی نسخه ی فعلی PHPفعالیت کند , استفاده مادایکس در این نسخه پیشنهاد نمی شود. نسخه ی PHP شما قابلیت آسیب پذیری و حفره های امنیتی بسیاری دارد. لطفا PHP را به نسخه ی [+min_version+] یا بالاتر ارتقاء دهید, که فاقد این مشکلات است. به منظور ایمنی بیشتر وبگاه پیشنهاد میکنیم به این نسخه ارتقاء دهید.</p>';
+$_lang["php_security_notice"] = '<legend>تذکر امنیتی</legend><p>چنانچه Evolution CMS روی نسخه ی فعلی PHPفعالیت کند , استفاده Evolution CMS در این نسخه پیشنهاد نمی شود. نسخه ی PHP شما قابلیت آسیب پذیری و حفره های امنیتی بسیاری دارد. لطفا PHP را به نسخه ی [+min_version+] یا بالاتر ارتقاء دهید, که فاقد این مشکلات است. به منظور ایمنی بیشتر وبگاه پیشنهاد میکنیم به این نسخه ارتقاء دهید.</p>';
 $_lang["please_correct_error"] = '. لطفا خطا موحود را درست کنید';
 $_lang["please_correct_errors"] = '. لطفا خطا های موجود را درست کنید.';
 $_lang["plugins"] = 'پلاگینها';
@@ -127,7 +127,7 @@ $_lang["running_database_updates"] = 'به روز رسانی پایگاه داد
 $_lang["sample_web_site"] = 'محتویات پیشفرض وبگاه';
 $_lang["sample_web_site_note"] = '<i>&nbsp;لطفا توجه کنید که در این حالت همه ی پرونده ها و منابع موجود <b>جایگزین</b> می شود.</i>';
 $_lang["setup_cannot_continue"] = 'متاسفانه عملایت نصب به علت مشکلات بالا با مشکل روبرو شده است. ';
-$_lang["setup_couldnt_install"] = 'برنامه نصب مادایکس نتوانست جداولی را در پایگاه داده ایجاد کند یا تغییر بدهد.';
+$_lang["setup_couldnt_install"] = 'برنامه نصب Evolution CMS نتوانست جداولی را در پایگاه داده ایجاد کند یا تغییر بدهد.';
 $_lang["setup_database"] = 'برنامه نصب اکنون پایگاه داده را ایجاد می کند:<br />';
 $_lang["setup_database_create_connection"] = 'ایجاد ارتباط با پایگاه داده:';
 $_lang["setup_database_create_connection_failed"] = 'ارتباط با پایگاه داده با مشکل روبرو شد!';
@@ -151,7 +151,7 @@ $_lang["status_passed"] = 'موفقیت آمیز - پایگاه دادهی ان�
 $_lang["status_passed_database_created"] = 'موفقیت آمیز - پایگاه داده ایجاد شد';
 $_lang["status_passed_server"] = 'موفقیت آمیز - تطبیق ها تهیه شد!';
 $_lang["strict_mode"] = 'Warning : MySQL server is in strict mode';
-$_lang["strict_mode_error"] = 'مادایکس نیازمند strict mode غیر فعال است. شما می توانید از طریق ویرایش فایل my.cnf یا تماس با هاستینگ خود این حالت را غیر فعال کنید.';
+$_lang["strict_mode_error"] = 'Evolution CMS نیازمند strict mode غیر فعال است. شما می توانید از طریق ویرایش فایل my.cnf یا تماس با هاستینگ خود این حالت را غیر فعال کنید.';
 $_lang["summary_setup_check"] = 'برنامه ی نصب، مواردی را بازبینی کرده تا در صورت آمادگی برای نصب اقدام شود.';
 $_lang["table_prefix_already_inuse"] = ' - پیشوند جداول موجود می باشد!';
 $_lang["table_prefix_already_inuse_note"] = 'برنامه ی نصب قادر به نصب در پایگاه داده انتخاب شده نیست، چرا که از قبل حاوی جداولی با پیشوند تعیین شده از طرف شماست. لطفا پیشوند جدیدی را انتخاب کنید و برنامه ی نصب را دوباره اجرا کنید.';
@@ -167,9 +167,9 @@ $_lang["unable_install_snippet"] = 'نصب اسنیپت با مشکل روبرو
 $_lang["unable_install_template"] = 'نصب قالب با مشکل روبرو شد.  فایل';
 $_lang["upgrade_note"] = '<strong>یادداشت:</strong> قبل از ورد به سایت شما می بایست به قسمت مدیریت بروید و پیکربندی را مرور و ویرایش کنید .';
 $_lang["upgraded"] = 'به روز شد';
-$_lang["visit_forum"] = ', به <a href="http://www.modxcms.com/forums/" target="_blank">انجمن پشتیبانی مادایکس</a> بروید.';
-$_lang["welcome_message_text"] = 'این برنامه تا آخرین مرحله ی نصب مادایکس راهنمای شماست.';
-$_lang["welcome_message_welcome"] = ' به برنامه ی نصب MODx فارسی خوش آمدید.';
+$_lang["visit_forum"] = ', به <a href="https://forum.evo.im" target="_blank">انجمن پشتیبانی Evolution CMS</a> بروید.';
+$_lang["welcome_message_text"] = 'این برنامه تا آخرین مرحله ی نصب Evolution CMS راهنمای شماست.';
+$_lang["welcome_message_welcome"] = ' به برنامه ی نصب Evolution CMS فارسی خوش آمدید.';
 $_lang["writing_config_file"] = 'نگارش فایل پیکر بندی: ';
 $_lang["you_running_php"] = ' -  نسخه فعلی PHP شما ';
 ?>

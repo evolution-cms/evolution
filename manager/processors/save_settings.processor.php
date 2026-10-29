@@ -48,9 +48,8 @@ $data['rb_base_dir'] = str_replace('[(base_path)]', EVO_BASE_PATH, $data['rb_bas
 
 if (isset($data) && count($data) > 0) {
     if (isset($data['manager_language'])) {
-        $lang_path = EVO_CORE_PATH . 'lang/' . $data['manager_language'] . '/global.php';
-        if (is_file($lang_path)) {
-            include $lang_path;
+        if (\EvolutionCMS\Support\ManagerLanguage::exists($data['manager_language'])) {
+            include EVO_CORE_PATH . 'lang/' . $data['manager_language'] . '/global.php';
             $data['lang_code'] = $data['manager_language'];
         }
     }
@@ -91,12 +90,7 @@ if (isset($data) && count($data) > 0) {
                 $v = rtrim($v, '/') . '/';
                 break;
             case 'manager_language':
-                $langDir = realpath(EVO_CORE_PATH . 'lang/' . $v);
-                $langFile = realpath(EVO_CORE_PATH . 'lang/' . $v . '/global.php');
-                $langFileDir = dirname($langFile);
-                if ($langDir !== $langFileDir || !file_exists($langFile)) {
-                    $v = 'en';
-                }
+                $v = \EvolutionCMS\Support\ManagerLanguage::resolve($v);
                 break;
             case 'site_timezone':
                 $v = \EvolutionCMS\Support\SiteTimezone::resolve($v);

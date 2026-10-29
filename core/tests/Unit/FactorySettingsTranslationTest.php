@@ -93,6 +93,26 @@ test('the site cache translates into the stored manager language', function () {
         ->and($unknown['emailsubject'])->toBe(__('global.emailsubject_default', [], 'en'));
 });
 
+test('a front-end request keeps an installed manager language', function () {
+    $this->settings->setConfig('manager_language', 'de');
+
+    $defaults = $this->settings->getFactorySettings();
+
+    expect($this->settings->getConfig('manager_language'))->toBe('de')
+        ->and($this->settings->getConfig('lang_code'))->toBe('de')
+        ->and($defaults['emailsubject'])->toBe(__('global.emailsubject_default', [], 'de'));
+});
+
+test('a front-end request on a deleted manager language reads English', function () {
+    $this->settings->setConfig('manager_language', 'xx');
+
+    $defaults = $this->settings->getFactorySettings();
+
+    expect($this->settings->getConfig('manager_language'))->toBe('en')
+        ->and($this->settings->getConfig('lang_code'))->toBe('en')
+        ->and($defaults['emailsubject'])->toBe(__('global.emailsubject_default', [], 'en'));
+});
+
 test('a manager language set in the configuration files wins over the stored one', function () {
     $this->settings['config']->set('cms.settings.manager_language', 'de');
 

@@ -1,9 +1,9 @@
 <?php
 /**
- * MODx language File
+ * Evolution CMS language File
  *
  * @author Daniel Miguel de Melo
- * @package MODx installer
+ * @package Evolution CMS
  * @version 1.0
  * @translation
  * Filename:       /install/lang/portuguese-br/portuguese-br.inc.php
@@ -28,8 +28,8 @@ $_lang["begin"] = 'Come�ar';
 $_lang["btnback_value"] = 'Anterior';
 $_lang["btnclose_value"] = 'Fechar';
 $_lang["btnnext_value"] = 'Pr�ximo';
-$_lang["cant_write_config_file"] = 'MODx n�o pode escrever o arquivo de configura��o. Por favor copie no arquivo as seguintes informa��es ';
-$_lang["cant_write_config_file_note"] = 'Assim que isto for feito, voc� pode acessar o MODx Admin por apontar seu navegador para NomeDoSeuSite.com/'.MGR_DIR.'/.';
+$_lang["cant_write_config_file"] = 'Evolution CMS n�o pode escrever o arquivo de configura��o. Por favor copie no arquivo as seguintes informa��es ';
+$_lang["cant_write_config_file_note"] = 'Assim que isto for feito, voc� pode acessar o Evolution CMS Admin por apontar seu navegador para NomeDoSeuSite.com/'.MGR_DIR.'/.';
 $_lang["checkbox_select_options"] = 'Selecionar:';
 $_lang["checking_if_cache_exist"] = 'Checando se o diret�rio <span class=\"mono\">assets/cache</span> existe: ';
 $_lang["checking_if_cache_file2_writable"] = 'Checando se o arquivo <span class=\"mono\">assets/cache/sitePublishing.idx.php</span> est� liberado pra escrita: ';
@@ -42,7 +42,7 @@ $_lang["checking_if_images_exist"] = 'Checando se o diret�rio <span class=\"mo
 $_lang["checking_if_images_writable"] = 'Checando se o diret�rio <span class=\"mono\">assets/images</span> est� liberado pra escrita: ';
 $_lang["checking_php_version"] = 'Checando vers�o do PHP: ';
 $_lang["checking_registerglobals"] = 'Checando se Register_Globals est� desligado: ';
-$_lang["checking_registerglobals_note"] = 'Este script faz com que seu site seja muito mais propenso � ataques de Cross Site Scripting (XSS). Voc� deveria entrar em contato com seu Host para mudar esta configura��o, geralmente h� tr�s modos de desabilitar: modificando o arquivo global php.ini, adicionando regras para um arquivo .htaccess na raiz da pasta da instala��o do MODx, ou adicionando um php.ini sobre cada arquivo em cada pasta de sua insta��o (e tem um muitos deles). Ou voc� poder� instalar o MODx, mas considere-se avisado.'; //Look at changing this to provide a solution.
+$_lang["checking_registerglobals_note"] = 'Este script faz com que seu site seja muito mais propenso � ataques de Cross Site Scripting (XSS). Voc� deveria entrar em contato com seu Host para mudar esta configura��o, geralmente h� tr�s modos de desabilitar: modificando o arquivo global php.ini, adicionando regras para um arquivo .htaccess na raiz da pasta da instala��o do Evolution CMS, ou adicionando um php.ini sobre cada arquivo em cada pasta de sua insta��o (e tem um muitos deles). Ou voc� poder� instalar o Evolution CMS, mas considere-se avisado.'; //Look at changing this to provide a solution.
 $_lang["checking_sessions"] = 'Checando se as se��es est�o configuradas apropiadamente: ';
 $_lang["checking_table_prefix"] = 'Verificando Prefixo de Tabela `';
 $_lang["chunks"] = 'Chunks';
@@ -50,7 +50,7 @@ $_lang["config_permissions_note"] = 'Para novas instala��es de Linux/Unix, c
 $_lang["connection_screen_collation"] = 'Collation:';
 $_lang["connection_screen_connection_information"] = 'Informa��o de Conex�o';
 $_lang["connection_screen_database_connection_information"] = 'Informa��o da Base de Dados.';
-$_lang["connection_screen_database_connection_note"] = 'Entre com o nome da base de dados que voc� criou para o MODX. Se voc� ainda n�o criou uma base de dados, a instala��o ir� tentar criar uma base para voc�. Isto pode falhar dependendo das configura��es MySQL das permiss�es de usu�rio de seu dom�nio/instala��o.';
+$_lang["connection_screen_database_connection_note"] = 'Entre com o nome da base de dados que voc� criou para o Evolution CMS. Se voc� ainda n�o criou uma base de dados, a instala��o ir� tentar criar uma base para voc�. Isto pode falhar dependendo das configura��es MySQL das permiss�es de usu�rio de seu dom�nio/instala��o.';
 $_lang["connection_screen_database_host"] = 'Servidor da Base de Dados:';
 $_lang["connection_screen_database_login"] = 'Login da Base de Dados:';
 $_lang["connection_screen_database_name"] = 'Nome da Base de Dados:';
@@ -87,7 +87,7 @@ $_lang["installation_install_new_copy"] = 'Instalar uma nova c�pia de ';
 $_lang["installation_install_new_note"] = 'Aten��o esta op��o ir� sobreescrever qualquer conte�do dentro de sua Base de Dados.';
 $_lang["installation_mode"] = 'Modo de Instala��o';
 $_lang["installation_new_installation"] = 'Nova Instala��o';
-$_lang["installation_note"] = '<strong>Nota:</strong> Antes de entrar no painel voc� deve editar e salvar as suas Configura��es do Sistema antes de navergar no site, escolhendo <strong>Administra��o</strong> -> Configura��o do Sistema no Gerenciador do MODx.';
+$_lang["installation_note"] = '<strong>Nota:</strong> Antes de entrar no painel voc� deve editar e salvar as suas Configura��es do Sistema antes de navergar no site, escolhendo <strong>Administra��o</strong> -> Configura��o do Sistema no Gerenciador do Evolution CMS.';
 $_lang["installation_successful"] = 'Instala��o feita com sucesso!';
 $_lang["installation_upgrade_advanced"] = 'Instala��o de Atualiza��o Avan�ada (Upgrade)<br /><small>(editar config. da database)</small>';
 $_lang["installation_upgrade_advanced_note"] = 'Para administradores avan�ados de database ou mover para servidores com uma conex�o de um character set diferente. <b>Voc� vai precisar de saber o nome completo da base de dados, usu�rio, senha e detalhes conex�o/collations.</b>';
@@ -98,16 +98,16 @@ $_lang["installing_demo_site"] = 'Instalando site de exemplo: ';
 $_lang["loading"] = 'Carregando...';
 $_lang["modules"] = 'Modulos';
 $_lang["modx_footer1"] = '&copy; 2004 - 2026 o projeto <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> Content Mangement Framework (CMF). Todos os direitos reservados. Evolution CMS � licensiado pela GNU GPL.';
-$_lang["modx_footer2"] = 'MODx � um software livre.  N�s indicamos o uso do MODx do modo que for mais conveniente para voc�. Apenas, sempre que redistribuir vers�es modificadas do MODx incluir uma c�pia original do c�digo-fonte gratuitamente!';
-$_lang["modx_install"] = 'MODx &raquo; Instala��o';
-$_lang["modx_requires_php"] = ', e o MODx requer PHP 4.1.0 ou mais recente';
+$_lang["modx_footer2"] = 'Evolution CMS � um software livre.  N�s indicamos o uso do Evolution CMS do modo que for mais conveniente para voc�. Apenas, sempre que redistribuir vers�es modificadas do Evolution CMS incluir uma c�pia original do c�digo-fonte gratuitamente!';
+$_lang["modx_install"] = 'Evolution CMS &raquo; Instala��o';
+$_lang["modx_requires_php"] = ', e o Evolution CMS requer PHP 4.1.0 ou mais recente';
 $_lang["mysql_5051"] = 'Aviso : Vers�o do MySQL no servidor � 5.0.51';
 $_lang["none"] = 'Nenhuma';
 $_lang["not_found"] = 'n�o encontrado';
 $_lang["ok"] = 'OK!';
 $_lang["optional_items"] = 'Itens Opcionais';
 $_lang["optional_items_note"] = 'Escolha as op��es de instala��es e clique em Instalar:';
-$_lang["php_security_notice"] = '<legend>Alerta de Seguran�a</legend><p>Enquanto MODx ir� trabalhar em sua vers�o de PHP, o uso do MODx nesta vers�o n�o � recomendado. Sua vers�o do PHP � vulner�vel � muitas falhas de seguran�a. Por favor, atualize o PHP para vers�o [+min_version+] ou superior, que fecha estas falhas. Voc� deve atualizar pela seguran�a de seu pr�pio site.</p>';
+$_lang["php_security_notice"] = '<legend>Alerta de Seguran�a</legend><p>Enquanto Evolution CMS ir� trabalhar em sua vers�o de PHP, o uso do Evolution CMS nesta vers�o n�o � recomendado. Sua vers�o do PHP � vulner�vel � muitas falhas de seguran�a. Por favor, atualize o PHP para vers�o [+min_version+] ou superior, que fecha estas falhas. Voc� deve atualizar pela seguran�a de seu pr�pio site.</p>';
 $_lang["please_correct_error"] = '. Por favor, corriga o erro';
 $_lang["please_correct_errors"] = '. Por favor, corriga os erros';
 $_lang["plugins"] = 'Plugins';
@@ -158,9 +158,9 @@ $_lang["unable_install_snippet"] = 'N�o foi possivel instalar o snippet.  Arqu
 $_lang["unable_install_template"] = 'N�o foi possivel instalar o template.  Arquivo';
 $_lang["upgrade_note"] = '<strong>Nota:</strong> Antes de navegar em seu site voc� deve acessar o Gerenciador usando uma conta de Administrador, e depois revisar e gravar suas Configura��es de Sistema.';
 $_lang["upgraded"] = 'Atualizado';
-$_lang["visit_forum"] = ', visite o <a href="http://www.modxcms.com/forums/" target="_blank">Operation MODx Forums</a>.';
+$_lang["visit_forum"] = ', visite o <a href="https://forum.evo.im" target="_blank">fórum do Evolution CMS</a>.';
 $_lang["welcome_message_text"] = 'Este programa ir� te guiar pelo resto da instala��o do pacote.';
-$_lang["welcome_message_welcome"] = 'Bem-vindo � instala��o do MODx.';
+$_lang["welcome_message_welcome"] = 'Bem-vindo � instala��o do Evolution CMS.';
 $_lang["writing_config_file"] = 'Escrevendo arquivo de configura��o: ';
 $_lang["you_running_php"] = ' - Voc� est� rodando no PHP ';
 ?>
