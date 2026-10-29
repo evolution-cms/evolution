@@ -76,7 +76,7 @@ class AuthHelper
      * @param  int         $statusCode HTTP status code that triggered this call
      * @param  string|null $reason     a message/description explaining why this was called
      * @param  string[]    $headers
-     * @param  int         $retryCount the amount of retries already done on this URL
+     * @param  int         $retryCount the amount of authentication retries already done on this URL, network retries do not count
      * @return array       containing retry (bool) and storeAuth (string|bool) keys, if retry is true the request should be
      *                                retried, if storeAuth is true then on a successful retry the authentication should be persisted to auth.json
      * @phpstan-return array{retry: bool, storeAuth: 'prompt'|bool}
@@ -158,7 +158,9 @@ class AuthHelper
             $auth = null;
             if ($this->io->hasAuthentication($origin)) {
                 $auth = $this->io->getAuthentication($origin);
-                if (in_array($auth['password'], ['gitlab-ci-token', 'private-token', 'oauth2'], true)) {
+                if (in_array($auth['password'], ['gitlab-ci-token', 'private-token', 'oauth2'], true)
+                    || $auth['username'] === 'gitlab-ci-token'
+                ) {
                     throw new TransportException("Invalid credentials for '" . Url::sanitize($url) . "', aborting.", $statusCode);
                 }
             }
@@ -303,7 +305,14 @@ class AuthHelper
                     $authenticationDisplayMessage = 'Using GitHub token authentication';
                 }
             } elseif (
-                in_array($auth['password'], ['oauth2', 'private-token', 'gitlab-ci-token'], true)
+                ($auth['username'] === 'gitlab-ci-token' || $auth['password'] === 'gitlab-ci-token')
+                && in_array($origin, $this->config->get('gitlab-domains'), true)
+            ) {
+                // the marker ends up in either slot depending on whether GitLab::authorizeOAuth normalized the credentials
+                $headers[] = 'JOB-TOKEN: '.($auth['password'] === 'gitlab-ci-token' ? $auth['username'] : $auth['password']);
+                $authenticationDisplayMessage = 'Using GitLab CI job token authentication';
+            } elseif (
+                in_array($auth['password'], ['oauth2', 'private-token'], true)
                 && in_array($origin, $this->config->get('gitlab-domains'), true)
             ) {
                 if ($auth['password'] === 'oauth2') {

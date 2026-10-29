@@ -6,6 +6,7 @@ namespace JsonSchema\Constraints\Drafts\Draft2019;
 
 use DateTimeZone;
 use JsonSchema\ConstraintError;
+use JsonSchema\Constraints\Constraint;
 use JsonSchema\Constraints\ConstraintInterface;
 use JsonSchema\Constraints\Factory;
 use JsonSchema\Entity\ErrorBagProxy;
@@ -18,14 +19,18 @@ class FormatConstraint implements ConstraintInterface
 {
     use ErrorBagProxy;
 
+    /** @var Factory */
+    private $factory;
+
     public function __construct(?Factory $factory = null)
     {
-        $this->initialiseErrorBag($factory ?: new Factory());
+        $this->factory = $factory ?: new Factory();
+        $this->initialiseErrorBag($this->factory);
     }
 
     public function check(&$value, $schema = null, ?JsonPointer $path = null, $i = null): void
     {
-        if (!property_exists($schema, 'format')) {
+        if (!property_exists($schema, 'format') || $this->factory->getConfig(Constraint::CHECK_MODE_DISABLE_FORMAT)) {
             return;
         }
 
@@ -218,7 +223,7 @@ class FormatConstraint implements ConstraintInterface
 
     private function validateRegex(string $regex): bool
     {
-        return preg_match(self::jsonPatternToPhpRegex($regex), '') !== false;
+        return @preg_match(self::jsonPatternToPhpRegex($regex), '') !== false;
     }
 
     /**
@@ -347,7 +352,7 @@ class FormatConstraint implements ConstraintInterface
                 return false;
             }
 
-            $ascii = idn_to_ascii($label);
+            $ascii = idn_to_ascii($label, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
             if ($ascii === false) {
                 return false;
             }
@@ -356,7 +361,7 @@ class FormatConstraint implements ConstraintInterface
                 return false;
             }
             // LDH rule (after IDNA)
-            if (!preg_match('/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i', $ascii)) {
+            if (!preg_match('/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\z/i', $ascii)) {
                 return false;
             }
             $asciiLabels[] = $ascii;

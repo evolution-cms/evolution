@@ -31,6 +31,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Seld\JsonLint\ParsingException;
+use Seld\Signal\SignalHandler;
 use Composer\Command;
 use Composer\Composer;
 use Composer\Factory;
@@ -143,6 +144,56 @@ class Application extends BaseApplication
 
     public function doRun(InputInterface $input, OutputInterface $output): int
     {
+        $io = $this->io = new ConsoleIO($input, $output, new HelperSet([
+            new QuestionHelper(),
+        ]));
+        $reportStatus = !Platform::isInputCompletionProcess() && $io->isProgramStatusEnabled();
+        $originalTerminalStatus = Platform::getEnv('COMPOSER_TERMINAL_STATUS');
+        if ($reportStatus) {
+            $io->startProgramStatus();
+        }
+
+        $signalHandler = $reportStatus ? SignalHandler::create(
+            [SignalHandler::SIGINT, SignalHandler::SIGTERM, SignalHandler::SIGHUP],
+            static function (string $signal, SignalHandler $handler) use ($io): void {
+                $io->writeProgramStatus(ProgramStatus::idle());
+                $handler->exitWithLastSignal();
+            }
+        ) : null;
+
+        try {
+            if ($reportStatus) {
+                // This IO keeps its encoders while nested Composer processes inherit disabled reporting.
+                Platform::putEnv('COMPOSER_TERMINAL_STATUS', 'off');
+            }
+            $result = $this->doRunComposer($input, $output, $io);
+            if ($reportStatus) {
+                $io->writeProgramStatus(ProgramStatus::fromExitCode($result));
+            }
+
+            return $result;
+        } catch (\Throwable $e) {
+            if ($reportStatus) {
+                $io->writeProgramStatus(ProgramStatus::error());
+            }
+
+            throw $e;
+        } finally {
+            if ($reportStatus) {
+                if ($originalTerminalStatus === false) {
+                    Platform::clearEnv('COMPOSER_TERMINAL_STATUS');
+                } else {
+                    Platform::putEnv('COMPOSER_TERMINAL_STATUS', $originalTerminalStatus);
+                }
+            }
+            if ($signalHandler !== null) {
+                $signalHandler->unregister();
+            }
+        }
+    }
+
+    private function doRunComposer(InputInterface $input, OutputInterface $output, ConsoleIO $io): int
+    {
         $this->disablePluginsByDefault = $input->hasParameterOption('--no-plugins');
         $this->disableScriptsByDefault = $input->hasParameterOption('--no-scripts');
 
@@ -153,10 +204,6 @@ class Application extends BaseApplication
         if (Platform::getEnv('COMPOSER_TESTS_ARE_RUNNING') !== '1' && (Platform::getEnv('COMPOSER_NO_INTERACTION') || $stdin === false || !Platform::isTty($stdin))) {
             $input->setInteractive(false);
         }
-
-        $io = $this->io = new ConsoleIO($input, $output, new HelperSet([
-            new QuestionHelper(),
-        ]));
 
         // Register error handler again to pass it the IO instance
         ErrorHandler::register($io);
@@ -451,7 +498,7 @@ class Application extends BaseApplication
         try {
             if ($input->hasParameterOption('--profile')) {
                 $startTime = microtime(true);
-                $this->io->enableDebugging($startTime);
+                $io->enableDebugging($startTime);
             }
 
             $result = parent::doRun($input, $output);
@@ -569,12 +616,12 @@ class Application extends BaseApplication
 
         if (Platform::isWindows() && false !== strpos($exception->getMessage(), 'The system cannot find the path specified')) {
             $io->writeError('<error>The following exception may be caused by a stale entry in your cmd.exe AutoRun</error>', true, IOInterface::QUIET);
-            $io->writeError('<error>Check https://getcomposer.org/doc/articles/troubleshooting.md#-the-system-cannot-find-the-path-specified-windows- for details</error>', true, IOInterface::QUIET);
+            $io->writeError('<error>Check https://getcomposer.org/doc/articles/troubleshooting.md#the-system-cannot-find-the-path-specified-windows for details</error>', true, IOInterface::QUIET);
         }
 
         if (false !== strpos($exception->getMessage(), 'fork failed - Cannot allocate memory')) {
             $io->writeError('<error>The following exception is caused by a lack of memory or swap, or not having swap configured</error>', true, IOInterface::QUIET);
-            $io->writeError('<error>Check https://getcomposer.org/doc/articles/troubleshooting.md#proc-open-fork-failed-errors for details</error>', true, IOInterface::QUIET);
+            $io->writeError('<error>Check https://getcomposer.org/doc/articles/troubleshooting.md#proc_open-fork-failed-errors for details</error>', true, IOInterface::QUIET);
         }
 
         if ($exception instanceof ProcessTimedOutException) {
@@ -631,6 +678,9 @@ class Application extends BaseApplication
                 if ($required) {
                     $this->io->writeError($e->getMessage());
                     if ($this->areExceptionsCaught()) {
+                        if ($this->io instanceof ConsoleIO && !Platform::isInputCompletionProcess()) {
+                            $this->io->writeProgramStatus(ProgramStatus::error());
+                        }
                         exit(1);
                     }
                     throw $e;

@@ -7,8 +7,7 @@
 
 namespace Tracy;
 
-use function array_pop, array_shift, array_unshift, count, explode, floor, implode, max, min, preg_replace, preg_replace_callback, rtrim, sprintf, str_replace, strip_tags, strlen, strtr;
-use const T_CLASS_C, T_CLOSE_TAG, T_COMMENT, T_CONSTANT_ENCAPSED_STRING, T_DIR, T_DNUMBER, T_DOC_COMMENT, T_ENCAPSED_AND_WHITESPACE, T_FILE, T_FUNC_C, T_INLINE_HTML, T_LINE, T_LNUMBER, T_METHOD_C, T_NAME_FULLY_QUALIFIED, T_NAME_QUALIFIED, T_NAME_RELATIVE, T_NS_C, T_OPEN_TAG, T_OPEN_TAG_WITH_ECHO, T_STRING, T_TRAIT_C, T_VARIABLE, T_WHITESPACE;
+use function count, strlen;
 
 
 /** @internal */
@@ -87,7 +86,7 @@ final class CodeHighlighter
 		$code = str_replace("\r\n", "\n", $code);
 		$code = preg_replace('#(__halt_compiler\s*\(\)\s*;).*#is', '$1', $code);
 		$code = rtrim($code);
-		$code = preg_replace('#/\*sensitive\{\*/.*?/\*}\*/#s', Dumper\Describer::HiddenValue, $code);
+		$code = self::hideSensitive($code);
 
 		$last = $out = '';
 		foreach (\PhpToken::tokenize($code) as $token) {
@@ -118,6 +117,19 @@ final class CodeHighlighter
 			$out .= '</span>';
 		}
 		return $out;
+	}
+
+
+	/**
+	 * Replaces sensitive regions with a placeholder, keeping the line numbering intact.
+	 */
+	public static function hideSensitive(string $code): string
+	{
+		return preg_replace_callback(
+			'#/\*sensitive\{\*/.*?/\*}\*/#s',
+			fn($m) => Dumper\Describer::HiddenValue . str_repeat("\n", substr_count($m[0], "\n")),
+			$code,
+		);
 	}
 
 
