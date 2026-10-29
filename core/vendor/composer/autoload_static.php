@@ -2123,6 +2123,7 @@ class ComposerStaticInit925fea465a58fa69f06ccf2629003e87
         'EvolutionCMS\\Support\\MailTestMailer' => __DIR__ . '/../..' . '/src/Support/MailTestMailer.php',
         'EvolutionCMS\\Support\\MailTestSmtp' => __DIR__ . '/../..' . '/src/Support/MailTestSmtp.php',
         'EvolutionCMS\\Support\\MakeTable' => __DIR__ . '/../..' . '/src/Support/MakeTable.php',
+        'EvolutionCMS\\Support\\ManagerLanguage' => __DIR__ . '/../..' . '/src/Support/ManagerLanguage.php',
         'EvolutionCMS\\Support\\ManagerReferer' => __DIR__ . '/../..' . '/src/Support/ManagerReferer.php',
         'EvolutionCMS\\Support\\Menu' => __DIR__ . '/../..' . '/src/Support/Menu.php',
         'EvolutionCMS\\Support\\ModuleAccess' => __DIR__ . '/../..' . '/src/Support/ModuleAccess.php',

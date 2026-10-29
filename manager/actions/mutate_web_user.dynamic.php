@@ -741,18 +741,14 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                         <td><select name="manager_language" class="inputBox" onChange="documentDirty=true">
                                 <option value=""></option>
                                 <?php
-                                $activelang = !empty($usersettings['manager_language']) ? $usersettings['manager_language'] : '';
-                                $dir = dir(EVO_CORE_PATH . 'lang');
-                                while ($file = $dir->read()) {
-                                    if(is_dir(EVO_CORE_PATH.'lang/'.$file) && ($file != '.' && $file != '..')) {
-                                        $selectedtext = $file == $activelang ? "selected='selected'" : "";
-                                        ?>
-                                        <option value="<?php echo $modx->getPhpCompat()->htmlspecialchars($file); ?>" <?php echo $selectedtext; ?>><?php echo ucwords(str_replace("_", " ", $file)); ?></option>
-                                        <?php
-                                    }
+                                // a deleted locale shows as English, the language the manager falls back to
+                                $activelang = !empty($usersettings['manager_language']) ? \EvolutionCMS\Support\ManagerLanguage::resolve($usersettings['manager_language']) : '';
+                                foreach (\EvolutionCMS\Support\ManagerLanguage::available() as $file) {
+                                    $selectedtext = $file == $activelang ? "selected='selected'" : "";
+                                    ?>
+                                    <option value="<?php echo $modx->getPhpCompat()->htmlspecialchars($file); ?>" <?php echo $selectedtext; ?>><?php echo ucwords(str_replace("_", " ", $file)); ?></option>
+                                    <?php
                                 }
-
-                                $dir->close();
                                 ?>
                             </select></td>
                     </tr>

@@ -3,6 +3,7 @@
 use EvolutionCMS\Interfaces\ManagerTheme;
 use EvolutionCMS\Legacy;
 use EvolutionCMS\Models;
+use EvolutionCMS\Support\ManagerLanguage;
 use EvolutionCMS\Support\SiteTimezone;
 use function extension_loaded;
 use function is_array;
@@ -130,16 +131,9 @@ class SystemSettings extends AbstractController implements ManagerTheme\PageCont
      */
     protected function parameterLang(): array
     {
-        $lang_keys_select = [];
-        $dir = dir(EVO_CORE_PATH . 'lang');
-        while ($file = $dir->read()) {
-            if (is_dir(EVO_CORE_PATH . 'lang/' . $file) && ($file != '.' && $file != '..')) {
-                $lang_keys_select[$file] = $file;
-            }
-        }
-        $dir->close();
+        $locales = ManagerLanguage::available();
 
-        return $lang_keys_select;
+        return array_combine($locales, $locales);
     }
 
     /**
@@ -251,6 +245,10 @@ class SystemSettings extends AbstractController implements ManagerTheme\PageCont
         if (!array_key_exists((string) get_by_key($out, 'pwd_hash_algo'), $this->parameterPasswordHash())) {
             $out['pwd_hash_algo'] = Legacy\PasswordHash::ALGO_BCRYPT;
         }
+
+        // A deleted locale is shown as English, the language the manager falls back to,
+        // rather than as whichever locale the select happens to list first.
+        $out['manager_language'] = ManagerLanguage::resolve($out['manager_language'] ?? null);
 
         $out['filemanager_path'] = str_replace(
             EVO_BASE_PATH,

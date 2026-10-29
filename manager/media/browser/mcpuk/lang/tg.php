@@ -1,0 +1,21 @@
+<?php
+/**
+ * Evolution CMS tg.php language file
+ *
+ * @author Evolution CMS Team
+ * @version 3.5.x
+ * @date 2026-10-29 20:30:13
+ *
+ * @language Tajik
+ * @package Evolution CMS
+ * @subpackage manager
+ * Please commit your language changes here: https://github.com/evolution-cms/evolution
+ */
+
+$lang = array(
+    '_locale' => "tg_TJ.UTF-8",
+    '_charset' => "utf-8",
+    '_dateTimeFull' => "%A, %B %e, %Y %I:%M %p",
+    '_dateTimeMid' => "%a %b %e %Y %I:%M %p",
+    '_dateTimeSmall' => "%m/%d/%Y %I:%M %p",
+);

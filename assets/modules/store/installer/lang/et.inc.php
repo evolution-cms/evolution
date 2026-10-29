@@ -1,0 +1,195 @@
+<?php
+/**
+ * Evolution CMS et.inc.php language file
+ *
+ * @author Evolution CMS Team
+ * @version 3.5.x
+ * @date 2026-10-29 20:30:13
+ *
+ * @language Estonian
+ * @package Evolution CMS
+ * @subpackage assets
+ * Please commit your language changes here: https://github.com/evolution-cms/evolution
+ */
+
+$_lang["agree_to_terms"] = 'Nõustu litsentsitingimustega ja paigalda';
+$_lang["alert_database_test_connection"] = 'Peate looma andmebaasi või kontrollima valitud andmebaasi!';
+$_lang["alert_database_test_connection_failed"] = 'Valitud andmebaasi kontroll ebaõnnestus!';
+$_lang["alert_enter_adminconfirm"] = 'Administraatori parool ja selle kinnitus ei ühti!';
+$_lang["alert_enter_adminlogin"] = 'Peate sisestama süsteemi administraatori konto kasutajanime!';
+$_lang["alert_enter_adminpassword"] = 'Peate sisestama süsteemi administraatori konto parooli!';
+$_lang["alert_enter_database_name"] = 'Peate sisestama andmebaasi nime!';
+$_lang["alert_enter_host"] = 'Peate sisestama andmebaasi serveri!';
+$_lang["alert_enter_login"] = 'Peate sisestama andmebaasi kasutajanime!';
+$_lang["alert_server_test_connection"] = 'Peate kontrollima ühendust serveriga!';
+$_lang["alert_server_test_connection_failed"] = 'Serveriühenduse kontroll ebaõnnestus!';
+$_lang["alert_table_prefixes"] = 'Tabelite eesliited peavad algama tähega!';
+$_lang["all"] = 'Kõik';
+$_lang["and_try_again"] = ', ja proovige uuesti. Kui vajate abi probleemi lahendamisel';
+$_lang["and_try_again_plural"] = ', ja proovige uuesti. Kui vajate abi probleemide lahendamisel';
+$_lang["begin"] = 'Alusta';
+$_lang["btnback_value"] = 'Tagasi';
+$_lang["btnclose_value"] = 'Sulge';
+$_lang["btnnext_value"] = 'Edasi';
+$_lang["cant_write_config_file"] = 'Evolution CMS ei saanud seadistusfaili kirjutada. Kopeerige järgmine sisu faili ';
+$_lang["cant_write_config_file_note"] = 'Seejärel saate Evolution CMS-i haldusesse sisse logida, avades brauseris aadressi YourSiteName.com/manager/.';
+$_lang["checkbox_select_options"] = 'Märkeruutude valikud:';
+$_lang["checking_if_cache_exist"] = 'Kontrollitakse kataloogide <span class="mono">/assets/cache</span> ja <span class="mono">/assets/cache/rss</span> olemasolu: ';
+$_lang["checking_if_cache_file_writable"] = 'Kontrollitakse faili <span class="mono">/assets/cache/siteCache.idx.php</span> kirjutusõigust: ';
+$_lang["checking_if_cache_file2_writable"] = 'Kontrollitakse faili <span class="mono">/assets/cache/sitePublishing.idx.php</span> kirjutusõigust: ';
+$_lang["checking_if_cache_writable"] = 'Kontrollitakse kataloogide <span class="mono">/assets/cache</span> ja <span class="mono">/assets/cache/rss</span> kirjutusõigust: ';
+$_lang["checking_if_config_exist_and_writable"] = 'Kontrollitakse faili <span class="mono">'.MGR_DIR.'/includes/config.inc.php</span> olemasolu ja kirjutusõigust: ';
+$_lang["checking_if_export_exists"] = 'Kontrollitakse kataloogi <span class="mono">/assets/export</span> olemasolu: ';
+$_lang["checking_if_export_writable"] = 'Kontrollitakse kataloogi <span class="mono">/assets/export</span> kirjutusõigust: ';
+$_lang["checking_if_images_exist"] = 'Kontrollitakse kataloogide <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> ja <span class="mono">/assets/media</span> olemasolu: ';
+$_lang["checking_if_images_writable"] = 'Kontrollitakse kataloogide <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> ja <span class="mono">/assets/media</span> kirjutusõigust: ';
+$_lang["checking_mysql_strict_mode"] = 'Kontrollitakse MySQL-i ranget sql_mode režiimi: ';
+$_lang["checking_mysql_version"] = 'Kontrollitakse MySQL-i versiooni: ';
+$_lang["checking_php_version"] = 'Kontrollitakse PHP versiooni: ';
+$_lang["checking_registerglobals"] = 'Kontrollitakse, kas Register_Globals on välja lülitatud: ';
+$_lang["checking_registerglobals_note"] = 'See seadistus muudab teie saidi tunduvalt vastuvõtlikumaks saidiülese skriptimise (XSS) rünnakutele. Paluge majutusteenuse pakkujal see seadistus välja lülitada. Tavaliselt saab seda teha kolmel viisil: muuta üldist php.ini faili, lisada reeglid Evolution CMS-i paigalduse juurkataloogi .htaccess faili või lisada igasse paigalduse kataloogi kohandatud php.ini fail (neid katalooge on palju). Saate Evolution CMS-i siiski paigaldada, kuid arvestage selle hoiatusega.'; //Look at changing this to provide a solution.
+$_lang["checking_sessions"] = 'Kontrollitakse, kas seansid on õigesti seadistatud: ';
+$_lang["checking_table_prefix"] = 'Kontrollitakse tabeli eesliidet `';
+$_lang["chunks"] = 'HTML-plokid';
+$_lang["config_permissions_note"] = 'Uue Linuxi/Unixi paigalduse korral looge kataloogi <span class="mono">/manager/includes/</span> tühi fail nimega <span class="mono">config.inc.php</span> ja määrake selle õigusteks 0666.';
+$_lang["connection_screen_collation"] = 'Sortimisjärjestus:';
+$_lang["connection_screen_database_connection_information"] = 'Andmebaasi andmed';
+$_lang["connection_screen_database_connection_note"] = 'Sisestage selle Evolution CMS-i paigalduse jaoks kasutatava või loodava andmebaasi nimi. Kui andmebaasi pole olemas, proovib paigaldaja selle luua. See võib MySQL-i kasutaja õigustest sõltuvalt ebaõnnestuda.';
+$_lang["connection_screen_database_host"] = 'Andmebaasi server:';
+$_lang["connection_screen_database_info"] = 'Andmebaasi andmed';
+$_lang["connection_screen_database_login"] = 'Andmebaasi kasutajanimi:';
+$_lang["connection_screen_database_name"] = 'Andmebaasi nimi:';
+$_lang["connection_screen_database_pass"] = 'Andmebaasi parool:';
+$_lang["connection_screen_database_test_connection"] = 'Loo andmebaas või kontrolli valitud andmebaasi.';
+$_lang["connection_screen_default_admin_email"] = 'Administraatori e-post:';
+$_lang["connection_screen_default_admin_login"] = 'Administraatori kasutajanimi:';
+$_lang["connection_screen_default_admin_note"] = 'Nüüd sisestage peamise administraatori konto andmed. Võite sisestada oma nime ja parooli, mida te tõenäoliselt ei unusta. Neid on vaja pärast paigaldamise lõppu haldusesse sisselogimiseks.';
+$_lang["connection_screen_default_admin_password"] = 'Administraatori parool:';
+$_lang["connection_screen_default_admin_password_confirm"] = 'Kinnita parool:';
+$_lang["connection_screen_default_admin_user"] = 'Vaikimisi administraator';
+$_lang["connection_screen_defaults"] = 'Halduse vaikeseaded';
+$_lang["connection_screen_server_connection_information"] = 'Serveriühenduse ja sisselogimise andmed';
+$_lang["connection_screen_server_connection_note"] = 'Enne ühenduse kontrollimist sisestage andmebaasi server (serveri nimi või IP-aadress), kasutajanimi ja parool.';
+$_lang["connection_screen_server_test_connection"] = 'Kontrolli ühendust andmebaasiserveriga ja vaata sortimisjärjestusi.';
+$_lang["connection_screen_table_prefix"] = 'Tabeli eesliide:';
+$_lang["creating_database_connection"] = 'Luuakse ühendust andmebaasiga: ';
+$_lang["database_alerts"] = 'Andmebaasi hoiatused!';
+$_lang["database_connection_failed"] = 'Ühendus andmebaasiga ebaõnnestus!';
+$_lang["database_connection_failed_note"] = 'Kontrollige andmebaasi sisselogimisandmeid ja proovige uuesti.';
+$_lang["database_use_failed"] = 'Andmebaasi ei saanud valida!';
+$_lang["database_use_failed_note"] = 'Kontrollige määratud kasutaja andmebaasiõigusi ja proovige uuesti.';
+$_lang["default_language"] = 'Halduse vaikekeel';
+$_lang["default_language_description"] = 'See on vaikekeel, mida kasutatakse Evolution CMS-i halduse juhtpaneelis.';
+$_lang["during_execution_of_sql"] = ' SQL-lause täitmisel ';
+$_lang["encoding"] = 'UTF-8';	//charset encoding for html header
+$_lang["error"] = 'viga';
+$_lang["errors"] = 'vead';
+$_lang["failed"] = 'EBAÕNNESTUS!';
+$_lang["help"] = 'Abi!';
+$_lang["help_link"] = 'https://forum.evo.im';
+$_lang["help_title"] = 'Paigaldusabi Evolution CMS-i foorumites';
+$_lang["iagree_box"] = 'Nõustun <a href="../assets/docs/license.txt" target="_blank">Evolution CMS-i litsentsi</a> tingimustega. GPL-i 2. versiooni litsentsi tõlked leiate <a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-translations.html" target="_blank">GNU operatsioonisüsteemi veebisaidilt</a>.';
+$_lang["install"] = 'Paigalda';
+$_lang["install_overwrite"] = 'Paigalda / kirjuta üle';
+$_lang["install_results"] = 'Paigaldamise tulemused';
+$_lang["install_update"] = 'Paigalda / uuenda';
+$_lang["installation_error_occured"] = 'Paigaldamisel ilmnesid järgmised vead';
+$_lang["installation_install_new_copy"] = 'Paigalda uus koopia tarkvarast ';
+$_lang["installation_install_new_note"] = 'Pange tähele, et see valik võib kõik teie andmebaasis olevad andmed üle kirjutada.';
+$_lang["installation_mode"] = 'Paigaldusrežiim';
+$_lang["installation_new_installation"] = 'Uus paigaldus';
+$_lang["installation_note"] = '<strong>Märkus:</strong> Pärast haldusesse sisselogimist muutke ja salvestage enne saidi sirvimist süsteemi seadistused, valides Evolution CMS-i halduses <strong>Tööriistad</strong> -> Süsteemi seadistused.';
+$_lang["installation_successful"] = 'Paigaldamine õnnestus!';
+$_lang["installation_upgrade_advanced"] = 'Täpsem uuendamine';
+$_lang["installation_upgrade_advanced_note"] = 'Kogenud andmebaasihalduritele või teistsuguse andmebaasiühenduse märgistikuga serverisse kolimiseks.<br /><b>Peate teadma andmebaasi täielikku nime, kasutajanime, parooli ning ühenduse ja võrdlusjärjestuse üksikasju.</b>';
+$_lang["installation_upgrade_existing"] = 'Olemasoleva paigalduse uuendamine';
+$_lang["installation_upgrade_existing_note"] = 'Uuendage praeguseid faile ja andmebaasi.';
+$_lang["installed"] = 'Paigaldatud';
+$_lang["installing_demo_site"] = 'Näidissaidi paigaldamine: ';
+$_lang["language_code"] = 'et';	// for html element e.g. <html xml:lang="en" lang="en">
+$_lang["loading"] = 'Laadimine...';
+$_lang["modules"] = 'Moodulid';
+$_lang["modx_footer1"] = '&copy; 2004 - 2026 <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> sisuhaldusraamistiku (CMF) projekt. Kõik õigused kaitstud. Evolution CMS on litsentsitud GNU GPL-i alusel.';
+$_lang["modx_footer2"] = 'Evolution CMS on vaba tarkvara.  Julgustame teid olema loomingulised ja kasutama Evolution CMS-i teile sobival viisil. Kui muudate Evolution CMS-i ja otsustate muudetud versiooni levitada, tagage, et lähtekood jääks vabaks!';
+$_lang["modx_install"] = 'Evolution CMS &raquo; Paigaldamine';
+$_lang["modx_requires_php"] = ', ja Evolution CMS vajab PHP versiooni 4.2.0 või uuemat';
+$_lang["mysql_5051"] = ' MySQL-i serveri versioon on 5.0.51!';
+$_lang["mysql_5051_warning"] = 'MySQL-i versioonil 5.0.51 on teadaolevaid probleeme. Enne jätkamist on soovitatav seda uuendada.';
+$_lang["mysql_version_is"] = ' Teie MySQL-i versioon on: ';
+$_lang["no"] = 'Ei';
+$_lang["none"] = 'Puudub';
+$_lang["not_found"] = 'ei leitud';
+$_lang["ok"] = 'OK!';
+$_lang["optional_items"] = 'Valikulised elemendid';
+$_lang["optional_items_note"] = 'Valige paigaldusvalikud ja klõpsake nupul Paigalda:';
+$_lang["php_security_notice"] = '<legend>Turvateade</legend><p>Kuigi Evolution CMS töötab teie PHP versiooniga, ei ole selle versiooni kasutamine soovitatav. Teie PHP versioonil on mitmeid turvaauke. Uuendage PHP versioonile [+min_version+] või uuemale, milles need turvaaugud on parandatud. Veebisaidi turvalisuse huvides on soovitatav sellele versioonile üle minna.</p>';
+$_lang["please_correct_error"] = '. Palun parandage viga';
+$_lang["please_correct_errors"] = '. Palun parandage vead';
+$_lang["plugins"] = 'Pluginad';
+$_lang["preinstall_validation"] = 'Paigalduseelne kontroll';
+$_lang["recommend_setting_change_title"] = 'Soovitatav seadistuse muudatus';
+$_lang["recommend_setting_change_validate_referer_confirmation"] = 'Seadistuse muudatus: <em>Kas kontrollida HTTP_REFERER päiseid?</em>';
+$_lang["recommend_setting_change_validate_referer_description"] = 'Teie sait ei ole seadistatud kontrollima haldusliidesesse saabuvate päringute HTTP_REFERER väärtust. Soovitame tungivalt selle seadistuse lubada, et vähendada CSRF-ründe (saidivahelise päringu võltsimise) ohtu.';
+$_lang["remove_install_folder_auto"] = 'Eemalda minu veebisaidilt paigalduskaust ja -failid <br />&nbsp;(See toiming nõuab paigalduskausta kustutamise õigust).';
+$_lang["remove_install_folder_manual"] = 'Enne sisuhaldusliidesesse sisselogimist eemaldage kindlasti kaust &quot;<b>install</b>&quot;.';
+$_lang["retry"] = 'Proovi uuesti';
+$_lang["running_database_updates"] = 'Andmebaasi uuendamine: ';
+$_lang["sample_web_site"] = 'Näidisveebisait';
+$_lang["sample_web_site_note"] = 'Pange tähele, et see <b>kirjutab üle</b> olemasolevad dokumendid ja ressursid.';
+$_lang["session_problem"] = 'Teie serveri seanssidega tuvastati probleem. Selle lahendamiseks pöörduge serveri administraatori poole.';
+$_lang["session_problem_try_again"] = 'Kas proovida uuesti?';
+$_lang["setup_cannot_continue"] = 'Kahjuks ei saa paigaldus praegu jätkuda eespool kirjeldatud põhjuse tõttu: ';
+$_lang["setup_couldnt_install"] = 'Evolution CMS-i paigaldaja ei saanud valitud andmebaasis mõnda tabelit luua või muuta.';
+$_lang["setup_database"] = 'Paigaldaja proovib nüüd andmebaasi seadistada:<br />';
+$_lang["setup_database_create_connection"] = 'Andmebaasiühenduse loomine: ';
+$_lang["setup_database_create_connection_failed"] = 'Andmebaasiühendus ebaõnnestus!';
+$_lang["setup_database_create_connection_failed_note"] = 'Kontrollige andmebaasi sisselogimisandmeid ja proovige uuesti.';
+$_lang["setup_database_creating_tables"] = 'Andmebaasitabelite loomine: ';
+$_lang["setup_database_creation"] = 'Andmebaasi loomine `';
+$_lang["setup_database_creation_failed"] = 'Andmebaasi loomine ebaõnnestus!';
+$_lang["setup_database_creation_failed_note"] = ' - Paigaldaja ei saanud andmebaasi luua!';
+$_lang["setup_database_creation_failed_note2"] = 'Paigaldaja ei saanud andmebaasi luua ning sama nimega olemasolevat andmebaasi ei leitud. Tõenäoliselt ei luba teie majutusteenuse pakkuja turvareeglid välistel skriptidel andmebaasi luua. Looge andmebaas majutusteenuse pakkuja juhiste järgi ja käivitage paigaldus uuesti.';
+$_lang["setup_database_selection"] = 'Andmebaasi valimine `';
+$_lang["setup_database_selection_failed"] = 'Andmebaasi valimine ebaõnnestus...';
+$_lang["setup_database_selection_failed_note"] = 'Andmebaasi pole olemas. Paigaldaja proovib selle luua.';
+$_lang["snippets"] = 'Koodijupid';
+$_lang["some_tables_not_updated"] = 'Mõnda tabelit ei uuendatud. Selle põhjuseks võivad olla varasemad muudatused.';
+$_lang["status_checking_database"] = 'Andmebaasi kontrollimine: ';
+$_lang["status_connecting"] = ' Ühendus hostiga: ';
+$_lang["status_failed"] = 'ebaõnnestus!';
+$_lang["status_failed_could_not_create_database"] = 'ebaõnnestus - andmebaasi ei saanud luua';
+$_lang["status_failed_database_collation_does_not_match"] = 'ebaõnnestus - andmebaasi võrdlusjärjestus ei sobi; kasutage SET NAMES või valige %s';
+$_lang["status_failed_table_prefix_already_in_use"] = 'ebaõnnestus - tabelite eesliide on juba kasutusel!';
+$_lang["status_passed"] = 'õnnestus - andmebaas valitud';
+$_lang["status_passed_database_created"] = 'õnnestus - andmebaas loodud';
+$_lang["status_passed_server"] = 'õnnestus - võrdlusjärjestused on nüüd saadaval';
+$_lang["strict_mode"] = ' MySQL-i serveri range sql_mode on lubatud!';
+$_lang["strict_mode_error"] = 'Mõned Evolution CMS-i funktsioonid ei pruugi korralikult töötada, kui sql_mode STRICT_TRANS_TABLES ei ole keelatud. MySQL-i režiimi saate muuta failis my.cnf või pöördudes serveri administraatori poole.';
+$_lang["summary_setup_check"] = 'Paigaldaja on teinud mitu kontrolli, et veenduda paigalduse alustamise valmisolekus.';
+$_lang["system_configuration"] = 'Süsteemi seadistus';
+$_lang["system_configuration_validate_referer_description"] = 'Seadistus <strong>Kontrolli HTTP_REFERER päiseid</strong> on soovitatav ja võib kaitsta teie saiti CSRF-rünnete eest, kuid mõne serveri seadistuse korral võib see muuta haldusliidese ligipääsmatuks.';
+$_lang["table_prefix_already_inuse"] = ' - Tabelite eesliide on selles andmebaasis juba kasutusel!';
+$_lang["table_prefix_already_inuse_note"] = 'Paigaldaja ei saanud valitud andmebaasi paigaldada, sest see sisaldab juba määratud eesliitega tabeleid. Valige uus tabelite eesliide ja käivitage paigaldus uuesti.';
+$_lang["table_prefix_not_exist"] = ' - Tabelite eesliidet selles andmebaasis ei ole!';
+$_lang["table_prefix_not_exist_note"] = 'Paigaldaja ei saanud valitud andmebaasi paigaldada, sest see ei sisalda uuendamiseks määratud eesliitega tabeleid. Valige olemasolev tabelite eesliide ja käivitage paigaldus uuesti.';
+$_lang["templates"] = 'Mallid';
+$_lang["to_log_into_content_manager"] = 'Sisuhaldusliidesesse (manager/index.php) sisselogimiseks klõpsake nupul `Sulge`.';
+$_lang["toggle"] = 'Lülita';
+$_lang['tvs'] = 'Mallimuutujad';
+$_lang["unable_install_chunk"] = 'HTML-plokki ei saa paigaldada.  Fail';
+$_lang["unable_install_module"] = 'Moodulit ei saa paigaldada.  Fail';
+$_lang["unable_install_plugin"] = 'Pluginat ei saa paigaldada.  Fail';
+$_lang["unable_install_snippet"] = 'Koodijuppi ei saa paigaldada.  Fail';
+$_lang["unable_install_template"] = 'Malli ei saa paigaldada.  Fail';
+$_lang["upgrade_note"] = '<strong>Märkus:</strong> Enne saidi sirvimist logige haldusliidesesse administraatori kontoga, seejärel vaadake üle ja salvestage süsteemi seadistus.';
+$_lang["upgraded"] = 'Uuendatud';
+$_lang["validate_referer_title"] = 'Kas kontrollida HTTP_REFERER päiseid?';
+$_lang["visit_forum"] = ', külastage <a href="https://forum.evo.im" target="_blank">Evolution CMS-i foorumit</a>.';
+$_lang["warning"] = 'HOIATUS!';
+$_lang["welcome_message_start"] = 'Esmalt valige soovitud paigalduse tüüp:';
+$_lang["welcome_message_text"] = 'See programm juhendab teid ülejäänud paigalduse jooksul.';
+$_lang["welcome_message_welcome"] = 'Tere tulemast Evolution CMS-i paigaldusprogrammi.';
+$_lang["writing_config_file"] = 'Seadistusfaili kirjutamine: ';
+$_lang["yes"] = 'Jah';
+$_lang["you_running_php"] = ' - Kasutate PHP versiooni ';
+?>
