@@ -3,6 +3,14 @@
 Please refer to [UPGRADING](UPGRADING.md) guide for upgrading to a major version.
 
 
+## 7.16.1 - 2026-10-25
+
+### Fixed
+
+- Fix `CookieJar` storing already expired cookies instead of removing the stored cookie
+- Fix `CookieJar` ignoring a same-value cookie that changes its expiry or its `Discard`, `Secure`, or `HttpOnly` flag
+
+
 ## 7.16.0 - 2026-10-18
 
 ### Changed

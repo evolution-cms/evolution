@@ -13,6 +13,8 @@
 namespace Composer\Repository;
 
 use Composer\Downloader\TransportException;
+use Composer\Exception\SecurityException;
+use Composer\Package\BasePackage;
 use Composer\Pcre\Preg;
 use Composer\Repository\Vcs\VcsDriverInterface;
 use Composer\Package\Version\VersionParser;
@@ -70,6 +72,8 @@ class VcsRepository extends ArrayRepository implements ConfigurableRepositoryInt
     private $emptyReferences = [];
     /** @var array<'tags'|'branches', array<string, TransportException>> */
     private $versionTransportExceptions = [];
+    /** @var ?non-empty-string */
+    private $onlyBranchesRegex = null;
 
     /**
      * @param array{url: string, type?: string}&array<string, mixed> $repoConfig
@@ -102,6 +106,14 @@ class VcsRepository extends ArrayRepository implements ConfigurableRepositoryInt
         $this->versionCache = $versionCache;
         $this->httpDownloader = $httpDownloader;
         $this->processExecutor = $process ?? new ProcessExecutor($io);
+
+        if (isset($repoConfig['only-branches'])) {
+            if (!is_array($repoConfig['only-branches']) || count(array_filter($repoConfig['only-branches'], 'is_string')) !== count($repoConfig['only-branches'])) {
+                throw new \InvalidArgumentException('"only-branches" key for repository '.Url::sanitize($this->url).' should be an array of strings');
+            }
+            // branch names are case-sensitive, unlike package names
+            $this->onlyBranchesRegex = BasePackage::packageNamesToRegexp($repoConfig['only-branches'], '{^(?:%s)$}D');
+        }
     }
 
     public function getRepoName()
@@ -206,7 +218,7 @@ class VcsRepository extends ArrayRepository implements ConfigurableRepositoryInt
                 $this->packageName = !empty($data['name']) ? $data['name'] : null;
             }
         } catch (\Exception $e) {
-            if ($e instanceof TransportException && $this->shouldRethrowTransportException($e)) {
+            if ($e instanceof SecurityException || ($e instanceof TransportException && $this->shouldRethrowTransportException($e))) {
                 throw $e;
             }
 
@@ -299,6 +311,9 @@ class VcsRepository extends ArrayRepository implements ConfigurableRepositoryInt
 
                 $this->addPackage($this->loader->load($this->preProcess($driver, $data, $identifier)));
             } catch (\Exception $e) {
+                if ($e instanceof SecurityException) {
+                    throw $e;
+                }
                 if ($e instanceof TransportException) {
                     $this->versionTransportExceptions['tags'][$tag] = $e;
                     if ($e->getCode() === 404) {
@@ -324,6 +339,7 @@ class VcsRepository extends ArrayRepository implements ConfigurableRepositoryInt
         if ($hasRootIdentifierComposerJson && isset($branches[$driver->getRootIdentifier()])) {
             $branches = [$driver->getRootIdentifier() => $branches[$driver->getRootIdentifier()]] + $branches;
         }
+        $branches = $this->filterBranches($branches, $driver->getRootIdentifier());
 
         foreach ($branches as $branch => $identifier) {
             $branch = (string) $branch;
@@ -404,6 +420,9 @@ class VcsRepository extends ArrayRepository implements ConfigurableRepositoryInt
                 }
                 continue;
             } catch (\Exception $e) {
+                if ($e instanceof SecurityException) {
+                    throw $e;
+                }
                 if (!$isVeryVerbose) {
                     $this->io->writeError('');
                 }
@@ -425,7 +444,7 @@ class VcsRepository extends ArrayRepository implements ConfigurableRepositoryInt
     }
 
     /**
-     * @param array{name?: string, dist?: array{type: string, url: string, reference: string, shasum: string}, source?: array{type: string, url: string, reference: string}} $data
+     * @param array{name?: string, published-time?: string, dist?: array{type: string, url: string, reference: string, shasum: string}, source?: array{type: string, url: string, reference: string}} $data
      *
      * @return array{name: string|null, dist: array{type: string, url: string, reference: string, shasum: string}|null, source: array{type: string, url: string, reference: string}}
      */
@@ -436,6 +455,9 @@ class VcsRepository extends ArrayRepository implements ConfigurableRepositoryInt
         // will still be installable using that new name without requiring re-tagging
         $dataPackageName = $data['name'] ?? null;
         $data['name'] = $this->packageName ?: $dataPackageName;
+
+        // only a Composer repository can vouch for a publication date, the package's own composer.json cannot
+        unset($data['published-time']);
 
         if (!isset($data['dist'])) {
             $data['dist'] = $driver->getDist($identifier);
@@ -450,6 +472,35 @@ class VcsRepository extends ArrayRepository implements ConfigurableRepositoryInt
         }
 
         return $data;
+    }
+
+    /**
+     * Restricts the branches to the ones matching the "only-branches" repo config patterns, the default branch is always kept
+     *
+     * @param array<int|string, string> $branches
+     * @return array<int|string, string>
+     */
+    private function filterBranches(array $branches, string $rootIdentifier): array
+    {
+        if (null === $this->onlyBranchesRegex) {
+            return $branches;
+        }
+
+        foreach ($branches as $branch => $identifier) {
+            $branch = (string) $branch;
+            // svn's root identifier is the trunk identifier (e.g. /trunk/@123) and not a branch name
+            if ($branch === $rootIdentifier || $identifier === $rootIdentifier) {
+                continue;
+            }
+            if (!Preg::isMatch($this->onlyBranchesRegex, $branch)) {
+                if ($this->isVeryVerbose) {
+                    $this->io->writeError('<warning>Skipped branch '.$branch.', not matching the only-branches filter</warning>');
+                }
+                unset($branches[$branch]);
+            }
+        }
+
+        return $branches;
     }
 
     /**

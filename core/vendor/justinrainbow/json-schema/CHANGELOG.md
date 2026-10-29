@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [6.14.0] - 2026-10-24
+
+### Added
+- test: Remove JSON Schema Test Suite skips for cases that already pass ([#985](https://github.com/jsonrainbow/json-schema/pull/985))
+- chore: Enforce LF line endings via .gitattributes and .editorconfig ([#980](https://github.com/jsonrainbow/json-schema/pull/980))
+- test: Clean up JSON Schema Test Suite skip list ([#978](https://github.com/jsonrainbow/json-schema/pull/978))
+- feat: support unevaluatedProperties in Draft 2019-09 ([#931](https://github.com/jsonrainbow/json-schema/pull/931))
+- Allow bin/run-test-case to run a complete test file ([#966](https://github.com/jsonrainbow/json-schema/pull/966))
+
+### Fixed
+- Throw on an unresolvable $ref instead of passing silently ([#944](https://github.com/jsonrainbow/json-schema/pull/944))
+- test: Pass file URLs to the Curl retriever tests ([#989](https://github.com/jsonrainbow/json-schema/pull/989))
+- fix: Reject a trailing newline in idn-hostname ([#990](https://github.com/jsonrainbow/json-schema/pull/990))
+- fix: Report Draft-06/07 sub-schema errors at the property and item path ([#967](https://github.com/jsonrainbow/json-schema/pull/967))
+- fix: Report float limits in numeric error messages without casting to int ([#982](https://github.com/jsonrainbow/json-schema/pull/982))
+- fix: Respect CHECK_MODE_DISABLE_FORMAT in Draft-06, Draft-07 and Draft 2019-09 format constraints ([#972](https://github.com/jsonrainbow/json-schema/pull/972))
+- fix: Show the regex instead of the value in the pattern error message ([#974](https://github.com/jsonrainbow/json-schema/pull/974))
+- Apply the same ECMA to PCRE pattern replacements everywhere ([#943](https://github.com/jsonrainbow/json-schema/pull/943))
+- fix: Keep backslash sequences of the install path in package:// translation ([#958](https://github.com/jsonrainbow/json-schema/pull/958))
+- fix: Ignore sibling keywords of $ref in Draft-06 and Draft-07 ([#968](https://github.com/jsonrainbow/json-schema/pull/968))
+- fix: Handle invalid regex patterns from user input ([#969](https://github.com/jsonrainbow/json-schema/pull/969))
+
+### Removed
+- chore: Remove legacy Sphinx docs folder ([#981](https://github.com/jsonrainbow/json-schema/pull/981))
+
+
 ## [6.13.1] - 2026-09-30
 
 ### Fixed

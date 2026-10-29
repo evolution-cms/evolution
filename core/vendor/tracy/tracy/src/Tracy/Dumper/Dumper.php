@@ -9,12 +9,8 @@ namespace Tracy;
 
 use Dom;
 use Ds;
-use Tracy\Dumper\Describer;
-use Tracy\Dumper\Exposer;
-use Tracy\Dumper\Renderer;
+use Tracy\Dumper\{Describer, Exposer, Renderer};
 use Uri;
-use function array_flip, array_map, file_get_contents, fwrite, str_replace;
-use const STDOUT;
 
 
 /**
@@ -105,8 +101,8 @@ class Dumper
 	/** @var array<string, array{bool, string[]}> */
 	private static array $enumProperties = [];
 
-	private Describer $describer;
-	private Renderer $renderer;
+	private readonly Describer $describer;
+	private readonly Renderer $renderer;
 
 
 	/**
