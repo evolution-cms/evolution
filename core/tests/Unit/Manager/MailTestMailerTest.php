@@ -122,7 +122,7 @@ it('provides the HTML test-mail copy in every bundled locale', function () {
     $root = dirname(__DIR__, 4);
     $languageFiles = glob($root . '/core/lang/*/global.php');
 
-    expect($languageFiles)->toHaveCount(29);
+    expect($languageFiles)->toHaveCount(33);
     foreach ($languageFiles as $languageFile) {
         $language = file_get_contents($languageFile);
 

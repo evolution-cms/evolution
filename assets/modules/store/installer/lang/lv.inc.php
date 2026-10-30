@@ -1,0 +1,195 @@
+<?php
+/**
+ * Evolution CMS lv.inc.php language file
+ *
+ * @author Evolution CMS Team
+ * @version 3.5.x
+ * @date 2026-10-29 23:20:04
+ *
+ * @language Latvian
+ * @package Evolution CMS
+ * @subpackage assets
+ * Please commit your language changes here: https://github.com/evolution-cms/evolution
+ */
+
+$_lang["agree_to_terms"] = 'Piekrist licences noteikumiem un instalēt';
+$_lang["alert_database_test_connection"] = 'Jums jāizveido datubāze vai jāpārbauda tās atlase!';
+$_lang["alert_database_test_connection_failed"] = 'Datubāzes atlases pārbaude neizdevās!';
+$_lang["alert_enter_adminconfirm"] = 'Administratora parole un tās apstiprinājums nesakrīt!';
+$_lang["alert_enter_adminlogin"] = 'Jums jāievada sistēmas administratora konta lietotājvārds!';
+$_lang["alert_enter_adminpassword"] = 'Jums jāievada sistēmas administratora konta parole!';
+$_lang["alert_enter_database_name"] = 'Jums jāievada datubāzes nosaukums!';
+$_lang["alert_enter_host"] = 'Jums jāievada datubāzes serveris!';
+$_lang["alert_enter_login"] = 'Jums jāievada datubāzes lietotājvārds!';
+$_lang["alert_server_test_connection"] = 'Jums jāpārbauda savienojums ar serveri!';
+$_lang["alert_server_test_connection_failed"] = 'Savienojuma ar serveri pārbaude neizdevās!';
+$_lang["alert_table_prefixes"] = 'Tabulu prefiksiem jāsākas ar burtu!';
+$_lang["all"] = 'Visi';
+$_lang["and_try_again"] = ', un mēģiniet vēlreiz. Ja nepieciešama palīdzība, lai noskaidrotu, kā atrisināt problēmu';
+$_lang["and_try_again_plural"] = ', un mēģiniet vēlreiz. Ja nepieciešama palīdzība, lai noskaidrotu, kā atrisināt problēmas';
+$_lang["begin"] = 'Sākt';
+$_lang["btnback_value"] = 'Atpakaļ';
+$_lang["btnclose_value"] = 'Aizvērt';
+$_lang["btnnext_value"] = 'Tālāk';
+$_lang["cant_write_config_file"] = 'Evolution CMS nevarēja ierakstīt konfigurācijas failu. Lūdzu, iekopējiet tālāk norādīto saturu failā ';
+$_lang["cant_write_config_file_note"] = 'Pēc tam varēsiet pieteikties Evolution CMS administrācijas panelī, pārlūkā atverot YourSiteName.com/manager/.';
+$_lang["checkbox_select_options"] = 'Izvēles rūtiņu atlases opcijas:';
+$_lang["checking_if_cache_exist"] = 'Pārbauda, vai pastāv katalogi <span class="mono">/assets/cache</span> un <span class="mono">/assets/cache/rss</span>: ';
+$_lang["checking_if_cache_file_writable"] = 'Pārbauda, vai failā <span class="mono">/assets/cache/siteCache.idx.php</span> var rakstīt: ';
+$_lang["checking_if_cache_file2_writable"] = 'Pārbauda, vai failā <span class="mono">/assets/cache/sitePublishing.idx.php</span> var rakstīt: ';
+$_lang["checking_if_cache_writable"] = 'Pārbauda, vai katalogos <span class="mono">/assets/cache</span> un <span class="mono">/assets/cache/rss</span> var rakstīt: ';
+$_lang["checking_if_config_exist_and_writable"] = 'Pārbauda, vai <span class="mono">'.MGR_DIR.'/includes/config.inc.php</span> pastāv un tajā var rakstīt: ';
+$_lang["checking_if_export_exists"] = 'Pārbauda, vai pastāv katalogs <span class="mono">/assets/export</span>: ';
+$_lang["checking_if_export_writable"] = 'Pārbauda, vai katalogā <span class="mono">/assets/export</span> var rakstīt: ';
+$_lang["checking_if_images_exist"] = 'Pārbauda, vai pastāv katalogi <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> un <span class="mono">/assets/media</span>: ';
+$_lang["checking_if_images_writable"] = 'Pārbauda, vai katalogos <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> un <span class="mono">/assets/media</span> var rakstīt: ';
+$_lang["checking_mysql_strict_mode"] = 'Pārbauda MySQL stingro sql_mode režīmu: ';
+$_lang["checking_mysql_version"] = 'Pārbauda MySQL versiju: ';
+$_lang["checking_php_version"] = 'Pārbauda PHP versiju: ';
+$_lang["checking_registerglobals"] = 'Pārbauda, vai Register_Globals ir izslēgts: ';
+$_lang["checking_registerglobals_note"] = 'Šī konfigurācija padara vietni daudz uzņēmīgāku pret Cross Site Scripting (XSS) uzbrukumiem. Sazinieties ar mitināšanas pakalpojuma sniedzēju par šī iestatījuma izslēgšanu. Parasti to var izdarīt vienā no trim veidiem: mainot globālo php.ini failu, pievienojot noteikumus .htaccess failam Evolution CMS instalācijas saknes katalogā vai pievienojot pielāgotus php.ini iestatījumu aizstāšanas failus katrā instalācijas katalogā (un to ir daudz). Evolution CMS joprojām varēsiet instalēt, taču esat brīdināts par risku.'; //Look at changing this to provide a solution.
+$_lang["checking_sessions"] = 'Pārbauda, vai sesijas ir pareizi konfigurētas: ';
+$_lang["checking_table_prefix"] = 'Pārbauda tabulu prefiksu `';
+$_lang["chunks"] = 'Fragmenti';
+$_lang["config_permissions_note"] = 'Jaunām Linux/Unix instalācijām izveidojiet tukšu failu <span class="mono">config.inc.php</span> katalogā <span class="mono">/manager/includes/</span> un iestatiet faila piekļuves tiesības uz 0666.';
+$_lang["connection_screen_collation"] = 'Kārtošanas secība:';
+$_lang["connection_screen_database_connection_information"] = 'Datubāzes informācija';
+$_lang["connection_screen_database_connection_note"] = 'Ievadiet datubāzes nosaukumu, kuru vēlaties izmantot vai izveidot šai Evolution CMS instalācijai. Ja datubāze nepastāv, instalēšanas programma mēģinās to izveidot. Atkarībā no MySQL lietotāja tiesībām tas var neizdoties.';
+$_lang["connection_screen_database_host"] = 'Datubāzes serveris:';
+$_lang["connection_screen_database_info"] = 'Datubāzes informācija';
+$_lang["connection_screen_database_login"] = 'Datubāzes lietotājvārds:';
+$_lang["connection_screen_database_name"] = 'Datubāzes nosaukums:';
+$_lang["connection_screen_database_pass"] = 'Datubāzes parole:';
+$_lang["connection_screen_database_test_connection"] = 'Izveidojiet datubāzi vai pārbaudiet tās atlasi.';
+$_lang["connection_screen_default_admin_email"] = 'Administratora e-pasts:';
+$_lang["connection_screen_default_admin_login"] = 'Administratora lietotājvārds:';
+$_lang["connection_screen_default_admin_note"] = 'Tagad jāievada galvenā administratora konta dati. Šeit varat ievadīt savu vārdu un paroli, kuru neaizmirsīsiet. Tie būs nepieciešami, lai pēc instalēšanas pieteiktos administrācijas panelī.';
+$_lang["connection_screen_default_admin_password"] = 'Administratora parole:';
+$_lang["connection_screen_default_admin_password_confirm"] = 'Apstipriniet paroli:';
+$_lang["connection_screen_default_admin_user"] = 'Noklusējuma administrators';
+$_lang["connection_screen_defaults"] = 'Administrācijas paneļa noklusējuma iestatījumi';
+$_lang["connection_screen_server_connection_information"] = 'Savienojuma ar serveri un pieteikšanās informācija';
+$_lang["connection_screen_server_connection_note"] = 'Pirms savienojuma pārbaudes ievadiet datubāzes serveri (servera nosaukumu vai IP adresi), lietotājvārdu un paroli.';
+$_lang["connection_screen_server_test_connection"] = 'Pārbaudiet savienojumu ar datubāzes serveri un skatiet kārtošanas secības.';
+$_lang["connection_screen_table_prefix"] = 'Tabulu prefikss:';
+$_lang["creating_database_connection"] = 'Veido savienojumu ar datubāzi: ';
+$_lang["database_alerts"] = 'Datubāzes brīdinājumi!';
+$_lang["database_connection_failed"] = 'Savienojums ar datubāzi neizdevās!';
+$_lang["database_connection_failed_note"] = 'Pārbaudiet datubāzes pieteikšanās datus un mēģiniet vēlreiz.';
+$_lang["database_use_failed"] = 'Neizdevās atlasīt datubāzi!';
+$_lang["database_use_failed_note"] = 'Pārbaudiet norādītā lietotāja datubāzes tiesības un mēģiniet vēlreiz.';
+$_lang["default_language"] = 'Administrācijas paneļa noklusējuma valoda';
+$_lang["default_language_description"] = 'Šī ir noklusējuma valoda, kas tiks izmantota Evolution CMS administrācijas panelī.';
+$_lang["during_execution_of_sql"] = ' izpildot SQL priekšrakstu ';
+$_lang["encoding"] = 'UTF-8';	//charset encoding for html header
+$_lang["error"] = 'kļūda';
+$_lang["errors"] = 'kļūdas';
+$_lang["failed"] = 'NEIZDEVĀS!';
+$_lang["help"] = 'Palīdzība!';
+$_lang["help_link"] = 'https://forum.evo.im';
+$_lang["help_title"] = 'Palīdzība instalēšanā Evolution CMS forumos';
+$_lang["iagree_box"] = 'Es piekrītu <a href="../assets/docs/license.txt" target="_blank">Evolution CMS licences</a> noteikumiem. GPL 2. versijas licences tulkojumus skatiet <a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-translations.html" target="_blank">GNU operētājsistēmas vietnē</a>.';
+$_lang["install"] = 'Instalēt';
+$_lang["install_overwrite"] = 'Instalēt/Pārrakstīt';
+$_lang["install_results"] = 'Instalēšanas rezultāti';
+$_lang["install_update"] = 'Instalēt/Atjaunināt';
+$_lang["installation_error_occured"] = 'Instalēšanas laikā radās šādas kļūdas';
+$_lang["installation_install_new_copy"] = 'Instalēt jaunu kopiju: ';
+$_lang["installation_install_new_note"] = 'Ņemiet vērā: šī opcija var pārrakstīt jebkurus jūsu datubāzes datus.';
+$_lang["installation_mode"] = 'Instalēšanas režīms';
+$_lang["installation_new_installation"] = 'Jauna instalācija';
+$_lang["installation_note"] = '<strong>Piezīme:</strong> Pēc pieteikšanās pārvaldības panelī pirms vietnes pārlūkošanas rediģējiet un saglabājiet sistēmas konfigurācijas iestatījumus, Evolution CMS pārvaldības panelī izvēloties <strong>Rīki</strong> -> Sistēmas konfigurācija.';
+$_lang["installation_successful"] = 'Instalēšana veiksmīgi pabeigta!';
+$_lang["installation_upgrade_advanced"] = 'Papildu jaunināšana';
+$_lang["installation_upgrade_advanced_note"] = 'Pieredzējušiem datubāzu administratoriem vai pārvietošanai uz serveri ar atšķirīgu datubāzes savienojuma rakstzīmju kopu.<br /><b>Jums jāzina pilns datubāzes nosaukums, lietotājs, parole un savienojuma un kārtošanas informācija.</b>';
+$_lang["installation_upgrade_existing"] = 'Jaunināt esošo instalāciju';
+$_lang["installation_upgrade_existing_note"] = 'Jauniniet pašreizējos failus un datubāzi.';
+$_lang["installed"] = 'Instalēts';
+$_lang["installing_demo_site"] = 'Tiek instalēta demonstrācijas vietne: ';
+$_lang["language_code"] = 'lv';	// for html element e.g. <html xml:lang="en" lang="en">
+$_lang["loading"] = 'Notiek ielāde...';
+$_lang["modules"] = 'Moduļi';
+$_lang["modx_footer1"] = '&copy; 2004 - 2026 satura pārvaldības platformas (CMF) <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> projekts. Visas tiesības aizsargātas. Evolution CMS tiek izplatīta ar GNU GPL licenci.';
+$_lang["modx_footer2"] = 'Evolution CMS ir brīvā programmatūra.  Aicinām jūs būt radošiem un izmantot Evolution CMS jebkādā jums piemērotā veidā. Ja veicat izmaiņas un nolemjat izplatīt savu mainīto Evolution CMS versiju, gādājiet, lai pirmkods paliktu brīvs!';
+$_lang["modx_install"] = 'Evolution CMS &raquo; Instalēšana';
+$_lang["modx_requires_php"] = ', un Evolution CMS nepieciešama PHP 4.2.0 vai jaunāka versija';
+$_lang["mysql_5051"] = ' MySQL servera versija ir 5.0.51!';
+$_lang["mysql_5051_warning"] = 'MySQL 5.0.51 versijai ir zināmas problēmas. Pirms turpināšanas ieteicams to jaunināt.';
+$_lang["mysql_version_is"] = ' Jūsu MySQL versija: ';
+$_lang["no"] = 'Nē';
+$_lang["none"] = 'Nav';
+$_lang["not_found"] = 'nav atrasts';
+$_lang["ok"] = 'Labi!';
+$_lang["optional_items"] = 'Neobligātie elementi';
+$_lang["optional_items_note"] = 'Izvēlieties instalēšanas opcijas un noklikšķiniet uz Instalēt:';
+$_lang["php_security_notice"] = '<legend>Drošības paziņojums</legend><p>Lai gan Evolution CMS darbosies ar jūsu PHP versiju, tās izmantošana ar šo versiju nav ieteicama. Jūsu PHP versijā ir daudz drošības ievainojamību. Jauniniet uz PHP [+min_version+] vai jaunāku versiju, kurā šīs ievainojamības ir novērstas. Jaunināšana ir ieteicama jūsu vietnes drošībai.</p>';
+$_lang["please_correct_error"] = '. Izlabojiet kļūdu';
+$_lang["please_correct_errors"] = '. Izlabojiet kļūdas';
+$_lang["plugins"] = 'Spraudņi';
+$_lang["preinstall_validation"] = 'Pārbaude pirms instalēšanas';
+$_lang["recommend_setting_change_title"] = 'Ieteicamā iestatījuma maiņa';
+$_lang["recommend_setting_change_validate_referer_confirmation"] = 'Iestatījuma maiņa: <em>Pārbaudīt HTTP_REFERER galvenes?</em>';
+$_lang["recommend_setting_change_validate_referer_description"] = 'Jūsu vietne nav konfigurēta pārvaldības panelī ienākošo pieprasījumu HTTP_REFERER pārbaudei. Stingri iesakām ieslēgt šo iestatījumu, lai mazinātu CSRF (starpvietņu pieprasījumu viltošanas) uzbrukuma risku.';
+$_lang["remove_install_folder_auto"] = 'Noņemt instalēšanas mapi un failus no manas vietnes <br />&nbsp;(Šai darbībai nepieciešama atļauja dzēst instalēšanas mapi).';
+$_lang["remove_install_folder_manual"] = 'Pirms pieteikšanās satura pārvaldības panelī neaizmirstiet noņemt mapi &quot;<b>install</b>&quot;.';
+$_lang["retry"] = 'Mēģināt vēlreiz';
+$_lang["running_database_updates"] = 'Tiek veikta datubāzes atjaunināšana: ';
+$_lang["sample_web_site"] = 'Vietnes paraugs';
+$_lang["sample_web_site_note"] = 'Ņemiet vērā, ka esošie dokumenti un resursi tiks <b>pārrakstīti</b>.';
+$_lang["session_problem"] = 'Konstatēta problēma ar servera sesijām. Sazinieties ar servera administratoru, lai to novērstu.';
+$_lang["session_problem_try_again"] = 'Mēģināt vēlreiz?';
+$_lang["setup_cannot_continue"] = 'Diemžēl iepriekš minētā dēļ instalēšanu pašlaik nevar turpināt ';
+$_lang["setup_couldnt_install"] = 'Evolution CMS instalēšanas programma nevarēja instalēt vai mainīt dažas atlasītās datubāzes tabulas.';
+$_lang["setup_database"] = 'Instalēšanas programma tagad mēģinās sagatavot datubāzi:<br />';
+$_lang["setup_database_create_connection"] = 'Tiek veidots savienojums ar datubāzi: ';
+$_lang["setup_database_create_connection_failed"] = 'Neizdevās izveidot savienojumu ar datubāzi!';
+$_lang["setup_database_create_connection_failed_note"] = 'Pārbaudiet datubāzes pieteikšanās datus un mēģiniet vēlreiz.';
+$_lang["setup_database_creating_tables"] = 'Tiek veidotas datubāzes tabulas: ';
+$_lang["setup_database_creation"] = 'Tiek veidota datubāze `';
+$_lang["setup_database_creation_failed"] = 'Neizdevās izveidot datubāzi!';
+$_lang["setup_database_creation_failed_note"] = ' - Instalēšanas programma nevarēja izveidot datubāzi!';
+$_lang["setup_database_creation_failed_note2"] = 'Instalēšanas programma nevarēja izveidot datubāzi, un esoša datubāze ar tādu pašu nosaukumu netika atrasta. Iespējams, jūsu mitināšanas pakalpojumu sniedzēja drošības noteikumi neļauj ārējiem skriptiem izveidot datubāzi. Izveidojiet datubāzi atbilstoši mitināšanas pakalpojumu sniedzēja norādījumiem un palaidiet instalēšanas programmu vēlreiz.';
+$_lang["setup_database_selection"] = 'Tiek atlasīta datubāze `';
+$_lang["setup_database_selection_failed"] = 'Neizdevās atlasīt datubāzi...';
+$_lang["setup_database_selection_failed_note"] = 'Datubāze nepastāv. Instalēšanas programma mēģinās to izveidot.';
+$_lang["snippets"] = 'Koda fragmenti';
+$_lang["some_tables_not_updated"] = 'Dažas tabulas netika atjauninātas. Tas var būt saistīts ar iepriekš veiktām izmaiņām.';
+$_lang["status_checking_database"] = 'Tiek pārbaudīta datubāze: ';
+$_lang["status_connecting"] = ' Savienojums ar resursdatoru: ';
+$_lang["status_failed"] = 'neizdevās!';
+$_lang["status_failed_could_not_create_database"] = 'neizdevās - datubāzi nevarēja izveidot';
+$_lang["status_failed_database_collation_does_not_match"] = 'neizdevās - datubāzes kārtošanas iestatījumi neatbilst; izmantojiet SET NAMES vai izvēlieties %s';
+$_lang["status_failed_table_prefix_already_in_use"] = 'neizdevās - tabulu prefikss jau tiek izmantots!';
+$_lang["status_passed"] = 'izdevās - datubāze atlasīta';
+$_lang["status_passed_database_created"] = 'izdevās - datubāze izveidota';
+$_lang["status_passed_server"] = 'izdevās - kārtošanas iestatījumi tagad ir pieejami';
+$_lang["strict_mode"] = ' MySQL servera stingrais sql_mode režīms ir ieslēgts!';
+$_lang["strict_mode_error"] = 'Dažas Evolution CMS funkcijas var darboties nepareizi, ja nav izslēgts STRICT_TRANS_TABLES sql_mode režīms. MySQL režīmu varat iestatīt, rediģējot my.cnf failu, vai sazināties ar servera administratoru.';
+$_lang["summary_setup_check"] = 'Instalēšanas programma veica vairākas pārbaudes, lai noteiktu, vai viss ir gatavs instalēšanas sākšanai.';
+$_lang["system_configuration"] = 'Sistēmas konfigurācija';
+$_lang["system_configuration_validate_referer_description"] = 'Iestatījums <strong>Pārbaudīt HTTP_REFERER galvenes</strong> ir ieteicams un var pasargāt jūsu vietni no CSRF uzbrukumiem, taču dažās servera konfigurācijās tas var padarīt pārvaldības paneli nepieejamu.';
+$_lang["table_prefix_already_inuse"] = ' - Šis tabulu prefikss šajā datubāzē jau tiek izmantots!';
+$_lang["table_prefix_already_inuse_note"] = 'Instalēšanas programma nevarēja veikt instalēšanu atlasītajā datubāzē, jo tajā jau ir tabulas ar jūsu norādīto prefiksu. Izvēlieties jaunu tabulu prefiksu un palaidiet instalēšanas programmu vēlreiz.';
+$_lang["table_prefix_not_exist"] = ' - Šāds tabulu prefikss šajā datubāzē nepastāv!';
+$_lang["table_prefix_not_exist_note"] = 'Instalēšanas programma nevarēja veikt instalēšanu atlasītajā datubāzē, jo tajā nav atjaunināmo tabulu ar jūsu norādīto prefiksu. Izvēlieties esošu tabulu prefiksu un palaidiet instalēšanas programmu vēlreiz.';
+$_lang["templates"] = 'Veidnes';
+$_lang["to_log_into_content_manager"] = 'Lai pieteiktos satura pārvaldības panelī (manager/index.php), varat noklikšķināt uz pogas `Aizvērt`.';
+$_lang["toggle"] = 'Pārslēgt';
+$_lang['tvs'] = 'Veidnes mainīgie';
+$_lang["unable_install_chunk"] = 'Nevar instalēt HTML fragmentu.  Fails';
+$_lang["unable_install_module"] = 'Nevar instalēt moduli.  Fails';
+$_lang["unable_install_plugin"] = 'Nevar instalēt spraudni.  Fails';
+$_lang["unable_install_snippet"] = 'Nevar instalēt koda fragmentu.  Fails';
+$_lang["unable_install_template"] = 'Nevar instalēt veidni.  Fails';
+$_lang["upgrade_note"] = '<strong>Piezīme:</strong> Pirms vietnes pārlūkošanas piesakieties pārvaldības panelī ar administratora kontu, tad pārskatiet un saglabājiet sistēmas konfigurācijas iestatījumus.';
+$_lang["upgraded"] = 'Jaunināts';
+$_lang["validate_referer_title"] = 'Pārbaudīt HTTP_REFERER galvenes?';
+$_lang["visit_forum"] = ', apmeklējiet <a href="https://forum.evo.im" target="_blank">Evolution CMS forumus</a>.';
+$_lang["warning"] = 'BRĪDINĀJUMS!';
+$_lang["welcome_message_start"] = 'Vispirms izvēlieties veicamās instalēšanas veidu:';
+$_lang["welcome_message_text"] = 'Šī programma palīdzēs veikt pārējās instalēšanas darbības.';
+$_lang["welcome_message_welcome"] = 'Laipni lūdzam Evolution CMS instalēšanas programmā.';
+$_lang["writing_config_file"] = 'Tiek rakstīts konfigurācijas fails: ';
+$_lang["yes"] = 'Jā';
+$_lang["you_running_php"] = ' - Jūs izmantojat PHP ';
+?>

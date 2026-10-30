@@ -1,0 +1,195 @@
+<?php
+/**
+ * Evolution CMS uz.inc.php language file
+ *
+ * @author Evolution CMS Team
+ * @version 3.5.x
+ * @date 2026-10-29 23:20:04
+ *
+ * @language Uzbek
+ * @package Evolution CMS
+ * @subpackage assets
+ * Please commit your language changes here: https://github.com/evolution-cms/evolution
+ */
+
+$_lang["agree_to_terms"] = 'Litsenziya shartlariga rozilik bildirish va o‘rnatish';
+$_lang["alert_database_test_connection"] = 'Ma’lumotlar bazasini yaratishingiz yoki uning tanlanishini tekshirishingiz kerak!';
+$_lang["alert_database_test_connection_failed"] = 'Ma’lumotlar bazasi tanlanishini tekshirish muvaffaqiyatsiz tugadi!';
+$_lang["alert_enter_adminconfirm"] = 'Administrator paroli va uning tasdig‘i mos kelmaydi!';
+$_lang["alert_enter_adminlogin"] = 'Tizim administratori hisobi uchun foydalanuvchi nomini kiritishingiz kerak!';
+$_lang["alert_enter_adminpassword"] = 'Tizim administratori hisobi uchun parol kiritishingiz kerak!';
+$_lang["alert_enter_database_name"] = 'Ma’lumotlar bazasi nomini kiritishingiz kerak!';
+$_lang["alert_enter_host"] = 'Ma’lumotlar bazasi xostini kiritishingiz kerak!';
+$_lang["alert_enter_login"] = 'Ma’lumotlar bazasiga kirish uchun foydalanuvchi nomini kiritishingiz kerak!';
+$_lang["alert_server_test_connection"] = 'Serverga ulanishni tekshirishingiz kerak!';
+$_lang["alert_server_test_connection_failed"] = 'Serverga ulanishni tekshirish muvaffaqiyatsiz tugadi!';
+$_lang["alert_table_prefixes"] = 'Jadval prefikslari harf bilan boshlanishi kerak!';
+$_lang["all"] = 'Barchasi';
+$_lang["and_try_again"] = ', va qayta urinib ko‘ring. Muammoni qanday hal qilishni aniqlashda yordam kerak bo‘lsa';
+$_lang["and_try_again_plural"] = ', va qayta urinib ko‘ring. Muammolarni qanday hal qilishni aniqlashda yordam kerak bo‘lsa';
+$_lang["begin"] = 'Boshlash';
+$_lang["btnback_value"] = 'Orqaga';
+$_lang["btnclose_value"] = 'Yopish';
+$_lang["btnnext_value"] = 'Keyingi';
+$_lang["cant_write_config_file"] = 'Evolution CMS sozlamalar fayliga yoza olmadi. Quyidagilarni ushbu faylga nusxalang ';
+$_lang["cant_write_config_file_note"] = 'Shundan so‘ng brauzerda YourSiteName.com/manager/ manzilini ochib, Evolution CMS boshqaruv paneliga kirishingiz mumkin.';
+$_lang["checkbox_select_options"] = 'Belgilash katakchalari uchun tanlash parametrlari:';
+$_lang["checking_if_cache_exist"] = '<span class="mono">/assets/cache</span> va <span class="mono">/assets/cache/rss</span> kataloglari mavjudligi tekshirilmoqda: ';
+$_lang["checking_if_cache_file_writable"] = '<span class="mono">/assets/cache/siteCache.idx.php</span> fayliga yozish mumkinligi tekshirilmoqda: ';
+$_lang["checking_if_cache_file2_writable"] = '<span class="mono">/assets/cache/sitePublishing.idx.php</span> fayliga yozish mumkinligi tekshirilmoqda: ';
+$_lang["checking_if_cache_writable"] = '<span class="mono">/assets/cache</span> va <span class="mono">/assets/cache/rss</span> kataloglariga yozish mumkinligi tekshirilmoqda: ';
+$_lang["checking_if_config_exist_and_writable"] = '<span class="mono">'.MGR_DIR.'/includes/config.inc.php</span> mavjudligi va unga yozish mumkinligi tekshirilmoqda: ';
+$_lang["checking_if_export_exists"] = '<span class="mono">/assets/export</span> katalogi mavjudligi tekshirilmoqda: ';
+$_lang["checking_if_export_writable"] = '<span class="mono">/assets/export</span> katalogiga yozish mumkinligi tekshirilmoqda: ';
+$_lang["checking_if_images_exist"] = '<span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> va <span class="mono">/assets/media</span> kataloglari mavjudligi tekshirilmoqda: ';
+$_lang["checking_if_images_writable"] = '<span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> va <span class="mono">/assets/media</span> kataloglariga yozish mumkinligi tekshirilmoqda: ';
+$_lang["checking_mysql_strict_mode"] = 'MySQL uchun qat’iy sql_mode rejimi tekshirilmoqda: ';
+$_lang["checking_mysql_version"] = 'MySQL versiyasi tekshirilmoqda: ';
+$_lang["checking_php_version"] = 'PHP versiyasi tekshirilmoqda: ';
+$_lang["checking_registerglobals"] = 'Register_Globals o‘chirilganligi tekshirilmoqda: ';
+$_lang["checking_registerglobals_note"] = 'Bu sozlama saytingizni Cross Site Scripting (XSS) hujumlariga ancha zaif qiladi. Ushbu sozlamani o‘chirish haqida hosting provayderingiz bilan gaplashing. Odatda buning uchta usuli mavjud: umumiy php.ini faylini o‘zgartirish, Evolution CMS o‘rnatilgan asosiy katalogdagi .htaccess fayliga qoidalar qo‘shish yoki o‘rnatmaning har bir katalogiga maxsus php.ini sozlama fayllarini qo‘shish (bunday kataloglar juda ko‘p). Evolution CMS ni baribir o‘rnata olasiz, ammo xavf haqida ogohlantirildingiz.'; //Look at changing this to provide a solution.
+$_lang["checking_sessions"] = 'Seanslar to‘g‘ri sozlanganligi tekshirilmoqda: ';
+$_lang["checking_table_prefix"] = 'Jadval prefiksi tekshirilmoqda `';
+$_lang["chunks"] = 'Fragmentlar';
+$_lang["config_permissions_note"] = 'Yangi Linux/Unix o‘rnatmalari uchun <span class="mono">/manager/includes/</span> katalogida <span class="mono">config.inc.php</span> nomli bo‘sh fayl yarating va uning ruxsatlarini 0666 qilib belgilang.';
+$_lang["connection_screen_collation"] = 'Saralash tartibi:';
+$_lang["connection_screen_database_connection_information"] = 'Ma’lumotlar bazasi haqida ma’lumot';
+$_lang["connection_screen_database_connection_note"] = 'Ushbu Evolution CMS o‘rnatmasi uchun ishlatmoqchi yoki yaratmoqchi bo‘lgan ma’lumotlar bazasi nomini kiriting. Baza mavjud bo‘lmasa, o‘rnatuvchi uni yaratishga urinadi. MySQL foydalanuvchisi ruxsatlariga qarab bu amal bajarilmasligi mumkin.';
+$_lang["connection_screen_database_host"] = 'Ma’lumotlar bazasi xosti:';
+$_lang["connection_screen_database_info"] = 'Ma’lumotlar bazasi haqida ma’lumot';
+$_lang["connection_screen_database_login"] = 'Ma’lumotlar bazasi foydalanuvchi nomi:';
+$_lang["connection_screen_database_name"] = 'Ma’lumotlar bazasi nomi:';
+$_lang["connection_screen_database_pass"] = 'Ma’lumotlar bazasi paroli:';
+$_lang["connection_screen_database_test_connection"] = 'Ma’lumotlar bazasini yarating yoki uning tanlanishini tekshiring.';
+$_lang["connection_screen_default_admin_email"] = 'Administrator elektron pochtasi:';
+$_lang["connection_screen_default_admin_login"] = 'Administrator foydalanuvchi nomi:';
+$_lang["connection_screen_default_admin_note"] = 'Endi asosiy administrator hisobi uchun ma’lumotlarni kiritishingiz kerak. Bu yerda o‘z nomingizni va esdan chiqmaydigan parolni kiritishingiz mumkin. O‘rnatish tugagach, boshqaruv paneliga kirish uchun ular kerak bo‘ladi.';
+$_lang["connection_screen_default_admin_password"] = 'Administrator paroli:';
+$_lang["connection_screen_default_admin_password_confirm"] = 'Parolni tasdiqlang:';
+$_lang["connection_screen_default_admin_user"] = 'Standart administrator foydalanuvchisi';
+$_lang["connection_screen_defaults"] = 'Boshqaruv panelining standart sozlamalari';
+$_lang["connection_screen_server_connection_information"] = 'Serverga ulanish va kirish ma’lumotlari';
+$_lang["connection_screen_server_connection_note"] = 'Ulanishni tekshirishdan oldin ma’lumotlar bazasi xostini (server nomi yoki IP manzili), foydalanuvchi nomini va parolni kiriting.';
+$_lang["connection_screen_server_test_connection"] = 'Ma’lumotlar bazasi serveriga ulanishni tekshiring va saralash tartiblarini ko‘ring.';
+$_lang["connection_screen_table_prefix"] = 'Jadval prefiksi:';
+$_lang["creating_database_connection"] = 'Ma’lumotlar bazasiga ulanish yaratilmoqda: ';
+$_lang["database_alerts"] = 'Ma’lumotlar bazasi ogohlantirishlari!';
+$_lang["database_connection_failed"] = 'Ma’lumotlar bazasiga ulanib bo‘lmadi!';
+$_lang["database_connection_failed_note"] = 'Ma’lumotlar bazasiga kirish ma’lumotlarini tekshiring va qayta urinib ko‘ring.';
+$_lang["database_use_failed"] = 'Ma’lumotlar bazasini tanlab bo‘lmadi!';
+$_lang["database_use_failed_note"] = 'Ko‘rsatilgan foydalanuvchining ma’lumotlar bazasi ruxsatlarini tekshiring va qayta urinib ko‘ring.';
+$_lang["default_language"] = 'Boshqaruv panelining standart tili';
+$_lang["default_language_description"] = 'Bu Evolution CMS boshqaruv panelida ishlatiladigan standart tildir.';
+$_lang["during_execution_of_sql"] = ' SQL ifodasini bajarish paytida ';
+$_lang["encoding"] = 'UTF-8';	//charset encoding for html header
+$_lang["error"] = 'xato';
+$_lang["errors"] = 'xatolar';
+$_lang["failed"] = 'BAJARILMADI!';
+$_lang["help"] = 'Yordam!';
+$_lang["help_link"] = 'https://forum.evo.im';
+$_lang["help_title"] = 'Evolution CMS forumlarida o‘rnatish bo‘yicha yordam';
+$_lang["iagree_box"] = 'Men <a href="../assets/docs/license.txt" target="_blank">Evolution CMS litsenziyasi</a> shartlariga roziman. GPL 2-versiya litsenziyasi tarjimalari uchun <a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-translations.html" target="_blank">GNU operatsion tizimi veb-saytiga</a> tashrif buyuring.';
+$_lang["install"] = 'O‘rnatish';
+$_lang["install_overwrite"] = 'O‘rnatish/Ustiga yozish';
+$_lang["install_results"] = 'O‘rnatish natijalari';
+$_lang["install_update"] = 'O‘rnatish/Yangilash';
+$_lang["installation_error_occured"] = 'O‘rnatish paytida quyidagi xatolar yuz berdi';
+$_lang["installation_install_new_copy"] = 'Quyidagining yangi nusxasini o‘rnatish: ';
+$_lang["installation_install_new_note"] = 'E’tibor bering: bu parametr ma’lumotlar bazangizdagi istalgan ma’lumotning ustiga yozishi mumkin.';
+$_lang["installation_mode"] = 'O‘rnatish rejimi';
+$_lang["installation_new_installation"] = 'Yangi o‘rnatish';
+$_lang["installation_note"] = '<strong>Eslatma:</strong> Saytni ko\'rishdan oldin boshqaruv paneliga kiring, Evolution CMS boshqaruv panelidagi <strong>Vositalar</strong> -> Tizim sozlamalari bo\'limini tanlab, tizim sozlamalarini tahrirlang va saqlang.';
+$_lang["installation_successful"] = 'O\'rnatish muvaffaqiyatli yakunlandi!';
+$_lang["installation_upgrade_advanced"] = 'Kengaytirilgan yangilash';
+$_lang["installation_upgrade_advanced_note"] = 'Tajribali ma\'lumotlar bazasi administratorlari yoki ma\'lumotlar bazasi ulanishining belgilar to\'plami boshqacha bo\'lgan serverga ko\'chirish uchun.<br /><b>Ma\'lumotlar bazasining to\'liq nomi, foydalanuvchisi, paroli va ulanish/saralash tartibi tafsilotlarini bilishingiz kerak.</b>';
+$_lang["installation_upgrade_existing"] = 'Mavjud o\'rnatmani yangilash';
+$_lang["installation_upgrade_existing_note"] = 'Joriy fayllar va ma\'lumotlar bazasini yangilang.';
+$_lang["installed"] = 'O\'rnatildi';
+$_lang["installing_demo_site"] = 'Namuna sayt o\'rnatilmoqda: ';
+$_lang["language_code"] = 'uz';	// for html element e.g. <html xml:lang="en" lang="en">
+$_lang["loading"] = 'Yuklanmoqda...';
+$_lang["modules"] = 'Modullar';
+$_lang["modx_footer1"] = '&copy; 2004 - 2026 <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> kontentni boshqarish platformasi (CMF) loyihasi. Barcha huquqlar himoyalangan. Evolution CMS GNU GPL litsenziyasi asosida tarqatiladi.';
+$_lang["modx_footer2"] = 'Evolution CMS — erkin dasturiy ta\'minot.  Sizni ijodkor bo\'lishga va Evolution CMS tizimidan o\'zingizga ma\'qul tarzda foydalanishga undaymiz. Agar o\'zgartirishlar kiritib, o\'zgartirilgan Evolution CMS tizimini qayta tarqatishga qaror qilsangiz, manba kodi erkin qolishini ta\'minlang!';
+$_lang["modx_install"] = 'Evolution CMS &raquo; O\'rnatish';
+$_lang["modx_requires_php"] = ', Evolution CMS uchun esa PHP 4.2.0 yoki yangiroq versiya talab etiladi';
+$_lang["mysql_5051"] = ' MySQL serverining versiyasi 5.0.51!';
+$_lang["mysql_5051_warning"] = 'MySQL 5.0.51 versiyasida ma\'lum muammolar mavjud. Davom etishdan oldin uni yangilash tavsiya etiladi.';
+$_lang["mysql_version_is"] = ' MySQL versiyangiz: ';
+$_lang["no"] = 'Yo\'q';
+$_lang["none"] = 'Hech biri';
+$_lang["not_found"] = 'topilmadi';
+$_lang["ok"] = 'OK!';
+$_lang["optional_items"] = 'Ixtiyoriy elementlar';
+$_lang["optional_items_note"] = 'O\'rnatish parametrlarini tanlang va O\'rnatish tugmasini bosing:';
+$_lang["php_security_notice"] = '<legend>Xavfsizlik haqida bildirishnoma</legend><p>Evolution CMS sizdagi PHP versiyasida ishlasa ham, ushbu versiyada undan foydalanish tavsiya etilmaydi. PHP versiyangizda ko\'plab xavfsizlik zaifliklari mavjud. Ushbu zaifliklar tuzatilgan PHP [+min_version+] yoki yangiroq versiyaga yangilang. Saytingiz xavfsizligi uchun yangilash tavsiya etiladi.</p>';
+$_lang["please_correct_error"] = '. Xatoni tuzating';
+$_lang["please_correct_errors"] = '. Xatolarni tuzating';
+$_lang["plugins"] = 'Plaginlar';
+$_lang["preinstall_validation"] = 'O\'rnatishdan oldingi tekshiruv';
+$_lang["recommend_setting_change_title"] = 'Sozlamani o\'zgartirish tavsiya etiladi';
+$_lang["recommend_setting_change_validate_referer_confirmation"] = 'Sozlamani o\'zgartirish: <em>HTTP_REFERER sarlavhalari tekshirilsinmi?</em>';
+$_lang["recommend_setting_change_validate_referer_description"] = 'Saytingiz boshqaruv paneliga kelayotgan so\'rovlarning HTTP_REFERER qiymatini tekshirishga sozlanmagan. CSRF (saytlararo so\'rovlarni qalbakilashtirish) hujumi xavfini kamaytirish uchun ushbu sozlamani yoqishni qat\'iy tavsiya etamiz.';
+$_lang["remove_install_folder_auto"] = 'Saytimdagi o\'rnatish papkasi va fayllari o\'chirilsin <br />&nbsp;(Ushbu amal uchun o\'rnatish papkasini o\'chirish huquqi kerak).';
+$_lang["remove_install_folder_manual"] = 'Kontentni boshqarish paneliga kirishdan oldin &quot;<b>install</b>&quot; papkasini o\'chirishni unutmang.';
+$_lang["retry"] = 'Qayta urinish';
+$_lang["running_database_updates"] = 'Ma\'lumotlar bazasi yangilanishlari bajarilmoqda: ';
+$_lang["sample_web_site"] = 'Namuna veb-sayt';
+$_lang["sample_web_site_note"] = 'Bu amal mavjud hujjatlar va resurslarni <b>ustidan yozishini</b> yodda tuting.';
+$_lang["session_problem"] = 'Server seanslarida muammo aniqlandi. Uni tuzatish uchun server administratoriga murojaat qiling.';
+$_lang["session_problem_try_again"] = 'Yana urinilsinmi?';
+$_lang["setup_cannot_continue"] = 'Afsuski, yuqoridagilar sababli o\'rnatishni hozir davom ettirib bo\'lmaydi ';
+$_lang["setup_couldnt_install"] = 'Evolution CMS o\'rnatish dasturi tanlangan ma\'lumotlar bazasidagi ayrim jadvallarni o\'rnata yoki o\'zgartira olmadi.';
+$_lang["setup_database"] = 'O\'rnatish dasturi endi ma\'lumotlar bazasini sozlashga urinadi:<br />';
+$_lang["setup_database_create_connection"] = 'Ma\'lumotlar bazasiga ulanish yaratilmoqda: ';
+$_lang["setup_database_create_connection_failed"] = 'Ma\'lumotlar bazasiga ulanib bo\'lmadi!';
+$_lang["setup_database_create_connection_failed_note"] = 'Ma\'lumotlar bazasiga kirish ma\'lumotlarini tekshiring va qayta urinib ko\'ring.';
+$_lang["setup_database_creating_tables"] = 'Ma\'lumotlar bazasi jadvallari yaratilmoqda: ';
+$_lang["setup_database_creation"] = 'Ma\'lumotlar bazasi yaratilmoqda `';
+$_lang["setup_database_creation_failed"] = 'Ma\'lumotlar bazasini yaratib bo\'lmadi!';
+$_lang["setup_database_creation_failed_note"] = ' - O\'rnatish dasturi ma\'lumotlar bazasini yarata olmadi!';
+$_lang["setup_database_creation_failed_note2"] = 'O\'rnatish dasturi ma\'lumotlar bazasini yarata olmadi va shu nomdagi mavjud ma\'lumotlar bazasi topilmadi. Ehtimol, hosting provayderingizning xavfsizlik qoidalari tashqi skriptlarga ma\'lumotlar bazasini yaratishga ruxsat bermaydi. Hosting provayderingiz tartibiga muvofiq ma\'lumotlar bazasini yarating va o\'rnatish dasturini qayta ishga tushiring.';
+$_lang["setup_database_selection"] = 'Ma\'lumotlar bazasi tanlanmoqda `';
+$_lang["setup_database_selection_failed"] = 'Ma\'lumotlar bazasini tanlab bo\'lmadi...';
+$_lang["setup_database_selection_failed_note"] = 'Ma\'lumotlar bazasi mavjud emas. O\'rnatish dasturi uni yaratishga urinadi.';
+$_lang["snippets"] = 'Kod parchalari';
+$_lang["some_tables_not_updated"] = 'Ayrim jadvallar yangilanmadi. Bunga avvalgi o\'zgartirishlar sabab bo\'lishi mumkin.';
+$_lang["status_checking_database"] = 'Ma\'lumotlar bazasi tekshirilmoqda: ';
+$_lang["status_connecting"] = ' Xostga ulanish: ';
+$_lang["status_failed"] = 'muvaffaqiyatsiz!';
+$_lang["status_failed_could_not_create_database"] = 'muvaffaqiyatsiz - ma\'lumotlar bazasini yaratib bo\'lmadi';
+$_lang["status_failed_database_collation_does_not_match"] = 'muvaffaqiyatsiz - ma\'lumotlar bazasining saralash tartibi mos emas; SET NAMES buyrug\'idan foydalaning yoki %s variantini tanlang';
+$_lang["status_failed_table_prefix_already_in_use"] = 'muvaffaqiyatsiz - jadval prefiksi allaqachon ishlatilmoqda!';
+$_lang["status_passed"] = 'muvaffaqiyatli - ma\'lumotlar bazasi tanlandi';
+$_lang["status_passed_database_created"] = 'muvaffaqiyatli - ma\'lumotlar bazasi yaratildi';
+$_lang["status_passed_server"] = 'muvaffaqiyatli - saralash tartiblari endi mavjud';
+$_lang["strict_mode"] = ' MySQL serverining qat\'iy sql_mode rejimi yoqilgan!';
+$_lang["strict_mode_error"] = 'STRICT_TRANS_TABLES sql_mode rejimi o\'chirilmasa, Evolution CMS tizimining ayrim funksiyalari to\'g\'ri ishlamasligi mumkin. MySQL rejimini my.cnf faylini tahrirlash orqali sozlashingiz yoki server administratoriga murojaat qilishingiz mumkin.';
+$_lang["summary_setup_check"] = 'O\'rnatish dasturi o\'rnatishni boshlashga hamma narsa tayyorligini aniqlash uchun bir qator tekshiruvlarni bajardi.';
+$_lang["system_configuration"] = 'Tizim sozlamalari';
+$_lang["system_configuration_validate_referer_description"] = '<strong>HTTP_REFERER sarlavhalarini tekshirish</strong> sozlamasi tavsiya etiladi va saytingizni CSRF hujumlaridan himoya qilishi mumkin, ammo ayrim server konfiguratsiyalarida boshqaruv paneliga kirishni imkonsiz qilishi mumkin.';
+$_lang["table_prefix_already_inuse"] = ' - Ushbu ma\'lumotlar bazasida jadval prefiksi allaqachon ishlatilmoqda!';
+$_lang["table_prefix_already_inuse_note"] = 'Tanlangan ma\'lumotlar bazasida siz ko\'rsatgan prefiksli jadvallar allaqachon mavjudligi sababli o\'rnatish dasturi o\'rnatishni bajara olmadi. Yangi jadval prefiksini tanlang va o\'rnatish dasturini qayta ishga tushiring.';
+$_lang["table_prefix_not_exist"] = ' - Ushbu ma\'lumotlar bazasida jadval prefiksi mavjud emas!';
+$_lang["table_prefix_not_exist_note"] = 'Tanlangan ma\'lumotlar bazasida yangilash uchun ko\'rsatilgan prefiksli jadvallar mavjud emasligi sababli o\'rnatish dasturi o\'rnatishni bajara olmadi. Mavjud jadval prefiksini tanlang va o\'rnatish dasturini qayta ishga tushiring.';
+$_lang["templates"] = 'Shablonlar';
+$_lang["to_log_into_content_manager"] = 'Kontentni boshqarish paneliga (manager/index.php) kirish uchun `Yopish` tugmasini bosishingiz mumkin.';
+$_lang["toggle"] = 'Almashtirish';
+$_lang['tvs'] = 'Shablon o\'zgaruvchilari';
+$_lang["unable_install_chunk"] = 'HTML parchasini o\'rnatib bo\'lmadi.  Fayl';
+$_lang["unable_install_module"] = 'Modulni o\'rnatib bo\'lmadi.  Fayl';
+$_lang["unable_install_plugin"] = 'Plaginni o\'rnatib bo\'lmadi.  Fayl';
+$_lang["unable_install_snippet"] = 'Kod parchasini o\'rnatib bo\'lmadi.  Fayl';
+$_lang["unable_install_template"] = 'Shablonni o\'rnatib bo\'lmadi.  Fayl';
+$_lang["upgrade_note"] = '<strong>Eslatma:</strong> Saytni ko\'rishdan oldin boshqaruv paneliga administrator hisobi bilan kiring, so\'ng tizim sozlamalarini tekshirib, saqlang.';
+$_lang["upgraded"] = 'Yangilandi';
+$_lang["validate_referer_title"] = 'HTTP_REFERER sarlavhalari tekshirilsinmi?';
+$_lang["visit_forum"] = ', <a href="https://forum.evo.im" target="_blank">Evolution CMS forumlariga</a> tashrif buyuring.';
+$_lang["warning"] = 'OGOHLANTIRISH!';
+$_lang["welcome_message_start"] = 'Avval bajariladigan o\'rnatish turini tanlang:';
+$_lang["welcome_message_text"] = 'Ushbu dastur o\'rnatishning qolgan bosqichlarida sizga yo\'l ko\'rsatadi.';
+$_lang["welcome_message_welcome"] = 'Evolution CMS o\'rnatish dasturiga xush kelibsiz.';
+$_lang["writing_config_file"] = 'Konfiguratsiya fayli yozilmoqda: ';
+$_lang["yes"] = 'Ha';
+$_lang["you_running_php"] = ' - Siz foydalanayotgan PHP versiyasi ';
+?>
