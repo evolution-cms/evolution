@@ -82,7 +82,7 @@ maintenance:
       affiliation: "Maintainer"
       email: "info@seigerit.com"
     - name: "Artur Kyryliuk"
-      affiliation: "Core Team"
+      affiliation: "Maintainer"
       email: "mail@artur.work"
 
 localisation:
@@ -97,18 +97,29 @@ localisation:
     - da
     - de
     - es
+    - et
     - fa
     - fi
     - fr
     - he
+    - hy
     - it
     - ja
+    - ka
+    - kk
+    - ky
+    - lt
+    - lv
     - nl
     - nn
     - pl
     - pt
+    - ro
     - sk
     - sv
+    - tg
+    - tk
+    - uz
     - zh
 
 dependsOn:
