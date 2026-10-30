@@ -220,9 +220,16 @@ $_lang["database_collation"] = 'Рамзгузории муқоисаи алом
 $_lang["opcache"] = 'OPcache';
 $_lang["jit"] = 'JIT';
 $_lang["opcache_memory_details"] = '(%s истифода шуд / %s дастрас), %s бархӯрд / %s нобарорӣ';
+$_lang["opcache_reset"] = 'Бознишонии OPcache';
+$_lang["opcache_resetting"] = 'Бознишонӣ...';
 $_lang["opcache_reset_unavailable"] = 'бознишонӣ дастрас нест';
 $_lang["opcache_reset_complete"] = 'бознишонӣ анҷом ёфт';
 $_lang["opcache_reset_failed"] = 'бознишонӣ муяссар нашуд';
+$_lang['sysinfo_copy'] = 'Нусхабардории қимати пурра';
+$_lang['sysinfo_copied'] = 'Нусхабардорӣ шуд';
+$_lang['sysinfo_copy_failed'] = 'Нусхабардорӣ муяссар нашуд';
+$_lang['sysinfo_opcache_hit_rate'] = '%s бархӯрд';
+$_lang['sysinfo_opcache_memory'] = '%s истифода шуд / ҳамагӣ %s';
 $_lang["database_name"] = 'Номи пойгоҳи додаҳо';
 $_lang["database_overhead"] = '<b style="color:#990033;">Эзоҳ:</b> фазои зиёдатӣ ҷойи истифоданашудаи захиракардаи MySQL аст. Барои озод кардани он қимати мувофиқи ҷадвалро пахш кунед.';
 $_lang["database_server"] = 'Сервери пойгоҳи додаҳо';

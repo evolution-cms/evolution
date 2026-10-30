@@ -220,9 +220,16 @@ $_lang["database_collation"] = 'მონაცემთა ბაზის შ�
 $_lang["opcache"] = 'OPcache';
 $_lang["jit"] = 'JIT';
 $_lang["opcache_memory_details"] = '(გამოყენებულია %s / ხელმისაწვდომია %s), %s დამთხვევა / %s აცდენა';
+$_lang["opcache_reset"] = 'OPcache-ის განულება';
+$_lang["opcache_resetting"] = 'განულება...';
 $_lang["opcache_reset_unavailable"] = 'განულება მიუწვდომელია';
 $_lang["opcache_reset_complete"] = 'განულება დასრულდა';
 $_lang["opcache_reset_failed"] = 'განულება ვერ შესრულდა';
+$_lang['sysinfo_copy'] = 'სრული მნიშვნელობის კოპირება';
+$_lang['sysinfo_copied'] = 'დაკოპირდა';
+$_lang['sysinfo_copy_failed'] = 'კოპირება ვერ შესრულდა';
+$_lang['sysinfo_opcache_hit_rate'] = '%s დამთხვევა';
+$_lang['sysinfo_opcache_memory'] = 'გამოყენებულია %s / სულ %s';
 $_lang["database_name"] = 'მონაცემთა ბაზის სახელი';
 $_lang["database_overhead"] = '<b style="color:#990033;">შენიშვნა:</b> ჭარბი სივრცე არის MySQL-ის მიერ რეზერვირებული გამოუყენებელი ადგილი. მის გასათავისუფლებლად დააჭირეთ შესაბამისი ცხრილის ჭარბი სივრცის მნიშვნელობას.';
 $_lang["database_server"] = 'მონაცემთა ბაზის სერვერი';

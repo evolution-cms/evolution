@@ -220,9 +220,16 @@ $_lang["database_collation"] = 'Маалымат базасынын салышт
 $_lang["opcache"] = 'OPcache';
 $_lang["jit"] = 'JIT';
 $_lang["opcache_memory_details"] = '(%s колдонулду / %s жеткиликтүү), %s дал келүү / %s дал келбөө';
+$_lang["opcache_reset"] = 'OPcache тазалоо';
+$_lang["opcache_resetting"] = 'Тазаланууда...';
 $_lang["opcache_reset_unavailable"] = 'тазалоо жеткиликсиз';
 $_lang["opcache_reset_complete"] = 'тазалоо аяктады';
 $_lang["opcache_reset_failed"] = 'тазалоо ишке ашкан жок';
+$_lang['sysinfo_copy'] = 'Толук маанини көчүрүү';
+$_lang['sysinfo_copied'] = 'Көчүрүлдү';
+$_lang['sysinfo_copy_failed'] = 'Көчүрүү ишке ашкан жок';
+$_lang['sysinfo_opcache_hit_rate'] = '%s дал келүү';
+$_lang['sysinfo_opcache_memory'] = '%s колдонулду / бардыгы %s';
 $_lang["database_name"] = 'Маалымат базасынын аты';
 $_lang["database_overhead"] = '<b style="color:#990033;">Эскертүү:</b> ашыкча орун — MySQL ээлеп койгон колдонулбаган орун. Бошотуу үчүн тиешелүү таблицанын ашыкча орун маанисин басыңыз.';
 $_lang["database_server"] = 'Маалымат базасынын сервери';

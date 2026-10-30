@@ -220,9 +220,16 @@ $_lang["database_collation"] = 'Maglumatlar binýadynyň deňeşdirme kodlamasy'
 $_lang["opcache"] = 'OPcache';
 $_lang["jit"] = 'JIT';
 $_lang["opcache_memory_details"] = '(%s ulanyldy / %s elýeterli), %s gabat gelme / %s gabat gelmezlik';
+$_lang["opcache_reset"] = 'OPcache arassala';
+$_lang["opcache_resetting"] = 'Arassalanýar...';
 $_lang["opcache_reset_unavailable"] = 'arassalamak elýeterli däl';
 $_lang["opcache_reset_complete"] = 'arassalandy';
 $_lang["opcache_reset_failed"] = 'arassalap bolmady';
+$_lang['sysinfo_copy'] = 'Doly bahany göçür';
+$_lang['sysinfo_copied'] = 'Göçürildi';
+$_lang['sysinfo_copy_failed'] = 'Göçürip bolmady';
+$_lang['sysinfo_opcache_hit_rate'] = '%s gabat gelme';
+$_lang['sysinfo_opcache_memory'] = '%s ulanyldy / jemi %s';
 $_lang["database_name"] = 'Maglumatlar binýadynyň ady';
 $_lang["database_overhead"] = '<b style="color:#990033;">Bellik:</b> artykmaç ýer MySQL tarapyndan bölünen, ulanylmaýan ýerdir. Boşatmak üçin degişli tablisanyň artykmaç ýer bahasyna basyň.';
 $_lang["database_server"] = 'Maglumatlar binýadynyň serweri';

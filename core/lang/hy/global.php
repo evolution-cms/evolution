@@ -220,9 +220,16 @@ $_lang["database_collation"] = 'Տվյալների բազայի համադրմա
 $_lang["opcache"] = 'OPcache';
 $_lang["jit"] = 'JIT';
 $_lang["opcache_memory_details"] = '(%s օգտագործված / %s հասանելի), %s համընկնում / %s վրիպում';
+$_lang["opcache_reset"] = 'Վերակայել OPcache-ը';
+$_lang["opcache_resetting"] = 'Վերակայում...';
 $_lang["opcache_reset_unavailable"] = 'վերակայումը հասանելի չէ';
 $_lang["opcache_reset_complete"] = 'վերակայումն ավարտված է';
 $_lang["opcache_reset_failed"] = 'վերակայումը ձախողվեց';
+$_lang['sysinfo_copy'] = 'Պատճենել ամբողջական արժեքը';
+$_lang['sysinfo_copied'] = 'Պատճենված է';
+$_lang['sysinfo_copy_failed'] = 'Պատճենումը ձախողվեց';
+$_lang['sysinfo_opcache_hit_rate'] = '%s համընկնում';
+$_lang['sysinfo_opcache_memory'] = '%s օգտագործված / ընդամենը %s';
 $_lang["database_name"] = 'Տվյալների բազայի անուն';
 $_lang["database_overhead"] = '<b style="color:#990033;">Նշում.</b> ավելցուկը MySQL-ի կողմից պահուստավորված չօգտագործվող տարածքն է։ Այն ազատելու համար սեղմեք համապատասխան աղյուսակի ավելցուկի արժեքը։';
 $_lang["database_server"] = 'Տվյալների բազայի սերվեր';

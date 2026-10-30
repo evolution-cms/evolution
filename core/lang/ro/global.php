@@ -220,9 +220,16 @@ $_lang["database_collation"] = 'Setul de caractere pentru colaționarea bazei de
 $_lang["opcache"] = 'OPcache';
 $_lang["jit"] = 'JIT';
 $_lang["opcache_memory_details"] = '(%s utilizați / %s disponibili), %s accesări reușite / %s ratări';
+$_lang["opcache_reset"] = 'Resetează OPcache';
+$_lang["opcache_resetting"] = 'Se resetează...';
 $_lang["opcache_reset_unavailable"] = 'resetarea nu este disponibilă';
 $_lang["opcache_reset_complete"] = 'resetare finalizată';
 $_lang["opcache_reset_failed"] = 'resetare eșuată';
+$_lang['sysinfo_copy'] = 'Copiază valoarea completă';
+$_lang['sysinfo_copied'] = 'Copiat';
+$_lang['sysinfo_copy_failed'] = 'Copiere eșuată';
+$_lang['sysinfo_opcache_hit_rate'] = '%s accesări reușite';
+$_lang['sysinfo_opcache_memory'] = '%s utilizați / %s în total';
 $_lang["database_name"] = 'Numele bazei de date';
 $_lang["database_overhead"] = '<b style="color:#990033;">Notă:</b> spațiul suplimentar este spațiu neutilizat rezervat de MySQL. Pentru a-l elibera, apăsați valoarea spațiului suplimentar pentru tabelul respectiv.';
 $_lang["database_server"] = 'Serverul bazei de date';

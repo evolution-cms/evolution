@@ -220,9 +220,16 @@ $_lang["database_collation"] = 'Maʼlumotlar bazasini saralash belgilar toʻplam
 $_lang["opcache"] = 'OPcache';
 $_lang["jit"] = 'JIT';
 $_lang["opcache_memory_details"] = '(%s ishlatilgan / %s mavjud), %s topilgan / %s topilmagan';
+$_lang["opcache_reset"] = 'OPcacheni qayta oʻrnatish';
+$_lang["opcache_resetting"] = 'Qayta oʻrnatilmoqda...';
 $_lang["opcache_reset_unavailable"] = 'qayta oʻrnatish imkonsiz';
 $_lang["opcache_reset_complete"] = 'qayta oʻrnatish tugallandi';
 $_lang["opcache_reset_failed"] = 'qayta oʻrnatish bajarilmadi';
+$_lang['sysinfo_copy'] = 'Toʻliq qiymatni nusxalash';
+$_lang['sysinfo_copied'] = 'Nusxalandi';
+$_lang['sysinfo_copy_failed'] = 'Nusxalab boʻlmadi';
+$_lang['sysinfo_opcache_hit_rate'] = '%s topilgan';
+$_lang['sysinfo_opcache_memory'] = '%s ishlatilgan / jami %s';
 $_lang["database_name"] = 'Maʼlumotlar bazasi nomi';
 $_lang["database_overhead"] = '<b style="color:#990033;">Eslatma:</b> ortiqcha joy — MySQL tomonidan ajratilgan, ishlatilmayotgan joy. Uni boʻshatish uchun tegishli jadvalning ortiqcha joy qiymatini bosing.';
 $_lang["database_server"] = 'Maʼlumotlar bazasi serveri';

@@ -241,9 +241,16 @@ $_lang["database_collation"] = 'Дерекқордың салыстыру тәр
 $_lang["opcache"] = 'OPcache';
 $_lang["jit"] = 'JIT';
 $_lang["opcache_memory_details"] = '(%s қолданылған / %s қолжетімді), %s сәйкестік / %s сәйкессіздік';
+$_lang["opcache_reset"] = 'OPcache бастапқы күйге келтіру';
+$_lang["opcache_resetting"] = 'Бастапқы күйге келтірілуде...';
 $_lang["opcache_reset_unavailable"] = 'бастапқы күйге келтіру қолжетімсіз';
 $_lang["opcache_reset_complete"] = 'бастапқы күйге келтірілді';
 $_lang["opcache_reset_failed"] = 'бастапқы күйге келтіру сәтсіз';
+$_lang['sysinfo_copy'] = 'Толық мәнді көшіру';
+$_lang['sysinfo_copied'] = 'Көшірілді';
+$_lang['sysinfo_copy_failed'] = 'Көшіру сәтсіз';
+$_lang['sysinfo_opcache_hit_rate'] = '%s сәйкестік';
+$_lang['sysinfo_opcache_memory'] = '%s қолданылған / барлығы %s';
 $_lang["database_name"] = 'Дерекқор атауы';
 $_lang["database_overhead"] = '<b style="color:#990033;">Ескерту:</b> артық орын — MySQL резервтеген пайдаланылмайтын кеңістік. Оны босату үшін тиісті кестенің артық орын мәнін басыңыз.';
 $_lang["database_server"] = 'Дерекқор сервері';
