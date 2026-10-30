@@ -52,8 +52,8 @@ test('parseResponse tells a save apart from a refusal and from a non-JSON answer
     const denied = helper.parseResponse(422, '{"success":false,"message":"duplicate alias"}');
     assert.deepEqual(denied, { ok: false, message: 'duplicate alias', unconfirmed: false });
 
-    const csrf = helper.parseResponse(403, '{"error":"CSRF token mismatch","code":"csrf_token_mismatch"}');
-    assert.deepEqual(csrf, { ok: false, message: '', unconfirmed: false });
+    const csrf = helper.parseResponse(403, '{"error":"CSRF token mismatch","code":"csrf_token_mismatch","message":"Reload the page"}');
+    assert.deepEqual(csrf, { ok: false, message: 'Reload the page', unconfirmed: false });
 
     // the login page, a plugin that exited, a fatal error: the save may have run and is never replayed
     assert.deepEqual(helper.parseResponse(200, '<html>login</html>'), { ok: false, message: '', unconfirmed: true });

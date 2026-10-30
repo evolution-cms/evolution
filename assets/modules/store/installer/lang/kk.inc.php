@@ -1,0 +1,195 @@
+<?php
+/**
+ * Evolution CMS kk.inc.php language file
+ *
+ * @author Evolution CMS Team
+ * @version 3.5.x
+ * @date 2026-10-29 20:30:13
+ *
+ * @language Kazakh
+ * @package Evolution CMS
+ * @subpackage assets
+ * Please commit your language changes here: https://github.com/evolution-cms/evolution
+ */
+
+$_lang["agree_to_terms"] = 'Лицензия шарттарымен келісу және орнату';
+$_lang["alert_database_test_connection"] = 'Дерекқорды жасау немесе оны таңдауды тексеру қажет!';
+$_lang["alert_database_test_connection_failed"] = 'Дерекқорды таңдауды тексеру сәтсіз аяқталды!';
+$_lang["alert_enter_adminconfirm"] = 'Әкімші құпиясөзі мен оны растау сәйкес келмейді!';
+$_lang["alert_enter_adminlogin"] = 'Жүйе әкімшісінің тіркелгісіне пайдаланушы атын енгізу қажет!';
+$_lang["alert_enter_adminpassword"] = 'Жүйе әкімшісінің тіркелгісіне құпиясөз енгізу қажет!';
+$_lang["alert_enter_database_name"] = 'Дерекқор атауын енгізу қажет!';
+$_lang["alert_enter_host"] = 'Дерекқор серверін енгізу қажет!';
+$_lang["alert_enter_login"] = 'Дерекқорға кіру атын енгізу қажет!';
+$_lang["alert_server_test_connection"] = 'Серверге қосылымды тексеру қажет!';
+$_lang["alert_server_test_connection_failed"] = 'Серверге қосылымды тексеру сәтсіз аяқталды!';
+$_lang["alert_table_prefixes"] = 'Кесте префикстері әріптен басталуы керек!';
+$_lang["all"] = 'Барлығы';
+$_lang["and_try_again"] = ', содан кейін әрекетті қайталаңыз. Мәселені түзету бойынша көмек қажет болса';
+$_lang["and_try_again_plural"] = ', содан кейін әрекетті қайталаңыз. Мәселелерді түзету бойынша көмек қажет болса';
+$_lang["begin"] = 'Бастау';
+$_lang["btnback_value"] = 'Артқа';
+$_lang["btnclose_value"] = 'Жабу';
+$_lang["btnnext_value"] = 'Келесі';
+$_lang["cant_write_config_file"] = 'Evolution CMS баптау файлын жаза алмады. Мынаны келесі файлға көшіріңіз: ';
+$_lang["cant_write_config_file_note"] = 'Одан кейін браузерде YourSiteName.com/manager/ мекенжайын ашып, Evolution CMS басқару тақтасына кіре аласыз.';
+$_lang["checkbox_select_options"] = 'Жалаушалар арқылы опцияларды таңдаңыз:';
+$_lang["checking_if_cache_exist"] = '<span class="mono">/assets/cache</span> және <span class="mono">/assets/cache/rss</span> каталогтарының бар-жоғын тексеру: ';
+$_lang["checking_if_cache_file_writable"] = '<span class="mono">/assets/cache/siteCache.idx.php</span> файлына жазу мүмкіндігін тексеру: ';
+$_lang["checking_if_cache_file2_writable"] = '<span class="mono">/assets/cache/sitePublishing.idx.php</span> файлына жазу мүмкіндігін тексеру: ';
+$_lang["checking_if_cache_writable"] = '<span class="mono">/assets/cache</span> және <span class="mono">/assets/cache/rss</span> каталогтарына жазу мүмкіндігін тексеру: ';
+$_lang["checking_if_config_exist_and_writable"] = '<span class="mono">'.MGR_DIR.'/includes/config.inc.php</span> файлының бар-жоғын және оған жазу мүмкіндігін тексеру: ';
+$_lang["checking_if_export_exists"] = '<span class="mono">/assets/export</span> каталогының бар-жоғын тексеру: ';
+$_lang["checking_if_export_writable"] = '<span class="mono">/assets/export</span> каталогына жазу мүмкіндігін тексеру: ';
+$_lang["checking_if_images_exist"] = '<span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> және <span class="mono">/assets/media</span> каталогтарының бар-жоғын тексеру: ';
+$_lang["checking_if_images_writable"] = '<span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> және <span class="mono">/assets/media</span> каталогтарына жазу мүмкіндігін тексеру: ';
+$_lang["checking_mysql_strict_mode"] = 'MySQL қатаң sql_mode режимін тексеру: ';
+$_lang["checking_mysql_version"] = 'MySQL нұсқасын тексеру: ';
+$_lang["checking_php_version"] = 'PHP нұсқасын тексеру: ';
+$_lang["checking_registerglobals"] = 'Register_Globals өшірілгенін тексеру: ';
+$_lang["checking_registerglobals_note"] = 'Бұл баптау сайтты сайтаралық сценарийлер (XSS) шабуылдарына осал етеді. Оны өшіру үшін хостинг провайдеріне хабарласыңыз. Әдетте бұл үш жолдың бірімен жасалады: жалпы php.ini файлын өзгерту, Evolution CMS түбіріндегі .htaccess файлына ережелер қосу немесе орнатудың әр каталогына жеке php.ini файлдарын қосу. Evolution CMS орнатуға болады, бірақ осы ескертуді ескеріңіз.'; //Look at changing this to provide a solution.
+$_lang["checking_sessions"] = 'Сеанстардың дұрыс бапталғанын тексеру: ';
+$_lang["checking_table_prefix"] = 'Кесте префиксін тексеру `';
+$_lang["chunks"] = 'Чанктар';
+$_lang["config_permissions_note"] = 'Linux/Unix жүйесіне жаңадан орнатқанда <span class="mono">/manager/includes/</span> каталогында <span class="mono">config.inc.php</span> атты бос файл жасап, оған 0666 рұқсатын беріңіз.';
+$_lang["connection_screen_collation"] = 'Салыстыру тәртібі:';
+$_lang["connection_screen_database_connection_information"] = 'Дерекқор туралы ақпарат';
+$_lang["connection_screen_database_connection_note"] = 'Осы Evolution CMS орнатуы үшін пайдаланылатын немесе жасалатын дерекқор атауын енгізіңіз. Дерекқор болмаса, орнатқыш оны жасауға тырысады. Бұл MySQL пайдаланушысының рұқсаттарына байланысты сәтсіз болуы мүмкін.';
+$_lang["connection_screen_database_host"] = 'Дерекқор сервері:';
+$_lang["connection_screen_database_info"] = 'Дерекқор туралы ақпарат';
+$_lang["connection_screen_database_login"] = 'Дерекқорға кіру аты:';
+$_lang["connection_screen_database_name"] = 'Дерекқор атауы:';
+$_lang["connection_screen_database_pass"] = 'Дерекқор құпиясөзі:';
+$_lang["connection_screen_database_test_connection"] = 'Дерекқорды жасау немесе оны таңдауды тексеру.';
+$_lang["connection_screen_default_admin_email"] = 'Әкімшінің электрондық поштасы:';
+$_lang["connection_screen_default_admin_login"] = 'Әкімшінің пайдаланушы аты:';
+$_lang["connection_screen_default_admin_note"] = 'Енді негізгі әкімші тіркелгісінің деректерін енгізіңіз. Өз атыңызды және ұмытпайтын құпиясөзді жазыңыз. Орнату аяқталған соң басқару тақтасына кіру үшін олар қажет болады.';
+$_lang["connection_screen_default_admin_password"] = 'Әкімші құпиясөзі:';
+$_lang["connection_screen_default_admin_password_confirm"] = 'Құпиясөзді растау:';
+$_lang["connection_screen_default_admin_user"] = 'Әдепкі әкімші';
+$_lang["connection_screen_defaults"] = 'Басқару тақтасының әдепкі баптаулары';
+$_lang["connection_screen_server_connection_information"] = 'Серверге қосылу және кіру ақпараты';
+$_lang["connection_screen_server_connection_note"] = 'Қосылымды тексермес бұрын дерекқор серверін (сервер атауы немесе IP мекенжайы), пайдаланушы атын және құпиясөзді енгізіңіз.';
+$_lang["connection_screen_server_test_connection"] = 'Дерекқор серверіне қосылуды тексеру және салыстыру тәртіптерін қарау.';
+$_lang["connection_screen_table_prefix"] = 'Кесте префиксі:';
+$_lang["creating_database_connection"] = 'Дерекқорға қосылу: ';
+$_lang["database_alerts"] = 'Дерекқор ескертулері!';
+$_lang["database_connection_failed"] = 'Дерекқорға қосылу сәтсіз аяқталды!';
+$_lang["database_connection_failed_note"] = 'Дерекқорға кіру деректерін тексеріп, әрекетті қайталаңыз.';
+$_lang["database_use_failed"] = 'Дерекқорды таңдау мүмкін болмады!';
+$_lang["database_use_failed_note"] = 'Көрсетілген пайдаланушының дерекқор рұқсаттарын тексеріп, әрекетті қайталаңыз.';
+$_lang["default_language"] = 'Басқару тақтасының әдепкі тілі';
+$_lang["default_language_description"] = 'Бұл Evolution CMS басқару тақтасында қолданылатын әдепкі тіл.';
+$_lang["during_execution_of_sql"] = ' SQL өрнегін орындау кезінде ';
+$_lang["encoding"] = 'UTF-8';	//charset encoding for html header
+$_lang["error"] = 'қате';
+$_lang["errors"] = 'қателер';
+$_lang["failed"] = 'СӘТСІЗ!';
+$_lang["help"] = 'Көмек!';
+$_lang["help_link"] = 'https://forum.evo.im';
+$_lang["help_title"] = 'Evolution CMS форумдарында орнату бойынша көмек';
+$_lang["iagree_box"] = '<a href="../assets/docs/license.txt" target="_blank">Evolution CMS лицензиясы</a> шарттарымен келісемін. GPL 2-нұсқасы лицензиясының аудармалары үшін <a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-translations.html" target="_blank">GNU операциялық жүйесінің сайтына</a> өтіңіз.';
+$_lang["install"] = 'Орнату';
+$_lang["install_overwrite"] = 'Орнату/Қайта жазу';
+$_lang["install_results"] = 'Орнату нәтижелері';
+$_lang["install_update"] = 'Орнату/Жаңарту';
+$_lang["installation_error_occured"] = 'Орнату кезінде мына қателер пайда болды';
+$_lang["installation_install_new_copy"] = 'Жаңа көшірмесін орнату: ';
+$_lang["installation_install_new_note"] = 'Бұл опция дерекқордағы кез келген деректерді қайта жазуы мүмкін екенін ескеріңіз.';
+$_lang["installation_mode"] = 'Орнату режимі';
+$_lang["installation_new_installation"] = 'Жаңа орнату';
+$_lang["installation_note"] = '<strong>Ескерту:</strong> Басқару тақтасына кіргеннен кейін сайтты ашпас бұрын Evolution CMS басқару тақтасындағы <strong>Құралдар</strong> -> Жүйе баптаулары бөліміне өтіп, баптауларды өңдеп сақтаңыз.';
+$_lang["installation_successful"] = 'Орнату сәтті аяқталды!';
+$_lang["installation_upgrade_advanced"] = 'Кеңейтілген жаңарту';
+$_lang["installation_upgrade_advanced_note"] = 'Тәжірибелі дерекқор әкімшілері немесе қосылым таңбалар жиыны өзгеше серверге көшу үшін.<br /><b>Дерекқордың толық атауын, пайдаланушысын, құпиясөзін және қосылым/салыстыру тәртібі деректерін білуіңіз қажет.</b>';
+$_lang["installation_upgrade_existing"] = 'Бар орнатуды жаңарту';
+$_lang["installation_upgrade_existing_note"] = 'Ағымдағы файлдар мен дерекқорды жаңарту.';
+$_lang["installed"] = 'Орнатылған';
+$_lang["installing_demo_site"] = 'Демо сайт орнатылуда: ';
+$_lang["language_code"] = 'kk';	// for html element e.g. <html xml:lang="en" lang="en">
+$_lang["loading"] = 'Жүктелуде...';
+$_lang["modules"] = 'Модульдер';
+$_lang["modx_footer1"] = '&copy; 2004 - 2026 <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> мазмұнды басқару платформасы (CMF) жобасы. Барлық құқықтар қорғалған. Evolution CMS GNU GPL лицензиясымен таратылады.';
+$_lang["modx_footer2"] = 'Evolution CMS — еркін бағдарламалық жасақтама. Оны шығармашылықпен, өзіңізге қолайлы кез келген жолмен пайдаланыңыз. Өзгерістер енгізіп, өзгертілген Evolution CMS нұсқасын таратуды шешсеңіз, бастапқы кодтың еркіндігін сақтаңыз!';
+$_lang["modx_install"] = 'Evolution CMS &raquo; Орнату';
+$_lang["modx_requires_php"] = ', ал Evolution CMS үшін PHP 4.2.0 немесе одан жаңа нұсқа қажет';
+$_lang["mysql_5051"] = ' MySQL серверінің нұсқасы 5.0.51!';
+$_lang["mysql_5051_warning"] = 'MySQL 5.0.51 нұсқасында белгілі мәселелер бар. Жалғастырмас бұрын жаңарту ұсынылады.';
+$_lang["mysql_version_is"] = ' MySQL нұсқаңыз: ';
+$_lang["no"] = 'Жоқ';
+$_lang["none"] = 'Ешқайсысы';
+$_lang["not_found"] = 'табылмады';
+$_lang["ok"] = 'Жарайды!';
+$_lang["optional_items"] = 'Қосымша құрамдастар';
+$_lang["optional_items_note"] = 'Орнату опцияларын таңдап, «Орнату» батырмасын басыңыз:';
+$_lang["php_security_notice"] = '<legend>Қауіпсіздік ескертуі</legend><p>Evolution CMS PHP нұсқаңызда жұмыс істегенімен, оны бұл нұсқада пайдалану ұсынылмайды. PHP нұсқаңызда көптеген қауіпсіздік осалдықтары бар. Оларды түзететін PHP [+min_version+] немесе одан жаңа нұсқаға жаңартыңыз. Сайтыңыздың қауіпсіздігі үшін осы нұсқаға жаңарту ұсынылады.</p>';
+$_lang["please_correct_error"] = '. Қатені түзетіңіз';
+$_lang["please_correct_errors"] = '. Қателерді түзетіңіз';
+$_lang["plugins"] = 'Плагиндер';
+$_lang["preinstall_validation"] = 'Орнату алдындағы тексеру';
+$_lang["recommend_setting_change_title"] = 'Ұсынылатын баптау өзгерісі';
+$_lang["recommend_setting_change_validate_referer_confirmation"] = 'Баптау өзгерісі: <em>HTTP_REFERER тақырыптарын тексеру керек пе?</em>';
+$_lang["recommend_setting_change_validate_referer_description"] = 'Сайт басқару тақтасына келетін сұраулардың HTTP_REFERER тақырыбын тексеруге бапталмаған. CSRF шабуыл қаупін азайту үшін бұл баптауды қосуды ұсынамыз.';
+$_lang["remove_install_folder_auto"] = 'Сайтымнан install қалтасы мен файлдарын жою <br />&nbsp;(Бұл әрекет үшін install қалтасын жою рұқсаты қажет).';
+$_lang["remove_install_folder_manual"] = 'Басқару тақтасына кірмес бұрын &quot;<b>install</b>&quot; қалтасын жоюды ұмытпаңыз.';
+$_lang["retry"] = 'Қайталау';
+$_lang["running_database_updates"] = 'Дерекқор жаңартулары орындалуда: ';
+$_lang["sample_web_site"] = 'Үлгі сайт';
+$_lang["sample_web_site_note"] = 'Бұл бар құжаттар мен ресурстарды <b>қайта жазатынын</b> ескеріңіз.';
+$_lang["session_problem"] = 'Сервер сеанстарында мәселе анықталды. Оны түзету үшін сервер әкімшісіне хабарласыңыз.';
+$_lang["session_problem_try_again"] = 'Қайта көру керек пе?';
+$_lang["setup_cannot_continue"] = 'Өкінішке қарай, жоғарыдағы себептерге байланысты орнату қазір жалғаса алмайды: ';
+$_lang["setup_couldnt_install"] = 'Evolution CMS орнатқышы таңдалған дерекқордағы кейбір кестелерді орната/өзгерте алмады.';
+$_lang["setup_database"] = 'Орнатқыш енді дерекқорды баптауға тырысады:<br />';
+$_lang["setup_database_create_connection"] = 'Дерекқорға қосылу: ';
+$_lang["setup_database_create_connection_failed"] = 'Дерекқорға қосылу сәтсіз аяқталды!';
+$_lang["setup_database_create_connection_failed_note"] = 'Дерекқорға кіру деректерін тексеріп, әрекетті қайталаңыз.';
+$_lang["setup_database_creating_tables"] = 'Дерекқор кестелері жасалуда: ';
+$_lang["setup_database_creation"] = 'Дерекқор жасалуда `';
+$_lang["setup_database_creation_failed"] = 'Дерекқорды жасау сәтсіз аяқталды!';
+$_lang["setup_database_creation_failed_note"] = ' - Орнатқыш дерекқорды жасай алмады!';
+$_lang["setup_database_creation_failed_note2"] = 'Орнатқыш дерекқорды жасай алмады және аттас дерекқор табылмады. Хостинг провайдерінің қауіпсіздік ережелері сыртқы сценарийлерге дерекқор жасауға рұқсат етпеуі мүмкін. Провайдер тәртібіне сәйкес дерекқор жасап, орнатуды қайта іске қосыңыз.';
+$_lang["setup_database_selection"] = 'Дерекқор таңдалуда `';
+$_lang["setup_database_selection_failed"] = 'Дерекқорды таңдау сәтсіз аяқталды...';
+$_lang["setup_database_selection_failed_note"] = 'Дерекқор жоқ. Орнатқыш оны жасауға тырысады.';
+$_lang["snippets"] = 'Сниппеттер';
+$_lang["some_tables_not_updated"] = 'Кейбір кестелер жаңартылмады. Бұған бұрын енгізілген өзгерістер себеп болуы мүмкін.';
+$_lang["status_checking_database"] = 'Дерекқор тексерілуде: ';
+$_lang["status_connecting"] = ' Серверге қосылу: ';
+$_lang["status_failed"] = 'сәтсіз!';
+$_lang["status_failed_could_not_create_database"] = 'сәтсіз — дерекқорды жасау мүмкін болмады';
+$_lang["status_failed_database_collation_does_not_match"] = 'сәтсіз — дерекқордың салыстыру тәртібі сәйкес емес; SET NAMES қолданыңыз немесе %s таңдаңыз';
+$_lang["status_failed_table_prefix_already_in_use"] = 'сәтсіз — кесте префиксі қолданылып жатыр!';
+$_lang["status_passed"] = 'сәтті — дерекқор таңдалды';
+$_lang["status_passed_database_created"] = 'сәтті — дерекқор жасалды';
+$_lang["status_passed_server"] = 'сәтті — салыстыру тәртіптері енді қолжетімді';
+$_lang["strict_mode"] = ' MySQL серверінің қатаң sql_mode режимі қосылған!';
+$_lang["strict_mode_error"] = 'STRICT_TRANS_TABLES sql_mode өшірілмесе, Evolution CMS жүйесінің кейбір мүмкіндіктері дұрыс жұмыс істемеуі мүмкін. MySQL режимін my.cnf файлын өңдеу арқылы өзгертіңіз немесе сервер әкімшісіне хабарласыңыз.';
+$_lang["summary_setup_check"] = 'Орнатқыш орнатуды бастауға бәрі дайын екенін анықтау үшін бірнеше тексеру жүргізді.';
+$_lang["system_configuration"] = 'Жүйе баптаулары';
+$_lang["system_configuration_validate_referer_description"] = '<strong>HTTP_REFERER тақырыптарын тексеру</strong> баптауы ұсынылады және сайтты CSRF шабуылдарынан қорғай алады, бірақ кейбір сервер баптауларында басқару тақтасына кіруге кедергі келтіруі мүмкін.';
+$_lang["table_prefix_already_inuse"] = ' - Бұл дерекқорда кесте префиксі қолданылып жатыр!';
+$_lang["table_prefix_already_inuse_note"] = 'Таңдалған дерекқорда көрсетілген префиксі бар кестелер болғандықтан, орнатқыш орната алмады. Жаңа кесте префиксін таңдап, орнатуды қайта іске қосыңыз.';
+$_lang["table_prefix_not_exist"] = ' - Бұл дерекқорда кесте префиксі жоқ!';
+$_lang["table_prefix_not_exist_note"] = 'Таңдалған дерекқорда жаңартылатын, көрсетілген префиксі бар кестелер болмағандықтан, орнатқыш орната алмады. Бар кесте префиксін таңдап, орнатуды қайта іске қосыңыз.';
+$_lang["templates"] = 'Үлгілер';
+$_lang["to_log_into_content_manager"] = 'Басқару тақтасына (manager/index.php) кіру үшін «Жабу» батырмасын басуға болады.';
+$_lang["toggle"] = 'Ауыстыру';
+$_lang['tvs'] = 'Үлгі айнымалылары';
+$_lang["unable_install_chunk"] = 'Чанкты орнату мүмкін болмады. Файл';
+$_lang["unable_install_module"] = 'Модульді орнату мүмкін болмады. Файл';
+$_lang["unable_install_plugin"] = 'Плагинді орнату мүмкін болмады. Файл';
+$_lang["unable_install_snippet"] = 'Сниппетті орнату мүмкін болмады. Файл';
+$_lang["unable_install_template"] = 'Үлгіні орнату мүмкін болмады. Файл';
+$_lang["upgrade_note"] = '<strong>Ескерту:</strong> Сайтты қарамас бұрын әкімші тіркелгісімен басқару тақтасына кіріп, жүйе баптауларын тексеріп сақтаңыз.';
+$_lang["upgraded"] = 'Жаңартылды';
+$_lang["validate_referer_title"] = 'HTTP_REFERER тақырыптарын тексеру керек пе?';
+$_lang["visit_forum"] = ', <a href="https://forum.evo.im" target="_blank">Evolution CMS форумдарына</a> өтіңіз.';
+$_lang["warning"] = 'ЕСКЕРТУ!';
+$_lang["welcome_message_start"] = 'Алдымен орындалатын орнату түрін таңдаңыз:';
+$_lang["welcome_message_text"] = 'Бұл бағдарлама орнатудың қалған қадамдарынан өтуге көмектеседі.';
+$_lang["welcome_message_welcome"] = 'Evolution CMS орнату бағдарламасына қош келдіңіз.';
+$_lang["writing_config_file"] = 'Баптау файлы жазылуда: ';
+$_lang["yes"] = 'Иә';
+$_lang["you_running_php"] = ' - Қолданыстағы PHP нұсқасы';
+?>

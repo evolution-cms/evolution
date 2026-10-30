@@ -1,0 +1,195 @@
+<?php
+/**
+ * Evolution CMS tk.inc.php language file
+ *
+ * @author Evolution CMS Team
+ * @version 3.5.x
+ * @date 2026-10-29 20:30:13
+ *
+ * @language Turkmen
+ * @package Evolution CMS
+ * @subpackage assets
+ * Please commit your language changes here: https://github.com/evolution-cms/evolution
+ */
+
+$_lang["agree_to_terms"] = 'Lisenziýa şertlerini kabul et we gurna';
+$_lang["alert_database_test_connection"] = 'Maglumat binýadyny döretmeli ýa-da saýlanan maglumat binýadyny barlamaly!';
+$_lang["alert_database_test_connection_failed"] = 'Saýlanan maglumat binýadynyň barlagy şowsuz boldy!';
+$_lang["alert_enter_adminconfirm"] = 'Dolandyryjynyň paroly we onuň tassyklamasy gabat gelenok!';
+$_lang["alert_enter_adminlogin"] = 'Ulgam dolandyryjysynyň hasaby üçin ulanyjy adyny girizmeli!';
+$_lang["alert_enter_adminpassword"] = 'Ulgam dolandyryjysynyň hasaby üçin parol girizmeli!';
+$_lang["alert_enter_database_name"] = 'Maglumat binýadynyň adyny girizmeli!';
+$_lang["alert_enter_host"] = 'Maglumat binýadynyň serwerini girizmeli!';
+$_lang["alert_enter_login"] = 'Maglumat binýadyna giriş adyny girizmeli!';
+$_lang["alert_server_test_connection"] = 'Serwere birikmäni barlamaly!';
+$_lang["alert_server_test_connection_failed"] = 'Serwere birikmäniň barlagy şowsuz boldy!';
+$_lang["alert_table_prefixes"] = 'Tablisa prefiksleri harp bilen başlanmaly!';
+$_lang["all"] = 'Hemmesi';
+$_lang["and_try_again"] = ', we gaýtadan synanyşyň. Meseläni nädip çözmelidigi barada kömek gerek bolsa';
+$_lang["and_try_again_plural"] = ', we gaýtadan synanyşyň. Meseleleri nädip çözmelidigi barada kömek gerek bolsa';
+$_lang["begin"] = 'Başla';
+$_lang["btnback_value"] = 'Yza';
+$_lang["btnclose_value"] = 'Ýap';
+$_lang["btnnext_value"] = 'Indiki';
+$_lang["cant_write_config_file"] = 'Evolution CMS sazlama faýlyny ýazyp bilmedi. Aşakdakylary şu faýla göçüriň ';
+$_lang["cant_write_config_file_note"] = 'Bu işler tamamlanandan soň, brauzeriňizde YourSiteName.com/manager/ salgysyny açyp, Evolution CMS dolandyryş paneline girip bilersiňiz.';
+$_lang["checkbox_select_options"] = 'Bellik gutularynyň saýlawlary:';
+$_lang["checking_if_cache_exist"] = '<span class="mono">/assets/cache</span> we <span class="mono">/assets/cache/rss</span> kataloglarynyň barlygy barlanýar: ';
+$_lang["checking_if_cache_file_writable"] = '<span class="mono">/assets/cache/siteCache.idx.php</span> faýlyna ýazyp bolýandygy barlanýar: ';
+$_lang["checking_if_cache_file2_writable"] = '<span class="mono">/assets/cache/sitePublishing.idx.php</span> faýlyna ýazyp bolýandygy barlanýar: ';
+$_lang["checking_if_cache_writable"] = '<span class="mono">/assets/cache</span> we <span class="mono">/assets/cache/rss</span> kataloglaryna ýazyp bolýandygy barlanýar: ';
+$_lang["checking_if_config_exist_and_writable"] = '<span class="mono">'.MGR_DIR.'/includes/config.inc.php</span> faýlynyň barlygy we oňa ýazyp bolýandygy barlanýar: ';
+$_lang["checking_if_export_exists"] = '<span class="mono">/assets/export</span> katalogynyň barlygy barlanýar: ';
+$_lang["checking_if_export_writable"] = '<span class="mono">/assets/export</span> katalogyna ýazyp bolýandygy barlanýar: ';
+$_lang["checking_if_images_exist"] = '<span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> we <span class="mono">/assets/media</span> kataloglarynyň barlygy barlanýar: ';
+$_lang["checking_if_images_writable"] = '<span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> we <span class="mono">/assets/media</span> kataloglaryna ýazyp bolýandygy barlanýar: ';
+$_lang["checking_mysql_strict_mode"] = 'MySQL berk sql_mode düzgüni barlanýar: ';
+$_lang["checking_mysql_version"] = 'MySQL wersiýasy barlanýar: ';
+$_lang["checking_php_version"] = 'PHP wersiýasy barlanýar: ';
+$_lang["checking_registerglobals"] = 'Register_Globals sazlamasynyň öçürilendigi barlanýar: ';
+$_lang["checking_registerglobals_note"] = 'Bu sazlama saýtyňyzy saýtlaryň arasyndaky skript hüjümlerine (XSS) has ejiz edýär. Ony öçürmek barada hosting üpjün edijiňiz bilen maslahatlaşyň. Adatça munuň üç usuly bar: umumy php.ini faýlyny üýtgetmek, Evolution CMS gurnamasynyň kök katalogyndaky .htaccess faýlyna düzgün goşmak ýa-da gurnamanyň her katalogyna aýratyn php.ini faýlyny goşmak (olaryň sany köp). Evolution CMS-i gurup bilersiňiz, ýöne bu duýduryşy göz öňünde tutuň.'; //Look at changing this to provide a solution.
+$_lang["checking_sessions"] = 'Sessiýalaryň dogry sazlanandygy barlanýar: ';
+$_lang["checking_table_prefix"] = 'Tablisanyň prefiksi barlanýar `';
+$_lang["chunks"] = 'Çanklar';
+$_lang["config_permissions_note"] = 'Täze Linux/Unix gurnamalary üçin <span class="mono">/manager/includes/</span> katalogynda <span class="mono">config.inc.php</span> atly boş faýl dörediň we rugsatlaryny 0666 edip belläň.';
+$_lang["connection_screen_collation"] = 'Deňeşdirme düzgüni:';
+$_lang["connection_screen_database_connection_information"] = 'Maglumat bazasy barada maglumat';
+$_lang["connection_screen_database_connection_note"] = 'Bu Evolution CMS gurnamasy üçin ulanyljak ýa-da dörediljek maglumat bazasynyň adyny giriziň. Maglumat bazasy ýok bolsa, gurnaýjy ony döretmäge synanyşar. Munuň başa barmagy MySQL ulanyjysynyň rugsatlaryna baglydyr.';
+$_lang["connection_screen_database_host"] = 'Maglumat bazasynyň serweri:';
+$_lang["connection_screen_database_info"] = 'Maglumat bazasy barada maglumat';
+$_lang["connection_screen_database_login"] = 'Maglumat bazasynyň ulanyjy ady:';
+$_lang["connection_screen_database_name"] = 'Maglumat bazasynyň ady:';
+$_lang["connection_screen_database_pass"] = 'Maglumat bazasynyň paroly:';
+$_lang["connection_screen_database_test_connection"] = 'Maglumat bazasyny dörediň ýa-da onuň saýlanyşyny barlaň.';
+$_lang["connection_screen_default_admin_email"] = 'Dolandyryjynyň e-poçtasy:';
+$_lang["connection_screen_default_admin_login"] = 'Dolandyryjynyň ulanyjy ady:';
+$_lang["connection_screen_default_admin_note"] = 'Indi esasy dolandyryjy hasaby üçin maglumatlary girizmeli. Öz adyňyzy we ýatdan çykarmajak parolyňyzy görkeziň. Gurnama tamamlanandan soň dolandyryş paneline girmek üçin olar gerek bolar.';
+$_lang["connection_screen_default_admin_password"] = 'Dolandyryjynyň paroly:';
+$_lang["connection_screen_default_admin_password_confirm"] = 'Paroly tassyklaň:';
+$_lang["connection_screen_default_admin_user"] = 'Deslapky dolandyryjy';
+$_lang["connection_screen_defaults"] = 'Deslapky dolandyryş sazlamalary';
+$_lang["connection_screen_server_connection_information"] = 'Serwere birikme we giriş maglumatlary';
+$_lang["connection_screen_server_connection_note"] = 'Birikmäni barlamazdan öň maglumat bazasynyň serwerini (serweriň adyny ýa-da IP salgysyny), ulanyjy adyny we paroly giriziň.';
+$_lang["connection_screen_server_test_connection"] = 'Maglumat bazasynyň serwerine birikmäni barlaň we deňeşdirme düzgünlerini görüň.';
+$_lang["connection_screen_table_prefix"] = 'Tablisanyň prefiksi:';
+$_lang["creating_database_connection"] = 'Maglumat bazasyna birikme döredilýär: ';
+$_lang["database_alerts"] = 'Maglumat bazasynyň duýduryşlary!';
+$_lang["database_connection_failed"] = 'Maglumat bazasyna birikmek başa barmady!';
+$_lang["database_connection_failed_note"] = 'Maglumat bazasyna giriş maglumatlaryny barlap, täzeden synanyşyň.';
+$_lang["database_use_failed"] = 'Maglumat bazasyny saýlap bolmady!';
+$_lang["database_use_failed_note"] = 'Görkezilen ulanyjynyň maglumat bazasyndaky rugsatlaryny barlap, täzeden synanyşyň.';
+$_lang["default_language"] = 'Dolandyryş paneliniň deslapky dili';
+$_lang["default_language_description"] = 'Bu Evolution CMS dolandyryş panelinde ulanyljak deslapky dildir.';
+$_lang["during_execution_of_sql"] = ' SQL görkezmesi ýerine ýetirilende ';
+$_lang["encoding"] = 'utf-8';	//charset encoding for html header
+$_lang["error"] = 'ýalňyşlyk';
+$_lang["errors"] = 'ýalňyşlyklar';
+$_lang["failed"] = 'BAŞA BARMADY!';
+$_lang["help"] = 'Kömek!';
+$_lang["help_link"] = 'https://forum.evo.im';
+$_lang["help_title"] = 'Evolution CMS forumlarynda gurnama boýunça kömek';
+$_lang["iagree_box"] = '<a href="../assets/docs/license.txt" target="_blank">Evolution CMS ygtyýarnamasynyň</a> şertlerine razy. GPL 2-nji wersiýa ygtyýarnamasynyň terjimeleri üçin <a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-translations.html" target="_blank">GNU operasion ulgamynyň web saýtyna</a> giriň.';
+$_lang["install"] = 'Gurmak';
+$_lang["install_overwrite"] = 'Gurmak/Üstünden ýazmak';
+$_lang["install_results"] = 'Gurnamanyň netijeleri';
+$_lang["install_update"] = 'Gurmak/Täzelemek';
+$_lang["installation_error_occured"] = 'Gurnama wagtynda aşakdaky ýalňyşlyklar ýüze çykdy';
+$_lang["installation_install_new_copy"] = 'Täze nusgasyny gurmak: ';
+$_lang["installation_install_new_note"] = 'Bu saýlaw maglumat bazasyndaky maglumatlaryň üstünden ýazyp biler.';
+$_lang["installation_mode"] = 'Gurnama düzgüni';
+$_lang["installation_new_installation"] = 'Täze gurnama';
+$_lang["installation_note"] = '<strong>Bellik:</strong> Dolandyryş paneline gireniňizden soň, saýty açmazdan öň Evolution CMS dolandyryş panelinde <strong>Gurallar</strong> -> Ulgam sazlamalary bölümine geçip, sazlamalary üýtgediň we ýatda saklaň.';
+$_lang["installation_successful"] = 'Gurnama üstünlikli tamamlandy!';
+$_lang["installation_upgrade_advanced"] = 'Giňeldilen täzeleme';
+$_lang["installation_upgrade_advanced_note"] = 'Tejribeli maglumat bazasy dolandyryjylary ýa-da birikmäniň nyşan toplumy başga bolan serwere göçmek üçin.<br /><b>Maglumat bazasynyň doly adyny, ulanyjysyny, parolyny we birikme/deňeşdirme düzgüniniň maglumatlaryny bilmeli.</b>';
+$_lang["installation_upgrade_existing"] = 'Bar bolan gurnamany täzelemek';
+$_lang["installation_upgrade_existing_note"] = 'Häzirki faýllaryňyzy we maglumat bazaňyzy täzeläň.';
+$_lang["installed"] = 'Gurnaldy';
+$_lang["installing_demo_site"] = 'Synag saýty gurnalýar: ';
+$_lang["language_code"] = 'tk';	// for html element e.g. <html xml:lang="en" lang="en">
+$_lang["loading"] = 'Ýüklenýär...';
+$_lang["modules"] = 'Modullar';
+$_lang["modx_footer1"] = '&copy; 2004 - 2026 <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> mazmun dolandyryş platformasy (CMF) taslamasy. Ähli hukuklar goralan. Evolution CMS GNU GPL ygtyýarnamasy esasynda ýaýradylýar.';
+$_lang["modx_footer2"] = 'Evolution CMS erkin programma üpjünçiligidir. Evolution CMS arkaly döredijilikli işlemegi we ony özüňize amatly usulda ulanmagy maslahat berýäris. Üýtgetme girizip, üýtgedilen Evolution CMS nusgasyny ýaýratmak isleseňiz, başlangyç koduny erkin saklaň!';
+$_lang["modx_install"] = 'Evolution CMS &raquo; Gurmak';
+$_lang["modx_requires_php"] = ', Evolution CMS bolsa PHP 4.2.0 ýa-da has täze wersiýany talap edýär';
+$_lang["mysql_5051"] = ' MySQL serweriniň wersiýasy 5.0.51!';
+$_lang["mysql_5051_warning"] = 'MySQL 5.0.51 wersiýasynda belli meseleler bar. Dowam etmezden öň täzelemek maslahat berilýär.';
+$_lang["mysql_version_is"] = ' MySQL wersiýaňyz: ';
+$_lang["no"] = 'Ýok';
+$_lang["none"] = 'Hiç biri';
+$_lang["not_found"] = 'tapylmady';
+$_lang["ok"] = 'BOLDY!';
+$_lang["optional_items"] = 'Goşmaça saýlawlar';
+$_lang["optional_items_note"] = 'Gurnama saýlawlaryny belläň we Gurmak düwmesine basyň:';
+$_lang["php_security_notice"] = '<legend>Howpsuzlyk duýduryşy</legend><p>Evolution CMS siziň PHP wersiýaňyzda işlese-de, ony bu wersiýada ulanmak maslahat berilmeýär. PHP wersiýaňyzda köp howpsuzlyk gowşaklyklary bar. Bu kemçilikleri düzedýän [+min_version+] ýa-da has täze PHP wersiýasyna geçiň. Saýtyňyzyň howpsuzlygy üçin bu wersiýa täzelemek maslahat berilýär.</p>';
+$_lang["please_correct_error"] = '. Ýalňyşlygy düzediň';
+$_lang["please_correct_errors"] = '. Ýalňyşlyklary düzediň';
+$_lang["plugins"] = 'Plaginler';
+$_lang["preinstall_validation"] = 'Gurnamadan öňki barlag';
+$_lang["recommend_setting_change_title"] = 'Maslahat berilýän sazlama üýtgetmesi';
+$_lang["recommend_setting_change_validate_referer_confirmation"] = 'Sazlama üýtgetmesi: <em>HTTP_REFERER sözbaşylary barlanmalymy?</em>';
+$_lang["recommend_setting_change_validate_referer_description"] = 'Saýtyňyz dolandyryş paneline gelýän talaplaryň HTTP_REFERER sözbaşysyny barlamak üçin sazlanmadyk. CSRF (saýtlaryň arasyndaky talap galplaşdyrmasy) hüjüminiň töwekgelçiligini azaltmak üçin bu sazlamany açmagy berk maslahat berýäris.';
+$_lang["remove_install_folder_auto"] = 'Saýtymdan gurnama katalogyny we faýllaryny aýyrmak <br />&nbsp;(Bu amal üçin gurnama katalogyny pozmak rugsady gerek).';
+$_lang["remove_install_folder_manual"] = 'Mazmun dolandyryş paneline girmezden öň &quot;<b>install</b>&quot; katalogyny aýyrmagy unutmaň.';
+$_lang["retry"] = 'Gaýtadan synanyş';
+$_lang["running_database_updates"] = 'Maglumat bazasynyň täzelenmeleri ýerine ýetirilýär: ';
+$_lang["sample_web_site"] = 'Nusga web sahypasy';
+$_lang["sample_web_site_note"] = 'Munuň bar bolan resminamalary we serişdeleri <b>üstünden ýazjakdygyny</b> ýadyňyzda saklaň.';
+$_lang["session_problem"] = 'Serwer sessiýalaryňyzda mesele ýüze çykaryldy. Meseläni düzetmek üçin serwer administratoryňyza ýüz tutuň.';
+$_lang["session_problem_try_again"] = 'Gaýtadan synanyşmalymy?';
+$_lang["setup_cannot_continue"] = 'Gynansak-da, ýokardaky sebäpli gurnamany häzir dowam etdirip bolmaýar ';
+$_lang["setup_couldnt_install"] = 'Evolution CMS gurnaýjysy saýlanan maglumat bazasynda käbir tablisalary gurnap ýa-da üýtgedip bilmedi.';
+$_lang["setup_database"] = 'Gurnaýjy indi maglumat bazasyny sazlamaga synanyşar:<br />';
+$_lang["setup_database_create_connection"] = 'Maglumat bazasyna birikme döredilýär: ';
+$_lang["setup_database_create_connection_failed"] = 'Maglumat bazasyna birikmek başartmady!';
+$_lang["setup_database_create_connection_failed_note"] = 'Maglumat bazasyna giriş maglumatlaryny barlap, gaýtadan synanyşyň.';
+$_lang["setup_database_creating_tables"] = 'Maglumat bazasynyň tablisalary döredilýär: ';
+$_lang["setup_database_creation"] = 'Maglumat bazasy döredilýär `';
+$_lang["setup_database_creation_failed"] = 'Maglumat bazasyny döretmek başartmady!';
+$_lang["setup_database_creation_failed_note"] = ' - Gurnaýjy maglumat bazasyny döredip bilmedi!';
+$_lang["setup_database_creation_failed_note2"] = 'Gurnaýjy maglumat bazasyny döredip bilmedi we şol at bilen bar bolan maglumat bazasy tapylmady. Hosting üpjün edijiňiziň howpsuzlyk sazlamalary daşarky skriptleriň maglumat bazasyny döretmegine rugsat bermeýän bolmagy mümkin. Hosting üpjün edijiňiziň düzgünine laýyklykda maglumat bazasyny dörediň we gurnaýjyny gaýtadan işlediň.';
+$_lang["setup_database_selection"] = 'Maglumat bazasy saýlanýar `';
+$_lang["setup_database_selection_failed"] = 'Maglumat bazasyny saýlamak başartmady...';
+$_lang["setup_database_selection_failed_note"] = 'Maglumat bazasy ýok. Gurnaýjy ony döretmäge synanyşar.';
+$_lang["snippets"] = 'Snipetler';
+$_lang["some_tables_not_updated"] = 'Käbir tablisalar täzelenmedi. Munuň sebäbi ozalky üýtgetmeler bolup biler.';
+$_lang["status_checking_database"] = 'Maglumat bazasy barlanýar: ';
+$_lang["status_connecting"] = ' Hosta birikme: ';
+$_lang["status_failed"] = 'başartmady!';
+$_lang["status_failed_could_not_create_database"] = 'başartmady - maglumat bazasyny döredip bolmady';
+$_lang["status_failed_database_collation_does_not_match"] = 'başartmady - maglumat bazasynyň deňeşdirme düzgüni gabat gelenok; SET NAMES ulanyň ýa-da %s saýlaň';
+$_lang["status_failed_table_prefix_already_in_use"] = 'başartmady - tablisa prefiksi eýýäm ulanylýar!';
+$_lang["status_passed"] = 'üstünlikli - maglumat bazasy saýlandy';
+$_lang["status_passed_database_created"] = 'üstünlikli - maglumat bazasy döredildi';
+$_lang["status_passed_server"] = 'üstünlikli - deňeşdirme düzgünleri indi elýeterli';
+$_lang["strict_mode"] = ' MySQL serwerinde berk sql_mode işjeň!';
+$_lang["strict_mode_error"] = 'STRICT_TRANS_TABLES sql_mode öçürilmese, Evolution CMS ulgamynyň käbir mümkinçilikleri dogry işlemän biler. MySQL tertibini my.cnf faýlyny üýtgedip sazlap bilersiňiz ýa-da serwer administratoryňyza ýüz tutuň.';
+$_lang["summary_setup_check"] = 'Gurnaýjy gurnamany başlamak üçin hemme zadyň taýýardygyny anyklamak maksady bilen birnäçe barlag geçirdi.';
+$_lang["system_configuration"] = 'Ulgam sazlamalary';
+$_lang["system_configuration_validate_referer_description"] = '<strong>HTTP_REFERER sözbaşylaryny barlamak</strong> sazlamasy maslahat berilýär we sahypaňyzy CSRF hüjümlerinden gorap biler, ýöne käbir serwer sazlamalarynda dolandyryş paneline girişi ýapyp biler.';
+$_lang["table_prefix_already_inuse"] = ' - Tablisa prefiksi bu maglumat bazasynda eýýäm ulanylýar!';
+$_lang["table_prefix_already_inuse_note"] = 'Saýlanan maglumat bazasynda görkezilen prefiksli tablisalar eýýäm bar bolansoň, gurnaýjy gurnamany ýerine ýetirip bilmedi. Täze tablisa prefiksini saýlaň we gurnaýjyny gaýtadan işlediň.';
+$_lang["table_prefix_not_exist"] = ' - Tablisa prefiksi bu maglumat bazasynda ýok!';
+$_lang["table_prefix_not_exist_note"] = 'Saýlanan maglumat bazasynda täzelemek üçin görkezilen prefiksli tablisalar ýok bolansoň, gurnaýjy gurnamany ýerine ýetirip bilmedi. Bar bolan tablisa prefiksini saýlaň we gurnaýjyny gaýtadan işlediň.';
+$_lang["templates"] = 'Şablonlar';
+$_lang["to_log_into_content_manager"] = 'Mazmun dolandyryjysyna (manager/index.php) girmek üçin `Ýap` düwmesine basyp bilersiňiz.';
+$_lang["toggle"] = 'Geçir';
+$_lang['tvs'] = 'Şablon üýtgeýjileri';
+$_lang["unable_install_chunk"] = 'Çanky gurnap bolmady.  Faýl';
+$_lang["unable_install_module"] = 'Moduly gurnap bolmady.  Faýl';
+$_lang["unable_install_plugin"] = 'Plagini gurnap bolmady.  Faýl';
+$_lang["unable_install_snippet"] = 'Snipeti gurnap bolmady.  Faýl';
+$_lang["unable_install_template"] = 'Şablony gurnap bolmady.  Faýl';
+$_lang["upgrade_note"] = '<strong>Bellik:</strong> Sahypaňyzy açmazdan ozal administrator hasaby bilen dolandyryş paneline giriň, soňra Ulgam sazlamalaryny gözden geçirip, ýatda saklaň.';
+$_lang["upgraded"] = 'Täzelendi';
+$_lang["validate_referer_title"] = 'HTTP_REFERER sözbaşylaryny barlamalymy?';
+$_lang["visit_forum"] = ', <a href="https://forum.evo.im" target="_blank">Evolution CMS forumlaryna</a> giriň.';
+$_lang["warning"] = 'DUÝDURYŞ!';
+$_lang["welcome_message_start"] = 'Ilki bilen ýerine ýetirilmeli gurnamanyň görnüşini saýlaň:';
+$_lang["welcome_message_text"] = 'Bu programma gurnamanyň galan ädimlerinde size ýol görkezer.';
+$_lang["welcome_message_welcome"] = 'Evolution CMS gurnama programmasyna hoş geldiňiz.';
+$_lang["writing_config_file"] = 'Sazlama faýly ýazylýar: ';
+$_lang["yes"] = 'Hawa';
+$_lang["you_running_php"] = ' - Siz şu PHP wersiýasyny ulanýarsyňyz ';
+?>

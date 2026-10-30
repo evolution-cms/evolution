@@ -1,0 +1,195 @@
+<?php
+/**
+ * Evolution CMS hy.inc.php language file
+ *
+ * @author Evolution CMS Team
+ * @version 3.5.x
+ * @date 2026-10-29 20:30:13
+ *
+ * @language Armenian
+ * @package Evolution CMS
+ * @subpackage assets
+ * Please commit your language changes here: https://github.com/evolution-cms/evolution
+ */
+
+$_lang["agree_to_terms"] = 'Համաձայնել արտոնագրի պայմաններին և տեղադրել';
+$_lang["alert_database_test_connection"] = 'Պետք է ստեղծեք տվյալների բազան կամ ստուգեք դրա ընտրությունը։';
+$_lang["alert_database_test_connection_failed"] = 'Տվյալների բազայի ընտրության ստուգումը ձախողվեց։';
+$_lang["alert_enter_adminconfirm"] = 'Ադմինիստրատորի գաղտնաբառն ու հաստատումը չեն համընկնում։';
+$_lang["alert_enter_adminlogin"] = 'Պետք է մուտքագրեք համակարգի ադմինիստրատորի հաշվի օգտանունը։';
+$_lang["alert_enter_adminpassword"] = 'Պետք է մուտքագրեք համակարգի ադմինիստրատորի հաշվի գաղտնաբառը։';
+$_lang["alert_enter_database_name"] = 'Պետք է մուտքագրեք տվյալների բազայի անունը։';
+$_lang["alert_enter_host"] = 'Պետք է մուտքագրեք տվյալների բազայի հոսթը։';
+$_lang["alert_enter_login"] = 'Պետք է մուտքագրեք տվյալների բազայի օգտանունը։';
+$_lang["alert_server_test_connection"] = 'Պետք է ստուգեք սերվերի հետ կապը։';
+$_lang["alert_server_test_connection_failed"] = 'Սերվերի հետ կապի ստուգումը ձախողվեց։';
+$_lang["alert_table_prefixes"] = 'Աղյուսակների նախածանցները պետք է սկսվեն տառով։';
+$_lang["all"] = 'Բոլորը';
+$_lang["and_try_again"] = ', և կրկին փորձեք։ Եթե օգնության կարիք ունեք՝ պարզելու, թե ինչպես շտկել խնդիրը';
+$_lang["and_try_again_plural"] = ', և կրկին փորձեք։ Եթե օգնության կարիք ունեք՝ պարզելու, թե ինչպես շտկել խնդիրները';
+$_lang["begin"] = 'Սկսել';
+$_lang["btnback_value"] = 'Հետ';
+$_lang["btnclose_value"] = 'Փակել';
+$_lang["btnnext_value"] = 'Հաջորդը';
+$_lang["cant_write_config_file"] = 'Evolution CMS-ը չկարողացավ գրել կազմաձևման ֆայլը։ Պատճենեք հետևյալը այս ֆայլի մեջ՝ ';
+$_lang["cant_write_config_file_note"] = 'Դա անելուց հետո կարող եք մուտք գործել Evolution CMS-ի կառավարման վահանակ՝ զննարկիչում բացելով YourSiteName.com/manager/ հասցեն։';
+$_lang["checkbox_select_options"] = 'Նշման վանդակների ընտրանքներ՝';
+$_lang["checking_if_cache_exist"] = 'Ստուգվում է <span class="mono">/assets/cache</span> և <span class="mono">/assets/cache/rss</span> պանակների առկայությունը՝ ';
+$_lang["checking_if_cache_file_writable"] = 'Ստուգվում է <span class="mono">/assets/cache/siteCache.idx.php</span> ֆայլում գրելու հնարավորությունը՝ ';
+$_lang["checking_if_cache_file2_writable"] = 'Ստուգվում է <span class="mono">/assets/cache/sitePublishing.idx.php</span> ֆայլում գրելու հնարավորությունը՝ ';
+$_lang["checking_if_cache_writable"] = 'Ստուգվում է <span class="mono">/assets/cache</span> և <span class="mono">/assets/cache/rss</span> պանակներում գրելու հնարավորությունը՝ ';
+$_lang["checking_if_config_exist_and_writable"] = 'Ստուգվում է <span class="mono">'.MGR_DIR.'/includes/config.inc.php</span> ֆայլի առկայությունն ու դրանում գրելու հնարավորությունը՝ ';
+$_lang["checking_if_export_exists"] = 'Ստուգվում է <span class="mono">/assets/export</span> պանակի առկայությունը՝ ';
+$_lang["checking_if_export_writable"] = 'Ստուգվում է <span class="mono">/assets/export</span> պանակում գրելու հնարավորությունը՝ ';
+$_lang["checking_if_images_exist"] = 'Ստուգվում է <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> և <span class="mono">/assets/media</span> պանակների առկայությունը՝ ';
+$_lang["checking_if_images_writable"] = 'Ստուգվում է <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> և <span class="mono">/assets/media</span> պանակներում գրելու հնարավորությունը՝ ';
+$_lang["checking_mysql_strict_mode"] = 'Ստուգվում է MySQL-ի խիստ sql_mode ռեժիմը՝ ';
+$_lang["checking_mysql_version"] = 'Ստուգվում է MySQL-ի տարբերակը՝ ';
+$_lang["checking_php_version"] = 'Ստուգվում է PHP-ի տարբերակը՝ ';
+$_lang["checking_registerglobals"] = 'Ստուգվում է՝ արդյոք Register_Globals-ն անջատված է՝ ';
+$_lang["checking_registerglobals_note"] = 'Այս կազմաձևումը ձեր կայքը զգալիորեն ավելի խոցելի է դարձնում միջկայքային սկրիպտավորման (XSS) հարձակումների նկատմամբ։ Այս կարգավորումն անջատելու համար դիմեք ձեր հոսթինգի մատակարարին։ Սովորաբար դա արվում է երեք եղանակներից մեկով՝ ընդհանուր php.ini ֆայլը փոփոխելով, Evolution CMS-ի տեղադրման արմատային պանակի .htaccess ֆայլում կանոններ ավելացնելով կամ տեղադրման յուրաքանչյուր պանակում անհատական php.ini ֆայլեր ավելացնելով (իսկ այդպիսի պանակները շատ են)։ Դուք դեռ կարող եք տեղադրել Evolution CMS-ը, սակայն հաշվի առեք այս նախազգուշացումը։'; //Դիտարկել սա փոխելը՝ լուծում առաջարկելու համար։
+$_lang["checking_sessions"] = 'Ստուգվում է աշխատաշրջանների ճիշտ կազմաձևումը՝ ';
+$_lang["checking_table_prefix"] = 'Ստուգվում է աղյուսակների նախածանցը՝ `';
+$_lang["chunks"] = 'Չանքեր';
+$_lang["config_permissions_note"] = 'Linux/Unix համակարգում նոր տեղադրման համար <span class="mono">/manager/includes/</span> պանակում ստեղծեք <span class="mono">config.inc.php</span> անունով դատարկ ֆայլ՝ 0666 թույլտվություններով։';
+$_lang["connection_screen_collation"] = 'Համադրման կարգ՝';
+$_lang["connection_screen_database_connection_information"] = 'Տվյալների բազայի տեղեկություններ';
+$_lang["connection_screen_database_connection_note"] = 'Մուտքագրեք այն տվյալների բազայի անունը, որն ուզում եք օգտագործել կամ ստեղծել Evolution CMS-ի այս տեղադրման համար։ Եթե տվյալների բազան գոյություն չունի, տեղադրիչը կփորձի ստեղծել այն։ Դա կարող է ձախողվել՝ կախված MySQL-ի օգտատիրոջ թույլտվություններից։';
+$_lang["connection_screen_database_host"] = 'Տվյալների բազայի հոսթ՝';
+$_lang["connection_screen_database_info"] = 'Տվյալների բազայի տեղեկություններ';
+$_lang["connection_screen_database_login"] = 'Տվյալների բազայի օգտանուն՝';
+$_lang["connection_screen_database_name"] = 'Տվյալների բազայի անուն՝';
+$_lang["connection_screen_database_pass"] = 'Տվյալների բազայի գաղտնաբառ՝';
+$_lang["connection_screen_database_test_connection"] = 'Ստեղծել տվյալների բազան կամ ստուգել դրա ընտրությունը։';
+$_lang["connection_screen_default_admin_email"] = 'Ադմինիստրատորի էլ․ փոստ՝';
+$_lang["connection_screen_default_admin_login"] = 'Ադմինիստրատորի օգտանուն՝';
+$_lang["connection_screen_default_admin_note"] = 'Այժմ պետք է մուտքագրեք հիմնական ադմինիստրատորի հաշվի տվյալները։ Այստեղ կարող եք նշել ձեր օգտանունը և այնպիսի գաղտնաբառ, որը հեշտությամբ չեք մոռանա։ Դրանք պետք կգան տեղադրումն ավարտելուց հետո կառավարման վահանակ մուտք գործելու համար։';
+$_lang["connection_screen_default_admin_password"] = 'Ադմինիստրատորի գաղտնաբառ՝';
+$_lang["connection_screen_default_admin_password_confirm"] = 'Հաստատեք գաղտնաբառը՝';
+$_lang["connection_screen_default_admin_user"] = 'Լռելյայն ադմինիստրատոր';
+$_lang["connection_screen_defaults"] = 'Կառավարման վահանակի լռելյայն կարգավորումներ';
+$_lang["connection_screen_server_connection_information"] = 'Սերվերի կապի և մուտքի տեղեկություններ';
+$_lang["connection_screen_server_connection_note"] = 'Կապը ստուգելուց առաջ մուտքագրեք տվյալների բազայի հոսթը (սերվերի անունը կամ IP հասցեն), օգտանունն ու գաղտնաբառը։';
+$_lang["connection_screen_server_test_connection"] = 'Ստուգել տվյալների բազայի սերվերի հետ կապը և դիտել համադրման կարգերը։';
+$_lang["connection_screen_table_prefix"] = 'Աղյուսակների նախածանց՝';
+$_lang["creating_database_connection"] = 'Ստեղծվում է կապ տվյալների բազայի հետ՝ ';
+$_lang["database_alerts"] = 'Տվյալների բազայի նախազգուշացումներ։';
+$_lang["database_connection_failed"] = 'Տվյալների բազայի հետ կապը ձախողվեց։';
+$_lang["database_connection_failed_note"] = 'Ստուգեք տվյալների բազայի մուտքի տվյալներն ու կրկին փորձեք։';
+$_lang["database_use_failed"] = 'Չհաջողվեց ընտրել տվյալների բազան։';
+$_lang["database_use_failed_note"] = 'Ստուգեք նշված օգտատիրոջ թույլտվությունները տվյալների բազայի համար և կրկին փորձեք։';
+$_lang["default_language"] = 'Կառավարման վահանակի լռելյայն լեզու';
+$_lang["default_language_description"] = 'Սա Evolution CMS-ի կառավարման վահանակում լռելյայն օգտագործվող լեզուն է։';
+$_lang["during_execution_of_sql"] = ' SQL հրահանգը կատարելիս՝ ';
+$_lang["encoding"] = 'UTF-8';	//HTML վերնագրի նիշերի կոդավորումը
+$_lang["error"] = 'սխալ';
+$_lang["errors"] = 'սխալներ';
+$_lang["failed"] = 'ՁԱԽՈՂՎԵՑ։';
+$_lang["help"] = 'Օգնություն։';
+$_lang["help_link"] = 'https://forum.evo.im';
+$_lang["help_title"] = 'Տեղադրման աջակցություն Evolution CMS-ի ֆորումներում';
+$_lang["iagree_box"] = 'Ես համաձայն եմ <a href="../assets/docs/license.txt" target="_blank">Evolution CMS-ի արտոնագրի</a> պայմաններին։ GPL տարբերակ 2 արտոնագրի թարգմանությունների համար այցելեք <a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-translations.html" target="_blank">GNU օպերացիոն համակարգի կայքը</a>։';
+$_lang["install"] = 'Տեղադրել';
+$_lang["install_overwrite"] = 'Տեղադրել/Վերագրել';
+$_lang["install_results"] = 'Տեղադրման արդյունքներ';
+$_lang["install_update"] = 'Տեղադրել/Թարմացնել';
+$_lang["installation_error_occured"] = 'Տեղադրման ընթացքում առաջացան հետևյալ սխալները';
+$_lang["installation_install_new_copy"] = 'Տեղադրել նոր պատճեն՝ ';
+$_lang["installation_install_new_note"] = 'Հաշվի առեք, որ այս ընտրանքը կարող է վերագրել ձեր տվյալների բազայի ցանկացած տվյալ։';
+$_lang["installation_mode"] = 'Տեղադրման ռեժիմ';
+$_lang["installation_new_installation"] = 'Նոր տեղադրում';
+$_lang["installation_note"] = '<strong>Նշում․</strong> Կառավարման վահանակ մուտք գործելուց հետո, նախքան կայքը դիտելը, խմբագրեք և պահպանեք համակարգի կազմաձևման կարգավորումները՝ Evolution CMS-ի կառավարման վահանակում ընտրելով <strong>Գործիքներ</strong> -> Համակարգի կազմաձևում։';
+$_lang["installation_successful"] = 'Տեղադրումը հաջողությամբ ավարտվեց։';
+$_lang["installation_upgrade_advanced"] = 'Ընդլայնված թարմացում';
+$_lang["installation_upgrade_advanced_note"] = 'Տվյալների բազաների փորձառու ադմինիստրատորների կամ տվյալների բազայի կապի այլ նիշերի հավաքածուով սերվեր տեղափոխվելու համար։<br /><b>Դուք պետք է իմանաք տվյալների բազայի ամբողջական անունը, օգտվողին, գաղտնաբառը և կապի/համադրման մանրամասները։</b>';
+$_lang["installation_upgrade_existing"] = 'Թարմացնել առկա տեղադրումը';
+$_lang["installation_upgrade_existing_note"] = 'Թարմացնել ընթացիկ ֆայլերն ու տվյալների բազան։';
+$_lang["installed"] = 'Տեղադրված է';
+$_lang["installing_demo_site"] = 'Ցուցադրական կայքի տեղադրում. ';
+$_lang["language_code"] = 'hy';	// for html element e.g. <html xml:lang="en" lang="en">
+$_lang["loading"] = 'Բեռնվում է...';
+$_lang["modules"] = 'Մոդուլներ';
+$_lang["modx_footer1"] = '&copy; 2004 - 2026 <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> բովանդակության կառավարման հենքի (CMF) նախագիծ։ Բոլոր իրավունքները պաշտպանված են։ Evolution CMS-ը լիցենզավորված է GNU GPL լիցենզիայով։';
+$_lang["modx_footer2"] = 'Evolution CMS-ը ազատ ծրագրային ապահովում է։ Մենք խրախուսում ենք ստեղծագործել և օգտագործել Evolution CMS-ը ձեզ հարմար ցանկացած եղանակով։ Պարզապես համոզվեք, որ փոփոխություններ կատարելու և ձեր փոփոխված Evolution CMS-ը տարածելու դեպքում սկզբնական կոդը մնում է ազատ։';
+$_lang["modx_install"] = 'Evolution CMS &raquo; Տեղադրում';
+$_lang["modx_requires_php"] = ', իսկ Evolution CMS-ը պահանջում է PHP 4.2.0 կամ ավելի նոր տարբերակ';
+$_lang["mysql_5051"] = ' MySQL սերվերի տարբերակը 5.0.51 է։';
+$_lang["mysql_5051_warning"] = 'MySQL 5.0.51-ում հայտնի խնդիրներ կան։ Խորհուրդ է տրվում թարմացնել այն նախքան շարունակելը։';
+$_lang["mysql_version_is"] = ' Ձեր MySQL-ի տարբերակն է. ';
+$_lang["no"] = 'Ոչ';
+$_lang["none"] = 'Չկա';
+$_lang["not_found"] = 'չի գտնվել';
+$_lang["ok"] = 'Լավ է։';
+$_lang["optional_items"] = 'Ընտրովի բաղադրիչներ';
+$_lang["optional_items_note"] = 'Ընտրեք տեղադրման տարբերակները և սեղմեք «Տեղադրել».';
+$_lang["php_security_notice"] = '<legend>Անվտանգության ծանուցում</legend><p>Թեև Evolution CMS-ը կաշխատի ձեր PHP-ի տարբերակով, այդ տարբերակում Evolution CMS-ի օգտագործումը խորհուրդ չի տրվում։ Ձեր PHP-ի տարբերակն ունի անվտանգության բազմաթիվ խոցելիություններ։ Թարմացրեք PHP-ն մինչև [+min_version+] կամ ավելի նոր տարբերակ, որտեղ այդ խոցելիությունները շտկված են։ Ձեր կայքի անվտանգության համար խորհուրդ է տրվում անցնել այս տարբերակին։</p>';
+$_lang["please_correct_error"] = '։ Խնդրում ենք ուղղել սխալը';
+$_lang["please_correct_errors"] = '։ Խնդրում ենք ուղղել սխալները';
+$_lang["plugins"] = 'Փլագիններ';
+$_lang["preinstall_validation"] = 'Ստուգում տեղադրումից առաջ';
+$_lang["recommend_setting_change_title"] = 'Կարգավորման առաջարկվող փոփոխություն';
+$_lang["recommend_setting_change_validate_referer_confirmation"] = 'Կարգավորման փոփոխություն. <em>Ստուգե՞լ HTTP_REFERER վերնագրերը։</em>';
+$_lang["recommend_setting_change_validate_referer_description"] = 'Ձեր կայքում միացված չէ կառավարման վահանակ մուտք գործող հարցումների HTTP_REFERER-ի ստուգումը։ Խստորեն խորհուրդ ենք տալիս միացնել այս կարգավորումը՝ CSRF (միջկայքային հարցումների կեղծում) հարձակման վտանգը նվազեցնելու համար։';
+$_lang["remove_install_folder_auto"] = 'Հեռացնել տեղադրման պանակն ու ֆայլերը իմ կայքից <br />&nbsp;(Այս գործողության համար տեղադրման պանակը պետք է ունենա ջնջման թույլտվություն)։';
+$_lang["remove_install_folder_manual"] = 'Մի մոռացեք հեռացնել &quot;<b>install</b>&quot; պանակը՝ նախքան բովանդակության կառավարման վահանակ մուտք գործելը։';
+$_lang["retry"] = 'Կրկին փորձել';
+$_lang["running_database_updates"] = 'Տվյալների բազայի թարմացումների կատարում. ';
+$_lang["sample_web_site"] = 'Կայքի օրինակ';
+$_lang["sample_web_site_note"] = 'Նկատի ունեցեք, որ սա <b>կվերագրի</b> առկա փաստաթղթերն ու ռեսուրսները։';
+$_lang["session_problem"] = 'Ձեր սերվերի սեանսների հետ խնդիր է հայտնաբերվել։ Խնդիրը շտկելու համար դիմեք սերվերի ադմինիստրատորին։';
+$_lang["session_problem_try_again"] = 'Կրկի՞ն փորձել։';
+$_lang["setup_cannot_continue"] = 'Ցավոք, տեղադրումն այս պահին չի կարող շարունակվել վերը նշվածի պատճառով. ';
+$_lang["setup_couldnt_install"] = 'Evolution CMS-ի տեղադրիչը չկարողացավ ստեղծել/փոփոխել ընտրված տվյալների բազայի որոշ աղյուսակներ։';
+$_lang["setup_database"] = 'Տեղադրիչը հիմա կփորձի կարգավորել տվյալների բազան.<br />';
+$_lang["setup_database_create_connection"] = 'Տվյալների բազայի հետ կապի ստեղծում. ';
+$_lang["setup_database_create_connection_failed"] = 'Տվյալների բազային միանալը ձախողվեց։';
+$_lang["setup_database_create_connection_failed_note"] = 'Ստուգեք տվյալների բազա մուտք գործելու տվյալները և կրկին փորձեք։';
+$_lang["setup_database_creating_tables"] = 'Տվյալների բազայի աղյուսակների ստեղծում. ';
+$_lang["setup_database_creation"] = 'Տվյալների բազայի ստեղծում `';
+$_lang["setup_database_creation_failed"] = 'Տվյալների բազայի ստեղծումը ձախողվեց։';
+$_lang["setup_database_creation_failed_note"] = ' - Տեղադրիչը չկարողացավ ստեղծել տվյալների բազան։';
+$_lang["setup_database_creation_failed_note2"] = 'Տեղադրիչը չկարողացավ ստեղծել տվյալների բազան, և նույն անունով առկա տվյալների բազա չի գտնվել։ Հավանաբար ձեր հոսթինգի մատակարարի անվտանգության կանոնները թույլ չեն տալիս արտաքին սկրիպտներին ստեղծել տվյալների բազա։ Ստեղծեք տվյալների բազա ձեր հոսթինգի մատակարարի ընթացակարգով և կրկին գործարկեք տեղադրիչը։';
+$_lang["setup_database_selection"] = 'Տվյալների բազայի ընտրություն `';
+$_lang["setup_database_selection_failed"] = 'Տվյալների բազայի ընտրությունը ձախողվեց...';
+$_lang["setup_database_selection_failed_note"] = 'Տվյալների բազան գոյություն չունի։ Տեղադրիչը կփորձի ստեղծել այն։';
+$_lang["snippets"] = 'Սնիփեթներ';
+$_lang["some_tables_not_updated"] = 'Որոշ աղյուսակներ չեն թարմացվել։ Դա կարող է պայմանավորված լինել նախկին փոփոխություններով։';
+$_lang["status_checking_database"] = 'Տվյալների բազայի ստուգում. ';
+$_lang["status_connecting"] = ' Միացում հոսթին. ';
+$_lang["status_failed"] = 'ձախողվեց։';
+$_lang["status_failed_could_not_create_database"] = 'ձախողվեց. չհաջողվեց ստեղծել տվյալների բազան';
+$_lang["status_failed_database_collation_does_not_match"] = 'ձախողվեց. տվյալների բազայի համադրումը չի համապատասխանում. օգտագործեք SET NAMES կամ ընտրեք %s';
+$_lang["status_failed_table_prefix_already_in_use"] = 'ձախողվեց. աղյուսակների նախածանցն արդեն օգտագործվում է։';
+$_lang["status_passed"] = 'հաջողվեց. տվյալների բազան ընտրված է';
+$_lang["status_passed_database_created"] = 'հաջողվեց. տվյալների բազան ստեղծված է';
+$_lang["status_passed_server"] = 'հաջողվեց. համադրումներն այժմ հասանելի են';
+$_lang["strict_mode"] = ' MySQL սերվերի խիստ sql_mode ռեժիմը միացված է։';
+$_lang["strict_mode_error"] = 'Evolution CMS-ի որոշ գործառույթներ կարող են սխալ աշխատել, եթե STRICT_TRANS_TABLES sql_mode ռեժիմն անջատված չէ։ MySQL-ի ռեժիմը կարող եք փոխել՝ խմբագրելով my.cnf ֆայլը կամ դիմելով սերվերի ադմինիստրատորին։';
+$_lang["summary_setup_check"] = 'Տեղադրիչը մի շարք ստուգումներ է կատարել՝ համոզվելու, որ ամեն ինչ պատրաստ է տեղադրումը սկսելու համար։';
+$_lang["system_configuration"] = 'Համակարգի կարգավորում';
+$_lang["system_configuration_validate_referer_description"] = '<strong>Ստուգել HTTP_REFERER վերնագրերը</strong> կարգավորումը խորհուրդ է տրվում և կարող է պաշտպանել ձեր կայքը CSRF հարձակումներից, սակայն սերվերի որոշ կարգավորումների դեպքում այն կարող է կառավարման վահանակը դարձնել անհասանելի։';
+$_lang["table_prefix_already_inuse"] = ' - Այս տվյալների բազայում աղյուսակների նախածանցն արդեն օգտագործվում է։';
+$_lang["table_prefix_already_inuse_note"] = 'Տեղադրիչը չկարողացավ տեղադրել ընտրված տվյալների բազայում, քանի որ այն արդեն պարունակում է ձեր նշած նախածանցով աղյուսակներ։ Ընտրեք աղյուսակների նոր նախածանց և կրկին գործարկեք տեղադրիչը։';
+$_lang["table_prefix_not_exist"] = ' - Աղյուսակների նախածանցն այս տվյալների բազայում գոյություն չունի։';
+$_lang["table_prefix_not_exist_note"] = 'Տեղադրիչը չկարողացավ տեղադրել ընտրված տվյալների բազայում, քանի որ այն չի պարունակում թարմացման համար ձեր նշած նախածանցով առկա աղյուսակներ։ Ընտրեք աղյուսակների առկա նախածանց և կրկին գործարկեք տեղադրիչը։';
+$_lang["templates"] = 'Ձևանմուշներ';
+$_lang["to_log_into_content_manager"] = 'Բովանդակության կառավարման վահանակ (manager/index.php) մուտք գործելու համար կարող եք սեղմել `Փակել` կոճակը։';
+$_lang["toggle"] = 'Փոխարկել';
+$_lang['tvs'] = 'Ձևանմուշի փոփոխականներ';
+$_lang["unable_install_chunk"] = 'Չհաջողվեց տեղադրել չանքը։  Ֆայլ';
+$_lang["unable_install_module"] = 'Չհաջողվեց տեղադրել մոդուլը։  Ֆայլ';
+$_lang["unable_install_plugin"] = 'Չհաջողվեց տեղադրել փլագինը։  Ֆայլ';
+$_lang["unable_install_snippet"] = 'Չհաջողվեց տեղադրել սնիփեթը։  Ֆայլ';
+$_lang["unable_install_template"] = 'Չհաջողվեց տեղադրել ձևանմուշը։  Ֆայլ';
+$_lang["upgrade_note"] = '<strong>Նշում.</strong> Նախքան ձեր կայքը դիտելը, մուտք գործեք կառավարման վահանակ ադմինիստրատորի հաշվով, ապա ստուգեք և պահպանեք համակարգի կարգավորումները։';
+$_lang["upgraded"] = 'Թարմացված է';
+$_lang["validate_referer_title"] = 'Ստուգե՞լ HTTP_REFERER վերնագրերը։';
+$_lang["visit_forum"] = ', այցելեք <a href="https://forum.evo.im" target="_blank">Evolution CMS-ի ֆորումներ</a>։';
+$_lang["warning"] = 'ԶԳՈՒՇԱՑՈՒՄ։';
+$_lang["welcome_message_start"] = 'Նախ ընտրեք կատարվող տեղադրման տեսակը.';
+$_lang["welcome_message_text"] = 'Այս ծրագիրը կուղեկցի ձեզ տեղադրման մնացած քայլերում։';
+$_lang["welcome_message_welcome"] = 'Բարի գալուստ Evolution CMS-ի տեղադրման ծրագիր։';
+$_lang["writing_config_file"] = 'Կարգավորումների ֆայլի գրառում. ';
+$_lang["yes"] = 'Այո';
+$_lang["you_running_php"] = ' - Դուք օգտագործում եք PHP ';
+?>

@@ -3,6 +3,7 @@
 <head>
 	<title>[+site_name_text+] (Evolution CMS Manager Login)</title>
 	<meta http-equiv="content-type" content="text/html; charset=[+modx_charset+]">
+	<meta name="referrer" content="same-origin">
 	<meta name="robots" content="noindex, nofollow">
 	<meta name="viewport" content="width=device-width">
 	<link rel="icon" type="image/ico" href="[+favicon+]">

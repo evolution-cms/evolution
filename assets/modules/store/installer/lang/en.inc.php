@@ -1,15 +1,17 @@
 <?php
 /**
- * MODX language File
+ * Evolution CMS en.inc.php language file
  *
- * @author davaeron
- * @package MODX
- * @version 1.0
+ * @author Evolution CMS Team
+ * @version 3.5.x
+ * @date 2026-10-29 20:30:13
  *
- * Filename:       /install/lang/english/english.inc.php
- * Language:       English
- * Encoding:       iso-8859-1
+ * @language English
+ * @package Evolution CMS
+ * @subpackage assets
+ * Please commit your language changes here: https://github.com/evolution-cms/evolution
  */
+
 $_lang["agree_to_terms"] = 'Agree to the License Terms and Install';
 $_lang["alert_database_test_connection"] = 'You need to create your database or test the selection of your database!';
 $_lang["alert_database_test_connection_failed"] = 'The test of your database selection has failed!';
@@ -29,8 +31,8 @@ $_lang["begin"] = 'Begin';
 $_lang["btnback_value"] = 'Back';
 $_lang["btnclose_value"] = 'Close';
 $_lang["btnnext_value"] = 'Next';
-$_lang["cant_write_config_file"] = 'MODX couldn\'t write the config file. Please copy the following into the file ';
-$_lang["cant_write_config_file_note"] = 'Once that\'s been done, you can log into MODX Admin by pointing your browser at YourSiteName.com/manager/.';
+$_lang["cant_write_config_file"] = 'Evolution CMS couldn\'t write the config file. Please copy the following into the file ';
+$_lang["cant_write_config_file_note"] = 'Once that\'s been done, you can log into Evolution CMS Admin by pointing your browser at YourSiteName.com/manager/.';
 $_lang["checkbox_select_options"] = 'Checkbox select options:';
 $_lang["checking_if_cache_exist"] = 'Checking if <span class="mono">/assets/cache</span> and <span class="mono">/assets/cache/rss</span> directories exist: ';
 $_lang["checking_if_cache_file_writable"] = 'Checking if <span class="mono">/assets/cache/siteCache.idx.php</span> file is writable: ';
@@ -45,14 +47,14 @@ $_lang["checking_mysql_strict_mode"] = 'Checking MySQL for strict sql_mode: ';
 $_lang["checking_mysql_version"] = 'Checking MySQL version: ';
 $_lang["checking_php_version"] = 'Checking PHP version: ';
 $_lang["checking_registerglobals"] = 'Checking if Register_Globals is off: ';
-$_lang["checking_registerglobals_note"] = 'This configuration makes your site much more susceptible to Cross Site Scripting (XSS) attacks. You should speak to your host about disabling this setting, usually by one of three ways: modifying the global php.ini file, adding rules to a .htaccess file in the root of your MODX install, or adding custom php.ini override files in every directory on your install (and there\'s a lot of them). You will still be able to install MODX, but consider yourself warned.'; //Look at changing this to provide a solution.
+$_lang["checking_registerglobals_note"] = 'This configuration makes your site much more susceptible to Cross Site Scripting (XSS) attacks. You should speak to your host about disabling this setting, usually by one of three ways: modifying the global php.ini file, adding rules to a .htaccess file in the root of your Evolution CMS install, or adding custom php.ini override files in every directory on your install (and there\'s a lot of them). You will still be able to install Evolution CMS, but consider yourself warned.'; //Look at changing this to provide a solution.
 $_lang["checking_sessions"] = 'Checking if sessions are properly configured: ';
 $_lang["checking_table_prefix"] = 'Checking table prefix `';
 $_lang["chunks"] = 'Chunks';
 $_lang["config_permissions_note"] = 'For new Linux/Unix installs, please create a blank file named <span class="mono">config.inc.php</span> in the <span class="mono">/manager/includes/</span> directory with file permissions set to 0666.';
 $_lang["connection_screen_collation"] = 'Collation:';
 $_lang["connection_screen_database_connection_information"] = 'Database information';
-$_lang["connection_screen_database_connection_note"] = 'Enter the database name to use or which you wish to create for this MODX install. If no database exists, the installer will attempt to create one. This may fail depending on the MySQL user permissions.';
+$_lang["connection_screen_database_connection_note"] = 'Enter the database name to use or which you wish to create for this Evolution CMS install. If no database exists, the installer will attempt to create one. This may fail depending on the MySQL user permissions.';
 $_lang["connection_screen_database_host"] = 'Database host:';
 $_lang["connection_screen_database_info"] = 'Database Information';
 $_lang["connection_screen_database_login"] = 'Database login name:';
@@ -77,16 +79,16 @@ $_lang["database_connection_failed_note"] = 'Please check the database login det
 $_lang["database_use_failed"] = 'Database could not be selected!';
 $_lang["database_use_failed_note"] = 'Please check the database permissions for the specified user and try again.';
 $_lang["default_language"] = 'Default Manager Language';
-$_lang["default_language_description"] = 'This is the default language that will be used in the MODX Manager back end control panel.';
+$_lang["default_language_description"] = 'This is the default language that will be used in the Evolution CMS Manager back end control panel.';
 $_lang["during_execution_of_sql"] = ' during the execution of SQL statement ';
 $_lang["encoding"] = 'iso-8859-1';	//charset encoding for html header
 $_lang["error"] = 'error';
 $_lang["errors"] = 'errors';
 $_lang["failed"] = 'FAILED!';
 $_lang["help"] = 'Help!';
-$_lang["help_link"] = 'http://forums.modx.com/';
-$_lang["help_title"] = 'Installation assistance in the MODX forums';
-$_lang["iagree_box"] = 'I agree to the terms of <a href="../assets/docs/license.txt" target="_blank">the MODX license</a>. For translations of the GPL version 2 license, please visit the <a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-translations.html" target="_blank">GNU Operating System website</a>.';
+$_lang["help_link"] = 'https://forum.evo.im';
+$_lang["help_title"] = 'Installation assistance in the Evolution CMS forums';
+$_lang["iagree_box"] = 'I agree to the terms of <a href="../assets/docs/license.txt" target="_blank">the Evolution CMS license</a>. For translations of the GPL version 2 license, please visit the <a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-translations.html" target="_blank">GNU Operating System website</a>.';
 $_lang["install"] = 'Install';
 $_lang["install_overwrite"] = 'Install/Overwrite';
 $_lang["install_results"] = 'Install results';
@@ -96,7 +98,7 @@ $_lang["installation_install_new_copy"] = 'Install a new copy of ';
 $_lang["installation_install_new_note"] = 'Please note this option may overwrite any data inside your database.';
 $_lang["installation_mode"] = 'Installation Mode';
 $_lang["installation_new_installation"] = 'New Installation';
-$_lang["installation_note"] = '<strong>Note:</strong> After logging into the manager you should edit and save your System Configuration settings before browsing the site by choosing <strong>Tools</strong> -> System Configuration in the MODX Manager.';
+$_lang["installation_note"] = '<strong>Note:</strong> After logging into the manager you should edit and save your System Configuration settings before browsing the site by choosing <strong>Tools</strong> -> System Configuration in the Evolution CMS Manager.';
 $_lang["installation_successful"] = 'Installation was successful!';
 $_lang["installation_upgrade_advanced"] = 'Advanced Upgrade';
 $_lang["installation_upgrade_advanced_note"] = 'For advanced database admins or moving to servers with a different database connection character set.<br /><b>You will need to know your full database name, user, password and connection/collation details.</b>';
@@ -108,9 +110,9 @@ $_lang["language_code"] = 'en';	// for html element e.g. <html xml:lang="en" lan
 $_lang["loading"] = 'Loading...';
 $_lang["modules"] = 'Modules';
 $_lang["modx_footer1"] = '&copy; 2004 - 2026 the <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> Content Management Framework (CMF) project. All rights reserved. Evolution CMS is licensed under the GNU GPL.';
-$_lang["modx_footer2"] = 'MODX is free software.  We encourage you to be creative and make use of MODX in any way you see fit. Just make sure that if you do make changes and decide to redistribute your modified MODX, that you keep the source code free!';
-$_lang["modx_install"] = 'MODX &raquo; Install';
-$_lang["modx_requires_php"] = ', and MODX requires PHP 4.2.0 or later';
+$_lang["modx_footer2"] = 'Evolution CMS is free software.  We encourage you to be creative and make use of Evolution CMS in any way you see fit. Just make sure that if you do make changes and decide to redistribute your modified Evolution CMS, that you keep the source code free!';
+$_lang["modx_install"] = 'Evolution CMS &raquo; Install';
+$_lang["modx_requires_php"] = ', and Evolution CMS requires PHP 4.2.0 or later';
 $_lang["mysql_5051"] = ' MySQL server version is 5.0.51!';
 $_lang["mysql_5051_warning"] = 'There are known issues with MySQL 5.0.51. It is recommended that you upgrade before continuing.';
 $_lang["mysql_version_is"] = ' Your MySQL version is: ';
@@ -120,7 +122,7 @@ $_lang["not_found"] = 'not found';
 $_lang["ok"] = 'OK!';
 $_lang["optional_items"] = 'Optional Items';
 $_lang["optional_items_note"] = 'Please choose your installation options and click Install:';
-$_lang["php_security_notice"] = '<legend>Security notice</legend><p>While MODX will work on your PHP version, usage of MODX on this version is not recommended. Your version of PHP is vulnerable to numerous security holes. Please upgrade to PHP version is [+min_version+] or higher, which patches these holes. It is recommended you upgrade to this version for the security of your own website.</p>';
+$_lang["php_security_notice"] = '<legend>Security notice</legend><p>While Evolution CMS will work on your PHP version, usage of Evolution CMS on this version is not recommended. Your version of PHP is vulnerable to numerous security holes. Please upgrade to PHP version is [+min_version+] or higher, which patches these holes. It is recommended you upgrade to this version for the security of your own website.</p>';
 $_lang["please_correct_error"] = '. Please correct the error';
 $_lang["please_correct_errors"] = '. Please correct the errors';
 $_lang["plugins"] = 'Plugins';
@@ -137,7 +139,7 @@ $_lang["sample_web_site_note"] = 'Please note that this will <b>overwrite</b> ex
 $_lang["session_problem"] = 'A problem was detected with your server sessions. Please consult your server admin to correct this problem.';
 $_lang["session_problem_try_again"] = 'Try again?';
 $_lang["setup_cannot_continue"] = 'Unfortunately, Setup cannot continue at the moment, due to the above ';
-$_lang["setup_couldnt_install"] = 'MODX setup couldn\'t install/alter some tables inside the selected database.';
+$_lang["setup_couldnt_install"] = 'Evolution CMS setup couldn\'t install/alter some tables inside the selected database.';
 $_lang["setup_database"] = 'Setup will now attempt to setup the database:<br />';
 $_lang["setup_database_create_connection"] = 'Creating connection to the database: ';
 $_lang["setup_database_create_connection_failed"] = 'Database connection failed!';
@@ -162,7 +164,7 @@ $_lang["status_passed"] = 'passed - database selected';
 $_lang["status_passed_database_created"] = 'passed - database created';
 $_lang["status_passed_server"] = 'passed - collations now available';
 $_lang["strict_mode"] = ' MySQL server strict sql_mode is enabled!';
-$_lang["strict_mode_error"] = 'Certain features of MODX may not work properly unless the STRICT_TRANS_TABLES sql_mode is disabled. You can set the MySQL mode by editing the my.cnf file or contact your server administrator.';
+$_lang["strict_mode_error"] = 'Certain features of Evolution CMS may not work properly unless the STRICT_TRANS_TABLES sql_mode is disabled. You can set the MySQL mode by editing the my.cnf file or contact your server administrator.';
 $_lang["summary_setup_check"] = 'Setup has carried out a number of checks to see if everything\'s ready to start the setup.';
 $_lang["system_configuration"] = 'System Configuration';
 $_lang["system_configuration_validate_referer_description"] = 'The <strong>Validate HTTP_REFERER headers</strong> setting is recommended and can protect your site from CSRF attacks, but in some server configurations, can make your manager inaccessible.';
@@ -182,11 +184,11 @@ $_lang["unable_install_template"] = 'Unable to install template.  File';
 $_lang["upgrade_note"] = '<strong>Note:</strong> Before browsing your site you should log into the manager with an administrative account, then review and save your System Configuration settings.';
 $_lang["upgraded"] = 'Upgraded';
 $_lang["validate_referer_title"] = 'Validate HTTP_REFERER headers?';
-$_lang["visit_forum"] = ', visit the <a href="http://forums.modx.com/" target="_blank">MODX Forums</a>.';
+$_lang["visit_forum"] = ', visit the <a href="https://forum.evo.im" target="_blank">Evolution CMS Forums</a>.';
 $_lang["warning"] = 'WARNING!';
 $_lang["welcome_message_start"] = 'First, choose the type of installation to perform:';
 $_lang["welcome_message_text"] = 'This program will guide you through the rest of the installation.';
-$_lang["welcome_message_welcome"] = 'Welcome to the MODX installation program.';
+$_lang["welcome_message_welcome"] = 'Welcome to the Evolution CMS installation program.';
 $_lang["writing_config_file"] = 'Writing configuration file: ';
 $_lang["yes"] = 'Yes';
 $_lang["you_running_php"] = ' - You are running on PHP ';

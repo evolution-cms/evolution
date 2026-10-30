@@ -1,6 +1,7 @@
 <?php namespace EvolutionCMS\Middleware;
 
 use Closure;
+use EvolutionCMS\Support\CsrfMessage;
 use Illuminate\Support\Facades\Response;
 
 /**
@@ -184,12 +185,12 @@ class VerifyCsrfToken
     protected function reject($request)
     {
         if ($request->ajax() || $request->wantsJson()) {
-            return Response::json(['error' => 'CSRF token mismatch', 'code' => 'csrf_token_mismatch'], 403);
+            return Response::json(CsrfMessage::payload(), 403, ['Cache-Control' => 'no-store']);
         }
 
         // Rejected operations, including mutating GET actions, must never be replayed.
         return Response::make(
-            'The session token has changed or is missing. Reopen the manager, then review and retry your action. The action was not performed.',
+            CsrfMessage::text(),
             403,
             ['Content-Type' => 'text/plain; charset=UTF-8', 'Cache-Control' => 'no-store']
         );

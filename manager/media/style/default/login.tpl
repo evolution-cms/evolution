@@ -3,6 +3,7 @@
 <head>
     <title>[+site_name_text+] (Evolution CMS Manager Login)</title>
     <meta http-equiv="content-type" content="text/html; charset=[+modx_charset+]">
+    <meta name="referrer" content="same-origin">
     <meta name="robots" content="noindex, nofollow">
     <meta name="viewport" content="width=device-width">
     <link rel="icon" type="image/ico" href="[+favicon+]">
@@ -567,6 +568,23 @@
         window.location = self.document.location;
     }
     var form = document.loginfrm;
+    // A refusal can come back as JSON (CSRF checks) or as a whole page; alert only its text.
+    function loginResponseMessage(xhr) {
+        var text = String(xhr.responseText || '');
+        try {
+            var body = JSON.parse(text);
+            if (body && typeof body.message === 'string' && body.message !== '') {
+                return body.message;
+            }
+        } catch (err) {}
+        if (/^\s*</.test(text)) {
+            var doc = new DOMParser().parseFromString(text, 'text/html');
+            doc.querySelectorAll('script, style, title').forEach(function(el) { el.remove(); });
+            text = doc.body ? doc.body.textContent : '';
+        }
+        text = text.replace(/\s*\n\s*/g, '\n').trim();
+        return text !== '' ? text : 'HTTP ' + xhr.status;
+    }
     if (form.username.value !== '') {
         form.password.focus();
     } else {
@@ -586,7 +604,7 @@
                     var cimg = document.getElementById('captcha_image');
                     if (cimg) cimg.src = 'captcha.php?rand=' + Math.random();
                     document.getElementById('mainloader').classList.remove('show');
-                    alert(this.response);
+                    alert(loginResponseMessage(this));
                 }
             }
         };

@@ -1,5 +1,7 @@
 <?php namespace EvolutionCMS\Traits;
 
+use EvolutionCMS\Support\ManagerLanguage;
+
 trait Settings
 {
     /**
@@ -172,25 +174,27 @@ trait Settings
      */
     public function getFactorySettings(array $known = []) : array
     {
-        $managerLanguage = (string) $this->getConfig('manager_language', 'en');
-        $languageFile = EVO_CORE_PATH . 'lang/' . $managerLanguage . '/global.php';
-        $factoryLocale = is_file($languageFile) ? $managerLanguage : 'en';
-
         if ($this->isBackend()) {
             // The manager still needs its theme before per-user settings are merged.
+            // Loading its lexicon turns a deleted manager_language into English.
             $this['ManagerTheme'];
+            $factoryLocale = (string) $this->getConfig('manager_language', 'en');
         } else {
             // ManagerTheme used to establish the frontend locale as a side effect of
             // reading the factory defaults. Keep that behavior without building the theme.
+            $factoryLocale = (string) $this->getConfig('manager_language', 'en');
             $modx_lang_attribute = 'en';
-            if ($factoryLocale !== 'en') {
-                include $languageFile;
+            $loaded = $factoryLocale === 'en';
+            if (!$loaded && ManagerLanguage::isName($factoryLocale)) {
+                // no stat on the way: only a deleted locale, whose include fails, reads as English
+                $loaded = @include EVO_CORE_PATH . 'lang/' . $factoryLocale . '/global.php';
+            }
+            if (!$loaded) {
+                $factoryLocale = 'en';
             }
             $this->setLocale($modx_lang_attribute);
             $this->setConfig('lang_code', $modx_lang_attribute);
-            $this->setConfig('manager_language', $factoryLocale === 'en' && $managerLanguage !== 'en'
-                ? 'english'
-                : $factoryLocale);
+            $this->setConfig('manager_language', $factoryLocale);
 
             // Keep manager:: views available to frontend integrations without
             // scanning the theme's virtual elements on every request. A database
@@ -220,7 +224,7 @@ trait Settings
         // The language getConfig('manager_language', 'en') reads once these settings are loaded.
         $language = (string) ($stored['manager_language'] ?? '');
         $language = (string) $this['config']->get('cms.settings.manager_language', $language === '' ? 'en' : $language);
-        $locale = is_file(EVO_CORE_PATH . 'lang/' . $language . '/global.php') ? $language : 'en';
+        $locale = ManagerLanguage::resolve($language);
 
         $defaults = [];
         foreach ($this->readFactorySettings($locale, $stored) as $name => $value) {

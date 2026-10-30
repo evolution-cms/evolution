@@ -279,6 +279,20 @@ it('answers XHR callers with JSON and page requests with plain text', function (
         ->toMatchArray(['kind' => 'text', 'status' => 403]);
 })->with(['text/html', '*/*', 'application/json']);
 
+it('explains the rejection with the localized lexicon text, not markup', function () {
+    $middleware = new VerifyCsrfToken();
+    $noop = fn () => 'next';
+
+    $json = $middleware->handle(csrfRequest('POST', ['a' => 109], ['HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest']), $noop);
+    $text = $middleware->handle(csrfRequest('GET', ['a' => 6, 'id' => 3]), $noop);
+
+    expect($json['data'])->toBe(\EvolutionCMS\Support\CsrfMessage::payload())
+        ->and($json['data']['code'])->toBe('csrf_token_mismatch')
+        ->and($text['data'])->toBe(\EvolutionCMS\Support\CsrfMessage::text())
+        ->and($text['data'])->not->toContain('<')
+        ->and($text['headers']['Content-Type'])->toBe('text/plain; charset=UTF-8');
+});
+
 it('answers non-XHR JSON clients with a JSON rejection', function () {
     $request = csrfRequest('POST', ['a' => 109], ['HTTP_ACCEPT' => 'application/json']);
 
