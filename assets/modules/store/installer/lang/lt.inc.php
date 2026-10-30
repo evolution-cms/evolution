@@ -1,0 +1,195 @@
+<?php
+/**
+ * Evolution CMS lt.inc.php language file
+ *
+ * @author Evolution CMS Team
+ * @version 3.5.x
+ * @date 2026-10-29 23:20:04
+ *
+ * @language Lithuanian
+ * @package Evolution CMS
+ * @subpackage assets
+ * Please commit your language changes here: https://github.com/evolution-cms/evolution
+ */
+
+$_lang["agree_to_terms"] = 'Sutikti su licencijos sąlygomis ir įdiegti';
+$_lang["alert_database_test_connection"] = 'Turite sukurti duomenų bazę arba patikrinti jos pasirinkimą!';
+$_lang["alert_database_test_connection_failed"] = 'Nepavyko patikrinti duomenų bazės pasirinkimo!';
+$_lang["alert_enter_adminconfirm"] = 'Administratoriaus slaptažodis ir jo patvirtinimas nesutampa!';
+$_lang["alert_enter_adminlogin"] = 'Turite įvesti sistemos administratoriaus paskyros naudotojo vardą!';
+$_lang["alert_enter_adminpassword"] = 'Turite įvesti sistemos administratoriaus paskyros slaptažodį!';
+$_lang["alert_enter_database_name"] = 'Turite įvesti duomenų bazės pavadinimą!';
+$_lang["alert_enter_host"] = 'Turite įvesti duomenų bazės serverį!';
+$_lang["alert_enter_login"] = 'Turite įvesti prisijungimo prie duomenų bazės naudotojo vardą!';
+$_lang["alert_server_test_connection"] = 'Turite patikrinti ryšį su serveriu!';
+$_lang["alert_server_test_connection_failed"] = 'Nepavyko patikrinti ryšio su serveriu!';
+$_lang["alert_table_prefixes"] = 'Lentelių priešdėliai turi prasidėti raide!';
+$_lang["all"] = 'Visi';
+$_lang["and_try_again"] = ', ir bandykite dar kartą. Jei reikia pagalbos aiškinantis, kaip išspręsti problemą';
+$_lang["and_try_again_plural"] = ', ir bandykite dar kartą. Jei reikia pagalbos aiškinantis, kaip išspręsti problemas';
+$_lang["begin"] = 'Pradėti';
+$_lang["btnback_value"] = 'Atgal';
+$_lang["btnclose_value"] = 'Uždaryti';
+$_lang["btnnext_value"] = 'Toliau';
+$_lang["cant_write_config_file"] = 'Evolution CMS nepavyko įrašyti konfigūracijos failo. Nukopijuokite toliau pateiktą turinį į failą ';
+$_lang["cant_write_config_file_note"] = 'Tai atlikę, galėsite prisijungti prie Evolution CMS administravimo skydelio naršyklėje atvėrę YourSiteName.com/manager/.';
+$_lang["checkbox_select_options"] = 'Žymimųjų langelių pasirinkimo parinktys:';
+$_lang["checking_if_cache_exist"] = 'Tikrinama, ar yra katalogai <span class="mono">/assets/cache</span> ir <span class="mono">/assets/cache/rss</span>: ';
+$_lang["checking_if_cache_file_writable"] = 'Tikrinama, ar galima rašyti į failą <span class="mono">/assets/cache/siteCache.idx.php</span>: ';
+$_lang["checking_if_cache_file2_writable"] = 'Tikrinama, ar galima rašyti į failą <span class="mono">/assets/cache/sitePublishing.idx.php</span>: ';
+$_lang["checking_if_cache_writable"] = 'Tikrinama, ar galima rašyti į katalogus <span class="mono">/assets/cache</span> ir <span class="mono">/assets/cache/rss</span>: ';
+$_lang["checking_if_config_exist_and_writable"] = 'Tikrinama, ar yra <span class="mono">'.MGR_DIR.'/includes/config.inc.php</span> ir ar galima į jį rašyti: ';
+$_lang["checking_if_export_exists"] = 'Tikrinama, ar yra katalogas <span class="mono">/assets/export</span>: ';
+$_lang["checking_if_export_writable"] = 'Tikrinama, ar galima rašyti į katalogą <span class="mono">/assets/export</span>: ';
+$_lang["checking_if_images_exist"] = 'Tikrinama, ar yra katalogai <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> ir <span class="mono">/assets/media</span>: ';
+$_lang["checking_if_images_writable"] = 'Tikrinama, ar galima rašyti į katalogus <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> ir <span class="mono">/assets/media</span>: ';
+$_lang["checking_mysql_strict_mode"] = 'Tikrinamas griežtasis MySQL sql_mode režimas: ';
+$_lang["checking_mysql_version"] = 'Tikrinama MySQL versija: ';
+$_lang["checking_php_version"] = 'Tikrinama PHP versija: ';
+$_lang["checking_registerglobals"] = 'Tikrinama, ar Register_Globals išjungtas: ';
+$_lang["checking_registerglobals_note"] = 'Ši konfigūracija daro svetainę gerokai pažeidžiamesnę Cross Site Scripting (XSS) atakoms. Aptarkite su prieglobos paslaugų teikėju šio parametro išjungimą. Paprastai tai galima padaryti trimis būdais: pakeisti bendrąjį php.ini failą, įtraukti taisykles į .htaccess failą Evolution CMS diegimo šakniniame kataloge arba į kiekvieną diegimo katalogą įtraukti pasirinktinius php.ini parametrų pakeitimo failus (o katalogų yra daug). Evolution CMS vis tiek galėsite įdiegti, tačiau apie pavojų esate įspėti.'; //Look at changing this to provide a solution.
+$_lang["checking_sessions"] = 'Tikrinama, ar seansai tinkamai sukonfigūruoti: ';
+$_lang["checking_table_prefix"] = 'Tikrinamas lentelių priešdėlis `';
+$_lang["chunks"] = 'Fragmentai';
+$_lang["config_permissions_note"] = 'Naujai diegdami Linux/Unix sistemoje, kataloge <span class="mono">/manager/includes/</span> sukurkite tuščią failą <span class="mono">config.inc.php</span> ir nustatykite jo prieigos teises į 0666.';
+$_lang["connection_screen_collation"] = 'Rikiavimo tvarka:';
+$_lang["connection_screen_database_connection_information"] = 'Duomenų bazės informacija';
+$_lang["connection_screen_database_connection_note"] = 'Įveskite duomenų bazės, kurią norite naudoti arba sukurti šiam Evolution CMS diegimui, pavadinimą. Jei duomenų bazės nėra, diegimo programa bandys ją sukurti. Priklausomai nuo MySQL naudotojo teisių, tai gali nepavykti.';
+$_lang["connection_screen_database_host"] = 'Duomenų bazės serveris:';
+$_lang["connection_screen_database_info"] = 'Duomenų bazės informacija';
+$_lang["connection_screen_database_login"] = 'Duomenų bazės naudotojo vardas:';
+$_lang["connection_screen_database_name"] = 'Duomenų bazės pavadinimas:';
+$_lang["connection_screen_database_pass"] = 'Duomenų bazės slaptažodis:';
+$_lang["connection_screen_database_test_connection"] = 'Sukurkite duomenų bazę arba patikrinkite jos pasirinkimą.';
+$_lang["connection_screen_default_admin_email"] = 'Administratoriaus el. paštas:';
+$_lang["connection_screen_default_admin_login"] = 'Administratoriaus naudotojo vardas:';
+$_lang["connection_screen_default_admin_note"] = 'Dabar turite įvesti pagrindinės administratoriaus paskyros duomenis. Galite įvesti savo vardą ir slaptažodį, kurio nepamiršite. Jų reikės norint prisijungti prie administravimo skydelio baigus diegimą.';
+$_lang["connection_screen_default_admin_password"] = 'Administratoriaus slaptažodis:';
+$_lang["connection_screen_default_admin_password_confirm"] = 'Patvirtinkite slaptažodį:';
+$_lang["connection_screen_default_admin_user"] = 'Numatytasis administratorius';
+$_lang["connection_screen_defaults"] = 'Numatytieji administravimo skydelio parametrai';
+$_lang["connection_screen_server_connection_information"] = 'Ryšio su serveriu ir prisijungimo informacija';
+$_lang["connection_screen_server_connection_note"] = 'Prieš tikrindami ryšį, įveskite duomenų bazės serverį (serverio pavadinimą arba IP adresą), naudotojo vardą ir slaptažodį.';
+$_lang["connection_screen_server_test_connection"] = 'Patikrinkite ryšį su duomenų bazės serveriu ir peržiūrėkite rikiavimo tvarkas.';
+$_lang["connection_screen_table_prefix"] = 'Lentelių priešdėlis:';
+$_lang["creating_database_connection"] = 'Kuriamas ryšys su duomenų baze: ';
+$_lang["database_alerts"] = 'Duomenų bazės įspėjimai!';
+$_lang["database_connection_failed"] = 'Nepavyko prisijungti prie duomenų bazės!';
+$_lang["database_connection_failed_note"] = 'Patikrinkite prisijungimo prie duomenų bazės duomenis ir bandykite dar kartą.';
+$_lang["database_use_failed"] = 'Nepavyko pasirinkti duomenų bazės!';
+$_lang["database_use_failed_note"] = 'Patikrinkite nurodyto naudotojo duomenų bazės teises ir bandykite dar kartą.';
+$_lang["default_language"] = 'Numatytoji administravimo skydelio kalba';
+$_lang["default_language_description"] = 'Tai numatytoji kalba, naudojama Evolution CMS administravimo skydelyje.';
+$_lang["during_execution_of_sql"] = ' vykdant SQL sakinį ';
+$_lang["encoding"] = 'UTF-8';	//charset encoding for html header
+$_lang["error"] = 'klaida';
+$_lang["errors"] = 'klaidos';
+$_lang["failed"] = 'NEPAVYKO!';
+$_lang["help"] = 'Pagalba!';
+$_lang["help_link"] = 'https://forum.evo.im';
+$_lang["help_title"] = 'Diegimo pagalba Evolution CMS forumuose';
+$_lang["iagree_box"] = 'Sutinku su <a href="../assets/docs/license.txt" target="_blank">Evolution CMS licencijos</a> sąlygomis. GPL 2 versijos licencijos vertimus rasite <a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-translations.html" target="_blank">GNU operacinės sistemos svetainėje</a>.';
+$_lang["install"] = 'Įdiegti';
+$_lang["install_overwrite"] = 'Įdiegti/Perrašyti';
+$_lang["install_results"] = 'Diegimo rezultatai';
+$_lang["install_update"] = 'Įdiegti/Atnaujinti';
+$_lang["installation_error_occured"] = 'Diegiant įvyko šios klaidos';
+$_lang["installation_install_new_copy"] = 'Įdiegti naują kopiją: ';
+$_lang["installation_install_new_note"] = 'Atkreipkite dėmesį: ši parinktis gali perrašyti bet kokius duomenis jūsų duomenų bazėje.';
+$_lang["installation_mode"] = 'Diegimo režimas';
+$_lang["installation_new_installation"] = 'Naujas diegimas';
+$_lang["installation_note"] = '<strong>Pastaba:</strong> Prisijungę prie administravimo skydelio, prieš naršydami svetainę redaguokite ir išsaugokite sistemos konfigūracijos nuostatas, Evolution CMS administravimo skydelyje pasirinkę <strong>Įrankiai</strong> -> Sistemos konfigūracija.';
+$_lang["installation_successful"] = 'Įdiegta sėkmingai!';
+$_lang["installation_upgrade_advanced"] = 'Išplėstinis atnaujinimas';
+$_lang["installation_upgrade_advanced_note"] = 'Patyrusiems duomenų bazių administratoriams arba perkeliant į serverį su kitu duomenų bazės ryšio simbolių rinkiniu.<br /><b>Turite žinoti visą duomenų bazės pavadinimą, naudotoją, slaptažodį ir ryšio bei rikiavimo taisyklių informaciją.</b>';
+$_lang["installation_upgrade_existing"] = 'Atnaujinti esamą diegimą';
+$_lang["installation_upgrade_existing_note"] = 'Atnaujinkite dabartinius failus ir duomenų bazę.';
+$_lang["installed"] = 'Įdiegta';
+$_lang["installing_demo_site"] = 'Diegiama demonstracinė svetainė: ';
+$_lang["language_code"] = 'lt';	// for html element e.g. <html xml:lang="en" lang="en">
+$_lang["loading"] = 'Įkeliama...';
+$_lang["modules"] = 'Moduliai';
+$_lang["modx_footer1"] = '&copy; 2004 - 2026 turinio valdymo platformos (CMF) <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a> projektas. Visos teisės saugomos. Evolution CMS platinama pagal GNU GPL licenciją.';
+$_lang["modx_footer2"] = 'Evolution CMS yra laisvoji programinė įranga.  Skatiname jus būti kūrybingus ir naudoti Evolution CMS taip, kaip jums atrodo tinkama. Jei atliksite pakeitimų ir nuspręsite platinti pakeistą Evolution CMS versiją, pasirūpinkite, kad pirminis kodas liktų laisvas!';
+$_lang["modx_install"] = 'Evolution CMS &raquo; Diegimas';
+$_lang["modx_requires_php"] = ', o Evolution CMS reikia PHP 4.2.0 arba naujesnės versijos';
+$_lang["mysql_5051"] = ' MySQL serverio versija yra 5.0.51!';
+$_lang["mysql_5051_warning"] = 'Žinoma, kad MySQL 5.0.51 turi problemų. Prieš tęsiant rekomenduojama atnaujinti.';
+$_lang["mysql_version_is"] = ' Jūsų MySQL versija: ';
+$_lang["no"] = 'Ne';
+$_lang["none"] = 'Nėra';
+$_lang["not_found"] = 'nerasta';
+$_lang["ok"] = 'Gerai!';
+$_lang["optional_items"] = 'Pasirenkami elementai';
+$_lang["optional_items_note"] = 'Pasirinkite diegimo parinktis ir spustelėkite Įdiegti:';
+$_lang["php_security_notice"] = '<legend>Saugumo pranešimas</legend><p>Nors Evolution CMS veiks su jūsų PHP versija, naudoti Evolution CMS su šia versija nerekomenduojama. Jūsų PHP versijoje yra daug saugumo spragų. Atnaujinkite PHP į [+min_version+] arba naujesnę versiją, kurioje šios spragos ištaisytos. Tai rekomenduojama dėl jūsų svetainės saugumo.</p>';
+$_lang["please_correct_error"] = '. Ištaisykite klaidą';
+$_lang["please_correct_errors"] = '. Ištaisykite klaidas';
+$_lang["plugins"] = 'Papildiniai';
+$_lang["preinstall_validation"] = 'Patikra prieš diegimą';
+$_lang["recommend_setting_change_title"] = 'Rekomenduojamas nuostatos pakeitimas';
+$_lang["recommend_setting_change_validate_referer_confirmation"] = 'Nuostatos keitimas: <em>Tikrinti HTTP_REFERER antraštes?</em>';
+$_lang["recommend_setting_change_validate_referer_description"] = 'Jūsų svetainė nesukonfigūruota tikrinti į administravimo skydelį gaunamų užklausų HTTP_REFERER. Primygtinai rekomenduojame įjungti šią nuostatą, kad sumažintumėte CSRF (užklausų iš kitų svetainių klastojimo) atakų riziką.';
+$_lang["remove_install_folder_auto"] = 'Pašalinti diegimo aplanką ir failus iš mano svetainės <br />&nbsp;(Šiai operacijai reikia leidimo šalinti diegimo aplanką).';
+$_lang["remove_install_folder_manual"] = 'Prieš prisijungdami prie turinio administravimo skydelio nepamirškite pašalinti aplanko &quot;<b>install</b>&quot;.';
+$_lang["retry"] = 'Bandyti dar kartą';
+$_lang["running_database_updates"] = 'Vykdomi duomenų bazės atnaujinimai: ';
+$_lang["sample_web_site"] = 'Pavyzdinė svetainė';
+$_lang["sample_web_site_note"] = 'Atminkite, kad esami dokumentai ir ištekliai bus <b>perrašyti</b>.';
+$_lang["session_problem"] = 'Aptikta serverio seansų problema. Kreipkitės į serverio administratorių, kad ją ištaisytų.';
+$_lang["session_problem_try_again"] = 'Bandyti dar kartą?';
+$_lang["setup_cannot_continue"] = 'Deja, šiuo metu diegimo tęsti negalima dėl pirmiau nurodytų priežasčių ';
+$_lang["setup_couldnt_install"] = 'Evolution CMS diegimo programai nepavyko įdiegti arba pakeisti kai kurių pasirinktos duomenų bazės lentelių.';
+$_lang["setup_database"] = 'Diegimo programa dabar bandys paruošti duomenų bazę:<br />';
+$_lang["setup_database_create_connection"] = 'Kuriamas ryšys su duomenų baze: ';
+$_lang["setup_database_create_connection_failed"] = 'Nepavyko prisijungti prie duomenų bazės!';
+$_lang["setup_database_create_connection_failed_note"] = 'Patikrinkite prisijungimo prie duomenų bazės duomenis ir bandykite dar kartą.';
+$_lang["setup_database_creating_tables"] = 'Kuriamos duomenų bazės lentelės: ';
+$_lang["setup_database_creation"] = 'Kuriama duomenų bazė `';
+$_lang["setup_database_creation_failed"] = 'Nepavyko sukurti duomenų bazės!';
+$_lang["setup_database_creation_failed_note"] = ' - Diegimo programai nepavyko sukurti duomenų bazės!';
+$_lang["setup_database_creation_failed_note2"] = 'Diegimo programai nepavyko sukurti duomenų bazės, o esama duomenų bazė tokiu pavadinimu nerasta. Tikėtina, kad prieglobos paslaugų teikėjo saugumo taisyklės neleidžia išoriniams scenarijams kurti duomenų bazių. Sukurkite duomenų bazę pagal prieglobos paslaugų teikėjo tvarką ir paleiskite diegimo programą iš naujo.';
+$_lang["setup_database_selection"] = 'Pasirenkama duomenų bazė `';
+$_lang["setup_database_selection_failed"] = 'Nepavyko pasirinkti duomenų bazės...';
+$_lang["setup_database_selection_failed_note"] = 'Duomenų bazės nėra. Diegimo programa bandys ją sukurti.';
+$_lang["snippets"] = 'Kodo fragmentai';
+$_lang["some_tables_not_updated"] = 'Kai kurios lentelės neatnaujintos. Taip galėjo nutikti dėl ankstesnių pakeitimų.';
+$_lang["status_checking_database"] = 'Tikrinama duomenų bazė: ';
+$_lang["status_connecting"] = ' Ryšys su serveriu: ';
+$_lang["status_failed"] = 'nepavyko!';
+$_lang["status_failed_could_not_create_database"] = 'nepavyko - duomenų bazės sukurti nepavyko';
+$_lang["status_failed_database_collation_does_not_match"] = 'nepavyko - duomenų bazės rikiavimo taisyklės nesutampa; naudokite SET NAMES arba pasirinkite %s';
+$_lang["status_failed_table_prefix_already_in_use"] = 'nepavyko - lentelių priešdėlis jau naudojamas!';
+$_lang["status_passed"] = 'pavyko - duomenų bazė pasirinkta';
+$_lang["status_passed_database_created"] = 'pavyko - duomenų bazė sukurta';
+$_lang["status_passed_server"] = 'pavyko - rikiavimo taisyklės dabar prieinamos';
+$_lang["strict_mode"] = ' Įjungtas griežtasis MySQL serverio sql_mode režimas!';
+$_lang["strict_mode_error"] = 'Kai kurios Evolution CMS funkcijos gali veikti netinkamai, jei neišjungtas STRICT_TRANS_TABLES sql_mode režimas. MySQL režimą galite nustatyti redaguodami my.cnf failą arba kreiptis į serverio administratorių.';
+$_lang["summary_setup_check"] = 'Diegimo programa atliko keletą patikrų, kad nustatytų, ar viskas paruošta diegimui pradėti.';
+$_lang["system_configuration"] = 'Sistemos konfigūracija';
+$_lang["system_configuration_validate_referer_description"] = 'Rekomenduojama įjungti nuostatą <strong>Tikrinti HTTP_REFERER antraštes</strong>, kuri gali apsaugoti svetainę nuo CSRF atakų, tačiau esant kai kurioms serverio konfigūracijoms administravimo skydelis gali tapti nepasiekiamas.';
+$_lang["table_prefix_already_inuse"] = ' - Šis lentelių priešdėlis šioje duomenų bazėje jau naudojamas!';
+$_lang["table_prefix_already_inuse_note"] = 'Diegimo programai nepavyko įdiegti į pasirinktą duomenų bazę, nes joje jau yra lentelių su jūsų nurodytu priešdėliu. Pasirinkite naują lentelių priešdėlį ir paleiskite diegimo programą iš naujo.';
+$_lang["table_prefix_not_exist"] = ' - Šio lentelių priešdėlio šioje duomenų bazėje nėra!';
+$_lang["table_prefix_not_exist_note"] = 'Diegimo programai nepavyko įdiegti į pasirinktą duomenų bazę, nes joje nėra atnaujinamų lentelių su jūsų nurodytu priešdėliu. Pasirinkite esamą lentelių priešdėlį ir paleiskite diegimo programą iš naujo.';
+$_lang["templates"] = 'Šablonai';
+$_lang["to_log_into_content_manager"] = 'Norėdami prisijungti prie turinio administravimo skydelio (manager/index.php), galite spustelėti mygtuką `Uždaryti`.';
+$_lang["toggle"] = 'Perjungti';
+$_lang['tvs'] = 'Šablono kintamieji';
+$_lang["unable_install_chunk"] = 'Nepavyko įdiegti HTML fragmento.  Failas';
+$_lang["unable_install_module"] = 'Nepavyko įdiegti modulio.  Failas';
+$_lang["unable_install_plugin"] = 'Nepavyko įdiegti papildinio.  Failas';
+$_lang["unable_install_snippet"] = 'Nepavyko įdiegti kodo fragmento.  Failas';
+$_lang["unable_install_template"] = 'Nepavyko įdiegti šablono.  Failas';
+$_lang["upgrade_note"] = '<strong>Pastaba:</strong> Prieš naršydami svetainę prisijunkite prie administravimo skydelio administratoriaus paskyra, tada peržiūrėkite ir išsaugokite sistemos konfigūracijos nuostatas.';
+$_lang["upgraded"] = 'Atnaujinta';
+$_lang["validate_referer_title"] = 'Tikrinti HTTP_REFERER antraštes?';
+$_lang["visit_forum"] = ', apsilankykite <a href="https://forum.evo.im" target="_blank">Evolution CMS forumuose</a>.';
+$_lang["warning"] = 'ĮSPĖJIMAS!';
+$_lang["welcome_message_start"] = 'Pirmiausia pasirinkite diegimo tipą:';
+$_lang["welcome_message_text"] = 'Ši programa padės atlikti likusius diegimo veiksmus.';
+$_lang["welcome_message_welcome"] = 'Sveiki atvykę į Evolution CMS diegimo programą.';
+$_lang["writing_config_file"] = 'Rašomas konfigūracijos failas: ';
+$_lang["yes"] = 'Taip';
+$_lang["you_running_php"] = ' - Naudojate PHP ';
+?>

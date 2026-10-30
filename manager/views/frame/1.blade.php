@@ -42,6 +42,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
 <head>
     <title>{{ $managerTitle }}</title>
     <meta http-equiv="Content-Type" content="text/html; charset={{ManagerTheme::getCharset()}}" />
+    <meta name="referrer" content="same-origin">
     <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width" />
     <meta name="theme-color" content="{{ ManagerTheme::getThemeColor() }}" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />

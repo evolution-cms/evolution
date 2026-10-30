@@ -5,6 +5,7 @@
     <title>KCFinder: /
         <?php echo $this->session['dir'] ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="same-origin">
     <?php INCLUDE "tpl/tpl_css.php" ?>
     <?php INCLUDE "tpl/tpl_javascript.php" ?>
 </head>

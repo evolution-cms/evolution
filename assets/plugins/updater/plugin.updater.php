@@ -366,7 +366,10 @@ if (!function_exists('updaterHandleSystemTaskRequest')) {
                 updaterJsonResponse([
                     'ok' => false,
                     'error_code' => 'TOKEN_INVALID',
-                    'message' => 'System task token is invalid.',
+                    // the plugin may run on a core older than this class while it is being updated
+                    'message' => class_exists(\EvolutionCMS\Support\CsrfMessage::class)
+                        ? \EvolutionCMS\Support\CsrfMessage::text()
+                        : 'System task token is invalid.',
                 ]);
             }
         }

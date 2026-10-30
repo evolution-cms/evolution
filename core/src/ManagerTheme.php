@@ -9,6 +9,7 @@ use EvolutionCMS\Exceptions\ServiceValidationException;
 use EvolutionCMS\Interfaces\ManagerThemeInterface;
 use EvolutionCMS\Interfaces\CoreInterface;
 use EvolutionCMS\Models\UserAttribute;
+use EvolutionCMS\Support\ManagerLanguage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use View;
@@ -26,7 +27,7 @@ class ManagerTheme implements ManagerThemeInterface
     protected $theme;
     protected $namespace = 'manager';
     protected $lang = 'en';
-    protected $langName = 'english';
+    protected $langName = ManagerLanguage::DEFAULT;
     protected $textDir;
     protected $lexicon = [];
     protected $charset = 'UTF-8';
@@ -218,7 +219,7 @@ class ManagerTheme implements ManagerThemeInterface
         return $this->loadLang($lang);
     }
 
-    protected function loadLang($lang = 'english')
+    protected function loadLang($lang = ManagerLanguage::DEFAULT)
     {
         $_lang = [];
         $modx_lang_attribute = $this->getLang();
@@ -227,16 +228,14 @@ class ManagerTheme implements ManagerThemeInterface
 
         include EVO_CORE_PATH . 'lang/en/global.php';
 
-        // now include_once different language file as english
-        if (!isset($lang) || !file_exists(EVO_CORE_PATH . 'lang/' . $lang . '/global.php')) {
-            $lang = 'english'; // if not set, get the english language file.
+        // English stays underneath, so a key the locale lacks shows in English. No stat on the
+        // way: only a deleted locale, whose include fails, falls back to English.
+        $loaded = $lang === ManagerLanguage::DEFAULT;
+        if (!$loaded && ManagerLanguage::isName($lang)) {
+            $loaded = @include EVO_CORE_PATH . 'lang/' . $lang . '/global.php';
         }
-
-        // $length_eng_lang = count($_lang);
-        //// Not used for now, required for difference-check with other languages than english (i.e. inside installer)
-
-        if ($lang !== 'english' && file_exists(EVO_CORE_PATH . 'lang/' . $lang . '/global.php')) {
-            include EVO_CORE_PATH . 'lang/' . $lang . '/global.php';
+        if (!$loaded) {
+            $lang = ManagerLanguage::DEFAULT;
         }
 
         foreach ($_lang as $k => $v) {

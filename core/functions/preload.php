@@ -26,38 +26,57 @@ if (!function_exists('evo')) {
 
         if (IN_MANAGER_MODE == true && IN_INSTALL_MODE == false  && EVO_API_MODE != true) {
             // attempt to foil some simple types of CSRF attacks
-            if ((int)$evo->getConfig('validate_referer') !== 0) {
-                if (isset($_SERVER['HTTP_REFERER'])) {
-
-                    $referer = $_SERVER['HTTP_REFERER'];
-
-                    if (!empty($referer)) {
-                        if (!preg_match('/^' . preg_quote(EVO_SITE_URL, '/') . '/i', $referer)) {
-                            $evo->webAlertAndQuit(
-                                "A possible CSRF attempt was detected from referer: {$referer}.",
-                                "/" . MGR_DIR . "/index.php"
-                            );
-                        }
-                    } else {
-                        $evo->webAlertAndQuit(
-                            "A possible CSRF attempt was detected. No referer was provided by the client.",
-                            "/" . MGR_DIR . "/index.php"
-                        );
-                    }
-                } else {
-
-                    if (mb_strtoupper($_SERVER['REQUEST_METHOD']) !== 'GET') {
-                        $evo->webAlertAndQuit(
-                            "A possible CSRF attempt was detected. No referer was provided by the server.",
-                            "/" . MGR_DIR . "/index.php"
-                        );
-                    }
-
-                }
+            if ((int)$evo->getConfig('validate_referer') !== 0
+                && !\EvolutionCMS\Support\ManagerReferer::allows(
+                    $_SERVER,
+                    (string)EVO_SITE_URL,
+                    (string)$evo->getConfig('server_protocol', 'http')
+                )) {
+                rejectManagerReferer($evo);
             }
         }
 
         return $evo;
+    }
+}
+
+if (!function_exists('rejectManagerReferer')) {
+    /**
+     * Refuse a manager request whose referer is missing or foreign (`validate_referer`).
+     * A script caller shows the body itself, so it gets the localized message as JSON, not the alert page.
+     *
+     * @param \EvolutionCMS\Interfaces\CoreInterface $evo
+     */
+    function rejectManagerReferer($evo): never
+    {
+        // every evo() call repeats the check, and shutdown callbacks call evo(): answer once
+        static $refused = false;
+        if ($refused) {
+            exit;
+        }
+        $refused = true;
+
+        // evo() is still being built: the language comes from its configuration, never from evo()
+        $language = (string)$evo->getConfig('manager_language', 'en');
+
+        if (\EvolutionCMS\Support\CsrfMessage::wantsScriptResponse($_SERVER, $_POST)) {
+            if (!headers_sent()) {
+                http_response_code(403);
+                header('Content-Type: application/json; charset=UTF-8');
+                header('Cache-Control: no-store');
+            }
+            echo json_encode(
+                \EvolutionCMS\Support\CsrfMessage::payload(\EvolutionCMS\Support\CsrfMessage::REFERER, $language),
+                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+            );
+            exit;
+        }
+
+        $evo->webAlertAndQuit(
+            \EvolutionCMS\Support\CsrfMessage::text(\EvolutionCMS\Support\CsrfMessage::REFERER, $language),
+            '/' . MGR_DIR . '/index.php'
+        );
+        exit;
     }
 }
 

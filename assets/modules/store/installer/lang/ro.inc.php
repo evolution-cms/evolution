@@ -1,0 +1,195 @@
+<?php
+/**
+ * Evolution CMS ro.inc.php language file
+ *
+ * @author Evolution CMS Team
+ * @version 3.5.x
+ * @date 2026-10-29 23:20:04
+ *
+ * @language Romanian
+ * @package Evolution CMS
+ * @subpackage assets
+ * Please commit your language changes here: https://github.com/evolution-cms/evolution
+ */
+
+$_lang["agree_to_terms"] = 'Acceptă termenii licenței și instalează';
+$_lang["alert_database_test_connection"] = 'Trebuie să creați baza de date sau să testați selectarea acesteia!';
+$_lang["alert_database_test_connection_failed"] = 'Testarea selectării bazei de date a eșuat!';
+$_lang["alert_enter_adminconfirm"] = 'Parola administratorului și confirmarea nu coincid!';
+$_lang["alert_enter_adminlogin"] = 'Trebuie să introduceți un nume de utilizator pentru contul administratorului de sistem!';
+$_lang["alert_enter_adminpassword"] = 'Trebuie să introduceți o parolă pentru contul administratorului de sistem!';
+$_lang["alert_enter_database_name"] = 'Trebuie să introduceți numele bazei de date!';
+$_lang["alert_enter_host"] = 'Trebuie să introduceți serverul bazei de date!';
+$_lang["alert_enter_login"] = 'Trebuie să introduceți numele de utilizator al bazei de date!';
+$_lang["alert_server_test_connection"] = 'Trebuie să testați conexiunea la server!';
+$_lang["alert_server_test_connection_failed"] = 'Testarea conexiunii la server a eșuat!';
+$_lang["alert_table_prefixes"] = 'Prefixele tabelelor trebuie să înceapă cu o literă!';
+$_lang["all"] = 'Toate';
+$_lang["and_try_again"] = ', apoi încercați din nou. Dacă aveți nevoie de ajutor pentru a afla cum să rezolvați problema';
+$_lang["and_try_again_plural"] = ', apoi încercați din nou. Dacă aveți nevoie de ajutor pentru a afla cum să rezolvați problemele';
+$_lang["begin"] = 'Începe';
+$_lang["btnback_value"] = 'Înapoi';
+$_lang["btnclose_value"] = 'Închide';
+$_lang["btnnext_value"] = 'Înainte';
+$_lang["cant_write_config_file"] = 'Evolution CMS nu a putut scrie fișierul de configurare. Copiați următoarele în fișierul ';
+$_lang["cant_write_config_file_note"] = 'După aceea, vă puteți autentifica în panoul de administrare Evolution CMS accesând YourSiteName.com/manager/ în browser.';
+$_lang["checkbox_select_options"] = 'Opțiuni de selectare a casetelor de bifare:';
+$_lang["checking_if_cache_exist"] = 'Se verifică dacă directoarele <span class="mono">/assets/cache</span> și <span class="mono">/assets/cache/rss</span> există: ';
+$_lang["checking_if_cache_file_writable"] = 'Se verifică dacă fișierul <span class="mono">/assets/cache/siteCache.idx.php</span> permite scrierea: ';
+$_lang["checking_if_cache_file2_writable"] = 'Se verifică dacă fișierul <span class="mono">/assets/cache/sitePublishing.idx.php</span> permite scrierea: ';
+$_lang["checking_if_cache_writable"] = 'Se verifică dacă directoarele <span class="mono">/assets/cache</span> și <span class="mono">/assets/cache/rss</span> permit scrierea: ';
+$_lang["checking_if_config_exist_and_writable"] = 'Se verifică dacă <span class="mono">'.MGR_DIR.'/includes/config.inc.php</span> există și permite scrierea: ';
+$_lang["checking_if_export_exists"] = 'Se verifică dacă directorul <span class="mono">/assets/export</span> există: ';
+$_lang["checking_if_export_writable"] = 'Se verifică dacă directorul <span class="mono">/assets/export</span> permite scrierea: ';
+$_lang["checking_if_images_exist"] = 'Se verifică dacă directoarele <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> și <span class="mono">/assets/media</span> există: ';
+$_lang["checking_if_images_writable"] = 'Se verifică dacă directoarele <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> și <span class="mono">/assets/media</span> permit scrierea: ';
+$_lang["checking_mysql_strict_mode"] = 'Se verifică modul sql_mode strict în MySQL: ';
+$_lang["checking_mysql_version"] = 'Se verifică versiunea MySQL: ';
+$_lang["checking_php_version"] = 'Se verifică versiunea PHP: ';
+$_lang["checking_registerglobals"] = 'Se verifică dacă Register_Globals este dezactivat: ';
+$_lang["checking_registerglobals_note"] = 'Această configurație face site-ul mult mai vulnerabil la atacuri Cross Site Scripting (XSS). Discutați cu furnizorul de găzduire despre dezactivarea acestei setări, de obicei prin una dintre cele trei metode: modificarea fișierului global php.ini, adăugarea de reguli într-un fișier .htaccess din rădăcina instalării Evolution CMS sau adăugarea unor fișiere php.ini personalizate în fiecare director al instalării (și sunt multe). Veți putea instala în continuare Evolution CMS, dar ați fost avertizat.'; //Look at changing this to provide a solution.
+$_lang["checking_sessions"] = 'Se verifică dacă sesiunile sunt configurate corect: ';
+$_lang["checking_table_prefix"] = 'Se verifică prefixul tabelelor `';
+$_lang["chunks"] = 'Fragmente';
+$_lang["config_permissions_note"] = 'Pentru instalările Linux/Unix noi, creați un fișier gol numit <span class="mono">config.inc.php</span> în directorul <span class="mono">/manager/includes/</span>, cu permisiunile setate la 0666.';
+$_lang["connection_screen_collation"] = 'Colație:';
+$_lang["connection_screen_database_connection_information"] = 'Informații despre baza de date';
+$_lang["connection_screen_database_connection_note"] = 'Introduceți numele bazei de date pe care doriți să o utilizați sau să o creați pentru această instalare Evolution CMS. Dacă baza de date nu există, programul de instalare va încerca să o creeze. Această operațiune poate eșua în funcție de permisiunile utilizatorului MySQL.';
+$_lang["connection_screen_database_host"] = 'Serverul bazei de date:';
+$_lang["connection_screen_database_info"] = 'Informații despre baza de date';
+$_lang["connection_screen_database_login"] = 'Numele de utilizator al bazei de date:';
+$_lang["connection_screen_database_name"] = 'Numele bazei de date:';
+$_lang["connection_screen_database_pass"] = 'Parola bazei de date:';
+$_lang["connection_screen_database_test_connection"] = 'Creați baza de date sau testați selectarea acesteia.';
+$_lang["connection_screen_default_admin_email"] = 'Adresa de e-mail a administratorului:';
+$_lang["connection_screen_default_admin_login"] = 'Numele de utilizator al administratorului:';
+$_lang["connection_screen_default_admin_note"] = 'Acum trebuie să introduceți câteva detalii pentru contul administratorului principal. Puteți introduce propriul nume și o parolă pe care să o rețineți. Veți avea nevoie de acestea pentru a vă autentifica în panoul de administrare după finalizarea instalării.';
+$_lang["connection_screen_default_admin_password"] = 'Parola administratorului:';
+$_lang["connection_screen_default_admin_password_confirm"] = 'Confirmați parola:';
+$_lang["connection_screen_default_admin_user"] = 'Utilizatorul administrator implicit';
+$_lang["connection_screen_defaults"] = 'Setările implicite ale panoului de administrare';
+$_lang["connection_screen_server_connection_information"] = 'Informații despre conexiunea la server și autentificare';
+$_lang["connection_screen_server_connection_note"] = 'Introduceți serverul bazei de date (numele serverului sau adresa IP), numele de utilizator și parola înainte de a testa conexiunea.';
+$_lang["connection_screen_server_test_connection"] = 'Testați conexiunea la serverul bazei de date și afișați colațiile.';
+$_lang["connection_screen_table_prefix"] = 'Prefixul tabelelor:';
+$_lang["creating_database_connection"] = 'Se creează conexiunea la baza de date: ';
+$_lang["database_alerts"] = 'Alerte ale bazei de date!';
+$_lang["database_connection_failed"] = 'Conexiunea la baza de date a eșuat!';
+$_lang["database_connection_failed_note"] = 'Verificați datele de autentificare la baza de date și încercați din nou.';
+$_lang["database_use_failed"] = 'Baza de date nu a putut fi selectată!';
+$_lang["database_use_failed_note"] = 'Verificați permisiunile bazei de date pentru utilizatorul specificat și încercați din nou.';
+$_lang["default_language"] = 'Limba implicită a panoului de administrare';
+$_lang["default_language_description"] = 'Aceasta este limba implicită utilizată în panoul de administrare Evolution CMS.';
+$_lang["during_execution_of_sql"] = ' în timpul executării instrucțiunii SQL ';
+$_lang["encoding"] = 'UTF-8';	//charset encoding for html header
+$_lang["error"] = 'eroare';
+$_lang["errors"] = 'erori';
+$_lang["failed"] = 'EȘUAT!';
+$_lang["help"] = 'Ajutor!';
+$_lang["help_link"] = 'https://forum.evo.im';
+$_lang["help_title"] = 'Asistență pentru instalare pe forumurile Evolution CMS';
+$_lang["iagree_box"] = 'Accept termenii <a href="../assets/docs/license.txt" target="_blank">licenței Evolution CMS</a>. Pentru traducerile licenței GPL versiunea 2, vizitați <a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-translations.html" target="_blank">site-ul sistemului de operare GNU</a>.';
+$_lang["install"] = 'Instalează';
+$_lang["install_overwrite"] = 'Instalează/Suprascrie';
+$_lang["install_results"] = 'Rezultatele instalării';
+$_lang["install_update"] = 'Instalează/Actualizează';
+$_lang["installation_error_occured"] = 'Următoarele erori au apărut în timpul instalării';
+$_lang["installation_install_new_copy"] = 'Instalează o copie nouă a ';
+$_lang["installation_install_new_note"] = 'Rețineți că această opțiune poate suprascrie orice date din baza de date.';
+$_lang["installation_mode"] = 'Modul de instalare';
+$_lang["installation_new_installation"] = 'Instalare nouă';
+$_lang["installation_note"] = '<strong>Notă:</strong> După autentificarea în panoul de administrare, editați și salvați setările de configurare a sistemului înainte de a naviga pe site, alegând <strong>Instrumente</strong> -> Configurarea sistemului în panoul de administrare Evolution CMS.';
+$_lang["installation_successful"] = 'Instalarea s-a încheiat cu succes!';
+$_lang["installation_upgrade_advanced"] = 'Actualizare avansată';
+$_lang["installation_upgrade_advanced_note"] = 'Pentru administratorii de baze de date experimentați sau pentru mutarea pe servere cu un alt set de caractere pentru conexiunea la baza de date.<br /><b>Trebuie să cunoașteți numele complet al bazei de date, utilizatorul, parola și detaliile conexiunii și ale colaționării.</b>';
+$_lang["installation_upgrade_existing"] = 'Actualizarea instalării existente';
+$_lang["installation_upgrade_existing_note"] = 'Actualizați fișierele și baza de date existente.';
+$_lang["installed"] = 'Instalat';
+$_lang["installing_demo_site"] = 'Se instalează site-ul demonstrativ: ';
+$_lang["language_code"] = 'ro';	// for html element e.g. <html xml:lang="en" lang="en">
+$_lang["loading"] = 'Se încarcă...';
+$_lang["modules"] = 'Module';
+$_lang["modx_footer1"] = '&copy; 2004 - 2026 proiectul cadrului de gestionare a conținutului (CMF) <a href="https://evo.im/" target="_blank" style="color: green; text-decoration:underline">Evolution CMS</a>. Toate drepturile rezervate. Evolution CMS este licențiat sub GNU GPL.';
+$_lang["modx_footer2"] = 'Evolution CMS este software liber.  Vă încurajăm să fiți creativi și să utilizați Evolution CMS în orice mod considerați potrivit. Dacă faceți modificări și decideți să redistribuiți versiunea modificată a Evolution CMS, asigurați-vă că păstrați codul sursă liber!';
+$_lang["modx_install"] = 'Evolution CMS &raquo; Instalare';
+$_lang["modx_requires_php"] = ', iar Evolution CMS necesită PHP 4.2.0 sau o versiune ulterioară';
+$_lang["mysql_5051"] = ' Versiunea serverului MySQL este 5.0.51!';
+$_lang["mysql_5051_warning"] = 'Există probleme cunoscute cu MySQL 5.0.51. Vă recomandăm să îl actualizați înainte de a continua.';
+$_lang["mysql_version_is"] = ' Versiunea dumneavoastră de MySQL este: ';
+$_lang["no"] = 'Nu';
+$_lang["none"] = 'Niciunul';
+$_lang["not_found"] = 'nu a fost găsit';
+$_lang["ok"] = 'OK!';
+$_lang["optional_items"] = 'Elemente opționale';
+$_lang["optional_items_note"] = 'Alegeți opțiunile de instalare și faceți clic pe Instalare:';
+$_lang["php_security_notice"] = '<legend>Notificare de securitate</legend><p>Deși Evolution CMS va funcționa cu versiunea dumneavoastră de PHP, utilizarea sa cu această versiune nu este recomandată. Versiunea dumneavoastră de PHP prezintă numeroase vulnerabilități de securitate. Actualizați la PHP [+min_version+] sau la o versiune ulterioară, care remediază aceste vulnerabilități. Vă recomandăm actualizarea pentru siguranța propriului site.</p>';
+$_lang["please_correct_error"] = '. Corectați eroarea';
+$_lang["please_correct_errors"] = '. Corectați erorile';
+$_lang["plugins"] = 'Pluginuri';
+$_lang["preinstall_validation"] = 'Verificare înainte de instalare';
+$_lang["recommend_setting_change_title"] = 'Modificare recomandată a setărilor';
+$_lang["recommend_setting_change_validate_referer_confirmation"] = 'Modificarea setării: <em>Validați antetele HTTP_REFERER?</em>';
+$_lang["recommend_setting_change_validate_referer_description"] = 'Site-ul nu este configurat pentru a valida HTTP_REFERER al cererilor primite de panoul de administrare. Vă recomandăm insistent să activați această setare pentru a reduce riscul unui atac CSRF (falsificarea cererilor între site-uri).';
+$_lang["remove_install_folder_auto"] = 'Ștergeți dosarul de instalare și fișierele de pe site-ul meu <br />&nbsp;(Această operație necesită permisiunea de ștergere pentru dosarul de instalare).';
+$_lang["remove_install_folder_manual"] = 'Nu uitați să ștergeți dosarul &quot;<b>install</b>&quot; înainte de a vă autentifica în panoul de administrare a conținutului.';
+$_lang["retry"] = 'Reîncercați';
+$_lang["running_database_updates"] = 'Se aplică actualizările bazei de date: ';
+$_lang["sample_web_site"] = 'Site demonstrativ';
+$_lang["sample_web_site_note"] = 'Rețineți că această operație va <b>suprascrie</b> documentele și resursele existente.';
+$_lang["session_problem"] = 'A fost detectată o problemă cu sesiunile serverului. Contactați administratorul serverului pentru a o remedia.';
+$_lang["session_problem_try_again"] = 'Încercați din nou?';
+$_lang["setup_cannot_continue"] = 'Din păcate, instalarea nu poate continua momentan din cauza celor de mai sus ';
+$_lang["setup_couldnt_install"] = 'Programul de instalare Evolution CMS nu a putut instala sau modifica unele tabele din baza de date selectată.';
+$_lang["setup_database"] = 'Programul de instalare va încerca acum să configureze baza de date:<br />';
+$_lang["setup_database_create_connection"] = 'Se creează conexiunea la baza de date: ';
+$_lang["setup_database_create_connection_failed"] = 'Conectarea la baza de date a eșuat!';
+$_lang["setup_database_create_connection_failed_note"] = 'Verificați datele de autentificare la baza de date și încercați din nou.';
+$_lang["setup_database_creating_tables"] = 'Se creează tabelele bazei de date: ';
+$_lang["setup_database_creation"] = 'Se creează baza de date `';
+$_lang["setup_database_creation_failed"] = 'Crearea bazei de date a eșuat!';
+$_lang["setup_database_creation_failed_note"] = ' - Programul de instalare nu a putut crea baza de date!';
+$_lang["setup_database_creation_failed_note2"] = 'Programul de instalare nu a putut crea baza de date și nu a fost găsită nicio bază de date existentă cu același nume. Probabil că regulile de securitate ale furnizorului de găzduire nu permit scripturilor externe să creeze baze de date. Creați o bază de date conform procedurii furnizorului de găzduire și rulați din nou programul de instalare.';
+$_lang["setup_database_selection"] = 'Se selectează baza de date `';
+$_lang["setup_database_selection_failed"] = 'Selectarea bazei de date a eșuat...';
+$_lang["setup_database_selection_failed_note"] = 'Baza de date nu există. Programul de instalare va încerca să o creeze.';
+$_lang["snippets"] = 'Fragmente de cod';
+$_lang["some_tables_not_updated"] = 'Unele tabele nu au fost actualizate. Acest lucru poate fi cauzat de modificări anterioare.';
+$_lang["status_checking_database"] = 'Se verifică baza de date: ';
+$_lang["status_connecting"] = ' Conectare la gazdă: ';
+$_lang["status_failed"] = 'a eșuat!';
+$_lang["status_failed_could_not_create_database"] = 'a eșuat - baza de date nu a putut fi creată';
+$_lang["status_failed_database_collation_does_not_match"] = 'a eșuat - colaționarea bazei de date nu corespunde; utilizați SET NAMES sau alegeți %s';
+$_lang["status_failed_table_prefix_already_in_use"] = 'a eșuat - prefixul tabelelor este deja utilizat!';
+$_lang["status_passed"] = 'reușit - baza de date a fost selectată';
+$_lang["status_passed_database_created"] = 'reușit - baza de date a fost creată';
+$_lang["status_passed_server"] = 'reușit - colaționările sunt acum disponibile';
+$_lang["strict_mode"] = ' Modul sql_mode strict al serverului MySQL este activat!';
+$_lang["strict_mode_error"] = 'Este posibil ca anumite funcții Evolution CMS să nu funcționeze corect dacă modul sql_mode STRICT_TRANS_TABLES nu este dezactivat. Puteți configura modul MySQL editând fișierul my.cnf sau contactând administratorul serverului.';
+$_lang["summary_setup_check"] = 'Programul de instalare a efectuat o serie de verificări pentru a stabili dacă totul este pregătit pentru începerea instalării.';
+$_lang["system_configuration"] = 'Configurarea sistemului';
+$_lang["system_configuration_validate_referer_description"] = 'Setarea <strong>Validați antetele HTTP_REFERER</strong> este recomandată și vă poate proteja site-ul de atacuri CSRF, dar în anumite configurații ale serverului poate face panoul de administrare inaccesibil.';
+$_lang["table_prefix_already_inuse"] = ' - Prefixul tabelelor este deja utilizat în această bază de date!';
+$_lang["table_prefix_already_inuse_note"] = 'Programul de instalare nu a putut efectua instalarea în baza de date selectată, deoarece aceasta conține deja tabele cu prefixul specificat. Alegeți un prefix nou pentru tabele și rulați din nou programul de instalare.';
+$_lang["table_prefix_not_exist"] = ' - Prefixul tabelelor nu există în această bază de date!';
+$_lang["table_prefix_not_exist_note"] = 'Programul de instalare nu a putut efectua instalarea în baza de date selectată, deoarece aceasta nu conține tabele cu prefixul specificat pentru actualizare. Alegeți un prefix de tabele existent și rulați din nou programul de instalare.';
+$_lang["templates"] = 'Șabloane';
+$_lang["to_log_into_content_manager"] = 'Pentru a vă autentifica în panoul de administrare a conținutului (manager/index.php), puteți face clic pe butonul `Închidere`.';
+$_lang["toggle"] = 'Comutare';
+$_lang['tvs'] = 'Variabile de șablon';
+$_lang["unable_install_chunk"] = 'Nu se poate instala fragmentul HTML.  Fișier';
+$_lang["unable_install_module"] = 'Nu se poate instala modulul.  Fișier';
+$_lang["unable_install_plugin"] = 'Nu se poate instala pluginul.  Fișier';
+$_lang["unable_install_snippet"] = 'Nu se poate instala fragmentul de cod.  Fișier';
+$_lang["unable_install_template"] = 'Nu se poate instala șablonul.  Fișier';
+$_lang["upgrade_note"] = '<strong>Notă:</strong> Înainte de a naviga pe site, autentificați-vă în panoul de administrare cu un cont de administrator, apoi verificați și salvați setările de configurare a sistemului.';
+$_lang["upgraded"] = 'Actualizat';
+$_lang["validate_referer_title"] = 'Validați antetele HTTP_REFERER?';
+$_lang["visit_forum"] = ', vizitați <a href="https://forum.evo.im" target="_blank">forumurile Evolution CMS</a>.';
+$_lang["warning"] = 'AVERTISMENT!';
+$_lang["welcome_message_start"] = 'Mai întâi, alegeți tipul de instalare:';
+$_lang["welcome_message_text"] = 'Acest program vă va ghida prin restul instalării.';
+$_lang["welcome_message_welcome"] = 'Bun venit la programul de instalare Evolution CMS.';
+$_lang["writing_config_file"] = 'Se scrie fișierul de configurare: ';
+$_lang["yes"] = 'Da';
+$_lang["you_running_php"] = ' - Utilizați PHP ';
+?>
