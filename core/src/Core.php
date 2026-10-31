@@ -182,6 +182,9 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     public $aliasListing = [];
     public $lockedElements = null;
     public $tmpCache = [];
+    private array $childIdsCache = [];
+    private array $childMapCache = [];
+    private array $templateVarsCache = [];
     private $version = [];
     public $extensions = [];
     public $cacheKey = '';
@@ -274,6 +277,9 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         });
         parent::__construct();
 
+        if (class_exists(\EvolutionCMS\Runtime\WorkerRuntime::class, false)) {
+            \EvolutionCMS\Runtime\WorkerRuntime::captureApplication($this);
+        }
         $this->initialize();
     }
 
@@ -308,7 +314,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     public static function getInstance()
     {
         if (self::$instance === null) {
-            self::$instance = new static();
+            $kept = class_exists(\EvolutionCMS\Runtime\WorkerRuntime::class, false)
+                ? \EvolutionCMS\Runtime\WorkerRuntime::reuseApplication(static::class)
+                : null;
+            self::$instance = $kept ?? new static();
         }
 
         return self::$instance;
@@ -523,10 +532,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $header = 'Refresh: 0;URL=' . $url;
         } elseif ($type === 'REDIRECT_SCRIPT') {
             echo '<script>document.location.href = ' . json_encode($url) . ';</script>' . "\n";
-            exit;
+            evo_exit();
         } elseif ($type === 'REDIRECT_META') {
             echo '<META HTTP-EQUIV="Refresh" CONTENT="0; URL=' . htmlspecialchars($url) . '" />';
-            exit;
+            evo_exit();
         } else { // default: REDIRECT_HEADER
             $header = 'Location: ' . $url;
         }
@@ -563,7 +572,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             header($header);
         }
 
-        exit(0);
+        evo_exit(0);
     }
 
     /**
@@ -679,12 +688,12 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 header($responseCode);
             }
             $this->prepareResponse();
-            exit();
+            evo_exit();
         }
 
         $this->getService('ExceptionHandler')->messageQuit("Internal Server Error id={$id}");
         header('HTTP/1.0 500 Internal Server Error');
-        die('<h1>ERROR: Too many forward attempts!</h1><p>The request could not be completed due to too many unsuccessful forward attempts.</p>');
+        evo_exit('<h1>ERROR: Too many forward attempts!</h1><p>The request could not be completed due to too many unsuccessful forward attempts.</p>');
     }
 
     /**
@@ -755,8 +764,11 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 $this->documentIdentifier = $errorPageId;
                 $this->documentMethod = 'id';
                 $this->prepareResponse();
-                exit;
+                evo_exit();
             } catch (\Throwable $e) {
+                if ($e instanceof \EvolutionCMS\Runtime\RequestTerminated) {
+                    throw $e;
+                }
                 Log::warning('Forward loop fallback to error_page failed', [
                     'loop_type' => $loopType,
                     'request_uri' => $_SERVER['REQUEST_URI'] ?? null,
@@ -770,7 +782,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         if (file_exists(EVO_BASE_PATH . 'views/' . (int)$status . '.html')) {
             header('HTTP/1.0 404 Not Found', true, (int)$status);
             echo file_get_contents(EVO_BASE_PATH . 'views/' . (int)$status . '.html');
-            exit;
+            evo_exit();
         }
 
         echo '<h1>ERROR: Forward loop detected</h1>';
@@ -780,7 +792,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         if (is_array($docInfo)) {
             echo '<p>Target document: ' . htmlspecialchars((string)($docInfo['status'] ?? 'unknown'), ENT_QUOTES) . '</p>';
         }
-        exit;
+        evo_exit();
     }
 
     /**
@@ -813,7 +825,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         }
 
         $this->sendForward(UrlProcessor::getUnAuthorizedPageId(), 'HTTP/1.1 401 Unauthorized');
-        exit();
+        evo_exit();
     }
 
     /**
@@ -1008,7 +1020,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                         $this->sendErrorPage();
                     }
 
-                    exit; // stop here
+                    evo_exit(); // stop here
                 }
             }
 
@@ -1263,7 +1275,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         if ($HTTP_IF_MODIFIED_SINCE == $last_modified || Str::contains($HTTP_IF_NONE_MATCH, $etag)) {
             header('HTTP/1.1 304 Not Modified');
             header('Content-Length: 0');
-            exit;
+            evo_exit();
         }
 
         header('Last-Modified: ' . $last_modified);
@@ -1356,7 +1368,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      */
     public function deferAfterResponse(callable $callback)
     {
-        register_shutdown_function(function () use ($callback) {
+        evo_register_shutdown(function () use ($callback) {
             $this->finishRequest();
             try {
                 $callback();
@@ -2270,10 +2282,15 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         if (is_array($params)) {
             extract($params, EXTR_SKIP);
         }
+        // error_get_last() below must only see what the plugin raised, not an earlier (even @-suppressed) warning.
+        error_clear_last();
         ob_start();
         try {
             eval($pluginCode);
         } catch (\Error $e) {
+            if ($e instanceof \EvolutionCMS\Runtime\RequestTerminated) {
+                throw $e;
+            }
             ob_end_clean();
             $pluginName = $modx->event->activePlugin;
             SitePlugin::where('name', $pluginName)->update(['disabled' => 1]);
@@ -2344,6 +2361,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         if (is_array($params)) {
             extract($params, EXTR_SKIP);
         }
+        // error_get_last() below must only see what the snippet raised, not an earlier (even @-suppressed) warning.
+        error_clear_last();
         ob_start();
         if (is_scalar($phpcode) && Str::contains($phpcode, ';')) {
             if (substr($phpcode, 0, 5) === '<?php') {
@@ -2658,7 +2677,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                         $value .= "`{$inner}`{$outer}";
                         $i++;
                         if (100 < $i) {
-                            exit('The nest of values are hard to read. Please use three different quotes.');
+                            evo_exit('The nest of values are hard to read. Please use three different quotes.');
                         }
                     }
                     if ($i && $delim === '`') {
@@ -2867,7 +2886,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             ->where('disabled', '=', 0)
             ->get();
         if ($snippetModelCollection->count() > 1) {
-            exit('Error $modx->getSnippetObject()' . $snip_name);
+            evo_exit('Error $modx->getSnippetObject()' . $snip_name);
         }
 
         if ($snippetModelCollection->count() === 1) {
@@ -3208,7 +3227,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             $response = $this->router->dispatch($request);
         } catch (NotFoundHttpException | MethodNotAllowedException $exception) {
             $this->executeParser();
-            exit;
+            evo_exit();
         }
 
         $response->send();
@@ -3245,7 +3264,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 // display offline message
                 $this->documentContent = $this->getConfig('site_unavailable_message');
                 $this->outputContent();
-                exit; // stop processing here, as the site's offline
+                evo_exit(); // stop processing here, as the site's offline
             }
 
             // setup offline page document settings
@@ -3519,7 +3538,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         }
 
         if (!$template) {
-            register_shutdown_function([
+            evo_register_shutdown([
                 &$this,
                 'postProcess'
             ]); // tell PHP to call postProcess when it shuts down
@@ -3565,7 +3584,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $url = $this->resolveWeblinkPath($url);
         // The resource's stored link is trusted configuration, not a request return URL.
         $this->sendRedirect($url, 0, '', 302, true);
-        exit;
+        evo_exit();
     }
 
     /**
@@ -3656,7 +3675,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      */
     public function getChildIds($id, $depth = 10, $children = [])
     {
-        static $cached = [];
+        $cached = &$this->childIdsCache;
 
         $cacheKey = md5(print_r(func_get_args(), true));
         if (isset($cached[$cacheKey])) {
@@ -3696,7 +3715,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         }
 
         // Initialise a static array to index parents->children
-        static $documentMap_cache = [];
+        $documentMap_cache = &$this->childMapCache;
         if (!$documentMap_cache) {
             foreach ($this->documentMap as $document) {
                 foreach ($document as $p => $c) {
@@ -3789,7 +3808,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                 <p>" . htmlspecialchars((string)$msg, ENT_QUOTES, $manager_charset) . '</p>
             </body>
         </html>';
-        exit;
+        evo_exit();
     }
 
     /**
@@ -5410,7 +5429,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      */
     public function getTemplateVars($idnames = [], $fields = '*', $docid = '', $published = 1, $sort = 'rank', $dir = 'ASC', $checkAccess = true)
     {
-        static $cached = [];
+        $cached = &$this->templateVarsCache;
         $cacheKey = md5(print_r(func_get_args(), true));
         if (isset($cached[$cacheKey])) {
             return $cached[$cacheKey];

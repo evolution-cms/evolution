@@ -28,7 +28,11 @@ require_once __DIR__ . '/functions/session_proxy.php';
 
 require_once __DIR__ . '/includes/legacy.inc.php';
 
-require_once __DIR__ . '/includes/protect.inc.php'; // harden it
+if (defined('EVO_WORKER_MODE') && EVO_WORKER_MODE) {
+    require __DIR__ . '/includes/protect.inc.php';
+} else {
+    require_once __DIR__ . '/includes/protect.inc.php';
+}
 
 if (! is_cli() && session_status() === PHP_SESSION_NONE && !EvoSessionProxy::disabled()) {
     startCMSSession(); // start session

@@ -157,7 +157,7 @@ return [
     |
     */
     'secure' => env('SESSION_SECURE_COOKIE') ?? (
-        (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off')
         || (int)($_SERVER['SERVER_PORT'] ?? 0) === 443
     ),
 

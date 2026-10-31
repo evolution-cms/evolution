@@ -102,7 +102,7 @@ class Permissions
      */
     public static function getAccessibleDocumentIds()
     {
-        static $documents = null;
+        $documents = &evo()->tmpCache[__METHOD__];
 
         if ($documents === null) {
             $docgrp = static::getManagerDocumentGroups();

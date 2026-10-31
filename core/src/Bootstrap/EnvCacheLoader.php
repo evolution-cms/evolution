@@ -70,6 +70,15 @@ final class EnvCacheLoader
     /** @var array<string, string> */
     private static array $environment = [];
 
+    /** Forget process memory without deleting the on-disk cache. */
+    public static function resetForWorker(): void
+    {
+        self::$loadedRoot = null;
+        self::$loadedCache = null;
+        self::$runtimeConfiguration = null;
+        self::$environment = [];
+    }
+
     /**
      * Loads environment variables and the optional compiled configuration payload.
      *

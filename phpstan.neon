@@ -9,4 +9,5 @@ parameters:
         - core/includes/aliases.inc.php
         - core/includes/legacy.inc.php
     scanFiles:
+        - core/includes/worker.runtime.php
         - core/tests/phpstan/stask-symbols.php

@@ -1,5 +1,34 @@
 <?php
 
+if (!function_exists('evo_exit')) {
+    /** End the current request; a worker catches the signal instead of exiting PHP. */
+    function evo_exit(string|int $status = 0): never
+    {
+        if (class_exists(\EvolutionCMS\Runtime\WorkerRuntime::class, false)
+            && \EvolutionCMS\Runtime\WorkerRuntime::active()) {
+            if (is_string($status)) {
+                echo $status;
+            }
+            throw new \EvolutionCMS\Runtime\RequestTerminated();
+        }
+
+        exit($status);
+    }
+}
+
+if (!function_exists('evo_register_shutdown')) {
+    /** Schedule request cleanup in either the classic or persistent PHP runtime. */
+    function evo_register_shutdown(callable $callback): void
+    {
+        if (class_exists(\EvolutionCMS\Runtime\WorkerRuntime::class, false)
+            && \EvolutionCMS\Runtime\WorkerRuntime::active()) {
+            \EvolutionCMS\Runtime\WorkerRuntime::defer($callback);
+        } else {
+            register_shutdown_function($callback);
+        }
+    }
+}
+
 if (!function_exists('evo')) {
     /**
      * @return DocumentParser
@@ -20,7 +49,7 @@ if (!function_exists('evo')) {
                 $evo = $obj->newInstanceWithoutConstructor()->getInstance();
             } catch (ReflectionException $exception) {
                 echo $exception->getMessage();
-                exit($exception->getCode());
+                evo_exit($exception->getCode());
             }
         }
 
@@ -52,7 +81,7 @@ if (!function_exists('rejectManagerReferer')) {
         // every evo() call repeats the check, and shutdown callbacks call evo(): answer once
         static $refused = false;
         if ($refused) {
-            exit;
+            evo_exit();
         }
         $refused = true;
 
@@ -69,14 +98,14 @@ if (!function_exists('rejectManagerReferer')) {
                 \EvolutionCMS\Support\CsrfMessage::payload(\EvolutionCMS\Support\CsrfMessage::REFERER, $language),
                 JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
             );
-            exit;
+            evo_exit();
         }
 
         $evo->webAlertAndQuit(
             \EvolutionCMS\Support\CsrfMessage::text(\EvolutionCMS\Support\CsrfMessage::REFERER, $language),
             '/' . MGR_DIR . '/index.php'
         );
-        exit;
+        evo_exit();
     }
 }
 
@@ -169,7 +198,7 @@ if (!function_exists('startCMSSession')) {
 
         // no session started, exit
         if (session_status() === PHP_SESSION_NONE) {
-            exit();
+            evo_exit();
         }
         $key = "modx.mgr.session.cookie.lifetime";
 
@@ -232,7 +261,7 @@ if (!function_exists('modx_sanitize_gpc')) {
     function modx_sanitize_gpc(&$values, $depth = 0)
     {
         if (200 < $depth) {
-            exit('GPC Array nested too deep!');
+            evo_exit('GPC Array nested too deep!');
         }
 
         if (!is_array($values)) {

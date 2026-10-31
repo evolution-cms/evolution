@@ -22,6 +22,13 @@ class EvoSessionProxy
      */
     private static bool $cookieEmitted = false;
 
+    public static function resetForWorker(): void
+    {
+        self::$initialized = false;
+        self::$synced = false;
+        self::$shutdownRegistered = false;
+        self::$cookieEmitted = false;
+    }
 
     /**
      * NO_SESSION (core/custom/define.php) disables the visitor session entirely: no store, no cookie.
@@ -125,7 +132,7 @@ class EvoSessionProxy
 
         if (!self::$shutdownRegistered) {
             self::$shutdownRegistered = true;
-            register_shutdown_function([self::class, 'syncBack']);
+            evo_register_shutdown([self::class, 'syncBack']);
         }
     }
 
