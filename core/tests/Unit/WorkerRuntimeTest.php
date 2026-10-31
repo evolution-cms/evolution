@@ -190,6 +190,24 @@ test('kept application serves each request from its post-boot state', function (
     expect($code)->toBe(0)->and(json_decode($output, true))->toBe([$state, $state]);
 });
 
+test('only a worker defers the native session until the providers have booted', function (string $runtime, string $session, bool $deferred) {
+    $output = evoRunPhp(dirname(__DIR__) . '/Mocks/worker_runtime_probe.php', ['session-start', $runtime, $session], $code);
+    expect($code)->toBe(0)->and(json_decode($output, true))->toBe($deferred);
+})->with([
+    'worker, native session' => ['worker', 'native', true],
+    'worker, session proxy' => ['worker', 'proxy', false],
+    'classic, native session' => ['classic', 'native', false],
+    'classic, session proxy' => ['classic', 'proxy', false],
+]);
+
+test('bootstrap, Tracy and Core start the native session on the same condition', function () {
+    $core = dirname(__DIR__, 2);
+    expect(file_get_contents($core . '/bootstrap.php'))->toContain('!EvoSessionProxy::startsAfterBoot()')
+        ->and(file_get_contents($core . '/src/Providers/TracyServiceProvider.php'))->toContain('\EvoSessionProxy::startsAfterBoot()')
+        ->and(file_get_contents($core . '/src/Core.php'))
+        ->toMatch('~\\\\EvoSessionProxy::startsAfterBoot\(\)[^}]*startCMSSession\(\);~s');
+});
+
 test('the snapshot resets nested service state and calls the reset hooks of kept services', function () {
     $app = (new ReflectionClass(Core::class))->newInstanceWithoutConstructor();
     $finder = new Illuminate\View\FileViewFinder(new Illuminate\Filesystem\Filesystem(), []);

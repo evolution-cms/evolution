@@ -287,6 +287,9 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     {
         if (defined('EVO_SESSION') && EVO_SESSION) {
             \EvoSessionProxy::init();
+        } elseif (class_exists('EvoSessionProxy', false) && \EvoSessionProxy::startsAfterBoot()
+            && !is_cli() && session_status() === PHP_SESSION_NONE && !\EvoSessionProxy::disabled()) {
+            startCMSSession();
         }
 
         if ($this->isLoggedIn('mgr')) {

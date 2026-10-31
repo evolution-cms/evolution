@@ -40,6 +40,15 @@ class EvoSessionProxy
     }
 
     /**
+     * A worker starts the native session (EVO_SESSION=false) in Core::initialize(), once the providers
+     * have booted: a kept application would otherwise keep what its first visitor's session held.
+     */
+    public static function startsAfterBoot(): bool
+    {
+        return defined('EVO_WORKER_MODE') && EVO_WORKER_MODE && !(defined('EVO_SESSION') && EVO_SESSION);
+    }
+
+    /**
      * Drops the session middleware from a front-end group while sessions are disabled,
      * and with it what reads the store: ShareErrorsFromSession would throw
      * "Session store not set on request" on every routed front-end request.

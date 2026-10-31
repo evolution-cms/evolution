@@ -24,6 +24,14 @@ if ($mode === 'secure-cookie') {
     }
     echo json_encode($results);
 }
+if ($mode === 'session-start') {
+    if ($argv[2] === 'worker') {
+        define('EVO_WORKER_MODE', true);
+    }
+    define('EVO_SESSION', $argv[3] === 'proxy');
+    require dirname(__DIR__, 2) . '/functions/session_proxy.php';
+    echo json_encode(EvoSessionProxy::startsAfterBoot());
+}
 if ($mode === 'classic-string' || $mode === 'classic-code') {
     evo_register_shutdown(static fn () => print('|shutdown'));
     evo_exit($mode === 'classic-string' ? 'body' : 7);

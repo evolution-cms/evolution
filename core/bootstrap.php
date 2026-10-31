@@ -34,6 +34,7 @@ if (defined('EVO_WORKER_MODE') && EVO_WORKER_MODE) {
     require_once __DIR__ . '/includes/protect.inc.php';
 }
 
-if (! is_cli() && session_status() === PHP_SESSION_NONE && !EvoSessionProxy::disabled()) {
+if (! is_cli() && session_status() === PHP_SESSION_NONE && !EvoSessionProxy::disabled()
+    && !EvoSessionProxy::startsAfterBoot()) {
     startCMSSession(); // start session
 }

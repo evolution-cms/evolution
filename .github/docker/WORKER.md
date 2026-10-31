@@ -52,8 +52,12 @@ services with a public `flushState()` (Laravel's and Livewire's convention) or
 Symfony's `ResetInterface` are reset through it. In debug mode, responses carry
 `X-Evo-Worker-App: new|kept` and the log lists the kept services.
 
-A provider that reads the request, the session or the user while booting sees
-only the first request of each worker in this mode. An extension service resolved
+Providers boot before the session starts, in both lifetimes and with either
+`EVO_SESSION` setting (a worker starts the native session of `EVO_SESSION=false` in
+`Core::initialize()`), so while booting they always see an empty session and a
+guest. The query string, cookies and request headers they could read there are
+those of the first request of each worker in this mode: read them per request,
+in middleware, a plugin event or a binding resolved during the request. An extension service resolved
 during boot that keeps request state deeper than one object level must implement
 one of the reset hooks. Test the installed extensions with this mode before using
 it in production; without it, workers behave as described above.
