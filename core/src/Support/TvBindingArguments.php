@@ -29,6 +29,11 @@ final class TvBindingArguments
     /** @var array<string, true> refusals already written to the event log in this request */
     private static array $loggedRefusals = [];
 
+    public static function resetForWorker(): void
+    {
+        self::$loggedRefusals = [];
+    }
+
     /**
      * The field values a placeholder may name: the given TV rows or values over the current
      * document's fields, resolved the way parseTvValues() resolves them.
