@@ -210,6 +210,14 @@ $_lang["opcache_memory_details"] = '(%s utilisés / %s disponibles), %s succès 
 $_lang["opcache_reset_unavailable"] = 'réinitialisation indisponible';
 $_lang["opcache_reset_complete"] = 'réinitialisation terminée';
 $_lang["opcache_reset_failed"] = 'échec de la réinitialisation';
+$_lang["worker_mode"] = 'Mode worker';
+$_lang["sysinfo_worker_unavailable"] = 'nécessite FrankenPHP';
+$_lang["sysinfo_worker_ignored"] = 'EVO_WORKER_MODE=1 n\'a aucun effet hors de FrankenPHP';
+$_lang["sysinfo_worker_available"] = 'disponible : définissez EVO_WORKER_MODE=1 et EVO_WORKER_ORIGIN, puis redémarrez le serveur';
+$_lang["sysinfo_worker_no_origin"] = 'EVO_WORKER_ORIGIN n\'est pas défini, les workers ne démarreront pas';
+$_lang["sysinfo_worker_new_app"] = 'nouvelle application par requête';
+$_lang["sysinfo_worker_kept_app"] = 'application conservée, expérimental';
+$_lang["sysinfo_worker_recycle"] = 'recyclé après %s requêtes';
 $_lang["database_name"] = 'Nom de la base de données';
 $_lang["database_overhead"] = '<b style="color:#990033;">Note :</b> l\'espace excédentaire est un espace inutilisé réservé par MySQL. Pour le libérer, cliquez sur la valeur d\'espace excédentaire de la table concernée.';
 $_lang["database_server"] = 'Serveur de la base de données';

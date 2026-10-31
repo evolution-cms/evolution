@@ -207,6 +207,14 @@ $_lang["opcache_memory_details"] = '(%s brukt / %s tilgjengeleg), %s treff / %s 
 $_lang["opcache_reset_unavailable"] = 'nullstilling ikkje tilgjengeleg';
 $_lang["opcache_reset_complete"] = 'nullstilling fullført';
 $_lang["opcache_reset_failed"] = 'nullstilling mislukkast';
+$_lang["worker_mode"] = 'Worker-modus';
+$_lang["sysinfo_worker_unavailable"] = 'krev FrankenPHP';
+$_lang["sysinfo_worker_ignored"] = 'EVO_WORKER_MODE=1 har ingen verknad utanfor FrankenPHP';
+$_lang["sysinfo_worker_available"] = 'tilgjengeleg: set EVO_WORKER_MODE=1 og EVO_WORKER_ORIGIN, og start så tenaren på nytt';
+$_lang["sysinfo_worker_no_origin"] = 'EVO_WORKER_ORIGIN er ikkje sett, workerar vil ikkje starte';
+$_lang["sysinfo_worker_new_app"] = 'ny applikasjon per førespurnad';
+$_lang["sysinfo_worker_kept_app"] = 'bevart applikasjon, eksperimentell';
+$_lang["sysinfo_worker_recycle"] = 'starta på nytt etter %s førespurnader';
 $_lang["database_name"] = 'Database name';
 $_lang["database_overhead"] = '<b style="color:#990033;">Merk:</b> overhead er ubrukt plass reservert av MySQL. Klikk på overheadverdien for den aktuelle tabellen for å frigjere plassen.';
 $_lang["database_server"] = 'Database server';

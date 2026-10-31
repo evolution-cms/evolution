@@ -207,6 +207,14 @@ $_lang["opcache_memory_details"] = '(%s použito / %s dostupné), %s zásahů / 
 $_lang["opcache_reset_unavailable"] = 'reset není dostupný';
 $_lang["opcache_reset_complete"] = 'reset dokončen';
 $_lang["opcache_reset_failed"] = 'reset selhal';
+$_lang["worker_mode"] = 'Režim workeru';
+$_lang["sysinfo_worker_unavailable"] = 'vyžaduje FrankenPHP';
+$_lang["sysinfo_worker_ignored"] = 'EVO_WORKER_MODE=1 nemá mimo FrankenPHP žádný účinek';
+$_lang["sysinfo_worker_available"] = 'k dispozici: nastavte EVO_WORKER_MODE=1 a EVO_WORKER_ORIGIN, poté restartujte server';
+$_lang["sysinfo_worker_no_origin"] = 'EVO_WORKER_ORIGIN není nastaveno, workery se nespustí';
+$_lang["sysinfo_worker_new_app"] = 'nová aplikace pro každý požadavek';
+$_lang["sysinfo_worker_kept_app"] = 'zachovaná aplikace, experimentální';
+$_lang["sysinfo_worker_recycle"] = 'restartován po %s požadavcích';
 $_lang["database_name"] = 'Jméno databáze';
 $_lang["database_overhead"] = '<b style="color:#990033;">Poznámka:</b> Režie je nevyužité místo rezervované MySQL. Chcete-li ho uvolnit, klikněte na hodnotu režie u příslušné tabulky.';
 $_lang["database_server"] = 'Databázový server';

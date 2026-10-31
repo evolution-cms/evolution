@@ -219,6 +219,14 @@ $_lang["opcache_memory_details"] = '(%s gebruikt / %s beschikbaar), %s hits / %s
 $_lang["opcache_reset_unavailable"] = 'reset niet beschikbaar';
 $_lang["opcache_reset_complete"] = 'reset voltooid';
 $_lang["opcache_reset_failed"] = 'reset mislukt';
+$_lang["worker_mode"] = 'Worker-modus';
+$_lang["sysinfo_worker_unavailable"] = 'vereist FrankenPHP';
+$_lang["sysinfo_worker_ignored"] = 'EVO_WORKER_MODE=1 heeft geen effect buiten FrankenPHP';
+$_lang["sysinfo_worker_available"] = 'beschikbaar: stel EVO_WORKER_MODE=1 en EVO_WORKER_ORIGIN in en herstart daarna de server';
+$_lang["sysinfo_worker_no_origin"] = 'EVO_WORKER_ORIGIN is niet ingesteld, workers starten niet';
+$_lang["sysinfo_worker_new_app"] = 'nieuwe applicatie per verzoek';
+$_lang["sysinfo_worker_kept_app"] = 'behouden applicatie, experimenteel';
+$_lang["sysinfo_worker_recycle"] = 'herstart na %s verzoeken';
 $_lang["database_name"] = 'Database naam';
 $_lang["database_overhead"] = '<b style="color:#990033;">Opmerking:</b> overhead is ongebruikte ruimte die door MySQL is gereserveerd. Klik op de overheadwaarde van de betreffende tabel om deze ruimte vrij te maken.';
 $_lang["database_server"] = 'Database server';

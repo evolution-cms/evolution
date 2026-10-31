@@ -67,6 +67,10 @@ PHP entry points remain classic. `EVO_WORKER_MODE=1` alone does not activate the
 runtime under Apache, FPM, CLI or a classic FrankenPHP request. To disable workers,
 remove the setting and restart the container.
 
+**System info** in the manager has a *Worker mode* row: unavailable outside FrankenPHP,
+available but off, or the configured lifetime and recycle limit. The manager runs
+classic, so the row reflects the environment the workers start with, not a live worker.
+
 Settings:
 
 | Environment variable | Default | Meaning |

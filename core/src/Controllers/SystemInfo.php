@@ -125,6 +125,7 @@ class SystemInfo extends AbstractController implements ManagerTheme\PageControll
                 'status' => $jit['enabled'],
                 'details' => '(' . $jit['details'] . ')'
             ],
+            'worker_mode' => $this->workerModeRow(),
             'access_permissions' => [
                 'is_lexicon' => true,
                 'data' => $this->managerTheme->getLexicon(
@@ -251,6 +252,58 @@ class SystemInfo extends AbstractController implements ManagerTheme\PageControll
         }
 
         return ['enabled' => $enabled, 'details' => $this->formatBytes($bufferSize)];
+    }
+
+    protected function workerModeRow(): array
+    {
+        $info = $this->workerModeInfo();
+        $details = implode(', ', array_map(
+            fn (array $hint) => vsprintf($this->managerTheme->getLexicon($hint[0]), array_slice($hint, 1)),
+            $info['hints']
+        ));
+
+        return [
+            'is_lexicon' => true,
+            'data' => $this->managerTheme->getLexicon($info['enabled'] ? 'enabled' : 'disabled') . ' (' . $details . ')',
+            'status' => $info['enabled'],
+            'details' => '(' . $details . ')',
+        ];
+    }
+
+    /**
+     * The manager itself always runs classic, so this reports the configuration the front-end workers
+     * start with (index.php and the image entrypoint read the same variables), not a live worker.
+     *
+     * @return array{enabled: bool, hints: list<array>}
+     */
+    public function workerModeInfo(): array
+    {
+        $requested = $this->environment('EVO_WORKER_MODE') === '1';
+        if ($this->serverApi() !== 'frankenphp') {
+            return ['enabled' => false, 'hints' => [[$requested ? 'sysinfo_worker_ignored' : 'sysinfo_worker_unavailable']]];
+        }
+        if (!$requested) {
+            return ['enabled' => false, 'hints' => [['sysinfo_worker_available']]];
+        }
+        if (trim((string) $this->environment('EVO_WORKER_ORIGIN')) === '') {
+            return ['enabled' => false, 'hints' => [['sysinfo_worker_no_origin']]];
+        }
+        $maxRequests = (string) $this->environment('EVO_WORKER_MAX_REQUESTS');
+
+        return ['enabled' => true, 'hints' => [
+            [$this->environment('EVO_WORKER_KEEP_APP') === '1' ? 'sysinfo_worker_kept_app' : 'sysinfo_worker_new_app'],
+            ['sysinfo_worker_recycle', $maxRequests === '' ? '500' : $maxRequests],
+        ]];
+    }
+
+    protected function serverApi(): string
+    {
+        return PHP_SAPI;
+    }
+
+    protected function environment(string $name): string|false
+    {
+        return getenv($name);
     }
 
     protected function resetOpcacheIfRequested(): string

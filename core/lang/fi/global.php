@@ -207,6 +207,14 @@ $_lang["opcache_memory_details"] = '(%s käytössä / %s käytettävissä), %s o
 $_lang["opcache_reset_unavailable"] = 'nollaus ei ole käytettävissä';
 $_lang["opcache_reset_complete"] = 'nollaus valmis';
 $_lang["opcache_reset_failed"] = 'nollaus epäonnistui';
+$_lang["worker_mode"] = 'Worker-tila';
+$_lang["sysinfo_worker_unavailable"] = 'vaatii FrankenPHP:n';
+$_lang["sysinfo_worker_ignored"] = 'EVO_WORKER_MODE=1 ei vaikuta FrankenPHP:n ulkopuolella';
+$_lang["sysinfo_worker_available"] = 'saatavilla: aseta EVO_WORKER_MODE=1 ja EVO_WORKER_ORIGIN ja käynnistä palvelin uudelleen';
+$_lang["sysinfo_worker_no_origin"] = 'EVO_WORKER_ORIGIN ei ole asetettu, workerit eivät käynnisty';
+$_lang["sysinfo_worker_new_app"] = 'uusi sovellus jokaiselle pyynnölle';
+$_lang["sysinfo_worker_kept_app"] = 'säilytetty sovellus, kokeellinen';
+$_lang["sysinfo_worker_recycle"] = 'käynnistetään uudelleen %s pyynnön jälkeen';
 $_lang["database_name"] = 'Tietokannan nimi';
 $_lang["database_overhead"] = '<strong>Huomaa:</strong> hukkatila on MySQL:n varaamaa käyttämätöntä tilaa. Vapauta tila napsauttamalla kyseisen taulun hukkatilan arvoa.';
 $_lang["database_server"] = 'Tietokantapalvelin';

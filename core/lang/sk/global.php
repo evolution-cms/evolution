@@ -225,6 +225,14 @@ $_lang["opcache_memory_details"] = '(%s použité / %s dostupné), %s zásahov /
 $_lang["opcache_reset_unavailable"] = 'reset nie je dostupný';
 $_lang["opcache_reset_complete"] = 'reset vykonaný';
 $_lang["opcache_reset_failed"] = 'reset zlyhal';
+$_lang["worker_mode"] = 'Režim workera';
+$_lang["sysinfo_worker_unavailable"] = 'vyžaduje FrankenPHP';
+$_lang["sysinfo_worker_ignored"] = 'EVO_WORKER_MODE=1 nemá mimo FrankenPHP žiadny účinok';
+$_lang["sysinfo_worker_available"] = 'dostupné: nastavte EVO_WORKER_MODE=1 a EVO_WORKER_ORIGIN, potom reštartujte server';
+$_lang["sysinfo_worker_no_origin"] = 'EVO_WORKER_ORIGIN nie je nastavené, workery sa nespustia';
+$_lang["sysinfo_worker_new_app"] = 'nová aplikácia pre každú požiadavku';
+$_lang["sysinfo_worker_kept_app"] = 'zachovaná aplikácia, experimentálne';
+$_lang["sysinfo_worker_recycle"] = 'reštartovaný po %s požiadavkách';
 $_lang["database_name"] = 'Názov databázy';
 $_lang["database_overhead"] = '<b style="color:#990033;">Poznámka:</b> nadbytočný priestor je nevyužité miesto rezervované MySQL. Ak ho chcete uvoľniť, kliknite na hodnotu nadbytočného priestoru pri príslušnej tabuľke.';
 $_lang["database_server"] = 'Databázový server';
