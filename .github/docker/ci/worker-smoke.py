@@ -74,6 +74,16 @@ guest = json.loads(guest)
 assert guest['counter'] == 1 and guest['user'] is None, guest
 assert headers['X-Evo-Worker'] == worker
 assert json.loads(get('/__worker/state', alice)[0])['user'] == 1
+# A route controller is built for each request, with that request and user, never one kept from an earlier one.
+for opener, value, user in ((alice, 'alice', 1), (bob, 'bob', None), (alice, 'alice-again', 1)):
+    body, headers = get('/__worker/controller?value=' + value, opener)
+    assert json.loads(body) == {'value': value, 'user': user}, (value, body)
+    assert headers['X-Evo-Worker'] == worker
+# A model first booted by a request keeps its listeners in the next one, and runs each of them once.
+for _ in range(2):
+    body, headers = get('/__worker/model')
+    assert json.loads(body) == ['saving', 'creating'], body
+    assert headers['X-Evo-Worker'] == worker
 redirected, headers = get('/__worker/redirect', client())
 assert json.loads(redirected)['redirected'] is True
 assert headers['X-Evo-Worker'] == worker
@@ -140,5 +150,5 @@ if container:
     state, headers = get('/__worker/state')
     assert json.loads(state)['setting'] == 'external', state
     assert headers['X-Evo-Worker'] == worker
-print(('PASS (kept application): ' if keep_app else 'PASS: ') + 'persistent worker, session/auth isolation, request state reset, redirects, forwards, 404, cleanup, rollback, host guard, classic manager, errors, native exit, 100-request memory check'
+print(('PASS (kept application): ' if keep_app else 'PASS: ') + 'persistent worker, session/auth isolation, request state reset, route controllers, late-booted model events, redirects, forwards, 404, cleanup, rollback, host guard, classic manager, errors, native exit, 100-request memory check'
       + (', alias redirect' if alias else '') + (', external settings change' if container else ''))

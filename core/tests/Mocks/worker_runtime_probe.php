@@ -80,6 +80,80 @@ if ($mode === 'keep-app') {
     echo json_encode($results);
 }
 
+if ($mode === 'keep-app-controller' || $mode === 'keep-app-model') {
+    define('EVO_CLASS', 'KeepProbeCore');
+    class KeepProbeCore extends EvolutionCMS\Core
+    {
+        public function initialize() {}
+    }
+    final class KeepProbeController
+    {
+        public static int $instances = 0;
+        public function __construct(private Illuminate\Http\Request $request)
+        {
+            self::$instances++;
+        }
+        public function __invoke(): string
+        {
+            return $this->request->query('user') . ':' . $this->request->route('page');
+        }
+    }
+    final class KeepProbeEvents
+    {
+        public static array $fired = [];
+    }
+    abstract class KeepProbeModel extends Illuminate\Database\Eloquent\Model
+    {
+        protected static function booted(): void
+        {
+            foreach (['creating', 'saving'] as $event) {
+                static::registerModelEvent($event, static fn () => KeepProbeEvents::$fired[] = static::class . '.' . $event);
+            }
+            static::addGlobalScope('probe', static fn () => null);
+        }
+        public function fire(string $event): void
+        {
+            $this->fireModelEvent($event, false);
+        }
+    }
+    final class KeepProbeBootModel extends KeepProbeModel {}
+    final class KeepProbeLateModel extends KeepProbeModel {}
+
+    WorkerRuntime::keepApplications(true);
+    $boot = (new ReflectionClass(KeepProbeCore::class))->newInstanceWithoutConstructor();
+    $boot->instance('events', new Illuminate\Events\Dispatcher($boot));
+    $router = new Illuminate\Routing\Router($boot['events'], $boot);
+    $router->get('/page/{page}', KeepProbeController::class);
+    $boot->instance('router', $router);
+    Illuminate\Database\Eloquent\Model::setEventDispatcher($boot['events']);
+    new KeepProbeBootModel();
+    WorkerRuntime::begin();
+    WorkerRuntime::captureApplication($boot);
+    $results = [];
+    foreach (['alice', 'bob'] as $i => $user) {
+        if ($i > 0) {
+            WorkerRuntime::begin();
+        }
+        $app = KeepProbeCore::getInstance();
+        if ($mode === 'keep-app-controller') {
+            $request = Illuminate\Http\Request::create('/page/' . ($i + 1) . '?user=' . $user);
+            $app->instance('request', $request);
+            $app->alias('request', Illuminate\Http\Request::class);
+            $results[] = [$app['router']->dispatch($request)->getContent(), KeepProbeController::$instances];
+        } else {
+            KeepProbeEvents::$fired = [];
+            foreach ([new KeepProbeBootModel(), new KeepProbeLateModel()] as $model) {
+                $model->fire('saving');
+                $model->fire('creating');
+            }
+            $results[] = [KeepProbeEvents::$fired, array_keys((new KeepProbeLateModel())->getGlobalScopes())];
+        }
+        WorkerRuntime::terminate();
+        WorkerRuntime::releaseApplication();
+    }
+    echo json_encode($results);
+}
+
 if ($mode === 'session') {
     define('IN_MANAGER_MODE', false);
     define('IN_INSTALL_MODE', false);

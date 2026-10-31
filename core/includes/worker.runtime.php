@@ -500,7 +500,7 @@ final class WorkerRuntime
         }
         if (class_exists(Model::class, false)) {
             Model::reguard();
-            // A kept application keeps its booted models, observers and connection resolver.
+            // A kept application keeps the models booted before its snapshot; restore() forgets the later ones.
             if (!$kept) {
                 Model::clearBootedModels();
                 Model::unsetConnectionResolver();
@@ -524,7 +524,8 @@ final class WorkerRuntime
  * The properties of the container, of Core and of every service resolved while providers booted return
  * to their post-boot values: whatever a request bound, resolved, registered or set on them is dropped.
  * Objects nested inside those services are shared by all requests; their owners reset them through
- * flushState() (Laravel's and Livewire's convention) or Symfony's ResetInterface.
+ * flushState() (Laravel's and Livewire's convention) or Symfony's ResetInterface. The routes of the router
+ * forget their controllers, and Eloquent's static boot registry returns to its post-boot value.
  */
 final class ApplicationSnapshot
 {
@@ -562,6 +563,7 @@ final class ApplicationSnapshot
                 }
             }
         }
+        $this->captureModelBootState();
         if (class_exists(\Illuminate\Support\Once::class)) {
             $this->resets[] = static fn () => \Illuminate\Support\Once::flush();
         }
@@ -602,12 +604,49 @@ final class ApplicationSnapshot
         }
     }
 
+    /**
+     * A model boots once per process and registers its listeners on the shared dispatcher, whose listeners
+     * restore() puts back: a model first booted by a request must boot again in the next one, and only such a model.
+     */
+    private function captureModelBootState(): void
+    {
+        $state = [];
+        foreach (['booting', 'booted', 'bootedCallbacks', 'traitInitializers', 'globalScopes', 'classAttributes', 'dispatcher', 'resolver'] as $name) {
+            if (property_exists(Model::class, $name)) {
+                $property = new \ReflectionProperty(Model::class, $name);
+                $state[] = [$property, $property->getValue()];
+            }
+        }
+        $this->resets[] = static function () use ($state): void {
+            foreach ($state as [$property, $value]) {
+                $property->setValue(null, $value);
+            }
+        };
+    }
+
     private function captureResets(object $service): void
     {
         if ($service instanceof \Symfony\Contracts\Service\ResetInterface) {
             $this->resets[] = $service->reset(...);
         } elseif (method_exists($service, 'flushState') && (new \ReflectionMethod($service, 'flushState'))->isPublic()) {
             $this->resets[] = $service->flushState(...);
+        }
+        if ($service instanceof \Illuminate\Routing\Router) {
+            // Routes live in arrays of the route collection, out of reach of capture(); each one caches the
+            // controller it built, together with the request or user that controller took in its constructor.
+            $forget = \Closure::bind(static function (\Illuminate\Routing\Route $route): void {
+                $route->flushController();
+                $route->parameters = null;
+                $route->originalParameters = null;
+            }, null, \Illuminate\Routing\Route::class);
+            $this->resets[] = static function () use ($service, $forget): void {
+                $routes = $service->getRoutes();
+                if ($routes instanceof \Illuminate\Routing\RouteCollection) {
+                    foreach ($routes->getRoutes() as $route) {
+                        $forget($route);
+                    }
+                }
+            };
         }
         if ($service instanceof \Illuminate\Log\LogManager) {
             // Context set on a channel during a request lives in the Logger object, not in the manager.

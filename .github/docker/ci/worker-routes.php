@@ -3,6 +3,39 @@
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
+// The routes file runs again for every fresh container; a class is declared only once per worker.
+if (!class_exists('WorkerProbeController', false)) {
+    final class WorkerProbeController
+    {
+        private ?int $user;
+
+        public function __construct(private Illuminate\Http\Request $request)
+        {
+            $this->user = app('AuthServices')->id();
+        }
+
+        public function __invoke()
+        {
+            return response()->json(['value' => $this->request->query('value'), 'user' => $this->user]);
+        }
+    }
+
+    // First instantiated by a request, after a kept application took its snapshot.
+    final class WorkerProbeSetting extends EvolutionCMS\Models\SystemSetting
+    {
+        public static array $events = [];
+
+        protected static function booted(): void
+        {
+            foreach (['saving', 'creating'] as $event) {
+                static::registerModelEvent($event, static function () use ($event) {
+                    self::$events[] = $event;
+                });
+            }
+        }
+    }
+}
+
 Route::get('/__worker/state', static function () {
     $_SESSION['worker_counter'] = ($_SESSION['worker_counter'] ?? 0) + 1;
     return response()->json([
@@ -75,4 +108,10 @@ Route::get('/__worker/native-exit', static function () {
     $_SESSION['worker_redirected'] = true;
     evo_register_shutdown(static fn () => file_put_contents('/tmp/evo-worker-native-cleanup', 'done'));
     exit('legacy response');
+});
+Route::get('/__worker/controller', WorkerProbeController::class);
+Route::get('/__worker/model', static function () {
+    WorkerProbeSetting::$events = [];
+    WorkerProbeSetting::create(['setting_name' => 'worker_model', 'setting_value' => '1'])->delete();
+    return response()->json(WorkerProbeSetting::$events);
 });

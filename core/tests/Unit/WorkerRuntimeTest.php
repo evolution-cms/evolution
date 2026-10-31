@@ -190,6 +190,20 @@ test('kept application serves each request from its post-boot state', function (
     expect($code)->toBe(0)->and(json_decode($output, true))->toBe([$state, $state]);
 });
 
+test('a kept application builds route controllers again, with the request of their own request', function () {
+    $output = evoRunPhp(dirname(__DIR__) . '/Mocks/worker_runtime_probe.php', ['keep-app-controller'], $code);
+    expect($code)->toBe(0, $output)->and(json_decode($output, true))->toBe([['alice:1', 1], ['bob:2', 2]]);
+});
+
+test('models first booted by a kept-application request boot again and fire their listeners once', function () {
+    $output = evoRunPhp(dirname(__DIR__) . '/Mocks/worker_runtime_probe.php', ['keep-app-model'], $code);
+    $request = [[
+        'KeepProbeBootModel.saving', 'KeepProbeBootModel.creating',
+        'KeepProbeLateModel.saving', 'KeepProbeLateModel.creating',
+    ], ['probe']];
+    expect($code)->toBe(0, $output)->and(json_decode($output, true))->toBe([$request, $request]);
+});
+
 test('only a worker defers the native session until the providers have booted', function (string $runtime, string $session, bool $deferred) {
     $output = evoRunPhp(dirname(__DIR__) . '/Mocks/worker_runtime_probe.php', ['session-start', $runtime, $session], $code);
     expect($code)->toBe(0)->and(json_decode($output, true))->toBe($deferred);
