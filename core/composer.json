@@ -159,8 +159,14 @@
     "scripts": {
         "sync-replace": "@php functions/sync-replace-version.php",
         "test": "vendor/bin/pest",
-        "optimize": "@composer install --no-dev && @composer dump-autoload -o --no-dev --classmap-authoritative",
-        "optimize-dev": "@composer install && @composer dump-autoload -o --classmap-authoritative",
+        "optimize": [
+            "@composer install --no-dev",
+            "@composer dump-autoload -o --no-dev --classmap-authoritative"
+        ],
+        "optimize-dev": [
+            "@composer install",
+            "@composer dump-autoload -o --classmap-authoritative"
+        ],
         "upd": [
             "@sync-replace",
             "@composer update --lock --ansi"
