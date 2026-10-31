@@ -668,6 +668,14 @@ $_lang["opcache_memory_details"] = '(%s выкарыстоўваецца / %s д
 $_lang["opcache_reset_unavailable"] = 'скід недаступны';
 $_lang["opcache_reset_complete"] = 'скід завершаны';
 $_lang["opcache_reset_failed"] = 'скід не атрымаўся';
+$_lang["worker_mode"] = 'Рэжым worker';
+$_lang["sysinfo_worker_unavailable"] = 'патрабуецца FrankenPHP';
+$_lang["sysinfo_worker_ignored"] = 'EVO_WORKER_MODE=1 не дзейнічае па-за FrankenPHP';
+$_lang["sysinfo_worker_available"] = 'даступна: задайце EVO_WORKER_MODE=1 і EVO_WORKER_ORIGIN, затым перазапусціце сервер';
+$_lang["sysinfo_worker_no_origin"] = 'EVO_WORKER_ORIGIN не зададзены, worker-працэсы не запусцяцца';
+$_lang["sysinfo_worker_new_app"] = 'новае прыкладанне на кожны запыт';
+$_lang["sysinfo_worker_kept_app"] = 'захаванае прыкладанне, эксперыментальна';
+$_lang["sysinfo_worker_recycle"] = 'перазапускаецца пасля %s запытаў';
 $_lang["database_name"] = 'Імя базы дадзеных';
 $_lang["database_overhead"] = '<b style="color:#990033;">Заўвага:</b> лішняя прастора — гэта невыкарыстанае месца, зарэзерваванае MySQL. Каб вызваліць яго, націсніце значэнне лішняй прасторы для адпаведнай табліцы.';
 $_lang["database_server"] = 'Сервер базы дадзеных';

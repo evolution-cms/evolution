@@ -34,6 +34,11 @@ final class TvBindingGuard
     /** @var array<string, true> refusals already written to the event log in this request */
     private static array $loggedRefusals = [];
 
+    public static function resetForWorker(): void
+    {
+        self::$loggedRefusals = [];
+    }
+
     public static function runsCode(?string $command): bool
     {
         return in_array(strtoupper(trim((string) $command)), self::CODE_BINDINGS, true);

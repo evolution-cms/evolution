@@ -680,6 +680,14 @@ $_lang["opcache_memory_details"] = '(%s istifadə olunur / %s mövcuddur), %s hi
 $_lang["opcache_reset_unavailable"] = 'sıfırlama mümkün deyil';
 $_lang["opcache_reset_complete"] = 'sıfırlama tamamlandı';
 $_lang["opcache_reset_failed"] = 'sıfırlama alınmadı';
+$_lang["worker_mode"] = 'Worker rejimi';
+$_lang["sysinfo_worker_unavailable"] = 'FrankenPHP tələb olunur';
+$_lang["sysinfo_worker_ignored"] = 'EVO_WORKER_MODE=1 FrankenPHP xaricində təsir etmir';
+$_lang["sysinfo_worker_available"] = 'mövcuddur: EVO_WORKER_MODE=1 və EVO_WORKER_ORIGIN təyin edin, sonra serveri yenidən başladın';
+$_lang["sysinfo_worker_no_origin"] = 'EVO_WORKER_ORIGIN təyin edilməyib, worker-lər başlamayacaq';
+$_lang["sysinfo_worker_new_app"] = 'hər sorğu üçün yeni tətbiq';
+$_lang["sysinfo_worker_kept_app"] = 'saxlanılan tətbiq, eksperimental';
+$_lang["sysinfo_worker_recycle"] = '%s sorğudan sonra yenidən başladılır';
 $_lang["database_name"] = 'Verilənlər bazasının adı';
 $_lang["database_overhead"] = '<b style="color:#990033;">Qeyd:</b> overhead MySQL tərəfindən ayrılmış, lakin istifadə olunmayan boş sahədir. Bu sahəni azad etmək üçün müvafiq cədvəlin overhead dəyərinə klikləyin.';
 $_lang["database_server"] = 'Verilənlər bazası serveri';
