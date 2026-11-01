@@ -45,6 +45,14 @@ final class CustomComposerPackages
      */
     public const DUMP_AUTOLOAD_ARGUMENTS = 'dump-autoload -o --no-dev --classmap-authoritative --no-scripts';
 
+    /**
+     * Composer version that knows --minimal-changes. Here, not in a console command, because the web
+     * installer reads it before the new application can boot.
+     *
+     * @since 3.6.0
+     */
+    public const MINIMAL_CHANGES_SINCE = '2.7.0';
+
     public function __construct(private string $corePath)
     {
         $this->corePath = rtrim($corePath, '/\\') . '/';

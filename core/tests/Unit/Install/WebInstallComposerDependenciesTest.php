@@ -6,10 +6,10 @@
 |--------------------------------------------------------------------------
 |
 | The manager's updater lays a source archive over the site, which has no
-| vendor directory. After the migrations and the custom packages the web
-| installer builds core/vendor from the new lock, rebuilds the classmap-
-| authoritative autoloader and discovers the packages, with the arguments
-| make:site uses (CustomComposerPackages::INSTALL_ARGUMENTS / DUMP_AUTOLOAD_ARGUMENTS).
+| vendor directory. Before any step boots the new core (WebInstallStaleVendorTest)
+| the web installer builds core/vendor from the new lock and rebuilds the
+| classmap-authoritative autoloader with the arguments make:site uses
+| (CustomComposerPackages::INSTALL_ARGUMENTS / DUMP_AUTOLOAD_ARGUMENTS).
 |
 */
 
@@ -125,20 +125,18 @@ test('make:site and the web installer share the Composer arguments', function ()
         ->and($command)->toContain("' ' . CustomComposerPackages::DUMP_AUTOLOAD_ARGUMENTS;");
 });
 
-test('a web update installs the dependencies after the custom packages and stays incomplete when it cannot', function () use ($root) {
+test('Composer runs before the new core boots; the booted update step only discovers the packages', function () use ($root) {
     $controller = (string) file_get_contents($root . '/install/src/controllers/install.php');
-    $view = (string) file_get_contents($root . '/install/src/template/actions/install.php');
+    $repairPage = (string) file_get_contents($root . '/install/src/template/actions/dependencies.php');
     $lang = (string) file_get_contents($root . '/install/src/lang/en.inc.php');
     $update = substr($controller, strpos($controller, "seed('update');"));
-    $done = substr($view, strpos($view, '<?php if ($installLevel >= 7): ?>'));
 
-    expect(strpos($update, 'restoreCustomComposerPackages()'))->toBeLessThan(strpos($update, 'installerInstallComposerDependencies()'))
-        ->and($update)->toContain("if (!\$composerDependencies['installed']) {\n                    \$errors += 1;")
-        ->and($view)->toContain("htmlspecialchars(\$composerDependencies['command'], ENT_QUOTES, 'UTF-8')")
-        ->and($view)->toContain("htmlspecialchars(\$composerDependencies['output'], ENT_QUOTES, 'UTF-8')")
-        ->and($done)->toContain("\$_lang['composer_dependencies_update_incomplete']")
-        ->and(strpos($done, 'composer_dependencies_update_incomplete'))->toBeLessThan(strpos($done, "\$_lang['installation_successful']"));
-    foreach (['composer_dependencies', 'composer_dependencies_installed', 'composer_dependencies_not_installed', 'composer_dependencies_update_incomplete'] as $key) {
+    // Rebuilding core/vendor in this request would not reach the Composer loader it already runs.
+    expect($controller)->not->toContain('installerInstallComposerDependencies(')
+        ->and(strpos($update, 'restoreCustomComposerPackages()'))->toBeLessThan(strpos($update, "Console::call('package:discover');"))
+        ->and($repairPage)->toContain("htmlspecialchars(\$failed['command'], ENT_QUOTES, 'UTF-8')")
+        ->and($repairPage)->toContain("htmlspecialchars(\$failed['output'], ENT_QUOTES, 'UTF-8')");
+    foreach (['composer_dependencies_not_installed', 'dependencies_check_again', 'dependencies_note', 'dependencies_retry', 'dependencies_title'] as $key) {
         expect($lang)->toContain("'$key' =>");
     }
 });

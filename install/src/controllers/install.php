@@ -253,16 +253,10 @@ try {
             if (!$customPackages['restored']) {
                 $errors += 1;
             } else {
-                // Then what make:site does after moving the files: the manager's updater lays a source
-                // archive without vendor over the site, so core/vendor still holds the previous version.
-                try {
-                    $composerDependencies = installerInstallComposerDependencies();
-                } catch (\Throwable $exception) {
-                    $composerDependencies = ['installed' => false, 'command' => 'cd core && composer install --no-dev --classmap-authoritative', 'output' => $exception->getMessage()];
-                }
-                if (!$composerDependencies['installed']) {
-                    $errors += 1;
-                }
+                // make:site's Composer install and autoload rebuild ran before this request booted, whenever
+                // core/vendor did not match this version (controllers/dependencies.php); what is left is the
+                // discovery it ends with. A matching vendor, uploaded or built offline, needs no Composer.
+                Console::call('package:discover');
             }
         }
 
