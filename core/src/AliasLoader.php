@@ -66,6 +66,12 @@ class AliasLoader
             return true;
         }
         if (isset($this->aliases[$alias])) {
+            $app = \Illuminate\Container\Container::getInstance();
+            // A waiting frontend provider may declare this alias itself while it boots.
+            if ($app instanceof AbstractLaravel && $app->loadOnDemandProviderFor($this->aliases[$alias])
+                && class_exists($alias, false)) {
+                return true;
+            }
             return class_alias($this->aliases[$alias], $alias);
         }
     }

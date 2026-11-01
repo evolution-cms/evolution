@@ -82,9 +82,10 @@ class ProviderRepository
      * Existing eager classes load at their registration point, not in a global preflight.
      *
      * @param  array  $providers
+     * @param  array<string, true>  $waiting Eager providers the application registers later, on demand.
      * @return void
      */
-    public function load(array $providers)
+    public function load(array $providers, array $waiting = [])
     {
         $manifest = $this->loadManifest();
         // First we will load the service manifest, which contains information on all
@@ -104,10 +105,15 @@ class ProviderRepository
         // application so their services can be registered with the application as
         // a provided service. Then we will set the deferred service list on it.
         foreach ($manifest['eager'] as $provider) {
+            if (isset($waiting[$provider])) {
+                continue;
+            }
             if (!class_exists($provider)) {
                 // Rare out-of-band removal: repair the manifest and skip stale declarations.
                 $manifest = $this->compileManifest($providers);
-                foreach ($manifest['eager'] as $available) $this->app->register($available);
+                foreach ($manifest['eager'] as $available) {
+                    if (!isset($waiting[$available])) $this->app->register($available);
+                }
                 break;
             }
             $this->app->register($provider);
@@ -207,7 +213,6 @@ class ProviderRepository
                 }
             } else {
                 $manifest['missing'][] = $provider;
-                error_log('[EvolutionCMS] Skipped missing service provider "' . $provider . '"');
                 error_log('[EvolutionCMS] Skipped missing service provider "' . $provider . '"');
             }
         }

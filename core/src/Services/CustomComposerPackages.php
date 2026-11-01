@@ -32,6 +32,19 @@ final class CustomComposerPackages
      */
     public const RECORD_FILE = 'custom/composer.installed.json';
 
+    /**
+     * After the files of an update are in place, make:site and the web installer build core/vendor
+     * from the release's lock with these, then rebuild the classmap-authoritative autoloader.
+     *
+     * @since 3.6.0
+     */
+    public const INSTALL_ARGUMENTS = 'install --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative --no-scripts';
+
+    /**
+     * @since 3.6.0
+     */
+    public const DUMP_AUTOLOAD_ARGUMENTS = 'dump-autoload -o --no-dev --classmap-authoritative --no-scripts';
+
     public function __construct(private string $corePath)
     {
         $this->corePath = rtrim($corePath, '/\\') . '/';
