@@ -11,6 +11,17 @@
 |
 */
 
+// The autoloader is classmap-authoritative (core/composer.json) and tests/ stays out of the classmap,
+// so Composer never falls back to the Tests\ PSR-4 mapping: test runs load those classes here.
+spl_autoload_register(static function (string $class): void {
+    if (str_starts_with($class, 'Tests\\')) {
+        $file = __DIR__ . '/' . str_replace('\\', '/', substr($class, strlen('Tests\\'))) . '.php';
+        if (is_file($file)) {
+            require_once $file;
+        }
+    }
+});
+
 pest()->extend(Tests\TestCase::class)->in('Feature');
 
 // errors silenced with @ stay out of the results, see the trait (Tests\TestCase, and with it

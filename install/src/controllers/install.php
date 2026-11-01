@@ -252,6 +252,17 @@ try {
             // Not restored: the update is incomplete, and the installer stays for the operator.
             if (!$customPackages['restored']) {
                 $errors += 1;
+            } else {
+                // Then what make:site does after moving the files: the manager's updater lays a source
+                // archive without vendor over the site, so core/vendor still holds the previous version.
+                try {
+                    $composerDependencies = installerInstallComposerDependencies();
+                } catch (\Throwable $exception) {
+                    $composerDependencies = ['installed' => false, 'command' => 'cd core && composer install --no-dev --classmap-authoritative', 'output' => $exception->getMessage()];
+                }
+                if (!$composerDependencies['installed']) {
+                    $errors += 1;
+                }
             }
         }
 

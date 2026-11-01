@@ -3,6 +3,8 @@
 // argv: <sqlite file> <cache dir> <alias>
 [, $database, $dir, $alias] = $argv;
 require dirname(__DIR__, 2) . '/vendor/autoload.php';
+// tests/ is not in the classmap of the authoritative autoloader.
+require_once __DIR__ . '/CacheRefreshHarness.php';
 
 use EvolutionCMS\Legacy\Cache;
 use EvolutionCMS\Models\SiteContent;

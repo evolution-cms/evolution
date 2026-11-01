@@ -149,6 +149,26 @@
     <?php endif; ?>
 <?php endif; ?>
 
+<?php if (isset($composerDependencies)) : ?>
+    <h3><?=$_lang['composer_dependencies']?></h3>
+    <?php if ($composerDependencies['installed']) : ?>
+        <p>
+            <?=$_lang['composer_dependencies_installed']?>
+            <span class="ok"><?=$_lang['ok']?></span>
+        </p>
+    <?php else : ?>
+        <p>
+            <?=$_lang['composer_dependencies_not_installed']?>
+            <span class="notok"><?=$_lang['failed']?></span>
+        </p>
+        <p><?=$_lang['custom_packages_run_command']?></p>
+        <p><code><?=htmlspecialchars($composerDependencies['command'], ENT_QUOTES, 'UTF-8')?></code></p>
+        <?php if ($composerDependencies['output'] !== '') : ?>
+            <pre class="mono"><?=htmlspecialchars($composerDependencies['output'], ENT_QUOTES, 'UTF-8')?></pre>
+        <?php endif; ?>
+    <?php endif; ?>
+<?php endif; ?>
+
 <?php if ($installLevel >= 5) : ?>
     <?php if (isset($installDataLevel['templates'])) : ?>
         <h3><?=$_lang['templates']?>:</h3>
@@ -351,6 +371,8 @@
 <?php if ($installLevel >= 7): ?>
     <?php if (!empty($customPackages['packages']) && !$customPackages['restored']) : ?>
         <h2><?=$_lang['custom_packages_update_incomplete']?></h2>
+    <?php elseif (isset($composerDependencies) && !$composerDependencies['installed']) : ?>
+        <h2><?=$_lang['composer_dependencies_update_incomplete']?></h2>
     <?php else : ?>
         <h2><?=$_lang['installation_successful']?></h2>
     <?php endif; ?>

@@ -113,6 +113,11 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
     protected $deferredServices = [];
 
     /**
+     * Configured providers this frontend request has not registered yet, or null when none wait.
+     */
+    protected ?Support\OnDemandProviders $onDemandProviders = null;
+
+    /**
      * The array of booting callbacks.
      *
      * @var array
@@ -438,17 +443,103 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
      *
      * Provider availability is checked when rebuilding the service manifest or
      * registering an eager provider, leaving deferred classes unloaded on warm requests.
+     * On a frontend request the providers of `app.on_demand_providers` wait until used.
      */
     public function registerConfiguredProviders()
     {
-        $providers = Collection::make($this['config']->get('app.providers'))
+        $configured = (array) $this['config']->get('app.providers', []);
+        $providers = Collection::make($configured)
             ->partition(function ($provider) {
                 // The core cache adapter keeps the framework provider's original slot.
                 return Str::startsWith($provider, 'Illuminate\\')
                     || $provider === Providers\CacheServiceProvider::class;
             });
+        $onDemand = null;
+        if ($this->registersProvidersOnDemand()) {
+            $onDemand = new Support\OnDemandProviders(
+                $configured,
+                (array) $this['config']->get('app.on_demand_providers', []),
+                $this->onDemandRequestPath()
+            );
+        }
+        $this->onDemandProviders = $onDemand === null || $onDemand->isEmpty() ? null : $onDemand;
+        // The manifest keeps the full list: frontend and manager requests share it.
         (new ProviderRepository($this, new Filesystem, $this->getCachedServicesPath()))
-            ->load($providers->collapse()->toArray());
+            ->load($providers->collapse()->toArray(), $this->onDemandProviders?->pending() ?? []);
+    }
+
+    /**
+     * Whether this request may leave `app.on_demand_providers` unregistered until used:
+     * a web request outside the manager and installer, in a process that does not keep its application.
+     *
+     * @since 3.6.0
+     */
+    protected function registersProvidersOnDemand(): bool
+    {
+        if ($this->runningInConsole()
+            || !defined('IN_MANAGER_MODE') || IN_MANAGER_MODE
+            || (defined('IN_INSTALL_MODE') && IN_INSTALL_MODE)) {
+            return false;
+        }
+        // A kept worker application boots once and serves every later request: it loads them all.
+        return !(class_exists(Runtime\WorkerRuntime::class, false) && Runtime\WorkerRuntime::keepsApplication());
+    }
+
+    /**
+     * Request path relative to the site root, matched against the `paths` of on-demand providers.
+     *
+     * @since 3.6.0
+     */
+    protected function onDemandRequestPath(): string
+    {
+        return Support\OnDemandProviders::requestPath(
+            (string) ($_SERVER['REQUEST_URI'] ?? '/'),
+            defined('EVO_BASE_URL') ? (string) EVO_BASE_URL : '/'
+        );
+    }
+
+    /**
+     * Register the waiting provider that binds a service or owns a class.
+     *
+     * @return bool Whether a provider was registered.
+     * @since 3.6.0
+     */
+    public function loadOnDemandProviderFor(string $abstract): bool
+    {
+        $provider = $this->onDemandProviders?->forService($abstract);
+        if ($provider === null) {
+            return false;
+        }
+        $this->loadOnDemandProvider($provider);
+        return true;
+    }
+
+    /**
+     * Register the waiting providers whose plugins answer an Evolution event.
+     *
+     * @since 3.6.0
+     */
+    public function loadOnDemandProvidersForEvent(string $event): void
+    {
+        foreach ($this->onDemandProviders?->forEvent($event) ?? [] as $provider) {
+            $this->loadOnDemandProvider($provider);
+        }
+    }
+
+    /**
+     * @since 3.6.0
+     */
+    protected function loadOnDemandProvider(string $provider): void
+    {
+        $this->onDemandProviders?->forget($provider);
+        if ($this->onDemandProviders?->isEmpty()) {
+            $this->onDemandProviders = null;
+        }
+        if (class_exists($provider)) {
+            $this->register($provider);
+        } else {
+            error_log('[EvolutionCMS] Skipped missing service provider "' . $provider . '"');
+        }
     }
 
     /**
@@ -630,6 +721,11 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
         if (isset($this->deferredServices[$abstract]) && !isset($this->instances[$abstract])) {
             $this->loadDeferredProvider($abstract);
         }
+        if ($this->onDemandProviders !== null && !isset($this->instances[$abstract])
+            && !isset($this->bindings[$abstract]) && $this->loadOnDemandProviderFor($abstract)) {
+            // The provider may have aliased the key it was asked for.
+            $abstract = $this->getAlias($abstract);
+        }
         return parent::make($abstract, $parameters);
     }
 
@@ -643,7 +739,8 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
      */
     public function bound($abstract)
     {
-        return isset($this->deferredServices[$abstract]) || parent::bound($abstract);
+        return isset($this->deferredServices[$abstract]) || parent::bound($abstract)
+            || ($this->onDemandProviders?->declaresService($abstract) ?? false);
     }
 
     /**
