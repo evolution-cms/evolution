@@ -78,7 +78,6 @@ select:not([size]):not([multiple]) { text-indent: -2px }
 .darkness .btn-default { color: #bbb; background-color: #202329; border-color: #202329 }
 .darkness .btn-default:hover { color: #fff; background-color: #1a1c21; border-color: #1a1c21 }
 .darkness #actions { right: 0; background-color: #212328 }
-.darkness #actions .btn-group .btn-success { box-shadow: none }
 .darkness #actions .dropdown-menu .btn { background-color: #343942; border-radius: 0; color: #fff; }
 .darkness #actions .dropdown-menu .btn:hover { background-color: #3c424e; color: #fff }
 .darkness optgroup { background-color: #202329 }
