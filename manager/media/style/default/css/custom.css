@@ -47,10 +47,10 @@ select[name=context] + input[type=submit] { float: none; margin: 0; }
 #actions .btn-group > .btn-group { display: block }
 #actions .btn-group .btn, #actions .btn-group .form-control {
     font-size: .6772rem; height: 2.4em; line-height: 1.4 }
+/* the forms.css padding sets the text 1px below the middle of these fixed-height buttons */
+#actions .btn-group .btn { padding-top: calc(.46153846em - 1px) }
 #actions .btn-group .btn .fa, #_actions .btn-group .btn .fa { display: none; width: 1em; font-size: 1em; text-align: center }
 #actions .btn-group .btn-group #Button1 { min-width: 100%; text-align: left; float: right; }
-#actions .btn-group .btn-success { box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .07); }
-#actions .btn-group .btn-success:hover { box-shadow: none }
 /* the in-place save: the join box between "Save" and the stay option shows +, a spinner, then a check mark, at one width */
 #actions .btn-group #Button1 .save-join { display: inline-block; position: relative; width: 1.4em; margin: 0 .25em; text-align: center }
 #actions .btn-group #Button1.saving { pointer-events: none; opacity: .75 }
@@ -58,7 +58,7 @@ select[name=context] + input[type=submit] { float: none; margin: 0; }
 #actions .btn-group #Button1.saving .save-join::before { content: ''; position: absolute; left: 50%; top: 50%; width: .8em; height: .8em; margin: -.45em 0 0 -.45em; border: 2px solid rgba(255, 255, 255, .45); border-top-color: #fff; border-radius: 50%; animation: evo-save-spin .7s linear infinite }
 #actions .btn-group #Button1.saved .save-join::before { content: '\2713'; position: absolute; left: 0; right: 0; top: 0; color: #fff }
 @keyframes evo-save-spin { to { transform: rotate(360deg) } }
-#actions .btn-group .plus { z-index: 2; float: right; margin: -2.4em 0 0 0; width: 2rem; padding-left: 0; padding-right: 0; text-align: center; cursor: pointer; }
+#actions .btn-group .plus { z-index: 2; float: right; margin: -2.4em 0 0 0; width: 2rem; padding: .46153846em 0; text-align: center; cursor: pointer; }
 #actions .btn-group .plus::before { content: "\f107"; font-weight: 900; font-family: 'Font Awesome 5 Free' }
 #actions .btn-group .show .plus::before { content: "\f106"; }
 #actions .btn-group select#stay { display: block; position: relative; z-index: -1; clear: both; width: auto; height: 0; margin: -100% 0 -2rem 0; font-size: 0.675rem; opacity: 0; visibility: hidden; }
