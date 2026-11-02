@@ -304,6 +304,11 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
     border: none;
     margin-bottom: 0;
 }
+/* no separator below the last item: one more pixel keeps it as tall as the others, in its own hover colour */
+#mainMenu .nav > li > ul > li:last-child > a:first-child,
+#mainMenu .nav > li > ul > li:last-child > span:first-child {
+    padding-bottom: 1px;
+}
 #mainMenu .nav > li > ul > li.item-input {
     padding: 0.375em 0.5em;
 }
