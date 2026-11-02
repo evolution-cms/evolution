@@ -18,3 +18,11 @@ test('action button text sits 1px higher than the forms.css padding puts it', fu
         // the chevron toggle keeps the full padding, so it does not move with the text
         ->and($css)->toMatch('/#actions \.btn-group \.plus \{[^}]*padding: \.46153846em 0;/');
 });
+
+test('the stay toggle chevron is drawn 1px taller and keeps that size while the menu is open', function () {
+    $css = actionButtonsCss();
+
+    expect($css)->toMatch('/#actions \.btn-group \.plus::before \{[^}]*width:1\.25em;height:1\.25em;margin-bottom:\.08em;/')
+        // the open state swaps only the icon, a size of its own would shrink it back
+        ->and($css)->toMatch('/#actions \.btn-group \.show \.plus::before \{ -webkit-mask-image:var\(--evo-icon-chevron-up\); mask-image:var\(--evo-icon-chevron-up\) \}/');
+});
