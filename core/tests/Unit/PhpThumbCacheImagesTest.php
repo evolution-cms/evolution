@@ -76,12 +76,26 @@ it('lets apache serve phpThumb images in assets/cache/images and nothing else of
     expect($passes)->toBe($served);
 })->with('phpthumb cache paths');
 
-it('keeps the rest of assets/cache closed in the per-directory file', function () {
-    expect(phpThumbRepoFile('assets/cache/.htaccess'))
-        ->toContain('Require all denied')
-        ->not->toContain('FilesMatch')
-        ->not->toContain('granted');
-});
+it('keeps non-image cache files closed in both Apache authorization dialects', function (string $name, bool $served) {
+    $htaccess = phpThumbRepoFile('assets/cache/.htaccess');
+    expect($htaccess)->toContain('Require all denied')->toContain('Deny from all');
+    preg_match_all('/<FilesMatch "([^"]+)">\s*(.*?)\s*<\/FilesMatch>/s', $htaccess, $rules, PREG_SET_ORDER);
+
+    expect($rules)->toHaveCount(2);
+    foreach ($rules as $rule) {
+        expect(preg_match('~' . $rule[1] . '~', $name))->toBe($served ? 1 : 0);
+    }
+})->with([
+    'JPEG image' => ['thumbnail.jpg', true],
+    'PNG image' => ['thumbnail.PNG', true],
+    'WebP image' => ['thumbnail.jpg.webp', true],
+    'site cache' => ['siteCache.idx.php', false],
+    'PHP with image prefix' => ['thumbnail.jpg.php', false],
+    'JSON cache' => ['settings.json', false],
+    'HTML' => ['page.html', false],
+    'SVG' => ['image.svg', false],
+    'server configuration' => ['.htaccess', false],
+]);
 
 it('writes the same two-dialect .htaccess into the thumbnail folder as the one shipped there', function () {
     expect(HelperProcessor::CACHE_FOLDER_HTACCESS)
