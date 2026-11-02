@@ -20,6 +20,8 @@ require_once EVO_BASE_PATH . 'install/src/functions.php';
  *
  * The sqlite database is created as core/database/<--database>.sqlite
  * Use --skipComposer=y to keep the already installed dependencies untouched.
+ * Missing or invalid values can prompt for input. EOF at a prompt exits with code 1;
+ * an empty input line, rather than EOF, is required to accept a prompt's default.
  * An update restores the packages of core/custom/composer.json unless --skipComposer=y is given,
  * at the versions the last restore noted; --updateCustomPackages=y lets Composer choose others.
  * When they cannot be restored, the update ends incomplete: exit code 1, install/ kept.
@@ -49,6 +51,10 @@ if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) {
     exit(runCliInstall($argv));
 }
 
+/**
+ * Run CLI installation or update steps, prompting only for missing or invalid input.
+ * Input prompts throw on EOF so unattended runs terminate instead of retrying forever.
+ */
 class InstallEvo
 {
     /**
@@ -159,6 +165,7 @@ class InstallEvo
      * @param array  $options   ['Install', 'Update', …]
      * @param int    $default   Default option index
      * @return string           Selected element of the $options array
+     * @throws RuntimeException When stdin reaches EOF before a selection is supplied.
      */
     public function choice(string $question, array $options, int $default = 0): string
     {
@@ -191,6 +198,9 @@ class InstallEvo
         $max = count($options);
         do {
             $answer = readline("Choose [1-{$max}]: ");
+            if ($answer === false) {
+                throw new RuntimeException('End of input while waiting for: ' . $question . ' Supply the required CLI arguments or provide stdin.');
+            }
             if ($answer === '' && isset($options[$default])) {
                 return $options[$default];
             }
@@ -206,6 +216,7 @@ class InstallEvo
      * @param string      $question  Question text («Please enter database server»)
      * @param string|null $default   Default value if Enter is pressed
      * @return string
+     * @throws RuntimeException When stdin reaches EOF; defaults apply only to an empty line.
      */
     public function ask(string $question, ?string $default = null): string
     {
@@ -217,6 +228,9 @@ class InstallEvo
         echo PHP_EOL . $yellow . $question . $suffix . $reset . PHP_EOL;
 
         $answer = readline('➤ ');
+        if ($answer === false) {
+            throw new RuntimeException('End of input while waiting for: ' . $question . ' Supply the required CLI arguments or provide stdin.');
+        }
         return $answer !== '' ? trim($answer) : (string) $default;
     }
 
