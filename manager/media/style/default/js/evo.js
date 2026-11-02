@@ -2199,15 +2199,23 @@
                             history.go(1);
                         };
                         evo.alert(message);
-                        evo.getLockedElements(evo.getActionFromUrl(this.url), evo.main.getQueryVariable('id', this.url), function (data) {
-                            if (!!data || ~s.closeactions.indexOf(evo.getActionFromUrl(s.url))) {
-                                s.page.close();
-                                evo.tree.restoreTree();
-                            } else {
-                                w.main.location.href = evo.EVO_MANAGER_URL + s.url;
-                                w.history.replaceState(null, d.title, evo.tabsHistoryUrl(s.url));
-                            }
-                        });
+                        var alertAction = evo.getActionFromUrl(this.url),
+                            alertId = evo.main.getQueryVariable('id', this.url);
+                        // only an element page has a lock to look up; any other page that alerts (System Settings
+                        // held by another manager, no privileges) has nothing left to show, so its tab goes
+                        if (!evo.typesactions[alertAction] || !alertId) {
+                            s.page.close();
+                        } else {
+                            evo.getLockedElements(alertAction, alertId, function (data) {
+                                if (!!data || ~s.closeactions.indexOf(evo.getActionFromUrl(s.url))) {
+                                    s.page.close();
+                                    evo.tree.restoreTree();
+                                } else {
+                                    w.main.location.href = evo.EVO_MANAGER_URL + s.url;
+                                    w.history.replaceState(null, d.title, evo.tabsHistoryUrl(s.url));
+                                }
+                            });
+                        }
                     } else {
                         if (evo.getActionFromUrl(this.url, 2) || (~this.saveAndCloseActions.indexOf(evo.getActionFromUrl(this.url)) && parseInt(evo.main.getQueryVariable('r', this.url)))) {
                             this.close(e);

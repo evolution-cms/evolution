@@ -31,4 +31,13 @@ class ActiveUserSession extends Eloquent\Model
         'lasthit',
         'ip'
     ];
+
+    /**
+     * Oldest lasthit of a session that still counts as signed in: session_timeout minutes, at least 2.
+     * An open manager pings every half timeout (evo.keepMeAlive), so it never falls out of this window.
+     */
+    public static function validSince(int $now, int $timeoutMinutes): int
+    {
+        return $now - max(2, $timeoutMinutes) * 60;
+    }
 }
