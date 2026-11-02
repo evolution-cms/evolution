@@ -175,7 +175,9 @@
             this.moduleViewport.init();
             this.search.init();
             if (this.config.session_timeout > 0) {
-                w.setInterval(this.keepMeAlive, 1000 * 60 * this.config.session_timeout);
+                // twice per timeout: a session (and its resource locks) expires once its last hit is a full timeout old,
+                // and browsers run timers of background tabs late
+                w.setInterval(this.keepMeAlive, 1000 * 60 * this.config.session_timeout / 2);
             }
             d.addEventListener('click', this.hideDropDown, false);
             if (evo.config.global_tabs) {
@@ -1082,11 +1084,8 @@
                         var el = els[i];
                         el.onmousedown = this.onmousedown;
                         el.ondragstart = this.ondragstart;
-                        el.ondragenter = this.ondragenter;
-                        el.ondragover = this.ondragover;
-                        el.ondragleave = this.ondragleave;
-                        el.ondrop = this.ondrop;
                     }
+                    this.initDropTargets();
                 }
             },
             onmousedown: function (e) {
@@ -1109,6 +1108,7 @@
                     if (draggable) {
                         this.parentNode.draggable = true;
                         this.parentNode.ondragstart = evo.tree.ondragstart;
+                        this.parentNode.ondragend = evo.tree.ondragend;
                     } else {
                         this.parentNode.draggable = false;
                         this.parentNode.ondragstart = function () {
@@ -1118,9 +1118,14 @@
                 }
             },
             ondragstart: function (e) {
-                e.dataTransfer.effectAllowed = 'all';
-                e.dataTransfer.dropEffect = 'all';
+                // set only while a tree node is dragged, so files dragged in from outside move nothing
+                evo.tree.dragId = this.id.substr(4);
+                e.dataTransfer.effectAllowed = modxTreeDropHelper.DROP_EFFECT;
                 e.dataTransfer.setData('text', this.id.substr(4));
+            },
+            ondragend: function () {
+                evo.tree.dragId = null;
+                evo.tree.clearDropTarget();
             },
             isBlockedDropTarget: function (target) {
                 return !!(w.modxTreeDropGuardHelper && !w.modxTreeDropGuardHelper.canDropIntoTarget(target));
@@ -1129,148 +1134,238 @@
             isBlockedParentTarget: function (node) {
                 return !!(w.modxTreeParentGuardHelper && w.modxTreeParentGuardHelper.isBlockedParentTarget(node));
             },
-            ondragenter: function (e) {
-                if (
-                    d.getElementById('node' + evo.tree.itemToChange) === (this.parentNode.closest('#node' + evo.tree.itemToChange) || this.parentNode)
-                    || evo.tree.isBlockedDropTarget(this)
-                ) {
-                    this.parentNode.className = '';
-                    e.dataTransfer.effectAllowed = 'none';
-                    e.dataTransfer.dropEffect = 'none';
-                    evo.tree.drag = false;
-                } else {
-                    this.parentNode.className = 'dragenter';
-                    e.dataTransfer.effectAllowed = 'copy';
-                    e.dataTransfer.dropEffect = 'copy';
-                    evo.tree.drag = true;
-                }
-                e.preventDefault();
+            setNodeLevel: function (node, level) {
+                node.firstChild.querySelector('.indent').innerHTML = '<i></i>'.repeat(Math.max(0, level));
             },
-            ondragover: function (e) {
-                if (evo.tree.isBlockedDropTarget(this)) {
-                    this.parentNode.className = '';
-                    e.dataTransfer.effectAllowed = 'none';
-                    e.dataTransfer.dropEffect = 'none';
-                    evo.tree.drag = false;
-                } else if (evo.tree.drag) {
-                    var a = e.clientY;
-                    var b = parseInt(this.getBoundingClientRect().top);
-                    var c = a - b;
-                    if (c > this.offsetHeight / 1.51) {
-                        //this.parentNode.className = 'dragafter';
-                        this.parentNode.classList.add('dragafter');
-                        this.parentNode.classList.remove('dragbefore');
-                        this.parentNode.classList.remove('dragenter');
-                        e.dataTransfer.effectAllowed = 'move';
-                        e.dataTransfer.dropEffect = 'move';
-                    } else if (c < this.offsetHeight / 3) {
-                        //this.parentNode.className = 'dragbefore';
-                        this.parentNode.classList.add('dragbefore');
-                        this.parentNode.classList.remove('dragafter');
-                        this.parentNode.classList.remove('dragenter');
-                        e.dataTransfer.effectAllowed = 'move';
-                        e.dataTransfer.dropEffect = 'move';
-                    } else {
-                        //this.parentNode.className = 'dragenter';
-                        this.parentNode.classList.add('dragenter');
-                        this.parentNode.classList.remove('dragafter');
-                        this.parentNode.classList.remove('dragbefore');
-                        e.dataTransfer.effectAllowed = 'copy';
-                        e.dataTransfer.dropEffect = 'copy';
+            // parent id of the folder (or tree root) that holds the node of this anchor
+            parentIdOf: function (anchor) {
+                var holder = anchor.parentNode.parentNode;
+                if (/node/.test(holder.parentNode.id)) {
+                    return parseInt(holder.parentNode.id.substr(4));
+                }
+                return /treeRoot/.test(holder.id) ? parseInt(holder.id.substr(8)) : 0;
+            },
+            // One dragover / drop handler for the whole tree. Every place inside it maps to a position the
+            // resource can move to, so a drag never shows "no drop" over the tree:
+            //   before / into / after  a row (after an expanded folder's row = its first child)
+            //   aftertree              after a row and everything below it
+            //   end                    the end of the tree root (node null)
+            initDropTargets: function () {
+                var holder = d.getElementById('treeHolder');
+                if (!holder || holder.dataset.dropTargets) {
+                    return;
+                }
+                holder.dataset.dropTargets = '1';
+                var ondrag = function (e) {
+                    var dragged = evo.tree.dragId && d.getElementById('node' + evo.tree.dragId);
+                    if (!dragged) {
+                        return;
                     }
-                } else {
-                    e.dataTransfer.effectAllowed = 'none';
-                    e.dataTransfer.dropEffect = 'none';
-                    evo.tree.drag = false;
-                }
-                e.preventDefault();
-            },
-            ondragleave: function (e) {
-                this.parentNode.className = '';
-                this.parentNode.removeAttribute('draggable');
-                e.preventDefault();
-            },
-            ondrop: function (e) {
-                if (evo.tree.isBlockedDropTarget(this)) {
-                    this.parentNode.removeAttribute('class');
-                    this.parentNode.removeAttribute('draggable');
-                    evo.alert(evo.lang.error_parent_deleted);
-                    evo.tree.restoreTree();
                     e.preventDefault();
+                    evo.tree.cancelDropTargetClear();
+                    var target = evo.tree.resolveDropTarget(e, dragged);
+                    if (target) {
+                        evo.tree.setDropTarget(target.node, target.zone);
+                    }
+                    // elsewhere in the tree (plugin output, the loader) the last position stays
+                    e.dataTransfer.dropEffect = evo.tree.dropZone ? modxTreeDropHelper.DROP_EFFECT : 'none';
+                };
+                holder.addEventListener('dragenter', ondrag);
+                holder.addEventListener('dragover', ondrag);
+                holder.addEventListener('dragleave', function (e) {
+                    if (e.relatedTarget && holder.contains(e.relatedTarget)) {
+                        return;
+                    }
+                    // relatedTarget is null when leaving for the main frame, and in some browsers on every move,
+                    // so the marker goes only if no dragover inside the tree follows
+                    evo.tree.scheduleDropTargetClear(e.relatedTarget ? 0 : 400);
+                });
+                holder.addEventListener('drop', function (e) {
+                    if (evo.tree.dragId) {
+                        e.preventDefault();
+                        evo.tree.dropOnTarget();
+                    }
+                });
+            },
+            resolveDropTarget: function (e, dragged) {
+                var holder = d.getElementById('treeHolder');
+                var root = d.getElementById('treeRoot0');
+                var element = e.target.nodeType === 1 ? e.target : e.target.parentNode;
+                var firstRootNode = root ? root.querySelector(':scope > [id^="node"]') : null;
+                if (element === holder) {
+                    return firstRootNode ? { node: null, zone: 'end' } : null;
+                }
+                if (element.closest('#node0')) {
+                    // the site root row: first place at the root
+                    return firstRootNode ? evo.tree.positionOn(firstRootNode.firstChild, 0, dragged) : null;
+                }
+                var anchor = element.closest('.treeRoot a');
+                if (!anchor) {
+                    return null;
+                }
+                if (anchor.classList.contains('empty')) {
+                    // the "empty folder" row: into that folder
+                    var folder = anchor.parentNode.parentNode.previousElementSibling;
+                    return folder ? evo.tree.positionOn(folder, null, dragged) : null;
+                }
+                return evo.tree.positionOn(anchor, e.clientY - anchor.getBoundingClientRect().top, dragged);
+            },
+            // offset null = the middle of the row
+            positionOn: function (anchor, offset, dragged) {
+                var node = anchor.parentNode;
+                var height = anchor.getBoundingClientRect().height;
+                if (offset === null) {
+                    offset = height / 2;
+                }
+                if (dragged.contains(node)) {
+                    // its own row or one below it: before or after itself, where it already is
+                    return { node: dragged, zone: node === dragged && offset < height / 2 ? 'before' : 'aftertree' };
+                }
+                // nothing goes into a deleted resource, but next to it is fine
+                var canDropInto = !evo.tree.isBlockedDropTarget(anchor);
+                var zone = modxTreeDropHelper.getDropZone(offset, height, canDropInto);
+                return { node: node, zone: canDropInto || zone === 'before' ? zone : 'aftertree' };
+            },
+            setDropTarget: function (node, zone) {
+                var prev = evo.tree.dropNode;
+                var root = d.getElementById('treeRoot0');
+                var cls = { before: 'dragbefore', into: 'dragenter', after: 'dragafter', aftertree: 'dragafter' }[zone];
+                if (prev && prev !== node) {
+                    prev.classList.remove('dragbefore', 'dragenter', 'dragafter');
+                }
+                evo.tree.dropNode = node;
+                evo.tree.dropZone = zone;
+                if (node && !node.classList.contains(cls)) {
+                    node.classList.remove('dragbefore', 'dragenter', 'dragafter');
+                    node.classList.add(cls);
+                }
+                if (root) {
+                    root.classList.toggle('dragend', !node);
+                }
+
+                var anchor = node ? node.firstChild : root.querySelector(':scope > [id^="node"] > a');
+                var rect = anchor.getBoundingClientRect();
+                var indent = anchor;
+                var y = rect.bottom;
+                if (zone === 'end') {
+                    y = root.getBoundingClientRect().bottom;
+                } else if (zone === 'before') {
+                    y = rect.top;
+                } else if (zone === 'into') {
+                    y = rect.top + rect.height / 2;
+                } else if (zone === 'aftertree') {
+                    y = node.getBoundingClientRect().bottom;
+                } else {
+                    // the first child's level, which is where the resource goes
+                    indent = modxTreeDropHelper.getFirstChildNode(anchor) || node;
+                    indent = indent.firstChild || indent;
+                }
+                evo.tree.showDropMarker(indent.querySelector('.indent'), y, zone !== 'into');
+            },
+            clearDropTarget: function () {
+                var root = d.getElementById('treeRoot0');
+                var marker = d.getElementById('treeDropMarker');
+                evo.tree.cancelDropTargetClear();
+                if (evo.tree.dropNode) {
+                    evo.tree.dropNode.classList.remove('dragbefore', 'dragenter', 'dragafter');
+                }
+                evo.tree.dropNode = null;
+                evo.tree.dropZone = null;
+                if (root) {
+                    root.classList.remove('dragend');
+                }
+                if (marker) {
+                    marker.className = '';
+                }
+            },
+            scheduleDropTargetClear: function (delay) {
+                evo.tree.cancelDropTargetClear();
+                evo.tree.dropClearTimer = setTimeout(evo.tree.clearDropTarget, delay);
+            },
+            cancelDropTargetClear: function () {
+                clearTimeout(evo.tree.dropClearTimer);
+            },
+            // one marker over the tree: a row clips its own overflow, so a marker drawn inside it cannot sit on its edge
+            showDropMarker: function (indent, y, line) {
+                var holder = d.getElementById('treeHolder');
+                var marker = d.getElementById('treeDropMarker');
+                if (!holder || !indent) {
+                    return;
+                }
+                if (!marker) {
+                    marker = d.createElement('div');
+                    marker.id = 'treeDropMarker';
+                    holder.appendChild(marker);
+                }
+                var box = holder.getBoundingClientRect();
+                marker.style.top = Math.round(y - box.top + holder.scrollTop) + 'px';
+                marker.style.left = Math.round(indent.getBoundingClientRect().right - box.left + holder.scrollLeft) + 'px';
+                marker.className = line ? 'visible line' : 'visible';
+            },
+            dropOnTarget: function () {
+                var node = evo.tree.dropNode;
+                var zone = evo.tree.dropZone;
+                var id = evo.tree.dragId;
+                var el = id && d.getElementById('node' + id);
+                var root = d.getElementById('treeRoot0');
+                evo.tree.clearDropTarget();
+                evo.tree.dragId = null;
+                // before or after itself leaves it where it is
+                if (!el || !zone || node === el) {
+                    return;
+                }
+                // checked before the tree changes: a drop into a document takes the row out of the page
+                if (el.firstChild.dataset.nomove == 1) {
+                    alert(evo.lang.error_no_privileges);
+                    return;
+                }
+                el.removeAttribute('draggable');
+
+                if (zone === 'end') {
+                    evo.tree.setNodeLevel(el, 0);
+                    root.appendChild(el);
+                    evo.tree.ondragupdate(null, id, 0, modxTreeDropHelper.collectMenuIndex(root.children));
                     return;
                 }
 
-                let el = d.getElementById('node' + evo.tree.itemToChange);
-                let els = null;
-                let id = evo.tree.itemToChange;
-                let parent = 0;
-                let menuindex = [];
-                let level = 0;
-                let indent = el.firstChild.querySelector('.indent');
-                let i = 0;
-                indent.innerHTML = '';
-                el.removeAttribute('draggable');
-                if (this.parentNode.classList.contains('dragenter')) {
-                    parent = parseInt(this.parentNode.id.substr(4));
-                    level = parseInt(this.dataset.level) + 1;
-                    for (i = 0; i < level; i++) {
-                        indent.innerHTML += '<i></i>';
-                    }
-                    if (this.nextSibling) {
-                        const dropResult = modxTreeDropHelper.moveNodeIntoFolder(this, el);
-                        els = dropResult.children;
-                        for (i = 0; i < els.length; i++) {
-                            menuindex[i] = els[i].id.substr(4);
-                        }
-                    } else {
-                        el.parentNode.removeChild(el);
-                        d.querySelector('#node' + parent + ' .icon').innerHTML = parseInt(this.dataset.private) ? evo.style.tree_folder_secure : evo.style.tree_folder;
-                    }
-                    evo.tree.ondragupdate(this, id, parent, menuindex);
+                var anchor = node.firstChild;
+                var parent = evo.tree.parentIdOf(anchor);
+                var level = parseInt(anchor.dataset.level);
+                var siblings = node.parentNode;
+                var firstChild = zone === 'after' ? modxTreeDropHelper.getFirstChildNode(anchor) : null;
+                if (zone === 'into' || firstChild) {
+                    parent = parseInt(node.id.substr(4));
+                    level++;
+                    // the tree reloads after the move: show the target opened, with the resource in it
+                    evo.openedArray[parent] = 1;
                 }
-                if (this.parentNode.classList.contains('dragafter')) {
-                    parent = /node/.test(this.parentNode.parentNode.parentNode.id) ? parseInt(this.parentNode.parentNode.parentNode.id.substr(4)) : 0;
-                    if (parent == 0) {
-                        parent = /treeRoot/.test(this.parentNode.parentNode.id) ? parseInt(this.parentNode.parentNode.id.substr(8)) : 0;
-                    }
-                    level = parseInt(this.dataset.level);
-                    for (i = 0; i < level; i++) {
-                        indent.innerHTML += '<i></i>';
-                    }
-                    this.parentNode.parentNode.insertBefore(el, this.parentNode.nextSibling);
-                    els = this.parentNode.parentNode.children;
-                    for (i = 0; i < els.length; i++) {
-                        menuindex[i] = els[i].id.substr(4);
-                    }
-                    evo.tree.ondragupdate(this, id, parent, menuindex);
+                evo.tree.setNodeLevel(el, level);
+
+                if (firstChild) {
+                    siblings = firstChild.parentNode;
+                    siblings.insertBefore(el, firstChild);
+                } else if (zone === 'after' || zone === 'aftertree') {
+                    siblings.insertBefore(el, node.nextSibling);
+                } else if (zone === 'before') {
+                    siblings.insertBefore(el, node);
+                } else if (anchor.nextSibling) {
+                    siblings = modxTreeDropHelper.moveNodeIntoFolder(anchor, el).container;
+                } else {
+                    siblings = null;
+                    el.parentNode.removeChild(el);
+                    node.querySelector('.icon').innerHTML = parseInt(anchor.dataset.private) ? evo.style.tree_folder_secure : evo.style.tree_folder;
                 }
-                if (this.parentNode.classList.contains('dragbefore')) {
-                    parent = /node/.test(this.parentNode.parentNode.parentNode.id) ? parseInt(this.parentNode.parentNode.parentNode.id.substr(4)) : 0;
-                    if (parent == 0) {
-                        parent = /treeRoot/.test(this.parentNode.parentNode.id) ? parseInt(this.parentNode.parentNode.id.substr(8)) : 0;
-                    }
-                    level = parseInt(this.dataset.level);
-                    for (i = 0; i < level; i++) {
-                        indent.innerHTML += '<i></i>';
-                    }
-                    this.parentNode.parentNode.insertBefore(el, this.parentNode);
-                    els = this.parentNode.parentNode.children;
-                    for (i = 0; i < els.length; i++) {
-                        menuindex[i] = els[i].id.substr(4);
-                    }
-                    evo.tree.ondragupdate(this, id, parent, menuindex);
-                }
-                this.parentNode.removeAttribute('class');
-                this.parentNode.removeAttribute('draggable');
-                e.preventDefault();
+                evo.tree.ondragupdate(anchor, id, parent, siblings ? modxTreeDropHelper.collectMenuIndex(siblings.children) : []);
             },
             ondragupdate: function (a, id, parent, menuindex) {
-                if (d.querySelector('#node' + id + ' > a').dataset.nomove == 1) {
+                var moved = d.querySelector('#node' + id + ' > a');
+                if (moved && moved.dataset.nomove == 1) {
                     alert(evo.lang.error_no_privileges);
                     evo.tree.restoreTree();
                     return;
                 }
-                let roles = a.dataset.roles + (!a.parentNode.parentNode.classList.contains('treeRoot') ? a.parentNode.parentNode.previousSibling.dataset.roles : '');
+                // a is null for a drop on the tree root, which carries no roles
+                let roles = a ? a.dataset.roles + (!a.parentNode.parentNode.classList.contains('treeRoot') ? a.parentNode.parentNode.previousSibling.dataset.roles : '') : '';
                 let checked_group = false;
                 if (roles != '') {
                     checked_group = roles.split(',').map(Number).filter(function (role) {
@@ -1291,7 +1386,7 @@
                     menuindex: menuindex
                 }, function (r) {
                     if (r && r.errors) evo.alert(r.errors);
-                    evo.tree.restoreTree();
+                    evo.tree.restoreTree(true);
                 }, 'json');
                 var b = evo.normalizeUrl(w.main.frameElement.contentWindow.location.href);
                 if (evo.getActionFromUrl(b, 27) && parseInt(evo.main.getQueryVariable('id', b)) === parseInt(id)) {
@@ -1764,15 +1859,18 @@
                 }
                 this.setSelected(this.itemToChange);
             },
-            restoreTree: function () {
+            // withFolderState: the reload also stores the folders opened here, in the same request (a separate
+            // saveFolderState() request can finish after it and leave the session with the old state)
+            restoreTree: function (withFolderState) {
                 //console.log('evo.tree.restoreTree()');
                 let _this = this;
+                let folderState = withFolderState === true ? this.getFolderState() : '';
                 d.getElementById('treeloader').classList.add('visible');
                 d.querySelectorAll('.treeRoot').forEach(function (element) {
                     _this.setItemToChange();
                     let rpcNode = d.getElementById(element.id);
                     let parent = element.id.replace('treeRoot', '');
-                    evo.post(evo.EVO_MANAGER_URL + 'media/style/' + evo.config.theme + '/ajax.php', 'a=1&f=nodes&indent=1&parent=' + parent + '&expandAll=2&id=' + _this.itemToChange, function (r) {
+                    evo.post(evo.EVO_MANAGER_URL + 'media/style/' + evo.config.theme + '/ajax.php', 'a=1&f=nodes&indent=1&parent=' + parent + '&expandAll=2&id=' + _this.itemToChange + folderState, function (r) {
                         evo.tree.rpcLoadData(r, rpcNode);
                         evo.tree.draggable();
                     });
@@ -2101,15 +2199,23 @@
                             history.go(1);
                         };
                         evo.alert(message);
-                        evo.getLockedElements(evo.getActionFromUrl(this.url), evo.main.getQueryVariable('id', this.url), function (data) {
-                            if (!!data || ~s.closeactions.indexOf(evo.getActionFromUrl(s.url))) {
-                                s.page.close();
-                                evo.tree.restoreTree();
-                            } else {
-                                w.main.location.href = evo.EVO_MANAGER_URL + s.url;
-                                w.history.replaceState(null, d.title, evo.tabsHistoryUrl(s.url));
-                            }
-                        });
+                        var alertAction = evo.getActionFromUrl(this.url),
+                            alertId = evo.main.getQueryVariable('id', this.url);
+                        // only an element page has a lock to look up; any other page that alerts (System Settings
+                        // held by another manager, no privileges) has nothing left to show, so its tab goes
+                        if (!evo.typesactions[alertAction] || !alertId) {
+                            s.page.close();
+                        } else {
+                            evo.getLockedElements(alertAction, alertId, function (data) {
+                                if (!!data || ~s.closeactions.indexOf(evo.getActionFromUrl(s.url))) {
+                                    s.page.close();
+                                    evo.tree.restoreTree();
+                                } else {
+                                    w.main.location.href = evo.EVO_MANAGER_URL + s.url;
+                                    w.history.replaceState(null, d.title, evo.tabsHistoryUrl(s.url));
+                                }
+                            });
+                        }
                     } else {
                         if (evo.getActionFromUrl(this.url, 2) || (~this.saveAndCloseActions.indexOf(evo.getActionFromUrl(this.url)) && parseInt(evo.main.getQueryVariable('r', this.url)))) {
                             this.close(e);

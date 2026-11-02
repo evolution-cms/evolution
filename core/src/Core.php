@@ -3804,7 +3804,9 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                         el.remove();
                         " . $fnc . "
                     }
-                    window.setTimeout('__alertQuit();',100);
+                    // after load: a manager tab or popup frame replaces alert() in its own onload; a timer
+                    // started earlier fires first on a slow stylesheet, and the message shows twice
+                    window.addEventListener('load', function () { window.setTimeout(__alertQuit, 100); });
                 </script>
             </head>
             <body>
@@ -3953,13 +3955,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     public function cleanupExpiredLocks()
     {
         // Clean-up active_user_sessions first
-        if ((int) $this->getConfig('session_timeout') < 2) {
-            $timeout = 120;
-        } else {
-            $timeout = $this->getConfig('session_timeout') * 60;
-        }
-        // session.js pings every 10min, so 2min is minimum
-        $validSessionTimeLimit = $this->time - $timeout;
+        $validSessionTimeLimit = ActiveUserSession::validSince((int) $this->time, (int) $this->getConfig('session_timeout'));
         ActiveUserSession::where('lasthit', '<', (int) $validSessionTimeLimit)->delete();
 
         // Clean-up active_user_locks

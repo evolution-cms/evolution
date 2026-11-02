@@ -23,8 +23,32 @@ test('every manager CSS icon reference resolves to a generated Tabler SVG mask',
         if ($file->getExtension() !== 'css' || $file->getFilename() === 'styles.min.css') {
             continue;
         }
-        preg_match_all('/var\(--evo-icon-([a-z0-9-]+)\)/', file_get_contents($file->getPathname()), $matches);
+        $source = file_get_contents($file->getPathname());
+        // Font Awesome is gone, so its font name or a private-use glyph renders nothing (3.5.x merges bring them back)
+        expect(preg_match('/Font\s*Awesome/i', $source))->toBe(0, $file->getPathname() . ' still uses the Font Awesome font')
+            ->and(preg_match('/content\s*:\s*([\'"])\\\\f[0-9a-f]{3}\1/i', $source))->toBe(0, $file->getPathname() . ' still uses a Font Awesome glyph');
+        preg_match_all('/var\(--evo-icon-([a-z0-9-]+)\)/', $source, $matches);
         foreach (array_unique($matches[1]) as $icon) {
+            expect($icons)->toContain($icon);
+        }
+    }
+});
+
+test('bundled plugins render icons from the generated SVG set, not Font Awesome', function () {
+    $root = dirname(__DIR__, 4);
+    $icons = json_decode(file_get_contents($root . '/manager/media/style/common/icons/icons.json'), true, 512, JSON_THROW_ON_ERROR);
+    $utilities = ['fw', 'spin', 'spin-hover', 'pulse', 'lg', 'sm', 'xs'];
+
+    foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root . '/assets/plugins', FilesystemIterator::SKIP_DOTS)) as $file) {
+        if ($file->getExtension() !== 'php') {
+            continue;
+        }
+        $source = file_get_contents($file->getPathname());
+        // markup classes and widget / popup 'icon' values
+        expect(preg_match('/class=\\\\?["\'][^"\']*\bfa\s+fa-|[\'"]icon[\'"]\s*=>\s*[\'"]fa-/', $source))
+            ->toBe(0, $file->getPathname() . ' still uses a Font Awesome icon');
+        preg_match_all('/\bevo-icon-([a-z0-9-]+)/', $source, $matches);
+        foreach (array_diff(array_unique($matches[1]), $utilities) as $icon) {
             expect($icons)->toContain($icon);
         }
     }

@@ -197,20 +197,22 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
         $themeDir = $this->managerTheme->getThemeDir();
 
         if (file_exists($themeDir . 'CSSMinify.php')) {
-            if (!\EvolutionCMS\Support\Formatter\CSSMinify::isCacheCurrent($themeDir . 'css/styles.min.css') && is_writable($themeDir . 'css')) {
-                $cssFiles = include_once $themeDir . 'CSSMinify.php';
-                if (is_array($cssFiles) && count($cssFiles)) {
+            $minCssPath = $themeDir . 'css/styles.min.css';
+            $cssFiles = include $themeDir . 'CSSMinify.php';
+            $cssFiles = is_array($cssFiles) ? $cssFiles : [];
+            if (\EvolutionCMS\Support\Formatter\CSSMinify::isStale($minCssPath, $cssFiles) && is_writable($themeDir . 'css')) {
+                if (count($cssFiles)) {
                     $minifier = new \EvolutionCMS\Support\Formatter\CSSMinify();
                     foreach ($cssFiles as $item) {
                         $minifier->addFile($item);
                     }
-                    file_put_contents($themeDir . 'css/styles.min.css', $minifier->minify($themeDir . 'css/styles.min.css'));
-
+                    file_put_contents($minCssPath, $minifier->minify($themeDir . 'css/styles.min.css'));
+                    clearstatcache(true, $minCssPath);
                 }
             }
 
-            if (\EvolutionCMS\Support\Formatter\CSSMinify::isCacheCurrent($themeDir . 'css/styles.min.css')) {
-                $this->parameters['css'] = $this->managerTheme->getThemeDir(false) . 'css/styles.min.css?v=' . evo()->getVersionData('version') . '.' . EVO_INSTALL_TIME;
+            if (\EvolutionCMS\Support\Formatter\CSSMinify::isCacheCurrent($minCssPath)) {
+                $this->parameters['css'] = $this->managerTheme->getThemeDir(false) . 'css/styles.min.css?v=' . evo()->getVersionData('version') . '.' . EVO_INSTALL_TIME . '.' . filemtime($minCssPath);
             }
         }
 

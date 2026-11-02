@@ -73,7 +73,7 @@ class CheckOutdated
         if (!is_null($snippet)) {
             $tpl = isset($options['template']) ? $options['template'] :
                 '@CODE:<div class="widget-wrapper alert alert-warning">' .
-                    '<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' .
+                    '<i class="evo-icon evo-icon-alert-triangle" aria-hidden="true"></i> ' .
                     '[+snippet+] <b>[+name+]</b> (version [+currentVersion+]) ' .
                     ' [+isSecurity:empty:then=`[+isoutdated+] <b>Evolution [+evo_cms_version+]</b>`:else=`<u><b>[+security_reason+]</b></u>.`+]' .
                     '<br />[+please_update+] <b>[+name+]</b> [+to_latest+]' .
@@ -124,7 +124,7 @@ class CheckOutdated
         if (!is_null($plugin)) {
             $tpl = isset($options['template']) ? $options['template'] :
                 '@CODE:<div class="widget-wrapper alert alert-warning">' .
-                '<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' .
+                '<i class="evo-icon evo-icon-alert-triangle" aria-hidden="true"></i> ' .
                 '[+plugin+] <b>[+name+]</b> (version [+currentVersion+]) ' .
                 ' [+isSecurity:empty:then=`[+isoutdated+] <b>Evolution [+evo_cms_version+]</b>`:else=`<u><b>[+security_reason+]</b></u>.`+]' .
                 '<br />[+please_update+] <b>[+name+]</b> [+to_latest+]' .
@@ -174,7 +174,7 @@ class CheckOutdated
         if (!is_null($module)) {
             $tpl = isset($options['template']) ? $options['template'] :
                 '@CODE:<div class="widget-wrapper alert alert-warning">' .
-                '<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' .
+                '<i class="evo-icon evo-icon-alert-triangle" aria-hidden="true"></i> ' .
                 '[+lock_element_type_6+] <b>[+name+]</b> (version [+currentVersion+]) ' .
                 ' [+isSecurity:empty:then=`[+isoutdated+] <b>Evolution [+evo_cms_version+]</b>`:else=`<u><b>[+security_reason+]</b></u>.`+]' .
                 '<br />[+please_update+] <b>[+name+]</b> [+to_latest+]' .
@@ -224,7 +224,7 @@ class CheckOutdated
 
             $tpl = isset($options['template']) ? $options['template'] :
                 '@CODE:<div class="widget-wrapper alert alert-danger">' .
-                    '<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' .
+                    '<i class="evo-icon evo-icon-alert-triangle" aria-hidden="true"></i> ' .
                     '<b>[+path+]</b> ' .
                     ' [+isSecurity:empty:then=`[+isoutdated+] <b>Evolution [+evo_cms_version+]</b>`:else=`<u><b>[+security_reason+]</b></u>.`+]' .
                     '<br />[+please_delete+]. [+if_dont_use+]' .
@@ -249,7 +249,7 @@ class CheckOutdated
 
             $tpl = isset($options['template']) ? $options['template'] :
                 '@CODE: <div class="widget-wrapper alert alert-danger">' .
-                    '<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' .
+                    '<i class="evo-icon evo-icon-alert-triangle" aria-hidden="true"></i> ' .
                     '[+manager_theme+] <b>[+theme+]</b> ' .
                     '[+isSecurity:empty:then=`[+isoutdated+] <b>Evolution [+evo_cms_version+]</b>`:else=`- <u><b>[+security_reason+]</b></u>.`+]' .
                     '<br />[+please_delete+] [+from_folder+] [+path+]. [+if_dont_use+]' .
@@ -279,7 +279,7 @@ class CheckOutdated
         if (isset($options['old']) && $this->modx->getConfig($key) === $options['old']) {
             $tpl = isset($options['template']) ? $options['template'] :
                 '@CODE:<div class="widget-wrapper alert alert-warning">' .
-                    '<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ' .
+                    '<i class="evo-icon evo-icon-alert-triangle" aria-hidden="true"></i> ' .
                     '<b>[+settings_config+] > [+' . $key . '_title+]</b> ' .
                     '([+oldUrl+]) [+outdated+]. ' .
                     '[+please_download_and_install+] <b>UpdateEvosRss</b>  [+from+]' .
@@ -364,7 +364,7 @@ class CheckOutdated
             $popup = [
                 'url' => EVO_MANAGER_URL . '?a=102&id=' . $this->getPluginId() . '&tab=1',
                 'title1' => $title,
-                'icon' => 'fa-cog',
+                'icon' => 'evo-icon-settings',
                 'iframe' => 'iframe',
                 'selector2' => '#tabConfig',
                 'position' => 'center',
@@ -385,7 +385,7 @@ class CheckOutdated
                         str_replace('"', "'", stripslashes(json_encode($popup))) .
                     ')" ' .
                 '>' .
-                    '<i class="fa fa-cog fa-spin-hover"></i> ' .
+                    '<i class="evo-icon evo-icon-settings evo-icon-spin-hover"></i> ' .
                 '</a>';
         }
 

@@ -891,7 +891,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                 'menuindex' => '1',
                 'id' => 'updater',
                 'cols' => 'col-sm-12',
-                'icon' => 'fa-exclamation-triangle',
+                'icon' => 'evo-icon-alert-triangle',
                 'title' => $_lang['system_update'],
                 'body' => $output
             ];
@@ -952,7 +952,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                 'menuindex' => '1000',
                 'id' => 'updater',
                 'cols' => 'col-sm-12',
-                'icon' => 'fa-exclamation-triangle',
+                'icon' => 'evo-icon-alert-triangle',
                 'title' => $_lang['system_update'],
                 'body' => $output
             ];
@@ -1160,14 +1160,14 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                         . '</div>';
 
                     $supportButtonHtml = '<a class="btn btn-sm btn-warning" href="' . $safeSupportUrl . '" target="_blank" rel="noopener noreferrer">'
-                        . '<i class="fa fa-envelope"></i> ' . htmlspecialchars($_lang['updater_action_support'], ENT_QUOTES, 'UTF-8') . '</a>';
+                        . '<i class="evo-icon evo-icon-mail"></i> ' . htmlspecialchars($_lang['updater_action_support'], ENT_QUOTES, 'UTF-8') . '</a>';
 
                     $releaseButtonsHtml = '<div style="margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">'
                         . '<a class="btn btn-xs btn-primary" href="' . $safeReleaseUrl . '" target="_blank" rel="noopener noreferrer">'
-                        . '<i class="fa fa-external-link"></i> ' . htmlspecialchars($primaryReleaseLabel, ENT_QUOTES, 'UTF-8')
+                        . '<i class="evo-icon evo-icon-external-link"></i> ' . htmlspecialchars($primaryReleaseLabel, ENT_QUOTES, 'UTF-8')
                         . '</a>'
                         . '<a href="' . $safeFallbackUrl . '" target="_blank" rel="noopener noreferrer" style="font-size:12px;text-decoration:underline;color:#0d6efd;">'
-                        . '<i class="fa fa-list"></i> ' . htmlspecialchars($secondaryReleaseLabel, ENT_QUOTES, 'UTF-8')
+                        . '<i class="evo-icon evo-icon-list"></i> ' . htmlspecialchars($secondaryReleaseLabel, ENT_QUOTES, 'UTF-8')
                         . '</a>'
                         . '</div>';
 
@@ -1180,14 +1180,14 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                     $safeCliCommand = htmlspecialchars($cliCommand, ENT_QUOTES, 'UTF-8');
                     $branchModeNoticeHtml = '';
                     if ($isLineMode) {
-                        $branchModeNoticeHtml = '<p style="margin:0 0 8px 0;color:#856404;font-weight:600;"><i class="fa fa-code-fork"></i> '
+                        $branchModeNoticeHtml = '<p style="margin:0 0 8px 0;color:#856404;font-weight:600;"><i class="evo-icon evo-icon-git-fork"></i> '
                             . htmlspecialchars(sprintf(
                                 updaterLang($_lang, 'updater_line_mode_notice', 'This site follows %s, which has new commits. To return to a release, run php artisan make:site update <release> in the core folder.'),
                                 $version === 'evolution-cms/evolution' ? $latestVersionRaw : $version . ' ' . $latestVersionRaw
                             ), ENT_QUOTES, 'UTF-8')
                             . '</p>';
                     } elseif ($isBranchMode) {
-                        $branchModeNoticeHtml = '<p style="margin:0 0 8px 0;color:#856404;font-weight:600;"><i class="fa fa-code-fork"></i> '
+                        $branchModeNoticeHtml = '<p style="margin:0 0 8px 0;color:#856404;font-weight:600;"><i class="evo-icon evo-icon-git-fork"></i> '
                             . htmlspecialchars(updaterLang($_lang, 'updater_branch_mode_notice', 'Development branch/ref update mode is enabled. Use it only for testing or controlled maintenance.'), ENT_QUOTES, 'UTF-8')
                             . '</p>';
                     }
@@ -1199,7 +1199,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
 
                     if ($canShowUpdateActions) {
                         $primaryUpdateButtonHtml = '<a class="btn btn-sm btn-success" href="#" onclick="var panel=document.getElementById(\'updater-cli-panel\');if(panel){panel.style.display=(panel.style.display===\'block\'?\'none\':\'block\');}return false;">'
-                            . '<i class="fa fa-terminal"></i> ' . htmlspecialchars(updaterLang($_lang, 'updater_cli_summary', 'Manual update (CLI)'), ENT_QUOTES, 'UTF-8')
+                            . '<i class="evo-icon evo-icon-terminal-2"></i> ' . htmlspecialchars(updaterLang($_lang, 'updater_cli_summary', 'Manual update (CLI)'), ENT_QUOTES, 'UTF-8')
                             . '</a>';
                         $cliPanelHtml = '<div id="updater-cli-panel" style="display:none;margin-top:12px;padding:8px;border:1px dashed #bdbdbd;border-radius:6px;">'
                             . '<div style="margin-bottom:6px;">' . htmlspecialchars(updaterLang($_lang, 'updater_cli_intro', 'If you are updating manually, run this command in terminal:'), ENT_QUOTES, 'UTF-8') . '</div>'
@@ -1246,7 +1246,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                                 'invalid_response' => updaterLang($_lang, 'updater_live_update_invalid_response', 'Manager returned an invalid update response.'),
                             ]);
                             $managerUpdateButtonHtml = '<button type="button" class="btn btn-sm btn-primary" onclick="return window.EvoUpdaterSystemTask && window.EvoUpdaterSystemTask.openConfirm ? window.EvoUpdaterSystemTask.openConfirm() : false;">'
-                                . '<i class="fa fa-refresh"></i> ' . htmlspecialchars(updaterLang($_lang, 'updater_live_update_button', 'Manual update (WEB)'), ENT_QUOTES, 'UTF-8')
+                                . '<i class="evo-icon evo-icon-refresh"></i> ' . htmlspecialchars(updaterLang($_lang, 'updater_live_update_button', 'Manual update (WEB)'), ENT_QUOTES, 'UTF-8')
                                 . '</button>';
                         }
                     }
@@ -1256,7 +1256,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                         . '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">'
                         . '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">'
                         . '<strong style="color:#dc3545;">' . $safeCurrentWithDate . '</strong>'
-                        . '<i class="fa fa-arrow-right" aria-hidden="true"></i>'
+                        . '<i class="evo-icon evo-icon-arrow-right" aria-hidden="true"></i>'
                         . '<strong style="color:#28a745;">' . $safeLatestWithDate . '</strong>'
                         . '</div>'
                         . $releaseButtonsHtml
@@ -1265,14 +1265,14 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
 
                         . '<div style="margin:0 0 12px 0;">'
                         . $branchModeNoticeHtml
-                        . '<p style="margin:0 0 8px 0;"><i class="fa fa-check-circle"></i> '
+                        . '<p style="margin:0 0 8px 0;"><i class="evo-icon evo-icon-circle-check"></i> '
                         . htmlspecialchars($_lang['updater_notice_text_1'], ENT_QUOTES, 'UTF-8') . '</p>'
-                        . '<p style="margin:0 0 8px 0;"><i class="fa fa-database"></i> '
+                        . '<p style="margin:0 0 8px 0;"><i class="evo-icon evo-icon-database"></i> '
                         . htmlspecialchars($_lang['updater_notice_text_2'], ENT_QUOTES, 'UTF-8')
                         . '<span style="display:block;margin-top:4px;color:#dc3545;font-weight:600;">'
                         . updaterBuildBackupWarningHtml($_lang)
                         . '</span></p>'
-                        . '<p style="margin:0;"><i class="fa fa-user"></i> '
+                        . '<p style="margin:0;"><i class="evo-icon evo-icon-user"></i> '
                         . htmlspecialchars($_lang['updater_notice_text_3'], ENT_QUOTES, 'UTF-8') . '</p>'
                         . '</div>'
 
@@ -1293,7 +1293,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                         'menuindex' => '1',
                         'id' => 'updater',
                         'cols' => 'col-sm-12',
-                        'icon' => 'fa-exclamation-triangle',
+                        'icon' => 'evo-icon-alert-triangle',
                         'title' => $_lang['updater_widget_title'],
                         'body' => $output
                     ];

@@ -869,56 +869,145 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                 // upload_max_filesize cannot be raised at run time: the smallest of the setting and PHP's limits applies
                 $uploadFileLimit = \EvolutionCMS\Support\UploadLimits::fileLimit($upload_maxsize ?? 0);
                 $uploadPostLimit = \EvolutionCMS\Support\UploadLimits::postMaxSize(); ?>
-                <form name="upload" enctype="multipart/form-data" action="index.php" method="post" onsubmit="return fileManagerUploadFits(this);">
+                <form name="upload" enctype="multipart/form-data" action="index.php" method="post" onsubmit="fileManagerUpload(this); return false;">
                     <?= csrf_field() ?>
                     <input type="hidden" name="MAX_FILE_SIZE" value="<?= $uploadFileLimit ?: ($upload_maxsize ?? 5000000) ?>">
                     <input type="hidden" name="a" value="31">
                     <input type="hidden" name="path" value="<?= entities($relative_path, evo()->getConfig('modx_charset')) ?>">
                     <!-- Fix: Add token to upload form -->
                     <input type="hidden" name="token" value="<?= $newToken ?>">
-                    <?php if (isset($information)) { echo $information; } ?>
+                    <div id="uploadReportSlot"><?php if (isset($information)) { echo $information; } ?></div>
                     <div id="uploader">
-                        <input type="file" name="userfile[]" onchange="if (fileManagerUploadFits(document.upload)) document.upload.submit();" multiple>
-                        <a class="btn btn-secondary" href="javascript:;" onclick="if (fileManagerUploadFits(document.upload)) document.upload.submit()"><?= $_lang['files_uploadfile'] ?></a>
+                        <input type="file" name="userfile[]" onchange="fileManagerUpload(document.upload);" multiple>
+                        <a class="btn btn-secondary" href="javascript:;" onclick="fileManagerUpload(document.upload)"><?= $_lang['files_uploadfile'] ?></a>
+                        <span id="uploadProgress" class="text-muted"></span>
                     </div>
                     <?php if ($uploadFileLimit > 0) { ?>
                         <p class="text-muted"><small><?= e(sprintf($_lang['upload_limits_hint'], \EvolutionCMS\Support\UploadLimits::humanSize($uploadFileLimit), $uploadPostLimit > 0 ? \EvolutionCMS\Support\UploadLimits::humanSize($uploadPostLimit) : '-')) ?></small></p>
                     <?php } ?>
                 </form>
+                <script src="media/script/upload-queue.js?v=<?= e(evo()->getVersionData('version')) ?>"></script>
                 <script>
-                    // PHP drops a whole request over post_max_size and a file over upload_max_filesize:
-                    // stop such an upload here, with the reason, rather than lose it on the server
-                    function fileManagerUploadFits(form) {
-                        var input = form.querySelector('input[type=file]');
-                        var fileLimit = <?= (int) $uploadFileLimit ?>, postLimit = <?= (int) $uploadPostLimit ?>;
-                        var tooLarge = <?= js_json($_lang['upload_file_too_large']) ?>, tooMuch = <?= js_json($_lang['upload_files_too_large']) ?>;
-                        var size = function (bytes) {
-                            var units = [['GB', 1073741824], ['MB', 1048576], ['KB', 1024]];
-                            for (var i = 0; i < units.length; i++) {
-                                if (bytes >= units[i][1]) return (Math.round(bytes / units[i][1] * 10) / 10) + ' ' + units[i][0];
-                            }
-                            return bytes + ' bytes';
-                        };
-                        var format = function (text, values) {
-                            return text.replace(/%(\d)\$s/g, function (m, n) { return values[n - 1]; });
-                        };
-                        var files = input && input.files ? input.files : [], total = 0;
-                        for (var i = 0; i < files.length; i++) {
-                            total += files[i].size;
-                            if (fileLimit > 0 && files[i].size > fileLimit) {
-                                alert(format(tooLarge, [files[i].name, size(files[i].size), size(fileLimit)]));
-                                input.value = '';
-                                return false;
-                            }
+                    // PHP takes at most max_file_uploads files and post_max_size bytes per request and drops the rest
+                    // without a word: the files go up in batches it takes whole, one after another, and the report
+                    // says what was stored and what was not
+                    var fileManagerUploadLimits = {
+                        maxFiles: <?= (int) ini_get('max_file_uploads') ?>,
+                        postLimit: <?= (int) $uploadPostLimit ?>,
+                        fileLimit: <?= (int) $uploadFileLimit ?>
+                    };
+                    var fileManagerUploadLang = <?= js_json([
+                        'summary' => $_lang['files_upload_summary'],
+                        'progress' => $_lang['files_upload_progress'],
+                        'skipped' => $_lang['files_upload_file_skipped'],
+                        'stopped' => $_lang['files_upload_stopped'],
+                        'zipHint' => $_lang['files_upload_zip_hint'],
+                        'details' => $_lang['files_upload_details'],
+                    ]) ?>;
+                    var fileManagerUploadReportKey = 'evo-file-manager-upload-report';
+
+                    function fileManagerUploadSize(bytes) {
+                        var units = [['GB', 1073741824], ['MB', 1048576], ['KB', 1024]];
+                        for (var i = 0; i < units.length; i++) {
+                            if (bytes >= units[i][1]) return (Math.round(bytes / units[i][1] * 10) / 10) + ' ' + units[i][0];
                         }
-                        // the other form fields and the multipart framing need a little room as well
-                        if (postLimit > 0 && total + 16384 > postLimit) {
-                            alert(format(tooMuch, [size(total), size(postLimit)]));
-                            input.value = '';
-                            return false;
-                        }
-                        return files.length > 0;
+                        return bytes + ' bytes';
                     }
+
+                    function fileManagerUpload(form) {
+                        var q = window.evoUploadQueue, lang = fileManagerUploadLang, limits = fileManagerUploadLimits;
+                        var input = form.querySelector('input[type=file]');
+                        var files = input && input.files ? Array.prototype.slice.call(input.files) : [];
+                        if (!files.length || form.dataset.uploading) {
+                            return;
+                        }
+                        var plan = q.plan(files.map(function (f) { return f.size; }), limits.maxFiles, limits.postLimit, limits.fileLimit);
+                        var progress = document.getElementById('uploadProgress');
+                        var field = function (name) { return form.querySelector('input[name="' + name + '"]').value; };
+                        var names = function (indexes) {
+                            return indexes.map(function (i) { return '"' + files[i].name + '"'; }).join(', ');
+                        };
+                        form.dataset.uploading = '1';
+                        input.disabled = true;
+
+                        var send = function (batch, token) {
+                            var data = new FormData();
+                            ['_token', 'MAX_FILE_SIZE', 'a', 'path'].forEach(function (name) { data.append(name, field(name)); });
+                            data.append('token', token);
+                            data.append('upload_selected', String(batch.length));
+                            batch.forEach(function (i) { data.append('userfile[]', files[i], files[i].name); });
+                            return fetch(form.action, { method: 'POST', body: data, credentials: 'same-origin' }).then(function (response) {
+                                if (!response.ok) {
+                                    throw new Error('HTTP ' + response.status);
+                                }
+                                return response.text();
+                            }).then(function (html) {
+                                var page = new DOMParser().parseFromString(html, 'text/html');
+                                var report = page.getElementById('uploadReport');
+                                var next = page.querySelector('form[name=upload] input[name=token]');
+                                if (!report) {
+                                    var warning = page.querySelector('.warning');
+                                    throw new Error(warning ? warning.textContent.trim() : 'no upload report in the answer');
+                                }
+                                // the batch's own summary line gives way to the one for all files
+                                report.querySelectorAll('.upload-summary').forEach(function (line) { line.remove(); });
+                                return {
+                                    report: report.innerHTML,
+                                    uploaded: parseInt(report.dataset.uploaded, 10) || 0,
+                                    token: next ? next.value : ''
+                                };
+                            });
+                        };
+
+                        q.run(plan.batches, field('token'), send, function (index, count) {
+                            var first = plan.batches.slice(0, index).reduce(function (n, b) { return n + b.length; }, 0);
+                            progress.textContent = q.format(lang.progress, [first + 1, first + plan.batches[index].length, files.length]);
+                        }).then(function (result) {
+                            var line = function (text) { return '<p>' + q.escapeHtml(text) + '</p>'; };
+                            var complete = result.uploaded === files.length;
+                            var problems = '', failed = '', stored = '';
+                            plan.skipped.forEach(function (i) {
+                                var limit = limits.fileLimit > 0 && files[i].size > limits.fileLimit ? limits.fileLimit : limits.postLimit;
+                                problems += line(q.format(lang.skipped, [files[i].name, fileManagerUploadSize(files[i].size), fileManagerUploadSize(limit)]));
+                            });
+                            if (result.notSent.length) {
+                                // a ZIP helps with many files, not with one file over the limit
+                                problems += line(q.format(lang.stopped, [result.reason, result.notSent.length, names(result.notSent)])) + line(lang.zipHint);
+                            }
+                            // the server's own blocks: what it refused comes first, what it stored is folded away
+                            result.reports.forEach(function (report) {
+                                var box = document.createElement('div');
+                                box.innerHTML = report;
+                                box.querySelectorAll('.upload-dropped, .upload-file.upload-failed').forEach(function (el) { failed += el.outerHTML; });
+                                box.querySelectorAll('.upload-file.upload-ok').forEach(function (el) { stored += el.outerHTML; });
+                            });
+                            var html = '<div id="uploadReport" class="alert ' + (complete ? 'alert-success' : 'alert-warning') + '">'
+                                + '<p><b>' + q.escapeHtml(q.format(lang.summary, [result.uploaded, files.length])) + '</b></p>'
+                                + problems + failed
+                                + (stored ? '<details><summary>' + q.escapeHtml(lang.details) + '</summary>' + stored + '</details>' : '')
+                                + '</div>';
+                            // the page reloads to list the new files; the report waits for it
+                            try {
+                                sessionStorage.setItem(fileManagerUploadReportKey, JSON.stringify({ path: field('path'), html: html }));
+                            } catch (e) {
+                            }
+                            location.href = 'index.php?a=31&mode=drill&path=' + encodeURIComponent(field('path'));
+                        });
+                    }
+
+                    (function () {
+                        var saved = null;
+                        try {
+                            saved = JSON.parse(sessionStorage.getItem(fileManagerUploadReportKey) || 'null');
+                            sessionStorage.removeItem(fileManagerUploadReportKey);
+                        } catch (e) {
+                        }
+                        if (saved && saved.path === document.upload.querySelector('input[name="path"]').value) {
+                            // at the top, where the other file manager actions report, not below the whole list
+                            var top = document.querySelector('#ManageFiles > .container.breadcrumbs');
+                            (top || document.getElementById('uploadReportSlot')).insertAdjacentHTML('afterbegin', saved.html);
+                        }
+                    })();
                 </script>
             <?php } else {
                 echo "<p>" . $_lang['files_upload_inhibited_msg'] . "</p>";

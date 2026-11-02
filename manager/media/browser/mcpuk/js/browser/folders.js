@@ -15,13 +15,15 @@ browser.initFolders = function() {
         browser.hideDialog();
     });
     $('div.folder > a').unbind();
-    $('div.folder > a').bind('click', function() {
+    $('div.folder > a').bind('click', function(e) {
         browser.hideDialog();
-        browser.openTreeFolder($(this));
+        browser.handleTreeClick($(this), $(e.target).hasClass('brace'));
         return false;
     });
-    $('div.folder > a').dblclick(function() {
-        browser.toggleTreeFolder($(this));
+    $('div.folder > a').dblclick(function(e) {
+        // each single click on the arrow has toggled the branch already
+        if (!$(e.target).hasClass('brace'))
+            browser.toggleTreeFolder($(this));
         return false;
     });
     $('div.folder > a > span.brace').unbind();
@@ -52,6 +54,27 @@ browser.initFolders = function() {
 
 browser.openTreeFolder = function(dir) {
     this.changeDir(dir);
+    this.selectTreeFolder(dir);
+};
+
+// a click in the tree selects that folder alone: nothing stays selected in the file list or elsewhere in the tree
+browser.selectTreeFolder = function(dir) {
+    $('.file').removeClass('selected');
+    this.lastSelectedFile = null;
+    this.treeSelection = dir.data('path');
+    this.statusDir();
+    this.updateDeleteButton();
+    this.syncTreeSelection();
+    this.updateMobileActions();
+};
+
+// like the resource tree: the arrow of a folder with subfolders expands or collapses it, the rest of the row opens it
+browser.handleTreeClick = function(dir, onArrow) {
+    var brace = dir.children('.brace');
+    if (onArrow && (brace.hasClass('opened') || brace.hasClass('closed')))
+        this.toggleTreeFolder(dir);
+    else
+        this.openTreeFolder(dir);
 };
 
 // a folder's node in the tree; empty while the branch holding it is not loaded
@@ -61,13 +84,6 @@ browser.treeDir = function(path) {
 
 browser.subDirPath = function(name) {
     return this.dir.length ? this.dir + '/' + name : name;
-};
-
-// the subfolder of dir that leads to path: ("images", "images/team/2024") gives "team"
-browser.subDirOnPath = function(dir, path) {
-    if ((typeof path != 'string') || (path.indexOf(dir + '/') !== 0))
-        return undefined;
-    return path.substr(dir.length + 1).split('/')[0];
 };
 
 /**
@@ -100,7 +116,15 @@ browser.revealTreeDir = function(dir) {
 // the folders selected in the file list are marked in the tree too: both panes show one selection
 browser.syncTreeSelection = function() {
     $('div.folder > a > span.folder').removeClass('selected');
-    $('#files .file.selected').each(function() {
+    var listed = $('#files .file.selected');
+    // a selection in the file list replaces the folder selected in the tree; without one, that folder stays
+    if (listed.length)
+        this.treeSelection = null;
+    else if (this.treeSelection) {
+        this.treeDir(this.treeSelection).children('span.folder').addClass('selected');
+        return;
+    }
+    listed.each(function() {
         var file = $(this);
         if (!file.data('isDir'))
             return;
@@ -207,13 +231,10 @@ browser.updateDirSubtreePaths = function(dir, oldPath, newPath) {
     }
 };
 
+// expands or collapses the branch only; the folder shown in the file list stays
 browser.expandDir = function(dir) {
-    var path = dir.data('path');
     if (dir.children('.brace').hasClass('opened')) {
-        dir.parent().children('.folders').hide(500, function() {
-            if (path == browser.dir.substr(0, path.length))
-                browser.changeDir(dir);
-        });
+        dir.parent().children('.folders').hide(500);
         dir.children('.brace').removeClass('opened');
         dir.children('.brace').addClass('closed');
     } else {
@@ -281,7 +302,8 @@ browser.loadTreeBranch = function(dir, animate) {
 
 browser.changeDir = function(dir) {
     if (dir.children('span.folder').hasClass('regular')) {
-        var previous = this.dir;
+        // a folder opened from anywhere starts with nothing selected; a tree click selects it afterwards
+        this.treeSelection = null;
         this.clearMobileActions();
         $('div.folder > a > span.folder').removeClass('current');
         $('div.folder > a > span.folder').removeClass('selected');
@@ -303,10 +325,7 @@ browser.changeDir = function(dir) {
                 browser.files = data.files;
                 browser.links = data.links ? data.links : [];
                 browser.dir = dir.data('path');
-                // up the tree, the folder it came from is selected in the list (and so in the tree)
-                browser.orderFiles(function() {
-                    browser.scrollIntoPane('#files', $('#files .file.selected').get(0));
-                }, browser.subDirOnPath(browser.dir, previous));
+                browser.orderFiles();
                 browser.dirWritable = data.dirWritable;
                 browser.updateWriteControls();
                 var title = "KCFinder: /" + browser.dir;
