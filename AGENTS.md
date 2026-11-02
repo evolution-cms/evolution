@@ -208,6 +208,26 @@ php artisan vendor:publish --provider="Vendor\\Package\\PackageServiceProvider"
 php artisan migrate
 ```
 
+### Classmap-authoritative autoloader
+
+`core/composer.json` sets `config.classmap-authoritative`, so every `composer install`, `update`,
+`dump-autoload` (and `composer optimize`, which installs without dev packages in one step) writes an
+autoloader that never looks for a class outside `vendor/composer/autoload_classmap.php`. Whatever puts new
+PHP classes on a site must rebuild it after the files are in place: Composer and the package commands do,
+`make:site` does after `moveFiles()`, and so does the web installer after an update through the manager's
+updater (`installerInstallComposerDependencies()`, after the custom packages), with the same
+`CustomComposerPackages::INSTALL_ARGUMENTS` / `DUMP_AUTOLOAD_ARGUMENTS`; a failure leaves the update incomplete. A class copied in by hand, git or FTP (`core/src`,
+`core/custom/packages/*/src`, a package under `vendor/`) does not exist until `composer dump-autoload`.
+Do not register namespaces on the Composer loader at runtime: an authoritative loader ignores them.
+`tests/` stays out of the classmap; `tests/Pest.php` loads the `Tests\` classes itself, and a script a test
+runs in its own process requires the ones it uses.
+
+A folder a package publishes into (`assets/plugins/<name>`, `assets/modules/<name>`, `assets/snippets/<name>`,
+as its provider's `publishes()` declares) is rebuilt from `core/vendor` and stays out of the site's repository:
+every artisan run gives it a `.gitignore` of `*` when it has none (`EvolutionCMS\Support\PackageAssetFolders`,
+called from `EvolutionCMS\Console` once all providers have booted). Declare such assets through `publishes()`,
+even when the package also copies them itself while it boots.
+
 ---
 
 ## Customisation Points (core/custom/)
@@ -257,6 +277,14 @@ There are ~30 service providers in `core/src/Providers/`. Notable ones:
 - `ManagerThemeServiceProvider` — manager UI
 - `TracyServiceProvider` — Tracy debug bar integration
 - `ModifiersServiceProvider` — output modifiers
+
+A bundled package that serves the manager (EvoUI with Livewire, dTui editor, dDocs, sGallery, sTask) is
+declared in `app.on_demand_providers` (`core/config/app.php`) next to its `app.providers` entry: a frontend
+request registers it only on its `services` (facade accessors), a class of its namespace or its `events`
+(`EvolutionCMS\Support\OnDemandProviders`); a request to any declared route `paths` registers all of them,
+because their manager pages need EvoUI and Livewire booted before routing. Manager, console, installer and kept
+worker applications register everything. Booting such packages on every page cost the 3.6 frontend about 17 ms, so
+declare a new one there too. Test: `core/tests/Unit/OnDemandProvidersTest.php`.
 
 ---
 

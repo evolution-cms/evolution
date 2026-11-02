@@ -24,6 +24,10 @@ class Console extends Artisan
 
         $laravel->loadDeferredProviders();
 
+        // Every provider has booted, so every publish target is known: the folders packages publish into stay
+        // out of the site's repository (make:site, the installers and vendor:publish all run through here).
+        Support\PackageAssetFolders::ignore(\Illuminate\Support\ServiceProvider::pathsToPublish(), public_path('assets'));
+
         parent::bootstrap();
     }
 

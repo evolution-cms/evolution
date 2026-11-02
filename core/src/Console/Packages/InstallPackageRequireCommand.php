@@ -16,7 +16,7 @@ class InstallPackageRequireCommand extends Command
     /**
      * Composer release that introduced `update --minimal-changes`.
      */
-    public const MINIMAL_CHANGES_SINCE = '2.7.0';
+    public const MINIMAL_CHANGES_SINCE = CustomComposerPackages::MINIMAL_CHANGES_SINCE;
 
     /**
      * The name and signature of the console command.

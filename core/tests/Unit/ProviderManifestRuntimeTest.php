@@ -116,6 +116,21 @@ test('warm configured providers do not autoload a deferred class until its bindi
     }
 });
 
+test('a missing provider is reported once when the manifest is compiled', function () {
+    $path = tempnam(sys_get_temp_dir(), 'evo-manifest-');
+    $log = tempnam(sys_get_temp_dir(), 'evo-manifest-log-');
+    $missing = 'ManifestMissing'.bin2hex(random_bytes(4));
+    $previous = ini_set('error_log', $log);
+    try {
+        (new ManifestRuntimeCore($path, [ManifestRuntimeEager::class, $missing]))->registerConfiguredProviders();
+        expect(substr_count((string) file_get_contents($log), 'Skipped missing service provider "'.$missing.'"'))->toBe(1);
+    } finally {
+        ini_set('error_log', (string) $previous);
+        @unlink($path);
+        @unlink($log);
+    }
+});
+
 test('cold manifests skip missing packages and detect providers that become available', function () {
     $path = tempnam(sys_get_temp_dir(), 'evo-manifest-');
     $missing = 'ManifestMissing'.bin2hex(random_bytes(4));

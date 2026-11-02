@@ -1178,14 +1178,11 @@ function restoreCustomComposerPackages(?callable $run = null, ?callable $discove
         return $result;
     }
 
-    // A web request rarely has HOME, which Composer needs; make:site uses the same folder.
-    if (getenv('COMPOSER_HOME') === false && getenv('HOME') === false) {
-        putenv('COMPOSER_HOME=' . EVO_CORE_PATH . 'composer');
-    }
+    installerComposerHome();
 
     [, $version] = $run($composer['command'] . ' --version --no-ansi 2>&1');
     $minimalChanges = preg_match('/Composer (?:version )?(\d+\.\d+\.\d+)/', (string) $version, $match) === 1
-        && version_compare($match[1], \EvolutionCMS\Console\Packages\InstallPackageRequireCommand::MINIMAL_CHANGES_SINCE, '>=');
+        && version_compare($match[1], \EvolutionCMS\Services\CustomComposerPackages::MINIMAL_CHANGES_SINCE, '>=');
 
     $plan = $packages->plan(
         static fn (string $command): array => $run($command),
@@ -1221,6 +1218,202 @@ function restoreCustomComposerPackages(?callable $run = null, ?callable $discove
     }
 
     return $result;
+}
+
+/**
+ * What make:site does once the files of an update are in place: core/vendor from the new lock,
+ * the classmap-authoritative autoloader rebuilt, the packages discovered.
+ *
+ * The manager's updater lays a source archive over the site, which carries no vendor directory: without
+ * this the site keeps the dependencies and the classmap of the version it ran, and finds neither the new
+ * packages nor the new classes of the core. A Composer that runs from core/vendor first proves with a dry
+ * run that it replaces none of its own packages (CustomComposerPackages::planInstall()), as make:site does.
+ *
+ * @since 3.6.0
+ * @param callable|null $run Runs a shell command: array{0: int, 1: string} exit code and output.
+ * @param callable|null $discover Registers the providers of the installed packages.
+ * @param array{command: string, standalone: bool}|null $composer The Composer to use; found when null.
+ * @return array{installed: bool, command: string, output: string} command is what to run by hand when not installed.
+ */
+function installerInstallComposerDependencies(?callable $run = null, ?callable $discover = null, ?array $composer = null): array
+{
+    $result = ['installed' => false, 'command' => 'cd core && composer install --no-dev --classmap-authoritative', 'output' => ''];
+    $run ??= 'installerRunCommand';
+    $composer ??= installerComposerCommand();
+    if ($composer === null) {
+        $result['output'] = 'No Composer and no PHP command line binary to run the one in core/vendor were found.';
+
+        return $result;
+    }
+
+    installerComposerHome();
+    $workingDir = ' --working-dir=' . escapeshellarg(rtrim(EVO_CORE_PATH, '/\\'));
+    if (!$composer['standalone']) {
+        $plan = (new \EvolutionCMS\Services\CustomComposerPackages(EVO_CORE_PATH))
+            ->planInstall(static fn (string $command): array => $run($command), $composer['command'], true);
+        if (!$plan['ok']) {
+            $result['output'] = \EvolutionCMS\Services\CustomComposerPackages::describeRefusal($plan);
+
+            return $result;
+        }
+    }
+
+    foreach ([\EvolutionCMS\Services\CustomComposerPackages::INSTALL_ARGUMENTS, \EvolutionCMS\Services\CustomComposerPackages::DUMP_AUTOLOAD_ARGUMENTS] as $arguments) {
+        [$exitCode, $output] = $run($composer['command'] . ' ' . $arguments . $workingDir . ' 2>&1');
+        if ((int) $exitCode !== 0) {
+            $result['output'] = installerOutputTail((string) $output);
+
+            return $result;
+        }
+    }
+
+    $discover ??= static function (): void {
+        \EvolutionCMS\Facades\Console::call('package:discover');
+    };
+    $discover();
+    $result['installed'] = true;
+
+    return $result;
+}
+
+/**
+ * Why core/vendor cannot boot the code laid over it, or null when it can.
+ *
+ * The manager's updater lays a source archive over the site and keeps core/vendor: until Composer runs, the
+ * site has the packages and the autoloader of the version it ran. An authoritative classmap finds no class the
+ * new core added, and a package the new lock moved is still at its old version, so the new application cannot
+ * boot. Read before it does, from the files alone.
+ *
+ * @since 3.6.0
+ */
+function installerDependenciesStale(string $corePath): ?string
+{
+    $composerDir = $corePath . 'vendor/composer/';
+    if (!is_file($corePath . 'vendor/autoload.php') || !is_file($composerDir . 'installed.json')) {
+        return 'core/vendor is missing.';
+    }
+
+    $installed = json_decode((string) file_get_contents($composerDir . 'installed.json'), true);
+    $versions = [];
+    foreach ((array) ($installed['packages'] ?? $installed ?? []) as $package) {
+        if (is_array($package) && isset($package['name'])) {
+            $versions[strtolower((string) $package['name'])] = installerPackageVersion($package);
+        }
+    }
+    $lock = json_decode((string) @file_get_contents($corePath . 'composer.lock'), true);
+    foreach ((array) ($lock['packages'] ?? []) as $package) {
+        if (!is_array($package) || !isset($package['name'])) {
+            continue;
+        }
+        $name = strtolower((string) $package['name']);
+        $locked = installerPackageVersion($package);
+        if (($versions[$name] ?? null) !== $locked) {
+            return sprintf('core/vendor has %s %s, core/composer.lock wants %s.', $name, $versions[$name] ?? '(not installed)', $locked);
+        }
+    }
+
+    // A classmap that is not authoritative still finds new classes through PSR-4.
+    if (str_contains((string) @file_get_contents($composerDir . 'autoload_real.php'), 'setClassMapAuthoritative(true)')) {
+        $classmap = (static fn (string $file) => include $file)($composerDir . 'autoload_classmap.php');
+        foreach (installerCoreClasses($corePath . 'src') as $class) {
+            if (!isset($classmap[$class])) {
+                return "The classmap of core/vendor does not list $class.";
+            }
+        }
+    }
+
+    return null;
+}
+
+/**
+ * A package's version as Composer installed it; a development branch moves with its commit.
+ *
+ * @since 3.6.0
+ */
+function installerPackageVersion(array $package): string
+{
+    $version = (string) ($package['version'] ?? '');
+    if (str_starts_with($version, 'dev-') || str_ends_with($version, '-dev')) {
+        $version .= '@' . ($package['source']['reference'] ?? $package['dist']['reference'] ?? '');
+    }
+
+    return $version;
+}
+
+/**
+ * The classes of core/src (PSR-4 under EvolutionCMS\), as the classmap of a matching vendor lists them.
+ *
+ * @since 3.6.0
+ * @return list<string>
+ */
+function installerCoreClasses(string $srcPath): array
+{
+    $srcPath = rtrim(str_replace('\\', '/', $srcPath), '/') . '/';
+    $classes = [];
+    $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($srcPath, \FilesystemIterator::SKIP_DOTS));
+    foreach ($files as $file) {
+        if ($file->getExtension() !== 'php'
+            || !preg_match('/^\s*(?:(?:final|abstract|readonly)\s+)*(?:class|interface|trait|enum)\s+\w+/m', (string) file_get_contents($file->getPathname()))) {
+            continue;
+        }
+        $relative = substr(str_replace('\\', '/', $file->getPathname()), strlen($srcPath), -4);
+        $classes[] = 'EvolutionCMS\\' . str_replace('/', '\\', $relative);
+    }
+    sort($classes);
+
+    return $classes;
+}
+
+/**
+ * The Composer helpers of core/src, loaded from the new source: the stale classmap of a site whose vendor
+ * installerDependenciesStale() rejects may not list them, or list an older shape.
+ *
+ * @since 3.6.0
+ */
+function installerRequireComposerHelpers(): void
+{
+    if (!trait_exists(\EvolutionCMS\Traits\RunsComposerShell::class, false)) {
+        require_once EVO_CORE_PATH . 'src/Traits/RunsComposerShell.php';
+    }
+    if (!class_exists(\EvolutionCMS\Services\CustomComposerPackages::class, false)) {
+        require_once EVO_CORE_PATH . 'src/Services/CustomComposerPackages.php';
+    }
+}
+
+/**
+ * The Composer repair of a stale core/vendor, before the new application boots: the custom packages, then
+ * the install and autoload rebuild of make:site. Nothing here loads the new core beyond the two Composer
+ * helpers; discovery waits for the install step, which boots in a fresh request on the rebuilt autoloader.
+ *
+ * @since 3.6.0
+ * @return array{customPackages: array, composerDependencies: array|null} composerDependencies is null when
+ *         the custom packages were not restored, so the install did not run.
+ */
+function installerRepairDependencies(?callable $run = null, ?array $composer = null): array
+{
+    installerRequireComposerHelpers();
+    $noDiscovery = static function (): void {
+    };
+    $customPackages = restoreCustomComposerPackages($run, $noDiscovery, $composer);
+
+    return [
+        'customPackages' => $customPackages,
+        'composerDependencies' => $customPackages['restored']
+            ? installerInstallComposerDependencies($run, $noDiscovery, $composer)
+            : null,
+    ];
+}
+
+/**
+ * A web request rarely has HOME, which Composer needs; make:site uses the same folder.
+ *
+ * @since 3.6.0
+ */
+function installerComposerHome(): void
+{
+    if (getenv('COMPOSER_HOME') === false && getenv('HOME') === false) {
+        putenv('COMPOSER_HOME=' . EVO_CORE_PATH . 'composer');
+    }
 }
 
 /**

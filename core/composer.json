@@ -79,7 +79,7 @@
         "rosell-dk/exec-with-fallback": "*",
         "rosell-dk/webp-convert": "*",
         "secondnetwork/blade-tabler-icons": "^3.46",
-        "seiger/sgallery": "^1.7",
+        "seiger/sgallery": "^1.8.1",
         "seiger/stask": "^2.2.1",
         "symfony/process": "^8.1",
         "tracy/tracy": "^2.12.2",
@@ -100,6 +100,7 @@
     },
     "config": {
         "optimize-autoloader": true,
+        "classmap-authoritative": true,
         "preferred-install": "dist",
         "prestissimo": {
             "maxConnections": 6,
@@ -161,8 +162,8 @@
     "scripts": {
         "sync-replace": "@php functions/sync-replace-version.php",
         "test": "vendor/bin/pest",
-        "optimize": "@composer install --no-dev && @composer dump-autoload -o --no-dev --classmap-authoritative",
-        "optimize-dev": "@composer install && @composer dump-autoload -o --classmap-authoritative",
+        "optimize": "@composer install --no-dev --classmap-authoritative",
+        "optimize-dev": "@composer install --classmap-authoritative",
         "upd": [
             "@sync-replace",
             "@composer update --lock --ansi"

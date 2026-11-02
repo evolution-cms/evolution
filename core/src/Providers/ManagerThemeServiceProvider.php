@@ -8,10 +8,11 @@ class ManagerThemeServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        $this->app->make(\EvoUI\EvoUI::class)->registerComponent(
-            'evo-core.system-info',
-            \EvolutionCMS\Livewire\SystemInfo::class
-        );
+        // This provider boots on every request ($defer is not honoured); resolving EvoUI here would load
+        // EvoUI and Livewire on frontend pages that never use them.
+        $this->callAfterResolving(\EvoUI\EvoUI::class, static function (\EvoUI\EvoUI $evoUi): void {
+            $evoUi->registerComponent('evo-core.system-info', \EvolutionCMS\Livewire\SystemInfo::class);
+        });
     }
 
     /**

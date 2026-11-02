@@ -6171,6 +6171,10 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             return false;
         }
 
+        if ($this->onDemandProviders !== null) {
+            $this->loadOnDemandProvidersForEvent((string) $evtName);
+        }
+
         $out = $this['events']->dispatch('evolution.' . $evtName, [$extParams]);
         if ($out === false) {
             return false;
