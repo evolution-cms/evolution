@@ -434,7 +434,12 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
 #mainMenu .nav li.item-group > *:first-child {
     width: 100%;
 }
-#mainMenu .nav li.item-group > *:not(:first-child) .fa {
+/* an icon-only button beside the item: centred, without the gap menu icons keep before their label */
+#mainMenu .nav li.item-group > *:not(:first-child) {
+    vertical-align: middle;
+}
+#mainMenu .nav li.item-group > *:not(:first-child) .fa,
+#mainMenu .nav li.item-group > *:not(:first-child) svg {
     margin-right: 0;
 }
 /* statusbar */
