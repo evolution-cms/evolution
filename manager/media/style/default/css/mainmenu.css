@@ -266,7 +266,8 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
     top: 100%;
     left: 0;
     margin: 0;
-    padding: 0 0 0.25rem;
+    /* no bottom padding: the last item reaches the rounded edge (overflow clips it), so its hover leaves no strip */
+    padding: 0;
     min-width: 15rem;
     max-height: -webkit-calc(100vh - var(--manager-menu-height, 2.2rem));
     max-height: calc(100vh - var(--manager-menu-height, 2.2rem));
@@ -302,6 +303,11 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
 #mainMenu .nav > li > ul > li:last-child {
     border: none;
     margin-bottom: 0;
+}
+/* no separator below the last item: one more pixel keeps it as tall as the others, in its own hover colour */
+#mainMenu .nav > li > ul > li:last-child > a:first-child,
+#mainMenu .nav > li > ul > li:last-child > span:first-child {
+    padding-bottom: 1px;
 }
 #mainMenu .nav > li > ul > li.item-input {
     padding: 0.375em 0.5em;
@@ -434,7 +440,12 @@ body.sidebar-closed #bars .icon-collapse { display: none !important; }
 #mainMenu .nav li.item-group > *:first-child {
     width: 100%;
 }
-#mainMenu .nav li.item-group > *:not(:first-child) .evo-icon {
+/* an icon-only button beside the item: centred, without the gap menu icons keep before their label */
+#mainMenu .nav li.item-group > *:not(:first-child) {
+    vertical-align: middle;
+}
+#mainMenu .nav li.item-group > *:not(:first-child) .evo-icon,
+#mainMenu .nav li.item-group > *:not(:first-child) svg {
     margin-right: 0;
 }
 /* statusbar */
