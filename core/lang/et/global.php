@@ -457,7 +457,7 @@ $_lang["htmlsnippet_msg"] = 'Lisage ja muutke HTML-plokke. Pidage meeles, et HTM
 $_lang["htmlsnippet_name"] = 'HTML-ploki nimi';
 $_lang["htmlsnippet_title"] = 'Loo/muuda HTML-plokki';
 $_lang["icon"] = 'Ikoon';
-$_lang["icon_description"] = 'CSS-klassi väärtus, nt fa&nbsp;fa-star';
+$_lang["icon_description"] = 'CSS-klassi väärtus, nt evo-icon&nbsp;evo-icon-star';
 $_lang["id"] = 'ID';
 $_lang["illegal_parent_child"] = 'Ülemressursi määramine:\n\nRessurss on valitud ressursi alamressurss.';
 $_lang["illegal_parent_self"] = 'Ülemressursi määramine:\n\nValitud ressurssi ei saa määrata iseenda ülemressursiks.';
@@ -562,7 +562,7 @@ $_lang["manager_theme_mode1"] = 'kõik on hele';
 $_lang["manager_theme_mode2"] = 'päis on tume';
 $_lang["manager_theme_mode3"] = 'päis ja külgriba on tumedad';
 $_lang["manager_theme_mode4"] = 'kõik on tume';
-$_lang['manager_theme_mode_message'] = 'Seda seadet kasutatakse vaikeväärtusena ja haldur saab selle muuta ressursipuus oleva kujunduse värvirežiimi lülitusnupuga: <i class="fa fa-lg fa-adjust"></i>';
+$_lang['manager_theme_mode_message'] = 'Seda seadet kasutatakse vaikeväärtusena ja haldur saab selle muuta ressursipuus oleva kujunduse värvirežiimi lülitusnupuga: <i class="evo-icon evo-icon-lg evo-icon-brightness-half"></i>';
 $_lang['manager_theme_mode_title'] = 'Kujunduse värvirežiimi lüliti';
 $_lang["meta_keywords"] = 'META-märksõnad';
 $_lang["metatag_intro"] = 'Sellel lehel saate META-silte kustutada, luua ja muuta. META-siltide sidumiseks ressurssidega avage ressursi muutmisel vahekaart <u>META-märksõnad</u> ning valige soovitud META-sildid ja märksõnad. Uue sildi lisamiseks sisestage nimi ja väärtus ning klõpsake nuppu \'Lisa silt\'. Sildi muutmiseks klõpsake tabelis selle nime.';

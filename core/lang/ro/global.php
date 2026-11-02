@@ -457,7 +457,7 @@ $_lang["htmlsnippet_msg"] = 'Adăugați și editați fragmente. Rețineți că f
 $_lang["htmlsnippet_name"] = 'Numele fragmentului';
 $_lang["htmlsnippet_title"] = 'Creează/editează fragmentul';
 $_lang["icon"] = 'Pictogramă';
-$_lang["icon_description"] = 'Valoarea clasei CSS. De exemplu, fa&nbsp;fa-star';
+$_lang["icon_description"] = 'Valoarea clasei CSS. De exemplu, evo-icon&nbsp;evo-icon-star';
 $_lang["id"] = 'ID';
 $_lang["illegal_parent_child"] = 'Atribuirea părintelui:\n\nResursa este un descendent al resursei selectate.';
 $_lang["illegal_parent_self"] = 'Atribuirea părintelui:\n\nResursa selectată nu poate fi propriul său părinte.';
@@ -562,7 +562,7 @@ $_lang["manager_theme_mode1"] = 'totul este luminos';
 $_lang["manager_theme_mode2"] = 'antetul este întunecat';
 $_lang["manager_theme_mode3"] = 'antetul și bara laterală sunt întunecate';
 $_lang["manager_theme_mode4"] = 'totul este întunecat';
-$_lang['manager_theme_mode_message'] = 'Această setare este folosită ca valoare "implicită" și poate fi suprascrisă de administrator folosind butonul de schimbare a modului de culoare al temei din arborele de resurse: <i class="fa fa-lg fa-adjust"></i>';
+$_lang['manager_theme_mode_message'] = 'Această setare este folosită ca valoare "implicită" și poate fi suprascrisă de administrator folosind butonul de schimbare a modului de culoare al temei din arborele de resurse: <i class="evo-icon evo-icon-lg evo-icon-brightness-half"></i>';
 $_lang['manager_theme_mode_title'] = 'Comutare mod de culoare al temei';
 $_lang["meta_keywords"] = 'Cuvinte-cheie META';
 $_lang["metatag_intro"] = 'Pe această pagină puteți șterge, crea sau edita etichete META. Pentru a asocia etichete META cu resurse, faceți clic pe fila <u>Cuvinte-cheie META</u> când editați resursa și selectați etichetele META și cuvintele-cheie dorite. Pentru a adăuga o etichetă nouă, introduceți numele și valoarea și faceți clic pe butonul \'Adaugă etichetă\'. Pentru a edita eticheta, faceți clic pe numele acesteia în tabel.';

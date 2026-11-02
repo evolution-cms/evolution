@@ -53,7 +53,7 @@ switch (true)
                 'cols'      => 'col-lg-12',
                 'headAttr'  => 'style="color:#E84B39;"',
                 'bodyAttr'  => '',
-                'icon'      => 'fa-warning',
+                'icon'      => 'evo-icon-alert-triangle',
                 'title'     => '' . $wdgTitle . ' ' . $button . '',
                 'body'      => '<div class="card-body">' . $out . '</div>',
                 'hide'      => '0'

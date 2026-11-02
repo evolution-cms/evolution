@@ -457,7 +457,7 @@ $_lang["htmlsnippet_msg"] = 'Pievienojiet un rediģējiet fragmentus. Atcerietie
 $_lang["htmlsnippet_name"] = 'Fragmenta nosaukums';
 $_lang["htmlsnippet_title"] = 'Izveidot/rediģēt fragmentu';
 $_lang["icon"] = 'Ikona';
-$_lang["icon_description"] = 'CSS klases vērtība. Piem., fa&nbsp;fa-star';
+$_lang["icon_description"] = 'CSS klases vērtība. Piem., evo-icon&nbsp;evo-icon-star';
 $_lang["id"] = 'ID';
 $_lang["illegal_parent_child"] = 'Vecākresursa piešķiršana:\n\nResurss ir atlasītā resursa bērnresurss.';
 $_lang["illegal_parent_self"] = 'Vecākresursa piešķiršana:\n\nAtlasīto resursu nevar piešķirt pašu sev.';
@@ -562,7 +562,7 @@ $_lang["manager_theme_mode1"] = 'viss ir gaišs';
 $_lang["manager_theme_mode2"] = 'galvene ir tumša';
 $_lang["manager_theme_mode3"] = 'galvene un sānjosla ir tumšas';
 $_lang["manager_theme_mode4"] = 'viss ir tumšs';
-$_lang['manager_theme_mode_message'] = 'Šis iestatījums tiek izmantots kā "noklusējums", un administrators to var mainīt ar motīva krāsu režīma pārslēgšanas pogu resursu kokā: <i class="fa fa-lg fa-adjust"></i>';
+$_lang['manager_theme_mode_message'] = 'Šis iestatījums tiek izmantots kā "noklusējums", un administrators to var mainīt ar motīva krāsu režīma pārslēgšanas pogu resursu kokā: <i class="evo-icon evo-icon-lg evo-icon-brightness-half"></i>';
 $_lang['manager_theme_mode_title'] = 'Motīva krāsu režīma pārslēgšana';
 $_lang["meta_keywords"] = 'META atslēgvārdi';
 $_lang["metatag_intro"] = 'Šajā lapā varat dzēst, izveidot vai rediģēt META tagus. Lai saistītu META tagus ar resursiem, resursa rediģēšanas laikā noklikšķiniet uz cilnes <u>META atslēgvārdi</u> un atlasiet vajadzīgos META tagus un atslēgvārdus. Lai pievienotu jaunu tagu, ievadiet nosaukumu un vērtību un noklikšķiniet uz pogas \'Pievienot tagu\'. Lai rediģētu tagu, noklikšķiniet uz tā nosaukuma tabulā.';

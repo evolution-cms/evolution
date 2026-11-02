@@ -63,7 +63,7 @@
 #treeDropMarker { display: none; position: absolute; z-index: 2; right: 0; height: 0; margin-left: -1.55em; pointer-events: none; }
 #treeDropMarker.visible { display: block; }
 #treeDropMarker.line { margin-top: -1px; border-top: 2px solid #22a447; }
-#treeDropMarker::before { content: "\f0a9"; position: absolute; left: -1em; top: -0.5em; width: 1em; height: 1em; font: 900 0.875em/1em 'Font Awesome 5 Free'; text-align: center; color: #22a447; }
+#treeDropMarker::before { content: ""; position: absolute; left: -1em; top: -0.5em; width: 1em; height: 1em; font-size: 0.875em; background-color: currentColor; -webkit-mask: var(--evo-icon-circle-arrow-right) center/contain no-repeat; mask: var(--evo-icon-circle-arrow-right) center/contain no-repeat; color: #22a447; }
 #treeDropMarker.line::before { margin-top: -1px; }
 .treeRoot .icon { cursor: pointer; -webkit-transition-duration: 0.15s; transition-duration: 0.15s }
 .treeRoot .icon:hover > .evo-icon { color: #000 }

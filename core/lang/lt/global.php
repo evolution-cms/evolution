@@ -457,7 +457,7 @@ $_lang["htmlsnippet_msg"] = 'Pridėkite ir redaguokite fragmentus. Atminkite, ka
 $_lang["htmlsnippet_name"] = 'Fragmento pavadinimas';
 $_lang["htmlsnippet_title"] = 'Kurti / redaguoti fragmentą';
 $_lang["icon"] = 'Piktograma';
-$_lang["icon_description"] = 'CSS klasės reikšmė. Pvz., fa&nbsp;fa-star';
+$_lang["icon_description"] = 'CSS klasės reikšmė. Pvz., evo-icon&nbsp;evo-icon-star';
 $_lang["id"] = 'ID';
 $_lang["illegal_parent_child"] = 'Pirminio ištekliaus priskyrimas:\n\nIšteklius yra pasirinkto ištekliaus antrinis išteklius.';
 $_lang["illegal_parent_self"] = 'Pirminio ištekliaus priskyrimas:\n\nPasirinkto ištekliaus negalima priskirti pačiam sau.';
@@ -562,7 +562,7 @@ $_lang["manager_theme_mode1"] = 'viskas šviesu';
 $_lang["manager_theme_mode2"] = 'antraštė tamsi';
 $_lang["manager_theme_mode3"] = 'antraštė ir šoninė juosta tamsios';
 $_lang["manager_theme_mode4"] = 'viskas tamsu';
-$_lang['manager_theme_mode_message'] = 'Šis nustatymas naudojamas kaip "numatytasis" ir administratorius gali jį pakeisti išteklių medyje esančiu temos spalvų režimo perjungimo mygtuku: <i class="fa fa-lg fa-adjust"></i>';
+$_lang['manager_theme_mode_message'] = 'Šis nustatymas naudojamas kaip "numatytasis" ir administratorius gali jį pakeisti išteklių medyje esančiu temos spalvų režimo perjungimo mygtuku: <i class="evo-icon evo-icon-lg evo-icon-brightness-half"></i>';
 $_lang['manager_theme_mode_title'] = 'Temos spalvų režimo perjungimas';
 $_lang["meta_keywords"] = 'META raktažodžiai';
 $_lang["metatag_intro"] = 'Šiame puslapyje galite trinti, kurti arba redaguoti META žymas. Norėdami susieti META žymas su ištekliais, redaguodami išteklių spustelėkite skirtuką <u>META raktažodžiai</u> ir pasirinkite norimas META žymas bei raktažodžius. Norėdami pridėti naują žymą, įveskite pavadinimą ir reikšmę ir spustelėkite mygtuką \'Pridėti žymą\'. Norėdami redaguoti žymą, spustelėkite jos pavadinimą lentelėje.';

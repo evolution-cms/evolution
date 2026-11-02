@@ -457,7 +457,7 @@ $_lang["htmlsnippet_msg"] = 'Chunklarni qo‘shing va tahrirlang. Chunklar \'xom
 $_lang["htmlsnippet_name"] = 'Chunk nomi';
 $_lang["htmlsnippet_title"] = 'Chunk yaratish/tahrirlash';
 $_lang["icon"] = 'Belgi';
-$_lang["icon_description"] = 'CSS klassi qiymati. Masalan, fa&nbsp;fa-star';
+$_lang["icon_description"] = 'CSS klassi qiymati. Masalan, evo-icon&nbsp;evo-icon-star';
 $_lang["id"] = 'ID';
 $_lang["illegal_parent_child"] = 'Ota resursni belgilash:\n\nResurs tanlangan resursning quyi resursidir.';
 $_lang["illegal_parent_self"] = 'Ota resursni belgilash:\n\nTanlangan resurs o‘ziga ota resurs qilib belgilanmaydi.';
@@ -562,7 +562,7 @@ $_lang["manager_theme_mode1"] = 'hammasi och rangda';
 $_lang["manager_theme_mode2"] = 'sarlavha qismi to‘q rangda';
 $_lang["manager_theme_mode3"] = 'sarlavha qismi va yon panel to‘q rangda';
 $_lang["manager_theme_mode4"] = 'hammasi to‘q rangda';
-$_lang['manager_theme_mode_message'] = 'Bu sozlama "standart" qiymat sifatida ishlatiladi va administrator uni resurslar daraxtidagi mavzu rang rejimini almashtirish tugmasi orqali o‘zgartirishi mumkin: <i class="fa fa-lg fa-adjust"></i>';
+$_lang['manager_theme_mode_message'] = 'Bu sozlama "standart" qiymat sifatida ishlatiladi va administrator uni resurslar daraxtidagi mavzu rang rejimini almashtirish tugmasi orqali o‘zgartirishi mumkin: <i class="evo-icon evo-icon-lg evo-icon-brightness-half"></i>';
 $_lang['manager_theme_mode_title'] = 'Mavzu rang rejimini almashtirish';
 $_lang["meta_keywords"] = 'META kalit so‘zlari';
 $_lang["metatag_intro"] = 'Bu sahifada META teglarini o‘chirishingiz, yaratishingiz yoki tahrirlashingiz mumkin. META teglarini resurslarga bog‘lash uchun resursni tahrirlashda <u>META kalit so‘zlari</u> ichki oynasini bosing va kerakli META teglari hamda kalit so‘zlarni tanlang. Yangi teg qo‘shish uchun nom va qiymatni kiriting va \'Teg qo‘shish\' tugmasini bosing. Tegni tahrirlash uchun jadvaldagi teg nomini bosing.';
