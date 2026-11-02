@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent;
  * @property string $action
  * @property int $id
  *
- * @method static \Illuminate\Database\Eloquent\Builder|\EvolutionCMS\Models\ActiveUser locked($action, $id = null, $userId = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|\EvolutionCMS\Models\ActiveUser locked($action, $id = null, $userId = null, ?int $aliveSince = null)
  *
  * @mixin \Eloquent
  */
@@ -38,14 +38,20 @@ class ActiveUser extends Eloquent\Model
         'id'
     ];
 
-    public function scopeLocked(Eloquent\Builder $builder, $action, $id = null, $userId = null)
+    public function scopeLocked(Eloquent\Builder $builder, $action, $id = null, $userId = null, ?int $aliveSince = null)
     {
         if ($userId === null) {
             $userId = evo()->getLoginUserID();
         }
+        if ($aliveSince === null) {
+            $aliveSince = ActiveUserSession::validSince(time(), (int) evo()->getConfig('session_timeout'));
+        }
 
+        // A row stays here after its manager is gone (closed browser, expired session) until they open
+        // another page, so only a manager who is still signed in holds the page.
         $builder = $builder->where('action', '=', (int)$action)
             ->where('internalKey', '!=', $userId)
+            ->whereIn('internalKey', ActiveUserSession::query()->select('internalKey')->where('lasthit', '>=', $aliveSince))
             ->orderBy('lasthit', 'DESC');
 
         if ($id !== null) {

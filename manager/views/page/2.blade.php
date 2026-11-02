@@ -21,7 +21,9 @@
     <?php /*include_once evolutionCMS()->get('ManagerTheme')->getFileProcessor("actions/welcome.static.php");*/
     unset($_SESSION['itemname'], $_SESSION['itemaction']); // clear this, because it's only set for logging purposes
 
-    if (evo()->hasPermission('settings') && evo()->getConfig('settings_version') !== evo()->getVersionData('version')) {
+    // not while another manager holds the settings: their page would alert and go back here, and loop
+    if (evo()->hasPermission('settings') && evo()->getConfig('settings_version') !== evo()->getVersionData('version')
+        && !\EvolutionCMS\Models\ActiveUser::locked(17)->exists()) {
         // seems to be a new install - send the user to the configuration page
         exit('<script type="text/javascript">document.location.href="index.php?a=17";</script>');
     }
