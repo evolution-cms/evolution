@@ -133,17 +133,6 @@ function setup() {
   return { browser, page };
 }
 
-test('the subfolder of a folder that leads to a deeper path', () => {
-  const { browser } = setup();
-
-  assert.equal(browser.subDirOnPath('images', 'images/team/2024'), 'team');
-  assert.equal(browser.subDirOnPath('images', 'images/team'), 'team');
-  assert.equal(browser.subDirOnPath('images', 'images'), undefined);
-  assert.equal(browser.subDirOnPath('images', 'images-old/team'), undefined);
-  assert.equal(browser.subDirOnPath('images/team', 'images'), undefined);
-  assert.equal(browser.subDirOnPath('images', undefined), undefined);
-});
-
 test('a listed folder is found in the tree without loading anything when its branch is there', () => {
   const { browser, page } = setup();
   treeNode(subfolders(page.images), 'images/team');
@@ -292,16 +281,86 @@ function openWithChDir(browser, page, target) {
   return ordered;
 }
 
-test('going up the tree selects the folder it came from in the file list', () => {
+// images > team > 2024, with 2024 open in the file list
+function nested() {
   const { browser, page } = setup();
   page.images.a.kids[1].cls.delete('current');
   page.images.a.kids[1].cls.add('regular');
+  const team = treeNode(subfolders(page.images), 'images/team', { brace: 'opened' });
+  const year = treeNode(subfolders(team), 'images/team/2024', { current: true });
   browser.dir = 'images/team/2024';
+  return { browser, page, team, year };
+}
 
-  const ordered = openWithChDir(browser, page, page.images);
+function clickTreeFolder(browser, page, node) {
+  openWithChDir(browser, page, node);
+  browser.selectTreeFolder(wrap([node.a]));
+}
 
-  assert.deepEqual(ordered, ['team']);
+test('clicking the root of three nested tree folders selects it alone, not the folder it came from', () => {
+  const { browser, page } = nested();
+  const ordered = [];
+  page.$.ajax = (options) => options.success({ files: [], links: [], dirWritable: true });
+  Object.assign(browser, {
+    loadingHtml: () => '', check4errors: () => false, updateWriteControls() {}, opener: {}, baseGetData: (act) => act,
+    orderFiles: (callBack, selected) => ordered.push(selected),
+  });
+
+  browser.openTreeFolder(wrap([page.images.a]));
+
   assert.equal(browser.dir, 'images');
+  assert.deepEqual(ordered, [undefined]);
+  assert.deepEqual(page.selectedInTree(), ['images']);
+});
+
+test('clicking the open tree folder deselects everything in the file list and selects it', () => {
+  const { browser, page, year } = nested();
+  page.card('photo.png', false, true);
+  page.card('old', true, true);
+
+  browser.openTreeFolder(wrap([year.a]));
+
+  assert.equal(page.$('#files .file.selected').length, 0);
+  assert.deepEqual(page.selectedInTree(), ['images/team/2024']);
+});
+
+test('the folder selected in the tree stays selected while nothing is picked in the file list', () => {
+  const { browser, page, team } = nested();
+  clickTreeFolder(browser, page, team);
+
+  browser.syncTreeSelection();
+
+  assert.deepEqual(page.selectedInTree(), ['images/team']);
+});
+
+test('selecting in the file list replaces the folder selected in the tree', () => {
+  const { browser, page, team } = nested();
+  clickTreeFolder(browser, page, team);
+  const card = page.card('photo.png', false);
+
+  browser.selectFolder(wrap([card]));
+  browser.clearSelection();
+
+  assert.deepEqual(page.selectedInTree(), []);
+  assert.equal(browser.treeSelection, null);
+});
+
+test('clicking empty space in the file list clears the folder selected in the tree', () => {
+  const { browser, page, team } = nested();
+  clickTreeFolder(browser, page, team);
+
+  browser.clearSelection();
+
+  assert.deepEqual(page.selectedInTree(), []);
+});
+
+test('a folder opened from the file list does not bring back an earlier tree selection', () => {
+  const { browser, page, team, year } = nested();
+  clickTreeFolder(browser, page, team);
+
+  openWithChDir(browser, page, year);
+
+  assert.deepEqual(page.selectedInTree(), []);
 });
 
 test('going down or sideways selects nothing in the file list', () => {

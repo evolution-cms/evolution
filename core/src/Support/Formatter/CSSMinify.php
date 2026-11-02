@@ -13,6 +13,26 @@ class CSSMinify
         }
     }
 
+    /**
+     * True when the bundle is missing or older than one of its sources, so a changed
+     * theme stylesheet reaches sites whose bundle was built before an update.
+     */
+    public static function isStale(string $target, array $files): bool
+    {
+        if (!is_file($target)) {
+            return true;
+        }
+
+        $built = filemtime($target);
+        foreach ($files as $file) {
+            if (is_string($file) && is_file($file) && filemtime($file) > $built) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function addFile($cssFilePath)
     {
         $this->cssPath[] = $cssFilePath;

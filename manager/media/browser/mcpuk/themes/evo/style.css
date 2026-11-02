@@ -21,6 +21,8 @@ div.folder { white-space: nowrap; }
 div.folder a { display: inline-block; text-decoration: none; cursor: default; outline: none; color: #000; }
 span.folder { display: inline-block; font-size: 1.1rem; line-height: 1.2rem; padding: 2px 3px 2px 3px; outline: none; background: no-repeat 3px center; cursor: pointer; border: 1px solid transparent; }
 span.brace { float: left; width: 1.6rem; height: 1.6rem; padding-left: 0; line-height: 1.9rem; font-size: 0; text-align: center; outline: none; }
+span.brace.opened, span.brace.closed { cursor: pointer; border-radius: 50%; }
+span.brace.opened:hover, span.brace.closed:hover { background-color: rgba(0, 0, 0, 0.07); }
 span.current { background-color: #e4f0fa; border-color: #e4f0fa; color: #0e80cb; }
 span.current:before { display: inline-block;  content:"";display:inline-block;width:1em;height:1em;vertical-align:middle;background-color:currentColor;-webkit-mask:var(--evo-icon-folder-open) center/contain no-repeat;mask:var(--evo-icon-folder-open) center/contain no-repeat; width: 1.3em; font-size: 1.3rem; line-height: .8em; vertical-align: middle; color: #565656; font-weight:900}
 span.regular { background-color: #f8f7f6; }
