@@ -1908,6 +1908,27 @@ if(!function_exists('rrmdir')) {
     }
 }
 
+if (!function_exists('fileManagerUploadSummary')) {
+    /**
+     * The head of an upload report: how many of the files the user picked were stored, and how many never
+     * reached PHP, which drops every file past max_file_uploads without a trace.
+     */
+    function fileManagerUploadSummary(array $lang, int $selected, int $received, int $uploaded, int $maxFileUploads): string
+    {
+        $total = max($selected, $received);
+        $text = static fn (string $key, array $values): string => htmlspecialchars(vsprintf($lang[$key] ?? $key, $values), ENT_QUOTES, 'UTF-8');
+        $html = '<p class="upload-summary"><span class="' . ($uploaded < $total ? 'warning' : 'success') . '"><b>'
+            . $text('files_upload_summary', [$uploaded, $total]) . '</b></span></p>';
+        if ($selected > $received) {
+            $html .= '<p class="upload-dropped"><span class="warning">'
+                . $text('files_upload_not_received', [$selected - $received, $maxFileUploads]) . ' '
+                . $text('files_upload_zip_hint', []) . '</span></p>';
+        }
+
+        return $html;
+    }
+}
+
 if(!function_exists('fileupload')) {
     /**
      * @return string
@@ -1945,10 +1966,16 @@ if(!function_exists('fileupload')) {
             $dirGroupIds = fileManagerEffectiveGroupIds($dirRel);
         }
         $inheritInserts = [];
+        $received = 0;
+        $uploaded = 0;
         foreach ($_FILES['userfile']['name'] as $i => $name) {
-            if (empty($_FILES['userfile']['tmp_name'][$i])) {
+            // only an empty file field; a file PHP refused (too large, partial) has no tmp_name either and is reported
+            if ((int) ($_FILES['userfile']['error'][$i] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
                 continue;
             }
+            $received++;
+            $fileMsg = '';
+            $fileUploaded = false;
             $userfile = [];
 
             $userfile['tmp_name'] = $_FILES['userfile']['tmp_name'][$i];
@@ -1971,11 +1998,11 @@ if(!function_exists('fileupload')) {
             // this seems to be an upload action.
             $rel_path = ltrim(substr($startpath, strlen($filemanager_path)), '/');
             $path = EVO_SITE_URL . ($rel_path ? $rel_path . '/' : '') . $userfile['name'];
-            $msg .= htmlspecialchars($path, ENT_QUOTES, 'UTF-8');
+            $fileMsg .= htmlspecialchars($path, ENT_QUOTES, 'UTF-8');
             if ($userfile['error'] == 0) {
                 $img = (strpos($userfile['type'],'image') !== false) ? '<br /><img src="'
                     . htmlspecialchars($path, ENT_QUOTES, 'UTF-8') . '" height="75" />' : '';
-                $msg .= "<p>" . $_lang['files_file_type'] . htmlspecialchars($userfile['type'], ENT_QUOTES,
+                $fileMsg .= "<p>" . $_lang['files_file_type'] . htmlspecialchars($userfile['type'], ENT_QUOTES,
                         'UTF-8') . ", " . niceSize(filesize($userfile['tmp_name'])) . $img . '</p>';
             }
 
@@ -1984,7 +2011,7 @@ if(!function_exists('fileupload')) {
             if (is_uploaded_file($userfilename)) {
                 // file is uploaded file, process it!
                 if (!checkExtension($userfile['name'])) {
-                    $msg .= '<p><span class="warning">' . $_lang['files_filetype_notok'] . '</span></p>';
+                    $fileMsg .= '<p><span class="warning">' . $_lang['files_filetype_notok'] . '</span></p>';
                 } else {
                     $targetFile = $startpath . '/' . $userfile['name'];
                     // a replaced file is a modified file: its own restrictions apply, not just the folder's.
@@ -1993,14 +2020,16 @@ if(!function_exists('fileupload')) {
                     $replacing = file_exists($targetFile);
                     if ($replacing && !fileManagerCanModifyExistingPath($existingRel)) {
                         fileManagerLogDenied('upload over existing file', $existingRel, 'file group');
-                        $msg .= '<p><span class="warning">' . $_lang['files_access_denied'] . '</span></p>';
+                        $fileMsg .= '<p><span class="warning">' . $_lang['files_access_denied'] . '</span></p>';
                     } elseif (@move_uploaded_file($userfile['tmp_name'], $targetFile)) {
                         // Ryan: Repair broken permissions issue with file manager
                         if (strtoupper(substr(PHP_OS, 0, 3)) != 'WIN') {
                             @chmod($targetFile, $new_file_permissions);
                         }
                         // Ryan: End
-                        $msg .= '<p><span class="success">' . $_lang['files_upload_ok'] . '</span></p><hr/>';
+                        $fileMsg .= '<p><span class="success">' . $_lang['files_upload_ok'] . '</span></p><hr/>';
+                        $uploaded++;
+                        $fileUploaded = true;
 
                         // invoke OnFileManagerUpload event
                         $modx->invokeEvent('OnFileManagerUpload', [
@@ -2018,41 +2047,48 @@ if(!function_exists('fileupload')) {
                             }
                         }
                     } else {
-                        $msg .= '<p><span class="warning">' . $_lang['files_upload_copyfailed'] . '</span> '
+                        $fileMsg .= '<p><span class="warning">' . $_lang['files_upload_copyfailed'] . '</span> '
                             . $_lang["files_upload_permissions_error"] . '</p>';
                     }
                 }
             } else {
-                $msg .= '<br /><span class="warning"><b>' . $_lang['files_upload_error'] . ':</b>';
+                $fileMsg .= '<br /><span class="warning"><b>' . $_lang['files_upload_error'] . ':</b>';
                 switch ($userfile['error']) {
                     case 0: //no error; possible file attack!
-                        $msg .= $_lang['files_upload_error0'];
+                        $fileMsg .= $_lang['files_upload_error0'];
                         break;
                     case 1: //uploaded file exceeds the upload_max_filesize directive in php.ini
-                        $msg .= $_lang['files_upload_error1'];
+                        $fileMsg .= $_lang['files_upload_error1'];
                         break;
                     case 2: //uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the html form
-                        $msg .= $_lang['files_upload_error2'];
+                        $fileMsg .= $_lang['files_upload_error2'];
                         break;
                     case 3: //uploaded file was only partially uploaded
-                        $msg .= $_lang['files_upload_error3'];
+                        $fileMsg .= $_lang['files_upload_error3'];
                         break;
                     case 4: //no file was uploaded
-                        $msg .= $_lang['files_upload_error4'];
+                        $fileMsg .= $_lang['files_upload_error4'];
                         break;
                     default: //a default error, just in case!  :)
-                        $msg .= $_lang['files_upload_error5'];
+                        $fileMsg .= $_lang['files_upload_error5'];
                         break;
                 }
-                $msg .= '</span><br />';
+                $fileMsg .= '</span><br />';
             }
+            // one block per file, so a page can show the failed ones first
+            $msg .= '<div class="upload-file ' . ($fileUploaded ? 'upload-ok' : 'upload-failed') . '">' . $fileMsg . '</div>';
         }
 
         if (!empty($inheritInserts)) {
             \EvolutionCMS\Models\FileGroup::query()->insertOrIgnore($inheritInserts);
         }
 
-        return $msg . '<br/>';
+        // the number of files the browser sent in this request, to tell the ones PHP dropped
+        $selected = max(0, (int) ($_POST['upload_selected'] ?? 0));
+        $summary = fileManagerUploadSummary($_lang, $selected, $received, $uploaded, (int) ini_get('max_file_uploads'));
+
+        return '<div id="uploadReport" data-uploaded="' . $uploaded . '" data-total="' . max($selected, $received) . '">'
+            . $summary . $msg . '</div><br/>';
     }
 }
 

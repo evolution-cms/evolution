@@ -903,8 +903,11 @@ class ManagerTheme implements ManagerThemeInterface
         $minCssName = 'css/styles.min.css';
 
         $minCssPath = $this->getThemeDir() . $minCssName;
-        if (!file_exists($minCssPath) && is_writable($this->getThemeDir() . 'css')) {
-            $files = $this->getCssFiles();
+        $sources = $this->getCssFiles();
+        if (\EvolutionCMS\Support\Formatter\CSSMinify::isStale($minCssPath, $sources)
+            && is_writable($this->getThemeDir() . 'css')
+        ) {
+            $files = $sources;
             if (!empty($files)) {
                 $evtOut = $this->getCore()->invokeEvent('OnBeforeMinifyCss', [
                     'files' => $files,
@@ -929,13 +932,16 @@ class ManagerTheme implements ManagerThemeInterface
                 $minifier = new \EvolutionCMS\Support\Formatter\CSSMinify($files);
                 $css = $minifier->minify();
                 file_put_contents($minCssPath, $css);
+                clearstatcache(true, $minCssPath);
             }
         }
+        $revision = '';
         if (file_exists($minCssPath)) {
             $css = $this->getThemeUrl() . $minCssName;
+            $revision = '.' . filemtime($minCssPath);
         }
 
-        return $css . '?v=' . $this->getCore()->getVersionData('version');
+        return $css . '?v=' . $this->getCore()->getVersionData('version') . $revision;
     }
 
     public function getMainFrameHeaderHTMLBlock(): string

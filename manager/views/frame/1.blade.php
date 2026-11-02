@@ -218,6 +218,7 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
         window.modx = evo;
         window.tree = evo.tree;
     </script>
+    <script src="media/script/tree-drop-helper.js?v={{evo()->getVersionData('version')}}"></script>
     <script src="media/script/tree-drop-guard-helper.js?v={{evo()->getVersionData('version')}}"></script>
     <script src="media/script/tree-parent-guard-helper.js?v={{evo()->getVersionData('version')}}"></script>
     <script src="media/script/main-target-link-helper.js?v={{evo()->getVersionData('version')}}"></script>

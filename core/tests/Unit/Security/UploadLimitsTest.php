@@ -106,14 +106,16 @@ it('checks the discarded body in the manager before the session and headers star
         ->and($guard)->toBeLessThan(strpos($index, "header('Expires:"));
 });
 
-it('stops an oversized selection in the file manager before it is sent', function () {
+it('sends a file manager selection in batches PHP takes whole, never in one plain form post', function () {
     $source = (string) file_get_contents(dirname(__DIR__, 4) . '/manager/actions/files.dynamic.php');
 
-    expect($source)->toContain('onsubmit="return fileManagerUploadFits(this);"')
-        ->and($source)->toContain('onchange="if (fileManagerUploadFits(document.upload)) document.upload.submit();"')
-        ->and($source)->toContain("js_json(\$_lang['upload_file_too_large'])")
-        ->and($source)->toContain("js_json(\$_lang['upload_files_too_large'])")
-        ->and($source)->not->toContain('onchange="document.upload.submit();"');
+    // PHP drops the files past max_file_uploads and a whole body past post_max_size without a word
+    expect($source)->toContain('onsubmit="fileManagerUpload(this); return false;"')
+        ->and($source)->toContain('onchange="fileManagerUpload(document.upload);"')
+        ->and($source)->toContain("maxFiles: <?= (int) ini_get('max_file_uploads') ?>")
+        ->and($source)->toContain('postLimit: <?= (int) $uploadPostLimit ?>')
+        ->and($source)->toContain('<script src="media/script/upload-queue.js')
+        ->and($source)->not->toContain('document.upload.submit()');
 });
 
 it('gives JSON clients one plain message with both sizes', function () {
