@@ -12,6 +12,7 @@
  * @link http://kcfinder.sunhater.com
  */
 
+/** Embedded manager browser; path containment and file-group checks apply to every action. */
 class browser extends uploader
 {
     /** Name prefix of the temporary download archives; the cleanup removes nothing else. */
@@ -1598,6 +1599,10 @@ class browser extends uploader
             return true;
         }
         $parentKey = $this->getFileGroupsRelPath($parent);
+        if ($parentKey === null) {
+            $this->logDenied('file groups root cannot be resolved', $parent);
+            return false;
+        }
         $key = ltrim($parentKey . '/' . basename($absPath), '/');
         $userGroups = array_map('intval', (array)($_SESSION['mgrDocgroups'] ?? []));
 
@@ -1960,17 +1965,28 @@ class browser extends uploader
 
     /**
      * Convert an absolute filesystem path to a path relative to filemanager_path,
-     * as stored in the file_groups table. Returns '' if the path is outside the root.
+     * as stored in file_groups. A shared type root keeps its proven site-side key;
+     * an unrecognised root returns null so group-protected operations fail closed.
      *
      * @param string $absPath
-     * @return string
+     * @return string|null
      */
-    protected function getFileGroupsRelPath(string $absPath): string
+    protected function getFileGroupsRelPath(string $absPath): ?string
     {
         // the site-wide root, not the manager's own filemanager_path: groups are keyed by it
-        return \EvolutionCMS\Support\FileManagerAccess::getRelativePath(
-            \EvolutionCMS\Support\FileManagerAccess::aclRoot(),
-            $absPath
+        $aclRoot = \EvolutionCMS\Support\FileManagerAccess::aclRoot();
+        $direct = \EvolutionCMS\Support\FileBrowserAccess::resolveAclPath($aclRoot, $this->typeDir, $absPath);
+        if ($direct !== null) {
+            return $direct;
+        }
+
+        return \EvolutionCMS\Support\FileBrowserAccess::resolveAclPath(
+            $aclRoot,
+            $this->typeDir,
+            $absPath,
+            \EvolutionCMS\Support\FileBrowserAccess::localUploadPath(
+                (string) $this->typeURL, EVO_BASE_PATH, EVO_BASE_URL, EVO_SITE_URL
+            )
         );
     }
 
@@ -1997,15 +2013,23 @@ class browser extends uploader
         $userGroups = array_map('intval', (array)($_SESSION['mgrDocgroups'] ?? []));
         $itemRelativePaths = [];
         foreach ($absPaths as $ap) {
-            $itemRelativePaths[$ap] = $this->getFileGroupsRelPath($ap);
+            $key = $this->getFileGroupsRelPath($ap);
+            if ($key === null) {
+                $this->logDenied('file groups root cannot be resolved', $ap);
+                continue;
+            }
+            $itemRelativePaths[$ap] = $key;
         }
         $restricted = \EvolutionCMS\Support\FileManagerAccess::loadRestrictions(array_values($itemRelativePaths));
 
         $result = [];
         foreach ($absPaths as $ap) {
-            $relativePath = $itemRelativePaths[$ap] ?? '';
+            if (!array_key_exists($ap, $itemRelativePaths)) {
+                continue;
+            }
+            $relativePath = $itemRelativePaths[$ap];
             if ($relativePath === '') {
-                $result[] = $ap; // rel path unknown, let through
+                $result[] = $ap; // the ACL root itself has no per-entry row
                 continue;
             }
             if (\EvolutionCMS\Support\FileManagerAccess::isAccessible($relativePath, $userGroups, $restricted)) {
@@ -2040,6 +2064,10 @@ class browser extends uploader
         }
 
         $relPath = $this->getFileGroupsRelPath($absPath);
+        if ($relPath === null) {
+            $this->logDenied('file groups root cannot be resolved', $absPath);
+            return false;
+        }
         if ($relPath === '') {
             return true;
         }
@@ -2070,6 +2098,10 @@ class browser extends uploader
         }
 
         $relPath = $this->getFileGroupsRelPath($absPath);
+        if ($relPath === null) {
+            $this->logDenied('file groups root cannot be resolved', $absPath);
+            return false;
+        }
         if ($relPath === '') {
             return true;
         }
@@ -2095,7 +2127,12 @@ class browser extends uploader
             return fn ($path) => $this->isInsideTypeDir($path);
         }
 
-        $restrictions = \EvolutionCMS\Support\FileManagerAccess::loadSubtreeRestrictions($this->getFileGroupsRelPath($absDir));
+        $rootKey = $this->getFileGroupsRelPath($absDir);
+        if ($rootKey === null) {
+            $this->logDenied('file groups root cannot be resolved', $absDir);
+            return static fn ($path) => false;
+        }
+        $restrictions = \EvolutionCMS\Support\FileManagerAccess::loadSubtreeRestrictions($rootKey);
         $userGroups = array_map('intval', (array)($_SESSION['mgrDocgroups'] ?? []));
 
         return function ($path) use ($restrictions, $userGroups) {
@@ -2103,6 +2140,10 @@ class browser extends uploader
                 return false;
             }
             $relPath = $this->getFileGroupsRelPath($path);
+            if ($relPath === null) {
+                $this->logDenied('file groups root cannot be resolved', $path);
+                return false;
+            }
 
             return $relPath === ''
                 || \EvolutionCMS\Support\FileManagerAccess::isAccessible($relPath, $userGroups, $restrictions);
@@ -2168,6 +2209,10 @@ class browser extends uploader
         }
 
         $relPath = $this->getFileGroupsRelPath($absDir);
+        if ($relPath === null) {
+            $this->logDenied('file groups root cannot be resolved', $absDir);
+            return true;
+        }
         if ($relPath === '') {
             return false;
         }
