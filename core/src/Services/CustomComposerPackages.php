@@ -32,6 +32,27 @@ final class CustomComposerPackages
      */
     public const RECORD_FILE = 'custom/composer.installed.json';
 
+    /**
+     * After the files of an update are in place, make:site and the web installer build core/vendor
+     * from the release's lock with these, then rebuild the classmap-authoritative autoloader.
+     *
+     * @since 3.6.0
+     */
+    public const INSTALL_ARGUMENTS = 'install --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative --no-scripts';
+
+    /**
+     * @since 3.6.0
+     */
+    public const DUMP_AUTOLOAD_ARGUMENTS = 'dump-autoload -o --no-dev --classmap-authoritative --no-scripts';
+
+    /**
+     * Composer version that knows --minimal-changes. Here, not in a console command, because the web
+     * installer reads it before the new application can boot.
+     *
+     * @since 3.6.0
+     */
+    public const MINIMAL_CHANGES_SINCE = '2.7.0';
+
     public function __construct(private string $corePath)
     {
         $this->corePath = rtrim($corePath, '/\\') . '/';

@@ -6,7 +6,8 @@ use EvolutionCMS\Tracy\Debugger;
 use EvolutionCMS\Interfaces\TracyPanel;
 use Tracy\IBarPanel;
 
-if (session_status() == PHP_SESSION_NONE && (!defined('EVO_SESSION') || !EVO_SESSION) && !(class_exists('EvoSessionProxy', false) && \EvoSessionProxy::disabled())) {
+if (session_status() == PHP_SESSION_NONE && (!defined('EVO_SESSION') || !EVO_SESSION) && !(class_exists('EvoSessionProxy', false)
+        && (\EvoSessionProxy::disabled() || \EvoSessionProxy::startsAfterBoot()))) {
     session_start();
 }
 

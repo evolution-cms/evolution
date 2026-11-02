@@ -220,6 +220,14 @@ $_lang["opcache_memory_details"] = '(%s użyte / %s dostępne), %s trafień / %s
 $_lang["opcache_reset_unavailable"] = 'reset niedostępny';
 $_lang["opcache_reset_complete"] = 'reset zakończony';
 $_lang["opcache_reset_failed"] = 'reset nieudany';
+$_lang["worker_mode"] = 'Tryb workera';
+$_lang["sysinfo_worker_unavailable"] = 'wymaga FrankenPHP';
+$_lang["sysinfo_worker_ignored"] = 'EVO_WORKER_MODE=1 nie działa poza FrankenPHP';
+$_lang["sysinfo_worker_available"] = 'dostępny: ustaw EVO_WORKER_MODE=1 i EVO_WORKER_ORIGIN, a następnie uruchom ponownie serwer';
+$_lang["sysinfo_worker_no_origin"] = 'EVO_WORKER_ORIGIN nie jest ustawiony, workery nie zostaną uruchomione';
+$_lang["sysinfo_worker_new_app"] = 'nowa aplikacja na każde żądanie';
+$_lang["sysinfo_worker_kept_app"] = 'zachowana aplikacja, eksperymentalne';
+$_lang["sysinfo_worker_recycle"] = 'restartowany po %s żądaniach';
 $_lang["database_name"] = 'Baza danych - nazwa bazy';
 $_lang["database_overhead"] = '<b style=\'color:#990033\'>Wyjaśnienie:</b> nadmiar to nieużywane miejsce zarezerwowane przez MySQL. Aby je zwolnić, kliknij wartość nadmiaru dla odpowiedniej tabeli.';
 $_lang["database_server"] = 'Baza danych - serwer';

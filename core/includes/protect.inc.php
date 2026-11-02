@@ -5,7 +5,7 @@
 
 // Null is evil
 if (isset($_SERVER['QUERY_STRING']) && strpos(urldecode($_SERVER['QUERY_STRING']), chr(0)) !== false) {
-    die();
+    evo_exit();
 }
 
 modx_sanitize_gpc($_GET);

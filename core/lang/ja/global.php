@@ -227,6 +227,14 @@ $_lang["opcache_memory_details"] = '（%s 使用中 / %s 利用可能）、%s �
 $_lang["opcache_reset_unavailable"] = 'リセットは利用できません';
 $_lang["opcache_reset_complete"] = 'リセットが完了しました';
 $_lang["opcache_reset_failed"] = 'リセットに失敗しました';
+$_lang["worker_mode"] = 'ワーカーモード';
+$_lang["sysinfo_worker_unavailable"] = 'FrankenPHP が必要です';
+$_lang["sysinfo_worker_ignored"] = 'EVO_WORKER_MODE=1 は FrankenPHP 以外では効果がありません';
+$_lang["sysinfo_worker_available"] = '利用可能: EVO_WORKER_MODE=1 と EVO_WORKER_ORIGIN を設定してからサーバーを再起動してください';
+$_lang["sysinfo_worker_no_origin"] = 'EVO_WORKER_ORIGIN が設定されていないため、ワーカーは起動しません';
+$_lang["sysinfo_worker_new_app"] = 'リクエストごとに新しいアプリケーション';
+$_lang["sysinfo_worker_kept_app"] = 'アプリケーションを保持、実験的';
+$_lang["sysinfo_worker_recycle"] = '%s リクエスト後に再起動';
 $_lang["database_name"] = 'データベース名';
 $_lang["database_overhead"] = '<strong style="color:#990033">注:</strong> オーバーヘッドは MySQL が予約している未使用領域です。解放するには、対象テーブルのオーバーヘッド値をクリックしてください。';
 $_lang["database_server"] = 'データベースサーバー';

@@ -207,6 +207,14 @@ $_lang["opcache_memory_details"] = '(%s usado / %s disponível), %s acertos / %s
 $_lang["opcache_reset_unavailable"] = 'reset indisponível';
 $_lang["opcache_reset_complete"] = 'reset concluído';
 $_lang["opcache_reset_failed"] = 'reset falhou';
+$_lang["worker_mode"] = 'Modo worker';
+$_lang["sysinfo_worker_unavailable"] = 'requer FrankenPHP';
+$_lang["sysinfo_worker_ignored"] = 'EVO_WORKER_MODE=1 não tem efeito fora do FrankenPHP';
+$_lang["sysinfo_worker_available"] = 'disponível: defina EVO_WORKER_MODE=1 e EVO_WORKER_ORIGIN e reinicie o servidor';
+$_lang["sysinfo_worker_no_origin"] = 'EVO_WORKER_ORIGIN não está definido, os workers não serão iniciados';
+$_lang["sysinfo_worker_new_app"] = 'nova aplicação por pedido';
+$_lang["sysinfo_worker_kept_app"] = 'aplicação mantida, experimental';
+$_lang["sysinfo_worker_recycle"] = 'reciclado após %s pedidos';
 $_lang["database_name"] = 'Nome da Base de Dados';
 $_lang["database_overhead"] = '<b style=\'color:#990033\'>Nota:</b> a folga (overhead) é espaço não utilizado reservado pelo MySQL. Para libertá-la, clique no valor de folga da tabela correspondente.';
 $_lang["database_server"] = 'Servidor da Base de Dados';

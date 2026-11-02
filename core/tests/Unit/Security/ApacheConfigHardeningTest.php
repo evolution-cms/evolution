@@ -165,7 +165,8 @@ it('marks the session cookie Secure on https unless told otherwise', function ()
 
     expect($source)
         ->toContain("'secure' => env('SESSION_SECURE_COOKIE') ?? (")
-        ->toContain("\$_SERVER['HTTPS'] !== 'off'")
+        ->toContain("!empty(\$_SERVER['HTTPS'])")
+        ->toContain("strtolower(\$_SERVER['HTTPS']) !== 'off'")
         ->and($source)->not->toContain("env('SESSION_SECURE_COOKIE', false)");
 });
 

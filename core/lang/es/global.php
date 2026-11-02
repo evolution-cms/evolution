@@ -219,6 +219,14 @@ $_lang["opcache_memory_details"] = '(%s usado / %s disponible), %s aciertos / %s
 $_lang["opcache_reset_unavailable"] = 'restablecimiento no disponible';
 $_lang["opcache_reset_complete"] = 'restablecimiento completado';
 $_lang["opcache_reset_failed"] = 'restablecimiento fallido';
+$_lang["worker_mode"] = 'Modo worker';
+$_lang["sysinfo_worker_unavailable"] = 'requiere FrankenPHP';
+$_lang["sysinfo_worker_ignored"] = 'EVO_WORKER_MODE=1 no tiene efecto fuera de FrankenPHP';
+$_lang["sysinfo_worker_available"] = 'disponible: establezca EVO_WORKER_MODE=1 y EVO_WORKER_ORIGIN y reinicie el servidor';
+$_lang["sysinfo_worker_no_origin"] = 'EVO_WORKER_ORIGIN no está definido, los workers no se iniciarán';
+$_lang["sysinfo_worker_new_app"] = 'nueva aplicación por petición';
+$_lang["sysinfo_worker_kept_app"] = 'aplicación conservada, experimental';
+$_lang["sysinfo_worker_recycle"] = 'reciclado tras %s peticiones';
 $_lang["database_name"] = 'Nombre de la base de datos';
 $_lang["database_overhead"] = '<b style="color:#990033;">Nota:</b> la sobrecarga es espacio no utilizado reservado por MySQL. Para liberarlo, haz clic en el valor de sobrecarga de la tabla correspondiente.';
 $_lang["database_server"] = 'Servidor de BD';

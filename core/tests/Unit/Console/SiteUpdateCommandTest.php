@@ -123,7 +123,6 @@ test('site updater repairs composer vendor state before artisan commands', funct
         ->toContain('buildCustomComposerUpdateCommand')
         ->toContain('$this->composerDumpAutoloadCommand()')
         ->toContain("runCoreShellCommand('php artisan package:discover')")
-        ->toContain('--no-scripts')
         ->toContain('return self::FAILURE')
         ->toContain('catch (\Throwable $exception)')
         ->not->toContain('new Application()')

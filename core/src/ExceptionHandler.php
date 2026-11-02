@@ -44,7 +44,7 @@ class ExceptionHandler
 
     protected function registerHandlers(): void
     {
-        register_shutdown_function([$this, 'handleShutdown']);
+        evo_register_shutdown([$this, 'handleShutdown']);
         set_exception_handler([$this, 'handleException']);
         set_error_handler([$this, 'phpError']);
         $this->registered = true;
@@ -484,7 +484,7 @@ class ExceptionHandler
         if (!is_cli()) {
             ob_end_flush();
         }
-        exit;
+        evo_exit();
     }
 
     protected function shouldDisplay()
@@ -661,7 +661,7 @@ class ExceptionHandler
             )
         ) {
             echo $exception->getMessage();
-            exit;
+            evo_exit();
         }
 
         if ($exception instanceof ViewException) {

@@ -82,6 +82,25 @@
         'Evolution_sTask' => Seiger\sTask\sTaskServiceProvider::class,
     ],
 
+    /**
+     * Manager packages that a frontend request registers only when it uses them, keyed like `providers`:
+     * on the first resolution of one of their `services` or of a class of their namespace (facades included),
+     * or when one of their `events` is invoked. A request to any of their `paths` registers them all.
+     * Return false from custom/config/app/on_demand_providers/<key>.php to register one on every request.
+     * Livewire comes with EvoUI and stays off on the frontend: a site that renders Livewire components there
+     * returns false from custom/config/app/on_demand_providers/Evolution_EvoUI.php.
+     */
+    'on_demand_providers' => [
+        'Evolution_EvoUI' => ['services' => ['EvoUI']],
+        'Evolution_DTuiEditor' => [
+            'paths' => ['dtui-plantuml', 'dtui-evo-link-search', 'dtui-image-upload'],
+            'events' => ['OnRichTextEditorRegister', 'OnRichTextEditorInit'],
+        ],
+        'Evolution_dDocs' => ['paths' => ['ddocs', 'dtui-plantuml'], 'services' => ['dDocs']],
+        'Evolution_sGallery' => ['paths' => ['sgallery'], 'services' => ['sGallery']],
+        'Evolution_sTask' => ['paths' => ['stask'], 'services' => ['sTask']],
+    ],
+
     'aliases' => [
         'Arr' => Illuminate\Support\Arr::class,
         'Artisan' => Illuminate\Support\Facades\Artisan::class,

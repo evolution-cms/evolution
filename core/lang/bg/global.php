@@ -207,6 +207,14 @@ $_lang["opcache_memory_details"] = '(%s използвани / %s налични
 $_lang["opcache_reset_unavailable"] = 'нулирането не е достъпно';
 $_lang["opcache_reset_complete"] = 'нулирането е завършено';
 $_lang["opcache_reset_failed"] = 'нулирането е неуспешно';
+$_lang["worker_mode"] = 'Режим worker';
+$_lang["sysinfo_worker_unavailable"] = 'изисква FrankenPHP';
+$_lang["sysinfo_worker_ignored"] = 'EVO_WORKER_MODE=1 няма ефект извън FrankenPHP';
+$_lang["sysinfo_worker_available"] = 'налично: задайте EVO_WORKER_MODE=1 и EVO_WORKER_ORIGIN, след това рестартирайте сървъра';
+$_lang["sysinfo_worker_no_origin"] = 'EVO_WORKER_ORIGIN не е зададен, worker процесите няма да стартират';
+$_lang["sysinfo_worker_new_app"] = 'ново приложение за всяка заявка';
+$_lang["sysinfo_worker_kept_app"] = 'запазено приложение, експериментално';
+$_lang["sysinfo_worker_recycle"] = 'рестартира се след %s заявки';
 $_lang["database_name"] = 'Име на базата от данни';
 $_lang["database_overhead"] = '<b style=\'color:#990033\'>Забележка:</b> излишното пространство е неизползвано място, резервирано от MySQL. За да го освободите, щракнете върху стойността на излишното пространство за съответната таблица.';
 $_lang["database_server"] = 'Сървъра, където е базата от данни';

@@ -333,6 +333,52 @@ jobs:
             exit 1
           }
 
+      - name: Smoke test FrankenPHP workers
+        if: matrix.server == 'frankenphp'
+        run: |
+          cleanup() {
+            docker logs evo-worker-smoke 2>&1 | tail -40 || true
+            docker rm -f evo-worker-smoke > /dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          # A fresh container per request, then one booted application kept by the worker.
+          for keep in 0 1; do
+            docker run -d --name evo-worker-smoke -p 8898:80 \
+              -e EVO_SCHEDULER=0 -e EVO_WORKER_MODE=1 \
+              -e EVO_WORKER_ORIGIN=http://localhost:8898 \
+              -e EVO_SITE_HOSTNAMES=localhost:8898,127.0.0.1:8898 \
+              -e EVO_WORKER_COUNT=1 -e EVO_WORKER_DEBUG=1 \
+              -e EVO_WORKER_KEEP_APP="$keep" \
+              "${{ steps.image.outputs.ref }}"
+            docker cp .github/docker/ci evo-worker-smoke:/tmp/worker-ci
+            docker exec -w /var/www/html evo-worker-smoke \
+              php /tmp/worker-ci/seed-worker.php /var/www/html
+            python3 .github/docker/ci/worker-smoke.py http://localhost:8898 \
+              --container evo-worker-smoke --alias 127.0.0.1:8898 \
+              $([ "$keep" = 1 ] && echo --keep-app)
+            docker rm -f evo-worker-smoke > /dev/null
+          done
+
+      - name: Smoke test FrankenPHP worker recycling
+        if: matrix.server == 'frankenphp'
+        run: |
+          cleanup() {
+            docker logs evo-worker-recycle 2>&1 | tail -20
+            docker rm -f evo-worker-recycle > /dev/null
+          }
+          trap cleanup EXIT
+          docker run -d --name evo-worker-recycle -p 8898:80 \
+            -e EVO_SCHEDULER=0 -e EVO_WORKER_MODE=1 \
+            -e EVO_WORKER_ORIGIN=http://localhost:8898 \
+            -e EVO_WORKER_COUNT=1 -e EVO_WORKER_DEBUG=1 \
+            -e EVO_WORKER_MAX_REQUESTS=2 \
+            "${{ steps.image.outputs.ref }}"
+          for _attempt in $(seq 1 30); do
+            docker logs evo-worker-recycle 2>&1 | grep -q 'FrankenPHP started' && break
+            sleep 1
+          done
+          python3 .github/docker/ci/worker-smoke.py http://localhost:8898 --recycle
+
       - name: Push
         run: |
           image="${{ steps.image.outputs.image }}"

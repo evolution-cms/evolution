@@ -208,6 +208,14 @@ $_lang["opcache_memory_details"] = '（已用 %s / 可用 %s），%s 次命中 /
 $_lang["opcache_reset_unavailable"] = '重置不可用';
 $_lang["opcache_reset_complete"] = '重置完成';
 $_lang["opcache_reset_failed"] = '重置失败';
+$_lang["worker_mode"] = 'Worker 模式';
+$_lang["sysinfo_worker_unavailable"] = '需要 FrankenPHP';
+$_lang["sysinfo_worker_ignored"] = 'EVO_WORKER_MODE=1 在 FrankenPHP 之外无效';
+$_lang["sysinfo_worker_available"] = '可用：设置 EVO_WORKER_MODE=1 和 EVO_WORKER_ORIGIN，然后重启服务器';
+$_lang["sysinfo_worker_no_origin"] = '未设置 EVO_WORKER_ORIGIN，工作进程将不会启动';
+$_lang["sysinfo_worker_new_app"] = '每个请求使用新的应用实例';
+$_lang["sysinfo_worker_kept_app"] = '保留应用实例，实验性';
+$_lang["sysinfo_worker_recycle"] = '处理 %s 个请求后回收';
 $_lang["database_name"] = 'Database name';
 $_lang["database_overhead"] = '<b style="color:#990033;">注意：</b>开销是 MySQL 保留但未使用的空间。要释放该空间，请点击相应表的开销值。';
 $_lang["database_table_overhead"] = '开销';

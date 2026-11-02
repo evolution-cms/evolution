@@ -252,6 +252,11 @@ try {
             // Not restored: the update is incomplete, and the installer stays for the operator.
             if (!$customPackages['restored']) {
                 $errors += 1;
+            } else {
+                // make:site's Composer install and autoload rebuild ran before this request booted, whenever
+                // core/vendor did not match this version (controllers/dependencies.php); what is left is the
+                // discovery it ends with. A matching vendor, uploaded or built offline, needs no Composer.
+                Console::call('package:discover');
             }
         }
 

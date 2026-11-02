@@ -208,6 +208,14 @@ $_lang["opcache_memory_details"] = '(%s בשימוש / %s זמינים), %s פג
 $_lang["opcache_reset_unavailable"] = 'איפוס לא זמין';
 $_lang["opcache_reset_complete"] = 'האיפוס הושלם';
 $_lang["opcache_reset_failed"] = 'האיפוס נכשל';
+$_lang["worker_mode"] = 'מצב Worker';
+$_lang["sysinfo_worker_unavailable"] = 'דורש FrankenPHP';
+$_lang["sysinfo_worker_ignored"] = 'ל-EVO_WORKER_MODE=1 אין השפעה מחוץ ל-FrankenPHP';
+$_lang["sysinfo_worker_available"] = 'זמין: הגדר EVO_WORKER_MODE=1 ו-EVO_WORKER_ORIGIN, ואז הפעל מחדש את השרת';
+$_lang["sysinfo_worker_no_origin"] = 'EVO_WORKER_ORIGIN אינו מוגדר, ה-workers לא יופעלו';
+$_lang["sysinfo_worker_new_app"] = 'יישום חדש לכל בקשה';
+$_lang["sysinfo_worker_kept_app"] = 'יישום נשמר, ניסיוני';
+$_lang["sysinfo_worker_recycle"] = 'מופעל מחדש לאחר %s בקשות';
 $_lang["database_name"] = 'שם מסד הנתונים';
 $_lang["database_overhead"] = '<b style=\'color:#990033\'>הערה:</b> תקורה היא שטח לא בשימוש ש-MySQL שמר. כדי לשחרר אותו, לחץ על ערך התקורה של הטבלה המתאימה.';
 $_lang["database_server"] = 'שרת מסד הנתונים';

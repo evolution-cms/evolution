@@ -59,6 +59,13 @@ if (is_file($configPath)) {
 }
 unset($configPath);
 
+if (!defined('EVO_WORKER_MODE') && ($_SERVER['FRANKENPHP_WORKER'] ?? false)
+    && getenv('EVO_WORKER_MODE') === '1') {
+    require_once $config['core'] . '/includes/worker.runtime.php';
+    \EvolutionCMS\Runtime\WorkerRuntime::run(__FILE__, $config['core']);
+    return;
+}
+
 // A POST over post_max_size arrives empty after a PHP startup warning. Keep the warnings that
 // follow from it (headers already sent, with server paths) off the page; the request goes on as before.
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && is_file($config['core'] . '/src/Support/UploadLimits.php')) {
@@ -112,7 +119,9 @@ ob_start();
  *    Function: This file loads and executes the parser. *
  */
 
-define('IN_PARSER_MODE', true);
+if (!defined('IN_PARSER_MODE')) {
+    define('IN_PARSER_MODE', true);
+}
 if (!defined('IN_MANAGER_MODE')) {
     define('IN_MANAGER_MODE', false);
 }

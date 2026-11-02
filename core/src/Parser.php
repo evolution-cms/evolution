@@ -73,11 +73,16 @@ class Parser
     public static function getInstance (Core $modx)
     {
 
-        if (null === self::$instance) {
+        if (null === self::$instance || self::$instance->modx !== $modx) {
             self::$instance = new self($modx);
         }
 
         return self::$instance;
+    }
+
+    public static function resetForWorker(): void
+    {
+        self::$instance = null;
     }
 
     /**

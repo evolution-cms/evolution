@@ -1244,12 +1244,12 @@ EXAMPLES;
 
     protected function composerInstallCommand(): string
     {
-        return $this->composerBinaryCommand() . ' install --no-dev --no-interaction --prefer-dist --optimize-autoloader --classmap-authoritative --no-scripts';
+        return $this->composerBinaryCommand() . ' ' . CustomComposerPackages::INSTALL_ARGUMENTS;
     }
 
     protected function composerDumpAutoloadCommand(): string
     {
-        return $this->composerBinaryCommand() . ' dump-autoload -o --no-dev --classmap-authoritative --no-scripts';
+        return $this->composerBinaryCommand() . ' ' . CustomComposerPackages::DUMP_AUTOLOAD_ARGUMENTS;
     }
 
     protected function normalizeUpdateRepository(string $repository): string

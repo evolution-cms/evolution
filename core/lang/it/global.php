@@ -219,6 +219,14 @@ $_lang["opcache_memory_details"] = '(%s usati / %s disponibili), %s hit / %s mis
 $_lang["opcache_reset_unavailable"] = 'reset non disponibile';
 $_lang["opcache_reset_complete"] = 'reset completato';
 $_lang["opcache_reset_failed"] = 'reset non riuscito';
+$_lang["worker_mode"] = 'Modalità worker';
+$_lang["sysinfo_worker_unavailable"] = 'richiede FrankenPHP';
+$_lang["sysinfo_worker_ignored"] = 'EVO_WORKER_MODE=1 non ha effetto al di fuori di FrankenPHP';
+$_lang["sysinfo_worker_available"] = 'disponibile: imposta EVO_WORKER_MODE=1 e EVO_WORKER_ORIGIN, poi riavvia il server';
+$_lang["sysinfo_worker_no_origin"] = 'EVO_WORKER_ORIGIN non è impostato, i worker non verranno avviati';
+$_lang["sysinfo_worker_new_app"] = 'nuova applicazione per ogni richiesta';
+$_lang["sysinfo_worker_kept_app"] = 'applicazione mantenuta, sperimentale';
+$_lang["sysinfo_worker_recycle"] = 'riciclato dopo %s richieste';
 $_lang["database_name"] = 'Nome del Database';
 $_lang["database_overhead"] = '<b style=\'color:#990033\'>Nota:</b> l\'overhead è spazio inutilizzato riservato da MySQL. Per liberarlo, fai clic sul valore di overhead della tabella corrispondente.';
 $_lang["database_server"] = 'Server del Database';

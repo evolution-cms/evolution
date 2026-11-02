@@ -208,6 +208,14 @@ $_lang["opcache_memory_details"] = '(%s استفاده‌شده / %s در دست
 $_lang["opcache_reset_unavailable"] = 'بازنشانی در دسترس نیست';
 $_lang["opcache_reset_complete"] = 'بازنشانی کامل شد';
 $_lang["opcache_reset_failed"] = 'بازنشانی ناموفق بود';
+$_lang["worker_mode"] = 'حالت Worker';
+$_lang["sysinfo_worker_unavailable"] = 'نیازمند FrankenPHP';
+$_lang["sysinfo_worker_ignored"] = 'EVO_WORKER_MODE=1 خارج از FrankenPHP تأثیری ندارد';
+$_lang["sysinfo_worker_available"] = 'در دسترس: EVO_WORKER_MODE=1 و EVO_WORKER_ORIGIN را تنظیم کنید، سپس سرور را دوباره راه‌اندازی کنید';
+$_lang["sysinfo_worker_no_origin"] = 'EVO_WORKER_ORIGIN تنظیم نشده است، workerها اجرا نخواهند شد';
+$_lang["sysinfo_worker_new_app"] = 'برنامه جدید برای هر درخواست';
+$_lang["sysinfo_worker_kept_app"] = 'برنامه نگه‌داشته‌شده، آزمایشی';
+$_lang["sysinfo_worker_recycle"] = 'پس از %s درخواست دوباره راه‌اندازی می‌شود';
 $_lang["database_name"] = 'نام دیتابیس';
 $_lang["database_overhead"] = '<b style=\'color:#990033\'>تذکر:</b> سربار فضای استفاده‌نشده‌ای است که توسط MySQL رزرو شده است. برای آزاد کردن آن، روی مقدار سربار جدول مربوطه کلیک کنید.';
 $_lang["database_server"] = 'سرور دیتابیس';

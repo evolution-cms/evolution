@@ -22,6 +22,13 @@ class EvoSessionProxy
      */
     private static bool $cookieEmitted = false;
 
+    public static function resetForWorker(): void
+    {
+        self::$initialized = false;
+        self::$synced = false;
+        self::$shutdownRegistered = false;
+        self::$cookieEmitted = false;
+    }
 
     /**
      * NO_SESSION (core/custom/define.php) disables the visitor session entirely: no store, no cookie.
@@ -30,6 +37,15 @@ class EvoSessionProxy
     public static function disabled(): bool
     {
         return defined('NO_SESSION') && NO_SESSION && !(defined('IN_MANAGER_MODE') && IN_MANAGER_MODE);
+    }
+
+    /**
+     * A worker starts the native session (EVO_SESSION=false) in Core::initialize(), once the providers
+     * have booted: a kept application would otherwise keep what its first visitor's session held.
+     */
+    public static function startsAfterBoot(): bool
+    {
+        return defined('EVO_WORKER_MODE') && EVO_WORKER_MODE && !(defined('EVO_SESSION') && EVO_SESSION);
     }
 
     /**
@@ -125,7 +141,7 @@ class EvoSessionProxy
 
         if (!self::$shutdownRegistered) {
             self::$shutdownRegistered = true;
-            register_shutdown_function([self::class, 'syncBack']);
+            evo_register_shutdown([self::class, 'syncBack']);
         }
     }
 

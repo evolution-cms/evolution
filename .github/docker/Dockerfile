@@ -10,6 +10,7 @@ FROM ${BASE_IMAGE}
 
 COPY build/ /var/www/html/
 COPY .github/docker/entrypoint.sh /usr/local/bin/evo-entrypoint
+COPY .github/docker/worker.Caddyfile /etc/evo/worker.Caddyfile
 
 # Friendly URLs: the repository ships the Apache rules as ht.access. The nginx
 # and FrankenPHP runtimes carry their own rules inside the base image, and

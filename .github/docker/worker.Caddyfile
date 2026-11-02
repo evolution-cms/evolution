@@ -1,0 +1,41 @@
+{
+    auto_https off
+    frankenphp {
+        worker /var/www/html/index.php {$EVO_WORKER_COUNT:2}
+    }
+}
+
+:80 {
+    root * /var/www/html
+    encode zstd gzip
+
+    @private path_regexp private (?i)^/(core|views|vendor|tmp)(/|$)|^/(composer\.(json|lock)|phpstan\.neon|publiccode\.yml|AGENTS\.md|README\.md|ht\.access|ng\.inx|config\.php(\.example)?)$
+    respond @private 404
+    @dotfiles {
+        path_regexp dotfiles (^|/)\.
+        not path /.well-known/*
+    }
+    respond @dotfiles 404
+    @fragments path_regexp fragments (?i)\.(sql|sqlite|db|log|bak|old|orig|save|swp|swo|tpl|inc|ini|env|dist|example|yml|yaml|lock|tar)(\.(gz|bz2|xz|zip|tgz))?$
+    respond @fragments 404
+    @assetScripts path_regexp assetScripts (?i)^/assets/.*\.php(?:/|$)
+    respond @assetScripts 404
+    @generated {
+        path /assets/cache /assets/cache/* /assets/backup /assets/backup/* /assets/export /assets/export/* /assets/import /assets/import/*
+        not {
+            path_regexp thumbnails (?i)^/assets/cache/images/.*\.(jpe?g|png|gif|webp|avif|bmp|ico|wbmp)$
+            file
+        }
+    }
+    respond @generated 404
+
+    @notfile {
+        not file {
+            try_files {path} {path}/index.php {path}/index.html
+        }
+    }
+    rewrite @notfile /index.php?q={path}&{query}
+
+    # Only index.php is a worker. manager/index.php and other PHP scripts stay classic.
+    php_server
+}

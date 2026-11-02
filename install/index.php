@@ -153,6 +153,13 @@ if (empty($_GET['s'])) {
 
     ob_start();
     $action = isset($_GET['action']) ? preg_replace('/[^a-z\/]/', '', $_GET['action']) : 'language';
+    // The manager's updater lays a source archive over the site and keeps its core/vendor: before any step
+    // boots the new core on it, Composer brings it to the new lock (controllers/dependencies.php).
+    $vendorStale = installerDependenciesStale(EVO_CORE_PATH);
+    if ($vendorStale !== null) {
+        $resumeAction = $action;
+        $action = 'dependencies';
+    }
     $controller = __DIR__ . '/src/controllers/' . $action . '.php';
     if (! file_exists($controller)) {
         die("Invalid install action attempted. [action={$action}]");

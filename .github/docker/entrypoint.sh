@@ -42,7 +42,15 @@ if [ "$#" -eq 0 ]; then
     elif command -v frankenphp > /dev/null 2>&1; then
         # FrankenPHP's docker-php-entrypoint turns a leading "-" into
         # "frankenphp run ...", so the flags are the whole command there.
-        set -- --config /etc/frankenphp/Caddyfile --adapter caddyfile
+        if [ "${EVO_WORKER_MODE:-0}" = "1" ]; then
+            if [ -z "${EVO_WORKER_ORIGIN:-}" ]; then
+                echo "[evo-entrypoint] EVO_WORKER_ORIGIN is required for worker mode" >&2
+                exit 1
+            fi
+            set -- --config /etc/evo/worker.Caddyfile --adapter caddyfile
+        else
+            set -- --config /etc/frankenphp/Caddyfile --adapter caddyfile
+        fi
     else
         echo "[evo-entrypoint] no known server command found in this image" >&2
         exit 1

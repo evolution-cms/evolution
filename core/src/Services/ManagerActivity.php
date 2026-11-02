@@ -50,7 +50,7 @@ final class ManagerActivity
 
         if (!$this->shutdownRegistered) {
             $this->shutdownRegistered = true;
-            register_shutdown_function(function (): void {
+            evo_register_shutdown(function (): void {
                 $this->flush();
             });
         }
