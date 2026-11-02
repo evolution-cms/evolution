@@ -130,11 +130,22 @@ if (!is_writable(EVO_BASE_PATH . "assets/images/")) {
     $warnings[] = [$_lang['configcheck_images']];
 }
 
-if(strpos(EvolutionCMS()->config['rb_base_dir'], EVO_BASE_PATH) !==0 && strpos(EvolutionCMS()->config['rb_base_dir'], '[(base_path)]') !==0) {
+if (!\EvolutionCMS\Support\FileBrowserAccess::isUsableRoot(
+    (string) EvolutionCMS()->config['rb_base_dir'],
+    (string) EvolutionCMS()->config['rb_base_url'],
+    (string) EvolutionCMS()->config['filemanager_path'],
+    EVO_BASE_PATH,
+    EVO_BASE_URL,
+    EVO_SITE_URL
+)) {
     $warnings[] = [$_lang['configcheck_rb_base_dir']];
 }
 
-if(strpos(EvolutionCMS()->config['filemanager_path'], EVO_BASE_PATH) !==0 && strpos(EvolutionCMS()->config['rb_base_dir'], '[(base_path)]assets/') !==0) {
+$filemanagerRoot = str_replace('\\', '/', str_replace('[(base_path)]', EVO_BASE_PATH, (string) EvolutionCMS()->config['filemanager_path']));
+if (strpos($filemanagerRoot, "\0") !== false || fileManagerRefuseReservedName($filemanagerRoot)
+    || !is_dir($filemanagerRoot) || !is_readable($filemanagerRoot)
+    || in_array('..', explode('/', $filemanagerRoot), true)
+    || !\EvolutionCMS\Support\FileManagerAccess::isWithin(EVO_BASE_PATH, $filemanagerRoot)) {
     $warnings[] = [$_lang['configcheck_filemanager_path']];
 }
 
