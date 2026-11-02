@@ -80,4 +80,143 @@ final class FileBrowserAccess
 
         return null;
     }
+
+    /**
+     * Find the site-side spelling of a configured upload URL, without trusting it as a grant.
+     * Callers must still compare its real directory with the configured physical upload root.
+     * Remote URLs, traversal and encoded paths cannot establish an ACL identity.
+     *
+     * @return string|null Absolute site-side path, which may end at a deployment symlink.
+     * @since 3.6.0
+     */
+    public static function localUploadPath(string $url, string $basePath, string $baseUrl, string $siteUrl): ?string
+    {
+        $parts = parse_url($url);
+        $site = parse_url($siteUrl);
+        if ($parts === false || $site === false || isset($parts['query']) || isset($parts['fragment'])
+            || isset($parts['user']) || isset($parts['pass'])
+            || (isset($parts['scheme']) && !in_array(strtolower($parts['scheme']), ['http', 'https'], true))
+            || (isset($parts['host']) && (strcasecmp($parts['host'], $site['host'] ?? '') !== 0
+                || ($parts['port'] ?? null) !== ($site['port'] ?? null)))) {
+            return null;
+        }
+
+        $path = $parts['path'] ?? '';
+        if (strpbrk($path, "\\%\0:") !== false || in_array('..', explode('/', $path), true)
+            || \fileManagerRefuseReservedName($path)) {
+            return null;
+        }
+        $baseUrl = '/' . trim($baseUrl, '/');
+        if (str_starts_with($path, '/')) {
+            if ($baseUrl !== '/' && !FileManagerAccess::isWithin($baseUrl, $path)) {
+                return null;
+            }
+            $path = $baseUrl === '/' ? ltrim($path, '/') : ltrim(substr($path, strlen($baseUrl)), '/');
+        }
+
+        $root = realpath($basePath);
+        if ($root === false) {
+            return null;
+        }
+        $segments = array_filter(explode('/', $path), static fn ($part) => $part !== '' && $part !== '.');
+
+        return rtrim(str_replace('\\', '/', $root), '/') . '/' . implode('/', $segments);
+    }
+
+    /**
+     * Keep file_groups keys stable when a deployment exposes a configured shared type root.
+     * Only the type root may be an alias: the browser must separately reject every symlink
+     * below it. The site-side root is accepted only when realpath proves it is the same folder.
+     * No matching root returns null; callers must not interpret that as a public file.
+     *
+     * @return string|null Key relative to the site-wide ACL root; an empty key is that root itself.
+     * @since 3.6.0
+     */
+    public static function resolveAclPath(string $aclRoot, string $typeDir, string $absolutePath, ?string $localTypeDir = null): ?string
+    {
+        foreach ([$aclRoot, $typeDir, $absolutePath, $localTypeDir ?? ''] as $path) {
+            if (strpos($path, "\0") !== false || \fileManagerRefuseReservedName($path)) {
+                return null;
+            }
+        }
+        $root = realpath($aclRoot);
+        $typeRoot = realpath($typeDir);
+        if ($root === false || $typeRoot === false) {
+            return null;
+        }
+        $root = rtrim(str_replace('\\', '/', $root), '/');
+        $typeRoot = rtrim(str_replace('\\', '/', $typeRoot), '/');
+        $typeDir = rtrim(str_replace('\\', '/', $typeDir), '/');
+        $absolutePath = rtrim(str_replace('\\', '/', $absolutePath), '/');
+        $spelling = FileManagerAccess::isWithin($typeDir, $absolutePath) ? $typeDir : $typeRoot;
+        if (!FileManagerAccess::isWithin($spelling, $absolutePath)) {
+            return null;
+        }
+        $suffix = ltrim(substr($absolutePath, strlen($spelling)), '/');
+        if (in_array('..', explode('/', $suffix), true) || strpos($suffix, "\0") !== false
+            || \fileManagerPathContainsLink($typeDir, $absolutePath)) {
+            return null;
+        }
+        $existing = realpath($absolutePath);
+        if ($existing !== false) {
+            $existing = str_replace('\\', '/', $existing);
+            if (!FileManagerAccess::isWithin($typeRoot, $existing)) {
+                return null;
+            }
+            $suffix = ltrim(substr($existing, strlen($typeRoot)), '/');
+        } else {
+            $suffix = implode('/', array_filter(explode('/', $suffix), static fn ($part) => $part !== '' && $part !== '.'));
+        }
+
+        if (FileManagerAccess::isWithin($root, $typeRoot)) {
+            $key = ltrim(substr($typeRoot, strlen($root)), '/');
+        } elseif ($localTypeDir !== null && FileManagerAccess::isWithin($root, $localTypeDir)
+            && ($localRoot = realpath($localTypeDir)) !== false
+            && FileManagerAccess::isWithin($typeRoot, str_replace('\\', '/', $localRoot))
+            && FileManagerAccess::isWithin(str_replace('\\', '/', $localRoot), $typeRoot)) {
+            $key = ltrim(substr($localTypeDir, strlen($root)), '/');
+        } else {
+            return null;
+        }
+
+        return trim($key . '/' . $suffix, '/');
+    }
+
+    /**
+     * Diagnose an upload root without opening it to an unrecognised ACL namespace.
+     * External shared roots need a proven site-side identity for every existing browser type.
+     * This read-only check never creates folders or replaces the browser's operation guards.
+     *
+     * @since 3.6.0
+     */
+    public static function isUsableRoot(string $uploadDir, string $uploadUrl, string $aclRoot, string $basePath, string $baseUrl, string $siteUrl): bool
+    {
+        $uploadDir = str_replace('[(base_path)]', $basePath, $uploadDir);
+        $aclRoot = str_replace('[(base_path)]', $basePath, $aclRoot);
+        if (strpos($uploadDir . $aclRoot, "\0") !== false
+            || \fileManagerRefuseReservedName($uploadDir) || \fileManagerRefuseReservedName($aclRoot)) {
+            return false;
+        }
+        if (!is_dir($uploadDir) || !is_readable($uploadDir) || !is_dir($aclRoot) || !is_readable($aclRoot)) {
+            return false;
+        }
+        if (self::resolveAclPath($aclRoot, $uploadDir, $uploadDir) !== null) {
+            return true;
+        }
+
+        $found = false;
+        foreach (['files', 'images', 'file', 'image', 'media'] as $type) {
+            $typeDir = rtrim($uploadDir, '/\\') . '/' . $type;
+            if (!is_dir($typeDir)) {
+                continue;
+            }
+            $found = true;
+            $local = self::localUploadPath(rtrim($uploadUrl, '/') . '/' . $type, $basePath, $baseUrl, $siteUrl);
+            if (self::resolveAclPath($aclRoot, $typeDir, $typeDir, $local) === null) {
+                return false;
+            }
+        }
+
+        return $found;
+    }
 }
