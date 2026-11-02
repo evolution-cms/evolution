@@ -14,3 +14,15 @@ test('manager frame loads navigation and restoration helpers before versioned ev
     expect(strpos($template, $mainTargetHelper))->toBeLessThan(strpos($template, $tabHelper));
     expect(strpos($template, $tabHelper))->toBeLessThan(strpos($template, $evoScript));
 });
+
+test('manager frame loads the tree drop helper that evo js calls on drop', function () {
+    $template = file_get_contents(dirname(__DIR__, 4) . '/manager/views/frame/1.blade.php');
+    $evoJs = file_get_contents(dirname(__DIR__, 4) . '/manager/media/style/default/js/evo.js');
+
+    $dropHelper = "media/script/tree-drop-helper.js?v={{evo()->getVersionData('version')}}";
+    $evoScript = "@revision(MGR_DIR . '/' . ManagerTheme::getThemeDir(false) . 'js/evo.js')";
+
+    expect($evoJs)->toContain('modxTreeDropHelper.');
+    expect($template)->toContain($dropHelper);
+    expect(strpos($template, $dropHelper))->toBeLessThan(strpos($template, $evoScript));
+});

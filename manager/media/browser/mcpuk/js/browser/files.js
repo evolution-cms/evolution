@@ -223,6 +223,7 @@ browser.deleteButtonEnabled = function(canDelete, files, canDeleteDirs) {
 browser.clearSelection = function() {
     $('.file').removeClass('selected');
     this.lastSelectedFile = null;
+    this.treeSelection = null;
     this.statusDir();
     this.updateDeleteButton();
     this.syncTreeSelection();

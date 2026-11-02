@@ -2270,6 +2270,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         if (is_array($params)) {
             extract($params, EXTR_SKIP);
         }
+        // error_get_last() below must only see what the plugin raised, not an earlier (even @-suppressed) warning.
+        error_clear_last();
         ob_start();
         try {
             eval($pluginCode);
@@ -2344,6 +2346,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         if (is_array($params)) {
             extract($params, EXTR_SKIP);
         }
+        // error_get_last() below must only see what the snippet raised, not an earlier (even @-suppressed) warning.
+        error_clear_last();
         ob_start();
         if (is_scalar($phpcode) && Str::contains($phpcode, ';')) {
             if (substr($phpcode, 0, 5) === '<?php') {

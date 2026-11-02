@@ -62,3 +62,59 @@ test('moveNodeIntoFolder falls back to removing the dragged node when no folder 
     assert.equal(draggedNode.parentNode, null);
     assert.deepEqual(sourceContainer.children, []);
 });
+
+test('every drop position uses the same move drop effect', () => {
+    assert.equal(helper.DROP_EFFECT, 'move');
+});
+
+test('getDropZone splits a row into before, into and after', () => {
+    assert.equal(helper.getDropZone(0, 21), 'before');
+    assert.equal(helper.getDropZone(6, 21), 'before');
+    assert.equal(helper.getDropZone(7, 21), 'into');
+    assert.equal(helper.getDropZone(10.5, 21), 'into');
+    assert.equal(helper.getDropZone(14, 21), 'after');
+    assert.equal(helper.getDropZone(21, 21), 'after');
+});
+
+test('getDropZone gives a pointer on a boundary to the lower zone', () => {
+    assert.equal(helper.getDropZone(10, 30), 'into');
+    assert.equal(helper.getDropZone(15.1, 15.1 * 1.51), 'after');
+});
+
+test('getDropZone splits a row into halves when it takes no drop into it', () => {
+    assert.equal(helper.getDropZone(0, 20, false), 'before');
+    assert.equal(helper.getDropZone(9.9, 20, false), 'before');
+    assert.equal(helper.getDropZone(10, 20, false), 'after');
+    assert.equal(helper.getDropZone(20, 20, false), 'after');
+});
+
+test('getFirstChildNode returns the first resource of an expanded folder', () => {
+    const placeholder = { nodeType: 1, id: '' };
+    const first = { nodeType: 1, id: 'node5' };
+    const second = { nodeType: 1, id: 'node6' };
+    const anchor = { nextElementSibling: createContainer([placeholder, first, second]) };
+
+    assert.equal(helper.getFirstChildNode(anchor), first);
+});
+
+test('getFirstChildNode is null for collapsed, empty and non-folder rows', () => {
+    const emptyFolder = { nextElementSibling: createContainer([{ nodeType: 1, id: '' }]) };
+
+    assert.equal(helper.getFirstChildNode({ nextElementSibling: createContainer() }), null);
+    assert.equal(helper.getFirstChildNode(emptyFolder), null);
+    assert.equal(helper.getFirstChildNode({ nextElementSibling: null, nextSibling: null }), null);
+    assert.equal(helper.getFirstChildNode(null), null);
+});
+
+test('collectMenuIndex lists resource ids in order and skips placeholders', () => {
+    const children = [
+        { nodeType: 1, id: '' },
+        { nodeType: 1, id: 'node12' },
+        { nodeType: 3, id: 'node99' },
+        { nodeType: 1, id: 'node3' },
+        { nodeType: 1, id: 'nodeX' }
+    ];
+
+    assert.deepEqual(helper.collectMenuIndex(children), ['12', '3']);
+    assert.deepEqual(helper.collectMenuIndex(null), []);
+});

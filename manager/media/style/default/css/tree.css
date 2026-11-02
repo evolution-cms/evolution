@@ -31,9 +31,6 @@
 #treeRoot a .editResource { margin-left: 0.2em }
 #treeRoot .indent { position: relative; z-index: -1; float: left; height: 1.5em; }
 #treeRoot .indent i { float: left; height: 1.2em; width: 1.5em }
-#treeRoot .dragafter > a .indent, #treeRoot .dragbefore > a .indent { z-index: 1; }
-#treeRoot .dragafter > a .indent::after, #treeRoot .dragbefore > a .indent::before { content: "\f0da"; display: block; position: absolute; right: 0.1em; bottom: -0.5em; height: 1em; font: bold 1em/1em 'Font Awesome 5 Free'; color: #f04 }
-#treeRoot .dragbefore > a .indent::before { bottom: auto; top: -0.5em; }
 #treeRoot .empty { color: #aaa; cursor: default; }
 #treeRoot .icon { cursor: pointer; -webkit-transition-duration: 0.15s; transition-duration: 0.15s }
 #treeRoot .icon:hover > .fa { color: #000 }
@@ -61,10 +58,13 @@
 .treeRoot a .editResource { margin-left: 0.2em }
 .treeRoot .indent { position: relative; z-index: -1; float: left; height: 1.5em; }
 .treeRoot .indent i { float: left; height: 1.2em; width: 1.5em }
-.treeRoot .dragafter > a .indent, .treeRoot .dragbefore > a .indent { z-index: 1; }
-.treeRoot .dragafter > a .indent::after, .treeRoot .dragbefore > a .indent::before { content: "\f0da"; display: block; position: absolute; right: 0.1em; bottom: -0.5em; height: 1em; font: bold 1em/1em 'Font Awesome 5 Free'; color: #f04 }
-.treeRoot .dragbefore > a .indent::before { bottom: auto; top: -0.5em; }
 .treeRoot .empty { color: #aaa; cursor: default; }
+/* drop marker: line on the edge the resource goes to, arrow centred on it (on the row middle for "into") */
+#treeDropMarker { display: none; position: absolute; z-index: 2; right: 0; height: 0; margin-left: -1.55em; pointer-events: none; }
+#treeDropMarker.visible { display: block; }
+#treeDropMarker.line { margin-top: -1px; border-top: 2px solid #22a447; }
+#treeDropMarker::before { content: "\f0a9"; position: absolute; left: -1em; top: -0.5em; width: 1em; height: 1em; font: 900 0.875em/1em 'Font Awesome 5 Free'; text-align: center; color: #22a447; }
+#treeDropMarker.line::before { margin-top: -1px; }
 .treeRoot .icon { cursor: pointer; -webkit-transition-duration: 0.15s; transition-duration: 0.15s }
 .treeRoot .icon:hover > .fa { color: #000 }
 .treeRoot .toggle { float: left; margin: 1px 0.2em 1px -1.5em; width: 1.3em; height: 1.3em; line-height: 1.4em; text-align: center; vertical-align: top; cursor: pointer; border-radius: 50%; -webkit-transition-duration: 0.15s; transition-duration: 0.15s }
@@ -113,6 +113,8 @@
 .dark .treeRoot a:hover:not(.empty), .dark .treeRoot a.current, .darkness .treeRoot a:hover:not(.empty), .darkness .treeRoot a.current { background-color: rgba(255, 255, 255, 0.15); }
 .dark .treeRoot a.selected, .dark .treeRoot .dragenter > a, .darkness .treeRoot a.selected, .darkness.treeRoot .dragenter > a { background-color: rgba(0, 142, 255, 0.19); }
 .dark .treeRoot .dragafter > a::after, .dark .treeRoot .dragbefore > a::before, .darkness .treeRoot .dragafter > a::after, .darkness .treeRoot .dragbefore > a::before { background-color: rgba(255, 255, 255, 0.25); }
+.dark #treeDropMarker, .darkness #treeDropMarker { border-color: #4cd07d; }
+.dark #treeDropMarker::before, .darkness #treeDropMarker::before { color: #4cd07d; }
 .dark .treeRoot a .title, .darkness .treeRoot a .title { color: #7cb2dc; }
 .dark .treeRoot a.hidemenu .title, .darkness .treeRoot a.hidemenu .title { color: #c5c5c5; }
 .dark .treeRoot a.deleted .title, .darkness .treeRoot a.deleted .title { color: #a52a2a; }
