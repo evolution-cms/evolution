@@ -1,4 +1,5 @@
 <?php
+use EvolutionCMS\Support\FileBrowserAccess;
 use EvolutionCMS\Support\FileManagerAccess;
 
 if(!function_exists('add_dot')) {
@@ -116,7 +117,7 @@ if(!function_exists('fileManagerAclKey')) {
     {
         static $roots = null;
         if ($roots === null) {
-            $userRoot = realpath(evolutionCMS()->getConfig('filemanager_path')) ?: realpath(EVO_BASE_PATH);
+            $userRoot = fileManagerCanonicalPath(evolutionCMS()->getConfig('filemanager_path')) ?: realpath(EVO_BASE_PATH);
             $roots = [FileManagerAccess::aclRoot(), rtrim(str_replace('\\', '/', $userRoot), '/')];
         }
 
@@ -220,11 +221,10 @@ if(!function_exists('fileManagerResolvePath')) {
             return null;
         }
 
-        $path = realpath($requested);
+        $path = fileManagerCanonicalPath($requested);
         if ($path === false) {
             return null;
         }
-        $path = rtrim(str_replace('\\', '/', $path), '/');
         if (!FileManagerAccess::isWithin($filemanagerPath, $path)) {
             return null;
         }
@@ -275,10 +275,15 @@ if(!function_exists('fileManagerProtectedPaths')) {
             }
         }
 
-        return array_map(
-            static fn ($path) => rtrim(str_replace('\\', '/', realpath($path) ?: $path), '/'),
-            $paths
-        );
+        // by its real path and by its name below the root: a protected folder may be a link
+        $spellings = [];
+        foreach ($paths as $path) {
+            foreach ([realpath($path) ?: $path, fileManagerCanonicalPath($path) ?: $path] as $spelling) {
+                $spellings[] = rtrim(str_replace('\\', '/', $spelling), '/');
+            }
+        }
+
+        return array_values(array_unique($spellings));
     }
 }
 
@@ -366,8 +371,24 @@ if(!function_exists('fileManagerCodeEntry')) {
         if (fileManagerIsExecutableName($path)) {
             return '';
         }
-        if (fileManagerIsLink($path) || !is_dir($path)) {
+        // a link the file managers pass is a folder whose code goes with it (a plugin checked out
+        // elsewhere); any other link counts by its own name only. Each real folder is read once.
+        $named = [];
+        $passes = static function ($link) use (&$named) {
+            $target = fileManagerPassableLinkTarget($link, $named);
+            if ($target === null || !is_dir($target)) {
+                return false;
+            }
+            $named[] = $target;
+
+            return true;
+        };
+        if (!is_dir($path) || (fileManagerIsLink($path) && !$passes($path))) {
             return null;
+        }
+        $real = realpath($path);
+        if ($real !== false) {
+            $named[] = rtrim(str_replace('\\', '/', $real), '/');
         }
         $stack = [''];
         while ($stack) {
@@ -388,7 +409,7 @@ if(!function_exists('fileManagerCodeEntry')) {
                 if (fileManagerIsReservedDeviceName($entry)) {
                     continue;
                 }
-                if (!fileManagerIsLink("$path/$entryRel") && is_dir("$path/$entryRel")) {
+                if (is_dir("$path/$entryRel") && (!fileManagerIsLink("$path/$entryRel") || $passes("$path/$entryRel"))) {
                     $stack[] = $entryRel;
                 }
             }
@@ -465,16 +486,19 @@ if(!function_exists('fileManagerRefuseReservedName')) {
 
 if(!function_exists('fileManagerPathIsProtected')) {
     /**
-     * Whether $path is a protected folder or lies inside one.
+     * Whether $path is a protected folder or lies inside one, by its name or where it lands.
      *
      * @param string $path canonical absolute path
      * @param string[] $protectedPaths
+     * @param bool $followLink false to judge a link by where it sits, not where it leads
      */
-    function fileManagerPathIsProtected($path, array $protectedPaths)
+    function fileManagerPathIsProtected($path, array $protectedPaths, $followLink = true)
     {
-        foreach ($protectedPaths as $protectedPath) {
-            if (FileManagerAccess::isWithin($protectedPath, $path)) {
-                return true;
+        foreach (fileManagerPathSpellings($path, $followLink) as $spelling) {
+            foreach ($protectedPaths as $protectedPath) {
+                if (FileManagerAccess::isWithin($protectedPath, $spelling)) {
+                    return true;
+                }
             }
         }
 
@@ -492,13 +516,68 @@ if(!function_exists('fileManagerPathTouchesProtected')) {
      */
     function fileManagerPathTouchesProtected($path, array $protectedPaths)
     {
-        foreach ($protectedPaths as $protectedPath) {
-            if (FileManagerAccess::isWithin($protectedPath, $path) || FileManagerAccess::isWithin($path, $protectedPath)) {
-                return true;
+        foreach (fileManagerPathSpellings($path) as $spelling) {
+            foreach ($protectedPaths as $protectedPath) {
+                if (FileManagerAccess::isWithin($protectedPath, $spelling) || FileManagerAccess::isWithin($spelling, $protectedPath)) {
+                    return true;
+                }
             }
         }
 
         return false;
+    }
+}
+
+if(!function_exists('fileManagerPathSpellings')) {
+    /**
+     * $path as the file managers name it and as the file system resolves it. A passed link keeps
+     * its own name (file groups are keyed by it), but a protected folder is protected wherever it
+     * is reached from: a link to an external view path must not open it under another name.
+     *
+     * @param string $path absolute path, which need not exist yet
+     * @param bool $followLink false to resolve only the folder $path sits in
+     * @return string[]
+     */
+    function fileManagerPathSpellings($path, $followLink = true)
+    {
+        $path = rtrim(str_replace('\\', '/', (string) $path), '/');
+        if ($followLink) {
+            $resolved = fileManagerResolvedPath($path);
+        } else {
+            $parent = fileManagerResolvedPath(dirname($path));
+            $resolved = $parent === null ? null : $parent . '/' . basename($path);
+        }
+
+        return $resolved === null || $resolved === $path ? [$path] : [$path, $resolved];
+    }
+}
+
+if(!function_exists('fileManagerResolvedPath')) {
+    /**
+     * Where $path lands on the file system: the real path of its nearest existing ancestor with
+     * the rest of $path appended, so a destination that does not exist yet resolves too. Null
+     * when no part of it exists.
+     *
+     * @param string $path absolute path
+     */
+    function fileManagerResolvedPath($path)
+    {
+        $current = rtrim(str_replace('\\', '/', (string) $path), '/');
+        $tail = '';
+        while ($current !== '') {
+            $real = realpath($current);
+            if ($real !== false) {
+                return rtrim(str_replace('\\', '/', $real), '/') . $tail;
+            }
+            $parent = dirname($current);
+            if ($parent === $current || $parent === '.') {
+                return null;
+            }
+            $tail = '/' . basename($current) . $tail;
+            $current = rtrim(str_replace('\\', '/', $parent), '/');
+        }
+
+        return null;
     }
 }
 
@@ -534,16 +613,276 @@ if(!function_exists('fileManagerIsLink')) {
     }
 }
 
+if(!function_exists('fileManagerSiteAclRoot')) {
+    /**
+     * FileManagerAccess::aclRoot() through evolutionCMS(), as everything here: the site-wide
+     * file manager root that file groups are keyed by, canonical, no trailing slash. Null without
+     * a CMS to ask (the helpers run on their own in tests): then no link is passed.
+     *
+     * @return string|null
+     */
+    function fileManagerSiteAclRoot()
+    {
+        if (!defined('EVO_BASE_PATH')) {
+            return null;
+        }
+        try {
+            $evo = evolutionCMS();
+        } catch (\Throwable $e) {
+            return null;
+        }
+        $root = $evo->configGlobal['filemanager_path'] ?? $evo->getConfig('filemanager_path');
+        $root = str_replace('[(base_path)]', EVO_BASE_PATH, (string) $root);
+
+        return rtrim(str_replace('\\', '/', realpath($root) ?: realpath(EVO_BASE_PATH)), '/');
+    }
+}
+
+if(!function_exists('fileManagerSharedTypeRoots')) {
+    /**
+     * The links that stand for media browser type folders kept in shared storage (see
+     * FileBrowserAccess::sharedTypeRoots()), for the site-wide settings.
+     *
+     * @return array<string, string> [link => real folder]
+     */
+    function fileManagerSharedTypeRoots()
+    {
+        static $cache = [];
+        static $computing = false;
+        $aclRoot = $computing ? null : fileManagerSiteAclRoot();
+        if ($aclRoot === null) {
+            // while the list is being built, or without a CMS, it is empty
+            return [];
+        }
+        $evo = evolutionCMS();
+        $setting = static fn ($key) => (string) ($evo->configGlobal[$key] ?? $evo->getConfig($key, ''));
+        $args = [
+            $aclRoot,
+            $setting('rb_base_dir'),
+            $setting('rb_base_url'),
+            EVO_BASE_PATH,
+            defined('EVO_BASE_URL') ? EVO_BASE_URL : '/',
+            defined('EVO_SITE_URL') ? EVO_SITE_URL : '',
+        ];
+        $key = implode("\0", $args);
+        if (!array_key_exists($key, $cache)) {
+            $computing = true;
+            try {
+                $cache[$key] = FileBrowserAccess::sharedTypeRoots(...$args);
+            } finally {
+                $computing = false;
+            }
+        }
+
+        return $cache[$key];
+    }
+}
+
+if(!function_exists('fileManagerSharedTypeRootAt')) {
+    /**
+     * The shared type-folder link $path names, checked again against its target, or null.
+     *
+     * @param string $path absolute path in any spelling of its parent
+     * @return string|null the link as fileManagerSharedTypeRoots() lists it
+     */
+    function fileManagerSharedTypeRootAt($path)
+    {
+        $roots = fileManagerSharedTypeRoots();
+        if ($roots === []) {
+            return null;
+        }
+        $path = rtrim(str_replace('\\', '/', $path), '/');
+        $parent = realpath(dirname($path));
+        $real = realpath($path);
+        if ($parent === false || $real === false) {
+            return null;
+        }
+        $spelling = rtrim(str_replace('\\', '/', $parent), '/') . '/' . basename($path);
+        $real = rtrim(str_replace('\\', '/', $real), '/');
+        foreach ($roots as $link => $target) {
+            // isWithin() both ways: the same path, by the platform's letter-case rule
+            if (FileManagerAccess::isWithin($link, $spelling) && FileManagerAccess::isWithin($spelling, $link)
+                && FileManagerAccess::isWithin($target, $real) && FileManagerAccess::isWithin($real, $target)) {
+                return $link;
+            }
+        }
+
+        return null;
+    }
+}
+
+if(!function_exists('fileManagerPassableLinkTarget')) {
+    /**
+     * Where a link below a file manager root leads, when the file managers may pass it: then it
+     * is a folder (or file) like any other, named by its own path, and every rule applies by that
+     * name. The CMS never creates links, so these are the operator's: a shared upload folder, a
+     * plugin checked out elsewhere.
+     *
+     * A link is passed only into somewhere new. Not when it dangles; not into the ACL root or
+     * around it; not around the folder it sits in (a loop); not into or around anything the walk
+     * has named already ($named: where it started and the links it passed); not into shared
+     * storage that a type-folder link names. Each of those would give a file a second name, and
+     * file groups are keyed by name. Two separate links to one outside folder cannot be told
+     * apart from here: the operator should not make them.
+     *
+     * @param string $link
+     * @param string[] $named real paths, forward slashes
+     * @return string|null its real target, forward slashes
+     */
+    function fileManagerPassableLinkTarget($link, array $named = [])
+    {
+        $target = realpath($link);
+        $parent = realpath(dirname($link));
+        if ($target === false || $parent === false) {
+            return null;
+        }
+        $aclRoot = fileManagerSiteAclRoot();
+        if ($aclRoot === null) {
+            return null;
+        }
+        $target = rtrim(str_replace('\\', '/', $target), '/');
+        $parent = rtrim(str_replace('\\', '/', $parent), '/');
+        $overlaps = static fn ($a, $b) => FileManagerAccess::isWithin($a, $b) || FileManagerAccess::isWithin($b, $a);
+        if ($overlaps($aclRoot, $target) || FileManagerAccess::isWithin($target, $parent)) {
+            return null;
+        }
+        foreach ($named as $real) {
+            if ($overlaps($real, $target)) {
+                return null;
+            }
+        }
+        $self = fileManagerSharedTypeRootAt($link);
+        foreach (fileManagerSharedTypeRoots() as $typeLink => $typeTarget) {
+            if ($typeLink !== $self && $overlaps($typeTarget, $target)) {
+                return null;
+            }
+        }
+
+        return $target;
+    }
+}
+
+if(!function_exists('fileManagerStoredName')) {
+    /**
+     * $name with the letter case $dir stores it with. Windows matches names in any case, while
+     * file groups are matched exactly, so a name from a request is put into the stored case
+     * before it becomes a key. Elsewhere $name itself.
+     *
+     * @param string $dir
+     * @param string $name
+     */
+    function fileManagerStoredName($dir, $name)
+    {
+        static $listings = [];
+        if (PHP_OS_FAMILY !== 'Windows') {
+            return $name;
+        }
+        if (!array_key_exists($dir, $listings)) {
+            $listings[$dir] = @scandir($dir) ?: [];
+        }
+        if (in_array($name, $listings[$dir], true)) {
+            return $name;
+        }
+        foreach ($listings[$dir] as $entry) {
+            if (strcasecmp($entry, $name) === 0) {
+                return $entry;
+            }
+        }
+
+        return $name;
+    }
+}
+
+if(!function_exists('fileManagerCanonicalPath')) {
+    /**
+     * The name the file managers know an existing $path by. Below the ACL root (by any spelling
+     * of it: a hosting public_html, a release link), it is the root's own path followed by each
+     * part in its stored letter case, through passable links but never resolving them, since a
+     * linked folder is named by its link (fileManagerPassableLinkTarget()). Elsewhere realpath().
+     *
+     * @param string $path
+     * @param string|null $root the ACL root, fileManagerSiteAclRoot() by default
+     * @return string|false forward slashes, no trailing slash; false when it does not exist,
+     *                      climbs above the root or out of a link, or passes a link not passed
+     */
+    function fileManagerCanonicalPath($path, $root = null)
+    {
+        $path = rtrim(str_replace('\\', '/', (string) $path), '/');
+        if ($path === '' || strpos($path, "\0") !== false || fileManagerRefuseReservedName($path)) {
+            return false;
+        }
+        $root = $root === null
+            ? fileManagerSiteAclRoot()
+            : rtrim(str_replace('\\', '/', realpath($root) ?: $root), '/');
+        if ($root === null) {
+            $real = realpath($path);
+
+            return $real === false ? false : rtrim(str_replace('\\', '/', $real), '/');
+        }
+        $segments = explode('/', $path);
+        $rest = null;
+        $lead = '';
+        // the shortest leading part of $path that is the ACL root
+        foreach ($segments as $i => $segment) {
+            $lead = $i === 0 ? $segment : $lead . '/' . $segment;
+            if ($lead === '' || substr($lead, -1) === ':') {
+                continue; // "/" or a bare drive letter, which realpath() reads as the working directory
+            }
+            $real = realpath($lead);
+            if ($real !== false && FileManagerAccess::isWithin($root, $real) && FileManagerAccess::isWithin($real, $root)) {
+                $rest = array_slice($segments, $i + 1);
+                break;
+            }
+        }
+        if ($rest === null) {
+            $real = realpath($path);
+
+            return $real === false ? false : rtrim(str_replace('\\', '/', $real), '/');
+        }
+
+        $current = $root;
+        $named = [$root];
+        $throughLink = false;
+        foreach ($rest as $segment) {
+            if ($segment === '' || $segment === '.') {
+                continue;
+            }
+            if ($segment === '..') {
+                // past a link, .. climbs in its target, not back where the server walks
+                if ($current === $root || $throughLink) {
+                    return false;
+                }
+                $current = dirname($current);
+                continue;
+            }
+            $next = $current . '/' . fileManagerStoredName($current, $segment);
+            if (fileManagerIsLink($next)) {
+                $target = fileManagerPassableLinkTarget($next, $named);
+                if ($target === null) {
+                    return false;
+                }
+                $named[] = $target;
+                $throughLink = true;
+            } elseif (!file_exists($next)) {
+                return false;
+            }
+            $current = $next;
+        }
+
+        return $current;
+    }
+}
+
 if(!function_exists('fileManagerPathContainsLink')) {
     /**
-     * Whether a path below $root passes through a symlink or junction. The root itself is a
-     * configured boundary and may be a symlink (for example, public_html); links below it are
-     * never followed. Accept either the configured root spelling or its canonical spelling.
+     * Whether a path below $root cannot be used: it climbs above $root, names a Windows device,
+     * or passes a link the file managers do not pass (fileManagerPassableLinkTarget(): one that
+     * dangles, loops, or gives something reachable a second name). The root itself is a
+     * configured boundary and may be a link (for example, public_html). Accept either the
+     * configured root spelling or its canonical spelling.
      *
      * @param string $root absolute root
      * @param string $path absolute path, possibly not created yet
-     *
-     * A Windows device name below the root counts as a link here: callers refuse both.
      */
     function fileManagerPathContainsLink($root, $path)
     {
@@ -567,12 +906,15 @@ if(!function_exists('fileManagerPathContainsLink')) {
 
         $current = $base;
         $relative = substr($path, strlen($base));
+        $named = $canonicalRoot !== '' ? [$canonicalRoot] : [];
+        $throughLink = false;
         foreach (explode('/', trim($relative, '/')) as $segment) {
             if ($segment === '' || $segment === '.') {
                 continue;
             }
             if ($segment === '..') {
-                if ($current === $base) {
+                // past a link, .. climbs in its target, not back where the server walks
+                if ($current === $base || $throughLink) {
                     return true;
                 }
                 $current = dirname($current);
@@ -581,7 +923,12 @@ if(!function_exists('fileManagerPathContainsLink')) {
 
             $current = rtrim($current, '/') . '/' . $segment;
             if (fileManagerIsLink($current)) {
-                return true;
+                $target = fileManagerPassableLinkTarget($current, $named);
+                if ($target === null) {
+                    return true;
+                }
+                $named[] = $target;
+                $throughLink = true;
             }
         }
 
@@ -592,8 +939,9 @@ if(!function_exists('fileManagerPathContainsLink')) {
 if(!function_exists('fileManagerIsSafeWriteTarget')) {
     /**
      * Whether writing to $target, which need not exist yet, stays under $root. Every part of
-     * the path that already exists is checked, so a symlink anywhere on the way (a folder
-     * whose children do not exist yet, or the file itself) cannot redirect the write.
+     * the path that already exists is checked: a link on the way must be one the file managers
+     * pass (fileManagerPassableLinkTarget()), and the target itself must not be a link, dangling
+     * or not, which the write would follow.
      *
      * @param string $root canonical absolute path
      * @param string $target absolute path below $root
@@ -610,6 +958,8 @@ if(!function_exists('fileManagerIsSafeWriteTarget')) {
             return false;
         }
 
+        $rootReal = realpath($root);
+        $named = $rootReal !== false ? [rtrim(str_replace('\\', '/', $rootReal), '/')] : [];
         $current = $root;
         foreach (explode('/', substr($target, strlen($root) + 1)) as $segment) {
             if ($segment === '' || $segment === '.' || $segment === '..') {
@@ -617,7 +967,10 @@ if(!function_exists('fileManagerIsSafeWriteTarget')) {
             }
             $current .= '/' . $segment;
             if (fileManagerIsLink($current)) {
-                return false;
+                if ($current === $target || ($real = fileManagerPassableLinkTarget($current, $named)) === null) {
+                    return false;
+                }
+                $named[] = $real;
             }
             if (!file_exists($current)) {
                 // everything below is created by this write, so none of it can be a link
@@ -887,8 +1240,8 @@ if(!function_exists('fileManagerCreateDirectoryZip')) {
         array $fileGroupsMap,
         array $protectedPaths
     ): bool {
-        $sourcePath = rtrim(str_replace('\\', '/', realpath($sourcePath)), '/');
-        $filemanagerPath = rtrim(str_replace('\\', '/', realpath($filemanagerPath)), '/');
+        $sourcePath = rtrim((string) fileManagerCanonicalPath($sourcePath), '/');
+        $filemanagerPath = rtrim((string) fileManagerCanonicalPath($filemanagerPath), '/');
         $archiveRoot = basename($relativePath !== '' ? $relativePath : $sourcePath);
         $archiveRoot = trim(preg_replace('/[^\w.-]+/', '-', $archiveRoot), '.-') ?: 'files';
 
@@ -1198,7 +1551,7 @@ if(!function_exists('fileManagerCanonicalCase')) {
         $path = rtrim(str_replace('\\', '/', $path), '/');
         $rest = [];
         $existing = $path;
-        while ($existing !== '' && ($real = realpath($existing)) === false) {
+        while ($existing !== '' && ($real = fileManagerCanonicalPath($existing)) === false) {
             $rest[] = basename($existing);
             $parent = dirname($existing);
             if ($parent === $existing) {
@@ -1280,7 +1633,7 @@ if(!function_exists('fileManagerExtractZip')) {
     function fileManagerExtractZip($file, $path, array $protectedPaths = [], $dirMode = 0777, ?callable $mayWrite = null, ?array &$created = null, ?array &$links = null)
     {
         $links = [];
-        $root = realpath($path);
+        $root = fileManagerCanonicalPath($path);
         if ($root === false) {
             return false;
         }
@@ -1511,7 +1864,15 @@ if(!function_exists('ls')) {
             }
             $rel_newpath = ltrim(substr($newpath, strlen($filemanager_path)), '/');
             $rel_web = ltrim(substr($newpath, strlen($base_path)), '/');
-            if (fileManagerIsLink($newpath)) {
+            // a link the file managers pass is listed as the folder or file it stands for, named by
+            // its own path (fileManagerPassableLinkTarget()); the site's shared type folder among them
+            $isLink = fileManagerIsLink($newpath);
+            $passableLink = $isLink && !fileManagerPathContainsLink($filemanager_path, $newpath);
+            $sharedTypeRoot = $passableLink && fileManagerSharedTypeRootAt($newpath) !== null;
+            $linkMark = $passableLink
+                ? '<i class="' . ($_style['icon_link'] ?? 'evo-icon evo-icon-link') . ' FilesLinkMark"></i> '
+                : '';
+            if ($isLink && !$passableLink) {
                 // shown, never followed: a link may lead anywhere, and the web server would serve its
                 // target without any check here, so it gets no URL, no drill-down and no action
                 if (fileManagerIsAccessible($rel_newpath, $userGroups ?? [], $fileGroupsMap ?? [])) {
@@ -1553,7 +1914,7 @@ if(!function_exists('ls')) {
                     continue;
                 } elseif (!in_array($file, $excludes) && !in_array($newpath, $protected_path)) {
                     $dirs_array[$dircounter]['text'] = '<i class="' . $_style['icon_folder'] . ' FilesFolder"></i> '
-                        . '<a href="index.php?a=31&mode=drill&path=' . urlencode($rel_newpath) . '"><b>'
+                        . $linkMark . '<a href="index.php?a=31&mode=drill&path=' . urlencode($rel_newpath) . '"><b>'
                         . htmlspecialchars($file, ENT_QUOTES, 'UTF-8') . '</b></a>' . $groupSuffix;
 
                     $dfiles = scandir($newpath);
@@ -1566,7 +1927,8 @@ if(!function_exists('ls')) {
                         }
                     }
                     $file_exists = (0 < count($dfiles)) ? 'file_exists' : '';
-                    $canModifyDir = $currentDirWritable
+                    // the site's shared type folder is entered, never removed or renamed
+                    $canModifyDir = $currentDirWritable && !$sharedTypeRoot
                         && fileManagerCanModifyExistingPath($rel_newpath, $userGroups ?? [], $fileGroupsMap ?? [])
                         && is_writable($newpath);
 
@@ -1587,7 +1949,7 @@ if(!function_exists('ls')) {
                         . $_style['icon_trash'] . '" title="' . $_lang['file_delete_folder'] . '"></i></span>' : '';
                 }
 
-                $dirs_array[$dircounter]['rename'] = ($currentDirWritable
+                $dirs_array[$dircounter]['rename'] = ($currentDirWritable && !$sharedTypeRoot
                     && fileManagerCanModifyExistingPath($rel_newpath, $userGroups ?? [], $fileGroupsMap ?? [])
                     && is_writable($newpath)) ? '<a href="javascript:renameFolder(\''
                     . urlencode($file) . '\');"><i class="' . $_style['icon_i_cursor'] . '" title="' . $_lang['rename']
@@ -1606,7 +1968,7 @@ if(!function_exists('ls')) {
                 $files_array[$filecounter]['file'] = $rel_newpath;
                 $files_array[$filecounter]['stats'] = lstat($newpath);
                 $files_array[$filecounter]['text'] = determineIcon($rel_newpath, get_by_key($_REQUEST, 'path', ''),
-                        get_by_key($_REQUEST, 'mode', '')) . ' ' . htmlspecialchars($file, ENT_QUOTES,
+                        get_by_key($_REQUEST, 'mode', '')) . ' ' . $linkMark . htmlspecialchars($file, ENT_QUOTES,
                         'UTF-8') . $groupSuffix;
                 $canModifyFile = $currentDirWritable
                     && fileManagerCanModifyExistingPath($rel_newpath, $userGroups ?? [], $fileGroupsMap ?? [])
@@ -1880,9 +2242,8 @@ if(!function_exists('unzip')) {
             $path,
             fileManagerProtectedPaths(),
             $newfolderaccessmode ?: 0777,
-            fileManagerZipWriteGuard(rtrim(str_replace('\\', '/',
-                (string) realpath(evolutionCMS()->getConfig('filemanager_path', EVO_BASE_PATH))), '/'),
-                rtrim(str_replace('\\', '/', (string) realpath($path)), '/'))
+            fileManagerZipWriteGuard(rtrim((string) fileManagerCanonicalPath(evolutionCMS()->getConfig('filemanager_path', EVO_BASE_PATH)), '/'),
+                rtrim((string) fileManagerCanonicalPath($path), '/'))
         );
         umask($old_umask);
 
@@ -1956,8 +2317,8 @@ if(!function_exists('fileupload')) {
         global $_lang, $uploadablefiles;
 
         $modx = evolutionCMS();
-        $filemanager_path = rtrim(str_replace('\\', '/', realpath(evolutionCMS()
-            ->getConfig('filemanager_path', EVO_BASE_PATH))), '/'); // Canonicalize base path
+        $filemanager_path = rtrim((string) fileManagerCanonicalPath(evolutionCMS()
+            ->getConfig('filemanager_path', EVO_BASE_PATH)), '/'); // Canonicalize base path
         $requested_path = ltrim($_REQUEST['path'] ?? '', '/');
         $resolvedStartPath = fileManagerResolvePath($filemanager_path, $requested_path);
         if ($resolvedStartPath === null) {
@@ -2036,7 +2397,11 @@ if(!function_exists('fileupload')) {
                     // The restrictions are keyed by the stored name: on Windows secret.txt is Secret.txt
                     $existingRel = ltrim(substr(fileManagerCanonicalCase($targetFile), strlen($filemanager_path)), '/');
                     $replacing = file_exists($targetFile);
-                    if ($replacing && !fileManagerCanModifyExistingPath($existingRel)) {
+                    if (!fileManagerIsSafeWriteTarget($filemanager_path, $targetFile)) {
+                        // a move across file systems copies, and the copy follows a link
+                        fileManagerLogDenied('upload over link', $existingRel, 'link');
+                        $fileMsg .= '<p><span class="warning">' . $_lang['files_access_denied'] . '</span></p>';
+                    } elseif ($replacing && !fileManagerCanModifyExistingPath($existingRel)) {
                         fileManagerLogDenied('upload over existing file', $existingRel, 'file group');
                         $fileMsg .= '<p><span class="warning">' . $_lang['files_access_denied'] . '</span></p>';
                     } elseif (@move_uploaded_file($userfile['tmp_name'], $targetFile)) {
@@ -2118,18 +2483,22 @@ if(!function_exists('textsave')) {
     {
         global $_lang;
 
-        $filemanager_path = rtrim(str_replace('\\', '/', realpath(evolutionCMS()
-            ->getConfig('filemanager_path', EVO_BASE_PATH))), '/');
+        $filemanager_path = rtrim((string) fileManagerCanonicalPath(evolutionCMS()
+            ->getConfig('filemanager_path', EVO_BASE_PATH)), '/');
         $requested_path = ltrim($_POST['path'] ?? '', '/');
         $requested = $filemanager_path . '/' . $requested_path;
         if (fileManagerPathContainsLink($filemanager_path, $requested)) {
             return '<span class="warning"><b>Invalid path.</b></span><br /><br />';
         }
-        $filename = str_replace('\\', '/', realpath($requested));
+        $filename = (string) fileManagerCanonicalPath($requested);
         if (!FileManagerAccess::isWithin($filemanager_path, $filename) || !is_file($filename)) {
             return '<span class="warning"><b>Invalid path.</b></span><br /><br />';
         }
         $fileRel = ltrim(substr($filename, strlen($filemanager_path)), '/');
+        // a linked file is checked by its name, while the write would land in its target
+        if (!fileManagerIsSafeWriteTarget($filemanager_path, $filename)) {
+            return fileManagerDenied('link', $fileRel);
+        }
         if (!fileManagerCanModifyExistingPath($fileRel)
             || fileManagerPathIsProtected($filename, fileManagerProtectedPaths())
             || (fileManagerIsExecutableName($filename) && !fileManagerMayRunCode())
@@ -2160,14 +2529,14 @@ if(!function_exists('delete_file')) {
     {
         global $_lang;
 
-        $filemanager_path = rtrim(str_replace('\\', '/', realpath(evolutionCMS()
-            ->getConfig('filemanager_path', EVO_BASE_PATH))), '/');
+        $filemanager_path = rtrim((string) fileManagerCanonicalPath(evolutionCMS()
+            ->getConfig('filemanager_path', EVO_BASE_PATH)), '/');
         $requested_path = ltrim($_REQUEST['path'] ?? '', '/');
         $requested = $filemanager_path . '/' . $requested_path;
         if (fileManagerPathContainsLink($filemanager_path, $requested)) {
             return '<span class="warning"><b>Invalid path.</b></span><br /><br />';
         }
-        $file = str_replace('\\', '/', realpath($requested));
+        $file = (string) fileManagerCanonicalPath($requested);
         if (!FileManagerAccess::isWithin($filemanager_path, $file) || !is_file($file)) {
             return '<span class="warning"><b>Invalid path.</b></span><br /><br />';
         }
@@ -2183,11 +2552,15 @@ if(!function_exists('delete_file')) {
         // the path below the root, never the server's absolute one
         $msg = sprintf($_lang['deleting_file'], htmlspecialchars($fileRel, ENT_QUOTES, 'UTF-8'));
 
+        // a linked file goes as a link (unlink() never follows one): its groups stay for its return
+        $wasLink = fileManagerIsLink($file);
         if (!evolutionCMS()->hasPermission('file_manager') || !@unlink($file)) {
             $msg .= '<span class="warning"><b>' . $_lang['file_not_deleted'] . '</b></span><br /><br />';
         } else {
             $msg .= '<span class="success"><b>' . $_lang['file_deleted'] . '</b></span><br /><br />';
-            \EvolutionCMS\Support\FileManagerAccess::forgetRestrictions(fileManagerAclKey($fileRel));
+            if (!$wasLink) {
+                \EvolutionCMS\Support\FileManagerAccess::forgetRestrictions(fileManagerAclKey($fileRel));
+            }
         }
 
         // Log the change

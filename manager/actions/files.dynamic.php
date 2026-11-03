@@ -40,7 +40,7 @@ $uploadablefiles = array_merge($upload_files, $upload_images, $upload_media);
 $uploadablefiles = add_dot($uploadablefiles);
 $upload_maxsize = evo()->getConfig('upload_maxsize');
 $filemanager_path = rtrim(str_replace('\\', '/',
-    realpath(evo()->getConfig('filemanager_path')) ?: realpath(EVO_BASE_PATH)), '/');
+    fileManagerCanonicalPath(evo()->getConfig('filemanager_path')) ?: realpath(EVO_BASE_PATH)), '/');
 $base_path = rtrim(str_replace('\\', '/', realpath(EVO_BASE_PATH)), '/');
 // end settings
 // get the current work directory
@@ -50,7 +50,7 @@ $fullpath = $resolvedCurrentPath['path'] ?? false;
 $selFile = '';
 if (is_file($fullpath)) {
     $selFile = $requested_path;
-    $startpath = rtrim(str_replace('\\', '/', realpath(dirname($fullpath))), '/');
+    $startpath = rtrim((string) fileManagerCanonicalPath(dirname($fullpath)), '/');
 } elseif (is_dir($fullpath)) {
     $startpath = $fullpath;
 } else {
@@ -533,9 +533,11 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                 if ($token_check) {
                     $folderTarget = fileManagerResolvePath($filemanager_path, $_REQUEST['folderpath'] ?? '');
                     $folder = $folderTarget['path'] ?? '';
+                    $wasLink = $folder !== '' && fileManagerIsLink($folder);
                     if ($folderTarget === null || !is_dir($folder)) {
                         echo '<span class="warning"><b>Invalid path.</b></span><br /><br />';
                     } elseif (!fileManagerCanModifyExistingPath($folderTarget['relative'], $userGroups)
+                        || fileManagerSharedTypeRootAt($folder) !== null
                         || fileManagerPathTouchesProtected($folder, $protected_path)
                         || fileManagerHasInaccessibleDescendants($folderTarget['relative'])
                         || !is_writable($folder)) {
@@ -547,7 +549,10 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                         echo '<span class="warning"><b>' . $_lang['file_folder_not_deleted'] . '</b></span><br /><br />';
                     } else {
                         echo '<span class="success"><b>' . $_lang['file_folder_deleted'] . '</b></span><br /><br />';
-                        \EvolutionCMS\Support\FileManagerAccess::forgetRestrictions(fileManagerAclKey($folderTarget['relative']));
+                        // a linked folder goes as a link: its content and groups stay for the link's return
+                        if (!$wasLink) {
+                            \EvolutionCMS\Support\FileManagerAccess::forgetRestrictions(fileManagerAclKey($folderTarget['relative']));
+                        }
                     }
                 } else {
                     echo $tokenRefusedMessage;
@@ -730,8 +735,10 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                         || fileManagerRefuseReservedName($linkName) || !fileManagerIsLink($linkPath)) {
                         echo '<span class="warning"><b>Invalid path.</b></span><br /><br />';
                     } elseif (!fileManagerCanModifyExistingPath($linkRelative, $userGroups)
-                        || fileManagerPathIsProtected($linkPath, $protected_path)) {
+                        || fileManagerPathIsProtected($linkPath, $protected_path, false)) {
                         echo fileManagerDenied('file group, top level or protected folder');
+                    } elseif (fileManagerSharedTypeRootAt($linkPath) !== null) {
+                        echo fileManagerDenied('shared type folder');
                     } elseif (($denied = fileManagerCodeRemovalDenied($linkPath, $linkRelative)) !== null) {
                         // a link named .htaccess is read by the web server like the file
                         echo $denied;
@@ -754,6 +761,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                     if ($dirTarget === null || !is_dir($dirname)) {
                         echo '<span class="warning"><b>Invalid path.</b></span><br /><br />';
                     } elseif (!fileManagerCanModifyExistingPath($dirTarget['relative'], $userGroups)
+                        || fileManagerSharedTypeRootAt($dirname) !== null
                         || fileManagerPathTouchesProtected($dirname, $protected_path)
                         || !is_writable($dirname)) {
                         echo fileManagerDenied();

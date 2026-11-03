@@ -170,14 +170,16 @@ it('copies and moves in the media browser only to a destination nothing occupies
         ->and($browser)->toContain("'xb'");
 });
 
-it('does not list links of the classic file manager nor serve a thumbnail through one', function () {
+it('lists only passable links of the classic file manager as entries, nor serves a thumbnail through another', function () {
     $functions = fmAclSource('core/functions/actions/files.php');
     $browser = fmAclSource('manager/media/browser/mcpuk/core/browser.php');
-    $ls = substr($functions, strpos($functions, '// first, get info'), 700);
+    $ls = substr($functions, strpos($functions, '// first, get info'), 2000);
     $thumb = substr($browser, strpos($browser, 'function act_thumb'), 1500);
 
-    expect($ls)->toContain('if (fileManagerIsLink($newpath)) {')
-        ->and(strpos($ls, 'fileManagerIsLink($newpath)'))->toBeLessThan(strpos($ls, 'fileManagerIsAccessible('))
+    // a link the file managers do not pass is set aside before any ACL lookup by its name
+    expect($ls)->toContain('$passableLink = $isLink && !fileManagerPathContainsLink($filemanager_path, $newpath);')
+        ->toContain('if ($isLink && !$passableLink) {')
+        ->and(strpos($ls, 'if ($isLink && !$passableLink) {'))->toBeLessThan(strpos($ls, 'fileManagerIsAccessible('))
         ->and($thumb)->toContain('!$this->isSafeThumbPath($file)')
         ->and(strpos($thumb, 'isSafeThumbPath($file)'))->toBeLessThan(strpos($thumb, 'is_file($file)'));
 });

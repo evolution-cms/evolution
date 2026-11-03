@@ -260,7 +260,9 @@ it('checks the restrictions of an existing file before an upload replaces it', f
     expect($check)->not->toBeFalse()
         ->and($check)->toBeLessThan(strpos($body, 'move_uploaded_file'))
         ->and(substr($body, $check - 400, 650))->toContain('fileManagerCanonicalCase($targetFile)')
-        ->and(substr($body, $check, 250))->toContain('fileManagerCanModifyExistingPath(');
+        ->and(substr($body, $check, 600))->toContain('fileManagerCanModifyExistingPath(')
+        // and never over a link, which the move would follow
+        ->and(substr($body, $check, 250))->toContain('fileManagerIsSafeWriteTarget($filemanager_path, $targetFile)');
 });
 
 it('writes a refused save to the event log for the administrator', function () {

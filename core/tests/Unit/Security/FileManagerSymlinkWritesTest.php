@@ -201,7 +201,8 @@ it('does not pick a dangling symlink as a free upload name', function () {
 
 it('accepts only a new name inside the type folder as an upload target', function () {
     fmLinksSymlink($this->tmp . '/outside/shell.php', $this->root . '/dangling.png');
-    fmLinksSymlink($this->tmp . '/outside', $this->root . '/linked');
+    // a loop, which the file managers never pass (a link they pass is a folder of the type)
+    fmLinksSymlink($this->tmp, $this->root . '/linked');
     $browser = fmLinksBrowser($this->root);
     $method = new ReflectionMethod(browser::class, 'isNewUploadTarget');
 

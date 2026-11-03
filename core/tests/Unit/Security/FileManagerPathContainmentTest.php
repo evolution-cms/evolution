@@ -86,12 +86,15 @@ it('accepts write targets below the root and rejects ones that leave it', functi
         ->and(fileManagerIsSafeWriteTarget($root, $this->tmp . '/root-old/file.txt'))->toBeFalse();
 });
 
-it('rejects write targets that pass through a symlinked folder', function () {
-    mkdir($this->tmp . '/root', 0777, true);
+it('rejects write targets that pass through a link the file managers do not pass', function () {
+    mkdir($this->tmp . '/root/inside', 0777, true);
     mkdir($this->tmp . '/outside', 0777, true);
-    fmContainmentSymlink($this->tmp . '/outside', $this->tmp . '/root/link');
+    // a loop (around the folder it sits in) and a second name for a folder below the root
+    fmContainmentSymlink($this->tmp, $this->tmp . '/root/link');
+    fmContainmentSymlink($this->tmp . '/root/inside', $this->tmp . '/root/alias');
 
-    expect(fileManagerIsSafeWriteTarget($this->tmp . '/root', $this->tmp . '/root/link/new/file.txt'))->toBeFalse();
+    expect(fileManagerIsSafeWriteTarget($this->tmp . '/root', $this->tmp . '/root/link/outside/file.txt'))->toBeFalse()
+        ->and(fileManagerIsSafeWriteTarget($this->tmp . '/root', $this->tmp . '/root/alias/file.txt'))->toBeFalse();
 });
 
 it('rejects a write target that is itself a symlink', function () {
@@ -211,20 +214,21 @@ it('skips entries that land in a protected folder below the destination', functi
         ->and(file_get_contents($this->tmp . '/dest/images/ok.png'))->toBe('png');
 });
 
-it('does not follow a symlinked folder or file while extracting', function () {
+it('does not follow a link it does not pass, nor write over a linked file, while extracting', function () {
     mkdir($this->tmp . '/dest', 0777, true);
     mkdir($this->tmp . '/outside', 0777, true);
     file_put_contents($this->tmp . '/victim.txt', 'original');
-    fmContainmentSymlink($this->tmp . '/outside', $this->tmp . '/dest/link');
+    // a loop: it leads to a folder around the one it sits in
+    fmContainmentSymlink($this->tmp, $this->tmp . '/dest/link');
     fmContainmentSymlink($this->tmp . '/victim.txt', $this->tmp . '/dest/file.txt');
     fmContainmentZip($this->tmp . '/a.zip', [
-        'link/new/escaped.txt' => 'x',
+        'link/outside/escaped.txt' => 'x',
         'file.txt' => 'overwritten',
     ]);
 
     fileManagerExtractZip($this->tmp . '/a.zip', $this->tmp . '/dest');
 
-    expect(file_exists($this->tmp . '/outside/new/escaped.txt'))->toBeFalse()
+    expect(file_exists($this->tmp . '/outside/escaped.txt'))->toBeFalse()
         ->and(file_get_contents($this->tmp . '/victim.txt'))->toBe('original');
 });
 

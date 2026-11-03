@@ -11,6 +11,9 @@ final class FileBrowserAccess
 {
     private const IMAGE_TYPES = ['images', 'image'];
 
+    /** Folders below rb_base_dir that the browser opens as types (config.php `types`). */
+    public const TYPE_FOLDERS = ['files', 'images', 'file', 'image', 'media'];
+
     /**
      * The manager permission that opens a browser type, besides file_manager which opens all.
      * The browser falls back to its first type (files) for a missing or unknown one, so those
@@ -124,12 +127,16 @@ final class FileBrowserAccess
     }
 
     /**
-     * Keep file_groups keys stable when a deployment exposes a configured shared type root.
-     * Only the type root may be an alias: the browser must separately reject every symlink
-     * below it. The site-side root is accepted only when realpath proves it is the same folder.
-     * No matching root returns null; callers must not interpret that as a public file.
+     * The file_groups key of a path in a browser type folder: the type folder's name below the
+     * site-wide ACL root, then the path below it by name. Links below the type folder count by
+     * their own name when the file managers pass them (fileManagerPassableLinkTarget()); any
+     * other link makes the path unusable. The type folder itself is named by its real path when
+     * that lies below the ACL root, else by a link to it below the root (a shared folder), else
+     * by the site-side spelling of rb_base_url ($localTypeDir) once realpath proves it is the
+     * same folder. No name returns null; callers must not interpret that as a public file.
      *
-     * @return string|null Key relative to the site-wide ACL root; an empty key is that root itself.
+     * @return string|null Key relative to the site-wide ACL root; an empty key is that root itself,
+     *                     or a type root the site serves from outside it, where no group applies.
      * @since 3.6.0
      */
     public static function resolveAclPath(string $aclRoot, string $typeDir, string $absolutePath, ?string $localTypeDir = null): ?string
@@ -149,37 +156,48 @@ final class FileBrowserAccess
         $typeDir = rtrim(str_replace('\\', '/', $typeDir), '/');
         $absolutePath = rtrim(str_replace('\\', '/', $absolutePath), '/');
         $spelling = FileManagerAccess::isWithin($typeDir, $absolutePath) ? $typeDir : $typeRoot;
-        if (!FileManagerAccess::isWithin($spelling, $absolutePath)) {
+        if (!FileManagerAccess::isWithin($spelling, $absolutePath)
+            || \fileManagerPathContainsLink($spelling, $absolutePath)) {
             return null;
         }
-        $suffix = ltrim(substr($absolutePath, strlen($spelling)), '/');
-        if (in_array('..', explode('/', $suffix), true) || strpos($suffix, "\0") !== false
-            || \fileManagerPathContainsLink($typeDir, $absolutePath)) {
-            return null;
-        }
-        $existing = realpath($absolutePath);
-        if ($existing !== false) {
-            $existing = str_replace('\\', '/', $existing);
-            if (!FileManagerAccess::isWithin($typeRoot, $existing)) {
-                return null;
+        $parts = [];
+        $current = $spelling;
+        foreach (explode('/', substr($absolutePath, strlen($spelling))) as $segment) {
+            if ($segment === '' || $segment === '.') {
+                continue;
             }
-            $suffix = ltrim(substr($existing, strlen($typeRoot)), '/');
-        } else {
-            $suffix = implode('/', array_filter(explode('/', $suffix), static fn ($part) => $part !== '' && $part !== '.'));
+            if ($segment === '..') {
+                // fileManagerPathContainsLink() let it through, so it stays below the type folder
+                array_pop($parts);
+                $current = dirname($current);
+                continue;
+            }
+            $segment = \fileManagerStoredName($current, $segment);
+            $parts[] = $segment;
+            $current .= '/' . $segment;
         }
 
         if (FileManagerAccess::isWithin($root, $typeRoot)) {
             $key = ltrim(substr($typeRoot, strlen($root)), '/');
-        } elseif ($localTypeDir !== null && FileManagerAccess::isWithin($root, $localTypeDir)
-            && ($localRoot = realpath($localTypeDir)) !== false
-            && FileManagerAccess::isWithin($typeRoot, str_replace('\\', '/', $localRoot))
-            && FileManagerAccess::isWithin(str_replace('\\', '/', $localRoot), $typeRoot)) {
-            $key = ltrim(substr($localTypeDir, strlen($root)), '/');
-        } else {
+        } elseif (($typeName = \fileManagerCanonicalPath($typeDir, $root)) !== false
+            && FileManagerAccess::isWithin($root, $typeName)) {
+            $key = ltrim(substr($typeName, strlen($root)), '/');
+        } elseif ($localTypeDir === null || ($localRoot = realpath($localTypeDir)) === false
+            || !FileManagerAccess::isWithin($typeRoot, str_replace('\\', '/', $localRoot))
+            || !FileManagerAccess::isWithin(str_replace('\\', '/', $localRoot), $typeRoot)) {
             return null;
+        } elseif (($localName = \fileManagerCanonicalPath($localTypeDir, $root)) !== false
+            && FileManagerAccess::isWithin($root, $localName)) {
+            $key = ltrim(substr($localName, strlen($root)), '/');
+        } elseif (!FileManagerAccess::isWithin($root, $localTypeDir)) {
+            // the site serves this folder from outside the ACL root (a narrowed filemanager_path),
+            // where no file_groups row can name it (FileManagerAccess::aclKey()): nothing applies
+            return '';
+        } else {
+            return null; // below the root, but only through a link the file managers do not pass
         }
 
-        return trim($key . '/' . $suffix, '/');
+        return trim($key . '/' . implode('/', $parts), '/');
     }
 
     /**
@@ -205,7 +223,7 @@ final class FileBrowserAccess
         }
 
         $found = false;
-        foreach (['files', 'images', 'file', 'image', 'media'] as $type) {
+        foreach (self::TYPE_FOLDERS as $type) {
             $typeDir = rtrim($uploadDir, '/\\') . '/' . $type;
             if (!is_dir($typeDir)) {
                 continue;
@@ -218,5 +236,68 @@ final class FileBrowserAccess
         }
 
         return $found;
+    }
+
+    /**
+     * Type folders a deployment keeps in shared storage, by the site-side link the file manager may
+     * pass: [link => real folder], both absolute with forward slashes. A link qualifies when it is
+     * the site-side spelling of a configured type folder (rb_base_url below the site root), lies
+     * below the ACL root with no other link on the way, and resolves exactly to that type folder
+     * (rb_base_dir/<type>) outside the ACL root. Its key is the browser's (resolveAclPath()), so
+     * both file managers read and write the same file_groups rows. Links above the ACL root (a
+     * hosting public_html, a release switch) belong to the root and do not count.
+     *
+     * @return array<string, string>
+     * @since 3.6.0
+     */
+    public static function sharedTypeRoots(string $aclRoot, string $uploadDir, string $uploadUrl, string $basePath, string $baseUrl, string $siteUrl): array
+    {
+        $uploadDir = rtrim(str_replace('\\', '/', str_replace('[(base_path)]', $basePath, $uploadDir)), '/');
+        $aclRoot = str_replace('[(base_path)]', $basePath, $aclRoot);
+        if ($uploadDir === '' || strpos($uploadDir . $aclRoot, "\0") !== false
+            || \fileManagerRefuseReservedName($uploadDir) || \fileManagerRefuseReservedName($aclRoot)) {
+            return [];
+        }
+        $root = realpath($aclRoot);
+        if ($root === false) {
+            return [];
+        }
+        $root = rtrim(str_replace('\\', '/', $root), '/');
+
+        $links = [];
+        foreach (self::TYPE_FOLDERS as $type) {
+            $typeDir = $uploadDir . '/' . $type;
+            $real = realpath($typeDir);
+            if ($real === false || !is_dir($real)) {
+                continue;
+            }
+            $real = rtrim(str_replace('\\', '/', $real), '/');
+            if (FileManagerAccess::isWithin($root, $real)) {
+                continue; // reachable without a link: nothing to pass
+            }
+            $local = self::localUploadPath(rtrim($uploadUrl, '/') . '/' . $type, $basePath, $baseUrl, $siteUrl);
+            $key = $local === null ? null : self::resolveAclPath($root, $typeDir, $typeDir, $local);
+            if ($key === null || $key === '') {
+                continue;
+            }
+            $link = $root . '/' . $key;
+            if (!\fileManagerIsLink($link)) {
+                continue;
+            }
+            // only the type folder itself may be the link
+            $parent = $root;
+            foreach (explode('/', dirname($key)) as $segment) {
+                if ($segment === '.' || $segment === '') {
+                    continue;
+                }
+                $parent .= '/' . $segment;
+                if (\fileManagerIsLink($parent)) {
+                    continue 2;
+                }
+            }
+            $links[$link] = $real;
+        }
+
+        return $links;
     }
 }
