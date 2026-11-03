@@ -735,7 +735,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                         || fileManagerRefuseReservedName($linkName) || !fileManagerIsLink($linkPath)) {
                         echo '<span class="warning"><b>Invalid path.</b></span><br /><br />';
                     } elseif (!fileManagerCanModifyExistingPath($linkRelative, $userGroups)
-                        || fileManagerPathIsProtected($linkPath, $protected_path)) {
+                        || fileManagerPathIsProtected($linkPath, $protected_path, false)) {
                         echo fileManagerDenied('file group, top level or protected folder');
                     } elseif (fileManagerSharedTypeRootAt($linkPath) !== null) {
                         echo fileManagerDenied('shared type folder');

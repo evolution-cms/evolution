@@ -6,6 +6,8 @@
  * constructor and config.php. The hosting chain public_html -> evolution -> evo-3.6.2 sits above
  * the site; assets/images links to ../../shared/assets/images; assets/plugins/myplugin links (by
  * an absolute path) to a checkout elsewhere, whose images are linked into the shared image folder.
+ * A configured view path lies outside the site and is linked into both managers' folders, and
+ * assets/files/note.txt links to a PHP file elsewhere.
  *
  * argv: base64 JSON {base: canonical|linked, upload: site|shared}
  * Prints JSON with both managers' answers.
@@ -17,7 +19,7 @@ $site = $home . '/evo-3.6.2';
 $shared = $home . '/shared/assets/images';
 $repo = $home . '/repos/myplugin';
 foreach ([$site . '/assets/files/team', $site . '/assets/plugins', $shared . '/private', $shared . '/public',
-             $repo . '/images', $home . '/outside'] as $dir) {
+             $repo . '/images', $home . '/outside', $home . '/views', $home . '/notes'] as $dir) {
     mkdir($dir, 0777, true);
 }
 file_put_contents($shared . '/private/secret.png', 'secret');
@@ -25,6 +27,9 @@ file_put_contents($shared . '/public/open.png', 'open');
 file_put_contents($repo . '/images/logo.png', 'logo');
 file_put_contents($repo . '/plugin.php', '<?php');
 file_put_contents($home . '/outside/loot.txt', 'loot');
+file_put_contents($home . '/views/page.tpl', 'view');
+file_put_contents($home . '/notes/run.php', 'original');
+file_put_contents($site . '/assets/files/plain.txt', 'plain');
 
 if (!@symlink('../../shared/assets/images', $site . '/assets/images')
     || !@symlink('evo-3.6.2', $home . '/evolution')
@@ -39,6 +44,9 @@ symlink($shared . '/private', $shared . '/internal');                // a second
 symlink($site . '/assets/files/team', $shared . '/team');            // a second name for a site folder: not passed
 symlink('..', $shared . '/public/loop');                             // a loop: not passed
 symlink($home . '/missing', $shared . '/dangling');                  // leads nowhere: not passed
+symlink($home . '/views', $site . '/assets/files/tpl');              // a view path outside the site
+symlink('../../../views', $shared . '/views-alias');                 // the same, for the browser
+symlink($home . '/notes/run.php', $site . '/assets/files/note.txt'); // a text name for a PHP file
 
 $basePath = ($options['base'] ?? 'canonical') === 'linked' ? $home . '/public_html/' : $site . '/';
 $uploadDir = ($options['upload'] ?? 'site') === 'shared' ? $home . '/shared/assets/' : '[(base_path)]assets/';
@@ -147,6 +155,16 @@ final class ManagerTheme
 }
 
 $GLOBALS['evo'] = new DocumentParser($uploadDir);
+$GLOBALS['viewPaths'] = [$home . '/views'];
+$GLOBALS['_lang'] = new FixtureLexicon();
+function config($key = null, $default = null)
+{
+    return $key === 'view.paths' ? $GLOBALS['viewPaths'] : $default;
+}
+/** The manager log needs the whole CMS; textsave() and delete_file() write to it on success. */
+function logFileChange($type, $filename)
+{
+}
 function evo()
 {
     return $GLOBALS['evo'];
@@ -281,6 +299,44 @@ try {
             static fn ($name) => strpos($images, 'deleteLink(\'' . $name . '\')') !== false
         )),
     ];
+
+    // a manager who may edit files but not run code: a link is judged by its name for file groups,
+    // and by where it lands for protected folders; a write never follows a final link
+    evo()->denied = ['save_plugin', 'save_snippet', 'save_module'];
+    (new ReflectionProperty(browser::class, 'protectedPaths'))->setValue($browser, null);
+    $protected = fileManagerProtectedPaths();
+    $textSave = static function ($path, $content) {
+        $_POST = ['path' => $path, 'content' => $content];
+
+        return strip_tags(textsave());
+    };
+    $deleteFile = static function ($path) {
+        $_REQUEST = ['path' => $path];
+
+        return strip_tags(delete_file());
+    };
+    $output += [
+        'saveThroughFileLink' => $textSave('assets/files/note.txt', '<?php evil();'),
+        'fileLinkTarget' => file_get_contents($home . '/notes/run.php'),
+        'savePlain' => $textSave('assets/files/plain.txt', 'edited'),
+        'plain' => file_get_contents($site . '/assets/files/plain.txt'),
+        'saveThroughFolderLink' => $textSave('assets/images/outside/loot.txt', 'edited'),
+        'loot' => file_get_contents($home . '/outside/loot.txt'),
+        'saveInViewAlias' => $textSave('assets/files/tpl/page.tpl', '{evil}'),
+        'deleteInViewAlias' => $deleteFile('assets/files/tpl/page.tpl'),
+        'view' => file_get_contents($home . '/views/page.tpl'),
+        'createInViewAlias' => fileManagerPathIsProtected($root . '/assets/files/tpl/new.tpl', $protected),
+        'createDeepInViewAlias' => fileManagerPathIsProtected($root . '/assets/files/tpl/sub/new.html', $protected),
+        'renameInViewAlias' => fileManagerPathTouchesProtected($root . '/assets/files/tpl/page.tpl', $protected),
+        'moveIntoViewAlias' => fileManagerPathIsProtected($root . '/assets/files/tpl/moved.txt', $protected),
+        'browserViewAlias' => $invoke('isInsideTypeDir', $typeDir . '/views-alias/page.tpl'),
+        'browserViewAliasNew' => $invoke('isInsideTypeDir', $typeDir . '/views-alias/new.tpl'),
+        'sharedMediaOpen' => !fileManagerPathIsProtected($root . '/assets/images/public/new.png', $protected),
+        'browserSharedMedia' => $invoke('isInsideTypeDir', $typeDir . '/public/new.png'),
+        'aliasLog' => count(evo()->log),
+    ];
+    evo()->log = [];
+    evo()->denied = [];
 
     // deleting a linked folder removes the link, never what it leads to
     $output['removedLink'] = rrmdir($root . '/assets/plugins/myplugin');

@@ -1570,7 +1570,7 @@ class browser extends uploader
         if ($this->protectedPaths === null) {
             $this->protectedPaths = fileManagerProtectedPaths();
         }
-        if (fileManagerPathIsProtected($lexical, $this->protectedPaths)) {
+        if (fileManagerPathIsProtected($lexical, $this->protectedPaths, false)) {
             return false;
         }
         if (!fileManagerAclApplies()) {

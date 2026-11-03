@@ -225,7 +225,7 @@ it('removes only the link itself, judged by its own path, in both managers', fun
         ->toContain("strpbrk(\$linkName, '/\\\\') !== false")
         ->toContain('fileManagerRefuseReservedName($linkName) || !fileManagerIsLink($linkPath)')
         ->toContain('fileManagerCanModifyExistingPath($linkRelative, $userGroups)')
-        ->toContain('fileManagerPathIsProtected($linkPath, $protected_path)')
+        ->toContain('fileManagerPathIsProtected($linkPath, $protected_path, false)')
         ->toContain('!fileManagerIsLink($linkPath) || !fileManagerRemoveLink($linkPath)')
         ->not->toContain('forgetRestrictions')
         ->not->toContain('rrmdir(');
@@ -240,7 +240,7 @@ it('removes only the link itself, judged by its own path, in both managers', fun
         ->not->toContain('prune(');
     // the link's own path: canModifyExisting() would resolve it and judge the target
     expect($canModify)->toContain('fileManagerCanonicalCase($parent)')
-        ->toContain('fileManagerPathIsProtected($lexical, $this->protectedPaths)')
+        ->toContain('fileManagerPathIsProtected($lexical, $this->protectedPaths, false)')
         ->toContain('fileManagerCanModifyExistingPath(substr($lexical, strlen($root) + 1))')
         ->not->toContain('realpath($absPath)');
     expect($functions)->toContain("'<a href=\"javascript:deleteLink(\\'' . urlencode(\$file) . '\\');\">");
