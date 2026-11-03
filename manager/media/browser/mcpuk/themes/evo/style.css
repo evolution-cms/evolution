@@ -58,7 +58,9 @@ tr.selected > td, tr.selected:hover > td { background-color: #5b9bda; color: #ff
 #toolbar #mobileActions .menu a { margin: 0; }
 #toolbar a:before {  font-size: 1.3rem; display: inline-block; padding-right: 3px; margin-top: 0px; vertical-align: top; color: #404040; font-weight: bold;}
 #toolbar a:hover, #toolbar a.hover { color: #292b2c; background-color: #e6e6e6; border-color: #adadad }
-#toolbar a.selected, #toolbar a.selected:before { background-color: #3687e2; border-color: #3687e2; color: #fff; }
+#toolbar a.selected { background-color: #3687e2; border-color: #3687e2; color: #fff; }
+/* icons are masks painted with background-color: the glyph takes the text colour, never the button's background */
+#toolbar a.selected:before { color: #fff; }
 #toolbar a[href="kcact:upload"] { color: #fff; background-color: #5cb85c; border-color: #56ac56 }
 #toolbar a[href="kcact:upload"]:hover { color: #fff; background-color: #449d44; border-color: #419641 }
 #toolbar a[href="kcact:upload"]:before { content:"";display:inline-block;width:1em;height:1em;vertical-align:middle;background-color:currentColor;-webkit-mask:var(--evo-icon-upload) center/contain no-repeat;mask:var(--evo-icon-upload) center/contain no-repeat; color: #fff; font-weight: bold;}
@@ -78,10 +80,13 @@ tr.selected > td, tr.selected:hover > td { background-color: #5b9bda; color: #ff
 }
 /*fake btn*/
 #viewThumbs, #viewList { display: none; float: left; margin: 0 0px 0 -30px; }
-label.radio-thumbs:before { display: block; float: left;  font-size: 1.4rem; line-height: 1.6rem; vertical-align: middle; content:"";display:inline-block;width:1em;height:1em;vertical-align:middle;background-color:currentColor;-webkit-mask:var(--evo-icon-layout-grid) center/contain no-repeat;mask:var(--evo-icon-layout-grid) center/contain no-repeat; color: #292b2c; background-color: #fff; border: 1px solid #d4d4d4; padding: 0.5rem 0.6rem; margin-left: 5px; font-weight: bold;}
-label.radio-list:hover:before, label.radio-thumbs:hover:before { color: #292b2c; background-color: #e6e6e6; border-color: #adadad }
-label.radio-list.labelchecked:before, label.radio-thumbs.labelchecked:before { background-color: #3687e2; border-color: #3687e2; color: #fff; }
-label.radio-list:before { display: block; float: left;  font-size: 1.4rem; line-height: 1.6rem; vertical-align: middle; content:"";display:inline-block;width:1em;height:1em;vertical-align:middle;background-color:currentColor;-webkit-mask:var(--evo-icon-list) center/contain no-repeat;mask:var(--evo-icon-list) center/contain no-repeat; color: #292b2c; background-color: #fff; border: 1px solid #d4d4d4; padding: 0.5rem 0.6rem; margin-left: 5px; font-weight: bold; }
+/* the button box sits on the label: a mask on ::before would clip its border and paint the glyph with its background */
+label.radio-thumbs, label.radio-list { display: block; float: left; margin-left: 5px; padding: 0.5rem 0.6rem; color: #292b2c; background-color: #fff; border: 1px solid #d4d4d4; }
+label.radio-thumbs:before, label.radio-list:before { content: ""; display: block; width: 1.4rem; height: 1.6rem; background-color: currentColor; }
+label.radio-thumbs:before { -webkit-mask: var(--evo-icon-layout-grid) center/1.4rem no-repeat; mask: var(--evo-icon-layout-grid) center/1.4rem no-repeat; }
+label.radio-list:before { -webkit-mask: var(--evo-icon-list) center/1.4rem no-repeat; mask: var(--evo-icon-list) center/1.4rem no-repeat; }
+label.radio-list:hover, label.radio-thumbs:hover { color: #292b2c; background-color: #e6e6e6; border-color: #adadad; }
+label.radio-list.labelchecked, label.radio-thumbs.labelchecked { color: #fff; background-color: #3687e2; border-color: #3687e2; }
 input[type=checkbox] + label { color: #ccc; font-style: italic; }
 input[type=checkbox]:checked + label { color: #f00; font-style: normal; }
 #settings { background: #fff; padding: 5px; }
