@@ -12,6 +12,7 @@
  * @link http://kcfinder.sunhater.com
  */
 
+/** Embedded manager browser; path containment and file-group checks apply to every action. */
 class browser extends uploader
 {
     /** Name prefix of the temporary download archives; the cleanup removes nothing else. */
@@ -1422,9 +1423,10 @@ class browser extends uploader
     }
 
     /**
-     * The links in a folder, shown but never followed: they get no URL, thumbnail or action, and
-     * their target only as a path relative to the link, inside the type folder and reachable by
-     * the current manager (linkTarget()).
+     * The links in a folder that the file managers do not pass (fileManagerPassableLinkTarget()),
+     * shown but never followed: they get no URL, thumbnail or action, and their target only as a
+     * path relative to the link, inside the type folder and reachable by the current manager
+     * (linkTarget()). A passable link is listed with the folders and files.
      *
      * @param string $dir path below the upload folder, type included
      * @return array
@@ -1445,7 +1447,8 @@ class browser extends uploader
                 continue;
             }
             $path = "$dir/$name";
-            if (!fileManagerIsLink($path) || !$this->isLinkVisible($path)) {
+            // a link the file managers pass is listed as the folder or file it stands for
+            if (!fileManagerIsLink($path) || $this->isInsideTypeDir($path) || !$this->isLinkVisible($path)) {
                 continue;
             }
             $stat = @lstat($path);
@@ -1567,7 +1570,7 @@ class browser extends uploader
         if ($this->protectedPaths === null) {
             $this->protectedPaths = fileManagerProtectedPaths();
         }
-        if (fileManagerPathIsProtected($lexical, $this->protectedPaths)) {
+        if (fileManagerPathIsProtected($lexical, $this->protectedPaths, false)) {
             return false;
         }
         if (!fileManagerAclApplies()) {
@@ -1598,6 +1601,10 @@ class browser extends uploader
             return true;
         }
         $parentKey = $this->getFileGroupsRelPath($parent);
+        if ($parentKey === null) {
+            $this->logDenied('file groups root cannot be resolved', $parent);
+            return false;
+        }
         $key = ltrim($parentKey . '/' . basename($absPath), '/');
         $userGroups = array_map('intval', (array)($_SESSION['mgrDocgroups'] ?? []));
 
@@ -1762,8 +1769,9 @@ class browser extends uploader
 
     /**
      * Whether $absPath, once symlinks are resolved, is still inside the current type folder.
-     * The dir and file parameters are only checked by name; a symlink below the upload folder
-     * would otherwise lead every action (and the file groups check) outside it.
+     * The dir and file parameters are only checked by name. A link below the upload folder is
+     * passed only when the file managers pass it (fileManagerPathContainsLink()): then it is a
+     * folder of the type, named by its own path, which the file groups are keyed by.
      *
      * @param string $absPath
      * @return bool
@@ -1797,28 +1805,25 @@ class browser extends uploader
      */
     protected function isInsideTypeRoot($absPath)
     {
-        $root = realpath($this->typeDir);
-        if ($root === false) {
+        $realRoot = realpath($this->typeDir);
+        $path = fileManagerNormalizePathLexically($absPath);
+        if ($realRoot === false || $path === null) {
             return false;
         }
-        $path = realpath($absPath);
-        if ($path === false) {
+        // by name: a link below the type folder that the file managers pass (isInsideTypeDir()
+        // asks fileManagerPathContainsLink() first) is a folder of it, wherever it leads
+        $path = rtrim($path, '/');
+        $within = \EvolutionCMS\Support\FileManagerAccess::isWithin($this->typeDir, $path)
+            || \EvolutionCMS\Support\FileManagerAccess::isWithin(str_replace('\\', '/', $realRoot), $path);
+        if (!$within) {
+            return false;
+        }
+        if (!file_exists($path)) {
             // nothing there yet is fine, a dangling link is not: writing to it creates its target
-            if (dir::isLink($absPath)) {
-                return false;
-            }
-            $parent = realpath(dirname($absPath));
-
-            return $parent !== false && \EvolutionCMS\Support\FileManagerAccess::isWithin(
-                str_replace('\\', '/', $root),
-                str_replace('\\', '/', $parent)
-            );
+            return !fileManagerIsLink($path) && realpath(dirname($path)) !== false;
         }
 
-        return \EvolutionCMS\Support\FileManagerAccess::isWithin(
-            str_replace('\\', '/', $root),
-            str_replace('\\', '/', $path)
-        );
+        return true;
     }
 
     /**
@@ -1960,17 +1965,33 @@ class browser extends uploader
 
     /**
      * Convert an absolute filesystem path to a path relative to filemanager_path,
-     * as stored in the file_groups table. Returns '' if the path is outside the root.
+     * as stored in file_groups. A shared type root keeps its proven site-side key;
+     * an unrecognised root returns null so group-protected operations fail closed.
      *
      * @param string $absPath
-     * @return string
+     * @return string|null
      */
-    protected function getFileGroupsRelPath(string $absPath): string
+    protected function getFileGroupsRelPath(string $absPath): ?string
     {
         // the site-wide root, not the manager's own filemanager_path: groups are keyed by it
-        return \EvolutionCMS\Support\FileManagerAccess::getRelativePath(
-            \EvolutionCMS\Support\FileManagerAccess::aclRoot(),
-            $absPath
+        $aclRoot = \EvolutionCMS\Support\FileManagerAccess::aclRoot();
+        $direct = \EvolutionCMS\Support\FileBrowserAccess::resolveAclPath($aclRoot, $this->typeDir, $absPath);
+        if ($direct !== null) {
+            return $direct;
+        }
+
+        return \EvolutionCMS\Support\FileBrowserAccess::resolveAclPath(
+            $aclRoot,
+            $this->typeDir,
+            $absPath,
+            // not $this->typeURL: KCFinder resolves a relative upload URL against the browser
+            // script (or gives up when DOCUMENT_ROOT is a symlink), so it never names the folder
+            \EvolutionCMS\Support\FileBrowserAccess::localUploadPath(
+                rtrim((string) ($this->config['_siteUploadURL'] ?? ''), '/') . '/' . $this->type,
+                EVO_BASE_PATH,
+                EVO_BASE_URL,
+                EVO_SITE_URL
+            )
         );
     }
 
@@ -1997,15 +2018,23 @@ class browser extends uploader
         $userGroups = array_map('intval', (array)($_SESSION['mgrDocgroups'] ?? []));
         $itemRelativePaths = [];
         foreach ($absPaths as $ap) {
-            $itemRelativePaths[$ap] = $this->getFileGroupsRelPath($ap);
+            $key = $this->getFileGroupsRelPath($ap);
+            if ($key === null) {
+                $this->logDenied('file groups root cannot be resolved', $ap);
+                continue;
+            }
+            $itemRelativePaths[$ap] = $key;
         }
         $restricted = \EvolutionCMS\Support\FileManagerAccess::loadRestrictions(array_values($itemRelativePaths));
 
         $result = [];
         foreach ($absPaths as $ap) {
-            $relativePath = $itemRelativePaths[$ap] ?? '';
+            if (!array_key_exists($ap, $itemRelativePaths)) {
+                continue;
+            }
+            $relativePath = $itemRelativePaths[$ap];
             if ($relativePath === '') {
-                $result[] = $ap; // rel path unknown, let through
+                $result[] = $ap; // the ACL root itself, or a folder outside it: no row applies
                 continue;
             }
             if (\EvolutionCMS\Support\FileManagerAccess::isAccessible($relativePath, $userGroups, $restricted)) {
@@ -2040,6 +2069,10 @@ class browser extends uploader
         }
 
         $relPath = $this->getFileGroupsRelPath($absPath);
+        if ($relPath === null) {
+            $this->logDenied('file groups root cannot be resolved', $absPath);
+            return false;
+        }
         if ($relPath === '') {
             return true;
         }
@@ -2070,6 +2103,10 @@ class browser extends uploader
         }
 
         $relPath = $this->getFileGroupsRelPath($absPath);
+        if ($relPath === null) {
+            $this->logDenied('file groups root cannot be resolved', $absPath);
+            return false;
+        }
         if ($relPath === '') {
             return true;
         }
@@ -2095,7 +2132,12 @@ class browser extends uploader
             return fn ($path) => $this->isInsideTypeDir($path);
         }
 
-        $restrictions = \EvolutionCMS\Support\FileManagerAccess::loadSubtreeRestrictions($this->getFileGroupsRelPath($absDir));
+        $rootKey = $this->getFileGroupsRelPath($absDir);
+        if ($rootKey === null) {
+            $this->logDenied('file groups root cannot be resolved', $absDir);
+            return static fn ($path) => false;
+        }
+        $restrictions = \EvolutionCMS\Support\FileManagerAccess::loadSubtreeRestrictions($rootKey);
         $userGroups = array_map('intval', (array)($_SESSION['mgrDocgroups'] ?? []));
 
         return function ($path) use ($restrictions, $userGroups) {
@@ -2103,6 +2145,10 @@ class browser extends uploader
                 return false;
             }
             $relPath = $this->getFileGroupsRelPath($path);
+            if ($relPath === null) {
+                $this->logDenied('file groups root cannot be resolved', $path);
+                return false;
+            }
 
             return $relPath === ''
                 || \EvolutionCMS\Support\FileManagerAccess::isAccessible($relPath, $userGroups, $restrictions);
@@ -2168,6 +2214,10 @@ class browser extends uploader
         }
 
         $relPath = $this->getFileGroupsRelPath($absDir);
+        if ($relPath === null) {
+            $this->logDenied('file groups root cannot be resolved', $absDir);
+            return true;
+        }
         if ($relPath === '') {
             return false;
         }

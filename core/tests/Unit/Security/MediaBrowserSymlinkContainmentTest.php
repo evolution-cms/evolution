@@ -82,16 +82,19 @@ it('rejects a sibling folder that only shares the name prefix', function () {
         ->and(mediaBrowserIsInside($this->browser, $this->tmp . '/images/../outside/secret.txt'))->toBeFalse();
 });
 
-it('rejects a symlinked folder that points outside the type folder', function () {
-    mediaBrowserSymlink($this->tmp . '/outside', $this->tmp . '/images/link');
+// A link to somewhere new is a folder of the type, named by its own path: see the
+// shared-type-root-request.php fixture, which runs with the CMS settings that decision needs.
+it('rejects a symlinked folder that loops back around the type folder', function () {
+    mediaBrowserSymlink($this->tmp, $this->tmp . '/images/link');
 
     expect(mediaBrowserIsInside($this->browser, $this->tmp . '/images/link'))->toBeFalse()
-        ->and(mediaBrowserIsInside($this->browser, $this->tmp . '/images/link/secret.txt'))->toBeFalse()
-        ->and(mediaBrowserIsInside($this->browser, $this->tmp . '/images/link/new.png'))->toBeFalse();
+        ->and(mediaBrowserIsInside($this->browser, $this->tmp . '/images/link/outside/secret.txt'))->toBeFalse()
+        ->and(mediaBrowserIsInside($this->browser, $this->tmp . '/images/link/outside/new.png'))->toBeFalse();
 });
 
-it('rejects a symlinked file and a dangling symlink', function () {
-    mediaBrowserSymlink($this->tmp . '/outside/secret.txt', $this->tmp . '/images/secret.txt');
+it('rejects a symlinked file that names a file a second time, and a dangling symlink', function () {
+    file_put_contents($this->tmp . '/images/team/secret.txt', 'secret');
+    mediaBrowserSymlink($this->tmp . '/images/team/secret.txt', $this->tmp . '/images/secret.txt');
     mediaBrowserSymlink($this->tmp . '/outside/missing.txt', $this->tmp . '/images/dangling');
 
     expect(mediaBrowserIsInside($this->browser, $this->tmp . '/images/secret.txt'))->toBeFalse()

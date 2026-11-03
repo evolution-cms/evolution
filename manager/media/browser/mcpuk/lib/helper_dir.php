@@ -152,6 +152,11 @@ class dir {
                 } while ($type == "link");
             }
 
+            // a Windows junction followed: its target's type
+            if ($options['followLinks'] && !in_array($type, ["dir", "file"], true)) {
+                $type = is_dir("$dir/$file") ? "dir" : (is_file("$dir/$file") ? "file" : $type);
+            }
+
             if ((($type === "dir") && (($file == ".") || ($file == ".."))) ||
                 !preg_match($options['pattern'], $file)
             )

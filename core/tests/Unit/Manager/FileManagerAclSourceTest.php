@@ -4,6 +4,7 @@ namespace Tests\Unit\Manager;
 
 use Tests\TestCase;
 
+/** Source guards for ACL entry points and the ownership of persisted file-group rows. */
 final class FileManagerAclSourceTest extends TestCase
 {
     public function testClassicManagerSourceEnforcesAclOnGroupSaveAndView(): void
@@ -73,6 +74,7 @@ final class FileManagerAclSourceTest extends TestCase
         }
     }
 
+    /** Assert both managers use the site-wide ACL root and carry rows across entry changes. */
     public function testFileGroupsAreKeyedBySiteRootAndFollowEveryRenameAndDelete(): void
     {
         $classic = (string) file_get_contents(dirname(__DIR__, 4) . '/manager/actions/files.dynamic.php');
@@ -84,7 +86,8 @@ final class FileManagerAclSourceTest extends TestCase
         self::assertStringContainsString("\$groupsKey = \$groupsTarget === null ? null : fileManagerAclKey(\$groupsTargetPath);", $classic);
         self::assertStringContainsString("FileGroup::query()->where('file', \$groupsKey)->get();", $classic);
         self::assertStringNotContainsString("where('file', \$groupsTargetPath)", $classic);
-        self::assertStringContainsString('\EvolutionCMS\Support\FileManagerAccess::aclRoot(),', $browser);
+        // The global root may be stored in a variable before the shared-path mapping.
+        self::assertStringContainsString('\EvolutionCMS\Support\FileManagerAccess::aclRoot()', $browser);
         self::assertStringNotContainsString("getConfig('filemanager_path', EVO_BASE_PATH)", $browser);
 
         // rows follow the entry whoever renames or deletes it, not only group managers

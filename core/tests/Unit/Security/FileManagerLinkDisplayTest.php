@@ -167,12 +167,13 @@ it('stores a link as a link entry in the media browser archive only through its 
         ->not->toHaveKey('app/current/index.txt');
 })->skip(!class_exists('ZipArchive'), 'zip is required');
 
-it('lists links in both managers without a URL, an action or a selection', function () {
+it('lists links it does not pass in both managers without a URL, an action or a selection', function () {
     $root = dirname(__DIR__, 4);
     $functions = (string) file_get_contents($root . '/core/functions/actions/files.php');
     $browser = (string) file_get_contents($root . '/manager/media/browser/mcpuk/core/browser.php');
     $files = (string) file_get_contents($root . '/manager/media/browser/mcpuk/js/browser/files.js');
-    $start = strpos($functions, 'if (fileManagerIsLink($newpath)) {');
+    // the links the file managers do not pass (a passable one is listed as a folder or file)
+    $start = strpos($functions, 'if ($isLink && !$passableLink) {');
     $branch = substr($functions, $start, strpos($functions, 'continue;', $start) - $start);
     $linksHtml = substr($files, strpos($files, 'browser.linksHtml = function'), 1600);
 
@@ -224,7 +225,7 @@ it('removes only the link itself, judged by its own path, in both managers', fun
         ->toContain("strpbrk(\$linkName, '/\\\\') !== false")
         ->toContain('fileManagerRefuseReservedName($linkName) || !fileManagerIsLink($linkPath)')
         ->toContain('fileManagerCanModifyExistingPath($linkRelative, $userGroups)')
-        ->toContain('fileManagerPathIsProtected($linkPath, $protected_path)')
+        ->toContain('fileManagerPathIsProtected($linkPath, $protected_path, false)')
         ->toContain('!fileManagerIsLink($linkPath) || !fileManagerRemoveLink($linkPath)')
         ->not->toContain('forgetRestrictions')
         ->not->toContain('rrmdir(');
@@ -239,7 +240,7 @@ it('removes only the link itself, judged by its own path, in both managers', fun
         ->not->toContain('prune(');
     // the link's own path: canModifyExisting() would resolve it and judge the target
     expect($canModify)->toContain('fileManagerCanonicalCase($parent)')
-        ->toContain('fileManagerPathIsProtected($lexical, $this->protectedPaths)')
+        ->toContain('fileManagerPathIsProtected($lexical, $this->protectedPaths, false)')
         ->toContain('fileManagerCanModifyExistingPath(substr($lexical, strlen($root) + 1))')
         ->not->toContain('realpath($absPath)');
     expect($functions)->toContain("'<a href=\"javascript:deleteLink(\\'' . urlencode(\$file) . '\\');\">");

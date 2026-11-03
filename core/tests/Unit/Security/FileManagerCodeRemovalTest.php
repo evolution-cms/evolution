@@ -65,19 +65,21 @@ it('finds code at or below a path, and nothing in a folder without it', function
     }
 });
 
-it('counts a link by its own name and never follows one', function () {
+it('counts a link it does not pass by its own name and never follows it', function () {
     $base = codeRemovalTree();
     try {
+        // a loop (it leads to a folder around it), which the file managers never pass; a link
+        // they pass is a folder whose code counts (shared-type-root-request.php fixture)
         $link = "$base/clean/to-outside";
-        if (!@symlink("$base/outside", $link) && PHP_OS_FAMILY === 'Windows') {
+        if (!@symlink($base, $link) && PHP_OS_FAMILY === 'Windows') {
             // without the symlink privilege a junction does the same
             evoRunCommand('mklink /J ' . escapeshellarg(str_replace('/', '\\', $link)) . ' '
-                . escapeshellarg(str_replace('/', '\\', "$base/outside")) . ' 2>&1');
+                . escapeshellarg(str_replace('/', '\\', $base)) . ' 2>&1');
         }
         if (!fileManagerIsLink($link)) {
             $this->markTestSkipped('links cannot be created here');
         }
-        // the folder it leads to holds shell.php, but the link is not followed
+        // the folder it leads to holds outside/shell.php, but the link is not followed
         expect(fileManagerCodeEntry("$base/clean"))->toBeNull()
             ->and(fileManagerCodeEntry("$base/clean/to-outside"))->toBeNull();
 
