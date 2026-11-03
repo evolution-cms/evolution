@@ -1984,8 +1984,13 @@ class browser extends uploader
             $aclRoot,
             $this->typeDir,
             $absPath,
+            // not $this->typeURL: KCFinder resolves a relative upload URL against the browser
+            // script (or gives up when DOCUMENT_ROOT is a symlink), so it never names the folder
             \EvolutionCMS\Support\FileBrowserAccess::localUploadPath(
-                (string) $this->typeURL, EVO_BASE_PATH, EVO_BASE_URL, EVO_SITE_URL
+                rtrim((string) ($this->config['_siteUploadURL'] ?? ''), '/') . '/' . $this->type,
+                EVO_BASE_PATH,
+                EVO_BASE_URL,
+                EVO_SITE_URL
             )
         );
     }
@@ -2029,7 +2034,7 @@ class browser extends uploader
             }
             $relativePath = $itemRelativePaths[$ap];
             if ($relativePath === '') {
-                $result[] = $ap; // the ACL root itself has no per-entry row
+                $result[] = $ap; // the ACL root itself, or a folder outside it: no row applies
                 continue;
             }
             if (\EvolutionCMS\Support\FileManagerAccess::isAccessible($relativePath, $userGroups, $restricted)) {

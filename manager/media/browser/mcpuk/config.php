@@ -37,6 +37,9 @@ $_CONFIG = [
     'theme' => "evo",
     'uploadURL'           => $uploadUrl,
     'uploadDir'           => $uploadDir,
+    // the URL as configured: the uploader rewrites uploadURL against the script's cwd and
+    // DOCUMENT_ROOT. A leading "_" keeps it out of the session override.
+    '_siteUploadURL'      => $uploadUrl,
     'siteURL'             => EVO_SITE_URL,
     'assetsURL'           => $uploadUrl,
     'dirPerms'            => intval(EvolutionCMS()->getConfig('new_folder_permissions'), 8),
