@@ -81,6 +81,37 @@ it('applies the rules of the place a link sits in, code included', function (str
         ->and($result['pluginCodeFromAssets'])->toBe('myplugin/plugin.php');
 })->with('site layouts');
 
+it('never writes through a linked file, and edits through a linked folder', function (string $base, string $upload) {
+    $result = sharedTypeRootRequest($base, $upload);
+
+    // note.txt is a text name for a PHP file elsewhere: the name passes the checks, the write would not
+    expect($result['saveThroughFileLink'])->toBe('files_access_denied')
+        ->and($result['fileLinkTarget'])->toBe('original')
+        ->and($result['savePlain'])->toBe('file_saved')
+        ->and($result['plain'])->toBe('edited')
+        ->and($result['saveThroughFolderLink'])->toBe('file_saved')
+        ->and($result['loot'])->toBe('edited');
+})->with('site layouts');
+
+it('protects a view path outside the site wherever a link reaches it from', function (string $base, string $upload) {
+    $result = sharedTypeRootRequest($base, $upload);
+
+    // a template file is executed by its engine whatever the extension
+    expect($result['saveInViewAlias'])->toBe('files_access_denied')
+        ->and($result['deleteInViewAlias'])->toBe('files_access_denied')
+        ->and($result['view'])->toBe('view')
+        ->and($result['createInViewAlias'])->toBeTrue()
+        ->and($result['createDeepInViewAlias'])->toBeTrue()
+        ->and($result['renameInViewAlias'])->toBeTrue()
+        ->and($result['moveIntoViewAlias'])->toBeTrue()
+        ->and($result['browserViewAlias'])->toBeFalse()
+        ->and($result['browserViewAliasNew'])->toBeFalse()
+        ->and($result['aliasLog'])->toBeGreaterThanOrEqual(3);
+    // shared media is not a protected folder
+    expect($result['sharedMediaOpen'])->toBeTrue()
+        ->and($result['browserSharedMedia'])->toBeTrue();
+})->with('site layouts');
+
 it('lists the shared image folder as a folder that is entered but never removed or renamed', function (string $base, string $upload) {
     $result = sharedTypeRootRequest($base, $upload);
 

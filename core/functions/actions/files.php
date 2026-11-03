@@ -486,16 +486,19 @@ if(!function_exists('fileManagerRefuseReservedName')) {
 
 if(!function_exists('fileManagerPathIsProtected')) {
     /**
-     * Whether $path is a protected folder or lies inside one.
+     * Whether $path is a protected folder or lies inside one, by its name or where it lands.
      *
      * @param string $path canonical absolute path
      * @param string[] $protectedPaths
+     * @param bool $followLink false to judge a link by where it sits, not where it leads
      */
-    function fileManagerPathIsProtected($path, array $protectedPaths)
+    function fileManagerPathIsProtected($path, array $protectedPaths, $followLink = true)
     {
-        foreach ($protectedPaths as $protectedPath) {
-            if (FileManagerAccess::isWithin($protectedPath, $path)) {
-                return true;
+        foreach (fileManagerPathSpellings($path, $followLink) as $spelling) {
+            foreach ($protectedPaths as $protectedPath) {
+                if (FileManagerAccess::isWithin($protectedPath, $spelling)) {
+                    return true;
+                }
             }
         }
 
@@ -513,13 +516,68 @@ if(!function_exists('fileManagerPathTouchesProtected')) {
      */
     function fileManagerPathTouchesProtected($path, array $protectedPaths)
     {
-        foreach ($protectedPaths as $protectedPath) {
-            if (FileManagerAccess::isWithin($protectedPath, $path) || FileManagerAccess::isWithin($path, $protectedPath)) {
-                return true;
+        foreach (fileManagerPathSpellings($path) as $spelling) {
+            foreach ($protectedPaths as $protectedPath) {
+                if (FileManagerAccess::isWithin($protectedPath, $spelling) || FileManagerAccess::isWithin($spelling, $protectedPath)) {
+                    return true;
+                }
             }
         }
 
         return false;
+    }
+}
+
+if(!function_exists('fileManagerPathSpellings')) {
+    /**
+     * $path as the file managers name it and as the file system resolves it. A passed link keeps
+     * its own name (file groups are keyed by it), but a protected folder is protected wherever it
+     * is reached from: a link to an external view path must not open it under another name.
+     *
+     * @param string $path absolute path, which need not exist yet
+     * @param bool $followLink false to resolve only the folder $path sits in
+     * @return string[]
+     */
+    function fileManagerPathSpellings($path, $followLink = true)
+    {
+        $path = rtrim(str_replace('\\', '/', (string) $path), '/');
+        if ($followLink) {
+            $resolved = fileManagerResolvedPath($path);
+        } else {
+            $parent = fileManagerResolvedPath(dirname($path));
+            $resolved = $parent === null ? null : $parent . '/' . basename($path);
+        }
+
+        return $resolved === null || $resolved === $path ? [$path] : [$path, $resolved];
+    }
+}
+
+if(!function_exists('fileManagerResolvedPath')) {
+    /**
+     * Where $path lands on the file system: the real path of its nearest existing ancestor with
+     * the rest of $path appended, so a destination that does not exist yet resolves too. Null
+     * when no part of it exists.
+     *
+     * @param string $path absolute path
+     */
+    function fileManagerResolvedPath($path)
+    {
+        $current = rtrim(str_replace('\\', '/', (string) $path), '/');
+        $tail = '';
+        while ($current !== '') {
+            $real = realpath($current);
+            if ($real !== false) {
+                return rtrim(str_replace('\\', '/', $real), '/') . $tail;
+            }
+            $parent = dirname($current);
+            if ($parent === $current || $parent === '.') {
+                return null;
+            }
+            $tail = '/' . basename($current) . $tail;
+            $current = rtrim(str_replace('\\', '/', $parent), '/');
+        }
+
+        return null;
     }
 }
 
@@ -2321,7 +2379,11 @@ if(!function_exists('fileupload')) {
                     // The restrictions are keyed by the stored name: on Windows secret.txt is Secret.txt
                     $existingRel = ltrim(substr(fileManagerCanonicalCase($targetFile), strlen($filemanager_path)), '/');
                     $replacing = file_exists($targetFile);
-                    if ($replacing && !fileManagerCanModifyExistingPath($existingRel)) {
+                    if (!fileManagerIsSafeWriteTarget($filemanager_path, $targetFile)) {
+                        // a move across file systems copies, and the copy follows a link
+                        fileManagerLogDenied('upload over link', $existingRel, 'link');
+                        $fileMsg .= '<p><span class="warning">' . $_lang['files_access_denied'] . '</span></p>';
+                    } elseif ($replacing && !fileManagerCanModifyExistingPath($existingRel)) {
                         fileManagerLogDenied('upload over existing file', $existingRel, 'file group');
                         $fileMsg .= '<p><span class="warning">' . $_lang['files_access_denied'] . '</span></p>';
                     } elseif (@move_uploaded_file($userfile['tmp_name'], $targetFile)) {
@@ -2415,6 +2477,10 @@ if(!function_exists('textsave')) {
             return '<span class="warning"><b>Invalid path.</b></span><br /><br />';
         }
         $fileRel = ltrim(substr($filename, strlen($filemanager_path)), '/');
+        // a linked file is checked by its name, while the write would land in its target
+        if (!fileManagerIsSafeWriteTarget($filemanager_path, $filename)) {
+            return fileManagerDenied('link', $fileRel);
+        }
         if (!fileManagerCanModifyExistingPath($fileRel)
             || fileManagerPathIsProtected($filename, fileManagerProtectedPaths())
             || (fileManagerIsExecutableName($filename) && !fileManagerMayRunCode())
