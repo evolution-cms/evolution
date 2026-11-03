@@ -78,7 +78,9 @@ it('accepts a proven shared root but reports missing and unmapped roots', functi
         ->and($result['unmappedDiagnostic'])->toBeFalse();
     expect($result['standardDiagnostic'])->toBeTrue()
         ->and($result['wrongTargetKey'])->toBeNull()
-        ->and($result['unconfinedKey'])->toBeNull();
+        // a spelling outside the ACL root names nothing a row could restrict (the browser derives
+        // it from the configured URL below the site root, so this needs a narrowed filemanager_path)
+        ->and($result['outsideSpellingKey'])->toBe('');
 });
 
 it('does not derive local roots from unsafe or remote URLs', function (string $url) {
@@ -112,4 +114,21 @@ it('resolves site relative URLs for a subdirectory installation', function () {
         expect(FileBrowserAccess::localUploadPath($url, sys_get_temp_dir(), '/cms/', 'https://example.test/cms/'))
             ->toBe($root . '/assets/images');
     }
+});
+
+it('maps the shared root from the configured upload URL, not from KCFinder typeURL', function () {
+    // the fixture gives typeURL the value KCFinder computes for rb_base_url "assets/"
+    expect(sharedBrowserResult()['key'])->toBe('assets/images/private/secret.txt');
+});
+
+it('leaves type roots outside a narrowed filemanager_path open as before, but not unproven ones', function () {
+    $result = sharedBrowserResult();
+    expect($result['narrowedPlainKey'])->toBe('')
+        ->and($result['narrowedPlainRead'])->toBeTrue()
+        ->and($result['narrowedPlainWrite'])->toBeTrue()
+        ->and($result['narrowedPlainListing'])->toBe(['cat.jpg'])
+        ->and($result['narrowedSharedKey'])->toBe('')
+        ->and($result['narrowedSharedRead'])->toBeTrue()
+        ->and($result['narrowedUnprovenKey'])->toBeNull()
+        ->and($result['narrowedDiagnostic'])->toBeTrue();
 });

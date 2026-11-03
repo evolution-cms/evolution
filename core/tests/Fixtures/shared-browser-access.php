@@ -2,7 +2,7 @@
 
 /** Exercise the real browser guards with release symlinks, SQLite ACLs and an editor session. */
 $tmp = sys_get_temp_dir() . '/evo-shared-browser-' . bin2hex(random_bytes(6));
-foreach (['release/assets/local', 'release/assets/cache', 'shared/assets/images/private', 'shared/assets/images/public', 'shared/assets/files', 'outside'] as $dir) {
+foreach (['release/assets/local', 'release/assets/cache', 'release/assets/pictures', 'shared/assets/images/private', 'shared/assets/images/public', 'shared/assets/files', 'outside'] as $dir) {
     mkdir($tmp . '/' . $dir, 0777, true);
 }
 define('EVO_BASE_PATH', $tmp . '/release/');
@@ -112,8 +112,9 @@ try {
 
     $browser = (new ReflectionClass(browser::class))->newInstanceWithoutConstructor();
     $typeDir = $tmp . '/shared/assets/images';
-    foreach (['modx' => evo(), 'typeDir' => $typeDir, 'typeURL' => 'https://example.test/assets/images',
-        'type' => 'images', 'config' => ['uploadDir' => $tmp . '/shared/assets']] as $name => $value) {
+    // typeURL as KCFinder derives a relative rb_base_url (against the browser script): never the folder
+    foreach (['modx' => evo(), 'typeDir' => $typeDir, 'typeURL' => '/manager/media/browser/mcpuk/assets/images',
+        'type' => 'images', 'config' => ['uploadDir' => $tmp . '/shared/assets', '_siteUploadURL' => 'assets']] as $name => $value) {
         (new ReflectionProperty(uploader::class, $name))->setValue($browser, $value);
     }
     (new ReflectionProperty(browser::class, 'protectedPaths'))->setValue($browser, []);
@@ -157,7 +158,7 @@ try {
         'wrongTargetKey' => EvolutionCMS\Support\FileBrowserAccess::resolveAclPath(
             EVO_BASE_PATH, $typeDir, $open, EVO_BASE_PATH . 'assets/local'
         ),
-        'unconfinedKey' => EvolutionCMS\Support\FileBrowserAccess::resolveAclPath(
+        'outsideSpellingKey' => EvolutionCMS\Support\FileBrowserAccess::resolveAclPath(
             EVO_BASE_PATH, $typeDir, $open, $typeDir
         ),
         'personalKey' => EvolutionCMS\Support\FileBrowserAccess::resolveAclPath(
@@ -170,7 +171,8 @@ try {
     $output['memberSubtree'] = $invoke('subtreeAccessFilter', $typeDir)($secret);
     $output['memberDescendants'] = $invoke('hasInaccessibleDescendants', $typeDir);
 
-    (new ReflectionProperty(uploader::class, 'typeURL'))->setValue($browser, 'https://example.test/unmapped/images');
+    $setConfig = static fn (array $config) => (new ReflectionProperty(uploader::class, 'config'))->setValue($browser, $config);
+    $setConfig(['uploadDir' => $tmp . '/shared/assets', '_siteUploadURL' => 'unmapped']);
     $output['unmappedKey'] = $invoke('getFileGroupsRelPath', $open);
     $output['unmappedRead'] = $invoke('isPathAccessible', $open);
     $output['unmappedWrite'] = $invoke('isWriteAllowed', 'public');
@@ -179,6 +181,32 @@ try {
     $output['unmappedDescendants'] = $invoke('hasInaccessibleDescendants', $typeDir);
     $output['unmappedLink'] = $invoke('isLinkVisible', $typeDir . '/escape');
     $output['log'] = evo()->log;
+
+    // A narrowed site-wide filemanager_path: rows can only name what lies below it, so a type root
+    // the site serves from outside it carries no groups, linked to shared storage or not.
+    evo()->configGlobal['filemanager_path'] = EVO_BASE_PATH . 'assets/local';
+    $setConfig(['uploadDir' => $tmp . '/shared/assets', '_siteUploadURL' => 'assets']);
+    $output['narrowedSharedKey'] = $invoke('getFileGroupsRelPath', $secret);
+    $output['narrowedSharedRead'] = $invoke('isPathAccessible', $secret);
+    $pictures = EVO_BASE_PATH . 'assets/pictures';
+    file_put_contents($pictures . '/cat.jpg', 'cat');
+    foreach (['typeDir' => $pictures, 'type' => 'pictures'] as $name => $value) {
+        (new ReflectionProperty(uploader::class, $name))->setValue($browser, $value);
+    }
+    $setConfig(['uploadDir' => EVO_BASE_PATH . 'assets', '_siteUploadURL' => 'assets']);
+    $output['narrowedPlainKey'] = $invoke('getFileGroupsRelPath', $pictures . '/cat.jpg');
+    $output['narrowedPlainRead'] = $invoke('isPathAccessible', $pictures . '/cat.jpg');
+    $output['narrowedPlainWrite'] = $invoke('isWriteAllowed', '');
+    $output['narrowedPlainListing'] = array_map('basename', $invoke('filterAccessiblePaths', [$pictures . '/cat.jpg']));
+    $setConfig(['uploadDir' => EVO_BASE_PATH . 'assets', '_siteUploadURL' => 'elsewhere']);
+    $output['narrowedUnprovenKey'] = $invoke('getFileGroupsRelPath', $pictures . '/cat.jpg');
+    $output['narrowedDiagnostic'] = EvolutionCMS\Support\FileBrowserAccess::isUsableRoot(
+        EVO_BASE_PATH . 'assets', 'assets/', EVO_BASE_PATH . 'assets/local', EVO_BASE_PATH, '/', EVO_SITE_URL
+    );
+    unset(evo()->configGlobal['filemanager_path']);
+    foreach (['typeDir' => $typeDir, 'type' => 'images'] as $name => $value) {
+        (new ReflectionProperty(uploader::class, $name))->setValue($browser, $value);
+    }
     $_SESSION['mgrRole'] = 1;
     $output['adminRead'] = $invoke('isPathAccessible', $open);
     $output['adminEscape'] = $invoke('isPathAccessible', $typeDir . '/escape');

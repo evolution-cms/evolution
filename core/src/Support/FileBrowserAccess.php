@@ -129,7 +129,8 @@ final class FileBrowserAccess
      * below it. The site-side root is accepted only when realpath proves it is the same folder.
      * No matching root returns null; callers must not interpret that as a public file.
      *
-     * @return string|null Key relative to the site-wide ACL root; an empty key is that root itself.
+     * @return string|null Key relative to the site-wide ACL root; an empty key is that root itself,
+     *                     or a type root the site serves from outside it, where no group applies.
      * @since 3.6.0
      */
     public static function resolveAclPath(string $aclRoot, string $typeDir, string $absolutePath, ?string $localTypeDir = null): ?string
@@ -170,13 +171,16 @@ final class FileBrowserAccess
 
         if (FileManagerAccess::isWithin($root, $typeRoot)) {
             $key = ltrim(substr($typeRoot, strlen($root)), '/');
-        } elseif ($localTypeDir !== null && FileManagerAccess::isWithin($root, $localTypeDir)
-            && ($localRoot = realpath($localTypeDir)) !== false
-            && FileManagerAccess::isWithin($typeRoot, str_replace('\\', '/', $localRoot))
-            && FileManagerAccess::isWithin(str_replace('\\', '/', $localRoot), $typeRoot)) {
+        } elseif ($localTypeDir === null || ($localRoot = realpath($localTypeDir)) === false
+            || !FileManagerAccess::isWithin($typeRoot, str_replace('\\', '/', $localRoot))
+            || !FileManagerAccess::isWithin(str_replace('\\', '/', $localRoot), $typeRoot)) {
+            return null;
+        } elseif (FileManagerAccess::isWithin($root, $localTypeDir)) {
             $key = ltrim(substr($localTypeDir, strlen($root)), '/');
         } else {
-            return null;
+            // the site serves this folder from outside the ACL root (a narrowed filemanager_path),
+            // where no file_groups row can name it (FileManagerAccess::aclKey()): nothing applies
+            return '';
         }
 
         return trim($key . '/' . $suffix, '/');
