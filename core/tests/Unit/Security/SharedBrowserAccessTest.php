@@ -60,15 +60,19 @@ it('refuses and logs an unmapped ACL root instead of treating it as public', fun
         ->and(implode('\n', $result['log']))->toContain('file groups root cannot be resolved');
 });
 
-it('keeps symlinks and traversal refused including for administrators', function () {
+it('passes links to somewhere new, and keeps second names, dangling links and traversal refused', function () {
     $result = sharedBrowserResult();
-    foreach (['escape', 'internal', 'dangling', 'traversal', 'adminEscape'] as $key) {
+    // internal names the private folder a second time, which would bypass its file groups
+    foreach (['internal', 'dangling', 'traversal'] as $key) {
         expect($result[$key])->toBeFalse($key);
     }
-    expect($result['adminRead'])->toBeTrue();
-    expect($result['visibleLink'])->toBeTrue(); // inert link entry; opening it is still refused
+    // escape leads somewhere new: a folder of the type, named by its own path
+    expect($result['escape'])->toBeTrue()
+        ->and($result['adminEscape'])->toBeTrue()
+        ->and($result['adminRead'])->toBeTrue()
+        ->and($result['visibleLink'])->toBeTrue();
     expect($result['safeThumbs'])->toBeTrue()
-        ->and($result['linkedThumbs'])->toBeFalse();
+        ->and($result['linkedThumbs'])->toBeTrue();
 });
 
 it('accepts a proven shared root but reports missing and unmapped roots', function () {

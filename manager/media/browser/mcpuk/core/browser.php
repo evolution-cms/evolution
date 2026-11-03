@@ -1423,9 +1423,10 @@ class browser extends uploader
     }
 
     /**
-     * The links in a folder, shown but never followed: they get no URL, thumbnail or action, and
-     * their target only as a path relative to the link, inside the type folder and reachable by
-     * the current manager (linkTarget()).
+     * The links in a folder that the file managers do not pass (fileManagerPassableLinkTarget()),
+     * shown but never followed: they get no URL, thumbnail or action, and their target only as a
+     * path relative to the link, inside the type folder and reachable by the current manager
+     * (linkTarget()). A passable link is listed with the folders and files.
      *
      * @param string $dir path below the upload folder, type included
      * @return array
@@ -1446,7 +1447,8 @@ class browser extends uploader
                 continue;
             }
             $path = "$dir/$name";
-            if (!fileManagerIsLink($path) || !$this->isLinkVisible($path)) {
+            // a link the file managers pass is listed as the folder or file it stands for
+            if (!fileManagerIsLink($path) || $this->isInsideTypeDir($path) || !$this->isLinkVisible($path)) {
                 continue;
             }
             $stat = @lstat($path);
@@ -1767,8 +1769,9 @@ class browser extends uploader
 
     /**
      * Whether $absPath, once symlinks are resolved, is still inside the current type folder.
-     * The dir and file parameters are only checked by name; a symlink below the upload folder
-     * would otherwise lead every action (and the file groups check) outside it.
+     * The dir and file parameters are only checked by name. A link below the upload folder is
+     * passed only when the file managers pass it (fileManagerPathContainsLink()): then it is a
+     * folder of the type, named by its own path, which the file groups are keyed by.
      *
      * @param string $absPath
      * @return bool
@@ -1802,28 +1805,25 @@ class browser extends uploader
      */
     protected function isInsideTypeRoot($absPath)
     {
-        $root = realpath($this->typeDir);
-        if ($root === false) {
+        $realRoot = realpath($this->typeDir);
+        $path = fileManagerNormalizePathLexically($absPath);
+        if ($realRoot === false || $path === null) {
             return false;
         }
-        $path = realpath($absPath);
-        if ($path === false) {
+        // by name: a link below the type folder that the file managers pass (isInsideTypeDir()
+        // asks fileManagerPathContainsLink() first) is a folder of it, wherever it leads
+        $path = rtrim($path, '/');
+        $within = \EvolutionCMS\Support\FileManagerAccess::isWithin($this->typeDir, $path)
+            || \EvolutionCMS\Support\FileManagerAccess::isWithin(str_replace('\\', '/', $realRoot), $path);
+        if (!$within) {
+            return false;
+        }
+        if (!file_exists($path)) {
             // nothing there yet is fine, a dangling link is not: writing to it creates its target
-            if (dir::isLink($absPath)) {
-                return false;
-            }
-            $parent = realpath(dirname($absPath));
-
-            return $parent !== false && \EvolutionCMS\Support\FileManagerAccess::isWithin(
-                str_replace('\\', '/', $root),
-                str_replace('\\', '/', $parent)
-            );
+            return !fileManagerIsLink($path) && realpath(dirname($path)) !== false;
         }
 
-        return \EvolutionCMS\Support\FileManagerAccess::isWithin(
-            str_replace('\\', '/', $root),
-            str_replace('\\', '/', $path)
-        );
+        return true;
     }
 
     /**
