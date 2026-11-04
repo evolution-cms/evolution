@@ -169,6 +169,14 @@ it('marks the session cookie Secure on https unless told otherwise', function ()
         ->and($source)->not->toContain("env('SESSION_SECURE_COOKIE', false)");
 });
 
+it('lets nginx reach the entry point of "remove the install folder"', function () {
+    preg_match('#location ~ (\^/manager/\(index.*\$) \{#', evoFile('ng.inx'), $location);
+
+    expect($location)->toHaveKey(1)
+        ->and(preg_match('~' . $location[1] . '~', '/manager/processors/remove_installer.processor.php'))->toBe(1)
+        ->and(preg_match('~' . $location[1] . '~', '/manager/processors/save_user.processor.php'))->toBe(0);
+});
+
 it('pins SERVER_NAME to the configured name in every nginx php block', function () {
     $nginx = evoFile('ng.inx');
 

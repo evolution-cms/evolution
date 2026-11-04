@@ -232,6 +232,8 @@ server {
     #
     #   index.php                        manager front controller
     #   captcha.php                      login captcha image
+    #   processors/remove_installer.processor.php
+    #                                    "remove the install folder" of the installer
     #   includes/session_keepalive.php   manager session ping
     #   media/style/<theme>/ajax.php     manager ajax endpoint
     #   media/browser/<browser>/...      file browser: browse, browser, css,
@@ -241,7 +243,7 @@ server {
     # hence [A-Za-z0-9_-]+ rather than a hard-coded `default` / `mcpuk`.
     # Uploads go through browse.php, not a separate connector. An extra that
     # needs its own HTTP-callable PHP file has to be added to this list.
-    location ~ ^/manager/(index\.php|captcha\.php|includes/session_keepalive\.php|media/style/[A-Za-z0-9_-]+/ajax\.php|media/browser/[A-Za-z0-9_-]+/(browse|browser|css|js_localize)\.php|media/browser/[A-Za-z0-9_-]+/js/browser/joiner\.php)$ {
+    location ~ ^/manager/(index\.php|captcha\.php|processors/remove_installer\.processor\.php|includes/session_keepalive\.php|media/style/[A-Za-z0-9_-]+/ajax\.php|media/browser/[A-Za-z0-9_-]+/(browse|browser|css|js_localize)\.php|media/browser/[A-Za-z0-9_-]+/js/browser/joiner\.php)$ {
         if ($manager_allowed = 0) { return 404; }
 
         try_files $uri @rewrite;
