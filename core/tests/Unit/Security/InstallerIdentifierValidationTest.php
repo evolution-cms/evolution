@@ -91,6 +91,35 @@ describe('validateDbHost()', function () {
     ]);
 });
 
+describe('databaseEnvOverrides()', function () {
+
+    afterEach(function () {
+        putenv('DB_HOST');
+    });
+
+    test('names the settings of the environment and of the .env files', function () {
+        $file = tempnam(sys_get_temp_dir(), 'evo-env-');
+        file_put_contents($file, "# DB_PORT=1\nDB_DATABASE=evo\n  export DB_PREFIX=evo_\nAPP_DB_USERNAME=x\n");
+        putenv('DB_HOST=database');
+
+        expect(databaseEnvOverrides([$file, $file . '.missing']))->toBe(['DB_HOST', 'DB_DATABASE', 'DB_PREFIX']);
+
+        unlink($file);
+    });
+
+    test('the connection form shows them, and the connection config really asks for them', function () {
+        $config = installerRoot('install/stubs/files/config/database/connections/default.tpl');
+
+        expect(installerRoot('install/src/template/actions/connection.tpl'))->toContain('[+env_notice+]')
+            ->and(installerRoot('install/src/controllers/connection.php'))->toContain('databaseEnvOverrides()')
+            ->and(installerRoot('install/src/lang/en.inc.php'))->toContain("'connection_screen_env_notice'");
+
+        foreach (['DB_TYPE', 'DB_HOST', 'DB_PORT', 'DB_DATABASE', 'DB_USERNAME', 'DB_PASSWORD', 'DB_CHARSET', 'DB_COLLATION', 'DB_PREFIX'] as $name) {
+            expect($config)->toContain("env('$name'");
+        }
+    });
+});
+
 describe('validateDbCollation()', function () {
 
     test('accepts MySQL, PostgreSQL and SQLite collations', function (string $collation) {

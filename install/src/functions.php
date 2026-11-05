@@ -153,6 +153,27 @@ function databaseHostParts(string $host): array
     return ['host' => $host, 'port' => $port];
 }
 
+/**
+ * The database settings fixed outside the installer: the connection config asks the environment
+ * first, so these win over whatever the form says.
+ *
+ * @param list<string>|null $envFiles
+ * @return list<string>
+ */
+function databaseEnvOverrides(?array $envFiles = null): array
+{
+    $content = '';
+    foreach ($envFiles ?? [EVO_CORE_PATH . 'custom/.env', dirname(EVO_CORE_PATH) . '/.env'] as $file) {
+        $content .= is_file($file) ? file_get_contents($file) . "\n" : '';
+    }
+
+    return array_values(array_filter(
+        ['DB_TYPE', 'DB_HOST', 'DB_PORT', 'DB_DATABASE', 'DB_USERNAME', 'DB_PASSWORD', 'DB_CHARSET', 'DB_COLLATION', 'DB_PREFIX'],
+        static fn (string $name): bool => getenv($name) !== false
+            || preg_match('/^\s*(?:export\s+)?' . $name . '\s*=/m', $content) === 1
+    ));
+}
+
 function databaseDsn(string $driver, string $host, ?string $database = null): string
 {
     $parts = databaseHostParts($host);
