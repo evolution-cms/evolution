@@ -1452,6 +1452,7 @@ return array(
     'EvolutionCMS\\Support\\Formatter\\CSSMinify' => $baseDir . '/src/Support/Formatter/CSSMinify.php',
     'EvolutionCMS\\Support\\Formatter\\HtmlFormatter' => $baseDir . '/src/Support/Formatter/HtmlFormatter.php',
     'EvolutionCMS\\Support\\Formatter\\SqlFormatter' => $baseDir . '/src/Support/Formatter/SqlFormatter.php',
+    'EvolutionCMS\\Support\\HtaccessRules' => $baseDir . '/src/Support/HtaccessRules.php',
     'EvolutionCMS\\Support\\InstallerCompletion' => $baseDir . '/src/Support/InstallerCompletion.php',
     'EvolutionCMS\\Support\\MailTestMailer' => $baseDir . '/src/Support/MailTestMailer.php',
     'EvolutionCMS\\Support\\MailTestSmtp' => $baseDir . '/src/Support/MailTestSmtp.php',
