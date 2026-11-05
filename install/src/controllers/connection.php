@@ -7,7 +7,7 @@ $dbTypes = ['mysql' => 'MySQL', 'pgsql' => 'PostgreSQL', 'sqlite' => 'SQLite'];
 if ($installMode === 0) {
     $database_type = isset($_POST['database_type']) ? validateDbType($_POST['database_type']) :
         (isset($_SESSION['databasetype']) ? $_SESSION['databasetype'] : array_key_first($dbTypes));
-    $database_name = isset($_POST['database_name']) ? validateDbName($_POST['database_name']) : '';
+    $database_name = isset($_POST['database_name']) ? validateDbName($_POST['database_name'], $database_type) : '';
     $database_host = isset($_POST['databasehost']) ? validateDbHost($_POST['databasehost'], $database_type) : 'localhost';
     $databaseloginname = isset($_SESSION['databaseloginname']) ? $_SESSION['databaseloginname'] : '';
     $databaseloginpassword = isset($_SESSION['databaseloginpassword']) ? $_SESSION['databaseloginpassword'] : '';

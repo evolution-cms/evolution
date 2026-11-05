@@ -46,6 +46,25 @@ describe('validateDbName()', function () {
     test('rejects names of 64 characters or more', function () {
         expect(fn () => validateDbName(str_repeat('a', 64)))->toThrow(InvalidArgumentException::class);
     });
+
+    test('lets a SQLite file sit in a folder below core/database', function () {
+        expect(validateDbName('sqlite/evolution', 'sqlite'))->toBe('sqlite/evolution')
+            ->and(validateDbName('a/b/evolution', 'sqlite'))->toBe('a/b/evolution')
+            ->and(validateDbName('evolution', 'sqlite'))->toBe('evolution');
+    });
+
+    test('a folder stays a SQLite thing and never climbs out of core/database', function (string $name, string $type) {
+        expect(fn () => validateDbName($name, $type))->toThrow(InvalidArgumentException::class);
+    })->with([
+        'mysql' => ['sqlite/evolution', 'mysql'],
+        'pgsql' => ['sqlite/evolution', 'pgsql'],
+        'no type' => ['sqlite/evolution', ''],
+        'parent' => ['../evolution', 'sqlite'],
+        'parent inside' => ['a/../../evolution', 'sqlite'],
+        'absolute' => ['/etc/evolution', 'sqlite'],
+        'trailing slash' => ['evolution/', 'sqlite'],
+        'backslash' => ['a\\evolution', 'sqlite'],
+    ]);
 });
 
 describe('validateDbHost()', function () {
@@ -112,6 +131,18 @@ describe('validateTablePrefix()', function () {
 });
 
 describe('call sites', function () {
+
+    test('every controller tells validateDbName() the database type', function (string $file) {
+        expect(installerRoot($file))
+            ->toMatch('/validateDbName\(\$_POST\[\'database_name\'\], \$(driver|database_type)\)/');
+    })->with([
+        'install/src/controllers/connection.php',
+        'install/src/controllers/connection/collation.php',
+        'install/src/controllers/connection/databasetest.php',
+        'install/src/controllers/install.php',
+        'install/src/controllers/options.php',
+        'install/src/controllers/summary.php',
+    ]);
 
     test('the database test validates the collation before it reaches CREATE DATABASE', function () {
         expect(installerRoot('install/src/controllers/connection/databasetest.php'))
