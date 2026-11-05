@@ -178,6 +178,16 @@ it('lets nginx reach the entry point of "remove the install folder"', function (
         ->and(preg_match('~' . $location[1] . '~', '/manager/processors/save_user.processor.php'))->toBe(0);
 });
 
+it('lets nginx run the update.php the update widget opens, behind the manager allowlist', function () {
+    expect(evoFile('assets/plugins/updater/plugin.updater.php'))->toContain("EVO_SITE_URL . 'update.php");
+
+    preg_match('~location = /update\.php \{(.*?)\n    \}~s', evoFile('ng.inx'), $location);
+
+    expect($location)->toHaveKey(1)
+        ->and($location[1])->toContain('if ($manager_allowed = 0) { return 404; }')
+        ->and($location[1])->toContain('fastcgi_pass {php_backend};');
+});
+
 it('pins SERVER_NAME to the configured name in every nginx php block', function () {
     $nginx = evoFile('ng.inx');
 
