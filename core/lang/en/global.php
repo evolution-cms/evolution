@@ -166,6 +166,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = 'Your site\'s Unauthorized 
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'This means that your Unauthorized page is not accessible to normal web surfers or does not exist. This can lead to a recursive looping condition and many errors in your site logs. Make sure there are no Webuser Groups assigned to the page.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'The Unauthorized page defined in the site configuration settings is not published.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'This means that your Unauthorized page is inaccessible to the general public. Publish the page or make sure it is assigned to an existing Resource in your Site Tree in the Tools &gt; Configuration menu.';
+$_lang["configcheck_htaccess_rules"] = 'Security Warning: .htaccess is out of date';
+$_lang["configcheck_htaccess_rules_msg"] = 'The <strong>.htaccess</strong> file of this site lacks security rules of the current release, and updates never change this file. Private files, backups or PHP files under assets may be reachable. Compare it with <strong>ht.access</strong> of this release and add the missing rules.';
 $_lang["configcheck_validate_referer"] = 'Security Warning: HTTP Header Validation';
 $_lang["configcheck_validate_referer_msg"] = 'The configuration setting <strong>Validate HTTP_REFERER headers?</strong> is Off. We recommend turning it On. <a href="index.php?a=17">Go to Configuration options</a>';
 $_lang["configcheck_warning"] = 'Configuration warning: ';
