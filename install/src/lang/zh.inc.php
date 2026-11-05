@@ -60,6 +60,7 @@ $_lang = [
   'connection_screen_database_info' => 'Database Information',
   'connection_screen_database_login' => 'Database login name:',
   'connection_screen_database_name' => 'Database name:',
+  'connection_screen_env_notice' => '这些设置已在环境中配置，并会覆盖此表单：%s。',
   'connection_screen_database_pass' => 'Database password:',
   'connection_screen_database_test_connection' => 'Create or test selection of your database.',
   'connection_screen_database_type' => 'Database type:',

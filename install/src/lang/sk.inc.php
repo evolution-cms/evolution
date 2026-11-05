@@ -60,6 +60,7 @@ $_lang = [
   'connection_screen_database_info' => 'Informácie o databáze',
   'connection_screen_database_login' => 'Používateľské meno:',
   'connection_screen_database_name' => 'Názov databázy:',
+  'connection_screen_env_notice' => 'Tieto nastavenia sú určené v prostredí a majú prednosť pred týmto formulárom: %s.',
   'connection_screen_database_pass' => 'Heslo:',
   'connection_screen_database_test_connection' => 'Kliknite sem pre vytvorenie databázy alebo overenie, že taká databáza existuje',
   'connection_screen_database_type' => 'Typ databázy:',

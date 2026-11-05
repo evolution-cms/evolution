@@ -66,6 +66,7 @@ $_lang = [
   'connection_screen_database_info' => 'Տվյալների բազայի տեղեկություններ',
   'connection_screen_database_login' => 'Տվյալների բազայի օգտանուն՝',
   'connection_screen_database_name' => 'Տվյալների բազայի անուն՝',
+  'connection_screen_env_notice' => 'Այս կարգավորումները սահմանված են միջավայրում և գերակայում են այս ձևի նկատմամբ՝ %s։',
   'connection_screen_database_pass' => 'Տվյալների բազայի գաղտնաբառ՝',
   'connection_screen_database_test_connection' => 'Ստեղծել տվյալների բազան կամ ստուգել դրա ընտրությունը։',
   'connection_screen_database_type' => 'Տվյալների բազայի տեսակ՝',

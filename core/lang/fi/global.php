@@ -158,6 +158,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = '"Pääsy kielletty" -sivua
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = '"Pääsy kielletty" -sivulle ei joko päästä tai sitä ei ole olemassa. Tämä voi johtaa ongelmiin sivustollasi. Varmista, ettei sivulle ole määritetty web-käyttäjäryhmää.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = '"Pääsy kielletty" -sivua ei ole julkaistu.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = '"Pääsy kielletty" -sivu ei ole julkinen. Varmista, että sivu on julkaistu ja sivun ID-tunnus on oikein.';
+$_lang["configcheck_htaccess_rules"] = 'Tietoturvavaroitus: .htaccess on vanhentunut';
+$_lang["configcheck_htaccess_rules_msg"] = 'Tämän sivuston <strong>.htaccess</strong>-tiedostosta puuttuu nykyisen julkaisun tietoturvasääntöjä, eivätkä päivitykset koskaan muuta tätä tiedostoa. Yksityiset tiedostot, varmuuskopiot tai assets-kansion PHP-tiedostot voivat olla saavutettavissa. Vertaa sitä tämän julkaisun <strong>ht.access</strong>-tiedostoon ja lisää puuttuvat säännöt.';
 $_lang["configcheck_validate_referer"] = 'Tietoturvavaroitus: HTTP Header Validation';
 $_lang["configcheck_validate_referer_msg"] = 'Järjestelmän asetus <strong>Tarkasta HTTP_REFERER tunnisteet?</strong> on poissa päältä. On suositeltavaa ottaa asetus käyttöön. <a href="index.php?a=17">Järjestelmän asetukset</a><br /><a href="javascript:hideHeaderVerificationWarning();"><em>Älä näytä tätä ilmoitusta uudelleen.</em></a>';
 $_lang["configcheck_warning"] = 'Varoitus:';

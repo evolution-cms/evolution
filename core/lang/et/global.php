@@ -166,6 +166,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = 'Sinu saidi juurdepääsu k
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'See tähendab, et juurdepääsu keelamise leht ei ole tavalistele veebikülastajatele kättesaadav või seda pole olemas. See võib põhjustada lõputu tsükli ja palju vigu saidi logides. Veendu, et lehele pole määratud veebikasutajate rühmi.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'Saidi seadistuses määratud juurdepääsu keelamise leht ei ole avaldatud.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'See tähendab, et juurdepääsu keelamise leht ei ole avalikkusele kättesaadav. Avalda leht või veendu menüüs Tööriistad &gt; Seadistus, et sellele on määratud saidipuus olemasolev ressurss.';
+$_lang["configcheck_htaccess_rules"] = 'Turvahoiatus: .htaccess on aegunud';
+$_lang["configcheck_htaccess_rules_msg"] = 'Selle saidi failist <strong>.htaccess</strong> puuduvad praeguse väljalaske turvareeglid ja uuendused seda faili kunagi ei muuda. Privaatsed failid, varukoopiad või PHP-failid kaustas assets võivad olla ligipääsetavad. Võrrelge seda selle väljalaske failiga <strong>ht.access</strong> ja lisage puuduvad reeglid.';
 $_lang["configcheck_validate_referer"] = 'Turvahoiatus: HTTP-päise kontroll';
 $_lang["configcheck_validate_referer_msg"] = 'Seadistus <strong>Kas kontrollida HTTP_REFERER päiseid?</strong> on välja lülitatud. Soovitame selle sisse lülitada. <a href="index.php?a=17">Ava seadistusvalikud</a>';
 $_lang["configcheck_warning"] = 'Seadistuse hoiatus: ';

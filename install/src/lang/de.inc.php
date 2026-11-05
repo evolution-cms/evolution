@@ -60,6 +60,7 @@ $_lang = [
   'connection_screen_database_info' => 'Datenbank-Information',
   'connection_screen_database_login' => 'Datenbank-Login-Name:',
   'connection_screen_database_name' => 'Datenbank-Name:',
+  'connection_screen_env_notice' => 'Diese Einstellungen sind in der Umgebung gesetzt und überschreiben dieses Formular: %s.',
   'connection_screen_database_pass' => 'Datenbank-Passwort:',
   'connection_screen_database_test_connection' => 'Klicken Sie hier, um die Datenbank zu erstellen bzw. um die Verbinding zu testen.',
   'connection_screen_database_type' => 'Database type:',

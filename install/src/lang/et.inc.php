@@ -66,6 +66,7 @@ $_lang = [
   'connection_screen_database_info' => 'Andmebaasi teave',
   'connection_screen_database_login' => 'Andmebaasi kasutajanimi:',
   'connection_screen_database_name' => 'Andmebaasi nimi:',
+  'connection_screen_env_notice' => 'Need seaded on määratud keskkonnas ja alistavad selle vormi: %s.',
   'connection_screen_database_pass' => 'Andmebaasi parool:',
   'connection_screen_database_test_connection' => 'Loo andmebaas või kontrolli selle valikut.',
   'connection_screen_database_type' => 'Andmebaasi tüüp:',
