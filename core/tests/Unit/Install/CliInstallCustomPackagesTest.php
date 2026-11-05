@@ -503,6 +503,19 @@ test('only installing the pinned versions passes without consent', function () {
         ]);
 });
 
+test('a branch counts as changed only when its reference moved', function (string $pinned, string $to, array $changes) {
+    $operations = ['acme/widget' => ['op' => 'install', 'from' => '', 'to' => $to]];
+
+    expect(CustomComposerPackages::unexpectedChanges($operations, ['acme/widget' => $pinned], ['acme/widget']))->toBe($changes);
+})->with([
+    'the lock knows the reference, Composer prints none' => ['dev-main 18f1a03', 'dev-main', []],
+    'Composer prints it, the lock does not' => ['dev-main', 'dev-main 18f1a03', []],
+    'short and long spelling of one commit' => ['dev-main 18f1a03', 'dev-main 18f1a03c9d2e', []],
+    'the branch moved' => ['dev-main 18f1a03', 'dev-main 77aa012', ['acme/widget dev-main 18f1a03 => dev-main 77aa012']],
+    'another branch' => ['dev-main 18f1a03', 'dev-next 18f1a03', ['acme/widget dev-main 18f1a03 => dev-next 18f1a03']],
+    'another release' => ['1.2.0', '1.3.0', ['acme/widget 1.2.0 => 1.3.0']],
+]);
+
 test('changes are judged on the lock, not on the vendor drift an update package ships', function () {
     // Composer 2.10 against the unpacked 3.5.8 archive, whose vendor is newer than its own lock.
     $output = "Loading composer repositories with package information\n"
