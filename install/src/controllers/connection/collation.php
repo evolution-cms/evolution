@@ -5,7 +5,7 @@ try {
     $uid = validateDbUser($_POST['uid'], $driver);
     $pwd = validateDbPassword($_POST['pwd'], $driver);
     $database_name = isset($_POST['database_name']) && $_POST['database_name'] !== ''
-        ? validateDbName($_POST['database_name']) : '';
+        ? validateDbName($_POST['database_name'], $driver) : '';
 } catch (Throwable $e) {
     echo '<span id="database_fail">' . $_lang['status_failed'] . ' ' . $e->getMessage() . '</span>';
 }

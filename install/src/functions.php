@@ -249,7 +249,7 @@ function validateDbType($type)
 }
 
 
-function validateDbName($name)
+function validateDbName($name, $type = '')
 {
     $name = trim($name ?? '', ' `');
     if (strlen($name) === 0) {
@@ -260,6 +260,10 @@ function validateDbName($name)
     }
     // The name is spliced into CREATE DATABASE and the config file. preg_match() returns 0, not
     // false, for a mismatch, so the old "=== false" test let everything through.
+    // SQLite names a file below core/database, which may sit in a folder of its own (a mounted volume).
+    if ($type === 'sqlite' && preg_match('~^[A-Za-z0-9_$-]+(?:/[A-Za-z0-9_$-]+)*$~', $name) === 1) {
+        return $name;
+    }
     if (preg_match('/^[A-Za-z0-9_$-]+$/', $name) !== 1) {
         throw new InvalidArgumentException("Database name should contain only letters, numbers, dashes,"
             . " dollar signs and underscores");
