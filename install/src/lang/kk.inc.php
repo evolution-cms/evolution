@@ -67,6 +67,7 @@ $_lang = [
   'connection_screen_database_info' => 'Дерекқор туралы ақпарат',
   'connection_screen_database_login' => 'Дерекқорға кіру аты:',
   'connection_screen_database_name' => 'Дерекқор атауы:',
+  'connection_screen_env_notice' => 'Бұл баптаулар ортада орнатылған және осы пішіннің мәндерін алмастырады: %s.',
   'connection_screen_database_pass' => 'Дерекқор құпиясөзі:',
   'connection_screen_database_test_connection' => 'Дерекқорды жасау немесе оны таңдауды тексеру.',
   'connection_screen_database_type' => 'Дерекқор түрі:',

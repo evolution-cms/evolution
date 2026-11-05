@@ -61,6 +61,7 @@ $_lang = [
   'connection_screen_database_info' => 'Databasinformation',
   'connection_screen_database_login' => 'Databasens inloggningsnamn:',
   'connection_screen_database_name' => 'Databasnamn:',
+  'connection_screen_env_notice' => 'Dessa inställningar är angivna i miljön och åsidosätter det här formuläret: %s.',
   'connection_screen_database_pass' => 'Databasens lösenord:',
   'connection_screen_database_test_connection' => 'Skapa databas eller testa ditt databasval',
   'connection_screen_database_type' => 'Database type:',

@@ -621,6 +621,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = 'Saytınızın İcazəsiz s
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'Bu o deməkdir ki, İcazəsiz səhifəniz adi istifadəçilər üçün əlçatan deyil və ya mövcud deyil. Bu, sonsuz dövriyyə probleminə və sayt jurnalında çoxlu xətalara səbəb ola bilər. Səhifəyə heç bir Vebistifadəçi Qrupu təyin edilmədiyinə əmin olun.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'Sayt konfiqurasiya ayarlarında təyin olunmuş İcazəsiz səhifə dərc olunmayıb.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'Bu o deməkdir ki, İcazəsiz səhifəniz ümumi istifadəçilər üçün əlçatan deyil. Səhifəni dərc edin və ya Alətlər &gt; Konfiqurasiya menyusunda mövcud bir resursa təyin olunduğuna əmin olun.';
+$_lang["configcheck_htaccess_rules"] = 'Təhlükəsizlik xəbərdarlığı: .htaccess köhnəlib';
+$_lang["configcheck_htaccess_rules_msg"] = 'Bu saytın <strong>.htaccess</strong> faylında cari buraxılışın təhlükəsizlik qaydaları çatışmır və yeniləmələr bu faylı heç vaxt dəyişmir. Şəxsi fayllar, ehtiyat nüsxələr və ya assets altındakı PHP faylları əlçatan ola bilər. Onu bu buraxılışın <strong>ht.access</strong> faylı ilə müqayisə edin və çatışmayan qaydaları əlavə edin.';
 $_lang["configcheck_validate_referer"] = 'Təhlükəsizlik xəbərdarlığı: HTTP Başlıq Doğrulaması';
 $_lang["configcheck_validate_referer_msg"] = 'Konfiqurasiya ayarı <strong>HTTP_REFERER başlıqlarını yoxlayın?</strong> Söndürülüb. Onu aktiv etməyi tövsiyə edirik. <a href="index.php?a=17">Konfiqurasiya seçimlərinə keçin</a>';
 $_lang["configcheck_warning"] = 'Konfiqurasiya xəbərdarlığı:';

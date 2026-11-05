@@ -159,6 +159,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = 'Websitets "Ikke autorisere
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'Det betyder, at den "ikke autoriseret" side ikke kan tilgås af almindelige besøgende eller ikke eksisterer. Det kan medføre, at systemet omstiller uden at stoppe, og vil samtidigt resultere i, at websitets logfiler til sidst vil fylde for meget. Kontroller også at der ikke er tildelt nogle web bruger grupper til siden.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'Den "ikke autoriseret" side, som er defineret i konfigurationsindstillingerne er ikke publiceret.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'Det betyder at den "ikke autoriseret" side ikke kan tilgås af normale besøgende. Publicer siden eller tildel den til en eksisterende ressource under Værktøjer &gt; Konfiguration.';
+$_lang["configcheck_htaccess_rules"] = 'Sikkerhedsadvarsel: .htaccess er forældet';
+$_lang["configcheck_htaccess_rules_msg"] = 'Filen <strong>.htaccess</strong> på dette websted mangler sikkerhedsregler fra den aktuelle version, og opdateringer ændrer aldrig denne fil. Private filer, backups eller PHP-filer under assets kan være tilgængelige. Sammenlign den med <strong>ht.access</strong> fra denne version, og tilføj de manglende regler.';
 $_lang["configcheck_validate_referer"] = 'Sikkerhedsadvarsel: HTTP Header validering';
 $_lang["configcheck_validate_referer_msg"] = 'Konfigurationsindstillingen for <strong>Valider HTTP_REFERER headers?</strong> er slået fra. Det anbefales at slå den til. <a href="index.php?a=17">Gå til konfigurationsindstillingerne</a>';
 $_lang["configcheck_warning"] = 'Konfigurationsadvarsel:';

@@ -166,6 +166,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = 'Сайттын кирүү�
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'Кирүүгө тыюу салуу барагы кадимки конокторго жеткиликсиз же жок. Бул чексиз багыттоого жана журналда көптөгөн каталарга алып келиши мүмкүн. Баракка веб-колдонуучу топтору дайындалбаганын текшериңиз.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'Сайттын жөндөөлөрүндөгү кирүүгө тыюу салуу барагы жарыяланган эмес.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'Бул барак жалпыга жеткиликсиз. Аны жарыялаңыз же Куралдар &gt; Жөндөөлөр менюсунда сайт дарагындагы ресурс туура дайындалганын текшериңиз.';
+$_lang["configcheck_htaccess_rules"] = 'Коопсуздук эскертүүсү: .htaccess эскирген';
+$_lang["configcheck_htaccess_rules_msg"] = 'Бул сайттын <strong>.htaccess</strong> файлында учурдагы чыгарылыштын коопсуздук эрежелери жетишпейт, ал эми жаңыртуулар бул файлды эч качан өзгөртпөйт. Жеке файлдар, камдык көчүрмөлөр же assets ичиндеги PHP файлдары жеткиликтүү болушу мүмкүн. Аны ушул чыгарылыштын <strong>ht.access</strong> файлы менен салыштырып, жетишпеген эрежелерди кошуңуз.';
 $_lang["configcheck_validate_referer"] = 'Коопсуздук эскертүүсү: HTTP баштарын текшерүү';
 $_lang["configcheck_validate_referer_msg"] = '<strong>HTTP_REFERER баштарын текшерүүбү?</strong> жөндөөсү өчүрүлгөн. Аны иштетүүнү сунуштайбыз. <a href="index.php?a=17">Жөндөөлөргө өтүү</a>';
 $_lang["configcheck_warning"] = 'Жөндөөлөр боюнча эскертүү: ';

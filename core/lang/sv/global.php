@@ -159,6 +159,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = 'Din webbplats otillåten-s
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'Detta betyder att din webbplats otillåten-sida inte är tillgänglig för vanliga användare eller att den inte existerar. Det här kan leda till att ett tillstånd med upprepande loopar skapas och ger upphov till att många fel rapporteras i webbplatsens loggar. Kontrollera att inga webbanvändargrupper är knutna till sidan.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'Den otillåten-sida som angetts i inställningarna är inte publicerad.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'Detta betyder att din otillåten-sida är oåtkomlig för allmänheten. Publicera sidan eller kontrollera under Verktyg &gt; Konfiguration att den angivna sidan är en existerande resurs i webbplatsens resursträd.';
+$_lang["configcheck_htaccess_rules"] = 'Säkerhetsvarning: .htaccess är inaktuell';
+$_lang["configcheck_htaccess_rules_msg"] = 'Filen <strong>.htaccess</strong> på den här webbplatsen saknar säkerhetsregler från den aktuella versionen, och uppdateringar ändrar aldrig den här filen. Privata filer, säkerhetskopior eller PHP-filer under assets kan vara åtkomliga. Jämför den med <strong>ht.access</strong> i den här versionen och lägg till de regler som saknas.';
 $_lang["configcheck_validate_referer"] = 'Säkerhetsvarning: validering av HTTP-header';
 $_lang["configcheck_validate_referer_msg"] = 'Konfigurationsinställningen <strong>Kontrollera HTTP_REFERER-headers?</strong> är inaktiverad. Vi rekommenderar att den aktiveras. <a href="index.php?a=17">Gå till konfigurationssidan</a>.';
 $_lang["configcheck_warning"] = 'Konfigurationsvarning: ';

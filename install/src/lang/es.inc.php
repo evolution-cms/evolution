@@ -61,6 +61,7 @@ $_lang = [
   'connection_screen_database_info' => 'Información de la base de datos',
   'connection_screen_database_login' => 'Nombre de usuario de la base de datos:',
   'connection_screen_database_name' => 'Nombre de la base de datos:',
+  'connection_screen_env_notice' => 'Estos ajustes están definidos en el entorno y prevalecen sobre este formulario: %s.',
   'connection_screen_database_pass' => 'Contraseña de la base de datos:',
   'connection_screen_database_test_connection' => 'Haz clic aquí para crear tu base de datos o para probar la selección de tu base de datos',
   'connection_screen_database_type' => 'Database type:',

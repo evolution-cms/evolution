@@ -168,6 +168,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = 'Stránka o obmedzenom prí
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'To znamená, že neexistuje alebo nie je dostupná bežným návštevníkom webu. Môže to viesť k rekurzívnemu volaniu funkcie \'chybová stránka\' a veľkému počtu záznamov v protokole webu. Uistite sa, že žiadne skupiny webových používateľov nemajú túto stránku priradenú.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'Stránka o obmedzenom prístupe uvedená v konfigurácii webu nie je publikovaná.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'To znamená, že nie je dostupná návštevníkom webu. Aby táto funkcia fungovala správne, je potrebné stránku o obmedzenom prístupe publikovať.';
+$_lang["configcheck_htaccess_rules"] = 'Bezpečnostné upozornenie: .htaccess je zastaraný';
+$_lang["configcheck_htaccess_rules_msg"] = 'V súbore <strong>.htaccess</strong> tohto webu chýbajú bezpečnostné pravidlá aktuálneho vydania a aktualizácie tento súbor nikdy nemenia. Súkromné súbory, zálohy alebo súbory PHP v priečinku assets môžu byť dostupné. Porovnajte ho so súborom <strong>ht.access</strong> tohto vydania a doplňte chýbajúce pravidlá.';
 $_lang["configcheck_validate_referer"] = 'Bezpečnostné upozornenie: kontrola HTTP hlavičky';
 $_lang["configcheck_validate_referer_msg"] = 'V konfigurácii je parameter <b>Overovať serverové hlavičky HTTP_REFERER?</b> vypnutý. Odporúčame ho zapnúť. <a href="index.php?a=17">Prejsť na nastavenie konfigurácie</a>';
 $_lang["configcheck_warning"] = 'Chyba konfigurácie:';

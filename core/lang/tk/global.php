@@ -166,6 +166,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = 'Saýtyň ygtyýarsyz giri�
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'Ygtyýarsyz giriş sahypasy adaty ulanyjylara elýeterli däl ýa-da ýok. Bu aýlawlara we žurnalda köp ýalňyşlyga sebäp bolup biler. Sahypa web ulanyjy toparlarynyň bellenmändigini barlaň.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'Sazlamalarda bellenen ygtyýarsyz giriş sahypasy çap edilmedik.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'Sahypa köpçülige elýeterli däl. Ony çap ediň ýa-da Gurallar &gt; Sazlamalar menýusynda bar bolan resursyň bellenendigini barlaň.';
+$_lang["configcheck_htaccess_rules"] = 'Howpsuzlyk duýduryşy: .htaccess köneldi';
+$_lang["configcheck_htaccess_rules_msg"] = 'Bu saýtyň <strong>.htaccess</strong> faýlynda häzirki neşiriň howpsuzlyk düzgünleri ýetmeýär, täzelenmeler bolsa bu faýly hiç haçan üýtgetmeýär. Hususy faýllar, ätiýaçlyk nusgalar ýa-da assets içindäki PHP faýllary elýeterli bolup biler. Ony şu neşiriň <strong>ht.access</strong> faýly bilen deňeşdiriň we ýetmeýän düzgünleri goşuň.';
 $_lang["configcheck_validate_referer"] = 'Howpsuzlyk duýduryşy: HTTP sözbaşylaryny barlamak';
 $_lang["configcheck_validate_referer_msg"] = '<strong>HTTP_REFERER sözbaşylaryny barlamalymy?</strong> sazlamasy öçürilen. Ony açmagy maslahat berýäris. <a href="index.php?a=17">Sazlamalara geç</a>';
 $_lang["configcheck_warning"] = 'Sazlama duýduryşy: ';

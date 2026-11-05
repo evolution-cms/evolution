@@ -166,6 +166,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = 'Сайттың рұқса�
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'Рұқсатсыз қатынау беті қарапайым келушілерге қолжетімсіз немесе жоқ. Бұл қайталанатын циклге және журналда көптеген қателерге әкелуі мүмкін. Бетке веб-пайдаланушы топтары тағайындалмағанын тексеріңіз.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'Сайт баптауларындағы рұқсатсыз қатынау беті жарияланбаған.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'Рұқсатсыз қатынау беті жалпыға қолжетімсіз. Бетті жариялаңыз немесе Құралдар &gt; Баптаулар мәзірінде оның сайт ағашындағы бар ресурсқа тағайындалғанын тексеріңіз.';
+$_lang["configcheck_htaccess_rules"] = 'Қауіпсіздік ескертуі: .htaccess ескірген';
+$_lang["configcheck_htaccess_rules_msg"] = 'Осы сайттың <strong>.htaccess</strong> файлында ағымдағы шығарылымның қауіпсіздік ережелері жетіспейді, ал жаңартулар бұл файлды ешқашан өзгертпейді. Жеке файлдар, сақтық көшірмелер немесе assets ішіндегі PHP файлдары қолжетімді болуы мүмкін. Оны осы шығарылымның <strong>ht.access</strong> файлымен салыстырып, жетіспейтін ережелерді қосыңыз.';
 $_lang["configcheck_validate_referer"] = 'Қауіпсіздік ескертуі: HTTP тақырыптарын тексеру';
 $_lang["configcheck_validate_referer_msg"] = '<strong>HTTP_REFERER тақырыптарын тексеру керек пе?</strong> баптауы өшірілген. Оны қосуды ұсынамыз. <a href="index.php?a=17">Баптауларға өту</a>';
 $_lang["configcheck_warning"] = 'Баптау ескертуі: ';

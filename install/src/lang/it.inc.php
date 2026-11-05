@@ -61,6 +61,7 @@ $_lang = [
   'connection_screen_database_info' => 'Informazioni sul Database',
   'connection_screen_database_login' => 'Nome utente del Database:',
   'connection_screen_database_name' => 'Nome del Database:',
+  'connection_screen_env_notice' => 'Queste impostazioni sono definite nell\'ambiente e hanno la precedenza su questo modulo: %s.',
   'connection_screen_database_pass' => 'Password del Database:',
   'connection_screen_database_test_connection' => 'Crea un Database o verifica il Database selezionato.',
   'connection_screen_database_type' => 'Database type:',

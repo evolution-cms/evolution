@@ -61,6 +61,7 @@ $_lang = [
   'connection_screen_database_info' => 'اطلاعات پایگاه داده',
   'connection_screen_database_login' => 'نام کاربری:',
   'connection_screen_database_name' => 'نام پایگاه داده:',
+  'connection_screen_env_notice' => 'این تنظیمات در محیط تعیین شده‌اند و بر این فرم اولویت دارند: %s.',
   'connection_screen_database_pass' => 'کلمه ی عبور:',
   'connection_screen_database_test_connection' => 'لطفا برای ایجاد پایگاه داده و یا بررسی کردن انتخاب شده های پایگاه داده اینجا کلیک کنید.',
   'connection_screen_database_type' => 'Database type:',

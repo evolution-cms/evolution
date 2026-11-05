@@ -61,6 +61,7 @@ $_lang = [
   'connection_screen_database_info' => 'Tietokannan tiedot',
   'connection_screen_database_login' => 'Käyttäjänimi:',
   'connection_screen_database_name' => 'Tietokannan nimi:',
+  'connection_screen_env_notice' => 'Nämä asetukset on määritetty ympäristössä, ja ne ohittavat tämän lomakkeen: %s.',
   'connection_screen_database_pass' => 'Salasana:',
   'connection_screen_database_test_connection' => 'Napsauta tähän luodaksesi tietokanta tai testataksesi jo luodun tietokannan valintaa',
   'connection_screen_database_type' => 'Database type:',

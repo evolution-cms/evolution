@@ -166,6 +166,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = 'Саҳифаи манъи 
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'Ин саҳифа барои меҳмонон дастнорас аст ё мавҷуд нест. Он метавонад даври беохир ва хатоҳои зиёд дар гузоришҳо эҷод кунад. Боварӣ ҳосил кунед, ки ба саҳифа гурӯҳҳои корбарони веб таъин нашудаанд.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'Саҳифаи манъи дастрасии дар танзимот муайяншуда нашр нашудааст.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'Ин саҳифа барои умум дастнорас аст. Онро нашр кунед ё дар менюи Абзорҳо &gt; Танзимот захираи мавҷудаи дарахти сомонаро таъин кунед.';
+$_lang["configcheck_htaccess_rules"] = 'Огоҳии амниятӣ: .htaccess кӯҳна шудааст';
+$_lang["configcheck_htaccess_rules_msg"] = 'Дар файли <strong>.htaccess</strong>-и ин сайт қоидаҳои амниятии нашри ҷорӣ намерасанд ва навсозиҳо ҳеҷ гоҳ ин файлро тағйир намедиҳанд. Файлҳои шахсӣ, нусхаҳои эҳтиётӣ ё файлҳои PHP дар assets метавонанд дастрас бошанд. Онро бо <strong>ht.access</strong>-и ин нашр муқоиса кунед ва қоидаҳои намерасидаро илова намоед.';
 $_lang["configcheck_validate_referer"] = 'Огоҳии амниятӣ: санҷиши сарлавҳаҳои HTTP';
 $_lang["configcheck_validate_referer_msg"] = 'Танзимоти <strong>Сарлавҳаҳои HTTP_REFERER санҷида шаванд?</strong> хомӯш аст. Фаъол кардани он тавсия мешавад. <a href="index.php?a=17">Кушодани танзимот</a>';
 $_lang["configcheck_warning"] = 'Огоҳии танзимот: ';

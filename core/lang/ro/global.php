@@ -166,6 +166,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = 'Pagina de acces neautoriza
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'Aceasta înseamnă că pagina de acces neautorizat nu este accesibilă vizitatorilor obișnuiți sau nu există. Acest lucru poate provoca o buclă recursivă și multe erori în jurnalele site-ului. Asigură-te că paginii nu îi sunt atribuite grupuri de utilizatori web.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'Pagina de acces neautorizat definită în configurația site-ului nu este publicată.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'Aceasta înseamnă că pagina de acces neautorizat nu este accesibilă publicului. Publică pagina sau asigură-te că este atribuită unei resurse existente în arborele site-ului, din meniul Instrumente &gt; Configurare.';
+$_lang["configcheck_htaccess_rules"] = 'Avertisment de securitate: .htaccess este învechit';
+$_lang["configcheck_htaccess_rules_msg"] = 'În fișierul <strong>.htaccess</strong> al acestui site lipsesc reguli de securitate ale versiunii curente, iar actualizările nu modifică niciodată acest fișier. Fișierele private, copiile de siguranță sau fișierele PHP din assets pot fi accesibile. Comparați-l cu <strong>ht.access</strong> din această versiune și adăugați regulile lipsă.';
 $_lang["configcheck_validate_referer"] = 'Avertisment de securitate: validarea antetelor HTTP';
 $_lang["configcheck_validate_referer_msg"] = 'Setarea <strong>Validează antetele HTTP_REFERER?</strong> este dezactivată. Recomandăm activarea ei. <a href="index.php?a=17">Deschide opțiunile de configurare</a>';
 $_lang["configcheck_warning"] = 'Avertisment de configurare: ';
