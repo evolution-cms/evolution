@@ -294,6 +294,20 @@ server {
         fastcgi_pass {php_backend};
     }
 
+    # Written by the update widget, opened once, and deleted by itself.
+    location = /update.php {
+        if ($manager_allowed = 0) { return 404; }
+
+        try_files $uri @rewrite;
+
+        include /etc/nginx/fastcgi_params;
+        fastcgi_param SERVER_NAME $server_name;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param HTTPS on;
+        fastcgi_hide_header X-Powered-By;
+        fastcgi_pass {php_backend};
+    }
+
     # =====================================================================
     # Fall-through, both sections
     # =====================================================================
