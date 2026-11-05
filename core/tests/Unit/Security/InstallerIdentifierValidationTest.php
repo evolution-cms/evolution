@@ -48,6 +48,30 @@ describe('validateDbName()', function () {
     });
 });
 
+describe('validateDbHost()', function () {
+
+    test('accepts addresses, hostnames and Docker service names', function (string $host) {
+        expect(validateDbHost($host, 'mysql'))->toBe($host);
+    })->with([
+        'hostname' => ['db.example.com'],
+        'hostname with a port' => ['db.example.com:3307'],
+        'address' => ['10.0.0.5'],
+        'service name' => ['project_service-db'],
+        'service name with a port' => ['project_service-db:3306'],
+    ]);
+
+    test('rejects what is no host', function (string $host) {
+        expect(fn () => validateDbHost($host, 'mysql'))->toThrow(InvalidArgumentException::class);
+    })->with([
+        'space' => ['db host'],
+        'quote' => ["db'host"],
+        'slash' => ['db/host'],
+        'dollar' => ['db$host'],
+        'label ending in a dash' => ['db-.example.com'],
+        'label ending in an underscore' => ['db_.example.com'],
+    ]);
+});
+
 describe('validateDbCollation()', function () {
 
     test('accepts MySQL, PostgreSQL and SQLite collations', function (string $collation) {
