@@ -20,6 +20,70 @@ test('only a fresh completion token from the same address authorizes installer r
         ->and(InstallerCompletion::matches($lock, $token, '203.0.113.10', $now + 1441, 1440))->toBeFalse();
 });
 
+test('the lock address is REMOTE_ADDR, with the forwarded client next to it', function (array $server, string $address) {
+    expect(InstallerCompletion::clientAddress($server))->toBe($address);
+})->with([
+    'no proxy' => [['REMOTE_ADDR' => '203.0.113.10'], '203.0.113.10'],
+    'a proxy' => [['REMOTE_ADDR' => '10.11.0.6', 'HTTP_X_FORWARDED_FOR' => '203.0.113.10'], '203.0.113.10@10.11.0.6'],
+    'a chain of proxies' => [['REMOTE_ADDR' => '10.11.0.6', 'HTTP_X_FORWARDED_FOR' => '203.0.113.10, 10.0.0.1'], '203.0.113.10@10.11.0.6'],
+    'X-Real-IP only' => [['REMOTE_ADDR' => '127.0.0.1', 'HTTP_X_REAL_IP' => '203.0.113.10'], '203.0.113.10@127.0.0.1'],
+    'a header that is no address' => [['REMOTE_ADDR' => '203.0.113.10', 'HTTP_X_FORWARDED_FOR' => '<script>'], '203.0.113.10'],
+    'nothing known' => [[], ''],
+]);
+
+test('visitors behind one proxy are told apart, and the address still counts without a proxy', function () {
+    $now = 1_800_000_000;
+    $lock = [
+        'session' => 'owner',
+        'ip' => InstallerCompletion::clientAddress(['REMOTE_ADDR' => '10.11.0.6', 'HTTP_X_FORWARDED_FOR' => '203.0.113.10']),
+        'timestamp' => $now,
+        'token' => null,
+        'grant' => null,
+    ];
+    $stranger = InstallerCompletion::clientAddress(['REMOTE_ADDR' => '10.11.0.6', 'HTTP_X_FORWARDED_FOR' => '198.51.100.7']);
+    $direct = ['ip' => '203.0.113.10'] + $lock;
+
+    expect(InstallerCompletion::decide($lock, false, 'owner', $lock['ip'], null, $now, 1440))->toBe(InstallerCompletion::PROCEED)
+        ->and(InstallerCompletion::decide($lock, false, 'owner', $stranger, null, $now, 1440))->toBe(InstallerCompletion::DENY)
+        ->and(InstallerCompletion::decide($direct, false, 'owner', '203.0.113.10', null, $now, 1440))->toBe(InstallerCompletion::PROCEED)
+        ->and(InstallerCompletion::decide($direct, false, 'owner', '198.51.100.7', null, $now, 1440))->toBe(InstallerCompletion::DENY);
+});
+
+test('a proxy on the same host does not let a stranger take over a running install', function () {
+    $now = 1_800_000_000;
+    $server = ['REMOTE_ADDR' => '127.0.0.1'];
+    $lock = [
+        'session' => 'owner',
+        'ip' => InstallerCompletion::clientAddress($server + ['HTTP_X_FORWARDED_FOR' => '203.0.113.10']),
+        'timestamp' => $now,
+        'token' => null,
+        'grant' => null,
+    ];
+    $stranger = InstallerCompletion::clientAddress($server + ['HTTP_X_FORWARDED_FOR' => '198.51.100.7']);
+    $local = ['ip' => '127.0.0.1'] + $lock;
+
+    expect(InstallerCompletion::decide($lock, false, 'stranger', $stranger, null, $now, 1440))->toBe(InstallerCompletion::DENY)
+        // A forged header cannot reach the takeover either, and a real local browser keeps it.
+        ->and(InstallerCompletion::decide($local, false, 'stranger', $stranger, null, $now, 1440))->toBe(InstallerCompletion::DENY)
+        ->and(InstallerCompletion::decide($local, false, 'browser', '127.0.0.1', null, $now, 1440))->toBe(InstallerCompletion::CLAIM);
+});
+
+test('every step of the installer ties its lock to the same address', function () {
+    $root = dirname(__DIR__, 4);
+
+    foreach ([
+        'install/index.php',
+        'install/src/controllers/install.php',
+        'manager/processors/remove_installer.processor.php',
+        'core/src/Middleware/Manager.php',
+    ] as $file) {
+        $source = (string) file_get_contents($root . '/' . $file);
+
+        expect($source)->toContain('InstallerCompletion::clientAddress($_SERVER)')
+            ->and($source)->not->toContain("\$_SERVER['REMOTE_ADDR']");
+    }
+});
+
 test('a generic installer lock is not a removal capability', function () {
     $lockFile = tempnam(sys_get_temp_dir(), 'evo-install-lock-');
     file_put_contents(

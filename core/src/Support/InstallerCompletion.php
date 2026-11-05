@@ -21,6 +21,30 @@ final class InstallerCompletion
     public const DENY = 'deny';
 
     /**
+     * The address an installer lock is tied to.
+     *
+     * Behind a proxy REMOTE_ADDR is the proxy, the same for every visitor, and on the same host it is
+     * loopback, which may take over a lock. So a forwarded client is kept next to it. The headers can
+     * be forged, but only to tell a request apart: REMOTE_ADDR stays part of the value, and a request
+     * that sends one is never loopback.
+     *
+     * @param array<string, mixed> $server A `$_SERVER`-shaped array.
+     */
+    public static function clientAddress(array $server): string
+    {
+        $remote = is_string($server['REMOTE_ADDR'] ?? null) ? $server['REMOTE_ADDR'] : '';
+
+        foreach (['HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP'] as $header) {
+            $value = is_string($server[$header] ?? null) ? trim(explode(',', $server[$header], 2)[0]) : '';
+            if (filter_var($value, FILTER_VALIDATE_IP) !== false) {
+                return $value . '@' . $remote;
+            }
+        }
+
+        return $remote;
+    }
+
+    /**
      * Record a successful installation: the one-time token that authorizes removing the installer.
      * An administrator's grant held by the lock is kept.
      */

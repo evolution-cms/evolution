@@ -807,7 +807,7 @@ try {
             InstallerCompletion::writeLock(
                 EVO_BASE_PATH . 'install.session.php',
                 session_id(),
-                (string) ($_SERVER['REMOTE_ADDR'] ?? ''),
+                InstallerCompletion::clientAddress($_SERVER),
                 time(),
                 $installerRemovalToken
             );

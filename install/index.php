@@ -45,7 +45,7 @@ require_once 'src/functions.php';
 session_start();
 
 // Get current IP, session ID, and current time
-$ip = $_SERVER['REMOTE_ADDR'];
+$ip = InstallerCompletion::clientAddress($_SERVER);
 $sid = session_id();
 $current_time = time();
 
