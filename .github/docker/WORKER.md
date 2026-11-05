@@ -7,7 +7,7 @@ image, opt in with:
 docker.exe run -d --name evo-worker -p 8080:80 \
   -e EVO_WORKER_MODE=1 \
   -e EVO_WORKER_ORIGIN=http://localhost:8080 \
-  ghcr.io/evolution-cms/evolution:3.5.x-php8.4-frankenphp
+  ghcr.io/evolution-cms/evolution:3.6.x-php8.4-frankenphp
 ```
 
 This command requires an image built with the worker implementation. The site
