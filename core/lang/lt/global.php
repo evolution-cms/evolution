@@ -166,6 +166,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = 'Svetainės neleistinos pri
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'Tai reiškia, kad neleistinos prieigos puslapis nepasiekiamas įprastiems lankytojams arba jo nėra. Dėl to gali susidaryti rekursinė kilpa ir svetainės žurnaluose atsirasti daug klaidų. Įsitikinkite, kad puslapiui nepriskirta jokių žiniatinklio naudotojų grupių.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'Svetainės konfigūracijoje nustatytas neleistinos prieigos puslapis nepaskelbtas.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'Tai reiškia, kad neleistinos prieigos puslapis nepasiekiamas visiems lankytojams. Paskelbkite puslapį arba meniu Įrankiai &gt; Konfigūracija įsitikinkite, kad jam priskirtas esamas išteklius svetainės medyje.';
+$_lang["configcheck_htaccess_rules"] = 'Saugumo įspėjimas: .htaccess yra pasenęs';
+$_lang["configcheck_htaccess_rules_msg"] = 'Šios svetainės <strong>.htaccess</strong> faile trūksta dabartinės laidos saugumo taisyklių, o atnaujinimai šio failo niekada nekeičia. Privatūs failai, atsarginės kopijos arba PHP failai kataloge assets gali būti pasiekiami. Palyginkite jį su šios laidos failu <strong>ht.access</strong> ir pridėkite trūkstamas taisykles.';
 $_lang["configcheck_validate_referer"] = 'Saugumo įspėjimas: HTTP antraščių tikrinimas';
 $_lang["configcheck_validate_referer_msg"] = 'Konfigūracijos nuostata <strong>Tikrinti HTTP_REFERER antraštes?</strong> išjungta. Rekomenduojame ją įjungti. <a href="index.php?a=17">Atverti konfigūracijos parinktis</a>';
 $_lang["configcheck_warning"] = 'Konfigūracijos įspėjimas: ';

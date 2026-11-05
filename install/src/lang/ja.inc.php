@@ -61,6 +61,7 @@ $_lang = [
   'connection_screen_database_info' => 'データベース設定',
   'connection_screen_database_login' => 'データベース接続ログイン名:',
   'connection_screen_database_name' => 'データベース名:',
+  'connection_screen_env_notice' => 'これらの設定は環境で定義されており、このフォームより優先されます: %s。',
   'connection_screen_database_pass' => 'データベース接続パスワード:',
   'connection_screen_database_test_connection' => 'ここをクリックして、データベースのテストを行なってください。<br />（※権限がある場合は、この操作でデータベースを新規に作成できます）',
   'connection_screen_database_type' => 'Database type:',

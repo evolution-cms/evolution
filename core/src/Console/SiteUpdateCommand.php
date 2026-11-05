@@ -7,6 +7,7 @@ use EvolutionCMS\Models\SystemSetting;
 use EvolutionCMS\Services\ComposerVersionSynchronizer;
 use EvolutionCMS\Services\CustomComposerPackages;
 use EvolutionCMS\Services\Store\RemoteTransportService;
+use EvolutionCMS\Support\HtaccessRules;
 use EvolutionCMS\Traits\RunsComposerShell;
 use Illuminate\Console\Command;
 
@@ -322,6 +323,7 @@ EXAMPLES;
                 }
             }
             $this->cleanupUpdatePlaceholderFiles();
+            $this->warnAboutHtaccess();
             $this->synchronizeComposerVersion();
             $this->installComposerDependencies($customPackageUpdate, $customPackageNames);
             $this->runCoreMigrations();
@@ -625,6 +627,29 @@ EXAMPLES;
         foreach ([EVO_BASE_PATH . 'composer.json', EVO_BASE_PATH . 'config.php.example'] as $file) {
             if (is_file($file)) {
                 unlink($file);
+            }
+        }
+    }
+
+    /**
+     * The update keeps the site's .htaccess: say so when that leaves it without the rules of this release.
+     *
+     * @since 3.5.10
+     * @return void
+     */
+    protected function warnAboutHtaccess(): void
+    {
+        $file = EVO_BASE_PATH . '.htaccess';
+        if (!is_file($file)) {
+            return;
+        }
+
+        $missing = HtaccessRules::missing((string) file_get_contents($file));
+        if ($missing !== []) {
+            $this->warn('.htaccess was kept and lacks ' . count($missing) . ' security rules of this release.'
+                . ' On Apache, add them from ht.access of this release:');
+            foreach ($missing as $rule) {
+                $this->warn('  ' . $rule);
             }
         }
     }

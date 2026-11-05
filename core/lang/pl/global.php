@@ -167,6 +167,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = 'Strona Braku Autoryzacji T
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'Oznacza to, że Strona Braku Autoryzacji jest niedostępna dla odwiedzających.  Może to powodować niestabilność i wiele błędnych wpisów w logach serwisu. Upewnij się, że żadna grupa użytkowników nie jest przypisana do strony.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'Strona Braku Konfiguracji zdefiniowana w ustawieniach jest nieopublikowana.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'Oznacza to, że Strona Braku Autoryzacji serwisu jest niedostępna dla odwiedzających. Opublikuj tą stronę albo upewnij się, że jest ona przypisana do istniejącego dokumentu w drzewie zawartości Twojej strony.';
+$_lang["configcheck_htaccess_rules"] = 'Ostrzeżenie odnośnie bezpieczeństwa: plik .htaccess jest nieaktualny';
+$_lang["configcheck_htaccess_rules_msg"] = 'W pliku <strong>.htaccess</strong> tej strony brakuje reguł bezpieczeństwa bieżącego wydania, a aktualizacje nigdy nie zmieniają tego pliku. Prywatne pliki, kopie zapasowe lub pliki PHP w assets mogą być dostępne. Porównaj go z plikiem <strong>ht.access</strong> z tego wydania i dodaj brakujące reguły.';
 $_lang["configcheck_validate_referer"] = 'Ostrzeżenie odnośnie bezpieczeństwa: Weryfikacja nagłówków HTTP_REFERER';
 $_lang["configcheck_validate_referer_msg"] = 'Ustawienie konfiguracyjne <strong>Weryfikuj nagłówki HTTP_REFERER</strong> jest wyłączone. Zalecamy aby było ono włączone. <a href="index.php?a=17">Przejdź do konfiguracji systemu</a><br /><a href="javascript:hideHeaderVerificationWarning();"><em>Nie pokazuj tego komunikatu ponownie./em></a>';
 $_lang["configcheck_warning"] = 'Ostrzeżenia konfiguracji:';

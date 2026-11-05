@@ -166,6 +166,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = 'La pagina Non Autorizzato 
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'Ciò significa che la pagina di Non Autorizzato non esiste o non è accessibile da parte dei normali visitatori web. Questo fatto generare un loop ricorsivo e scrivere numerosi errori nel log del vostro sito. Verificate che non ci siano Gruppi di Utenti Web assegnati a questa pagina.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'La pagina Non Autorizzato del vostro sito non è stata pubblicata.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'Ciò significa che la pagina di Non Autorizzato non è accessibile ai visitatori. Pubblicate la pagina o selezionate una Risorsa esistente nella struttura ad albero del vostro sito dal menu Strumenti -> Configurazione.';
+$_lang["configcheck_htaccess_rules"] = 'Avviso di Sicurezza: .htaccess non è aggiornato';
+$_lang["configcheck_htaccess_rules_msg"] = 'Nel file <strong>.htaccess</strong> di questo sito mancano regole di sicurezza della versione corrente e gli aggiornamenti non modificano mai questo file. File privati, backup o file PHP in assets potrebbero essere raggiungibili. Confrontalo con <strong>ht.access</strong> di questa versione e aggiungi le regole mancanti.';
 $_lang["configcheck_validate_referer"] = 'Avviso di Sicurezza: Validazione headers HTTP';
 $_lang["configcheck_validate_referer_msg"] = 'L\'opzione di <strong>Validazione degli headers HTTP_REFERER?</strong> non è attivata. Raccomandiamo di attivarla. <a href="index.php?a=17">Vai alle Opzioni di Configurazione</a>';
 $_lang["configcheck_warning"] = 'Avviso di configurazione:';

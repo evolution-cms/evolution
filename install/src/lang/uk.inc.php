@@ -61,6 +61,7 @@ $_lang = [
     'connection_screen_database_info' => 'Інформація бази даних',
     'connection_screen_database_login' => 'Ім\'я користувача:',
     'connection_screen_database_name' => 'Назва бази даних:',
+    'connection_screen_env_notice' => 'Ці налаштування задані в середовищі та перевизначають цю форму: %s.',
     'connection_screen_database_pass' => 'Пароль:',
     'connection_screen_database_test_connection' => 'Натисніть тут, щоб створити базу даних або перевірити, що така база існує',
     'connection_screen_database_type' => 'Тип бази даних:',

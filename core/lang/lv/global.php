@@ -166,6 +166,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = 'Vietnes nesankcionētas pi
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'Tas nozīmē, ka nesankcionētas piekļuves lapa nav pieejama parastajiem apmeklētājiem vai nepastāv. Tas var izraisīt rekursīvu ciklu un daudz kļūdu vietnes žurnālos. Pārliecinieties, ka lapai nav piešķirtas tīmekļa lietotāju grupas.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'Vietnes konfigurācijā norādītā nesankcionētas piekļuves lapa nav publicēta.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'Tas nozīmē, ka nesankcionētas piekļuves lapa nav publiski pieejama. Publicējiet lapu vai izvēlnē Rīki &gt; Konfigurācija pārliecinieties, ka tai ir piešķirts esošs resurss vietnes kokā.';
+$_lang["configcheck_htaccess_rules"] = 'Drošības brīdinājums: .htaccess ir novecojis';
+$_lang["configcheck_htaccess_rules_msg"] = 'Šīs vietnes failā <strong>.htaccess</strong> trūkst pašreizējā laidiena drošības noteikumu, un atjauninājumi šo failu nekad nemaina. Privāti faili, rezerves kopijas vai PHP faili mapē assets var būt pieejami. Salīdziniet to ar šī laidiena failu <strong>ht.access</strong> un pievienojiet trūkstošos noteikumus.';
 $_lang["configcheck_validate_referer"] = 'Drošības brīdinājums: HTTP galveņu pārbaude';
 $_lang["configcheck_validate_referer_msg"] = 'Konfigurācijas iestatījums <strong>Pārbaudīt HTTP_REFERER galvenes?</strong> ir izslēgts. Iesakām to ieslēgt. <a href="index.php?a=17">Atvērt konfigurācijas opcijas</a>';
 $_lang["configcheck_warning"] = 'Konfigurācijas brīdinājums: ';

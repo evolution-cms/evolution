@@ -153,6 +153,27 @@ function databaseHostParts(string $host): array
     return ['host' => $host, 'port' => $port];
 }
 
+/**
+ * The database settings fixed outside the installer: the connection config asks the environment
+ * first, so these win over whatever the form says.
+ *
+ * @param list<string>|null $envFiles
+ * @return list<string>
+ */
+function databaseEnvOverrides(?array $envFiles = null): array
+{
+    $content = '';
+    foreach ($envFiles ?? [EVO_CORE_PATH . 'custom/.env', dirname(EVO_CORE_PATH) . '/.env'] as $file) {
+        $content .= is_file($file) ? file_get_contents($file) . "\n" : '';
+    }
+
+    return array_values(array_filter(
+        ['DB_TYPE', 'DB_HOST', 'DB_PORT', 'DB_DATABASE', 'DB_USERNAME', 'DB_PASSWORD', 'DB_CHARSET', 'DB_COLLATION', 'DB_PREFIX'],
+        static fn (string $name): bool => getenv($name) !== false
+            || preg_match('/^\s*(?:export\s+)?' . $name . '\s*=/m', $content) === 1
+    ));
+}
+
 function databaseDsn(string $driver, string $host, ?string $database = null): string
 {
     $parts = databaseHostParts($host);
@@ -249,7 +270,7 @@ function validateDbType($type)
 }
 
 
-function validateDbName($name)
+function validateDbName($name, $type = '')
 {
     $name = trim($name ?? '', ' `');
     if (strlen($name) === 0) {
@@ -260,6 +281,10 @@ function validateDbName($name)
     }
     // The name is spliced into CREATE DATABASE and the config file. preg_match() returns 0, not
     // false, for a mismatch, so the old "=== false" test let everything through.
+    // SQLite names a file below core/database, which may sit in a folder of its own (a mounted volume).
+    if ($type === 'sqlite' && preg_match('~^[A-Za-z0-9_$-]+(?:/[A-Za-z0-9_$-]+)*$~', $name) === 1) {
+        return $name;
+    }
     if (preg_match('/^[A-Za-z0-9_$-]+$/', $name) !== 1) {
         throw new InvalidArgumentException("Database name should contain only letters, numbers, dashes,"
             . " dollar signs and underscores");
@@ -312,7 +337,9 @@ function validateDbHost($host, $type)
     }
     $parts = databaseHostParts($host);
     if (!$ip = filter_var($parts['host'], FILTER_VALIDATE_IP)) {
-        if (!$parts['host'] = filter_var($parts['host'], FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+        // Docker service names carry underscores, which the hostname filter refuses.
+        $hostname = str_replace('_', '-', $parts['host']);
+        if (filter_var($hostname, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) === false) {
             throw new InvalidArgumentException("Database host should be valid IP or hostname");
         }
     } else {

@@ -67,6 +67,7 @@ $_lang = [
   'connection_screen_database_info' => 'Маалымат базасы жөнүндө маалымат',
   'connection_screen_database_login' => 'Маалымат базасынын колдонуучу аты:',
   'connection_screen_database_name' => 'Маалымат базасынын аты:',
+  'connection_screen_env_notice' => 'Бул жөндөөлөр чөйрөдө коюлган жана ушул форманын маанилерин алмаштырат: %s.',
   'connection_screen_database_pass' => 'Маалымат базасынын сырсөзү:',
   'connection_screen_database_test_connection' => 'Маалымат базасын түзүү же анын тандалышын текшерүү.',
   'connection_screen_database_type' => 'Маалымат базасынын түрү:',

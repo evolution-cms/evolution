@@ -67,6 +67,7 @@ $_lang = [
   'connection_screen_database_info' => 'მონაცემთა ბაზის ინფორმაცია',
   'connection_screen_database_login' => 'მონაცემთა ბაზის მომხმარებლის სახელი:',
   'connection_screen_database_name' => 'მონაცემთა ბაზის სახელი:',
+  'connection_screen_env_notice' => 'ეს პარამეტრები გარემოშია განსაზღვრული და ამ ფორმას უგულებელყოფს: %s.',
   'connection_screen_database_pass' => 'მონაცემთა ბაზის პაროლი:',
   'connection_screen_database_test_connection' => 'შექმენით მონაცემთა ბაზა ან შეამოწმეთ მისი არჩევა.',
   'connection_screen_database_type' => 'მონაცემთა ბაზის ტიპი:',

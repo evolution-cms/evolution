@@ -6,7 +6,7 @@ $installMode = isset($_POST['installmode']) ? (int)$_POST['installmode'] : (is_r
 // Early validation for new or advanced install modes
 if ($installMode === 0 || $installMode === 2) {
     $database_type = validateDbType($_POST['database_type']);
-    $database_name = validateDbName($_POST['database_name']);
+    $database_name = validateDbName($_POST['database_name'], $database_type);
     $databasehost = validateDbHost($_POST['databasehost'], $database_type);
     $databaseloginname = isset($_POST['databaseloginname']) ? validateDbUser($_POST['databaseloginname'], $database_type) : $_SESSION['databaseloginname'];
     $databaseloginpassword = isset($_POST['databaseloginpassword']) ? validateDbPassword($_POST['databaseloginpassword'], $database_type) : $_SESSION['databaseloginpassword'];

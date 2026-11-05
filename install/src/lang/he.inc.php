@@ -61,6 +61,7 @@ $_lang = [
   'connection_screen_database_info' => 'מידע על מסד הנתונים',
   'connection_screen_database_login' => 'שם התחברות למסד הנתונים:',
   'connection_screen_database_name' => 'שם מסד הנתונים:',
+  'connection_screen_env_notice' => 'הגדרות אלה נקבעו בסביבה וגוברות על טופס זה: %s.',
   'connection_screen_database_pass' => 'סיסמת מסד הנתונים:',
   'connection_screen_database_test_connection' => 'לחץ כאן כדי ליצור את מסד הנתונים או כדי לבדוק את הבחירה של מסד הנתונים',
   'connection_screen_database_type' => 'Database type:',

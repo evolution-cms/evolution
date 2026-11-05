@@ -67,6 +67,7 @@ $_lang = [
   'connection_screen_database_info' => 'Маълумоти пойгоҳи додаҳо',
   'connection_screen_database_login' => 'Номи корбари пойгоҳи додаҳо:',
   'connection_screen_database_name' => 'Номи пойгоҳи додаҳо:',
+  'connection_screen_env_notice' => 'Ин танзимот дар муҳит муқаррар шудаанд ва бар ин шакл бартарӣ доранд: %s.',
   'connection_screen_database_pass' => 'Гузарвожаи пойгоҳи додаҳо:',
   'connection_screen_database_test_connection' => 'Сохтан ё санҷиши интихоби пойгоҳи додаҳо.',
   'connection_screen_database_type' => 'Навъи пойгоҳи додаҳо:',

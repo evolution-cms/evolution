@@ -170,6 +170,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = '「権限外告知のペ�
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = '設定した「権限外告知のページ」が一般的なエンドユーザーからアクセスできないページ（private）かあるいは存在しないことを意味しています。システムがループ状態に陥り、多数のエラーをエラーログに蓄積します。権限フリーの公開ページを「権限外告知のページ」に指定してください。';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'グローバル設定で設定された権限外告知のページは公開されていません。';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = '設定した権限外告知のページが誰でも見られるようにはなっていないことを意味します。権限外告知ページは全ての人「Public」に公開するようにしてください。';
+$_lang["configcheck_htaccess_rules"] = 'セキュリティ警告: .htaccess が古くなっています';
+$_lang["configcheck_htaccess_rules_msg"] = 'このサイトの <strong>.htaccess</strong> には現在のリリースのセキュリティルールが不足しており、アップデートではこのファイルは変更されません。非公開ファイル、バックアップ、または assets 配下の PHP ファイルにアクセスできる可能性があります。このリリースの <strong>ht.access</strong> と比較し、不足しているルールを追加してください。';
 $_lang["configcheck_validate_referer"] = 'セキュリティ警告: 参照元チェックの設定';
 $_lang["configcheck_validate_referer_msg"] = '<a href="index.php?a=17">グローバル設定</a>の<strong>「管理画面のリファラチェック」</strong>がオフになっています。セキュリティ強化のためオンにすることをおすすめします。<br /><a href="javascript:hideHeaderVerificationWarning();"><em>今後この警告を表示しない</em></a>';
 $_lang["configcheck_warning"] = '警告';

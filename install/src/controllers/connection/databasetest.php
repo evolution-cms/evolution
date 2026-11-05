@@ -6,7 +6,7 @@ try {
     $uid = validateDbUser($_POST['uid'], $driver);
     $pwd = validateDbPassword($_POST['pwd'], $driver);
     $tableprefix = validateTablePrefix($_POST['tableprefix']);
-    $database_name = validateDbName($_POST['database_name']);
+    $database_name = validateDbName($_POST['database_name'], $driver);
     $database_collation = validateDbCollation($_POST['database_collation'] ?? '');
 } catch (InvalidArgumentException $e) {
     exit($output . '<span id="database_fail">' . $_lang['status_failed'] . ' '

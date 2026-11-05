@@ -158,6 +158,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = 'Stránka o neautorizované
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'To znamená, že Stránka o neautorizovaném přístupu není dostupná normálním internetovým uživatelům nebo neexistuje. To může vést k mnoha chybovým zápisům do logů. Ujistěte se zda žádná ze skupin návštěvníků nemá přístup k této stránce.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'Stránka o neautorizovaném přístupu definovaná v nastavení webu není publikována.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'To znamená, že vaše Stránka o neautorizovaném přístupu je nedostupná širolé veřejnosti. Publikujte stránku nebo se přesvědčte, že stránka existuje a je umístěna ve stromu dokumentů v Nástrojích &gt; Konfigurační menu.';
+$_lang["configcheck_htaccess_rules"] = 'Bezpečnostní upozornění: .htaccess je zastaralý';
+$_lang["configcheck_htaccess_rules_msg"] = 'V souboru <strong>.htaccess</strong> tohoto webu chybí bezpečnostní pravidla aktuálního vydání a aktualizace tento soubor nikdy nemění. Soukromé soubory, zálohy nebo soubory PHP ve složce assets mohou být dostupné. Porovnejte jej se souborem <strong>ht.access</strong> tohoto vydání a doplňte chybějící pravidla.';
 $_lang["configcheck_validate_referer"] = 'Bezpečnostní upozornění: Validace HTTP hlaviček';
 $_lang["configcheck_validate_referer_msg"] = 'Nastavení <strong>Ověřit hlavičky HTTP_REFERER</strong> v konfiguraci systému je vypnuté. Doporučujeme jej zapnout. <a href="index.php?a=17">Přejít na konfiguraci systému</a><br /><a href="javascript:hideHeaderVerificationWarning();"><em>Nezobrazovat to znovu.</em></a>';
 $_lang["configcheck_warning"] = 'Výstraha konfigurace:';
