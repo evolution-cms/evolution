@@ -312,7 +312,9 @@ function validateDbHost($host, $type)
     }
     $parts = databaseHostParts($host);
     if (!$ip = filter_var($parts['host'], FILTER_VALIDATE_IP)) {
-        if (!$parts['host'] = filter_var($parts['host'], FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+        // Docker service names carry underscores, which the hostname filter refuses.
+        $hostname = str_replace('_', '-', $parts['host']);
+        if (filter_var($hostname, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) === false) {
             throw new InvalidArgumentException("Database host should be valid IP or hostname");
         }
     } else {
