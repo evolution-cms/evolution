@@ -42,7 +42,8 @@ class ChangePassword extends AbstractController implements ManagerTheme\PageCont
             }
         }
 
-        header("Location: index.php?a=99");
+        // not the user list (a=99): it needs edit_user, which this action does not require
+        header("Location: index.php?a=2");
         exit();
     }
 
