@@ -53,7 +53,9 @@ class DeleteUser extends AbstractController implements ManagerTheme\PageControll
                 }
             }
         }
-        header("Location: index.php?a=99");
+        // the user list needs edit_user, which this action does not require
+        $landing = $this->managerTheme->getCore()->hasPermission('edit_user') ? 99 : 2;
+        header("Location: index.php?a={$landing}");
         exit();
     }
 
