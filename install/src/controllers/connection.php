@@ -159,6 +159,11 @@ $ph['databasehost_placeholder'] = escapeHtmlAttribute('localhost:3306');
 $ph['databaseloginname'] = escapeHtmlAttribute(isset($_SESSION['databaseloginname']) ? $_SESSION['databaseloginname'] : '');
 $ph['databaseloginpassword'] = escapeHtmlAttribute(isset($_SESSION['databaseloginpassword']) ? $_SESSION['databaseloginpassword'] : '');
 $ph['MGR_DIR'] = escapeHtmlAttribute(MGR_DIR);
+$envOverrides = databaseEnvOverrides();
+$ph['env_notice'] = $envOverrides === [] ? '' : '<p><strong>' . sprintf(
+    escapeHtmlAttribute($_lang['connection_screen_env_notice']),
+    escapeHtmlAttribute(implode(', ', $envOverrides))
+) . '</strong></p>';
 
 $content = file_get_contents(dirname(__DIR__) . '/template/actions/connection.tpl');
 $content = parse($content, $_lang, '[%', '%]');

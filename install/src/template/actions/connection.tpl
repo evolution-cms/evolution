@@ -13,6 +13,7 @@
     <input type="hidden" value="1" name="chkagree" [+checkedChkagree+] />
     <input type="hidden" value="[+installMode+]" name="installmode" />
     <h2>[%connection_screen_database_info%]</h2>
+    [+env_notice+]
     <h3>[%connection_screen_server_connection_information%]</h3>
     <p>[%connection_screen_server_connection_note%]</p>
     <p class="labelHolder">
