@@ -207,7 +207,7 @@ if ($installMode == 1) {
     $database_password = $_SESSION['databaseloginpassword'];
     $database_collation = validateDbCollation($_POST['database_collation']);
     $database_connection_charset = validateDbCollation($_POST['database_connection_charset']);
-    $database_name = validateDbName($_POST['database_name']);
+    $database_name = validateDbName($_POST['database_name'], $database_type);
     $table_prefix = validateTablePrefix($_POST['tableprefix']);
 }
 echo '<p>' . $_lang['creating_database_connection'];

@@ -60,6 +60,7 @@ $_lang = [
   'connection_screen_database_info' => 'Məlumat bazası məlumatları',
   'connection_screen_database_login' => 'Məlumat bazası giriş adı:',
   'connection_screen_database_name' => 'Məlumat bazası adı:',
+  'connection_screen_env_notice' => 'Bu parametrlər mühitdə təyin olunub və bu formanı əvəz edir: %s.',
   'connection_screen_database_pass' => 'Məlumat bazası şifrəsi:',
   'connection_screen_database_test_connection' => 'Məlumat bazasının seçimini yaratmaq və ya test etmək.',
   'connection_screen_database_type' => 'Məlumat bazası növü:',

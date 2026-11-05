@@ -166,6 +166,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = 'Die Seite für unautorisie
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'Die Seite für unautorisierte Zugriffe ist für normale Besucher nicht abrufbar oder existiert nicht. Dies kann zu einer Endlosschleife und vielen Fehlermeldungen in Ihren Webserver-Statistiken führen. Stellen Sie sicher, dass der Seite keine Benutzergruppen zugeordnet sind.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'Die Seite für unautorisierte Zugriffe aus den Einstellungen Ihrer Konfiguration ist nicht veröffentlicht.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'Die Seite unautorisierte Zugriffe ist der Allgemeinheit nicht zugänglich. Veröffentlichen Sie die Seite oder stellen Sie sicher, dass in der Konfiguration eine vorhandene Seite aus dem Ressourcen-Baum ausgewählt ist.';
+$_lang["configcheck_htaccess_rules"] = 'Sicherheitshinweis: .htaccess ist veraltet';
+$_lang["configcheck_htaccess_rules_msg"] = 'In der Datei <strong>.htaccess</strong> dieser Website fehlen Sicherheitsregeln der aktuellen Version, und Updates ändern diese Datei nie. Private Dateien, Backups oder PHP-Dateien unter assets könnten erreichbar sein. Vergleichen Sie sie mit <strong>ht.access</strong> dieser Version und ergänzen Sie die fehlenden Regeln.';
 $_lang["configcheck_validate_referer"] = 'Sicherheitshinweis: HTTP Header Validierung';
 $_lang["configcheck_validate_referer_msg"] = 'Die Konfigurationseinstellung <strong>HTTP_REFERER Header validieren?</strong> ist AUSGESCHALTET. Wir empfehlen, diese anzuschalten. <a href="index.php?a=17">Zu den Einstellungen</a>';
 $_lang["configcheck_warning"] = 'Konfigurationswarnung:';

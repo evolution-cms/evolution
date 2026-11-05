@@ -60,6 +60,7 @@ $_lang = [
   'connection_screen_database_info' => 'Databaseopplysninger',
   'connection_screen_database_login' => 'Databasens inloggingsnavn:',
   'connection_screen_database_name' => 'Databasenavn:',
+  'connection_screen_env_notice' => 'Disse innstillingene er satt i miljøet og overstyrer dette skjemaet: %s.',
   'connection_screen_database_pass' => 'Databasens passord:',
   'connection_screen_database_test_connection' => 'Klikk her for &aring; opprette din database eller for &aring; teste ditt databasevalg',
   'connection_screen_database_type' => 'Database type:',

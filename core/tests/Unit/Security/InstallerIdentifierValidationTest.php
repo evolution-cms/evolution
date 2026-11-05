@@ -46,6 +46,78 @@ describe('validateDbName()', function () {
     test('rejects names of 64 characters or more', function () {
         expect(fn () => validateDbName(str_repeat('a', 64)))->toThrow(InvalidArgumentException::class);
     });
+
+    test('lets a SQLite file sit in a folder below core/database', function () {
+        expect(validateDbName('sqlite/evolution', 'sqlite'))->toBe('sqlite/evolution')
+            ->and(validateDbName('a/b/evolution', 'sqlite'))->toBe('a/b/evolution')
+            ->and(validateDbName('evolution', 'sqlite'))->toBe('evolution');
+    });
+
+    test('a folder stays a SQLite thing and never climbs out of core/database', function (string $name, string $type) {
+        expect(fn () => validateDbName($name, $type))->toThrow(InvalidArgumentException::class);
+    })->with([
+        'mysql' => ['sqlite/evolution', 'mysql'],
+        'pgsql' => ['sqlite/evolution', 'pgsql'],
+        'no type' => ['sqlite/evolution', ''],
+        'parent' => ['../evolution', 'sqlite'],
+        'parent inside' => ['a/../../evolution', 'sqlite'],
+        'absolute' => ['/etc/evolution', 'sqlite'],
+        'trailing slash' => ['evolution/', 'sqlite'],
+        'backslash' => ['a\\evolution', 'sqlite'],
+    ]);
+});
+
+describe('validateDbHost()', function () {
+
+    test('accepts addresses, hostnames and Docker service names', function (string $host) {
+        expect(validateDbHost($host, 'mysql'))->toBe($host);
+    })->with([
+        'hostname' => ['db.example.com'],
+        'hostname with a port' => ['db.example.com:3307'],
+        'address' => ['10.0.0.5'],
+        'service name' => ['project_service-db'],
+        'service name with a port' => ['project_service-db:3306'],
+    ]);
+
+    test('rejects what is no host', function (string $host) {
+        expect(fn () => validateDbHost($host, 'mysql'))->toThrow(InvalidArgumentException::class);
+    })->with([
+        'space' => ['db host'],
+        'quote' => ["db'host"],
+        'slash' => ['db/host'],
+        'dollar' => ['db$host'],
+        'label ending in a dash' => ['db-.example.com'],
+        'label ending in an underscore' => ['db_.example.com'],
+    ]);
+});
+
+describe('databaseEnvOverrides()', function () {
+
+    afterEach(function () {
+        putenv('DB_HOST');
+    });
+
+    test('names the settings of the environment and of the .env files', function () {
+        $file = tempnam(sys_get_temp_dir(), 'evo-env-');
+        file_put_contents($file, "# DB_PORT=1\nDB_DATABASE=evo\n  export DB_PREFIX=evo_\nAPP_DB_USERNAME=x\n");
+        putenv('DB_HOST=database');
+
+        expect(databaseEnvOverrides([$file, $file . '.missing']))->toBe(['DB_HOST', 'DB_DATABASE', 'DB_PREFIX']);
+
+        unlink($file);
+    });
+
+    test('the connection form shows them, and the connection config really asks for them', function () {
+        $config = installerRoot('install/stubs/files/config/database/connections/default.tpl');
+
+        expect(installerRoot('install/src/template/actions/connection.tpl'))->toContain('[+env_notice+]')
+            ->and(installerRoot('install/src/controllers/connection.php'))->toContain('databaseEnvOverrides()')
+            ->and(installerRoot('install/src/lang/en.inc.php'))->toContain("'connection_screen_env_notice'");
+
+        foreach (['DB_TYPE', 'DB_HOST', 'DB_PORT', 'DB_DATABASE', 'DB_USERNAME', 'DB_PASSWORD', 'DB_CHARSET', 'DB_COLLATION', 'DB_PREFIX'] as $name) {
+            expect($config)->toContain("env('$name'");
+        }
+    });
 });
 
 describe('validateDbCollation()', function () {
@@ -88,6 +160,18 @@ describe('validateTablePrefix()', function () {
 });
 
 describe('call sites', function () {
+
+    test('every controller tells validateDbName() the database type', function (string $file) {
+        expect(installerRoot($file))
+            ->toMatch('/validateDbName\(\$_POST\[\'database_name\'\], \$(driver|database_type)\)/');
+    })->with([
+        'install/src/controllers/connection.php',
+        'install/src/controllers/connection/collation.php',
+        'install/src/controllers/connection/databasetest.php',
+        'install/src/controllers/install.php',
+        'install/src/controllers/options.php',
+        'install/src/controllers/summary.php',
+    ]);
 
     test('the database test validates the collation before it reaches CREATE DATABASE', function () {
         expect(installerRoot('install/src/controllers/connection/databasetest.php'))

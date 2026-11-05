@@ -166,6 +166,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = 'Saytingizning ruxsatsiz ki
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'Bu ruxsatsiz kirish sahifasi oddiy tashrif buyuruvchilar uchun ochiq emasligini yoki mavjud emasligini bildiradi. Bu rekursiv takrorlanishga va sayt jurnallarida ko‘plab xatolarga olib kelishi mumkin. Sahifaga veb-foydalanuvchi guruhlari biriktirilmaganini tekshiring.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'Sayt konfiguratsiyasida belgilangan ruxsatsiz kirish sahifasi chop etilmagan.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'Bu ruxsatsiz kirish sahifasi barcha tashrif buyuruvchilar uchun yopiq ekanini bildiradi. Sahifani chop eting yoki Asboblar &gt; Konfiguratsiya menyusida unga sayt daraxtidagi mavjud resurs tayinlanganini tekshiring.';
+$_lang["configcheck_htaccess_rules"] = 'Xavfsizlik ogohlantirishi: .htaccess eskirgan';
+$_lang["configcheck_htaccess_rules_msg"] = 'Ushbu saytning <strong>.htaccess</strong> faylida joriy relizning xavfsizlik qoidalari yetishmaydi, yangilanishlar esa bu faylni hech qachon o‘zgartirmaydi. Shaxsiy fayllar, zaxira nusxalar yoki assets ichidagi PHP fayllari ochiq bo‘lishi mumkin. Uni ushbu relizning <strong>ht.access</strong> fayli bilan solishtiring va yetishmayotgan qoidalarni qo‘shing.';
 $_lang["configcheck_validate_referer"] = 'Xavfsizlik ogohlantirishi: HTTP sarlavhalarini tekshirish';
 $_lang["configcheck_validate_referer_msg"] = '<strong>HTTP_REFERER sarlavhalari tekshirilsinmi?</strong> sozlamasi o‘chirilgan. Uni yoqishni tavsiya qilamiz. <a href="index.php?a=17">Konfiguratsiya sozlamalariga o‘tish</a>';
 $_lang["configcheck_warning"] = 'Konfiguratsiya ogohlantirishi: ';

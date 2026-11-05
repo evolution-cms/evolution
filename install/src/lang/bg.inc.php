@@ -60,6 +60,7 @@ $_lang = [
   'connection_screen_database_info' => 'Информация за БД',
   'connection_screen_database_login' => 'Име за връзка към БД:',
   'connection_screen_database_name' => 'Име на БД:',
+  'connection_screen_env_notice' => 'Тези настройки са зададени в средата и имат предимство пред този формуляр: %s.',
   'connection_screen_database_pass' => 'Парола за БД:',
   'connection_screen_database_test_connection' => 'Кликнете, за да създадете БД или да тествате връзката към нея',
   'connection_screen_database_type' => 'Database type:',

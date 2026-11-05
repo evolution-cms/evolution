@@ -166,6 +166,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = 'Uw \'Niet Gemachtigd\'-pag
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'Dit houdt in dat uw \'Niet Gemachtigd\'-pagina niet toegankelijk is voor normale Webgebruikers of niet bestaat. Dit kan leiden tot een oneindige lus en veel foutmeldingen in uw logbestand. Zorg ervoor dat de Pagina niet aan een Webgebruikersgroep is toegewezen.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'De \'Niet Gemachtigd\'-pagina die in de configuratie instellingen is aangegeven is niet gepubliceerd.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'Dit houdt in dat uw \'Niet Gemachtigd\'-pagina niet toegankelijk is voor bezoekers. Publiceer de Pagina of zorg ervoor dat het is toegewezen aan een bestaande Pagina in de inhoudsopgave van uw website met het Beheer &gt; Configuratie menu.';
+$_lang["configcheck_htaccess_rules"] = 'Beveiliging Waarschuwing: .htaccess is verouderd';
+$_lang["configcheck_htaccess_rules_msg"] = 'Het bestand <strong>.htaccess</strong> van deze site mist beveiligingsregels van de huidige release, en updates wijzigen dit bestand nooit. Privébestanden, backups of PHP-bestanden onder assets kunnen bereikbaar zijn. Vergelijk het met <strong>ht.access</strong> van deze release en voeg de ontbrekende regels toe.';
 $_lang["configcheck_validate_referer"] = 'Beveiliging Waarschuwing: HTTP Header Validatie';
 $_lang["configcheck_validate_referer_msg"] = 'De configuratie instelling <strong>Validate HTTP_REFERER headers?</strong> staat UIT. We raden aan deze AAN te zetten. <a href="index.php?a=17">Ga naar de Configuratie opties</a>';
 $_lang["configcheck_warning"] = 'Configuratie waarschuwing:';

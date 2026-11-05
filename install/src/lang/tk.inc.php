@@ -66,6 +66,7 @@ $_lang = [
   'connection_screen_database_info' => 'Maglumat binýady barada maglumat',
   'connection_screen_database_login' => 'Maglumat binýadyna giriş ady:',
   'connection_screen_database_name' => 'Maglumat binýadynyň ady:',
+  'connection_screen_env_notice' => 'Bu sazlamalar gurşawda kesgitlenen we şu formanyň ýerine ulanylýar: %s.',
   'connection_screen_database_pass' => 'Maglumat binýadynyň paroly:',
   'connection_screen_database_test_connection' => 'Maglumat binýadyňyzy dörediň ýa-da onuň saýlanyşyny barlaň.',
   'connection_screen_database_type' => 'Maglumat binýadynyň görnüşi:',

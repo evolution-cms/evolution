@@ -665,7 +665,16 @@ final class CustomComposerPackages
     public static function unexpectedChanges(array $operations, array $pins, array $packages): array
     {
         $custom = array_fill_keys(array_map('strtolower', $packages), true);
-        $sameVersion = static fn (string $a, string $b): bool => strtolower(ltrim($a, 'vV')) === strtolower(ltrim($b, 'vV'));
+        $sameVersion = static function (string $a, string $b): bool {
+            // A branch is "dev-main 18f1a03" in one source and "dev-main" in another: a reference
+            // on one side only says nothing, two different ones mean the branch moved.
+            [$versionA, $referenceA] = array_pad(explode(' ', strtolower(ltrim(trim($a), 'vV')), 2), 2, '');
+            [$versionB, $referenceB] = array_pad(explode(' ', strtolower(ltrim(trim($b), 'vV')), 2), 2, '');
+
+            return $versionA === $versionB
+                && ($referenceA === '' || $referenceB === ''
+                    || str_starts_with($referenceA, $referenceB) || str_starts_with($referenceB, $referenceA));
+        };
 
         $changes = [];
         foreach ($operations as $name => $operation) {

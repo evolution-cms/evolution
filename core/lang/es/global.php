@@ -166,6 +166,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = 'Tu página de acceso no au
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'Esto significa que tu página de acceso no autorizado no es accesible para navegantes normales de internet o que no existe.  Esto puede provocar un estado de círculo cerrado y varios errores en la bitácora de tu sitio.  Asegúrate de que no haya grupos de usuarios web asignados a la página.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'La página de acceso no autorizado definida en la configuración del sitio no está publicada.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'Esto significa que tu página de acceso no autorizado no es accesible para el público en general. Publica la página o asegúrate de que esté asignada a un documento existente en el árbol de tu sitio en en menu Herramientas &gt; Configuración.';
+$_lang["configcheck_htaccess_rules"] = 'Advertencia de seguridad: .htaccess está desactualizado';
+$_lang["configcheck_htaccess_rules_msg"] = 'Al archivo <strong>.htaccess</strong> de este sitio le faltan reglas de seguridad de la versión actual, y las actualizaciones nunca modifican este archivo. Los archivos privados, los respaldos o los archivos PHP dentro de assets podrían ser accesibles. Compáralo con <strong>ht.access</strong> de esta versión y añade las reglas que faltan.';
 $_lang["configcheck_validate_referer"] = 'Security Warning: HTTP Header Validation';
 $_lang["configcheck_validate_referer_msg"] = 'The configuration setting <strong>Validate HTTP_REFERER headers?</strong> is Off. We recommend turning it On. <a href="index.php?a=17">Go to Configuration options</a>';
 $_lang["configcheck_warning"] = 'Advertencia de configuración:';

@@ -30,6 +30,15 @@ if (!extension_loaded('gd') || !extension_loaded('zip')) {
     $warnings[] = [$_lang['configcheck_php_gdzip']];
 }
 
+if (
+    (EvolutionCMS()->config['_hide_configcheck_htaccess_rules'] ?? '') !== '1'
+    && stripos((string) ($_SERVER['SERVER_SOFTWARE'] ?? ''), 'apache') !== false
+    && is_file(EVO_BASE_PATH . '.htaccess')
+    && \EvolutionCMS\Support\HtaccessRules::missing((string) file_get_contents(EVO_BASE_PATH . '.htaccess')) !== []
+) {
+    $warnings[] = [$_lang['configcheck_htaccess_rules']];
+}
+
 if(!isset(EvolutionCMS()->config['_hide_configcheck_validate_referer']) || EvolutionCMS()->config['_hide_configcheck_validate_referer'] !== '1') {
     if(isset($_SESSION['mgrPermissions']['settings']) && $_SESSION['mgrPermissions']['settings'] == '1') {
         if (EvolutionCMS()->getConfig('validate_referer') == '0') {
@@ -199,6 +208,11 @@ if (!empty($warnings)) {
                 break;
             case $_lang['configcheck_errorpage_unavailable'] :
                 $warnings[$i][1] = $_lang['configcheck_errorpage_unavailable_msg'];
+                break;
+            case $_lang['configcheck_htaccess_rules'] :
+                $msg = $_lang['configcheck_htaccess_rules_msg'];
+                $msg .= '<br />' . sprintf($_lang["configcheck_hide_warning"], 'htaccess_rules');
+                $warnings[$i][1] = "<span id=\"htaccess_rules_warning_wrapper\">{$msg}</span>\n";
                 break;
             case $_lang['configcheck_validate_referer'] :
                 $msg = $_lang['configcheck_validate_referer_msg'];

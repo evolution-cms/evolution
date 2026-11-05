@@ -60,6 +60,7 @@ $_lang = [
   'connection_screen_database_info' => 'Informação da Base de Dados.',
   'connection_screen_database_login' => 'Login da Base de Dados:',
   'connection_screen_database_name' => 'Nome da Base de Dados:',
+  'connection_screen_env_notice' => 'Estas definições estão configuradas no ambiente e substituem este formulário: %s.',
   'connection_screen_database_pass' => 'Senha da Base de Dados:',
   'connection_screen_database_test_connection' => 'Clique aqui para criar a sua Base de Dados ou testar a conexão',
   'connection_screen_database_type' => 'Database type:',

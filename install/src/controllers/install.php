@@ -42,7 +42,7 @@ $database_user = $_SESSION['databaseloginname'] ?? '';
 $database_password = $_SESSION['databaseloginpassword'] ?? '';
 $database_collation = validateDbCollation($_POST['database_collation']);
 $database_connection_charset = validateDbCollation($_POST['database_connection_charset']);
-$database_name = validateDbName($_POST['database_name']);
+$database_name = validateDbName($_POST['database_name'], $database_type);
 if ($installMode !== 1) {
     $adminname = validateAdminUsername($_POST['cmsadmin']);
     $adminemail = validateAdminEmail($_POST['cmsadminemail']);
@@ -802,11 +802,12 @@ try {
         // removal processor. A generic lock created on the first installer visit is not enough.
         require_once EVO_CORE_PATH . 'src/Support/InstallerCompletion.php';
         $installerRemovalToken = bin2hex(random_bytes(32));
-        if (file_exists($base_path . 'install.session.php')) {
+        // Not $base_path: core/includes/define.inc.php, required above, unsets it.
+        if (file_exists(EVO_BASE_PATH . 'install.session.php')) {
             InstallerCompletion::writeLock(
-                $base_path . 'install.session.php',
+                EVO_BASE_PATH . 'install.session.php',
                 session_id(),
-                (string) ($_SERVER['REMOTE_ADDR'] ?? ''),
+                InstallerCompletion::clientAddress($_SERVER),
                 time(),
                 $installerRemovalToken
             );

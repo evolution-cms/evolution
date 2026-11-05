@@ -82,7 +82,7 @@ class Manager
         $held = is_string($held) ? $held : null;
         $secret = InstallerCompletion::grantToAdministrator(
             EVO_BASE_PATH . 'install.session.php',
-            (string) ($_SERVER['REMOTE_ADDR'] ?? ''),
+            InstallerCompletion::clientAddress($_SERVER),
             $held,
             time(),
             (int) ini_get('session.gc_maxlifetime')

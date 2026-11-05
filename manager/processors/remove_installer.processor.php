@@ -60,7 +60,7 @@ if (
     || !InstallerCompletion::matches(
         $lock,
         $requestToken,
-        (string) ($_SERVER['REMOTE_ADDR'] ?? ''),
+        InstallerCompletion::clientAddress($_SERVER),
         time(),
         $maxLifetime
     )

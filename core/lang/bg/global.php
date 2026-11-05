@@ -158,6 +158,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = 'Страницата, по
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'Това означава, че страницата с Неоторизиран достъп не е достъпна за нормалните уеб потребители или не съществува. Това може да доведе до състояние на зацикляне и много грешки в логовете на сайта. Уверете се, че няма никакви Групи на уеб потребители, прикачени към страницата.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'Страницата с Неоторизиран достъп, указана в конфигурацията на Вашия сайт не е публикувана или не съществува.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'Това означава, че страницата с грешката не е публично достъпна. Публикувайте страницата и се уверете, че тя е прикачена към съществуващ документ в дървото на сайта като отидете на Инструменти Tools &gt; в менюто Конфигурация.';
+$_lang["configcheck_htaccess_rules"] = 'Предупреждение за сигурността: .htaccess е остарял';
+$_lang["configcheck_htaccess_rules_msg"] = 'Във файла <strong>.htaccess</strong> на този сайт липсват правила за сигурност от текущата версия, а актуализациите никога не променят този файл. Лични файлове, архиви или PHP файлове в assets може да са достъпни. Сравнете го с <strong>ht.access</strong> от тази версия и добавете липсващите правила.';
 $_lang["configcheck_validate_referer"] = 'Security Warning: HTTP Header Validation';
 $_lang["configcheck_validate_referer_msg"] = 'The configuration setting <strong>Validate HTTP_REFERER headers?</strong> is Off. We recommend turning it On. <a href="index.php?a=17">Go to Configuration options</a>';
 $_lang["configcheck_warning"] = 'Грешки в конфигурацията:';

@@ -159,6 +159,8 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = 'صفحه ی خارج از 
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'ایند به این معناست که صفحه ی خارج از دسترس شما قابل دسترسی برای بازدیدکنندگان عادی نمی باشد و یا و جود ندارد. این امکان دارد باعث ایجاد خطالهای پی در پی در وبگاه شود. از این موضوع اطمینان حاصل کنید که هیچ گروه از کاربر وب برای این صفحه تعیین نشده باشد.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'صفحه ی خارج از دسترس تعیین شده در تنظیمات مربوط به وبگاه همچنان منتشر نشده است.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'این بدان معناست که صفحه ی خارج از دسترسی قابل دسترس عمومی نمی باشد. صفحه را منتشر کنید و یا مطمئن شوید که چنین صفحه منتهی به پرونده ای می شود که در درختی وبگاه در قسمت فهرست یا منوی ابزار و تنظیمات وجود دارد.';
+$_lang["configcheck_htaccess_rules"] = 'هشدار امنیتی: .htaccess قدیمی است';
+$_lang["configcheck_htaccess_rules_msg"] = 'فایل <strong>.htaccess</strong> این وبگاه قوانین امنیتی نسخه فعلی را ندارد و به‌روزرسانی‌ها هرگز این فایل را تغییر نمی‌دهند. فایل‌های خصوصی، نسخه‌های پشتیبان یا فایل‌های PHP در assets ممکن است در دسترس باشند. آن را با <strong>ht.access</strong> این نسخه مقایسه کنید و قوانین جاافتاده را اضافه کنید.';
 $_lang["configcheck_validate_referer"] = 'Security Warning: HTTP Header Validation';
 $_lang["configcheck_validate_referer_msg"] = 'The configuration setting <strong>Validate HTTP_REFERER headers?</strong> is Off. We recommend turning it On. <a href="index.php?a=17">Go to Configuration options</a>';
 $_lang["configcheck_warning"] = 'خطای تنظیمات:';

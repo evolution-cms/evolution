@@ -2119,6 +2119,7 @@ class ComposerStaticInit925fea465a58fa69f06ccf2629003e87
         'EvolutionCMS\\Support\\Formatter\\CSSMinify' => __DIR__ . '/../..' . '/src/Support/Formatter/CSSMinify.php',
         'EvolutionCMS\\Support\\Formatter\\HtmlFormatter' => __DIR__ . '/../..' . '/src/Support/Formatter/HtmlFormatter.php',
         'EvolutionCMS\\Support\\Formatter\\SqlFormatter' => __DIR__ . '/../..' . '/src/Support/Formatter/SqlFormatter.php',
+        'EvolutionCMS\\Support\\HtaccessRules' => __DIR__ . '/../..' . '/src/Support/HtaccessRules.php',
         'EvolutionCMS\\Support\\InstallerCompletion' => __DIR__ . '/../..' . '/src/Support/InstallerCompletion.php',
         'EvolutionCMS\\Support\\MailTestMailer' => __DIR__ . '/../..' . '/src/Support/MailTestMailer.php',
         'EvolutionCMS\\Support\\MailTestSmtp' => __DIR__ . '/../..' . '/src/Support/MailTestSmtp.php',
