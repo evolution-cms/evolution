@@ -2,6 +2,7 @@
 
 use EvolutionCMS\Models\RolePermissions;
 use EvolutionCMS\Models\UserRole;
+use EvolutionCMS\Support\ManagerLanguage;
 
 class StoreContextService
 {
@@ -16,7 +17,7 @@ class StoreContextService
         if (file_exists($fallbackFile)) {
             include $fallbackFile;
         }
-        if ($languageFile !== $fallbackFile && file_exists($languageFile)) {
+        if ($languageFile !== $fallbackFile && ManagerLanguage::isName($managerLanguage) && file_exists($languageFile)) {
             include $languageFile;
         }
 

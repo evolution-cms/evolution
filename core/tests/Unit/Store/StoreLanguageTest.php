@@ -61,6 +61,21 @@ test('an unknown manager language loads english', function () use ($storeModule)
         ->toBe((new StoreContextService())->loadLanguage($storeModule, 'en'));
 });
 
+test('a manager language that is no locale name includes nothing', function () {
+    $module = sys_get_temp_dir() . '/evo-store-language-' . getmypid() . '-' . uniqid();
+    mkdir($module . '/lang', 0777, true);
+    file_put_contents($module . '/lang/en.php', "<?php\n\$_Lang['from'] = 'english';\n");
+    file_put_contents($module . '/outside.php', "<?php\n\$_Lang['from'] = 'outside';\n");
+
+    $strings = (new StoreContextService())->loadLanguage($module, '../outside');
+    unlink($module . '/outside.php');
+    unlink($module . '/lang/en.php');
+    rmdir($module . '/lang');
+    rmdir($module);
+
+    expect($strings)->toBe(['from' => 'english']);
+});
+
 test('no store translation carries keys that english does not have', function () use ($storeModule) {
     $english = storeLanguageStrings($storeModule . '/lang/en.php');
 

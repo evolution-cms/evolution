@@ -6800,6 +6800,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         $this->config = $this->configCompatibility();
 
         $this->loadConfig();
+        $this->dropManagerLanguagePath();
 
         // Apply the system timezone before user settings and OnLoadSettings hooks.
         $siteTimezone = Support\SiteTimezone::apply(
@@ -6817,6 +6818,19 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         // The backend builds ManagerTheme before reading factory defaults. Realign it
         // after per-user settings and OnLoadSettings have changed the configuration.
         $this->syncManagerTheme();
+    }
+
+    /**
+     * manager_language names a file to include, here and in packages that read it as it
+     * stands, and a stored value may be anything: only a locale name gets into the
+     * configuration. A deleted locale passes, it reads as English where it is used.
+     */
+    private function dropManagerLanguagePath(): void
+    {
+        $language = $this->config['manager_language'] ?? '';
+        if ($language !== '' && !Support\ManagerLanguage::isName($language)) {
+            $this->config['manager_language'] = Support\ManagerLanguage::DEFAULT;
+        }
     }
 
     /**
@@ -6904,6 +6918,11 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             if (!empty($musrSettings)) {
                 $usrSettings = array_merge($musrSettings, $usrSettings);
             }
+        }
+
+        // The same rule as dropManagerLanguagePath(); the system language stays.
+        if (isset($usrSettings['manager_language']) && !Support\ManagerLanguage::isName($usrSettings['manager_language'])) {
+            unset($usrSettings['manager_language']);
         }
 
         if (empty($usrSettings)) {
