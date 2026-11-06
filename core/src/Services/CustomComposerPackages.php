@@ -687,14 +687,16 @@ final class CustomComposerPackages
     {
         $custom = array_fill_keys(array_map('strtolower', $packages), true);
         $sameVersion = static function (string $a, string $b): bool {
-            // A branch is "dev-main 18f1a03" in one source and "dev-main" in another: a reference
-            // on one side only says nothing, two different ones mean the branch moved.
-            [$versionA, $referenceA] = array_pad(explode(' ', strtolower(ltrim(trim($a), 'vV')), 2), 2, '');
-            [$versionB, $referenceB] = array_pad(explode(' ', strtolower(ltrim(trim($b), 'vV')), 2), 2, '');
+            // A branch is "dev-main#18f1a03..." as a pin and "dev-main 18f1a03" as Composer prints it.
+            // A commit on one side only cannot show the branch stayed where it was: that needs consent.
+            $parts = static fn (string $version): array => array_pad(preg_split('/[ #]/', strtolower(ltrim(trim($version), 'vV')), 2), 2, '');
+            [$versionA, $referenceA] = $parts($a);
+            [$versionB, $referenceB] = $parts($b);
+            if ($versionA !== $versionB || ($referenceA === '') !== ($referenceB === '')) {
+                return false;
+            }
 
-            return $versionA === $versionB
-                && ($referenceA === '' || $referenceB === ''
-                    || str_starts_with($referenceA, $referenceB) || str_starts_with($referenceB, $referenceA));
+            return $referenceA === '' || str_starts_with($referenceA, $referenceB) || str_starts_with($referenceB, $referenceA);
         };
 
         $changes = [];
@@ -738,7 +740,7 @@ final class CustomComposerPackages
     /**
      * Packages of core/composer.lock with their versions and requirements.
      *
-     * @return array<string, array{version: string, require: list<string>}>
+     * @return array<string, array{version: string, pin: string, require: list<string>}>
      */
     private function lockPackages(): array
     {
@@ -755,6 +757,7 @@ final class CustomComposerPackages
                 if ($name !== '') {
                     $packages[$name] = [
                         'version' => (string) ($package['version'] ?? ''),
+                        'pin' => self::pinnedVersion($package),
                         'require' => array_map('strtolower', array_keys((array) ($package['require'] ?? []))),
                     ];
                 }
@@ -762,6 +765,27 @@ final class CustomComposerPackages
         }
 
         return $packages;
+    }
+
+    /**
+     * The version to bring a locked package back at. "dev-main" alone is wherever the branch
+     * stands by then, so a branch keeps its commit: "dev-main#18f1a03...".
+     *
+     * Only for git and hg sources, the ones Composer prints a commit for: no other can be
+     * compared with what a dry run reports.
+     *
+     * @param array<string, mixed> $package Entry of composer.lock.
+     */
+    private static function pinnedVersion(array $package): string
+    {
+        $version = (string) ($package['version'] ?? '');
+        $source = (array) ($package['source'] ?? []);
+        $reference = (string) ($source['reference'] ?? '');
+        $isBranch = str_starts_with($version, 'dev-') || str_ends_with($version, '-dev');
+
+        return $isBranch && $reference !== '' && in_array($source['type'] ?? '', ['git', 'hg'], true)
+            ? $version . '#' . $reference
+            : $version;
     }
 
     /**
@@ -785,7 +809,7 @@ final class CustomComposerPackages
     /**
      * A package and what it requires in the lock, without the core's own requirements.
      *
-     * @param array<string, array{version: string, require: list<string>}> $lock
+     * @param array<string, array{version: string, pin: string, require: list<string>}> $lock
      * @param string $root Package name.
      * @param array<string, true> $core
      * @return array<string, string> Package name => version.
@@ -799,7 +823,7 @@ final class CustomComposerPackages
             if (isset($versions[$name]) || !isset($lock[$name]) || ($name !== $root && isset($core[$name]))) {
                 continue;
             }
-            $versions[$name] = $lock[$name]['version'];
+            $versions[$name] = $lock[$name]['pin'];
             foreach ($lock[$name]['require'] as $dependency) {
                 if (self::isPackageName($dependency)) {
                     $queue[] = $dependency;
