@@ -852,8 +852,9 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
     $_lang = [];
     $plugin_path = EVO_BASE_PATH . "assets/plugins/updater/";
     include($plugin_path . 'lang/en.php');
-    if (file_exists($plugin_path . 'lang/' . $modx->config['manager_language'] . '.php')) {
-        include($plugin_path . 'lang/' . $modx->config['manager_language'] . '.php');
+    $language = $modx->config['manager_language'];
+    if (\EvolutionCMS\Support\ManagerLanguage::isName($language) && file_exists($plugin_path . 'lang/' . $language . '.php')) {
+        include($plugin_path . 'lang/' . $language . '.php');
     }
 
     $e = &$modx->Event;

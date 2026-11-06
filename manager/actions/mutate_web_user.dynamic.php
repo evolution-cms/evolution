@@ -128,7 +128,7 @@ if($modx->getManagerApi()->hasFormValues()) {
 
 // include the country list language file
 $_country_lang = [];
-if($manager_language != "english" && file_exists(EVO_MANAGER_PATH . "includes/lang/country/" . $manager_language . "_country.inc.php")) {
+if(\EvolutionCMS\Support\ManagerLanguage::isName($manager_language) && $manager_language != "english" && file_exists(EVO_MANAGER_PATH . "includes/lang/country/" . $manager_language . "_country.inc.php")) {
 	include_once EVO_MANAGER_PATH . "includes/lang/country/" . $manager_language . "_country.inc.php";
 } else {
 	include_once EVO_MANAGER_PATH . "includes/lang/country/en_country.inc.php";
