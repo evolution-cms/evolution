@@ -11,7 +11,11 @@ use EvolutionCMS\Interfaces\CoreInterface;
 use EvolutionCMS\Models\UserAttribute;
 use EvolutionCMS\Support\ManagerLanguage;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Route;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use View;
 
 class ManagerTheme implements ManagerThemeInterface
@@ -479,11 +483,27 @@ class ManagerTheme implements ManagerThemeInterface
         $routes->refreshNameLookups();
         $routes->refreshActionLookups();
 
-        $response = $evo->router->dispatch($request);
+        $response = $this->dispatchRoute($evo->router, $request);
         $response->send();
 
         // Bookkeeping writes go out after the client has its page; Tracy still has its bar to append, so it stays attached.
         Services\ManagerActivity::instance()->flush(!\Tracy\Debugger::isEnabled());
+    }
+
+    /**
+     * The server hands every missing path below the manager to manager/index.php, so a request no
+     * route takes is the client's mistake: left to the error handler it would be a 500 and an
+     * event log entry. The body stays fixed: the exception's message quotes the requested path.
+     */
+    protected function dispatchRoute(Router $router, Request $request): Response
+    {
+        try {
+            return $router->dispatch($request);
+        } catch (NotFoundHttpException | MethodNotAllowedHttpException $exception) {
+            $status = $exception->getStatusCode();
+
+            return new Response(Response::$statusTexts[$status], $status, $exception->getHeaders());
+        }
     }
 
     public function handle($action, array $data = [])
