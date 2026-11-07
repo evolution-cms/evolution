@@ -21,6 +21,31 @@ use EvolutionCMS\Services\CustomComposerPackages;
 
 $root = dirname(__DIR__, 4);
 
+/**
+ * A composer.lock entry of a path repository, as Composer writes it.
+ *
+ * @param array<string, string> $require
+ * @return array<string, mixed>
+ */
+function lockedPathPackage(string $name, ?string $reference, array $require = []): array
+{
+    return array_filter(['name' => $name, 'version' => 'dev-main', 'dist' => ['type' => 'path', 'url' => 'custom/packages/' . basename($name), 'reference' => $reference], 'require' => $require]);
+}
+
+/**
+ * A dry run that locks these entries, in Composer's own words: its formatter decides what a version looks like.
+ *
+ * @param list<array<string, mixed>> $entries
+ * @return callable(string): array{0: int, 1: string}
+ */
+function composerLocks(array $entries): callable
+{
+    $loader = new Composer\Package\Loader\ArrayLoader();
+    $lines = array_map(fn (array $entry): string => '  - ' . strip_tags(Composer\DependencyResolver\Operation\InstallOperation::format($loader->load($entry), true)), $entries);
+
+    return fn (string $command): array => [0, 'Lock file operations: ' . count($lines) . " installs, 0 updates, 0 removals\n" . implode("\n", $lines) . "\n"];
+}
+
 function customPackagesCore(array $require, ?array $lock = null, ?array $installed = null, ?array $record = null, array $coreRequire = []): string
 {
     $core = sys_get_temp_dir() . '/evo-custom-packages-' . getmypid() . '-' . uniqid() . '/';
@@ -510,7 +535,9 @@ test('a branch counts as unchanged only when both sides name one commit', functi
 })->with([
     'the pin and what Composer prints' => ['dev-main#18f1a03c9d2e', 'dev-main 18f1a03', []],
     'short and long spelling of one commit' => ['dev-main 18f1a03', 'dev-main 18f1a03c9d2e', []],
-    'no commit on either side, as a path repository' => ['dev-main', 'dev-main', []],
+    'no reference on either side, as a path repository with reference: none' => ['dev-main', 'dev-main', []],
+    'one reference of a package without a source' => ['dev-main 18f1a03c9d2e', 'dev-main 18f1a03', []],
+    'another reference of a package without a source' => ['dev-main 18f1a03c9d2e', 'dev-main 77aa012', ['acme/widget dev-main 18f1a03c9d2e => dev-main 77aa012']],
     'the branch moved' => ['dev-main#18f1a03', 'dev-main 77aa012', ['acme/widget dev-main#18f1a03 => dev-main 77aa012']],
     'the commit the site ran is not known' => ['dev-main', 'dev-main 18f1a03', ['acme/widget dev-main => dev-main 18f1a03']],
     'Composer names no commit' => ['dev-main#18f1a03', 'dev-main', ['acme/widget dev-main#18f1a03 => dev-main']],
@@ -556,13 +583,14 @@ test('a record that does not know the commit of a branch asks for consent', func
     expect($plan['ok'])->toBeFalse()->and($plan['reason'])->toBe('changes');
 });
 
-test('only a branch Composer names by a commit is pinned to one', function () {
+test('only a branch Composer checks out by a commit is pinned to one; a package without a source keeps its reference to compare', function () {
     $commit = '18f1a03c9d2e4b7a6f0e1d2c3b4a59687f6e5d4c';
     $core = customPackagesCore(['acme/widget' => '*'], ['packages' => [
-        ['name' => 'acme/widget', 'version' => '1.2.0', 'source' => ['type' => 'git', 'reference' => $commit], 'require' => ['acme/branch' => '*', 'acme/numbered' => '*', 'acme/local' => '*', 'acme/mirror' => '*']],
+        ['name' => 'acme/widget', 'version' => '1.2.0', 'source' => ['type' => 'git', 'reference' => $commit], 'require' => ['acme/branch' => '*', 'acme/numbered' => '*', 'acme/local' => '*', 'acme/unreferenced' => '*', 'acme/mirror' => '*']],
         ['name' => 'acme/branch', 'version' => 'dev-main', 'source' => ['type' => 'git', 'reference' => $commit]],
         ['name' => 'acme/numbered', 'version' => '2.x-dev', 'source' => ['type' => 'hg', 'reference' => $commit]],
         ['name' => 'acme/local', 'version' => 'dev-main', 'dist' => ['type' => 'path', 'reference' => $commit]],
+        ['name' => 'acme/unreferenced', 'version' => 'dev-main', 'dist' => ['type' => 'path', 'reference' => null]],
         ['name' => 'acme/mirror', 'version' => 'dev-main', 'source' => ['type' => 'svn', 'reference' => 'trunk@1']],
     ]]);
     $previous = (new CustomComposerPackages($core))->previousVersions(['acme/widget']);
@@ -572,9 +600,87 @@ test('only a branch Composer names by a commit is pinned to one', function () {
         'acme/widget' => '1.2.0',
         'acme/branch' => 'dev-main#' . $commit,
         'acme/numbered' => '2.x-dev#' . $commit,
-        'acme/local' => 'dev-main',
+        'acme/local' => 'dev-main ' . $commit,
+        'acme/unreferenced' => 'dev-main',
         'acme/mirror' => 'dev-main',
     ]);
+});
+
+test('an unchanged path package and its private dependency come back without consent, update after update', function (bool $fromRecord) {
+    $locked = [lockedPathPackage('acme/local', 'a1b2c3d4e5f60718293a4b5c6d7e8f9012345678', ['acme/private' => '*']), lockedPathPackage('acme/private', 'b2c3d4e5f60718293a4b5c6d7e8f901234567890')];
+    $core = customPackagesCore(['acme/local' => '*'], ['packages' => $locked]);
+    $packages = new CustomComposerPackages($core);
+    $packages->recordInstalled(['acme/local']);
+
+    $plans = [];
+    foreach ([1, 2] as $update) {
+        $previous = $fromRecord ? [] : $packages->previousVersions(['acme/local']);
+        file_put_contents($core . 'composer.lock', json_encode(['packages' => []]));
+        $previous = $fromRecord ? $packages->previousVersions(['acme/local']) : $previous;
+        $pins = $packages->pins(['acme/local'], $previous);
+        $plans[] = $packages->plan(composerLocks($locked), 'composer', $pins, ['acme/local'], true, false, false);
+
+        // The restore succeeds: the lock holds the packages again and the record is rewritten.
+        file_put_contents($core . 'composer.lock', json_encode(['packages' => $locked]));
+        $packages->recordInstalled(['acme/local']);
+    }
+    removeCustomPackagesCore($core);
+
+    foreach ($plans as $plan) {
+        expect($plan['changes'])->toBe([])
+            ->and($plan['ok'])->toBeTrue()
+            ->and($plan['arguments'])->toStartWith(escapeshellarg('acme/local:dev-main') . ' ' . escapeshellarg('acme/private:dev-main') . ' --with-dependencies');
+    }
+})->with(['read from the lock' => false, 'read from the record of the last restore' => true]);
+
+test('a path package whose reference changed needs consent, also when only a dependency moved', function (string $package, bool $fromRecord) {
+    $locked = [lockedPathPackage('acme/local', 'a1b2c3d4e5f60718293a4b5c6d7e8f9012345678', ['acme/private' => '*']), lockedPathPackage('acme/private', 'b2c3d4e5f60718293a4b5c6d7e8f901234567890')];
+    $core = customPackagesCore(['acme/local' => '*'], ['packages' => $locked]);
+    $packages = new CustomComposerPackages($core);
+    $packages->recordInstalled(['acme/local']);
+    $previous = $fromRecord ? [] : $packages->previousVersions(['acme/local']);
+    file_put_contents($core . 'composer.lock', json_encode(['packages' => []]));
+    $previous = $fromRecord ? $packages->previousVersions(['acme/local']) : $previous;
+    $pins = $packages->pins(['acme/local'], $previous);
+
+    $moved = array_map(fn (array $entry): array => $entry['name'] === $package ? lockedPathPackage($package, 'c3d4e5f60718293a4b5c6d7e8f90123456789012', $entry['require'] ?? []) : $entry, $locked);
+    $refused = $packages->plan(composerLocks($moved), 'composer', $pins, ['acme/local'], true, false, false);
+    $withConsent = $packages->plan(composerLocks($moved), 'composer', $pins, ['acme/local'], true, true, false);
+    removeCustomPackagesCore($core);
+
+    expect($refused['ok'])->toBeFalse()
+        ->and($refused['reason'])->toBe('changes')
+        ->and($refused['changes'])->toHaveCount(1)
+        ->and($refused['changes'][0])->toStartWith($package . ' dev-main ')
+        ->and($withConsent['ok'])->toBeTrue();
+})->with([
+    'the custom package, from the lock' => ['acme/local', false],
+    'the custom package, from the record' => ['acme/local', true],
+    'its dependency, from the lock' => ['acme/private', false],
+    'its dependency, from the record' => ['acme/private', true],
+]);
+
+test('a path package with reference: none passes with no reference on either side', function () {
+    $locked = [lockedPathPackage('acme/local', null)];
+    $core = customPackagesCore(['acme/local' => '*'], ['packages' => $locked]);
+    $packages = new CustomComposerPackages($core);
+    $previous = $packages->previousVersions(['acme/local']);
+    file_put_contents($core . 'composer.lock', json_encode(['packages' => []]));
+    $pins = $packages->pins(['acme/local'], $previous);
+    $plan = $packages->plan(composerLocks($locked), 'composer', $pins, ['acme/local'], true, false, false);
+    removeCustomPackagesCore($core);
+
+    expect($pins)->toBe(['acme/local' => 'dev-main'])->and($plan['ok'])->toBeTrue();
+});
+
+test('a reference that is only compared never reaches Composer, a commit does', function () {
+    $pins = ['acme/local' => 'dev-main 18f1a03', 'acme/branch' => 'dev-main#18f1a03', 'acme/release' => '1.2.0', 'acme/new' => ''];
+    $arguments = (new CustomComposerPackages(sys_get_temp_dir()))->updateArguments($pins, true);
+
+    expect($arguments)->toStartWith(implode(' ', array_map('escapeshellarg', ['acme/local:dev-main', 'acme/branch:dev-main#18f1a03', 'acme/release:1.2.0', 'acme/new'])) . ' --with-dependencies')
+        ->and(CustomComposerPackages::composerVersion('dev-main 18f1a03'))->toBe('dev-main')
+        ->and(CustomComposerPackages::composerVersion('dev-main#18f1a03'))->toBe('dev-main#18f1a03')
+        ->and(CustomComposerPackages::composerVersion(''))->toBe('');
 });
 
 test('changes are judged on the lock, not on the vendor drift an update package ships', function () {
