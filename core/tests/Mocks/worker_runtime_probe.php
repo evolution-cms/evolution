@@ -154,6 +154,103 @@ if ($mode === 'keep-app-controller' || $mode === 'keep-app-model') {
     echo json_encode($results);
 }
 
+if ($mode === 'keep-app-db-handles') {
+    define('EVO_CLASS', 'KeepHandlesCore');
+    class KeepHandlesCore extends EvolutionCMS\Core
+    {
+        public function initialize() {}
+    }
+    WorkerRuntime::keepApplications(true);
+    $boot = (new ReflectionClass(KeepHandlesCore::class))->newInstanceWithoutConstructor();
+    $boot->instance('config', new Repository([
+        'database' => ['default' => 'probe', 'connections' => ['probe' => ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => '']]],
+    ]));
+    $boot->instance('events', new Illuminate\Events\Dispatcher($boot));
+    $boot->instance('db', new Illuminate\Database\DatabaseManager($boot, new Illuminate\Database\Connectors\ConnectionFactory($boot)));
+    WorkerRuntime::begin();
+    WorkerRuntime::captureApplication($boot);
+    $connection = $boot['db']->connection();
+    $write = $connection->getPdo();
+    $read = new PDO('sqlite::memory:');
+    $direct = new PDO('sqlite::memory:');
+    $connection->setReadPdo($read)->setDirectPdo($direct);
+    $read->beginTransaction();
+    $direct->beginTransaction();
+    $level = $connection->transactionLevel();
+    WorkerRuntime::terminate();
+    WorkerRuntime::releaseApplication();
+    $open = ['read' => $read->inTransaction(), 'direct' => $direct->inTransaction()];
+
+    WorkerRuntime::begin();
+    $next = $boot['db']->connection();
+    $reused = $next->getRawPdo() === $write && $next->getRawReadPdo() === $read && $next->getRawDirectPdo() === $direct;
+    $opened = 0;
+    $next->setReadPdo(static function () use (&$opened) { $opened++; return new PDO('sqlite::memory:'); });
+    $next->setDirectPdo(static function () use (&$opened) { $opened++; return new PDO('sqlite::memory:'); });
+    WorkerRuntime::terminate();
+    WorkerRuntime::releaseApplication();
+    echo json_encode(['level' => $level, 'open' => $open, 'reused' => $reused, 'opened' => $opened]);
+}
+
+if ($mode === 'keep-app-db' || $mode === 'fresh-app-db') {
+    define('EVO_CLASS', 'KeepProbeCore');
+    class KeepProbeCore extends EvolutionCMS\Core
+    {
+        public function initialize() {}
+    }
+    $kept = $mode === 'keep-app-db';
+    WorkerRuntime::keepApplications($kept);
+    $boot = (new ReflectionClass(KeepProbeCore::class))->newInstanceWithoutConstructor();
+    $boot->instance('config', new Repository([
+        'database' => ['default' => 'probe', 'connections' => ['probe' => ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => '']]],
+    ]));
+    $boot->instance('events', new Illuminate\Events\Dispatcher($boot));
+    $boot->instance('db', new Illuminate\Database\DatabaseManager($boot, new Illuminate\Database\Connectors\ConnectionFactory($boot)));
+    WorkerRuntime::begin();
+    if ($kept) {
+        WorkerRuntime::captureApplication($boot);
+    } else {
+        $GLOBALS['evo'] = $boot;
+    }
+    $results = [];
+    foreach (['laravel', 'native', 'read'] as $i => $request) {
+        if ($i > 0) {
+            WorkerRuntime::begin();
+        }
+        $connection = $boot['db']->connection();
+        $pdo = $connection->getPdo();
+        $results[$request]['pdo'] = spl_object_id($pdo);
+        if ($request === 'laravel') {
+            $connection->statement('create table probe (id integer)');
+            $connection->insert('insert into probe values (1)');
+            $connection->enableQueryLog();
+            $connection->beginTransaction();
+            $connection->insert('insert into probe values (2)');
+        } elseif ($request === 'native') {
+            $pdo->beginTransaction();
+            $connection->insert('insert into probe values (3)');
+        } else {
+            $results[$request]['rows'] = array_map(static fn ($row) => $row->id, $connection->select('select id from probe'));
+            $results[$request]['level'] = $connection->transactionLevel();
+        }
+        $logged = count($connection->getQueryLog());
+        WorkerRuntime::terminate();
+        WorkerRuntime::releaseApplication();
+        $results[$request]['tracked'] = $kept ? count($boot['db']->getConnections()) : 0;
+        $results[$request] += [
+            'logged' => $logged,
+            'log' => count($connection->getQueryLog()),
+            'inTransaction' => $pdo->inTransaction(),
+            'open' => $connection->getRawPdo() !== null,
+        ];
+        unset($pdo);
+        if (!$kept) {
+            break;
+        }
+    }
+    echo json_encode($results);
+}
+
 if ($mode === 'session') {
     define('IN_MANAGER_MODE', false);
     define('IN_INSTALL_MODE', false);
