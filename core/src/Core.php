@@ -3038,7 +3038,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
             if ($documentObject['template']) {
                 // load TVs and merge with document - Orig by Apodigm - Docvars
-                $tvs = SiteTmplvar::query()->select(
+                $tvs = \DB::table('site_tmplvars')->select(
                     'site_tmplvars.id',
                     'site_tmplvars.name',
                     'site_tmplvars.type',
@@ -3051,7 +3051,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
                     ->leftJoin('site_tmplvar_contentvalues', function ($join) use ($documentObject) {
                         $join->on('site_tmplvar_contentvalues.tmplvarid', '=', 'site_tmplvars.id');
                         $join->on('site_tmplvar_contentvalues.contentid', '=', \DB::raw((int) $documentObject['id']));
-                    })->where('site_tmplvar_templates.templateid', $documentObject['template'])->toBase()->get();
+                    })->where('site_tmplvar_templates.templateid', $documentObject['template'])->get();
 
                 $tmplvars = [];
                 foreach ($tvs as $tv) {

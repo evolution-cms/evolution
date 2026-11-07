@@ -2408,7 +2408,7 @@ class SiteContent extends BaseModel
         }
         $byId = count(array_filter($tvNames, 'is_numeric')) === count($tvNames);
 
-        $rows = (new SiteTmplvar())->getConnection()
+        $rows = static::resolveConnection()
             ->table('site_tmplvars as tv')
             ->leftJoin('site_tmplvar_contentvalues as tvc', function ($join) use ($docIds) {
                 $join->on('tvc.tmplvarid', '=', 'tv.id')->whereIntegerInRaw('tvc.contentid', $docIds);
