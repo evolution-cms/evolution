@@ -465,8 +465,14 @@ final class WorkerRuntime
                     if ($connection->transactionLevel() > 0) {
                         $connection->rollBack(0);
                     }
-                    $connection->disconnect();
-                    if ($kept) {
+                    if (!$kept) {
+                        $connection->disconnect();
+                    } else {
+                        // Opening it again would cost a kept application more than all the boot it saves.
+                        $pdo = $connection->getRawPdo();
+                        if ($pdo instanceof \PDO && $pdo->inTransaction()) {
+                            $pdo->rollBack();
+                        }
                         $connection->flushQueryLog();
                         $connection->forgetRecordModificationState();
                         $connection->resetTotalQueryDuration();
@@ -597,7 +603,9 @@ final class ApplicationSnapshot
             foreach ($class->getProperties() as $property) {
                 if (!$property->isStatic() && !$property->isReadOnly()
                     && $property->getDeclaringClass()->getName() === $class->getName()
-                    && $property->isInitialized($object)) {
+                    && $property->isInitialized($object)
+                    // releaseApplication() cleans the open connections, which stay for the next request.
+                    && !($object instanceof \Illuminate\Database\DatabaseManager && $property->getName() === 'connections')) {
                     $this->properties[] = [$property, $object, $property->getValue($object)];
                 }
             }

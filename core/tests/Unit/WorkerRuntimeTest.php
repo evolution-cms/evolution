@@ -222,6 +222,29 @@ test('bootstrap, Tracy and Core start the native session on the same condition',
         ->toMatch('~\\\\EvoSessionProxy::startsAfterBoot\(\)[^}]*startCMSSession\(\);~s');
 });
 
+test('a kept application keeps its database connection and rolls back what a request left open', function () {
+    $output = evoRunPhp(dirname(__DIR__) . '/Mocks/worker_runtime_probe.php', ['keep-app-db'], $code);
+    $result = json_decode($output, true);
+
+    expect($code)->toBe(0, $output)
+        ->and($result['native']['pdo'])->toBe($result['laravel']['pdo'])
+        ->and($result['read']['pdo'])->toBe($result['laravel']['pdo'])
+        ->and($result['laravel']['open'])->toBeTrue()
+        ->and($result['laravel']['tracked'])->toBe(1)
+        ->and($result['laravel']['inTransaction'])->toBeFalse()
+        ->and($result['native']['inTransaction'])->toBeFalse()
+        ->and($result['laravel']['logged'])->toBeGreaterThan(0)
+        ->and($result['laravel']['log'])->toBe(0)
+        ->and($result['read']['rows'])->toBe([1])
+        ->and($result['read']['level'])->toBe(0);
+});
+
+test('without a kept application every request gets a new database connection', function () {
+    $output = evoRunPhp(dirname(__DIR__) . '/Mocks/worker_runtime_probe.php', ['fresh-app-db'], $code);
+
+    expect($code)->toBe(0, $output)->and(json_decode($output, true)['laravel']['open'])->toBeFalse();
+});
+
 test('the snapshot resets nested service state and calls the reset hooks of kept services', function () {
     $app = (new ReflectionClass(Core::class))->newInstanceWithoutConstructor();
     $finder = new Illuminate\View\FileViewFinder(new Illuminate\Filesystem\Filesystem(), []);

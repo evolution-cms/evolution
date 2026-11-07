@@ -52,6 +52,13 @@ services with a public `flushState()` (Laravel's and Livewire's convention) or
 Symfony's `ResetInterface` are reset through it. In debug mode, responses carry
 `X-Evo-Worker-App: new|kept` and the log lists the kept services.
 
+Database connections stay open between the requests of a kept application: opening one
+costs more than the boot a kept application saves. An open transaction is rolled back
+after each request and a lost connection reconnects on the next query, but what a
+request sets on its connection itself (`SET @var`, `SET SESSION`, temporary tables,
+`GET_LOCK()`) is seen by the next request of that worker. Undo it in the same request.
+Without `EVO_WORKER_KEEP_APP` every request gets a new connection.
+
 Providers boot before the session starts, in both lifetimes and with either
 `EVO_SESSION` setting (a worker starts the native session of `EVO_SESSION=false` in
 `Core::initialize()`), so while booting they always see an empty session and a
