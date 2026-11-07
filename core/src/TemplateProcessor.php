@@ -1,7 +1,8 @@
 <?php namespace EvolutionCMS;
 
+use EvolutionCMS\Models\BaseModel;
+use EvolutionCMS\Models\SiteTemplate;
 use EvolutionCMS\Support\TemplateFileEngines;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class TemplateProcessor
@@ -195,7 +196,7 @@ class TemplateProcessor
         }
 
         if (!array_key_exists($templateId, $this->templateRows)) {
-            $this->templateRows[$templateId] = DB::table('site_templates')->where('id', $templateId)
+            $this->templateRows[$templateId] = BaseModel::plainQuery(SiteTemplate::class, 'site_templates')->where('id', $templateId)
                 ->first(['id', 'templatealias', 'templatesource', 'templatefileextension', 'content']);
         }
 

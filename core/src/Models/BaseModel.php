@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\Attributes\Initialize;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasDefaultAttributes;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionNamedType;
@@ -24,6 +25,20 @@ abstract class BaseModel extends Model
 
     /** @var array<class-string, bool> */
     private static array $usesDefaultAttributes = [];
+
+    /**
+     * The query of a hot read that needs no model, without booting $class for it. A global scope
+     * registered on the class applies, as through toBase(), and only then does the read boot it.
+     * A scope added while the class boots (an eloquent.booting listener) is not seen before that.
+     *
+     * @param class-string<Model> $class
+     */
+    public static function plainQuery(string $class, string $table): Builder
+    {
+        return isset(self::getAllGlobalScopes()[$class])
+            ? $class::query()->toBase()
+            : self::resolveConnection()->table($table);
+    }
 
     /**
      * The scan of the parent method, in its order, reading attributes only where they can be:

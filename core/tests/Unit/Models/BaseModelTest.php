@@ -1,6 +1,8 @@
 <?php
 
 use EvolutionCMS\Models\BaseModel;
+use EvolutionCMS\Models\SiteTemplate;
+use EvolutionCMS\TemplateProcessor;
 use Illuminate\Database\Eloquent\Attributes\Boot;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -10,7 +12,9 @@ use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasDefaultAttributes;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\ConnectionResolver;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\SQLiteConnection;
 
 trait BaseModelProbeTrait
 {
@@ -234,4 +238,69 @@ test('every core model extends BaseModel', function () {
             expect($match[1])->toBe('BaseModel', basename($file));
         }
     }
+});
+
+class BaseModelPlainRead extends BaseModel
+{
+    protected $table = 'plain_read';
+
+    public static function wasBooted(): bool
+    {
+        return isset(static::$booted[static::class]);
+    }
+}
+
+/** Runs $test on a database of its own, with the scopes and the resolver of before put back. */
+function withPlainReadDatabase(string $sql, callable $test): void
+{
+    $scopes = Model::getAllGlobalScopes();
+    $resolver = Model::getConnectionResolver();
+    $connection = new SQLiteConnection(new PDO('sqlite::memory:'));
+    $connection->unprepared($sql);
+    $connections = new ConnectionResolver(['default' => $connection]);
+    $connections->setDefaultConnection('default');
+    Model::setConnectionResolver($connections);
+    try {
+        $test();
+    } finally {
+        Model::setAllGlobalScopes($scopes);
+        if ($resolver !== null) {
+            Model::setConnectionResolver($resolver);
+        } else {
+            Model::unsetConnectionResolver();
+        }
+    }
+}
+
+test('a plain read does not boot the class, and a global scope on it still applies', function () {
+    withPlainReadDatabase('create table plain_read (id integer); insert into plain_read values (1), (2);', function () {
+        $read = static fn () => BaseModel::plainQuery(BaseModelPlainRead::class, 'plain_read')->pluck('id')->all();
+
+        expect($read())->toBe([1, 2])
+            ->and(BaseModelPlainRead::wasBooted())->toBeFalse();
+
+        BaseModelPlainRead::addGlobalScope('first', static fn ($query) => $query->where('id', 1));
+
+        expect($read())->toBe([1]);
+    });
+});
+
+test('a global scope on SiteTemplate reaches the template row of a page', function () {
+    $sql = "create table site_templates (id integer, templatealias text, templatesource text, templatefileextension text, content text);
+        insert into site_templates values (1, 'kept', '', '', ''), (2, 'hidden', '', '', '');";
+    withPlainReadDatabase($sql, function () {
+        $processor = (new ReflectionClass(TemplateProcessor::class))->newInstanceWithoutConstructor();
+        expect($processor->getTemplateAlias(2))->toBe('hidden');
+
+        SiteTemplate::addGlobalScope('hide', static fn ($query) => $query->where('id', '!=', 2));
+        $processor = (new ReflectionClass(TemplateProcessor::class))->newInstanceWithoutConstructor();
+
+        expect($processor->getTemplateAlias(1))->toBe('kept')
+            ->and($processor->getTemplateAlias(2))->toBe('');
+    });
+});
+
+test('the TV read of a document goes through plainQuery()', function () {
+    expect(file_get_contents(dirname(__DIR__, 3) . '/src/Core.php'))
+        ->toContain("Models\\BaseModel::plainQuery(SiteTmplvar::class, 'site_tmplvars')");
 });

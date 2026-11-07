@@ -274,8 +274,8 @@ The merge-plugin in `core/composer.json` automatically includes `core/custom/com
 
 Core models extend `BaseModel`, not Eloquent's `Model`: it skips the reflection Laravel 13 spends on every boot and
 instance when a class has no PHP attributes, and gives the result Eloquent would (`tests/Unit/Models/BaseModelTest.php`).
-A hot read that needs no model goes through the query builder, because the first use of a model class in a request costs
-about as much as a query.
+A hot read that needs no model goes through `BaseModel::plainQuery()`, because the first use of a model class in a request
+costs about as much as a query. Global scopes registered on the class still apply to it.
 
 ### Service Providers
 

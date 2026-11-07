@@ -3038,7 +3038,7 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
             if ($documentObject['template']) {
                 // load TVs and merge with document - Orig by Apodigm - Docvars
-                $tvs = \DB::table('site_tmplvars')->select(
+                $tvs = Models\BaseModel::plainQuery(SiteTmplvar::class, 'site_tmplvars')->select(
                     'site_tmplvars.id',
                     'site_tmplvars.name',
                     'site_tmplvars.type',
