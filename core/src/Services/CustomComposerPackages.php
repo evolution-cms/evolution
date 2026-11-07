@@ -195,7 +195,7 @@ final class CustomComposerPackages
     /**
      * Arguments of the "composer update" that restores the packages.
      *
-     * @param array<string, string> $pins Package name => version ('' leaves the version to Composer).
+     * @param array<string, string> $pins Package name => pin ('' leaves the version to Composer).
      * @param bool $minimalChanges Whether the Composer that runs them knows --minimal-changes (2.7.0+).
      * @return string Quoted package list followed by the update options.
      */
@@ -208,7 +208,7 @@ final class CustomComposerPackages
             }
 
             $package = strtolower((string) $package);
-            $version = trim((string) $version);
+            $version = self::composerVersion((string) $version);
             $packages[$package] = $version !== '' ? $package . ':' . $version : $package;
         }
 
@@ -666,14 +666,16 @@ final class CustomComposerPackages
     {
         $custom = array_fill_keys(array_map('strtolower', $packages), true);
         $sameVersion = static function (string $a, string $b): bool {
-            // A branch is "dev-main 18f1a03" in one source and "dev-main" in another: a reference
-            // on one side only says nothing, two different ones mean the branch moved.
-            [$versionA, $referenceA] = array_pad(explode(' ', strtolower(ltrim(trim($a), 'vV')), 2), 2, '');
-            [$versionB, $referenceB] = array_pad(explode(' ', strtolower(ltrim(trim($b), 'vV')), 2), 2, '');
+            // A branch is "dev-main#18f1a03..." or "dev-main 18f1a03..." as a pin and "dev-main 18f1a03" as Composer prints it.
+            // A reference on one side only cannot show the branch stayed where it was: that needs consent.
+            $parts = static fn (string $version): array => array_pad(preg_split('/[ #]/', strtolower(ltrim(trim($version), 'vV')), 2), 2, '');
+            [$versionA, $referenceA] = $parts($a);
+            [$versionB, $referenceB] = $parts($b);
+            if ($versionA !== $versionB || ($referenceA === '') !== ($referenceB === '')) {
+                return false;
+            }
 
-            return $versionA === $versionB
-                && ($referenceA === '' || $referenceB === ''
-                    || str_starts_with($referenceA, $referenceB) || str_starts_with($referenceB, $referenceA));
+            return $referenceA === '' || str_starts_with($referenceA, $referenceB) || str_starts_with($referenceB, $referenceA);
         };
 
         $changes = [];
@@ -691,6 +693,14 @@ final class CustomComposerPackages
         }
 
         return $changes;
+    }
+
+    /**
+     * The part of a pin Composer is given: what follows a space is only compared (pinnedVersion()).
+     */
+    public static function composerVersion(string $pin): string
+    {
+        return explode(' ', trim($pin), 2)[0];
     }
 
     public static function isPackageName(string $package): bool
@@ -717,7 +727,7 @@ final class CustomComposerPackages
     /**
      * Packages of core/composer.lock with their versions and requirements.
      *
-     * @return array<string, array{version: string, require: list<string>}>
+     * @return array<string, array{version: string, pin: string, require: list<string>}>
      */
     private function lockPackages(): array
     {
@@ -734,6 +744,7 @@ final class CustomComposerPackages
                 if ($name !== '') {
                     $packages[$name] = [
                         'version' => (string) ($package['version'] ?? ''),
+                        'pin' => self::pinnedVersion($package),
                         'require' => array_map('strtolower', array_keys((array) ($package['require'] ?? []))),
                     ];
                 }
@@ -741,6 +752,35 @@ final class CustomComposerPackages
         }
 
         return $packages;
+    }
+
+    /**
+     * The version to bring a locked package back at. "dev-main" alone is wherever the branch
+     * stands by then, so a branch from git or hg keeps its commit: "dev-main#18f1a03...".
+     *
+     * A branch without a source (a path repository) cannot be asked for a commit, but Composer
+     * prints its dist reference: "dev-main 18f1a03...", kept the same way to compare with what
+     * a dry run reports and never handed to Composer (composerVersion()). Any other source
+     * prints no reference, so there is nothing to compare.
+     *
+     * @param array<string, mixed> $package Entry of composer.lock.
+     */
+    private static function pinnedVersion(array $package): string
+    {
+        $version = (string) ($package['version'] ?? '');
+        if (!str_starts_with($version, 'dev-') && !str_ends_with($version, '-dev')) {
+            return $version;
+        }
+
+        $source = (array) ($package['source'] ?? []);
+        $reference = (string) ($source['reference'] ?? '');
+        if (in_array($source['type'] ?? '', ['git', 'hg'], true) && $reference !== '') {
+            return $version . '#' . $reference;
+        }
+
+        $distReference = (string) (((array) ($package['dist'] ?? []))['reference'] ?? '');
+
+        return (string) ($source['type'] ?? '') === '' && $distReference !== '' ? $version . ' ' . $distReference : $version;
     }
 
     /**
@@ -764,7 +804,7 @@ final class CustomComposerPackages
     /**
      * A package and what it requires in the lock, without the core's own requirements.
      *
-     * @param array<string, array{version: string, require: list<string>}> $lock
+     * @param array<string, array{version: string, pin: string, require: list<string>}> $lock
      * @param string $root Package name.
      * @param array<string, true> $core
      * @return array<string, string> Package name => version.
@@ -778,7 +818,7 @@ final class CustomComposerPackages
             if (isset($versions[$name]) || !isset($lock[$name]) || ($name !== $root && isset($core[$name]))) {
                 continue;
             }
-            $versions[$name] = $lock[$name]['version'];
+            $versions[$name] = $lock[$name]['pin'];
             foreach ($lock[$name]['require'] as $dependency) {
                 if (self::isPackageName($dependency)) {
                     $queue[] = $dependency;

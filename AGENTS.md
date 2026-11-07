@@ -164,6 +164,10 @@ under one policy. Do not add a restore path that skips it:
 - Versions: what the site ran (`previousVersions()`: the lock while it still lists them, else
   `core/custom/composer.installed.json`, written by every restore and by `package:installrequire`),
   pinned by `pins()`; a package the release ships or the core requires keeps the release's version.
+  A branch from git or hg is pinned at its commit (`dev-main#<commit>`). A branch without a source keeps
+  the dist reference Composer prints for it (`dev-main <reference>`, a path repository's hash or HEAD), to
+  compare only: `composerVersion()` drops it before anything reaches Composer. A branch whose reference is
+  not known on both sides counts as a change, so it needs consent.
 - Arguments: `updateArguments()`, `--with-dependencies` (`--minimal-changes` from Composer 2.7), never
   `--with-all-dependencies`, which moves the core's own packages too.
 - `plan()` dry run first (`planInstall()`, a `composer install --dry-run`, when nothing needs restoring:

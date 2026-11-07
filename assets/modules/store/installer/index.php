@@ -16,7 +16,7 @@ require_once($modulePath . "/functions.php");
 $_lang = array();
 $_params = array();
 $lang = evo()->config['manager_language'];
-if (file_exists($modulePath . '/lang/' . $lang . '.inc.php')){
+if (\EvolutionCMS\Support\ManagerLanguage::isName($lang) && file_exists($modulePath . '/lang/' . $lang . '.inc.php')){
 	include_once($modulePath . '/lang/' . $lang . '.inc.php');
 } else {
 	include_once($modulePath . '/lang/en.inc.php');
