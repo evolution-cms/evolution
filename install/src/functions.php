@@ -1265,6 +1265,7 @@ function installerRestoreCommand(array $pins): string
 
     $packages = [];
     foreach ($pins as $package => $version) {
+        $version = \EvolutionCMS\Services\CustomComposerPackages::composerVersion((string) $version);
         $packages[] = $version !== '' ? $package . ':' . $version : $package;
     }
 

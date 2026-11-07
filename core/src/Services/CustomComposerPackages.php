@@ -195,7 +195,7 @@ final class CustomComposerPackages
     /**
      * Arguments of the "composer update" that restores the packages.
      *
-     * @param array<string, string> $pins Package name => version ('' leaves the version to Composer).
+     * @param array<string, string> $pins Package name => pin ('' leaves the version to Composer).
      * @param bool $minimalChanges Whether the Composer that runs them knows --minimal-changes (2.7.0+).
      * @return string Quoted package list followed by the update options.
      */
@@ -208,7 +208,7 @@ final class CustomComposerPackages
             }
 
             $package = strtolower((string) $package);
-            $version = trim((string) $version);
+            $version = self::composerVersion((string) $version);
             $packages[$package] = $version !== '' ? $package . ':' . $version : $package;
         }
 
@@ -666,8 +666,8 @@ final class CustomComposerPackages
     {
         $custom = array_fill_keys(array_map('strtolower', $packages), true);
         $sameVersion = static function (string $a, string $b): bool {
-            // A branch is "dev-main#18f1a03..." as a pin and "dev-main 18f1a03" as Composer prints it.
-            // A commit on one side only cannot show the branch stayed where it was: that needs consent.
+            // A branch is "dev-main#18f1a03..." or "dev-main 18f1a03..." as a pin and "dev-main 18f1a03" as Composer prints it.
+            // A reference on one side only cannot show the branch stayed where it was: that needs consent.
             $parts = static fn (string $version): array => array_pad(preg_split('/[ #]/', strtolower(ltrim(trim($version), 'vV')), 2), 2, '');
             [$versionA, $referenceA] = $parts($a);
             [$versionB, $referenceB] = $parts($b);
@@ -693,6 +693,14 @@ final class CustomComposerPackages
         }
 
         return $changes;
+    }
+
+    /**
+     * The part of a pin Composer is given: what follows a space is only compared (pinnedVersion()).
+     */
+    public static function composerVersion(string $pin): string
+    {
+        return explode(' ', trim($pin), 2)[0];
     }
 
     public static function isPackageName(string $package): bool
@@ -748,23 +756,31 @@ final class CustomComposerPackages
 
     /**
      * The version to bring a locked package back at. "dev-main" alone is wherever the branch
-     * stands by then, so a branch keeps its commit: "dev-main#18f1a03...".
+     * stands by then, so a branch from git or hg keeps its commit: "dev-main#18f1a03...".
      *
-     * Only for git and hg sources, the ones Composer prints a commit for: no other can be
-     * compared with what a dry run reports.
+     * A branch without a source (a path repository) cannot be asked for a commit, but Composer
+     * prints its dist reference: "dev-main 18f1a03...", kept the same way to compare with what
+     * a dry run reports and never handed to Composer (composerVersion()). Any other source
+     * prints no reference, so there is nothing to compare.
      *
      * @param array<string, mixed> $package Entry of composer.lock.
      */
     private static function pinnedVersion(array $package): string
     {
         $version = (string) ($package['version'] ?? '');
+        if (!str_starts_with($version, 'dev-') && !str_ends_with($version, '-dev')) {
+            return $version;
+        }
+
         $source = (array) ($package['source'] ?? []);
         $reference = (string) ($source['reference'] ?? '');
-        $isBranch = str_starts_with($version, 'dev-') || str_ends_with($version, '-dev');
+        if (in_array($source['type'] ?? '', ['git', 'hg'], true) && $reference !== '') {
+            return $version . '#' . $reference;
+        }
 
-        return $isBranch && $reference !== '' && in_array($source['type'] ?? '', ['git', 'hg'], true)
-            ? $version . '#' . $reference
-            : $version;
+        $distReference = (string) (((array) ($package['dist'] ?? []))['reference'] ?? '');
+
+        return (string) ($source['type'] ?? '') === '' && $distReference !== '' ? $version . ' ' . $distReference : $version;
     }
 
     /**

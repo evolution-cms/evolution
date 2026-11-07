@@ -70,6 +70,20 @@ test('a Composer that fails leaves the command to run and its output', function 
     }
 });
 
+test('the command left to run names a path package without the reference it is compared by', function () use ($root) {
+    $core = webRestoreCore(['acme/local' => '*']);
+    file_put_contents($core . 'custom/composer.installed.json', json_encode(['packages' => ['acme/local' => ['version' => 'dev-main 18f1a03c9d2e', 'dependencies' => []]]]));
+    $composer = $core . (PHP_OS_FAMILY === 'Windows' ? 'composer.bat' : 'composer.sh');
+    file_put_contents($composer, PHP_OS_FAMILY === 'Windows' ? "@exit /b 2\r\n" : "#!/bin/sh\nexit 2\n");
+    chmod($composer, 0755);
+
+    try {
+        expect(webRestoreRun($root, $core, $composer)['command'])->toBe('cd core && composer update acme/local:dev-main --with-dependencies --no-dev');
+    } finally {
+        (new Illuminate\Filesystem\Filesystem())->deleteDirectory($core);
+    }
+});
+
 test('the web update restores the packages last and shows the outcome', function () use ($root) {
     $controller = (string) file_get_contents($root . '/install/src/controllers/install.php');
     $view = (string) file_get_contents($root . '/install/src/template/actions/install.php');
