@@ -154,6 +154,44 @@ if ($mode === 'keep-app-controller' || $mode === 'keep-app-model') {
     echo json_encode($results);
 }
 
+if ($mode === 'keep-app-db-handles') {
+    define('EVO_CLASS', 'KeepHandlesCore');
+    class KeepHandlesCore extends EvolutionCMS\Core
+    {
+        public function initialize() {}
+    }
+    WorkerRuntime::keepApplications(true);
+    $boot = (new ReflectionClass(KeepHandlesCore::class))->newInstanceWithoutConstructor();
+    $boot->instance('config', new Repository([
+        'database' => ['default' => 'probe', 'connections' => ['probe' => ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => '']]],
+    ]));
+    $boot->instance('events', new Illuminate\Events\Dispatcher($boot));
+    $boot->instance('db', new Illuminate\Database\DatabaseManager($boot, new Illuminate\Database\Connectors\ConnectionFactory($boot)));
+    WorkerRuntime::begin();
+    WorkerRuntime::captureApplication($boot);
+    $connection = $boot['db']->connection();
+    $write = $connection->getPdo();
+    $read = new PDO('sqlite::memory:');
+    $direct = new PDO('sqlite::memory:');
+    $connection->setReadPdo($read)->setDirectPdo($direct);
+    $read->beginTransaction();
+    $direct->beginTransaction();
+    $level = $connection->transactionLevel();
+    WorkerRuntime::terminate();
+    WorkerRuntime::releaseApplication();
+    $open = ['read' => $read->inTransaction(), 'direct' => $direct->inTransaction()];
+
+    WorkerRuntime::begin();
+    $next = $boot['db']->connection();
+    $reused = $next->getRawPdo() === $write && $next->getRawReadPdo() === $read && $next->getRawDirectPdo() === $direct;
+    $opened = 0;
+    $next->setReadPdo(static function () use (&$opened) { $opened++; return new PDO('sqlite::memory:'); });
+    $next->setDirectPdo(static function () use (&$opened) { $opened++; return new PDO('sqlite::memory:'); });
+    WorkerRuntime::terminate();
+    WorkerRuntime::releaseApplication();
+    echo json_encode(['level' => $level, 'open' => $open, 'reused' => $reused, 'opened' => $opened]);
+}
+
 if ($mode === 'keep-app-db' || $mode === 'fresh-app-db') {
     define('EVO_CLASS', 'KeepProbeCore');
     class KeepProbeCore extends EvolutionCMS\Core

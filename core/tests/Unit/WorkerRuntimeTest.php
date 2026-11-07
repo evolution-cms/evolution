@@ -239,6 +239,17 @@ test('a kept application keeps its database connection and rolls back what a req
         ->and($result['read']['level'])->toBe(0);
 });
 
+test('a kept application closes a transaction on every open handle and opens none', function () {
+    $output = evoRunPhp(dirname(__DIR__) . '/Mocks/worker_runtime_probe.php', ['keep-app-db-handles'], $code);
+    expect($code)->toBe(0, $output);
+    $result = json_decode($output, true);
+
+    expect($result['level'])->toBe(0)
+        ->and($result['open'])->toBe(['read' => false, 'direct' => false])
+        ->and($result['reused'])->toBeTrue()
+        ->and($result['opened'])->toBe(0);
+});
+
 test('without a kept application every request gets a new database connection', function () {
     $output = evoRunPhp(dirname(__DIR__) . '/Mocks/worker_runtime_probe.php', ['fresh-app-db'], $code);
 

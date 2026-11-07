@@ -469,9 +469,12 @@ final class WorkerRuntime
                         $connection->disconnect();
                     } else {
                         // Opening it again would cost a kept application more than all the boot it saves.
-                        $pdo = $connection->getRawPdo();
-                        if ($pdo instanceof \PDO && $pdo->inTransaction()) {
-                            $pdo->rollBack();
+                        // A handle not opened yet is a Closure, and a transaction begun on a PDO itself
+                        // is not in transactionLevel().
+                        foreach ([$connection->getRawPdo(), $connection->getRawReadPdo(), $connection->getRawDirectPdo()] as $pdo) {
+                            if ($pdo instanceof \PDO && $pdo->inTransaction()) {
+                                $pdo->rollBack();
+                            }
                         }
                         $connection->flushQueryLog();
                         $connection->forgetRecordModificationState();
