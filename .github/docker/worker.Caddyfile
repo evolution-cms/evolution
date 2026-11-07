@@ -29,6 +29,17 @@
     }
     respond @generated 404
 
+    # What manager/.htaccess does on Apache: a path under /manager/ that is not a file
+    # goes to the manager's front controller, never to the site's. EvoUI serves the
+    # Livewire script and its updates from such routes, in manager mode only.
+    @manager {
+        path /manager/*
+        not file {
+            try_files {path} {path}/index.php {path}/index.html
+        }
+    }
+    rewrite @manager /manager/index.php?{query}
+
     @notfile {
         not file {
             try_files {path} {path}/index.php {path}/index.html

@@ -80,8 +80,10 @@ Settings:
 | `EVO_WORKER_KEEP_APP` | off | `1` keeps one booted container per worker (see above) |
 | `EVO_WORKER_DEBUG` | off | `1` adds X-Evo-Worker, X-Evo-Request and X-Evo-Worker-App response headers |
 
-With a custom Caddyfile, register `/var/www/html/index.php` as the worker and
-retain the normal PHP handler for the manager. The supplied `worker.Caddyfile`
+With a custom Caddyfile, register `/var/www/html/index.php` as the worker,
+retain the normal PHP handler for the manager, and rewrite a path under `/manager/`
+that is not a file to `/manager/index.php`, as `manager/.htaccess` does on Apache:
+EvoUI serves Livewire from such routes, in manager mode only. The supplied `worker.Caddyfile`
 contains friendly-URL rewrites and blocks private CMS files. Keep equivalent
 access rules when adapting it to another document root or HTTPS.
 

@@ -122,6 +122,14 @@ get('/core/composer.json', expected=404)
 get('/assets/files/worker-test.php', expected=404)
 _, manager_headers = get('/manager/index.php')
 assert manager_headers.get('X-Evo-Worker') is None
+
+# FrankenPHP serves these itself: an nginx put in front would answer here first.
+assert 'caddy' in (manager_headers.get('Server') or '').lower(), manager_headers.get('Server')
+
+# A route under /manager/ belongs to the manager's front controller: with no session it asks to log in.
+# The site's own has no such route and answers 404.
+livewire_body, _ = get('/manager/evo-ui?action=script')
+assert 'loginfrm' in livewire_body, livewire_body[:500]
 error, _ = get('/__worker/failure', expected=500)
 assert 'worker-test-private-detail' not in error
 _, headers = get('/__worker/state')
