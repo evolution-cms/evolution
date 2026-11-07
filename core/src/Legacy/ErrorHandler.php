@@ -78,7 +78,7 @@ class ErrorHandler
         // @phpstan-ignore-next-line includeOnce.fileNotFound
         include_once($lang_path . 'en/global.php');
         $manager_language = $modx->getConfig('manager_language');
-        if (is_file($lang_path.$manager_language."/global.php")) {
+        if (\EvolutionCMS\Support\ManagerLanguage::isName($manager_language) && is_file($lang_path.$manager_language."/global.php")) {
             include_once($lang_path.$manager_language."/global.php");
         }
 

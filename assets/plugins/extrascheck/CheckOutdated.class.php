@@ -398,7 +398,7 @@ class CheckOutdated
     public function setLang($lexicon = [])
     {
         $lang = $this->modx->getConfig('manager_language');
-        if (file_exists( __DIR__ .  '/lang/'.$lang.'/core.inc.php')){
+        if (\EvolutionCMS\Support\ManagerLanguage::isName($lang) && file_exists( __DIR__ .  '/lang/'.$lang.'/core.inc.php')){
             include_once(__DIR__ .  '/lang/'.$lang.'/core.inc.php');
         } else {
             include_once(__DIR__ .  '/lang/english/core.inc.php');
