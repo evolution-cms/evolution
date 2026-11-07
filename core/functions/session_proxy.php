@@ -141,14 +141,14 @@ class EvoSessionProxy
 
         if (!self::$shutdownRegistered) {
             self::$shutdownRegistered = true;
-            evo_register_shutdown([self::class, 'syncBack']);
+            evo_register_shutdown([self::class, 'syncBackAtShutdown']);
         }
     }
 
     /**
      * Sync back - before response.
      */
-    public static function syncBack(): void
+    public static function syncBack(bool $persist = true): void
     {
         if (!self::$initialized || self::$synced) {
             return;
@@ -181,7 +181,50 @@ class EvoSessionProxy
             }
         }
 
-        $store->save();
+        if ($persist) {
+            $store->save();
+        } elseif (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
+    }
+
+    /**
+     * The sync of a request that ends in exit(), past the StartSession middleware.
+     *
+     * @param list<string>|null $responseHeaders headers_list() unless given
+     */
+    public static function syncBackAtShutdown(?array $responseHeaders = null): void
+    {
+        self::syncBack(!self::isUnreachable($responseHeaders ?? headers_list()));
+    }
+
+    /**
+     * Whether nothing can read this session back: a visitor's page on which no session cookie
+     * came in and none goes out. Every such hit would otherwise leave two files behind.
+     * A worker emits the cookie of every session after its shutdown jobs (saveAndEmitCookie()).
+     *
+     * @param list<string> $responseHeaders
+     */
+    private static function isUnreachable(array $responseHeaders): bool
+    {
+        if ((defined('IN_MANAGER_MODE') && IN_MANAGER_MODE)
+            || (class_exists(\EvolutionCMS\Runtime\WorkerRuntime::class, false)
+                && \EvolutionCMS\Runtime\WorkerRuntime::active())) {
+            return false;
+        }
+
+        $cookieName = self::getLaravelSessionCookieName();
+        if (!$cookieName || isset($_COOKIE[$cookieName])) {
+            return false;
+        }
+
+        foreach ($responseHeaders as $header) {
+            if (stripos($header, 'Set-Cookie: ' . $cookieName . '=') === 0) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
