@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent;
  *
  * @mixin \Eloquent
  */
-class ActiveUser extends Eloquent\Model
+class ActiveUser extends BaseModel
 {
     protected $table = 'active_users';
 

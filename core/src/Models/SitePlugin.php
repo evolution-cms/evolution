@@ -40,7 +40,7 @@ use EvolutionCMS\Traits;
  *
  * @mixin \Eloquent
  */
-class SitePlugin extends Eloquent\Model
+class SitePlugin extends BaseModel
 {
     use Traits\Models\ManagerActions,
         Traits\Models\TimeMutator;

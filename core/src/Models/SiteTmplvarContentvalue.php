@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent;
  *
  * @mixin \Eloquent
  */
-class SiteTmplvarContentvalue extends Eloquent\Model
+class SiteTmplvarContentvalue extends BaseModel
 {
 	protected $table = 'site_tmplvar_contentvalues';
 

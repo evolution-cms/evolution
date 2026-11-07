@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent;
  *
  * @mixin \Eloquent
  */
-class SiteModuleDepobj extends Eloquent\Model
+class SiteModuleDepobj extends BaseModel
 {
 	protected $table = 'site_module_depobj';
 	public $timestamps = false;

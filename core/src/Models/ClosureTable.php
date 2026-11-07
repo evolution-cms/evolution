@@ -1,6 +1,5 @@
 <?php namespace EvolutionCMS\Models;
 
-use Illuminate\Database\Eloquent\Model as Eloquent;
 
 /**
  * Basic ClosureTable model. Performs actions on the relationships table.
@@ -11,7 +10,7 @@ use Illuminate\Database\Eloquent\Model as Eloquent;
  *
  * @package Franzose\ClosureTable
  */
-class ClosureTable extends Eloquent
+class ClosureTable extends BaseModel
 {
     /**
      * The table associated with the model.

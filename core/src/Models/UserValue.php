@@ -2,7 +2,6 @@
 
 namespace EvolutionCMS\Models;
 
-use Illuminate\Database\Eloquent\Model;
 
 /**
  * EvolutionCMS\Models\UserValue
@@ -14,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @mixin \Eloquent
  */
-class UserValue extends Model
+class UserValue extends BaseModel
 {
 	protected $table = 'user_values';
 

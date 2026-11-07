@@ -12,7 +12,7 @@ use EvolutionCMS\Traits;
  *
  * @mixin \Eloquent
  */
-class MemberGroup extends Eloquent\Model
+class MemberGroup extends BaseModel
 {
     use Traits\Models\ManagerActions;
 

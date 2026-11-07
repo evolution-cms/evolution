@@ -78,7 +78,7 @@ use EvolutionCMS\Extensions\Collection;
  *
  * @mixin \Eloquent
  */
-class SiteContent extends Eloquent\Model
+class SiteContent extends BaseModel
 {
     use Traits\Models\SoftDeletes,
         Traits\Models\ManagerActions,

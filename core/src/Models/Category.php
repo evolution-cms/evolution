@@ -23,7 +23,7 @@ use EvolutionCMS\Traits;
  *
  * @mixin \Eloquent
  */
-class Category extends Eloquent\Model
+class Category extends BaseModel
 {
     use Traits\Models\ManagerActions;
 

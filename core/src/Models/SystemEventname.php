@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent;
  * BelongsToMany
  * @property Eloquent\Collection $plugins
  */
-class SystemEventname extends Eloquent\Model
+class SystemEventname extends BaseModel
 {
 	protected $table = 'system_eventnames';
 

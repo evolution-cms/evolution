@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent;
  *
  * @mixin \Eloquent
  */
-class MembergroupAccess extends Eloquent\Model
+class MembergroupAccess extends BaseModel
 {
     protected $table = 'membergroup_access';
     public $timestamps = false;

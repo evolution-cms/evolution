@@ -1,8 +1,6 @@
 <?php namespace EvolutionCMS\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class SystemCliTask extends Model
+class SystemCliTask extends BaseModel
 {
     protected $table = 'system_cli_tasks';
 

@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent;
  *
  * @mixin \Eloquent
  */
-class MembergroupName extends Eloquent\Model
+class MembergroupName extends BaseModel
 {
     protected $table = 'membergroup_names';
 

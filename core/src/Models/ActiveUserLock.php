@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent;
  *
  * @mixin \Eloquent
  */
-class ActiveUserLock extends Eloquent\Model
+class ActiveUserLock extends BaseModel
 {
 	protected $table = 'active_user_locks';
 

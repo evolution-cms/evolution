@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent;
  *
  * @mixin \Eloquent
  */
-class DocumentGroup extends Eloquent\Model
+class DocumentGroup extends BaseModel
 {
 	protected $table = 'document_groups';
 

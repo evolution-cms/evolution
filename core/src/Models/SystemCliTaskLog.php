@@ -1,8 +1,6 @@
 <?php namespace EvolutionCMS\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class SystemCliTaskLog extends Model
+class SystemCliTaskLog extends BaseModel
 {
     protected $table = 'system_cli_task_logs';
 

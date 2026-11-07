@@ -1,8 +1,6 @@
 <?php namespace EvolutionCMS\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class SystemWorkerHealth extends Model
+class SystemWorkerHealth extends BaseModel
 {
     protected $table = 'system_worker_health';
 
