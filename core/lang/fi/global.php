@@ -793,6 +793,7 @@ $_lang["role_edit_module"] = 'Muokkaa moduulia';
 $_lang["role_edit_plugin"] = 'Muokkaa liitännäisiä';
 $_lang["role_edit_role"] = 'Muokkaa roolia';
 $_lang["role_edit_settings"] = 'Muuta sivuston asetuksia';
+$_lang["role_security_settings"] = 'Muuta tietoturva-asetuksia';
 $_lang["role_edit_snippet"] = 'Muokkaa PHP-palasta';
 $_lang["role_edit_template"] = 'Muokkaa sivupohjaa';
 $_lang["role_edit_user"] = 'Muokkaa käyttäjää';

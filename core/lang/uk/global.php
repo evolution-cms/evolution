@@ -871,6 +871,7 @@ $_lang["role_edit_module"] = 'Редагування модулів';
 $_lang["role_edit_plugin"] = 'Редагування плагінів';
 $_lang["role_edit_role"] = 'Редагування ролей';
 $_lang["role_edit_settings"] = 'Змінювати конфігурацію сайта';
+$_lang["role_security_settings"] = 'Змінювати налаштування безпеки';
 $_lang["role_edit_snippet"] = 'Редагування сниппетов';
 $_lang["role_edit_template"] = 'Редагування шаблонов';
 $_lang["role_edit_user"] = 'Редагування пользователей';

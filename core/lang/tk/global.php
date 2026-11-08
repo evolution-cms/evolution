@@ -868,6 +868,7 @@ $_lang["role_edit_module"] = 'Moduly redaktirlemek';
 $_lang["role_edit_plugin"] = 'Plaginleri redaktirlemek';
 $_lang["role_edit_role"] = 'Rollary redaktirlemek';
 $_lang["role_edit_settings"] = 'Saýtyň sazlamalaryny üýtgetmek';
+$_lang["role_security_settings"] = 'Howpsuzlyk sazlamalaryny üýtgetmek';
 $_lang["role_edit_snippet"] = 'Snippetleri redaktirlemek';
 $_lang["role_edit_template"] = 'Saýtyň şablonlaryny redaktirlemek';
 $_lang["role_edit_user"] = 'Ulanyjylary redaktirlemek';

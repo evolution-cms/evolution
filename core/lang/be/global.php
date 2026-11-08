@@ -331,6 +331,7 @@ $_lang["role_edit_module"] = 'Модуль рэдагавання';
 $_lang["role_edit_plugin"] = 'Рэдагаваць плагін';
 $_lang["role_edit_role"] = 'Рэдагаваць ролі';
 $_lang["role_edit_settings"] = 'Змяніць налады сайта';
+$_lang["role_security_settings"] = 'Змяніць налады бяспекі';
 $_lang["role_edit_snippet"] = 'Рэдагаваць сніпеты';
 $_lang["role_edit_template"] = 'Рэдагаваць шаблоны сайтаў';
 $_lang["role_edit_user"] = 'Рэдагаваць карыстальнікаў';

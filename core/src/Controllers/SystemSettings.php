@@ -66,6 +66,7 @@ class SystemSettings extends AbstractController implements ManagerTheme\PageCont
             'gdAvailable' => $this->parameterCheckGD(),
             'settings' => $this->parameterSettings(),
             'disabledSettings' => $this->disabledSettings(),
+            'canEditSecuritySettings' => $this->managerTheme->getCore()->hasPermission('security_settings') === 1,
             'displayStyle' => ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block',
             'fileBrowsers' => $this->parameterFileBrowsers(),
             'themes' => $this->parameterThemes(),

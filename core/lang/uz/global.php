@@ -868,6 +868,7 @@ $_lang["role_edit_module"] = 'Modulni tahrirlash';
 $_lang["role_edit_plugin"] = 'Plaginlarni tahrirlash';
 $_lang["role_edit_role"] = 'Rollarni tahrirlash';
 $_lang["role_edit_settings"] = 'Sayt sozlamalarini o‘zgartirish';
+$_lang["role_security_settings"] = 'Xavfsizlik sozlamalarini o‘zgartirish';
 $_lang["role_edit_snippet"] = 'Kod bo‘laklarini tahrirlash';
 $_lang["role_edit_template"] = 'Sayt shablonlarini tahrirlash';
 $_lang["role_edit_user"] = 'Foydalanuvchilarni tahrirlash';

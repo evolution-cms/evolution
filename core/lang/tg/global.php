@@ -863,6 +863,7 @@ $_lang["role_edit_module"] = 'Таҳрири модул';
 $_lang["role_edit_plugin"] = 'Таҳрири плагинҳо';
 $_lang["role_edit_role"] = 'Таҳрири нақшҳо';
 $_lang["role_edit_settings"] = 'Тағйири танзимоти сомона';
+$_lang["role_security_settings"] = 'Тағйири танзимоти амният';
 $_lang["role_edit_snippet"] = 'Таҳрири сниппетҳо';
 $_lang["role_edit_template"] = 'Таҳрири қолабҳои сомона';
 $_lang["role_edit_user"] = 'Таҳрири корбарон';

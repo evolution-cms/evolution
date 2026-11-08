@@ -54,8 +54,16 @@ if (isset($data) && count($data) > 0) {
         }
     }
     $data['sys_files_checksum'] = $modx->getManagerApi()->getSystemChecksum($data['check_files_onlogin']);
+    $mayEditSecurity = $modx->hasPermission('security_settings');
     foreach ($data as $k => $v) {
         if (isset($defaultSettings[$k])) {
+            continue;
+        }
+
+        // The Security tab (ACL toggles, eval and login hardening) needs its own permission on top
+        // of `settings`; skip those keys without it so a crafted POST cannot set them. The form also
+        // hides the tab, so an ordinary save never carries them.
+        if (!$mayEditSecurity && \EvolutionCMS\Support\SecuritySettings::isGated($k)) {
             continue;
         }
 

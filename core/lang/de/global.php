@@ -842,6 +842,7 @@ $_lang["role_edit_module"] = 'Module bearbeiten';
 $_lang["role_edit_plugin"] = 'Plugins bearbeiten';
 $_lang["role_edit_role"] = 'Rollen bearbeiten';
 $_lang["role_edit_settings"] = 'Konfiguration bearbeiten';
+$_lang["role_security_settings"] = 'Sicherheitseinstellungen bearbeiten';
 $_lang["role_edit_snippet"] = 'Snippets bearbeiten';
 $_lang["role_edit_template"] = 'Templates bearbeiten';
 $_lang["role_edit_user"] = 'Manager-Benutzer bearbeiten';

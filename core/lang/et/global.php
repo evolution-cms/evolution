@@ -868,6 +868,7 @@ $_lang["role_edit_module"] = 'Muuda moodulit';
 $_lang["role_edit_plugin"] = 'Muuda pluginaid';
 $_lang["role_edit_role"] = 'Muuda rolle';
 $_lang["role_edit_settings"] = 'Muuda saidi seadeid';
+$_lang["role_security_settings"] = 'Muuda turvaseadeid';
 $_lang["role_edit_snippet"] = 'Muuda koodilõike';
 $_lang["role_edit_template"] = 'Muuda saidimalle';
 $_lang["role_edit_user"] = 'Muuda kasutajaid';

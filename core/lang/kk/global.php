@@ -889,6 +889,7 @@ $_lang["role_edit_module"] = 'Модульді өңдеу';
 $_lang["role_edit_plugin"] = 'Плагиндерді өңдеу';
 $_lang["role_edit_role"] = 'Рөлдерді өңдеу';
 $_lang["role_edit_settings"] = 'Сайт баптауларын өзгерту';
+$_lang["role_security_settings"] = 'Қауіпсіздік баптауларын өзгерту';
 $_lang["role_edit_snippet"] = 'Сниппеттерді өңдеу';
 $_lang["role_edit_template"] = 'Сайт үлгілерін өңдеу';
 $_lang["role_edit_user"] = 'Пайдаланушыларды өңдеу';

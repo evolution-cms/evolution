@@ -868,6 +868,7 @@ $_lang["role_edit_module"] = 'Redaguoti modulį';
 $_lang["role_edit_plugin"] = 'Redaguoti papildinius';
 $_lang["role_edit_role"] = 'Redaguoti vaidmenis';
 $_lang["role_edit_settings"] = 'Keisti svetainės nuostatas';
+$_lang["role_security_settings"] = 'Keisti saugumo nuostatas';
 $_lang["role_edit_snippet"] = 'Redaguoti kodo fragmentus';
 $_lang["role_edit_template"] = 'Redaguoti svetainės šablonus';
 $_lang["role_edit_user"] = 'Redaguoti naudotojus';

@@ -845,6 +845,7 @@ $_lang["role_edit_module"] = 'Edytuj moduł';
 $_lang["role_edit_plugin"] = 'Edytuj wtyczki';
 $_lang["role_edit_role"] = 'Edytowanie ról';
 $_lang["role_edit_settings"] = 'Zmiana ustawień witryny';
+$_lang["role_security_settings"] = 'Zmiana ustawień zabezpieczeń';
 $_lang["role_edit_snippet"] = 'Edytowanie snippetów';
 $_lang["role_edit_template"] = 'Edytowanie szablonów';
 $_lang["role_edit_user"] = 'Edytuj użytkowników Menedżera';

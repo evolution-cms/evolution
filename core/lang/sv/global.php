@@ -794,6 +794,7 @@ $_lang["role_edit_module"] = 'Redigera moduler';
 $_lang["role_edit_plugin"] = 'Redigera plugins';
 $_lang["role_edit_role"] = 'Redigera roller';
 $_lang["role_edit_settings"] = 'Ändra webbplatsens inställningar';
+$_lang["role_security_settings"] = 'Ändra säkerhetsinställningar';
 $_lang["role_edit_snippet"] = 'Redigera snippets';
 $_lang["role_edit_template"] = 'Redigera mallar';
 $_lang["role_edit_user"] = 'Redigera användare';

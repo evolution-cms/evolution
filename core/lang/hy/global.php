@@ -868,6 +868,7 @@ $_lang["role_edit_module"] = 'Խմբագրել մոդուլը';
 $_lang["role_edit_plugin"] = 'Խմբագրել փլագինները';
 $_lang["role_edit_role"] = 'Խմբագրել դերերը';
 $_lang["role_edit_settings"] = 'Փոխել կայքի կարգավորումները';
+$_lang["role_security_settings"] = 'Փոխել անվտանգության կարգավորումները';
 $_lang["role_edit_snippet"] = 'Խմբագրել սնիփեթները';
 $_lang["role_edit_template"] = 'Խմբագրել կայքի ձևանմուշները';
 $_lang["role_edit_user"] = 'Խմբագրել օգտատերերին';

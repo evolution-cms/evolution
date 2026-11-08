@@ -873,6 +873,7 @@ $_lang["role_edit_module"] = 'モジュール編集画面を開く';
 $_lang["role_edit_plugin"] = 'プラグイン編集画面を開く';
 $_lang["role_edit_role"] = 'ロール編集画面を開く';
 $_lang["role_edit_settings"] = 'グローバル設定を変更';
+$_lang["role_security_settings"] = 'セキュリティ設定を変更';
 $_lang["role_edit_snippet"] = 'スニペット編集画面を開く';
 $_lang["role_edit_template"] = 'テンプレート編集画面を開く';
 $_lang["role_edit_user"] = 'ユーザー編集画面を開く';

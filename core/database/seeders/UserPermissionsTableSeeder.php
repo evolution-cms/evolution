@@ -550,6 +550,13 @@ class UserPermissionsTableSeeder extends Seeder
                 'group_id' => 14
             ],
             [
+                'name'     => 'Change security settings',
+                'key'      => 'security_settings',
+                'lang_key' => 'role_security_settings',
+                'disabled' => 0,
+                'group_id' => 14
+            ],
+            [
                 'name'     => 'Use the Backup Manager',
                 'key'      => 'bk_manager',
                 'lang_key' => 'role_bk_manager',
