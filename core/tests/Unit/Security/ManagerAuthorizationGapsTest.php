@@ -42,3 +42,24 @@ it('gates the phpinfo and system info pages on the settings right', function (st
         ->toContain("hasPermission('settings')")
         ->and($source)->not->toContain("hasPermission('logs')");
 })->with(['Phpinfo', 'SystemInfo']);
+
+it('caps role save at the actor reach and checks role deletion rights', function () {
+    $source = controllerSource('UserRoles/UserRole');
+
+    // save: subset guard before writing, and only grantable permissions stored
+    expect($source)->toContain('$this->guardRoleReach($id, $actorRole, $actorPermissions);')
+        ->and($source)->toContain('RoleGuard::grantablePermissions(')
+        ->and($source)->not->toContain('foreach (array_keys($selectedPermissions) as $key) {');
+
+    // delete: needs delete_role and the same reach guard
+    $delete = strpos($source, "\$_GET['action'] == 'delete'");
+    expect(strpos($source, "hasPermission('delete_role')", $delete))->not->toBeFalse()
+        ->and(strpos($source, '$this->guardRoleReach($id)', $delete))->not->toBeFalse();
+});
+
+it('assigns a user role only within the actor reach, not just below admin', function () {
+    $source = controllerSource('Users/EditOrNewUser');
+
+    expect($source)->toContain('RoleGuard::mayManageRole($actorRole, $actorPermissions, $newRole, $newRolePermissions)')
+        ->and($source)->not->toContain('AdminAccountGuard::mayAssignRole(');
+});
