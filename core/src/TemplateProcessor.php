@@ -196,7 +196,8 @@ class TemplateProcessor
         }
 
         if (!array_key_exists($templateId, $this->templateRows)) {
-            $this->templateRows[$templateId] = BaseModel::plainQuery(SiteTemplate::class, 'site_templates')->where('id', $templateId)
+            $this->templateRows[$templateId] = BaseModel::plainQuery(SiteTemplate::class, 'site_templates',
+                static fn ($query) => $query->where('site_templates.id', $templateId))
                 ->first(['id', 'templatealias', 'templatesource', 'templatefileextension', 'content']);
         }
 

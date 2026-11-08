@@ -2,6 +2,7 @@
 
 use EvolutionCMS\Models\BaseModel;
 use EvolutionCMS\Models\SiteTemplate;
+use EvolutionCMS\Models\SiteTmplvar;
 use EvolutionCMS\TemplateProcessor;
 use Illuminate\Database\Eloquent\Attributes\Boot;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -274,7 +275,7 @@ function withPlainReadDatabase(string $sql, callable $test): void
 
 test('a plain read does not boot the class, and a global scope on it still applies', function () {
     withPlainReadDatabase('create table plain_read (id integer); insert into plain_read values (1), (2);', function () {
-        $read = static fn () => BaseModel::plainQuery(BaseModelPlainRead::class, 'plain_read')->pluck('id')->all();
+        $read = static fn () => BaseModel::plainQuery(BaseModelPlainRead::class, 'plain_read', static fn () => null)->pluck('id')->all();
 
         expect($read())->toBe([1, 2])
             ->and(BaseModelPlainRead::wasBooted())->toBeFalse();
@@ -300,7 +301,54 @@ test('a global scope on SiteTemplate reaches the template row of a page', functi
     });
 });
 
-test('the TV read of a document goes through plainQuery()', function () {
+test('a scope of the template read keeps its own conditions apart from the read', function () {
+    $sql = "create table site_templates (id integer, templatealias text, templatesource text, templatefileextension text, content text);
+        insert into site_templates values (1, 'kept', '', '', ''), (2, 'other', '', '', ''), (3, 'hidden', '', '', '');";
+    withPlainReadDatabase($sql, function () {
+        SiteTemplate::addGlobalScope('two', static fn ($query) => $query->where('templatealias', 'kept')->orWhere('templatealias', 'other'));
+        $processor = (new ReflectionClass(TemplateProcessor::class))->newInstanceWithoutConstructor();
+
+        expect($processor->getTemplateAlias(3))->toBe('')
+            ->and($processor->getTemplateAlias(2))->toBe('other');
+    });
+});
+
+function baseModelTvTables(): string
+{
+    return "create table site_tmplvars (id integer, name text, type text, display text, display_params text, default_text text);
+    create table site_tmplvar_templates (tmplvarid integer, templateid integer);
+    create table site_tmplvar_contentvalues (tmplvarid integer, contentid integer, value text);
+    insert into site_tmplvars values (1, 'color', 'text', '', '', 'red'), (2, 'size', 'text', '', '', 'M'), (3, 'other', 'text', '', '', '');
+    insert into site_tmplvar_templates values (1, 7), (2, 7), (3, 8);
+    insert into site_tmplvar_contentvalues values (1, 5, 'blue'), (1, 6, 'green');";
+}
+
+test('the TV read of a document gives the TVs of its template with its values', function () {
+    withPlainReadDatabase(baseModelTvTables(), function () {
+        $rows = SiteTmplvar::documentValuesQuery(5, 7)->orderBy('site_tmplvars.id')->get()
+            ->map(static fn ($row) => [$row->name, $row->value, $row->default_text])->all();
+
+        expect($rows)->toBe([['color', 'blue', 'red'], ['size', null, 'M']]);
+    });
+});
+
+test('a scope of the TV read keeps its projection, bindings and alias conditions', function () {
+    withPlainReadDatabase(baseModelTvTables(), function () {
+        SiteTmplvar::addGlobalScope('rank', static fn ($query) => $query
+            ->selectRaw('length(site_tmplvars.name) * ? as weight', [10])
+            ->groupBy('site_tmplvars.id')
+            ->having('weight', '>', 40));
+
+        $rows = SiteTmplvar::documentValuesQuery(5, 7)->get();
+
+        expect($rows)->toHaveCount(1)
+            ->and($rows[0]->name)->toBe('color')
+            ->and($rows[0]->value)->toBe('blue')
+            ->and((int) $rows[0]->weight)->toBe(50);
+    });
+});
+
+test('the TV read of a document is the one of SiteTmplvar', function () {
     expect(file_get_contents(dirname(__DIR__, 3) . '/src/Core.php'))
-        ->toContain("Models\\BaseModel::plainQuery(SiteTmplvar::class, 'site_tmplvars')");
+        ->toContain("SiteTmplvar::documentValuesQuery((int) \$documentObject['id'], (int) \$documentObject['template'])");
 });

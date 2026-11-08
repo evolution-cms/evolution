@@ -1,6 +1,8 @@
 <?php namespace EvolutionCMS\Models;
 
 use Illuminate\Database\Eloquent;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Query\Expression;
 use EvolutionCMS\Traits;
 
 /**
@@ -180,6 +182,30 @@ class SiteTmplvar extends BaseModel
     public function tmplvarUserRole()
     {
         return $this->hasMany(UserRoleVar::class, 'tmplvarid', 'id');
+    }
+
+    /**
+     * The TVs of a template with their values in a document, the read every page makes
+     * (Core::getDocumentObject()), without booting this model.
+     */
+    public static function documentValuesQuery(int $documentId, int $templateId): Builder
+    {
+        return BaseModel::plainQuery(self::class, 'site_tmplvars', static function ($query) use ($documentId, $templateId) {
+            $query->select(
+                'site_tmplvars.id',
+                'site_tmplvars.name',
+                'site_tmplvars.type',
+                'site_tmplvars.display',
+                'site_tmplvars.display_params',
+                'site_tmplvars.default_text',
+                'site_tmplvar_contentvalues.value'
+            )
+                ->join('site_tmplvar_templates', 'site_tmplvar_templates.tmplvarid', '=', 'site_tmplvars.id')
+                ->leftJoin('site_tmplvar_contentvalues', function ($join) use ($documentId) {
+                    $join->on('site_tmplvar_contentvalues.tmplvarid', '=', 'site_tmplvars.id');
+                    $join->on('site_tmplvar_contentvalues.contentid', '=', new Expression($documentId));
+                })->where('site_tmplvar_templates.templateid', $templateId);
+        });
     }
 
     public function delete()

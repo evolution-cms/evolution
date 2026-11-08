@@ -27,17 +27,27 @@ abstract class BaseModel extends Model
     private static array $usesDefaultAttributes = [];
 
     /**
-     * The query of a hot read that needs no model, without booting $class for it. A global scope
-     * registered on the class applies, as through toBase(), and only then does the read boot it.
-     * A scope added while the class boots (an eloquent.booting listener) is not seen before that.
+     * The query of a hot read that needs no model, without booting $class for it. $build adds the
+     * columns, joins and conditions of the read. A global scope registered on the class is applied
+     * after them, as toBase() did, and only then does the read boot the class. A scope added while
+     * the class boots (an eloquent.booting listener) is not seen before that.
      *
      * @param class-string<Model> $class
+     * @param \Closure(Builder|\Illuminate\Database\Eloquent\Builder<Model>): mixed $build
      */
-    public static function plainQuery(string $class, string $table): Builder
+    public static function plainQuery(string $class, string $table, \Closure $build): Builder
     {
-        return isset(self::getAllGlobalScopes()[$class])
-            ? $class::query()->toBase()
-            : self::resolveConnection()->table($table);
+        if (!isset(self::getAllGlobalScopes()[$class])) {
+            $query = self::resolveConnection()->table($table);
+            $build($query);
+
+            return $query;
+        }
+
+        $query = $class::query();
+        $build($query);
+
+        return $query->toBase();
     }
 
     /**
