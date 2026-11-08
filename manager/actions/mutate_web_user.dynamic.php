@@ -383,7 +383,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                                         $selectedtext = $row['id'] == $userdata['role'] ? "selected='selected'" : '';
                                     }
                                     ?>
-                                    <option value="<?php echo $modx->getPhpCompat()->htmlspecialchars($row['id']); ?>"<?php echo $selectedtext; ?>><?php echo $row['name']; ?></option>
+                                    <option value="<?php echo $modx->getPhpCompat()->htmlspecialchars($row['id']); ?>"<?php echo $selectedtext; ?>><?php echo $modx->getPhpCompat()->htmlspecialchars($row['name']); ?></option>
                                     <?php
                                 }
                                 ?>
