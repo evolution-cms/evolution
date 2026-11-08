@@ -357,6 +357,7 @@ $_lang["role_frames"] = 'Menecer çərçivələrini tələb et';
 $_lang["role_help"] = 'Kömək səhifələrinə baxış';
 $_lang["role_home"] = 'Menecerin giriş səhifəsinə keçid';
 $_lang["role_import_static"] = 'HTML idxalı';
+$_lang["role_in_use_message"] = 'Bu rol hələ də bir və ya bir neçə istifadəçiyə təyin edilib. Silməzdən əvvəl həmin istifadəçiləri başqa rola təyin edin.';
 $_lang["role_widget_recent_info"] = 'Son redaktə olunan/yaradılan resurslar vidcetinə bax';
 $_lang["role_list_module"] = 'Modulların siyahısı';
 $_lang["role_manage_metatags"] = 'Saytın META teqlərini və açar sözlərini idarə et';

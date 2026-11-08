@@ -882,6 +882,7 @@ $_lang["role_frames"] = 'Boshqaruv paneli freymlarini so‘rash';
 $_lang["role_help"] = 'Yordam sahifalarini ko‘rish';
 $_lang["role_home"] = 'Boshqaruv panelining kirish sahifasini so‘rash';
 $_lang["role_import_static"] = 'HTML ni import qilish';
+$_lang["role_in_use_message"] = 'Bu rol hali ham bir yoki bir nechta foydalanuvchiga biriktirilgan. Uni o‘chirishdan oldin bu foydalanuvchilarni boshqa rolga biriktiring.';
 $_lang["role_widget_recent_info"] = 'Yaqinda tahrirlangan/yaratilgan resurslar vidjetini ko‘rish';
 $_lang["role_list_module"] = 'Modulni ro‘yxatda ko‘rsatish';
 $_lang["role_manage_metatags"] = 'Saytning META teglari va kalit so‘zlarini boshqarish';

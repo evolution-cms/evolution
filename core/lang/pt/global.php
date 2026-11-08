@@ -806,6 +806,7 @@ $_lang["role_frames"] = 'Pedir áreas (frames) do Interface de Gestão';
 $_lang["role_help"] = 'Ver páginas de ajuda';
 $_lang["role_home"] = 'Pedir página de início do Interface de Gestão';
 $_lang["role_import_static"] = 'Importar HTML';
+$_lang["role_in_use_message"] = 'Esta função ainda está atribuída a um ou mais utilizadores. Reatribua esses utilizadores a outra função antes de a poder eliminar.';
 $_lang["role_widget_recent_info"] = 'Ver widget Documentos editados/criados recentemente';
 $_lang["role_manage_metatags"] = 'Gerir etiquetas (tags) META e palavras-chave do site';
 $_lang["role_management_msg"] = 'Aqui pode escolher qual o perfil que deseja alterar.';

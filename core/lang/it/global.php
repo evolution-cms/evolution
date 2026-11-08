@@ -858,6 +858,7 @@ $_lang["role_frames"] = 'Visualizza i frames del Manager EVO';
 $_lang["role_help"] = 'Visualizza le pagine di aiuto';
 $_lang["role_home"] = 'Visualizza la pagina introduttiva del Manager EVO';
 $_lang["role_import_static"] = 'Importa HTML';
+$_lang["role_in_use_message"] = 'Questo ruolo è ancora assegnato a uno o più utenti. Riassegna tali utenti a un altro ruolo prima di poterlo eliminare.';
 $_lang["role_widget_recent_info"] = 'Visualizza il widget Risorse modificate o create di recente';
 $_lang["role_manage_metatags"] = 'Gestione META tag e parole chiave';
 $_lang["role_management_msg"] = 'Qui potete scegliere il Ruolo da modificare o creare un nuovo Ruolo.';

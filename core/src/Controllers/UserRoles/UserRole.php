@@ -37,6 +37,11 @@ class UserRole extends AbstractController implements ManagerTheme\PageController
     {
         if(isset($_GET['action']) && $_GET['action'] == 'delete' ){
             $id = $this->getElementId();
+            // Refuse to delete a role still assigned to users: the delete does not reassign
+            // them, so they would be left pointing at a role that no longer exists.
+            if (Models\UserAttribute::where('role', $id)->exists()) {
+                $this->managerTheme->alertAndQuit('role_in_use_message');
+            }
             Models\RolePermissions::query()->where('role_id', $id)->delete();
             Models\SiteModuleRole::query()->where('role', $id)->delete();
             Models\UserRoleVar::where('roleid', $id)->delete();

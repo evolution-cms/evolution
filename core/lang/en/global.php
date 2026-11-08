@@ -882,6 +882,7 @@ $_lang["role_frames"] = 'Request manager frames';
 $_lang["role_help"] = 'View help pages';
 $_lang["role_home"] = 'Request manager intro page';
 $_lang["role_import_static"] = 'Import HTML';
+$_lang["role_in_use_message"] = 'This role is still assigned to one or more users. Reassign those users to another role before it can be deleted.';
 $_lang["role_widget_recent_info"] = 'View widget Recently edited/created Resources';
 $_lang["role_list_module"] = 'List Module';
 $_lang["role_manage_metatags"] = 'Manage site META tags and keywords';

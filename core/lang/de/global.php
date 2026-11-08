@@ -856,6 +856,7 @@ $_lang["role_frames"] = 'Manager-Frames ermitteln';
 $_lang["role_help"] = 'Anzeigen der Hilfeseiten';
 $_lang["role_home"] = 'Manager Startseite ermitteln';
 $_lang["role_import_static"] = 'HTML importieren';
+$_lang["role_in_use_message"] = 'Diese Rolle ist noch einem oder mehreren Benutzern zugewiesen. Weisen Sie diese Benutzer einer anderen Rolle zu, bevor sie gelöscht werden kann.';
 $_lang["role_widget_recent_info"] = 'Widget „Kürzlich bearbeitete oder erstellte Ressourcen“ anzeigen';
 $_lang["role_manage_metatags"] = 'Meta-Tags und Schlüsselwörter verwalten';
 $_lang["role_management_msg"] = 'Hier können Sie eine Rolle zum Bearbeiten wählen.';

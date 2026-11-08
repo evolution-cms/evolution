@@ -878,6 +878,7 @@ $_lang["role_frames"] = 'Požiadavka na manažérske rámce';
 $_lang["role_help"] = 'Zobrazenie stránok pomoci';
 $_lang["role_home"] = 'Požiadavka na úvodnú stránku administrácie';
 $_lang["role_import_static"] = 'Import HTML';
+$_lang["role_in_use_message"] = 'Táto rola je stále priradená jednému alebo viacerým používateľom. Pred jej odstránením priraďte týchto používateľov k inej role.';
 $_lang["role_widget_recent_info"] = 'Zobrazenie widgetu „Nedávno vytvorené/upravené zdroje“';
 $_lang["role_list_module"] = 'Zobrazenie zoznamu modulov';
 $_lang["role_manage_metatags"] = 'META tagy a kľúčové slová';

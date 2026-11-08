@@ -809,6 +809,7 @@ $_lang["role_frames"] = 'Accès aux cadres du Gestionnaire';
 $_lang["role_help"] = 'Accès aux pages d\'aide';
 $_lang["role_home"] = 'Accès à la page d\'introduction du gestionnaire';
 $_lang["role_import_static"] = 'Importation HTML';
+$_lang["role_in_use_message"] = 'Ce rôle est encore attribué à un ou plusieurs utilisateurs. Réaffectez ces utilisateurs à un autre rôle avant de pouvoir le supprimer.';
 $_lang["role_widget_recent_info"] = 'Voir le widget Ressources éditées/créées récemment';
 $_lang["role_manage_metatags"] = 'Gérer les balises META et les mots-clés du site';
 $_lang["role_management_msg"] = 'Choisissez le rôle que vous souhaitez modifier.';

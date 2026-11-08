@@ -807,6 +807,7 @@ $_lang["role_frames"] = 'Request manager frames';
 $_lang["role_help"] = 'הצג דפי עזרה';
 $_lang["role_home"] = 'Request manager intro page';
 $_lang["role_import_static"] = 'Import HTML';
+$_lang["role_in_use_message"] = 'תפקיד זה עדיין משויך למשתמש אחד או יותר. שייך משתמשים אלה לתפקיד אחר לפני שניתן יהיה למחוק אותו.';
 $_lang["role_widget_recent_info"] = 'הצג את הווידג׳ט מסמכים שנערכו/נוצרו לאחרונה';
 $_lang["role_manage_metatags"] = 'Manage site META tags and keywords';
 $_lang["role_management_msg"] = 'Choose the role you wish to edit.';

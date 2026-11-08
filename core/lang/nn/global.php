@@ -806,6 +806,7 @@ $_lang["role_frames"] = 'Last sidehåndtereren';
 $_lang["role_help"] = 'Vis hjelpesider';
 $_lang["role_home"] = 'Last introduksjonssiden';
 $_lang["role_import_static"] = 'Import HTML';
+$_lang["role_in_use_message"] = 'Denne rolla er framleis tildelt éin eller fleire brukarar. Tildel desse brukarane ei anna rolle før ho kan slettast.';
 $_lang["role_widget_recent_info"] = 'Vis widgeten Nylig opprettede/redigerte dokumenter';
 $_lang["role_manage_metatags"] = 'Håndtere webplassens META-tagger og nøkkelord';
 $_lang["role_management_msg"] = 'Her kan du opprette en ny rolle eller velge en allerede eksisterende rolle for redigering.';

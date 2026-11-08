@@ -858,6 +858,7 @@ $_lang["role_frames"] = 'Solicitar marcos del administrador';
 $_lang["role_help"] = 'Ver las páginas de ayuda';
 $_lang["role_home"] = 'Solicitar página de inicio del administrador';
 $_lang["role_import_static"] = 'Importar HTML';
+$_lang["role_in_use_message"] = 'Este rol todavía está asignado a uno o más usuarios. Reasigne esos usuarios a otro rol antes de poder eliminarlo.';
 $_lang["role_widget_recent_info"] = 'Ver widget Documentos recientemente editados/creados';
 $_lang["role_manage_metatags"] = 'Administrar las etiquetas META y las Palabras clave del sitio';
 $_lang["role_management_msg"] = 'Elige el rol que deseas editar.';
