@@ -33,6 +33,25 @@ final class FileManagerAccess
         return $path === $root || strncmp($path, $root . '/', strlen($root) + 1) === 0;
     }
 
+    /**
+     * Whether a per-user file manager root may be used instead of the site-wide one.
+     *
+     * A per-user filemanager_path may only narrow the root to a subfolder of the system root,
+     * never widen it past that root. Both arguments are realpath() results, so a path that does
+     * not resolve is passed as false and rejected: callers keep the system root in that case.
+     *
+     * @param string|false $systemRoot realpath of the site-wide filemanager_path
+     * @param string|false $userRoot realpath of the merged (possibly per-user) filemanager_path
+     */
+    public static function userRootAllowed($systemRoot, $userRoot): bool
+    {
+        if ($systemRoot === false || $userRoot === false) {
+            return false;
+        }
+
+        return self::isWithin($systemRoot, $userRoot);
+    }
+
     private static function caseInsensitiveFileSystem(): bool
     {
         return PHP_OS_FAMILY === 'Windows';
