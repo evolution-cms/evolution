@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent;
  *
  * @mixin \Eloquent
  */
-class SiteModuleRole extends Eloquent\Model
+class SiteModuleRole extends BaseModel
 {
 	protected $table = 'site_module_roles';
 	public $timestamps = false;

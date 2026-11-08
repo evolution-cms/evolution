@@ -27,7 +27,7 @@ use EvolutionCMS\Support\SiteTimezone;
  *
  * @mixin \Eloquent
  */
-class EventLog extends Eloquent\Model
+class EventLog extends BaseModel
 {
     use Traits\Models\ManagerActions,
         Traits\Models\TimeMutator;

@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent;
  *
  * @mixin \Eloquent
  */
-class UserSetting extends Eloquent\Model
+class UserSetting extends BaseModel
 {
     protected $table = 'user_settings';
 

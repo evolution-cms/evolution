@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent;
  *
  * @mixin \Eloquent
  */
-class SiteTmplvarAccess extends Eloquent\Model
+class SiteTmplvarAccess extends BaseModel
 {
 	protected $table = 'site_tmplvar_access';
 	public $timestamps = false;

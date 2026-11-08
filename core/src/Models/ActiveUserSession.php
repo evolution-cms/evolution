@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent;
  *
  * @mixin \Eloquent
  */
-class ActiveUserSession extends Eloquent\Model
+class ActiveUserSession extends BaseModel
 {
     protected $table = 'active_user_sessions';
 

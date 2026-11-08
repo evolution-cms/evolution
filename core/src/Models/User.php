@@ -16,7 +16,7 @@ use EvolutionCMS\Traits;
  *
  * @mixin \Eloquent
  */
-class User extends Eloquent\Model
+class User extends BaseModel
 {
     use Traits\Models\ManagerActions;
 

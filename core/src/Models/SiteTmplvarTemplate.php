@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent;
  *
  * @mixin \Eloquent
  */
-class SiteTmplvarTemplate extends Eloquent\Model
+class SiteTmplvarTemplate extends BaseModel
 {
 	protected $table = 'site_tmplvar_templates';
 

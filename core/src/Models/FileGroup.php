@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent;
  *
  * @mixin \Eloquent
  */
-class FileGroup extends Eloquent\Model
+class FileGroup extends BaseModel
 {
     protected $table = 'file_groups';
 

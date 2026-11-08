@@ -12,7 +12,7 @@ use EvolutionCMS\Traits;
  *
  * @mixin \Eloquent
  */
-class SitePluginEvent extends Eloquent\Model
+class SitePluginEvent extends BaseModel
 {
     use Traits\Models\ManagerActions;
 

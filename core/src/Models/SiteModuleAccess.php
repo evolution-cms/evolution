@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent;
  *
  * @mixin \Eloquent
  */
-class SiteModuleAccess extends Eloquent\Model
+class SiteModuleAccess extends BaseModel
 {
 	protected $table = 'site_module_access';
 	public $timestamps = false;

@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent;
  *
  * @mixin \Eloquent
  */
-class UserRoleVar extends Eloquent\Model
+class UserRoleVar extends BaseModel
 {
 	protected $table = 'user_role_vars';
 

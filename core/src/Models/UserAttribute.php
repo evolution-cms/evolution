@@ -45,7 +45,7 @@ use EvolutionCMS\Traits;
  *
  * @mixin \Eloquent
  */
-class UserAttribute extends Eloquent\Model
+class UserAttribute extends BaseModel
 {
     use Traits\Models\TimeMutator;
 

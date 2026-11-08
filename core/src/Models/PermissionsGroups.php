@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent;
  *
  * @mixin \Eloquent
  */
-class PermissionsGroups extends Eloquent\Model
+class PermissionsGroups extends BaseModel
 {
     use ManagerActions;
 

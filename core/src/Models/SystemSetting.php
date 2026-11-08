@@ -11,7 +11,7 @@ use EvolutionCMS\Traits;
  *
  * @mixin \Eloquent
  */
-class SystemSetting extends Eloquent\Model
+class SystemSetting extends BaseModel
 {
     use Traits\Models\ManagerActions;
 

@@ -89,7 +89,7 @@ use EvolutionCMS\Traits;
  *
  * @mixin \Eloquent
  */
-class UserRole extends Eloquent\Model
+class UserRole extends BaseModel
 {
     use Traits\Models\ManagerActions;
 

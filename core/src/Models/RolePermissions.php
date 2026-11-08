@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent;
  *
  * @mixin \Eloquent
  */
-class RolePermissions extends Eloquent\Model
+class RolePermissions extends BaseModel
 {
 	protected $table = 'role_permissions';
 

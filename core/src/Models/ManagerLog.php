@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent;
  *
  * @mixin \Eloquent
  */
-class ManagerLog extends Eloquent\Model
+class ManagerLog extends BaseModel
 {
 	protected $table = 'manager_log';
 	public $timestamps = false;
