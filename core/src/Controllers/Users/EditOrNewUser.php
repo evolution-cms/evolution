@@ -156,11 +156,16 @@ class EditOrNewUser extends AbstractController implements ManagerTheme\PageContr
             \UserManager::setRole(['id' => $user->getKey(), 'role' => $userData['role']]);
         }
 
-        if (isset($userData['user_groups']) && is_array($userData['user_groups'])) {
-            \UserManager::setGroups(['id' => $user->getKey(), 'groups' => $userData['user_groups']]);
-        } else {
-            \UserManager::setGroups(['id' => $user->getKey(), 'groups' => []]);
-        }
+        $postedGroups = (isset($userData['user_groups']) && is_array($userData['user_groups'])) ? $userData['user_groups'] : [];
+        $currentGroups = \EvolutionCMS\Models\MemberGroup::query()->where('member', $user->getKey())->pluck('user_group')->all();
+        $actorGroups = \EvolutionCMS\Models\MemberGroup::query()->where('member', (int) ($_SESSION['mgrInternalKey'] ?? 0))->pluck('user_group')->all();
+        $groups = \EvolutionCMS\Support\UserGroupGuard::authorizedGroups(
+            $actorGroups,
+            $currentGroups,
+            $postedGroups,
+            (bool) EvolutionCMS()->hasPermission('manage_groups')
+        );
+        \UserManager::setGroups(['id' => $user->getKey(), 'groups' => $groups]);
 
         if ($userData['stay'] != '') {
             $a = ($userData['stay'] == '2') ? "88&id={$user->getKey()}" : "87";

@@ -42,3 +42,55 @@ it('gates the phpinfo and system info pages on the settings right', function (st
         ->toContain("hasPermission('settings')")
         ->and($source)->not->toContain("hasPermission('logs')");
 })->with(['Phpinfo', 'SystemInfo']);
+
+function processorSource(string $file): string
+{
+    return (string)file_get_contents(dirname(__DIR__, 3) . '/../manager/processors/' . $file);
+}
+
+it('gates the full-site refresh on the empty cache right, not on nothing', function () {
+    $source = controllerSource('RefreshSite');
+
+    $canView = strpos($source, 'public function canView');
+    expect($canView)->not->toBeFalse()
+        ->and(strpos($source, "hasPermission('empty_cache')", $canView))->not->toBeFalse()
+        // the old unconditional allow is gone
+        ->and(substr($source, $canView, 120))->not->toContain('return true;');
+});
+
+it('gates permission-definition save and delete on the role rights', function () {
+    $source = controllerSource('UserRoles/Permission');
+
+    $process = strpos($source, 'public function process');
+    $delete = strpos($source, "\$_GET['action'] == 'delete'", $process);
+    $post = strpos($source, "isset(\$_POST['a'])", $process);
+
+    expect(strpos($source, "hasPermission('delete_role')", $delete))->not->toBeFalse()
+        ->and(strpos($source, "hasPermission('delete_role')", $delete))->toBeLessThan(
+            strpos($source, 'Models\Permissions::query()->where', $delete)
+        )
+        ->and(strpos($source, "hasPermission('save_role')", $post))->not->toBeFalse()
+        ->and(strpos($source, "hasPermission('save_role')", $post))->toBeLessThan(
+            strpos($source, '$this->updateOrCreate();', $post)
+        );
+});
+
+it('sets user groups through UserGroupGuard, gated by manage_groups', function () {
+    $source = controllerSource('Users/EditOrNewUser');
+
+    expect($source)->toContain('UserGroupGuard::authorizedGroups(')
+        ->and($source)->toContain("hasPermission('manage_groups')")
+        // the old unconditional setGroups of the posted array is gone
+        ->and($source)->not->toContain("\UserManager::setGroups(['id' => \$user->getKey(), 'groups' => \$userData['user_groups']])");
+});
+
+it('checks the matching permission in the delete processors', function (string $file, string $permission, string $gone) {
+    $source = processorSource($file);
+
+    expect($source)->toContain("hasPermission('{$permission}')")
+        ->and($source)->not->toContain("hasPermission('{$gone}')");
+})->with([
+    ['delete_htmlsnippet.processor.php', 'delete_chunk', 'delete_snippet'],
+    ['delete_category.processor.php', 'category_manager', 'save_plugin'],
+    ['remove_content.processor.php', 'empty_trash', 'delete_document'],
+]);

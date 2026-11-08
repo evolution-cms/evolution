@@ -26,11 +26,18 @@ class Permission extends AbstractController implements ManagerTheme\PageControll
 
     public function process() : bool
     {
+        $core = $this->managerTheme->getCore();
         if(isset($_GET['action']) && $_GET['action'] == 'delete' ){
+            if (!$core->hasPermission('delete_role')) {
+                $core->webAlertAndQuit(\Lang::get('global.error_no_privileges'));
+            }
             Models\Permissions::query()->where('id', $this->getElementId())->delete();
             header('Location: index.php?a=86&tab=2');
         }
         if (isset($_POST['a'])) {
+            if (!$core->hasPermission('save_role')) {
+                $core->webAlertAndQuit(\Lang::get('global.error_no_privileges'));
+            }
             $this->updateOrCreate();
             return true;
         }
