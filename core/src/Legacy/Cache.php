@@ -281,6 +281,29 @@ class Cache
             $timesArr[] = $this->cacheRefreshTime;
         }
 
+        // A scheduled transition whose time has already passed but whose published flag is
+        // still unsynced (e.g. the cache was rebuilt without applying it) must keep triggering
+        // a front-end sync. The two queries above only look ahead, so without this an overdue
+        // transition would drop out of the threshold and Core::updatePubStatus() would never
+        // run the sync. Pin the threshold to now instead; the predicate mirrors
+        // Core::runPubStatusSync() exactly, so it pins only while that sync still has work to do.
+        $overduePending = Models\SiteContent::query()
+            ->where(function ($query) {
+                $query->where('published', 0)
+                    ->where('pub_date', '!=', 0)
+                    ->where('pub_date', '<=', $this->request_time);
+            })
+            ->orWhere(function ($query) {
+                $query->where('published', 1)
+                    ->where('unpub_date', '!=', 0)
+                    ->where('unpub_date', '<=', $this->request_time);
+            })
+            ->exists();
+
+        if ($overduePending) {
+            $timesArr[] = $this->request_time;
+        }
+
         if (count($timesArr) > 0) {
             $cacheRefreshTime = min($timesArr);
         } else {
