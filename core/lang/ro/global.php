@@ -41,6 +41,7 @@ $_lang["access_permissions_resources_in_group"] = '<b>Resurse în grup:</b> ';
 $_lang["access_permissions_resources_tab"] = 'Vizualizați grupurile de resurse create. Puteți crea grupuri noi, redenumi sau șterge grupuri și vedea resursele din fiecare grup (treceți cursorul peste ID-ul resursei pentru a-i vedea numele). Pentru a adăuga o resursă într-un grup sau a o elimina dintr-un grup, editați direct resursa.';
 $_lang["access_permissions_user_groups"] = 'Grupuri de utilizatori';
 $_lang["access_permissions_user_message"] = 'Selectați grupurile de utilizatori din care face parte acest utilizator:';
+$_lang["access_permissions_user_group_locked"] = 'Grupurile afișate cu gri se află în afara apartenenței dumneavoastră. Doar un administrator sau un manager cu permisiunea "Gestionarea grupurilor de documente și utilizatori" le poate modifica, așa că aici sunt doar pentru citire.';
 $_lang["access_permissions_users_in_group"] = 'Utilizatori în grup:';
 $_lang["access_permissions_users_tab"] = 'Vizualizați grupurile de utilizatori create. Puteți crea grupuri noi, redenumi sau șterge grupuri și vedea utilizatorii din fiecare grup. Pentru a adăuga un utilizator într-un grup sau a-l elimina dintr-un grup, editați direct utilizatorul. Administratorii (utilizatorii cărora li s-a atribuit rolul cu ID-ul 1) au întotdeauna acces la toate resursele, deci nu trebuie adăugați în niciun grup.';
 $_lang["account_email"] = 'Adresa de e-mail a contului';

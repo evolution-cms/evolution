@@ -42,6 +42,7 @@ $_lang["access_permissions_resources_in_group"] = '<b>Resurser i gruppen:</b> ';
 $_lang["access_permissions_resources_tab"] = 'Se vilka resursgrupper som har skapats. Det går också att skapa nya eller byta namn på grupper samt se vilka resurser som tillhör de olika grupperna (håll musen över resursens ID för att se dess namn). För att lägga till eller ta bort en resurs från en grupp - redigera resursen direkt.';
 $_lang["access_permissions_user_groups"] = 'Användargrupper';
 $_lang["access_permissions_user_message"] = 'Ange vilka användargrupper denna användare ska tillhöra:';
+$_lang["access_permissions_user_group_locked"] = 'Grupper som visas i grått ligger utanför ditt eget medlemskap. Endast en administratör eller en förvaltare med behörigheten "Hantera dokument- och användargrupper" kan ändra dem, så de är skrivskyddade här.';
 $_lang["access_permissions_users_in_group"] = 'Användare i gruppen:';
 $_lang["access_permissions_users_tab"] = 'Se de användargrupper som har skapats. Du kan också skapa nya, byta namn på och ta bort grupper samt se vilka användare som är medlemmar i de olika grupperna. För att lägga till eller ta bort en användare från en grupp - redigera användaren direkt. Administratörer (som har roll-ID 1) har alltid tillgång till alla resurser, så de behöver inte läggas till i några grupper.';
 $_lang["account_email"] = 'Kontots e-post';

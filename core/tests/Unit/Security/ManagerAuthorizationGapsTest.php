@@ -84,6 +84,18 @@ it('sets user groups through UserGroupGuard, gated by manage_groups', function (
         ->and($source)->not->toContain("\UserManager::setGroups(['id' => \$user->getKey(), 'groups' => \$userData['user_groups']])");
 });
 
+it('shows group checkboxes outside the actor reach as read-only in the user form', function () {
+    $source = (string) file_get_contents(
+        dirname(__DIR__, 3) . '/../manager/actions/mutate_web_user.dynamic.php'
+    );
+
+    // the form derives the same reach the save guard uses, and disables what the actor cannot change
+    expect($source)->toContain("hasPermission('manage_groups')")
+        ->and($source)->toContain('$canChangeGroup')
+        ->and($source)->toContain("' disabled=\"disabled\"'")
+        ->and($source)->toContain('access_permissions_user_group_locked');
+});
+
 it('checks the matching permission in the delete processors', function (string $file, string $permission, string $gone) {
     $source = processorSource($file);
 
