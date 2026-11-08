@@ -41,22 +41,32 @@ class RefreshSite extends AbstractController implements ManagerTheme\PageControl
      */
     public function process(): bool
     {
-        // (un)publishing of documents, version 2!
-        // first, publish document waiting to be published
-        $time = $this->managerTheme->getCore()->timestamp();
+        $core = $this->managerTheme->getCore();
 
-        $this->parameters = [
-            'num_rows_pub' => $this->publishDocuments($time),
-            'num_rows_unpub' => $this->unPublishDocuments($time),
-        ];
+        // Running the due (un)publish changes document state, so it needs
+        // publish_document; empty_cache alone only clears the cache. Documents
+        // past their schedule are (un)published on the front end regardless
+        // (Core::runPubStatusSync()), so the cache clear below still runs.
+        $time = $core->timestamp();
+        if ($core->hasPermission('publish_document') === 1) {
+            $this->parameters = [
+                'num_rows_pub' => $this->publishDocuments($time),
+                'num_rows_unpub' => $this->unPublishDocuments($time),
+            ];
+        } else {
+            $this->parameters = [
+                'num_rows_pub' => 0,
+                'num_rows_unpub' => 0,
+            ];
+        }
 
         ob_start();
-        $this->managerTheme->getCore()->clearCache('full', true);
+        $core->clearCache('full', true);
         $this->parameters['cache_log'] = ob_get_contents();
         ob_end_clean();
 
         // invoke OnSiteRefresh event
-        $this->managerTheme->getCore()->invokeEvent("OnSiteRefresh");
+        $core->invokeEvent("OnSiteRefresh");
 
         return true;
     }
