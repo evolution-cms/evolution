@@ -16,9 +16,12 @@
 |    upload allow-lists) and the Mail tab (SMTP).
 |
 | Neither belongs in a content role by default, so the default preset no
-| longer grants them. This only changes fresh installs: the core
-| baseline-repair seeder only inserts missing rows, so an existing site that
-| already granted them keeps them.
+| longer grants them. On an existing site the core baseline-repair seeder only
+| ever inserts missing rows, so existing permission grants are preserved: it
+| never revokes settings or bk_manager from a role that already holds them.
+| (That seeder does still upsert the role name and description, so the Publisher
+| description text is updated on an existing site; only the grants are preserved.
+| The database behaviour is covered in Feature/PublisherDefaultPresetDatabaseTest.)
 |
 | Two seeders define the preset and must agree: the install stub
 | (install/stubs/seeds/install) seeds a fresh install, and the idempotent
