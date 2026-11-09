@@ -1108,6 +1108,7 @@ $_lang["user_changeddata"] = 'Dine oplysninger er ændret. Log venligst ind igen
 $_lang["user_country"] = 'Land';
 $_lang["user_dob"] = 'Fødselsdato';
 $_lang["user_doesnt_exist"] = 'Bruger eksisterer ikke';
+$_lang["user_role_invalid"] = 'Den valgte rolle findes ikke. Vælg en anden rolle, og gem igen.';
 $_lang["user_edit_self_msg"] = '<b>Du skal logge ud og ind igen for at opdatere alle dine informationer.</b> Det nye kodeord vil enten blive sent til den registrerede e-mail adresse eller blive vist på skærmen.';
 $_lang["user_email"] = 'E-mail adresse';
 $_lang["user_failedlogincount"] = 'Fejlede log ind forsøg';

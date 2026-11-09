@@ -1194,6 +1194,7 @@ $_lang["user_changeddata"] = 'Twoje dane zmieniły się. Zaloguj się ponownie.'
 $_lang["user_country"] = 'Kraj';
 $_lang["user_dob"] = 'Data urodzenia';
 $_lang["user_doesnt_exist"] = 'Uzytkownik nie istnieje';
+$_lang["user_role_invalid"] = 'Wybrana rola nie istnieje. Wybierz inną rolę i zapisz ponownie.';
 $_lang["user_edit_self_msg"] = 'Aby w pełni zaktualizować swoje dane wymagane jest przelogowanie się.</b><br />Możesz również wygenerować dla siebie nowe hasło, zostanie ono przesłane do Ciebie poprzez email.';
 $_lang["user_email"] = 'Adres email';
 $_lang["user_failedlogincount"] = 'Nieudane próby logowania';

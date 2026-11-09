@@ -1244,6 +1244,7 @@ $_lang["user_changeddata"] = 'Ma’lumotlaringiz o‘zgartirildi. Qaytadan tizim
 $_lang["user_country"] = 'Mamlakat';
 $_lang["user_dob"] = 'Tug‘ilgan sana';
 $_lang["user_doesnt_exist"] = 'Foydalanuvchi mavjud emas';
+$_lang["user_role_invalid"] = 'Tanlangan rol mavjud emas. Boshqa rolni tanlang va qayta saqlang.';
 $_lang["user_edit_self_msg"] = '<b>Ma’lumotlaringiz to‘liq yangilanishi uchun saqlagandan so‘ng tizimdan chiqib, qayta kirishingiz kerak bo‘lishi mumkin.</b> Yangi parollar elektron pochta manzilingizga yuboriladi yoki ekranda ko‘rsatiladi.';
 $_lang["user_email"] = 'Elektron pochta manzili';
 $_lang["user_failedlogincount"] = 'Muvaffaqiyatsiz kirishlar';

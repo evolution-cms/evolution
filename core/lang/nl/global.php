@@ -1180,6 +1180,7 @@ $_lang["user_changeddata"] = 'Uw gegevens zijn gewijzigd. A.u.b. opnieuw aanmeld
 $_lang["user_country"] = 'Land';
 $_lang["user_dob"] = 'Geboortedatum';
 $_lang["user_doesnt_exist"] = 'Gebruiker bestaat niet';
+$_lang["user_role_invalid"] = 'De geselecteerde rol bestaat niet. Kies een andere rol en sla opnieuw op.';
 $_lang["user_edit_self_msg"] = '<b>Wellicht dient u na het opslaan eerst af te melden en dan weer aan te melden om uw gegevens volledig te actualiseren.</b><br />Nieuwe wachtwoorden worden via e-mail toegezonden of op het scherm getoond.';
 $_lang["user_email"] = 'E-mail adres';
 $_lang["user_failedlogincount"] = 'Aantal mislukte aanmeldpogingen';

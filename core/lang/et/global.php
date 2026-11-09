@@ -1244,6 +1244,7 @@ $_lang["user_changeddata"] = 'Teie andmed on muutunud. Palun logige uuesti sisse
 $_lang["user_country"] = 'Riik';
 $_lang["user_dob"] = 'Sünnikuupäev';
 $_lang["user_doesnt_exist"] = 'Kasutajat ei ole olemas';
+$_lang["user_role_invalid"] = 'Valitud rolli ei ole olemas. Valige teine roll ja salvestage uuesti.';
 $_lang["user_edit_self_msg"] = '<b>Teie andmete täielikuks uuendamiseks võib olla vaja pärast salvestamist välja ja uuesti sisse logida.</b> Uued paroolid saadetakse teie e-posti aadressile või kuvatakse ekraanil.';
 $_lang["user_email"] = 'E-posti aadress';
 $_lang["user_failedlogincount"] = 'Nurjunud sisselogimised';

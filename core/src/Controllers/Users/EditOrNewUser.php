@@ -48,6 +48,17 @@ class EditOrNewUser extends AbstractController implements ManagerTheme\PageContr
                 exit();
             }
         }
+        // validated once, before anything is saved: the TV lookup, the reach check and setRole()
+        // all receive this same id
+        $newRole = null;
+        if (isset($userData['role'])) {
+            $newRole = \EvolutionCMS\Support\RoleGuard::postedRoleId($userData['role']);
+            if ($newRole === null) {
+                webAlertAndQuit(\Lang::get('global.user_role_invalid'), $userData['mode'], $id);
+                exit();
+            }
+            $userData['role'] = $newRole;
+        }
         $userData['username'] = $userData['newusername'];
         if (isset($userData['blockeduntil']) && !is_numeric($userData['blockeduntil'])) {
             $userData['blockeduntil'] = strtotime($userData['blockeduntil']);
@@ -149,12 +160,10 @@ class EditOrNewUser extends AbstractController implements ManagerTheme\PageContr
         \UserManager::clearSettings($userData);
         \UserManager::saveSettings($userData);
 
-        $newRole = (int) ($userData['role'] ?? 0);
-
-        if (isset($userData['role'])
-            && $userData['role'] != $user->attributes->role
+        if ($newRole !== null
+            && $newRole !== (int) $user->attributes->role
             && \EvolutionCMS\Support\RoleGuard::mayAssignRole($actorRole, static fn ($key) => EvolutionCMS()->hasPermission($key), $newRole)) {
-            \UserManager::setRole(['id' => $user->getKey(), 'role' => $userData['role']]);
+            \UserManager::setRole(['id' => $user->getKey(), 'role' => $newRole]);
         }
 
         $postedGroups = (isset($userData['user_groups']) && is_array($userData['user_groups'])) ? $userData['user_groups'] : [];

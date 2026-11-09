@@ -2,6 +2,7 @@
 
 use EvolutionCMS\Models\Permissions;
 use EvolutionCMS\Models\RolePermissions;
+use EvolutionCMS\Models\UserRole;
 
 /**
  * Keeps a manager from granting, through a role, more than it holds itself.
@@ -69,6 +70,25 @@ class RoleGuard
     public static function reachOf(int $roleId): array
     {
         return array_values(array_diff(self::grantsOf($roleId), self::OBSOLETE));
+    }
+
+    /**
+     * The role id a user form posted, exactly as the form writes one: "0" (no role) or the decimal
+     * id of an existing role. Anything else ("3abc", "3.9", " 3", "03", "1e1", an array, a role
+     * that does not exist) is null rather than cast, because a cast value is checked while the
+     * database may coerce the posted one into another role.
+     */
+    public static function postedRoleId(mixed $value): ?int
+    {
+        if (is_int($value)) {
+            $value = (string) $value;
+        }
+        if (!is_string($value) || preg_match('/^(0|[1-9][0-9]{0,9})$/D', $value) !== 1) {
+            return null;
+        }
+        $roleId = (int) $value;
+
+        return $roleId === 0 || UserRole::query()->whereKey($roleId)->exists() ? $roleId : null;
     }
 
     /**

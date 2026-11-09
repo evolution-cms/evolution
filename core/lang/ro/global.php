@@ -1244,6 +1244,7 @@ $_lang["user_changeddata"] = 'Datele dumneavoastră au fost modificate. Autentif
 $_lang["user_country"] = 'Țară';
 $_lang["user_dob"] = 'Data nașterii';
 $_lang["user_doesnt_exist"] = 'Utilizatorul nu există';
+$_lang["user_role_invalid"] = 'Rolul selectat nu există. Alegeți alt rol și salvați din nou.';
 $_lang["user_edit_self_msg"] = '<b>După salvare, poate fi necesar să vă deconectați și să vă autentificați din nou pentru actualizarea completă a informațiilor.</b> Parolele noi vor fi trimise la adresa dumneavoastră de e-mail sau afișate pe ecran.';
 $_lang["user_email"] = 'Adresă de e-mail';
 $_lang["user_failedlogincount"] = 'Autentificări eșuate';

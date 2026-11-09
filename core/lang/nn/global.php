@@ -1072,6 +1072,7 @@ $_lang["user_changeddata"] = 'Your data has been changed. Please log in again.';
 $_lang["user_country"] = 'Land';
 $_lang["user_dob"] = 'Fødselsdato';
 $_lang["user_doesnt_exist"] = 'Bruker finnes ikke';
+$_lang["user_role_invalid"] = 'Den valgte rollen finnes ikke. Velg en annen rolle og lagre på nytt.';
 $_lang["user_edit_self_msg"] = '<b>Etter du har lagret kan det hende du må logge ut og inn  igjen for at dine instillinger skal oppdateres fullstendig</b><br />Om du velger å generere et nytt passord til deg selv, kommer det til å sendes til din epostadresse.';
 $_lang["user_email"] = 'Epostadresse';
 $_lang["user_failedlogincount"] = 'Mislykkede inlogginger';

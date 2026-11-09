@@ -1106,6 +1106,7 @@ $_lang["user_changeddata"] = 'Your data has been changed. Please log in again.';
 $_lang["user_country"] = 'מדינה';
 $_lang["user_dob"] = 'תאריך לידה';
 $_lang["user_doesnt_exist"] = 'המשתמש לא קיים במערכת';
+$_lang["user_role_invalid"] = 'התפקיד שנבחר אינו קיים. בחרו תפקיד אחר ושמרו שוב.';
 $_lang["user_edit_self_msg"] = '<b>You may need to log out and log in again after saving to fully update your information.</b><br />Also, should you choose to generate a new password for yourself, it will be sent to you through e-mail.';
 $_lang["user_email"] = 'כתובת מייל';
 $_lang["user_failedlogincount"] = 'נסיונות התחברות שנכשלו';
