@@ -2,7 +2,7 @@
 if( ! defined('IN_MANAGER_MODE') || IN_MANAGER_MODE !== true) {
     die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the EVO Content Manager instead of accessing this file directly.");
 }
-if (!EvolutionCMS()->hasPermission('save_plugin') && !EvolutionCMS()->hasPermission('save_snippet') && !EvolutionCMS()->hasPermission('save_template') && !EvolutionCMS()->hasPermission('save_module')) {
+if (!EvolutionCMS()->hasPermission('category_manager')) {
     EvolutionCMS()->webAlertAndQuit($_lang["error_no_privileges"]);
 }
 

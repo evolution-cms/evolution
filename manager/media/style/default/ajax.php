@@ -632,6 +632,10 @@ if (isset($action)) {
                         $json['errors'] = $_lang['error_movedocument1'];
                     } elseif ($parent != $parentOld && MoveDocumentTargetGuard::deniedForUser($parent)) {
                         $json['errors'] = $_lang['access_permission_parent_denied'];
+                    } elseif (MoveDocumentTargetGuard::deniedForUser($id)) {
+                        // The moved document must be reachable regardless of tree_show_protected:
+                        // that setting controls tree visibility, not who may move a document.
+                        $json['errors'] = $_lang['access_permission_denied'];
                     } elseif (empty($json['errors'])) {
                         // check privileges user for move docs
                         if (!empty(evo()->config['tree_show_protected']) && $role != 1) {

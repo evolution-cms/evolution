@@ -1321,21 +1321,22 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      */
     protected function runPubStatusSync($timeNow)
     {
-        // documents that need publishing
-        $where = "pub_date <= {$timeNow} AND pub_date != 0 AND published = 0";
-        $resultPub = \EvolutionCMS\Models\SiteContent::select('id')->whereRaw($where)->get();
+        // documents that need publishing; a window whose unpub_date has passed too is over
+        // (the same scopes as Refresh site), so it is not published only to be unpublished
+        $resultPub = \EvolutionCMS\Models\SiteContent::publishDocuments($timeNow)->select('id')->get();
         if ($resultPub->isNotEmpty()) {
-            \EvolutionCMS\Models\SiteContent::whereRaw($where)->update(['published' => 1, 'publishedon' => $timeNow]);
+            \EvolutionCMS\Models\SiteContent::whereIn('id', $resultPub->pluck('id'))
+                ->update(['published' => 1, 'publishedon' => $timeNow]);
             foreach ($resultPub as $rowPub) {
                 $this->invokeEvent('OnDocPublished', ['docid' => $rowPub->id]);
             }
         }
 
         // documents that need un-publishing
-        $where = "unpub_date <= {$timeNow} AND unpub_date != 0 AND published = 1";
-        $resultUnpub = \EvolutionCMS\Models\SiteContent::select('id')->whereRaw($where)->get();
+        $resultUnpub = \EvolutionCMS\Models\SiteContent::unPublishDocuments($timeNow)->select('id')->get();
         if ($resultUnpub->isNotEmpty()) {
-            \EvolutionCMS\Models\SiteContent::whereRaw($where)->update(['published' => 0, 'publishedon' => 0]);
+            \EvolutionCMS\Models\SiteContent::whereIn('id', $resultUnpub->pluck('id'))
+                ->update(['published' => 0, 'publishedon' => 0]);
             foreach ($resultUnpub as $rowUnpub) {
                 // drop only this page's cache instead of wiping the whole site
                 $this->clearCache((string) $rowUnpub->id);
@@ -6946,6 +6947,21 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             'rb_base_dir',
             str_replace('[(base_path)]', EVO_BASE_PATH, $this->getConfig('rb_base_dir'))
         );
+
+        // A per-user filemanager_path may narrow the file manager root to a subfolder of the
+        // site-wide one, but never widen it past that root: the per-user value is attacker-reachable
+        // (it is an ordinary user setting), while the file manager keys its group ACL on the
+        // site-wide root (configGlobal). Drop an override that escapes the system root.
+        if (isset($this->configGlobal['filemanager_path'])) {
+            $systemPath = str_replace('[(base_path)]', EVO_BASE_PATH, (string) $this->configGlobal['filemanager_path']);
+            $allowed = Support\FileManagerAccess::userRootAllowed(
+                realpath($systemPath),
+                realpath((string) $this->getConfig('filemanager_path'))
+            );
+            if (!$allowed) {
+                $this->setConfig('filemanager_path', $systemPath);
+            }
+        }
 
         return $usrSettings;
     }

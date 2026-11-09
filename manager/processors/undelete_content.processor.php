@@ -43,6 +43,13 @@ $children = $document->getAllChildren($document);
 $documentDeleteIds = $children;
 array_unshift($documentDeleteIds, $id);
 
+// The restore cascades to every descendant, so each one must be reachable too, not only $id:
+// a child can be private to a group the manager is not in.
+$denied = \EvolutionCMS\Support\DocumentCascadeGuard::deniedForSession($documentDeleteIds);
+if (!empty($denied)) {
+    EvolutionCMS()->webAlertAndQuit($_lang["access_permission_denied"]);
+}
+
 $site_content_table = (new \EvolutionCMS\Models\SiteContent())->getTable();
 DB::table($site_content_table)
     ->whereIn('id', $documentDeleteIds)

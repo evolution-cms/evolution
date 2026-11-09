@@ -383,7 +383,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                                         $selectedtext = $row['id'] == $userdata['role'] ? "selected='selected'" : '';
                                     }
                                     ?>
-                                    <option value="<?php echo $modx->getPhpCompat()->htmlspecialchars($row['id']); ?>"<?php echo $selectedtext; ?>><?php echo $row['name']; ?></option>
+                                    <option value="<?php echo $modx->getPhpCompat()->htmlspecialchars($row['id']); ?>"<?php echo $selectedtext; ?>><?php echo $modx->getPhpCompat()->htmlspecialchars($row['name']); ?></option>
                                     <?php
                                 }
                                 ?>
@@ -1082,8 +1082,27 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 				<p><?php echo $_lang['access_permissions_user_message'] ?></p>
 				<?php
 				$webgroupnames = \EvolutionCMS\Models\MembergroupName::query()->orderBy('name')->get();
+				// Mirror the save guard (UserGroupGuard): without manage_groups a manager may only
+				// change the groups it belongs to itself, so the rest are shown read-only instead of
+				// as live checkboxes whose edits the server would silently drop.
+				$canManageAllGroups = (bool) $modx->hasPermission('manage_groups');
+				$actorGroups = $canManageAllGroups
+					? []
+					: \EvolutionCMS\Models\MemberGroup::query()
+						->where('member', (int) ($_SESSION['mgrInternalKey'] ?? 0))
+						->pluck('user_group')
+						->map(static function ($group) { return (int) $group; })
+						->all();
+				$hasLockedGroup = false;
 				foreach ($webgroupnames->toArray() as $row) {
-					echo '<label><input type="checkbox" name="user_groups[]" value="' . $row['id'] . '"' . (in_array($row['id'], $groupsarray) ? ' checked="checked"' : '') . ' />' . e((string)$row['name']) . '</label><br />';
+					$canChangeGroup = $canManageAllGroups || in_array((int) $row['id'], $actorGroups, true);
+					if (!$canChangeGroup) {
+						$hasLockedGroup = true;
+					}
+					echo '<label' . ($canChangeGroup ? '' : ' class="text-muted"') . '><input type="checkbox" name="user_groups[]" value="' . $row['id'] . '"' . (in_array($row['id'], $groupsarray) ? ' checked="checked"' : '') . ($canChangeGroup ? '' : ' disabled="disabled"') . ' />' . e((string)$row['name']) . '</label><br />';
+				}
+				if ($hasLockedGroup) {
+					echo '<p class="text-muted"><small>' . e((string) $_lang['access_permissions_user_group_locked']) . '</small></p>';
 				}
 				}
 				?>
