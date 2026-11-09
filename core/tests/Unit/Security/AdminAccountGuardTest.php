@@ -27,6 +27,6 @@ test('the user save and delete controllers apply the guard', function () {
 
     expect($edit)->toContain('AdminAccountGuard::mayManageAccount(')
         // role assignment now uses the stronger RoleGuard subset check, not the role-1-only guard
-        ->and($edit)->toContain('RoleGuard::mayManageRole(')
+        ->and($edit)->toContain('RoleGuard::mayAssignRole(')
         ->and($delete)->toContain('AdminAccountGuard::mayManageAccount(');
 });
