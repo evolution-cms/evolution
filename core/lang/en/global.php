@@ -1229,6 +1229,7 @@ $_lang["user_changeddata"] = 'Your data has been changed. Please log in again.';
 $_lang["user_country"] = 'Country';
 $_lang["user_dob"] = 'Date of birth';
 $_lang["user_doesnt_exist"] = 'User does not exist';
+$_lang["user_role_invalid"] = 'The selected role does not exist. Choose another role and save again.';
 $_lang["user_edit_self_msg"] = '<b>You may need to log out and log in again after saving to fully update your information.</b> New passwords will be sent to your e-mail address or shown onscreen.';
 $_lang["user_email"] = 'E-mail address';
 $_lang["user_failedlogincount"] = 'Failed logins';

@@ -1098,6 +1098,7 @@ $_lang["user_changeddata"] = 'Dina användardata har ändrats. Var snäll och lo
 $_lang["user_country"] = 'Land';
 $_lang["user_dob"] = 'Födelsedatum';
 $_lang["user_doesnt_exist"] = 'Användaren finns inte';
+$_lang["user_role_invalid"] = 'Den valda rollen finns inte. Välj en annan roll och spara igen.';
 $_lang["user_edit_self_msg"] = '<b>Efter att ha sparat kan du behöva logga ut och sedan logga in igen för att dina inställningar ska uppdateras fullständigt.</b> Nya lösenord kommer att skickas till din e-postadress eller visas på skärmen.';
 $_lang["user_email"] = 'E-postadress';
 $_lang["user_failedlogincount"] = 'Misslyckade inloggningar';

@@ -1229,6 +1229,7 @@ $_lang["user_changeddata"] = 'Jūsu dati ir mainīti. Lūdzu, piesakieties vēlr
 $_lang["user_country"] = 'Valsts';
 $_lang["user_dob"] = 'Dzimšanas datums';
 $_lang["user_doesnt_exist"] = 'Lietotājs neeksistē';
+$_lang["user_role_invalid"] = 'Izvēlētā loma neeksistē. Izvēlieties citu lomu un saglabājiet vēlreiz.';
 $_lang["user_edit_self_msg"] = '<b>Pēc saglabāšanas var būt jāizrakstās un jāpiesakās vēlreiz, lai pilnībā atjauninātu jūsu informāciju.</b> Jaunās paroles tiks nosūtītas uz jūsu e-pasta adresi vai parādītas ekrānā.';
 $_lang["user_email"] = 'E-pasta adrese';
 $_lang["user_failedlogincount"] = 'Neveiksmīgas pieteikšanās';
