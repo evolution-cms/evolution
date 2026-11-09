@@ -77,3 +77,95 @@ it('grants security_settings to the administrator role only', function () {
 
     expect($matches[1])->toBe(['1']);
 });
+
+/*
+| save_settings, run for real: sys_files_checksum is derived from check_files_onlogin, so it is
+| computed and stored only for a manager who may edit that list. Without the permission the
+| hidden tab sends neither key, and a crafted request that does changes nothing.
+*/
+
+function saveSettingsRun(string $site, array $permissions, array $post): array
+{
+    $output = evoRunPhp(dirname(__DIR__, 2) . '/Fixtures/save-settings-security.php', [
+        $site, base64_encode(json_encode(['permissions' => $permissions, 'post' => $post])),
+    ]);
+    $decoded = json_decode($output, true);
+    expect($decoded)->toBeArray($output);
+
+    return $decoded;
+}
+
+function saveSettingsChecksum(string $site, array $files): string
+{
+    $sums = [];
+    foreach ($files as $file) {
+        $sums[$site . '/' . $file] = md5_file($site . '/' . $file);
+    }
+
+    return serialize($sums);
+}
+
+beforeEach(function () {
+    $this->site = str_replace('\\', '/', sys_get_temp_dir()) . '/evo-save-settings-' . bin2hex(random_bytes(6));
+    mkdir($this->site . '/manager', 0777, true);
+    file_put_contents($this->site . '/index.php', '<?php // site');
+    file_put_contents($this->site . '/manager/index.php', '<?php // manager');
+});
+
+afterEach(function () {
+    @unlink($this->site . '/manager/index.php');
+    @unlink($this->site . '/index.php');
+    @rmdir($this->site . '/manager');
+    @rmdir($this->site);
+});
+
+it('saves an ordinary form with the Security tab hidden and leaves the security settings alone', function () {
+    $result = saveSettingsRun($this->site, ['settings'], ['site_name' => 'New name']);
+
+    expect($result['notices'])->toBe([])
+        ->and($result['settings']['site_name'])->toBe('New name')
+        ->and($result['settings']['check_files_onlogin'])->toBe('index.php')
+        ->and($result['settings']['sys_files_checksum'])->toBe('stored-checksum')
+        ->and($result['settings']['use_udperms'])->toBe('1');
+});
+
+it('ignores security fields and the checksum in a crafted request without the permission', function () {
+    $result = saveSettingsRun($this->site, ['settings'], [
+        'site_name' => 'New name',
+        'use_udperms' => '0',
+        'allow_eval' => 'everywhere',
+        'check_files_onlogin' => '',
+        'sys_files_checksum' => 'forged',
+    ]);
+
+    expect($result['notices'])->toBe([])
+        ->and($result['settings']['site_name'])->toBe('New name')
+        ->and($result['settings']['use_udperms'])->toBe('1')
+        ->and($result['settings']['allow_eval'])->toBe('with_scan')
+        ->and($result['settings']['check_files_onlogin'])->toBe('index.php')
+        ->and($result['settings']['sys_files_checksum'])->toBe('stored-checksum');
+});
+
+it('saves the security settings and recomputes the checksum for a manager with the permission', function () {
+    $result = saveSettingsRun($this->site, ['settings', 'security_settings'], [
+        'site_name' => 'New name',
+        'use_udperms' => '0',
+        'check_files_onlogin' => "index.php\nmanager/index.php",
+        // the stored checksum is always the one computed from the list
+        'sys_files_checksum' => 'forged',
+    ]);
+
+    expect($result['notices'])->toBe([])
+        ->and($result['settings']['use_udperms'])->toBe('0')
+        ->and($result['settings']['check_files_onlogin'])->toBe("index.php\nmanager/index.php")
+        ->and($result['settings']['sys_files_checksum'])
+        ->toBe(saveSettingsChecksum($this->site, ['index.php', 'manager/index.php']));
+});
+
+it('computes the checksum from the stored list when a permitted save does not carry it', function () {
+    $result = saveSettingsRun($this->site, ['settings', 'security_settings'], ['site_name' => 'New name']);
+
+    expect($result['notices'])->toBe([])
+        ->and($result['settings']['check_files_onlogin'])->toBe('index.php')
+        ->and($result['settings']['sys_files_checksum'])->toBe(saveSettingsChecksum($this->site, ['index.php']));
+});

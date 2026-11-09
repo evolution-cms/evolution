@@ -53,8 +53,16 @@ if (isset($data) && count($data) > 0) {
             $data['lang_code'] = $data['manager_language'];
         }
     }
-    $data['sys_files_checksum'] = $modx->getManagerApi()->getSystemChecksum($data['check_files_onlogin']);
     $mayEditSecurity = $modx->hasPermission('security_settings');
+    if ($mayEditSecurity) {
+        $data['sys_files_checksum'] = $modx->getManagerApi()->getSystemChecksum(
+            (string) ($data['check_files_onlogin'] ?? $modx->getConfig('check_files_onlogin', ''))
+        );
+    } else {
+        // The checksum belongs to check_files_onlogin on the Security tab: without the permission
+        // both stay as stored, whatever the request carries.
+        unset($data['sys_files_checksum']);
+    }
     foreach ($data as $k => $v) {
         if (isset($defaultSettings[$k])) {
             continue;
