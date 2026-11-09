@@ -32,17 +32,19 @@ it('allows a brand new role', function () use ($actor) {
     expect(RoleGuard::mayManageRole(3, $actor, 0, []))->toBeTrue();
 });
 
-it('grants only the permissions the actor holds, plus the baseline', function () use ($actor) {
+it('grants only the permissions the actor holds, baseline ones included', function () use ($actor) {
     $result = RoleGuard::grantablePermissions(
         3,
-        $actor,
+        [...$actor, 'frames'],
         ['edit_document', 'save_plugin', 'settings'],
         ['frames', 'home']
     );
 
-    expect($result)->toEqualCanonicalizing(['edit_document', 'frames', 'home'])
+    // home is always-on, but this actor does not hold it
+    expect($result)->toEqualCanonicalizing(['edit_document', 'frames'])
         ->and($result)->not->toContain('save_plugin')
-        ->and($result)->not->toContain('settings');
+        ->and($result)->not->toContain('settings')
+        ->and($result)->not->toContain('home');
 });
 
 it('lets the administrator grant everything requested', function () {

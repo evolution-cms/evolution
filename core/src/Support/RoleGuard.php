@@ -61,17 +61,26 @@ class RoleGuard
     }
 
     /**
-     * The grants of a role that set its reach, for mayManageRole(): grantsOf() without the obsolete
-     * keys and the always-on permissions, which grantablePermissions() stores on every role any
-     * role manager saves, so holding one is nothing an actor could not confer.
+     * The grants of a role that set its reach, for mayManageRole(): every grant that authorizes at
+     * runtime, always-on permissions included, less only the obsolete keys.
      *
      * @return string[]
      */
     public static function reachOf(int $roleId): array
     {
-        $alwaysOn = Permissions::query()->where('disabled', 1)->pluck('key')->all();
+        return array_values(array_diff(self::grantsOf($roleId), self::OBSOLETE));
+    }
 
-        return array_values(array_diff(self::grantsOf($roleId), self::OBSOLETE, $alwaysOn));
+    /**
+     * May the acting manager give a user $roleId? Assigning needs save_role and a role within the
+     * actor's reach, as EditOrNewUser asks before it changes a user's role.
+     *
+     * @param callable(string): mixed $hasPermission the actor's Core::hasPermission()
+     */
+    public static function mayAssignRole(int $actorRole, callable $hasPermission, int $roleId): bool
+    {
+        return (bool) $hasPermission('save_role')
+            && self::mayManageRole($actorRole, self::heldBy($hasPermission), $roleId, self::reachOf($roleId));
     }
 
     /**
@@ -93,8 +102,9 @@ class RoleGuard
     }
 
     /**
-     * The permission keys a manager may actually store on a role: the requested keys it also holds,
-     * plus the always-on baseline keys. An administrator keeps everything requested.
+     * The permission keys a manager may actually store on a role: the requested and the always-on
+     * keys, each only if the manager holds it. A non-administrator never stores a grant it lacks,
+     * a baseline one included; an administrator keeps everything requested plus the baseline.
      *
      * @param int      $actorRole
      * @param string[] $actorPermissions
@@ -104,10 +114,9 @@ class RoleGuard
      */
     public static function grantablePermissions(int $actorRole, array $actorPermissions, array $requestedKeys, array $requiredKeys): array
     {
-        $allowed = $actorRole === self::ADMIN_ROLE
-            ? $requestedKeys
-            : array_intersect($requestedKeys, $actorPermissions);
+        $keys = array_merge($requestedKeys, $requiredKeys);
+        $allowed = $actorRole === self::ADMIN_ROLE ? $keys : array_intersect($keys, $actorPermissions);
 
-        return array_values(array_unique(array_merge($allowed, $requiredKeys)));
+        return array_values(array_unique($allowed));
     }
 }

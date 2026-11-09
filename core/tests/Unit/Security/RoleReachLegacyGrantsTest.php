@@ -11,14 +11,17 @@ use Tests\Mocks\CacheRefreshHarness;
 | Role reach follows the grants that authorize at runtime
 |--------------------------------------------------------------------------
 |
-| A non-administrator may save, delete or assign only a role whose grants it holds itself. At
-| login the session receives every stored grant of the role, defined by a permissions row or not
-| (a plugin's own key), so both sides are compared by those runtime grants: the actor's through
-| its own hasPermission(), the target's as stored. Two kinds of grant set no reach:
-| - the obsolete keys the earlier default seeders left on every role (role_actionok, action_ok),
-|   which nothing checks; counting them locked default roles away from role managers holding
-|   every real permission of them;
-| - always-on permissions, which a role save stores on every role whoever saves it.
+| A non-administrator may save, delete or assign only a role whose grants it holds itself, and
+| stores on a role only grants it holds. At login the session receives every stored grant of the
+| role, defined by a permissions row or not (a plugin's own key), always-on ones included, so both
+| sides are compared by those runtime grants: the actor's through its own hasPermission(), the
+| target's as stored. Only the obsolete keys the earlier default seeders left on every role
+| (role_actionok, action_ok), which nothing checks, set no reach; counting them locked default
+| roles away from role managers holding every real permission of them.
+|
+| Each operation also needs its own permission: save_role to save or assign, delete_role to delete.
+| The cases run the real role save (updateOrCreate) and delete, and RoleGuard::mayAssignRole(),
+| which EditOrNewUser asks before it changes a user's role.
 |
 */
 
@@ -32,6 +35,24 @@ class RoleReachCoreStub
     public function hasPermission($key): int
     {
         return in_array($key, $this->permissions, true) ? 1 : 0;
+    }
+
+    public function getManagerApi(): object
+    {
+        return new class {
+            public function saveFormValues(): void
+            {
+            }
+
+            public function clearSavedFormValues(): void
+            {
+            }
+        };
+    }
+
+    public function webAlertAndQuit($message, $url = ''): void
+    {
+        throw new RuntimeException('webAlertAndQuit:' . $message);
     }
 }
 
@@ -52,7 +73,7 @@ class RoleReachThemeStub
     }
 }
 
-/** The role manager (role 2): its role holds $grants, which is what its session answers. */
+/** The acting manager (role 2): its role holds $grants, which is what its session answers. */
 function roleReachActor(array $grants): RoleReachCoreStub
 {
     $_SESSION['mgrRole'] = 2;
@@ -74,11 +95,11 @@ function roleReachController(RoleReachCoreStub $actor): UserRoleController
     return $controller;
 }
 
-/** guardRoleReach(), which role save (a=35/36) runs before anything else */
-function roleReachMaySave(RoleReachCoreStub $actor, int $role): bool
+function roleReachRun(callable $request): bool
 {
     try {
-        (new ReflectionMethod(UserRoleController::class, 'guardRoleReach'))->invoke(roleReachController($actor), $role);
+        // header() after a save or delete only warns in the CLI
+        @$request();
 
         return true;
     } catch (RuntimeException $e) {
@@ -86,41 +107,50 @@ function roleReachMaySave(RoleReachCoreStub $actor, int $role): bool
     }
 }
 
-/** The check EditOrNewUser makes before it assigns $role to a user. */
-function roleReachMayAssign(RoleReachCoreStub $actor, int $role): bool
+/** The role form posted for role 3, asking for $keys; true when the save went through. */
+function roleReachSave(RoleReachCoreStub $actor, array $keys): bool
 {
-    return RoleGuard::mayManageRole(2, RoleGuard::heldBy(fn ($key) => $actor->hasPermission($key)), $role, RoleGuard::reachOf($role));
+    $_GET = [];
+    $_REQUEST = ['id' => 3];
+    $_POST = ['a' => '35', 'id' => 3, 'name' => 'Editor (saved)', 'description' => '', 'tvsDirty' => '0',
+        'permissions' => array_fill_keys($keys, 1)];
+    $saved = roleReachRun(fn () => roleReachController($actor)->process());
+    $_POST = [];
+
+    return $saved && Capsule::table('user_roles')->where('id', 3)->value('name') === 'Editor (saved)';
 }
 
-/** The real delete branch; true when the role is gone. */
-function roleReachDelete(RoleReachCoreStub $actor, int $role): bool
+function roleReachDelete(RoleReachCoreStub $actor): bool
 {
-    $_GET['action'] = $_REQUEST['action'] = 'delete';
-    $_GET['id'] = $_REQUEST['id'] = $role;
-    try {
-        // header() after the delete only warns in the CLI
-        @roleReachController($actor)->process();
-    } catch (RuntimeException $e) {
-    }
+    $_GET = ['action' => 'delete', 'id' => 3];
+    $_REQUEST = $_GET;
+    roleReachRun(fn () => roleReachController($actor)->process());
+    $_GET = $_REQUEST = [];
 
-    return !Capsule::table('user_roles')->where('id', $role)->exists();
+    return !Capsule::table('user_roles')->where('id', 3)->exists();
 }
 
-/** @return array{save: bool, assign: bool, delete: bool} delete last: it removes the role */
-function roleReachOutcome(array $actorGrants, int $role = 3): array
+/**
+ * Assign, save (asking for the role's own grants), then delete role 3.
+ *
+ * @return array{assign: bool, save: bool, delete: bool}
+ */
+function roleReachOutcome(array $actorGrants): array
 {
     $actor = roleReachActor($actorGrants);
+    $roleKeys = Capsule::table('role_permissions')->where('role_id', 3)->pluck('permission')->all();
 
     return [
-        'save' => roleReachMaySave($actor, $role),
-        'assign' => roleReachMayAssign($actor, $role),
-        'delete' => roleReachDelete($actor, $role),
+        'assign' => RoleGuard::mayAssignRole(2, fn ($key) => $actor->hasPermission($key), 3),
+        'save' => roleReachSave($actor, $roleKeys),
+        'delete' => roleReachDelete($actor),
     ];
 }
 
-const ROLE_REACH_ALL = ['save' => true, 'assign' => true, 'delete' => true];
-const ROLE_REACH_NONE = ['save' => false, 'assign' => false, 'delete' => false];
-const ROLE_REACH_MANAGER = ['save_role', 'delete_role', 'frames', 'home'];
+/** every real grant of the default Editor role, always-on ones included */
+const ROLE_REACH_EDITOR = ['edit_document', 'save_document', 'frames', 'home', 'error_dialog'];
+const ROLE_REACH_ALL = ['assign' => true, 'save' => true, 'delete' => true];
+const ROLE_REACH_NONE = ['assign' => false, 'save' => false, 'delete' => false];
 
 beforeEach(function () {
     $this->capsule = CacheRefreshHarness::boot(':memory:');
@@ -129,6 +159,7 @@ beforeEach(function () {
         $t->increments('id');
         $t->string('name')->default('');
         $t->text('description')->nullable();
+        $t->timestamps();
     });
     $schema->create('role_permissions', function (Blueprint $t) {
         $t->increments('id');
@@ -154,12 +185,12 @@ beforeEach(function () {
         $this->capsule->table('permissions')->insert(['key' => $key, 'disabled' => $disabled]);
     }
     $this->capsule->table('user_roles')->insert(['id' => 3, 'name' => 'Editor', 'description' => '']);
-    $this->grant = function (array $keys, int $role = 3) {
+    $this->grant = function (array $keys) {
         foreach ($keys as $key) {
-            $this->capsule->table('role_permissions')->insert(['role_id' => $role, 'permission' => $key]);
+            $this->capsule->table('role_permissions')->insert(['role_id' => 3, 'permission' => $key]);
         }
     };
-    ($this->grant)(['edit_document', 'save_document', 'frames', 'home', 'error_dialog']);
+    ($this->grant)(ROLE_REACH_EDITOR);
     // what an install with the earlier default seeders still has
     $this->upgrade = function () {
         $this->capsule->table('permissions')->insert(['key' => 'action_ok', 'disabled' => 1]);
@@ -169,72 +200,77 @@ beforeEach(function () {
 
 afterEach(function () {
     Capsule::connection()->disconnect();
-    foreach (['action', 'id'] as $k) {
-        unset($_GET[$k], $_REQUEST[$k]);
-    }
+    $_GET = $_POST = $_REQUEST = [];
     unset($_SESSION['mgrRole']);
 });
 
-it('lets a role manager holding every real permission of the default role manage it', function (bool $upgraded) {
+it('lets each operation through with its own permission, on a fresh and an upgraded install', function (bool $upgraded, array $rights, array $expected) {
     if ($upgraded) {
         ($this->upgrade)();
     }
 
-    expect(roleReachOutcome([...ROLE_REACH_MANAGER, 'edit_document', 'save_document']))->toBe(ROLE_REACH_ALL);
-})->with(['fresh install' => [false], 'upgraded install' => [true]]);
-
-it('refuses the default role when the actor lacks one of its real permissions', function (bool $upgraded) {
-    if ($upgraded) {
-        ($this->upgrade)();
-    }
-
-    expect(roleReachOutcome([...ROLE_REACH_MANAGER, 'edit_document']))->toBe(ROLE_REACH_NONE)
-        ->and($this->capsule->table('role_permissions')->where('role_id', 3)->count())->toBeGreaterThan(0);
-})->with(['fresh install' => [false], 'upgraded install' => [true]]);
-
-it('counts custom permissions, defined or only granted, as runtime authorizes them', function (string $custom, bool $actorHoldsIt, array $expected) {
-    // shop_orders has a permissions row; shop_refunds is a plugin's key that only a grant carries
-    ($this->upgrade)();
-    ($this->grant)([$custom]);
-    $actor = [...ROLE_REACH_MANAGER, 'edit_document', 'save_document', ...($actorHoldsIt ? [$custom] : [])];
-
-    expect(roleReachOutcome($actor))->toBe($expected);
-})->with([
-    'defined, held by the actor'      => ['shop_orders', true, ROLE_REACH_ALL],
-    'defined, not held by the actor'  => ['shop_orders', false, ROLE_REACH_NONE],
-    'undefined, held by the actor'    => ['shop_refunds', true, ROLE_REACH_ALL],
-    'undefined, not held by the actor' => ['shop_refunds', false, ROLE_REACH_NONE],
+    expect(roleReachOutcome([...$rights, ...ROLE_REACH_EDITOR]))->toBe($expected);
+})->with([false, true])->with([
+    'save_role and delete_role' => [['save_role', 'delete_role'], ROLE_REACH_ALL],
+    'save_role only'            => [['save_role'], ['assign' => true, 'save' => true, 'delete' => false]],
+    'delete_role only'          => [['delete_role'], ['assign' => false, 'save' => false, 'delete' => true]],
+    'neither'                   => [[], ROLE_REACH_NONE],
 ]);
 
-it('refuses a role holding a stronger core permission', function () {
-    ($this->grant)(['settings']);
-
-    expect(roleReachOutcome([...ROLE_REACH_MANAGER, 'edit_document', 'save_document']))->toBe(ROLE_REACH_NONE);
-});
-
-it('ignores only the obsolete keys and the always-on permissions', function () {
+it('refuses every operation on a role whose runtime grants exceed the actor', function (array $rights, array $extra, array $actorExtra) {
     ($this->upgrade)();
-    ($this->grant)(['shop_refunds']);
+    ($this->grant)($extra);
 
-    expect(RoleGuard::grantsOf(3))->toContain('role_actionok', 'action_ok', 'frames', 'shop_refunds')
-        ->and(RoleGuard::reachOf(3))->toEqualCanonicalizing(['edit_document', 'save_document', 'shop_refunds'])
-        ->and(RoleGuard::reachOf(99))->toBe([]);
+    expect(roleReachOutcome([...$rights, ...array_diff(ROLE_REACH_EDITOR, ['home']), ...$actorExtra]))->toBe(ROLE_REACH_NONE)
+        ->and($this->capsule->table('user_roles')->where('id', 3)->value('name'))->toBe('Editor');
+})->with([
+    'save_role and delete_role' => [['save_role', 'delete_role']],
+    'save_role only'            => [['save_role']],
+    'delete_role only'          => [['delete_role']],
+])->with([
+    // the actor's role was saved before home became always-on
+    'an always-on grant'           => [[], []],
+    'a stronger core permission'   => [['settings'], ['home']],
+    'a defined custom permission'  => [['shop_orders'], ['home']],
+    'a custom grant with no row'   => [['shop_refunds'], ['home']],
+]);
+
+it('allows a role carrying custom grants the actor holds', function (string $custom) {
+    ($this->upgrade)();
+    ($this->grant)([$custom]);
+
+    expect(roleReachOutcome(['save_role', 'delete_role', ...ROLE_REACH_EDITOR, $custom]))->toBe(ROLE_REACH_ALL);
+})->with(['shop_orders', 'shop_refunds']);
+
+it('stores on a saved role only grants the actor holds, and drops the obsolete ones', function () {
+    ($this->upgrade)();
+    $actor = roleReachActor(['save_role', 'edit_document', 'save_document', 'frames', 'home', 'error_dialog']);
+
+    expect(roleReachSave($actor, ['edit_document', 'settings', 'shop_refunds']))->toBeTrue()
+        ->and($this->capsule->table('role_permissions')->where('role_id', 3)->pluck('permission')->all())
+        ->toEqualCanonicalizing(['edit_document', 'frames', 'home', 'error_dialog']);
 });
 
 it('keeps the administrator role out of reach', function () {
-    $actor = roleReachActor([...ROLE_REACH_MANAGER, 'edit_document', 'save_document', 'settings']);
+    $actor = roleReachActor(['save_role', 'delete_role', 'settings', ...ROLE_REACH_EDITOR]);
 
-    expect(roleReachMaySave($actor, RoleGuard::ADMIN_ROLE))->toBeFalse()
-        ->and(roleReachMayAssign($actor, RoleGuard::ADMIN_ROLE))->toBeFalse();
+    expect(RoleGuard::mayAssignRole(2, fn ($key) => $actor->hasPermission($key), RoleGuard::ADMIN_ROLE))->toBeFalse();
 });
 
-test('role save, delete and assignment ask the same two helpers', function () {
+it('leaves out of reachOf() only the obsolete keys', function () {
+    ($this->upgrade)();
+    ($this->grant)(['shop_refunds']);
+
+    expect(RoleGuard::reachOf(3))->toEqualCanonicalizing([...ROLE_REACH_EDITOR, 'shop_refunds'])
+        ->and(RoleGuard::reachOf(99))->toBe([]);
+});
+
+test('role save, delete and assignment ask the same helpers', function () {
     $src = dirname(__DIR__, 3) . '/src/Controllers/';
     $role = (string) file_get_contents($src . 'UserRoles/UserRole.php');
     $user = (string) file_get_contents($src . 'Users/EditOrNewUser.php');
 
     expect($role)->toContain('$targetPermissions = RoleGuard::reachOf($id);')
         ->and($role)->toContain('return RoleGuard::heldBy(static fn ($key) => $core->hasPermission($key));')
-        ->and($user)->toContain('$newRolePermissions = \EvolutionCMS\Support\RoleGuard::reachOf($newRole);')
-        ->and($user)->toContain('$actorPermissions = \EvolutionCMS\Support\RoleGuard::heldBy(');
+        ->and($user)->toContain('\EvolutionCMS\Support\RoleGuard::mayAssignRole($actorRole, static fn ($key) => EvolutionCMS()->hasPermission($key), $newRole)');
 });
