@@ -870,6 +870,7 @@ $_lang["role_edit_module"] = 'მოდულის რედაქტირე�
 $_lang["role_edit_plugin"] = 'პლაგინების რედაქტირება';
 $_lang["role_edit_role"] = 'როლების რედაქტირება';
 $_lang["role_edit_settings"] = 'საიტის პარამეტრების შეცვლა';
+$_lang["role_security_settings"] = 'უსაფრთხოების პარამეტრების შეცვლა';
 $_lang["role_edit_snippet"] = 'სნიპეტების რედაქტირება';
 $_lang["role_edit_template"] = 'საიტის შაბლონების რედაქტირება';
 $_lang["role_edit_user"] = 'მომხმარებლების რედაქტირება';

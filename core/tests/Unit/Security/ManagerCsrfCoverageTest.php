@@ -227,6 +227,7 @@ it('guards the page actions that delete when a query parameter is present', func
         'core/src/Controllers/UserRoles/Permission.php' => [[135], 'action', "\$_GET['action'] == 'delete'"],
         'core/src/Controllers/UserRoles/PermissionsGroups.php' => [[136], 'action', "\$_GET['action'] == 'delete'"],
         'core/src/Controllers/SystemInfo.php' => [[53], 'opcache_reset', "request()->boolean('opcache_reset')"],
+        'manager/includes/config_check.inc.php' => [[2], 'b', "\$_REQUEST['b'] == 'resetSysfilesChecksum'"],
         'manager/actions/mutate_module_resources.dynamic.php' => [[113], 'op', "switch (\$_REQUEST['op'])"],
         'manager/actions/category_mgr/inc/request_trigger.inc.php' => [
             [120, 121],

@@ -796,6 +796,7 @@ $_lang["role_edit_module"] = 'ویرایش ماژول';
 $_lang["role_edit_plugin"] = 'ویرایش پلاگین';
 $_lang["role_edit_role"] = 'ئیرایش نقش ها';
 $_lang["role_edit_settings"] = 'اعمال تغییر در تنظیمات وبگاه';
+$_lang["role_security_settings"] = 'اعمال تغییر در تنظیمات امنیتی';
 $_lang["role_edit_snippet"] = 'ویرایش اسنیپتها';
 $_lang["role_edit_template"] = 'ویرایش پوسته یا قالب وبگاه';
 $_lang["role_edit_user"] = 'ویرایش کاربران';

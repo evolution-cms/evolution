@@ -799,6 +799,7 @@ $_lang["role_edit_module"] = 'Upravit modul';
 $_lang["role_edit_plugin"] = 'Upravit pluginy';
 $_lang["role_edit_role"] = 'Upravit oprávnění';
 $_lang["role_edit_settings"] = 'Změnit nastavení stránek';
+$_lang["role_security_settings"] = 'Změnit nastavení zabezpečení';
 $_lang["role_edit_snippet"] = 'Upravit snippety';
 $_lang["role_edit_template"] = 'Upravit šablony stránek';
 $_lang["role_edit_user"] = 'Upravit uživatele';

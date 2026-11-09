@@ -870,6 +870,7 @@ $_lang["role_edit_module"] = 'Rediģēt moduli';
 $_lang["role_edit_plugin"] = 'Rediģēt spraudņus';
 $_lang["role_edit_role"] = 'Rediģēt lomas';
 $_lang["role_edit_settings"] = 'Mainīt vietnes iestatījumus';
+$_lang["role_security_settings"] = 'Mainīt drošības iestatījumus';
 $_lang["role_edit_snippet"] = 'Rediģēt koda fragmentus';
 $_lang["role_edit_template"] = 'Rediģēt vietnes veidnes';
 $_lang["role_edit_user"] = 'Rediģēt lietotājus';

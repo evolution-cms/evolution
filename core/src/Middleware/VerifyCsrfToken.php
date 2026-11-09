@@ -74,6 +74,7 @@ class VerifyCsrfToken
      * edit forms, so only requests carrying the triggering parameter are verified.
      */
     protected const MUTATING_GET_PARAMETERS = [
+        2   => 'b', // dashboard - ?b=resetSysfilesChecksum accepts the checked files as they are
         35  => 'action', // UserRole - ?action=delete removes the role
         36  => 'action', // UserRole
         38  => 'action', // UserRole

@@ -343,6 +343,7 @@ $_lang["role_edit_module"] = 'Modulu redaktə et';
 $_lang["role_edit_plugin"] = 'Plaqin redaktə et';
 $_lang["role_edit_role"] = 'Rol redaktə et';
 $_lang["role_edit_settings"] = 'Sayt ayarlarını dəyiş';
+$_lang["role_security_settings"] = 'Təhlükəsizlik ayarlarını dəyiş';
 $_lang["role_edit_snippet"] = 'Snippet redaktə et';
 $_lang["role_edit_template"] = 'Şablon redaktə et';
 $_lang["role_edit_user"] = 'İstifadəçi redaktə et';

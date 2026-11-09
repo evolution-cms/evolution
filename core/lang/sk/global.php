@@ -866,6 +866,7 @@ $_lang["role_edit_module"] = 'Úprava modulov';
 $_lang["role_edit_plugin"] = 'Úprava pluginov';
 $_lang["role_edit_role"] = 'Úprava rolí';
 $_lang["role_edit_settings"] = 'Zmena konfigurácie webu';
+$_lang["role_security_settings"] = 'Zmena nastavení zabezpečenia';
 $_lang["role_edit_snippet"] = 'Úprava snippetov';
 $_lang["role_edit_template"] = 'Úprava šablón';
 $_lang["role_edit_user"] = 'Úprava používateľov';

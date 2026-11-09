@@ -139,6 +139,7 @@ class UserRolesTableSeeder extends Seeder
             ['permission' => 'delete_eventlog', 'role_id' => 1],
             ['permission' => 'logs', 'role_id' => 1],
             ['permission' => 'settings', 'role_id' => 1],
+            ['permission' => 'security_settings', 'role_id' => 1],
             ['permission' => 'bk_manager', 'role_id' => 1],
             ['permission' => 'remove_locks', 'role_id' => 1],
             ['permission' => 'display_locks', 'role_id' => 1],

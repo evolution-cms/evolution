@@ -870,6 +870,7 @@ $_lang["role_edit_module"] = 'Edit Module';
 $_lang["role_edit_plugin"] = 'Edit Plugins';
 $_lang["role_edit_role"] = 'Edit roles';
 $_lang["role_edit_settings"] = 'Change site settings';
+$_lang["role_security_settings"] = 'Change security settings';
 $_lang["role_edit_snippet"] = 'Edit Snippets';
 $_lang["role_edit_template"] = 'Edit site Templates';
 $_lang["role_edit_user"] = 'Edit users';

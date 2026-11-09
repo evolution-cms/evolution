@@ -796,6 +796,7 @@ $_lang["role_edit_module"] = 'ערוך מודול';
 $_lang["role_edit_plugin"] = 'ערוך התקנים';
 $_lang["role_edit_role"] = 'ערוך תפקיד';
 $_lang["role_edit_settings"] = 'שנה הגדרות אתר';
+$_lang["role_security_settings"] = 'שנה הגדרות אבטחה';
 $_lang["role_edit_snippet"] = 'ערוך קטעי קוד';
 $_lang["role_edit_template"] = 'ערוך תבניות עיצוב';
 $_lang["role_edit_user"] = 'ערוך משתמשים';

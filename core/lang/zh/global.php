@@ -796,6 +796,7 @@ $_lang["role_edit_module"] = '编辑模块';
 $_lang["role_edit_plugin"] = '编辑插件';
 $_lang["role_edit_role"] = '编辑角色';
 $_lang["role_edit_settings"] = '改变站点设置';
+$_lang["role_security_settings"] = '改变安全设置';
 $_lang["role_edit_snippet"] = '编辑切片snippets';
 $_lang["role_edit_template"] = '编辑站点模板';
 $_lang["role_edit_user"] = '编辑用户';

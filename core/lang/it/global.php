@@ -846,6 +846,7 @@ $_lang["role_edit_module"] = 'Modifica Modulo';
 $_lang["role_edit_plugin"] = 'Modifica Plugin';
 $_lang["role_edit_role"] = 'Modifica ruoli';
 $_lang["role_edit_settings"] = 'Cambia le impostazioni del sito';
+$_lang["role_security_settings"] = 'Cambia le impostazioni di sicurezza';
 $_lang["role_edit_snippet"] = 'Modifica Snippet';
 $_lang["role_edit_template"] = 'Modifica Template del sito';
 $_lang["role_edit_user"] = 'Modifica utenti';

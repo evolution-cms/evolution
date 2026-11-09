@@ -14,17 +14,23 @@
 |
 */
 
-function seederSource(string $file): string
+// The install stub seeds a fresh install; the core seeders repair the baseline on every update.
+const GRANT_SEEDER_DIRS = [
+    'core seeders' => 'core/database/seeders',
+    'install stub' => 'install/stubs/seeds/install',
+];
+
+function seederSource(string $file, string $dir = 'core/database/seeders'): string
 {
-    return (string) file_get_contents(dirname(__DIR__, 3) . '/database/seeders/' . $file);
+    return (string) file_get_contents(dirname(__DIR__, 4) . '/' . $dir . '/' . $file);
 }
 
 /** @return string[] */
-function seededPermissionKeys(): array
+function seededPermissionKeys(string $dir = 'core/database/seeders'): array
 {
     preg_match_all(
         "/'key'\\s*=>\\s*'([^']+)'/",
-        seederSource('UserPermissionsTableSeeder.php'),
+        seederSource('UserPermissionsTableSeeder.php', $dir),
         $matches
     );
 
@@ -32,25 +38,25 @@ function seededPermissionKeys(): array
 }
 
 /** @return string[] */
-function grantedPermissionKeys(): array
+function grantedPermissionKeys(string $dir = 'core/database/seeders'): array
 {
     preg_match_all(
         "/'permission'\\s*=>\\s*'([^']+)'/",
-        seederSource('UserRolesTableSeeder.php'),
+        seederSource('UserRolesTableSeeder.php', $dir),
         $matches
     );
 
     return array_values(array_unique($matches[1]));
 }
 
-it('grants only permissions that are actually defined', function () {
-    $undefined = array_diff(grantedPermissionKeys(), seededPermissionKeys());
+it('grants only permissions that are actually defined', function (string $dir) {
+    $undefined = array_diff(grantedPermissionKeys($dir), seededPermissionKeys($dir));
 
     expect($undefined)->toBe([]);
-});
+})->with(GRANT_SEEDER_DIRS);
 
-it('no longer defines or grants the dead action_ok permission', function () {
-    expect(seededPermissionKeys())->not->toContain('action_ok')
-        ->and(grantedPermissionKeys())->not->toContain('role_actionok')
-        ->and(grantedPermissionKeys())->not->toContain('action_ok');
-});
+it('no longer defines or grants the dead action_ok permission', function (string $dir) {
+    expect(seededPermissionKeys($dir))->not->toContain('action_ok')
+        ->and(grantedPermissionKeys($dir))->not->toContain('role_actionok')
+        ->and(grantedPermissionKeys($dir))->not->toContain('action_ok');
+})->with(GRANT_SEEDER_DIRS);
