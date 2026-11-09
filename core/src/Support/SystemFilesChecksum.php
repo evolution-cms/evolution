@@ -17,7 +17,7 @@ final class SystemFilesChecksum
 {
     /**
      * The md5 of every copy of a file the CMS ships, oldest first, since 3.0: releases and the
-     * commits of the 3.5 line. The last entry is the copy of this code; whoever changes the file
+     * commits of the 3.5 and 3.6 lines. The last entry is the copy of this code; whoever changes the file
      * appends its new md5 (SystemFilesChecksumTest says which).
      *
      * @var array<string, string[]>
@@ -45,6 +45,7 @@ final class SystemFilesChecksum
             'e845a31b74e249d433dc36badedfae29', // 3.5.6 - 3.5.7
             '11727c69a7f8c012bccd41524ca57d6d', // 3.5.8
             '73555b5a990998c9aa419a98150ca9f8', // 3.5.9
+            '553c79eefae71611e57072b54a603a67',
         ],
         'manager/index.php' => [
             '3b1215f626722408dd6ffd7a8f16da9a', // 3.0RC
