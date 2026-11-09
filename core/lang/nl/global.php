@@ -848,6 +848,7 @@ $_lang["role_frames"] = 'Verzoek om Content Management Systeem venster';
 $_lang["role_help"] = 'Help Pagina\'s weergeven';
 $_lang["role_home"] = 'Verzoek om Content Management Systeem Intropagina';
 $_lang["role_import_static"] = 'Importeer HTML';
+$_lang["role_in_use_message"] = 'Deze rol is nog toegewezen aan een of meer gebruikers. Wijs deze gebruikers aan een andere rol toe voordat de rol kan worden verwijderd.';
 $_lang["role_widget_recent_info"] = 'Widget Recent gemaakte/bewerkte Pagina\'s weergeven';
 $_lang["role_manage_metatags"] = 'Beheer \'META tags\' en keywords';
 $_lang["role_management_msg"] = 'Hier kunt u kiezen welke Rol u wenst te wijzigen.';

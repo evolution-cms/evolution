@@ -861,6 +861,7 @@ $_lang["role_frames"] = 'Pokaż ramki menedżera';
 $_lang["role_help"] = 'Przeglądanie stron pomocy';
 $_lang["role_home"] = 'Pokaż stronę wprowadzającą menedżera';
 $_lang["role_import_static"] = 'Import HTML';
+$_lang["role_in_use_message"] = 'Ta rola jest nadal przypisana do co najmniej jednego użytkownika. Przed jej usunięciem przypisz tych użytkowników do innej roli.';
 $_lang["role_widget_recent_info"] = 'Wyświetl widżet Ostatnio edytowane dokumenty';
 $_lang["role_manage_metatags"] = 'Zarządzaj META tagami i słowami kluczowymi witryny';
 $_lang["role_management_msg"] = 'Tutaj możesz wybrać, którą rolę chcesz edytować.';

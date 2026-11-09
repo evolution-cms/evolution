@@ -884,6 +884,7 @@ $_lang["role_frames"] = 'Laadi haldusliidese raamid';
 $_lang["role_help"] = 'Vaata abilehti';
 $_lang["role_home"] = 'Laadi haldusliidese avaleht';
 $_lang["role_import_static"] = 'Impordi HTML-i';
+$_lang["role_in_use_message"] = 'See roll on endiselt määratud ühele või mitmele kasutajale. Enne kustutamist määrake need kasutajad teisele rollile.';
 $_lang["role_widget_recent_info"] = 'Vaata vidinat „Hiljuti muudetud või loodud ressursid“';
 $_lang["role_list_module"] = 'Kuva moodulite loend';
 $_lang["role_manage_metatags"] = 'Halda saidi META-silte ja märksõnu';

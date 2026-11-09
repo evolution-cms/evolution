@@ -809,6 +809,7 @@ $_lang["role_frames"] = 'Se administrationssiderne';
 $_lang["role_help"] = 'Se hjælpe siderne';
 $_lang["role_home"] = 'Må se CMS\'ets introduktionsside';
 $_lang["role_import_static"] = 'Importere HTML';
+$_lang["role_in_use_message"] = 'Denne rolle er stadig tildelt en eller flere brugere. Tildel disse brugere en anden rolle, før den kan slettes.';
 $_lang["role_widget_recent_info"] = 'Vis widgetten Seneste redigerede eller oprettede ressourcer';
 $_lang["role_manage_metatags"] = 'Administrere websitets META tags og keywords';
 $_lang["role_management_msg"] = 'Vælg rollen der skal redigeres.';

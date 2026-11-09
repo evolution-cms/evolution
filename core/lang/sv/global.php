@@ -809,6 +809,7 @@ $_lang["role_frames"] = 'Ladda innehållshanteraren';
 $_lang["role_help"] = 'Visa hjälpsidor';
 $_lang["role_home"] = 'Ladda introduktionssidan';
 $_lang["role_import_static"] = 'Importera HTML';
+$_lang["role_in_use_message"] = 'Den här rollen är fortfarande tilldelad en eller flera användare. Tilldela dessa användare en annan roll innan den kan tas bort.';
 $_lang["role_widget_recent_info"] = 'Visa widget Nyligen skapade/redigerade resurser';
 $_lang["role_manage_metatags"] = 'Hantera webbplatsens META-taggar och nyckelord';
 $_lang["role_management_msg"] = 'Skapa en ny roll eller välja en redan befintlig för redigering.';

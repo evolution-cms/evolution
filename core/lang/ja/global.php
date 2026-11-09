@@ -889,6 +889,7 @@ $_lang["role_frames"] = '管理画面へのアクセス(全域)';
 $_lang["role_help"] = 'ヘルプページを表示';
 $_lang["role_home"] = '管理画面ホームへのアクセス';
 $_lang["role_import_static"] = '静的HTMLファイルをインポート';
+$_lang["role_in_use_message"] = 'このロールはまだ 1 人以上のユーザーに割り当てられています。削除する前に、これらのユーザーを別のロールに割り当て直してください。';
 $_lang["role_widget_recent_info"] = 'ウィジェット「最近編集したリソース」を表示';
 $_lang["role_list_module"] = 'モジュール一覧';
 $_lang["role_manage_metatags"] = 'サイト全体METAタグとキーワードの管理';

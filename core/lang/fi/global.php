@@ -808,6 +808,7 @@ $_lang["role_frames"] = 'Näytä ylläpito';
 $_lang["role_help"] = 'Näytä ohjesivut';
 $_lang["role_home"] = 'Näytä aloitussivu';
 $_lang["role_import_static"] = 'Tuo HTML';
+$_lang["role_in_use_message"] = 'Tämä rooli on edelleen määritetty yhdelle tai useammalle käyttäjälle. Määritä nämä käyttäjät toiseen rooliin, ennen kuin se voidaan poistaa.';
 $_lang["role_widget_recent_info"] = 'Näytä widget Viimeisimmät sivut';
 $_lang["role_manage_metatags"] = 'Hallitse sivuston metatietoja ja avainsanoja';
 $_lang["role_management_msg"] = 'Muokkaa rooleja.';

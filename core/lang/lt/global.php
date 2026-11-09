@@ -884,6 +884,7 @@ $_lang["role_frames"] = 'Užklausti administravimo rėmelius';
 $_lang["role_help"] = 'Peržiūrėti žinyno puslapius';
 $_lang["role_home"] = 'Užklausti administravimo pradžios puslapį';
 $_lang["role_import_static"] = 'Importuoti HTML';
+$_lang["role_in_use_message"] = 'Šis vaidmuo vis dar priskirtas vienam ar keliems naudotojams. Prieš ištrindami priskirkite tuos naudotojus kitam vaidmeniui.';
 $_lang["role_widget_recent_info"] = 'Peržiūrėti neseniai redaguotų / sukurtų išteklių valdiklį';
 $_lang["role_list_module"] = 'Rodyti modulį sąraše';
 $_lang["role_manage_metatags"] = 'Tvarkyti svetainės META žymas ir reikšminius žodžius';

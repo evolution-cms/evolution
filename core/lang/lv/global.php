@@ -884,6 +884,7 @@ $_lang["role_frames"] = 'Pieprasīt pārvaldības paneļa ietvarus';
 $_lang["role_help"] = 'Skatīt palīdzības lapas';
 $_lang["role_home"] = 'Pieprasīt pārvaldības paneļa sākumlapu';
 $_lang["role_import_static"] = 'Importēt HTML';
+$_lang["role_in_use_message"] = 'Šī loma joprojām ir piešķirta vienam vai vairākiem lietotājiem. Pirms tās dzēšanas piešķiriet šos lietotājus citai lomai.';
 $_lang["role_widget_recent_info"] = 'Skatīt nesen rediģēto/izveidoto resursu logrīku';
 $_lang["role_list_module"] = 'Rādīt moduli sarakstā';
 $_lang["role_manage_metatags"] = 'Pārvaldīt vietnes META tagus un atslēgvārdus';

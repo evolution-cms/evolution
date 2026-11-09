@@ -812,6 +812,7 @@ $_lang["role_frames"] = 'Použít rámy správce';
 $_lang["role_help"] = 'Zobrazit pomocníka';
 $_lang["role_home"] = 'Použít správce úvodní stránky';
 $_lang["role_import_static"] = 'Importovat HTML';
+$_lang["role_in_use_message"] = 'Tato role je stále přiřazena jednomu nebo více uživatelům. Než ji bude možné smazat, přiřaďte tyto uživatele k jiné roli.';
 $_lang["role_widget_recent_info"] = 'Zobrazit widget Naposledy vytvořené nebo upravené dokumenty';
 $_lang["role_manage_metatags"] = 'Upravit META tagy a klíčové slova celého webu';
 $_lang["role_management_msg"] = 'Zde můžete zvolit oprávnění, které chcete upravit.';

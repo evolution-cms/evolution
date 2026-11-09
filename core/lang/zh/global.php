@@ -809,6 +809,7 @@ $_lang["role_frames"] = '管理请求框架';
 $_lang["role_help"] = '查看帮助文件';
 $_lang["role_home"] = '管理主页面';
 $_lang["role_import_static"] = 'Import HTML';
+$_lang["role_in_use_message"] = '此角色仍分配给一个或多个用户。删除前请先将这些用户重新分配到其他角色。';
 $_lang["role_widget_recent_info"] = '查看“Recently edited/created Resources”小部件';
 $_lang["role_manage_metatags"] = '管理站点的META标签和关键词';
 $_lang["role_management_msg"] = '在这里你可以选择一需要编辑的角色。';

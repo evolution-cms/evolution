@@ -884,6 +884,7 @@ $_lang["role_frames"] = 'Dolandyryş freýmlerini soramak';
 $_lang["role_help"] = 'Kömek sahypalaryny görmek';
 $_lang["role_home"] = 'Dolandyryşyň giriş sahypasyny soramak';
 $_lang["role_import_static"] = 'HTML import etmek';
+$_lang["role_in_use_message"] = 'Bu rol entek bir ýa-da birnäçe ulanyja bellenen. Ony pozmazdan ozal şol ulanyjylary başga rola belläň.';
 $_lang["role_widget_recent_info"] = 'Ýakynda redaktirlenen/döredilen resurslar widjetini görmek';
 $_lang["role_list_module"] = 'Moduly sanawda görkezmek';
 $_lang["role_manage_metatags"] = 'Saýtyň META teglerini we açar sözlerini dolandyrmak';

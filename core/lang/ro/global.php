@@ -884,6 +884,7 @@ $_lang["role_frames"] = 'Solicitarea cadrelor interfeței de administrare';
 $_lang["role_help"] = 'Vizualizarea paginilor de ajutor';
 $_lang["role_home"] = 'Solicitarea paginii de întâmpinare a interfeței de administrare';
 $_lang["role_import_static"] = 'Importarea HTML-ului';
+$_lang["role_in_use_message"] = 'Acest rol este încă atribuit unuia sau mai multor utilizatori. Reatribuiți acești utilizatori unui alt rol înainte de a-l putea șterge.';
 $_lang["role_widget_recent_info"] = 'Vizualizarea widgetului Resurse editate/create recent';
 $_lang["role_list_module"] = 'Listarea modulului';
 $_lang["role_manage_metatags"] = 'Gestionarea etichetelor META și a cuvintelor-cheie ale site-ului';
