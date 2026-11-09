@@ -54,17 +54,32 @@ if (isset($data) && count($data) > 0) {
         }
     }
     $mayEditSecurity = $modx->hasPermission('security_settings');
+    foreach (array_keys($data) as $k) {
+        if (strcasecmp((string) $k, 'sys_files_checksum') === 0) {
+            unset($data[$k]);
+        }
+    }
+    // Stored rows, factory defaults (merged into the config), the gated and the derived names:
+    // each is stored under its own spelling only, even before a row exists.
+    $knownSettingNames = array_merge(
+        \EvolutionCMS\Models\SystemSetting::query()->pluck('setting_name')->all(),
+        array_map('strval', array_keys($modx->config)),
+        \EvolutionCMS\Support\SecuritySettings::GATED,
+        ['sys_files_checksum']
+    );
     if ($mayEditSecurity) {
         $data['sys_files_checksum'] = $modx->getManagerApi()->getSystemChecksum(
             (string) ($data['check_files_onlogin'] ?? $modx->getConfig('check_files_onlogin', ''))
         );
-    } else {
-        // The checksum belongs to check_files_onlogin on the Security tab: without the permission
-        // both stay as stored, whatever the request carries.
-        unset($data['sys_files_checksum']);
     }
+    // Without the permission check_files_onlogin (gated below) and its checksum stay as stored,
+    // whatever the request carries.
     foreach ($data as $k => $v) {
         if (isset($defaultSettings[$k])) {
+            continue;
+        }
+
+        if (!\EvolutionCMS\Support\SystemSettingName::storable((string) $k, $knownSettingNames)) {
             continue;
         }
 

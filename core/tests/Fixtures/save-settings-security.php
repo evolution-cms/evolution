@@ -2,10 +2,13 @@
 
 /**
  * Runs manager/processors/save_settings.processor.php in a clean process for a manager with the
- * given permissions, against a throwaway site and a SQLite system_settings table.
+ * given permissions, against a throwaway site and a system_settings table that matches names
+ * case-insensitively: SQLite with NOCASE, or MySQL/MariaDB with the given collation.
  *
- * argv: site root, base64 JSON {permissions: string[], post: array}
- * Prints JSON: {settings: stored name => value, notices: PHP warnings/notices raised}
+ * argv: site root, base64 JSON {permissions: string[], post: array, mysql?: {host, port, database,
+ *       username, password, collation}}
+ * Prints JSON: {settings: stored name => value, notices: PHP warnings/notices raised,
+ *               folds: [spelling => whether a WHERE on it finds the use_udperms row]}
  */
 
 [, $site, $payload] = $argv;
@@ -22,17 +25,42 @@ define('EVO_API_MODE', false);
 require dirname(__DIR__, 2) . '/vendor/autoload.php';
 
 $capsule = new Illuminate\Database\Capsule\Manager();
-$capsule->addConnection(['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => '']);
+$mysql = $options['mysql'] ?? null;
+if (is_array($mysql)) {
+    $collation = (string) $mysql['collation'];
+    if (!preg_match('/^utf8mb4_[a-z0-9_]+$/', $collation)) {
+        exit('bad collation');
+    }
+    $capsule->addConnection([
+        'driver' => 'mysql', 'host' => $mysql['host'], 'port' => $mysql['port'], 'database' => $mysql['database'],
+        'username' => $mysql['username'], 'password' => $mysql['password'],
+        'charset' => 'utf8mb4', 'collation' => $collation, 'prefix' => '',
+    ]);
+} else {
+    $capsule->addConnection(['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => '']);
+}
 $capsule->setAsGlobal();
 $capsule->bootEloquent();
-$capsule->getConnection()->statement('CREATE TABLE system_settings (setting_name TEXT PRIMARY KEY, setting_value TEXT)');
-$capsule->getConnection()->table('system_settings')->insert([
+$db = $capsule->getConnection();
+if (is_array($mysql)) {
+    // the column as the schema migration creates it
+    $db->statement('DROP TABLE IF EXISTS system_settings');
+    $db->statement("CREATE TABLE system_settings (setting_name VARCHAR(50) NOT NULL DEFAULT '' PRIMARY KEY, setting_value TEXT) DEFAULT CHARSET=utf8mb4 COLLATE={$collation}");
+} else {
+    $db->statement('CREATE TABLE system_settings (setting_name TEXT COLLATE NOCASE PRIMARY KEY, setting_value TEXT)');
+}
+$db->table('system_settings')->insert([
     ['setting_name' => 'site_name', 'setting_value' => 'Old name'],
     ['setting_name' => 'use_udperms', 'setting_value' => '1'],
     ['setting_name' => 'allow_eval', 'setting_value' => 'with_scan'],
     ['setting_name' => 'check_files_onlogin', 'setting_value' => "index.php"],
     ['setting_name' => 'sys_files_checksum', 'setting_value' => 'stored-checksum'],
+    ['setting_name' => 'jpegQuality', 'setting_value' => '85'],
 ]);
+$folds = [];
+foreach (['USE_UDPERMS', 'use_udpérms', 'use_udperms '] as $spelling) {
+    $folds[$spelling] = $db->table('system_settings')->where('setting_name', $spelling)->exists();
+}
 
 final class SaveSettingsStubEvo
 {
@@ -41,7 +69,9 @@ final class SaveSettingsStubEvo
     public function __construct(private array $permissions)
     {
         $this->config = Illuminate\Database\Capsule\Manager::table('system_settings')
-            ->pluck('setting_value', 'setting_name')->all() + ['manager_theme' => 'default'];
+            ->pluck('setting_value', 'setting_name')->all()
+            // factory defaults the Core merges in under the stored values
+            + ['manager_theme' => 'default', 'settings_version' => '0'];
     }
 
     public function hasPermission($key)
@@ -105,6 +135,7 @@ $_POST = $options['post'] + [
 include dirname(__DIR__, 3) . '/manager/processors/save_settings.processor.php';
 
 echo json_encode([
-    'settings' => Illuminate\Database\Capsule\Manager::table('system_settings')->pluck('setting_value', 'setting_name')->all(),
+    'settings' => $db->table('system_settings')->pluck('setting_value', 'setting_name')->all(),
     'notices' => $notices,
+    'folds' => $folds,
 ]);

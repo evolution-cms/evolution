@@ -41,10 +41,11 @@ final class SecuritySettings
     ];
 
     /**
-     * Whether $key is a security setting that needs the `security_settings` permission.
+     * Whether $key is a security setting that needs the `security_settings` permission. Letter
+     * case does not count: the database matches setting names case-insensitively.
      */
     public static function isGated(string $key): bool
     {
-        return in_array($key, self::GATED, true);
+        return in_array(strtolower($key), self::GATED, true);
     }
 }
