@@ -17,6 +17,18 @@ if($_SESSION['mgrRole'] == 1) {
 
 // NOW CHECK CONFIG
 $warnings = [];
+// An update replaces index.php and manager/index.php with this release's copies: record them
+// rather than report them as modified.
+$adoptedSysfilesChecksum = \EvolutionCMS\Support\SystemFilesChecksum::adopt(
+    (string) EvolutionCMS()->getConfig('check_files_onlogin', ''),
+    (string) EvolutionCMS()->getConfig('sys_files_checksum', ''),
+    EVO_BASE_PATH
+);
+if ($adoptedSysfilesChecksum !== null) {
+    EvolutionCMS()->getManagerApi()->setSystemChecksum($adoptedSysfilesChecksum);
+    EvolutionCMS()->config['sys_files_checksum'] = $adoptedSysfilesChecksum;
+    EvolutionCMS()->clearCache('full');
+}
 $sysfiles_check = EvolutionCMS()->getManagerApi()->checkSystemChecksum();
 if ($sysfiles_check!=='0') {
     $warnings[] = [$_lang['configcheck_sysfiles_mod']];
@@ -187,7 +199,7 @@ if (!empty($warnings)) {
                 $warnings[$i][1] = $_lang["configcheck_sysfiles_mod_msg"];
                 $warnings[$i][2] = '<ul><li>'. implode('</li><li>', $sysfiles_check) .'</li></ul>';
                 if(EvolutionCMS()->hasPermission('settings')) {
-                    $warnings[$i][2] .= '<ul class="actionButtons" style="float:right"><li><a href="index.php?a=2&b=resetSysfilesChecksum" onclick="return confirm(\'' . $_lang["reset_sysfiles_checksum_alert"] . '\')">' . $_lang["reset_sysfiles_checksum_button"] . '</a></li></ul>';
+                    $warnings[$i][2] .= '<ul class="actionButtons" style="float:right"><li><a href="index.php?a=2&b=resetSysfilesChecksum&_token=' . csrf_token() . '" onclick="return confirm(\'' . $_lang["reset_sysfiles_checksum_alert"] . '\')">' . $_lang["reset_sysfiles_checksum_button"] . '</a></li></ul>';
                 }
                 if(empty($_SESSION["mgrConfigCheck"])) EvolutionCMS()->logEvent(0,3,$warnings[$i][1]." ".implode(', ',$sysfiles_check),$_lang['configcheck_sysfiles_mod']);
                 break;

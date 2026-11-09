@@ -2135,6 +2135,7 @@ class ComposerStaticInit925fea465a58fa69f06ccf2629003e87
         'EvolutionCMS\\Support\\SecuritySettings' => __DIR__ . '/../..' . '/src/Support/SecuritySettings.php',
         'EvolutionCMS\\Support\\SiteTimezone' => __DIR__ . '/../..' . '/src/Support/SiteTimezone.php',
         'EvolutionCMS\\Support\\SqliteDumper' => __DIR__ . '/../..' . '/src/Support/SqliteDumper.php',
+        'EvolutionCMS\\Support\\SystemFilesChecksum' => __DIR__ . '/../..' . '/src/Support/SystemFilesChecksum.php',
         'EvolutionCMS\\Support\\SystemSettingName' => __DIR__ . '/../..' . '/src/Support/SystemSettingName.php',
         'EvolutionCMS\\Support\\SystemSettingPathNormalizer' => __DIR__ . '/../..' . '/src/Support/SystemSettingPathNormalizer.php',
         'EvolutionCMS\\Support\\TemplateFileEngines' => __DIR__ . '/../..' . '/src/Support/TemplateFileEngines.php',

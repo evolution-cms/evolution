@@ -1468,6 +1468,7 @@ return array(
     'EvolutionCMS\\Support\\SecuritySettings' => $baseDir . '/src/Support/SecuritySettings.php',
     'EvolutionCMS\\Support\\SiteTimezone' => $baseDir . '/src/Support/SiteTimezone.php',
     'EvolutionCMS\\Support\\SqliteDumper' => $baseDir . '/src/Support/SqliteDumper.php',
+    'EvolutionCMS\\Support\\SystemFilesChecksum' => $baseDir . '/src/Support/SystemFilesChecksum.php',
     'EvolutionCMS\\Support\\SystemSettingName' => $baseDir . '/src/Support/SystemSettingName.php',
     'EvolutionCMS\\Support\\SystemSettingPathNormalizer' => $baseDir . '/src/Support/SystemSettingPathNormalizer.php',
     'EvolutionCMS\\Support\\TemplateFileEngines' => $baseDir . '/src/Support/TemplateFileEngines.php',
