@@ -32,7 +32,7 @@ class RefreshSite extends AbstractController implements ManagerTheme\PageControl
      */
     public function canView(): bool
     {
-        return true;
+        return $this->managerTheme->getCore()->hasPermission('empty_cache') === 1;
     }
 
     /**

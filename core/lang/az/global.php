@@ -515,6 +515,7 @@ $_lang["access_permissions_resources_tab"] = 'Mövcud resurs qruplarını görü
 $_lang["access_permissions_user_toggle"] = 'Giriş icazələrini dəyiş';
 $_lang["access_permissions_user_groups"] = 'İstifadəçi qrupları';
 $_lang["access_permissions_user_message"] = 'Bu istifadəçinin aid olduğu istifadəçi qruplarını seçin:';
+$_lang["access_permissions_user_group_locked"] = 'Boz rəngdə göstərilən qruplar sizin üzvü olmadığınız qruplardır. Onları yalnız administrator və ya "Sənəd və istifadəçi qruplarını idarə et" icazəsinə malik menecer dəyişə bilər, ona görə burada yalnız oxumaq üçündür.';
 $_lang["access_permissions_users_in_group"] = 'Qrupdakı istifadəçilər:';
 $_lang["access_permissions_users_tab"] = 'Mövcud istifadəçi qruplarını görün. Yeni qruplar yaradın, adlarını dəyişin, qrupları silin və hansı istifadəçilərin hansı qruplara aid olduğunu görün. İstifadəçini qrupa əlavə etmək və ya çıxarmaq üçün onu birbaşa redaktə edin. Administratorlar (ID-si 1 olan rol təyin edilmiş istifadəçilər) bütün resurslara avtomatik giriş əldə edirlər və onlara xüsusi qruplar təyin etməyə ehtiyac yoxdur.';
 

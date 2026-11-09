@@ -41,6 +41,7 @@ $_lang["access_permissions_resources_in_group"] = '<b>Pagina\'s in deze groep:</
 $_lang["access_permissions_resources_tab"] = 'Bekijk hier de Paginagroepen. U kunt ook nieuwe groepen maken, bestaande bewerken of verwijderen of nagaan welke Pagina deel uitmaakt van een groep. Door met de muis over de ID van de Pagina te bewegen, ziet u de naam ervan. Door de Pagina te bewerken kunt u de groepsrechten wijzigen.';
 $_lang["access_permissions_user_groups"] = 'Gebruikersgroepen';
 $_lang["access_permissions_user_message"] = 'Geef aan tot welke groepen deze Gebruiker behoort:';
+$_lang["access_permissions_user_group_locked"] = 'Grijs weergegeven groepen vallen buiten uw eigen lidmaatschap. Alleen een beheerder of een manager met de rechten "Document- en gebruikersgroepen beheren" kan ze wijzigen, dus ze zijn hier alleen-lezen.';
 $_lang["access_permissions_users_in_group"] = 'Gebruikers in deze groep:';
 $_lang["access_permissions_users_tab"] = 'Bekijk de Gebruikersgroepen. U kunt ook nieuwe groepen maken, bestaande bewerken of verwijderen, of nagaan wie deel uitmaakt van een groep. Om een Gebruiker uit een groep te halen of aan een groep toe te wijzen, wijzigt u de gegevens van de Gebruiker. Beheerders (dit zijn Gebruikers met profiel ID 1) hebben altijd toegang tot alle Pagina\'s dus hoeft u hen niet toe te voegen aan een groep.';
 $_lang["account_email"] = 'E-mail account';

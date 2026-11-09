@@ -45,6 +45,13 @@ EvolutionCMS()->invokeEvent("OnBeforeDocFormDelete",
 $documentDeleteIds = $children;
 array_unshift($documentDeleteIds, $id);
 
+// The delete cascades to every descendant, so each one must be reachable too, not only $id:
+// a child can be private to a group the manager is not in.
+$denied = \EvolutionCMS\Support\DocumentCascadeGuard::deniedForSession($documentDeleteIds);
+if (!empty($denied)) {
+    EvolutionCMS()->webAlertAndQuit($_lang["access_permission_denied"]);
+}
+
 foreach ($documentDeleteIds as $deleteId) {
     if (EvolutionCMS()->getConfig('site_start') == $deleteId) {
         EvolutionCMS()->webAlertAndQuit("Document is 'Site start' and cannot be deleted!");

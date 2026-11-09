@@ -41,6 +41,7 @@ $_lang["access_permissions_resources_in_group"] = '<b>Topardaky resurslar:</b> '
 $_lang["access_permissions_resources_tab"] = 'Döredilen resurs toparlaryny görüň, täze topar dörediň, adyny üýtgediň ýa-da pozuň. Resursyň adyny görmek üçin onuň ID-siniň üstüne syçanjygy eltiň. Resursy topara goşmak ýa-da aýyrmak üçin resursyň özüni redaktirläň.';
 $_lang["access_permissions_user_groups"] = 'Ulanyjy toparlary';
 $_lang["access_permissions_user_message"] = 'Bu ulanyjynyň degişli toparlaryny saýlaň:';
+$_lang["access_permissions_user_group_locked"] = 'Çal reňkde görkezilen toparlar siziň agzalygyňyzdan daşarda. Olary diňe administrator ýa-da "Resminama we ulanyjy toparlaryny dolandyrmak" rugsady bolan menejer üýtgedip biler, şonuň üçin bu ýerde olar diňe okamak üçindir.';
 $_lang["access_permissions_users_in_group"] = 'Topardaky ulanyjylar:';
 $_lang["access_permissions_users_tab"] = 'Döredilen ulanyjy toparlaryny we olaryň agzalaryny görüň. Toparlary döredip, atlaryny üýtgedip we pozup bilersiňiz. Ulanyjyny goşmak ýa-da aýyrmak üçin ulanyjynyň özüni redaktirläň. ID-si 1 bolan roldaky dolandyryjylar ähli resurslara girip bilýärler, olary toparlara goşmak gerek däl.';
 $_lang["account_email"] = 'Hasabyň e-poçtasy';

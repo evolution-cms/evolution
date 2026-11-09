@@ -178,6 +178,11 @@ under one policy. Do not add a restore path that skips it:
   prefixes `custom/` to path repositories and to `extra.merge-plugin.include` / `require`, a list or a
   single path) and removed again before `moveFiles()`, which
   would otherwise lay it over the site's own.
+- `make:site` scopes Composer authentication through `ComposerEnvironment`: keep the normal
+  Composer home (explicit, user/XDG or Windows), with `core/composer` only as the no-home fallback.
+  Its legacy auth file supplies fallback credentials; normal global config/auth, `core/auth.json`,
+  then `COMPOSER_AUTH` take precedence. Preflight and restore inherit the same environment;
+  never copy credentials into the archive or shell arguments, and restore the caller's environment.
 - The merge plugin runs with `"replace": true`: a custom constraint replaces the core's own, so a
   custom requirement on a core package is checked against the lock like any other (`pins()`).
 - A restore that fails leaves the installers' update incomplete: the CLI exits with 1 and keeps `install/`,
