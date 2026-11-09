@@ -41,6 +41,7 @@ $_lang["access_permissions_resources_in_group"] = '<b>Ressursid rühmas:</b> ';
 $_lang["access_permissions_resources_tab"] = 'Vaadake loodud ressursirühmi. Saate ka luua uusi rühmi, neid ümber nimetada ja kustutada ning vaadata eri rühmadesse kuuluvaid ressursse (nime nägemiseks liikuge kursoriga ressursi ID-le). Ressursi lisamiseks rühma või sealt eemaldamiseks muutke ressurssi otse.';
 $_lang["access_permissions_user_groups"] = 'Kasutajarühmad';
 $_lang["access_permissions_user_message"] = 'Valige kasutajarühmad, kuhu see kasutaja kuulub:';
+$_lang["access_permissions_user_group_locked"] = 'Hallina kuvatud rühmad on väljaspool teie enda liikmesust. Neid saab muuta ainult administraator või haldur, kellel on õigus "Halda dokumendi- ja kasutajarühmi", seega on need siin ainult lugemiseks.';
 $_lang["access_permissions_users_in_group"] = 'Kasutajad rühmas:';
 $_lang["access_permissions_users_tab"] = 'Vaadake loodud kasutajarühmi. Saate ka luua uusi rühmi, neid ümber nimetada ja kustutada ning vaadata eri rühmadesse kuuluvaid kasutajaid. Kasutaja lisamiseks rühma või sealt eemaldamiseks muutke kasutajat otse. Administraatoritel (kasutajatel, kellele on määratud roll ID-ga 1) on alati juurdepääs kõigile ressurssidele, seega ei pea neid ühegi rühmaga liitma.';
 $_lang["account_email"] = 'Konto e-posti aadress';

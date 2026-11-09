@@ -4,6 +4,7 @@ use EvolutionCMS\Models\Category;
 use EvolutionCMS\Models\SiteModule;
 use EvolutionCMS\Models\SiteModuleRole;
 use EvolutionCMS\Models\SystemSetting;
+use EvolutionCMS\Services\ComposerEnvironment;
 use EvolutionCMS\Services\ComposerVersionSynchronizer;
 use EvolutionCMS\Services\CustomComposerPackages;
 use EvolutionCMS\Services\Store\RemoteTransportService;
@@ -12,6 +13,8 @@ use EvolutionCMS\Traits\RunsComposerShell;
 use Illuminate\Console\Command;
 
 /**
+ * Check and apply a core update while preserving the site's packages and Composer credentials.
+ *
  * @see: https://github.com/laravel-zero/foundation/blob/9.x/src/Illuminate/Foundation/Console/ClearCompiledCommand.php
  */
 class SiteUpdateCommand extends Command
@@ -185,6 +188,25 @@ EXAMPLES;
      */
     public function startUpdate()
     {
+        // An installed archive can still have an authoritative classmap from before this helper existed.
+        if (!class_exists(ComposerEnvironment::class)) {
+            require_once dirname(__DIR__) . '/Services/ComposerEnvironment.php';
+        }
+
+        return (new ComposerEnvironment(EVO_CORE_PATH))->run(fn () => $this->applyUpdate());
+    }
+
+    /**
+     * Download and apply the update inside the installed site's Composer environment.
+     *
+     * Called by startUpdate() so the archive preflight and the later dependency restore
+     * inherit identical authentication, with the caller's environment restored afterwards.
+     *
+     * @return bool False when the update was refused before files were replaced.
+     * @since 3.6.0
+     */
+    protected function applyUpdate()
+    {
         $evo = evo();
         $currentVersion = $evo->getVersionData();
         $currentVersion = is_array($currentVersion) ? $currentVersion : [];
@@ -259,7 +281,6 @@ EXAMPLES;
                 return false;
             }
 
-            putenv('COMPOSER_HOME=' . EVO_CORE_PATH . 'composer');
             $customPackageUpdate = $this->preflightComposer(
                 $temp_dir . '/' . $dir . '/core',
                 $customPackageNames,

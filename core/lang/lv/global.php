@@ -41,6 +41,7 @@ $_lang["access_permissions_resources_in_group"] = '<b>Resursi grupā:</b> ';
 $_lang["access_permissions_resources_tab"] = 'Apskatiet izveidotās resursu grupas. Varat arī veidot jaunas grupas, pārdēvēt un dzēst tās, kā arī apskatīt dažādu grupu resursus (novietojiet kursoru virs resursa ID, lai redzētu tā nosaukumu). Lai pievienotu resursu grupai vai izņemtu to no grupas, rediģējiet pašu resursu.';
 $_lang["access_permissions_user_groups"] = 'Lietotāju grupas';
 $_lang["access_permissions_user_message"] = 'Izvēlieties lietotāju grupas, kurām šis lietotājs pieder:';
+$_lang["access_permissions_user_group_locked"] = 'Pelēkā krāsā parādītās grupas ir ārpus jūsu dalības. Tās var mainīt tikai administrators vai vadītājs ar atļauju "Pārvaldīt dokumentu un lietotāju grupas", tāpēc šeit tās ir tikai lasāmas.';
 $_lang["access_permissions_users_in_group"] = 'Lietotāji grupā:';
 $_lang["access_permissions_users_tab"] = 'Apskatiet izveidotās lietotāju grupas. Varat arī veidot jaunas grupas, pārdēvēt un dzēst tās, kā arī apskatīt dažādu grupu dalībniekus. Lai pievienotu lietotāju grupai vai izņemtu to no grupas, rediģējiet pašu lietotāju. Administratoriem (lietotājiem, kuriem piešķirta loma ar ID 1) vienmēr ir piekļuve visiem resursiem, tāpēc tie nav jāpievieno nevienai grupai.';
 $_lang["account_email"] = 'Konta e-pasta adrese';

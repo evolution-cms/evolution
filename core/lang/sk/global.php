@@ -42,6 +42,7 @@ $_lang["access_permissions_resources_in_group"] = '<b>Zdroje v skupine:</b> ';
 $_lang["access_permissions_resources_tab"] = 'Tu môžete vidieť všetky skupiny zdrojov. Tiež tu môžete vytvoriť, premenovať, odstrániť skupinu a zobraziť zdroje v skupine. Ak chcete pridať alebo odstrániť zdroj zo skupiny, upravte priamo daný zdroj.';
 $_lang["access_permissions_user_groups"] = 'Skupiny používateľov';
 $_lang["access_permissions_user_message"] = 'Tu môžete vybrať, do ktorej skupiny používateľov tento používateľ patrí:';
+$_lang["access_permissions_user_group_locked"] = 'Skupiny zobrazené sivou farbou sú mimo vášho členstva. Zmeniť ich môže iba administrátor alebo správca s oprávnením "Správa skupín dokumentov a používateľov", preto sú tu len na čítanie.';
 $_lang["access_permissions_users_in_group"] = 'Používatelia v skupine:';
 $_lang["access_permissions_users_tab"] = 'Tu môžete vidieť všetky skupiny používateľov. Tiež tu môžete vytvoriť, premenovať, odstrániť skupinu a zobraziť členov skupiny. Ak chcete pridať alebo odstrániť používateľa zo skupiny, upravte priamo daného používateľa. Manažéri majú vždy prístup ku všetkým zdrojom.';
 $_lang["account_email"] = 'E-mail účtu';

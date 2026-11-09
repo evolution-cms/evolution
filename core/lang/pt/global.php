@@ -41,6 +41,7 @@ $_lang["access_permissions_resources_in_group"] = '<b>Documentos no grupo:</b> '
 $_lang["access_permissions_resources_tab"] = 'Aqui pode ver que grupos de documentos estão definidos. Pode criar novos grupos, alterar o nome dos grupos, apagar grupos e ver que documentos pertencem aos diferentes grupos. Para adicionar ou remover um documento de um grupo, edite-o directamente.';
 $_lang["access_permissions_user_groups"] = 'Grupos de utilizadores';
 $_lang["access_permissions_user_message"] = 'Aqui pode seleccionar a que grupos este utilizador pertence.';
+$_lang["access_permissions_user_group_locked"] = 'Os grupos apresentados a cinzento estão fora da sua associação. Apenas um administrador ou um gestor com a permissão "Gerir grupos de documentos e utilizadores" os pode alterar, pelo que aqui são apenas de leitura.';
 $_lang["access_permissions_users_in_group"] = '<b>Utilizadores no grupo:</b> ';
 $_lang["access_permissions_users_tab"] = 'Aqui pode ver que grupos de utilizadores estão definidos. Pode criar novos grupos, alterar o nome dos grupos, apagar grupos e ver quem são os membros dos diferentes grupos. Para adicionar ou remover um utilizador de um grupo, edite o utilizador directamente. Administradores (utilizadores a quem foi atribuído o perfil com ID 1) têm sempre acesso a todos os documentos e não precisam de ser adicionados a nenhum grupo.';
 $_lang["account_email"] = 'Conta de E-mail';

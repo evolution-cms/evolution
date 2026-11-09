@@ -42,6 +42,7 @@ $_lang["access_permissions_resources_in_group"] = '<b>组里的文档：</b> ';
 $_lang["access_permissions_resources_tab"] = '你可以在这里查看建立了哪些文档组。你也可以建立/重命名/删除组。查看哪些文档归属于哪个文档组，(把鼠标放在文件的ID上就可以看见它的名字). 要在阻力添加/移除一个用户，就直接编辑文档。';
 $_lang["access_permissions_user_groups"] = '用户组';
 $_lang["access_permissions_user_message"] = 'Select which User Groups this user belongs to:';
+$_lang["access_permissions_user_group_locked"] = '以灰色显示的组不在您的成员范围内。只有管理员或拥有"管理文档和用户组"权限的管理者才能更改它们，因此此处仅供查看。';
 $_lang["access_permissions_users_in_group"] = '<b>在本组的用户:</b> ';
 $_lang["access_permissions_users_tab"] = '你可以在这里查看建立了哪些用户组。你也可以建立/重命名/删除组。可以查看某个用户归属于哪些组。 要在组里添加/移除一个用户，就直接编辑用户。管理员 (users who have been assigned the role with ID 1)永远都拥有查看操作文件的权利，因此他不需要归属于任何组都可以。';
 $_lang["account_email"] = 'Account email';

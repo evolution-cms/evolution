@@ -41,6 +41,7 @@ $_lang["access_permissions_resources_in_group"] = '<b>Resources in group:</b> ';
 $_lang["access_permissions_resources_tab"] = 'See which Resource Groups have been created. Also create new groups, rename groups, delete groups and see which Resources are in the different groups (hover over the id of the Resource to see its name). To add a Resource to a group or remove a Resource from a group, edit the Resource directly.';
 $_lang["access_permissions_user_groups"] = 'User groups';
 $_lang["access_permissions_user_message"] = 'Select which User Groups this user belongs to:';
+$_lang["access_permissions_user_group_locked"] = 'Groups shown in grey are outside your own membership. Only an administrator, or a manager with the "Manage document and user groups" permission, can change them, so they are read-only here.';
 $_lang["access_permissions_users_in_group"] = 'Users in group:';
 $_lang["access_permissions_users_tab"] = 'View the User Groups that have been created. You can also create new groups, rename groups, delete groups and see which users are members of the different groups. To add a new user to a group or to remove a user from a group, edit the user directly. Administrators (users who have been assigned the role with ID 1) always have access to all Resources, so they don\'t need to be added to any groups.';
 $_lang["account_email"] = 'Account email';

@@ -42,6 +42,7 @@ $_lang["access_permissions_resources_in_group"] = '<b>Ressourcer i gruppen:</b> 
 $_lang["access_permissions_resources_tab"] = 'Se hvilke ressource grupper der er oprettet. Du kan også oprette nye grupper, omdøbe grupper, slette grupper, samt se hvilke ressourcer der er i de respektive grupper. (Hold musen over ressourcens ID for at se dets navn). For at tilføje eller fjerne en ressource til en gruppe, skal du redigere selve ressourcen.';
 $_lang["access_permissions_user_groups"] = 'Bruger grupper';
 $_lang["access_permissions_user_message"] = 'Vælg bruger gruppen som denne bruger skal tilhøre:';
+$_lang["access_permissions_user_group_locked"] = 'Grupper vist i gråt er uden for dit eget medlemskab. Kun en administrator eller en manager med tilladelsen "Administrer dokument- og brugergrupper" kan ændre dem, så de er skrivebeskyttede her.';
 $_lang["access_permissions_users_in_group"] = 'Brugere i gruppen:';
 $_lang["access_permissions_users_tab"] = 'Se hvilke bruger grupper der er oprettet. Du kan også oprette nye bruger grupper, omdøbe grupper, slette grupper, samt se hvilke brugere der tilhører de forskellige grupper. For at tilføje en ny bruger til en brugergruppe, eller fjerne en bruger i en brugergruppe, skal du redigere den specifikke bruger. Administratoren (dvs. den der har ID nr. 1) har altid adgang til alle ressourcer, så derfor skal  administratoren ikke tilføjes til nogen af grupperne.';
 $_lang["account_email"] = 'E-mail konto';

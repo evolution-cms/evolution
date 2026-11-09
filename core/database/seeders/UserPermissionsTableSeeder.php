@@ -117,13 +117,6 @@ class UserPermissionsTableSeeder extends Seeder
                 'group_id' => 1
             ],
             [
-                'name'     => 'View action completed screen',
-                'lang_key' => 'role_actionok',
-                'key'      => 'action_ok',
-                'disabled' => 1,
-                'group_id' => 1
-            ],
-            [
                 'name'     => 'View error dialog',
                 'lang_key' => 'role_errors',
                 'key'      => 'error_dialog',

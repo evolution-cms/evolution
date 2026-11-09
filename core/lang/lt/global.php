@@ -41,6 +41,7 @@ $_lang["access_permissions_resources_in_group"] = '<b>Grupės ištekliai:</b> ';
 $_lang["access_permissions_resources_tab"] = 'Peržiūrėkite sukurtas išteklių grupes. Taip pat galite kurti naujas grupes, jas pervadinti, ištrinti ir peržiūrėti skirtingų grupių išteklius (užveskite pelės žymeklį ant ištekliaus ID, kad pamatytumėte jo pavadinimą). Norėdami pridėti išteklių prie grupės arba jį pašalinti, redaguokite patį išteklių.';
 $_lang["access_permissions_user_groups"] = 'Naudotojų grupės';
 $_lang["access_permissions_user_message"] = 'Pasirinkite naudotojų grupes, kurioms priklauso šis naudotojas:';
+$_lang["access_permissions_user_group_locked"] = 'Pilkai rodomos grupės yra už jūsų narystės ribų. Jas keisti gali tik administratorius arba vadybininkas, turintis teisę "Tvarkyti dokumentų ir naudotojų grupes", todėl čia jos skirtos tik skaityti.';
 $_lang["access_permissions_users_in_group"] = 'Grupės naudotojai:';
 $_lang["access_permissions_users_tab"] = 'Peržiūrėkite sukurtas naudotojų grupes. Taip pat galite kurti naujas grupes, jas pervadinti, ištrinti ir peržiūrėti skirtingų grupių narius. Norėdami pridėti naudotoją prie grupės arba jį pašalinti, redaguokite patį naudotoją. Administratoriai (naudotojai, kuriems priskirtas vaidmuo, kurio ID yra 1) visada turi prieigą prie visų išteklių, todėl jų nereikia pridėti prie jokių grupių.';
 $_lang["account_email"] = 'Paskyros el. paštas';

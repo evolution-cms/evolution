@@ -44,6 +44,7 @@ $_lang["access_permissions_resources_in_group"] = '<strong>グループ内リソ
 $_lang["access_permissions_resources_tab"] = 'IDの上にマウスポインタを重ねるとリソース名を確認できます。リソースをグループに加えるには、リソース編集画面を個別に開いて「所属グループ」タブで設定してください。管理画面とウェブページを区別して扱わないため、両方のグループを作る場合はグループ名を工夫するとよいでしょう。';
 $_lang["access_permissions_user_groups"] = 'ユーザーグループ';
 $_lang["access_permissions_user_message"] = 'このユーザーを所属させたいユーザーグループを選択してください。ユーザは所属しているグループに割り当てられたリソースのみを編集できます。';
+$_lang["access_permissions_user_group_locked"] = 'グレーで表示されているグループは、あなた自身が所属していないグループです。管理者、または「ドキュメントとユーザーグループの管理」権限を持つマネージャーのみが変更でき、ここでは読み取り専用です。';
 $_lang["access_permissions_users_in_group"] = 'グループ内ユーザー: ';
 $_lang["access_permissions_users_tab"] = '管理画面を扱うユーザのグループと、ウェブページにアクセスする権限を持つユーザのグループは区別されます。ユーザーをグループに参加させるには、個々のユーザー設定で編集する必要があります。※Administrator(ID=1のロールを持つユーザ)は常に全てのリソースにアクセスすることができるため、Administratorをグループに追加する必要はありません。';
 $_lang["account_email"] = 'メールアドレス';

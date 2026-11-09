@@ -41,6 +41,7 @@ $_lang["access_permissions_resources_in_group"] = '<strong>Sivut ryhmässä:</st
 $_lang["access_permissions_resources_tab"] = 'Muokkaa sivuryhmiä. Lisää yksittäinen sivu ryhmään tai poista yksittäinen sivu ryhmästä muokkaamalla suoraan kyseistä sivua.';
 $_lang["access_permissions_user_groups"] = 'Ylläpidon käyttäjäryhmät';
 $_lang["access_permissions_user_message"] = 'Valitse käyttäjän käyttäjäryhmät:';
+$_lang["access_permissions_user_group_locked"] = 'Harmaana näytetyt ryhmät ovat oman jäsenyytesi ulkopuolella. Vain ylläpitäjä tai hallitsija, jolla on oikeus "Hallitse asiakirja- ja käyttäjäryhmiä", voi muuttaa niitä, joten ne ovat tässä vain luettavissa.';
 $_lang["access_permissions_users_in_group"] = '<strong>Käyttäjiä ryhmässä:</strong> ';
 $_lang["access_permissions_users_tab"] = 'Muokkaa käyttäjäryhmiä. Lisää yksittäinen käyttäjä ryhmään tai poista yksittäinen käyttäjä ryhmästä muokkaamalla suoraan kyseistä käyttäjää. Käyttäjillä, joiden rooli on pääkäyttäjä (Adminstrator), on aina oikeudet kaikkiin sivuihin.';
 $_lang["account_email"] = 'Käyttäjän sähköpostiosoite';

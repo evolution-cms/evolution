@@ -41,6 +41,7 @@ $_lang["access_permissions_resources_in_group"] = '<b>Dokument i gruppen:</b> ';
 $_lang["access_permissions_resources_tab"] = 'Her kan du se hvilke dokumentgrupper som har blitt konfigurert. Du kan til og med lage nye og bytte navn på grupper, samt se hvilke dokumenter som tilhører en spesifikk gruppe (hold musepekeren over dokumentets ID for å se navnet på dokumentet). For å legge til eller fjerne et dokument fra en gruppe, rediger dokumentet direkte.';
 $_lang["access_permissions_user_groups"] = 'Brukergrupper';
 $_lang["access_permissions_user_message"] = 'Her kan du velge hvilke brukergrupper denne brukeren skal tilhøre:';
+$_lang["access_permissions_user_group_locked"] = 'Grupper vist i grått er utanfor ditt eige medlemskap. Berre ein administrator eller ein leiar med løyvet "Administrer dokument- og brukargrupper" kan endra dei, så dei er skriveverna her.';
 $_lang["access_permissions_users_in_group"] = '<b>Brukere i gruppen:</b> ';
 $_lang["access_permissions_users_tab"] = 'Her kan du se hvilke brukergrupper som har blitt konfigurert. Du kan også opprette nye, bytte navn på og fjerne grupper, samt se hvilke brukere som er medlemmer i en spesifikk gruppe. For å legge til eller fjerne en bruker fra en gruppe, rediger brukeren direkte. Administratorer (som har rolle-id 1) har alltid tillgang til alle dokumenter, så de trenger ikke å legges til noen grupper.';
 $_lang["account_email"] = 'Konto e-post';
