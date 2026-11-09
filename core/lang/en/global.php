@@ -743,6 +743,7 @@ $_lang["plugin_title"] = 'Create/edit Plugin';
 $_lang["preview"] = 'Preview';
 $_lang["preview_msg"] = 'This is a preview of your last saved changes. Click here to <a href="javascript:;" onclick="saveRefreshPreview();">Save and Refresh</a> your current changes';
 $_lang["preview_resource"] = 'Preview Resource';
+$_lang["preview_unsupported_url"] = 'This link cannot be previewed: only http and https addresses open from the manager.';
 $_lang["private"] = 'Private';
 $_lang["public"] = 'Public';
 $_lang["publish_date"] = 'Publish Date';

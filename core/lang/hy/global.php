@@ -743,6 +743,7 @@ $_lang["plugin_title"] = 'Ստեղծել/խմբագրել փլագին';
 $_lang["preview"] = 'Նախադիտում';
 $_lang["preview_msg"] = 'Սա ձեր վերջին պահված փոփոխությունների նախադիտումն է։ Սեղմեք այստեղ՝ ընթացիկ փոփոխությունները <a href="javascript:;" onclick="saveRefreshPreview();">պահելու և թարմացնելու</a> համար';
 $_lang["preview_resource"] = 'Նախադիտել ռեսուրսը';
+$_lang["preview_unsupported_url"] = 'Այս հղումը հնարավոր չէ նախադիտել։ Կառավարման վահանակից բացվում են միայն http և https հասցեները։';
 $_lang["private"] = 'Մասնավոր';
 $_lang["public"] = 'Հանրային';
 $_lang["publish_date"] = 'Հրապարակման ամսաթիվ';

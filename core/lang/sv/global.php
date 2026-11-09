@@ -680,6 +680,7 @@ $_lang["plugin_title"] = 'Skapa/redigera plugin';
 $_lang["preview"] = 'Förhandsgranska';
 $_lang["preview_msg"] = 'Detta är en förhandsgranskning av dina senast sparade ändringar. Klicka här för att <a href="javascript:;" onclick="saveRefreshPreview();">spara och ladda om</a> dina nuvarande ändringar';
 $_lang["preview_resource"] = 'Förhandsgranska';
+$_lang["preview_unsupported_url"] = 'Den här länken kan inte förhandsgranskas: endast http- och https-adresser öppnas från hanteraren.';
 $_lang["private"] = 'Privat';
 $_lang["public"] = 'Offentlig';
 $_lang["publish_date"] = 'Publiceringsdatum';

@@ -743,6 +743,7 @@ $_lang["plugin_title"] = 'Plagin yaratish/tahrirlash';
 $_lang["preview"] = 'Oldindan ko‘rish';
 $_lang["preview_msg"] = 'Bu oxirgi saqlangan o‘zgarishlaringizning ko‘rinishi. Joriy o‘zgarishlarni <a href="javascript:;" onclick="saveRefreshPreview();">saqlash va yangilash</a> uchun shu yerni bosing';
 $_lang["preview_resource"] = 'Resursni oldindan ko‘rish';
+$_lang["preview_unsupported_url"] = 'Bu havolani oldindan ko‘rib bo‘lmaydi: boshqaruv panelidan faqat http va https manzillari ochiladi.';
 $_lang["private"] = 'Shaxsiy';
 $_lang["public"] = 'Ommaviy';
 $_lang["publish_date"] = 'Nashr sanasi';

@@ -682,6 +682,7 @@ $_lang["plugin_title"] = 'Créer/modifier le Plugin';
 $_lang["preview"] = 'Prévisualiser';
 $_lang["preview_msg"] = 'Voici la prévisualisation de vos derniers changements enregistrés. Cliquer ici pour <a href="javascript:;" onclick="saveRefreshPreview();">Enregistrer et Afficher</a> vos modifications actuelles';
 $_lang["preview_resource"] = 'Prévisualiser';
+$_lang["preview_unsupported_url"] = 'Ce lien ne peut pas être prévisualisé : seules les adresses http et https s\'ouvrent depuis le gestionnaire.';
 $_lang["private"] = 'Privé';
 $_lang["public"] = 'Public';
 $_lang["publish_date"] = 'Date de publication';

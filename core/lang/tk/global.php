@@ -743,6 +743,7 @@ $_lang["plugin_title"] = 'Plagin döret/üýtget';
 $_lang["preview"] = 'Öňünden gör';
 $_lang["preview_msg"] = 'Bu soňky ýatda saklanan üýtgetmeleriňiziň deslapky görnüşidir. Häzirki üýtgetmeleriňizi <a href="javascript:;" onclick="saveRefreshPreview();">ýatda saklamak we täzelemek</a> üçin şu ýere basyň';
 $_lang["preview_resource"] = 'Resursy öňünden gör';
+$_lang["preview_unsupported_url"] = 'Bu baglanyşygy öňünden görüp bolmaýar: dolandyryş panelinden diňe http we https salgylary açylýar.';
 $_lang["private"] = 'Hususy';
 $_lang["public"] = 'Jemgyýetçilik';
 $_lang["publish_date"] = 'Neşir senesi';

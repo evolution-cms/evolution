@@ -1053,6 +1053,7 @@ $_lang["php_version_check"] = 'Evolution CMS сумяшчальная з вер�
 $_lang["preview"] = 'Папярэдні прагляд';
 $_lang["preview_msg"] = 'Гэта папярэдні прагляд вашых апошніх захаваных зменаў. <a href="javascript:;" onclick="saveRefreshPreview();">Націсніце тут</a>, каб захаваць і абнавіць бягучыя змены';
 $_lang["preview_resource"] = 'Рэсурс для папярэдняга прагляду';
+$_lang["preview_unsupported_url"] = 'Гэтую спасылку немагчыма папярэдне праглядзець: з мэнэджэра адкрываюцца толькі адрасы http і https.';
 
 $_lang["private"] = 'Прыватны';
 $_lang["public"] = 'Грамадскі';

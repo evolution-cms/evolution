@@ -724,6 +724,7 @@ $_lang["plugin_title"] = 'Crea/Modifica Plugin';
 $_lang["preview"] = 'Anteprima';
 $_lang["preview_msg"] = 'Questa è solo l\'anteprima delle modifiche. Clicca su <a href="#" onclick="saveRefreshPreview();">Salva e Aggiorna</a> per salvare le modifiche';
 $_lang["preview_resource"] = 'Anteprima Risorsa';
+$_lang["preview_unsupported_url"] = 'Questo link non può essere visualizzato in anteprima: dal Manager si aprono solo indirizzi http e https.';
 $_lang["private"] = 'Privato';
 $_lang["public"] = 'Pubblico';
 $_lang["publish_date"] = 'Data di pubblicazione';

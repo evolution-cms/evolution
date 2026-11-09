@@ -722,6 +722,7 @@ $_lang["plugin_title"] = 'Plugin erstellen/bearbeiten';
 $_lang["preview"] = 'Vorschau';
 $_lang["preview_msg"] = 'Dies ist eine Vorschau Ihrer zuletzt gespeicherten Änderungen. Klicken Sie <a href="javascript:;" onclick="saveRefreshPreview();">Speichern und aktualisieren</a> um Ihren aktuellen Änderungen zu speichern.';
 $_lang["preview_resource"] = 'Ressource-Vorschau';
+$_lang["preview_unsupported_url"] = 'Dieser Link kann nicht in der Vorschau angezeigt werden: Aus dem Manager werden nur http- und https-Adressen geöffnet.';
 $_lang["private"] = 'Privat';
 $_lang["public"] = 'Öffentlich';
 $_lang["publish_date"] = 'Veröffentlichungstermin';

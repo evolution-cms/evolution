@@ -712,6 +712,7 @@ $_lang["plugin_title"] = 'Aanmaken/bewerken Plug-in';
 $_lang["preview"] = 'Voorbeeld';
 $_lang["preview_msg"] = 'Dit is een voorbeeld van uw laatst opgeslagen wijzigingen. Klik hier om uw huidige wijzigingen <a href="javascript:;" onclick="saveRefreshPreview();">op te slaan en te vernieuwen</a>.';
 $_lang["preview_resource"] = 'Pagina voorbeeld';
+$_lang["preview_unsupported_url"] = 'Van deze link kan geen voorbeeld worden getoond: vanuit de Manager worden alleen http- en https-adressen geopend.';
 $_lang["private"] = 'Gesloten';
 $_lang["public"] = 'Open';
 $_lang["publish_date"] = 'Publicatiedatum';

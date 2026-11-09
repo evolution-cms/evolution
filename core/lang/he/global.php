@@ -680,6 +680,7 @@ $_lang["plugin_title"] = 'צור או ערוך התקן';
 $_lang["preview"] = 'תצוגה מקדימה';
 $_lang["preview_msg"] = 'This is a preview of your last saved changes. Click here to <a href="javascript:;" onclick="saveRefreshPreview();">Save and Refresh</a> your current changes';
 $_lang["preview_resource"] = 'תצוגה מקדימה למסמך';
+$_lang["preview_unsupported_url"] = 'לא ניתן להציג תצוגה מקדימה של קישור זה: רק כתובות http ו-https נפתחות מתוך המנהל.';
 $_lang["private"] = 'פרטי';
 $_lang["public"] = 'ציבורי';
 $_lang["publish_date"] = 'תאריך פרסום';

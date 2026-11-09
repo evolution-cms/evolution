@@ -1067,6 +1067,7 @@ $_lang["php_version_check"] = 'Evolution CMS PHP 7.4 və daha yüksək versiyala
 $_lang["preview"] = 'Önizləmə';
 $_lang["preview_msg"] = 'Bu, son saxlanılan dəyişikliklərinizin önizləməsidir. Buraya klikləyin: <a href="javascript:;" onclick="saveRefreshPreview();">Saxla və Yenilə</a> cari dəyişikliklərinizi.';
 $_lang["preview_resource"] = 'Resursun önizləməsi';
+$_lang["preview_unsupported_url"] = 'Bu keçidə önizləmə mümkün deyil: idarəetmə panelindən yalnız http və https ünvanları açılır.';
 
 $_lang["private"] = 'Şəxsi';
 $_lang["public"] = 'İctimai';

@@ -168,6 +168,7 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
 
     </style>
     <script src="<?= revision(MGR_DIR . '/media/script/document-save-helper.js') ?>"></script>
+    <script src="<?= revision(MGR_DIR . '/media/script/preview-target-helper.js') ?>"></script>
     <script type="text/javascript">
       /* <![CDATA[ */
 
@@ -270,24 +271,25 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
         },
         view: function() {
           var site = <?= js_json(EVO_SITE_URL) ?>;
-          var previewUrl = site + 'index.php?id=<?= (int) $id ?>&z=manprev';
+          var target = site + 'index.php?id=<?= (int) $id ?>&z=manprev';
           if (getSelectedResourceType() === 'reference') {
             var linkField = document.getElementById('weblink-content');
             var rawUrl = linkField ? linkField.value.trim() : '';
-            if (/^[1-9]\d*$/.test(rawUrl)) {
-              previewUrl = site + 'index.php?id=' + rawUrl;
-            } else if (rawUrl !== '') {
-              // A site-relative path is anchored to the site, not to the manager page.
-              previewUrl = /^([a-z][a-z0-9+.-]*:|[\/?#\\])/i.test(rawUrl) ? rawUrl : site + rawUrl;
+            if (rawUrl !== '') {
+              target = rawUrl;
             }
           }
           // Same-origin content may carry an editor's inline script. Show it in an opaque-origin
           // sandbox (no allow-same-origin / allow-top-navigation) so it cannot reach the manager
-          // session, read the CSRF meta tag or navigate the manager. External targets open as before.
-          if (previewUrl.lastIndexOf(site, 0) === 0) {
-            openSandboxedPreview(previewUrl);
+          // session, read the CSRF meta tag or navigate the manager. The origin is judged on the
+          // parsed URL (preview-target-helper.js); only external http(s) targets open a window.
+          var preview = evoPreviewTargetHelper.resolve(target, site, window.location.href);
+          if (preview.mode === 'sandbox') {
+            openSandboxedPreview(preview.url);
+          } else if (preview.mode === 'window') {
+            window.open(preview.url, 'previeWin', 'noopener,noreferrer');
           } else {
-            window.open(previewUrl, 'previeWin');
+            alert(<?= js_json($_lang['preview_unsupported_url']) ?>);
           }
         }
       };

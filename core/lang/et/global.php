@@ -743,6 +743,7 @@ $_lang["plugin_title"] = 'Loo või muuda pluginat';
 $_lang["preview"] = 'Eelvaade';
 $_lang["preview_msg"] = 'See on viimati salvestatud muudatuste eelvaade. Praeguste muudatuste <a href="javascript:;" onclick="saveRefreshPreview();">salvestamiseks ja värskendamiseks</a> klõpsa siin';
 $_lang["preview_resource"] = 'Ressursi eelvaade';
+$_lang["preview_unsupported_url"] = 'Seda linki ei saa eelvaates avada: haldusliidesest avanevad ainult http- ja https-aadressid.';
 $_lang["private"] = 'Privaatne';
 $_lang["public"] = 'Avalik';
 $_lang["publish_date"] = 'Avaldamise kuupäev';

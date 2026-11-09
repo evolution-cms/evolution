@@ -679,6 +679,7 @@ $_lang["plugin_title"] = 'Създаване/редактиране на плъ�
 $_lang["preview"] = 'Преглед';
 $_lang["preview_msg"] = 'Това е преглед на последно съхранените промени. Щракнете <a href="javascript:;" onclick="saveRefreshPreview();">Съхранение и Обновяване</a> на текущите промени';
 $_lang["preview_resource"] = 'Преглед на документ';
+$_lang["preview_unsupported_url"] = 'Тази връзка не може да бъде прегледана: от мениджъра се отварят само адреси с http и https.';
 $_lang["private"] = 'Частен';
 $_lang["public"] = 'Публичен';
 $_lang["publish_date"] = 'Дата на публикуване';

@@ -680,6 +680,7 @@ $_lang["plugin_title"] = 'ایجاد / ویرایش پلاگین';
 $_lang["preview"] = 'نمایش وبگاه';
 $_lang["preview_msg"] = 'این پیش نمایش آخرین تغییرات ذخیره شده ی شماست. برای ذخیره نهایی و بازخوانی تغییرات جدید<a href="#" onclick="saveRefreshPreview();">اینجا کلیک کنید</a>';
 $_lang["preview_resource"] = 'نمایش پرونده';
+$_lang["preview_unsupported_url"] = 'این پیوند قابل نمایش نیست: از مدیر فقط نشانی‌های http و https باز می‌شوند.';
 $_lang["private"] = 'خصوصی';
 $_lang["public"] = 'عمومی';
 $_lang["publish_date"] = 'تاریخ انتشار';

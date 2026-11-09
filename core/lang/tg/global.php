@@ -738,6 +738,7 @@ $_lang["plugin_title"] = 'Сохтан/таҳрири плагин';
 $_lang["preview"] = 'Пешнамоиш';
 $_lang["preview_msg"] = 'Ин пешнамоиши тағйироти охирини захирашуда аст. Барои тағйироти ҷорӣ <a href="javascript:;" onclick="saveRefreshPreview();">Захира ва навсозӣ</a>-ро пахш кунед';
 $_lang["preview_resource"] = 'Пешнамоиши захира';
+$_lang["preview_unsupported_url"] = 'Ин истинодро пешнамоиш кардан ғайриимкон аст: аз панели идоракунӣ танҳо суроғаҳои http ва https кушода мешаванд.';
 $_lang["private"] = 'Хусусӣ';
 $_lang["public"] = 'Умумӣ';
 $_lang["publish_date"] = 'Санаи нашр';
