@@ -248,7 +248,7 @@ class UserRole extends AbstractController implements ManagerTheme\PageController
     {
         $actorRole = $actorRole ?? (int) ($_SESSION['mgrRole'] ?? 0);
         $actorPermissions = $actorPermissions ?? $this->actorPermissions();
-        $targetPermissions = Models\RolePermissions::query()->where('role_id', $id)->pluck('permission')->all();
+        $targetPermissions = RoleGuard::reachOf($id);
 
         if (!RoleGuard::mayManageRole($actorRole, $actorPermissions, $id, $targetPermissions)) {
             $this->managerTheme->alertAndQuit('error_no_privileges');

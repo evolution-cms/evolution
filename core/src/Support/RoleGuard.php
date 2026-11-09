@@ -1,5 +1,8 @@
 <?php namespace EvolutionCMS\Support;
 
+use EvolutionCMS\Models\Permissions;
+use EvolutionCMS\Models\RolePermissions;
+
 /**
  * Keeps a manager from granting, through a role, more than it holds itself.
  *
@@ -34,6 +37,23 @@ class RoleGuard
         }
 
         return array_diff($targetPermissions, $actorPermissions) === [];
+    }
+
+    /**
+     * The grants of a role that give it reach, for mayManageRole(): those of a defined permission
+     * a role may hold or not. A grant of a permission that no longer exists (sites installed with
+     * the earlier default seeders still carry role_actionok) or of an always-on permission, which
+     * a role save stores for every role, is nothing an actor could lack.
+     *
+     * @return string[]
+     */
+    public static function reachOf(int $roleId): array
+    {
+        return RolePermissions::query()
+            ->where('role_id', $roleId)
+            ->whereIn('permission', Permissions::query()->where('disabled', 0)->select('key'))
+            ->pluck('permission')
+            ->all();
     }
 
     /**

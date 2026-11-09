@@ -154,8 +154,7 @@ class EditOrNewUser extends AbstractController implements ManagerTheme\PageContr
             \EvolutionCMS\Models\Permissions::query()->pluck('key')->all(),
             static fn ($key) => (bool) EvolutionCMS()->hasPermission($key)
         ));
-        $newRolePermissions = \EvolutionCMS\Models\RolePermissions::query()
-            ->where('role_id', $newRole)->pluck('permission')->all();
+        $newRolePermissions = \EvolutionCMS\Support\RoleGuard::reachOf($newRole);
 
         if (isset($userData['role'])
             && $userData['role'] != $user->attributes->role
