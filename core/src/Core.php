@@ -6947,6 +6947,21 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             str_replace('[(base_path)]', EVO_BASE_PATH, $this->getConfig('rb_base_dir'))
         );
 
+        // A per-user filemanager_path may narrow the file manager root to a subfolder of the
+        // site-wide one, but never widen it past that root: the per-user value is attacker-reachable
+        // (it is an ordinary user setting), while the file manager keys its group ACL on the
+        // site-wide root (configGlobal). Drop an override that escapes the system root.
+        if (isset($this->configGlobal['filemanager_path'])) {
+            $systemPath = str_replace('[(base_path)]', EVO_BASE_PATH, (string) $this->configGlobal['filemanager_path']);
+            $allowed = Support\FileManagerAccess::userRootAllowed(
+                realpath($systemPath),
+                realpath((string) $this->getConfig('filemanager_path'))
+            );
+            if (!$allowed) {
+                $this->setConfig('filemanager_path', $systemPath);
+            }
+        }
+
         return $usrSettings;
     }
 
