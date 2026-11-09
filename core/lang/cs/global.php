@@ -41,6 +41,7 @@ $_lang["access_permissions_resources_in_group"] = '<b>Dokumenty ve skupině:</b>
 $_lang["access_permissions_resources_tab"] = 'Tady můžete vidět, které skupiny dokumentů jsou nastavené. Můžete vytvářet nové skupiny, přejmenovávat je, mazat je a procházet, které dokumenty se nacházejí, v kterých skupinách (po přesunu kurzoru myši na ID dokumentu se zobrazí jeho název). Přidat dokument do skupiny nebo ho odstranit se da jen prímou změnou v samotném dokumentu.';
 $_lang["access_permissions_user_groups"] = 'Skupiny návštěvníků';
 $_lang["access_permissions_user_message"] = 'Tady můžete zvolit, který uživatel patří, do které skupiny:';
+$_lang["access_permissions_user_group_locked"] = 'Skupiny zobrazené šedě jsou mimo vaše vlastní členství. Změnit je může pouze administrátor nebo správce s oprávněním "Správa skupin dokumentů a uživatelů", proto jsou zde pouze ke čtení.';
 $_lang["access_permissions_users_in_group"] = '<b>Uživatelé ve skupině:</b> ';
 $_lang["access_permissions_users_tab"] = 'Tady můžete vidět, které skupiny uživatelů jsou nastavené. Můžete vytvářet nové skupiny, přejmenovávat je a prohlížet, kteří uživatelé jsou ve skupinách registrováni. Jestliže chcete přidat nového uživatele do skupiny nebo ho odstranit, musíte upravit nastavení konkrétního uživatele ve "Správě uživatelů". Administrátoři (užívatelé s přiděleným ID 1) mají vždy přístup ke všem dokumentům a není potřeba je přidávat do kterékoli skupiny.';
 $_lang["account_email"] = 'Email účtu';
