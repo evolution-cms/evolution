@@ -751,6 +751,7 @@ $_lang["plugin_title"] = 'Створити / редагувати плагін';
 $_lang["preview"] = 'Перегляд';
 $_lang["preview_msg"] = 'Перегляд останніх змін. <a href="javascript:;" onclick="saveRefreshPreview();">Зберегти і оновити</a> останні зміни';
 $_lang["preview_resource"] = 'Перегляд';
+$_lang["preview_unsupported_url"] = 'Це посилання неможливо переглянути: з менеджера відкриваються лише адреси http і https.';
 $_lang["private"] = 'Особистий';
 $_lang["public"] = 'Доступний для всіх';
 $_lang["publish_date"] = 'Дата публікації';

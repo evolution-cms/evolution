@@ -750,6 +750,7 @@ $_lang["plugin_title"] = 'プラグインの作成/編集';
 $_lang["preview"] = 'プレビュー';
 $_lang["preview_msg"] = 'ここには最後に更新した内容をプレビューしています。<a href="javascript:;" onclick="saveRefreshPreview();"><i class="fa fa-floppy-o"></i> 更新と再描画</a>を行うにはここをクリックしてください。';
 $_lang["preview_resource"] = 'プレビュー(別窓)';
+$_lang["preview_unsupported_url"] = 'このリンクはプレビューできません。管理画面から開けるのは http と https のアドレスのみです。';
 $_lang["private"] = 'グループ設定';
 $_lang["public"] = 'グループ制限なし';
 $_lang["publish_date"] = '公開日時';

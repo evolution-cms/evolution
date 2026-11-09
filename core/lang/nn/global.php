@@ -680,6 +680,7 @@ $_lang["plugin_title"] = 'Opprette/ redigere plugin.';
 $_lang["preview"] = 'Forhåndsvis';
 $_lang["preview_msg"] = 'Dette er en forhåndsvisning av dine siste endringer. Klikk her for å <a href="javascript:;" onclick="saveRefreshPreview();">lagre og laste om</a> dine nåværende endringer';
 $_lang["preview_resource"] = 'Preview Resource';
+$_lang["preview_unsupported_url"] = 'Denne lenken kan ikke forhåndsvises: bare http- og https-adresser åpnes fra håndtereren.';
 $_lang["private"] = 'Privat';
 $_lang["public"] = 'Offentlig';
 $_lang["publish_date"] = 'Publiseringsdato';

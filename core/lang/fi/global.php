@@ -680,6 +680,7 @@ $_lang["plugin_title"] = 'Liitännäinen';
 $_lang["preview"] = 'Esikatselu';
 $_lang["preview_msg"] = 'Esikatselunäkymä viimeksi tallennetuista muutoksista. Napsauta <a href="javascript:;" onclick="saveRefreshPreview();">tästä tallentaaksesi ja päivittääksesi</a> tämän hetkiset muutokset';
 $_lang["preview_resource"] = 'Esikatsele';
+$_lang["preview_unsupported_url"] = 'Tätä linkkiä ei voi esikatsella: ylläpidosta avautuvat vain http- ja https-osoitteet.';
 $_lang["private"] = 'Yksityinen';
 $_lang["public"] = 'Julkinen';
 $_lang["publish_date"] = 'Julkaisupäiväys';

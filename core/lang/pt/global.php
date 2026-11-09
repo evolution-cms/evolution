@@ -680,6 +680,7 @@ $_lang["plugin_title"] = 'Criar/editar plugin';
 $_lang["preview"] = 'Prever Site';
 $_lang["preview_msg"] = 'Esta é uma pré-visualização das últimas alterações guardadas. Clique aqui para <a href="javascript:;" onclick="saveRefreshPreview();">Guardar e actualizar</a> as alterações mais recentes';
 $_lang["preview_resource"] = 'Prever documento';
+$_lang["preview_unsupported_url"] = 'Esta ligação não pode ser pré-visualizada: a partir do administrador só se abrem endereços http e https.';
 $_lang["private"] = 'Privado';
 $_lang["public"] = 'Público';
 $_lang["publish_date"] = 'Data de Publicação';

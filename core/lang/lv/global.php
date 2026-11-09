@@ -744,6 +744,7 @@ $_lang["plugin_title"] = 'Izveidot/rediģēt spraudni';
 $_lang["preview"] = 'Priekšskatījums';
 $_lang["preview_msg"] = 'Šis ir pēdējo saglabāto izmaiņu priekšskatījums. Noklikšķiniet šeit, lai <a href="javascript:;" onclick="saveRefreshPreview();">saglabātu un atsvaidzinātu</a> pašreizējās izmaiņas';
 $_lang["preview_resource"] = 'Priekšskatīt resursu';
+$_lang["preview_unsupported_url"] = 'Šo saiti nevar priekšskatīt: no pārvaldības paneļa tiek atvērtas tikai http un https adreses.';
 $_lang["private"] = 'Privāts';
 $_lang["public"] = 'Publisks';
 $_lang["publish_date"] = 'Publicēšanas datums';

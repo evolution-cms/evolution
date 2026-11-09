@@ -680,6 +680,7 @@ $_lang["plugin_title"] = 'Vytvořit/upravit plugin';
 $_lang["preview"] = 'Náhled';
 $_lang["preview_msg"] = 'Tohle je náhled na vaše poslední uložené změny. Kliknutím zde na <a href="javascript:;" onclick="saveRefreshPreview();">Uložit a obnovit</a> uložíte vaše současné změny';
 $_lang["preview_resource"] = 'Náhled dokumentu';
+$_lang["preview_unsupported_url"] = 'Tento odkaz nelze zobrazit v náhledu: ze správce se otevírají pouze adresy http a https.';
 $_lang["private"] = 'Soukromý';
 $_lang["public"] = 'Veřejný';
 $_lang["publish_date"] = 'Datum publikování';

@@ -744,6 +744,7 @@ $_lang["plugin_title"] = 'პლაგინის შექმნა/რედ�
 $_lang["preview"] = 'წინასწარი ნახვა';
 $_lang["preview_msg"] = 'ეს არის ბოლოს შენახული ცვლილებების წინასწარი ნახვა. მიმდინარე ცვლილებების <a href="javascript:;" onclick="saveRefreshPreview();">შესანახად და განსაახლებლად</a> დააწკაპუნეთ აქ';
 $_lang["preview_resource"] = 'რესურსის წინასწარი ნახვა';
+$_lang["preview_unsupported_url"] = 'ამ ბმულის წინასწარი ნახვა შეუძლებელია: მართვის პანელიდან იხსნება მხოლოდ http და https მისამართები.';
 $_lang["private"] = 'პირადი';
 $_lang["public"] = 'საჯარო';
 $_lang["publish_date"] = 'გამოქვეყნების თარიღი';

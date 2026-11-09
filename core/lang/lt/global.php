@@ -744,6 +744,7 @@ $_lang["plugin_title"] = 'Kurti / redaguoti įskiepį';
 $_lang["preview"] = 'Peržiūra';
 $_lang["preview_msg"] = 'Tai paskutinių išsaugotų pakeitimų peržiūra. Spustelėkite čia, kad <a href="javascript:;" onclick="saveRefreshPreview();">išsaugotumėte ir atnaujintumėte</a> dabartinius pakeitimus';
 $_lang["preview_resource"] = 'Peržiūrėti išteklių';
+$_lang["preview_unsupported_url"] = 'Šios nuorodos peržiūrėti negalima: iš valdymo skydelio atidaromi tik http ir https adresai.';
 $_lang["private"] = 'Privatus';
 $_lang["public"] = 'Viešas';
 $_lang["publish_date"] = 'Paskelbimo data';

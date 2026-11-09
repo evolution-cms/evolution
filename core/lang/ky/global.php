@@ -744,6 +744,7 @@ $_lang["plugin_title"] = 'Плагин түзүү/түзөтүү';
 $_lang["preview"] = 'Алдын ала көрүү';
 $_lang["preview_msg"] = 'Акыркы сакталган өзгөртүүлөр көрсөтүлүүдө. Учурдагы өзгөртүүлөрдү <a href="javascript:;" onclick="saveRefreshPreview();">сактап жаңыртуу</a> үчүн басыңыз';
 $_lang["preview_resource"] = 'Ресурсту алдын ала көрүү';
+$_lang["preview_unsupported_url"] = 'Бул шилтемени алдын ала көрүү мүмкүн эмес: башкаруу панелинен http жана https даректери гана ачылат.';
 $_lang["private"] = 'Жеке';
 $_lang["public"] = 'Жалпыга ачык';
 $_lang["publish_date"] = 'Жарыялоо күнү';

@@ -726,6 +726,7 @@ $_lang["plugin_title"] = 'Stwórz/edytuj wtyczkę';
 $_lang["preview"] = 'Podgląd';
 $_lang["preview_msg"] = 'To jest podgląd twoich ostatnio zapisanych zmian. Kliknij tutaj aby <a href="javascript:;" onclick="saveRefreshPreview();">zapisać i odświeżyć</a> obecne zmiany';
 $_lang["preview_resource"] = 'Podgląd dokumentu';
+$_lang["preview_unsupported_url"] = 'Tego linku nie można wyświetlić w podglądzie: z menedżera otwierane są tylko adresy http i https.';
 $_lang["private"] = 'Prywatny';
 $_lang["public"] = 'Publiczny';
 $_lang["publish_date"] = 'Data publikacji';

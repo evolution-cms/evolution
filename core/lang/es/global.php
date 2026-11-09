@@ -725,6 +725,7 @@ $_lang["plugin_title"] = 'Crear/editar Plugin';
 $_lang["preview"] = 'Previsualizar';
 $_lang["preview_msg"] = 'Esta es una previsualización de tus últimos cambios guardados.  Haz clic aquí para <a href="javascript:;" onclick="saveRefreshPreview();">Guardar y Recargar</a> tus cambios actuales';
 $_lang["preview_resource"] = 'Previsualizar documento';
+$_lang["preview_unsupported_url"] = 'Este enlace no se puede previsualizar: desde el administrador solo se abren direcciones http y https.';
 $_lang["private"] = 'Privado';
 $_lang["public"] = 'Público';
 $_lang["publish_date"] = 'Fecha de publicación';

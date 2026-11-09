@@ -744,6 +744,7 @@ $_lang["plugin_title"] = 'Creează/editează un plugin';
 $_lang["preview"] = 'Previzualizare';
 $_lang["preview_msg"] = 'Aceasta este o previzualizare a ultimelor modificări salvate. Apăsați aici pentru a <a href="javascript:;" onclick="saveRefreshPreview();">salva și reîmprospăta</a> modificările curente';
 $_lang["preview_resource"] = 'Previzualizează resursa';
+$_lang["preview_unsupported_url"] = 'Acest link nu poate fi previzualizat: din panoul de administrare se deschid doar adrese http și https.';
 $_lang["private"] = 'Privat';
 $_lang["public"] = 'Public';
 $_lang["publish_date"] = 'Data publicării';

@@ -744,6 +744,7 @@ $_lang["plugin_title"] = 'Vytvoriť / upraviť plugin';
 $_lang["preview"] = 'Náhľad';
 $_lang["preview_msg"] = 'Náhľad posledných zmien. <a href="javascript:;" onclick="saveRefreshPreview();">Uložiť a obnoviť</a> posledné zmeny';
 $_lang["preview_resource"] = 'Náhľad';
+$_lang["preview_unsupported_url"] = 'Tento odkaz nie je možné zobraziť v náhľade: z manažéra sa otvárajú iba adresy http a https.';
 $_lang["private"] = 'Súkromný';
 $_lang["public"] = 'Dostupný pre všetkých';
 $_lang["publish_date"] = 'Dátum publikovania';
