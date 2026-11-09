@@ -71,7 +71,7 @@ class UserRolesTableSeeder extends Seeder
             [
                 'id' => 3,
                 'name'        => 'Publisher',
-                'description' => 'Editor with expanded permissions including manage users, update Elements and site settings',
+                'description' => 'Editor with expanded permissions including manage users and update Elements',
             ]
         ]);
 
@@ -218,8 +218,6 @@ class UserRolesTableSeeder extends Seeder
             ['permission' => 'save_user', 'role_id' => 3],
             ['permission' => 'delete_user', 'role_id' => 3],
             ['permission' => 'logs', 'role_id' => 3],
-            ['permission' => 'settings', 'role_id' => 3],
-            ['permission' => 'bk_manager', 'role_id' => 3],
             ['permission' => 'remove_locks', 'role_id' => 3],
             ['permission' => 'display_locks', 'role_id' => 3],
             ['permission' => 'access_permissions', 'role_id' => 3],
