@@ -241,7 +241,7 @@ try {
     ];
 
     // the classic file manager, as files.dynamic.php sets it up
-    $root = rtrim(str_replace('\\', '/', fileManagerCanonicalPath(evo()->getConfig('filemanager_path')) ?: realpath(EVO_BASE_PATH)), '/');
+    $root = fileManagerRoot();
     $relative = static fn ($request) => fileManagerResolvePath($root, $request)['relative'] ?? null;
     $resolved = fileManagerResolvePath($root, 'assets/images/private/secret.png');
     $output += [
