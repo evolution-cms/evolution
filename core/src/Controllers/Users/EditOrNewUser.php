@@ -150,10 +150,7 @@ class EditOrNewUser extends AbstractController implements ManagerTheme\PageContr
         \UserManager::saveSettings($userData);
 
         $newRole = (int) ($userData['role'] ?? 0);
-        $actorPermissions = array_values(array_filter(
-            \EvolutionCMS\Models\Permissions::query()->pluck('key')->all(),
-            static fn ($key) => (bool) EvolutionCMS()->hasPermission($key)
-        ));
+        $actorPermissions = \EvolutionCMS\Support\RoleGuard::heldBy(static fn ($key) => EvolutionCMS()->hasPermission($key));
         $newRolePermissions = \EvolutionCMS\Support\RoleGuard::reachOf($newRole);
 
         if (isset($userData['role'])
