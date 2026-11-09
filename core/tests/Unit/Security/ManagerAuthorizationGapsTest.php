@@ -43,6 +43,28 @@ it('gates the phpinfo and system info pages on the settings right', function (st
         ->and($source)->not->toContain("hasPermission('logs')");
 })->with(['Phpinfo', 'SystemInfo']);
 
+it('runs the due (un)publish on Refresh site only with publish_document, but still clears the cache', function () {
+    $source = controllerSource('RefreshSite');
+
+    $process = strpos($source, 'public function process()');
+    $gate = strpos($source, "hasPermission('publish_document')", $process);
+    $publish = strpos($source, '$this->publishDocuments($time)', $process);
+    $skip = strpos($source, "'num_rows_pub' => 0", $process);
+    $clear = strpos($source, "clearCache('full'", $process);
+
+    expect($process)->not->toBeFalse()
+        ->and($gate)->not->toBeFalse()
+        // the state-changing (un)publish sits behind the permission gate
+        ->and($publish)->not->toBeFalse()
+        ->and($gate)->toBeLessThan($publish)
+        // an explicit no-op branch for a user without the right
+        ->and($skip)->not->toBeFalse()
+        // the cache clear runs after the branch, for empty_cache holders either way
+        ->and($clear)->not->toBeFalse()
+        ->and($publish)->toBeLessThan($clear)
+        ->and($skip)->toBeLessThan($clear);
+});
+
 it('caps role save at the actor reach and checks role deletion rights', function () {
     $source = controllerSource('UserRoles/UserRole');
 
