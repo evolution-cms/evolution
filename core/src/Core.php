@@ -1321,21 +1321,22 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
      */
     protected function runPubStatusSync($timeNow)
     {
-        // documents that need publishing
-        $where = "pub_date <= {$timeNow} AND pub_date != 0 AND published = 0";
-        $resultPub = \EvolutionCMS\Models\SiteContent::select('id')->whereRaw($where)->get();
+        // documents that need publishing; a window whose unpub_date has passed too is over
+        // (the same scopes as Refresh site), so it is not published only to be unpublished
+        $resultPub = \EvolutionCMS\Models\SiteContent::publishDocuments($timeNow)->select('id')->get();
         if ($resultPub->isNotEmpty()) {
-            \EvolutionCMS\Models\SiteContent::whereRaw($where)->update(['published' => 1, 'publishedon' => $timeNow]);
+            \EvolutionCMS\Models\SiteContent::whereIn('id', $resultPub->pluck('id'))
+                ->update(['published' => 1, 'publishedon' => $timeNow]);
             foreach ($resultPub as $rowPub) {
                 $this->invokeEvent('OnDocPublished', ['docid' => $rowPub->id]);
             }
         }
 
         // documents that need un-publishing
-        $where = "unpub_date <= {$timeNow} AND unpub_date != 0 AND published = 1";
-        $resultUnpub = \EvolutionCMS\Models\SiteContent::select('id')->whereRaw($where)->get();
+        $resultUnpub = \EvolutionCMS\Models\SiteContent::unPublishDocuments($timeNow)->select('id')->get();
         if ($resultUnpub->isNotEmpty()) {
-            \EvolutionCMS\Models\SiteContent::whereRaw($where)->update(['published' => 0, 'publishedon' => 0]);
+            \EvolutionCMS\Models\SiteContent::whereIn('id', $resultUnpub->pluck('id'))
+                ->update(['published' => 0, 'publishedon' => 0]);
             foreach ($resultUnpub as $rowUnpub) {
                 // drop only this page's cache instead of wiping the whole site
                 $this->clearCache((string) $rowUnpub->id);

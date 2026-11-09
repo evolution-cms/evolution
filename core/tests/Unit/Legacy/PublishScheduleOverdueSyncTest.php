@@ -24,9 +24,13 @@ use Tests\Mocks\CacheRefreshHarness;
 | fallback relied on in the PR did not actually fire.
 |
 | getCacheRefreshTime() now also detects an overdue-but-unsynced transition - with
-| the exact predicate Core::runPubStatusSync() applies - and pins the threshold to
-| "now" so the next front-end request runs the sync. These tests drive the real
-| threshold calculation and the real Core::runPubStatusSync() end to end.
+| the scopes Core::runPubStatusSync() applies (SiteContent::publishDocuments() /
+| unPublishDocuments(), as Refresh site does) - and pins the threshold to "now" so
+| the next front-end request runs the sync. A publication window whose unpub_date
+| has passed as well is over: it is neither published only to be unpublished again
+| nor kept due, which would repeat those writes and events on every request. These
+| tests drive the real threshold calculation and the real Core::runPubStatusSync()
+| end to end.
 |
 */
 
@@ -196,3 +200,37 @@ it('writes a zero threshold when there is no schedule at all', function () {
 
     expect(overdueThreshold($this->dir))->toBe(0);
 });
+
+it('treats a publication window that has already ended as complete', function (int $published, int $pubOffset, int $unpubOffset) {
+    $now = $this->now;
+    overdueMakeDoc([
+        'id' => 1, 'alias' => 'ended', 'published' => $published,
+        'pub_date' => $now + $pubOffset, 'unpub_date' => $now + $unpubOffset,
+    ]);
+
+    $this->sync->publishTimeConfig();
+    // only a document still marked published has work left (the unpublish)
+    expect(overdueThreshold($this->dir))->toBe($published === 1 ? $now : 0);
+
+    $core = new OverduePubSyncCore();
+    $core->cachePath = $this->dir;
+    $core->syncNow($now);
+
+    // it ends unpublished; a published document is unpublished once, never re-published
+    expect((int) SiteContent::find(1)->published)->toBe(0)
+        ->and($core->firedEvents)->toBe($published === 1 ? [['OnDocUnPublished', 1]] : [])
+        ->and(overdueThreshold($this->dir))->toBe(0);
+
+    // a repeated sync (the next front-end request) writes and fires nothing
+    $core->firedEvents = [];
+    $core->clearedCaches = [];
+    $core->syncNow($now + 1);
+
+    expect((int) SiteContent::find(1)->published)->toBe(0)
+        ->and($core->firedEvents)->toBe([])
+        ->and($core->clearedCaches)->toBe([]);
+})->with([
+    'never published, unpub after pub' => [0, -200, -100],
+    'never published, unpub before pub' => [0, -100, -200],
+    'still published, both dates past' => [1, -200, -100],
+]);

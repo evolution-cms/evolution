@@ -285,19 +285,12 @@ class Cache
         // still unsynced (e.g. the cache was rebuilt without applying it) must keep triggering
         // a front-end sync. The two queries above only look ahead, so without this an overdue
         // transition would drop out of the threshold and Core::updatePubStatus() would never
-        // run the sync. Pin the threshold to now instead; the predicate mirrors
-        // Core::runPubStatusSync() exactly, so it pins only while that sync still has work to do.
+        // run the sync. Pin the threshold to now instead. Core::runPubStatusSync() applies the
+        // same scopes, so this pins only while that sync still has work to do: a publication
+        // window that has already ended (both dates past, not published) is complete.
         $overduePending = Models\SiteContent::query()
-            ->where(function ($query) {
-                $query->where('published', 0)
-                    ->where('pub_date', '!=', 0)
-                    ->where('pub_date', '<=', $this->request_time);
-            })
-            ->orWhere(function ($query) {
-                $query->where('published', 1)
-                    ->where('unpub_date', '!=', 0)
-                    ->where('unpub_date', '<=', $this->request_time);
-            })
+            ->where(fn ($query) => $query->publishDocuments($this->request_time))
+            ->orWhere(fn ($query) => $query->unPublishDocuments($this->request_time))
             ->exists();
 
         if ($overduePending) {
