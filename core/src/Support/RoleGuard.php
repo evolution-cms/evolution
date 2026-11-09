@@ -40,20 +40,56 @@ class RoleGuard
     }
 
     /**
-     * The grants of a role that give it reach, for mayManageRole(): those of a defined permission
-     * a role may hold or not. A grant of a permission that no longer exists (sites installed with
-     * the earlier default seeders still carry role_actionok) or of an always-on permission, which
-     * a role save stores for every role, is nothing an actor could lack.
+     * Grants that nothing authorizes any more: role_actionok, the lang key the earlier default
+     * seeders granted every role in place of action_ok, and action_ok itself, which nothing checks.
+     * Sites installed with those seeders still carry them; they count on neither side.
+     */
+    public const OBSOLETE = ['role_actionok', 'action_ok'];
+
+    /**
+     * What a role authorizes at runtime: the session of its managers holds every stored grant
+     * (StoreContextService::buildManagerPermissions()), whether or not a permissions row defines
+     * it, so a plugin's own key counts as much as a core one.
+     *
+     * @return string[]
+     */
+    public static function grantsOf(int $roleId): array
+    {
+        $grants = RolePermissions::query()->where('role_id', $roleId)->pluck('permission')->all();
+
+        return array_values(array_unique(array_filter($grants, static fn ($key) => is_string($key) && $key !== '')));
+    }
+
+    /**
+     * The grants of a role that set its reach, for mayManageRole(): grantsOf() without the obsolete
+     * keys and the always-on permissions, which grantablePermissions() stores on every role any
+     * role manager saves, so holding one is nothing an actor could not confer.
      *
      * @return string[]
      */
     public static function reachOf(int $roleId): array
     {
-        return RolePermissions::query()
-            ->where('role_id', $roleId)
-            ->whereIn('permission', Permissions::query()->where('disabled', 0)->select('key'))
-            ->pluck('permission')
-            ->all();
+        $alwaysOn = Permissions::query()->where('disabled', 1)->pluck('key')->all();
+
+        return array_values(array_diff(self::grantsOf($roleId), self::OBSOLETE, $alwaysOn));
+    }
+
+    /**
+     * The keys the acting manager holds, asked of its runtime check for every key a role can carry:
+     * each defined permission and each key any role is granted, custom ones included.
+     *
+     * @param callable(string): mixed $hasPermission the actor's Core::hasPermission()
+     * @return string[]
+     */
+    public static function heldBy(callable $hasPermission): array
+    {
+        $keys = array_merge(
+            Permissions::query()->pluck('key')->all(),
+            RolePermissions::query()->distinct()->pluck('permission')->all()
+        );
+        $keys = array_unique(array_filter($keys, static fn ($key) => is_string($key) && $key !== ''));
+
+        return array_values(array_filter($keys, static fn ($key) => (bool) $hasPermission($key)));
     }
 
     /**

@@ -264,10 +264,7 @@ class UserRole extends AbstractController implements ManagerTheme\PageController
     {
         $core = $this->managerTheme->getCore();
 
-        return array_values(array_filter(
-            Models\Permissions::query()->pluck('key')->all(),
-            static fn ($key) => (bool) $core->hasPermission($key)
-        ));
+        return RoleGuard::heldBy(static fn ($key) => $core->hasPermission($key));
     }
 
     public static function normalizePermissionsPayload(array $permissions, array $requiredPermissions = []): array
