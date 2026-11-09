@@ -115,6 +115,20 @@ function config($key = null, $default = null)
     return $key === 'cms.settings' ? [] : $default;
 }
 
+// the processor drops the theme's compiled stylesheet through the ManagerTheme facade
+$container = new Illuminate\Container\Container();
+$container->instance('ManagerTheme', new class ($site) {
+    public function __construct(private string $site)
+    {
+    }
+
+    public function getThemeDir(): string
+    {
+        return $this->site . '/manager/media/style/default/';
+    }
+});
+Illuminate\Support\Facades\Facade::setFacadeApplication($container);
+
 $notices = [];
 set_error_handler(static function ($severity, $message, $file, $line) use (&$notices) {
     $notices[] = $message . ' @ ' . basename($file) . ':' . $line;
