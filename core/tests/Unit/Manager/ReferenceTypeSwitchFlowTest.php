@@ -48,6 +48,7 @@ it('routes new reference saves by selected type instead of the original mode', f
 it('previews a site-relative weblink or a document id on the site, not under the manager', function () {
     $form = file_get_contents(dirname(__DIR__, 4) . '/manager/actions/mutate_content.dynamic.php');
 
-    expect($form)->toContain("previewUrl = <?= js_json(EVO_SITE_URL . 'index.php?id=') ?> + rawUrl;");
-    expect($form)->toContain('? rawUrl : <?= js_json(EVO_SITE_URL) ?> + rawUrl;');
+    // The weblink is resolved against the site URL; the cases live in preview-target-helper.test.js.
+    expect($form)->toContain('target = rawUrl;')
+        ->and($form)->toContain('evoPreviewTargetHelper.resolve(target, site, window.location.href)');
 });

@@ -4,6 +4,7 @@ use EvolutionCMS\Models\Category;
 use EvolutionCMS\Models\SiteModule;
 use EvolutionCMS\Models\SiteModuleRole;
 use EvolutionCMS\Models\SystemSetting;
+use EvolutionCMS\Services\ComposerEnvironment;
 use EvolutionCMS\Services\ComposerVersionSynchronizer;
 use EvolutionCMS\Services\CustomComposerPackages;
 use EvolutionCMS\Services\Store\RemoteTransportService;
@@ -195,6 +196,25 @@ EXAMPLES;
      */
     public function startUpdate()
     {
+        // An installed archive can still have an authoritative classmap from before this helper existed.
+        if (!class_exists(ComposerEnvironment::class)) {
+            require_once dirname(__DIR__) . '/Services/ComposerEnvironment.php';
+        }
+
+        return (new ComposerEnvironment(EVO_CORE_PATH))->run(fn () => $this->applyUpdate());
+    }
+
+    /**
+     * Download and apply the update inside the installed site's Composer environment.
+     *
+     * Called by startUpdate() so the archive preflight and the later dependency restore
+     * inherit identical authentication, with the caller's environment restored afterwards.
+     *
+     * @return bool False when the update was refused before files were replaced.
+     * @since 3.6.0
+     */
+    protected function applyUpdate()
+    {
         $evo = evo();
         $currentVersion = $evo->getVersionData();
         $currentVersion = is_array($currentVersion) ? $currentVersion : [];
@@ -269,7 +289,6 @@ EXAMPLES;
                 return false;
             }
 
-            $this->configureComposerHome(EVO_CORE_PATH . 'composer');
             $customPackageUpdate = $this->preflightComposer(
                 $temp_dir . '/' . $dir . '/core',
                 $customPackageNames,
@@ -1523,34 +1542,6 @@ EXAMPLES;
     protected function isCommitHash(string $ref): bool
     {
         return preg_match('/^[0-9a-f]{7,40}$/i', $ref) === 1;
-    }
-
-    /**
-     * Keep Composer's normal authentication lookup unless a legacy site auth file is needed.
-     *
-     * An explicit home or inline authentication belongs to the operator. Without
-     * an explicit home, an existing site-local auth.json remains supported unless
-     * inline authentication was supplied. Otherwise Composer resolves its own home,
-     * including XDG_CONFIG_HOME, instead of losing global auth. A worker without HOME
-     * (APPDATA on Windows) still needs the old site-local fallback, even with inline
-     * authentication. No credentials are read, copied or printed by the updater.
-     *
-     * @since 3.6.1
-     * @param string $legacyHome Site-local Composer home used by earlier updaters.
-     * @return void
-     */
-    protected function configureComposerHome(string $legacyHome): void
-    {
-        if (getenv('COMPOSER_HOME') !== false) {
-            return;
-        }
-
-        $authFile = rtrim($legacyHome, '/\\') . '/auth.json';
-        $globalHome = getenv(windows_os() ? 'APPDATA' : 'HOME');
-        if ((getenv('COMPOSER_AUTH') === false && is_file($authFile) && is_readable($authFile))
-            || $globalHome === false || $globalHome === '') {
-            putenv('COMPOSER_HOME=' . $legacyHome);
-        }
     }
 
     /**

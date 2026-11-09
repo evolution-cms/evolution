@@ -71,7 +71,7 @@ class UserRolesTableSeeder extends Seeder
             [
                 'id' => 3,
                 'name'        => 'Publisher',
-                'description' => 'Editor with expanded permissions including manage users, update Elements and site settings',
+                'description' => 'Editor with expanded permissions including manage users and update Elements',
             ]
         ]);
 
@@ -81,7 +81,6 @@ class UserRolesTableSeeder extends Seeder
             ['permission' => 'home', 'role_id' => 1],
             ['permission' => 'widget_recent_info', 'role_id' => 1],
             ['permission' => 'help', 'role_id' => 1],
-            ['permission' => 'role_actionok', 'role_id' => 1],
             ['permission' => 'error_dialog', 'role_id' => 1],
             ['permission' => 'about', 'role_id' => 1],
             ['permission' => 'widget_online_info', 'role_id' => 1],
@@ -140,6 +139,7 @@ class UserRolesTableSeeder extends Seeder
             ['permission' => 'delete_eventlog', 'role_id' => 1],
             ['permission' => 'logs', 'role_id' => 1],
             ['permission' => 'settings', 'role_id' => 1],
+            ['permission' => 'security_settings', 'role_id' => 1],
             ['permission' => 'bk_manager', 'role_id' => 1],
             ['permission' => 'remove_locks', 'role_id' => 1],
             ['permission' => 'display_locks', 'role_id' => 1],
@@ -152,7 +152,6 @@ class UserRolesTableSeeder extends Seeder
             ['permission' => 'home', 'role_id' => 2],
             ['permission' => 'widget_recent_info', 'role_id' => 2],
             ['permission' => 'help', 'role_id' => 2],
-            ['permission' => 'role_actionok', 'role_id' => 2],
             ['permission' => 'error_dialog', 'role_id' => 2],
             ['permission' => 'about', 'role_id' => 2],
             ['permission' => 'widget_online_info', 'role_id' => 2],
@@ -187,7 +186,6 @@ class UserRolesTableSeeder extends Seeder
             ['permission' => 'home', 'role_id' => 3],
             ['permission' => 'widget_recent_info', 'role_id' => 3],
             ['permission' => 'help', 'role_id' => 3],
-            ['permission' => 'role_actionok', 'role_id' => 3],
             ['permission' => 'error_dialog', 'role_id' => 3],
             ['permission' => 'about', 'role_id' => 3],
             ['permission' => 'widget_online_info', 'role_id' => 3],
@@ -221,8 +219,6 @@ class UserRolesTableSeeder extends Seeder
             ['permission' => 'save_user', 'role_id' => 3],
             ['permission' => 'delete_user', 'role_id' => 3],
             ['permission' => 'logs', 'role_id' => 3],
-            ['permission' => 'settings', 'role_id' => 3],
-            ['permission' => 'bk_manager', 'role_id' => 3],
             ['permission' => 'remove_locks', 'role_id' => 3],
             ['permission' => 'display_locks', 'role_id' => 3],
             ['permission' => 'access_permissions', 'role_id' => 3],

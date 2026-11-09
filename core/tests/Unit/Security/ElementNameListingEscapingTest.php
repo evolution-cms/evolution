@@ -27,6 +27,15 @@ it('escapes TV captions, TV names and the template name on the TV sort page', fu
         ->and($source)->not->toContain("\$templatename . '<small>");
 });
 
+it('escapes the role name in the manager user role dropdown', function () {
+    // A user with save_role names a role; the manager user form (a=11/12) lists the roles in a
+    // <select>, and the next visitor is typically an administrator - the option text ran raw.
+    $source = legacyManagerSource('manager/actions/mutate_web_user.dynamic.php');
+
+    expect($source)->toContain("htmlspecialchars(\$row['name']); ?></option>")
+        ->and($source)->not->toContain("?>><?php echo \$row['name']; ?></option>");
+});
+
 it('escapes group names in the access lists', function (string $file, string $expected) {
     expect(legacyManagerSource($file))->toContain($expected);
 })->with([

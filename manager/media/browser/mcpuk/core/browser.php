@@ -1576,7 +1576,13 @@ class browser extends uploader
         if (!fileManagerAclApplies()) {
             return true;
         }
-        $root = rtrim(str_replace('\\', '/', (string) (realpath($this->modx->getConfig('filemanager_path')) ?: realpath(EVO_BASE_PATH))), '/');
+        // the classic manager's root, validated there, as the real path this method compares with
+        $root = fileManagerRoot();
+        $root = $root === null ? false : realpath($root);
+        if ($root === false) {
+            return false;
+        }
+        $root = rtrim(str_replace('\\', '/', $root), '/');
         if (!\EvolutionCMS\Support\FileManagerAccess::isWithin($root, $lexical) || $lexical === $root) {
             return false;
         }
@@ -2188,7 +2194,11 @@ class browser extends uploader
         if (!fileManagerAclApplies()) {
             return true;
         }
-        $root = realpath($this->modx->getConfig('filemanager_path')) ?: realpath(EVO_BASE_PATH);
+        $root = fileManagerRoot();
+        $root = $root === null ? false : realpath($root);
+        if ($root === false) {
+            return false;
+        }
         $relative = \EvolutionCMS\Support\FileManagerAccess::getRelativePath($root, $absPath);
         if ($relative === '') {
             // not under the file manager's root (or the root itself): nothing to compare it with

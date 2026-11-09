@@ -117,13 +117,6 @@ class UserPermissionsTableSeeder extends Seeder
                 'group_id' => 1
             ],
             [
-                'name'     => 'View action completed screen',
-                'lang_key' => 'role_actionok',
-                'key'      => 'action_ok',
-                'disabled' => 1,
-                'group_id' => 1
-            ],
-            [
                 'name'     => 'View error dialog',
                 'lang_key' => 'role_errors',
                 'key'      => 'error_dialog',
@@ -546,6 +539,13 @@ class UserPermissionsTableSeeder extends Seeder
                 'name'     => 'Change site settings',
                 'key'      => 'settings',
                 'lang_key' => 'role_edit_settings',
+                'disabled' => 0,
+                'group_id' => 14
+            ],
+            [
+                'name'     => 'Change security settings',
+                'key'      => 'security_settings',
+                'lang_key' => 'role_security_settings',
                 'disabled' => 0,
                 'group_id' => 14
             ],

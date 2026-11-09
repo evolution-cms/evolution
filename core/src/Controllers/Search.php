@@ -186,11 +186,10 @@ class Search extends AbstractController implements ManagerTheme\PageControllerIn
             'application/vnd.ms-excel' => $this->managerTheme->getStyle('icon_excel'),
         ];
 
-        if (!empty($contentIds)) {
-            $searchQuery = $searchQuery->orWhere(function ($query) use ($contentIds) {
-                $query->whereIn('site_content.id', $contentIds);
-            });
-        }
+        // The TV-matched ids are already OR'd into the search group above, where they
+        // stay subject to the document-group filter. Re-adding them here as a top-level
+        // orWhere would sit outside that filter and leak documents the manager may not
+        // reach, so it is intentionally not repeated.
 
         $searchQuery = $searchQuery->groupBy('site_content.id');
 

@@ -168,6 +168,7 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
 
     </style>
     <script src="<?= revision(MGR_DIR . '/media/script/document-save-helper.js') ?>"></script>
+    <script src="<?= revision(MGR_DIR . '/media/script/preview-target-helper.js') ?>"></script>
     <script type="text/javascript">
       /* <![CDATA[ */
 
@@ -269,18 +270,27 @@ $publishedOnDisplay = $publishedOn === 0 ? ManagerTheme::getLexicon('not_set') :
           }
         },
         view: function() {
-          var previewUrl = '<?= $modx->getConfig('friendly_urls') ? UrlProcessor::makeUrl($id) : EVO_SITE_URL . 'index.php?id=' . $id ?>';
+          var site = <?= js_json(EVO_SITE_URL) ?>;
+          var target = site + 'index.php?id=<?= (int) $id ?>&z=manprev';
           if (getSelectedResourceType() === 'reference') {
             var linkField = document.getElementById('weblink-content');
             var rawUrl = linkField ? linkField.value.trim() : '';
-            if (/^[1-9]\d*$/.test(rawUrl)) {
-              previewUrl = <?= js_json(EVO_SITE_URL . 'index.php?id=') ?> + rawUrl;
-            } else if (rawUrl !== '') {
-              // A site-relative path is anchored to the site, not to the manager page.
-              previewUrl = /^([a-z][a-z0-9+.-]*:|[\/?#\\])/i.test(rawUrl) ? rawUrl : <?= js_json(EVO_SITE_URL) ?> + rawUrl;
+            if (rawUrl !== '') {
+              target = rawUrl;
             }
           }
-          window.open(previewUrl, 'previeWin');
+          // Same-origin content may carry an editor's inline script. Show it in an opaque-origin
+          // sandbox (no allow-same-origin / allow-top-navigation) so it cannot reach the manager
+          // session, read the CSRF meta tag or navigate the manager. The origin is judged on the
+          // parsed URL (preview-target-helper.js); only external http(s) targets open a window.
+          var preview = evoPreviewTargetHelper.resolve(target, site, window.location.href);
+          if (preview.mode === 'sandbox') {
+            openSandboxedPreview(preview.url);
+          } else if (preview.mode === 'window') {
+            window.open(preview.url, 'previeWin', 'noopener,noreferrer');
+          } else {
+            alert(<?= js_json($_lang['preview_unsupported_url']) ?>);
+          }
         }
       };
 
@@ -1678,3 +1688,39 @@ if(((!empty($content['richtext']) && $isDocumentResource) || $modx->getManagerAp
     }
 }
 ?>
+<style>
+#evoPreviewOverlay{position:fixed;inset:0;z-index:100000;background:#fff;display:none}
+#evoPreviewOverlay.is-open{display:block}
+#evoPreviewOverlay .evo-preview-frame{width:100%;height:100%;border:0;display:block}
+#evoPreviewOverlay .evo-preview-close{position:fixed;top:10px;right:14px;z-index:100001;width:36px;height:36px;line-height:34px;text-align:center;font-size:22px;border:0;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;cursor:pointer}
+#evoPreviewOverlay .evo-preview-close:hover{background:rgba(0,0,0,.85)}
+</style>
+<div id="evoPreviewOverlay" role="dialog" aria-label="<?= $modx->getPhpCompat()->htmlspecialchars($_lang['preview']) ?>">
+    <button type="button" class="evo-preview-close" title="<?= $modx->getPhpCompat()->htmlspecialchars($_lang['close']) ?>" aria-label="<?= $modx->getPhpCompat()->htmlspecialchars($_lang['close']) ?>" onclick="closeSandboxedPreview();">&times;</button>
+    <iframe id="evoPreviewFrame" class="evo-preview-frame" src="about:blank" sandbox="allow-scripts allow-forms allow-popups" referrerpolicy="no-referrer"></iframe>
+</div>
+<script>
+// The previewed page runs in an opaque origin (no allow-same-origin), so it cannot read the
+// manager's cookie or CSRF meta tag; no allow-top-navigation, so it cannot move the manager.
+function openSandboxedPreview(url) {
+    var overlay = document.getElementById('evoPreviewOverlay'),
+        frame = document.getElementById('evoPreviewFrame');
+    frame.setAttribute('src', url);
+    overlay.classList.add('is-open');
+    document.documentElement.style.overflow = 'hidden';
+    document.addEventListener('keydown', evoPreviewEsc);
+}
+function closeSandboxedPreview() {
+    var overlay = document.getElementById('evoPreviewOverlay'),
+        frame = document.getElementById('evoPreviewFrame');
+    overlay.classList.remove('is-open');
+    frame.setAttribute('src', 'about:blank');
+    document.documentElement.style.overflow = '';
+    document.removeEventListener('keydown', evoPreviewEsc);
+}
+function evoPreviewEsc(e) {
+    if (e.key === 'Escape' || e.keyCode === 27) {
+        closeSandboxedPreview();
+    }
+}
+</script>
