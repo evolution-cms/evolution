@@ -37,7 +37,9 @@
             @include('manager::page.system_settings.general')
             @include('manager::page.system_settings.friendly_urls')
             @include('manager::page.system_settings.interface')
-            @include('manager::page.system_settings.security')
+            @if($canEditSecuritySettings)
+                @include('manager::page.system_settings.security')
+            @endif
             @include('manager::page.system_settings.file_manager')
             @include('manager::page.system_settings.file_browser')
             @include('manager::page.system_settings.mail_templates')

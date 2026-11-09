@@ -27,6 +27,22 @@ if (isset($_POST['listSubmitted'])) {
     $updateMsg .= '<div class="text-success" id="updated">' . $_lang['sort_updated'] . '</div>';
     if (strlen($items) > 0) {
         $items = explode(';', $items);
+
+        // The posted list is attacker-controlled: it may name documents outside the
+        // sorted folder, private to a group the manager is not in. Checking $id (the
+        // parent) above is not enough, so each reordered id is checked too.
+        $docIds = [];
+        foreach ($items as $value) {
+            $docid = ltrim($value, 'item_');
+            if (is_numeric($docid)) {
+                $docIds[] = (int) $docid;
+            }
+        }
+        $denied = \EvolutionCMS\Support\DocumentCascadeGuard::deniedForSession($docIds);
+        if (!empty($denied)) {
+            evo()->webAlertAndQuit($_lang["access_permission_denied"]);
+        }
+
         foreach ($items as $key => $value) {
             $docid = ltrim($value, 'item_');
             $key = $reset ? 0 : $key;

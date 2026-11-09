@@ -343,6 +343,7 @@ $_lang["role_edit_module"] = 'Modulu redaktə et';
 $_lang["role_edit_plugin"] = 'Plaqin redaktə et';
 $_lang["role_edit_role"] = 'Rol redaktə et';
 $_lang["role_edit_settings"] = 'Sayt ayarlarını dəyiş';
+$_lang["role_security_settings"] = 'Təhlükəsizlik ayarlarını dəyiş';
 $_lang["role_edit_snippet"] = 'Snippet redaktə et';
 $_lang["role_edit_template"] = 'Şablon redaktə et';
 $_lang["role_edit_user"] = 'İstifadəçi redaktə et';
@@ -357,6 +358,7 @@ $_lang["role_frames"] = 'Menecer çərçivələrini tələb et';
 $_lang["role_help"] = 'Kömək səhifələrinə baxış';
 $_lang["role_home"] = 'Menecerin giriş səhifəsinə keçid';
 $_lang["role_import_static"] = 'HTML idxalı';
+$_lang["role_in_use_message"] = 'Bu rol hələ də bir və ya bir neçə istifadəçiyə təyin edilib. Silməzdən əvvəl həmin istifadəçiləri başqa rola təyin edin.';
 $_lang["role_widget_recent_info"] = 'Son redaktə olunan/yaradılan resurslar vidcetinə bax';
 $_lang["role_list_module"] = 'Modulların siyahısı';
 $_lang["role_manage_metatags"] = 'Saytın META teqlərini və açar sözlərini idarə et';
@@ -515,6 +517,7 @@ $_lang["access_permissions_resources_tab"] = 'Mövcud resurs qruplarını görü
 $_lang["access_permissions_user_toggle"] = 'Giriş icazələrini dəyiş';
 $_lang["access_permissions_user_groups"] = 'İstifadəçi qrupları';
 $_lang["access_permissions_user_message"] = 'Bu istifadəçinin aid olduğu istifadəçi qruplarını seçin:';
+$_lang["access_permissions_user_group_locked"] = 'Boz rəngdə göstərilən qruplar sizin üzvü olmadığınız qruplardır. Onları yalnız administrator və ya "Sənəd və istifadəçi qruplarını idarə et" icazəsinə malik menecer dəyişə bilər, ona görə burada yalnız oxumaq üçündür.';
 $_lang["access_permissions_users_in_group"] = 'Qrupdakı istifadəçilər:';
 $_lang["access_permissions_users_tab"] = 'Mövcud istifadəçi qruplarını görün. Yeni qruplar yaradın, adlarını dəyişin, qrupları silin və hansı istifadəçilərin hansı qruplara aid olduğunu görün. İstifadəçini qrupa əlavə etmək və ya çıxarmaq üçün onu birbaşa redaktə edin. Administratorlar (ID-si 1 olan rol təyin edilmiş istifadəçilər) bütün resurslara avtomatik giriş əldə edirlər və onlara xüsusi qruplar təyin etməyə ehtiyac yoxdur.';
 
@@ -1075,6 +1078,7 @@ $_lang["php_version_check"] = 'Evolution CMS PHP 7.4 və daha yüksək versiyala
 $_lang["preview"] = 'Önizləmə';
 $_lang["preview_msg"] = 'Bu, son saxlanılan dəyişikliklərinizin önizləməsidir. Buraya klikləyin: <a href="javascript:;" onclick="saveRefreshPreview();">Saxla və Yenilə</a> cari dəyişikliklərinizi.';
 $_lang["preview_resource"] = 'Resursun önizləməsi';
+$_lang["preview_unsupported_url"] = 'Bu keçidə önizləmə mümkün deyil: idarəetmə panelindən yalnız http və https ünvanları açılır.';
 
 $_lang["private"] = 'Şəxsi';
 $_lang["public"] = 'İctimai';

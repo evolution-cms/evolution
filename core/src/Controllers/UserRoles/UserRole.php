@@ -3,6 +3,7 @@
 use EvolutionCMS\Controllers\AbstractController;
 use EvolutionCMS\Models;
 use EvolutionCMS\Support\ModuleAccess;
+use EvolutionCMS\Support\RoleGuard;
 use EvolutionCMS\Interfaces\ManagerTheme;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent;
@@ -37,6 +38,15 @@ class UserRole extends AbstractController implements ManagerTheme\PageController
     {
         if(isset($_GET['action']) && $_GET['action'] == 'delete' ){
             $id = $this->getElementId();
+            if (!$this->managerTheme->getCore()->hasPermission('delete_role')) {
+                $this->managerTheme->alertAndQuit('error_no_privileges');
+            }
+            $this->guardRoleReach($id);
+            // Refuse to delete a role still assigned to users: the delete does not reassign
+            // them, so they would be left pointing at a role that no longer exists.
+            if (Models\UserAttribute::where('role', $id)->exists()) {
+                $this->managerTheme->alertAndQuit('role_in_use_message');
+            }
             Models\RolePermissions::query()->where('role_id', $id)->delete();
             Models\SiteModuleRole::query()->where('role', $id)->delete();
             Models\UserRoleVar::where('roleid', $id)->delete();
@@ -58,6 +68,9 @@ class UserRole extends AbstractController implements ManagerTheme\PageController
         if (!$this->managerTheme->getCore()->hasPermission('save_role')) {
             $this->managerTheme->alertAndQuit('error_no_privileges');
         }
+        $actorRole = (int) ($_SESSION['mgrRole'] ?? 0);
+        $actorPermissions = $this->actorPermissions();
+        $this->guardRoleReach($id, $actorRole, $actorPermissions);
         if (!isset($_POST['name']) || $_POST['name'] == '') {
             $this->managerTheme->getCore()->getManagerApi()->saveFormValues();
             $this->managerTheme->getCore()->webAlertAndQuit("Please enter a name for this role!", "index.php?a={$mode}" . ($mode = 35 ? "&id={$id}" : ""));
@@ -77,8 +90,16 @@ class UserRole extends AbstractController implements ManagerTheme\PageController
             $requiredPermissions
         );
 
+        // Store only permissions the actor itself holds, so a role cannot be lifted past its author.
+        $grantable = RoleGuard::grantablePermissions(
+            $actorRole,
+            $actorPermissions,
+            array_keys($selectedPermissions),
+            $requiredPermissions
+        );
+
         Models\RolePermissions::query()->where('role_id', $role->getKey())->delete();
-        foreach (array_keys($selectedPermissions) as $key) {
+        foreach ($grantable as $key) {
             Models\RolePermissions::create(['role_id' => $role->getKey(), 'permission' => $key]);
         }
 
@@ -214,6 +235,39 @@ class UserRole extends AbstractController implements ManagerTheme\PageController
         }
 
         return $selected;
+    }
+
+    /**
+     * Refuse to create, edit or delete a role the actor may not reach: the administrator role, or
+     * a role already holding a permission the actor itself lacks.
+     *
+     * @param int|null $actorRole
+     * @param string[]|null $actorPermissions
+     */
+    protected function guardRoleReach(int $id, ?int $actorRole = null, ?array $actorPermissions = null): void
+    {
+        $actorRole = $actorRole ?? (int) ($_SESSION['mgrRole'] ?? 0);
+        $actorPermissions = $actorPermissions ?? $this->actorPermissions();
+        $targetPermissions = Models\RolePermissions::query()->where('role_id', $id)->pluck('permission')->all();
+
+        if (!RoleGuard::mayManageRole($actorRole, $actorPermissions, $id, $targetPermissions)) {
+            $this->managerTheme->alertAndQuit('error_no_privileges');
+        }
+    }
+
+    /**
+     * The permission keys the acting manager holds.
+     *
+     * @return string[]
+     */
+    protected function actorPermissions(): array
+    {
+        $core = $this->managerTheme->getCore();
+
+        return array_values(array_filter(
+            Models\Permissions::query()->pluck('key')->all(),
+            static fn ($key) => (bool) $core->hasPermission($key)
+        ));
     }
 
     public static function normalizePermissionsPayload(array $permissions, array $requiredPermissions = []): array

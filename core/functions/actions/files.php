@@ -104,6 +104,31 @@ if(!function_exists('fileManagerDenied')) {
     }
 }
 
+if(!function_exists('fileManagerRoot')) {
+    /**
+     * The folder the current manager's file manager works in. A manager's own filemanager_path
+     * (a user setting) may narrow the site-wide root, never widen it: it is used only when
+     * fileManagerCanonicalPath(), the rule every path below the root is held to, names it inside
+     * the site-wide root. Otherwise the site-wide root is used, and when that does not resolve
+     * either the answer is null: callers refuse rather than fall back to the site folder.
+     *
+     * @return string|null forward slashes, no trailing slash
+     */
+    function fileManagerRoot()
+    {
+        $evo = evolutionCMS();
+        $system = $evo->configGlobal['filemanager_path'] ?? $evo->getConfig('filemanager_path');
+        $system = realpath(str_replace('[(base_path)]', EVO_BASE_PATH, (string) $system));
+        if ($system === false) {
+            return null;
+        }
+        $system = rtrim(str_replace('\\', '/', $system), '/');
+        $own = fileManagerCanonicalPath($evo->getConfig('filemanager_path'));
+
+        return $own !== false && FileManagerAccess::isWithin($system, $own) ? $own : $system;
+    }
+}
+
 if(!function_exists('fileManagerAclKey')) {
     /**
      * The file_groups key of a path given relative to the current manager's file manager root.
@@ -117,8 +142,8 @@ if(!function_exists('fileManagerAclKey')) {
     {
         static $roots = null;
         if ($roots === null) {
-            $userRoot = fileManagerCanonicalPath(evolutionCMS()->getConfig('filemanager_path')) ?: realpath(EVO_BASE_PATH);
-            $roots = [FileManagerAccess::aclRoot(), rtrim(str_replace('\\', '/', $userRoot), '/')];
+            $aclRoot = FileManagerAccess::aclRoot();
+            $roots = [$aclRoot, fileManagerRoot() ?? $aclRoot];
         }
 
         return FileManagerAccess::aclKey($roots[0], $roots[1], $relativePath);
