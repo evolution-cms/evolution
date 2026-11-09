@@ -42,6 +42,7 @@ $_lang["access_permissions_resources_in_group"] = '<b>Dokumenty w grupie:</b> ';
 $_lang["access_permissions_resources_tab"] = 'Tutaj możesz zobaczyć jakie grupy dokumentów zostały stworzone. Możesz także stworzyć nowe grupy, zmieniać nazwy, usuwać i sprawdzać które dokumenty należą do danej grupy (najedź kursorem na ID dokumentu, aby zobaczyć jego nazwę). Aby dodać dokument do grupy albo usunąć go z grupy, edytuj dokument bezpośrednio.';
 $_lang["access_permissions_user_groups"] = 'Grupy użytkowników';
 $_lang["access_permissions_user_message"] = 'Wybierz do których grup należy ten użytkownik:';
+$_lang["access_permissions_user_group_locked"] = 'Grupy wyświetlone na szaro znajdują się poza Twoim członkostwem. Mogą je zmieniać tylko administrator lub menedżer z uprawnieniem "Zarządzanie grupami dokumentów i użytkowników", dlatego tutaj są tylko do odczytu.';
 $_lang["access_permissions_users_in_group"] = '<b>Użytkownicy w grupie:</b> ';
 $_lang["access_permissions_users_tab"] = 'Tutaj możesz zobaczyć jakie grupy użytkowników zostały stworzone. Możesz także stworzyć nowe grupy, zmieniać nazwy, usuwać i sprawdzać którzy użytkownicy należą do danej grupy. Aby dodać nowego użytkownika do grupy albo usunać go z grupy, edytuj tego użytkownika bezpośrednio. Administratorzy (ID Roli 1) zawsze mają dostęp do wszystkich dokumentów, więc nie muszą być przypisani do żadnej grupy.';
 $_lang["account_email"] = 'Konto e-mail';

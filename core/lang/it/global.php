@@ -41,6 +41,7 @@ $_lang["access_permissions_resources_in_group"] = '<b>Risorse nel gruppo:</b> ';
 $_lang["access_permissions_resources_tab"] = 'Qui potete vedere i Gruppi di Risorse che sono stati impostati. Potete anche crearne di nuovi, rinominarli, eliminarli e vedere quali Risorse sono presenti nei differenti gruppi (posizionate il mouse sull\'ID della Risorsa per vederne il nome). Per aggiungere una Risorsa ad un gruppo o per rimuoverla da un gruppo, modificate direttamente la Risorsa.';
 $_lang["access_permissions_user_groups"] = 'Gruppi di Utenti';
 $_lang["access_permissions_user_message"] = 'Qui potete selezionare a quali Gruppi di Utenti appartiene l\'utente:';
+$_lang["access_permissions_user_group_locked"] = 'I gruppi mostrati in grigio sono al di fuori della tua appartenenza. Solo un amministratore o un gestore con l\'autorizzazione "Gestisci gruppi di documenti e utenti" può modificarli, quindi qui sono di sola lettura.';
 $_lang["access_permissions_users_in_group"] = '<b>Utenti del gruppo:</b> ';
 $_lang["access_permissions_users_tab"] = 'Qui potete vedere i Gruppi di Utenti che sono stati impostati. Potete anche crearne di nuovi, rinominarli, eliminarli e vedere quali utenti fanno parte dei differenti gruppi. Per aggiungere un nuovo utente a un gruppo o per rimuoverlo da un gruppo, modificate direttamente l\'utente. Gli amministratori (utenti a cui è assegnato il Ruolo con ID 1) hanno sempre accesso a tutte le Risorse, quindi non hanno necessità di essere aggiunti ad alcun gruppo.';
 $_lang["account_email"] = 'Indirizzo email';
